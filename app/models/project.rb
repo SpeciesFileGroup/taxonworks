@@ -71,6 +71,7 @@ class Project < ApplicationRecord
      Container
      PublicContent
      Content
+     Gazetteer
      Georeference
      Identifier
      Lead

@@ -71,13 +71,13 @@ class Georeference::VerbatimData < Georeference
       georeferenceRemarks: "Derived from a instance of TaxonWorks' Georeference::VerbatimData.",
       geodeticDatum: nil  # TODO: check
     )
-    h[:georeferenceProtocol] = 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).' if h[:georeferenceProtocol].blank?  
+    h[:georeferenceProtocol] = 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).' if h[:georeferenceProtocol].blank?
     h
   end
 
   # @return [Boolean]
-  #    true if geographic_item.geo_object is completely contained in collecting_event.geographic_area
-  # .default_geographic_item
+  #    true if geographic_item.geo_object is within `distance` of
+  #    collecting_event.geographic_area
   def check_obj_within_distance_from_area(distance)
     # case 6
     retval = true

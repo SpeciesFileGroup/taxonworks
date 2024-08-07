@@ -65,7 +65,7 @@ namespace :tw do
           expected_diff = '010700000000000000' # ?
           IMPORT_TABLES.each_key do |t|
             GeographicAreasGeographicItem.where(data_origin: t.to_s).limit(9).each do |i|
-              if i.geographic_item.valid_geometry?
+              if i.geographic_item.st_is_valid
                 a    = "SELECT St_AsBinary(geom)          FROM #{i.data_origin} WHERE gid = #{i.origin_gid}"
                 b    = "SELECT St_AsBinary(multi_polygon) FROM geographic_items WHERE id  = #{i.geographic_item_id}"
                 sql1 = "SELECT St_SymDifference((#{a}), (#{b}));"

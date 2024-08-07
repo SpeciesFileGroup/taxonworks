@@ -1,6 +1,7 @@
 <template>
   <div>
     <button
+      :disabled="disabled"
       class="button normal-input button-default"
       @click="setModalView(true)"
     >
@@ -11,7 +12,7 @@
       @close="setModalView(false)"
     >
       <template #header>
-        <h3>Create WKT georeference</h3>
+        <slot name="header"><h3>Create WKT georeference</h3></slot>
       </template>
       <template #body>
         <div class="field label-above">
@@ -39,9 +40,29 @@
 <script>
 import ModalComponent from '@/components/ui/Modal'
 import { GEOREFERENCE_WKT } from '@/constants/index.js'
+import { props } from 'vue-handy-scroll'
 
 export default {
   components: { ModalComponent },
+
+  props: {
+    type: {
+      type: String,
+      default: GEOREFERENCE_WKT
+    },
+    idKey: {
+      type: String,
+      default: 'tmpId'
+    },
+    idGenerator: {
+      type: Function,
+      default: () => Math.random().toString(36).substr(2, 5)
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    }
+  },
 
   emits: ['create'],
 
@@ -55,9 +76,9 @@ export default {
   methods: {
     createShape() {
       this.$emit('create', {
-        tmpId: Math.random().toString(36).substr(2, 5),
+        [this.idKey]: (this.idGenerator)(),
         wkt: this.wkt,
-        type: GEOREFERENCE_WKT
+        type: this.type
       })
       this.show = false
     },

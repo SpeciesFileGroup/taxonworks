@@ -11,7 +11,7 @@ module Queries
   # acceptable params, dynamically, based on the nature
   # of the nested queries.
   #
-  # Test coverage is currently in /spec/lib/queries/otu/filter_spec.rb.
+  # Test coverage is currently in /spec/lib/queries/.
   #
   # !! When adding a new query tests do some linting of parameters, constants etc. Run them early and often !!
   #
@@ -273,7 +273,6 @@ module Queries
       else
         raise TaxonWorks::Error, "can not initialize filter with #{query_params.class.name}"
       end
-
       set_identifier_params(params)
       set_nested_queries(params)
       set_user_dates(params)

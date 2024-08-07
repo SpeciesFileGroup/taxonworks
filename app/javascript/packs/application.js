@@ -107,6 +107,7 @@ import '../vue/tasks/otus/new_otu/main.js'
 import '../vue/tasks/leads/hub/main.js'
 import '../vue/tasks/data_attributes/field_synchronize/main.js'
 import '../vue/tasks/observation_matrices/import_nexus/main.js'
-
 import '../vue/tasks/dwc_occurrences/filter/main.js'
+import '../vue/tasks/gazetteers/new_gazetteer/main.js'
+import '../vue/tasks/gazetteers/import_gazetteers/main.js'
 import '../vue/tasks/images/new_filename_depicting_image/main.js'
