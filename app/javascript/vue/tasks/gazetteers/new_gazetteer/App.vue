@@ -1,4 +1,5 @@
 <template>
+  <VSpinner v-if="isLoading" />
   <NavBar
     :gz="gz"
     :save-disabled="saveDisabled"
@@ -52,23 +53,28 @@
   </div>
 
   <OtherInputs
-    :inputs-disabled="!!gz.id"
+    :inputs-disabled="shapeEditingDisabled"
     @new-shape="(data, type) => addToShapes(data, type)"
   />
 
   <Leaflet
     :shapes="leafletShapes"
     @shapes-updated="(shape) => addToShapes(shape, GZ_LEAFLET)"
-    :editing-disabled="!!gz.id"
+    :editing-disabled="shapeEditingDisabled"
+  />
+
+  <Preview
+    v-model="previewing"
+    :preview-disabled="previewDisabled"
   />
 
   <OtherInputs
-    :inputs-disabled="!!gz.id"
+    :inputs-disabled="shapeEditingDisabled"
     @new-shape="(data, type) => addToShapes(data, type)"
   />
 
   <UnionInput
-    :inputs-disabled="!!gz.id"
+    :inputs-disabled="shapeEditingDisabled"
     @new-shape="(data, type) => addToShapes(data, type)"
   />
 
@@ -76,7 +82,7 @@
     class="geolist"
     :list="shapes"
     @delete="(shape) => removeFromShapes(shape)"
-    :editing-disabled="!!gz.id"
+    :editing-disabled="shapeEditingDisabled"
   />
 </template>
 
@@ -85,10 +91,12 @@ import DisplayList from './components/DisplayList.vue'
 import Leaflet from './components/Leaflet.vue'
 import NavBar from './components/NavBar.vue'
 import OtherInputs from './components/OtherInputs.vue'
+import Preview from './components/Preview.vue'
 import UnionInput from './components/UnionInput.vue'
 import SetParam from '@/helpers/setParam'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { Gazetteer } from '@/routes/endpoints'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { randomUUID } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import { removeFromArray } from '@/helpers/arrays'
@@ -103,14 +111,41 @@ import {
 } from '@/constants/index.js'
 
 const shapes = ref([])
+const previewing = ref(false)
+const previewShape = ref(null)
 const gz = ref({})
+const isLoading = ref(false)
+
 const leafletShapes = computed(() => {
-  return shapes.value.map((item) => item.shape)
+  if (previewing.value && previewShape.value) {
+    return [previewShape.value.shape]
+  } else {
+    return shapes.value.map((item) => item.shape)
+  }
 })
 
 const saveDisabled = computed(() => {
   return !(gz.value.name) || shapes.value.length == 0
 })
+
+const shapeEditingDisabled = computed(() =>{
+  return previewing.value || !!gz.value.id
+})
+
+const previewDisabled = computed(() => {
+  return !!gz.value.id || shapes.value.length < 2
+})
+
+watch(
+  previewing,
+  (newVal) => {
+    if (newVal) {
+      previewGz()
+    } else {
+      previewShape.value = null
+    }
+  }
+)
 
 const { gazetteer_id } = URLParamsToJSON(location.href)
 
@@ -144,7 +179,7 @@ function saveGz() {
 // them for display on leaflet, without saving them to GZ - for unions and wkt
 // mostly
 
-function saveNewGz() {
+function combineShapesToGz() {
   const geojson = shapes.value
     .filter((item) => item.type == GZ_LEAFLET)
     .map((item) => JSON.stringify(item.shape))
@@ -178,16 +213,38 @@ function saveNewGz() {
     }
   }
 
+  return gazetteer
+}
+
+function previewGz() {
+  const gazetteer = combineShapesToGz()
+  isLoading.value = true
+  Gazetteer.preview({ gazetteer })
+    .then(({ body }) => {
+      previewShape.value =
+      {
+        shape: body.shape,
+        type: GZ_LEAFLET,
+        uuid: randomUUID()
+      }
+    })
+    .catch(() => {})
+    .finally(() => { isLoading.value = false})
+}
+
+function saveNewGz() {
+  const gazetteer = combineShapesToGz()
+
   Gazetteer.create({ gazetteer })
     .then(({ body }) => {
       gz.value = body
       shapes.value = [
-      {
-        shape: gz.value.shape,
-        type: GZ_LEAFLET,
-        uuid: randomUUID()
-      }
-    ]
+        {
+          shape: gz.value.shape,
+          type: GZ_LEAFLET,
+          uuid: randomUUID()
+        }
+      ]
       SetParam(RouteNames.NewGazetteer, 'gazetteer_id', gz.value.id)
       TW.workbench.alert.create('New gazetteer created.', 'notice')
     })
