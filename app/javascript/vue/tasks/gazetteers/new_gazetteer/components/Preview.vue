@@ -1,7 +1,5 @@
 <template>
-  <!-- TODO? Currently we fetch the preview shape everytime the box is checked,
-  whether anything has changed or not -->
-  <div class="lmap">
+  <div class="match-lmap">
     <label>
       <input
         type="checkbox"
@@ -28,7 +26,8 @@ const previewing = defineModel()
 </script>
 
 <style lang="scss" scoped>
-.lmap {
+// Should be the same as the lmap css
+.match-lmap {
   max-width: 80vw;
   margin: 0px auto 2em auto;
 }

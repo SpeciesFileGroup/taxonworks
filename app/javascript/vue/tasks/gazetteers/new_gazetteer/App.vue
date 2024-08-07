@@ -170,8 +170,6 @@ watch(
   (newVal) => {
     if (newVal) {
       previewGz()
-    } else {
-      previewShape.value = null
     }
   }
 )
@@ -241,7 +239,16 @@ function combineShapesToGz() {
   return gazetteer
 }
 
+function shapesUpdated() {
+  // Bust the preview cache
+  previewShape.value = null
+}
+
 function previewGz() {
+  if (previewShape.value) {
+    return
+  }
+
   const gazetteer = combineShapesToGz()
   isLoading.value = true
   Gazetteer.preview({ gazetteer })
@@ -271,6 +278,7 @@ function saveNewGz() {
         }
       ]
       SetParam(RouteNames.NewGazetteer, 'gazetteer_id', gz.value.id)
+      shapesUpdated()
       TW.workbench.alert.create('New gazetteer created.', 'notice')
     })
     .catch(() => {})
@@ -293,6 +301,8 @@ function updateGz() {
 
 function reset() {
   shapes.value = []
+  previewing.value = false
+  previewShape.value = null
   gz.value = {}
   SetParam(RouteNames.NewGazetteer, 'gazetteer_id')
 }
@@ -343,10 +353,12 @@ function addToShapes(shape, type) {
         shape
       })
   }
+  shapesUpdated()
 }
 
 function removeFromShapes(shape) {
   removeFromArray(shapes.value, shape, { property: 'uuid' })
+  shapesUpdated()
 }
 
 </script>
