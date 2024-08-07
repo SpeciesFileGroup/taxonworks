@@ -125,7 +125,36 @@ const leafletShapes = computed(() => {
 })
 
 const saveDisabled = computed(() => {
-  return !(gz.value.name) || shapes.value.length == 0
+  const numShapes = shapes.value.length
+  if (!(gz.value.name) || numShapes == 0) {
+    return true
+  }
+
+  if (numShapes > 1) {
+    return false
+  }
+
+  // We're not allowing save of a single GA or GZ (i.e. cloning) - use alternate
+  // names for that
+  // TODO: provide an info triangle in this case?
+  let gaCount = 0
+  let gzCount = 0
+
+  shapes.value.forEach((s) => {
+    switch(s.type) {
+      case GZ_UNION_GA:
+        gaCount += 1
+        break
+      case GZ_UNION_GZ:
+        gzCount += 1
+        break
+    }
+  })
+
+  const oneSoleGA = numShapes == 1 && gaCount == 1
+  const oneSoleGZ = numShapes == 1 && gzCount == 1
+
+  return  oneSoleGA || oneSoleGZ
 })
 
 const shapeEditingDisabled = computed(() =>{
@@ -174,10 +203,6 @@ function saveGz() {
     saveNewGz()
   }
 }
-
-// TODO Add Preview button? To send existing listed shapes to server and return
-// them for display on leaflet, without saving them to GZ - for unions and wkt
-// mostly
 
 function combineShapesToGz() {
   const geojson = shapes.value
