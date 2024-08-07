@@ -86,10 +86,11 @@ class Gazetteer < ApplicationRecord
     begin
       rgeo_shape = self.class.combine_shapes_to_rgeo(shapes)
     # TODO make sure these errors work
+    # This is more specific than RGeo::Error::RgeoError
+    rescue RGeo::Error::InvalidGeometry => e
+      errors.add(:base, e)
     rescue RGeo::Error::RGeoError => e
       errors.add(:base, e)
-    rescue RGeo::Error::InvalidGeometry => e
-      errors.add(:base, "Invalid geometry: #{e}")
     rescue TaxonWorks::Error => e
       errors.add(:base, e)
     end
@@ -121,6 +122,16 @@ class Gazetteer < ApplicationRecord
     gz_rgeo = convert_gz_to_rgeo(shapes['gz_union'])
 
     shapes = leaflet_rgeo + wkt_rgeo + points_rgeo + ga_rgeo + gz_rgeo
+
+    # Invalid shapes won't raise until they're used in an operation requiring
+    # valid shapes, like union below, but we should check here before that
+    # happens.
+    shapes.each { |s|
+      if !s.valid?
+        shape_to_s = s.to_s.length > 30 ? s.to_s + '...' : s.to_s
+        raise RGeo::Error::InvalidGeometry, "#{s.invalid_reason} #{shape_to_s}"
+      end
+    }
 
     combine_rgeo_shapes(shapes)
   end
