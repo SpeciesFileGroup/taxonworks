@@ -16,9 +16,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Comprehensive Specimen Digitization: Prevent user add duplicate types for type materials [#4002]
 
-### Fixed 
+### Fixed
 
 - Fixed Loan rendering when `date_sent` is blank [#4001]
+- New combination: Links in `Other matches`panel didn't work
 
 [#4001]: https://github.com/SpeciesFileGroup/taxonworks/issues/4001
 [#4002]: https://github.com/SpeciesFileGroup/taxonworks/issues/4002
