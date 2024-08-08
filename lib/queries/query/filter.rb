@@ -296,7 +296,7 @@ module Queries
     def recent_target
       return :updated_at if @recent_target.blank?
       r = @recent_target.to_s.downcase.to_sym
-      return :updated_ at unless [:updated_at, :created_at].include?(r)
+      return :updated_at unless [:updated_at, :created_at].include?(r)
       r
     end
 
