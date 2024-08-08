@@ -137,7 +137,14 @@ const {
 } = useFieldSync()
 
 function addUserPredicate({ id, name }) {
-  userPredicates.value.push({ [id]: name })
+  const isAlreadyAdded = userPredicates.value.some(
+    (item) => Number(Object.keys(item)[0]) === id
+  )
+
+  if (!isAlreadyAdded) {
+    userPredicates.value.push({ [id]: name })
+  }
+
   loadPage(currentPage.value)
   selectedPredicates.value.push({ id, name })
 }
