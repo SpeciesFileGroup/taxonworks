@@ -7,9 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Field Synchronize: Add `all` button to predicates selector [#4005]
+
 ### Changed
 
 - CSD: Prevent user add duplicate types for type materials [#4002]
+
+[#4005]: https://github.com/SpeciesFileGroup/taxonworks/issues/4005
 
 ## [0.43.1] - 2024-08-04
 
