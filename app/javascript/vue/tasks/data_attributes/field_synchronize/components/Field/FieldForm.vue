@@ -15,6 +15,7 @@
         />
         <ModalPredicates
           :predicates="predicates"
+          :selected-predicates="selectedPredicates"
           @select="(item) => emit('user-predicate', item)"
         />
       </div>

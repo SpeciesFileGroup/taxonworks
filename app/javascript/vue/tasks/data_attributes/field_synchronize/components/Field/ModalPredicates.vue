@@ -30,8 +30,9 @@
         >
           <VBtn
             v-if="
-              !inputValue.length ||
-              item.name.toLowerCase().includes(inputValue.toLowerCase())
+              (!inputValue.length ||
+                item.name.toLowerCase().includes(inputValue.toLowerCase())) &&
+              !selectedPredicates.some((p) => p.id === item.id)
             "
             color="primary"
             @click="() => onPredicateSelected(item)"
@@ -54,6 +55,11 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 
 defineProps({
   predicates: {
+    type: Array,
+    required: true
+  },
+
+  selectedPredicates: {
     type: Array,
     required: true
   }

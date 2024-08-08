@@ -141,11 +141,11 @@ function addUserPredicate({ id, name }) {
     (item) => Number(Object.keys(item)[0]) === id
   )
 
-  if (!isAlreadyAdded) {
+  if (!isAlreadyAdded && !predicates.value.some((p) => p.id === id)) {
     userPredicates.value.push({ [id]: name })
+    loadPage(currentPage.value)
   }
 
-  loadPage(currentPage.value)
   selectedPredicates.value.push({ id, name })
 }
 </script>
