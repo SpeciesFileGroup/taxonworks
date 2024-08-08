@@ -9,12 +9,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Field Synchronize: Add `all` button to predicates selector [#4005]
+- `all` button to predicate selector in Field Synchronize [#4005]
+- `recent_target` parameter to filters, one of `updated_at` (default) or `created_at` [#4004]
 
 ### Changed
 
-- CSD: Prevent user add duplicate types for type materials [#4002]
+- Comprehensive Specimen Digitization: Prevent user add duplicate types for type materials [#4002]
 
+### Fixed 
+
+- Fixed Loan rendering when `date_sent` is blank [#4001]
+
+[#4001]: https://github.com/SpeciesFileGroup/taxonworks/issues/4001
+[#4002]: https://github.com/SpeciesFileGroup/taxonworks/issues/4002
+[#4004]: https://github.com/SpeciesFileGroup/taxonworks/issues/4004
 [#4005]: https://github.com/SpeciesFileGroup/taxonworks/issues/4005
 
 ## [0.43.1] - 2024-08-04
