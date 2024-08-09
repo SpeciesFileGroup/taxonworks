@@ -1,13 +1,16 @@
 <div id="header_bar" class="flexbox <%= navbar_css -%> <%= sandbox_css -%>"> 
   <div class="horizontal-left-content item item1">
-    <div
-      id="taxonworks_left"
-      class="horizontal-left-content align-end gap-small">
-        <%= link_to(content_tag(:div, '', id: :taxonworks_logo), root_path) -%> 
-        <%= development_header_tag -%>
-        <%= taxonworks_version_tag -%>
-        <%= sandbox_details_tag -%>
-        <%= issue_tracker_tag %>
+    <div class=" horizontal-left-content padding-small-top padding-small-bottom">
+      <%= link_to(content_tag(:div, '', id: :taxonworks_logo), root_path) -%> 
+      <div class="horizontal-vertical-content margin-small-left">
+        <div class="horizontal-left-content align-end gap-small">
+          <%= development_header_tag -%>
+          <%= taxonworks_version_tag -%>
+          <%= sandbox_details_tag -%>
+          <%= issue_tracker_tag %>
+        </div>
+        <%= sandbox_warning_tag -%>
+      </div>
     </div>
   </div>
 
