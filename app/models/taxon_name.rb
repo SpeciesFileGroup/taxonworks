@@ -1282,8 +1282,14 @@ class TaxonName < ApplicationRecord
   def get_full_name
     return name_with_misspelling(nil) if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if rank_class.to_s =~ /Icvcn/
+
+    # Means we never update Combination names when Combination is present.
     return verbatim_name if verbatim_name.present? && is_combination?
 
+    full_name
+  end
+
+  def full_name
     d = full_name_hash
 
     elements = []
@@ -1303,6 +1309,7 @@ class TaxonName < ApplicationRecord
 
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
     elements.presence # nill on empty, false
+
   end
 
   # @return String

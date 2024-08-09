@@ -11,6 +11,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - `all` button to predicate selector in Field Synchronize [#4005]
 - `recent_target` parameter to filters, one of `updated_at` (default) or `created_at` [#4004]
+- `verbatim_name` facet to Filter Nomenclature
+- Soft validation (and fix) identifying redudant use of `verbatim_name` in Combinations
 
 ### Changed
 
