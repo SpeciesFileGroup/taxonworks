@@ -28,7 +28,7 @@
             class="no_bullets"
           >
             <li
-              class="horizontal-left-content align-start"
+              class="horizontal-left-content align-start gap-small"
               v-for="(error, index) in list.soft_validations"
               :key="index"
             >
@@ -40,7 +40,11 @@
                 arrow
                 :content="error.description"
               >
-                <span data-icon="warning" />
+                <VIcon
+                  name="attention"
+                  color="attention"
+                  x-small
+                />
               </tippy>
               <span>
                 <button
@@ -92,60 +96,54 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { SoftValidation } from '@/routes/endpoints'
 import { Tippy } from 'vue-tippy'
+import { computed } from 'vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
-export default {
-  components: { Tippy },
-
-  props: {
-    validations: {
-      type: Object,
-      required: true
-    }
-  },
-
-  computed: {
-    validationSections() {
-      return Object.values(this.validations).filter((item) => item.list.length)
-    }
-  },
-
-  methods: {
-    runFix(fixItems) {
-      const promises = fixItems.map((params) =>
-        SoftValidation.fix(params.global_id, params)
-      )
-
-      Promise.all(promises).then((responses) => {
-        const softValidations = responses.map((r) => r.body.soft_validations)
-        const notFixed = []
-          .concat(...softValidations)
-          .filter((validation) => validation.fixed === 'fix_error')
-
-        if (notFixed.length) {
-          TW.workbench.alert.create(
-            notFixed.map((f) => f.failure_message).join('; '),
-            'error'
-          )
-        } else {
-          location.reload()
-        }
-      })
-    },
-
-    getFixPresent(list) {
-      return list
-        .map((item) => ({
-          global_id: item.instance.global_id,
-          only_methods: item.soft_validations
-            .filter((v) => v.fixable)
-            .map((item) => item.soft_validation_method)
-        }))
-        .filter((item) => item.only_methods.length)
-    }
+const props = defineProps({
+  validations: {
+    type: Object,
+    required: true
   }
+})
+
+const validationSections = computed(() =>
+  Object.values(props.validations).filter((item) => item.list.length)
+)
+
+function runFix(fixItems) {
+  const promises = fixItems.map((params) =>
+    SoftValidation.fix(params.global_id, params)
+  )
+
+  Promise.all(promises).then((responses) => {
+    const softValidations = responses.map((r) => r.body.soft_validations)
+    const notFixed = []
+      .concat(...softValidations)
+      .filter((validation) => validation.fixed === 'fix_error')
+
+    if (notFixed.length) {
+      TW.workbench.alert.create(
+        notFixed.map((f) => f.failure_message).join('; '),
+        'error'
+      )
+    } else {
+      location.reload()
+    }
+  })
+}
+
+function getFixPresent(list) {
+  return list
+    .map((item) => ({
+      global_id: item.instance.global_id,
+      only_methods: item.soft_validations
+        .filter((v) => v.fixable)
+        .map((item) => item.soft_validation_method)
+    }))
+    .filter((item) => item.only_methods.length)
 }
 </script>
 <style lang="scss" scope>
