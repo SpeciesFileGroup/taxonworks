@@ -46,47 +46,44 @@
                   x-small
                 />
               </tippy>
-              <span>
-                <button
-                  v-if="error.fixable"
-                  type="button"
-                  class="button button-submit"
-                  @click="
-                    runFix([
-                      {
-                        global_id: list.instance.global_id,
-                        only_methods: [error.soft_validation_method]
-                      }
-                    ])
-                  "
+
+              <button
+                v-if="error.fixable"
+                type="button"
+                class="button button-submit"
+                @click="
+                  runFix([
+                    {
+                      global_id: list.instance.global_id,
+                      only_methods: [error.soft_validation_method]
+                    }
+                  ])
+                "
+              >
+                Fix
+              </button>
+              <span v-html="error.message" />
+              <template
+                v-for="(resolution, rIndex) in error.resolution"
+                :key="rIndex"
+              >
+                <tippy
+                  class="d-inline-block"
+                  animation="scale"
+                  placement="bottom"
+                  size="small"
+                  inertia
+                  arrow
+                  content="Fixable here (may leave page)"
                 >
-                  Fix
-                </button>
-                <span>
-                  <span v-html="error.message" />
-                  <template
-                    v-for="(resolution, rIndex) in error.resolution"
-                    :key="rIndex"
-                  >
-                    <tippy
-                      class="d-inline-block"
-                      animation="scale"
-                      placement="bottom"
-                      size="small"
-                      inertia
-                      arrow
-                      content="Fixable here (may leave page)"
-                    >
-                      <a :href="resolution">
-                        <span
-                          class="small-icon icon-without-space"
-                          data-icon="blue_wrench"
-                        />
-                      </a>
-                    </tippy>
-                  </template>
-                </span>
-              </span>
+                  <a :href="resolution">
+                    <span
+                      class="small-icon icon-without-space"
+                      data-icon="blue_wrench"
+                    />
+                  </a>
+                </tippy>
+              </template>
             </li>
           </ul>
           <hr v-if="index !== validationSections.length - 1" />
