@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Comprehensive Specimen Digitization: Prevent user add duplicate types for type materials [#4002]
+- Improved visual differentiation of Sandboxes
 
 ### Fixed
 
