@@ -17,6 +17,23 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     )
   }
 
+  specify '#verbatim_name without' do
+    query.verbatim_name = false
+    expect(query.all).to include(species, genus, original_genus, root)
+  end
+
+
+  specify '#verbatim_name with' do
+    query.verbatim_name = true
+    expect(query.all).to be_empty
+  end
+
+  specify '#verbatim_name with 2' do
+    genus.update!(verbatim_name: 'Foo')
+    query.verbatim_name = true
+    expect(query.all).to include(genus)
+  end
+
   context '#ancestrify' do
     let!(:s_no) {
       Protonym.create!(

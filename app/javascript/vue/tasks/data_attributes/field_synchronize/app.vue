@@ -30,6 +30,7 @@
           :attributes="[...attributes, ...noEditableAttributes].sort()"
           v-model:selected-predicates="selectedPredicates"
           v-model:selected-attributes="selectedAttributes"
+          @user-predicate="addUserPredicate"
         />
         <RegexForm
           :to-exclude="noEditableAttributes"
@@ -103,6 +104,7 @@ const PER_VALUES = [50, 100, 200, 250]
 const {
   attributes,
   currentModel,
+  currentPage,
   extractOperation,
   filterUrl,
   from,
@@ -130,8 +132,22 @@ const {
   tableList,
   to,
   totalUpdate,
-  updatedCount
+  updatedCount,
+  userPredicates
 } = useFieldSync()
+
+function addUserPredicate({ id, name }) {
+  const isAlreadyAdded = userPredicates.value.some(
+    (item) => Number(Object.keys(item)[0]) === id
+  )
+
+  if (!isAlreadyAdded && !predicates.value.some((p) => p.id === id)) {
+    userPredicates.value.push({ [id]: name })
+    loadPage(currentPage.value)
+  }
+
+  selectedPredicates.value.push({ id, name })
+}
 </script>
 
 <style scoped>

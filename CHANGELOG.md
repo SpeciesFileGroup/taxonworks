@@ -9,6 +9,30 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.43.2] - 2024-08-10
+
+### Added
+
+- `all` button to predicate selector in Field Synchronize [#4005]
+- `recent_target` parameter to filters, one of `updated_at` (default) or `created_at` [#4004]
+- `verbatim_name` facet to Filter Nomenclature
+- Soft validation (and fix) identifying redudant use of `verbatim_name` in Combinations
+
+### Changed
+
+- Comprehensive Specimen Digitization: Prevent user add duplicate types for type materials [#4002]
+- Improved visual differentiation of Sandboxes
+
+### Fixed
+
+- Fixed Loan rendering when `date_sent` is blank [#4001]
+- New combination: Links in `Other matches`panel didn't work
+
+[#4001]: https://github.com/SpeciesFileGroup/taxonworks/issues/4001
+[#4002]: https://github.com/SpeciesFileGroup/taxonworks/issues/4002
+[#4004]: https://github.com/SpeciesFileGroup/taxonworks/issues/4004
+[#4005]: https://github.com/SpeciesFileGroup/taxonworks/issues/4005
+
 ## [0.43.1] - 2024-08-04
 
 ### Changed
@@ -22,6 +46,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Misspelled DwcOccurrence attribute
 
 [#4000]: https://github.com/SpeciesFileGroup/taxonworks/issues/4000
+[#4002]: https://github.com/SpeciesFileGroup/taxonworks/issues/4002
 
 ## [0.43.0] - 2024-07-31
 
@@ -4726,7 +4751,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2..development
+[0.43.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1...v0.43.2
 [0.43.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.0...v0.43.1
 [0.43.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.1...v0.42.0
