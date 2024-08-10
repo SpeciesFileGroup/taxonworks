@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.43.2] - 2024-08-10
+
 ### Added
 
 - `all` button to predicate selector in Field Synchronize [#4005]
@@ -4747,7 +4751,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2..development
+[0.43.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1...v0.43.2
 [0.43.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.0...v0.43.1
 [0.43.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.1...v0.42.0
