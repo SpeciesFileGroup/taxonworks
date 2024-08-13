@@ -166,7 +166,8 @@ class Combination < TaxonName
     set: :cached,
     fix: :sv_fix_redundant_verbatim_name,
     name: 'Redundant verbatim name',
-    description: 'Verbatim name is present but identical to computed name' )
+    description: 'Verbatim name is present but identical to computed name',
+    flagged: true )
 
   soft_validate(
     :sv_combination_duplicates,
