@@ -33,6 +33,7 @@
                   index,
                   style.viewer.marginTop
                 )}px`,
+                left: vlines[0] / scale + 'px',
                 transform: 'translateY(-50%)'
               }"
               @click="hlines.push(getPosition(hline, hlines[index + 1]))"
@@ -51,6 +52,7 @@
                   index,
                   style.viewer.marginLeft
                 )}px`,
+                top: hlines[0] / scale + 'px',
                 transform: 'translateX(-50%)'
               }"
               @click="vlines.push(getPosition(vline, vlines[index + 1]))"
