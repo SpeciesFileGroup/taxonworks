@@ -7,6 +7,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- Sort order of descendant inventory 
+
+### Fixed
+
+- Download formatted references as PDF
+
 \-
 
 ## [0.43.2] - 2024-08-10
