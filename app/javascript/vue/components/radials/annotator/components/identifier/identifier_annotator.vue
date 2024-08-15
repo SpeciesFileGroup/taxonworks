@@ -98,10 +98,12 @@ function saveIdentifier(params) {
     identifier_object_type: props.objectType
   }
 
-  Identifier.create({ identifier }).then(({ body }) => {
-    addToList(body)
-    listSelected.value = undefined
-  })
+  Identifier.create({ identifier })
+    .then(({ body }) => {
+      addToList(body)
+      listSelected.value = undefined
+    })
+    .catch(() => {})
 }
 
 function removeItem(item) {
