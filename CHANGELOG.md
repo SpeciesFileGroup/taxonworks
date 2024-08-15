@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Sort order of descendant inventory 
+- Removed net-pop gem workaround for Ruby 3.3.3
 
 ### Fixed
 
