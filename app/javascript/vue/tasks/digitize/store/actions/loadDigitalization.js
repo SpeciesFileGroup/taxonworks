@@ -68,13 +68,12 @@ export default ({ commit, dispatch, state }, coId) =>
         Promise.allSettled(promises).then(() => {
           dispatch(ActionNames.LoadSoftValidations)
           state.settings.lastChange = 0
+          state.settings.loading = false
           resolve()
         })
       })
       .catch((error) => {
         reject(error)
-      })
-      .finally(() => {
         state.settings.loading = false
       })
   })
