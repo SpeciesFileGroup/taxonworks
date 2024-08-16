@@ -1085,6 +1085,26 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_191947) do
     t.index ["updated_by_id"], name: "index_georeferences_on_updated_by_id"
   end
 
+  create_table "greece", primary_key: "gid", id: :serial, force: :cascade do |t|
+    t.string "gid_3", limit: 12
+    t.string "gid_0", limit: 10
+    t.string "country", limit: 10
+    t.string "gid_1", limit: 10
+    t.string "name_1", limit: 31
+    t.string "nl_name_1", limit: 58
+    t.string "gid_2", limit: 10
+    t.string "name_2", limit: 25
+    t.string "nl_name_2", limit: 55
+    t.string "name_3", limit: 27
+    t.string "varname_3", limit: 27
+    t.string "nl_name_3", limit: 56
+    t.string "type_3", limit: 10
+    t.string "engtype_3", limit: 12
+    t.string "cc_3", limit: 10
+    t.string "hasc_3", limit: 10
+    t.geography "geomz", limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
+  end
+
   create_table "identifiers", id: :serial, force: :cascade do |t|
     t.string "identifier", null: false
     t.string "type", null: false
