@@ -166,8 +166,7 @@ class Combination < TaxonName
     set: :cached,
     fix: :sv_fix_redundant_verbatim_name,
     name: 'Redundant verbatim name',
-    description: 'Verbatim name is present but identical to computed name',
-    flagged: true )
+    description: 'Verbatim name is present but identical to computed name')
 
   soft_validate(
     :sv_combination_duplicates,
@@ -432,6 +431,9 @@ class Combination < TaxonName
 
   def sv_redundant_verbatim_name
     if verbatim_name == full_name
+      protonyms_by_rank.values.each do |t|
+        return true unless t.has_latinized_classification?
+      end
       soft_validations.add(:verbatim_name, 'Verbatim name is provided but not needed, it is the same as the computed value.')
     end
   end
