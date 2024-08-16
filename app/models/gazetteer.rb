@@ -210,8 +210,45 @@ class Gazetteer < ApplicationRecord
     u
   end
 
+  # @return [true or String] Returns true on success, otherwise returns an error
+  # string
+  def self.validate_shape_file(shapefile)
+    if shapefile[:name_field].nil?
+      return 'Name field is required'
+    end
+    name_field = shapefile[:name_field]
+
+    begin
+      _shp_doc = Document.find(shapefile[:shp_doc_id])
+      _shx_doc = Document.find(shapefile[:shx_doc_id])
+      dbf_doc = Document.find(shapefile[:dbf_doc_id])
+      _prj_doc = Document.find(shapefile[:prj_doc_id])
+    rescue ActiveRecord::RecordNotFound => e
+      return e
+    end
+
+    dbf = ::DBF::Table.new(dbf_doc.document_file.path)
+    if dbf.record_count == 0
+      return 'Empty dbf file: shapefile must contain records'
+    end
+
+    for i in 0...dbf.record_count
+      record = dbf.find(i)
+      if record[name_field].nil?
+        m = "Record #{i} has no name"
+        if i == 0
+          m = m + ' - did you misspell the name field?'
+        else
+          m = m + ' - names are required for all records'
+        end
+        return m
+      end
+    end
+
+    true
+  end
+
   def self.import_from_shapefile(shapefile)
-    # TODO check params
     shp_doc = Document.find(shapefile[:shp_doc_id])
     shx_doc = Document.find(shapefile[:shx_doc_id])
     dbf_doc = Document.find(shapefile[:dbf_doc_id])
@@ -263,8 +300,6 @@ class Gazetteer < ApplicationRecord
               record = file[i]
 
               g = Gazetteer.new(
-                # There's no shapefile requirement that this field be non-nil,
-                # so this could cause failure on save
                 name: record[name_field]
               )
 

@@ -105,6 +105,16 @@ class GazetteersController < ApplicationController
   end
 
   def import
+    rv = Gazetteer.validate_shape_file(import_params)
+    if rv != true
+      render json: {
+        errors: rv
+      },
+      status: :unprocessable_entity
+
+      return false
+    end
+
     @results = Gazetteer.import_from_shapefile(import_params)
   end
 
