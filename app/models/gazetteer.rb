@@ -246,9 +246,8 @@ class Gazetteer < ApplicationRecord
     r = {
       num_records: 0,
       num_gzs_created: 0,
-      error_ids: [],
-      error_messages: [],
-      aborted: false
+      error_id: nil,
+      error_message: nil,
     }
     # TODO what can .open throw? no such file, bad shapefile, ...
     RGeo::Shapefile::Reader.open(
@@ -256,22 +255,21 @@ class Gazetteer < ApplicationRecord
     ) do |file|
       r[:num_records] = file.num_records
       begin
-        # Not sure this is right, depends on if we want to create all records
-        # that don't give an error or create none if any fails
         Gazetteer.transaction do
-          file.each do |record|
+          # Iterate over an index so we can record index on error
+          for i in 0...file.num_records
             begin
+              # This can throw GeosError even when allow_unsafe: true
+              record = file[i]
+
               g = Gazetteer.new(
-                # TODO: missing name handling - current thoughts:
-                # * shapefile name field required
-                # * assuming eventual delayed job, test some records to
-                #   make sure the name matches before starting the delayed job,
-                #   i.e. make sure there wasn't a typo in name_field
-                # * create random name for empty names? fail just those? fail all?
+                # There's no shapefile requirement that this field be non-nil,
+                # so this could cause failure on save
                 name: record[name_field]
               )
 
-              # TODO: abort if too many invalid?
+              # TODO: abort if too many invalid? Checking `valid?` isn't fast
+              # on large shapes
               shape = record.geometry.valid? ?
                 record.geometry : record.geometry.make_valid
 
@@ -283,16 +281,23 @@ class Gazetteer < ApplicationRecord
 
               r[:num_gzs_created] += 1
             rescue RGeo::Error::InvalidGeometry => e
-              r[:error_ids] << record.id
-              r[:error_messages] << e.to_s
+              r[:error_id] = i + 1
+              r[:error_message] = e.to_s
+              raise ActiveRecord::RecordInvalid
             rescue ActiveRecord::RecordInvalid => e
-              r[:error_ids] << record.id
-              r[:error_messages] << e.to_s
+              r[:error_id] = i + 1
+              r[:error_message] = e.to_s
+              raise ActiveRecord::RecordInvalid
+            rescue RGeo::Error::GeosError => e
+              r[:error_id] = i + 1
+              r[:error_message] = e.to_s
+              raise ActiveRecord::RecordInvalid
             end
           end
         end
       rescue ActiveRecord::RecordInvalid
-        r[:aborted] = true
+        m = "Error on record #{r[:error_id]}/#{r[:num_records]}: #{r[:error_message]}"
+        raise TaxonWorks::Error, m
       end
     end
 
