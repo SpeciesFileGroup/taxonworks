@@ -25,40 +25,6 @@
       Process shapefile
     </VBtn>
   </div>
-
-  <div class="results">
-    <!-- Perma-displaying this so it doesn't get populated below the fold with
-         no notice that that's happened -->
-    <fieldset>
-      <legend>Import results</legend>
-      <div v-if="results">
-        <p>
-          Number of shapefile records: {{ results['num_records'] }}
-        </p>
-        <p>
-          Number of gazetteers created: {{ results['num_gzs_created'] }}
-        </p>
-        <p v-if="results['num_gzs_created'] < results['num_records']">
-          Aborted? {{ results['aborted'] ? 'Yes' : 'No' }}
-        </p>
-        <p v-if="resultErrors">
-          <p>Errors, written "record number: error message":</p>
-          <ul>
-            <li
-              v-for="error in resultErrors"
-              :key="error"
-            >
-              {{ error }}
-            </li>
-          </ul>
-        </p>
-      </div>
-      <p v-else>
-        No shapefiles processed
-      </p>
-    </fieldset>
-  </div>
-
 </template>
 
 <script setup>
@@ -117,8 +83,7 @@ function processShapefile() {
   isLoading.value = true
   Gazetteer.import(payload)
   .then(({ body }) => {
-    results.value = body
-    // TODO: maybe clear currently selected shape files?
+    TW.workbench.alert.create('Import submitted to background job', 'notice')
   })
   .catch(() => {})
   .finally(() => { isLoading.value = false })

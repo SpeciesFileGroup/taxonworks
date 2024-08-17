@@ -248,6 +248,7 @@ class Gazetteer < ApplicationRecord
     true
   end
 
+  # raises TaxonWorks::Error on error
   def self.import_from_shapefile(shapefile)
     shp_doc = Document.find(shapefile[:shp_doc_id])
     shx_doc = Document.find(shapefile[:shx_doc_id])
@@ -271,14 +272,13 @@ class Gazetteer < ApplicationRecord
     FileUtils.ln_s(dbf_doc.document_file.path, dbf_link)
     FileUtils.ln_s(prj_doc.document_file.path, prj_link)
 
-    r = processShapeFile(shp_link, name_field)
+    processShapeFile(shp_link, name_field)
 
     FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
     FileUtils.rmdir(tmp_dir)
-
-    r
   end
 
+  # raises TaxonWorks::Error on error
   def self.processShapeFile(shpfile, name_field)
     r = {
       num_records: 0,
@@ -335,8 +335,6 @@ class Gazetteer < ApplicationRecord
         raise TaxonWorks::Error, m
       end
     end
-
-    r
   end
 
   private

@@ -104,6 +104,7 @@ class GazetteersController < ApplicationController
     end
   end
 
+  # POST /gazetteers/import.json
   def import
     rv = Gazetteer.validate_shape_file(import_params)
     if rv != true
@@ -115,9 +116,11 @@ class GazetteersController < ApplicationController
       return false
     end
 
-    @results = Gazetteer.import_from_shapefile(import_params)
+    Gazetteer.import_from_shapefile(import_params)
   end
 
+  # POST to support long WKT strings
+  # POST /gazetteers/preview.json
   def preview
     s = Gazetteer.combine_shapes_to_rgeo(shape_params['shapes'])
     f = RGeo::GeoJSON::Feature.new(s)
