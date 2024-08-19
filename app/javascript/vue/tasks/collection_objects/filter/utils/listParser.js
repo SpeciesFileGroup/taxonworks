@@ -1,22 +1,7 @@
 import { COLLECTION_OBJECT_PROPERTIES } from '@/shared/Filter/constants'
+import { getDataAttributesFor } from '@/shared/Filter/utils'
 import { DataAttribute } from '@/routes/endpoints'
 import { flattenObject } from '@/helpers'
-
-function makeDataAttributeObjectHeaders(data) {
-  return Object.assign({}, ...data.index)
-}
-
-function getDataAttributesFor(data, objectId) {
-  const list = data.data.filter(([_, id]) => id === objectId)
-  const headers = makeDataAttributeObjectHeaders(data)
-
-  return Object.assign(
-    {},
-    ...list.map(([dataAttrId, id, attrId, value]) => ({
-      [headers[attrId]]: value
-    }))
-  )
-}
 
 export async function listParser(list, { parameters }) {
   const { extend, exclude, ...rest } = parameters

@@ -9,14 +9,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-- Sort order of descendant inventory 
+- Sort order of descendant inventory
 - Removed net-pop gem workaround for Ruby 3.3.3
 
 ### Fixed
 
 - Download formatted references as PDF
+- Filter collecting events: data attribute table view is empty [#4013]
 
-\-
+[#4013]: https://github.com/SpeciesFileGroup/taxonworks/issues/4013
 
 ## [0.43.2] - 2024-08-10
 
