@@ -14,7 +14,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Saving a bad identifier from annotator fails to show message why
 - Download formatted references as PDF
+- Quickly clicking save before load-in on Comprehensive can detach CollectingEvent from CollectionObject
 
 \-
 
