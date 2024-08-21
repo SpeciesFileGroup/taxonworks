@@ -9,7 +9,7 @@
     "@sfgrp/gbifference": "^0.0.5",
     "@sfgrp/sled": "^1.1.3",
     "@sfgrp/svg-detailer": "^0.2.5",
-    "@sfgrp/svg-radial-menu": "^1.0.7",
+    "@sfgrp/svg-radial-menu": "^1.0.9",
     "@viz-js/viz": "^3.8.0",
     "axios": "^1.7.4",
     "chart.js": "^4.4.3",

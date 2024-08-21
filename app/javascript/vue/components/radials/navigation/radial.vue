@@ -23,7 +23,7 @@
               v-if="metadata"
               ref="radialElement"
               :options="menuOptions"
-              @onClick="selectedRadialOption"
+              @click="selectedRadialOption"
             />
             <DestroyConfirmation
               v-if="showDestroyModal"

@@ -87,7 +87,8 @@ export const TASK_PEOPLE_METADATA = {
 export const TASK_FIELD_SYNCHRONIZE = {
   label: 'Field synchronize',
   link: '/tasks/data_attributes/field_synchronize',
-  queryParam: true
+  queryParam: true,
+  saveQuery: true
 }
 
 export const TASK_DWC_OCCURRENCE_STATUS = {

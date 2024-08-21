@@ -16,8 +16,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Download formatted references as PDF
 - Filter collecting events: data attribute table view is empty [#4013]
+- Field synchronize: URI Too Large error when user pass a long query [#4017]
 
 [#4013]: https://github.com/SpeciesFileGroup/taxonworks/issues/4013
+[#4017]: https://github.com/SpeciesFileGroup/taxonworks/issues/4017
 
 ## [0.43.2] - 2024-08-10
 
