@@ -526,6 +526,11 @@ class Protonym < TaxonName
     cached_author_year =~ /\(/ ? false : true
   end
 
+  # @return Boolean
+  def has_latinized_classification?
+    TaxonNameClassification.where_taxon_name(self).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).any?
+  end
+
   def reduce_list_of_synonyms(list)
     return [] if list.empty?
     list1 = list.select{|s| s.id == s.lowest_rank_coordinated_taxon.id}
