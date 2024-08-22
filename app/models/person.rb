@@ -186,6 +186,12 @@ class Person < ApplicationRecord
     identifiers.where(type: 'Identifier::Global::Orcid').first&.cached
   end
 
+  # Return [String, nil]
+  #   convenience, maybe a delegate: candidate
+  def wikidata_id
+    identifiers.where(type: 'Identifier::Global::Wikidata').first&.cached
+  end
+
   # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)

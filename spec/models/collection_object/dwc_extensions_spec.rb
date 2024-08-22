@@ -56,6 +56,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     it 'should only include remarks for the latest determination' do
       otu = FactoryBot.create(:valid_otu)
+
       d1 = TaxonDetermination.create!(taxon_determination_object: s, otu:)
       d2 = TaxonDetermination.create!(taxon_determination_object: s, otu:)
 
@@ -491,6 +492,47 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       s.reload
 
       expect(s.dwc_recorded_by).to eq('John von Doe')
+    end
+
+    specify '#dwc_recorded_by_id - wikidata' do
+      p1 = Protonym.create!(
+        name: 'aus',
+        rank_class: Ranks.lookup(:iczn, :species),
+        parent: root
+      )
+
+      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John', prefix: 'von'}])
+      TaxonDetermination.create!(
+        taxon_determination_object: s,
+        otu: Otu.create!(taxon_name: p1), determiner_roles_attributes: [{person: p}]
+      )
+
+      Identifier::Global::Wikidata.create!(identifier_object: ce.collectors.first, identifier: 'Q1234566')
+
+      s.reload
+
+      expect(s.dwc_recorded_by_id).to eq('Q1234566')
+    end
+
+    specify '#dwc_recorded_by_id - orcid' do
+      p1 = Protonym.create!(
+        name: 'aus',
+        rank_class: Ranks.lookup(:iczn, :species),
+        parent: root
+      )
+
+      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John', prefix: 'von'}])
+      TaxonDetermination.create!(
+        taxon_determination_object: s,
+        otu: Otu.create!(taxon_name: p1),
+        determiner_roles_attributes: [{person: p}] )
+
+      i = 'http://orcid.org/0000-0002-0554-1354' # sorry whomever you are
+
+      Identifier::Global::Orcid.create!(identifier_object: ce.collectors.first, identifier: i)
+
+      s.reload
+      expect(s.dwc_recorded_by_id).to eq(i)
     end
 
     specify '#dwc_other_catalog_numbers' do

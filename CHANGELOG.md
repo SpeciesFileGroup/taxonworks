@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Wikidata IDs are now also loaded into recordedByID and identifiedByID [#3989]
 - Sort order of descendant inventory
 - Removed net-pop gem workaround for Ruby 3.3.3
 
@@ -24,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter collecting events: data attribute table view is empty [#4013]
 - Field synchronize: URI Too Large error when user pass a long query [#4017]
 
+[#3989]: https://github.com/SpeciesFileGroup/taxonworks/issues/3989
 [#4013]: https://github.com/SpeciesFileGroup/taxonworks/issues/4013
 [#4017]: https://github.com/SpeciesFileGroup/taxonworks/issues/4017
 [#4018]: https://github.com/SpeciesFileGroup/taxonworks/issues/4018
