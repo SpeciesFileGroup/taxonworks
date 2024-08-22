@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Filter Otu: With/without common names
+
 ### Changed
 
 - Sort order of descendant inventory
@@ -20,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#4013]: https://github.com/SpeciesFileGroup/taxonworks/issues/4013
 [#4017]: https://github.com/SpeciesFileGroup/taxonworks/issues/4017
+[#4018]: https://github.com/SpeciesFileGroup/taxonworks/issues/4018
 
 ## [0.43.2] - 2024-08-10
 
