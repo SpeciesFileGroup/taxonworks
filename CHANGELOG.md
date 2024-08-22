@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Filter Otu: With/without common names
+
 ### Changed
 
 - Sort order of descendant inventory
@@ -18,8 +22,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Download formatted references as PDF
 - Quickly clicking save before load-in on Comprehensive can detach CollectingEvent from CollectionObject
 - Filter collecting events: data attribute table view is empty [#4013]
+- Field synchronize: URI Too Large error when user pass a long query [#4017]
 
 [#4013]: https://github.com/SpeciesFileGroup/taxonworks/issues/4013
+[#4017]: https://github.com/SpeciesFileGroup/taxonworks/issues/4017
+[#4018]: https://github.com/SpeciesFileGroup/taxonworks/issues/4018
 
 ## [0.43.2] - 2024-08-10
 

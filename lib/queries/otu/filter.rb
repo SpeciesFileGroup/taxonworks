@@ -15,6 +15,7 @@ module Queries
         :biological_associations,
         :collecting_event_id,
         :collection_objects,
+        :common_names,
         :contents,
         :coordinatify,
         :descendants,
@@ -147,8 +148,14 @@ module Queries
       attr_accessor :asserted_distributions
 
       # @return [True, False, nil]
-      #   true - Otu has Conten
-      #   false - Otu without Conten
+      #   true - Otu has common names
+      #   false - Otu without common names
+      #   nil - not applied
+      attr_accessor :common_names
+
+      # @return [True, False, nil]
+      #   true - Otu has Content
+      #   false - Otu without Content
       #   nil - not applied
       attr_accessor :contents
 
@@ -183,6 +190,7 @@ module Queries
         @biological_associations = boolean_param(params, :biological_associations)
         @collecting_event_id = params[:collecting_event_id]
         @collection_objects = boolean_param(params, :collection_objects)
+        @common_names = boolean_param(params, :common_names)
         @contents = boolean_param(params, :contents)
         @coordinatify = boolean_param(params, :coordinatify)
         @descendants = boolean_param(params, :descendants)
@@ -315,6 +323,17 @@ module Queries
           ::Otu.where.missing(:contents)
         end
       end
+
+      def common_names_facet
+        return nil if @common_names.nil?
+
+        if @common_names
+          ::Otu.joins(:common_names)
+        else
+          ::Otu.where.missing(:common_names)
+        end
+      end
+
 
       # UNION, NOT EXISTS example
       def biological_associations_facet
@@ -621,6 +640,7 @@ module Queries
           biological_associations_facet,
           collecting_event_id_facet,
           collection_objects_facet,
+          common_names_facet,
           contents_facet,
           descriptor_id_facet,
           geo_json_facet,

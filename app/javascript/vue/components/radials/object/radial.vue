@@ -25,7 +25,7 @@
                 <RadialMenu
                   v-if="metadata"
                   :options="menuOptions"
-                  @on-click="selectComponent"
+                  @click="selectComponent"
                 />
               </div>
             </div>

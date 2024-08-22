@@ -335,15 +335,9 @@ export function useFieldSync() {
 
   function loadAttributes(params) {
     const request = ajaxCall(
-      'get',
+      'post',
       '/tasks/data_attributes/field_synchronize/values',
-      {
-        params,
-        paramsSerializer: {
-          serialize: (params) =>
-            Qs.stringify(params, { arrayFormat: 'brackets' })
-        }
-      }
+      params
     )
 
     request.then((response) => {
