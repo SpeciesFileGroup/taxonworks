@@ -264,7 +264,7 @@ module Queries
           j = table.join(h, Arel::Nodes::InnerJoin).on(table[:taxon_name_id].eq(h[:descendant_id]))
           z = h[:ancestor_id].in(taxon_name_id)
 
-          ::Otu.joins(j.join_sources).where(z)
+          ::Otu.joins(j.join_sources).where(z).distinct # Maybe not needed
         else
           ::Otu.where(taxon_name_id:)
         end
@@ -282,7 +282,7 @@ module Queries
         q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all, project_id:)
         q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all, project_id:)
 
-        referenced_klass_union([q1, q2]).distinct
+        referenced_klass_union([q1, q2]).distinct # Not needed, union should be distinct
       end
 
       def geo_json_facet
@@ -300,7 +300,7 @@ module Queries
       def asserted_distributions_facet
         return nil if asserted_distributions.nil?
         if asserted_distributions
-          ::Otu.joins(:asserted_distributions)
+          ::Otu.joins(:asserted_distributions).distinct
         else
           ::Otu.where.missing(:asserted_distributions)
         end
@@ -318,7 +318,7 @@ module Queries
       def contents_facet
         return nil if contents.nil?
         if contents
-          ::Otu.joins(:contents)
+          ::Otu.joins(:contents).distinct
         else
           ::Otu.where.missing(:contents)
         end
@@ -328,12 +328,11 @@ module Queries
         return nil if @common_names.nil?
 
         if @common_names
-          ::Otu.joins(:common_names)
+          ::Otu.joins(:common_names).distinct
         else
           ::Otu.where.missing(:common_names)
         end
       end
-
 
       # UNION, NOT EXISTS example
       def biological_associations_facet
@@ -358,7 +357,7 @@ module Queries
       def collection_objects_facet
         return nil if collection_objects.nil?
         if collection_objects
-          ::Otu.joins(:collection_objects)
+          ::Otu.joins(:collection_objects).distinct
         else
           ::Otu.where.missing(:collection_objects)
         end
@@ -378,7 +377,7 @@ module Queries
         return nil if observations.nil?
 
         if observations
-          ::Otu.joins(:observations)
+          ::Otu.joins(:observations).distinct
         else
           ::Otu.where.missing(:observations)
         end
@@ -387,9 +386,9 @@ module Queries
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
         if historical_determinations.nil?
-          ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: }, taxon_determinations: { position: 1 })
+          ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: }, taxon_determinations: { position: 1 }).distinct
         elsif historical_determinations
-          ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: }).where.not(taxon_determinations: { position: 1 })
+          ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: }).where.not(taxon_determinations: { position: 1 }).distinct
         else
           ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: })
         end
