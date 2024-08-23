@@ -11,11 +11,10 @@ json.array! @collection_objects do |c|
   json.biocuration c.biocuration_classes.pluck(:name).join(', ')
 
   json.dwc_attributes do
-    c.set_dwc_occurrence # always rebuilds!! (used in recent lists)
+    c.set_dwc_occurrence # TODO: remove when DwcOccurenceHooks is ubiquitous - always rebuilds!! (used in recent lists)
     c.dwc_occurrence_attributes.each do |a, v|
       json.set!(a, v)
     end
   end
 
 end
-

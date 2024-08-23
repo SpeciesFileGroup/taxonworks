@@ -10,7 +10,7 @@ class DwcaCreateIndexJob < ApplicationJob
     s =  klass.safe_constantize.from('(' + sql_scope + ') as ' + klass.tableize)
     s.find_each do |o|
       begin
-        z = o.set_dwc_occurrence
+        o.set_dwc_occurrence
       rescue RGeo::Error::InvalidGeometry => e
         puts Rainbow("Error [#{o.id}] bad geometry not written. #{e}").red.bold
         errors[o.to_global_id.to_s] = e
