@@ -362,6 +362,7 @@ resources :identifiers, except: [:show] do
 
   # Must be before member
   collection do
+    patch :reorder, defaults: {format: :json}
     get :identifier_types, {format: :json}
   end
 
