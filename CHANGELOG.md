@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Sort order of descendant inventory
 - Removed net-pop gem workaround for Ruby 3.3.3
 - Facet geographic area: Spatial mode by default
+- Facet nomenclature rank: Remove selected ranks from select input
 
 ### Fixed
 
