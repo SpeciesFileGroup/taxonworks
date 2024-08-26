@@ -2,7 +2,7 @@ import {
   COLLECTION_OBJECT,
   COLLECTING_EVENT,
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
-  IDENTIFIER_LOCAL_TRIP_CODE
+  IDENTIFIER_LOCAL_FIELD_NUMBER
 } from '@/constants/index.js'
 import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
@@ -63,7 +63,7 @@ function makeInitialState() {
       COLLECTION_OBJECT
     ),
     collectingEventIdentifier: makeIdentifier(
-      IDENTIFIER_LOCAL_TRIP_CODE,
+      IDENTIFIER_LOCAL_FIELD_NUMBER,
       COLLECTING_EVENT
     ),
     coCitations: [],
