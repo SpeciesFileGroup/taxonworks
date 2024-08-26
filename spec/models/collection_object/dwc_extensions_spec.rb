@@ -294,7 +294,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     end
 
     specify '#dwc_field_number' do
-      i = FactoryBot.create(:valid_identifier_local, type: 'Identifier::Local::TripCode', identifier_object: ce)
+      i = FactoryBot.create(:valid_identifier_local, type: 'Identifier::Local::FieldNumber', identifier_object: ce)
       expect(s.dwc_field_number).to eq(i.cached)
     end
 

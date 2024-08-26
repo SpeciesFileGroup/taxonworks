@@ -6,7 +6,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
     init_housekeeping
 
-    @root = FactoryBot.create(:root_taxon_name) 
+    @root = FactoryBot.create(:root_taxon_name)
   end
 
   after(:all) do
@@ -80,7 +80,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
 
     let(:collection_objects) do
-      @imported.map { |r| CollectionObject.find(r.metadata.dig('imported_objects','collection_object', 'id')) }
+      @imported.map { |r| CollectionObject.find(r.metadata.dig('imported_objects', 'collection_object', 'id')) }
     end
 
     let(:core_id_namespaces) { Namespace.where("name ILIKE 'occurrenceID namespace for%'") }
@@ -88,9 +88,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     let(:occurrence_id_identifiers) do
       Identifier::Local::Import::Dwc.where(identifier: (1..3).map { |n| "occurrence-#{n}"})
     end
-    let(:event_id_identifiers) do
-      Identifier::Local::TripCode.where(identifier: (1..3).map { |n| "event-#{n}"})
-    end
+
+    let(:event_id_identifiers) {  Identifier::Local::FieldNumber.where(identifier: (1..3).map { |n| "event-#{n}"}) }
 
     it 'creates one collection object per record' do
       expect(collection_objects.count).to eq(3)
@@ -1489,6 +1488,3 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     ).tap { |i| i.stage }
 
   end
-
-
-

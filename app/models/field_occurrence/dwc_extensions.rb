@@ -355,7 +355,7 @@ module FieldOccurrence::DwcExtensions
 
   def dwc_field_number
     return nil unless collecting_event
-    collecting_event.identifiers.where(type: 'Identifier::Local::TripCode').first&.cached
+    collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first&.cached
   end
 
   def dwc_verbatim_habitat

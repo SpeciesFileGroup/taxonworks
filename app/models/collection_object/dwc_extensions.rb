@@ -363,7 +363,7 @@ module CollectionObject::DwcExtensions
   # TODO: Reconcile with eventID https://github.com/SpeciesFileGroup/taxonworks/issues/2852
   def dwc_field_number
     return nil unless collecting_event
-    collecting_event.identifiers.where(type: 'Identifier::Local::TripCode').first&.cached || collecting_event.verbatim_trip_identifier
+    collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first&.cached || collecting_event.verbatim_trip_identifier
   end
 
   # TODO: Reconcile with eventID https://github.com/SpeciesFileGroup/taxonworks/issues/2852

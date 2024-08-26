@@ -1,12 +1,8 @@
-# The identifier sensu DarwinCore eventID https://dwc.tdwg.org/terms/#dwc:eventID.
+# The identifier sensu DarwinCore eventID https://dwc.tdwg.org/terms/#dwc::FieldNumber
 #
-# See also FieldNumber.
+# Historically/ TW treated this as a Identifier::Local::TripCode
 #
-# In TW we assume it differs from FieldNumber:
-#  - can be assigned via machine-originating processes (typically not to be the case on FieldNumber)
-#  - think of it as an accession  (="assigned while taking in the date") code for CollectingEvents
-#
-class Identifier::Local::Event < Identifier::Local
+class Identifier::Local::FieldNumber < Identifier::Local
 
   include Shared::DwcOccurrenceHooks
 

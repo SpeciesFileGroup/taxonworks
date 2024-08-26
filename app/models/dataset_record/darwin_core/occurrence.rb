@@ -264,11 +264,24 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           otu: innermost_otu || innermost_protonym.otus.find_by(name: nil) || innermost_protonym.otus.first # TODO: Might require select-and-confirm functionality
         }.merge(attributes[:taxon_determination]))
 
+
+        # TODO
+        #   There are 3 possible CE identifiers, each needs individual mapping
+        #     eventID -> Identifier::Local::Event (with TW:Namespace:eventID)
+        #     fieldNumber -> Identifier::Local::FieldNumber (with TW:Namespace:fieldNumber)
+        #     TW::CollectingEvent::verbatim_field_number
+        #
+        #       New rules:
+        #         * No overlapping intended meanings, each maps to itself
+        #         * verbatim_trip_identifier should look exactly like the (fully) defined fieldNumber (remember use of virtual attribute in Namespace to render without namespace string)
+        #      
         event_id = get_field_value(:eventID)
         unless event_id.nil?
           namespace = get_field_value('TW:Namespace:eventID')
 
+          # TODO: Shouldn't this be local?!
           identifier_type = Identifier::Global.descendants.detect { |c| c.name.downcase == namespace.downcase } if namespace
+          
           identifier_attributes = {
             identifier: event_id,
             identifier_object_type: 'CollectingEvent',
@@ -276,7 +289,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           }
 
           if identifier_type.nil?
-            identifier_type = Identifier::Local::TripCode # TODO: Or maybe Identifier::Local::Import?
+
+            identifier_type = Identifier::Local::Event # Note: This was TripCode.  This is a much better fit now, as EventID is a digital accession value.
 
             using_default_event_id = false
             if namespace.nil?
@@ -326,6 +340,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             no_dwc_occurrence: true,
             no_cached: true
           }.merge!(attributes[:collecting_event]))
+
 
           identifier_type.create!({
             identifier_object: collecting_event,
@@ -415,6 +430,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     self
   end
+
+
+  def extract_event_identifier_params()
+    # TODO: Extract logic here for shorter main loop
+  end
+
+  def extract_field_number_identifier_params()
+    # TODO: Extract logic here for shorter main loop
+  end
+
 
   #rubocop:enable Metrics/MethodLength
 
