@@ -112,7 +112,8 @@ const WITH_PARAMS = [
   'original_combination',
   'otus',
   'tags',
-  'type_metadata'
+  'type_metadata',
+  'verbatim_name'
 ]
 
 const props = defineProps({

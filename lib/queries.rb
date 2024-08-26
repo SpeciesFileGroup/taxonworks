@@ -15,7 +15,7 @@ module Queries
 
   def self.intersect(target, queries)
     table = target.table_name
-    q = queries.compact.collect{|y| y.unscope(:select).select(:id) }
+    q = queries.compact # .collect{|y| y.unscope(:select).select(:id) }
 
     # We can return this directly, though we get conflicts with `from:` on merge clauses
     z = target.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' INTERSECT ')}) as #{table}")
@@ -25,7 +25,7 @@ module Queries
 
   def self.union(target, queries)
     table = target.name.tableize
-    q = queries.compact.collect{|y| y.unscope(:select).select(:id) }
+    q = queries.compact # .collect{|y| y.unscope(:select).select(:id) }
 
     target.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' UNION ')}) as #{table}")
   end

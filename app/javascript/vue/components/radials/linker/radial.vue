@@ -15,8 +15,11 @@
         <div class="horizontal-center-content">
           <radial-menu
             :options="menuOptions"
-            @on-click="handleClick"
-            @contextmenu="handleContextMenu"
+            @click="handleClick"
+            @mousedown="setParametersFor"
+            @contextmenu="
+              (event) => handleContextMenu(event, { openTab: true })
+            "
           />
         </div>
       </template>
@@ -43,6 +46,7 @@ import { computed, ref, watch } from 'vue'
 import { copyObjectByArray, createAndSubmitForm } from '@/helpers'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
+import { LinkerStorage } from '@/shared/Filter/utils'
 import RadialMenu from '@/components/radials/RadialMenu.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -50,6 +54,12 @@ import Modal from '@/components/ui/Modal.vue'
 import getFilterAttributes from './composition/getFilterAttributes'
 import qs from 'qs'
 import * as LINKER_LIST from './links/index.js'
+
+const MAX_LINK_SIZE = 2000
+
+defineOptions({
+  name: 'RadialLinker'
+})
 
 const props = defineProps({
   disabled: {
@@ -110,6 +120,8 @@ const menuOptions = computed(() => {
     if (Object.values(filteredParameters).some(Boolean)) {
       if (item.post) {
         slices.push(addSlice({ label: item.label }))
+      } else if (link.length > MAX_LINK_SIZE) {
+        slices.push(addSlice({ ...item, link: item.link }))
       } else {
         slices.push(addSlice({ ...item, link }))
       }
@@ -170,12 +182,13 @@ function addSlice({ label, link }) {
 
 function closeModal() {
   isVisible.value = false
-  sessionStorage.removeItem('linkerQuery')
+  LinkerStorage.removeParameters()
   emit('close')
 }
 
 function openRadialMenu() {
   isVisible.value = true
+  LinkerStorage.removeParameters()
 }
 
 function filterEmptyParams(object) {
@@ -192,29 +205,53 @@ function filterEmptyParams(object) {
   return obj
 }
 
-function handleClick({ name }) {
-  const item = filterLinks.value.find(({ label }) => label === name)
+function getItemByName(name) {
+  return filterLinks.value.find(({ label }) => label === name)
+}
+
+function getLinkParameters(item) {
   const filteredParameters = filterEmptyParams(
     isOnlyIds.value ? getParametersForId() : getParametersForAll()
   )
+  const parameters = item.queryParam
+    ? { [QUERY_PARAM[props.objectType]]: filteredParameters }
+    : filteredParameters
 
-  if (item.post) {
-    createAndSubmitForm({ action: item.link, data: filteredParameters })
-  } else {
-    sessionStorage.setItem('linkerQuery', JSON.stringify(filteredParameters))
+  return parameters
+}
+
+function setParametersFor({ name }) {
+  const item = getItemByName(name)
+  const parameters = getLinkParameters(item)
+  const link =
+    item.link + '?' + qs.stringify(parameters, { arrayFormat: 'brackets' })
+
+  if (link.length > MAX_LINK_SIZE && item.saveQuery) {
+    LinkerStorage.saveParameters(parameters)
   }
 }
 
-function handleContextMenu({ name }) {
-  const item = filterLinks.value.find(({ label }) => label === name)
-  const filteredParameters = filterEmptyParams(
-    isOnlyIds.value ? getParametersForId() : getParametersForAll()
-  )
+function handleClick({ name }, { openTab = false }) {
+  const item = getItemByName(name)
+  const parameters = getLinkParameters(item)
 
   if (item.post) {
     createAndSubmitForm({
       action: item.link,
-      data: filteredParameters,
+      data: parameters,
+      openTab
+    })
+  }
+}
+
+function handleContextMenu({ name }) {
+  const item = getItemByName(name)
+  const parameters = getLinkParameters(item)
+
+  if (item.post) {
+    createAndSubmitForm({
+      action: item.link,
+      data: parameters,
       openTab: true
     })
   }
@@ -225,10 +262,4 @@ watch(isVisible, (newVal) => {
     objParameters.value = getFilterAttributes()
   }
 })
-</script>
-
-<script>
-export default {
-  name: 'RadialLinker'
-}
 </script>

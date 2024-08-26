@@ -138,6 +138,11 @@ function addShortcutsDescription() {
     'Go to browse nomenclature',
     TASK
   )
+  TW.workbench.keyboard.createLegend(
+    `${key}+v`,
+    'Go to new collecting event',
+    TASK
+  )
 }
 
 function setLockAll() {

@@ -81,6 +81,7 @@ import { ref, onMounted } from 'vue'
 import { downloadTextFile } from '@/helpers/files'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { BiologicalAssociation } from '@/routes/endpoints'
+import { LinkerStorage } from '@/shared/Filter/utils'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -130,11 +131,11 @@ async function makeEdges(edges, nodes) {
 onMounted(() => {
   const urlParameters = {
     ...URLParamsToJSON(location.href),
-    ...JSON.parse(sessionStorage.getItem('linkerQuery'))
+    ...LinkerStorage.getParameters()
   }
 
   parameters.value = urlParameters
-  sessionStorage.removeItem('linkerQuery')
+  LinkerStorage.removeParameters()
 
   if (Object.keys(urlParameters).length) {
     loadGraph(urlParameters)

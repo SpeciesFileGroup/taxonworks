@@ -26,4 +26,3 @@ class TestDwcHookable < ApplicationRecord
   end
 
 end
-

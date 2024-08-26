@@ -11,7 +11,10 @@ const makeInitialState = () => {
     collectionObject: {},
     container: {},
     currentRepository: {},
-    depictions: [],
+    depictions: {
+      list: [],
+      pagination: {}
+    },
     determinations: [],
     dwc: {},
     geographicArea: {},

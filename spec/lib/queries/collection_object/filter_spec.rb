@@ -117,15 +117,17 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
   end
 
   specify 'nested pagination' do
-    3.times { FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) ) }
+    s1 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
+    s2 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
+    s3 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
 
     # Get the second CE
     h = { collecting_event_query: {paginate: true, per: 1, page: 2 } }
 
     p = ActionController::Parameters.new(h)
-
     q = Queries::CollectionObject::Filter.new(p)
-    expect(q.all.unscope(:order).order(:id).first).to eq(Specimen.second)
+
+    expect(q.all.unscope(:order).order(:id).first).to eq( s2 )
   end
 
   specify 'CollectingEvent params are permitted' do

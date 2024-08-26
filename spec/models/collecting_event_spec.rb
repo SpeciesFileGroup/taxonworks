@@ -6,6 +6,30 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
   let(:state) { county.parent }
   let(:country) { state.parent }
 
+  # Added as a context for exploring re-indexing DwC based on DataAttribute updates
+  xspecify 'data_attributes_attributes cascades' do
+    p = FactoryBot.create(:valid_predicate, uri: 'http://rs.tdwg.org/dwc/terms/waterBody', name: 'waterBody')
+
+    ce = CollectingEvent.create!(
+      "id"=>nil, "roles_attributes"=>[], "identifiers_attributes"=>[], "data_attributes_attributes"=>[{"type"=>"InternalAttribute", "controlled_vocabulary_term_id"=>p.id, "attribute_subject_id"=>nil, "attribute_subject_type"=>"CollectingEvent", "value"=>"test"}      ]
+    )
+
+    s = FactoryBot.create(:valid_specimen, collecting_event: ce)
+
+    Delayed::Worker.new.work_off
+
+    ce2 = CollectingEvent.create!(
+      "id"=>nil, "roles_attributes"=>[], "identifiers_attributes"=>[], "data_attributes_attributes"=>[{"type"=>"InternalAttribute", "controlled_vocabulary_term_id"=>p.id, "attribute_subject_id"=>nil, "attribute_subject_type"=>"CollectingEvent", "value"=>"test"}      ]
+    )
+
+    ce3 = CollectingEvent.create!(
+      "id"=>nil, "roles_attributes"=>[], "identifiers_attributes"=>[], "data_attributes_attributes"=>[{"type"=>"InternalAttribute", "controlled_vocabulary_term_id"=>p.id, "attribute_subject_id"=>nil, "attribute_subject_type"=>"CollectingEvent", "value"=>"test"}      ]
+    )
+
+    expect(Delayed::Job.count).to eq(0)
+  end
+
+
   context '.batch_update' do
     specify 'can update a verbatim field' do
       c1 =  FactoryBot.create(:valid_collecting_event)
@@ -30,8 +54,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       specify 'can add the first collector' do
         collector = FactoryBot.create(:valid_person)
         params = { collecting_event: { roles_attributes:
-                                         [{ person_id: collector.id, type: 'Collector' }] },
-                   collecting_event_query: { collecting_event_id: [c1.id] }
+                                       [{ person_id: collector.id, type: 'Collector' }] },
+        collecting_event_query: { collecting_event_id: [c1.id] }
         }
 
         response = CollectingEvent.batch_update(params).to_json
@@ -48,8 +72,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
         second_collector = FactoryBot.create(:valid_person)
 
         params = { collecting_event: { roles_attributes:
-                                         [{ person_id: second_collector.id, type: 'Collector' }] },
-                   collecting_event_query: { collecting_event_id: [c1.id] }
+                                       [{ person_id: second_collector.id, type: 'Collector' }] },
+        collecting_event_query: { collecting_event_id: [c1.id] }
         }
 
         response = CollectingEvent.batch_update(params).to_json
@@ -68,9 +92,9 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
         third_collector = FactoryBot.create(:valid_person)
 
         params = { collecting_event: { roles_attributes:
-                                         [{ person_id: second_collector.id, type: 'Collector' },
-                                          { person_id: third_collector.id, type: 'Collector' }] },
-                   collecting_event_query: { collecting_event_id: [c1.id] }
+                                       [{ person_id: second_collector.id, type: 'Collector' },
+                                        { person_id: third_collector.id, type: 'Collector' }] },
+        collecting_event_query: { collecting_event_id: [c1.id] }
         }
 
         response = CollectingEvent.batch_update(params).to_json

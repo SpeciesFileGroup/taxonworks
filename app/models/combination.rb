@@ -162,6 +162,13 @@ class Combination < TaxonName
   validates :rank_class, absence: true
 
   soft_validate(
+    :sv_redundant_verbatim_name,
+    set: :cached,
+    fix: :sv_fix_redundant_verbatim_name,
+    name: 'Redundant verbatim name',
+    description: 'Verbatim name is present but identical to computed name')
+
+  soft_validate(
     :sv_combination_duplicates,
     set: :combination_duplicates,
     name: 'Duplicate combination',
@@ -422,6 +429,15 @@ class Combination < TaxonName
     end
   end
 
+  def sv_redundant_verbatim_name
+    if verbatim_name == full_name
+      protonyms_by_rank.values.each do |t|
+        return true unless t.has_latinized_classification?
+      end
+      soft_validations.add(:verbatim_name, 'Verbatim name is provided but not needed, it is the same as the computed value.')
+    end
+  end
+
   def sv_year_of_publication_matches_source
     source_year = source.nomenclature_year if source
     if year_of_publication && source_year
@@ -501,6 +517,11 @@ class Combination < TaxonName
 
   def sv_fix_author_and_year_is_not_required
     self.update_columns(year_of_publication: nil, verbatim_author: nil)
+    return true
+  end
+
+  def sv_fix_redundant_verbatim_name
+    self.update_columns(verbatim_name: nil)
     return true
   end
 

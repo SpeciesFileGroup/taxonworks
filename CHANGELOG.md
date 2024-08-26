@@ -9,11 +9,82 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Filter Otu: With/without common names
+- Radial annotator: Add sort to identifiers slice [#4021]
+
+### Changed
+
+- DwcOccurrence rebuilds triggered for changes to TaxonNameRelationship [#4019], TypeMaterial, TaxonDetermination, Identifier::Global
+- Wikidata IDs are now also loaded into recordedByID and identifiedByID [#3989]
+- Sort order of descendant inventory
+- Removed net-pop gem workaround for Ruby 3.3.3
+
+### Fixed
+
+- Various facets in Filter OTUs not being scoped to unique records
+- Saving a bad identifier from annotator fails to show message why
+- Download formatted references as PDF
+- Quickly clicking save before load-in on Comprehensive can detach CollectingEvent from CollectionObject
+- Filter collecting events: data attribute table view is empty [#4013]
+- Field synchronize: URI Too Large error when user pass a long query [#4017]
+
+
+[#4019]: https://github.com/SpeciesFileGroup/taxonworks/issues/4019
+[#3989]: https://github.com/SpeciesFileGroup/taxonworks/issues/3989
+[#4013]: https://github.com/SpeciesFileGroup/taxonworks/issues/4013
+[#4017]: https://github.com/SpeciesFileGroup/taxonworks/issues/4017
+[#4018]: https://github.com/SpeciesFileGroup/taxonworks/issues/4018
+[#4021]: https://github.com/SpeciesFileGroup/taxonworks/issues/4021
+
+## [0.43.2] - 2024-08-10
+
+### Added
+
+- `all` button to predicate selector in Field Synchronize [#4005]
+- `recent_target` parameter to filters, one of `updated_at` (default) or `created_at` [#4004]
+- `verbatim_name` facet to Filter Nomenclature
+- Soft validation (and fix) identifying redudant use of `verbatim_name` in Combinations
+
+### Changed
+
+- Comprehensive Specimen Digitization: Prevent user add duplicate types for type materials [#4002]
+- Improved visual differentiation of Sandboxes
+
+### Fixed
+
+- Fixed Loan rendering when `date_sent` is blank [#4001]
+- New combination: Links in `Other matches`panel didn't work
+
+[#4001]: https://github.com/SpeciesFileGroup/taxonworks/issues/4001
+[#4002]: https://github.com/SpeciesFileGroup/taxonworks/issues/4002
+[#4004]: https://github.com/SpeciesFileGroup/taxonworks/issues/4004
+[#4005]: https://github.com/SpeciesFileGroup/taxonworks/issues/4005
+
+## [0.43.1] - 2024-08-04
+
+### Changed
+
+- Updated gems
+
+### Fixed
+
+- Integer type checking impacting AssertedDistribution filter
+- Editing DataAttributes trigger complete re-index of the DwcOccurences [#4000]
+- Misspelled DwcOccurrence attribute
+
+[#4000]: https://github.com/SpeciesFileGroup/taxonworks/issues/4000
+[#4002]: https://github.com/SpeciesFileGroup/taxonworks/issues/4002
+
+## [0.43.0] - 2024-07-31
+
+### Added
+
 - Task to add image and as depictions to the objects identified in their filename [#3986]
 - PDF version of styled/formatted source download [#3996]
 - Type checking pattern for integers sent to `*_id` params in the API
-- Radial annotator: Pagination to the Depictions slice
-- Comprehensive: Pagination to the depictions panel
+- Radial annotator: Pagination to depictions slice
+- Comprehensive: Pagination to depictions panel
+- Browse collection objects Pagination to depictions panel
 - Filter source: add ID to list [#3984]
 - TW_DISABLE_DEPLOY_UPDATE_DATABASE env var to disable DB backup and migration at deploy time.
 
@@ -24,6 +95,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- TaxonName filter Original combination with/out facet (both with and without)
 - Removed deprecated GoogleMap georeference form [#3991]
 - Print label generation [#3992]
 - Generating a TaxonWorks Download for a bibtex result failing [#3997]
@@ -4706,7 +4778,10 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2..development
+[0.43.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1...v0.43.2
+[0.43.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.0...v0.43.1
+[0.43.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.1...v0.42.0
 [0.41.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.41.0...v0.41.1
 [0.41.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.40.6...v0.41.0

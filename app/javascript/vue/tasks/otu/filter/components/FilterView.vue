@@ -67,6 +67,7 @@ const WITH_PARAMS = [
   'biological_associations',
   'citations',
   'collection_objects',
+  'common_names',
   'contents',
   'data_depictions',
   'depictions',

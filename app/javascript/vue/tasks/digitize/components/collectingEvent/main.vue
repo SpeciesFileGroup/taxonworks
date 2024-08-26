@@ -168,7 +168,8 @@ function openNewCollectingEvent() {
   window.open(
     collectingEvent.value.id
       ? `${RouteNames.NewCollectingEvent}?collecting_event_id=${collectingEvent.value.id}`
-      : RouteNames.NewCollectingEvent
+      : RouteNames.NewCollectingEvent,
+    '_self'
   )
 }
 </script>
