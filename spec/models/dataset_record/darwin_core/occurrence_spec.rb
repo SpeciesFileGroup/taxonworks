@@ -56,11 +56,42 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
 
     it "creates a 'namespaced' identifier" do
-      expect(Identifier::Local.all.count).to eq(1) 
+      expect(Identifier::Local.all.count).to eq(1)
     end
 
     it 'creates a taxonDetermination' do
       expect(TaxonDetermination.all.count).to eq(1)
+    end
+  end
+
+
+  context 'when importing recordNumbers with namespace column' do
+    before :all do
+      DatabaseCleaner.start
+
+      init_housekeeping
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/identifiers/recordNumber_namespaced.tsv'), 'text/plain'),
+        description: 'Testing'
+      ).tap { |i| i.stage }
+
+      namespace = FactoryBot.create(:valid_namespace, short_name: 'ABC')
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let!(:results) { @import_dataset.import(5000, 100) }
+
+    it 'creates a new record' do
+      expect(results.length).to eq(3)
+      expect(results.first.status).to eq('Imported')
+    end
+
+    it "creates a 'namespaced' identifier" do
+      expect(Identifier::Local::RecordNumber.all.count).to eq(3)
     end
   end
 
