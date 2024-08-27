@@ -134,7 +134,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
-   # TODO: Check that `TW:CollectingEvent:verbatim_locality' alone will create a CE (see tsv)
+  # TODO: Check that `TW:CollectingEvent:verbatim_locality' alone will create a CE (see tsv)
   context 'when importing eventID with namespace column' do
     before :all do
       DatabaseCleaner.start
@@ -217,7 +217,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
- # TODO: Check that `TW:CollectingEvent:verbatim_locality' alone will create a CE (see tsv)
+  # TODO: Check that `TW:CollectingEvent:verbatim_locality' alone will create a CE (see tsv)
   context 'when importing eventID with namespace column' do
     before :all do
       DatabaseCleaner.start
@@ -285,7 +285,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     it "creates 1 catalog number" do
       expect(Identifier::Local::CatalogNumber.all.count).to eq(1)
     end
-    
+
     it "virtualizes the container" do
       expect(Identifier::Local::CatalogNumber.first.identifier_object).to be_kind_of(Container::Virtual)
     end
@@ -294,7 +294,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(Identifier::Local::RecordNumber.all.count).to eq(2)
     end
   end
-  
+
   context 'when importing namespaced catalogNumber' do
     before :all do
       DatabaseCleaner.start
@@ -366,8 +366,45 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
-  # ----
+  # TODO: review column header format
+  context 'when importing missmatched fieldNumber and eventID' do
+    before :all do
+      DatabaseCleaner.start
 
+      init_housekeeping
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/identifiers/fieldNumber_and_eventID_missmatched.tsv'), 'text/plain'),
+        description: 'Testing'
+      ).tap { |i| i.stage }
+
+      namespace1 = FactoryBot.create(:valid_namespace, short_name: 'ABC')
+      namespace2 = FactoryBot.create(:valid_namespace, short_name: 'DEF')
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let!(:results) { @import_dataset.import(5000, 100) }
+
+    it 'creates a new record' do
+      expect(results.length).to eq(1)
+      expect(results.first.status).to eq('Imported')
+    end
+
+    it "creates FieldNumber" do
+      expect(Identifier::Local::FieldNumber.all.count).to eq(1)
+    end
+
+    it "creates Event" do
+      expect(Identifier::Local::Event.all.count).to eq(1)
+    end
+
+    it "fails second record" do
+      expect(results.first.status).to eq('Errored')
+    end
+  end
 
   context 'when not supplying custom namespaces for occurrenceID nor eventID' do
     before(:all) do
@@ -641,7 +678,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
   context 'when importing an occurrence with a type material matching a misspelling of a synonym of the current taxon name' do
     before :all do
 
-     init_housekeeping
+      init_housekeeping
 
       @import_dataset = prepare_occurrence_tsv(
         'typeStatus_synonym_misspelling.tsv',
