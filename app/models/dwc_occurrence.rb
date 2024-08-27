@@ -351,7 +351,7 @@ class DwcOccurrence < ApplicationRecord
 
   def set_metadata_attributes
     write_attribute( :basisOfRecord, basis)
-    write_attribute( :occurrenceID, occurrence_identifier&.identifier)
+    write_attribute( :occurrenceID, occurrence_identifier&.identifier)  # TODO: Slightly janky to touch this here, might not be needed with new hooks
   end
 
 end

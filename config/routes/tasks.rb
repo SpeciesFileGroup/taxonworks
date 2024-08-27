@@ -19,7 +19,8 @@ scope :tasks do
   scope :data_attributes do
     scope :field_synchronize, controller: 'tasks/data_attributes/field_synchronize' do
       get '/', action: :index, as: 'field_synchronize_task'
-      get :values, defaults: {format: :json}
+      #get :values, defaults: {format: :json}
+      match :values, action: :values,  defaults: {format: :json}, via: [:get, :post]
     end
   end
 

@@ -44,15 +44,17 @@ const RouteNames = {
   ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   LeadsHub: '/tasks/leads/hub',
-  ManageBiocurationTask:
-    '/tasks/controlled_vocabularies/biocuration/build_collection',
+  ManageBiocurationTask: '/tasks/controlled_vocabularies/biocuration/build_collection',
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatchCollectionObject: '/tasks/collection_objects/match',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
-  NewBiologicalAssociationGraph:
-    '/tasks/biological_associations/biological_associations_graph',
+  NewBiologicalAssociationGraph: '/tasks/biological_associations/biological_associations_graph',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
+<<<<<<< HEAD
   NewContainer: '/tasks/containers/new_container',
+=======
+  NewCombination: '/tasks/nomenclature/new_combination',
+>>>>>>> development
   NewExtract: '/tasks/extracts/new_extract',
   NewLead: '/tasks/leads/new_lead',
   NewNamespace: '/tasks/namespaces/new_namespace',

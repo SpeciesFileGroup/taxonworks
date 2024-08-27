@@ -204,6 +204,10 @@ module Queries
     #   Applies an order on updated.
     attr_accessor :recent
 
+    # @return symbol :created_at, :updated_at
+    #   defaults to :updated_at if blank
+    attr_accessor :recent_target
+
     # @return Boolean
     #   When true api_except_params is applied and
     #   other restrictions are placed:
@@ -247,6 +251,8 @@ module Queries
       # Reference to query_params, i.e. always permitted
       @api = boolean_param(query_params, :api)
       @recent = boolean_param(query_params, :recent)
+      @recent_target = query_params[:recent_target]
+
       @object_global_id = query_params[:object_global_id]
 
       @venn = query_params[:venn]
@@ -285,6 +291,13 @@ module Queries
 
     def project_id
       [@project_id].flatten.compact
+    end
+
+    def recent_target
+      return :updated_at if @recent_target.blank?
+      r = @recent_target.to_s.downcase.to_sym
+      return :updated_at unless [:updated_at, :created_at].include?(r)
+      r
     end
 
     # @params [Parameters]
@@ -695,13 +708,15 @@ module Queries
       end
 
       if recent
-        q = referenced_klass.from(q.all, table.name).order(updated_at: :desc)
+        q = referenced_klass.from(q.all, table.name).order(recent_target => :desc)
       end
 
       if paginate
         q = q.order(:id).page(page).per(per)
       end
 
+      # TODO: canonically address whether or not to use `.distinct` at this point, we should be able to, however
+      # some incoming queries may have joins/group/etc. alone?! I.e. why can't we?
       q
     end
 

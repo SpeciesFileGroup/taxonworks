@@ -1576,7 +1576,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_misspelling_roles_are_not_required
       #DD: do not use .has_misspelling_relationship?
-      misspellings = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING).any?
+      misspellings = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
       if !self.taxon_name_author_roles.empty? && self.source && misspellings
         soft_validations.add(
           :base, 'Taxon name author role is not required for misspellings and misapplications',
@@ -1593,7 +1593,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_misspelling_author_is_not_required
-      if self.verbatim_author && self.source && (has_misspelling_relationship? || name_is_misapplied?)
+      if self.verbatim_author && self.source && taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
         soft_validations.add(
           :verbatim_author, 'Verbatim author is not required for misspellings and misapplications',
           success_message: 'Verbatim author was deleted',
@@ -1607,7 +1607,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_misspelling_year_is_not_required
-      if self.year_of_publication && self.source && (has_misspelling_relationship? || name_is_misapplied?)
+      if self.year_of_publication && taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
         soft_validations.add(
           :year_of_publication, 'Year is not required for misspellings and misapplications',
           success_message: 'Year was deleted',

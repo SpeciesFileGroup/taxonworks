@@ -257,7 +257,7 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       format.pdf do
-        pdf = Prawn::Document.new
+        pdf = ::Prawn::Document.new
         pdf.text(f, inline_format: true) # Formats <i>
 
         send_data(pdf.render, filename: "tw_bibliography_#{DateTime.now}.pdf", type: 'application/pdf')

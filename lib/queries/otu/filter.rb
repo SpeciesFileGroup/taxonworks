@@ -15,6 +15,7 @@ module Queries
         :biological_associations,
         :collecting_event_id,
         :collection_objects,
+        :common_names,
         :contents,
         :coordinatify,
         :descendants,
@@ -147,8 +148,14 @@ module Queries
       attr_accessor :asserted_distributions
 
       # @return [True, False, nil]
-      #   true - Otu has Conten
-      #   false - Otu without Conten
+      #   true - Otu has common names
+      #   false - Otu without common names
+      #   nil - not applied
+      attr_accessor :common_names
+
+      # @return [True, False, nil]
+      #   true - Otu has Content
+      #   false - Otu without Content
       #   nil - not applied
       attr_accessor :contents
 
@@ -183,6 +190,7 @@ module Queries
         @biological_associations = boolean_param(params, :biological_associations)
         @collecting_event_id = params[:collecting_event_id]
         @collection_objects = boolean_param(params, :collection_objects)
+        @common_names = boolean_param(params, :common_names)
         @contents = boolean_param(params, :contents)
         @coordinatify = boolean_param(params, :coordinatify)
         @descendants = boolean_param(params, :descendants)
@@ -256,7 +264,7 @@ module Queries
           j = table.join(h, Arel::Nodes::InnerJoin).on(table[:taxon_name_id].eq(h[:descendant_id]))
           z = h[:ancestor_id].in(taxon_name_id)
 
-          ::Otu.joins(j.join_sources).where(z)
+          ::Otu.joins(j.join_sources).where(z).distinct # Maybe not needed
         else
           ::Otu.where(taxon_name_id:)
         end
@@ -274,7 +282,7 @@ module Queries
         q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all, project_id:)
         q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all, project_id:)
 
-        referenced_klass_union([q1, q2]).distinct
+        referenced_klass_union([q1, q2]).distinct # Not needed, union should be distinct
       end
 
       def geo_json_facet
@@ -292,7 +300,7 @@ module Queries
       def asserted_distributions_facet
         return nil if asserted_distributions.nil?
         if asserted_distributions
-          ::Otu.joins(:asserted_distributions)
+          ::Otu.joins(:asserted_distributions).distinct
         else
           ::Otu.where.missing(:asserted_distributions)
         end
@@ -310,9 +318,19 @@ module Queries
       def contents_facet
         return nil if contents.nil?
         if contents
-          ::Otu.joins(:contents)
+          ::Otu.joins(:contents).distinct
         else
           ::Otu.where.missing(:contents)
+        end
+      end
+
+      def common_names_facet
+        return nil if @common_names.nil?
+
+        if @common_names
+          ::Otu.joins(:common_names).distinct
+        else
+          ::Otu.where.missing(:common_names)
         end
       end
 
@@ -339,7 +357,7 @@ module Queries
       def collection_objects_facet
         return nil if collection_objects.nil?
         if collection_objects
-          ::Otu.joins(:collection_objects)
+          ::Otu.joins(:collection_objects).distinct
         else
           ::Otu.where.missing(:collection_objects)
         end
@@ -359,7 +377,7 @@ module Queries
         return nil if observations.nil?
 
         if observations
-          ::Otu.joins(:observations)
+          ::Otu.joins(:observations).distinct
         else
           ::Otu.where.missing(:observations)
         end
@@ -368,9 +386,9 @@ module Queries
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
         if historical_determinations.nil?
-          ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: }, taxon_determinations: { position: 1 })
+          ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: }, taxon_determinations: { position: 1 }).distinct
         elsif historical_determinations
-          ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: }).where.not(taxon_determinations: { position: 1 })
+          ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: }).where.not(taxon_determinations: { position: 1 }).distinct
         else
           ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: })
         end
@@ -621,6 +639,7 @@ module Queries
           biological_associations_facet,
           collecting_event_id_facet,
           collection_objects_facet,
+          common_names_facet,
           contents_facet,
           descriptor_id_facet,
           geo_json_facet,

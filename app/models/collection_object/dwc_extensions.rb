@@ -487,11 +487,13 @@ module CollectionObject::DwcExtensions
   def dwc_recorded_by_id
     if collecting_event
       collecting_event.collectors
-        .order('roles.position')
-        .map(&:orcid)
-        .compact
-        .join(CollectionObject::DWC_DELIMITER)
-        .presence
+        .joins(:identifiers)
+        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
+        .select('identifiers.identifier_object_id, identifiers.cached')
+        .unscope(:order)
+        .distinct
+        .pluck('identifiers.cached')
+        .join(CollectionObject::DWC_DELIMITER)&.presence
     end
   end
 
@@ -502,7 +504,16 @@ module CollectionObject::DwcExtensions
 
   def dwc_identified_by_id
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    current_taxon_determination&.determiners&.map(&:orcid)&.join(CollectionObject::DWC_DELIMITER).presence
+    if current_taxon_determination
+      current_taxon_determination&.determiners
+        .joins(:identifiers)
+        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
+        .select('identifiers.identifier_object_id, identifiers.cached')
+        .unscope(:order)
+        .distinct
+        .pluck('identifiers.cached')
+        .join(CollectionObject::DWC_DELIMITER)&.presence
+    end
   end
 
   # we assert custody, NOT ownership

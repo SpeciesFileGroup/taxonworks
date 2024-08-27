@@ -15,7 +15,7 @@
               <div>
                 <radial-menu
                   :options="menuOptions"
-                  @on-click="selectSlice"
+                  @click="selectSlice"
                 />
               </div>
             </div>
