@@ -103,6 +103,11 @@ class CollectionObject < ApplicationRecord
   # .catalog_number_namespace
   delegate :namespace, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
 
+  # .record_number_cached
+  delegate :cached, to: :preferred_record_number, prefix: :record_number, allow_nil: true
+  # .record_number_namespace
+  delegate :namespace, to: :preferred_record_number, prefix: :record_number, allow_nil: true
+
   # CollectingEvent delegations
   delegate :map_center, to: :collecting_event, prefix: :collecting_event, allow_nil: true
   delegate :collectors, to: :collecting_event, prefix: :collecting_event, allow_nil: true
@@ -638,6 +643,13 @@ class CollectionObject < ApplicationRecord
         nil
       end
     end
+  end
+
+  # @return [Identifier::Local::RecordNumber, nil]
+  #   the first (position) record_Number, on a specimen
+  #   !1 Doesn't presently support containers
+  def preferred_record_number
+    Identifier::Local::RecordNumber.where(identifier_object: self).order(:position).first
   end
 
   def geographic_name_classification

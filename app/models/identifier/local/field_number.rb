@@ -7,6 +7,7 @@ class Identifier::Local::FieldNumber < Identifier::Local
   include Shared::DwcOccurrenceHooks
 
   validate :assigned_to_collecting_event
+  validate :same_as_verbatim
 
   def dwc_occurrences
     DwcOccurrence
@@ -17,6 +18,14 @@ class Identifier::Local::FieldNumber < Identifier::Local
   end
 
   private
+
+  def same_as_verbatim
+    unless errors.any? || !identifier_object.present?
+      if identifier_object.verbatim_trip_identifier.present? && build_cached !=  identifier_object.verbatim_trip_identifier
+        errors.add(:identifier, 'not identical to CollectingEvent verbatim_trip_identifier')
+      end
+    end
+  end
 
   def assigned_to_collecting_event
     errors.add(:identifier_object_type, 'only assignable to CollectingEvents') if (identifier_object_type && identifier_object_type != 'CollectingEvent') || (identifier_object && !identifier_object.kind_of?(CollectingEvent))

@@ -535,6 +535,11 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_recorded_by_id).to eq(i)
     end
 
+    specify '#dwc_record_number' do
+      a = Identifier::Local::RecordNumber.create!(identifier: '123', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )
+      expect(s.dwc_record_number).to eq(a.cached)
+    end
+
     specify '#dwc_other_catalog_numbers' do
       a = Identifier::Local::CatalogNumber.create!(identifier: '123', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )
       b = Identifier::Local::CatalogNumber.create!(identifier: '456', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )
