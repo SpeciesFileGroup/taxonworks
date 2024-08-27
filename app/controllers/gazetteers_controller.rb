@@ -116,7 +116,11 @@ class GazetteersController < ApplicationController
       return false
     end
 
-    Gazetteer.import_from_shapefile(import_params)
+    ImportGazetteersJob.perform_later(
+      import_params, sessions_current_user_id, sessions_current_project_id
+    )
+    #Gazetteer.import_from_shapefile(import_params)
+    head :no_content
   end
 
   # POST to support long WKT strings

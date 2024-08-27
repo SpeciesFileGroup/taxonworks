@@ -136,7 +136,8 @@ const saveDisabled = computed(() => {
 
   // We're not allowing save of a single GA or GZ (i.e. cloning) - use alternate
   // names for that
-  // TODO: provide an info triangle in this case?
+  // TODO: provide an info triangle in this case? Also can you use alternate name
+  // on a GA?
   let gaCount = 0
   let gzCount = 0
 
