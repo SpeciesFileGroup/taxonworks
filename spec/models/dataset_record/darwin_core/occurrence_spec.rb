@@ -134,7 +134,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
-
    # TODO: Check that `TW:CollectingEvent:verbatim_locality' alone will create a CE (see tsv)
   context 'when importing eventID with namespace column' do
     before :all do
@@ -173,6 +172,91 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(Identifier::Local::Event.first.identifier_object).to be_kind_of(CollectingEvent)
     end
   end
+
+  # TODO: Check that Namespace column names are correctly written out in tsv
+  context 'when importing with duplicate recordNumber' do
+    before :all do
+      DatabaseCleaner.start
+
+      init_housekeeping
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/identifiers/duplicate_recordNumber.tsv'), 'text/plain'),
+        description: 'Testing'
+      ).tap { |i| i.stage }
+
+      namespace1 = FactoryBot.create(:valid_namespace, short_name: 'ABC')
+      namespace2 = FactoryBot.create(:valid_namespace, short_name: 'DEF')
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let!(:results) { @import_dataset.import(5000, 100) }
+
+    it 'creates a new record' do
+      expect(results.length).to eq(1)
+    end
+
+    # TODO: Uncertain if this is correctly defined
+    it 'errors the second record' do
+      expect(results.last.status).to eq('Errored')
+    end
+
+    it 'creates collection objects' do
+      expect(Specimen.all.size).to eq(1)
+    end
+
+    it "creates the first CatalogNumber" do
+      expect(Identifier::Local::CatalogNumber.all.size).to eq(1)
+    end
+
+    it "creates the first recordNumber" do
+      expect(Identifier::Local::RecordNumber.all.size).to eq(1)
+    end
+  end
+
+ # TODO: Check that `TW:CollectingEvent:verbatim_locality' alone will create a CE (see tsv)
+  context 'when importing eventID with namespace column' do
+    before :all do
+      DatabaseCleaner.start
+
+      init_housekeeping
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/identifiers/eventID_namespaced.tsv'), 'text/plain'),
+        description: 'Testing'
+      ).tap { |i| i.stage }
+
+      namespace = FactoryBot.create(:valid_namespace, short_name: 'DEF')
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let!(:results) { @import_dataset.import(5000, 100) }
+
+    it 'creates a new record' do
+      expect(results.length).to eq(2)
+      expect(results.first.status).to eq('Imported')
+    end
+
+    it 'creates collecting events' do
+      expect(CollectingEvent.all.size).to eq(1) # Unique by eventID, properties ignored (at least this spec is written as if they are)
+    end
+
+    it "does not use a universal namespace" do
+      expect(Identifier::Local::Event.first.namespace.short_name).to eq('DEF')
+    end
+
+    it 'attached FieldNumber to CollectingEvent' do
+      expect(Identifier::Local::Event.first.identifier_object).to be_kind_of(CollectingEvent)
+    end
+  end
+
+
 
   context 'when not supplying custom namespaces for occurrenceID nor eventID' do
     before(:all) do
