@@ -36,7 +36,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(results.first.status).to eq('Imported')
     end
 
-    xit 'creates a collection object' do
+    it 'creates a collection object' do
+      expect(Specimen.all.count).to eq(1)
     end
 
     it 'creates a genus protonym' do
@@ -54,12 +55,13 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       Identifier::Local::Import::Dwc.find_by_identifier('0d66a0ee-7594-597b-9aa1-ac763591548b')
     end
 
-    xit "creates a 'namespaced' identifier" do
+    it "creates a 'namespaced' identifier" do
+      expect(Identifier::Local.all.count).to eq(1) 
     end
 
-    xit 'creates a taxonDetermination' do
+    it 'creates a taxonDetermination' do
+      expect(TaxonDetermination.all.count).to eq(1)
     end
-
   end
 
   context 'when not supplying custom namespaces for occurrenceID nor eventID' do
@@ -69,7 +71,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
       DatabaseCleaner.start
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/auto_created_namespaces.tsv'), 'text/plain'),
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/identifiers/auto_created_namespaces.tsv'), 'text/plain'),
         description: 'occurrenceID and eventID namespaces test'
       ).tap { |i| i.stage }
       @imported = 3.times.map { @import_dataset.reload.import(5000, 1) }.flatten # WARN: Importing one at a time is deliberate
@@ -89,7 +91,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       Identifier::Local::Import::Dwc.where(identifier: (1..3).map { |n| "occurrence-#{n}"})
     end
 
-    let(:event_id_identifiers) {  Identifier::Local::FieldNumber.where(identifier: (1..3).map { |n| "event-#{n}"}) }
+    let(:event_id_identifiers) {  Identifier::Local::Event.where(identifier: (1..3).map { |n| "event-#{n}"}) }
 
     it 'creates one collection object per record' do
       expect(collection_objects.count).to eq(3)
@@ -830,7 +832,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
-
   context 'when importing an occurrence with duplicate acronym institutionCode' do
     before :all do
       @import_dataset = prepare_occurrence_tsv('acronym_institution_code.tsv',
@@ -888,7 +889,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       s_fervidus.original_genus = g_camponotus
       s_fervidus.original_subgenus = g_tanaemyrmex
       s_fervidus.original_species = s_fervidus
-
 
       @imported = @import_dataset.import(5000, 100)
     end
