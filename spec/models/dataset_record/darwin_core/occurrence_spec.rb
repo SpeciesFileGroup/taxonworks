@@ -256,7 +256,44 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  context 'when importing virtualCatalogNumber and unique RecordNumber' do
+    before :all do
+      DatabaseCleaner.start
 
+      init_housekeeping
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/identifiers/catalogNumber_virtual_recordNumber_unique.tsv'), 'text/plain'),
+        description: 'Testing'
+      ).tap { |i| i.stage }
+
+      namespace1 = FactoryBot.create(:valid_namespace, short_name: 'ABC')
+      namespace2 = FactoryBot.create(:valid_namespace, short_name: 'DEF')
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let!(:results) { @import_dataset.import(5000, 100) }
+
+    it 'creates a new record' do
+      expect(results.length).to eq(2)
+      expect(results.first.status).to eq('Imported')
+    end
+
+    it "creates 1 catalog number" do
+      expect(Identifier::Local::CatalogNumber.all.count).to eq(1)
+    end
+    
+    it "virtualizes the container" do
+      expect(Identifier::Local::CatalogNumber.first.identifier_object).to be_kind_of(Container::Virtual)
+    end
+
+    it 'creates 2 record numbers' do
+      expect(Identifier::Local::RecordNumber.all.count).to eq(2)
+    end
+  end
 
   context 'when not supplying custom namespaces for occurrenceID nor eventID' do
     before(:all) do
