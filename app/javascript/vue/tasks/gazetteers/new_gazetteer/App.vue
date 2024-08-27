@@ -162,7 +162,7 @@ const shapeEditingDisabled = computed(() =>{
 })
 
 const previewDisabled = computed(() => {
-  return !!gz.value.id || shapes.value.length < 2
+  return !!gz.value.id || shapes.value.length == 0
 })
 
 watch(
