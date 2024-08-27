@@ -95,6 +95,45 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  # TODO: Check that `TW:CollectingEvent:verbatim_locality' alone will create a CE (see tsv)
+  context 'when importing fieldNumbers with namespace column' do
+    before :all do
+      DatabaseCleaner.start
+
+      init_housekeeping
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/identifiers/fieldNumber_namespaced.tsv'), 'text/plain'),
+        description: 'Testing'
+      ).tap { |i| i.stage }
+
+      namespace = FactoryBot.create(:valid_namespace, short_name: 'ABC')
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let!(:results) { @import_dataset.import(5000, 100) }
+
+    it 'creates a new record' do
+      expect(results.length).to eq(3)
+      expect(results.first.status).to eq('Imported')
+    end
+
+    it 'creates collecting events' do
+      expect(CollectingEvent.all.size).to eq(3)
+    end
+
+    it "creates a 'namespaced' identifier" do
+      expect(Identifier::Local::FieldNumber.all.count).to eq(3)
+    end
+
+    it 'attached FieldNumber to CollectingEvent' do
+      expect(Identifier::Local::FieldNumber.first.identifier_object).to be_kind_of(CollectingEvent)
+    end
+  end
+
   context 'when not supplying custom namespaces for occurrenceID nor eventID' do
     before(:all) do
 
