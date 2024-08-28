@@ -449,7 +449,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def term_value_changed(name, value)
     if ['institutioncode', 'collectioncode', 'catalognumber', 'basisofrecord'].include?(name.downcase) and self.status != 'Imported'
-      ready = get_field_value('catalogNumber').blank?
+      ready = get_field_value('catalogNumber').blank? || get_field_value('TW:Namespaces:catalogNumber').present?
       ready ||= !!self.import_dataset.get_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
 
       self.metadata.delete('error_data')
@@ -665,9 +665,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         #     name: "#{institution_code}-#{collection_code} [CREATED FROM DWC-A IMPORT IN #{project.name} PROJECT]",
         #     delimiter: '-'
         # }).find_or_create_by!(short_name: "#{institution_code}-#{collection_code}")) if collection_code
-    namespace_id = self.import_dataset.get_catalog_number_namespace(institution_code, get_field_value(:collectionCode))
-    if namespace_id
-      Utilities::Hashes::set_unless_nil(res[:catalog_number], :namespace, Namespace.find(namespace_id))
+    if namespace = get_field_value('TW:Namespace:catalogNumber')
+      namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(namespace)) # Case insensitive match
+      raise DarwinCore::InvalidData.new({ 'TW:Namespace:catalogNumber' => ['Namespace not found'] }) unless namespace
+    else
+      namespace_id = self.import_dataset.get_catalog_number_namespace(institution_code, get_field_value(:collectionCode))
+      namespace = Namespace.find(namespace_id) if namespace_id
+    end
+    if namespace
+      Utilities::Hashes::set_unless_nil(res[:catalog_number], :namespace, namespace)
       Utilities::Hashes::set_unless_nil(res[:catalog_number], :project, self.project)
     end
 
