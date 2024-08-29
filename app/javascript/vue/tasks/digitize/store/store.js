@@ -25,6 +25,7 @@ function makeInitialState() {
   return reactive({
     settings: {
       increment: false,
+      incrementRecordNumber: false,
       isLocked: false,
       lastChange: 0,
       lastSave: 0,
@@ -45,6 +46,7 @@ function makeInitialState() {
           repository_id: false,
           current_repository_id: false
         },
+        recordNumber: false,
         identifier: false,
         taxon_determination: {
           otu_id: false,
@@ -91,6 +93,7 @@ function makeInitialState() {
     ceTotalUsed: 0,
     taxon_determinations: [],
     typeSpecimens: [],
+    existingIdentifiers: [],
     componentsOrder: {
       leftColumn: Object.values(ComponentLeftColumn),
       ComponentParse: Object.values(ComponentParse),

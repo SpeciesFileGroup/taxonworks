@@ -1,9 +1,16 @@
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
-import { COLLECTION_OBJECT, CONTAINER } from '@/constants/index.js'
+import {
+  COLLECTION_OBJECT,
+  CONTAINER,
+  IDENTIFIER_LOCAL_RECORD_NUMBER
+} from '@/constants/index.js'
+import { useIdentifierStore } from '../pinia/identifiers'
 
 export default ({ commit, dispatch, state }, coId) =>
   new Promise((resolve, reject) => {
+    const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
+
     state.settings.loading = true
     dispatch(ActionNames.GetCollectionObject, coId)
       .then(({ body }) => {
@@ -23,8 +30,14 @@ export default ({ commit, dispatch, state }, coId) =>
                 }
               })
             )
+            promises.push(
+              recordNumber.load({
+                objectId: response.body.id,
+                objectType: CONTAINER
+              })
+            )
           })
-          .catch((_) => {
+          .catch(() => {
             promises.push(
               dispatch(ActionNames.GetIdentifiers, {
                 id: coId,
@@ -34,6 +47,13 @@ export default ({ commit, dispatch, state }, coId) =>
                   commit(MutationNames.SetIdentifier, response[0])
                   dispatch(ActionNames.GetNamespace, response[0].namespace_id)
                 }
+              })
+            )
+
+            promises.push(
+              recordNumber.load({
+                objectId: coId,
+                objectType: COLLECTION_OBJECT
               })
             )
           })

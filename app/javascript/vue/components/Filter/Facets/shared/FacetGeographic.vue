@@ -28,7 +28,7 @@
             <input
               type="radio"
               :value="value"
-              v-model="geographic.geographic_area_mode"
+              v-model="geographicAreaMode"
             />
             {{ key }}
           </label>
@@ -127,8 +127,15 @@ const geographic = computed({
   set: (value) => emit('update:modelValue', value)
 })
 const geographicAreas = ref([])
+const geographicAreaMode = ref(GEOGRAPHIC_OPTIONS.Spatial)
 const geojson = ref([])
 const view = ref(TABS.Area)
+
+watch(geographicAreaMode, (newVal) => {
+  geographic.value.geographic_area_mode = geographicAreas.value.length
+    ? newVal
+    : undefined
+})
 
 watch(
   geojson,
@@ -207,14 +214,15 @@ watch(
 )
 
 watch(
-  [geographicAreas, () => geographic.value.geographic_area_mode],
+  [geographicAreas, geographicAreaMode],
   () => {
-    geographic.value.geographic_area_id =
-      geographic.value.geographic_area_mode === GEOGRAPHIC_OPTIONS.Spatial
-        ? geographicAreas.value
-            .filter((item) => item.has_shape)
-            .map((item) => item.id)
-        : geographicAreas.value.map((item) => item.id)
+    const isSpatial = geographicAreaMode.value === GEOGRAPHIC_OPTIONS.Spatial
+
+    geographic.value.geographic_area_id = isSpatial
+      ? geographicAreas.value
+          .filter((item) => item.has_shape)
+          .map((item) => item.id)
+      : geographicAreas.value.map((item) => item.id)
   },
   { deep: true }
 )
@@ -225,16 +233,23 @@ watch(
     if (!newVal?.length && oldVal?.length) {
       geographicAreas.value = []
     }
+
+    geographic.value.geographic_area_mode = newVal?.length
+      ? geographicAreaMode.value
+      : undefined
   },
   { deep: true }
 )
 
 onBeforeMount(() => {
   if (geographic.value.geographic_area_id) {
-    [geographic.value.geographic_area_id].flat().forEach((id) => {
+    ;[geographic.value.geographic_area_id].flat().forEach((id) => {
       addGeoArea(id)
     })
+
+    geographicAreaMode.value = geographic.value.geographic_area_mode
   }
+
   if (geographic.value.geo_json) {
     addShape(convertGeoJSONParam(geographic.value))
   }
