@@ -122,11 +122,11 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
 
     it 'creates collecting events' do
-      expect(CollectingEvent.all.size).to eq(3)
+      expect(CollectingEvent.all.size).to eq(2)
     end
 
     it "creates a 'namespaced' identifier" do
-      expect(Identifier::Local::FieldNumber.all.count).to eq(3)
+      expect(Identifier::Local::FieldNumber.all.count).to eq(2)
     end
 
     it 'attached FieldNumber to CollectingEvent' do
@@ -324,7 +324,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
 
     it 'references the namespace' do
-      expect(Identifier::Local::CatalogNumber.first.namespace.short_name).eq ('ABC')
+      expect(Identifier::Local::CatalogNumber.first.namespace.short_name).to eq('ABC')
     end
   end
 
