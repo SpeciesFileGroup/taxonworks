@@ -704,7 +704,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # basisOfRecord: [Check it is 'PreservedSpecimen', 'FossilSpecimen']
     basis = get_field_value(:basisOfRecord)
-    basis = basis.downcase.camelize if basis.include? '_' # Reformat GBIF occurrence download basis of records (e.g., PRESERVED_SPECIMEN to PreservedSpecimen)
+    basis = basis.downcase.camelize if basis&.include? '_' # Reformat GBIF occurrence download basis of records (e.g., PRESERVED_SPECIMEN to PreservedSpecimen)
     if 'FossilSpecimen'.casecmp(basis) == 0
       fossil_biocuration = BiocurationClass.where(project:).find_by(uri: DWC_FOSSIL_URI)
 

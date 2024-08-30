@@ -59,7 +59,7 @@
         <div class="horizontal-left-content field">
           <input
             type="text"
-            id="identifier-field"
+            id="record-number-identifier-field"
             :class="{
               'validate-identifier': store.existingIdentifiers.length
             }"
