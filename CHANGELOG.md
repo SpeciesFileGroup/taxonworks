@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Quickly clicking save before load-in on Comprehensive can detach CollectingEvent from CollectionObject
 - Filter collecting events: data attribute table view is empty [#4013]
 - Field synchronize: URI Too Large error when user pass a long query [#4017]
+- DwC importer crashing on record with blank `basisOfRecord` [#4024]
 
 [#4019]: https://github.com/SpeciesFileGroup/taxonworks/issues/4019
 [#3989]: https://github.com/SpeciesFileGroup/taxonworks/issues/3989
@@ -37,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4017]: https://github.com/SpeciesFileGroup/taxonworks/issues/4017
 [#4018]: https://github.com/SpeciesFileGroup/taxonworks/issues/4018
 [#4021]: https://github.com/SpeciesFileGroup/taxonworks/issues/4021
+[#4024]: https://github.com/SpeciesFileGroup/taxonworks/issues/4024
 
 ## [0.43.2] - 2024-08-10
 
