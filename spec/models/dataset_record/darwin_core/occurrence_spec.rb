@@ -196,7 +196,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     let!(:results) { @import_dataset.import(5000, 100) }
 
     it 'creates a new record' do
-      expect(results.length).to eq(1)
+      expect(results.select { |r| r.status == 'Imported'}.length).to eq(1)
     end
 
     it 'errors the second record' do
@@ -388,8 +388,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     let!(:results) { @import_dataset.import(5000, 100) }
 
     it 'creates a new record' do
-      expect(results.length).to eq(1)
-      expect(results.first.status).to eq('Imported')
+      expect(results.map(&:status)).to eq(['Imported', 'Errored'])
     end
 
     it 'creates FieldNumber' do
@@ -401,7 +400,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
 
     it 'fails second record' do
-      expect(results.first.status).to eq('Errored')
+      expect(results.last.status).to eq('Errored')
     end
   end
 

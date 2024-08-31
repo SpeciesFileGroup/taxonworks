@@ -223,6 +223,26 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           end
         end
 
+        if record_number = get_field_value(:recordNumber)
+          record_number_namespace = get_field_value('TW:Namespace:recordNumber')
+          identifier_attributes = {
+            identifier: record_number,
+            project_id: Current.project_id
+          }
+
+          record_number_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(record_number_namespace)) # Case insensitive match
+          raise DarwinCore::InvalidData.new({ 'TW:Namespace:recordNumber' => ['Namespace not found'] }) unless record_number_namespace
+
+          identifier_attributes[:namespace] = record_number_namespace
+          identifier = Identifier::Local::RecordNumber
+            .create_with(identifier_object: specimen, annotator_batch_mode: true)
+            .find_or_create_by!(identifier_attributes)
+
+          unless identifier.identifier_object == specimen
+            raise DarwinCore::InvalidData.new({ 'recordNumber' => ['Is already in use'] })
+          end
+        end
+
         if attributes.dig(:catalog_number, :identifier)
           namespace = attributes.dig(:catalog_number, :namespace)
           delete_namespace_prefix!(attributes.dig(:catalog_number, :identifier), namespace)
@@ -244,7 +264,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           object = identifier.identifier_object
 
           unless object == specimen
-            raise DarwinCore::InvalidData.new({ 'catalogNumber' => ['Is already in use'] }) unless self.import_dataset.containerize_dup_cat_no?
+            unless record_number || self.import_dataset.containerize_dup_cat_no?
+              raise DarwinCore::InvalidData.new({ 'catalogNumber' => ['Is already in use'] })
+            end
             if object.is_a?(Container)
               object.add_container_items([specimen])
             else
@@ -317,8 +339,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             end
           end
 
-          collecting_event = identifier_type.find_by(identifier_attributes)&.identifier_object
-          collecting_event_identifiers << {type: identifier_type, attributes: identifier_attributes} unless collecting_event
+          event_id_identifier = identifier_type.find_by(identifier_attributes)
+          collecting_event = event_id_identifier&.identifier_object
+          collecting_event_identifiers << {type: identifier_type, attributes: identifier_attributes}
         end
 
         if field_number.present?
@@ -337,11 +360,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           attributes[:collecting_event][:verbatim_trip_identifier] ||= verbatim_trip_identifier
           identifier_attributes[:namespace] = field_number_namespace
 
-          collecting_event ||= Identifier::Local::FieldNumber.find_by(identifier_attributes)&.identifier_object
-          collecting_event_identifiers << {type: Identifier::Local::FieldNumber, attributes: identifier_attributes} unless collecting_event
+          field_number_identifier = Identifier::Local::FieldNumber.find_by(identifier_attributes)
+          collecting_event ||= field_number_identifier&.identifier_object
+          collecting_event_identifiers << {type: Identifier::Local::FieldNumber, attributes: identifier_attributes}
         end
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
         if collecting_event
+          if field_number_identifier && event_id_identifier &&
+            field_number_identifier.identifier_object != event_id_identifier.identifier_object
+            raise DarwinCore::InvalidData.new({ 'eventID/fieldNumber' => ['eventId and fieldNumber refer to different collecting events'] })
+          elsif (field_number_identifier && event_id) || (event_id_identifier && field_number)
+            raise DarwinCore::InvalidData.new({ 'eventID/fieldNumber' => ['does not match previous definition of collecting event'] })
+          end
+
+          #if collecting_event.identifiers.where(type: Identifer::Local::FieldNumber)
           # if tags have been specified to be added, update the collecting event
           if attributes[:collecting_event][:tags_attributes]
             # get list of preexisting tags, exclude them from update
@@ -742,7 +774,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # catalogNumber: [catalog_number.identifier]
     Utilities::Hashes::set_unless_nil(res[:catalog_number], :identifier, get_field_value(:catalogNumber))
 
-    # recordNumber: [Not mapped]
+    # recordNumber: [Mapped in import method]
 
     # recordedBy: [collecting_event.collectors and collecting_event.verbatim_collectors]
     Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
@@ -834,7 +866,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # parentEventID: [Not mapped]
 
-    # fieldNumber: verbatim_trip_identifier
+    # fieldNumber: verbatim_trip_identifier & Identifier::Local::FieldNumber
 
     start_date, end_date = parse_iso_date(:eventDate)
 
