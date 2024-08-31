@@ -21,7 +21,9 @@ class Identifier::Local::CatalogNumber < Identifier::Local
   private
 
   def assigned_to_collection_object
-    errors.add(:identifier_object_type, 'only assignable to CollectionObject') if (identifier_object_type && identifier_object_type != 'CollectionObject') || (identifier_object && !identifier_object.kind_of?(CollectionObject))
+    if (identifier_object_type && !(%w{CollectionObject Container}.include?(identifier_object_type))) || ( identifier_object && !identifier_object.kind_of?(CollectionObject) && !identifier_object.kind_of?(Container) )
+        errors.add(:identifier_object_type, 'only assignable to CollectionObject') 
+    end
   end
 
 end
