@@ -1,9 +1,11 @@
 <template>
   <table class="table-striped">
     <thead>
-      <th>Identifier</th>
-      <th>Type</th>
-      <th />
+      <tr>
+        <th>Identifier</th>
+        <th>Type</th>
+        <th />
+      </tr>
     </thead>
     <VDraggable
       class="table-entrys-list"

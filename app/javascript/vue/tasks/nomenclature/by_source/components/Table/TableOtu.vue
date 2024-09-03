@@ -1,13 +1,16 @@
 <template>
   <table>
-    <tr>
-      <th @click="sortTable('object_label')">Otu</th>
-      <th/>
-    </tr>
+    <thead>
+      <tr>
+        <th @click="sortTable('object_label')">Otu</th>
+        <th />
+      </tr>
+    </thead>
     <TableOtuRow
       v-for="item in list"
       :key="item.id"
-      :otu="item"/>
+      :otu="item"
+    />
   </table>
 </template>
 
@@ -27,7 +30,7 @@ const props = defineProps({
 const store = useStore()
 const asc = ref(true)
 
-const sortTable = property => {
+const sortTable = (property) => {
   store.dispatch(ActionNames.SortOtuList, {
     ascending: asc.value,
     property
