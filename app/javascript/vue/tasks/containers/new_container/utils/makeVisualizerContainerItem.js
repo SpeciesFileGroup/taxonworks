@@ -1,10 +1,10 @@
 import { shorten } from '@/helpers'
-import { comparePosition } from './comparePosition'
+import { comparePosition, convertPositionTo3DGraph } from './index.js'
 import { HOVER_COLOR } from '../constants'
 
 export function makeVisualizerContainerItem(
   item,
-  { truncateMaxLength, hoverRow }
+  { truncateMaxLength, hoverRow, container }
 ) {
   const label = truncateMaxLength
     ? shorten(item.label, truncateMaxLength)
@@ -15,7 +15,7 @@ export function makeVisualizerContainerItem(
       : {}
 
   return {
-    position: item.position,
+    position: convertPositionTo3DGraph(item.position, container.size),
     metadata: item,
     label,
     style

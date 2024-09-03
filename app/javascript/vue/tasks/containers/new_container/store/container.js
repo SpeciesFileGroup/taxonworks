@@ -10,7 +10,8 @@ import { removeFromArray, addToArray } from '@/helpers'
 import {
   comparePosition,
   isItemInContainer,
-  makeVisualizerContainerItem
+  makeVisualizerContainerItem,
+  convertPositionToTWCoordinates
 } from '../utils'
 import { DEFAULT_OPTS } from '../constants'
 

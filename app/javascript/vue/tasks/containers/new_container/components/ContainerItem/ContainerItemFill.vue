@@ -70,6 +70,7 @@ import { useContainerStore } from '../../store'
 import { VueEncase } from '@sfgrp/encase'
 import { DEFAULT_OPTS } from '../../constants'
 import { useInterval } from '@/composables'
+import { convertPositionTo3DGraph } from '../../utils'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
@@ -104,14 +105,14 @@ const { stop, resume } = useInterval(() => {
   if (counter.value < totalCells.value) {
     counter.value++
   } else {
-    counter.value = 0
+    counter.value = 1
   }
 }, 500)
 stop()
 
 watch(isModalVisible, (newVal) => {
   if (newVal) {
-    counter.value = 0
+    counter.value = 1
     resume()
   } else {
     stop()
@@ -132,7 +133,7 @@ function fillContainer({ direction }) {
         }
 
         items.push({
-          position,
+          position: convertPositionTo3DGraph(position, store.container.size),
           label: String(index)
         })
 

@@ -54,6 +54,7 @@ import { onBeforeMount } from 'vue'
 import { URLParamsToJSON } from '@/helpers'
 import { useContainerStore } from './store'
 import { makeContainerItem } from './adapters'
+import { convertPositionToTWCoordinates } from './utils'
 import ContainerForm from './components/ContainerForm.vue'
 import ContainerItemList from './components/ContainerItem/ContainerItemList.vue'
 import ContainerItemModal from './components/ContainerItem/ContainerItemModal.vue'
@@ -69,9 +70,14 @@ const store = useContainerStore()
 const containerItemModalRef = ref()
 
 async function openContainerItemModal({ position }) {
-  const containerItem = store.getContainerItemByPosition(position) || {
+  const twPosition = convertPositionToTWCoordinates(
+    position,
+    store.container.size
+  )
+
+  const containerItem = store.getContainerItemByPosition(twPosition) || {
     ...makeContainerItem(),
-    position
+    position: twPosition
   }
 
   await new Promise((resolve) => setTimeout(resolve, 50))
@@ -80,10 +86,15 @@ async function openContainerItemModal({ position }) {
 }
 
 function handleClick({ position }) {
-  if (store.placeItem && !store.getContainerItemByPosition(position)) {
+  const twPosition = convertPositionToTWCoordinates(
+    position,
+    store.container.size
+  )
+
+  if (store.placeItem && !store.getContainerItemByPosition(twPosition)) {
     const containerItem = {
       ...store.placeItem,
-      position,
+      position: twPosition,
       isUnsaved: true
     }
 
