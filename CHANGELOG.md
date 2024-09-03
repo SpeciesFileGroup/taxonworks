@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- DwC export will now use a valid taxon name if linked first to an invalid, and it is available
 - EventID and verbatim_trip_code are disentangled in DwC Importer, they do not map to one-another now [#3800] [#2852]
 - TripCode is now FieldNumber (all data migrated)
 - DwcOccurrence rebuilds triggered for changes to TaxonNameRelationship [#4019], TypeMaterial, TaxonDetermination, Identifier::Global

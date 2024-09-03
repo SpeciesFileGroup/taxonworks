@@ -50,16 +50,12 @@ module Shared::Taxonomy
     protected
 
     # !! @return Taxonomy
-    # !!
-    # !! Since Ruby 2.5 Hash keys return in the order
-    # !!  they were added, this is assumed for this method
-    # !!  so if it is change this must be taken into account.
-    # !!
+    # !! Always return a valid taxon name
     # TODO: analyze and optimize for n+1
     def set_taxonomy
       c = case self.class.base_class.name
           when 'CollectionObject'
-            a = current_taxon_name
+            a = current_valid_taxon_name
 
             # If we have no name, see if there is a Type reference and use it as proxy
             # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
