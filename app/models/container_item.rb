@@ -4,6 +4,8 @@
 #
 # This concept is a graph edge defining the relationship to the container.
 #
+# The position coordinate system has (x,y,z) starting 0,0,0 in the top left, with Z moving "into" the screen.
+#
 # @!attribute parent_id
 #   @return [Integer]
 #     id of the ContainerItem whose contained_object is a Container, i.e. the container of this ContainerItem
@@ -30,11 +32,11 @@
 #
 ## @!attribute disposition_y
 #   @return [Integer]
-#     a y coordinate for this item in its container
+#     a y coordinate for this item in its container, we use "top" y for zero
 #
 ## @!attribute disposition_z
 #   @return [Integer]
-#     a z coordinate for this item in its container
+#     a z coordinate for this item in its container, we use "in" Z for zero
 #
 class ContainerItem < ApplicationRecord
 
