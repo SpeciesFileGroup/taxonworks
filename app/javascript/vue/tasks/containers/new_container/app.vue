@@ -8,9 +8,7 @@
     full-screen
   />
   <Navbar />
-  <div
-    class="horizontal-left-content align-start full_width task-container gap-medium"
-  >
+  <div class="task-container">
     <div class="flex-col gap-medium full_height">
       <ContainerForm
         v-model="store.container"
@@ -41,14 +39,14 @@
       @container-item:right-click="openContainerItemModal"
       @container-item:left-click="handleClick"
     />
-    <ContainerItemModal
-      ref="containerItemModalRef"
-      @close="() => (store.placeItem = null)"
-      @add="saveContainerItem"
-      @remove="store.removeContainerItem"
-    />
-    <MessageBox />
   </div>
+  <ContainerItemModal
+    ref="containerItemModalRef"
+    @close="() => (store.placeItem = null)"
+    @add="saveContainerItem"
+    @remove="store.removeContainerItem"
+  />
+  <MessageBox />
 </template>
 
 <script setup>
@@ -131,8 +129,10 @@ onBeforeMount(() => {
 
 <style lang="scss" scoped>
 .container-viewer {
+  position: relative;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
 
   :deep(canvas) {
     border-radius: inherit;
@@ -144,7 +144,9 @@ onBeforeMount(() => {
 }
 
 .task-container {
-  height: calc(100vh - 15.5rem);
-  max-height: calc(100vh - 15.5rem);
+  display: grid;
+  gap: 1em;
+  grid-template-columns: 410px minmax(400px, 1fr);
+  grid-template-rows: calc(100vh - 15.5rem);
 }
 </style>
