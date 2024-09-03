@@ -3,6 +3,10 @@
     <h1>New container</h1>
     <VSettings />
   </div>
+  <VSpinner
+    v-if="store.isLoading"
+    full-screen
+  />
   <Navbar />
   <div
     class="horizontal-left-content align-start full_width task-container gap-medium"
@@ -61,6 +65,7 @@ import ContainerItemModal from './components/ContainerItem/ContainerItemModal.vu
 import Navbar from './components/Navbar/Navbar.vue'
 import MessageBox from './components/MessageBox.vue'
 import VSettings from './components/Settings.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 defineOptions({
   name: 'NewContainer'
