@@ -49,6 +49,7 @@ export default function (service, { listParser, initParameters } = {}) {
         setRequestUrl(response.request.responseURL, payload)
         sessionStorage.setItem('totalFilterResult', state.pagination.total)
       })
+      .catch(() => {})
       .finally(() => {
         state.isLoading = false
       })

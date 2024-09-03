@@ -296,6 +296,18 @@ class CollectingEvent < ApplicationRecord
 
   validates_presence_of :geographic_area_id, if: -> { meta_prioritize_geographic_area }
 
+  validate :verbatim_trip_identifier_syncronized
+
+  def verbatim_trip_identifier_syncronized
+    if verbatim_trip_identifier.present? 
+      if i = identifiers.where(type: 'Identifier::Local::FieldNumber').first
+        if i.cached != verbatim_trip_identifier
+          errors.add(:verbatim_trip_identifier, 'does not match the FieldNumber identifier attached to record')
+        end
+      end
+    end
+  end
+
   soft_validate(
     :sv_minimally_check_for_a_label,
     set: :minimally_check_for_a_label,

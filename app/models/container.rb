@@ -35,13 +35,14 @@
 class Container < ApplicationRecord
 
   include Housekeeping
-  include Shared::Identifiers
   include Shared::Containable
-  include Shared::Tags
-  include SoftValidation
-  include Shared::Loanable
+  include Shared::Depictions
+  include Shared::Identifiers
   include Shared::Labels 
+  include Shared::Loanable
+  include Shared::Tags
   include Shared::IsData
+  include SoftValidation
 
   has_many :collection_profiles, inverse_of: :container, dependent: :restrict_with_error
 

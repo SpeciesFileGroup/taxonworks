@@ -1,18 +1,19 @@
 <template>
   <div>
     <table id="source-table">
-      <tr>
-        <th>Source</th>
-        <th/>
-      </tr>
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th />
+        </tr>
+      </thead>
       <source-row-component
         v-for="src in list"
         :key="src.id"
-        :source="src"/>
+        :source="src"
+      />
     </table>
-    <span v-if="list.length">
-      {{ list.length }} sources
-    </span>
+    <span v-if="list.length"> {{ list.length }} sources </span>
   </div>
 </template>
 <script>

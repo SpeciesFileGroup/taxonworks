@@ -102,7 +102,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '8.0.1'
+gem 'shakapacker', '8.0.2'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'

@@ -9,33 +9,48 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- FieldNumber local identifier sensu DwC
+- RecordNumber local identifier sensu DwC [#4016]
+- DwC importer support for FieldNumber and RecordNumber [#4016] [#3800]
+- DwC export support for FieldNumber, RecordNumber
+- New RecordNumber panel for Comprehensive Digization 
 - Filter Otu: With/without common names
 - Radial annotator: Add sort to identifiers slice [#4021]
 
 ### Changed
 
+- EventID and verbatim_trip_code are disentangled in DwC Importer, they do not map to one-another now [#3800] [#2852]
+- TripCode is now FieldNumber (all data migrated)
 - DwcOccurrence rebuilds triggered for changes to TaxonNameRelationship [#4019], TypeMaterial, TaxonDetermination, Identifier::Global
 - Wikidata IDs are now also loaded into recordedByID and identifiedByID [#3989]
 - Sort order of descendant inventory
 - Removed net-pop gem workaround for Ruby 3.3.3
 - Facet geographic area: Spatial mode by default
 - Facet nomenclature rank: Remove selected ranks from select input
+- Updated Ruby gems
 
 ### Fixed
 
+- Staged images tab on collection object report
+- Non-integer identifier start/end ranges raising
 - Various facets in Filter OTUs not being scoped to unique records
 - Saving a bad identifier from annotator fails to show message why
 - Download formatted references as PDF
 - Quickly clicking save before load-in on Comprehensive can detach CollectingEvent from CollectionObject
 - Filter collecting events: data attribute table view is empty [#4013]
 - Field synchronize: URI Too Large error when user pass a long query [#4017]
+- DwC importer crashing on record with blank `basisOfRecord` [#4024]
 
-[#4019]: https://github.com/SpeciesFileGroup/taxonworks/issues/4019
+[#2852]: https://github.com/SpeciesFileGroup/taxonworks/issues/2852
+[#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3989]: https://github.com/SpeciesFileGroup/taxonworks/issues/3989
 [#4013]: https://github.com/SpeciesFileGroup/taxonworks/issues/4013
+[#4016]: https://github.com/SpeciesFileGroup/taxonworks/issues/4016
 [#4017]: https://github.com/SpeciesFileGroup/taxonworks/issues/4017
 [#4018]: https://github.com/SpeciesFileGroup/taxonworks/issues/4018
+[#4019]: https://github.com/SpeciesFileGroup/taxonworks/issues/4019
 [#4021]: https://github.com/SpeciesFileGroup/taxonworks/issues/4021
+[#4024]: https://github.com/SpeciesFileGroup/taxonworks/issues/4024
 
 ## [0.43.2] - 2024-08-10
 

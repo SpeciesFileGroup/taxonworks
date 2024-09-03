@@ -20,11 +20,11 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     print_label: 'THERE: under the stars:18-2-2000') }
 
   # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
-  # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
+  # let!(:i1) { Identifier::Local::FieldNumber.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
   specify '#recent' do
-    query.recent = true 
+    query.recent = true
     expect(query.all.map(&:id)).to contain_exactly(ce2.id, ce1.id)
   end
 
@@ -46,7 +46,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
 
   specify '#collection_objects' do
     CollectionObject.create!(collecting_event: ce1, total: 1)
-    query.collection_objects = false 
+    query.collection_objects = false
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
@@ -98,7 +98,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   specify 'between date range 1, ActionController::Parameters' do
     h = {start_date: '1999-1-1', end_date: '2001-1-1'}
     p = ActionController::Parameters.new( h )
-    q = Queries::CollectingEvent::Filter.new(p) 
+    q = Queries::CollectingEvent::Filter.new(p)
 
     expect(q.all.map(&:id)).to contain_exactly(ce2.id)
   end

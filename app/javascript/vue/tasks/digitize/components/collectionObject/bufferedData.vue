@@ -3,6 +3,7 @@
     v-help.sections.collectionObject.buffered
     class="buffered"
   >
+    <h2>Buffered</h2>
     <buffered-field
       title="Buffered determinations"
       v-model="collectionObject.buffered_determinations"
