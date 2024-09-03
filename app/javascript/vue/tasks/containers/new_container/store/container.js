@@ -6,53 +6,13 @@ import {
   makeContainerItem,
   makeContainerItemPayload
 } from '../adapters'
-import { removeFromArray, addToArray, shorten } from '@/helpers'
-import { comparePosition } from '../utils'
-
-const HOVER_COLOR = {
-  filled: 'blue',
-  empty: 'blue',
-  selected: 'blue'
-}
-
-const DEFAULT_OPTS = {
-  enclose: true,
-  itemSize: 1,
-  padding: 1,
-  cameraPosition: {
-    x: 50,
-    y: 50,
-    z: 50
-  }
-}
-
-function makeVisualizerContainerItem(item, { truncateMaxLength, hoverRow }) {
-  const label = truncateMaxLength
-    ? shorten(item.label, truncateMaxLength)
-    : item.label
-  const style =
-    hoverRow && comparePosition(item.position, hoverRow.position)
-      ? { color: HOVER_COLOR }
-      : {}
-
-  return {
-    position: item.position,
-    metadata: item,
-    label,
-    style
-  }
-}
-
-function isItemInContainer({ x, y, z }, size) {
-  return (
-    x !== null &&
-    y !== null &&
-    z !== null &&
-    x < size.x &&
-    y < size.y &&
-    z < size.z
-  )
-}
+import { removeFromArray, addToArray } from '@/helpers'
+import {
+  comparePosition,
+  isItemInContainer,
+  makeVisualizerContainerItem
+} from '../utils'
+import { DEFAULT_OPTS } from '../constants'
 
 export const useContainerStore = defineStore('container', {
   state: () => ({
@@ -176,13 +136,13 @@ export const useContainerStore = defineStore('container', {
     fillContainer(items, { direction }) {
       const { size } = this.container
 
-      for (let i = 0; i < size[direction[0]]; i++) {
+      for (let i = 0; i < size[direction[2]]; i++) {
         for (let j = 0; j < size[direction[1]]; j++) {
-          for (let k = 0; k < size[direction[2]]; k++) {
+          for (let k = 0; k < size[direction[0]]; k++) {
             const position = {
-              [direction[0]]: i,
+              [direction[2]]: i,
               [direction[1]]: j,
-              [direction[2]]: k
+              [direction[0]]: k
             }
             const cellItem = this.getContainerItemByPosition(position)
 

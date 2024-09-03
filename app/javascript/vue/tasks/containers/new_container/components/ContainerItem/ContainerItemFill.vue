@@ -10,49 +10,66 @@
   <VModal
     v-if="isModalVisible"
     @close="() => (isModalVisible = false)"
+    :container-style="{
+      width: '800px'
+    }"
   >
     <template #header>
       <h3>Fill container</h3>
     </template>
     <template #body>
-      <label>
-        Defines the incremental position that will be used to fill the container
-      </label>
-      <ul>
-        <li
-          v-for="value in DIRECTIONS"
-          :key="value"
-        >
+      <div class="horizontal-left-content gap-medium align-start">
+        <div>
           <label>
-            <input
-              type="radio"
-              :value="value"
-              v-model="direction"
-            />
-            {{ value.split('').join(' → ') }}
+            Defines the incremental position that will be used to fill the
+            container
           </label>
-        </li>
-      </ul>
-
-      <VBtn
-        color="primary"
-        medium
-        @click="
-          store.fillContainer(list, {
-            override,
-            direction: direction.split('').reverse()
-          })
-        "
-      >
-        Fill
-      </VBtn>
+          <div class="padding-medium-bottom padding-medium-top">
+            <ul class="no_bullets">
+              <li
+                v-for="value in DIRECTIONS"
+                :key="value"
+              >
+                <label>
+                  <input
+                    type="radio"
+                    v-model="direction"
+                    :value="value"
+                    @click="() => (counter = 1)"
+                  />
+                  {{ value.split('').join(' → ') }}
+                </label>
+              </li>
+            </ul>
+          </div>
+          <VBtn
+            color="primary"
+            medium
+            @click="
+              store.fillContainer(list, {
+                override,
+                direction: direction.split('')
+              })
+            "
+          >
+            Fill
+          </VBtn>
+        </div>
+        <VueEncase
+          class="container-viewer"
+          v-bind="encaseOpts"
+        />
+      </div>
     </template>
   </VModal>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useContainerStore } from '../../store'
+import { VueEncase } from '@sfgrp/encase'
+import { DEFAULT_OPTS } from '../../constants'
+import { useInterval } from '@/composables'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
@@ -73,6 +90,85 @@ defineProps({
 const store = useContainerStore()
 const direction = ref('xyz')
 const override = ref(false)
-
 const isModalVisible = ref(false)
+const counter = ref(0)
+
+const totalCells = computed(() =>
+  Object.values(store.container.size).reduce(
+    (acc, curr) => acc * (curr || 1),
+    1
+  )
+)
+
+const { stop, resume } = useInterval(() => {
+  if (counter.value < totalCells.value) {
+    counter.value++
+  } else {
+    counter.value = 0
+  }
+}, 500)
+stop()
+
+watch(isModalVisible, (newVal) => {
+  if (newVal) {
+    counter.value = 0
+    resume()
+  } else {
+    stop()
+  }
+})
+
+function fillContainer({ direction }) {
+  const items = []
+  let index = 1
+
+  for (let i = 0; i < store.container.size[direction[2]]; i++) {
+    for (let j = 0; j < store.container.size[direction[1]]; j++) {
+      for (let k = 0; k < store.container.size[direction[0]]; k++) {
+        const position = {
+          [direction[2]]: i,
+          [direction[1]]: j,
+          [direction[0]]: k
+        }
+
+        items.push({
+          position,
+          label: String(index)
+        })
+
+        if (items.length == counter.value) {
+          return items
+        }
+
+        index++
+      }
+    }
+  }
+
+  return items
+}
+
+const encaseOpts = computed(() => {
+  return {
+    ...DEFAULT_OPTS,
+    cameraPosition: {
+      x: 50,
+      y: 50,
+      z: 50
+    },
+    container: {
+      sizeX: store.container.size.x,
+      sizeY: store.container.size.y,
+      sizeZ: store.container.size.z,
+      containerItems: fillContainer({ direction: direction.value })
+    }
+  }
+})
 </script>
+
+<style lang="scss" scoped>
+.container-viewer {
+  width: 500px;
+  height: 400px;
+}
+</style>
