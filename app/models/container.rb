@@ -226,4 +226,3 @@ class Container < ApplicationRecord
   end
 end
 
-Dir[Rails.root.to_s + '/app/models/container/**/*.rb'].each { |file| require_dependency file }
