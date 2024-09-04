@@ -222,11 +222,24 @@ class Gazetteer < ApplicationRecord
       _shp_doc = Document.find(shapefile[:shp_doc_id])
       _shx_doc = Document.find(shapefile[:shx_doc_id])
       dbf_doc = Document.find(shapefile[:dbf_doc_id])
-      _prj_doc = Document.find(shapefile[:prj_doc_id])
+      prj_doc = Document.find(shapefile[:prj_doc_id])
     rescue ActiveRecord::RecordNotFound => e
       return e
     end
 
+    # Check that the SRS is WGS 84
+    prj = File.read(prj_doc.document_file.path)
+    begin
+      cs = RGeo::CoordSys::CS.create_from_wkt(prj)
+    rescue RGeo::Error::ParseError => e
+      return "Failed to parse the prj file: #{e}"
+    end
+
+    if cs.authority_code != '4326' && cs.name != 'GCS_WGS_1984'
+      return 'The shapefile reference system is not WGS 84 - WGS 84 is required'
+    end
+
+    # Check that each record has a name
     dbf = ::DBF::Table.new(dbf_doc.document_file.path)
     if dbf.record_count == 0
       return 'Empty dbf file: shapefile must contain records'
