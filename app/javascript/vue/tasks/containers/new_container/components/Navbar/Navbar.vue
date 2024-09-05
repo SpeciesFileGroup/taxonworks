@@ -59,6 +59,7 @@ import { usePopstateListener } from '@/composables'
 const store = useContainerStore()
 
 function getContainer({ id }) {
+  store.$reset()
   store.loadContainer(id)
   setParam(RouteNames.NewContainer, 'container_id', id)
 }

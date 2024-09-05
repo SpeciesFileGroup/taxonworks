@@ -1,14 +1,17 @@
 <template>
-  <table class="table-striped full_width">
+  <table
+    v-if="list.length"
+    class="table-striped full_width"
+  >
     <thead>
       <tr>
-        <th class="column-object">Object</th>
-        <th>
+        <th class="column-object">Objects</th>
+        <th class="w-2">
           <VBtn
-            color="create"
-            :disabled="!store.container.id"
+            color="primary"
+            @click="() => list.forEach(addToContainerItems)"
           >
-            Create container items
+            Add to container
           </VBtn>
         </th>
       </tr>
@@ -20,7 +23,13 @@
       >
         <td v-html="item.object_tag" />
         <td>
-          <VBtn color="create">Create</VBtn>
+          <div class="horizontal-right-content">
+            <VBtn
+              color="primary"
+              @click="() => addToContainerItems(item)"
+              >Add</VBtn
+            >
+          </div>
         </td>
       </tr>
     </tbody>
@@ -36,15 +45,20 @@ import { Extract, CollectionObject } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { URLParamsToJSON } from '@/helpers'
 import { useContainerStore } from '../store'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import VModal from '@/components/ui/Modal.vue'
-import VSpinner from '@/components/ui/VSpinner.vue'
 import { makeContainerItem } from '../adapters'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const store = useContainerStore()
 const objects = ref([])
 const list = computed(() =>
-  objects.value.filter(store.getContainerItemByObject)
+  objects.value.filter(
+    (item) =>
+      !store.getContainerItemByObject({
+        objectId: item.id,
+        objectType: item.base_class
+      })
+  )
 )
 const isModalVisible = ref(false)
 const isLoading = ref(false)
@@ -71,12 +85,14 @@ Promise.all(promises)
   })
   .finally(() => (isLoading.value = false))
 
-function addContainer(obj) {
-  const item = {
-    ...makeContainerItem(obj),
+function addToContainerItems(obj) {
+  const item = Object.assign(makeContainerItem(obj), {
+    id: null,
     objectId: obj.id,
-    objectType: obj.base_class
-  }
+    objectType: obj.base_class,
+    label: obj.object_label,
+    isUnsaved: true
+  })
 
   store.addContainerItem(item)
 }

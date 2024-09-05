@@ -58,11 +58,10 @@ export const useContainerStore = defineStore('container', {
     },
 
     getContainerItemByObject(state) {
-      return ({ objectId, objectType }) => {
+      return ({ objectId, objectType }) =>
         state.containerItems.find(
           (item) => item.objectId === objectId && item.objectType === objectType
         )
-      }
     },
 
     getSelectedContainerItemByPosition(state) {

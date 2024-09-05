@@ -74,7 +74,7 @@ import { convertPositionTo3DGraph } from '../../utils'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
-const DIRECTIONS = ['xyz', 'xzy', 'yxz', 'yzx', 'zyx', 'zxy']
+const DIRECTIONS = ['xyz', 'xzy', 'yxz', 'yzx', 'zxy', 'zyx']
 
 defineProps({
   disabled: {
@@ -89,7 +89,7 @@ defineProps({
 })
 
 const store = useContainerStore()
-const direction = ref('xyz')
+const direction = ref('xzy')
 const override = ref(false)
 const isModalVisible = ref(false)
 const counter = ref(0)
@@ -107,7 +107,7 @@ const { stop, resume } = useInterval(() => {
   } else {
     counter.value = 1
   }
-}, 500)
+}, 250)
 stop()
 
 watch(isModalVisible, (newVal) => {

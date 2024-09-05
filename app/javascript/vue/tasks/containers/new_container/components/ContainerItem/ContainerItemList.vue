@@ -39,13 +39,21 @@
         </td>
         <td>
           <div class="horizontal-right-content gap-small">
-            <VBtn
-              v-if="!store.isItemInside(item)"
-              color="primary"
-              @click="() => (store.placeItem = item)"
-            >
-              Place
-            </VBtn>
+            <template v-if="!(store.isItemInside(item) && item.id)">
+              <VIcon
+                v-if="item.isUnsaved"
+                name="attention"
+                color="attention"
+                title="The container item will not be saved if it is not positioned inside the container"
+                small
+              />
+              <VBtn
+                color="primary"
+                @click="() => (store.placeItem = item)"
+              >
+                Place
+              </VBtn>
+            </template>
             <VBtn
               circle
               color="primary"
