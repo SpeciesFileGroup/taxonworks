@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- With/out facets for Loan dates [#3729]
 - FieldNumber local identifier sensu DwC
 - RecordNumber local identifier sensu DwC [#4016]
 - DwC importer support for FieldNumber and RecordNumber [#4016] [#3800]
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer crashing on record with blank `basisOfRecord` [#4024]
 
 [#2852]: https://github.com/SpeciesFileGroup/taxonworks/issues/2852
+[#3729]: https://github.com/SpeciesFileGroup/taxonworks/issues/3729
 [#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3989]: https://github.com/SpeciesFileGroup/taxonworks/issues/3989
 [#4013]: https://github.com/SpeciesFileGroup/taxonworks/issues/4013
