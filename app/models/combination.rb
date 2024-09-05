@@ -57,8 +57,10 @@
 #
 class Combination < TaxonName
 
-  # The ranks that can be used to build combinations.
-  APPLICABLE_RANKS = %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.freeze
+  # The ranks that can be used to build a Combination pointing to the corresponding TaxonNameRelationship type
+  APPLICABLE_RANKS = %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.inject({}){|hsh,r|
+    hsh[r] = "TaxonNameRelationship::Combination::#{r.capitalize}"; hsh;
+  }.freeze
 
   before_validation :set_parent
   validate :validate_absence_of_subject_relationships
@@ -115,7 +117,7 @@ class Combination < TaxonName
     end
   end
 
-  APPLICABLE_RANKS.each do |rank|
+  APPLICABLE_RANKS.keys.each do |rank|
     has_one "#{rank}_taxon_name_relationship".to_sym, -> {
       joins(:combination_relationships)
       where(taxon_name_relationships: {type: "TaxonNameRelationship::Combination::#{rank.capitalize}"}) },
@@ -307,30 +309,18 @@ class Combination < TaxonName
     protonyms.last.parent_id == protonyms.second_to_last.id
   end
 
-  # @return [Array of TaxonName]
-  #   pre-ordered by rank
-  # TODO: hard code sort order
-  def protonyms
-    return protonyms_by_association if new_record?
-    p = combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) }
-    return protonyms_by_association if p.empty?
-    return p
-  end
-
-  # @return [Hash]
-  #   like `{ genus: 1, species: 2 }`
-  def protonym_ids_params
-    protonyms_by_rank.inject({}) {|hsh, p| hsh.merge!( p[0].to_sym => p[1].id )}
-  end
-
+  # Is this used before persistence of the complete Combination?!
   # Overrides {TaxonName#full_name_hash}
   # @return [Hash]
+  #
+  #  Benchmark.measure { 1000.times do; Combination.find_by_id(ids.sample).full_name_hash; end}
   def full_name_hash
     gender = nil
     data = {}
+
     protonyms_by_rank.each do |rank, i|
       gender = i.gender_name if rank == 'genus'
-      if ['genus', 'subgenus', 'species', 'subspecies'].include? (rank)
+      if ['genus', 'subgenus', 'species', 'subspecies'].include?(rank)
         data[rank] = [nil, i.name_with_misspelling(gender)]
       else
         data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
@@ -352,16 +342,64 @@ class Combination < TaxonName
     data
   end
 
+  def combination_taxonomy
+    d = full_name_hash
+  end
+
+  # TODO: add higher classifcation here
+  # See attr_reader.
+  def taxonomy(rebuild = false)
+    if rebuild
+      @taxonomy = combination_taxonomy
+    else
+      @taxonomy ||= combination_taxonomy
+    end
+  end
+
   # @return [Hash of {rank: Protonym}, nil]
-  #   the component names for this combination prior to it being saved (used to return values prior to save)
+  #  the component names for this combination, sorted in order
+  #   _prior to it being saved_
   def protonyms_by_rank
     result = {}
-    APPLICABLE_RANKS.each do |rank|
-      if protonym = send(rank)
-        result[rank] = protonym
+    if persisted?
+      # nX fewer calls to database than send()
+      return TaxonNameRelationship::Combination
+        .where(object_taxon_name: self)
+        .eager_load(:subject_taxon_name)
+        .inject({}) {|hsh,n| hsh[n.rank_name] = n.subject_taxon_name; hsh}
+        .sort{|a,b| RANKS.index(a[1].rank_string) <=> RANKS.index(b[1].rank_string) }
+        .to_h
+    else
+
+      APPLICABLE_RANKS.keys.each do |rank|
+        if protonym = send(rank.to_sym)
+          result[rank] = protonym
+        end
       end
     end
     result
+  end
+
+  # @return [Array of TaxonNames, nil]
+  #   return the component names for this combination prior to it being saved
+  def protonyms_by_association
+    APPLICABLE_RANKS.keys.collect{|r| self.send(r)}.compact
+  end
+
+  # @return [Array of TaxonName]
+  #   pre-ordered by rank
+  def protonyms
+    return protonyms_by_association if new_record?
+
+    combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) }
+    # return protonyms_by_association if p.empty?
+    # return p
+  end
+
+  # @return [Hash]
+  #   like `{ genus: 1, species: 2 }`
+  def protonym_ids_params
+    protonyms_by_rank.inject({}) {|hsh, p| hsh.merge!( p[0].to_sym => p[1].id )}
   end
 
   # @return [Array of Integers]
@@ -413,12 +451,6 @@ class Combination < TaxonName
 
   def finest_protonym
     protonyms_by_rank.values.last
-  end
-
-  # @return [Array of TaxonNames, nil]
-  #   return the component names for this combination prior to it being saved
-  def protonyms_by_association
-    APPLICABLE_RANKS.collect{|r| self.send(r)}.compact
   end
 
   protected
