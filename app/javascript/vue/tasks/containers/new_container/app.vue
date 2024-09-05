@@ -16,6 +16,7 @@
       />
 
       <div class="overflow-y-auto">
+        <TableObject />
         <ContainerItemList
           v-if="store.getItemsOutsideContainer.length"
           fill-button
@@ -46,6 +47,7 @@
     @add="saveContainerItem"
     @remove="store.removeContainerItem"
   />
+
   <MessageBox />
 </template>
 
@@ -64,6 +66,7 @@ import Navbar from './components/Navbar/Navbar.vue'
 import MessageBox from './components/MessageBox.vue'
 import VSettings from './components/Settings.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import TableObject from './components/TableObject.vue'
 
 defineOptions({
   name: 'NewContainer'
@@ -141,6 +144,7 @@ onBeforeMount(() => {
 
 .container-form {
   min-width: 410px;
+  width: 410px;
 }
 
 .task-container {

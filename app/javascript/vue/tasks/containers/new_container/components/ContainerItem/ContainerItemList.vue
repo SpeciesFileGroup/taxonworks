@@ -144,6 +144,6 @@ function toggleItem(item) {
 
 <style scoped>
 .container-item-column {
-  max-width: 200px;
+  max-width: 180px;
 }
 </style>

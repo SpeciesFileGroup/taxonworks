@@ -95,3 +95,8 @@ export const TASK_DWC_OCCURRENCE_STATUS = {
   label: 'DwC Occurrence Status',
   link: '/tasks/dwc_occurrences/status'
 }
+
+export const TASK_NEW_CONTAINER = {
+  label: 'New container',
+  link: '/tasks/containers/new_container'
+}
