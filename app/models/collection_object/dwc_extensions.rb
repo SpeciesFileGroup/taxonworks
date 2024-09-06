@@ -11,6 +11,7 @@ module CollectionObject::DwcExtensions
     # semi-useful for quick reporting.
     DWC_OCCURRENCE_MAP = {
       catalogNumber: :dwc_catalog_number,
+      recordNumber: :dwc_record_number,
       otherCatalogNumbers: :dwc_other_catalog_numbers,
       individualCount: :dwc_individual_count,
       preparations: :dwc_preparations,
@@ -359,17 +360,15 @@ module CollectionObject::DwcExtensions
     collecting_event&.verbatim_method
   end
 
-  # There is no `otherEvent*ID`, prioritize formalized over verbatim
-  # TODO: Reconcile with eventID https://github.com/SpeciesFileGroup/taxonworks/issues/2852
   def dwc_field_number
     return nil unless collecting_event
-    collecting_event.identifiers.where(type: 'Identifier::Local::TripCode').first&.cached || collecting_event.verbatim_trip_identifier
+    # Since we enforce that they are identical we can choose the former if present
+    collecting_event&.verbatim_trip_identifier || collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first&.cached
   end
 
-  # TODO: Reconcile with eventID https://github.com/SpeciesFileGroup/taxonworks/issues/2852
   def dwc_event_id
     return nil unless collecting_event
-    collecting_event.identifiers.where(type: 'Identifier::Local::Event').first&.cached
+    collecting_event.identifiers.where(type: 'Identifier::Local::Event').first&.cached.presence
   end
 
   def dwc_verbatim_habitat
@@ -487,11 +486,13 @@ module CollectionObject::DwcExtensions
   def dwc_recorded_by_id
     if collecting_event
       collecting_event.collectors
-        .order('roles.position')
-        .map(&:orcid)
-        .compact
-        .join(CollectionObject::DWC_DELIMITER)
-        .presence
+        .joins(:identifiers)
+        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
+        .select('identifiers.identifier_object_id, identifiers.cached')
+        .unscope(:order)
+        .distinct
+        .pluck('identifiers.cached')
+        .join(CollectionObject::DWC_DELIMITER)&.presence
     end
   end
 
@@ -502,7 +503,16 @@ module CollectionObject::DwcExtensions
 
   def dwc_identified_by_id
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    current_taxon_determination&.determiners&.map(&:orcid)&.join(CollectionObject::DWC_DELIMITER).presence
+    if current_taxon_determination
+      current_taxon_determination&.determiners
+        .joins(:identifiers)
+        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
+        .select('identifiers.identifier_object_id, identifiers.cached')
+        .unscope(:order)
+        .distinct
+        .pluck('identifiers.cached')
+        .join(CollectionObject::DWC_DELIMITER)&.presence
+    end
   end
 
   # we assert custody, NOT ownership
@@ -517,6 +527,10 @@ module CollectionObject::DwcExtensions
 
   def dwc_collection_code
     catalog_number_namespace&.verbatim_short_name || catalog_number_namespace&.short_name
+  end
+
+  def dwc_record_number
+    record_number_cached # via delegation
   end
 
   def dwc_catalog_number

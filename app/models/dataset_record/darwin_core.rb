@@ -16,7 +16,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
     value = data_fields[index] if index
     normalize_value!(value)
 
-    value.clone unless value.blank?
+    value.clone if value.present?
   end
 
   def get_tw_data_attribute_fields_for(subject_class)
@@ -24,7 +24,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
       .select { |f| f.is_a?(String) }
       .map do |field|
         /(TW:DataAttribute:#{Regexp.escape(subject_class)}:).+/i =~ field
-        {field: field, selector: field.sub($1, '')} if $1
+        {field:, selector: field.sub($1, '')} if $1
       end
       .reject(&:nil?)
   end
@@ -34,7 +34,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
                       .select { |f| f.is_a?(String) }
                       .map do |field|
       /(TW:Tag:#{Regexp.escape(subject_class)}:).+/i =~ field
-      {field: field, selector: field.sub($1, '')} if $1
+      {field:, selector: field.sub($1, '')} if $1
     end
                       .reject(&:nil?)
   end
@@ -44,7 +44,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
       .select { |f| f.is_a?(String) }
       .map do |field|
         /(TW:#{Regexp.escape(subject_class)}:).+/i =~ field
-        {field: field, name: field.sub($1, '').downcase.to_sym} if $1
+        {field:, name: field.sub($1, '').downcase.to_sym} if $1
       end
       .reject(&:nil?)
   end
@@ -87,7 +87,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
 
   def normalize_value!(value)
     value&.gsub!(/^[[:space:]]+|[[:space:]]+$/, '') # strip method doesn't deal with https://en.wikipedia.org/wiki/Non-breaking_space
-    value&.squeeze!(" ")
+    value&.squeeze!(' ')
   end
 
 end

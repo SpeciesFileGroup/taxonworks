@@ -23,71 +23,88 @@
             @grid="setGrid"
           />
           <template v-for="(hline, index) in hlines">
-            <add-line
+            <VBtn
               v-if="index < hlines.length - 1 && !disabledPanel"
+              color="primary"
+              class="btn-line"
               :style="{
                 top: `${getButtonPosition(
                   hlines,
                   index,
                   style.viewer.marginTop
                 )}px`,
+                left: vlines[0] / scale + 'px',
                 transform: 'translateY(-50%)'
               }"
-              :position="getPosition(hline, hlines[index + 1])"
-              v-model="hlines"
-            />
+              @click="hlines.push(getPosition(hline, hlines[index + 1]))"
+            >
+              +
+            </VBtn>
           </template>
           <template v-for="(vline, index) in vlines">
-            <add-line
+            <VBtn
               v-if="index < vlines.length - 1 && !disabledPanel"
+              color="primary"
+              class="btn-line"
               :style="{
                 left: `${getButtonPosition(
                   vlines,
                   index,
                   style.viewer.marginLeft
                 )}px`,
-                transform: 'translateX(-50%)',
-                top: `10px`
+                top: hlines[0] / scale + 'px',
+                transform: 'translateX(-50%)'
               }"
-              :position="getPosition(vline, vlines[index + 1])"
-              v-model="vlines"
-            />
+              @click="vlines.push(getPosition(vline, vlines[index + 1]))"
+            >
+              +
+            </VBtn>
           </template>
           <template v-for="(hline, index) in hlines">
-            <remove-line
+            <VBtn
               v-if="index > 0 && index < hlines.length - 1 && !disabledPanel"
+              color="primary"
+              class="btn-line"
               :style="{
                 top: `${removeButtonPosition(hline, style.viewer.marginTop)}px`,
-                right: 0,
-                transform: 'translateY(-50%)'
+                left:
+                  removeButtonPosition(
+                    vlines.at(-1),
+                    style.viewer.marginRight
+                  ) + 'px',
+                transform: 'translate(50%, -50%)'
               }"
-              v-model="hlines"
-              :position="index"
-            />
+              @click="hlines.splice(index, 1)"
+            >
+              -
+            </VBtn>
           </template>
           <template v-for="(vline, index) in vlines">
-            <remove-line
+            <VBtn
               v-if="index > 0 && index < vlines.length - 1 && !disabledPanel"
+              class="btn-line"
+              color="primary"
               :style="{
                 left: `${removeButtonPosition(
                   vline,
                   style.viewer.marginLeft
                 )}px`,
-                transform: 'translateX(-50%)',
+                transform: 'translate(-50%, 50%)',
                 top: `${removeButtonPosition(
                   hlines[hlines.length - 1],
                   style.viewer.marginBottom
                 )}px`
               }"
-              v-model="vlines"
-              :position="index"
-            />
+              @click="vlines.splice(index, 1)"
+            >
+              -
+            </VBtn>
           </template>
           <div :style="style.viewer">
             <sled
               ref="sled"
-              :vertical-lines="vlines"
-              :horizontal-lines="hlines"
+              v-model:vertical-lines="vlines"
+              v-model:horizontal-lines="hlines"
               :image-width="image.width"
               :image-height="image.height"
               :line-weight="lineWeight"
@@ -149,8 +166,7 @@ import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
 
-import AddLine from './components/AddLine'
-import RemoveLine from './components/grid/RemoveLine'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import SwitchComponent from '@/components/ui/VSwitch'
 import AssignComponent from './components/Assign/Main'
 import UploadImage from './components/UploadImage'
@@ -165,8 +181,6 @@ import SetParam from '@/helpers/setParam.js'
 export default {
   components: {
     Sled,
-    AddLine,
-    RemoveLine,
     SwitchComponent,
     AssignComponent,
     ReviewComponent,
@@ -175,7 +189,8 @@ export default {
     SummaryComponent,
     SpinnerComponent,
     QuickGrid,
-    NavBar
+    NavBar,
+    VBtn
   },
   computed: {
     disabledPanel() {
@@ -233,10 +248,10 @@ export default {
       style: {
         viewer: {
           position: 'relative',
-          marginLeft: '30px',
-          marginRight: '30px',
-          marginTop: '50px',
-          marginBottom: '60px'
+          marginLeft: '40px',
+          marginRight: '40px',
+          marginTop: '40px',
+          marginBottom: '40px'
         }
       }
     }
@@ -561,3 +576,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.btn-line {
+  position: absolute;
+  z-index: 10;
+}
+</style>

@@ -137,7 +137,7 @@
       TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION ||= TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING + %w{
       TaxonNameRelationship::Icn::Unaccepting::Misapplication
       TaxonNameRelationship::Icnp::Unaccepting::Misapplication
-      TaxonNameRelationship::Iczn::Invalidating::Misapplication}
+      TaxonNameRelationship::Iczn::Invalidating::Misapplication}.freeze
 
       # TODO: check .assignable property prior to building
 

@@ -47,12 +47,30 @@ module Shared::BiologicalExtensions
     end
 
     def current_otu
-      current_taxon_determination&.otu
+      otus.order(:position).limit(1).first
     end
 
     def current_taxon_name
-      current_otu&.taxon_name
+      taxon_names.order('taxon_determinations.position').first
     end
+
+    # Prefer the valid name, but fall back to invalid for edge cases where there is no valid
+    #
+    # Benchmark vs.
+    #   `current_taxon_name&.valid_taxon_name || current_taxon_name`` is around 20% faster
+    #
+    def current_valid_taxon_name
+      TaxonName.joins('JOIN taxon_names tnv on tnv.id = taxon_names.cached_valid_taxon_name_id')
+      .joins('JOIN otus o on o.taxon_name_id = taxon_names.id')
+      .joins('JOIN taxon_determinations td on o.id = td.otu_id')
+      .where(td: {
+        position: 1,
+        taxon_determination_object_type: 'CollectionObject',
+        taxon_determination_object_id: id
+      })
+      .first
+    end
+
   end
 
   # see BiologicalCollectionObject

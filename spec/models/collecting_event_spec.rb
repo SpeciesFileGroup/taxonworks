@@ -6,6 +6,20 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
   let(:state) { county.parent }
   let(:country) { state.parent }
 
+  specify '#verbatim_trip_identifier matches Identifier' do
+    collecting_event.verbatim_label = 'All the stuff'
+    collecting_event.save!
+
+    a = Identifier::Local::FieldNumber.create(
+      namespace: FactoryBot.create(:valid_namespace),
+      identifier_object: collecting_event,
+      identifier: '1'
+    )
+
+    collecting_event.update(verbatim_trip_identifier: '2')
+    expect(collecting_event.errors.key?(:verbatim_trip_identifier)).to be_truthy
+  end
+
   # Added as a context for exploring re-indexing DwC based on DataAttribute updates
   xspecify 'data_attributes_attributes cascades' do
     p = FactoryBot.create(:valid_predicate, uri: 'http://rs.tdwg.org/dwc/terms/waterBody', name: 'waterBody')
@@ -331,7 +345,12 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     end
 
     specify 'increments identifier' do
-      a = FactoryBot.create(:valid_identifier, identifier_object: collecting_event, identifier: '1')
+      a = Identifier::Local::FieldNumber.create(
+        namespace: FactoryBot.create(:valid_namespace),
+        identifier_object: collecting_event,
+        identifier: '1'
+      )
+
       b = collecting_event.clone(incremented_identifier_id: a.id)
       expect(b.local_identifiers.first.identifier).to eq('2')
     end
@@ -349,7 +368,11 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
       t.determiners << FactoryBot.create(:valid_person)
 
-      a = FactoryBot.create(:valid_identifier, identifier_object: collecting_event, identifier: '1')
+      a = Identifier::Local::FieldNumber.create(
+        namespace: FactoryBot.create(:valid_namespace),
+        identifier_object: collecting_event,
+        identifier: '1'
+      )
 
       FactoryBot.create(:valid_data_attribute, attribute_subject: collecting_event)
 

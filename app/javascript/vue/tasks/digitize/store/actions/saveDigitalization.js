@@ -2,6 +2,12 @@ import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
 import { EVENT_SMART_SELECTOR_UPDATE } from '@/constants/index.js'
 import { CollectionObject } from '@/routes/endpoints'
+import { useIdentifierStore } from '../pinia/identifiers'
+import {
+  IDENTIFIER_LOCAL_RECORD_NUMBER,
+  COLLECTION_OBJECT,
+  CONTAINER
+} from '@/constants/index.js'
 
 const updateSmartSelectors = () => {
   const event = new CustomEvent(EVENT_SMART_SELECTOR_UPDATE)
@@ -10,6 +16,8 @@ const updateSmartSelectors = () => {
 
 export default ({ commit, dispatch, state }, { resetAfter = false } = {}) =>
   new Promise((resolve, reject) => {
+    const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
+
     state.settings.saving = true
     dispatch(ActionNames.SaveCollectingEvent)
       .then(() => {
@@ -17,6 +25,10 @@ export default ({ commit, dispatch, state }, { resetAfter = false } = {}) =>
         dispatch(ActionNames.SaveCollectionObject, state.collection_object)
           .then(({ body }) => {
             const coCreated = body
+            const payload = {
+              objectId: state.container ? state.container.id : coCreated.id,
+              objectType: state.container ? CONTAINER : COLLECTION_OBJECT
+            }
 
             commit(MutationNames.SetCollectionObject, coCreated)
             commit(MutationNames.AddCollectionObject, coCreated)
@@ -26,7 +38,8 @@ export default ({ commit, dispatch, state }, { resetAfter = false } = {}) =>
               dispatch(ActionNames.SaveCOCitations),
               dispatch(ActionNames.SaveIdentifier, coCreated.id),
               dispatch(ActionNames.SaveDeterminations),
-              dispatch(ActionNames.SaveBiologicalAssociations)
+              dispatch(ActionNames.SaveBiologicalAssociations),
+              recordNumber.save(payload)
             ]
 
             Promise.allSettled(actions)

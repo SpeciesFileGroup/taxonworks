@@ -16,7 +16,8 @@ Rails.application.config.after_initialize do
       all: Identifier::Local.descendants.inject({}){|hsh, a| hsh.merge!( a.name => { label: a.name.demodulize.underscore.humanize.downcase} )},
       common: [
         'Identifier::Local::CatalogNumber',
-        'Identifier::Local::TripCode'
+        'Identifier::Local::RecordNumber',
+        'Identifier::Local::FieldNumber'
       ]
     },
     unknown: {

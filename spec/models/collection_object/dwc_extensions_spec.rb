@@ -56,6 +56,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     it 'should only include remarks for the latest determination' do
       otu = FactoryBot.create(:valid_otu)
+
       d1 = TaxonDetermination.create!(taxon_determination_object: s, otu:)
       d2 = TaxonDetermination.create!(taxon_determination_object: s, otu:)
 
@@ -293,7 +294,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     end
 
     specify '#dwc_field_number' do
-      i = FactoryBot.create(:valid_identifier_local, type: 'Identifier::Local::TripCode', identifier_object: ce)
+      i = FactoryBot.create(:valid_identifier_local, type: 'Identifier::Local::FieldNumber', identifier_object: ce)
       expect(s.dwc_field_number).to eq(i.cached)
     end
 
@@ -425,7 +426,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_verbatim_depth).to eq(d)
     end
 
-    specify '#dwc_maximum_dpeth_in_meters' do
+    specify '#dwc_maximum_depth_in_meters' do
       d = 2.1
       a = Predicate.create!(
         name: 'wet toes?',
@@ -441,7 +442,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_maximum_depth_in_meters).to eq(d.to_s)
     end
 
-    specify '#dwc_minimum_dpeth_in_meters' do
+    specify '#dwc_minimum_depth_in_meters' do
       d = 2.1
       a = Predicate.create!(
         name: 'wet toes?',
@@ -491,6 +492,52 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       s.reload
 
       expect(s.dwc_recorded_by).to eq('John von Doe')
+    end
+
+    specify '#dwc_recorded_by_id - wikidata' do
+      p1 = Protonym.create!(
+        name: 'aus',
+        rank_class: Ranks.lookup(:iczn, :species),
+        parent: root
+      )
+
+      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John', prefix: 'von'}])
+      TaxonDetermination.create!(
+        taxon_determination_object: s,
+        otu: Otu.create!(taxon_name: p1), determiner_roles_attributes: [{person: p}]
+      )
+
+      Identifier::Global::Wikidata.create!(identifier_object: ce.collectors.first, identifier: 'Q1234566')
+
+      s.reload
+
+      expect(s.dwc_recorded_by_id).to eq('Q1234566')
+    end
+
+    specify '#dwc_recorded_by_id - orcid' do
+      p1 = Protonym.create!(
+        name: 'aus',
+        rank_class: Ranks.lookup(:iczn, :species),
+        parent: root
+      )
+
+      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John', prefix: 'von'}])
+      TaxonDetermination.create!(
+        taxon_determination_object: s,
+        otu: Otu.create!(taxon_name: p1),
+        determiner_roles_attributes: [{person: p}] )
+
+      i = 'http://orcid.org/0000-0002-0554-1354' # sorry whomever you are
+
+      Identifier::Global::Orcid.create!(identifier_object: ce.collectors.first, identifier: i)
+
+      s.reload
+      expect(s.dwc_recorded_by_id).to eq(i)
+    end
+
+    specify '#dwc_record_number' do
+      a = Identifier::Local::RecordNumber.create!(identifier: '123', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )
+      expect(s.dwc_record_number).to eq(a.cached)
     end
 
     specify '#dwc_other_catalog_numbers' do

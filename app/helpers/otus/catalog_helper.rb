@@ -48,7 +48,7 @@ module Otus::CatalogHelper
   #    similar_otus: { otu.id => label_for_otu(), ...},  # OTUs with the same taxon name, but different `name`
   #    nomenclatural_synonyms: [ full_original_taxon_name_label*, ...},
   #    descendants: [{ ... as above ...}]
-  #    leaf_node: boolean                                # Signals whether bottom of the tree was reached. Useful max_descendants_depth is set
+  #    leaf_node: boolean                                # Signals whether bottom (top) of the tree was reached. Useful max_descendants_depth is set
   # }
   #
   # Starting from an OTU, recurse via TaxonName and
@@ -87,8 +87,9 @@ module Otus::CatalogHelper
 
     if otu.taxon_name
       descendants = otu.taxon_name.descendants.where(parent: otu.taxon_name).that_is_valid
+
       if max_descendants_depth >= 1
-        descendants.order(:cached, :cached_author_year).each do |d|
+        descendants.sort{|a,b| [RANK_SORT[a.rank_class.to_s], a.cached, a.cached_author_year] <=> [RANK_SORT[b.rank_class.to_s], b.cached, b.cached_author_year]}.each do |d|
           if o = d.otus.order(name: 'DESC', id: 'ASC').first # arbitrary pick an OTU, prefer those without `name`. t since we summarize across identical OTUs, this is not an issue
             data[:descendants].push otu_descendants_and_synonyms(
               o,
