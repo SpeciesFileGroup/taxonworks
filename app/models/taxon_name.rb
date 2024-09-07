@@ -1279,13 +1279,11 @@ class TaxonName < ApplicationRecord
   # @return [String, nil]
   #  A monominal if names is above genus, or a full epithet if below.
   #  Does not include author_year. Does not include HTML.
+  #  
+  #  !! Combination has it's own version now.
   def get_full_name
-    return name_with_misspelling(nil) if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
+    return name_with_misspelling(nil) if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if rank_class.to_s =~ /Icvcn/
-
-    # Means we never update Combination names when Combination is present.
-    return verbatim_name if verbatim_name.present? && is_combination?
-
     full_name
   end
 

@@ -309,6 +309,11 @@ class Combination < TaxonName
     protonyms.last.parent_id == protonyms.second_to_last.id
   end
 
+  def get_full_name
+    return verbatim_name if verbatim_name.present? 
+    full_name
+  end
+
   # Is this used before persistence of the complete Combination?!
   # Overrides {TaxonName#full_name_hash}
   # @return [Hash]
