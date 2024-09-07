@@ -1016,8 +1016,8 @@ class TaxonName < ApplicationRecord
     s
   end
 
-  # @return [Array of Strings]
-  #   names of all genera where the species was placed
+  # @return String, nil
+  #   then name according to the gender requested
   def name_in_gender(gender = nil)
     case gender
     when 'masculine'
@@ -1029,8 +1029,7 @@ class TaxonName < ApplicationRecord
     else
       n = nil
     end
-    n = (n.presence || name)
-    return n
+    n.presence || name
   end
 
   def dwc_occurrences
@@ -1065,9 +1064,12 @@ class TaxonName < ApplicationRecord
     n = get_full_name # memoize/var into taxonomy?
     update_column(:cached, n)
 
-    # Combination should have it's own cached setting methods
-    # We can't use the in-memory cache approach for combination names, force reload each time
-    n = nil if is_combination?
+    # This isn't true according to tests, will be removed shortly.
+    #   Import and in-memory requirements should use other checks/auditing.
+    #
+    # Combination should have its own cached setting methods
+    # We can't use the in-memory cache approach for Combinations, force reload each time
+    # n = nil if is_combination?
 
     update_columns(
       cached_html: get_full_name_html(n)
@@ -1173,12 +1175,13 @@ class TaxonName < ApplicationRecord
   # @return [Array of TaxonName]
   #   an list of ancestors, Root first
   # Uses parent recursion when record is new and awesome_nested_set_is_not_usable
+  # TODO: Integrate with Taxonomy?
+  #   Taxonomy.values
+  #
   def safe_self_and_ancestors
     if new_record?
       ancestors_through_parents
     else
-      # self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
-
       self_and_ancestors
         .unscope(:order)
         .order(generations: :DESC)
@@ -1279,14 +1282,17 @@ class TaxonName < ApplicationRecord
   # @return [String, nil]
   #  A monominal if names is above genus, or a full epithet if below.
   #  Does not include author_year. Does not include HTML.
-  #  
-  #  !! Combination has it's own version now.
+  #
+  #  !! Combination has its own version now.
+  #
   def get_full_name
     return name_with_misspelling(nil) if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if rank_class.to_s =~ /Icvcn/
     full_name
   end
 
+  # @return [String, nil]
+  #   returns nil for Higher names
   def full_name
     d = full_name_hash
 
@@ -1306,8 +1312,7 @@ class TaxonName < ApplicationRecord
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
 
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
-    elements.presence # nill on empty, false
-
+    elements.presence
   end
 
   # @return String
