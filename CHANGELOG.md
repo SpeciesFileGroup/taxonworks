@@ -17,6 +17,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New RecordNumber panel for Comprehensive Digization
 - Filter Otu: With/without common names
 - Radial annotator: Add sort to identifiers slice [#4021]
+- `extend[]=valid_name` to `/taxon_names`
+- Valid name column in filter nomenclature
 
 ### Changed
 
