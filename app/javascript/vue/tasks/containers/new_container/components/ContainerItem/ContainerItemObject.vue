@@ -36,6 +36,7 @@
         class="margin-small-top"
         param="term"
         label="label"
+        autofocus
         :url="TYPES[selectedType].autocomplete"
         :placeholder="TYPES[selectedType].placeholder"
         @get-item="setContainedObject"
