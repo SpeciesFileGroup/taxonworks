@@ -14,7 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - RecordNumber local identifier sensu DwC [#4016]
 - DwC importer support for FieldNumber and RecordNumber [#4016] [#3800]
 - DwC export support for FieldNumber, RecordNumber
-- New RecordNumber panel for Comprehensive Digization 
+- New RecordNumber panel for Comprehensive Digization
 - Filter Otu: With/without common names
 - Radial annotator: Add sort to identifiers slice [#4021]
 
@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Facet geographic area: Spatial mode by default
 - Facet nomenclature rank: Remove selected ranks from select input
 - Updated Ruby gems
+- New taxon name task: Add manual mode for subsequent combinations section when taxon rank is not in the list [#4009]
 
 ### Fixed
 
@@ -48,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3729]: https://github.com/SpeciesFileGroup/taxonworks/issues/3729
 [#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
 [#3989]: https://github.com/SpeciesFileGroup/taxonworks/issues/3989
+[#4009]: https://github.com/SpeciesFileGroup/taxonworks/issues/4009
 [#4013]: https://github.com/SpeciesFileGroup/taxonworks/issues/4013
 [#4016]: https://github.com/SpeciesFileGroup/taxonworks/issues/4016
 [#4017]: https://github.com/SpeciesFileGroup/taxonworks/issues/4017
