@@ -33,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Header labels print without higher taxonomy [#4030]
 - Staged images tab on collection object report
 - Non-integer identifier start/end ranges raising
 - Various facets in Filter OTUs not being scoped to unique records
@@ -54,6 +55,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4019]: https://github.com/SpeciesFileGroup/taxonworks/issues/4019
 [#4021]: https://github.com/SpeciesFileGroup/taxonworks/issues/4021
 [#4024]: https://github.com/SpeciesFileGroup/taxonworks/issues/4024
+[#4030]: https://github.com/SpeciesFileGroup/taxonworks/issues/4030
 
 ## [0.43.2] - 2024-08-10
 

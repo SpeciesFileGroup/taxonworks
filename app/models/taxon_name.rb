@@ -211,6 +211,12 @@ class TaxonName < ApplicationRecord
   after_create :create_otu, if: :also_create_otu
   before_destroy :check_for_children, prepend: true
 
+  # With this @taxonomy can more or less replace full_name_hash
+  #  after_save :reset_taxonomy
+  #  def reset_taxonomy
+  #    @taxonomy = nil
+  #  end
+
   # Rails 7 experiments have after_commit creating a whack-a-mole situation
   # (though leave after_commit on TaxonNameRelationship)
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
@@ -1172,11 +1178,14 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # @return [Array of TaxonName]
-  #   an list of ancestors, Root first
-  # Uses parent recursion when record is new and awesome_nested_set_is_not_usable
   # TODO: Integrate with Taxonomy?
   #   Taxonomy.values
+  #
+  # @return [Array of TaxonName]
+  #   an list of ancestors, Root first
+  #
+  # Uses parent recursion when record is new and awesome_nested_set
+  # index is not yet usable.
   #
   def safe_self_and_ancestors
     if new_record?
@@ -1216,27 +1225,35 @@ class TaxonName < ApplicationRecord
     h
   end
 
-  # !! TODO: when name is a subgenus will not grab genus
   # !! TODO: Higher classification does not follow the same pattern
-  # ?? TODO: Replace with `taxonomy` object .to_h?
+  # !! TODO: when name is a subgenus will not grab genus (still true?)
   #
-  # @!return [ { rank => [prefix, name] }
-  #   Returns a hash of rank => [prefix, name] for genus and below
+  #
+  # Conceptually there are 2 objects required to build @taxonomy,
+  # one for the scientific name, the other for the higher taxa.
+  # These need to be kept seperately in terms of optimizing
+  # queries, or at least isolatable if combined.
+  #
+  # This method covers scientific name, gathering all string
+  # elements, including 'sic' etc., and pointing to them
+  # by rank. It therefor sits between model/helper.
+  #
+  # @!return [ { rank => [prefix, name] } ]
+  #    for genus and below:
+  #
   # @taxon_name.full_name_hash # =>
   #      { "family' => 'Gidae',
-  #        "genus" => [nil, "Aus"],
+  #        "genus" => [nil, "Aus"],  # Note Array!
   #        "subgenus" => [nil, "Aus"],
   #        "section" => ["sect.", "Aus"],
   #        "series" => ["ser.", "Aus"],
   #        "species" => [nil, "aaa"],
   #        "subspecies" => [nil, "bbb"],
   #        "variety" => ["var.", "ccc"]}
+  #
   def full_name_hash
     gender = nil
     data = {}
-
-    # !! TODO: create a persisted only version of this for speed
-    # !! You can not use self.self_and_ancestors because (this) record is not saved off.
 
     safe_self_and_ancestors.each do |i|
       rank = i.rank
@@ -1294,7 +1311,7 @@ class TaxonName < ApplicationRecord
   # @return [String, nil]
   #   returns nil for Higher names
   def full_name
-    d = full_name_hash
+    d = full_name_hash # @taxonomy ?
 
     elements = []
 

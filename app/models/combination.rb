@@ -56,17 +56,23 @@
 #   @return [Integer]
 #
 class Combination < TaxonName
-
   # The ranks that can be used to build a Combination pointing to the corresponding TaxonNameRelationship type
   APPLICABLE_RANKS = %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.inject({}){|hsh,r|
     hsh[r] = "TaxonNameRelationship::Combination::#{r.capitalize}"; hsh;
   }.freeze
 
   before_validation :set_parent
+
+  # Before we set cached ensure we draw current data
+  after_save :reset_protonyms_by_rank
+
   validate :validate_absence_of_subject_relationships
 
   # TODO: make access private
   attr_accessor :disable_combination_relationship_check
+
+  # Memoize.
+  attr_accessor :protonyms_by_rank
 
   # Overwritten here from TaxonName to allow for destroy
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship',
@@ -267,8 +273,8 @@ class Combination < TaxonName
     a = c.alias('a_foo')
 
     b = c.project(a[Arel.star]).from(a)
-          .join(r)
-          .on(r['object_taxon_name_id'].eq(a['id']))
+      .join(r)
+      .on(r['object_taxon_name_id'].eq(a['id']))
 
     s = []
 
@@ -310,7 +316,7 @@ class Combination < TaxonName
   end
 
   def get_full_name
-    return verbatim_name if verbatim_name.present? 
+    return verbatim_name if verbatim_name.present?
     full_name
   end
 
@@ -325,21 +331,26 @@ class Combination < TaxonName
 
     protonyms_by_rank.each do |rank, i|
       gender = i.gender_name if rank == 'genus'
+
       if ['genus', 'subgenus', 'species', 'subspecies'].include?(rank)
         data[rank] = [nil, i.name_with_misspelling(gender)]
       else
         data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
       end
     end
+
     if data['genus'].nil?
       data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
     end
+
     if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
       data['species'] = [nil, '[SPECIES NOT SPECIFIED]']
     end
+
     if data['variety'].nil? && !data['subvariety'].nil?
       data['variety'] = [nil, '[VARIETY NOT SPECIFIED]']
     end
+
     if data['form'].nil? && !data['subform'].nil?
       data['form'] = [nil, '[FORM NOT SPECIFIED]']
     end
@@ -347,12 +358,16 @@ class Combination < TaxonName
     data
   end
 
+  # TODO: add higher classifcation here
   def combination_taxonomy
     d = full_name_hash
+    protonyms_by_rank.to_a.first[1].ancestors.each do |a|
+      d[a.rank] = a.name
+    end
+
+    d
   end
 
-  # TODO: add higher classifcation here
-  # See attr_reader.
   def taxonomy(rebuild = false)
     if rebuild
       @taxonomy = combination_taxonomy
@@ -368,21 +383,22 @@ class Combination < TaxonName
     result = {}
     if persisted?
       # nX fewer calls to database than send()
-      return TaxonNameRelationship::Combination
+      @protonyms_by_rank ||= TaxonNameRelationship::Combination
         .where(object_taxon_name: self)
         .eager_load(:subject_taxon_name)
         .inject({}) {|hsh,n| hsh[n.rank_name] = n.subject_taxon_name; hsh}
         .sort{|a,b| RANKS.index(a[1].rank_string) <=> RANKS.index(b[1].rank_string) }
         .to_h
     else
-
       APPLICABLE_RANKS.keys.each do |rank|
         if protonym = send(rank.to_sym)
           result[rank] = protonym
         end
       end
+      @protonyms_by_rank = result
     end
-    result
+
+    @protonyms_by_rank
   end
 
   # @return [Array of TaxonNames, nil]
@@ -395,10 +411,7 @@ class Combination < TaxonName
   #   pre-ordered by rank
   def protonyms
     return protonyms_by_association if new_record?
-
     combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) }
-    # return protonyms_by_association if p.empty?
-    # return p
   end
 
   # @return [Hash]
@@ -432,7 +445,7 @@ class Combination < TaxonName
   # TODO: DEPRECATE this is likely not required in our new interfaces
   def combination_relationships_and_stubs(rank_string)
     display_order = [
-        :combination_genus, :combination_subgenus, :combination_species, :combination_subspecies, :combination_variety, :combination_form
+      :combination_genus, :combination_subgenus, :combination_species, :combination_subspecies, :combination_variety, :combination_form
     ]
 
     defined_relations = combination_relationships.all
@@ -459,6 +472,10 @@ class Combination < TaxonName
   end
 
   protected
+
+  def reset_protonyms_by_rank
+    @protonyms_by_rank = nil
+  end
 
   def validate_absence_of_subject_relationships
     if TaxonNameRelationship.where(subject_taxon_name_id: self.id).any?
