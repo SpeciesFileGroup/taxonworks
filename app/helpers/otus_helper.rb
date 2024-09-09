@@ -303,7 +303,7 @@ module OtusHelper
   end
 
   def ranked_otu_table(otus)
-    d = TaxonName.ranked_otus(otu_scope: @otus)
+    d = TaxonName.ranked_otus(otu_scope: otus)
     tbl = %w{otu_id order family genus species otu_name taxon_name taxon_name_author_year}
     output = StringIO.new
     output.puts ::CSV.generate_line(tbl, col_sep: "\t", encoding: Encoding::UTF_8)
