@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.43.3] - 2024-09-09
+
 ### Added
 
 - With/out facets for Loan dates [#3729]
@@ -4805,7 +4809,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.3..development
+[0.43.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2...v0.43.3
 [0.43.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1...v0.43.2
 [0.43.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.0...v0.43.1
 [0.43.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0...v0.43.0
