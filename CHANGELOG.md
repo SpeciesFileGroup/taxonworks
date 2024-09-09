@@ -34,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems
 - New taxon name task: Add manual mode for subsequent combinations section when taxon rank is not in the list [#4009]
 - Optimized performance of Combination name rendering and use
+- Filters with Geographic area facet default to 'Spatial'
 
 ### Fixed
 
