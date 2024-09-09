@@ -28,6 +28,11 @@ module Queries
         :start_date_return_expected,
         :start_date_sent,
         :taxon_name_id,
+        :with_date_closed,
+        :with_date_received,
+        :with_date_requested,
+        :with_date_return_expected,
+        :with_date_sent,
 
         loan_id: [],
         loan_item_disposition: [],
@@ -35,6 +40,25 @@ module Queries
         role: [],
         taxon_name_id: [],
       ].freeze
+
+      # @return [Boolean, nil]
+      attr_accessor :with_date_requested
+
+      # @return [Boolean, nil]
+      #   whether value is present
+      attr_accessor :with_date_sent
+
+      # @return [Boolean, nil]
+      #   whether value is present
+      attr_accessor :with_date_return_expected
+
+      # @return [Boolean, nil]
+      #   whether value is present
+      attr_accessor :with_date_received
+
+      # @return [Boolean, nil]
+      #   whether value is present
+      attr_accessor :with_date_closed
 
       attr_accessor :loan_id
 
@@ -105,9 +129,16 @@ module Queries
         @start_date_sent = params[:start_date_sent]
         @taxon_name_id = params[:taxon_name_id]
 
+        @with_date_closed = boolean_param(params, :with_date_closed)
+        @with_date_received = boolean_param(params, :with_date_received)
+        @with_date_requested = boolean_param(params, :with_date_requested)
+        @with_date_return_expected = boolean_param(params, :with_date_return_expected)
+        @with_date_sent = boolean_param(params, :with_date_sent)
+
         set_attributes_params(params)
         set_notes_params(params)
         set_tags_params(params)
+
       end
 
       def role
@@ -168,35 +199,35 @@ module Queries
         ::Loan.from("(#{s}) as loans").distinct
       end
 
-      def date_requested_facet
+      def date_requested_range_facet
         return nil if start_date_requested.nil? && end_date_requested.nil?
         s,e = [start_date_requested, end_date_requested].compact
         e = s if e.nil?
         ::Loan.where(date_requested: (s..e))
       end
 
-      def date_sent_facet
+      def date_sent_range_facet
         return nil if start_date_sent.nil? && end_date_sent.nil?
         s,e = [start_date_sent, end_date_sent].compact
         e = s if e.nil?
         ::Loan.where(date_sent: (s..e))
       end
 
-      def date_received_facet
+      def date_received_range_facet
         return nil if start_date_received.nil? && end_date_received.nil?
         s,e = [start_date_received, end_date_received].compact
         e = s if e.nil?
         ::Loan.where(date_received: (s..e))
       end
 
-      def date_return_expected_facet
+      def date_return_expected_range_facet
         return nil if start_date_return_expected.nil? && end_date_return_expected.nil?
         s,e = [start_date_return_expected, end_date_return_expected].compact
         e = s if e.nil?
         ::Loan.where(date_return_expected: (s..e))
       end
 
-      def date_closed_facet
+      def date_closed_range_facet
         return nil if start_date_closed.nil? && end_date_closed.nil?
         s,e = [start_date_closed, end_date_closed].compact
         e = s if e.nil?
@@ -231,6 +262,51 @@ module Queries
         ::Loan.joins(:roles).where(roles: {type: role, person_id:}).distinct
       end
 
+      def  with_date_requested_facet
+        return nil if with_date_requested.nil?
+        if with_date_requested
+          table[:date_requested].not_eq(nil)
+        else
+          table[:date_requested].eq(nil)
+        end
+      end
+
+      def  with_date_sent_facet
+        return nil if with_date_sent.nil?
+        if with_date_sent
+          table[:date_sent].not_eq(nil)
+        else
+          table[:date_sent].eq(nil)
+        end
+      end
+
+      def with_date_return_expected_facet
+        return nil if with_date_return_expected.nil?
+        if with_date_return_expected
+          table[:date_return_expected].not_eq(nil)
+        else
+          table[:date_return_expected].eq(nil)
+        end
+      end
+
+      def with_date_received_facet
+        return nil if with_date_received.nil?
+        if with_date_received
+          table[:date_received].not_eq(nil)
+        else
+          table[:date_received].eq(nil)
+        end
+      end
+
+      def with_date_closed_facet
+        return nil if with_date_closed.nil?
+        if with_date_closed
+          table[:date_closed].not_eq(nil)
+        else
+          table[:date_closed].eq(nil)
+        end
+      end
+
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_loan AS (' + otu_query.all.to_sql + ') '
@@ -259,20 +335,30 @@ module Queries
         ::Loan.from('(' + s + ::Loan.from("(#{a}) as loans").to_sql + ') as loans' ).distinct
       end
 
+      def and_clauses
+        [
+          with_date_closed_facet,
+          with_date_received_facet,
+          with_date_requested_facet,
+          with_date_return_expected_facet,
+          with_date_sent_facet,
+        ]
+      end
+
       def merge_clauses
         [
           collection_object_query_facet,
-          taxon_name_id_facet,
-          date_closed_facet,
-          date_received_facet,
-          date_requested_facet,
-          date_return_expected_facet,
-          date_sent_facet,
+          date_closed_range_facet,
+          date_received_range_facet,
+          date_requested_range_facet,
+          date_return_expected_range_facet,
+          date_sent_range_facet,
           documentation_facet,
           loan_item_disposition_facet,
           otu_query_facet,
           overdue_facet,
           person_role_facet,
+          taxon_name_id_facet,
         ]
       end
 

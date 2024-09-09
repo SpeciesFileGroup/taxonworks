@@ -426,7 +426,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_verbatim_depth).to eq(d)
     end
 
-    specify '#dwc_maximum_dpeth_in_meters' do
+    specify '#dwc_maximum_depth_in_meters' do
       d = 2.1
       a = Predicate.create!(
         name: 'wet toes?',
@@ -442,7 +442,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_maximum_depth_in_meters).to eq(d.to_s)
     end
 
-    specify '#dwc_minimum_dpeth_in_meters' do
+    specify '#dwc_minimum_depth_in_meters' do
       d = 2.1
       a = Predicate.create!(
         name: 'wet toes?',

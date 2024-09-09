@@ -10,6 +10,7 @@
       <CombinationCurrent
         v-if="!isCurrentTaxonInCombination"
         :combination-ranks="combinationRanks"
+        :manual-mode="isManualMode"
         @on-set="(item) => (combination = item)"
       />
       <CombinationRank
@@ -18,14 +19,14 @@
         v-model="combination"
         :nomenclature-group="groupName"
         :rank-group="Object.keys(group)"
-        :disabled="!isCurrentTaxonInCombination"
+        :disabled="!(isCurrentTaxonInCombination || isManualMode)"
         :options="{
           animation: 150,
           filter: '.item-filter'
         }"
         :group="{
-          name: groupName,
-          put: [groupName],
+          name: isManualMode ? 'subsequent-combination' : groupName,
+          put: isManualMode ? 'subsequent-combination' : [groupName],
           pull: false
         }"
       />
@@ -124,11 +125,18 @@ const combinationList = computed(
 )
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 const currentCombination = ref({})
+const isManualMode = computed(
+  () =>
+    !Object.keys(combinationRanks.value).some((group) =>
+      Object.keys(combinationRanks.value[group]).includes(taxon.value.rank)
+    )
+)
+
 const currentCombinationId = computed(() => currentCombination.value.id)
 const isCurrentTaxonInCombination = computed(
   () =>
     !!Object.entries(combination.value).find(
-      ([_, protonym]) => protonym?.id === taxon.value.id
+      ([, protonym]) => protonym?.id === taxon.value.id
     )
 )
 const isBotanyCode = computed(
