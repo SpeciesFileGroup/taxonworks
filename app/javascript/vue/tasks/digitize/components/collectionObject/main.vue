@@ -23,6 +23,10 @@
             "
             class="panel content"
           />
+          <RecordNumber
+            v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_RECORD_NUMBER]"
+            class="panel content"
+          />
           <RepositoryComponent
             v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY]"
             class="panel content"
@@ -31,13 +35,11 @@
             v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_PREPARATION]"
             class="panel content"
           />
-          <div
+          <BufferedComponent
             v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_BUFFERED]"
             class="panel content"
-          >
-            <h2 class="flex-separate">Buffered</h2>
-            <BufferedComponent class="field" />
-          </div>
+          />
+
           <div
             v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_DEPICTIONS]"
             class="panel content column-depictions"
@@ -103,7 +105,8 @@ import {
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_PREPARATION,
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY,
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CATALOG_NUMBER,
-  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_RECORD_NUMBER
 } from '@/tasks/digitize/const/layout'
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -124,6 +127,7 @@ import PredicatesComponent from './predicates.vue'
 import ButtonTag from '@/components/ui/Button/ButtonTag.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import SoftValidations from '@/components/soft_validations/panel.vue'
+import RecordNumber from '../recordNumber/recordNumber.vue'
 import useHotkey from 'vue3-hotkey'
 
 const store = useStore()

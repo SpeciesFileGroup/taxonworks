@@ -1,7 +1,11 @@
 import ActionNames from './actionNames'
+import { useIdentifierStore } from '../pinia/identifiers'
+import { IDENTIFIER_LOCAL_RECORD_NUMBER } from '@/constants'
+import incrementIdentifier from '../../helpers/incrementIdentifier'
 
 export default ({ dispatch, state }) => {
   const { locked } = state.settings
+  const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
 
   dispatch(ActionNames.NewCollectingEvent)
   dispatch(ActionNames.NewCollectionObject)
@@ -23,8 +27,17 @@ export default ({ dispatch, state }) => {
     state.georeferences = []
   }
 
+  recordNumber.reset({
+    keepNamespace: locked.recordNumber,
+    increment: state.settings.incrementRecordNumber
+  })
+
   state.biologicalAssociations = locked.biologicalAssociations
-    ? state.biologicalAssociations.map(item => ({ ...item, id: undefined, global_id: undefined }))
+    ? state.biologicalAssociations.map((item) => ({
+        ...item,
+        id: undefined,
+        global_id: undefined
+      }))
     : []
 
   dispatch(ActionNames.ResetTaxonDetermination)

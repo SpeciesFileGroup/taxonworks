@@ -41,7 +41,7 @@ module BatchLoad
 
           ce_identifier_drm_field_numbers = {
             namespace: namespace_drm_field_numbers,
-            type: 'Identifier::Local::TripCode',
+            type: 'Identifier::Local::FieldNumber',
             identifier: ce_identifier_drm_field_numbers_text
           }
 

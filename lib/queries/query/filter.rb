@@ -715,6 +715,8 @@ module Queries
         q = q.order(:id).page(page).per(per)
       end
 
+      # TODO: canonically address whether or not to use `.distinct` at this point, we should be able to, however
+      # some incoming queries may have joins/group/etc. alone?! I.e. why can't we?
       q
     end
 

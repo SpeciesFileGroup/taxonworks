@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Identifier</h3>
+    <h3>{{ title }}</h3>
     <fieldset>
       <legend>Namespace</legend>
       <div
@@ -32,7 +32,6 @@
         </div>
       </template>
     </fieldset>
-    <p>Catalogue number</p>
     <div class="horizontal-left-content full_width">
       <div class="field label-above full_width">
         <label>Start</label>
@@ -64,6 +63,11 @@ const props = defineProps({
   count: {
     type: Number,
     default: 0
+  },
+
+  title: {
+    type: String,
+    required: true
   }
 })
 

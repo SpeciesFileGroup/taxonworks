@@ -87,7 +87,7 @@ module Shared::Identifiers
     end
 
     # @param sorted ['ASC', 'DESC', nil]
-    # @param identifier_type [like 'Identifier::Local::TripCode', nil]
+    # @param identifier_type [like 'Identifier::Local::FieldNumber', nil]
     # @param namespace_id [Integer, nil]
     # !! Note that adding a sort also adds a where clause that constrains results to those that have numeric identifier.identifier
     def with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted = nil)

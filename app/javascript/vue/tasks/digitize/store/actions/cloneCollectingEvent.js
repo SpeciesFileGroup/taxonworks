@@ -1,5 +1,5 @@
 import {
-  IDENTIFIER_LOCAL_TRIP_CODE,
+  IDENTIFIER_LOCAL_FIELD_NUMBER,
   COLLECTING_EVENT
 } from '@/constants/index.js'
 import { CollectingEvent } from '@/routes/endpoints'
@@ -18,7 +18,7 @@ export default ({ state, dispatch, commit }, params) => {
     commit(
       MutationNames.SetCollectingEventIdentifier,
       clonedCE?.identifiers[0] ||
-        makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT)
+        makeIdentifier(IDENTIFIER_LOCAL_FIELD_NUMBER, COLLECTING_EVENT)
     )
     commit(MutationNames.SetGeoreferences, [])
     dispatch(ActionNames.LoadGeoreferences, clonedCE.id)

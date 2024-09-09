@@ -12,6 +12,14 @@ if extend_response_with('parent')
   end
 end
 
+if extend_response_with('valid_name')
+  json.valid_name do
+    if !taxon_name.is_valid?
+      json.partial! '/taxon_names/base_attributes', taxon_name: taxon_name.valid_taxon_name
+    end
+  end
+end
+
 if extend_response_with('otus')
   if taxon_name.otus
     json.otus do

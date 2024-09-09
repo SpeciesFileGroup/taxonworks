@@ -147,7 +147,9 @@ const shortcuts = ref([
   {
     keys: [platformKey(), 's'],
     handler() {
-      saveDigitalization()
+      if (!settings.value.loading && !settings.value.saving) {
+        saveDigitalization()
+      }
     }
   },
   {

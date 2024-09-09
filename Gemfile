@@ -30,9 +30,6 @@ gem 'roo-xls', '~> 1.2'
 
 gem 'csv', '~> 3.2'
 
-# Needed until Ruby 3.3.4 is released https://github.com/ruby/ruby/pull/11006
-gem 'net-pop', github: 'ruby/net-pop'
-
 gem 'net-smtp', '~> 0.4'
 gem 'mail', '~> 2.8', '>= 2.8.1'
 gem 'matrix', '~> 0.4.2'
@@ -105,7 +102,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '8.0.1'
+gem 'shakapacker', '8.0.2'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'

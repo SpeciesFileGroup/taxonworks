@@ -4,7 +4,7 @@ import newCollectingEvent from '@/factory/CollectingEvent.js'
 import makeIdentifier from '@/factory/Identifier'
 import {
   COLLECTING_EVENT,
-  IDENTIFIER_LOCAL_TRIP_CODE
+  IDENTIFIER_LOCAL_FIELD_NUMBER
 } from '@/constants/index.js'
 
 export default ({
@@ -57,7 +57,7 @@ export default ({
           commit(
             MutationNames.SetCollectingEventIdentifier,
             body.identifiers[0] ||
-              makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT)
+              makeIdentifier(IDENTIFIER_LOCAL_FIELD_NUMBER, COLLECTING_EVENT)
           )
         }
 
