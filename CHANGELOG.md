@@ -31,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Facet nomenclature rank: Remove selected ranks from select input
 - Updated Ruby gems
 - New taxon name task: Add manual mode for subsequent combinations section when taxon rank is not in the list [#4009]
+- Optimized performance of Combination name rendering and use
 
 ### Fixed
 
