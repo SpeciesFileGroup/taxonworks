@@ -5,7 +5,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
     attr_accessor :error_data
 
     def initialize(error_data)
-      super("Invalid data")
+      super('Invalid data')
       self.error_data = error_data
     end
   end
@@ -54,7 +54,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
       .select { |f| f.is_a?(String) }
       .map do |field|
         /(TW:BiocurationGroup:).+/i =~ field
-        {field: field, selector: field.sub($1, '')} if $1
+        {field:, selector: field.sub($1, '')} if $1
       end
       .reject(&:nil?)
   end
@@ -76,9 +76,8 @@ class DatasetRecord::DarwinCore < DatasetRecord
   def term_value_changed(name, value); end
 
   def get_fields_mapping
-    @fields_mapping ||= import_dataset.metadata["core_headers"]
-      .reject(&:nil?)
-      .each.with_index.inject({}) { |m, (h, i)| m.merge({ h.downcase => i, i => h}) }
+    @fields_mapping ||= import_dataset.metadata['core_headers']
+      .each.with_index.inject({}) { |m, (h, i)| h.blank? ? m : m.merge({ h&.downcase => i, i => h}) }
   end
 
   def get_field_mapping(field_name)
