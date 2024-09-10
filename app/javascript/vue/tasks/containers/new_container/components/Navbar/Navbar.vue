@@ -39,6 +39,7 @@
         >
           {{ store.container.id ? 'Update' : 'Create' }}
         </VBtn>
+        <RecentButton />
         <VBtn
           color="primary"
           medium
@@ -56,6 +57,7 @@ import VNavbar from '@/components/layout/NavBar.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import RecentButton from '../RecentButton.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { useContainerStore } from '../../store'
 import { setParam, URLParamsToJSON } from '@/helpers'

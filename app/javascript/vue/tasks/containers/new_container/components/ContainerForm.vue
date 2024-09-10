@@ -1,7 +1,10 @@
 <template>
   <BlockLayout>
     <template #header>
-      <h3>Container</h3>
+      <div class="flex-separate middle full_width">
+        <h3>Container</h3>
+        <CloneButton />
+      </div>
     </template>
     <template #body>
       <div class="field">
@@ -38,6 +41,7 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import ContainerParent from './ContainerParent.vue'
 import ContainerType from './ContainerType.vue'
 import ContainerSize from './ContainerSize.vue'
+import CloneButton from './CloneButton.vue'
 
 const container = defineModel({
   type: Object,
