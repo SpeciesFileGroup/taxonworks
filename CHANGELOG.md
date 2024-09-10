@@ -11,6 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Filters: Custom button to `records per page` selector [#4032]
 
+### Fixed
+
+- OTU taxonomy inventory API endpoint crashing on protonyms with no cached year and author.
+
 [#4032]: https://github.com/SpeciesFileGroup/taxonworks/issues/4032
 
 ## [0.43.3] - 2024-09-09
