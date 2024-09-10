@@ -2,12 +2,23 @@ class ContainersController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_container, only: [:update, :destroy, :show, :edit]
+  after_action -> { set_pagination_headers(:containers) }, only: [:index, :api_index], if: :json_request?
 
   # GET /containers
   # GET /containers.json
   def index
-    @recent_objects = Container.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Container.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @containers = ::Queries::Container::Filter.new(params)
+          .all
+          .page(params[:page])
+          .per(params[:per])
+      }
+    end
   end
 
   # GET /containers/1
