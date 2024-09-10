@@ -1,5 +1,9 @@
+# ContainerItem tells you where this item is contained in. Containers contain ContainerItems, not the objects themselves.
+# 
 # A container item is something that has been "localized to" a container.
+# 
 # We can't say that it is "in" the container, because not all containers (e.g. a pin with three specimens) contain the object.
+#
 # By "localized to" we mean that if you can find the container, then its contents should also be locatable.
 #
 # This concept is a graph edge defining the relationship to the container.
@@ -58,10 +62,9 @@ class ContainerItem < ApplicationRecord
 
   attr_accessor :container_id
 
-  belongs_to :contained_object, polymorphic: true
+  belongs_to :contained_object, polymorphic: true, inverse_of: :container_item
 
-  # !! this will prevent accepts_nested assignments if we add this
-  validates_presence_of :contained_object_id
+  validates :contained_object, presence: true
 
   validate :parent_contained_object_is_container
   validate :contained_object_is_container_when_parent_id_is_blank
@@ -74,8 +77,6 @@ class ContainerItem < ApplicationRecord
   scope :not_containers, -> { where.not(contained_object_type: 'Container') }
   scope :containing_collection_objects, -> {where(contained_object_type: 'CollectionObject')}
 
-  # before_save :set_container, unless: Proc.new {|n| n.container_id.nil? || errors.any? }
- 
   # @params object [Container]
   def container=(object)
     if object.metamorphosize.kind_of?(Container)
@@ -146,12 +147,12 @@ class ContainerItem < ApplicationRecord
     # Already in some container
     if parent && parent.persisted? 
       self.parent.update_columns(contained_object_type: 'Container', contained_object_id: c.id)
-    # Not in container
+      # Not in container
     else
       # In same container as something else
       if d = c.container_item
         self.parent = d
-      # In a new container
+        # In a new container
       else
         self.parent = ContainerItem.create!(contained_object: c) 
       end

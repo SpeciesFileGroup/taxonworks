@@ -91,13 +91,13 @@ class ContainersController < ApplicationController
 
   def autocomplete
     @containers = Queries::Container::Autocomplete.new(
-      params.require(:term), 
+      params.require(:term),
       project_id: sessions_current_project_id
     ).autocomplete
   end
 
   def container_types
-    render json: helpers.container_types 
+    render json: helpers.container_types
   end
 
   private
@@ -106,6 +106,6 @@ class ContainersController < ApplicationController
   end
 
   def container_params
-    params.require(:container).permit(:parent_id, :type, :name, :disposition, :size_x, :size_y, :size_z)
+    params.require(:container).permit(:parent_id, :type, :name, :disposition, :size_x, :size_y, :size_z, :empty_container)
   end
 end
