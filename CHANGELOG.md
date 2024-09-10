@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Filters: Custom button to `records per page` selector [#4032]
+
+[#4032]: https://github.com/SpeciesFileGroup/taxonworks/issues/4032
 
 ## [0.43.3] - 2024-09-09
 
