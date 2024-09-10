@@ -320,6 +320,8 @@ resources :field_occurrences do
   concerns [:data_routes]
 end
 
+resources :gazetteer_imports
+
 resources :gazetteers do
   concerns [:data_routes]
   collection do
