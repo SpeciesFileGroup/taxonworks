@@ -57,6 +57,15 @@ class GazetteerImportsController < ApplicationController
     end
   end
 
+  # GET /gazetteer_imports/all.json
+  def all
+    # TODO include created by
+    @import_jobs = GazetteerImport
+      .where(project_id: sessions_current_project_id)
+      .order(updated_at: :desc)
+  end
+
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_gazetteer_import

@@ -31,8 +31,8 @@
 import DocumentSelector from './components/DocumentSelector.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import { Gazetteer } from '@/routes/endpoints'
-import { computed, ref } from 'vue'
+import { Gazetteer, GazetteerImport } from '@/routes/endpoints'
+import { computed, onMounted, ref } from 'vue'
 
 const selectedDocs = ref([])
 const shape_name_field = ref('')
@@ -111,6 +111,12 @@ function validateShapefileFileset(fileset) {
 function basename(file) {
   return file['document_file_file_name'].slice(0, -4)
 }
+
+onMounted(() => {
+  GazetteerImport.all().then(({ body }) => {
+
+  })
+})
 </script>
 
 <style lang="scss" scoped>

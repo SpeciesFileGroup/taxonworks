@@ -320,7 +320,11 @@ resources :field_occurrences do
   concerns [:data_routes]
 end
 
-resources :gazetteer_imports
+resources :gazetteer_imports do
+  collection do
+    get :all, defaults: {format: :json}
+  end
+end
 
 resources :gazetteers do
   concerns [:data_routes]
