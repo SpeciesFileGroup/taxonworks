@@ -373,14 +373,14 @@ class Otu < ApplicationRecord
     Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
   end
 
-  # TODO: need's spec
-  # A convienence method to wrap coordinate_otus and descendant_of_taxon_name
+  # TODO: needs spec
+  # A convenience method to wrap coordinate_otus and descendant_of_taxon_name
   # @return Scope
   def coordinate_otus_with_children
     if taxon_name_id.nil?
       Otu.coordinate_otus(id)
     else
-      Otu.descendant_of_taxon_name(taxon_name.valid_taxon_name.id)
+      Otu.descendant_of_taxon_name(taxon_name.valid_taxon_name.id) # TODO: why not taxon_name.cached_valid_taxon_name_id
     end
   end
 

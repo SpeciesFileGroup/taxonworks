@@ -9,6 +9,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Filters: Custom button to `records per page` selector [#4032]
+
+[#4032]: https://github.com/SpeciesFileGroup/taxonworks/issues/4032
+
+## [0.43.3] - 2024-09-09
+
+### Added
+
 - With/out facets for Loan dates [#3729]
 - FieldNumber local identifier sensu DwC
 - RecordNumber local identifier sensu DwC [#4016]
@@ -17,6 +25,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New RecordNumber panel for Comprehensive Digization
 - Filter Otu: With/without common names
 - Radial annotator: Add sort to identifiers slice [#4021]
+- `extend[]=valid_name` to `/taxon_names`
+- Valid name column in filter nomenclature
 
 ### Changed
 
@@ -31,9 +41,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Facet nomenclature rank: Remove selected ranks from select input
 - Updated Ruby gems
 - New taxon name task: Add manual mode for subsequent combinations section when taxon rank is not in the list [#4009]
+- Optimized performance of Combination name rendering and use
+- Filters with Geographic area facet default to 'Spatial'
 
 ### Fixed
 
+- Header labels print without higher taxonomy [#4030]
 - Staged images tab on collection object report
 - Non-integer identifier start/end ranges raising
 - Various facets in Filter OTUs not being scoped to unique records
@@ -56,6 +69,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4019]: https://github.com/SpeciesFileGroup/taxonworks/issues/4019
 [#4021]: https://github.com/SpeciesFileGroup/taxonworks/issues/4021
 [#4024]: https://github.com/SpeciesFileGroup/taxonworks/issues/4024
+[#4030]: https://github.com/SpeciesFileGroup/taxonworks/issues/4030
 
 ## [0.43.2] - 2024-08-10
 
@@ -4799,7 +4813,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.3..development
+[0.43.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2...v0.43.3
 [0.43.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1...v0.43.2
 [0.43.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.0...v0.43.1
 [0.43.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0...v0.43.0

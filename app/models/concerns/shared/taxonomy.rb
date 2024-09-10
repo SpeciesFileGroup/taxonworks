@@ -23,6 +23,8 @@ module Shared::Taxonomy
     # !! Note Root is included, this may be deprecated ultimate
     # !!  as it is rarely used
     #
+    # Currently based on full_name_hash format
+    #
     attr_accessor :taxonomy
 
     # @params reset [Boolean]
@@ -62,8 +64,21 @@ module Shared::Taxonomy
             a ||= type_materials.primary.first&.protonym
           when 'Otu'
             taxon_name&.valid_taxon_name
+
           when 'AssertedDistribution'
+
+            # TODO: this is faster, but needs spec confirmation
+            # Benchmark.measure { 2000.times do;  AssertedDistribution.find_by_id(ids.sample).taxonomy; end;  }
+            #
+            # TaxonName.joins('JOIN taxon_names tn on tn.id = taxon_names.cached_valid_taxon_name_id')
+            #   .joins('JOIN otus o on o.taxon_name_id = tn.id')
+            #   .where(o: { id: otu_id })
+            #   .first
+
             otu.taxon_name&.valid_taxon_name
+
+          when 'TaxonName' # not used (probably has to be subclassed)
+            self
           end
 
       if c
@@ -96,4 +111,5 @@ module Shared::Taxonomy
       end
     end
   end
+
 end

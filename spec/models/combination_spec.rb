@@ -14,7 +14,7 @@ describe Combination, type: :model, group: :nomenclature do
   context 'associations' do
     context 'has_one' do
       context 'taxon_name_relationship' do
-        Combination::APPLICABLE_RANKS.each do |rank|
+        Combination::APPLICABLE_RANKS.keys.each do |rank|
           method = "#{rank}_taxon_name_relationship"
           specify method do
             expect(combination.send("#{method}=", TaxonNameRelationship.new)).to be_truthy
@@ -23,7 +23,7 @@ describe Combination, type: :model, group: :nomenclature do
       end
 
       context 'taxon_name' do
-        Combination::APPLICABLE_RANKS.each do |rank|
+        Combination::APPLICABLE_RANKS.keys.each do |rank|
           specify rank do
             expect(combination.send("#{rank}=", Protonym.new)).to be_truthy
           end
