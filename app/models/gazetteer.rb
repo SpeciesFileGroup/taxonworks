@@ -3,14 +3,13 @@ require 'fileutils'
 # Gazetteer allows a project to add its own named shapes to participate in
 # filtering, etc.
 #
-# @!attribute geography
-#   @return [RGeo::Geographic::Geography]
-#   Can hold any of the RGeo geometry types point, line string, polygon,
-#   multipoint, multilinestring, multipolygon.
+# @!attribute geographic_item_id
+#   @return [Integer]
+#   The shape of the gazetteer
 #
 # @!attribute name
 #   @return [String]
-#   The name of the gazetteer item
+#   The name of the gazetteer
 #
 # @!attribute parent_id
 #   @return [Integer]
@@ -27,7 +26,7 @@ require 'fileutils'
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
-
+#
 class Gazetteer < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -212,6 +211,7 @@ class Gazetteer < ApplicationRecord
 
   # @return [true or String] Returns true on success, otherwise returns an error
   # string
+  # TODO should be a helper?
   def self.validate_shape_file(shapefile)
     if shapefile[:name_field].nil?
       return 'Name field is required'
@@ -262,7 +262,7 @@ class Gazetteer < ApplicationRecord
   end
 
   # raises TaxonWorks::Error on error
-  def self.import_from_shapefile(shapefile)
+  def self.import_from_shapefile(shapefile, progress_tracker)
     shp_doc = Document.find(shapefile[:shp_doc_id])
     shx_doc = Document.find(shapefile[:shx_doc_id])
     dbf_doc = Document.find(shapefile[:dbf_doc_id])
@@ -285,17 +285,15 @@ class Gazetteer < ApplicationRecord
     FileUtils.ln_s(dbf_doc.document_file.path, dbf_link)
     FileUtils.ln_s(prj_doc.document_file.path, prj_link)
 
-    processShapeFile(shp_link, name_field)
+    processShapeFile(shp_link, name_field, progress_tracker)
 
     FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
     FileUtils.rmdir(tmp_dir)
   end
 
-  # raises TaxonWorks::Error on error
-  def self.processShapeFile(shpfile, name_field)
+  def self.processShapeFile(shpfile, name_field, progress_tracker)
     r = {
       num_records: 0,
-      num_gzs_created: 0,
       error_id: nil,
       error_message: nil,
     }
@@ -304,8 +302,15 @@ class Gazetteer < ApplicationRecord
       shpfile, factory: Gis::FACTORY, allow_unsafe: true
     ) do |file|
       r[:num_records] = file.num_records
+
+      progress_tracker.update!(
+        num_records: file.num_records,
+        started_at: DateTime.now
+      )
       begin
         Gazetteer.transaction do
+          last_processed_at = Time.now.utc
+          update_interval = 2 # seconds
           # Iterate over an index so we can record index on error
           for i in 0...file.num_records
             begin
@@ -327,7 +332,11 @@ class Gazetteer < ApplicationRecord
 
               g.save!
 
-              r[:num_gzs_created] += 1
+              now = Time.now.utc
+              if now - last_processed_at > update_interval
+                progress_tracker.update!(num_records_processed: i + 1)
+              end
+              last_processed_at = now
             rescue RGeo::Error::InvalidGeometry => e
               r[:error_id] = i + 1
               r[:error_message] = e.to_s
@@ -345,9 +354,17 @@ class Gazetteer < ApplicationRecord
         end
       rescue ActiveRecord::RecordInvalid
         m = "Error on record #{r[:error_id]}/#{r[:num_records]}: #{r[:error_message]}"
-        raise TaxonWorks::Error, m
+        progress_tracker.update!(
+          aborted_reason: m,
+          ended_at: DateTime.now
+        )
+        return
       end
     end
+    progress_tracker.update!(
+      num_records_processed: r[:num_records],
+      ended_at: DateTime.now
+    )
   end
 
   private

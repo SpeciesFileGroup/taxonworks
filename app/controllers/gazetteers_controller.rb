@@ -112,12 +112,16 @@ class GazetteersController < ApplicationController
         errors: rv
       },
       status: :unprocessable_entity
-
-      return false
+      return
     end
 
+    shp_doc = Document.find(import_params[:shp_doc_id])
+    progress_tracker = GazetteerImport.create!(
+      shapefile: shp_doc.document_file_file_name
+    )
     ImportGazetteersJob.perform_later(
-      import_params, sessions_current_user_id, sessions_current_project_id
+      import_params, sessions_current_user_id, sessions_current_project_id,
+      progress_tracker
     )
     #Gazetteer.import_from_shapefile(import_params)
     head :no_content

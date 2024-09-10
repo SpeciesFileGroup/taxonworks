@@ -86,7 +86,7 @@ import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { addToArray, removeFromArray } from '@/helpers/arrays.js'
 import { Document } from '@/routes/endpoints'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const DROPZONE_CONFIG_BASE = {
   paramName: 'document[document_file]',
@@ -110,7 +110,6 @@ const filterList = ref([])
 const isLoading = ref(true)
 const noMatchesForExtensions = ref(undefined)
 const extensionGroups = ref([])
-const smartSelectorDoc = ref(undefined)
 
 const shapefileExtensions = computed(() => {
   const shapefileGroup =

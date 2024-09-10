@@ -34,33 +34,15 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 
-const SHAPEFILE_EXTENSIONS = ['.shp', '.shx', '.dbf', '.prj']
-
 const selectedDocs = ref([])
 const shape_name_field = ref('')
-const results = ref(null)
 const isLoading = ref(false)
 
 const processingDisabled = computed(() => {
   return selectedDocs.value.length != 4 || !shape_name_field.value
 })
 
-const resultErrors = computed(() => {
-  if (results.value == null || results.value['error_ids'].length == 0) {
-    return null
-  }
-
-  let a = []
-  results.value['error_ids'].forEach((id, i) => {
-    a.push(id + ': ' + results.value['error_messages'][i])
-  })
-
-  return a
-})
-
 function processShapefile() {
-  results.value = null
-  // TODO report fail if prj provided and not WGS84, but don't require prj
   const shp = getFileForExtension('.shp')
   const shx = getFileForExtension('.shx')
   const dbf = getFileForExtension('.dbf')
@@ -82,7 +64,7 @@ function processShapefile() {
 
   isLoading.value = true
   Gazetteer.import(payload)
-  .then(({ body }) => {
+  .then(() => {
     TW.workbench.alert.create('Import submitted to background job', 'notice')
   })
   .catch(() => {})
@@ -124,7 +106,8 @@ function validateShapefileFileset(fileset) {
   return true
 }
 
-// Assumes Document file whose document_file_file_name has a '.eee' extension
+// Assumes Document file whose document_file_file_name has a three character
+// extension
 function basename(file) {
   return file['document_file_file_name'].slice(0, -4)
 }
