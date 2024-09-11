@@ -25,7 +25,7 @@
     <template #footer>
       <div class="horizontal-left-content gap-small">
         <VBtn
-          color="submit"
+          :color="containerId ? 'create' : 'primary'"
           medium
           :disabled="!containerItem.objectId"
           @click="
@@ -63,7 +63,15 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import ContainerItemObject from './ContainerItemObject.vue'
 
+defineProps({
+  containerId: {
+    type: [Number, null],
+    required: true
+  }
+})
+
 const emit = defineEmits(['add', 'remove', 'close'])
+
 const isVisible = ref(false)
 const containerItem = ref(null)
 

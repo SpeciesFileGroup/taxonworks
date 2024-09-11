@@ -52,6 +52,7 @@
   </div>
   <ContainerItemModal
     ref="containerItemModalRef"
+    :container-id="store.container.id"
     @close="() => (store.placeItem = null)"
     @add="saveContainerItem"
     @remove="store.removeContainerItem"
