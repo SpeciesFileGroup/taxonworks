@@ -2,7 +2,7 @@
   <fieldset>
     <legend>Import Jobs</legend>
     <div>
-      No Gazetteers are created until an entire job is copmleted.
+      <b>No Gazetteers are created until an entire job is completed.</b>
     </div>
     <div class="vue-table-container">
       <table class="vue-table">
@@ -10,7 +10,7 @@
           <tr>
             <th class="word-keep-all">Shapefile</th>
             <th class="word-keep-all">Status</th>
-            <th class="word-keep-all">Gazetteers Processed</th>
+            <th class="word-keep-all">Gazetteers Imported</th>
             <th class="word-keep-all">Start time</th>
             <th class="word-keep-all">End time</th>
             <th class="word-keep-all"></th>
@@ -74,14 +74,13 @@ function jobStatus(job) {
   } else if (!job['aborted_reason']) {
     return 'Completed'
   } else {
-    return 'Aborted, no records saved: ' + job['aborted_reason']
+    return 'Aborted, no Gazetteers saved: ' + job['aborted_reason']
   }
 }
 
 function gzsImported(job) {
-  if (job['num_records']) {
-    const processed = job['num_records_processed'] || 0
-    return `${processed}/${job['num_records']}`
+  if (job['ended_at'] && !job['aborted_reason']) {
+    return job['num_records']
   } else {
     return ''
   }

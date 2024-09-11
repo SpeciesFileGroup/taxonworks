@@ -309,8 +309,6 @@ class Gazetteer < ApplicationRecord
       )
       begin
         Gazetteer.transaction do
-          last_processed_at = Time.now.utc
-          update_interval = 2 # seconds
           # Iterate over an index so we can record index on error
           for i in 0...file.num_records
             begin
@@ -331,12 +329,6 @@ class Gazetteer < ApplicationRecord
               )
 
               g.save!
-
-              now = Time.now.utc
-              if i == 0 || now - last_processed_at > update_interval
-                progress_tracker.update!(num_records_processed: i + 1)
-              end
-              last_processed_at = now
             rescue RGeo::Error::InvalidGeometry => e
               r[:error_id] = i + 1
               r[:error_message] = e.to_s
@@ -355,6 +347,7 @@ class Gazetteer < ApplicationRecord
       rescue ActiveRecord::RecordInvalid
         m = "Error on record #{r[:error_id]}/#{r[:num_records]}: #{r[:error_message]}"
         progress_tracker.update!(
+          num_records_processed: r[:error_id] - 1,
           aborted_reason: m,
           ended_at: DateTime.now
         )
