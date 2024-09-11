@@ -928,9 +928,13 @@ new_container_task:
   hub: true
   name: 'New container'
   related:
+    - collection_object
+    - extract
   categories:
+    - new
+    - collection_object
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Create containers and edit their contents. Add collection objects to containers.'
 import_nexus_task:
   hub: true
   name: 'Import Nexus file data'
