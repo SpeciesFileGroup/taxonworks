@@ -8,7 +8,10 @@
       <h3>Container item</h3>
     </template>
     <template #body>
-      <ContainerItemObject v-model="containerItem" />
+      <ContainerItemObject
+        v-if="!containerItem.id"
+        v-model="containerItem"
+      />
       <div class="field">
         <label>Disposition</label>
         <textarea

@@ -116,7 +116,7 @@ const listSelected = computed(() =>
 const selectAll = computed({
   get() {
     return props.list.every(({ uuid }) =>
-      store.selectedItems.some((i) => uuid === i.uuid)
+      store.selectedItems.some((i) => i.metadata?.uuid === uuid)
     )
   },
   set(value) {

@@ -12,7 +12,7 @@
     <div class="flex-col gap-medium full_height">
       <ContainerForm
         v-model="store.container"
-        class="container-form"
+        class="full_width"
       />
 
       <div class="overflow-y-auto">
@@ -20,13 +20,13 @@
         <ContainerItemList
           v-if="store.getItemsOutsideContainer.length"
           fill-button
-          title="Container Items (Outside)"
+          title="Unplaced"
           :list="store.getItemsOutsideContainer"
           @edit="openContainerItemModal"
         />
         <ContainerItemList
           v-if="store.getItemsInsideContainer.length"
-          title="Container Items (Inside)"
+          title="Placed"
           :list="store.getItemsInsideContainer"
           @edit="openContainerItemModal"
         />
@@ -37,8 +37,17 @@
       class="container-viewer"
       v-bind="store.encaseOpts"
       v-model:selected-items="store.selectedItems"
-      @container-item:right-click="openContainerItemModal"
       @container-item:left-click="handleClick"
+      @container-item:right-click="
+        (item) => {
+          openContainerItemModal({
+            position: convertPositionToTWCoordinates(
+              item.position,
+              store.container.size
+            )
+          })
+        }
+      "
     />
   </div>
   <ContainerItemModal
@@ -76,14 +85,9 @@ const store = useContainerStore()
 const containerItemModalRef = ref()
 
 async function openContainerItemModal({ position }) {
-  const twPosition = convertPositionToTWCoordinates(
-    position,
-    store.container.size
-  )
-
-  const containerItem = store.getContainerItemByPosition(twPosition) || {
+  const containerItem = store.getContainerItemByPosition(position) || {
     ...makeContainerItem(),
-    position: twPosition
+    position
   }
 
   await new Promise((resolve) => setTimeout(resolve, 50))
@@ -143,14 +147,14 @@ onBeforeMount(() => {
 }
 
 .container-form {
-  min-width: 410px;
-  width: 410px;
+  min-width: 100%;
+  width: 100%;
 }
 
 .task-container {
   display: grid;
   gap: 1em;
-  grid-template-columns: 410px minmax(400px, 1fr);
+  grid-template-columns: 430px minmax(400px, 1fr);
   grid-template-rows: calc(100vh - 15.5rem);
 }
 </style>

@@ -135,7 +135,11 @@ export const useContainerStore = defineStore('container', {
     },
 
     addSelectedItem(item) {
-      if (!this.selectedItems.some((i) => i.metadata.uuid === item.uuid)) {
+      if (
+        !this.selectedItems.some(
+          (i) => i.uuid === item.uuid || i.metadata?.uuid === item.uuid
+        )
+      ) {
         this.selectedItems.push(makeVisualizerContainerItem(item, this))
       }
     },
