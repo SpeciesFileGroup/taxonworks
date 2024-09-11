@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Creating depictions of CollectionObjects now updates their DwcOccurrence automatically
 - Filters: Custom button to `records per page` selector [#4032]
 
 ### Fixed
