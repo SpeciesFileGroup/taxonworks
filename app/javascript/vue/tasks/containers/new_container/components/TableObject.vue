@@ -11,7 +11,7 @@
             color="primary"
             @click="() => list.forEach(addToContainerItems)"
           >
-            Add to container
+            Add all
           </VBtn>
         </th>
       </tr>
