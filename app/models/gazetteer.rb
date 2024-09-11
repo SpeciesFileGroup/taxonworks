@@ -333,7 +333,7 @@ class Gazetteer < ApplicationRecord
               g.save!
 
               now = Time.now.utc
-              if now - last_processed_at > update_interval
+              if i == 0 || now - last_processed_at > update_interval
                 progress_tracker.update!(num_records_processed: i + 1)
               end
               last_processed_at = now
