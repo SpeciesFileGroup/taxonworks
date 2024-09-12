@@ -12,6 +12,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Creating depictions of CollectionObjects now updates their DwcOccurrence automatically
 - Filters: Custom button to `records per page` selector [#4032]
 
+### Changed
+
+- Updated Ruby gems
+
 ### Fixed
 
 - DwcOccurrence now *actually* selects the valid name on export
