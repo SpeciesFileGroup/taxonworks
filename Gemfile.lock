@@ -866,7 +866,6 @@ DEPENDENCIES
   tzinfo-data (~> 1.2019)
   validates_timeliness (~> 7.0.0.beta2)
   vcr (~> 6.0)
-  voight_kampff (~> 2.0)
   waxy (~> 0.1.1)
   web-console (~> 4.0, >= 4.0.1)
   webmock (~> 3.8)
