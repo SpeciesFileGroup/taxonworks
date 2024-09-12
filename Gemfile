@@ -109,7 +109,7 @@ gem 'csl', '~> 2.0'
 gem 'bibtex-ruby', '~> 6.0'
 gem 'citeproc-ruby', '~> 2.0'
 gem 'csl-styles', '~> 2.0.1'
-gem 'serrano', github: 'LocoDelAssembly/serrano', branch: 'older_thor' #gem 'serrano', '~> 1.0.0'
+gem 'serrano', '~> 1.4'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
 
