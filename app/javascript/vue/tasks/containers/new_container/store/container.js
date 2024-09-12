@@ -13,6 +13,7 @@ import {
   makeVisualizerContainerItem
 } from '../utils'
 import { DEFAULT_OPTS } from '../constants'
+import { useObjectStore } from './objects'
 
 export const useContainerStore = defineStore('container', {
   state: () => ({
@@ -174,7 +175,7 @@ export const useContainerStore = defineStore('container', {
 
     removeSelectedItem(item) {
       const index = this.selectedItems.findIndex(
-        (i) => i.metadata.uuid === item.uuid
+        (i) => i.metadata?.uuid === item.uuid || i.uuid === item.uuid
       )
 
       if (index > -1) {
@@ -183,6 +184,8 @@ export const useContainerStore = defineStore('container', {
     },
 
     removeContainerItem(item) {
+      const store = useObjectStore()
+
       if (item.id) {
         ContainerItem.destroy(item.id).then(() => {
           TW.workbench.alert.create(
@@ -191,18 +194,20 @@ export const useContainerStore = defineStore('container', {
         })
       }
 
+      store.addObject({
+        ...makeContainerItem(),
+        objectId: item.objectId,
+        objectType: item.objectType,
+        label: item.label
+      })
+
       removeFromArray(this.containerItems, item, { property: 'uuid' })
     },
 
     saveContainerItems() {
       if (!this.container.id) return
 
-      const unsavedItems = this.containerItems.filter((item) => item.isUnsaved)
-      const list = unsavedItems.filter((item) =>
-        isItemInContainer(item.position, this.container.size)
-      )
-      const outsideItemsCount = unsavedItems.length - list.length
-      let message = ''
+      const list = this.containerItems.filter((item) => item.isUnsaved)
 
       const promises = list.map((item) => {
         const payload = {
@@ -226,18 +231,10 @@ export const useContainerStore = defineStore('container', {
         return request
       })
 
-      if (outsideItemsCount) {
-        if (outsideItemsCount === 1) {
-          message = `Container items was not saved because its position exceeds the container size.`
-        } else {
-          message = `${outsideItemsCount} were not saved because their position exceeds the container size.`
-        }
-      }
-
       Promise.all(promises)
         .then(() => {
           if (promises.length) {
-            message +=
+            const message =
               promises.length === 1
                 ? 'Container item was successfully saved.'
                 : `${promises.length} Container items were successfully saved.`
@@ -246,6 +243,19 @@ export const useContainerStore = defineStore('container', {
           }
         })
         .catch(() => {})
+    },
+
+    unplaceAll() {
+      this.getItemsInsideContainer.forEach((item) => {
+        Object.assign(item, {
+          position: {
+            x: null,
+            y: null,
+            z: null
+          },
+          isUnsaved: true
+        })
+      })
     },
 
     saveContainer() {

@@ -1,7 +1,6 @@
 <template>
   <VBtn
     color="primary"
-    medium
     :disabled="disabled"
     @click="() => (isModalVisible = true)"
   >

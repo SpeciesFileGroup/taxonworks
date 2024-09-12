@@ -16,6 +16,10 @@
               :disabled="!listSelected.length"
               :list="listSelected"
             />
+            <UnplaceAll
+              v-if="unplaceButton"
+              :disabled="!list.length"
+            />
           </div>
         </th>
       </tr>
@@ -40,13 +44,6 @@
         <td>
           <div class="horizontal-right-content gap-small">
             <template v-if="!(store.isItemInside(item) && item.id)">
-              <VIcon
-                v-if="item.isUnsaved"
-                name="attention"
-                color="attention"
-                title="The container item will not be saved if it is not positioned inside the container"
-                small
-              />
               <VBtn
                 color="primary"
                 @click="() => (store.placeItem = item)"
@@ -87,6 +84,7 @@ import { useContainerStore } from '../../store'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import FillContainerModal from './ContainerItemFill.vue'
+import UnplaceAll from '../UnplaceAll.vue'
 
 const props = defineProps({
   list: {
@@ -102,14 +100,19 @@ const props = defineProps({
   fillButton: {
     type: Boolean,
     default: false
+  },
+
+  unplaceButton: {
+    type: Boolean,
+    default: false
   }
 })
 
 const emit = defineEmits(['edit'])
 
 const listSelected = computed(() =>
-  props.list.filter((item) =>
-    store.selectedItems.some((i) => i.metadata?.uuid === item.uuid)
+  props.list.filter(({ uuid }) =>
+    store.selectedItems.some((i) => i.metadata?.uuid === uuid)
   )
 )
 

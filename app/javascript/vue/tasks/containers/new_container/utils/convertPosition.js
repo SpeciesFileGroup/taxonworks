@@ -6,8 +6,10 @@ export function convertPositionToTWCoordinates(position, size) {
 }
 
 export function convertPositionTo3DGraph(position, size) {
+  const posY = position.y
+
   return {
     ...position,
-    y: Math.abs(position.y - size.y + 1)
+    y: size.y <= posY ? posY : Math.abs(size.y - position.y - 1)
   }
 }

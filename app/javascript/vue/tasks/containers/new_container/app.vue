@@ -17,16 +17,23 @@
 
       <div class="overflow-y-auto">
         <TableObject />
+        <VSwitch
+          class="margin-medium-top"
+          :options="tabs"
+          use-index
+          v-model.number="listView"
+        />
         <ContainerItemList
-          v-if="store.getItemsOutsideContainer.length"
+          v-if="listView === TAB_INDEX.Unplaced"
           fill-button
           title="Unplaced"
           :list="store.getItemsOutsideContainer"
           @edit="openContainerItemModal"
         />
         <ContainerItemList
-          v-if="store.getItemsInsideContainer.length"
+          v-if="listView === TAB_INDEX.Placed"
           title="Placed"
+          unplace-button
           :list="store.getItemsInsideContainer"
           @edit="openContainerItemModal"
         />
@@ -62,13 +69,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { VueEncase } from '@sfgrp/encase'
 import { onBeforeMount } from 'vue'
 import { URLParamsToJSON } from '@/helpers'
 import { useContainerStore } from './store'
 import { makeContainerItem } from './adapters'
 import { convertPositionToTWCoordinates } from './utils'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import ContainerForm from './components/ContainerForm.vue'
 import ContainerItemList from './components/ContainerItem/ContainerItemList.vue'
 import ContainerItemModal from './components/ContainerItem/ContainerItemModal.vue'
@@ -78,12 +86,23 @@ import VSettings from './components/Settings.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import TableObject from './components/TableObject.vue'
 
+const TAB_INDEX = {
+  Unplaced: 0,
+  Placed: 1
+}
+
+const tabs = computed(() => ({
+  [TAB_INDEX.Unplaced]: `Unplaced (${store.getItemsOutsideContainer.length})`,
+  [TAB_INDEX.Placed]: `Placed (${store.getItemsInsideContainer.length})`
+}))
+
 defineOptions({
   name: 'NewContainer'
 })
 
 const store = useContainerStore()
 const containerItemModalRef = ref()
+const listView = ref(TAB_INDEX.Unplaced)
 
 async function openContainerItemModal({ position }) {
   const containerItem = store.getContainerItemByPosition(position) || {
