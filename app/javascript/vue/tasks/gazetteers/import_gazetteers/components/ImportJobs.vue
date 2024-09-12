@@ -32,6 +32,7 @@
           <thead>
             <tr>
               <th class="word-keep-all">Shapefile</th>
+              <th class="word-keep-all">Submitted By</th>
               <th class="word-keep-all">Status</th>
               <th class="word-keep-all">Gazetteers Imported</th>
               <th class="word-keep-all">Start time</th>
@@ -49,6 +50,7 @@
               class="list-complete-item"
             >
               <td class="word-keep-all">{{ job['shapefile'] }}</td>
+              <td>{{ job['submitted_by'] }}</td>
               <td>{{ jobStatus(job) }}</td>
               <td>{{ gzsImported(job) }}</td>
               <td>{{ job['started_at'] }}</td>

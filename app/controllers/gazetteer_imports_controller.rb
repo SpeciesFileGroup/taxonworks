@@ -59,10 +59,11 @@ class GazetteerImportsController < ApplicationController
 
   # GET /gazetteer_imports/all.json
   def all
-    # TODO include created by
     @import_jobs = GazetteerImport
+      .joins('JOIN users ON gazetteer_imports.created_by_id = users.id')
+      .select('gazetteer_imports.*, users.name AS submitted_by')
       .where(project_id: sessions_current_project_id)
-      .order(updated_at: :desc)
+      .order(created_at: :desc)
   end
 
 
