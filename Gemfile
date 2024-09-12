@@ -85,7 +85,7 @@ gem 'kt-paperclip', '~> 7.2'
 # gem 'paperclip', github: 'LocoDelAssembly/paperclip', branch: 'migration-fix' # gem 'paperclip', '~> 6.1.0'
 gem 'paperclip-meta', github: 'LocoDelAssembly/paperclip-meta', branch: 'kt-paperclip'
 
-gem 'voight_kampff', github: 'LocoDelAssembly/Voight-Kampff'
+gem 'voight_kampff', '~> 2.0'
 gem 'shortener', '~> 1.0'
 gem 'rails_or', '~> 1.1.8'
 
