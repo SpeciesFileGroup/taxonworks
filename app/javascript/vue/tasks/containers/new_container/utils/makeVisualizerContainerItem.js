@@ -1,18 +1,25 @@
 import { shorten } from '@/helpers'
 import { comparePosition, convertPositionTo3DGraph } from './index.js'
-import { HOVER_COLOR } from '../constants'
+import { ERROR_COLOR, HOVER_COLOR, DEFAULT_COLOR } from '../constants'
+
+function makeStyle({ item, isHover }) {
+  return {
+    color:
+      (item.errorOnSave && ERROR_COLOR) ||
+      (isHover && HOVER_COLOR) ||
+      DEFAULT_COLOR
+  }
+}
 
 export function makeVisualizerContainerItem(
   item,
   { truncateMaxLength, hoverRow, container }
 ) {
+  const isHover = hoverRow && comparePosition(item.position, hoverRow.position)
   const label = truncateMaxLength
     ? shorten(item.label, truncateMaxLength)
     : item.label
-  const style =
-    hoverRow && comparePosition(item.position, hoverRow.position)
-      ? { color: HOVER_COLOR }
-      : {}
+  const style = makeStyle({ item, isHover })
 
   return {
     position: convertPositionTo3DGraph(item.position, container.size),

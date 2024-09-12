@@ -9,7 +9,6 @@ import {
 import { removeFromArray, addToArray } from '@/helpers'
 import {
   comparePosition,
-  convertPositionToTWCoordinates,
   isItemInContainer,
   makeVisualizerContainerItem
 } from '../utils'
@@ -226,8 +225,12 @@ export const useContainerStore = defineStore('container', {
           .then(({ body }) => {
             item.id = body.id
             item.isUnsaved = false
+            item.errorOnSave = false
           })
-          .catch(() => {})
+          .catch(({ response }) => {
+            item.isUnsaved = false
+            item.errorOnSave = Object.values(response.body).join('; ')
+          })
 
         return request
       })
@@ -247,12 +250,12 @@ export const useContainerStore = defineStore('container', {
     },
 
     unplaceSelected() {
-      const uuids = this.selectedItems.map(
-        (item) => item.uuid || item.metadata?.uuid
-      )
+      const items = this.selectedItems.filter((item) => item.metadata?.uuid)
 
-      uuids.forEach((uuid) => {
-        const obj = this.containerItems.find((item) => item.uuid === uuid)
+      items.forEach(({ metadata }) => {
+        const obj = this.containerItems.find(
+          (item) => item.uuid === metadata.uuid
+        )
 
         Object.assign(obj, {
           position: {

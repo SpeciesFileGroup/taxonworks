@@ -43,6 +43,13 @@
         </td>
         <td>
           <div class="horizontal-right-content gap-small">
+            <VIcon
+              v-if="item.errorOnSave"
+              name="attention"
+              color="attention"
+              small
+              :title="item.errorOnSave"
+            />
             <template v-if="!store.isItemInside(item)">
               <VBtn
                 color="primary"

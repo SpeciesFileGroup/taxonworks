@@ -13,6 +13,11 @@
         v-model="containerItem"
       />
       <div class="field">
+        <div
+          v-if="containerItem.errorOnSave"
+          class="feedback feedback-danger"
+          v-text="containerItem.errorOnSave"
+        />
         <label>Disposition</label>
         <textarea
           class="full_width"

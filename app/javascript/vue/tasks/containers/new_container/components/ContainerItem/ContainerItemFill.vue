@@ -67,7 +67,7 @@
 import { ref, computed, watch } from 'vue'
 import { useContainerStore } from '../../store'
 import { VueEncase } from '@sfgrp/encase'
-import { DEFAULT_OPTS } from '../../constants'
+import { DEFAULT_COLOR, DEFAULT_OPTS } from '../../constants'
 import { useInterval } from '@/composables'
 import { convertPositionTo3DGraph } from '../../utils'
 import VModal from '@/components/ui/Modal.vue'
@@ -133,7 +133,10 @@ function fillContainer({ direction }) {
 
         items.push({
           position: convertPositionTo3DGraph(position, store.container.size),
-          label: String(index)
+          label: String(index),
+          style: {
+            color: DEFAULT_COLOR
+          }
         })
 
         if (items.length == counter.value) {
