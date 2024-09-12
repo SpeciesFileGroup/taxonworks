@@ -15,15 +15,6 @@ GIT
       nokogiri (~> 1.11)
 
 GIT
-  remote: https://github.com/LocoDelAssembly/gpx.git
-  revision: f673681cdab574bfea4690d12ef1ee9c4da1f3e0
-  branch: ruby3
-  specs:
-    gpx (1.0.0)
-      nokogiri (~> 1.7)
-      rake
-
-GIT
   remote: https://github.com/LocoDelAssembly/paperclip-meta.git
   revision: 31c55c7d914d14460b8907a546bd66287cc22988
   branch: kt-paperclip
@@ -288,6 +279,9 @@ GEM
       activesupport (>= 6.1)
     gnfinder (1.0.4)
       rest-client (~> 2.1)
+    gpx (1.2.0)
+      nokogiri (~> 1.7)
+      rake
     groupdate (6.4.0)
       activesupport (>= 6.1)
     guard (2.18.1)
@@ -797,7 +791,7 @@ DEPENDENCIES
   faker (~> 3.2)
   ffi-geos (~> 2.4.0)
   gnfinder (~> 1.0)
-  gpx!
+  gpx (~> 1.2)
   groupdate (~> 6.4)
   guard-rspec (~> 4.7.3)
   hiredis (~> 0.6.1)

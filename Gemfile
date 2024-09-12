@@ -51,7 +51,7 @@ gem 'rgeo-proj4', '~> 4.0' #, '>= 3.0.1'
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # translate for geo
-gem 'gpx', github: 'LocoDelAssembly/gpx', branch: 'ruby3'
+gem 'gpx', '~> 1.2'
 
 # API/controllers
 gem 'jbuilder', '~> 2.7'
