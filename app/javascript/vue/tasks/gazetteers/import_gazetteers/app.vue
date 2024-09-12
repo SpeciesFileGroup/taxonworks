@@ -26,7 +26,7 @@
     </VBtn>
   </div>
 
-  <ImportJobs />
+  <ImportJobs ref="jobs"/>
 </template>
 
 <script setup>
@@ -40,6 +40,8 @@ import { computed, ref } from 'vue'
 const selectedDocs = ref([])
 const shape_name_field = ref('')
 const isLoading = ref(false)
+
+const jobs = ref(null)
 
 const processingDisabled = computed(() => {
   return selectedDocs.value.length != 4 || !shape_name_field.value
@@ -67,11 +69,12 @@ function processShapefile() {
 
   isLoading.value = true
   Gazetteer.import(payload)
-  .then(() => {
-    TW.workbench.alert.create('Import submitted to background job', 'notice')
-  })
-  .catch(() => {})
-  .finally(() => { isLoading.value = false })
+    .then(() => {
+      TW.workbench.alert.create('Import submitted to background job', 'notice')
+      jobs.value.refresh()
+    })
+    .catch(() => {})
+    .finally(() => { isLoading.value = false })
 }
 
 function getFileForExtension(extension) {

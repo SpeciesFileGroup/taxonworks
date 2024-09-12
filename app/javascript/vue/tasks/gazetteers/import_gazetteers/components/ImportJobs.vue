@@ -131,6 +131,10 @@ function clearJob(job) {
   GazetteerImport.destroy(job_id)
 }
 
+defineExpose({
+  refresh
+})
+
 </script>
 
 <style lang="scss" scoped>
