@@ -1,12 +1,4 @@
 GIT
-  remote: https://github.com/GlobalNamesArchitecture/biodiversity.git
-  revision: f8d55f8909984d61540ae821b5719f66c1dfd856
-  branch: pipe_approach
-  specs:
-    biodiversity (5.9.1)
-      ffi (~> 1.15)
-
-GIT
   remote: https://github.com/LocoDelAssembly/Voight-Kampff.git
   revision: 1316d141c615054e4889aa9876d01d20bdb01332
   specs:
@@ -15,11 +7,11 @@ GIT
 
 GIT
   remote: https://github.com/LocoDelAssembly/dwc-archive.git
-  revision: 8fffe78690b5e988f3a303657e32cf7ddb9f561e
+  revision: ffb0bc70d162b9910d6ad801d4e98479cbf69ac9
   branch: overhaul
   specs:
     dwc-archive (1.1.4)
-      biodiversity (~> 5.3)
+      biodiversity (~> 6.0)
       nokogiri (~> 1.11)
 
 GIT
@@ -184,6 +176,8 @@ GEM
     bindex (0.8.1)
     binding_of_caller (1.0.1)
       debug_inspector (>= 1.2.0)
+    biodiversity (6.0.0)
+      ffi (~> 1.15)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
     brakeman (6.2.1)
@@ -426,7 +420,7 @@ GEM
       activerecord (>= 6.1)
       request_store (~> 1.4)
     parallel (1.26.3)
-    parallel_tests (4.7.1)
+    parallel_tests (4.7.2)
       parallel
     parser (3.3.5.0)
       ast (~> 2.4.1)
@@ -775,7 +769,7 @@ DEPENDENCIES
   better_errors (~> 2.9)
   bibtex-ruby (~> 6.0)
   binding_of_caller
-  biodiversity!
+  biodiversity (~> 6.0)
   bootsnap
   brakeman (~> 6.1, >= 5.4)
   bundler (~> 2.5)
