@@ -15,7 +15,7 @@
     }"
   >
     <template #header>
-      <h3>Fill container</h3>
+      <h3>Place selected</h3>
     </template>
     <template #body>
       <div class="horizontal-left-content gap-medium align-start">
