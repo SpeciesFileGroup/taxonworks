@@ -4,7 +4,7 @@
     :disabled="disabled"
     @click="() => (isModalVisible = true)"
   >
-    Fill container
+    Place selected
   </VBtn>
   <VModal
     v-if="isModalVisible"
