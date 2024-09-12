@@ -122,6 +122,11 @@ module CollectionObject::DwcExtensions
     # verbatim label data
 
     attr_accessor :georeference_attributes
+    attr_accessor :target_taxon_name
+
+    def target_taxon_name
+      @target_taxon_name ||= current_valid_taxon_name
+    end
 
     # @return [Hash]
     # getter returning georeference related attributes
@@ -383,7 +388,7 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_taxon_rank
-    current_taxon_name&.rank
+    target_taxon_name&.rank
   end
 
   # holotype of Ctenomys sociabilis. Pearson O. P., and M. I. Christie. 1985. Historia Natural, 5(37):388, holotype of Pinus abies | holotype of Picea abies
@@ -458,11 +463,11 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_scientific_name
-    current_taxon_name.try(:cached_name_and_author_year)
+    target_taxon_name&.cached_name_and_author_year
   end
 
   def dwc_taxon_name_authorship
-    current_taxon_name.try(:cached_author_year)
+    target_taxon_name&.cached_author_year
   end
 
   # Definition: A list (concatenated and separated) of names of people, groups, or organizations responsible for recording the original Occurrence. The primary collector or observer, especially one who applies a personal identifier (recordNumber), should be listed first.

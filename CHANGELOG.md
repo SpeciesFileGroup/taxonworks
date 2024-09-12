@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- DwcOccurrence now *actually* selects the valid name on export
 - OTU taxonomy inventory API endpoint crashing on protonyms with no cached year and author.
 - DwC importer column indexing confusion when there are blank headers
 
