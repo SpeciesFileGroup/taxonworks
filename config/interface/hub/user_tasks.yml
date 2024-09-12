@@ -954,3 +954,12 @@ new_filename_depicting_image_task:
     - collection_object
   status: prototype
   description: "Upload images assigning them as depictions of CollectionObjects based on the identifier in the filename. You shouldn't really be using this as a day-to-day workflow, there are better approaches."
+inaturalist_import_task:
+  hub: true
+  name: 'iNaturalist import'
+  related:
+    - collecting_event
+  categories:
+    - field_occurrence
+  status: prototype
+  description: 'Create FieldOcurrences from iNaturalist observations.'

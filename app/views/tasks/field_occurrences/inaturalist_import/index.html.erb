@@ -1,0 +1,7 @@
+
+<% r = ::Vendor::Nasturtium.by_observation_id( '99182856' )  %>
+
+<%= ap c = ::Vendor::Nasturtium.stub_collecting_event(r) %>
+<%= ap g = c.georeferences %>
+
+<%= ap g.first.geographic_item %>
