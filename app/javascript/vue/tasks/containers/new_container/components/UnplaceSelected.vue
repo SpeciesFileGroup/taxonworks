@@ -1,9 +1,9 @@
 <template>
   <VBtn
     color="primary"
-    @click="store.unplaceAll"
+    @click="store.unplaceSelected"
   >
-    Unplace all
+    Unplace selected
   </VBtn>
 </template>
 

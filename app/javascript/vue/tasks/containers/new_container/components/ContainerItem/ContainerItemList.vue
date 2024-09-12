@@ -16,7 +16,7 @@
               :disabled="!listSelected.length"
               :list="listSelected"
             />
-            <UnplaceAll
+            <UnplaceSelected
               v-if="unplaceButton"
               :disabled="!list.length"
             />
@@ -43,7 +43,7 @@
         </td>
         <td>
           <div class="horizontal-right-content gap-small">
-            <template v-if="!(store.isItemInside(item) && item.id)">
+            <template v-if="!store.isItemInside(item)">
               <VBtn
                 color="primary"
                 @click="() => (store.placeItem = item)"
@@ -84,7 +84,7 @@ import { useContainerStore } from '../../store'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import FillContainerModal from './ContainerItemFill.vue'
-import UnplaceAll from '../UnplaceAll.vue'
+import UnplaceSelected from '../UnplaceSelected.vue'
 
 const props = defineProps({
   list: {

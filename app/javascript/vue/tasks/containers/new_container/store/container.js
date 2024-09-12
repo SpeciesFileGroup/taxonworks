@@ -9,6 +9,7 @@ import {
 import { removeFromArray, addToArray } from '@/helpers'
 import {
   comparePosition,
+  convertPositionToTWCoordinates,
   isItemInContainer,
   makeVisualizerContainerItem
 } from '../utils'
@@ -245,9 +246,15 @@ export const useContainerStore = defineStore('container', {
         .catch(() => {})
     },
 
-    unplaceAll() {
-      this.getItemsInsideContainer.forEach((item) => {
-        Object.assign(item, {
+    unplaceSelected() {
+      const uuids = this.selectedItems.map(
+        (item) => item.uuid || item.metadata?.uuid
+      )
+
+      uuids.forEach((uuid) => {
+        const obj = this.containerItems.find((item) => item.uuid === uuid)
+
+        Object.assign(obj, {
           position: {
             x: null,
             y: null,
