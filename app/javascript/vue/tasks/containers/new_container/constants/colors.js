@@ -1,5 +1,5 @@
 export const HOVER_COLOR = {
-  filled: '#0369a1'
+  filled: '#84cc16'
 }
 
 export const ERROR_COLOR = {
@@ -7,5 +7,5 @@ export const ERROR_COLOR = {
 }
 
 export const DEFAULT_COLOR = {
-  filled: '#0369a1'
+  filled: '#0ea5e9'
 }

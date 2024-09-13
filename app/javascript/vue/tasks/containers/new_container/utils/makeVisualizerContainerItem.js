@@ -5,8 +5,8 @@ import { ERROR_COLOR, HOVER_COLOR, DEFAULT_COLOR } from '../constants'
 function makeStyle({ item, isHover }) {
   return {
     color:
-      (item.errorOnSave && ERROR_COLOR) ||
       (isHover && HOVER_COLOR) ||
+      (item.errorOnSave && ERROR_COLOR) ||
       DEFAULT_COLOR
   }
 }
