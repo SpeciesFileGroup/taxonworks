@@ -26,13 +26,13 @@
         <ContainerItemList
           v-if="listView === TAB_INDEX.Unplaced"
           fill-button
-          title="Container items"
+          title="Objects (In)"
           :list="store.getItemsOutsideContainer"
           @edit="openContainerItemModal"
         />
         <ContainerItemList
           v-if="listView === TAB_INDEX.Placed"
-          title="Container items"
+          title="Objects (In)"
           unplace-button
           :list="store.getItemsInsideContainer"
           @edit="openContainerItemModal"
