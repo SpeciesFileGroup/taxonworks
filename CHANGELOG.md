@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Endpoint crossreferencing dwc_occurrences and images `api/v1/otus/:otu_id/inventory/dwc_gallery.json?per=1&page=2`
 - Creating depictions of CollectionObjects now updates their DwcOccurrence automatically
 - Filters: Custom button to `records per page` selector [#4032]
+- New asserted distribution: Confidence panel [#4044]
 
 ### Changed
 
@@ -19,11 +20,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- DwcOccurrence now *actually* selects the valid name on export
+- DwcOccurrence now _actually_ selects the valid name on export
 - OTU taxonomy inventory API endpoint crashing on protonyms with no cached year and author.
 - DwC importer column indexing confusion when there are blank headers
 
 [#4032]: https://github.com/SpeciesFileGroup/taxonworks/issues/4032
+[#4044]: https://github.com/SpeciesFileGroup/taxonworks/issues/4044
 
 ## [0.43.3] - 2024-09-09
 
