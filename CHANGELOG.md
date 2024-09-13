@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Endpoint crossreferencing dwc_occurrences and images `api/v1/otus/:otu_id/inventory/dwc_gallery.json?per=1&page=2`
 - Creating depictions of CollectionObjects now updates their DwcOccurrence automatically
 - Filters: Custom button to `records per page` selector [#4032]
 
