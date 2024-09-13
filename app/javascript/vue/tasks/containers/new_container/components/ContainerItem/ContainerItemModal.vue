@@ -5,33 +5,36 @@
     @close="isVisible = false"
   >
     <template #header>
-      <h3>Container item</h3>
+      <h3>Place item</h3>
     </template>
     <template #body>
-      <ContainerItemObject
-        v-if="!containerItem.id"
-        v-model="containerItem"
-      />
-      <div class="field">
-        <div
-          v-if="containerItem.errorOnSave"
-          class="feedback feedback-danger"
-          v-text="containerItem.errorOnSave"
-        />
-        <label>Disposition</label>
-        <textarea
-          class="full_width"
-          rows="5"
-          v-model="containerItem.disposition"
-          @change="() => (containerItem.isUnsaved = true)"
-        ></textarea>
+      <div v-if="containerId">
+        <ContainerItemObject v-model="containerItem" />
+        <div class="field">
+          <div
+            v-if="containerItem.errorOnSave"
+            class="feedback feedback-danger"
+            v-text="containerItem.errorOnSave"
+          />
+          <label>Disposition</label>
+          <textarea
+            class="full_width"
+            rows="5"
+            v-model="containerItem.disposition"
+            @change="() => (containerItem.isUnsaved = true)"
+          ></textarea>
+        </div>
       </div>
+      <p v-else>Save the container to place items.</p>
     </template>
     <template #footer>
-      <div class="horizontal-left-content gap-small">
+      <div
+        v-if="containerId"
+        class="horizontal-left-content gap-small"
+      >
         <VBtn
-          :color="containerId ? 'create' : 'primary'"
           medium
+          :color="containerId ? 'create' : 'primary'"
           :disabled="!containerItem.objectId"
           @click="
             () => {

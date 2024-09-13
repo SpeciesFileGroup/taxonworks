@@ -6,6 +6,7 @@
     >
       <p>{{ containerItem.label }}</p>
       <VBtn
+        v-if="!containerItem.id"
         circle
         color="primary"
         @click="unsetContainerObject"
@@ -47,7 +48,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { COLLECTION_OBJECT } from '@/constants'
+import { COLLECTION_OBJECT, CONTAINER, EXTRACT } from '@/constants'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -56,6 +57,14 @@ const TYPES = {
   [COLLECTION_OBJECT]: {
     autocomplete: '/collection_objects/autocomplete',
     placeholder: 'Search a collection object...'
+  },
+  [CONTAINER]: {
+    autocomplete: '/containers/autocomplete',
+    placeholder: 'Search a container...'
+  },
+  [EXTRACT]: {
+    autocomplete: '/extracts/autocomplete',
+    placeholder: 'Search an extract...'
   }
 }
 

@@ -9,6 +9,7 @@
         <th class="w-2">
           <VBtn
             color="primary"
+            :disabled="!store.container.id"
             @click="() => list.forEach(addContainerItem)"
           >
             Add all
@@ -27,6 +28,7 @@
             <VBtn
               color="primary"
               circle
+              :disabled="!store.container.id"
               @click="() => addContainerItem(item)"
             >
               <VIcon
