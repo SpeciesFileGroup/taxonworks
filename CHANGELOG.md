@@ -9,7 +9,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Creating depictions of CollectionObjects now updates their DwcOccurrence automatically
 - Filters: Custom button to `records per page` selector [#4032]
+
+### Changed
+
+- Updated Ruby gems
+
+### Fixed
+
+- DwcOccurrence now *actually* selects the valid name on export
+- OTU taxonomy inventory API endpoint crashing on protonyms with no cached year and author.
+- DwC importer column indexing confusion when there are blank headers
 
 [#4032]: https://github.com/SpeciesFileGroup/taxonworks/issues/4032
 

@@ -89,7 +89,7 @@ module Otus::CatalogHelper
       descendants = otu.taxon_name.descendants.where(parent: otu.taxon_name).that_is_valid
 
       if max_descendants_depth >= 1
-        descendants.sort{|a,b| [RANK_SORT[a.rank_class.to_s], a.cached, a.cached_author_year] <=> [RANK_SORT[b.rank_class.to_s], b.cached, b.cached_author_year]}.each do |d|
+        descendants.sort{|a,b| [RANK_SORT[a.rank_class.to_s], a.cached, a.cached_author_year || 'ZZZ'] <=> [RANK_SORT[b.rank_class.to_s], b.cached, b.cached_author_year || 'ZZZ']}.each do |d|
           if o = d.otus.order(name: 'DESC', id: 'ASC').first # arbitrary pick an OTU, prefer those without `name`. t since we summarize across identical OTUs, this is not an issue
             data[:descendants].push otu_descendants_and_synonyms(
               o,
