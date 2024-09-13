@@ -62,7 +62,8 @@ development:
       'Access-Control-Allow-Origin': '*'
     static:
       watch:
-        ignored: '**/node_modules/**'
+        ignored:
+          ['**/node_modules/**', '**/public/images/**', '**/public/system/**']
 
 test:
   <<: *default
