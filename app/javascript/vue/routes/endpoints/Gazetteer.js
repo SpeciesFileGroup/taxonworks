@@ -29,6 +29,8 @@ export const Gazetteer = {
 
   import: (params) => AjaxCall('post', `/${controller}/import.json`, params),
 
-  preview: (params) => AjaxCall('post', `/${controller}/preview.json`, params)
+  preview: (params) => AjaxCall('post', `/${controller}/preview.json`, params),
+
+  shapefile_fields: (params) => AjaxCall('get', `/${controller}/shapefile_fields.json`, { params })
 
 }

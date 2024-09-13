@@ -6,13 +6,24 @@
     class="document_selector"
   />
 
-  <div class="field label-above">
-    <label>Name field from shapefile</label>
-    <input
-      type="text"
-      class="normal-input name-input"
-      v-model="shape_name_field"
-    />
+  <div>
+    <div>
+      Enter the shapefile field containing Gazetteer names or
+      <VBtn
+        color="primary"
+        medium
+        @click="() => lookupShapefileFields()"
+      >
+        Select from shapefile fields
+      </VBtn>
+    </div>
+    <div class="name">
+      <input
+        type="text"
+        class="normal-input name-input"
+        v-model="shapeNameField"
+      />
+    </div>
   </div>
 
   <div class="process_button">
@@ -27,24 +38,55 @@
   </div>
 
   <ImportJobs ref="jobs"/>
+
+  <VModal
+    v-if="modalVisible"
+    @close="() => { modalVisible = false }"
+  >
+    <template #header>
+      <h3>Shapefile fields</h3>
+    </template>
+    <template #body>
+      <ul class="no_bullets">
+        <li
+          v-for="f in shapefileFields"
+          :key="f"
+        >
+          <label >
+            <input
+              :key="f"
+              type="radio"
+              name="modal_fields"
+              :value="f"
+              @click="(e) => setShapefileField(e.target.value)"
+            />
+            {{ f }}
+          </label>
+        </li>
+      </ul>
+    </template>
+  </VModal>
 </template>
 
 <script setup>
 import DocumentSelector from './components/DocumentSelector.vue'
 import ImportJobs from './components/ImportJobs.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 
 const selectedDocs = ref([])
-const shape_name_field = ref('')
+const shapeNameField = ref('')
 const isLoading = ref(false)
+const modalVisible = ref(false)
+const shapefileFields = ref([])
 
 const jobs = ref(null)
 
 const processingDisabled = computed(() => {
-  return selectedDocs.value.length != 4 || !shape_name_field.value
+  return selectedDocs.value.length != 4 || !shapeNameField.value
 })
 
 function processShapefile() {
@@ -63,7 +105,7 @@ function processShapefile() {
       shx_doc_id: shx.id,
       dbf_doc_id: dbf.id,
       prj_doc_id: prj.id,
-      name_field: shape_name_field.value
+      name_field: shapeNameField.value
     }
   }
 
@@ -118,6 +160,33 @@ function basename(file) {
   return file['document_file_file_name'].slice(0, -4)
 }
 
+function lookupShapefileFields() {
+  const dbf = getFileForExtension('.dbf')
+  if (!dbf) {
+    TW.workbench.alert.create(
+      'Select a dbf document first.', 'error'
+    )
+    return
+  }
+
+  const payload = { dbf_doc_id: dbf.id }
+  isLoading.value = true
+  Gazetteer.shapefile_fields(payload)
+    .then(({ body }) => {
+      shapefileFields.value = body.shapefile_fields
+      modalVisible.value = true
+    })
+    .catch(() => {})
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
+function setShapefileField(field) {
+  shapeNameField.value = field
+  modalVisible.value = false
+}
+
 </script>
 
 <style lang="scss" scoped>
@@ -126,8 +195,8 @@ function basename(file) {
 }
 
 .process_button {
-  margin-top: 1em;
-  margin-bottom: 1em;
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
 }
 
 .results {

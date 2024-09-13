@@ -331,6 +331,7 @@ resources :gazetteers do
   collection do
     post :import, defaults: {format: :json}
     post :preview, defaults: {format: :json} # post to support long WKT strings
+    get :shapefile_fields, default: {format: :json}
   end
 end
 

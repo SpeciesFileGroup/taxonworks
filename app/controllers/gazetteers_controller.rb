@@ -135,6 +135,19 @@ class GazetteersController < ApplicationController
     @shape = RGeo::GeoJSON.encode(f)
   end
 
+  # GET /gazetteers/shapefile_fields.json
+  def shapefile_fields
+    begin
+      @shapefile_fields = Gazetteer.fields_from_shapefile(params[:dbf_doc_id])
+    rescue TaxonWorks::Error => e
+      render json: {
+        errors: e
+      },
+      status: :unprocessable_entity
+      return
+    end
+  end
+
   private
 
   def set_gazetteer

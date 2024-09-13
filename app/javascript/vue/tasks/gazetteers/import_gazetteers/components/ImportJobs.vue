@@ -22,7 +22,7 @@
     </template>
 
     <template #body>
-      <VSpinner v-if="status_loading" />
+      <VSpinner v-if="statusLoading" />
       <div>
         <b>No Gazetteers are created until the job status is 'Completed'</b>,
         at which time the job record here can be deleted.
@@ -88,18 +88,18 @@ import { GazetteerImport } from '@/routes/endpoints'
 import { removeFromArray } from '@/helpers/arrays'
 
 const imports = ref([])
-const status_loading = ref(false)
+const statusLoading = ref(false)
 
 onMounted(() => {
   refresh()
 })
 
 function refresh() {
-  status_loading.value = true
+  statusLoading.value = true
   GazetteerImport.all().then(({ body }) => {
     imports.value = body
   })
-  .finally(() => { status_loading.value = false })
+  .finally(() => { statusLoading.value = false })
 }
 
 function jobStatus(job) {

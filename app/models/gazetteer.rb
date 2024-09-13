@@ -261,6 +261,23 @@ class Gazetteer < ApplicationRecord
     true
   end
 
+  # TODO: should be a helper
+  # Raises Taxonworks::Error on error
+  def self.fields_from_shapefile(dbf_doc_id)
+    begin
+      dbf_doc = Document.find(dbf_doc_id)
+    rescue ActiveRecord::RecordNotFound => e
+      raise TaxonWorks::Error, e
+    end
+
+    dbf = ::DBF::Table.new(dbf_doc.document_file.path)
+    if dbf.record_count == 0
+      raise TaxonWorks::Error, 'Bad or empty dbf file?'
+    end
+
+    return dbf.first.attributes.keys
+  end
+
   # raises TaxonWorks::Error on error
   def self.import_from_shapefile(shapefile, progress_tracker)
     shp_doc = Document.find(shapefile[:shp_doc_id])
