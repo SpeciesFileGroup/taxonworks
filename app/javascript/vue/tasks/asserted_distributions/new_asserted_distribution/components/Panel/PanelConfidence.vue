@@ -40,7 +40,7 @@
         <table class="full_width table-striped">
           <thead>
             <tr>
-              <th>Items</th>
+              <th>Selected</th>
               <th />
             </tr>
           </thead>
