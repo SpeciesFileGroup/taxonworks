@@ -33,13 +33,12 @@ function clone() {
     .then(({ body }) => {
       const [container] = body
 
-      console.log(body)
-      console.log(container)
-
       store.$reset()
 
       if (container) {
         store.container = { ...makeContainer(container), id: null }
+      } else {
+        TW.workbench.alert.create('No container found.')
       }
     })
     .catch(() => {})
