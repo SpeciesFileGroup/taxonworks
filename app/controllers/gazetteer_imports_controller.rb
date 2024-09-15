@@ -66,7 +66,6 @@ class GazetteerImportsController < ApplicationController
       .order(created_at: :desc)
   end
 
-
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_gazetteer_import

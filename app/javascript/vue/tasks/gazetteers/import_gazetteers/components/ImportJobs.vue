@@ -123,7 +123,7 @@ function gzsImported(job) {
 }
 
 function completed(job) {
-  return !!job['ended_at']
+  return !!job['ended_at'] || job['aged']
 }
 
 function clearJob(job) {
