@@ -111,6 +111,7 @@ module ContainersHelper
         valid_parents: t.valid_parents.presence
       })
     end
+    r.sort!{|a,b| a[:type] <=> b[:type]}
     r
   end
 end
