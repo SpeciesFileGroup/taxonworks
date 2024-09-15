@@ -52,6 +52,7 @@ const RouteNames = {
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
   NewCombination: '/tasks/nomenclature/new_combination',
   NewExtract: '/tasks/extracts/new_extract',
+  NewGazetteer: '/tasks/gazetteers/new_gazetteer',
   NewLead: '/tasks/leads/new_lead',
   NewNamespace: '/tasks/namespaces/new_namespace',
   NewObservationMatrix: '/tasks/observation_matrices/new_matrix',

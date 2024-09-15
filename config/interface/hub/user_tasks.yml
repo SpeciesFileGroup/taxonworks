@@ -942,9 +942,25 @@ filter_dwc_occurrences_task:
     - collecting_event
     - asserted_distribution
   categories:
-    - filter
+    - filters
   status: prototype
   description: 'Filter records in the DarwinCore index.'
+new_gazetteer_task:
+  hub: true
+  name: 'New Gazetteer'
+  related:
+  categories:
+    - collecting_event
+    - new
+  status: prototype
+  description: 'Create named shapes for use in your project.'
+import_gazetteers_task:
+  hub: true
+  name: 'Import gazetteers'
+  related:
+  categories:
+  status: prototype
+  description: 'Import gazetteers from a shapefile.'
 new_filename_depicting_image_task:
   hub: true
   name: 'New filename depicting image'

@@ -25,7 +25,21 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     b
   end
 
-   specify '#taxon_name_id' do
+  let(:small_gz) {
+    FactoryBot.create(:gazetteer,
+    geographic_item:
+      FactoryBot.create(:geographic_item, geography: small_polygon),
+    name: 'small')
+  }
+
+  let(:large_gz) {
+    FactoryBot.create(:gazetteer,
+    geographic_item:
+      FactoryBot.create(:geographic_item, geography: big_polygon),
+    name: 'large')
+  }
+
+  specify '#taxon_name_id' do
     ad1
     ad2 # Not this one
     o1.update(taxon_name_id: FactoryBot.create(:root_taxon_name).id)
@@ -89,7 +103,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all).to contain_exactly(a, b)
   end
 
-  specify '#wkt 1' do
+  specify '#wkt 2' do
     a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
     b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
 
@@ -115,6 +129,22 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     ad1.update!(is_absent: true)
     q.presence = true
     expect(q.all.map(&:id)).to contain_exactly(ad2.id)
+  end
+
+  specify '#gazetteer_id small gz' do
+    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
+    _b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+
+    q.gazetteer_id = small_gz.id
+    expect(q.all).to contain_exactly(a)
+  end
+
+  specify '#gazetteer_id large gz' do
+    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+
+    q.gazetteer_id = large_gz.id
+    expect(q.all).to contain_exactly(a, b)
   end
 
   # # Source query integration

@@ -1,5 +1,6 @@
 <template>
   <FacetGeographic v-model="params" />
+  <FacetGazetteer v-model="params" />
   <FacetWKT v-model="params" />
   <FacetTaxonName
     v-model="params"
@@ -35,7 +36,8 @@
 <script setup>
 import { computed } from 'vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
-import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic'
+import FacetGazetteer from '@/components/Filter/Facets/shared/FacetGazetteer.vue'
+import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'

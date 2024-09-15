@@ -12,6 +12,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Depictions
+      include Queries::Concerns::Gazetteers
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
@@ -55,9 +56,11 @@ module Queries
 
       PARAMS = [
         *BASE_PARAMS,
+        :gazetteer_id,
         :otu_id,
         :collection_object_id,
         collection_object_id: [],
+        gazetteer_id: [],
         otu_id: [],
       ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
@@ -173,6 +176,7 @@ module Queries
         set_data_attributes_params(params)
         set_date_params(params)
         set_depiction_params(params)
+        set_gazetteer_params(params)
         set_notes_params(params)
         set_protocols_params(params)
         set_tags_params(params)
@@ -234,13 +238,14 @@ module Queries
           a = ::GeographicArea.descendants_of_any(geographic_area_id)
         end
 
-        b = nil
         case geographic_area_mode
         when nil, false # exact, descendants
           return ::CollectingEvent.where(geographic_area: a)
         when true # spatial
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
-          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s
+          wkt_shape =
+            ::Queries::GeographicItem.st_union(i)
+              .to_a.first['st_union'].to_s
           return from_wkt(wkt_shape)
         end
       end
@@ -321,11 +326,11 @@ module Queries
         when 'Point'
           ::CollectingEvent
             .joins(:geographic_items)
-            .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius ))
+            .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius))
         when 'Polygon', 'MultiPolygon'
           ::CollectingEvent
             .joins(:geographic_items)
-            .where(::GeographicItem.contained_by_wkt_sql(wkt))
+            .where(::GeographicItem.covered_by_wkt_sql(wkt))
         else
           nil
         end
@@ -456,6 +461,7 @@ module Queries
           collection_objects_facet,
           collector_id_facet,
           geo_json_facet,
+          gazetteer_id_facet,
           geographic_area_facet,
           geographic_area_id_facet,
           georeferences_facet,

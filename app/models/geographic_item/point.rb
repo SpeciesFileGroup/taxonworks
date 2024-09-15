@@ -1,24 +1,8 @@
 # A geographic point.
 #
 class GeographicItem::Point < GeographicItem
-  SHAPE_COLUMN = :point
   validates_presence_of :point
   validate :check_point_limits
-
-  # @return [Array] a point
-  def to_a
-    point_to_a(self.point)
-  end
-
-  # @return [RGeo::Point] the first POINT of self
-  def st_start_point
-    self.geo_object
-  end
-
-  # @return [Hash]
-  def rendering_hash
-    point_to_hash(self.point)
-  end
 
   protected
 

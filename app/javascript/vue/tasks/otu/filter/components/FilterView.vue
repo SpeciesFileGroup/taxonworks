@@ -3,6 +3,9 @@
     v-model="params"
     input-id="area_picker_autocomplete"
   />
+  <FacetGazetteer
+    v-model="params"
+  />
   <FacetTaxonName
     v-model="params"
     coverage
@@ -45,6 +48,7 @@ import FacetBiologicalRelationship from '@/components/Filter/Facets/BiologicalAs
 import FacetCollectingEvent from '@/tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
 import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetDescriptor from '@/components/Filter/Facets/shared/FacetDescriptor.vue'
+import FacetGazetteer from '@/components/Filter/Facets/shared/FacetGazetteer.vue'
 import FacetGeographicArea from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetHistorialDeterminations from './Facet/FacetHistorialDeterminations.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'

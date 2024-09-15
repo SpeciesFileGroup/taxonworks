@@ -7,11 +7,13 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Citations
+      include Queries::Concerns::Gazetteers
 
       PARAMS = [
         :asserted_distribution_id,
         :descendants,
         :geo_json,
+        :gazetteer_id,
         :geographic_area_id,
         :geographic_item_id,
         :geographic_area_mode,
@@ -21,6 +23,7 @@ module Queries
         :taxon_name_id,
         :wkt,
         asserted_distribution_id: [],
+        gazetteer_id: [],
         geographic_area_id: [],
         geographic_item_id: [],
         otu_id: [],
@@ -91,6 +94,7 @@ module Queries
 
         set_citations_params(params)
         set_data_attributes_params(params)
+        set_gazetteer_params(params)
         set_notes_params(params)
         set_tags_params(params)
       end
@@ -101,6 +105,10 @@ module Queries
 
       def otu_id
         [@otu_id].flatten.compact
+      end
+
+      def gazetteer_id
+        [@gazetteer_id].flatten.compact
       end
 
       def geographic_area_id
@@ -130,10 +138,10 @@ module Queries
       end
 
       def from_wkt(wkt_shape)
-        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(wkt_shape))
+        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.covered_by_wkt_sql(wkt_shape))
 
         j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
-        k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have a shapes
+        k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have shapes
 
         l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
 
@@ -170,9 +178,10 @@ module Queries
         if geometry = RGeo::GeoJSON.decode(geo_json)
           case geometry.geometry_type.to_s
           when 'Point'
-            ::GeographicItem.joins(:geographic_areas).where( ::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) )
+            # TODO test this
+            ::GeographicItem.joins(:geographic_areas).within_radius_of_wkt_sql(geometry.to_s, radius )
           when 'Polygon', 'MultiPolygon'
-            ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(geometry.to_s))
+            ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.covered_by_wkt_sql(geometry.to_s))
           else
             nil
           end
@@ -200,7 +209,9 @@ module Queries
           b = ::AssertedDistribution.where(geographic_area: a)
         when true # spatial
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
-          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s # todo, check
+          wkt_shape =
+            ::Queries::GeographicItem.st_union(i)
+              .to_a.first['st_union'].to_s # todo, check
           return from_wkt(wkt_shape)
         end
 
@@ -295,6 +306,7 @@ module Queries
           otu_query_facet,
           taxon_name_query_facet,
 
+          gazetteer_id_facet,
           geographic_area_id_facet,
           geographic_item_id_facet,
           taxon_name_id_facet,
