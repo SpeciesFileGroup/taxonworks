@@ -59,15 +59,31 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RecentButton from '../RecentButton.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import useHotKey from 'vue3-hotkey'
+import platformKey from '@/helpers/getPlatformKey'
 import { useContainerStore } from '../../store'
 import { setParam, URLParamsToJSON } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { usePopstateListener } from '@/composables'
 
 const store = useContainerStore()
 
 const isSaveEnable = computed(() => store.container.type)
+
+const hotkeys = ref([
+  {
+    keys: [platformKey(), 's'],
+    preventDefault: true,
+    handler() {
+      if (isSaveEnable.value) {
+        save()
+      }
+    }
+  }
+])
+
+useHotKey(hotkeys.value)
 
 function getContainer({ id }) {
   store.$reset()
