@@ -45,13 +45,16 @@
             color="primary"
             medium
             @click="
-              store.fillContainer(list, {
-                override,
-                direction: direction.split('')
-              })
+              () => {
+                store.fillContainer(list, {
+                  override,
+                  direction: direction.split('')
+                })
+                isModalVisible = false
+              }
             "
           >
-            Fill
+            Place
           </VBtn>
         </div>
         <VueEncase

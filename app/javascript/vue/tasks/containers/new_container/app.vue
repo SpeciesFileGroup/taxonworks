@@ -7,6 +7,10 @@
     v-if="store.isLoading"
     full-screen
   />
+  <VSpinner
+    v-if="store.isSaving"
+    legend="Saving..."
+  />
   <Navbar />
   <div class="task-container">
     <div class="flex-col gap-medium full_height">

@@ -19,6 +19,7 @@ export const useContainerStore = defineStore('container', {
   state: () => ({
     placeItem: null,
     isLoading: false,
+    isSaving: false,
     truncateMaxLength: 50,
     container: makeContainer(),
     containerItems: [],
@@ -166,6 +167,7 @@ export const useContainerStore = defineStore('container', {
                 isUnsaved: true
               }
 
+              console.log(containerItem)
               this.addContainerItem(containerItem)
             }
           }
@@ -206,6 +208,7 @@ export const useContainerStore = defineStore('container', {
 
     saveContainerItems() {
       if (!this.container.id) return
+      this.isSaving = true
 
       const list = this.containerItems.filter((item) => item.isUnsaved)
 
@@ -247,6 +250,7 @@ export const useContainerStore = defineStore('container', {
           }
         })
         .catch(() => {})
+        .finally(() => (this.isSaving = false))
     },
 
     unplaceSelected() {
