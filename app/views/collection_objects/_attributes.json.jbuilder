@@ -1,6 +1,7 @@
 json.extract! collection_object, :id, *CollectionObject.core_attributes
 
 json.partial! '/shared/data/all/metadata', object: collection_object
+json.container_label label_for_collection_object_container(collection_object)
 
 if extend_response_with('dwc_occurrence')
   json.dwc_occurrence do
