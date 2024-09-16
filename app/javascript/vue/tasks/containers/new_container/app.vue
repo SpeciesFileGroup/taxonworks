@@ -179,7 +179,7 @@ onBeforeMount(() => {
 
 .left-column {
   width: 430px;
-  min-width: 400px;
+  min-width: 430px;
 }
 
 .container-form {
