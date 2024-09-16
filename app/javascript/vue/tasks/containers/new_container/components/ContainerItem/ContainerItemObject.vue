@@ -6,6 +6,7 @@
     >
       <p>{{ containerItem.label }}</p>
       <RadialAnnotator :global-id="containerItem.objectGlobalId" />
+      <RadialNavigator :global-id="containerItem.objectGlobalId" />
       <VBtn
         v-if="!containerItem.id"
         circle
@@ -51,11 +52,12 @@
 import { ref } from 'vue'
 import { COLLECTION_OBJECT, CONTAINER, EXTRACT } from '@/constants'
 import { CollectionObject, Extract, Container } from '@/routes/endpoints'
+import { CONTAINER_PARAMETERS } from '../../constants'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import { CONTAINER_PARAMETERS } from '../../constants'
 
 const TYPES = {
   [COLLECTION_OBJECT]: {
