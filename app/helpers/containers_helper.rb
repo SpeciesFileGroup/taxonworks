@@ -36,6 +36,12 @@ module ContainersHelper
     ].compact.join(': ').html_safe
   end
 
+  # TODO: Clean, refactor
+  def label_for_container_container(container)
+    return nil if container.nil?
+    container.name || container.print_label || label_for_identifier(container.identifiers.first) || container.id
+  end
+
   def container_autocomplete_tag(container)
     container_tag(container)
   end

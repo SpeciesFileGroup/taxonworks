@@ -17,6 +17,7 @@ if container.container_items.any?
       json.partial! '/container_items/attributes', container_item: ci
       json.contained_object do
         json.partial! '/shared/data/all/metadata', object: ci.contained_object
+        json.container_label container_item_container_label(ci)
       end
     end
   end

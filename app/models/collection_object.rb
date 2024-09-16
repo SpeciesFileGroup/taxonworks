@@ -631,6 +631,7 @@ class CollectionObject < ApplicationRecord
     h
   end
 
+  # TODO: Unify with Extract in concern
   # @return [Identifier::Local::CatalogNumber, nil]
   #   the first (position) catalog number for this collection object, either on specimen, or container
   def preferred_catalog_number
