@@ -11,6 +11,8 @@ json.size container.size
 
 json.partial! '/shared/data/all/metadata', object: container
 
+json.container_label label_for_container_container(container)
+
 if container.container_items.any?
   json.container_items do
     json.array! container.container_items do |ci|
@@ -22,4 +24,3 @@ if container.container_items.any?
     end
   end
 end
-
