@@ -48,7 +48,7 @@
         />
       </VBtn>
     </div>
-    / page.
+    records per page.
   </div>
 </template>
 

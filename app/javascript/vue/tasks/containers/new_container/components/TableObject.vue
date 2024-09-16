@@ -58,47 +58,34 @@
 </template>
 
 <script setup>
-import { Extract, CollectionObject } from '@/routes/endpoints'
+import { Extract, CollectionObject, Container } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { URLParamsToJSON } from '@/helpers'
 import { useContainerStore, useObjectStore } from '../store'
 import { makeContainerItem } from '../adapters'
+import { CONTAINER_PARAMETERS } from '../constants'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
+import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
+import { LinkerStorage } from '@/shared/Filter/utils'
+import { EXTRACT, COLLECTION_OBJECT, CONTAINER } from '@/constants'
+import { onBeforeMount } from 'vue'
+
+const SERVICES = {
+  [QUERY_PARAM[COLLECTION_OBJECT]]: CollectionObject,
+  [QUERY_PARAM[EXTRACT]]: Extract,
+  [QUERY_PARAM[CONTAINER]]: Container
+}
+
 const store = useContainerStore()
 const objectStore = useObjectStore()
-const isModalVisible = ref(false)
 const isLoading = ref(false)
-const promises = []
 
 const list = computed(() =>
   objectStore.objects.filter((item) => !store.getContainerItemByObject(item))
 )
-
-const { extract_id: extractIds, collection_object_id: collectionObjectIds } =
-  URLParamsToJSON(window.location.href)
-
-if (extractIds) {
-  promises.push(Extract.filter({ extract_id: extractIds }))
-}
-
-if (collectionObjectIds) {
-  promises.push(
-    CollectionObject.filter({ collection_object_id: collectionObjectIds })
-  )
-}
-
-isModalVisible.value = !!(extractIds || collectionObjectIds)
-
-Promise.all(promises)
-  .then((responses) => {
-    responses.map(({ body }) => {
-      objectStore.objects.push(...body.map(makeObjectItem))
-    })
-  })
-  .finally(() => (isLoading.value = false))
 
 function makeObjectItem(obj) {
   return {
@@ -106,7 +93,8 @@ function makeObjectItem(obj) {
     id: null,
     objectId: obj.id,
     objectType: obj.base_class,
-    label: obj.object_label,
+    objectGlobalId: obj.global_id,
+    label: obj.container_label,
     isUnsaved: true
   }
 }
@@ -114,6 +102,41 @@ function makeObjectItem(obj) {
 function addContainerItem(item) {
   store.addContainerItem({ ...item, isUnsaved: true })
 }
+
+function getObjectsFromParameters() {
+  const parameters = {
+    ...URLParamsToJSON(window.location.href),
+    ...LinkerStorage.getParameters()
+  }
+
+  LinkerStorage.removeParameters()
+
+  const queryParam = Object.keys(parameters).find((param) =>
+    Object.values(QUERY_PARAM).includes(param)
+  )
+  const queryValue = parameters[queryParam]
+
+  isLoading.value = !!queryParam
+
+  if (queryParam) {
+    const payload = {
+      ...CONTAINER_PARAMETERS,
+      ...queryValue,
+      per: 200
+    }
+
+    SERVICES[queryParam]
+      .filter(payload)
+      .then(({ body }) => {
+        objectStore.objects.push(...body.map(makeObjectItem))
+      })
+      .finally(() => {
+        isLoading.value = false
+      })
+  }
+}
+
+onBeforeMount(getObjectsFromParameters)
 </script>
 
 <style scoped>

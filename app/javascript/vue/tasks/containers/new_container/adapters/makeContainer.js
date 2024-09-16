@@ -9,7 +9,7 @@ export function makeContainer(container = {}) {
       y: container.size_y || 0,
       z: container.size_z || 0
     },
-    objectTag: container.object_tag,
+    objectTag: container.container_label,
     parentId: null,
     isUnsaved: false
   }

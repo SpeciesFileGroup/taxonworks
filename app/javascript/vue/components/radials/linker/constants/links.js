@@ -98,5 +98,7 @@ export const TASK_DWC_OCCURRENCE_STATUS = {
 
 export const TASK_NEW_CONTAINER = {
   label: 'New container',
-  link: '/tasks/containers/new_container'
+  link: '/tasks/containers/new_container',
+  queryParam: true,
+  saveQuery: true
 }

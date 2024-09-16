@@ -68,6 +68,7 @@ import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import { CONTAINER_PARAMETERS } from '../constants'
 import { makeContainer } from '../adapters'
 import { Container } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
@@ -83,6 +84,7 @@ watch(isModalVisible, (newVal) => {
     isLoading.value = true
 
     Container.where({
+      ...CONTAINER_PARAMETERS,
       per: 10,
       recent: true
     })

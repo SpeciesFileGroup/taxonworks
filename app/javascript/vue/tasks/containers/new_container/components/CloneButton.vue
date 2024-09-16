@@ -17,6 +17,7 @@ import { ref } from 'vue'
 import { Container } from '@/routes/endpoints'
 import { useContainerStore } from '../store'
 import { makeContainer } from '../adapters'
+import { CONTAINER_PARAMETERS } from '../constants'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
@@ -27,6 +28,7 @@ function clone() {
   isCloning.value = true
 
   Container.where({
+    ...CONTAINER_PARAMETERS,
     recent: true,
     per: 1
   })

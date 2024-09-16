@@ -36,6 +36,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { Container } from '@/routes/endpoints'
+import { CONTAINER_PARAMETERS } from '../constants'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -56,7 +57,7 @@ const parent = ref()
 
 watch(parentId, (newVal) => {
   if (newVal) {
-    Container.find(newVal).then(({ body }) => {
+    Container.find(newVal, CONTAINER_PARAMETERS).then(({ body }) => {
       parent.value = body
     })
   } else {

@@ -12,7 +12,7 @@ import {
   isItemInContainer,
   makeVisualizerContainerItem
 } from '../utils'
-import { DEFAULT_OPTS } from '../constants'
+import { DEFAULT_OPTS, CONTAINER_PARAMETERS } from '../constants'
 import { useObjectStore } from './objects'
 
 export const useContainerStore = defineStore('container', {
@@ -109,7 +109,7 @@ export const useContainerStore = defineStore('container', {
     async loadContainer(id) {
       this.isLoading = true
 
-      return Container.find(id)
+      return Container.find(id, CONTAINER_PARAMETERS)
         .then(({ body }) => {
           this.container = makeContainer(body)
           this.containerItems =

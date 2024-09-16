@@ -5,6 +5,7 @@
       class="horizontal-left-content gap-small"
     >
       <p>{{ containerItem.label }}</p>
+      <RadialAnnotator :global-id="containerItem.objectGlobalId" />
       <VBtn
         v-if="!containerItem.id"
         circle
@@ -49,22 +50,28 @@
 <script setup>
 import { ref } from 'vue'
 import { COLLECTION_OBJECT, CONTAINER, EXTRACT } from '@/constants'
+import { CollectionObject, Extract, Container } from '@/routes/endpoints'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import { CONTAINER_PARAMETERS } from '../../constants'
 
 const TYPES = {
   [COLLECTION_OBJECT]: {
     autocomplete: '/collection_objects/autocomplete',
-    placeholder: 'Search a collection object...'
+    placeholder: 'Search a collection object...',
+    service: CollectionObject
   },
   [CONTAINER]: {
     autocomplete: '/containers/autocomplete',
-    placeholder: 'Search a container...'
+    placeholder: 'Search a container...',
+    service: Container
   },
   [EXTRACT]: {
     autocomplete: '/extracts/autocomplete',
-    placeholder: 'Search an extract...'
+    placeholder: 'Search an extract...',
+    service: Extract
   }
 }
 
@@ -75,12 +82,17 @@ const containerItem = defineModel({
 
 const selectedType = ref(COLLECTION_OBJECT)
 
-function setContainedObject({ id, label }) {
-  Object.assign(containerItem.value, {
-    objectId: id,
-    objectType: selectedType.value,
-    label: label,
-    isUnsaved: true
+function setContainedObject({ id }) {
+  const { service } = TYPES[selectedType.value]
+
+  service.find(id, CONTAINER_PARAMETERS).then(({ body }) => {
+    Object.assign(containerItem.value, {
+      objectId: id,
+      objectType: selectedType.value,
+      objectGlobalId: body.global_id,
+      label: body.container_label,
+      isUnsaved: true
+    })
   })
 }
 
