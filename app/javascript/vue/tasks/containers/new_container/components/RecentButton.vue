@@ -9,7 +9,7 @@
   <VModal
     v-if="isModalVisible"
     :container-style="{
-      width: '500px'
+      width: '700px'
     }"
     @close="() => (isModalVisible = false)"
   >
@@ -23,6 +23,7 @@
           <tr>
             <th>Container</th>
             <th />
+            <th class="w-2" />
           </tr>
         </thead>
         <tbody>
@@ -30,7 +31,8 @@
             v-for="item in list"
             :key="item.id"
           >
-            <td v-html="item.object_tag" />
+            <td v-html="item.container_label" />
+            <td>{{ item.type }}</td>
             <td>
               <div class="horizontal-right-content gap-small">
                 <VBtn
