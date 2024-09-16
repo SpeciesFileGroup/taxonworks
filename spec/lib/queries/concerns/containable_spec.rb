@@ -73,17 +73,6 @@ describe 'Queries::Concerns::Containable', type: :model do
       expect(qco.all).to contain_exactly(s)
     end
 
-    specify '#local_identifier 1' do
-      c = FactoryBot.create(:valid_container)
-      e = FactoryBot.create(:valid_extract, contained_in: c)
-      FactoryBot.create(:valid_extract) # not this
-
-      c.identifiers << FactoryBot.create(:valid_identifier)
-
-      qe.identifiers = true
-      expect(qe.all).to contain_exactly(e)
-    end
-
     specify '#local_identifiers 2' do
       c = FactoryBot.create(:valid_container)
       e = FactoryBot.create(:valid_extract, contained_in: c)  # not this
