@@ -1,7 +1,9 @@
 <template>
   <VBtn
     color="primary"
-    :disabled="disabled"
+    :disabled="
+      disabled || store.containerSlots <= store.getItemsInsideContainer.length
+    "
     @click="() => (isModalVisible = true)"
   >
     Place selected
@@ -44,6 +46,9 @@
           <VBtn
             color="primary"
             medium
+            :disabled="
+              store.containerSlots <= store.getItemsInsideContainer.length
+            "
             @click="
               () => {
                 store.fillContainer(list, {

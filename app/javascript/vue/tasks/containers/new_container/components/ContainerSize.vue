@@ -1,17 +1,27 @@
 <template>
-  <div class="horizontal-left-content gap-small margin-medium-top">
-    <div
-      v-for="axis in AXES"
-      :key="axis"
-      class="field"
-    >
-      <label class="d-block capitalize">{{ axis }}</label>
+  <div class="flex-separate margin-medium-top">
+    <div class="horizontal-left-content gap-small">
+      <div
+        v-for="axis in AXES"
+        :key="axis"
+        class="field"
+      >
+        <label class="d-block capitalize">{{ axis }}</label>
+        <input
+          type="number"
+          :disabled="disabled"
+          v-between-numbers="[1, 100]"
+          v-model="size[axis]"
+          @change="() => emit('change', true)"
+        />
+      </div>
+    </div>
+    <div class="field">
+      <label class="d-block">Slots</label>
       <input
         type="number"
-        :disabled="disabled"
-        v-between-numbers="[1, 999]"
-        v-model="size[axis]"
-        @change="() => emit('change', true)"
+        disabled
+        :value="size.x * size.y * size.z"
       />
     </div>
   </div>

@@ -90,6 +90,12 @@ export const useContainerStore = defineStore('container', {
       )
     },
 
+    containerSlots(state) {
+      return (
+        state.container.size.x * state.container.size.y * state.container.size.z
+      )
+    },
+
     isItemInside(state) {
       return (item) => {
         return state.getItemsInsideContainer.some((i) =>
@@ -167,7 +173,6 @@ export const useContainerStore = defineStore('container', {
                 isUnsaved: true
               }
 
-              console.log(containerItem)
               this.addContainerItem(containerItem)
             }
           }

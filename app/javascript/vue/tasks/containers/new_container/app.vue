@@ -1,65 +1,67 @@
 <template>
-  <div class="flex-separate middle">
-    <h1>New container</h1>
-    <VSettings />
-  </div>
-  <VSpinner
-    v-if="store.isLoading"
-    full-screen
-  />
-  <VSpinner
-    v-if="store.isSaving"
-    legend="Saving..."
-  />
-  <Navbar />
-  <div class="task-container">
-    <div class="flex-col gap-medium full_height">
-      <ContainerForm
-        v-model="store.container"
-        class="full_width"
-      />
-
-      <div class="overflow-y-auto">
-        <TableObject />
-        <VSwitch
-          class="margin-medium-top"
-          :options="tabs"
-          use-index
-          v-model.number="listView"
-        />
-        <ContainerItemList
-          v-if="listView === TAB_INDEX.Unplaced"
-          fill-button
-          title="Objects (In)"
-          :list="store.getItemsOutsideContainer"
-          @edit="openContainerItemModal"
-        />
-        <ContainerItemList
-          v-if="listView === TAB_INDEX.Placed"
-          title="Objects (In)"
-          unplace-button
-          :list="store.getItemsInsideContainer"
-          @edit="openContainerItemModal"
-        />
-      </div>
+  <div class="app-container">
+    <div class="flex-separate middle">
+      <h1>New container</h1>
+      <VSettings />
     </div>
-
-    <VueEncase
-      class="container-viewer"
-      v-bind="store.encaseOpts"
-      v-model:selected-items="store.selectedItems"
-      @container-item:left-click="handleClick"
-      @container-item:right-click="
-        (item) => {
-          openContainerItemModal({
-            position: convertPositionToTWCoordinates(
-              item.position,
-              store.container.size
-            )
-          })
-        }
-      "
+    <VSpinner
+      v-if="store.isLoading"
+      full-screen
     />
+    <VSpinner
+      v-if="store.isSaving"
+      legend="Saving..."
+    />
+    <Navbar />
+    <div class="task-container">
+      <div class="flex-col gap-medium left-column full_height">
+        <ContainerForm
+          v-model="store.container"
+          class="full_width"
+        />
+
+        <div class="overflow-y-auto">
+          <TableObject />
+          <VSwitch
+            class="margin-medium-top"
+            :options="tabs"
+            use-index
+            v-model.number="listView"
+          />
+          <ContainerItemList
+            v-if="listView === TAB_INDEX.Unplaced"
+            fill-button
+            title="Objects (In)"
+            :list="store.getItemsOutsideContainer"
+            @edit="openContainerItemModal"
+          />
+          <ContainerItemList
+            v-if="listView === TAB_INDEX.Placed"
+            title="Objects (In)"
+            unplace-button
+            :list="store.getItemsInsideContainer"
+            @edit="openContainerItemModal"
+          />
+        </div>
+      </div>
+
+      <VueEncase
+        class="container-viewer"
+        v-bind="store.encaseOpts"
+        v-model:selected-items="store.selectedItems"
+        @container-item:left-click="handleClick"
+        @container-item:right-click="
+          (item) => {
+            openContainerItemModal({
+              position: convertPositionToTWCoordinates(
+                item.position,
+                store.container.size
+              )
+            })
+          }
+        "
+      />
+    </div>
   </div>
   <ContainerItemModal
     ref="containerItemModalRef"
@@ -170,15 +172,26 @@ onBeforeMount(() => {
   }
 }
 
+.app-container {
+  max-height: calc(100vh - 16rem);
+  height: calc(100vh - 16rem);
+}
+
+.left-column {
+  width: 430px;
+  min-width: 400px;
+}
+
 .container-form {
   min-width: 100%;
   width: 100%;
 }
 
 .task-container {
-  display: grid;
+  overflow-y: hidden;
+  position: relative;
+  height: 100%;
+  display: flex;
   gap: 1em;
-  grid-template-columns: 430px minmax(400px, 1fr);
-  grid-template-rows: calc(100vh - 15.5rem);
 }
 </style>
