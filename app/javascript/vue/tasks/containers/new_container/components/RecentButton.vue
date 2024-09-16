@@ -29,25 +29,30 @@
           <tr
             v-for="item in list"
             :key="item.id"
-            class="cursor-pointer"
-            @click="
-              () => {
-                store.loadContainer(item.id)
-                isModalVisible = false
-              }
-            "
           >
             <td v-html="item.object_tag" />
             <td>
-              <div class="horizontal-right-content">
+              <div class="horizontal-right-content gap-small">
                 <VBtn
                   color="primary"
                   circle
+                  @click="
+                    () => {
+                      store.loadContainer(item.id)
+                      isModalVisible = false
+                    }
+                  "
                 >
                   <VIcon
                     name="pencil"
                     x-small
                   />
+                </VBtn>
+                <VBtn
+                  color="primary"
+                  @click="clone(item)"
+                >
+                  Clone
                 </VBtn>
               </div>
             </td>
@@ -63,6 +68,7 @@ import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import { makeContainer } from '../adapters'
 import { Container } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
 import { useContainerStore } from '../store'
@@ -89,4 +95,10 @@ watch(isModalVisible, (newVal) => {
       })
   }
 })
+
+function clone(container) {
+  store.$reset()
+  store.container = { ...makeContainer(container), id: null }
+  isModalVisible.value = false
+}
 </script>
