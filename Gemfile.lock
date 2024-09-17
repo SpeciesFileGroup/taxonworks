@@ -236,9 +236,9 @@ GEM
     faraday (2.11.0)
       faraday-net_http (>= 2.0, < 3.4)
       logger
-    faraday-excon (2.1.0)
-      excon (>= 0.27.4)
-      faraday (~> 2.0)
+    faraday-excon (2.2.0)
+      excon (>= 0.109.0)
+      faraday (>= 2.11.0, < 3)
     faraday-follow_redirects (0.1.0)
       faraday (>= 2, < 3)
     faraday-net_http (3.3.0)
@@ -286,7 +286,7 @@ GEM
     http-accept (1.7.0)
     http-cookie (1.0.7)
       domain_name (~> 0.5)
-    i18n (1.14.5)
+    i18n (1.14.6)
       concurrent-ruby (~> 1.0)
     indefinite_article (0.2.5)
       activesupport
@@ -294,7 +294,7 @@ GEM
     irb (1.14.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
-    jbuilder (2.12.0)
+    jbuilder (2.13.0)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
     jquery-rails (4.6.0)
@@ -527,7 +527,7 @@ GEM
       nokogiri
       roo (>= 2.0.0, < 3)
       spreadsheet (> 0.9.0)
-    rouge (4.3.0)
+    rouge (4.4.0)
     rqrcode_core (1.2.0)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
@@ -574,7 +574,7 @@ GEM
     rubocop-faker (1.1.0)
       faker (>= 2.12.0)
       rubocop (>= 0.82.0)
-    rubocop-performance (1.21.1)
+    rubocop-performance (1.22.1)
       rubocop (>= 1.48.1, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
     rubocop-rails (2.26.1)
@@ -686,7 +686,7 @@ GEM
       concurrent-ruby (~> 1.0)
     tzinfo-data (1.2024.2)
       tzinfo (>= 1.0.0)
-    unicode-display_width (2.5.0)
+    unicode-display_width (2.6.0)
     uri (0.13.1)
     validates_timeliness (7.0.0.beta2)
       activemodel (>= 7.0.0, < 8)
@@ -877,4 +877,4 @@ RUBY VERSION
    ruby 3.3.4p94
 
 BUNDLED WITH
-   2.5.17
+   2.5.18
