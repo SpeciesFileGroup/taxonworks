@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Create container task [#3038]
 - Endpoint crossreferencing dwc_occurrences and images `api/v1/otus/:otu_id/inventory/dwc_gallery.json?per=1&page=2`
 - Creating depictions of CollectionObjects now updates their DwcOccurrence automatically
 - Filters: Custom button to `records per page` selector [#4032]
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer column indexing confusion when there are blank headers
 - Filter collecting event: Remove duplicate radial linker [#4050]
 
+[#3038]: https://github.com/SpeciesFileGroup/taxonworks/issues/3038
 [#4032]: https://github.com/SpeciesFileGroup/taxonworks/issues/4032
 [#4044]: https://github.com/SpeciesFileGroup/taxonworks/issues/4044
 [#4050]: https://github.com/SpeciesFileGroup/taxonworks/issues/4050
