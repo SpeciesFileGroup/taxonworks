@@ -23,9 +23,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwcOccurrence now _actually_ selects the valid name on export
 - OTU taxonomy inventory API endpoint crashing on protonyms with no cached year and author.
 - DwC importer column indexing confusion when there are blank headers
+- Filter collecting event: Remove duplicate radial linker [#4050]
 
 [#4032]: https://github.com/SpeciesFileGroup/taxonworks/issues/4032
 [#4044]: https://github.com/SpeciesFileGroup/taxonworks/issues/4044
+[#4050]: https://github.com/SpeciesFileGroup/taxonworks/issues/4050
 
 ## [0.43.3] - 2024-09-09
 
