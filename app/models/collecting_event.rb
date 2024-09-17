@@ -256,7 +256,6 @@ class CollectingEvent < ApplicationRecord
     :check_elevation_range,
     :check_min_land_elevation,
     :check_max_land_elevation,
-    :check_date_range,
     :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> { verbatim_label.blank? }
