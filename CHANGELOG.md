@@ -35,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `per` and `page` parameters to `/api/v1/otus/:id/inventory/dwc`
 - With/out facets for Loan dates [#3729]
 - FieldNumber local identifier sensu DwC
 - RecordNumber local identifier sensu DwC [#4016]

@@ -329,7 +329,11 @@ class OtusController < ApplicationController
         filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
       end
       format.json do
-        render json: DwcOccurrence.scoped_by_otu(@otu).to_json
+        if params[:page].blank? && params[:per].blank?
+          render json: DwcOccurrence.scoped_by_otu(@otu).to_json
+        else # only apply if provided, do not fall back to default scope
+          render json: DwcOccurrence.scoped_by_otu(@otu).page(params[:page]).per(params[:per]).to_json
+        end
       end
     end
   end
