@@ -46,11 +46,6 @@
               () => makeFilterRequest({ ...parameters, extend, page: 1 })
             "
           />
-          <RadialFilter
-            object-type="CollectingEvent"
-            :disabled="!selectedIds.length"
-            :parameters="{ collecting_event_id: selectedIds }"
-          />
           <TableLayoutSelector
             v-model="currentLayout"
             v-model:includes="includes"
@@ -96,7 +91,6 @@
 <script setup>
 import FilterComponent from './components/Filter.vue'
 import MapComponent from './components/Map.vue'
-import RadialFilter from '@/components/radials/linker/radial.vue'
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
