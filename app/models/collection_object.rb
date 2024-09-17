@@ -115,6 +115,7 @@ class CollectionObject < ApplicationRecord
   # Repository delegations
   delegate :acronym, to: :repository, prefix: :repository, allow_nil: true
   delegate :url, to: :repository, prefix: :repository, allow_nil: true
+  delegate :institutional_LSID, to: :repository, prefix: :repository, allow_nil: true
 
   # Preparation delegations
   delegate :name, to: :preparation_type, prefix: :preparation_type, allow_nil: true

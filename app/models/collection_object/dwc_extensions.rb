@@ -527,7 +527,8 @@ module CollectionObject::DwcExtensions
 
   # we assert custody, NOT ownership
   def dwc_institution_id
-    repository_url
+    # TODO: identifiers on Repositories
+    repository_url || repository_institutional_LSID
   end
 
   def dwc_collection_code
