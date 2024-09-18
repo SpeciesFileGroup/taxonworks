@@ -23,7 +23,9 @@ module Export
       '2022-09-28 16:30:00.000000 -0500',    # add phylum, class, order, higherClassification
       '2023-04-03 16:30:00.000000 -0500',    # add associatedTaxa; updating InternalAttributes is now reflected in index
       '2023-12-14 16:30:00.000000 -0500',    # add verbatimLabel
-      '2023-12-21 11:00:00.000000 -0500'     # add caste (via biocuration), identificationRemarks
+      '2023-12-21 11:00:00.000000 -0500',    # add caste (via biocuration), identificationRemarks
+
+      '2024-09-13 11:00:00.000000 -0500'     # enable collectionCode, object and collecting event related IDs
     ].freeze
 
     # @param record_scope [ActiveRecord::Relation]

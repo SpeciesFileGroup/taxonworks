@@ -77,6 +77,7 @@
           <PaginationCount
             v-if="pagination"
             :pagination="pagination"
+            custom
             v-model="perValue"
           />
           <div class="horizontal-right-content gap-small">

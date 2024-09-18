@@ -28,13 +28,14 @@
         </li>
       </ul>
     </div>
-    <h4>In range</h4>
+    <h4>In range (Integers)</h4>
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start:</label>
         <br />
         <input
           type="text"
+          v-number-only
           v-model="params.identifier_start"
         />
       </div>
@@ -43,6 +44,7 @@
         <br />
         <input
           type="text"
+          v-number-only
           v-model="params.identifier_end"
         />
       </div>
@@ -74,6 +76,7 @@ import SmartSelector from '@/components/ui/SmartSelector'
 import { watch, computed, ref, onBeforeMount } from 'vue'
 import { Namespace } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { vNumberOnly } from '@/directives'
 
 const MATCH_OPTIONS = [
   {

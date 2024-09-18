@@ -14,7 +14,7 @@ namespace :tw do
           total = 500
         end
 
-        records = CollectionObject.includes(:dwc_occurrence).where(dwc_occurrences: {id: nil}).limit(total).order(:id)
+        records = CollectionObject.includes(:dwc_occurrence).where(dwc_occurrences: {id: nil}).limit(total)
         puts Rainbow("Processing maximum #{total} collection objects into dwc_occurence records.").yellow
 
         index_collection_objects(records)
@@ -28,7 +28,7 @@ namespace :tw do
           total = 500
         end
 
-        records = CollectionObject.where(project_id: @args[:project_id]).order(:id).limit(total)
+        records = CollectionObject.where(project_id: @args[:project_id]).limit(total)
         puts Rainbow("Processing maximum #{total} collection objects into dwc_occurence records.").yellow
         
         index_collection_objects(records)

@@ -1,6 +1,50 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
 
+  let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
+
+  specify '#dwc_scientific_name - invalid' do
+    s = Specimen.create!
+    p = Protonym.create!(
+      name: 'Aus',
+      verbatim_author: 'Smith',
+      year_of_publication: '1945',
+      rank_class: Ranks.lookup(:iczn, :genus),
+      parent: root
+    )
+
+    TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
+
+    p1 = Protonym.create!(
+      name: 'Bus',
+      verbatim_author: 'Jones',
+      year_of_publication: '1933',
+      rank_class: Ranks.lookup(:iczn, :genus),
+      parent: root
+    )
+
+    TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: p, object_taxon_name: p1)
+
+    expect(s.dwc_scientific_name).to eq('Bus Jones, 1933')
+    expect(s.dwc_taxon_name_authorship).to eq('Jones, 1933')
+  end
+
+  specify '#dwc_scientific_name' do
+    s = Specimen.create!
+    p = Protonym.create!(
+      name: 'Aus',
+      verbatim_author: 'Smith',
+      year_of_publication: '1945',
+      rank_class: Ranks.lookup(:iczn, :genus),
+      parent: root
+    )
+
+    TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
+
+    expect(s.dwc_scientific_name).to eq('Aus Smith, 1945')
+    expect(s.dwc_taxon_name_authorship).to eq('Smith, 1945')
+  end
+
   specify '#dwc_verbatim_label'  do
     s = Specimen.create!(buffered_collecting_event: 'a', buffered_determinations: 'b', buffered_other_labels: 'c')
 
@@ -108,7 +152,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     let(:p) { Person.create!(last_name: 'Smith', first_name: 'Sue', suffix: 'Jr.') }
     let(:o) { Otu.create!(name: 'Barney') }
 
-    let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
+
 
     specify '#dwc_decimal_latitude' do
       a = Georeference::Wkt.create!(collecting_event: ce, wkt: 'POINT(9.0 60)' )
@@ -294,7 +338,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     end
 
     specify '#dwc_field_number' do
-      i = FactoryBot.create(:valid_identifier_local, type: 'Identifier::Local::TripCode', identifier_object: ce)
+      i = FactoryBot.create(:valid_identifier_local, type: 'Identifier::Local::FieldNumber', identifier_object: ce)
       expect(s.dwc_field_number).to eq(i.cached)
     end
 
@@ -426,7 +470,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_verbatim_depth).to eq(d)
     end
 
-    specify '#dwc_maximum_dpeth_in_meters' do
+    specify '#dwc_maximum_depth_in_meters' do
       d = 2.1
       a = Predicate.create!(
         name: 'wet toes?',
@@ -442,7 +486,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_maximum_depth_in_meters).to eq(d.to_s)
     end
 
-    specify '#dwc_minimum_dpeth_in_meters' do
+    specify '#dwc_minimum_depth_in_meters' do
       d = 2.1
       a = Predicate.create!(
         name: 'wet toes?',
@@ -533,6 +577,11 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
       s.reload
       expect(s.dwc_recorded_by_id).to eq(i)
+    end
+
+    specify '#dwc_record_number' do
+      a = Identifier::Local::RecordNumber.create!(identifier: '123', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )
+      expect(s.dwc_record_number).to eq(a.cached)
     end
 
     specify '#dwc_other_catalog_numbers' do

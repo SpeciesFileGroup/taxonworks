@@ -32,7 +32,7 @@ module HubHelper
   end
 
   def data_link(data)
-    link_to(data.name, data.klass)
+    link_to(data.name, data.klass, tabindex: 0)
   end
 
   def data_card(data)

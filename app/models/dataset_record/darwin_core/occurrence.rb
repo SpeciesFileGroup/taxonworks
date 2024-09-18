@@ -2,6 +2,8 @@
 #   a) better atomize and test the expecatations
 #   b) interpret and document the behaviour of the importer
 #
+# See app/javascript/vue/tasks/dwca_import/components/settings/Occurrences/OccurrenceSettings.vue for UI defined parameters
+#
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order superfamily family subfamily tribe subtribe}.freeze # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
@@ -221,6 +223,26 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           end
         end
 
+        if record_number = get_field_value(:recordNumber)
+          record_number_namespace = get_field_value('TW:Namespace:recordNumber')
+          identifier_attributes = {
+            identifier: record_number,
+            project_id: Current.project_id
+          }
+
+          record_number_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(record_number_namespace)) # Case insensitive match
+          raise DarwinCore::InvalidData.new({ 'TW:Namespace:recordNumber' => ['Namespace not found'] }) unless record_number_namespace
+
+          identifier_attributes[:namespace] = record_number_namespace
+          identifier = Identifier::Local::RecordNumber
+            .create_with(identifier_object: specimen, annotator_batch_mode: true)
+            .find_or_create_by!(identifier_attributes)
+
+          unless identifier.identifier_object == specimen
+            raise DarwinCore::InvalidData.new({ 'recordNumber' => ['Is already in use'] })
+          end
+        end
+
         if attributes.dig(:catalog_number, :identifier)
           namespace = attributes.dig(:catalog_number, :namespace)
           delete_namespace_prefix!(attributes.dig(:catalog_number, :identifier), namespace)
@@ -242,7 +264,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           object = identifier.identifier_object
 
           unless object == specimen
-            raise DarwinCore::InvalidData.new({ 'catalogNumber' => ['Is already in use'] }) unless self.import_dataset.containerize_dup_cat_no?
+            unless record_number || self.import_dataset.containerize_dup_cat_no?
+              raise DarwinCore::InvalidData.new({ 'catalogNumber' => ['Is already in use'] })
+            end
             if object.is_a?(Container)
               object.add_container_items([specimen])
             else
@@ -264,11 +288,25 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           otu: innermost_otu || innermost_protonym.otus.find_by(name: nil) || innermost_protonym.otus.first # TODO: Might require select-and-confirm functionality
         }.merge(attributes[:taxon_determination]))
 
-        event_id = get_field_value(:eventID)
-        unless event_id.nil?
-          namespace = get_field_value('TW:Namespace:eventID')
 
-          identifier_type = Identifier::Global.descendants.detect { |c| c.name.downcase == namespace.downcase } if namespace
+        # TODO
+        #   There are 3 possible CE identifiers, each needs individual mapping
+        #     eventID -> Identifier::Local::Event (with TW:Namespace:eventID)
+        #     fieldNumber -> Identifier::Local::FieldNumber (with TW:Namespace:fieldNumber)
+        #     TW::CollectingEvent::verbatim_field_number
+        #
+        #       New rules:
+        #         * No overlapping intended meanings, each maps to itself
+        #         * verbatim_trip_identifier should look exactly like the (fully) defined fieldNumber (remember use of virtual attribute in Namespace to render without namespace string)
+        #      
+        event_id, field_number = get_field_value(:eventID), get_field_value(:fieldNumber)
+        collecting_event_identifiers = []
+        if event_id.present?
+          event_id_namespace = get_field_value('TW:Namespace:eventID')
+
+          # TODO: Shouldn't this be local?!
+          identifier_type = Identifier::Global.descendants.detect { |c| c.name.downcase == event_id_namespace.downcase } if event_id_namespace
+          
           identifier_attributes = {
             identifier: event_id,
             identifier_object_type: 'CollectingEvent',
@@ -276,35 +314,66 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           }
 
           if identifier_type.nil?
-            identifier_type = Identifier::Local::TripCode # TODO: Or maybe Identifier::Local::Import?
+
+            identifier_type = Identifier::Local::Event # Note: This was TripCode.  This is a much better fit now, as EventID is a digital accession value.
 
             using_default_event_id = false
-            if namespace.nil?
-              namespace = import_dataset.get_event_id_namespace
+            if event_id_namespace.nil?
+              event_id_namespace = import_dataset.get_event_id_namespace
               using_default_event_id = true
             else
-              namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(namespace)) # Case insensitive match
-              raise DarwinCore::InvalidData.new({ 'TW:Namespace:eventID' => ['Namespace not found'] }) unless namespace
+              event_id_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(event_id_namespace)) # Case insensitive match
+              raise DarwinCore::InvalidData.new({ 'TW:Namespace:eventID' => ['Namespace not found'] }) unless event_id_namespace
             end
 
-            identifier_attributes[:namespace] = namespace
+            identifier_attributes[:namespace] = event_id_namespace
 
-            delete_namespace_prefix!(event_id, namespace)
+            delete_namespace_prefix!(event_id, event_id_namespace)
 
             if !using_default_event_id && self.import_dataset.require_tripcode_match_verbatim?
-              if (cached_identifier = Identifier::Local.build_cached_prefix(namespace) + event_id) != get_field_value(:eventID)
-                error_message = "Computed TripCode #{cached_identifier} will not match verbatim #{get_field_value(:eventID)}. "\
+              if (cached_identifier = Identifier::Local.build_cached_prefix(event_id_namespace) + event_id) != get_field_value(:eventID)
+                error_message = "Computed Event #{cached_identifier} will not match verbatim #{get_field_value(:eventID)}. "\
                             'Verify the namespace delimiter is correct.' # TODO include link to namespace?
                 raise DarwinCore::InvalidData.new({'eventID' => [error_message]})
               end
             end
           end
 
-          collecting_event = identifier_type.find_by(identifier_attributes)&.identifier_object
+          event_id_identifier = identifier_type.find_by(identifier_attributes)
+          collecting_event = event_id_identifier&.identifier_object
+          collecting_event_identifiers << {type: identifier_type, attributes: identifier_attributes}
         end
 
+        if field_number.present?
+          field_number_namespace = get_field_value('TW:Namespace:fieldNumber')
+
+          identifier_attributes = {
+            identifier: field_number,
+            identifier_object_type: 'CollectingEvent',
+            project_id: Current.project_id
+          }
+
+          field_number_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(field_number_namespace)) # Case insensitive match
+          raise DarwinCore::InvalidData.new({ 'TW:Namespace:fieldNumber' => ['Namespace not found'] }) unless field_number_namespace
+
+          verbatim_trip_identifier = "#{field_number_namespace.is_virtual ? '': Identifier::Local.build_cached_prefix(field_number_namespace)}#{field_number}"
+          attributes[:collecting_event][:verbatim_trip_identifier] ||= verbatim_trip_identifier
+          identifier_attributes[:namespace] = field_number_namespace
+
+          field_number_identifier = Identifier::Local::FieldNumber.find_by(identifier_attributes)
+          collecting_event ||= field_number_identifier&.identifier_object
+          collecting_event_identifiers << {type: Identifier::Local::FieldNumber, attributes: identifier_attributes}
+        end
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
         if collecting_event
+          if field_number_identifier && event_id_identifier &&
+            field_number_identifier.identifier_object != event_id_identifier.identifier_object
+            raise DarwinCore::InvalidData.new({ 'eventID/fieldNumber' => ['eventId and fieldNumber refer to different collecting events'] })
+          elsif (field_number_identifier && event_id) || (event_id_identifier && field_number)
+            raise DarwinCore::InvalidData.new({ 'eventID/fieldNumber' => ['does not match previous definition of collecting event'] })
+          end
+
+          #if collecting_event.identifiers.where(type: Identifer::Local::FieldNumber)
           # if tags have been specified to be added, update the collecting event
           if attributes[:collecting_event][:tags_attributes]
             # get list of preexisting tags, exclude them from update
@@ -327,11 +396,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             no_cached: true
           }.merge!(attributes[:collecting_event]))
 
-          identifier_type.create!({
-            identifier_object: collecting_event,
-            annotator_batch_mode: true
-          }.merge!(identifier_attributes)) unless identifier_attributes.nil?
-
+          collecting_event_identifiers.each do |identifier|
+            identifier[:type].create!({
+              identifier_object: collecting_event,
+              annotator_batch_mode: true
+            }.merge!(identifier[:attributes]))
+          end
           has_shape = self.import_dataset.metadata.dig('import_settings', 'require_geographic_area_has_shape')
           data_origin = self.import_dataset.metadata.dig('import_settings', 'geographic_area_data_origin')
           disable_recursive_search = self.import_dataset.metadata.dig('import_settings', 'require_geographic_area_exact_match')
@@ -416,13 +486,23 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     self
   end
 
+
+  def extract_event_identifier_params()
+    # TODO: Extract logic here for shorter main loop
+  end
+
+  def extract_field_number_identifier_params()
+    # TODO: Extract logic here for shorter main loop
+  end
+
+
   #rubocop:enable Metrics/MethodLength
 
   private
 
   def term_value_changed(name, value)
     if ['institutioncode', 'collectioncode', 'catalognumber', 'basisofrecord'].include?(name.downcase) and self.status != 'Imported'
-      ready = get_field_value('catalogNumber').blank?
+      ready = get_field_value('catalogNumber').blank? || get_field_value('TW:Namespaces:catalogNumber').present?
       ready ||= !!self.import_dataset.get_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
 
       self.metadata.delete('error_data')
@@ -638,9 +718,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         #     name: "#{institution_code}-#{collection_code} [CREATED FROM DWC-A IMPORT IN #{project.name} PROJECT]",
         #     delimiter: '-'
         # }).find_or_create_by!(short_name: "#{institution_code}-#{collection_code}")) if collection_code
-    namespace_id = self.import_dataset.get_catalog_number_namespace(institution_code, get_field_value(:collectionCode))
-    if namespace_id
-      Utilities::Hashes::set_unless_nil(res[:catalog_number], :namespace, Namespace.find(namespace_id))
+    if namespace = get_field_value('TW:Namespace:catalogNumber')
+      namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(namespace)) # Case insensitive match
+      raise DarwinCore::InvalidData.new({ 'TW:Namespace:catalogNumber' => ['Namespace not found'] }) unless namespace
+    else
+      namespace_id = self.import_dataset.get_catalog_number_namespace(institution_code, get_field_value(:collectionCode))
+      namespace = Namespace.find(namespace_id) if namespace_id
+    end
+    if namespace
+      Utilities::Hashes::set_unless_nil(res[:catalog_number], :namespace, namespace)
       Utilities::Hashes::set_unless_nil(res[:catalog_number], :project, self.project)
     end
 
@@ -650,7 +736,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # basisOfRecord: [Check it is 'PreservedSpecimen', 'FossilSpecimen']
     basis = get_field_value(:basisOfRecord)
-    basis = basis.downcase.camelize if basis.include? '_' # Reformat GBIF occurrence download basis of records (e.g., PRESERVED_SPECIMEN to PreservedSpecimen)
+    basis = basis.downcase.camelize if basis&.include? '_' # Reformat GBIF occurrence download basis of records (e.g., PRESERVED_SPECIMEN to PreservedSpecimen)
     if 'FossilSpecimen'.casecmp(basis) == 0
       fossil_biocuration = BiocurationClass.where(project:).find_by(uri: DWC_FOSSIL_URI)
 
@@ -688,7 +774,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # catalogNumber: [catalog_number.identifier]
     Utilities::Hashes::set_unless_nil(res[:catalog_number], :identifier, get_field_value(:catalogNumber))
 
-    # recordNumber: [Not mapped]
+    # recordNumber: [Mapped in import method]
 
     # recordedBy: [collecting_event.collectors and collecting_event.verbatim_collectors]
     Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
@@ -780,8 +866,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # parentEventID: [Not mapped]
 
-    # fieldNumber: verbatim_trip_identifier
-    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_trip_identifier, get_field_value(:fieldNumber))
+    # fieldNumber: verbatim_trip_identifier & Identifier::Local::FieldNumber
 
     start_date, end_date = parse_iso_date(:eventDate)
 

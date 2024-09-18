@@ -1,8 +1,13 @@
+# 
+# !! DEPRECATED
+#
 # The Local Identifier that is used by collectors to uniquely identify collecting events.
 #
 class Identifier::Local::TripCode < Identifier::Local
 
   include Shared::DwcOccurrenceHooks
+
+  validate :deprecated
 
   def dwc_occurrences
     DwcOccurrence
@@ -13,4 +18,11 @@ class Identifier::Local::TripCode < Identifier::Local
       .distinct
   end
 
+  private
+
+  # Always prevent use of this class
+  def deprecated
+    errors.add(:identifier_object_type, 'TripCode is deprecated for FieldNumber, please use FieldNumber identifiers') 
+  end
 end
+

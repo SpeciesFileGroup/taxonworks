@@ -8,9 +8,15 @@ describe 'Containables', type: :model, group: :containers do
   let(:drawer) { Container::Drawer.create!(name: '42', contained_in: box) }
   let(:envelope) { Container::Envelope.create!(name: 'envelope', contained_in: drawer) }
 
-  let(:slide_box) {Container::SlideBox.create(name: 'my slide box')}
-  let(:slide) {Container::Slide.create(contained_in: slide_box, name: 'my slide')}
-  let(:unit_tray) {Container::UnitTray.create(disposition: 'col 1 row 2') }
+  let(:slide_box) {Container::SlideBox.create!(name: 'my slide box')}
+  let(:slide) {Container::Slide.create!(contained_in: slide_box, name: 'my slide')}
+  let(:unit_tray) {Container::UnitTray.create!(disposition: 'col 1 row 2') }
+
+  specify 'destroy prevented by content' do
+    slide
+    slide_box.destroy
+    expect(slide_box.persisted?).to be_truthy
+  end
 
   context 'associations' do
     specify 'container' do

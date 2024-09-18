@@ -11,6 +11,7 @@ module CollectionObject::DwcExtensions
     # semi-useful for quick reporting.
     DWC_OCCURRENCE_MAP = {
       catalogNumber: :dwc_catalog_number,
+      recordNumber: :dwc_record_number,
       otherCatalogNumbers: :dwc_other_catalog_numbers,
       individualCount: :dwc_individual_count,
       preparations: :dwc_preparations,
@@ -121,6 +122,11 @@ module CollectionObject::DwcExtensions
     # verbatim label data
 
     attr_accessor :georeference_attributes
+    attr_accessor :target_taxon_name
+
+    def target_taxon_name
+      @target_taxon_name ||= current_valid_taxon_name
+    end
 
     # @return [Hash]
     # getter returning georeference related attributes
@@ -359,17 +365,15 @@ module CollectionObject::DwcExtensions
     collecting_event&.verbatim_method
   end
 
-  # There is no `otherEvent*ID`, prioritize formalized over verbatim
-  # TODO: Reconcile with eventID https://github.com/SpeciesFileGroup/taxonworks/issues/2852
   def dwc_field_number
     return nil unless collecting_event
-    collecting_event.identifiers.where(type: 'Identifier::Local::TripCode').first&.cached || collecting_event.verbatim_trip_identifier
+    # Since we enforce that they are identical we can choose the former if present
+    collecting_event&.verbatim_trip_identifier || collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first&.cached
   end
 
-  # TODO: Reconcile with eventID https://github.com/SpeciesFileGroup/taxonworks/issues/2852
   def dwc_event_id
     return nil unless collecting_event
-    collecting_event.identifiers.where(type: 'Identifier::Local::Event').first&.cached
+    collecting_event.identifiers.where(type: 'Identifier::Local::Event').first&.cached.presence
   end
 
   def dwc_verbatim_habitat
@@ -384,7 +388,7 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_taxon_rank
-    current_taxon_name&.rank
+    target_taxon_name&.rank
   end
 
   # holotype of Ctenomys sociabilis. Pearson O. P., and M. I. Christie. 1985. Historia Natural, 5(37):388, holotype of Pinus abies | holotype of Picea abies
@@ -459,11 +463,11 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_scientific_name
-    current_taxon_name.try(:cached_name_and_author_year)
+    target_taxon_name&.cached_name_and_author_year
   end
 
   def dwc_taxon_name_authorship
-    current_taxon_name.try(:cached_author_year)
+    target_taxon_name&.cached_author_year
   end
 
   # Definition: A list (concatenated and separated) of names of people, groups, or organizations responsible for recording the original Occurrence. The primary collector or observer, especially one who applies a personal identifier (recordNumber), should be listed first.
@@ -523,11 +527,16 @@ module CollectionObject::DwcExtensions
 
   # we assert custody, NOT ownership
   def dwc_institution_id
-    repository_url
+    # TODO: identifiers on Repositories
+    repository_url || repository_institutional_LSID
   end
 
   def dwc_collection_code
     catalog_number_namespace&.verbatim_short_name || catalog_number_namespace&.short_name
+  end
+
+  def dwc_record_number
+    record_number_cached # via delegation
   end
 
   def dwc_catalog_number

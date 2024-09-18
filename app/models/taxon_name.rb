@@ -211,6 +211,12 @@ class TaxonName < ApplicationRecord
   after_create :create_otu, if: :also_create_otu
   before_destroy :check_for_children, prepend: true
 
+  # With this @taxonomy can more or less replace full_name_hash
+  #  after_save :reset_taxonomy
+  #  def reset_taxonomy
+  #    @taxonomy = nil
+  #  end
+
   # Rails 7 experiments have after_commit creating a whack-a-mole situation
   # (though leave after_commit on TaxonNameRelationship)
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
@@ -1016,8 +1022,8 @@ class TaxonName < ApplicationRecord
     s
   end
 
-  # @return [Array of Strings]
-  #   names of all genera where the species was placed
+  # @return String, nil
+  #   then name according to the gender requested
   def name_in_gender(gender = nil)
     case gender
     when 'masculine'
@@ -1029,8 +1035,7 @@ class TaxonName < ApplicationRecord
     else
       n = nil
     end
-    n = (n.presence || name)
-    return n
+    n.presence || name
   end
 
   def dwc_occurrences
@@ -1065,9 +1070,12 @@ class TaxonName < ApplicationRecord
     n = get_full_name # memoize/var into taxonomy?
     update_column(:cached, n)
 
-    # Combination should have it's own cached setting methods
-    # We can't use the in-memory cache approach for combination names, force reload each time
-    n = nil if is_combination?
+    # This isn't true according to tests, will be removed shortly.
+    #   Import and in-memory requirements should use other checks/auditing.
+    #
+    # Combination should have its own cached setting methods
+    # We can't use the in-memory cache approach for Combinations, force reload each time
+    # n = nil if is_combination?
 
     update_columns(
       cached_html: get_full_name_html(n)
@@ -1170,15 +1178,19 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # TODO: Integrate with Taxonomy?
+  #   Taxonomy.values
+  #
   # @return [Array of TaxonName]
   #   an list of ancestors, Root first
-  # Uses parent recursion when record is new and awesome_nested_set_is_not_usable
+  #
+  # Uses parent recursion when record is new and awesome_nested_set
+  # index is not yet usable.
+  #
   def safe_self_and_ancestors
     if new_record?
       ancestors_through_parents
     else
-      # self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
-
       self_and_ancestors
         .unscope(:order)
         .order(generations: :DESC)
@@ -1213,27 +1225,35 @@ class TaxonName < ApplicationRecord
     h
   end
 
-  # !! TODO: when name is a subgenus will not grab genus
   # !! TODO: Higher classification does not follow the same pattern
-  # ?? TODO: Replace with `taxonomy` object .to_h?
+  # !! TODO: when name is a subgenus will not grab genus (still true?)
   #
-  # @!return [ { rank => [prefix, name] }
-  #   Returns a hash of rank => [prefix, name] for genus and below
+  #
+  # Conceptually there are 2 objects required to build @taxonomy,
+  # one for the scientific name, the other for the higher taxa.
+  # These need to be kept seperately in terms of optimizing
+  # queries, or at least isolatable if combined.
+  #
+  # This method covers scientific name, gathering all string
+  # elements, including 'sic' etc., and pointing to them
+  # by rank. It therefor sits between model/helper.
+  #
+  # @!return [ { rank => [prefix, name] } ]
+  #    for genus and below:
+  #
   # @taxon_name.full_name_hash # =>
   #      { "family' => 'Gidae',
-  #        "genus" => [nil, "Aus"],
+  #        "genus" => [nil, "Aus"],  # Note Array!
   #        "subgenus" => [nil, "Aus"],
   #        "section" => ["sect.", "Aus"],
   #        "series" => ["ser.", "Aus"],
   #        "species" => [nil, "aaa"],
   #        "subspecies" => [nil, "bbb"],
   #        "variety" => ["var.", "ccc"]}
+  #
   def full_name_hash
     gender = nil
     data = {}
-
-    # !! TODO: create a persisted only version of this for speed
-    # !! You can not use self.self_and_ancestors because (this) record is not saved off.
 
     safe_self_and_ancestors.each do |i|
       rank = i.rank
@@ -1279,18 +1299,19 @@ class TaxonName < ApplicationRecord
   # @return [String, nil]
   #  A monominal if names is above genus, or a full epithet if below.
   #  Does not include author_year. Does not include HTML.
+  #
+  #  !! Combination has its own version now.
+  #
   def get_full_name
-    return name_with_misspelling(nil) if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
+    return name_with_misspelling(nil) if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if rank_class.to_s =~ /Icvcn/
-
-    # Means we never update Combination names when Combination is present.
-    return verbatim_name if verbatim_name.present? && is_combination?
-
     full_name
   end
 
+  # @return [String, nil]
+  #   returns nil for Higher names
   def full_name
-    d = full_name_hash
+    d = full_name_hash # @taxonomy ?
 
     elements = []
 
@@ -1308,8 +1329,7 @@ class TaxonName < ApplicationRecord
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
 
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
-    elements.presence # nill on empty, false
-
+    elements.presence
   end
 
   # @return String

@@ -307,7 +307,7 @@ class DwcOccurrence < ApplicationRecord
             end
 
       tc = if fieldNumber != o.dwc_field_number
-             collecting_event.identifiers.where(type: 'Identifier::Local::TripCode').first.updated_at
+             collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first.updated_at
            else
              nil
            end
