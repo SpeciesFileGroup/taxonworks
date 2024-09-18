@@ -17,6 +17,7 @@
         type="text"
         :value="item.attributes[attribute]"
         class="full_width"
+        :disabled="disabled"
         @change="
           (e) =>
             saveChanges({

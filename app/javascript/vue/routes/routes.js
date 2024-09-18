@@ -50,6 +50,7 @@ const RouteNames = {
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
   NewBiologicalAssociationGraph: '/tasks/biological_associations/biological_associations_graph',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
+  NewContainer: '/tasks/containers/new_container',
   NewCombination: '/tasks/nomenclature/new_combination',
   NewExtract: '/tasks/extracts/new_extract',
   NewLead: '/tasks/leads/new_lead',

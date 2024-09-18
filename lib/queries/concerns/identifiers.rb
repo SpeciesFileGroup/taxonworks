@@ -34,13 +34,16 @@ module Queries::Concerns::Identifiers
     # Matches on cached
     attr_accessor :identifier
 
+    # @return param, nil (must be Integer or it silently fails)
     #  matches .identifier
+    # @param Integer, nil
     attr_accessor :identifier_end
 
     # Match like or exact on cached
     attr_accessor :identifier_exact
 
-    # @return [String]
+    # @return param, nil (must be Integer or it silently fails)
+    # @param Integer, nil
     #   matches .identifier
     attr_accessor :identifier_start
 
@@ -130,12 +133,11 @@ module Queries::Concerns::Identifiers
   end
 
   def set_identifier_params(params)
-
     @global_identifiers = boolean_param(params, :global_identifiers)
     @identifier = params[:identifier]
-    @identifier_end = params[:identifier_end]
+    @identifier_end = integer_param(params, :identifier_end)
     @identifier_exact = boolean_param(params, :identifier_exact)
-    @identifier_start = params[:identifier_start]
+    @identifier_start = integer_param(params, :identifier_start)
     @identifier_type = params[:identifier_type]
     @identifiers = boolean_param(params, :identifiers)
     @local_identifiers = boolean_param(params, :local_identifiers)
@@ -356,8 +358,8 @@ module Queries::Concerns::Identifiers
   end
 
   def identifier_between_facet
-    return nil if @identifier_start.blank?
-    @identifier_end = @identifier_start if @identifier_end.blank?
+    return nil if identifier_start.blank?
+    @identifier_end = identifier_start if identifier_end.blank?
 
     w = between
     w = w.and(identifier_table[:namespace_id].eq(namespace_id)) if namespace_id # TODO: redundant with namespace facet likely
@@ -400,7 +402,7 @@ module Queries::Concerns::Identifiers
     identifier_table[:cached].matches_any(a)
   end
 
-  # TODO: make generic autcomplete include for all methos optimized
+  # TODO: make generic autcomplete include for all methods optimized
 
   # Autocomplete for tables *referencing* identifiers
   # See lib/queries/identifiers/autocomplete for autocomplete for identifiers

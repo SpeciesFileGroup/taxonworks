@@ -4,6 +4,26 @@ describe Identifier::Global::Orcid, type: :model, group: :identifiers do
   context 'Orcid' do
     let(:id) {Identifier::Global::Orcid.new(identifier_object: FactoryBot.build(:valid_person)) }
 
+    specify 'dwc_occurrence hooks - Collector' do
+      s = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
+      p = FactoryBot.build(:valid_person)
+      s.collecting_event.collectors << p
+
+      Identifier::Global::Orcid.create!(identifier_object: p, identifier: 'http://orcid.org/0000-0002-1825-0097' )
+
+      expect(s.dwc_occurrence.reload.recordedByID).to eq('http://orcid.org/0000-0002-1825-0097')
+    end
+
+    specify 'dwc_occurrence hooks - Determiner' do
+      s = Specimen.create!
+      p = FactoryBot.build(:valid_person)
+      t = FactoryBot.build(:valid_taxon_determination, determiners: [p], taxon_determination_object: s)
+
+      Identifier::Global::Orcid.create!(identifier_object: p, identifier: 'http://orcid.org/0000-0002-1825-0097' )
+
+      expect(s.dwc_occurrence.reload.identifiedByID).to eq('http://orcid.org/0000-0002-1825-0097')
+    end
+
     context '#identifier is validly formatted' do
 
       specify 'empty' do

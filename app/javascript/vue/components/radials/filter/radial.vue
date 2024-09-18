@@ -15,7 +15,7 @@
         <div class="horizontal-center-content">
           <RadialMenu
             :options="menuOptions"
-            @on-click="saveParametersOnStorage"
+            @click="saveParametersOnStorage"
           />
         </div>
       </template>

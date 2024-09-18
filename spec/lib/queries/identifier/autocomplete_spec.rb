@@ -2,9 +2,9 @@ require 'rails_helper'
 
 describe Queries::Identifier::Autocomplete, type: :model do
 
-  let(:o1) { FactoryBot.create(:valid_otu) }
+  let(:o1) { FactoryBot.create(:valid_specimen) }
   let(:o2) { FactoryBot.create(:valid_specimen) }
-  let(:o3) { FactoryBot.create(:valid_collecting_event) }
+  let(:o3) { FactoryBot.create(:valid_specimen) }
 
   let(:n) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
 

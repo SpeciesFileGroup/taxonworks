@@ -25,7 +25,7 @@
                 <radial-menu
                   v-if="isMetadataLoaded"
                   :options="menuOptions"
-                  @on-click="selectComponent"
+                  @click="selectComponent"
                 />
               </div>
             </div>
@@ -431,7 +431,7 @@ function createTag() {
 }
 
 function deleteTag() {
-  Tag.destroy(defaultTag.value.id).then((_) => {
+  Tag.destroy(defaultTag.value.id).then(() => {
     defaultTag.value = undefined
     TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
   })

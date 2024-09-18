@@ -50,6 +50,8 @@ class Depiction < ApplicationRecord
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:depiction_object)
 
+  include Shared::DwcOccurrenceHooks
+
   acts_as_list scope: [:project_id, :depiction_object_type, :depiction_object_id]
 
   belongs_to :image, inverse_of: :depictions
@@ -70,6 +72,11 @@ class Depiction < ApplicationRecord
   after_destroy :remove_media_observation, if: Proc.new {|d| d.depiction_object_type == 'Observation' && d.depiction_object.type == 'Observation::Media' }
 
   after_update :destroy_image_stub_collection_object, if: Proc.new {|d| d.depiction_object_type_previously_was == 'CollectionObject' && d.depiction_object_type == 'CollectionObject' }
+
+  # !? This is purposefully redundant with Shared::DwcOccurrencHooks without
+  # constraints because that version doesn't catch `saved_changes?` in specs.
+  # Maybe because specs pass objects. Maybe because other hooks?
+  after_save_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
 
   def normalize_image
     if o = Image.where(project_id: Current.project_id, image_file_fingerprint: image.image_file_fingerprint).first
@@ -99,6 +106,14 @@ class Depiction < ApplicationRecord
     else
       raise 'This is not a sled derived depiction'
     end
+  end
+
+  def dwc_occurrences
+    # From CollectionObjects
+    DwcOccurrence
+      .joins("JOIN depictions d on d.depiction_object_id = dwc_occurrence_object_id AND d.depiction_object_type = 'CollectionObject'")
+      .where(d: {id:}, dwc_occurrences: {dwc_occurrence_object_type: 'CollectionObject'})
+      .distinct
   end
 
   private

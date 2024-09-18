@@ -30,6 +30,7 @@ class TypeMaterial < ApplicationRecord
   include Shared::Tags
   include Shared::Confidences
   include Shared::IsData
+  include Shared::DwcOccurrenceHooks
   include SoftValidation
 
   # Keys are valid values for type_type, values are
@@ -98,6 +99,14 @@ class TypeMaterial < ApplicationRecord
     else
       false
     end
+  end
+
+  def dwc_occurrences
+    return DwcOccurrence.none unless collection_object.present?
+    DwcOccurrence.where(
+      dwc_occurrence_object_type: 'CollectionObject',
+      dwc_occurrence_object_id: id
+    ).distinct
   end
 
   protected

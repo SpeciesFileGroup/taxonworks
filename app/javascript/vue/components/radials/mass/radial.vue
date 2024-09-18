@@ -21,7 +21,7 @@
               <div>
                 <RadialMenu
                   :options="menuOptions"
-                  @on-click="selectSlice"
+                  @click="selectSlice"
                 />
               </div>
             </div>
@@ -80,6 +80,10 @@ import { ref, onBeforeMount } from 'vue'
 
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 
+defineOptions({
+  name: 'RadialMassAnnotator'
+})
+
 const props = defineProps({
   disabled: {
     type: Boolean,
@@ -107,8 +111,6 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close'])
-
 const {
   closeRadialBatch,
   currentSlice,
@@ -124,28 +126,11 @@ const {
   slices: props.nestedQuery ? ANNOTATORS.all : ANNOTATORS.ids
 })
 
-const isModalVisible = ref(false)
-const currentAnnotator = ref()
 const annotatorTypes = ref({})
-
-function selectComponent({ name }) {
-  currentAnnotator.value = name
-}
-
-function closeModal() {
-  isModalVisible.value = false
-  emit('close')
-}
 
 onBeforeMount(() => {
   Metadata.annotators().then(({ body }) => {
     annotatorTypes.value = body
   })
 })
-</script>
-
-<script>
-export default {
-  name: 'RadialMassAnnotator'
-}
 </script>

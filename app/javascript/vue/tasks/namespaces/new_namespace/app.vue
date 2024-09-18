@@ -73,7 +73,7 @@ const getPreview = computed(() => {
   const shortName = namespace.value.short_name || '<short_name>'
 
   if (namespace.value.is_virtual) {
-    return ''
+    return '123'
   }
 
   switch (type) {

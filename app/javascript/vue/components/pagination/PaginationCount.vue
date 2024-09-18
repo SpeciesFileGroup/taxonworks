@@ -1,5 +1,5 @@
 <template>
-  <div class="horizontal-left-content">
+  <div class="horizontal-left-content gap-small">
     <span
       v-if="haveRecords"
       class="horizontal-left-content"
@@ -8,67 +8,115 @@
       {{ pagination.total }} records.
     </span>
     <span v-else>0 records.</span>
-    <div class="margin-small-left">
-      <select v-model="per">
+    <div class="horizontal-left-content middle">
+      <input
+        v-if="inputMode"
+        ref="customRef"
+        class="w-16"
+        type="number"
+        v-model="customValue"
+        @change="
+          (e) => {
+            per = e.target.value
+            inputMode = false
+          }
+        "
+      />
+      <select
+        v-else
+        v-model="per"
+      >
         <option
-          v-for="records in maxRecords"
+          v-for="records in perList"
           :key="records"
           :value="records"
         >
           {{ records }}
         </option>
       </select>
-      records per page.
+
+      <VBtn
+        v-if="custom"
+        class="rounded-tl-none rounded-bl-none"
+        color="primary"
+        medium
+        @click="toggleMode"
+      >
+        <VIcon
+          name="pencil"
+          x-small
+        />
+      </VBtn>
     </div>
+    records per page.
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    pagination: {
-      type: Object,
-      required: true
-    },
+<script setup>
+import { computed, onBeforeMount, ref, useTemplateRef, nextTick } from 'vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
-    modelValue: {
-      type: [String, Number],
-      required: true
-    },
-
-    maxRecords: {
-      type: Array,
-      default: () => [50, 100, 250, 500, 1000, 2500]
-    }
+const props = defineProps({
+  pagination: {
+    type: Object,
+    required: true
   },
 
-  emits: ['update:modelValue'],
+  maxRecords: {
+    type: Array,
+    default: () => [50, 100, 250, 500, 1000, 2500]
+  },
 
-  computed: {
-    recordsAtCurrentPage() {
-      return (this.pagination.paginationPage - 1) * this.pagination.perPage || 1
-    },
+  custom: {
+    type: Boolean,
+    default: false
+  }
+})
 
-    recordsAtNextPage() {
-      const recordsCount =
-        this.pagination.paginationPage * this.pagination.perPage
-      return recordsCount > this.pagination.total
-        ? this.pagination.total
-        : recordsCount
-    },
+const per = defineModel({
+  type: [String, Number],
+  required: true
+})
+const customValue = ref()
+const inputMode = ref(false)
+const inputCustom = useTemplateRef('customRef')
 
-    haveRecords() {
-      return Number(this.pagination.total)
-    },
+const perList = computed(() => {
+  if (customValue.value) {
+    return props.maxRecords.includes(customValue.value)
+      ? props.maxRecords
+      : [...props.maxRecords, customValue.value].toSorted((a, b) => a - b)
+  }
+  return props.maxRecords.toSorted((a, b) => a - b)
+})
 
-    per: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
+const recordsAtCurrentPage = computed(
+  () => (props.pagination.paginationPage - 1) * props.pagination.perPage || 1
+)
+
+const recordsAtNextPage = computed(() => {
+  const recordsCount =
+    props.pagination.paginationPage * props.pagination.perPage
+  return recordsCount > props.pagination.total
+    ? props.pagination.total
+    : recordsCount
+})
+
+const haveRecords = computed(() => Number(props.pagination.total))
+
+function toggleMode() {
+  inputMode.value = !inputMode.value
+
+  if (inputMode.value) {
+    nextTick(() => inputCustom.value.focus())
   }
 }
+
+onBeforeMount(() => {
+  const perValue = Number(per.value)
+  if (!perList.value.includes(perValue)) {
+    customValue.value = perValue
+  }
+})
 </script>

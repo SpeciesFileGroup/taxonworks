@@ -85,7 +85,6 @@ watch(expanded, (newVal) => {
 .block-layout {
   border-top-left-radius: 0px;
   transition: all 1s;
-  height: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

@@ -3,12 +3,13 @@ require 'rails_helper'
 describe 'Identifiable', type: :model, group: [:identifiers] do
   let(:identifiable_instance) {TestIdentifiable.new}
   let(:identifiable_class) {TestIdentifiable}
+  let(:namespace) { FactoryBot.create(:valid_namespace) }
 
   specify '#add_incremented_identifier' do
     a = FactoryBot.create(:valid_otu)
     b = FactoryBot.create(:valid_otu)
 
-    i = FactoryBot.create(:valid_identifier, identifier: "1", identifier_object: a)
+    i = Identifier::Local::OtuUtility.create!(identifier: '1', identifier_object: a, namespace:)
 
     a.add_incremented_identifier(to_object: b, incremented_identifier_id: i.id)
 
@@ -41,12 +42,12 @@ describe 'Identifiable', type: :model, group: [:identifiers] do
       let!(:n2) {FactoryBot.create(:valid_namespace, name: namespace_name2) }
       let!(:n3) {FactoryBot.create(:valid_namespace, short_name: namespace_name3) }
 
-      let!(:identifier1) { Identifier::Local::CatalogNumber.create!( identifier_object: identifiable_instance, identifier: '123', namespace: n1) }
-      let!(:identifier2) { Identifier::Local::CatalogNumber.create!( identifier_object: identifiable_instance, identifier: '456', namespace: n2) }
-      let!(:identifier3) { Identifier::Local::CatalogNumber.create!( identifier_object: identifiable_instance, identifier: '789', namespace: n3) }
+      let!(:identifier1) { Identifier::Local::OtuUtility.create!( identifier_object: identifiable_instance, identifier: '123', namespace: n1) }
+      let!(:identifier2) { Identifier::Local::OtuUtility.create!( identifier_object: identifiable_instance, identifier: '456', namespace: n2) }
+      let!(:identifier3) { Identifier::Local::OtuUtility.create!( identifier_object: identifiable_instance, identifier: '789', namespace: n3) }
 
       specify '#with_identifier_type_and_namespace' do
-        expect(identifiable_class.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', n1.id)).to contain_exactly(identifiable_instance)
+        expect(identifiable_class.with_identifier_type_and_namespace('Identifier::Local::OtuUtility', n1.id)).to contain_exactly(identifiable_instance)
       end
 
       specify '.with_identifiers_sorted' do

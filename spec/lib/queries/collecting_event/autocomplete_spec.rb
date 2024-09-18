@@ -25,11 +25,11 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
     verbatim_collectors: 'Jones, A.B.',
     verbatim_habitat: 'parkland',
     print_label: 'THERE: under the stars:18-2-2000',
-    collector_roles_attributes: [{person_attributes: {last_name: 'Jones'}}]  
+    collector_roles_attributes: [{person_attributes: {last_name: 'Jones'}}]
   ) }
 
   let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
-  let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
+  let!(:i1) { Identifier::Local::FieldNumber.create!(identifier_object: ce1, identifier: '123', namespace:) }
 
   let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 

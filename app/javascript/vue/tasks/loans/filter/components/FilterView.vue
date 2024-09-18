@@ -78,7 +78,15 @@ import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetPerson from './Facet/FacetPerson.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
-const WITH_PARAMS = ['documentation', 'identifiers']
+const WITH_PARAMS = [
+  'with_date_closed',
+  'with_date_recieved',
+  'with_date_requested',
+  'with_date_return_expected',
+  'with_date_sent',
+  'documentation',
+  'identifiers'
+]
 
 const OVERDUE_OPTIONS = [
   {

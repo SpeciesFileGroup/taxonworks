@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { Identifier, Namespace } from '@/routes/endpoints'
-import { IDENTIFIER_LOCAL_TRIP_CODE } from '@/constants'
+import { IDENTIFIER_LOCAL_FIELD_NUMBER } from '@/constants'
 
 export default defineStore('tripCode', {
   state: () => ({
@@ -31,7 +31,7 @@ export default defineStore('tripCode', {
           namespace_id: this.namespace.id,
           identifier_object_id: objectId,
           identifier_object_type: objectType,
-          type: IDENTIFIER_LOCAL_TRIP_CODE
+          type: IDENTIFIER_LOCAL_FIELD_NUMBER
         }
       }
 
@@ -61,7 +61,7 @@ export default defineStore('tripCode', {
         const { body } = Identifier.where({
           identifier_object_id: objectId,
           identifier_object_type: objectType,
-          type: IDENTIFIER_LOCAL_TRIP_CODE
+          type: IDENTIFIER_LOCAL_FIELD_NUMBER
         })
 
         const [identifier] = body

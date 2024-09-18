@@ -14,7 +14,12 @@
 
 .tablesorter {
   width: 100%;
+
+  tr {
+    cursor: pointer;
+  }
 }
+
 table {
   box-shadow: 0 0 2px 0 $navigation_border;
   border-radius: 2px;
@@ -70,7 +75,6 @@ table {
 
   tr {
     margin: 0px;
-    cursor: pointer;
   }
 
   th {

@@ -36,6 +36,12 @@ module ContainersHelper
     ].compact.join(': ').html_safe
   end
 
+  # TODO: Clean, refactor
+  def label_for_container_container(container)
+    return nil if container.nil?
+    container.name || container.print_label || label_for_identifier(container.identifiers.first) || container.id
+  end
+
   def container_autocomplete_tag(container)
     container_tag(container)
   end
@@ -99,5 +105,19 @@ module ContainersHelper
 
   def add_or_move_to_container_link(object)
     link_to( (object.contained? ? 'Move to another' : 'Add to' ) + ' container', containerize_collection_object_path(object) )
+  end
+
+  def container_types
+    r = []
+    Container.descendants.each do |t|
+      r.push({
+        type: t.name,
+        name: t.class_name,
+        dimensions: t.dimensions.presence,
+        valid_parents: t.valid_parents.presence
+      })
+    end
+    r.sort!{|a,b| a[:type] <=> b[:type]}
+    r
   end
 end

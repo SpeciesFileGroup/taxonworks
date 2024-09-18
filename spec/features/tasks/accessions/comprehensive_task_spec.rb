@@ -35,7 +35,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
           # TODO: Improve this. Possibly adding more HTML to easily identify fields.
           catalog_number = find('#namespace-autocomplete').find(:xpath, '..')
           catalog_number.find('li', text: 'INHS').hover.click
-          fill_in(id: "identifier-field", with: '1234')
+          fill_in(id: 'catalog-number-identifier-field', with: '1234')
 
           click_button 'Save'
 
@@ -46,7 +46,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
       end
 
       specify 'adds collecting events' do
-        fill_in "verbatim-locality", with: 'Somewhere over the rainbow'
+        fill_in 'verbatim-locality', with: 'Somewhere over the rainbow'
         click_button 'Save'
         expect(page).to have_text('Sequential uses: 1')
       end

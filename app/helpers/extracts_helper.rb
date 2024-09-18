@@ -12,9 +12,15 @@ module ExtractsHelper
       "#{extract.id} (no origin)"
     end
 
-    e.push "Extract " + extract.id.to_s if e.empty?
+    return "Extract " + extract.id.to_s if e.empty?
 
     e.join.html_safe
+  end
+
+  # TODO: expand when schemes are concentrated on.
+  def label_for_extract_container(extract)
+    return nil if extract.nil?
+    extract.dwc_catalog_number || extract.id
   end
 
   def extract_link(extract)

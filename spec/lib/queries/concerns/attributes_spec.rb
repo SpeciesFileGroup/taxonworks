@@ -20,7 +20,7 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
     print_label: 'THERE: under the stars:18-2-2000') }
 
   # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
-  # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
+  # let!(:i1) { Identifier::Local::FieldNumber.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
   context 'wildcard_attribute' do

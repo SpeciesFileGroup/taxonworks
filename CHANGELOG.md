@@ -9,6 +9,91 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.44.0] - 2024-09-17
+
+### Added
+
+- Create container task [#3038]
+- Endpoint crossreferencing dwc_occurrences and images `api/v1/otus/:otu_id/inventory/dwc_gallery.json?per=1&page=2`
+- Creating depictions of CollectionObjects now updates their DwcOccurrence automatically
+- Filters: Custom button to `records per page` selector [#4032]
+- New asserted distribution: Confidence panel [#4044]
+
+### Changed
+
+- Updated Ruby gems
+
+### Fixed
+
+- DwcOccurrence now _actually_ selects the valid name on export
+- OTU taxonomy inventory API endpoint crashing on protonyms with no cached year and author.
+- DwC importer column indexing confusion when there are blank headers
+- Filter collecting event: Remove duplicate radial linker [#4050]
+
+[#3038]: https://github.com/SpeciesFileGroup/taxonworks/issues/3038
+[#4032]: https://github.com/SpeciesFileGroup/taxonworks/issues/4032
+[#4044]: https://github.com/SpeciesFileGroup/taxonworks/issues/4044
+[#4050]: https://github.com/SpeciesFileGroup/taxonworks/issues/4050
+
+## [0.43.3] - 2024-09-09
+
+### Added
+
+- `per` and `page` parameters to `/api/v1/otus/:id/inventory/dwc`
+- With/out facets for Loan dates [#3729]
+- FieldNumber local identifier sensu DwC
+- RecordNumber local identifier sensu DwC [#4016]
+- DwC importer support for FieldNumber and RecordNumber [#4016] [#3800]
+- DwC export support for FieldNumber, RecordNumber
+- New RecordNumber panel for Comprehensive Digization
+- Filter Otu: With/without common names
+- Radial annotator: Add sort to identifiers slice [#4021]
+- `extend[]=valid_name` to `/taxon_names`
+- Valid name column in filter nomenclature
+
+### Changed
+
+- DwC export will now use a valid taxon name if linked first to an invalid, and it is available
+- EventID and verbatim_trip_code are disentangled in DwC Importer, they do not map to one-another now [#3800] [#2852]
+- TripCode is now FieldNumber (all data migrated)
+- DwcOccurrence rebuilds triggered for changes to TaxonNameRelationship [#4019], TypeMaterial, TaxonDetermination, Identifier::Global
+- Wikidata IDs are now also loaded into recordedByID and identifiedByID [#3989]
+- Sort order of descendant inventory
+- Removed net-pop gem workaround for Ruby 3.3.3
+- Facet geographic area: Spatial mode by default
+- Facet nomenclature rank: Remove selected ranks from select input
+- Updated Ruby gems
+- New taxon name task: Add manual mode for subsequent combinations section when taxon rank is not in the list [#4009]
+- Optimized performance of Combination name rendering and use
+- Filters with Geographic area facet default to 'Spatial'
+
+### Fixed
+
+- Header labels print without higher taxonomy [#4030]
+- Staged images tab on collection object report
+- Non-integer identifier start/end ranges raising
+- Various facets in Filter OTUs not being scoped to unique records
+- Saving a bad identifier from annotator fails to show message why
+- Download formatted references as PDF
+- Quickly clicking save before load-in on Comprehensive can detach CollectingEvent from CollectionObject
+- Filter collecting events: data attribute table view is empty [#4013]
+- Field synchronize: URI Too Large error when user pass a long query [#4017]
+- DwC importer crashing on record with blank `basisOfRecord` [#4024]
+
+[#2852]: https://github.com/SpeciesFileGroup/taxonworks/issues/2852
+[#3729]: https://github.com/SpeciesFileGroup/taxonworks/issues/3729
+[#3800]: https://github.com/SpeciesFileGroup/taxonworks/issues/3800
+[#3989]: https://github.com/SpeciesFileGroup/taxonworks/issues/3989
+[#4009]: https://github.com/SpeciesFileGroup/taxonworks/issues/4009
+[#4013]: https://github.com/SpeciesFileGroup/taxonworks/issues/4013
+[#4016]: https://github.com/SpeciesFileGroup/taxonworks/issues/4016
+[#4017]: https://github.com/SpeciesFileGroup/taxonworks/issues/4017
+[#4018]: https://github.com/SpeciesFileGroup/taxonworks/issues/4018
+[#4019]: https://github.com/SpeciesFileGroup/taxonworks/issues/4019
+[#4021]: https://github.com/SpeciesFileGroup/taxonworks/issues/4021
+[#4024]: https://github.com/SpeciesFileGroup/taxonworks/issues/4024
+[#4030]: https://github.com/SpeciesFileGroup/taxonworks/issues/4030
+
 ## [0.43.2] - 2024-08-10
 
 ### Added
@@ -4751,7 +4836,9 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.0..development
+[0.44.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.3...v0.44.0
+[0.43.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2...v0.43.3
 [0.43.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1...v0.43.2
 [0.43.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.0...v0.43.1
 [0.43.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0...v0.43.0

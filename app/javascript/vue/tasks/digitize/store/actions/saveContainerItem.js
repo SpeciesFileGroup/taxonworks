@@ -1,8 +1,12 @@
 import { MutationNames } from '../mutations/mutations'
 import { Identifier, ContainerItem, CollectionObject } from '@/routes/endpoints'
+import { useIdentifierStore } from '../pinia/identifiers'
+import { CONTAINER, IDENTIFIER_LOCAL_RECORD_NUMBER } from '@/constants'
 
 export default ({ commit, state }) =>
   new Promise((resolve, reject) => {
+    const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
+
     if (
       state.container &&
       !state.containerItems.find(
@@ -22,6 +26,11 @@ export default ({ commit, state }) =>
             identifier_object_type: 'Container',
             identifier_object_id: state.container.id
           }
+
+          recordNumber.save({
+            objectType: CONTAINER,
+            objectId: state.container.id
+          })
 
           Identifier.update(identifier.id, { identifier }).then((response) => {
             state.identifiers[0] = response.body
