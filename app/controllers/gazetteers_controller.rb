@@ -106,7 +106,14 @@ class GazetteersController < ApplicationController
 
   # POST /gazetteers/import.json
   def import
-    rv = Gazetteer.validate_shape_file(import_params)
+    rv = Gazetteer.validate_shape_file(shapefile_params)
+
+    if rv == true &&
+       citation_params[:cite_gzs] &&
+       !citation_params[:citation]&.dig(:source_id)
+      rv = 'Citation option checked but no source selected'
+    end
+
     if rv != true
       render json: {
         errors: rv
@@ -115,15 +122,16 @@ class GazetteersController < ApplicationController
       return
     end
 
-    shp_doc = Document.find(import_params[:shp_doc_id])
+    shp_doc = Document.find(shapefile_params[:shp_doc_id])
     progress_tracker = GazetteerImport.create!(
       shapefile: shp_doc.document_file_file_name
     )
     ImportGazetteersJob.perform_later(
-      import_params, sessions_current_user_id, sessions_current_project_id,
+      shapefile_params, citation_params,
+      sessions_current_user_id, sessions_current_project_id,
       progress_tracker
     )
-    #Gazetteer.import_from_shapefile(import_params)
+    #Gazetteer.import_from_shapefile(shapefile_params)
     head :no_content
   end
 
@@ -165,9 +173,15 @@ class GazetteersController < ApplicationController
     )
   end
 
-  def import_params
+  def shapefile_params
     params.require(:shapefile).permit(
       :shp_doc_id, :shx_doc_id, :dbf_doc_id, :prj_doc_id, :name_field
+    )
+  end
+
+  def citation_params
+    params.require(:citation_options).permit(
+      :cite_gzs, citation: [:source_id, :pages, :is_original]
     )
   end
 

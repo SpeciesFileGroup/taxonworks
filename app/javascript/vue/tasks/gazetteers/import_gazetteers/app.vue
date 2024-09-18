@@ -127,7 +127,8 @@ function processShapefile() {
       dbf_doc_id: dbf.id,
       prj_doc_id: prj.id,
       name_field: shapeNameField.value
-    }
+    },
+    citation_options: citationOptions.value
   }
 
   isLoading.value = true

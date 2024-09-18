@@ -279,7 +279,7 @@ class Gazetteer < ApplicationRecord
   end
 
   # raises TaxonWorks::Error on error
-  def self.import_from_shapefile(shapefile, progress_tracker)
+  def self.import_from_shapefile(shapefile, citation_options, progress_tracker)
     shp_doc = Document.find(shapefile[:shp_doc_id])
     shx_doc = Document.find(shapefile[:shx_doc_id])
     dbf_doc = Document.find(shapefile[:dbf_doc_id])
@@ -302,13 +302,15 @@ class Gazetteer < ApplicationRecord
     FileUtils.ln_s(dbf_doc.document_file.path, dbf_link)
     FileUtils.ln_s(prj_doc.document_file.path, prj_link)
 
-    processShapeFile(shp_link, name_field, progress_tracker)
+    citation = citation_options[:cite_gzs] ? citation_options[:citation] : nil
+
+    processShapeFile(shp_link, name_field, citation, progress_tracker)
 
     FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
     FileUtils.rmdir(tmp_dir)
   end
 
-  def self.processShapeFile(shpfile, name_field, progress_tracker)
+  def self.processShapeFile(shpfile, name_field, citation, progress_tracker)
     r = {
       num_records: 0,
       error_id: nil,
@@ -346,6 +348,13 @@ class Gazetteer < ApplicationRecord
               )
 
               g.save!
+
+              if citation.present?
+                Citation.create!(citation.merge({
+                  citation_object_type: 'Gazetteer',
+                  citation_object_id: g.id
+                }))
+              end
             rescue RGeo::Error::InvalidGeometry => e
               r[:error_id] = i + 1
               r[:error_message] = e.to_s
