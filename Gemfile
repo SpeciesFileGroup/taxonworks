@@ -10,7 +10,7 @@ gem 'rake', '~> 13.0'
 gem 'rails', '~> 7.2'
 gem 'pg', '~> 1.1'
 #gem 'activerecord-postgis-adapter', '~> 9.0'
-gem 'activerecord-postgis-adapter', github: 'ugisozols/activerecord-postgis-adapter', ref: '215db0b'
+gem 'activerecord-postgis-adapter', github: 'rgeo/activerecord-postgis-adapter', branch: 'bump-7-2'
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.5'
 gem 'bootsnap', require: false

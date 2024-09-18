@@ -40,13 +40,13 @@ GIT
       railties (>= 3.2)
 
 GIT
-  remote: https://github.com/ugisozols/activerecord-postgis-adapter.git
-  revision: 215db0bd7fe6eaf1cf46be281fd46ed0ed73cdbd
-  ref: 215db0b
+  remote: https://github.com/rgeo/activerecord-postgis-adapter.git
+  revision: 763cef8c49f545f33f827f2b403d45fa761627fe
+  branch: bump-7-2
   specs:
     activerecord-postgis-adapter (9.0.2)
-      activerecord (~> 7.2.0.beta2)
-      rgeo-activerecord (~> 7.0.0)
+      activerecord (~> 7.2.0)
+      rgeo-activerecord (~> 8.0.0)
 
 GEM
   remote: https://rubygems.org/
@@ -511,9 +511,9 @@ GEM
     rexml (3.3.7)
     rgb (0.1.2)
     rgeo (3.0.1)
-    rgeo-activerecord (7.0.1)
-      activerecord (>= 5.0)
-      rgeo (>= 1.0.0)
+    rgeo-activerecord (8.0.0)
+      activerecord (>= 7.0)
+      rgeo (>= 3.0)
     rgeo-geojson (2.2.0)
       multi_json (~> 1.15)
       rgeo (>= 1.0.0)
