@@ -132,6 +132,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     it 'attached FieldNumber to CollectingEvent' do
       expect(Identifier::Local::FieldNumber.first.identifier_object).to be_kind_of(CollectingEvent)
     end
+
+    it 'does not populate verbatim fields by default' do
+      expect(CollectingEvent.first.verbatim_trip_identifier).to eq(nil)
+    end
   end
 
   # TODO: Check that `TW:CollectingEvent:verbatim_locality' alone will create a CE (see tsv)
