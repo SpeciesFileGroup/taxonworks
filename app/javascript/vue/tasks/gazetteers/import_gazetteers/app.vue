@@ -26,6 +26,24 @@
     </div>
   </div>
 
+  <div
+    @click="() => showCitationOptions = !showCitationOptions"
+  >
+    <span class="link cursor-pointer citations_flipper">
+      <template v-if="showCitationOptions">
+        Hide Citation options
+      </template>
+      <template v-else>
+        Show Citation options
+      </template>
+    </span>
+  </div>
+  <CitationOptions
+    v-if="showCitationOptions"
+    v-model="citationOptions"
+    class="citations_options"
+  />
+
   <div class="process_button">
     <VBtn
       :disabled="processingDisabled"
@@ -69,6 +87,7 @@
 </template>
 
 <script setup>
+import CitationOptions from './components/CitationOptions.vue'
 import DocumentSelector from './components/DocumentSelector.vue'
 import ImportJobs from './components/ImportJobs.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -82,6 +101,8 @@ const shapeNameField = ref('')
 const isLoading = ref(false)
 const modalVisible = ref(false)
 const shapefileFields = ref([])
+const showCitationOptions = ref(false)
+const citationOptions = ref({})
 
 const jobs = ref(null)
 
@@ -201,5 +222,14 @@ function setShapefileField(field) {
 
 .results {
   margin-bottom: 1em;
+}
+
+.citations_flipper {
+  display: inline-block;
+  margin-top: 2em;
+}
+
+.citations_options {
+  max-width: 600px;
 }
 </style>
