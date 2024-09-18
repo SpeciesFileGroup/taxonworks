@@ -297,7 +297,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         #
         #       New rules:
         #         * No overlapping intended meanings, each maps to itself
-        #         * verbatim_trip_identifier should look exactly like the (fully) defined fieldNumber (remember use of virtual attribute in Namespace to render without namespace string)
         #      
         event_id, field_number = get_field_value(:eventID), get_field_value(:fieldNumber)
         collecting_event_identifiers = []
@@ -356,8 +355,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           field_number_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(field_number_namespace)) # Case insensitive match
           raise DarwinCore::InvalidData.new({ 'TW:Namespace:fieldNumber' => ['Namespace not found'] }) unless field_number_namespace
 
-          verbatim_trip_identifier = "#{field_number_namespace.is_virtual ? '': Identifier::Local.build_cached_prefix(field_number_namespace)}#{field_number}"
-          attributes[:collecting_event][:verbatim_trip_identifier] ||= verbatim_trip_identifier
           identifier_attributes[:namespace] = field_number_namespace
 
           field_number_identifier = Identifier::Local::FieldNumber.find_by(identifier_attributes)
