@@ -6,6 +6,10 @@ json.extract! extract, :id,
 
 json.partial! '/shared/data/all/metadata', object: extract
 
+if extend_response_with('container_label')
+  json.container_label label_for_extract_container(extract)
+end
+
 # TODO: move to shared and use extend
 if extract.extractor_roles.any?
   json.extractor_roles(extract.extractor_roles) do |role|

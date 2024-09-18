@@ -29,7 +29,10 @@ class Extract < ApplicationRecord
   include Shared::Tags
   include SoftValidation
   include Shared::IsData
+  include Shared::AutoUuid
+
   # TODO: make loanable
+  # TODO: auto-UUID
 
   is_origin_for 'Extract', 'Sequence'
   originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence'
@@ -48,6 +51,14 @@ class Extract < ApplicationRecord
   has_many :extracts, through: :related_origin_relationships, source: :old_object, source_type: 'Extract'
 
   attr_accessor :is_made_now
+
+  # TODO: Unify in concern, with CO too
+  # Identifier delegations
+  # .catalog_number_cached
+  delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+  # .catalog_number_namespace
+  delegate :namespace, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+
   before_validation :set_made, if: -> {is_made_now}
 
   validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
@@ -61,6 +72,26 @@ class Extract < ApplicationRecord
       [otus],
       [collection_objects.collect{|o| o.current_otu} ]
     ].flatten.compact.uniq
+  end
+
+  # TODO: Unify with CollectionObject in concern
+  # @return [Identifier::Local::CatalogNumber, nil]
+  #   the first (position) catalog number for this collection object, either on specimen, or container
+  def preferred_catalog_number
+    if i = Identifier::Local::CatalogNumber.where(identifier_object: self).order(:position).first
+      i
+    else
+      if container
+        container.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).order(:position).first
+      else
+        nil
+      end
+    end
+  end
+
+  # In anticipation of DwC handling
+  def dwc_catalog_number
+    catalog_number_cached
   end
 
   protected

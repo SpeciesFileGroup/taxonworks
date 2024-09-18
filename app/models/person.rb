@@ -124,9 +124,6 @@ class Person < ApplicationRecord
 
   has_many :collection_objects, through: :collecting_events
 
-  # Deprecated
-  # has_many :dwc_occurrences, through: :collection_objects # TODO: There are technically many more, expand
-
   scope :created_before, -> (time) { where('created_at < ?', time) }
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
   scope :ordered_by_last_name, -> { order(:last_name) }

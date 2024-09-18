@@ -15,11 +15,9 @@
         <div class="horizontal-center-content">
           <radial-menu
             :options="menuOptions"
-            @click="handleClick"
+            @click="(event) => handleClick(event, { openTab: false })"
+            @contextmenu="(event) => handleClick(event, { openTab: true })"
             @mousedown="setParametersFor"
-            @contextmenu="
-              (event) => handleContextMenu(event, { openTab: true })
-            "
           />
         </div>
       </template>
@@ -240,19 +238,6 @@ function handleClick({ name }, { openTab = false }) {
       action: item.link,
       data: parameters,
       openTab
-    })
-  }
-}
-
-function handleContextMenu({ name }) {
-  const item = getItemByName(name)
-  const parameters = getLinkParameters(item)
-
-  if (item.post) {
-    createAndSubmitForm({
-      action: item.link,
-      data: parameters,
-      openTab: true
     })
   }
 }

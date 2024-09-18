@@ -47,6 +47,11 @@ Combination:
   destroyed_redirect: browse_nomenclature_task
   config:
     recent: true
+Container:
+  tasks:
+    - new_container_task
+  config:
+    recent: true
 CollectionObject:
   tasks:
     - browse_collection_objects_task

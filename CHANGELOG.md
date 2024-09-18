@@ -9,10 +9,37 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.44.0] - 2024-09-17
+
+### Added
+
+- Create container task [#3038]
+- Endpoint crossreferencing dwc_occurrences and images `api/v1/otus/:otu_id/inventory/dwc_gallery.json?per=1&page=2`
+- Creating depictions of CollectionObjects now updates their DwcOccurrence automatically
+- Filters: Custom button to `records per page` selector [#4032]
+- New asserted distribution: Confidence panel [#4044]
+
+### Changed
+
+- Updated Ruby gems
+
+### Fixed
+
+- DwcOccurrence now _actually_ selects the valid name on export
+- OTU taxonomy inventory API endpoint crashing on protonyms with no cached year and author.
+- DwC importer column indexing confusion when there are blank headers
+- Filter collecting event: Remove duplicate radial linker [#4050]
+
+[#3038]: https://github.com/SpeciesFileGroup/taxonworks/issues/3038
+[#4032]: https://github.com/SpeciesFileGroup/taxonworks/issues/4032
+[#4044]: https://github.com/SpeciesFileGroup/taxonworks/issues/4044
+[#4050]: https://github.com/SpeciesFileGroup/taxonworks/issues/4050
+
 ## [0.43.3] - 2024-09-09
 
 ### Added
 
+- `per` and `page` parameters to `/api/v1/otus/:id/inventory/dwc`
 - With/out facets for Loan dates [#3729]
 - FieldNumber local identifier sensu DwC
 - RecordNumber local identifier sensu DwC [#4016]
@@ -4809,7 +4836,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.3..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.0..development
+[0.44.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.3...v0.44.0
 [0.43.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2...v0.43.3
 [0.43.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1...v0.43.2
 [0.43.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.0...v0.43.1

@@ -5,7 +5,7 @@ class OtusController < ApplicationController
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
     :breadcrumbs, :timeline, :coordinate, :distribution,
     :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
-    :api_nomenclature_citations, :api_distribution, :api_content, :api_dwc_inventory ]
+    :api_nomenclature_citations, :api_distribution, :api_content, :api_dwc_inventory, :api_dwc_gallery ]
 
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
@@ -329,9 +329,20 @@ class OtusController < ApplicationController
         filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
       end
       format.json do
-        render json: DwcOccurrence.scoped_by_otu(@otu).to_json
+        if params[:page].blank? && params[:per].blank?
+          render json: DwcOccurrence.scoped_by_otu(@otu).to_json
+        else # only apply if provided, do not fall back to default scope
+          render json: DwcOccurrence.scoped_by_otu(@otu).page(params[:page]).per(params[:per]).to_json
+        end
       end
     end
+  end
+
+  # GET /api/v1/otus/:id/inventory/dwc_gallery.json?per=1&page=2
+  def api_dwc_gallery
+    # see otus_helper
+    @data = helpers.dwc_gallery_data(@otu)
+    render '/otus/api/v1/inventory/dwc_gallery'
   end
 
   # GET /api/v1/otus/:id/inventory/content
