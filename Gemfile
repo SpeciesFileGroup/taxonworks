@@ -176,7 +176,7 @@ group :test, :development do
   gem 'factory_bot_rails', '~> 6.2'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
   gem 'prawn', '~> 2.5.0'
-  gem 'puma', '~> 6.3'
+  gem 'puma', '~> 6.4'
 end
 
 gem 'parallel_tests', group: [:development, :test]
