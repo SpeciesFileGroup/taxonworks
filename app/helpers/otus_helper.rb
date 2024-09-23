@@ -348,15 +348,15 @@ module OtusHelper
     r
   end
 
-  def otu_key_inventory(otu)
+  def otu_key_inventory(otu, is_public: true)
     return {
       observation_matrices: {
-        scoped: otu.in_scope_observation_matrices.pluck(:id) || [] ,
-        in: otu.observation_matrices.pluck(:id) || [] ,
+        scoped: otu.in_scope_observation_matrices.where(is_public:).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {} ,
+        in: otu.observation_matrices.where(is_public:).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {},
       },
       leads: {
-        scoped: otu.leads.where(parent_id: nil).pluck(:id) || [],
-        in:  otu.leads.where.not(parent_id: nil).pluck(:id)  || [],
+        scoped: otu.leads.where(parent_id: nil, is_public:).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
+        in:  otu.leads.where.not(parent_id: nil).where(is_public: true).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
       }
     }
   end

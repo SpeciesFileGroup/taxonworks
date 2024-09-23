@@ -356,7 +356,8 @@ class ObservationMatricesController < ApplicationController
   def observation_matrix_params
     params.require(:observation_matrix).permit(
       :name,
-      :otu_id
+      :otu_id,
+      :is_public
     )
   end
 

@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - `/api/v1/otus/:id/inventory/keys` a list of keys scoped to or containing the Otu
 - `otu_id` to ObservationMatrix, to facilitate setting scope and indexing of multi-entry keys
+- `is_public` flag to ObservationMatrix
 
 ### Changed
 
