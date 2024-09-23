@@ -5,7 +5,7 @@
       class="full_width"
       type="text"
       rows="3"
-      v-model="collectingEvent.verbatim_trip_identifier"
+      v-model="collectingEvent.verbatim_field_number"
       @change="() => { collectingEvent.isUnsaved = true }"
     />
   </div>

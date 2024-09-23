@@ -187,7 +187,7 @@ export const LAYOUTS = {
         'verbatim_longitude',
         'verbatim_latitude',
         'verbatim_geolocation_uncertainty',
-        'verbatim_trip_identifier',
+        'verbatim_field_number',
         'verbatim_collectors',
         'verbatim_method',
         'verbatim_elevation',

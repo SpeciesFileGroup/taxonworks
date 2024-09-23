@@ -12,6 +12,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `/api/v1/otus/:id/inventory/keys` a list of keys scoped to or containing the Otu
 - `otu_id` to ObservationMatrix, to facilitate setting scope and indexing of multi-entry keys
 
+### Changed
+
+- Renamed CollectingEvent `verbatim_trip_code` to `verbatim_field_number` [#4058]
+
+[#4058]: https://github.com/SpeciesFileGroup/taxonworks/issues/4058
+ 
+
 ## [0.44.0] - 2024-09-17
 
 ### Added

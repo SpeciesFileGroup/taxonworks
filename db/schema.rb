@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_23_143033) do
+ActiveRecord::Schema[7.1].define(version: 2024_09_23_211118) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -293,7 +293,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_23_143033) do
     t.string "verbatim_longitude"
     t.string "verbatim_latitude"
     t.string "verbatim_geolocation_uncertainty"
-    t.string "verbatim_trip_identifier"
+    t.string "verbatim_field_number"
     t.string "verbatim_collectors"
     t.string "verbatim_method"
     t.integer "geographic_area_id"

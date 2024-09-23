@@ -368,7 +368,7 @@ module CollectionObject::DwcExtensions
   def dwc_field_number
     return nil unless collecting_event
     # Since we enforce that they are identical we can choose the former if present
-    collecting_event&.verbatim_trip_identifier || collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first&.cached
+    collecting_event&.verbatim_field_number || collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first&.cached
   end
 
   def dwc_event_id

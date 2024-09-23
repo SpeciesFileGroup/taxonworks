@@ -6,7 +6,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
   let(:state) { county.parent }
   let(:country) { state.parent }
 
-  specify '#verbatim_trip_identifier matches Identifier' do
+  specify '#verbatim_field_number matches Identifier' do
     collecting_event.verbatim_label = 'All the stuff'
     collecting_event.save!
 
@@ -16,8 +16,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       identifier: '1'
     )
 
-    collecting_event.update(verbatim_trip_identifier: '2')
-    expect(collecting_event.errors.key?(:verbatim_trip_identifier)).to be_truthy
+    collecting_event.update(verbatim_field_number: '2')
+    expect(collecting_event.errors.key?(:verbatim_field_number)).to be_truthy
   end
 
   # Added as a context for exploring re-indexing DwC based on DataAttribute updates

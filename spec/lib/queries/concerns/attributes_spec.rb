@@ -13,7 +13,7 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
 
   let!(:ce2) { CollectingEvent.create(
     verbatim_locality: 'Out there, under the stars',
-    verbatim_trip_identifier: 'Foo manchu',
+    verbatim_field_number: 'Foo manchu',
     start_date_year: 2000,
     start_date_month: 2,
     start_date_day: 18,

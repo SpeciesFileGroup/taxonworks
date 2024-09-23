@@ -24,7 +24,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       start_date_day start_date_month start_date_year end_date_day end_date_month end_date_year
       time_end_hour time_end_minute time_end_second time_start_hour time_start_minute time_start_second
       verbatim_collectors verbatim_date verbatim_datum verbatim_elevation verbatim_geolocation_uncertainty verbatim_habitat
-      verbatim_latitude verbatim_locality verbatim_longitude verbatim_method verbatim_trip_identifier
+      verbatim_latitude verbatim_locality verbatim_longitude verbatim_method verbatim_field_number
     ).to_set.freeze
   }.freeze
 
@@ -297,7 +297,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         #
         #       New rules:
         #         * No overlapping intended meanings, each maps to itself
-        #      
+        #
         event_id, field_number = get_field_value(:eventID), get_field_value(:fieldNumber)
         collecting_event_identifiers = []
         if event_id.present?
@@ -305,7 +305,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
           # TODO: Shouldn't this be local?!
           identifier_type = Identifier::Global.descendants.detect { |c| c.name.downcase == event_id_namespace.downcase } if event_id_namespace
-          
+
           identifier_attributes = {
             identifier: event_id,
             identifier_object_type: 'CollectingEvent',
@@ -863,7 +863,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # parentEventID: [Not mapped]
 
-    # fieldNumber: verbatim_trip_identifier & Identifier::Local::FieldNumber
+    # fieldNumber: verbatim_field_number & Identifier::Local::FieldNumber
 
     start_date, end_date = parse_iso_date(:eventDate)
 

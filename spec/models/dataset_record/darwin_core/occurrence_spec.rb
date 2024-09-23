@@ -134,7 +134,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
 
     it 'does not populate verbatim fields by default' do
-      expect(CollectingEvent.first.verbatim_trip_identifier).to eq(nil)
+      expect(CollectingEvent.first.verbatim_field_number).to eq(nil)
     end
   end
 
