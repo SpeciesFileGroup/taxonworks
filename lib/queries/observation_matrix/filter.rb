@@ -34,7 +34,9 @@ module Queries
       end
 
       def and_clauses
-        [ ]
+        [ 
+          otu_id_facet
+        ]
       end
 
     end
