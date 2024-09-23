@@ -59,6 +59,8 @@ class Otu < ApplicationRecord
   # Why?  Could be combination too.
   belongs_to :protonym, -> { where(type: 'Protonym') }, foreign_key: :taxon_name_id
 
+  has_many :in_scope_observation_matrices, inverse_of: :otu, class_name: 'ObservationMatrix'
+
   has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change

@@ -348,4 +348,17 @@ module OtusHelper
     r
   end
 
+  def otu_key_inventory(otu)
+    return {
+      observation_matrices: {
+        scoped: otu.in_scope_observation_matrices.pluck(:id) || [] ,
+        in: otu.observation_matrices.pluck(:id) || [] ,
+      },
+      leads: {
+        scoped: otu.leads.where(parent_id: nil).pluck(:id) || [],
+        in:  otu.leads.where.not(parent_id: nil).pluck(:id)  || [],
+      }
+    }
+  end
+
 end

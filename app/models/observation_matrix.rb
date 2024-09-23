@@ -23,7 +23,8 @@ class ObservationMatrix < ApplicationRecord
   validates_presence_of :name
   validates_uniqueness_of :name, scope: [:project_id]
 
-  belongs_to :otu, inverse_of: :observation_matrices
+  # We can not inverse: `observation_matrices` as that comes from row content.
+  belongs_to :otu, inverse_of: :in_scope_observation_matrices
 
   has_many :observation_matrix_column_items, dependent: :delete_all, inverse_of: :observation_matrix
   has_many :observation_matrix_row_items, dependent: :delete_all, inverse_of: :observation_matrix
