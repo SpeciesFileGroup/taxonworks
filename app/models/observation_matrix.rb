@@ -1,5 +1,12 @@
 # A view to a set of Observations.
 #
+# @params otu_id
+#   .the "parent" concept that this key applies to, for example
+#   if this is species concepts it might be a species group, or genus.
+#   Used primarly to index keys.
+# TODO: soft validate that this OTU actually makes sense given the content of the key
+#
+#
 class ObservationMatrix < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -15,6 +22,8 @@ class ObservationMatrix < ApplicationRecord
 
   validates_presence_of :name
   validates_uniqueness_of :name, scope: [:project_id]
+
+  belongs_to :otu, inverse_of: :observation_matrices
 
   has_many :observation_matrix_column_items, dependent: :delete_all, inverse_of: :observation_matrix
   has_many :observation_matrix_row_items, dependent: :delete_all, inverse_of: :observation_matrix
