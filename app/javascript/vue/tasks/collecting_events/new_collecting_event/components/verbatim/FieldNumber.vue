@@ -1,6 +1,6 @@
 <template>
   <div class="field label-above">
-    <label>Trip identifier</label>
+    <label>Field number</label>
     <textarea
       class="full_width"
       type="text"
