@@ -5,7 +5,7 @@ const controller = 'observation_matrices'
 const permitParams = {
   observation_matrix: {
     name: String,
-    otu_id: Array
+    otu_id: Number
   }
 }
 

@@ -8,7 +8,7 @@ const ActionNames = {
   GetMatrixObservationColumnsDynamic: 'getMatrixObservationColumnsDynamic',
   RemoveRow: 'removeRow',
   RemoveColumn: 'removeColumn',
-  UpdateMatrix: 'updateMatrix'
+  SaveMatrix: 'saveMatrix'
 }
 
 export default ActionNames

@@ -3,7 +3,7 @@ import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 
-function makeInitialState () {
+function makeInitialState() {
   return {
     settings: {
       loadingRows: false,
@@ -17,6 +17,7 @@ function makeInitialState () {
     matrix: {
       id: undefined,
       name: undefined,
+      otu_id: undefined,
       project_id: undefined,
       global_id: undefined
     },
@@ -31,7 +32,7 @@ function makeInitialState () {
   }
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -40,6 +41,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore
-}
+export { newStore }

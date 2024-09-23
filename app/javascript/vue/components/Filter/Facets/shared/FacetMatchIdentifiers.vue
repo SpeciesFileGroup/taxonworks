@@ -35,7 +35,7 @@
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
 import { vTabkey } from '@/directives'
-import VToggle from '@/tasks/observation_matrices/new/components/newMatrix/switch.vue'
+import VToggle from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const TYPE_PARAMETERS = {

@@ -13,26 +13,27 @@ headers to be used in the call. Using it will override the common headers
 <template>
   <div class="vue-autocomplete">
     <input
-      :id="inputId"
-      ref="autofocus"
-      :style="inputStyle"
-      class="vue-autocomplete-input normal-input"
       type="text"
+      ref="autofocus"
+      :id="inputId"
+      :style="inputStyle"
       :placeholder="placeholder"
-      @input="checkTime(), sendType()"
+      :autofocus="autofocus"
+      :disabled="disabled"
       v-model="type"
       v-bind="inputAttributes"
+      autocomplete="off"
+      :class="[
+        'vue-autocomplete-input normal-input',
+        spinner && 'ui-autocomplete-loading',
+        !spinner && 'vue-autocomplete-input-search',
+        inputClass
+      ]"
+      @input="checkTime(), sendType()"
       @keydown.down="downKey"
       @keydown.up="upKey"
       @keydown.enter="enterKey"
       @keyup="sendKeyEvent"
-      autocomplete="off"
-      :autofocus="autofocus"
-      :disabled="disabled"
-      :class="{
-        'ui-autocomplete-loading': spinner,
-        'vue-autocomplete-input-search': !spinner
-      }"
     />
     <ul
       class="vue-autocomplete-list"
@@ -164,6 +165,11 @@ export default {
     param: {
       type: String,
       default: 'value'
+    },
+
+    inputClass: {
+      type: Array,
+      default: () => []
     },
 
     inputStyle: {
