@@ -133,7 +133,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(Identifier::Local::FieldNumber.first.identifier_object).to be_kind_of(CollectingEvent)
     end
 
-    it 'does not populate verbatim fields by default' do
+    it 'does not populate verbatim_field_number by default' do
       expect(CollectingEvent.first.verbatim_field_number).to eq(nil)
     end
   end
@@ -175,6 +175,11 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     it 'attached FieldNumber to CollectingEvent' do
       expect(Identifier::Local::Event.first.identifier_object).to be_kind_of(CollectingEvent)
     end
+
+    it 'does not populate verbatim_field_number by default' do
+      expect(CollectingEvent.first.verbatim_field_number).to eq(nil)
+    end
+
   end
 
   # TODO: Check that Namespace column names are correctly written out in tsv
