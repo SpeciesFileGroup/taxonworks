@@ -15,10 +15,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Revert strict `verbatim_field_number` validation [#4061]
 - Renamed CollectingEvent `verbatim_trip_code` to `verbatim_field_number` [#4058]
 
+[#4061]: https://github.com/SpeciesFileGroup/taxonworks/issues/4061
 [#4058]: https://github.com/SpeciesFileGroup/taxonworks/issues/4058
- 
+
 
 ## [0.44.0] - 2024-09-17
 
