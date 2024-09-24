@@ -152,13 +152,16 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     let(:p) { Person.create!(last_name: 'Smith', first_name: 'Sue', suffix: 'Jr.') }
     let(:o) { Otu.create!(name: 'Barney') }
 
-
-
     specify '#dwc_decimal_latitude' do
       a = Georeference::Wkt.create!(collecting_event: ce, wkt: 'POINT(9.0 60)' )
 
       s.georeference_attributes(true) # force the rebuild
       expect(s.dwc_decimal_latitude).to eq(60.0) # technically not correct significant figures :(
+    end
+
+    specify 'without start Year event_date is not populated' do
+      ce.update!(start_date_year: nil, start_date_month: 2, end_date_month: 4)
+      expect(s.dwc_event_date).to eq(nil)
     end
 
     specify '#dwc_year' do

@@ -18,6 +18,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Revert strict `verbatim_field_number` validation [#4061]
 - Renamed CollectingEvent `verbatim_trip_code` to `verbatim_field_number` [#4058]
 
+### Fixed
+
+- DwC `eventDate` is not populated without an explict year reference [#4053]
+
+[#4053]: https://github.com/SpeciesFileGroup/taxonworks/issues/4053
 [#4061]: https://github.com/SpeciesFileGroup/taxonworks/issues/4061
 [#4058]: https://github.com/SpeciesFileGroup/taxonworks/issues/4058
 

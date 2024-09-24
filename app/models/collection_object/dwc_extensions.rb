@@ -602,6 +602,7 @@ module CollectionObject::DwcExtensions
 
   def dwc_event_date
     return unless collecting_event
+    return if collecting_event.start_date_year.blank? # don't need to check end, it requires start in model
 
     %w{start_date end_date}
       .map { |d| %w{year month day}
