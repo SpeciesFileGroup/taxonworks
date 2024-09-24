@@ -23,6 +23,15 @@
         </div>
       </div>
       <MatrixParent class="field" />
+      <div class="field">
+        <label>
+          <input
+            type="checkbox"
+            v-model="matrix.is_public"
+          />
+          Is public
+        </label>
+      </div>
       <template v-if="matrix.id">
         <hr />
         <div>
@@ -42,6 +51,7 @@
 </template>
 
 <script setup>
+import { MATRIX_MODE, MATRIX_VIEW } from '../../const/modes'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
@@ -52,16 +62,6 @@ import VSwitch from './switch.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
-
-const MATRIX_VIEW = {
-  Column: 'column',
-  Row: 'row'
-}
-
-const MATRIX_MODE = {
-  Fixed: 'fixed',
-  Dynamic: 'dynamic'
-}
 
 const matrixName = computed({
   get: () => store.getters[GetterNames.GetMatrix].name,

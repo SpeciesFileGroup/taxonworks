@@ -2,6 +2,7 @@ import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
+import { MATRIX_VIEW, MATRIX_MODE } from '../const/modes.js'
 
 function makeInitialState() {
   return {
@@ -23,8 +24,8 @@ function makeInitialState() {
     },
     columnFixedPagination: undefined,
     rowFixedPagination: undefined,
-    matrixView: 'row',
-    matrixMode: 'fixed',
+    matrixView: MATRIX_VIEW.Row,
+    matrixMode: MATRIX_MODE.Fixed,
     matrixRowItems: [],
     matrixColumnItems: [],
     matrixRowDynamicItems: [],
@@ -32,7 +33,7 @@ function makeInitialState() {
   }
 }
 
-function newStore() {
+export function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -40,5 +41,3 @@ function newStore() {
     actions: ActionFunctions
   })
 }
-
-export { newStore }

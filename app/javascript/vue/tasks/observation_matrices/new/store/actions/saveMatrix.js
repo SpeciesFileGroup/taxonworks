@@ -5,7 +5,8 @@ export default ({ state }) => {
     observation_matrix: {
       id: state.matrix.id,
       name: state.matrix.name,
-      otu_id: state.matrix.otu_id
+      otu_id: state.matrix.otu_id,
+      is_public: state.matrix.is_public
     }
   }
 
