@@ -103,7 +103,6 @@ class Gazetteer < ApplicationRecord
     )
   end
 
-  # Assumes @gazetteer is set
   # @param [Hash] hash as in build_gi_from_shapes
   # @return A single rgeo shape containing all of the input shapes
   # Raises on error
@@ -120,18 +119,20 @@ class Gazetteer < ApplicationRecord
     ga_rgeo = convert_ga_to_rgeo(shapes['ga_union'])
     gz_rgeo = convert_gz_to_rgeo(shapes['gz_union'])
 
-    shapes = leaflet_rgeo + wkt_rgeo + points_rgeo + ga_rgeo + gz_rgeo
+    user_input_shapes = leaflet_rgeo + wkt_rgeo + points_rgeo
 
     # Invalid shapes won't raise until they're used in an operation requiring
     # valid shapes, like union below, but we should check here before that
-    # happens.
-    shapes.each { |s|
+    # happens. (Existing GAs and GZs are asummed valid!)
+    user_input_shapes.each { |s|
       if !s.valid?
-        shape_to_s = s.to_s.length > 30 ? s.to_s + '...' : s.to_s
+        s_str = s.to_s
+        shape_to_s = s_str.length > 30 ? "'#{s_str[0, 30]}'..." : "'#{s_str}'"
         raise RGeo::Error::InvalidGeometry, "#{s.invalid_reason} #{shape_to_s}"
       end
     }
 
+    shapes = user_input_shapes + ga_rgeo + gz_rgeo
     combine_rgeo_shapes(shapes)
   end
 
@@ -338,8 +339,7 @@ class Gazetteer < ApplicationRecord
                 name: record[name_field]
               )
 
-              # TODO: abort if too many invalid? Checking `valid?` isn't fast
-              # on large shapes
+              # TODO: abort if too many invalid?
               shape = record.geometry.valid? ?
                 record.geometry : record.geometry.make_valid
 

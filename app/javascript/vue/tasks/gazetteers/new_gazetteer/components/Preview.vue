@@ -7,7 +7,7 @@
         v-model="previewing"
       />
       Preview the union of the shapes you've added the way they will be saved.
-      <i>Editing will be turned off during preview.</i>
+      <i>Editing is turned off during preview.</i>
     </label>
   </div>
 </template>
