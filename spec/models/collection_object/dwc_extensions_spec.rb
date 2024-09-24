@@ -173,7 +173,12 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_month).to eq(1)
     end
 
-    specify '#dwc_month' do
+    specify '#dwc_month is nil when range' do
+      ce.update!( start_date_month: 1, end_date_month: 2)
+      expect(s.dwc_month).to eq(nil)
+    end
+
+    specify '#dwc_day' do
       ce.update!( start_date_month: 1, start_date_day: 10)
       expect(s.dwc_day).to eq(10)
     end

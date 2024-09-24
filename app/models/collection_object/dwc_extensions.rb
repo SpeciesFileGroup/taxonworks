@@ -621,6 +621,7 @@ module CollectionObject::DwcExtensions
 
   def dwc_month
     return unless collecting_event
+    return if collecting_event.start_date_month.present? && collecting_event.end_date_month.present?
     collecting_event.start_date_month.presence
   end
 

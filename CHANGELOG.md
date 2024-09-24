@@ -20,12 +20,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- DwC `eventDate` is not populated without an explict year reference [#4053]
+- DwC `eventDate` should not be populated without an explict year reference [#4053]
+- DwC `month` should not be populated when range-provided [#4055]
 
 [#4053]: https://github.com/SpeciesFileGroup/taxonworks/issues/4053
-[#4061]: https://github.com/SpeciesFileGroup/taxonworks/issues/4061
+[#4055]: https://github.com/SpeciesFileGroup/taxonworks/issues/4055
 [#4058]: https://github.com/SpeciesFileGroup/taxonworks/issues/4058
-
+[#4061]: https://github.com/SpeciesFileGroup/taxonworks/issues/4061
 
 ## [0.44.0] - 2024-09-17
 
