@@ -45,6 +45,7 @@ export const PRIORITIZE_ATTRIBUTES = [
 ]
 
 export const HIDE_ATTRIBUTES = [
+  'dwcClass',
   'dwc_occurrence_object_id',
   'dwc_occurrence_object_type',
   'footprintWKT',
