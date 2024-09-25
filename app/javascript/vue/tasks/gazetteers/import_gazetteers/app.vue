@@ -102,7 +102,7 @@ const isLoading = ref(false)
 const modalVisible = ref(false)
 const shapefileFields = ref([])
 const showCitationOptions = ref(false)
-const citationOptions = ref({})
+const citationOptions = ref({ cite_gzs: false })
 
 const jobs = ref(null)
 
