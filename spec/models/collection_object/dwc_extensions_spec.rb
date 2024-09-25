@@ -82,7 +82,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     specify 'with no notes' do
       FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
-      expect(s.dwc_identification_remarks).to eq('')
+      expect(s.dwc_identification_remarks).to eq(nil)
     end
 
     specify 'with one note' do

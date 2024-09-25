@@ -51,10 +51,22 @@ class DwcOccurrence < ApplicationRecord
     d ? d : field
   end
 
-  # TODO: Consider using more broadly?
   # Strip nils when `to_json` used
   def as_json(options = {})
-    super(options.merge(except: attributes.keys.select { |key| self[key].nil? }))
+    super(options.merge(except: attributes.keys.select{ |key| self[key].nil? }))
+  end
+
+  # @return Hash
+  #   * Legally formatted DwC fields only, with things like `dwcClass` translated
+  #   * Only fields with values returned
+  #   * Keys are sorted
+  #
+  def dwc_json
+    a = as_json.reject!{|k,v| TW_ATTRIBUTES.include?(k.to_sym) || v.nil?}
+    HEADER_CONVERTERS.keys.each do |k|
+      a[ HEADER_CONVERTERS[k] ] = a.delete(k) if a[k]
+    end
+    a.sort.to_h
   end
 
   belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
@@ -287,7 +299,7 @@ class DwcOccurrence < ApplicationRecord
 
       return false
     else # AssertedDistribution
-     return  dwc_occurrence_object.updated_at > updated_at
+      return  dwc_occurrence_object.updated_at > updated_at
     end
   end
 
@@ -327,7 +339,7 @@ class DwcOccurrence < ApplicationRecord
         collection_object_roles: dwc_occurrence_object.roles.order(:updated_at).first&.updated_at,
         collecting_event_data_attributes: dwc_occurrence_object.collecting_event&.data_attributes&.order(:updated_at)&.first&.updated_at,
         collecting_event_roles: dwc_occurrence_object.collecting_event&.roles&.order(:updated_at)&.first&.updated_at
-       # citations?
+        # citations?
         # tags?!
       }.select{|k,v| !v.nil?}
 
@@ -339,7 +351,7 @@ class DwcOccurrence < ApplicationRecord
     end
   end
 
-    protected
+  protected
 
   def create_object_uuid
     @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(

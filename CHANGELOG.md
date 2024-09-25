@@ -7,7 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- `/collection_objects/123/dwc_compact` - DwC fields for those populated  [#3994]
+- Pagination to `/api/v1/otus/:otu_id/inventory/dwc_gallery`
+
+[#3994]: https://github.com/SpeciesFileGroup/taxonworks/issues/3994
 
 ## [0.44.1] - 2024-09-24
 

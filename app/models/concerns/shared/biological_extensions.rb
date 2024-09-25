@@ -43,7 +43,7 @@ module Shared::BiologicalExtensions
     # Note that this should not be a has_one because order is over-ridden on .first
     # and can be lost when merged into other queries.
     def current_taxon_determination
-      taxon_determinations.order(:position).first
+      taxon_determinations.eager_load(:notes, :determiners).order(:position).first
     end
 
     def current_otu
