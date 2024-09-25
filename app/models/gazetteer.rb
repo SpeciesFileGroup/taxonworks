@@ -244,22 +244,21 @@ class Gazetteer < ApplicationRecord
       return "The reference system of the shapefile is '#{cs.name}', but only GCS_WGS_1984 is supported"
     end
 
-    # Check that each record has a name
+    # Check that each record has a name (there's of course no way to tell if the
+    # user entered/selected a populated but unintended column).
     dbf = ::DBF::Table.new(dbf_doc.document_file.path)
     if dbf.record_count == 0
       return 'Empty dbf file: shapefile must contain records'
     end
 
+    if !dbf.column_names.include?(name_field)
+      return "No column named '#{name_field}'"
+    end
+
     for i in 0...dbf.record_count
       record = dbf.find(i)
       if record[name_field].nil?
-        m = "Record #{i} has no name"
-        if i == 0
-          m = m + ' - did you misspell the name field?'
-        else
-          m = m + ' - names are required for all records'
-        end
-        return m
+        return "Record #{i} has no name - names are required for all records"
       end
     end
 
@@ -276,11 +275,8 @@ class Gazetteer < ApplicationRecord
     end
 
     dbf = ::DBF::Table.new(dbf_doc.document_file.path)
-    if dbf.record_count == 0
-      raise TaxonWorks::Error, 'Bad or empty dbf file?'
-    end
 
-    return dbf.first.attributes.keys
+    dbf.column_names
   end
 
   # raises TaxonWorks::Error on error

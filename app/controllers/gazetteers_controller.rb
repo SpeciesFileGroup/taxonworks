@@ -7,7 +7,10 @@ class GazetteersController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = Gazetteer.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = Gazetteer
+          .recent_from_project_id(sessions_current_project_id)
+          .order(updated_at: :desc)
+          .limit(10)
         render '/shared/data/all/index'
       end
       format.json do
@@ -30,7 +33,9 @@ class GazetteersController < ApplicationController
   # GET /gazetteers/1/edit
   def edit
     respond_to do |format|
-      format.html { redirect_to new_gazetteer_task_path gazetteer_id: @gazetteer.id }
+      format.html {
+        redirect_to new_gazetteer_task_path gazetteer_id: @gazetteer.id
+      }
     end
   end
 
@@ -38,7 +43,7 @@ class GazetteersController < ApplicationController
   def list
     @gazetteers = Gazetteer
       .with_project_id(sessions_current_project_id)
-      .page(params[:page]).per(params[[:per]])
+      .page(params[:page]).per(params[:per])
   end
 
   # POST /gazetteers.json
