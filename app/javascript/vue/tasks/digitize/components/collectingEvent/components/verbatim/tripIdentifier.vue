@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label>Trip identifier</label>
+    <label>Field number</label>
     <input
       type="text"
       v-model="collectingEvent.verbatim_field_number"
