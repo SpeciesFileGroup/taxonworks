@@ -3,7 +3,7 @@
     <label>Trip identifier</label>
     <input
       type="text"
-      v-model="collectingEvent.verbatim_trip_identifier"
+      v-model="collectingEvent.verbatim_field_number"
       @change="updateChange"
     />
   </div>

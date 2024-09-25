@@ -21,8 +21,8 @@ class Identifier::Local::FieldNumber < Identifier::Local
 
   def same_as_verbatim
     unless errors.any? || !identifier_object.present?
-      if identifier_object.verbatim_trip_identifier.present? && build_cached !=  identifier_object.verbatim_trip_identifier
-        errors.add(:identifier, 'not identical to CollectingEvent verbatim_trip_identifier')
+      if identifier_object.verbatim_field_number.present? && build_cached !=  identifier_object.verbatim_field_number
+        errors.add(:identifier, 'not identical to CollectingEvent verbatim_field_number')
       end
     end
   end

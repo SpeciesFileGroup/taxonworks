@@ -1,16 +1,54 @@
 require 'rails_helper'
 
 describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
+  before :all do
+    DatabaseCleaner.start
+
+    init_housekeeping
+
+    @root = FactoryBot.create(:root_taxon_name)
+  end
+
+  after(:all) do
+    DatabaseCleaner.clean
+  end
+
+  context 'when working with date fields' do
     before :all do
       DatabaseCleaner.start
 
       init_housekeeping
 
-      @root = FactoryBot.create(:root_taxon_name)
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/dates/event_dates.tsv'), 'text/plain'),
+        description: 'Testing dates'
+      ).tap { |i| i.stage }
+
     end
 
-  after(:all) do
-    DatabaseCleaner.clean
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let!(:results) { @import_dataset.import(5000, 100) }
+
+    it 'sets verbatim_date' do
+      expect(CollectingEvent.first.verbatim_date).to eq('11-99-1000')
+    end
+
+    it 'expands to parsed dates' do
+      expect(CollectingEvent.second.start_date_year).to eq(2020)
+    end
+
+    it 'sets date in both places when identical' do
+      expect(CollectingEvent.third.start_date_year).to eq(2020)
+      expect(CollectingEvent.third.verbatim_date).to eq('2020-10-2')
+    end
+
+    it 'errors on bad dates' do
+      expect(results.last.status).to eq('Errored')
+    end
+
   end
 
   context 'when importing a single occurrence in a text file' do
@@ -132,6 +170,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     it 'attached FieldNumber to CollectingEvent' do
       expect(Identifier::Local::FieldNumber.first.identifier_object).to be_kind_of(CollectingEvent)
     end
+
+    it 'does not populate verbatim_field_number by default' do
+      expect(CollectingEvent.first.verbatim_field_number).to eq(nil)
+    end
   end
 
   # TODO: Check that `TW:CollectingEvent:verbatim_locality' alone will create a CE (see tsv)
@@ -171,6 +213,11 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     it 'attached FieldNumber to CollectingEvent' do
       expect(Identifier::Local::Event.first.identifier_object).to be_kind_of(CollectingEvent)
     end
+
+    it 'does not populate verbatim_field_number by default' do
+      expect(CollectingEvent.first.verbatim_field_number).to eq(nil)
+    end
+
   end
 
   # TODO: Check that Namespace column names are correctly written out in tsv
@@ -252,6 +299,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
     it 'attached FieldNumber to CollectingEvent' do
       expect(Identifier::Local::Event.first.identifier_object).to be_kind_of(CollectingEvent)
+    end
+
+    it 'does not populate verbatim_field_number by default' do
+      expect(CollectingEvent.first.verbatim_field_number).to eq(nil)
     end
   end
 

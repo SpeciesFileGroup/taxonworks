@@ -9,6 +9,29 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.44.1] - 2024-09-24
+
+### Added
+
+- `/api/v1/otus/:id/inventory/keys` a list of keys scoped to or containing the Otu
+- `otu_id` to ObservationMatrix, to facilitate setting scope and indexing of multi-entry keys
+- `is_public` flag to ObservationMatrix
+
+### Changed
+
+- Revert strict `verbatim_field_number` validation [#4061]
+- Renamed CollectingEvent `verbatim_trip_code` to `verbatim_field_number` [#4058]
+
+### Fixed
+
+- DwC `eventDate` should not be populated without an explict year reference [#4053]
+- DwC `month` should not be populated when range-provided [#4055]
+
+[#4053]: https://github.com/SpeciesFileGroup/taxonworks/issues/4053
+[#4055]: https://github.com/SpeciesFileGroup/taxonworks/issues/4055
+[#4058]: https://github.com/SpeciesFileGroup/taxonworks/issues/4058
+[#4061]: https://github.com/SpeciesFileGroup/taxonworks/issues/4061
+
 ## [0.44.0] - 2024-09-17
 
 ### Added
@@ -4836,7 +4859,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.0..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.1..development
+[0.44.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.0...v0.44.1
 [0.44.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.3...v0.44.0
 [0.43.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2...v0.43.3
 [0.43.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1...v0.43.2

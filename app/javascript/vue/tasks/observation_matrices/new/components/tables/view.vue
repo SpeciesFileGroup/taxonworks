@@ -5,60 +5,64 @@
     :gap="4"
   >
     <div>
-      <rows-table
-        class="margin-medium-bottom"
-        :list="rowsListDynamic"
+      <VTable
+        :list="store.getters[GetterNames.GetMatrixRowsDynamic]"
         :matrix-id="matrixId"
         :header="['Dynamic rows', '']"
         :attributes="['object_tag']"
         :global-id-path="['global_id']"
-        @delete="removeRow($event.id)"
         edit
+        @delete="(item) => store.dispatch(ActionNames.RemoveRow, item.id)"
         @order="updateRowsOrder"
       />
       <pagination-component
         v-if="fixedRowPagination"
-        @nextPage="loadRowPage"
         :pagination="fixedRowPagination"
+        @next-page="loadRowPage"
       />
-      <rows-table
-        :list="rowsList"
+      <VTable
+        :list="store.getters[GetterNames.GetMatrixRows]"
         :matrix-id="matrixId"
         :header="['Rows (all)', '']"
         :filter-remove="(item) => item.cached_observation_matrix_row_item_id"
         :attributes="['observation_object_label']"
         :global-id-path="['observation_object_global_id']"
         warning-message="You are trying to delete the OTU/collection object row from the matrix. Deleting the row from the matrix, does not delete OTU/collection object itself; it does not also delete the observations on this OTU. Are you sure you want to proceed?"
-        @delete="removeRow($event.cached_observation_matrix_row_item_id)"
         edit
         code
         @order="updateRowsOrder"
+        @delete="
+          (item) =>
+            store.dispatch(
+              ActionNames.RemoveRow,
+              item.cached_observation_matrix_row_item_id
+            )
+        "
       />
       <pagination-component
         v-if="fixedRowPagination"
-        @nextPage="loadRowPage"
         :pagination="fixedRowPagination"
+        @next-page="loadRowPage"
       />
     </div>
     <div class="full_width">
-      <columns-table
-        class="margin-medium-bottom"
-        :list="columnsListDynamic"
+      <VTable
+        :list="store.getters[GetterNames.GetMatrixColumnsDynamic]"
         :matrix-id="matrixId"
         :row="false"
         :header="['Dynamic column', '']"
         :attributes="['object_tag']"
         :global-id-path="['global_id']"
-        @delete="removeColumn($event.id)"
+        @delete="(item) => store.dispatch(ActionNames.RemoveColumn, item.id)"
         @order="updateColumnsOrder"
       />
       <pagination-component
         v-if="fixedColumnPagination"
-        @nextPage="loadColumnPage"
         :pagination="fixedColumnPagination"
+        @next-page="loadColumnPage"
       />
-      <columns-table
-        :list="columnsList"
+      <VTable
+        :list="store.getters[GetterNames.GetMatrixColumns]"
         :matrix-id="matrixId"
         :row="false"
         edit
@@ -67,84 +71,68 @@
         :global-id-path="['descriptor', 'global_id']"
         :filter-remove="(item) => item.cached_observation_matrix_column_item_id"
         code
-        @delete="removeColumn($event.cached_observation_matrix_column_item_id)"
+        @delete="
+          (item) =>
+            store.dispatch(
+              ActionNames.RemoveColumn,
+              item.cached_observation_matrix_column_item_id
+            )
+        "
         @order="updateColumnsOrder"
       />
       <pagination-component
         v-if="fixedColumnPagination"
-        @nextPage="loadColumnPage"
         :pagination="fixedColumnPagination"
+        @next-page="loadColumnPage"
       />
     </div>
   </TableGrid>
 </template>
-<script>
-import TableComponent from './table.vue'
-import TableGrid from '@/components/layout/Table/TableGrid.vue'
-import { SortRows, SortColumns } from '../../request/resources'
+
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
+import {
+  ObservationMatrixRow,
+  ObservationMatrixColumn
+} from '@/routes/endpoints'
+import VTable from './table.vue'
+import TableGrid from '@/components/layout/Table/TableGrid.vue'
 import PaginationComponent from '@/components/pagination'
 
-export default {
-  components: {
-    RowsTable: TableComponent,
-    ColumnsTable: TableComponent,
-    PaginationComponent,
-    TableGrid
-  },
-  computed: {
-    matrixId() {
-      return this.$store.getters[GetterNames.GetMatrix].id
-    },
-    columnsList() {
-      return this.$store.getters[GetterNames.GetMatrixColumns]
-    },
-    columnsListDynamic() {
-      return this.$store.getters[GetterNames.GetMatrixColumnsDynamic]
-    },
-    rowsList() {
-      return this.$store.getters[GetterNames.GetMatrixRows]
-    },
-    rowsListDynamic() {
-      return this.$store.getters[GetterNames.GetMatrixRowsDynamic]
-    },
-    fixedRowPagination() {
-      return this.$store.getters[GetterNames.GetRowFixedPagination]
-    },
-    fixedColumnPagination() {
-      return this.$store.getters[GetterNames.GetColumnFixedPagination]
-    }
-  },
-  methods: {
-    removeColumn(id) {
-      this.$store.dispatch(ActionNames.RemoveColumn, id)
-    },
-    removeRow(id) {
-      this.$store.dispatch(ActionNames.RemoveRow, id)
-    },
-    updateRowsOrder(ids) {
-      SortRows(ids).then(() => {
-        this.$store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
-      })
-    },
-    updateColumnsOrder(ids) {
-      SortColumns(ids).then(() => {
-        this.$store.dispatch(ActionNames.GetMatrixObservationColumns, {
-          per: 500
-        })
-      })
-    },
-    loadRowPage(event) {
-      this.$store.dispatch(ActionNames.GetMatrixObservationRows, {
-        page: event.page
-      })
-    },
-    loadColumnPage(event) {
-      this.$store.dispatch(ActionNames.GetMatrixObservationColumns, {
-        page: event.page
-      })
-    }
-  }
+const store = useStore()
+const matrixId = computed(() => store.getters[GetterNames.GetMatrix].id)
+const fixedRowPagination = computed(
+  () => store.getters[GetterNames.GetRowFixedPagination]
+)
+const fixedColumnPagination = computed(
+  () => store.getters[GetterNames.GetColumnFixedPagination]
+)
+
+function updateRowsOrder(ids) {
+  ObservationMatrixRow.sort(ids).then(() => {
+    store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
+  })
+}
+
+function updateColumnsOrder(ids) {
+  ObservationMatrixColumn.sort(ids).then(() => {
+    store.dispatch(ActionNames.GetMatrixObservationColumns, {
+      per: 500
+    })
+  })
+}
+function loadRowPage(event) {
+  store.dispatch(ActionNames.GetMatrixObservationRows, {
+    page: event.page
+  })
+}
+
+function loadColumnPage(event) {
+  store.dispatch(ActionNames.GetMatrixObservationColumns, {
+    page: event.page
+  })
 }
 </script>

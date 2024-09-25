@@ -368,7 +368,7 @@ module CollectionObject::DwcExtensions
   def dwc_field_number
     return nil unless collecting_event
     # Since we enforce that they are identical we can choose the former if present
-    collecting_event&.verbatim_trip_identifier || collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first&.cached
+    collecting_event&.verbatim_field_number || collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first&.cached
   end
 
   def dwc_event_id
@@ -602,6 +602,7 @@ module CollectionObject::DwcExtensions
 
   def dwc_event_date
     return unless collecting_event
+    return if collecting_event.start_date_year.blank? # don't need to check end, it requires start in model
 
     %w{start_date end_date}
       .map { |d| %w{year month day}
@@ -620,6 +621,7 @@ module CollectionObject::DwcExtensions
 
   def dwc_month
     return unless collecting_event
+    return if collecting_event.start_date_month.present? && collecting_event.end_date_month.present?
     collecting_event.start_date_month.presence
   end
 

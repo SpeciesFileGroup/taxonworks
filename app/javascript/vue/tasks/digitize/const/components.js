@@ -3,7 +3,7 @@ import Label from '../components/collectingEvent/components/verbatim/label.vue'
 import DateComponent from '../components/collectingEvent/components/verbatim/date.vue'
 import Datum from '../components/collectingEvent/components/verbatim/datum.vue'
 import VerbatimElevation from '../components/collectingEvent/components/verbatim/elevation.vue'
-import TripIdentifier from '../components/collectingEvent/components/verbatim/tripIdentifier.vue'
+import FieldNumber from '../components/collectingEvent/components/verbatim/tripIdentifier.vue'
 import Geolocation from '../components/collectingEvent/components/verbatim/geolocationUncertainty.vue'
 import Habitat from '../components/collectingEvent/components/verbatim/habitat.vue'
 import Latitude from '../components/collectingEvent/components/verbatim/latitude.vue'
@@ -48,7 +48,7 @@ const ComponentVerbatim = {
   Datum: 'Datum',
   Collectors: 'Collectors',
   Method: 'Method',
-  TripIdentifier: 'TripIdentifier'
+  FieldNumber: 'FieldNumber'
 }
 
 const ComponentParse = {
@@ -83,7 +83,7 @@ const VueComponents = {
   [ComponentVerbatim.DateComponent]: DateComponent,
   [ComponentVerbatim.Datum]: Datum,
   [ComponentVerbatim.Method]: Method,
-  [ComponentVerbatim.TripIdentifier]: TripIdentifier,
+  [ComponentVerbatim.FieldNumber]: FieldNumber,
   [ComponentParse.Dates]: Dates,
   [ComponentParse.Elevation]: Elevation,
   [ComponentParse.GeographicArea]: GeographicArea,
