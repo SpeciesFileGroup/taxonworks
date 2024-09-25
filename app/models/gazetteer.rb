@@ -80,6 +80,8 @@ class Gazetteer < ApplicationRecord
   #   geojson: array of geojson hashes,
   #   wkt: array of wkt strings,
   #   points: array of geojson points
+  #   ga_union: array of GA ids
+  #   gz_union: array of GZ ids
   # Builds a GeographicItem for this gazetteer from the combined input shapes
   def build_gi_from_shapes(shapes)
     begin
@@ -141,7 +143,7 @@ class Gazetteer < ApplicationRecord
   def self.convert_geojson_to_rgeo(shapes)
     return [] if shapes.blank?
 
-    rgeo_shapes = shapes.map { |shape|
+    rgeo_shapes = shapes.map do |shape|
       # Raises RGeo::Error::InvalidGeometry on error
       rgeo_shape = RGeo::GeoJSON.decode(
         shape, json_parser: :json, geo_factory: Gis::FACTORY
@@ -150,14 +152,13 @@ class Gazetteer < ApplicationRecord
       circle = nil
       if rgeo_shape.geometry.geometry_type.to_s == 'Point' &&
            rgeo_shape.properties['radius'].present?
-        # TODO probably limit radius and/or center (if leaflet doesn't already)
         r = rgeo_shape.properties['radius']
 
         circle = GeographicItem.circle(rgeo_shape.geometry, r)
       end
 
       circle || rgeo_shape.geometry
-    }
+    end
 
     rgeo_shapes
   end
@@ -179,13 +180,13 @@ class Gazetteer < ApplicationRecord
   def self.convert_wkt_to_rgeo(wkt_shapes)
     return [] if wkt_shapes.blank?
 
-    wkt_shapes.map { |shape|
+    wkt_shapes.map do |shape|
       begin
         ::Gis::FACTORY.parse_wkt(shape)
       rescue RGeo::Error::RGeoError => e
         raise e.exception("Invalid WKT: #{e.message}")
       end
-    }
+    end
   end
 
   # @param [Array] rgeo_shapes of RGeo::Geographic::Projected*Impl
@@ -228,7 +229,7 @@ class Gazetteer < ApplicationRecord
       return e
     end
 
-    # Check that the SRS is WGS 84
+    # Check that the CRS is geographic and WGS 84
     prj = File.read(prj_doc.document_file.path)
     begin
       cs = RGeo::CoordSys::CS.create_from_wkt(prj)
@@ -236,8 +237,11 @@ class Gazetteer < ApplicationRecord
       return "Failed to parse the prj file: #{e}"
     end
 
-    if cs.authority_code != '4326' && cs.name != 'GCS_WGS_1984'
-      return 'The shapefile reference system is not WGS 84 - WGS 84 is required'
+    if cs.class.to_s != 'RGeo::CoordSys::CS::GeographicCoordinateSystem' ||
+      (cs.name.present? && cs.name != 'GCS_WGS_1984') ||
+      (cs.authority_code.present? && cs.authority_code != '4326')
+
+      return "The reference system of the shapefile is '#{cs.name}', but only GCS_WGS_1984 is supported"
     end
 
     # Check that each record has a name

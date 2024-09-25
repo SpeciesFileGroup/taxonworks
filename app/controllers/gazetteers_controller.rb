@@ -165,7 +165,7 @@ class GazetteersController < ApplicationController
   def gazetteer_params
     params.require(:gazetteer).permit(:name, :parent_id,
       :iso_3166_a2, :iso_3166_a3)
-    end
+  end
 
   def shape_params
     params.require(:gazetteer).permit(
