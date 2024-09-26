@@ -1,18 +1,8 @@
 <template>
   <fieldset>
-    <div class="field">
-      <label>
-        <input
-          type="checkbox"
-          v-model="citationOptions['cite_gzs']"
-        />
-        Cite imported gazetteers
-      </label>
-    </div>
-
-    <legend>Citation options</legend>
+    <legend>Cite imported gazetteers</legend>
     <FormCitation
-      v-model="citationOptions.citation"
+      v-model="citation"
       class="citation_form"
     />
   </fieldset>
@@ -21,9 +11,7 @@
 <script setup>
 import FormCitation from '@/components/Form/FormCitation.vue'
 
-const citationOptions = defineModel()
-citationOptions.value.citation = {}
-citationOptions.value.cite_gzs = false
+const citation = defineModel()
 </script>
 
 <style lang="scss" scoped>

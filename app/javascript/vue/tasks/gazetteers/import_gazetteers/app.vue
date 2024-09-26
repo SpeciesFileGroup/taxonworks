@@ -26,21 +26,8 @@
     </div>
   </div>
 
-  <div
-    @click="() => showCitationOptions = !showCitationOptions"
-  >
-    <span class="link cursor-pointer citations_flipper">
-      <template v-if="showCitationOptions">
-        Hide Citation options
-      </template>
-      <template v-else>
-        Show Citation options
-      </template>
-    </span>
-  </div>
   <CitationOptions
-    v-if="showCitationOptions"
-    v-model="citationOptions"
+    v-model="citation"
     class="citations_options"
   />
 
@@ -101,8 +88,7 @@ const shapeNameField = ref('')
 const isLoading = ref(false)
 const modalVisible = ref(false)
 const shapefileFields = ref([])
-const showCitationOptions = ref(false)
-const citationOptions = ref({ cite_gzs: false })
+const citation = ref({})
 
 const jobs = ref(null)
 
@@ -128,7 +114,10 @@ function processShapefile() {
       prj_doc_id: prj.id,
       name_field: shapeNameField.value
     },
-    citation_options: citationOptions.value
+    citation_options: {
+      cite_gzs: !!citation.value.source_id,
+      citation: citation.value
+    }
   }
 
   isLoading.value = true
@@ -225,12 +214,8 @@ function setShapefileField(field) {
   margin-bottom: 1em;
 }
 
-.citations_flipper {
-  display: inline-block;
-  margin-top: 2em;
-}
-
 .citations_options {
   max-width: 600px;
+  margin-top: 2em;
 }
 </style>
