@@ -1,0 +1,4 @@
+occurrenceID	basisOfRecord	scientificName	taxonRank	fieldNumber	TW:Namespace:FieldNumber	TW:CollectingEvent:verbatim_field_number	TW:CollectingEvent:verbatim_locality
+occurrence-1	PreservedSpecimen	Orotettix andeanus	species	1	ABC	X-1	somewhere
+occurrence-2	PreservedSpecimen	Orotettix andeanus	species	2	ABC		over
+occurrence-3	PreservedSpecimen	Orotettix andeanus	species	3		DEF123	rainbow
