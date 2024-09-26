@@ -68,7 +68,7 @@ import { computed, ref, watch, onMounted, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import VModal from '@/components/ui/Modal.vue'
 import platformKey from '@/helpers/getPlatformKey'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const FIELDS = [
   {

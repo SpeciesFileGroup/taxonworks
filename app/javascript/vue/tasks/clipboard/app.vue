@@ -34,7 +34,7 @@
 import { ref, onBeforeMount, onBeforeUnmount } from 'vue'
 import { ProjectMember } from '@/routes/endpoints'
 import platformKey from '@/helpers/getPlatformKey'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const clipboard = ref({
   1: '',

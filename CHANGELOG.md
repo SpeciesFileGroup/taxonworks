@@ -9,12 +9,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- `/collection_objects/123/dwc_compact` - DwC fields for those populated  [#3994]
+- `/collection_objects/123/dwc_compact` - DwC fields for those populated [#3994]
 - Pagination to `/api/v1/otus/:otu_id/inventory/dwc_gallery`
 
 ### Fixed
 
 - DwC importer `verbatim_field_number` collision with Identifier validation
+- Shortcuts: Keys pressed are not removed after user switches windows/tab
 
 [#3994]: https://github.com/SpeciesFileGroup/taxonworks/issues/3994
 

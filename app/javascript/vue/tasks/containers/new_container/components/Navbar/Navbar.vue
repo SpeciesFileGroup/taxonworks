@@ -59,7 +59,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RecentButton from '../RecentButton.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import useHotKey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import { useContainerStore } from '../../store'
 import { setParam, URLParamsToJSON } from '@/helpers'
@@ -83,7 +83,7 @@ const hotkeys = ref([
   }
 ])
 
-useHotKey(hotkeys.value)
+useHotkey(hotkeys.value)
 
 function getContainer({ id }) {
   store.$reset()
