@@ -15,7 +15,7 @@ import { ref } from 'vue'
 import { Combination } from '@/routes/endpoints'
 import { EXTEND_PARAMS } from '../constants/extend.js'
 import platformKey from '@/helpers/getPlatformKey'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const props = defineProps({
   newCombination: {
