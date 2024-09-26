@@ -14,9 +14,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- `verbatim_field_number` updates ignored [#4066]
 - DwC importer `verbatim_field_number` collision with Identifier validation
 - Shortcuts: Keys pressed are not removed after user switches windows/tab
 
+[#4066]: https://github.com/SpeciesFileGroup/taxonworks/issues/4066
 [#3994]: https://github.com/SpeciesFileGroup/taxonworks/issues/3994
 
 ## [0.44.1] - 2024-09-24
