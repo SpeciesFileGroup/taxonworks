@@ -36,6 +36,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
 
     it 'sets verbatim_field_number 2' do
+      expect(CollectingEvent.second.verbatim_field_number).to eq(nil)
+    end
+
+    it 'sets verbatim_field_number 3' do
       expect(CollectingEvent.last.verbatim_field_number).to eq('DEF123')
     end
   end

@@ -289,14 +289,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         }.merge(attributes[:taxon_determination]))
 
 
-        # TODO
         #   There are 3 possible CE identifiers, each needs individual mapping
         #     eventID -> Identifier::Local::Event (with TW:Namespace:eventID)
         #     fieldNumber -> Identifier::Local::FieldNumber (with TW:Namespace:fieldNumber)
         #     TW::CollectingEvent::verbatim_field_number
-        #
-        #       New rules:
-        #         * No overlapping intended meanings, each maps to itself
         #
         event_id, field_number = get_field_value(:eventID), get_field_value(:fieldNumber)
         collecting_event_identifiers = []
@@ -313,7 +309,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           }
 
           if identifier_type.nil?
-
             identifier_type = Identifier::Local::Event # Note: This was TripCode.  This is a much better fit now, as EventID is a digital accession value.
 
             using_default_event_id = false
@@ -361,6 +356,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           collecting_event ||= field_number_identifier&.identifier_object
           collecting_event_identifiers << {type: Identifier::Local::FieldNumber, attributes: identifier_attributes}
         end
+        
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
         if collecting_event
           if field_number_identifier && event_id_identifier &&
@@ -370,7 +366,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             raise DarwinCore::InvalidData.new({ 'eventID/fieldNumber' => ['does not match previous definition of collecting event'] })
           end
 
-          #if collecting_event.identifiers.where(type: Identifer::Local::FieldNumber)
+          # if collecting_event.identifiers.where(type: Identifer::Local::FieldNumber)
           # if tags have been specified to be added, update the collecting event
           if attributes[:collecting_event][:tags_attributes]
             # get list of preexisting tags, exclude them from update
