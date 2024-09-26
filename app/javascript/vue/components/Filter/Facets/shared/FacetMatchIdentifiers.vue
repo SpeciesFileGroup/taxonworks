@@ -71,9 +71,9 @@ const params = computed({
 })
 
 const sortBy = computed({
-  get: () => params.value.sort_by === SORT_BY_VALUE,
+  get: () => params.value.order_by === SORT_BY_VALUE,
   set: (value) => {
-    params.value.sort_by = value ? SORT_BY_VALUE : undefined
+    params.value.order_by = value ? SORT_BY_VALUE : undefined
   }
 })
 
