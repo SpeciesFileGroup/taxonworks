@@ -9,15 +9,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Sort by identifier match option [#4065]
 - `/collection_objects/123/dwc_compact` - DwC fields for those populated [#3994]
 - Pagination to `/api/v1/otus/:otu_id/inventory/dwc_gallery`
 
 ### Fixed
 
+- Display of missing DwC fields [#4051]
 - `verbatim_field_number` updates ignored [#4066]
 - DwC importer `verbatim_field_number` collision with Identifier validation
 - Shortcuts: Keys pressed are not removed after user switches windows/tab
 
+[#4065]: https://github.com/SpeciesFileGroup/taxonworks/issues/4065
+[#4051]: https://github.com/SpeciesFileGroup/taxonworks/issues/4051
 [#4066]: https://github.com/SpeciesFileGroup/taxonworks/issues/4066
 [#3994]: https://github.com/SpeciesFileGroup/taxonworks/issues/3994
 
@@ -32,7 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Revert strict `verbatim_field_number` validation [#4061]
-- Renamed CollectingEvent `verbatim_trip_code` to `verbatim_field_number` [#4058]
+- Renamed CollectingEvent `verbatim_trip_identifier` to `verbatim_field_number` [#4058]
 
 ### Fixed
 
@@ -89,7 +93,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - DwC export will now use a valid taxon name if linked first to an invalid, and it is available
-- EventID and verbatim_trip_code are disentangled in DwC Importer, they do not map to one-another now [#3800] [#2852]
+- EventID and verbatim_trip_identifier are disentangled in DwC Importer, they do not map to one-another now [#3800] [#2852]
 - TripCode is now FieldNumber (all data migrated)
 - DwcOccurrence rebuilds triggered for changes to TaxonNameRelationship [#4019], TypeMaterial, TaxonDetermination, Identifier::Global
 - Wikidata IDs are now also loaded into recordedByID and identifiedByID [#3989]

@@ -224,19 +224,18 @@ module Queries
     #  ( A ( B ) C )
     attr_accessor :venn_mode
 
-    def venn_mode
-      v = @venn_mode.to_s.downcase.to_sym
-      v  = :ab if v.blank?
-      if [:a, :ab, :b].include?(v)
-        v
-      else
-        nil
-      end
-    end
-
-    def process_url_into_params(url)
-      Rack::Utils.parse_nested_query(url)
-    end
+    # @return symbol
+    #   must match a existing parameter name (used to check if values provided)
+    #
+    # @param order_by [String, Symbol]
+    #   the kind of sort to apply.
+    #
+    # Supported values:
+    #   * `match_identifiers` - sort by the order of the identifiers in provided
+    #
+    # !! Does not sub-sort
+    #
+    attr_accessor :order_by
 
     # @return Hash
     #  the parsed/permitted params
@@ -250,6 +249,7 @@ module Queries
 
       # Reference to query_params, i.e. always permitted
       @api = boolean_param(query_params, :api)
+
       @recent = boolean_param(query_params, :recent)
       @recent_target = query_params[:recent_target]
 
@@ -268,6 +268,8 @@ module Queries
       @per = query_params[:per]
       @page = query_params[:page]
 
+      @order_by = query_params[:order_by]
+
       # After this point, if you started with ActionController::Parameters,
       # then all values have been explicitly permitted.
       if query_params.kind_of?(Hash)
@@ -285,6 +287,11 @@ module Queries
       set_user_dates(params)
     end
 
+    def order_by
+      return nil if @order_by.blank?
+      @order_by.to_sym
+    end
+
     def object_global_id
       [@object_global_id].flatten.compact
     end
@@ -298,6 +305,20 @@ module Queries
       r = @recent_target.to_s.downcase.to_sym
       return :updated_at unless [:updated_at, :created_at].include?(r)
       r
+    end
+
+    def venn_mode
+      v = @venn_mode.to_s.downcase.to_sym
+      v  = :ab if v.blank?
+      if [:a, :ab, :b].include?(v)
+        v
+      else
+        nil
+      end
+    end
+
+    def process_url_into_params(url)
+      Rack::Utils.parse_nested_query(url)
     end
 
     # @params [Parameters]
@@ -707,16 +728,55 @@ module Queries
         q = apply_venn(q)
       end
 
+      # TODO: collides with recent, and needs isolation/generic application
+      # probably through native .order() use.
+      # Order in general likely belongs outside the scope of filters, but 
+      # see this param use, where we depend on the incoming values
+      #
+      # See spec/lib/queries/otu/filter_spec.rb for tests
+
+      if order_by
+        case order_by
+        when :match_identifiers
+          if !match_identifiers.blank?
+
+            case match_identifiers_type
+            when 'internal'
+              o = "array_position(ARRAY[#{identifiers_to_match.join(',')}], #{table.name}.id)"
+              q = q.order(Arel.sql(o))
+            else
+              # TODO: optimize, this was done hastily
+              o = "array_position(ARRAY[#{identifiers_to_match.collect{|i| "'#{i}'"}.join(',')}], sid.cached) s"
+
+              i = ::Identifier
+                .from('identifiers sid')
+                .where(sid: {cached: identifiers_to_match}) # This is required to de-duplicate for some reason ?!
+                .select("sid.*, #{o}")
+
+              q = q.with(sid: i)
+                .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
+                .select("#{table.name}.*, sid.s")
+                .order('sid.s')
+            end
+          end
+        end
+      end
+
       if recent
         q = referenced_klass.from(q.all, table.name).order(recent_target => :desc)
       end
 
       if paginate
-        q = q.order(:id).page(page).per(per)
+        if order_by
+          q = q.page(page).per(per)
+        else
+          q = q.order(:id).page(page).per(per)
+        end
       end
 
       # TODO: canonically address whether or not to use `.distinct` at this point, we should be able to, however
       # some incoming queries may have joins/group/etc. alone?! I.e. why can't we?
+
       q
     end
 
