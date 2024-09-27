@@ -77,7 +77,7 @@ class Gazetteer < ApplicationRecord
   end
 
   # @param shapes, a hash:
-  #   geojson: array of geojson hashes,
+  #   geojson: array of geojson feature hashes,
   #   wkt: array of wkt strings,
   #   points: array of geojson points
   #   ga_union: array of GA ids
@@ -109,17 +109,17 @@ class Gazetteer < ApplicationRecord
   # @return A single rgeo shape containing all of the input shapes
   # Raises on error
   def self.combine_shapes_to_rgeo(shapes)
-    if shapes['geojson'].blank? && shapes['wkt'].blank? &&
-        shapes['points'].blank? && shapes['ga_union'].blank? &&
-        shapes['gz_union'].blank?
+    if shapes[:geojson].blank? && shapes[:wkt].blank? &&
+        shapes[:points].blank? && shapes[:ga_union].blank? &&
+        shapes[:gz_union].blank?
       raise TaxonWorks::Error, 'No shapes provided'
     end
 
-    leaflet_rgeo = convert_geojson_to_rgeo(shapes['geojson'])
-    wkt_rgeo = convert_wkt_to_rgeo(shapes['wkt'])
-    points_rgeo = convert_geojson_to_rgeo(shapes['points'])
-    ga_rgeo = convert_ga_to_rgeo(shapes['ga_union'])
-    gz_rgeo = convert_gz_to_rgeo(shapes['gz_union'])
+    leaflet_rgeo = convert_geojson_to_rgeo(shapes[:geojson])
+    wkt_rgeo = convert_wkt_to_rgeo(shapes[:wkt])
+    points_rgeo = convert_geojson_to_rgeo(shapes[:points])
+    ga_rgeo = convert_ga_to_rgeo(shapes[:ga_union])
+    gz_rgeo = convert_gz_to_rgeo(shapes[:gz_union])
 
     user_input_shapes = leaflet_rgeo + wkt_rgeo + points_rgeo
 

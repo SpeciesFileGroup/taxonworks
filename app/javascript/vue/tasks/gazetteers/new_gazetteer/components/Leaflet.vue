@@ -9,7 +9,7 @@
     :zoom="1"
     resize
     :draw-controls="!editingDisabled"
-    :draw-circle="false"
+    :draw-circle="true"
     :cut-polygon="false"
     :removal-mode="false"
     :edit-mode="false"
