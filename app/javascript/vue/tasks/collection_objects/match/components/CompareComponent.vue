@@ -84,9 +84,7 @@
 <script>
 import ModalComponent from '@/components/ui/Modal'
 import SwitchComponent from '@/components/ui/VSwitch'
-
-import { GetDWC } from '../request/resources'
-import { CollectingEvent } from '@/routes/endpoints'
+import { CollectingEvent, CollectionObject } from '@/routes/endpoints'
 
 const TABS_TYPE = {
   DETAILS: 'details',
@@ -152,7 +150,9 @@ export default {
     },
 
     LoadDWC() {
-      const requests = this.compare.map((co) => GetDWC(co.id))
+      const requests = this.compare.map((co) =>
+        CollectionObject.dwcVerbose(co.id, { rebuild: true })
+      )
 
       Promise.all(requests).then((responses) => {
         this.dwcTable = responses.map((r) => r.body)

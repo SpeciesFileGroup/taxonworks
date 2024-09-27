@@ -98,7 +98,7 @@ import RadialObject from '@/components/radials/navigation/radial.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import CloneForm from './components/CloneForm.vue'
 import platformKey from '@/helpers/getPlatformKey'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const store = useStore()
 

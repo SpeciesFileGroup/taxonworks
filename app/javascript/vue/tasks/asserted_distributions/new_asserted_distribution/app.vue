@@ -70,7 +70,7 @@ import VSpinner from '@/components/ui/VSpinner'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
 
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import { Source } from '@/routes/endpoints'
 import { computed, ref, onBeforeMount } from 'vue'
 import { useStore } from './store/store.js'

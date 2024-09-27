@@ -11,7 +11,7 @@
     </div>
 
     <div class="field label-above">
-      <label>Delimiter</label>
+      <label><b>Delimiter</b></label>
       <span class="display-block">
         <i>Use </i>\n<i> for newlines, </i>\t<i> for tabs.</i>
       </span>
@@ -29,6 +29,15 @@
         :options="['Identifier', 'Internal']"
       />
     </div>
+    <div class="field">
+      <label>
+        <input
+          type="checkbox"
+          v-model="sortBy"
+        />
+        Sort as listed
+      </label>
+    </div>
   </FacetContainer>
 </template>
 
@@ -37,6 +46,8 @@ import { computed, ref, onBeforeMount } from 'vue'
 import { vTabkey } from '@/directives'
 import VToggle from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+
+const SORT_BY_VALUE = 'match_identifiers'
 
 const TYPE_PARAMETERS = {
   Internal: 'internal',
@@ -57,6 +68,13 @@ const emit = defineEmits(['update:modelValue'])
 const params = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
+})
+
+const sortBy = computed({
+  get: () => params.value.order_by === SORT_BY_VALUE,
+  set: (value) => {
+    params.value.order_by = value ? SORT_BY_VALUE : undefined
+  }
 })
 
 const matchIdentifiers = computed({

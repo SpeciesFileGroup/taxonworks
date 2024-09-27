@@ -9,8 +9,39 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     @root = FactoryBot.create(:root_taxon_name)
   end
 
-  after(:all) do
-    DatabaseCleaner.clean
+  after(:all) { DatabaseCleaner.clean }
+
+  context 'when working with date fields' do
+    before :all do
+      DatabaseCleaner.start
+
+      init_housekeeping
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/identifiers/verbatim_field_number.tsv'), 'text/plain'),
+        description: 'Testing dates'
+      ).tap { |i| i.stage }
+
+      namespace = FactoryBot.create(:valid_namespace, short_name: 'ABC')
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let!(:results) { @import_dataset.import(5000, 100) }
+
+    it 'sets verbatim_field_number 1' do
+      expect(CollectingEvent.first.verbatim_field_number).to eq('X-1')
+    end
+
+    it 'sets verbatim_field_number 2' do
+      expect(CollectingEvent.second.verbatim_field_number).to eq(nil)
+    end
+
+    it 'sets verbatim_field_number 3' do
+      expect(CollectingEvent.last.verbatim_field_number).to eq('DEF123')
+    end
   end
 
   context 'when working with date fields' do
@@ -23,7 +54,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/dates/event_dates.tsv'), 'text/plain'),
         description: 'Testing dates'
       ).tap { |i| i.stage }
-
     end
 
     after :all do
@@ -48,7 +78,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     it 'errors on bad dates' do
       expect(results.last.status).to eq('Errored')
     end
-
   end
 
   context 'when importing a single occurrence in a text file' do
