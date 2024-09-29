@@ -7,6 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Add new task to quickly assign images as depictions to the objects identified in their filename [#3986]
+- Radial annotator: Pagination to the Depictions slice
+- Comprehensive: Pagination to the depictions panel
+
 ### Changed
 
 - `repositories/autocomplete` label [#3981]
@@ -19,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some hotkeys don't work on Firefox on Linux [#3988]
 - Cancel previous autocomplete requests [#3982]
 
+[#3986]: https://github.com/SpeciesFileGroup/taxonworks/issues/3986
 [#3981]: https://github.com/SpeciesFileGroup/taxonworks/issues/3981
 [#3982]: https://github.com/SpeciesFileGroup/taxonworks/issues/3982
 [#3988]: https://github.com/SpeciesFileGroup/taxonworks/issues/3988

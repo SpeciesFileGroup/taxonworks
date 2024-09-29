@@ -88,6 +88,7 @@
         />
       </div>
       <input
+        v-if="imageIds"
         class="position-absolute"
         type="checkbox"
         v-model="imageIds"
