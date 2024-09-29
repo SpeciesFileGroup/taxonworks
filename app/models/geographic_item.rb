@@ -287,6 +287,15 @@ class GeographicItem < ApplicationRecord
         )
       end
 
+      def st_intersection_sql(shape1, shape2)
+        Arel::Nodes::NamedFunction.new(
+          'ST_Intersection', [
+            shape1,
+            shape2
+          ]
+        )
+      end
+
       def st_shift_longitude_sql(shape)
         Arel::Nodes::NamedFunction.new(
           'ST_ShiftLongitude', [
@@ -306,6 +315,35 @@ class GeographicItem < ApplicationRecord
             Arel::Nodes::Quoted.new(distance)
           ]
         )
+      end
+
+      # @param [String] wkt
+      # @return RGeo shape for wkt expressed as a union of pieces none of which
+      # intersect the anti-meridian. Slightly lossy (has to be), and may turn
+      # polygon into multi-polygon, etc.
+      # Assumes wkt intersects the anti-meridian.
+      def split_along_anti_meridian(wkt)
+        wkt = quote_string(wkt)
+        # Intended to be the exterior of a tiny buffer around the anti-meridian,
+        # expressed as two sheets/near-hemispheres that meet at long=0=360.
+        # (Using `-179.999999 ...` for the second sheet doesn't work, at least as
+        # currently run.)
+        # TODO is 6 decimal places safe cross platform?
+        anti_meridian_exterior = 'MULTIPOLYGON(
+          ((0 -89.999999, 179.999999 -89.999999, 179.999999 89.999999, 0 89.999999, 0 -89.999999)),
+          ((180.000001 -89.999999, 360 -89.999999, 360 89.999999, 180.000001 89.999999, 180.000001 -89.999999))
+        )'
+
+        wkb = select_one(
+          st_intersection_sql(
+            # shift is required for anti-meridian coordinates (at least those as
+            # normalized by our Gis::FACTORY)
+            st_shift_longitude_sql(st_geom_from_text_sql(wkt)),
+            st_geom_from_text_sql(anti_meridian_exterior)
+          )
+         )['st_intersection']
+
+         ::Gis::FACTORY.parse_wkb(wkb)
       end
 
       # @param [String] wkt
@@ -475,8 +513,8 @@ class GeographicItem < ApplicationRecord
       # @params [String] well known text
       # @return [NamedFunction] the SQL fragment for those geometric shapes
       # covered by wkt
-      # Note: this routine is called when it is already known that the A
-      # argument crosses anti-meridian
+      # Note: this routine is called when it is already known that wkt
+      # crosses anti-meridian
       def covered_by_wkt_shifted_sql(wkt)
         wkt = quote_string(wkt)
         st_covered_by_sql(
@@ -1061,9 +1099,9 @@ class GeographicItem < ApplicationRecord
       # This is faster than GeographicItem.select(...)
       ActiveRecord::Base.connection.execute(
         self.class.arel_table
-        .project(named_function)
-        .where(self.class.arel_table[:id].eq(id))
-        .to_sql
+          .project(named_function)
+          .where(self.class.arel_table[:id].eq(id))
+          .to_sql
       ).to_a.first
     end
 

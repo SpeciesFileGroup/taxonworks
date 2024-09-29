@@ -157,7 +157,9 @@ class Gazetteer < ApplicationRecord
         circle = GeographicItem.circle(rgeo_shape.geometry, r)
       end
 
-      circle || rgeo_shape.geometry
+      s = circle || rgeo_shape.geometry
+
+      split_shape_along_anti_meridian(s)
     end
 
     rgeo_shapes
@@ -182,7 +184,9 @@ class Gazetteer < ApplicationRecord
 
     wkt_shapes.map do |shape|
       begin
-        ::Gis::FACTORY.parse_wkt(shape)
+        s = ::Gis::FACTORY.parse_wkt(shape)
+
+        split_shape_along_anti_meridian(s)
       rescue RGeo::Error::RGeoError => e
         raise e.exception("Invalid WKT: #{e.message}")
       end
@@ -398,4 +402,10 @@ class Gazetteer < ApplicationRecord
       iso_3166_a3.nil? || /\A[A-Z][A-Z][A-Z]\z/.match?(iso_3166_a3)
   end
 
+  # @param s RGeo shape
+  # @return [RGeo shape] s split along the anti-meridian
+  def self.split_shape_along_anti_meridian(s)
+    GeographicItem.crosses_anti_meridian?(s.as_text) ?
+      GeographicItem.split_along_anti_meridian(s.as_text) : s
+  end
 end
