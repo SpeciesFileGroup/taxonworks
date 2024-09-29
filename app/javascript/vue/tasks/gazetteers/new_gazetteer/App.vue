@@ -35,23 +35,6 @@
     />
   </div>
 
-  <div class="editing-note">
-    <ul>
-      <li>
-        Multiple shapes will be combined into a single shape - a circle is
-        transformed into a polygon approximating the circle.
-      </li>
-      <li>
-        Once saved you can no longer edit the shape(s), instead you can delete
-        and recreate.
-      </li>
-      <li>
-        Overlapping shapes may give unexpected results.
-      </li>
-    </ul>
-
-  </div>
-
   <OtherInputs
     :inputs-disabled="shapeEditingDisabled"
     @new-shape="(data, type) => addToShapes(data, type)"
@@ -183,16 +166,16 @@ if (gazetteer_id) {
 
 function loadGz(gzId) {
   Gazetteer.find(gzId)
-  .then(({ body }) => {
-    gz.value = body
-    shapes.value = [
-      {
-        shape: body.shape,
-        type: GZ_LEAFLET
-      }
-    ]
-  })
-  .catch(() => {})
+    .then(({ body }) => {
+      gz.value = body
+      shapes.value = [
+        {
+          shape: body.shape,
+          type: GZ_LEAFLET
+        }
+      ]
+    })
+    .catch(() => {})
 }
 
 function saveGz() {
@@ -241,6 +224,7 @@ function combineShapesToGz() {
 }
 
 function shapesUpdated() {
+  previewing.value = false
   // Bust the preview cache
   previewShape.value = null
 }
@@ -268,6 +252,7 @@ function previewGz() {
 function saveNewGz() {
   const gazetteer = combineShapesToGz()
 
+  isLoading.value = true
   Gazetteer.create({ gazetteer })
     .then(({ body }) => {
       gz.value = body
@@ -283,6 +268,7 @@ function saveNewGz() {
       TW.workbench.alert.create('New gazetteer created.', 'notice')
     })
     .catch(() => {})
+    .finally(() => { isLoading.value = false })
 }
 
 function updateGz() {
@@ -292,12 +278,14 @@ function updateGz() {
     iso_3166_a3: gz.value.iso_3166_a3
   }
 
+  isLoading.value = true
   Gazetteer.update(gz.value.id, { gazetteer })
     .then(({ body }) => {
       gz.value = body
       TW.workbench.alert.create('Gazetteer updated.', 'notice')
     })
     .catch(() => {})
+    .finally(() => { isLoading.value = false })
 }
 
 function reset() {
@@ -367,15 +355,6 @@ function removeFromShapes(shape) {
 <style lang="scss" scoped>
 .name-input {
   width: 400px;
-}
-
-.editing-note {
-  //margin-left: 10vw;
-  margin-bottom: 6px;
-}
-
-.editing-note > ul {
-  padding-left: 1em;
 }
 
 .geolist {
