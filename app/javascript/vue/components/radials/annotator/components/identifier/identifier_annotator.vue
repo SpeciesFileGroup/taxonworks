@@ -23,22 +23,18 @@
         @create="saveIdentifier"
       />
     </div>
-    <table-list
-      :list="list"
-      :header="['Identifier', 'Type', '']"
-      :attributes="['cached', 'type']"
-      :annotator="false"
-      @edit="data_attribute = $event"
+    <IdentifierTable
+      v-model="list"
       @delete="removeItem"
     />
   </div>
 </template>
 <script setup>
-import TableList from '@/components/table_list.vue'
 import IdentifierList from './identifierList.vue'
 import IdentifierType from './IdentifierType.vue'
 import IdentifierLocal from './IdentifierLocal.vue'
 import IdentifierForm from './IdentifierForm.vue'
+import IdentifierTable from './IdentifierTable.vue'
 import { useSlice } from '@/components/radials/composables'
 import { Identifier } from '@/routes/endpoints'
 import { computed, ref, watch } from 'vue'
@@ -98,14 +94,16 @@ function saveIdentifier(params) {
     identifier_object_type: props.objectType
   }
 
-  Identifier.create({ identifier }).then(({ body }) => {
-    addToList(body)
-    listSelected.value = undefined
-  })
+  Identifier.create({ identifier })
+    .then(({ body }) => {
+      addToList(body)
+      listSelected.value = undefined
+    })
+    .catch(() => {})
 }
 
 function removeItem(item) {
-  Identifier.destroy(item.id).then((_) => {
+  Identifier.destroy(item.id).then(() => {
     removeFromList(item)
   })
 }

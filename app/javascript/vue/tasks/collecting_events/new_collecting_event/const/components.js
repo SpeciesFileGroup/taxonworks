@@ -8,7 +8,7 @@ import Latitude from '../components/verbatim/Latitude.vue'
 import Locality from '../components/verbatim/Locality.vue'
 import Longitude from '../components/verbatim/Longitude.vue'
 import Method from '../components/verbatim/Method.vue'
-import TripIdentifier from '../components/verbatim/TripIdentifier.vue'
+import FieldNumber from '../components/verbatim/FieldNumber.vue'
 import Dates from '../components/parsed/Dates.vue'
 import Elevation from '../components/parsed/Elevation.vue'
 import GeographicArea from '../components/parsed/GeographicArea.vue'
@@ -36,7 +36,7 @@ const ComponentVerbatim = {
   Datum: 'Datum',
   Collectors: 'Collectors',
   Method: 'Method',
-  TripIdentifier: 'TripIdentifier'
+  FieldNumber: 'FieldNumber'
 }
 
 const ComponentParse = {
@@ -70,7 +70,7 @@ const VueComponents = {
   [ComponentVerbatim.VerbatimElevation]: VerbatimElevation,
   [ComponentVerbatim.Datum]: Datum,
   [ComponentVerbatim.Method]: Method,
-  [ComponentVerbatim.TripIdentifier]: TripIdentifier,
+  [ComponentVerbatim.FieldNumber]: FieldNumber,
   [ComponentParse.Dates]: Dates,
   [ComponentParse.Elevation]: Elevation,
   [ComponentParse.GeographicArea]: GeographicArea,

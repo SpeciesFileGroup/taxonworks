@@ -4,17 +4,31 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
   let(:taxon_name_relationship) { TaxonNameRelationship.new }
 
-  let!(:species) { FactoryBot.create(:relationship_species) } 
-  let(:genus) { species.ancestor_at_rank('genus') } 
-  let(:family) { species.ancestor_at_rank('family') } 
-  let(:kingdom) { species.ancestor_at_rank('kingdom') } 
-  
+  let!(:species) { FactoryBot.create(:relationship_species) }
+  let(:genus) { species.ancestor_at_rank('genus') }
+  let(:family) { species.ancestor_at_rank('family') }
+  let(:kingdom) { species.ancestor_at_rank('kingdom') }
+
+  # TODO: eliminate
   after(:all) {
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
     Source.destroy_all
     TaxonNameHierarchy.delete_all
   }
+
+  specify 'dwc_occurrences hooks' do
+    t = FactoryBot.create(:relationship_species, parent: genus)
+
+    s = Specimen.create
+    td = FactoryBot.create(:valid_taxon_determination, otu: FactoryBot.create(:valid_otu, taxon_name: t), taxon_determination_object: s)
+
+    expect(s.dwc_occurrence.reload.scientificName).to eq(t.cached_name_and_author_year)
+
+    r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: t, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+
+    expect(s.dwc_occurrence.reload.scientificName).to eq(species.cached_name_and_author_year)
+  end
 
   context 'required attributes' do
     specify 'subject (TaxonName)' do
@@ -195,7 +209,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
     context 'relationships' do
       specify 'has only one synonym relationship' do
-        s  = FactoryBot.create(:relationship_species, parent: genus)
+        s = FactoryBot.create(:relationship_species, parent: genus)
         r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         expect(r1.valid?).to be_truthy
         expect(r1.errors.include?(:subject_taxon_name_id)).to be_falsey
@@ -303,13 +317,13 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
       specify 'fixing synonym linked to another synonym' do
         r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
-                              type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+                               type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
         r3.soft_validate(only_sets: :synonym_linked_to_valid_name)
         expect(r3.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
         r3.fix_soft_validations
         r3.save!
         expect(s1.cached_misspelling).to be_truthy
-           expect(s1.cached).to eq('Bus aus [sic]')
+        expect(s1.cached).to eq('Bus aus [sic]')
         expect(s1.cached_html).to eq('<i>Bus aus</i> [sic]')
       end
 

@@ -76,17 +76,17 @@ module Queries
 
       def initialize(query_params)
         super
-        @asserted_distribution_id = params[:asserted_distribution_id]
+        @asserted_distribution_id = integer_param(params, :asserted_distribution_id)
         @descendants = boolean_param(params, :descendants)
         @geo_json = params[:geo_json]
-        @geographic_area_id = params[:geographic_area_id]
-        @geographic_item_id = params[:geographic_item_id]
+        @geographic_area_id = integer_param(params,:geographic_area_id)
+        @geographic_item_id = integer_param(params, :geographic_item_id)
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
-        @otu_id = params[:otu_id]
+        @otu_id = integer_param(params, :otu_id)
         @presence = boolean_param(params, :presence)
         @radius = params[:radius].presence || 100.0
-        @taxon_name_id = params[:taxon_name_id]
+        @taxon_name_id = integer_param(params, :taxon_name_id)
         @wkt = params[:wkt]
 
         set_citations_params(params)

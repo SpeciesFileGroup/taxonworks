@@ -1,209 +1,209 @@
 collection_object_identifier_namespace_short_name	collection_object_identifier_identifier	Species	OTU	Confirmed?	collecting_event_identifier_namespace_short_name	collecting_event_identifier_identifier	collecting_event_identifier_type	verbatim_date	start_month	start_day	start_year	end_month	end_day	end_year	Verbatim_Location	Latitude	Longitude	Error	georeference_error_units	Method
-MuleDeer	35614	Hetaerina americana	Hetaerina americana		Collecting Event No.	367	Local::TripCode	8.18.1941	8	18	1941				Creek on Mary Shannon's place, Dallas, Texas
-PSUC	39024	Hetaerina americana	Hetaerina americana		Collecting Event No.	372	Local::TripCode	Spring 1938	3		1938	5		1938	S of San Antonio, Texas
-PSUC	37926	Hetaerina americana	Hetaerina americana		Collecting Event No.	2570	Local::TripCode	7.30.1950	7	30	1950				Fish Hatchery, Kerrville, Tex.	30.047433	-99.140319	10339	m	GEOLocate
-PSUC	38919	Hetaerina americana	Hetaerina americana		Collecting Event No.	5158	Local::TripCode	8.5.1951	8	5	1951				Real Co, TX	29.728835	-99.761448	1419	m	GEOLocate
-PSUC	38866	Hetaerina americana	Hetaerina americana		Collecting Event No.	5302	Local::TripCode	6.16.1953	6	16	1953				San Saba Co, Texas	31.195723	-98.718098	2631	m	GEOLocate
-PSUC	35628	Hetaerina americana	Hetaerina americana		Collecting Event No.	5314	Local::TripCode	6.25.1953	6	25	1953				Uvalde Co, TX	29.209684	-99.786168	5034	m	GEOLocate
-PSUC	39770	Hetaerina americana	Hetaerina americana		Collecting Event No.	58157	Local::TripCode	7.12.1958	7	12	1958				highway 85, just S of Caracol & N of El Encino	23.167282	-99.108196	2000	m	GEOLocate
-PSUC	35423	Hetaerina americana	Hetaerina americana		Collecting Event No.	58160	Local::TripCode	7.12.1958	7	12	1958				El Salto (NE-10 mi W of Nuevo Morelos, Tamps.) : various locations aroun falls	22.533935	-99.377674	14731	m	GEOLocate
-PSUC	40857	Hetaerina americana	Hetaerina americana		Collecting Event No.	58169	Local::TripCode	7.22.1958	7	22	1958				Zimapan (extreme W): .5 mi S of town: arroyo crossing highway	20.730999	-99.374535	200	200
-PSUC	35397	Hetaerina americana	Hetaerina americana		Collecting Event No.	58170	Local::TripCode	7.22.1958	7	22	1958				Rio Tula, ca. 1.5 mi. E. of Tasquillo, HGO.; 5500'. 22.vii.1958	20.550498	-99.290934	2.11	km	GEOLocate
-PSUC	35467	Hetaerina americana	Hetaerina americana		Collecting Event No.	58170	Local::TripCode	7.22.1958	7	22	1958				Rio Tula, ca. 1.5 mi. E. of Tasquillo, HGO.; 5500'. 22.vii.1959	20.550498	-99.290934	2.11	km	GEOLocate
-PSUC	35463	Hetaerina americana	Hetaerina americana		Collecting Event No.	58170	Local::TripCode	7.22.1958	7	22	1958				Rio Tula, ca. 1.5 mi. E. of Tasquillo, HGO.; 5500'. 22.vii.1960	20.550498	-99.290934	2.11	km	GEOLocate
-PSUC	35553	Hetaerina americana	Hetaerina americana		Collecting Event No.	58170	Local::TripCode	7.22.1958	7	22	1958				Rio Tula, ca. 1.5 mi. E. of Tasquillo, HGO.; 5500'. 22.vii.1961	20.550498	-99.290934	2.11	km	GEOLocate
-PSUC	35401	Hetaerina americana	Hetaerina americana		Collecting Event No.	58170	Local::TripCode	7.22.1958	7	22	1958				Rio Tula, ca. 1.5 mi. E. of Tasquillo, HGO.; 5500'. 22.vii.1962	20.550498	-99.290934	2.11	km	GEOLocate
-PSUC	35543	Hetaerina americana	Hetaerina americana		Collecting Event No.	58189	Local::TripCode	8.5.1958	8	5	1958				8.8 mi NW on rd to La Tinaja: Rio Estanzuela	18.550042	-96.387774	200	200
-PSUC	40893	Hetaerina americana	Hetaerina americana		MuleDear	58203	Local::TripCode	8.11.1958	8	11	1958				Rio Moreno at h'way bridge 12 mi. N. of Tierra Blanca, VER.; 285'. 11.viii.1958	18.549976	-96.387825	3036	m	GEOLocate
-PSUC	35441	Hetaerina americana	Hetaerina americana		Collecting Event No.	58204	Local::TripCode	7.20.1958	7	20	1958				Rio Coyolucan below h'way bridge, 13.6 mi. N. Tierra Blanca, VER.; 285'. 11.viii.1958	18.579415	-96.39854	3036	m	GEOLocate
-PSUC	37991	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::TripCode	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1960	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	35382	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::TripCode	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1961	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	35406	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::TripCode	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1962	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	39509	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::TripCode	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1963	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	35399	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::TripCode	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1964	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	35352	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::TripCode	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1965	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	41614	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::TripCode	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1967	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	42247	Hetaerina americana	Hetaerina americana		Collecting Event No.	58209	Local::TripCode	7.25.1958	7	25	1958				8.7 mi SE: arroyo flowing into L. Catemaco	18.359967	-95.120483	6845	m	GEOLocate
-PSUC	84016	Hetaerina americana	Hetaerina americana		Collecting Event No.	58210	Local::TripCode	7.25.1958	7	25	1958				Arroyo Zapoapan, 0.3 mi. S. of Zapoapan, VER.; below crossing of H'way #180, 15.4 mi. S.E. of San Andrés Tuxtla; ca. 1400'(+). stream & pools in dense jungle as well as main stream. 14.viii.1958	18.835715	-96.991812			GEOLocate
-PSUC	35404	Hetaerina americana	Hetaerina americana		Collecting Event No.	58212	Local::TripCode	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1968	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	39866	Hetaerina americana	Hetaerina americana		Collecting Event No.	58212	Local::TripCode	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1969	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	35530	Hetaerina americana	Hetaerina americana		Collecting Event No.	58212	Local::TripCode	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1970	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	37881	Hetaerina americana	Hetaerina americana		Collecting Event No.	58212	Local::TripCode
-PSUC	35600	Hetaerina americana	Hetaerina americana		Collecting Event No.	58214	Local::TripCode	7.14.1958	7	14	1958				8.7 mi SE: arroyo flowing into L. Catemaco	18.359967	-95.120483	6845	m	GEOLocate
-PSUC	35599	Hetaerina americana	Hetaerina americana		Collecting Event No.	58215	Local::TripCode	8.16.1958	8	16	1958				San Andres Tuxtla: 25.9 mi SE, arroyo crossing highway 180	18.182218	-94.932567	2.11	km	GEOLocate
-PSUC	35465	Hetaerina americana	Hetaerina americana		Collecting Event No.	58228	Local::TripCode	8.16.1958	8	16	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1958	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	41861	Hetaerina americana	Hetaerina americana		Collecting Event No.	58228	Local::TripCode	8.16.1958	8	16	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1959	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	39887	Hetaerina americana	Hetaerina americana		Collecting Event No.	58228	Local::TripCode	8.16.1958	8	16	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1966	18.425145	-95.177301	3036	m	GEOLocate
-PSUC	35531	Hetaerina americana	Hetaerina americana		Collecting Event No.	58240	Local::TripCode	8.28.1958	8	28	1958				2.7 mi. S.W. of San Juan Teotihuacan, MEXICO state; small canal beside road (Rt. #132); 7600'. 28.viii.1958	19.660834	-98.892113	3899	m	GEOLocate
-PSUC	42578	Hetaerina americana	Hetaerina americana		Collecting Event No.	58240	Local::TripCode	8.28.1958	8	28	1958				2.7 mi. S.W. of San Juan Teotihuacan, MEXICO state; small canal beside road (Rt. #132); 7600'. 28.viii.1958	19.680393	-98.897778	3899	m	GEOLocate
-PSUC	40112	Hetaerina americana	Hetaerina americana		Collecting Event No.	58244	Local::TripCode	8.19.1958	8	19	1958				2.0 mi SW of RR crossing near Teapa, on rd to Pichucalco, Chiapas: arroyo	17.527588	-92.973844	5042	m	GEOLocate
-PSUC	39785	Hetaerina americana	Hetaerina americana		Collecting Event No.	58256	Local::TripCode	7.14.1958	7	14	1958				El Salto, S.L.P., 10 mi. W. of Nuevo Morelos, TAMPS.; river-bank close to falls, tributary streams, pools, weedy fields near river; 2120'. 2.ix.1958	22.533935	-99.377674	14731	m	GEOLocate
-PSUC	35550	Hetaerina americana	Hetaerina americana		Collecting Event No.	58256	Local::TripCode	7.14.1958	7	14	1958				El Salto, S.L.P., 10 mi. W. of Nuevo Morelos, TAMPS.; river-bank close to falls, tributary streams, pools, weedy fields near river; 2120'. 2.ix.1959	22.533935	-99.377674	14731	m	GEOLocate
-PSUC	83845	Hetaerina americana	Hetaerina americana		Collecting Event No.	58256	Local::TripCode	7.14.1958	7	14	1958				El Salto (NE-10 mi W of Nuevo Morelos, Tamps.) : various locations aroun falls	22.533935	-99.377674	14731	m	GEOLocate
-PSUC	41495	Hetaerina americana	Hetaerina americana		Collecting Event No.	59287	Local::TripCode	7.24.1959	7	24	1959				Salto de Eyipantla, 5.4 mi. S.W. of Sihuapan, which is 4 mi. S.E. of San Andrés Tuxtla, VER.; elev. ca. 1300'. 24.vii.1959	18.381099	-95.236853	5093	m	GEOLocate
-PSUC	39796	Hetaerina americana	Hetaerina americana		Collecting Event No.	59287	Local::TripCode	8.27.1959	8	27	1959				6.1 mi S on road to Oaxaca: waterfall stream
-PSUC	39771	Hetaerina americana	Hetaerina americana		Collecting Event No.	59287	Local::TripCode	8.27.1959	8	27	1959				6.1 mi S on road to Oaxaca: waterfall stream
-PSUC	35479	Hetaerina americana	Hetaerina americana		Collecting Event No.	59287	Local::TripCode	8.27.1959	8	27	1959				6.1 mi S on road to Oaxaca: waterfall stream
-PSUC	35484	Hetaerina americana	Hetaerina americana		Collecting Event No.	59287	Local::TripCode	8.27.1959	8	27	1959				6.1 mi S on road to Oaxaca: waterfall stream
-PSUC	35384	Hetaerina americana	Hetaerina americana		Collecting Event No.	59296	Local::TripCode	7.28.1959	7	28	1959				21.8 mi NW: Presa el Marques; pool near Rio Tequisistlan	16.498541	-95.450792
-PSUC	42317	Hetaerina americana	Hetaerina americana		Collecting Event No.	59299	Local::TripCode	7.29.1959	7	29	1959				14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742
-PSUC	35509	Hetaerina americana	Hetaerina americana		Collecting Event No.	59300	Local::TripCode	7.30.1959	7	30	1959				Rio Blanco at Chiapa	16.746909	-92.967035
-PSUC	35554	Hetaerina americana	Hetaerina americana		Collecting Event No.	59302	Local::TripCode	7.31.1959	7	31	1959				"""Arroyo de Rancho San Joaquin"" 14.8 mi. S. of Tuxtla Gutierrez, CHIS., on road to Suchiapa; 1500'. 31.vii.1959"	16.541551	-93.079533	2.11	km	GEOLocate
-PSUC	35388	Hetaerina americana	Hetaerina americana		Collecting Event No.	59305	Local::TripCode	8.1.1959	8	1	1959				small stream crossing road at La Gloria, 0.2 mi. N. of H'way #190 at a point 4.3 mi. W. of Tuxtla Gutierrez, CHIS.; 1200'. 1.viii.1959	16.775081	-93.201033	5488	m	GEOLocate
-PSUC	37871	Hetaerina americana	Hetaerina americana		Collecting Event No.	59305	Local::TripCode	8.1.1959	8	1	1959				small stream crossing road at La Gloria, 0.2 mi. N. of H'way #190 at a point 4.3 mi. W. of Tuxtla Gutierrez, CHIS.; 1200'. 1.viii.1959	16.775081	-93.201033	5488	m	GEOLocate
-PSUC	35369	Hetaerina americana	Hetaerina americana		Collecting Event No.	59308	Local::TripCode	8.2.1959	8	2	1959				Tehuantepec: 6.4 mi NE irrigation canal	16.376327	-95.158886	4133	m	GEOLocate
-PSUC	42676	Hetaerina americana	Hetaerina americana		Collecting Event No.	59309	Local::TripCode	8.2.1959	8	2	1959				Rio Guamol, below H'way #190, 43.5 mi. E. of Juchitán, OAX.; 200'. 2.viii.1959	16.455746	-94.36277	54872	m	GEOLocate
-PSUC	41511	Hetaerina americana	Hetaerina americana		Collecting Event No.	59312	Local::TripCode	8.3.1959	8	3	1959				20.5 mi. E. of Juchitán, OAX.; small irrigation ditch & leakage pools on S. side of H'way #190; 300'. 3.viii.1959	16.435803	-94.708926	26632	m	GEOLocate
-PSUC	35416	Hetaerina americana	Hetaerina americana		Collecting Event No.	59312	Local::TripCode	8.3.1959	8	3	1959				20.5 mi. E. of Juchitán, OAX.; small irrigation ditch & leakage pools on S. side of H'way #190; 300'. 3.viii.1960	16.435803	-94.708926	26632	m	GEOLocate
-PSUC	35372	Hetaerina americana	Hetaerina americana		Collecting Event No.	59313	Local::TripCode	8.3.1959	8	3	1959				Juchitan SE: 18.4 mi E: Rio de Ingenio Santo Domingo	16.435848	-94.740766	24064	m	GEOLocate
-PSUC	35510	Hetaerina americana	Hetaerina americana		Collecting Event No.	59314	Local::TripCode	8.4.1959	8	4	1959				Rio Almolaya, at H'way #185, 28.6 mi. N. of Juchitán, OAX. 675'. 4.viii.1959	16.85195	-95.01975
-PSUC	35445	Hetaerina americana	Hetaerina americana		Collecting Event No.	59352	Local::TripCode	8.16.1959	8	16	1959				13 mi. S. of Izucar de Matamoros, PUE.; stream at H'way #190; 4000'. 16.viii.1959	18.412495	-98.464992	18297	m	GEOLocate
-PSUC	35529	Hetaerina americana	Hetaerina americana		Collecting Event No.	59352	Local::TripCode
-PSUC	35429	Hetaerina americana	Hetaerina americana		Collecting Event No.	59353	Local::TripCode
-PSUC	40729	Hetaerina americana	Hetaerina americana		Collecting Event No.	59353	Local::TripCode
-PSUC	35591	Hetaerina americana	Hetaerina americana		Collecting Event No.	461513	Local::TripCode
-PSUC	39141	Hetaerina americana	Hetaerina americana		Collecting Event No.	461514	Local::TripCode
-PSUC	38889	Hetaerina americana	Hetaerina americana		Collecting Event No.	461515	Local::TripCode
-PSUC	42326	Hetaerina americana	Hetaerina americana		Collecting Event No.	461516	Local::TripCode
-PSUC	39172	Hetaerina americana	Hetaerina americana		Collecting Event No.	461517	Local::TripCode
-PSUC	35552	Hetaerina americana	Hetaerina americana		Collecting Event No.	461518	Local::TripCode
-PSUC	38982	Hetaerina americana	Hetaerina americana		Collecting Event No.	461519	Local::TripCode
-PSUC	39178	Hetaerina americana	Hetaerina americana		Collecting Event No.	461520	Local::TripCode
-PSUC	39055	Hetaerina americana	Hetaerina americana		Collecting Event No.	461521	Local::TripCode
-PSUC	40131	Hetaerina americana	Hetaerina americana		Collecting Event No.	461522	Local::TripCode
-PSUC	35561	Hetaerina americana	Hetaerina americana		Collecting Event No.	461523	Local::TripCode
-PSUC	42738	Hetaerina americana	Hetaerina americana		Collecting Event No.	461524	Local::TripCode
-PSUC	39042	Hetaerina americana	Hetaerina americana		Collecting Event No.	461525	Local::TripCode
-PSUC	40062	Hetaerina americana	Hetaerina americana		Collecting Event No.	461526	Local::TripCode
-PSUC	39090	Hetaerina americana	Hetaerina americana		Collecting Event No.	461527	Local::TripCode
-PSUC	38863	Hetaerina americana	Hetaerina americana		Collecting Event No.	461528	Local::TripCode
-PSUC	38933	Hetaerina americana	Hetaerina americana		Collecting Event No.	461529	Local::TripCode
-PSUC	35592	Hetaerina americana	Hetaerina americana		Collecting Event No.	461530	Local::TripCode
-PSUC	39179	Hetaerina americana	Hetaerina americana		Collecting Event No.	461531	Local::TripCode
-PSUC	39128	Hetaerina americana	Hetaerina americana		Collecting Event No.	461532	Local::TripCode
-PSUC	35652	Hetaerina americana	Hetaerina americana		Collecting Event No.	461533	Local::TripCode
-PSUC	39136	Hetaerina americana	Hetaerina americana		Collecting Event No.	461534	Local::TripCode
-PSUC	91776	Hetaerina americana	Hetaerina americana		Collecting Event No.	461535	Local::TripCode
-PSUC	39019	Hetaerina americana	Hetaerina americana		Collecting Event No.	461536	Local::TripCode
-PSUC	39195	Hetaerina americana	Hetaerina americana		Collecting Event No.	461537	Local::TripCode
-PSUC	40064	Hetaerina americana	Hetaerina americana		Collecting Event No.	461538	Local::TripCode
-PSUC	38936	Hetaerina americana	Hetaerina americana		Collecting Event No.	461539	Local::TripCode
-PSUC	40140	Hetaerina americana	Hetaerina americana		Collecting Event No.	461540	Local::TripCode
-PSUC	38987	Hetaerina americana	Hetaerina americana		Collecting Event No.	461541	Local::TripCode
-PSUC	38123	Hetaerina americana	Hetaerina americana		Collecting Event No.	461542	Local::TripCode
-PSUC	40056	Hetaerina americana	Hetaerina americana		Collecting Event No.	461543	Local::TripCode
-PSUC	39058	Hetaerina americana	Hetaerina americana		Collecting Event No.	461544	Local::TripCode
-PSUC	38880	Hetaerina americana	Hetaerina americana		Collecting Event No.	461545	Local::TripCode
-PSUC	39078	Hetaerina americana	Hetaerina americana		Collecting Event No.	461546	Local::TripCode
-PSUC	38996	Hetaerina americana	Hetaerina americana		Collecting Event No.	461547	Local::TripCode
-PSUC	37983	Hetaerina americana	Hetaerina americana		Collecting Event No.	461548	Local::TripCode
-PSUC	40167	Hetaerina americana	Hetaerina americana		Collecting Event No.	461549	Local::TripCode
-PSUC	37979	Hetaerina americana	Hetaerina americana		Collecting Event No.	461550	Local::TripCode
-PSUC	38998	Hetaerina americana	Hetaerina americana		Collecting Event No.	461551	Local::TripCode
-PSUC	42772	Hetaerina americana	Hetaerina americana		Collecting Event No.	461562	Local::TripCode
-PSUC	40120	Hetaerina americana	Hetaerina americana		Collecting Event No.	461563	Local::TripCode
-PSUC	38993	Hetaerina americana	Hetaerina americana		Collecting Event No.	461564	Local::TripCode
-PSUC	39897	Hetaerina americana	Hetaerina americana		Collecting Event No.	461565	Local::TripCode
-PSUC	38963	Hetaerina americana	Hetaerina americana		Collecting Event No.	461566	Local::TripCode
-PSUC	39111	Hetaerina americana	Hetaerina americana		Collecting Event No.	461567	Local::TripCode
-PSUC	35581	Hetaerina americana	Hetaerina americana		Collecting Event No.	461568	Local::TripCode
-PSUC	39048	Hetaerina americana	Hetaerina americana		Collecting Event No.	461569	Local::TripCode
-PSUC	35492	Hetaerina americana	Hetaerina americana		Collecting Event No.	461570	Local::TripCode
-PSUC	35588	Hetaerina americana	Hetaerina americana		Collecting Event No.	461571	Local::TripCode
-PSUC	43043	Hetaerina americana	Hetaerina americana		Collecting Event No.	461572	Local::TripCode
-PSUC	35648	Hetaerina americana	Hetaerina americana		Collecting Event No.	461573	Local::TripCode
-PSUC	35693	Hetaerina americana	Hetaerina americana		Collecting Event No.	461574	Local::TripCode
-PSUC	35646	Hetaerina americana	Hetaerina americana		Collecting Event No.	461575	Local::TripCode
-PSUC	35578	Hetaerina americana	Hetaerina americana		Collecting Event No.	461576	Local::TripCode
-PSUC	40122	Hetaerina americana	Hetaerina americana		Collecting Event No.	461577	Local::TripCode	1946							Westtown
-PSUC	39082	Hetaerina americana	Hetaerina americana		Collecting Event No.	461907	Local::TripCode
-PSUC	38873	Hetaerina americana	Hetaerina americana		Collecting Event No.	471178	Local::TripCode	7.27.1947	7	27	1947				Malaga, NJ	39.569838	-75.047675	2.11	km	GEOLocate
-PSUC	35459	Hetaerina americana	Hetaerina americana		Collecting Event No.	57/144	Local::TripCode
-PSUC	40901	Hetaerina americana	Hetaerina americana		Collecting Event No.	59306B	Local::TripCode	8.1.1959	8	1	1959				20.7 mi. N.E. of Cintalapa, CHIS.; shallow roadside ditches and stream; 1725'. 1.viii.1959	16.908408	-93.501291	13975	m	GEOLocate
-PSUC	35612	Hetaerina americana	Hetaerina americana		Collecting Event No.	59310A	Local::TripCode	8.2.1959	8	2	1959				14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742
-PSUC	36751	Hetaerina americana	Hetaerina americana		Collecting Event No.	59310A	Local::TripCode	8.2.1959	8	2	1959				14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742
-PSUC	35482	Hetaerina americana	Hetaerina americana		Collecting Event No.	59310B	Local::TripCode	8.3.1959	8	3	1959				14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742
-PSUC	98958	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	7.31.1956	7	31	1956				"""Las Estacas"", near Jojutla, Morelos, Mexico"
-PSUC	98173	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	5.3.1958	5	3	1958				5 mi S Plan de Barrancas, Jalisco, Mex	20.970588	-104.209703	9021	m	GEOLocate
-PSUC	95290	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	5.3.1953	5	3	1953				5 mi S Plan de Barrancas, Jalisco, Mex	20.970588	-104.209703	9021	m	GEOLocate
-PSUC	92347	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	5.3.1953	5	3	1953				5 mi S Plan de Barrancas, Jalisco, Mex	20.970588	-104.209703	9021	m	GEOLocate
-PSUC	35054	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	5.3.1953	5	3	1953				5 mi S. Plan de Barrancas, Jalisco, Mexico	20.970588	-104.209703	9021	m	GEOLocate
-PSUC	38857	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.5.1945	9	5	1945				Albertson Brook, 3 mi S of Atsion, NJ	39.699134	-74.725992	6954	 m
-PSUC	38859	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.5.1945	9	5	1945				Albertson Brook, 3 mi S of Atsion, NJ	39.699134	-74.725992	6954	 m
-PSUC	40034	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.5.1945	9	5	1945				Albertson Brook, 3 mi S of Atsion, NJ	39.699134	-74.725992	6954	 m
-PSUC	37936	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.5.1945	9	5	1945				Albertson Brook, 3 mi. S of Atsion, NJ	39.699134	-74.725992	6954	 m
-PSUC	39056	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.5.1945	9	5	1945				Albertson Brook, 3 mi. S of Atsion, NJ	39.699134	-74.725992	6954	 m
-PSUC	84644	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.14-15.1954	9	14	1954	9	15	1954	Balmorhea State Park-Canal, Reeves Co, TX	30.944732	-103.785055
-PSUC	91941	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.1-3.1954	9	1	1954	9	3	1954	Calaveras Cr. near Saspamco & San Antonio R., Wilson Co, TX
-PSUC	85029	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.1-3.1954	9	1	1954	9	3	1954	Calaveras Cr. near Saspamco & San Antonio R., Wilson Co, TX
-PSUC	91969	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.1-3.1954	9	1	1954	9	3	1954	Calaveras Cr. near Saspamco & San Antonio R., Wilson Co, TX
-PSUC	98842	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.1-3.1954	9	1	1954	9	3	1954	Calaveras Cr. near Saspamco & San Antonio R., Wilson Co, TX
-PSUC	91909	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	6.15.1952	6	15	1952				Current River, Van Buren, Missouri	36.253122	-90.91262	210	m
-PSUC	39121	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.29.1945	8	29	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
-PSUC	38948	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.29.1945	8	29	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
-PSUC	38961	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.29.1945	8	29	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
-PSUC	38974	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.27.1945	8	27	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
-PSUC	40046	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.29.1945	8	29	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
-PSUC	39080	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.29.1945	8	29	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
-PSUC	35095	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	10.11.1958	10	11	1958				E. Verde River, between Payson & Pine, Gila Co, Arizona	34.29988	-111.683757
-PSUC	37052	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	10.11.1958	10	11	1958				E. Verde River, between Payson & Pine, Gila Co, Arizona	34.29988	-111.683757
-PSUC	39197	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	6.6.1952	6	6	1952				Eaton, Ind-Mississinewa R.	40.33698	-85.352872	2.11	km	GEOLocate
-PSUC	91889	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.13.1954	9	13	1954				Frio R., Garner State Park, Uvalde Co, Texas	29.597903	-99.730698	2422	m 	GEOLocate
-PSUC	98946	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.13.1954	9	13	1954				Frio R., Garner State Park, Uvalde Co, Texas	29.597903	-99.730698	2422	m 	GEOLocate
-PSUC	92089	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.13.1954	9	13	1954				Frio R., Garner State Park, Uvalde Co, Texas	29.597903	-99.730698	2422	m 	GEOLocate
-PSUC	98889	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.29.1954	9	29	1954				Hansen Dam near San Fernando	34.271363	-118.389743	2331	m 	GEOLocate
-PSUC	85047	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.29.1956	8	29	1956				Junct. Gamble Run & Pine Cr. near Tomb, Lycoming Co, Penna.	41.2395	-77.33392	3036	m	GEOLocate
-PSUC	84978	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.29.1956	8	29	1956				Junct. Gamble Run & Pine Cr. near Tomb, Lycoming Co, Penna.	41.2395	-77.33392	3036	m	GEOLocate
-PSUC	39050	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.9.1953	9	9	1953				Lahaska Creek, Buckingham, PA	40.322931	-75.053944	210	m	GEOLocate
-PSUC	98726	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.9.1953	9	9	1953				Lahaska Creek, Buckingham, Bucks Co, Penna	40.322931	-75.053944	210	m	GEOLocate
-PSUC	40123	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.16.1953	8	16	1953				Manatawny Cr, Pottstown, PA	40.251022	-75.656573	210	m	GEOLocate
-PSUC	35590	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.8.1953	9	8	1953				Neshaminy Cr near Bridge Valley, PA	40.26845	-75.07188	2.11	km	GEOLocate
-PSUC	39763	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.6.1953	9	6	1953				Neshaminy Cr, near Bridge Valley, PA	40.26845	-75.07188	2.11	km	GEOLocate
-PSUC	38108	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.6.1953	9	6	1953				Neshaminy Cr, near Bridge Valley, PA	40.26845	-75.07188	2.11	km	GEOLocate
-PSUC	35645	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.8.1953	9	8	1953				Neshaminy Creek near Bridge Valley, PA	40.26845	-75.07188	2.11	km	GEOLocate
-PSUC	98450	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.5-7.1954	9	5	1954	9	7	1954	Nueces R. 3 mi N of Sandia, San Patricio Co, TX	28.038207	-97.855154	6954	m	GEOLocate
-PSUC	92007	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	7.26.1954	7	26	1954				Pigeon River at Howe, Lagrange Co, Indiana	41.717874	-85.424505	2.11	km	GEOLocate
-PSUC	84504	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	7.26.1954	7	26	1954				Pigeon River at Howe, Lagrange Co, Indiana	41.717874	-85.424505	2.11	km	GEOLocate
-PSUC	99034	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.25.1954	8	25	1954				Recreation area in Ouachita National Forest near Crystal Springs, Garland Co, Arkansas	34.542045	-93.35027	3036	m	GEOLocate
-PSUC	98768	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.19.1954	9	19	1954				Salt R. at Coon Bluff Campground, 15 mi NE of Mesa, Maricopa Co, Arizona	33.547587	-111.645817	2.11	km	GEOLocate
-PSUC	84134	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.19.1954	9	19	1954				Salt R. at Coon Bluff Campground, 15 mi NE of Mesa, Maricopa Co, Arizona	33.547587	-111.645817	2.11	km	GEOLocate
-PSUC	91923	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.19.1954	9	19	1954				Salt R. at Coon Bluff Campground, 15 mi NE of Mesa, Maricopa Co, Arizona	33.547587	-111.645817	2.11	km	GEOLocate
-PSUC	85027	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.19.1954	9	19	1954				Salt R. at Coon Bluff Campground, 15 mi NE of Mesa, Maricopa Co, Arizona	33.547587	-111.645817	2.11	km	GEOLocate
-PSUC	84789	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.19.1954	9	19	1954				Salt R. at Coon Bluff Campground, 15 mi NE of Mesa, Maricopa Co, Arizona	33.547587	-111.645817	2.11	km	GEOLocate
-PSUC	98220	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1954	9	3	1954				San Antonio R. near Saspamco & Calaveras Cr., Wilson Co, Texas	29.219972	-98.265156	2.11	km	GEOLocate
-PSUC	91550	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1954	9	3	1954				San Antonio R. near Saspamco & Calaveras Cr., Wilson Co, Texas	29.219972	-98.265156	2.11	km	GEOLocate
-PSUC	82020	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1954	9	3	1954				San Antonio R. near Saspamco & Calaveras Cr., Wilson Co, Texas	29.219972	-98.265156	2.11	km	GEOLocate
-PSUC	99046	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1954	9	3	1954				San Antonio R. near Saspamco & Calaveras Cr., Wilson Co, Texas	29.219972	-98.265156	2.11	km	GEOLocate
-PSUC	36935	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	7.9-13.1958	7	9	1958	7	13	1958	Santo Domingo, 15 mi SE of Simojovel, Chiapas, Mex	17.0457	-92.471877	11283	m	GEOLocate
-PSUC	92025	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.23.1954	9	23	1954				Sespe Cr. 5 mi N of Fillmore, Ventura Co, California	34.45821	-118.925302	8523	m	GEOLocate
-PSUC	91877	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.23.1954	9	23	1954				Sespe Cr. 5 mi N of Fillmore, Ventura Co, California	34.45821	-118.925302	8523	m	GEOLocate
-PSUC	85009	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.23.1954	9	23	1954				Sespe Cr. 5 mi N of Fillmore, Ventura Co, California	34.45821	-118.925302	8523	m	GEOLocate
-PSUC	85043	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.23.1954	9	23	1954				Sespe Cr. 5 mi N of Fillmore, Ventura Co, California	34.45821	-118.925302	8523	m	GEOLocate
-PSUC	36359	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.24.1969	8	24	1969				Squannacook River at Mass. Fish and Game Management Area, Shirley-Pepperell town line elev 250 feet, Middlesex County, Massachusetts	42.602362	-71.627787	210	m	GEOLocate
-PSUC	36211	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.24.1969	8	24	1969				Squannacook River at Mass. Fish and Game Management Area, Shirley-Pepperell town line elev 250 feet, Middlesex County, Massachusetts	42.602362	-71.627787	210	m	GEOLocate
-PSUC	42469	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	5.27.1952	5	27	1952				St. Helena, Calif.	40.773476	-123.128365	3036	m	GEOLocate
-PSUC	91879	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	7.26.1954	7	26	1954				stream flowing into N. end of Long Lake near Union, Cass Co, Michigan	41.85177	-85.90155	621	m	GEOLocate
-PSUC	85016	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	7.26.1954	7	26	1954				stream flowing into N. end of Long Lake near Union, Cass Co, Michigan	41.85177	-85.90155	621	m	GEOLocate
-PSUC	84219	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	7.17.1957	7	17	1957				Suchiapa, Chiapas, Mex	16.6237	-93.100291	3036	m	GEOLocate
-PSUC	35115	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	7.17.1957	7	17	1957				Suchiapa, Chiapas, Mex	16.6237	-93.100291	3036	m	GEOLocate
-PSUC	84919	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.28.1954	9	28	1954				Tujunga Cr 5 mi NE of Tujunga, LA Co, California	34.301187	-118.269629	17043	m	GEOLocate
-PSUC	98828	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.28.1954	9	28	1954				Tujunga Cr 5 mi NE of Tujunga, LA Co, California	34.301187	-118.269629	17043	m	GEOLocate
-PSUC	91935	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.29.1954	9	29	1954				Tujunga Cr at Highway #118, near Sunland, LA Co, California	34.266947	-118.3023	3036	m	GEOLocate
-PSUC	99043	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.24.1954	9	24	1954				Tujunga Cr, 1/2 mi. below Big Tujunga Dam, LA Co, California	34.286115	-118.194072	821	m	GEOLocate
-PSUC	39091	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.7.1953	8	7	1953				Unami Cr, Finland, PA	40.38205	-75.419856	2.11	km	GEOLocate
-PSUC	38876	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.10.1953	8	10	1953				Unami Creek, Finland, PA	40.38205	-75.419856	2.11	km	GEOLocate
-PSUC	35573	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.6.1953	8	6	1953				Unami Creek, Finland, PA	40.38205	-75.419856	2.11	km	GEOLocate
-PSUC	38926	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.15.1953	8	15	1953				Unami Creek, Finland, PA	40.38205	-75.419856	2.11	km	GEOLocate
-PSUC	98718	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	7.25.1954	7	25	1954				Wabash River 2 mi E of Bluffton, Indiana	40.741194	-85.169491	2.11	km	GEOLocate
-PSUC	35383	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
-PSUC	38870	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
-PSUC	35597	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
-PSUC	37810	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
-PSUC	38907	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
-PSUC	38981	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
-PSUC	38865	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
-PSUC	38122	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
-PSUC	39073	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
-PSUC	39087	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
-PSUC	36735	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	8.28.1954	8	28	1954				Zamora, Michoacan, Mex	19.989115	-102.284773	3036	m	GEOLocate
-PSUC	92228	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	4.1.1958	4	1	1958
+MuleDeer	35614	Hetaerina americana	Hetaerina americana		Collecting Event No.	367	Local::FieldNumber	8.18.1941	8	18	1941				Creek on Mary Shannon's place, Dallas, Texas
+PSUC	39024	Hetaerina americana	Hetaerina americana		Collecting Event No.	372	Local::FieldNumber	Spring 1938	3		1938	5		1938	S of San Antonio, Texas
+PSUC	37926	Hetaerina americana	Hetaerina americana		Collecting Event No.	2570	Local::FieldNumber	7.30.1950	7	30	1950				Fish Hatchery, Kerrville, Tex.	30.047433	-99.140319	10339	m	GEOLocate
+PSUC	38919	Hetaerina americana	Hetaerina americana		Collecting Event No.	5158	Local::FieldNumber	8.5.1951	8	5	1951				Real Co, TX	29.728835	-99.761448	1419	m	GEOLocate
+PSUC	38866	Hetaerina americana	Hetaerina americana		Collecting Event No.	5302	Local::FieldNumber	6.16.1953	6	16	1953				San Saba Co, Texas	31.195723	-98.718098	2631	m	GEOLocate
+PSUC	35628	Hetaerina americana	Hetaerina americana		Collecting Event No.	5314	Local::FieldNumber	6.25.1953	6	25	1953				Uvalde Co, TX	29.209684	-99.786168	5034	m	GEOLocate
+PSUC	39770	Hetaerina americana	Hetaerina americana		Collecting Event No.	58157	Local::FieldNumber	7.12.1958	7	12	1958				highway 85, just S of Caracol & N of El Encino	23.167282	-99.108196	2000	m	GEOLocate
+PSUC	35423	Hetaerina americana	Hetaerina americana		Collecting Event No.	58160	Local::FieldNumber	7.12.1958	7	12	1958				El Salto (NE-10 mi W of Nuevo Morelos, Tamps.) : various locations aroun falls	22.533935	-99.377674	14731	m	GEOLocate
+PSUC	40857	Hetaerina americana	Hetaerina americana		Collecting Event No.	58169	Local::FieldNumber	7.22.1958	7	22	1958				Zimapan (extreme W): .5 mi S of town: arroyo crossing highway	20.730999	-99.374535	200	200
+PSUC	35397	Hetaerina americana	Hetaerina americana		Collecting Event No.	58170	Local::FieldNumber	7.22.1958	7	22	1958				Rio Tula, ca. 1.5 mi. E. of Tasquillo, HGO.; 5500'. 22.vii.1958	20.550498	-99.290934	2.11	km	GEOLocate
+PSUC	35467	Hetaerina americana	Hetaerina americana		Collecting Event No.	58170	Local::FieldNumber	7.22.1958	7	22	1958				Rio Tula, ca. 1.5 mi. E. of Tasquillo, HGO.; 5500'. 22.vii.1959	20.550498	-99.290934	2.11	km	GEOLocate
+PSUC	35463	Hetaerina americana	Hetaerina americana		Collecting Event No.	58170	Local::FieldNumber	7.22.1958	7	22	1958				Rio Tula, ca. 1.5 mi. E. of Tasquillo, HGO.; 5500'. 22.vii.1960	20.550498	-99.290934	2.11	km	GEOLocate
+PSUC	35553	Hetaerina americana	Hetaerina americana		Collecting Event No.	58170	Local::FieldNumber	7.22.1958	7	22	1958				Rio Tula, ca. 1.5 mi. E. of Tasquillo, HGO.; 5500'. 22.vii.1961	20.550498	-99.290934	2.11	km	GEOLocate
+PSUC	35401	Hetaerina americana	Hetaerina americana		Collecting Event No.	58170	Local::FieldNumber	7.22.1958	7	22	1958				Rio Tula, ca. 1.5 mi. E. of Tasquillo, HGO.; 5500'. 22.vii.1962	20.550498	-99.290934	2.11	km	GEOLocate
+PSUC	35543	Hetaerina americana	Hetaerina americana		Collecting Event No.	58189	Local::FieldNumber	8.5.1958	8	5	1958				8.8 mi NW on rd to La Tinaja: Rio Estanzuela	18.550042	-96.387774	200	200
+PSUC	40893	Hetaerina americana	Hetaerina americana		MuleDear	58203	Local::FieldNumber	8.11.1958	8	11	1958				Rio Moreno at h'way bridge 12 mi. N. of Tierra Blanca, VER.; 285'. 11.viii.1958	18.549976	-96.387825	3036	m	GEOLocate
+PSUC	35441	Hetaerina americana	Hetaerina americana		Collecting Event No.	58204	Local::FieldNumber	7.20.1958	7	20	1958				Rio Coyolucan below h'way bridge, 13.6 mi. N. Tierra Blanca, VER.; 285'. 11.viii.1958	18.579415	-96.39854	3036	m	GEOLocate
+PSUC	37991	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::FieldNumber	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1960	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	35382	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::FieldNumber	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1961	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	35406	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::FieldNumber	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1962	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	39509	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::FieldNumber	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1963	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	35399	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::FieldNumber	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1964	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	35352	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::FieldNumber	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1965	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	41614	Hetaerina americana	Hetaerina americana		Collecting Event No.	58208	Local::FieldNumber	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1967	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	42247	Hetaerina americana	Hetaerina americana		Collecting Event No.	58209	Local::FieldNumber	7.25.1958	7	25	1958				8.7 mi SE: arroyo flowing into L. Catemaco	18.359967	-95.120483	6845	m	GEOLocate
+PSUC	84016	Hetaerina americana	Hetaerina americana		Collecting Event No.	58210	Local::FieldNumber	7.25.1958	7	25	1958				Arroyo Zapoapan, 0.3 mi. S. of Zapoapan, VER.; below crossing of H'way #180, 15.4 mi. S.E. of San Andrés Tuxtla; ca. 1400'(+). stream & pools in dense jungle as well as main stream. 14.viii.1958	18.835715	-96.991812			GEOLocate
+PSUC	35404	Hetaerina americana	Hetaerina americana		Collecting Event No.	58212	Local::FieldNumber	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1968	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	39866	Hetaerina americana	Hetaerina americana		Collecting Event No.	58212	Local::FieldNumber	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1969	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	35530	Hetaerina americana	Hetaerina americana		Collecting Event No.	58212	Local::FieldNumber	7.25.1958	7	25	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1970	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	37881	Hetaerina americana	Hetaerina americana		Collecting Event No.	58212	Local::FieldNumber
+PSUC	35600	Hetaerina americana	Hetaerina americana		Collecting Event No.	58214	Local::FieldNumber	7.14.1958	7	14	1958				8.7 mi SE: arroyo flowing into L. Catemaco	18.359967	-95.120483	6845	m	GEOLocate
+PSUC	35599	Hetaerina americana	Hetaerina americana		Collecting Event No.	58215	Local::FieldNumber	8.16.1958	8	16	1958				San Andres Tuxtla: 25.9 mi SE, arroyo crossing highway 180	18.182218	-94.932567	2.11	km	GEOLocate
+PSUC	35465	Hetaerina americana	Hetaerina americana		Collecting Event No.	58228	Local::FieldNumber	8.16.1958	8	16	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1958	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	41861	Hetaerina americana	Hetaerina americana		Collecting Event No.	58228	Local::FieldNumber	8.16.1958	8	16	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1959	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	39887	Hetaerina americana	Hetaerina americana		Collecting Event No.	58228	Local::FieldNumber	8.16.1958	8	16	1958				Arroyo 0.8 mi. S. of H'way #180 at Sihuapan, VER., which is 4 mi. S.E. of San Andres Tuxtla; ca. 1200'. 21.viii.1966	18.425145	-95.177301	3036	m	GEOLocate
+PSUC	35531	Hetaerina americana	Hetaerina americana		Collecting Event No.	58240	Local::FieldNumber	8.28.1958	8	28	1958				2.7 mi. S.W. of San Juan Teotihuacan, MEXICO state; small canal beside road (Rt. #132); 7600'. 28.viii.1958	19.660834	-98.892113	3899	m	GEOLocate
+PSUC	42578	Hetaerina americana	Hetaerina americana		Collecting Event No.	58240	Local::FieldNumber	8.28.1958	8	28	1958				2.7 mi. S.W. of San Juan Teotihuacan, MEXICO state; small canal beside road (Rt. #132); 7600'. 28.viii.1958	19.680393	-98.897778	3899	m	GEOLocate
+PSUC	40112	Hetaerina americana	Hetaerina americana		Collecting Event No.	58244	Local::FieldNumber	8.19.1958	8	19	1958				2.0 mi SW of RR crossing near Teapa, on rd to Pichucalco, Chiapas: arroyo	17.527588	-92.973844	5042	m	GEOLocate
+PSUC	39785	Hetaerina americana	Hetaerina americana		Collecting Event No.	58256	Local::FieldNumber	7.14.1958	7	14	1958				El Salto, S.L.P., 10 mi. W. of Nuevo Morelos, TAMPS.; river-bank close to falls, tributary streams, pools, weedy fields near river; 2120'. 2.ix.1958	22.533935	-99.377674	14731	m	GEOLocate
+PSUC	35550	Hetaerina americana	Hetaerina americana		Collecting Event No.	58256	Local::FieldNumber	7.14.1958	7	14	1958				El Salto, S.L.P., 10 mi. W. of Nuevo Morelos, TAMPS.; river-bank close to falls, tributary streams, pools, weedy fields near river; 2120'. 2.ix.1959	22.533935	-99.377674	14731	m	GEOLocate
+PSUC	83845	Hetaerina americana	Hetaerina americana		Collecting Event No.	58256	Local::FieldNumber	7.14.1958	7	14	1958				El Salto (NE-10 mi W of Nuevo Morelos, Tamps.) : various locations aroun falls	22.533935	-99.377674	14731	m	GEOLocate
+PSUC	41495	Hetaerina americana	Hetaerina americana		Collecting Event No.	59287	Local::FieldNumber	7.24.1959	7	24	1959				Salto de Eyipantla, 5.4 mi. S.W. of Sihuapan, which is 4 mi. S.E. of San Andrés Tuxtla, VER.; elev. ca. 1300'. 24.vii.1959	18.381099	-95.236853	5093	m	GEOLocate
+PSUC	39796	Hetaerina americana	Hetaerina americana		Collecting Event No.	59287	Local::FieldNumber	8.27.1959	8	27	1959				6.1 mi S on road to Oaxaca: waterfall stream
+PSUC	39771	Hetaerina americana	Hetaerina americana		Collecting Event No.	59287	Local::FieldNumber	8.27.1959	8	27	1959				6.1 mi S on road to Oaxaca: waterfall stream
+PSUC	35479	Hetaerina americana	Hetaerina americana		Collecting Event No.	59287	Local::FieldNumber	8.27.1959	8	27	1959				6.1 mi S on road to Oaxaca: waterfall stream
+PSUC	35484	Hetaerina americana	Hetaerina americana		Collecting Event No.	59287	Local::FieldNumber	8.27.1959	8	27	1959				6.1 mi S on road to Oaxaca: waterfall stream
+PSUC	35384	Hetaerina americana	Hetaerina americana		Collecting Event No.	59296	Local::FieldNumber	7.28.1959	7	28	1959				21.8 mi NW: Presa el Marques; pool near Rio Tequisistlan	16.498541	-95.450792
+PSUC	42317	Hetaerina americana	Hetaerina americana		Collecting Event No.	59299	Local::FieldNumber	7.29.1959	7	29	1959				14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742
+PSUC	35509	Hetaerina americana	Hetaerina americana		Collecting Event No.	59300	Local::FieldNumber	7.30.1959	7	30	1959				Rio Blanco at Chiapa	16.746909	-92.967035
+PSUC	35554	Hetaerina americana	Hetaerina americana		Collecting Event No.	59302	Local::FieldNumber	7.31.1959	7	31	1959				"""Arroyo de Rancho San Joaquin"" 14.8 mi. S. of Tuxtla Gutierrez, CHIS., on road to Suchiapa; 1500'. 31.vii.1959"	16.541551	-93.079533	2.11	km	GEOLocate
+PSUC	35388	Hetaerina americana	Hetaerina americana		Collecting Event No.	59305	Local::FieldNumber	8.1.1959	8	1	1959				small stream crossing road at La Gloria, 0.2 mi. N. of H'way #190 at a point 4.3 mi. W. of Tuxtla Gutierrez, CHIS.; 1200'. 1.viii.1959	16.775081	-93.201033	5488	m	GEOLocate
+PSUC	37871	Hetaerina americana	Hetaerina americana		Collecting Event No.	59305	Local::FieldNumber	8.1.1959	8	1	1959				small stream crossing road at La Gloria, 0.2 mi. N. of H'way #190 at a point 4.3 mi. W. of Tuxtla Gutierrez, CHIS.; 1200'. 1.viii.1959	16.775081	-93.201033	5488	m	GEOLocate
+PSUC	35369	Hetaerina americana	Hetaerina americana		Collecting Event No.	59308	Local::FieldNumber	8.2.1959	8	2	1959				Tehuantepec: 6.4 mi NE irrigation canal	16.376327	-95.158886	4133	m	GEOLocate
+PSUC	42676	Hetaerina americana	Hetaerina americana		Collecting Event No.	59309	Local::FieldNumber	8.2.1959	8	2	1959				Rio Guamol, below H'way #190, 43.5 mi. E. of Juchitán, OAX.; 200'. 2.viii.1959	16.455746	-94.36277	54872	m	GEOLocate
+PSUC	41511	Hetaerina americana	Hetaerina americana		Collecting Event No.	59312	Local::FieldNumber	8.3.1959	8	3	1959				20.5 mi. E. of Juchitán, OAX.; small irrigation ditch & leakage pools on S. side of H'way #190; 300'. 3.viii.1959	16.435803	-94.708926	26632	m	GEOLocate
+PSUC	35416	Hetaerina americana	Hetaerina americana		Collecting Event No.	59312	Local::FieldNumber	8.3.1959	8	3	1959				20.5 mi. E. of Juchitán, OAX.; small irrigation ditch & leakage pools on S. side of H'way #190; 300'. 3.viii.1960	16.435803	-94.708926	26632	m	GEOLocate
+PSUC	35372	Hetaerina americana	Hetaerina americana		Collecting Event No.	59313	Local::FieldNumber	8.3.1959	8	3	1959				Juchitan SE: 18.4 mi E: Rio de Ingenio Santo Domingo	16.435848	-94.740766	24064	m	GEOLocate
+PSUC	35510	Hetaerina americana	Hetaerina americana		Collecting Event No.	59314	Local::FieldNumber	8.4.1959	8	4	1959				Rio Almolaya, at H'way #185, 28.6 mi. N. of Juchitán, OAX. 675'. 4.viii.1959	16.85195	-95.01975
+PSUC	35445	Hetaerina americana	Hetaerina americana		Collecting Event No.	59352	Local::FieldNumber	8.16.1959	8	16	1959				13 mi. S. of Izucar de Matamoros, PUE.; stream at H'way #190; 4000'. 16.viii.1959	18.412495	-98.464992	18297	m	GEOLocate
+PSUC	35529	Hetaerina americana	Hetaerina americana		Collecting Event No.	59352	Local::FieldNumber
+PSUC	35429	Hetaerina americana	Hetaerina americana		Collecting Event No.	59353	Local::FieldNumber
+PSUC	40729	Hetaerina americana	Hetaerina americana		Collecting Event No.	59353	Local::FieldNumber
+PSUC	35591	Hetaerina americana	Hetaerina americana		Collecting Event No.	461513	Local::FieldNumber
+PSUC	39141	Hetaerina americana	Hetaerina americana		Collecting Event No.	461514	Local::FieldNumber
+PSUC	38889	Hetaerina americana	Hetaerina americana		Collecting Event No.	461515	Local::FieldNumber
+PSUC	42326	Hetaerina americana	Hetaerina americana		Collecting Event No.	461516	Local::FieldNumber
+PSUC	39172	Hetaerina americana	Hetaerina americana		Collecting Event No.	461517	Local::FieldNumber
+PSUC	35552	Hetaerina americana	Hetaerina americana		Collecting Event No.	461518	Local::FieldNumber
+PSUC	38982	Hetaerina americana	Hetaerina americana		Collecting Event No.	461519	Local::FieldNumber
+PSUC	39178	Hetaerina americana	Hetaerina americana		Collecting Event No.	461520	Local::FieldNumber
+PSUC	39055	Hetaerina americana	Hetaerina americana		Collecting Event No.	461521	Local::FieldNumber
+PSUC	40131	Hetaerina americana	Hetaerina americana		Collecting Event No.	461522	Local::FieldNumber
+PSUC	35561	Hetaerina americana	Hetaerina americana		Collecting Event No.	461523	Local::FieldNumber
+PSUC	42738	Hetaerina americana	Hetaerina americana		Collecting Event No.	461524	Local::FieldNumber
+PSUC	39042	Hetaerina americana	Hetaerina americana		Collecting Event No.	461525	Local::FieldNumber
+PSUC	40062	Hetaerina americana	Hetaerina americana		Collecting Event No.	461526	Local::FieldNumber
+PSUC	39090	Hetaerina americana	Hetaerina americana		Collecting Event No.	461527	Local::FieldNumber
+PSUC	38863	Hetaerina americana	Hetaerina americana		Collecting Event No.	461528	Local::FieldNumber
+PSUC	38933	Hetaerina americana	Hetaerina americana		Collecting Event No.	461529	Local::FieldNumber
+PSUC	35592	Hetaerina americana	Hetaerina americana		Collecting Event No.	461530	Local::FieldNumber
+PSUC	39179	Hetaerina americana	Hetaerina americana		Collecting Event No.	461531	Local::FieldNumber
+PSUC	39128	Hetaerina americana	Hetaerina americana		Collecting Event No.	461532	Local::FieldNumber
+PSUC	35652	Hetaerina americana	Hetaerina americana		Collecting Event No.	461533	Local::FieldNumber
+PSUC	39136	Hetaerina americana	Hetaerina americana		Collecting Event No.	461534	Local::FieldNumber
+PSUC	91776	Hetaerina americana	Hetaerina americana		Collecting Event No.	461535	Local::FieldNumber
+PSUC	39019	Hetaerina americana	Hetaerina americana		Collecting Event No.	461536	Local::FieldNumber
+PSUC	39195	Hetaerina americana	Hetaerina americana		Collecting Event No.	461537	Local::FieldNumber
+PSUC	40064	Hetaerina americana	Hetaerina americana		Collecting Event No.	461538	Local::FieldNumber
+PSUC	38936	Hetaerina americana	Hetaerina americana		Collecting Event No.	461539	Local::FieldNumber
+PSUC	40140	Hetaerina americana	Hetaerina americana		Collecting Event No.	461540	Local::FieldNumber
+PSUC	38987	Hetaerina americana	Hetaerina americana		Collecting Event No.	461541	Local::FieldNumber
+PSUC	38123	Hetaerina americana	Hetaerina americana		Collecting Event No.	461542	Local::FieldNumber
+PSUC	40056	Hetaerina americana	Hetaerina americana		Collecting Event No.	461543	Local::FieldNumber
+PSUC	39058	Hetaerina americana	Hetaerina americana		Collecting Event No.	461544	Local::FieldNumber
+PSUC	38880	Hetaerina americana	Hetaerina americana		Collecting Event No.	461545	Local::FieldNumber
+PSUC	39078	Hetaerina americana	Hetaerina americana		Collecting Event No.	461546	Local::FieldNumber
+PSUC	38996	Hetaerina americana	Hetaerina americana		Collecting Event No.	461547	Local::FieldNumber
+PSUC	37983	Hetaerina americana	Hetaerina americana		Collecting Event No.	461548	Local::FieldNumber
+PSUC	40167	Hetaerina americana	Hetaerina americana		Collecting Event No.	461549	Local::FieldNumber
+PSUC	37979	Hetaerina americana	Hetaerina americana		Collecting Event No.	461550	Local::FieldNumber
+PSUC	38998	Hetaerina americana	Hetaerina americana		Collecting Event No.	461551	Local::FieldNumber
+PSUC	42772	Hetaerina americana	Hetaerina americana		Collecting Event No.	461562	Local::FieldNumber
+PSUC	40120	Hetaerina americana	Hetaerina americana		Collecting Event No.	461563	Local::FieldNumber
+PSUC	38993	Hetaerina americana	Hetaerina americana		Collecting Event No.	461564	Local::FieldNumber
+PSUC	39897	Hetaerina americana	Hetaerina americana		Collecting Event No.	461565	Local::FieldNumber
+PSUC	38963	Hetaerina americana	Hetaerina americana		Collecting Event No.	461566	Local::FieldNumber
+PSUC	39111	Hetaerina americana	Hetaerina americana		Collecting Event No.	461567	Local::FieldNumber
+PSUC	35581	Hetaerina americana	Hetaerina americana		Collecting Event No.	461568	Local::FieldNumber
+PSUC	39048	Hetaerina americana	Hetaerina americana		Collecting Event No.	461569	Local::FieldNumber
+PSUC	35492	Hetaerina americana	Hetaerina americana		Collecting Event No.	461570	Local::FieldNumber
+PSUC	35588	Hetaerina americana	Hetaerina americana		Collecting Event No.	461571	Local::FieldNumber
+PSUC	43043	Hetaerina americana	Hetaerina americana		Collecting Event No.	461572	Local::FieldNumber
+PSUC	35648	Hetaerina americana	Hetaerina americana		Collecting Event No.	461573	Local::FieldNumber
+PSUC	35693	Hetaerina americana	Hetaerina americana		Collecting Event No.	461574	Local::FieldNumber
+PSUC	35646	Hetaerina americana	Hetaerina americana		Collecting Event No.	461575	Local::FieldNumber
+PSUC	35578	Hetaerina americana	Hetaerina americana		Collecting Event No.	461576	Local::FieldNumber
+PSUC	40122	Hetaerina americana	Hetaerina americana		Collecting Event No.	461577	Local::FieldNumber	1946							Westtown
+PSUC	39082	Hetaerina americana	Hetaerina americana		Collecting Event No.	461907	Local::FieldNumber
+PSUC	38873	Hetaerina americana	Hetaerina americana		Collecting Event No.	471178	Local::FieldNumber	7.27.1947	7	27	1947				Malaga, NJ	39.569838	-75.047675	2.11	km	GEOLocate
+PSUC	35459	Hetaerina americana	Hetaerina americana		Collecting Event No.	57/144	Local::FieldNumber
+PSUC	40901	Hetaerina americana	Hetaerina americana		Collecting Event No.	59306B	Local::FieldNumber	8.1.1959	8	1	1959				20.7 mi. N.E. of Cintalapa, CHIS.; shallow roadside ditches and stream; 1725'. 1.viii.1959	16.908408	-93.501291	13975	m	GEOLocate
+PSUC	35612	Hetaerina americana	Hetaerina americana		Collecting Event No.	59310A	Local::FieldNumber	8.2.1959	8	2	1959				14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742
+PSUC	36751	Hetaerina americana	Hetaerina americana		Collecting Event No.	59310A	Local::FieldNumber	8.2.1959	8	2	1959				14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742
+PSUC	35482	Hetaerina americana	Hetaerina americana		Collecting Event No.	59310B	Local::FieldNumber	8.3.1959	8	3	1959				14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742
+PSUC	98958	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	7.31.1956	7	31	1956				"""Las Estacas"", near Jojutla, Morelos, Mexico"
+PSUC	98173	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	5.3.1958	5	3	1958				5 mi S Plan de Barrancas, Jalisco, Mex	20.970588	-104.209703	9021	m	GEOLocate
+PSUC	95290	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	5.3.1953	5	3	1953				5 mi S Plan de Barrancas, Jalisco, Mex	20.970588	-104.209703	9021	m	GEOLocate
+PSUC	92347	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	5.3.1953	5	3	1953				5 mi S Plan de Barrancas, Jalisco, Mex	20.970588	-104.209703	9021	m	GEOLocate
+PSUC	35054	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	5.3.1953	5	3	1953				5 mi S. Plan de Barrancas, Jalisco, Mexico	20.970588	-104.209703	9021	m	GEOLocate
+PSUC	38857	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.5.1945	9	5	1945				Albertson Brook, 3 mi S of Atsion, NJ	39.699134	-74.725992	6954	 m
+PSUC	38859	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.5.1945	9	5	1945				Albertson Brook, 3 mi S of Atsion, NJ	39.699134	-74.725992	6954	 m
+PSUC	40034	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.5.1945	9	5	1945				Albertson Brook, 3 mi S of Atsion, NJ	39.699134	-74.725992	6954	 m
+PSUC	37936	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.5.1945	9	5	1945				Albertson Brook, 3 mi. S of Atsion, NJ	39.699134	-74.725992	6954	 m
+PSUC	39056	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.5.1945	9	5	1945				Albertson Brook, 3 mi. S of Atsion, NJ	39.699134	-74.725992	6954	 m
+PSUC	84644	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.14-15.1954	9	14	1954	9	15	1954	Balmorhea State Park-Canal, Reeves Co, TX	30.944732	-103.785055
+PSUC	91941	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.1-3.1954	9	1	1954	9	3	1954	Calaveras Cr. near Saspamco & San Antonio R., Wilson Co, TX
+PSUC	85029	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.1-3.1954	9	1	1954	9	3	1954	Calaveras Cr. near Saspamco & San Antonio R., Wilson Co, TX
+PSUC	91969	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.1-3.1954	9	1	1954	9	3	1954	Calaveras Cr. near Saspamco & San Antonio R., Wilson Co, TX
+PSUC	98842	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.1-3.1954	9	1	1954	9	3	1954	Calaveras Cr. near Saspamco & San Antonio R., Wilson Co, TX
+PSUC	91909	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	6.15.1952	6	15	1952				Current River, Van Buren, Missouri	36.253122	-90.91262	210	m
+PSUC	39121	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.29.1945	8	29	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
+PSUC	38948	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.29.1945	8	29	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
+PSUC	38961	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.29.1945	8	29	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
+PSUC	38974	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.27.1945	8	27	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
+PSUC	40046	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.29.1945	8	29	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
+PSUC	39080	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.29.1945	8	29	1945				Darby Cr, Radnor Twp, Delaware Co, PA	39.864851	-75.313145	210	m	GEOLocate
+PSUC	35095	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	10.11.1958	10	11	1958				E. Verde River, between Payson & Pine, Gila Co, Arizona	34.29988	-111.683757
+PSUC	37052	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	10.11.1958	10	11	1958				E. Verde River, between Payson & Pine, Gila Co, Arizona	34.29988	-111.683757
+PSUC	39197	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	6.6.1952	6	6	1952				Eaton, Ind-Mississinewa R.	40.33698	-85.352872	2.11	km	GEOLocate
+PSUC	91889	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.13.1954	9	13	1954				Frio R., Garner State Park, Uvalde Co, Texas	29.597903	-99.730698	2422	m 	GEOLocate
+PSUC	98946	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.13.1954	9	13	1954				Frio R., Garner State Park, Uvalde Co, Texas	29.597903	-99.730698	2422	m 	GEOLocate
+PSUC	92089	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.13.1954	9	13	1954				Frio R., Garner State Park, Uvalde Co, Texas	29.597903	-99.730698	2422	m 	GEOLocate
+PSUC	98889	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.29.1954	9	29	1954				Hansen Dam near San Fernando	34.271363	-118.389743	2331	m 	GEOLocate
+PSUC	85047	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.29.1956	8	29	1956				Junct. Gamble Run & Pine Cr. near Tomb, Lycoming Co, Penna.	41.2395	-77.33392	3036	m	GEOLocate
+PSUC	84978	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.29.1956	8	29	1956				Junct. Gamble Run & Pine Cr. near Tomb, Lycoming Co, Penna.	41.2395	-77.33392	3036	m	GEOLocate
+PSUC	39050	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.9.1953	9	9	1953				Lahaska Creek, Buckingham, PA	40.322931	-75.053944	210	m	GEOLocate
+PSUC	98726	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.9.1953	9	9	1953				Lahaska Creek, Buckingham, Bucks Co, Penna	40.322931	-75.053944	210	m	GEOLocate
+PSUC	40123	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.16.1953	8	16	1953				Manatawny Cr, Pottstown, PA	40.251022	-75.656573	210	m	GEOLocate
+PSUC	35590	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.8.1953	9	8	1953				Neshaminy Cr near Bridge Valley, PA	40.26845	-75.07188	2.11	km	GEOLocate
+PSUC	39763	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.6.1953	9	6	1953				Neshaminy Cr, near Bridge Valley, PA	40.26845	-75.07188	2.11	km	GEOLocate
+PSUC	38108	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.6.1953	9	6	1953				Neshaminy Cr, near Bridge Valley, PA	40.26845	-75.07188	2.11	km	GEOLocate
+PSUC	35645	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.8.1953	9	8	1953				Neshaminy Creek near Bridge Valley, PA	40.26845	-75.07188	2.11	km	GEOLocate
+PSUC	98450	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.5-7.1954	9	5	1954	9	7	1954	Nueces R. 3 mi N of Sandia, San Patricio Co, TX	28.038207	-97.855154	6954	m	GEOLocate
+PSUC	92007	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	7.26.1954	7	26	1954				Pigeon River at Howe, Lagrange Co, Indiana	41.717874	-85.424505	2.11	km	GEOLocate
+PSUC	84504	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	7.26.1954	7	26	1954				Pigeon River at Howe, Lagrange Co, Indiana	41.717874	-85.424505	2.11	km	GEOLocate
+PSUC	99034	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.25.1954	8	25	1954				Recreation area in Ouachita National Forest near Crystal Springs, Garland Co, Arkansas	34.542045	-93.35027	3036	m	GEOLocate
+PSUC	98768	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.19.1954	9	19	1954				Salt R. at Coon Bluff Campground, 15 mi NE of Mesa, Maricopa Co, Arizona	33.547587	-111.645817	2.11	km	GEOLocate
+PSUC	84134	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.19.1954	9	19	1954				Salt R. at Coon Bluff Campground, 15 mi NE of Mesa, Maricopa Co, Arizona	33.547587	-111.645817	2.11	km	GEOLocate
+PSUC	91923	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.19.1954	9	19	1954				Salt R. at Coon Bluff Campground, 15 mi NE of Mesa, Maricopa Co, Arizona	33.547587	-111.645817	2.11	km	GEOLocate
+PSUC	85027	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.19.1954	9	19	1954				Salt R. at Coon Bluff Campground, 15 mi NE of Mesa, Maricopa Co, Arizona	33.547587	-111.645817	2.11	km	GEOLocate
+PSUC	84789	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.19.1954	9	19	1954				Salt R. at Coon Bluff Campground, 15 mi NE of Mesa, Maricopa Co, Arizona	33.547587	-111.645817	2.11	km	GEOLocate
+PSUC	98220	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1954	9	3	1954				San Antonio R. near Saspamco & Calaveras Cr., Wilson Co, Texas	29.219972	-98.265156	2.11	km	GEOLocate
+PSUC	91550	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1954	9	3	1954				San Antonio R. near Saspamco & Calaveras Cr., Wilson Co, Texas	29.219972	-98.265156	2.11	km	GEOLocate
+PSUC	82020	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1954	9	3	1954				San Antonio R. near Saspamco & Calaveras Cr., Wilson Co, Texas	29.219972	-98.265156	2.11	km	GEOLocate
+PSUC	99046	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1954	9	3	1954				San Antonio R. near Saspamco & Calaveras Cr., Wilson Co, Texas	29.219972	-98.265156	2.11	km	GEOLocate
+PSUC	36935	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	7.9-13.1958	7	9	1958	7	13	1958	Santo Domingo, 15 mi SE of Simojovel, Chiapas, Mex	17.0457	-92.471877	11283	m	GEOLocate
+PSUC	92025	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.23.1954	9	23	1954				Sespe Cr. 5 mi N of Fillmore, Ventura Co, California	34.45821	-118.925302	8523	m	GEOLocate
+PSUC	91877	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.23.1954	9	23	1954				Sespe Cr. 5 mi N of Fillmore, Ventura Co, California	34.45821	-118.925302	8523	m	GEOLocate
+PSUC	85009	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.23.1954	9	23	1954				Sespe Cr. 5 mi N of Fillmore, Ventura Co, California	34.45821	-118.925302	8523	m	GEOLocate
+PSUC	85043	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.23.1954	9	23	1954				Sespe Cr. 5 mi N of Fillmore, Ventura Co, California	34.45821	-118.925302	8523	m	GEOLocate
+PSUC	36359	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.24.1969	8	24	1969				Squannacook River at Mass. Fish and Game Management Area, Shirley-Pepperell town line elev 250 feet, Middlesex County, Massachusetts	42.602362	-71.627787	210	m	GEOLocate
+PSUC	36211	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.24.1969	8	24	1969				Squannacook River at Mass. Fish and Game Management Area, Shirley-Pepperell town line elev 250 feet, Middlesex County, Massachusetts	42.602362	-71.627787	210	m	GEOLocate
+PSUC	42469	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	5.27.1952	5	27	1952				St. Helena, Calif.	40.773476	-123.128365	3036	m	GEOLocate
+PSUC	91879	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	7.26.1954	7	26	1954				stream flowing into N. end of Long Lake near Union, Cass Co, Michigan	41.85177	-85.90155	621	m	GEOLocate
+PSUC	85016	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	7.26.1954	7	26	1954				stream flowing into N. end of Long Lake near Union, Cass Co, Michigan	41.85177	-85.90155	621	m	GEOLocate
+PSUC	84219	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	7.17.1957	7	17	1957				Suchiapa, Chiapas, Mex	16.6237	-93.100291	3036	m	GEOLocate
+PSUC	35115	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	7.17.1957	7	17	1957				Suchiapa, Chiapas, Mex	16.6237	-93.100291	3036	m	GEOLocate
+PSUC	84919	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.28.1954	9	28	1954				Tujunga Cr 5 mi NE of Tujunga, LA Co, California	34.301187	-118.269629	17043	m	GEOLocate
+PSUC	98828	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.28.1954	9	28	1954				Tujunga Cr 5 mi NE of Tujunga, LA Co, California	34.301187	-118.269629	17043	m	GEOLocate
+PSUC	91935	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.29.1954	9	29	1954				Tujunga Cr at Highway #118, near Sunland, LA Co, California	34.266947	-118.3023	3036	m	GEOLocate
+PSUC	99043	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.24.1954	9	24	1954				Tujunga Cr, 1/2 mi. below Big Tujunga Dam, LA Co, California	34.286115	-118.194072	821	m	GEOLocate
+PSUC	39091	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.7.1953	8	7	1953				Unami Cr, Finland, PA	40.38205	-75.419856	2.11	km	GEOLocate
+PSUC	38876	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.10.1953	8	10	1953				Unami Creek, Finland, PA	40.38205	-75.419856	2.11	km	GEOLocate
+PSUC	35573	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.6.1953	8	6	1953				Unami Creek, Finland, PA	40.38205	-75.419856	2.11	km	GEOLocate
+PSUC	38926	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.15.1953	8	15	1953				Unami Creek, Finland, PA	40.38205	-75.419856	2.11	km	GEOLocate
+PSUC	98718	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	7.25.1954	7	25	1954				Wabash River 2 mi E of Bluffton, Indiana	40.741194	-85.169491	2.11	km	GEOLocate
+PSUC	35383	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
+PSUC	38870	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
+PSUC	35597	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
+PSUC	37810	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
+PSUC	38907	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
+PSUC	38981	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
+PSUC	38865	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
+PSUC	38122	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
+PSUC	39073	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
+PSUC	39087	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	9.3.1945	9	3	1945				Westtown Lake, Ches Co, PA	39.9522	-75.543411	873	m	GEOLocate
+PSUC	36735	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	8.28.1954	8	28	1954				Zamora, Michoacan, Mex	19.989115	-102.284773	3036	m	GEOLocate
+PSUC	92228	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::FieldNumber	4.1.1958	4	1	1958

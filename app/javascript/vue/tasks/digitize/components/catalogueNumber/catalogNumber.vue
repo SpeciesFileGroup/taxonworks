@@ -50,7 +50,7 @@
         <label>Identifier</label>
         <div class="horizontal-left-content field">
           <input
-            id="identifier-field"
+            id="catalog-number-identifier-field"
             :class="{
               'validate-identifier':
                 existingIdentifiers.length && !isCreatedIdentifierCurrent

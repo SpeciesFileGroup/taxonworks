@@ -31,7 +31,7 @@
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the provided uncertainty value.
 #
-# @!attribute verbatim_trip_identifier
+# @!attribute verbatim_field_number
 #   @return [String]
 #      the literal string/identifier used by the collector(s) to identify this particular collecting event, usually part of a series particular to one trip
 #
@@ -196,6 +196,7 @@ class CollectingEvent < ApplicationRecord
   include SoftValidation
   include Shared::Labels
   include Shared::IsData
+  include Shared::DwcOccurrenceHooks
 
   include CollectingEvent::GeoLocate
   include CollectingEvent::Georeference
@@ -213,19 +214,12 @@ class CollectingEvent < ApplicationRecord
   attr_accessor :with_verbatim_data_georeference
 
   # @return [Boolean]
-  #   When true, will not rebuild dwc_occurrence index.
-  #   See also Shared::IsDwcOccurrence
-  attr_accessor :no_dwc_occurrence
-
-  # @return [Boolean]
   #  When true, cached values are not built
   attr_accessor :no_cached
 
   # @return [Hash]
   #   of known country/state/county values
   attr_accessor :geographic_names
-
-  # handle_asynchronously :update_dwc_occurrences, run_at: Proc.new { 20.seconds.from_now }
 
   # See also CollectingEvent::GeoLocate
 
@@ -253,7 +247,6 @@ class CollectingEvent < ApplicationRecord
   before_save :set_times_to_nil_if_form_provided_blank
 
   after_save :set_cached, unless: -> { no_cached }
-  after_save :update_dwc_occurrences , unless: -> { no_dwc_occurrence }
 
   # See also app/models/collecting_event/georeference.rb for more accepts_nested_attributes
   accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
@@ -263,7 +256,6 @@ class CollectingEvent < ApplicationRecord
     :check_elevation_range,
     :check_min_land_elevation,
     :check_max_land_elevation,
-    :check_date_range,
     :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> { verbatim_label.blank? }
@@ -326,6 +318,16 @@ class CollectingEvent < ApplicationRecord
     set: :georeference,
     name: 'Missing geographic area',
     description: 'Georaphic area is missing')
+
+  def dwc_occurrences
+    # Through CollectionObjects
+    DwcOccurrence
+      .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
+      .where(co: {collecting_event_id: id})
+      .distinct
+
+    # TODO: Throuch FieldOccurrence
+  end
 
   # @param [String]
   def verbatim_label=(value)
@@ -1130,15 +1132,6 @@ class CollectingEvent < ApplicationRecord
     c[:cached] = string
 
     update_columns(c)
-  end
-
-  def update_dwc_occurrences
-    # reload is required!
-    if collection_objects.count < 501
-      collection_objects.reload.each do |o|
-        o.set_dwc_occurrence
-      end
-    end
   end
 
   def set_times_to_nil_if_form_provided_blank

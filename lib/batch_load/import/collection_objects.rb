@@ -123,7 +123,7 @@ module BatchLoad
                            time_end_minute:                  nil,
                            time_end_second:                  nil,
                            verbatim_date:                    row['verbatim_date'],
-                           verbatim_trip_identifier:         nil,
+                           verbatim_field_number:         nil,
                            verbatim_collectors:              nil,
                            verbatim_label:                   nil,
                            document_label:                   nil,

@@ -5,62 +5,74 @@
         <span class="capitalize">{{ rankName }}</span>
       </h3>
     </div>
-    <ul>
-      <li
-        class="no_bullets horizontal-left-content"
-        v-for="taxon in inOrder(list)"
-      >
-        <span
-          class="new-combination-rank-list-taxon-name"
-          v-html="taxon.object_tag"
-        />
-        <div class="horizontal-left-content separate-left">
-          <radial-annotator
-            type="annotator"
-            :global-id="taxon.global_id"
+    <div class="content">
+      <ul class="no_bullets">
+        <li
+          class="horizontal-left-content gap-small"
+          v-for="taxon in sortedList"
+          :key="taxon.id"
+        >
+          <span
+            class="new-combination-rank-list-taxon-name"
+            v-html="taxon.object_tag"
           />
-          <a
-            target="_blank"
-            :href="`/tasks/nomenclature/new_taxon_name/${taxon.id}`"
-            class="circle-button btn-edit"
-          />
-        </div>
-      </li>
-    </ul>
+          <div class="horizontal-left-content gap-small">
+            <RadialAnnotator :global-id="taxon.global_id" />
+            <VBtn
+              circle
+              color="primary"
+              @click="() => openLink(taxon)"
+            >
+              <VIcon
+                name="pencil"
+                x-small
+              />
+            </VBtn>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
-<script>
-import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 
-export default {
-  components: {
-    RadialAnnotator
+<script setup>
+import { RouteNames } from '@/routes/routes'
+import { computed } from 'vue'
+import { COMBINATION } from '@/constants'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+
+const props = defineProps({
+  list: {
+    type: Array,
+    required: true
   },
-  props: {
-    list: {
-      type: Array,
-      required: true
-    },
-    rankName: {
-      type: String,
-      required: true
-    }
-  },
-  methods: {
-    inOrder(list) {
-      const newOrder = list.slice(0)
-      newOrder.sort((a, b) => {
-        if (a.original_combination < b.original_combination) {
-          return -1
-        }
-        if (a.original_combination > b.original_combination) {
-          return 1
-        }
-        return 0
-      })
-      return newOrder
-    }
+  rankName: {
+    type: String,
+    required: true
   }
+})
+
+const sortedList = computed(() =>
+  props.list.toSorted((a, b) => {
+    if (a.original_combination < b.original_combination) {
+      return -1
+    }
+    if (a.original_combination > b.original_combination) {
+      return 1
+    }
+    return 0
+  })
+)
+
+function openLink(taxon) {
+  const link =
+    taxon.type === COMBINATION
+      ? `${RouteNames.NewCombination}?combination_id=${taxon.id}`
+      : `${RouteNames.NewTaxonName}?taxon_name_id=${taxon.id}`
+
+  window.open(link, '_blank')
 }
 </script>
 <style lang="scss">

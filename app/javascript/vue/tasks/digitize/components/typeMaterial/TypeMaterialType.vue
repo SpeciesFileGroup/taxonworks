@@ -6,7 +6,13 @@
         v-for="(_, key) in nomenclatureCodeTypes"
         :key="key"
       >
-        <li>
+        <li
+          v-if="
+            !typeMaterials.some(
+              (item) => item.type === key && item.uuid !== typeMaterial.uuid
+            )
+          "
+        >
           <label>
             <input
               class="capitalize"
@@ -32,6 +38,9 @@ import { GetterNames } from '../../store/getters/getters.js'
 const store = useStore()
 const typeList = ref({})
 
+const typeMaterials = computed(
+  () => store.getters[GetterNames.GetTypeSpecimens]
+)
 const typeMaterial = computed({
   get: () => store.getters[GetterNames.GetTypeMaterial],
   set: (value) => store.commit(MutationNames.SetTypeMaterial, value)

@@ -100,7 +100,9 @@ export default {
   },
 
   mounted() {
-    this.$refs.textareaRef.focus()
+    this.$nextTick(() => {
+      this.$refs.textareaRef.focus()
+    })
   },
 
   methods: {

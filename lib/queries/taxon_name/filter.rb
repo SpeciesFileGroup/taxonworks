@@ -41,6 +41,7 @@ module Queries
         :type_metadata,
         :validify,
         :validity,
+        :verbatim_name,
         :year,
         :year_end,
         :year_start,
@@ -151,6 +152,11 @@ module Queries
       # name is returned
       # !! This param is not like the others. !!
       attr_accessor :validify
+
+      # @oparams verbatim_name  ['true', True, nil]
+      # @return Boolean
+      #    if true then `verbatim_name` is populated
+      attr_accessor :verbatim_name
 
       # @params taxon_name_id [Array]
       #   An array of taxon_name_id.
@@ -332,6 +338,8 @@ module Queries
         @type_metadata = boolean_param(params, :type_metadata)
         @validify = boolean_param(params, :validify)
         @validity = boolean_param(params, :validity)
+        @verbatim_name = boolean_param(params, :verbatim_name)
+
         @year = params[:year]
         @year_end = params[:year_end]
         @year_start = params[:year_start]
@@ -448,9 +456,9 @@ module Queries
       def original_combination_facet
         return nil if original_combination.nil?
         if original_combination
-          ::Protonym.joins(:original_combination_relationships)
+          ::Protonym.joins(:original_combination_relationships).distinct
         else
-          ::Protonym.where.missing(:original_combination_relationships)
+          ::Protonym.left_joins(:original_combination_relationships).where(taxon_name_relationships: {id: nil})
         end
       end
 
@@ -704,6 +712,15 @@ module Queries
         end
       end
 
+      def verbatim_name_facet
+        return nil if verbatim_name.nil?
+        if verbatim_name
+          table[:verbatim_name].not_eq(nil)
+        else
+          table[:verbatim_name].eq(nil)
+        end
+      end
+
       def combination_taxon_name_id_facet
         return nil if combination_taxon_name_id.empty?
         ::Combination.joins(:related_taxon_name_relationships)
@@ -803,6 +820,7 @@ module Queries
           rank_facet,
           taxon_name_type_facet,
           validity_facet,
+          verbatim_name_facet,
           with_nomenclature_code,
           with_nomenclature_group,
           year_facet,

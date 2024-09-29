@@ -49,6 +49,7 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Depictions
   include Shared::ProtocolRelationships
   include Shared::IsData
+  include Shared::DwcOccurrenceHooks
   include SoftValidation
   ignore_whitespace_on(:print_label)
 
@@ -118,6 +119,22 @@ class TaxonDetermination < ApplicationRecord
   # @return [Time]
   def sort_date
     Utilities::Dates.nomenclature_date(day_made, month_made, year_made)
+  end
+
+  def dwc_occurrences
+
+    return DwcOccurrence.none unless taxon_determination_object.present? # if object is not yet saved don't bother doing this, in theory it will be redundant
+
+    # CollectionObjects
+
+    DwcOccurrence
+      .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
+      .joins("JOIN taxon_determinations td on co.id = td.taxon_determination_object_id AND td.taxon_determination_object_type = 'CollectionObject'")
+      .where(td: {id:} )
+      .distinct
+
+    # TODO: FieldOccurrences
+
   end
 
   protected

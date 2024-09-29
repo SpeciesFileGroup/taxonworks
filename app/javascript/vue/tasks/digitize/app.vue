@@ -42,7 +42,7 @@ import CollectingEventLayout from './components/collectingEvent/main.vue'
 import SettingsCollectionObject from './components/settings/SettingCollectionObject.vue'
 import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import LeftColumn from './components/LeftColumn.vue'
 import { User, Project } from '@/routes/endpoints'
 import { MutationNames } from './store/mutations/mutations.js'
@@ -136,6 +136,11 @@ function addShortcutsDescription() {
   TW.workbench.keyboard.createLegend(
     `${key}+b`,
     'Go to browse nomenclature',
+    TASK
+  )
+  TW.workbench.keyboard.createLegend(
+    `${key}+v`,
+    'Go to new collecting event',
     TASK
   )
 }

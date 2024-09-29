@@ -21,6 +21,16 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     let!(:o2) { Otu.create!(taxon_name: s2) }
     let!(:o3) { Otu.create!(name: 'none') }
 
+    # See lib/queries/query/filter.rb for application
+    specify 'order_by match_identifiers' do
+      ids = [ o3.id, o1.id, o2.id]
+
+      q.match_identifiers = ids.join(',')
+      q.order_by = 'match_identifiers'
+      q.match_identifiers_type = 'internal'
+      expect(q.all.pluck(:id)).to eq(ids)
+    end
+
     specify 'with synonymy' do
       q.otu_id = o1.id
       q.coordinatify = true

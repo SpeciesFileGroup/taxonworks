@@ -77,6 +77,7 @@
           <PaginationCount
             v-if="pagination"
             :pagination="pagination"
+            custom
             v-model="perValue"
           />
           <div class="horizontal-right-content gap-small">
@@ -155,7 +156,7 @@ import FilterJsonRequestPanel from './FilterJsonRequestPanel.vue'
 import PaginationComponent from '@/components/pagination'
 import PaginationCount from '@/components/pagination/PaginationCount'
 import NavBar from '@/components/layout/NavBar.vue'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'

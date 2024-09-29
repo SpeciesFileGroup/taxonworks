@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :containers do
+    scope :new_container, controller: 'tasks/containers/new_container' do
+      get '/', action: :index, as: 'new_container_task'
+    end
+  end
+
   scope :dwc_occurrences do
     scope :filter, controller: 'tasks/dwc_occurrences/filter' do
       get '/', action: :index, as: 'filter_dwc_occurrences_task'
@@ -13,7 +19,8 @@ scope :tasks do
   scope :data_attributes do
     scope :field_synchronize, controller: 'tasks/data_attributes/field_synchronize' do
       get '/', action: :index, as: 'field_synchronize_task'
-      get :values, defaults: {format: :json}
+      #get :values, defaults: {format: :json}
+      match :values, action: :values,  defaults: {format: :json}, via: [:get, :post]
     end
   end
 
@@ -653,8 +660,9 @@ scope :tasks do
       #   get 'set_author', as: 'set_author_for_otu_filter'
       #   get 'set_nomen', as: 'set_nomen_for_otu_filter'
       #   get 'set_verbatim', as: 'set_verbatim_for_otu_filter'
-      get 'download', action: 'download', as: 'download_otus_filter_result'
+      post 'download', action: 'download', as: 'download_otus_filter_result' # nested/large URIs
     end
+
   end
 
   scope :people do

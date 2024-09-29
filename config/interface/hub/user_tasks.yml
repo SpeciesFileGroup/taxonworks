@@ -893,6 +893,7 @@ new_otu_task:
   related:
   categories:
     - otu
+    - new
   status: prototype
   description: 'Create one or many OTUs in batch.'
 leads_hub_task:
@@ -924,6 +925,17 @@ collecting_events_spatial_summary_task:
   categories:
   status: prototype
   description: 'Summarize spatial characteristics of a set of Collecting Events.'
+new_container_task:
+  hub: true
+  name: 'New container'
+  related:
+    - collection_object
+    - extract
+  categories:
+    - new
+    - collection_object
+  status: prototype
+  description: 'Create containers and edit their contents. Add collection objects to containers.'
 import_nexus_task:
   hub: true
   name: 'Import Nexus file data'

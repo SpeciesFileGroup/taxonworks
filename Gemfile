@@ -30,9 +30,6 @@ gem 'roo-xls', '~> 1.2'
 
 gem 'csv', '~> 3.2'
 
-# Needed until Ruby 3.3.4 is released https://github.com/ruby/ruby/pull/11006
-gem 'net-pop', github: 'ruby/net-pop'
-
 gem 'net-smtp', '~> 0.4'
 gem 'mail', '~> 2.8', '>= 2.8.1'
 gem 'matrix', '~> 0.4.2'
@@ -54,7 +51,7 @@ gem 'rgeo-proj4', '~> 4.0' #, '>= 3.0.1'
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # translate for geo
-gem 'gpx', github: 'LocoDelAssembly/gpx', branch: 'ruby3'
+gem 'gpx', '~> 1.2'
 
 # API/controllers
 gem 'jbuilder', '~> 2.7'
@@ -76,7 +73,7 @@ gem 'delayed_job_active_record', '~> 4.1.3'
 
 gem 'validates_timeliness', '~> 7.0.0.beta2' # , '>= 4.1.1'
 
-
+gem 'rack', '~> 2.2.9' # TODO: Fix problems with workbench/elements/forms/ajax_select (and probably others) to avoid forcing this rack old version.
 
 gem 'paper_trail', '~> 15.0'
 
@@ -88,7 +85,6 @@ gem 'kt-paperclip', '~> 7.2'
 # gem 'paperclip', github: 'LocoDelAssembly/paperclip', branch: 'migration-fix' # gem 'paperclip', '~> 6.1.0'
 gem 'paperclip-meta', github: 'LocoDelAssembly/paperclip-meta', branch: 'kt-paperclip'
 
-gem 'voight_kampff', github: 'LocoDelAssembly/Voight-Kampff'
 gem 'shortener', '~> 1.0'
 gem 'rails_or', '~> 1.1.8'
 
@@ -105,14 +101,14 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '8.0.1'
+gem 'shakapacker', '8.0.2'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'
 gem 'bibtex-ruby', '~> 6.0'
 gem 'citeproc-ruby', '~> 2.0'
 gem 'csl-styles', '~> 2.0.1'
-gem 'serrano', github: 'LocoDelAssembly/serrano', branch: 'older_thor' #gem 'serrano', '~> 1.0.0'
+gem 'serrano', '~> 1.4'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
 
@@ -137,7 +133,7 @@ gem 'taxonifi', '~> 0.6.0'
 gem 'sqed', '~>0.8.3'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul', require: 'dwc_archive' # '~> 1.1', '>= 1.1.2'
-gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
+gem 'biodiversity', '~> 6.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 gem 'colrapi', '~>0.1.1'
@@ -179,7 +175,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
-  gem 'prawn', '~> 2.4.0'
+  gem 'prawn', '~> 2.5.0'
   gem 'puma', '~> 6.3'
 end
 

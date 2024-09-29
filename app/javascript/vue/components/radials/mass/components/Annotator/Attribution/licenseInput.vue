@@ -8,7 +8,7 @@
         :key="license.key"
         :value="license.key"
       >
-        <span> {{ license.label }}</span>
+        {{ license.label }}
       </option>
     </select>
     <VSpinner

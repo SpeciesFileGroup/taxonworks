@@ -41,7 +41,7 @@ class DwcOccurrencesController < ApplicationController
   def create
     respond_to do |format|
       format.html do
-        @object.set_dwc_occurrence
+        @object.set_dwc_occurrence # TODO: If sync is complete this is not needed.
         redirect_to browse_collection_objects_task_path(collection_object_id: @object.id)
       end
       format.json {

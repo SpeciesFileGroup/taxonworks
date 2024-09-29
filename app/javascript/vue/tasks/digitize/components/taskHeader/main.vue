@@ -129,7 +129,7 @@ import { Tippy } from 'vue-tippy'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import RecentComponent from './recent.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
@@ -147,7 +147,9 @@ const shortcuts = ref([
   {
     keys: [platformKey(), 's'],
     handler() {
-      saveDigitalization()
+      if (!settings.value.loading && !settings.value.saving) {
+        saveDigitalization()
+      }
     }
   },
   {

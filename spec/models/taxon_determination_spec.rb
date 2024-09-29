@@ -64,7 +64,6 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
     expect(r[:failed]).to contain_exactly(s1.id, s2.id)
   end
 
-
   context 'associations' do
     context 'belongs_to' do
       specify 'otu' do

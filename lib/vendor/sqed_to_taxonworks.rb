@@ -93,13 +93,21 @@ module Vendor::SqedToTaxonworks
         r = false
 
       rescue Magick::ImageMagickError => e
-        if e.message.include?('unable to open image')
+        if Rails.env.production? && e.message.include?('unable to open image')
           r = false
         else
           raise
         end
+
+      rescue RTesseract::Error => e
+        if Rails.env.production?
+          r = false
+        else
+          raise
+        end
+
       rescue RuntimeError => e
-        if e.message.include?('ImageMagick library function failed to return a result.')
+        if Rails.env.production? && e.message.include?('ImageMagick library function failed to return a result.')
           r = false
         else
           raise

@@ -35,7 +35,7 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import { TaxonName } from '@/routes/endpoints'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
-import VToggle from '@/tasks/observation_matrices/new/components/newMatrix/switch.vue'
+import VToggle from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
 
 const isMatch = defineModel('match', {
   type: Boolean,

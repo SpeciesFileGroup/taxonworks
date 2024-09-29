@@ -44,36 +44,24 @@
         />
       </template>
       <template #footer>
-        <div>
-          <button
-            v-if="!links"
-            type="button"
-            class="button normal-input button-default margin-small-right"
+        <div class="horizontal-left-content middle gap-small">
+          <VBtn
             :disabled="!bibtex"
-            @click="generateLinks"
+            color="primary"
+            medium
+            @click="() => downloadFormatted()"
           >
-            Generate download
-          </button>
-          <template v-else>
-            <span>Share link:</span>
-            <div class="middle">
-              <pre class="margin-small-right">{{
-                links.api_file_url || NO_API_MESSAGE
-              }}</pre>
-              <clipboard-button
-                v-if="links.api_file_url"
-                :text="links.api_file_url"
-              />
-            </div>
-          </template>
-          <button
+            Download formatted
+          </VBtn>
+
+          <VBtn
             :disabled="!bibtex"
-            type="button"
-            @click="downloadTextFile(bibtex, 'text/bib', 'bibliography.bib')"
-            class="button normal-input button-default"
+            color="primary"
+            medium
+            @click="() => downloadFormatted('.pdf')"
           >
-            Download BibTeX
-          </button>
+            Download PDF
+          </VBtn>
         </div>
       </template>
     </VModal>
@@ -83,17 +71,17 @@
 <script setup>
 import VModal from '@/components/ui/Modal'
 import VSpinner from '@/components/ui/VSpinner'
-import ClipboardButton from '@/components/ui/Button/ButtonClipboard'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { sortArray } from '@/helpers/arrays.js'
 import { SOURCE_BIBTEX } from '@/constants'
 import { ref, watch, computed } from 'vue'
+import Qs from 'qs'
 
 import {
   GetBibliography,
   GetBibtexStyle,
   GetBibtex
 } from '../request/resources'
-import { downloadTextFile } from '@/helpers/files.js'
 
 const props = defineProps({
   params: {
@@ -111,9 +99,6 @@ const props = defineProps({
     default: () => []
   }
 })
-
-const NO_API_MESSAGE =
-  'To share your project administrator must create an API token.'
 
 const isLoading = ref(false)
 const bibtex = ref()
@@ -168,17 +153,6 @@ function loadBibtexStyle() {
   }
 }
 
-function generateLinks() {
-  isLoading.value = true
-  GetBibliography(payload.value)
-    .then(({ body }) => {
-      links.value = body
-    })
-    .finally(() => {
-      isLoading.value = false
-    })
-}
-
 function loadBibliography() {
   isLoading.value = true
 
@@ -187,6 +161,15 @@ function loadBibliography() {
     bibtex.value = response.body
     isLoading.value = false
   })
+}
+
+function downloadFormatted(extension = '') {
+  window.open(
+    `/sources/download_formatted${extension}?${Qs.stringify(payload.value, {
+      arrayFormat: 'brackets'
+    })}`,
+    '_self'
+  )
 }
 </script>
 

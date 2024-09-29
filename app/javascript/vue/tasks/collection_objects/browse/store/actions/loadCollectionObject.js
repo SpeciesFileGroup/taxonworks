@@ -56,12 +56,7 @@ export default ({ state, dispatch }, coId) => {
     state.navigation = body
   })
 
-  Depiction.where({
-    depiction_object_id: [coId],
-    depiction_object_type: COLLECTION_OBJECT
-  }).then(({ body }) => {
-    state.depictions = body
-  })
+  dispatch(ActionNames.LoadDepictions, { id: coId, page: 1 })
 
   TaxonDetermination.where({
     taxon_determination_object_id: [coId],

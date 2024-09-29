@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend>Source</legend>
+  <component :is="fieldset ? 'fieldset' : 'div'">
+    <legend v-if="fieldset">Source</legend>
     <div class="horizontal-left-content align-start">
       <SmartSelector
         class="full_width"
@@ -91,7 +91,7 @@
         </li>
       </ul>
     </div>
-  </fieldset>
+  </component>
 </template>
 
 <script setup>
@@ -157,6 +157,11 @@ const props = defineProps({
   target: {
     type: String,
     default: undefined
+  },
+
+  fieldset: {
+    type: Boolean,
+    default: true
   },
 
   original: {

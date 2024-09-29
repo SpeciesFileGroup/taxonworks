@@ -47,6 +47,7 @@ class TaxonNameRelationship < ApplicationRecord
   include Shared::Notes
   include Shared::IsData
   include SoftValidation
+  include Shared::DwcOccurrenceHooks
 
   # @return [Boolean, nil]
   #   When true, cached values are not built
@@ -178,6 +179,15 @@ class TaxonNameRelationship < ApplicationRecord
 
   scope :homonym_or_suppressed, -> {where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total'") }
   scope :with_type_array, -> (base_array) {where('taxon_name_relationships.type IN (?)', base_array ) }
+
+  def dwc_occurrences
+    DwcOccurrence
+      .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
+      .joins("JOIN taxon_determinations td on co.id = td.taxon_determination_object_id AND td.taxon_determination_object_type = 'CollectionObject'")
+      .joins("JOIN otus o on o.id = td.otu_id")
+      .where(o: {taxon_name_id: [subject_taxon_name_id, object_taxon_name_id]})
+      .distinct
+  end
 
   # @return [Array of TaxonNameClassification]
   #  the inferable TaxonNameClassification(s) added to the subject when this relationship is used

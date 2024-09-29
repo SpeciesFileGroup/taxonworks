@@ -17,5 +17,7 @@ export const Container = {
   ...baseCRUD('containers', permitParams),
 
   for: (global_id) =>
-    AjaxCall('get', '/containers/for', { params: { global_id } })
+    AjaxCall('get', '/containers/for', { params: { global_id } }),
+
+  types: () => AjaxCall('get', '/containers/container_types')
 }

@@ -14,7 +14,7 @@
     </thead>
     <tbody>
       <tr
-        v-for="item in list"
+        v-for="item in store.assertedDistributions"
         :key="item.id"
       >
         <td>
@@ -25,7 +25,7 @@
         </td>
         <td v-html="item.geographic_area.name" />
         <td v-if="item.citations.length > 1">
-          <citation-count :citations="item.citations" />
+          <CitationCount :citations="item.citations" />
         </td>
         <td v-else>
           <div class="middle">
@@ -35,91 +35,120 @@
               :href="nomenclatureBySourceRoute(item.citations[0].source_id)"
               v-html="item.citations[0].citation_source_body"
             />
-            <soft-validation :global-id="item.global_id" />
+            <SoftValidation :global-id="item.global_id" />
           </div>
         </td>
         <td>
-          <span
-            class="button circle-button btn-delete"
+          <VBtn
+            color="destroy"
+            circle
             @click="removeItem(item)"
-          />
+          >
+            <VIcon
+              name="trash"
+              x-small
+            />
+          </VBtn>
         </td>
         <td>
-          <radial-annotator
+          <RadialAnnotator
             type="annotations"
             :global-id="item.global_id"
           />
         </td>
         <td>
-          <button
-            class="button normal-input button-default"
-            type="button"
-            @click="$emit('onSourceOtu', item)"
+          <VBtn
+            color="primary"
+            @click="() => setSourceOtu(item)"
           >
             Clone
-          </button>
+          </VBtn>
         </td>
         <td>
-          <button
-            class="button normal-input button-default"
-            type="button"
-            @click="$emit('onSourceGeo', item)"
+          <VBtn
+            color="primary"
+            @click="() => setSourceGeo(item)"
           >
             Clone
-          </button>
+          </VBtn>
         </td>
         <td>
-          <button
-            class="button normal-input button-default"
-            type="button"
-            @click="$emit('onOtuGeo', item)"
+          <VBtn
+            color="primary"
+            @click="() => setGeoOtu(item)"
           >
             Load
-          </button>
+          </VBtn>
         </td>
       </tr>
     </tbody>
   </table>
 </template>
 
-<script>
+<script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import CitationCount from './citationsCount'
-import { RouteNames } from '@/routes/routes'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { RouteNames } from '@/routes/routes'
+import { useStore } from '../store/store'
+import { Source } from '@/routes/endpoints'
 
-export default {
-  components: {
-    CitationCount,
-    RadialAnnotator,
-    SoftValidation
-  },
-  props: {
-    list: {
-      type: Array,
-      required: true
-    }
-  },
+const store = useStore()
 
-  emits: ['onOtuGeo', 'onSourceGeo', 'onSourceOtu', 'remove'],
+const emit = defineEmits(['onOtuGeo', 'onSourceGeo', 'onSourceOtu', 'remove'])
 
-  methods: {
-    nomenclatureBySourceRoute(id) {
-      return `${RouteNames.NomenclatureBySource}?source_id=${id}`
-    },
-    removeItem(item) {
-      if (
-        window.confirm(
-          "You're trying to delete this record. Are you sure want to proceed?"
-        )
-      ) {
-        this.$emit('remove', item)
-      }
-    },
-    browseOtu(id) {
-      return `${RouteNames.BrowseOtu}?otu_id=${id}`
-    }
+function nomenclatureBySourceRoute(id) {
+  return `${RouteNames.NomenclatureBySource}?source_id=${id}`
+}
+
+function removeItem(item) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    store.removeAssertedDistribution(item)
   }
+}
+
+function browseOtu(id) {
+  return `${RouteNames.BrowseOtu}?otu_id=${id}`
+}
+
+function setSourceOtu(item) {
+  store.reset()
+  setCitation(item.citations[0])
+  store.otu = item.otu
+}
+
+function setSourceGeo(item) {
+  store.reset()
+  setCitation(item.citations[0])
+  store.geographicArea = item.geographic_area
+  store.isAbsent = item.is_absent
+}
+
+function setGeoOtu(item) {
+  store.reset()
+  store.autosave = false
+  store.assertedDistribution.id = item.id
+  store.geographicArea = item.geographic_area
+  store.otu = item.otu
+  store.isAbsent = item.is_absent
+}
+
+function setCitation(citation) {
+  Source.find(citation.source_id).then(({ body }) => {
+    store.citation = {
+      id: undefined,
+      source: body,
+      source_id: citation.source_id,
+      is_original: citation.is_original,
+      pages: citation.pages
+    }
+  })
 }
 </script>
 <style scoped>

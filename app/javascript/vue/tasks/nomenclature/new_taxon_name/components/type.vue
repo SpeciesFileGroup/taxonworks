@@ -163,7 +163,7 @@ import platformKey from '@/helpers/getPlatformKey.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import showForThisGroup from '../helpers/showForThisGroup'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const TAB = {
   common: 'Common',

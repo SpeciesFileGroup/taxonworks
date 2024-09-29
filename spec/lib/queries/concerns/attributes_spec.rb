@@ -13,14 +13,14 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
 
   let!(:ce2) { CollectingEvent.create(
     verbatim_locality: 'Out there, under the stars',
-    verbatim_trip_identifier: 'Foo manchu',
+    verbatim_field_number: 'Foo manchu',
     start_date_year: 2000,
     start_date_month: 2,
     start_date_day: 18,
     print_label: 'THERE: under the stars:18-2-2000') }
 
   # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
-  # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
+  # let!(:i1) { Identifier::Local::FieldNumber.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
   context 'wildcard_attribute' do

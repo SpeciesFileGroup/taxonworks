@@ -118,6 +118,7 @@ resources :collection_objects do
     get 'biocuration_classifications', defaults: {format: :json}
 
     get 'dwc', defaults: {format: :json}
+    get 'dwc_compact', defaults: {format: :json}
     get 'dwc_verbose', defaults: {format: :json}
     get 'depictions', constraints: {format: :html}
     get 'containerize'
@@ -196,10 +197,16 @@ end
 match 'containers/for', to: 'containers#for', via: :get, defaults: {format: :json}
 resources :containers do # , only: [:create, :update, :destroy] do
   concerns [:data_routes]
+  collection do
+    get :container_types, defaults: {format: :json}
+  end
 end
 
 resources :container_items, except: [:edit] do
   concerns [:data_routes]
+  collection do
+    post :batch_add, defaults: {format: :json}
+  end
 end
 
 resources :contents do
@@ -356,8 +363,6 @@ end
 # TODO: fix broken interfaces, deprecate?
 namespace :georeferences do
   resources :geo_locates, only: [:new, :create]
-  resources :google_maps, only: [:new, :create]
-  # verbatim_data
 end
 
 resources :identifiers, except: [:show] do
@@ -365,6 +370,7 @@ resources :identifiers, except: [:show] do
 
   # Must be before member
   collection do
+    patch :reorder, defaults: {format: :json}
     get :identifier_types, {format: :json}
   end
 
@@ -750,6 +756,7 @@ resources :sources do
     get :csl_types, defaults: {format: :json}
     get :generate, defaults: {format: :json}
     patch :batch_update
+    get :download_formatted, defaults: {format: :json}
   end
 
   member do

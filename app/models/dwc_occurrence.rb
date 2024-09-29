@@ -39,7 +39,7 @@ class DwcOccurrence < ApplicationRecord
     :created_by_id,
     :updated_by_id,
     :dwc_occurrence_object_type,
-    :dwc_occurence_object_id
+    :dwc_occurrence_object_id
   ].freeze
 
   HEADER_CONVERTERS = {
@@ -51,10 +51,22 @@ class DwcOccurrence < ApplicationRecord
     d ? d : field
   end
 
-  # TODO: Consider using more broadly?
   # Strip nils when `to_json` used
   def as_json(options = {})
-    super(options.merge(except: attributes.keys.select { |key| self[key].nil? }))
+    super(options.merge(except: attributes.keys.select{ |key| self[key].nil? }))
+  end
+
+  # @return Hash
+  #   * Legally formatted DwC fields only, with things like `dwcClass` translated
+  #   * Only fields with values returned
+  #   * Keys are sorted
+  #
+  def dwc_json
+    a = as_json.reject!{|k,v| TW_ATTRIBUTES.include?(k.to_sym) || v.nil?}
+    HEADER_CONVERTERS.keys.each do |k|
+      a[ HEADER_CONVERTERS[k] ] = a.delete(k) if a[k]
+    end
+    a.sort.to_h
   end
 
   belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
@@ -70,11 +82,11 @@ class DwcOccurrence < ApplicationRecord
   attr_accessor :occurrence_identifier
 
   def collection_object
-    dwc_occurence_object_type == 'CollectionObject' ? dwc_occurence_object : nil
+    dwc_occurrence_object_type == 'CollectionObject' ? dwc_occurence_object : nil
   end
 
   def asserted_distribution
-    dwc_occurence_object_type == 'AssertedDistribution' ? dwc_occurence_object : nil
+    dwc_occurrence_object_type == 'AssertedDistribution' ? dwc_occurence_object : nil
   end
 
   def collecting_event
@@ -87,7 +99,7 @@ class DwcOccurrence < ApplicationRecord
       dwc_occurrence_object.otu
     when 'CollectionObject'
       collection_object.otu
-    end    
+    end
   end
 
   # Delete all stale indecies, where stale = object is missing
@@ -287,7 +299,7 @@ class DwcOccurrence < ApplicationRecord
 
       return false
     else # AssertedDistribution
-     return  dwc_occurrence_object.updated_at > updated_at
+      return  dwc_occurrence_object.updated_at > updated_at
     end
   end
 
@@ -301,13 +313,13 @@ class DwcOccurrence < ApplicationRecord
       td =  dwc_occurrence_object&.taxon_determinations.order(:position).first
 
       tdr = if td&.otu&.taxon_name&.cached_name_and_author_year != scientificName
-              td.updated_at 
+              td.updated_at
             else
               nil
             end
 
       tc = if fieldNumber != o.dwc_field_number
-             collecting_event.identifiers.where(type: 'Identifier::Local::TripCode').first.updated_at
+             collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first.updated_at
            else
              nil
            end
@@ -327,19 +339,19 @@ class DwcOccurrence < ApplicationRecord
         collection_object_roles: dwc_occurrence_object.roles.order(:updated_at).first&.updated_at,
         collecting_event_data_attributes: dwc_occurrence_object.collecting_event&.data_attributes&.order(:updated_at)&.first&.updated_at,
         collecting_event_roles: dwc_occurrence_object.collecting_event&.roles&.order(:updated_at)&.first&.updated_at
-       # citations?
+        # citations?
         # tags?!
       }.select{|k,v| !v.nil?}
 
     else # AssertedDistribution
-      { 
+      {
         asserted_distribution: dwc_occurrence_object.updated_at,
         # TODO: Citations
       }
     end
   end
 
-    protected
+  protected
 
   def create_object_uuid
     @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(
@@ -351,7 +363,7 @@ class DwcOccurrence < ApplicationRecord
 
   def set_metadata_attributes
     write_attribute( :basisOfRecord, basis)
-    write_attribute( :occurrenceID, occurrence_identifier&.identifier)
+    write_attribute( :occurrenceID, occurrence_identifier&.identifier)  # TODO: Slightly janky to touch this here, might not be needed with new hooks
   end
 
 end

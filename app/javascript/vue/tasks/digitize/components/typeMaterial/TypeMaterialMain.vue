@@ -28,7 +28,7 @@ import TypeMaterialList from './TypeMaterialList.vue'
 import TypeMaterialTaxon from './TypeMaterialTaxon.vue'
 import TypeMaterialSource from './TypeMaterialSource.vue'
 import TypeMaterialAdd from './TypeMaterialAdd.vue'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const OSKey = platformKey()
 const store = useStore()

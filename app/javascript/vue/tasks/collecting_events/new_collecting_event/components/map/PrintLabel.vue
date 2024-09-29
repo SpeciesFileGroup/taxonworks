@@ -61,7 +61,7 @@ export default {
   mixins: [extendCE],
   computed: {
     isEmpty() {
-      return this.label.text.length === 0
+      return !this.label.text?.length
     },
     label: {
       get() {
@@ -124,7 +124,7 @@ export default {
         ...this.generateParsedLabel()
       )
 
-      const AtStart = ['TripIdentifier', 'TripCode']
+      const AtStart = ['FieldNumber', 'TripCode']
 
       const sortedObjectLabelKeys = sortArrayByArray(
         Object.keys(objectLabels),

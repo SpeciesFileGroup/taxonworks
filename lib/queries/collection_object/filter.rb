@@ -515,9 +515,11 @@ module Queries
 
         b = b.as('det_z1_')
 
-        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b,
-        Arel::Nodes::On.new( b['taxon_determination_object_id'].eq(tt['id']).and( b['taxon_determination_object_type'].eq('CollectionObject') )
-        )))
+        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(
+          b,
+          Arel::Nodes::On.new(
+            b['taxon_determination_object_id'].eq(tt['id']).and( b['taxon_determination_object_type'].eq('CollectionObject'))
+          )))
       end
 
       def determiners_facet
@@ -854,7 +856,7 @@ module Queries
 
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
-        s = 'WITH query_ce_co AS (' + collecting_event_query.all.to_sql + ') ' +
+        s = 'WITH query_ce_co AS (' + collecting_event_query.all.select(:id).to_sql + ') ' +
           ::CollectionObject
           .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
           .to_sql
@@ -903,8 +905,8 @@ module Queries
       def dwc_occurrence_query_facet
         return nil if dwc_occurrence_query.nil?
 
-         s = ::CollectionObject
-           .with(query_dwc_co: dwc_occurrence_query.all.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
+        s = ::CollectionObject
+          .with(query_dwc_co: dwc_occurrence_query.all.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
           .joins(:dwc_occurrence)
           .joins('JOIN query_dwc_co as query_dwc_co1 on query_dwc_co1.id = dwc_occurrences.id')
           .to_sql
@@ -1049,6 +1051,6 @@ module Queries
           with_buffered_other_labels_facet,
         ]
       end
-      end
-      end
-      end
+    end
+  end
+end

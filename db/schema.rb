@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_16_191947) do
+ActiveRecord::Schema[7.1].define(version: 2024_09_23_214129) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -293,7 +293,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_191947) do
     t.string "verbatim_longitude"
     t.string "verbatim_latitude"
     t.string "verbatim_geolocation_uncertainty"
-    t.string "verbatim_trip_identifier"
+    t.string "verbatim_field_number"
     t.string "verbatim_collectors"
     t.string "verbatim_method"
     t.integer "geographic_area_id"
@@ -1317,8 +1317,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_191947) do
     t.integer "project_id"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.bigint "otu_id"
+    t.boolean "is_public"
     t.index ["created_by_id"], name: "index_observation_matrices_on_created_by_id"
     t.index ["name"], name: "index_observation_matrices_on_name"
+    t.index ["otu_id"], name: "index_observation_matrices_on_otu_id"
     t.index ["project_id"], name: "index_observation_matrices_on_project_id"
     t.index ["updated_by_id"], name: "index_observation_matrices_on_updated_by_id"
   end
@@ -2341,6 +2344,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_191947) do
   add_foreign_key "notes", "projects", name: "notes_project_id_fkey"
   add_foreign_key "notes", "users", column: "created_by_id", name: "notes_created_by_id_fkey"
   add_foreign_key "notes", "users", column: "updated_by_id", name: "notes_updated_by_id_fkey"
+  add_foreign_key "observation_matrices", "otus"
   add_foreign_key "observation_matrices", "projects"
   add_foreign_key "observation_matrices", "users", column: "created_by_id"
   add_foreign_key "observation_matrices", "users", column: "updated_by_id"

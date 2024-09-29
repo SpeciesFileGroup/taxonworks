@@ -124,9 +124,6 @@ class Person < ApplicationRecord
 
   has_many :collection_objects, through: :collecting_events
 
-  # Deprecated
-  # has_many :dwc_occurrences, through: :collection_objects # TODO: There are technically many more, expand
-
   scope :created_before, -> (time) { where('created_at < ?', time) }
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
   scope :ordered_by_last_name, -> { order(:last_name) }
@@ -184,6 +181,12 @@ class Person < ApplicationRecord
   #   convenience, maybe a delegate: candidate
   def orcid
     identifiers.where(type: 'Identifier::Global::Orcid').first&.cached
+  end
+
+  # Return [String, nil]
+  #   convenience, maybe a delegate: candidate
+  def wikidata_id
+    identifiers.where(type: 'Identifier::Global::Wikidata').first&.cached
   end
 
   # @param [Integer] person_id
