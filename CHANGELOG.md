@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Sort by identifier match option [#4065]
 - `/collection_objects/123/dwc_compact` - DwC fields for those populated [#3994]
 - Pagination to `/api/v1/otus/:otu_id/inventory/dwc_gallery`
+- Image matrix link to radial linker and radial matrix
 
 ### Fixed
 
