@@ -1,10 +1,4 @@
 require 'rails_helper'
-# require_relative '../../support/shared_contexts/geo/build_rspec_geo'
-
-# include the subclasses, perhaps move this out
-Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
-
-
 # An exercise in exploring and handling data that crosses the anti-meridian.
 #
 #           anti-meridian
@@ -20,11 +14,6 @@ Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| requi
 #
 #
 describe GeographicItem, type: :model, group: :geo do
-
-  # after(:all) { clean_slate_geo }
-
-  let(:shift_method) { PSQL_VERSION >= 2.2 ? 'ST_ShiftLongitude' : 'ST_Shift_Longitude' }
-
   context 'anti-meridian' do
     # Containers left side/object/A component of ST_Contains(A, B)
     # crosses anti from eastern to western (easterly)
@@ -40,20 +29,20 @@ describe GeographicItem, type: :model, group: :geo do
 
     # test/target/found objects right side/object B component of ST_Contains(A, B)
     #  points( outside, inside )
-    #- antimeridian crossing line contained by anti_box, crosses anti from eastern to western (easterly)
+    #- antimeridian crossing line partially contained by anti_box, crosses anti from eastern to western (easterly)
     let(:left_right_anti_line_partial) { 'LINESTRING (170.5 26.0, -179.8 25.5)' } #- partially contained by anti_box
-    #- antimeridian crossing line contained by anti_box, crosses anti from western to eastern (westerly)
+    #- antimeridian crossing line partially contained by anti_box, crosses anti from western to eastern (westerly)
     let(:right_left_anti_line_partial) { 'LINESTRING (-170.5 26.0, 179.8 25.5)' } #- partially contained by anti_box
 
     # test/target/found objects right side/object B component of ST_Contains(A, B)
     #  points( outside, outside )
-    #- antimeridian crossing line NOT contained by anti_box, crosses anti from eastern to western (easterly)
+    #- line NOT contained by anti_box
     let(:left_right_anti_line_out) { 'LINESTRING (170.5 26.0, 175.0 25.5)' }
-    #- antimeridian crossing line NOT contained by anti_box, crosses anti from western to eastern (westerly)
+    #- line NOT contained by anti_box
     let(:right_left_anti_line_out) { 'LINESTRING (-170.5 26.0, -175.8 25.5)' }
 
     #- antimeridian string
-    let(:anti_s) { 'LINESTRING (180 89.0, 180 -89)' }
+    let(:anti_s) { 'LINESTRING (180 89, 180 -89)' }
 
     context 'raw SQL' do
 
@@ -163,7 +152,7 @@ describe GeographicItem, type: :model, group: :geo do
             ['-90 26', '0 26', '90 26'].each do |p| # points in really wide box
               specify "shifted #{b}/#{p}" do
                 expect(GeographicItem.find_by_sql(
-                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), " \
+                  "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{send(b)}')), " \
                     "ST_GeomFromText('POINT(#{p})')) as r;"
                 ).first.r).to be false
               end
@@ -172,7 +161,7 @@ describe GeographicItem, type: :model, group: :geo do
             ['180 26', '179.9 26'].each do |p| # points not in really wide box
               specify "shifted #{b}/#{p}" do
                 expect(GeographicItem.find_by_sql(
-                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), " \
+                  "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{send(b)}')), " \
                     "ST_GeomFromText('POINT(#{p})')) as r;"
                 ).first.r).to be true
               end
@@ -180,15 +169,15 @@ describe GeographicItem, type: :model, group: :geo do
 
             specify "#{b} (positive shifted does not contain negative point)" do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), " \
+                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{send(b)}')), " \
                     "ST_GeomFromText('POINT(-179.9 26)')) as r;"
               ).first.r).to be false
             end
 
             specify "#{b} (both shifted does contain point)" do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), " \
-                    "#{shift_method}(ST_GeomFromText('POINT(-179.9 26)'))) as r;"
+                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{send(b)}')), " \
+                    "ST_ShiftLongitude(ST_GeomFromText('POINT(-179.9 26)'))) as r;"
               ).first.r).to be true
             end
           end
@@ -199,15 +188,15 @@ describe GeographicItem, type: :model, group: :geo do
           context 'entirely enclosed in right-left anti-box' do
             specify 'left-right anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), " \
-                    "#{shift_method}(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
+                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{right_left_anti_box}')), " \
+                    "ST_ShiftLongitude(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
               ).first.r).to be true
             end
 
             specify 'west-east line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), " \
-                    "#{shift_method}(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
+                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{right_left_anti_box}')), " \
+                    "ST_ShiftLongitude(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
               ).first.r).to be true
             end
           end
@@ -215,15 +204,15 @@ describe GeographicItem, type: :model, group: :geo do
           context 'entirely enclosed in left-right anti-box' do
             specify 'left-right anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{left_right_anti_box}')), " \
-                    "#{shift_method}(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
+                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{left_right_anti_box}')), " \
+                    "ST_ShiftLongitude(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
               ).first.r).to be true
             end
 
             specify 'right-left anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{left_right_anti_box}')), " \
-                    "#{shift_method}(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
+                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{left_right_anti_box}')), " \
+                    "ST_ShiftLongitude(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
               ).first.r).to be true
             end
           end
@@ -235,8 +224,8 @@ describe GeographicItem, type: :model, group: :geo do
             @out.each do |s|
               specify "#{s}" do
                 expect(GeographicItem.find_by_sql(
-                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), " \
-                    "#{shift_method}(ST_GeomFromText('#{send(s)}'))) as r;"
+                  "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{right_left_anti_box}')), " \
+                    "ST_ShiftLongitude(ST_GeomFromText('#{send(s)}'))) as r;"
                 ).first.r).to be false
               end
             end
@@ -246,8 +235,6 @@ describe GeographicItem, type: :model, group: :geo do
     end
 
     context 'Demonstrate that anti_boxes are small for geographies/ST_Covers' do
-      # Note _lines can not be used in ST_Covers!
-
       %I{left_right_anti_box right_left_anti_box}.each do |b|
         ['-90 26', '0 26', '90 26'].each do |p| # points in really wide box
           specify "#{b}/#{p}" do

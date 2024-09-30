@@ -349,7 +349,6 @@ class GeographicItem < ApplicationRecord
       # @param [String] wkt
       # @return [Boolean]
       #   whether or not the wkt intersects with the anti-meridian
-      # TODO is this spec'd?
       def crosses_anti_meridian?(wkt)
         wkt = quote_string(wkt)
         select_one(
