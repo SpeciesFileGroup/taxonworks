@@ -1,14 +1,16 @@
 <template>
   <table class="table-striped">
     <thead>
-      <th>Related</th>
-      <th class="w-2">Total</th>
-      <th
-        v-if="mergeItem"
-        class="w-2"
-      >
-        Merge
-      </th>
+      <tr>
+        <th>Related</th>
+        <th class="w-2">Total</th>
+        <th
+          v-if="mergeItem"
+          class="w-2"
+        >
+          Merge
+        </th>
+      </tr>
     </thead>
     <tbody>
       <tr

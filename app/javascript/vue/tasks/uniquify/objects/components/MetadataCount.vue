@@ -1,23 +1,25 @@
 <template>
   <table class="table-striped">
     <thead>
-      <th
-        class="w-2"
-        v-if="checkboxes"
-      >
-        <input
-          type="checkbox"
-          v-model="selectAll"
-        />
-      </th>
-      <th>Related</th>
-      <th class="w-2">Total</th>
-      <th
-        v-if="mergeItem"
-        class="w-2"
-      >
-        Merge
-      </th>
+      <tr>
+        <th
+          class="w-2"
+          v-if="checkboxes"
+        >
+          <input
+            type="checkbox"
+            v-model="selectAll"
+          />
+        </th>
+        <th>Related</th>
+        <th class="w-2">Total</th>
+        <th
+          v-if="mergeItem"
+          class="w-2"
+        >
+          Merge
+        </th>
+      </tr>
     </thead>
     <tbody>
       <tr
