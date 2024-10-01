@@ -334,12 +334,77 @@ describe GeographicItem, type: :model, group: :geo do
     context 'verify GeographicItem.crosses_anti_meridian?(wkt) works' do
       let(:eastern_box_text) { 'POLYGON(( 176.0 27.0,  179.0 27.0,  179.0 25.0,  176.0 25.0,  176.0 27.0))' }
 
-      specify 'left_right_anti_box' do
-        expect(GeographicItem.crosses_anti_meridian?(left_right_anti_box)).to be_truthy
+      %I{left_right_anti_box right_left_anti_box
+        left_right_anti_line right_left_anti_line}.each do |p|
+        specify "#{p}" do
+          puts "#{send(p)}"
+          expect(GeographicItem.crosses_anti_meridian?("#{send(p)}")).to be_truthy
+        end
       end
 
       specify 'eastern_box_text' do
         expect(GeographicItem.crosses_anti_meridian?(eastern_box_text)).to be_falsey
+      end
+
+      context 'anti-meridian crossing shapes from leaflet decoded with Gis::FACTORY' do
+        # See the xspecify example below for context
+        [
+          # clockwise
+          'POLYGON (
+            (160.0 -10.0 0.0, 160.0 10.0 0.0, -160.0 10.0 0.0,
+             170.0 0.0 0.0, -160.0 -10.0 0.0, 160.0 -10.0 0.0)
+           )',
+          # counter-clockwise
+          'POLYGON (
+            (-160.0 10.0 0.0, 160.0 10.0 0.0, 160.0 -10.0 0.0,
+             -160.0 -10.0 0.0, 170.0 0.0 0.0, -160.0 10.0 0.0)
+          )',
+        ].each do |p|
+          specify "#{p}" do
+            expect(GeographicItem.crosses_anti_meridian?("#{p}")).to be_truthy
+          end
+        end
+      end
+    end
+
+    context 'GeographicItem.split_along_anti_meridian(wkt)' do
+      context 'Leaflet-provided GIS:Factory polygon' do
+        let!(:wkt) { 'POLYGON (
+            (160.0 -10.0 0.0, 160.0 10.0 0.0, -160.0 10.0 0.0,
+            170.0 0.0 0.0, -160.0 -10.0 0.0, 160.0 -10.0 0.0)
+          )'
+        }
+
+        specify 'splits into 3 pieces' do
+          mp = GeographicItem.split_along_anti_meridian(wkt)
+          expect(mp.geometry_type.to_s).to eq('MultiPolygon')
+          expect(mp.num_geometries).to eq(3)
+        end
+
+        specify 'split pieces are valid' do
+          mp = GeographicItem.split_along_anti_meridian(wkt)
+          mp.each do |p|
+            expect(p.valid?).to be true
+          end
+        end
+
+        specify "results don't cross the anti-meridian" do
+          mp = GeographicItem.split_along_anti_meridian(wkt)
+          mp.each do |p|
+            expect(GeographicItem.crosses_anti_meridian?(p.as_text)).to be false
+          end
+          expect(GeographicItem.crosses_anti_meridian?(mp.as_text)).to be false
+        end
+
+        specify 'split pieces include expected points' do
+          mp = GeographicItem.split_along_anti_meridian(wkt)
+          # the left piece
+          expect(mp[0].contains?(Gis::FACTORY.point(165, 0))).to be true
+          # the lower right piece
+          expect(mp[1].contains?(Gis::FACTORY.point(-175, -5))).to be true
+          # the upper right piece
+          expect(mp[2].contains?(Gis::FACTORY.point(-175, 5))).to be true
+        end
       end
     end
 

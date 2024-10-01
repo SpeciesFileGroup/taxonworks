@@ -36,8 +36,8 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
       let(:poly1_union_poly2_wkt) {
         'POLYGON((0 0, 10 0, 10 5, 15 5, 15 15, 5 15, 5 10, 0 10, 0 0))'
       }
-      let(:poly1_union_poly2_gi) {
-        FactoryBot.create(:geographic_item, geography: poly1_union_poly2_wkt)
+      let(:poly1_union_poly2) {
+        Gis::FACTORY.parse_wkt(poly1_union_poly2_wkt)
       }
       let(:p1_wkt) { 'POINT(0 0)' }
       let(:p2_wkt) { 'POINT(1 1)' }
@@ -67,7 +67,7 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
         expect(new_gz.geographic_item.geo_object)
-          .to eq(poly1_union_poly2_gi.geo_object)
+          .to eq(poly1_union_poly2)
       end
 
       specify 'create from wkt' do
@@ -75,20 +75,18 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
         expect(new_gz.geographic_item.geo_object)
-          .to eq(poly1_union_poly2_gi.geo_object)
+          .to eq(poly1_union_poly2)
       end
 
       specify 'create from points' do
-        p1_union_p2 = FactoryBot.create(:geographic_item,
-          geography: 'MULTIPOINT(0 0, 1 1)'
-        )
+        p1_union_p2 = Gis::FACTORY.parse_wkt('MULTIPOINT(0 0, 1 1)')
 
         shapes = {
           geojson: [p1.to_geo_json_feature, p2.to_geo_json_feature]
         }
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
-        expect(new_gz.geographic_item.geo_object).to eq(p1_union_p2.geo_object)
+        expect(new_gz.geographic_item.geo_object).to eq(p1_union_p2)
       end
 
       specify 'create from GAs' do
@@ -96,7 +94,7 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
         expect(new_gz.geographic_item.geo_object)
-          .to eq(poly1_union_poly2_gi.geo_object)
+          .to eq(poly1_union_poly2)
       end
 
       specify 'create from GZs' do
@@ -104,7 +102,7 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
         expect(new_gz.geographic_item.geo_object)
-          .to eq(poly1_union_poly2_gi.geo_object)
+          .to eq(poly1_union_poly2)
       end
 
       specify 'accepts shapes from multiple sources' do
@@ -118,13 +116,13 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
           gz_union: [gz2.id]
         }
 
-        union = FactoryBot.create(:geographic_item,
-          geography: "GEOMETRYCOLLECTION(#{poly1_union_poly2_wkt}, #{p1_wkt})"
+        union = Gis::FACTORY.parse_wkt(
+          "GEOMETRYCOLLECTION(#{poly1_union_poly2_wkt}, #{p1_wkt})"
         )
 
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
-        expect(new_gz.geographic_item.geo_object).to eq(union.geo_object)
+        expect(new_gz.geographic_item.geo_object).to eq(union)
       end
 
       specify 'supports geojson circles' do
@@ -143,6 +141,51 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         shapes = { wkt: ['POINT(0 0)', 'asdf'] }
         new_gz.build_gi_from_shapes(shapes)
         expect(new_gz.errors.first.type.message).to start_with('Invalid WKT')
+      end
+
+      context "produces shapes that don't cross the anti-meridian" do
+        specify 'wkt' do
+          shapes = { wkt: [
+              'POLYGON (
+                (160.0 -10.0 0.0, 160.0 10.0 0.0, 200.0 10.0 0.0,
+                200.0 -10.0 0.0, 160.0 -10.0 0.0)
+              )'
+            ]
+          }
+          new_gz.build_gi_from_shapes(shapes)
+
+          expect(
+            GeographicItem.crosses_anti_meridian?(shapes[:wkt].first)
+          ).to be true
+
+          expect(
+            GeographicItem.crosses_anti_meridian?(
+              new_gz.geographic_item.geo_object.as_text
+            )
+          ).to be false
+        end
+
+        specify 'geojson' do
+          shapes = { geojson: [
+            '{"type":"Feature","properties":{}, "geometry":{"type":"Polygon",
+              "coordinates":
+                [[[-200,-10],[-200,10],[-160,10],[-160,-10],[-200,-10]]]
+            }}'
+          ]}
+          new_gz.build_gi_from_shapes(shapes)
+
+          expect(
+            GeographicItem.crosses_anti_meridian?(
+              RGeo::GeoJSON.decode(shapes[:geojson].first).geometry.as_text
+            )
+          ).to be true
+
+          expect(
+            GeographicItem.crosses_anti_meridian?(
+              new_gz.geographic_item.geo_object.as_text
+            )
+          ).to be false
+        end
       end
     end
   end

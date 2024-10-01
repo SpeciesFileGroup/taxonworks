@@ -337,7 +337,7 @@ class GeographicItem < ApplicationRecord
         wkb = select_one(
           st_intersection_sql(
             # shift is required for anti-meridian coordinates (at least those as
-            # normalized by our Gis::FACTORY)
+            # normalized by our Gis::FACTORY, cf. anti_meridian_spec discussion)
             st_shift_longitude_sql(st_geom_from_text_sql(wkt)),
             st_geom_from_text_sql(anti_meridian_exterior)
           )
