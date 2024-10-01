@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Image matrix link to radial linker and radial matrix
+
 ## [0.44.2] - 2024-09-27
 
 ### Added
