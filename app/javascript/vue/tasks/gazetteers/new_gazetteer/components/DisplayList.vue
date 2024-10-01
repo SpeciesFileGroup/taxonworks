@@ -59,7 +59,8 @@ import {
   GZ_WKT,
   GZ_LEAFLET,
   GZ_UNION_GA,
-  GZ_UNION_GZ
+  GZ_UNION_GZ,
+  GZ_DATABASE
 } from '@/constants/index.js'
 
 const props = defineProps({
@@ -82,6 +83,7 @@ function deleteItem(item) {
 function shapeType(item) {
   switch(item.type) {
     case GZ_LEAFLET:
+    case GZ_DATABASE:
       if (item.shape.properties.radius) {
         return 'Circle of radius ' + item.shape.properties.radius.toFixed(6) + 'm'
       }
@@ -101,6 +103,7 @@ function shapeType(item) {
 function getCoordinates(item) {
   switch(item.type) {
     case GZ_LEAFLET:
+    case GZ_DATABASE:
       switch(shapeType(item)) {
         case 'GeometryCollection':
           return coordinatesForGeometryCollection(
@@ -154,7 +157,7 @@ function coordinatesForGeometryCollection(geometries) {
     shape_hash.properties = {}
 
     const new_shape = {
-      type: GZ_LEAFLET,
+      type: GZ_LEAFLET, // also works in the GZ_DATABASE case
       shape: shape_hash
     }
 

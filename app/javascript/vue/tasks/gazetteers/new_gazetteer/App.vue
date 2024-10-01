@@ -90,7 +90,8 @@ import {
   GZ_WKT,
   GZ_LEAFLET,
   GZ_UNION_GA,
-  GZ_UNION_GZ
+  GZ_UNION_GZ,
+  GZ_DATABASE
 } from '@/constants/index.js'
 
 const shapes = ref([])
@@ -165,17 +166,20 @@ if (gazetteer_id) {
 }
 
 function loadGz(gzId) {
+  isLoading.value = true
   Gazetteer.find(gzId)
     .then(({ body }) => {
       gz.value = body
       shapes.value = [
         {
           shape: body.shape,
-          type: GZ_LEAFLET
+          type: GZ_DATABASE,
+          uuid: randomUUID()
         }
       ]
     })
     .catch(() => {})
+    .finally(() => { isLoading.value = false })
 }
 
 function saveGz() {
