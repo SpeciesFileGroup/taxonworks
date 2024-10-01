@@ -342,5 +342,80 @@ describe GeographicItem, type: :model, group: :geo do
         expect(GeographicItem.crosses_anti_meridian?(eastern_box_text)).to be_falsey
       end
     end
+
+    context 'A leaflet/GeoJSON/Gis::FACTORY interaction' do
+      let(:p) {
+        #              *
+        #      --------*--
+        #      |       * /
+        #      |       */
+        #      |       /
+        #      |      /*
+        #      |     / *
+        #      |     \ *
+        #      |      \*
+        #      |       \
+        #      |       *\
+        #      |       * \
+        #      --------*--
+        #              *
+        # p is the GeoJson feature provided by leaflet for the shape drawn on
+        # leaflet as above, where * is the anti-meridian.
+        '{"type":"Feature","properties":{},
+          "geometry":{"type":"Polygon",
+            "coordinates":
+            [[[-200,-10],[-200,10],[-160,10],[-190,0],[-160,-10],[-200,-10]]]
+         }}'
+      }
+      let(:s) {
+        # The geo_factory argument is significant here for the way it normalizes
+        # coordinates.
+        RGeo::GeoJSON.decode(p, geo_factory: Gis::FACTORY)
+        # s.geometry.as_text = POLYGON (
+        #    (160.0 -10.0 0.0, 160.0 10.0 0.0, -160.0 10.0 0.0, 170.0 0.0 0.0,
+        #     -160.0 -10.0 0.0, 160.0 -10.0 0.0)
+        #   )
+      }
+      xspecify 'valid leaflet-provided anti-meridian-crossing shapes can become
+        invalid when normalized by Gis::FACTORY' do
+        # s is reported to cross the anti-meridian...
+        expect(GeographicItem.crosses_anti_meridian?(s.geometry.as_text)).to be true
+        # ... but is at the same time invalid...
+        expect(s.geometry.valid?).to be false
+        expect(GeographicItem.find_by_sql(
+            "SELECT ST_IsValid(ST_GeomFromText('#{s.geometry.as_text}')) as r;"
+          ).first.r).to be false
+        # ... due to a self-intersection
+        expect(s.geometry.invalid_reason).to eq('Self-intersection')
+        # The postgis invalid reason is 'Self-intersection at or near point 160
+        # 0.303030303030303 0' which suggests the segment from (-160,0) to
+        # (170,0) is being interpreted as crossing the meridian (going the
+        # "long" way) and not the anti-meridian (even though the anti-meridian
+        # check passed...).
+
+        # Question: is it possible to represent this polygon in our
+        # GIS::Factory's normalized coordinates in a way that makes it `valid?`?
+        # Or can it only be made valid by splitting it across the anti-meridian?
+
+        # GeographicItem.split_along_anti_meridian sidesteps the issue by
+        # st_shifting the invalid polygon - to 'POLYGON Z ((160 -10 0,160 10
+        # 0,200 10 0,170 0 0,200 -10 0,160 -10 0))', which *IS* ST_IsValid - and
+        # then working directly in postgis to get non-anti-meridian-crossing
+        # pieces from that, which can be safely parsed with GIS::Factory.
+
+        # By comparison (and as an alternative?), if we decode without
+        # specifying a factory:
+        s2 = RGeo::GeoJSON.decode(p)
+        # s2.geometry.as_text = POLYGON ((-200 -10, -200 10, -160 10, -190 0, -160 -10, -200 -10)) # same as the geojson feature coordinates
+        #   )
+        # Reported to cross the anti-meridian...
+        expect(GeographicItem.crosses_anti_meridian?(s2.geometry.as_text)).to be true
+        # ... and is valid
+        expect(s2.geometry.valid?).to be true
+        expect(GeographicItem.find_by_sql(
+            "SELECT ST_IsValid(ST_GeomFromText('#{s2.geometry.as_text}')) as r;"
+          ).first.r).to be true
+      end
+    end
   end
 end

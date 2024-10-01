@@ -145,9 +145,7 @@ class Gazetteer < ApplicationRecord
 
     rgeo_shapes = shapes.map do |shape|
       # Raises RGeo::Error::InvalidGeometry on error
-      rgeo_shape = RGeo::GeoJSON.decode(
-        shape, json_parser: :json, geo_factory: Gis::FACTORY
-      )
+      rgeo_shape = RGeo::GeoJSON.decode(shape, geo_factory: Gis::FACTORY)
 
       circle = nil
       if rgeo_shape.geometry.geometry_type.to_s == 'Point' &&
