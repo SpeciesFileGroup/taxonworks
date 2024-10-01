@@ -11,7 +11,7 @@
 #   - consider `strict` mode, where a preview is auto-run then inspected for any errors, if present the unify fails
 #   - Attempt to move annotations from unsavable objects over, or consider hooks for this.
 #     - Requires a generic duplicate method?!
-#       - 
+#       -
 #
 module Shared::Unify
   extend ActiveSupport::Concern
@@ -92,8 +92,12 @@ module Shared::Unify
     #
   end
 
-  # Unify is not the same as move.  For example we could move annotations
+  # Unify is not the same as move. For example we could move annotations
   # from one class of things to another, we can not do that here.
+
+  # @return Hash
+  #   a result
+  #
   def unify(remove_object, only: [], except: [], preview: false)
     s = {}
 
@@ -134,7 +138,7 @@ module Shared::Unify
           )
 
           o.send(r.name).find_each do |j|
-            j.update_attribute(r.options[:inverse_of], self)
+            j.update(r.options[:inverse_of] => self)
             log_unify_result(j, r, s)
           end
 
@@ -145,13 +149,14 @@ module Shared::Unify
               unmerged: 0 }
           )
 
-          i.update_attribute(r.options[:inverse_of], self)
+          i.update(r.options[:inverse_of] => self)
           log_unify_result(i, r, s)
         end
       end
 
       # TODO: explore further, the preventing objects should all be moved or destroyed if properly iterated through
       begin
+        o.reload # reset all in-memory has_many caches that would prevent destroy
         o.destroy!
       rescue ActiveRecord::InvalidForeignKey => e
         s.merge!(
@@ -203,37 +208,46 @@ module Shared::Unify
     s.sort.to_h
   end
 
+  private
+
+  # TODO: rename to handle_invalid_from_duplication or something
   def move_annotations_to_identical(object)
     i = object.identical
-    if i.total == 1
+
+    # There is exactly 1 match, merge is unambiguous
+    if i.size == 1
       j = i.first
-      # Move annotations from the 
-      j.move_annotations(to_object: object)
+      j.unify(object)
     else
+      # Merge would be ambiguous, there are multiple matches
       return false
     end
   end
 
-  private
-
+  # @return Hash
   # TODO: add error array
   def log_unify_result(object, relation, result)
-    if object.errors.any?
-      
-     # object can't be updated, move it's annotations to self
-      move_annotations_to_identical(object)
+    if object.invalid?
 
-      result[relation.name][:unmerged] += 1
+      # Here we check to see that error related
+      # to the object being unified, if not,
+      # we don't know how to handle this with confidence.
+      if object.errors.details.keys.include?(relation.options[:inverse_of])
 
-      result[relation.name][:errors] ||= []
-      result[relation.name][:errors].push(object.id)
-
+        # object can't be updated, move it's annotations to self
+        unless move_annotations_to_identical(object)
+          result[relation.name][:unmerged] += 1
+          result[relation.name][:errors] ||= []
+          result[relation.name][:errors].push(object.id)
+        end
+      end
 
       # TODO - delete/cleanup logic here?
-
     else
       result[relation.name][:merged] += 1
     end
+
+    result
   end
 
 end
