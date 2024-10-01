@@ -93,6 +93,31 @@ describe 'Shared::Unify', type: :model do
     expect(o2.destroyed?).to be_truthy
   end
 
+  # Generalize to all annotations.
+  # 
+  # If unify would create two identical citations anywhere
+  # during the process, then destroy one of them.
+  #
+  #   then destroy one of them 
+  #
+  #
+  #
+  specify 'would-be duplicate citations do not halt unify' do
+    o1 = FactoryBot.create(:valid_otu)
+    o2 = FactoryBot.create(:valid_otu)
+
+    s = FactoryBot.create(:valid_source)
+
+    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1, source: s)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, geographic_area: ad1.geographic_area, source: s) 
+
+    expect(Citation.all.size).to eq(2)
+    
+    b = o1.unify(o2)
+
+    expect(o2.destroyed?).to be_truthy
+    expect(Citation.all.size).to eq(1)
+  end
 
 end
 
