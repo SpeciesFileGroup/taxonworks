@@ -257,6 +257,7 @@ class TaxonName < ApplicationRecord
   has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'CollectionObject'
   has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'FieldOccurrence'
 
+  # TODO: check class_name constraints.
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy, inverse_of: :role_object

@@ -22,6 +22,7 @@ module Shared::Unify
     :versions,       # Not picked up, but adding in case
     :dwc_occurrence, # Will be destroyed on related objects destruction
     :pinboard_items, # Technically not needed here
+    # !! TODO: check :taxon_name_hierarchies,
   ]
 
   # Per class, Iterating through all of these
@@ -47,12 +48,24 @@ module Shared::Unify
   end
 
   # @return Array of ActiveRecord::Reflection
+  #
+  # Our target is a list of relations that we can
+  # iterate through and, by inspection, update
+  # related records to point to self.
+  #  * We don't want to target convienience relations as they are in essence alias of base-class relations and redundant
+  #  * We don't want anything that relates to a calculated cached value
+  #  * We *do* want to catch relations that are edges in which the same class of object is on both sides, these require
+  #   an alias.  We inspect for `related_<name>` as a pattern to select these.
+  #
+  #  TODO: Revist. depending on the`related_XXX naming pattern is brittle-ish.
+  #     Is there some other reason those with class_name fail that we are missing?
+  #
   def inferred_relations
     (ApplicationEnumeration.klass_reflections(self.class) +
      ApplicationEnumeration.klass_reflections(self.class, :has_one))
       .delete_if{|r| r.options[:foreign_key] =~ /cache/}
-      .delete_if{|r| r.options[:through].present? || r.options[:class_name].present?}
       .delete_if{|r| EXCLUDE_RELATIONS.include?(r.name.to_sym)}
+      .delete_if{|r| !r.name.match(/related/) && ( r.options[:through].present? || r.options[:class_name].present? )}
   end
 
   # @return Array of ActiveRecord::Reflection
@@ -125,6 +138,7 @@ module Shared::Unify
 
       merge_relations(only:, except:).each do |r|
         i = o.send(r.name)
+
         next if i.nil? # has_one case
 
         # Discern b/w has_one and has_many
@@ -162,7 +176,7 @@ module Shared::Unify
         s.merge!(
           object: {
             errors: [
-              { message: e.message.to_s }
+              { message: e.record.errors.full_messages.join('; ') } # e.message.to_s
             ]
           }
         )
@@ -172,7 +186,7 @@ module Shared::Unify
         s.merge!(
           object: {
             errors: [
-              { message: "record not destroyed {#{e.message.to_s}" }
+              { message: e.record.errors.full_messages.join('; ') }
             ]
           }
         )
@@ -191,6 +205,7 @@ module Shared::Unify
 
   def unify_relations_metadata
     s = {}
+
     merge_relations.each do |r|
 
       i = send(r.name)
@@ -210,8 +225,9 @@ module Shared::Unify
 
   private
 
-  # TODO: rename to handle_invalid_from_duplication or something
-  def move_annotations_to_identical(object)
+  def deduplicate_update_target(object)
+
+
     i = object.identical
 
     # There is exactly 1 match, merge is unambiguous
@@ -235,10 +251,12 @@ module Shared::Unify
       if object.errors.details.keys.include?(relation.options[:inverse_of])
 
         # object can't be updated, move it's annotations to self
-        unless move_annotations_to_identical(object)
+        unless deduplicate_update_target(object)
           result[relation.name][:unmerged] += 1
           result[relation.name][:errors] ||= []
           result[relation.name][:errors].push(object.id)
+        else
+          result[relation.name][:merged] += 1
         end
       end
 

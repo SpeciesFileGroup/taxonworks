@@ -962,8 +962,9 @@ uniquify_objects_task:
   name: 'Uniquify objects'
   related:
   categories:
+    - unify
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Merge two objects into a single one.  Moves annotations and unifies would-be duplicates and their annotations if possible.'
 new_filename_depicting_image_task:
   hub: true
   name: 'New filename depicting image'
