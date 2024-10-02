@@ -254,7 +254,8 @@ module Shared::Unify
         unless deduplicate_update_target(object)
           result[relation.name][:unmerged] += 1
           result[relation.name][:errors] ||= []
-          result[relation.name][:errors].push(object.id)
+          result[relation.name][:errors] += object.errors.full_messages.join('; ')
+        
         else
           result[relation.name][:merged] += 1
         end
