@@ -55,7 +55,6 @@ describe 'Shared::Unify', type: :model do
     expect(ad2.identical.first).to eq(ad1)
   end
 
-
   #
   # Model/Context specific handling
   #

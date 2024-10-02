@@ -139,6 +139,8 @@ module Shared::Unify
       merge_relations(only:, except:).each do |r|
         i = o.send(r.name)
 
+        n = relation_label(r)
+
         next if i.nil? # has_one case
 
         # Discern b/w has_one and has_many
@@ -146,7 +148,7 @@ module Shared::Unify
           next unless i.any?
 
           s.merge!(
-            r.name => {
+            n => {
               merged: 0,
               unmerged: 0 }
           )
@@ -158,7 +160,7 @@ module Shared::Unify
 
         else
           s.merge!(
-            r.name => {
+            n => {
               merged: 0,
               unmerged: 0 }
           )
@@ -203,6 +205,10 @@ module Shared::Unify
     s
   end
 
+  def relation_label(relation)
+    relation.name.to_s.humanize
+  end
+
   def unify_relations_metadata
     s = {}
 
@@ -211,7 +217,7 @@ module Shared::Unify
       i = send(r.name)
       next if i.nil?
 
-      name = r.name.to_s.humanize
+      n = relation_name(r)
 
       if i.class.name.match('CollectionProxy')
         next unless i.count > 0
@@ -226,8 +232,6 @@ module Shared::Unify
   private
 
   def deduplicate_update_target(object)
-
-
     i = object.identical
 
     # There is exactly 1 match, merge is unambiguous
@@ -243,6 +247,8 @@ module Shared::Unify
   # @return Hash
   # TODO: add error array
   def log_unify_result(object, relation, result)
+    n = relation.name.to_s.humanize
+
     if object.invalid?
 
       # Here we check to see that error related
@@ -252,18 +258,17 @@ module Shared::Unify
 
         # object can't be updated, move it's annotations to self
         unless deduplicate_update_target(object)
-          result[relation.name][:unmerged] += 1
-          result[relation.name][:errors] ||= []
-          result[relation.name][:errors].push({id: object.id, message: object.errors.full_messages.join('; ')})
-        
+          result[n][:unmerged] += 1
+          result[n][:errors] ||= []
+          result[n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
         else
-          result[relation.name][:merged] += 1
+          result[n][:merged] += 1
         end
       end
 
       # TODO - delete/cleanup logic here?
     else
-      result[relation.name][:merged] += 1
+      result[n][:merged] += 1
     end
 
     result
