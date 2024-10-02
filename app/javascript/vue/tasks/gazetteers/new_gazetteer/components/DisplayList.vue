@@ -104,24 +104,7 @@ function getCoordinates(item) {
   switch(item.type) {
     case GZ_LEAFLET:
     case GZ_DATABASE:
-      switch(shapeType(item)) {
-        case 'GeometryCollection':
-          return coordinatesForGeometryCollection(
-              item.shape.geometry.geometries
-            )
-
-        default: // not GeometryCollection
-          // TODO: this fails for Multi-shapes returned after Save (array shapes
-          // are different)
-          const coordinates = item.shape.geometry.coordinates
-          const flattened = coordinates.flat(1)
-          if (typeof flattened[0] === 'number') {
-            return convertToLatLongOrder(coordinates)
-          } else {
-            return flattened.map((arr) => convertToLatLongOrder(arr))
-          }
-      }
-      break
+      return coordinatesForListItem(item)
 
     case GZ_WKT:
       return item.shape
@@ -136,6 +119,45 @@ function getCoordinates(item) {
 
     case GZ_UNION_GZ:
       return item.shape.label_html
+  }
+}
+
+function coordinatesForListItem(item) {
+  switch(item.shape.geometry.type) {
+    case 'Point':
+      return convertToLatLongOrder(item.shape.geometry.coordinates)
+
+    case 'MultiPoint':
+    case 'LineString': {
+      const coordinates = item.shape.geometry.coordinates
+      return coordinates.map((point) => convertToLatLongOrder(point))
+    }
+
+    case 'MultiLineString': {
+      const lines = item.shape.geometry.coordinates
+      return lines.map((line) => {
+        return line.map((point) => convertToLatLongOrder(point))
+      })
+    }
+
+    case 'Polygon': {
+      const polygon = item.shape.geometry.coordinates
+      return polygon.map((ring) => {
+        return ring.map((point) => convertToLatLongOrder(point))
+      })
+    }
+
+    case 'MultiPolygon': {
+      const polygons = item.shape.geometry.coordinates
+      return polygons.map((polygon) => {
+        return polygon.map((piece) => {
+          return piece.map((point) => convertToLatLongOrder(point))
+        })
+      })
+    }
+
+    case 'GeometryCollection':
+      return coordinatesForGeometryCollection(item.shape.geometry.geometries)
   }
 }
 

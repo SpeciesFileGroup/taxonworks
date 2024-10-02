@@ -263,7 +263,7 @@ function saveNewGz() {
       shapes.value = [
         {
           shape: gz.value.shape,
-          type: GZ_LEAFLET,
+          type: GZ_DATABASE,
           uuid: randomUUID()
         }
       ]
