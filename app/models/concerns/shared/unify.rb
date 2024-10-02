@@ -217,7 +217,7 @@ module Shared::Unify
       i = send(r.name)
       next if i.nil?
 
-      n = relation_label(r)
+      name = relation_label(r) # r.name.to_s.humanize
 
       if i.class.name.match('CollectionProxy')
         next unless i.count > 0
