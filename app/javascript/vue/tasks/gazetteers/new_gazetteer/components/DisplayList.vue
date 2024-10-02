@@ -122,43 +122,61 @@ function getCoordinates(item) {
   }
 }
 
+// TODO? Return this as valid WKT
 function coordinatesForListItem(item) {
+  let returnArray
+  let gc = false
   switch(item.shape.geometry.type) {
     case 'Point':
-      return convertToLatLongOrder(item.shape.geometry.coordinates)
+      returnArray = convertToLatLongOrder(item.shape.geometry.coordinates)
+      break
 
     case 'MultiPoint':
     case 'LineString': {
       const coordinates = item.shape.geometry.coordinates
-      return coordinates.map((point) => convertToLatLongOrder(point))
+      returnArray = coordinates.map((point) => convertToLatLongOrder(point))
+      break
     }
 
     case 'MultiLineString': {
       const lines = item.shape.geometry.coordinates
-      return lines.map((line) => {
+      returnArray = lines.map((line) => {
         return line.map((point) => convertToLatLongOrder(point))
       })
+      break
     }
 
     case 'Polygon': {
       const polygon = item.shape.geometry.coordinates
-      return polygon.map((ring) => {
+      returnArray = polygon.map((ring) => {
         return ring.map((point) => convertToLatLongOrder(point))
       })
+      break
     }
 
     case 'MultiPolygon': {
       const polygons = item.shape.geometry.coordinates
-      return polygons.map((polygon) => {
+      returnArray = polygons.map((polygon) => {
         return polygon.map((piece) => {
           return piece.map((point) => convertToLatLongOrder(point))
         })
       })
+      break
     }
 
     case 'GeometryCollection':
-      return coordinatesForGeometryCollection(item.shape.geometry.geometries)
+      gc = true
+      returnArray =
+        coordinatesForGeometryCollection(item.shape.geometry.geometries)
+      break
   }
+
+  let returnString = JSON.stringify(returnArray)
+  if (returnString.length > 1000) {
+    returnString = returnString.slice(0, 1000) + ' ...'
+  }
+  // Geometry collection needs a little cleanup
+  return gc ? returnString.replaceAll(/",?/g, '') : returnString
 }
 
 function coordinatesForGeometryCollection(geometries) {
@@ -183,8 +201,7 @@ function coordinatesForGeometryCollection(geometries) {
       shape: shape_hash
     }
 
-    // TODO how to display this type without double quotes?
-    collectionStrings.push(geometry.type)
+    collectionStrings.push(' ' + geometry.type + ': ')
     collectionStrings.push(getCoordinates(new_shape))
   })
 
