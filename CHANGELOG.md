@@ -9,7 +9,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `dwc_occurrence_id[]` param to dwc_gallery endpoint
 - Image matrix link to radial linker and radial matrix
+
+### Fixed
+
+- `api/v1/images/975145cf4d25d7ed35893170abc2e852` style calls finding images by id, not fingerprint
 
 ## [0.44.2] - 2024-09-27
 

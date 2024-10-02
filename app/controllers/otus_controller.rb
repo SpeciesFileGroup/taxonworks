@@ -333,11 +333,14 @@ class OtusController < ApplicationController
         type: 'text',
         filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
       end
+
       format.json do
         if params[:page].blank? && params[:per].blank?
           render json: DwcOccurrence.scoped_by_otu(@otu).to_json
         else # only apply if provided, do not fall back to default scope
-          render json: DwcOccurrence.scoped_by_otu(@otu).page(params[:page]).per(params[:per]).to_json
+          r = DwcOccurrence.scoped_by_otu(@otu).page(params[:page]).per(params[:per])
+          assign_pagination(r)
+          render json: r.to_json
         end
       end
     end
@@ -346,7 +349,8 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/:id/inventory/dwc_gallery.json?per=1&page=2
   def api_dwc_gallery
     # see otus_helper
-    @data = helpers.dwc_gallery_data(@otu)
+
+    @data = helpers.dwc_gallery_data(@otu, dwc_occurrence_id: params[:dwc_occurrence_id])
     render '/otus/api/v1/inventory/dwc_gallery'
   end
 
