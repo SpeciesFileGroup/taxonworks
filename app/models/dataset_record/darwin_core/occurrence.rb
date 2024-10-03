@@ -1463,12 +1463,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       raise DarwinCore::InvalidData.new({ "taxonRank": ["Unknown #{code.upcase} rank #{rank}"] }) unless names.last[:rank_class]
     end
 
+    # TODO: refactor, make it 1:1, no special treatement for cf.
     ident_qualifier = get_field_value(:identificationQualifier)
     if ident_qualifier =~ /^cf[\.\s]/
       otu_names << ident_qualifier
     else
       otu_names << "#{get_field_value(:scientificName)} #{ident_qualifier}"
     end unless ident_qualifier.nil?
+    
     names.last&.merge!({otu_attributes: {name: otu_names.join(' ')}}) unless otu_names.empty?
 
     # higherClassification: [Several protonyms with ranks determined automatically when possible. Classification lower or at genus level is ignored and extracted from scientificName instead]

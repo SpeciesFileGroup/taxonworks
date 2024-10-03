@@ -1155,11 +1155,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/create_otu.tsv'), 'text/plain'),
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/otus/create_otu.tsv'), 'text/plain'),
         description: 'create otu',
         import_settings: { 'restrict_to_existing_nomenclature' => false }
       ).tap { |i| i.stage }
-
 
       kingdom = Protonym.create(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
@@ -1194,8 +1193,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
 
     it 'should create an otu with the existing genus protonym' do
-      expect(Otu.where(name: 'Strumigenys sphera_cf1').count).to eq(1)
-      expect(Otu.find_by(name: 'Strumigenys sphera_cf1').taxon_name).to eq(g_strumigenys)
+      expect(Otu.where(name: 'sphera_cf1').count).to eq(1)
+      expect(Otu.find_by(name: 'sphera_cf1').taxon_name).to eq(g_strumigenys)
     end
 
   end
@@ -1359,7 +1358,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
 
     it 'the OTU created should reference only identificationQualifier in otu#name' do
-      byebug
       expect(CollectionObject.first.current_otu.name).to eq('sp22a')
     end
   end
