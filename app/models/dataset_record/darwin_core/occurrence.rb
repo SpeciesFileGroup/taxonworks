@@ -1256,7 +1256,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # identificationID: [Not mapped]
 
-    # identificationQualifier: [Mapped as part of otu name in parse_taxon_class]
+    # identificationQualifier: [Mapped 1:1 with otu name parse_taxon_class]
 
     # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
     if (type_status = get_field_value(:typeStatus))
@@ -1410,7 +1410,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     unless (1..3).include?(parse_results[:quality]) && parse_details
       parse_details = parse_results[:details]&.values&.first
-      otu_names << get_field_value(:scientificName)
     end
 
     raise DarwinCore::InvalidData.new({
@@ -1458,19 +1457,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # taxonRank: [Rank of innermost protonym]
     rank = get_field_value(:taxonRank)
-    if rank && otu_names.empty?
+    if rank && otu_names.empty? # TODO: Probably don't need otu_name check, rank matches the taxon name, NOT the OTU concept when identificationQualifier is used
       names.last[:rank_class] = Ranks.lookup(code, rank)
       raise DarwinCore::InvalidData.new({ "taxonRank": ["Unknown #{code.upcase} rank #{rank}"] }) unless names.last[:rank_class]
     end
 
-    # TODO: refactor, make it 1:1, no special treatement for cf.
     ident_qualifier = get_field_value(:identificationQualifier)
-    if ident_qualifier =~ /^cf[\.\s]/
-      otu_names << ident_qualifier
-    else
-      otu_names << "#{get_field_value(:scientificName)} #{ident_qualifier}"
-    end unless ident_qualifier.nil?
-    
+    otu_names << ident_qualifier unless ident_qualifier.nil? 
+
     names.last&.merge!({otu_attributes: {name: otu_names.join(' ')}}) unless otu_names.empty?
 
     # higherClassification: [Several protonyms with ranks determined automatically when possible. Classification lower or at genus level is ignored and extracted from scientificName instead]

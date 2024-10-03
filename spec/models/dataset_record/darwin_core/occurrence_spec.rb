@@ -1188,13 +1188,12 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(results.map { |row| row.status }).to all(eq('Imported'))
     end
 
-    it 'should reuse the existing genus protonym' do
-      expect(TaxonName.where(name: 'Strumigenys').count).to eq(1)
+    it 'should create an Otu with the existing genus protonym' do
+      expect(Otu.find_by(name: 'sphera_cf1').taxon_name).to eq(g_strumigenys)
     end
 
-    it 'should create an otu with the existing genus protonym' do
+    it 'should only use identificaiotn qualifier in name' do
       expect(Otu.where(name: 'sphera_cf1').count).to eq(1)
-      expect(Otu.find_by(name: 'sphera_cf1').taxon_name).to eq(g_strumigenys)
     end
 
   end
