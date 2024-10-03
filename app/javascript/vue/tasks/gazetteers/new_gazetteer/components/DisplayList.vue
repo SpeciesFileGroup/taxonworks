@@ -182,19 +182,10 @@ function coordinatesForListItem(item) {
 function coordinatesForGeometryCollection(geometries) {
   let collectionStrings = []
   geometries.forEach((geometry) => {
-    let shape_hash
-    if  (geometry.type == 'GeometryCollection') {
-      // TODO test this (a geom_collection inside a geom_collection)
-      shape_hash = {
-        geometries: geometry.geometries
-      }
+    const shape_hash = {
+      geometry,
+      properties: {}
     }
-    else {
-      shape_hash = {
-        geometry
-      }
-    }
-    shape_hash.properties = {}
 
     const new_shape = {
       type: GZ_LEAFLET, // also works in the GZ_DATABASE case

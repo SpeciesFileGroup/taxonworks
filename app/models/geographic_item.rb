@@ -919,12 +919,14 @@ class GeographicItem < ApplicationRecord
     # @return [Hash]
     #   the shape as a GeoJSON Feature with some item metadata
     def to_geo_json_feature
-      {'type' => 'Feature',
-       'geometry' => to_geo_json,
-       'properties' => {
-         'geographic_item' => {
-           'id' => id}
-       }
+      {
+        'type' => 'Feature',
+        'geometry' => to_geo_json,
+        'properties' => {
+          'geographic_item' => {
+            'id' => id
+          }
+        }
       }
     end
 
