@@ -22,7 +22,7 @@
               <ul class="no_bullets">
                 <li
                   v-for="error in errors"
-                  :key="error.message"
+                  :key="error.id"
                 >
                   {{ error.message }}
                 </li>
