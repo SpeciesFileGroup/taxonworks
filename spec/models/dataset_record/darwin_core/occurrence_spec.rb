@@ -583,7 +583,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/type_material.tsv'), 'text/plain'),
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/type_material/type_material.tsv'), 'text/plain'),
         description: 'Type Material',
         import_settings: { 'restrict_to_existing_nomenclature' => true,
                            'require_type_material_success' => true }
@@ -639,7 +639,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_original_misspelling.tsv'), 'text/plain'),
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/type_material/typeStatus_original_misspelling.tsv'), 'text/plain'),
         description: 'Type Material Synonym',
         import_settings: { 'restrict_to_existing_nomenclature' => true,
                            'require_type_material_success' => true }
@@ -701,7 +701,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_combination_misspelling.tsv'), 'text/plain'),
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/type_material/typeStatus_combination_misspelling.tsv'), 'text/plain'),
         description: 'Type Material Obsolete Combination Misspelling',
         import_settings: { 'restrict_to_existing_nomenclature' => true,
                            'require_type_material_success' => true }
@@ -759,7 +759,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = prepare_occurrence_tsv(
-        'typeStatus_synonym_misspelling.tsv',
+        'type_material/typeStatus_synonym_misspelling.tsv',
         import_settings: {
           'restrict_to_existing_nomenclature' => true,
           'require_type_material_success' => true })
@@ -832,7 +832,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = prepare_occurrence_tsv(
-        'typeStatus_subsequent_combination.tsv',
+        'type_material/typeStatus_subsequent_combination.tsv',
         import_settings: { 'restrict_to_existing_nomenclature' => true,
                            'require_type_material_success' => true })
 
@@ -899,7 +899,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_wildcard_subgenus.tsv'), 'text/plain'),
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/type_material/typeStatus_wildcard_subgenus.tsv'), 'text/plain'),
         description: 'Type Material Wildcard Subgenus',
         import_settings: { 'restrict_to_existing_nomenclature' => true,
                            'require_type_material_success' => true }
@@ -955,7 +955,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_unresolved_homonym.tsv'), 'text/plain'),
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/type_material/typeStatus_unresolved_homonym.tsv'), 'text/plain'),
         description: 'Type Material Homonym',
         import_settings: { 'restrict_to_existing_nomenclature' => true,
                            'require_type_material_success' => true }
@@ -1018,7 +1018,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
     before :all do
       @import_dataset = prepare_occurrence_tsv(
-        'type_material_homonym.tsv',
+        'type_material/type_material_homonym.tsv',
         import_settings: {
           'restrict_to_existing_nomenclature' => true,
           'require_type_material_success' => true }
@@ -1093,7 +1093,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/typeStatus_bad_type.tsv'), 'text/plain'),
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/type_material/typeStatus_bad_type.tsv'), 'text/plain'),
         description: 'bad type material',
         import_settings: { 'restrict_to_existing_nomenclature' => true,
                            'require_type_material_success' => true }
@@ -1155,11 +1155,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/create_otu.tsv'), 'text/plain'),
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/occurrences/otus/create_otu.tsv'), 'text/plain'),
         description: 'create otu',
         import_settings: { 'restrict_to_existing_nomenclature' => false }
       ).tap { |i| i.stage }
-
 
       kingdom = Protonym.create(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
@@ -1189,13 +1188,12 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(results.map { |row| row.status }).to all(eq('Imported'))
     end
 
-    it 'should reuse the existing genus protonym' do
-      expect(TaxonName.where(name: 'Strumigenys').count).to eq(1)
+    it 'should create an Otu with the existing genus protonym' do
+      expect(Otu.find_by(name: 'sphera_cf1').taxon_name).to eq(g_strumigenys)
     end
 
-    it 'should create an otu with the existing genus protonym' do
-      expect(Otu.where(name: 'Strumigenys sphera_cf1').count).to eq(1)
-      expect(Otu.find_by(name: 'Strumigenys sphera_cf1').taxon_name).to eq(g_strumigenys)
+    it 'should only use identificaiotn qualifier in name' do
+      expect(Otu.where(name: 'sphera_cf1').count).to eq(1)
     end
 
   end
@@ -1286,7 +1284,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   context "when importing an occurrence with a type material, but typeStatus taxon doesn't exist" do
     before :all do
-      @import_dataset = prepare_occurrence_tsv('type_material_homonym.tsv',
+      @import_dataset = prepare_occurrence_tsv('type_material/type_material_homonym.tsv',
                                                import_settings: { 'restrict_to_existing_nomenclature' => true,
                                                                   'require_type_material_success' => true })
 
@@ -1333,6 +1331,36 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  context 'when importing an occurrence with identificationQualifier' do
+    after(:all) { DatabaseCleaner.clean }
+
+    before :all do
+      @import_dataset = prepare_occurrence_tsv('otus/identification_qualifier.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false })
+
+      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: 'Ponerinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      tribe = Protonym.create!(parent: subfamily, name: 'Ponerini', rank_class: Ranks.lookup(:iczn, :tribe))
+      genus = Protonym.create!(parent: tribe, name: 'Bothroponera', rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+
+    it 'should import the record without failing' do
+      expect(results.length).to eq(1)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
+    it 'the OTU created should reference only identificationQualifier in otu#name' do
+      expect(CollectionObject.first.current_otu.name).to eq('sp22a')
+    end
+  end
+
   context 'when importing an occurrence with scientificNameAuthorship' do
 
     after(:all) { DatabaseCleaner.clean }
@@ -1350,9 +1378,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       subfamily = Protonym.create!(parent: family, name: 'Ponerinae', rank_class: Ranks.lookup(:iczn, :subfamily))
       tribe = Protonym.create!(parent: subfamily, name: 'Ponerini', rank_class: Ranks.lookup(:iczn, :tribe))
       genus = Protonym.create!(parent: tribe, name: 'Bothroponera', rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
-      @species = Protonym.create!(parent: genus, name: 'cambouei', rank_class: Ranks.lookup(:iczn, :species),
-                                  year_of_publication: 1891, also_create_otu: true)
-
+      @species = Protonym.create!(parent: genus, name: 'cambouei', rank_class: Ranks.lookup(:iczn, :species), year_of_publication: 1891, also_create_otu: true)
       @species.taxon_name_authors << @person
 
       @imported = @import_dataset.import(5000, 100)
@@ -1368,6 +1394,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     it 'the record should have the correct determination' do
       expect(CollectionObject.last.taxon_names).to include @species
     end
+
+    it 'the determination OTU should only reference a taxon name' do
+      expect(CollectionObject.last.taxon_determinations.first.otu.name).to eq(nil)
+    end
   end
 
   context 'when importing an occurrence whose type material is a subsequent combination and is missing subgenus' do
@@ -1376,7 +1406,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     before :all do
       init_housekeeping
 
-      @import_dataset = prepare_occurrence_tsv('typeStatus_subsequent_combination_without_subgenus.tsv',
+      @import_dataset = prepare_occurrence_tsv('type_material/typeStatus_subsequent_combination_without_subgenus.tsv',
                                                import_settings: { 'restrict_to_existing_nomenclature' => true,
                                                                   'require_type_material_success' => true})
 
@@ -1715,9 +1745,9 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
       init_housekeeping
 
-      @import_dataset = prepare_occurrence_tsv('type_material_authorship.tsv', import_settings:
-                                               { 'restrict_to_existing_nomenclature' => true,
-                                                 'require_type_material_success' => true })
+      @import_dataset = prepare_occurrence_tsv('type_material/type_material_authorship.tsv', import_settings: {
+        'restrict_to_existing_nomenclature' => true,
+        'require_type_material_success' => true })
 
       kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
@@ -1780,7 +1810,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
       init_housekeeping
 
-      @import_dataset = prepare_occurrence_tsv('type_material_authorship_homonym.tsv', import_settings:
+      @import_dataset = prepare_occurrence_tsv('type_material/type_material_authorship_homonym.tsv', import_settings:
                                                { 'restrict_to_existing_nomenclature' => true,
                                                  'require_type_material_success' => true })
 

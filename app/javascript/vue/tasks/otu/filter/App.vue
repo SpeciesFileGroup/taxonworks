@@ -25,18 +25,19 @@
         />
       </template>
       <template #nav-right>
-        <RadialMatrix
-          :object-type="OTU"
-          :disabled="!list.length"
-          :ids="selectedIds"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
-        />
         <RadialOtu
           :disabled="!list.length"
           :ids="selectedIds"
           :count="selectedIds.length"
           @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
+        <RadialMatrix
+          :object-type="OTU"
+          :disabled="!list.length"
+          :ids="selectedIds"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+        />
+        <ButtonImageMatrix :otu-ids="selectedIds" />
       </template>
       <template #facets>
         <FilterView v-model="parameters" />
@@ -69,6 +70,7 @@ import useFilter from '@/shared/Filter/composition/useFilter.js'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import RadialOtu from '@/components/radials/otu/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import ButtonImageMatrix from '@/tasks/observation_matrices/dashboard/components/buttonImageMatrix.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { OTU } from '@/constants/index.js'

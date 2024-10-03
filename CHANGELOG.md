@@ -7,10 +7,33 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.44.3] - 2024-10-03
+
+### Added
+
+- `dwc_occurrence_id[]` param to dwc_gallery endpoint
+- Image matrix link to radial linker and radial matrix
+
+### Fixed
+
+- Date received facet on loans [#4067]
+- `api/v1/images/975145cf4d25d7ed35893170abc2e852` style calls finding images by id, not fingerprint [#3918]
+
+### Changed
+
+- Updated Ruby gems
+- In DwC Import Otu `name` is now only set via use of `identificationQualifier`
+
+[#3918]: https://github.com/SpeciesFileGroup/taxonworks/issues/3918
+[#4067]: https://github.com/SpeciesFileGroup/taxonworks/issues/4067
+
 ## [0.44.2] - 2024-09-27
 
 ### Added
 
+- Columns in filter results can be copied to clipboard
 - Sort by identifier match option [#4065]
 - `/collection_objects/123/dwc_compact` - DwC fields for those populated [#3994]
 - Pagination to `/api/v1/otus/:otu_id/inventory/dwc_gallery`
@@ -4877,7 +4900,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.2..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.3..development
+[0.44.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.2...v0.44.3
 [0.44.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.1...v0.44.2
 [0.44.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.0...v0.44.1
 [0.44.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.3...v0.44.0

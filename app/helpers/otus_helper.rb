@@ -328,15 +328,21 @@ module OtusHelper
 
   # @return Hash
   #   { dwc_occurrence_id: [ image1, image2 ... ], ... }
-  def dwc_gallery_data(otu, pagination_headers: true)
+  def dwc_gallery_data(otu, dwc_occurrence_id: [], pagination_headers: true)
     a = DwcOccurrence.scoped_by_otu(otu)
       .select(:id, :dwc_occurrence_object_id, :dwc_occurrence_object_type)
-      .page(params[:page])
-      .per(params[:per])
+
+    dwc_ids = [dwc_occurrence_id].flatten.compact.uniq
+
+    if dwc_ids.any?
+      a = a.where(id: dwc_ids)
+    end
+
+    a = a.page(params[:page]).per(params[:per])
 
     # Somehwhat of a janky pattern, probably needs to be
     # moved into Controller.
-    assign_pagination(a) if  pagination_headers
+    assign_pagination(a) if pagination_headers
 
     b = Image.with(dwc_scope: a)
       .joins("JOIN depictions d on d.image_id = images.id" )
