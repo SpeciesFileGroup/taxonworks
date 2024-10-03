@@ -14,12 +14,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Date received facet on loans [#4067]
 - `api/v1/images/975145cf4d25d7ed35893170abc2e852` style calls finding images by id, not fingerprint
+
+### Changed
+
+- In DwC Import Otu `name` is now only set via use of `identificationQualifier`
+
+[#4067]: https://github.com/SpeciesFileGroup/taxonworks/issues/4067
 
 ## [0.44.2] - 2024-09-27
 
 ### Added
 
+- Columns in filter results can be copied to clipboard
 - Sort by identifier match option [#4065]
 - `/collection_objects/123/dwc_compact` - DwC fields for those populated [#3994]
 - Pagination to `/api/v1/otus/:otu_id/inventory/dwc_gallery`
