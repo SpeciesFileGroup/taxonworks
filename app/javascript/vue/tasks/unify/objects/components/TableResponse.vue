@@ -10,7 +10,7 @@
     </thead>
     <tbody>
       <template
-        v-for="({ merged, unmerged, errors }, key) in response"
+        v-for="({ merged, unmerged, errors }, key) in response.details"
         :key="key"
       >
         <tr>
@@ -23,6 +23,7 @@
                 <li
                   v-for="error in errors"
                   :key="error.id"
+                  class="text-error-color"
                 >
                   {{ error.message }}
                 </li>
