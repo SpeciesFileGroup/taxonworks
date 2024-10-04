@@ -8,7 +8,7 @@
           v-if="mergeItem"
           class="w-2"
         >
-          Merge
+          Unify
         </th>
       </tr>
     </thead>

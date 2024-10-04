@@ -4,7 +4,7 @@
     :disabled="!keepGlobalId || !removeGlobalId || disabled"
     @click="mergeObjects"
   >
-    Merge
+    Unify
   </VBtn>
   <VSpinner
     v-if="isSaving"
@@ -17,7 +17,7 @@
     @close="() => (isModalVisible = false)"
   >
     <template #header>
-      <h3>Merge stats</h3>
+      <h3>Unify stats</h3>
     </template>
     <template #body>
       <TableResponse :response="response" />
@@ -65,10 +65,10 @@ const response = ref({})
 
 async function mergeObjects() {
   const ok = await confirmationModalRef.value.show({
-    title: 'Merge',
-    okButton: 'Merge',
-    message: 'Are you sure you want to merge the objects?',
-    confirmationWord: 'MERGE'
+    title: 'Unify',
+    okButton: 'Unify',
+    message: 'Are you sure you want to unify the objects?',
+    confirmationWord: 'UNIFY'
   })
 
   if (ok) {

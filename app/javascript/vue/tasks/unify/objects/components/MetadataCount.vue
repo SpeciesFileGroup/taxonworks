@@ -17,7 +17,7 @@
           v-if="mergeItem"
           class="w-2"
         >
-          Merge
+          Unify
         </th>
       </tr>
     </thead>
@@ -106,12 +106,6 @@ function loadMetadata(globalId) {
 function getTotalWithMerge(count, key) {
   const onlyLength = only.value?.length
   const { total = 0 } = props.mergeItem?.metadata?.[key] || {}
-
-  console.log(
-    !onlyLength || (onlyLength && only.value.includes(key)),
-    !onlyLength,
-    onlyLength && only.value.includes(key)
-  )
 
   return !onlyLength || (onlyLength && only.value.includes(key))
     ? `<b class="text-update-color">${total + count}</b>`

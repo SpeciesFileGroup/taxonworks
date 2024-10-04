@@ -3,8 +3,8 @@
     <thead>
       <tr>
         <th class="w-2"></th>
-        <th class="w-2">Merged</th>
-        <th class="w-2">Unmerged</th>
+        <th class="w-2">Unified</th>
+        <th class="w-2">Not unified</th>
         <th>Errors</th>
       </tr>
     </thead>
