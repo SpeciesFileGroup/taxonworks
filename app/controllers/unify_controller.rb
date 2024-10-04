@@ -4,11 +4,7 @@ class UnifyController < ApplicationController
 
   def unify
     r = @keep_object.unify(@remove_object, only: params[:only], except: params[:except], preview: params[:preview])
-    if r[:result][:unified] == true
-      render json: r
-    else
-      render json: r, status: :unprocessable_entity
-    end
+    render json: r
   end
 
   # TO preview relationships
