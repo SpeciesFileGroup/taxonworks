@@ -80,23 +80,16 @@ async function mergeObjects() {
       only: props.only
     })
       .then(({ body }) => {
-        emit('merge')
+        if (body.result.unified) {
+          emit('merge')
+        }
+
         response.value = body
       })
-      .catch((error) => {
-        response.value = error.response.body
-
-        TW.workbench.alert.create(
-          error.response.body.details?.object?.errors
-            ?.map((e) => e.message)
-            .join('; '),
-          'error'
-        )
-
-        isModalVisible.value = true
-      })
+      .catch(() => {})
       .finally(() => {
         isSaving.value = false
+        isModalVisible.value = true
       })
   }
 }
