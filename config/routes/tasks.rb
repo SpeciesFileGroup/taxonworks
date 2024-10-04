@@ -682,13 +682,13 @@ scope :tasks do
     end
   end
 
-  scope :uniquify do
-    scope :objects, controller: 'tasks/uniquify/objects' do
-      get '/', action: :index, as: 'uniquify_objects_task'
+  scope :unify do
+    scope :objects, controller: 'tasks/unify/objects' do
+      get '/', action: :index, as: 'unify_objects_task'
     end
 
-    scope :people, controller: 'tasks/uniquify/people' do
-      get 'index', as: 'uniquify_people_task'
+    scope :people, controller: 'tasks/unify/people' do
+      get 'index', as: 'unify_people_task'
     end
   end
 

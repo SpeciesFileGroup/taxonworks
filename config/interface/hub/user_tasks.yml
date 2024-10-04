@@ -345,15 +345,16 @@ new_matrix_task:
     - new
   status: prototype
   description: 'Assign the rows and columns of observation matrices.'
-uniquify_people_task:
+unify_people_task:
   hub: true
-  name: 'Uniquify people'
+  name: 'Unify people'
   related:
   categories:
+    - people
     - source
     - nomenclature
   status: stable
-  description: 'Find and merge redundant or duplicated people, e.g., from import.'
+  description: 'Find and merge identical/duplicate people removing redundancy.'
 observation_matrix_view_task:
   hub: true
   name: 'View an observation matrix'
@@ -957,9 +958,9 @@ filter_dwc_occurrences_task:
     - filter
   status: prototype
   description: 'Filter records in the DarwinCore index.'
-uniquify_objects_task:
+unify_objects_task:
   hub: true
-  name: 'Uniquify objects'
+  name: 'Unify objects'
   related:
   categories:
     - unify

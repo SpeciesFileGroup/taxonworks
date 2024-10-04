@@ -26,14 +26,14 @@ AssertedDistribution:
   tasks:
     - asserted_distributions_basic_endemism_task
     - new_asserted_distribution_from_map_task
-    - uniquify_objects_task
+    - unify_objects_task
   config:
     recent: true
 BiologicalAssociation:
   tasks:
     - edit_biological_associations_graph_task
     - filter_biological_associations_task
-    - uniquify_objects_task
+    - unify_objects_task
   edit: edit_biological_associations_graph_task
   new: edit_biological_associations_graph_task
   config:
@@ -64,7 +64,7 @@ CollectionObject:
     - new_taxon_name_task
     - build_biocuration_groups_task
     - report_dwc_task
-    - uniquify_objects_task
+    - unify_objects_task
   config:
     recent: true
   edit: comprehensive_collection_object_task
@@ -77,7 +77,7 @@ CollectingEvent:
     - filter_collecting_events_task
     - comprehensive_collection_object_task
     - new_field_occurrence_task
-    - uniquify_objects_task
+    - unify_objects_task
   config:
     recent: true
   edit: new_collecting_event_task
@@ -86,7 +86,7 @@ CollectingEvent:
 Descriptor:
   tasks:
     - observation_matrices_hub_task
-    - uniquify_objects_task
+    - unify_objects_task
   new: new_descriptor_task
   edit: new_descriptor_task
   home: new_descriptor_task
@@ -98,7 +98,7 @@ Document:
 Extract:
   tasks:
     - new_extract_task
-    - uniquify_objects_task
+    - unify_objects_task
   new: new_extract_task
   edit: new_extract_task
   config:
@@ -106,7 +106,7 @@ Extract:
 FieldOccurrence:
   tasks:
     - new_field_occurrence_task
-    - uniquify_objects_task
+    - unify_objects_task
   edit: new_field_occurrence_task
   new: new_field_occurrence_task,
   config:
@@ -127,7 +127,7 @@ GeographicItem:
 Image:
   tasks:
     - filter_images_task
-    - uniquify_objects_task
+    - unify_objects_task
   config:
     recent: false
   new: new_image_task
@@ -141,7 +141,7 @@ Loan:
   tasks:
     - edit_loan_task
     - loan_dashboard_task
-    - uniquify_objects_task
+    - unify_objects_task
   config:
     recent: true
 ObservationMatrix:
@@ -149,7 +149,7 @@ ObservationMatrix:
     - new_matrix_task
     - new_descriptor_task
     - observation_matrices_hub_task
-    - uniquify_objects_task
+    - unify_objects_task
   config:
     recent: true
 Otu:
@@ -163,14 +163,14 @@ Otu:
     - cite_otus_task
     - browse_asserted_distributions_task
     - otu_distribution_data_task
-    - uniquify_objects_task
+    - unify_objects_task
   home: browse_otus_task
   config:
     recent: true
   new: new_otu_task
 Person:
   tasks:
-    - uniquify_people_task
+    - unify_people_task
   config:
     recent: true
 Source:
@@ -180,7 +180,7 @@ Source:
     - filter_sources_task
     - nomenclature_by_source_task
     - gnfinder_task
-    - uniquify_objects_task
+    - unify_objects_task
   new: new_source_task
   edit: new_source_task
   home: new_source_task
@@ -189,7 +189,7 @@ Source:
 TaxonDetermination:
   tasks:
     - comprehensive_collection_object_task
-    - uniquify_objects_task
+    - unify_objects_task
   home: comprehensive_collection_object_task
   config:
     recent: true
@@ -206,7 +206,7 @@ TaxonName:
     - otu_distribution_data_task
     - asserted_distributions_basic_endemism_task
     - paper_catalog_generator_task
-    - uniquify_objects_task
+    - unify_objects_task
   edit: new_taxon_name_task
   new: new_taxon_name_task
   home: browse_nomenclature_task
