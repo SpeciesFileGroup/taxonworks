@@ -119,6 +119,14 @@ module Shared::Unify
 
     o = remove_object
 
+    if o == self
+      s[:result].merge!(
+        unified: false,
+        message: 'objects are the same'
+      )
+      return s
+    end
+
     if !is_community?
       if project_id != o.project_id
         s.merge!(
@@ -181,7 +189,7 @@ module Shared::Unify
       rescue ActiveRecord::InvalidForeignKey => e
         s[:result][:unified] = false
         s[:details].merge!(
-          object: {
+          Object: {
             errors: [
               { id: e.record.id, message: e.record.errors.full_messages.join('; ') } # e.message.to_s
             ]
@@ -192,7 +200,7 @@ module Shared::Unify
       rescue ActiveRecord::RecordNotDestroyed => e
         s[:result][:unified] = false
         s[:details].merge!(
-          object: {
+          Object: {
             errors: [
               { id: e.record.id, message: e.record.errors.full_messages.join('; ') }
             ]
@@ -205,6 +213,7 @@ module Shared::Unify
       after_unify
 
       if preview
+
         raise ActiveRecord::Rollback
       end
     end
