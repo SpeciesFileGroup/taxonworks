@@ -82,6 +82,11 @@
           />
           <div class="horizontal-right-content gap-small">
             <template v-if="selectedIds">
+              <ButtonUnify
+                v-if="buttonUnify"
+                :ids="selectedIds"
+                :model="objectType"
+              />
               <RadialFilter
                 v-if="radialFilter"
                 :ids="selectedIds"
@@ -106,11 +111,6 @@
                 :model="objectType"
                 :ids="selectedIds"
                 :disabled="!selectedIds.length"
-              />
-              <ButtonUnify
-                v-if="buttonUnify"
-                :ids="selectedIds"
-                :model="objectType"
               />
             </template>
             <slot name="nav-right" />
