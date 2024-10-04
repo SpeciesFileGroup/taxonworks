@@ -112,7 +112,10 @@ module Shared::Unify
   #   a result
   #
   def unify(remove_object, only: [], except: [], preview: false)
-    s = {}
+    s = {
+      result: { unified: nil },
+      details: {},
+    }
 
     o = remove_object
 
@@ -126,8 +129,8 @@ module Shared::Unify
     end
 
     if o.class.base_class.name != self.class.base_class.name
-      s.merge!(
-        failed: true,
+      s[:result].merge!(
+        unified: false,
         message: 'missmatched object types')
       return s
     end
@@ -147,7 +150,7 @@ module Shared::Unify
         if i.class.name.match('CollectionProxy')
           next unless i.any?
 
-          s.merge!(
+          s[:details].merge!(
             n => {
               merged: 0,
               unmerged: 0 }
@@ -159,7 +162,7 @@ module Shared::Unify
           end
 
         else
-          s.merge!(
+          s[:details].merge!(
             n => {
               merged: 0,
               unmerged: 0 }
@@ -176,8 +179,8 @@ module Shared::Unify
         o.destroy!
 
       rescue ActiveRecord::InvalidForeignKey => e
-        s.merge!(
-          unified: false,
+        s[:result][:unified] = false
+        s[:details].merge!(
           object: {
             errors: [
               { id: e.record.id, message: e.record.errors.full_messages.join('; ') } # e.message.to_s
@@ -187,8 +190,8 @@ module Shared::Unify
 
         raise ActiveRecord::Rollback
       rescue ActiveRecord::RecordNotDestroyed => e
-        s.merge!(
-          unified: false,
+        s[:result][:unified] = false
+        s[:details].merge!(
           object: {
             errors: [
               { id: e.record.id, message: e.record.errors.full_messages.join('; ') }
@@ -206,7 +209,7 @@ module Shared::Unify
       end
     end
 
-    s[:unified] = true unless s[:unified] == false
+    s[:result][:unified] = true unless s[:result][:unified] == false
 
     s
   end
@@ -264,18 +267,18 @@ module Shared::Unify
 
         # object can't be updated, move it's annotations to self
         unless deduplicate_update_target(object)
-          result[:unified] = false
-          result[n][:unmerged] += 1
-          result[n][:errors] ||= []
-          result[n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
+          result[:result][:unified] = false
+          result[:details][n][:unmerged] += 1
+          result[:details][n][:errors] ||= []
+          result[:details][n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
         else
-          result[n][:merged] += 1
+          result[:details][n][:merged] += 1
         end
       end
 
       # TODO - delete/cleanup logic here?
     else
-      result[n][:merged] += 1
+      result[:details][n][:merged] += 1
     end
 
     result
