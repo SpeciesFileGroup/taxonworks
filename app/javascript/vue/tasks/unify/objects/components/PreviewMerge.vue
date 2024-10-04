@@ -98,6 +98,11 @@ function openModal() {
   })
     .then(({ body }) => {
       previewResponse.value = body
+
+      if (body.result.message) {
+        TW.workbench.alert.create(body.result.message, 'error')
+        isModalVisible.value = false
+      }
     })
     .catch(() => {})
     .finally(() => {
