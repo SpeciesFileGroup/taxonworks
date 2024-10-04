@@ -1,7 +1,12 @@
 <template>
   <VBtn
     color="destroy"
-    :disabled="!keepGlobalId || !removeGlobalId || disabled"
+    :disabled="
+      !keepGlobalId ||
+      !removeGlobalId ||
+      disabled ||
+      keepGlobalId === removeGlobalId
+    "
     @click="mergeObjects"
   >
     Unify

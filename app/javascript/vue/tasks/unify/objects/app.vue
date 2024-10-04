@@ -46,6 +46,7 @@
         </template>
         <template #body>
           <ObjectSelector
+            ref="destroyRef"
             :title="model"
             :model="model"
             :exclude-ids="[destroyObject?.id, keepObject?.id].filter(Boolean)"
@@ -87,7 +88,7 @@
 
 <script setup>
 import { ref, nextTick, watch, onMounted } from 'vue'
-import { toPascalCase, toSnakeCase } from '@/helpers'
+import { toPascalCase, toSnakeCase, URLParamsToJSON } from '@/helpers'
 import { RouteNames } from '@/routes/routes.js'
 import ButtonMerge from './components/ButtonMerge.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -105,6 +106,7 @@ defineOptions({
 const model = ref(null)
 const only = ref([])
 const destroyObject = ref(null)
+const destroyRef = ref(null)
 const keepObject = ref(null)
 const keepRef = ref(null)
 const keepMetadataRef = ref(null)
@@ -127,15 +129,25 @@ function handleMerge() {
 }
 
 onMounted(() => {
-  const urlObj = new URL(window.location)
-  const params = new URLSearchParams(urlObj.search)
+  const params = URLParamsToJSON(window.location.href)
 
-  params.forEach((value, key) => {
+  Object.entries(params).forEach(([key, value]) => {
     if (key.endsWith('_id')) {
       model.value = toPascalCase(key.slice(0, -3))
 
       nextTick(() => {
-        keepRef.value.loadObjectById(value)
+        if (Array.isArray(value)) {
+          const [keepId, destroyId] = value
+
+          if (keepId) {
+            keepRef.value.loadObjectById(keepId)
+          }
+          if (destroyId) {
+            destroyRef.value.loadObjectById(destroyId)
+          }
+        } else {
+          keepRef.value.loadObjectById(value)
+        }
       })
     }
   })
