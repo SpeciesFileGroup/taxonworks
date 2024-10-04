@@ -174,8 +174,10 @@ module Shared::Unify
       begin
         o.reload # reset all in-memory has_many caches that would prevent destroy
         o.destroy!
+
       rescue ActiveRecord::InvalidForeignKey => e
         s.merge!(
+          unified: false,
           object: {
             errors: [
               { id: e.record.id, message: e.record.errors.full_messages.join('; ') } # e.message.to_s
@@ -186,6 +188,7 @@ module Shared::Unify
         raise ActiveRecord::Rollback
       rescue ActiveRecord::RecordNotDestroyed => e
         s.merge!(
+          unified: false,
           object: {
             errors: [
               { id: e.record.id, message: e.record.errors.full_messages.join('; ') }
@@ -202,6 +205,9 @@ module Shared::Unify
         raise ActiveRecord::Rollback
       end
     end
+
+    s[:unified] = true unless s[:unified] == false
+
     s
   end
 
@@ -258,6 +264,7 @@ module Shared::Unify
 
         # object can't be updated, move it's annotations to self
         unless deduplicate_update_target(object)
+          result[:unified] = false
           result[n][:unmerged] += 1
           result[n][:errors] ||= []
           result[n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
