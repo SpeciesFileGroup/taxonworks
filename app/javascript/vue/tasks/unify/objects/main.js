@@ -8,7 +8,7 @@ function initApp(element) {
 }
 
 document.addEventListener('turbolinks:load', () => {
-  const el = document.querySelector('#vue-uniquify-objects-task')
+  const el = document.querySelector('#vue-unify-objects-task')
 
   if (el) {
     initApp(el)

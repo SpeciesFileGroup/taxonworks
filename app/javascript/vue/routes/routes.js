@@ -67,7 +67,8 @@ const RouteNames = {
   ProjectVocabulary: '/tasks/metadata/vocabulary/project_vocabulary',
   ShowLead: '/tasks/leads/show',
   TypeMaterial: '/tasks/type_material/edit_type_material',
-  UniquifyObjects: '/tasks/uniquify/objects'
+  UnifyObjects: '/tasks/unify/objects',
+  UnifyPeople: '/tasks/unify/people'
 }
 
 const FILTER_ROUTES = {

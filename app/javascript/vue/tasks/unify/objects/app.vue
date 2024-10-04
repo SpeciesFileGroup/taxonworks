@@ -1,6 +1,6 @@
 <template>
   <div class="task-container">
-    <h1>Uniquify objects</h1>
+    <h1>Unify objects</h1>
     <BlockLayout>
       <template #header>
         <div class="flex-separate middle full_width">
@@ -99,7 +99,7 @@ import ModelSelector from './components/ModelSelector.vue'
 import PrewiewMerge from './components/PreviewMerge.vue'
 
 defineOptions({
-  name: 'UniquifyObjects'
+  name: 'UnifyObjects'
 })
 
 const model = ref(null)
@@ -144,11 +144,11 @@ onMounted(() => {
 watch(keepObject, (newVal) => {
   if (newVal) {
     const paramName = toSnakeCase(model.value) + '_id'
-    const newUrl = `${RouteNames.UniquifyObjects}?${paramName}=${newVal.id}`
+    const newUrl = `${RouteNames.UnifyObjects}?${paramName}=${newVal.id}`
 
     history.pushState(null, null, newUrl)
   } else {
-    history.pushState(null, null, RouteNames.UniquifyObjects)
+    history.pushState(null, null, RouteNames.UnifyObjects)
   }
 })
 </script>
