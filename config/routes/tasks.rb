@@ -688,7 +688,7 @@ scope :tasks do
     end
 
     scope :people, controller: 'tasks/unify/people' do
-      get 'index', as: 'unify_people_task'
+      get '/', action: :index, as: 'unify_people_task'
     end
   end
 
