@@ -26,6 +26,71 @@ describe DataAttribute, type: :model, group: :annotators do
       end
     end
 
+    context '.batch_update' do
+      let(:p) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
+      let!(:o0) { FactoryBot.create(:valid_otu) }
+
+      specify 'creating new attributes' do
+        o1 = FactoryBot.create(:valid_otu)
+        expect(o1.data_attributes.count).to eq(0)
+
+        params = {
+          data_attribute: { controlled_vocabulary_term_id: p, value: 'foo' },
+          data_attribute_query: { attribute_subject_id: [o1.id] },
+        }
+
+        response = DataAttribute.batch_update(params).to_json
+
+        expect(response[:updated]).to include(o1.id)
+        expect(response[:not_updated]).to eq([])
+        expect(o1.reload.data_attributes.count).to eq(1)
+        expect(o1.data_attributes.first.value).to eq('foo')
+      end
+
+      specify 'updating existing attribute' do
+        o1 = FactoryBot.create(:valid_otu)
+        attribute = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: o1, predicate: p, value: 'bar')
+        expect(o1.data_attributes.count).to eq(1)
+        expect(o1.data_attributes.first.value).to eq('bar')
+
+        params = {
+          data_attribute: { controlled_vocabulary_term_id: p, value: 'foo' },
+          data_attribute_query: { attribute_subject_id: [o1.id] },
+        }
+
+        response = DataAttribute.batch_update(params).to_json
+
+        expect(response[:updated]).to include(o1.id)
+        expect(response[:not_updated]).to eq([])
+
+        expect(o1.reload.data_attributes.count).to eq(1)
+        expect(o1.data_attributes.first.value).to eq('foo')
+        expect(o1.data_attributes.first.id).to eq(attribute.id)
+      end
+
+      specify 'updating existing and creating new attributes' do
+        o1 = FactoryBot.create(:valid_otu)
+        o2 = FactoryBot.create(:valid_otu)
+        attribute = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: o1, predicate: p, value: 'bar')
+
+        params = {
+          data_attribute: { controlled_vocabulary_term_id: p, value: 'foo' },
+          data_attribute_query: { attribute_subject_id: [o1.id, o2.id] },
+        }
+
+        response = DataAttribute.batch_update(params).to_json
+        expect(response[:updated]).to include(o1.id, o2.id)
+        expect(response[:not_updated]).to eq([])
+
+        expect(o1.reload.data_attributes.count).to eq(1)
+        expect(o2.reload.data_attributes.count).to eq(1)
+        expect(o1.data_attributes.first.value).to eq('foo')
+        expect(o2.data_attributes.first.value).to eq('foo')
+        expect(o1.data_attributes.first.id).to eq(attribute.id)
+        expect(o1.data_attributes.first.id).to_not eq(attribute.id)
+      end
+    end
+
     context 'uniqueness' do
       let(:o) {FactoryBot.create(:valid_otu) }
 
