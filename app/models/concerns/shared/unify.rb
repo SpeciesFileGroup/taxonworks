@@ -122,7 +122,7 @@ module Shared::Unify
     if o == self
       s[:result].merge!(
         unified: false,
-        message: 'objects are the same'
+        message: 'Can not unify the same objects.'
       )
       return s
     end
@@ -131,15 +131,15 @@ module Shared::Unify
       if project_id != o.project_id
         s.merge!(
           failed: true,
-          message: 'missmatched projects')
+          message: 'Danger, objects come from different projects.')
         return s
       end
     end
 
-    if o.class.base_class.name != self.class.base_class.name
+    if o.class.name != self.class.name
       s[:result].merge!(
         unified: false,
-        message: 'missmatched object types')
+        message: "Can not unify objects of different types (#{o.class.name} and #{self.class.name}).")
       return s
     end
 
