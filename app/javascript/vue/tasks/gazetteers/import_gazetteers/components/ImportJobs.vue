@@ -103,14 +103,14 @@ function refresh() {
 }
 
 function jobStatus(job) {
-  if (!job['num_records']) {
+  if (job['aborted_reason']) {
+    return `Aborted, no Gazetteers saved: '${job['aborted_reason']}'`
+  } else if (!job['num_records']) {
     return 'Starting...'
   } else if (!job['ended_at']) {
     return 'Running'
-  } else if (!job['aborted_reason']) {
-    return 'Completed'
   } else {
-    return 'Aborted, no Gazetteers saved: ' + job['aborted_reason']
+    return 'Completed'
   }
 }
 

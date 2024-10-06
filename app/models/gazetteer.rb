@@ -281,36 +281,53 @@ class Gazetteer < ApplicationRecord
     dbf.column_names
   end
 
-  # raises TaxonWorks::Error on error
   def self.import_from_shapefile(shapefile, citation_options, progress_tracker)
-    shp_doc = Document.find(shapefile[:shp_doc_id])
-    shx_doc = Document.find(shapefile[:shx_doc_id])
-    dbf_doc = Document.find(shapefile[:dbf_doc_id])
-    prj_doc = Document.find(shapefile[:prj_doc_id])
-    name_field = shapefile[:name_field]
+    begin
+      shp_doc = Document.find(shapefile[:shp_doc_id])
+      shx_doc = Document.find(shapefile[:shx_doc_id])
+      dbf_doc = Document.find(shapefile[:dbf_doc_id])
+      prj_doc = Document.find(shapefile[:prj_doc_id])
+      name_field = shapefile[:name_field]
 
-    # The above shapefile files are unlikely to all be in the same directory as
-    # required by rgeo-shapefile, so create symbolic links to each in a new
-    # temporary folder.
-    tmp_dir = Rails.root.join('tmp', 'shapefiles', SecureRandom.hex)
-    FileUtils.mkdir_p(tmp_dir)
+      # The above shapefile files are unlikely to all be in the same directory as
+      # required by rgeo-shapefile, so create symbolic links to each in a new
+      # temporary folder.
+      tmp_dir = Rails.root.join('tmp', 'shapefiles', SecureRandom.hex)
+      FileUtils.mkdir_p(tmp_dir)
 
-    shp_link = File.join(tmp_dir, 'shapefile.shp')
-    shx_link = File.join(tmp_dir, 'shapefile.shx')
-    dbf_link = File.join(tmp_dir, 'shapefile.dbf')
-    prj_link = File.join(tmp_dir, 'shapefile.prj')
+      shp_link = File.join(tmp_dir, 'shapefile.shp')
+      shx_link = File.join(tmp_dir, 'shapefile.shx')
+      dbf_link = File.join(tmp_dir, 'shapefile.dbf')
+      prj_link = File.join(tmp_dir, 'shapefile.prj')
 
-    FileUtils.ln_s(shp_doc.document_file.path, shp_link)
-    FileUtils.ln_s(shx_doc.document_file.path, shx_link)
-    FileUtils.ln_s(dbf_doc.document_file.path, dbf_link)
-    FileUtils.ln_s(prj_doc.document_file.path, prj_link)
+      FileUtils.ln_s(shp_doc.document_file.path, shp_link)
+      FileUtils.ln_s(shx_doc.document_file.path, shx_link)
+      FileUtils.ln_s(dbf_doc.document_file.path, dbf_link)
+      FileUtils.ln_s(prj_doc.document_file.path, prj_link)
 
-    citation = citation_options[:cite_gzs] ? citation_options[:citation] : nil
+      citation = citation_options[:cite_gzs] ? citation_options[:citation] : nil
 
-    processShapeFile(shp_link, name_field, citation, progress_tracker)
+      processShapeFile(shp_link, name_field, citation, progress_tracker)
 
-    FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
-    FileUtils.rmdir(tmp_dir)
+      FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
+      FileUtils.rmdir(tmp_dir)
+    rescue ActiveRecord::RecordNotFound => e
+      progress_tracker.update!(
+        num_records_processed: 0,
+        aborted_reason: e.message,
+        ended_at: DateTime.now
+      )
+      return
+    rescue Errno::ENOENT => e
+      # One of the shapefile files couldn't be opened by
+      # RGeo::Shapefile::Reader.open
+      progress_tracker.update!(
+        num_records_processed: 0,
+        aborted_reason: "#{e} (id: #{shp_doc.id})",
+        ended_at: DateTime.now
+      )
+      return
+    end
   end
 
   def self.processShapeFile(shpfile, name_field, citation, progress_tracker)
@@ -319,7 +336,7 @@ class Gazetteer < ApplicationRecord
       error_id: nil,
       error_message: nil,
     }
-    # TODO what can .open throw? no such file, bad shapefile, ...
+
     RGeo::Shapefile::Reader.open(
       shpfile, factory: Gis::FACTORY, allow_unsafe: true
     ) do |file|
@@ -382,6 +399,7 @@ class Gazetteer < ApplicationRecord
         return
       end
     end
+
     progress_tracker.update!(
       num_records_processed: r[:num_records],
       ended_at: DateTime.now
