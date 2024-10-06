@@ -188,7 +188,9 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         end
       end
     end
+
+    context 'from shapefile' do
+
+    end
   end
-
-
 end

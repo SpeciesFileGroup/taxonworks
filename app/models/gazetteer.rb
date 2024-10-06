@@ -246,8 +246,7 @@ class Gazetteer < ApplicationRecord
       return "The reference system of the shapefile is '#{cs.name}', but only GCS_WGS_1984 is supported"
     end
 
-    # Check that each record has a name (there's of course no way to tell if the
-    # user entered/selected a populated but unintended column).
+    # Check that each record has a name.
     dbf = ::DBF::Table.new(dbf_doc.document_file.path)
     if dbf.record_count == 0
       return 'Empty dbf file: shapefile must contain records'
@@ -257,9 +256,13 @@ class Gazetteer < ApplicationRecord
       return "No column named '#{name_field}'"
     end
 
+    if dbf.find(0)[name_field].class.to_s != 'String'
+      return "Column #{name_field} is of type #{dbf.find(0)[name_field].class}, should be String"
+    end
+
     for i in 0...dbf.record_count
       record = dbf.find(i)
-      if record[name_field].nil?
+      if record[name_field].nil? || record[name_field] == ''
         return "Record #{i} has no name - names are required for all records"
       end
     end
