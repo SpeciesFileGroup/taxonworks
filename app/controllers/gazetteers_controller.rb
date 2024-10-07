@@ -1,5 +1,6 @@
 class GazetteersController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include Lib::Vendor::RgeoShapefileHelper
   before_action :set_gazetteer, only: %i[ show edit update destroy ]
 
   # GET /gazetteers
@@ -111,7 +112,7 @@ class GazetteersController < ApplicationController
 
   # POST /gazetteers/import.json
   def import
-    rv = Gazetteer.validate_shape_file(shapefile_params)
+    rv = validate_shape_file(shapefile_params)
 
     if rv == true &&
        citation_params[:cite_gzs] &&
@@ -151,7 +152,7 @@ class GazetteersController < ApplicationController
   # GET /gazetteers/shapefile_fields.json
   def shapefile_fields
     begin
-      @shapefile_fields = Gazetteer.fields_from_shapefile(params[:dbf_doc_id])
+      @shapefile_fields = fields_from_shapefile(params[:dbf_doc_id])
     rescue TaxonWorks::Error => e
       render json: {
         errors: e
