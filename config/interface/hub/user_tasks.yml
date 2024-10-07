@@ -809,7 +809,7 @@ source_citation_totals_task:
   description: 'Report a count per citation object type for each source in the result.'
 edit_biological_associations_graph_task:
   hub: true
-  name: 'New biological associations'
+  name: 'New biological associations graph'
   related:
   categories:
     - biology
@@ -966,3 +966,12 @@ new_filename_depicting_image_task:
     - collection_object
   status: prototype
   description: "Upload images assigning them as depictions of CollectionObjects based on the identifier in the filename. You shouldn't really be using this as a day-to-day workflow, there are better approaches."
+
+new_biological_association_task:
+  hub: true
+  name: 'New biological association'
+  related:
+  categories:
+    - biology
+  status: prototype
+  description: 'Create, edit, and cite biological associations.'
