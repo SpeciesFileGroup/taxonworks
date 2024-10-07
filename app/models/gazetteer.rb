@@ -318,6 +318,7 @@ class Gazetteer < ApplicationRecord
       progress_tracker.update!(
         num_records_processed: 0,
         aborted_reason: e.message,
+        started_at: DateTime.now,
         ended_at: DateTime.now
       )
       return
@@ -327,6 +328,7 @@ class Gazetteer < ApplicationRecord
       progress_tracker.update!(
         num_records_processed: 0,
         aborted_reason: "#{e} (id: #{shp_doc.id})",
+        started_at: DateTime.now,
         ended_at: DateTime.now
       )
       return
@@ -361,7 +363,8 @@ class Gazetteer < ApplicationRecord
                 name: record[name_field]
               )
 
-              # TODO: abort if too many invalid?
+              # Abort if too many invalid?
+              # TODO Track how many were invalid and were made valid?
               shape = record.geometry.valid? ?
                 record.geometry : record.geometry.make_valid
 
@@ -421,7 +424,7 @@ class Gazetteer < ApplicationRecord
       iso_3166_a3.nil? || /\A[A-Z][A-Z][A-Z]\z/.match?(iso_3166_a3)
   end
 
-  # @param s RGeo shape
+  # @param [RGeo shape] s
   # @return [RGeo shape] s split along the anti-meridian
   def self.split_shape_along_anti_meridian(s)
     GeographicItem.crosses_anti_meridian?(s.as_text) ?
