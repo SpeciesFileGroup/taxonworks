@@ -8,9 +8,14 @@ class Identifier::Local::CatalogNumber < Identifier::Local
 
   include Shared::DwcOccurrenceHooks
 
-  validate :assigned_to_collection_object
+  TARGETS = %w{CollectionObject Container Extract}
+
+  validate :assigned_to_valid_object
 
   def dwc_occurrences
+
+    # TODO: CONTAINERS UNION
+
     DwcOccurrence
       .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
       .joins("JOIN identifiers i on i.identifier_object_id = co.id AND i.identifier_object_type = 'CollectionObject'")
@@ -20,9 +25,10 @@ class Identifier::Local::CatalogNumber < Identifier::Local
 
   private
 
-  def assigned_to_collection_object
-    if (identifier_object_type && !(%w{CollectionObject Container}.include?(identifier_object_type))) || ( identifier_object && !identifier_object.kind_of?(CollectionObject) && !identifier_object.kind_of?(Container) )
-        errors.add(:identifier_object_type, 'only assignable to CollectionObject') 
+  def assigned_to_valid_object
+    # TODO: unkludge
+    if (identifier_object_type && !(TARGETS.include?(identifier_object_type))) || ( identifier_object && !identifier_object.kind_of?(CollectionObject) && !identifier_object.kind_of?(Container) && !identifier_object.kind_of?(Extract)  )
+      errors.add(:identifier_object_type, "only assignable to #{TARGETS.join(', ')}")
     end
   end
 

@@ -1,6 +1,6 @@
 json.extract! collecting_event, :id,
   :verbatim_label, :print_label, :document_label,
-  :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors, :verbatim_method,
+  :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_field_number, :verbatim_collectors, :verbatim_method,
   :verbatim_elevation, :verbatim_habitat, :verbatim_datum, :verbatim_date,
   :geographic_area_id, :minimum_elevation, :maximum_elevation, :elevation_precision,
   :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year,

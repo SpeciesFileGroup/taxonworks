@@ -156,7 +156,7 @@ import VPin from '@/components/ui/Button/ButtonPin.vue'
 import RightSection from './components/rightSection'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const componentSection = {
   [SOURCE_VERBATIM]: Verbatim,

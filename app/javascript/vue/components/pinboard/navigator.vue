@@ -7,7 +7,7 @@
 
 <script setup>
 import platformKey from '@/helpers/getPlatformKey.js'
-import useHotKey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import ModalNavigator from './ModalNavigator.vue'
 import { ref, onMounted } from 'vue'
 
@@ -25,7 +25,7 @@ const hotkeys = ref([
   }
 ])
 
-useHotKey(hotkeys.value)
+useHotkey(hotkeys.value)
 const isModalVisible = ref()
 const defaultItems = ref({})
 const selected = ref()

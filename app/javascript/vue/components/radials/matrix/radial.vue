@@ -14,6 +14,8 @@ import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import AddSlice from './components/AddSlice.vue'
 import AddNewSlice from './components/AddNewSlice.vue'
 
+const attrs = useAttrs()
+
 const SLICES = {
   'Add to an existing matrix': AddSlice,
   'Add to a new matrix': AddNewSlice
@@ -22,6 +24,4 @@ const SLICES = {
 defineOptions({
   name: 'RadialMatrix'
 })
-
-const attrs = useAttrs()
 </script>

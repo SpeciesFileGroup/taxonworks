@@ -76,6 +76,11 @@ module Shared::IsDwcOccurrence
     dwc_occurrence&.occurrence_identifier&.cached
   end
 
+  # @return Hash
+  #   of field: value
+  #
+  # !! This is expensive, it recomputes values for every field.
+  # !! See dwc_occurrence
   def dwc_occurrence_attributes(taxonworks_fields = true)
     a = {}
     self.class::DWC_OCCURRENCE_MAP.each do |k,v|
@@ -90,7 +95,6 @@ module Shared::IsDwcOccurrence
       # TODO: semantics of these may need to be revisited, particularly updated_by_id
       a[:created_by_id] = created_by_id
       a[:updated_by_id] = updated_by_id
-
       # !! Do not set updated_at here !!
     end
 
@@ -104,7 +108,7 @@ module Shared::IsDwcOccurrence
   end
 
   # @return [DwcOccurrence]
-  #   does not rebuild if exists
+  #   does not rebuild if already built
   def get_dwc_occurrence
     # TODO: why are extra queries fired if this is fired?
     if dwc_occurrence_persisted?

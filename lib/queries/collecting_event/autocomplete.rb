@@ -29,8 +29,8 @@ module Queries
         base_query.where( a.and(table[field].matches(b.join)).to_sql).limit(20)
       end
 
-      def autocomplete_verbatim_trip_identifier_match
-        base_query.where( table[:verbatim_trip_identifier].matches(end_wildcard).to_sql).limit(20)
+      def autocomplete_verbatim_field_number_match
+        base_query.where( table[:verbatim_field_number].matches(end_wildcard).to_sql).limit(20)
       end
 
       def autocomplete_verbatim_collectors_wildcard
@@ -80,7 +80,7 @@ module Queries
           autocomplete_identifier_identifier_exact,
           autocomplete_identifier_cached_exact,
           autocomplete_identifier_cached_like.limit(4),
-          autocomplete_verbatim_trip_identifier_match,
+          autocomplete_verbatim_field_number_match,
           autocomplete_start_or_end_date,
           autocomplete_start_date_wild_card(:verbatim_locality),
           autocomplete_start_date_wild_card(:cached),

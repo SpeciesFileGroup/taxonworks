@@ -91,7 +91,7 @@
     </div>
     <div class="horizontal-left-content align-start full_width">
       <div class="cleft margin-medium-right">
-        <new-matrix />
+        <MatrixForm />
         <div
           v-if="matrix.id"
           class="margin-medium-top"
@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import NewMatrix from './components/newMatrix/newMatrix'
+import MatrixForm from './components/Matrix/MatrixForm.vue'
 import TablesComponent from './components/tables/view'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
@@ -133,7 +133,7 @@ export default {
   name: 'NewObservationMatrix',
 
   components: {
-    NewMatrix,
+    MatrixForm,
     RowsFixed,
     RowsDynamic,
     TablesComponent,

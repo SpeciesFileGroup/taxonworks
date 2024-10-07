@@ -124,7 +124,7 @@ export default {
         ...this.generateParsedLabel()
       )
 
-      const AtStart = ['TripIdentifier', 'TripCode']
+      const AtStart = ['FieldNumber', 'TripCode']
 
       const sortedObjectLabelKeys = sortArrayByArray(
         Object.keys(objectLabels),

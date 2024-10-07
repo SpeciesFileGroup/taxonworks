@@ -49,6 +49,14 @@ export const TASK_FILTER_IMAGES = {
   link: '/tasks/images/filter'
 }
 
+export const TASK_IMAGE_MATRIX = {
+  label: 'Image matrix',
+  link: '/tasks/matrix_image/matrix_image/index',
+  parseParams: ({ params }) => ({
+    otu_filter: params.otu_id?.join('|')
+  })
+}
+
 export const TASK_BIOLOGICAL_ASSOCIATION_EXTENSION = {
   label: 'DwC Extension Preview',
   link: '/tasks/biological_associations/dwc_extension_preview'
@@ -94,4 +102,11 @@ export const TASK_FIELD_SYNCHRONIZE = {
 export const TASK_DWC_OCCURRENCE_STATUS = {
   label: 'DwC Occurrence Status',
   link: '/tasks/dwc_occurrences/status'
+}
+
+export const TASK_NEW_CONTAINER = {
+  label: 'New container',
+  link: '/tasks/containers/new_container',
+  queryParam: true,
+  saveQuery: true
 }

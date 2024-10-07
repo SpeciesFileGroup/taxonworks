@@ -25,7 +25,7 @@ import { ActionNames } from '../../store/actions/actions'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import TableCollectionObjects from '../collectionObject/tableCollectionObjects'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey.js'
 
 const store = useStore()

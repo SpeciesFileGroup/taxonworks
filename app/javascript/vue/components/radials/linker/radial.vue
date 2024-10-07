@@ -15,11 +15,9 @@
         <div class="horizontal-center-content">
           <radial-menu
             :options="menuOptions"
-            @click="handleClick"
+            @click="(event) => handleClick(event, { openTab: false })"
+            @contextmenu="(event) => handleClick(event, { openTab: true })"
             @mousedown="setParametersFor"
-            @contextmenu="
-              (event) => handleContextMenu(event, { openTab: true })
-            "
           />
         </div>
       </template>
@@ -106,18 +104,12 @@ const menuOptions = computed(() => {
   const slices = []
 
   filterLinks.value.forEach((item) => {
-    const filteredParameters = filterEmptyParams(
-      isOnlyIds.value ? getParametersForId() : getParametersForAll(item.params)
-    )
-
-    const parameters = item.queryParam
-      ? { [QUERY_PARAM[props.objectType]]: filteredParameters }
-      : filteredParameters
+    const parameters = getLinkParameters(item)
 
     const link =
       item.link + '?' + qs.stringify(parameters, { arrayFormat: 'brackets' })
 
-    if (Object.values(filteredParameters).some(Boolean)) {
+    if (Object.values(parameters).some(Boolean)) {
       if (item.post) {
         slices.push(addSlice({ label: item.label }))
       } else if (link.length > MAX_LINK_SIZE) {
@@ -210,14 +202,21 @@ function getItemByName(name) {
 }
 
 function getLinkParameters(item) {
+  const { queryParam, parseParams } = item
   const filteredParameters = filterEmptyParams(
     isOnlyIds.value ? getParametersForId() : getParametersForAll()
   )
-  const parameters = item.queryParam
+
+  const params = queryParam
     ? { [QUERY_PARAM[props.objectType]]: filteredParameters }
     : filteredParameters
 
-  return parameters
+  const args = {
+    params,
+    objectType: props.objectType
+  }
+
+  return typeof parseParams === 'function' ? parseParams(args) : params
 }
 
 function setParametersFor({ name }) {
@@ -240,19 +239,6 @@ function handleClick({ name }, { openTab = false }) {
       action: item.link,
       data: parameters,
       openTab
-    })
-  }
-}
-
-function handleContextMenu({ name }) {
-  const item = getItemByName(name)
-  const parameters = getLinkParameters(item)
-
-  if (item.post) {
-    createAndSubmitForm({
-      action: item.link,
-      data: parameters,
-      openTab: true
     })
   }
 }

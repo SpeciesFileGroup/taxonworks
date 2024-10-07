@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :containers do
+    scope :new_container, controller: 'tasks/containers/new_container' do
+      get '/', action: :index, as: 'new_container_task'
+    end
+  end
+
   scope :dwc_occurrences do
     scope :filter, controller: 'tasks/dwc_occurrences/filter' do
       get '/', action: :index, as: 'filter_dwc_occurrences_task'

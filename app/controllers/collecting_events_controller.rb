@@ -287,7 +287,7 @@ class CollectingEventsController < ApplicationController
     params.require(:collecting_event).permit(
       :verbatim_label, :print_label, :print_label_number_to_print, :document_label,
       :verbatim_locality, :verbatim_date, :verbatim_longitude, :verbatim_latitude,
-      :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors,
+      :verbatim_geolocation_uncertainty, :verbatim_field_number, :verbatim_collectors,
       :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation,
       :elevation_precision, :time_start_hour, :time_start_minute, :time_start_second,
       :time_end_hour, :time_end_minute, :time_end_second, :start_date_day,

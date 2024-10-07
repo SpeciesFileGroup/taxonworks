@@ -7,8 +7,103 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.44.3] - 2024-10-03
+
 ### Added
 
+- `dwc_occurrence_id[]` param to dwc_gallery endpoint
+- Image matrix link to radial linker and radial matrix
+
+### Fixed
+
+- Date received facet on loans [#4067]
+- `api/v1/images/975145cf4d25d7ed35893170abc2e852` style calls finding images by id, not fingerprint [#3918]
+
+### Changed
+
+- Updated Ruby gems
+- In DwC Import Otu `name` is now only set via use of `identificationQualifier`
+
+[#3918]: https://github.com/SpeciesFileGroup/taxonworks/issues/3918
+[#4067]: https://github.com/SpeciesFileGroup/taxonworks/issues/4067
+
+## [0.44.2] - 2024-09-27
+
+### Added
+
+- Columns in filter results can be copied to clipboard
+- Sort by identifier match option [#4065]
+- `/collection_objects/123/dwc_compact` - DwC fields for those populated [#3994]
+- Pagination to `/api/v1/otus/:otu_id/inventory/dwc_gallery`
+
+### Fixed
+
+- Display of missing DwC fields [#4051]
+- `verbatim_field_number` updates ignored [#4066]
+- DwC importer `verbatim_field_number` collision with Identifier validation
+- Shortcuts: Keys pressed are not removed after user switches windows/tab
+
+[#4065]: https://github.com/SpeciesFileGroup/taxonworks/issues/4065
+[#4051]: https://github.com/SpeciesFileGroup/taxonworks/issues/4051
+[#4066]: https://github.com/SpeciesFileGroup/taxonworks/issues/4066
+[#3994]: https://github.com/SpeciesFileGroup/taxonworks/issues/3994
+
+## [0.44.1] - 2024-09-24
+
+### Added
+
+- `/api/v1/otus/:id/inventory/keys` a list of keys scoped to or containing the Otu
+- `otu_id` to ObservationMatrix, to facilitate setting scope and indexing of multi-entry keys
+- `is_public` flag to ObservationMatrix
+
+### Changed
+
+- Revert strict `verbatim_field_number` validation [#4061]
+- Renamed CollectingEvent `verbatim_trip_identifier` to `verbatim_field_number` [#4058]
+
+### Fixed
+
+- DwC `eventDate` should not be populated without an explict year reference [#4053]
+- DwC `month` should not be populated when range-provided [#4055]
+
+[#4053]: https://github.com/SpeciesFileGroup/taxonworks/issues/4053
+[#4055]: https://github.com/SpeciesFileGroup/taxonworks/issues/4055
+[#4058]: https://github.com/SpeciesFileGroup/taxonworks/issues/4058
+[#4061]: https://github.com/SpeciesFileGroup/taxonworks/issues/4061
+
+## [0.44.0] - 2024-09-17
+
+### Added
+
+- Create container task [#3038]
+- Endpoint crossreferencing dwc_occurrences and images `api/v1/otus/:otu_id/inventory/dwc_gallery.json?per=1&page=2`
+- Creating depictions of CollectionObjects now updates their DwcOccurrence automatically
+- Filters: Custom button to `records per page` selector [#4032]
+- New asserted distribution: Confidence panel [#4044]
+
+### Changed
+
+- Updated Ruby gems
+
+### Fixed
+
+- DwcOccurrence now _actually_ selects the valid name on export
+- OTU taxonomy inventory API endpoint crashing on protonyms with no cached year and author.
+- DwC importer column indexing confusion when there are blank headers
+- Filter collecting event: Remove duplicate radial linker [#4050]
+
+[#3038]: https://github.com/SpeciesFileGroup/taxonworks/issues/3038
+[#4032]: https://github.com/SpeciesFileGroup/taxonworks/issues/4032
+[#4044]: https://github.com/SpeciesFileGroup/taxonworks/issues/4044
+[#4050]: https://github.com/SpeciesFileGroup/taxonworks/issues/4050
+
+## [0.43.3] - 2024-09-09
+
+### Added
+
+- `per` and `page` parameters to `/api/v1/otus/:id/inventory/dwc`
 - With/out facets for Loan dates [#3729]
 - FieldNumber local identifier sensu DwC
 - RecordNumber local identifier sensu DwC [#4016]
@@ -17,11 +112,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New RecordNumber panel for Comprehensive Digization
 - Filter Otu: With/without common names
 - Radial annotator: Add sort to identifiers slice [#4021]
+- `extend[]=valid_name` to `/taxon_names`
+- Valid name column in filter nomenclature
 
 ### Changed
 
 - DwC export will now use a valid taxon name if linked first to an invalid, and it is available
-- EventID and verbatim_trip_code are disentangled in DwC Importer, they do not map to one-another now [#3800] [#2852]
+- EventID and verbatim_trip_identifier are disentangled in DwC Importer, they do not map to one-another now [#3800] [#2852]
 - TripCode is now FieldNumber (all data migrated)
 - DwcOccurrence rebuilds triggered for changes to TaxonNameRelationship [#4019], TypeMaterial, TaxonDetermination, Identifier::Global
 - Wikidata IDs are now also loaded into recordedByID and identifiedByID [#3989]
@@ -31,9 +128,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Facet nomenclature rank: Remove selected ranks from select input
 - Updated Ruby gems
 - New taxon name task: Add manual mode for subsequent combinations section when taxon rank is not in the list [#4009]
+- Optimized performance of Combination name rendering and use
+- Filters with Geographic area facet default to 'Spatial'
 
 ### Fixed
 
+- Header labels print without higher taxonomy [#4030]
 - Staged images tab on collection object report
 - Non-integer identifier start/end ranges raising
 - Various facets in Filter OTUs not being scoped to unique records
@@ -56,6 +156,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4019]: https://github.com/SpeciesFileGroup/taxonworks/issues/4019
 [#4021]: https://github.com/SpeciesFileGroup/taxonworks/issues/4021
 [#4024]: https://github.com/SpeciesFileGroup/taxonworks/issues/4024
+[#4030]: https://github.com/SpeciesFileGroup/taxonworks/issues/4030
 
 ## [0.43.2] - 2024-08-10
 
@@ -4803,7 +4904,12 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.3..development
+[0.44.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.2...v0.44.3
+[0.44.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.1...v0.44.2
+[0.44.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.0...v0.44.1
+[0.44.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.3...v0.44.0
+[0.43.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.2...v0.43.3
 [0.43.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.1...v0.43.2
 [0.43.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.43.0...v0.43.1
 [0.43.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.42.0...v0.43.0

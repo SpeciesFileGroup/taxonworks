@@ -17,7 +17,7 @@ import DateTimeSlice from '@/components/radials/ce/components/DateTimeSlice.vue'
 import VerbatimSlice from './components/VerbatimSlice.vue'
 
 const SLICES = {
-  'Assign/Move': AssignSlice,
+  'Set geographic area': AssignSlice,
   'Append New Collectors': CollectorSlice,
   'Set Collection Date/Time': DateTimeSlice,
   'Set verbatim fields': VerbatimSlice

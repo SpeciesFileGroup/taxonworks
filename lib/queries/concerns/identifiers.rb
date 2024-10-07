@@ -196,9 +196,9 @@ module Queries::Concerns::Identifiers
     when 'internal'
       a = referenced_klass.where(id: ids)
     when 'identifier'
-      a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids})
+      a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids}).distinct
     when 'dwc_occurrence_id'
-      a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids, type: 'Identifier::Global::Uuid::TaxonworksDwcOccurrence' })
+      a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids, type: 'Identifier::Global::Uuid::TaxonworksDwcOccurrence' }).distinct
     else
       return nil
     end

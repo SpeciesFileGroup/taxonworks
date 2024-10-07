@@ -1,6 +1,50 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
 
+  let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
+
+  specify '#dwc_scientific_name - invalid' do
+    s = Specimen.create!
+    p = Protonym.create!(
+      name: 'Aus',
+      verbatim_author: 'Smith',
+      year_of_publication: '1945',
+      rank_class: Ranks.lookup(:iczn, :genus),
+      parent: root
+    )
+
+    TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
+
+    p1 = Protonym.create!(
+      name: 'Bus',
+      verbatim_author: 'Jones',
+      year_of_publication: '1933',
+      rank_class: Ranks.lookup(:iczn, :genus),
+      parent: root
+    )
+
+    TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: p, object_taxon_name: p1)
+
+    expect(s.dwc_scientific_name).to eq('Bus Jones, 1933')
+    expect(s.dwc_taxon_name_authorship).to eq('Jones, 1933')
+  end
+
+  specify '#dwc_scientific_name' do
+    s = Specimen.create!
+    p = Protonym.create!(
+      name: 'Aus',
+      verbatim_author: 'Smith',
+      year_of_publication: '1945',
+      rank_class: Ranks.lookup(:iczn, :genus),
+      parent: root
+    )
+
+    TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
+
+    expect(s.dwc_scientific_name).to eq('Aus Smith, 1945')
+    expect(s.dwc_taxon_name_authorship).to eq('Smith, 1945')
+  end
+
   specify '#dwc_verbatim_label'  do
     s = Specimen.create!(buffered_collecting_event: 'a', buffered_determinations: 'b', buffered_other_labels: 'c')
 
@@ -38,7 +82,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     specify 'with no notes' do
       FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
-      expect(s.dwc_identification_remarks).to eq('')
+      expect(s.dwc_identification_remarks).to eq(nil)
     end
 
     specify 'with one note' do
@@ -108,13 +152,16 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     let(:p) { Person.create!(last_name: 'Smith', first_name: 'Sue', suffix: 'Jr.') }
     let(:o) { Otu.create!(name: 'Barney') }
 
-    let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
-
     specify '#dwc_decimal_latitude' do
       a = Georeference::Wkt.create!(collecting_event: ce, wkt: 'POINT(9.0 60)' )
 
       s.georeference_attributes(true) # force the rebuild
       expect(s.dwc_decimal_latitude).to eq(60.0) # technically not correct significant figures :(
+    end
+
+    specify 'without start Year event_date is not populated' do
+      ce.update!(start_date_year: nil, start_date_month: 2, end_date_month: 4)
+      expect(s.dwc_event_date).to eq(nil)
     end
 
     specify '#dwc_year' do
@@ -126,7 +173,12 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_month).to eq(1)
     end
 
-    specify '#dwc_month' do
+    specify '#dwc_month is nil when range' do
+      ce.update!( start_date_month: 1, end_date_month: 2)
+      expect(s.dwc_month).to eq(nil)
+    end
+
+    specify '#dwc_day' do
       ce.update!( start_date_month: 1, start_date_day: 10)
       expect(s.dwc_day).to eq(10)
     end
