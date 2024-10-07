@@ -130,7 +130,7 @@ module CollectionObjectsHelper
     return [:collection_object, identifier_tag(i)] if i
 
     # Get some other identifier on container
-    j = collection_object.container&.identifiers.order(:position).first
+    j = collection_object.container&.identifiers&.order(:position)&.first
     return [:container, identifier_tag(j)] if j
     nil
   end
