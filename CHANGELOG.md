@@ -7,6 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- Local identifier display in CollectionObject tag now prefers position to break tie with RecordNumber and CatalogNumber [#4074]
+
+[#4074]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
+
 \-
 
 ## [0.44.3] - 2024-10-03
