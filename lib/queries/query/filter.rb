@@ -363,6 +363,7 @@ module Queries
         # TODO There is room for an AlternateValue concern here
         f.push ::Queries::Concerns::Attributes if self < ::Queries::Concerns::Attributes
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
+        f.push ::Queries::Concerns::Confidences if self < ::Queries::Concerns::Confidences
         f.push ::Queries::Concerns::Containable if self < ::Queries::Concerns::Containable
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
         f.push ::Queries::Concerns::DateRanges if self < ::Queries::Concerns::DateRanges

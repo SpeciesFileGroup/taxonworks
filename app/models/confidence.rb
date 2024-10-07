@@ -38,12 +38,10 @@ class Confidence < ApplicationRecord
 
   accepts_nested_attributes_for :confidence_level, allow_destroy: true
 
-
   def self.exists?(global_id, confidence_level_id, project_id)
     o = GlobalID::Locator.locate(global_id)
     return false unless o
     Confidence.where(project_id: project_id, confidence_object: o, confidence_level_id: confidence_level_id).first
   end
-
 
 end

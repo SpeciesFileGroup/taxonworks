@@ -6,6 +6,7 @@ module Queries
       include Queries::Concerns::Depictions
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
+      include Queries::Concerns::Confidences
       include Queries::Helpers
 
       PARAMS = [
@@ -209,6 +210,7 @@ module Queries
         @with_name = boolean_param(params, :with_name)
         @wkt = params[:wkt]
 
+        set_confidences_params(params)
         set_notes_params(params)
         set_citations_params(params)
         set_depiction_params(params)

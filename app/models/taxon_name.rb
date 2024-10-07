@@ -444,11 +444,6 @@ class TaxonName < ApplicationRecord
     ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
   end
 
-  soft_validate(:sv_missing_confidence_level,
-                set: :missing_fields,
-                name: 'Missing confidence level',
-                description: 'To remaind that the taxon spelling have to be compared to the original source' )
-
   soft_validate(:sv_missing_original_publication,
                 set: :missing_fields,
                 name: 'Missing original source',
@@ -1722,13 +1717,6 @@ class TaxonName < ApplicationRecord
     if a || b
       errors.add(:base, 'Source must be a Bibtex')
     end
-  end
-
-  # TODO: this needs to go.
-  def sv_missing_confidence_level # should be removed once the alternative solution is implemented. It is heavily used now.
-    confidence_level_array = [93]
-  confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)
-  soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(:confidence_level_id) & confidence_level_array).empty?
   end
 
   def sv_missing_original_publication
