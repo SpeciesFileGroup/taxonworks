@@ -3,6 +3,7 @@
 # For filter queries:
 # !! requires `set_confidences_params` be called in initialize()
 #
+# Tested on spec/lib/queries/otu/filter_spec.rb
 module Queries::Concerns::Confidences
   include Queries::Helpers
 
@@ -60,11 +61,11 @@ module Queries::Concerns::Confidences
     referenced_klass.joins(:confidences).where(confidences: {confidence_level_id: confidence_level_id})
   end
 
-  def confidence_without_confidence_level_id_facet
+  def without_confidence_level_id_facet
     return nil if without_confidence_level_id.empty?
     not_these = referenced_klass.left_joins(:confidences).where(confidences: {confidence_level_id: without_confidence_level_id})
 
-    references_klass.with(not_these:)
+    s = referenced_klass.with(not_these:)
       .joins("LEFT JOIN not_these AS not_these1 ON not_these1.id = #{table.name}.id")
       .where('not_these1.id IS NULL').to_sql
 
@@ -83,8 +84,8 @@ module Queries::Concerns::Confidences
   def self.merge_clauses
     [
       :confidences_facet,
-      :confidence_without_confidence_level_id_facet,
-      :confidence_level_id,
+      :without_confidence_level_id_facet,
+      :confidence_level_id_facet,
     ]
   end
 
