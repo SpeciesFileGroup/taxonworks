@@ -1,6 +1,29 @@
 <template>
   <div>
-    <label class="d-block">{{ title }}</label>
+    <div class="flex-separate middle">
+      <span>{{ title }}</span>
+      <div
+        class="horizontal-left-content gap-small"
+        v-if="selected"
+      >
+        <RadialAnnotator :global-id="selected.global_id" />
+        <RadialObject
+          v-if="TYPE_LINKS[model].radialObject"
+          :global-id="selected.global_id"
+        />
+        <RadialNavigator :global-id="selected.global_id" />
+        <VBtn
+          circle
+          color="primary"
+          @click="() => (selected = null)"
+        >
+          <VIcon
+            name="trash"
+            x-small
+          />
+        </VBtn>
+      </div>
+    </div>
     <div v-show="!selected">
       <SmartSelector
         v-if="modelOpts.smartSelector"
@@ -22,20 +45,10 @@
         @select="({ id }) => loadObjectById(id)"
       />
     </div>
-    <SmartSelectorItem
-      :item="selected"
-      label="object_tag"
-      @unset="() => (selected = null)"
-    >
-      <template #options-left>
-        <RadialAnnotator :global-id="selected.global_id" />
-        <RadialObject
-          v-if="TYPE_LINKS[model].radialObject"
-          :global-id="selected.global_id"
-        />
-        <RadialNavigator :global-id="selected.global_id" />
-      </template>
-    </SmartSelectorItem>
+    <span
+      v-if="selected"
+      v-html="selected.object_tag"
+    />
   </div>
 </template>
 
@@ -44,11 +57,12 @@ import { computed } from 'vue'
 import { TYPE_LINKS } from '../constants/types'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import * as endpoints from '@/routes/endpoints'
-import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   title: {
