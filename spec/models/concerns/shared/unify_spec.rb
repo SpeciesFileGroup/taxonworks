@@ -65,12 +65,20 @@ describe 'Shared::Unify', type: :model do
     expect(b.destroyed?).to be_truthy
   end
 
-  specify 'unifies Source' do
+  specify 'unifies Source with target_project_id' do
+    a = FactoryBot.create(:valid_source)
+    b = FactoryBot.create(:valid_source)
+
+    a.unify(b, target_project_id: o1.project_id)
+    expect(b.destroyed?).to be_truthy
+  end
+
+  specify 'does not unify Source without target_project_id' do
     a = FactoryBot.create(:valid_source)
     b = FactoryBot.create(:valid_source)
 
     a.unify(b)
-    expect(b.destroyed?).to be_truthy
+    expect(b.destroyed?).to be_falsey
   end
 
   # !! Requires more thorough testing with items etc.

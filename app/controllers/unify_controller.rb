@@ -3,7 +3,13 @@ class UnifyController < ApplicationController
   before_action :set_targets, only: [:unify]
 
   def unify
-    r = @keep_object.unify(@remove_object, only: params[:only], except: params[:except], preview: params[:preview])
+    r = @keep_object.unify(
+      @remove_object,
+      only: params[:only],
+      except: params[:except],
+      preview: params[:preview],
+      target_project_id: sessions_current_project_id
+    )
     render json: r
   end
 
@@ -16,7 +22,7 @@ class UnifyController < ApplicationController
   # GET /unify/metadata
   def metadata
     object = GlobalID::Locator.locate(params.require(:global_id))
-    render json: object.unify_relations_metadata
+    render json: object.unify_relations_metadata(target_project_id: sessions_current_project_id)
   end
 
   private

@@ -1,10 +1,13 @@
 # A module to unify two objects into 1.
-#  * Annotation classes can not be unified.
+#  * Annotation classes can not be unified except through their relation to unified objects
 #  * Users and projects can not be unified, though technically the approach should be be a hard/but robust approach to the problem, with some key exceptions (e.g. two root TaxonNames)
-#  * Base attributes of the object (.e.g. name) being destroyed are not copied nor persisted back into the remaining object
-#  * Any related object that, once updated to point to its new object, that fails to save, _is destroyed_.  The assumption
+#  * !! Base attributes of the object (.e.g. name) being destroyed ARE NOT COPIED NOR PERSISTED BACK INTO THE REMAINING OBJECT
+#  * Any related object that, once updated to point to its new object, that fails to save, _is destroyed_. The assumption
 #  is that there are duplicate values or other constraints that make the object redundant, as if it was being added a-new.
+#  * If a related object is now a duplicate then its annotations are moved to the deduplicate object
+#
 #  * `preview` rolls back all changes
+
 #  * Run `rake tw:development:linting:inverse_of_preventing_unify` judiciously when modifying models or this code. It will catch missing `inverse_of` parameters required to unify objects.  Note that it will always report some missing relationships that do not matter.
 #
 # TODO:
@@ -113,11 +116,23 @@ module Shared::Unify
   # @return Hash
   #   a result
   #
-  def unify(remove_object, only: [], except: [], preview: false)
+  def unify(remove_object, only: [], except: [], preview: false, cutoff: 250, target_project_id: nil)
     s = {
-      result: { unified: nil },
+      result: { unified: nil, total_related: 0 },
       details: {},
     }
+
+    if target_project_id.nil?
+      if is_community?
+        s[:result].merge!(
+          unified: false,
+          message: 'Can not merge community objects without project context.'
+        )
+        return s
+      else
+        target_project_id = project_id
+      end
+    end
 
     o = remove_object
 
@@ -145,9 +160,8 @@ module Shared::Unify
       return s
     end
 
-    # All related non-annotation objects, by default
     self.class.transaction do
-      before_unify
+      before_unify # does nothing yet maybe outside here
 
       merge_relations(only:, except:).each do |r|
         i = o.send(r.name)
@@ -166,7 +180,12 @@ module Shared::Unify
               unmerged: 0 }
           )
 
-          o.send(r.name).find_each do |j|
+          q = o.send(r.name).where(project_id: target_project_id)
+
+          s[:result][:total_related] += q.count
+          next if s[:result][:total_related] > cutoff
+
+           q.find_each do |j|
             j.update(r.options[:inverse_of] => self)
             log_unify_result(j, r, s)
           end
@@ -183,45 +202,49 @@ module Shared::Unify
         end
       end
 
-      # TODO: explore further, the preventing objects should all be moved or destroyed if properly iterated through
-      begin
-        o.reload # reset all in-memory has_many caches that would prevent destroy
-        o.destroy!
+      if cutoff_hit = s[:result][:total_related] > cutoff
+        s[:result][:message] = "Related cutoff threshold (> #{cutoff}) hit, unify is not yet allowed on these objects."
+      else
 
-      rescue ActiveRecord::InvalidForeignKey => e
-        s[:result][:unified] = false
-        s[:details].merge!(
-          Object: {
-            errors: [
-              { id: e.record.id, message: e.record.errors.full_messages.join('; ') } # e.message.to_s
-            ]
-          }
-        )
+        # TODO: explore further, the preventing objects should all be moved or destroyed if properly iterated through
+        begin
 
-        raise ActiveRecord::Rollback
-      rescue ActiveRecord::RecordNotDestroyed => e
-        s[:result][:unified] = false
-        s[:details].merge!(
-          Object: {
-            errors: [
-              { id: e.record.id, message: e.record.errors.full_messages.join('; ') }
-            ]
-          }
-        )
+          o.reload # reset all in-memory has_many caches that would prevent destroy
+          o.destroy!
 
-        raise ActiveRecord::Rollback
+        rescue ActiveRecord::InvalidForeignKey => e
+          s[:result][:unified] = false
+          s[:details].merge!(
+            Object: {
+              errors: [
+                { id: e.record.id, message: e.record.errors.full_messages.join('; ') } # e.message.to_s
+              ]
+            }
+          )
+
+          raise ActiveRecord::Rollback
+        rescue ActiveRecord::RecordNotDestroyed => e
+          s[:result][:unified] = false
+          s[:details].merge!(
+            Object: {
+              errors: [
+                { id: e.record.id, message: e.record.errors.full_messages.join('; ') }
+              ]
+            }
+          )
+
+          raise ActiveRecord::Rollback
+        end
       end
 
       after_unify
 
-      if preview
-
+      if preview || cutoff_hit
         raise ActiveRecord::Rollback
       end
     end
 
     s[:result][:unified] = true unless s[:result][:unified] == false
-
     s
   end
 
@@ -229,15 +252,14 @@ module Shared::Unify
     relation.name.to_s.humanize
   end
 
-  def unify_relations_metadata
+  def unify_relations_metadata(target_project_id: nil)
     s = {}
 
     merge_relations.each do |r|
-
       i = send(r.name)
       next if i.nil?
 
-      name = relation_label(r) # r.name.to_s.humanize
+      name = relation_label(r)
 
       if i.class.name.match('CollectionProxy')
         next unless i.count > 0
@@ -250,6 +272,9 @@ module Shared::Unify
   end
 
   private
+
+
+
 
   def deduplicate_update_target(object)
     i = object.identical
