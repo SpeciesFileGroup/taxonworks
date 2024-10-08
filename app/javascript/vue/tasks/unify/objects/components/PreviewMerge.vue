@@ -31,7 +31,7 @@
           :keep-global-id="keep?.global_id"
           :remove-global-id="remove?.global_id"
           :only="only"
-          :disabled="previewResponse?.object?.errors"
+          :disabled="!previewResponse?.result?.unified"
           @merge="
             () => {
               onMerge()
