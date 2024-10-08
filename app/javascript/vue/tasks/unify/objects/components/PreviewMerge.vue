@@ -30,6 +30,7 @@
         <ButtonMerge
           :keep-global-id="keep?.global_id"
           :remove-global-id="remove?.global_id"
+          :remove="remove"
           :only="only"
           :disabled="!previewResponse?.result?.unified"
           @merge="
@@ -90,12 +91,17 @@ function openModal() {
   isLoading.value = true
   previewResponse.value = {}
 
-  Unify.merge({
+  const payload = {
     remove_global_id: props.remove.global_id,
     keep_global_id: props.keep.global_id,
-    only: props.only,
     preview: true
-  })
+  }
+
+  if (props.only.length !== Object.keys(props.remove.metadata).length) {
+    Object.assign(payload, { only: props.only })
+  }
+
+  Unify.merge(payload)
     .then(({ body }) => {
       previewResponse.value = body
 

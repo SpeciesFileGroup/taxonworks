@@ -50,6 +50,11 @@ const props = defineProps({
     default: undefined
   },
 
+  remove: {
+    type: Object,
+    default: null
+  },
+
   only: {
     type: Array,
     default: () => []
@@ -77,13 +82,18 @@ async function mergeObjects() {
   })
 
   if (ok) {
+    const payload = {
+      remove_global_id: props.removeGlobalId,
+      keep_global_id: props.keepGlobalId
+    }
+
+    if (props.only.length !== Object.keys(props.remove.metadata).length) {
+      Object.assign(payload, { only: props.only })
+    }
+
     isSaving.value = true
 
-    Unify.merge({
-      remove_global_id: props.removeGlobalId,
-      keep_global_id: props.keepGlobalId,
-      only: props.only
-    })
+    Unify.merge(payload)
       .then(({ body }) => {
         if (body.result.unified) {
           emit('merge')

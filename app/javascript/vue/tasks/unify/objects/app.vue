@@ -67,6 +67,7 @@
       <ButtonMerge
         :keep-global-id="keepObject?.global_id"
         :remove-global-id="destroyObject?.global_id"
+        :remove="destroyObject"
         :only="only"
         @merge="handleMerge"
       />
