@@ -78,6 +78,7 @@
       />
       <VBtn
         color="primary"
+        :disabled="!(keepObject || destroyObject)"
         @click="flip"
       >
         Flip
