@@ -83,6 +83,17 @@
       >
         Flip
       </VBtn>
+      <VBtn
+        color="primary"
+        @click="
+          () => {
+            keepObject = null
+            destroyObject = null
+          }
+        "
+      >
+        Reset
+      </VBtn>
     </div>
   </div>
 </template>
