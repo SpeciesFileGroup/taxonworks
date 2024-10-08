@@ -6,6 +6,17 @@ describe 'Shared::Unify', type: :model do
   let(:o2) { FactoryBot.create(:valid_otu) }
   let(:source) { FactoryBot.create(:valid_source) }
 
+  specify 'if only used then use as "move" not unify' do
+    c1 = Citation.create(citation_object: o1, source:, pages: 123)
+    c2 = Citation.create(citation_object: o1, source:, pages: 456)
+
+    o1.unify(o2, only: [:citations])
+
+    expect(o2.reload.destroyed?).to be_falsey
+    expect(o1.citations.reload.count).to eq(2)
+    expect(o1.citations.last.pages).to eq("456")
+  end
+
   specify 'merges non-unique DataAttributes' do
     a = FactoryBot.create(:valid_data_attribute, attribute_subject: o1, value: 123)
     b = FactoryBot.create(:valid_data_attribute, attribute_subject: o2, value: 456)
@@ -65,7 +76,7 @@ describe 'Shared::Unify', type: :model do
     expect(b.destroyed?).to be_truthy
   end
 
-  specify 'unifies Source with target_project_id' do
+  specify 'unifies Source with target_project_id (when Source is "naked")' do
     a = FactoryBot.create(:valid_source)
     b = FactoryBot.create(:valid_source)
 
@@ -79,6 +90,32 @@ describe 'Shared::Unify', type: :model do
 
     a.unify(b)
     expect(b.destroyed?).to be_falsey
+  end
+
+  specify 'does not unify Source when cross-project use present' do
+    project = FactoryBot.create(:valid_project)
+    o3 = FactoryBot.create(:valid_otu, project:)
+
+    a = FactoryBot.create(:valid_source)
+    b = FactoryBot.create(:valid_source)
+
+    c = FactoryBot.create(:valid_citation, source: b, citation_object: o3)
+
+    a.unify(b)
+    expect(b.destroyed?).to be_falsey
+  end
+
+  specify 'does unify Source if specific to project' do
+    a = FactoryBot.create(:valid_source)
+    b = FactoryBot.create(:valid_source)
+
+    c = FactoryBot.create(:valid_citation, source: a, citation_object: o1)
+    d = FactoryBot.create(:valid_citation, source: b, citation_object: o2)
+
+    a.unify(b, target_project_id: project_id )
+
+    expect(b.destroyed?).to be_truthy
+    expect(d.reload.source).to eq(a)
   end
 
   # !! Requires more thorough testing with items etc.

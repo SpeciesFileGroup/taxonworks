@@ -5,8 +5,8 @@ class UnifyController < ApplicationController
   def unify
     r = @keep_object.unify(
       @remove_object,
-      only: params[:only],
-      except: params[:except],
+      only: params[:only] || [],
+      except: params[:except] || [],
       preview: params[:preview],
       target_project_id: sessions_current_project_id
     )

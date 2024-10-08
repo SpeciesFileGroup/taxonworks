@@ -1,22 +1,19 @@
-# A module to unify two objects into 1.
-#  * Annotation classes can not be unified except through their relation to unified objects
-#  * Users and projects can not be unified, though technically the approach should be be a hard/but robust approach to the problem, with some key exceptions (e.g. two root TaxonNames)
-#  * !! Base attributes of the object (.e.g. name) being destroyed ARE NOT COPIED NOR PERSISTED BACK INTO THE REMAINING OBJECT
-#  * Any related object that, once updated to point to its new object, that fails to save, _is destroyed_. The assumption
-#  is that there are duplicate values or other constraints that make the object redundant, as if it was being added a-new.
+# A module to unify two objects into 1, or to move data between objects.
+#
+# !! The module works on relations, not attributes, which are ignored and untouched (but see position, and is_original).
+# !! For example if two objects have differing `name` fields this is ignored.
+#
+# When :only or :except are provided, then the remove_object IS NOT DESTROYED, only data are moved between objects.555h
+#
+# If they are not provided, we attempt to destroy the `remove_object`
 #  * If a related object is now a duplicate then its annotations are moved to the deduplicate object
+#  * If `preview` = true then rolls back all changes.
 #
-#  * `preview` rolls back all changes
-
-#  * Run `rake tw:development:linting:inverse_of_preventing_unify` judiciously when modifying models or this code. It will catch missing `inverse_of` parameters required to unify objects.  Note that it will always report some missing relationships that do not matter.
+# * Annotation classes (e.g. Notes) can not be unified except through their relation to unified objects.
+# * Users and projects can not be unified, though technically the approach should be be a hard/but robust approach to the problem, with some key exceptions (e.g. two root TaxonNames)
 #
-# TODO:
-#   - consider `strict` mode, where a preview is auto-run then inspected for any errors, if present the unify fails
-#   - Attempt to move annotations from unsavable objects over, or consider hooks for this.
-#     - Requires a generic duplicate method?!
-#       -
-#
-# Classes that are exposed in the UI are defined at app/javascript/vue/tasks/unify/objects/constants/types.js
+# * Classes that are exposed in the UI are defined at app/javascript/vue/tasks/unify/objects/constants/types.js.
+# * Run `rake tw:development:linting:inverse_of_preventing_unify` judiciously when modifying models or this code. It will catch missing `inverse_of` parameters required to unify objects.  Note that it will always report some missing relationships that do not matter.
 #
 module Shared::Unify
   extend ActiveSupport::Concern
@@ -27,7 +24,6 @@ module Shared::Unify
     :versions,       # Not picked up, but adding in case
     :dwc_occurrence, # Will be destroyed on related objects destruction
     :pinboard_items, # Technically not needed here
-    # !! TODO: check :taxon_name_hierarchies,
   ]
 
   # Per class, Iterating through all of these
@@ -63,7 +59,7 @@ module Shared::Unify
   #   an alias.  We inspect for `related_<name>` as a pattern to select these.
   #
   #  TODO: Revist. depending on the`related_XXX naming pattern is brittle-ish.
-  #     Is there some other reason those with class_name fail that we are missing?
+  #  TODO: Is there some other reason those with class_name fail that we are missing?
   #
   def inferred_relations
     (ApplicationEnumeration.klass_reflections(self.class) +
@@ -79,13 +75,14 @@ module Shared::Unify
     inferred_relations.select{|r| !r.options[:inverse_of].nil?}
   end
 
-  # TODO: this should just be handled with after destroy ...
-  #
+  # TODO: Not yet used, likely not needed.
   # Methods to be called per Class immediately before the transaction starts
-  #  TODO: use with super, cleanup pinboard items inside of transaction
   def before_unify
+    # use with super perhaps
+    # consider things like pinboard_items
   end
 
+  # TODO: Not yet used, likely not needed.
   # Methods to be called per Class after unify but before object is destroyed
   def after_unify
   end
@@ -97,81 +94,54 @@ module Shared::Unify
   def used?
   end
 
-  # TODO: consider
-  #   - a merge with preview = true wrapped in a transaction that you can roll back
-  def mergeable?(remove_object)
-    # !! Proxy
-    # Otu.first.merge_relations.collect{|r| [r.options[:inverse_of], r.name]} -> can have no nil in first position
-    #   - if nil then assume it's canonical form
-    # TODO:
-    #   - eliminate COMMUNITY data
-    #   - maybe a class method Otu.new. ....
-    #   - Both belong to the same project
-    #
-  end
-
-  # Unify is not the same as move. For example we could move annotations
-  # from one class of things to another, we can not do that here.
-
+  # See header.
+  #
   # @return Hash
   #   a result
   #
+  # @param remove_object
+  #    this object will be destroyed if possible
+  #
+  # @param only [Array of Symbols]
+  #    only operate on these relations, useful for partial merges/moving objects
+  #
+  # @param except [Array of Symbols]
+  #    don't operate on these relations
+  #
+  # @param preview Boolean
+  #    if true then roll back all operations
+  #
+  # @param cutoff Integer
+  #    if more than cutoff relations are observed then always rollback
+  #    TODO: add delayed job handling
+  #
+  # @param target_project_id [Integer]
+  #   required when self is_community?, scopes operations to target project only
+  #
   def unify(remove_object, only: [], except: [], preview: false, cutoff: 250, target_project_id: nil)
     s = {
-      result: { unified: nil, total_related: 0 },
+      result: { unified: nil, total_related: 0, target_project_id:},
       details: {},
     }
 
-    if target_project_id.nil?
-      if is_community?
-        s[:result].merge!(
-          unified: false,
-          message: 'Can not merge community objects without project context.'
-        )
-        return s
-      else
-        target_project_id = project_id
-      end
-    end
-
     o = remove_object
-
-    if o == self
-      s[:result].merge!(
-        unified: false,
-        message: 'Can not unify the same objects.'
-      )
-      return s
-    end
-
-    if !is_community?
-      if project_id != o.project_id
-        s.merge!(
-          failed: true,
-          message: 'Danger, objects come from different projects.')
-        return s
-      end
-    end
-
-    if o.class.name != self.class.name
-      s[:result].merge!(
-        unified: false,
-        message: "Can not unify objects of different types (#{o.class.name} and #{self.class.name}).")
-      return s
-    end
+    pre_validate(o, s)
+    return s if s[:result][:unified] == false
+    pid = s[:result][:target_project_id]
 
     self.class.transaction do
       before_unify # does nothing yet maybe outside here
 
       merge_relations(only:, except:).each do |r|
         i = o.send(r.name)
+        next if i.nil? # has_one case
 
         n = relation_label(r)
 
-        next if i.nil? # has_one case
+        i = i.where(project_id: pid)
 
         # Discern b/w has_one and has_many
-        if i.class.name.match('CollectionProxy')
+        if r.class.name.match('HasMany')
           next unless i.any?
 
           s[:details].merge!(
@@ -180,12 +150,12 @@ module Shared::Unify
               unmerged: 0 }
           )
 
-          q = o.send(r.name).where(project_id: target_project_id)
+          q = o.send(r.name).where(project_id: pid)
 
           s[:result][:total_related] += q.count
           next if s[:result][:total_related] > cutoff
 
-           q.find_each do |j|
+          q.find_each do |j|
             j.update(r.options[:inverse_of] => self)
             log_unify_result(j, r, s)
           end
@@ -205,19 +175,19 @@ module Shared::Unify
       if cutoff_hit = s[:result][:total_related] > cutoff
         s[:result][:message] = "Related cutoff threshold (> #{cutoff}) hit, unify is not yet allowed on these objects."
       else
-
-        # TODO: explore further, the preventing objects should all be moved or destroyed if properly iterated through
         begin
-
           o.reload # reset all in-memory has_many caches that would prevent destroy
-          o.destroy!
+
+          unless only.any? || except.any?
+            o.destroy!
+          end
 
         rescue ActiveRecord::InvalidForeignKey => e
           s[:result][:unified] = false
           s[:details].merge!(
             Object: {
               errors: [
-                { id: e.record.id, message: e.record.errors.full_messages.join('; ') } # e.message.to_s
+                { id: e.record.id, message: e.record.errors.full_messages.join('; ') }
               ]
             }
           )
@@ -256,16 +226,18 @@ module Shared::Unify
     s = {}
 
     merge_relations.each do |r|
-      i = send(r.name)
+      i = self.send(r.name).where(project_id: target_project_id)
       next if i.nil?
 
       name = relation_label(r)
 
-      if i.class.name.match('CollectionProxy')
+      if r.class.name.match('HasMany')
         next unless i.count > 0
         s[r.name] = { total: i.count, name: }
-      else
-        s[r.name] = { total: 1, name: }
+      else # TODO: HasOne check?!
+        if i.send(r).present?
+          s[r.name] = { total: 1, name: }
+        end
       end
     end
     s.sort.to_h
@@ -273,8 +245,42 @@ module Shared::Unify
 
   private
 
+  def pre_validate(remove_object, result)
+    s = result
 
+    if s[:result][:target_project_id].nil?
+      if is_community?
+        s[:result].merge!(
+          unified: false,
+          message: 'Can not merge community objects without project context.'
+        )
+      else
+        s[:result][:target_project_id] = project_id
+      end
+    end
 
+    if remove_object == self
+      s[:result].merge!(
+        unified: false,
+        message: 'Can not unify the same objects.'
+      )
+    end
+
+    if !is_community?
+      if project_id != remove_object.project_id
+        s.merge!(
+          unified: false,
+          message: 'Danger, objects come from different projects.')
+      end
+    end
+
+    if remove_object.class.name != self.class.name
+      s[:result].merge!(
+        unified: false,
+        message: "Can not unify objects of different types (#{remove_object.class.name} and #{self.class.name}).")
+    end
+    s
+  end
 
   def deduplicate_update_target(object)
     i = object.identical
@@ -289,8 +295,11 @@ module Shared::Unify
     end
   end
 
-  # @return Hash
-  # TODO: add error array
+  # During logging attempt to resolve duplicate
+  # objects issues by moving annotations from the
+  # would-be duplicate to an identical existing record.
+  #
+  # @return result Hash
   def log_unify_result(object, relation, result)
     n = relation.name.to_s.humanize
 
@@ -307,12 +316,13 @@ module Shared::Unify
     end
 
     if object.invalid?
-      # Here we check to see that error related
+
+      # Here we check to see that the error is related
       # to the object being unified, if not,
       # we don't know how to handle this with confidence.
       if object.errors.details.keys.include?(relation.options[:inverse_of])
 
-        # object can't be updated, move it's annotations to self
+        # object can't be updated, move its annotations to self
         unless deduplicate_update_target(object)
           result[:result][:unified] = false
           result[:details][n][:unmerged] += 1
