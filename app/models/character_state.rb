@@ -39,6 +39,10 @@ class CharacterState < ApplicationRecord
 
   validate :descriptor_kind
 
+  def self.find_for_autocomplete(params)
+    where('name ILIKE ?', "%#{params[:term]}%")
+  end
+
   def is_gap?
     label == '-' && name.downcase == 'gap'
   end

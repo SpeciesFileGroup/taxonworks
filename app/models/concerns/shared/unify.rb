@@ -13,6 +13,8 @@
 #     - Requires a generic duplicate method?!
 #       -
 #
+# Classes that are exposed in the UI are defined at app/javascript/vue/tasks/unify/objects/constants/types.js
+#
 module Shared::Unify
   extend ActiveSupport::Concern
 
@@ -267,8 +269,19 @@ module Shared::Unify
   def log_unify_result(object, relation, result)
     n = relation.name.to_s.humanize
 
-    if object.invalid?
+    # Handle an edge case, preserve Citations that
+    # would only be invalid due to origin flag
+    if object.class.name == 'Citation' && object.errors.key?(:is_original) && object.is_original
+      object.is_original = false
+      object.save
+    end
 
+    if object.errors.key?(:position)
+      object.position = nil
+      object.save
+    end
+
+    if object.invalid?
       # Here we check to see that error related
       # to the object being unified, if not,
       # we don't know how to handle this with confidence.
@@ -284,8 +297,6 @@ module Shared::Unify
           result[:details][n][:merged] += 1
         end
       end
-
-      # TODO - delete/cleanup logic here?
     else
       result[:details][n][:merged] += 1
     end

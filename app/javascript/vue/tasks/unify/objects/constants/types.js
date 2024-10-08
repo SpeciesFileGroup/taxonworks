@@ -5,9 +5,10 @@ import {
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
   CONTAINER,
-  CONTENT,
+  // CONTENT,
   CONTROLLED_VOCABULARY_TERM,
-  DEPICTION,
+  //  DEPICTION,
+  CHARACTER_STATE,
   DESCRIPTOR,
   EXTRACT,
   FIELD_OCCURRENCE,
@@ -33,6 +34,9 @@ export const TYPE_LINKS = {
   [BIOLOGICAL_ASSOCIATIONS_GRAPH]: {
     autocomplete: '/biological_associations_graphs/autocomplete'
   },
+  [CHARACTER_STATE]: {
+    autocomplete: '/character_states/autocomplete',
+  },
   [COLLECTING_EVENT]: {
     autocomplete: '/collecting_events/autocomplete',
     smartSelector: 'collecting_events'
@@ -45,16 +49,16 @@ export const TYPE_LINKS = {
   [CONTAINER]: {
     autocomplete: '/containers/autocomplete'
   },
-  [CONTENT]: {
-    autocomplete: '/contents/autocomplete',
-    smartSelector: 'contents'
-  },
+//  [CONTENT]: {
+//    autocomplete: '/contents/autocomplete',
+//    smartSelector: 'contents'
+//  },
   [CONTROLLED_VOCABULARY_TERM]: {
     autocomplete: '/controlled_vocabulary_terms/autocomplete'
   },
-  [DEPICTION]: {
-    autocomplete: '/depictions/autocomplete'
-  },
+//  [DEPICTION]: {
+//    autocomplete: '/depictions/autocomplete'
+//  },
   [DESCRIPTOR]: {
     autocomplete: '/descriptors/autocomplete'
   },

@@ -74,6 +74,9 @@ resources :character_states do
   member do
     get :annotations, defaults: {format: :json}
   end
+  collection do
+    get :autocomplete, defaults: {format: :json}
+  end
 end
 
 resources :citation_topics, only: [:create, :update, :destroy]
