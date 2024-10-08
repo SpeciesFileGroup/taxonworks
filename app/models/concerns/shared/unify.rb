@@ -226,16 +226,14 @@ module Shared::Unify
     s = {}
 
     merge_relations.each do |r|
-      i = self.send(r.name).where(project_id: target_project_id)
-      next if i.nil?
-
       name = relation_label(r)
 
       if r.class.name.match('HasMany')
+        i = send(r.name).where(project_id: target_project_id)
         next unless i.count > 0
         s[r.name] = { total: i.count, name: }
       else # TODO: HasOne check?!
-        if i.send(r).present?
+        if send(r.name).present?
           s[r.name] = { total: 1, name: }
         end
       end

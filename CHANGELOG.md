@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Unify objects task [#970]
 - `dwc_occurrence_id[]` param to dwc_gallery endpoint
 - Image matrix link to radial linker and radial matrix
 
