@@ -9,6 +9,9 @@
       buttons
       inline
       klass="DataAttribute"
+      :custom-list="{
+        all: list
+      }"
       @selected="(p) => (predicate = p)"
     />
     <SmartSelectorItem
@@ -59,7 +62,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onBeforeMount } from 'vue'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import { PREDICATE } from '@/constants'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -68,6 +73,7 @@ const emit = defineEmits(['add'])
 const inputValue = ref('')
 const predicate = ref()
 const exact = ref(false)
+const list = ref([])
 
 function addPredicate(params) {
   const data = {
@@ -83,4 +89,14 @@ function addPredicate(params) {
 
   emit('add', data)
 }
+
+function loadPredicates() {
+  ControlledVocabularyTerm.where({ type: [PREDICATE] })
+    .then(({ body }) => {
+      list.value = body
+    })
+    .catch(() => {})
+}
+
+onBeforeMount(loadPredicates)
 </script>
