@@ -6,6 +6,75 @@ describe 'Shared::Unify', type: :model do
   let(:o2) { FactoryBot.create(:valid_otu) }
   let(:source) { FactoryBot.create(:valid_source) }
 
+
+  specify 'deduplicates Depictions referencing the same image' do
+    i = FactoryBot.create(:valid_image)
+
+    a = FactoryBot.create(:valid_depiction, depiction_object: o1, image: i)
+    b = FactoryBot.create(:valid_depiction, depiction_object: o2, image: i)
+
+    o1.unify(o2)
+    expect(o2.destroyed?).to be_truthy
+    expect(o1.depictions.size).to eq(1)
+  end
+
+  specify 'deduplicates double non-unique DataAttributes' do
+    a = FactoryBot.create(:valid_data_attribute_import_attribute, attribute_subject: o1, value: 123)
+    c = FactoryBot.create(:valid_data_attribute_import_attribute, attribute_subject: o2, value: 123, import_predicate:  a.import_predicate)
+
+    b = FactoryBot.create(:valid_data_attribute_import_attribute, attribute_subject: o1, value: 456)
+    d = FactoryBot.create(:valid_data_attribute_import_attribute, attribute_subject: o2, value: 456, import_predicate: b.import_predicate)
+
+    o1.unify(o2)
+    expect(o2.destroyed?).to be_truthy
+    expect(o1.data_attributes.reload.size).to eq(2)
+  end
+
+  specify 'deduplicates double non-unique DataAttributes' do
+    a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: o1, value: 123)
+    b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: o2, value: 123, predicate: a.predicate)
+
+    c = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: o1, value: 123)
+    d = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: o2, value: 123, predicate: c.predicate)
+
+    o1.unify(o2)
+    expect(o2.destroyed?).to be_truthy
+    expect(o1.data_attributes.reload.size).to eq(2)
+  end
+
+  specify 'moves Confidences' do
+    a = FactoryBot.create(:valid_specimen)
+    b = FactoryBot.create(:valid_specimen)
+
+    c = FactoryBot.create(
+      :valid_confidence, confidence_object: b
+    )
+
+    a.unify(b)
+
+    expect(b.destroyed?).to be_truthy
+    expect(a.confidences.size).to eq(1)
+  end
+
+  specify 'handles BiocurationClassifications when identical' do
+    a = FactoryBot.create(:valid_specimen)
+    b = FactoryBot.create(:valid_specimen)
+
+    c = FactoryBot.create(
+      :valid_biocuration_classification, biocuration_classification_object: a
+    )
+
+    d = FactoryBot.create(
+      :valid_biocuration_classification,
+      biocuration_classification_object: b,
+      biocuration_class: c.biocuration_class)
+
+    e =  a.unify(b)
+
+    expect(b.destroyed?).to be_truthy
+    expect(BiocurationClassification.all.reload.size).to eq(1)
+  end
+
   specify 'if only used then use as "move" not unify' do
     c1 = Citation.create(citation_object: o1, source:, pages: 123)
     c2 = Citation.create(citation_object: o1, source:, pages: 456)

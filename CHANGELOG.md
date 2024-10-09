@@ -7,10 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Unify objects task [#970]
+
 ### Changed
 
 - Local identifier display in CollectionObject tag now prefers position to break tie with RecordNumber and CatalogNumber [#4074]
 
+[#970]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
 [#4074]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
 
 \-
@@ -19,7 +24,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Unify objects task [#970]
 - `dwc_occurrence_id[]` param to dwc_gallery endpoint
 - Image matrix link to radial linker and radial matrix
 

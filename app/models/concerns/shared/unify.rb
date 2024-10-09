@@ -286,7 +286,7 @@ module Shared::Unify
     # There is exactly 1 match, merge is unambiguous
     if i.size == 1
       j = i.first
-      j.unify(object)
+      j.unify(object.reload)
     else
       # Merge would be ambiguous, there are multiple matches
       return false
@@ -313,25 +313,35 @@ module Shared::Unify
       object.save
     end
 
-    if object.invalid?
+    # One degree of seperation issue
+    #
+    # Here we check to see that the error is related
+    # to the object being unified, if not,
+    # we don't know how to handle this with confidence.
+    if object.errors.details.keys.include?(relation.options[:inverse_of])
 
-      # Here we check to see that the error is related
-      # to the object being unified, if not,
-      # we don't know how to handle this with confidence.
-      if object.errors.details.keys.include?(relation.options[:inverse_of])
-
-        # object can't be updated, move its annotations to self
-        unless deduplicate_update_target(object)
-          result[:result][:unified] = false
-          result[:details][n][:unmerged] += 1
-          result[:details][n][:errors] ||= []
-          result[:details][n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
-        else
-          result[:details][n][:merged] += 1
-        end
+      # object can't be updated, move its annotations to self
+      unless deduplicate_update_target(object)
+        result[:result][:unified] = false
+        result[:details][n][:unmerged] += 1
+        result[:details][n][:errors] ||= []
+        result[:details][n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
+      else
+        result[:details][n][:merged] += 1
       end
+
+      # THere are no errors we can fix, ensure we have a fresh copy
+      # of the object and check for validity.
     else
-      result[:details][n][:merged] += 1
+      object.reload
+      if object.invalid?
+        result[:result][:unified] = false
+        result[:details][n][:unmerged] += 1
+        result[:details][n][:errors] ||= []
+        result[:details][n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
+      else
+        result[:details][n][:merged] += 1
+      end
     end
 
     result
