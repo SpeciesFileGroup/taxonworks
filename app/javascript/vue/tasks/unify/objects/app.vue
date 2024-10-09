@@ -23,6 +23,7 @@
         <template #body>
           <ObjectSelector
             ref="keepRef"
+            class="margin-medium-bottom"
             :title="model"
             :model="model"
             :keep="keepObject"
@@ -47,6 +48,7 @@
         <template #body>
           <ObjectSelector
             ref="destroyRef"
+            class="margin-medium-bottom"
             :title="model"
             :model="model"
             :exclude-ids="[destroyObject?.id, keepObject?.id].filter(Boolean)"

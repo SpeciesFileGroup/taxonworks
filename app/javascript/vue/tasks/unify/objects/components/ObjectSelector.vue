@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex-separate middle">
-      <span>{{ title }}</span>
+      <b>{{ title }}</b>
       <div
         class="horizontal-left-content gap-small"
         v-if="selected"
