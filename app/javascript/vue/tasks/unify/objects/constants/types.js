@@ -100,9 +100,6 @@ export const TYPE_LINKS = {
     smartSelector: 'sources',
     smartSelectorLabel: 'cached'
   },
-  [TAXON_DETERMINATION]: {
-    autocomplete: '/taxon_determinations/autocomplete'
-  },
   [TAXON_NAME]: {
     autocomplete: '/taxon_names/autocomplete',
     smartSelector: 'taxon_names'
