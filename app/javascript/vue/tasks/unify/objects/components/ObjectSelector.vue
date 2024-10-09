@@ -6,9 +6,13 @@
         class="horizontal-left-content gap-small"
         v-if="selected"
       >
-        <RadialAnnotator :global-id="selected.global_id" />
+        <RadialAnnotator
+          reload
+          :global-id="selected.global_id"
+        />
         <RadialObject
           v-if="TYPE_LINKS[model].radialObject"
+          reload
           :global-id="selected.global_id"
         />
         <RadialNavigator :global-id="selected.global_id" />
