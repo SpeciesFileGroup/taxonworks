@@ -182,6 +182,8 @@ Supporting:
       - GeographicArea
       - Georeference
       - CollectingEvent
+    categories:
+      - collecting_event
   GeneAttribute:
     status: :prototype
     related_models:
