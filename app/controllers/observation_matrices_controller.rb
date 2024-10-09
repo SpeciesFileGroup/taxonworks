@@ -354,7 +354,11 @@ class ObservationMatricesController < ApplicationController
   end
 
   def observation_matrix_params
-    params.require(:observation_matrix).permit(:name)
+    params.require(:observation_matrix).permit(
+      :name,
+      :otu_id,
+      :is_public
+    )
   end
 
   def nexus_import_options_params

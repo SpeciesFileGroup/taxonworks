@@ -74,6 +74,10 @@ class CharacterState < ApplicationRecord
 
   protected
 
+  def dependent_destroy_error_message
+    "Cannot delete this #{self.class.name} because it has associated #{dependent_models.class.name} records." 
+  end
+
   def descriptor_kind
     errors.add(:descriptor, 'must be Descriptor::Qualitative') if descriptor && descriptor.type != 'Descriptor::Qualitative'
   end

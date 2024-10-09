@@ -22,9 +22,7 @@ export default {
   methods: {
     openImageMatrix() {
       window.open(
-        `${RouteNames.ImageMatrix}?otu_filter=${this.otuIds.join(
-          '|'
-        )}&view=true`,
+        `${RouteNames.ImageMatrix}?otu_filter=${this.otuIds.join('|')}`,
         '_blank'
       )
     }

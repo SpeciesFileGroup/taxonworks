@@ -10,7 +10,7 @@ export default () => ({
   verbatim_longitude: undefined,
   verbatim_latitude: undefined,
   verbatim_geolocation_uncertainty: undefined,
-  verbatim_trip_identifier: undefined,
+  verbatim_field_number: undefined,
   verbatim_collectors: undefined,
   verbatim_method: undefined,
   verbatim_habitat: undefined,

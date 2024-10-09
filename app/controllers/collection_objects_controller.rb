@@ -5,7 +5,9 @@ class CollectionObjectsController < ApplicationController
     :show, :edit, :update, :destroy, :navigation, :containerize,
     :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications,
     :timeline,
-    :api_show, :api_dwc]
+    :api_show, :api_dwc,
+    :dwc, :dwc_verbose, :dwc_compact]
+
   after_action -> { set_pagination_headers(:collection_objects) }, only: [:index, :api_index], if: :json_request?
 
   # GET /collecting_events
@@ -97,6 +99,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   # GET /collection_objects/123/dwc
+  #  !! Returns a keyless Array of data compatible with combining multiple rows
   def dwc
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
@@ -115,6 +118,10 @@ class CollectionObjectsController < ApplicationController
   end
 
   # GET /collection_objects/123/dwc_verbose
+  #
+  # !! Always calculates values, never reads from
+  # !! Allways returns all values
+  #
   def dwc_verbose
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
@@ -128,6 +135,12 @@ class CollectionObjectsController < ApplicationController
       end
     end
     render json: o.dwc_occurrence_attributes
+  end
+
+  # GET /collection_objects/123/dwc_compact
+  # !! Never recalculates !!
+  def dwc_compact
+    render json:  @collection_object.dwc_occurrence.dwc_json
   end
 
   # Intent is DWC fields + quick summary fields for reports

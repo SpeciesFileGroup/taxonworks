@@ -31,7 +31,7 @@
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the provided uncertainty value.
 #
-# @!attribute verbatim_trip_identifier
+# @!attribute verbatim_field_number
 #   @return [String]
 #      the literal string/identifier used by the collector(s) to identify this particular collecting event, usually part of a series particular to one trip
 #
@@ -256,7 +256,6 @@ class CollectingEvent < ApplicationRecord
     :check_elevation_range,
     :check_min_land_elevation,
     :check_max_land_elevation,
-    :check_date_range,
     :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> { verbatim_label.blank? }
@@ -296,18 +295,6 @@ class CollectingEvent < ApplicationRecord
 
   validates_presence_of :geographic_area_id, if: -> { meta_prioritize_geographic_area }
 
-  validate :verbatim_trip_identifier_syncronized
-
-  def verbatim_trip_identifier_syncronized
-    if verbatim_trip_identifier.present? 
-      if i = identifiers.where(type: 'Identifier::Local::FieldNumber').first
-        if i.cached != verbatim_trip_identifier
-          errors.add(:verbatim_trip_identifier, 'does not match the FieldNumber identifier attached to record')
-        end
-      end
-    end
-  end
-
   soft_validate(
     :sv_minimally_check_for_a_label,
     set: :minimally_check_for_a_label,
@@ -333,7 +320,7 @@ class CollectingEvent < ApplicationRecord
     description: 'Georaphic area is missing')
 
   def dwc_occurrences
-    # THrough CollectionObjects
+    # Through CollectionObjects
     DwcOccurrence
       .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
       .where(co: {collecting_event_id: id})

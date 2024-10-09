@@ -1,12 +1,11 @@
 <template>
   <div class="field label-above">
-    <label>Trip identifier</label>
+    <label>Field number</label>
     <textarea
       class="full_width"
       type="text"
       rows="3"
-      v-model="collectingEvent.verbatim_trip_identifier"
-      @change="() => { collectingEvent.isUnsaved = true }"
+      v-model="collectingEvent.verbatim_field_number"
     />
   </div>
 </template>

@@ -893,6 +893,7 @@ new_otu_task:
   related:
   categories:
     - otu
+    - new
   status: prototype
   description: 'Create one or many OTUs in batch.'
 leads_hub_task:

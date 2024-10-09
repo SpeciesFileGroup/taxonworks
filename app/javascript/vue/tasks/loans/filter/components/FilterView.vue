@@ -80,7 +80,7 @@ import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = [
   'with_date_closed',
-  'with_date_recieved',
+  'with_date_received',
   'with_date_requested',
   'with_date_return_expected',
   'with_date_sent',
