@@ -119,11 +119,17 @@
         @next-page="({ page }) => loadDepictions(page)"
       />
       <DepictionList
-        :list="list"
+        v-model="list"
         @delete="removeItem"
         @selected="(item) => (depiction = item)"
         @update:caption="updateDepiction"
         @update:label="updateDepiction"
+        @sort="
+          () =>
+            Depiction.sort({
+              depiction_ids: list.map((d) => d.id)
+            })
+        "
       />
       <VPagination
         :pagination="pagination"
@@ -267,7 +273,7 @@ function removeItem(item) {
 }
 
 function loadDepictions(page = 1) {
-  Depiction.where({
+  Depiction.filter({
     depiction_object_id: props.objectId,
     depiction_object_type: props.objectType,
     per: 50,
