@@ -99,7 +99,7 @@ module Shared::IsData
       klass = self
       attr  = Stripper.strip_identical_attributes(klass, attr)
 
-      scope = klass.where(attr).where.not(id:)
+      scope = klass.where(attr) #.where.not(id:)
       scope
     end
 
