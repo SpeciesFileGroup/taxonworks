@@ -18,6 +18,9 @@
             />
           </VBtn>
         </div>
+        <div class="header-right">
+          <a href="/gazetteers">Gazetteers</a>
+        </div>
       </div>
     </template>
 
@@ -145,8 +148,14 @@ defineExpose({
 }
 .header {
   display: flex;
+  flex-grow: 2;
 }
 .header-buttons {
   margin-left: .5em;
+}
+.header-right {
+  flex-grow: 2;
+  text-align: end;
+  margin-right: 1.5em;
 }
 </style>
