@@ -1,8 +1,14 @@
 <%= content_tag(:h1, observation_matrix_tag(@observation_matrix)) -%>
 
+
+<ul class="context-menu">
+  <li><%= radial_annotator(@observation_matrix, annotations_exist(@observation_matrix)) %></li>
+  <li><%= tag_default_icon(@observation_matrix) %></li>
+  <li><%= pin_item_to_pinboard_link(@observation_matrix, sessions_current_user) %></li>
+  <li><%= radial_navigation_tag(@observation_matrix) %></li>
+</ul>
 <ul class="context-menu">
   <li> View </li>
-  <%= tag.li link_to('Observation matrix hub', observation_matrices_hub_task_path) %>
   <%= tag.li link_to('Edit', new_matrix_task_path(@observation_matrix)) %>
   <%= tag.li link_to('TNT', tnt_observation_matrix_path(@observation_matrix)) %>
   <%= tag.li link_to('nexus', nexus_observation_matrix_path(@observation_matrix)) %>

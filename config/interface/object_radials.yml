@@ -146,10 +146,13 @@ Loan:
     recent: true
 ObservationMatrix:
   tasks:
-    - new_matrix_task
+    - interactive_key_task
+    - observation_matrix_view_task
     - new_descriptor_task
     - observation_matrices_hub_task
     - unify_objects_task
+  edit: new_matrix_task
+  new: new_matrix_task
   config:
     recent: true
 Otu:

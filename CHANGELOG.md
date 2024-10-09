@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Unify objects task [#970]
+- Attribution to ObservationMatrix
 
 ### Changed
 
