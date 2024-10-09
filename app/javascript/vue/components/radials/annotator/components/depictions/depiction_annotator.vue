@@ -267,19 +267,19 @@ function loadList(params) {
 }
 
 function removeItem(item) {
-  Depiction.destroy(item.id).then((_) => {
+  Depiction.destroy(item.id).then(() => {
     removeFromList(item)
   })
 }
 
 function loadDepictions(page = 1) {
-  Depiction.filter({
+  Depiction.where({
     depiction_object_id: props.objectId,
     depiction_object_type: props.objectType,
     per: 50,
     page
   }).then((response) => {
-    list.value = response.body
+    list.value = response.body.toSorted((a, b) => a.position - b.position)
     pagination.value = getPagination(response)
   })
 }
