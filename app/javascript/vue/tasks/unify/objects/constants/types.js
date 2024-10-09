@@ -35,7 +35,7 @@ export const TYPE_LINKS = {
     autocomplete: '/biological_associations_graphs/autocomplete'
   },
   [CHARACTER_STATE]: {
-    autocomplete: '/character_states/autocomplete',
+    autocomplete: '/character_states/autocomplete'
   },
   [COLLECTING_EVENT]: {
     autocomplete: '/collecting_events/autocomplete',
@@ -49,16 +49,16 @@ export const TYPE_LINKS = {
   [CONTAINER]: {
     autocomplete: '/containers/autocomplete'
   },
-//  [CONTENT]: {
-//    autocomplete: '/contents/autocomplete',
-//    smartSelector: 'contents'
-//  },
+  //  [CONTENT]: {
+  //    autocomplete: '/contents/autocomplete',
+  //    smartSelector: 'contents'
+  //  },
   [CONTROLLED_VOCABULARY_TERM]: {
     autocomplete: '/controlled_vocabulary_terms/autocomplete'
   },
-//  [DEPICTION]: {
-//    autocomplete: '/depictions/autocomplete'
-//  },
+  //  [DEPICTION]: {
+  //    autocomplete: '/depictions/autocomplete'
+  //  },
   [DESCRIPTOR]: {
     autocomplete: '/descriptors/autocomplete'
   },
@@ -101,7 +101,7 @@ export const TYPE_LINKS = {
     smartSelectorLabel: 'cached'
   },
   [TAXON_DETERMINATION]: {
-    autocomplete: '/sources/autocomplete'
+    autocomplete: '/taxon_determinations/autocomplete'
   },
   [TAXON_NAME]: {
     autocomplete: '/taxon_names/autocomplete',
