@@ -13,9 +13,9 @@
             <a
               data-turbolinks="false"
               :class="{ active: activePosition == index }"
-              :href="'#' + title.toLowerCase().replace(' ', '-')"
+              :href="'#' + getTitle(title).toLowerCase().replace(' ', '-')"
               @click="activePosition = index"
-              >{{ title }}
+              >{{ getTitle(title) }}
             </a>
           </li>
         </template>
@@ -96,6 +96,12 @@ function createNew(id) {
   } else {
     window.open(url, '_self')
   }
+}
+
+function getTitle(title) {
+  return typeof title === 'function'
+    ? title({ code: store.getters[GetterNames.GetNomenclaturalCode] })
+    : title
 }
 </script>
 
