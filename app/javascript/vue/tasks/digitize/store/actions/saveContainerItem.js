@@ -1,10 +1,15 @@
 import { MutationNames } from '../mutations/mutations'
-import { Identifier, ContainerItem, CollectionObject } from '@/routes/endpoints'
+import { ContainerItem, CollectionObject } from '@/routes/endpoints'
 import { useIdentifierStore } from '../pinia/identifiers'
-import { CONTAINER, IDENTIFIER_LOCAL_RECORD_NUMBER } from '@/constants'
+import {
+  CONTAINER,
+  IDENTIFIER_LOCAL_RECORD_NUMBER,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER
+} from '@/constants'
 
 export default ({ commit, state }) =>
   new Promise((resolve, reject) => {
+    const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
     const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
 
     if (
@@ -20,21 +25,16 @@ export default ({ commit, state }) =>
 
       ContainerItem.create({ container_item: item }).then(({ body }) => {
         commit(MutationNames.AddContainerItem, body)
-        if (state.containerItems.length === 1 && state.identifiers.length) {
-          const identifier = {
-            id: state.identifiers[0].id,
-            identifier_object_type: CONTAINER,
-            identifier_object_id: state.container.id
+
+        if (state.containerItems.length === 1) {
+          const args = {
+            objectType: CONTAINER,
+            objectId: state.container.id,
+            forceUpdate: true
           }
 
-          recordNumber.save({
-            objectType: CONTAINER,
-            objectId: state.container.id
-          })
-
-          Identifier.update(identifier.id, { identifier }).then((response) => {
-            state.identifiers[0] = response.body
-          })
+          catalogNumber.save(args)
+          recordNumber.save(args)
         }
         if (state.collection_object.id === body.contained_object_id) {
           CollectionObject.find(body.contained_object_id).then((response) => {

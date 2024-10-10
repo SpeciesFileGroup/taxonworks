@@ -63,14 +63,15 @@ export function useIdentifierStore(type) {
         })
       },
 
-      save({ objectId, objectType }) {
-        if (
-          this.existingIdentifiers.length ||
-          !this.identifier.identifier ||
-          !this.identifier.namespaceId ||
-          !this.identifier.isUnsaved
-        )
-          return
+      save({ objectId, objectType, forceUpdate }) {
+        const isUnsaved = forceUpdate || this.identifier.isUnsaved
+        const isIdentifierValid =
+          !this.existingIdentifiers.length &&
+          this.identifier.identifier &&
+          this.identifier.namespaceId
+
+        if (!isIdentifierValid) return
+        if (!isUnsaved) return
 
         const payload = makePayload({
           ...this.identifier,
