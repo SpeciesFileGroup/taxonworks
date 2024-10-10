@@ -41,8 +41,8 @@ module Shared::Unify
   # @return Array of ActiveRecord::Reflection
   # Perhaps used_inferred to hash
   def merge_relations(only: [], except: [])
-    if (only_relations + [only&.map(&:to_sym)].flatten).uniq.any?
-      o = (only_relations + [only&.map(&:to_sym)].flatten).uniq
+    o = (only_relations + [only&.map(&:to_sym)].flatten).uniq
+    if o.any?
       used_inferred_relations.select{|a| o.include?(a.name)}
     else
       e = (except_relations + [except&.map(&:to_sym)].flatten).uniq
@@ -60,12 +60,16 @@ module Shared::Unify
   #  * We *do* want to catch relations that are edges in which the same class of object is on both sides, these require
   #   an alias.  We inspect for `related_<name>` as a pattern to select these.
   #
-  #  TODO: Revist. depending on the`related_XXX naming pattern is brittle-ish.
-  #  TODO: Is there some other reason those with class_name fail that we are missing?
+  #  TODO: Revist. depending on the`related_XXX naming pattern is brittle-ish, perhaps
+  #  converge on using `unife_relations` to force inclusion.
+  #
+  # Note: class_name based exclusions prevent a lot of duplicated efforts, as much of their use
+  # is based on convienience relations on things like subclassed or scoped data.
   #
   def inferred_relations
-    (ApplicationEnumeration.klass_reflections(self.class) +
-     ApplicationEnumeration.klass_reflections(self.class, :has_one))
+    ( unify_relations +
+     ::ApplicationEnumeration.klass_reflections(self.class) +
+     ::ApplicationEnumeration.klass_reflections(self.class, :has_one))
       .delete_if{|r| r.options[:foreign_key] =~ /cache/}
       .delete_if{|r| EXCLUDE_RELATIONS.include?(r.name.to_sym)}
       .delete_if{|r| !r.name.match(/related/) && ( r.options[:through].present? || r.options[:class_name].present? )}
@@ -74,26 +78,12 @@ module Shared::Unify
   # @return Array of ActiveRecord::Reflection
   # Keep separated from inferred_relations so we can better audit all models in rake linting
   def used_inferred_relations
-    inferred_relations.select{|r| !r.options[:inverse_of].nil?}
+    (inferred_relations.select{|r| !r.options[:inverse_of].nil?} + unify_relations).uniq
   end
 
-  # TODO: Not yet used, likely not needed.
-  # Methods to be called per Class immediately before the transaction starts
-  def before_unify
-    # use with super perhaps
-    # consider things like pinboard_items
-  end
-
-  # TODO: Not yet used, likely not needed.
-  # Methods to be called per Class after unify but before object is destroyed
-  def after_unify
-  end
-
-  # re-visit this concept remove is_data?
-  # @return Boolean
-  #   true - there is no FK or polymorphic reference to this object
-  #        - this object is not a blessed or special class record (e.g. a Root taxon name)
-  def used?
+  # Override in instances methods, see Serial for eg
+  def unify_relations
+    []
   end
 
   # See header.
@@ -132,31 +122,34 @@ module Shared::Unify
     pid = s[:result][:target_project_id]
 
     self.class.transaction do
-      before_unify # does nothing yet maybe outside here
+      # before_unify # potential hooks, appear not to be required
 
       merge_relations(only:, except:).each do |r|
         n = relation_label(r)
 
-        # Discern b/w has_one and has_many
-        case relationship_type(r)
+        case ::ApplicationEnumeration.relationship_type(r)
 
         when :has_many
-          i = o.send(r.name).where(project_id: pid)
+          i = o.send(r.name)
+
+          unless ::ApplicationEnumeration.relation_targets_community?(r)
+            i = i.where(project_id: pid)
+          end
+
           next unless i.any?
 
-          stub_unify_result(s, n, i.size)
+          t = i.size
+          stub_unify_result(s, n, t)
 
-          q = o.send(r.name).where(project_id: pid)
-
-          s[:result][:total_related] += q.count
+          s[:result][:total_related] += t
           next if s[:result][:total_related] > cutoff
 
-          q.find_each do |j|
+          i.find_each do |j|
             j.update(r.options[:inverse_of] => self)
             log_unify_result(j, r, s)
           end
 
-        when :has_one
+        when :has_one, :belongs_to
           i = o.send(r.name)
           if !i.nil?
             stub_unify_result(s, n, 1)
@@ -203,7 +196,7 @@ module Shared::Unify
         end
       end
 
-      after_unify
+      # after_unify # potential hooks, appear not to be required
 
       if preview || cutoff_hit
         raise ActiveRecord::Rollback
@@ -224,9 +217,14 @@ module Shared::Unify
     merge_relations.each do |r|
       name = relation_label(r)
 
-      case relationship_type(r)
+      case ::ApplicationEnumeration.relationship_type(r)
       when :has_many
-        i = send(r.name).where(project_id: target_project_id)
+        if ::ApplicationEnumeration.relation_targets_community?(r)
+          i = send(r.name)
+        else
+          i = send(r.name).where(project_id: target_project_id)
+        end
+
         next unless i.count > 0
         s[r.name] = { total: i.count, name: }
       when :has_one
@@ -344,16 +342,6 @@ module Shared::Unify
     result
   end
 
-  def relationship_type(relation)
-    if relation.class.name.match('HasMany')
-      return :has_many
-    elsif relation.class.name.match('HasOne')
-      return :has_one
-    end
-
-    # Should never hit here
-    raise
-  end
 
   def stub_unify_result(result, relation_name, attempted)
     result[:details].merge!(

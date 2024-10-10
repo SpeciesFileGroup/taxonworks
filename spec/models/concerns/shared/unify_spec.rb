@@ -6,6 +6,50 @@ describe 'Shared::Unify', type: :model do
   let(:o2) { FactoryBot.create(:valid_otu) }
   let(:source) { FactoryBot.create(:valid_source) }
 
+  specify 'unifies Repositories' do
+    a = FactoryBot.create(:valid_repository)
+    b = FactoryBot.create(:valid_repository)
+
+    c = FactoryBot.create(:valid_specimen, repository: b, current_repository: b)
+    e = FactoryBot.create(:valid_extract, repository: b)
+
+    a.unify(b, target_project_id: project_id)
+    expect(b.destroyed?).to be_truthy
+    expect(c.reload.current_repository).to eq(a)
+    expect(c.reload.repository).to eq(a)
+  end
+
+  specify 'community relations are picked up via #unify_relations' do
+    a = FactoryBot.create(:valid_serial)
+    expect(a.merge_relations.map(&:name)).to include(:sources)
+  end
+
+  specify '#relation_targets_community?' do
+    a = FactoryBot.create(:valid_serial)
+
+    r = ApplicationEnumeration.klass_reflections(Serial, :belongs_to).select{|a| a.name == :translated_from_serial}.first
+    expect(ApplicationEnumeration.relation_targets_community?(r)).to be_truthy
+  end
+
+  specify 'unifies Serials with Sources' do
+    a = FactoryBot.create(:valid_serial)
+    b = FactoryBot.create(:valid_serial)
+
+    c = FactoryBot.create(:valid_source_bibtex, serial: b)
+
+    e = a.unify(b, target_project_id: project_id)
+
+    expect(b.destroyed?).to be_truthy
+    expect(a.sources.reload.size).to eq(1)
+  end
+
+  specify 'unifies Serials without Sources' do
+    a = FactoryBot.create(:valid_serial)
+    b = FactoryBot.create(:valid_serial)
+
+    a.unify(b, target_project_id: project_id)
+    expect(b.destroyed?).to be_truthy
+  end
 
   specify 'deduplicates Depictions referencing the same image' do
     i = FactoryBot.create(:valid_image)
