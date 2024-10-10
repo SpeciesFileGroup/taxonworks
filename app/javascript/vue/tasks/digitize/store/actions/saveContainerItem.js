@@ -23,7 +23,7 @@ export default ({ commit, state }) =>
         if (state.containerItems.length === 1 && state.identifiers.length) {
           const identifier = {
             id: state.identifiers[0].id,
-            identifier_object_type: 'Container',
+            identifier_object_type: CONTAINER,
             identifier_object_id: state.container.id
           }
 
