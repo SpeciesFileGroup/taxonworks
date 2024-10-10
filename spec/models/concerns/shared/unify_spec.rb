@@ -445,6 +445,28 @@ describe 'Shared::Unify', type: :model do
     expect(o2.destroyed?).to be_truthy
   end
 
+  specify 'unify one degree of seperation - records deduplication result in preview' do
+    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, geographic_area: ad1.geographic_area) # differ only by OTU
+
+    n = FactoryBot.create(:valid_note, note_object: ad1)
+
+    b = o1.unify(o2, preview: true)
+
+    expect( b[:details]['Asserted distributions'].dig(:deduplicated)).to eq(1)
+  end
+
+  specify 'unify one degree of seperation - records deduplication result' do
+    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, geographic_area: ad1.geographic_area) # differ only by OTU
+
+    n = FactoryBot.create(:valid_note, note_object: ad1)
+
+    b = o1.unify(o2)
+
+    expect( b[:details]['Asserted distributions'].dig(:deduplicated)).to eq(1)
+  end
+
   # Generalize to all annotations.
   #
   # If unify would create two identical citations anywhere

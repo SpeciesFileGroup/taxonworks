@@ -22,19 +22,19 @@ class CommonName < ApplicationRecord
   validates :start_year,
     numericality: {only_integer: true,
                    greater_than: -2500,
-                   less_than:    (Time.now.year + 5),
-                   message:      'start date year must be an integer greater than 1500, and no more than 5 ' \
-                                  'years in the future'},
-                   length:       {is: 4},
-                   allow_nil:    true
+                   less_than: (Time.now.year + 5),
+                   message: 'start date year must be an integer greater than 1500, and no more than 5 ' \
+                   'years in the future'},
+                   length: {is: 4},
+                   allow_nil: true
 
   validates :end_year,
     numericality: {only_integer: true,
                    greater_than: -2500,
-                   less_than:    (Time.now.year + 5),
-                   message:      'start date year must be an integer greater than 1500, and no more than 5 ' \
-                                  'years in the future'},
-                   length:       {is: 4},
-                   allow_nil:    true
+                   less_than: (Time.now.year + 5),
+                   message: 'start date year must be an integer greater than 1500, and no more than 5 ' \
+                   'years in the future'},
+                   length: {is: 4},
+                   allow_nil: true
 
 end

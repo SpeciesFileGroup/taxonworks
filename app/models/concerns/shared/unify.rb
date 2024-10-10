@@ -21,9 +21,11 @@ module Shared::Unify
   # Never auto-handle these, let the final destroy remove them.
   # Housekeeping relations are not hit here, we don't merge users at the moment.
   EXCLUDE_RELATIONS = [
-    :versions,       # Not picked up, but adding in case
-    :dwc_occurrence, # Will be destroyed on related objects destruction
-    :pinboard_items, # Technically not needed here
+    :versions,            # Not picked up, but adding in case
+    :dwc_occurrence,      # Will be destroyed on related objects destruction
+    :pinboard_items,      # Technically not needed here
+    :cached_map_register, # Destroyed on merge of things like Georeferences and AssertedDistributions
+    :cached_map_items,
   ]
 
   # Per class, Iterating through all of these
@@ -133,22 +135,16 @@ module Shared::Unify
       before_unify # does nothing yet maybe outside here
 
       merge_relations(only:, except:).each do |r|
-        i = o.send(r.name)
-        next if i.nil? # has_one case
-
         n = relation_label(r)
 
-        i = i.where(project_id: pid)
-
         # Discern b/w has_one and has_many
-        if r.class.name.match('HasMany')
+        case relationship_type(r)
+
+        when :has_many
+          i = o.send(r.name).where(project_id: pid)
           next unless i.any?
 
-          s[:details].merge!(
-            n => {
-              merged: 0,
-              unmerged: 0 }
-          )
+          stub_unify_result(s, n, i.size)
 
           q = o.send(r.name).where(project_id: pid)
 
@@ -160,21 +156,21 @@ module Shared::Unify
             log_unify_result(j, r, s)
           end
 
-        else
-          s[:details].merge!(
-            n => {
-              merged: 0,
-              unmerged: 0 }
-          )
+        when :has_one
+          i = o.send(r.name)
+          if !i.nil?
+            stub_unify_result(s, n, 1)
 
-          i.update(r.options[:inverse_of] => self)
-          log_unify_result(i, r, s)
+            i.update(r.options[:inverse_of] => self)
+            log_unify_result(i, r, s)
+          end
         end
       end
 
       if cutoff_hit = s[:result][:total_related] > cutoff
         s[:result][:message] = "Related cutoff threshold (> #{cutoff}) hit, unify is not yet allowed on these objects."
       else
+
         begin
           o.reload # reset all in-memory has_many caches that would prevent destroy
 
@@ -228,11 +224,12 @@ module Shared::Unify
     merge_relations.each do |r|
       name = relation_label(r)
 
-      if r.class.name.match('HasMany')
+      case relationship_type(r)
+      when :has_many
         i = send(r.name).where(project_id: target_project_id)
         next unless i.count > 0
         s[r.name] = { total: i.count, name: }
-      else # TODO: HasOne check?!
+      when :has_one
         if send(r.name).present?
           s[r.name] = { total: 1, name: }
         end
@@ -326,8 +323,8 @@ module Shared::Unify
         result[:details][n][:unmerged] += 1
         result[:details][n][:errors] ||= []
         result[:details][n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
-      else
-        result[:details][n][:merged] += 1
+      else # We unified and destroyed the duplicate
+        result[:details][n][:deduplicated] += 1
       end
 
       # THere are no errors we can fix, ensure we have a fresh copy
@@ -345,6 +342,28 @@ module Shared::Unify
     end
 
     result
+  end
+
+  def relationship_type(relation)
+    if relation.class.name.match('HasMany')
+      return :has_many
+    elsif relation.class.name.match('HasOne')
+      return :has_one
+    end
+
+    # Should never hit here
+    raise
+  end
+
+  def stub_unify_result(result, relation_name, attempted)
+    result[:details].merge!(
+      relation_name => {
+        attempted:,
+        merged: 0,
+        unmerged: 0,
+        deduplicated: 0
+      }
+    )
   end
 
 end
