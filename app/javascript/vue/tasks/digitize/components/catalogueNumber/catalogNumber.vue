@@ -57,6 +57,7 @@
             type="text"
             v-model="store.identifier.identifier"
             @input="checkIdentifier"
+            @change="() => (store.identifier.isUnsaved = true)"
           />
           <label>
             <input
