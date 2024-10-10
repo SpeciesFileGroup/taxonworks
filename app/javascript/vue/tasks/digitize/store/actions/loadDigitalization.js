@@ -3,13 +3,15 @@ import { MutationNames } from '../mutations/mutations'
 import {
   COLLECTION_OBJECT,
   CONTAINER,
-  IDENTIFIER_LOCAL_RECORD_NUMBER
+  IDENTIFIER_LOCAL_RECORD_NUMBER,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER
 } from '@/constants/index.js'
 import { useIdentifierStore } from '../pinia/identifiers'
 
 export default ({ commit, dispatch, state }, coId) =>
   new Promise((resolve, reject) => {
     const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
+    const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
 
     state.settings.loading = true
     dispatch(ActionNames.GetCollectionObject, coId)
@@ -18,35 +20,25 @@ export default ({ commit, dispatch, state }, coId) =>
         const promises = []
 
         dispatch(ActionNames.LoadContainer, coObject.global_id)
-          .then((response) => {
+          .then(({ body }) => {
             promises.push(
-              dispatch(ActionNames.GetIdentifiers, {
-                id: response.body.id,
-                type: CONTAINER
-              }).then((response) => {
-                if (response.length) {
-                  commit(MutationNames.SetIdentifier, response[0])
-                  dispatch(ActionNames.GetNamespace, response[0].namespace_id)
-                }
+              catalogNumber.load({
+                objectId: body.id,
+                objectType: CONTAINER
               })
             )
             promises.push(
               recordNumber.load({
-                objectId: response.body.id,
+                objectId: body.id,
                 objectType: CONTAINER
               })
             )
           })
           .catch(() => {
             promises.push(
-              dispatch(ActionNames.GetIdentifiers, {
-                id: coId,
-                type: COLLECTION_OBJECT
-              }).then((response) => {
-                if (response.length) {
-                  commit(MutationNames.SetIdentifier, response[0])
-                  dispatch(ActionNames.GetNamespace, response[0].namespace_id)
-                }
+              catalogNumber.load({
+                objectId: coId,
+                objectType: COLLECTION_OBJECT
               })
             )
 

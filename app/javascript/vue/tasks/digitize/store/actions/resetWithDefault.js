@@ -1,11 +1,14 @@
 import ActionNames from './actionNames'
 import { useIdentifierStore } from '../pinia/identifiers'
-import { IDENTIFIER_LOCAL_RECORD_NUMBER } from '@/constants'
-import incrementIdentifier from '../../helpers/incrementIdentifier'
+import {
+  IDENTIFIER_LOCAL_RECORD_NUMBER,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER
+} from '@/constants'
 
 export default ({ dispatch, state }) => {
   const { locked } = state.settings
   const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
+  const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
 
   dispatch(ActionNames.NewCollectingEvent)
   dispatch(ActionNames.NewCollectionObject)
@@ -18,7 +21,6 @@ export default ({ dispatch, state }) => {
   state.containerItems = []
   state.depictions = []
   state.determinations = []
-  state.identifiers = []
   state.materialTypes = []
   state.typeSpecimens = []
   state.preparation_type_id = undefined
@@ -30,6 +32,11 @@ export default ({ dispatch, state }) => {
   recordNumber.reset({
     keepNamespace: locked.recordNumber,
     increment: state.settings.incrementRecordNumber
+  })
+
+  catalogNumber.reset({
+    keepNamespace: locked.identifier,
+    increment: state.settings.increment
   })
 
   state.biologicalAssociations = locked.biologicalAssociations
