@@ -21,7 +21,8 @@ import {
   SOURCE,
   SERIAL,
   TAXON_NAME,
-  TYPE_MATERIAL
+  TYPE_MATERIAL,
+  REPOSITORY
 } from '@/constants'
 
 export const TYPE_LINKS = {
@@ -93,6 +94,10 @@ export const TYPE_LINKS = {
     smartSelector: 'otus',
     target: OTU,
     radialObject: true
+  },
+  [REPOSITORY]: {
+    autocomplete: '/repositories/autocomplete',
+    smartSelector: 'repositories'
   },
   [SERIAL]: {
     autocomplete: '/serials/autocomplete',
