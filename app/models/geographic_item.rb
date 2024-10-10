@@ -328,7 +328,6 @@ class GeographicItem < ApplicationRecord
         # expressed as two sheets/near-hemispheres that meet at long=0=360.
         # (Using `-179.999999 ...` for the second sheet doesn't work, at least as
         # currently run.)
-        # TODO is 6 decimal places safe cross platform?
         anti_meridian_exterior = 'MULTIPOLYGON(
           ((0 -89.999999, 179.999999 -89.999999, 179.999999 89.999999, 0 89.999999, 0 -89.999999)),
           ((180.000001 -89.999999, 360 -89.999999, 360 89.999999, 180.000001 89.999999, 180.000001 -89.999999))

@@ -1,6 +1,5 @@
 <template>
   <VSpinner v-if="isLoading" />
-  <!-- TODO somehwere here display which of the required files have been added, whether they all have the same basename?-->
   <DocumentSelector
     v-model="selectedDocs"
     class="document_selector"
@@ -93,7 +92,7 @@ const citation = ref({})
 const jobs = ref(null)
 
 const processingDisabled = computed(() => {
-  return selectedDocs.value.length != 4 || !shapeNameField.value
+  return !getFileForExtension('.shp') || !shapeNameField.value
 })
 
 function processShapefile() {
@@ -109,9 +108,9 @@ function processShapefile() {
   const payload = {
     shapefile: {
       shp_doc_id: shp.id,
-      shx_doc_id: shx.id,
-      dbf_doc_id: dbf.id,
-      prj_doc_id: prj.id,
+      shx_doc_id: shx?.id,
+      dbf_doc_id: dbf?.id,
+      prj_doc_id: prj?.id,
       name_field: shapeNameField.value
     },
     citation_options: {
@@ -137,26 +136,29 @@ function getFileForExtension(extension) {
 }
 
 function validateShapefileFileset(fileset) {
-  // Check that all required files are there
-  let missingFiles = []
-  Object.keys(fileset).map((key) => {
-    if (!fileset[key]) {
-      missingFiles.push(key)
-    }
-  })
-  missingFiles = missingFiles.join(', ')
-
-  if (missingFiles) {
-    TW.workbench.alert.create('Missing files: ' + missingFiles, 'error')
+  if (!fileset['shp']) {
+    TW.workbench.alert.create(
+      'A .shp file is required', 'error'
+    )
     return false
   }
 
-  // Check that they all have the same basename
   const shpBasename = basename(fileset['shp'])
+  if (
+    selectedDocs.value.some((d) => {
+      return basename(d) != shpBasename
+    })
+  ) {
+    TW.workbench.alert.create(
+      'All selected documents must use the same name', 'error'
+    )
+    return false
+  }
+
   Object.keys(fileset).forEach((key) => {
-    if (basename(fileset[key]) != shpBasename) {
+    if (fileset[key] && basename(fileset[key]) != shpBasename) {
       TW.workbench.alert.create(
-        'All files must have the name ' + shpBasename, 'error'
+        `All shapefile files must have the name '${shpBasename}'`, 'error'
       )
       return false
     }
@@ -168,19 +170,23 @@ function validateShapefileFileset(fileset) {
 // Assumes Document file whose document_file_file_name has a three character
 // extension
 function basename(file) {
-  return file['document_file_file_name'].slice(0, -4)
+  return file ? file['document_file_file_name'].slice(0, -4) : undefined
 }
 
 function lookupShapefileFields() {
+  const shp = getFileForExtension('.shp')
   const dbf = getFileForExtension('.dbf')
-  if (!dbf) {
+  if (!shp && !dbf) {
     TW.workbench.alert.create(
-      'Select a dbf document first.', 'error'
+      'Select a .shp (or .dbf) document first.', 'error'
     )
     return
   }
 
-  const payload = { dbf_doc_id: dbf.id }
+  const payload = {
+    shp_doc_id: shp?.id,
+    dbf_doc_id: dbf?.id
+  }
   isLoading.value = true
   Gazetteer.shapefile_fields(payload)
     .then(({ body }) => {

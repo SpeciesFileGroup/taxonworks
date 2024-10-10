@@ -112,32 +112,36 @@ class GazetteersController < ApplicationController
 
   # POST /gazetteers/import.json
   def import
-    rv = validate_shape_file(shapefile_params)
-
-    if rv == true &&
-       citation_params[:cite_gzs] &&
-       !citation_params[:citation]&.dig(:source_id)
-      rv = 'Citation option checked but no source selected'
-    end
-
-    if rv != true
-      render json: {
-        errors: rv
-      },
-      status: :unprocessable_entity
+    begin
+      shapefile_docs = validate_shape_file(
+        shapefile_params, sessions_current_project_id
+      )
+    rescue TaxonWorks::Error => e
+      render json: { errors: e.message }, status: :unprocessable_entity
       return
     end
 
-    shp_doc = Document.find(shapefile_params[:shp_doc_id])
+    if citation_params[:cite_gzs] &&
+       !citation_params[:citation]&.dig(:source_id)
+      render json: { errors: 'Citation option checked but no source selected' },
+        status: :unprocessable_entity
+      return
+    end
+
+    new_params = shapefile_params
+    new_params[:shx_doc_id] = shapefile_docs[:shx].id
+    new_params[:dbf_doc_id] = shapefile_docs[:dbf].id
+    new_params[:prj_doc_id] = shapefile_docs[:prj].id
+
     progress_tracker = GazetteerImport.create!(
-      shapefile: shp_doc.document_file_file_name
+      shapefile: shapefile_docs[:shp].document_file_file_name
     )
     ImportGazetteersJob.perform_later(
-      shapefile_params, citation_params,
+      new_params, citation_params,
       sessions_current_user_id, sessions_current_project_id,
       progress_tracker
     )
-    #Gazetteer.import_from_shapefile(shapefile_params)
+
     head :no_content
   end
 
@@ -152,12 +156,12 @@ class GazetteersController < ApplicationController
   # GET /gazetteers/shapefile_fields.json
   def shapefile_fields
     begin
-      @shapefile_fields = fields_from_shapefile(params[:dbf_doc_id])
+      @shapefile_fields =
+        fields_from_shapefile(
+          params[:shp_doc_id], params[:dbf_doc_id], sessions_current_project_id
+        )
     rescue TaxonWorks::Error => e
-      render json: {
-        errors: e
-      },
-      status: :unprocessable_entity
+      render json: { errors: e }, status: :unprocessable_entity
       return
     end
   end

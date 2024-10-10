@@ -1,6 +1,6 @@
 <template>
   <fieldset class="document_select">
-    <legend>Select shapefile documents</legend>
+    <legend>Select a .shp document (.shx, .dbf, and .prj files must be uploaded but need not be specified here)</legend>
     <VSpinner v-if="isLoading" />
     <SmartSelector
       klass="Documents"
