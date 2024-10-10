@@ -29,6 +29,9 @@
             :keep="keepObject"
             :exclude-ids="[destroyObject?.id, keepObject?.id].filter(Boolean)"
             v-model="keepObject"
+            @close-annotator="
+              () => keepMetadataRef.loadMetadata(keepObject.global_id)
+            "
           />
           <KeepMetadata
             v-if="keepObject"
@@ -53,9 +56,13 @@
             :model="model"
             :exclude-ids="[destroyObject?.id, keepObject?.id].filter(Boolean)"
             v-model="destroyObject"
+            @close-annotator="
+              () => destroyMetadataRef.loadMetadata(destroyObject.global_id)
+            "
           />
           <MetadataCount
             v-if="destroyObject"
+            ref="destroyMetadataRef"
             checkboxes
             class="full_width"
             v-model:only="only"
@@ -71,6 +78,7 @@
         :remove-global-id="destroyObject?.global_id"
         :remove="destroyObject"
         :only="only"
+        :disabled="!enablePreview"
         @merge="handleMerge"
       />
       <PrewiewMerge
@@ -78,6 +86,7 @@
         :remove="destroyObject"
         :only="only"
         :on-merge="handleMerge"
+        :disabled="!enablePreview"
       />
       <VBtn
         color="primary"
@@ -102,7 +111,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watch, onMounted } from 'vue'
+import { computed, ref, nextTick, watch, onMounted } from 'vue'
 import { toPascalCase, toSnakeCase, URLParamsToJSON } from '@/helpers'
 import { RouteNames } from '@/routes/routes.js'
 import ButtonMerge from './components/ButtonMerge.vue'
@@ -125,6 +134,13 @@ const destroyRef = ref(null)
 const keepObject = ref(null)
 const keepRef = ref(null)
 const keepMetadataRef = ref(null)
+const destroyMetadataRef = ref(null)
+
+const enablePreview = computed(
+  () =>
+    Object.keys(destroyObject.value?.metadata || {}).length &&
+    Object.keys(destroyObject.value?.metadata || {}).length
+)
 
 watch(model, () => {
   destroyObject.value = null

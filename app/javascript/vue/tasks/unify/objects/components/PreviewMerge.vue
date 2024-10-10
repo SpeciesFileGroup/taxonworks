@@ -2,7 +2,7 @@
   <div>
     <VBtn
       color="primary"
-      :disabled="!keep?.global_id || !remove?.global_id"
+      :disabled="!keep?.global_id || !remove?.global_id || disabled"
       @click="openModal"
     >
       Preview
@@ -17,12 +17,6 @@
       </template>
       <template #body>
         <VSpinner v-if="isLoading" />
-        <PreviewMergeTable
-          v-if="keep?.metadata && remove?.metadata"
-          :keep-metadata="keep?.metadata"
-          :destroy-metadata="remove?.metadata"
-          :response="previewResponse"
-        />
         <TableResponse
           class="margin-medium-bottom"
           :response="previewResponse"
@@ -52,7 +46,6 @@ import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import TableResponse from './TableResponse.vue'
-import PreviewMergeTable from './PreviewMergeTable.vue'
 import ButtonMerge from './ButtonMerge.vue'
 
 const props = defineProps({
@@ -74,6 +67,11 @@ const props = defineProps({
   onMerge: {
     type: Function,
     required: true
+  },
+
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 

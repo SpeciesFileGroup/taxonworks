@@ -9,6 +9,7 @@
         <RadialAnnotator
           reload
           :global-id="selected.global_id"
+          @close="emit('close-annotator')"
         />
         <RadialObject
           v-if="TYPE_LINKS[model].radialObject"
@@ -84,6 +85,8 @@ const props = defineProps({
     default: () => []
   }
 })
+
+const emit = defineEmits(['close-annotator'])
 
 const selected = defineModel({
   type: [Object, null],
