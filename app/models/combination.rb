@@ -478,7 +478,7 @@ class Combination < TaxonName
   end
 
   def validate_absence_of_subject_relationships
-    if TaxonNameRelationship.where(subject_taxon_name_id: self.id).any?
+    if TaxonNameRelationship.where(subject_taxon_name_id: self.id).where("type NOT LIKE 'TaxonNameRelationship::CurrentCombination'").any?
       errors.add(:base, 'This combination could not be used as a Subject in any TaxonNameRelationships.')
     end
   end
