@@ -64,7 +64,7 @@
             v-if="destroyObject"
             ref="destroyMetadataRef"
             checkboxes
-            class="full_width"
+            :warning="destroyTotal > MAX_TOTAL"
             v-model:only="only"
             v-model="destroyObject"
           />
@@ -123,6 +123,8 @@ import KeepMetadata from './components/KeepMetadata.vue'
 import ModelSelector from './components/ModelSelector.vue'
 import PrewiewMerge from './components/PreviewMerge.vue'
 
+const MAX_TOTAL = 250
+
 defineOptions({
   name: 'UnifyObjects'
 })
@@ -136,16 +138,25 @@ const keepRef = ref(null)
 const keepMetadataRef = ref(null)
 const destroyMetadataRef = ref(null)
 
-const enablePreview = computed(
-  () =>
-    Object.keys(destroyObject.value?.metadata || {}).length &&
-    Object.keys(destroyObject.value?.metadata || {}).length
+const destroyTotal = computed(() =>
+  getMetadataTotal(destroyObject.value?.metadata)
 )
+const keepTotal = computed(() => getMetadataTotal(keepObject.value?.metadata))
+
+const enablePreview = computed(() => {
+  return (
+    keepTotal.value && destroyTotal.value && destroyTotal.value <= MAX_TOTAL
+  )
+})
 
 watch(model, () => {
   destroyObject.value = null
   keepObject.value = null
 })
+
+function getMetadataTotal(obj = {}) {
+  return Object.values(obj).reduce((acc, curr) => (acc += curr.total), 0)
+}
 
 function flip() {
   const tmp = destroyObject.value

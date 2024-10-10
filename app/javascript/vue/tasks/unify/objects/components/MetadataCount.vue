@@ -1,48 +1,56 @@
 <template>
-  <table class="table-striped">
-    <thead>
-      <tr>
-        <th
-          class="w-2"
-          v-if="checkboxes"
+  <div>
+    <table class="table-striped full_width">
+      <thead>
+        <tr>
+          <th
+            class="w-2"
+            v-if="checkboxes"
+          >
+            <input
+              type="checkbox"
+              v-model="selectAll"
+            />
+          </th>
+          <th>Related</th>
+          <th class="w-2">Total</th>
+          <th
+            v-if="mergeItem"
+            class="w-2"
+          >
+            Unify
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="({ name, total }, key) in item.metadata"
+          :key="key"
+          @click="() => checkboxes && toggleOnly(key)"
         >
-          <input
-            type="checkbox"
-            v-model="selectAll"
+          <td v-if="checkboxes">
+            <input
+              type="checkbox"
+              :value="key"
+              v-model="only"
+            />
+          </td>
+          <td>{{ name }}</td>
+          <td>{{ total }}</td>
+          <td
+            v-if="mergeItem"
+            v-html="getTotalWithMerge(total, key)"
           />
-        </th>
-        <th>Related</th>
-        <th class="w-2">Total</th>
-        <th
-          v-if="mergeItem"
-          class="w-2"
-        >
-          Unify
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="({ name, total }, key) in item.metadata"
-        :key="key"
-        @click="() => checkboxes && toggleOnly(key)"
-      >
-        <td v-if="checkboxes">
-          <input
-            type="checkbox"
-            :value="key"
-            v-model="only"
-          />
-        </td>
-        <td>{{ name }}</td>
-        <td>{{ total }}</td>
-        <td
-          v-if="mergeItem"
-          v-html="getTotalWithMerge(total, key)"
-        />
-      </tr>
-    </tbody>
-  </table>
+        </tr>
+      </tbody>
+    </table>
+    <div
+      v-if="warning"
+      class="feedback feedback-thin feedback-danger"
+    >
+      Unify not permitted, exceeds 250 cutoff
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -57,6 +65,11 @@ const props = defineProps({
   },
 
   checkboxes: {
+    type: Boolean,
+    default: false
+  },
+
+  warning: {
     type: Boolean,
     default: false
   }
