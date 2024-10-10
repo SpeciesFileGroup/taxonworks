@@ -39,7 +39,6 @@ import saveContainer from './saveContainer'
 import saveContainerItem from './saveContainerItem'
 import saveDeterminations from './saveDeterminations'
 import saveDigitalization from './saveDigitalization'
-import saveIdentifier from './saveIdentifier'
 import saveLabel from './saveLabel'
 import saveTypeMaterial from './saveTypeMaterial'
 import saveBiologicalAssociations from './saveBiologicalAssociations'
@@ -86,7 +85,6 @@ const ActionFunctions = {
   [ActionNames.SaveContainer]: saveContainer,
   [ActionNames.SaveDeterminations]: saveDeterminations,
   [ActionNames.SaveDigitalization]: saveDigitalization,
-  [ActionNames.SaveIdentifier]: saveIdentifier,
   [ActionNames.SaveLabel]: saveLabel,
   [ActionNames.SaveTypeMaterial]: saveTypeMaterial,
   [ActionNames.SaveBiologicalAssociations]: saveBiologicalAssociations,

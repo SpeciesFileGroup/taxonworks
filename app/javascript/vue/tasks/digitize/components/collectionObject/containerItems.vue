@@ -21,7 +21,10 @@
       class="horizontal-left-content middle gap-small margin-medium-bottom"
     >
       <span v-html="container.object_tag" />
-      <RadialAnnotator :global-id="container.global_id" />
+      <RadialAnnotator
+        :global-id="container.global_id"
+        reload
+      />
       <RadialNavigator :global-id="container.global_id" />
     </div>
 
