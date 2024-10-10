@@ -17,21 +17,29 @@
           <div class="horizontal-left-content align-start separate-bottom">
             <SmartSelector
               class="full_width"
-              ref="smartSelector"
+              ref="smartSelectorRef"
               model="namespaces"
               input-id="namespace-autocomplete"
               target="CollectionObject"
               klass="CollectionObject"
               pin-section="Namespaces"
               pin-type="Namespace"
+              :add-tabs="['new']"
               v-model="namespace"
               @selected="setNamespace"
+              @on-tab-selected="handleTabChange"
             />
             <lock-component
               class="margin-small-left"
               v-model="locked.identifier"
             />
-            <WidgetNamespace @create="setNamespace" />
+            <WidgetNamespace
+              ref="widgetNamespaceRef"
+              @create="setNamespace"
+              @close="() => smartSelectorRef.setTab('quick')"
+            >
+              <div />
+            </WidgetNamespace>
           </div>
           <template v-if="namespace">
             <hr />
@@ -116,8 +124,9 @@ const DELAY = 1000
 let saveRequest = undefined
 
 const coStore = useStore()
-const existingIdentifiers = ref([])
 const namespace = ref([])
+const widgetNamespaceRef = ref()
+const smartSelectorRef = ref()
 
 const coId = computed(
   () => coStore.getters[GetterNames.GetCollectionObject]?.id
@@ -168,6 +177,12 @@ watch(
   },
   { immediate: true }
 )
+
+function handleTabChange(tab) {
+  if (tab === 'new') {
+    widgetNamespaceRef.value.open()
+  }
+}
 
 function checkIdentifier() {
   clearTimeout(saveRequest)

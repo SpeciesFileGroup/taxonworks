@@ -18,27 +18,25 @@
           >
             <SmartSelector
               class="full_width"
-              ref="smartSelector"
+              ref="smartSelectorRef"
               model="namespaces"
               input-id="record-number-namespace-autocomplete"
               target="CollectionObject"
               klass="CollectionObject"
               pin-section="Namespaces"
               pin-type="Namespace"
+              :add-tabs="['new']"
               v-model="namespace"
               @selected="setNamespace"
+              @on-tab-selected="handleTabChange"
             />
             <VLock v-model="settings.locked.recordNumber" />
-            <WidgetNamespace @create="setNamespace">
-              <template #default="{ open }">
-                <VBtn
-                  color="primary"
-                  medium
-                  @click="open"
-                >
-                  New
-                </VBtn>
-              </template>
+            <WidgetNamespace
+              ref="widgetNamespaceRef"
+              @create="setNamespace"
+              @close="() => smartSelectorRef.setTab('quick')"
+            >
+              <div />
             </WidgetNamespace>
           </div>
           <template v-if="namespace">
@@ -117,7 +115,6 @@ import ValidateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import VLock from '@/components/ui/VLock/index.vue'
 import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
 
 const DELAY = 1000
 let saveRequest = undefined
@@ -125,6 +122,8 @@ let saveRequest = undefined
 const store = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
 const coStore = useStore()
 const namespace = ref(null)
+const smartSelectorRef = ref()
+const widgetNamespaceRef = ref()
 
 const coId = computed(
   () => coStore.getters[GetterNames.GetCollectionObject]?.id
@@ -173,6 +172,12 @@ function checkIdentifier() {
     saveRequest = setTimeout(store.checkExistingIdentifiers, DELAY)
   } else {
     store.existingIdentifiers = []
+  }
+}
+
+function handleTabChange(tab) {
+  if (tab === 'new') {
+    widgetNamespaceRef.value.open()
   }
 }
 
