@@ -7,8 +7,6 @@ import createDeterminationFromParams from './createDeterminationFromParams'
 import getCOCitations from './getCOCitations'
 import getCollectingEvent from './getCollectingEvent'
 import getCollectionObject from './getCollectionObject'
-import getIdentifier from './getIdentifier'
-import getIdentifiers from './getIdentifiers'
 import getLabels from './getLabels'
 import getNamespace from './getNamespace'
 import setTypeMaterial from './setTypeMaterial'
@@ -57,8 +55,6 @@ const ActionFunctions = {
   [ActionNames.CreateDeterminationFromParams]: createDeterminationFromParams,
   [ActionNames.GetCollectingEvent]: getCollectingEvent,
   [ActionNames.GetCollectionObject]: getCollectionObject,
-  [ActionNames.GetIdentifier]: getIdentifier,
-  [ActionNames.GetIdentifiers]: getIdentifiers,
   [ActionNames.GetLabels]: getLabels,
   [ActionNames.GetNamespace]: getNamespace,
   [ActionNames.GetTaxonDeterminations]: getTaxonDeterminations,
