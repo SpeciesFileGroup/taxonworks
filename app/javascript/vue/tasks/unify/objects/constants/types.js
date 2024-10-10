@@ -19,7 +19,7 @@ import {
   OBSERVATION_MATRIX,
   OTU,
   SOURCE,
-  TAXON_DETERMINATION,
+  SERIAL,
   TAXON_NAME,
   TYPE_MATERIAL
 } from '@/constants'
@@ -93,6 +93,10 @@ export const TYPE_LINKS = {
     smartSelector: 'otus',
     target: OTU,
     radialObject: true
+  },
+  [SERIAL]: {
+    autocomplete: '/serials/autocomplete',
+    smartSelector: 'serials'
   },
   [SOURCE]: {
     autocomplete: '/sources/autocomplete',
