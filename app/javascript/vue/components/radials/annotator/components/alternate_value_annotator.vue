@@ -190,9 +190,9 @@ function reset() {
   language.value = undefined
 }
 
-function setLanguage(language) {
-  alternateValue.value.language_id = language?.id
-  language.value = language
+function setLanguage(new_language) {
+  alternateValue.value.language_id = new_language?.id
+  language.value = new_language
 }
 
 function loadAlternateValue({
