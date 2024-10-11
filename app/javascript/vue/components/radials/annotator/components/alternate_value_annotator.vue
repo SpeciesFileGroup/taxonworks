@@ -210,9 +210,11 @@ function loadAlternateValue({
     language_id
   }
 
-  Language.find(language_id).then(({ body }) => {
-    language.value = body
-  })
+  if (language_id) {
+    Language.find(language_id).then(({ body }) => {
+      language.value = body
+    })
+  }
 }
 
 function removeItem(item) {
