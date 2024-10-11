@@ -143,6 +143,29 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         expect(new_gz.errors.first.type.message).to start_with('Invalid WKT')
       end
 
+      context 'normalizes longitude of single points' do
+        specify 'for geojson input' do
+          shapes = { geojson: [
+            '{"type":"Feature","properties":{"radius":null},"geometry":{"type":"Point","coordinates":["666","5"]}}'
+            ]
+          }
+          new_gz.build_gi_from_shapes(shapes)
+          new_gz.save!
+          expect(new_gz.geographic_item.geo_object).to eq(
+            Gis::FACTORY.point(-54, 5)
+          )
+        end
+
+        specify 'for wkt input' do
+          shapes = { wkt: ['POINT (-190 10)'] }
+          new_gz.build_gi_from_shapes(shapes)
+          new_gz.save!
+          expect(new_gz.geographic_item.geo_object).to eq(
+            Gis::FACTORY.point(170, 10)
+          )
+        end
+      end
+
       context "produces shapes that don't cross the anti-meridian" do
         specify 'wkt' do
           shapes = { wkt: [
@@ -187,10 +210,6 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
           ).to be false
         end
       end
-    end
-
-    context 'from shapefile' do
-
     end
   end
 end

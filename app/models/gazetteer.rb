@@ -123,6 +123,17 @@ class Gazetteer < ApplicationRecord
 
     user_input_shapes = leaflet_rgeo + wkt_rgeo + points_rgeo
 
+    # Special case: longitudes get normalized by our rgeo processing for all
+    # cases except for a single point, so we need to handle that case ourselves.
+    if user_input_shapes.count == 1 && (ga_rgeo.count + gz_rgeo.count == 0)
+      s = user_input_shapes.first
+      if s.geometry_type.to_s == 'Point' && (s.lon < -180.0 || s.lon > 180.0)
+        new_lon = s.lon % 360.0
+        new_lon = new_lon - 360.0 if new_lon > 180.0
+        user_input_shapes[0] = Gis::FACTORY.point(new_lon, s.y)
+      end
+    end
+
     # Invalid shapes won't raise until they're used in an operation requiring
     # valid shapes, like union below, but we should check here before that
     # happens. (Existing GAs and GZs are asummed valid!)
