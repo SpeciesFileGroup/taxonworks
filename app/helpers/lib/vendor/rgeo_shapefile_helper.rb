@@ -87,7 +87,7 @@ module Lib::Vendor::RgeoShapefileHelper
 
     for i in 0...dbf.record_count
       record = dbf.find(i)
-      if record[name_field].nil? || record[name_field] == ''
+      if Utilities::Rails::Strings.nil_squish_strip(record[name_field]).nil?
         raise TaxonWorks::Error, "Record #{i} has no name - names are required for all records"
       end
     end
