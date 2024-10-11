@@ -17,13 +17,6 @@
           <span v-else>New record</span>
         </div>
         <div class="horizontal-center-content middle gap-small">
-          <label class="middle">
-            <input
-              v-model="store.autosave"
-              type="checkbox"
-            />
-            Autosave
-          </label>
           <VBtn
             medium
             color="create"
@@ -61,7 +54,10 @@
       />
       <PanelCitation />
     </div>
-    <TableResults :list="store.biologicalAssociations" />
+    <TableResults
+      :list="store.biologicalAssociations"
+      @select="store.setBiologicalAssociation"
+    />
   </div>
 </template>
 

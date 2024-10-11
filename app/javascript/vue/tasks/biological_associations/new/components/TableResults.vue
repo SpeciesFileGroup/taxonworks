@@ -6,6 +6,7 @@
           <th>Subject</th>
           <th>Relationship</th>
           <th>Object</th>
+          <th>Citation</th>
           <th class="w-2" />
         </tr>
       </thead>
@@ -13,10 +14,12 @@
         <tr
           v-for="item in list"
           :key="item.id"
+          @click="() => emit('select', item)"
         >
           <td v-html="item.subject.object_tag" />
           <td v-html="item.relationship.object_tag" />
           <td v-html="item.object.object_tag" />
+          <td v-html="item.citation.object_label" />
           <td>
             <div>
               <VBtn
@@ -46,4 +49,6 @@ defineProps({
     default: () => []
   }
 })
+
+const emit = defineEmits(['select'])
 </script>

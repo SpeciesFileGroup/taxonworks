@@ -28,7 +28,8 @@ function makeBiologicalAssociationItem(item) {
     relationship: {
       id: item.biological_relationship_id,
       object_tag: item.biological_relationship.object_tag
-    }
+    },
+    citation: item.citations?.[0] || makeCitation()
   }
 }
 
@@ -72,8 +73,7 @@ export const useStore = defineStore('NewBiologicalAssociation', {
     object: null,
     subject: null,
     relationship: null,
-    isLoading: false,
-    autosave: true
+    isLoading: false
   }),
 
   getters: {
@@ -88,6 +88,14 @@ export const useStore = defineStore('NewBiologicalAssociation', {
   },
 
   actions: {
+    setBiologicalAssociation(ad) {
+      this.biologicalAssociation = makeBiologicalAssociation(ad)
+      this.object = ad.object
+      this.subject = ad.subject
+      this.relationship = ad.relationship
+      this.citation = ad.citation
+    },
+
     async loadRecentBiologicalAssociations() {
       BiologicalAssociation.where({
         recent: true,
