@@ -1,76 +1,78 @@
 <template>
-  <div class="alternate_values_annotator">
-    <VSwitch
-      :options="Object.values(TYPE_LIST)"
-      use-index
-      v-model="alternateType"
-    />
-    <ul class="no_bullets content">
-      <li
-        v-for="(item, key) in values"
-        :key="item"
+  <div>
+    <div class="alternate_values_annotator">
+      <VSwitch
+        :options="Object.values(TYPE_LIST)"
+        use-index
+        v-model="alternateType"
+      />
+      <ul class="no_bullets content">
+        <li
+          v-for="(item, key) in values"
+          :key="item"
+        >
+          <label>
+            <input
+              type="radio"
+              v-model="alternateValue.alternate_value_object_attribute"
+              :value="key"
+            />
+            "{{ key }}" -> {{ item }}
+          </label>
+        </li>
+      </ul>
+
+      <fieldset v-if="alternateValue.type === ALTERNATE_VALUE_TRANSLATION">
+        <legend>Language</legend>
+        <SmartSelector
+          v-model="language"
+          model="languages"
+          klass="AlternateValue"
+          label="english_name"
+          @selected="setLanguage"
+        />
+        <SmartSelectorItem
+          :item="language"
+          label="english_name"
+          @unset="setLanguage"
+        />
+      </fieldset>
+
+      <div class="field margin-medium-top">
+        <input
+          class="normal-input full_width"
+          type="text"
+          v-model="alternateValue.value"
+          placeholder="Value"
+        />
+      </div>
+
+      <VBtn
+        class="margin-small-right"
+        color="create"
+        medium
+        :disabled="!validateFields"
+        @click="saveAlternateValue"
       >
-        <label>
-          <input
-            type="radio"
-            v-model="alternateValue.alternate_value_object_attribute"
-            :value="key"
-          />
-          "{{ key }}" -> {{ item }}
-        </label>
-      </li>
-    </ul>
-
-    <fieldset v-if="alternateValue.type === ALTERNATE_VALUE_TRANSLATION">
-      <legend>Language</legend>
-      <SmartSelector
-        v-model="language"
-        model="languages"
-        klass="AlternateValue"
-        label="english_name"
-        @selected="setLanguage"
-      />
-      <SmartSelectorItem
-        :item="language"
-        label="english_name"
-        @unset="setLanguage"
-      />
-    </fieldset>
-
-    <div class="field margin-medium-top">
-      <input
-        class="normal-input full_width"
-        type="text"
-        v-model="alternateValue.value"
-        placeholder="Value"
-      />
+        Save
+      </VBtn>
+      <VBtn
+        color="primary"
+        medium
+        @click="reset"
+      >
+        New
+      </VBtn>
     </div>
 
-    <VBtn
-      class="margin-small-right"
-      color="create"
-      medium
-      :disabled="!validateFields"
-      @click="saveAlternateValue"
-    >
-      Save
-    </VBtn>
-    <VBtn
-      color="primary"
-      medium
-      @click="reset"
-    >
-      New
-    </VBtn>
+    <DisplayList
+      label="object_tag"
+      :list="list"
+      edit
+      @edit="loadAlternateValue"
+      @delete="removeItem"
+    />
   </div>
-
-  <DisplayList
-    label="object_tag"
-    :list="list"
-    edit
-    @edit="loadAlternateValue"
-    @delete="removeItem"
-  />
 </template>
 
 <script setup>
