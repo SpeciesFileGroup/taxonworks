@@ -81,7 +81,6 @@ class GazetteersController < ApplicationController
   # DELETE /gazetteers/1
   # DELETE /gazetteers/1.json
   def destroy
-    # TODO Handle children/parents (if used)
     @gazetteer.destroy!
 
     respond_to do |format|

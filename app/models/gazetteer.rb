@@ -11,10 +11,6 @@ require 'fileutils'
 #   @return [String]
 #   The name of the gazetteer
 #
-# @!attribute parent_id
-#   @return [Integer]
-#   ???
-#
 # @!attribute iso_3166_a2
 #   @return [String]
 #   Two alpha-character identification of country.
@@ -36,8 +32,6 @@ class Gazetteer < ApplicationRecord
   include Shared::IsData
 
   ALTERNATE_VALUES_FOR = [:name].freeze
-
-  has_closure_tree
 
   delegate :geo_object, to: :geographic_item
 

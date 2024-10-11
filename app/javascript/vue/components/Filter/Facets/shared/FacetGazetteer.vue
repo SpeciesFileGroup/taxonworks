@@ -54,7 +54,6 @@ import { ref, watch, onBeforeMount } from 'vue'
 // Currently unused since Spatial is the only one that applies to gazetteer
 //const GAZETTEER_OPTIONS = {
 // Spatial: true,
-// TODO descendant?
 // Exact: undefined // exact id match, unused since no model belongs_to a GZ
 //}
 

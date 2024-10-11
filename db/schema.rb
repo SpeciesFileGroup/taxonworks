@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_23_214129) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_11_180040) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -952,14 +952,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_23_214129) do
     t.index ["project_id"], name: "index_field_occurrences_on_project_id"
     t.index ["ranged_lot_category_id"], name: "index_field_occurrences_on_ranged_lot_category_id"
     t.index ["updated_by_id"], name: "index_field_occurrences_on_updated_by_id"
-  end
-
-  create_table "gazetteer_hierarchies", id: false, force: :cascade do |t|
-    t.integer "ancestor_id", null: false
-    t.integer "descendant_id", null: false
-    t.integer "generations", null: false
-    t.index ["ancestor_id", "descendant_id", "generations"], name: "gazetteer_anc_desc_idx", unique: true
-    t.index ["descendant_id"], name: "gazetteer_desc_idx"
   end
 
   create_table "gazetteer_imports", force: :cascade do |t|
