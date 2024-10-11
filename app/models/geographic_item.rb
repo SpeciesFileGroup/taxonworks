@@ -304,14 +304,13 @@ class GeographicItem < ApplicationRecord
         )
       end
 
-      # True for those shapes that are within `distance` of (i.e. intersect the
-      # `distance`-buffer of) shape. This is a geography dwithin, distance is in
-      # meters.
+      # True if the distance from shape1 to shape2 is less than `distance`. This
+      # is a geography dwithin, distance is in meters.
       def st_dwithin_sql(shape1, shape2, distance)
         Arel::Nodes::NamedFunction.new(
           'ST_DWithin', [
-            shape1,
-            shape2,
+            self.geography_cast(shape1),
+            self.geography_cast(shape2),
             Arel::Nodes::Quoted.new(distance)
           ]
         )
@@ -449,8 +448,8 @@ class GeographicItem < ApplicationRecord
       # TODO: 3D is overkill here
       # @param [String] wkt
       # @param [Integer] distance (meters)
-      # @return [NamedFunction] Shapes within distance of (i.e. whose
-      #   distance-buffer intersects) wkt
+      # @return [NamedFunction] Shapes whose distance to wkt is less than
+      #   `distance`
       def intersecting_radius_of_wkt_sql(wkt, distance)
         wkt = quote_string(wkt)
         st_dwithin_sql(
@@ -462,8 +461,8 @@ class GeographicItem < ApplicationRecord
 
       # @param [String] wkt
       # @param [Integer] distance (meters)
-      # @return [NamedFunction] Those items within the distance-buffer of wkt
-      # TODO make me understand how this is different than the previous fcn
+      # @return [NamedFunction] Those items covered by the `distance`-buffer of
+      #   wkt
       def within_radius_of_wkt_sql(wkt, distance)
         wkt = quote_string(wkt)
         subset_of_sql(
@@ -475,9 +474,8 @@ class GeographicItem < ApplicationRecord
       end
 
       # @param [Integer, Array of Integer] geographic_item_ids
-      # @return [String]
-      #    returns one or more geographic items combined as a single geometry
-      #    in a column 'single_geometry'
+      # @return [String] returns one or more geographic items combined as a
+      #   single geometry in a column 'single_geometry'
       def single_geometry_sql(*geographic_item_ids)
         geographic_item_ids.flatten!
 
@@ -732,19 +730,17 @@ class GeographicItem < ApplicationRecord
         end
       end
 
-      # @param [RGeo::Point] center in lat/long
+      # @param [RGeo::Point] center in lon/lat
       # @param [Integer] radius of the circle, in meters
       # @param [Integer] buffer_resolution: the number of sides of the polygon
       #                  approximation per quarter circle
       # @return [RGeo::Polygon] A polygon approximation of the desired circle, in
       #                         geographic coordinates
       def circle(center, radius, buffer_resolution: 8)
-        # TODO check params
-
         circle_wkb = select_one(
           st_buffer_sql(
             st_geography_from_text_sql(
-              "POINT (#{center.x} #{center.y})",
+              "POINT (#{center.lon} #{center.lat})",
             ),
             radius,
             num_seg_quarter_circle: buffer_resolution
@@ -1193,17 +1189,14 @@ class GeographicItem < ApplicationRecord
     # @return [Boolean]
     # true iff point.x is between -180.0 and +180.0
     def check_point_limits
-      # TODO If you don't draw shapes on the "middle map" in leaflet then it
-      # sends you coordinates outside the desired range, and
-      # RGeo::GeoJSON.decode doesn't fix that for points - though it does for
-      # polygons(!) - so this causes an exception in that case.
       if geo_object_type == :point
-        errors.add(:point_limit, "Longitude #{geography.x} exceeds limits: 180.0 to -180.0.") if
-          geography.x > 180.0 || geography.x < -180.0
+        errors.add(
+         :point_limit,
+         "Longitude #{geography.x} exceeds limits: 180.0 to -180.0."
+        ) if geography.x > 180.0 || geography.x < -180.0
       end
     end
 
-    # TODO what is sql?
     def self.geography_cast(sql)
       # Arel::Nodes::NamedFunction.new('CAST', [sql.as('geography')])
       Arel.sql(
@@ -1211,7 +1204,6 @@ class GeographicItem < ApplicationRecord
       )
     end
 
-    # TODO what is sql?
     def self.geometry_cast(sql)
       # specs fail using:
       # Arel::Nodes::NamedFunction.new('CAST', [sql.as('geometry')])

@@ -119,9 +119,8 @@ const saveDisabled = computed(() => {
   }
 
   // We're not allowing save of a single GA or GZ (i.e. cloning) - use alternate
-  // names for that
-  // TODO: provide an info triangle in this case? Also can you use alternate name
-  // on a GA?
+  // names for that (though this restriction is easily circumvented by, e.g.,
+  // selecting a ga/gz and then adding a point that's contained by it)
   let gaCount = 0
   let gzCount = 0
 
@@ -312,6 +311,9 @@ usePopstateListener(() => {
 function addToShapes(shape, type) {
   switch(type) {
     case GZ_LEAFLET:
+    case GZ_POINT:
+    case GZ_UNION_GA:
+    case GZ_UNION_GZ:
       shapes.value.push({
         uuid: randomUUID(),
         type,
@@ -325,26 +327,6 @@ function addToShapes(shape, type) {
         shape: shape.wkt
       })
       break
-    case GZ_POINT:
-      shapes.value.push({
-        uuid: randomUUID(),
-        type,
-        shape
-      })
-      break
-    case GZ_UNION_GA:
-      shapes.value.push({
-        uuid: randomUUID(),
-        type,
-        shape
-      })
-      break
-    case GZ_UNION_GZ:
-      shapes.value.push({
-        uuid: randomUUID(),
-        type,
-        shape
-      })
   }
   shapesUpdated()
 }

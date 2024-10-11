@@ -15,6 +15,7 @@ class GazetteersController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json do
+        return
         # no filter on GZs yet
       end
     end
@@ -86,7 +87,6 @@ class GazetteersController < ApplicationController
     respond_to do |format|
       format.html {
         redirect_to gazetteers_url,
-          # TODO this doesn't work
           notice: 'Gazetteer was successfully destroyed.'
       }
       format.json { head :no_content }

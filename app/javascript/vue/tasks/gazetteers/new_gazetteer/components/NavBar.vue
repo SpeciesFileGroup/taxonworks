@@ -22,13 +22,6 @@
       </div>
       <ul class="context-menu no_bullets">
         <li class="horizontal-right-content">
-          <!-- TODO? -->
-          <span
-            v-if="false"
-            class="medium-icon margin-small-right"
-            title="You have unsaved changes."
-            data-icon="warning"
-          />
           <VBtn
             :disabled="saveDisabled"
             @click="emit('saveGz')"

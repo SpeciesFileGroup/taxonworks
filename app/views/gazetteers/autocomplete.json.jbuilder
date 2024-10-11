@@ -4,7 +4,6 @@ json.array! @gazetteers do |g|
   json.label label_for_gazetteer(g)
   json.label_html gazetteer_autocomplete_tag(g)
 
-  # TODO what's this?
   json.response_values do
     if params[:method]
       json.set! params[:method], g.id
