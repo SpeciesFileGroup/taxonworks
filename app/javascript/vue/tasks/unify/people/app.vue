@@ -1,7 +1,7 @@
 <template>
-  <div id="vue-people-uniquify">
+  <div id="vue-people-unify">
     <div class="flex-separate middle">
-      <h1>Uniquify people</h1>
+      <h1>Unify people</h1>
       <SettingsNavbar @reset="resetApp" />
     </div>
 
@@ -61,7 +61,7 @@ import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 
 export default {
-  name: 'UniquifyPeople',
+  name: 'UnifyPeople',
 
   components: {
     CompareTable,
@@ -143,7 +143,7 @@ export default {
 </script>
 
 <style lang="scss">
-#vue-people-uniquify {
+#vue-people-unify {
   .merge-column {
     width: 150px;
   }

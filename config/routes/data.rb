@@ -10,6 +10,7 @@ concern :data_routes do |options|
     get 'batch_load'
     get 'autocomplete'
     get 'search' # TODO: deprecate/remove
+
   end
 
   member do
@@ -72,6 +73,9 @@ resources :character_states do
   concerns [:data_routes]
   member do
     get :annotations, defaults: {format: :json}
+  end
+  collection do
+    get :autocomplete, defaults: {format: :json}
   end
 end
 

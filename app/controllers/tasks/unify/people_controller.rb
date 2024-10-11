@@ -1,4 +1,4 @@
-class Tasks::Uniquify::PeopleController < ApplicationController
+class Tasks::Unify::PeopleController < ApplicationController
   include TaskControllerConfiguration
 
   # GET

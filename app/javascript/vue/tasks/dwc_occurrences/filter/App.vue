@@ -8,6 +8,7 @@
       :object-type="DWC_OCCURRENCE"
       :selected-ids="selectedIds"
       :list="list"
+      :button-unify="false"
       :radial-mass-annotator="false"
       :radial-navigator="false"
       v-model="parameters"

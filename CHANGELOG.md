@@ -7,7 +7,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Unify objects task [#970]
+- Attribution to ObservationMatrix
+
+### Changed
+
+- Local identifier display in CollectionObject tag now prefers position to break tie with RecordNumber and CatalogNumber [#4074]
+
+### Fixed
+
+- New dichotomous key: Radial annotator is not loading the correct data [#4076]
+
+[#970]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
+[#4074]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
+[#4076]: https://github.com/SpeciesFileGroup/taxonworks/issues/4076
 
 ## [0.44.3] - 2024-10-03
 

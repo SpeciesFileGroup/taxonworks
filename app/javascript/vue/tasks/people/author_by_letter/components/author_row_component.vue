@@ -10,7 +10,7 @@
       <button
         v-if="author.roles[0]"
         class="button normal-input button-default"
-        @click="showSources"
+        @click="() => emit('sources')"
       >
         Sources
       </button>
@@ -19,18 +19,18 @@
     <td>
       <a
         target="blank"
-        :href="`/tasks/uniquify_people/index?last_name=${author.last_name}`"
+        :href="`${RouteNames.UnifyPeople}?last_name=${author.last_name}`"
       >
-        Uniquify
+        Unify
       </a>
     </td>
     <td class="horizontal-left-content">
-      <radial-annotator
+      <RadialAnnotator
         type="annotations"
         :global-id="author.global_id"
       />
       <radial-object :global-id="author.global_id" />
-      <pin
+      <VPin
         v-if="author.id"
         :object-id="author.id"
         :pluralize="false"
@@ -40,38 +40,22 @@
   </tr>
 </template>
 
-<script>
+<script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import Pin from '@/components/ui/Button/ButtonPin.vue'
+import VPin from '@/components/ui/Button/ButtonPin.vue'
 import RadialObject from '@/components/radials/navigation/radial'
+import { RouteNames } from '@/routes/routes'
 
-export default {
-  components: {
-    RadialObject,
-    RadialAnnotator,
-    Pin
-  },
-
-  props: {
-    author: {
-      type: Object,
-      required: true
-    }
-  },
-
-  emits: ['sources'],
-
-  methods: {
-    showSources(id) {
-      this.$emit('sources', id)
-    },
-
-    showAuthor() {
-      window.open('/people/' + this.author.id, '_blank')
-    }
+defineProps({
+  author: {
+    type: Object,
+    required: true
   }
-}
+})
+
+const emit = defineEmits(['sources'])
 </script>
+
 <style scoped>
 .author-column {
   min-width: 200px;

@@ -633,12 +633,12 @@ scope :tasks do
 
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
-      get '', action: :index, as: 'interactive_key_task'
+      get '/', action: :index, as: 'interactive_key_task'
     end
 
     scope :image_matrix, controller: 'tasks/observation_matrices/image_matrix' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
-      get '', action: :index, as: 'image_matrix_task'
+      get '/', action: :index, as: 'image_matrix_task'
     end
   end
 
@@ -686,9 +686,14 @@ scope :tasks do
     end
   end
 
-  # TODO: nest in peopl
-  scope :uniquify_people, controller: 'tasks/uniquify/people' do
-    get 'index', as: 'uniquify_people_task'
+  scope :unify do
+    scope :objects, controller: 'tasks/unify/objects' do
+      get '/', action: :index, as: 'unify_objects_task'
+    end
+
+    scope :people, controller: 'tasks/unify/people' do
+      get '/', action: :index, as: 'unify_people_task'
+    end
   end
 
   scope :serials, controller: 'tasks/serials/similar' do

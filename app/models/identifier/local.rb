@@ -28,6 +28,13 @@ class Identifier::Local < Identifier
 
   validates_uniqueness_of :identifier, scope: [:namespace_id, :project_id, :type], message: lambda { |error, attributes| "#{attributes[:value]} already taken"}
 
+  # @return boolean
+  #   We don't have to inspect the namespace because it's appended to cached
+  #   This cuts down a query in many places
+  def is_virtual?
+    identifier.present? && identifier == cached
+  end
+
   # Exact match on identifier + namespace
   # @param [String, String]
   # @return [Scope]

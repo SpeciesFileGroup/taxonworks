@@ -3,7 +3,7 @@ import setFoundPeople from './setFoundPeople.js'
 import setMatchPeople from './setMatchPeople.js'
 import setMergePeople from './setMergePeople.js'
 import setSelectedPerson from './setSelectedPerson.js'
-import setSettings from './setSettings'
+import setSettings from './setSettings.js'
 
 const MutationNames = {
   AddPersonToFoundList: 'addPersonToFoundList',
@@ -23,7 +23,4 @@ const MutationFunctions = {
   [MutationNames.SetSettings]: setSettings
 }
 
-export {
-  MutationFunctions,
-  MutationNames
-}
+export { MutationFunctions, MutationNames }

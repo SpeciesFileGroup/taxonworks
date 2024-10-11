@@ -74,7 +74,7 @@ class Image < ApplicationRecord
     medium: { width: 300, height: 300 }
   }.freeze
 
-  has_one :sled_image, dependent: :destroy
+  has_one :sled_image, dependent: :destroy, inverse_of: :image
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 

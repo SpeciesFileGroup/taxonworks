@@ -1,6 +1,7 @@
 import {
   ASSERTED_DISTRIBUTION,
   BIOLOGICAL_ASSOCIATION,
+  CHARACTER_STATE,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
   CONTENT,
@@ -19,6 +20,7 @@ import {
 export const ID_PARAM_FOR = {
   [ASSERTED_DISTRIBUTION]: 'asserted_distribution_id',
   [BIOLOGICAL_ASSOCIATION]: 'biological_association_id',
+  [CHARACTER_STATE]: 'character_state_id',
   [COLLECTING_EVENT]: 'collecting_event_id',
   [COLLECTION_OBJECT]: 'collection_object_id',
   [CONTENT]: 'content_id',
