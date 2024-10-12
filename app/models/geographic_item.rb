@@ -736,7 +736,7 @@ class GeographicItem < ApplicationRecord
     #                  approximation per quarter circle
     # @return [RGeo::Polygon] A polygon approximation of the desired circle, in
     #                         geographic coordinates
-    def circle(center, radius, buffer_resolution: 8)
+    def circle(center, radius, buffer_resolution = 8)
       circle_wkb = select_one(
         st_buffer_sql(
           st_geography_from_text_sql(

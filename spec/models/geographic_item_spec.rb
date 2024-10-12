@@ -351,6 +351,24 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         ).to be_within(0.01).of(20 * Utilities::Geo::ONE_WEST)
       end
     end
+
+    context '#st_is_valid' do
+      specify 'valid polygon is valid' do
+        expect(simple_polygon.st_is_valid).to be_truthy
+      end
+
+      # TODO I don't think it's actually possible to save an invalid geometry
+      # without validation failing, i.e. I think st_is_valid can only ever
+      # return true.
+      specify 'invalid line is invalid' do
+        invalid_line = 'LINESTRING (0 0)'
+        geographic_item.geography = invalid_line
+
+        # Uhhhh...
+        expect{ geographic_item.valid? }
+          .to raise_error(RGeo::Error::InvalidGeometry)
+      end
+    end
   end
 
   context 'class methods' do
@@ -767,21 +785,28 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       end
     end
 
-    context '#st_is_valid' do
-      specify 'valid polygon is valid' do
-        expect(simple_polygon.st_is_valid).to be_truthy
+    context '#circle' do
+      let(:origin) { Gis::FACTORY.point(0, 0) }
+      specify 'buffer resolution determines # of sides of polygon' do
+        expect(
+          GeographicItem.circle(origin, 10, 3).exterior_ring.points.count
+        ).to eq(13)
+
+        expect(
+          GeographicItem.circle(origin, 10, 10).exterior_ring.points.count
+        ).to eq(41)
       end
 
-      # TODO I don't think it's actually possible to save an invalid geometry
-      # without validation failing, i.e. I think st_is_valid can only ever
-      # return true.
-      specify 'invalid line is invalid' do
-        invalid_line = 'LINESTRING (0 0)'
-        geographic_item.geography = invalid_line
+      specify 'has approximate expected shape' do
+        c = GeographicItem.circle(origin, 10)
+        # Rough estimates
+        # (buffer is 2d so all z-coordinates are NaN, but that seems to be okay
+        # for our purposes)
+        smaller_circle = origin.buffer(9.5 / Utilities::Geo::ONE_WEST_MEAN)
+        larger_circle = origin.buffer(10.5 / Utilities::Geo::ONE_WEST_MEAN)
 
-        # Uhhhh...
-        expect{ geographic_item.valid? }
-          .to raise_error(RGeo::Error::InvalidGeometry)
+        expect(c.contains?(smaller_circle)).to be true
+        expect(larger_circle.contains?(c)).to be true
       end
     end
   end
