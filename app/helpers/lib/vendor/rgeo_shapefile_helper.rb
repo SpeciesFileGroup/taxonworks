@@ -64,11 +64,12 @@ module Lib::Vendor::RgeoShapefileHelper
       raise TaxonWorks::Error, "Failed to parse the prj file: #{e}"
     end
 
+    wgs84_names = ['EPSG:4326', 'WGS 84', 'GCS_WGS_1984']
     if cs.class.to_s != 'RGeo::CoordSys::CS::GeographicCoordinateSystem' ||
-      (cs.name.present? && cs.name != 'GCS_WGS_1984') ||
+      (cs.name.present? && !wgs84_names.include?(cs.name)) ||
       (cs.authority_code.present? && cs.authority_code != '4326')
 
-      raise TaxonWorks::Error, "The reference system of the shapefile is '#{cs.name}', but only GCS_WGS_1984 is supported"
+      raise TaxonWorks::Error, "The reference system of the shapefile is '#{cs.name}', but only WGS 84 (EPSG:4326) is supported"
     end
 
     # Check that each record has a name.
