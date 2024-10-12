@@ -147,7 +147,13 @@ class GazetteersController < ApplicationController
   # POST to support long WKT strings
   # POST /gazetteers/preview.json
   def preview
-    s = Gazetteer.combine_shapes_to_rgeo(shape_params['shapes'])
+    begin
+      s = Gazetteer.combine_shapes_to_rgeo(shape_params['shapes'])
+    rescue TaxonWorks::Error => e
+      render json: { base: [e.message] }, status: :unprocessable_entity
+      return
+    end
+
     f = RGeo::GeoJSON::Feature.new(s)
     @shape = RGeo::GeoJSON.encode(f)
   end

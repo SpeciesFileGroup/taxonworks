@@ -248,7 +248,7 @@ function previewGz() {
         uuid: randomUUID()
       }
     })
-    .catch(() => {})
+    .catch(() => { previewing.value = false })
     .finally(() => { isLoading.value = false})
 }
 

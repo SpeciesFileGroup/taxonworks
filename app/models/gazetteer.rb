@@ -80,17 +80,8 @@ class Gazetteer < ApplicationRecord
   def build_gi_from_shapes(shapes)
     begin
       rgeo_shape = self.class.combine_shapes_to_rgeo(shapes)
-    # TODO make sure these errors work
-    # This is more specific than RGeo::Error::RgeoError
-    rescue RGeo::Error::InvalidGeometry => e
-      errors.add(:base, e)
-    rescue RGeo::Error::RGeoError => e
-      errors.add(:base, e)
     rescue TaxonWorks::Error => e
       errors.add(:base, e)
-    end
-
-    if errors.include?(:base) || rgeo_shape.nil?
       return
     end
 
@@ -101,46 +92,53 @@ class Gazetteer < ApplicationRecord
 
   # @param [Hash] hash as in build_gi_from_shapes
   # @return A single rgeo shape containing all of the input shapes
-  # Raises on error
+  # Raises TaxonWorks::Error on error
   def self.combine_shapes_to_rgeo(shapes)
-    if shapes[:geojson].blank? && shapes[:wkt].blank? &&
-        shapes[:points].blank? && shapes[:ga_union].blank? &&
-        shapes[:gz_union].blank?
-      raise TaxonWorks::Error, 'No shapes provided'
-    end
-
-    leaflet_rgeo = convert_geojson_to_rgeo(shapes[:geojson])
-    wkt_rgeo = convert_wkt_to_rgeo(shapes[:wkt])
-    points_rgeo = convert_geojson_to_rgeo(shapes[:points])
-    ga_rgeo = convert_ga_to_rgeo(shapes[:ga_union])
-    gz_rgeo = convert_gz_to_rgeo(shapes[:gz_union])
-
-    user_input_shapes = leaflet_rgeo + wkt_rgeo + points_rgeo
-
-    # Special case: longitudes get normalized by our rgeo processing for all
-    # cases except for a single point, so we need to handle that case ourselves.
-    if user_input_shapes.count == 1 && (ga_rgeo.count + gz_rgeo.count == 0)
-      s = user_input_shapes.first
-      if s.geometry_type.to_s == 'Point' && (s.lon < -180.0 || s.lon > 180.0)
-        new_lon = s.lon % 360.0
-        new_lon = new_lon - 360.0 if new_lon > 180.0
-        user_input_shapes[0] = Gis::FACTORY.point(new_lon, s.y)
+    begin
+      if shapes[:geojson].blank? && shapes[:wkt].blank? &&
+          shapes[:points].blank? && shapes[:ga_union].blank? &&
+          shapes[:gz_union].blank?
+        raise TaxonWorks::Error, 'No shapes provided'
       end
-    end
 
-    # Invalid shapes won't raise until they're used in an operation requiring
-    # valid shapes, like union below, but we should check here before that
-    # happens. (Existing GAs and GZs are asummed valid!)
-    user_input_shapes.each { |s|
-      if !s.valid?
-        s_str = s.to_s
-        shape_to_s = s_str.length > 30 ? "'#{s_str[0, 30]}'..." : "'#{s_str}'"
-        raise RGeo::Error::InvalidGeometry, "#{s.invalid_reason} #{shape_to_s}"
+      leaflet_rgeo = convert_geojson_to_rgeo(shapes[:geojson])
+      wkt_rgeo = convert_wkt_to_rgeo(shapes[:wkt])
+      points_rgeo = convert_geojson_to_rgeo(shapes[:points])
+      ga_rgeo = convert_ga_to_rgeo(shapes[:ga_union])
+      gz_rgeo = convert_gz_to_rgeo(shapes[:gz_union])
+
+      user_input_shapes = leaflet_rgeo + wkt_rgeo + points_rgeo
+
+      # Special case: longitudes get normalized by our rgeo processing for all
+      # cases except for a single point, so we need to handle that case ourselves.
+      if user_input_shapes.count == 1 && (ga_rgeo.count + gz_rgeo.count == 0)
+        s = user_input_shapes.first
+        if s.geometry_type.to_s == 'Point' && (s.lon < -180.0 || s.lon > 180.0)
+          new_lon = s.lon % 360.0
+          new_lon = new_lon - 360.0 if new_lon > 180.0
+          user_input_shapes[0] = Gis::FACTORY.point(new_lon, s.lat)
+        end
       end
-    }
 
-    shapes = user_input_shapes + ga_rgeo + gz_rgeo
-    combine_rgeo_shapes(shapes)
+      # Invalid shapes won't raise until they're used in an operation requiring
+      # valid shapes, like union below, but we should check here before that
+      # happens. (Existing GAs and GZs are asummed valid!)
+      user_input_shapes.each { |s|
+        if !s.valid?
+          s_str = s.to_s
+          shape_to_s = s_str.length > 30 ? "'#{s_str[0, 30]}'..." : "'#{s_str}'"
+          raise RGeo::Error::InvalidGeometry, "#{s.invalid_reason} #{shape_to_s}"
+        end
+      }
+
+      return combine_rgeo_shapes(user_input_shapes + ga_rgeo + gz_rgeo)
+
+    # This is more specific than RGeo::Error::RgeoError
+    rescue RGeo::Error::InvalidGeometry => e
+      raise TaxonWorks::Error, e
+    rescue RGeo::Error::RGeoError => e
+      raise TaxonWorks::Error, e
+    end
   end
 
   # @return [Array] of RGeo::Geographic::Projected*Impl
