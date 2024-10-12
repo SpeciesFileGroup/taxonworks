@@ -52,6 +52,16 @@ class Repository < ApplicationRecord
 
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
 
+  # See serial.rb
+  def unify_relations
+    ApplicationEnumeration.klass_reflections(self.class).select{|a|
+      [
+        :current_collection_objects,
+      ].include?(a.name) }
+  end
+
+
+
   def self.used_recently(user_id, project_id)
     t = CollectionObject.arel_table
     p = Repository.arel_table

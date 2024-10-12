@@ -35,7 +35,7 @@ module Shared::IsData::Annotation
     end
   end
 
-  # TODO: consider implications of allowing cloning from any objet
+  # TODO: consider implications of allowing cloning from any object
   # to any object
   def move_annotations(to_object: nil, except: [], only: [])
     return false if to_object.nil?
@@ -59,9 +59,8 @@ module Shared::IsData::Annotation
 
         end
       end
-      errors
     end
-
+    errors
   end
 
 
@@ -121,6 +120,7 @@ module Shared::IsData::Annotation
     ANNOTATION_TYPES.each do |t|
       next unless available_annotation_types.include?(t)
       case t
+
       when :documentation
 
         if project_id

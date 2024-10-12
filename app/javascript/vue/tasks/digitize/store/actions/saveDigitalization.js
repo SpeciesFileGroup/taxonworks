@@ -5,6 +5,7 @@ import { CollectionObject } from '@/routes/endpoints'
 import { useIdentifierStore } from '../pinia/identifiers'
 import {
   IDENTIFIER_LOCAL_RECORD_NUMBER,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER,
   COLLECTION_OBJECT,
   CONTAINER
 } from '@/constants/index.js'
@@ -17,6 +18,7 @@ const updateSmartSelectors = () => {
 export default ({ commit, dispatch, state }, { resetAfter = false } = {}) =>
   new Promise((resolve, reject) => {
     const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
+    const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
 
     state.settings.saving = true
     dispatch(ActionNames.SaveCollectingEvent)
@@ -36,10 +38,10 @@ export default ({ commit, dispatch, state }, { resetAfter = false } = {}) =>
             const actions = [
               dispatch(ActionNames.SaveTypeMaterial),
               dispatch(ActionNames.SaveCOCitations),
-              dispatch(ActionNames.SaveIdentifier, coCreated.id),
               dispatch(ActionNames.SaveDeterminations),
               dispatch(ActionNames.SaveBiologicalAssociations),
-              recordNumber.save(payload)
+              recordNumber.save(payload),
+              catalogNumber.save(payload)
             ]
 
             Promise.allSettled(actions)

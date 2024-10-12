@@ -1,7 +1,10 @@
 <template>
   <tr>
-    <td v-html="depiction.object_tag" />
-    <td>{{ depiction.is_metadata_depiction }}</td>
+    <td
+      class="cursor-grab"
+      v-html="depiction.object_tag"
+    />
+    <td class="cursor-grab">{{ depiction.is_metadata_depiction }}</td>
     <td>
       <EditInPlace
         v-model="label"

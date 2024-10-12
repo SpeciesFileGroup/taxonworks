@@ -212,6 +212,7 @@ module Queries
     #   When true api_except_params is applied and
     #   other restrictions are placed:
     #     - :venn param is ignored
+    #     - is_public=true is applied
     attr_accessor :api
 
     # @return String
@@ -763,6 +764,12 @@ module Queries
 
       if recent
         q = referenced_klass.from(q.all, table.name).order(recent_target => :desc)
+      end
+
+      if api
+        if referenced_klass.column_names.include?('is_public')
+          q = q.where(is_public: [nil, true])
+        end
       end
 
       if paginate

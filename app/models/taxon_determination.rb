@@ -81,6 +81,14 @@ class TaxonDetermination < ApplicationRecord
 
   before_destroy :prevent_if_required
 
+  # TODO: refactor for lib/queries, hack to get
+  # Unify base-line functionality
+  def self.find_for_autocomplete(params)
+    joins(otu: [:taxon_name])
+      .where('taxon_names.cached ILIKE ? OR otus.name ILIKE ?',
+             "%#{params[:term]}%", "%#{params[:term]}%")
+  end
+
   # @params params [Hash]
   # @params collection_objectt_id [Array, Integer]
   #   an Array or single id

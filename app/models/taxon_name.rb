@@ -257,6 +257,7 @@ class TaxonName < ApplicationRecord
   has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'CollectionObject'
   has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'FieldOccurrence'
 
+  # TODO: check class_name constraints.
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy, inverse_of: :role_object
@@ -812,7 +813,6 @@ class TaxonName < ApplicationRecord
     combination_list_all.select{|c| c.protonyms_by_rank[c.protonyms_by_rank.keys.last] == self}
   end
 
-
   # TODO: should be moved to helpers
   # and referenced in models with helper.
 
@@ -820,6 +820,7 @@ class TaxonName < ApplicationRecord
   # though variously used in soft_validations
   # (and various are only used in helpers already)
 
+  # TODO: helper/render?
   # @return [String]
   #   combination of cached_html and cached_author_year.
   def cached_html_name_and_author_year
@@ -1617,7 +1618,6 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # @return [String]
   #  a reified ID is used when the original combination, which does not yet have it's own ID, is not the same as the current classification
   # Some observations:
   #  - reified ids are only for original combinations (for which we have no ID)

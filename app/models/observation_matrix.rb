@@ -15,6 +15,7 @@ class ObservationMatrix < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
   include Shared::DataAttributes
+  include Shared::Attributions
   include Shared::AlternateValues
   include Shared::IsData # Hybrid of sorts, is a layout engine, but people cite matrices ...
 

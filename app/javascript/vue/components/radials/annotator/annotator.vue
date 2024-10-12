@@ -370,7 +370,12 @@ async function displayAnnotator() {
 }
 
 async function loadMetadata() {
-  if (isMetadataLoaded.value && !props.reload) return
+  if (
+    isMetadataLoaded.value &&
+    !props.reload &&
+    metadata.value.annotation_target === props.globalId
+  )
+    return
 
   const metadataUrl = `/${props.type}/${encodeURIComponent(
     props.globalId

@@ -5,11 +5,11 @@ import App from './app.vue'
 function init() {
   const app = createApp(App)
   app.use(newStore())
-  app.mount('#uniquify_people')
+  app.mount('#unify_people')
 }
 
 document.addEventListener('turbolinks:load', () => {
-  if (document.querySelector('#uniquify_people')) {
+  if (document.querySelector('#unify_people')) {
     init()
   }
 })

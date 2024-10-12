@@ -15,6 +15,19 @@
         </button>
       </div>
     </h2>
+
+    <div
+      v-if="container"
+      class="horizontal-left-content middle gap-small margin-medium-bottom"
+    >
+      <span v-html="container.object_tag" />
+      <RadialAnnotator
+        :global-id="container.global_id"
+        reload
+      />
+      <RadialNavigator :global-id="container.global_id" />
+    </div>
+
     <TableCollectionObjects />
   </div>
 </template>
@@ -24,9 +37,11 @@ import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
-import TableCollectionObjects from '../collectionObject/tableCollectionObjects'
 import { useHotkey } from '@/composables'
+import TableCollectionObjects from '../collectionObject/tableCollectionObjects'
 import platformKey from '@/helpers/getPlatformKey.js'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 
 const store = useStore()
 
@@ -36,6 +51,8 @@ const collectionObject = computed(
 const collectionObjects = computed(
   () => store.getters[GetterNames.GetCollectionObjects]
 )
+
+const container = computed(() => store.getters[GetterNames.GetContainer])
 
 const shortcuts = ref([
   {

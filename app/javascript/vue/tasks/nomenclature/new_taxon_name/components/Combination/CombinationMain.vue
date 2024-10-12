@@ -1,10 +1,10 @@
 <template>
   <block-layout
     :spinner="!taxon.id"
-    anchor="subsequent-combination"
+    :anchor="isICN ? 'homotypic-synonyms' : 'subsequent-combination'"
   >
     <template #header>
-      <h3>Subsequent combination</h3>
+      <h3>{{ isICN ? 'Homotypic synonyms' : 'Subsequent combination' }}</h3>
     </template>
     <template #body>
       <CombinationCurrent
@@ -154,6 +154,10 @@ const combinationRanks = computed(() =>
   isGenusGroup.value
     ? { genusGroup: nomenclatureRanks.value.genusGroup }
     : nomenclatureRanks.value
+)
+
+const isICN = computed(
+  () => store.getters[GetterNames.GetNomenclaturalCode] === 'icn'
 )
 
 const saveCombination = () => {
