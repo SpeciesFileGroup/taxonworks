@@ -960,13 +960,13 @@ filter_dwc_occurrences_task:
   description: 'Filter records in the DarwinCore index.'
 new_gazetteer_task:
   hub: true
-  name: 'New Gazetteer'
+  name: 'Create or edit Gazetteers'
   related:
   categories:
     - collecting_event
     - new
   status: prototype
-  description: 'Create named shapes for use in your project.'
+  description: 'Create or edit named shapes for use in your project.'
 import_gazetteers_task:
   hub: true
   name: 'Import Gazetteers'
