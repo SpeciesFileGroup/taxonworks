@@ -984,4 +984,11 @@ image_matrix_task:
     - matrix
   status: prototype
   description: "Visualize and add images in a matrix context."
-
+duplicate_otus_task:
+  hub: true
+  name: 'Duplicate OTU predictor'
+  related:
+  categories:
+    - otu
+  status: prototype
+  description: "A list of OTUs with whose combination of name and taxon name are found exactly/ in duplicate."
