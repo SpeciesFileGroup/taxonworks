@@ -122,12 +122,14 @@ class GazetteersController < ApplicationController
 
     if citation_params[:cite_gzs] &&
        !citation_params[:citation]&.dig(:source_id)
-      render json: { errors: 'Citation option checked but no source selected' },
+      render json: { errors: 'No citation source selected' },
         status: :unprocessable_entity
       return
     end
 
     new_params = shapefile_params
+    # shp_doc_id was required, the following may have been determined instead
+    # during validation.
     new_params[:shx_doc_id] = shapefile_docs[:shx].id
     new_params[:dbf_doc_id] = shapefile_docs[:dbf].id
     new_params[:prj_doc_id] = shapefile_docs[:prj].id
@@ -144,7 +146,7 @@ class GazetteersController < ApplicationController
     head :no_content
   end
 
-  # POST to support long WKT strings
+  # Using POST instead of GET to support long WKT strings
   # POST /gazetteers/preview.json
   def preview
     begin

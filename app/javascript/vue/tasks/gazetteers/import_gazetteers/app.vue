@@ -155,15 +155,6 @@ function validateShapefileFileset(fileset) {
     return false
   }
 
-  Object.keys(fileset).forEach((key) => {
-    if (fileset[key] && basename(fileset[key]) != shpBasename) {
-      TW.workbench.alert.create(
-        `All shapefile files must have the name '${shpBasename}'`, 'error'
-      )
-      return false
-    }
-  })
-
   return true
 }
 

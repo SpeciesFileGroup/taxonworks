@@ -22,7 +22,6 @@
 
 <script setup>
 import VMap from '@/components/georeferences/map'
-import { addToArray } from '@/helpers/arrays'
 
 const props = defineProps({
   shapes: {

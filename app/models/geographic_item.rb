@@ -1,6 +1,4 @@
-# A GeographicItem is one and only one of [point, line_string, polygon,
-# multi_point, multi_line_string, multi_polygon, geometry_collection,
-# geography] which describes a position, path, or area on the globe,
+# A GeographicItem describes a position, path, or area on the globe,
 # generally associated with a geographic_area (through a
 # geographic_area_geographic_item entry), a gazetteer, or a georeference.
 #
@@ -123,8 +121,8 @@ class GeographicItem < ApplicationRecord
       Arel::Nodes::NamedFunction.new(
         'ST_CoveredBy',
         [
-          self.geometry_cast(shape1),
-          self.geometry_cast(shape2)
+          geometry_cast(shape1),
+          geometry_cast(shape2)
         ]
       )
     end
@@ -139,7 +137,6 @@ class GeographicItem < ApplicationRecord
 
     # Note: !! If the target GeographicItem#id crosses the anti-meridian then
     # you may/will get unexpected results.
-    # TODO why don't we exclude self here?
     def subset_of_union_of_sql(*geographic_item_ids)
       subset_of_sql(
         items_as_one_geometry_sql(*geographic_item_ids)
@@ -240,24 +237,24 @@ class GeographicItem < ApplicationRecord
       wkt = quote_string(wkt)
       Arel::Nodes::NamedFunction.new(
         'ST_GeographyFromText', [
-          Arel::Nodes::Quoted.new(wkt),
+          Arel::Nodes.build_quoted(wkt),
         ]
       )
     end
 
-    def st_geog_from_text_sql(wkt)
-      st_geography_from_text_sql(wkt)
-    end
+    alias st_geog_from_text_sql st_geography_from_text_sql
 
-    def st_geom_from_text_sql(wkt)
+    def st_geometry_from_text_sql(wkt)
       wkt = quote_string(wkt)
       Arel::Nodes::NamedFunction.new(
         'ST_GeometryFromText', [
-          Arel::Nodes::Quoted.new(wkt),
-          Arel::Nodes::Quoted.new(4326)
+          Arel::Nodes.build_quoted(wkt),
+          Arel::Nodes.build_quoted(4326)
         ]
       )
     end
+
+    alias st_geom_from_text_sql st_geometry_from_text_sql
 
     def st_centroid_sql(shape)
       Arel::Nodes::NamedFunction.new(
@@ -270,23 +267,26 @@ class GeographicItem < ApplicationRecord
     def st_buffer_sql(shape, distance, num_seg_quarter_circle: 8)
       Arel::Nodes::NamedFunction.new(
         'ST_Buffer', [
-          self.geography_cast(shape),
-          Arel::Nodes::Quoted.new(distance),
-          Arel::Nodes::Quoted.new(num_seg_quarter_circle)
+          geography_cast(shape),
+          Arel::Nodes.build_quoted(distance),
+          Arel::Nodes.build_quoted(num_seg_quarter_circle)
         ]
       )
     end
 
+    # # !! Keep in mind that you may get different results depending on if the
+    # inputs are geographies or geometries.
     def st_intersects_sql(shape1, shape2)
       Arel::Nodes::NamedFunction.new(
         'ST_Intersects', [
-          # anti-meridian checks can fail if these are converted to geometry
           shape1,
           shape2
         ]
       )
     end
 
+    # !! Keep in mind that you may get different results depending on if the
+    # inputs are geographies or geometries.
     def st_intersection_sql(shape1, shape2)
       Arel::Nodes::NamedFunction.new(
         'ST_Intersection', [
@@ -309,9 +309,9 @@ class GeographicItem < ApplicationRecord
     def st_dwithin_sql(shape1, shape2, distance)
       Arel::Nodes::NamedFunction.new(
         'ST_DWithin', [
-          self.geography_cast(shape1),
-          self.geography_cast(shape2),
-          Arel::Nodes::Quoted.new(distance)
+          geography_cast(shape1),
+          geography_cast(shape2),
+          Arel::Nodes.build_quoted(distance)
         ]
       )
     end
@@ -391,7 +391,6 @@ class GeographicItem < ApplicationRecord
     #   a SQL select statement that returns the geography for the
     #   geographic_item with the specified id
     def select_geography_sql(geographic_item_id)
-      #select(GeographicItem::GEOGRAPHY_SQL).where(id: geographic_item_id)
       arel_table
         .project(arel_table[:geography])
         .where(arel_table[:id].eq(geographic_item_id))
@@ -445,11 +444,11 @@ class GeographicItem < ApplicationRecord
       )
     end
 
-    # TODO: 3D is overkill here
     # @param [String] wkt
     # @param [Integer] distance (meters)
     # @return [NamedFunction] Shapes whose distance to wkt is less than
     #   `distance`
+    # !! This is computed in 2d
     def intersecting_radius_of_wkt_sql(wkt, distance)
       wkt = quote_string(wkt)
       st_dwithin_sql(
@@ -474,8 +473,8 @@ class GeographicItem < ApplicationRecord
     end
 
     # @param [Integer, Array of Integer] geographic_item_ids
-    # @return [String] returns one or more geographic items combined as a
-    #   single geometry in a column 'single_geometry'
+    # @return [Arel::Nodes::SqlLiteral] returns one or more geographic items
+    #   combined as a single geometry in a column 'single_geometry'
     def single_geometry_sql(*geographic_item_ids)
       geographic_item_ids.flatten!
 
@@ -492,15 +491,12 @@ class GeographicItem < ApplicationRecord
     end
 
     # @param [Integer, Array of Integer] geographic_item_ids
-    # @return [SelectManager]
-    #   returns a single geometry "column" (paren wrapped) as
-    #   "single_geometry" for multiple geographic item ids, or the geometry
-    #   as 'geometry' for a single id
-    # TODO make sure this is spec'd for both cases
+    # @return [SelectManager for one id, Arel::Nodes::SqlLiteral for more than
+    #   one]
     def items_as_one_geometry_sql(*geographic_item_ids)
       geographic_item_ids.flatten! # *ALWAYS* reduce the pile to a single level of ids
       if geographic_item_ids.count == 1
-        geometry_for_sql(geographic_item_ids.first)
+        select_geometry_sql(geographic_item_ids.first)
       else
         single_geometry_sql(geographic_item_ids)
       end
@@ -525,24 +521,12 @@ class GeographicItem < ApplicationRecord
     def covered_by_wkt_sql(wkt)
       wkt = quote_string(wkt)
       if crosses_anti_meridian?(wkt)
-        # TODO Add anti-meridian test here
         covered_by_wkt_shifted_sql(wkt)
       else
         subset_of_sql(
           st_geom_from_text_sql(wkt)
         )
       end
-    end
-
-    # @param [Integer] geographic_item_id
-    # @return [SelectManager] selects the shape column as geometry for the
-    # given geographic_item_id
-    def geometry_for_sql(geographic_item_id)
-      #select(GEOMETRY_SQL)
-      #.where(id: geographic_item_id)
-      arel_table
-        .project(geography_as_geometry)
-        .where(arel_table[:id].eq(geographic_item_id))
     end
 
     #
@@ -590,7 +574,7 @@ class GeographicItem < ApplicationRecord
         pieces = []
         SHAPE_TYPES.each { |shape|
           pieces.push(
-            self.intersecting(shape, geographic_item_ids).to_a
+            intersecting(shape, geographic_item_ids).to_a
           )
         }
 
@@ -633,7 +617,6 @@ class GeographicItem < ApplicationRecord
     #               OR ST_Covers(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
     #
     def st_covers(shape, *geographic_items)
-      # TODO areal return if none
       geographic_items.flatten! # in case there is a array of arrays, or multiple objects
       shape = shape.to_s.downcase
       case shape
@@ -676,7 +659,6 @@ class GeographicItem < ApplicationRecord
         where(q) # .not_including(geographic_items)
       end
     end
-
     # rubocop:enable Metrics/MethodLength
 
     # rubocop:disable Metrics/MethodLength
@@ -690,7 +672,6 @@ class GeographicItem < ApplicationRecord
     # one or more of geographic_items
     # !! Returns geographic_item when geographic_item is of type `shape`
     def st_covered_by(shape, *geographic_items)
-      # TODO return if none
       shape = shape.to_s.downcase
       case shape
       when 'any'
@@ -729,6 +710,7 @@ class GeographicItem < ApplicationRecord
         where(q) # .not_including(geographic_items)
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     # @param [RGeo::Point] center in lon/lat
     # @param [Integer] radius of the circle, in meters
@@ -750,14 +732,6 @@ class GeographicItem < ApplicationRecord
       Gis::FACTORY.parse_wkb(circle_wkb)
     end
 
-    # rubocop:enable Metrics/MethodLength
-
-    # @param [GeographicItem]
-    # @return [Scope]
-    def not_including(geographic_items)
-      where.not(id: geographic_items)
-    end
-
     #
     # Other
     #
@@ -766,11 +740,21 @@ class GeographicItem < ApplicationRecord
     # @return [Hash]
     #   as per #inferred_geographic_name_hierarchy but for Rgeo point
     def point_inferred_geographic_name_hierarchy(point)
-      self
-        .where(superset_of_sql(st_geom_from_text_sql(point.to_s)))
-        .order(cached_total_area: :ASC)
-        .first&.inferred_geographic_name_hierarchy
+      where(superset_of_sql(st_geom_from_text_sql(point.to_s)))
+      .order(cached_total_area: :ASC)
+      .first&.inferred_geographic_name_hierarchy
     end
+
+    def geography_as_geometry
+      Arel.sql('geography::geometry')
+    end
+
+    # @param [GeographicItem]
+    # @return [Scope]
+    def not_including(geographic_items)
+      where.not(id: geographic_items)
+    end
+
   end # class << self
 
   # @return [Hash]
@@ -787,14 +771,15 @@ class GeographicItem < ApplicationRecord
       h = ga.geographic_name_classification # not quick enough !!
       return h if h.present?
     end
-    return {}
+
+    {}
   end
 
   # @return [Hash]
   #   a geographic_name_classification (see GeographicArea) inferred by
-  # finding the smallest area covering this GeographicItem, in the most accurate gazetteer
-  # and using it to return country/state/county. See also the logic in
-  # filling in missing levels in GeographicArea.
+  #   finding the smallest area covering this GeographicItem, in the most
+  #   accurate gazetteer and using it to return country/state/county. See also
+  #   the logic in filling in missing levels in GeographicArea.
   def inferred_geographic_name_hierarchy
     if small_area = covering_geographic_areas
       .joins(:geographic_areas_geographic_items)
@@ -802,10 +787,10 @@ class GeographicItem < ApplicationRecord
       .ordered_by_area
       .first
 
-      small_area.geographic_name_classification
-    else
-      {}
+      return small_area.geographic_name_classification
     end
+
+    {}
   end
 
   def geographic_name_hierarchy
@@ -818,12 +803,12 @@ class GeographicItem < ApplicationRecord
   #   the Geographic Areas that cover (gis) this geographic item
   def covering_geographic_areas
     GeographicArea
-    .joins(:geographic_items)
-    .includes(:geographic_area_type)
-    .joins(
-      "JOIN (#{GeographicItem.superset_of_union_of(id).to_sql}) AS j ON " \
-      'geographic_items.id = j.id'
-    )
+      .joins(:geographic_items)
+      .includes(:geographic_area_type)
+      .joins(
+        "JOIN (#{GeographicItem.superset_of_union_of(id).to_sql}) AS j ON " \
+        'geographic_items.id = j.id'
+      )
   end
 
   # @param [GeographicItem] geographic_item
@@ -905,8 +890,8 @@ class GeographicItem < ApplicationRecord
   # @return [Hash] in GeoJSON format
   def to_geo_json
     JSON.parse(
-      self.class.select_one(
-        self.class.st_as_geo_json_sql(self.class.select_geography_sql(id))
+      select_from_self(
+        self.class.st_as_geo_json_sql(self.class.arel_table[:geography])
       )['st_asgeojson']
     )
   end
@@ -950,8 +935,8 @@ class GeographicItem < ApplicationRecord
 
     begin
       object = Gis::FACTORY.parse_wkt(s)
-    rescue RGeo::Error::InvalidGeometry
-      errors.add(:self, 'Shape value is an Invalid Geometry')
+    rescue RGeo::Error::InvalidGeometry => e
+      errors.add(:self, "Shape value is an Invalid Geometry: '#{e}'")
       return
     end
 
@@ -960,18 +945,13 @@ class GeographicItem < ApplicationRecord
 
   # @return [String] wkt
   def to_wkt
-    #  10k  #<Benchmark::Tms:0x00007fb0dfd30fd0 @label="", @real=25.237487000005785, @cstime=0.0, @cutime=0.0, @stime=1.1704609999999995, @utime=5.507929999999988, @total=6.678390999999987>
-    #  GeographicItem.select("ST_AsText( #{GeographicItem::GEOMETRY_SQL.to_sql}) wkt").where(id: id).first.wkt
-
-    # 10k <Benchmark::Tms:0x00007fb0e02f7540 @label="", @real=21.619827999995323, @cstime=0.0, @cutime=0.0, @stime=0.8850890000000007, @utime=3.2958549999999605, @total=4.180943999999961>
     select_from_self(
       self.class.st_as_text_sql(self.class.geography_as_geometry)
     )['st_astext']
   end
 
-  # @return [Float] in meters, calculated
+  # @return [Float] area in square meters, calculated
   # TODO: share with world
-  #    Geographic item 96862 (Cajamar in Brazil) is the only(?) record to fail using `false` (quicker) method of everything we tested
   def area
     select_from_self(
       self.class.st_area_sql(self.class.arel_table[:geography])
@@ -1021,8 +1001,8 @@ class GeographicItem < ApplicationRecord
     a = orientations
     b = a.shift
     return false unless b
-    a.uniq!
-    a == [false]
+
+    a.uniq! == [false]
   end
 
   def st_is_valid
@@ -1042,28 +1022,22 @@ class GeographicItem < ApplicationRecord
   end
 
   # @return [Symbol]
-  #   the specific type of geography: :point, :multipolygon, etc.
+  #   the specific type of geography: :point, :multi_polygon, etc.
   def geo_object_type
-    return geography.geometry_type.type_name.underscore.to_sym if
-      geography
+    return geography.geometry_type.type_name.underscore.to_sym if geography
 
     nil
   end
 
   # @return [RGeo instance, nil]
-  #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
+  #  the Rgeo shape
   def geo_object
     geography
   end
 
-  def self.geography_as_geometry
-    Arel.sql('geography::geometry')
-  end
-
   private
 
-  # @param [String or Symbol] shape, the name of the shape you want, e.g.
-  #   :polygon
+  # @param [String or Symbol] shape, the kind of shape you want, e.g. :polygon
   # @return [Arel::Nodes::Case]
   #   A Case statement that selects the geography column if that column is of
   #   type `shape`, otherwise NULL

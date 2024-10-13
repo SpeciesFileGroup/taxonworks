@@ -81,7 +81,6 @@ module Vendor::RgeoShapefile
               name: record[name_field]
             )
 
-            # Abort if too many invalid?
             shape = record.geometry.valid? ?
               record.geometry : record.geometry.make_valid
 

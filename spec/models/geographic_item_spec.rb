@@ -424,13 +424,13 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       end
     end
 
-    context '::within_union_of' do
+    context '::subset_of_union_of' do
       before { [donut_interior_bottom_left_multi_line,
         donut_interior_point, donut_centroid,
         donut_left_interior_edge, donut_bottom_interior_edge].each
       }
 
-      specify 'a shape is within_union_of itself' do
+      specify 'a shape is subset_of_union_of itself' do
         expect(
           GeographicItem.where(
             GeographicItem.subset_of_union_of_sql(donut.id)
@@ -457,6 +457,17 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             GeographicItem.subset_of_union_of_sql(box.id)
           ).to_a
         ).to contain_exactly(box_centroid, duplicate_point, box)
+      end
+
+      specify 'supports multiple input ids' do
+        expect(
+          GeographicItem.where(
+            GeographicItem.subset_of_union_of_sql(
+              donut_bottom_interior_edge.id, donut_left_interior_edge.id
+            )
+          ).to_a
+        ).to contain_exactly(donut_bottom_interior_edge,
+          donut_left_interior_edge, donut_interior_bottom_left_multi_line)
       end
     end
 
@@ -700,7 +711,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           .where(id: distant_point.id)
           .select(GeographicItem.lat_long_sql(:latitude))
           .first['latitude'].to_f
-        ).to be_within(0.01).of(distant_point.geo_object.y)
+        ).to be_within(0.01).of(distant_point.geo_object.lat)
       end
 
       specify 'returns longitude of a point' do
@@ -708,7 +719,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           .where(id: distant_point.id)
           .select(GeographicItem.lat_long_sql(:longitude))
           .first['longitude'].to_f
-        ).to be_within(0.01).of(distant_point.geo_object.x)
+        ).to be_within(0.01).of(distant_point.geo_object.lon)
       end
     end
 
@@ -799,7 +810,8 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
       specify 'has approximate expected shape' do
         c = GeographicItem.circle(origin, 10)
-        # Rough estimates
+        # Rough estimates - the input unit to buffer here is "degrees" since
+        # our factory projection is WGS84
         # (buffer is 2d so all z-coordinates are NaN, but that seems to be okay
         # for our purposes)
         smaller_circle = origin.buffer(9.5 / Utilities::Geo::ONE_WEST_MEAN)

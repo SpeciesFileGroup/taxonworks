@@ -85,7 +85,7 @@ function shapeType(item) {
     case GZ_LEAFLET:
     case GZ_DATABASE:
       if (item.shape.properties.radius) {
-        return 'Circle of radius ' + item.shape.properties.radius.toFixed(6) + 'm'
+        return `Circle of radius ${item.shape.properties.radius.toFixed(6)}m`
       }
 
       return item.shape.geometry.type
@@ -115,8 +115,6 @@ function getCoordinates(item) {
       return `Point (${coordinates[0]} ${coordinates[1]})`
 
     case GZ_UNION_GA:
-      return item.shape.label_html
-
     case GZ_UNION_GZ:
       return item.shape.label_html
   }

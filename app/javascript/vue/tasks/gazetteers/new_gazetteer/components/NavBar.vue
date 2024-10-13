@@ -49,7 +49,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps({
   gz: {
@@ -62,7 +62,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['cloneGz', 'saveGz', 'resetGz'])
+const emit = defineEmits(['saveGz', 'resetGz'])
 
 const headerLabel = computed(() => {
   return props.gz.id ? props.gz.name : 'New Gazetteer'

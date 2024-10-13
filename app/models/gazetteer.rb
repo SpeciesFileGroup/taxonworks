@@ -1,5 +1,3 @@
-require 'fileutils'
-
 # Gazetteer allows a project to add its own named shapes to participate in
 # filtering, etc.
 #
@@ -21,7 +19,7 @@ require 'fileutils'
 #
 # @!attribute project_id
 #   @return [Integer]
-#   the project ID
+#   The project ID
 #
 class Gazetteer < ApplicationRecord
   include Housekeeping
@@ -73,7 +71,7 @@ class Gazetteer < ApplicationRecord
   # @param shapes, a hash:
   #   geojson: array of geojson feature hashes,
   #   wkt: array of wkt strings,
-  #   points: array of geojson points
+  #   points: array of geojson feature points
   #   ga_union: array of GA ids
   #   gz_union: array of GZ ids
   # Builds a GeographicItem for this gazetteer from the combined input shapes
@@ -91,7 +89,7 @@ class Gazetteer < ApplicationRecord
   end
 
   # @param [Hash] hash as in build_gi_from_shapes
-  # @return A single rgeo shape containing all of the input shapes
+  # @return A single rgeo shape that is the union of all of the input shapes
   # Raises TaxonWorks::Error on error
   def self.combine_shapes_to_rgeo(shapes)
     begin
@@ -123,13 +121,13 @@ class Gazetteer < ApplicationRecord
       # Invalid shapes won't raise until they're used in an operation requiring
       # valid shapes, like union below, but we should check here before that
       # happens. (Existing GAs and GZs are asummed valid!)
-      user_input_shapes.each { |s|
+      user_input_shapes.each do |s|
         if !s.valid?
           s_str = s.to_s
           shape_to_s = s_str.length > 30 ? "'#{s_str[0, 30]}'..." : "'#{s_str}'"
           raise RGeo::Error::InvalidGeometry, "#{s.invalid_reason} #{shape_to_s}"
         end
-      }
+      end
 
       return combine_rgeo_shapes(user_input_shapes + ga_rgeo + gz_rgeo)
 
@@ -186,11 +184,11 @@ class Gazetteer < ApplicationRecord
     wkt_shapes.map do |shape|
       begin
         s = ::Gis::FACTORY.parse_wkt(shape)
-
-        split_shape_along_anti_meridian(s)
       rescue RGeo::Error::RGeoError => e
         raise e.exception("Invalid WKT: #{e.message}")
       end
+
+      split_shape_along_anti_meridian(s)
     end
   end
 

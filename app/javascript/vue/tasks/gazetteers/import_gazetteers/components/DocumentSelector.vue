@@ -1,6 +1,6 @@
 <template>
   <fieldset class="document_select">
-    <legend>Select a .shp document (.shx, .dbf, and .prj files must be uploaded but need not be specified here)</legend>
+    <legend>Select a .shp document (.shx, .dbf, and .prj files must be in TaxonWorks but need not be specified here)</legend>
     <VSpinner v-if="isLoading" />
     <SmartSelector
       klass="Documents"
@@ -96,7 +96,7 @@ const DROPZONE_CONFIG_BASE = {
       .querySelector('meta[name="csrf-token"]')
       .getAttribute('content')
   },
-  dictDefaultMessage: 'Drop a shapefile file here',
+  dictDefaultMessage: 'Drop a shapefile file here (.shp, .shx, .dbf, .prj)',
 }
 
 const emit = defineEmits('selected')
@@ -158,9 +158,8 @@ function loadList(params) {
       filterList.value = body
       noMatchesForExtensions.value = filterList.value.length == 0
     })
-    .finally(() => {
-      isLoading.value = false
-    })
+    .catch(() => {})
+    .finally(() => { isLoading.value = false })
 }
 
 onMounted(() => {
@@ -168,9 +167,7 @@ onMounted(() => {
     .then(({ body }) => {
       extensionGroups.value = body['extension_groups']
     })
-    .finally(() => {
-      isLoading.value = false
-    })
+    .finally(() => { isLoading.value = false })
 })
 </script>
 

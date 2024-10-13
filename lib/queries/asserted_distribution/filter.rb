@@ -178,7 +178,6 @@ module Queries
         if geometry = RGeo::GeoJSON.decode(geo_json)
           case geometry.geometry_type.to_s
           when 'Point'
-            # TODO test this
             ::GeographicItem
               .joins(:geographic_areas)
               .where(

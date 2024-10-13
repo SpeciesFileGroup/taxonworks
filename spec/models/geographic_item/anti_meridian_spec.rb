@@ -337,7 +337,6 @@ describe GeographicItem, type: :model, group: :geo do
       %I{left_right_anti_box right_left_anti_box
         left_right_anti_line right_left_anti_line}.each do |p|
         specify "#{p}" do
-          puts "#{send(p)}"
           expect(GeographicItem.crosses_anti_meridian?("#{send(p)}")).to be_truthy
         end
       end

@@ -57,7 +57,7 @@ describe Lib::Vendor::RgeoShapefileHelper, type: :helper do
       shapefile[:prj_doc_id] = not_wgs84.id
 
       expect{validate_shape_file(shapefile, project_id)}
-        .to raise_error(TaxonWorks::Error, /GCS_WGS_1984/)
+        .to raise_error(TaxonWorks::Error, /WGS 84/)
     end
 
     specify 'name field must exist' do

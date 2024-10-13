@@ -17,22 +17,8 @@ module Lib::Vendor::RgeoShapefileHelper
     base = basename(docs[:shp].document_file_file_name)
 
     docs.each do |ext, doc|
-      next if ext == 'shp'
       if !doc
-        ext_filename = base + '.' + ext.to_s
-        ext_docs = Document.where(
-          document_file_file_name: ext_filename,
-          project_id:
-        )
-
-        if ext_docs.count == 0
-          raise TaxonWorks::Error, "Failed to find a required '#{ext_filename}' document, has one been uploaded?"
-        elsif ext_docs.count > 1
-          ids = ext_docs.map { |d| d.id }
-          raise TaxonWorks::Error, "More than one '#{ext_filename}' document exists (ids #{ids.join(',')}), please add the correct one in the document selector"
-        else # exactly one matching document
-          docs[ext] = ext_docs.first
-        end
+        docs[ext] = find_doc_for_extension(base, ext, project_id)
       elsif basename(doc.document_file_file_name) != base
         raise TaxonWorks::Error, ".#{ext} file must have the same name as the .shp file: '#{base}'"
       end
@@ -46,7 +32,7 @@ module Lib::Vendor::RgeoShapefileHelper
     filename[0, filename.size - 4]
   end
 
-  # @return [Hash] of shapefile ext => document_id. Raises TaxonWorks::Error on
+  # @return [Hash] of shapefile ext => Document. Raises TaxonWorks::Error on
   # error.
   def validate_shape_file(shapefile, project_id)
     if shapefile[:name_field].nil?
@@ -64,6 +50,7 @@ module Lib::Vendor::RgeoShapefileHelper
       raise TaxonWorks::Error, "Failed to parse the prj file: #{e}"
     end
 
+    # TODO: what else could a valid cs.name for WGS 84 be?
     wgs84_names = ['EPSG:4326', 'WGS 84', 'GCS_WGS_1984']
     if cs.class.to_s != 'RGeo::CoordSys::CS::GeographicCoordinateSystem' ||
       (cs.name.present? && !wgs84_names.include?(cs.name)) ||
@@ -102,27 +89,36 @@ module Lib::Vendor::RgeoShapefileHelper
       raise TaxonWorks::Error, '.shp or .dbf required to read shapefile fields'
     end
 
-    if !dbf_doc_id
+    if dbf_doc_id
+      dbf_doc = Document.find(dbf_doc_id)
+    else
       shp_doc = Document.find(shp_doc_id)
       base = basename(shp_doc.document_file_file_name)
-      dbf_docs = Document.where(
-          document_file_file_name: base + '.dbf',
-          project_id:
-        )
-      if dbf_docs.size == 0
-        raise TaxonWorks::Error, "No '#{base}.dbf' document found, has one been uploaded?"
-      elsif dbf_docs.size > 1
-        ids = dbf_docs.map { |d| d.id }
-        raise TaxonWorks::Error, "Multiple '#{base}.dbf' documents found (ids: #{ids.join(',')}), specify one in the document selector"
-      else
-        dbf_doc_id = dbf_docs.first.id
-      end
+      dbf_doc = find_doc_for_extension(base, :dbf, project_id)
     end
 
-    dbf_doc = Document.find(dbf_doc_id)
     dbf = ::DBF::Table.new(dbf_doc.document_file.path)
 
     dbf.column_names
+  end
+
+  # Raises TaxonWorks::Error on error
+  def find_doc_for_extension(base, ext, project_id)
+    ext_filename = base + '.' + ext.to_s
+    ext_docs = Document.where(
+      document_file_file_name: ext_filename,
+      project_id:
+    )
+
+    if ext_docs.count == 0
+      raise TaxonWorks::Error, "Failed to find a '#{ext_filename}' document, has one been uploaded?"
+    elsif ext_docs.count > 1
+      ids = ext_docs.map { |d| d.id }
+      raise TaxonWorks::Error, "More than one '#{ext_filename}' document exists (ids #{ids.join(',')}), please add the correct one in the document selector"
+    end
+
+    # exactly one matching document
+    ext_docs.first
   end
 
 end

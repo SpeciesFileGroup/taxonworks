@@ -787,7 +787,6 @@ class CollectingEvent < ApplicationRecord
       r = geographic_area.geographic_name_classification
     when :verbatim_map_center # elsif map_center
       # slowest
-      # TODO test this
       r = GeographicItem.point_inferred_geographic_name_hierarchy(verbatim_map_center)
     end
     r ||= {}

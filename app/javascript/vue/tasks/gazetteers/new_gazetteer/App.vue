@@ -3,7 +3,6 @@
   <NavBar
     :gz="gz"
     :save-disabled="saveDisabled"
-    @clone-gz="() => cloneGz()"
     @save-gz="() => saveGz()"
     @reset-gz="() => reset()"
   />
@@ -110,7 +109,7 @@ const leafletShapes = computed(() => {
 
 const saveDisabled = computed(() => {
   const numShapes = shapes.value.length
-  if (!(gz.value.name) || numShapes == 0) {
+  if (!gz.value.name || numShapes == 0) {
     return true
   }
 
@@ -118,30 +117,16 @@ const saveDisabled = computed(() => {
     return false
   }
 
+  // numShapes == 1
   // We're not allowing save of a single GA or GZ (i.e. cloning) - use alternate
   // names for that (though this restriction is easily circumvented by, e.g.,
   // selecting a ga/gz and then adding a point that's contained by it)
-  let gaCount = 0
-  let gzCount = 0
-
-  shapes.value.forEach((s) => {
-    switch(s.type) {
-      case GZ_UNION_GA:
-        gaCount += 1
-        break
-      case GZ_UNION_GZ:
-        gzCount += 1
-        break
-    }
-  })
-
-  const oneSoleGA = numShapes == 1 && gaCount == 1
-  const oneSoleGZ = numShapes == 1 && gzCount == 1
-
-  return  oneSoleGA || oneSoleGZ
+  return (
+    shapes.value[0].type == GZ_UNION_GA || shapes.value[0].type == GZ_UNION_GZ
+  )
 })
 
-const shapeEditingDisabled = computed(() =>{
+const shapeEditingDisabled = computed(() => {
   return previewing.value || !!gz.value.id
 })
 
@@ -163,6 +148,15 @@ const { gazetteer_id } = URLParamsToJSON(location.href)
 if (gazetteer_id) {
   loadGz(gazetteer_id)
 }
+
+usePopstateListener(() => {
+  const { gazetteer_id } = URLParamsToJSON(location.href)
+  if (gazetteer_id) {
+    loadGz(gazetteer_id)
+  } else {
+    reset()
+  }
+})
 
 function loadGz(gzId) {
   isLoading.value = true
@@ -298,15 +292,6 @@ function reset() {
   gz.value = {}
   SetParam(RouteNames.NewGazetteer, 'gazetteer_id')
 }
-
-usePopstateListener(() => {
-  const { gazetteer_id } = URLParamsToJSON(location.href)
-  if (gazetteer_id) {
-    loadGz(gazetteer_id)
-  } else {
-    reset()
-  }
-})
 
 function addToShapes(shape, type) {
   switch(type) {
