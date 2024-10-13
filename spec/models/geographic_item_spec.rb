@@ -15,8 +15,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
   # donut_rectangle_multi_polygon, you've also instantiated donut and rectangle.
 
   # TODO add some geometry_collection specs
-  # TODO add and comment out any ce, co, gr, ad specs that currently only need
-  # to be tested against non-geography columns
   #TODO spec intersecting_radius_of_wkt
 
   let(:geographic_item) { GeographicItem.new }
@@ -354,19 +352,24 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
     context '#st_is_valid' do
       specify 'valid polygon is valid' do
-        expect(simple_polygon.st_is_valid).to be_truthy
+        expect(simple_polygon.st_is_valid).to be true
       end
 
-      # TODO I don't think it's actually possible to save an invalid geometry
-      # without validation failing, i.e. I think st_is_valid can only ever
-      # return true.
-      specify 'invalid line is invalid' do
-        invalid_line = 'LINESTRING (0 0)'
-        geographic_item.geography = invalid_line
+      specify 'bowtie polygon is invalid' do
+        bowtie = 'POLYGON((0 0, 10 10, 10 0, 0 10, 0 0))'
+        geographic_item.geography = bowtie
+        geographic_item.save!
 
-        # Uhhhh...
-        expect{ geographic_item.valid? }
-          .to raise_error(RGeo::Error::InvalidGeometry)
+        expect(geographic_item.st_is_valid).to be false
+      end
+
+      specify '#st_is_valid_reason returns an invalid reason' do
+        bowtie = 'POLYGON((0 0, 10 10, 10 0, 0 10, 0 0))'
+        geographic_item.geography = bowtie
+        geographic_item.save!
+
+        expect(geographic_item.st_is_valid_reason)
+          .to include('Self-intersection')
       end
     end
   end
