@@ -4,7 +4,6 @@
   <thead>
   <tr>
     <%= fancy_th_tag(name: 'Name') -%>
-    <%= fancy_th_tag(name: 'Parent') -%>
     <%= fancy_th_tag(name: 'Iso 3166 a2') -%>
     <%= fancy_th_tag(name: 'Iso 3166 a3') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
@@ -16,7 +15,6 @@
   <% @gazetteers.each do |gaz| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= gaz.name %></td>
-          <td><%= gazetteer_link(gaz.parent) %></td>
           <td><%= gaz.iso_3166_a2 %></td>
           <td><%= gaz.iso_3166_a3 %></td>
           <%= fancy_metadata_cells_tag(gaz) -%>
