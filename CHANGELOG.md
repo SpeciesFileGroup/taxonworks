@@ -18,9 +18,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Containerizing objects prevented identific increments
 - New dichotomous key: Radial annotator is not loading the correct data [#4076]
 
-[#970]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
+[#4077]: https://github.com/SpeciesFileGroup/taxonworks/issues/4077
+[#970]: https://github.com/SpeciesFileGroup/taxonworks/issues/970
 [#4074]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
 [#4076]: https://github.com/SpeciesFileGroup/taxonworks/issues/4076
 
