@@ -452,6 +452,10 @@ scope :tasks do
   end
 
   scope :biological_associations do
+    scope :new_biological_association, controller: 'tasks/biological_associations/new_biological_association' do
+      get '/', action: :index, as: 'new_biological_association_task'
+    end
+
     scope :biological_associations_graph, controller: 'tasks/biological_associations/biological_associations_graph' do
       get '/', action: :index, as: 'edit_biological_associations_graph_task'
     end
