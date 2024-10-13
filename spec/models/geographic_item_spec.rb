@@ -14,9 +14,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
   # example if you reference (and therefore instantiate)
   # donut_rectangle_multi_polygon, you've also instantiated donut and rectangle.
 
-  # TODO add some geometry_collection specs
-  #TODO spec intersecting_radius_of_wkt
-
   let(:geographic_item) { GeographicItem.new }
 
   context 'can hold any' do
@@ -736,6 +733,20 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         expect(GeographicItem.where(
           GeographicItem.within_radius_of_wkt_sql(wkt, r))
         ).to contain_exactly(equator_point_long_20, equator_point_long_30)
+      end
+    end
+
+    context '::intersecting_radius_of_wkt_sql' do
+      before { [donut, donut_bottom_interior_edge, distant_point].each }
+
+      specify 'works for a wkt point' do
+        wkt = donut_centroid.to_wkt
+        r = donut_centroid.st_distance_to_geographic_item(
+          donut_bottom_interior_edge
+        ) + 1
+        expect(GeographicItem.where(
+          GeographicItem.intersecting_radius_of_wkt_sql(wkt, r))
+        ).to contain_exactly(donut, donut_bottom_interior_edge, donut_centroid)
       end
     end
 
