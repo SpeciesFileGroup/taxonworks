@@ -191,7 +191,10 @@ const isAbsent = computed({
   set: (value) => emit('update:absent', value)
 })
 
-const isLocked = ref(false)
+const isLocked = defineModel('lock', {
+  type: Boolean,
+  default: false
+})
 
 const sourceId = computed(() => props.modelValue.source_id)
 const source = ref(undefined)

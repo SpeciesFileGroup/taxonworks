@@ -19,7 +19,7 @@
         v-model:lock="store.lock.source"
         :klass="BIOLOGICAL_ASSOCIATION"
         :target="BIOLOGICAL_ASSOCIATION"
-        @lock="(e) => (store.lock.citation = e)"
+        @lock="(e) => (store.lock.source = e)"
       />
     </template>
   </BlockLayout>

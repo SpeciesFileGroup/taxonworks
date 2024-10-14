@@ -78,18 +78,24 @@ defineOptions({
   name: 'NewBiologicalAssociation'
 })
 
+const store = useStore()
+
 const shortcuts = ref([
   {
     keys: [platformKey(), 's'],
     handler() {
       store.saveBiologicalAssociation()
     }
+  },
+  {
+    keys: [platformKey(), 'l'],
+    handler() {
+      store.toggleLock()
+    }
   }
 ])
 
 useHotkey(shortcuts.value)
-
-const store = useStore()
 
 const currentBiologicalAssociation = computed(() =>
   store.biologicalAssociations.find(
@@ -103,6 +109,12 @@ onBeforeMount(() => {
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+s`,
     'Save and create new biological association',
+    'New biological association'
+  )
+
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+s`,
+    'Lock all',
     'New biological association'
   )
 })
