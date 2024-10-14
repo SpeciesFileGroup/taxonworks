@@ -4,10 +4,6 @@
       <h3>{{ title }}</h3>
     </template>
     <template #body>
-      <VSwitch
-        :options="Object.keys(TABS)"
-        v-model="currentTab"
-      />
       <div class="horizontal-left-content align-start gap-small">
         <SmartSelector
           class="full_width"
@@ -18,6 +14,13 @@
           :pin-section="currentTab"
           :pin-type="currentTab"
         >
+          <template #tabs-left>
+            <VSwitch
+              class="margin-small-right"
+              :options="Object.keys(TABS)"
+              v-model="currentTab"
+            />
+          </template>
           <template #tabs-right>
             <VLock v-model="lock" />
           </template>

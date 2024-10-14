@@ -11,8 +11,9 @@
             height: '24px'
           }"
         />
+        <slot name="tabs-left" />
         <switch-components
-          class="full_width capitalize"
+          class="capitalize"
           v-model="view"
           ref="tabselectorRef"
           :options="options"
