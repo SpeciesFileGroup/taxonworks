@@ -110,7 +110,13 @@ onBeforeMount(() => {
 
 <style scoped>
 .grid-panels {
-  display: grid;
-  grid-template-columns: 1fr 1fr 0.75fr;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.panel {
+  flex: 1 1 20%;
+  box-sizing: border-box;
 }
 </style>
