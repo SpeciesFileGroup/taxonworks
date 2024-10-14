@@ -57,10 +57,6 @@
         </tr>
       </tbody>
     </table>
-    <VPagination
-      :pagination="pagination"
-      @next-page="loadDuplicates"
-    />
   </div>
 </template>
 
