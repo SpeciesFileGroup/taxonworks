@@ -13,13 +13,20 @@
         label="cached"
         v-model="source"
         @selected="setSource"
-      />
+      >
+        <template #tabs-right>
+          <FormCitationClone
+            v-if="!inlineClone"
+            @clone="(item) => Object.assign(citation, item)"
+          />
+          <slot name="tabs-right" />
+          <VLock
+            v-if="lockButton"
+            v-model="isLocked"
+          />
+        </template>
+      </SmartSelector>
       <slot name="smart-selector-right" />
-      <VLock
-        v-if="lockButton"
-        class="margin-small-left"
-        v-model="isLocked"
-      />
     </div>
     <div
       class="horizontal-left-content margin-medium-top gap-small"
@@ -42,10 +49,6 @@
       >
         New
       </VBtn>
-      <FormCitationClone
-        v-if="!inlineClone"
-        @clone="(item) => Object.assign(citation, item)"
-      />
       <slot name="footer" />
     </div>
     <SmartSelectorItem

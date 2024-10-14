@@ -28,11 +28,11 @@
               v-model="namespace"
               @selected="setNamespace"
               @on-tab-selected="handleTabChange"
-            />
-            <lock-component
-              class="margin-small-left"
-              v-model="locked.identifier"
-            />
+            >
+              <template #tabs-right>
+                <lock-component v-model="locked.identifier" />
+              </template>
+            </SmartSelector>
             <WidgetNamespace
               ref="widgetNamespaceRef"
               @create="setNamespace"

@@ -29,8 +29,11 @@
               v-model="namespace"
               @selected="setNamespace"
               @on-tab-selected="handleTabChange"
-            />
-            <VLock v-model="settings.locked.recordNumber" />
+            >
+              <template #tabs-right>
+                <VLock v-model="settings.locked.recordNumber" />
+              </template>
+            </SmartSelector>
             <WidgetNamespace
               ref="widgetNamespaceRef"
               @create="setNamespace"

@@ -17,8 +17,11 @@
           :target="BIOLOGICAL_ASSOCIATION"
           :pin-section="currentTab"
           :pin-type="currentTab"
-        />
-        <VLock v-model="lock" />
+        >
+          <template #tabs-right>
+            <VLock v-model="lock" />
+          </template>
+        </SmartSelector>
       </div>
       <hr
         v-if="selected"

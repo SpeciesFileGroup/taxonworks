@@ -14,8 +14,11 @@
           inline
           label="name"
           pin-type="BiologicalRelationship"
-        />
-        <VLock v-model="lock" />
+        >
+          <template #tabs-right>
+            <VLock v-model="lock" />
+          </template>
+        </SmartSelector>
       </div>
       <hr
         v-if="relationship"
