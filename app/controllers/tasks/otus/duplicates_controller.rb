@@ -23,7 +23,7 @@ class Tasks::Otus::DuplicatesController < ApplicationController
       .per(params[:per])
 
 
-    render json: @otus.collect{|o| o.attributes.merge(label: helpers.otu_tag(o)) }
+    render json: @otus.collect{|o| o.attributes.merge(label: helpers.otu_tag(o), global_id: o.to_global_id.to_s) }
   end
 
 end
