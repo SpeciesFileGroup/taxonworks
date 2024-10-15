@@ -9,9 +9,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Created/updated overviews for user data
 - Unify objects task [#970]
 - Attribution to ObservationMatrix
 - New biological association task [#4026]
+- Duplicate OTU predictor task [#4083]
 
 ### Changed
 
@@ -23,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Containerizing objects prevented identific increments
 - New dichotomous key: Radial annotator is not loading the correct data [#4076]
 
+[#4083]: https://github.com/SpeciesFileGroup/taxonworks/issues/4083
 [#4026]: https://github.com/SpeciesFileGroup/taxonworks/issues/4026
 [#4074]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
 [#4076]: https://github.com/SpeciesFileGroup/taxonworks/issues/4076

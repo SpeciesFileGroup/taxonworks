@@ -6,7 +6,7 @@ class Tasks::Otus::DuplicatesController < ApplicationController
   def index
   end
 
-  def data 
+  def data
     a = Otu
       .joins(:taxon_name)
       .where('otus.project_id = ?',  sessions_current_project_id)

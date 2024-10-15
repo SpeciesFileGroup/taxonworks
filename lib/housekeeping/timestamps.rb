@@ -88,28 +88,5 @@ module Housekeeping::Timestamps
 
   end
 
-  # @return [Array]
-  def data_breakdown_for_chartkick_recent
-    # Rails.application.eager_load!
-    data = []
-    has_many_relationships.each do |name|
-
-      today      = self.send(name).created_today.count # in_project(self).count
-      this_week  = self.send(name).created_this_week.count # in_project(self).count
-      this_month = self.send(name).created_in_last(4.weeks).count # in_project(self).count
-
-      if this_month > 0
-        data.push({
-          name: name.to_s.humanize,
-          data: {
-            'this week'  => this_week,
-            today:,
-            'this month' => this_month
-          }
-        })
-      end
-    end
-    data
-  end
 
 end

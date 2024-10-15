@@ -51,7 +51,6 @@ resources :projects do
   member do
     get 'select'
     get 'settings_for'
-    get 'recently_created_stats'
   end
 end
 
@@ -100,11 +99,11 @@ resources :users, except: :new do
     post 'batch_create'
     get :autocomplete, defaults: {format: :json}
   end
+
   member do
-    get 'recently_created_data'
-    get 'recently_created_stats'
     patch 'reset_preferences'
     patch 'reset_hub_favorites'
+    get 'data'
   end
 end
 
