@@ -30,9 +30,15 @@
         <VBtn
           color="primary"
           medium
-          @click="() => loadDuplicates({ page: 1 })"
-          >Refresh</VBtn
+          @click="
+            () => {
+              loadDuplicates({ page: 1 })
+              selected = []
+            }
+          "
         >
+          Refresh
+        </VBtn>
       </div>
     </NavBar>
     <table class="full_width">
