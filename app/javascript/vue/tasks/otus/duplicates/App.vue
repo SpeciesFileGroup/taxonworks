@@ -12,10 +12,21 @@
           :ids="selected"
           :model="OTU"
         />
-        <VPagination
-          :pagination="pagination"
-          @next-page="loadDuplicates"
-        />
+        <ul class="context-menu">
+          <li>
+            <VPagination
+              :pagination="pagination"
+              @next-page="loadDuplicates"
+            />
+          </li>
+          <li>
+            <PaginationCount
+              v-model="per"
+              :pagination="pagination"
+              @change="() => loadDuplicates({ page: 1 })"
+            />
+          </li>
+        </ul>
         <VBtn
           color="primary"
           medium
@@ -73,9 +84,13 @@ import VPagination from '@/components/pagination.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import PaginationCount from '@/components/pagination/PaginationCount.vue'
 
-const MAX_PER = 50
+defineOptions({
+  name: 'DuplicateOtuPredictor'
+})
 
+const per = ref(50)
 const list = ref([])
 const pagination = ref({})
 const selected = ref([])
@@ -83,7 +98,7 @@ const isLoading = ref(false)
 
 function loadDuplicates({ page = 1 }) {
   isLoading.value = true
-  Otu.duplicates({ page, per: MAX_PER })
+  Otu.duplicates({ page, per: per.value })
     .then((response) => {
       pagination.value = getPagination(response)
       list.value = response.body
