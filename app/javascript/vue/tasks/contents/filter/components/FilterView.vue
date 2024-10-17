@@ -7,6 +7,10 @@
     v-model="params"
     :target="CONTENT"
   />
+  <FacetConfidence
+    v-model="params"
+    :target="CONTENT"
+  />
   <FacetParamExact
     title="Content"
     v-model="params"
@@ -35,8 +39,14 @@ import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 
-const WITH_PARAMS = ['citations', 'origin_citation', 'depictions']
+const WITH_PARAMS = [
+  'citations',
+  'origin_citation',
+  'depictions',
+  'without_confidences'
+]
 
 const props = defineProps({
   modelValue: {

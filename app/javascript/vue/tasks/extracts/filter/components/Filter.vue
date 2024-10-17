@@ -20,7 +20,11 @@
   <FacetMatchIdentifiers v-model="params" />
   <FacetTags
     v-model="params.keywords"
-    target="CollectionObject"
+    :target="EXTRACT"
+  />
+  <FacetConfidence
+    v-model="params"
+    :target="EXTRACT"
   />
   <FacetIdentifiers v-model="params" />
   <FacetProtocol v-model="params" />
@@ -37,6 +41,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { EXTRACT } from '@/constants'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetRepository from '@/components/Filter/Facets/CollectionObject/FacetRepository.vue'
@@ -51,8 +56,9 @@ import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchI
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 
-const WITH_PARAMS = ['citations', 'origin_citation']
+const WITH_PARAMS = ['citations', 'origin_citation', 'without_confidences']
 
 const props = defineProps({
   modelValue: {

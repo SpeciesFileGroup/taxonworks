@@ -15,8 +15,12 @@
   <FacetMatchIdentifiers v-model="params" />
   <FacetProtocol v-model="params" />
   <FacetKeywords
-    target="CollectingEvent"
+    :target="COLLECTING_EVENT"
     v-model="params"
+  />
+  <FacetConfidence
+    v-model="params"
+    :target="COLLECTING_EVENT"
   />
   <FacetTotalUsed v-model="params" />
   <FacetUsers
@@ -52,6 +56,7 @@ import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 import { computed } from 'vue'
 import { COLLECTOR_SELECTOR, COLLECTING_EVENT } from '@/constants/index.js'
 
@@ -77,7 +82,8 @@ const WITH_PARAMS = [
   'notes',
   'origin_citation',
   'protocols',
-  'tags'
+  'tags',
+  'without_confidences'
 ]
 
 const emit = defineEmits(['update:modelValue'])
