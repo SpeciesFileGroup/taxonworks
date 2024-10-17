@@ -2,16 +2,11 @@ module GeographicItemsHelper
 
   def geographic_item_tag(geographic_item)
     return nil if geographic_item.nil?
-    geographic_item.to_param 
+    geographic_item.to_param
   end
 
   def json_tag(geographic_item)
-    retval = geographic_item.to_geo_json_feature.to_json
-    retval
-  end
-
-  def center_coord_tag(geographic_item)
-    geographic_item.center_coords.join(', ')
+    geographic_item&.to_geo_json_feature.to_json
   end
 
   def geographic_item_link(geographic_item, link_text = nil)
@@ -26,10 +21,10 @@ module GeographicItemsHelper
   end
 
   def geographic_item_parent_nav_links(geographic_item)
-    data = {} 
+    data = {}
     geographic_item.parent_geographic_areas.each do |a|
       data[a] = a.geographic_items
-    end 
+    end
 
     content_tag(:div,
                 data.collect { |k, v| [
@@ -40,17 +35,17 @@ module GeographicItemsHelper
 
   def children_through_geographic_areas_links(geographic_item)
     data = {}
-    geographic_item.geographic_areas.each do |a| 
+    geographic_item.geographic_areas.each do |a|
       a.children.collect{ |c|
         data[c] = c.geographic_items.all
       }
-    end 
+    end
 
     links = []
     data.each do |k,v|
       next if v.nil?
       links += v.collect{ |i| geographic_item_link(i, k.name) }
-    end 
+    end
     links.join(', ').html_safe
   end
 

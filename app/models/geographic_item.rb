@@ -316,6 +316,15 @@ class GeographicItem < ApplicationRecord
       )
     end
 
+    def st_aslatlontext_sql(point_shape, format = '')
+      Arel::Nodes::NamedFunction.new(
+        'ST_AsLatLonText', [
+          geometry_cast(point_shape),
+          Arel::Nodes.build_quoted(format)
+        ]
+      )
+    end
+
     # @param [String] wkt
     # @return RGeo shape for wkt expressed as a union of pieces none of which
     # intersect the anti-meridian. Slightly lossy (has to be), and may turn
@@ -339,9 +348,9 @@ class GeographicItem < ApplicationRecord
           st_shift_longitude_sql(st_geom_from_text_sql(wkt)),
           st_geom_from_text_sql(anti_meridian_exterior)
         )
-        )['st_intersection']
+      )['st_intersection']
 
-        ::Gis::FACTORY.parse_wkb(wkb)
+      ::Gis::FACTORY.parse_wkb(wkb)
     end
 
     # @param [String] wkt
@@ -397,15 +406,21 @@ class GeographicItem < ApplicationRecord
     end
 
     # @param [Symbol] choice, either :latitude or :longitude
-    # @return [String]
+    # @return [Arel::Nodes::NamedFunction]
     #   a fragment returning either latitude or longitude columns
     def lat_long_sql(choice)
       return nil unless [:latitude, :longitude].include?(choice)
-      f = "'D.DDDDDD'" # TODO: probably a constant somewhere
+      f = 'D.DDDDDD'
       v = (choice == :latitude ? 1 : 2)
 
-      'split_part(ST_AsLatLonText(' \
-        "ST_Centroid(geography::geometry), #{f}), ' ', #{v}) AS #{choice}"
+      split_part(
+        st_aslatlontext_sql(
+          st_centroid_sql(geography_as_geometry),
+          f
+        ),
+        ' ',
+        v
+      ).as(choice.to_s)
     end
 
     # @param [Integer] geographic_item_id
@@ -835,13 +850,11 @@ class GeographicItem < ApplicationRecord
   # @return [String]
   #   a WKT POINT representing the geometry centroid of the geographic item
   def st_centroid
-    GeographicItem
-      .where(id:)
-      .pick(
-        self.class.st_as_text_sql(
-          self.class.st_centroid_sql(self.class.geography_as_geometry)
-        )
+    select_from_self(
+      self.class.st_as_text_sql(
+        self.class.st_centroid_sql(self.class.geography_as_geometry)
       )
+    )['st_astext']
   end
 
   # @return [RGeo::Geographic::ProjectedPointImpl]
@@ -857,13 +870,10 @@ class GeographicItem < ApplicationRecord
   #   item
   #   Meh- this: https://postgis.net/docs/en/ST_MinimumBoundingRadius.html
   def center_coords
-    r = GeographicItem.find_by_sql(
-      'Select split_part(ST_AsLatLonText(ST_Centroid(geography::geometry), ' \
-      "'D.DDDDDD'), ' ', 1) latitude, split_part(ST_AsLatLonText(ST_Centroid" \
-      "(geography::geometry), 'D.DDDDDD'), ' ', 2) " \
-      "longitude from geographic_items where id = #{id};")[0]
-
-    [r.latitude, r.longitude]
+    select_from_self(
+      self.class.lat_long_sql(:latitude),
+      self.class.lat_long_sql(:longitude)
+    ).values
   end
 
   # !!TODO: migrate these to use native column calls
@@ -1065,11 +1075,11 @@ class GeographicItem < ApplicationRecord
     geo_object_type == :multi_polygon
   end
 
-  def select_from_self(named_function)
+  def select_from_self(*named_function)
     # This is faster than GeographicItem.select(...)
     ActiveRecord::Base.connection.execute(
       self.class.arel_table
-        .project(named_function)
+        .project(*named_function)
         .where(self.class.arel_table[:id].eq(id))
         .to_sql
     ).to_a.first
@@ -1188,6 +1198,21 @@ class GeographicItem < ApplicationRecord
 
   def self.quote_string(s)
     ActiveRecord::Base.connection.quote_string(s)
+  end
+
+  # From the docs: Splits string at occurrences of delimiter and returns the
+  # n'th field (counting from one), or when n is negative, returns the
+  # |n|'th-from-last field.
+  # !! postgresql-specific
+  def self.split_part(s, delimiter, n)
+    Arel::Nodes::NamedFunction.new(
+        'split_part',
+        [
+          Arel::Nodes.build_quoted(s),
+          Arel::Nodes.build_quoted(delimiter),
+          Arel::Nodes.build_quoted(n)
+        ]
+      )
   end
 
 end

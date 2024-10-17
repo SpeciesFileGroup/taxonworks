@@ -332,12 +332,12 @@ class Georeference < ApplicationRecord
     )
   end
 
-  # @return [Float]
+  # @return [String]
   def latitude
     geographic_item.center_coords[0]
   end
 
-  # @return [Float]
+  # @return [String]
   def longitude
     geographic_item.center_coords[1]
   end
