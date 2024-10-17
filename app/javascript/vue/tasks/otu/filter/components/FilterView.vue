@@ -69,6 +69,7 @@ const WITH_PARAMS = [
   'citations',
   'collection_objects',
   'common_names',
+  'confidences',
   'contents',
   'data_depictions',
   'depictions',
@@ -76,8 +77,7 @@ const WITH_PARAMS = [
   'observations',
   'origin_citation',
   'taxon_name',
-  'with_name',
-  'without_confidences'
+  'with_name'
 ]
 
 const emit = defineEmits(['update:modelValue'])

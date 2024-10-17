@@ -58,7 +58,11 @@ import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 
-const WITH_PARAMS = ['citations', 'origin_citation', 'without_confidences']
+const WITH_PARAMS = [
+  'citations',
+  'confidences',
+  'origin_citation'
+]
 
 const props = defineProps({
   modelValue: {

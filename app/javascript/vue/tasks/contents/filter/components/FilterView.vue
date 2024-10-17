@@ -43,9 +43,9 @@ import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.v
 
 const WITH_PARAMS = [
   'citations',
-  'origin_citation',
+  'confidences',
   'depictions',
-  'without_confidences'
+  'origin_citation'
 ]
 
 const props = defineProps({

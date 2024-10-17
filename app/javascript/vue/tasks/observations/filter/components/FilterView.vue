@@ -51,14 +51,14 @@ import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.v
 
 const WITH_PARAMS = [
   'citations',
+  'confidences',
   'data_attributes',
   'data_depictions',
   'depictions',
   'identifiers',
   'notes',
   'protocols',
-  'tags',
-  'without_confidences'
+  'tags'
 ]
 
 const props = defineProps({

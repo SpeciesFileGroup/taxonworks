@@ -104,12 +104,13 @@ const WITH_PARAMS = [
   'citation_documents',
   'citations',
   'combinations',
+  'confidences',
   'data_attributes',
   'data_depictions',
   'depictions',
   'etymology',
-  'leaves',
   'global_identifiers',
+  'leaves',
   'local_identifiers',
   'nomenclature_date',
   'not_specified',
@@ -118,7 +119,6 @@ const WITH_PARAMS = [
   'original_combination',
   'otus',
   'tags',
-  'without_confidences',
   'type_metadata',
   'verbatim_name'
 ]

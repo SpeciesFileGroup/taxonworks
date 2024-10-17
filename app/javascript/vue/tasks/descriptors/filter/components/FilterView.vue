@@ -38,10 +38,10 @@ import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 
 const WITH_PARAMS = [
-  'observation_matrices',
-  'observations',
+  'confidences',
   'observation_depictions',
-  'without_confidences'
+  'observation_matrices',
+  'observations'
 ]
 
 const props = defineProps({

@@ -66,7 +66,10 @@ const PRESENCE_OPTIONS = [
   }
 ]
 
-const WITH_PARAMS = ['origin_citations', 'without_confidences']
+const WITH_PARAMS = [
+  'confidences',
+  'origin_citations'
+]
 
 const props = defineProps({
   modelValue: {
