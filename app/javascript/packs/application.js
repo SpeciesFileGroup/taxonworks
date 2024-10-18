@@ -10,6 +10,9 @@
 /* import 'core-js/stable'
 import 'regenerator-runtime/runtime' */
 // Styles
+import 'easymde/dist/easymde.min.css'
+import '@fontsource/ibm-plex-sans'
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
 import 'leaflet/dist/leaflet.css'
 import 'tippy.js/dist/tippy.css'
 

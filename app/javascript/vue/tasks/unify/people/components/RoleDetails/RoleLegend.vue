@@ -15,11 +15,10 @@
   </ul>
 </template>
 
-<script setup>
-</script>
+<script setup></script>
 
 <style lang="scss">
-@import './RoleDescription.scss';
+@use './RoleDescription.scss' as *;
 
 .role__legend {
   border-radius: 50%;

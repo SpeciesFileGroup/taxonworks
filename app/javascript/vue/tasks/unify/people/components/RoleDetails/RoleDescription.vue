@@ -73,7 +73,8 @@ const classForRoleProject = (role) => {
 </script>
 
 <style lang="scss" scoped>
-@import './RoleDescription.scss';
+@use './RoleDescription.scss' as *;
+
 .row-role {
   border-left: 4px solid;
 }

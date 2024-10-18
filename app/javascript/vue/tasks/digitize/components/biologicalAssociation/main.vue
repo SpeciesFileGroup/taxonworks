@@ -87,9 +87,21 @@
             />
           </div>
           <div class="flex-separate middle gap-small">
-            <template v-if="biologicalRelation">
-              <span v-html="displayRelated" />
+            <span
+              v-if="biologicalRelation"
+              v-html="displayRelated"
+            />
+
+            <h3
+              v-else
+              class="subtle relation-title"
+            >
+              Choose relation
+            </h3>
+
+            <div class="horizontal-right-content middle gap-small">
               <VBtn
+                v-if="biologicalRelation"
                 class="margin-medium-left"
                 color="primary"
                 circle
@@ -100,17 +112,10 @@
                   x-small
                 />
               </VBtn>
-            </template>
-            <h3
-              v-else
-              class="subtle relation-title"
-            >
-              Choose relation
-            </h3>
-
-            <lock-component
-              v-model="settings.locked.biological_association.related"
-            />
+              <lock-component
+                v-model="settings.locked.biological_association.related"
+              />
+            </div>
           </div>
         </div>
         <div
