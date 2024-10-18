@@ -141,12 +141,9 @@ const destroyMetadataRef = ref(null)
 const destroyTotal = computed(() =>
   getMetadataTotal(destroyObject.value?.metadata)
 )
-const keepTotal = computed(() => getMetadataTotal(keepObject.value?.metadata))
 
 const enablePreview = computed(() => {
-  return (
-    keepTotal.value && destroyTotal.value && destroyTotal.value <= MAX_TOTAL
-  )
+  return destroyTotal.value <= MAX_TOTAL
 })
 
 watch(model, () => {
