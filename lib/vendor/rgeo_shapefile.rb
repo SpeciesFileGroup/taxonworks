@@ -84,6 +84,10 @@ module Vendor::RgeoShapefile
             shape = record.geometry.valid? ?
               record.geometry : record.geometry.make_valid
 
+            if GeographicItem.crosses_anti_meridian?(shape.as_text)
+              shape = GeographicItem.split_along_anti_meridian(shape.as_text)
+            end
+
             g.build_geographic_item(
               geography: shape
             )
