@@ -1,3 +1,16 @@
+
+=begin
+query_scope: taxon_name_query: 
+
+mode:
+ :add
+ :replace
+ :remove
+
+keyword_id
+confidence_level_id
+=end
+
 class ConfidencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
@@ -105,6 +118,11 @@ class ConfidencesController < ApplicationController
     else
       render json: false
     end
+  end
+
+  # POST
+  def batch_by_filter_scope
+    Confidence.batch_by_filter_scope(params:)
   end
 
   private

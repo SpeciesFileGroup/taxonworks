@@ -44,4 +44,21 @@ class Confidence < ApplicationRecord
     Confidence.where(project_id: project_id, confidence_object: o, confidence_level_id: confidence_level_id).first
   end
 
+  def self.batch_by_filter_scope(filter_query: nil, confidence_level_id: nil)
+    q = ::Queries::Query::Filter.instantiated_base_filter(params[:filter_query])
+    c = q.all.count
+
+    case params[:mode]
+    when :replace
+
+    when :remove
+
+    when :add
+      q.all.find_each do |o|
+        o.delay(queue: 'query_batch_update').update(confidences_params: [{confidence_level_id:}])
+      end
+    end  
+  end
+
+
 end

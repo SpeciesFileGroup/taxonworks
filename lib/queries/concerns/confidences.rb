@@ -45,6 +45,7 @@ module Queries::Concerns::Confidences
     end
   end
 
+
   def set_confidences_params(params)
     @confidence_level_id = params[:confidence_level_id]
     @without_confidence_level_id = params[:without_confidence_level_id]
