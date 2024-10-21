@@ -33,7 +33,7 @@ class Gazetteer < ApplicationRecord
 
   delegate :geo_object, to: :geographic_item
 
-  belongs_to :geographic_item, inverse_of: :gazetteer, dependent: :destroy
+  belongs_to :geographic_item, inverse_of: :gazetteers
 
   before_validation do
     self.iso_3166_a2 = iso_3166_a2.strip.upcase if iso_3166_a2.present?
@@ -45,6 +45,8 @@ class Gazetteer < ApplicationRecord
   validates :name, presence: true, length: {minimum: 1}
   validate :iso_3166_a2_is_two_characters
   validate :iso_3166_a3_is_three_characters
+
+  after_destroy :destroy_geographic_item_if_orphaned
 
   accepts_nested_attributes_for :geographic_item
 
@@ -231,5 +233,11 @@ class Gazetteer < ApplicationRecord
   def self.split_shape_along_anti_meridian(s)
     GeographicItem.crosses_anti_meridian?(s.as_text) ?
       GeographicItem.split_along_anti_meridian(s.as_text) : s
+  end
+
+  def destroy_geographic_item_if_orphaned
+    if geographic_item.gazetteers.count == 0
+      geographic_item.destroy!
+    end
   end
 end

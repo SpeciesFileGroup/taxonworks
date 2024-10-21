@@ -60,7 +60,7 @@ class GeographicItem < ApplicationRecord
   has_many :collecting_events_through_georeference_error_geographic_item,
     through: :georeferences_through_error_geographic_item, source: :collecting_event
 
-  has_one :gazetteer, inverse_of: :geographic_item
+  has_many :gazetteers, inverse_of: :geographic_item
 
   validate :some_data_is_provided
   validate :check_point_limits

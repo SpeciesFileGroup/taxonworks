@@ -25,9 +25,7 @@ module Queries::Concerns::Gazetteers
   def gazetteer_id_facet
     return nil if gazetteer_id.empty?
 
-    a = ::Gazetteer.where(id: gazetteer_id)
-
-    i = ::GeographicItem.joins(:gazetteer).where(gazetteer: a)
+    i = ::GeographicItem.joins(:gazetteers).where(gazetteers: { id: gazetteer_id })
     wkt_shape = ::Queries::GeographicItem.st_union(i).to_a.first['st_union'].to_s
 
     from_wkt(wkt_shape)
