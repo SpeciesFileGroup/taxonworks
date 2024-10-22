@@ -1,5 +1,5 @@
 # Nested ness of this should get all the relationships?
-require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
+# require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 
 
 # A *monomial* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
@@ -31,7 +31,7 @@ class Protonym < TaxonName
     :validate_parent_rank_is_higher,
     :validate_child_rank_is_equal_or_lower,
     :check_new_rank_class,
-    :check_new_parent_class,
+    # :check_new_parent_class, # currently runs on taxon_name.rb
     :validate_source_type,
     :new_parent_taxon_name,
     :name_is_latinized,
@@ -1027,7 +1027,7 @@ class Protonym < TaxonName
   # DD: rules for cached tend to evolve, what was good in the past, may not be true today
   # MJY: If the meaning of cached changes then it should be removed, not changed.
   def sv_cached_names # this cannot be moved to soft_validation_extensions
-    is_cached = true
+  is_cached = true
 
   is_cached = false if cached_author_year != get_author_and_year
   is_cached = false if cached_author != get_author
@@ -1089,4 +1089,4 @@ class Protonym < TaxonName
   def set_cached_original_combination_html
     update_column(:cached_original_combination_html, get_original_combination_html)
   end
-  end
+end

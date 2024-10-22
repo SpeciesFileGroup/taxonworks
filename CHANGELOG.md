@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Simple TaxonName batch load failing with invalid children
 - `api/v1/images/:id` broken for non-integer ids
 - Containerizing objects prevented identific increments
 - New dichotomous key: Radial annotator is not loading the correct data [#4076]

@@ -171,8 +171,9 @@ class TaxonNamesController < ApplicationController
   end
 
   def create_simple_batch_load
+
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :simple_taxon_names_md5)
-      @result =  BatchLoad::Import::TaxonifiToTaxonworks.new(**batch_params)
+      @result = BatchLoad::Import::TaxonifiToTaxonworks.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} taxon names were created."
         render 'taxon_names/batch_load/simple/create' and return
@@ -182,6 +183,7 @@ class TaxonNamesController < ApplicationController
     else
       flash[:alert] = 'File to batch upload must be supplied.'
     end
+
     render :batch_load
   end
 
