@@ -7,7 +7,6 @@ const permitParams = {
     name: String,
     iso_3166_a2: String,
     iso_3166_a3: String,
-    projects: Array,
     shapes: {
       geojson: [],
       wkt: [],
@@ -22,7 +21,8 @@ const permitParams = {
     dbf_doc_id: Number,
     prj_doc_id: Number,
     name_field: String
-  }
+  },
+  projects: Array
 }
 
 export const Gazetteer = {

@@ -30,6 +30,12 @@
     class="citations_options"
   />
 
+  <ProjectsChooser
+    v-model="selectedProjects"
+    selection-text="Gazetteers will be imported into each selected project."
+    class="projects_chooser"
+  />
+
   <div class="process_button">
     <VBtn
       :disabled="processingDisabled"
@@ -76,6 +82,7 @@
 import CitationOptions from './components/CitationOptions.vue'
 import DocumentSelector from './components/DocumentSelector.vue'
 import ImportJobs from './components/ImportJobs.vue'
+import ProjectsChooser from '../components/ProjectsChooser.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -88,6 +95,7 @@ const isLoading = ref(false)
 const modalVisible = ref(false)
 const shapefileFields = ref([])
 const citation = ref({})
+const selectedProjects = ref([])
 
 const jobs = ref(null)
 
@@ -116,7 +124,8 @@ function processShapefile() {
     citation_options: {
       cite_gzs: !!citation.value.source_id,
       citation: citation.value
-    }
+    },
+    projects: selectedProjects.value
   }
 
   isLoading.value = true
@@ -124,6 +133,7 @@ function processShapefile() {
     .then(() => {
       TW.workbench.alert.create('Import submitted to background job', 'notice')
       jobs.value.refresh()
+      selectedProjects.value = []
     })
     .catch(() => {})
     .finally(() => { isLoading.value = false })
@@ -214,5 +224,10 @@ function setShapefileField(field) {
 .citations_options {
   max-width: 600px;
   margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.projects_chooser {
+  max-width: 600px;
 }
 </style>

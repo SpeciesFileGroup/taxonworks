@@ -219,28 +219,29 @@ class Gazetteer < ApplicationRecord
   # @param gz [Gazetteer] Unsaved Gazetteer to save and clone from
   # @param project_ids [Array] project ids to clone gz into - gz is always
   #   saved to the current project
-  # @return [Boolean] true if all gzs were saved successfully
+  # @return [Array] of {id:, project_id:} for gazetteers created
+  # Raises ActiveRecord::RecordInvalid on error
   def self.clone_to_projects(gz, project_ids)
     project_ids.delete(Current.project_id)
     project_ids.uniq!
     if project_ids.empty?
-      return gz.save
+      gz.save!
+      return [{ id: gz.id, project_id: gz.project_id }]
     end
 
-    begin
-      Gazetteer.transaction do
-        gz.save!
-        project_ids.each do |id|
-          d = gz.dup
-          d.project_id = id
-          d.save!
-        end
+    rv = []
+    Gazetteer.transaction do
+      gz.save!
+      rv << { id: gz.id, project_id: gz.project_id }
+      project_ids.each do |pr_id|
+        d = gz.dup
+        d.project_id = pr_id
+        d.save!
+        rv << { id: d.id, project_id: d.project_id }
       end
-    rescue ActiveRecord::RecordInvalid
-      return false
     end
 
-    true
+    rv
   end
 
   private

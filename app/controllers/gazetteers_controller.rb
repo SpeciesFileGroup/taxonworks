@@ -58,10 +58,11 @@ class GazetteersController < ApplicationController
       return
     end
 
-    if Gazetteer.clone_to_projects(@gazetteer, projects_param['projects'])
+    begin
+      Gazetteer.clone_to_projects(@gazetteer, projects_param['projects'])
       render :show, status: :created, location: @gazetteer
-    else
-      render json: @gazetteer.errors, status: :unprocessable_entity
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { errors: e.message }, status: :unprocessable_entity
     end
   end
 
@@ -140,7 +141,8 @@ class GazetteersController < ApplicationController
     ImportGazetteersJob.perform_later(
       new_params, citation_params,
       sessions_current_user_id, sessions_current_project_id,
-      progress_tracker
+      progress_tracker,
+      projects_param['projects']
     )
 
     head :no_content
@@ -185,7 +187,7 @@ class GazetteersController < ApplicationController
   end
 
   def projects_param
-    params.require(:gazetteer).permit(projects: [])
+    params.permit(projects: [])
   end
 
   def shape_params

@@ -1,14 +1,11 @@
 <template>
-  <fieldset v-if="isLoading || projects.length > 0">
+  <fieldset v-if="isLoading || projects.length > 1">
     <VSpinner v-if="isLoading" />
 
     <legend>Projects</legend>
     <div class="projects-text">{{ selectionText }}</div>
 
-    <ul
-      v-if="!gz_id"
-      class="no_bullets"
-    >
+    <ul class="no_bullets">
       <li v-for="p in projects">
         <label>
           <input

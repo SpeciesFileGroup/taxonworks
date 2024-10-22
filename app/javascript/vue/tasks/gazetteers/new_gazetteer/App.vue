@@ -84,7 +84,7 @@ import Leaflet from './components/Leaflet.vue'
 import NavBar from './components/NavBar.vue'
 import OtherInputs from './components/OtherInputs.vue'
 import Preview from './components/Preview.vue'
-import ProjectsChooser from './components/ProjectsChooser.vue'
+import ProjectsChooser from '../components/ProjectsChooser.vue'
 import UnionInput from './components/UnionInput.vue'
 import SetParam from '@/helpers/setParam'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -220,7 +220,6 @@ function combineShapesToGz() {
     name: gz.value.name,
     iso_3166_a2: gz.value.iso_3166_a2,
     iso_3166_a3: gz.value.iso_3166_a3,
-    projects: selectedProjects.value,
     shapes: {
       geojson,
       wkt,
@@ -261,9 +260,13 @@ function previewGz() {
 
 function saveNewGz() {
   const gazetteer = combineShapesToGz()
+  const payload = {
+    gazetteer,
+    projects: selectedProjects.value
+  }
 
   isLoading.value = true
-  Gazetteer.create({ gazetteer })
+  Gazetteer.create(payload)
     .then(({ body }) => {
       gz.value = body
       shapes.value = [

@@ -1,6 +1,6 @@
 module Vendor::RgeoShapefile
   def self.import_gzs_from_shapefile(
-    shapefile, citation_options, progress_tracker
+    shapefile, citation_options, progress_tracker, projects
   )
     begin
       shp_doc = Document.find(shapefile[:shp_doc_id])
@@ -36,13 +36,15 @@ module Vendor::RgeoShapefile
 
     citation = citation_options[:cite_gzs] ? citation_options[:citation] : nil
 
-    processShapeFile(shp_link, name_field, citation, progress_tracker)
+    processShapeFile(shp_link, name_field, citation, progress_tracker, projects)
 
     FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
     FileUtils.rmdir(tmp_dir)
   end
 
-  def self.processShapeFile(shpfile, name_field, citation, progress_tracker)
+  def self.processShapeFile(
+    shpfile, name_field, citation, progress_tracker, projects
+  )
     r = {
       num_records: 0,
       error_id: nil,
@@ -92,13 +94,16 @@ module Vendor::RgeoShapefile
               geography: shape
             )
 
-            g.save!
+            gzs_data = Gazetteer.clone_to_projects(g, projects)
 
             if citation.present?
-              Citation.create!(citation.merge({
-                citation_object_type: 'Gazetteer',
-                citation_object_id: g.id
-              }))
+              gzs_data.each do |d|
+                Citation.create!(citation.merge({
+                  citation_object_type: 'Gazetteer',
+                  citation_object_id: d[:id],
+                  project_id: d[:project_id]
+                }))
+              end
             end
           rescue RGeo::Error::InvalidGeometry => e
             r[:error_id] = i + 1
