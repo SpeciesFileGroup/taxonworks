@@ -103,19 +103,19 @@ module Vendor::RgeoShapefile
           rescue RGeo::Error::InvalidGeometry => e
             r[:error_id] = i + 1
             r[:error_message] = e.to_s
-            raise ActiveRecord::RecordInvalid
+            raise TaxonWorks::Error
           rescue ActiveRecord::RecordInvalid => e
             r[:error_id] = i + 1
             r[:error_message] = e.to_s
-            raise ActiveRecord::RecordInvalid
+            raise TaxonWorks::Error
           rescue RGeo::Error::GeosError => e
             r[:error_id] = i + 1
             r[:error_message] = e.to_s
-            raise ActiveRecord::RecordInvalid
+            raise TaxonWorks::Error
           end
         end
       end
-    rescue ActiveRecord::RecordInvalid
+    rescue TaxonWorks::Error
       m = "Error on record #{r[:error_id]}/#{r[:num_records]}: #{r[:error_message]}"
       progress_tracker.update!(
         num_records_processed: r[:error_id] - 1,

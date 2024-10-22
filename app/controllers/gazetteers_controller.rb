@@ -58,7 +58,7 @@ class GazetteersController < ApplicationController
       return
     end
 
-    if @gazetteer.save
+    if Gazetteer.clone_to_projects(@gazetteer, projects_param['projects'])
       render :show, status: :created, location: @gazetteer
     else
       render json: @gazetteer.errors, status: :unprocessable_entity
@@ -182,6 +182,10 @@ class GazetteersController < ApplicationController
   def gazetteer_params
     params.require(:gazetteer).permit(:name, :parent_id,
       :iso_3166_a2, :iso_3166_a3)
+  end
+
+  def projects_param
+    params.require(:gazetteer).permit(projects: [])
   end
 
   def shape_params

@@ -216,6 +216,33 @@ class Gazetteer < ApplicationRecord
     u
   end
 
+  # @param gz [Gazetteer] Unsaved Gazetteer to save and clone from
+  # @param project_ids [Array] project ids to clone gz into - gz is always
+  #   saved to the current project
+  # @return [Boolean] true if all gzs were saved successfully
+  def self.clone_to_projects(gz, project_ids)
+    project_ids.delete(Current.project_id)
+    project_ids.uniq!
+    if project_ids.empty?
+      return gz.save
+    end
+
+    begin
+      Gazetteer.transaction do
+        gz.save!
+        project_ids.each do |id|
+          d = gz.dup
+          d.project_id = id
+          d.save!
+        end
+      end
+    rescue ActiveRecord::RecordInvalid
+      return false
+    end
+
+    true
+  end
+
   private
 
   def iso_3166_a2_is_two_characters

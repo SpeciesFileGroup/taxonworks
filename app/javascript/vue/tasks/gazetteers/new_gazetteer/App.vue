@@ -7,30 +7,40 @@
     @reset-gz="() => reset()"
   />
 
-  <div class="field label-above">
-    <label>Name</label>
-    <input
-      type="text"
-      class="normal-input name-input"
-      v-model="gz.name"
-    />
-  </div>
+  <div class="non-shape-inputs">
+    <div>
+      <div class="field label-above">
+        <label>Name</label>
+        <input
+          type="text"
+          class="normal-input name-input"
+          v-model="gz.name"
+        />
+      </div>
 
-  <div class="field label-above">
-    <label>ISO 3166 A2 country code</label>
-    <input
-      type="text"
-      class="input-xsmall-width"
-      v-model="gz.iso_3166_a2"
-    />
-  </div>
+      <div class="field label-above">
+        <label>ISO 3166 A2 country code</label>
+        <input
+          type="text"
+          class="input-xsmall-width"
+          v-model="gz.iso_3166_a2"
+        />
+      </div>
 
-  <div class="field label-above">
-    <label>ISO 3166 A3 country code</label>
-    <input
-      type="text"
-      class="input-xsmall-width"
-      v-model="gz.iso_3166_a3"
+      <div class="field label-above">
+        <label>ISO 3166 A3 country code</label>
+        <input
+          type="text"
+          class="input-xsmall-width"
+          v-model="gz.iso_3166_a3"
+        />
+      </div>
+    </div>
+
+    <ProjectsChooser
+      v-if="!gz.id"
+      v-model="selectedProjects"
+      selection-text="Select projects to save this gazetteer to."
     />
   </div>
 
@@ -74,6 +84,7 @@ import Leaflet from './components/Leaflet.vue'
 import NavBar from './components/NavBar.vue'
 import OtherInputs from './components/OtherInputs.vue'
 import Preview from './components/Preview.vue'
+import ProjectsChooser from './components/ProjectsChooser.vue'
 import UnionInput from './components/UnionInput.vue'
 import SetParam from '@/helpers/setParam'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -98,6 +109,7 @@ const previewing = ref(false)
 const previewShape = ref(null)
 const gz = ref({})
 const isLoading = ref(false)
+const selectedProjects = ref([])
 
 const leafletShapes = computed(() => {
   if (previewing.value && previewShape.value) {
@@ -208,6 +220,7 @@ function combineShapesToGz() {
     name: gz.value.name,
     iso_3166_a2: gz.value.iso_3166_a2,
     iso_3166_a3: gz.value.iso_3166_a3,
+    projects: selectedProjects.value,
     shapes: {
       geojson,
       wkt,
@@ -290,6 +303,7 @@ function reset() {
   previewing.value = false
   previewShape.value = null
   gz.value = {}
+  selectedProjects.value = []
   SetParam(RouteNames.NewGazetteer, 'gazetteer_id')
 }
 
@@ -330,5 +344,10 @@ function removeFromShapes(shape) {
 
 .geolist {
   margin-bottom: 2em;
+}
+
+.non-shape-inputs {
+  display: flex;
+  gap: 2em;
 }
 </style>
