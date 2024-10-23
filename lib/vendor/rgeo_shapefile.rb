@@ -36,13 +36,15 @@ module Vendor::RgeoShapefile
 
     citation = citation_options[:cite_gzs] ? citation_options[:citation] : nil
 
-    processShapeFile(shp_link, name_field, citation, progress_tracker, projects)
+    process_shape_file(
+      shp_link, name_field, citation, progress_tracker, projects
+    )
 
     FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
     FileUtils.rmdir(tmp_dir)
   end
 
-  def self.processShapeFile(
+  def self.process_shape_file(
     shpfile, name_field, citation, progress_tracker, projects
   )
     r = {

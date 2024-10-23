@@ -10,6 +10,10 @@ RSpec.describe ImportGazetteersJob, type: :job do
     let!(:user) { FactoryBot.create(:valid_user) }
     let!(:project) { FactoryBot.create(:valid_project,
       created_by_id: user.id, updated_by_id: user.id) }
+    let!(:project2) { FactoryBot.create(:valid_project,
+      created_by_id: user.id, updated_by_id: user.id) }
+    let!(:project3) { FactoryBot.create(:valid_project,
+      created_by_id: user.id, updated_by_id: user.id) }
     let(:shp_doc) {
       Document.create!(
         document_file: Rack::Test::UploadedFile.new(
@@ -59,18 +63,35 @@ RSpec.describe ImportGazetteersJob, type: :job do
         shapefile: shp_doc.document_file_file_name
       )
     }
+    let(:projects) { [project.id] }
 
     before(:each) {
       Current.user_id = user.id
       Current.project_id = project.id
 
       ImportGazetteersJob.perform_now(
-        shapefile, citation_options, user.id, project.id, progress_tracker
+        shapefile, citation_options, user.id, project.id,
+        progress_tracker, projects
       )
     }
 
     specify 'creates the right number of Gazetteers' do
       expect(Gazetteer.all.count).to eq(num_shapefile_records)
+    end
+
+    context 'cloning into multiple projects' do
+      let(:projects) { [project.id, project2.id] }
+
+      specify 'creates the right number of Gazetteers' do
+        expect(Gazetteer.where(project: ).count)
+          .to eq(num_shapefile_records)
+
+        expect(Gazetteer.where(project: project2).count)
+          .to eq(num_shapefile_records)
+
+        expect(Gazetteer.where(project: project3).count)
+          .to eq(0)
+      end
     end
 
     specify 'creates Gazetteers with the expected names' do
@@ -82,7 +103,7 @@ RSpec.describe ImportGazetteersJob, type: :job do
     end
 
     specify 'citation option off creates GZs with no citations' do
-      expect(Gazetteer.all.map { |g| g.citations }.flatten). to eq([])
+      expect(Citation.any?).to eq(false)
     end
 
     context 'progress tracking' do
@@ -95,20 +116,11 @@ RSpec.describe ImportGazetteersJob, type: :job do
           .to eq(num_shapefile_records)
       end
 
-      specify 'specifies project id' do
-        expect(progress_tracker.project_id).to eq(project.id)
-      end
-
       specify 'has empty `aborted_reason` on success' do
         expect(progress_tracker.aborted_reason).to eq(nil)
       end
 
       context 'with an error causing the job to quit' do
-        # Shape errors that cause aborts seem to be quite subtle, the only one
-        # I'm aware of occurs on rounding numbers very close to but < 180 to
-        # something > 180, which seems fragile, so instead we're using a
-        # citation error that's unlikely to occur in practice but should still
-        # test the relevant paths
         let(:citation_options) {
           {
             cite_gzs: true,
@@ -150,6 +162,22 @@ RSpec.describe ImportGazetteersJob, type: :job do
         expect(
           Gazetteer.all.map { |g| g.citations.map { |c| c.source_id } }.flatten
         ).to eq([source.id] * num_shapefile_records)
+      end
+
+      context 'cloned into multiple projects' do
+        let(:projects) { [project.id, project2.id] }
+
+        specify 'there are the expected number of citations' do
+          expect(Citation.where(project_id: project.id).count)
+            .to eq(num_shapefile_records)
+
+          expect(Citation.where(project_id: project2.id).count)
+            .to eq(num_shapefile_records)
+
+          expect(Citation.where(project_id: project3.id).count)
+            .to eq(0)
+        end
+
       end
     end
 

@@ -211,5 +211,54 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         end
       end
     end
+
+    context 'cloning into multiple projects on creation' do
+      context '#clone_to_projects' do
+        let(:project2) { FactoryBot.create(:valid_project) }
+        let(:project3) { FactoryBot.create(:valid_project) }
+        let(:p) { Gis::FACTORY.point(1, 2) }
+        let(:g) {
+          a = Gazetteer.new(name: 'a', iso_3166_a2: 'zz')
+          a.build_geographic_item(geography: p)
+          a
+        }
+
+        specify 'saves to expected projects' do
+          Gazetteer.clone_to_projects(g, [Current.project_id, project2.id])
+
+          expect(Gazetteer.where(project_id: Current.project_id).count)
+            .to equal(1)
+
+          expect(Gazetteer.where(project_id: project2.id).count)
+            .to equal(1)
+
+          expect(Gazetteer.where(project_id: project3.id).count)
+            .to equal(0)
+        end
+
+        specify 'returns id and project_id for saved gzs' do
+          rv =
+            Gazetteer.clone_to_projects(g, [Current.project_id, project2.id])
+
+          gz1 = Gazetteer.where(project_id: Current.project_id).first
+          gz2 = Gazetteer.where(project_id: project2.id).first
+
+          expect(rv).to contain_exactly(
+            { id: gz1.id, project_id: Current.project_id },
+            { id: gz2.id, project_id: project2.id }
+          )
+        end
+
+        specify 'clones have the expected data' do
+          Gazetteer.clone_to_projects(g, [Current.project_id, project2.id])
+          gz2 = Gazetteer.where(project_id: project2.id).first
+
+          expect(gz2.name).to eq('a')
+          expect(gz2.iso_3166_a2).to eq('ZZ')
+          expect(gz2.iso_3166_a3).to eq(nil)
+          expect(gz2.geo_object).to eq(p)
+        end
+      end
+    end
   end
 end
