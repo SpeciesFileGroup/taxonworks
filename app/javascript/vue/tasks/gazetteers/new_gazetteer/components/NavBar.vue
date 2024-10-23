@@ -22,6 +22,12 @@
       </div>
       <ul class="context-menu no_bullets">
         <li class="horizontal-right-content">
+          <a
+            href="/gazetteers"
+            class="gzs-link"
+          >
+            Gazetteers
+          </a>
           <VBtn
             :disabled="saveDisabled"
             @click="emit('saveGz')"
@@ -72,3 +78,9 @@ const saveLabel = computed(() => {
   return props.gz.id ? "Update" : "Save"
 })
 </script>
+
+<style lang="scss" scoped>
+.gzs-link {
+  margin-right: 2em;
+}
+</style>
