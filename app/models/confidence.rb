@@ -44,21 +44,69 @@ class Confidence < ApplicationRecord
     Confidence.where(project_id: project_id, confidence_object: o, confidence_level_id: confidence_level_id).first
   end
 
-  def self.batch_by_filter_scope(filter_query: nil, confidence_level_id: nil)
-    q = ::Queries::Query::Filter.instantiated_base_filter(params[:filter_query])
+  def self.batch_by_filter_scope(filter_query: nil, confidence_level_id: nil, replace_confidence_level_id: nil, mode: :add, async_cutoff: 100)
+    q = ::Queries::Query::Filter.instatiated_base_filter(filter_query)
+
     c = q.all.count
 
-    case params[:mode]
+    async = c > async_cutoff ? true : false
+
+    # Batch result
+    r = ::BatchResponse.new(
+      total_attempted: q.all.count,
+      async:,
+      preview: false,
+      method: 'Confidence batch_by_filter_scope',
+      klass: q.referenced_klass.name
+    )
+
+    case mode.to_sym
     when :replace
+      # TODO: Return response
+      if replace_confidence_level_id.nil?
+        r.errors['no replacement confidence level provided'] = 1
+        return r.to_json
+      end
 
+      if async
+        # TODO: not optimal
+        q.all.find_each do |o|
+          o.confidences.where(confidence_level_id: replace_confidence_level_id).each do |c|
+            c.delay(queue: 'query_batch_update').update(confidence_level_id:)
+          end
+        end
+      else
+        Confidence
+          .where(
+            confidence_object_id: q.all.pluck(:id),
+            confidence_object_type: q.referenced_klass.name,
+            confidence_level_id: replace_confidence_level_id
+          ).update_all(confidence_level_id:)
+      end
     when :remove
-
+      # TODO: definitely not optimal, Find is the most expensive, then delete is almost nothing
+      if async
+        q.all.find_each do |o|
+          Confidence.find_by(confidence_level_id:, confidence_object: o)&.delay(queue: 'query_batch_update').delete
+        end
+      else
+        Confidence
+          .where(
+            confidence_object_id: q.all.pluck(:id),
+            confidence_object_type: q.referenced_klass.name
+          ).delete_all
+      end
     when :add
       q.all.find_each do |o|
-        o.delay(queue: 'query_batch_update').update(confidences_params: [{confidence_level_id:}])
+        if async
+          o.delay(queue: 'query_batch_update').update(confidences_attributes: [{confidence_level_id:, by: Current.user_id, project_id: o.project_id}])
+        else
+          Confidence.create(confidence_object: o, confidence_level_id:)
+        end
       end
-    end  
-  end
+    end
 
+    return r.to_json
+  end
 
 end

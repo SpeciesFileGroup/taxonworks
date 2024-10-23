@@ -10,7 +10,7 @@ module Shared::QueryBatchUpdate
   # @params params [Hash]
   #   the attributes to update
   # @params result [BatchResponse]
-  def query_update(params, response=nil)
+  def query_update(params, response = nil)
     begin
       update!( params )
       response.updated.push self.id if response

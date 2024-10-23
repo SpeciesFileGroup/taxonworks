@@ -89,6 +89,7 @@ resources :confidences do # , except: [:edit, :show]
   concerns [:data_routes]
   collection do
     post :confidence_object_update
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 end
 
