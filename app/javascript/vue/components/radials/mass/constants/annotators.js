@@ -8,6 +8,7 @@ import AnnotatorDataAttribute from '../components/Annotator/DataAttribute/Annota
 
 export const ANNOTATORS = {
   all: {
+    Confidence: AnnotatorConfidence,
     'Data attributes': AnnotatorDataAttribute
   },
 

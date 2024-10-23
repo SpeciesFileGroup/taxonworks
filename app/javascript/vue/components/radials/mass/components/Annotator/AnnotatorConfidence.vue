@@ -1,19 +1,36 @@
 <template>
   <div class="confidence_annotator">
-    <SmartSelector
-      class="margin-medium-bottom"
-      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{ 'type[]': 'ConfidenceLevel' }"
-      get-url="/controlled_vocabulary_terms/"
-      model="confidence_levels"
-      button-class="button-submit"
-      buttons
-      inline
-      klass="Tag"
-      :target="objectType"
-      :custom-list="{ all: allList }"
-      @selected="createConfidence"
-    />
+    <h3>Mode</h3>
+    <ul class="no_bullets">
+      <li
+        v-for="(value, key) in MODE"
+        :key="key"
+      >
+        <label>
+          <input
+            type="radio"
+            :value="value"
+            v-model="selectedMode"
+          />
+          {{ key }}
+        </label>
+      </li>
+    </ul>
+    <div
+      color="create"
+      class="flex-wrap-row gap-small margin-large-top"
+    >
+      <VBtn
+        v-for="item in list"
+        :key="item.id"
+        :color="selectedMode == MODE.Add ? 'create' : 'destroy'"
+        medium
+        @click="createConfidence(item)"
+      >
+        <span v-html="item.object_tag" />
+      </VBtn>
+    </div>
+
     <ConfirmationModal
       ref="confirmationModalRef"
       :container-style="{ 'min-width': 'auto', width: '300px' }"
@@ -24,9 +41,11 @@
 <script setup>
 import { ref, onBeforeMount } from 'vue'
 import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
-import SmartSelector from '@/components/ui/SmartSelector.vue'
+import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import confirmationOpts from '../../constants/confirmationOpts.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   ids: {
@@ -37,18 +56,28 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  parameters: {
+    type: Object,
+    default: undefined
   }
 })
 
-const emit = defineEmits(['create'])
+const MODE = {
+  Add: 'add',
+  Remove: 'remove'
+}
 
 const confirmationModalRef = ref(null)
-const allList = ref([])
+const list = ref([])
+
+const selectedMode = ref(MODE.Add)
 
 onBeforeMount(() => {
   ControlledVocabularyTerm.where({ type: ['ConfidenceLevel'] }).then(
     ({ body }) => {
-      allList.value = body
+      list.value = body
     }
   )
 })
@@ -57,23 +86,27 @@ async function createConfidence(confidence) {
   const ok = await confirmationModalRef.value.show(confirmationOpts)
 
   if (ok) {
-    const promises = props.ids.map((id) => {
-      const payload = {
-        confidence_level_id: confidence.id,
-        confidence_object_id: id,
-        confidence_object_type: props.objectType
+    const idParam = ID_PARAM_FOR[props.objectType]
+    const queryParam = QUERY_PARAM[props.objectType]
+    const payload = {
+      mode: selectedMode.value,
+      confidence_level_id: confidence.id,
+      filter_query: {
+        [queryParam]: {
+          ...props.parameters
+        }
       }
+    }
 
-      return Confidence.create({ confidence: payload })
-    })
+    if (props.ids?.length) {
+      payload.filter_query[idParam] = props.ids
+    }
 
-    Promise.all(promises).then(() => {
-      emit(
-        'create',
-        promises.map((r) => r.body)
-      )
+    Confidence.batchByFilter(payload).then(() => {
       TW.workbench.alert.create(
-        'Note item(s) were successfully created',
+        `Confidence item(s) were successfully ${
+          selectedMode.value == MODE.Add ? 'created' : 'destroyed'
+        }`,
         'notice'
       )
     })
