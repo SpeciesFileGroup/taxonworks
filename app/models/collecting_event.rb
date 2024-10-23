@@ -225,8 +225,8 @@ class CollectingEvent < ApplicationRecord
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
-  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy
-  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
+  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy, inverse_of: :role_object
+  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy, inverse_of: :role_object
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
@@ -462,6 +462,7 @@ class CollectingEvent < ApplicationRecord
 
   # @return [Boolean]
   #   test for minimal data
+  # TODO: consider renaming, reference new Merge code
   def has_data?
     CollectingEvent.core_attributes.each do |a|
       return true if self.send(a).present?

@@ -36,6 +36,9 @@ module BatchLoad
     # @return [Integer]
     attr_accessor :user_id
 
+    # @return User instance
+    attr_accessor :user
+
     # The number of non-header rows in the file
     attr_accessor :total_lines
 
@@ -91,7 +94,13 @@ module BatchLoad
     # @param [File] value
     # @return [File]
     def file=(value)
-      @file = value
+      @file = if value.kind_of?(ActionDispatch::Http::UploadedFile)
+                value.tempfile
+              elsif value.kind_of?(Tempfile)
+                value
+              else
+                raise TaxonWorks::Error, 'unknown file handler'
+              end
       csv
       @file
     end
@@ -100,7 +109,7 @@ module BatchLoad
     def csv
       begin
         @csv ||= CSV.parse(
-          @file.tempfile.read.force_encoding('utf-8'), # force encoding is likely a very bad idea, but instructinos say "utf-8"
+          file.read.force_encoding('utf-8'), # force encoding is likely a very bad idea, but instructinos say "utf-8"
           headers: true,
           header_converters: [
             :downcase,
@@ -126,12 +135,12 @@ module BatchLoad
     # @param [String] h
     # @return [String]
     def user_map(h)
-      @user_header_map[h] ? @user_header_map[h] : h
+      user_header_map[h] ? user_header_map[h] : h
     end
 
     # @return [Boolean]
     def valid?
-      return false unless @project_id && @user && @file && csv && errors.empty? && file_errors.empty?
+      return false unless project_id && user && file && csv && errors.empty? && file_errors.empty?
       true
     end
 
@@ -173,9 +182,10 @@ module BatchLoad
       total_data_lines == valid_objects.size
     end
 
-    # Iterates in line order and attempts to save each record
-    # return [true]
-    # @return [Boolean]
+    # Iterates in line order and attempts to save each record, loggine
+    # the result.
+    #
+    # @return [true]
     def create
       @create_attempted = true
 
@@ -185,34 +195,55 @@ module BatchLoad
 
           a.each do |k|
             sorted_processed_rows.each_value do |rp|
-                rp.objects[k].each do |o|
-                  begin
-                    # puts o.name
-                    o.save! unless o.persisted?
-                   rescue ActiveRecord::RecordInvalid => o
-                     a = o.record
-                     o.record
-                  end
+              rp.objects[k].each do |o|
+                begin
+                  # puts o.name
+                  o.save! unless o.persisted?
+
+                rescue ActiveRecord::RecordInvalid => o
+
+                  a = o.record
+                  o.record
                 end
-              end
-          end
-
-        else
-
-          sorted_processed_rows.each_value do |rp|
-            rp.objects.each_value do |objs|
-              objs.each do |o|
-                o.save
               end
             end
           end
 
+        else
+          sorted_processed_rows.each_value do |rp|
+            rp.objects.each_value do |objs|
+              objs.each do |o|
+
+                if o.kind_of?(TaxonName)
+                  o.valid?
+
+                  # If the only errors are on invalid children then save this
+                  # record ignoring those errors.
+                  # TODO: does this skip call-backs ?!
+                  if o.errors.full_messages == ['Children is invalid']
+
+                    c = o.children.to_a
+                    o.children.clear
+
+                    o.save
+                  else
+                    o.save
+                  end
+
+                else
+                  o.save
+                end
+              end
+            end
+          end
         end
+
       else
         @errors << "Import level #{import_level} has prevented creation." unless import_level_ok?
         @errors << 'CSV has not been processed.' unless processed?
         @errors << 'One of user_id, project_id or file has not been provided.' unless valid?
       end
+
       true
     end
 

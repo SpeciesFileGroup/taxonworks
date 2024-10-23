@@ -345,18 +345,19 @@ new_matrix_task:
     - new
   status: prototype
   description: 'Assign the rows and columns of observation matrices.'
-uniquify_people_task:
+unify_people_task:
   hub: true
-  name: 'Uniquify people'
+  name: 'Unify people'
   related:
   categories:
+    - people
     - source
     - nomenclature
   status: stable
-  description: 'Find and merge redundant or duplicated people, e.g., from import.'
+  description: 'Find and merge identical/duplicate people removing redundancy.'
 observation_matrix_view_task:
   hub: true
-  name: 'View an observation matrix'
+  name: 'View observation matrix'
   related:
   categories:
     - matrix
@@ -809,7 +810,7 @@ source_citation_totals_task:
   description: 'Report a count per citation object type for each source in the result.'
 edit_biological_associations_graph_task:
   hub: true
-  name: 'New biological associations'
+  name: 'New biological associations graph'
   related:
   categories:
     - biology
@@ -957,6 +958,14 @@ filter_dwc_occurrences_task:
     - filter
   status: prototype
   description: 'Filter records in the DarwinCore index.'
+unify_objects_task:
+  hub: true
+  name: 'Unify objects'
+  related:
+  categories:
+    - unify
+  status: prototype
+  description: 'Merge two objects into a single one.  Moves annotations and unifies would-be duplicates and their annotations if possible.'
 new_filename_depicting_image_task:
   hub: true
   name: 'New filename depicting image'
@@ -966,3 +975,28 @@ new_filename_depicting_image_task:
     - collection_object
   status: prototype
   description: "Upload images assigning them as depictions of CollectionObjects based on the identifier in the filename. You shouldn't really be using this as a day-to-day workflow, there are better approaches."
+new_biological_association_task:
+  hub: true
+  name: 'New biological association'
+  related:
+  categories:
+    - biology
+  status: prototype
+  description: 'Create, edit, and cite biological associations.'
+image_matrix_task:
+  hub: false
+  name: 'Image matrix'
+  related:
+    - observation_matrices
+  categories:
+    - matrix
+  status: prototype
+  description: "Visualize and add images in a matrix context."
+duplicate_otus_task:
+  hub: true
+  name: 'Duplicate OTU predictor'
+  related:
+  categories:
+    - otu
+  status: prototype
+  description: "A list of OTUs with whose combination of name and taxon name are found exactly/ in duplicate."

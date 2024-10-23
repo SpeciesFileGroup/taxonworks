@@ -55,7 +55,12 @@ class AssertedDistribution < ApplicationRecord
   validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
   validates :geographic_area, presence: true
   validates :otu, presence: true
-  validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id, :is_absent], message: 'this geographic_area, OTU and present/absent combination already exists'
+
+  validates_uniqueness_of :otu, scope: [:project_id, :geographic_area, :is_absent], message: 'this geographic_area, OTU and present/absent combination already exists'
+  # !! If we want to unify GeographicAreas then we need to raise a redundat error :geographic_area here, we should write a custom method
+  # that checks for an error on otu then adds a record, i.e. no database calls would be made
+  # validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id, :is_absent], message: 'this geographic_area, OTU and present/absent combination already exists'
+
   validate :new_records_include_citation
 
   # TODO: deprecate scopes referencing single wheres

@@ -20,11 +20,13 @@
           <template #map>
             <GeographicAreaMapPicker @select="setGeographicArea" />
           </template>
+          <template #tabs-right>
+            <VLock
+              v-model="store.lock.geographicArea"
+              class="margin-small-left"
+            />
+          </template>
         </SmartSelector>
-        <VLock
-          v-model="store.lock.geographicArea"
-          class="margin-small-left"
-        />
       </div>
       <hr
         v-if="store.geographicArea"

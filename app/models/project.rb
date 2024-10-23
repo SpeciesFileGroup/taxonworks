@@ -21,7 +21,6 @@
 class Project < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Housekeeping::AssociationHelpers
   include Project::Preferences
 
   attr_accessor :without_root_taxon_name

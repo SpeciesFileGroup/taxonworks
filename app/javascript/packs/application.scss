@@ -1,20 +1,11 @@
-$font-prefix: '../../../node_modules/@ibm/plex';
-@import '../vue//assets/styles/utilities.scss';
-@import '../vue//assets/styles/utilities/flex.scss';
-@import '../vue//assets/styles/utilities/width.scss';
-@import '../vue//assets/styles/utilities/position.scss';
-@import '../vue/assets/styles/variables/_palette.scss';
-@import '../vue/assets/styles/variables/_exports.scss';
-@import '../vue/assets/styles/components/buttons.scss';
-@import '../vue/assets/styles/components/borders.scss';
-@import '../vue/assets/styles/utilities/border.scss';
-
-@import '@ibm/plex/scss/sans/light/_latin1.scss';
-@import '@ibm/plex/scss/sans/regular/_latin1.scss';
-@import '@ibm/plex/scss/sans/medium/_latin1.scss';
-@import '@ibm/plex/scss/sans/bold/_latin1.scss';
-
-@import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
-@import 'easymde/dist/easymde.min.css';
-@import '../vue/assets/styles/filter.scss';
-@import '../vue/assets/styles/labels.scss';
+@use '../vue/assets/styles/utilities.scss';
+@use '../vue/assets/styles/utilities/flex.scss';
+@use '../vue/assets/styles/utilities/width.scss';
+@use '../vue/assets/styles/utilities/position.scss';
+@use '../vue/assets/styles/variables/_palette.scss';
+@use '../vue/assets/styles/variables/_exports.scss';
+@use '../vue/assets/styles/components/buttons.scss';
+@use '../vue/assets/styles/components/borders.scss';
+@use '../vue/assets/styles/utilities/border.scss';
+@use '../vue/assets/styles/filter.scss';
+@use '../vue/assets/styles/labels.scss';

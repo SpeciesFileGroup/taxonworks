@@ -1,12 +1,12 @@
 <template>
   <block-layout
-    anchor="original-combination"
+    :anchor="isICN ? 'basionym' : 'original-combination'"
     :warning="softValidation.length > 0"
     :spinner="!taxon.id"
     v-help.section.originalCombination.container
   >
     <template #header>
-      <h3>Original combination and rank</h3>
+      <h3>{{ isICN ? 'Basionym' : 'Original combination and rank' }}</h3>
     </template>
     <template #body>
       <div class="original-combination-picker">
@@ -142,6 +142,10 @@ export default {
   computed: {
     taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
+    },
+
+    isICN() {
+      return this.$store.getters[GetterNames.GetNomenclaturalCode] === 'icn'
     },
 
     isGenus() {

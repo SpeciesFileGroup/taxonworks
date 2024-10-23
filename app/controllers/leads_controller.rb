@@ -132,7 +132,7 @@ class LeadsController < ApplicationController
         # Note that future changes when redirect is updated.
         expand_lead
         format.json {}
-      rescue
+      rescue ActiveRecord::RecordInvalid => e
         @lead.errors.merge!(@left)
         @lead.errors.merge!(@right)
         format.json { render json: @lead.errors, status: :unprocessable_entity }
@@ -158,7 +158,7 @@ class LeadsController < ApplicationController
           format.html { destroy_redirect @lead }
           format.json { head :no_content }
         end
-      rescue # TODO: add specifics
+      rescue ActiveRecord::RecordInvalid
         respond_to do |format|
           flash[:error] = 'Delete failed!'
           format.html { redirect_back(fallback_location: (request.referer || root_path)) }
@@ -274,6 +274,7 @@ class LeadsController < ApplicationController
 
   def lead_params(require = :lead)
     params.require(require).permit(
+      :parent_id,
       :otu_id, :text, :origin_label, :description, :redirect_id,
       :link_out, :link_out_text, :is_public, :position
     )

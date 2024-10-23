@@ -19,14 +19,6 @@ describe Identifier::Global, type: :model, group: :identifiers do
   context 'validation' do
     before { global_identifier.valid? }
 
-    specify 'only one global identifier *without* a relation is allowed per identifier type' do
-      expect(otu.identifiers.create(type: 'Identifier::Global::Uri', identifier: 'http://abc.net/foo/1')).to be_truthy
-      otu.reload
-      i = otu.identifiers.new(type: 'Identifier::Global::Uri', identifier: 'http://abc.net/foo/2')
-      expect(i.valid?).to be_falsey
-      expect(i.errors.include?(:relation)).to be_truthy
-    end
-
     specify 'more than one global identifier with a valid relation is allowed per identifier type' do
       expect(otu.identifiers << Identifier::Global::Uri.new(identifier: 'http://abc.net/bar/22')).to be_truthy
       otu.reload

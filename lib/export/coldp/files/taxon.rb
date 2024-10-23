@@ -115,7 +115,7 @@ module Export::Coldp::Files::Taxon
     # Until we have RC5 articulations we are simplifying handling the fact
     # that one taxon name can be used for many OTUs. Track to see that
     # an OTU with a given taxon name does not already exist
-    #   `taxon_name_id: nil`  - uniquify via Ruby hash keys
+    #   `taxon_name_id: nil`  - unify via Ruby hash keys
     observed_taxon_name_ids = { }
 
     # TODO: optional Taxon.alternativeID field allows inclusion of external identifiers: https://github.com/CatalogueOfLife/coldp#alternativeid-1 https://github.com/CatalogueOfLife/coldp#identifiers

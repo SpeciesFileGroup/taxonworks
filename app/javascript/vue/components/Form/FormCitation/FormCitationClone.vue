@@ -4,7 +4,7 @@
     medium
     @click="setLastCitation"
   >
-    Clone my last citation
+    Clone last
   </VBtn>
 </template>
 

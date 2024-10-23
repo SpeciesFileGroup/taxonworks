@@ -1,5 +1,5 @@
-@import '../variables/_sizes.scss';
-@import '../variables/_palette.scss';
+@use '../variables/_sizes.scss' as *;
+@use '../variables/_palette.scss' as *;
 
 .btn {
   text-align: center;

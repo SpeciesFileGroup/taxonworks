@@ -6,10 +6,10 @@
       </template>
       <template #body>
         <div class="separate-bottom">
-          <div class="flex-separate middle">
-            <h3
+          <div class="flex-separate middle margin-xsmall-bottom">
+            <div
               v-if="biologicalRelationship"
-              class="relationship-title"
+              class="relationship-title flex-separate middle full_width"
             >
               <template v-if="flip">
                 <span
@@ -33,11 +33,13 @@
                   class="separate-right background-info"
                   v-html="item.name"
                 />
-                <span>{{
-                  biologicalRelationship.hasOwnProperty('label')
-                    ? biologicalRelationship.label
-                    : biologicalRelationship.name
-                }}</span>
+                <span>
+                  {{
+                    biologicalRelationship.hasOwnProperty('label')
+                      ? biologicalRelationship.label
+                      : biologicalRelationship.name
+                  }}
+                </span>
                 <span
                   v-for="item in biologicalRelationship.object_biological_properties"
                   :key="item.id"
@@ -45,25 +47,35 @@
                   v-html="item.name"
                 />
               </template>
-              <button
-                v-if="biologicalRelationship.inverted_name"
-                class="separate-left button button-default flip-button"
-                type="button"
-                @click="flip = !flip"
+              <div
+                class="horizontal-right-content middle gap-small margin-small-right"
               >
-                Flip
-              </button>
-              <span
-                @click="
-                  () => {
-                    biologicalRelationship = undefined
-                    flip = false
-                  }
-                "
-                class="separate-left"
-                data-icon="reset"
-              />
-            </h3>
+                <VBtn
+                  v-if="biologicalRelationship.inverted_name"
+                  color="primary"
+                  medium
+                  type="button"
+                  @click="() => (flip = !flip)"
+                >
+                  Flip
+                </VBtn>
+                <VBtn
+                  color="primary"
+                  circle
+                  @click="
+                    () => {
+                      biologicalRelationship = undefined
+                      flip = false
+                    }
+                  "
+                >
+                  <VIcon
+                    name="trash"
+                    x-small
+                  />
+                </VBtn>
+              </div>
+            </div>
             <h3
               class="subtle relationship-title"
               v-else
@@ -74,27 +86,36 @@
               v-model="settings.locked.biological_association.relationship"
             />
           </div>
-          <div class="flex-separate middle">
-            <h3
+          <div class="flex-separate middle gap-small">
+            <span
               v-if="biologicalRelation"
-              class="relation-title"
-            >
-              <span v-html="displayRelated" />
-              <span
-                @click="biologicalRelation = undefined"
-                class="separate-left"
-                data-icon="reset"
-              />
-            </h3>
+              v-html="displayRelated"
+            />
+
             <h3
               v-else
               class="subtle relation-title"
             >
               Choose relation
             </h3>
-            <lock-component
-              v-model="settings.locked.biological_association.related"
-            />
+
+            <div class="horizontal-right-content middle gap-small">
+              <VBtn
+                v-if="biologicalRelation"
+                class="margin-medium-left"
+                color="primary"
+                circle
+                @click="biologicalRelation = undefined"
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
+              <lock-component
+                v-model="settings.locked.biological_association.related"
+              />
+            </div>
           </div>
         </div>
         <div
@@ -148,6 +169,8 @@ import TableList from './table.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import makeCitation from '@/factory/Citation.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations'
@@ -160,7 +183,9 @@ export default {
     FormCitation,
     BlockLayout,
     TableList,
-    LockComponent
+    LockComponent,
+    VBtn,
+    VIcon
   },
 
   computed: {
@@ -259,44 +284,3 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-.radial-annotator {
-  .biological_relationships_annotator {
-    overflow-y: scroll;
-    .flip-button {
-      min-width: 30px;
-    }
-    .relationship-title {
-      margin-left: 1em;
-    }
-    .relation-title {
-      margin-left: 2em;
-    }
-    .switch-radio {
-      label {
-        min-width: 95px;
-      }
-    }
-    .background-info {
-      padding: 3px;
-      padding-left: 6px;
-      padding-right: 6px;
-      border-radius: 3px;
-      background-color: #ded2f9;
-    }
-    textarea {
-      padding-top: 14px;
-      padding-bottom: 14px;
-      width: 100%;
-      height: 100px;
-    }
-    .pages {
-      width: 86px;
-    }
-    .vue-autocomplete-input,
-    .vue-autocomplete {
-      width: 376px;
-    }
-  }
-}
-</style>

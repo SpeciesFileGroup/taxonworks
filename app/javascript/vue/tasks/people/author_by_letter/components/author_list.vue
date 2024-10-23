@@ -7,7 +7,7 @@
             <th>Author</th>
             <th>Sources</th>
             <th>Id</th>
-            <th>Uniquify</th>
+            <th>Unify</th>
             <th></th>
           </tr>
         </thead>

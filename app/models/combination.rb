@@ -176,6 +176,7 @@ class Combination < TaxonName
     name: 'Redundant verbatim name',
     description: 'Verbatim name is present but identical to computed name')
 
+
   soft_validate(
     :sv_combination_duplicates,
     set: :combination_duplicates,
@@ -478,7 +479,7 @@ class Combination < TaxonName
   end
 
   def validate_absence_of_subject_relationships
-    if TaxonNameRelationship.where(subject_taxon_name_id: self.id).any?
+    if TaxonNameRelationship.where(subject_taxon_name_id: self.id).where("type NOT LIKE 'TaxonNameRelationship::CurrentCombination'").any?
       errors.add(:base, 'This combination could not be used as a Subject in any TaxonNameRelationships.')
     end
   end
@@ -516,6 +517,9 @@ class Combination < TaxonName
   def sv_combination_duplicates
     duplicate = Combination.not_self(self).where(cached:, cached_author_year:, project_id: self.project_id)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
+    if a = Combination.matching_protonyms(get_full_name, **protonym_ids_params)
+      soft_validations.add(:base, "Combination exists as protonym(s) with matching original combination: #{a.all.pluck(:cached).join(', ')}.") if a.any?
+    end
   end
 
   def sv_combination_linked_to_valid_name

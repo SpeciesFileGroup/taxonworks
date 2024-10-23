@@ -45,11 +45,14 @@ class ImagesController < ApplicationController
 
   # GET /api/v1/images/:id
   def api_show
-    @image = Image.where(project_id: sessions_current_project_id).find_by(id: params.permit(id: :integer)[:id])
-    @image ||= Image.where(project_id: sessions_current_project_id).find_by(image_file_fingerprint: params[:id])
+    id = params[:id]
+    if id =~ (/\A\d+\z/)
+      @image = Image.where(project_id: sessions_current_project_id).find_by(id:)
+    else
+      @image = Image.where(project_id: sessions_current_project_id).find_by(image_file_fingerprint: id)
+    end
 
     render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found and return if @image.nil?
-
     render '/images/api/v1/show'
   end
 
