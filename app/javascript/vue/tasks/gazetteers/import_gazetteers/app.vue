@@ -133,10 +133,18 @@ function processShapefile() {
     .then(() => {
       TW.workbench.alert.create('Import submitted to background job', 'notice')
       jobs.value.refresh()
-      selectedProjects.value = []
+      reset()
     })
     .catch(() => {})
     .finally(() => { isLoading.value = false })
+}
+
+function reset() {
+  selectedProjects.value = []
+  shapefileFields.value = []
+  shapeNameField.value = ''
+  selectedDocs.value = []
+  citation.value = {}
 }
 
 function getFileForExtension(extension) {
