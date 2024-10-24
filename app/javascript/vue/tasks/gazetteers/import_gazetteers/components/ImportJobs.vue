@@ -35,9 +35,10 @@
           <thead>
             <tr>
               <th class="word-keep-all">Shapefile</th>
-              <th class="word-keep-all">Submitted By</th>
+              <th class="word-keep-all">Submitted by</th>
               <th class="word-keep-all">Status</th>
-              <th class="word-keep-all">Gazetteers Imported</th>
+              <th class="word-keep-all">Number of gazetteers</th>
+              <th class="word-keep-all">Projects Imported to</th>
               <th class="word-keep-all">Start time</th>
               <th class="word-keep-all">End time</th>
               <th class="word-keep-all"></th>
@@ -56,6 +57,7 @@
               <td>{{ job['submitted_by'] }}</td>
               <td>{{ jobStatus(job) }}</td>
               <td>{{ gzsImported(job) }}</td>
+              <td>{{ job['project_names'] }}</td>
               <td>{{ job['started_at'] }}</td>
               <td>{{ job['ended_at'] }}</td>
               <td>
