@@ -41,7 +41,6 @@
 <script setup>
 import { ref, onBeforeMount } from 'vue'
 import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
-import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import confirmationOpts from '../../constants/confirmationOpts.js'
@@ -87,15 +86,11 @@ async function createConfidence(confidence) {
 
   if (ok) {
     const idParam = ID_PARAM_FOR[props.objectType]
-    const queryParam = QUERY_PARAM[props.objectType]
+
     const payload = {
       mode: selectedMode.value,
       confidence_level_id: confidence.id,
-      filter_query: {
-        [queryParam]: {
-          ...props.parameters
-        }
-      }
+      filter_query: props.parameters
     }
 
     if (props.ids?.length) {
