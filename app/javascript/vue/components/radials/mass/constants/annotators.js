@@ -1,6 +1,6 @@
 import AnnotatorTag from '../components/Annotator/AnnotatorTag.vue'
 import AnnotatorNote from '../components/Annotator/AnnotatorNote.vue'
-import AnnotatorConfidence from '../components/Annotator/AnnotatorConfidence.vue'
+import AnnotatorConfidence from '../components/Annotator/Confidence/ConfidenceMain.vue'
 import AnnotatorVerifier from '../components/Annotator/AnnotatorVerifier.vue'
 import AnnotatorAttribution from '../components/Annotator/Attribution/AttributionMain.vue'
 import AnnotatorCitation from '../components/Annotator/AnnotatorCitation.vue'
