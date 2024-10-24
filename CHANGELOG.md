@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Attribution to ObservationMatrix
 - New biological association task [#4026]
 - Duplicate OTU predictor task [#4083]
+- DwcOccurrenceHooks for BiocurationGroups, OTUs
 
 ### Changed
 
