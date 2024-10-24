@@ -51,7 +51,10 @@
 
   <VModal
     v-if="modalVisible"
-    @close="() => { modalVisible = false }"
+    @close="() => {
+      modalVisible = false
+      modalNameSelection = ''
+    }"
   >
     <template #header>
       <h3>Shapefile fields</h3>
@@ -68,12 +71,21 @@
               type="radio"
               name="modal_fields"
               :value="f"
-              @click="(e) => setShapefileField(e.target.value)"
+              v-model="modalNameSelection"
             />
             {{ f }}
           </label>
         </li>
       </ul>
+      <VBtn
+        :disabled="!modalNameSelection"
+        medium
+        color="primary"
+        @click="() => setShapefileField()"
+        class="modal-button"
+      >
+        Select name field
+      </VBtn>
     </template>
   </VModal>
 </template>
@@ -93,6 +105,7 @@ const selectedDocs = ref([])
 const shapeNameField = ref('')
 const isLoading = ref(false)
 const modalVisible = ref(false)
+const modalNameSelection = ref('')
 const shapefileFields = ref([])
 const citation = ref({})
 const selectedProjects = ref([])
@@ -208,9 +221,10 @@ function lookupShapefileFields() {
     })
 }
 
-function setShapefileField(field) {
-  shapeNameField.value = field
+function setShapefileField() {
+  shapeNameField.value = modalNameSelection.value
   modalVisible.value = false
+  modalNameSelection.value = ''
 }
 
 </script>
@@ -237,5 +251,9 @@ function setShapefileField(field) {
 
 .projects_chooser {
   max-width: 600px;
+}
+
+.modal-button {
+  margin-top: 1.5em;
 }
 </style>
