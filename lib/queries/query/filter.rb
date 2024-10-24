@@ -341,7 +341,7 @@ module Queries
     end
 
     # An instiatied filter, with params set, for params with patterns like `otu_query={}`
-    def self.instatiated_base_filter(params)
+    def self.instantiated_base_filter(params)
       if s = base_filter(params)
         s.new(params[base_query_name(params)])
       else
@@ -651,8 +651,7 @@ module Queries
 
     # @return [ActiveRecord::Relation, nil]
     def all_and_clauses
-      clauses = and_clauses + annotator_and_clauses + shared_and_clauses
-      clauses.compact!
+      clauses = target_and_clauses
       return nil if clauses.empty?
 
       a = clauses.shift
@@ -660,6 +659,10 @@ module Queries
         a = a.and(b)
       end
       a
+    end
+
+    def target_and_clauses
+      [and_clauses + annotator_and_clauses + shared_and_clauses].flatten.compact
     end
 
     # Defined in inheriting classes
@@ -699,6 +702,13 @@ module Queries
       self.class.new(a)
     end
 
+    # @return Boolean
+    #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on iniitializea
+    #   false - there are no params at ALL or at least one that is not `project_id`
+    def only_project?
+      (project_id_facet && target_and_clauses.size == 1 && all_merge_clauses.nil?) ? true : false
+    end
+
     # @param nil_empty [Boolean]
     #   If true then if there are no clauses return nil not .all
     # @return [ActiveRecord::Relation]
@@ -714,6 +724,9 @@ module Queries
       a = all_and_clauses
       b = all_merge_clauses
 
+      # TODO: do not consider project_id alone a parameter on nil_empty
+
+      # Limited use within the UI because project_id is set
       return nil if nil_empty && a.nil? && b.nil?
 
       # !! Do not apply `.distinct here`
@@ -735,7 +748,7 @@ module Queries
 
       # TODO: collides with recent, and needs isolation/generic application
       # probably through native .order() use.
-      # Order in general likely belongs outside the scope of filters, but 
+      # Order in general likely belongs outside the scope of filters, but
       # see this param use, where we depend on the incoming values
       #
       # See spec/lib/queries/otu/filter_spec.rb for tests

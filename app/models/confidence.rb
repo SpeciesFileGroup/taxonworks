@@ -44,22 +44,28 @@ class Confidence < ApplicationRecord
     Confidence.where(project_id: project_id, confidence_object: o, confidence_level_id: confidence_level_id).first
   end
 
-  def self.batch_by_filter_scope(filter_query: nil, confidence_level_id: nil, replace_confidence_level_id: nil, mode: :add, async_cutoff: 100)
-    b = ::Queries::Query::Filter.instatiated_base_filter(filter_query)
+  def self.batch_by_filter_scope(filter_query: nil, confidence_level_id: nil, replace_confidence_level_id: nil, mode: :add, async_cutoff: 300)
+    b = ::Queries::Query::Filter.instantiated_base_filter(filter_query)
     q = b.all(true)
-
-    c = q.count
-
-    async = c > async_cutoff ? true : false
 
     # Batch result
     r = ::BatchResponse.new(
-      total_attempted: q.count,
-      async:,
       preview: false,
       method: 'Confidence batch_by_filter_scope',
       klass: b.referenced_klass.name
     )
+
+    if b.only_project?
+      r.total_attempted = 0
+      r.errors['can not update records without at least one filter parameter'] = 1
+      return r
+    else
+      c = q.count
+      async = c > async_cutoff ? true : false
+
+      r.total_attempted = c
+      r.async = async
+    end
 
     case mode.to_sym
     when :replace

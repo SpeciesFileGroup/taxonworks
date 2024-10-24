@@ -10,6 +10,17 @@ describe Queries::Query::Filter, type: [:model] do
   let(:query) { Queries::Query::Filter.new({}) }
   filters = ::Queries::Query::Filter.descendants
 
+  specify '#only_project?' do
+    a = ::Queries::Otu::Filter.new({})
+    expect(a.only_project?).to be_truthy # project_id is applied by default
+  end
+
+  specify '#only_project?' do
+    a = ::Queries::Otu::Filter.new({})
+    a.otu_id = 1
+    expect(a.only_project?).to be_falsey # project_id is applied by default
+  end
+
   context '#apply_venn' do
     let(:o1) { FactoryBot.create(:valid_otu) }
     let(:o2) { FactoryBot.create(:valid_otu) }
