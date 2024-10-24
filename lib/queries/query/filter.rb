@@ -704,6 +704,9 @@ module Queries
     # @return [ActiveRecord::Relation]
     #
     # See /lib/queries/ARCHITECTURE.md for additional explanation.
+    #
+    # TODO: consider "true" for default, changing to false on controller
+    # Filter  calls
     def all(nil_empty = false)
 
       # TODO: should turn off/on project_id here on nil empty?

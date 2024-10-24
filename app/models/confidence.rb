@@ -45,19 +45,20 @@ class Confidence < ApplicationRecord
   end
 
   def self.batch_by_filter_scope(filter_query: nil, confidence_level_id: nil, replace_confidence_level_id: nil, mode: :add, async_cutoff: 100)
-    q = ::Queries::Query::Filter.instatiated_base_filter(filter_query)
+    b = ::Queries::Query::Filter.instatiated_base_filter(filter_query)
+    q = b.all(true)
 
-    c = q.all.count
+    c = q.count
 
     async = c > async_cutoff ? true : false
 
     # Batch result
     r = ::BatchResponse.new(
-      total_attempted: q.all.count,
+      total_attempted: q.count,
       async:,
       preview: false,
       method: 'Confidence batch_by_filter_scope',
-      klass: q.referenced_klass.name
+      klass: b.referenced_klass.name
     )
 
     case mode.to_sym
@@ -70,7 +71,7 @@ class Confidence < ApplicationRecord
 
       if async
         # TODO: not optimal
-        q.all.find_each do |o|
+        q.find_each do |o|
           o.confidences.where(confidence_level_id: replace_confidence_level_id).each do |c|
             c.delay(queue: 'query_batch_update').update(confidence_level_id:)
           end
@@ -78,26 +79,26 @@ class Confidence < ApplicationRecord
       else
         Confidence
           .where(
-            confidence_object_id: q.all.pluck(:id),
-            confidence_object_type: q.referenced_klass.name,
+            confidence_object_id: q.pluck(:id),
+            confidence_object_type: b.referenced_klass.name,
             confidence_level_id: replace_confidence_level_id
           ).update_all(confidence_level_id:)
       end
     when :remove
       # TODO: definitely not optimal, Find is the most expensive, then delete is almost nothing
       if async
-        q.all.find_each do |o|
+        q.find_each do |o|
           Confidence.find_by(confidence_level_id:, confidence_object: o)&.delay(queue: 'query_batch_update').delete
         end
       else
         Confidence
           .where(
-            confidence_object_id: q.all.pluck(:id),
-            confidence_object_type: q.referenced_klass.name
+            confidence_object_id: q.pluck(:id),
+            confidence_object_type: b.referenced_klass.name
           ).delete_all
       end
     when :add
-      q.all.find_each do |o|
+      q.find_each do |o|
         if async
           o.delay(queue: 'query_batch_update').update(confidences_attributes: [{confidence_level_id:, by: Current.user_id, project_id: o.project_id}])
         else
