@@ -124,7 +124,7 @@ class ConfidencesController < ApplicationController
   def batch_by_filter_scope
     if r = Confidence.batch_by_filter_scope(
         mode: params[:mode] || :add,
-        filter_query: params.require(:filter_query).to_unsafe_hash, # like filter_query: { otu_query: {}}
+        filter_query: params.require(:filter_query), # like filter_query: { otu_query: {}}
         confidence_level_id: params.require(:confidence_level_id),
         replace_confidence_level_id: params[:replace_confidence_level_id]
     )

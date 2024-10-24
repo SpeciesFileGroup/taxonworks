@@ -245,7 +245,8 @@ module Queries
     # !! This is used strictly during the permission process of ActionController::Parameters !!
     attr_reader :params
 
-    # @return Hash
+
+    # @params query_params [ActionController::Parameters]
     def initialize(query_params)
 
       # Reference to query_params, i.e. always permitted
