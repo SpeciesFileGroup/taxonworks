@@ -1,6 +1,6 @@
 json.array!(@import_jobs) do |j|
   json.extract! j, :id, :shapefile, :project_names, :num_records,
-    :num_records_processed, :aborted_reason, :submitted_by
+    :num_records_imported, :error_messages, :submitted_by
 
   if j[:started_at].present?
     json.started_at j[:started_at].to_fs(:db) + ' UTC'

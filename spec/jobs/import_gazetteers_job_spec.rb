@@ -111,13 +111,13 @@ RSpec.describe ImportGazetteersJob, type: :job do
         expect(progress_tracker.num_records).to eq(num_shapefile_records)
       end
 
-      specify 'records number of gzs created' do
-        expect(progress_tracker.num_records_processed)
+      specify 'records number of gzs created on completion' do
+        expect(progress_tracker.num_records_imported)
           .to eq(num_shapefile_records)
       end
 
-      specify 'has empty `aborted_reason` on success' do
-        expect(progress_tracker.aborted_reason).to eq(nil)
+      specify 'has empty `error_messages` on success' do
+        expect(progress_tracker.error_messages).to eq(nil)
       end
 
       context 'with an error causing the job to quit' do
@@ -133,12 +133,12 @@ RSpec.describe ImportGazetteersJob, type: :job do
         }
 
         specify 'records the abort reason' do
-          expect(progress_tracker.aborted_reason)
-            .to include('Citation object is invalid')
+          expect(progress_tracker.error_messages)
+            .to include('Citations source')
         end
 
         specify 'records the number of records processed before abort' do
-          expect(progress_tracker.num_records_processed).to eq(0)
+          expect(progress_tracker.num_records_imported).to eq(0)
         end
       end
     end

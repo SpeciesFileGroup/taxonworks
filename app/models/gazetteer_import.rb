@@ -4,19 +4,18 @@
 #   @return [Integer]
 #   The total number of records to be imported by this job
 #
-# @!attribute num_records_processed
+# @!attribute num_records_imported
 #   @return [Integer]
-#   The total number of records imported by this job - in practice this is
-#   currently either 0 or num_records
+#   The total number of records successfully imported by this job so far
 #
 # @!attribute project_names
 #   @return [String]
 #   A string list of the names of the projects into which these gazetteers are
 #   being imported (for reporting purposes)
 #
-# @!attribute aborted_reason
+# @!attribute error_messages
 #   @return [String]
-#   If the job is aborted, the reason it was aborted
+#   A digest of all errors encountered during shapefile processing
 #
 # @!attribute started_at
 #   @return [DateTime]

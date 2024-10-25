@@ -9,8 +9,8 @@ module Vendor::RgeoShapefile
       prj_doc = Document.find(shapefile[:prj_doc_id])
     rescue ActiveRecord::RecordNotFound => e
       progress_tracker.update!(
-        num_records_processed: 0,
-        aborted_reason: e.message,
+        num_records_imported: 0,
+        error_messages: e.message,
         started_at: DateTime.now,
         ended_at: DateTime.now
       )
@@ -49,8 +49,8 @@ module Vendor::RgeoShapefile
   )
     r = {
       num_records: 0,
-      error_id: nil,
-      error_message: nil,
+      num_records_imported: 0,
+      error_messages: nil,
     }
 
     begin
@@ -59,8 +59,8 @@ module Vendor::RgeoShapefile
       )
     rescue Errno::ENOENT => e
       progress_tracker.update!(
-        num_records_processed: 0,
-        aborted_reason: e.message,
+        num_records_imported: 0,
+        error_messages: e.message,
         started_at: DateTime.now,
         ended_at: DateTime.now
       )
@@ -74,59 +74,58 @@ module Vendor::RgeoShapefile
       project_names: Project.where(id: projects).pluck(:name).join(', '),
       started_at: DateTime.now
     )
-    begin
-      Gazetteer.transaction do
-        # Iterate over an index so we can record index on error
-        for i in 0...file.num_records
-          begin
-            # This can throw GeosError even when allow_unsafe: true
-            record = file[i]
+    # Iterate over an index so we can record index on error and then resume
+    for i in 0...file.num_records
+      begin
+        # This can throw GeosError even when allow_unsafe: true
+        record = file[i]
 
-            g = Gazetteer.new(
-              name: record[name_field]
-            )
+        g = Gazetteer.new(
+          name: record[name_field]
+        )
 
-            shape = record.geometry.valid? ?
-              record.geometry : record.geometry.make_valid
+        shape = record.geometry.valid? ?
+          record.geometry : record.geometry.make_valid
 
-            if GeographicItem.crosses_anti_meridian?(shape.as_text)
-              shape = GeographicItem.split_along_anti_meridian(shape.as_text)
-            end
-
-            g.build_geographic_item(
-              geography: shape
-            )
-
-            Gazetteer.clone_to_projects(g, projects, citation)
-
-          rescue RGeo::Error::InvalidGeometry => e
-            r[:error_id] = i + 1
-            r[:error_message] = e.to_s
-            raise TaxonWorks::Error
-          rescue ActiveRecord::RecordInvalid => e
-            r[:error_id] = i + 1
-            r[:error_message] = e.to_s
-            raise TaxonWorks::Error
-          rescue RGeo::Error::GeosError => e
-            r[:error_id] = i + 1
-            r[:error_message] = e.to_s
-            raise TaxonWorks::Error
-          end
+        if GeographicItem.crosses_anti_meridian?(shape.as_text)
+          shape = GeographicItem.split_along_anti_meridian(shape.as_text)
         end
+
+        g.build_geographic_item(
+          geography: shape
+        )
+
+        Gazetteer.clone_to_projects(g, projects, citation)
+        r[:num_records_imported] = r[:num_records_imported] + 1
+
+        if i % 5 == 0
+          progress_tracker.update!(
+            num_records_imported: r[:num_records_imported]
+          )
+        end
+
+      rescue RGeo::Error::InvalidGeometry => e
+        process_error(progress_tracker, r, i + 1, e.to_s)
+      rescue ActiveRecord::RecordInvalid => e
+        process_error(progress_tracker, r, i + 1, e.to_s)
+      rescue RGeo::Error::GeosError => e
+        process_error(progress_tracker, r, i + 1, e.to_s)
       end
-    rescue TaxonWorks::Error
-      m = "Error on record #{r[:error_id]}/#{r[:num_records]}: #{r[:error_message]}"
-      progress_tracker.update!(
-        num_records_processed: r[:error_id] - 1,
-        aborted_reason: m,
-        ended_at: DateTime.now
-      )
-      return
     end
 
     progress_tracker.update!(
-      num_records_processed: r[:num_records],
+      num_records_imported: r[:num_records_imported],
       ended_at: DateTime.now
+    )
+  end
+
+  def self.process_error(progress_tracker, recorder, error_index, error_message)
+    m = "#{error_index}: '#{error_message}'"
+    recorder[:error_messages] = recorder[:error_messages].present? ?
+      "#{recorder[:error_messages]}; #{m}" : m
+
+    progress_tracker.update!(
+      error_messages: recorder[:error_messages]
     )
   end
 

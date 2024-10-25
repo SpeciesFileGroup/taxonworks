@@ -27,8 +27,7 @@
     <template #body>
       <VSpinner v-if="statusLoading" />
       <div>
-        <b>No Gazetteers are created until the job status is 'Completed'</b>,
-        at which time the job record here can be deleted.
+        Deleting job status records here has no effect on any import.
       </div>
       <div class="vue-table-container">
         <table class="vue-table">
@@ -37,8 +36,10 @@
               <th class="word-keep-all">Shapefile</th>
               <th class="word-keep-all">Submitted by</th>
               <th class="word-keep-all">Status</th>
-              <th class="word-keep-all">Number of gazetteers</th>
+              <th class="word-keep-all">Number of shapefile records</th>
+              <th class="word-keep-all">Number of gazetteers imported</th>
               <th class="word-keep-all">Projects Imported to</th>
+              <th class="word-keep-all">Import errors</th>
               <th class="word-keep-all">Start time</th>
               <th class="word-keep-all">End time</th>
               <th class="word-keep-all"></th>
@@ -56,8 +57,10 @@
               <td class="word-keep-all">{{ job['shapefile'] }}</td>
               <td>{{ job['submitted_by'] }}</td>
               <td>{{ jobStatus(job) }}</td>
-              <td>{{ gzsImported(job) }}</td>
+              <td>{{ job['num_records'] }}</td>
+              <td>{{ job['num_records_imported'] }}</td>
               <td>{{ job['project_names'] }}</td>
+              <td>{{ job['error_messages'] }}</td>
               <td>{{ job['started_at'] }}</td>
               <td>{{ job['ended_at'] }}</td>
               <td>
@@ -108,22 +111,12 @@ function refresh() {
 }
 
 function jobStatus(job) {
-  if (job['aborted_reason']) {
-    return `Aborted, no Gazetteers saved: '${job['aborted_reason']}'`
-  } else if (!job['num_records']) {
+  if (!job['num_records']) {
     return 'Starting...'
   } else if (!job['ended_at']) {
     return 'Running'
   } else {
     return 'Completed'
-  }
-}
-
-function gzsImported(job) {
-  if (job['ended_at'] && !job['aborted_reason']) {
-    return job['num_records']
-  } else {
-    return ''
   }
 }
 

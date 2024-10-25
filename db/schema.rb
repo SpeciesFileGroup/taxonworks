@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_24_032217) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_25_144619) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -957,8 +957,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_24_032217) do
   create_table "gazetteer_imports", force: :cascade do |t|
     t.string "shapefile"
     t.integer "num_records"
-    t.integer "num_records_processed"
-    t.string "aborted_reason"
+    t.integer "num_records_imported"
+    t.string "error_messages"
     t.datetime "started_at"
     t.datetime "ended_at"
     t.bigint "project_id"
