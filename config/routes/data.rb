@@ -331,7 +331,7 @@ resources :field_occurrences do
   concerns [:data_routes]
 end
 
-resources :gazetteer_imports do
+resources :gazetteer_imports, only: [:destroy], defaults: { format: :json } do
   collection do
     get :all, defaults: {format: :json}
   end
