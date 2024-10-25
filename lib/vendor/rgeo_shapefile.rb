@@ -97,17 +97,8 @@ module Vendor::RgeoShapefile
               geography: shape
             )
 
-            gzs_data = Gazetteer.clone_to_projects(g, projects)
+            Gazetteer.clone_to_projects(g, projects, citation)
 
-            if citation.present?
-              gzs_data.each do |d|
-                Citation.create!(citation.merge({
-                  citation_object_type: 'Gazetteer',
-                  citation_object_id: d[:id],
-                  project_id: d[:project_id]
-                }))
-              end
-            end
           rescue RGeo::Error::InvalidGeometry => e
             r[:error_id] = i + 1
             r[:error_message] = e.to_s

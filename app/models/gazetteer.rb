@@ -218,33 +218,41 @@ class Gazetteer < ApplicationRecord
 
   # @param gz [Gazetteer] Unsaved Gazetteer to save and clone from
   # @param project_ids [Array] project ids to clone gz into - gz is always
-  #   saved to the current project
-  # @return [Array] of {id:, project_id:} for gazetteers created
+  #   saved to the current project.
+  #   If saves occur in more than one project then all saves occur in a
+  #   transaction.
+  # @param citation [Hash] Citation object to save to each Gazetteer created
   # Raises ActiveRecord::RecordInvalid on error
-  def self.clone_to_projects(gz, project_ids)
+  def self.clone_to_projects(gz, project_ids, citation = nil)
     project_ids.delete(Current.project_id)
     project_ids.uniq!
-    if project_ids.empty?
-      gz.save!
-      return [{ id: gz.id, project_id: gz.project_id }]
-    end
 
-    rv = []
-    Gazetteer.transaction do
-      gz.save!
-      rv << { id: gz.id, project_id: gz.project_id }
-      project_ids.each do |pr_id|
-        d = gz.dup
-        d.project_id = pr_id
-        d.save!
-        rv << { id: d.id, project_id: d.project_id }
+    if project_ids.count > 0
+      Gazetteer.transaction do
+        perform_clone_to_projects(gz, project_ids, citation)
       end
+    else
+      perform_clone_to_projects(gz, project_ids, citation)
     end
-
-    rv
   end
 
   private
+
+  def self.perform_clone_to_projects(gz, project_ids, citation)
+    if citation.present?
+      gz.citations.build(citation.merge({ project_id: Current.project_id }))
+    end
+    gz.save!
+
+    project_ids.each do |pr_id|
+      g = gz.dup
+      g.project_id = pr_id
+      if citation.present?
+        g.citations.build(citation.merge({ project_id: pr_id }))
+      end
+      g.save!
+    end
+  end
 
   def iso_3166_a2_is_two_characters
     errors.add(:iso_3166_a2, 'must be exactly two characters') unless

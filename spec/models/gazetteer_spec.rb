@@ -236,19 +236,6 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
             .to equal(0)
         end
 
-        specify 'returns id and project_id for saved gzs' do
-          rv =
-            Gazetteer.clone_to_projects(g, [Current.project_id, project2.id])
-
-          gz1 = Gazetteer.where(project_id: Current.project_id).first
-          gz2 = Gazetteer.where(project_id: project2.id).first
-
-          expect(rv).to contain_exactly(
-            { id: gz1.id, project_id: Current.project_id },
-            { id: gz2.id, project_id: project2.id }
-          )
-        end
-
         specify 'clones have the expected data' do
           Gazetteer.clone_to_projects(g, [Current.project_id, project2.id])
           gz2 = Gazetteer.where(project_id: project2.id).first
