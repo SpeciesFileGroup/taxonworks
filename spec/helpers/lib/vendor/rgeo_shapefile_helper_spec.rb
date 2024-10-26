@@ -78,6 +78,21 @@ describe Lib::Vendor::RgeoShapefileHelper, type: :helper do
         .to raise_error(TaxonWorks::Error, /has no name/)
     end
 
+    context 'iso_3166_a2 and iso_3166_a3' do
+      specify 'iso_3166_a3 field must have type String' do
+        shapefile[:iso_a3_field] = 'Shape_STLe' # a numeric field
+        expect{validate_shape_file(shapefile, project_id)}
+          .to raise_error(TaxonWorks::Error, /String/)
+      end
+
+      specify 'iso_3166_a2 need not be specified for every record' do
+        # Here it's specified for only one record
+        shapefile[:iso_a2_field] = 'iso_a2'
+        expect{validate_shape_file(shapefile, project_id)}
+          .to_not raise_error
+      end
+    end
+
     context 'filling in unspecified files' do
       let!(:min_shapefile) {
         {
@@ -139,22 +154,24 @@ describe Lib::Vendor::RgeoShapefileHelper, type: :helper do
   end
 
   context 'fields_from_shapefile' do
+    let(:fields) {
+      ['Name', 'FacilityID', 'Status', 'Type', 'Shape_STAr', 'Shape_STLe',
+       'iso_a2', 'iso_a3']
+    }
     specify 'returns column names given a dbf_doc_id' do
       expect(fields_from_shapefile(nil, dbf_doc.id, project_id))
-        .to contain_exactly('Name', 'FacilityID', 'Status', 'Type',
-          'Shape_STAr', 'Shape_STLe')
+        .to contain_exactly(*fields)
     end
 
     specify 'returns column names given a shp_doc_id' do
       dbf_doc
       expect(fields_from_shapefile(shp_doc.id, nil, project_id))
-        .to contain_exactly('Name', 'FacilityID', 'Status', 'Type',
-          'Shape_STAr', 'Shape_STLe')
+        .to contain_exactly(*fields)
     end
 
-    specify 'raises error if no unspecified dbf match exists' do
+    specify 'raises error if dbf is unspecified and no match exists' do
       expect{fields_from_shapefile(shp_doc.id, nil, project_id)}
-        .to raise_error(TaxonWorks::Error, /No/)
+        .to raise_error(TaxonWorks::Error, /Failed to find/)
     end
 
     specify 'raises error if multiple unspecified dbf matches exist' do
@@ -165,7 +182,7 @@ describe Lib::Vendor::RgeoShapefileHelper, type: :helper do
           'application/x-shapefile'
       ))
       expect{fields_from_shapefile(shp_doc.id, nil, project_id)}
-        .to raise_error(TaxonWorks::Error, /Multiple/)
+        .to raise_error(TaxonWorks::Error, /More than one/)
     end
   end
 

@@ -69,8 +69,9 @@ module Lib::Vendor::RgeoShapefileHelper
       raise TaxonWorks::Error, "No column named '#{name_field}'"
     end
 
-    if dbf.find(0)[name_field].class.to_s != 'String'
-      raise TaxonWorks::Error, "Column #{name_field} is of type #{dbf.find(0)[name_field].class}, should be String"
+    rv = dbf_column_type_is_string(dbf, name_field)
+    if rv != true
+      raise TaxonWorks::Error, "Column #{name_field} is of type #{rv}, should be String"
     end
 
     for i in 0...dbf.record_count
@@ -80,7 +81,40 @@ module Lib::Vendor::RgeoShapefileHelper
       end
     end
 
+    # Check that iso a2/a3 fields, if provided, exist and are of type String
+    iso_a2_field = shapefile[:iso_a2_field]
+    if iso_a2_field.present?
+      if !dbf.column_names.include?(iso_a2_field)
+        raise TaxonWorks::Error, "No column named '#{iso_a2_field}'"
+      end
+
+      rv = dbf_column_type_is_string(dbf, iso_a2_field)
+      if rv != true
+        raise TaxonWorks::Error, "Column #{iso_a2_field} is of type '#{rv}', should be String"
+      end
+    end
+
+    iso_a3_field = shapefile[:iso_a3_field]
+    if iso_a3_field.present?
+      if !dbf.column_names.include?(iso_a3_field)
+        raise TaxonWorks::Error, "No column named '#{iso_a3_field}'"
+      end
+
+      rv = dbf_column_type_is_string(dbf, iso_a3_field)
+      if rv != true
+        raise TaxonWorks::Error, "Column #{iso_a3_field} is of type '#{rv}', should be String"
+      end
+    end
+
     docs
+  end
+
+  # @return true if true, else return actual column type as a string
+  # Assumes the column_name is a valid dbf column name
+  def dbf_column_type_is_string(dbf, column_name)
+    column = dbf.columns.find { |c| c.name == column_name }
+    column.type == 'C' ? # 'C' is for 'C'haracter
+      true : DBF::Column::TYPE_CAST_CLASS[column.type.to_sym].to_s
   end
 
   # Raises Taxonworks::Error on error

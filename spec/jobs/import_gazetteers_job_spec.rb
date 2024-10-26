@@ -49,7 +49,9 @@ RSpec.describe ImportGazetteersJob, type: :job do
         shx_doc_id: shx_doc.id,
         dbf_doc_id: dbf_doc.id,
         prj_doc_id: prj_doc.id,
-        name_field: 'Name'
+        name_field: 'Name',
+        iso_a2_field: 'iso_a2',
+        iso_a3_field: 'iso_a3'
       }
     }
     let(:citation_options) {
@@ -104,6 +106,16 @@ RSpec.describe ImportGazetteersJob, type: :job do
 
     specify 'citation option off creates GZs with no citations' do
       expect(Citation.any?).to eq(false)
+    end
+
+    specify 'creates iso a2 values' do
+      expect(Gazetteer.all.order(:id).map { |g| g.iso_3166_a2 })
+        .to eq([nil, nil, 'ZZ', nil])
+    end
+
+    specify 'creates iso a3 values' do
+      expect(Gazetteer.all.order(:id).map { |g| g.iso_3166_a3 })
+        .to eq([nil, nil, 'ZZZ', nil])
     end
 
     context 'progress tracking' do

@@ -37,7 +37,8 @@ module Vendor::RgeoShapefile
     citation = citation_options[:cite_gzs] ? citation_options[:citation] : nil
 
     process_shape_file(
-      shp_link, name_field, citation, progress_tracker, projects
+      shp_link, name_field, shapefile[:iso_a2_field], shapefile[:iso_a3_field],
+      citation, progress_tracker, projects
     )
 
     FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
@@ -45,7 +46,8 @@ module Vendor::RgeoShapefile
   end
 
   def self.process_shape_file(
-    shpfile, name_field, citation, progress_tracker, projects
+    shpfile, name_field, iso_a2_field, iso_a3_field, citation,
+    progress_tracker, projects
   )
     r = {
       num_records: 0,
@@ -80,8 +82,17 @@ module Vendor::RgeoShapefile
         # This can throw GeosError even when allow_unsafe: true
         record = file[i]
 
+        # iso a2/a3 are optional fields, we ignore them if the shapefile
+        # doesn't provide valid data.
+        a2 = record[iso_a2_field]
+        a3 = record[iso_a3_field]
+        iso_3166_a2 = Gazetteer.validate_iso_3166_a2(a2) ? a2: nil
+        iso_3166_a3 = Gazetteer.validate_iso_3166_a3(a3) ? a3: nil
+
         g = Gazetteer.new(
-          name: record[name_field]
+          name: record[name_field],
+          iso_3166_a2:,
+          iso_3166_a3:
         )
 
         shape = record.geometry.valid? ?

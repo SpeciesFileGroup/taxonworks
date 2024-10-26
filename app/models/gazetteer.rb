@@ -236,6 +236,16 @@ class Gazetteer < ApplicationRecord
     end
   end
 
+  def self.validate_iso_3166_a2(a2)
+    return false if a2.blank? || a2.class.to_s != 'String'
+    /\A[A-Z][A-Z]\z/.match?(a2.strip.upcase)
+  end
+
+  def self.validate_iso_3166_a3(a3)
+    return false if a3.blank? || a3.class.to_s != 'String'
+    /\A[A-Z][A-Z][A-Z]\z/.match?(a3.strip.upcase)
+  end
+
   private
 
   def self.perform_clone_to_projects(gz, project_ids, citation)
@@ -256,12 +266,12 @@ class Gazetteer < ApplicationRecord
 
   def iso_3166_a2_is_two_characters
     errors.add(:iso_3166_a2, 'must be exactly two characters') unless
-      iso_3166_a2.nil? || /\A[A-Z][A-Z]\z/.match?(iso_3166_a2)
+      iso_3166_a2.nil? || self.class.validate_iso_3166_a2(iso_3166_a2)
   end
 
   def iso_3166_a3_is_three_characters
     errors.add(:iso_3166_a3, 'must be exactly three characters') unless
-      iso_3166_a3.nil? || /\A[A-Z][A-Z][A-Z]\z/.match?(iso_3166_a3)
+      iso_3166_a3.nil? || self.class.validate_iso_3166_a3(iso_3166_a3)
   end
 
   # @param [RGeo shape] s

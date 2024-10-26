@@ -20,7 +20,9 @@ const permitParams = {
     shx_doc_id: Number,
     dbf_doc_id: Number,
     prj_doc_id: Number,
-    name_field: String
+    name_field: String,
+    iso_a2_field: String,
+    iso_a3_field: String
   },
   projects: Array
 }

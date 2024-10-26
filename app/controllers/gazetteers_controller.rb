@@ -198,7 +198,8 @@ class GazetteersController < ApplicationController
 
   def shapefile_params
     params.require(:shapefile).permit(
-      :shp_doc_id, :shx_doc_id, :dbf_doc_id, :prj_doc_id, :name_field
+      :shp_doc_id, :shx_doc_id, :dbf_doc_id, :prj_doc_id, :name_field,
+      :iso_a2_field, :iso_a3_field
     )
   end
 
