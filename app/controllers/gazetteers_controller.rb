@@ -110,6 +110,15 @@ class GazetteersController < ApplicationController
     end
   end
 
+  # GET /gazetteers/download
+  def download
+    send_data Export::CSV.generate_csv(
+        Gazetteer.where(project_id: sessions_current_project_id)
+      ),
+      type: 'text',
+      filename: "gazetteers_#{DateTime.now}.tsv"
+  end
+
   # POST /gazetteers/import.json
   def import
     begin
