@@ -2,30 +2,42 @@ module Queries
   module Gazetteer
     class Autocomplete < Query::Autocomplete
 
-      def initialize(string, project_id: nil)
+      include Queries::Concerns::AlternateValues
+
+      def initialize(string, **params)
+        set_alternate_value(params)
         super
       end
 
-      def autocomplete_text_contains_match
-        return nil if query_string.length < 2
-        base_query.where('gazetteers.name ilike ?', '%' + query_string + '%').limit(20)
+      def autocomplete_iso_a2
+        return nil if query_string.length != 2
+        ::Gazetteer.where('iso_3166_a2 ILIKE ?', query_string)
+      end
+
+      def autocomplete_iso_a3
+        return nil if query_string.length != 3
+        ::Gazetteer.where('iso_3166_a3 ILIKE ?', query_string)
       end
 
       def updated_queries
         queries = [
-          autocomplete_text_contains_match,
+          autocomplete_named,
+          autocomplete_exact_id,
+          matching_alternate_value_on(:name),
+          autocomplete_iso_a2,
+          autocomplete_iso_a3
         ]
 
         queries.compact!
-
         return [] if queries.empty?
 
         updated_queries = []
 
         queries.each do |q|
           a = q.where(project_id:) if project_id.present?
-          updated_queries.push a
+          updated_queries << a
         end
+
         updated_queries
       end
 
@@ -40,6 +52,7 @@ module Queries
           result.uniq!
           break if result.count > 19
         end
+
         result[0..19]
       end
 
