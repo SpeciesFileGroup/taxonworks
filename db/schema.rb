@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_25_144619) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_27_160558) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -974,7 +974,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_25_144619) do
 
   create_table "gazetteers", force: :cascade do |t|
     t.integer "geographic_item_id", null: false
-    t.integer "parent_id"
     t.string "name", null: false
     t.string "iso_3166_a2"
     t.string "iso_3166_a3"
@@ -988,7 +987,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_25_144619) do
     t.index ["iso_3166_a2"], name: "index_gazetteers_on_iso_3166_a2"
     t.index ["iso_3166_a3"], name: "index_gazetteers_on_iso_3166_a3"
     t.index ["name"], name: "index_gazetteers_on_name"
-    t.index ["parent_id"], name: "index_gazetteers_on_parent_id"
     t.index ["project_id"], name: "index_gazetteers_on_project_id"
     t.index ["updated_by_id"], name: "index_gazetteers_on_updated_by_id"
   end
