@@ -366,47 +366,6 @@ describe GeographicItem, type: :model, group: :geo do
       end
     end
 
-    context 'GeographicItem.split_along_anti_meridian(wkt)' do
-      context 'Leaflet-provided GIS:Factory polygon' do
-        let!(:wkt) { 'POLYGON (
-            (160.0 -10.0 0.0, 160.0 10.0 0.0, -160.0 10.0 0.0,
-            170.0 0.0 0.0, -160.0 -10.0 0.0, 160.0 -10.0 0.0)
-          )'
-        }
-
-        specify 'splits into 3 pieces' do
-          mp = GeographicItem.split_along_anti_meridian(wkt)
-          expect(mp.geometry_type.to_s).to eq('MultiPolygon')
-          expect(mp.num_geometries).to eq(3)
-        end
-
-        specify 'split pieces are valid' do
-          mp = GeographicItem.split_along_anti_meridian(wkt)
-          mp.each do |p|
-            expect(p.valid?).to be true
-          end
-        end
-
-        specify "results don't cross the anti-meridian" do
-          mp = GeographicItem.split_along_anti_meridian(wkt)
-          mp.each do |p|
-            expect(GeographicItem.crosses_anti_meridian?(p.as_text)).to be false
-          end
-          expect(GeographicItem.crosses_anti_meridian?(mp.as_text)).to be false
-        end
-
-        specify 'split pieces include expected points' do
-          mp = GeographicItem.split_along_anti_meridian(wkt)
-          # the left piece
-          expect(mp[0].contains?(Gis::FACTORY.point(165, 0))).to be true
-          # the lower right piece
-          expect(mp[1].contains?(Gis::FACTORY.point(-175, -5))).to be true
-          # the upper right piece
-          expect(mp[2].contains?(Gis::FACTORY.point(-175, 5))).to be true
-        end
-      end
-    end
-
     context 'A leaflet/GeoJSON/Gis::FACTORY interaction' do
       let(:p) {
         #              *
@@ -423,7 +382,7 @@ describe GeographicItem, type: :model, group: :geo do
         #      |       * \
         #      --------*--
         #              *
-        # p is the GeoJson feature provided by leaflet for the shape drawn on
+        # p is the GeoJson feature returned by leaflet for the shape drawn on
         # leaflet as above, where * is the anti-meridian.
         '{"type":"Feature","properties":{},
           "geometry":{"type":"Polygon",
@@ -440,11 +399,12 @@ describe GeographicItem, type: :model, group: :geo do
         #     -160.0 -10.0 0.0, 160.0 -10.0 0.0)
         #   )
       }
+
       xspecify 'valid leaflet-provided anti-meridian-crossing shapes can become
         invalid when normalized by Gis::FACTORY' do
-        # s is reported to cross the anti-meridian...
-        expect(GeographicItem.crosses_anti_meridian?(s.geometry.as_text)).to be true
-        # ... but is at the same time invalid...
+
+        # s as normalized by our factory is invalid according to both rgeo and
+        # postgis:
         expect(s.geometry.valid?).to be false
         expect(GeographicItem.find_by_sql(
             "SELECT ST_IsValid(ST_GeomFromText('#{s.geometry.as_text}')) as r;"
@@ -454,31 +414,124 @@ describe GeographicItem, type: :model, group: :geo do
         # The postgis invalid reason is 'Self-intersection at or near point 160
         # 0.303030303030303 0' which suggests the segment from (-160,0) to
         # (170,0) is being interpreted as crossing the meridian (going the
-        # "long" way) and not the anti-meridian (even though the anti-meridian
-        # check passed...).
+        # "long" way) and not the anti-meridian.
+
+        # By comparison if we decode without specifying our factory:
+        s2 = RGeo::GeoJSON.decode(p)
+        # then we get
+        # s2.geometry.as_text = POLYGON ((-200 -10, -200 10, -160 10, -190 0, -160 -10, -200 -10)) # same as the geojson feature coordinates
+        #   )
+        # which **is** valid (but may not be storable in this form given our
+        # factory's normalization conventions).
+        expect(s2.geometry.valid?).to be true
+        expect(GeographicItem.find_by_sql(
+            "SELECT ST_IsValid(ST_GeomFromText('#{s2.geometry.as_text}')) as r;"
+          ).first.r).to be true
 
         # Question: is it possible to represent this polygon in our
         # GIS::Factory's normalized coordinates in a way that makes it `valid?`?
         # Or can it only be made valid by splitting it across the anti-meridian?
 
-        # GeographicItem.split_along_anti_meridian sidesteps the issue by
-        # st_shifting the invalid polygon - to 'POLYGON Z ((160 -10 0,160 10
-        # 0,200 10 0,170 0 0,200 -10 0,160 -10 0))', which *IS* ST_IsValid - and
-        # then working directly in postgis to get non-anti-meridian-crossing
-        # pieces from that, which can be safely parsed with GIS::Factory.
-
-        # By comparison (and as an alternative?), if we decode without
-        # specifying a factory:
-        s2 = RGeo::GeoJSON.decode(p)
-        # s2.geometry.as_text = POLYGON ((-200 -10, -200 10, -160 10, -190 0, -160 -10, -200 -10)) # same as the geojson feature coordinates
-        #   )
-        # Reported to cross the anti-meridian...
+        # In spite of what both rgeo and postgis suggest about s crossing the
+        # meridian instead of the anti-meridian, both s and s2 are reported to
+        # intersect the anti_meridian by postgis: another instance of interpretation
+        # of anti-meridian-crossing shapes depending on which function is doing
+        # the interpreting. (A similar rgeo intersection check on s fails
+        # because s has a self-intersection.)
+        expect(GeographicItem.crosses_anti_meridian?(s.geometry.as_text)).to be true
         expect(GeographicItem.crosses_anti_meridian?(s2.geometry.as_text)).to be true
-        # ... and is valid
-        expect(s2.geometry.valid?).to be true
-        expect(GeographicItem.find_by_sql(
-            "SELECT ST_IsValid(ST_GeomFromText('#{s2.geometry.as_text}')) as r;"
-          ).first.r).to be true
+
+        # Read on for the current solution to handling anti-meridian-crossing
+        # polygons provided by leaflet as normalized by our factory.
+      end
+
+      context 'st_shifting an anti-meridian-crossing shape normalized by our gis factory produces a valid shape' do
+        # Can't test rgeo-valid here without bypassing our GIS::Factory, which
+        # we don't want to do.
+        specify 'st_shifted(s) is postgis valid' do
+          expect(ActiveRecord::Base.connection.select_value(
+            "SELECT ST_IsValid(ST_ShiftLongitude(ST_GeomFromText('#{s.geometry.as_text}'))) as r;"
+          )).to be true
+          # The shifted shape here is
+          # POLYGON Z ((160 -10 0,160 10 0,200 10 0,170 0 0,200 -10 0,160 -10 0))
+        end
+      end
+
+      context 'GeographicItem.split_along_anti_meridian(wkt)' do
+        # GeographicItem.split_along_anti_meridian ST_Shifts its
+        # anti-meridian-crossing input to make it st_valid.
+        context 'Leaflet-provided GIS:Factory polygon' do
+          let!(:wkt) { 'POLYGON (
+              (160.0 -10.0 0.0, 160.0 10.0 0.0, -160.0 10.0 0.0,
+              170.0 0.0 0.0, -160.0 -10.0 0.0, 160.0 -10.0 0.0)
+            )'
+          }
+
+          specify 'splits into 3 pieces' do
+            mp = GeographicItem.split_along_anti_meridian(wkt)
+            expect(mp.geometry_type.to_s).to eq('MultiPolygon')
+            expect(mp.num_geometries).to eq(3)
+          end
+
+          specify 'split pieces are valid' do
+            mp = GeographicItem.split_along_anti_meridian(wkt)
+            mp.each do |p|
+              expect(p.valid?).to be true
+            end
+          end
+
+          specify "results don't cross the anti-meridian" do
+            mp = GeographicItem.split_along_anti_meridian(wkt)
+            mp.each do |p|
+              expect(GeographicItem.crosses_anti_meridian?(p.as_text)).to be false
+            end
+            expect(GeographicItem.crosses_anti_meridian?(mp.as_text)).to be false
+          end
+
+          specify 'split pieces include expected points' do
+            mp = GeographicItem.split_along_anti_meridian(wkt)
+            # the left piece
+            expect(mp[0].contains?(Gis::FACTORY.point(165, 0))).to be true
+            # the lower right piece
+            expect(mp[1].contains?(Gis::FACTORY.point(-175, -5))).to be true
+            # the upper right piece
+            expect(mp[2].contains?(Gis::FACTORY.point(-175, 5))).to be true
+          end
+        end
+      end
+
+      context 'Attempting to make arbitrary input shapes both valid and not anti-meridian-crossing' do
+        let(:devils_bowtie) {
+          'POLYGON ((200 0, 170 10, 170 0, 200 10, 200 0))'
+        }
+        # If you try to make_valid first, you get the "wrong" result on shapes
+        # that are anti-meridian-crossing (in all cases make_valid seems to
+        # interpret the shape as crossing the meridian and makes that valid):
+        xspecify 'make_valid on anti-meridian-crossing shapes (as normalized by our factory) gives undesired results' do
+          new_s = s.make_valid
+          expect(new_s.contains?(Gis::FACTORY.point(-175, -5))).to be false
+        end
+
+        # So instead split_along_anti_meridian first when needed (in practice
+        # we're accepting that this may fail on invalid shapes), for which we'd
+        # like the precondition crosses_anti_meridian? to tolerate (i.e. not
+        # raise and give the correct result on) invalid shapes, both crossing
+        # and not crossing the anti-meridian. [Wild guess: this is the case
+        # because the polygon-intersect-anti-meridian check boils down to a
+        # bounding box comparison.]
+        specify 'crosses_anti_meridian? tolerates non-anti-meridian-crossing invalid shape' do
+          inv_s = 'POLYGON ((0 0, 10 10, 10 0, 0 10, 0 0))' # bowtie
+          expect(GeographicItem.crosses_anti_meridian?(inv_s)).to be false
+        end
+
+        specify 'crosses_anti_meridian? tolerates anti-meridian-crossing invalid shape' do
+          expect(GeographicItem.crosses_anti_meridian?(devils_bowtie)).to be true
+        end
+
+        xspecify 'failure on split_along_anti_meridian for invalid anti-meridian-crossing shape' do
+          expect{GeographicItem.split_along_anti_meridian(devils_bowtie)}
+            .to raise_error ActiveRecord::StatementInvalid, /geom_intersection/
+        end
       end
     end
   end

@@ -95,12 +95,19 @@ module Vendor::RgeoShapefile
           iso_3166_a3:
         )
 
-        shape = record.geometry.valid? ?
-          record.geometry : record.geometry.make_valid
+        shape = record.geometry
 
+        # See anti_meridian_spec.rb for the reasoning behind (provisionally)
+        # putting the anti_meridian check before the make_valid call.
         if GeographicItem.crosses_anti_meridian?(shape.as_text)
+          # If this shape crosses the anti_meridian and then raises on
+          # split_along_anti_meridian because it's invalid then we give up.
           shape = GeographicItem.split_along_anti_meridian(shape.as_text)
         end
+
+        # TODO remove lower-dimensional geometries introduced by make_valid
+        # (maybe use ST_MakeValid which has an option to do this)
+        shape = shape.make_valid if !shape.valid?
 
         g.build_geographic_item(
           geography: shape
@@ -121,6 +128,8 @@ module Vendor::RgeoShapefile
         process_error(progress_tracker, r, i + 1, e.to_s)
       rescue RGeo::Error::GeosError => e
         process_error(progress_tracker, r, i + 1, e.to_s)
+      rescue ActiveRecord::StatementInvalid => e
+        process_error(progress_tracker, r, i + 1, e.to_s)
       end
     end
 
@@ -139,5 +148,4 @@ module Vendor::RgeoShapefile
       error_messages: recorder[:error_messages]
     )
   end
-
 end
