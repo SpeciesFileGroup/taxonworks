@@ -44,16 +44,21 @@ class Confidence < ApplicationRecord
     Confidence.where(project_id: project_id, confidence_object: o, confidence_level_id: confidence_level_id).first
   end
 
-  def self.batch_by_filter_scope(filter_query: nil, confidence_level_id: nil, replace_confidence_level_id: nil, mode: :add, async_cutoff: 300)
-    b = ::Queries::Query::Filter.instantiated_base_filter(filter_query)
-    q = b.all(true)
-
-    # Batch result
+  def self.batch_by_filter_scope(filter_query: nil, confidence_level_id: nil, replace_confidence_level_id: nil, mode: :add, async_cutoff: 300, project_id: nil, user_id: nil)
     r = ::BatchResponse.new(
       preview: false,
       method: 'Confidence batch_by_filter_scope',
-      klass: b.referenced_klass.name
     )
+
+    if filter_query.nil?
+      r.errors['scoping filter not provided'] = 1
+      return r
+    end
+
+    b = ::Queries::Query::Filter.instantiated_base_filter(filter_query)
+    q = b.all(true)
+
+    r.klass =  b.referenced_klass.name
 
     if b.only_project?
       r.total_attempted = 0
@@ -76,44 +81,52 @@ class Confidence < ApplicationRecord
       end
 
       if async
-        # TODO: not optimal
-        q.find_each do |o|
-          o.confidences.where(confidence_level_id: replace_confidence_level_id).each do |c|
-            c.delay(queue: 'query_batch_update').update(confidence_level_id:)
-          end
-        end
+        ConfidenceBatchJob.perform_later(
+          filter_query:,
+          confidence_level_id:,
+          replace_confidence_level_id:,
+          mode: :replace,
+          project_id:,
+          user_id:,
+        )
       else
         Confidence
           .where(
             confidence_object_id: q.pluck(:id),
-            confidence_object_type: b.referenced_klass.name,
+            confidence_object_type: b.referenced_klass.base_class.name,
             confidence_level_id: replace_confidence_level_id
-          ).update_all(confidence_level_id:)
+          ).find_each do |o|
+            o.update(confidence_level_id:)
+          end
       end
     when :remove
-      # TODO: definitely not optimal, Find is the most expensive, then delete is almost nothing
-      if async
-        q.find_each do |o|
-          Confidence.find_by(confidence_level_id:, confidence_object: o)&.delay(queue: 'query_batch_update').delete
-        end
-      else
-        Confidence
-          .where(
-            confidence_object_id: q.pluck(:id),
-            confidence_object_type: b.referenced_klass.name
-          ).delete_all
-      end
+      # Just delete, async or not
+      Confidence
+        .where(
+          confidence_object_id: q.pluck(:id),
+          confidence_object_type: b.referenced_klass.name
+        ).delete_all
     when :add
-      q.find_each do |o|
-        if async
-          o.delay(queue: 'query_batch_update').update(confidences_attributes: [{confidence_level_id:, by: Current.user_id, project_id: o.project_id}])
-        else
+      if async
+        ConfidenceBatchJob.perform_later(
+          filter_query:,
+          confidence_level_id:,
+          replace_confidence_level_id:,
+          mode: :add,
+          project_id:,
+          user_id:,
+        )
+      else
+        q.find_each do |o|
           Confidence.create(confidence_object: o, confidence_level_id:)
         end
       end
+
     end
 
     return r.to_json
   end
+
+
 
 end

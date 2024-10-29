@@ -1,15 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe Confidence, type: :model, group: :confidence do
+  include ActiveJob::TestHelper
 
   let(:confidence) { Confidence.new }
   let(:confidence_level) { FactoryBot.create(:valid_confidence_level) }
   let(:specimen) { FactoryBot.create(:valid_specimen) }
 
-  specify '#batch_by_filter_scope :replace async' do
+  specify '#batch_by_filter_scope :replace, async' do
     c1 = FactoryBot.create(:valid_confidence_level)
 
     Confidence.create!(confidence_object: specimen, confidence_level:)
+
     q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
     Confidence.batch_by_filter_scope(
       filter_query: { 'collection_object_query' => q.params },
@@ -18,7 +20,10 @@ RSpec.describe Confidence, type: :model, group: :confidence do
       confidence_level_id: c1.id,
       replace_confidence_level_id: confidence_level.id
     )
-    Delayed::Worker.new.work_off
+
+    # expect { ConfidenceBatchJob.perform_later }.to have_enqueued_job.on_queue(:query_batch_update)
+    perform_enqueued_jobs
+
     expect(Confidence.all.first.confidence_level_id).to eq(c1.id)
   end
 
@@ -35,19 +40,7 @@ RSpec.describe Confidence, type: :model, group: :confidence do
     expect(Confidence.all.first.confidence_level_id).to eq(c1.id)
   end
 
-  specify '#batch_by_filter_scope :remove async' do
-    Confidence.create!(confidence_object: specimen, confidence_level:)
-    q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
-    Confidence.batch_by_filter_scope(
-      filter_query: { 'collection_object_query' => q.params },
-      mode: :remove,
-      async_cutoff: 0,
-      confidence_level_id: confidence_level.id)
-    expect(Confidence.all.count).to eq(1)
-    Delayed::Worker.new.work_off
-    expect(Confidence.all.count).to eq(0)
-  end
-
+  # No async test, we don't use
   specify '#batch_by_filter_scope :remove' do
     Confidence.create!(confidence_object: specimen, confidence_level:)
     q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
@@ -75,10 +68,11 @@ RSpec.describe Confidence, type: :model, group: :confidence do
       confidence_level_id: confidence_level.id,
       async_cutoff: 0)
     expect(Confidence.all.count).to eq(0)
-    Delayed::Worker.new.work_off
+
+    perform_enqueued_jobs
+
     expect(Confidence.all.count).to eq(1)
   end
-
 
   context 'validation' do
     before { confidence.save }
