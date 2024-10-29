@@ -5,7 +5,7 @@
 <% object_name ||= controller.humanize.downcase.singularize.html_safe.gsub(/\//, '') -%>
 <% send_select ||= false %>
 <% autofocus ||= nil %>
-<% methodValue = object ? "#{object}[#{method}]" : method %>
+<% methodValue = object.present? ? "#{object}[#{method}]" : method %>
 
 <% url = url_for({
   controller: controller,
