@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Local identifier display in CollectionObject tag now prefers position to break tie with RecordNumber and CatalogNumber [#4074]
+- Filter CO: Show only current taxon determination [#4092]
 
 ### Fixed
 
@@ -35,8 +36,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4076]: https://github.com/SpeciesFileGroup/taxonworks/issues/4076
 [#4077]: https://github.com/SpeciesFileGroup/taxonworks/issues/4077
 [#4083]: https://github.com/SpeciesFileGroup/taxonworks/issues/4083
+<<<<<<< HEAD
 [#4090]: https://github.com/SpeciesFileGroup/taxonworks/issues/4090
 [#4043]: https://github.com/SpeciesFileGroup/taxonworks/issues/4043
+=======
+[#4092]: https://github.com/SpeciesFileGroup/taxonworks/issues/4092
+>>>>>>> 4043_filter_on_confidence
 
 ## [0.44.3] - 2024-10-03
 
