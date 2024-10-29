@@ -6,7 +6,8 @@ module Lib::Vendor::RgeoShapefileHelper
         shp: shapefile[:shp_doc_id] ? Document.find(shapefile[:shp_doc_id]) : nil,
         shx: shapefile[:shx_doc_id] ? Document.find(shapefile[:shx_doc_id]) : nil,
         dbf: shapefile[:dbf_doc_id] ? Document.find(shapefile[:dbf_doc_id]) : nil,
-        prj: shapefile[:prj_doc_id] ? Document.find(shapefile[:prj_doc_id]) : nil
+        prj: shapefile[:prj_doc_id] ? Document.find(shapefile[:prj_doc_id]) : nil,
+        cpg: shapefile[:cpg_doc_id] ? Document.find(shapefile[:cpg_doc_id]) : nil
       }
     rescue ActiveRecord::RecordNotFound => e
       raise TaxonWorks::Error, e
@@ -32,8 +33,8 @@ module Lib::Vendor::RgeoShapefileHelper
     filename[0, filename.size - 4]
   end
 
-  # @return [Hash] of shapefile ext => Document. Raises TaxonWorks::Error on
-  # error.
+  # @return [Hash] of shapefile ext => Document.
+  # Raises TaxonWorks::Error on error.
   def validate_shape_file(shapefile, project_id)
     if shapefile[:name_field].nil?
       raise TaxonWorks::Error, 'Name field is required'
@@ -138,16 +139,20 @@ module Lib::Vendor::RgeoShapefileHelper
 
   # Raises TaxonWorks::Error on error
   def find_doc_for_extension(base, ext, project_id)
-    ext_filename = base + '.' + ext.to_s
+    ext = ext.to_s
+    ext_filename = base + '.' + ext
     ext_docs = Document.where(
       document_file_file_name: ext_filename,
       project_id:
     )
 
     if ext_docs.count == 0
+      return nil if ext == 'cpg' # cpg isn't required
+
       raise TaxonWorks::Error, "Failed to find a '#{ext_filename}' document, has one been uploaded?"
     elsif ext_docs.count > 1
       ids = ext_docs.map { |d| d.id }
+      # (This makes cpg required when there are multiple matching)
       raise TaxonWorks::Error, "More than one '#{ext_filename}' document exists (ids #{ids.join(',')}), please add the correct one in the document selector"
     end
 

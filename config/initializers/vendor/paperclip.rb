@@ -5,9 +5,10 @@ Paperclip.options[:content_type_mappings] = {
   ab1: %w(application/octet-stream),
   nex: %w(text/plain),
   nxs: %w(text/plain),
-  # Four shapefile formats:
+  # Five shapefile formats:
   shp: %w(application/octet-stream),
   dbf: %w(application/x-dbf),
   shx: %w(application/octet-stream),
-  prj: %w(text/plain)
+  prj: %w(text/plain),
+  cpg: %w(text/plain)
 }

@@ -7,6 +7,8 @@ module Vendor::RgeoShapefile
       shx_doc = Document.find(shapefile[:shx_doc_id])
       dbf_doc = Document.find(shapefile[:dbf_doc_id])
       prj_doc = Document.find(shapefile[:prj_doc_id])
+      cpg_doc = shapefile[:cpg_doc_id] ?
+        Document.find(shapefile[:cpg_doc_id]) : nil
     rescue ActiveRecord::RecordNotFound => e
       progress_tracker.update!(
         num_records_imported: 0,
@@ -34,6 +36,12 @@ module Vendor::RgeoShapefile
     FileUtils.ln_s(dbf_doc.document_file.path, dbf_link)
     FileUtils.ln_s(prj_doc.document_file.path, prj_link)
 
+    cpg_link = ''
+    if cpg_doc.present?
+      cpg_link = File.join(tmp_dir, 'shapefile.cpg')
+      FileUtils.ln_s(cpg_doc.document_file.path, cpg_link)
+    end
+
     citation = citation_options[:cite_gzs] ? citation_options[:citation] : nil
 
     process_shape_file(
@@ -41,7 +49,7 @@ module Vendor::RgeoShapefile
       citation, progress_tracker, projects
     )
 
-    FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link])
+    FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link, cpg_link])
     FileUtils.rmdir(tmp_dir)
   end
 

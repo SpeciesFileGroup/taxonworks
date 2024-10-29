@@ -1,7 +1,10 @@
 <template>
   <fieldset class="document_select">
-    <legend>Select a .shp document (.shx, .dbf, and .prj files must be in TaxonWorks but need not be specified here)</legend>
+    <legend>Shapefile documents</legend>
     <VSpinner v-if="isLoading" />
+    <p>
+    Select at minimum a .shp document - .shx, .dbf, and .prj documents must be in TaxonWorks but need not be specified here. A .prj document is optional but if your shapefile has one you should upload it to TaxonWorks before importing (it need not be specified here).
+  </p>
     <SmartSelector
       klass="Documents"
       model="documents"
@@ -35,7 +38,7 @@
         <FilterDocument
           v-model="parameters"
           :extension-groups="extensionGroups"
-          :filter-group-names="['shapefile', 'shp', 'shx', 'dbf', 'prj']"
+          :filter-group-names="['shapefile', 'shp', 'shx', 'dbf', 'prj', 'cpg']"
           @filter="() => loadList(parameters)"
         />
         <div class="results">
@@ -96,7 +99,7 @@ const DROPZONE_CONFIG_BASE = {
       .querySelector('meta[name="csrf-token"]')
       .getAttribute('content')
   },
-  dictDefaultMessage: 'Drop a shapefile file here (.shp, .shx, .dbf, .prj)',
+  dictDefaultMessage: 'Drop a shapefile file here (.shp, .shx, .dbf, .prj, .cpg)',
 }
 
 const emit = defineEmits('selected')

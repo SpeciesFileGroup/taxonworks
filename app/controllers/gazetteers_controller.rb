@@ -145,6 +145,7 @@ class GazetteersController < ApplicationController
     new_params[:shx_doc_id] = shapefile_docs[:shx].id
     new_params[:dbf_doc_id] = shapefile_docs[:dbf].id
     new_params[:prj_doc_id] = shapefile_docs[:prj].id
+    new_params[:cpg_doc_id] = shapefile_docs[:cpg]&.id
 
     progress_tracker = GazetteerImport.create!(
       shapefile: shapefile_docs[:shp].document_file_file_name
@@ -209,8 +210,8 @@ class GazetteersController < ApplicationController
 
   def shapefile_params
     params.require(:shapefile).permit(
-      :shp_doc_id, :shx_doc_id, :dbf_doc_id, :prj_doc_id, :name_field,
-      :iso_a2_field, :iso_a3_field
+      :shp_doc_id, :shx_doc_id, :dbf_doc_id, :prj_doc_id, :cpg_doc_id,
+      :name_field, :iso_a2_field, :iso_a3_field
     )
   end
 

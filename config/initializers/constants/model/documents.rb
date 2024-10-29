@@ -56,6 +56,10 @@ Rails.application.config.after_initialize do
         {
           extension: '.prj',
           content_type: 'text/plain'
+        },
+        {
+          extension: '.cpg',
+          content_type: 'text/plain'
         }
       ]
     },
@@ -95,6 +99,16 @@ Rails.application.config.after_initialize do
       extensions: [
         {
           extension: '.prj',
+          content_type: 'text/plain'
+        }
+      ]
+    },
+
+    {
+      group: 'cpg',
+      extensions: [
+        {
+          extension: '.cpg',
           content_type: 'text/plain'
         }
       ]

@@ -296,4 +296,85 @@ RSpec.describe ImportGazetteersJob, type: :job do
 
   end
 
+  context 'with a .cpg file' do
+    let(:shp_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/non_utf8_encoded.shp'),
+          'application/x-shapefile'
+        ))
+    }
+    let(:shx_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/non_utf8_encoded.shx'),
+          'application/x-shapefile'
+        ))
+    }
+    let(:dbf_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/non_utf8_encoded.dbf'),
+          'application/x-dbf'
+        ))
+    }
+    let(:prj_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/non_utf8_encoded.prj'),
+          'text/plain'
+        ))
+    }
+    let(:cpg_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/non_utf8_encoded.cpg'),
+          'text/plain'
+        ))
+    }
+    let(:shapefile) {
+      {
+        shp_doc_id: shp_doc.id,
+        shx_doc_id: shx_doc.id,
+        dbf_doc_id: dbf_doc.id,
+        prj_doc_id: prj_doc.id,
+        cpg_doc_id: cpg_doc.id,
+        name_field: 'Name',
+        iso_a2_field: 'iso_a2',
+        iso_a3_field: 'iso_a3'
+      }
+    }
+    let(:citation_options) {
+      {
+        cite_gzs: false,
+        citation: nil
+      }
+    }
+    let(:progress_tracker) {
+      GazetteerImport.create!(
+        shapefile: shp_doc.document_file_file_name
+      )
+    }
+    let(:projects) { [project.id] }
+
+    before(:each) do
+      Current.user_id = user.id
+      Current.project_id = project.id
+
+      ImportGazetteersJob.perform_now(
+        shapefile, citation_options, user.id, project.id,
+        progress_tracker, projects
+      )
+    end
+
+    specify 'string attributes are imported correctly' do
+      # Under normal circumstances the dbf gem returns all string attributes
+      # encoded as UTF-8.
+      expect(Gazetteer.first.name.encoding.to_s).to eq('UTF-8')
+
+      expect(Gazetteer.first.name).to eq('ΣπόντζΜπομπ')
+    end
+
+  end
+
 end

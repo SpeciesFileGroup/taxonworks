@@ -79,8 +79,9 @@ function processShapefile() {
   const shx = getFileForExtension('.shx')
   const dbf = getFileForExtension('.dbf')
   const prj = getFileForExtension('.prj')
+  const cpg = getFileForExtension('.cpg')
 
-  if (!validateShapefileFileset({shp, shx, dbf, prj})) {
+  if (!validateShapefileFileset({shp, shx, dbf, prj, cpg})) {
     return
   }
 
@@ -90,6 +91,7 @@ function processShapefile() {
       shx_doc_id: shx?.id,
       dbf_doc_id: dbf?.id,
       prj_doc_id: prj?.id,
+      cpg_doc_id: cpg?.id,
       name_field: shapeNameField.value,
       iso_a2_field: shapeIsoA2Field.value,
       iso_a3_field: shapeIsoA3Field.value
