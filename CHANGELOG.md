@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- RecordNumber identifiers can be duplicated (namespace + identifier combinations) across CollectionObjects [#4096]
 - Local identifier display in CollectionObject tag now prefers position to break tie with RecordNumber and CatalogNumber [#4074]
 
 ### Fixed
@@ -37,6 +38,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4083]: https://github.com/SpeciesFileGroup/taxonworks/issues/4083
 [#4090]: https://github.com/SpeciesFileGroup/taxonworks/issues/4090
 [#4043]: https://github.com/SpeciesFileGroup/taxonworks/issues/4043
+[#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096
+
 
 ## [0.44.3] - 2024-10-03
 

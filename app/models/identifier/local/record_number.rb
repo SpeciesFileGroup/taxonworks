@@ -2,13 +2,11 @@
 #
 # Does *not* imply an accessioning process.
 #
-# @TODO Validate scope to CollectionObject
-#
+# !! Can be "duplicated", see Identifier::Local uniqueness unless
+# 
 class Identifier::Local::RecordNumber < Identifier::Local
 
   include Shared::DwcOccurrenceHooks
-
-  # skip_callback :validation, :before, :identifier_uniqueness
 
   validate :assigned_to_collection_object
 
