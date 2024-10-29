@@ -107,6 +107,25 @@ module Lib::Vendor::RgeoShapefileHelper
       end
     end
 
+    # Check that the cpg encoding is recognized - strings can get returned
+    # encoded as binary if failure here is allowed.
+    #  cf. https://github.com/rgeo/rgeo-shapefile/blob/d278da0b613425d64e3792497ac9cf474eec6e53/lib/rgeo/shapefile/reader.rb#L194-L198
+    if docs[:cpg].present?
+      begin
+        encoding = nil
+        File.open(docs[:cpg].document_file.path, 'r') do |cpg|
+          encoding = cpg.read
+        end
+        Encoding.find(encoding.strip)
+      rescue Errno::ENOENT => e
+        raise TaxonWorks::Error,
+          "Failed to open .cpg document '#{docs[:cpg].id}'"
+      rescue ArgumentError => e # Unrecognized encoding
+        raise TaxonWorks::Error,
+          "'#{e}' from .cpg document '#{docs[:cpg].id}'"
+      end
+    end
+
     docs
   end
 

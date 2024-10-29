@@ -29,6 +29,13 @@ describe Lib::Vendor::RgeoShapefileHelper, type: :helper do
         'text/plain'
       ))
   }
+  let(:cpg_doc) {
+    Document.create!(
+      document_file: Rack::Test::UploadedFile.new(
+        (Rails.root + 'spec/files/shapefiles/four_valid_shapes.cpg'),
+        'text/plain'
+      ))
+  }
   let(:shapefile) {
     # This one is all valid
     {
@@ -36,12 +43,13 @@ describe Lib::Vendor::RgeoShapefileHelper, type: :helper do
       shx_doc_id: shx_doc.id,
       dbf_doc_id: dbf_doc.id,
       prj_doc_id: prj_doc.id,
+      cpg_doc_id: cpg_doc.id,
       name_field: 'Name'
     }
   }
   let(:project_id) { Current.project_id }
 
-  context 'validate_shape_file' do
+  context '::validate_shape_file' do
     specify 'does not raise on valid shapefile' do
       expect{validate_shape_file(shapefile, project_id)}.not_to raise_error
     end
@@ -91,6 +99,22 @@ describe Lib::Vendor::RgeoShapefileHelper, type: :helper do
         expect{validate_shape_file(shapefile, project_id)}
           .to_not raise_error
       end
+    end
+
+    specify 'invalid .cpg encoding is caught' do
+      invalid_cpg = Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/invalid_encoding.cpg'),
+          'text/plain'
+        ))
+      # mini-hack to avoid more document-loading boilerplate
+      invalid_cpg.update!(
+        document_file_file_name: cpg_doc.document_file_file_name
+      )
+      shapefile[:cpg_doc_id] = invalid_cpg.id
+
+      expect{validate_shape_file(shapefile, project_id)}
+        .to raise_error(TaxonWorks::Error, /unknown encoding name/)
     end
 
     context 'filling in unspecified files' do
@@ -153,7 +177,7 @@ describe Lib::Vendor::RgeoShapefileHelper, type: :helper do
     end
   end
 
-  context 'fields_from_shapefile' do
+  context '::fields_from_shapefile' do
     let(:fields) {
       ['Name', 'FacilityID', 'Status', 'Type', 'Shape_STAr', 'Shape_STLe',
        'iso_a2', 'iso_a3']
