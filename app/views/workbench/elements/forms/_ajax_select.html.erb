@@ -5,12 +5,13 @@
 <% object_name ||= controller.humanize.downcase.singularize.html_safe.gsub(/\//, '') -%>
 <% send_select ||= false %>
 <% autofocus ||= nil %>
+<% methodValue = object ? "#{object}[#{method}]" : method %>
 
 <% url = url_for({
   controller: controller,
   action: action,
   tag_id: tag_id,
-  method: "#{object}[#{method}]",
+  method: methodValue,
   escape: false}) -%>
 
 <input autocomplete="off"
@@ -21,7 +22,7 @@
        <%= ('autofocus="autofocus"').html_safe if !autofocus.nil? -%>
        data-send-select="<%= send_select %>"
        data-mx-autocomplete-url="<%= url %>"
-       data-mx-method="<%= "#{object}[#{method}]" %>"
+       data-mx-method="<%= methodValue %>"
        <%= ((size ||= nil).nil? ? 'style="width:98%;"' : "size=\"#{size}\"").html_safe -%>
        type="text"
        value="<%= display -%>"
