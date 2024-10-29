@@ -7,6 +7,27 @@ RSpec.describe Confidence, type: :model, group: :confidence do
   let(:confidence_level) { FactoryBot.create(:valid_confidence_level) }
   let(:specimen) { FactoryBot.create(:valid_specimen) }
 
+  specify '#batch_by_filter_scope :replace, async, ' do
+    c1 = FactoryBot.create(:valid_confidence_level)
+    Confidence.create!(confidence_object: specimen, confidence_level:)
+
+    q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
+    p = ActionController::Parameters.new( { 'collection_object_query' => q.params })
+
+    Confidence.batch_by_filter_scope(
+      filter_query: p,
+      mode: :replace,
+      async_cutoff: 0,
+      confidence_level_id: c1.id,
+      replace_confidence_level_id: confidence_level.id
+    )
+
+    # expect { ConfidenceBatchJob.perform_later }.to have_enqueued_job.on_queue(:query_batch_update)
+    perform_enqueued_jobs
+
+    expect(Confidence.all.first.confidence_level_id).to eq(c1.id)
+  end
+
   specify '#batch_by_filter_scope :replace, async' do
     c1 = FactoryBot.create(:valid_confidence_level)
 

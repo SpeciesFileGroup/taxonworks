@@ -58,6 +58,8 @@ class Confidence < ApplicationRecord
     b = ::Queries::Query::Filter.instantiated_base_filter(filter_query)
     q = b.all(true)
 
+    fq = ::Queries::Query::Filter.base_query_to_h(filter_query)
+
     r.klass =  b.referenced_klass.name
 
     if b.only_project?
@@ -82,7 +84,7 @@ class Confidence < ApplicationRecord
 
       if async
         ConfidenceBatchJob.perform_later(
-          filter_query:,
+          filter_query: fq,
           confidence_level_id:,
           replace_confidence_level_id:,
           mode: :replace,
@@ -109,7 +111,7 @@ class Confidence < ApplicationRecord
     when :add
       if async
         ConfidenceBatchJob.perform_later(
-          filter_query:,
+          filter_query: fq,
           confidence_level_id:,
           replace_confidence_level_id:,
           mode: :add,

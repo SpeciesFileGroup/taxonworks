@@ -354,6 +354,13 @@ module Queries
       params.keys.select{|s| s =~ /\A.+_query\z/}.first
     end
 
+    # @return the params use to instantiate the full
+    # base_query, as params, like `{otu_query: {}}`
+    # This sanitizes params.
+    def self.base_query_to_h(params)
+      return { base_query_name(params) => instantiated_base_filter(params).params }
+    end
+
     def self.included_annotator_facets
       f = [
         ::Queries::Concerns::Users
