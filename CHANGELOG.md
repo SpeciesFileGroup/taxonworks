@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Duplicate OTU predictor task [#4083]
 - DwcOccurrenceHooks for BiocurationGroups, OTUs
 - New image task: is original checkbox to source panel [#4090]
+- Confidence facets and batch operations to all Filters [#4043]
 
 ### Changed
 
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4077]: https://github.com/SpeciesFileGroup/taxonworks/issues/4077
 [#4083]: https://github.com/SpeciesFileGroup/taxonworks/issues/4083
 [#4090]: https://github.com/SpeciesFileGroup/taxonworks/issues/4090
+[#4043]: https://github.com/SpeciesFileGroup/taxonworks/issues/4043
 
 ## [0.44.3] - 2024-10-03
 
