@@ -59,7 +59,9 @@ class GazetteersController < ApplicationController
     end
 
     begin
-      Gazetteer.clone_to_projects(@gazetteer, projects_param['projects'])
+      Gazetteer
+        .save_and_clone_to_projects(@gazetteer, projects_param['projects'])
+
       render :show, status: :created, location: @gazetteer
     rescue ActiveRecord::RecordInvalid => e
       render json: { errors: e.message }, status: :unprocessable_entity

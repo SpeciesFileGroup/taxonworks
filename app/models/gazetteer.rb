@@ -223,16 +223,16 @@ class Gazetteer < ApplicationRecord
   #   transaction.
   # @param citation [Hash] Citation object to save to each Gazetteer created
   # Raises ActiveRecord::RecordInvalid on error
-  def self.clone_to_projects(gz, project_ids, citation = nil)
+  def self.save_and_clone_to_projects(gz, project_ids, citation = nil)
     project_ids.delete(Current.project_id)
     project_ids.uniq!
 
     if project_ids.count > 0
       Gazetteer.transaction do
-        perform_clone_to_projects(gz, project_ids, citation)
+        perform_save_and_clone_to_projects(gz, project_ids, citation)
       end
     else
-      perform_clone_to_projects(gz, project_ids, citation)
+      perform_save_and_clone_to_projects(gz, [], citation)
     end
   end
 
@@ -248,7 +248,9 @@ class Gazetteer < ApplicationRecord
 
   private
 
-  def self.perform_clone_to_projects(gz, project_ids, citation)
+  # @param project_ids [Array] the projects to clone to - does not include the
+  # current project which gz is saved to.
+  def self.perform_save_and_clone_to_projects(gz, project_ids, citation)
     if citation.present?
       gz.citations.build(citation.merge({ project_id: Current.project_id }))
     end

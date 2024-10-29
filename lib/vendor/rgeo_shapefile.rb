@@ -113,7 +113,7 @@ module Vendor::RgeoShapefile
           geography: shape
         )
 
-        Gazetteer.clone_to_projects(g, projects, citation)
+        Gazetteer.save_and_clone_to_projects(g, projects, citation)
         r[:num_records_imported] = r[:num_records_imported] + 1
 
         if i % 5 == 0
@@ -129,6 +129,14 @@ module Vendor::RgeoShapefile
       rescue RGeo::Error::GeosError => e
         process_error(progress_tracker, r, i + 1, e.to_s)
       rescue ActiveRecord::StatementInvalid => e
+        # In known instances this is a result of something like:
+        # PG::InternalError:
+        #   ERROR:  lwgeom_intersection_prec: GEOS Error: TopologyException:
+        #   Input geom 0 is invalid: Self-intersection at 185 5 0
+        # !! Any containing transaction (from running in a spec e.g.) is now
+        # aborted and open, any attempts to interact with the db will now raise
+        # PG::InFailedSqlTransaction: ERROR:  current transaction is aborted,
+        #   commands ignored until end of transaction block
         process_error(progress_tracker, r, i + 1, e.to_s)
       end
     end

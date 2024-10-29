@@ -213,7 +213,7 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
     end
 
     context 'cloning into multiple projects on creation' do
-      context '#clone_to_projects' do
+      context '#save_and_clone_to_projects' do
         let(:project2) { FactoryBot.create(:valid_project) }
         let(:project3) { FactoryBot.create(:valid_project) }
         let(:p) { Gis::FACTORY.point(1, 2) }
@@ -224,7 +224,9 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         }
 
         specify 'saves to expected projects' do
-          Gazetteer.clone_to_projects(g, [Current.project_id, project2.id])
+          Gazetteer.save_and_clone_to_projects(
+            g, [Current.project_id, project2.id]
+          )
 
           expect(Gazetteer.where(project_id: Current.project_id).count)
             .to equal(1)
@@ -237,7 +239,9 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         end
 
         specify 'clones have the expected data' do
-          Gazetteer.clone_to_projects(g, [Current.project_id, project2.id])
+          Gazetteer.save_and_clone_to_projects(
+            g, [Current.project_id, project2.id]
+          )
           gz2 = Gazetteer.where(project_id: project2.id).first
 
           expect(gz2.name).to eq('a')

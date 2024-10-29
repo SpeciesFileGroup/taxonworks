@@ -1,0 +1,16 @@
+{
+"type": "FeatureCollection",
+"comment": "Run `ogr2ogr having_error_shapes.shp having_error_shapes.geojson` to convert this to a shapefile",
+"name": "having_error_shapes",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Name": "Valid 1", "Status": "Existing", "Type": "Forest", "Shape_STAr": 4961926.4741099998, "Shape_STLe": 18084.337855099999, "iso_a2": "zz", "iso_a3": "ZZZ" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 0, 0 ], [ 10, 0 ], [ 10, 10 ], [ 0, 10 ], [ 0, 0 ] ] ] ] } },
+
+{ "type": "Feature", "properties": { "Name": "Ecoregions issue polygon from OBJECTID 753 has latitudes below the pseudo-mercator min 85.05", "Status": "Existing", "Type": "Forest", "Shape_STAr": 4961926.4741099998, "Shape_STLe": 18084.337855099999, "iso_a2": "", "iso_a3": "" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -179.998285794999958, -85.130434393999963 ], [ -179.998292045999932, -85.139630900999975 ], [ -179.999016806999947, -85.139599626999939 ], [ -179.999005553999922, -85.130401744999972 ], [ -179.998285794999958, -85.130434393999963 ] ] ] ] } },
+
+{ "type": "Feature", "properties": { "Name": "Invalid bowtie doesn't cross anti-meridian", "Status": "Existing", "Type": "Forest", "Shape_STAr": 4961926.4741099998, "Shape_STLe": 18084.337855099999, "iso_a2": "", "iso_a3": "" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 0, 0 ], [ -10, -10 ], [ -10, 0 ], [ 0, -10 ], [ 0, 0 ] ] ] ] } },
+
+{ "type": "Feature", "properties": { "Name": "Crossing anti-meridian in a way that can be interpreted as self-intersection", "Status": "Existing", "Type": "Forest", "Shape_STAr": 4961926.4741099998, "Shape_STLe": 18084.337855099999, "iso_a2": "", "iso_a3": "" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [-200,-10],[-200,10],[-160,10],[-190,0],[-160,-10],[-200,-10] ] ] ] } }
+
+]
+}
