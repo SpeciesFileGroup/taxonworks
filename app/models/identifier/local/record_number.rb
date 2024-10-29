@@ -8,6 +8,8 @@ class Identifier::Local::RecordNumber < Identifier::Local
 
   include Shared::DwcOccurrenceHooks
 
+  # skip_callback :validation, :before, :identifier_uniqueness
+
   validate :assigned_to_collection_object
 
   def dwc_occurrences

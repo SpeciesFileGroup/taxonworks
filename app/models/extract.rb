@@ -23,6 +23,7 @@ class Extract < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::OriginRelationship
   include Shared::Containable
+  include Shared::Confidences
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Observations

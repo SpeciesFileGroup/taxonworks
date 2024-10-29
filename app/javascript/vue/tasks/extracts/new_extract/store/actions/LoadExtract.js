@@ -17,7 +17,8 @@ export default ({ commit, dispatch }, id) =>
     const actions = [
       dispatch(ActionNames.LoadOriginRelationship, body),
       dispatch(ActionNames.LoadProtocols, body),
-      dispatch(ActionNames.LoadIdentifiers, body)
+      dispatch(ActionNames.LoadIdentifiers, body),
+      dispatch(ActionNames.LoadConfidence, body.id)
     ]
 
     SetParam(RouteNames.NewExtract, 'extract_id', id)
@@ -26,7 +27,7 @@ export default ({ commit, dispatch }, id) =>
       commit(MutationNames.SetSoftValidation, response.body)
     })
 
-    Promise.all(actions).then((_) => {
+    Promise.all(actions).then(() => {
       commit(MutationNames.SetLastChange, 0)
     })
   })

@@ -206,6 +206,7 @@
               <RadialAnnotator
                 v-if="radialAnnotator"
                 :global-id="item.global_id"
+                reload
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
               <RadialObject

@@ -77,10 +77,12 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onBeforeMount } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { ControlledVocabularyTerm } from '@/routes/endpoints'
 import { addToArray, removeFromArray } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
+import { setParam } from '@/helpers'
+import { KEYWORD, BIOCURATION_CLASS, BIOCURATION_GROUP } from '@/constants'
 import CVT_TYPES from './constants/controlled_vocabulary_term_types'
 import makeControlledVocabularyTerm from '@/factory/controlledVocabularyTerm'
 import VSwitch from '@/components/ui/VSwitch.vue'
@@ -95,38 +97,39 @@ const globalId = computed(() => cvt.value?.global_id)
 const cvt = ref(makeControlledVocabularyTerm())
 const isSaving = ref(false)
 const isLoading = ref(false)
-const type = ref('Keyword')
-const linkFor = ref(['BiocurationClass', 'BiocurationGroup'])
+const type = ref(null)
+const linkFor = ref([BIOCURATION_CLASS, BIOCURATION_GROUP])
 const list = ref([])
 
-watch(
-  type,
-  (newVal) => {
-    isLoading.value = true
-    loadCVTList(newVal)
-  },
-  {
-    immediate: true
-  }
-)
+watch(type, (newVal) => {
+  loadCVTList(newVal)
+  setParam(RouteNames.ManageControlledVocabularyTask, 'type', type.value)
+})
 
-onBeforeMount(() => {
+onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const ctvId = urlParams.get('controlled_vocabulary_term_id')
+  const typeParam = urlParams.get('type')
 
   if (/^\d+$/.test(ctvId)) {
     ControlledVocabularyTerm.find(ctvId).then(({ body }) => {
       type.value = body.type
       setCTV(body)
     })
+  } else {
+    type.value = typeParam || KEYWORD
   }
 })
 
 function loadCVTList(type) {
-  ControlledVocabularyTerm.where({ type: [type] }).then(({ body }) => {
-    list.value = body
-    isLoading.value = false
-  })
+  isLoading.value = true
+  ControlledVocabularyTerm.where({ type: [type] })
+    .then(({ body }) => {
+      list.value = body
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
 }
 
 function createCTV() {
@@ -177,11 +180,11 @@ function removeCTV(cvt) {
   ) {
     isLoading.value = true
     ControlledVocabularyTerm.destroy(cvt.id)
-      .then((_) => {
+      .then(() => {
         removeFromArray(list.value, cvt)
       })
       .catch(() => {})
-      .finally((_) => {
+      .finally(() => {
         isLoading.value = false
       })
   }

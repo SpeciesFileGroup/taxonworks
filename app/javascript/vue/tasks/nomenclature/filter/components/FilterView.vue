@@ -29,8 +29,12 @@
   <FacetInRelationship v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
   <FacetTags
-    target="TaxonName"
+    :target="TAXON_NAME"
     v-model="params"
+  />
+  <FacetConfidence
+    v-model="params"
+    :target="TAXON_NAME"
   />
   <FacetUsers v-model="params" />
   <FacetUpdatedSince v-model="params" />
@@ -78,7 +82,9 @@ import FacetDateYear from '@/components/Filter/Facets/Source/FacetDate.vue'
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 import { computed } from 'vue'
+import { TAXON_NAME } from '@/constants'
 
 const WITH_TITLES = {
   type_metadata: {
@@ -98,12 +104,13 @@ const WITH_PARAMS = [
   'citation_documents',
   'citations',
   'combinations',
+  'confidences',
   'data_attributes',
   'data_depictions',
   'depictions',
   'etymology',
-  'leaves',
   'global_identifiers',
+  'leaves',
   'local_identifiers',
   'nomenclature_date',
   'not_specified',

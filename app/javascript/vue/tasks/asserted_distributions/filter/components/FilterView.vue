@@ -15,6 +15,10 @@
     :target="ASSERTED_DISTRIBUTION"
     v-model="params"
   />
+  <FacetConfidence
+    v-model="params"
+    :target="ASSERTED_DISTRIBUTION"
+  />
   <FacetDataAttribute v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
@@ -44,6 +48,7 @@ import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 
 const PRESENCE_OPTIONS = [
@@ -61,7 +66,10 @@ const PRESENCE_OPTIONS = [
   }
 ]
 
-const WITH_PARAMS = ['origin_citations']
+const WITH_PARAMS = [
+  'confidences',
+  'origin_citations'
+]
 
 const props = defineProps({
   modelValue: {
