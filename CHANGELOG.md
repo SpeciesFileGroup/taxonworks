@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - RecordNumber identifiers can be duplicated (namespace + identifier combinations) across CollectionObjects [#4096]
 - Local identifier display in CollectionObject tag now prefers position to break tie with RecordNumber and CatalogNumber [#4074]
+- Filter CO: Show only current taxon determination [#4092]
 
 ### Fixed
 
@@ -30,16 +31,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Containerizing objects prevented identific increments
 - New dichotomous key: Radial annotator is not loading the correct data [#4076]
 
-[#970]: https://github.com/SpeciesFileGroup/taxonworks/issues/970
 [#4026]: https://github.com/SpeciesFileGroup/taxonworks/issues/4026
+[#4043]: https://github.com/SpeciesFileGroup/taxonworks/issues/4043
 [#4074]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
 [#4076]: https://github.com/SpeciesFileGroup/taxonworks/issues/4076
 [#4077]: https://github.com/SpeciesFileGroup/taxonworks/issues/4077
 [#4083]: https://github.com/SpeciesFileGroup/taxonworks/issues/4083
 [#4090]: https://github.com/SpeciesFileGroup/taxonworks/issues/4090
-[#4043]: https://github.com/SpeciesFileGroup/taxonworks/issues/4043
+[#4092]: https://github.com/SpeciesFileGroup/taxonworks/issues/4092
 [#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096
-
+[#970]: https://github.com/SpeciesFileGroup/taxonworks/issues/970
 
 ## [0.44.3] - 2024-10-03
 
