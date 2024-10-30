@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwcOccurrenceHooks for BiocurationGroups, OTUs
 - New image task: is original checkbox to source panel [#4090]
 - Confidence facets and batch operations to all Filters [#4043]
+- Browse nomenclature task: Radial annotator for OTUs
 
 ### Changed
 
@@ -32,7 +33,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `api/v1/images/:id` broken for non-integer ids
 - Containerizing objects prevented identific increments
 - New dichotomous key: Radial annotator is not loading the correct data [#4076]
-
 
 [#4087]: https://github.com/SpeciesFileGroup/taxonworks/issues/4087
 [#4089]: https://github.com/SpeciesFileGroup/taxonworks/issues/4089
