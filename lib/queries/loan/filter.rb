@@ -19,6 +19,7 @@ module Queries
         :end_date_sent,
         :loan_id,
         :loan_item_disposition,
+        :otu_id,
         :overdue,
         :person_id,
         :role,
@@ -36,6 +37,7 @@ module Queries
 
         loan_id: [],
         loan_item_disposition: [],
+        otu_id: [],
         person_id: [],
         role: [],
         taxon_name_id: [],
@@ -87,6 +89,11 @@ module Queries
       attr_accessor :person_id
 
       # @return [Array]
+      #   one per of Otu#id
+      # See also role
+      attr_accessor :otu_id
+
+      # @return [Array]
       # @param loan_item_disposition [Array, String]
       #  Match all loans with loan items that have that disposition
       attr_accessor :loan_item_disposition
@@ -119,6 +126,7 @@ module Queries
         @end_date_sent = params[:end_date_sent]
         @loan_id = params[:loan_id]
         @loan_item_disposition = params[:loan_item_disposition]
+        @otu_id = params[:otu_id]
         @overdue = boolean_param(params, :overdue)
         @person_id = params[:person_id]
         @role = params[:role]
@@ -138,7 +146,6 @@ module Queries
         set_attributes_params(params)
         set_notes_params(params)
         set_tags_params(params)
-
       end
 
       def role
@@ -307,6 +314,11 @@ module Queries
         end
       end
 
+      def otu_id_facet
+        return nil if otu_id.empty?
+        ::Queries::Loan::Filter.new(otu_query: {otu_id:}).all
+      end
+
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_loan AS (' + otu_query.all.to_sql + ') '
@@ -355,6 +367,7 @@ module Queries
           date_sent_range_facet,
           documentation_facet,
           loan_item_disposition_facet,
+          otu_id_facet,
           otu_query_facet,
           overdue_facet,
           person_role_facet,
