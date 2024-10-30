@@ -245,7 +245,8 @@ module Queries
     # !! This is used strictly during the permission process of ActionController::Parameters !!
     attr_reader :params
 
-    # @return Hash
+
+    # @params query_params [ActionController::Parameters]
     def initialize(query_params)
 
       # Reference to query_params, i.e. always permitted
@@ -340,7 +341,7 @@ module Queries
     end
 
     # An instiatied filter, with params set, for params with patterns like `otu_query={}`
-    def self.instatiated_base_filter(params)
+    def self.instantiated_base_filter(params)
       if s = base_filter(params)
         s.new(params[base_query_name(params)])
       else
@@ -350,6 +351,13 @@ module Queries
 
     def self.base_query_name(params)
       params.keys.select{|s| s =~ /\A.+_query\z/}.first
+    end
+
+    # @return the params use to instantiate the full
+    # base_query, as params, like `{otu_query: {}}`
+    # This sanitizes params.
+    def self.base_query_to_h(params)
+      return { base_query_name(params) => instantiated_base_filter(params).params }
     end
 
     def self.included_annotator_facets
@@ -363,6 +371,7 @@ module Queries
         # TODO There is room for an AlternateValue concern here
         f.push ::Queries::Concerns::Attributes if self < ::Queries::Concerns::Attributes
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
+        f.push ::Queries::Concerns::Confidences if self < ::Queries::Concerns::Confidences
         f.push ::Queries::Concerns::Containable if self < ::Queries::Concerns::Containable
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
         f.push ::Queries::Concerns::DateRanges if self < ::Queries::Concerns::DateRanges
@@ -649,8 +658,7 @@ module Queries
 
     # @return [ActiveRecord::Relation, nil]
     def all_and_clauses
-      clauses = and_clauses + annotator_and_clauses + shared_and_clauses
-      clauses.compact!
+      clauses = target_and_clauses
       return nil if clauses.empty?
 
       a = clauses.shift
@@ -658,6 +666,10 @@ module Queries
         a = a.and(b)
       end
       a
+    end
+
+    def target_and_clauses
+      [and_clauses + annotator_and_clauses + shared_and_clauses].flatten.compact
     end
 
     # Defined in inheriting classes
@@ -697,11 +709,21 @@ module Queries
       self.class.new(a)
     end
 
+    # @return Boolean
+    #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on iniitializea
+    #   false - there are no params at ALL or at least one that is not `project_id`
+    def only_project?
+      (project_id_facet && target_and_clauses.size == 1 && all_merge_clauses.nil?) ? true : false
+    end
+
     # @param nil_empty [Boolean]
     #   If true then if there are no clauses return nil not .all
     # @return [ActiveRecord::Relation]
     #
     # See /lib/queries/ARCHITECTURE.md for additional explanation.
+    #
+    # TODO: consider "true" for default, changing to false on controller
+    # Filter  calls
     def all(nil_empty = false)
 
       # TODO: should turn off/on project_id here on nil empty?
@@ -709,6 +731,9 @@ module Queries
       a = all_and_clauses
       b = all_merge_clauses
 
+      # TODO: do not consider project_id alone a parameter on nil_empty
+
+      # Limited use within the UI because project_id is set
       return nil if nil_empty && a.nil? && b.nil?
 
       # !! Do not apply `.distinct here`
@@ -730,7 +755,7 @@ module Queries
 
       # TODO: collides with recent, and needs isolation/generic application
       # probably through native .order() use.
-      # Order in general likely belongs outside the scope of filters, but 
+      # Order in general likely belongs outside the scope of filters, but
       # see this param use, where we depend on the incoming values
       #
       # See spec/lib/queries/otu/filter_spec.rb for tests

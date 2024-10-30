@@ -13,9 +13,15 @@
           buttons
           inline
           label="name"
+          :custom-list="{
+            all: list
+          }"
           pin-type="BiologicalRelationship"
-        />
-        <VLock v-model="lock" />
+        >
+          <template #tabs-right>
+            <VLock v-model="lock" />
+          </template>
+        </SmartSelector>
       </div>
       <hr
         v-if="relationship"
@@ -30,6 +36,8 @@
 </template>
 
 <script setup>
+import { BiologicalRelationship } from '@/routes/endpoints'
+import { ref } from 'vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
@@ -43,5 +51,11 @@ const relationship = defineModel({
 const lock = defineModel('lock', {
   type: Boolean,
   default: false
+})
+
+const list = ref([])
+
+BiologicalRelationship.all().then(({ body }) => {
+  list.value = body
 })
 </script>

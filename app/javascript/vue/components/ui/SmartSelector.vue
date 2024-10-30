@@ -1,6 +1,6 @@
 <template>
   <div ref="rootRef">
-    <div class="separate-bottom horizontal-left-content">
+    <div class="separate-bottom flex-separate">
       <div class="horizontal-left-content">
         <VSpinner
           v-if="isLoading"
@@ -11,21 +11,24 @@
             height: '24px'
           }"
         />
+        <slot name="tabs-left" />
         <switch-components
-          class="full_width capitalize"
+          class="capitalize"
           v-model="view"
           ref="tabselectorRef"
           :options="options"
         />
       </div>
-      <default-pin
-        v-if="pinSection"
-        class="margin-small-left"
-        :section="pinSection"
-        :type="pinType"
-        @get-id="getObject"
-      />
-      <slot name="tabs-right" />
+      <div class="horizontal-left-content gap-small">
+        <default-pin
+          v-if="pinSection"
+          class="margin-small-left"
+          :section="pinSection"
+          :type="pinType"
+          @get-id="getObject"
+        />
+        <slot name="tabs-right" />
+      </div>
     </div>
     <slot name="header" />
     <template v-if="!addTabs.includes(view)">

@@ -5,6 +5,7 @@ module Queries
       # !! May not include Concerns::Attributes (used by CE)
       include Queries::Helpers
       include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
       include Queries::Concerns::Containable
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
@@ -376,6 +377,7 @@ module Queries
         @with_buffered_determinations = boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
+        set_confidences_params(params)
         set_citations_params(params)
         set_containable_params(params)
         set_data_attributes_params(params)

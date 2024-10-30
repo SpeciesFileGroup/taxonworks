@@ -8,6 +8,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Citations
       include Queries::Concerns::Gazetteers
+      include Queries::Concerns::Confidences
 
       PARAMS = [
         :asserted_distribution_id,
@@ -92,6 +93,7 @@ module Queries
         @taxon_name_id = integer_param(params, :taxon_name_id)
         @wkt = params[:wkt]
 
+        set_confidences_params(params)
         set_citations_params(params)
         set_data_attributes_params(params)
         set_gazetteer_params(params)

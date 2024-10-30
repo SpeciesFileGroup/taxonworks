@@ -7,13 +7,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
   context 'using before :all' do
 
-    let(:subspecies) { FactoryBot.create(:iczn_subspecies) } 
-    let(:species) { subspecies.ancestor_at_rank('species') } 
-    let(:subgenus) { subspecies.ancestor_at_rank('subgenus') } 
-    let(:genus) { subspecies.ancestor_at_rank('genus') } 
-    let(:tribe) { subspecies.ancestor_at_rank('tribe') } 
-    let(:family) { subspecies.ancestor_at_rank('family') } 
-    let(:root) { subspecies.root } 
+    let(:subspecies) { FactoryBot.create(:iczn_subspecies) }
+    let(:species) { subspecies.ancestor_at_rank('species') }
+    let(:subgenus) { subspecies.ancestor_at_rank('subgenus') }
+    let(:genus) { subspecies.ancestor_at_rank('genus') }
+    let(:tribe) { subspecies.ancestor_at_rank('tribe') }
+    let(:family) { subspecies.ancestor_at_rank('family') }
+    let(:root) { subspecies.root }
 
     specify '#name without space' do
       s1 = FactoryBot.build(:relationship_species, name: 'with space', parent: genus)
@@ -257,9 +257,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           context 'cached homonyms' do
             let!(:g1) { FactoryBot.create(:relationship_genus, name: 'Aus', parent: tribe, year_of_publication: 1999) }
-            let!(:g2) { FactoryBot.create(:relationship_genus, name: 'Bus', parent: tribe, year_of_publication: 2000) } 
-            let!(:s1) { FactoryBot.create(:relationship_species, name: 'vitatus', parent: g1, year_of_publication: 1999) } 
-            let!(:s2) { FactoryBot.create(:relationship_species, name: 'vitatta', parent: g2, year_of_publication: 2000) } 
+            let!(:g2) { FactoryBot.create(:relationship_genus, name: 'Bus', parent: tribe, year_of_publication: 2000) }
+            let!(:s1) { FactoryBot.create(:relationship_species, name: 'vitatus', parent: g1, year_of_publication: 1999) }
+            let!(:s2) { FactoryBot.create(:relationship_species, name: 'vitatta', parent: g2, year_of_publication: 2000) }
 
             specify 'validity' do
               expect(family.valid?).to be_truthy
@@ -312,7 +312,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           context 'mismatching cached values' do
             let(:g) { FactoryBot.create(:relationship_genus, name: 'Cus', parent: family) }
-            let(:s) { FactoryBot.build(:relationship_species, name: 'dus', parent: g) } 
+            let(:s) { FactoryBot.build(:relationship_species, name: 'dus', parent: g) }
 
             specify 'missing cached values' do
               s.save
@@ -873,44 +873,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
     end
 
-    context 'methods from awesome_nested_set' do
-      context 'root names' do
-
-        let(:p) { Project.create(name: 'Taxon-name root test.', without_root_taxon_name: true) }
-        let(:root2) { FactoryBot.build(:root_taxon_name) }
-
-        specify 'a second root (parent is nul) in a given project is not allowed' do
-          expect(root1.parent).to be_nil
-          expect(root2.parent).to be_nil
-          expect(root1.project_id).to eq(1)
-          expect(root2.project_id).to eq(1)
-          expect(root2.valid?).to be_falsey
-          expect(root2.errors.include?(:parent_id)).to be_truthy
-        end
-
-        specify 'permit multiple roots in different projects' do
-          root2.project_id = p.id
-          expect(root2.parent).to be_nil
-          expect(root2.valid?).to be_truthy
-        end
-
-        specify 'roots can be saved without raising 1' do
-          root2.project_id = p.id
-          expect(root2.save).to be_truthy
-        end
-
-        specify 'roots can be saved without raising 2' do
-          expect(root1.save).to be_truthy
-        end
-
-        specify 'scope project_root' do
-          root1
-          expect(TaxonName.project_root(1).first).to eq(root1)
-        end
-      end
-
-      # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
-      context 'handle a simple hierarchy with awesome_nested_set' do
+    context 'methods from closure_tree' do
+      context 'handle a simple hierarchy with closure_tree' do
         let!(:new_root) { FactoryBot.create(:root_taxon_name, project: p) }
         let!(:family1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'family'), name: 'Aidae', parent: new_root, project: p) }
         let!(:genus1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Aus', parent: family1, project: p) }
@@ -938,20 +902,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           new_root.reload
           expect(new_root.leaves.to_a).to contain_exactly(species1, species2) # doesn't test order
         end
-
-        context 'housekeeping with ancestors and descendants' do
-          # xspecify 'updated_on is not touched for ancestors when a child moves' do
-          #   g1_updated = genus1.updated_at
-          #   g1_created = genus1.created_at
-          #   g2_updated = genus2.updated_at
-          #   g2_created = genus2.created_at
-          #   species1.move_to_child_of(genus2)
-          #   expect(genus1.updated_at).to eq(g1_updated)
-          #   expect(genus1.created_at).to eq(g1_created)
-          #   expect(genus2.updated_at).to eq(g2_updated)
-          #   expect(genus2.created_at).to eq(g2_created)
-          # end
-        end
       end
     end
 
@@ -973,7 +923,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     let(:genus2) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
     let(:subgenus) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus2) }
     let(:species) { Protonym.create!(name: 'cus', rank_class: Ranks.lookup(:iczn, :species), parent: genus1) }
-
 
     # Same as current classification
     let(:c1) { Combination.create!(genus: genus1, species: species) }

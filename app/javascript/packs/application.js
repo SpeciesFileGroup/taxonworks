@@ -10,6 +10,9 @@
 /* import 'core-js/stable'
 import 'regenerator-runtime/runtime' */
 // Styles
+import 'easymde/dist/easymde.min.css'
+import '@fontsource/ibm-plex-sans'
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
 import 'leaflet/dist/leaflet.css'
 import 'tippy.js/dist/tippy.css'
 
@@ -114,3 +117,4 @@ import '../vue/tasks/gazetteers/import_gazetteers/main.js'
 import '../vue/tasks/unify/objects/main.js'
 import '../vue/tasks/images/new_filename_depicting_image/main.js'
 import '../vue/tasks/biological_associations/new/main.js'
+import '../vue/tasks/otus/duplicates/main.js'

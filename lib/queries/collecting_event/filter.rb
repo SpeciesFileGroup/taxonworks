@@ -9,6 +9,7 @@ module Queries
 
       include Queries::Concerns::Attributes
       include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Depictions
@@ -171,6 +172,7 @@ module Queries
         @use_min = params[:use_min]
         @wkt = params[:wkt]
 
+        set_confidences_params(params)
         set_attributes_params(params)
         set_citations_params(params)
         set_data_attributes_params(params)

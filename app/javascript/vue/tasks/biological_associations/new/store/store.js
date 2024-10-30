@@ -96,6 +96,14 @@ export const useStore = defineStore('NewBiologicalAssociation', {
       this.citation = ad.citation
     },
 
+    toggleLock() {
+      const lockAll = !Object.values(this.lock).every(Boolean)
+
+      for (const key in this.lock) {
+        this.lock[key] = lockAll
+      }
+    },
+
     async loadRecentBiologicalAssociations() {
       BiologicalAssociation.where({
         recent: true,

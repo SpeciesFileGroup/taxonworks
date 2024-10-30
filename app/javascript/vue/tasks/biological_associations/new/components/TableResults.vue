@@ -19,7 +19,7 @@
           <td v-html="item.subject.object_tag" />
           <td v-html="item.relationship.object_tag" />
           <td v-html="item.object.object_tag" />
-          <td v-html="item.citation.object_label" />
+          <td v-html="item.citation.citation_source_body" />
           <td>
             <div>
               <VBtn

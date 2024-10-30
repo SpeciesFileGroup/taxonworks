@@ -4,11 +4,12 @@
       <h3>{{ title }}</h3>
     </template>
     <template #body>
-      <VSwitch
-        :options="Object.keys(TABS)"
-        v-model="currentTab"
-      />
-      <div class="horizontal-left-content align-start gap-small">
+      <div>
+        <VSwitch
+          class="margin-small-bottom"
+          :options="Object.keys(TABS)"
+          v-model="currentTab"
+        />
         <SmartSelector
           class="full_width"
           v-model="selected"
@@ -17,8 +18,11 @@
           :target="BIOLOGICAL_ASSOCIATION"
           :pin-section="currentTab"
           :pin-type="currentTab"
-        />
-        <VLock v-model="lock" />
+        >
+          <template #tabs-right>
+            <VLock v-model="lock" />
+          </template>
+        </SmartSelector>
       </div>
       <hr
         v-if="selected"

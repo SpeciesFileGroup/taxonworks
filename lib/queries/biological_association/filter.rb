@@ -5,6 +5,7 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
       include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
       include Queries::Concerns::Depictions
 
       PARAMS = [
@@ -197,6 +198,7 @@ module Queries
         @biological_association_subject_id = params[:biological_association_subject_id]
         @biological_association_subject_type = params[:biological_association_subject_type]
 
+        set_confidences_params(params)
         set_notes_params(params)
         set_tags_params(params)
         set_citations_params(params)

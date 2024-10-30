@@ -35,7 +35,11 @@
   />
   <FacetTags
     v-model="params"
-    target="CollectionObject"
+    :target="COLLECTION_OBJECT"
+  />
+  <FacetConfidence
+    v-model="params"
+    :target="COLLECTION_OBJECT"
   />
   <FacetNotes v-model="params" />
   <FacetBuffered v-model="params" />
@@ -80,12 +84,14 @@ import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FilterType from '@/components/Filter/Facets/CollectionObject/FacetType.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 
 const WITH_PARAMS = [
   'biological_associations',
   'citations',
   'collecting_event',
   'collectors',
+  'confidences',
   'current_repository',
   'data_attributes',
   'data_depictions',

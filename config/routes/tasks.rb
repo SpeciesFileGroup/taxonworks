@@ -653,6 +653,11 @@ scope :tasks do
   end
 
   scope :otus do
+    scope :duplicates, controller: 'tasks/otus/duplicates' do
+     get '/', action: 'index', as: 'duplicate_otus_task'
+     get :data, as: 'duplicate_otus_task_data', defaults: {format: :json}
+    end
+
     scope :new_otu, controller: 'tasks/otus/new_otu' do
       get '/', action: :index, as: 'new_otu_task'
     end

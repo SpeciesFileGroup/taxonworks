@@ -13,13 +13,9 @@
       @selected="(item) => (namespace = item)"
     >
       <template #tabs-right>
-        <VLock
-          class="margin-small-left"
-          v-model="settings.locked.namespace"
-        />
-        <div class="margin-small-left">
-          <WidgetNamespace @create="(item) => (namespace = item)" />
-        </div>
+        <VLock v-model="settings.locked.namespace" />
+
+        <WidgetNamespace @create="(item) => (namespace = item)" />
       </template>
     </SmartSelector>
     <template v-if="namespace">
