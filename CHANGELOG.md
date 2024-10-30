@@ -26,11 +26,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- With/out facets failing in combination with other facets [#4089]
 - Simple TaxonName batch load failing with invalid children
 - `api/v1/images/:id` broken for non-integer ids
 - Containerizing objects prevented identific increments
 - New dichotomous key: Radial annotator is not loading the correct data [#4076]
 
+[#4089]: https://github.com/SpeciesFileGroup/taxonworks/issues/4089
 [#4026]: https://github.com/SpeciesFileGroup/taxonworks/issues/4026
 [#4043]: https://github.com/SpeciesFileGroup/taxonworks/issues/4043
 [#4074]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074

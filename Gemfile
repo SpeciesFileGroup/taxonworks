@@ -73,7 +73,7 @@ gem 'delayed_job_active_record', '~> 4.1.3'
 
 gem 'validates_timeliness', '~> 7.0.0.beta2' # , '>= 4.1.1'
 
-gem 'rack', '~> 3.1.8' # TODO: Fix problems with workbench/elements/forms/ajax_select (and probably others) to avoid forcing this rack old version.
+gem 'rack', '~> 3.1.8'
 
 gem 'paper_trail', '~> 15.0'
 
