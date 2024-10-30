@@ -22,9 +22,12 @@
   <FacetIdentifiers v-model="params" />
   <FacetTags
     v-model="params"
-    target="Otu"
+    :target="OTU"
   />
-
+  <FacetConfidence
+    v-model="params"
+    :target="OTU"
+  />
   <FacetWKT v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
@@ -40,6 +43,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { OTU } from '@/constants'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FacetBiologicalRelationship from '@/components/Filter/Facets/BiologicalAssociation/FacetBiologicalRelationship.vue'
 import FacetCollectingEvent from '@/tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
@@ -52,6 +56,7 @@ import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/Face
 import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetCoordinatify from '@/components/Filter/Facets/Otu/FacetCoordinatify.vue'
@@ -64,6 +69,7 @@ const WITH_PARAMS = [
   'citations',
   'collection_objects',
   'common_names',
+  'confidences',
   'contents',
   'data_depictions',
   'depictions',

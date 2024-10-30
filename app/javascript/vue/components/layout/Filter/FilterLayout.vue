@@ -82,6 +82,11 @@
           />
           <div class="horizontal-right-content gap-small">
             <template v-if="selectedIds">
+              <ButtonUnify
+                v-if="buttonUnify"
+                :ids="selectedIds"
+                :model="objectType"
+              />
               <RadialFilter
                 v-if="radialFilter"
                 :ids="selectedIds"
@@ -151,12 +156,13 @@
 </template>
 
 <script setup>
+import { ref, computed, onBeforeUnmount, reactive } from 'vue'
+import { useHotkey } from '@/composables'
 import FilterDownload from './FilterDownload.vue'
 import FilterJsonRequestPanel from './FilterJsonRequestPanel.vue'
 import PaginationComponent from '@/components/pagination'
 import PaginationCount from '@/components/pagination/PaginationCount'
 import NavBar from '@/components/layout/NavBar.vue'
-import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -166,7 +172,7 @@ import RadialLinker from '@/components/radials/linker/radial.vue'
 import RadialMassAnnotator from '@/components/radials/mass/radial.vue'
 import FilterSettings from './FilterSettings.vue'
 import RadialNavigation from '@/components/radials/MassNavigation/radial.vue'
-import { ref, computed, onBeforeUnmount, reactive } from 'vue'
+import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 
 const props = defineProps({
   pagination: {
@@ -230,6 +236,11 @@ const props = defineProps({
   },
 
   radialNavigator: {
+    type: Boolean,
+    default: true
+  },
+
+  buttonUnify: {
     type: Boolean,
     default: true
   }

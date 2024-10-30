@@ -139,7 +139,7 @@ module Queries
         @freeform_svg = boolean_param(params, :freeform_svg)
         @image_id = params[:image_id]
         @otu_id = params[:otu_id]
-        @otu_scope = params[:otu_scope]&.map(&:to_sym)
+        @otu_scope = params[:otu_scope]
         @sled_image = boolean_param(params, :sled_image)
         @sled_image_id = params[:sled_image_id]
         @sqed_depiction_id = params[:sqed_depiction_id]

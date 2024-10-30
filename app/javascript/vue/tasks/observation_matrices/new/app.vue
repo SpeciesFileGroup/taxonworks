@@ -124,6 +124,7 @@ import RadialNavigation from '@/components/radials/navigation/radial'
 import RowsDynamic from './components/rows/dynamic'
 import ColumnsDynamic from './components/columns/dynamic'
 
+import { URLParamsToJSON } from '@/helpers'
 import { SortMatrixByNomenclature } from './request/resources'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
@@ -170,7 +171,9 @@ export default {
   },
 
   created() {
-    const matrixId = location.pathname.split('/')[4]
+    const params = URLParamsToJSON(window.location.href)
+    const matrixId =
+      location.pathname.split('/')[4] || params.observation_matrix_id
 
     if (/^\d+$/.test(matrixId)) {
       this.loading = true

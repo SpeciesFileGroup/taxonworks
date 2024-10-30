@@ -114,7 +114,6 @@ class User < ApplicationRecord
 
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Housekeeping::AssociationHelpers
 
   include Shared::RandomTokenFields[:password_reset]
 

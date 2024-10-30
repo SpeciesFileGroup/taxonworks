@@ -12,11 +12,14 @@
       :klass="TAG"
       :filter="confidenceAlreadyCreated"
       :target="objectType"
-      :custom-list="{ all: allList, new: [] }"
+      :custom-list="{ all: allList }"
       @selected="(item) => createConfidence({ confidence_level_id: item.id })"
     >
-      <template #new>
-        <NewConfidence @submit="createConfidence" />
+      <template #tabs-right>
+        <a
+          :href="`${RouteNames.ManageControlledVocabularyTask}?type=${CONFIDENCE_LEVEL}`"
+          >New</a
+        >
       </template>
     </SmartSelector>
 
@@ -34,9 +37,9 @@ import { useSlice } from '@/components/radials/composables'
 import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
 import { CONFIDENCE_LEVEL, TAG } from '@/constants'
 import { ref } from 'vue'
+import { RouteNames } from '@/routes/routes'
 import ListItems from '../shared/listItems.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
-import NewConfidence from './NewConfidence.vue'
 
 const props = defineProps({
   objectId: {

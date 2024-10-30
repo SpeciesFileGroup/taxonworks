@@ -19,13 +19,16 @@ module Shared::Maps
   included do
     attr_accessor :cached_map_registered
 
-    has_one :cached_map_register, as: :cached_map_register_object, dependent: :delete
+    has_one :cached_map_register, as: :cached_map_register_object, inverse_of: :cached_map_register_object, dependent: :delete
 
     after_create :initialize_cached_map_items
 
     # TODO: re-enable once scoping issues are determined
     # after_create :destroy_cached_map
 
+    # 
+    # !! Is not allowed for non persisted records
+    #
     before_destroy :remove_from_cached_map_items
 
     # after_update :syncronize_cached_map_items
@@ -40,7 +43,6 @@ module Shared::Maps
       @cached_map_registered ||= cached_map_register.present?
     end
 
-    # Presently unused.
     # TODO: deprecate for total rebuild approach (likely)
     # @return Array
     #   of CachedMapItem
@@ -72,8 +74,9 @@ module Shared::Maps
       delay(queue: 'cached_map').create_cached_map_items
     end
 
+
     def remove_from_cached_map_items
-      delay(queue: 'cached_map').deduct_from_cached_map_items
+      deduct_from_cached_map_items # !! WE can not delay this with a destroyed object  delay(queue: 'cached_map').
     end
 
     # Remove the pre-calculated map for the OTU

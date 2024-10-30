@@ -452,6 +452,10 @@ scope :tasks do
   end
 
   scope :biological_associations do
+    scope :new_biological_association, controller: 'tasks/biological_associations/new_biological_association' do
+      get '/', action: :index, as: 'new_biological_association_task'
+    end
+
     scope :biological_associations_graph, controller: 'tasks/biological_associations/biological_associations_graph' do
       get '/', action: :index, as: 'edit_biological_associations_graph_task'
     end
@@ -629,16 +633,21 @@ scope :tasks do
 
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
-      get '', action: :index, as: 'interactive_key_task'
+      get '/', action: :index, as: 'interactive_key_task'
     end
 
     scope :image_matrix, controller: 'tasks/observation_matrices/image_matrix' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
-      get '', action: :index, as: 'image_matrix_task'
+      get '/', action: :index, as: 'image_matrix_task'
     end
   end
 
   scope :otus do
+    scope :duplicates, controller: 'tasks/otus/duplicates' do
+     get '/', action: 'index', as: 'duplicate_otus_task'
+     get :data, as: 'duplicate_otus_task_data', defaults: {format: :json}
+    end
+
     scope :new_otu, controller: 'tasks/otus/new_otu' do
       get '/', action: :index, as: 'new_otu_task'
     end
@@ -682,9 +691,14 @@ scope :tasks do
     end
   end
 
-  # TODO: nest in peopl
-  scope :uniquify_people, controller: 'tasks/uniquify/people' do
-    get 'index', as: 'uniquify_people_task'
+  scope :unify do
+    scope :objects, controller: 'tasks/unify/objects' do
+      get '/', action: :index, as: 'unify_objects_task'
+    end
+
+    scope :people, controller: 'tasks/unify/people' do
+      get '/', action: :index, as: 'unify_people_task'
+    end
   end
 
   scope :serials, controller: 'tasks/serials/similar' do

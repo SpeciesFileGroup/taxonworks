@@ -4,6 +4,7 @@ import getCollectionObject from './getCollectionObject'
 import getDataAttributes from './getDataAttributes'
 import getDepiction from './getDepiction'
 import getImagesCreated from './getImagesCreated'
+import getIsOriginal from './getIsOriginal'
 import getLicense from './getLicense'
 import getNewCOForSqed from './getNewCOForSqed'
 import getObjectsForDepictions from './getObjectsForDepictions'
@@ -29,6 +30,7 @@ const GetterNames = {
   GetDataAttributes: 'getDataAttributes',
   GetDepiction: 'getDepiction',
   GetImagesCreated: 'getImagesCreated',
+  GetIsOriginal: 'getIsOriginal',
   GetLicense: 'getLicense',
   GetNewCOForSqed: 'getNewCOForSqed',
   GetObjectsForDepictions: 'getObjectsForDepictions',
@@ -53,6 +55,7 @@ const GetterFunctions = {
   [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetDataAttributes]: getDataAttributes,
   [GetterNames.GetDepiction]: getDepiction,
+  [GetterNames.GetIsOriginal]: getIsOriginal,
   [GetterNames.GetImagesCreated]: getImagesCreated,
   [GetterNames.GetLicense]: getLicense,
   [GetterNames.GetNewCOForSqed]: getNewCOForSqed,

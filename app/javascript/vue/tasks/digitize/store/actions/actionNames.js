@@ -6,8 +6,6 @@ const ActionNames = {
   GetCOCitations: 'getCOCitations',
   GetCollectingEvent: 'getCollectingEvent',
   GetCollectionObject: 'getCollectionObject',
-  GetIdentifier: 'getIdentifier',
-  GetIdentifiers: 'getIdentifiers',
   GetLabels: 'getLabels',
   GetNamespace: 'getNamespace',
   SetTypeMaterial: 'setTypeMaterial',

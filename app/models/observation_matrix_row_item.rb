@@ -25,7 +25,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
   belongs_to :observation_matrix, inverse_of: :observation_matrix_row_items
-  belongs_to :observation_object, polymorphic: true
+  belongs_to :observation_object, polymorphic: true, inverse_of: :observation_matrix_row_items
 
   validates_presence_of :observation_matrix, :observation_object
 

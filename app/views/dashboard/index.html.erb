@@ -17,13 +17,12 @@
     <div class="item item1 column-big separate-right separate-left">
       <div class="panel">
         <div class="title nav-line">
-          <span data-icon="openFolder" class="inline">
-            Data
-          </span>
+          <span data-icon="openFolder" class="inline"> Data Overview </span>
         </div>
         <div class="content ">
           <ul class=" no_bullets content">
-            <%= content_tag :li, link_to('Recently created', recently_created_data_user_path(sessions_current_user),  data: { turbolinks: false } ) -%> 
+            <%= content_tag :li, link_to('Created', data_user_path(sessions_current_user, target: :created),  data: { turbolinks: false } ) -%>
+            <%= content_tag :li, link_to('Updated', data_user_path(sessions_current_user, target: :updated),  data: { turbolinks: false } ) -%>
           </ul>
         </div>
       </div>

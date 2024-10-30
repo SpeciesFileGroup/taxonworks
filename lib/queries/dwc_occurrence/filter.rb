@@ -95,6 +95,9 @@ module Queries
         table[:dwc_occurrence_object_type].in(dwc_occurrence_object_type)
       end
 
+      # TODO: these should be referenced through base queries
+      # not logic here
+      # i.e. ::Queries::CollectionObject::Filter...
       def person_id_facet
         return nil if person_id.empty?
 

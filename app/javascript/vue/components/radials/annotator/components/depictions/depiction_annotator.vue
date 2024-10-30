@@ -119,11 +119,17 @@
         @next-page="({ page }) => loadDepictions(page)"
       />
       <DepictionList
-        :list="list"
+        v-model="list"
         @delete="removeItem"
         @selected="(item) => (depiction = item)"
         @update:caption="updateDepiction"
         @update:label="updateDepiction"
+        @sort="
+          () =>
+            Depiction.sort({
+              depiction_ids: list.map((d) => d.id)
+            })
+        "
       />
       <VPagination
         :pagination="pagination"
@@ -261,7 +267,7 @@ function loadList(params) {
 }
 
 function removeItem(item) {
-  Depiction.destroy(item.id).then((_) => {
+  Depiction.destroy(item.id).then(() => {
     removeFromList(item)
   })
 }
@@ -273,7 +279,7 @@ function loadDepictions(page = 1) {
     per: 50,
     page
   }).then((response) => {
-    list.value = response.body
+    list.value = response.body.toSorted((a, b) => a.position - b.position)
     pagination.value = getPagination(response)
   })
 }

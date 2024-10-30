@@ -28,6 +28,8 @@ class Language < ApplicationRecord
   has_many :sources, inverse_of: :source_language, class_name: 'Source::Bibtex'
   has_many :alternate_value_translations, class_name: 'AlternateValue::Translation'
 
+  has_many :common_names, inverse_of: :language
+
   scope :used_recently_on_sources, -> { joins(sources: [:project_sources]).includes(sources: [:project_sources]).where(sources: { updated_at: 10.weeks.ago..Time.now } ).order('"sources"."updated_at" DESC') }
 
 

@@ -31,8 +31,11 @@
                 { property: 'controlledVocabularyId' }
               )
           "
-        />
-        <VLock v-model="store.lock.confidences" />
+        >
+          <template #tabs-right>
+            <VLock v-model="store.lock.confidences" />
+          </template>
+        </SmartSelector>
       </div>
 
       <div v-if="store.confidences.length">

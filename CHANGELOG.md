@@ -9,6 +9,48 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.45.0] - 2024-10-30
+
+### Added
+
+- Created/updated overviews for user data
+- Unify objects task [#970]
+- Attribution to ObservationMatrix
+- New biological association task [#4026]
+- Duplicate OTU predictor task [#4083]
+- DwcOccurrenceHooks for BiocurationGroups, OTUs
+- New image task: is original checkbox to source panel [#4090]
+- Confidence facets and batch operations to all Filters [#4043]
+- Browse nomenclature task: Radial annotator for OTUs
+
+### Changed
+
+- RecordNumber identifiers can be duplicated (namespace + identifier combinations) across CollectionObjects [#4096]
+- Local identifier display in CollectionObject tag now prefers position to break tie with RecordNumber and CatalogNumber [#4074]
+- Filter CO: Show only current taxon determination [#4092]
+
+### Fixed
+
+- Loan OTU facet [#4087]
+- With/out facets failing in combination with other facets [#4089]
+- Simple TaxonName batch load failing with invalid children
+- `api/v1/images/:id` broken for non-integer ids
+- Containerizing objects prevented identific increments
+- New dichotomous key: Radial annotator is not loading the correct data [#4076]
+
+[#4087]: https://github.com/SpeciesFileGroup/taxonworks/issues/4087
+[#4089]: https://github.com/SpeciesFileGroup/taxonworks/issues/4089
+[#4026]: https://github.com/SpeciesFileGroup/taxonworks/issues/4026
+[#4043]: https://github.com/SpeciesFileGroup/taxonworks/issues/4043
+[#4074]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
+[#4076]: https://github.com/SpeciesFileGroup/taxonworks/issues/4076
+[#4077]: https://github.com/SpeciesFileGroup/taxonworks/issues/4077
+[#4083]: https://github.com/SpeciesFileGroup/taxonworks/issues/4083
+[#4090]: https://github.com/SpeciesFileGroup/taxonworks/issues/4090
+[#4092]: https://github.com/SpeciesFileGroup/taxonworks/issues/4092
+[#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096
+[#970]: https://github.com/SpeciesFileGroup/taxonworks/issues/970
+
 ## [0.44.3] - 2024-10-03
 
 ### Added
@@ -4900,7 +4942,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.3..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.45.0..development
+[0.45.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.3...v0.45.0
 [0.44.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.2...v0.44.3
 [0.44.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.1...v0.44.2
 [0.44.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.0...v0.44.1

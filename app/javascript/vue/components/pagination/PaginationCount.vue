@@ -25,6 +25,7 @@
       <select
         v-else
         v-model="per"
+        @change="(e) => emit('change', per)"
       >
         <option
           v-for="records in perList"
@@ -73,6 +74,8 @@ const props = defineProps({
     default: false
   }
 })
+
+const emit = defineEmits(['change'])
 
 const per = defineModel({
   type: [String, Number],

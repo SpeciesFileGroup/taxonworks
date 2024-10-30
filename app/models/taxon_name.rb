@@ -1,5 +1,5 @@
-require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
-require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
+# require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
+# require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 
 # A taxon name (nomenclature only). See also NOMEN (https://github.com/SpeciesFileGroup/nomen).
 #
@@ -140,9 +140,10 @@ class TaxonName < ApplicationRecord
   #   this method calls Module#module_parent
   # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
   #       when https://github.com/ClosureTree/closure_tree/issues/346 is fixed.
-  def self.parent
-    self.module_parent
-  end
+  # The issue is closed
+  # def self.parent
+  #   self.module_parent
+  # end
 
   # Must be before various of these includes, in particular MatrixHooks
   has_closure_tree
@@ -180,6 +181,8 @@ class TaxonName < ApplicationRecord
   NOT_LATIN = Regexp.new(/[^a-zA-Z|\-]/).freeze # Dash is allowed?
 
   NO_CACHED_MESSAGE = 'REBUILD PROJECT TAXON NAME CACHE'.freeze
+
+  ROOT_NAME = 'Root'
 
   NOMEN_VALID = {
     icn: 'http://purl.obolibrary.org/obo/NOMEN_0000383',
@@ -226,9 +229,17 @@ class TaxonName < ApplicationRecord
   validate :check_new_rank_class
   validate :check_new_parent_class
   validate :validate_source_type
-  validate :validate_parent_from_the_same_project
-  validate :validate_one_root_per_project
-  validates_presence_of :type, message: 'is not specified' # TODO: remove, this is handled natively, and in DB
+
+  validate :validate_parent_from_the_same_project, unless: Proc.new {|n| n.name == ROOT_NAME }
+
+  # Root validations
+  validate :validate_root_name_is_root, if: Proc.new {|n| n.name == ROOT_NAME }
+  validates_presence_of :parent, unless: Proc.new {|m| self.name == ROOT_NAME}
+  validates_uniqueness_of :name, scope: [:project_id], if: Proc.new {|n| n.name == ROOT_NAME}
+
+  # TODO: remove, this is handled natively, and in DB
+  validates_presence_of :type, message: 'is not specified'
+
   validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}, allow_nil: true
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
@@ -257,6 +268,7 @@ class TaxonName < ApplicationRecord
   has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'CollectionObject'
   has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'FieldOccurrence'
 
+  # TODO: check class_name constraints.
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy, inverse_of: :role_object
@@ -332,7 +344,6 @@ class TaxonName < ApplicationRecord
 
   scope :with_base_of_rank_class, -> (rank_class) { where('rank_class LIKE ?', "#{rank_class}%") }
   scope :with_rank_class_including, -> (include_string) { where('rank_class LIKE ?', "%#{include_string}%") }
-  scope :project_root, -> (root_id) {where("(taxon_names.rank_class = 'NomenclaturalRank' AND taxon_names.project_id = ?)", root_id)}
 
   # A specific relationship
   scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
@@ -443,11 +454,6 @@ class TaxonName < ApplicationRecord
 
     ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
   end
-
-  soft_validate(:sv_missing_confidence_level,
-                set: :missing_fields,
-                name: 'Missing confidence level',
-                description: 'To remaind that the taxon spelling have to be compared to the original source' )
 
   soft_validate(:sv_missing_original_publication,
                 set: :missing_fields,
@@ -586,15 +592,16 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # Unused
   # @return scope [TaxonName, nil] an ancestor at the specified rank
   # @params rank [symbol|string|
   #   like :species or 'genus'
-  def descendants_at_rank(rank)
-    return TaxonName.none if nomenclatural_code.blank? # Root names
-    descendants.with_rank_class(
-      Ranks.lookup(nomenclatural_code, rank)
-    )
-  end
+  # def descendants_at_rank(rank)
+  #   return TaxonName.none if nomenclatural_code.blank? # Root names
+  #   descendants.with_rank_class(
+  #     Ranks.lookup(nomenclatural_code, rank)
+  #   )
+  # end
 
   # @return [Array]
   #   all TaxonNameRelationships where this taxon is an object or subject.
@@ -632,7 +639,6 @@ class TaxonName < ApplicationRecord
     return verbatim_author if !verbatim_author.nil?
     if taxon_name_authors.any?
       return Utilities::Strings.authorship_sentence( taxon_name_authors.pluck(:last_name) )
-      #return Utilities::Strings.authorship_sentence( taxon_name_authors.collect{|a| [a.prefix, a.last_name, a.suffix].compact.join(' ')} )
     end
 
     return source.authority_name if !source.nil?
@@ -726,7 +732,7 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [array]
-  # returns array of hashes for history of taxon. Could be used for catalogue construction.  Probably belongs in catatlog.
+  # returns array of hashes for history of taxon. Could be used for catalogue construction.  Belongs in catatlog or helper
   def nomeclatural_history
     history = []
     TaxonName.where(cached_valid_taxon_name_id: self.id).order(:cached_nomenclature_date).each do |t|
@@ -812,7 +818,6 @@ class TaxonName < ApplicationRecord
     combination_list_all.select{|c| c.protonyms_by_rank[c.protonyms_by_rank.keys.last] == self}
   end
 
-
   # TODO: should be moved to helpers
   # and referenced in models with helper.
 
@@ -820,6 +825,7 @@ class TaxonName < ApplicationRecord
   # though variously used in soft_validations
   # (and various are only used in helpers already)
 
+  # TODO: helper/render?
   # @return [String]
   #   combination of cached_html and cached_author_year.
   def cached_html_name_and_author_year
@@ -1617,7 +1623,6 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # @return [String]
   #  a reified ID is used when the original combination, which does not yet have it's own ID, is not the same as the current classification
   # Some observations:
   #  - reified ids are only for original combinations (for which we have no ID)
@@ -1630,6 +1635,7 @@ class TaxonName < ApplicationRecord
     id.to_s + '-' + Digest::MD5.hexdigest(cached_original_combination)
   end
 
+  # TODO: Deprecate/remove for .unify()
   def merge_to(to_taxon_name, kind)
     @result = {
       failed: 0,
@@ -1670,26 +1676,17 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # @return [Boolean]
-  def parent_is_set?
-    parent_id.present? || parent # &.persisted?
-  end
-
   def validate_parent_from_the_same_project
     if parent && project_id.present?
       errors.add(:project_id, 'The parent taxon is not from the same project') if project_id != parent.project_id
     end
   end
 
-  def validate_one_root_per_project
-    if new_record? || parent_id_changed? # project_id !?@
-      if !parent_is_set? && TaxonName.where(parent_id: nil, project_id:).count > 0
-        errors.add(:parent_id, 'should not be empty/only one root is allowed per project')
-      end
-    end
+  def validate_root_name_is_root
+    errors.add(:parent, "most be empty when name is #{ROOT_NAME}") if !parent.nil?
   end
 
-  # TODO: move to Protonym when we eliminate TaxonName.new()
+  # TODO: deprecate here we eliminate TaxonName.new() (is present in Protonym already
   def check_new_parent_class
     if is_protonym? && parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
       if old_parent = TaxonName.find_by(id: parent_id_was)
@@ -1704,6 +1701,8 @@ class TaxonName < ApplicationRecord
   def validate_rank_class_class
     true
   end
+
+
 
   # Note- prior version prevented groups from moving when set in error, and was far too strict
   def check_new_rank_class
@@ -1727,8 +1726,8 @@ class TaxonName < ApplicationRecord
   # TODO: this needs to go.
   def sv_missing_confidence_level # should be removed once the alternative solution is implemented. It is heavily used now.
     confidence_level_array = [93]
-  confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)
-  soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(:confidence_level_id) & confidence_level_array).empty?
+    confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)
+    soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(:confidence_level_id) & confidence_level_array).empty?
   end
 
   def sv_missing_original_publication
@@ -1785,12 +1784,14 @@ class TaxonName < ApplicationRecord
         elsif self.parent.rank_class.parent.to_s == 'NomenclaturalRank::Iczn::FamilyGroup' && self.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Subgenus'
           self.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
         end
+
+        # TODO: This doesn't ever hit rescue (save doesn't raise), and save can be invalid, and therefor false not true?
         begin
           TaxonName.transaction do
             self.save
             res = true
           end
-        rescue # TODO: Qualify this!!
+        rescue
         end
       end
     end

@@ -21,6 +21,9 @@ export const Otu = {
   distribution: (id) =>
     AjaxCall('get', `/otus/${id}/inventory/distribution.json`),
 
+  duplicates: (params) =>
+    AjaxCall('get', `/tasks/otus/duplicates/data`, { params }),
+
   geoJsonDistribution: (id) =>
     AjaxCall('get', `/otus/${id}/inventory/distribution.geojson`),
 

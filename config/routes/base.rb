@@ -51,7 +51,6 @@ resources :projects do
   member do
     get 'select'
     get 'settings_for'
-    get 'recently_created_stats'
   end
 end
 
@@ -88,6 +87,11 @@ scope :s do
   get ':id' => 'shortener/shortened_urls#show'
 end
 
+scope :unify, controller: :unify do
+  match '/', action: :unify, via: :post
+  get :metadata, defaults: {format: :json}
+end
+
 resources :users, except: :new do
   resources :projects, only: [:index], defaults: {format: :json}, action: :user_projects
 
@@ -95,11 +99,11 @@ resources :users, except: :new do
     post 'batch_create'
     get :autocomplete, defaults: {format: :json}
   end
+
   member do
-    get 'recently_created_data'
-    get 'recently_created_stats'
     patch 'reset_preferences'
     patch 'reset_hub_favorites'
+    get 'data'
   end
 end
 

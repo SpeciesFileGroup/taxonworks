@@ -22,6 +22,10 @@ export default ({ state, commit }) => {
     }
   })
 
+  initState.confidences.forEach((item) => {
+    item.isUnsaved = true
+  })
+
   if (lock.made) {
     initState.extract.day_made = extract.day_made
     initState.extract.month_made = extract.month_made

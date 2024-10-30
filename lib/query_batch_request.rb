@@ -58,10 +58,10 @@ class QueryBatchRequest
     @mode = params[:mode]
   end
 
-   def infer_class(params)
-     f = Queries::Query::Filter.base_filter(params)
-     @klass = f.referenced_class.name.to_s
-   end
+  def infer_class(params)
+    f = Queries::Query::Filter.base_filter(params)
+    @klass = f.referenced_class.name.to_s
+  end
 
   def object_filter_params
     filter.params

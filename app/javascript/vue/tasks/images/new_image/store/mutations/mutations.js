@@ -15,6 +15,7 @@ import setDataAttributes from './setDataAttributes'
 import setDepictionCaption from './setDepictionCaption'
 import setDepictions from './setDepictions'
 import setEditors from './setEditors'
+import setIsOriginal from './setIsOriginal'
 import setImagesCreated from './setImagesCreated'
 import setLicense from './setLicense'
 import setNewCOForSqed from './setNewCOForSqed'
@@ -49,6 +50,7 @@ const MutationNames = {
   SetDepictionCaption: 'setDepictionCaption',
   SetDepictions: 'setDepictions',
   SetEditors: 'SetEditors',
+  SetIsOriginal: 'setIsOriginal',
   SetImagesCreated: 'setImagesCreated',
   SetLicense: 'setLicense',
   SetNewCOForSqed: 'setNewCOForSqed',
@@ -84,6 +86,7 @@ const MutationFunctions = {
   [MutationNames.SetDepictionCaption]: setDepictionCaption,
   [MutationNames.SetDepictions]: setDepictions,
   [MutationNames.SetEditors]: setEditors,
+  [MutationNames.SetIsOriginal]: setIsOriginal,
   [MutationNames.SetImagesCreated]: setImagesCreated,
   [MutationNames.SetLicense]: setLicense,
   [MutationNames.SetNewCOForSqed]: setNewCOForSqed,
