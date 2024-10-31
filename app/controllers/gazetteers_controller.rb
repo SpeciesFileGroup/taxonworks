@@ -124,38 +124,15 @@ class GazetteersController < ApplicationController
   # POST /gazetteers/import.json
   def import
     begin
-      shapefile_docs = validate_shape_file(
-        shapefile_params, sessions_current_project_id
+      addShapefileImportJobToQueue(
+        shapefile_params,
+        citation_params, projects_param['projects'],
+        sessions_current_project_id, sessions_current_user_id
       )
     rescue TaxonWorks::Error => e
       render json: { errors: e.message }, status: :unprocessable_entity
       return
     end
-
-    if citation_params[:cite_gzs] &&
-       !citation_params[:citation]&.dig(:source_id)
-      render json: { errors: 'No citation source selected' },
-        status: :unprocessable_entity
-      return
-    end
-
-    new_params = shapefile_params
-    # shp_doc_id was required, the following may have been determined instead
-    # during validation.
-    new_params[:shx_doc_id] = shapefile_docs[:shx].id
-    new_params[:dbf_doc_id] = shapefile_docs[:dbf].id
-    new_params[:prj_doc_id] = shapefile_docs[:prj].id
-    new_params[:cpg_doc_id] = shapefile_docs[:cpg]&.id
-
-    progress_tracker = GazetteerImport.create!(
-      shapefile: shapefile_docs[:shp].document_file_file_name
-    )
-    ImportGazetteersJob.perform_later(
-      new_params, citation_params,
-      sessions_current_user_id, sessions_current_project_id,
-      progress_tracker,
-      projects_param['projects']
-    )
 
     head :no_content
   end

@@ -1,4 +1,34 @@
 module Lib::Vendor::RgeoShapefileHelper
+  # Raises TaxonWorks::Error on error.
+  def addShapefileImportJobToQueue(
+    shapefile, citation, projects, project_id, user_id
+  )
+    shapefile_docs = validate_shape_file(shapefile, project_id)
+
+    if citation[:cite_gzs] && !citation[:citation]&.dig(:source_id)
+      raise TaxonWorks::Error, 'No citation source selected'
+    end
+
+    complete_shapefile = shapefile
+    # shp_doc_id was required, the following may have been determined instead
+    # during validation.
+    complete_shapefile[:shx_doc_id] = shapefile_docs[:shx].id
+    complete_shapefile[:dbf_doc_id] = shapefile_docs[:dbf].id
+    complete_shapefile[:prj_doc_id] = shapefile_docs[:prj].id
+    complete_shapefile[:cpg_doc_id] = shapefile_docs[:cpg]&.id
+
+    progress_tracker = GazetteerImport.create!(
+      shapefile: shapefile_docs[:shp].document_file_file_name
+    )
+    ImportGazetteersJob.perform_later(
+      complete_shapefile,
+      citation,
+      user_id, project_id,
+      progress_tracker,
+      projects
+    )
+  end
+
   # @return [Hash of Documents] Raises TaxonWorks::Error on error.
   def fetch_shapefile_documents(shapefile, project_id)
     begin
