@@ -10,9 +10,14 @@
       <h1>Manage controlled vocabulary</h1>
       <ul class="context-menu">
         <li>
-          <a :href="RouteNames.ManageBiocurationTask"
-            >Manage biocuration classes and groups</a
-          >
+          <a :href="RouteNames.ManageBiocurationTask">
+            Manage biocuration classes and groups
+          </a>
+        </li>
+        <li>
+          <a :href="RouteNames.BiologicalRelationshipComposer">
+            Biological relationship composer
+          </a>
         </li>
       </ul>
     </div>
