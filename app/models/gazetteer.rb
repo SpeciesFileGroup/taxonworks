@@ -110,24 +110,16 @@ class Gazetteer < ApplicationRecord
       user_input_shapes = leaflet_rgeo + wkt_rgeo + points_rgeo
 
       # Special case: longitudes get normalized by our rgeo processing for all
-      # cases except for a single point, so we need to handle that case ourselves.
+      # cases except for a single point (cf. anti_meridian.spec), so we need to
+      # handle that case ourselves (to pass GI validation).
+      # TODO: this should be somewhere more centralized (GI before_save?), and
+      # should apply to Multipoint too.
       if user_input_shapes.count == 1 && (ga_rgeo.count + gz_rgeo.count == 0)
         s = user_input_shapes.first
         if s.geometry_type.to_s == 'Point' && (s.lon < -180.0 || s.lon > 180.0)
           new_lon = s.lon % 360.0
           new_lon = new_lon - 360.0 if new_lon > 180.0
           user_input_shapes[0] = Gis::FACTORY.point(new_lon, s.lat)
-        end
-      end
-
-      # Invalid shapes won't raise until they're used in an operation requiring
-      # valid shapes, like union below, but we should check here before that
-      # happens. (Existing GAs and GZs are asummed valid!)
-      user_input_shapes.each do |s|
-        if !s.valid?
-          s_str = s.to_s
-          shape_to_s = s_str.length > 30 ? "'#{s_str[0, 30]}'..." : "'#{s_str}'"
-          raise RGeo::Error::InvalidGeometry, "#{s.invalid_reason} #{shape_to_s}"
         end
       end
 
@@ -160,7 +152,7 @@ class Gazetteer < ApplicationRecord
 
       s = circle || rgeo_shape.geometry
 
-      split_shape_along_anti_meridian(s)
+      GeographicItem.make_valid_non_anti_meridian_crossing_shape(s.as_text)
     end
 
     rgeo_shapes
@@ -190,7 +182,7 @@ class Gazetteer < ApplicationRecord
         raise e.exception("Invalid WKT: #{e.message}")
       end
 
-      split_shape_along_anti_meridian(s)
+      GeographicItem.make_valid_non_anti_meridian_crossing_shape(s.as_text)
     end
   end
 
@@ -274,13 +266,6 @@ class Gazetteer < ApplicationRecord
   def iso_3166_a3_is_three_characters
     errors.add(:iso_3166_a3, 'must be exactly three characters') unless
       iso_3166_a3.nil? || self.class.validate_iso_3166_a3(iso_3166_a3)
-  end
-
-  # @param [RGeo shape] s
-  # @return [RGeo shape] s split along the anti-meridian
-  def self.split_shape_along_anti_meridian(s)
-    GeographicItem.crosses_anti_meridian?(s.as_text) ?
-      GeographicItem.split_along_anti_meridian(s.as_text) : s
   end
 
   def destroy_geographic_item_if_orphaned

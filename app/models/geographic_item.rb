@@ -316,8 +316,7 @@ class GeographicItem < ApplicationRecord
       )
     end
 
-    # TODO should be as_lat_lon_text_sql
-    def st_aslatlontext_sql(point_shape, format = '')
+    def st_as_lat_lon_text_sql(point_shape, format = '')
       Arel::Nodes::NamedFunction.new(
         'ST_AsLatLonText', [
           geometry_cast(point_shape),
@@ -327,8 +326,10 @@ class GeographicItem < ApplicationRecord
     end
 
     # Currently uses postgis's 'structure' algorithm, the same as RGeo's
-    # make_valid.
-    # TODO: replace any rgeo.make_valid use with this(?)
+    # make_valid. Returns valid shapes unchanged.
+    # !! This will give the wrong result on anti-meridian-crossing shapes stored
+    # in Gis::FACTORY coordinates, use anti_meridian_crossing_make_valid
+    # instead in that case.
     def st_make_valid_sql(shape, keep_collapsed: true)
       params = "structure keepcollapsed=#{keep_collapsed}"
       Arel::Nodes::NamedFunction.new(
@@ -339,27 +340,57 @@ class GeographicItem < ApplicationRecord
       )
     end
 
+    # Assumes wkt crosses the anti-meridian.
+    # !! Note you must apply St_ShiftLongitude to the return value to have the
+    # correct interpretation of the return value's relation to the
+    # anti-meridian (cf. anti_meridian_spec.rb).
+    def anti_meridian_crossing_make_valid_sql(wkt)
+      st_make_valid_sql(
+        st_shift_longitude_sql(
+          st_geom_from_text_sql(
+            wkt
+          )
+        )
+      )
+    end
+
+    def make_valid_non_anti_meridian_crossing_shape(wkt)
+      if crosses_anti_meridian?(wkt)
+        split_along_anti_meridian(wkt, make_valid: true)
+      else
+        wkb = select_one(
+          st_make_valid_sql(
+            st_geom_from_text_sql(
+              wkt
+            )
+          )
+        )['st_makevalid']
+
+        ::Gis::FACTORY.parse_wkb(wkb)
+      end
+    end
+
     # @param [String] wkt
     # @return RGeo shape for wkt expressed as a union of pieces none of which
     # intersect the anti-meridian. Slightly lossy (has to be), and may turn
     # polygon into multi-polygon, etc.
     # Assumes wkt intersects the anti-meridian.
-    def split_along_anti_meridian(wkt)
+    def split_along_anti_meridian(wkt, make_valid: false)
       wkt = quote_string(wkt)
       # Intended to be the exterior of a tiny buffer around the anti-meridian,
       # expressed as two sheets/near-hemispheres that meet at long=0=360.
-      # (Using `-179.999999 ...` for the second sheet doesn't work, at least as
-      # currently run.)
       anti_meridian_exterior = 'MULTIPOLYGON(
         ((0 -89.999999, 179.999999 -89.999999, 179.999999 89.999999, 0 89.999999, 0 -89.999999)),
         ((180.000001 -89.999999, 360 -89.999999, 360 89.999999, 180.000001 89.999999, 180.000001 -89.999999))
       )'
 
+      s = make_valid ?
+        anti_meridian_crossing_make_valid_sql(wkt) :
+        st_shift_longitude_sql(st_geom_from_text_sql(wkt))
+
       wkb = select_one(
         st_intersection_sql(
-          # shift is required for anti-meridian coordinates (at least those as
-          # normalized by our Gis::FACTORY, cf. anti_meridian_spec discussion)
-          st_shift_longitude_sql(st_geom_from_text_sql(wkt)),
+          s,
           st_geom_from_text_sql(anti_meridian_exterior)
         )
       )['st_intersection']
@@ -378,23 +409,6 @@ class GeographicItem < ApplicationRecord
           st_geography_from_text_sql(ANTI_MERIDIAN)
         )
       )['st_intersects']
-    end
-
-    # !! Note you must apply St_ShiftLongitude to the return value to have the
-    # correct interpretation of the return value's relation to the
-    # anti-meridian (cf. anti_meridian_spec.rb).
-    def anti_meridian_crossing_make_valid(wkt)
-      wkb = select_one(
-        st_make_valid_sql(
-          st_shift_longitude_sql(
-            st_geom_from_text_sql(
-              wkt
-            )
-          )
-        )
-      )['st_makevalid']
-
-      ::Gis::FACTORY.parse_wkb(wkb)
     end
 
     # Unused, kept for reference
@@ -445,7 +459,7 @@ class GeographicItem < ApplicationRecord
       v = (choice == :latitude ? 1 : 2)
 
       split_part(
-        st_aslatlontext_sql(
+        st_as_lat_lon_text_sql(
           st_centroid_sql(geography_as_geometry),
           f
         ),

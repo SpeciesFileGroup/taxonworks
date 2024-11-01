@@ -103,19 +103,9 @@ module Vendor::RgeoShapefile
           iso_3166_a3:
         )
 
-        shape = record.geometry
-
-        # See anti_meridian_spec.rb for the reasoning behind (provisionally)
-        # putting the anti_meridian check before the make_valid call.
-        if GeographicItem.crosses_anti_meridian?(shape.as_text)
-          # If this shape crosses the anti_meridian and then raises on
-          # split_along_anti_meridian because it's invalid then we give up.
-          shape = GeographicItem.split_along_anti_meridian(shape.as_text)
-        end
-
-        # TODO remove lower-dimensional geometries introduced by make_valid
-        # (maybe use ST_MakeValid which has an option to do this)
-        shape = shape.make_valid if !shape.valid?
+        shape = GeographicItem.make_valid_non_anti_meridian_crossing_shape(
+          record.geometry.as_text
+        )
 
         g.build_geographic_item(
           geography: shape

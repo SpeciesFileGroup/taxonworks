@@ -617,7 +617,13 @@ describe GeographicItem, type: :model, group: :geo do
           # "wrong" - it's still crosses_anti_meridian? true - but we can't
           # store it that way in our factory.
 
-          new_s = GeographicItem.anti_meridian_crossing_make_valid(devils_bowtie)
+          new_s = Gis::FACTORY.parse_wkb(
+            ActiveRecord::Base.connection.select_value('SELECT ' +
+              GeographicItem.anti_meridian_crossing_make_valid_sql(
+                devils_bowtie
+              ).to_sql
+            )
+          )
 
           expect(new_s.as_text).to eq('MULTIPOLYGON (((170.0 10.0 0.0, -175.0 5.0 0.0, 170.0 0.0 0.0, 170.0 10.0 0.0)), ((-160.0 10.0 0.0, -160.0 0.0 0.0, -175.0 5.0 0.0, -160.0 10.0 0.0)))')
 
@@ -631,35 +637,26 @@ describe GeographicItem, type: :model, group: :geo do
         # shapes, our original goal.
         context 'make invalid anti-meridian-crossing shapes valid and non-anti-meridian-crossing' do
           specify 'splits into 3 pieces' do
-            mp =
-              GeographicItem.split_along_anti_meridian(
-                GeographicItem.anti_meridian_crossing_make_valid(
-                  devils_bowtie
-                ).as_text
-              )
+            mp = GeographicItem
+              .make_valid_non_anti_meridian_crossing_shape(devils_bowtie)
+
             expect(mp.geometry_type.to_s).to eq('MultiPolygon')
             expect(mp.num_geometries).to eq(3)
           end
 
           specify 'split pieces are valid' do
-            mp =
-              GeographicItem.split_along_anti_meridian(
-                GeographicItem.anti_meridian_crossing_make_valid(
-                  devils_bowtie
-                ).as_text
-              )
+            mp = GeographicItem
+              .make_valid_non_anti_meridian_crossing_shape(devils_bowtie)
+
             mp.each do |p|
               expect(p.valid?).to be true
             end
           end
 
           specify "results don't cross the anti-meridian" do
-            mp =
-              GeographicItem.split_along_anti_meridian(
-                GeographicItem.anti_meridian_crossing_make_valid(
-                  devils_bowtie
-                ).as_text
-              )
+            mp = GeographicItem
+              .make_valid_non_anti_meridian_crossing_shape(devils_bowtie)
+
             mp.each do |p|
               expect(GeographicItem.crosses_anti_meridian?(p.as_text)).to be false
             end
@@ -667,12 +664,8 @@ describe GeographicItem, type: :model, group: :geo do
           end
 
           specify 'split pieces include expected points' do
-            mp =
-              GeographicItem.split_along_anti_meridian(
-                GeographicItem.anti_meridian_crossing_make_valid(
-                  devils_bowtie
-                ).as_text
-              )
+            mp = GeographicItem
+              .make_valid_non_anti_meridian_crossing_shape(devils_bowtie)
 
             # the right piece
             expect(mp[0].contains?(Gis::FACTORY.point(179, 5))).to be true
