@@ -316,11 +316,25 @@ class GeographicItem < ApplicationRecord
       )
     end
 
+    # TODO should be as_lat_lon_text_sql
     def st_aslatlontext_sql(point_shape, format = '')
       Arel::Nodes::NamedFunction.new(
         'ST_AsLatLonText', [
           geometry_cast(point_shape),
           Arel::Nodes.build_quoted(format)
+        ]
+      )
+    end
+
+    # Currently uses postgis's 'structure' algorithm, the same as RGeo's
+    # make_valid.
+    # TODO: replace any rgeo.make_valid use with this(?)
+    def st_make_valid_sql(shape, keep_collapsed: true)
+      params = "structure keepcollapsed=#{keep_collapsed}"
+      Arel::Nodes::NamedFunction.new(
+        'ST_MakeValid', [
+          geometry_cast(shape),
+          Arel::Nodes.build_quoted(params)
         ]
       )
     end
@@ -364,6 +378,23 @@ class GeographicItem < ApplicationRecord
           st_geography_from_text_sql(ANTI_MERIDIAN)
         )
       )['st_intersects']
+    end
+
+    # !! Note you must apply St_ShiftLongitude to the return value to have the
+    # correct interpretation of the return value's relation to the
+    # anti-meridian (cf. anti_meridian_spec.rb).
+    def anti_meridian_crossing_make_valid(wkt)
+      wkb = select_one(
+        st_make_valid_sql(
+          st_shift_longitude_sql(
+            st_geom_from_text_sql(
+              wkt
+            )
+          )
+        )
+      )['st_makevalid']
+
+      ::Gis::FACTORY.parse_wkb(wkb)
     end
 
     # Unused, kept for reference
@@ -1086,6 +1117,7 @@ class GeographicItem < ApplicationRecord
   end
 
   def self.select_one(named_function)
+    # TODO use select_value instead of execute?
     # This is faster than select(...)
     ActiveRecord::Base.connection.execute(
       'SELECT ' +

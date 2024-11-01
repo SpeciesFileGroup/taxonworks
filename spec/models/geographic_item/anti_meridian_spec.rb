@@ -14,6 +14,78 @@ require 'rails_helper'
 #
 #
 describe GeographicItem, type: :model, group: :geo do
+  context 'Gis::FACTORY longitude conventions' do
+    # Spec'ing these since they're undocumented by rgeo and speak to our
+    # understanding of rgeo and postgis anti-meridian-crossing behavior, namely:
+    # for any shape with more than one point (i.e. anything other than Point),
+    # longitude values in the range [180, 360] are always converted to the range
+    # [-180, 0] by our Gis::FACTORY, so that all longitudes of all non-Point
+    # shapes are in the range [-180, 180].
+    #
+    # Geometrically the interpretation is that the line between any two points
+    # with longitudes in the range [-180, 180] never crosses the anti-meridian
+    # (the -180/180 barrier of that longitude domain), i.e. the line segment
+    # between any two points in our Gis::FACTORY representation always crosses
+    # the meridian if the two points are in different hemispheres, even if
+    # that's the long way between the two points.
+    #
+    # Applying ST_Shift_Longitude converts longitudes in the range [-180, 0] to
+    # the range [180, 360], so converts longitudes in the range [-180, 180] to
+    # longitudes in the range [0, 360]. Geometrically the interpretation is that
+    # lines between any two points with coordinates in this range can never
+    # cross the meridian (the 0/360 boundary of that longitude domain), they
+    # always cross the anti-meridian if they're in different hemispheres, even
+    # if that's the long way between the points.
+    #
+    # If you want the shapes your input points describe to cross the meridian -
+    # ACCORDING TO valid?, ST_Is_Valid, make_valid, and ST_MakeValid (others??)
+    # - then leave them in the coordinate representation applied by
+    # Gis::FACTORY. If you instead expect a shape to cross the anti-meridian
+    # then apply ST_ShiftLongitude to the shape.
+    #
+    # How can you tell which was intended for an input shape? By a quirk of
+    # behavior, `intersects_anti_meridian?` (which relies on ST_Intersects)
+    # operates as though the lines between points of your shape are
+    # shortest-distance geodesics, i.e. ignores the above [a guess: this is a
+    # special case processing quirk because the
+    # polygon-intersect-anti-meridian check boils down to a bounding box
+    # comparison here]. That's most likely the interpretation of your shape that
+    # was intended.
+    #
+    # See specs below for evidence supporting these claims.
+    context 'point coordinate longitudes are NEVER adjusted' do
+      specify 'point coordinate longitudes in [-180, 0] are NOT adjusted' do
+        expect(Gis::FACTORY.point(-170, 0).lon).to eq(-170)
+        expect(Gis::FACTORY.parse_wkt('POINT (-170 0)').lon).to eq(-170)
+        expect(Gis::FACTORY.parse_wkt('POINT (-170 0)').as_text)
+          .to eq('POINT (-170.0 0.0 0.0)')
+      end
+
+      specify 'point coordinate longitudes in [180, 360] are NOT adjusted' do
+        expect(Gis::FACTORY.point(190, 0).lon).to eq(190)
+        expect(Gis::FACTORY.parse_wkt('POINT (190 0)').lon).to eq(190)
+        expect(Gis::FACTORY.parse_wkt('POINT (190 0)').as_text)
+          .to eq('POINT (190.0 0.0 0.0)')
+      end
+    end
+
+    context 'non-point shape coordinate longitudes ARE converted to the range [-180, 180], i.e. [180, 360] is converted to [-180, 0]' do
+      specify 'linestring' do
+        expect(
+          Gis::FACTORY.parse_wkt('LINESTRING (-170 0, 160 0, 190 10)').as_text
+        ).to eq('LINESTRING (-170.0 0.0 0.0, 160.0 0.0 0.0, -170.0 10.0 0.0)')
+      end
+
+      specify 'polygon' do
+        expect(Gis::FACTORY
+          .parse_wkt('POLYGON ((-170 0, 190 10, 175 0, -170 0))').as_text
+        ).to eq(
+          'POLYGON ((-170.0 0.0 0.0, -170.0 10.0 0.0, 175.0 0.0 0.0, -170.0 0.0 0.0))'
+        )
+      end
+    end
+  end
+
   context 'anti-meridian' do
     # Containers left side/object/A component of ST_Contains(A, B)
     # crosses anti from eastern to western (easterly)
@@ -348,12 +420,12 @@ describe GeographicItem, type: :model, group: :geo do
       context 'anti-meridian crossing shapes from leaflet decoded with Gis::FACTORY' do
         # See the xspecify example below for context
         [
-          # clockwise
+          # drawn on leaflet clockwise
           'POLYGON (
             (160.0 -10.0 0.0, 160.0 10.0 0.0, -160.0 10.0 0.0,
              170.0 0.0 0.0, -160.0 -10.0 0.0, 160.0 -10.0 0.0)
            )',
-          # counter-clockwise
+          # drawn on leaflet counter-clockwise
           'POLYGON (
             (-160.0 10.0 0.0, 160.0 10.0 0.0, 160.0 -10.0 0.0,
              -160.0 -10.0 0.0, 170.0 0.0 0.0, -160.0 10.0 0.0)
@@ -366,7 +438,7 @@ describe GeographicItem, type: :model, group: :geo do
       end
     end
 
-    context 'A leaflet/GeoJSON/Gis::FACTORY interaction' do
+    context 'Leaflet/GeoJSON inputs and Gis::FACTORY considerations' do
       let(:p) {
         #              *
         #      --------*--
@@ -392,7 +464,7 @@ describe GeographicItem, type: :model, group: :geo do
       }
       let(:s) {
         # The geo_factory argument is significant here for the way it normalizes
-        # coordinates.
+        # coordinates - see longitude specs above.
         RGeo::GeoJSON.decode(p, geo_factory: Gis::FACTORY)
         # s.geometry.as_text = POLYGON (
         #    (160.0 -10.0 0.0, 160.0 10.0 0.0, -160.0 10.0 0.0, 170.0 0.0 0.0,
@@ -412,45 +484,41 @@ describe GeographicItem, type: :model, group: :geo do
         # ... due to a self-intersection
         expect(s.geometry.invalid_reason).to eq('Self-intersection')
         # The postgis invalid reason is 'Self-intersection at or near point 160
-        # 0.303030303030303 0' which suggests the segment from (-160,0) to
-        # (170,0) is being interpreted as crossing the meridian (going the
-        # "long" way) and not the anti-meridian.
+        # 0.303030303030303 0' which is consistent with the segment from
+        # (-160,0) to (170,0) being interpreted as crossing the meridian (going
+        # the "long" way) and not the anti-meridian.
 
         # By comparison if we decode without specifying our factory:
         s2 = RGeo::GeoJSON.decode(p)
         # then we get
         # s2.geometry.as_text = POLYGON ((-200 -10, -200 10, -160 10, -190 0, -160 -10, -200 -10)) # same as the geojson feature coordinates
-        #   )
-        # which **is** valid (but may not be storable in this form given our
-        # factory's normalization conventions).
+        # which **is** valid but cannot be stored in our factory in this form given
+        # our factory's normalization conventions - this shape would have to be split in two across the anti-meridian to be stored in our Gis::FACTORY.
         expect(s2.geometry.valid?).to be true
         expect(GeographicItem.find_by_sql(
             "SELECT ST_IsValid(ST_GeomFromText('#{s2.geometry.as_text}')) as r;"
           ).first.r).to be true
 
-        # Question: is it possible to represent this polygon in our
-        # GIS::Factory's normalized coordinates in a way that makes it `valid?`?
-        # Or can it only be made valid by splitting it across the anti-meridian?
-
         # In spite of what both rgeo and postgis suggest about s crossing the
         # meridian instead of the anti-meridian, both s and s2 are reported to
-        # intersect the anti_meridian by postgis: another instance of interpretation
-        # of anti-meridian-crossing shapes depending on which function is doing
-        # the interpreting. (A similar rgeo intersection check on s fails
-        # because s has a self-intersection.)
+        # intersect the anti_meridian by postgis. (A similar rgeo intersection
+        # check on s fails because s has a self-intersection.)
         expect(GeographicItem.crosses_anti_meridian?(s.geometry.as_text)).to be true
         expect(GeographicItem.crosses_anti_meridian?(s2.geometry.as_text)).to be true
-
-        # Read on for the current solution to handling anti-meridian-crossing
-        # polygons provided by leaflet as normalized by our factory.
       end
 
       context 'st_shifting an anti-meridian-crossing shape normalized by our gis factory produces a valid shape' do
         # Can't test rgeo-valid here without bypassing our GIS::Factory, which
         # we don't want to do.
         specify 'st_shifted(s) is postgis valid' do
-          expect(ActiveRecord::Base.connection.select_value(
-            "SELECT ST_IsValid(ST_ShiftLongitude(ST_GeomFromText('#{s.geometry.as_text}'))) as r;"
+          expect(ActiveRecord::Base.connection.select_value('SELECT ' +
+            GeographicItem.st_is_valid_sql(
+              GeographicItem.st_shift_longitude_sql(
+                GeographicItem.st_geom_from_text_sql(
+                  s.geometry.as_text
+                )
+              )
+            ).to_sql
           )).to be true
           # The shifted shape here is
           # POLYGON Z ((160 -10 0,160 10 0,200 10 0,170 0 0,200 -10 0,160 -10 0))
@@ -458,13 +526,18 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       context 'GeographicItem.split_along_anti_meridian(wkt)' do
-        # GeographicItem.split_along_anti_meridian ST_Shifts its
-        # anti-meridian-crossing input to make it st_valid.
+        # GeographicItem.split_along_anti_meridian has the pre-condition that
+        # its input crosses_anti_meridian? and so applies ST_ShiftLongitude to
+        # match that interpretation of the input.
         context 'Leaflet-provided GIS:Factory polygon' do
-          let!(:wkt) { 'POLYGON (
-              (160.0 -10.0 0.0, 160.0 10.0 0.0, -160.0 10.0 0.0,
-              170.0 0.0 0.0, -160.0 -10.0 0.0, 160.0 -10.0 0.0)
-            )'
+          let!(:wkt) {
+            # Make sure it's represented as it would be internally:
+            Gis::FACTORY.parse_wkt(
+              'POLYGON (
+                (160.0 -10.0 0.0, 160.0 10.0 0.0, -160.0 10.0 0.0,
+                170.0 0.0 0.0, -160.0 -10.0 0.0, 160.0 -10.0 0.0)
+              )'
+            ).as_text
           }
 
           specify 'splits into 3 pieces' do
@@ -502,23 +575,26 @@ describe GeographicItem, type: :model, group: :geo do
 
       context 'Attempting to make arbitrary input shapes both valid and not anti-meridian-crossing' do
         let(:devils_bowtie) {
-          'POLYGON ((200 0, 170 10, 170 0, 200 10, 200 0))'
+          # Make sure it's represented as it would be internally:
+          Gis::FACTORY.parse_wkt(
+            'POLYGON ((200 0, 170 10, 170 0, 200 10, 200 0))'
+          ).as_text
         }
+
         # If you try to make_valid first, you get the "wrong" result on shapes
-        # that are anti-meridian-crossing (in all cases make_valid seems to
-        # interpret the shape as crossing the meridian and makes that valid):
-        xspecify 'make_valid on anti-meridian-crossing shapes (as normalized by our factory) gives undesired results' do
+        # that are anti-meridian-crossing:
+        xspecify 'make_valid on anti-meridian-crossing shapes - as normalized by our factory - gives undesired results' do
+          # This makes the **meridian-crossing interpretation** of the shape
+          # valid:
           new_s = s.make_valid
-          expect(new_s.contains?(Gis::FACTORY.point(-175, -5))).to be false
+          expect(new_s.contains?(Gis::FACTORY.point(0, 9))).to be true
         end
 
-        # So instead split_along_anti_meridian first when needed (in practice
-        # we're accepting that this may fail on invalid shapes), for which we'd
-        # like the precondition crosses_anti_meridian? to tolerate (i.e. not
-        # raise and give the correct result on) invalid shapes, both crossing
-        # and not crossing the anti-meridian. [Wild guess: this is the case
-        # because the polygon-intersect-anti-meridian check boils down to a
-        # bounding box comparison.]
+        # The correct action here would be to make_valid on the shifted shape,
+        # but we shouldn't shift unless we know crosses_anti_meridian?, so we'd
+        # like crosses_anti_meridian? to tolerate (i.e. not raise and give the
+        # correct result on) invalid shapes, both crossing and not crossing the
+        # anti-meridian.
         specify 'crosses_anti_meridian? tolerates non-anti-meridian-crossing invalid shape' do
           inv_s = 'POLYGON ((0 0, 10 10, 10 0, 0 10, 0 0))' # bowtie
           expect(GeographicItem.crosses_anti_meridian?(inv_s)).to be false
@@ -528,9 +604,83 @@ describe GeographicItem, type: :model, group: :geo do
           expect(GeographicItem.crosses_anti_meridian?(devils_bowtie)).to be true
         end
 
+        # Using ST_Intersects on an invalid shape can blow up
         xspecify 'failure on split_along_anti_meridian for invalid anti-meridian-crossing shape' do
           expect{GeographicItem.split_along_anti_meridian(devils_bowtie)}
             .to raise_error ActiveRecord::StatementInvalid, /geom_intersection/
+        end
+
+        specify 'make_valid(shifted(anti_meridian-crossing-shape)) gives the expected result' do
+          # This is tricky because make_valid operates correctly on a shifted
+          # shape, but when it gets saved back to our Gis::FACTORY its
+          # coordinates get saved as meridian-crossing/non-shifted, which is
+          # "wrong" - it's still crosses_anti_meridian? true - but we can't
+          # store it that way in our factory.
+
+          new_s = GeographicItem.anti_meridian_crossing_make_valid(devils_bowtie)
+
+          expect(new_s.as_text).to eq('MULTIPOLYGON (((170.0 10.0 0.0, -175.0 5.0 0.0, 170.0 0.0 0.0, 170.0 10.0 0.0)), ((-160.0 10.0 0.0, -160.0 0.0 0.0, -175.0 5.0 0.0, -160.0 10.0 0.0)))')
+
+          expect(GeographicItem.crosses_anti_meridian?(new_s.as_text)).to be true
+        end
+
+        # To complete the process, now that we've made the
+        # anti-meridian-crossing invalid shape into its valid
+        # anti-meridian-crossing version, we can apply
+        # split_across_anti_meridian to get valid non-anti-meridian-crossing
+        # shapes, our original goal.
+        context 'make invalid anti-meridian-crossing shapes valid and non-anti-meridian-crossing' do
+          specify 'splits into 3 pieces' do
+            mp =
+              GeographicItem.split_along_anti_meridian(
+                GeographicItem.anti_meridian_crossing_make_valid(
+                  devils_bowtie
+                ).as_text
+              )
+            expect(mp.geometry_type.to_s).to eq('MultiPolygon')
+            expect(mp.num_geometries).to eq(3)
+          end
+
+          specify 'split pieces are valid' do
+            mp =
+              GeographicItem.split_along_anti_meridian(
+                GeographicItem.anti_meridian_crossing_make_valid(
+                  devils_bowtie
+                ).as_text
+              )
+            mp.each do |p|
+              expect(p.valid?).to be true
+            end
+          end
+
+          specify "results don't cross the anti-meridian" do
+            mp =
+              GeographicItem.split_along_anti_meridian(
+                GeographicItem.anti_meridian_crossing_make_valid(
+                  devils_bowtie
+                ).as_text
+              )
+            mp.each do |p|
+              expect(GeographicItem.crosses_anti_meridian?(p.as_text)).to be false
+            end
+            expect(GeographicItem.crosses_anti_meridian?(mp.as_text)).to be false
+          end
+
+          specify 'split pieces include expected points' do
+            mp =
+              GeographicItem.split_along_anti_meridian(
+                GeographicItem.anti_meridian_crossing_make_valid(
+                  devils_bowtie
+                ).as_text
+              )
+
+            # the right piece
+            expect(mp[0].contains?(Gis::FACTORY.point(179, 5))).to be true
+            # the middle
+            expect(mp[1].contains?(Gis::FACTORY.point(-179, 5))).to be true
+            # the left piece
+            expect(mp[2].contains?(Gis::FACTORY.point(-161, 5))).to be true
+          end
         end
       end
     end
