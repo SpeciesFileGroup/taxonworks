@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Filter loans: Identifiers, created by and updated by columns [#4098]
+
+[#4098]: https://github.com/SpeciesFileGroup/taxonworks/issues/4098
 
 ## [0.45.0] - 2024-10-30
 
