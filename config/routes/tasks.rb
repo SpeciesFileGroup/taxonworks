@@ -160,12 +160,6 @@ scope :tasks do
     end
   end
 
-  scope :matrix_image do
-    scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
-      get :index, as: 'index_matrix_image_task'
-    end
-  end
-
   scope :browse_annotations, controller: 'tasks/object_annotations/browse_annotations' do
     get '/', action: :index, as: 'browse_annotations_task'
   end
@@ -644,7 +638,7 @@ scope :tasks do
 
   scope :otus do
     scope :duplicates, controller: 'tasks/otus/duplicates' do
-     get '/', action: 'index', as: 'duplicate_otus_task'
+      get '/', action: 'index', as: 'duplicate_otus_task'
      get :data, as: 'duplicate_otus_task_data', defaults: {format: :json}
     end
 

@@ -42,7 +42,7 @@ const RouteNames = {
   FilterPeople: '/tasks/people/filter',
   FilterSources: '/tasks/sources/filter',
   FreeFormTask: '/tasks/collection_objects/freeform_digitize',
-  ImageMatrix: '/tasks/matrix_image/matrix_image/index',
+  ImageMatrix: '/tasks/observation_matrices/image_matrix',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   LeadsHub: '/tasks/leads/hub',
   ManageBiocurationTask:
