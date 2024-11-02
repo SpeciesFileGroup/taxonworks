@@ -119,7 +119,7 @@ new_image_task:
     - collection_object
     - new
   status: prototype
-index_matrix_image_task:
+image_matrix_task:
   hub: true
   name: 'Image matrix'
   related:
@@ -999,15 +999,6 @@ new_biological_association_task:
     - biology
   status: prototype
   description: 'Create, edit, and cite biological associations.'
-image_matrix_task:
-  hub: false
-  name: 'Image matrix'
-  related:
-    - observation_matrices
-  categories:
-    - matrix
-  status: prototype
-  description: "Visualize and add images in a matrix context."
 duplicate_otus_task:
   hub: true
   name: 'Duplicate OTU predictor'
@@ -1015,4 +1006,4 @@ duplicate_otus_task:
   categories:
     - otu
   status: prototype
-  description: "A list of OTUs with whose combination of name and taxon name are found exactly/ in duplicate."
+  description: 'A list of OTUs with whose combination of name and taxon name are found exactly/ in duplicate.'

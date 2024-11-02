@@ -155,10 +155,12 @@ ObservationMatrix:
     - interactive_key_task
     - observation_matrix_view_task
     - new_descriptor_task
+    - image_matrix_task
     - observation_matrices_hub_task
     - unify_objects_task
   edit: new_matrix_task
   new: new_matrix_task
+  show: new_matrix_task
   config:
     recent: true
 Otu:

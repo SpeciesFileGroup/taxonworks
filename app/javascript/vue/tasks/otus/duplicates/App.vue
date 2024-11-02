@@ -46,6 +46,7 @@
         <tr>
           <th class="w-2"></th>
           <th>Label</th>
+          <th>Taxon name ID</th>
           <th class="w-2">Count</th>
           <th class="w-2" />
         </tr>
@@ -62,7 +63,19 @@
               v-model="selected"
             />
           </td>
-          <td v-html="item.label"></td>
+          <td>
+            <a
+              :href="`${RouteNames.BrowseOtu}?otu_id=${item.id}`"
+              v-html="item.label"
+            />
+          </td>
+          <td>
+            <a
+              v-if="item.taxon_name_id"
+              :href="`${RouteNames.BrowseNomenclature}?taxon_name_id=${item.taxon_name_id}`"
+              v-text="item.taxon_name_id"
+            />
+          </td>
           <td>{{ item.count }}</td>
           <td>
             <div class="horizontal-left-content middle gap-small">
@@ -82,6 +95,7 @@ import { onBeforeMount, ref } from 'vue'
 import { OTU } from '@/constants'
 import { Otu } from '@/routes/endpoints'
 import { getPagination } from '@/helpers'
+import { RouteNames } from '@/routes/routes'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'

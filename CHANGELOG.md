@@ -9,6 +9,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Filter loans: Identifiers, created by and updated by columns [#4098]
+
+[#4098]: https://github.com/SpeciesFileGroup/taxonworks/issues/4098
+
+## [0.45.0] - 2024-10-30
+
+### Added
+
 - Created/updated overviews for user data
 - Unify objects task [#970]
 - Attribution to ObservationMatrix
@@ -17,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwcOccurrenceHooks for BiocurationGroups, OTUs
 - New image task: is original checkbox to source panel [#4090]
 - Confidence facets and batch operations to all Filters [#4043]
+- Browse nomenclature task: Radial annotator for OTUs
 
 ### Changed
 
@@ -26,11 +35,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Loan OTU facet [#4087]
+- With/out facets failing in combination with other facets [#4089]
 - Simple TaxonName batch load failing with invalid children
 - `api/v1/images/:id` broken for non-integer ids
 - Containerizing objects prevented identific increments
 - New dichotomous key: Radial annotator is not loading the correct data [#4076]
 
+[#4087]: https://github.com/SpeciesFileGroup/taxonworks/issues/4087
+[#4089]: https://github.com/SpeciesFileGroup/taxonworks/issues/4089
 [#4026]: https://github.com/SpeciesFileGroup/taxonworks/issues/4026
 [#4043]: https://github.com/SpeciesFileGroup/taxonworks/issues/4043
 [#4074]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
@@ -4933,7 +4946,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.3..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.45.0..development
+[0.45.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.3...v0.45.0
 [0.44.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.2...v0.44.3
 [0.44.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.1...v0.44.2
 [0.44.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.0...v0.44.1

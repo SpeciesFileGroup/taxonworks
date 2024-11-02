@@ -37,7 +37,7 @@
               <td> <%= radial_navigation_tag(om) -%>
               <td> <%= radial_annotator(om) -%>
               <td>
-                <%= link_to('Image matrix', index_matrix_image_task_path(observation_matrix_id: om.id)) if om.is_media_matrix? -%>
+                <%= link_to('Image matrix', image_matrix_task_path(observation_matrix_id: om.id)) if om.is_media_matrix? -%>
               </td>
               <td> <%= pin_item_to_pinboard_link(om, sessions_current_user) -%></td>
               <%= fancy_options_cells_tag(om) -%>

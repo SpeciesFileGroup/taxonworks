@@ -51,7 +51,7 @@ export const TASK_FILTER_IMAGES = {
 
 export const TASK_IMAGE_MATRIX = {
   label: 'Image matrix',
-  link: '/tasks/matrix_image/matrix_image/index',
+  link: '/tasks/observation_matrices/image_matrix',
   parseParams: ({ params }) => ({
     otu_filter: params.otu_id?.join('|')
   })
