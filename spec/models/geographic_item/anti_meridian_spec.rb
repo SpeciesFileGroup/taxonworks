@@ -17,7 +17,7 @@ describe GeographicItem, type: :model, group: :geo do
   context 'Gis::FACTORY longitude conventions' do
     # Spec'ing these since they're undocumented by rgeo and speak to our
     # understanding of rgeo and postgis anti-meridian-crossing behavior, namely:
-    # for any shape with more than one point (i.e. anything other than Point),
+    # for any shape with edges (i.e. anything other than Point and MultiPoint),
     # longitude values in the range [180, 360] are always converted to the range
     # [-180, 0] by our Gis::FACTORY, so that all longitudes of all non-Point
     # shapes are in the range [-180, 180].
@@ -47,10 +47,9 @@ describe GeographicItem, type: :model, group: :geo do
     # behavior, `intersects_anti_meridian?` (which relies on ST_Intersects)
     # operates as though the lines between points of your shape are
     # shortest-distance geodesics, i.e. ignores the above [a guess: this is a
-    # special case processing quirk because the
-    # polygon-intersect-anti-meridian check boils down to a bounding box
-    # comparison here]. That's most likely the interpretation of your shape that
-    # was intended.
+    # special processing case where the polygon-intersect-anti-meridian check
+    # boils down to a bounding box comparison]. That's most likely the
+    # interpretation of your shape that was intended.
     #
     # See specs below for evidence supporting these claims.
     context 'point coordinate longitudes are NEVER adjusted' do
@@ -492,8 +491,10 @@ describe GeographicItem, type: :model, group: :geo do
         s2 = RGeo::GeoJSON.decode(p)
         # then we get
         # s2.geometry.as_text = POLYGON ((-200 -10, -200 10, -160 10, -190 0, -160 -10, -200 -10)) # same as the geojson feature coordinates
-        # which **is** valid but cannot be stored in our factory in this form given
-        # our factory's normalization conventions - this shape would have to be split in two across the anti-meridian to be stored in our Gis::FACTORY.
+        # which **is** valid but cannot be stored in our factory in this form
+        # given our factory's normalization conventions - this shape would have
+        # to be split in two across the anti-meridian to be stored in our
+        # Gis::FACTORY.
         expect(s2.geometry.valid?).to be true
         expect(GeographicItem.find_by_sql(
             "SELECT ST_IsValid(ST_GeomFromText('#{s2.geometry.as_text}')) as r;"
