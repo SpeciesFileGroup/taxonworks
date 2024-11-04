@@ -11,7 +11,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Filter loans: Identifiers, created by and updated by columns [#4098]
 
+### Fixed
+
+- Unify objects: Same object can be selected on both sides [#4100]
+
 [#4098]: https://github.com/SpeciesFileGroup/taxonworks/issues/4098
+[#4100]: https://github.com/SpeciesFileGroup/taxonworks/issues/4100
 
 ## [0.45.0] - 2024-10-30
 
