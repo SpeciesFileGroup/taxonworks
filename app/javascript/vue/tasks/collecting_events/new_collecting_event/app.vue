@@ -139,7 +139,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { RouteNames } from '@/routes/routes'
-import useHotKey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import Autocomplete from '@/components/ui/Autocomplete'
 
 import RecentComponent from './components/Recent'
@@ -187,7 +187,7 @@ const hotkeys = ref([
   }
 ])
 
-useHotKey(hotkeys.value)
+useHotkey(hotkeys.value)
 
 const collectingEvent = computed({
   get() {

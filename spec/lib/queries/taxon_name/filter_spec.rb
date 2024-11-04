@@ -17,11 +17,17 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     )
   }
 
+  specify '#combinations intersect with other queries in legal SQL' do
+    query.combinations = false
+    query.taxon_name_id = genus.id
+    query.descendants = true
+    expect(query.all.to_a).to be_truthy
+  end
+
   specify '#verbatim_name without' do
     query.verbatim_name = false
     expect(query.all).to include(species, genus, original_genus, root)
   end
-
 
   specify '#verbatim_name with' do
     query.verbatim_name = true

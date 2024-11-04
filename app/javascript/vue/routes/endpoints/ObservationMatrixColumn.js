@@ -1,4 +1,5 @@
-import baseCRUD, {annotations} from './base'
+import baseCRUD from './base'
+import { ajaxCall } from '@/helpers'
 
 const controller = 'observation_matrix_columns'
 const permitParams = {
@@ -6,5 +7,7 @@ const permitParams = {
 }
 
 export const ObservationMatrixColumn = {
-  ...baseCRUD(controller, permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  sort: (ids) => ajaxCall('patch', `/${controller}/sort`, { ids })
 }

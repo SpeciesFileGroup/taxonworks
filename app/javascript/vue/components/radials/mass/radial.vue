@@ -8,7 +8,7 @@
       >
         <template #header>
           <h3 class="flex-separate">
-            <span>Radial mass annotator</span>
+            <span>Radial batch annotator</span>
             <span class="separate-right">
               {{ objectType }}
             </span>
@@ -50,7 +50,7 @@
       </VModal>
       <VBtn
         class="circle-button"
-        title="Radial mass annoator"
+        title="Radial batch annoator"
         circle
         color="radial"
         :disabled="disabled || (!ids.length && !Object.keys(params).length)"
@@ -58,7 +58,7 @@
       >
         <VIcon
           name="radialMassAnnotator"
-          title="Radial mass annoator"
+          title="Radial batch annoator"
           x-small
         />
       </VBtn>
@@ -81,7 +81,7 @@ import { ref, onBeforeMount } from 'vue'
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 
 defineOptions({
-  name: 'RadialMassAnnotator'
+  name: 'RadialBatchAnnotator'
 })
 
 const props = defineProps({

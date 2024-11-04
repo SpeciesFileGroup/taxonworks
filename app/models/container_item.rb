@@ -101,7 +101,7 @@ class ContainerItem < ApplicationRecord
   # @params
   def self.batch_add(params)
     c = Container.find(params[:container_id])
-    q = Queries::Query::Filter.instatiated_base_filter(params)
+    q = Queries::Query::Filter.instantiated_base_filter(params)
 
     cit = c.container_items.count
 

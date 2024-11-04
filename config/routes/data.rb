@@ -10,6 +10,7 @@ concern :data_routes do |options|
     get 'batch_load'
     get 'autocomplete'
     get 'search' # TODO: deprecate/remove
+
   end
 
   member do
@@ -73,6 +74,9 @@ resources :character_states do
   member do
     get :annotations, defaults: {format: :json}
   end
+  collection do
+    get :autocomplete, defaults: {format: :json}
+  end
 end
 
 resources :citation_topics, only: [:create, :update, :destroy]
@@ -89,6 +93,7 @@ resources :confidences do # , except: [:edit, :show]
   concerns [:data_routes]
   collection do
     post :confidence_object_update
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 end
 
@@ -117,6 +122,7 @@ resources :collection_objects do
     get 'biocuration_classifications', defaults: {format: :json}
 
     get 'dwc', defaults: {format: :json}
+    get 'dwc_compact', defaults: {format: :json}
     get 'dwc_verbose', defaults: {format: :json}
     get 'depictions', constraints: {format: :html}
     get 'containerize'

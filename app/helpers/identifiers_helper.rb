@@ -3,17 +3,20 @@ module IdentifiersHelper
   # @return [String, nil]
   def identifier_tag(identifier)
     return nil if identifier.nil? || identifier.new_record?
+    title = identifier.type.demodulize.titleize.humanize
     if identifier.is_local?
-      if identifier.namespace.is_virtual?
+
+      if identifier.is_virtual?
         [
           tag.span(identifier.namespace.short_name, class: [:feedback, 'feedback-thin', 'feedback-light']),
-          tag.span(identifier.identifier, title: identifier.type.demodulize.titleize.humanize)
+          tag.span(identifier.identifier, title:)
         ].join('&nbsp;').html_safe
+
       else
-        tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)
+        tag.span(identifier.cached, title:)
       end
     else
-      tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)
+      tag.span(identifier.cached, title:)
     end
   end
 

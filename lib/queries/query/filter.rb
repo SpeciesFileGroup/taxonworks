@@ -212,6 +212,7 @@ module Queries
     #   When true api_except_params is applied and
     #   other restrictions are placed:
     #     - :venn param is ignored
+    #     - is_public=true is applied
     attr_accessor :api
 
     # @return String
@@ -224,19 +225,18 @@ module Queries
     #  ( A ( B ) C )
     attr_accessor :venn_mode
 
-    def venn_mode
-      v = @venn_mode.to_s.downcase.to_sym
-      v  = :ab if v.blank?
-      if [:a, :ab, :b].include?(v)
-        v
-      else
-        nil
-      end
-    end
-
-    def process_url_into_params(url)
-      Rack::Utils.parse_nested_query(url)
-    end
+    # @return symbol
+    #   must match a existing parameter name (used to check if values provided)
+    #
+    # @param order_by [String, Symbol]
+    #   the kind of sort to apply.
+    #
+    # Supported values:
+    #   * `match_identifiers` - sort by the order of the identifiers in provided
+    #
+    # !! Does not sub-sort
+    #
+    attr_accessor :order_by
 
     # @return Hash
     #  the parsed/permitted params
@@ -245,11 +245,13 @@ module Queries
     # !! This is used strictly during the permission process of ActionController::Parameters !!
     attr_reader :params
 
-    # @return Hash
+
+    # @params query_params [ActionController::Parameters]
     def initialize(query_params)
 
       # Reference to query_params, i.e. always permitted
       @api = boolean_param(query_params, :api)
+
       @recent = boolean_param(query_params, :recent)
       @recent_target = query_params[:recent_target]
 
@@ -268,6 +270,8 @@ module Queries
       @per = query_params[:per]
       @page = query_params[:page]
 
+      @order_by = query_params[:order_by]
+
       # After this point, if you started with ActionController::Parameters,
       # then all values have been explicitly permitted.
       if query_params.kind_of?(Hash)
@@ -285,6 +289,11 @@ module Queries
       set_user_dates(params)
     end
 
+    def order_by
+      return nil if @order_by.blank?
+      @order_by.to_sym
+    end
+
     def object_global_id
       [@object_global_id].flatten.compact
     end
@@ -298,6 +307,20 @@ module Queries
       r = @recent_target.to_s.downcase.to_sym
       return :updated_at unless [:updated_at, :created_at].include?(r)
       r
+    end
+
+    def venn_mode
+      v = @venn_mode.to_s.downcase.to_sym
+      v  = :ab if v.blank?
+      if [:a, :ab, :b].include?(v)
+        v
+      else
+        nil
+      end
+    end
+
+    def process_url_into_params(url)
+      Rack::Utils.parse_nested_query(url)
     end
 
     # @params [Parameters]
@@ -319,7 +342,7 @@ module Queries
     end
 
     # An instiatied filter, with params set, for params with patterns like `otu_query={}`
-    def self.instatiated_base_filter(params)
+    def self.instantiated_base_filter(params)
       if s = base_filter(params)
         s.new(params[base_query_name(params)])
       else
@@ -329,6 +352,13 @@ module Queries
 
     def self.base_query_name(params)
       params.keys.select{|s| s =~ /\A.+_query\z/}.first
+    end
+
+    # @return the params use to instantiate the full
+    # base_query, as params, like `{otu_query: {}}`
+    # This sanitizes params.
+    def self.base_query_to_h(params)
+      return { base_query_name(params) => instantiated_base_filter(params).params }
     end
 
     def self.included_annotator_facets
@@ -342,6 +372,7 @@ module Queries
         # TODO There is room for an AlternateValue concern here
         f.push ::Queries::Concerns::Attributes if self < ::Queries::Concerns::Attributes
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
+        f.push ::Queries::Concerns::Confidences if self < ::Queries::Concerns::Confidences
         f.push ::Queries::Concerns::Containable if self < ::Queries::Concerns::Containable
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
         f.push ::Queries::Concerns::DateRanges if self < ::Queries::Concerns::DateRanges
@@ -628,8 +659,7 @@ module Queries
 
     # @return [ActiveRecord::Relation, nil]
     def all_and_clauses
-      clauses = and_clauses + annotator_and_clauses + shared_and_clauses
-      clauses.compact!
+      clauses = target_and_clauses
       return nil if clauses.empty?
 
       a = clauses.shift
@@ -637,6 +667,10 @@ module Queries
         a = a.and(b)
       end
       a
+    end
+
+    def target_and_clauses
+      [and_clauses + annotator_and_clauses + shared_and_clauses].flatten.compact
     end
 
     # Defined in inheriting classes
@@ -676,11 +710,21 @@ module Queries
       self.class.new(a)
     end
 
+    # @return Boolean
+    #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on iniitializea
+    #   false - there are no params at ALL or at least one that is not `project_id`
+    def only_project?
+      (project_id_facet && target_and_clauses.size == 1 && all_merge_clauses.nil?) ? true : false
+    end
+
     # @param nil_empty [Boolean]
     #   If true then if there are no clauses return nil not .all
     # @return [ActiveRecord::Relation]
     #
     # See /lib/queries/ARCHITECTURE.md for additional explanation.
+    #
+    # TODO: consider "true" for default, changing to false on controller
+    # Filter  calls
     def all(nil_empty = false)
 
       # TODO: should turn off/on project_id here on nil empty?
@@ -688,6 +732,9 @@ module Queries
       a = all_and_clauses
       b = all_merge_clauses
 
+      # TODO: do not consider project_id alone a parameter on nil_empty
+
+      # Limited use within the UI because project_id is set
       return nil if nil_empty && a.nil? && b.nil?
 
       # !! Do not apply `.distinct here`
@@ -707,16 +754,61 @@ module Queries
         q = apply_venn(q)
       end
 
+      # TODO: collides with recent, and needs isolation/generic application
+      # probably through native .order() use.
+      # Order in general likely belongs outside the scope of filters, but
+      # see this param use, where we depend on the incoming values
+      #
+      # See spec/lib/queries/otu/filter_spec.rb for tests
+
+      if order_by
+        case order_by
+        when :match_identifiers
+          if !match_identifiers.blank?
+
+            case match_identifiers_type
+            when 'internal'
+              o = "array_position(ARRAY[#{identifiers_to_match.join(',')}], #{table.name}.id)"
+              q = q.order(Arel.sql(o))
+            else
+              # TODO: optimize, this was done hastily
+              o = "array_position(ARRAY[#{identifiers_to_match.collect{|i| "'#{i}'"}.join(',')}], sid.cached) s"
+
+              i = ::Identifier
+                .from('identifiers sid')
+                .where(sid: {cached: identifiers_to_match}) # This is required to de-duplicate for some reason ?!
+                .select("sid.*, #{o}")
+
+              q = q.with(sid: i)
+                .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
+                .select("#{table.name}.*, sid.s")
+                .order('sid.s')
+            end
+          end
+        end
+      end
+
       if recent
         q = referenced_klass.from(q.all, table.name).order(recent_target => :desc)
       end
 
+      if api
+        if referenced_klass.column_names.include?('is_public')
+          q = q.where(is_public: [nil, true])
+        end
+      end
+
       if paginate
-        q = q.order(:id).page(page).per(per)
+        if order_by
+          q = q.page(page).per(per)
+        else
+          q = q.order(:id).page(page).per(per)
+        end
       end
 
       # TODO: canonically address whether or not to use `.distinct` at this point, we should be able to, however
       # some incoming queries may have joins/group/etc. alone?! I.e. why can't we?
+
       q
     end
 

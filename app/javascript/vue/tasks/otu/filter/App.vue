@@ -25,16 +25,16 @@
         />
       </template>
       <template #nav-right>
-        <RadialMatrix
-          :object-type="OTU"
-          :disabled="!list.length"
-          :ids="selectedIds"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
-        />
         <RadialOtu
           :disabled="!list.length"
           :ids="selectedIds"
           :count="selectedIds.length"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+        />
+        <RadialMatrix
+          :object-type="OTU"
+          :disabled="!list.length"
+          :ids="selectedIds"
           @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>

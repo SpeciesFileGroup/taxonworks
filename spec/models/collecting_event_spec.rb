@@ -6,20 +6,6 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
   let(:state) { county.parent }
   let(:country) { state.parent }
 
-  specify '#verbatim_trip_identifier matches Identifier' do
-    collecting_event.verbatim_label = 'All the stuff'
-    collecting_event.save!
-
-    a = Identifier::Local::FieldNumber.create(
-      namespace: FactoryBot.create(:valid_namespace),
-      identifier_object: collecting_event,
-      identifier: '1'
-    )
-
-    collecting_event.update(verbatim_trip_identifier: '2')
-    expect(collecting_event.errors.key?(:verbatim_trip_identifier)).to be_truthy
-  end
-
   # Added as a context for exploring re-indexing DwC based on DataAttribute updates
   xspecify 'data_attributes_attributes cascades' do
     p = FactoryBot.create(:valid_predicate, uri: 'http://rs.tdwg.org/dwc/terms/waterBody', name: 'waterBody')
@@ -42,7 +28,6 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
     expect(Delayed::Job.count).to eq(0)
   end
-
 
   context '.batch_update' do
     specify 'can update a verbatim field' do

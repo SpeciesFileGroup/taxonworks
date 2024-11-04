@@ -1,3 +1,16 @@
+
+=begin
+query_scope: taxon_name_query:
+
+mode:
+ :add
+ :replace
+ :remove
+
+keyword_id
+confidence_level_id
+=end
+
 class ConfidencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
@@ -104,6 +117,20 @@ class ConfidencesController < ApplicationController
       render :show
     else
       render json: false
+    end
+  end
+
+  # POST
+  def batch_by_filter_scope
+    if r = Confidence.batch_by_filter_scope(
+        mode: params[:mode] || :add,
+        filter_query: params.require(:filter_query), # like filter_query: { otu_query: {}}
+        confidence_level_id: params.require(:confidence_level_id),
+        replace_confidence_level_id: params[:replace_confidence_level_id]
+    )
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
     end
   end
 

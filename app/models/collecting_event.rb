@@ -31,7 +31,7 @@
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the provided uncertainty value.
 #
-# @!attribute verbatim_trip_identifier
+# @!attribute verbatim_field_number
 #   @return [String]
 #      the literal string/identifier used by the collector(s) to identify this particular collecting event, usually part of a series particular to one trip
 #
@@ -225,8 +225,8 @@ class CollectingEvent < ApplicationRecord
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
-  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy
-  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
+  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy, inverse_of: :role_object
+  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy, inverse_of: :role_object
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
@@ -256,7 +256,6 @@ class CollectingEvent < ApplicationRecord
     :check_elevation_range,
     :check_min_land_elevation,
     :check_max_land_elevation,
-    :check_date_range,
     :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> { verbatim_label.blank? }
@@ -296,18 +295,6 @@ class CollectingEvent < ApplicationRecord
 
   validates_presence_of :geographic_area_id, if: -> { meta_prioritize_geographic_area }
 
-  validate :verbatim_trip_identifier_syncronized
-
-  def verbatim_trip_identifier_syncronized
-    if verbatim_trip_identifier.present? 
-      if i = identifiers.where(type: 'Identifier::Local::FieldNumber').first
-        if i.cached != verbatim_trip_identifier
-          errors.add(:verbatim_trip_identifier, 'does not match the FieldNumber identifier attached to record')
-        end
-      end
-    end
-  end
-
   soft_validate(
     :sv_minimally_check_for_a_label,
     set: :minimally_check_for_a_label,
@@ -333,7 +320,7 @@ class CollectingEvent < ApplicationRecord
     description: 'Georaphic area is missing')
 
   def dwc_occurrences
-    # THrough CollectionObjects
+    # Through CollectionObjects
     DwcOccurrence
       .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
       .where(co: {collecting_event_id: id})
@@ -475,6 +462,7 @@ class CollectingEvent < ApplicationRecord
 
   # @return [Boolean]
   #   test for minimal data
+  # TODO: consider renaming, reference new Merge code
   def has_data?
     CollectingEvent.core_attributes.each do |a|
       return true if self.send(a).present?
@@ -1028,7 +1016,7 @@ class CollectingEvent < ApplicationRecord
           # not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
           georeferences.each do |g|
             i = g.dup
-          
+
             g.georeferencer_roles.each do |r|
               i.georeferencer_roles.build(person: r.person, position: r.position)
             end
@@ -1042,7 +1030,7 @@ class CollectingEvent < ApplicationRecord
           add_incremented_identifier(to_object: a, incremented_identifier_id:)
         end
 
-        if !annotations.blank? # TODO: boolean param this 
+        if !annotations.blank? # TODO: boolean param this
           clone_annotations(to_object: a, except: [:identifiers])
         end
 

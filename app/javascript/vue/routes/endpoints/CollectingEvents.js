@@ -14,7 +14,7 @@ const permitParams = {
     verbatim_longitude: String,
     verbatim_latitude: String,
     verbatim_geolocation_uncertainty: String,
-    verbatim_trip_identifier: String,
+    verbatim_field_number: String,
     verbatim_collectors: String,
     verbatim_method: String,
     geographic_area_id: String,

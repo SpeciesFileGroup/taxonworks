@@ -5,6 +5,7 @@ module Queries
       # !! May not include Concerns::Attributes (used by CE)
       include Queries::Helpers
       include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
       include Queries::Concerns::Containable
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
@@ -376,6 +377,7 @@ module Queries
         @with_buffered_determinations = boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
+        set_confidences_params(params)
         set_citations_params(params)
         set_containable_params(params)
         set_data_attributes_params(params)
@@ -515,9 +517,11 @@ module Queries
 
         b = b.as('det_z1_')
 
-        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b,
-        Arel::Nodes::On.new( b['taxon_determination_object_id'].eq(tt['id']).and( b['taxon_determination_object_type'].eq('CollectionObject') )
-        )))
+        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(
+          b,
+          Arel::Nodes::On.new(
+            b['taxon_determination_object_id'].eq(tt['id']).and( b['taxon_determination_object_type'].eq('CollectionObject'))
+          )))
       end
 
       def determiners_facet
@@ -903,8 +907,8 @@ module Queries
       def dwc_occurrence_query_facet
         return nil if dwc_occurrence_query.nil?
 
-         s = ::CollectionObject
-           .with(query_dwc_co: dwc_occurrence_query.all.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
+        s = ::CollectionObject
+          .with(query_dwc_co: dwc_occurrence_query.all.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
           .joins(:dwc_occurrence)
           .joins('JOIN query_dwc_co as query_dwc_co1 on query_dwc_co1.id = dwc_occurrences.id')
           .to_sql
@@ -1049,6 +1053,6 @@ module Queries
           with_buffered_other_labels_facet,
         ]
       end
-      end
-      end
-      end
+    end
+  end
+end

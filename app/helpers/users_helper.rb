@@ -45,4 +45,33 @@ module UsersHelper
       .in_project(sessions_current_project_id)
       .collect { |u| [User.find(u).name, User.find(u).id] }))
   end
+
+  def user_data(user, weeks_ago: nil, target: :created, base: 10)
+    data = []
+
+    r = ApplicationEnumeration.klass_reflections(User)
+
+    case target
+    when :created
+      r.delete_if{|a,b| !(a.name.to_s =~ /created/) }
+    when :updated
+      r.delete_if{|a,b| !(a.name.to_s =~ /updated/) }
+    end
+
+    r.each do |r|
+      q = user.send(r.name)
+      q = q.where("#{target == :created ? 'created_at' : 'updated_at'} > ?", weeks_ago.to_i.weeks.ago) if weeks_ago
+
+      t = 1 / Math::log(base, q&.count )
+
+      if t > 0
+        data.push(
+          [ r.name.to_s.humanize.gsub( (target == :created ? 'Created ' : 'Updated ' ).titleize, ''),
+            t
+          ])
+      end 
+    end
+    data
+  end
+
 end

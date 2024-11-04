@@ -7,8 +7,8 @@
 #
 FactoryBot.define do
 
-  # See taxon_name_traits.rb for trait sets 
-  
+  # See taxon_name_traits.rb for trait sets
+
   factory :protonym, traits: [:housekeeping, :mostly_empty_protonym] do
 
     # Note this should *not* the parent_is_root trait
@@ -20,7 +20,7 @@ FactoryBot.define do
     # root
 
     factory :root_taxon_name do
-      name { 'Root' }
+      name { ::TaxonName::ROOT_NAME }
       rank_class { NomenclaturalRank }
       parent_id { nil }
     end

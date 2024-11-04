@@ -24,7 +24,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       start_date_day start_date_month start_date_year end_date_day end_date_month end_date_year
       time_end_hour time_end_minute time_end_second time_start_hour time_start_minute time_start_second
       verbatim_collectors verbatim_date verbatim_datum verbatim_elevation verbatim_geolocation_uncertainty verbatim_habitat
-      verbatim_latitude verbatim_locality verbatim_longitude verbatim_method verbatim_trip_identifier
+      verbatim_latitude verbatim_locality verbatim_longitude verbatim_method verbatim_field_number
     ).to_set.freeze
   }.freeze
 
@@ -289,16 +289,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         }.merge(attributes[:taxon_determination]))
 
 
-        # TODO
         #   There are 3 possible CE identifiers, each needs individual mapping
         #     eventID -> Identifier::Local::Event (with TW:Namespace:eventID)
         #     fieldNumber -> Identifier::Local::FieldNumber (with TW:Namespace:fieldNumber)
         #     TW::CollectingEvent::verbatim_field_number
         #
-        #       New rules:
-        #         * No overlapping intended meanings, each maps to itself
-        #         * verbatim_trip_identifier should look exactly like the (fully) defined fieldNumber (remember use of virtual attribute in Namespace to render without namespace string)
-        #      
         event_id, field_number = get_field_value(:eventID), get_field_value(:fieldNumber)
         collecting_event_identifiers = []
         if event_id.present?
@@ -306,7 +301,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
           # TODO: Shouldn't this be local?!
           identifier_type = Identifier::Global.descendants.detect { |c| c.name.downcase == event_id_namespace.downcase } if event_id_namespace
-          
+
           identifier_attributes = {
             identifier: event_id,
             identifier_object_type: 'CollectingEvent',
@@ -314,7 +309,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           }
 
           if identifier_type.nil?
-
             identifier_type = Identifier::Local::Event # Note: This was TripCode.  This is a much better fit now, as EventID is a digital accession value.
 
             using_default_event_id = false
@@ -356,14 +350,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           field_number_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(field_number_namespace)) # Case insensitive match
           raise DarwinCore::InvalidData.new({ 'TW:Namespace:fieldNumber' => ['Namespace not found'] }) unless field_number_namespace
 
-          verbatim_trip_identifier = "#{field_number_namespace.is_virtual ? '': Identifier::Local.build_cached_prefix(field_number_namespace)}#{field_number}"
-          attributes[:collecting_event][:verbatim_trip_identifier] ||= verbatim_trip_identifier
           identifier_attributes[:namespace] = field_number_namespace
 
           field_number_identifier = Identifier::Local::FieldNumber.find_by(identifier_attributes)
           collecting_event ||= field_number_identifier&.identifier_object
           collecting_event_identifiers << {type: Identifier::Local::FieldNumber, attributes: identifier_attributes}
         end
+        
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
         if collecting_event
           if field_number_identifier && event_id_identifier &&
@@ -373,7 +366,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             raise DarwinCore::InvalidData.new({ 'eventID/fieldNumber' => ['does not match previous definition of collecting event'] })
           end
 
-          #if collecting_event.identifiers.where(type: Identifer::Local::FieldNumber)
+          # if collecting_event.identifiers.where(type: Identifer::Local::FieldNumber)
           # if tags have been specified to be added, update the collecting event
           if attributes[:collecting_event][:tags_attributes]
             # get list of preexisting tags, exclude them from update
@@ -513,8 +506,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         self.metadata['error_data'] = { messages: { catalogNumber: ['Record cannot be imported until namespace is set, see "Settings".'] } }
       end
 
+
       self.import_dataset.add_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
       self.import_dataset.add_catalog_number_collection_code_namespace(get_field_value('collectionCode'))
+
 
       self.save!
     end
@@ -866,7 +861,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # parentEventID: [Not mapped]
 
-    # fieldNumber: verbatim_trip_identifier & Identifier::Local::FieldNumber
+    # fieldNumber: verbatim_field_number & Identifier::Local::FieldNumber
 
     start_date, end_date = parse_iso_date(:eventDate)
 
@@ -1263,7 +1258,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # identificationID: [Not mapped]
 
-    # identificationQualifier: [Mapped as part of otu name in parse_taxon_class]
+    # identificationQualifier: [Mapped 1:1 with otu name parse_taxon_class]
 
     # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
     if (type_status = get_field_value(:typeStatus))
@@ -1417,7 +1412,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     unless (1..3).include?(parse_results[:quality]) && parse_details
       parse_details = parse_results[:details]&.values&.first
-      otu_names << get_field_value(:scientificName)
     end
 
     raise DarwinCore::InvalidData.new({
@@ -1465,17 +1459,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # taxonRank: [Rank of innermost protonym]
     rank = get_field_value(:taxonRank)
-    if rank && otu_names.empty?
+    if rank && otu_names.empty? # TODO: Probably don't need otu_name check, rank matches the taxon name, NOT the OTU concept when identificationQualifier is used
       names.last[:rank_class] = Ranks.lookup(code, rank)
       raise DarwinCore::InvalidData.new({ "taxonRank": ["Unknown #{code.upcase} rank #{rank}"] }) unless names.last[:rank_class]
     end
 
     ident_qualifier = get_field_value(:identificationQualifier)
-    if ident_qualifier =~ /^cf[\.\s]/
-      otu_names << ident_qualifier
-    else
-      otu_names << "#{get_field_value(:scientificName)} #{ident_qualifier}"
-    end unless ident_qualifier.nil?
+    otu_names << ident_qualifier unless ident_qualifier.nil? 
+
     names.last&.merge!({otu_attributes: {name: otu_names.join(' ')}}) unless otu_names.empty?
 
     # higherClassification: [Several protonyms with ranks determined automatically when possible. Classification lower or at genus level is ignored and extracted from scientificName instead]

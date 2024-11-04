@@ -123,9 +123,14 @@ module CollectionObject::DwcExtensions
 
     attr_accessor :georeference_attributes
     attr_accessor :target_taxon_name
+    attr_accessor :target_taxon_determination
 
     def target_taxon_name
       @target_taxon_name ||= current_valid_taxon_name
+    end
+
+    def target_taxon_determination
+      @target_taxon_determination ||= current_taxon_determination
     end
 
     # @return [Hash]
@@ -174,11 +179,6 @@ module CollectionObject::DwcExtensions
     end
   end
 
-
-  def is_fossil?
-    biocuration_classes.where(uri: DWC_FOSSIL_URI).any?
-  end
-
   # use buffered if any
   # if not check CE verbatim_label
   def dwc_verbatim_label
@@ -193,16 +193,11 @@ module CollectionObject::DwcExtensions
 
   # https://dwc.tdwg.org/list/#dwc_georeferenceRemarks
   def dwc_occurrence_remarks
-    notes.collect{|n| n.text}&.join(CollectionObject::DWC_DELIMITER)
-  end
-
-  # https://dwc.tdwg.org/list/#dwc_identificationRemarks
-  def dwc_identification_remarks
-    current_taxon_determination&.notes&.collect { |n| n.text }&.join(CollectionObject::DWC_DELIMITER)
+    notes.collect{|n| n.text}&.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_event_remarks
-    collecting_event&.notes&.collect {|n| n.text}&.join(CollectionObject::DWC_DELIMITER)
+    collecting_event&.notes&.collect {|n| n.text}&.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
@@ -278,10 +273,79 @@ module CollectionObject::DwcExtensions
     collecting_event&.verbatim_longitude
   end
 
+  # ISO 8601:2004(E).
+  def dwc_date_identified
+    target_taxon_determination&.date.presence
+  end
+
+  def dwc_identified_by
+    # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
+    target_taxon_determination&.determiners&.map(&:name)&.join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  # TODO: optimize by finding all relevant identifiers in one query, then looping through them
+
+  def dwc_collection_code
+    catalog_number_namespace&.verbatim_short_name || catalog_number_namespace&.short_name
+  end
+
+  def dwc_record_number
+    record_number_cached # via delegation
+  end
+
+  def dwc_catalog_number
+    catalog_number_cached # via delegation
+  end
+
   def dwc_other_catalog_numbers
     i = identifiers.where.not('type ilike ?', 'Identifier::Global::Uuid%').order(:position).to_a
     i.shift
     i.map(&:cached).join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  def dwc_identified_by_id
+    # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
+    if target_taxon_determination
+      target_taxon_determination&.determiners
+        .joins(:identifiers)
+        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
+        .select('identifiers.identifier_object_id, identifiers.cached')
+        .unscope(:order)
+        .distinct
+        .pluck('identifiers.cached')
+        .join(CollectionObject::DWC_DELIMITER)&.presence
+    end
+  end
+
+  # Prioritize the formalized version of the identifier for data-sharing purposes
+  def dwc_field_number
+    return nil unless collecting_event
+    collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first&.cached || collecting_event&.verbatim_field_number
+  end
+
+  def dwc_event_id
+    return nil unless collecting_event
+    collecting_event.identifiers.where(type: 'Identifier::Local::Event').first&.cached.presence
+  end
+
+  # See dwc_recorded_by
+  # TODO: Expand to any GlobalIdentifier
+  def dwc_recorded_by_id
+    if collecting_event
+      collecting_event.collectors
+        .joins(:identifiers)
+        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
+        .select('identifiers.identifier_object_id, identifiers.cached')
+        .unscope(:order)
+        .distinct
+        .pluck('identifiers.cached')
+        .join(CollectionObject::DWC_DELIMITER)&.presence
+    end
+  end
+
+  # https://dwc.tdwg.org/list/#dwc_identificationRemarks
+  def dwc_identification_remarks
+    target_taxon_determination&.notes&.collect{ |n| n.text }&.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_previous_identifications
@@ -326,6 +390,29 @@ module CollectionObject::DwcExtensions
     dwc_internal_attribute_for(:collecting_event, :verbatimDepth)
   end
 
+  # Perhaps: Create an optimized data structure that
+  # elminates need for multiple queries.  Below
+  # does not work because we can't retroactively
+  # inspect the Keyword for the specific match.
+
+  # attr_accessor :target_biocuration_classes
+
+  # def target_biocuration_classes
+  #   @target_biocuratoin_classes ||= biocuration_classes.tagged_with_uri(
+  #     [
+  #       ::DWC_ATTRIBUTE_URIS[:lifeStage],
+  #       ::DWC_ATTRIBUTE_URIS[:sex],
+  #       ::DWC_ATTRIBUTE_URIS[:caste],
+  #       DWC_FOSSIL_URI
+  #     ]
+  #   )
+  # end
+
+  # def biocuration_class_for(uri)
+  #   target_biocuration_classes.select{|a| a.keyword.uri == uri}
+  #     .collect{|b| b.name}.join(', ').presence
+  # end
+
   # TODO: consider CVT attributes with Predicates linked to URIs
   def dwc_life_stage
     biocuration_classes.tagged_with_uri(::DWC_ATTRIBUTE_URIS[:lifeStage])
@@ -340,7 +427,11 @@ module CollectionObject::DwcExtensions
 
   def dwc_caste
     biocuration_classes.tagged_with_uri(::DWC_ATTRIBUTE_URIS[:caste])
-       .pluck(:name)&.join(', ').presence #  TODO: Use delimeter!
+      .pluck(:name)&.join(', ').presence #  TODO: Use delimeter!
+  end
+
+  def is_fossil?
+    biocuration_classes.where(uri: DWC_FOSSIL_URI).any?
   end
 
   def dwc_verbatim_coordinates
@@ -365,16 +456,6 @@ module CollectionObject::DwcExtensions
     collecting_event&.verbatim_method
   end
 
-  def dwc_field_number
-    return nil unless collecting_event
-    # Since we enforce that they are identical we can choose the former if present
-    collecting_event&.verbatim_trip_identifier || collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first&.cached
-  end
-
-  def dwc_event_id
-    return nil unless collecting_event
-    collecting_event.identifiers.where(type: 'Identifier::Local::Event').first&.cached.presence
-  end
 
   def dwc_verbatim_habitat
     collecting_event&.verbatim_habitat
@@ -396,11 +477,6 @@ module CollectionObject::DwcExtensions
     type_materials.all.collect{|t|
       ApplicationController.helpers.label_for_type_material(t)
     }.join(CollectionObject::DWC_DELIMITER).presence
-  end
-
-  # ISO 8601:2004(E).
-  def dwc_date_identified
-    current_taxon_determination&.date.presence
   end
 
   def dwc_higher_classification
@@ -486,40 +562,6 @@ module CollectionObject::DwcExtensions
     v
   end
 
-  # See dwc_recorded_by
-  # TODO: Expand to any GlobalIdentifier
-  def dwc_recorded_by_id
-    if collecting_event
-      collecting_event.collectors
-        .joins(:identifiers)
-        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
-        .select('identifiers.identifier_object_id, identifiers.cached')
-        .unscope(:order)
-        .distinct
-        .pluck('identifiers.cached')
-        .join(CollectionObject::DWC_DELIMITER)&.presence
-    end
-  end
-
-  def dwc_identified_by
-    # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    current_taxon_determination&.determiners&.map(&:name)&.join(CollectionObject::DWC_DELIMITER).presence
-  end
-
-  def dwc_identified_by_id
-    # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    if current_taxon_determination
-      current_taxon_determination&.determiners
-        .joins(:identifiers)
-        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
-        .select('identifiers.identifier_object_id, identifiers.cached')
-        .unscope(:order)
-        .distinct
-        .pluck('identifiers.cached')
-        .join(CollectionObject::DWC_DELIMITER)&.presence
-    end
-  end
-
   # we assert custody, NOT ownership
   def dwc_institution_code
     repository_acronym
@@ -529,18 +571,6 @@ module CollectionObject::DwcExtensions
   def dwc_institution_id
     # TODO: identifiers on Repositories
     repository_url || repository_institutional_LSID
-  end
-
-  def dwc_collection_code
-    catalog_number_namespace&.verbatim_short_name || catalog_number_namespace&.short_name
-  end
-
-  def dwc_record_number
-    record_number_cached # via delegation
-  end
-
-  def dwc_catalog_number
-    catalog_number_cached # via delegation
   end
 
   # TODO: handle ranged lots
@@ -602,6 +632,7 @@ module CollectionObject::DwcExtensions
 
   def dwc_event_date
     return unless collecting_event
+    return if collecting_event.start_date_year.blank? # don't need to check end, it requires start in model
 
     %w{start_date end_date}
       .map { |d| %w{year month day}
@@ -620,6 +651,7 @@ module CollectionObject::DwcExtensions
 
   def dwc_month
     return unless collecting_event
+    return if collecting_event.start_date_month.present? && collecting_event.end_date_month.present?
     collecting_event.start_date_month.presence
   end
 

@@ -7,8 +7,6 @@ import createDeterminationFromParams from './createDeterminationFromParams'
 import getCOCitations from './getCOCitations'
 import getCollectingEvent from './getCollectingEvent'
 import getCollectionObject from './getCollectionObject'
-import getIdentifier from './getIdentifier'
-import getIdentifiers from './getIdentifiers'
 import getLabels from './getLabels'
 import getNamespace from './getNamespace'
 import setTypeMaterial from './setTypeMaterial'
@@ -41,7 +39,6 @@ import saveContainer from './saveContainer'
 import saveContainerItem from './saveContainerItem'
 import saveDeterminations from './saveDeterminations'
 import saveDigitalization from './saveDigitalization'
-import saveIdentifier from './saveIdentifier'
 import saveLabel from './saveLabel'
 import saveTypeMaterial from './saveTypeMaterial'
 import saveBiologicalAssociations from './saveBiologicalAssociations'
@@ -57,8 +54,6 @@ const ActionFunctions = {
   [ActionNames.CreateDeterminationFromParams]: createDeterminationFromParams,
   [ActionNames.GetCollectingEvent]: getCollectingEvent,
   [ActionNames.GetCollectionObject]: getCollectionObject,
-  [ActionNames.GetIdentifier]: getIdentifier,
-  [ActionNames.GetIdentifiers]: getIdentifiers,
   [ActionNames.GetLabels]: getLabels,
   [ActionNames.GetNamespace]: getNamespace,
   [ActionNames.GetTaxonDeterminations]: getTaxonDeterminations,
@@ -90,7 +85,6 @@ const ActionFunctions = {
   [ActionNames.SaveContainer]: saveContainer,
   [ActionNames.SaveDeterminations]: saveDeterminations,
   [ActionNames.SaveDigitalization]: saveDigitalization,
-  [ActionNames.SaveIdentifier]: saveIdentifier,
   [ActionNames.SaveLabel]: saveLabel,
   [ActionNames.SaveTypeMaterial]: saveTypeMaterial,
   [ActionNames.SaveBiologicalAssociations]: saveBiologicalAssociations,

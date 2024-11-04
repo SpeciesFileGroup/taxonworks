@@ -19,8 +19,6 @@ class Attribution < ApplicationRecord
 
   # TODO: Consider DRYing with Source roles.
 
-  has_many :roles, as: :role_object, dependent: :destroy
-
   ATTRIBUTION_ROLES = [
     :creator,
     :editor,

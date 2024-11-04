@@ -79,13 +79,30 @@
             :key="attr"
             @click="sortTable(attr)"
           >
-            <div class="horizontal-left-content">
+            <div class="horizontal-left-content gap-small">
               <span>{{ title }}</span>
               <VBtn
-                v-if="filterValues[attr]"
-                class="margin-small-left"
                 color="primary"
-                small
+                circle
+                @click.stop="
+                  () =>
+                    copyColumnToClipboard(
+                      list
+                        .filter(rowHasCurrentValues)
+                        .map((item) => item[attr])
+                        .join('\n')
+                    )
+                "
+              >
+                <VIcon
+                  name="clip"
+                  x-small
+                />
+              </VBtn>
+              <VBtn
+                v-if="filterValues[attr]"
+                color="primary"
+                circle
                 @click.stop="
                   () => {
                     delete filterValues[attr]
@@ -107,13 +124,30 @@
               :class="{ 'cell-left-border': pIndex === 0 }"
               @click="sortTable(`${key}.${property}`)"
             >
-              <div class="horizontal-left-content">
+              <div class="horizontal-left-content gap-small">
                 <span>{{ property }}</span>
                 <VBtn
-                  v-if="filterValues[`${key}.${property}`]"
-                  class="margin-small-left"
                   color="primary"
-                  small
+                  circle
+                  @click.stop="
+                    () =>
+                      copyColumnToClipboard(
+                        props.list
+                          .filter(rowHasCurrentValues)
+                          .map((item) => renderItem(item, key, property))
+                          .join('\n')
+                      )
+                  "
+                >
+                  <VIcon
+                    name="clip"
+                    x-small
+                  />
+                </VBtn>
+                <VBtn
+                  v-if="filterValues[`${key}.${property}`]"
+                  color="primary"
+                  circle
                   @click.stop="
                     () => {
                       delete filterValues[`${key}.${property}`]
@@ -172,6 +206,7 @@
               <RadialAnnotator
                 v-if="radialAnnotator"
                 :global-id="item.global_id"
+                reload
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
               <RadialObject
@@ -252,6 +287,7 @@ import { sortArray } from '@/helpers/arrays.js'
 import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import HandyScroll from 'vue-handy-scroll'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
@@ -339,6 +375,15 @@ const dataAttributeHeaders = computed(() => {
 })
 
 const filterValues = ref({})
+
+function copyColumnToClipboard(text) {
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      TW.workbench.alert.create('Copied to clipboard', 'notice')
+    })
+    .catch(() => {})
+}
 
 function rowHasCurrentValues(item) {
   return Object.entries(filterValues.value).every(([properties, value]) => {

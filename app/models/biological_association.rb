@@ -33,7 +33,6 @@ class BiologicalAssociation < ApplicationRecord
   include Shared::Tags
   include Shared::Identifiers
   include Shared::DataAttributes
-  include Shared::Confidences
   include Shared::Notes
   include Shared::Confidences
   include Shared::Depictions

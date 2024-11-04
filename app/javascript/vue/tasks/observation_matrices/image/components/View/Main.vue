@@ -131,11 +131,6 @@ export default {
     matrixId: {
       type: [Number, String],
       default: undefined
-    },
-
-    otusId: {
-      type: [String, Array],
-      default: () => []
     }
   },
 

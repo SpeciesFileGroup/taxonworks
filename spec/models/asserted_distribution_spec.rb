@@ -112,7 +112,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         geographic_area_id: ad1.geographic_area_id)
       expect(ad1.valid?).to be_truthy
       expect(ad2.valid?).to be_falsey
-      expect(ad2.errors.include?(:geographic_area_id)).to be_truthy
+      expect(ad2.errors.include?(:otu)).to be_truthy
     end
 
     context 'is_absent' do

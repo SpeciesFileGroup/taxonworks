@@ -128,7 +128,7 @@ import ButtonTag from '@/components/ui/Button/ButtonTag.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import SoftValidations from '@/components/soft_validations/panel.vue'
 import RecordNumber from '../recordNumber/recordNumber.vue'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const store = useStore()
 

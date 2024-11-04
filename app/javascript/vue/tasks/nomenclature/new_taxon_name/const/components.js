@@ -62,7 +62,7 @@ export const SectionComponents = [
   },
 
   {
-    title: 'Original combination',
+    title: ({ code }) => (code === 'icn' ? 'Basionym' : 'Original combination'),
     component: OriginalcombinationSection,
     isAvailableFor: (taxon) =>
       showForThisGroup(
@@ -72,7 +72,8 @@ export const SectionComponents = [
   },
 
   {
-    title: 'Subsequent Combination',
+    title: ({ code }) =>
+      code === 'icn' ? 'Homotypic synonyms' : 'Subsequent Combination',
     component: SubsequentCombinationSection,
     isAvailableFor: (taxon) =>
       showForThisGroup(
