@@ -13,7 +13,7 @@ To get more information on the project, its vision, and scope see [taxonworks.or
 
 ## License
 
-TaxonWorks is open source and is presently available under the [MIT](https://taxonworks.org](https://opensource.org/license/mit) Open Source License.
+TaxonWorks is open source and is presently available under the [MIT](https://opensource.org/license/mit) Open Source License.
 
 ## Funding
 
