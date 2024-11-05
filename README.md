@@ -13,7 +13,7 @@ To get more information on the project, its vision, and scope see [taxonworks.or
 
 ## License
 
-TaxonWorks is open source and is presently available under the [University of Illinois/NCSA Open Source License](https://taxonworks.org), read [more here](https://en.wikipedia.org/wiki/University_of_Illinois/NCSA_Open_Source_License).
+TaxonWorks is open source and is presently available under the [MIT](https://taxonworks.org](https://opensource.org/license/mit) Open Source License.
 
 ## Funding
 
