@@ -334,6 +334,13 @@ module Protonym::SoftValidationExtensions
         resolution:  [:new_taxon_name_task]
       },
 
+      sv_duplicate_nomen_nudum: {
+        set: :duplicate_nomen_nudum,
+        name: 'Duplicate nomen nudum',
+        description: "Nomen nudum could be a duplicate or described later with an available name",
+        resolution:  [:new_taxon_name_task]
+      },
+
       sv_year_is_not_required: {
         set: :year_is_not_required,
         fix: :sv_fix_year_is_not_required,
@@ -1645,6 +1652,17 @@ module Protonym::SoftValidationExtensions
       end
     end
 
+    def sv_duplicate_nomen_nudum
+      if self.id == self.cached_valid_taxon_name_id && self.cached_is_valid == false
+        if !self.cached_secondary_homonym_alternative_spelling.nil?
+          possible_available = Protonym.where(cached_secondary_homonym_alternative_spelling: self.cached_secondary_homonym_alternative_spelling).not_self(self).with_project(self.project_id).any?
+          soft_validations.add(:base, "An available protonym with the same original combination,  #{self.cached_html}, exits.") if possible_available
+        elsif !self.cached_primary_homonym_alternative_spelling.nil?
+          possible_available = Protonym.where(cached_primary_homonym_alternative_spelling: self.cached_primary_homonym_alternative_spelling).not_self(self).with_project(self.project_id).any?
+          soft_validations.add(:base, "An available protonym with the same name,  #{self.cached_html}, exits.") if possible_available
+        end
+      end
+    end
 
     def sv_presence_of_combination
       if is_genus_or_species_rank? && is_valid? && self.id == self.lowest_rank_coordinated_taxon.id && !cached_original_combination.nil? && cached != cached_original_combination

@@ -248,6 +248,20 @@ describe Combination, type: :model, group: :nomenclature do
           'subspecies' => species2
         )
       end
+
+      specify 'for a quadrinominal 2' do #### sorting by combination relationships not by TaxonName.rank_class
+        combination.genus = subgenus
+        combination.subgenus = genus
+        combination.species = species2
+        combination.subspecies = species
+        expect(combination.protonyms_by_rank).to eq(
+         'genus' => subgenus,
+         'subgenus' => genus,
+         'species' => species2,
+         'subspecies' => species
+        )
+      end
+
     end
 
     context '#full_name_hash (overrides @taxon_name.full_name_hash)' do

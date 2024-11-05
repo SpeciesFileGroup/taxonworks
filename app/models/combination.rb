@@ -388,7 +388,7 @@ class Combination < TaxonName
         .where(object_taxon_name: self)
         .eager_load(:subject_taxon_name)
         .inject({}) {|hsh,n| hsh[n.rank_name] = n.subject_taxon_name; hsh}
-        .sort{|a,b| RANKS.index(a[1].rank_string) <=> RANKS.index(b[1].rank_string) }
+        .sort{|a,b| RANKS.index(a[1].rank_string) <=> RANKS.index(b[1].rank_string) } #### sorting by combination relationships not by TaxonName.rank_class
         .to_h
     else
       APPLICABLE_RANKS.keys.each do |rank|
