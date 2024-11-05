@@ -11,10 +11,12 @@ class AddCachedTotalAreaToGeographicItem < ActiveRecord::Migration[6.1]
     #  begin
 
     GeographicItem.where.not(type: 'GeographicItem::Point').find_each do |i|
-      r = i.send(:set_cached)
+      i.send(:set_cached)
     end
 
-    GeographicItem::Point.update_all(cached_total_area: 0.0)
+
+    GeographicItem.where(type: 'GeographicItem::Point')
+      .update_all(cached_total_area: 0.0)
 
     #  rescue => exception
     #    puts "Error - id: #{i.id}"
