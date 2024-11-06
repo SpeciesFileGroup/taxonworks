@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Filter loans: Identifiers, created by and updated by columns [#4098]
+- Edit/new loan task: Add `none` status option
 
 ### Fixed
 
