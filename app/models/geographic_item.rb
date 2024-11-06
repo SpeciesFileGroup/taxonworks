@@ -331,6 +331,7 @@ class GeographicItem < ApplicationRecord
     # in Gis::FACTORY coordinates, use anti_meridian_crossing_make_valid
     # instead in that case.
     def st_make_valid_sql(shape, keep_collapsed: true)
+      keep_collapsed = keep_collapsed == true ? true : false
       params = "method=structure keepcollapsed=#{keep_collapsed}"
       Arel::Nodes::NamedFunction.new(
         'ST_MakeValid', [
