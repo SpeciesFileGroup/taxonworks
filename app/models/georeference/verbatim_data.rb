@@ -49,8 +49,8 @@ class Georeference::VerbatimData < Georeference
         test_grs = []
       else
         test_grs = GeographicItem.points
-          .where("geography = ST_GeographyFromText('POINT(? ? ?)')",
-             point.x, point.y, point.z
+          .where('geography = ST_GeographyFromText(:wkt)',
+            wkt: "POINT(#{point.x} #{point.y} #{point.z})"
           )
       end
 
@@ -70,7 +70,7 @@ class Georeference::VerbatimData < Georeference
       verbatimLatitude: collecting_event.verbatim_latitude,
       verbatimLongitude: collecting_event.verbatim_longitude,
       coordinateUncertaintyInMeters: error_radius,
-      georeferenceSources: "Physical collection object.",
+      georeferenceSources: 'Physical collection object.',
       georeferenceRemarks: "Derived from a instance of TaxonWorks' Georeference::VerbatimData.",
       geodeticDatum: nil  # TODO: check
     )
