@@ -108,7 +108,7 @@ FieldOccurrence:
     - new_field_occurrence_task
     - unify_objects_task
   edit: new_field_occurrence_task
-  new: new_field_occurrence_task,
+  new: new_field_occurrence_task
   config:
     recent: true
 GeographicArea:

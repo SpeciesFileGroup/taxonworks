@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- FieldOccurrence Radial Navigator
 - Unify objects: Same object can be selected on both sides [#4100]
 
 [#4098]: https://github.com/SpeciesFileGroup/taxonworks/issues/4098
