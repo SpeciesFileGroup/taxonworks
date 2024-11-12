@@ -991,3 +991,11 @@ duplicate_otus_task:
     - otu
   status: prototype
   description: 'A list of OTUs with whose combination of name and taxon name are found exactly/ in duplicate.'
+print_key_task:
+  hub: false
+  name: 'Print key'
+  related:
+  categories:
+  status: prototype
+  description: 'Format a key for print.'
+

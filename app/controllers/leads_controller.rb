@@ -266,6 +266,11 @@ class LeadsController < ApplicationController
       filename: "leads_#{DateTime.now}.tsv"
   end
 
+  def api_key
+    @lead = Lead.where(project_id: sessions_current_project_id, is_public: true).find(params.require(:id))
+    render '/leads/api/v1/key'
+  end
+
   private
 
   def set_lead
@@ -302,4 +307,6 @@ class LeadsController < ApplicationController
     children = lead.children
     (children.size == 2) and (children[0].children.size == 0) and (children[1].children.size == 0)
   end
+
+
 end
