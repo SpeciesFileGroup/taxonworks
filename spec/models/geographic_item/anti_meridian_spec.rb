@@ -15,9 +15,11 @@ require 'rails_helper'
 #
 describe GeographicItem, type: :model, group: :geo do
   context 'Gis::FACTORY longitude conventions' do
-    # Spec'ing these since they're undocumented by rgeo and speak to our
-    # understanding of rgeo and postgis anti-meridian-crossing behavior, namely:
-    # for any shape with edges (i.e. anything other than Point and MultiPoint),
+    # See spec/config/initializers/gis_spec.rb for specs on the following
+    # Gis::FACTORY behavior which informs our understanding of RGeo's
+    # (undocumented) anti-meridian handling.
+    #
+    # For any shape with edges (i.e. anything other than Point and MultiPoint),
     # longitude values in the range [180, 360] are always converted to the range
     # [-180, 0] by our Gis::FACTORY, so that all longitudes of all non-Point
     # shapes are in the range [-180, 180].
@@ -52,37 +54,6 @@ describe GeographicItem, type: :model, group: :geo do
     # interpretation of your shape that was intended.
     #
     # See specs below for evidence supporting these claims.
-    context 'point coordinate longitudes are NEVER adjusted' do
-      specify 'point coordinate longitudes in [-180, 0] are NOT adjusted' do
-        expect(Gis::FACTORY.point(-170, 0).lon).to eq(-170)
-        expect(Gis::FACTORY.parse_wkt('POINT (-170 0)').lon).to eq(-170)
-        expect(Gis::FACTORY.parse_wkt('POINT (-170 0)').as_text)
-          .to eq('POINT (-170.0 0.0 0.0)')
-      end
-
-      specify 'point coordinate longitudes in [180, 360] are NOT adjusted' do
-        expect(Gis::FACTORY.point(190, 0).lon).to eq(190)
-        expect(Gis::FACTORY.parse_wkt('POINT (190 0)').lon).to eq(190)
-        expect(Gis::FACTORY.parse_wkt('POINT (190 0)').as_text)
-          .to eq('POINT (190.0 0.0 0.0)')
-      end
-    end
-
-    context 'non-point shape coordinate longitudes ARE converted to the range [-180, 180], i.e. [180, 360] is converted to [-180, 0]' do
-      specify 'linestring' do
-        expect(
-          Gis::FACTORY.parse_wkt('LINESTRING (-170 0, 160 0, 190 10)').as_text
-        ).to eq('LINESTRING (-170.0 0.0 0.0, 160.0 0.0 0.0, -170.0 10.0 0.0)')
-      end
-
-      specify 'polygon' do
-        expect(Gis::FACTORY
-          .parse_wkt('POLYGON ((-170 0, 190 10, 175 0, -170 0))').as_text
-        ).to eq(
-          'POLYGON ((-170.0 0.0 0.0, -170.0 10.0 0.0, 175.0 0.0 0.0, -170.0 0.0 0.0))'
-        )
-      end
-    end
   end
 
   context 'anti-meridian' do
