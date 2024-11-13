@@ -17,7 +17,7 @@ module Shared::DwcOccurrenceHooks
     attr_accessor :no_dwc_occurrence
 
     after_save_commit :update_dwc_occurrence, if: :saved_changes?, unless: :no_dwc_occurrence
-    before_destroy :update_dwc_occurrence
+    after_destroy :update_dwc_occurrence
 
     def update_dwc_occurrence
       t = dwc_occurrences.count
