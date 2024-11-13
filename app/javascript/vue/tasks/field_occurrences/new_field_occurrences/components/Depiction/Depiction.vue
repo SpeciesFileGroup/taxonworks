@@ -1,5 +1,5 @@
 <template>
-  <BlockLayout :warning="!isFilled">
+  <BlockLayout>
     <template #header>
       <h3>Depictions</h3>
     </template>
@@ -12,7 +12,6 @@
           @vdropzone-success="success"
           @vdropzone-error="error"
           ref="dropzoneRef"
-          :id="`depiction-${DROPZONE_ID}`"
           url="/depictions"
           use-custom-dropzone-options
           :dropzone-options="dropzoneConfig"
@@ -54,7 +53,6 @@
 </template>
 
 <script setup>
-import { Depiction } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { FIELD_OCCURRENCE } from '@/constants'
 import { randomUUID } from '@/helpers'
@@ -64,17 +62,6 @@ import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 import VDropzone from '@/components/dropzone.vue'
 import VPagination from '@/components/pagination.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-
-const DROPZONE_ID = Math.random().toString(36).substr(2, 5)
-
-const props = defineProps({
-  defaultMessage: {
-    type: String,
-    default: 'Drop images or click here to add figures'
-  }
-})
-
-const emit = defineEmits(['create', 'delete'])
 
 const fieldOcurrenceStore = useFieldOccurrenceStore()
 const depictionStore = useDepictionStore()
@@ -91,7 +78,7 @@ const dropzoneConfig = computed(() => ({
       .querySelector('meta[name="csrf-token"]')
       .getAttribute('content')
   },
-  dictDefaultMessage: props.defaultMessage,
+  dictDefaultMessage: 'Drop images or click here to add figures',
   acceptedFiles: 'image/*,.heic'
 }))
 
