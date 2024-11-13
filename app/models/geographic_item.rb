@@ -327,17 +327,16 @@ class GeographicItem < ApplicationRecord
 
     # Currently uses postgis's 'structure' algorithm, the same as RGeo's
     # make_valid. Returns valid shapes unchanged.
-    # !! Currently removes lower-dimensional shapes that result from the
-    # make_valid process (`keepcollapsed=false`).
     # !! This will give the wrong result on anti-meridian-crossing shapes stored
     # in Gis::FACTORY coordinates, use anti_meridian_crossing_make_valid
     # instead in that case.
     def st_make_valid_sql(shape)
-      params = "method=structure keepcollapsed=false"
+      # TODO add params once we're on GEOS >= 3.10, they're not used until then
+      #params = "method=structure keepcollapsed=false"
       Arel::Nodes::NamedFunction.new(
         'ST_MakeValid', [
-          geometry_cast(shape),
-          Arel::Nodes.build_quoted(params)
+          geometry_cast(shape)
+          #Arel::Nodes.build_quoted(params)
         ]
       )
     end
