@@ -89,6 +89,7 @@ import useSettingStore from '../store/settings.js'
 import useBiocurationStore from '../store/biocurations.js'
 import useBiologicalAssociationStore from '../store/biologicalAssociations.js'
 import useIdentifierStore from '../store/identifier.js'
+import useDepictionStore from '../store/depictions.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VRecent from './Recent.vue'
 import { useHotkey } from '@/composables'
@@ -106,6 +107,7 @@ const biologicalAssociationStore = useBiologicalAssociationStore()
 const ceStore = useCEStore()
 const biocurationStore = useBiocurationStore()
 const identifierStore = useIdentifierStore()
+const depictionStore = useDepictionStore()
 const fieldOccurrenceId = computed(() => foStore.fieldOccurrence.id)
 const isUnsaved = computed(
   () =>
@@ -171,9 +173,13 @@ function reset() {
     biocurationStore.list = []
   }
 
+  depictionStore.$reset()
   identifierStore.reset({ keepNamespace: locked.namespace })
   determinationStore.reset({ keepRecords: locked.taxonDeterminations })
   citationStore.reset({ keepRecords: locked.citations })
+  biologicalAssociationStore.reset({
+    keepRecords: locked.biologicalAssociation.list
+  })
 }
 
 async function saveAndNew() {
@@ -226,7 +232,8 @@ async function loadForms(id) {
     biocurationStore.load(args),
     citationStore.load(args),
     identifierStore.load(args),
-    biologicalAssociationStore.load(args)
+    biologicalAssociationStore.load(args),
+    depictionStore.load(args)
   ]
 
   Promise.all(requests).then(() => {
