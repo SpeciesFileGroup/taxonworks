@@ -195,8 +195,8 @@ class CollectingEvent < ApplicationRecord
   include Shared::HasPapertrail
   include SoftValidation
   include Shared::Labels
-  include Shared::IsData
   include Shared::DwcOccurrenceHooks
+  include Shared::IsData
 
   include CollectingEvent::GeoLocate
   include CollectingEvent::Georeference
