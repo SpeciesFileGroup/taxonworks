@@ -672,11 +672,11 @@ GEM
     terser (1.2.4)
       execjs (>= 0.3.0, < 3)
     thor (1.3.2)
-    thruster (0.1.8)
-    thruster (0.1.8-aarch64-linux)
-    thruster (0.1.8-arm64-darwin)
-    thruster (0.1.8-x86_64-darwin)
-    thruster (0.1.8-x86_64-linux)
+    thruster (0.1.9)
+    thruster (0.1.9-aarch64-linux)
+    thruster (0.1.9-arm64-darwin)
+    thruster (0.1.9-x86_64-darwin)
+    thruster (0.1.9-x86_64-linux)
     tilt (2.4.0)
     timecop (0.9.10)
     timeliness (0.4.5)
@@ -882,4 +882,4 @@ RUBY VERSION
    ruby 3.3.4p94
 
 BUNDLED WITH
-   2.5.18
+   2.5.23
