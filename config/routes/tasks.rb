@@ -46,6 +46,10 @@ scope :tasks do
     scope :new_lead, controller: 'tasks/leads/new_lead' do
       get '/', action: :index, as: 'new_lead_task'
     end
+
+    scope :print, controller: 'tasks/leads/print' do
+      get '/', action: :index, as: 'print_key_task'
+    end
   end
 
   scope :metadata do

@@ -47,4 +47,20 @@ module DepictionsHelper
     end
   end
 
+  # TODO: this should evolve, maybe, into an IIIF response
+  # with the context being the depictied object.
+  def depiction_to_json(depiction)
+    return nil if depiction.nil?
+    a = {
+      caption: depiction.caption,
+      figure_label: depiction.figure_label,
+      position: depiction.position,
+      thumb: short_url(depiction.image.image_file.url(:thumb)),
+      medium: short_url(depiction.image.image_file.url(:medium)),
+      content_type: depiction.image.image_file_content_type,
+      original_png: original_as_png_via_api(depiction.image)
+    }
+    a
+  end
+
 end

@@ -69,7 +69,6 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names/:id/inventory/summary', to: '/taxon_names#api_summary'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
-
       get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'
       get '/taxon_name_classifications/taxon_name_classification_types', to: '/taxon_name_classifications#taxon_name_classification_types'
       get '/taxon_name_classifications/:id', to: '/taxon_name_classifications#api_show'
@@ -142,6 +141,7 @@ namespace :api, defaults: {format: :json} do
       get '/tags', to: '/tags#api_index'
       get '/tags/:id', to: '/tags#api_show'
 
+      get '/leads/key/:id', to: '/leads#api_key'
     end
 
     # Authenticate membership at the data controller level

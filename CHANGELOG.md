@@ -9,9 +9,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Print key task [#4071]
+- `/api/v1/leads/key/:id` endpoint serving `pinpoint` key app
 - Filter loans: Identifiers, created by and updated by columns [#4098]
+- Edit/New loan task: Add `none` status option
+- Edit/New Field occurence task: biological associations panel [#4103]
 
+### Fixed
+
+- FieldOccurrence Radial Navigator
+- Unify objects: Same object can be selected on both sides [#4100]
+
+[#4071]: https://github.com/SpeciesFileGroup/taxonworks/issues/4071
 [#4098]: https://github.com/SpeciesFileGroup/taxonworks/issues/4098
+[#4100]: https://github.com/SpeciesFileGroup/taxonworks/issues/4100
+[#4103]: https://github.com/SpeciesFileGroup/taxonworks/issues/4103
 
 ## [0.45.0] - 2024-10-30
 

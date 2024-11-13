@@ -383,12 +383,13 @@ class Combination < TaxonName
   def protonyms_by_rank
     result = {}
     if persisted?
+      ar = APPLICABLE_RANKS.values
       # nX fewer calls to database than send()
       @protonyms_by_rank ||= TaxonNameRelationship::Combination
         .where(object_taxon_name: self)
         .eager_load(:subject_taxon_name)
+        .sort{|a,b| ar.index(a.type) <=> ar.index(b.type)}
         .inject({}) {|hsh,n| hsh[n.rank_name] = n.subject_taxon_name; hsh}
-        .sort{|a,b| RANKS.index(a[1].rank_string) <=> RANKS.index(b[1].rank_string) }
         .to_h
     else
       APPLICABLE_RANKS.keys.each do |rank|

@@ -87,6 +87,7 @@ import useCEStore from '@/components/Form/FormCollectingEvent/store/collectingEv
 import useDeterminationStore from '../store/determinations.js'
 import useSettingStore from '../store/settings.js'
 import useBiocurationStore from '../store/biocurations.js'
+import useBiologicalAssociationStore from '../store/biologicalAssociations.js'
 import useIdentifierStore from '../store/identifier.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VRecent from './Recent.vue'
@@ -101,6 +102,7 @@ const foStore = useFieldOccurrenceStore()
 const settings = useSettingStore()
 const citationStore = useCitationStore()
 const determinationStore = useDeterminationStore()
+const biologicalAssociationStore = useBiologicalAssociationStore()
 const ceStore = useCEStore()
 const biocurationStore = useBiocurationStore()
 const identifierStore = useIdentifierStore()
@@ -140,17 +142,18 @@ async function save() {
       citationStore.save(args),
       determinationStore.load(args),
       biocurationStore.save(args),
-      identifierStore.save(args)
+      identifierStore.save(args),
+      biologicalAssociationStore.save(args)
     ]
 
-    return Promise.all(requests).then((_) => {
+    return Promise.all(requests).then(() => {
       settings.isSaving = false
       TW.workbench.alert.create(
         'Field occurrence was successfully saved.',
         'notice'
       )
     })
-  } catch (e) {}
+  } catch {}
 }
 
 function reset() {
@@ -222,10 +225,11 @@ async function loadForms(id) {
     determinationStore.load(args),
     biocurationStore.load(args),
     citationStore.load(args),
-    identifierStore.load(args)
+    identifierStore.load(args),
+    biologicalAssociationStore.load(args)
   ]
 
-  Promise.all(requests).then((_) => {
+  Promise.all(requests).then(() => {
     settings.isLoading = false
   })
 }

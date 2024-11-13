@@ -455,6 +455,11 @@ class TaxonName < ApplicationRecord
     ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
   end
 
+  soft_validate(:sv_missing_confidence_level,
+                set: :missing_fields,
+                name: 'Missing confidence level',
+                description: 'To remaind that the taxon spelling have to be compared to the original source' )
+
   soft_validate(:sv_missing_original_publication,
                 set: :missing_fields,
                 name: 'Missing original source',
