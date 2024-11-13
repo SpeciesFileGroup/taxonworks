@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Async DwcOccurrence refreshes that referenced destroyed objects
 - FieldOccurrence Radial Navigator
 - Unify objects: Same object can be selected on both sides [#4100]
 

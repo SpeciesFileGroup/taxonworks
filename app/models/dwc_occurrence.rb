@@ -22,6 +22,11 @@
 # Gotchas.
 #   * updated_at is set by touching the record, not via housekeeping.
 #
+#
+# @param is_stale Boolean
+#   flagged to true when async updates from a DwcOccurrenceHook is set
+#   !! Do not use for other purposes out side of rebuilds
+#
 class DwcOccurrence < ApplicationRecord
   self.inheritance_column = nil
 
