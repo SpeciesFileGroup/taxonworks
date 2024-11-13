@@ -9,7 +9,12 @@ export default defineStore('settings', {
       citations: false,
       collectingEvent: false,
       taxonDeterminations: false,
-      namespace: false
+      namespace: false,
+      biologicalAssociation: {
+        list: false,
+        related: false,
+        relationship: false
+      }
     }
   })
 })
