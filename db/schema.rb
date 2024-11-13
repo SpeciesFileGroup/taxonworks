@@ -1077,6 +1077,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_27_160558) do
     t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry_collection", :has_z=>true, :geographic=>true}
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
+    t.string "type"
     t.decimal "cached_total_area"
     t.geography "geography", limit: {:srid=>4326, :type=>"geometry", :has_z=>true, :geographic=>true}
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
@@ -1088,6 +1089,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_27_160558) do
     t.index ["multi_polygon"], name: "multi_polygon_gix", using: :gist
     t.index ["point"], name: "point_gix", using: :gist
     t.index ["polygon"], name: "polygon_gix", using: :gist
+    t.index ["type"], name: "index_geographic_items_on_type"
     t.index ["updated_by_id"], name: "index_geographic_items_on_updated_by_id"
   end
 
