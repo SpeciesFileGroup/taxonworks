@@ -110,3 +110,11 @@ export const TASK_NEW_CONTAINER = {
   queryParam: true,
   saveQuery: true
 }
+
+export const TASK_SIMPLEMAPPR = {
+  label: 'SimpleMappr',
+  link: '/tasks/gis/simplemappr',
+  post: true,
+  queryParam: true
+}
+

@@ -530,6 +530,10 @@ scope :tasks do
   end
 
   scope :gis do
+    scope :simplemappr, controller: 'tasks/gis/simplemappr' do
+      match '/', action: :index, via: [:get, :post]
+    end
+
     scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
       get 'index', as: 'geographic_area_lookup_task'
       get 'resolve', as: 'geographic_area_lookup_resolve_task', format: :js

@@ -25,19 +25,19 @@ module Workbench::TableHelper
   def fancy_options_cells_tag(object)
     m = metamorphosize_if(object)
       fancy_show_tag(m) +
-      fancy_edit_tag(m) + 
+      fancy_edit_tag(m) +
       fancy_pin_tag(m) +
       content_tag(:td, (link_to 'Destroy', m, method: :delete, data: {confirm: 'Are you sure?'}), class: 'table-options', data: {delete: true})
-  end  
+  end
 
   def fancy_show_tag(object)
-    defined?(object.annotated_object) ? 
+    defined?(object.annotated_object) ?
       content_tag(:td, (link_to 'Show', metamorphosize_if(object.annotated_object)), class: 'table-options', data: {show: true}) :
       content_tag(:td, (link_to 'Show', object), class: 'table-options', data: {show: true})
   end
 
   def fancy_edit_tag(object)
-    content_tag(:td, edit_object_link(object), class: 'table-options', data: {edit: true}) 
+    content_tag(:td, edit_object_link(object), class: 'table-options', data: {edit: true})
   end
 
   def fancy_pin_tag(object)
@@ -59,6 +59,16 @@ module Workbench::TableHelper
         end
       end.join.html_safe
     end
+  end
+
+  # Almost certainly not DRY within TW
+  def table_from_csv(csv, id: nil)
+    s = "<table id=\"#{id}\">"
+    csv.by_row.each do |r|
+      s << tag.tr( r.fields.collect{|a| tag.td(a)}.join.html_safe)
+    end
+    s << '</table>'
+    s.html_safe
   end
 
 end

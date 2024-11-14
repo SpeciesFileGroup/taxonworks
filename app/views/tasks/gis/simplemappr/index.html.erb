@@ -1,0 +1,8 @@
+<h1> Simplemappr table </h1>
+<em> Paste the copied table into a text file, name it your_data.txt. The file should load at simplemappr. </em>
+<br/>
+<br/>
+<%= copy_table_to_clipboard('div#simplemappr') %>
+<div id="simplemappr">
+  <%= table_from_csv( simple_mappr_data(params) ) %> 
+</div>
