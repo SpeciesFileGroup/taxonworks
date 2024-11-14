@@ -63,6 +63,7 @@ module Workbench::TableHelper
 
   # Almost certainly not DRY within TW
   def table_from_csv(csv, id: nil)
+    return tag.table if csv.nil?
     s = "<table id=\"#{id}\">"
     csv.by_row.each do |r|
       s << tag.tr( r.fields.collect{|a| tag.td(a)}.join.html_safe)
