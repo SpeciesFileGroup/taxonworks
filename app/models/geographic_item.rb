@@ -45,6 +45,10 @@ class GeographicItem < ApplicationRecord
   # ANTI_MERIDIAN = '0X0102000020E61000000200000000000000008066400000000000405640000000000080664000000000004056C0'
   ANTI_MERIDIAN = 'LINESTRING (180 89.0, 180 -89.0)'.freeze
 
+  # TODO Remove once `type` for GI STI has been deleted (it's currently there to
+  # ease switching branches during development).
+  self.inheritance_column = nil
+
   has_many :cached_map_items, inverse_of: :geographic_item
 
   has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_item
