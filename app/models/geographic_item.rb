@@ -371,13 +371,13 @@ class GeographicItem < ApplicationRecord
       if crosses_anti_meridian?(wkt)
         split_along_anti_meridian(wkt, make_valid: true)
       else
-        wkb = select_one(
+        wkb = select_value(
           st_make_valid_sql(
             st_geom_from_text_sql(
               wkt
             )
           )
-        )['st_makevalid']
+        )
 
         ::Gis::FACTORY.parse_wkb(wkb)
       end
@@ -401,12 +401,12 @@ class GeographicItem < ApplicationRecord
         anti_meridian_crossing_make_valid_sql(wkt) :
         st_shift_longitude_sql(st_geom_from_text_sql(wkt))
 
-      wkb = select_one(
+      wkb = select_value(
         st_intersection_sql(
           s,
           st_geom_from_text_sql(anti_meridian_exterior)
         )
-      )['st_intersection']
+      )
 
       ::Gis::FACTORY.parse_wkb(wkb)
     end
@@ -416,12 +416,12 @@ class GeographicItem < ApplicationRecord
     #   whether or not the wkt intersects with the anti-meridian
     def crosses_anti_meridian?(wkt)
       wkt = quote_string(wkt)
-      select_one(
+      select_value(
         st_intersects_sql(
           st_geography_from_text_sql(wkt),
           st_geography_from_text_sql(ANTI_MERIDIAN)
         )
-      )['st_intersects']
+      )
     end
 
     # Unused, kept for reference
@@ -792,7 +792,7 @@ class GeographicItem < ApplicationRecord
     # @return [RGeo::Polygon] A polygon approximation of the desired circle, in
     #                         geographic coordinates
     def circle(center, radius, buffer_resolution = 8)
-      circle_wkb = select_one(
+      circle_wkb = select_value(
         st_buffer_sql(
           st_geography_from_text_sql(
             "POINT (#{center.lon} #{center.lat})",
@@ -800,7 +800,7 @@ class GeographicItem < ApplicationRecord
           radius,
           num_seg_quarter_circle: buffer_resolution
         )
-      )['st_buffer']
+      )
 
       Gis::FACTORY.parse_wkb(circle_wkb)
     end
@@ -900,9 +900,9 @@ class GeographicItem < ApplicationRecord
       b = self.class.st_geography_from_text_sql(geographic_item.geo_object.to_s)
     end
 
-    self.class.select_one(
+    self.class.select_value(
       self.class.st_distance_sql(a, b)
-    )['st_distance']
+    )
   end
 
   # @return [String]
@@ -1147,14 +1147,12 @@ class GeographicItem < ApplicationRecord
     ).to_a.first
   end
 
-  def self.select_one(named_function)
-    # TODO use select_value instead of execute?
+  def self.select_value(named_function)
     # This is faster than select(...)
-    ActiveRecord::Base.connection.execute(
+    ActiveRecord::Base.connection.select_value(
       'SELECT ' +
       named_function.to_sql
     )
-    .to_a.first
   end
 
   def align_winding
