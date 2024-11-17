@@ -67,7 +67,6 @@ class GeographicItem < ApplicationRecord
   has_many :gazetteers, inverse_of: :geographic_item
 
   validate :some_data_is_provided
-  validate :check_point_limits
 
   scope :include_collecting_event, -> { includes(:collecting_events_through_georeferences) }
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
@@ -80,6 +79,15 @@ class GeographicItem < ApplicationRecord
   scope :polygons, -> { where(shape_is_type(:polygon)) }
   scope :multi_polygons, -> { where(shape_is_type(:multi_polygon)) }
   scope :geometry_collections, -> { where(shape_is_type(:geometry_collection)) }
+
+  # Retrieving a geography point requires instantiating that point using our
+  # Gis::FACTORY, which itself normalizes longitudes, so this is really just
+  # ensuring that the normalized longitude is what we'll see stored in the
+  # database as well.
+  # TODO if/when needed: multipoints and points/multipoints inside
+  # geometry_collections also need normalizing (Gis::FACTORY normalizes
+  # longitudes of all other shapes).
+  before_save :normalize_point_longitude
 
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
   after_save :align_winding
@@ -1117,6 +1125,10 @@ class GeographicItem < ApplicationRecord
       .else(Arel.sql('FALSE'))
   end
 
+  def geography_is_point?
+    geo_object_type == :point
+  end
+
   def geography_is_polygon?
     geo_object_type == :polygon
   end
@@ -1221,14 +1233,13 @@ class GeographicItem < ApplicationRecord
       geography.nil?
   end
 
-  # @return [Boolean]
-  # true iff point.x is between -180.0 and +180.0
-  def check_point_limits
-    if geo_object_type == :point
-      errors.add(
-        :point_limit,
-        "Longitude #{geography.x} exceeds limits: 180.0 to -180.0."
-      ) if geography.x > 180.0 || geography.x < -180.0
+  def normalize_point_longitude
+    return if !geography_is_point?
+
+    if geography.x < -180.0 || geography.x > 180.0
+      new_lon = geography.x % 360.0
+      new_lon = new_lon - 360.0 if new_lon > 180.0
+      self.geography = Gis::FACTORY.point(new_lon, geography.y)
     end
   end
 

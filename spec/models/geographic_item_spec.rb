@@ -95,6 +95,41 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         expect(box.area).to be > 0
       end
     end
+
+    context 'longitudes' do
+      specify 'longitude of a point should be stored between -180 and 180: case > 180' do
+        # GeoJSON.decode uses the default spherical factory and doesn't
+        # normalize longitudes (but is still srid 4326, which is what matters
+        # for saving to gi):
+        p = RGeo::GeoJSON.decode('{"type":"Point","coordinates":[200,10]}')
+        expect(p.x).to eq(200)
+
+        gi = GeographicItem.create!(geography: p)
+        # There's no way to get the geography point out of gi without creating a
+        # point using our factory, which itself normalizes longitudes, so
+        # retrieve straight from the database instead (which is really the point
+        # of the longitude normalization hook, and what we want to test here).
+        expect(ActiveRecord::Base.connection.select_value(
+            "SELECT ST_X(
+              (SELECT geography FROM geographic_items WHERE id = #{gi.id})::geometry
+            )"
+          )
+        ).to eq(-160)
+      end
+
+      specify 'longitude of a point should be stored between -180 and 180: case < -180' do
+        p = RGeo::GeoJSON.decode('{"type":"Point","coordinates":[-200,10]}')
+        expect(p.x).to eq(-200)
+
+        gi = GeographicItem.create!(geography: p)
+        expect(ActiveRecord::Base.connection.select_value(
+            "SELECT ST_X(
+              (SELECT geography FROM geographic_items WHERE id = #{gi.id})::geometry
+            )"
+          )
+        ).to eq(160)
+      end
+    end
   end
 
   context 'scopes (GeographicItems can be found by searching with)' do
