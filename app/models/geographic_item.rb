@@ -337,8 +337,7 @@ class GeographicItem < ApplicationRecord
       )
     end
 
-    # Currently uses postgis's 'structure' algorithm, the same as RGeo's
-    # make_valid. Returns valid shapes unchanged.
+    # Returns valid shapes unchanged.
     # !! This will give the wrong result on anti-meridian-crossing shapes stored
     # in Gis::FACTORY coordinates, use anti_meridian_crossing_make_valid
     # instead in that case.
@@ -802,7 +801,9 @@ class GeographicItem < ApplicationRecord
         )
       )
 
-      Gis::FACTORY.parse_wkb(circle_wkb)
+      make_valid_non_anti_meridian_crossing_shape(
+        Gis::FACTORY.parse_wkb(circle_wkb).as_text
+      )
     end
 
     #
