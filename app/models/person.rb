@@ -59,9 +59,10 @@ class Person < ApplicationRecord
   include Shared::Tags
   include Shared::SharedAcrossProjects
   include Shared::HasPapertrail
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
   include Shared::OriginRelationship
-  include Shared::DwcOccurrenceHooks
+
 
   ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
   IGNORE_SIMILAR = [:type, :cached].freeze

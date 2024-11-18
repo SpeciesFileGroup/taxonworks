@@ -48,9 +48,10 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Labels
   include Shared::Depictions
   include Shared::ProtocolRelationships
-  include Shared::IsData
   include Shared::DwcOccurrenceHooks
   include SoftValidation
+  include Shared::IsData
+
   ignore_whitespace_on(:print_label)
 
   belongs_to :otu, inverse_of: :taxon_determinations
