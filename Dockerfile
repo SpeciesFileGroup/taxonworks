@@ -57,8 +57,7 @@ RUN [ "x$REVISION" != "x" ] && echo $REVISION > /app/REVISION && \
 FROM base AS assets-precompiler
 
 # http://blog.zeit.io/use-a-fake-db-adapter-to-play-nice-with-rails-assets-precompilation/
-#RUN bundle add activerecord-nulldb-adapter
-RUN bundle add activerecord-nulldb-adapter --github="taylorthurlow/nulldb" --ref=8183e9d
+RUN bundle add activerecord-nulldb-adapter
 RUN printf "production:\n  adapter: nulldb" > config/database.yml
 
 # Precompiling and also removing config files just in case someone uses `docker build --target=assets-precompiler`
