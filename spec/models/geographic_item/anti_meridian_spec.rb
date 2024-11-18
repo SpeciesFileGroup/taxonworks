@@ -33,11 +33,8 @@ describe GeographicItem, type: :model, group: :geo do
     #
     # Applying ST_Shift_Longitude converts longitudes in the range [-180, 0] to
     # the range [180, 360], so converts longitudes in the range [-180, 180] to
-    # longitudes in the range [0, 360]. Geometrically the interpretation is that
-    # lines between any two points with coordinates in this range can never
-    # cross the meridian (the 0/360 boundary of that longitude domain), they
-    # always cross the anti-meridian if they're in different hemispheres, even
-    # if that's the long way between the points.
+    # longitudes in the range [0, 360]. In this case lines between points never
+    # cross the meridian.
     #
     # If you want the shapes your input points describe to cross the meridian -
     # ACCORDING TO valid?, ST_Is_Valid, make_valid, and ST_MakeValid (others??)
@@ -45,13 +42,17 @@ describe GeographicItem, type: :model, group: :geo do
     # Gis::FACTORY. If you instead expect a shape to cross the anti-meridian
     # then apply ST_ShiftLongitude to the shape.
     #
-    # How can you tell which was intended for an input shape? By a quirk of
-    # behavior, `intersects_anti_meridian?` (which relies on ST_Intersects)
-    # operates as though the lines between points of your shape are
-    # shortest-distance geodesics, i.e. ignores the above [a guess: this is a
-    # special processing case where the polygon-intersect-anti-meridian check
-    # boils down to a bounding box comparison]. That's most likely the
-    # interpretation of your shape that was intended.
+    # How can you tell which was intended for an input shape? After your input
+    # shape has been normalized by the factory, **you can't**.
+    # `intersects_anti_meridian?` (which relies on ST_Intersects) operates on
+    # the assumption that the lines between points of your shape are
+    # shortest-distance geodesics (i.e. ignores the conventions of ST_Is_Valid
+    # etc. described above). That's most likely the interpretation of your shape
+    # that was intended, but it means that (at least for the purposes of
+    # intersection) !!there's no such thing as an edge spanning more than 180
+    # degrees longitude - if that's what you want then you need to break up your
+    # edge into shorter segements!!. Watch for this when importing shapes
+    # you didn't create.
     #
     # See specs below for evidence supporting these claims.
   end
@@ -406,6 +407,34 @@ describe GeographicItem, type: :model, group: :geo do
           end
         end
       end
+
+      context 'intersects assumes edges are shortest-length geodesics' do
+        specify 'no such thing as an edge spanning more than 180 degrees longitude' do
+          expect(GeographicItem.crosses_anti_meridian?(
+              # For the purposes of ST_Is_Valid, this edge in a polygon would be
+              # interpreted as crossing the meridian (since its coordinates are
+              # in [-180, 180]). Here with ST_Intersection it's the
+              # shortest-distance edge crossing the anti-meridian.
+              'LINESTRING (-170 0, 20 0)'
+            )
+          ).to be_truthy
+        end
+
+        xspecify 'edges with a vertex on the meridian and spanning more than 90 degrees (but < 180) may intersect the anti-meridian' do
+          # TODO Why does this happen? What's the logic behind it? The behavior
+          # only occurs when one of the endpoints has longitude 0 and seems to
+          # require a longitude span of > 90; other factors are undetermined.
+          expect(GeographicItem.crosses_anti_meridian?(
+             'LINESTRING (91 10, 0 0)'
+           )
+          ).to be_falsey # as expected
+
+          expect(GeographicItem.crosses_anti_meridian?(
+              'LINESTRING (91 0, 0 10)'
+            )
+          ).to be_truthy # why???
+        end
+      end
     end
 
     context 'Leaflet/GeoJSON inputs and Gis::FACTORY considerations' do
@@ -444,7 +473,6 @@ describe GeographicItem, type: :model, group: :geo do
 
       xspecify 'valid leaflet-provided anti-meridian-crossing shapes can become
         invalid when normalized by Gis::FACTORY' do
-
         # s as normalized by our factory is invalid according to both rgeo and
         # postgis:
         expect(s.geometry.valid?).to be false
@@ -458,7 +486,8 @@ describe GeographicItem, type: :model, group: :geo do
         # (-160,0) to (170,0) being interpreted as crossing the meridian (going
         # the "long" way) and not the anti-meridian.
 
-        # By comparison if we decode without specifying our factory:
+        # By comparison if we decode using the default factory which doesn't
+        # normalize longitudes:
         s2 = RGeo::GeoJSON.decode(p)
         # then we get
         # s2.geometry.as_text = POLYGON ((-200 -10, -200 10, -160 10, -190 0, -160 -10, -200 -10)) # same as the geojson feature coordinates
