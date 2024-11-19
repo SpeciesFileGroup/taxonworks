@@ -8,6 +8,14 @@
     <h3> Export SQL </h3>
     <p><em>Generate a downloadable copy of the database (PostgreSQL dump) with all data referenced in this project. Includes Community data like Sources, People, and Repositories.</em></p>
     <p> Restorable with <b>psql -U :username -d :database -f dump.sql</b>. Requires database to be created without tables (<b>rails db:create</b>) </p>
+    <p>To import into a <code>docker compose</code> development environment:</p>
+    <ol>
+      <li>Download and unzip the file. In this example, assume that creates a local file <code>unzip/dump.sql</code></li>
+      <li>Mount the unzipped file in the <code>db</code> container. For example add a line to <code>docker-compose.yml</code> inside <code>services.app.db.volumes</code> like this: <code>- ./unzip:/mnt/unzip</code> </li>
+      <li>Drop existing DB: <code>docker compose exec app bundle exec rails db:drop</code></li>
+      <li>Create empty DB: <code>docker compose exec app bundle exec rails db:create</code></li>
+      <li>Restore DB: <code>docker compose exec db psql -U postgres -d taxonworks_development -f /mnt/unzip/dump.sql</code></li>
+    </ol>
 
     <div>
       <%= form_tag(generate_sql_download_task_path, method: :get) do %>
