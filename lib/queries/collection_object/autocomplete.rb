@@ -83,6 +83,7 @@ module Queries
       # @return [Array]
       #   TODO: optimize limits
       def autocomplete
+        return [] if term.blank?
         updated_queries = base_queries
 
         result = []
