@@ -445,7 +445,7 @@ resources :leads do
     post :destroy_couplet
     post :delete_couplet
     post :duplicate
-    get :all_texts
+    get :redirect_option_texts
     get :otus
   end
 end

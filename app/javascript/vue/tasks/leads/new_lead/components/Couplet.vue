@@ -140,8 +140,8 @@ const allowDeleteCouplet = computed(() => {
 const redirectOptions = ref([])
 
 function loadRedirectOptions() {
-  LeadEndpoint.all_texts(store.lead.id).then(({ body }) => {
-    const texts = body.all_texts.flatMap((o) => {
+  LeadEndpoint.redirect_option_texts(store.lead.id).then(({ body }) => {
+    const texts = body.redirect_option_texts.flatMap((o) => {
       if (
         (store.left && o.id == store.left.id) ||
         (store.right && o.id == store.right.id)

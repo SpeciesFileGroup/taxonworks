@@ -63,8 +63,8 @@ export const Lead = {
     'post', `/${controller}/${id}/create_for_edit.json`
   ),
 
-  all_texts: (id) => AjaxCall(
-    'get', `/${controller}/${id}/all_texts.json`
+  redirect_option_texts: (id) => AjaxCall(
+    'get', `/${controller}/${id}/redirect_option_texts.json`
   ),
 
   destroy_couplet: (id) => AjaxCall(

@@ -1,4 +1,4 @@
-# Leads models dichotomous keys; each row represents a single couplet option in a key.
+# Leads model multifurcating keys: each lead represents one option in a key.
 #
 # @!attribute parent_id
 #   @return [integer]
@@ -35,7 +35,8 @@
 #
 # @!attribute position
 #   @return [integer]
-#   A sort order used by has_closure_tree
+#   Position of this lead amongst the key options at lead's stage of the key;
+#   maintained by has_closure_tree
 #
 # @!attribute is_public
 #   @return [boolean]
@@ -49,7 +50,7 @@ class Lead < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
 
-  has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true , dependent: nil
+  has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true, dependent: nil
 
   belongs_to :parent, class_name: 'Lead'
 
@@ -59,7 +60,7 @@ class Lead < ApplicationRecord
 
   has_many :redirecters, class_name: 'Lead', foreign_key: :redirect_id, inverse_of: :redirect, dependent: :nullify
 
-  before_save :check_is_public
+  before_save :set_is_public_only_on_root
 
   validate :root_has_title
   validate :link_out_has_protocol
@@ -70,10 +71,6 @@ class Lead < ApplicationRecord
 
   def future
     redirect_id.blank? ? all_children : redirect.all_children
-  end
-
-  def go_id
-    (redirect_id.presence || id)
   end
 
   def dupe
@@ -99,14 +96,13 @@ class Lead < ApplicationRecord
 
   def self.draw(lead, indent = 0)
     puts Rainbow( (' ' * indent) + lead.text ).purple + ' ' + Rainbow( lead.node_position.to_s ).red + ' ' + Rainbow( lead.position ).blue + ' [.parent: ' + Rainbow(lead.parent&.text || 'none').gold + ']'
-    lead.children.reload.order(:position).each do |c|
+    lead.children.each do |c|
       draw(c, indent + 1)
     end
-    nil
   end
 
   def insert_couplet
-    c,d = nil, nil
+    c, d = nil, nil
 
     p = node_position
 
@@ -118,7 +114,7 @@ class Lead < ApplicationRecord
 
       left_text = (p == :left || p == :root) ? t2 : t1
       right_text = (p == :right) ? t2 : t1
-      # !! middle handling
+      # TODO middle handling
 
       c = Lead.create!(text: left_text, parent: self)
       d = Lead.create!(text: right_text, parent: self)
@@ -145,21 +141,21 @@ class Lead < ApplicationRecord
   end
 
   # Destroy the children of this Lead, re-appending the grand-children to self
-  #  !! Do not destroy couplet if children on > 1 side exist
+  # !! Do not destroy couplet if children on > 1 side exist
   def destroy_couplet
-    k = children.order(:position).reload.to_a
+    k = children.to_a
     return true if k.empty?
 
     # TODO: handle multiple facets
-    # not first/last because that gives us a==b scenarious
+    # not first/last because that gives us a==b scenarios
     a = k[0]
     b = k[1]
 
     c = a.children.to_a
     d = b&.children&.to_a || []
 
-    if (c.size == 0) or (d.size == 0) # At least one side, but not two have children
-      if (c.size > 0) || (d.size > 0) # One side has children
+    if c.size == 0 || d.size == 0 # At least one side, but not two have children
+      if c.size > 0 || d.size > 0 # One side has children
 
         has_kids = c.size > 0 ? a : b
         no_kids = c.size == 0 ? a : b
@@ -184,7 +180,7 @@ class Lead < ApplicationRecord
         end
       end
       true
-    else #
+    else
       false
     end
   end
@@ -204,6 +200,7 @@ class Lead < ApplicationRecord
 
   # TODO: Probably a helper method
   def all_children(node = self, result = [], depth = 0)
+    # TODO multifurcate
     for c in [node.children.second, node.children.first].compact # intentionally reversed
       c.all_children(c, result, depth + 1)
       a = {}
@@ -309,15 +306,13 @@ class Lead < ApplicationRecord
   def dupe_in_transaction(node, parentId)
     a = node.dup
     a.parent_id = parentId
-    a.text = '(COPY OF) ' + a.text if parentId == nil
+    a.text = "(COPY OF) #{a.text}" if parentId == nil
     a.save!
 
-    for c in node.children
-      dupe_in_transaction(c, a.id)
-    end
+    node.children.each { |c| dupe_in_transaction(c, a.id) }
   end
 
-  def check_is_public
+  def set_is_public_only_on_root
     if parent_id.nil?
       self.is_public ||= false
     else

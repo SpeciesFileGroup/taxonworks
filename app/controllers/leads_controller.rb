@@ -1,8 +1,9 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_lead, only: %i[
-    edit create_for_edit update destroy show show_all show_all_print all_texts
-    destroy_couplet insert_couplet delete_couplet duplicate update_meta otus]
+    edit create_for_edit update destroy show show_all show_all_print
+    redirect_option_texts destroy_couplet insert_couplet delete_couplet duplicate
+    update_meta otus]
 
   # GET /leads
   # GET /leads.json
@@ -33,14 +34,14 @@ class LeadsController < ApplicationController
       roots_with_data(sessions_current_project_id).page(params[:page])
   end
 
-  # GET /leads/1/all_texts.json
-  def all_texts
+  # GET /leads/1/redirect_option_texts.json
+  def redirect_option_texts
     leads = Lead
       .select(:id, :text, :origin_label)
       .with_project_id(sessions_current_project_id)
       .order(:text)
     ancestor_ids = @lead.ancestor_ids
-    @texts = leads.filter_map {|o|
+    @texts = leads.filter_map { |o|
       if o.id != @lead.id && !ancestor_ids.include?(o.id)
         {
           id: o.id,
@@ -55,6 +56,7 @@ class LeadsController < ApplicationController
   # GET /leads/1.json
   def show
     children = @lead.children
+    # TODO multifurcate
     if children.size == 2
       expand_lead
     else
@@ -76,9 +78,7 @@ class LeadsController < ApplicationController
 
   # GET /leads/new
   def new
-    respond_to do |format|
-      format.html { redirect_to new_lead_task_path }
-    end
+    redirect_to new_lead_task_path
   end
 
   # GET /leads/1/edit
@@ -92,6 +92,7 @@ class LeadsController < ApplicationController
       new_couplet
     end
     expand_lead
+    render action: :show, status: :created, location: @lead
   end
 
   # POST /leads
@@ -102,14 +103,14 @@ class LeadsController < ApplicationController
       if @lead.save
         new_couplet # we make two blank couplets so we can show the key
         expand_lead
-        format.json {}
+        format.json { render action: :show, status: :created, location: @lead }
       else
         format.json { render json: @lead.errors, status: :unprocessable_entity}
       end
     end
   end
 
-  # POST /leads/1.json/insert_couplet
+  # POST /leads/1/insert_couplet.json
   def insert_couplet
     @lead.insert_couplet
 
@@ -121,6 +122,7 @@ class LeadsController < ApplicationController
   # PATCH/PUT /leads/1
   # PATCH/PUT /leads/1.json
   def update
+    # TODO only ever update one lead at a time for multifurcating
     @lead = Lead.find(params[:lead][:id])
     @left = Lead.find(params[:left][:id])
     @right = Lead.find(params[:right][:id])
@@ -234,11 +236,7 @@ class LeadsController < ApplicationController
   def otus
     leads_list = @lead.self_and_descendants.where.not(otu_id: nil).includes(:otu)
 
-    @otus = leads_list.to_a.map{|l| l.otu}.uniq(&:id)
-
-    respond_to do |format|
-      format.json {}
-    end
+    @otus = leads_list.to_a.map{ |l| l.otu }.uniq(&:id)
   end
 
   def autocomplete
@@ -286,6 +284,7 @@ class LeadsController < ApplicationController
   end
 
   def expand_lead
+    # TODO multifurcate
     # Assumes the parent node is @lead and @lead has two children
     @left = @lead.children[0]
     @right = @lead.children[1]
@@ -295,18 +294,9 @@ class LeadsController < ApplicationController
   end
 
   def new_couplet
-    # Assumes the parent node is @lead
-    return if @lead.children.size > 0
-    @left = @lead.children.create!
-    @right = @lead.children.create!
-    @left_future = @left.future
-    @right_future =  @right.future
+    2.times do
+      @lead.children.create!
+    end
   end
-
-  def no_grandchildren(lead)
-    children = lead.children
-    (children.size == 2) and (children[0].children.size == 0) and (children[1].children.size == 0)
-  end
-
 
 end

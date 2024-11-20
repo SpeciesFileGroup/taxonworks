@@ -62,7 +62,7 @@ RSpec.describe Lead, type: :model do
     expect(lead.node_position).to eq(:root)
   end
 
-  specify '#node_position with three leea children' do
+  specify '#node_position with three lead children' do
     a = FactoryBot.create(:valid_lead, parent: lead)
     b = FactoryBot.create(:valid_lead, parent: lead)
     c = FactoryBot.create(:valid_lead, parent: lead)
@@ -77,49 +77,55 @@ RSpec.describe Lead, type: :model do
     expect(k.parent_id).to be(nil)
   end
 
+  specify 'is_public gets set on roots' do
+    public_root = Lead.create!(text: 'public key', is_public: true)
+    expect(public_root.is_public).to be(true)
+  end
+
   specify 'is_public is only set on roots' do
-    root = Lead.create! text: 'private key'
+    root = Lead.create!(text: 'private key')
     expect(root.is_public).to be(false)
 
-    c1_id, c2_id = root.insert_couplet
-    c1 = Lead.find(c1_id)
+    ids = root.insert_couplet
+    c1 = Lead.find(ids[0])
     expect(c1.is_public).to be(nil)
     c1.update!(is_public: true)
     expect(c1.is_public).to be(nil)
-
-    public_root = Lead.create! text: 'public key', is_public: true
-    expect(public_root.is_public).to be(true)
   end
 
   specify 'no redirect on root nodes' do
     root1 = FactoryBot.create(:valid_lead)
     root2 = FactoryBot.create(:valid_lead)
-    expect { root2.update! redirect_id: root1.id }.to raise_error ActiveRecord::RecordInvalid
+    expect { root2.update!(redirect_id: root1.id) }
+      .to raise_error ActiveRecord::RecordInvalid
   end
 
   specify 'redirect only on leaf nodes' do
     root = FactoryBot.create(:valid_lead)
-    child = root.children.create! text: 'c'
-    grandchild = child.children.create! text: 'gc'
+    child = root.children.create!(text: 'c')
+    _grandchild = child.children.create!(text: 'gc')
 
     root2 = FactoryBot.create(:valid_lead)
-    expect { child.update! redirect_id: root2.id }.to raise_error ActiveRecord::RecordInvalid
+    expect { child.update!(redirect_id: root2.id) }
+      .to raise_error ActiveRecord::RecordInvalid
   end
 
   specify 'children of a redirect node are invalid' do
     root1 = FactoryBot.create(:valid_lead)
     root2 = FactoryBot.create(:valid_lead)
-    child = root1.children.create! text: 'c'
+    child = root1.children.create!(text: 'c')
     expect(child.new_record?).to be(false)
-    expect(child.update! redirect_id: root2.id).to be(true)
+    expect(child.update!(redirect_id: root2.id)).to be(true)
     expect(child.valid?).to be(true)
-    expect{child.children.create! text: 'gc'}.to raise_error ActiveRecord::RecordInvalid
+    expect{ child.children.create!(text: 'gc') }
+      .to raise_error ActiveRecord::RecordInvalid
   end
 
   specify "redirect can't point to an ancestor" do
     root = FactoryBot.create(:valid_lead)
-    child = root.children.create! text: 'c'
-    expect {child.update! redirect_id: root.id}.to raise_error ActiveRecord::RecordInvalid
+    child = root.children.create!(text: 'c')
+    expect {child.update!(redirect_id: root.id) }
+      .to raise_error ActiveRecord::RecordInvalid
   end
 
   # TODO: should this be a request test instead, so that we're testing
@@ -129,33 +135,14 @@ RSpec.describe Lead, type: :model do
     l = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
     r = FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
 
-    lead.update! text: lead.text
-    l.update! text: 'new text'
-    r.update! text: r.text
+    lead.update!(text: lead.text)
+    l.update!(text: 'new text')
+    r.update!(text: r.text)
 
     expect(l.reload.position).to be < r.reload.position
   end
 
-  xspecify "keys with external referrers can't be destroyed" do
-    root1 = FactoryBot.create(:valid_lead)
-    root2 = FactoryBot.create(:valid_lead)
-    child = root1.children.create!(text: 'c')
-    expect(child.update!(redirect_id: root2.id)).to be(true)
-    expect{root2.destroy!}.to raise_error ActiveRecord::RecordNotDestroyed
-  end
-
-  xspecify "keys with internal referrers can't be destroyed" do
-    root = FactoryBot.create(:valid_lead)
-    child = root.children.create! text: 'c'
-    sibling = root.children.create! text: 's'
-    expect(child.update! redirect_id: sibling.id).to be(true)
-    # TODO: this may depend on the order in which the children get destroyed:
-    # if the child with !redirect_id.nil? gets destroyed first then there
-    # may be no error (which would be fine!).
-    expect{root.destroy!}.to raise_error ActiveRecord::RecordNotDestroyed
-  end
-
-  context 'Retrieving roots data using roots_with_data' do
+  context 'Retrieving roots data using ::roots_with_data' do
     specify 'returns the right number of roots' do
       lead.insert_couplet
       root2 = FactoryBot.create(:valid_lead)
@@ -166,19 +153,19 @@ RSpec.describe Lead, type: :model do
     end
 
     specify 'returns roots from the right project' do
-      root1 = FactoryBot.create(:valid_lead)
+      _root1 = FactoryBot.create(:valid_lead)
 
       p2 = FactoryBot.create(:valid_project)
-      root2 = FactoryBot.create(:valid_lead, project_id: p2.id)
+      _root2 = FactoryBot.create(:valid_lead, project_id: p2.id)
 
       q = Lead.roots_with_data(project_id)
       expect(q.map { |r| r.project_id }).to eq([project_id])
     end
 
     specify 'returns roots ordered by text' do
-      root1 = FactoryBot.create(:valid_lead, text: 'b')
-      root2 = FactoryBot.create(:valid_lead, text: 'c')
-      root3 = FactoryBot.create(:valid_lead, text: 'a')
+      FactoryBot.create(:valid_lead, text: 'b')
+      FactoryBot.create(:valid_lead, text: 'c')
+      FactoryBot.create(:valid_lead, text: 'a')
 
       q = Lead.roots_with_data(project_id)
       expect(q.map { |r| r.text }). to eq(['a', 'b', 'c'])
@@ -196,8 +183,8 @@ RSpec.describe Lead, type: :model do
       ids = lead.insert_couplet
       otu1 = FactoryBot.create(:valid_otu)
       otu2 = FactoryBot.create(:valid_otu)
-      lead.update! otu_id: otu1.id
-      Lead.find(ids[0]).update! otu_id: otu2.id
+      lead.update!(otu_id: otu1.id)
+      Lead.find(ids[0]).update!(otu_id: otu2.id)
 
       q = Lead.roots_with_data(project_id)
       expect(q.first.otus_count).to eq(2)
@@ -205,8 +192,8 @@ RSpec.describe Lead, type: :model do
 
     specify 'returns correct key_updated_at' do
       child = FactoryBot.create(:valid_lead)
-      lead.add_child child
-      child.update! text: 'new text'
+      lead.add_child(child)
+      child.update!(text: 'new text')
 
       q = Lead.roots_with_data(project_id)
       expect(q.first.key_updated_at).to eq(child.updated_at)
@@ -219,9 +206,9 @@ RSpec.describe Lead, type: :model do
       user2_root = FactoryBot.create(:valid_lead, updated_by_id: user2.id)
 
       child = FactoryBot.create(:valid_lead)
-      user2_root.add_child child
+      user2_root.add_child(child)
       # Updates as Current.user_id (not as user2)
-      child.update! text: 'new text'
+      child.update!(text: 'new text')
 
       q = Lead.roots_with_data(project_id)
       expect(user2_root.updated_by_id).to eq(user2.id)
@@ -235,9 +222,9 @@ RSpec.describe Lead, type: :model do
       user2_root = FactoryBot.create(:valid_lead, updated_by_id: user2.id)
 
       child = FactoryBot.create(:valid_lead)
-      user2_root.add_child child
+      user2_root.add_child(child)
       # Updates as Current.user_id (not as user2)
-      child.update! text: 'new text'
+      child.update!(text: 'new text')
 
       q = Lead.roots_with_data(project_id)
       expect(user2_root.updated_by_id).to eq(user2.id)
@@ -248,7 +235,7 @@ RSpec.describe Lead, type: :model do
     specify "doesn't pre-load otus when you don't tell it to" do
       otu = FactoryBot.create(:valid_otu)
 
-      lead.update! otu_id: otu.id
+      lead.update!(otu_id: otu.id)
 
       q = Lead.roots_with_data(project_id)
       expect(q.first.association(:otu).loaded?).to be(false)
@@ -257,7 +244,7 @@ RSpec.describe Lead, type: :model do
     specify 'pre-loads otus when you tell it to' do
       otu = FactoryBot.create(:valid_otu)
 
-      lead.update! otu_id: otu.id
+      lead.update!(otu_id: otu.id)
 
       q = Lead.roots_with_data(project_id, true)
       expect(q.first.association(:otu).loaded?).to be(true)
@@ -300,7 +287,8 @@ RSpec.describe Lead, type: :model do
 
       expect(Lead.all.size).to eq(14)
       expect(Lead.where('parent_id is null').size).to eq(2)
-      expect(Lead.where('parent_id is null').order(:id)[1].text).to eq('(COPY OF) ' + title)
+      expect(Lead.where('parent_id is null').order(:id)[1].text)
+        .to eq('(COPY OF) ' + title)
     end
 
     specify 'all_children' do
@@ -320,35 +308,44 @@ RSpec.describe Lead, type: :model do
     end
 
     specify 'current positions are correct after #insert_couplet (left)' do
-      ids = l.insert_couplet
-      expect(Lead.find_by(text: 'l').position).to be < Lead.find_by(text: 'r').position   # Position shouldn't change L or R
+      l.insert_couplet
+      # Position shouldn't change L or R
+      expect(Lead.find_by(text: 'l').position)
+        .to be < Lead.find_by(text: 'r').position
     end
 
     specify 'inserted lead positions are correct after #insert_couplet (left)' do
       ids = l.insert_couplet
-      a = Lead.find(ids[0])
-      expect(Lead.find(ids[0]).reload.position).to be < Lead.find(ids[1]).reload.position               # Children should be left/right OK
+      # Children should be left/right OK
+      expect(Lead.find(ids[0]).position).to be < Lead.find(ids[1]).position
     end
 
     specify 're-attached child lead positions are correct after #insert_couplet (left)' do
-      ids = l.insert_couplet
-      expect(Lead.find_by(text: 'll').position).to be < Lead.find_by(text: 'lr').position # Grand children maintain position
+      l.insert_couplet
+      # Grand children maintain position
+      expect(Lead.find_by(text: 'll').position)
+        .to be < Lead.find_by(text: 'lr').position
     end
 
     specify 'current positions are correct after #insert_couplet (right)' do
-      ids = lr.insert_couplet
-      expect(Lead.find_by(text: 'll').position).to be < Lead.find_by(text: 'lr').position   # Position shouldn't change L or R
+      lr.insert_couplet
+      # Position shouldn't change L or R
+      expect(Lead.find_by(text: 'll').position)
+        .to be < Lead.find_by(text: 'lr').position
     end
 
     specify 'inserted lead positions are correct after #insert_couplet (right)' do
       ids = lr.insert_couplet
-      a = Lead.find(ids[0])
-      expect(Lead.find(ids[0]).reload.position).to be < Lead.find(ids[1]).reload.position               # Children should be left/right OK
+      # Children should be left/right OK
+      expect(Lead.find(ids[0]).position)
+        .to be < Lead.find(ids[1]).position
     end
 
     specify 're-attached child lead positions are correct after #insert_couplet (right)' do
-      ids = lr.insert_couplet
-      expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'lrr').position # Grand children maintain position
+      lr.insert_couplet
+      # Grand children maintain position
+      expect(Lead.find_by(text: 'lrl').position)
+        .to be < Lead.find_by(text: 'lrr').position
     end
 
     specify 'insert_couplet reparents on the right if self was a right child' do
@@ -362,7 +359,7 @@ RSpec.describe Lead, type: :model do
       expect(Lead.find(ids[1]).text).to eq('Child nodes are attached to this node')
     end
 
-    specify 'insert_couplet reparents on the right if self was a right child' do
+    specify 'insert_couplet reparents on the left if self was a left child' do
       # l is a left child, so reparented children should be on left.
       ids = l.insert_couplet
 
@@ -440,32 +437,36 @@ RSpec.describe Lead, type: :model do
 
     specify "destroy_couplet doesn't change order of parent node pair (left)" do
       l.destroy_couplet
-      expect(Lead.find_by(text: 'l').position).to be < Lead.find_by(text: 'r').position
+      expect(Lead.find_by(text: 'l').position)
+        .to be < Lead.find_by(text: 'r').position
     end
 
     specify "destroy_couplet doesn't change order of reparented nodes (left)" do
       l.destroy_couplet
-      expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'lrr').position
+      expect(Lead.find_by(text: 'lrl').position)
+        .to be < Lead.find_by(text: 'lrr').position
     end
 
     specify "destroy_couplet doesn't change order of parent node pair (right)" do
-      rl = r.children.create! text: 'rl'
-      rr = r.children.create! text: 'rr'
-      rll = rl.children.create! text: 'rll'
-      rlr = rl.children.create! text: 'rlr'
+      rl = r.children.create!(text: 'rl')
+      r.children.create!(text: 'rr')
+      rl.children.create!(text: 'rll')
+      rl.children.create!(text: 'rlr')
 
       r.reload.destroy_couplet
-      expect(Lead.find_by(text: 'l').position).to be < Lead.find_by(text: 'r').position
+      expect(Lead.find_by(text: 'l').position)
+        .to be < Lead.find_by(text: 'r').position
     end
 
     specify "destroy_couplet doesn't change order of reparented nodes (right)" do
-      rl = r.children.create! text: 'rl'
-      rr = r.children.create! text: 'rr'
-      rll = rl.children.create! text: 'rll'
-      rlr = rl.children.create! text: 'rlr'
+      rl = r.children.create!(text: 'rl')
+      r.children.create!(text:'rr')
+      rl.children.create!(text: 'rll')
+      rl.children.create!(text: 'rlr')
 
       r.reload.destroy_couplet
-      expect(Lead.find_by(text: 'rll').position).to be < Lead.find_by(text: 'rlr').position
+      expect(Lead.find_by(text: 'rll').position)
+        .to be < Lead.find_by(text: 'rlr').position
     end
 
     specify "destroy_couplet doesn't change order of 3 reparented nodes (left)" do
@@ -474,20 +475,22 @@ RSpec.describe Lead, type: :model do
 
       l.reload.destroy_couplet
 
-      expect(Lead.find_by(text: 'lrl').position).to be < Lead.find_by(text: 'middle child of lr').position
-      expect(Lead.find_by(text: 'middle child of lr').position).to be < Lead.find_by(text: 'lrr').position
+      expect(Lead.find_by(text: 'lrl').position)
+        .to be < Lead.find_by(text: 'middle child of lr').position
+      expect(Lead.find_by(text: 'middle child of lr').position)
+        .to be < Lead.find_by(text: 'lrr').position
     end
 
     specify '#all_children' do
-      lrll = lrl.children.create! text: 'lrll'
-      lrlr = lrl.children.create! text: 'lrlr'
+      lrl.children.create!(text: 'lrll')
+      lrl.children.create!(text: 'lrlr')
       expect(l.all_children.size).to eq(6)
     end
 
     specify '#destroy_couplet yields expected parent/child relationships' do
       # Test with grandchildren of l.
-      lrll = lrl.children.create! text: 'lrll'
-      lrlr = lrl.children.create! text: 'lrlr'
+      lrll = lrl.children.create!(text: 'lrll')
+      lrlr = lrl.children.create!(text: 'lrlr')
 
       expect(l.destroy_couplet).to be(true)
       l.reload
