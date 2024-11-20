@@ -39,6 +39,7 @@ scope :tasks do
 
     scope :print, controller: 'tasks/leads/print' do
       get '/', action: :index, as: 'print_key_task'
+      get :table, action: :table, as: 'print_key_table_task'
     end
   end
 
