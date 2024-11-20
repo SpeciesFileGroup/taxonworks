@@ -13,7 +13,7 @@
       <li>Download and unzip the file. In this example, assume that creates a local file <code>unzip/dump.sql</code></li>
       <li>Drop existing DB: <code>docker compose exec app bundle exec rails db:drop</code></li>
       <li>Create empty DB: <code>docker compose exec app bundle exec rails db:create</code></li>
-      <li>Restore DB: <code>docker compose exec -T db psql -U postgres -d taxonworks_development -f - < unzip/dump.sql</code></li>
+      <li>Restore DB: <code>docker compose exec --no-TTY db psql -U postgres -d taxonworks_development -f - < unzip/dump.sql</code></li>
     </ol>
 
     <div>
