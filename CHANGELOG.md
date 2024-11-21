@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit/New loan task: Add `none` status option
 - Edit/New Field occurence task: biological associations panel [#4103]
 - Edit/New Field occurence task: depictions panel [#4108]
+- Matrix row coder task: Now and Today lock buttons [#4110]
 
 ### Fixed
 
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4100]: https://github.com/SpeciesFileGroup/taxonworks/issues/4100
 [#4103]: https://github.com/SpeciesFileGroup/taxonworks/issues/4103
 [#4108]: https://github.com/SpeciesFileGroup/taxonworks/issues/4108
+[#4110]: https://github.com/SpeciesFileGroup/taxonworks/issues/4110
 
 ## [0.45.0] - 2024-10-30
 
