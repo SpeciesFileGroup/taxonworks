@@ -8,9 +8,9 @@ RSpec.describe Lead, type: :model do
 
   let(:lead) { FactoryBot.create(:valid_lead) }
 
-  specify '#destroy_couplet destroys when one child' do
+  specify '#destroy_children destroys when one child' do
     FactoryBot.create(:valid_lead, parent: lead)
-    lead.destroy_couplet
+    lead.destroy_children
     expect(Lead.count).to eq(1)
   end
 
@@ -423,57 +423,58 @@ RSpec.describe Lead, type: :model do
       expect(Lead.find(second_key.id)).to eq(second_key)
     end
 
-    specify 'destroy_couplet noops when both children have children' do
+    specify 'destroy_children noops when both children have children' do
       r.children.create!(text: 'rl')
       r.children.create!(text: 'rr')
-      expect(Lead.where('parent_id is null').first.destroy_couplet).to be(false)
+      expect(Lead.where('parent_id is null').first.destroy_children).to be(false)
       expect(Lead.where('parent_id is null').first.all_children.size).to be(8)
     end
 
-    specify 'destroy_couplet noops on a couplet with no children' do
-      expect(Lead.find_by(text: 'r').destroy_couplet).to be(true)
+    specify 'destroy_children noops on a couplet with no children' do
+      expect(Lead.find_by(text: 'r').destroy_children).to be(true)
       expect(Lead.where('parent_id is null').first.all_children.size).to be(6)
     end
 
-    specify "destroy_couplet doesn't change order of parent node pair (left)" do
-      l.destroy_couplet
+    specify "destroy_children doesn't change order of parent node pair (left)" do
+      l.destroy_children
       expect(Lead.find_by(text: 'l').position)
         .to be < Lead.find_by(text: 'r').position
     end
 
-    specify "destroy_couplet doesn't change order of reparented nodes (left)" do
-      l.destroy_couplet
+    specify "destroy_children doesn't change order of reparented nodes (left)" do
+      l.destroy_children
+      byebug
       expect(Lead.find_by(text: 'lrl').position)
         .to be < Lead.find_by(text: 'lrr').position
     end
 
-    specify "destroy_couplet doesn't change order of parent node pair (right)" do
+    specify "destroy_children doesn't change order of parent node pair (right)" do
       rl = r.children.create!(text: 'rl')
       r.children.create!(text: 'rr')
       rl.children.create!(text: 'rll')
       rl.children.create!(text: 'rlr')
 
-      r.reload.destroy_couplet
+      r.reload.destroy_children
       expect(Lead.find_by(text: 'l').position)
         .to be < Lead.find_by(text: 'r').position
     end
 
-    specify "destroy_couplet doesn't change order of reparented nodes (right)" do
+    specify "destroy_children doesn't change order of reparented nodes (right)" do
       rl = r.children.create!(text: 'rl')
       r.children.create!(text:'rr')
       rl.children.create!(text: 'rll')
       rl.children.create!(text: 'rlr')
 
-      r.reload.destroy_couplet
+      r.reload.destroy_children
       expect(Lead.find_by(text: 'rll').position)
         .to be < Lead.find_by(text: 'rlr').position
     end
 
-    specify "destroy_couplet doesn't change order of 3 reparented nodes (left)" do
+    specify "destroy_children doesn't change order of 3 reparented nodes (left)" do
       lrm = FactoryBot.create(:valid_lead, text: 'middle child of lr')
       lrl.append_sibling(lrm)
 
-      l.reload.destroy_couplet
+      l.reload.destroy_children
 
       expect(Lead.find_by(text: 'lrl').position)
         .to be < Lead.find_by(text: 'middle child of lr').position
@@ -487,12 +488,12 @@ RSpec.describe Lead, type: :model do
       expect(l.all_children.size).to eq(6)
     end
 
-    specify '#destroy_couplet yields expected parent/child relationships' do
+    specify '#destroy_children yields expected parent/child relationships' do
       # Test with grandchildren of l.
       lrll = lrl.children.create!(text: 'lrll')
       lrlr = lrl.children.create!(text: 'lrlr')
 
-      expect(l.destroy_couplet).to be(true)
+      expect(l.destroy_children).to be(true)
       l.reload
       lrl.reload
       lrr.reload

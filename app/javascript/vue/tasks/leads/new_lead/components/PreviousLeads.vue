@@ -4,11 +4,11 @@
     expand
   >
     <template #header>
-      <h3>Previous couplets</h3>
+      <h3>Previous leads</h3>
     </template>
 
     <template #body>
-      <PreviousCoupletsList
+      <PreviousLeadsList
         :past="[...store.parents, store.lead]"
         :load-function="store.loadKey"
         :route-name="RouteNames.NewLead"
@@ -22,7 +22,7 @@
 import { RouteNames } from '@/routes/routes'
 import { useStore } from '../store/useStore.js'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import PreviousCoupletsList from '../../components/PreviousCoupletsList.vue'
+import PreviousLeadsList from '../../components/PreviousLeadsList.vue'
 
 const store = useStore()
 </script>

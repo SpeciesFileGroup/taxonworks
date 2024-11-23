@@ -10,24 +10,20 @@ json.lead do
   json.partial! 'attributes', lead: @lead
 end
 
-json.left do
-  json.partial! 'attributes', lead: @left
-end
-
-json.right do
-  json.partial! 'attributes', lead: @right
+json.children do
+  json.array! @children do |lead|
+    json.partial! 'attributes', lead:
+  end
 end
 
 if extend_response_with('future_otus')
-  json.left_future do
-    json.partial! 'future_with_otus', future: @left_future
-  end
-  json.right_future do
-    json.partial! 'future_with_otus', future: @right_future
+  json.futures do
+    json.array! @futures do |future|
+      json.partial! 'future_with_otus', future:
+    end
   end
 else
-  json.left_future @left_future
-  json.right_future @right_future
+  json.futures @futures
 end
 
 json.parents @parents

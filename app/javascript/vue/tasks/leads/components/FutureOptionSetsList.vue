@@ -2,25 +2,25 @@
   <div v-if="future.length">
     <div
       v-for="o in future.toReversed()"
-      :key="o.cpl.id"
+      :key="o.options.id"
       :style="marginForDepth(o.depth)"
     >
-      <CoupletChoiceLink
+      <OptionSetLink
         :load-function="loadFunction"
         :route-name="routeName"
-        :couplet-label="o.cplLabel"
-        :lead="o.cpl"
+        :option-set-label="o.optionsLabel"
+        :lead="o.options"
         :otu-tag="o.otuLabel"
       />
     </div>
   </div>
   <div v-else>
-    <i>No future couplets</i>
+    <i>No future option sets</i>
   </div>
 </template>
 
 <script setup>
-import CoupletChoiceLink from './CoupletChoiceLink.vue'
+import OptionSetLink from './OptionSetLink.vue'
 import { marginForDepth } from '../helpers/formatters.js'
 
 const props = defineProps({

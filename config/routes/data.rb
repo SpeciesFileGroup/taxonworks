@@ -442,8 +442,8 @@ resources :leads do
     post :create_for_edit, defaults: {format: :json}
     post :insert_couplet
     patch :update_meta
-    post :destroy_couplet
-    post :delete_couplet
+    post :destroy_children
+    post :delete_children
     post :duplicate
     get :redirect_option_texts
     get :otus

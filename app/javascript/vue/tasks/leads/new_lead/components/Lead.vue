@@ -8,7 +8,7 @@
     <template #header>
       <div class="full_width horizontal-right-content">
         <RadialAnnotator
-          :global-id="store[side].global_id"
+          :global-id="store.children[position].global_id"
           @create="handleRadialCreate"
           @delete="handleRadialDelete"
           @update="handleRadialUpdate"
@@ -18,23 +18,23 @@
 
     <template #body>
       <div
-        v-if="!!store.last_saved[side].redirect_id"
+        v-if="!!store.last_saved.children[position].redirect_id"
         class="redirect_notice"
       >
-        <i>This side is currently redirecting, to add couplets below remove the redirection.</i>
+        <i>This side is currently redirecting, to add options below remove the redirection.</i>
       </div>
       <div class="navigation">
         <VBtn
           :disabled="nextButtonDisabled"
           color="update"
           medium
-          @click="nextCouplet()"
+          @click="nextOptions()"
         >
           {{ editNextText }}
         </VBtn>
 
         <VBtn
-          :disabled="!!store.last_saved[side].redirect_id || !sideHasChildren"
+          :disabled="!!store.last_saved.children[position].redirect_id || !childHasChildren"
           color="create"
           medium
           @click="insertCouplet()"
@@ -48,11 +48,11 @@
         <textarea
           class="full_width"
           rows="5"
-          v-model="store[side].text"
+          v-model="store.children[position].text"
         />
       </div>
 
-      <OtuChooser :lead="store[side]"/>
+      <OtuChooser :lead="store.children[position]"/>
 
       <div class="field label-above">
         <label>External link</label>
@@ -62,7 +62,7 @@
             <textarea
               class="full_width"
               rows="2"
-              v-model="store[side].link_out"
+              v-model="store.children[position].link_out"
             />
           </div>
           <div class="field label-above">
@@ -70,12 +70,12 @@
             <input
               type="text"
               class="normal-input full_width"
-              v-model="store[side].link_out_text"
+              v-model="store.children[position].link_out_text"
             />
           </div>
           <p v-if="displayLinkOut">
-            Link: <a :href="store[side].link_out" target="_blank">
-              {{ store[side].link_out_text }}
+            Link: <a :href="store.children[position].link_out" target="_blank">
+              {{ store.children[position].link_out_text }}
             </a>
           </p>
           <p v-else>
@@ -88,15 +88,15 @@
         <label>Redirect</label>
         <select
           class="redirect_select"
-          v-model="store[side].redirect_id"
-          :disabled="sideHasChildren"
+          v-model="store.children[position].redirect_id"
+          :disabled="childHasChildren"
         >
           <option :value="null"></option>
           <option
             v-for="option in redirectOptions"
             :key="option.id"
             :value="option.id"
-            :selected="option.id == store[side].redirect_id"
+            :selected="option.id == store.children[position].redirect_id"
           >
             {{ option.text }}
           </option>
@@ -105,13 +105,13 @@
 
       <Annotations
         :object_type="LEAD"
-        :object_id="store[side].id"
+        :object_id="store.children[position].id"
         v-model:depiction="depictions"
       />
 
-      <h3>Future Couplets</h3>
-      <FutureCoupletsList
-        :future="store[side + '_future']"
+      <h3>Future Options Sets</h3>
+      <FutureOptionSetsList
+        :future="store.futures[position]"
         :route-name="RouteNames.NewLead"
         :load-function="(id) => store.loadKey(id)"
       />
@@ -128,21 +128,18 @@ import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
 import { useStore } from '../store/useStore.js'
 import Annotations from './Annotations.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import FutureCoupletsList from '../../components/FutureCoupletsList.vue'
+import FutureOptionSetsList from '../../components/FutureOptionSetsList.vue'
 import OtuChooser from './OtuChooser.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
-  side: {
-    type: String,
-    required: true,
-    validator(value) {
-      return ['left', 'right'].includes(value)
-    }
+  position: {
+    type: Number,
+    required: true
   },
-  sideHasChildren: {
+  childHasChildren: {
     type: Boolean,
     required: true
   },
@@ -162,28 +159,28 @@ const loading = ref(false)
 
 const nextButtonDisabled = computed(() => {
   return (
-    !props.sideHasChildren &&
-    !store.last_saved[props.side].redirect_id &&
-    !store.last_saved[props.side].text
+    !props.childHasChildren &&
+    !store.last_saved.children[props.position].redirect_id &&
+    !store.last_saved.children[props.position].text
   )
 })
 
 const displayLinkOut = computed(() => {
-  const linkOut = store[props.side].link_out
-  return linkOut && store[props.side].link_out_text &&
+  const linkOut = store.children[props.position].link_out
+  return linkOut && store.children[props.position].link_out_text &&
     (linkOut.startsWith('https://') || linkOut.startsWith('http://'))
 })
 
 const editNextText = computed(() => {
-  if (!!store.last_saved[props.side].redirect_id) {
+  if (!!store.last_saved.children[props.position].redirect_id) {
     return 'Follow redirect and edit'
-  } else if (props.sideHasChildren) {
-    return 'Edit the next couplet'
+  } else if (props.childHasChildren) {
+    return 'Edit the next options set'
   } else {
-    if (store.last_saved[props.side].text) {
-      return 'Create and edit the next couplet'
+    if (store.last_saved.children[props.position].text) {
+      return 'Create and edit the next options set'
     } else {
-      return 'Save text to enable creating the next couplet'
+      return 'Save text to enable creating the next options set'
     }
   }
 })
@@ -204,9 +201,9 @@ function insertCouplet() {
     return
   }
   loading.value = true
-  Lead.insert_couplet(store[props.side].id)
+  Lead.insert_couplet(store.children[props.position].id)
     .then(() => {
-      store.loadKey(store[props.side].id)
+      store.loadKey(store.children[props.position].id)
       TW.workbench.alert.create(
         "Success - you're now editing the inserted couplet",
         'notice'
@@ -218,17 +215,17 @@ function insertCouplet() {
     })
 }
 
-function nextCouplet() {
+function nextOptions() {
   if (!userOkayToLeave()) {
     return
   }
-  if (props.sideHasChildren) {
-    store.loadKey(store[props.side].id)
-  } else if (!!store.last_saved[props.side].redirect_id) {
-    store.loadKey(store.last_saved[props.side].redirect_id)
+  if (props.childHasChildren) {
+    store.loadKey(store.children[props.position].id)
+  } else if (!!store.last_saved.children[props.position].redirect_id) {
+    store.loadKey(store.last_saved.children[props.position].redirect_id)
   } else {
     loading.value = true
-    Lead.create_for_edit(store[props.side].id)
+    Lead.create_for_edit(store.children[props.position].id)
       .then(({ body }) => {
         store.loadKey(body)
       })
@@ -242,7 +239,7 @@ function nextCouplet() {
 function userOkayToLeave() {
   if (store.dataChangedSinceLastSave() &&
     !window.confirm(
-      'You have unsaved data, are you sure you want to navigate to a new couplet?'
+      'You have unsaved data, are you sure you want to navigate to a new options set?'
     )
   ) {
     return false

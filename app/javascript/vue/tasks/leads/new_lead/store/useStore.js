@@ -1,26 +1,23 @@
 import { defineStore } from 'pinia'
 import { ActionFunctions } from './actions/actions'
-import editableLeftRightFields from './constants/editableLeftRightFields'
 
 const makeInitialState = () => ({
   // The root node of the key.
   root: makeLeadObject(),
   // The currently loaded lead.
   lead : makeLeadObject(),
-  // The left child of lead.
-  left: makeLeadObject(),
-  left_future: [],
-  // The right child of lead.
-  right: makeLeadObject(),
-  right_future: [],
+  // Children of lead.
+  children: [],
+  // Futures of children, indexed the same as children.
+  futures: [],
+  // Ancestors of lead. TODO: rename this to ancestors!(?)
   parents: [],
   // Use this to indicate data is being retrieved, not for database changes.
   loading: false,
   // Keep a copy of values from the last time a save occurred.
   last_saved: {
     origin_label: undefined,
-    left: makeSaveStateLead(),
-    right: makeSaveStateLead()
+    children: []
   }
 })
 
@@ -42,14 +39,8 @@ function makeLeadObject() {
     otu_id: undefined,
     parent_id: undefined,
     redirect_id: undefined,
-    text: undefined
+    text: undefined,
+    future: []
   }
 }
 
-function makeSaveStateLead() {
-  const o = {}
-  editableLeftRightFields.forEach((field) => {
-    o[field] = undefined
-  })
-  return o
-}

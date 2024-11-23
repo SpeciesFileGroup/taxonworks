@@ -2,8 +2,8 @@ class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_lead, only: %i[
     edit create_for_edit update destroy show show_all show_all_print
-    redirect_option_texts destroy_couplet insert_couplet delete_couplet duplicate
-    update_meta otus]
+    redirect_option_texts destroy_children insert_couplet delete_children
+    duplicate update_meta otus]
 
   # GET /leads
   # GET /leads.json
@@ -55,15 +55,10 @@ class LeadsController < ApplicationController
   # GET /leads/1
   # GET /leads/1.json
   def show
-    children = @lead.children
-    # TODO multifurcate
-    if children.size == 2
+    if @lead.children.present?
       expand_lead
     else
-      @left = nil
-      @right = nil
-      @left_future = []
-      @right_future = []
+      @children = nil
       @parents = @lead.ancestors.reverse
     end
   end
@@ -101,7 +96,7 @@ class LeadsController < ApplicationController
     @lead = Lead.new(lead_params)
     respond_to do |format|
       if @lead.save
-        new_couplet # we make two blank couplets so we can show the key
+        new_couplet # we make a blank couplet so we can show the key
         expand_lead
         format.json { render action: :show, status: :created, location: @lead }
       else
@@ -119,26 +114,15 @@ class LeadsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /leads/1
   # PATCH/PUT /leads/1.json
   def update
-    # TODO only ever update one lead at a time for multifurcating
     @lead = Lead.find(params[:lead][:id])
-    @left = Lead.find(params[:left][:id])
-    @right = Lead.find(params[:right][:id])
-    respond_to do |format|
-      begin
-        @lead.update!(lead_params)
-        @left.update!(lead_params(:left))
-        @right.update!(lead_params(:right))
-        # Note that future changes when redirect is updated.
-        expand_lead
-        format.json {}
-      rescue ActiveRecord::RecordInvalid => e
-        @lead.errors.merge!(@left)
-        @lead.errors.merge!(@right)
-        format.json { render json: @lead.errors, status: :unprocessable_entity }
-      end
+    begin
+      @lead.update!(lead_params)
+      # Note that future changes when redirect is updated.
+      @future = @lead.future
+    rescue ActiveRecord::RecordInvalid => e
+      render json: @lead.errors, status: :unprocessable_entity
     end
   end
 
@@ -170,11 +154,12 @@ class LeadsController < ApplicationController
     end
   end
 
-  # For destroying a couplet with no children on either side.
-  def destroy_couplet
+  # For destroying all children at a particular level of the key where none of
+  # the children have their own children.
+  def destroy_children
     respond_to do |format|
       if @lead.parent_id.present?
-        if @lead.destroy_couplet
+        if @lead.destroy_children
           format.json { head :no_content }
         else
           @lead.errors.add(:delete, 'failed - is there a node redirecting to one of these?')
@@ -183,7 +168,7 @@ class LeadsController < ApplicationController
           }
         end
       else
-        @lead.errors.add(:destroy, "failed - can't delete the only couplet.")
+        @lead.errors.add(:destroy, "failed - can't delete the only options.")
         format.json {
           render json: @lead.errors, status: :unprocessable_entity
         }
@@ -191,13 +176,15 @@ class LeadsController < ApplicationController
     end
   end
 
-  # For deleting a couplet where one side has no children but the other might;
-  # the side with children is reparented.
-  def delete_couplet
+  # For deleting all children at a particular level of the key where at most one
+  # of the children has its own children; the grandchildren, if any, are
+  # reparented.
+  def delete_children
     respond_to do |format|
-      if @lead.destroy_couplet
+      if @lead.destroy_children
         format.json { head :no_content }
       else
+        # TODO I don't think the redirect message is correct anymore
         @lead.errors.add(:delete, 'failed - is there a node redirecting to one of these?')
         format.json {
           render json: @lead.errors, status: :unprocessable_entity
@@ -284,12 +271,9 @@ class LeadsController < ApplicationController
   end
 
   def expand_lead
-    # TODO multifurcate
-    # Assumes the parent node is @lead and @lead has two children
-    @left = @lead.children[0]
-    @right = @lead.children[1]
-    @left_future = @left.future
-    @right_future = @right.future
+    # Assumes the parent node is @lead
+    @children = @lead.children
+    @futures = @lead.children.map { |c| c.future }
     @parents = @lead.ancestors.reverse
   end
 

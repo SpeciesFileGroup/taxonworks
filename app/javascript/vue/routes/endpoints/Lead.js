@@ -15,32 +15,6 @@ const permitParams = {
     link_out_text: String,
     is_public: Boolean,
     global_id: String
-  },
-  left: {
-    id: Number,
-    parent_id: Number,
-    otu_id: Number,
-    text: Text,
-    origin_label: String,
-    description: Text,
-    redirect_id: Number,
-    link_out: Text,
-    link_out_text: String,
-    is_public: Boolean,
-    global_id: String
-  },
-  right: {
-    id: Number,
-    parent_id: Number,
-    otu_id: Number,
-    text: Text,
-    origin_label: String,
-    description: Text,
-    redirect_id: Number,
-    link_out: Text,
-    link_out_text: String,
-    is_public: Boolean,
-    global_id: String
   }
 }
 
@@ -67,12 +41,12 @@ export const Lead = {
     'get', `/${controller}/${id}/redirect_option_texts.json`
   ),
 
-  destroy_couplet: (id) => AjaxCall(
-    'post', `/${controller}/${id}/destroy_couplet.json`
+  destroy_children: (id) => AjaxCall(
+    'post', `/${controller}/${id}/destroy_children.json`
   ),
 
-  delete_couplet: (id) => AjaxCall(
-    'post', `/${controller}/${id}/delete_couplet.json`
+  delete_children: (id) => AjaxCall(
+    'post', `/${controller}/${id}/delete_children.json`
   ),
 
   otus: (id) => AjaxCall(

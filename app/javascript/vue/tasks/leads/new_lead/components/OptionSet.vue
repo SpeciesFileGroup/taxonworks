@@ -9,15 +9,15 @@
       :disabled="!store.lead.parent_id"
       color="primary"
       medium
-      @click="previousCouplet"
+      @click="previousOptions"
     >
-      Go to the previous couplet
+      Go to the previous options
     </VBtn>
   </div>
 
   <div v-if="hasChildren">
     <div class="cplt_center">
-      <label>Couplet number from citation: </label>
+      <label>Options number from citation: </label>
       <input
         v-model="store.lead.origin_label"
         type="text"
@@ -29,28 +29,27 @@
       <VBtn
         color="update"
         medium
-        @click="updateCouplet"
+        @click="updateOptions"
       >
         Update
       </VBtn>
 
       <VBtn
-        v-if="allowDestroyCouplet"
+        v-if="allowDestroyOptions"
         color="destroy"
         medium
-        @click="destroyCouplet"
+        @click="destroyOptions"
       >
-        Delete both sides
+        Delete these options
       </VBtn>
 
       <VBtn
-        v-else-if="allowDeleteCouplet"
+        v-else-if="allowDeleteOptions"
         color="destroy"
         medium
-        @click="deleteCouplet"
+        @click="deleteOptions"
       >
-        Delete both sides and reparent children from
-        {{ leftHasChildren ? 'left' : 'right' }}
+        Delete these options and reparent the children
       </VBtn>
 
       <VBtn
@@ -59,34 +58,30 @@
         disabled
         medium
       >
-        Can't delete when both sides have children
+        Can't delete when more than one side has children
       </VBtn>
     </div>
 
     <div class="left_and_right_cplt">
       <Lead
-        side="left"
+        v-for="(child, i) in store.children"
+        :key="child.id"
+        :position="i"
         :redirect-options="redirectOptions"
-        :side-has-children="leftHasChildren"
-        @editing-has-occurred="() => emit('editingHasOccurred')"
-      />
-      <Lead
-        side="right"
-        :redirect-options="redirectOptions"
-        :side-has-children="rightHasChildren"
+        :child-has-children="childHasChildren(child, i)"
         @editing-has-occurred="() => emit('editingHasOccurred')"
       />
     </div>
   </div>
 
   <div v-else class="cplt_center">
-    <p>No couplets below this one.</p>
+    <p>No remaining choices.</p>
     <VBtn
       color="update"
       medium
       @click="nextCouplet"
     >
-      Create the next couplet
+      Create the next list of options
     </VBtn>
   </div>
 </template>
@@ -106,35 +101,36 @@ const store = useStore()
 const loading = ref(false)
 
 const hasChildren = computed(() => {
-  return store.left && !!store.left.id && store.right && !!store.right.id
+  return store.children.length >= 2 &&
+    (store.children[0].id && store.children[1].id)
 })
 
-const leftHasChildren = computed(() => {
-  return store.left && !!store.left.id &&
-    // Ignore redirect children.
-    !store.left.redirect_id &&
-    store.left_future.length > 0
+const allowDestroyOptions = computed(() => {
+  if (!store.lead.parent_id) {
+    return false
+  }
+
+  store.children.forEach((child, i) => {
+    if (childHasChildren(child, i)) {
+      return false
+    }
+  })
+
+  return true
 })
 
-const rightHasChildren = computed(() => {
-  return store.right && !!store.right.id &&
-    // Ignore redirect children.
-    !store.right.redirect_id &&
-    store.right_future.length > 0
-})
+const allowDeleteOptions = computed(() => {
+  let optionsWithChildrenCount = 0
+  store.children.forEach((child, i) => {
+    if (childHasChildren(child, i)) {
+      optionsWithChildrenCount++
+      if (optionsWithChildrenCount > 1) {
+        return false
+      }
+    }
+  })
 
-const allowDestroyCouplet = computed(() => {
-  return (
-    (!leftHasChildren.value && !rightHasChildren.value) &&
-    !!store.lead.parent_id
-  )
-})
-
-const allowDeleteCouplet = computed(() => {
-  return (
-    (!leftHasChildren.value && rightHasChildren.value) ||
-    (!rightHasChildren.value && leftHasChildren.value)
-  )
+  return true
 })
 
 const redirectOptions = ref([])
@@ -142,12 +138,14 @@ const redirectOptions = ref([])
 function loadRedirectOptions() {
   LeadEndpoint.redirect_option_texts(store.lead.id).then(({ body }) => {
     const texts = body.redirect_option_texts.flatMap((o) => {
-      if (
-        (store.left && o.id == store.left.id) ||
-        (store.right && o.id == store.right.id)
+      if (store.children.some((child) => {
+          // Don't allow redirect to a sibling
+          child.id == o.id
+        }) || o.id == store.lead.id
       ) {
         return []
       }
+
       let id_label = o.label ? ('[' + o.label + ']') : ''
       id_label = id_label + '[tw:' + o.id + ']'
       return [{
@@ -165,7 +163,7 @@ watch(
   { immediate: true }
 )
 
-function previousCouplet() {
+function previousOptions() {
   if (store.dataChangedSinceLastSave() &&
     !window.confirm(
       'You have unsaved data, are you sure you want to navigate to a new couplet?'
@@ -173,26 +171,58 @@ function previousCouplet() {
   ) {
     return
   }
+
   store.loadKey(store.lead.parent_id)
   emit('editingHasOccurred')
 }
 
-function updateCouplet() {
-  const payload = {
-      lead: store.lead,
-      left: store.left,
-      right: store.right
+function updateOptions() {
+  const leadOriginLabelChanged = store.originLabelChangedSinceLastSave()
+  const childrenToUpdate = store.childrenChangedSinceLastSaveList()
+  if (!leadOriginLabelChanged && childrenToUpdate.length == 0) {
+    TW.workbench.alert.create('No new changes to save.', 'notice')
+    return
+  }
+
+  const promises = childrenToUpdate.map((lead) => {
+    const payload = {
+      lead
+    }
+
+    return LeadEndpoint.update(lead.id, payload)
+      .then(({ body }) => {
+        // Future changes when redirect changes.
+        store.updateChild(body.lead, body.future)
+        emit('editingHasOccurred')
+      })
+      // TODO: if multiple fail we can get overlapping popup messages, but is
+      // there a way to catch here without also displaying the error message (so
+      // that we can instead combine error messages in allSettled)?
+      .catch(() => {})
+  })
+
+  if (leadOriginLabelChanged) {
+    const payload = {
+      lead: store.lead
+    }
+
+    promises.push(
+      LeadEndpoint.update(store.lead.id, payload)
+        .then(() => {
+          store.last_saved.origin_label = store.lead.origin_label
+          emit('editingHasOccurred')
+        })
+        .catch(() => {})
+    )
   }
 
   loading.value = true
-  LeadEndpoint.update(store.lead.id, payload)
-    .then(({ body }) => {
-      // Future changes when redirect changes, so reload.
-      store.loadKey(body)
-      TW.workbench.alert.create('Couplet was successfully saved.', 'notice')
-      emit('editingHasOccurred')
+  Promise.allSettled(promises)
+    .then((results) => {
+      if (results.every((r) => r.status == 'fulfilled')) {
+        TW.workbench.alert.create('Options were successfully saved.', 'notice')
+      }
     })
-    .catch(() => {})
     .finally(() => {
       loading.value = false
     })
@@ -210,15 +240,15 @@ function nextCouplet() {
     })
 }
 
-function destroyCouplet() {
+function destroyOptions() {
   if (window.confirm(
-    'Delete both left and right sides?'
+    'Delete all options for this stage of the key?'
   )) {
     loading.value = true
-    LeadEndpoint.destroy_couplet(store.lead.id)
+    LeadEndpoint.destroy_children(store.lead.id)
       .then(() => {
         store.loadKey(store.lead.id)
-        TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
+        TW.workbench.alert.create('Options were successfully deleted.', 'notice')
         emit('editingHasOccurred')
       })
       .catch(() => {})
@@ -228,15 +258,15 @@ function destroyCouplet() {
   }
 }
 
-function deleteCouplet() {
+function deleteOptions() {
   if (window.confirm(
-    'Delete both left and right sides and attach orphaned children to this parent?'
+    'Delete all options at this level of the key and re-attach orphaned children?'
   )) {
     loading.value = true
-    LeadEndpoint.delete_couplet(store.lead.id)
+    LeadEndpoint.delete_children(store.lead.id)
       .then(() => {
         store.loadKey(store.lead.id)
-        TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
+        TW.workbench.alert.create('Options were successfully deleted.', 'notice')
         emit('editingHasOccurred')
       })
       .catch(() => {})
@@ -244,6 +274,11 @@ function deleteCouplet() {
         loading.value = false
       })
   }
+}
+
+// i is the position of child. Redirects do not count as a child.
+function childHasChildren(child, i) {
+  return !!child?.id && store.futures[i].length > 0
 }
 </script>
 

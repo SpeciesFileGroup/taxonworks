@@ -13,7 +13,7 @@
         Future Couplets
       </template>
       <template #body>
-        <FutureCoupletsList
+        <FutureOptionSetsList
           :future="future"
           :load-function="(id) => emit('loadCouplet', id)"
           :route-name="RouteNames.ShowLead"
@@ -26,7 +26,7 @@
 
 <script setup>
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import FutureCoupletsList from '../../components/FutureCoupletsList.vue'
+import FutureOptionSetsList from '../../components/FutureOptionSetsList.vue'
 import Lead from './Lead.vue'
 import { RouteNames } from '@/routes/routes'
 

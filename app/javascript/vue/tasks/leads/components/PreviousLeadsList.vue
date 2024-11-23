@@ -7,12 +7,12 @@
       <div
         v-if="i > 0"
         :style="marginForDepth(i - 1)"
-        class="new-lead-half-couplet"
+        class="new-lead-choice"
       >
-        <CoupletChoiceLink
+        <OptionSetLink
           :load-function="loadFunction"
           :route-name="routeName"
-          :couplet-label="past[i - 1].origin_label"
+          :option-set-label="past[i - 1].origin_label"
           :lead="o"
         />
       </div>
@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import CoupletChoiceLink from './CoupletChoiceLink.vue'
+import OptionSetLink from './OptionSetLink.vue'
 import { marginForDepth } from '../helpers/formatters.js'
 
 const props = defineProps({
@@ -48,7 +48,7 @@ const props = defineProps({
 </script>
 
 <style lang="scss" scoped>
-.new-lead-half-couplet {
+.new-lead-choice {
   margin-bottom: .2em;
 }
 </style>

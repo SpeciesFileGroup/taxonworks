@@ -120,18 +120,8 @@ class Lead < ApplicationRecord
       d = Lead.create!(text: right_text, parent: self)
 
       new_parent = (p == :left || p == :root) ? c : d
-      last_sibling = nil
 
-      # !! The more obvious version using add_child is actually more error
-      # prone than using add_sibling.
-      o.each_with_index do |c, i|
-        if i == 0
-          new_parent.add_child c
-        else
-          last_sibling.append_sibling c
-        end
-        last_sibling = c
-      end
+      Lead.reparent_nodes(o, new_parent)
     else
       c = Lead.create!(text: t1, parent: self)
       d = Lead.create!(text: t1, parent: self)
@@ -140,49 +130,30 @@ class Lead < ApplicationRecord
     [c.id, d.id]
   end
 
-  # Destroy the children of this Lead, re-appending the grand-children to self
-  # !! Do not destroy couplet if children on > 1 side exist
-  def destroy_couplet
+  # Destroy the children of this Lead, re-appending the grandchildren to self
+  # !! Do not destroy children if more than one child has its own children
+  def destroy_children
     k = children.to_a
     return true if k.empty?
 
-    # TODO: handle multiple facets
-    # not first/last because that gives us a==b scenarios
-    a = k[0]
-    b = k[1]
+    original_child_count = k.count
+    grandkids = []
+    k.each do |c|
+      if c.children.present?
+        # Fail if more than one child has its own children
+        return false if grandkids.present?
 
-    c = a.children.to_a
-    d = b&.children&.to_a || []
-
-    if c.size == 0 || d.size == 0 # At least one side, but not two have children
-      if c.size > 0 || d.size > 0 # One side has children
-
-        has_kids = c.size > 0 ? a : b
-        no_kids = c.size == 0 ? a : b
-
-        i = has_kids.children
-
-        # Reparent the children of has_kids to self.
-        # !! The obvious solution using add_child is actually more error-prone
-        # than using add_sibling.
-        last_sibling = children[-1]
-        i.each do |z|
-          last_sibling.append_sibling z
-          last_sibling = z
-        end
-
-        has_kids.destroy!
-        no_kids.destroy!
-      else # Neither side has children
-        Lead.transaction do
-          a.destroy!
-          b&.destroy!
-        end
+        grandkids = c.children
       end
-      true
-    else
-      false
     end
+
+    Lead.reparent_nodes(grandkids, self)
+
+    children.slice(0, original_child_count).each do |c|
+      c.destroy!
+    end
+
+    true
   end
 
   def transaction_nuke(lead = self)
@@ -205,8 +176,8 @@ class Lead < ApplicationRecord
       c.all_children(c, result, depth + 1)
       a = {}
       a[:depth] = depth
-      a[:cpl] = c
-      a[:cplLabel] = node.origin_label
+      a[:options] = c
+      a[:optionsLabel] = node.origin_label
       result.push(a)
     end
     result
@@ -277,7 +248,23 @@ class Lead < ApplicationRecord
     return load_root_otus ? root_leads.includes(:otu) : root_leads
   end
 
-  protected
+  private
+
+  # Appends `nodes`` to the children of `new_parent``, in their given order.
+  # !! Use this instead of add_child to reparent multiple nodes (add_child
+  # doesn't work the way one might naievely expect, see the discussion at
+  # https://github.com/SpeciesFileGroup/taxonworks/pull/3892#issuecomment-2016043296)
+  def self.reparent_nodes(nodes, new_parent)
+    last_sibling = new_parent.children.last # may be nil
+    nodes.each do |n|
+      if last_sibling.nil?
+        new_parent.add_child(n)
+      else
+        last_sibling.append_sibling(n)
+      end
+      last_sibling = n
+    end
+  end
 
   def root_has_title
     errors.add(:root_node, 'must have a title') if parent_id.nil? and text.nil?
