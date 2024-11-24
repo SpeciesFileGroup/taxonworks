@@ -59,6 +59,7 @@ class LeadsController < ApplicationController
       expand_lead
     else
       @children = nil
+      @futures = nil
       @parents = @lead.ancestors.reverse
     end
   end

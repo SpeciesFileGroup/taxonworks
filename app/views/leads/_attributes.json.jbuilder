@@ -11,7 +11,7 @@ else
   end
 
   if lead[:couplet_count]
-    json.couplet_count lead[:couplet_count]
+    json.option_sets_count lead[:couplet_count]
   end
 
   if lead[:key_updated_at]

@@ -10,7 +10,7 @@
     <template #body>
       <PreviousLeadsList
         :past="[...parents, lead]"
-        :load-function="(id) => emit('loadCouplet', id)"
+        :load-function="(id) => emit('loadLead', id)"
         :route-name="RouteNames.ShowLead"
         :root-text="rootText"
       />
@@ -38,7 +38,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['loadCouplet'])
+const emit = defineEmits(['loadLead'])
 </script>
 
 <style lang="scss" scoped>

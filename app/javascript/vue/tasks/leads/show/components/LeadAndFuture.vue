@@ -10,12 +10,12 @@
       expand
     >
       <template #header>
-        Future Couplets
+        Future Option Sets
       </template>
       <template #body>
         <FutureOptionSetsList
           :future="future"
-          :load-function="(id) => emit('loadCouplet', id)"
+          :load-function="(id) => emit('loadLead', id)"
           :route-name="RouteNames.ShowLead"
         />
 
@@ -41,5 +41,5 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['loadCouplet'])
+const emit = defineEmits(['loadLead'])
 </script>

@@ -1,10 +1,10 @@
 <template>
-  <div class="cplt_center">
+  <div class="lead_center">
     <VBtn
       v-if="lead.parent_id"
       color="primary"
       medium
-      @click="() => emit('loadCouplet', lead.parent_id)"
+      @click="() => emit('loadLead', lead.parent_id)"
     >
       Up
     </VBtn>
@@ -13,7 +13,7 @@
       v-if="lead.origin_label"
       class="large_type"
     >
-      <b>Couplet {{ lead.origin_label }}</b>
+      <b>Option set {{ lead.origin_label }}</b>
     </div>
 
     <div v-if="lead.otu">
@@ -35,26 +35,22 @@
   </div>
 
   <div
-    v-if="left_expanded.lead && right_expanded.lead"
-    class="left_and_right_cplt"
+    v-if="optionSet.length > 0"
+    class="option_set"
   >
     <LeadAndFuture
+      v-for="(l, i) in optionSet"
+      :key="l.id"
       class="lead_and_future"
-      :lead="left_expanded.lead"
-      :future="left_expanded.future"
-      @load-couplet="(id) => emit('loadCouplet', id)"
-    />
-    <LeadAndFuture
-      class="lead_and_future"
-      :lead="right_expanded.lead"
-      :future="right_expanded.future"
-      @load-couplet="(id) => emit('loadCouplet', id)"
+      :lead="l"
+      :future="futures[i]"
+      @load-lead="(id) => emit('loadLead', id)"
     />
   </div>
-  <div v-else class="cplt_center">
+  <div v-else class="lead_center">
     <p>
       You're viewing a leaf node without the node it's associated with in the
-      key; go Up to view the full couplet.
+      key; go Up to view the full option set that includes this lead.
     </p>
   </div>
 </template>
@@ -68,21 +64,21 @@ const props = defineProps({
     type: Object,
     default: {}
   },
-  left_expanded: {
-    type: Object,
-    default: {}
+  optionSet: {
+    type: Array,
+    default: []
   },
-  right_expanded: {
-    type: Object,
-    default: {}
+  futures: {
+    type: Array,
+    default: []
   }
 })
 
-const emit = defineEmits(['loadCouplet'])
+const emit = defineEmits(['loadLead'])
 </script>
 
 <style lang="scss" scoped>
-.left_and_right_cplt {
+.option_set {
   margin-top: 2em;
   display: flex;
   justify-content:space-around;
@@ -97,7 +93,7 @@ const emit = defineEmits(['loadCouplet'])
   max-width: calc(600px + 4em + 16px + 4px);
   margin-bottom: 2em;
 }
-.cplt_center {
+.lead_center {
   display: flex;
   flex-direction: column;
   align-items: center;
