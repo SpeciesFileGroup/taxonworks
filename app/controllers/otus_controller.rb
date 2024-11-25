@@ -313,6 +313,16 @@ class OtusController < ApplicationController
     render '/otus/api/v1/autocomplete'
   end
 
+  # GET /api/v1/otus/:id/inventory/images
+  #  - routed here to take advantage of Pagination
+  def api_image_inventory
+    @images = ::Queries::Image::Filter.new(
+      params.permit(
+        :otu_id, otu_scope: [])
+    ).all.page(params[:page]).per(params[:per])
+    render '/otus/api/v1/inventory/images'
+  end
+
   # GET /api/v1/otus/:id/inventory/keys
   def api_key_inventory
     render json: helpers.otu_key_inventory(@otu)

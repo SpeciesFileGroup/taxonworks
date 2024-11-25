@@ -48,6 +48,7 @@ module Queries
       controlled_vocabulary_term: [:data_attribute],
       data_attribute: [:collection_object, :collecting_event, :taxon_name, :otu],
       dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event],
+      depiction: [:image],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
       field_occurrence: [], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
@@ -96,6 +97,7 @@ module Queries
       content_query: '::Queries::Content::Filter',
       controlled_vocabulary_term_query: '::Queries::ControlledVocabularyTerm::Filter',
       data_attribute_query: '::Queries::DataAttribute::Filter',
+      depiction_query: '::Queries::Depiction::Filter',
       descriptor_query: '::Queries::Descriptor::Filter',
       document_query: '::Queries::Document::Filter',
       dwc_occurrence_query: '::Queries::DwcOccurrence::Filter',
@@ -169,6 +171,9 @@ module Queries
 
     # @return [Query::Descriptor::Filter, nil]
     attr_accessor :descriptor_query
+
+    # @return [Query::Depiction::Filter, nil]
+    attr_accessor :depiction_query
 
     # @return [Query::Document::Filter, nil]
     attr_accessor :document_query

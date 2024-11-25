@@ -48,7 +48,11 @@ namespace :api, defaults: {format: :json} do
       get '/otus/:id/inventory/distribution', to: '/otus#api_distribution', as: :api_distribution
       get '/otus/:id/inventory/keys', to: '/otus#api_key_inventory', as: :key_inventory
       get '/otus/:id/inventory/taxonomy', to: '/otus#api_taxonomy_inventory', as: :taxonomy_inventory
+
       get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :images_inventory
+
+      get '/otus/:otu_id/inventory2/images', to: '/otus#api_image_inventory', as: :otu_images_inventory
+
       get '/otus/:id/inventory/dwc_gallery', to: '/otus#api_dwc_gallery', as: :dwc_inventory_gallery
       get '/otus/:id/inventory/dwc', to: '/otus#api_dwc_inventory', as: :dwc_inventory
       get '/otus/:id/inventory/type_material', to: '/otus#api_type_material_inventory', as: :type_material_inventory
