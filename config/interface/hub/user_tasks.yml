@@ -854,6 +854,7 @@ new_field_occurrence_task:
   categories:
     - collecting_event
     - georeference
+    - new
   status: prototype
   description: 'Link OTUs to collecting events. Used when no physical object was collected and returned to a repository.'
 debug_geographic_item_task:
@@ -998,4 +999,3 @@ print_key_task:
   categories:
   status: prototype
   description: 'Format a key for print.'
-
