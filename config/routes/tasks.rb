@@ -1,4 +1,14 @@
 scope :tasks do
+  scope :gazetteers do
+    scope :import_gazetteers, controller: 'tasks/gazetteers/import_gazetteers' do
+      get '/', action: :index, as: 'import_gazetteers_task'
+    end
+
+    scope :new_gazetteer, controller: 'tasks/gazetteers/new_gazetteer' do
+      get '/', action: :index, as: 'new_gazetteer_task'
+    end
+  end
+
   scope :containers do
     scope :new_container, controller: 'tasks/containers/new_container' do
       get '/', action: :index, as: 'new_container_task'

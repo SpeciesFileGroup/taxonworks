@@ -186,7 +186,7 @@ class GeographicArea < ApplicationRecord
 
   scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
 
-  # Based strictly on the original data recording a level ID, 
+  # Based strictly on the original data recording a level ID,
   # this is *inferrence* and it will fail with some data.
   def self.inferred_as_country
     where('geographic_areas.level0_id = geographic_areas.id')
@@ -245,7 +245,8 @@ class GeographicArea < ApplicationRecord
   def self.is_contained_by(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
-      pieces = GeographicItem.is_contained_by('any_poly', geographic_area.geo_object)
+      pieces = GeographicItem.st_covered_by('any_poly',
+        geographic_area.default_geographic_item)
       others = []
       pieces.each { |other|
         others.push(other.geographic_areas.to_a)
@@ -260,7 +261,8 @@ class GeographicArea < ApplicationRecord
   def self.are_contained_in(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
-      pieces = GeographicItem.are_contained_in_item('any_poly', geographic_area.geo_object)
+      pieces = GeographicItem.st_covers('any_poly',
+        geographic_area.default_geographic_item)
       others = []
       pieces.each { |other|
         others.push(other.geographic_areas.to_a)
@@ -275,8 +277,25 @@ class GeographicArea < ApplicationRecord
   # @return [Scope] all areas which contain the point specified.
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
     point = ActiveRecord::Base.send(:sanitize_sql_array, ['POINT(:long :lat)', long: longitude, lat: latitude])
-    a = ::GeographicArea.joins(:geographic_items).where("ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))")
-    b = ::GeographicArea.joins(:geographic_items).where("ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))")
+
+    a = ::GeographicArea.joins(:geographic_items)
+      .merge(::GeographicItem.polygons)
+      .where(
+        ::GeographicItem.st_covers_sql(
+          ::GeographicItem.geography_as_geometry,
+          ::GeographicItem.st_geom_from_text_sql(point)
+        )
+      )
+
+    b = ::GeographicArea.joins(:geographic_items)
+      .merge(::GeographicItem.multi_polygons)
+      .where(
+        ::GeographicItem.st_covers_sql(
+          ::GeographicItem.geography_as_geometry,
+          ::GeographicItem.st_geom_from_text_sql(point)
+        )
+      )
+
     GeographicArea.from("((#{a.to_sql}) UNION (#{b.to_sql})) as geographic_areas")
   end
 
@@ -287,7 +306,7 @@ class GeographicArea < ApplicationRecord
     ::GeographicArea
       .joins(:geographic_items)
       .merge(GeographicArea.find_by_lat_long(latitude, longitude))
-      .select("geographic_areas.*, ST_Area(#{::GeographicItem::GEOMETRY_SQL.to_sql}) As sqft")
+      .select('geographic_areas.*, ST_Area(geography::geometry) AS sqft')
       .order('sqft')
       .distinct
   end
@@ -419,7 +438,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [RGeo object] of the default GeographicItem
   def geo_object
-    default_geographic_item
+    default_geographic_item&.geo_object
   end
 
   alias shape geo_object
@@ -479,7 +498,7 @@ class GeographicArea < ApplicationRecord
       # this nil signals the top of the stack: Everything terminates at 'Earth'
       item = parent.geographic_area_map_focus unless parent.nil?
     else
-      item = GeographicItem.new(point: geographic_items.first.st_centroid)
+      item = GeographicItem.new(geography: geographic_items.first.st_centroid)
     end
     item
   end
@@ -490,8 +509,8 @@ class GeographicArea < ApplicationRecord
     h = name_hash
 
     if item = geographic_area_map_focus # rubocop:disable Lint/AssignmentInCondition
-      h['Longitude'] = item.point.x
-      h['Latitude']  = item.point.y
+      h['Longitude'] = item.geography.x
+      h['Latitude']  = item.geography.y
     end
 
     h

@@ -7,9 +7,9 @@ ruby '>= 3.2', '< 3.4.0'
 gem 'bundler', '~> 2.5'
 
 gem 'rake', '~> 13.0'
-gem 'rails', '~> 7.1'
+gem 'rails', '~> 7.2'
 gem 'pg', '~> 1.1'
-gem 'activerecord-postgis-adapter', '~> 9.0'
+gem 'activerecord-postgis-adapter', '~> 10.0'
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.5'
 gem 'bootsnap', require: false
@@ -24,7 +24,7 @@ gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 5.1'
-gem 'rmagick', '~> 6.0' 
+gem 'rmagick', '~> 6.0'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 
@@ -36,8 +36,6 @@ gem 'matrix', '~> 0.4.2'
 
 # Geo
 
-# gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
-
 # gem 'ffi-geos', '~> 2.3.0'
 # gem 'rgeo', '~> 2.2'
 # gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
@@ -47,6 +45,7 @@ gem 'ffi-geos', '~> 2.4.0'
 gem 'rgeo', '~> 3.0'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
 gem 'rgeo-proj4', '~> 4.0' #, '>= 3.0.1'
+gem 'rgeo-shapefile', '~> 3.0'
 
 gem 'postgresql_cursor', '~> 0.6.1'
 

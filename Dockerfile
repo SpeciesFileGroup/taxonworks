@@ -17,7 +17,7 @@ RUN npm install
 
 COPY . /app
 
-# See https://github.com/phusion/passenger-docker 
+# See https://github.com/phusion/passenger-docker
 RUN mkdir -p /etc/my_init.d
 ADD config/docker/nginx/init.sh /etc/my_init.d/init.sh
 RUN chmod +x /etc/my_init.d/init.sh && \
@@ -57,14 +57,14 @@ RUN [ "x$REVISION" != "x" ] && echo $REVISION > /app/REVISION && \
 FROM base AS assets-precompiler
 
 # http://blog.zeit.io/use-a-fake-db-adapter-to-play-nice-with-rails-assets-precompilation/
-RUN bundle add activerecord-nulldb-adapter
-RUN printf "production:\n  adapter: nulldb" > config/database.yml \
-&&  printf "production:\n  secret_key_base: $(bundle exec rails secret)" > config/secrets.yml
+#RUN bundle add activerecord-nulldb-adapter
+RUN bundle add activerecord-nulldb-adapter --github="taylorthurlow/nulldb" --ref=8183e9d
+RUN printf "production:\n  adapter: nulldb" > config/database.yml
 
 # Precompiling and also removing config files just in case someone uses `docker build --target=assets-precompiler`
 
-RUN NODE_OPTIONS="--max-old-space-size=4096" bundle exec rake assets:precompile \
-&& rm config/database.yml config/secrets.yml
+RUN NODE_OPTIONS="--max-old-space-size=4096" SECRET_KEY_BASE="$(bundle exec rails secret)" bundle exec rake assets:precompile \
+&& rm config/database.yml
 
 FROM base
 COPY --from=assets-precompiler --chown=9999:9999 /app/public /app/public

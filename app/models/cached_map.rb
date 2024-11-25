@@ -78,7 +78,7 @@ class CachedMap < ApplicationRecord
   end
 
   def self.union_sql(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
-    i = ::GeographicItem.select("#{GeographicItem::GEOMETRY_SQL.to_sql}")
+    i = ::GeographicItem.select(GeographicItem.geography_as_geometry)
       .joins('JOIN cached_map_items cmi on cmi.geographic_item_id = geographic_items.id')
       .joins('JOIN otu_scope AS otu_scope1 on otu_scope1.id = cmi.otu_id')
       .where('cmi.untranslated IS NULL OR cmi.untranslated <> true')
