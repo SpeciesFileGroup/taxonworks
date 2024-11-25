@@ -6,7 +6,20 @@
 
   <BlockLayout class="lead">
     <template #header>
-      <div class="full_width horizontal-right-content">
+      <div class="full_width header-left-right">
+        <div>
+          <VBtn
+            v-if="store.children.length > 2 && !leadHasChildren"
+            color="destroy"
+            circle
+            @click="() => deleteLead()"
+          >
+            <VIcon
+              x-small
+              name="trash"
+            />
+          </VBtn>
+        </div>
         <RadialAnnotator
           :global-id="store.children[position].global_id"
           @create="handleRadialCreate"
@@ -34,7 +47,7 @@
         </VBtn>
 
         <VBtn
-          :disabled="!!store.last_saved.children[position].redirect_id || !childHasChildren"
+          :disabled="!!store.last_saved.children[position].redirect_id || !leadHasChildren"
           color="create"
           medium
           @click="insertCouplet()"
@@ -89,7 +102,7 @@
         <select
           class="redirect_select"
           v-model="store.children[position].redirect_id"
-          :disabled="childHasChildren"
+          :disabled="leadHasChildren"
         >
           <option :value="null"></option>
           <option
@@ -123,6 +136,7 @@
 import { DEPICTION, LEAD } from '@/constants/index.js'
 import { Lead } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
+import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
 import { useStore } from '../store/useStore.js'
@@ -132,6 +146,7 @@ import FutureOptionSetsList from '../../components/FutureOptionSetsList.vue'
 import OtuChooser from './OtuChooser.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
@@ -139,7 +154,8 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  childHasChildren: {
+  // TODO: this can be computed using position, do that
+  leadHasChildren: {
     type: Boolean,
     required: true
   },
@@ -159,7 +175,7 @@ const loading = ref(false)
 
 const nextButtonDisabled = computed(() => {
   return (
-    !props.childHasChildren &&
+    !props.leadHasChildren &&
     !store.last_saved.children[props.position].redirect_id &&
     !store.last_saved.children[props.position].text
   )
@@ -174,7 +190,7 @@ const displayLinkOut = computed(() => {
 const editNextText = computed(() => {
   if (!!store.last_saved.children[props.position].redirect_id) {
     return 'Follow redirect and edit'
-  } else if (props.childHasChildren) {
+  } else if (props.leadHasChildren) {
     return 'Edit the next options set'
   } else {
     if (store.last_saved.children[props.position].text) {
@@ -219,7 +235,7 @@ function nextOptions() {
   if (!userOkayToLeave()) {
     return
   }
-  if (props.childHasChildren) {
+  if (props.leadHasChildren) {
     store.loadKey(store.children[props.position].id)
   } else if (!!store.last_saved.children[props.position].redirect_id) {
     store.loadKey(store.last_saved.children[props.position].redirect_id)
@@ -246,9 +262,32 @@ function userOkayToLeave() {
   }
   return true
 }
+
+function deleteLead() {
+  if (!window.confirm('Are you sure you want to delete this lead?')) {
+    return
+  }
+
+  loading.value = true
+  LeadEndpoint.destroy_leaf(store.children[props.position].id)
+    .then(() => {
+      store.deleteChild(props.posittion)
+      TW.workbench.alert.create('Lead deleted', 'notice')
+    })
+    .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
+}
 </script>
 
 <style lang="scss" scoped>
+.header-left-right {
+  display: flex;
+  > :first-child {
+    flex-grow: 1;
+  }
+}
 .lead {
   max-width: 600px;
   min-width: 360px;

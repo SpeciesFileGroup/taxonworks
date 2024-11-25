@@ -448,6 +448,7 @@ resources :leads do
     get :redirect_option_texts
     get :otus
     post :add_lead
+    post :destroy_leaf
   end
 end
 

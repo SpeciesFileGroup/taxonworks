@@ -78,7 +78,7 @@
         :key="child.id"
         :position="i"
         :redirect-options="redirectOptions"
-        :child-has-children="childHasChildren(child, i)"
+        :lead-has-children="childHasChildren(child, i)"
         @editing-has-occurred="() => emit('editingHasOccurred')"
       />
     </div>
@@ -309,7 +309,7 @@ function childHasChildren(child, i) {
 <style lang="scss" scoped>
 .left_and_right_option_set {
   display: flex;
-  justify-content:space-around;
+  justify-content: space-around;
   flex-wrap: wrap;
   gap: 2em;
 }

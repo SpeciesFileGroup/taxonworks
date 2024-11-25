@@ -3,7 +3,7 @@ class LeadsController < ApplicationController
   before_action :set_lead, only: %i[
     edit create_for_edit update destroy show show_all show_all_print
     redirect_option_texts destroy_children insert_couplet delete_children
-    duplicate update_meta otus]
+    duplicate update_meta otus destroy_leaf swap]
 
   # GET /leads
   # GET /leads.json
@@ -153,6 +153,22 @@ class LeadsController < ApplicationController
         end
       end
     end
+  end
+
+  # POST /leads/1/destroy_leaf.json
+  def destroy_leaf
+    if !@lead.leaf?
+      @lead.errors.add(
+        :delete, 'failed, can only be called on a lead with no children'
+      )
+      format.json {
+        render json: @lead.errors, status: :unprocessable_entity
+      }
+      return
+    end
+
+    @lead.destroy!
+    head :no_content
   end
 
   # For destroying all children at a particular level of the key where none of

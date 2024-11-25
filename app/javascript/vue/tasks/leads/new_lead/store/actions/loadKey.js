@@ -32,6 +32,7 @@ export default async function(id_or_couplet) {
   this.root = lo.root
   this.lead = lo.lead
   this.children = lo.children
+  // TODO rename
   this.parents = lo.parents
   this.futures = lo.futures
   this.last_saved = {
