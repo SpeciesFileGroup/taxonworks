@@ -180,7 +180,7 @@ class Otu < ApplicationRecord
 
   def self.coordinate_otu_ids(otu_ids = [])
     ids = []
-    otu_id.each do |id|
+    otu_ids.each do |id|
       ids += ::Otu.coordinate_otus(id).pluck(:id)
     end
     ids.uniq
