@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Async DwcOccurrence refreshes that referenced destroyed objects
 - FieldOccurrence Radial Navigator
 - Unify objects: Same object can be selected on both sides [#4100]
+- New taxon name: Cannot create new combination (under ICN) [#4127]
 
 [#4117]: https://github.com/SpeciesFileGroup/taxonworks/issues/4117
 [#4071]: https://github.com/SpeciesFileGroup/taxonworks/issues/4071
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4103]: https://github.com/SpeciesFileGroup/taxonworks/issues/4103
 [#4108]: https://github.com/SpeciesFileGroup/taxonworks/issues/4108
 [#4110]: https://github.com/SpeciesFileGroup/taxonworks/issues/4110
+[#4127]: https://github.com/SpeciesFileGroup/taxonworks/issues/4127
 
 ## [0.45.0] - 2024-10-30
 
