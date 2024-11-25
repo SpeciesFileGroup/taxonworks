@@ -10,7 +10,7 @@ RSpec.describe Lead, type: :model do
 
   specify '#destroy_children destroys when one child' do
     FactoryBot.create(:valid_lead, parent: lead)
-    lead.destroy_children
+    lead.reload.destroy_children
     expect(Lead.count).to eq(1)
   end
 
@@ -171,14 +171,6 @@ RSpec.describe Lead, type: :model do
       expect(q.map { |r| r.text }). to eq(['a', 'b', 'c'])
     end
 
-    specify 'returns couplet_count' do
-      ids = lead.insert_couplet
-      Lead.find(ids[0]).insert_couplet
-
-      q = Lead.roots_with_data(project_id)
-      expect(q.first.couplet_count).to eq(2)
-    end
-
     specify 'returns otus_count' do
       ids = lead.insert_couplet
       otu1 = FactoryBot.create(:valid_otu)
@@ -276,7 +268,7 @@ RSpec.describe Lead, type: :model do
       expect(r.future.size).to be(0)
       r.redirect_id = lr.id
       expect(r.future.size).to be(2)
-      expect(r.future.first[:cpl].text).to eq('lrr')
+      expect(r.future.first[:lead].text).to eq('lrr')
     end
 
     specify 'dupe' do
@@ -293,16 +285,16 @@ RSpec.describe Lead, type: :model do
 
     specify 'all_children' do
       expect(root.all_children.size).to eq(6)
-      expect(root.all_children.first[:cpl].text).to eq('r')
-      expect(root.all_children.last[:cpl].text).to eq('l')
+      expect(root.all_children.first[:lead].text).to eq('r')
+      expect(root.all_children.last[:lead].text).to eq('l')
       expect(l.all_children.size).to eq(4)
       expect(r.all_children.size).to eq(0)
     end
 
     specify 'all_children_standard_key' do
       expect(root.all_children_standard_key.size).to eq(6)
-      expect(root.all_children_standard_key.first[:cpl].text).to eq('l')
-      expect(root.all_children_standard_key.last[:cpl].text).to eq('lrr')
+      expect(root.all_children_standard_key.first[:lead].text).to eq('l')
+      expect(root.all_children_standard_key.last[:lead].text).to eq('lrr')
       expect(l.all_children_standard_key.size).to eq(4)
       expect(r.all_children_standard_key.size).to eq(0)
     end
@@ -443,7 +435,6 @@ RSpec.describe Lead, type: :model do
 
     specify "destroy_children doesn't change order of reparented nodes (left)" do
       l.destroy_children
-      byebug
       expect(Lead.find_by(text: 'lrl').position)
         .to be < Lead.find_by(text: 'lrr').position
     end

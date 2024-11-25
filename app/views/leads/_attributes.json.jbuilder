@@ -10,8 +10,8 @@ else
     json.otus_count lead[:otus_count]
   end
 
-  if lead[:couplet_count]
-    json.option_sets_count lead[:couplet_count]
+  if lead[:option_sets_count]
+    json.option_sets_count lead[:option_sets_count]
   end
 
   if lead[:key_updated_at]
@@ -37,10 +37,6 @@ else
         json.partial! '/otus/attributes', otu: lead.otu, extensions: false
       end
     end
-  end
-
-  if extend_response_with('couplet_count')
-    json.couplet_count (lead.self_and_descendants.count - 1) / 2
   end
 
   if extend_response_with('updater')

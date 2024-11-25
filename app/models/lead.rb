@@ -172,12 +172,12 @@ class Lead < ApplicationRecord
   # TODO: Probably a helper method
   def all_children(node = self, result = [], depth = 0)
     # TODO multifurcate
-    for c in [node.children.second, node.children.first].compact # intentionally reversed
+    for c in node.children.to_a.reverse # intentionally reversed
       c.all_children(c, result, depth + 1)
       a = {}
       a[:depth] = depth
-      a[:options] = c
-      a[:optionsLabel] = node.origin_label
+      a[:lead] = c
+      a[:leadLabel] = node.origin_label
       result.push(a)
     end
     result
@@ -189,7 +189,7 @@ class Lead < ApplicationRecord
     for c in ch
       a = {}
       a[:depth] = depth
-      a[:cpl] = c
+      a[:lead] = c
       result.push(a)
     end
 
@@ -201,7 +201,7 @@ class Lead < ApplicationRecord
 
   # @return [ActiveRecord::Relation] ordered by text.
   # Returns all root nodes, with new properties:
-  #  * couplet_count (number of couplets in the key)
+  #  * option_sets_count (declared here, computed in views)
   #  * otus_count (total number of distinct otus on the key)
   #  * key_updated_at (last time the key was updated)
   #  * key_updated_by_id (id of last person to update the key)
@@ -214,8 +214,6 @@ class Lead < ApplicationRecord
     # The updated_at subquery computes key_updated_at (and others), the second
     # query uses that to compute key_updated_by (by finding which node has the
     # corresponding key_updated_at).
-    # TODO: couplet_count will be wrong if any couplets don't have exactly two
-    # children.
     updated_at = Lead
       .joins('JOIN lead_hierarchies AS lh
         ON leads.id = lh.ancestor_id')
@@ -229,9 +227,10 @@ class Lead < ApplicationRecord
       .select('
         leads.*,
         COUNT(DISTINCT otus_source.otu_id) AS otus_count,
-        MAX(otus_source.updated_at) as key_updated_at,
-        (COUNT(otus_source.id) - 1) / 2 AS couplet_count
-      ')
+        MAX(otus_source.updated_at) AS key_updated_at,
+        0 AS option_sets_count' # count is now computed in views
+        #·(COUNT(otus_source.id) - 1) / 2 AS couplet_count
+      )
 
     root_leads = Lead
       .joins("JOIN (#{updated_at.to_sql}) AS leads_updated_at

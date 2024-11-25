@@ -4,7 +4,7 @@
     full-screen
   />
 
-  <div class="cplt_center">
+  <div class="option_set_center">
     <VBtn
       :disabled="!store.lead.parent_id"
       color="primary"
@@ -16,7 +16,7 @@
   </div>
 
   <div v-if="hasChildren">
-    <div class="cplt_center">
+    <div class="option_set_center">
       <label>Options number from citation: </label>
       <input
         v-model="store.lead.origin_label"
@@ -25,7 +25,7 @@
         size="3"
       />
     </div>
-    <div class="cplt_horizontal_buttons">
+    <div class="option_set_horizontal_buttons">
       <VBtn
         color="update"
         medium
@@ -62,7 +62,7 @@
       </VBtn>
     </div>
 
-    <div class="left_and_right_cplt">
+    <div class="left_and_right_option_set">
       <Lead
         v-for="(child, i) in store.children"
         :key="child.id"
@@ -74,7 +74,7 @@
     </div>
   </div>
 
-  <div v-else class="cplt_center">
+  <div v-else class="option_set_center">
     <p>No remaining choices.</p>
     <VBtn
       color="update"
@@ -283,16 +283,16 @@ function childHasChildren(child, i) {
 </script>
 
 <style lang="scss" scoped>
-.left_and_right_cplt {
+.left_and_right_option_set {
   display: flex;
   justify-content:space-around;
 }
-.cplt_center {
+.option_set_center {
   margin-top: 1em;
   margin-bottom: 1em;
   text-align: center;
 }
-.cplt_horizontal_buttons {
+.option_set_horizontal_buttons {
   display: grid;
   grid-template-columns: 50% 50%;
   column-gap: 0px;

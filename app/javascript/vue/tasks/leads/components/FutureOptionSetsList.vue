@@ -2,14 +2,14 @@
   <div v-if="future.length">
     <div
       v-for="o in future.toReversed()"
-      :key="o.options.id"
+      :key="o.lead.id"
       :style="marginForDepth(o.depth)"
     >
       <OptionSetLink
         :load-function="loadFunction"
         :route-name="routeName"
-        :option-set-label="o.optionsLabel"
-        :lead="o.options"
+        :option-set-label="o.leadLabel"
+        :lead="o.lead"
         :otu-tag="o.otuLabel"
       />
     </div>
