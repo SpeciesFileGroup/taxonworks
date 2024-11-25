@@ -26,13 +26,23 @@
       />
     </div>
     <div class="option_set_horizontal_buttons">
-      <VBtn
-        color="update"
-        medium
-        @click="updateOptions"
-      >
-        Update
-      </VBtn>
+      <div>
+        <VBtn
+          color="update"
+          medium
+          @click="updateOptions"
+        >
+          Update
+        </VBtn>
+
+        <VBtn
+          color="update"
+          medium
+          @click="addLead"
+        >
+          Add a lead
+        </VBtn>
+      </div>
 
       <VBtn
         v-if="allowDestroyOptions"
@@ -235,6 +245,20 @@ function nextCouplet() {
       store.loadKey(body)
       emit('editingHasOccurred')
     })
+    .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
+}
+
+function addLead() {
+  loading.value = true
+  LeadEndpoint.add_lead(store.lead.id)
+    .then(({ body }) => {
+      store.addLead(body)
+      TW.workbench.alert.create('Added a new lead.', 'notice')
+    })
+    .catch(() => {})
     .finally(() => {
       loading.value = false
     })
@@ -286,6 +310,8 @@ function childHasChildren(child, i) {
 .left_and_right_option_set {
   display: flex;
   justify-content:space-around;
+  flex-wrap: wrap;
+  gap: 2em;
 }
 .option_set_center {
   margin-top: 1em;

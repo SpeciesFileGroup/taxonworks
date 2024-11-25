@@ -51,5 +51,9 @@ export const Lead = {
 
   otus: (id) => AjaxCall(
     'get', `/${controller}/${id}/otus.json`
+  ),
+
+  add_lead: (id) => AjaxCall(
+    'post', `/${controller}/${id}/add_lead.json`
   )
 }

@@ -251,12 +251,14 @@ function userOkayToLeave() {
 <style lang="scss" scoped>
 .lead {
   max-width: 600px;
+  min-width: 360px;
   flex-grow: 1;
   margin-bottom: 2em;
 }
 .navigation {
   display: flex;
   justify-content: space-evenly;
+  gap: 3px;
 }
 .redirect_notice {
   margin-bottom: 1em;

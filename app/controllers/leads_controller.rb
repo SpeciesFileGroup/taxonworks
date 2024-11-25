@@ -194,6 +194,12 @@ class LeadsController < ApplicationController
     end
   end
 
+  # POST /leads/1/add_lead.json
+  def add_lead
+    parent = Lead.find(params[:id])
+    @lead = parent.children.create!
+  end
+
   # POST /leads/1/duplicate
   def duplicate
     respond_to do |format|

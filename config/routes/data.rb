@@ -447,6 +447,7 @@ resources :leads do
     post :duplicate
     get :redirect_option_texts
     get :otus
+    post :add_lead
   end
 end
 
