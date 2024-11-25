@@ -7,7 +7,32 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Simplemappr (https://www.simplemappr.net) export support from filter collection objects
+- Print key task [#4071] [#4117]
+- `/api/v1/leads/key/:id` endpoint serving `pinpoint` key app
+- Filter loans: Identifiers, created by and updated by columns [#4098]
+- Edit/New loan task: Add `none` status option
+- Edit/New Field occurence task: biological associations panel [#4103]
+- Edit/New Field occurence task: depictions panel [#4108]
+- Matrix row coder task: Now and Today lock buttons [#4110]
+
+### Fixed
+
+- Async DwcOccurrence refreshes that referenced destroyed objects
+- FieldOccurrence Radial Navigator
+- Unify objects: Same object can be selected on both sides [#4100]
+- New taxon name: Cannot create new combination (under ICN) [#4127]
+
+[#4117]: https://github.com/SpeciesFileGroup/taxonworks/issues/4117
+[#4071]: https://github.com/SpeciesFileGroup/taxonworks/issues/4071
+[#4098]: https://github.com/SpeciesFileGroup/taxonworks/issues/4098
+[#4100]: https://github.com/SpeciesFileGroup/taxonworks/issues/4100
+[#4103]: https://github.com/SpeciesFileGroup/taxonworks/issues/4103
+[#4108]: https://github.com/SpeciesFileGroup/taxonworks/issues/4108
+[#4110]: https://github.com/SpeciesFileGroup/taxonworks/issues/4110
+[#4127]: https://github.com/SpeciesFileGroup/taxonworks/issues/4127
 
 ## [0.45.0] - 2024-10-30
 

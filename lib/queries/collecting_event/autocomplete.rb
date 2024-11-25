@@ -74,6 +74,7 @@ module Queries
       # @return [Array]
       #   TODO: optimize limits
       def autocomplete
+        return [] if query_string.blank?
         queries = [
           autocomplete_exact_id,
           autocomplete_verbatim_label_md5,

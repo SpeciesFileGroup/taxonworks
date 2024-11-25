@@ -36,6 +36,11 @@ scope :tasks do
     scope :new_lead, controller: 'tasks/leads/new_lead' do
       get '/', action: :index, as: 'new_lead_task'
     end
+
+    scope :print, controller: 'tasks/leads/print' do
+      get '/', action: :index, as: 'print_key_task'
+      get :table, action: :table, as: 'print_key_table_task'
+    end
   end
 
   scope :metadata do
@@ -157,12 +162,6 @@ scope :tasks do
     scope :nomenclature, controller: 'tasks/exports/nomenclature' do
       get 'basic', action: :basic, as: 'export_basic_nomenclature_task'
       get 'download_basic', as: 'download_basic_nomenclature_task'
-    end
-  end
-
-  scope :matrix_image do
-    scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
-      get :index, as: 'index_matrix_image_task'
     end
   end
 
@@ -532,6 +531,10 @@ scope :tasks do
   end
 
   scope :gis do
+    scope :simplemappr, controller: 'tasks/gis/simplemappr' do
+      match '/', action: :index, via: [:get, :post]
+    end
+
     scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
       get 'index', as: 'geographic_area_lookup_task'
       get 'resolve', as: 'geographic_area_lookup_resolve_task', format: :js
@@ -644,7 +647,7 @@ scope :tasks do
 
   scope :otus do
     scope :duplicates, controller: 'tasks/otus/duplicates' do
-     get '/', action: 'index', as: 'duplicate_otus_task'
+      get '/', action: 'index', as: 'duplicate_otus_task'
      get :data, as: 'duplicate_otus_task_data', defaults: {format: :json}
     end
 

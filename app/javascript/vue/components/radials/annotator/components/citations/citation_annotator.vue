@@ -31,7 +31,7 @@
     >
       <template #footer>
         <VBtn
-          class="margin-small-left"
+          v-if="!citation.id"
           color="primary"
           medium
           @click="() => (citation = newCitation())"

@@ -1,4 +1,4 @@
-class Tasks::MatrixImage::MatrixImageController < ApplicationController
+class Tasks::ObservationMatrices::MatrixImageController < ApplicationController
   include TaskControllerConfiguration
 
   def index

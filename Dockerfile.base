@@ -12,7 +12,7 @@ RUN echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg m
       curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
       echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
       apt update && apt-get install -y locales software-properties-common \
-                         postgresql-client-15 \
+                         postgresql-client-16 \
                          build-essential autoconf libtool git-core jq \
                          libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
                          pkg-config poppler-utils \

@@ -160,7 +160,6 @@ class TaxonName < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::Labels
   include SoftValidation
-  include Shared::IsData
   include Shared::QueryBatchUpdate
   include TaxonName::OtuSyncronization
   include TaxonName::Hierarchy
@@ -170,6 +169,7 @@ class TaxonName < ApplicationRecord
 
   include TaxonName::MatrixHooks
   include Shared::DwcOccurrenceHooks
+  include Shared::IsData
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # !! Don't even think about putting this on `name`
@@ -454,6 +454,11 @@ class TaxonName < ApplicationRecord
 
     ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
   end
+
+  soft_validate(:sv_missing_confidence_level,
+                set: :missing_fields,
+                name: 'Missing confidence level',
+                description: 'To remaind that the taxon spelling have to be compared to the original source' )
 
   soft_validate(:sv_missing_original_publication,
                 set: :missing_fields,
@@ -1266,7 +1271,9 @@ class TaxonName < ApplicationRecord
       gender = i.gender_name if rank == 'genus'
 
       if i.is_genus_or_species_rank?
-        if ['genus', 'subgenus', 'species', 'subspecies'].include?(rank)
+        if ['genus', 'subgenus', 'species', 'subspecies'].include?(rank) && rank_string =~ /Iczn/
+          data[rank] = [nil, i.name_with_misspelling(gender)]
+        elsif ['genus', 'subgenus', 'species'].include?(rank)
           data[rank] = [nil, i.name_with_misspelling(gender)]
         else
           data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]

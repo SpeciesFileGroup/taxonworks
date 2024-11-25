@@ -24,10 +24,12 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
     td = FactoryBot.create(:valid_taxon_determination, otu: FactoryBot.create(:valid_otu, taxon_name: t), taxon_determination_object: s)
 
     expect(s.dwc_occurrence.reload.scientificName).to eq(t.cached_name_and_author_year)
-
     r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: t, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-
     expect(s.dwc_occurrence.reload.scientificName).to eq(species.cached_name_and_author_year)
+
+    # Back the other way
+    r1.destroy!
+    expect(s.dwc_occurrence.reload.scientificName).to eq(t.cached_name_and_author_year)
   end
 
   context 'required attributes' do

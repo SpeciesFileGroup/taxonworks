@@ -23,8 +23,8 @@
 #
 class BiocurationClassification < ApplicationRecord
   include Housekeeping
-  include Shared::IsData
   include Shared::DwcOccurrenceHooks
+  include Shared::IsData
 
   acts_as_list scope: [:biocuration_classification_object_id, :biocuration_classification_object_type, :project_id]
 

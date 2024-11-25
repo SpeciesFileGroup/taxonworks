@@ -89,7 +89,11 @@
             },
             filter: '.item-filter'
           }"
-          :relationships="combinationRanks.speciesGroup"
+          :relationships="
+            isICN
+              ? combinationRanks.SpeciesAndInfraspeciesGroup
+              : combinationRanks.speciesGroup
+          "
         />
         <div class="original-combination separate-top separate-bottom">
           <div class="flex-wrap-column rank-name-label">
@@ -172,7 +176,9 @@ export default {
       return Object.assign(
         {},
         this.combinationRanks.genusGroup,
-        this.combinationRanks.speciesGroup
+        this.isICN
+          ? this.combinationRanks.SpeciesAndInfraspeciesGroup
+          : this.combinationRanks.speciesGroup
       )
     },
 

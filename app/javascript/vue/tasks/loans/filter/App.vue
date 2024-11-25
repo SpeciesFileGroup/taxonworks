@@ -10,7 +10,7 @@
       v-model="parameters"
       :selected-ids="selectedIds"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -42,9 +42,12 @@ import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
+import { listParser } from './utils/listParser.js'
 import { ATTRIBUTES } from './constants/attributes'
 import { Loan } from '@/routes/endpoints'
 import { LOAN } from '@/constants/index.js'
+
+const extend = ['identifiers', 'roles']
 
 const {
   isLoading,
@@ -57,7 +60,10 @@ const {
   selectedIds,
   makeFilterRequest,
   resetFilter
-} = useFilter(Loan)
+} = useFilter(Loan, {
+  initParameters: { extend },
+  listParser
+})
 </script>
 
 <script>

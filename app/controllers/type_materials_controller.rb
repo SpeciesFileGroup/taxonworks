@@ -94,12 +94,13 @@ class TypeMaterialsController < ApplicationController
     @type_materials = Queries::TypeMaterial::Autocomplete.new(params[:term], project_id: sessions_current_project_id).all
 
     data = @type_materials.collect do |t|
+      v = ApplicationController.helpers.type_material_tag(t)
       {id: t.id,
-       label: ApplicationController.helpers.type_material_tag(t),
+       label: v ,
        response_values: {
          params[:method] => t.id
        },
-       label_html: ApplicationController.helpers.type_material_tag(t)
+       label_html: v 
       }
     end
 

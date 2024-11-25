@@ -29,8 +29,8 @@ class TypeMaterial < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Confidences
-  include Shared::IsData
   include Shared::DwcOccurrenceHooks
+  include Shared::IsData
   include SoftValidation
 
   # Keys are valid values for type_type, values are

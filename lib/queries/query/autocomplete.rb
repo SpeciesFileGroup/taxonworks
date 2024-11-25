@@ -232,6 +232,7 @@ module Queries
     #   default the autocomplete result to all
     #   TODO: eliminate
     def autocomplete
+      return [] if query_string.blank?
       all.to_a
     end
 
