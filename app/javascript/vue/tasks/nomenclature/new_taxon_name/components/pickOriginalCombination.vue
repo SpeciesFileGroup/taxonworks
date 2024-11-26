@@ -9,7 +9,10 @@
       <h3>{{ isICN ? 'Basionym' : 'Original combination and rank' }}</h3>
     </template>
     <template #body>
-      <div class="original-combination-picker">
+      <div
+        class="original-combination-picker"
+        v-if="taxon.id"
+      >
         <form class="horizontal-left-content">
           <div class="button-current separate-right">
             <v-btn
@@ -89,11 +92,7 @@
             },
             filter: '.item-filter'
           }"
-          :relationships="
-            isICN
-              ? combinationRanks.SpeciesAndInfraspeciesGroup
-              : combinationRanks.speciesGroup
-          "
+          :relationships="speciesRanks"
         />
         <div class="original-combination separate-top separate-bottom">
           <div class="flex-wrap-column rank-name-label">
@@ -172,13 +171,17 @@ export default {
       return !!Object.values(this.originalCombinations).length
     },
 
+    speciesRanks() {
+      return this.isICN
+        ? this.combinationRanks.SpeciesAndInfraspeciesGroup
+        : this.combinationRanks.speciesGroup
+    },
+
     types() {
       return Object.assign(
         {},
         this.combinationRanks.genusGroup,
-        this.isICN
-          ? this.combinationRanks.SpeciesAndInfraspeciesGroup
-          : this.combinationRanks.speciesGroup
+        ...this.speciesRanks
       )
     },
 
