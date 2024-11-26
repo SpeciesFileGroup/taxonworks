@@ -22,7 +22,7 @@ class CachedMap < ApplicationRecord
   # we manage to get a comprehensive number of hooks into models
   # such that state can be maintained.
   #
-  # Since all hooks are syncronized through a change in a CachedMapItem
+  # Since all hooks are synchronized through a change in a CachedMapItem
   # we can trigger syncronizations that Update CachedMaps with callback hooks here, in theory.
 
   def rebuild

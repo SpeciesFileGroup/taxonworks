@@ -392,7 +392,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Filter nomenclature: Local and global identifiers facets [#3942]
-- Field synchronizer task- batch edit (regex too), update and syncronize columns and between columns
+- Field synchronizer task- batch edit (regex too), update and synchronize columns and between columns
 - `misspelling` option to API `taxon_name_relationship_set[]`
 
 ### Changed
@@ -678,7 +678,7 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 
 - CollectionObject summary nomenclature tag failing when no names are present
 - Papertrail views for most models were failing
-- Syncronized winding of polygons and multipolygons [#3712], and others
+- Synchronized winding of polygons and multipolygons [#3712], and others
 - DataAttribute alignment in DwC, take 3 [#3802]
 - Radial Annotator: Citation count no longer updates [#3806]
 - Radial Annotator: Depiction count no longer updates [#3813]
