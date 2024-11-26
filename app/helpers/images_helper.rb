@@ -78,23 +78,19 @@ module ImagesHelper
   end
 
   # Integrate images and Depictions for concise, Otu-based responses
-  # that are sortable by depiction type context
-  def image_inventory(images, otu_id: nil, api: true, sort_order: [])
-
+  # that are sortable by depiction type context. Somewhat convoluted.
+  #
+  # @return Hash  {image_order:, images: }
+  # @param sort_order Array of base-class names
+  def image_inventory(depictions, api: true, sort_order: [])
+    q = depictions
     sort_order = %w{Otu CollectionObject Observation} if sort_order.blank?
-
-    q = ::Queries::Depiction::Filter.new(
-      project_id: sessions_current_project_id,
-      otu_id: [otu_id],
-      otu_scope: :all
-    ).all
-      .eager_load(image: [:attribution])
-      .order('depictions.depiction_object_type, depictions.depiction_object_id, depictions.position')
 
     depiction_metadata = {}
     images = {}
 
-    q.all.find_each do |d|
+    # find_each strips order, don't use that here
+    q.all.each do |d|
       depiction_metadata[d.depiction_object_type] ||= []
       depiction_metadata[d.depiction_object_type].push(
         {
@@ -131,12 +127,10 @@ module ImagesHelper
     end
 
     # Recombine the data
-
     depiction_metadata.each do |t, v|
       v.each do |d|
         id = d[:image_id]
-        d.delete(:image_id)
-        r[id][:depictions].push d  # depiction_metadata[t][d[:id].id]
+        r[id][:depictions].push d.select{|m,n| m != :image_id} # trim out the cross-referencing image_id
       end
     end
 
@@ -161,7 +155,6 @@ module ImagesHelper
       image_order:,
       images: r
     }
-
   end
 
 end

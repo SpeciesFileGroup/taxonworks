@@ -1,6 +1,5 @@
-# TaxonNameAutocompleteQuery
 module Queries
-  module Image 
+  module Image
     class Autocomplete < Query::Autocomplete
 
       # @param [Hash] args

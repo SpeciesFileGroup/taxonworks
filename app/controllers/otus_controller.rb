@@ -316,10 +316,21 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/:id/inventory/images
   #  - routed here to take advantage of Pagination
   def api_image_inventory
-    @images = ::Queries::Image::Filter.new(
-      params.permit(
-        :otu_id, otu_scope: [])
-    ).all.page(params[:page]).per(params[:per])
+    @depictions = ::Queries::Depiction::Filter.new(
+      project_id: sessions_current_project_id,
+      otu_id: [params.require(:otu_id)],
+      otu_scope: (params[:otu_scope] || :all)
+    ).all
+      .eager_load(image: [:attribution])
+
+    if params[:sort_order]
+      @depictions = @depictions.order( Arel.sql( conditional_sort('depictions.depiction_object_type', params[:sort_order]) + ", depictions.depiction_object_id, depictions.position" ))
+    else
+     @depictions = @depictions.order("depictions.depiction_object_type, depictions.depiction_object_id, depictions.position")
+    end
+
+    @depictions = @depictions.page(params[:page]).per(params[:per])
+
     render '/otus/api/v1/inventory/images'
   end
 
@@ -467,6 +478,14 @@ class OtusController < ApplicationController
 
   def user_map
     {user_header_map: {'otu' => 'otu_name'}}
+  end
+
+  # TODO: Move to generic toolkit  in lib/queries
+  def conditional_sort(name, array)
+    s = "CASE #{name} " + array.each_with_index.collect{|v,i|
+      ApplicationRecord.sanitize_sql_for_conditions(["WHEN ? THEN #{i}", v])}.join(' ')
+    s << ' ELSE 999999 END'
+    s
   end
 
 end
