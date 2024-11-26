@@ -4,6 +4,7 @@ import { childrenChangedSinceLastSaveList, originLabelChangedSinceLastSave }
   from './dataChangedSinceLastSave.js'
 import deleteChild from './deleteChild'
 import loadKey from './loadKey.js'
+import swapLeads from './swapLeads.js'
 import updateChild from './updateChild.js'
 
 const ActionNames = {
@@ -13,6 +14,7 @@ const ActionNames = {
   DeleteChild: 'deleteChild',
   LoadKey: 'loadKey',
   OriginLabelChangedSinceLastSave: 'originLabelChangedSinceLastSave',
+  SwapLeads: 'swapLeads',
   UpdateChild: 'updateChild'
 }
 
@@ -23,6 +25,7 @@ const ActionFunctions = {
   [ActionNames.ChildrenChangedSinceLastSaveList]: childrenChangedSinceLastSaveList,
   [ActionNames.LoadKey]: loadKey,
   [ActionNames.OriginLabelChangedSinceLastSave]: originLabelChangedSinceLastSave,
+  [ActionNames.SwapLeads]: swapLeads,
   [ActionNames.UpdateChild]: updateChild
 }
 

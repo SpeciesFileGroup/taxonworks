@@ -244,25 +244,27 @@ RSpec.describe Lead, type: :model do
 
   end
 
-  context 'with multiple couplets' do
+  context 'with multiple option sets' do
     before(:all) do
       Lead.delete_all
     end
 
-    #      root
-    #     /    \
-    #    l      r
-    #   / \
-    # ll   lr
-    #     /  \
-    #   lrl  lrr
+    #       root
+    #      /    \
+    #     l      r
+    #   / | \
+    # ll lm  lr
+    #       /  \
+    #     lrl  lrr
     let!(:root) { FactoryBot.create(:valid_lead) }
     let!(:l) { root.children.create!(text: 'l') }
     let!(:r) { root.children.create!(text: 'r') }
     let!(:ll) { l.children.create!(text: 'll') }
+    let!(:lm) { l.children.create!(text: 'lm') }
     let!(:lr) { l.children.create!(text: 'lr') }
     let!(:lrl) { lr.children.create!(text: 'lrl') }
     let!(:lrr) { lr.children.create!(text: 'lrr') }
+    let!(:lead_all_size) { 8 }
 
     specify 'future honors redirect' do
       expect(r.future.size).to be(0)
@@ -273,29 +275,71 @@ RSpec.describe Lead, type: :model do
 
     specify 'dupe' do
       title = root.text
-      expect(Lead.all.size).to eq(7)
+      expect(Lead.all.size).to eq(lead_all_size)
 
       expect(root.dupe).to be_truthy
 
-      expect(Lead.all.size).to eq(14)
+      expect(Lead.all.size).to eq(2 * lead_all_size)
       expect(Lead.where('parent_id is null').size).to eq(2)
       expect(Lead.where('parent_id is null').order(:id)[1].text)
         .to eq('(COPY OF) ' + title)
     end
 
+    context '#swap' do
+      specify '#swap left return data' do
+        swap_result = lm.swap('L')
+        lm.reload
+        ll.reload
+        expect(swap_result[:positions]).to eq [lm.position, ll.position]
+        expect(swap_result[:leads]).to eq [lm, ll]
+      end
+
+      specify '#swap left db result' do
+        lm.swap('L')
+        l.reload
+        expect(l.children[0].text).to eq 'lm'
+        expect(l.children[1].text).to eq 'll'
+        expect(l.children[2].text).to eq 'lr'
+      end
+
+      specify '#swap right return data' do
+        swap_result = ll.swap('R')
+        ll.reload
+        lm.reload
+        expect(swap_result[:positions]).to eq [ll.position, lm.position]
+        expect(swap_result[:leads]).to eq [ll, lm]
+      end
+
+      specify '#swap right db result' do
+        ll.swap('R')
+        l.reload
+        expect(l.children[0].text).to eq 'lm'
+        expect(l.children[1].text).to eq 'll'
+        expect(l.children[2].text).to eq 'lr'
+      end
+
+      specify "#swap moves children's descendants with children" do
+        lm.swap('R')
+        l.reload
+        # lr's children went with lr
+        expect(l.children[1].children.count).to eq 2
+        expect(l.children[2].children.count).to eq 0
+      end
+    end
+
     specify 'all_children' do
-      expect(root.all_children.size).to eq(6)
+      expect(root.all_children.size).to eq(lead_all_size - 1)
       expect(root.all_children.first[:lead].text).to eq('r')
       expect(root.all_children.last[:lead].text).to eq('l')
-      expect(l.all_children.size).to eq(4)
+      expect(l.all_children.size).to eq(5)
       expect(r.all_children.size).to eq(0)
     end
 
     specify 'all_children_standard_key' do
-      expect(root.all_children_standard_key.size).to eq(6)
+      expect(root.all_children_standard_key.size).to eq(lead_all_size - 1)
       expect(root.all_children_standard_key.first[:lead].text).to eq('l')
       expect(root.all_children_standard_key.last[:lead].text).to eq('lrr')
-      expect(l.all_children_standard_key.size).to eq(4)
+      expect(l.all_children_standard_key.size).to eq(5)
       expect(r.all_children_standard_key.size).to eq(0)
     end
 
@@ -355,7 +399,7 @@ RSpec.describe Lead, type: :model do
       # l is a left child, so reparented children should be on left.
       ids = l.insert_couplet
 
-      expect(Lead.find(ids[0]).all_children.size).to eq(4)
+      expect(Lead.find(ids[0]).all_children.size).to eq(5)
       expect(Lead.find(ids[1]).children.size).to eq(0)
 
       expect(Lead.find(ids[0]).text).to eq('Child nodes are attached to this node')
@@ -391,7 +435,7 @@ RSpec.describe Lead, type: :model do
       second_key = FactoryBot.create(:valid_lead)
       second_key.insert_couplet
 
-      expect(Lead.all.size).to eq(10)
+      expect(Lead.all.size).to eq(lead_all_size + 3)
 
       expect(root.transaction_nuke).to be_truthy
       expect(Lead.all.reload.size).to eq(3)
@@ -402,7 +446,7 @@ RSpec.describe Lead, type: :model do
       second_key = FactoryBot.create(:valid_lead)
       second_key.insert_couplet
 
-      expect(Lead.all.size).to eq(10)
+      expect(Lead.all.size).to eq(lead_all_size + 3)
       expect(root.nuke).to be_truthy
       expect(Lead.all.reload.size).to eq(3)
     end
@@ -419,12 +463,14 @@ RSpec.describe Lead, type: :model do
       r.children.create!(text: 'rl')
       r.children.create!(text: 'rr')
       expect(Lead.where('parent_id is null').first.destroy_children).to be(false)
-      expect(Lead.where('parent_id is null').first.all_children.size).to be(8)
+      expect(Lead.where('parent_id is null').first.all_children.size)
+        .to be(lead_all_size - 1 + 2)
     end
 
     specify 'destroy_children noops on a couplet with no children' do
       expect(Lead.find_by(text: 'r').destroy_children).to be(true)
-      expect(Lead.where('parent_id is null').first.all_children.size).to be(6)
+      expect(Lead.where('parent_id is null').first.all_children.size)
+        .to be(lead_all_size - 1)
     end
 
     specify "destroy_children doesn't change order of parent node pair (left)" do
@@ -476,7 +522,7 @@ RSpec.describe Lead, type: :model do
     specify '#all_children' do
       lrl.children.create!(text: 'lrll')
       lrl.children.create!(text: 'lrlr')
-      expect(l.all_children.size).to eq(6)
+      expect(l.all_children.size).to eq(lead_all_size + 2 - 3)
     end
 
     specify '#destroy_children yields expected parent/child relationships' do

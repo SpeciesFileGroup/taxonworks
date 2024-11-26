@@ -59,5 +59,9 @@ export const Lead = {
 
   destroy_leaf: (id) => AjaxCall(
     'post', `/${controller}/${id}/destroy_leaf.json`
+  ),
+
+  swap: (id, params) => AjaxCall(
+    'patch', `/${controller}/${id}/swap.json`, params
   )
 }

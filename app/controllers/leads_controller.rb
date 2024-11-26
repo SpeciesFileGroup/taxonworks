@@ -231,7 +231,7 @@ class LeadsController < ApplicationController
     end
   end
 
-  # POST /leads/1/update_meta.json
+  # PATCH /leads/1/update_meta.json
   def update_meta
     respond_to do |format|
       if @lead.update(lead_params)
@@ -240,6 +240,20 @@ class LeadsController < ApplicationController
         format.json { render json: @lead.errors, status: :unprocessable_entity}
       end
     end
+  end
+
+  # PATCH /leads/1/swap.json
+  def swap
+    swap_result = @lead.swap(params['direction'])
+    if swap_result[:leads].empty?
+      @lead.errors.add(:swap, 'failed, attempted to move lead off the end')
+      render json: @lead.errors, status: :unprocessable_entity
+      return
+    end
+
+    @leads = swap_result[:leads]
+    @positions = swap_result[:positions]
+    @futures = @leads.map(&:future)
   end
 
   # GET /leads/1/otus.json

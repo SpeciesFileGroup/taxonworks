@@ -199,6 +199,31 @@ class Lead < ApplicationRecord
     result
   end
 
+  # Return value always lists self first.
+  def swap(direction)
+    if ((direction == 'L' && node_position == :left) ||
+        (direction == 'R' && node_position == :right) ||
+        node_position == :root)
+      return { positions: [], leads: [] }
+    end
+
+    swapee = nil
+    if direction == 'L'
+      swapee_position = position - 1
+      swapee = parent.children[swapee_position]
+      append_sibling(swapee)
+    else
+      swapee_position = position + 1
+      swapee = parent.children[swapee_position]
+      prepend_sibling(swapee)
+    end
+
+    return {
+      leads: [self, swapee],
+      positions: [position, swapee.position]
+    }
+  end
+
   # @return [ActiveRecord::Relation] ordered by text.
   # Returns all root nodes, with new properties:
   #  * option_sets_count (declared here, computed in views)

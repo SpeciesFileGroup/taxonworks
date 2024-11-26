@@ -9,6 +9,32 @@
       <div class="full_width header-left-right">
         <div>
           <VBtn
+            v-if="!positionIsFirst"
+            color="update"
+            circle
+            @click="() => changeLeadPosition(DIRECTIONS['left'])"
+            title="Move this lead left"
+          >
+            <VIcon
+              x-small
+              name="arrowLeft"
+            />
+          </VBtn>
+
+          <VBtn
+            v-if="!positionIsLast"
+            color="update"
+            circle
+            @click="() => changeLeadPosition(DIRECTIONS['right'])"
+            title="Move this lead right"
+          >
+            <VIcon
+              x-small
+              name="arrowRight"
+            />
+          </VBtn>
+
+          <VBtn
             v-if="store.children.length > 2 && !leadHasChildren"
             color="destroy"
             circle
@@ -122,7 +148,7 @@
         v-model:depiction="depictions"
       />
 
-      <h3>Future Options Sets</h3>
+      <h3>Future Option Sets</h3>
       <FutureOptionSetsList
         :future="store.futures[position]"
         :route-name="RouteNames.NewLead"
@@ -134,7 +160,7 @@
 
 <script setup>
 import { DEPICTION, LEAD } from '@/constants/index.js'
-import { Lead } from '@/routes/endpoints'
+import { DIRECTIONS } from '../store/constants/directions.js'
 import { computed, ref } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
@@ -201,6 +227,14 @@ const editNextText = computed(() => {
   }
 })
 
+const positionIsFirst = computed(() => {
+  return props.position == 0
+})
+
+const positionIsLast = computed(() => {
+  return props.position == store.children.length - 1
+})
+
 const annotationLists = { [DEPICTION]: depictions }
 const {
   handleRadialCreate,
@@ -217,7 +251,7 @@ function insertCouplet() {
     return
   }
   loading.value = true
-  Lead.insert_couplet(store.children[props.position].id)
+  LeadEndpoint.insert_couplet(store.children[props.position].id)
     .then(() => {
       store.loadKey(store.children[props.position].id)
       TW.workbench.alert.create(
@@ -241,7 +275,7 @@ function nextOptions() {
     store.loadKey(store.last_saved.children[props.position].redirect_id)
   } else {
     loading.value = true
-    Lead.create_for_edit(store.children[props.position].id)
+    LeadEndpoint.create_for_edit(store.children[props.position].id)
       .then(({ body }) => {
         store.loadKey(body)
       })
@@ -279,6 +313,25 @@ function deleteLead() {
       loading.value = false
     })
 }
+
+function changeLeadPosition(direction) {
+  const payload = {
+    direction
+  }
+
+  loading.value = true
+  LeadEndpoint.swap(store.children[props.position].id, payload)
+    .then(({ body }) => {
+      store.swapLeads(body)
+
+      const direction_word = (direction == DIRECTIONS.left) ? 'left' : 'right'
+      TW.workbench.alert.create('Moved lead ' + direction_word, 'notice')
+    })
+    .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -286,6 +339,9 @@ function deleteLead() {
   display: flex;
   > :first-child {
     flex-grow: 1;
+  }
+  > :first-child button {
+    margin-right: 0.5em;
   }
 }
 .lead {
