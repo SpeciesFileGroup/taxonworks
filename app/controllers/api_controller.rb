@@ -9,6 +9,6 @@ class ApiController < ActionController::API
   include Api::AuthenticateProjectToken
   include RequestType
   include PaginationHeaders
-   include Api::RescueFrom
+  # include Api::RescueFrom
 
 end
