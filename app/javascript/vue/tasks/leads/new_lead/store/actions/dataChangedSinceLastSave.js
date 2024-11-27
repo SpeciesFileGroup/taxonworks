@@ -2,9 +2,9 @@ import editableChildrenFields from '../constants/editableChildrenFields'
 
 export default function() {
   if (
-    this.children.size > 0 && (
-      originLabelChangedSinceLastSave() ||
-      childrenChangedSinceLastSaveList.length > 0
+    this.children.length > 0 && (
+      originLabelChangedSinceLastSave(this) ||
+      childrenChangedSinceLastSaveList(this).length > 0
     )
   ) {
     return true
@@ -12,14 +12,16 @@ export default function() {
   return false
 }
 
-export function childrenChangedSinceLastSaveList() {
-  return childrenDifferentEditableValues(this.last_saved.children, this.children)
+export function childrenChangedSinceLastSaveList(store = this) {
+  return childrenDifferentEditableValues(
+    store.last_saved.children, store.children
+  )
 }
 
-export function originLabelChangedSinceLastSave() {
+export function originLabelChangedSinceLastSave(store = this) {
   return differentOriginLabels(
-    this.last_saved.origin_label,
-    this.lead.origin_label
+    store.last_saved.origin_label,
+    store.lead.origin_label
   )
 }
 

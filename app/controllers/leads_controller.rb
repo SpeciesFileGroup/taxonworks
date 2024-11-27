@@ -109,10 +109,7 @@ class LeadsController < ApplicationController
   # POST /leads/1/insert_couplet.json
   def insert_couplet
     @lead.insert_couplet
-
-    respond_to do |format|
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   # PATCH/PUT /leads/1.json
@@ -122,7 +119,7 @@ class LeadsController < ApplicationController
       @lead.update!(lead_params)
       # Note that future changes when redirect is updated.
       @future = @lead.future
-    rescue ActiveRecord::RecordInvalid => e
+    rescue ActiveRecord::RecordInvalid
       render json: @lead.errors, status: :unprocessable_entity
     end
   end
@@ -161,9 +158,7 @@ class LeadsController < ApplicationController
       @lead.errors.add(
         :delete, 'failed, can only be called on a lead with no children'
       )
-      format.json {
-        render json: @lead.errors, status: :unprocessable_entity
-      }
+      render json: @lead.errors, status: :unprocessable_entity
       return
     end
 

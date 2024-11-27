@@ -9,7 +9,7 @@
       :disabled="!store.lead.parent_id"
       color="primary"
       medium
-      @click="previousOptions"
+      @click="previousOptionSet"
     >
       Go to the previous options
     </VBtn>
@@ -30,7 +30,7 @@
         <VBtn
           color="update"
           medium
-          @click="updateOptions"
+          @click="saveChanges"
         >
           Update
         </VBtn>
@@ -173,7 +173,7 @@ watch(
   { immediate: true }
 )
 
-function previousOptions() {
+function previousOptionSet() {
   if (store.dataChangedSinceLastSave() &&
     !window.confirm(
       'You have unsaved data, are you sure you want to navigate to a new couplet?'
@@ -186,7 +186,7 @@ function previousOptions() {
   emit('editingHasOccurred')
 }
 
-function updateOptions() {
+function saveChanges() {
   const leadOriginLabelChanged = store.originLabelChangedSinceLastSave()
   const childrenToUpdate = store.childrenChangedSinceLastSaveList()
   if (!leadOriginLabelChanged && childrenToUpdate.length == 0) {

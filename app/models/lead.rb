@@ -112,14 +112,14 @@ class Lead < ApplicationRecord
     if children.any?
       o = children.to_a
 
-      left_text = (p == :left || p == :root) ? t2 : t1
+      # Reparent under left inserted node unless this is itself a right node.
+      left_text = (p != :right) ? t2 : t1
       right_text = (p == :right) ? t2 : t1
-      # TODO middle handling
 
       c = Lead.create!(text: left_text, parent: self)
       d = Lead.create!(text: right_text, parent: self)
 
-      new_parent = (p == :left || p == :root) ? c : d
+      new_parent = (p != :right) ? c : d
 
       Lead.reparent_nodes(o, new_parent)
     else

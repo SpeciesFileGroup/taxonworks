@@ -217,12 +217,12 @@ const editNextText = computed(() => {
   if (!!store.last_saved.children[props.position].redirect_id) {
     return 'Follow redirect and edit'
   } else if (props.leadHasChildren) {
-    return 'Edit the next options set'
+    return 'Edit the next option set'
   } else {
     if (store.last_saved.children[props.position].text) {
-      return 'Create and edit the next options set'
+      return 'Create and edit the next option set'
     } else {
-      return 'Save text to enable creating the next options set'
+      return 'Save text to enable creating the next option set'
     }
   }
 })
@@ -289,7 +289,7 @@ function nextOptions() {
 function userOkayToLeave() {
   if (store.dataChangedSinceLastSave() &&
     !window.confirm(
-      'You have unsaved data, are you sure you want to navigate to a new options set?'
+      'You have unsaved data, are you sure you want to navigate to a new option set?'
     )
   ) {
     return false
@@ -307,6 +307,7 @@ function deleteLead() {
     .then(() => {
       store.deleteChild(props.posittion)
       TW.workbench.alert.create('Lead deleted', 'notice')
+      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {
@@ -326,6 +327,7 @@ function changeLeadPosition(direction) {
 
       const direction_word = (direction == DIRECTIONS.left) ? 'left' : 'right'
       TW.workbench.alert.create('Moved lead ' + direction_word, 'notice')
+      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {
