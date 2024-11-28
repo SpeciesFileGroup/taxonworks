@@ -165,7 +165,9 @@ import { computed, ref } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
+import { useInsertCouplet } from './composables/useInsertCouplet.js'
 import { useStore } from '../store/useStore.js'
+import { useUserOkayToLeave } from './composables/useUserOkayToLeave.js'
 import Annotations from './Annotations.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import FutureOptionSetsList from '../../components/FutureOptionSetsList.vue'
@@ -243,30 +245,18 @@ const {
 } = useAnnotationHandlers(annotationLists)
 
 function insertCouplet() {
-  if (!userOkayToLeave() ||
-    !window.confirm(
-      'Insert a couplet below this one? Any existing children will be reparented.'
-    )
-  ) {
-    return
-  }
-  loading.value = true
-  LeadEndpoint.insert_couplet(store.children[props.position].id)
-    .then(() => {
-      store.loadKey(store.children[props.position].id)
+  useInsertCouplet(store.children[props.position].id, loading, store, () => {
+    store.loadKey(store.children[props.position].id)
       TW.workbench.alert.create(
         "Success - you're now editing the inserted couplet",
         'notice'
       )
       emit('editingHasOccurred')
-    })
-    .finally(() => {
-      loading.value = false
-    })
+  })
 }
 
 function nextOptions() {
-  if (!userOkayToLeave()) {
+  if (!useUserOkayToLeave(store)) {
     return
   }
   if (props.leadHasChildren) {
@@ -284,17 +274,6 @@ function nextOptions() {
       })
   }
   emit('editingHasOccurred')
-}
-
-function userOkayToLeave() {
-  if (store.dataChangedSinceLastSave() &&
-    !window.confirm(
-      'You have unsaved data, are you sure you want to navigate to a new option set?'
-    )
-  ) {
-    return false
-  }
-  return true
 }
 
 function deleteLead() {

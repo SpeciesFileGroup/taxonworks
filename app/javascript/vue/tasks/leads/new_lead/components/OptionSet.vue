@@ -6,12 +6,20 @@
 
   <div class="option_set_center">
     <VBtn
-      :disabled="!store.lead.parent_id"
+      v-if="store.lead.parent_id"
       color="primary"
       medium
       @click="previousOptionSet"
     >
       Go to the previous options
+    </VBtn>
+    <VBtn
+      v-else
+      color="update"
+      medium
+      @click="insertCouplet"
+    >
+      Insert a new initial couplet for the key
     </VBtn>
   </div>
 
@@ -45,19 +53,19 @@
       </div>
 
       <VBtn
-        v-if="allowDestroyOptions"
+        v-if="allowDestroyOptionSet"
         color="destroy"
         medium
-        @click="destroyOptions"
+        @click="destroyOptionSet"
       >
         Delete these options
       </VBtn>
 
       <VBtn
-        v-else-if="allowDeleteOptions"
+        v-else-if="allowDeleteOptionSet"
         color="destroy"
         medium
-        @click="deleteOptions"
+        @click="deleteOptionSet"
       >
         Delete these options and reparent the children
       </VBtn>
@@ -102,6 +110,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { computed, ref, watch } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
+import { useInsertCouplet } from './composables/useInsertCouplet.js'
 import { useStore } from '../store/useStore.js'
 
 const emit = defineEmits(['editingHasOccurred'])
@@ -115,7 +124,7 @@ const hasChildren = computed(() => {
     (store.children[0].id && store.children[1].id)
 })
 
-const allowDestroyOptions = computed(() => {
+const allowDestroyOptionSet = computed(() => {
   if (!store.lead.parent_id) {
     return false
   }
@@ -129,7 +138,7 @@ const allowDestroyOptions = computed(() => {
   return true
 })
 
-const allowDeleteOptions = computed(() => {
+const allowDeleteOptionSet = computed(() => {
   let optionsWithChildrenCount = 0
   store.children.forEach((child, i) => {
     if (childHasChildren(child, i)) {
@@ -184,6 +193,17 @@ function previousOptionSet() {
 
   store.loadKey(store.lead.parent_id)
   emit('editingHasOccurred')
+}
+
+function insertCouplet() {
+  useInsertCouplet(store.lead.id, loading, store, () => {
+    store.loadKey(store.lead.id)
+      TW.workbench.alert.create(
+        "Success - you're now editing the inserted couplet",
+        'notice'
+      )
+      emit('editingHasOccurred')
+  })
 }
 
 function saveChanges() {
@@ -264,7 +284,7 @@ function addLead() {
     })
 }
 
-function destroyOptions() {
+function destroyOptionSet() {
   if (window.confirm(
     'Delete all options for this stage of the key?'
   )) {
@@ -272,7 +292,7 @@ function destroyOptions() {
     LeadEndpoint.destroy_children(store.lead.id)
       .then(() => {
         store.loadKey(store.lead.id)
-        TW.workbench.alert.create('Options were successfully deleted.', 'notice')
+        TW.workbench.alert.create('Option set was successfully deleted.', 'notice')
         emit('editingHasOccurred')
       })
       .catch(() => {})
@@ -282,7 +302,7 @@ function destroyOptions() {
   }
 }
 
-function deleteOptions() {
+function deleteOptionSet() {
   if (window.confirm(
     'Delete all options at this level of the key and re-attach orphaned children?'
   )) {
@@ -290,7 +310,7 @@ function deleteOptions() {
     LeadEndpoint.delete_children(store.lead.id)
       .then(() => {
         store.loadKey(store.lead.id)
-        TW.workbench.alert.create('Options were successfully deleted.', 'notice')
+        TW.workbench.alert.create('Option set was successfully deleted.', 'notice')
         emit('editingHasOccurred')
       })
       .catch(() => {})
