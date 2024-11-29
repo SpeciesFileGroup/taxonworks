@@ -20,11 +20,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Unifying related BiologicalAssociations [#4099]
 - Async DwcOccurrence refreshes that referenced destroyed objects
 - FieldOccurrence Radial Navigator
 - Unify objects: Same object can be selected on both sides [#4100]
 - New taxon name: Cannot create new combination (under ICN) [#4127]
 
+[#4099]: https://github.com/SpeciesFileGroup/taxonworks/issues/4099
 [#4117]: https://github.com/SpeciesFileGroup/taxonworks/issues/4117
 [#4071]: https://github.com/SpeciesFileGroup/taxonworks/issues/4071
 [#4098]: https://github.com/SpeciesFileGroup/taxonworks/issues/4098
