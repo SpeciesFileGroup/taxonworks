@@ -23,8 +23,8 @@ describe Queries::Depiction::Filter, type: :model, group: [:images] do
   specify '#collection_object_scope :observations' do
     t = FactoryBot.create(:valid_observation, observation_object: co)
     t.images << i1
-  
-    co.images << i2 
+
+    co.images << i2
 
     qi.collection_object_id = co.id
     qi.collection_object_scope = [:observations]
