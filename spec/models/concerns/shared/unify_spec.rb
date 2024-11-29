@@ -6,6 +6,46 @@ describe 'Shared::Unify', type: :model do
   let(:o2) { FactoryBot.create(:valid_otu) }
   let(:source) { FactoryBot.create(:valid_source) }
 
+  specify 'unifies Otus with CommonNames' do
+    c = FactoryBot.create(:valid_common_name, otu: o1)
+    c1 = FactoryBot.create(:valid_common_name, otu: o2)
+
+    o1.unify(o2) # Should prevent ba0 updates?!
+    expect(o2.destroyed?).to be_truthy
+    expect(o1.common_names.reload.count).to eq(2)
+  end
+
+  specify 'unifies Otus in BiologicalAssociations ' do
+    o3 = FactoryBot.create(:valid_otu)
+    ba1 = FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: o3)
+
+    expect(o1.related_biological_associations.reload.count).to eq(0) # unified?
+
+    o1.unify(o3)
+
+    expect(o3.destroyed?).to be_truthy
+    expect(o1.related_biological_associations.reload.count).to eq(1) # unified?
+  end
+
+  specify 'unifies Otus in BiologicalAssociations - merge associations'  do
+    o3 = FactoryBot.create(:valid_otu)
+
+    ba1 = FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: o1)
+    ba2 = FactoryBot.create(:valid_biological_association, biological_association_subject: o2,
+      biological_association_object: o3, biological_relationship: ba1.biological_relationship)
+
+    s = FactoryBot.create(:valid_source)
+    c1  = FactoryBot.create(:valid_citation, citation_object: ba1)
+    c2  = FactoryBot.create(:valid_citation, citation_object: ba2)
+
+    o1.unify(o3)
+
+    expect(o3.destroyed?).to be_truthy
+    expect(BiologicalAssociation.all.count).to eq(1)
+    expect(o1.related_biological_associations.reload.count).to eq(1)
+    expect(o1.biological_associations.reload.count).to eq(0)
+  end
+
   specify 'unifies Repositories' do
     a = FactoryBot.create(:valid_repository)
     b = FactoryBot.create(:valid_repository)

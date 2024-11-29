@@ -720,10 +720,10 @@ scope :tasks do
       post 'merge', as: 'taxon_name_merge'
     end
 
-    scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
-      get 'index', as: 'syncronize_otus_to_nomenclature_task'
-      post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
-      post 'syncronize', as: 'syncronize_otus_task'
+    scope :synchronize_otus, controller: 'tasks/taxon_names/synchronize_otus' do
+      get 'index', as: 'synchronize_otus_to_nomenclature_task'
+      post 'index', as: 'preview_synchronize_otus_to_nomenclature_task'
+      post 'synchronize', as: 'synchronize_otus_task'
     end
 
     scope :filter, controller: 'tasks/taxon_names/filter' do

@@ -26,16 +26,16 @@ module Shared::Maps
     # TODO: re-enable once scoping issues are determined
     # after_create :destroy_cached_map
 
-    # 
+    #
     # !! Is not allowed for non persisted records
     #
     before_destroy :remove_from_cached_map_items
 
-    # after_update :syncronize_cached_map_items
+    # after_update :synchronize_cached_map_items
 
     # !! This should only impacts the CachedMapItem layer. See CachedMapItem for
     # triggers that will propagate to CachedMap.
-    # def syncronize_cached_map_items
+    # def synchronize_cached_map_items
     # delay.coordinate_cached_map_items
     # end
 

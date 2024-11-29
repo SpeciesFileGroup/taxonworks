@@ -5,7 +5,7 @@ import { COMBINATION } from '@/constants'
 const extend = ['protonyms', 'origin_citation', 'roles']
 const ranks = [
   ...Object.keys(combinationIcnType.genusGroup),
-  ...Object.keys(combinationIcnType.speciesGroup)
+  ...Object.keys(combinationIcnType.SpeciesAndInfraspeciesGroup)
 ].reverse()
 
 export default ({ state, dispatch }, id) => {

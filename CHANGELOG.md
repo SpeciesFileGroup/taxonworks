@@ -20,10 +20,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Unifying related BiologicalAssociations [#4099]
 - Async DwcOccurrence refreshes that referenced destroyed objects
 - FieldOccurrence Radial Navigator
 - Unify objects: Same object can be selected on both sides [#4100]
+- New taxon name: Cannot create new combination (under ICN) [#4127]
 
+[#4099]: https://github.com/SpeciesFileGroup/taxonworks/issues/4099
 [#4117]: https://github.com/SpeciesFileGroup/taxonworks/issues/4117
 [#4071]: https://github.com/SpeciesFileGroup/taxonworks/issues/4071
 [#4098]: https://github.com/SpeciesFileGroup/taxonworks/issues/4098
@@ -31,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4103]: https://github.com/SpeciesFileGroup/taxonworks/issues/4103
 [#4108]: https://github.com/SpeciesFileGroup/taxonworks/issues/4108
 [#4110]: https://github.com/SpeciesFileGroup/taxonworks/issues/4110
+[#4127]: https://github.com/SpeciesFileGroup/taxonworks/issues/4127
 
 ## [0.45.0] - 2024-10-30
 
@@ -390,7 +394,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Filter nomenclature: Local and global identifiers facets [#3942]
-- Field synchronizer task- batch edit (regex too), update and syncronize columns and between columns
+- Field synchronizer task- batch edit (regex too), update and synchronize columns and between columns
 - `misspelling` option to API `taxon_name_relationship_set[]`
 
 ### Changed
@@ -676,7 +680,7 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 
 - CollectionObject summary nomenclature tag failing when no names are present
 - Papertrail views for most models were failing
-- Syncronized winding of polygons and multipolygons [#3712], and others
+- Synchronized winding of polygons and multipolygons [#3712], and others
 - DataAttribute alignment in DwC, take 3 [#3802]
 - Radial Annotator: Citation count no longer updates [#3806]
 - Radial Annotator: Depiction count no longer updates [#3813]
