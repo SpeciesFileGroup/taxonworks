@@ -259,6 +259,15 @@ module Queries
       base_query.where(a.to_sql)
     end
 
+    # @return [ActiveRecord::Relation, nil]
+    #   cached matches full query string wildcarded
+    # TODO: Used in taxon_name, source, identifier
+    def cached_facet
+      return nil if no_terms?
+      # TODO: or is redundant with terms in many cases
+      (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
+    end
+
     # @return [ActiveRecord::Relation]
     def autocomplete_cached
       if a = cached_facet
