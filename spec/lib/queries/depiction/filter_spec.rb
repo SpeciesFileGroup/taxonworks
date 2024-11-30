@@ -38,7 +38,8 @@ describe Queries::Depiction::Filter, type: :model, group: [:images] do
     o.images << i1
     co.images << i2
 
-    q.otu_id =  co.id
+    q.otu_id =  o.id
+
     q.otu_scope = [:all]
 
     expect(q.all).to contain_exactly(o.depictions.first)
