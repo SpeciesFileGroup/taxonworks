@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `/api/v1/otus/:id/inventory/images?sort_order=` param to sort by class of Depiction object type
 - Simplemappr (https://www.simplemappr.net) export support from filter collection objects
 - Print key task [#4071] [#4117]
 - `/api/v1/leads/key/:id` endpoint serving `pinpoint` key app
@@ -20,12 +21,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- `/api/v1/otus/:id/inventory/images` out of context depictions [#4129]
 - Unifying related BiologicalAssociations [#4099]
 - Async DwcOccurrence refreshes that referenced destroyed objects
 - FieldOccurrence Radial Navigator
 - Unify objects: Same object can be selected on both sides [#4100]
 - New taxon name: Cannot create new combination (under ICN) [#4127]
 
+### Changed
+
+- `/api/v1/otus/:id/inventory/images` response structure
+
+[#4129]: https://github.com/SpeciesFileGroup/taxonpages/issues/4129
+[#TP13]: https://github.com/SpeciesFileGroup/taxonpages/issues/13
 [#4099]: https://github.com/SpeciesFileGroup/taxonworks/issues/4099
 [#4117]: https://github.com/SpeciesFileGroup/taxonworks/issues/4117
 [#4071]: https://github.com/SpeciesFileGroup/taxonworks/issues/4071
