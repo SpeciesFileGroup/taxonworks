@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Controlled vocabulary terms across projects task [#4112]
 - Source filter can operate on `cached_*` fields enabling link to project vocabulary [#4123]
 - `/api/v1/otus/:id/inventory/images?sort_order=` param to sort by class of Depiction object type
 - Simplemappr (https://www.simplemappr.net) export support from filter collection objects
@@ -33,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - `/api/v1/otus/:id/inventory/images` response structure
 
+[#4112]: https://github.com/SpeciesFileGroup/taxonworks/issues/4122
 [#4123]: https://github.com/SpeciesFileGroup/taxonworks/issues/4123
 [#4129]: https://github.com/SpeciesFileGroup/taxonpages/issues/4129
 [#TP13]: https://github.com/SpeciesFileGroup/taxonpages/issues/13

@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :controlled_vocabulary_terms do
+    scope :projects_summary, controller: 'tasks/controlled_vocabulary_terms/projects_summary' do
+      get '/', action: :index, as: 'summarize_projects_controlled_vocabulary_terms_task'
+    end
+  end
+
   scope :containers do
     scope :new_container, controller: 'tasks/containers/new_container' do
       get '/', action: :index, as: 'new_container_task'
