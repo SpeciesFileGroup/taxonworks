@@ -17,9 +17,9 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
     end
 
     specify 'other possible subclass attributes are nil (descriptor_id)' do
-      observation_matrix_column_item.descriptor_id = FactoryBot.create(:valid_descriptor).id 
+      observation_matrix_column_item.descriptor_id = FactoryBot.create(:valid_descriptor).id
       observation_matrix_column_item.valid?
-      expect(observation_matrix_column_item.errors.include?(:descriptor_id)).to be_truthy 
+      expect(observation_matrix_column_item.errors.include?(:descriptor_id)).to be_truthy
     end
   end
 
@@ -30,9 +30,9 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
   end
 
   context 'with a observation_matrix_column_item saved' do
-    let!(:descriptor1) { FactoryBot.create(:valid_descriptor) } 
-    let!(:descriptor2) { FactoryBot.create(:valid_descriptor) } 
-    let!(:descriptor3) { FactoryBot.create(:valid_descriptor) } 
+    let!(:descriptor1) { FactoryBot.create(:valid_descriptor) }
+    let!(:descriptor2) { FactoryBot.create(:valid_descriptor) }
+    let!(:descriptor3) { FactoryBot.create(:valid_descriptor) }
 
     let!(:tag1) { Tag.create!(keyword: keyword, tag_object: descriptor1) }
     let!(:tag2) { Tag.create!(keyword: keyword, tag_object: descriptor2) }
@@ -44,7 +44,7 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
       expect(observation_matrix_column_item.descriptors.map(&:metamorphosize)).to contain_exactly(descriptor1, descriptor2, descriptor3)
     end
 
-    context 'adding a item syncronizes observation_matrix columns' do
+    context 'adding a item synchronizes observation_matrix columns' do
       specify 'saving a record adds descriptor observation_matrix_columns' do
         expect(ObservationMatrixColumn.all.map(&:descriptor).map(&:metamorphosize)).to contain_exactly(descriptor1, descriptor2, descriptor3)
       end
@@ -61,7 +61,7 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
 
     context 'overlapping single item' do
       let!(:other_observation_matrix_column_item) { ObservationMatrixColumnItem::Single::Descriptor.create!(observation_matrix: observation_matrix, descriptor: descriptor1) }
-      let(:observation_matrix_column) { ObservationMatrixColumn.where(observation_matrix: observation_matrix, descriptor: descriptor1).first} 
+      let(:observation_matrix_column) { ObservationMatrixColumn.where(observation_matrix: observation_matrix, descriptor: descriptor1).first}
 
       specify 'count is incremented' do
         expect(observation_matrix_column.reference_count).to eq(2)
@@ -81,7 +81,7 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
         specify 'cached_observation_matrix_column_item_id remains' do
           expect(observation_matrix_column.cached_observation_matrix_column_item_id).to eq(other_observation_matrix_column_item.id)
         end
-      end 
+      end
     end
 
     context 'overlapping sets' do

@@ -143,7 +143,7 @@ module CollectionObjectsHelper
   end
 
   # TODO: Isolate into own helper
-  # TODO: syncronize with class methods
+  # TODO: synchronize with class methods
   def dwc_occurrence_table_header_tag
     content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error])
   end

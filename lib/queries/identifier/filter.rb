@@ -27,6 +27,7 @@ module Queries
       # @return Array
       attr_accessor :identifier_id
 
+      # TODO: Renamed `cached`
       # A fully qualified identifier, matches cached
       # !! This is the only wildcarded value !!
       attr_accessor :query_string

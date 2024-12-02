@@ -2,7 +2,7 @@ module Queries
   module Source
     class Filter < Query::Filter
 
-      ATTRIBUTES =  (::Source.core_attributes - %w{bibtex_type title author serial_id}).map(&:to_sym).freeze
+      ATTRIBUTES =  (::Source.core_attributes - %w{bibtex_type title author serial_id} + %w{cached cached_author_string cached_nomenclature_date}).map(&:to_sym).freeze
 
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Attributes

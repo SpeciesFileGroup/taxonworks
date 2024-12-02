@@ -3,7 +3,7 @@ module Queries
     class Filter < Query::Filter
       include Queries::Concerns::Tags
 
-      # We can't use distinct in SQL on XML column types, 
+      # We can't use distinct in SQL on XML column types,
       # this may come back to bite us if we try to use
       # distinct Depictions + overlays
       DISTINCT_ATTRIBUTES = (::Depiction.column_names - ['svg_clip']).map(&:to_sym).freeze
@@ -23,13 +23,9 @@ module Queries
       ].freeze
 
       attr_accessor :depiction_id
-
-      attr_accessor :image_id
-
       attr_accessor :depiction_object_id
-
       attr_accessor :depiction_object_type
-
+      attr_accessor :image_id
       attr_accessor :otu_id
       attr_accessor :otu_scope
 
