@@ -88,7 +88,8 @@ class TopicsController < ApplicationController
     elsif params.require(:target) == 'Content'
       @topics = Topic.select_optimized(sessions_current_user_id, sessions_current_project_id, nil, 'Content')
     end
-    render json: {}, status: :bad_request
+
+    render json: {}, status: :bad_request if @topics.blank?
   end
 
 end
