@@ -5,6 +5,7 @@ class Topic < ControlledVocabularyTerm
 
   # TODO: Why?!
   include Shared::Tags
+  include Shared::Unify
 
   has_many :citation_topics, inverse_of: :topic, dependent: :destroy
   has_many :citations, through: :citation_topics, inverse_of: :topics
