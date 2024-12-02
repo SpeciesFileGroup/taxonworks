@@ -119,7 +119,6 @@ export const TYPE_LINKS = {
     autocomplete: '/controlled_vocabulary_terms/autocomplete',
     autocompleteParams: { 'type[]': TOPIC },
     getUrl: '/controlled_vocabulary_terms/',
-    target: TOPIC,
     klass: TOPIC,
     smartSelector: 'topics',
     service: ControlledVocabularyTerm
