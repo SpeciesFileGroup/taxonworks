@@ -25,6 +25,7 @@ import {
   TOPIC,
   REPOSITORY
 } from '@/constants'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
 
 export const TYPE_LINKS = {
   [ASSERTED_DISTRIBUTION]: {
@@ -120,7 +121,8 @@ export const TYPE_LINKS = {
     getUrl: '/controlled_vocabulary_terms/',
     target: TOPIC,
     klass: TOPIC,
-    smartSelector: 'topics'
+    smartSelector: 'topics',
+    service: ControlledVocabularyTerm
   },
   [TYPE_MATERIAL]: {
     autocomplete: '/type_materials/autocomplete'

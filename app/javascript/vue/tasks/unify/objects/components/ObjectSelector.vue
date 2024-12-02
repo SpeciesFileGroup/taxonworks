@@ -100,7 +100,9 @@ const selected = defineModel({
 const modelOpts = computed(() => TYPE_LINKS[props.model])
 
 function loadObjectById(id) {
-  endpoints[props.model]
+  const service = modelOpts.value.service || endpoints[props.model]
+
+  service
     .find(id)
     .then(({ body }) => {
       selected.value = body
