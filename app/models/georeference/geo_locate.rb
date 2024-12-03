@@ -91,7 +91,7 @@ class Georeference::GeoLocate < Georeference
       test_grs = []
     else
       test_grs = GeographicItem::Point
-                   .where("point = ST_GeographyFromText('POINT(? ? ?)')", x.to_f, y.to_f, z.to_f)
+                   .where('point = ST_GeographyFromText(?)', "POINT(#{x.to_f} #{y.to_f} #{z.to_f})")
                    # .where(['ST_Z(point::geometry) = ?', z.to_f])
     end
     if test_grs.empty? # put a new one in the array

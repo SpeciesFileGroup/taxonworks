@@ -45,9 +45,9 @@ class TaxonNameRelationship < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::Notes
-  include Shared::IsData
   include SoftValidation
   include Shared::DwcOccurrenceHooks
+  include Shared::IsData
 
   # @return [Boolean, nil]
   #   When true, cached values are not built

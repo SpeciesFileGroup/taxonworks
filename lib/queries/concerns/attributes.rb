@@ -5,6 +5,7 @@
 #  ATTRIBUTES = ::Loan.core_attributes.map(&:to_sym).freeze
 #
 # TODO: macro a method to explicitly set ATTRIBUTES and eliminate need for definition location dependency.
+#       This may not be worth it as various models have slight exceptions.
 module Queries::Concerns::Attributes
 
   extend ActiveSupport::Concern
@@ -83,7 +84,6 @@ module Queries::Concerns::Attributes
         end
       end
     end
-    c
 
     a = c.first
     c.each do |b|

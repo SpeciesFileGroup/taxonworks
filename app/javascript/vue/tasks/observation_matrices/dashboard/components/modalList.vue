@@ -96,6 +96,7 @@ import {
   Otu
 } from '@/routes/endpoints'
 import { OBSERVATION_MATRIX_ROW_SINGLE, OTU } from '@/constants/index.js'
+import { RouteNames } from '@/routes/routes'
 
 export default {
   components: {
@@ -266,14 +267,14 @@ export default {
     openImageMatrix() {
       if (this.alreadyInCurrentMatrix.length) {
         window.open(
-          `/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&edit=true&row_filter=${this.alreadyInCurrentMatrix[0].id}`,
+          `${RouteNames.ImageMatrix}?observation_matrix_id=${this.selectedMatrix.id}&edit=true&row_filter=${this.alreadyInCurrentMatrix[0].id}`,
           '_blank'
         )
         this.show = false
       } else {
         this.createRow().then(() => {
           window.open(
-            `/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&edit=true&row_filter=${this.alreadyInCurrentMatrix[0].id}`,
+            `${RouteNames.ImageMatrix}?observation_matrix_id=${this.selectedMatrix.id}&edit=true&row_filter=${this.alreadyInCurrentMatrix[0].id}`,
             '_blank'
           )
           this.show = false

@@ -76,6 +76,7 @@ import {
   ObservationMatrixRowItem
 } from '@/routes/endpoints'
 import { OBSERVATION_MATRIX_ROW_SINGLE } from '@/constants/index'
+import { RouteNames } from '@/routes/routes'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -221,7 +222,7 @@ export default {
     openImageMatrix(observationMatrixId) {
       if (this.alreadyInCurrentMatrix.length) {
         window.open(
-          `/tasks/matrix_image/matrix_image/index?observation_matrix_id=${
+          `${RouteNames.ImageMatrix}?observation_matrix_id=${
             this.selectedMatrix.id
           }&row_filter=${this.getRowId(observationMatrixId)}&edit=true`,
           '_blank'
@@ -230,7 +231,7 @@ export default {
       } else {
         this.createRow().then(() => {
           window.open(
-            `/tasks/matrix_image/matrix_image/index?observation_matrix_id=${
+            `${RouteNames.ImageMatrix}?observation_matrix_id=${
               this.selectedMatrix.id
             }&row_filter=${this.getRowId(observationMatrixId)}&edit=true`,
             '_blank'

@@ -20,9 +20,9 @@ RSpec.describe ObservationMatrixColumnItem::Single::Descriptor, type: :model, gr
 
     context 'other possible subclass attributes are nil' do
       specify 'keyword_id' do
-        observation_matrix_column_item.controlled_vocabulary_term_id =  FactoryBot.create(:valid_keyword).id 
+        observation_matrix_column_item.controlled_vocabulary_term_id =  FactoryBot.create(:valid_keyword).id
         observation_matrix_column_item.valid?
-        expect(observation_matrix_column_item.errors.include?(:controlled_vocabulary_term_id)).to be_truthy 
+        expect(observation_matrix_column_item.errors.include?(:controlled_vocabulary_term_id)).to be_truthy
       end
     end
 
@@ -33,7 +33,7 @@ RSpec.describe ObservationMatrixColumnItem::Single::Descriptor, type: :model, gr
         observation_matrix_column_item.save!
       end
 
-      context 'adding a item syncronizes observation_matrix columns' do
+      context 'adding a item synchronizes observation_matrix columns' do
         specify 'saving a record adds descriptor observation_matrix_columns' do
           expect(ObservationMatrixColumn.first.descriptor.metamorphosize).to eq(descriptor)
         end

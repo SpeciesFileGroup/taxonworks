@@ -48,7 +48,8 @@ namespace :api, defaults: {format: :json} do
       get '/otus/:id/inventory/distribution', to: '/otus#api_distribution', as: :api_distribution
       get '/otus/:id/inventory/keys', to: '/otus#api_key_inventory', as: :key_inventory
       get '/otus/:id/inventory/taxonomy', to: '/otus#api_taxonomy_inventory', as: :taxonomy_inventory
-      get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :images_inventory
+      get '/otus/:otu_id/inventory/images', to: '/otus#api_image_inventory', as: :otu_images_inventory
+
       get '/otus/:id/inventory/dwc_gallery', to: '/otus#api_dwc_gallery', as: :dwc_inventory_gallery
       get '/otus/:id/inventory/dwc', to: '/otus#api_dwc_inventory', as: :dwc_inventory
       get '/otus/:id/inventory/type_material', to: '/otus#api_type_material_inventory', as: :type_material_inventory
@@ -68,7 +69,6 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names/:id/inventory/catalog', to: '/taxon_names#api_catalog'
       get '/taxon_names/:id/inventory/summary', to: '/taxon_names#api_summary'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
-
 
       get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'
       get '/taxon_name_classifications/taxon_name_classification_types', to: '/taxon_name_classifications#taxon_name_classification_types'
@@ -138,10 +138,13 @@ namespace :api, defaults: {format: :json} do
       get '/images', to: '/images#api_index'
       get '/images/:id', to: '/images#api_show'
       get '/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', to: '/images#api_scale_to_box'
+      # was : get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :images_inventory
+      get '/images/:otu_id/inventory', to: '/images#api_image_inventory', as: :images_inventory
 
       get '/tags', to: '/tags#api_index'
       get '/tags/:id', to: '/tags#api_show'
 
+      get '/leads/key/:id', to: '/leads#api_key'
     end
 
     # Authenticate membership at the data controller level

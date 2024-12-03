@@ -20,7 +20,7 @@ module DepictionsHelper
     [
       depiction.figure_label,
       depiction.caption,
-     ('Depicts ' + label_for(depiction.depiction_object.metamorphosize).to_s + ', ' + Utilities::Strings.a_label(depiction.depiction_object_type).to_s + '.'),
+      ('Depicts ' + label_for(depiction.depiction_object.metamorphosize).to_s + ', ' + Utilities::Strings.a_label(depiction.depiction_object_type).to_s + '.'),
     ].compact.join('. ').gsub(/\.\./, '')
   end
 
@@ -45,6 +45,22 @@ module DepictionsHelper
       image_tag(depiction.sled_extraction_path(size), skip_pipeline: true) +
         content_tag(:figcaption, image_context_depiction_tag(depiction))
     end
+  end
+
+  # TODO: this should evolve, maybe, into an IIIF response
+  # with the context being the depictied object.
+  def depiction_to_json(depiction)
+    return nil if depiction.nil?
+    a = {
+      caption: depiction.caption,
+      figure_label: depiction.figure_label,
+      position: depiction.position,
+      thumb: short_url(depiction.image.image_file.url(:thumb)),
+      medium: short_url(depiction.image.image_file.url(:medium)),
+      content_type: depiction.image.image_file_content_type,
+      original_png: original_as_png_via_api(depiction.image)
+    }
+    a
   end
 
 end

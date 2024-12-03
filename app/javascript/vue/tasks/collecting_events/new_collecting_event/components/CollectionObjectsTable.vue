@@ -20,7 +20,7 @@
         :disabled="!ceId"
         @click="showModal = true"
       >
-        Add/Current ({{ list.length }})
+        Add/Current ({{ pagination.total }})
       </button>
     </div>
     <modal-component
@@ -140,6 +140,10 @@
               collecting event</span
             >
             <h3>Existing</h3>
+            <VPagination
+              :pagination="pagination"
+              @next-page="({ page }) => loadTable(page)"
+            />
             <table class="full_width table-striped">
               <thead>
                 <tr>
@@ -204,14 +208,17 @@ import LabelComponent from './Label'
 import TagComponent from './Tags'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial'
+import VPagination from '@/components/pagination.vue'
 import {
   BiocurationClassification,
   CollectionObject,
   TaxonDetermination
 } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
+import { getPagination } from '@/helpers'
 
 const extend = ['taxon_determinations', 'identifiers']
+const per = 50
 
 const props = defineProps({
   ceId: {
@@ -241,6 +248,7 @@ const repositoryId = ref()
 const labelType = ref()
 const tagList = ref([])
 const count = ref(1)
+const pagination = ref({})
 
 watch(
   () => props.ceId,
@@ -362,9 +370,11 @@ async function createCOs(index = 0) {
   }
 }
 
-function loadTable() {
+function loadTable(page = 1) {
   const params = {
     collecting_event_id: [props.ceId],
+    per,
+    page,
     extend
   }
 
@@ -372,6 +382,7 @@ function loadTable() {
   CollectionObject.where(params).then((response) => {
     list.value = response.body
     isLoading.value = false
+    pagination.value = getPagination(response)
   })
 }
 

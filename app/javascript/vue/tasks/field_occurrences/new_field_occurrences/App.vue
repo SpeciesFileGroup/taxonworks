@@ -6,7 +6,9 @@
       <div class="flex-wrap-column gap-medium left-column">
         <FieldOccurrenceForm />
         <TaxonDeterminationForm />
+        <BiologicalAssociation />
         <BiocurationForm />
+        <VDepiction />
         <CitationForm />
         <IdentifierForm />
       </div>
@@ -24,6 +26,8 @@ import CollectingEventForm from './components/CollectingEventForm.vue'
 import IdentifierForm from './components/FieldOccurenceForm/Identifier/IdentifierForm.vue'
 import CitationForm from './components/CitationForm.vue'
 import BiocurationForm from './components/BiocurationForm.vue'
+import BiologicalAssociation from './components/BiologicalAssociation.vue'
+import VDepiction from './components/Depiction/Depiction.vue'
 
 defineOptions({
   name: 'NewFieldOccurrence'

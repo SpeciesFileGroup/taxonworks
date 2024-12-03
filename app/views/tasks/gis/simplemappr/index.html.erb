@@ -1,0 +1,15 @@
+<h1> Simplemappr table </h1>
+<em> Paste the copied table into a text file, name it your_data.txt. The file should load at simplemappr. </em>
+<br/>
+<br/>
+
+<% d = simple_mappr_data(params) %>
+
+<% if d.nil? %>
+  <%= tag.div('No data, or > 10k rows returned.', class: [:feedback, 'feedback-warning'])  %>
+<% else %>
+  <%= copy_table_to_clipboard('div#simplemappr') %>
+  <div id="simplemappr">
+    <%= table_from_csv( d ) %> 
+  </div>
+<% end %>

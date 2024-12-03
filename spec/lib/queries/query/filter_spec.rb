@@ -172,6 +172,7 @@ describe Queries::Query::Filter, type: [:model] do
         a.delete(:biological_associations_graph) if a # There is no BiologicalAssociationsGraph UI
         a.delete(:data_attribute) if a # etc
         a.delete(:controlled_vocabulary_term) if a
+        a.delete(:depiction) if a # There is no depiction filter
 
         expect( query_names ).to contain_exactly( *a )
       end

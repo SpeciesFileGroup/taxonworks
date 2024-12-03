@@ -2,23 +2,24 @@ module Utilities::Italicize
 
   # Used to italicize strings, whitespace (presently) matters
   # Ultimately turn into Tokens to better handle whitespace
-  COMBINATION_INJECTIONS = [ 
+  COMBINATION_INJECTIONS = [
     ' (',
     ') ', # no trailing whitespace as it could be terminating in case of subgenus?
     ' [sic]',
+    ' subsp.',
     ' var.',
     ' subvar.',
     ' f.',
     ' subf.',
     ' sect.', # not covered in original combination
-    ' ser.',  # not covered in original combination 
+    ' ser.',  # not covered in original combination
     'GENUS NOT SPECIFIED',
     'SPECIES NOT SPECIFIED',
     '[',
     ']',
     '† ', # fossil dagger
     ' ×',  # hybrid ×
-    # 'Candidatus' ? 
+    # 'Candidatus' ?
   ].freeze
 
   COMBINATION_INJECTION_REGEX = COMBINATION_INJECTIONS.collect{|a| Regexp.escape(a) }.join('|').freeze
@@ -29,7 +30,7 @@ module Utilities::Italicize
     st = string.dup
     return nil if st.nil? || st == ''
 
-    # May need to revert to this 1:1 form if we find that an individual COMBINATION_INJECTS element are found > 1 per name 
+    # May need to revert to this 1:1 form if we find that an individual COMBINATION_INJECTS element are found > 1 per name
     # TaxonName::COMBINATION_INJECTIONS.collect{|a| Regexp.escape(a)  }.each do |r|
     #   string.gsub!(/(#{r})/, '</i>\1<i>')
     # end

@@ -99,4 +99,42 @@ module AttributionsHelper
       attribution_tag(object.attribution)
   end
 
+  # An attempt at a Human readable simplified response suitable
+  # for JSON API responses.
+  def attribution_to_json(attribution)
+    return nil if attribution.nil?
+    a = attribution
+
+    h = a.attributes.select{|k,v| %w{copyright_year license}.include?(k)}
+
+    if a.roles.load.any?
+      ::Attribution::ATTRIBUTION_ROLES.each do |r|
+        role = "#{r}_roles"
+        h[r] = []
+
+        if a.send(role).any?
+          a.send(role).order('roles.position ASC').each do |role|
+            b = { agent_type: role.agent_type }
+
+            case role.agent_type
+            when :person
+              b.merge!({
+                name: role.person.cached,
+                orcid: role.person.orcid,
+                wikidata_id: role.person.wikidata_id
+              })
+            when :organization
+              b.merge! role.organization.attributes.select{|k,v| %w{ name alternate_name description disambiguating_description address email telephone duns global_location_number legal_name copyright_year license}.include?(k)}
+            end
+
+            h[r].push b.select{|c,d| !d.nil?}
+          end
+
+        end
+      end
+    end
+
+    h
+  end
+
 end
