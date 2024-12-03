@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Added soft_validation of infrasubspecific name.
 - Topics can be unified [#4106]
 - Task - Controlled vocabulary terms across projects [#4112]
 - Source filter can operate on `cached_*` fields enabling link to project vocabulary [#4123]

@@ -415,6 +415,22 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
     end
 
     context 'missing classifications' do
+      specify 'infrasubspecific name' do
+        g = FactoryBot.create(:relationship_genus, name: 'Aus')
+        og = FactoryBot.create(:relationship_genus, name: 'Bus', parent_id: g.parent_id)
+        s = FactoryBot.create(:relationship_species, name: 'aus', parent: g)
+        s.original_genus = og
+        s.original_species = s
+        s.original_variety = s
+        s.year_of_publication = 1961
+        s.save
+        s.soft_validate(only_sets: :missing_infrasubspecific_status)
+        expect(s.soft_validations.messages_on(:base).size).to eq(1)
+        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific')
+        s.soft_validate(only_sets: :missing_infrasubspecific_status)
+        expect(s.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
+
       specify 'gender of genus is not selected' do
         @genus.soft_validate(only_sets: :missing_classifications)
         expect(@genus.soft_validations.messages_on(:base).size).to eq(1)
@@ -626,7 +642,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         expect(@subgenus.soft_validations.messages_on(:base).size).to eq(0)
       end
     end
-
 
     context 'missing synonym relationship' do
 
