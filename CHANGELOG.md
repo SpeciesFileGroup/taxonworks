@@ -9,10 +9,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Controlled vocabulary terms across projects task [#4112]
+- Topics can be unified [#4106]
+- Task - Controlled vocabulary terms across projects [#4112]
 - Source filter can operate on `cached_*` fields enabling link to project vocabulary [#4123]
 - `/api/v1/otus/:id/inventory/images?sort_order=` param to sort by class of Depiction object type
-- Simplemappr (https://www.simplemappr.net) export support from filter collection objects
+- Task - Simplemappr (https://www.simplemappr.net) export support from Filter collection objects
 - Print key task [#4071] [#4117]
 - `/api/v1/leads/key/:id` endpoint serving `pinpoint` key app
 - Filter loans: Identifiers, created by and updated by columns [#4098]
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit/New Field occurence task: biological associations panel [#4103]
 - Edit/New Field occurence task: depictions panel [#4108]
 - Matrix row coder task: Now and Today lock buttons [#4110]
+- More TaxonName soft validations
 
 ### Fixed
 
@@ -29,11 +31,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - FieldOccurrence Radial Navigator
 - Unify objects: Same object can be selected on both sides [#4100]
 - New taxon name: Cannot create new combination (under ICN) [#4127]
+- Syncronize misspellings [#4109]
+- Blank terms to /autocomplete endpoints raising
+- Rendering subspecies names in botany
+- TypeMaterial autocomplete
+- Some async DwcOccurrence updating callbacks
 
 ### Changed
 
 - `/api/v1/otus/:id/inventory/images` response structure
+- Update Gemfiles
 
+[#4109]: https://github.com/SpeciesFileGroup/taxonworks/issues/4109
+[#4106]: https://github.com/SpeciesFileGroup/taxonworks/issues/4106
 [#4112]: https://github.com/SpeciesFileGroup/taxonworks/issues/4122
 [#4123]: https://github.com/SpeciesFileGroup/taxonworks/issues/4123
 [#4129]: https://github.com/SpeciesFileGroup/taxonpages/issues/4129
