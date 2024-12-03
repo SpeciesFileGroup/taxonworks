@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.46.0] - 2024-12-03
+
 ### Added
 
 - Topics can be unified [#4106]
@@ -47,7 +51,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4112]: https://github.com/SpeciesFileGroup/taxonworks/issues/4122
 [#4123]: https://github.com/SpeciesFileGroup/taxonworks/issues/4123
 [#4129]: https://github.com/SpeciesFileGroup/taxonpages/issues/4129
-[#TP13]: https://github.com/SpeciesFileGroup/taxonpages/issues/13
 [#4099]: https://github.com/SpeciesFileGroup/taxonworks/issues/4099
 [#4117]: https://github.com/SpeciesFileGroup/taxonworks/issues/4117
 [#4071]: https://github.com/SpeciesFileGroup/taxonworks/issues/4071
@@ -4991,7 +4994,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.45.0..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.0..development
+[0.46.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.3...v0.45.0
 [0.44.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.2...v0.44.3
 [0.44.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.1...v0.44.2
