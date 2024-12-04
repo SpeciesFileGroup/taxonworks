@@ -39,7 +39,9 @@
               filter=".item-filter"
             >
               <template #item="{ element }">
-                <div class="horizontal-left-content middle item-draggable">
+                <div
+                  class="horizontal-left-content middle item-draggable gap-small"
+                >
                   <input
                     type="text"
                     class="normal-input current-taxon"
