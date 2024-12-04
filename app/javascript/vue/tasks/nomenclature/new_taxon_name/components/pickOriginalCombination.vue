@@ -181,7 +181,7 @@ export default {
       return Object.assign(
         {},
         this.combinationRanks.genusGroup,
-        ...this.speciesRanks
+        this.speciesRanks
       )
     },
 
