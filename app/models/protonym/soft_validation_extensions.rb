@@ -1476,7 +1476,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_infrasubspecific_status
-      if nomenclatural_code == :iczn && (self.cached_original_combination.include?(' var. ') || self.cached_original_combination.include?(' f. ')) && self.cached_nomenclature_date&.year > 1960 && is_available?(refresh = true)
+      if nomenclatural_code == :iczn && (self.cached_original_combination&.include?(' var. ') || self.cached_original_combination&.include?(' f. ')) && self.cached_nomenclature_date&.year > 1960 && is_available?(refresh = true)
         soft_validations.add(:base, 'Missing status. The name described as variety or form after 1960 should be treated as infrasubspecific.')
       end
     end
