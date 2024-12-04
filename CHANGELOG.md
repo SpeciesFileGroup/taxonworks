@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Add citation back to gallery endpoint [#4136]
+
+[#4136]: https://github.com/SpeciesFileGroup/taxonworks/issues/4136
 
 ## [0.46.0] - 2024-12-03
 
