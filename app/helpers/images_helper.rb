@@ -116,6 +116,12 @@ module ImagesHelper
         depictions: []
       }
 
+      if i.source 
+        p[:source] = {
+          label: i.source.cached
+        }
+      end
+
       if i.attribution
         p[:attribution] = {
           label: label_for_attribution(i.attribution),

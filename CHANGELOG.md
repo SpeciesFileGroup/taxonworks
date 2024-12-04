@@ -9,10 +9,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.46.1] - 2024-12-04
+
+### Fixed
+
+- Add citation back to gallery endpoint [#4136]
+
+[#4136]: https://github.com/SpeciesFileGroup/taxonworks/issues/4136
+
 ## [0.46.0] - 2024-12-03
 
 ### Added
 
+- Added soft_validation of infrasubspecific name.
 - Topics can be unified [#4106]
 - Task - Controlled vocabulary terms across projects [#4112]
 - Source filter can operate on `cached_*` fields enabling link to project vocabulary [#4123]
@@ -4994,7 +5003,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.0..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.1..development
+[0.46.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.0...v0.46.1
 [0.46.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.3...v0.45.0
 [0.44.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.2...v0.44.3
