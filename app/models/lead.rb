@@ -73,15 +73,17 @@ class Lead < ApplicationRecord
     redirect_id.blank? ? all_children : redirect.all_children
   end
 
+  # Returns string on error, true on success
   def dupe
-    return false if parent_id
+    return 'Can only call dupe on a root lead' if parent_id
     begin
       Lead.transaction do
         dupe_in_transaction(self, parent_id)
       end
-    rescue ActiveRecord::RecordInvalid
-      return false
+    rescue ActiveRecord::RecordInvalid => e
+      return e.to_s
     end
+
     true
   end
 
@@ -99,6 +101,46 @@ class Lead < ApplicationRecord
     lead.children.each do |c|
       draw(c, indent + 1)
     end
+  end
+
+  # Returns string on error, true on success
+  def insert_key(id)
+    return 'Id of key to insert not provided' if id.nil?
+    begin
+      Lead.transaction do
+        key_to_insert = Lead.find(id)
+        if key_to_insert.dupe != true
+          raise TaxonWorks::Error, 'dupe failed'
+        end
+
+        dup_prefix = '(COPY OF)'
+        duped_text = "#{dup_prefix} #{key_to_insert.text}"
+        duped_root = Lead.where(text: duped_text).order(:id).last
+        if duped_root.nil?
+          raise TaxonWorks::Error,
+            "failed to find the duped key with text '#{duped_text}'"
+        end
+
+        # Prepare the duped key to be reparented - note that root leads don't
+        # have link_out_text set (the url link is applied to the title in that
+        # case), so link_out_text in the inserted root lead will always be nil.
+        duped_root.update!(
+          text: duped_root.text.sub(dup_prefix, '(INSERTED KEY) '),
+          description: nil,
+          is_public: nil
+        )
+
+        add_child(duped_root)
+      end
+    rescue ActiveRecord::RecordNotFound => e
+      return e.to_s
+    rescue TaxonWorks::Error => e
+      return e.to_s
+    rescue ActiveRecord::RecordInvalid => e
+      return e.to_s
+    end
+
+    true
   end
 
   def insert_couplet

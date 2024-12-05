@@ -277,7 +277,7 @@ RSpec.describe Lead, type: :model do
       title = root.text
       expect(Lead.all.size).to eq(lead_all_size)
 
-      expect(root.dupe).to be_truthy
+      expect(root.dupe).to eq true
 
       expect(Lead.all.size).to eq(2 * lead_all_size)
       expect(Lead.where('parent_id is null').size).to eq(2)
@@ -324,6 +324,35 @@ RSpec.describe Lead, type: :model do
         # lr's children went with lr
         expect(l.children[1].children.count).to eq 2
         expect(l.children[2].children.count).to eq 0
+      end
+    end
+
+    context '#insert_key' do
+      let(:other_key) {
+        a = FactoryBot.create(:valid_lead, text: 'other key')
+        a.children.create!(text: 'other left')
+        a.children.create!(text: 'other right')
+        a
+      }
+      let(:other_key_size) { 3 }
+
+      before(:each) do
+        l.insert_key(other_key.id)
+      end
+
+      specify 'creates expected number of leads' do
+        expect(Lead.all.size)
+          # We've added (other_key) + (dup of other_key)
+          .to eq(lead_all_size + other_key_size + other_key_size)
+      end
+
+      specify 'appends copied root in the right place' do
+        l.reload
+        # l originally had 3 children
+        expect(l.children.count).to eq(3 + 1)
+        # This also tests that insert_key replaces '(COPY OF) ', which was
+        # added during duping, with '(INSERTED KEY)'.
+        expect(l.children[-1].text).to eq('(INSERTED KEY) other key')
       end
     end
 

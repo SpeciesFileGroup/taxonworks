@@ -3,7 +3,7 @@ class LeadsController < ApplicationController
   before_action :set_lead, only: %i[
     edit create_for_edit update destroy show show_all show_all_print
     redirect_option_texts destroy_children insert_couplet delete_children
-    duplicate update_meta otus destroy_leaf swap]
+    duplicate update_meta otus destroy_leaf swap insert_key]
 
   # GET /leads
   # GET /leads.json
@@ -211,19 +211,36 @@ class LeadsController < ApplicationController
     @lead = parent.children.create!
   end
 
-  # POST /leads/1/duplicate
+  # POST /leads/1/duplicate.html
   def duplicate
     respond_to do |format|
       format.html {
         if !@lead.parent_id
-          @lead.dupe
-          flash[:notice] = 'Key cloned.'
+          rv = @lead.dupe
+          if rv != true
+            flash[:error] = rv
+          else
+            flash[:notice] = 'Key cloned.'
+          end
         else
           flash[:error] = 'Clone aborted - you can only clone on a root node.'
         end
+
         redirect_to action: :list
       }
     end
+  end
+
+  # POST /leads/1/insert_key.json?key_to_insert=:id
+  def insert_key
+    rv = @lead.insert_key(params[:key_to_insert])
+    if rv != true
+      @lead.errors.add(:insert_key, "failed: '#{rv}'")
+      render json: @lead.errors, status: :unprocessable_entity
+      return
+    end
+
+    head :no_content
   end
 
   # PATCH /leads/1/update_meta.json

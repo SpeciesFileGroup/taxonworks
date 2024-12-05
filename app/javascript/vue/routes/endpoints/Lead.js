@@ -63,5 +63,9 @@ export const Lead = {
 
   swap: (id, params) => AjaxCall(
     'patch', `/${controller}/${id}/swap.json`, params
+  ),
+
+  insert_key: (id, params) => AjaxCall(
+    'post', `/${controller}/${id}/insert_key.json`, params
   )
 }

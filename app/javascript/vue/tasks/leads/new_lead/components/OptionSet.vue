@@ -5,6 +5,7 @@
   />
 
   <div class="option_set_center">
+
     <VBtn
       v-if="store.lead.parent_id"
       color="primary"
@@ -13,6 +14,7 @@
     >
       Go to the previous options
     </VBtn>
+
     <VBtn
       v-else
       color="update"
@@ -20,6 +22,14 @@
       @click="insertCouplet"
     >
       Insert a new initial couplet for the key
+    </VBtn>
+
+    <VBtn
+      color="update"
+      medium
+      @click="() => { insertKeyModalIsVisible = true }"
+    >
+      Insert a key
     </VBtn>
   </div>
 
@@ -102,9 +112,21 @@
       Create the next list of options
     </VBtn>
   </div>
+
+  <InsertKeyModal
+    v-if="insertKeyModalIsVisible"
+    @close="() => { insertKeyModalIsVisible = false }"
+    @keySelected="
+      (id) => {
+        insertKeyModalIsVisible = false
+        insertKey(id)
+      }"
+    :container-style="{ width: '600px' }"
+  />
 </template>
 
 <script setup>
+import InsertKeyModal from './InsertKeyModal.vue'
 import Lead from './Lead.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -118,6 +140,7 @@ const emit = defineEmits(['editingHasOccurred'])
 const store = useStore()
 
 const loading = ref(false)
+const insertKeyModalIsVisible = ref(false)
 
 const hasChildren = computed(() => {
   return store.children.length >= 2 &&
@@ -204,6 +227,24 @@ function insertCouplet() {
       )
       emit('editingHasOccurred')
   })
+}
+
+function insertKey(keyId) {
+  const payload = {
+    key_to_insert: keyId
+  }
+
+  loading.value = true
+  LeadEndpoint.insert_key(store.lead.id, payload)
+    .then(() => {
+      store.loadKey(store.lead.id)
+      TW.workbench.alert.create("Inserted key - the root lead of the inserted key is now visible here", 'notice')
+      emit('editingHasOccurred')
+    })
+    .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 function saveChanges() {
@@ -337,6 +378,9 @@ function childHasChildren(child, i) {
   margin-top: 1em;
   margin-bottom: 1em;
   text-align: center;
+}
+.option_set_center button {
+  margin-right: 2em;
 }
 .option_set_horizontal_buttons {
   display: grid;

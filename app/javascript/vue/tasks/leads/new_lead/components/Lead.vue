@@ -18,6 +18,7 @@
             <VIcon
               x-small
               name="arrowLeft"
+              title="Move this lead left"
             />
           </VBtn>
 
@@ -31,6 +32,7 @@
             <VIcon
               x-small
               name="arrowRight"
+              title="Move this lead right"
             />
           </VBtn>
 
@@ -198,7 +200,6 @@ const emit = defineEmits(['editingHasOccurred'])
 const store = useStore()
 
 const depictions = ref([])
-
 const loading = ref(false)
 
 const nextButtonDisabled = computed(() => {
@@ -284,7 +285,7 @@ function deleteLead() {
   loading.value = true
   LeadEndpoint.destroy_leaf(store.children[props.position].id)
     .then(() => {
-      store.deleteChild(props.posittion)
+      store.deleteChild(props.position)
       TW.workbench.alert.create('Lead deleted', 'notice')
       emit('editingHasOccurred')
     })
@@ -313,6 +314,7 @@ function changeLeadPosition(direction) {
       loading.value = false
     })
 }
+
 </script>
 
 <style lang="scss" scoped>

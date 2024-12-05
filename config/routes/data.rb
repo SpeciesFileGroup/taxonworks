@@ -444,12 +444,13 @@ resources :leads do
     patch :update_meta, defaults: {format: :json}
     post :destroy_children, defaults: {format: :json}
     post :delete_children, defaults: {format: :json}
-    post :duplicate, defaults: {format: :json}
+    post :duplicate
     get :redirect_option_texts, defaults: {format: :json}
     get :otus, defaults: {format: :json}
     post :add_lead, defaults: {format: :json}
     post :destroy_leaf, defaults: {format: :json}
     patch :swap, defaults: {format: :json}
+    post :insert_key, defaults: {format: :json}
   end
 end
 
