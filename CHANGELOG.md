@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- New image task: Add field occurrence to depict some list [#4135]
+
+[#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
 
 ## [0.46.1] - 2024-12-04
 
