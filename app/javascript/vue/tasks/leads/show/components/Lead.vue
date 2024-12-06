@@ -5,7 +5,7 @@
         v-if="hasFuture"
         color="primary"
         medium
-        @click="() => emit('loadCouplet', goId)"
+        @click="() => emit('loadLead', goId)"
       >
         {{ goText }}
       </VBtn>
@@ -60,7 +60,7 @@
       <VBtn
         color="primary"
         medium
-        @click="() => emit('loadCouplet', goId)"
+        @click="() => emit('loadLead', goId)"
       >
         {{ goText }}
       </VBtn>
@@ -84,7 +84,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['loadCouplet'])
+const emit = defineEmits(['loadLead'])
 
 const hasDepictions = ref(false)
 
@@ -103,7 +103,6 @@ const displayLinkOut = computed(() => {
 
 <style lang="scss" scoped>
 .lead {
-  margin-bottom: 2em;
   padding: 1em 2em;
   transition: all 1s;
   box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;

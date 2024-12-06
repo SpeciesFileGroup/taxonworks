@@ -41,7 +41,6 @@
     <LeadAndFuture
       v-for="(l, i) in optionSet"
       :key="l.id"
-      class="lead_and_future"
       :lead="l"
       :future="futures[i]"
       @load-lead="(id) => emit('loadLead', id)"
@@ -81,17 +80,9 @@ const emit = defineEmits(['loadLead'])
 .option_set {
   margin-top: 2em;
   display: flex;
+  flex-wrap: wrap;
   justify-content:space-around;
-  align-items: flex-start;
   gap: 1em;
-}
-.lead_and_future {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  // Enough for two full-width medium depictions.
-  max-width: calc(600px + 4em + 16px + 4px);
-  margin-bottom: 2em;
 }
 .lead_center {
   display: flex;
