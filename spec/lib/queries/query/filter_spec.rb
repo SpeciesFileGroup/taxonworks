@@ -10,6 +10,17 @@ describe Queries::Query::Filter, type: [:model] do
   let(:query) { Queries::Query::Filter.new({}) }
   filters = ::Queries::Query::Filter.descendants
 
+  specify '#only_project?' do
+    a = ::Queries::Otu::Filter.new({})
+    expect(a.only_project?).to be_truthy # project_id is applied by default
+  end
+
+  specify '#only_project?' do
+    a = ::Queries::Otu::Filter.new({})
+    a.otu_id = 1
+    expect(a.only_project?).to be_falsey # project_id is applied by default
+  end
+
   context '#apply_venn' do
     let(:o1) { FactoryBot.create(:valid_otu) }
     let(:o2) { FactoryBot.create(:valid_otu) }
@@ -73,22 +84,22 @@ describe Queries::Query::Filter, type: [:model] do
 
   specify '.instantiated_base_filter 1' do
     p = ActionController::Parameters.new(otu_query: {}, foo: :bar)
-    expect(Queries::Query::Filter.instatiated_base_filter(p).referenced_klass).to eq(::Otu)
+    expect(Queries::Query::Filter.instantiated_base_filter(p).referenced_klass).to eq(::Otu)
   end
 
   specify '.instantiated_base_filter 1' do
     p = ActionController::Parameters.new(otu_query: {otu_id: [1,2,3]}, foo: :bar)
-    expect(Queries::Query::Filter.instatiated_base_filter(p).otu_id).to eq([1,2,3])
+    expect(Queries::Query::Filter.instantiated_base_filter(p).otu_id).to eq([1,2,3])
   end
 
   specify '.instantiated_base_filter params 1 ' do
     p = ActionController::Parameters.new(collecting_event_query: {wildcard_attribute: 'verbatim_locality'})
-    expect(Queries::Query::Filter.instatiated_base_filter(p).params).to include(:wildcard_attribute)
+    expect(Queries::Query::Filter.instantiated_base_filter(p).params).to include(:wildcard_attribute)
   end
 
   specify '.instantiated_base_filter params 2 ' do
     p = ActionController::Parameters.new(collecting_event_query: {wildcard_attribute: ['verbatim_locality']})
-    expect(Queries::Query::Filter.instatiated_base_filter(p).params).to include(:wildcard_attribute)
+    expect(Queries::Query::Filter.instantiated_base_filter(p).params).to include(:wildcard_attribute)
   end
 
   specify '.base_filter 1' do
@@ -161,6 +172,7 @@ describe Queries::Query::Filter, type: [:model] do
         a.delete(:biological_associations_graph) if a # There is no BiologicalAssociationsGraph UI
         a.delete(:data_attribute) if a # etc
         a.delete(:controlled_vocabulary_term) if a
+        a.delete(:depiction) if a # There is no depiction filter
 
         expect( query_names ).to contain_exactly( *a )
       end

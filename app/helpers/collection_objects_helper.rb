@@ -115,18 +115,22 @@ module CollectionObjectsHelper
 
 
   # @return [Array [Identifier, String (type)], nil]
-  #    also checks virtual container for identifier by proxy
+  #   also checks virtual container for identifier by proxy
   def collection_object_visualized_identifier(collection_object)
     return nil if collection_object.nil?
-    # Get the Identifier::Local::Catalog number on collection_object, or immediate containing Container
-    i = collection_object.preferred_catalog_number # see delegation in collection_object.rb
 
-    # Get some other identifier on collection_object
-    i ||= collection_object.identifiers.order(:position)&.first
-    return  [:collection_object, identifier_tag(i)] if i
+    # We now return the first Local identifier by default here
+    # This accomodates RecordNumber vs CatalogNumber
+    i = collection_object.identifiers.order(Arel.sql("CASE \
+              WHEN identifiers.type IN ('Identifier::Local::CatalogNumber', 'Identifier::Local::RecordNumber') THEN 0  \
+              ELSE 1                                                                                        \
+            END, \
+          identifiers.position")).first
+
+    return [:collection_object, identifier_tag(i)] if i
 
     # Get some other identifier on container
-    j = collection_object&.container&.identifiers&.first
+    j = collection_object.container&.identifiers&.order(:position)&.first
     return [:container, identifier_tag(j)] if j
     nil
   end
@@ -139,7 +143,7 @@ module CollectionObjectsHelper
   end
 
   # TODO: Isolate into own helper
-  # TODO: syncronize with class methods
+  # TODO: synchronize with class methods
   def dwc_occurrence_table_header_tag
     content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error])
   end

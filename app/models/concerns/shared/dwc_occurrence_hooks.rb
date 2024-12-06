@@ -20,14 +20,14 @@ module Shared::DwcOccurrenceHooks
     after_destroy :update_dwc_occurrence
 
     def update_dwc_occurrence
-
       t = dwc_occurrences.count
-      q = dwc_occurrences.unscope(:select).select('dwc_occurrences.id', 'occurrenceID', :dwc_occurrence_object_type, :dwc_occurrence_object_id)
+      q = dwc_occurrences.unscope(:select).select('dwc_occurrences.id', 'occurrenceID', :dwc_occurrence_object_type, :dwc_occurrence_object_id, :is_stale)
 
-      q.find_each do |d|
-        if t > 100
-          delay(queue: :dwc_occurrence_index).delay_dwc_reindex(d.dwc_occurrence_object)
-        else
+      if t > 100
+        dwc_occurrences.touch_all(:is_stale) # Quickly mark all records requiring rebuild
+        ::DwcOccurrenceRefreshJob.perform_later(project_id:, user_id: Current.user_id)
+      else
+        q.find_each do |d|
           d.dwc_occurrence_object.set_dwc_occurrence
         end
       end

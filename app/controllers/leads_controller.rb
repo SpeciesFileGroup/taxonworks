@@ -132,7 +132,7 @@ class LeadsController < ApplicationController
         # Note that future changes when redirect is updated.
         expand_lead
         format.json {}
-      rescue
+      rescue ActiveRecord::RecordInvalid => e
         @lead.errors.merge!(@left)
         @lead.errors.merge!(@right)
         format.json { render json: @lead.errors, status: :unprocessable_entity }
@@ -158,7 +158,7 @@ class LeadsController < ApplicationController
           format.html { destroy_redirect @lead }
           format.json { head :no_content }
         end
-      rescue # TODO: add specifics
+      rescue ActiveRecord::RecordInvalid
         respond_to do |format|
           flash[:error] = 'Delete failed!'
           format.html { redirect_back(fallback_location: (request.referer || root_path)) }
@@ -266,6 +266,11 @@ class LeadsController < ApplicationController
       filename: "leads_#{DateTime.now}.tsv"
   end
 
+  def api_key
+    @lead = Lead.where(project_id: sessions_current_project_id, is_public: true).find(params.require(:id))
+    render '/leads/api/v1/key'
+  end
+
   private
 
   def set_lead
@@ -274,6 +279,7 @@ class LeadsController < ApplicationController
 
   def lead_params(require = :lead)
     params.require(require).permit(
+      :parent_id,
       :otu_id, :text, :origin_label, :description, :redirect_id,
       :link_out, :link_out_text, :is_public, :position
     )
@@ -301,4 +307,6 @@ class LeadsController < ApplicationController
     children = lead.children
     (children.size == 2) and (children[0].children.size == 0) and (children[1].children.size == 0)
   end
+
+
 end

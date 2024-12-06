@@ -7,7 +7,114 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- New image task: Add field occurrence to depict some list [#4135]
+
+[#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
+
+## [0.46.1] - 2024-12-04
+
+### Fixed
+
+- Add citation back to gallery endpoint [#4136]
+
+[#4136]: https://github.com/SpeciesFileGroup/taxonworks/issues/4136
+
+## [0.46.0] - 2024-12-03
+
+### Added
+
+- Added soft_validation of infrasubspecific name.
+- Topics can be unified [#4106]
+- Task - Controlled vocabulary terms across projects [#4112]
+- Source filter can operate on `cached_*` fields enabling link to project vocabulary [#4123]
+- `/api/v1/otus/:id/inventory/images?sort_order=` param to sort by class of Depiction object type
+- Task - Simplemappr (https://www.simplemappr.net) export support from Filter collection objects
+- Print key task [#4071] [#4117]
+- `/api/v1/leads/key/:id` endpoint serving `pinpoint` key app
+- Filter loans: Identifiers, created by and updated by columns [#4098]
+- Edit/New loan task: Add `none` status option
+- Edit/New Field occurence task: biological associations panel [#4103]
+- Edit/New Field occurence task: depictions panel [#4108]
+- Matrix row coder task: Now and Today lock buttons [#4110]
+- More TaxonName soft validations
+
+### Fixed
+
+- `/api/v1/otus/:id/inventory/images` out of context depictions [#4129]
+- Unifying related BiologicalAssociations [#4099]
+- Async DwcOccurrence refreshes that referenced destroyed objects
+- FieldOccurrence Radial Navigator
+- Unify objects: Same object can be selected on both sides [#4100]
+- New taxon name: Cannot create new combination (under ICN) [#4127]
+- Syncronize misspellings [#4109]
+- Blank terms to /autocomplete endpoints raising
+- Rendering subspecies names in botany
+- TypeMaterial autocomplete
+- Some async DwcOccurrence updating callbacks
+
+### Changed
+
+- `/api/v1/otus/:id/inventory/images` response structure
+- Update Gemfiles
+
+[#4109]: https://github.com/SpeciesFileGroup/taxonworks/issues/4109
+[#4106]: https://github.com/SpeciesFileGroup/taxonworks/issues/4106
+[#4112]: https://github.com/SpeciesFileGroup/taxonworks/issues/4122
+[#4123]: https://github.com/SpeciesFileGroup/taxonworks/issues/4123
+[#4129]: https://github.com/SpeciesFileGroup/taxonpages/issues/4129
+[#4099]: https://github.com/SpeciesFileGroup/taxonworks/issues/4099
+[#4117]: https://github.com/SpeciesFileGroup/taxonworks/issues/4117
+[#4071]: https://github.com/SpeciesFileGroup/taxonworks/issues/4071
+[#4098]: https://github.com/SpeciesFileGroup/taxonworks/issues/4098
+[#4100]: https://github.com/SpeciesFileGroup/taxonworks/issues/4100
+[#4103]: https://github.com/SpeciesFileGroup/taxonworks/issues/4103
+[#4108]: https://github.com/SpeciesFileGroup/taxonworks/issues/4108
+[#4110]: https://github.com/SpeciesFileGroup/taxonworks/issues/4110
+[#4127]: https://github.com/SpeciesFileGroup/taxonworks/issues/4127
+
+## [0.45.0] - 2024-10-30
+
+### Added
+
+- Created/updated overviews for user data
+- Unify objects task [#970]
+- Attribution to ObservationMatrix
+- New biological association task [#4026]
+- Duplicate OTU predictor task [#4083]
+- DwcOccurrenceHooks for BiocurationGroups, OTUs
+- New image task: is original checkbox to source panel [#4090]
+- Confidence facets and batch operations to all Filters [#4043]
+- Browse nomenclature task: Radial annotator for OTUs
+
+### Changed
+
+- RecordNumber identifiers can be duplicated (namespace + identifier combinations) across CollectionObjects [#4096]
+- Local identifier display in CollectionObject tag now prefers position to break tie with RecordNumber and CatalogNumber [#4074]
+- Filter CO: Show only current taxon determination [#4092]
+
+### Fixed
+
+- Loan OTU facet [#4087]
+- With/out facets failing in combination with other facets [#4089]
+- Simple TaxonName batch load failing with invalid children
+- `api/v1/images/:id` broken for non-integer ids
+- Containerizing objects prevented identific increments
+- New dichotomous key: Radial annotator is not loading the correct data [#4076]
+
+[#4087]: https://github.com/SpeciesFileGroup/taxonworks/issues/4087
+[#4089]: https://github.com/SpeciesFileGroup/taxonworks/issues/4089
+[#4026]: https://github.com/SpeciesFileGroup/taxonworks/issues/4026
+[#4043]: https://github.com/SpeciesFileGroup/taxonworks/issues/4043
+[#4074]: https://github.com/SpeciesFileGroup/taxonworks/issues/4074
+[#4076]: https://github.com/SpeciesFileGroup/taxonworks/issues/4076
+[#4077]: https://github.com/SpeciesFileGroup/taxonworks/issues/4077
+[#4083]: https://github.com/SpeciesFileGroup/taxonworks/issues/4083
+[#4090]: https://github.com/SpeciesFileGroup/taxonworks/issues/4090
+[#4092]: https://github.com/SpeciesFileGroup/taxonworks/issues/4092
+[#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096
+[#970]: https://github.com/SpeciesFileGroup/taxonworks/issues/970
 
 ## [0.44.3] - 2024-10-03
 
@@ -328,7 +435,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Filter nomenclature: Local and global identifiers facets [#3942]
-- Field synchronizer task- batch edit (regex too), update and syncronize columns and between columns
+- Field synchronizer task- batch edit (regex too), update and synchronize columns and between columns
 - `misspelling` option to API `taxon_name_relationship_set[]`
 
 ### Changed
@@ -615,7 +722,7 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 
 - CollectionObject summary nomenclature tag failing when no names are present
 - Papertrail views for most models were failing
-- Syncronized winding of polygons and multipolygons [#3712], and others
+- Synchronized winding of polygons and multipolygons [#3712], and others
 - DataAttribute alignment in DwC, take 3 [#3802]
 - Radial Annotator: Citation count no longer updates [#3806]
 - Radial Annotator: Depiction count no longer updates [#3813]
@@ -4904,7 +5011,10 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.3..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.1..development
+[0.46.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.0...v0.46.1
+[0.46.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.45.0...v0.46.0
+[0.45.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.3...v0.45.0
 [0.44.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.2...v0.44.3
 [0.44.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.1...v0.44.2
 [0.44.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.0...v0.44.1

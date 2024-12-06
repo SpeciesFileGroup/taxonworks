@@ -1,7 +1,7 @@
 <template>
   <div class="margin-medium-top">
     <h3 v-if="isPlant && !currentCombination">Preferred name (optional)</h3>
-    <h3 v-else>Combinations</h3>
+    <h3 v-else>{{ isPlant ? 'Synonyms' : 'Combinations' }}</h3>
     <ul class="table-entrys-list">
       <li
         v-for="combination in list"

@@ -48,9 +48,10 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Labels
   include Shared::Depictions
   include Shared::ProtocolRelationships
-  include Shared::IsData
   include Shared::DwcOccurrenceHooks
   include SoftValidation
+  include Shared::IsData
+
   ignore_whitespace_on(:print_label)
 
   belongs_to :otu, inverse_of: :taxon_determinations
@@ -80,6 +81,14 @@ class TaxonDetermination < ApplicationRecord
   scope :historical, -> { where.not(position: 1)}
 
   before_destroy :prevent_if_required
+
+  # TODO: refactor for lib/queries, hack to get
+  # Unify base-line functionality
+  def self.find_for_autocomplete(params)
+    joins(otu: [:taxon_name])
+      .where('taxon_names.cached ILIKE ? OR otus.name ILIKE ?',
+             "%#{params[:term]}%", "%#{params[:term]}%")
+  end
 
   # @params params [Hash]
   # @params collection_objectt_id [Array, Integer]

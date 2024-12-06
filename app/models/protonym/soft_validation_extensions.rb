@@ -273,6 +273,12 @@ module Protonym::SoftValidationExtensions
         description: 'Two taxa should be homotypic synonyms if they share the same type'
       },
 
+      sv_missing_infrasubspecific_status: {
+        set: :missing_infrasubspecific_status,
+        name: 'Missing infrasubspecific status',
+        description: 'The name described as variety or form after 1960 should be treated as infrasubspecific'
+      },
+
       sv_family_is_invalid: {
         set: :family_is_invalid,
         name: 'Invalid family',
@@ -331,6 +337,13 @@ module Protonym::SoftValidationExtensions
         set: :person_vs_year_of_publication,
         name: 'The taxon author deceased',
         description: "The taxon year of description does not match with the author's years of life",
+        resolution:  [:new_taxon_name_task]
+      },
+
+      sv_duplicate_nomen_nudum: {
+        set: :duplicate_nomen_nudum,
+        name: 'Duplicate nomen nudum',
+        description: "Nomen nudum could be a duplicate or described later with an available name",
         resolution:  [:new_taxon_name_task]
       },
 
@@ -1462,6 +1475,12 @@ module Protonym::SoftValidationExtensions
       end
     end
 
+    def sv_missing_infrasubspecific_status
+      if nomenclatural_code == :iczn && (self.cached_original_combination&.include?(' var. ') || self.cached_original_combination&.include?(' f. ')) && self.cached_nomenclature_date&.year > 1960 && is_available?(refresh = true)
+        soft_validations.add(:base, 'Missing status. The name described as variety or form after 1960 should be treated as infrasubspecific.')
+      end
+    end
+
     def sv_original_combination_relationships
       relationships = self.original_combination_relationships
       unless relationships.empty?
@@ -1645,6 +1664,17 @@ module Protonym::SoftValidationExtensions
       end
     end
 
+    def sv_duplicate_nomen_nudum
+      if self.id == self.cached_valid_taxon_name_id && self.cached_is_valid == false
+        if !self.cached_secondary_homonym_alternative_spelling.nil?
+          possible_available = Protonym.where(cached_secondary_homonym_alternative_spelling: self.cached_secondary_homonym_alternative_spelling).not_self(self).with_project(self.project_id).any?
+          soft_validations.add(:base, "An available protonym with the same original combination,  #{self.cached_html}, exits.") if possible_available
+        elsif !self.cached_primary_homonym_alternative_spelling.nil?
+          possible_available = Protonym.where(cached_primary_homonym_alternative_spelling: self.cached_primary_homonym_alternative_spelling).not_self(self).with_project(self.project_id).any?
+          soft_validations.add(:base, "An available protonym with the same name,  #{self.cached_html}, exits.") if possible_available
+        end
+      end
+    end
 
     def sv_presence_of_combination
       if is_genus_or_species_rank? && is_valid? && self.id == self.lowest_rank_coordinated_taxon.id && !cached_original_combination.nil? && cached != cached_original_combination

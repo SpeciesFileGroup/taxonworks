@@ -1,7 +1,4 @@
-<%= content_for :head do -%>
-  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" %>
-<% end %>
-
+<%= graph_javascript_tag %>
 <h1> Collecting Events Spatial Summary </h1>
 
 Total: <%= t = @collecting_events.all.count %> <%= link_to('re-filter', filter_collecting_events_task_path( @collecting_events.params), method: :post) %>

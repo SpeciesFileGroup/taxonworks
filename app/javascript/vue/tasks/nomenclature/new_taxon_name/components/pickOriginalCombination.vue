@@ -1,15 +1,18 @@
 <template>
   <block-layout
-    anchor="original-combination"
+    :anchor="isICN ? 'basionym' : 'original-combination'"
     :warning="softValidation.length > 0"
     :spinner="!taxon.id"
     v-help.section.originalCombination.container
   >
     <template #header>
-      <h3>Original combination and rank</h3>
+      <h3>{{ isICN ? 'Basionym' : 'Original combination and rank' }}</h3>
     </template>
     <template #body>
-      <div class="original-combination-picker">
+      <div
+        class="original-combination-picker"
+        v-if="taxon.id"
+      >
         <form class="horizontal-left-content">
           <div class="button-current separate-right">
             <v-btn
@@ -36,7 +39,9 @@
               filter=".item-filter"
             >
               <template #item="{ element }">
-                <div class="horizontal-left-content middle item-draggable">
+                <div
+                  class="horizontal-left-content middle item-draggable gap-small"
+                >
                   <input
                     type="text"
                     class="normal-input current-taxon"
@@ -89,7 +94,7 @@
             },
             filter: '.item-filter'
           }"
-          :relationships="combinationRanks.speciesGroup"
+          :relationships="speciesRanks"
         />
         <div class="original-combination separate-top separate-bottom">
           <div class="flex-wrap-column rank-name-label">
@@ -144,6 +149,10 @@ export default {
       return this.$store.getters[GetterNames.GetTaxon]
     },
 
+    isICN() {
+      return this.$store.getters[GetterNames.GetNomenclaturalCode] === 'icn'
+    },
+
     isGenus() {
       return (
         this.$store.getters[GetterNames.GetTaxon].rank_string.split('::')[2] ===
@@ -164,11 +173,17 @@ export default {
       return !!Object.values(this.originalCombinations).length
     },
 
+    speciesRanks() {
+      return this.isICN
+        ? this.combinationRanks.SpeciesAndInfraspeciesGroup
+        : this.combinationRanks.speciesGroup
+    },
+
     types() {
       return Object.assign(
         {},
         this.combinationRanks.genusGroup,
-        this.combinationRanks.speciesGroup
+        this.speciesRanks
       )
     },
 

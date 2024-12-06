@@ -49,19 +49,19 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
     expect(Depiction.find(d.id).id).to be_truthy
   end
 
-  specify 'updating from OTU to Observation' do
-    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
-    d1 = FactoryBot.create(:valid_depiction, depiction_object: o)
+  # Deprecated for unify()
+  # specify 'updating from OTU to Observation' do
+  #   o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
+  #   d1 = FactoryBot.create(:valid_depiction, depiction_object: o)
 
-    otu = Otu.create!(name: 'Foo')
+  #   otu = Otu.create!(name: 'Foo')
+  #   d2 = Depiction.create(depiction_object: otu, image: d1.image)
 
-    d2 = Depiction.create(depiction_object: otu, image: d1.image)
+  #   d2.update!(depiction_object: o)
 
-    d2.update!(depiction_object: o)
-
-    expect(d2.depiction_object).to eq(o)
-    expect(otu.reload).to be_truthy
-  end
+  #   expect(d2.depiction_object).to eq(o)
+  #   expect(otu.reload).to be_truthy
+  # end
 
   specify 'destroying depiction destroys related Observation::Media 1' do
     o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
@@ -86,13 +86,15 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
     expect(depiction.image.reload).to be_truthy
   end
 
+  # Could have been related to bad image validation in Depiction
   specify 'CPU usage must not increase exponentially every time a depiction is added for the same OTU' do
     o = Otu.create!(name:'a1')
-    a = Rack::Test::UploadedFile.new(Spec::Support::Utilities::Files.generate_tiny_random_png(file_name: "test.png"), 'image/png')
     last_utime = 2
 
     8.times do |i|
       o = Otu.find(o.id) # VERY IMPORTANT TO RE-FETCH THE OBJECT TO TRIGGER THE PROBLEM!
+
+      a = Rack::Test::UploadedFile.new(Spec::Support::Utilities::Files.generate_tiny_random_png(file_name: "test.png"), 'image/png')
       bm = Benchmark.measure { Depiction.create!(image_attributes: { image_file: a }, depiction_object: o) }
       expect(bm.utime/last_utime).to be <= 5
       last_utime = bm.utime

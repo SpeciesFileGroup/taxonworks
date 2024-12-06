@@ -4,6 +4,7 @@ module Queries
       include Queries::Helpers
 
       include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
@@ -344,6 +345,7 @@ module Queries
         @year_end = params[:year_end]
         @year_start = params[:year_start]
 
+        set_confidences_params(params)
         set_citations_params(params)
         set_depiction_params(params)
         set_notes_params(params)

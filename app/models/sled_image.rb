@@ -38,7 +38,7 @@ class SledImage < ApplicationRecord
   # A nil value occurs when `!section.metadata.nil?`
   attr_accessor :_identifier_matrix
 
-  belongs_to :image
+  belongs_to :image, inverse_of: :sled_image
   has_many :depictions, through: :image
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
 
@@ -200,7 +200,7 @@ class SledImage < ApplicationRecord
   end
 
   def process
-    depictions.any? ?  syncronize : create_objects
+    depictions.any? ?  synchronize : create_objects
     true
   end
 
@@ -253,7 +253,7 @@ class SledImage < ApplicationRecord
     true
   end
 
-  def syncronize
+  def synchronize
     if metadata_was == []
       process if !metadata&.empty?
     else

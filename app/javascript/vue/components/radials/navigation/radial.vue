@@ -76,7 +76,8 @@ const DEFAULT_OPTIONS = {
   Destroy: 'Destroy',
   Recent: 'Recent',
   Show: 'Show',
-  Related: 'Related'
+  Related: 'Related',
+  Unify: 'Unify'
 }
 
 const CUSTOM_OPTIONS = {
@@ -226,6 +227,7 @@ const showDestroyModal = ref(false)
 const radialElement = ref(null)
 const defaultSlicesTypes = [
   DEFAULT_OPTIONS.Related,
+  DEFAULT_OPTIONS.Unify,
   DEFAULT_OPTIONS.New,
   DEFAULT_OPTIONS.Destroy,
   DEFAULT_OPTIONS.Edit,
@@ -279,7 +281,9 @@ function selectedRadialOption({ name }) {
 }
 
 function defaultLinks() {
-  return {
+  const unifyTask = metadata.value.tasks.unify_objects_task
+
+  const links = {
     [DEFAULT_OPTIONS.Edit]:
       metadata.value?.edit || `${metadata.value?.resource_path}/edit`,
     [DEFAULT_OPTIONS.New]:
@@ -293,6 +297,14 @@ function defaultLinks() {
       props.globalId
     )}`
   }
+
+  if (unifyTask) {
+    Object.assign(links, {
+      [DEFAULT_OPTIONS.Unify]: unifyTask.path
+    })
+  }
+
+  return links
 }
 
 function closeModal() {

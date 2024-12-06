@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :controlled_vocabulary_terms do
+    scope :projects_summary, controller: 'tasks/controlled_vocabulary_terms/projects_summary' do
+      get '/', action: :index, as: 'summarize_projects_controlled_vocabulary_terms_task'
+    end
+  end
+
   scope :containers do
     scope :new_container, controller: 'tasks/containers/new_container' do
       get '/', action: :index, as: 'new_container_task'
@@ -35,6 +41,11 @@ scope :tasks do
 
     scope :new_lead, controller: 'tasks/leads/new_lead' do
       get '/', action: :index, as: 'new_lead_task'
+    end
+
+    scope :print, controller: 'tasks/leads/print' do
+      get '/', action: :index, as: 'print_key_task'
+      get :table, action: :table, as: 'print_key_table_task'
     end
   end
 
@@ -157,12 +168,6 @@ scope :tasks do
     scope :nomenclature, controller: 'tasks/exports/nomenclature' do
       get 'basic', action: :basic, as: 'export_basic_nomenclature_task'
       get 'download_basic', as: 'download_basic_nomenclature_task'
-    end
-  end
-
-  scope :matrix_image do
-    scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
-      get :index, as: 'index_matrix_image_task'
     end
   end
 
@@ -452,6 +457,10 @@ scope :tasks do
   end
 
   scope :biological_associations do
+    scope :new_biological_association, controller: 'tasks/biological_associations/new_biological_association' do
+      get '/', action: :index, as: 'new_biological_association_task'
+    end
+
     scope :biological_associations_graph, controller: 'tasks/biological_associations/biological_associations_graph' do
       get '/', action: :index, as: 'edit_biological_associations_graph_task'
     end
@@ -528,6 +537,10 @@ scope :tasks do
   end
 
   scope :gis do
+    scope :simplemappr, controller: 'tasks/gis/simplemappr' do
+      match '/', action: :index, via: [:get, :post]
+    end
+
     scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
       get 'index', as: 'geographic_area_lookup_task'
       get 'resolve', as: 'geographic_area_lookup_resolve_task', format: :js
@@ -629,16 +642,21 @@ scope :tasks do
 
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
-      get '', action: :index, as: 'interactive_key_task'
+      get '/', action: :index, as: 'interactive_key_task'
     end
 
     scope :image_matrix, controller: 'tasks/observation_matrices/image_matrix' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
-      get '', action: :index, as: 'image_matrix_task'
+      get '/', action: :index, as: 'image_matrix_task'
     end
   end
 
   scope :otus do
+    scope :duplicates, controller: 'tasks/otus/duplicates' do
+      get '/', action: 'index', as: 'duplicate_otus_task'
+     get :data, as: 'duplicate_otus_task_data', defaults: {format: :json}
+    end
+
     scope :new_otu, controller: 'tasks/otus/new_otu' do
       get '/', action: :index, as: 'new_otu_task'
     end
@@ -682,9 +700,14 @@ scope :tasks do
     end
   end
 
-  # TODO: nest in peopl
-  scope :uniquify_people, controller: 'tasks/uniquify/people' do
-    get 'index', as: 'uniquify_people_task'
+  scope :unify do
+    scope :objects, controller: 'tasks/unify/objects' do
+      get '/', action: :index, as: 'unify_objects_task'
+    end
+
+    scope :people, controller: 'tasks/unify/people' do
+      get '/', action: :index, as: 'unify_people_task'
+    end
   end
 
   scope :serials, controller: 'tasks/serials/similar' do
@@ -703,10 +726,10 @@ scope :tasks do
       post 'merge', as: 'taxon_name_merge'
     end
 
-    scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
-      get 'index', as: 'syncronize_otus_to_nomenclature_task'
-      post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
-      post 'syncronize', as: 'syncronize_otus_task'
+    scope :synchronize_otus, controller: 'tasks/taxon_names/synchronize_otus' do
+      get 'index', as: 'synchronize_otus_to_nomenclature_task'
+      post 'index', as: 'preview_synchronize_otus_to_nomenclature_task'
+      post 'synchronize', as: 'synchronize_otus_task'
     end
 
     scope :filter, controller: 'tasks/taxon_names/filter' do

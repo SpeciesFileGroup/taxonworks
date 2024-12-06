@@ -9,8 +9,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     TaxonName.delete_all
     TaxonNameHierarchy.delete_all
 
-    init_housekeeping 
-    
+    init_housekeeping
+
     @order = FactoryBot.create(:iczn_order)
   end
 
@@ -73,8 +73,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'parent rank is higher' do
-        protonym.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')
-        protonym.parent = @species
+        protonym.update(rank_class: Ranks.lookup(:iczn, :genus), name: 'Aus')
+        a = Protonym.create!(name: 'zus', rank_class: Ranks.lookup(:iczn, :species), parent: root)
+        protonym.parent = a
         protonym.valid?
         expect(protonym.errors.include?(:parent_id)).to be_truthy
       end

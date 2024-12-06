@@ -1,0 +1,39 @@
+<h1> Task - Synchronize nomenclature to OTUs </h1>
+
+<h2> Current scope: <%= taxon_name_browse_link(@taxon_name) -%> </h2>
+
+<%= form_tag(synchronize_otus_to_nomenclature_task_path) do |f| %>
+  <div class="field">
+    <%= label_tag :taxon_name %>
+    <br>
+    <%= render partial: '/workbench/elements/forms/ajax_select',
+      locals: {
+      controller: '/taxon_names',
+      object: '',
+      method:  'taxon_name_id',
+      tag_id:  'taxon_name_id_for_otu',
+      display:  taxon_name_autocomplete_selected_tag(@taxon_name),
+      size: 20} %>
+  </div>
+
+  <%= submit_tag 'Preview/set scope', class: 'button button-default', formaction: preview_synchronize_otus_to_nomenclature_task_path %> <br><br>
+<% end %>
+
+<h2> Create OTUs within <%= taxon_name_tag(@taxon_name) -%> </h2>
+<%= form_tag(synchronize_otus_task_path) do |f| %>
+  <ul class="no_bullets">
+    <li><%= radio_button_tag 'mode', 'all_without', false -%> <%= label_tag('All without:') -%> <b><%= @taxon_name.self_and_descendants.without_otus.count -%></b> (<%= @taxon_name .self_and_descendants.with_otus.count -%> names already have OTUs) </li>
+    <li><%= radio_button_tag 'mode', 'all_valid', false -%> <%= label_tag('All valid:') -%> <b><%= @taxon_name.self_and_descendants.that_is_valid.without_otus.count -%></b> (<%= @taxon_name.self_and_descendants.that_is_valid.with_otus.count -%> valid names already have OTUs)</li>
+    <li><%= radio_button_tag 'mode', 'child_valid', false -%> <%= label_tag('Valid (immediate) children:') -%> <b><%= @taxon_name.children.that_is_valid.without_otus.count -%></b>  (<%= @taxon_name.children.that_is_valid.with_otus.count  -%> valid names for immediate children already have OTUs) </li>
+    <li><br></li>
+    <li><%= radio_button_tag 'mode', 'all_invalid', false -%> <%= label_tag('All invalid:') -%> <b><%= @taxon_name.self_and_descendants.that_is_invalid.without_otus.count -%></b>  (<%= @taxon_name.self_and_descendants.that_is_invalid.with_otus.count -%> invalid names aready have OTUs)</li>
+    <li><%= radio_button_tag 'mode', 'child_invalid', false -%> <%= label_tag('Invalid children:') -%> <b><%= @taxon_name.children.that_is_invalid.without_otus.count -%></b> (<%=  @taxon_name.children.that_is_invalid.with_otus.count -%> invalid names for immediate children already have OTUs)</li>
+  </ul>
+
+  <%= hidden_field_tag(:taxon_name_id, @taxon_name.id) -%>
+  <br>
+  <div class="actions">
+    <%= submit_tag :Create %>
+  </div>
+
+<% end %>

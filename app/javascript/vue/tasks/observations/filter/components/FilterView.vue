@@ -14,7 +14,11 @@
   <FacetCollectionObject v-model="params" />
   <FacetTags
     v-model="params"
-    target="Source"
+    :target="OBSERVATION"
+  />
+  <FacetConfidence
+    v-model="params"
+    :target="OBSERVATION"
   />
   <FacetUsers v-model="params" />
   <FacetNotes v-model="params" />
@@ -43,9 +47,11 @@ import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetObservationType from '@/components/Filter/Facets/Observation/FacetObservationType.vue'
 import FacetObservationObjectType from '@/components/Filter/Facets/Observation/FacetObservationObjectType.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 
 const WITH_PARAMS = [
   'citations',
+  'confidences',
   'data_attributes',
   'data_depictions',
   'depictions',

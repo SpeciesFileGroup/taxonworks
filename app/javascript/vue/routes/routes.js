@@ -16,6 +16,7 @@ import {
 } from '@/constants/index.js'
 
 const RouteNames = {
+  BiologicalRelationshipComposer: '/tasks/biological_relationships/composer',
   BrowseAssertedDistribution: '/tasks/otus/browse_asserted_distributions',
   BrowseCollectionObject: '/tasks/collection_objects/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
@@ -41,14 +42,16 @@ const RouteNames = {
   FilterPeople: '/tasks/people/filter',
   FilterSources: '/tasks/sources/filter',
   FreeFormTask: '/tasks/collection_objects/freeform_digitize',
-  ImageMatrix: '/tasks/matrix_image/matrix_image/index',
+  ImageMatrix: '/tasks/observation_matrices/image_matrix',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   LeadsHub: '/tasks/leads/hub',
-  ManageBiocurationTask: '/tasks/controlled_vocabularies/biocuration/build_collection',
+  ManageBiocurationTask:
+    '/tasks/controlled_vocabularies/biocuration/build_collection',
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatchCollectionObject: '/tasks/collection_objects/match',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
-  NewBiologicalAssociationGraph: '/tasks/biological_associations/biological_associations_graph',
+  NewBiologicalAssociationGraph:
+    '/tasks/biological_associations/biological_associations_graph',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
   NewContainer: '/tasks/containers/new_container',
   NewCombination: '/tasks/nomenclature/new_combination',
@@ -67,7 +70,9 @@ const RouteNames = {
   PrintLabel: '/tasks/labels/print_labels',
   ProjectVocabulary: '/tasks/metadata/vocabulary/project_vocabulary',
   ShowLead: '/tasks/leads/show',
-  TypeMaterial: '/tasks/type_material/edit_type_material'
+  TypeMaterial: '/tasks/type_material/edit_type_material',
+  UnifyObjects: '/tasks/unify/objects',
+  UnifyPeople: '/tasks/unify/people'
 }
 
 const FILTER_ROUTES = {

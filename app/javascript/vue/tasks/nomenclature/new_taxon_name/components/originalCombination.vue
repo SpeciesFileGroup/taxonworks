@@ -74,9 +74,9 @@
     </div>
   </div>
 </template>
+
 <script>
 import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
@@ -87,15 +87,6 @@ export default {
     RadialAnnotator,
     Autocomplete,
     Draggable
-  },
-
-  computed: {
-    taxon() {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-    originalCombination() {
-      return this.$store.getters[GetterNames.GetOriginalCombination]
-    }
   },
 
   props: {
@@ -141,29 +132,45 @@ export default {
     return {
       expanded: true,
       rankGroup: [],
-      orderRank: [],
       copyRankGroup: undefined,
-      originalTypes: [],
       newPosition: -1
     }
   },
 
-  watch: {
+  computed: {
+    taxon() {
+      return this.$store.getters[GetterNames.GetTaxon]
+    },
+
     originalCombination() {
-      this.loadOriginalCombinationList()
+      return this.$store.getters[GetterNames.GetOriginalCombination]
+    },
+
+    orderRank() {
+      return Object.keys(this.relationships)
+    },
+
+    originalTypes() {
+      return Object.values(this.relationships)
     }
   },
 
-  created() {
-    this.init()
+  watch: {
+    originalCombination: {
+      handler() {
+        this.loadOriginalCombinationList()
+      },
+      immediate: true
+    },
+    orderRank: {
+      handler() {
+        this.loadOriginalCombinationList()
+      },
+      deep: true
+    }
   },
 
   methods: {
-    init() {
-      this.orderRank = Object.keys(this.relationships)
-      this.originalTypes = Object.values(this.relationships)
-    },
-
     loadOriginalCombinationList() {
       this.rankGroup = this.orderRank.map((rank, index) => ({
         name: rank,

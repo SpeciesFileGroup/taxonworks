@@ -11,10 +11,10 @@ module TaxonName::OtuSyncronization
     # @params user_id [User#id] required
     # @params user_id [TaxonName#id] required
     #    the number of names created
-    def syncronize_otus(taxon_name_id: nil, user_id: nil, mode: :all_valid)
+    def synchronize_otus(taxon_name_id: nil, user_id: nil, mode: :all_valid)
       return false if mode.nil? || taxon_name_id.nil? || user_id.nil?
       t = TaxonName.find(taxon_name_id)
-      i = 0 
+      i = 0
       names = case mode
               when :all_valid
                 t.self_and_descendants.that_is_valid.without_otus
@@ -25,7 +25,7 @@ module TaxonName::OtuSyncronization
               when :all_invalid
                 t.self_and_descendants.that_is_invalid.without_otus
               when :child_invalid
-                t.children.that_is_invalid.without_otus              
+                t.children.that_is_invalid.without_otus
               else
                 []
               end
@@ -33,7 +33,7 @@ module TaxonName::OtuSyncronization
         names.each do |n|
           Otu.create!(by: user_id, taxon_name: n, project_id: t.project_id)
           i += 1
-        end 
+        end
       rescue ActiveRecord::RecordInvalid
         return false
       end
@@ -42,4 +42,3 @@ module TaxonName::OtuSyncronization
 
   end
 end
-

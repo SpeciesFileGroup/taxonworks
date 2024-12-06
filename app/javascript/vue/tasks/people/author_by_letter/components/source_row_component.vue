@@ -3,17 +3,17 @@
     <td>
       <a
         v-html="source.cached"
-        @click="showSource"
+        :href="`/sources/${source.id}`"
       />
     </td>
     <td class="horizontal-left-content">
-      <radial-object :global-id="source.global_id" />
-      <pin
+      <RadialObject :global-id="source.global_id" />
+      <VPin
         v-if="source.id"
         :object-id="source.id"
         :type="source.type"
       />
-      <add-to-project
+      <AddToProject
         :id="source.id"
         :in_project="source.source_in_project"
         :project-source-id="source.project_source_id"
@@ -22,42 +22,15 @@
   </tr>
 </template>
 
-<script>
-import Pin from '@/components/ui/Button/ButtonPin.vue'
+<script setup>
+import VPin from '@/components/ui/Button/ButtonPin.vue'
 import AddToProject from '@/components/ui/Button/ButtonAddToProjectSource'
 import RadialObject from '@/components/radials/navigation/radial'
 
-export default {
-  components: {
-    RadialObject,
-    Pin,
-    AddToProject
-  },
-
-  props: {
-    source: {
-      type: Object,
-      default: () => ({})
-    }
-  },
-
-  emits: ['sources'],
-
-  methods: {
-    showSources(id) {
-      this.$emit('sources', id)
-    },
-
-    showSource() {
-      window.open(`sources/${this.source.id}`, '_blank')
-    },
-
-    uniquify() {
-      window.open(
-        `/tasks/uniquify_people/index?last_name=${this.author.last_name}`,
-        '_blank'
-      )
-    }
+defineProps({
+  source: {
+    type: Object,
+    default: () => ({})
   }
-}
+})
 </script>

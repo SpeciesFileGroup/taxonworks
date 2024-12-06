@@ -46,11 +46,10 @@ class Depiction < ApplicationRecord
   include Housekeeping
   include Shared::Tags
   include Shared::DataAttributes
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:depiction_object)
-
-  include Shared::DwcOccurrenceHooks
 
   acts_as_list scope: [:project_id, :depiction_object_type, :depiction_object_id]
 
@@ -58,19 +57,20 @@ class Depiction < ApplicationRecord
   belongs_to :sled_image, inverse_of: :depictions
   has_one :sqed_depiction, dependent: :destroy
 
-  # handle duplicate images here!!
-
   accepts_nested_attributes_for :image
   accepts_nested_attributes_for :sqed_depiction, allow_destroy: true
 
   validates_presence_of :depiction_object
   validates_uniqueness_of :sled_image_id, scope: [:project_id, :sled_image_x_position, :sled_image_y_position], allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
+  validates_uniqueness_of :image_id, scope: [:depiction_object_type, :depiction_object_id] #, allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
 
   before_validation :normalize_image
 
+  # Deprecated for unify() functionality
   after_update :remove_media_observation2, if: Proc.new {|d| d.depiction_object_type_previously_was == 'Observation' && d.depiction_object.respond_to?(:type_was) && d.depiction_object.type_was == 'Observation::Media' }
   after_destroy :remove_media_observation, if: Proc.new {|d| d.depiction_object_type == 'Observation' && d.depiction_object.type == 'Observation::Media' }
 
+  # TODO: almost certainly deprecate
   after_update :destroy_image_stub_collection_object, if: Proc.new {|d| d.depiction_object_type_previously_was == 'CollectionObject' && d.depiction_object_type == 'CollectionObject' }
 
   # !? This is purposefully redundant with Shared::DwcOccurrencHooks without
@@ -118,6 +118,7 @@ class Depiction < ApplicationRecord
 
   private
 
+  #  Deprecate for calls to unify() ?!
   def remove_media_observation2
     if v = depiction_object_id_previously_was
       o = Observation::Media.find(v)

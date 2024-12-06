@@ -13,6 +13,7 @@ module Queries
         :freeform_svg,
         :image_id,
         :otu_id,
+        :otu_scope,
         :sled_image,
         :sled_image_id,
         :source_id,
@@ -139,7 +140,7 @@ module Queries
         @freeform_svg = boolean_param(params, :freeform_svg)
         @image_id = params[:image_id]
         @otu_id = params[:otu_id]
-        @otu_scope = params[:otu_scope]&.map(&:to_sym)
+        @otu_scope = params[:otu_scope]
         @sled_image = boolean_param(params, :sled_image)
         @sled_image_id = params[:sled_image_id]
         @sqed_depiction_id = params[:sqed_depiction_id]
@@ -287,14 +288,6 @@ module Queries
         ::Image.joins(depictions: [:sqed_depiction]).where(sqed_depictions: {id: sqed_depiction_id})
       end
 
-      def coordinate_otu_ids
-        ids = []
-        otu_id.each do |id|
-          ids += ::Otu.coordinate_otus(id).pluck(:id)
-        end
-        ids.uniq
-      end
-
       def otu_id_facet
         # only run this when scope not provided
         return nil if otu_id.empty? || !otu_scope.empty?
@@ -304,10 +297,9 @@ module Queries
 
       def otu_scope_facet
         return nil if otu_id.empty? || otu_scope.empty?
-
         otu_ids = otu_id
-        otu_ids += coordinate_otu_ids if otu_scope.include?(:coordinate_otus)
 
+        otu_ids += ::Otu.coordinate_otu_ids(otu_id) if otu_scope.include?(:coordinate_otus)
         otu_ids.uniq!
 
         selected = []

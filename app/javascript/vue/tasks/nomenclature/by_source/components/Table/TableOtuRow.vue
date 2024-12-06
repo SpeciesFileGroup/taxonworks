@@ -1,8 +1,15 @@
 <template>
   <tr>
     <td>
+      <input
+        type="checkbox"
+        :value="otu.id"
+        v-model="selected"
+      />
+    </td>
+    <td>
       <a
-        :href="`${routeNames.BrowseOtu}?otu_id=${otu.id}`"
+        :href="`${RouteNames.BrowseOtu}?otu_id=${otu.id}`"
         v-html="otu.object_tag"
       />
     </td>
@@ -23,26 +30,21 @@
     </td>
   </tr>
 </template>
-<script>
+
+<script setup>
 import { RouteNames } from '@/routes/routes'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import OtuRadial from '@/components/otu/otu'
 
-export default {
-  components: {
-    RadialAnnotator,
-    OtuRadial
-  },
-
-  props: {
-    otu: {
-      type: Object,
-      required: true
-    }
-  },
-
-  computed: {
-    routeNames: () => RouteNames
+defineProps({
+  otu: {
+    type: Object,
+    required: true
   }
-}
+})
+
+const selected = defineModel({
+  type: Array,
+  default: () => []
+})
 </script>

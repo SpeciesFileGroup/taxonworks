@@ -59,7 +59,12 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
-import { OTU, COLLECTING_EVENT, COLLECTION_OBJECT } from '@/constants'
+import {
+  OTU,
+  COLLECTING_EVENT,
+  COLLECTION_OBJECT,
+  FIELD_OCCURRENCE
+} from '@/constants'
 
 const store = useStore()
 
@@ -83,6 +88,11 @@ const OBJECT_TYPES = [
     type: COLLECTION_OBJECT,
     label: 'Collection object',
     model: 'collection_objects'
+  },
+  {
+    type: FIELD_OCCURRENCE,
+    label: 'Field occurrence',
+    model: 'field_occurrences'
   },
   {
     type: 'Person',

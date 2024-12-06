@@ -16,11 +16,14 @@
           search
           :autocomplete="false"
           otu-picker
-        />
-        <VLock
-          v-model="store.lock.otu"
-          class="margin-small-left"
-        />
+        >
+          <template #tabs-right>
+            <VLock
+              v-model="store.lock.otu"
+              class="margin-small-left"
+            />
+          </template>
+        </SmartSelector>
       </div>
       <hr
         v-if="store.otu"
