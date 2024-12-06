@@ -90,8 +90,8 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  def self.link(otu)
-    # API or public interface
+  def self.link(link_base_url, otu)
+    link_base_url&.gsub('{id}', otu.id.to_s) unless link_base_url.nil?
   end
 
   def self.remarks(otu, taxon_remarks_vocab_id)
@@ -145,10 +145,15 @@ module Export::Coldp::Files::Taxon
         modifiedBy
       }
 
+      root_otu = Otu.find_by(id: root_otu_id) unless root_otu_id.nil?
       taxon_remarks_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
                                                  project_id: otus[0]&.project_id)&.id
       name_phrase_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.namePhrase',
-                                                 project_id: otus[0]&.project_id)&.id
+                                               project_id: otus[0]&.project_id)&.id
+      link_vocab_id = Predicate.find_by(uri: 'https://api.checklistbank.org/vocab/term/col:link',
+                                        project_id: otus[0]&.project_id)&.id
+
+      link_base_url = root_otu.data_attributes.where(type: 'InternalAttribute', controlled_vocabulary_term_id: link_vocab_id).first&.value
 
       otus.each do |o|
         # !! When a name is a synonmy (combination), but that combination has no OTU
@@ -202,7 +207,7 @@ module Export::Coldp::Files::Taxon
           predicate_value(o, :temporal_range_start),                           # temporalRangeStart
           predicate_value(o, :temporal_range_end),                             # temporalRangeEnd
           predicate_value(o, :lifezone),                                       # environment (formerly named lifezone)
-          link(o),                                                             # link
+          link(link_base_url, o),                                              # link
           Export::Coldp.sanitize_remarks(remarks(o, taxon_remarks_vocab_id)),  # remarks
           Export::Coldp.modified(o[:updated_at]),                              # modified
           Export::Coldp.modified_by(o[:updated_by_id], project_members)        # modifiedBy

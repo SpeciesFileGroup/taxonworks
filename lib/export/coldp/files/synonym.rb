@@ -107,6 +107,12 @@ module Export::Coldp::Files::Synonym
                 next
               end
 
+              # skip making parent genus Aus a synonym of subgenus autonym (Aus) Aus
+              autonym_test = t[1]&.gsub(/\(/, '')&.gsub(/\)/, '')&.split(' ')
+              if t[4]&.include?('Subgenus') && autonym_test.size >= 2 && autonym_test[0] == autonym_test[1] && t[2] == autonym_test[0]
+                next
+              end
+
               csv << [
                 o[0],                                             # taxonID attached to the current valid concept
                 reified_id,                                       # nameID
