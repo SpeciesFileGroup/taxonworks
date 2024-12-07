@@ -45,7 +45,7 @@
   </BlockLayout>
 
   <PreviousLeads v-if="store.lead.id" />
-  <OptionSet
+  <Couplet
     v-if="store.lead.id"
     @editing-has-occurred="() => (editingHasOccurred = true)"
   />
@@ -61,7 +61,7 @@ import { usePopstateListener } from '@/composables'
 import { useStore } from './store/useStore'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import CornerSpinner from '../components/CornerSpinner.vue'
-import OptionSet from './components/OptionSet.vue'
+import Couplet from './components/Couplet.vue'
 import PreviousLeads from './components/PreviousLeads.vue'
 import KeyMeta from './components/KeyMeta.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'

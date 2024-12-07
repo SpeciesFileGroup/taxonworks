@@ -244,7 +244,7 @@ RSpec.describe Lead, type: :model do
 
   end
 
-  context 'with multiple option sets' do
+  context 'with multiple couplets' do
     before(:all) do
       Lead.delete_all
     end

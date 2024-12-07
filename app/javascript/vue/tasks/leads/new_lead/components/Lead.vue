@@ -62,14 +62,14 @@
         v-if="!!store.last_saved.children[position].redirect_id"
         class="redirect_notice"
       >
-        <i>This side is currently redirecting, to add options below remove the redirection.</i>
+        <i>This side is currently redirecting, to add leads below remove the redirection.</i>
       </div>
       <div class="navigation">
         <VBtn
           :disabled="nextButtonDisabled"
           color="update"
           medium
-          @click="nextOptions()"
+          @click="nextCouplet()"
         >
           {{ editNextText }}
         </VBtn>
@@ -150,8 +150,8 @@
         v-model:depiction="depictions"
       />
 
-      <h3>Future Option Sets</h3>
-      <FutureOptionSetsList
+      <h3>Future couplets</h3>
+      <FutureCoupletsList
         :future="store.futures[position]"
         :route-name="RouteNames.NewLead"
         :load-function="(id) => store.loadKey(id)"
@@ -172,7 +172,7 @@ import { useStore } from '../store/useStore.js'
 import { useUserOkayToLeave } from './composables/useUserOkayToLeave.js'
 import Annotations from './Annotations.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import FutureOptionSetsList from '../../components/FutureOptionSetsList.vue'
+import FutureCoupletsList from '../../components/FutureCoupletsList.vue'
 import OtuChooser from './OtuChooser.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -220,12 +220,12 @@ const editNextText = computed(() => {
   if (!!store.last_saved.children[props.position].redirect_id) {
     return 'Follow redirect and edit'
   } else if (leadHasChildren.value) {
-    return 'Edit the next option set'
+    return 'Edit the next couplet'
   } else {
     if (store.last_saved.children[props.position].text) {
-      return 'Create and edit the next option set'
+      return 'Create and edit the next couplet'
     } else {
-      return 'Save text to enable creating the next option set'
+      return 'Save text to enable creating the next couplet'
     }
   }
 })
@@ -256,7 +256,7 @@ function insertCouplet() {
   })
 }
 
-function nextOptions() {
+function nextCouplet() {
   if (!useUserOkayToLeave(store)) {
     return
   }

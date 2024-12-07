@@ -3,8 +3,8 @@
     :href="routeName + '?lead_id=' + lead.parent_id"
     @click.prevent="loadFunction(lead.parent_id)"
   >
-    <template v-if="optionSetLabel">
-      [{{ optionSetLabel }}]
+    <template v-if="coupletLabel">
+      [{{ coupletLabel }}]
     </template>
 
     <template v-if="lead.text">
@@ -32,7 +32,7 @@ const props = defineProps({
     type: String,
     required: true
   },
-  optionSetLabel: {
+  coupletLabel: {
     type: String,
     default: ''
   },

@@ -1,5 +1,5 @@
 json.array!(@leads) do |lead|
-  lead[:option_sets_count] = option_sets_count(lead)
+  lead[:couplets_count] = couplets_count(lead)
   if params[:load_root_otus]
     json.otu do
       if lead.otu.nil?

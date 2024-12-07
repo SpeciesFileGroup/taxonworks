@@ -5,22 +5,22 @@
       :key="o.lead.id"
       :style="marginForDepth(o.depth)"
     >
-      <OptionSetLink
+      <CoupletLink
         :load-function="loadFunction"
         :route-name="routeName"
-        :option-set-label="o.leadLabel"
+        :couplet-label="o.leadLabel"
         :lead="o.lead"
         :otu-tag="o.otuLabel"
       />
     </div>
   </div>
   <div v-else>
-    <i>No future option sets</i>
+    <i>No future couplets</i>
   </div>
 </template>
 
 <script setup>
-import OptionSetLink from './OptionSetLink.vue'
+import CoupletLink from './CoupletLink.vue'
 import { marginForDepth } from '../helpers/formatters.js'
 
 const props = defineProps({

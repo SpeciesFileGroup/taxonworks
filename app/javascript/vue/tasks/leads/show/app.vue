@@ -26,9 +26,9 @@
       :root-text="root.text"
       @load-lead="(id) => loadLead(id)"
     />
-    <OptionSet
+    <Couplet
       :lead="lead"
-      :option-set="optionSet"
+      :couplet="children"
       :futures="futures"
       @load-lead="(id) => loadLead(id)"
     />
@@ -42,7 +42,7 @@ import { RouteNames } from '@/routes/routes'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { usePopstateListener } from '@/composables'
 import CornerSpinner from '../components/CornerSpinner.vue'
-import OptionSet from './components/OptionSet.vue'
+import Couplet from './components/Couplet.vue'
 import Header from './components/Header.vue'
 import KeyList from './components/KeyList.vue'
 import PreviousLeads from './components/PreviousLeads.vue'
@@ -52,7 +52,7 @@ const lead_id = ref(URLParamsToJSON(location.href).lead_id)
 
 const root = ref({})
 const lead = ref({})
-const optionSet = ref([])
+const children = ref([])
 const futures = ref([])
 const ancestors = ref([])
 
@@ -84,7 +84,7 @@ function loadLead(id) {
     .then(({ body }) => {
       root.value = body.root
       lead.value = body.lead
-      optionSet.value = body.children
+      children.value = body.children
       futures.value = body.futures
       ancestors.value = body.ancestors
       setParam(RouteNames.ShowLead, 'lead_id', lead_id.value)
@@ -107,7 +107,7 @@ function reset() {
   lead_id.value = null
   root.value = {}
   lead.value = {}
-  optionSet.value = []
+  children.value = []
   futures.value = []
   ancestors.value = []
 }

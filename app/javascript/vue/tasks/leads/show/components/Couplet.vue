@@ -13,7 +13,7 @@
       v-if="lead.origin_label"
       class="large_type"
     >
-      <b>Option set {{ lead.origin_label }}</b>
+      <b>Couplet {{ lead.origin_label }}</b>
     </div>
 
     <div v-if="lead.otu">
@@ -35,11 +35,11 @@
   </div>
 
   <div
-    v-if="optionSet.length > 0"
-    class="option_set"
+    v-if="couplet.length > 0"
+    class="couplet"
   >
     <LeadAndFuture
-      v-for="(l, i) in optionSet"
+      v-for="(l, i) in couplet"
       :key="l.id"
       :lead="l"
       :future="futures[i]"
@@ -49,7 +49,7 @@
   <div v-else class="lead_center">
     <p>
       You're viewing a leaf node without the node it's associated with in the
-      key; go Up to view the full option set that includes this lead.
+      key; go Up to view the full couplet that includes this lead.
     </p>
   </div>
 </template>
@@ -63,7 +63,7 @@ const props = defineProps({
     type: Object,
     default: {}
   },
-  optionSet: {
+  couplet: {
     type: Array,
     default: []
   },
@@ -77,7 +77,7 @@ const emit = defineEmits(['loadLead'])
 </script>
 
 <style lang="scss" scoped>
-.option_set {
+.couplet {
   margin-top: 2em;
   display: flex;
   flex-wrap: wrap;

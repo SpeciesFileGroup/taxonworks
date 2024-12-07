@@ -4,15 +4,15 @@
     full-screen
   />
 
-  <div class="option_set_center">
+  <div class="couplet_center">
 
     <VBtn
       v-if="store.lead.parent_id"
       color="primary"
       medium
-      @click="previousOptionSet"
+      @click="previousCouplet"
     >
-      Go to the previous options
+      Go to the previous couplet
     </VBtn>
 
     <VBtn
@@ -34,8 +34,8 @@
   </div>
 
   <div v-if="hasChildren">
-    <div class="option_set_center">
-      <label>Options number from citation: </label>
+    <div class="couplet_center">
+      <label>Couplet number from citation: </label>
       <input
         v-model="store.lead.origin_label"
         type="text"
@@ -43,7 +43,7 @@
         size="3"
       />
     </div>
-    <div class="option_set_horizontal_buttons">
+    <div class="couplet_horizontal_buttons">
       <div>
         <VBtn
           color="update"
@@ -63,19 +63,19 @@
       </div>
 
       <VBtn
-        v-if="allowDestroyOptionSet"
+        v-if="allowDestroyCouplet"
         color="destroy"
         medium
-        @click="destroyOptionSet"
+        @click="destroyCouplet"
       >
         Delete these options
       </VBtn>
 
       <VBtn
-        v-else-if="allowDeleteOptionSet"
+        v-else-if="allowDeleteCouplet"
         color="destroy"
         medium
-        @click="deleteOptionSet"
+        @click="deleteCouplet"
       >
         Delete these options and reparent the children
       </VBtn>
@@ -90,7 +90,7 @@
       </VBtn>
     </div>
 
-    <div class="left_and_right_option_set">
+    <div class="left_and_right_couplet">
       <Lead
         v-for="(child, i) in store.children"
         :key="child.id"
@@ -101,7 +101,7 @@
     </div>
   </div>
 
-  <div v-else class="option_set_center">
+  <div v-else class="couplet_center">
     <p>No remaining choices.</p>
     <VBtn
       color="update"
@@ -146,7 +146,7 @@ const hasChildren = computed(() => {
     (store.children[0].id && store.children[1].id)
 })
 
-const allowDestroyOptionSet = computed(() => {
+const allowDestroyCouplet = computed(() => {
   if (!store.lead.parent_id) {
     return false
   }
@@ -156,7 +156,7 @@ const allowDestroyOptionSet = computed(() => {
   })
 })
 
-const allowDeleteOptionSet = computed(() => {
+const allowDeleteCouplet = computed(() => {
   let childWithChildrenCount = 0
   return store.children.every((child, i) => {
     if (childHasChildren(child, i)) {
@@ -197,7 +197,7 @@ watch(
   { immediate: true }
 )
 
-function previousOptionSet() {
+function previousCouplet() {
   if (store.dataChangedSinceLastSave() &&
     !window.confirm(
       'You have unsaved data, are you sure you want to navigate to a new couplet?'
@@ -283,7 +283,7 @@ function saveChanges() {
   Promise.allSettled(promises)
     .then((results) => {
       if (results.every((r) => r.status == 'fulfilled')) {
-        TW.workbench.alert.create('Options were successfully saved.', 'notice')
+        TW.workbench.alert.create('Update was successful.', 'notice')
       }
     })
     .finally(() => {
@@ -317,7 +317,7 @@ function addLead() {
     })
 }
 
-function destroyOptionSet() {
+function destroyCouplet() {
   if (window.confirm(
     'Delete all options for this stage of the key?'
   )) {
@@ -325,7 +325,7 @@ function destroyOptionSet() {
     LeadEndpoint.destroy_children(store.lead.id)
       .then(() => {
         store.loadKey(store.lead.id)
-        TW.workbench.alert.create('Option set was successfully deleted.', 'notice')
+        TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
         emit('editingHasOccurred')
       })
       .catch(() => {})
@@ -335,7 +335,7 @@ function destroyOptionSet() {
   }
 }
 
-function deleteOptionSet() {
+function deleteCouplet() {
   if (window.confirm(
     'Delete all options at this level of the key and re-attach orphaned children?'
   )) {
@@ -343,7 +343,7 @@ function deleteOptionSet() {
     LeadEndpoint.delete_children(store.lead.id)
       .then(() => {
         store.loadKey(store.lead.id)
-        TW.workbench.alert.create('Option set was successfully deleted.', 'notice')
+        TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
         emit('editingHasOccurred')
       })
       .catch(() => {})
@@ -361,21 +361,21 @@ function childHasChildren(child, i) {
 </script>
 
 <style lang="scss" scoped>
-.left_and_right_option_set {
+.left_and_right_couplet {
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
   gap: 2em;
 }
-.option_set_center {
+.couplet_center {
   margin-top: 1em;
   margin-bottom: 1em;
   text-align: center;
 }
-.option_set_center button {
+.couplet_center button {
   margin-right: 2em;
 }
-.option_set_horizontal_buttons {
+.couplet_horizontal_buttons {
   display: grid;
   grid-template-columns: 50% 50%;
   column-gap: 0px;

@@ -10,8 +10,8 @@ else
     json.otus_count lead[:otus_count]
   end
 
-  if lead[:option_sets_count]
-    json.option_sets_count lead[:option_sets_count]
+  if lead[:couplets_count]
+    json.couplets_count lead[:couplets_count]
   end
 
   if lead[:key_updated_at]

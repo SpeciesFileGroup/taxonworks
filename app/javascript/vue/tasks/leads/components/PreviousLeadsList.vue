@@ -9,10 +9,10 @@
         :style="marginForDepth(i - 1)"
         class="new-lead-choice"
       >
-        <OptionSetLink
+        <CoupletLink
           :load-function="loadFunction"
           :route-name="routeName"
-          :option-set-label="past[i - 1].origin_label"
+          :couplet-label="past[i - 1].origin_label"
           :lead="o"
         />
       </div>
@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import OptionSetLink from './OptionSetLink.vue'
+import CoupletLink from './CoupletLink.vue'
 import { marginForDepth } from '../helpers/formatters.js'
 
 const props = defineProps({

@@ -1,4 +1,6 @@
 # Leads model multifurcating keys: each lead represents one option in a key.
+# The set of options at a given step of the key is referred to as a 'couplet'
+# even when there are more than two options.
 #
 # @!attribute parent_id
 #   @return [integer]
@@ -267,7 +269,7 @@ class Lead < ApplicationRecord
 
   # @return [ActiveRecord::Relation] ordered by text.
   # Returns all root nodes, with new properties:
-  #  * option_sets_count (declared here, computed in views)
+  #  * couplets_count (declared here, computed in views)
   #  * otus_count (total number of distinct otus on the key)
   #  * key_updated_at (last time the key was updated)
   #  * key_updated_by_id (id of last person to update the key)
@@ -294,7 +296,7 @@ class Lead < ApplicationRecord
         leads.*,
         COUNT(DISTINCT otus_source.otu_id) AS otus_count,
         MAX(otus_source.updated_at) AS key_updated_at,
-        0 AS option_sets_count' # count is now computed in views
+        0 AS couplets_count' # count is now computed in views
         #·(COUNT(otus_source.id) - 1) / 2 AS couplet_count
       )
 

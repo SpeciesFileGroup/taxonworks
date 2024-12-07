@@ -15,7 +15,7 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th># of option sets</th>
+          <th># of couplets</th>
           <th>Is Public</th>
           <th>Last Modified</th>
           <th>Last Modified By</th>
@@ -34,7 +34,7 @@
               {{ key.text }}
             </a>
           </td>
-          <td>{{ key.option_sets_count }}</td>
+          <td>{{ key.couplets_count }}</td>
           <td>{{ key.is_public? 'True' : 'False' }}</td>
           <td>{{ key.key_updated_at_in_words }}</td>
           <td>{{ key.key_updated_by }}</td>
