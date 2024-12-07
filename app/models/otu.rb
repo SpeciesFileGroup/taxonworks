@@ -178,6 +178,14 @@ class Otu < ApplicationRecord
     Otu.joins(q.join_sources).where(h[:ancestor_id].in(ids).to_sql)
   end
 
+  def self.coordinate_otu_ids(otu_ids = [])
+    ids = []
+    otu_ids.each do |id|
+      ids += ::Otu.coordinate_otus(id).pluck(:id)
+    end
+    ids.uniq
+  end
+
   # TODO: replace with filter
   # return [Scope] the Otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)

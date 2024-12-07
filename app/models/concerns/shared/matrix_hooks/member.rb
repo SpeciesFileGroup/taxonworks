@@ -5,7 +5,7 @@ module  Shared
     # In this case we check whether updating an attribute might remove
     # this object from a matrix due to direct reference to a corresponding
     # matrix row item.
-    # 
+    #
     # # !! All modules including this code must implement either one or both (row/column) of the in/out "Interface" methods
     #
     # See spec/models/taxon_name/matrix_hook_spec.rb for specs and exercising.
@@ -13,14 +13,14 @@ module  Shared
 
       extend ActiveSupport::Concern
       included do
-        around_save :member_syncronize_matrices
+        around_save :member_synchronize_matrices
       end
 
       module ClassMethods
       end
 
       # "Interface"
-      # To be defined as needed in member including classes.  
+      # To be defined as needed in member including classes.
       # See app/models/taxon_name/matrix_hooks.rb for an example.
 
       def member_of_old_matrix_row_items
@@ -39,7 +39,7 @@ module  Shared
         []
       end
 
-      # Shared code 
+      # Shared code
 
       # @return [Boolean]
       #   True if we need to update based on matrix row items
@@ -64,7 +64,7 @@ module  Shared
 
       # TODO: we could `of_type` abstract this as well
       #
-      
+
       # Rows
 
        def member_add_matrix_rows(rows)
@@ -79,7 +79,7 @@ module  Shared
         end
       end
 
-      # Columns 
+      # Columns
 
       def member_add_matrix_columns(columns)
         columns.each do |mci|
@@ -93,7 +93,7 @@ module  Shared
         end
       end
 
-      def member_syncronize_matrices
+      def member_synchronize_matrices
         # TODO: refine to eliminate other possibilities
         # Don't bother with the overhead if there are no matrices
         if ObservationMatrix.where(project_id: project_id).any?
@@ -124,4 +124,3 @@ module  Shared
     end
   end
 end
-

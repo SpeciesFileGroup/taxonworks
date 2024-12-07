@@ -52,16 +52,17 @@ class BiologicalAssociation < ApplicationRecord
   has_many :subject_biological_properties, through: :subject_biological_relationship_types, source: :biological_property
   has_many :object_biological_properties, through: :object_biological_relationship_types, source: :biological_property
 
-  belongs_to :biological_association_subject, polymorphic: true
-  belongs_to :biological_association_object, polymorphic: true
+  belongs_to :biological_association_subject, polymorphic: true, inverse_of: :biological_associations
+  belongs_to :biological_association_object, polymorphic: true, inverse_of: :related_biological_associations
+
   has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_association, dependent: :destroy
   has_many :biological_associations_graphs, through: :biological_associations_biological_associations_graphs, inverse_of: :biological_associations
 
-  validates :biological_relationship, presence: true
-  validates :biological_association_subject, presence: true
-  validates :biological_association_object, presence: true
+  validates_presence_of :biological_relationship
+  validates_presence_of :biological_association_subject
+  validates_presence_of :biological_association_object
 
-  validates_uniqueness_of :biological_association_subject_id, scope: [:biological_association_subject_type, :biological_association_object_id, :biological_association_object_type, :biological_relationship_id]
+  validate :association_is_unique
 
   validate :biological_association_subject_type_is_allowed
   validate :biological_association_object_type_is_allowed
@@ -124,13 +125,13 @@ class BiologicalAssociation < ApplicationRecord
         cap = 5000
         request.cap_reason = 'Maximum allowed.'
       when 2
-        cap = 2000 
+        cap = 2000
         request.cap_reason = 'Maximum allowed when 2 biological relationships present.'
       else
         cap = 25
         request.cap_reason = 'Maximum allowed when 3 or more biological relationships present.'
       end
-      
+
       request.cap = cap
       request
     end
@@ -149,14 +150,6 @@ class BiologicalAssociation < ApplicationRecord
     end
 
   end
-
-  # @return [ActiveRecord::Relation]
-  #def self.collection_objects_subject_join
-  #  a = arel_table
-  #  b = ::CollectionObject.arel_table
-  #  j = a.join(b).on(a[:biological_association_subject_type].eq('CollectionObject').and(a[:biological_association_subject_id].eq(b[:id])))
-  #  joins(j.join_sources)
-  #end
 
   def dwc_extension_select
     BiologicalAssociation
@@ -192,15 +185,30 @@ class BiologicalAssociation < ApplicationRecord
     joins(j.join_sources)
   end
 
+  private
+
+  # We need to add the error to the polymorphic object class for Unify puproses, not the subject_id.
+  # We can't (apparently) validate uniqueness of a polymorphic with other polymorphic scope.
+  def association_is_unique
+    if a = BiologicalAssociation.where.not(id:).where(
+        biological_association_subject:,
+        biological_association_object:,
+        biological_relationship:
+    ).first
+      if a.biological_association_subject == self
+        errors.add(:biological_association_subject, "has already been taken")
+      else
+        errors.add(:biological_association_object, "has already been taken")
+      end
+    end
+  end
+
+
+  def biological_association_subject_type_is_allowed
+    errors.add(:biological_association_subject_type, 'is not permitted') unless biological_association_subject && biological_association_subject.class.is_biologically_relatable?
+  end
+
+  def biological_association_object_type_is_allowed
+    errors.add(:biological_association_object_type, 'is not permitted') unless biological_association_object && biological_association_object.class.is_biologically_relatable?
+  end
 end
-
-private
-
-def biological_association_subject_type_is_allowed
-  errors.add(:biological_association_subject_type, 'is not permitted') unless biological_association_subject && biological_association_subject.class.is_biologically_relatable?
-end
-
-def biological_association_object_type_is_allowed
-  errors.add(:biological_association_object_type, 'is not permitted') unless biological_association_object && biological_association_object.class.is_biologically_relatable?
-end
-

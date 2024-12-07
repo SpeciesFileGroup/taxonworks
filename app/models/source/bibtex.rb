@@ -983,7 +983,7 @@ class Source::Bibtex < Source
         (editor.to_s != get_bibtex_names('editor') && get_bibtex_names('editor').present?) ||
         cached != get_cached ||
         cached_nomenclature_date != nomenclature_date ||
-        cached_author_string.to_s != authority_name(false)
+        cached_author_string.to_s != authority_name(false).to_s
       is_cached = false
     end
 

@@ -20,7 +20,7 @@ module DepictionsHelper
     [
       depiction.figure_label,
       depiction.caption,
-     ('Depicts ' + label_for(depiction.depiction_object.metamorphosize).to_s + ', ' + Utilities::Strings.a_label(depiction.depiction_object_type).to_s + '.'),
+      ('Depicts ' + label_for(depiction.depiction_object.metamorphosize).to_s + ', ' + Utilities::Strings.a_label(depiction.depiction_object_type).to_s + '.'),
     ].compact.join('. ').gsub(/\.\./, '')
   end
 
