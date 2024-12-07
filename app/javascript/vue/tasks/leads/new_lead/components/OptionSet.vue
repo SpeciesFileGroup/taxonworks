@@ -96,7 +96,6 @@
         :key="child.id"
         :position="i"
         :redirect-options="redirectOptions"
-        :lead-has-children="childHasChildren(child, i)"
         @editing-has-occurred="() => emit('editingHasOccurred')"
       />
     </div>
@@ -152,27 +151,20 @@ const allowDestroyOptionSet = computed(() => {
     return false
   }
 
-  store.children.forEach((child, i) => {
-    if (childHasChildren(child, i)) {
-      return false
-    }
+  return store.children.every((child, i) => {
+    return !childHasChildren(child, i)
   })
-
-  return true
 })
 
 const allowDeleteOptionSet = computed(() => {
-  let optionsWithChildrenCount = 0
-  store.children.forEach((child, i) => {
+  let childWithChildrenCount = 0
+  return store.children.every((child, i) => {
     if (childHasChildren(child, i)) {
-      optionsWithChildrenCount++
-      if (optionsWithChildrenCount > 1) {
-        return false
-      }
+      childWithChildrenCount++
     }
-  })
 
-  return true
+    return childWithChildrenCount <= 1
+  })
 })
 
 const redirectOptions = ref([])
@@ -361,7 +353,8 @@ function deleteOptionSet() {
   }
 }
 
-// i is the position of child. Redirects do not count as a child.
+// i is the position of child.
+// !! Redirects **do** count as a child here (they contribute to futures).
 function childHasChildren(child, i) {
   return !!child?.id && store.futures[i].length > 0
 }

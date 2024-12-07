@@ -39,7 +39,7 @@ RSpec.describe Lead, type: :model do
     expect(a.first.children.size).to eq(1)
   end
 
-  specify '#insert_couplet between leads with siblings inserts couplets ' do
+  specify '#insert_couplet between leads with siblings inserts couplets' do
     FactoryBot.create(:valid_lead, parent: lead, text: 'bottom left')
     FactoryBot.create(:valid_lead, parent: lead, text: 'bottom right')
 
@@ -551,6 +551,7 @@ RSpec.describe Lead, type: :model do
     specify '#all_children' do
       lrl.children.create!(text: 'lrll')
       lrl.children.create!(text: 'lrlr')
+      # 2 new leads below l, 3 leads above l
       expect(l.all_children.size).to eq(lead_all_size + 2 - 3)
     end
 

@@ -156,7 +156,7 @@ class LeadsController < ApplicationController
   def destroy_leaf
     if !@lead.leaf?
       @lead.errors.add(
-        :delete, 'failed, can only be called on a lead with no children'
+        :delete, 'leaf failed, can only be called on a lead with no children'
       )
       render json: @lead.errors, status: :unprocessable_entity
       return
@@ -174,13 +174,13 @@ class LeadsController < ApplicationController
         if @lead.destroy_children
           format.json { head :no_content }
         else
-          @lead.errors.add(:delete, 'failed - is there a node redirecting to one of these?')
+          @lead.errors.add(:delete, 'failed!')
           format.json {
             render json: @lead.errors, status: :unprocessable_entity
           }
         end
       else
-        @lead.errors.add(:destroy, "failed - can't delete the only options.")
+        @lead.errors.add(:destroy, "failed - can't delete the only couplet.")
         format.json {
           render json: @lead.errors, status: :unprocessable_entity
         }
@@ -196,8 +196,7 @@ class LeadsController < ApplicationController
       if @lead.destroy_children
         format.json { head :no_content }
       else
-        # TODO I don't think the redirect message is correct anymore
-        @lead.errors.add(:delete, 'failed - is there a node redirecting to one of these?')
+        @lead.errors.add(:delete, 'failed!')
         format.json {
           render json: @lead.errors, status: :unprocessable_entity
         }
@@ -272,7 +271,7 @@ class LeadsController < ApplicationController
   def otus
     leads_list = @lead.self_and_descendants.where.not(otu_id: nil).includes(:otu)
 
-    @otus = leads_list.to_a.map{ |l| l.otu }.uniq(&:id)
+    @otus = leads_list.to_a.map(&:otu).uniq(&:id)
   end
 
   def autocomplete
@@ -311,8 +310,8 @@ class LeadsController < ApplicationController
     @lead = Lead.find(params[:id])
   end
 
-  def lead_params(require = :lead)
-    params.require(require).permit(
+  def lead_params()
+    params.require(:lead).permit(
       :parent_id,
       :otu_id, :text, :origin_label, :description, :redirect_id,
       :link_out, :link_out_text, :is_public, :position
@@ -320,9 +319,8 @@ class LeadsController < ApplicationController
   end
 
   def expand_lead
-    # Assumes the parent node is @lead
     @children = @lead.children
-    @futures = @lead.children.map { |c| c.future }
+    @futures = @lead.children.map(&:future)
     @parents = @lead.ancestors.reverse
   end
 

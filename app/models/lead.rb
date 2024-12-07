@@ -213,7 +213,6 @@ class Lead < ApplicationRecord
 
   # TODO: Probably a helper method
   def all_children(node = self, result = [], depth = 0)
-    # TODO multifurcate
     for c in node.children.to_a.reverse # intentionally reversed
       c.all_children(c, result, depth + 1)
       a = {}

@@ -184,11 +184,6 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  // TODO: this can be computed using position, do that
-  leadHasChildren: {
-    type: Boolean,
-    required: true
-  },
   redirectOptions: {
     type: Array,
     required: true
@@ -202,9 +197,14 @@ const store = useStore()
 const depictions = ref([])
 const loading = ref(false)
 
+const leadHasChildren = computed(() => {
+  return (!store.children[props.position].redirect_id &&
+    store.futures[props.position].length > 0)
+})
+
 const nextButtonDisabled = computed(() => {
   return (
-    !props.leadHasChildren &&
+    !leadHasChildren.value &&
     !store.last_saved.children[props.position].redirect_id &&
     !store.last_saved.children[props.position].text
   )
@@ -219,7 +219,7 @@ const displayLinkOut = computed(() => {
 const editNextText = computed(() => {
   if (!!store.last_saved.children[props.position].redirect_id) {
     return 'Follow redirect and edit'
-  } else if (props.leadHasChildren) {
+  } else if (leadHasChildren.value) {
     return 'Edit the next option set'
   } else {
     if (store.last_saved.children[props.position].text) {
@@ -260,7 +260,7 @@ function nextOptions() {
   if (!useUserOkayToLeave(store)) {
     return
   }
-  if (props.leadHasChildren) {
+  if (leadHasChildren.value) {
     store.loadKey(store.children[props.position].id)
   } else if (!!store.last_saved.children[props.position].redirect_id) {
     store.loadKey(store.last_saved.children[props.position].redirect_id)

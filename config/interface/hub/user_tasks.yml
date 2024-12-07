@@ -868,19 +868,19 @@ debug_geographic_item_task:
   description: 'Report metadat about a geographic item.'
 new_lead_task:
   hub: true
-  name: 'New dichotomous key'
+  name: 'New multifurcating key'
   related:
   categories:
     - new
   status: prototype
-  description: 'Create a new dichotomous key.'
+  description: 'Create a new multifurcating key.'
 show_lead_task:
   hub: true
-  name: 'Use dichotomous key'
+  name: 'Use multifurcating key'
   related:
   categories:
   status: prototype
-  description: 'Use an existing dichotomous key.'
+  description: 'Use an existing multifurcating key.'
 project_vocabulary_task:
   hub: true
   name: 'Project vocabulary'
@@ -899,11 +899,11 @@ new_otu_task:
   description: 'Create one or many OTUs in batch.'
 leads_hub_task:
   hub: true
-  name: 'Dichotomous keys hub'
+  name: 'Multifurcating keys hub'
   related:
   categories:
   status: prototype
-  description: 'A centralized hub unifying access to the different means of creating and displaying dichotomous keys.'
+  description: 'A centralized hub unifying access to the different means of creating and displaying multifurcating keys.'
 week_in_review_task:
   hub: true
   name: 'Week in review'
