@@ -60,7 +60,7 @@ class LeadsController < ApplicationController
     else
       @children = nil
       @futures = nil
-      @parents = @lead.ancestors.reverse
+      @ancestors = @lead.ancestors.reverse
     end
   end
 
@@ -321,7 +321,7 @@ class LeadsController < ApplicationController
   def expand_lead
     @children = @lead.children
     @futures = @lead.children.map(&:future)
-    @parents = @lead.ancestors.reverse
+    @ancestors = @lead.ancestors.reverse
   end
 
   def new_couplet

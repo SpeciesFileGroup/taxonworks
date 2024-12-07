@@ -21,7 +21,7 @@
   <template v-if="root.id">
     <Header :root="root" />
     <PreviousLeads
-      :parents="parents"
+      :ancestors="ancestors"
       :lead="lead"
       :root-text="root.text"
       @load-lead="(id) => loadLead(id)"
@@ -54,8 +54,7 @@ const root = ref({})
 const lead = ref({})
 const optionSet = ref([])
 const futures = ref([])
-// TODO rename
-const parents = ref([])
+const ancestors = ref([])
 
 const loading = ref(false)
 
@@ -87,7 +86,7 @@ function loadLead(id) {
       lead.value = body.lead
       optionSet.value = body.children
       futures.value = body.futures
-      parents.value = body.parents
+      ancestors.value = body.ancestors
       setParam(RouteNames.ShowLead, 'lead_id', lead_id.value)
     })
     .catch(() => {
@@ -110,7 +109,7 @@ function reset() {
   lead.value = {}
   optionSet.value = []
   futures.value = []
-  parents.value = []
+  ancestors.value = []
 }
 </script>
 

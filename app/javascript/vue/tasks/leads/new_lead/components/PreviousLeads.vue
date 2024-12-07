@@ -9,7 +9,7 @@
 
     <template #body>
       <PreviousLeadsList
-        :past="[...store.parents, store.lead]"
+        :past="[...store.ancestors, store.lead]"
         :load-function="store.loadKey"
         :route-name="RouteNames.NewLead"
         :root-text="store.root.text"

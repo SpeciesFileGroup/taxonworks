@@ -1,8 +1,8 @@
 json.root do
-  if @parents.length == 0
+  if @ancestors.length == 0
     json.partial! 'attributes', lead: @lead
   else
-    json.partial! 'attributes', lead: @parents[0]
+    json.partial! 'attributes', lead: @ancestors[0]
   end
 end
 
@@ -26,4 +26,4 @@ else
   json.futures @futures
 end
 
-json.parents @parents
+json.ancestors @ancestors

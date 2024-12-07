@@ -9,7 +9,7 @@
 
     <template #body>
       <PreviousLeadsList
-        :past="[...parents, lead]"
+        :past="[...ancestors, lead]"
         :load-function="(id) => emit('loadLead', id)"
         :route-name="RouteNames.ShowLead"
         :root-text="rootText"
@@ -24,7 +24,7 @@ import PreviousLeadsList from '../../components/PreviousLeadsList.vue'
 import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
-  parents: {
+  ancestors: {
     type: Array,
     required: true
   },

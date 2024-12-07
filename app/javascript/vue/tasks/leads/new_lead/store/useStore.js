@@ -10,8 +10,8 @@ const makeInitialState = () => ({
   children: [],
   // Futures of children, indexed the same as children.
   futures: [],
-  // Ancestors of lead. TODO: rename this to ancestors!(?)
-  parents: [],
+  // Ancestors of lead.
+  ancestors: [],
   // Use this to indicate data is being retrieved, not for database changes.
   loading: false,
   // Keep a copy of values from the last time a save occurred.
