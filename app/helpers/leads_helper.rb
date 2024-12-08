@@ -170,7 +170,7 @@ module LeadsHelper
   end
 
   def couplets_count(lead)
-    # couplets - which can have more than two options - are in 1-1
+    # Couplets - which can have more than two options - are in 1-1
     # correspondence with nodes that have children (via 'couplet' <--> 'parent
     # of that couplet').
     lead.self_and_descendants.count - lead.leaves.count
