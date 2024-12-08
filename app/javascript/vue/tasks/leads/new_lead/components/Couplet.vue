@@ -86,7 +86,12 @@
         disabled
         medium
       >
-        Can't delete when more than one side has children
+        <template v-if="!store.lead.parent_id && noGrandkids()">
+          Can't delete root couplet
+        </template>
+        <template v-else>
+          Can't delete when more than one side has children
+        </template>
       </VBtn>
     </div>
 
@@ -147,24 +152,18 @@ const hasChildren = computed(() => {
 })
 
 const allowDestroyCouplet = computed(() => {
-  if (!store.lead.parent_id) {
-    return false
-  }
-
-  return store.children.every((child, i) => {
-    return !childHasChildren(child, i)
-  })
+  return store.lead.parent_id && noGrandkids()
 })
 
 const allowDeleteCouplet = computed(() => {
   let childWithChildrenCount = 0
-  return store.children.every((child, i) => {
+  store.children.forEach((child, i) => {
     if (childHasChildren(child, i)) {
       childWithChildrenCount++
     }
-
-    return childWithChildrenCount <= 1
   })
+
+  return childWithChildrenCount == 1
 })
 
 const redirectOptions = ref([])
@@ -351,6 +350,11 @@ function deleteCouplet() {
         loading.value = false
       })
   }
+}
+
+// !! Redirects **do** count as a child here (they contribute to futures).
+function noGrandkids() {
+  return store.futures.flat().length == 0
 }
 
 // i is the position of child.
