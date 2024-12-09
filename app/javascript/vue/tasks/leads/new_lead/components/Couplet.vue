@@ -28,6 +28,7 @@
       color="update"
       medium
       @click="() => { insertKeyModalIsVisible = true }"
+      :disabled="store.children.length < 2"
     >
       Insert a key
     </VBtn>
@@ -68,7 +69,7 @@
         medium
         @click="destroyCouplet"
       >
-        Delete these options
+        Delete these leads
       </VBtn>
 
       <VBtn
@@ -77,7 +78,7 @@
         medium
         @click="deleteCouplet"
       >
-        Delete these options and reparent the children
+        Delete these leads and reparent the children
       </VBtn>
 
       <VBtn
@@ -113,7 +114,7 @@
       medium
       @click="nextCouplet"
     >
-      Create the next list of options
+      Create the next couplet
     </VBtn>
   </div>
 
@@ -318,7 +319,7 @@ function addLead() {
 
 function destroyCouplet() {
   if (window.confirm(
-    'Delete all options for this stage of the key?'
+    'Delete all leads for this stage of the key?'
   )) {
     loading.value = true
     LeadEndpoint.destroy_children(store.lead.id)
@@ -336,7 +337,7 @@ function destroyCouplet() {
 
 function deleteCouplet() {
   if (window.confirm(
-    'Delete all options at this level of the key and re-attach orphaned children?'
+    'Delete all leads at this level of the key and re-attach orphaned children?'
   )) {
     loading.value = true
     LeadEndpoint.delete_children(store.lead.id)
