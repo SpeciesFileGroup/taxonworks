@@ -37,10 +37,10 @@
           </VBtn>
 
           <VBtn
-            v-if="store.children.length > 2 && !leadHasChildren"
+            v-if="store.children.length > 2"
             color="destroy"
             circle
-            @click="() => deleteLead()"
+            @click="() => deleteSubTree()"
           >
             <VIcon
               x-small
@@ -277,16 +277,23 @@ function nextCouplet() {
   emit('editingHasOccurred')
 }
 
-function deleteLead() {
-  if (!window.confirm('Are you sure you want to delete this lead?')) {
+function deleteSubTree() {
+  const deleteWarningText = leadHasChildren.value
+    ? 'Are you sure you want to delete this lead AND ALL LEADS BELOW IT?'
+    : 'Are you sure you want to delete this lead?'
+
+  if (!window.confirm(deleteWarningText)) {
     return
   }
 
   loading.value = true
-  LeadEndpoint.destroy_leaf(store.children[props.position].id)
+  LeadEndpoint.destroy_subtree(store.children[props.position].id)
     .then(() => {
       store.deleteChild(props.position)
-      TW.workbench.alert.create('Lead deleted', 'notice')
+      const noticeText = leadHasChildren
+        ? 'Lead and descendants deleted.'
+        : 'Lead deleted'
+      TW.workbench.alert.create(noticeText, 'notice')
       emit('editingHasOccurred')
     })
     .catch(() => {})

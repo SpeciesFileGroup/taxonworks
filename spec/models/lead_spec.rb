@@ -460,32 +460,40 @@ RSpec.describe Lead, type: :model do
       expect(Lead.find_by(text: 'lrr').parent_id).to eq(ids[1])
     end
 
-    specify '#transaction_nuke nukes' do
-      second_key = FactoryBot.create(:valid_lead)
-      second_key.insert_couplet
+    context '#transaction_nuke' do
+      specify 'nukes' do
+        second_key = FactoryBot.create(:valid_lead)
+        second_key.insert_couplet
 
-      expect(Lead.all.size).to eq(lead_all_size + 3)
+        expect(Lead.all.size).to eq(lead_all_size + 3)
 
-      expect(root.transaction_nuke).to be_truthy
-      expect(Lead.all.reload.size).to eq(3)
-      expect(Lead.find(second_key.id)).to eq(second_key)
-    end
+        expect(root.transaction_nuke).to be_truthy
+        expect(Lead.all.reload.size).to eq(3)
+        expect(Lead.find(second_key.id)).to eq(second_key)
+      end
 
-    specify 'nuke destroys all children of a key' do
-      second_key = FactoryBot.create(:valid_lead)
-      second_key.insert_couplet
+      specify 'destroys all children of a key' do
+        second_key = FactoryBot.create(:valid_lead)
+        second_key.insert_couplet
 
-      expect(Lead.all.size).to eq(lead_all_size + 3)
-      expect(root.nuke).to be_truthy
-      expect(Lead.all.reload.size).to eq(3)
-    end
+        expect(Lead.all.size).to eq(lead_all_size + 3)
+        expect(root.nuke).to be_truthy
+        expect(Lead.all.reload.size).to eq(3)
+      end
 
-    specify '#nuke leaves other keys alone' do
-      second_key = FactoryBot.create(:valid_lead)
-      second_key.insert_couplet
-      root.nuke
-      expect(Lead.all.reload.size).to eq(3)
-      expect(Lead.find(second_key.id)).to eq(second_key)
+      specify 'leaves other keys alone' do
+        second_key = FactoryBot.create(:valid_lead)
+        second_key.insert_couplet
+        root.nuke
+        expect(Lead.all.reload.size).to eq(3)
+        expect(Lead.find(second_key.id)).to eq(second_key)
+      end
+
+      specify 'can be applied to just a subtree' do
+        lr.transaction_nuke
+        expect(Lead.all.size).to eq(lead_all_size - 3)
+        expect(l.reload.children.map(&:text)).to contain_exactly('ll', 'lm')
+      end
     end
 
     specify 'destroy_children noops when both children have children' do

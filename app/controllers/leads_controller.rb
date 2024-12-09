@@ -3,7 +3,7 @@ class LeadsController < ApplicationController
   before_action :set_lead, only: %i[
     edit create_for_edit update destroy show show_all show_all_print
     redirect_option_texts destroy_children insert_couplet delete_children
-    duplicate update_meta otus destroy_leaf swap insert_key]
+    duplicate update_meta otus destroy_subtree swap insert_key]
 
   # GET /leads
   # GET /leads.json
@@ -134,35 +134,34 @@ class LeadsController < ApplicationController
         format.json { head :no_content, status: :unprocessable_entity }
       end
       return
-    else
-      begin
-        @lead.transaction_nuke
-        respond_to do |format|
-          flash[:notice] = 'Key was succesfully destroyed.'
-          format.html { destroy_redirect @lead }
-          format.json { head :no_content }
-        end
-      rescue ActiveRecord::RecordInvalid
-        respond_to do |format|
-          flash[:error] = 'Delete failed!'
-          format.html { redirect_back(fallback_location: (request.referer || root_path)) }
-          format.json { render json: @lead.errors, status: :unprocessable_entity }
-        end
+    end
+
+    begin
+      @lead.transaction_nuke
+      respond_to do |format|
+        flash[:notice] = 'Key was succesfully destroyed.'
+        format.html { destroy_redirect @lead }
+        format.json { head :no_content }
+      end
+    rescue ActiveRecord::RecordInvalid
+      respond_to do |format|
+        flash[:error] = 'Delete failed!'
+        format.html { redirect_back(fallback_location: (request.referer || root_path)) }
+        format.json { render json: @lead.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # POST /leads/1/destroy_leaf.json
-  def destroy_leaf
-    if !@lead.leaf?
-      @lead.errors.add(
-        :delete, 'leaf failed, can only be called on a lead with no children'
-      )
+  # A separate action from destroy to be called in different contexts: this one
+  # can be called on any lead, not just root.
+  # POST /leads/1/destroy_subtree.json
+  def destroy_subtree
+    begin
+      @lead.transaction_nuke
+    rescue ActiveRecord::RecordInvalid
       render json: @lead.errors, status: :unprocessable_entity
-      return
     end
 
-    @lead.destroy!
     head :no_content
   end
 
