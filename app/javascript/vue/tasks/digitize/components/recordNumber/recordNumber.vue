@@ -186,6 +186,7 @@ function handleTabChange(tab) {
 
 function setNamespace({ id }) {
   store.identifier.namespaceId = id
+  store.identifier.isUnsaved = true
   checkIdentifier()
 }
 </script>

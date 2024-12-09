@@ -11,7 +11,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New image task: Add field occurrence to depict some list [#4135]
 
+### Fixed
+
+- CSD: change of namespace not updating [#4147]
+
 [#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
+[#4147]: https://github.com/SpeciesFileGroup/taxonworks/issues/4147
 
 ## [0.46.1] - 2024-12-04
 
