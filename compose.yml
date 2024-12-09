@@ -1,7 +1,6 @@
 #
-# docker-compose targets development only
+# docker compose targets development only
 #
-version: '2'
 services:
   app:
     build:
@@ -30,6 +29,7 @@ services:
       - '0.0.0.0:15432:5432'
     volumes:
       - pg12:/var/lib/postgresql/data
+      - ./unzip:/mnt/unzip
   webpack:
     build:
       context: .
