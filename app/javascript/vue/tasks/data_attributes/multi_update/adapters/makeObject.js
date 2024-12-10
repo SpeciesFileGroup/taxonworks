@@ -1,8 +1,9 @@
 export function makeObject(data) {
   return {
     id: data.id,
-    objectType: data.base_class,
-    predicates: [],
+    label: data.object_tag,
+    type: data.base_class,
+    dataAttributes: [],
     isUnsaved: false
   }
 }

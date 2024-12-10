@@ -1,8 +1,8 @@
 <template>
-  <table>
+  <table class="table-striped full_width">
     <thead>
       <tr>
-        <th>ID</th>
+        <th class="w-2">ID</th>
         <th>Object</th>
         <th
           v-for="item in store.predicates"
@@ -10,19 +10,36 @@
         >
           {{ item.label }}
         </th>
-        <th>
+        <th class="w-2">
           <VBtn color="create">Save all</VBtn>
         </th>
       </tr>
     </thead>
     <tbody>
       <tr
-        v-for="(item, index) in list"
+        v-for="item in store.objects"
         :key="item.id"
       >
         <td>{{ item.id }}</td>
-        <td>{{ item.label }}</td>
-        <td></td>
+        <td v-html="item.label" />
+        <template
+          v-for="predicate in store.predicates"
+          :key="predicate.id"
+        >
+          <td>
+            <input
+              v-for="da in store.getDataAttributesByObject({
+                objectType: item.type,
+                objectId: item.id,
+                predicateId: predicate.id
+              })"
+              :key="da.uuid"
+              type="text"
+              v-model="da.value"
+              @change="() => (da.isUnsaved = true)"
+            />
+          </td>
+        </template>
         <td>
           <VBtn color="create"> Save </VBtn>
         </td>
