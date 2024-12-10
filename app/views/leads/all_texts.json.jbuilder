@@ -1,1 +1,0 @@
-json.all_texts @texts

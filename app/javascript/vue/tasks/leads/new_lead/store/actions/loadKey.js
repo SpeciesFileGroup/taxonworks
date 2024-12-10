@@ -1,6 +1,6 @@
 import { Lead } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
-import editableLeftRightFields from '../constants/editableLeftRightFields'
+import editableChildrenFields from '../constants/editableChildrenFields'
 import setParam from '@/helpers/setParam'
 
 export default async function(id_or_couplet) {
@@ -31,24 +31,28 @@ export default async function(id_or_couplet) {
 
   this.root = lo.root
   this.lead = lo.lead
-  this.left = lo.left
-  this.right = lo.right
-  this.parents = lo.parents
-  this.left_future = lo.left_future
-  this.right_future = lo.right_future
+  this.children = lo.children
+  this.ancestors = lo.ancestors
+  this.futures = lo.futures
   this.last_saved = {
     origin_label: lo.lead.origin_label,
-    left: lo.left ? editableFieldsObject(lo.left) : {},
-    right: lo.right ? editableFieldsObject(lo.right) : {}
+    children: editableFieldsObjectsForLeads(lo.children)
   }
 
   setParam(RouteNames.NewLead, 'lead_id', lo.lead.id)
 }
 
-function editableFieldsObject(lead) {
+function editableFieldsObjectsForLeads(leads) {
+  return leads.map((lead) => {
+    return editableFieldsObjectForLead(lead)
+  })
+}
+
+export function editableFieldsObjectForLead(lead) {
   const o = {}
-  editableLeftRightFields.forEach((field) => {
+  editableChildrenFields.forEach((field) => {
     o[field] = lead[field]
   })
+
   return o
 }

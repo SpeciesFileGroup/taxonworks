@@ -1,8 +1,9 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_lead, only: %i[
-    edit create_for_edit update destroy show show_all show_all_print all_texts
-    destroy_couplet insert_couplet delete_couplet duplicate update_meta otus]
+    edit create_for_edit update destroy show show_all show_all_print
+    redirect_option_texts destroy_children insert_couplet delete_children
+    duplicate update_meta otus destroy_subtree swap insert_key]
 
   # GET /leads
   # GET /leads.json
@@ -33,14 +34,14 @@ class LeadsController < ApplicationController
       roots_with_data(sessions_current_project_id).page(params[:page])
   end
 
-  # GET /leads/1/all_texts.json
-  def all_texts
+  # GET /leads/1/redirect_option_texts.json
+  def redirect_option_texts
     leads = Lead
       .select(:id, :text, :origin_label)
       .with_project_id(sessions_current_project_id)
       .order(:text)
     ancestor_ids = @lead.ancestor_ids
-    @texts = leads.filter_map {|o|
+    @texts = leads.filter_map { |o|
       if o.id != @lead.id && !ancestor_ids.include?(o.id)
         {
           id: o.id,
@@ -54,15 +55,12 @@ class LeadsController < ApplicationController
   # GET /leads/1
   # GET /leads/1.json
   def show
-    children = @lead.children
-    if children.size == 2
+    if @lead.children.present?
       expand_lead
     else
-      @left = nil
-      @right = nil
-      @left_future = []
-      @right_future = []
-      @parents = @lead.ancestors.reverse
+      @children = nil
+      @futures = nil
+      @ancestors = @lead.ancestors.reverse
     end
   end
 
@@ -76,9 +74,7 @@ class LeadsController < ApplicationController
 
   # GET /leads/new
   def new
-    respond_to do |format|
-      format.html { redirect_to new_lead_task_path }
-    end
+    redirect_to new_lead_task_path
   end
 
   # GET /leads/1/edit
@@ -92,6 +88,7 @@ class LeadsController < ApplicationController
       new_couplet
     end
     expand_lead
+    render action: :show, status: :created, location: @lead
   end
 
   # POST /leads
@@ -100,43 +97,30 @@ class LeadsController < ApplicationController
     @lead = Lead.new(lead_params)
     respond_to do |format|
       if @lead.save
-        new_couplet # we make two blank couplets so we can show the key
+        new_couplet # we make a blank couplet so we can show the key
         expand_lead
-        format.json {}
+        format.json { render action: :show, status: :created, location: @lead }
       else
         format.json { render json: @lead.errors, status: :unprocessable_entity}
       end
     end
   end
 
-  # POST /leads/1.json/insert_couplet
+  # POST /leads/1/insert_couplet.json
   def insert_couplet
     @lead.insert_couplet
-
-    respond_to do |format|
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
-  # PATCH/PUT /leads/1
   # PATCH/PUT /leads/1.json
   def update
     @lead = Lead.find(params[:lead][:id])
-    @left = Lead.find(params[:left][:id])
-    @right = Lead.find(params[:right][:id])
-    respond_to do |format|
-      begin
-        @lead.update!(lead_params)
-        @left.update!(lead_params(:left))
-        @right.update!(lead_params(:right))
-        # Note that future changes when redirect is updated.
-        expand_lead
-        format.json {}
-      rescue ActiveRecord::RecordInvalid => e
-        @lead.errors.merge!(@left)
-        @lead.errors.merge!(@right)
-        format.json { render json: @lead.errors, status: :unprocessable_entity }
-      end
+    begin
+      @lead.update!(lead_params)
+      # Note that future changes when redirect is updated.
+      @future = @lead.future
+    rescue ActiveRecord::RecordInvalid
+      render json: @lead.errors, status: :unprocessable_entity
     end
   end
 
@@ -150,32 +134,46 @@ class LeadsController < ApplicationController
         format.json { head :no_content, status: :unprocessable_entity }
       end
       return
-    else
-      begin
-        @lead.transaction_nuke
-        respond_to do |format|
-          flash[:notice] = 'Key was succesfully destroyed.'
-          format.html { destroy_redirect @lead }
-          format.json { head :no_content }
-        end
-      rescue ActiveRecord::RecordInvalid
-        respond_to do |format|
-          flash[:error] = 'Delete failed!'
-          format.html { redirect_back(fallback_location: (request.referer || root_path)) }
-          format.json { render json: @lead.errors, status: :unprocessable_entity }
-        end
+    end
+
+    begin
+      @lead.transaction_nuke
+      respond_to do |format|
+        flash[:notice] = 'Key was succesfully destroyed.'
+        format.html { destroy_redirect @lead }
+        format.json { head :no_content }
+      end
+    rescue ActiveRecord::RecordInvalid
+      respond_to do |format|
+        flash[:error] = 'Delete failed!'
+        format.html { redirect_back(fallback_location: (request.referer || root_path)) }
+        format.json { render json: @lead.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # For destroying a couplet with no children on either side.
-  def destroy_couplet
+  # A separate action from destroy to be called in different contexts: this one
+  # can be called on any lead, not just root.
+  # POST /leads/1/destroy_subtree.json
+  def destroy_subtree
+    begin
+      @lead.transaction_nuke
+    rescue ActiveRecord::RecordInvalid
+      render json: @lead.errors, status: :unprocessable_entity
+    end
+
+    head :no_content
+  end
+
+  # For destroying all children at a particular level of the key where none of
+  # the children have their own children.
+  def destroy_children
     respond_to do |format|
       if @lead.parent_id.present?
-        if @lead.destroy_couplet
+        if @lead.destroy_children
           format.json { head :no_content }
         else
-          @lead.errors.add(:delete, 'failed - is there a node redirecting to one of these?')
+          @lead.errors.add(:delete, 'failed!')
           format.json {
             render json: @lead.errors, status: :unprocessable_entity
           }
@@ -189,14 +187,15 @@ class LeadsController < ApplicationController
     end
   end
 
-  # For deleting a couplet where one side has no children but the other might;
-  # the side with children is reparented.
-  def delete_couplet
+  # For deleting all children at a particular level of the key where at most one
+  # of the children has its own children; the grandchildren, if any, are
+  # reparented.
+  def delete_children
     respond_to do |format|
-      if @lead.destroy_couplet
+      if @lead.destroy_children
         format.json { head :no_content }
       else
-        @lead.errors.add(:delete, 'failed - is there a node redirecting to one of these?')
+        @lead.errors.add(:delete, 'failed!')
         format.json {
           render json: @lead.errors, status: :unprocessable_entity
         }
@@ -204,22 +203,45 @@ class LeadsController < ApplicationController
     end
   end
 
-  # POST /leads/1/duplicate
+  # POST /leads/1/add_lead.json
+  def add_lead
+    parent = Lead.find(params[:id])
+    @lead = parent.children.create!
+  end
+
+  # POST /leads/1/duplicate.html
   def duplicate
     respond_to do |format|
       format.html {
         if !@lead.parent_id
-          @lead.dupe
-          flash[:notice] = 'Key cloned.'
+          rv = @lead.dupe
+          if rv != true
+            flash[:error] = rv
+          else
+            flash[:notice] = 'Key cloned.'
+          end
         else
           flash[:error] = 'Clone aborted - you can only clone on a root node.'
         end
+
         redirect_to action: :list
       }
     end
   end
 
-  # POST /leads/1/update_meta.json
+  # POST /leads/1/insert_key.json?key_to_insert=:id
+  def insert_key
+    rv = @lead.insert_key(params[:key_to_insert])
+    if rv != true
+      @lead.errors.add(:insert_key, "failed: '#{rv}'")
+      render json: @lead.errors, status: :unprocessable_entity
+      return
+    end
+
+    head :no_content
+  end
+
+  # PATCH /leads/1/update_meta.json
   def update_meta
     respond_to do |format|
       if @lead.update(lead_params)
@@ -230,15 +252,25 @@ class LeadsController < ApplicationController
     end
   end
 
+  # PATCH /leads/1/swap.json
+  def swap
+    swap_result = @lead.swap(params['direction'])
+    if swap_result[:leads].empty?
+      @lead.errors.add(:swap, 'failed, attempted to move lead off the end')
+      render json: @lead.errors, status: :unprocessable_entity
+      return
+    end
+
+    @leads = swap_result[:leads]
+    @positions = swap_result[:positions]
+    @futures = @leads.map(&:future)
+  end
+
   # GET /leads/1/otus.json
   def otus
     leads_list = @lead.self_and_descendants.where.not(otu_id: nil).includes(:otu)
 
-    @otus = leads_list.to_a.map{|l| l.otu}.uniq(&:id)
-
-    respond_to do |format|
-      format.json {}
-    end
+    @otus = leads_list.to_a.map(&:otu).uniq(&:id)
   end
 
   def autocomplete
@@ -277,8 +309,8 @@ class LeadsController < ApplicationController
     @lead = Lead.find(params[:id])
   end
 
-  def lead_params(require = :lead)
-    params.require(require).permit(
+  def lead_params()
+    params.require(:lead).permit(
       :parent_id,
       :otu_id, :text, :origin_label, :description, :redirect_id,
       :link_out, :link_out_text, :is_public, :position
@@ -286,27 +318,15 @@ class LeadsController < ApplicationController
   end
 
   def expand_lead
-    # Assumes the parent node is @lead and @lead has two children
-    @left = @lead.children[0]
-    @right = @lead.children[1]
-    @left_future = @left.future
-    @right_future = @right.future
-    @parents = @lead.ancestors.reverse
+    @children = @lead.children
+    @futures = @lead.children.map(&:future)
+    @ancestors = @lead.ancestors.reverse
   end
 
   def new_couplet
-    # Assumes the parent node is @lead
-    return if @lead.children.size > 0
-    @left = @lead.children.create!
-    @right = @lead.children.create!
-    @left_future = @left.future
-    @right_future =  @right.future
+    2.times do
+      @lead.children.create!
+    end
   end
-
-  def no_grandchildren(lead)
-    children = lead.children
-    (children.size == 2) and (children[0].children.size == 0) and (children[1].children.size == 0)
-  end
-
 
 end
