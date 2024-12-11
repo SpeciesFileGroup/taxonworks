@@ -1,6 +1,15 @@
 <template>
   <h1>Multi update</h1>
   <div class="horizontal-left-content align-start gap-medium">
+    <VSpinner
+      v-if="store.isLoading"
+      full-screen
+    />
+    <VSpinner
+      v-if="store.isSaving"
+      full-screen
+      legend="Saving... please wait."
+    />
     <PredicateSelector />
     <DataAttributeTable />
   </div>
@@ -12,13 +21,13 @@ import { useQueryParam } from '../field_synchronize/composables'
 import PredicateSelector from './components/PredicateSelector.vue'
 import useStore from './store/store'
 import DataAttributeTable from './components/DataAttributeTable.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const store = useStore()
 const { queryParam, queryValue } = useQueryParam()
 
 onBeforeMount(() => {
   if (queryParam.value) {
-    console.log(queryParam.value)
     store.loadObjects({
       queryParam: queryParam.value,
       queryValue: queryValue.value

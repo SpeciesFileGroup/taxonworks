@@ -11,13 +11,18 @@
           {{ item.label }}
         </th>
         <th class="w-2">
-          <VBtn color="create">Save all</VBtn>
+          <VBtn
+            color="create"
+            :disabled="!store.hasUnsaved"
+            @click="store.saveDataAttributes"
+            >Save all</VBtn
+          >
         </th>
       </tr>
     </thead>
     <tbody>
       <tr
-        v-for="item in store.objects"
+        v-for="(item, index) in store.objects"
         :key="item.id"
       >
         <td>{{ item.id }}</td>
@@ -37,11 +42,38 @@
               type="text"
               v-model="da.value"
               @change="() => (da.isUnsaved = true)"
+              @paste="
+                (event) => {
+                  event.preventDefault(),
+                    store.pasteValue({
+                      text: event.clipboardData.getData('text/plain'),
+                      position: index,
+                      predicateId: predicate.id
+                    })
+                }
+              "
             />
           </td>
         </template>
         <td>
-          <VBtn color="create"> Save </VBtn>
+          <VBtn
+            color="create"
+            :disabled="
+              !store.objectHasUnsaved({
+                objectId: item.id,
+                objectType: item.type
+              })
+            "
+            @click="
+              () =>
+                store.saveDataAttributesFor({
+                  objectId: item.id,
+                  objectType: item.type
+                })
+            "
+          >
+            Save
+          </VBtn>
         </td>
       </tr>
     </tbody>

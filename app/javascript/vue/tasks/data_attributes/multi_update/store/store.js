@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import { QUERY_PARAMETER } from '../../field_synchronize/constants'
-import { makeDataAttribute, makeObject } from '../adapters'
+import {
+  makeDataAttribute,
+  makeDataAttributePayload,
+  makeObject
+} from '../adapters'
 import { makePredicate } from '../adapters/makePredicate'
 import { DataAttribute } from '@/routes/endpoints'
 
@@ -8,7 +12,10 @@ export default defineStore('store', {
   state: () => ({
     objects: [],
     predicates: [],
-    dataAttributes: []
+    dataAttributes: [],
+
+    isLoading: false,
+    isSaving: false
   }),
 
   getters: {
@@ -21,7 +28,19 @@ export default defineStore('store', {
             da.objectId === objectId &&
             da.predicateId === predicateId
         )
-      }
+      },
+
+    hasUnsaved: (state) => state.dataAttributes.some((item) => item.isUnsaved),
+
+    objectHasUnsaved:
+      (state) =>
+      ({ objectId, objectType }) =>
+        !!state.dataAttributes.find(
+          (item) =>
+            item.objectId === objectId &&
+            item.objectType === objectType &&
+            item.isUnsaved
+        )
   },
 
   actions: {
@@ -29,16 +48,128 @@ export default defineStore('store', {
       this.predicates.push(makePredicate(item))
     },
 
-    pasteValue(text, index) {
+    pasteValue({ text, position, predicateId }) {
       const lines = text.split('\n')
+
+      while (lines.length && position < this.objects.length) {
+        const obj = this.objects[position]
+        const line = lines.shift()
+        const dataAttribute = this.dataAttributes.find(
+          (da) =>
+            da.objectId === obj.id &&
+            da.objectType === obj.type &&
+            da.predicateId === predicateId
+        )
+
+        if (dataAttribute) {
+          dataAttribute.value = line
+          dataAttribute.isUnsaved = true
+        }
+
+        position++
+      }
+    },
+
+    saveDataAttributes() {
+      const dataAttributes = this.dataAttributes.filter(
+        (item) => item.isUnsaved
+      )
+
+      this.isSaving = true
+
+      const requests = dataAttributes.map((item) => {
+        if (item.value) {
+          const request = item.id
+            ? DataAttribute.update(item.id, makeDataAttributePayload(item))
+            : DataAttribute.create(makeDataAttributePayload(item))
+
+          request
+            .then(({ body }) => {
+              Object.assign(item, {
+                id: body.id,
+                isUnsaved: false
+              })
+            })
+            .catch(() => {})
+
+          return request
+        } else {
+          if (item.id) {
+            DataAttribute.destroy(item.id)
+              .then(() => {
+                Object.assign(item, { id: null, isUnsaved: false })
+              })
+              .catch(() => {})
+          }
+        }
+      })
+
+      Promise.all(requests).finally(() => {
+        this.isSaving = false
+        TW.workbench.alert.create('Data attributes were successfully saved.')
+      })
+
+      return requests
+    },
+
+    saveDataAttributesFor({ objectType, objectId }) {
+      const dataAttributes = this.dataAttributes.filter(
+        (item) =>
+          item.objectType === objectType &&
+          item.objectId === objectId &&
+          item.isUnsaved
+      )
+
+      this.isSaving = true
+
+      const requests = dataAttributes.map((item) => {
+        if (item.value) {
+          const request = item.id
+            ? DataAttribute.update(item.id, makeDataAttributePayload(item))
+            : DataAttribute.create(makeDataAttributePayload(item))
+
+          request
+            .then(({ body }) => {
+              Object.assign(item, {
+                id: body.id,
+                isUnsaved: false
+              })
+            })
+            .catch(() => {})
+
+          return request
+        } else {
+          if (item.id) {
+            DataAttribute.destroy(item.id)
+              .then(() => {
+                Object.assign(item, { id: null, isUnsaved: false })
+              })
+              .catch(() => {})
+          }
+        }
+      })
+
+      Promise.all(requests).finally(() => {
+        this.isSaving = false
+        TW.workbench.alert.create('Data attributes were successfully saved.')
+      })
+
+      return requests
     },
 
     loadObjects({ queryParam, queryValue }) {
       const { service } = QUERY_PARAMETER[queryParam]
 
-      service.where(queryValue).then(({ body }) => {
-        this.objects = body.map(makeObject)
-      })
+      this.isLoading = true
+
+      service
+        .filter(queryValue)
+        .then(({ body }) => {
+          this.objects = body.map(makeObject)
+        })
+        .finally(() => {
+          this.isLoading = false
+        })
     },
 
     async loadDataAttributes(predicateId) {
