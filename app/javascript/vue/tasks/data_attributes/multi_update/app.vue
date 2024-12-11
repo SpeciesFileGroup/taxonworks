@@ -8,7 +8,7 @@
     <VSpinner
       v-if="store.isSaving"
       full-screen
-      legend="Saving... please wait."
+      :legend="`Saving... please wait. ${store.save.current} of ${store.save.total}.`"
     />
     <PredicateSelector />
     <DataAttributeTable />

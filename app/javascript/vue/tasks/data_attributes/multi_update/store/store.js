@@ -7,6 +7,7 @@ import {
 } from '../adapters'
 import { makePredicate } from '../adapters/makePredicate'
 import { DataAttribute } from '@/routes/endpoints'
+import { removeFromArray } from '@/helpers'
 
 export default defineStore('store', {
   state: () => ({
@@ -15,7 +16,11 @@ export default defineStore('store', {
     dataAttributes: [],
 
     isLoading: false,
-    isSaving: false
+    isSaving: false,
+    save: {
+      total: 0,
+      current: 0
+    }
   }),
 
   getters: {
@@ -70,46 +75,54 @@ export default defineStore('store', {
       }
     },
 
-    saveDataAttributes() {
+    async saveDataAttributes() {
       const dataAttributes = this.dataAttributes.filter(
         (item) => item.isUnsaved
       )
 
+      this.save.total = dataAttributes.length
+      this.save.current = 0
       this.isSaving = true
 
-      const requests = dataAttributes.map((item) => {
-        if (item.value) {
-          const request = item.id
-            ? DataAttribute.update(item.id, makeDataAttributePayload(item))
-            : DataAttribute.create(makeDataAttributePayload(item))
+      while (dataAttributes.length) {
+        const items = dataAttributes.splice(0, 5)
 
-          request
-            .then(({ body }) => {
-              Object.assign(item, {
-                id: body.id,
-                isUnsaved: false
-              })
-            })
-            .catch(() => {})
+        const requests = items.map((item) => {
+          if (item.value) {
+            const request = item.id
+              ? DataAttribute.update(item.id, makeDataAttributePayload(item))
+              : DataAttribute.create(makeDataAttributePayload(item))
 
-          return request
-        } else {
-          if (item.id) {
-            DataAttribute.destroy(item.id)
-              .then(() => {
-                Object.assign(item, { id: null, isUnsaved: false })
+            request
+              .then(({ body }) => {
+                Object.assign(item, {
+                  id: body.id,
+                  isUnsaved: false
+                })
               })
               .catch(() => {})
+
+            return request
+          } else {
+            if (item.id) {
+              const request = DataAttribute.destroy(item.id)
+                .then(() => {
+                  Object.assign(item, { id: null, isUnsaved: false })
+                })
+                .catch(() => {})
+
+              return request
+            }
           }
-        }
-      })
+        })
 
-      Promise.all(requests).finally(() => {
-        this.isSaving = false
-        TW.workbench.alert.create('Data attributes were successfully saved.')
-      })
+        await Promise.all(requests)
 
-      return requests
+        this.save.current += 5
+      }
+
+      this.isSaving = false
+      TW.workbench.alert.create('Data attributes were successfully saved.')
     },
 
     saveDataAttributesFor({ objectType, objectId }) {
@@ -120,6 +133,8 @@ export default defineStore('store', {
           item.isUnsaved
       )
 
+      this.save.total = dataAttributes.length
+      this.save.current = 0
       this.isSaving = true
 
       const requests = dataAttributes.map((item) => {
@@ -140,13 +155,29 @@ export default defineStore('store', {
           return request
         } else {
           if (item.id) {
-            DataAttribute.destroy(item.id)
+            const request = DataAttribute.destroy(item.id)
               .then(() => {
-                Object.assign(item, { id: null, isUnsaved: false })
+                const duplicates = this.dataAttributes.filter(
+                  (da) =>
+                    da.objectType === objectType &&
+                    da.objectId === objectId &&
+                    da.predicateId === item.predicateId &&
+                    da.id !== item.id
+                )
+
+                if (duplicates.length) {
+                  removeFromArray(this.dataAttributes, item)
+                } else {
+                  Object.assign(item, { id: null, isUnsaved: false })
+                }
               })
               .catch(() => {})
+
+            return request
           }
         }
+
+        this.save.current++
       })
 
       Promise.all(requests).finally(() => {
@@ -163,7 +194,7 @@ export default defineStore('store', {
       this.isLoading = true
 
       service
-        .filter(queryValue)
+        .filter({ ...queryValue, per: 1000 })
         .then(({ body }) => {
           this.objects = body.map(makeObject)
         })
@@ -176,10 +207,11 @@ export default defineStore('store', {
       const ids = this.objects.map((item) => item.id)
       const objectType = [...new Set(this.objects.map((item) => item.type))]
 
-      const request = DataAttribute.where({
+      const request = DataAttribute.filter({
         controlled_vocabulary_term_id: predicateId,
         attribute_subject_id: ids,
-        attribute_subject_type: objectType
+        attribute_subject_type: objectType,
+        per: 5000
       })
 
       request.then(({ body }) => {

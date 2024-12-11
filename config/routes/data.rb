@@ -245,6 +245,7 @@ resources :data_attributes, except: [:show] do
     get :brief, defaults: {format: :json}
     post :brief, defaults: {format: :json} # for length
     get :import_predicate_autocomplete, defaults: {format: :json}
+    match :filter, to: 'data_attributes#index', via: [:get, :post]
   end
 end
 
