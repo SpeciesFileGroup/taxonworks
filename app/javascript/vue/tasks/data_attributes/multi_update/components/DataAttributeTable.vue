@@ -30,7 +30,7 @@
           </thead>
           <tbody>
             <tr
-              v-for="(item, index) in items"
+              v-for="item in items"
               :key="item.id"
             >
               <td>{{ item.id }}</td>
@@ -56,7 +56,7 @@
                           event.preventDefault(),
                             store.pasteValue({
                               text: event.clipboardData.getData('text/plain'),
-                              position: index,
+                              objectId: item.id,
                               predicateId: predicate.id
                             })
                         }

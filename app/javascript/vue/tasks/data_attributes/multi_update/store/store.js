@@ -53,22 +53,38 @@ export default defineStore('store', {
       this.predicates.push(makePredicate(item))
     },
 
-    pasteValue({ text, position, predicateId }) {
+    pasteValue({ text, objectId, predicateId }) {
       const lines = text.split('\n')
+      const pIndex = this.predicates.findIndex(
+        (item) => item.id === predicateId
+      )
+      let position = this.objects.findIndex((item) => item.id === objectId)
 
       while (lines.length && position < this.objects.length) {
         const obj = this.objects[position]
         const line = lines.shift()
-        const dataAttribute = this.dataAttributes.find(
-          (da) =>
-            da.objectId === obj.id &&
-            da.objectType === obj.type &&
-            da.predicateId === predicateId
-        )
+        const cells = line.split('\t')
+        let currentPredicateIndex = pIndex
 
-        if (dataAttribute) {
-          dataAttribute.value = line
-          dataAttribute.isUnsaved = true
+        while (cells.length && currentPredicateIndex < this.predicates.length) {
+          const predicate = this.predicates[currentPredicateIndex]
+          const value = cells.shift()
+
+          const dataAttributes = this.dataAttributes.filter(
+            (da) =>
+              da.objectId === obj.id &&
+              da.objectType === obj.type &&
+              da.predicateId === predicate.id
+          )
+
+          if (dataAttributes.length === 1) {
+            const [dataAttribute] = dataAttributes
+
+            dataAttribute.value = value
+            dataAttribute.isUnsaved = true
+          }
+
+          currentPredicateIndex++
         }
 
         position++
@@ -194,7 +210,7 @@ export default defineStore('store', {
       this.isLoading = true
 
       service
-        .filter({ ...queryValue, per: 1000 })
+        .filter({ ...queryValue, per: 5000 })
         .then(({ body }) => {
           this.objects = body.map(makeObject)
         })

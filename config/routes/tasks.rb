@@ -24,7 +24,7 @@ scope :tasks do
 
   scope :data_attributes do
     scope :multi_update, controller: 'tasks/data_attributes/multi_update' do
-      get :index, as: 'index_multi_update_task'
+      get '/', action: :index, as: 'index_multi_update_task'
     end
 
     scope :field_synchronize, controller: 'tasks/data_attributes/field_synchronize' do
