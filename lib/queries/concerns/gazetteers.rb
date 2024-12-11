@@ -1,3 +1,5 @@
+require_dependency Rails.root.to_s + '/lib/queries/geographic_item/filter.rb'
+
 # Helpers for gazetteer-related queries
 #
 # !! You must have `#from_wkt` defined in the module to use this concern
