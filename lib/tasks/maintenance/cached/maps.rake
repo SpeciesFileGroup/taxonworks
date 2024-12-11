@@ -2,7 +2,7 @@ namespace :tw do
   namespace :maintenance do
     namespace :cached do
 
-      # !! These tasks only build new records. They will not syncronize/refresh existing records. !!
+      # !! These tasks only build new records. They will not synchronize/refresh existing records. !!
       #
       # If starting from nothing, or to start completely anew:
       #

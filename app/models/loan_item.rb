@@ -46,7 +46,7 @@ class LoanItem < ApplicationRecord
 
   attr_accessor :date_returned_jquery
 
-  STATUS = ['Destroyed', 'Donated', 'Loaned on', 'Lost', 'Retained', 'Returned'].freeze
+  STATUS = ['Destroyed', 'Donated', 'Lost', 'Retained', 'Returned'].freeze
 
   belongs_to :loan, inverse_of: :loan_items
   belongs_to :loan_item_object, polymorphic: true

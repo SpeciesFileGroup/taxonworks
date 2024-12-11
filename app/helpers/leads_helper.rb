@@ -57,6 +57,48 @@ module LeadsHelper
     t.html_safe
   end
 
+  def print_key_table(lead)
+    @index = 0  # TODO: get this out of instance
+    metadata = key_metadata(lead)
+
+    t = tag.h1(lead.text)
+    t << tag.table(
+      print_key_table_body(lead, metadata),
+      id: 'key_table'
+    )
+
+    t
+  end
+
+  def print_key_table_body(lead, metadata)
+    data = key_data(lead, metadata)
+    x = []
+
+    metadata.keys.each do |k|
+      metadata[k][:children].each do |lid|
+        a = data.dig(lid, :position) == 0 ? metadata.dig(k, :couplet_number).to_s : '&mdash;'
+        b = data.dig(lid, :text)
+
+        if y = tag.b(data.dig(lid, :target_label))
+          c = y
+        else
+          c = metadata.dig(lid, :couplet_number)
+        end
+
+        c = 'TODO: PROVIDE ENDPOINT' if c.blank?
+
+        x.push tag.tr(
+          [ tag.td(a.html_safe),
+            tag.td(b),
+            tag.td(c)
+          ].join.html_safe
+        )
+      end
+    end
+
+    x.join.html_safe
+  end
+
   def print_key_body(lead, metadata)
     data = key_data(lead, metadata)
     x = []

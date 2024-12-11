@@ -1,6 +1,7 @@
 import areDescriptorsUnsaved from './areDescriptorsUnsaved'
 import getDescription from './getDescription'
 import getFreeTextValueFor from './getFreeTextValueFor'
+import getLock from './getLock'
 import getObservationsFor from './getObservationsFor'
 import getContinuousValueFor from './getContinuousValueFor'
 import getContinuousUnitFor from './getContinuousUnitFor'
@@ -30,6 +31,7 @@ export const GetterNames = {
   GetContinuousValueFor: 'getContinuousValueFor',
   GetContinuousUnitFor: 'getContinuousUnitFor',
   GetDisplayUnscoredRows: 'getDisplayUnscoredRows',
+  GetLock: 'getLock',
   GetPresenceFor: 'getPresenceFor',
   GetSampleMinFor: 'getSampleMinFor',
   GetSampleMaxFor: 'getSampleMaxFor',
@@ -56,6 +58,7 @@ export const GetterFunctions = {
   [GetterNames.GetContinuousValueFor]: getContinuousValueFor,
   [GetterNames.GetContinuousUnitFor]: getContinuousUnitFor,
   [GetterNames.GetDisplayUnscoredRows]: getDisplayUnscoredRows,
+  [GetterNames.GetLock]: getLock,
   [GetterNames.GetPresenceFor]: getPresenceFor,
   [GetterNames.GetSampleMinFor]: getSampleMinFor,
   [GetterNames.GetSampleMaxFor]: getSampleMaxFor,

@@ -103,7 +103,7 @@
           distribution data. Map computation takes time, and as such they are
           re-calculated periodically rather than when individual georeferences
           and asserted distributions are created, destroyed, or updated. When a
-          warning notice is present then the map is not syncronized with the
+          warning notice is present then the map is not synchronized with the
           latest changes to the underlying data.
         </p>
       </div>

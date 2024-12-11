@@ -48,6 +48,7 @@ module Queries
       controlled_vocabulary_term: [:data_attribute],
       data_attribute: [:collection_object, :collecting_event, :taxon_name, :otu],
       dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event],
+      depiction: [:image],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
       field_occurrence: [], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
@@ -96,6 +97,7 @@ module Queries
       content_query: '::Queries::Content::Filter',
       controlled_vocabulary_term_query: '::Queries::ControlledVocabularyTerm::Filter',
       data_attribute_query: '::Queries::DataAttribute::Filter',
+      depiction_query: '::Queries::Depiction::Filter',
       descriptor_query: '::Queries::Descriptor::Filter',
       document_query: '::Queries::Document::Filter',
       dwc_occurrence_query: '::Queries::DwcOccurrence::Filter',
@@ -169,6 +171,9 @@ module Queries
 
     # @return [Query::Descriptor::Filter, nil]
     attr_accessor :descriptor_query
+
+    # @return [Query::Depiction::Filter, nil]
+    attr_accessor :depiction_query
 
     # @return [Query::Document::Filter, nil]
     attr_accessor :document_query
@@ -442,7 +447,7 @@ module Queries
     # That profile is then used in the actual .permit() call.
     #
     # An alternate solution, first tried, is to permit the params directly
-    # during inspection for subqueries.  This also would work, however there are
+    # during inspection for subqueries. This also would work, however there are
     # some nice benefits to having a profile of the allowed params available as an Array,
     # for example we can use it for API documentation a little easier(?!).
     #
@@ -760,12 +765,13 @@ module Queries
       #
       # See spec/lib/queries/otu/filter_spec.rb for tests
 
+      # TODO: isolate method
       if order_by
         case order_by
         when :match_identifiers
-          if !match_identifiers.blank?
+          if match_identifiers.present?
 
-            case match_identifiers_type
+            case match_identifiers_type # rubocop:disable Metrics/BlockNesting
             when 'internal'
               o = "array_position(ARRAY[#{identifiers_to_match.join(',')}], #{table.name}.id)"
               q = q.order(Arel.sql(o))
