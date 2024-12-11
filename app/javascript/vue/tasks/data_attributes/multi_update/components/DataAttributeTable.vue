@@ -16,7 +16,19 @@
                 :key="item.id"
                 class="position-sticky w-2"
               >
-                {{ item.label }}
+                <div class="horizontal-left-content gap-small">
+                  {{ item.label }}
+                  <VBtn
+                    color="primary"
+                    circle
+                    @click="() => store.removePredicate(item)"
+                  >
+                    <VIcon
+                      name="trash"
+                      x-small
+                    />
+                  </VBtn>
+                </div>
               </th>
               <th class="position-sticky w-2">
                 <VBtn
@@ -96,6 +108,7 @@
 <script setup>
 import useStore from '../store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VirtualScroller from '@/components/ui/Table/VirtualScroller.vue'
 
 const store = useStore()

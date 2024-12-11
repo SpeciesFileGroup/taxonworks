@@ -23,6 +23,10 @@ import useStore from './store/store'
 import DataAttributeTable from './components/DataAttributeTable.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
+defineOptions({
+  name: 'MultiUpdate'
+})
+
 const store = useStore()
 const { queryParam, queryValue } = useQueryParam()
 

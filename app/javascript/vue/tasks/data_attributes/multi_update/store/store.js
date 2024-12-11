@@ -141,6 +141,13 @@ export default defineStore('store', {
       TW.workbench.alert.create('Data attributes were successfully saved.')
     },
 
+    removePredicate(p) {
+      this.predicates = this.predicates.filter(({ id }) => id !== p.id)
+      this.dataAttributes = this.dataAttributes.filter(
+        ({ predicateId }) => predicateId === p.id
+      )
+    },
+
     saveDataAttributesFor({ objectType, objectId }) {
       const dataAttributes = this.dataAttributes.filter(
         (item) =>
