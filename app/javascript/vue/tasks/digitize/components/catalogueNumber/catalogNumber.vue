@@ -196,6 +196,7 @@ function checkIdentifier() {
 
 function setNamespace({ id }) {
   store.identifier.namespaceId = id
+  store.identifier.isUnsaved = true
   checkIdentifier()
 }
 </script>
