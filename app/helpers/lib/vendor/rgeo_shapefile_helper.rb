@@ -1,3 +1,5 @@
+require_dependency Rails.root.to_s + '/lib/vendor/rgeo.rb'
+
 module Lib::Vendor::RgeoShapefileHelper
   # Raises TaxonWorks::Error on error.
   def addShapefileImportJobToQueue(
@@ -73,7 +75,7 @@ module Lib::Vendor::RgeoShapefileHelper
 
     docs = fetch_shapefile_documents(shapefile, project_id)
 
-    # Check that the CRS is geographic and WGS 84
+    # Check that we can determine an EPSG for the CRS
     prj = File.read(docs[:prj].document_file.path)
     begin
       cs = RGeo::CoordSys::CS.create_from_wkt(prj)
@@ -81,14 +83,7 @@ module Lib::Vendor::RgeoShapefileHelper
       raise TaxonWorks::Error, "Failed to parse the prj file: #{e}"
     end
 
-    # TODO: what else could a valid cs.name for WGS 84 be?
-    wgs84_names = ['EPSG:4326', 'WGS 84', 'GCS_WGS_1984']
-    if cs.class.to_s != 'RGeo::CoordSys::CS::GeographicCoordinateSystem' ||
-      (cs.name.present? && !wgs84_names.include?(cs.name)) ||
-      (cs.authority_code.present? && cs.authority_code != '4326')
-
-      raise TaxonWorks::Error, "The reference system of the shapefile is '#{cs.name}', but only WGS 84 (EPSG:4326) is supported"
-    end
+    Vendor::Rgeo.epsg_for_coord_sys(cs) # raises if no epsg found
 
     # Check that each record has a name.
     dbf = ::DBF::Table.new(docs[:dbf].document_file.path)

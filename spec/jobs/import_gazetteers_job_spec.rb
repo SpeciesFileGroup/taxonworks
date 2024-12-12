@@ -377,4 +377,150 @@ RSpec.describe ImportGazetteersJob, type: :job do
 
   end
 
+  context 'with a non-WGS84 projected CRS' do
+    let(:shp_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/2957_projected.shp'),
+          'application/x-shapefile'
+        ))
+    }
+    let(:shx_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/2957_projected.shx'),
+          'application/x-shapefile'
+        ))
+    }
+    let(:dbf_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/2957_projected.dbf'),
+          'application/x-dbf'
+        ))
+    }
+    let(:prj_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/2957_projected.prj'),
+          'text/plain'
+        ))
+    }
+    let(:shapefile) {
+      {
+        shp_doc_id: shp_doc.id,
+        shx_doc_id: shx_doc.id,
+        dbf_doc_id: dbf_doc.id,
+        prj_doc_id: prj_doc.id,
+        name_field: 'Name',
+      }
+    }
+    let(:citation_options) {
+      {
+        cite_gzs: false,
+        citation: nil
+      }
+    }
+    let(:progress_tracker) {
+      GazetteerImport.create!(
+        shapefile: shp_doc.document_file_file_name
+      )
+    }
+    let(:projects) { [project.id] }
+
+    before(:each) do
+      Current.user_id = user.id
+      Current.project_id = project.id
+
+      ImportGazetteersJob.perform_now(
+        shapefile, citation_options, user.id, project.id,
+        progress_tracker, projects
+      )
+    end
+
+    specify 'imports correct number of shapes' do
+      expect(Gazetteer.all.count).to eq(1)
+    end
+
+    specify 'imports expected shape' do
+      # The imported polygon should cover an area around Regina, Alberta
+      expect(Gazetteer.first.geo_object.contains?(
+        Gis::FACTORY.point(-104.599, 50.421)
+      )).to be true
+    end
+  end
+
+  context 'with a non-WGS84 projected CRS' do
+    let(:shp_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/4267_geographic.shp'),
+          'application/x-shapefile'
+        ))
+    }
+    let(:shx_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/4267_geographic.shx'),
+          'application/x-shapefile'
+        ))
+    }
+    let(:dbf_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/4267_geographic.dbf'),
+          'application/x-dbf'
+        ))
+    }
+    let(:prj_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/shapefiles/4267_geographic.prj'),
+          'text/plain'
+        ))
+    }
+    let(:shapefile) {
+      {
+        shp_doc_id: shp_doc.id,
+        shx_doc_id: shx_doc.id,
+        dbf_doc_id: dbf_doc.id,
+        prj_doc_id: prj_doc.id,
+        name_field: 'Name',
+      }
+    }
+    let(:citation_options) {
+      {
+        cite_gzs: false,
+        citation: nil
+      }
+    }
+    let(:progress_tracker) {
+      GazetteerImport.create!(
+        shapefile: shp_doc.document_file_file_name
+      )
+    }
+    let(:projects) { [project.id] }
+
+    before(:each) do
+      Current.user_id = user.id
+      Current.project_id = project.id
+
+      ImportGazetteersJob.perform_now(
+        shapefile, citation_options, user.id, project.id,
+        progress_tracker, projects
+      )
+    end
+
+    specify 'imports correct number of shapes' do
+      expect(Gazetteer.all.count).to eq(1)
+    end
+
+    specify 'imports expected shape' do
+      # The imported polygon should cover an area in Alberta
+      expect(Gazetteer.first.geo_object.contains?(
+        Gis::FACTORY.point(-104.215, 52.359)
+      )).to be true
+    end
+  end
+
 end

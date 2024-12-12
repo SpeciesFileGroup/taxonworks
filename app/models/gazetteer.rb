@@ -1,3 +1,5 @@
+require_dependency Rails.root.to_s + '/lib/vendor/rgeo.rb'
+
 # Gazetteer allows a project to add its own named shapes to participate in
 # filtering, etc.
 #
@@ -267,10 +269,17 @@ class Gazetteer < ApplicationRecord
       FileUtils.ln_s(cpg_doc.document_file.path, cpg_link)
     end
 
+    prj = File.read(prj_doc.document_file.path)
+    # We ran the following without error in shapefile validation, so assuming
+    # the same here:
+    cs = RGeo::CoordSys::CS.create_from_wkt(prj)
+    epsg = Vendor::Rgeo.epsg_for_coord_sys(cs)
+
     citation = citation_options[:cite_gzs] ? citation_options[:citation] : nil
 
     process_shape_file(
-      shp_link, name_field, shapefile[:iso_a2_field], shapefile[:iso_a3_field],
+      shp_link, epsg, name_field,
+      shapefile[:iso_a2_field], shapefile[:iso_a3_field],
       citation, progress_tracker, projects
     )
 
@@ -299,7 +308,7 @@ class Gazetteer < ApplicationRecord
   end
 
   def self.process_shape_file(
-    shpfile, name_field, iso_a2_field, iso_a3_field, citation,
+    shpfile, epsg, name_field, iso_a2_field, iso_a3_field, citation,
     progress_tracker, projects
   )
     r = {
@@ -308,9 +317,22 @@ class Gazetteer < ApplicationRecord
       error_messages: nil,
     }
 
+    # We'll need to transform from whatever CRS the shapefile is in to our WGS84
+    # coordinates.
+    from_proj4 = RGeo::CoordSys::Proj4.create(epsg)
+    from_factory = from_proj4.projected? ?
+      # Shapefiles using a projected CRS always store their geometries using
+      # projected coordinates.
+      RGeo::Geographic.projected_factory(coord_sys: from_proj4, srid: epsg)
+        .projection_factory :
+      RGeo::Geographic.spherical_factory(coord_sys: from_proj4, srid: epsg)
+
+    to_proj4 = Gis::FACTORY.coord_sys
+    to_factory = Gis::FACTORY
+
     begin
       file = RGeo::Shapefile::Reader.open(
-        shpfile, factory: Gis::FACTORY, allow_unsafe: true
+        shpfile, factory: from_factory, allow_unsafe: true
       )
     rescue Errno::ENOENT => e
       progress_tracker.update!(
@@ -325,10 +347,12 @@ class Gazetteer < ApplicationRecord
     r[:num_records] = file.num_records
 
     progress_tracker.update!(
+      # TODO Add computed epsg to the tracker?
       num_records: file.num_records,
       project_names: Project.where(id: projects).pluck(:name).join(', '),
       started_at: DateTime.now
     )
+
     # Iterate over an index so we can record index on error and then resume
     for i in 0...file.num_records
       begin
@@ -339,24 +363,37 @@ class Gazetteer < ApplicationRecord
         # doesn't provide valid data.
         a2 = record[iso_a2_field]
         a3 = record[iso_a3_field]
-        iso_3166_a2 = Gazetteer.validate_iso_3166_a2(a2) ? a2: nil
-        iso_3166_a3 = Gazetteer.validate_iso_3166_a3(a3) ? a3: nil
+        iso_3166_a2 = validate_iso_3166_a2(a2) ? a2: nil
+        iso_3166_a3 = validate_iso_3166_a3(a3) ? a3: nil
 
-        g = Gazetteer.new(
+        g = new(
           name: record[name_field],
           iso_3166_a2:,
           iso_3166_a3:
         )
 
+        if epsg != 4326
+          # TODO: what might this raise?
+          # TODO: cap our total number of errors recorded here
+          record_geometry = RGeo::CoordSys::Proj4.transform(
+            from_proj4,
+            record.geometry,
+            to_proj4,
+            to_factory
+          )
+        else
+          record_geometry = record.geometry
+        end
+
         shape = GeographicItem.make_valid_non_anti_meridian_crossing_shape(
-          record.geometry.as_text
+          record_geometry.as_text
         )
 
         g.build_geographic_item(
           geography: shape
         )
 
-        Gazetteer.save_and_clone_to_projects(g, projects, citation)
+        save_and_clone_to_projects(g, projects, citation)
         r[:num_records_imported] = r[:num_records_imported] + 1
 
         if i % 5 == 0

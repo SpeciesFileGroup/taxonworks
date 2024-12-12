@@ -1,6 +1,8 @@
 class GazetteersController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   include Lib::Vendor::RgeoShapefileHelper
+  require_dependency Rails.root.to_s + '/lib/vendor/rgeo.rb'
+
   before_action :set_gazetteer, only: %i[ show edit update destroy ]
 
   # GET /gazetteers

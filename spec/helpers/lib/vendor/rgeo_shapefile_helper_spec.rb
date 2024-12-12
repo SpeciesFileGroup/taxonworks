@@ -54,20 +54,6 @@ describe Lib::Vendor::RgeoShapefileHelper, type: :helper do
       expect{validate_shape_file(shapefile, project_id)}.not_to raise_error
     end
 
-    specify 'crs must be GCS_WGS_1984' do
-      not_wgs84 = Document.create!(
-        document_file: Rack::Test::UploadedFile.new(
-          (Rails.root + 'spec/files/shapefiles/not_wgs84.prj'),
-          'text/plain'
-        ))
-      # mini-hack to avoid more document-loading boilerplate
-      not_wgs84.update!(document_file_file_name: prj_doc.document_file_file_name)
-      shapefile[:prj_doc_id] = not_wgs84.id
-
-      expect{validate_shape_file(shapefile, project_id)}
-        .to raise_error(TaxonWorks::Error, /WGS 84/)
-    end
-
     specify 'name field must exist' do
       shapefile[:name_field] = 'ASDF'
       expect{validate_shape_file(shapefile, project_id)}
