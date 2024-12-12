@@ -7,7 +7,7 @@ class ImportGazetteersJob < ApplicationJob
     Current.user_id = uid
     Current.project_id = project_id
 
-    Vendor::RgeoShapefile.import_gzs_from_shapefile(
+    Gazetteer.import_gzs_from_shapefile(
       shapefile, citation_options, progress_tracker, projects
     )
   end
