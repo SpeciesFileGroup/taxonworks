@@ -270,15 +270,12 @@ class Gazetteer < ApplicationRecord
     end
 
     prj = File.read(prj_doc.document_file.path)
-    # We ran the following without error in shapefile validation, so assuming
-    # the same here:
-    cs = RGeo::CoordSys::CS.create_from_wkt(prj)
-    epsg = Vendor::Rgeo.epsg_for_coord_sys(cs)
+    crs = RGeo::CoordSys::CS.create_from_wkt(prj)
 
     citation = citation_options[:cite_gzs] ? citation_options[:citation] : nil
 
     process_shape_file(
-      shp_link, epsg, name_field,
+      shp_link, crs, name_field,
       shapefile[:iso_a2_field], shapefile[:iso_a3_field],
       citation, progress_tracker, projects
     )
@@ -308,7 +305,7 @@ class Gazetteer < ApplicationRecord
   end
 
   def self.process_shape_file(
-    shpfile, epsg, name_field, iso_a2_field, iso_a3_field, citation,
+    shpfile, crs, name_field, iso_a2_field, iso_a3_field, citation,
     progress_tracker, projects
   )
     r = {
@@ -319,16 +316,23 @@ class Gazetteer < ApplicationRecord
 
     # We'll need to transform from whatever CRS the shapefile is in to our WGS84
     # coordinates.
-    from_proj4 = RGeo::CoordSys::Proj4.create(epsg)
-    from_factory = from_proj4.projected? ?
-      # Shapefiles using a projected CRS always store their geometries using
-      # projected coordinates.
-      RGeo::Geographic.projected_factory(coord_sys: from_proj4, srid: epsg)
-        .projection_factory :
-      RGeo::Geographic.spherical_factory(coord_sys: from_proj4, srid: epsg)
+    if (crs_is_wgs84 = Vendor::Rgeo.coord_sys_is_wgs84?(crs))
+      from_factory = Gis::FACTORY
+    else
+      from_proj4 = RGeo::CoordSys::Proj4.create(crs.to_s)
+      from_factory = from_proj4.projected? ?
+        # Shapefiles using a projected CRS always store their geometries using
+        # projected coordinates.
+        RGeo::Geographic.projected_factory(
+          coord_sys: from_proj4, has_z_coordinate: true
+        ).projection_factory :
+        RGeo::Geographic.spherical_factory( # geographic? true
+          coord_sys: from_proj4, has_z_coordinate: true
+        )
 
-    to_proj4 = Gis::FACTORY.coord_sys
-    to_factory = Gis::FACTORY
+      to_proj4 = Gis::FACTORY.coord_sys
+      to_factory = Gis::FACTORY
+    end
 
     begin
       file = RGeo::Shapefile::Reader.open(
@@ -347,7 +351,6 @@ class Gazetteer < ApplicationRecord
     r[:num_records] = file.num_records
 
     progress_tracker.update!(
-      # TODO Add computed epsg to the tracker?
       num_records: file.num_records,
       project_names: Project.where(id: projects).pluck(:name).join(', '),
       started_at: DateTime.now
@@ -372,17 +375,17 @@ class Gazetteer < ApplicationRecord
           iso_3166_a3:
         )
 
-        if epsg != 4326
-          # TODO: what might this raise?
-          # TODO: cap our total number of errors recorded here
+        if crs_is_wgs84
+          record_geometry = record.geometry
+        else
+          # TODO: what might this raise? Might want to cap our total number of
+          # errors recorded here
           record_geometry = RGeo::CoordSys::Proj4.transform(
             from_proj4,
             record.geometry,
             to_proj4,
             to_factory
           )
-        else
-          record_geometry = record.geometry
         end
 
         shape = GeographicItem.make_valid_non_anti_meridian_crossing_shape(

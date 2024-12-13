@@ -75,7 +75,7 @@ module Lib::Vendor::RgeoShapefileHelper
 
     docs = fetch_shapefile_documents(shapefile, project_id)
 
-    # Check that we can determine an EPSG for the CRS
+    # Check that we can transform from the input CRS to our WGS84 CRS
     prj = File.read(docs[:prj].document_file.path)
     begin
       cs = RGeo::CoordSys::CS.create_from_wkt(prj)
@@ -83,7 +83,19 @@ module Lib::Vendor::RgeoShapefileHelper
       raise TaxonWorks::Error, "Failed to parse the prj file: #{e}"
     end
 
-    Vendor::Rgeo.epsg_for_coord_sys(cs) # raises if no epsg found
+    if !cs.geographic? && !cs.projected?
+      raise TaxonWorks::Error, '.prj must be either geographic or projected'
+    end
+
+    if !Vendor::Rgeo.coord_sys_is_wgs84?(cs)
+      # Make sure we can create a proj4 for the source CRS, it's needed for
+      # transforming coordinates.
+      begin
+        RGeo::CoordSys::Proj4.create(cs.to_s)
+      rescue RGeo::Error::InvalidProjection => e
+        raise TaxonWorks::Error, "Invalid prj file? #{e}"
+      end
+    end
 
     # Check that each record has a name.
     dbf = ::DBF::Table.new(docs[:dbf].document_file.path)
