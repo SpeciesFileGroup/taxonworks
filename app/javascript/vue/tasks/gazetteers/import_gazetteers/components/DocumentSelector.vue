@@ -3,8 +3,11 @@
     <legend>Shapefile documents</legend>
     <VSpinner v-if="isLoading" />
     <p>
-    Select at minimum a .shp document - .shx, .dbf, and .prj documents must be in TaxonWorks but need not be specified here. A .prj document is optional but if your shapefile has one you should upload it to TaxonWorks before importing (it need not be specified here).
-  </p>
+      <b>Documents that must be in TaxonWorks: .shp, .shx, .dbf, .prj - <i>You need
+      only specify the .shp file here.</i></b> A .cpg document is optional but if
+      your shapefile has one you should upload it to TaxonWorks before importing
+      (it need not be selected here).
+    </p>
     <SmartSelector
       klass="Documents"
       model="documents"
