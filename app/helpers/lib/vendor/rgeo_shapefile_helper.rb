@@ -109,7 +109,7 @@ module Lib::Vendor::RgeoShapefileHelper
 
     rv = dbf_column_type_is_string(dbf, name_field)
     if rv != true
-      raise TaxonWorks::Error, "Column #{name_field} is of type #{rv}, should be String"
+      raise TaxonWorks::Error, "Name error: column '#{name_field}' for Gazetteer names should be a string field, not '#{rv}'"
     end
 
     for i in 0...dbf.record_count
@@ -128,7 +128,7 @@ module Lib::Vendor::RgeoShapefileHelper
 
       rv = dbf_column_type_is_string(dbf, iso_a2_field)
       if rv != true
-        raise TaxonWorks::Error, "Column #{iso_a2_field} is of type '#{rv}', should be String"
+        raise TaxonWorks::Error, "Iso_3166_a2 error: column '#{iso_a2_field}' for a2 values should be a string field, not '#{rv}'"
       end
     end
 
@@ -140,7 +140,7 @@ module Lib::Vendor::RgeoShapefileHelper
 
       rv = dbf_column_type_is_string(dbf, iso_a3_field)
       if rv != true
-        raise TaxonWorks::Error, "Column #{iso_a3_field} is of type '#{rv}', should be String"
+        raise TaxonWorks::Error, "Iso_3166_a3 error: column '#{iso_a3_field}' for a3 values should be a string field, not '#{rv}'"
       end
     end
 

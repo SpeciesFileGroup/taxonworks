@@ -110,7 +110,17 @@ function processShapefile() {
       jobsComponent.value.refresh()
       reset()
     })
-    .catch(() => {})
+    .catch(({ response }) => {
+      const message = response['body']['errors']
+      // TODO: do something nicer than parsing error strings
+      if (message.startsWith('Name error')) {
+        shapeNameField.value = ''
+      } else if (message.startsWith('Iso_3166_a2 error')) {
+        shapeIsoA2Field.value = ''
+      } else if (message.startsWith('Iso_3166_a3 error')) {
+        shapeIsoA3Field.value = ''
+      }
+    })
     .finally(() => { isLoading.value = false })
 }
 

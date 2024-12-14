@@ -63,7 +63,7 @@ describe Lib::Vendor::RgeoShapefileHelper, type: :helper do
     specify 'name field must have type String' do
       shapefile[:name_field] = 'Shape_STLe' # a numeric field
       expect{validate_shape_file(shapefile, project_id)}
-        .to raise_error(TaxonWorks::Error, /String/)
+        .to raise_error(TaxonWorks::Error, /Name error/)
     end
 
     specify 'all records must have a name' do
@@ -76,7 +76,7 @@ describe Lib::Vendor::RgeoShapefileHelper, type: :helper do
       specify 'iso_3166_a3 field must have type String' do
         shapefile[:iso_a3_field] = 'Shape_STLe' # a numeric field
         expect{validate_shape_file(shapefile, project_id)}
-          .to raise_error(TaxonWorks::Error, /String/)
+          .to raise_error(TaxonWorks::Error, /Iso_3166_a3 error/)
       end
 
       specify 'iso_3166_a2 need not be specified for every record' do
