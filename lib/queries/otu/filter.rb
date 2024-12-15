@@ -219,6 +219,7 @@ module Queries
         set_depiction_params(params)
         set_data_attributes_params(params)
         set_tags_params(params)
+        set_gazetteer_params(params)
       end
 
       def biological_associations_table
@@ -231,10 +232,6 @@ module Queries
 
       def name
         [@name].flatten.compact.collect { |n| n.strip }
-      end
-
-      def gazetteer_id
-        [@gazetteer_id].flatten.compact
       end
 
       def geographic_area_id

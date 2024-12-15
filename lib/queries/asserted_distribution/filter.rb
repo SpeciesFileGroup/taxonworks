@@ -109,10 +109,6 @@ module Queries
         [@otu_id].flatten.compact
       end
 
-      def gazetteer_id
-        [@gazetteer_id].flatten.compact
-      end
-
       def geographic_area_id
         [@geographic_area_id].flatten.compact
       end
