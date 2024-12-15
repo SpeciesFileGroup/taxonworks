@@ -11,6 +11,7 @@
     <SmartSelector
       klass="Documents"
       model="documents"
+      v-model="selectedDoc"
       @selected="(d) => addToList(d)"
       label="document_file_file_name"
       pin-section="Documents"
@@ -51,13 +52,14 @@
           >
             <label
               class="cursor-pointer"
-              @mousedown="() => addToList(doc)"
+              @mousedown="() => addToListFromFilter(doc)"
             >
               <input
-                @keyup.enter="() => addToList(doc)"
-                @keyup.space="() => addToList(doc)"
+                @keyup.enter="() => addToListFromFilter(doc)"
+                @keyup.space="() => addToListFromFilter(doc)"
                 type="radio"
                 name="filtered file list"
+                :checked="selectedDoc && doc.id == selectedDoc.id"
               />
               {{ doc.document_file_file_name }}
             </label>
@@ -92,7 +94,7 @@ import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { addToArray, removeFromArray } from '@/helpers/arrays.js'
 import { Document } from '@/routes/endpoints'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const DROPZONE_CONFIG_BASE = {
   paramName: 'document[document_file]',
@@ -116,6 +118,7 @@ const filterList = ref([])
 const isLoading = ref(true)
 const noMatchesForExtensions = ref(undefined)
 const extensionGroups = ref([])
+const selectedDoc = ref(undefined)
 
 const shapefileExtensions = computed(() => {
   const shapefileGroup =
@@ -134,11 +137,27 @@ const dropzoneConfig = computed(() => {
   }
 })
 
+watch(
+  () => shapefileDocs.value.length,
+  (newLength) => {
+    if (newLength == 0) {
+      // Reset
+      selectedDoc.value = undefined
+    }
+  }
+)
+
 function addToList(doc) {
   addToArray(shapefileDocs.value, doc)
 }
 
+function addToListFromFilter(doc) {
+  selectedDoc.value = doc
+  addToList(doc)
+}
+
 function removeFromList(doc) {
+  selectedDoc.value = undefined
   removeFromArray(shapefileDocs.value, doc)
 }
 
