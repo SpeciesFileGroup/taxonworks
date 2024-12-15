@@ -7,7 +7,7 @@
     @reset-gz="() => reset()"
   />
 
-  <div class="non-shape-inputs">
+  <div class="top-options">
     <div>
       <div class="field label-above">
         <label>Name</label>
@@ -42,6 +42,12 @@
       v-model="selectedProjects"
       selection-text="Select projects to save this gazetteer to."
     />
+
+    <ShapeCombinationChooser
+      v-if="!gz.id"
+      :inputs-disabled="shapeEditingDisabled"
+      v-model="operationIsUnion"
+    />
   </div>
 
   <OtherInputs
@@ -58,6 +64,7 @@
   <Preview
     v-model="previewing"
     :preview-disabled="previewDisabled"
+    :operation-is-union="operationIsUnion"
   />
 
   <OtherInputs
@@ -85,6 +92,7 @@ import NavBar from './components/NavBar.vue'
 import OtherInputs from './components/OtherInputs.vue'
 import Preview from './components/Preview.vue'
 import ProjectsChooser from '../components/ProjectsChooser.vue'
+import ShapeCombinationChooser from './components/ShapeCombinationChooser.vue'
 import UnionInput from './components/UnionInput.vue'
 import SetParam from '@/helpers/setParam'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -110,6 +118,8 @@ const previewShape = ref(null)
 const gz = ref({})
 const isLoading = ref(false)
 const selectedProjects = ref([])
+// Shapes are combined by Union if true, Intersection if false
+const operationIsUnion = ref(true)
 
 const leafletShapes = computed(() => {
   if (previewing.value && previewShape.value) {
@@ -243,9 +253,13 @@ function previewGz() {
     return
   }
 
-  const gazetteer = combineShapesToGz()
+  const payload = {
+    gazetteer: combineShapesToGz(),
+    geometry_operation_is_union: operationIsUnion.value
+  }
+
   isLoading.value = true
-  Gazetteer.preview({ gazetteer })
+  Gazetteer.preview(payload)
     .then(({ body }) => {
       previewShape.value =
       {
@@ -262,6 +276,7 @@ function saveNewGz() {
   const gazetteer = combineShapesToGz()
   const payload = {
     gazetteer,
+    geometry_operation_is_union: operationIsUnion.value,
     projects: selectedProjects.value
   }
 
@@ -307,6 +322,7 @@ function reset() {
   previewShape.value = null
   gz.value = {}
   selectedProjects.value = []
+  operationIsUnion.value = true
   SetParam(RouteNames.NewGazetteer, 'gazetteer_id')
 }
 
@@ -349,8 +365,9 @@ function removeFromShapes(shape) {
   margin-bottom: 2em;
 }
 
-.non-shape-inputs {
+.top-options {
   display: flex;
+  align-items: flex-start;
   gap: 2em;
 }
 </style>

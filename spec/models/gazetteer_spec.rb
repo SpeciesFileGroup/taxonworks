@@ -39,6 +39,12 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
       let(:poly1_union_poly2) {
         Gis::FACTORY.parse_wkt(poly1_union_poly2_wkt)
       }
+      let(:poly1_intersect_poly2_wkt) {
+        'POLYGON((5 5, 10 5, 10 10, 5 10, 5 5))'
+      }
+      let(:poly1_intersect_poly2) {
+        Gis::FACTORY.parse_wkt(poly1_intersect_poly2_wkt)
+      }
       let(:p1_wkt) { 'POINT(0 0)' }
       let(:p2_wkt) { 'POINT(1 1)' }
       let(:p1) { FactoryBot.create(:geographic_item, geography: p1_wkt) }
@@ -123,6 +129,16 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
         expect(new_gz.geographic_item.geo_object).to eq(union)
+      end
+
+      specify 'supports intersection instead of union' do
+        shapes = {
+          geojson: [poly1_gi.to_geo_json_feature, poly2_gi.to_geo_json_feature]
+        }
+        new_gz.build_gi_from_shapes(shapes, false)
+        new_gz.save!
+        expect(new_gz.geographic_item.geo_object)
+          .to eq(poly1_intersect_poly2)
       end
 
       specify 'supports geojson circles' do

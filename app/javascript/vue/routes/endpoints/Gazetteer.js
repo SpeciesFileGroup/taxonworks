@@ -15,6 +15,7 @@ const permitParams = {
       gz_union: []
     }
   },
+  geometry_operation_is_union: Boolean,
   shapefile: {
     shp_doc_id: Number,
     shx_doc_id: Number,

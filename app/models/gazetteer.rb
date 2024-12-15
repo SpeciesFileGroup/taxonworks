@@ -72,16 +72,17 @@ class Gazetteer < ApplicationRecord
     }
   end
 
-  # @param shapes, a hash:
+  # @param shapes [Hash]
   #   geojson: array of geojson feature hashes,
   #   wkt: array of wkt strings,
   #   points: array of geojson feature points
   #   ga_union: array of GA ids
   #   gz_union: array of GZ ids
+  # @param operation_is_union [Boolean] Union if true, intersection if false
   # Builds a GeographicItem for this gazetteer from the combined input shapes
-  def build_gi_from_shapes(shapes)
+  def build_gi_from_shapes(shapes, operation_is_union=true)
     begin
-      rgeo_shape = self.class.combine_shapes_to_rgeo(shapes)
+      rgeo_shape = self.class.combine_shapes_to_rgeo(shapes, operation_is_union)
     rescue TaxonWorks::Error => e
       errors.add(:base, e)
       return
@@ -93,9 +94,10 @@ class Gazetteer < ApplicationRecord
   end
 
   # @param [Hash] hash as in build_gi_from_shapes
-  # @return A single rgeo shape that is the union of all of the input shapes
+  # @param operation_is_union [Boolean] Union if true, intersection if false
+  # @return A single rgeo shape that is the combination of all of the input shapes
   # Raises TaxonWorks::Error on error
-  def self.combine_shapes_to_rgeo(shapes)
+  def self.combine_shapes_to_rgeo(shapes, operation_is_union)
     begin
       if shapes[:geojson].blank? && shapes[:wkt].blank? &&
           shapes[:points].blank? && shapes[:ga_union].blank? &&
@@ -111,7 +113,9 @@ class Gazetteer < ApplicationRecord
 
       user_input_shapes = leaflet_rgeo + wkt_rgeo + points_rgeo
 
-      return combine_rgeo_shapes(user_input_shapes + ga_rgeo + gz_rgeo)
+      return combine_rgeo_shapes(
+        user_input_shapes + ga_rgeo + gz_rgeo, operation_is_union
+      )
 
     # This is more specific than RGeo::Error::RgeoError
     rescue RGeo::Error::InvalidGeometry => e
@@ -175,22 +179,31 @@ class Gazetteer < ApplicationRecord
   end
 
   # @param [Array] rgeo_shapes of RGeo::Geographic::Projected*Impl
+  # @param operation_is_union [Boolean] Union if true, intersection if false
   # @return [RGeo::Geographic::Projected*Impl] A single shape combining all of the
   #   input shapes
   # Raises TaxonWorks::Error on error
-  def self.combine_rgeo_shapes(rgeo_shapes)
+  def self.combine_rgeo_shapes(rgeo_shapes, operation_is_union)
     if rgeo_shapes.count == 1
       return rgeo_shapes[0]
     end
 
-    # unary_union, which would be preferable here, is apparently unavailable
-    # for geographic geometries
-    # TODO use pg's ST_Union/UnaryUnion instead?
-    u = rgeo_shapes[0]
-    rgeo_shapes[1..].each { |s| u = u.union(s) }
+    if operation_is_union
+      # unary_union, which would be preferable here, is apparently unavailable
+      # for geographic geometries
+      # TODO use pg's ST_Union/UnaryUnion instead?
+      u = rgeo_shapes[0]
+      rgeo_shapes[1..].each { |s| u = u.union(s) }
+    else # Intersection
+      u = rgeo_shapes[0]
+      rgeo_shapes[1..].each { |s| u = u.intersection(s) }
+      # TODO how to check if intersection is empty?
+    end
 
-    if u.nil?
-      raise TaxonWorks::Error, 'Computing the union of the shapes failed'
+    if u.empty?
+      message = operation_is_union ?
+        "Empty union can't be saved!" : "Empty intersection can't be saved!"
+      raise TaxonWorks::Error, message
     end
 
     u

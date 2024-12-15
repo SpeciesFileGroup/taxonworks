@@ -54,7 +54,9 @@ class GazetteersController < ApplicationController
   def create
     @gazetteer = Gazetteer.new(gazetteer_params)
 
-    @gazetteer.build_gi_from_shapes(shape_params['shapes'])
+    @gazetteer.build_gi_from_shapes(
+      shape_params['shapes'], params.require('geometry_operation_is_union')
+    )
     if @gazetteer.errors.include?(:base)
       render json: @gazetteer.errors, status: :unprocessable_entity
       return
@@ -143,7 +145,9 @@ class GazetteersController < ApplicationController
   # POST /gazetteers/preview.json
   def preview
     begin
-      s = Gazetteer.combine_shapes_to_rgeo(shape_params['shapes'])
+      s = Gazetteer.combine_shapes_to_rgeo(
+        shape_params['shapes'], params.require('geometry_operation_is_union')
+      )
     rescue TaxonWorks::Error => e
       render json: { base: [e.message] }, status: :unprocessable_entity
       return

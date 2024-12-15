@@ -6,22 +6,32 @@
         :disabled="previewDisabled"
         v-model="previewing"
       />
-      Preview the union of the shapes you've added the way they will be saved.
+      {{ message }}
       <i>Editing is turned off during preview.</i>
     </label>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 
 const props = defineProps({
   previewDisabled: {
     type: Boolean,
     default: false
+  },
+  operationIsUnion: {
+    type: Boolean,
+    default: true
   }
 })
 
 const previewing = defineModel()
+
+const message = computed(() => {
+  const operation = props.operationIsUnion ? 'union' : 'intersection'
+  return `Preview the ${operation} of the shapes you've added the way they will be saved.`
+})
 
 </script>
 
