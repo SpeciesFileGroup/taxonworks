@@ -274,6 +274,13 @@ RSpec.describe ImportGazetteersJob, type: :job do
       ).to be true
     end
 
+    specify 'invalid shapes that cross anti-meridian are imported to valid shapes' do
+      expect(
+        Gazetteer.where(name: 'Invalid anti-meridian-crossing bowtie')
+          .first.geo_object.valid?
+      ).to be true
+    end
+
     specify "valid shapes that cross anti-meridian are imported to shapes that don't cross the anti-meridian" do
       s_wkt = Gazetteer.where(name: 'Crossing anti-meridian in a way that can be interpreted as self-intersection')
         .first.geo_object.as_text
@@ -282,18 +289,13 @@ RSpec.describe ImportGazetteersJob, type: :job do
         .to be false
     end
 
-    # TODO make this work
-    xspecify 'invalid shapes that cross the anti-meridian can raise ActiveRecord::StatementInvalid' do
-      # TODO Would be nice to have this record in our shapefile so we could test
-      # error reporting in this scenario by GazetteerImport, but it raises
-      # ActiveRecord::StatementInvalid which poisons the db connection for any
-      # spec running in a transaction, meaning the job can't finish even though
-      # the exception is caught.
-      # "type": "Feature", "properties": { "Name": "Invalid anti-meridian-crossing bowtie", "Status": "Existing", "Type": "Forest", "Shape_STAr": 4961926.4741099998, "Shape_STLe": 18084.337855099999, "iso_a2": "", "iso_a3": "" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 200, 0 ], [ 170, 10 ], [ 170, 0 ], [ 200, 10 ], [ 200, 0 ] ] ] ] } },
-      expect(progress_tracker.error_messages)
-        .to include('Self-intersection')
-    end
+    specify "invalid shapes that cross anti-meridian are imported to shapes that don't cross the anti-meridian" do
+      s_wkt = Gazetteer.where(name: 'Invalid anti-meridian-crossing bowtie')
+        .first.geo_object.as_text
 
+      expect(GeographicItem.crosses_anti_meridian?(s_wkt))
+        .to be false
+    end
   end
 
   context 'with a .cpg file' do

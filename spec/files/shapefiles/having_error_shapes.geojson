@@ -10,7 +10,9 @@
 
 { "type": "Feature", "properties": { "Name": "Invalid bowtie doesn't cross anti-meridian", "Status": "Existing", "Type": "Forest", "Shape_STAr": 4961926.4741099998, "Shape_STLe": 18084.337855099999, "iso_a2": "", "iso_a3": "" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 0, 0 ], [ -10, -10 ], [ -10, 0 ], [ 0, -10 ], [ 0, 0 ] ] ] ] } },
 
-{ "type": "Feature", "properties": { "Name": "Crossing anti-meridian in a way that can be interpreted as self-intersection", "Status": "Existing", "Type": "Forest", "Shape_STAr": 4961926.4741099998, "Shape_STLe": 18084.337855099999, "iso_a2": "", "iso_a3": "" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [-200,-10],[-200,10],[-160,10],[-190,0],[-160,-10],[-200,-10] ] ] ] } }
+{ "type": "Feature", "properties": { "Name": "Crossing anti-meridian in a way that can be interpreted as self-intersection", "Status": "Existing", "Type": "Forest", "Shape_STAr": 4961926.4741099998, "Shape_STLe": 18084.337855099999, "iso_a2": "", "iso_a3": "" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [-200,-10],[-200,10],[-160,10],[-190,0],[-160,-10],[-200,-10] ] ] ] } },
+
+{ "type": "Feature", "properties": { "Name": "Invalid anti-meridian-crossing bowtie", "Status": "Existing", "Type": "Forest", "Shape_STAr": 4961926.4741099998, "Shape_STLe": 18084.337855099999, "iso_a2": "", "iso_a3": "" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 200, 0 ], [ 170, 10 ], [ 170, 0 ], [ 200, 10 ], [ 200, 0 ] ] ] ] } }
 
 ]
 }
