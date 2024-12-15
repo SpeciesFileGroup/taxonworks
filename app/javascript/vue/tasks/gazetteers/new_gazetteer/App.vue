@@ -51,6 +51,7 @@
   </div>
 
   <OtherInputs
+    v-if="!gz.id"
     :inputs-disabled="shapeEditingDisabled"
     @new-shape="(data, type) => addToShapes(data, type)"
   />
@@ -62,17 +63,20 @@
   />
 
   <Preview
+    v-if="!gz.id"
     v-model="previewing"
     :preview-disabled="previewDisabled"
     :operation-is-union="operationIsUnion"
   />
 
   <OtherInputs
+    v-if="!gz.id"
     :inputs-disabled="shapeEditingDisabled"
     @new-shape="(data, type) => addToShapes(data, type)"
   />
 
   <UnionInput
+    v-if="!gz.id"
     :inputs-disabled="shapeEditingDisabled"
     @new-shape="(data, type) => addToShapes(data, type)"
   />
