@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - New image task: Add field occurrence to depict some list [#4135]
+- Grab cursor to make sorting feature visible [#4153]
 
 ### Fixed
 
@@ -17,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
 [#4147]: https://github.com/SpeciesFileGroup/taxonworks/issues/4147
+[#4153]: https://github.com/SpeciesFileGroup/taxonworks/issues/4153
 
 ## [0.46.1] - 2024-12-04
 
