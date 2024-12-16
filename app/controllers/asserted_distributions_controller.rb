@@ -116,7 +116,7 @@ class AssertedDistributionsController < ApplicationController
   # PATCH /asserted_distributions/batch_update.json?asserted_distributions_query=<>&asserted_distribution={taxon_name_id=123}}
   def batch_update
     if r = AssertedDistribution.batch_update(
-        preview: params[:preview], 
+        preview: params[:preview],
         asserted_distribution: asserted_distribution_params.merge(by: sessions_current_user_id),
         asserted_distribution_query: params[:asserted_distribution_query],
     )

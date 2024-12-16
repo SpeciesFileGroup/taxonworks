@@ -67,18 +67,27 @@ class Document < ApplicationRecord
   has_attached_file :document_file,
     filename_cleaner:  Utilities::CleanseFilename
 
-  validates_attachment_content_type :document_file, content_type: ['application/octet-stream', 'application/pdf', 'text/plain', 'text/xml']
+  validates_attachment_content_type :document_file,
+    content_type: ['application/octet-stream', 'application/pdf', 'text/plain',
+    'text/xml',
+    # shapefiles:
+    # .shx => application/octet-stream
+    # .dbf => application/x-dbf
+    # .shp => application/x-shapefile
+    # .prj => text/plain
+    # .cpg => text/plain
+    'application/x-dbf', 'application/x-shapefile']
   validates_attachment_presence :document_file
-  validates_attachment_size :document_file, greater_than: 1.bytes
+  validates_attachment_size :document_file, greater_than: 1.byte
 
   accepts_nested_attributes_for :documentation, allow_destroy: true, reject_if: :reject_documentation
 
   # TODO: Remove on ActiveStorage
   before_save :set_pdf_metadata, if: -> {
-   Rails.application.deprecators.silence do
-      changed_attributes.include?('document_file_file_size') &&
-        document_file_content_type =~ /pdf/
-    end
+    Rails.application.deprecators.silence do
+       changed_attributes.include?('document_file_file_size') &&
+         document_file_content_type =~ /pdf/
+     end
   }
 
   def set_pages_by_start(sp = 1)

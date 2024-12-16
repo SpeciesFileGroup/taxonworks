@@ -264,13 +264,13 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     # smaller
     a = FactoryBot.create(:level1_geographic_area)
     s1 = a.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
     )
 
     # bigger
     b = FactoryBot.create(:level1_geographic_area)
     s2 = b.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
     )
 
     # Use smaller
@@ -279,6 +279,36 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     # Use bigger
     q.geographic_area_id = b.id
     q.geographic_area_mode = true
+
+    expect(q.all).to contain_exactly( o1 )
+  end
+
+  specify '#gazetteer_id, spatial (Query::AssertedDistribution integration)' do
+    o2
+
+    bigger_polygon = RspecGeoHelpers.make_polygon(
+      RSPEC_GEO_FACTORY.point(10, 10), 0, 0, 10.0, 10.0
+    )
+    bigger_gz =
+      FactoryBot.create(:gazetteer,
+        geographic_item:
+          FactoryBot.create(:geographic_item, geography: bigger_polygon),
+        name: 'large'
+      )
+
+    smaller_ga = FactoryBot.create(:level1_geographic_area)
+    smaller_ga.geographic_items << GeographicItem.create!(
+      geography: RspecGeoHelpers.make_polygon(
+        RSPEC_GEO_FACTORY.point(10, 10), 0, 0, 5.0, 5.0
+      )
+    )
+
+    # Use smaller ga
+    AssertedDistribution.create!(otu: o1, geographic_area: smaller_ga,
+      source: FactoryBot.create(:valid_source))
+
+    # Use bigger gz
+    q.gazetteer_id = bigger_gz.id
 
     expect(q.all).to contain_exactly( o1 )
   end
