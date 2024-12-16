@@ -158,7 +158,12 @@ module LeadsHelper
         position: l.position,
       }
 
-      if l.otu
+      if metadata.dig(l.id, :children)&.any?
+        d.merge!(
+          target_label: metadata.dig(l.id, :couplet_number),
+          target_type: :internal,
+        )
+      elsif l.otu
         d.merge!(
           target_label: ( l.otu ? label_for_otu(l.otu) : nil ),
           target_id: l.otu&.id,
@@ -169,11 +174,6 @@ module LeadsHelper
           target_label: l.link_out_text,
           target_type: :link_out,
           target_link: l.link_out
-        )
-      else
-        d.merge!(
-          target_label: metadata.dig(l.id, :couplet_number),
-          target_type: :internal,
         )
       end
 
