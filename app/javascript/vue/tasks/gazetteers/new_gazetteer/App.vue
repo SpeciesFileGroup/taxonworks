@@ -117,13 +117,15 @@ import {
 } from '@/constants/index.js'
 
 const shapes = ref([])
-const previewing = ref(false)
-const previewShape = ref(null)
 const gz = ref({})
 const isLoading = ref(false)
 const selectedProjects = ref([])
 // Shapes are combined by Union if true, Intersection if false
 const operationIsUnion = ref(true)
+
+const previewing = ref(false)
+const previewShape = ref(null)
+const previewOperationIsUnion = ref(null)
 
 const leafletShapes = computed(() => {
   if (previewing.value && previewShape.value) {
@@ -251,10 +253,11 @@ function shapesUpdated() {
   previewing.value = false
   // Bust the preview cache
   previewShape.value = null
+  previewOperationIsUnion.value = null
 }
 
 function previewGz() {
-  if (previewShape.value) {
+  if (previewCacheIsValid()) {
     return
   }
 
@@ -267,14 +270,20 @@ function previewGz() {
   Gazetteer.preview(payload)
     .then(({ body }) => {
       previewShape.value =
-      {
-        shape: body.shape,
-        type: GZ_LEAFLET,
-        uuid: randomUUID()
-      }
+        {
+          shape: body.shape,
+          type: GZ_LEAFLET,
+          uuid: randomUUID()
+        }
+      previewOperationIsUnion.value = operationIsUnion.value
     })
     .catch(() => { previewing.value = false })
     .finally(() => { isLoading.value = false})
+}
+
+function previewCacheIsValid() {
+  return previewShape?.value &&
+    previewOperationIsUnion?.value == operationIsUnion.value
 }
 
 function saveNewGz() {
@@ -325,6 +334,7 @@ function reset() {
   shapes.value = []
   previewing.value = false
   previewShape.value = null
+  previewOperationIsUnion.value = null
   gz.value = {}
   selectedProjects.value = []
   operationIsUnion.value = true
