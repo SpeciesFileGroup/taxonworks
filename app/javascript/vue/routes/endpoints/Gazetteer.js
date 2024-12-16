@@ -11,8 +11,8 @@ const permitParams = {
       geojson: [],
       wkt: [],
       points: [],
-      ga_union: [],
-      gz_union: []
+      ga_combine: [],
+      gz_combine: []
     }
   },
   geometry_operation_is_union: Boolean,

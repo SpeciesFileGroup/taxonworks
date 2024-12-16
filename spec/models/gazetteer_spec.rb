@@ -96,7 +96,7 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
       end
 
       specify 'create from GAs' do
-        shapes = { ga_union: [ga1.id, ga2.id] }
+        shapes = { ga_combine: [ga1.id, ga2.id] }
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
         expect(new_gz.geographic_item.geo_object)
@@ -104,7 +104,7 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
       end
 
       specify 'create from GZs' do
-        shapes = { gz_union: [gz1.id, gz2.id] }
+        shapes = { gz_combine: [gz1.id, gz2.id] }
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
         expect(new_gz.geographic_item.geo_object)
@@ -118,8 +118,8 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
           geojson: [poly1_gi.to_geo_json_feature],
           wkt: [poly2_wkt],
           points: [p1.to_geo_json_feature],
-          ga_union: [ga1.id],
-          gz_union: [gz2.id]
+          ga_combine: [ga1.id],
+          gz_combine: [gz2.id]
         }
 
         union = Gis::FACTORY.parse_wkt(

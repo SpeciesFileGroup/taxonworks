@@ -111,8 +111,8 @@ import {
   GZ_POINT,
   GZ_WKT,
   GZ_LEAFLET,
-  GZ_UNION_GA,
-  GZ_UNION_GZ,
+  GZ_COMBINE_GA,
+  GZ_COMBINE_GZ,
   GZ_DATABASE
 } from '@/constants/index.js'
 
@@ -148,7 +148,8 @@ const saveDisabled = computed(() => {
   // names for that (though this restriction is easily circumvented by, e.g.,
   // selecting a ga/gz and then adding a point that's contained by it)
   return (
-    shapes.value[0].type == GZ_UNION_GA || shapes.value[0].type == GZ_UNION_GZ
+    shapes.value[0].type == GZ_COMBINE_GA ||
+    shapes.value[0].type == GZ_COMBINE_GZ
   )
 })
 
@@ -222,12 +223,12 @@ function combineShapesToGz() {
     .filter((item) => item.type == GZ_POINT)
     .map((item) => JSON.stringify(item.shape))
 
-  const gaUnion = shapes.value
-    .filter((item) => item.type == GZ_UNION_GA)
+  const gaCombine = shapes.value
+    .filter((item) => item.type == GZ_COMBINE_GA)
     .map((item) => item.shape.id)
 
-  const gzUnion = shapes.value
-    .filter((item) => item.type == GZ_UNION_GZ)
+  const gzCombine = shapes.value
+    .filter((item) => item.type == GZ_COMBINE_GZ)
     .map((item) => item.shape.id)
 
   const gazetteer = {
@@ -238,8 +239,8 @@ function combineShapesToGz() {
       geojson,
       wkt,
       points,
-      ga_union: gaUnion,
-      gz_union: gzUnion
+      ga_combine: gaCombine,
+      gz_combine: gzCombine
     }
   }
 
@@ -334,8 +335,8 @@ function addToShapes(shape, type) {
   switch(type) {
     case GZ_LEAFLET:
     case GZ_POINT:
-    case GZ_UNION_GA:
-    case GZ_UNION_GZ:
+    case GZ_COMBINE_GA:
+    case GZ_COMBINE_GZ:
       shapes.value.push({
         uuid: randomUUID(),
         type,

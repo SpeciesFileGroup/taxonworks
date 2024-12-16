@@ -76,8 +76,8 @@ class Gazetteer < ApplicationRecord
   #   geojson: array of geojson feature hashes,
   #   wkt: array of wkt strings,
   #   points: array of geojson feature points
-  #   ga_union: array of GA ids
-  #   gz_union: array of GZ ids
+  #   ga_combine: array of GA ids
+  #   gz_combine: array of GZ ids
   # @param operation_is_union [Boolean] Union if true, intersection if false
   # Builds a GeographicItem for this gazetteer from the combined input shapes
   def build_gi_from_shapes(shapes, operation_is_union=true)
@@ -100,16 +100,16 @@ class Gazetteer < ApplicationRecord
   def self.combine_shapes_to_rgeo(shapes, operation_is_union)
     begin
       if shapes[:geojson].blank? && shapes[:wkt].blank? &&
-          shapes[:points].blank? && shapes[:ga_union].blank? &&
-          shapes[:gz_union].blank?
+          shapes[:points].blank? && shapes[:ga_combine].blank? &&
+          shapes[:gz_combine].blank?
         raise TaxonWorks::Error, 'No shapes provided'
       end
 
       leaflet_rgeo = convert_geojson_to_rgeo(shapes[:geojson])
       wkt_rgeo = convert_wkt_to_rgeo(shapes[:wkt])
       points_rgeo = convert_geojson_to_rgeo(shapes[:points])
-      ga_rgeo = convert_ga_to_rgeo(shapes[:ga_union])
-      gz_rgeo = convert_gz_to_rgeo(shapes[:gz_union])
+      ga_rgeo = convert_ga_to_rgeo(shapes[:ga_combine])
+      gz_rgeo = convert_gz_to_rgeo(shapes[:gz_combine])
 
       user_input_shapes = leaflet_rgeo + wkt_rgeo + points_rgeo
 

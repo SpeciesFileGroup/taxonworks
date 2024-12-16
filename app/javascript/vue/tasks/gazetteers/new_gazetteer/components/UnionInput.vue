@@ -12,7 +12,7 @@
         param="term"
         :addParams="{ mark: false }"
         url="/geographic_areas/autocomplete"
-        @get-item="(item) => addShape(item, GZ_UNION_GA)"
+        @get-item="(item) => addShape(item, GZ_COMBINE_GA)"
       />
     </fieldset>
 
@@ -27,7 +27,7 @@
         clear-after
         param="term"
         url="/gazetteers/autocomplete"
-        @get-item="(item) => addShape(item, GZ_UNION_GZ)"
+        @get-item="(item) => addShape(item, GZ_COMBINE_GZ)"
       />
     </fieldset>
   </div>
@@ -36,8 +36,8 @@
 <script setup>
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import {
-  GZ_UNION_GA,
-  GZ_UNION_GZ
+  GZ_COMBINE_GA,
+  GZ_COMBINE_GZ
 } from '@/constants/index.js'
 
 const props = defineProps({
@@ -50,7 +50,7 @@ const props = defineProps({
 const emit = defineEmits(['newShape'])
 
 function addShape(item, type) {
-  if (type == GZ_UNION_GA && item.label_html.includes('without shape')) {
+  if (type == GZ_COMBINE_GA && item.label_html.includes('without shape')) {
     TW.workbench.alert.create('Only GAs with shape can be added.', 'error')
     return
   }

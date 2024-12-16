@@ -1,6 +1,6 @@
 export const GZ_LEAFLET = 'Leaflet'
 export const GZ_POINT = 'Point'
 export const GZ_WKT = 'WKT'
-export const GZ_UNION_GA = 'GA Union'
-export const GZ_UNION_GZ = 'GZ Union'
+export const GZ_COMBINE_GA = 'Geographic Area'
+export const GZ_COMBINE_GZ = 'Gazetteer'
 export const GZ_DATABASE = 'Database'
