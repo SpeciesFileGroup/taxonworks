@@ -8,11 +8,18 @@
       your shapefile has one you should upload it to TaxonWorks before importing
       (it need not be selected here).
     </p>
+
+    <ShapefileUploadHelper
+      v-if="currentTab == 'new'"
+      :docs="shapefileDocs"
+    />
+
     <SmartSelector
       klass="Documents"
       model="documents"
       v-model="selectedDoc"
       @selected="(d) => addToList(d)"
+      @on-tab-selected="(tab) => (currentTab = tab)"
       label="document_file_file_name"
       pin-section="Documents"
       pin-type="Document"
@@ -89,6 +96,7 @@
 <script setup>
 import Dropzone from '@/components/dropzone.vue'
 import FilterDocument from '@/tasks/observation_matrices/import_nexus/components/FilterDocument.vue'
+import ShapefileUploadHelper from './ShapefileUploadHelper.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -119,6 +127,7 @@ const isLoading = ref(true)
 const noMatchesForExtensions = ref(undefined)
 const extensionGroups = ref([])
 const selectedDoc = ref(undefined)
+const currentTab = ref(undefined)
 
 const shapefileExtensions = computed(() => {
   const shapefileGroup =
