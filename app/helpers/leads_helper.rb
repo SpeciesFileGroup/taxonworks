@@ -49,7 +49,6 @@ module LeadsHelper
   end
 
   def print_key(lead)
-    @index = 0  # TODO: get this out of instance
     metadata = key_metadata(lead)
 
     t = tag.h1(lead.text)
@@ -58,7 +57,6 @@ module LeadsHelper
   end
 
   def print_key_table(lead)
-    @index = 0  # TODO: get this out of instance
     metadata = key_metadata(lead)
 
     t = tag.h1(lead.text)
@@ -122,23 +120,22 @@ module LeadsHelper
 
   # A depth-first traversal that numbers each entry. Renderers
   # navigate this list in order to draw the key.
-  def key_metadata(lead, hsh: {}, depth: 1, couplet_number: 0  )
-    @index ||= 0
+  def key_metadata(lead, hsh: {}, depth: 1, couplet_number: {num: 0}  )
     if lead.children.any?
-      @index += 1
+      couplet_number[:num] += 1
       hsh[lead.id] = {
         children: [],
         parent_id: lead.parent_id,
         position: lead.position,
-        couplet_number: lead.origin_label || @index,
+        couplet_number: lead.origin_label || couplet_number[:num],
         # depth_vector: [depth, lead.parent_id, lead.position],
         depth:
       }
     end
 
-    lead.children.order(:position).each_with_index do |l, i|
+    lead.children.order(:position).each do |l|
       hsh[l.parent_id][:children].push l.id
-      key_metadata(l, hsh:, depth: depth + 1 )
+      key_metadata(l, hsh:, depth: depth + 1, couplet_number:)
     end
 
     hsh
