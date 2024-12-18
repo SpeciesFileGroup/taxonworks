@@ -20,7 +20,7 @@
               Name
             </th>
             <th
-              @click="() => sortTable('couplet_count')"
+              @click="() => sortTable('couplets_count')"
               class="width_shrink"
             >
               # Couplets
@@ -60,7 +60,7 @@
                 </b>
               </td>
 
-              <td>{{ key.couplet_count }}</td>
+              <td>{{ key.couplets_count }}</td>
 
               <td>{{ key.key_updated_at_in_words }}</td>
 
@@ -109,7 +109,7 @@
           :href="RouteNames.NewLead"
           data-turbolinks="false"
         >
-          New dichotomous key
+          New multifurcating key
         </a>
         task to create one.
       </div>
@@ -189,7 +189,7 @@ function changeIsPublicState(key) {
         ...body.lead,
         otu: key.otu,
         otus_count: key.otus_count,
-        couplet_count: key.couplet_count,
+        couplets_count: key.couplets_count,
         citations: key.citations,
         child_otus: key.child_otus,
         key_updated_at: body.lead.updated_at,

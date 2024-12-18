@@ -18,13 +18,12 @@
     </div>
   <% end %>
 
-  <% if @lead.children.size == 2 -%>
+  <% @lead.children.each_with_index do |child, i| %>
     <div class="navigation-controls">
-      <%= link_to( content_tag(:span, 'Left child', data: {icon: :show}, class: 'small-icon' ), "/leads/#{@lead.children[0].id}", class: 'navigation-item' ) -%>
-    </div>
-
-    <div class="navigation-controls">
-      <%= link_to( content_tag(:span, 'Right child', data: {icon: :show}, class: 'small-icon' ), "/leads/#{@lead.children[1].id}", class: 'navigation-item' ) -%>
+      <%= link_to( content_tag(:span,
+        "Option #{i + 1}: #{child.text || '(No text)'}",
+        data: {icon: :show}, class: 'small-icon' ), "/leads/#{child.id}",
+        class: 'navigation-item' ) -%>
     </div>
   <% end %>
 <% end %>
