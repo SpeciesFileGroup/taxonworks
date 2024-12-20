@@ -16,7 +16,7 @@
             label="name"
             pin-section="Serials"
             pin-type="Serial"
-            :filter-ids="serialId"
+            :filter-ids="serialId ? [serialId] : []"
             @selected="setSelected"
           />
           <lock-component
