@@ -108,18 +108,19 @@ const WITH_PARAMS = [
   'data_attributes',
   'data_depictions',
   'depictions',
+  'leaves', // 'Descendants'
   'etymology',
   'global_identifiers',
-  'leaves',
+  'not_specified', // 'Incomplete combination relationships'
+  'latinized',
   'local_identifiers',
   'nomenclature_date',
-  'not_specified',
   'notes',
   'origin_citation',
   'original_combination',
   'otus',
   'tags',
-  'type_metadata',
+  'type_metadata', // 'Type information'
   'verbatim_name'
 ]
 

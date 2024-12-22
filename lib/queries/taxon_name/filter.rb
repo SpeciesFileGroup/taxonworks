@@ -24,6 +24,7 @@ module Queries
         :descendants_max_depth,
         :epithet_only,
         :etymology,
+        :latinized,
         :leaves,
         :name,
         :name_exact,
@@ -264,6 +265,15 @@ module Queries
       #   if 'false' then return only names with descendents
       attr_accessor :leaves
 
+      # @return [Boolean, nil]
+      #   &latinized=<"true"|"false">
+      #   if 'true' then return only genus group names with gender and species
+      #     group names with part of speech
+      #   if 'false' then return only genus group names without gender and
+      #     species group names without part of speech
+      #   if nil, ignore
+      attr_accessor :latinized
+
       # @return [String, nil]
       #   &taxon_name_type=<Protonym|Combination|Hybrid>
       attr_accessor :taxon_name_type
@@ -314,6 +324,7 @@ module Queries
         @descendants_max_depth = params[:descendants_max_depth]
         @etymology = boolean_param(params, :etymology)
         @epithet_only = params[:epithet_only]
+        @latinized = boolean_param(params, :latinized)
         @geo_json = params[:geo_json]
         @leaves = boolean_param(params, :leaves)
         @name = params[:name]
@@ -560,6 +571,35 @@ module Queries
       def leaves_facet
         return nil if leaves.nil?
         leaves ? ::TaxonName.leaves : ::TaxonName.not_leaves
+      end
+
+      # @return Scope
+      def latinized_facet
+        return nil if latinized.nil?
+
+        tnc = ::TaxonNameClassification.arel_table
+        if latinized == true
+          ::TaxonName.where(
+            ::TaxonNameClassification.where(
+              tnc[:taxon_name_id].eq(::TaxonName.arel_table[:id]).and(
+                tnc[:type].matches('%latinized%')
+              )
+            ).arel.exists
+          )
+        else
+          ::TaxonName
+            .where(
+              "rank_class ILIKE '%speciesgroup%' OR \
+               rank_class ILIKE '%genusgroup%'"
+            )
+            .where.not(
+              ::TaxonNameClassification.where(
+                tnc[:taxon_name_id].eq(::TaxonName.arel_table[:id]).and(
+                  tnc[:type].matches('%latinized%')
+                )
+              ).arel.exists
+            )
+        end
       end
 
       # @return Scope
@@ -844,12 +884,13 @@ module Queries
           combination_taxon_name_id_facet,
           combinations_facet,
           descendant_facet,
+          latinized_facet,
           leaves_facet,
           not_specified_facet,
           original_combination_facet,
           otu_id_facet,
-          taxon_name_author_id_facet,
           otus_facet,
+          taxon_name_author_id_facet,
           taxon_name_classification_facet,
           taxon_name_relationship_type_facet,
           type_metadata_facet,
