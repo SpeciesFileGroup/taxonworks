@@ -223,6 +223,41 @@ module LeadsHelper
   end
 
   def print_key_markdown(lead)
+    metadata = key_metadata(lead)
+
+    data = key_data(lead, metadata)
+
+    t = ["# #{lead.text}\n\n"]
+
+    metadata.keys.each do |k|
+      metadata[k][:children].each do |lid|
+        if data.dig(lid, :position) == 0
+          cplt_num = metadata.dig(k, :couplet_number).to_s
+          # The <a> tag here provides an id to link to.
+          a = "#{cplt_num}\.<a id=\"cplt-#{cplt_num}\"/>"
+        else
+          a = '--'
+        end
+
+        b = data.dig(lid, :text)
+
+        if data.dig(lid, :target_label)
+          target = data.dig(lid, :target_label)
+          c = "**#{target}**"
+          if data.dig(lid, :target_type) == :internal
+            c = "[#{c}](#cplt-#{target})"
+          end
+        end
+
+        c = 'TODO: PROVIDE ENDPOINT' if c.blank?
+
+        t.push [a, b, '...', c, " \n"].join(' ')
+      end
+      t.push "\n"
+    end
+
+    t.join.html_safe
+
   end
 
   def couplets_count(lead)
