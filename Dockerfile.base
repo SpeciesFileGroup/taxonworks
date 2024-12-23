@@ -2,7 +2,7 @@ FROM phusion/passenger-ruby33:latest AS base
 ARG MAKE_JOBS=3
 
 # From Phusion
-ENV HOME /root
+ENV HOME=/root
 RUN rm /etc/nginx/sites-enabled/default
 ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 
@@ -10,7 +10,8 @@ ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 COPY exe/install-imagemagick7.sh /usr/local/bin
 RUN echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
       curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
-      echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
+      echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
+      sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources && \
       apt update && apt-get install -y locales software-properties-common \
                          postgresql-client-16 \
                          build-essential autoconf libtool git-core jq \
@@ -28,21 +29,22 @@ RUN echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg m
 
 RUN locale-gen en_US.UTF-8
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
 RUN gem update --system
 RUN gem install bundler
 
-FROM ubuntu:22.04 AS imagemagick
+FROM ubuntu:24.04 AS imagemagick
 RUN apt-get update && apt-get install -y imagemagick
 
 FROM base
 COPY --from=imagemagick /etc/ImageMagick-6 /usr/local/etc/ImageMagick-7
 
 # Set up ImageMagick
-RUN sed -i 's/name="disk" value="1GiB"/name="disk" value="8GiB"/' /usr/local/etc/ImageMagick-7/policy.xml && \
+RUN sed -i 's/name="disk" value="2GiB"/name="disk" value="8GiB"/' /usr/local/etc/ImageMagick-7/policy.xml && \
+identify -list resource && \
       identify -list resource | grep Disk | grep 8GiB && magick -list format | grep "HEIC      rw+" # Confirm HEIC support and that 8GB disk setting is active
 
