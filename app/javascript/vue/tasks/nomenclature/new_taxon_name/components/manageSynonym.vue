@@ -206,7 +206,9 @@ export default {
 
     loadTaxon(id) {
       if (window.confirm('Are you sure you want to load this taxon name?')) {
-        window.open(`/tasks/nomenclature/new_taxon_name/${id}`, `_self`)
+        window.open(
+          `/tasks/nomenclature/new_taxon_name?taxon_name_id=${id}`, `_self`
+        )
       }
     },
 
