@@ -125,7 +125,8 @@ export default {
       relationshipSelected: [],
       mergeLists: {},
       relationships: [],
-      typeSelected: undefined
+      typeSelected: undefined,
+      display: 'subject_status_tag'
     }
   },
 
@@ -167,7 +168,7 @@ export default {
         params.taxon_name_relationship_type.forEach((type) => {
           const data = this.mergeLists.all[type]
           data.type = type
-          data.name = this.mergeLists.all[type].subject_status_tag
+          data.name = this.mergeLists.all[type][this.display]
           this.addRelationship(data)
         })
       }
@@ -194,7 +195,8 @@ export default {
         for (const keyType in relationshipsList[key].common) {
           relationshipsList[key].common[
             keyType
-          ].name = `${relationshipsList[key].common[keyType].subject_status_tag} (${key})`
+          ].name =
+            `${relationshipsList[key].common[keyType][this.display]} (${key})`
           relationshipsList[key].common[keyType].type = keyType
         }
         newList.common = Object.assign(
@@ -203,6 +205,8 @@ export default {
         )
       })
       this.getTreeList(newList.tree, newList.all)
+      this.addName(newList.all)
+      this.addType(newList.all)
       this.mergeLists = newList
     },
 
@@ -215,7 +219,7 @@ export default {
           })
           Object.defineProperty(list[key], 'name', {
             writable: true,
-            value: ranksList[key].subject_status_tag
+            value: ranksList[key][this.display]
           })
         }
         this.getTreeList(list[key], ranksList)
@@ -238,6 +242,22 @@ export default {
 
     filterAlreadyPicked(type) {
       return this.relationshipSelected.find((item) => item.type === type)
+    },
+
+    addName(list) {
+      for (const key in list) {
+        Object.defineProperty(
+          list[key], 'name', { writable: true, value: list[key][this.display] }
+        )
+      }
+    },
+
+    addType(list) {
+      for (const key in list) {
+        Object.defineProperty(
+          list[key], 'type', { writable: true, value: key }
+        )
+      }
     }
   }
 }
