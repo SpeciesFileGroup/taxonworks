@@ -35,6 +35,7 @@ module Queries
         :otu_id,
         :otus,
         :rank,
+        :relation_to_relationship,
         :synonymify,
         :taxon_name_author_id_or,
         :taxon_name_id,
@@ -201,9 +202,14 @@ module Queries
       # Return all taxon names in a relationship of a given type and in relation to a another name. For example, return all synonyms of Aus bus.
       attr_accessor :taxon_name_relationship
 
-      # @param taxon_name_relationship [Array]
+      # @param taxon_name_relationship_type [Array]
       #   All names involved in any of these relationship
       attr_accessor :taxon_name_relationship_type
+
+      # @return [String, nil]
+      #   &relation_to_relationship=<subject|object|either>
+      #   All names that are subject|object|either of any relationship
+      attr_accessor :relation_to_relationship
 
       # @param taxon_name_classification [Array]
       #   Class names of TaxonNameClassification, as strings.
@@ -327,6 +333,7 @@ module Queries
         @original_combination = boolean_param(params, :original_combination)
         @parent_id = params[:parent_id]
         @rank = params[:rank]
+        @relation_to_relationship = params[:relation_to_relationship]
         @sort = params[:sort]
         @synonymify = boolean_param(params, :synonymify)
         @taxon_name_author_id = params[:taxon_name_author_id]
@@ -578,6 +585,19 @@ module Queries
             )
           ).arel.exists
         )
+      end
+
+      # @return Scope
+      def relation_to_relationship_facet
+        return nil if relation_to_relationship.nil?
+
+        if relation_to_relationship == 'subject'
+          ::TaxonName.with_taxon_name_relationships_as_subject.group(:id)
+        elsif relation_to_relationship == 'object'
+          ::TaxonName.with_taxon_name_relationships_as_object.group(:id)
+        else
+          ::TaxonName.with_taxon_name_relationships.group(:id)
+        end
       end
 
       # @return Scope
@@ -849,6 +869,7 @@ module Queries
           not_specified_facet,
           original_combination_facet,
           otu_id_facet,
+          relation_to_relationship_facet,
           taxon_name_author_id_facet,
           otus_facet,
           taxon_name_classification_facet,

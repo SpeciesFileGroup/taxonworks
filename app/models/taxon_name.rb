@@ -203,7 +203,7 @@ class TaxonName < ApplicationRecord
   # See related concept in concerns/shared/taxonomy, this may belong there.
   #
   # @return [Hash]
-   attr_reader :taxonomy
+  attr_reader :taxonomy
 
   # @return array of all taxon_name_relationships (name is subject), memoized
   # NOT USED
@@ -392,6 +392,7 @@ class TaxonName < ApplicationRecord
   def self.with_taxon_name_relationship(relationship)
     a = TaxonName.joins(:taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
     b = TaxonName.joins(:related_taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
+    # Note UNION removes duplicates so this returns unique results.
     TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
   end
 
@@ -1056,7 +1057,7 @@ class TaxonName < ApplicationRecord
   # TaxonNameRelationship.youngest(
   #  taxon_name_relationships.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM) # .reload
   # )
-     taxon_name_relationships.reload.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
+    taxon_name_relationships.reload.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
   end
 
   # TODO: Write test

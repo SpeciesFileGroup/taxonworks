@@ -212,6 +212,42 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(a.id)
   end
 
+  context '#relationToRelationship' do
+    before(:each) do
+      # There's already an OriginalCombination::OriginalGenus
+      # 'original_genus -> species' relationship as well.
+      TaxonNameRelationship::Typification::Genus.create!(
+        subject_taxon_name_id: species.id, object_taxon_name_id: genus.id
+      )
+      # Create more relations that duplicate existing subject/object so that we
+      # check we're not returning duplicates.
+      TaxonNameRelationship::Typification::Genus.create!(
+        subject_taxon_name_id: species.id, object_taxon_name_id: original_genus.id
+      )
+      TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(
+        subject_taxon_name_id: original_genus.id, object_taxon_name_id: genus.id
+      )
+    end
+
+    specify 'subject' do
+      query.relation_to_relationship = 'subject'
+      expect(query.all.map(&:id))
+        .to contain_exactly(species.id, original_genus.id)
+    end
+
+    specify 'object' do
+      query.relation_to_relationship = 'object'
+      expect(query.all.map(&:id))
+        .to contain_exactly(genus.id, species.id, original_genus.id)
+    end
+
+    specify 'either' do
+      query.relation_to_relationship = 'either'
+      expect(query.all.map(&:id))
+        .to contain_exactly(species.id, genus.id, original_genus.id)
+    end
+  end
+
   specify '#taxon_name_relationship[] 0' do
     g = Protonym.create!(name: 'Era', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
     a = Combination.create!(genus: g, species: species)
