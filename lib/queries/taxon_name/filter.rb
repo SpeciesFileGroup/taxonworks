@@ -63,7 +63,9 @@ module Queries
           :object_taxon_name_id,
           :type,
         ],
-        taxon_name_relationship_type: [],
+        taxon_name_relationship_type_subject: [],
+        taxon_name_relationship_type_object: [],
+        taxon_name_relationship_type_either: [],
         type: [],
       ].freeze
 
@@ -202,9 +204,18 @@ module Queries
       # Return all taxon names in a relationship of a given type and in relation to a another name. For example, return all synonyms of Aus bus.
       attr_accessor :taxon_name_relationship
 
-      # @param taxon_name_relationship_type [Array]
-      #   All names involved in any of these relationship
-      attr_accessor :taxon_name_relationship_type
+      # @param taxon_name_relationship_type_subject [Array]
+      #   All names involved in any of these relationships as subject
+      attr_accessor :taxon_name_relationship_type_subject
+
+      # @param taxon_name_relationship_type_object [Array]
+      #   All names involved in any of these relationships as object
+      attr_accessor :taxon_name_relationship_type_object
+
+      # @param taxon_name_relationship_type_either [Array]
+      #   All names involved in any of these relationships as either subject or
+      #   object
+      attr_accessor :taxon_name_relationship_type_either
 
       # @return [String, nil]
       #   &relation_to_relationship=<subject|object|either>
@@ -341,7 +352,12 @@ module Queries
         @taxon_name_classification = params[:taxon_name_classification] || []
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_relationship = params[:taxon_name_relationship] || []
-        @taxon_name_relationship_type = params[:taxon_name_relationship_type] || []
+        @taxon_name_relationship_type_subject =
+          params[:taxon_name_relationship_type_subject] || []
+        @taxon_name_relationship_type_object =
+          params[:taxon_name_relationship_type_object] || []
+        @taxon_name_relationship_type_either =
+          params[:taxon_name_relationship_type_either] || []
         @taxon_name_type = params[:taxon_name_type]
         @type_metadata = boolean_param(params, :type_metadata)
         @validify = boolean_param(params, :validify)
@@ -559,8 +575,35 @@ module Queries
 
       # @return Scope
       def taxon_name_relationship_type_facet
-        return nil if taxon_name_relationship_type.empty?
-        ::TaxonName.with_taxon_name_relationship(taxon_name_relationship_type)
+        if taxon_name_relationship_type_subject.empty? &&
+           taxon_name_relationship_type_object.empty? &&
+           taxon_name_relationship_type_either.empty?
+          return nil
+        end
+
+        s = nil
+        o = nil
+        e = nil
+
+        if taxon_name_relationship_type_subject.present?
+          s = ::TaxonName.as_subject_with_taxon_name_relationship(
+            taxon_name_relationship_type_subject
+          ).group(:id)
+        end
+
+        if taxon_name_relationship_type_object.present?
+          o = ::TaxonName.as_object_with_taxon_name_relationship(
+            taxon_name_relationship_type_object
+          ).group(:id)
+        end
+
+        if taxon_name_relationship_type_either.present?
+          e = ::TaxonName.with_taxon_name_relationship(
+            taxon_name_relationship_type_either
+          )
+        end
+
+        referenced_klass_union([s, o, e])
       end
 
       # @return Scope

@@ -1,11 +1,13 @@
 <template>
   <FacetContainer>
     <h3>In relationship</h3>
+
     <VSwitch
       class="separate-bottom"
       :options="Object.values(OPTIONS)"
       v-model="view"
     />
+
     <div class="separate-top">
       <TreeDisplay
         v-if="view == OPTIONS.all"
@@ -15,6 +17,7 @@
         display="name"
         @selected="addRelationship"
       />
+
       <ul
         v-if="view == OPTIONS.common"
         class="no_bullets"
@@ -35,6 +38,7 @@
           </li>
         </template>
       </ul>
+
       <VAutocomplete
         v-if="view == OPTIONS.advanced"
         url=""
@@ -51,14 +55,40 @@
         param="term"
       />
     </div>
-    <DisplayList
-      label="name"
-      set-key="type"
-      :delete-warning="false"
-      soft-delete
-      :list="relationshipSelected"
-      @delete="removeItem"
-    />
+
+    <table
+      v-if="relationshipSelected.length"
+      class="vue-table"
+    >
+      <thead>
+        <tr>
+          <th>Relationship</th>
+          <th />
+          <th />
+        </tr>
+      </thead>
+      <transition-group
+        name="list-complete"
+        tag="tbody"
+      >
+        <template
+          v-for="(relationship, index) in relationshipSelected"
+          :key="index"
+        >
+          <RowItem
+            class="list-complete-item"
+            :item="relationship"
+            v-model="relationship.subject_object"
+            :options="{
+              Subject: SUBJECT_OBJECT.subject,
+              Object: SUBJECT_OBJECT.object,
+              Either: SUBJECT_OBJECT.either
+            }"
+            @remove="() => removeItem(index)"
+          />
+        </template>
+      </transition-group>
+    </table>
   </FacetContainer>
 </template>
 
@@ -67,7 +97,7 @@ import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import VSwitch from '@/components/ui/VSwitch'
 import TreeDisplay from '../treeDisplay'
 import VAutocomplete from '@/components/ui/Autocomplete'
-import DisplayList from '@/components/displayList.vue'
+import RowItem from '../RowItem.vue'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { TaxonNameRelationship } from '@/routes/endpoints'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -78,7 +108,14 @@ const OPTIONS = {
   all: 'all'
 }
 
+const SUBJECT_OBJECT = {
+  subject: 'subject',
+  object: 'object',
+  either: 'either'
+}
+
 const params = defineModel()
+
 const view = ref(OPTIONS.common)
 const relationshipsList = ref({})
 const relationshipSelected = ref([])
@@ -97,9 +134,15 @@ watch(params, (newVal) => {
 
 watch(relationshipSelected,
   (newVal) => {
-    params.value.taxon_name_relationship_type = newVal.map(
-      (relationship) => relationship.type
-    )
+    params.value.taxon_name_relationship_type_subject = newVal
+      .filter((r) => (r.subject_object == SUBJECT_OBJECT.subject))
+      .map((r) => r.type)
+    params.value.taxon_name_relationship_type_object = newVal
+      .filter((r) => (r.subject_object == SUBJECT_OBJECT.object))
+      .map((r) => r.type)
+    params.value.taxon_name_relationship_type_either = newVal
+      .filter((r) => (r.subject_object == SUBJECT_OBJECT.either))
+      .map((r) => r.type)
   },
   { deep: true }
 )
@@ -116,15 +159,21 @@ onMounted(() => {
     relationshipsList.value = response.body
     merge()
 
-    const params = URLParamsToJSON(location.href)
-    if (params.taxon_name_relationship_type) {
-      params.taxon_name_relationship_type.forEach((type) => {
-        const data = mergeLists.value.all[type]
-        data.type = type
-        data.name = mergeLists.value.all[type][display.value]
-        addRelationship(data)
-      })
+    const queryParams = URLParamsToJSON(location.href)
+    const relationshipLists = {
+      [SUBJECT_OBJECT.subject]: queryParams.taxon_name_relationship_type_subject || [],
+      [SUBJECT_OBJECT.object]: queryParams.taxon_name_relationship_type_object || [],
+      [SUBJECT_OBJECT.either]: queryParams.taxon_name_relationship_type_either || []
     }
+    Object.keys(relationshipLists).forEach((subject_object) => {
+      const relationshipsList = relationshipLists[subject_object]
+      relationshipsList.forEach((relationship) => {
+        const data = mergeLists.value.all[relationship]
+        data.type = relationship
+        data.name = mergeLists.value.all[relationship][display.value]
+        addRelationship(data, subject_object)
+      })
+    })
   })
 })
 
@@ -178,16 +227,12 @@ function getTreeList(list, ranksList) {
   }
 }
 
-function removeItem(relationship) {
-  relationshipSelected.value.splice(
-    relationshipSelected.value.findIndex(
-      (item) => item.type === relationship.type
-    ),
-    1
-  )
+function removeItem(index) {
+  relationshipSelected.value.splice(index, 1)
 }
 
-function addRelationship(item) {
+function addRelationship(item, subject_object = SUBJECT_OBJECT.either) {
+  item.subject_object = subject_object
   relationshipSelected.value.push(item)
   view.value = OPTIONS.common
 }
@@ -212,3 +257,7 @@ function addType(list) {
   }
 }
 </script>
+
+<style scoped>
+
+</style>

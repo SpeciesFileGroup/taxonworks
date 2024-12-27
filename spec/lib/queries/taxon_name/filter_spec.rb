@@ -104,11 +104,76 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(root.id, genus.id, original_genus.id, species.id)
   end
 
-  specify '#taxon_name_relationship_type 1' do
-    a = TaxonNameRelationship::Iczn::Invalidating
-    a.create!(subject_taxon_name: genus, object_taxon_name: original_genus)
-    query.taxon_name_relationship_type = [a.to_s]
-    expect(query.all.map(&:id)).to contain_exactly(genus.id, original_genus.id)
+  context '#taxon_name_relationship_type with subject/object/any' do
+    specify '#taxon_name_relationship_type 1' do
+      a = TaxonNameRelationship::Iczn::Invalidating
+      a.create!(subject_taxon_name: genus, object_taxon_name: original_genus)
+      query.taxon_name_relationship_type_either = [a.to_s]
+      expect(query.all.map(&:id)).to contain_exactly(genus.id, original_genus.id)
+    end
+
+    context 'with duplicates' do
+      let(:other_genus) {
+        Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      }
+      before(:each) do
+        TaxonNameRelationship::Typification::Genus.create!(
+          subject_taxon_name_id: species.id,
+          object_taxon_name_id: genus.id
+        )
+        # Create more relations that duplicate existing subject/object so that
+        # we check we're not returning duplicates.
+        TaxonNameRelationship::Typification::Genus.create!(
+          subject_taxon_name_id: species.id,
+          object_taxon_name_id: original_genus.id
+        )
+
+        TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(
+          subject_taxon_name_id: original_genus.id,
+          object_taxon_name_id: genus.id
+        )
+        TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(
+          subject_taxon_name_id: other_genus.id,
+          object_taxon_name_id: genus.id
+        )
+      end
+
+      specify 'subject' do
+        query.taxon_name_relationship_type_subject =
+          'TaxonNameRelationship::Typification::Genus'
+        expect(query.all.map(&:id)).to contain_exactly(species.id)
+      end
+
+      specify 'multiple subject' do
+        query.taxon_name_relationship_type_subject = [
+          'TaxonNameRelationship::Typification::Genus',
+          'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+        ]
+        expect(query.all.map(&:id))
+          .to contain_exactly(species.id, original_genus.id, other_genus.id)
+      end
+
+      specify 'object' do
+        query.taxon_name_relationship_type_object =
+          'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+        expect(query.all.map(&:id)).to contain_exactly(genus.id)
+      end
+
+      specify 'either' do
+        query.taxon_name_relationship_type_either =
+          'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+        expect(query.all.map(&:id))
+          .to contain_exactly(genus.id, other_genus.id, original_genus.id)
+      end
+
+      specify 'subject and object' do
+        query.taxon_name_relationship_type_subject =
+          'TaxonNameRelationship::Typification::Genus'
+        query.taxon_name_relationship_type_object =
+          'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+        expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id)
+      end
+    end
   end
 
   specify '#leaves 1' do
