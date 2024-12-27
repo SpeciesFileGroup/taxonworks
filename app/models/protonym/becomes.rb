@@ -20,11 +20,11 @@ module Protonym::Becomes
         a
       else
         s = a.subject_taxon_name
-        if s.cached_secondary_homonym_alternative_spelling
+        if !s.cached_secondary_homonym_alternative_spelling.blank?
           ids = TaxonName.where(cached_valid_taxon_name_id: s.cached_valid_taxon_name_id).pluck(:id)
           TaxonNameRelationship.where(subject_taxon_name: ids).where("type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Synonym%'").each do |tr|
             o = tr.subject_taxon_name
-            if o.cached_secondary_homonym_alternative_spelling && s.cached_secondary_homonym_alternative_spelling == o.cached_secondary_homonym_alternative_spelling && s.cached_valid_taxon_name_id == o.cached_valid_taxon_name_id
+            if !o.cached_secondary_homonym_alternative_spelling.blank? && s.cached_secondary_homonym_alternative_spelling == o.cached_secondary_homonym_alternative_spelling && s.cached_valid_taxon_name_id == o.cached_valid_taxon_name_id
               a.object_taxon_name_id = o.id
             end
           end

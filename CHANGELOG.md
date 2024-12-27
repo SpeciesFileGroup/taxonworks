@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - CSD: change of namespace not updating [#4147]
+- TaxonWorks bibliography style for book chapter.
 
 [#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
 [#4147]: https://github.com/SpeciesFileGroup/taxonworks/issues/4147
