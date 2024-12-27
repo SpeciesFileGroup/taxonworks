@@ -85,7 +85,9 @@ const relationshipSelected = ref([])
 const mergeLists = ref({})
 const display = ref('subject_status_tag')
 
-const nomenclatureCode = computed(() => params.value.nomenclature_code)
+const nomenclatureCode = computed(
+  () => params.value.nomenclature_code?.toLowerCase()
+)
 
 watch(params, (newVal) => {
   if (!newVal.taxon_name_relationship_type?.length) {
@@ -102,8 +104,9 @@ watch(relationshipSelected,
   { deep: true }
 )
 
-watch(nomenclatureCode, () => {
-  if (relationshipsList.value.length) {
+watch(nomenclatureCode, (newVal) => {
+  // newVal == undefined means 'any code'
+  if (!newVal || relationshipsList.value[newVal]) {
     merge()
   }
 })
@@ -135,7 +138,7 @@ function merge() {
     tree: {}
   }
   const nomenclatureCodes = nomenclatureCode.value
-    ? [nomenclatureCode.value.toLowerCase()]
+    ? [nomenclatureCode.value]
     : Object.keys(relationships)
 
   nomenclatureCodes.forEach((key) => {
