@@ -565,15 +565,16 @@ module Queries
       # @return Scope
       #   wrapped in descendant_facet!
       def taxon_name_relationship_facet(hsh)
-        param_key = hsh['subject_taxon_name_id'] ? 'subject_taxon_name_id' : 'object_taxon_name_id'
-        join_key = hsh['subject_taxon_name_id'] ? 'object_taxon_name_id' : 'subject_taxon_name_id'
+        hsh = hsh.symbolize_keys
+        param_key = hsh[:subject_taxon_name_id] ? :subject_taxon_name_id : :object_taxon_name_id
+        join_key = hsh[:subject_taxon_name_id] ? :object_taxon_name_id : :subject_taxon_name_id
 
         ::TaxonName.where(
           ::TaxonNameRelationship.where(
             ::TaxonNameRelationship.arel_table[join_key].eq(::TaxonName.arel_table[:id]).and(
               ::TaxonNameRelationship.arel_table[param_key].eq(hsh[param_key])
             ).and(
-              ::TaxonNameRelationship.arel_table[:type].eq(hsh['type'])
+              ::TaxonNameRelationship.arel_table[:type].eq(hsh[:type])
             )
           ).arel.exists
         )
