@@ -28,7 +28,8 @@ describe 'HasPapertrail', type: :model, versioning: true do
     let(:user_c) {FactoryBot.create(:valid_user)}
     let(:date_a) { DateTime.new(2025, 1, 1) }
     let(:date_b) { DateTime.new(2025, 1, 3) }
-    let(:date_c) { DateTime.new(2025, 1, 10) }
+    let(:date_c) { DateTime.new(2025, 1, 7) }
+    let(:date_d) { DateTime.new(2025, 1, 10) }
     let!(:untouched) do 
       Current.user_id = user_c.id
       TestHasPapertrail.create!(string: 'ABC')
@@ -36,7 +37,7 @@ describe 'HasPapertrail', type: :model, versioning: true do
     let!(:touched) do
       Timecop.travel(date_a) do
         Current.user_id = user_a.id
-        TestHasPapertrail.create!(string: 'ABC')
+        TestHasPapertrail.create!(string: 'ABC', integer: 42)
       end
     end
 
@@ -48,6 +49,10 @@ describe 'HasPapertrail', type: :model, versioning: true do
       Timecop.travel(date_c) do
         Current.user_id = user_c.id
         touched.update!(string: 'GHI')
+      end
+      Timecop.travel(date_d) do
+        Current.user_id = user_b.id
+        touched.update!(integer: nil)
       end
     end
 
@@ -67,6 +72,10 @@ describe 'HasPapertrail', type: :model, versioning: true do
       it 'returns updater on touched attributes (example 2)' do
         expect(touched.attribute_updater(:string)).to eq(user_c.id)
       end
+
+      it 'returns updater on attributes changed to nil' do
+        expect(touched.attribute_updater(:integer)).to eq(user_b.id)
+      end
     end
     
     describe '#attribute_updated' do
@@ -84,6 +93,10 @@ describe 'HasPapertrail', type: :model, versioning: true do
 
       it 'returns update time of touched attributes (example 2)' do
         expect(touched.attribute_updated(:string)).to be_within(1.minute).of date_c
+      end
+
+      it 'returns update time of attributes changed to nil' do
+        expect(touched.attribute_updated(:integer)).to be_within(1.minute).of date_d
       end
     end
   end
