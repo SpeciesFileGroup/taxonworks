@@ -15,7 +15,7 @@ class DwcOccurrenceRefreshJob < ApplicationJob
       begin
         Current.user_id = user_id # Jobs are run in different threads, in theory.
         o.dwc_occurrence_object.send(:set_dwc_occurrence)
-        o.update(is_stale: nil)
+        o.update_columns(is_stale: nil)
       rescue =>  ex
         ExceptionNotifier.notify_exception(
           ex,
