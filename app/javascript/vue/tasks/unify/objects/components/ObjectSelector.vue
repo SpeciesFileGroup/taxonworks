@@ -32,8 +32,12 @@
     <div v-show="!selected">
       <SmartSelector
         v-if="modelOpts.smartSelector"
+        :autocomplete-url="modelOpts.autocomplete"
+        :autocomplete-params="modelOpts.autocompleteParams"
+        :get-url="modelOpts.getUrl"
         :model="modelOpts.smartSelector"
         :target="modelOpts.target"
+        :klass="modelOpts.klass"
         :filter-ids="excludeIds"
         :label="modelOpts.smartSelectorLabel || 'object_tag'"
         v-model="selected"
@@ -96,7 +100,9 @@ const selected = defineModel({
 const modelOpts = computed(() => TYPE_LINKS[props.model])
 
 function loadObjectById(id) {
-  endpoints[props.model]
+  const service = modelOpts.value.service || endpoints[props.model]
+
+  service
     .find(id)
     .then(({ body }) => {
       selected.value = body

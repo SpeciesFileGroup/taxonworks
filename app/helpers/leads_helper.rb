@@ -49,12 +49,50 @@ module LeadsHelper
   end
 
   def print_key(lead)
-    @index = 0  # TODO: get this out of instance
     metadata = key_metadata(lead)
 
     t = tag.h1(lead.text)
-    t <<  print_key_body(lead, metadata)
+    t << print_key_body(lead, metadata)
     t.html_safe
+  end
+
+  def print_key_table(lead)
+    metadata = key_metadata(lead)
+
+    t = tag.h1(lead.text)
+    t << tag.table(
+      print_key_table_body(lead, metadata),
+      id: 'key_table'
+    )
+
+    t
+  end
+
+  def print_key_table_body(lead, metadata)
+    data = key_data(lead, metadata)
+    x = []
+
+    metadata.keys.each do |k|
+      metadata[k][:children].each do |lid|
+        a = data.dig(lid, :position) == 0 ? metadata.dig(k, :couplet_number).to_s : '&mdash;'
+        b = data.dig(lid, :text)
+
+        if data.dig(lid, :target_label)
+          c = tag.b(data.dig(lid, :target_label))
+        end
+
+        c = 'TODO: PROVIDE ENDPOINT' if c.blank?
+
+        x.push tag.tr(
+          [ tag.td(a.html_safe),
+            tag.td(b),
+            tag.td(c)
+          ].join.html_safe
+        )
+      end
+    end
+
+    x.join.html_safe
   end
 
   def print_key_body(lead, metadata)
@@ -66,15 +104,13 @@ module LeadsHelper
         a = data.dig(lid, :position) == 0 ? metadata.dig(k, :couplet_number).to_s + '.' : '&mdash;'
         b = data.dig(lid, :text)
 
-        if y = tag.b(data.dig(lid, :target_label))
-          c = y
-        else
-          c = metadata.dig(lid, :couplet_number)
+        if data.dig(lid, :target_label)
+          c = tag.b(data.dig(lid, :target_label))
         end
 
         c = 'TODO: PROVIDE ENDPOINT' if c.blank?
 
-        x.push [a,b, '&mldr;', c, '<br/>']
+        x.push [a, b, '&mldr;', c, '<br/>']
       end
       x.push '<br/>'
     end
@@ -84,29 +120,28 @@ module LeadsHelper
 
   # A depth-first traversal that numbers each entry. Renderers
   # navigate this list in order to draw the key.
-  def key_metadata(lead, hsh: {}, depth: 1, couplet_number: 0  )
-    @index ||= 0
+  def key_metadata(lead, hsh: {}, depth: 1, couplet_number: {num: 0}  )
     if lead.children.any?
-      @index += 1
+      couplet_number[:num] += 1
       hsh[lead.id] = {
         children: [],
         parent_id: lead.parent_id,
         position: lead.position,
-        couplet_number: lead.origin_label || @index,
+        couplet_number: lead.origin_label || couplet_number[:num],
         # depth_vector: [depth, lead.parent_id, lead.position],
         depth:
       }
     end
 
-    lead.children.order(:position).each_with_index do |l, i|
+    lead.children.order(:position).each do |l|
       hsh[l.parent_id][:children].push l.id
-      key_metadata(l, hsh:, depth: depth + 1 )
+      key_metadata(l, hsh:, depth: depth + 1, couplet_number:)
     end
 
     hsh
   end
 
-  # An index of lead.id poisting to it's content
+  # An index of lead.id pointing to its content
   def key_data(lead, metadata)
     data = {}
     lead.self_and_descendants.find_each do |l|
@@ -116,7 +151,12 @@ module LeadsHelper
         position: l.position,
       }
 
-      if l.otu
+      if metadata.dig(l.id, :children)&.any?
+        d.merge!(
+          target_label: metadata.dig(l.id, :couplet_number),
+          target_type: :internal,
+        )
+      elsif l.otu
         d.merge!(
           target_label: ( l.otu ? label_for_otu(l.otu) : nil ),
           target_id: l.otu&.id,
@@ -127,11 +167,6 @@ module LeadsHelper
           target_label: l.link_out_text,
           target_type: :link_out,
           target_link: l.link_out
-        )
-      else
-        d.merge!(
-          target_label: metadata.dig(l.id, :couplet_number),
-          target_type: :internal,
         )
       end
 

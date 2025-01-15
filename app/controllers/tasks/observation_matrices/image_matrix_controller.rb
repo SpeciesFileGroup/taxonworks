@@ -10,6 +10,12 @@ class Tasks::ObservationMatrices::ImageMatrixController < ApplicationController
     @key = Tools::ImageMatrix.new(**image_key_params)
   end
 
+  # GET /api/v1/observation_matrices/123/image_matrix.json
+  def api_key
+    @key = Tools::ImageMatrix.new(**image_key_params)
+    render '/observation_matrices/api/v1/image_matrix'
+  end
+
   protected
 
   #params[:observation_matrix_id, :project_id, :observation_matrix, :language_id, :keyword_ids, :row_filter,

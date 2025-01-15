@@ -68,7 +68,7 @@ export const SectionComponents = [
       showForThisGroup(
         ['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'],
         taxon
-      )
+      ) && taxon.id
   },
 
   {

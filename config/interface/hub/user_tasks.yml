@@ -469,7 +469,7 @@ filter_collection_objects_task:
     - filters
   status: prototype
   description: 'Filter collection objects by many different facets, download or visualize results.'
-syncronize_otus_to_nomenclature_task:
+synchronize_otus_to_nomenclature_task:
   hub: true
   name: 'Synchronize nomenclature and OTUs'
   related:
@@ -854,6 +854,7 @@ new_field_occurrence_task:
   categories:
     - collecting_event
     - georeference
+    - new
   status: prototype
   description: 'Link OTUs to collecting events. Used when no physical object was collected and returned to a repository.'
 debug_geographic_item_task:
@@ -918,7 +919,7 @@ field_synchronize_task:
   related:
   categories:
   status: prototype
-  description: 'Batch edit or syncronize the values in one or two fields or data-attribute'
+  description: 'Batch edit or synchronize the values in one or two fields or data-attribute'
 collecting_events_spatial_summary_task:
   hub: false
   name: 'Collecting Event Spatial Summary'
@@ -998,4 +999,10 @@ print_key_task:
   categories:
   status: prototype
   description: 'Format a key for print.'
-
+summarize_projects_controlled_vocabulary_terms_task:
+  hub: true
+  name: 'Controlled vocabulary across projects'
+  related:
+  categories:
+  status: prototype
+  description: 'Visualize controlled vocabulary terms across the projects you are a member of.'

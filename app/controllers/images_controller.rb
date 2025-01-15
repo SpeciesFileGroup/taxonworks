@@ -22,10 +22,14 @@ class ImagesController < ApplicationController
 
   # GET /api/v1/otus/:id/inventory/images
   #  - routed here to take advantage of Pagination
+  #  Fairly limited functionality now.
   def api_image_inventory
     @images = ::Queries::Image::Filter.new(
       params.permit(
-        :otu_id, otu_scope: [])
+        :otu_id,
+        :otu_scope,
+        otu_id: [],
+        otu_scope: [])
     ).all.page(params[:page]).per(params[:per])
     render '/images/api/v1/index'
   end

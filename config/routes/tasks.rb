@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :controlled_vocabulary_terms do
+    scope :projects_summary, controller: 'tasks/controlled_vocabulary_terms/projects_summary' do
+      get '/', action: :index, as: 'summarize_projects_controlled_vocabulary_terms_task'
+    end
+  end
+
   scope :containers do
     scope :new_container, controller: 'tasks/containers/new_container' do
       get '/', action: :index, as: 'new_container_task'
@@ -39,6 +45,7 @@ scope :tasks do
 
     scope :print, controller: 'tasks/leads/print' do
       get '/', action: :index, as: 'print_key_task'
+      get :table, action: :table, as: 'print_key_table_task'
     end
   end
 
@@ -719,10 +726,10 @@ scope :tasks do
       post 'merge', as: 'taxon_name_merge'
     end
 
-    scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
-      get 'index', as: 'syncronize_otus_to_nomenclature_task'
-      post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
-      post 'syncronize', as: 'syncronize_otus_task'
+    scope :synchronize_otus, controller: 'tasks/taxon_names/synchronize_otus' do
+      get 'index', as: 'synchronize_otus_to_nomenclature_task'
+      post 'index', as: 'preview_synchronize_otus_to_nomenclature_task'
+      post 'synchronize', as: 'synchronize_otus_task'
     end
 
     scope :filter, controller: 'tasks/taxon_names/filter' do

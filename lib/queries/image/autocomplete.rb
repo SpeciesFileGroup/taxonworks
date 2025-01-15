@@ -1,6 +1,5 @@
-# TaxonNameAutocompleteQuery
 module Queries
-  module Image 
+  module Image
     class Autocomplete < Query::Autocomplete
 
       # @param [Hash] args
@@ -10,39 +9,39 @@ module Queries
 
       # @return [Arel:Nodes]
       def or_clauses
-        clauses = []
+        return []
+        # clauses = []
 
-        clauses += [
-          #  only_ids,
-          #  cached_facet,
-          #  with_cached_author_year,
-        ] unless exact
+        #  clauses += [
+        #    #  only_ids,
+        #  ] unless exact
 
-        clauses.compact!
+        #  clauses.compact!
 
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.or(b)
-        end
-        a
+        #  a = clauses.shift
+        #  clauses.each do |b|
+        #    a = a.or(b)
+        #  end
+        #  a
       end
 
       # @return [Arel:Nodes, nil]
       def and_clauses
-        clauses = [
-          #  valid_state,
-          #  is_type,
-          #  with_parent_id,
-          #  with_nomenclature_group
-        ].compact
-
-        return nil if clauses.nil?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+        return []
+        # clauses = [
+        #   #  valid_state,
+        #   #  is_type,
+        #   #  with_parent_id,
+        #   #  with_nomenclature_group
+        # ].compact
+        #
+        # return nil if clauses.nil?
+        #
+        # a = clauses.shift
+        # clauses.each do |b|
+        #   a = a.and(b)
+        # end
+        # a
       end
 
       # @return [Arel:Nodes]

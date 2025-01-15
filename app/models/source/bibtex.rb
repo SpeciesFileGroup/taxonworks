@@ -805,10 +805,11 @@ class Source::Bibtex < Source
       end
     end
 
+    translated_title = alternate_values.where(type: 'AlternateValue::Translation', alternate_value_object_attribute: 'title').pluck(:value).first
     a['year-suffix'] = year_suffix if year_suffix.present?
     a['original-date'] = {'date-parts' => [[ stated_year ]]} if stated_year.present? && stated_year.to_s != year.to_s
     a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
-    a['translated-title'] = alternate_values.where(type: 'AlternateValue::Translation', alternate_value_object_attribute: 'title').pluck(:value).first
+    a['translated-title'] = translated_title unless translated_title.blank?
     a['note'] = note
     a.reject! { |k| k == 'note' } if note.blank?
     a
@@ -983,7 +984,7 @@ class Source::Bibtex < Source
         (editor.to_s != get_bibtex_names('editor') && get_bibtex_names('editor').present?) ||
         cached != get_cached ||
         cached_nomenclature_date != nomenclature_date ||
-        cached_author_string.to_s != authority_name(false)
+        cached_author_string.to_s != authority_name(false).to_s
       is_cached = false
     end
 
