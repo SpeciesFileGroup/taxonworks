@@ -46,6 +46,7 @@ module Export::Coldp::Files::Taxon
 
   # Name phrase is for appended phrases like senso stricto and senso lato
   def self.name_phrase(otu, vocab_id)
+    return nil if vocab_id.nil?
     da = DataAttribute.find_by(type: 'InternalAttribute',
                                controlled_vocabulary_term_id: vocab_id,
                                attribute_subject_id: otu.id)
