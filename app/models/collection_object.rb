@@ -82,6 +82,7 @@ class CollectionObject < ApplicationRecord
   include Shared::QueryBatchUpdate
   include SoftValidation
 
+  include Shared::Conveyances
   include Shared::BiologicalExtensions
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence

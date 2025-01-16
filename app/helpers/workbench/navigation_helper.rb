@@ -3,7 +3,7 @@
 # helpers.
 module Workbench::NavigationHelper
 
-  NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRowItem ObservationMatrixColumnItem ObservationMatrixRow ObservationMatrixColumn Note Tag
+  NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRowItem ObservationMatrixColumnItem ObservationMatrixRow ObservationMatrixColumn Note Tag Conveyance
   Citation Identifier DataAttribute AlternateValue TaxonNameClassification
   GeographicArea ContainerItem ProtocolRelationship Download}.freeze
 
@@ -127,7 +127,7 @@ module Workbench::NavigationHelper
     if model.any?
       link_to('List', list_path_for_model(model), 'data-icon' => 'list')
     else
-      content_tag(:span, 'List', class: :disabled, 'data-icon' => 'list')
+      content_tag(:span, "No #{model.name} to list", class: :disabled, 'data-icon' => 'list')
     end
   end
 

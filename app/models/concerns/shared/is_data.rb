@@ -224,6 +224,7 @@ module Shared::IsData
     self.class < Shared::SharedAcrossProjects ? true : false
   end
 
+  # TODO: reconcile with Shared::IsData::Metamorphosize
   # @return [Object]
   #   the same object, but namespaced to the base class
   #   used many places, might be good target for optimization

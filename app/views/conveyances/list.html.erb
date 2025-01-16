@@ -1,0 +1,23 @@
+<%= render("/shared/data/all/list/list_header", objects: @conveyances) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Sound') -%>
+    <%= fancy_th_tag(name: 'Conveyance object') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @conveyances.each do |conveyance| %>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
+          <td><%= sound_link(conveyance.sound) %></td>
+          <td><%= taxon_name_link(conveyance.conveyance_object) %></td>
+          <%= fancy_metadata_cells_tag(conveyance) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
+

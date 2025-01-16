@@ -10,7 +10,6 @@ concern :data_routes do |options|
     get 'batch_load'
     get 'autocomplete'
     get 'search' # TODO: deprecate/remove
-
   end
 
   member do
@@ -103,6 +102,10 @@ resources :confidence_levels, only: [:index] do
     get 'autocomplete'
     get :select_options, defaults: {format: :json}
   end
+end
+
+resources :conveyances do
+  concerns [:data_routes]
 end
 
 resources :collection_objects do
@@ -745,6 +748,10 @@ resources :sequence_relationships do
 end
 
 resources :sled_images, only: [:update, :create, :destroy, :show], defaults: {format: :json} do
+end
+
+resources :sounds do
+  concerns [:data_routes]
 end
 
 resources :sources do

@@ -1,0 +1,19 @@
+<%= form_with(model: sound) do |form| %>
+
+  <%= render 'shared/errors', object: @sound %>
+
+  <div>
+    <%= form.label :name, style: "display: block" %>
+    <%= form.text_area :name %>
+  </div>
+
+  <div>
+    <%= form.label :sound_file, style: "display: block" %>
+    <%= form.file_field :sound_file %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
+

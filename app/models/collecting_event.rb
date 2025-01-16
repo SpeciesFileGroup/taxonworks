@@ -182,6 +182,7 @@
 #
 class CollectingEvent < ApplicationRecord
   include Housekeeping
+  include Shared::OriginRelationship
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Identifiers
@@ -198,6 +199,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::DwcOccurrenceHooks
   include Shared::IsData
 
+
   include CollectingEvent::GeoLocate
   include CollectingEvent::Georeference
 
@@ -206,6 +208,8 @@ class CollectingEvent < ApplicationRecord
   include Shared::QueryBatchUpdate
 
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
+
+  is_origin_for 'Sound'
 
   NEARBY_DISTANCE = 5000
   MINIMUM_ELEVATION = -11000

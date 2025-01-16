@@ -39,11 +39,12 @@ class FieldOccurrence < ApplicationRecord
   # At present must be before IsDwcOccurence
   include FieldOccurrence::DwcExtensions
   include Shared::Taxonomy
-
+  
+  include Shared::Conveyances
   include Shared::BiologicalExtensions
   include Shared::IsDwcOccurrence
 
-  is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence'
+  is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound'
 
   belongs_to :collecting_event, inverse_of: :field_occurrences
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
