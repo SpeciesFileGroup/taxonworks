@@ -42,7 +42,7 @@ class ConveyancesController < ApplicationController
 
     respond_to do |format|
       if @conveyance.save
-        format.html { redirect_to @conveyance, notice: "Conveyance was successfully created." }
+        format.html { redirect_to @conveyance, notice: 'Conveyance was successfully created.' }
         format.json { render :show, status: :created, location: @conveyance }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -55,7 +55,7 @@ class ConveyancesController < ApplicationController
   def update
     respond_to do |format|
       if @conveyance.update(conveyance_params)
-        format.html { redirect_to @conveyance, notice: "Conveyance was successfully updated." }
+        format.html { redirect_to @conveyance, notice: 'Conveyance was successfully updated.' }
         format.json { render :show, status: :ok, location: @conveyance }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -69,7 +69,7 @@ class ConveyancesController < ApplicationController
     @conveyance.destroy!
 
     respond_to do |format|
-      format.html { redirect_to conveyances_path, status: :see_other, notice: "Conveyance was successfully destroyed." }
+      format.html { redirect_to conveyances_path, status: :see_other, notice: 'Conveyance was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -80,6 +80,15 @@ class ConveyancesController < ApplicationController
   end
 
   def conveyance_params
-    params.require(:conveyance).permit(:sound_id, :conveyance_object_id, :conveyance_object_type, :position)
+    params.require(:conveyance).permit(
+      :sound_id, 
+      :conveyance_object_id, 
+      :conveyance_object_type,
+      :position,
+      sound_attributes: [
+        :sound_file,
+        :name
+      ]
+    )
   end
 end

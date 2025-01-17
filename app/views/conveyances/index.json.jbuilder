@@ -1,1 +1,1 @@
-json.array! @conveyances, partial: "conveyances/conveyance", as: :conveyance
+json.array! @conveyances, partial: 'conveyances/attributes', as: :conveyance
