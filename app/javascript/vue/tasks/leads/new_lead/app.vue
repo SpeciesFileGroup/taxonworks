@@ -6,7 +6,7 @@
       :href="RouteNames.LeadsHub"
       data-turbolinks="false"
     >
-      Multifurcating Keys Hub
+      Keys Hub
     </a>
   </p>
   <BlockLayout

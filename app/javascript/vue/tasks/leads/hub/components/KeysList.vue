@@ -109,7 +109,7 @@
           :href="RouteNames.NewLead"
           data-turbolinks="false"
         >
-          New multifurcating key
+          New key
         </a>
         task to create one.
       </div>
