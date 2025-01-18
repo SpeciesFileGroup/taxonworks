@@ -209,7 +209,7 @@ function loadOtusForKey(key) {
       let otus = body
       if (key.otu) {
         // Remove the root otu, which is already displayed.
-        const i = otus.find((otu) => (otu.id == key.otu_id))
+        const i = otus.findIndex((otu) => (otu.id == key.otu_id))
         if (i != -1) {
           otus.splice(i, 1)
         }
