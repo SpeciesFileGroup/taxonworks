@@ -2,7 +2,7 @@ class DwcOccurrenceRefreshJob < ApplicationJob
   queue_as :query_batch_update
 
   def max_run_time
-    2.hour
+    2.hours
   end
 
   def max_attempts
@@ -15,6 +15,7 @@ class DwcOccurrenceRefreshJob < ApplicationJob
       begin
         Current.user_id = user_id # Jobs are run in different threads, in theory.
         o.dwc_occurrence_object.send(:set_dwc_occurrence)
+        o.update_columns(is_stale: nil)
       rescue =>  ex
         ExceptionNotifier.notify_exception(
           ex,
@@ -23,6 +24,5 @@ class DwcOccurrenceRefreshJob < ApplicationJob
         raise
       end
     end
-    q.all.update_all(is_stale: nil)
   end
 end

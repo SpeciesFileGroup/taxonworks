@@ -200,7 +200,7 @@ class SledImage < ApplicationRecord
   end
 
   def process
-    depictions.any? ?  syncronize : create_objects
+    depictions.any? ?  synchronize : create_objects
     true
   end
 
@@ -253,7 +253,7 @@ class SledImage < ApplicationRecord
     true
   end
 
-  def syncronize
+  def synchronize
     if metadata_was == []
       process if !metadata&.empty?
     else

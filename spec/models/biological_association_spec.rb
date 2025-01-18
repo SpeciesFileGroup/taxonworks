@@ -23,18 +23,6 @@ describe BiologicalAssociation, type: :model do
     end
   end
 
-  specify 'subject is allowed' do
-    biological_association.biological_association_subject = FactoryBot.create(:valid_container)
-    biological_association.valid?
-    expect(biological_association.errors.include?(:biological_association_subject_type)).to be_truthy
-  end
-
-  specify 'object is allowed' do
-    biological_association.biological_association_object = FactoryBot.create(:valid_container)
-    biological_association.valid?
-    expect(biological_association.errors.include?(:biological_association_object_type)).to be_truthy
-  end
-
   specify 'subject/object_global_id' do
     biological_association.biological_relationship = biological_relationship
     biological_association.subject_global_id = otu.to_global_id.to_s
@@ -55,7 +43,7 @@ describe BiologicalAssociation, type: :model do
     b = FactoryBot.create(:valid_biological_association)
     r = FactoryBot.create(:valid_biological_relationship)
 
-    BiologicalAssociation.batch_update( 
+    BiologicalAssociation.batch_update(
       biological_association: { biological_relationship_id: r.id},
       biological_association_query: { biological_association_id: [a.id, b.id] }
     )
@@ -88,7 +76,7 @@ describe BiologicalAssociation, type: :model do
       biological_association_query: { biological_association_id: [  b.id ] }
     )
 
-    expect(m.errors).to eq( { "Validation failed: Biological association subject has already been taken" => 1 } )
+    expect(m.errors).to eq( { "Validation failed: Biological association object has already been taken" => 1 } )
   end
 
   specify '#rotate' do

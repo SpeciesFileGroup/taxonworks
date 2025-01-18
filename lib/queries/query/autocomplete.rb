@@ -232,8 +232,7 @@ module Queries
     #   default the autocomplete result to all
     #   TODO: eliminate
     def autocomplete
-      # Probably: super this
-      # return [] if query_term.blank?
+      return [] if query_string.blank?
       all.to_a
     end
 
@@ -258,6 +257,15 @@ module Queries
       a = match_wildcard_in_cached
       return nil if a.nil?
       base_query.where(a.to_sql)
+    end
+
+    # @return [ActiveRecord::Relation, nil]
+    #   cached matches full query string wildcarded
+    # TODO: Used in taxon_name, source, identifier
+    def cached_facet
+      return nil if no_terms?
+      # TODO: or is redundant with terms in many cases
+      (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
     end
 
     # @return [ActiveRecord::Relation]

@@ -226,7 +226,7 @@ module Queries
       end
 
       #    def autocomplete_cached
-      #      base_query.where(table[:cached].eq(query_term))
+      #      base_query.where(table[:cached].eq(query_string))
       #    end
 
       # ---- gin methods

@@ -103,12 +103,6 @@ import ContextMenu from './components/contextMenu'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
-const DOM_EVENT = {
-  Update: 'radialAnnotator:update',
-  Close: 'radialAnnotator:close',
-  Open: 'radialAnnotator:open'
-}
-
 defineOptions({
   name: 'RadialAnnotator'
 })
@@ -347,7 +341,11 @@ const handleEmitRadial = {
     emit('update', { item, slice: currentAnnotator.value })
   },
   change(item) {
-    emit('change', { item, metadata, slice: currentAnnotator.value })
+    emit('change', {
+      item,
+      metadata: metadata.value,
+      slice: currentAnnotator.value
+    })
   },
   count(total) {
     setTotal(total)
@@ -357,7 +355,6 @@ const handleEmitRadial = {
 function closeModal() {
   isVisible.value = false
   emit('close')
-  eventClose()
   removeListener()
 }
 
@@ -365,7 +362,6 @@ async function displayAnnotator() {
   isVisible.value = true
   await loadMetadata()
   alreadyTagged()
-  eventOpen()
   setShortcutsEvent()
 }
 
@@ -392,35 +388,7 @@ function setTotal(total) {
 
   if (total !== sliceMetadata.total) {
     sliceMetadata.total = total
-    eventUpdate()
   }
-}
-
-function eventOpen() {
-  const event = new CustomEvent(DOM_EVENT.Open, {
-    detail: {
-      metadata: metadata.value
-    }
-  })
-  document.dispatchEvent(event)
-}
-
-function eventUpdate() {
-  const event = new CustomEvent(DOM_EVENT.Update, {
-    detail: {
-      metadata: metadata.value
-    }
-  })
-  document.dispatchEvent(event)
-}
-
-function eventClose() {
-  const event = new CustomEvent(DOM_EVENT.Close, {
-    detail: {
-      metadata: metadata.value
-    }
-  })
-  document.dispatchEvent(event)
 }
 
 function createTag() {

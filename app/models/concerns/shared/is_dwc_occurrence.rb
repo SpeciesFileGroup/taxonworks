@@ -54,7 +54,7 @@ module Shared::IsDwcOccurrence
     retried = false
     begin
       if dwc_occurrence_persisted?
-        dwc_occurrence.generate_uuid_if_required # TODO: at some point when syncronized make this optional
+        dwc_occurrence.generate_uuid_if_required # TODO: at some point when synchronized make this optional
         dwc_occurrence.update_columns(dwc_occurrence_attributes)
         dwc_occurrence.touch(:updated_at)
       else

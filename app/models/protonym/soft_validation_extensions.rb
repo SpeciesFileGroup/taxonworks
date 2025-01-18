@@ -273,6 +273,12 @@ module Protonym::SoftValidationExtensions
         description: 'Two taxa should be homotypic synonyms if they share the same type'
       },
 
+      sv_missing_infrasubspecific_status: {
+        set: :missing_infrasubspecific_status,
+        name: 'Missing infrasubspecific status',
+        description: 'The name described as variety or form after 1960 should be treated as infrasubspecific'
+      },
+
       sv_family_is_invalid: {
         set: :family_is_invalid,
         name: 'Invalid family',
@@ -1466,6 +1472,12 @@ module Protonym::SoftValidationExtensions
     def sv_missing_original_genus
       if is_genus_or_species_rank? && self.original_genus.nil? && !not_binominal?
         soft_validations.add(:base, 'Missing relationship: Original genus is not selected')
+      end
+    end
+
+    def sv_missing_infrasubspecific_status
+      if nomenclatural_code == :iczn && (self.cached_original_combination&.include?(' var. ') || self.cached_original_combination&.include?(' f. ')) && self.cached_nomenclature_date&.year.to_i > 1960 && is_available?(refresh = true)
+        soft_validations.add(:base, 'Missing status. The name described as variety or form after 1960 should be treated as infrasubspecific (it is nevertheless deemed to be subspecific if, before 1985, it was either adopted as the valid name or was treated as a senior homonym).')
       end
     end
 
