@@ -21,10 +21,6 @@ const permitParams = {
 export const Lead = {
   ...baseCRUD(controller, permitParams),
 
-  update_meta: (id, params) => AjaxCall(
-    'patch', `/${controller}/${id}/update_meta.json`, params
-  ),
-
   insert_couplet: (id) => AjaxCall(
     'post', `/${controller}/${id}/insert_couplet.json`
   ),

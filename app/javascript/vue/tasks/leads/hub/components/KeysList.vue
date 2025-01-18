@@ -183,7 +183,7 @@ function changeIsPublicState(key) {
     extend: ['updater', 'updated_at_in_words']
   }
 
-  Lead.update_meta(key.id, payload)
+  Lead.update(key.id, payload)
     .then(({ body }) => {
       const updatedKey = {
         ...body.lead,

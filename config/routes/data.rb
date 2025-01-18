@@ -441,7 +441,6 @@ resources :leads do
   member do
     post :create_for_edit, defaults: {format: :json}
     post :insert_couplet, defaults: {format: :json}
-    patch :update_meta, defaults: {format: :json}
     post :destroy_children, defaults: {format: :json}
     post :delete_children, defaults: {format: :json}
     post :duplicate

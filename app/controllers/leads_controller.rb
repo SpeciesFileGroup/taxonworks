@@ -3,7 +3,7 @@ class LeadsController < ApplicationController
   before_action :set_lead, only: %i[
     edit create_for_edit update destroy show show_all show_all_print
     redirect_option_texts destroy_children insert_couplet delete_children
-    duplicate update_meta otus destroy_subtree swap insert_key]
+    duplicate otus destroy_subtree swap insert_key]
 
   # GET /leads
   # GET /leads.json
@@ -101,7 +101,6 @@ class LeadsController < ApplicationController
 
   # PATCH/PUT /leads/1.json
   def update
-    @lead = Lead.find(params[:lead][:id])
     begin
       @lead.update!(lead_params)
       # Note that future changes when redirect is updated.
@@ -226,17 +225,6 @@ class LeadsController < ApplicationController
     end
 
     head :no_content
-  end
-
-  # PATCH /leads/1/update_meta.json
-  def update_meta
-    respond_to do |format|
-      if @lead.update(lead_params)
-        format.json {}
-      else
-        format.json { render json: @lead.errors, status: :unprocessable_entity}
-      end
-    end
   end
 
   # PATCH /leads/1/swap.json
