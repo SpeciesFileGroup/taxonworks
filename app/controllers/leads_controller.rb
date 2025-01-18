@@ -36,20 +36,7 @@ class LeadsController < ApplicationController
 
   # GET /leads/1/redirect_option_texts.json
   def redirect_option_texts
-    leads = Lead
-      .select(:id, :text, :origin_label)
-      .with_project_id(sessions_current_project_id)
-      .order(:text)
-    ancestor_ids = @lead.ancestor_ids
-    @texts = leads.filter_map { |o|
-      if o.id != @lead.id && !ancestor_ids.include?(o.id)
-        {
-          id: o.id,
-          label: o.origin_label,
-          text: o.text.nil? ? '' : o.text.truncate(40)
-        }
-      end
-    }
+    @texts = @lead.redirect_options(sessions_current_project_id)
   end
 
   # GET /leads/1

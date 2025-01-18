@@ -315,6 +315,24 @@ class Lead < ApplicationRecord
     return load_root_otus ? root_leads.includes(:otu) : root_leads
   end
 
+  def redirect_options(project_id)
+    leads = Lead
+      .select(:id, :text, :origin_label)
+      .with_project_id(project_id)
+      .order(:text)
+    anc_ids = ancestor_ids()
+
+    leads.filter_map do |o|
+      if o.id != id && !anc_ids.include?(o.id)
+        {
+          id: o.id,
+          label: o.origin_label,
+          text: o.text.nil? ? '' : o.text.truncate(40)
+        }
+      end
+    end
+  end
+
   private
 
   # Appends `nodes`` to the children of `new_parent``, in their given order.
