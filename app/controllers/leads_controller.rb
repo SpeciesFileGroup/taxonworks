@@ -243,9 +243,7 @@ class LeadsController < ApplicationController
 
   # GET /leads/1/otus.json
   def otus
-    leads_list = @lead.self_and_descendants.where.not(otu_id: nil).includes(:otu)
-
-    @otus = leads_list.to_a.map(&:otu).uniq(&:id)
+    @otus = Otu.associated_with_key(@lead)
   end
 
   def autocomplete
