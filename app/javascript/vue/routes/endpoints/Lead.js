@@ -29,8 +29,8 @@ export const Lead = {
     'get', `/${controller}/${id}/edit.json`
   ),
 
-  create_for_edit: (id) => AjaxCall(
-    'post', `/${controller}/${id}/create_for_edit.json`
+  add_children: (id, params) => AjaxCall(
+    'post', `/${controller}/${id}/add_children.json`, params
   ),
 
   redirect_option_texts: (id) => AjaxCall(
@@ -47,10 +47,6 @@ export const Lead = {
 
   otus: (id) => AjaxCall(
     'get', `/${controller}/${id}/otus.json`
-  ),
-
-  add_lead: (id) => AjaxCall(
-    'post', `/${controller}/${id}/add_lead.json`
   ),
 
   destroy_subtree: (id) => AjaxCall(

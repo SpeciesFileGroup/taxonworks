@@ -266,7 +266,9 @@ function nextCouplet() {
     store.loadKey(store.last_saved.children[props.position].redirect_id)
   } else {
     loading.value = true
-    LeadEndpoint.create_for_edit(store.children[props.position].id)
+    LeadEndpoint.add_children(
+      store.children[props.position].id, { num_to_add: 2 }
+    )
       .then(({ body }) => {
         store.loadKey(body)
       })

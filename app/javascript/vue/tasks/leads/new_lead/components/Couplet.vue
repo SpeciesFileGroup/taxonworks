@@ -293,7 +293,7 @@ function saveChanges() {
 
 function nextCouplet() {
   loading.value = true
-  LeadEndpoint.create_for_edit(store.lead.id)
+  LeadEndpoint.add_children(store.lead.id, { num_to_add: 2 })
     .then(({ body }) => {
       store.loadKey(body)
       emit('editingHasOccurred')
@@ -306,9 +306,9 @@ function nextCouplet() {
 
 function addLead() {
   loading.value = true
-  LeadEndpoint.add_lead(store.lead.id)
+  LeadEndpoint.add_children(store.lead.id, { num_to_add: 1 })
     .then(({ body }) => {
-      store.addLead(body)
+      store.loadKey(body)
       TW.workbench.alert.create('Added a new lead.', 'notice')
     })
     .catch(() => {})

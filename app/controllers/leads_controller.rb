@@ -1,7 +1,7 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_lead, only: %i[
-    edit create_for_edit update destroy show show_all show_all_print
+    edit add_children update destroy show show_all show_all_print
     redirect_option_texts destroy_children insert_couplet delete_children
     duplicate otus destroy_subtree reorder_children insert_key]
 
@@ -69,15 +69,6 @@ class LeadsController < ApplicationController
     redirect_to new_lead_task_path lead_id: @lead.id
   end
 
-  # POST /leads/1/create_for_edit.json
-  def create_for_edit
-    if @lead.children.size == 0
-      new_couplet
-    end
-    expand_lead
-    render action: :show, status: :created, location: @lead
-  end
-
   # POST /leads
   # POST /leads.json
   def create
@@ -91,6 +82,24 @@ class LeadsController < ApplicationController
         format.json { render json: @lead.errors, status: :unprocessable_entity}
       end
     end
+  end
+
+  # POST /leads/1/add_children.json
+  def add_children
+    num_to_add = params[:num_to_add]
+    if num_to_add < 1 || num_to_add > 2
+      @lead.errors.add(:add_children,
+        "request must be for 1 or 2, was '#{num_to_add}'"
+      )
+      render json: @lead.errors, status: :unprocessable_entity
+      return
+    end
+
+    num_to_add.times do
+      @lead.children.create!
+    end
+    expand_lead
+    render action: :show, status: :created, location: @lead
   end
 
   # POST /leads/1/insert_couplet.json
@@ -187,12 +196,6 @@ class LeadsController < ApplicationController
         }
       end
     end
-  end
-
-  # POST /leads/1/add_lead.json
-  def add_lead
-    parent = Lead.find(params[:id])
-    @lead = parent.children.create!
   end
 
   # POST /leads/1/duplicate.html
