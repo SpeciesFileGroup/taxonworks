@@ -303,14 +303,22 @@ function deleteSubTree() {
 }
 
 function changeLeadPosition(direction) {
+  let childOrderList = [...Array(store.children.length).keys()]
+  if (direction == DIRECTIONS.left) {
+    childOrderList[props.position] = props.position - 1
+    childOrderList[props.position - 1] = props.position
+  }  else {
+    childOrderList[props.position] = props.position + 1
+    childOrderList[props.position + 1] = props.position
+  }
   const payload = {
-    direction
+    reorder_list: childOrderList
   }
 
   loading.value = true
-  LeadEndpoint.swap(store.children[props.position].id, payload)
+  LeadEndpoint.reorder_children(store.lead.id, payload)
     .then(({ body }) => {
-      store.swapLeads(body)
+      store.resetChildren(body.leads, body.futures)
 
       const direction_word = (direction == DIRECTIONS.left) ? 'left' : 'right'
       TW.workbench.alert.create('Moved lead ' + direction_word, 'notice')

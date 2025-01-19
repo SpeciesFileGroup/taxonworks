@@ -285,41 +285,25 @@ RSpec.describe Lead, type: :model do
         .to eq('(COPY OF) ' + title)
     end
 
-    context '#swap' do
-      specify '#swap left return data' do
-        swap_result = lm.swap('L')
-        lm.reload
-        ll.reload
-        expect(swap_result[:positions]).to eq [lm.position, ll.position]
-        expect(swap_result[:leads]).to eq [lm, ll]
-      end
-
-      specify '#swap left db result' do
-        lm.swap('L')
+    context '#reorder_children' do
+      specify '#reorder_children swap adjacent positions' do
+        l.reorder_children([1, 0, 2])
         l.reload
         expect(l.children[0].text).to eq 'lm'
         expect(l.children[1].text).to eq 'll'
         expect(l.children[2].text).to eq 'lr'
       end
 
-      specify '#swap right return data' do
-        swap_result = ll.swap('R')
-        ll.reload
-        lm.reload
-        expect(swap_result[:positions]).to eq [ll.position, lm.position]
-        expect(swap_result[:leads]).to eq [ll, lm]
-      end
-
-      specify '#swap right db result' do
-        ll.swap('R')
+      specify '#reorder_children change all positions' do
+        l.reorder_children([2, 0, 1])
         l.reload
         expect(l.children[0].text).to eq 'lm'
-        expect(l.children[1].text).to eq 'll'
-        expect(l.children[2].text).to eq 'lr'
+        expect(l.children[1].text).to eq 'lr'
+        expect(l.children[2].text).to eq 'll'
       end
 
-      specify "#swap moves children's descendants with children" do
-        lm.swap('R')
+      specify "#reorder_children moves children's descendants with children" do
+        l.reorder_children([0, 2, 1])
         l.reload
         # lr's children went with lr
         expect(l.children[1].children.count).to eq 2

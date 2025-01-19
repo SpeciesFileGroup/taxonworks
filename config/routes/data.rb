@@ -448,7 +448,7 @@ resources :leads do
     get :otus, defaults: {format: :json}
     post :add_lead, defaults: {format: :json}
     post :destroy_subtree, defaults: {format: :json}
-    patch :swap, defaults: {format: :json}
+    patch :reorder_children, defaults: {format: :json}
     post :insert_key, defaults: {format: :json}
   end
 end

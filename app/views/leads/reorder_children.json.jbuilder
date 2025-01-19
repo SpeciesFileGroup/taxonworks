@@ -4,5 +4,4 @@ json.leads do
   end
 end
 
-json.positions @positions
 json.futures @futures

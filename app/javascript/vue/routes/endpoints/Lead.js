@@ -57,8 +57,8 @@ export const Lead = {
     'post', `/${controller}/${id}/destroy_subtree.json`
   ),
 
-  swap: (id, params) => AjaxCall(
-    'patch', `/${controller}/${id}/swap.json`, params
+  reorder_children: (parent_id, params) => AjaxCall(
+    'patch', `/${controller}/${parent_id}/reorder_children.json`, params
   ),
 
   insert_key: (id, params) => AjaxCall(

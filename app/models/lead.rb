@@ -242,29 +242,21 @@ class Lead < ApplicationRecord
     result
   end
 
-  # Return value always lists self first.
-  def swap(direction)
-    if ((direction == 'L' && node_position == :left) ||
-        (direction == 'R' && node_position == :right) ||
-        node_position == :root)
-      return { positions: [], leads: [] }
-    end
+  # @param reorder_list [Array] array of 0-based positions in which to order
+  #  the children of this lead.
+  # Raises TaxonWorks::Error on error.
+  def reorder_children(reorder_list)
+    validate_reorder_list(reorder_list, children.count)
 
-    swapee = nil
-    if direction == 'L'
-      swapee_position = position - 1
-      swapee = parent.children[swapee_position]
-      append_sibling(swapee)
-    else
-      swapee_position = position + 1
-      swapee = parent.children[swapee_position]
-      prepend_sibling(swapee)
+    i = 0
+    Lead.transaction do
+      children.each do |c|
+        if (new_position = reorder_list[i]) != i
+          c.update_column(:position, new_position)
+        end
+        i = i + 1
+      end
     end
-
-    return {
-      leads: [self, swapee],
-      positions: [position, swapee.position]
-    }
   end
 
   # @return [ActiveRecord::Relation] ordered by text.
@@ -348,6 +340,15 @@ class Lead < ApplicationRecord
         last_sibling.append_sibling(n)
       end
       last_sibling = n
+    end
+  end
+
+  # Raises TaxonWorks::Error on error.
+  def validate_reorder_list(reorder_list, expected_length)
+    if reorder_list.sort.uniq != (0..expected_length - 1).to_a
+      raise TaxonWorks::Error,
+        "Bad reorder list: #{reorder_list}"
+      return
     end
   end
 

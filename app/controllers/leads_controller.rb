@@ -3,7 +3,7 @@ class LeadsController < ApplicationController
   before_action :set_lead, only: %i[
     edit create_for_edit update destroy show show_all show_all_print
     redirect_option_texts destroy_children insert_couplet delete_children
-    duplicate otus destroy_subtree swap insert_key]
+    duplicate otus destroy_subtree reorder_children insert_key]
 
   # GET /leads
   # GET /leads.json
@@ -227,17 +227,17 @@ class LeadsController < ApplicationController
     head :no_content
   end
 
-  # PATCH /leads/1/swap.json
-  def swap
-    swap_result = @lead.swap(params['direction'])
-    if swap_result[:leads].empty?
-      @lead.errors.add(:swap, 'failed, attempted to move lead off the end')
+  # PATCH /leads/1/reorder_children.json
+  def reorder_children
+    begin
+      @lead.reorder_children(reorder_params[:reorder_list])
+    rescue TaxonWorks::Error => e
+      @lead.errors.add(:reorder_failed, e.to_s)
       render json: @lead.errors, status: :unprocessable_entity
       return
     end
 
-    @leads = swap_result[:leads]
-    @positions = swap_result[:positions]
+    @leads = @lead.reload.children
     @futures = @leads.map(&:future)
   end
 
@@ -288,6 +288,10 @@ class LeadsController < ApplicationController
       :otu_id, :text, :origin_label, :description, :redirect_id,
       :link_out, :link_out_text, :is_public, :position
     )
+  end
+
+  def reorder_params
+    params.permit(reorder_list: [])
   end
 
   def expand_lead
