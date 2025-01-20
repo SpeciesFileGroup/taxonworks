@@ -71,6 +71,7 @@ const WITH_PARAMS = [
   'common_names',
   'confidences',
   'contents',
+  'conveyances',
   'data_depictions',
   'depictions',
   'determinations',
