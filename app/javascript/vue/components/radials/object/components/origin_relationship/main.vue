@@ -108,7 +108,8 @@ const controllerRoute = {
   Extract: 'extracts',
   Lot: 'collection_objects',
   Sequence: 'sequences',
-  Specimen: 'collection_objects'
+  Specimen: 'collection_objects',
+  Sound: 'sounds'
 }
 
 const props = defineProps({
