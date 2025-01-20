@@ -1,13 +1,26 @@
 <template>
   <div>
+    <VSpinner
+      v-if="isSaving"
+      legend="Saving..."
+    />
+    <ConveyanceEdit
+      v-if="currentConveyance"
+      :conveyence="currentConveyance"
+      @new="() => setConveyance(null)"
+      @update="update"
+    />
     <ConveyanceUpload
+      v-else
       :object-id="objectId"
       :object-type="objectType"
       @add="addToList"
     />
     <ConveyanceList
+      v-if="!currentConveyance"
       :list="list"
       @remove="removeFromList"
+      @select="setConveyance"
     />
   </div>
 </template>
@@ -15,9 +28,11 @@
 <script setup>
 import { Conveyance } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, ref } from 'vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import ConveyanceList from './ConveyanceList.vue'
 import ConveyanceUpload from './ConveyanceUpload.vue'
+import ConveyanceEdit from './ConveyenceEdit.vue'
 
 const props = defineProps({
   objectId: {
@@ -36,6 +51,8 @@ const props = defineProps({
   }
 })
 
+const isSaving = ref(false)
+const currentConveyance = ref(null)
 const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
 })
@@ -47,6 +64,30 @@ function loadConveyance() {
   }).then(({ body }) => {
     list.value = body
   })
+}
+
+function setConveyance(conveyance) {
+  currentConveyance.value = conveyance
+}
+
+function update(conveyance) {
+  console.log(conveyance)
+  Conveyance.update(conveyance.id, {
+    conveyance
+  })
+    .then(({ body }) => {
+      setConveyance(null)
+      removeFromList(body)
+
+      TW.workbench.alert.create(
+        'Conveyance was successfully updated.',
+        'notice'
+      )
+    })
+    .catch(() => {})
+    .finally(() => {
+      isSaving.value = false
+    })
 }
 
 onBeforeMount(() => loadConveyance())

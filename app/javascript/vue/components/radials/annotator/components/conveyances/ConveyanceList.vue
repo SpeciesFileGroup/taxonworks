@@ -20,9 +20,18 @@
           />
         </td>
         <td>
-          <div class="horizontal-left-content gap-small">
+          <div class="horizontal-right-content gap-small">
             <RadialAnnotator :global-id="conveyance.global_id" />
-
+            <VBtn
+              color="primary"
+              circle
+              @click="() => emit('select', conveyance)"
+            >
+              <VIcon
+                name="pencil"
+                x-small
+              />
+            </VBtn>
             <VBtn
               color="destroy"
               circle
@@ -52,5 +61,5 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['remove'])
+const emit = defineEmits(['select', 'remove'])
 </script>
