@@ -14,7 +14,7 @@ class ConveyancesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @conveyances = Conveyance
+        @conveyances = Queries::Conveyance::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
           .where(Queries::Annotator::polymorphic_params(params, Conveyance)) # TODO: -> configured?
