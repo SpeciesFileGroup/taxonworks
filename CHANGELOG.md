@@ -12,15 +12,26 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New image task: Add field occurrence to depict some list [#4135]
 - Grab cursor to make sorting feature visible [#4153]
 - API endpoint for image matrix
+- Distribution to COLDP exports [#3148]
+- SpeciesInteraction to COLDP exports [#3158]
+- Pull metadata from ChecklistBank in order to merge updated metadata into COLDP exports
+- Add Taxon links to COLDP exports
 
 ### Fixed
 
 - CSD: change of namespace not updating [#4147]
 - TaxonWorks bibliography style for book chapter.
+- Removed obsolete Description table from COLDP exports
+- Remove [sic] from COLDP name fields [#3833]
+- Autonym synonyms bug in COLDP exporter [#4175]
 
+[#3148]: https://github.com/SpeciesFileGroup/taxonworks/issues/3148
+[#3158]: https://github.com/SpeciesFileGroup/taxonworks/issues/3158
+[#3833]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
 [#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
 [#4147]: https://github.com/SpeciesFileGroup/taxonworks/issues/4147
 [#4153]: https://github.com/SpeciesFileGroup/taxonworks/issues/4153
+[#4175]: https://github.com/SpeciesFileGroup/taxonworks/issues/4175
 
 ## [0.46.1] - 2024-12-04
 
