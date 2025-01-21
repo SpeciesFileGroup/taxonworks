@@ -75,15 +75,20 @@ class Lead < ApplicationRecord
     redirect_id.blank? ? all_children : redirect.all_children
   end
 
-  # Returns string on error, true on success
+  # @return [Boolean] true on success, false on error
   def dupe
-    return 'Can only call dupe on a root lead' if parent_id
+    if parent_id
+      errors.add(:base, 'Can only call dupe on a root lead')
+      return false
+    end
+
     begin
       Lead.transaction do
         dupe_in_transaction(self, parent_id)
       end
     rescue ActiveRecord::RecordInvalid => e
-      return e.to_s
+      errors.add(:base, "dup failed: #{e}")
+      return false
     end
 
     true
@@ -105,9 +110,12 @@ class Lead < ApplicationRecord
     end
   end
 
-  # Returns string on error, true on success
+  # Return [Boolean] true on success, false on failure
   def insert_key(id)
-    return 'Id of key to insert not provided' if id.nil?
+    if id.nil?
+      errors.add(:base, 'Id of key to insert not provided')
+      return false
+    end
     begin
       Lead.transaction do
         key_to_insert = Lead.find(id)
@@ -135,11 +143,14 @@ class Lead < ApplicationRecord
         add_child(duped_root)
       end
     rescue ActiveRecord::RecordNotFound => e
-      return e.to_s
+      errors.add(:base, "Insert key failed: #{e}")
+      return false
     rescue TaxonWorks::Error => e
-      return e.to_s
+      errors.add(:base, "Insert key failed: #{e}")
+      return false
     rescue ActiveRecord::RecordInvalid => e
-      return e.to_s
+      errors.add(:base, "Insert key failed: #{e}")
+      return false
     end
 
     true

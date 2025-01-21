@@ -203,11 +203,10 @@ class LeadsController < ApplicationController
     respond_to do |format|
       format.html {
         if !@lead.parent_id
-          rv = @lead.dupe
-          if rv != true
-            flash[:error] = rv
-          else
+          if @lead.dupe
             flash[:notice] = 'Key cloned.'
+          else
+            flash[:error] = @lead.errors.full_messages.join('; ')
           end
         else
           flash[:error] = 'Clone aborted - you can only clone on a root node.'
@@ -220,9 +219,7 @@ class LeadsController < ApplicationController
 
   # POST /leads/1/insert_key.json?key_to_insert=:id
   def insert_key
-    rv = @lead.insert_key(params[:key_to_insert])
-    if rv != true
-      @lead.errors.add(:insert_key, "failed: '#{rv}'")
+    if !@lead.insert_key(params[:key_to_insert])
       render json: @lead.errors, status: :unprocessable_entity
       return
     end
