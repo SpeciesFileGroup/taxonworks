@@ -9,7 +9,7 @@
         </div>
 
         <div class="attributes">
-          <%= button_to 'Edit', edit_user_path(@user), method: :get, class: 'button-default' %><br>
+          <%= button_to 'Edit', edit_user_path(@user), method: :get, class: 'button btn-primary btn btn-medium-size' %><br>
           <%= render 'attributes' %>
         </div>
 
@@ -53,7 +53,7 @@
 
       <h3>General</h3>
       <%= form_for @user, url: reset_preferences_user_path(@user), method: :patch do |f| %>
-        <%= f.submit "Reset" , class: 'button-submit' %> <%= tag.span 'Warning, this will reset all preferences aross all projects!', class: [:feedback, 'feedback-thin', 'feedback-danger'] %>
+        <%= f.submit "Reset" , class: 'button btn btn-medium-size button-submit' %> <%= tag.span 'Warning, this will reset all preferences aross all projects!', class: [:feedback, 'feedback-thin', 'feedback-danger'] %>
       <% end %>
 
       <%= ap(@user.preferences).html_safe %>

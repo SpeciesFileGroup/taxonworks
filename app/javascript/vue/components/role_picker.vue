@@ -117,7 +117,7 @@
     >
       <template #item="{ element, index }">
         <li
-          class="list-complete-item flex-separate middle"
+          class="list-complete-item flex-separate middle cursor-grab"
           v-if="!element._destroy && filterRole(element)"
         >
           <a

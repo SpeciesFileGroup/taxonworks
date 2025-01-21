@@ -10,8 +10,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - New image task: Add field occurrence to depict some list [#4135]
+- Grab cursor to make sorting feature visible [#4153]
+- API endpoint for image matrix
+
+### Fixed
+
+- CSD: change of namespace not updating [#4147]
+- TaxonWorks bibliography style for book chapter.
 
 [#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
+[#4147]: https://github.com/SpeciesFileGroup/taxonworks/issues/4147
+[#4153]: https://github.com/SpeciesFileGroup/taxonworks/issues/4153
 
 ## [0.46.1] - 2024-12-04
 
