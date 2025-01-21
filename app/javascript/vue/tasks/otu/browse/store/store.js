@@ -13,7 +13,8 @@ function makeInitialState() {
       collectionObjects: true,
       descendants: false,
       descendantsDistribution: false,
-      distribution: true
+      distribution: true,
+      conveyances: false
     },
     preferences: {
       preferenceSchema: 20231017,
@@ -116,6 +117,7 @@ function makeInitialState() {
     typeMaterials: [],
     depictions: [],
     commonNames: [],
+    conveyances: [],
     descendants: {
       taxon_names: [],
       collecting_events: [],

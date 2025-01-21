@@ -15,6 +15,10 @@ export default {
     title: 'Images',
     status: 'prototype'
   },
+  ConveyanceComponent: {
+    title: 'Sounds',
+    status: 'prototype'
+  },
   CommonNames: {
     title: 'Common names',
     status: 'prototype'

@@ -15,6 +15,7 @@ export default async ({ dispatch, commit, state }, otus) => {
     await Promise.all([
       dispatch(ActionNames.LoadBiologicalAssociations, otu.global_id),
       dispatch(ActionNames.LoadDepictions, otu.id),
+      dispatch(ActionNames.LoadConveyances, otu.id),
       dispatch(ActionNames.LoadCommonNames, otu.id)
     ])
   }

@@ -4,6 +4,7 @@ const ActionNames = {
   LoadCollectionObjects: 'loadCollectionObjects',
   LoadCollectingEvents: 'loadCollectingEvents',
   LoadCommonNames: 'loadCommonNames',
+  LoadConveyances: 'loadConveyances',
   LoadDepictions: 'loadDepictions',
   LoadDistribution: 'loadDistribution',
   LoadPreferences: 'loadPreferences',
