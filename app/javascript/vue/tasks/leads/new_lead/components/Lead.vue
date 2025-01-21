@@ -291,10 +291,10 @@ function deleteSubTree() {
   loading.value = true
   LeadEndpoint.destroy_subtree(store.children[props.position].id)
     .then(() => {
-      store.deleteChild(props.position)
-      const noticeText = leadHasChildren
+      const noticeText = (leadHasChildren.value
         ? 'Lead and descendants deleted.'
-        : 'Lead deleted'
+        : 'Lead deleted')
+      store.deleteChild(props.position)
       TW.workbench.alert.create(noticeText, 'notice')
       emit('editingHasOccurred')
     })
