@@ -20,6 +20,11 @@ const props = defineProps({
   url: {
     type: String,
     required: true
+  },
+
+  width: {
+    type: String,
+    default: '100%'
   }
 })
 

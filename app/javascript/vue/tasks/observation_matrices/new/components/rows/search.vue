@@ -43,7 +43,7 @@ import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import ObservationTypes from '../../const/types.js'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker'
-import { COLLECTION_OBJECT, OTU, EXTRACT } from '@/constants/index.js'
+import { COLLECTION_OBJECT, OTU, EXTRACT, SOUND } from '@/constants/index.js'
 
 export default {
   components: {
@@ -66,7 +66,8 @@ export default {
       autocompleteType: {
         [OTU]: '/otus/autocomplete',
         [COLLECTION_OBJECT]: '/collection_objects/autocomplete',
-        [EXTRACT]: '/extracts/autocomplete'
+        [EXTRACT]: '/extracts/autocomplete',
+        [SOUND]: '/sounds/autocomplete'
       },
       types: ObservationTypes.Row,
       type: OTU

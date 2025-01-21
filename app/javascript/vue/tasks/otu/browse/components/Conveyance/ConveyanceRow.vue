@@ -1,33 +1,35 @@
 <template>
   <tr>
     <td>
-      <AudioPlayer
-        ref="audioPlayerRef"
-        :url="conveyance.sound.sound_file"
-        @pause="() => (isPlaying = false)"
-        @stop="() => (isPlaying = false)"
-        @play="() => (isPlaying = true)"
-      />
+      <div class="horizontal-left-content middle gap-medium">
+        <AudioPlayer
+          class="full_width"
+          ref="audioPlayerRef"
+          :url="conveyance.sound.sound_file"
+          @pause="() => (isPlaying = false)"
+          @stop="() => (isPlaying = false)"
+          @play="() => (isPlaying = true)"
+        />
+
+        <VBtn
+          color="primary"
+          circle
+          class="player-button"
+          @click="() => audioPlayerRef.playPause()"
+        >
+          <IconPause
+            v-if="isPlaying"
+            height="24px"
+            width="24px"
+          />
+          <IconPlay
+            v-else
+            height="24px"
+            width="24px"
+          />
+        </VBtn>
+      </div>
       <div v-html="conveyance.object_tag" />
-    </td>
-    <td class="w-2">
-      <VBtn
-        color="primary"
-        circle
-        class="player-button"
-        @click="() => audioPlayerRef.playPause()"
-      >
-        <IconPause
-          v-if="isPlaying"
-          height="24px"
-          width="24px"
-        />
-        <IconPlay
-          v-else
-          height="24px"
-          width="24px"
-        />
-      </VBtn>
     </td>
   </tr>
 </template>
@@ -54,6 +56,8 @@ const isPlaying = ref(false)
 .player-button {
   width: 48px;
   height: 48px;
+  min-width: 48px;
+  min-height: 48px;
   border-radius: 100%;
 }
 </style>
