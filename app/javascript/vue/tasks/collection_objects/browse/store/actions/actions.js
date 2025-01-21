@@ -2,6 +2,7 @@ import ActionNames from './actionNames.js'
 
 import loadBiocurations from './loadBiocurations.js'
 import loadCollectionObject from './loadCollectionObject'
+import loadConveyances from './loadConveyances.js'
 import loadDepictions from './loadDepictions.js'
 import loadDwc from './loadDwc.js'
 import loadSoftValidation from './loadSoftValidation.js'
@@ -13,6 +14,7 @@ import resetState from './resetState.js'
 const ActionFunctions = {
   [ActionNames.LoadBiocurations]: loadBiocurations,
   [ActionNames.LoadCollectionObject]: loadCollectionObject,
+  [ActionNames.LoadConveyances]: loadConveyances,
   [ActionNames.LoadDepictions]: loadDepictions,
   [ActionNames.LoadDwc]: loadDwc,
   [ActionNames.LoadIdentifiersFor]: loadIdentifiersFor,
