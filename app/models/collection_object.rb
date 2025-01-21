@@ -67,6 +67,7 @@ class CollectionObject < ApplicationRecord
 
   include Shared::Citations
   include Shared::Containable
+  include Shared::Conveyances
   include Shared::DataAttributes
   include Shared::Loanable
   include Shared::Identifiers
@@ -82,7 +83,6 @@ class CollectionObject < ApplicationRecord
   include Shared::QueryBatchUpdate
   include SoftValidation
 
-  include Shared::Conveyances
   include Shared::BiologicalExtensions
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence

@@ -26,7 +26,7 @@ class FieldOccurrence < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Depictions
-
+  include Shared::Conveyances
   include Shared::OriginRelationship
   include Shared::Confidences
   include Shared::ProtocolRelationships
@@ -40,7 +40,6 @@ class FieldOccurrence < ApplicationRecord
   include FieldOccurrence::DwcExtensions
   include Shared::Taxonomy
   
-  include Shared::Conveyances
   include Shared::BiologicalExtensions
   include Shared::IsDwcOccurrence
 
