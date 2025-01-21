@@ -849,21 +849,38 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [String, nil]
-  #   derived from cached_author_year
-  #   !! DO NOT USE IN building cached !!
+  #  Derived from cached_author_year
+  #  The intent is to remove outer parens for an original combination.
+  #
+  #   !! DO NOT USE IN BUILDING CACHED !!
+  #
   #   See also app/helpers/taxon_names_helper
+  #   !! TODO: needs tests badly
+  #   !? TODO: cached_author_year should not include `non` likely
+  #   !!    i.e. it currently differs from cached_author + cached_nomenclature_date.year
   def original_author_year
-    if nomenclatural_code == :iczn && !cached_misspelling && !name_is_misapplied?
-      cached_author_year&.gsub(/^\(|\)/, '')
-    elsif nomenclatural_code == :icn && cached_author_year
-      if matchdata1 = cached_author_year.match(/(\(.*\))/)
-        matchdata1[1].gsub(/^\(|\)/, '')
-      else
-        cached_author_year
+    return nil unless cached_author_year
+
+    case nomenclatural_code
+    when :iczn
+
+      # Only remove if first and last paren if like this:
+      # (Baker, 1899)
+      # Not like this:
+      # (Baker, 1899) non Gillette, 1898
+
+      if cached_author_year =~ /^\((.*)\)$/
+        return $1
       end
-    else
-      cached_author_year
+    when :icn
+      # TODO: example text in spec
+      if matchdata1 = cached_author_year.match(/(\(.*\))/)
+        return matchdata1[1].gsub(/^\(|\)/, '')
+      end
     end
+
+    # This means that misaplied or misspelled names return cached author year
+    cached_author_year
   end
 
   # @return [Array of TaxonName] ancestors of type 'Protonym'
@@ -1397,7 +1414,7 @@ class TaxonName < ApplicationRecord
   # return [Boolean]
   #   whether there is an ICZN missapplication relationship present on this name
   def name_is_misapplied?
-    !TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication').empty?
+    TaxonNameRelationship::Iczn::Invalidating::Misapplication.where_subject_is_taxon_name(self).any?
   end
 
   # return [String]
