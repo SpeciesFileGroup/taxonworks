@@ -305,6 +305,12 @@ function deleteSubTree() {
 }
 
 function changeLeadPosition(direction) {
+  if (!useUserOkayToLeave(store,
+    'You have unsaved data, are you sure you want to proceed?'
+  )) {
+    return
+  }
+
   let childOrderList = [...Array(store.children.length).keys()]
   if (direction == DIRECTIONS.left) {
     childOrderList[props.position] = props.position - 1
