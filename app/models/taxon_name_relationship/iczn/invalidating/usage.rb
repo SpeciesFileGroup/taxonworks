@@ -9,6 +9,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage < TaxonNameRelationship::
             [TaxonNameRelationship::Iczn::Invalidating.to_s]
   end
 
+  def self.disjoint_subject_classes
+    self.parent.disjoint_subject_classes +
+      self.collect_to_s(TaxonNameClassification::Iczn::Available::Valid)
+  end
+
   def self.assignable
     false
   end
