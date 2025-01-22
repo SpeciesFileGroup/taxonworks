@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :sounds do
+    scope :browse, controller: 'tasks/sounds/browse' do
+      get '/', action: :index, as: 'browse_sounds_task'
+    end
+  end
+
   scope :controlled_vocabulary_terms do
     scope :projects_summary, controller: 'tasks/controlled_vocabulary_terms/projects_summary' do
       get '/', action: :index, as: 'summarize_projects_controlled_vocabulary_terms_task'
