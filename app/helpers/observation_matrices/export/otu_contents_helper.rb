@@ -97,11 +97,14 @@ module ObservationMatrices::Export::OtuContentsHelper
           where('otus.id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
           where("rank_class LIKE '%Family%' OR rank_class LIKE '%Genus%'").
           order(:observation_object_id)
+        p_ids = {}
         protonyms.each do |p|
+          next unless p_ids[p.id].nil?
           stype = p.type_species
           csv << ['row_' + p.row_id.to_s, 'Type species', stype.cached_html_original_name_and_author_year ] unless stype.nil?
           gtype = p.type_genus
           csv << ['row_' + p.row_id.to_s, 'Type genus', gtype.cached_html_original_name_and_author_year ] unless gtype.nil?
+          p_ids[p.id] = true
         end
         protonyms = Protonym.select('taxon_names.*, observation_matrix_rows.id AS row_id').
           joins(:otus).joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.observation_object_id = otus.id').
@@ -109,9 +112,26 @@ module ObservationMatrices::Export::OtuContentsHelper
           where('otus.id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
           where("rank_class LIKE '%Species%'").
           order(:observation_object_id)
+        p_ids = {}
         protonyms.each do |p|
+          next unless p_ids[p.id].nil?
           type = p&.type_materials&.primary&.first&.collection_object&.repository&.name
           csv << ['row_' + p.row_id.to_s, 'Type repository', type ] unless type.nil?
+          p_ids[p.id] = true
+        end
+        p_ids = {}
+        protonyms.each do |p|
+          next unless p_ids[p.id].nil?
+          type = type = p&.type_materials&.primary&.first&.type_type
+          csv << ['row_' + p.row_id.to_s, 'Type status', type ] unless type.nil?
+          p_ids[p.id] = true
+        end
+        p_ids = {}
+        protonyms.each do |p|
+          next unless p_ids[p.id].nil?
+          type = p&.type_materials&.primary&.first&.collection_object&.buffered_collecting_event
+          csv << ['row_' + p.row_id.to_s, 'Type locality', type ] unless type.nil?
+          p_ids[p.id] = true
         end
       end
 
