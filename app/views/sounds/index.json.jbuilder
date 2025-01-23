@@ -1,1 +1,1 @@
-json.array! @sounds, partial: "sounds/sound", as: :sound
+json.array! @sounds, partial: 'sounds/attributes', as: :sound

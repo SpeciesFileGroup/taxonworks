@@ -3,7 +3,7 @@ class SoundsController < ApplicationController
   
   before_action :set_sound, only: %i[ show edit update destroy ]
 
-  after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
+  after_action -> { set_pagination_headers(:sounds) }, only: [:index, :api_index], if: :json_request?
 
   # GET /sounds or /sounds.json
   def index
@@ -39,7 +39,7 @@ class SoundsController < ApplicationController
 
     respond_to do |format|
       if @sound.save
-        format.html { redirect_to @sound, notice: "Sound was successfully created." }
+        format.html { redirect_to @sound, notice: 'Sound was successfully created.' }
         format.json { render :show, status: :created, location: @sound }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -52,7 +52,7 @@ class SoundsController < ApplicationController
   def update
     respond_to do |format|
       if @sound.update(sound_params)
-        format.html { redirect_to @sound, notice: "Sound was successfully updated." }
+        format.html { redirect_to @sound, notice: 'Sound was successfully updated.' }
         format.json { render :show, status: :ok, location: @sound }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -66,7 +66,7 @@ class SoundsController < ApplicationController
     @sound.destroy!
 
     respond_to do |format|
-      format.html { redirect_to sounds_path, status: :see_other, notice: "Sound was successfully destroyed." }
+      format.html { redirect_to sounds_path, status: :see_other, notice: 'Sound was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -78,19 +78,19 @@ class SoundsController < ApplicationController
 
   def autocomplete
     @sounds = Sound.where(project_id: sessions_current_project_id)
-      .where("name ilike ?", params.require(:term))
+      .where('name ilike ?', params.require(:term))
       .order(:name)
       .limit(20)
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_sound
-      @sound = Sound.find(params[:id])
-    end
+  def set_sound
+    @sound = Sound.find(params[:id])
+  end
 
     # Only allow a list of trusted parameters through.
-    def sound_params
-      params.require(:sound).permit(:name, :sound_file)
-    end
+  def sound_params
+    params.require(:sound).permit(:name, :sound_file)
+  end
 end
