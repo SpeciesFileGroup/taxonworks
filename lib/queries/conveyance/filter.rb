@@ -11,6 +11,8 @@ module Queries
         :name,
         :conveyance_object_type,
         :conveyance_object_id,
+        :sound_id,
+        sound_id: [],
         conveyance_id: [],
         conveyance_object_id: [],
         conveyance_object_type: [],
@@ -31,6 +33,10 @@ module Queries
       # @params conveyance_object_id array or string (integer)
       attr_accessor :conveyance_object_id
 
+      # @return [Array]
+      # @params sound_id array or string (integer)
+      attr_accessor :sound_id
+
       def initialize(query_params)
         super
 
@@ -38,6 +44,7 @@ module Queries
         @name = params[:name]
         @conveyance_object_type = params[:conveyance_object_type]
         @conveyance_object_id = params[:conveyance_object_id]
+        @sound_id = params[:sound_id]
 
         set_polymorphic_params(params)
       end
@@ -52,6 +59,10 @@ module Queries
 
       def conveyance_object_type
         [@conveyance_object_type].flatten.compact
+      end
+
+      def sound_id
+        [@sound_id].flatten.compact
       end
 
       def name_facet
@@ -69,11 +80,17 @@ module Queries
         table[:conveyance_object_id].in(conveyance_object_id)
       end
 
+      def sound_id_facet
+        return nil if sound_id.empty?
+        table[:sound_id].in(sound_id)
+      end
+
       def and_clauses
         [
           name_facet,
           conveyance_object_id_facet,
           conveyance_object_type_facet,
+          sound_id_facet
         ]
       end
     end
