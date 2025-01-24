@@ -1,22 +1,25 @@
 <template>
-  <NavBar>
-    <span
-      v-if="sound"
-      v-html="sound.object_tag"
-    />
-    <VAutocomplete
-      v-else
-      url="/sounds/autocomplete"
-      param="term"
-      label="label_html"
-      @get-item="(item) => emit('select', item.id)"
-    />
-    <ul
-      v-if="sound"
-      class="context-menu"
-    >
-      <li><RadialAnnotator :global-id="sound.global_id" /></li>
-    </ul>
+  <NavBar class="no-margin">
+    <div class="flex-separate middle">
+      <span
+        v-if="sound"
+        v-html="sound.object_tag"
+      />
+      <VAutocomplete
+        v-else
+        url="/sounds/autocomplete"
+        param="term"
+        label="label_html"
+        placeholder="Search a sound..."
+        @get-item="(item) => emit('select', item.id)"
+      />
+      <ul
+        v-if="sound"
+        class="context-menu"
+      >
+        <li><RadialAnnotator :global-id="sound.global_id" /></li>
+      </ul>
+    </div>
   </NavBar>
 </template>
 

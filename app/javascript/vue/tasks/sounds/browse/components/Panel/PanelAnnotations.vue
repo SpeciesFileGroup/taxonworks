@@ -1,11 +1,37 @@
 <template>
   <div class="panel content">
     <h3>Annotations</h3>
+    <div
+      v-if="hasAnnotations || isLoading"
+      class="flex-col gap-small"
+    >
+      <template
+        v-for="(list, key) in annotations"
+        :key="key"
+      >
+        <div v-if="list.length">
+          <h4 class="capitalize">{{ ANNOTATIONS[key].title }}</h4>
+          <ul>
+            <li
+              v-for="item in list"
+              :key="item.id"
+              v-html="item[ANNOTATIONS[key].label]"
+            />
+          </ul>
+        </div>
+      </template>
+    </div>
+    <p
+      v-else
+      class=""
+    >
+      No annotations found
+    </p>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   Citation,
   Tag,
@@ -14,7 +40,7 @@ import {
   DataAttribute,
   Identifier,
   Confidence,
-  Verifier
+  Role
 } from '@/routes/endpoints'
 
 const props = defineProps({
@@ -29,70 +55,82 @@ const props = defineProps({
   }
 })
 
-const ANNOTATIONS = [
-  {
+const ANNOTATIONS = {
+  Citation: {
+    label: 'object_tag',
     prefix: 'citation',
-    title: 'citations',
-    label: 'object_tag',
-    service: Citation
+    service: Citation,
+    title: 'citations'
   },
-  {
+  Tag: {
+    label: 'object_tag',
     prefix: 'tag',
-    title: 'Tags',
-    label: 'object_tag',
-    service: Tag
+    service: Tag,
+    title: 'tags'
   },
-  {
-    prefix: 'note',
-    title: 'Notes',
+  Note: {
     label: 'text',
-    service: Note
+    prefix: 'note',
+    service: Note,
+    title: 'notes'
   },
-  {
+  Identifier: {
+    label: 'object_tag',
     prefix: 'identifier',
-    title: 'identifiers',
-    label: 'object_tag',
-    service: Identifier
+    service: Identifier,
+    title: 'Identifiers'
   },
-  {
+  Confidence: {
+    label: 'object_tag',
     prefix: 'confidence',
-    title: 'Confidences',
-    label: 'object_tag',
-    service: Confidence
+    service: Confidence,
+    title: 'Confidences'
   },
-  {
-    prefix: 'verifier',
-    title: 'Verifiers',
+  Verifier: {
     label: 'object_tag',
-    service: Verifier
+    prefix: 'role',
+    service: Role,
+    title: 'Verifiers'
   },
-  {
-    prefix: 'data_attribute',
-    title: 'Data attributes',
+  DataAttribute: {
     label: 'object_tag',
-    service: DataAttribute
+    idParam: 'attribute_subject_id',
+    typeParam: 'attribute_subject_type',
+    service: DataAttribute,
+    title: 'Data attributes'
   },
-  {
+  Attribution: {
+    label: 'object_tag',
     prefix: 'attribution',
-    title: 'Attribution',
-    label: 'object_tag',
-    service: Attribution
+    service: Attribution,
+    title: 'Attribution'
   }
-]
+}
 
 const annotations = ref({})
+const isLoading = ref(false)
+const hasAnnotations = computed(() =>
+  Object.values(annotations.value).some((list) => list.length)
+)
 
 function loadAnnotations() {
-  ANNOTATIONS.forEach(({ prefix, service }) => {
-    service
-      .where({
-        [`${prefix}_object_id`]: props.objectId,
-        [`${prefix}_object_type`]: props.objectType
-      })
-      .then(({ body }) => {
-        annotations[prefix] = body
-      })
-      .catch(() => {})
+  isLoading.value = true
+
+  const requests = Object.entries(ANNOTATIONS).map(
+    ([key, { prefix, service, typeParam, idParam }]) =>
+      service
+        .where({
+          [idParam || `${prefix}_object_id`]: props.objectId,
+          [typeParam || `${prefix}_object_type`]: props.objectType
+        })
+        .then(({ body }) => {
+          annotations.value[key] = body
+        })
+        .catch(() => {})
+  )
+
+  Promise.all(requests).then(() => {
+    isLoading.value = false
   })
 }
 
@@ -100,8 +138,9 @@ watch(
   () => props.objectId,
   (newVal) => {
     if (newVal) {
-      loadAnnotations
+      loadAnnotations(newVal)
     }
-  }
+  },
+  { immediate: true }
 )
 </script>

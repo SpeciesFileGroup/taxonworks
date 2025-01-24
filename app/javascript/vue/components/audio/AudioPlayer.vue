@@ -3,8 +3,9 @@
 </template>
 
 <script setup>
-import { onMounted, useTemplateRef } from 'vue'
+import { onMounted, useTemplateRef, onBeforeUnmount } from 'vue'
 import WaveSurfer from 'wavesurfer.js'
+import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js'
 
 const props = defineProps({
   waveColor: {
@@ -25,10 +26,30 @@ const props = defineProps({
   width: {
     type: String,
     default: '100%'
+  },
+
+  spectrogram: {
+    type: Boolean,
+    default: false
+  },
+
+  timeline: {
+    type: Boolean,
+    default: false
+  },
+
+  mediaControls: {
+    type: Boolean,
+    default: false
+  },
+
+  sampleRate: {
+    type: Number,
+    default: 44100
   }
 })
 
-const emit = defineEmits(['play', 'pause', 'stop'])
+const emit = defineEmits(['load', 'ready', 'finish', 'play', 'pause', 'stop'])
 
 const audioPlayerRef = useTemplateRef('player')
 let audioPlayer
@@ -39,9 +60,30 @@ onMounted(() => {
     ...props
   })
 
+  if (props.spectrogram) {
+    audioPlayer.registerPlugin(
+      Spectrogram.create({
+        labels: true,
+        height: 200,
+        scale: 'mel',
+        frequencyMax: 8000,
+        frequencyMin: 0,
+        fftSamples: 1024,
+        labelsBackground: 'rgba(0, 0, 0, 0.1)'
+      })
+    )
+  }
+
   audioPlayer.on('play', () => emit('play'))
   audioPlayer.on('stop', () => emit('stop'))
   audioPlayer.on('pause', () => emit('pause'))
+  audioPlayer.on('load', (url) => emit('load', url))
+  audioPlayer.on('finish', () => emit('finish'))
+  audioPlayer.on('ready', (duration) => emit('ready', duration))
+})
+
+onBeforeUnmount(() => {
+  audioPlayer.destroy()
 })
 
 function play() {

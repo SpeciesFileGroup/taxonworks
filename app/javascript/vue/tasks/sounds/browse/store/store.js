@@ -16,7 +16,7 @@ export default defineStore('store', {
 
     loadConveyances(soundId) {
       Conveyance.where({ sound_id: soundId }).then(({ body }) => {
-        this.conveyances.value = body
+        this.conveyances = body
       })
     }
   }
