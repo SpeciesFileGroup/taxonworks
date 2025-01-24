@@ -4,7 +4,7 @@
       v-for="ext in EXTENSIONS"
       :key="ext['ext']"
     >
-      <span :class="classForExt[ext['ext']]">&#x25CF;</span> {{ ext['text'] }}
+      <span :class="classForExt[ext['ext']]"></span> {{ ext['text'] }}
     </div>
   </div>
 </template>
@@ -60,15 +60,21 @@ function loadClassForExt() {
     margin-bottom: 1em;
   }
 
+  .missing, .added, .optional {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+  }
+
   .missing {
-    color: var(--error);
+    background-color: var(--error);
   }
 
   .added {
-    color: var(--create);
+    background-color: var(--create);
   }
 
   .optional {
-    color: var(--attention);
+    background-color: var(--attention);
   }
 </style>
