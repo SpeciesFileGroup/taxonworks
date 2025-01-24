@@ -161,17 +161,17 @@ module CollectionObject::DwcExtensions
       #     end
 
       # verbatim_longitude could technically be different, but...
-      h[:georeferencedDate] = collecting_event&.attribute_updated(:verbatim_latitude)
+      h[:georeferencedDate] = (collecting_event.attribute_updated(:verbatim_latitude) if collecting_event.verbatim_latitude)
 
       h
 
     when :geographic_area
       h = collecting_event.geographic_area.dwc_georeference_attributes
-      if a = collecting_event&.attribute_updater(:geographic_area_id)
-        h[:georeferencedBy] = User.find(a).name
+      if collecting_event.geographic_area_id && (a = collecting_event.attribute_updater(:geographic_area_id))
+        h[:georeferencedBy] = User.find_by(id: a)&.name # User might have been deleted if coming from PaperTrail versioning
       end
 
-      h[:georeferencedDate] = collecting_event&.attribute_updated(:geographic_area_id)
+      h[:georeferencedDate] = (collecting_event.attribute_updated(:geographic_area_id) if collecting_event.geographic_area_id)
 
       h
     else
@@ -253,7 +253,7 @@ module CollectionObject::DwcExtensions
   # georeferenceDate
   # technically could look at papertrail to see when geographic_area_id appeared
   def dwc_georeferenced_date
-    collecting_event&.attribute_updated(:geographic_area_id)
+    collecting_event&.attribute_updated(:geographic_area_id) if collecting_event&.geographic_area_id
   end
 
   # TODO: extend to Georeferences when we understand how to describe spatial uncertainty

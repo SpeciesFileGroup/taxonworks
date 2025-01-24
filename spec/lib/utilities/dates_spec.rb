@@ -153,6 +153,8 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
     end
 
     context 'multiple use cases for dates hunt_dates' do
+      curr_yy = Time.now.year % 100
+      next_yy = curr_yy + 1
       use_cases = {
           "Here is some extra text: 4 jan, '17  More stuff at the end" =>
               {dd_dd_month_yyyy: {},
@@ -176,11 +178,11 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
                yyyy_mm_dd_mm_dd: {},
                yyyy_month_dd_month_dd: {}
               },
-          'Here is some extra text:,;   22-25 V 2003; More stuff at the end' =>
-              {dd_dd_month_yyyy: {method: :dd_dd_month_yyyy, piece: {0 => '22-25 V 2003'}, start_date_year: '2003', start_date_month: '5', start_date_day: '22', end_date_year: '2003', end_date_month: '5', end_date_day: '25', start_date: '2003 5 22', end_date: '2003 5 25'},
+          "Here is some extra text:,;   22-#{next_yy} V 2003; More stuff at the end" =>
+              {dd_dd_month_yyyy: {method: :dd_dd_month_yyyy, piece: {0 => "22-#{next_yy} V 2003"}, start_date_year: '2003', start_date_month: '5', start_date_day: '22', end_date_year: '2003', end_date_month: '5', end_date_day: "#{next_yy}", start_date: '2003 5 22', end_date: "2003 5 #{next_yy}"},
                dd_mm_dd_mm_yyyy: {},
                dd_month_dd_month_yyyy: {},
-               dd_month_yyy: {method: :dd_month_yyy, piece: {0 => '25 V 2003'}, start_date_year: '2003', start_date_month: '5', start_date_day: '25', end_date_year: '', end_date_month: '', end_date_day: '', start_date: '2003 5 25', end_date: ''},
+               dd_month_yyy: {method: :dd_month_yyy, piece: {0 => "#{next_yy} V 2003"}, start_date_year: '2003', start_date_month: '5', start_date_day: "#{next_yy}", end_date_year: '', end_date_month: '', end_date_day: '', start_date: "2003 5 #{next_yy}", end_date: ''},
                dd_month_yyyy_2: {},
                mm_dd_dd_yyyy: {},
                mm_dd_mm_dd_yyyy: {},
@@ -194,7 +196,7 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
                month_dd_yyyy_2: {},
                yyyy_mm_dd: {},
                yyy_mm_dd: {},
-               yyyy_month_dd: {method: :yyyy_month_dd, piece: {0 => '25 V 20'}, start_date_year: '1925', start_date_month: '5', start_date_day: '20', end_date_year: '', end_date_month: '', end_date_day: '', start_date: '1925 5 20', end_date: ''},
+               yyyy_month_dd: {method: :yyyy_month_dd, piece: {0 => "#{next_yy} V 20"}, start_date_year: "19#{next_yy}", start_date_month: '5', start_date_day: '20', end_date_year: '', end_date_month: '', end_date_day: '', start_date: "19#{next_yy} 5 20", end_date: ''},
                yyyy_mm_dd_mm_dd: {},
                yyyy_month_dd_month_dd: {}
               }
@@ -211,95 +213,95 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
 
     end
 
-    context "ISO8601 parsing" do
+    context 'ISO8601 parsing' do
       #noinspection RubyUnusedLocalVariable
       date_fields = [:year, :month, :day, :hour, :minute, :second]
 
-      context "ISO8601 single date parsing" do
-        specify "should return nil on invalid date" do
-          date = Utilities::Dates.parse_iso_date_str("January 2018")
+      context 'ISO8601 single date parsing' do
+        specify 'should return nil on invalid date' do
+          date = Utilities::Dates.parse_iso_date_str('January 2018')
           expect(date).to be_nil
         end
 
-        specify "should parse year only" do
-          date = Utilities::Dates.parse_iso_date_str("1932")
+        specify 'should parse year only' do
+          date = Utilities::Dates.parse_iso_date_str('1932')
           expect(date[0]).to eq(OpenStruct.new(year: 1932, month: nil, day: nil, hour: nil, minute: nil, second: nil))
         end
 
-        specify "should parse year and month" do
-          date = Utilities::Dates.parse_iso_date_str("1932-01")
+        specify 'should parse year and month' do
+          date = Utilities::Dates.parse_iso_date_str('1932-01')
           expect(date[0]).to eq(OpenStruct.new(year: 1932, month: 1, day: nil, hour: nil, minute: nil, second: nil))
         end
 
-        specify "should parse year, month, and day" do
-          date = Utilities::Dates.parse_iso_date_str("1932-01-11")
+        specify 'should parse year, month, and day' do
+          date = Utilities::Dates.parse_iso_date_str('1932-01-11')
           expect(date[0]).to eq(OpenStruct.new(year: 1932, month: 1, day: 11, hour: nil, minute: nil, second: nil))
         end
 
-        specify "should parse date and time" do
-          date = Utilities::Dates.parse_iso_date_str("1932-01-11T12:15:30")
+        specify 'should parse date and time' do
+          date = Utilities::Dates.parse_iso_date_str('1932-01-11T12:15:30')
           expect(date[0]).to eq(OpenStruct.new(year: 1932, month: 1, day: 11, hour: 12, minute: 15, second: 30))
         end
 
-        specify "should parse date and time without seconds" do
-          date = Utilities::Dates.parse_iso_date_str("1932-01-11T12:15")
+        specify 'should parse date and time without seconds' do
+          date = Utilities::Dates.parse_iso_date_str('1932-01-11T12:15')
           expect(date[0]).to eq(OpenStruct.new(year: 1932, month: 1, day: 11, hour: 12, minute: 15, second: nil))
         end
       end
 
-      context "ISO8601 interval parsing" do
-        specify "should return nil on invalid range format" do
-          date = Utilities::Dates.parse_iso_date_str("2013/02/26-2013/02/26")
+      context 'ISO8601 interval parsing' do
+        specify 'should return nil on invalid range format' do
+          date = Utilities::Dates.parse_iso_date_str('2013/02/26-2013/02/26')
           expect(date).to be_nil
         end
 
-        specify "should return nil on invalid interval" do
-          date = Utilities::Dates.parse_iso_date_str("January 2018/March 2018")
+        specify 'should return nil on invalid interval' do
+          date = Utilities::Dates.parse_iso_date_str('January 2018/March 2018')
           expect(date).to be_nil
         end
 
-        specify "should parse year interval" do
-          date = Utilities::Dates.parse_iso_date_str("1986/1988")
+        specify 'should parse year interval' do
+          date = Utilities::Dates.parse_iso_date_str('1986/1988')
           expect(date[0]).to eq(OpenStruct.new(year: 1986, month: nil, day: nil, hour: nil, minute: nil, second: nil))
           expect(date[1]).to eq(OpenStruct.new(year: 1988, month: nil, day: nil, hour: nil, minute: nil, second: nil))
         end
 
-        specify "should parse month interval" do
-          date = Utilities::Dates.parse_iso_date_str("1986-03/05")
+        specify 'should parse month interval' do
+          date = Utilities::Dates.parse_iso_date_str('1986-03/05')
           expect(date[0]).to eq(OpenStruct.new(year: 1986, month: 3, day: nil, hour: nil, minute: nil, second: nil))
           expect(date[1]).to eq(OpenStruct.new(year: 1986, month: 5, day: nil, hour: nil, minute: nil, second: nil))
         end
 
-        specify "should parse day interval" do
-          date = Utilities::Dates.parse_iso_date_str("1986-03-04/05")
+        specify 'should parse day interval' do
+          date = Utilities::Dates.parse_iso_date_str('1986-03-04/05')
           expect(date[0]).to eq(OpenStruct.new(year: 1986, month: 3, day: 4, hour: nil, minute: nil, second: nil))
           expect(date[1]).to eq(OpenStruct.new(year: 1986, month: 3, day: 5, hour: nil, minute: nil, second: nil))
         end
 
-        specify "should parse month and day interval" do
-          date = Utilities::Dates.parse_iso_date_str("1986-03-07/05-09")
+        specify 'should parse month and day interval' do
+          date = Utilities::Dates.parse_iso_date_str('1986-03-07/05-09')
           expect(date[0]).to eq(OpenStruct.new(year: 1986, month: 3, day: 7, hour: nil, minute: nil, second: nil))
           expect(date[1]).to eq(OpenStruct.new(year: 1986, month: 5, day: 9, hour: nil, minute: nil, second: nil))
         end
 
-        specify "should parse time interval" do
-          date = Utilities::Dates.parse_iso_date_str("1986-03-07T08:00:00/09:00:00")
+        specify 'should parse time interval' do
+          date = Utilities::Dates.parse_iso_date_str('1986-03-07T08:00:00/09:00:00')
           expect(date[0]).to eq(OpenStruct.new(year: 1986, month: 3, day: 7, hour: 8, minute: 0, second: 0))
           expect(date[1]).to eq(OpenStruct.new(year: 1986, month: 3, day: 7, hour: 9, minute: 0, second: 0))
         end
 
-        specify "should not parse time interval missing seconds" do
-          date = Utilities::Dates.parse_iso_date_str("1986-03-07T08:13/09:21")
+        specify 'should not parse time interval missing seconds' do
+          date = Utilities::Dates.parse_iso_date_str('1986-03-07T08:13/09:21')
           expect(date).to be_nil
         end
 
-        specify "should not parse time interval missing seconds (left)" do
-          date = Utilities::Dates.parse_iso_date_str("1986-03-07T08:13:05/09:21")
+        specify 'should not parse time interval missing seconds (left)' do
+          date = Utilities::Dates.parse_iso_date_str('1986-03-07T08:13:05/09:21')
           expect(date).to be_nil
         end
 
-        specify "should not parse time interval missing seconds (right)" do
-          date = Utilities::Dates.parse_iso_date_str("1986-03-07T08:13/09:21:05")
+        specify 'should not parse time interval missing seconds (right)' do
+          date = Utilities::Dates.parse_iso_date_str('1986-03-07T08:13/09:21:05')
           expect(date).to be_nil
         end
       end
@@ -354,9 +356,9 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
           'text, 7.10.1994, text' => '10/7/1994///',
           'text, 6/29/47, text' => '29/6/1947///',
           "text, 6/29/'47, text" => '29/6/1947///',
-          "text, 7.10.94, text" => '10/7/1894///',
-          "text, 5-17-97, text" => '17/5/1897///',
-          "text, 1999-6-16, text" => '16/6/1999///',
+          'text, 7.10.94, text' => '10/7/1894///',
+          'text, 5-17-97, text' => '17/5/1897///',
+          'text, 1999-6-16, text' => '16/6/1999///',
           'text, Jun - Jul 1947, text' => '/6/1947//7/1947',
           'text, June - July, 1947, text' => '/6/1947//7/1947',
           'text, VI-X 1947, text' => '/6/1947//10/1947',
