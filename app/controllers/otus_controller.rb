@@ -321,14 +321,15 @@ class OtusController < ApplicationController
       otu_id: [params.require(:otu_id)],
       otu_scope: (params[:otu_scope] || :all)
     ).all
-      .eager_load(image: [:attribution])
-
+     .joins("LEFT OUTER JOIN observations ON (observations.id = depictions.depiction_object_id and depictions.depiction_object_type = 'Observation')")
+     .joins('LEFT OUTER JOIN descriptors ON descriptors.id = observations.descriptor_id')
+     .joins('LEFT OUTER JOIN observation_matrix_column_items ON descriptors.id = observation_matrix_column_items.descriptor_id')
+     .eager_load(image: [:attribution])
     if params[:sort_order]
-      @depictions = @depictions.order( Arel.sql( conditional_sort('depictions.depiction_object_type', params[:sort_order]) + ", depictions.depiction_object_id, depictions.position" ))
+      @depictions = @depictions.order( Arel.sql( conditional_sort('depictions.depiction_object_type', params[:sort_order]) + ", observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position" ))
     else
-     @depictions = @depictions.order("depictions.depiction_object_type, depictions.depiction_object_id, depictions.position")
+      @depictions = @depictions.order("depictions.depiction_object_type, observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position")
     end
-
     @depictions = @depictions.page(params[:page]).per(params[:per])
 
     render '/otus/api/v1/inventory/images'
