@@ -8,8 +8,6 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
   validates_uniqueness_of :object_taxon_name_id, scope: :type
 
-  after_destroy :set_cached_original_combination # sets both cached/html
-
   def self.nomenclatural_priority
     :reverse
   end
@@ -83,10 +81,8 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
   def set_cached_names_for_taxon_names
     object_taxon_name.original_combination_elements = nil #reload # if destroyed?
-    object_taxon_name.send(:set_original_combination_cached_fields)
-  end
+    object_taxon_name.related_relationships = nil #reload # if destroyed?
 
-  def set_cached_original_combination
     self.object_taxon_name.update_cached_original_combinations
   end
 
