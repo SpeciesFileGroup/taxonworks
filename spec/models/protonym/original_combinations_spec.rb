@@ -50,6 +50,12 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
   end
 
+  # This should be on commit to ensure nothing at the name level has changed?
+  specify 'cached rebuild method is called on save' do
+    expect(species).to receive(:set_cached_original_combination)
+    species.save
+  end
+
   context 'with no original_combination relationships' do
 
     specify '#cached_original_combination is nil' do
@@ -75,20 +81,15 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   end
 
   context '#cached_original_combination is updated when' do
-    before { species.original_genus = alternate_genus }
-
-    specify 'rebuild method is called on save' do
-      expect(species).to receive(:set_cached_original_combination)
-      species.save
-    end
-
-    specify '#original_combination_relationships maps object to related' do
-      expect(species.original_combination_relationships.reload.first.object_taxon_name).to eq(species)
-    end
+    before { species.original_genus = alternate_genus } # Eveerything is saved.
 
     specify 'rebuild method is called on destroy' do
       expect(species.original_genus_relationship).to receive(:set_cached_original_combination)
       species.original_genus_relationship.destroy
+    end
+
+    specify '#original_combination_relationships maps object to related' do
+      expect(species.original_combination_relationships.reload.first.object_taxon_name).to eq(species)
     end
 
     specify 'genus relationship is created' do
@@ -96,11 +97,19 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       expect(species.cached_original_combination).to eq('Bus aus')
     end
 
+    specify 'rebuild method is called on destroy' do
+      expect(species.original_genus_relationship).to receive(:set_cached_names_for_taxon_names)
+      species.original_genus_relationship.destroy
+    end
+
     specify 'genus relationship is destroyed' do
       species.save
-      species.original_genus_relationship.destroy!
-      species.reload
-      expect(species.cached_original_combination).to eq(nil)
+
+      expect(species.original_genus_relationship).to receive(:set_cached_names_for_taxon_names)
+
+      species.original_genus_relationship.destroy
+
+      expect(species.reload.cached_original_combination).to eq(nil)
     end
   end
 

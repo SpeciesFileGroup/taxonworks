@@ -449,8 +449,8 @@ class Protonym < TaxonName
     display_order = [ :original_genus, :original_subgenus, :original_species, :original_subspecies, :original_variety, :original_subvariety, :original_form, :original_subform ]
 
     defined_relations = self.original_combination_relationships.all
-    created_already   = defined_relations.collect{|a| a.class}
-    new_relations     = []
+    created_already  = defined_relations.collect{|a| a.class}
+    new_relations  = []
 
     original_combination_class_relationships.each do |r|
       new_relations.push( r.new(object_taxon_name: self) ) if !created_already.include?(r)
@@ -492,7 +492,6 @@ class Protonym < TaxonName
     taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
   end
 
-  # Same as is_original_name?!
   def has_alternate_original?
     cached_original_combination && (cached != cached_original_combination) ? true : false
   end
@@ -681,11 +680,12 @@ class Protonym < TaxonName
   #   !! Replaces existing relationship without checking identify if they are there!
   def build_original_combinations(combination, relationship_housekeeping)
     return false if combination.nil?
+
     combination.protonyms_by_rank.each do |rank, p|
       send("original_#{rank}=", p)
     end
 
-    if !relationship_housekeeping.empty?
+    unless relationship_housekeeping.blank?
       combination.protonyms_by_rank.each do |rank, p|
         r = send("original_#{rank}_relationship")
         r.write_attributes(relationship_housekeeping)
@@ -694,23 +694,8 @@ class Protonym < TaxonName
     true
   end
 
-  def get_original_combination
-    return verbatim_name if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
-    e = original_combination_elements
-    return nil if e.none?
 
-    # Weird, why?
-    # DD: in ICVCN the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
-    #
-    # @proceps: then we should exclude or alter elements before we get to this point, not here, so that the renderer still works, exceptions at this point are bad
-    # and this didn't do what you think it did, it's was returning an Array of two things
-    return e[:species][1] if rank_class.to_s =~ /Icvcn/
-
-    p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
-
-    s = p.flatten.compact.join(' ')
-    (s.presence)
-  end
+  attr_reader :original_combination_elements
 
   # @return [Hash]
   #
@@ -721,6 +706,7 @@ class Protonym < TaxonName
   # }
   #
   def original_combination_elements
+    # return @original_combination_elements unless @original_combination_elements.nil?
     elements = { }
     return elements if rank.blank?
 
@@ -734,20 +720,32 @@ class Protonym < TaxonName
     # TODO: get SQL based ordering for original_combination_relationships, hard coded
 
     # order the relationships
+    # TODO: remove reload, at this point the name should be saved
     r = original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
 
+   #r = related_relationships.select{|r| r.type.match('Orig')}  # =~ /Orig/} #  original_combination_relationships
+   #.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
+
+    return {} if r.blank?
+
+    genus = r.select{|r| r.type =~ /Genus/}.first&.subject_taxon_name # This is the original genus
+
     # get gender from first
-    gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name
+    # gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name
+
+    gender = genus&.gender_name
 
     # Apply gender to everything but the last
     total = r.count - 1
+
     r.each_with_index do |j, i|
       if j.type =~ /enus/ || i == total
         g = nil
       else
         g = gender
       end
-      elements.merge! j.combination_name(g) # this is like '{genus: [nil, 'Aus']}
+
+      @original_combination_elements = elements.merge! j.combination_name(g) # this is like '{genus: [nil, 'Aus']}
     end
 
     # what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
@@ -760,8 +758,8 @@ class Protonym < TaxonName
 
     if elements.any?
       if !elements[:genus] && !not_binominal?
-        if original_genus
-          elements[:genus] = [nil, "[#{original_genus&.name}]"]
+        if genus #  original_genus
+          elements[:genus] = [nil, "[#{genus&.name}]"] # !? why
         else
           elements[:genus] = [nil, '[GENUS NOT SPECIFIED]']
         end
@@ -793,6 +791,24 @@ class Protonym < TaxonName
     n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
     n = "(#{n})" if n && rank_name == 'subgenus'
     n
+  end
+
+  def get_original_combination
+    return verbatim_name if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
+    e = original_combination_elements
+    return nil if e.none?
+
+    # Weird, why?
+    # DD: in ICVCN the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
+    #
+    # @proceps: then we should exclude or alter elements before we get to this point, not here, so that the renderer still works, exceptions at this point are bad
+    # and this didn't do what you think it did, it's was returning an Array of two things
+    return e[:species][1] if rank_class.to_s =~ /Icvcn/
+
+    p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
+
+    s = p.flatten.compact.join(' ')
+    (s.presence)
   end
 
   def get_original_combination_html
@@ -1055,6 +1071,7 @@ class Protonym < TaxonName
   end
 
   def set_cached
+    return true if destroyed?
     # old_cached_html = cached_html.to_s
     old_cached_author_year = cached_author_year.to_s # why to_s?
     old_cached = cached.to_s # why to_s?
@@ -1065,6 +1082,7 @@ class Protonym < TaxonName
     set_cached_homonymy
     set_cached_species_homonym if is_species_rank?
     set_cached_misspelling
+
     tn = TaxonName.find(id)
     set_cached_names_for_descendants if tn.cached != old_cached
     set_cached_names_for_dependants if tn.cached.to_s != old_cached || tn.cached_author_year.to_s != old_cached_author_year

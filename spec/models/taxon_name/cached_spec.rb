@@ -120,7 +120,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
 
         specify '#cached_original_combiantion' do
-          expect(subspecies.cached_original_combination).to eq('Aus gus f. zus')
+          expect(subspecies.reload.cached_original_combination).to eq('Aus gus f. zus')
         end
       end
 
@@ -221,11 +221,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify '#cached_original_combination_html' do
-            expect(species.cached_original_combination_html).to eq('<i>Bus aus</i>')
+            expect(species.reload.cached_original_combination_html).to eq('<i>Bus aus</i>')
           end
 
           specify '#cached_original_combination' do
-            expect(species.cached_original_combination).to eq('Bus aus')
+            expect(species.reload.cached_original_combination).to eq('Bus aus')
           end
 
           context 'changing the genus (parent) name' do

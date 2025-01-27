@@ -74,10 +74,10 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
     return {applicable_rank => elements}
   end
 
-# def element_gender
-#   object_taxon_name.original_genus.gender_name
-#    subject_taxon_name.gender_name
-# end
+  # def element_gender
+  #   object_taxon_name.original_genus.gender_name
+  #    subject_taxon_name.gender_name
+  # end
 
   protected
 
