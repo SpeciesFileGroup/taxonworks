@@ -440,7 +440,8 @@ class TaxonNameRelationship < ApplicationRecord
   # OriginalCombination handles it's own cached names
   def set_cached_names_for_taxon_names
     return true unless subject_taxon_name_id_previously_changed? || destroyed?
-    TaxonName.transaction do
+    
+    TaxonName.transaction do # Why?
       if is_invalidating?
         t = subject_taxon_name
 

@@ -695,7 +695,11 @@ class Protonym < TaxonName
   end
 
 
-  attr_reader :original_combination_elements
+  attr_accessor :original_combination_elements
+
+# def reload(*)
+#   super.tap { @original_combination_elements = nil }
+# end
 
   # @return [Hash]
   #
@@ -706,7 +710,8 @@ class Protonym < TaxonName
   # }
   #
   def original_combination_elements
-    # return @original_combination_elements unless @original_combination_elements.nil?
+    return @original_combination_elements unless @original_combination_elements.nil?
+
     elements = { }
     return elements if rank.blank?
 
@@ -717,14 +722,13 @@ class Protonym < TaxonName
     #   but the last name
     # DD: if we have subspecies, the species name should be used not in the original form,
     # but the form correlated with the present genus gender
-    # TODO: get SQL based ordering for original_combination_relationships, hard coded
 
     # order the relationships
     # TODO: remove reload, at this point the name should be saved
     r = original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
 
-   #r = related_relationships.select{|r| r.type.match('Orig')}  # =~ /Orig/} #  original_combination_relationships
-   #.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
+    #r = related_relationships.select{|r| r.type.match('Orig')}  # =~ /Orig/} #  original_combination_relationships
+    #.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
 
     return {} if r.blank?
 
@@ -1072,13 +1076,11 @@ class Protonym < TaxonName
 
   def set_cached
     return true if destroyed?
-    # old_cached_html = cached_html.to_s
     old_cached_author_year = cached_author_year.to_s # why to_s?
     old_cached = cached.to_s # why to_s?
 
     super
-    set_cached_original_combination
-    set_cached_original_combination_html
+    set_original_combination_cached_fields
     set_cached_homonymy
     set_cached_species_homonym if is_species_rank?
     set_cached_misspelling
@@ -1107,4 +1109,13 @@ class Protonym < TaxonName
   def set_cached_original_combination_html
     update_column(:cached_original_combination_html, get_original_combination_html)
   end
+
+  # All cached values that relate to an original combination should
+  # be referenced here so that they can be re-referenced indirectly from TaxonNameRelationships
+  # In particular those impacted by an OriginalCombination.
+  def set_original_combination_cached_fields
+    set_cached_original_combination
+    set_cached_original_combination_html
+  end
+
 end

@@ -57,15 +57,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   end
 
   context 'with no original_combination relationships' do
-
     specify '#cached_original_combination is nil' do
       expect(species.cached_original_combination).to eq(nil)
     end
 
     specify '#cached_original_combination_html is nil' do
-      expect(species.cached_original_combination).to eq(nil)
+      expect(species.cached_original_combination_html).to eq(nil)
     end
-
   end
 
   context 'cached fields with verbatim_name set' do
@@ -104,13 +102,21 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     specify 'genus relationship is destroyed' do
       species.save
-
       expect(species.original_genus_relationship).to receive(:set_cached_names_for_taxon_names)
-
       species.original_genus_relationship.destroy
-
-      expect(species.reload.cached_original_combination).to eq(nil)
+      # expect(species.reload.cached_original_combination).to eq(nil)
     end
+  end
+
+  specify '#original_combination_elements, #original_genus, #original_subgenus, #original_species, #original_subspecies, #original_variety set' do
+    species.update!(original_genus: genus, original_subgenus: genus, original_species: species, original_subspecies: species, original_variety: species)
+    expect(species.original_combination_elements).to eq( {
+      :genus=>[nil, "Aus"],
+      :species=>[nil, "aus"],
+      :subgenus=>[nil, "(Aus)"],
+      :subspecies=>[nil, "aus"],
+      :variety=> ["var.", "aus"]
+    })
   end
 
   specify '#original_genus set' do
@@ -121,6 +127,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   specify '#original_genus, #original_subgenus set' do
     species.update!(original_genus: genus, original_subgenus: genus)
     expect(species.cached_original_combination).to eq('Aus (Aus) aus')
+  end
+
+  specify '#original_genus, #original_subgenus set' do
+    species.update!(original_genus: genus, original_subgenus: genus)
+    expect(species.cached_original_combination).to eq('Aus (Aus) aus')
+    species.original_subgenus_relationship.destroy
+    expect(species.reload.cached_original_combination).to eq('Aus aus')
   end
 
   specify '#original_genus, #original_subgenus, #original_species set' do

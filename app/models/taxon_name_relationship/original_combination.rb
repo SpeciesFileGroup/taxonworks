@@ -82,21 +82,8 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   protected
 
   def set_cached_names_for_taxon_names
-
-    begin
-      TaxonName.transaction do
-        t = object_taxon_name
-        t.send(:set_cached)
-        t.send(:set_cached_original_combination)
-        t.send(:set_cached_original_combination_html)
-#       t.update_columns(
-#         cached_original_combination: t.get_original_combination,
-#         cached_original_combination_html: t.get_original_combination_html,
-# #        cached_author_year: t.get_author_and_year, # is done in set_cached!!
-#         )
-      end
-    end
-    true
+    object_taxon_name.original_combination_elements = nil #reload # if destroyed?
+    object_taxon_name.send(:set_original_combination_cached_fields)
   end
 
   def set_cached_original_combination
