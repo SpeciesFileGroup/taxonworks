@@ -727,7 +727,7 @@ class Protonym < TaxonName
     # TODO: remove reload, at this point the name should be saved
     r = original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
 
-    #r = related_relationships.select{|r| r.type.match('Orig')}  # =~ /Orig/} #  original_combination_relationships
+    # r = related_relationships.select{|r| r.type.match('Orig')}  # =~ /Orig/} #  original_combination_relationships
     #.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
 
     return {} if r.blank?
@@ -749,8 +749,10 @@ class Protonym < TaxonName
         g = gender
       end
 
-      @original_combination_elements = elements.merge! j.combination_name(g) # this is like '{genus: [nil, 'Aus']}
+      elements.merge! j.combination_name(g) # this is like '{genus: [nil, 'Aus']}
     end
+
+    # TODO: We apparently have no specs testing the need from here...
 
     # what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
     # DD: we do not require it, it is optional
@@ -772,7 +774,9 @@ class Protonym < TaxonName
       elements[:species] = [nil, '[SPECIES NOT SPECIFIED]'] if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
     end
 
-    elements
+    # ... to here
+
+    @original_combination_elements = elements
   end
 
   # @return [[rank_name, name], nil]
