@@ -1013,3 +1013,10 @@ browse_sounds_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+filter_sounds_task:
+  hub: true
+  name: 'Filter sounds'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

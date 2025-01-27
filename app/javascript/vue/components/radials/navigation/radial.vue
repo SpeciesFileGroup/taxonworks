@@ -192,8 +192,8 @@ const menuOptions = computed(() => {
 const defaultSlices = computed(() => {
   const exclude = [props.exclude].flat()
 
-  if (!metadata.value.destroy) {
-    exclude.push(addSlice(DEFAULT_OPTIONS.Destroy))
+  if (!metadata.value?.tasks?.unify_objects_task) {
+    exclude.push(DEFAULT_OPTIONS.Unify)
   }
 
   return defaultSlicesTypes
