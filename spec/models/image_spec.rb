@@ -4,13 +4,10 @@ describe Image, type: :model, group: [:images] do
 
   let(:i) { FactoryBot.build(:valid_image) }
 
-  after(:each) {
-    # TODO: Update when Paperclip or Rspec gets modified, or transaction integration gets resolved
-    # This causes the necessary callback to get fired within an rspec test, clearing the images.
-    # Any destroy method will have to use the same.
-    i.destroy
-    i.run_callbacks(:commit)
-  }
+  # TODO: Update when Paperclip or Rspec gets modified, or transaction integration gets resolved
+  # This causes the necessary callback to get fired within an rspec test, clearing the images.
+  # Any destroy method will have to use the same.
+  after(:each) { i.destroy }
 
   specify '#filename_depicts_object' do
     co = FactoryBot.create(:valid_collection_object)
@@ -142,10 +139,7 @@ describe Image, type: :model, group: [:images] do
       k.soft_validate
     }
 
-    after {
-      k.destroy
-      k.run_callbacks(:commit)
-    }
+    after { k.destroy }
 
     # TODO: Deprecated, remove when data are clean
     xspecify '#has_duplicate?' do
@@ -179,8 +173,7 @@ describe Image, type: :model, group: [:images] do
     expect(weird.image_file_file_name).to eq('w3_rd_fi_le__name_.png')
 
     # Manual paperclip callbacks
-    weird.destroy
-    weird.run_callbacks(:commit)
+    weird.destroy!
   end
 
   context 'should manipulate the file system' do
@@ -191,8 +184,7 @@ describe Image, type: :model, group: [:images] do
 
     specify 'destroying an image should remove it from the filesystem' do
       path = i.image_file.path
-      expect(i.destroy).to be_truthy
-      #  i.run_callbacks(:commit) #       # NOTE: apparently resolved in Paperclip
+      i.destroy!
       expect(File.exist?(path)).to be_falsey
     end
   end
