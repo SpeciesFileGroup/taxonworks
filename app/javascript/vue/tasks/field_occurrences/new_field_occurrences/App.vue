@@ -8,6 +8,7 @@
         <TaxonDeterminationForm />
         <BiologicalAssociation />
         <BiocurationForm />
+        <OriginRelationship />
         <VDepiction />
         <CitationForm />
         <IdentifierForm />
@@ -28,6 +29,7 @@ import CitationForm from './components/CitationForm.vue'
 import BiocurationForm from './components/BiocurationForm.vue'
 import BiologicalAssociation from './components/BiologicalAssociation.vue'
 import VDepiction from './components/Depiction/Depiction.vue'
+import OriginRelationship from './components/OriginRelationship.vue'
 
 defineOptions({
   name: 'NewFieldOccurrence'

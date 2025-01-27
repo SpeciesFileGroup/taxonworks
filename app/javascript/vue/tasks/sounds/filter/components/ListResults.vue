@@ -1,7 +1,7 @@
 <template>
   <HandyScroll>
     <table
-      class="full_width"
+      class="full_width table-striped"
       v-resize-column
       ref="root"
     >
@@ -13,8 +13,9 @@
               v-model="selectAll"
             />
           </th>
+          <th>Name</th>
+          <th>Object tag</th>
           <th></th>
-          <th>Label</th>
           <th />
         </tr>
       </thead>
@@ -22,6 +23,7 @@
         <tr
           v-for="item in list"
           :key="item.id"
+          class="contextMenuCells"
         >
           <td>
             <input
@@ -30,6 +32,8 @@
               :value="item.id"
             />
           </td>
+          <td>{{ item.name }}</td>
+          <td v-html="item.object_tag" />
           <td>
             <audio
               :src="item.sound_file"
@@ -37,7 +41,6 @@
               preload="metadata"
             />
           </td>
-          <td v-html="item.object_tag" />
           <td class="w-2">
             <div class="horizontal-right-content middle gap-small">
               <RadialAnnotator :global-id="item.global_id" />
