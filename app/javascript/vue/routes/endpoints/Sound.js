@@ -1,3 +1,4 @@
+import { ajaxCall } from '@/helpers'
 import baseCRUD from './base'
 
 const permitParams = {
@@ -8,5 +9,7 @@ const permitParams = {
 }
 
 export const Sound = {
-  ...baseCRUD('sounds', permitParams)
+  ...baseCRUD('sounds', permitParams),
+
+  filter: (params) => ajaxCall('post', '/sounds/filter.json', params)
 }

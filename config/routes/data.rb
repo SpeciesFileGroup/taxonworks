@@ -752,6 +752,9 @@ end
 
 resources :sounds do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'sounds#index', via: [:get, :post]
+  end
 end
 
 resources :sources do

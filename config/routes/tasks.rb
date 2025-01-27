@@ -1,5 +1,9 @@
 scope :tasks do
   scope :sounds do
+    scope :filter, controller: 'tasks/sounds/filter' do
+      get '/', action: :index, as: 'filter_sounds_task'
+    end
+
     scope :browse, controller: 'tasks/sounds/browse' do
       get '/', action: :index, as: 'browse_sounds_task'
     end
