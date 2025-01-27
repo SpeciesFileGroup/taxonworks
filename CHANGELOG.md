@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New image task: Add field occurrence to depict some list [#4135]
 - Grab cursor to make sorting feature visible [#4153]
 - API endpoint for image matrix
+- Added order of depictions comming from the image matrix
 
 ### Fixed
 
