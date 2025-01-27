@@ -52,6 +52,7 @@
 
 <script setup>
 import { computed, watch, useTemplateRef } from 'vue'
+import { vResizeColumn } from '@/directives'
 import HandyScroll from 'vue-handy-scroll'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
