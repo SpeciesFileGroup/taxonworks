@@ -7,7 +7,9 @@ module Queries
       PARAMS = [
         :conveyance_object_type,
         :conveyances,
+        :name_exact,
         :sound_id,
+        :name,
         :otu_id,
         :field_occurrence,
 
@@ -35,6 +37,12 @@ module Queries
       #   one or more names of classes.
       attr_accessor :conveyance_object_type
 
+      # @return String
+      attr_accessor :name
+
+      # @return [Boolean, nil]
+      attr_accessor :name_exact
+
       # @return [Array]
       attr_accessor :otu_id
 
@@ -46,11 +54,13 @@ module Queries
         super
 
         @collection_object_id = params[:collection_object_id]
-        @field_occurrence_id = params[:field_occurrence_id]
         @conveyance_object_type = params[:conveyance_object_type]
         @conveyances = boolean_param(params, :conveyances)
-        @sound_id = params[:sound_id]
+        @field_occurrence_id = params[:field_occurrence_id]
+        @name = params[:name]
+        @name_exact = boolean_param(params, :name_exact)
         @otu_id = params[:otu_id]
+        @sound_id = params[:sound_id]
 
         set_citations_params(params)
         set_tags_params(params)
@@ -94,6 +104,15 @@ module Queries
       # @return [Arel::Table]
       def conveyance_table
         ::Conveyance.arel_table
+      end
+
+      def name_facet
+        return nil if name.blank?
+        if name_exact
+          table[:name].eq(name.strip)
+        else
+          table[:name].matches('%' + name.strip.gsub(/\s/, '%') + '%')
+        end
       end
 
       def conveyance_object_type_facet
@@ -144,6 +163,12 @@ module Queries
           .to_sql
 
         ::Sound.from('(' + s + ') as sounds').distinct
+      end
+
+      def and_clauses
+        [
+          name_facet
+        ]
       end
 
       def merge_clauses

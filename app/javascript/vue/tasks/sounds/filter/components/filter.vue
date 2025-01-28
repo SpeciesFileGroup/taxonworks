@@ -1,4 +1,5 @@
 <template>
+  <FacetSoundName v-model="params" />
   <FacetOtu
     v-model="params"
     :target="SOUND"
@@ -29,6 +30,7 @@ import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/Face
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
+import FacetSoundName from '@/components/Filter/Facets/Sound/FacetSoundName.vue'
 import FacetConveyanceObjectType from '@/components/Filter/Facets/Conveyance/FacetConveyanceObjectType.vue'
 
 const props = defineProps({
