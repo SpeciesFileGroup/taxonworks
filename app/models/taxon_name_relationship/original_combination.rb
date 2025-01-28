@@ -80,10 +80,8 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   protected
 
   def set_cached_names_for_taxon_names
-    object_taxon_name.original_combination_elements = nil #reload # if destroyed?
-    object_taxon_name.related_relationships = nil #reload # if destroyed?
-
-    self.object_taxon_name.update_cached_original_combinations
+    object_taxon_name.reload
+    object_taxon_name.update_cached_original_combinations
   end
 
   def sv_validate_priority

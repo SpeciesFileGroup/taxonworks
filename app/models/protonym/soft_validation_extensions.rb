@@ -1521,8 +1521,8 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_extant_children
-      unless self.parent_id.blank?
-        if self.is_fossil?
+      unless parent_id.blank?
+        if is_fossil?
           taxa = Protonym.where(parent_id: self.id)
           z = 0
           unless taxa.empty?
@@ -1710,6 +1710,3 @@ module Protonym::SoftValidationExtensions
     end
   end
 end
-
-
-

@@ -134,6 +134,18 @@
 #   Stores if the status of the name is valid based on both taxon_name_relationships and taxon_name_classifications.
 #
 # rubocop:disable Metrics/ClassLength
+#
+# TODO: Refactor into
+#   * methods that set new state (new values
+#     * verbosely touches database
+#   * methods that set fixed state (cached, exports)
+#     * once state is loaded, it is never reloaded or hit again
+#       * sensu TaxonomyObjects
+#   * methods that get/check state
+#     * sparesly touches database
+#
+# In general there is too much interplay between the our current variables, they should not (probably) cross boundaries.
+#
 class TaxonName < ApplicationRecord
 
   # @return class
@@ -194,18 +206,29 @@ class TaxonName < ApplicationRecord
   # See related concept in concerns/shared/taxonomy, this may belong there.
   #
   # @return [Hash]
-  attr_reader :taxonomy
-
+   attr_reader :taxonomy
 
   # @return array of all taxon_name_relationships (name is subject), memoized
-  attr_reader :relationships
+  # NOT USED
+  # attr_accessor :relationships
 
-  # @return array of all taxon_name_relationships (name is object), memoized
-  attr_reader :related_relationships
+  def reload(*)
+    super.tap do
+      @related_relationships = nil
+      @taxonomy = nil
+      # @relationships = nil
+    end
+  end
+
+  # @return Array
+  #    all taxon_name_relationships (name is object), memoized
+  # !! Memoized attributes are not reset when related objects reload them.
+  # !! For example if species = subject_taxon_name. of a = TaxonNameRelationship
+  # !!  then a.subject_taxon_name.reload is not the same as species.reload
+  attr_accessor :related_relationships
 
   # @return array of all taxon_name_classifications, memoizable
-  attr_reader :classifications
-
+  attr_accessor :classifications
 
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name
@@ -214,6 +237,7 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   When true cached values are not built
   attr_accessor :no_cached
+
   delegate :nomenclatural_code, to: :rank_class, allow_nil: true
   delegate :rank_name, to: :rank_class, allow_nil: true
 
@@ -563,6 +587,8 @@ class TaxonName < ApplicationRecord
     else
       @related_relationships ||= related_taxon_name_relationships.eager_load(:subject_taxon_name, :object_taxon_name).to_a
     end
+
+    @related_relationships
   end
 
   def classifications(rebuild = false)
@@ -608,6 +634,7 @@ class TaxonName < ApplicationRecord
       .out_of_scope_combinations(id)
   end
 
+  # TODO: replace with @taxonomy
   # @return [TaxonName, nil] an ancestor at the specified rank
   # @param rank [symbol|string|
   #   like :species or 'genus'
@@ -617,7 +644,7 @@ class TaxonName < ApplicationRecord
     if target_code = (is_combination? ? combination_taxon_names.first.nomenclatural_code : nomenclatural_code)
       r = Ranks.lookup(target_code, rank)
       return self if include_self && (rank_class.to_s == r)
-      ancestors.with_rank_class( r ).first
+      ancestors.with_rank_class( r ).first # @taxonomy here
     else
       # Root has no nomenclature code
       return nil
@@ -990,6 +1017,7 @@ class TaxonName < ApplicationRecord
     taxon_name_classifications.with_type_contains('::Fossil').any?
   end
 
+  # TODO: ultimately deprecate for type Hybrid names.
   # @return [Boolean]
   #   true if this name has a TaxonNameClassification of hybrid
   def is_hybrid?
@@ -1363,7 +1391,6 @@ class TaxonName < ApplicationRecord
         data['form'] = [nil, '[FORM NOT SPECIFIED]']
       end
     end
-
     data
   end
 
@@ -1374,7 +1401,7 @@ class TaxonName < ApplicationRecord
   #  !! Combination has its own version now.
   #
   def get_full_name
-    return name_with_misspelling(nil) if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
+    return name_with_misspelling(nil) if !is_genus_or_species_rank?
     return name if rank_class.to_s =~ /Icvcn/
     full_name
   end

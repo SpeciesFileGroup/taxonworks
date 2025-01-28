@@ -19,6 +19,13 @@ class Protonym < TaxonName
   #   memoize `#is_avaiable?`
   attr_reader :is_available
 
+  # @return Hash
+  #   !! Use only during building cached values. Idea
+  #   !! is to store values used downstream in setting cached values.
+  attr_reader :_cached_build_state
+
+  attr_accessor :original_combination_elements
+
   alias_method :original_combination_source, :source
 
   FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}.freeze
@@ -141,9 +148,15 @@ class Protonym < TaxonName
   scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") }
   scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") }
 
-  # Deprecated, moved to TaxonName.  Combinations are rankless, but we need generic sort at TaxonName level
-  # Protonym.order_by_rank(RANKS) or Protonym.order_by_rank(ICZN)
-  # scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
+  after_initialize :_initialize_cached_build_state
+
+  # Reset memomized and utility variable son reload.
+  def reload(*)
+    super.tap do
+      @_initialize_cached_build_state = {}
+      @original_combination_elements = nil
+    end
+  end
 
   # @return [Protonym]
   #   a name ready to become the root
@@ -283,19 +296,21 @@ class Protonym < TaxonName
     end
   end
 
-  # This method is currently only used for setting cached_primary_homonym
+  # This method is currently only used for setting cached_primary_homonym.
+  #
   # @return [nil, false, String]
   #   !! Why both?
   def get_genus_species(genus_option, self_option)
     return nil if rank_class.nil?
+
     genus = nil
     name1 = nil
 
-    if is_species_rank? # self.rank_string =~ /Species/
+    if is_species_rank?
       if genus_option == :original
         genus = original_genus
       elsif genus_option == :current
-        genus = ancestor_at_rank('genus')
+        genus = ancestor_at_rank('genus') # @taxonomy
       else
         return false
       end
@@ -312,7 +327,6 @@ class Protonym < TaxonName
 
     return nil if genus.nil? && name1.nil? # <- hitting this because Genus is never set
     [genus, name1].compact.join(' ')
-    # (genus.to_s + ' ' + name1.to_s).squish
   end
 
   # TODO, make back half of this raw SQL
@@ -694,13 +708,6 @@ class Protonym < TaxonName
     true
   end
 
-
-  attr_accessor :original_combination_elements
-
-# def reload(*)
-#   super.tap { @original_combination_elements = nil }
-# end
-
   # @return [Hash]
   #
   # {
@@ -727,15 +734,15 @@ class Protonym < TaxonName
     # TODO: remove reload, at this point the name should be saved
     r = original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
 
-    # r = related_relationships.select{|r| r.type.match('Orig')}  # =~ /Orig/} #  original_combination_relationships
-    #.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
+    # This is using the memoized version, but needs to always reload at this point. If we can work this
+    # into an early call then we can re-use the relationship load.
+    #
+    # r = related_relationships(true).select{|r| r.type.match('Orig')}  # =~ /Orig/} #  original_combination_relationships
+    #  .sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
 
     return {} if r.blank?
 
     genus = r.select{|r| r.type =~ /Genus/}.first&.subject_taxon_name # This is the original genus
-
-    # get gender from first
-    # gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name
 
     gender = genus&.gender_name
 
@@ -754,9 +761,8 @@ class Protonym < TaxonName
 
     # TODO: We apparently have no specs testing the need from here...
 
-    # what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
-    # DD: we do not require it, it is optional
-    if !r.empty? && r.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id
+    # Plug in self if self referencing OriginalCombination is not present (we do not require it).
+    if r.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id
       if elements[this_rank].nil?
         elements[this_rank] = [nil, original_name]
       end
@@ -764,7 +770,7 @@ class Protonym < TaxonName
 
     if elements.any?
       if !elements[:genus] && !not_binominal?
-        if genus #  original_genus
+        if genus
           elements[:genus] = [nil, "[#{genus&.name}]"] # !? why
         else
           elements[:genus] = [nil, '[GENUS NOT SPECIFIED]']
@@ -816,30 +822,44 @@ class Protonym < TaxonName
     p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
 
     s = p.flatten.compact.join(' ')
-    (s.presence)
+    @_cached_build_state[:original_combination] = s.presence
   end
 
+  # This should never require hitting the database.
   def get_original_combination_html
     return  "\"<i>Candidatus</i> #{get_original_combination}\"" if is_candidatus?
-    v = get_original_combination
-    if v.present? && is_hybrid?
+
+    # x = get_original_combination
+    # y = cached_original_combination # In a transaction this is not available
+    v = @_cached_build_state[:original_combination]
+
+    return nil if v.blank?
+
+    if is_hybrid?
       w = v.split(' ')
       w[-1] = ('×' + w[-1]).gsub('×(', '(×').gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))')
       v = w.join(' ')
     end
-    v = v.gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))') if v.present?
+
+    v = v.gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))')
 
     v = Utilities::Italicize.taxon_name(v) if is_genus_or_species_rank?
-    v = '† ' + v if v.present? && is_fossil?
+    v = '† ' + v  if is_fossil? # This doesn't belong here, it's touching the DB.
     v
   end
 
   def update_cached_original_combinations
+    # if @pp
+    #   @pp += 1
+    # else
+    #   @pp = 1
+    # end
     update_columns(
       cached_original_combination: get_original_combination,
       cached_original_combination_html: get_original_combination_html,
       cached_primary_homonym: get_genus_species(:original, :self),
       cached_primary_homonym_alternative_spelling: get_genus_species(:original, :alternative))
+    # puts Rainbow(@pp).orange.bold
   end
 
   def set_cached_species_homonym
@@ -849,10 +869,14 @@ class Protonym < TaxonName
     )
   end
 
+  # TODO: Are there are times where names are dependant and descendant?
+  #   Original Genus is Genus, for example
+
   def set_cached_names_for_descendants
     dependants = []
 
     TaxonName.transaction_with_retry do
+
       if is_genus_or_species_rank?
         dependants = Protonym.unscoped.descendants_of(self).to_a
       end
@@ -880,26 +904,37 @@ class Protonym < TaxonName
     related_through_original_combination_relationships = []
     combination_relationships = []
 
+    all_names = []
+
+    # This transaction makes it difficult to re-use cached fields to derive other =cached fields,
+    # thus the existence of some cachine attributes in TaxonName.
     TaxonName.transaction_with_retry do
+
       if is_genus_or_species_rank?
         related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
         combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
       end
 
+     # byebug if name == 'Dus'
+
       classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
 
       related_through_original_combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        all_names.push i
+        i.reload
+      #  byebug if name == 'Dus'
         i.update_cached_original_combinations
       end
 
       # Update values in Combinations
       combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |j|
+        all_names.push j
         n = j.get_full_name
         j.update_columns(
           cached: n,
           cached_html: j.get_full_name_html(n),
-          cached_author_year: j.get_author_and_year,
-          cached_nomenclature_date: j.nomenclature_date)
+          cached_author_year: j.get_author_and_year, # !! Only if it changed?
+          cached_nomenclature_date: j.nomenclature_date) ## Only if it changed?
       end
 
       classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
@@ -907,6 +942,7 @@ class Protonym < TaxonName
       end
 
       classified_as_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        all_names.push i
         n = i.get_full_name
         i.update_columns(
           cached: n,
@@ -917,9 +953,13 @@ class Protonym < TaxonName
 
       misspelling_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION)
       misspelling_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
-        i.update_columns(cached_author_year: i.get_author_and_year,
-                         cached_nomenclature_date: i.nomenclature_date)
+        all_names.push i
+        i.update_columns(
+          cached_author_year: i.get_author_and_year,
+          cached_nomenclature_date: i.nomenclature_date)
       end
+     #  byebug if all_names.uniq.size != all_names.size || all_names.size > 1
+
     end
   end
 
@@ -1084,14 +1124,19 @@ class Protonym < TaxonName
     old_cached = cached.to_s # why to_s?
 
     super
-    set_original_combination_cached_fields
-    set_cached_homonymy
-    set_cached_species_homonym if is_species_rank?
-    set_cached_misspelling
 
-    tn = TaxonName.find(id)
-    set_cached_names_for_descendants if tn.cached != old_cached
-    set_cached_names_for_dependants if tn.cached.to_s != old_cached || tn.cached_author_year.to_s != old_cached_author_year
+    if parent_id # Don't do this for Root!!
+      set_original_combination_cached_fields
+      set_cached_homonymy
+      set_cached_species_homonym if is_species_rank?
+      set_cached_misspelling
+
+
+      tn = TaxonName.find(id) # Why not "reload"
+      set_cached_names_for_descendants if tn.cached != old_cached
+      set_cached_names_for_dependants if  tn.cached.to_s != old_cached || tn.cached_author_year.to_s != old_cached_author_year
+    end
+    true
   end
 
   def set_cached_homonymy
@@ -1107,6 +1152,7 @@ class Protonym < TaxonName
   end
 
   def set_cached_original_combination
+  #  byebug if name == 'aus'
     update_column(:cached_original_combination, get_original_combination)
   end
 
@@ -1120,6 +1166,10 @@ class Protonym < TaxonName
   def set_original_combination_cached_fields
     set_cached_original_combination
     set_cached_original_combination_html
+  end
+
+  def _initialize_cached_build_state
+    @_cached_build_state = {}
   end
 
 end

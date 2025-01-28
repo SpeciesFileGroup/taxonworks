@@ -124,9 +124,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     expect(species.cached_original_combination).to eq('Aus (Aus) aus')
   end
 
-  specify '#original_genus, #original_subgenus set' do
+  specify '#original_genus, #original_subgenus set 2' do
     species.update!(original_genus: genus, original_subgenus: genus)
     expect(species.cached_original_combination).to eq('Aus (Aus) aus')
+
     species.original_subgenus_relationship.destroy
     expect(species.reload.cached_original_combination).to eq('Aus aus')
   end

@@ -56,8 +56,11 @@ class TaxonNameRelationship < ApplicationRecord
   belongs_to :subject_taxon_name, class_name: 'TaxonName', inverse_of: :taxon_name_relationships # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', inverse_of: :related_taxon_name_relationships # right side
 
-  # After commit only fires if there are changes to the record...
+  # After commit only fires if there are changes to the record.
   after_commit :set_cached_names_for_taxon_names, unless: -> {self.no_cached }
+
+
+
 
   # TODO: remove, it's required by STI
   validates_presence_of :type, message: 'Relationship type should be specified'
@@ -437,21 +440,23 @@ class TaxonNameRelationship < ApplicationRecord
     errors.add(:subject_taxon_name_id, 'Not a Protonym') if subject_taxon_name.type == 'Combination' && self.type != 'TaxonNameRelationship::CurrentCombination'
   end
 
-  # OriginalCombination handles it's own cached names
+  # OriginalCombination has a replacement method.
   def set_cached_names_for_taxon_names
     return true unless subject_taxon_name_id_previously_changed? || destroyed?
-    
+
+    # TODO: this should completely be replaced with Taxonname logic.
     TaxonName.transaction do # Why?
       if is_invalidating?
         t = subject_taxon_name
 
         if type_name =~/Misspelling/
           t.update_column(:cached_misspelling, t.get_cached_misspelling)
+
           t.update_columns(
-              cached_author_year: t.get_author_and_year,
-              cached_nomenclature_date: t.nomenclature_date,
-              cached_original_combination: t.get_original_combination,
-              cached_original_combination_html: t.get_original_combination_html)
+            cached_author_year: t.get_author_and_year,
+            cached_nomenclature_date: t.nomenclature_date,
+            cached_original_combination: t.get_original_combination,
+            cached_original_combination_html: t.get_original_combination_html)
         end
 
         if type_name =~/Misapplication/
@@ -486,9 +491,7 @@ class TaxonNameRelationship < ApplicationRecord
             c.update_column(:cached_valid_taxon_name_id, vn.id)
           end
         end
-
       end
-
     end
 
     true

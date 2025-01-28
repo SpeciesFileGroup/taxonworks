@@ -200,9 +200,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       context '#set_cached_names_for_dependants_and_self' do
 
         context 'species methods' do
-          before do
+          before {
             species.update(original_genus: genus2, source_classified_as: family)
-          end
+          }
 
           specify '#cached' do
             expect(species.cached).to eq('Aus aus')
@@ -279,12 +279,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(species.cached_html).to eq('<i>Aus aus</i>')
             end
 
-            specify '#cached_original_combination_html' do
-              expect(species.cached_original_combination_html).to eq('<i>Dus aus</i>')
-            end
-
             specify '#cached_original_combination' do
               expect(species.cached_original_combination).to eq('Dus aus')
+            end
+
+            specify '#cached_original_combination_html' do
+              expect(species.cached_original_combination_html).to eq('<i>Dus aus</i>')
             end
           end
 
@@ -399,6 +399,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             let!(:species_syn) { FactoryBot.create(:relationship_species, name: 'bus', parent: genus1)}
             let!(:combination) {Combination.create(genus: genus1, species: species_syn) }
             let!( :r1) { FactoryBot.create(:taxon_name_relationship, subject_taxon_name: species_syn, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym' )}
+
             specify 'combination cached_valid_taxon_name_id' do
               combination.reload
               expect(combination.cached_valid_taxon_name_id).to eq(species.id)
@@ -424,14 +425,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             specify 'valid species with one citation' do
               r1.citations.create(source: source1)
               species_syn.reload
-              expect(species_syn.cached_valid_taxon_name_id).to eq (species1.id)
+              expect(species_syn.cached_valid_taxon_name_id).to eq(species1.id)
             end
 
             specify 'valid species with two citation' do
               r1.citations.create(source: source1)
               r2.citations.create(source: source2)
               species_syn.reload
-              expect(species_syn.cached_valid_taxon_name_id).to eq (species2.id)
+              expect(species_syn.cached_valid_taxon_name_id).to eq(species2.id)
             end
           end
 
