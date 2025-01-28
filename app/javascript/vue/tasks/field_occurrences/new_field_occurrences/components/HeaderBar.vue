@@ -90,6 +90,7 @@ import useBiocurationStore from '../store/biocurations.js'
 import useBiologicalAssociationStore from '../store/biologicalAssociations.js'
 import useIdentifierStore from '../store/identifier.js'
 import useDepictionStore from '../store/depictions.js'
+import useOriginRelationshipStore from '../store/originRelationships.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VRecent from './Recent.vue'
 import { useHotkey } from '@/composables'
@@ -108,9 +109,11 @@ const ceStore = useCEStore()
 const biocurationStore = useBiocurationStore()
 const identifierStore = useIdentifierStore()
 const depictionStore = useDepictionStore()
+const originRelationshipStore = useOriginRelationshipStore()
 const fieldOccurrenceId = computed(() => foStore.fieldOccurrence.id)
 const isUnsaved = computed(
   () =>
+    originRelationshipStore.hasUnsaved ||
     citationStore.hasUnsaved ||
     determinationStore.hasUnsaved ||
     biocurationStore.hasUnsaved ||
@@ -145,6 +148,7 @@ async function save() {
       determinationStore.load(args),
       biocurationStore.save(args),
       identifierStore.save(args),
+      originRelationshipStore.save(args),
       biologicalAssociationStore.save(args)
     ]
 
@@ -173,6 +177,7 @@ function reset() {
     biocurationStore.list = []
   }
 
+  originRelationshipStore.$reset()
   depictionStore.$reset()
   identifierStore.reset({ keepNamespace: locked.namespace })
   determinationStore.reset({ keepRecords: locked.taxonDeterminations })
@@ -228,6 +233,7 @@ async function loadForms(id) {
   })
 
   const requests = [
+    originRelationshipStore.load(args),
     determinationStore.load(args),
     biocurationStore.load(args),
     citationStore.load(args),

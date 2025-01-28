@@ -22,6 +22,7 @@ export default defineStore('originRelationships', {
       }).then(({ body }) => {
         this.originRelationships = body.map((c) => ({
           ...c,
+          label: c.object_tag,
           uuid: randomUUID(),
           isUnsaved: false
         }))

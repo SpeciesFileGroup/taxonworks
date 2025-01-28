@@ -77,10 +77,10 @@
             <tr>
               <td v-html="element.label" />
               <td />
-              <td>
+              <td class="w-2">
                 <VBtn
                   circle
-                  color="destroy"
+                  :color="element.id ? 'destroy' : 'primary'"
                   @click="store.remove(element)"
                 >
                   <VIcon

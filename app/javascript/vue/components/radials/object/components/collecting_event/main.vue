@@ -77,6 +77,7 @@ import {
   Label,
   Identifier,
   CollectionObject,
+  FieldOccurrence,
   CollectingEvent
 } from '@/routes/endpoints'
 import { onBeforeMount, ref, watch } from 'vue'
@@ -123,8 +124,11 @@ watch(collectingEvent, (newVal) => {
 })
 
 onBeforeMount(async () => {
-  const ceId = (await CollectionObject.find(props.objectId)).body
-    .collecting_event_id
+  const ceId = (
+    COLLECTION_OBJECT
+      ? await CollectionObject.find(props.objectId)
+      : await FieldOccurrence.find(props.objectId)
+  ).body?.collecting_event_id
 
   Identifier.where({
     identifier_object_id: props.objectId,

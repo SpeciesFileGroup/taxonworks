@@ -44,6 +44,9 @@ class FieldOccurrence < ApplicationRecord
   include Shared::IsDwcOccurrence
 
   is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound'
+  originates_from 'FieldOccurrence'
+
+  GRAPH_ENTRY_POINTS = [:collecting_event, :origin_relationships]
 
   belongs_to :collecting_event, inverse_of: :field_occurrences
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
