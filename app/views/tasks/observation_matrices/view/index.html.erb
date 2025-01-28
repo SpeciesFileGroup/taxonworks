@@ -42,7 +42,7 @@
           <span class="header-slanted-label">Code</span>
         </th>
         <th class="header-slanted-cell" style="column-width: auto;" >
-          <span class="header-slanted-label"> OTUs </span>
+          <span class="header-slanted-label"> Row objects </span>
         </th>
         <% @observation_matrix.observation_matrix_columns.order(:position).each do |d| -%>
           <%= tag.th tag.label(descriptor_matrix_column_link(d.descriptor), class: ['header-slanted-label']), class: ['header-slanted-cell'], title: d.descriptor.name -%>
