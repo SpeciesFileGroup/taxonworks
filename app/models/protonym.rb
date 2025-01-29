@@ -498,7 +498,8 @@ class Protonym < TaxonName
   # @return [Boolean]
   #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
   def has_misspelling_relationship?
-    taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).any?
+    # taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).any?
+    cached_misspelling ? true : false
   end
 
   # @return [Boolean]
@@ -716,7 +717,7 @@ class Protonym < TaxonName
   #  form: ['frm', 'aus']
   # }
   #
-  def original_combination_elements
+  def original_combination_elements # Need reload off mode for write
     return @original_combination_elements unless @original_combination_elements.nil?
 
     elements = { }
