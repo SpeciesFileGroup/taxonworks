@@ -11,20 +11,22 @@ module Export
   # * Pending handling of both BibTeX and Verbatim
   module Coldp
 
-    FILETYPES = %w{Description Name Synonym NameRelation TaxonConceptRelation TypeMaterial VernacularName}.freeze
+    FILETYPES = %w{Description Name Synonym NameRelation TaxonConceptRelation TypeMaterial VernacularName Taxon References}.freeze
 
     # @return [Scope]
-    #  A full set of valid only Otus (= Taxa in CoLDP) that are to be sent.
-    #  !! At present no OTU with a `name` is sent.  In the future this may
-    #  !! need to change.
+    #  A full set of valid only OTUs (= Taxa in CoLDP) that are to be sent.
+    #  !! At present no OTU with a `name` is sent. In the future this may need to change.
+    #
+    #  !! No synonym TaxonName is send if they don't have an OTU
+    #
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
       return ::Otu.none if o.taxon_name_id.nil?
 
       Otu.joins(taxon_name: [:ancestor_hierarchies])
+        .where(taxon_names: {cached_is_valid: true} )
         .where('taxon_name_hierarchies.ancestor_id = ?', o.taxon_name_id)
-        .where(taxon_name_id: TaxonName.that_is_valid)
-        .where('(otus.name IS NULL) OR (otus.name = taxon_names.cached)')
+        .where('(otus.name IS NULL) OR (otus.name = taxon_names.cached)') # !! Union does not make this faster
     end
 
     def self.project_members(project_id)
@@ -47,11 +49,15 @@ module Export
       project_members[updated_by_id]
     end
 
+    # TODO: Move to Strings::Utilities
     def self.sanitize_remarks(remarks)
       remarks&.gsub('\r\n', ' ')&.gsub('\n', ' ')&.gsub('\t', ' ')&.gsub(/[ ]+/, ' ')
     end
 
     # Return path to the data itself
+    #
+    # TODO: mode: taxon_name_proxy
+    #
     def self.export(otu_id, prefer_unlabelled_otus: true)
       otus = otus(otu_id)
 
@@ -60,7 +66,7 @@ module Export
 
       otu = ::Otu.find(otu_id)
       project = ::Project.find(otu.project_id)
-      project_members = project_members(otu.project_id)
+      project_members = project_members(project.id)
 
       # TODO: This will likely have to change, it is renamed on serving the file.
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
@@ -80,12 +86,14 @@ module Export
       metadata_file.close
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
-        (FILETYPES - ['Name']).each do |ft|
+
+        (FILETYPES - %w{Name Taxon References}).each do |ft|
           m = "Export::Coldp::Files::#{ft}".safe_constantize
           zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
         end
 
         zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+
         zipfile.get_output_stream('Taxon.tsv') do |f|
           f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv)
         end
@@ -142,7 +150,6 @@ module Export
       download
     end
 
-
     # TODO - perhaps a utilities file --
 
     # @return [Boolean]
@@ -164,7 +171,9 @@ module Export
       end
     end
 
-    # Replicate TaxonName.refified_id without having to use AR
+    # Replicate TaxonName.refified_id.  This is here because we pluck to arrays in the
+    # dump. It's janky.
+    # TODO: try to eliminate, at minimum test for consistency?
     def self.reified_id(taxon_name_id, cached, cached_original_combination)
       # Protonym#has_alternate_original?
       if cached_original_combination && (cached != cached_original_combination)

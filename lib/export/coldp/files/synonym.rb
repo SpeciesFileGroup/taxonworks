@@ -32,6 +32,7 @@ module Export::Coldp::Files::Synonym
       csv << %w{taxonID nameID status remarks referenceID modified modifiedBy}
 
       # Only valid otus with taxon names, see lib/export/coldp.rb#otus
+      #  ?! in groups of
       otus.select('otus.id id, taxon_names.cached cached, otus.taxon_name_id taxon_name_id')
         .pluck(:id, :cached, :taxon_name_id)
         .each do |o|
@@ -44,16 +45,17 @@ module Export::Coldp::Files::Synonym
           #
           a = TaxonName.that_is_invalid
             .where(cached_valid_taxon_name_id: o[2])
-            .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", o[1])
+            .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", o[1]) # Hybrids allowed, intended?
 
           b = TaxonName.where(cached_valid_taxon_name_id: o[2])
-            .where("(taxon_names.cached_original_combination != taxon_names.cached)")
+            .where('(taxon_names.cached_original_combination != taxon_names.cached)')
             .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", o[1])
 
-          c = TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+          c = ::Queries.union(TaxonName, [a,b])
 
           # Hernán notes:
           # TaxonName.where(cached_valid_taxon_name_id: 42).merge(TaxonName.where.not(type: 'Combination').or(TaxonName.where.not(cached: 'Forty two'))).to_sql
+          # Mjy - "or" performance is bad? or?
 
           # Original concept
           # TaxonName
@@ -66,7 +68,7 @@ module Export::Coldp::Files::Synonym
 
               # skips including parent binomial as a synonym of autonym trinomial
               unless t[5].nil?
-                if !t[1].nil? and t[1].include? t[5] and (t[4].match(/::Subspecies$/) or t[4].match(/::Form$/) or t[4].match(/::Variety$/))
+                if !t[1].nil? and t[1].include?(t[5]) and (t[4].match(/::Subspecies$/) or t[4].match(/::Form$/) or t[4].match(/::Variety$/))
                   next
                 end
 
@@ -77,7 +79,7 @@ module Export::Coldp::Files::Synonym
 
               # TODO: This code block is erroneously removing basionyms from the synonyms section but we may need an improved form of it to remove duplicate synonyms (https://github.com/SpeciesFileGroup/taxonworks/issues/3482)
               # matches = t[1].match(/([A-Z][a-z]+) \(.+\) ([a-z]+)/)
-              # 
+              #
               # if matches&.size == 3        # cached_original_combination != cached_secondary_homonym
               #   if t[5] == "#{matches[1]} #{matches[2]}" and t[2] != t[5]
               #     next
