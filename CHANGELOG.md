@@ -13,12 +13,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Grab cursor to make sorting feature visible [#4153]
 - API endpoint for image matrix
 - Added order of depictions comming from the image matrix
+- Hub tasks: Add visual effect for fav icons and tooltip for categories [#4177]
 
 ### Fixed
 
 - CSD: change of namespace not updating [#4147]
 - TaxonWorks bibliography style for book chapter.
 
+[#4177]: https://github.com/SpeciesFileGroup/taxonworks/issues/4177
 [#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
 [#4147]: https://github.com/SpeciesFileGroup/taxonworks/issues/4147
 [#4153]: https://github.com/SpeciesFileGroup/taxonworks/issues/4153
