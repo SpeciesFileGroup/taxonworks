@@ -1594,7 +1594,8 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_misspelling_roles_are_not_required
-      #DD: do not use .has_misspelling_relationship?
+      # DD: do not use .has_misspelling_relationship?
+      # MJY Why?
       misspellings = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
       if !self.taxon_name_author_roles.empty? && self.source && misspellings
         soft_validations.add(
