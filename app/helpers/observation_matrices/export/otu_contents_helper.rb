@@ -1,4 +1,6 @@
 module ObservationMatrices::Export::OtuContentsHelper
+  include Lib::DistributionHelper
+
   def get_otu_contents(options = {})
     opt = {otus: []}.merge!(options)
     m = opt[:observation_matrix]
@@ -14,9 +16,12 @@ module ObservationMatrices::Export::OtuContentsHelper
     end
     otu_ids = otu_rows.keys
 
+    content_hash = {}
+    content_columns = {}
+
     #otu_ids = m.otus.collect{|i| i.id}
-    CSV.generate do |csv|
-      csv << ['otu_id', 'topic', 'text']
+    ##### CSV.generate do |csv|
+    ##### csv << ['otu_id', 'topic', 'text']
 
       if options[:taxon_name] == 'true'
         protonyms = Protonym.select('taxon_names.*, otus.name AS otu_name, observation_matrix_rows.id AS row_id').
@@ -24,12 +29,17 @@ module ObservationMatrices::Export::OtuContentsHelper
           where("observation_matrix_rows.observation_object_type = 'Otu'").
           where('otus.id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
           order(:observation_object_id)
+        content_columns['Taxon name'] = true
+        content_columns['Authority'] = true
         protonyms.each do |p|
-          csv << ['row_' + p.row_id.to_s, 'Taxon name', [p.otu_name, p.cached_html].compact.join(': ') ]
+          ##### csv << ['row_' + p.row_id.to_s, 'Taxon name', [p.otu_name, p.cached_html].compact.join(': ') ]
+          content_hash['row_' + p.row_id.to_s] = {}
+          content_hash['row_' + p.row_id.to_s]['Taxon name'] = [p.otu_name, p.cached_html].compact.join(': ')
+          content_hash['row_' + p.row_id.to_s]['Authority'] = p.cached_author_year
         end
-        protonyms.each do |p|
-          csv << ['row_' + p.row_id.to_s, 'Authority', p.cached_author_year ]
-        end
+        ##### protonyms.each do |p|
+          ##### csv << ['row_' + p.row_id.to_s, 'Authority', p.cached_author_year ]  #####
+        ##### end
       end
 
       if options[:include_nomenclature] == 'true'
@@ -45,7 +55,9 @@ module ObservationMatrices::Export::OtuContentsHelper
             history.each do |h|
               st.push( [h[:name], h[:author_year], h[:statuses]].join(' '))
             end
-            csv << ['row_' + p.row_id.to_s, 'Nomenclature', st.join('<br>') ]
+            content_columns['Nomenclature'] = true
+            content_hash['row_' + p.row_id.to_s]['Nomenclature'] = st.join('<br>')
+            #####csv << ['row_' + p.row_id.to_s, 'Nomenclature', st.join('<br>') ]
           end
         end
       end
@@ -57,7 +69,9 @@ module ObservationMatrices::Export::OtuContentsHelper
           where('contents.otu_id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
           order(:otu_id, :topic_id)
         contents.each do |i|
-          csv << ['row_' + i.row_id.to_s, i.name, i.text]
+          content_columns['i.name'] = true
+          content_hash['row_' + i.row_id.to_s][i.name] = i.text
+          ##### csv << ['row_' + i.row_id.to_s, i.name, i.text]
         end
       end
 
@@ -70,23 +84,34 @@ module ObservationMatrices::Export::OtuContentsHelper
 
         otus.each do |o|
           description = Tools::Description::FromObservationMatrix.new(project_id: m.project_id, observation_matrix_id: m.id, otu_id: o.id)
-          csv << ['row_' + o.row_id.to_s, 'Description', description.generated_description ]
+          content_columns['Description'] = true
+          content_hash['row_' + o.row_id.to_s]['Description'] = description.generated_description
+          ##### csv << ['row_' + o.row_id.to_s, 'Description', description.generated_description ]
         end
       end
 
       if options[:include_distribution] == 'true'
-        ad = AssertedDistribution.select('asserted_distributions.*, geographic_areas.name, observation_matrix_rows.id AS row_id').
-          joins(:geographic_area).joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.observation_object_id = asserted_distributions.otu_id').
+        ###### ad = AssertedDistribution.select('asserted_distributions.*, geographic_areas.name, observation_matrix_rows.id AS row_id').
+        #  joins(:geographic_area).joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.observation_object_id = asserted_distributions.otu_id').
+        #  where("observation_matrix_rows.observation_object_type = 'Otu'").
+        #  where('asserted_distributions.otu_id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
+        #  order(:otu_id, :geographic_area_id)
+        #otu_ad = {}
+        #ad.each do |i|
+        #  otu_ad[i.row_id] = [] if otu_ad[i.row_id].nil?
+        #  otu_ad[i.row_id].append(i.name)
+        #end
+        #otu_ad.each do |key, value|
+        #  ##### csv << ['row_' + key.to_s, 'Distribution', value.join(', ') ]
+        #end
+        protonyms = Protonym.select('taxon_names.*, observation_matrix_rows.id AS row_id').
+          joins(:otus).joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.observation_object_id = otus.id').
           where("observation_matrix_rows.observation_object_type = 'Otu'").
-          where('asserted_distributions.otu_id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
-          order(:otu_id, :geographic_area_id)
-        otu_ad = {}
-        ad.each do |i|
-          otu_ad[i.row_id] = [] if otu_ad[i.row_id].nil?
-          otu_ad[i.row_id].append(i.name)
-        end
-        otu_ad.each do |key, value|
-          csv << ['row_' + key.to_s, 'Distribution', value.join(', ') ]
+          where('otus.id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
+          order(:observation_object_id)
+        protonyms.each do |p|
+          content_columns['Distribution'] = true
+          content_hash['row_' + p.row_id.to_s]['Distribution'] = paper_distribution_entry(p)
         end
       end
 
@@ -95,44 +120,45 @@ module ObservationMatrices::Export::OtuContentsHelper
           joins(:otus).joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.observation_object_id = otus.id').
           where("observation_matrix_rows.observation_object_type = 'Otu'").
           where('otus.id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
-          where("rank_class LIKE '%Family%' OR rank_class LIKE '%Genus%'").
           order(:observation_object_id)
-        p_ids = {}
+        #p_ids = {}
         protonyms.each do |p|
-          next unless p_ids[p.id].nil?
-          stype = p.type_species
-          csv << ['row_' + p.row_id.to_s, 'Type species', stype.cached_html_original_name_and_author_year ] unless stype.nil?
-          gtype = p.type_genus
-          csv << ['row_' + p.row_id.to_s, 'Type genus', gtype.cached_html_original_name_and_author_year ] unless gtype.nil?
-          p_ids[p.id] = true
+          content_columns['Type'] = true
+          content_hash['row_' + p.row_id.to_s]['Type'] = content_type_material(p)
+          #next unless p_ids[p.id].nil?
+          #stype = p.type_species
+          #csv << ['row_' + p.row_id.to_s, 'Type species', stype.cached_html_original_name_and_author_year ] unless stype.nil?
+          #gtype = p.type_genus
+          #csv << ['row_' + p.row_id.to_s, 'Type genus', gtype.cached_html_original_name_and_author_year ] unless gtype.nil?
+          #p_ids[p.id] = true
         end
-        protonyms = Protonym.select('taxon_names.*, observation_matrix_rows.id AS row_id').
-          joins(:otus).joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.observation_object_id = otus.id').
-          where("observation_matrix_rows.observation_object_type = 'Otu'").
-          where('otus.id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
-          where("rank_class LIKE '%Species%'").
-          order(:observation_object_id)
-        p_ids = {}
-        protonyms.each do |p|
-          next unless p_ids[p.id].nil?
-          type = p&.type_materials&.primary&.first&.collection_object&.repository&.name
-          csv << ['row_' + p.row_id.to_s, 'Type repository', type ] unless type.nil?
-          p_ids[p.id] = true
-        end
-        p_ids = {}
-        protonyms.each do |p|
-          next unless p_ids[p.id].nil?
-          type = type = p&.type_materials&.primary&.first&.type_type
-          csv << ['row_' + p.row_id.to_s, 'Type status', type ] unless type.nil?
-          p_ids[p.id] = true
-        end
-        p_ids = {}
-        protonyms.each do |p|
-          next unless p_ids[p.id].nil?
-          type = p&.type_materials&.primary&.first&.collection_object&.buffered_collecting_event
-          csv << ['row_' + p.row_id.to_s, 'Type locality', type ] unless type.nil?
-          p_ids[p.id] = true
-        end
+        # protonyms = Protonym.select('taxon_names.*, observation_matrix_rows.id AS row_id').
+        #  joins(:otus).joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.observation_object_id = otus.id').
+        #  where("observation_matrix_rows.observation_object_type = 'Otu'").
+        #  where('otus.id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
+        #  where("rank_class LIKE '%Species%'").
+        #  order(:observation_object_id)
+        #p_ids = {}
+        #protonyms.each do |p|
+        #  next unless p_ids[p.id].nil?
+        #  type = p&.type_materials&.primary&.first&.collection_object&.repository&.name
+        #  csv << ['row_' + p.row_id.to_s, 'Type repository', type ] unless type.nil?
+        #  p_ids[p.id] = true
+        #end
+        #p_ids = {}
+        #protonyms.each do |p|
+        #  next unless p_ids[p.id].nil?
+        #  type = type = p&.type_materials&.primary&.first&.type_type
+        #  csv << ['row_' + p.row_id.to_s, 'Type status', type ] unless type.nil?
+        #  p_ids[p.id] = true
+        #end
+        #p_ids = {}
+        #protonyms.each do |p|
+        #  next unless p_ids[p.id].nil?
+        #  type = p&.type_materials&.primary&.first&.collection_object&.buffered_collecting_event
+        #  csv << ['row_' + p.row_id.to_s, 'Type locality', type ] unless type.nil?
+        #  p_ids[p.id] = true
+        #end
       end
 
       if options[:include_depictions] == 'true'
@@ -162,19 +188,53 @@ module ObservationMatrices::Export::OtuContentsHelper
                 href = im.image_hash[depiction[:image_id]][:original_url]
               end
 
-              list += "<span class='tw_depiction'><br>\n"
-              list += "#{tag.img(src: short_url(href), class: 'tw_image')}<br>\n"
-              #list += (tag.b('Object:') +  object[1][:object].otu_name + "<br>\n") unless object[1][:object].otu_name.blank?
-              #list += "<b>Description:</b> #{descriptors[index][:name]}<br>\n" unless descriptors[index].blank?
-              list += "<b>Label:</b> #{lbl}<br>\n" unless lbl.blank?
-              list += "<b>Citation:</b> #{cit}<br>\n" unless cit.blank?
-              list += "</span>\n"
+              list += "<span class='tw_depiction'><br>"
+              list += "#{tag.img(src: short_url(href), class: 'tw_image')}<br>"
+              list += "<b>Label:</b> #{lbl}<br>" unless lbl.blank?
+              list += "<b>Citation:</b> #{cit}<br>" unless cit.blank?
+              list += "</span>"
             end
           end
-          csv << ['row_' + otu_rows[object[1][:otu_id]].to_s, 'Illustrations', list ] unless list.blank?
+          content_columns['Illustrations'] = true
+          content_hash['row_' + otu_rows[object[1][:otu_id]].to_s]['Illustrations'] = list unless list.blank?
+          ##### csv << ['row_' + otu_rows[object[1][:otu_id]].to_s, 'Illustrations', list ] unless list.blank?
         end
       end
 
+    ::CSV.generate(col_sep: "\t") do |csv|
+      row = ['otu_id'] + content_columns.keys # Headers
+      csv << row
+      content_hash.each do |k,v|
+        row = [k]
+        content_columns.keys.each do |c|
+          row << v[c]
+        end
+        csv << row
+      end
+    end.html_safe
+  end
+
+  def content_type_material(t)
+    return nil if t.type != 'Protonym'
+
+    # Species type
+    if t.is_species_rank?
+      types = t.get_primary_type
+      if types.any?
+        return types.collect{|i| type_material_catalog_label(i)}.join('. ')
+      else
+        return nil
+      end
+    else
+      if type_taxon_name_relationship = t&.type_taxon_name_relationship
+        str = citations_tag(type_taxon_name_relationship)
+        [ ' ' + type_taxon_name_relationship_label(t.type_taxon_name_relationship),
+          (type_taxon_name_relationship.citations&.load&.any? ?  ' in ' : nil),
+          str
+        ].compact.join #.html_safe
+      else
+        nil
+      end
     end
   end
 
