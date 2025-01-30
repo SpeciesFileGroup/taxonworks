@@ -69,7 +69,7 @@ module ObservationMatrices::Export::OtuContentsHelper
           where('contents.otu_id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
           order(:otu_id, :topic_id)
         contents.each do |i|
-          content_columns['i.name'] = true
+          content_columns[i.name] = true
           content_hash['row_' + i.row_id.to_s][i.name] = i.text
           ##### csv << ['row_' + i.row_id.to_s, i.name, i.text]
         end
