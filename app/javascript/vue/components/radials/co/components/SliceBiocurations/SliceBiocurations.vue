@@ -13,58 +13,20 @@
           v-for="group in biocurationsGroups"
           :key="group.id"
           :group="group"
+          :parameters="parameters"
           class="margin-small-bottom"
           color="submit"
-          @select="addBiocuration"
         />
       </div>
     </div>
-
-    <div class="margin-large-top">
-      <template v-if="collectionObjects.updated.length">
-        <h3>Updated</h3>
-        <ul>
-          <li
-            v-for="id in collectionObjects.updated"
-            :key="id"
-          >
-            <a
-              :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`"
-              v-html="id"
-            />
-          </li>
-        </ul>
-      </template>
-      <template v-if="collectionObjects.not_updated.length">
-        <h3>Not updated</h3>
-        <ul>
-          <li
-            v-for="item in collectionObjects.not_updated"
-            :key="item"
-          >
-            <a
-              :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${item}`"
-              v-html="item"
-            />
-          </li>
-        </ul>
-      </template>
-    </div>
-    <ConfirmationModal ref="confirmationModalRef" />
   </div>
 </template>
 
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
-import { RouteNames } from '@/routes/routes.js'
-import {
-  CollectionObject,
-  ControlledVocabularyTerm,
-  Tag
-} from '@/routes/endpoints'
+import { ControlledVocabularyTerm, Tag } from '@/routes/endpoints'
 import { BIOCURATION_CLASS, BIOCURATION_GROUP } from '@/constants'
 import BiocurationGroup from './BiocurationGroup.vue'
-import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 const MAX_LIMIT = 50
 
@@ -80,11 +42,8 @@ const props = defineProps({
   }
 })
 
-const collectionObjects = ref({ updated: [], not_updated: [] })
 const biocurationsGroups = ref([])
 const biocutarionsType = ref([])
-const confirmationModalRef = ref(null)
-
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
 onBeforeMount(() => {
@@ -102,7 +61,7 @@ onBeforeMount(() => {
 })
 
 function splitGroups() {
-  biocurationsGroups.value.forEach((item, index) => {
+  biocurationsGroups.value.forEach((item) => {
     Tag.where({ keyword_id: item.id }).then(({ body }) => {
       const tmpArray = []
 
@@ -117,70 +76,5 @@ function splitGroups() {
       item.list = tmpArray
     })
   })
-}
-
-async function addBiocuration(item) {
-  const ok = await confirmationModalRef.value.show({
-    title: 'Add biocurations',
-    message: 'Are you sure you want to proceed?',
-    confirmationWord: 'add',
-    okButton: 'Add',
-    cancelButton: 'Cancel',
-    typeButton: 'submit'
-  })
-
-  if (ok) {
-    const payload = {
-      collection_object_query: props.parameters,
-      collection_object: {
-        biocuration_classifications_attributes: [
-          { biocuration_class_id: item.id }
-        ]
-      }
-    }
-
-    CollectionObject.batchUpdate(payload).then(({ body }) => {
-      Object.assign(collectionObjects.value, body)
-      TW.workbench.alert.create(
-        `${body.updated.length} sources were successfully added.`,
-        'notice'
-      )
-    })
-  }
-}
-
-async function removeBiocuration(item) {
-  const ok = await confirmationModalRef.value.show({
-    title: 'Remove biocurations',
-    message: 'Are you sure you want to proceed?',
-    confirmationWord: 'remove',
-    okButton: 'Remove',
-    cancelButton: 'Cancel',
-    typeButton: 'delete'
-  })
-
-  if (ok) {
-    const payload = {
-      collection_object_query: props.parameters,
-      collection_object: {
-        biocuration_classifications_attributes: [
-          {
-            biocuration_class_id: item.id,
-            _destroy: true
-          }
-        ]
-      }
-    }
-
-    CollectionObject.batchUpdate(payload).then(({ body }) => {
-      const message = body.sync
-        ? `${body.total_attempted} collection objects were queued for updating.`
-        : `${body.updated.length} collection objects were successfully updated.`
-
-      Object.assign(collectionObjects.value, body)
-
-      TW.workbench.alert.create(message, 'notice')
-    })
-  }
 }
 </script>
