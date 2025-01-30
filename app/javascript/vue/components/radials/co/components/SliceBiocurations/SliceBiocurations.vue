@@ -21,11 +21,11 @@
     </div>
 
     <div class="margin-large-top">
-      <template v-if="collectionObjects.passed.length">
-        <h3>Passed</h3>
+      <template v-if="collectionObjects.updated.length">
+        <h3>Updated</h3>
         <ul>
           <li
-            v-for="id in collectionObjects.passed"
+            v-for="id in collectionObjects.updated"
             :key="id"
           >
             <a
@@ -35,11 +35,11 @@
           </li>
         </ul>
       </template>
-      <template v-if="collectionObjects.failed.length">
-        <h3>Failed</h3>
+      <template v-if="collectionObjects.not_updated.length">
+        <h3>Not updated</h3>
         <ul>
           <li
-            v-for="item in collectionObjects.failed"
+            v-for="item in collectionObjects.not_updated"
             :key="item"
           >
             <a
@@ -80,7 +80,7 @@ const props = defineProps({
   }
 })
 
-const collectionObjects = ref({ passed: [], failed: [] })
+const collectionObjects = ref({ updated: [], not_updated: [] })
 const biocurationsGroups = ref([])
 const biocutarionsType = ref([])
 const confirmationModalRef = ref(null)
@@ -142,7 +142,7 @@ async function addBiocuration(item) {
     CollectionObject.batchUpdate(payload).then(({ body }) => {
       Object.assign(collectionObjects.value, body)
       TW.workbench.alert.create(
-        `${body.passed.length} sources were successfully added.`,
+        `${body.updated.length} sources were successfully added.`,
         'notice'
       )
     })
