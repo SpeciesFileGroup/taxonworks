@@ -7,37 +7,46 @@
       <h3>Clone</h3>
     </template>
     <template #body>
-      <p>
-        This will clone the current collecting event with the following
-        information.
-      </p>
-      <ul class="no_bullets">
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="annotations"
-            />
-            Copy annotations
-          </label>
-        </li>
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="incrementIdentifier"
-            />
-            Increment identifier
-          </label>
-        </li>
-      </ul>
-      <VBtn
-        class="margin-medium-top"
-        color="create"
-        medium
-        @click="clone"
-        >Clone</VBtn
-      >
+      <div class="flex-col gap-medium">
+        <span>
+          This will clone the current collecting event with the following
+          information.
+        </span>
+        <ul class="no_bullets">
+          <li>
+            <label>
+              <input
+                type="checkbox"
+                v-model="annotations"
+              />
+              Copy annotations
+            </label>
+          </li>
+          <li>
+            <label>
+              <input
+                type="checkbox"
+                v-model="incrementIdentifier"
+              />
+              Increment identifier
+            </label>
+          </li>
+        </ul>
+
+        <div
+          v-if="!collectionObject.id"
+          class="feedback feedback-warning"
+        >
+          A new, blank Collection Object is also created
+        </div>
+
+        <VBtn
+          color="create"
+          medium
+          @click="clone"
+          >Clone</VBtn
+        >
+      </div>
     </template>
   </VModal>
   <VBtn
@@ -60,6 +69,10 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
 
+const collectionObject = computed(
+  () => store.getters[GetterNames.GetCollectionObject]
+)
+
 const identifierId = computed(
   () => store.getters[GetterNames.GetIdentifier]?.id
 )
@@ -81,3 +94,10 @@ function clone() {
   store.dispatch(ActionNames.CloneCollectingEvent, payload)
 }
 </script>
+
+<style scoped>
+.feedback {
+  line-height: normal;
+  margin-bottom: 0px;
+}
+</style>

@@ -19,7 +19,11 @@ json.list_of_descriptors @key.list_of_descriptors.sort_by {|k, v| v[:index]}.map
 json.image_hash @key.image_hash
 
 json.depiction_matrix (@key.depiction_matrix) do |d, v|
-  json.label label_for(v[:object])
+  json.object do
+    json.id v[:object].observation_object_id
+    json.type v[:object].observation_object_type
+    json.label label_for(v[:object])
+  end
   json.depictions (v[:depictions]) do |depiction|
     json.array! depiction do |d|
       json.extract! d, :id, :depiction_object_id, :depiction_object_type, :image_id, :caption, :figure_label
