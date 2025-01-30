@@ -37,7 +37,8 @@
           v-if="!collectionObject.id"
           class="feedback feedback-warning"
         >
-          A new, blank Collection Object is also created
+          Current collection object will be saved and assigned to the cloned
+          collecting event.
         </div>
 
         <VBtn
