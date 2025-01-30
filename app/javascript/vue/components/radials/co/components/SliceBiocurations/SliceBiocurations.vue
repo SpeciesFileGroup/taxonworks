@@ -173,11 +173,13 @@ async function removeBiocuration(item) {
     }
 
     CollectionObject.batchUpdate(payload).then(({ body }) => {
+      const message = body.sync
+        ? `${body.total_attempted} collection objects were queued for updating.`
+        : `${body.updated.length} collection objects were successfully updated.`
+
       Object.assign(collectionObjects.value, body)
-      TW.workbench.alert.create(
-        `${body.passed.length} biocuration(s) were successfully removed.`,
-        'notice'
-      )
+
+      TW.workbench.alert.create(message, 'notice')
     })
   }
 }
