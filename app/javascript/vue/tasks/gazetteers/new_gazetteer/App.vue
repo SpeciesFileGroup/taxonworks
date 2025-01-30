@@ -1,0 +1,388 @@
+<template>
+  <VSpinner v-if="isLoading" />
+  <NavBar
+    :gz="gz"
+    :save-disabled="saveDisabled"
+    @save-gz="() => saveGz()"
+    @reset-gz="() => reset()"
+  />
+
+  <div class="top-options">
+    <div>
+      <div class="field label-above">
+        <label>Name</label>
+        <input
+          type="text"
+          class="normal-input name-input"
+          v-model="gz.name"
+        />
+      </div>
+
+      <div class="field label-above">
+        <label>ISO 3166 A2 country code</label>
+        <input
+          type="text"
+          class="input-xsmall-width"
+          v-model="gz.iso_3166_a2"
+        />
+      </div>
+
+      <div class="field label-above">
+        <label>ISO 3166 A3 country code</label>
+        <input
+          type="text"
+          class="input-xsmall-width"
+          v-model="gz.iso_3166_a3"
+        />
+      </div>
+    </div>
+
+    <ProjectsChooser
+      v-if="!gz.id"
+      v-model="selectedProjects"
+      selection-text="Select projects to save this gazetteer to."
+    />
+
+    <ShapeCombinationChooser
+      v-if="!gz.id"
+      :inputs-disabled="shapeEditingDisabled"
+      v-model="operationIsUnion"
+    />
+  </div>
+
+  <OtherInputs
+    v-if="!gz.id"
+    :inputs-disabled="shapeEditingDisabled"
+    @new-shape="(data, type) => addToShapes(data, type)"
+  />
+
+  <Leaflet
+    :shapes="leafletShapes"
+    @shapes-updated="(shape) => addToShapes(shape, GZ_LEAFLET)"
+    :editing-disabled="shapeEditingDisabled"
+  />
+
+  <Preview
+    v-if="!gz.id"
+    v-model="previewing"
+    :preview-disabled="previewDisabled"
+    :operation-is-union="operationIsUnion"
+  />
+
+  <OtherInputs
+    v-if="!gz.id"
+    :inputs-disabled="shapeEditingDisabled"
+    @new-shape="(data, type) => addToShapes(data, type)"
+  />
+
+  <UnionInput
+    v-if="!gz.id"
+    :inputs-disabled="shapeEditingDisabled"
+    @new-shape="(data, type) => addToShapes(data, type)"
+  />
+
+  <DisplayList
+    class="geolist"
+    :list="shapes"
+    @delete="(shape) => removeFromShapes(shape)"
+    :editing-disabled="shapeEditingDisabled"
+  />
+</template>
+
+<script setup>
+import DisplayList from './components/DisplayList.vue'
+import Leaflet from './components/Leaflet.vue'
+import NavBar from './components/NavBar.vue'
+import OtherInputs from './components/OtherInputs.vue'
+import Preview from './components/Preview.vue'
+import ProjectsChooser from '../components/ProjectsChooser.vue'
+import ShapeCombinationChooser from './components/ShapeCombinationChooser.vue'
+import UnionInput from './components/UnionInput.vue'
+import SetParam from '@/helpers/setParam'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import { Gazetteer } from '@/routes/endpoints'
+import { computed, ref, watch } from 'vue'
+import { randomUUID } from '@/helpers'
+import { RouteNames } from '@/routes/routes'
+import { removeFromArray } from '@/helpers/arrays'
+import { URLParamsToJSON } from '@/helpers/url/parse'
+import { usePopstateListener } from '@/composables'
+import {
+  GZ_POINT,
+  GZ_WKT,
+  GZ_LEAFLET,
+  GZ_COMBINE_GA,
+  GZ_COMBINE_GZ,
+  GZ_DATABASE
+} from '@/constants/index.js'
+
+const shapes = ref([])
+const gz = ref({})
+const isLoading = ref(false)
+const selectedProjects = ref([])
+// Shapes are combined by Union if true, Intersection if false
+const operationIsUnion = ref(true)
+
+const previewing = ref(false)
+const previewShape = ref(null)
+const previewOperationIsUnion = ref(null)
+
+const leafletShapes = computed(() => {
+  if (previewing.value && previewShape.value) {
+    return [previewShape.value.shape]
+  } else {
+    return shapes.value.map((item) => item.shape)
+  }
+})
+
+const saveDisabled = computed(() => {
+  const numShapes = shapes.value.length
+  if (!gz.value.name || numShapes == 0) {
+    return true
+  }
+
+  if (numShapes > 1) {
+    return false
+  }
+
+  // numShapes == 1
+  // We're not allowing save of a single GA or GZ (i.e. cloning) - use alternate
+  // names for that (though this restriction is easily circumvented by, e.g.,
+  // selecting a ga/gz and then adding a point that's contained by it)
+  return (
+    shapes.value[0].type == GZ_COMBINE_GA ||
+    shapes.value[0].type == GZ_COMBINE_GZ
+  )
+})
+
+const shapeEditingDisabled = computed(() => {
+  return previewing.value || !!gz.value.id
+})
+
+const previewDisabled = computed(() => {
+  return !!gz.value.id || shapes.value.length == 0
+})
+
+watch(
+  previewing,
+  (newVal) => {
+    if (newVal) {
+      previewGz()
+    }
+  }
+)
+
+const { gazetteer_id } = URLParamsToJSON(location.href)
+
+if (gazetteer_id) {
+  loadGz(gazetteer_id)
+}
+
+usePopstateListener(() => {
+  const { gazetteer_id } = URLParamsToJSON(location.href)
+  if (gazetteer_id) {
+    loadGz(gazetteer_id)
+  } else {
+    reset()
+  }
+})
+
+function loadGz(gzId) {
+  isLoading.value = true
+  Gazetteer.find(gzId)
+    .then(({ body }) => {
+      gz.value = body
+      shapes.value = [
+        {
+          shape: body.shape,
+          type: GZ_DATABASE,
+          uuid: randomUUID()
+        }
+      ]
+    })
+    .catch(() => {})
+    .finally(() => { isLoading.value = false })
+}
+
+function saveGz() {
+  if (gz.value.id) {
+    updateGz()
+  } else {
+    saveNewGz()
+  }
+}
+
+function combineShapesToGz() {
+  const geojson = shapes.value
+    .filter((item) => item.type == GZ_LEAFLET)
+    .map((item) => JSON.stringify(item.shape))
+
+  const wkt = shapes.value
+    .filter((item) => item.type == GZ_WKT)
+    .map((item) => item.shape)
+
+  const points = shapes.value
+    .filter((item) => item.type == GZ_POINT)
+    .map((item) => JSON.stringify(item.shape))
+
+  const gaCombine = shapes.value
+    .filter((item) => item.type == GZ_COMBINE_GA)
+    .map((item) => item.shape.id)
+
+  const gzCombine = shapes.value
+    .filter((item) => item.type == GZ_COMBINE_GZ)
+    .map((item) => item.shape.id)
+
+  const gazetteer = {
+    name: gz.value.name,
+    iso_3166_a2: gz.value.iso_3166_a2,
+    iso_3166_a3: gz.value.iso_3166_a3,
+    shapes: {
+      geojson,
+      wkt,
+      points,
+      ga_combine: gaCombine,
+      gz_combine: gzCombine
+    }
+  }
+
+  return gazetteer
+}
+
+function shapesUpdated() {
+  previewing.value = false
+  // Bust the preview cache
+  previewShape.value = null
+  previewOperationIsUnion.value = null
+}
+
+function previewGz() {
+  if (previewCacheIsValid()) {
+    return
+  }
+
+  const payload = {
+    gazetteer: combineShapesToGz(),
+    geometry_operation_is_union: operationIsUnion.value
+  }
+
+  isLoading.value = true
+  Gazetteer.preview(payload)
+    .then(({ body }) => {
+      previewShape.value =
+        {
+          shape: body.shape,
+          type: GZ_LEAFLET,
+          uuid: randomUUID()
+        }
+      previewOperationIsUnion.value = operationIsUnion.value
+    })
+    .catch(() => { previewing.value = false })
+    .finally(() => { isLoading.value = false})
+}
+
+function previewCacheIsValid() {
+  return previewShape?.value &&
+    previewOperationIsUnion?.value == operationIsUnion.value
+}
+
+function saveNewGz() {
+  const gazetteer = combineShapesToGz()
+  const payload = {
+    gazetteer,
+    geometry_operation_is_union: operationIsUnion.value,
+    projects: selectedProjects.value
+  }
+
+  isLoading.value = true
+  Gazetteer.create(payload)
+    .then(({ body }) => {
+      gz.value = body
+      shapes.value = [
+        {
+          shape: gz.value.shape,
+          type: GZ_DATABASE,
+          uuid: randomUUID()
+        }
+      ]
+      SetParam(RouteNames.NewGazetteer, 'gazetteer_id', gz.value.id)
+      shapesUpdated()
+      TW.workbench.alert.create('New gazetteer created.', 'notice')
+    })
+    .catch(() => {})
+    .finally(() => { isLoading.value = false })
+}
+
+function updateGz() {
+  const gazetteer = {
+    name: gz.value.name,
+    iso_3166_a2: gz.value.iso_3166_a2,
+    iso_3166_a3: gz.value.iso_3166_a3
+  }
+
+  isLoading.value = true
+  Gazetteer.update(gz.value.id, { gazetteer })
+    .then(({ body }) => {
+      gz.value = body
+      TW.workbench.alert.create('Gazetteer updated.', 'notice')
+    })
+    .catch(() => {})
+    .finally(() => { isLoading.value = false })
+}
+
+function reset() {
+  shapes.value = []
+  previewing.value = false
+  previewShape.value = null
+  previewOperationIsUnion.value = null
+  gz.value = {}
+  selectedProjects.value = []
+  operationIsUnion.value = true
+  SetParam(RouteNames.NewGazetteer, 'gazetteer_id')
+}
+
+function addToShapes(shape, type) {
+  switch(type) {
+    case GZ_LEAFLET:
+    case GZ_POINT:
+    case GZ_COMBINE_GA:
+    case GZ_COMBINE_GZ:
+      shapes.value.push({
+        uuid: randomUUID(),
+        type,
+        shape
+      })
+      break
+    case GZ_WKT:
+      shapes.value.push({
+        uuid: shape.uuid,
+        type,
+        shape: shape.wkt
+      })
+      break
+  }
+  shapesUpdated()
+}
+
+function removeFromShapes(shape) {
+  removeFromArray(shapes.value, shape, { property: 'uuid' })
+  shapesUpdated()
+}
+
+</script>
+
+<style lang="scss" scoped>
+.name-input {
+  width: 400px;
+}
+
+.geolist {
+  margin-bottom: 2em;
+}
+
+.top-options {
+  display: flex;
+  align-items: flex-start;
+  gap: 2em;
+}
+</style>

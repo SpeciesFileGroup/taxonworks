@@ -171,7 +171,7 @@ class CachedMapItem < ApplicationRecord
     a = GeographicItem
       .joins(:geographic_areas_geographic_items)
       .where(geographic_areas_geographic_items: { data_origin: })
-      .where( "ST_Intersects( multi_polygon, ( select #{ GeographicItem::GEOGRAPHY_SQL } from geographic_items where geographic_items.id = #{geographic_item_id}) )" )
+      .merge(GeographicItem.intersecting(:multi_polygon, geographic_item_id))
       .pluck(:id)
 
     return a if buffer.nil?
@@ -179,7 +179,9 @@ class CachedMapItem < ApplicationRecord
     # Refine the pass by smoothing using buffer/st_within
     return GeographicItem
       .where(id: a)
-      .where( GeographicItem.st_buffer_st_within(geographic_item_id, 0.0, buffer) )
+      .where(
+        GeographicItem.st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
+      )
       .pluck(:id)
   end
 
@@ -225,7 +227,7 @@ class CachedMapItem < ApplicationRecord
 
   def self.dynamic_buffer(geographic_item_id)
     v = GeographicItem.select(:id, :cached_total_area).find(geographic_item_id).cached_total_area
-    return 0 if v.nil?
+    return 0 if v.nil? || v.to_i == 0
     case Math.log10(v).to_i
     when 0..2 # 3786
       0.0

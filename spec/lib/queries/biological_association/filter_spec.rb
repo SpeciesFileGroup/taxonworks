@@ -131,13 +131,13 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     # smaller
     a = FactoryBot.create(:level1_geographic_area)
     s1 = a.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
     )
 
     # bigger
     b = FactoryBot.create(:level1_geographic_area)
     s2 = b.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
     )
 
     # Use smaller
@@ -158,7 +158,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
   specify '#geographic_area_id #geographic_area_mode = true (spatial) against Georeference' do
     a = FactoryBot.create(:level1_geographic_area)
     s = a.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
     )
 
     o3.update!(collecting_event: FactoryBot.create(:valid_collecting_event, verbatim_latitude: '7.0', verbatim_longitude: '12.0'))

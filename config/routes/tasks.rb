@@ -1,4 +1,14 @@
 scope :tasks do
+  scope :gazetteers do
+    scope :import_gazetteers, controller: 'tasks/gazetteers/import_gazetteers' do
+      get '/', action: :index, as: 'import_gazetteers_task'
+    end
+
+    scope :new_gazetteer, controller: 'tasks/gazetteers/new_gazetteer' do
+      get '/', action: :index, as: 'new_gazetteer_task'
+    end
+  end
+
   scope :controlled_vocabulary_terms do
     scope :projects_summary, controller: 'tasks/controlled_vocabulary_terms/projects_summary' do
       get '/', action: :index, as: 'summarize_projects_controlled_vocabulary_terms_task'

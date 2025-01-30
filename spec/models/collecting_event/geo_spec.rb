@@ -57,7 +57,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
         end
 
         specify 'with #geographic_area (no shape) set #geographic_name_classification returns :geographic_area' do
-          collecting_event.update_column(:geographic_area_id, state.id) 
+          collecting_event.update_column(:geographic_area_id, state.id)
           expect(collecting_event.geographic_name_classification_method).to eq(:geographic_area)
         end
       end
@@ -194,7 +194,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
                 FactoryBot.create(:georeference_verbatim_data,
                                   collecting_event: collecting_event,
-                                  geographic_item: GeographicItem.new(point: area_a.default_geographic_item
+                                  geographic_item: GeographicItem.new(geography: area_a.default_geographic_item
                                                                                 .centroid))
                 collecting_event.reload
               }

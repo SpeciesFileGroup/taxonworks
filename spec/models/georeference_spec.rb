@@ -8,8 +8,8 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
   let(:earth) { FactoryBot.create(:earth_geographic_area) }
   let(:g_a_t) { FactoryBot.create(:testbox_geographic_area_type) }
 
-  let(:e_g_i) { GeographicItem.create!(polygon: box_1) }
-  let(:item_d) { GeographicItem.create!(polygon: box_4) }
+  let(:e_g_i) { GeographicItem.create!(geography: box_1) }
+  let(:item_d) { GeographicItem.create!(geography: box_4) }
 
   let!(:g_a) { GeographicArea.create!(
     name: 'Box_4',
@@ -136,7 +136,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         specify 'is rounded to nearest meter' do
           georeference.error_radius = 1.23
           georeference.valid?
-          expect(georeference.error_radius).to eq(1) 
+          expect(georeference.error_radius).to eq(1)
         end
 
       end
@@ -161,19 +161,19 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         end
 
         specify 'geographic_item without error_radius, error_depth, or error_geographic_item' do
-          georeference.geographic_item = GeographicItem.new(point: simple_shapes[:point])
+          georeference.geographic_item = GeographicItem.new(geography: simple_shapes[:point])
           expect(georeference.valid?).to be_truthy
         end
 
         specify 'geographic_item with error_radius' do
-          georeference.geographic_item = GeographicItem.new(point: simple_shapes[:point])
+          georeference.geographic_item = GeographicItem.new(geography: simple_shapes[:point])
           georeference.error_radius = 10000
           expect(georeference.valid?).to be_truthy
         end
 
         specify 'geographic_item with error_geographic_item' do
-          georeference.geographic_item = GeographicItem.new(point: 'POINT(5 5 0)')
-          georeference.geographic_item = GeographicItem.new(polygon: 'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, ' \
+          georeference.geographic_item = GeographicItem.new(geography: 'POINT(5 5 0)')
+          georeference.geographic_item = GeographicItem.new(geography: 'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, ' \
                                                                      '10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))')
           expect(georeference.valid?).to be_truthy
         end
@@ -188,7 +188,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         specify 'errors which result from badly formed error_geographic_item values' do
           g = Georeference::VerbatimData.new(
             collecting_event: collecting_event_with_geographic_area,
-            error_geographic_item: GeographicItem.new(polygon: poly_e1))
+            error_geographic_item: GeographicItem.new(geography: poly_e1))
           g.valid?
           expect(g.errors[:error_geographic_item]).to be_present
           expect(g.errors[:collecting_event]).to be_present
@@ -207,11 +207,11 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
       end
 
       context 'testing geographic_item/error against geographic area provided through collecting event' do
-        let(:p0) { GeographicItem.new(point: point0) }
-        let(:p18) { GeographicItem.new(point: point18) }
-        let(:gi_b1) { GeographicItem.create!(polygon: shape_b_outer) }
-        let(:gi_b2) { GeographicItem.create!(polygon: shape_b_inner) }
-        let(:gi_e1) { GeographicItem.create!(polygon: poly_e1) }
+        let(:p0) { GeographicItem.new(geography: point0) }
+        let(:p18) { GeographicItem.new(geography: point18) }
+        let(:gi_b1) { GeographicItem.create!(geography: shape_b_outer) }
+        let(:gi_b2) { GeographicItem.create!(geography: shape_b_inner) }
+        let(:gi_e1) { GeographicItem.create!(geography: poly_e1) }
         let(:ga_e1) { GeographicArea.create!(
             name: 'test area E1',
             data_origin: 'Test Data',
@@ -264,7 +264,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         specify 'If point is within 10km from collecting event''s geographic area georeference is valid' do
           g = Georeference::VerbatimData.new(
             collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
-            geographic_item: GeographicItem.new(point: RSPEC_GEO_FACTORY.point(-9.0, 9.0904, 0.0)) # e_g_i is test_box_1
+            geographic_item: GeographicItem.new(geography: RSPEC_GEO_FACTORY.point(-9.0, 9.0904, 0.0)) # e_g_i is test_box_1
           )
           expect(g).to be_valid
         end
@@ -272,7 +272,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         specify 'If point is exceeds 10km from collecting event''s geographic area georeference is valid' do
           g = Georeference::VerbatimData.new(
             collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
-            geographic_item: GeographicItem.new(point: RSPEC_GEO_FACTORY.point(-9.0, 9.0907, 0.0)) # e_g_i is test_box_1
+            geographic_item: GeographicItem.new(geography: RSPEC_GEO_FACTORY.point(-9.0, 9.0907, 0.0)) # e_g_i is test_box_1
           )
           expect(g).to_not be_valid
         end
@@ -378,7 +378,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
     let(:gr1) { FactoryBot.create(
       :valid_georeference,
       collecting_event: FactoryBot.create(:valid_collecting_event),
-      geographic_item: FactoryBot.create(:geographic_item_with_polygon, polygon: shape_k)
+      geographic_item: FactoryBot.create(:geographic_item, geography: shape_k)
     ) }
 
     let(:gr_poly) { FactoryBot.create(:valid_georeference_geo_locate) }

@@ -41,9 +41,9 @@ shared_context 'cached map scenario' do
   # let(:point_in) { RSPEC_GEO_FACTORY.point(5, 5, 0.0) }
   # let(:point_out) { RSPEC_GEO_FACTORY.point(20, 20, 0.0) }
 
-  let(:gi1) { GeographicItem.create(multi_polygon: g1)}
-  let(:gi2) { GeographicItem.create(polygon: g2)}
-  let(:gi3) { GeographicItem.create(polygon: g3)}
+  let(:gi1) { GeographicItem.create(geography: g1)}
+  let(:gi2) { GeographicItem.create(geography: g2)}
+  let(:gi3) { GeographicItem.create(geography: g3)}
 
   let(:geographic_area_type) { GeographicAreaType.create!(name: 'Country') }
 
