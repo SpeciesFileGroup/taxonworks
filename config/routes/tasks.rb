@@ -107,6 +107,10 @@ scope :tasks do
   end
 
   scope :field_occurrences do
+    scope :browse, controller: 'tasks/field_occurrences/browse' do
+      get :index, as: 'index_browse_task'
+    end
+
     scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
       get '/', as: 'new_field_occurrence_task', action: :index
     end

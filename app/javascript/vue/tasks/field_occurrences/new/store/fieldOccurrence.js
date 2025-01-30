@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { makeFieldOccurrence } from '@/factory'
 import { FieldOccurrence } from '@/routes/endpoints'
-import useDeterminationStore from '../store/determinations.js'
+import useDeterminationStore from './determinations.js'
 
 export default defineStore('fieldOccurrences', {
   state: () => ({
