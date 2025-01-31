@@ -370,7 +370,14 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       expect(n.georeferences.first.georeference_authors.count).to eq(1)
 
       expect(collecting_event.georeferences.first.georeference_authors.count).to eq(1)
+    end
 
+    specify 'does not clone collection objects' do
+      a = FactoryBot.create(:valid_collecting_event)
+      b = FactoryBot.create(:valid_collection_object, collecting_event: a)
+
+      c = a.clone
+      expect(c.collection_objects.reload.count).to eq(0)
     end
 
   end

@@ -1,7 +1,6 @@
-
-
 # The names table includes
-# * All names strings, even if hanging (= not attached to OTUs/Taxa)
+# * All name strings, even if hanging (= not attached to OTUs/Taxa)
+# * It contains strings that may be invalid OR valid
 module Export::Coldp::Files::Name
 
   def self.code_field(taxon_name)
@@ -26,7 +25,10 @@ module Export::Coldp::Files::Name
   end
 
   # @return String
+  # !! Feels like it should be a TN method
+  # !! TODO: add specs defining why it can't be a TaxonName method (partciularly now that original_author_year is updated
   def self.authorship_field(taxon_name, original)
+    return taxon_name.cached_author_year if taxon_name.is_valid? # impossible for it to need original_author_year check
     original ? taxon_name.original_author_year : taxon_name.cached_author_year
   end
 
@@ -42,7 +44,11 @@ module Export::Coldp::Files::Name
       if taxon_name.is_valid?
         ::TaxonName::NOMEN_VALID[taxon_name.nomenclatural_code]
       else
-        c = taxon_name.taxon_name_classifications_for_statuses.order_by_youngest_source_first.first
+
+        ## TODO: very expensive, consider caching in TN
+        # c = taxon_name.taxon_name_classifications_for_statuses.order_by_youngest_source_first.first
+
+        c = TaxonNameClassification.youngest(taxon_name.taxon_name_classifications_for_statuses)
 
         # We should also infer status from TaxonNameRelationship and be more specific, but if CoL doesn't
         # use NOMEN this won't mean much
@@ -77,7 +83,15 @@ module Export::Coldp::Files::Name
     end
 
     id = t.reified_id
-    basionym_id = t.has_misspelling_relationship? ? t.valid_taxon_name.reified_id : id # => t.reified_id
+
+    basionym_id = if !t.valid?
+                    id
+                  elsif t.has_misspelling_relationship?  # uses cached values now.
+                    t.valid_taxon_name.reified_id
+                  else
+                    id
+                  end
+
     # case 1 - original combination difference
     # case 2 - misspelling (same combination)
 
@@ -112,7 +126,6 @@ module Export::Coldp::Files::Name
           species = e[:species][1]
         end
       end
-
     end
 
     csv << [
@@ -146,7 +159,9 @@ module Export::Coldp::Files::Name
   # @params otu [Otu]
   #   the top level OTU
   def self.generate(otu, project_members, reference_csv = nil)
-     name_total = 0
+    name_total = 0
+
+ 
     ::CSV.generate(col_sep: "\t") do |csv|
       csv << %w{
         ID
@@ -171,13 +186,16 @@ module Export::Coldp::Files::Name
         modifiedBy
       }
 
-      Current.project_id = otu.project_id
-      name_remarks_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Name.remarks',
-                                                project_id: Current.project_id)&.id
+      # We should not be setting this here !!
+      project_id = otu.project_id
+
+      name_remarks_vocab_id = Predicate.find_by(
+        uri: 'https://github.com/catalogueoflife/coldp#Name.remarks',
+        project_id: project_id)&.id
 
       otu.taxon_name.self_and_descendants.that_is_valid
-        .pluck(:id, :cached)
-        .each do |name|
+        .select(:id, :cached)
+        .find_each do |name|
 
         # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
         # Proposal is to exclude names of a specific ranks see taxon.rb
@@ -193,8 +211,9 @@ module Export::Coldp::Files::Name
         name_total += 1
 
         TaxonName
-          .where(cached_valid_taxon_name_id: name[0]) # == .historical_taxon_names
-          .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", name[1]) # This eliminates Combinations that are identical to the current placement.
+          .where(cached_valid_taxon_name_id: name.id) # == .historical_taxon_names
+          .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", name.cached) # This eliminates Combinations that are identical to the current placement.
+          .eager_load(origin_citation: [:source])
           .find_each do |t|
 
           origin_citation = t.origin_citation

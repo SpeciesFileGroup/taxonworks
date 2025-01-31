@@ -47,7 +47,6 @@ module Shared::IsDwcOccurrence
     end
   end
 
-  # TODO: wrap in generic (reindex_dwc_occurrences method for use in InternalAttribute, TaxonDetermination, BiocurationClass and elsewhere)
   # @return [DwcOccurrence]
   #   !! always touches the database
   def set_dwc_occurrence
@@ -55,8 +54,11 @@ module Shared::IsDwcOccurrence
     begin
       if dwc_occurrence_persisted?
         dwc_occurrence.generate_uuid_if_required # TODO: at some point when synchronized make this optional
-        dwc_occurrence.update_columns(dwc_occurrence_attributes)
-        dwc_occurrence.touch(:updated_at)
+        dwc_occurrence.update_columns(
+          dwc_occurrence_attributes.merge(
+            is_flagged_for_rebuild: nil,
+            updated_at: Time.zone.now)
+        )
       else
         create_dwc_occurrence!(dwc_occurrence_attributes)
       end
@@ -110,7 +112,6 @@ module Shared::IsDwcOccurrence
   # @return [DwcOccurrence]
   #   does not rebuild if already built
   def get_dwc_occurrence
-    # TODO: why are extra queries fired if this is fired?
     if dwc_occurrence_persisted?
       dwc_occurrence
     else
