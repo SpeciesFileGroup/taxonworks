@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { onMounted, useTemplateRef, onBeforeUnmount } from 'vue'
+import { onMounted, useTemplateRef, onBeforeUnmount, watch } from 'vue'
 import WaveSurfer from 'wavesurfer.js'
 import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js'
 
@@ -86,6 +86,10 @@ onBeforeUnmount(() => {
   audioPlayer.destroy()
 })
 
+function load(url) {
+  audioPlayer.load(url)
+}
+
 function play() {
   audioPlayer.play()
 }
@@ -102,8 +106,14 @@ function pause() {
   audioPlayer.pause()
 }
 
+watch(
+  () => props.url,
+  (url) => load(url)
+)
+
 defineExpose({
   audioPlayer,
+  load,
   play,
   stop,
   pause,

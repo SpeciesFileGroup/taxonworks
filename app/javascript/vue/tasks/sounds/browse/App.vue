@@ -1,6 +1,10 @@
 <template>
   <div id="app">
     <div class="flex-separate middle">
+      <VSpinner
+        v-if="isLoading"
+        full-screen
+      />
       <h1>Browse sound</h1>
       <VAutocomplete
         v-if="store.sound"
@@ -8,13 +12,13 @@
         param="term"
         label="label_html"
         placeholder="Search a sound..."
-        @get-item="(item) => store.loadSound(item.id)"
+        @get-item="(item) => loadData(item.id)"
       />
     </div>
     <div class="app-container gap-medium">
       <HeaderBar
         :sound="store.sound"
-        @select="store.loadSound"
+        @select="loadData"
       />
       <template v-if="store.sound">
         <PanelSound :sound="store.sound" />
@@ -29,27 +33,43 @@
 </template>
 
 <script setup>
+import { onBeforeMount, ref } from 'vue'
+import { URLParamsToJSON } from '@/helpers'
+import { RouteNames } from '@/routes/routes.js'
 import useStore from './store/store.js'
-import { onBeforeMount } from 'vue'
 import PanelSound from './components/Panel/PanelSound.vue'
 import PanelConveyances from './components/Panel/PanelConveyances.vue'
 import PanelAnnotations from './components/Panel/PanelAnnotations.vue'
-import { URLParamsToJSON } from '@/helpers'
 import HeaderBar from './components/HeaderBar.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import setParam from '@/helpers/setParam'
 
 defineOptions({
   name: 'BrowseSound'
 })
 const store = useStore()
+const isLoading = ref(false)
+
+function loadData(soundId) {
+  setParam(RouteNames.BrowseSound, 'sound_id', soundId)
+
+  store.$reset()
+  isLoading.value = true
+
+  Promise.all([store.loadSound(soundId), store.loadConveyances(soundId)])
+    .finally(() => {
+      isLoading.value = false
+    })
+    .catch(() => {})
+}
 
 onBeforeMount(() => {
   const params = URLParamsToJSON(window.location.href)
   const soundId = params.sound_id
 
   if (soundId) {
-    store.loadSound(soundId)
-    store.loadConveyances(soundId)
+    loadData(soundId)
   }
 })
 </script>

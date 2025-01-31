@@ -9,13 +9,13 @@ export default defineStore('store', {
   }),
   actions: {
     loadSound(soundId) {
-      Sound.find(soundId).then(({ body }) => {
+      return Sound.find(soundId).then(({ body }) => {
         this.sound = body
       })
     },
 
     loadConveyances(soundId) {
-      Conveyance.where({ sound_id: soundId }).then(({ body }) => {
+      return Conveyance.where({ sound_id: soundId }).then(({ body }) => {
         this.conveyances = body
       })
     }

@@ -52,20 +52,29 @@ import { ref } from 'vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import { OTU, FIELD_OCCURRENCE, COLLECTION_OBJECT } from '@/constants'
+import {
+  OTU,
+  FIELD_OCCURRENCE,
+  COLLECTION_OBJECT,
+  COLLECTING_EVENT
+} from '@/constants'
 
 const OBJECT_TYPES = {
   [OTU]: {
     label: 'Otu',
     url: '/otus/autocomplete'
   },
+  [COLLECTING_EVENT]: {
+    label: 'Collecting event',
+    url: '/collecting_events/autocomplete'
+  },
   [COLLECTION_OBJECT]: {
     label: 'Collection object',
     url: '/collection_objects/autocomplete'
   },
   [FIELD_OCCURRENCE]: {
-    label: 'Taxon name',
-    url: '/taxon_names/autocomplete'
+    label: 'Field occurrence',
+    url: '/field_occurrences/autocomplete'
   }
 }
 
