@@ -18,7 +18,7 @@
             v-if="key != 'total'"
             class="separate-left button normal-input button-delete"
             type="button"
-            @click="removeKeyword(matrixId, key)">Remove
+            @click="removeKeyword(object.object.id, key)">Remove
           </button>
         </template>
       </div>
