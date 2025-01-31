@@ -19,7 +19,7 @@
     <ConveyanceList
       v-if="!currentConveyance"
       :list="list"
-      @remove="removeFromList"
+      @remove="removeItem"
       @select="setConveyance"
     />
   </div>
@@ -68,6 +68,14 @@ function loadConveyance() {
 
 function setConveyance(conveyance) {
   currentConveyance.value = conveyance
+}
+
+function removeItem(item) {
+  Conveyance.destroy(item.id)
+    .then(() => {
+      removeFromList(item)
+    })
+    .catch(() => {})
 }
 
 function update(conveyance) {
