@@ -1,6 +1,3 @@
-# require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
-# require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
-
 # A taxon name (nomenclature only). See also NOMEN (https://github.com/SpeciesFileGroup/nomen).
 #
 # @!attribute name

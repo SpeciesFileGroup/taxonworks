@@ -57,6 +57,8 @@ module Export::Coldp::Files::SpeciesInteraction
   end
 
   def self.generate(otus, project_members, reference_csv = nil )
+
+
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
@@ -70,29 +72,32 @@ module Export::Coldp::Files::SpeciesInteraction
         remarks
       }
 
-      otus.joins(:biological_associations).where("biological_associations.biological_association_subject_type = 'Otu' and biological_associations.biological_association_object_type = 'Otu'").distinct.each do |o|
-        o.biological_associations.each do |ba|
+      q = ::Queries::BiologicalAssociation::Filter.new({})
+      q.otu_query = otus
 
-          taxon_id = taxon_id(ba)
-          related_taxon_id = related_taxon_id(ba)
-          sources = ba.sources.load
-          reference_ids = sources.collect{|a| a.id}
-          reference_id = reference_ids.first
+      # TODO: expand for CollectionObject or FO occurrences later
+      q.all.where(biological_association_subject_type: 'Otu', biological_association_object_type: 'Otu' ).find_each do |ba|
 
-          csv << [
-            taxon_id,                                                       # taxonID
-            related_taxon_id,                                               # relatedTaxonID
-            related_taxon_scientific_name(related_taxon_id),                # relatedTaxonScientificName
-            species_interaction_type(ba),                                   # type
-            reference_id,                                                   # referenceID
-            Export::Coldp.modified(ba[:update_at]),                         # modified
-            Export::Coldp.modified_by(ba[:updated_by_id], project_members), # modified_by
-            nil                                                             # remarks
-          ]
+        taxon_id = taxon_id(ba)
+        related_taxon_id = related_taxon_id(ba)
+        sources = ba.sources.load
+        reference_ids = sources.collect{|a| a.id}
+        reference_id = reference_ids.first
 
-          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
-        end
+        csv << [
+          taxon_id,                                                       # taxonID
+          related_taxon_id,                                               # relatedTaxonID
+          related_taxon_scientific_name(related_taxon_id),                # relatedTaxonScientificName
+          species_interaction_type(ba),                                   # type
+          reference_id,                                                   # referenceID
+          Export::Coldp.modified(ba[:update_at]),                         # modified
+          Export::Coldp.modified_by(ba[:updated_by_id], project_members), # modified_by
+          nil                                                             # remarks
+        ]
+
+        Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
       end
+      # end
     end
   end
 end

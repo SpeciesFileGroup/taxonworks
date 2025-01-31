@@ -76,7 +76,7 @@ module Export::Coldp::Files::NameRelation
       }
 
       otus.each do |o|
-        o.taxon_name.taxon_name_relationships.each do |tnr|
+        o.taxon_name.related_taxon_name_relationships.each do |tnr|
 
           # Combinations and OriginalCombinations are already handled in the Name module
           unless (tnr.type.constantize.nomen_uri.blank? || BLOCKED.include?(tnr.type))
