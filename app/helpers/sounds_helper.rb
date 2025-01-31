@@ -16,4 +16,9 @@ module SoundsHelper
     render('/sounds/quick_search_form')
   end
 
+  def sound_link(sound)
+    return nil if sound.nil?
+    link_to(sound_tag(sound), sound.metamorphosize).html_safe
+  end
+
 end

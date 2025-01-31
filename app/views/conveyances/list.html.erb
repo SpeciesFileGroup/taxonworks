@@ -14,7 +14,7 @@
   <% @conveyances.each do |conveyance| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= sound_link(conveyance.sound) %></td>
-          <td><%= taxon_name_link(conveyance.conveyance_object) %></td>
+          <td><%= object_link(conveyance.conveyance_object) %></td>
           <%= fancy_metadata_cells_tag(conveyance) -%>
       <% end %>
   <% end %>
