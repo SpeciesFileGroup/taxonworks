@@ -578,6 +578,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_30_150717) do
     t.bigint "updated_by_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "start_time"
+    t.decimal "end_time"
     t.index ["conveyance_object_type", "conveyance_object_id"], name: "index_conveyances_on_conveyance_object"
     t.index ["created_by_id"], name: "index_conveyances_on_created_by_id"
     t.index ["position"], name: "index_conveyances_on_position"
