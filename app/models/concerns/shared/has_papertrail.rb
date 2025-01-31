@@ -10,30 +10,34 @@ module Shared::HasPapertrail
     end
   end
 
-  # @return [:updated_by_id, attribute, nil]
+  # Returns the updater's ID of the object's attribute
+  #
+  # @param attribute [Symbol, String] the name of the attribute to check
+  # @return [Integer]
   def attribute_updater(attribute)
-    versions.reverse.each do |v|
-      r = v.reify
-      unless r.nil?
-        if a = r.send(attribute)
-          return r.updated_by_id
-        end
-      end
+    if version = detect_version(attribute)
+      return version.whodunnit.to_i
     end
-    nil
+    versions.first&.reify&.updated_by_id || updated_by_id
   end
 
-  # @return [:updated_by_id, attribute, nil]
+  # Returns the update time of the object's attribute
+  #
+  # @param attribute [Symbol, String] the name of the attribute to check
+  # @return [DateTime]
   def attribute_updated(attribute)
-     versions.reverse.each do |v|
-      r = v.reify
-      unless r.nil?
-        if a = r.send(attribute)
-          return r.updated_at
-        end
-      end
+    if version = detect_version(attribute)
+      return version.created_at
     end
-   nil
+    versions.first&.reify&.updated_at || updated_at
+  end
+
+  private
+
+  def detect_version(attribute)
+    versions.reverse.detect do |version|
+      version.reify&.send(attribute) != send(attribute)
+    end
   end
 
 end

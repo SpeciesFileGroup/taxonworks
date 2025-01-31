@@ -10,10 +10,7 @@ Bundler.require *Rails.groups
 module TaxonWorks
   class Application < Rails::Application
 
-    # This breaks housekeeping when on but might be needed
-    # config.load_defaults 6.1
-
-    # TOOD: check this
+    # Reverted from 7.2
     config.load_defaults 7.1
 
     # TODO: confirm 7.1 settings are meaningful
@@ -74,11 +71,8 @@ module TaxonWorks
     # Breaks rake/loading because of existing Rails.application.eager_load! statements
 
     # zeitwerk not needed?
-    config.eager_load_paths += config.autoload_paths     # Removed with Rails 7.2 merge
 
-    # config.add_autoload_paths_to_load_path = true #  !! (this must be it, false in 7.1)
-
-    # config.autoload_lib = true
+    config.eager_load_paths += config.autoload_paths     # Tentatively reverted from 7.2 update
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.

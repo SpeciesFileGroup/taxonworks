@@ -14,6 +14,11 @@
 #   2) Wipe, and rebuild on some schedule. It would in theory be possible to track and rebuild when a class of every property was created (or updated), however
 #   this is a lot of overhead to inject/code for a lot of models. It would inject latency at numerous stages that would perhaps impact UI performance.
 #
+# Several terms are introduced in code:
+#  * ghost - A DwcOccurrence record whose dwc_occurrence object has been destroyed (i.e. an error in cleanup, should ideally never happen)
+#  * stale - an _aproximation_ checking to see that the time of build of related records is _older_ than the current index
+#  * flagged (for rebuild) - a record related to the dwc_occurrence_object(s) has been updated, triggering the need for re-indexing 1 or more records
+#
 # TODO: The basisOfRecord CVTs are not super informative.
 #    We know collection object is definitely 1:1 with PreservedSpecimen, however
 #    AssertedDistribution could be HumanObservation (if source is person), or ... what? if
@@ -22,10 +27,11 @@
 # Gotchas.
 #   * updated_at is set by touching the record, not via housekeeping.
 #
-#
-# @param is_stale Boolean
+# @param is_flagged_for_rebuild Boolean
 #   flagged to true when async updates from a DwcOccurrenceHook is set
 #   !! Do not use for other purposes out side of rebuilds
+#
+# 
 #
 class DwcOccurrence < ApplicationRecord
   self.inheritance_column = nil
@@ -105,20 +111,6 @@ class DwcOccurrence < ApplicationRecord
     when 'CollectionObject'
       collection_object.otu
     end
-  end
-
-  # Delete all stale indecies, where stale = object is missing
-  def self.sweep
-    %w{CollectionObject AssertedDistribution}.each do |k|
-      stale(k).delete_all
-    end
-    true
-  end
-
-  def self.stale(kind = 'CollectionObject')
-    tbl = kind.tableize
-    DwcOccurrence.joins("LEFT JOIN #{tbl} tbl on dwc_occurrences.dwc_occurrence_object_id = tbl.id")
-      .where("tbl.id IS NULL and dwc_occurrences.dwc_occurrence_object_type = '#{kind}'")
   end
 
   def self.annotates?
@@ -369,6 +361,20 @@ class DwcOccurrence < ApplicationRecord
   def set_metadata_attributes
     write_attribute( :basisOfRecord, basis)
     write_attribute( :occurrenceID, occurrence_identifier&.identifier)  # TODO: Slightly janky to touch this here, might not be needed with new hooks
+  end
+
+  # Delete all DwcOccurrence records where object is missing.
+  def self.sweep
+    %w{CollectionObject AssertedDistribution}.each do |k|
+      stale(k).delete_all
+    end
+    true
+  end
+
+  def self.stale(kind = 'CollectionObject')
+    tbl = kind.tableize
+    DwcOccurrence.joins("LEFT JOIN #{tbl} tbl on dwc_occurrences.dwc_occurrence_object_id = tbl.id")
+      .where("tbl.id IS NULL and dwc_occurrences.dwc_occurrence_object_type = '#{kind}'")
   end
 
 end

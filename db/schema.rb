@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_11_232129) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_30_150717) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -961,10 +961,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_11_232129) do
     t.string "subfamily"
     t.string "tribe"
     t.string "subtribe"
-    t.boolean "is_stale"
+    t.boolean "is_flagged_for_rebuild"
     t.index ["created_at"], name: "index_dwc_occurrences_on_created_at"
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
-    t.index ["is_stale"], name: "index_dwc_occurrences_on_is_stale"
+    t.index ["is_flagged_for_rebuild"], name: "index_dwc_occurrences_on_is_flagged_for_rebuild"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
     t.index ["updated_at"], name: "index_dwc_occurrences_on_updated_at"
   end
@@ -1582,7 +1582,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_11_232129) do
   end
 
   create_table "otus", id: :serial, force: :cascade do |t|
-    t.string "name"
+    t.text "name"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
@@ -2088,37 +2088,37 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_11_232129) do
   end
 
   create_table "taxon_names", id: :serial, force: :cascade do |t|
-    t.string "name"
+    t.text "name"
     t.integer "parent_id"
-    t.string "cached_html"
-    t.string "cached_author_year"
+    t.text "cached_html"
+    t.text "cached_author_year"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.integer "year_of_publication"
-    t.string "verbatim_author"
-    t.string "rank_class"
+    t.text "verbatim_author"
+    t.text "rank_class"
     t.string "type", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.string "cached_original_combination_html"
-    t.string "cached_secondary_homonym"
-    t.string "cached_primary_homonym"
-    t.string "cached_secondary_homonym_alternative_spelling"
-    t.string "cached_primary_homonym_alternative_spelling"
+    t.text "cached_original_combination_html"
+    t.text "cached_secondary_homonym"
+    t.text "cached_primary_homonym"
+    t.text "cached_secondary_homonym_alternative_spelling"
+    t.text "cached_primary_homonym_alternative_spelling"
     t.boolean "cached_misspelling"
-    t.string "masculine_name"
-    t.string "feminine_name"
-    t.string "neuter_name"
-    t.string "cached_classified_as"
-    t.string "cached"
-    t.string "verbatim_name"
+    t.text "masculine_name"
+    t.text "feminine_name"
+    t.text "neuter_name"
+    t.text "cached_classified_as"
+    t.text "cached"
+    t.text "verbatim_name"
     t.integer "cached_valid_taxon_name_id"
     t.text "etymology"
-    t.string "cached_original_combination"
+    t.text "cached_original_combination"
     t.date "cached_nomenclature_date"
     t.boolean "cached_is_valid"
-    t.string "cached_author"
+    t.text "cached_author"
     t.index ["cached"], name: "index_taxon_names_on_cached"
     t.index ["cached"], name: "tn_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_author_year"], name: "tn_cached_auth_year_gin_trgm", opclass: :gin_trgm_ops, using: :gin

@@ -18,7 +18,7 @@ function getLabelFromPath(json, path) {
 
 function getLabelFromModifiers(json, modifiers) {
   for (const key in modifiers) {
-    json = json[key]
+    json = json?.[key]
   }
 
   return json

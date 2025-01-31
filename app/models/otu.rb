@@ -97,6 +97,11 @@ class Otu < ApplicationRecord
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }
+  scope :associated_with_key, -> (root_lead) {
+    joins(:leads)
+      .where(leads: { id: root_lead.self_and_descendants.map(&:id) })
+      .distinct
+  }
 
   validate :check_required_fields
 

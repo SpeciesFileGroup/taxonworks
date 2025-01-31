@@ -19,6 +19,7 @@ class InternalAttribute < DataAttribute
       # TODO: probably use some generic interface here
       case attribute_subject_type
       when 'CollectingEvent'
+        # TODO - validate empty is not happening here.
         ::Queries::DwcOccurrence::Filter.new(
           collecting_event_query: {
             collecting_event_id: attribute_subject_id }

@@ -81,7 +81,23 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     expect(tbl[2][p3_header]).to be_nil
   end
 
-  specify '#dwc_occurrence_id post .set_dwc_occurrence' do
+  specify '.set_dwc_occurrence update is set' do
+    s = Specimen.create!
+    t = s.dwc_occurrence.updated_at
+    s.dwc_occurrence.update!(is_flagged_for_rebuild: true)
+    s.set_dwc_occurrence
+    expect(s.dwc_occurrence.updated_at > t).to be_truthy
+  end
+
+  specify '.set_dwc_occurrence stale is cleared' do
+    s = Specimen.create!
+    expect(s.dwc_occurrence.is_flagged_for_rebuild).to eq(nil)
+    s.dwc_occurrence.update!(is_flagged_for_rebuild: true)
+    s.set_dwc_occurrence
+    expect(s.dwc_occurrence.is_flagged_for_rebuild).to eq(nil)
+  end
+
+  specify '#dwc_occurrence_id is created on .set_dwc_occurrence' do
     s = Specimen.create!(no_dwc_occurrence: true)
     expect(s.dwc_occurrence_id).to eq(nil)
     s.set_dwc_occurrence
