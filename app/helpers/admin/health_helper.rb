@@ -2,7 +2,7 @@ module Admin::HealthHelper
 
   # @return Hash
   #   project_name => total missing records of kind
-  def stale_dwc_occurrences(kind = 'CollectionObject')
+  def dwc_occurrence_ghosts(kind = 'CollectionObject')
     table = kind.tableize
     ApplicationRecord.connection.execute("select dwc.project_id, count(dwc.project_id) t from dwc_occurrences dwc left join #{table} tbl on dwc.dwc_occurrence_object_id = tbl.id where tbl.id is null and dwc.dwc_occurrence_object_type = '#{kind}' group by dwc.project_id;").inject({}){|hsh, v| hsh[ Project.find(v['project_id']).name ] =  v['t']; hsh}
   end

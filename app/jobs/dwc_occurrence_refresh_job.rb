@@ -10,12 +10,12 @@ class DwcOccurrenceRefreshJob < ApplicationJob
   end
 
   def perform(project_id: nil, user_id: nil)
-    q = DwcOccurrence.where(project_id:, is_stale: true)
+    q = DwcOccurrence.where(project_id:, is_flagged_for_rebuild: true)
+
+    Current.user_id = user_id
     q.all.find_each do |o|
       begin
-        Current.user_id = user_id # Jobs are run in different threads, in theory.
         o.dwc_occurrence_object.send(:set_dwc_occurrence)
-        o.update_columns(is_stale: nil)
       rescue =>  ex
         ExceptionNotifier.notify_exception(
           ex,
@@ -24,5 +24,6 @@ class DwcOccurrenceRefreshJob < ApplicationJob
         raise
       end
     end
+
   end
 end
