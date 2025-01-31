@@ -26,7 +26,7 @@ module Export::Coldp::Files::Synonym
   end
 
   # This is currently factored to use *no* ActiveRecord instances
-  def self.generate(otus, project_members, reference_csv = nil)
+  def self.generate(otus, project_members, reference_csv = nil, skip_name_ids = [])
     ::CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{taxonID nameID status remarks referenceID modified modifiedBy}
@@ -65,10 +65,28 @@ module Export::Coldp::Files::Synonym
           c.pluck(:id, :cached, :cached_original_combination, :type, :rank_class, :cached_secondary_homonym, :updated_at, :updated_by_id)
             .each do |t|
               reified_id = ::Export::Coldp.reified_id(t[0], t[1], t[2])
+              next if skip_name_ids.include?               reified_id = ::Export::Coldp.reified_id(t[0], t[1], t[2])
+
+
+              # skip duplicate protonyms created for family group relationships
+              if t[4]&.include? 'FamilyGroup'
+                tn = TaxonName.find(t[0])
+                if tn.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
+                  if tn.name == o[1]  # only skip if it matches the accepted name, because there might be multiple protonyms added for family group relationships
+                    next
+                  end
+                end
+              end
 
               # skips including parent binomial as a synonym of autonym trinomial
+              # TODO: may need to handle cases in which the gender stems are not an exact match
+              matches = t[1].match(/([A-Z][a-z]+) \(.+\) ([a-z]+)/)
+              cached = t[1]
+              if matches&.size == 3
+                cached = "#{matches[1]} #{matches[2]}"
+              end
               unless t[5].nil?
-                if !t[1].nil? and t[1].include?(t[5]) and (t[4].match(/::Subspecies$/) or t[4].match(/::Form$/) or t[4].match(/::Variety$/))
+                if !t[1].nil? and cached.include? t[5] and (t[4].match(/::Subspecies$/) or t[4].match(/::Form$/) or t[4].match(/::Variety$/))
                   next
                 end
 
@@ -88,6 +106,12 @@ module Export::Coldp::Files::Synonym
 
               # skips combinations including parent binomial as a synonym of autonym trinomial
               if t[3] == 'Combination' and o[1].include? t[1]
+                next
+              end
+
+              # skip making parent genus Aus a synonym of subgenus autonym (Aus) Aus
+              autonym_test = t[1]&.gsub(/\(/, '')&.gsub(/\)/, '')&.split(' ')
+              if t[4]&.include?('Subgenus') && autonym_test.size >= 2 && autonym_test[0] == autonym_test[1] && t[2] == autonym_test[0]
                 next
               end
 

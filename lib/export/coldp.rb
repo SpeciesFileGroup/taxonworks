@@ -11,7 +11,7 @@ module Export
   # * Pending handling of both BibTeX and Verbatim
   module Coldp
 
-    FILETYPES = %w{Description Name Synonym NameRelation TaxonConceptRelation TypeMaterial VernacularName Taxon References}.freeze
+    FILETYPES = %w{Distribution Name NameRelation SpeciesInteraction Synonym TaxonConceptRelation TypeMaterial VernacularName Taxon References}.freeze
 
     # @return [Scope]
     #  A full set of valid only OTUs (= Taxa in CoLDP) that are to be sent.
@@ -42,7 +42,11 @@ module Export
     end
 
     def self.modified(updated_at)
-      updated_at.iso8601
+      if updated_at.nil?
+        ''
+      else
+        updated_at&.iso8601
+      end
     end
 
     def self.modified_by(updated_by_id, project_members)
@@ -65,8 +69,14 @@ module Export
       ref_tsv = {}
 
       otu = ::Otu.find(otu_id)
+
+      # check for a clb_dataset_id identifier
+      ns = Namespace.find_by(institution: 'ChecklistBank', name: 'clb_dataset_id')
+      clb_dataset_id =  otu.identifiers.where(namespace_id: ns.id)&.first&.identifier unless ns.nil?
+
       project = ::Project.find(otu.project_id)
       project_members = project_members(project.id)
+      feedback_url = project[:data_curation_issue_tracker_url] unless project[:data_curation_issue_tracker_url].nil?
 
       # TODO: This will likely have to change, it is renamed on serving the file.
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
@@ -76,26 +86,62 @@ module Export
       if Settings.sandbox_mode?
         version = Settings.sandbox_commit_sha
       end
-      metadata = {
-        'title' => project.name,
-        'version' => version,
-        'issued' => DateTime.now.strftime('%Y-%m-%d'),
+
+      # We lose the ability to maintain title in TW but until we can model metadata in TW, 
+      #   it seems desirable because there's a lot of TW vs CLB title mismatches
+      if clb_dataset_id.nil?
+        metadata = {
+          'title' => project.name,
+          'issued' => DateTime.now.strftime('%Y-%m-%d'),
+          'version' => DateTime.now.strftime('%b %Y'),
+          'feedbackUrl' => feedback_url
+        }
+      else
+        metadata = Colrapi.dataset(dataset_id: clb_dataset_id) unless clb_dataset_id.nil?
+
+        # remove fields maintained by ChecklistBank or TW
+        exclude_fields = %w[created createdBy modified modifiedBy attempt imported lastImportAttempt lastImportState size label citation private platform]
+        metadata = metadata.except(*exclude_fields)
+
+        # put feedbackUrl before the contact email in the metadata file to encourage use of the issue tracker
+        reordered_metadata = {}
+        metadata.each do |key, value|
+          if key == 'contact'
+            reordered_metadata['feedbackUrl'] = feedback_url
+          end
+          reordered_metadata[key] = value
+        end
+        metadata = reordered_metadata
+      end
+
+      metadata['issued'] = DateTime.now.strftime('%Y-%m-%d')
+      metadata['version'] = DateTime.now.strftime('%b %Y')
+
+      platform = {
+          'name' => 'TaxonWorks',
+          'alias' => 'TW',
+          'version' => version
       }
+      metadata['platform'] = platform
+
       metadata_file = Tempfile.new(metadata_path)
       metadata_file.write(metadata.to_yaml)
       metadata_file.close
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
 
-        (FILETYPES - %w{Name Taxon References}).each do |ft|
+        (FILETYPES - %w{Name Taxon References Synonym}).each do |ft| # TODO: double check Synonym belongs there.
           m = "Export::Coldp::Files::#{ft}".safe_constantize
           zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
         end
 
         zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
 
+        skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids
+        zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otus, project_members, ref_tsv, skip_name_ids) }
+
         zipfile.get_output_stream('Taxon.tsv') do |f|
-          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv)
+          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv, prefer_unlabelled_otus, skip_name_ids)
         end
 
         # Sort the refs by full citation string
@@ -132,7 +178,7 @@ module Export
         filename: filename(otu),
         source_file_path: file_path,
         request:,
-        expires: 2.days.from_now
+        expires: 5.days.from_now
       )
     end
 
@@ -142,7 +188,7 @@ module Export
         description: 'A zip file containing CoLDP formatted data.',
         filename: filename(otu),
         request:,
-        expires: 2.days.from_now
+        expires: 5.days.from_now
       )
 
       ColdpCreateDownloadJob.perform_later(otu, download, prefer_unlabelled_otus:)
