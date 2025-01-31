@@ -4,42 +4,52 @@
       :headers="HEADERS"
       :items="list"
     />
-    <RadialFilterAttribute :parameters="parameters" />
   </PanelContainer>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useStore } from 'vuex'
-import { GetterNames } from '../../store/getters/getters'
+import { computed, ref, watch } from 'vue'
+import { TaxonDetermination } from '@/routes/endpoints'
 import PanelContainer from './PanelContainer.vue'
-import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
-import TableData from '../Table/TableData.vue'
+import TableData from '@/tasks/collection_objects/browse/components/Table/TableData.vue'
 
 const HEADERS = ['OTU', 'Determiners', 'Date']
 
-const store = useStore()
-const determinations = computed(
-  () => store.getters[GetterNames.GetDeterminations]
-)
+const props = defineProps({
+  objectId: {
+    type: [String, undefined],
+    required: true
+  },
 
-const parameters = computed(() => {
-  const d = determinations.value[0]
-
-  return d
-    ? {
-        otu_id: [d.otu_id],
-        taxon_name_id: d.otu.taxon_name_id
-        // ancestor_id,
-      }
-    : {}
+  objectType: {
+    type: [String, undefined],
+    required: true
+  }
 })
 
-const list = computed(() => {
-  return determinations.value.map((d) => ({
+const determinations = ref([])
+
+watch(
+  () => props.objectId,
+  (id) => {
+    determinations.value = []
+
+    if (id) {
+      TaxonDetermination.where({
+        taxon_determination_object_id: props.objectId,
+        taxon_determination_object_type: props.objectType
+      }).then(({ body }) => {
+        determinations.value = body
+      })
+    }
+  }
+)
+
+const list = computed(() =>
+  determinations.value.map((d) => ({
     otu: d.otu.object_tag,
     roles: d?.determiner_roles?.map((r) => r?.person?.cached).join('; '),
     date: [d.day_made, d.month_made, d.year_made].filter(Boolean).join('/')
   }))
-})
+)
 </script>

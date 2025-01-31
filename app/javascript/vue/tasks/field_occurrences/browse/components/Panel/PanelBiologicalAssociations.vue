@@ -10,14 +10,40 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useStore } from 'vuex'
-import { GetterNames } from '../../store/getters/getters'
+import { ref, watch } from 'vue'
+import { BiologicalAssociation } from '@/routes/endpoints'
 import PanelContainer from './PanelContainer.vue'
 import ListITems from '@/components/displayList.vue'
 
-const store = useStore()
-const biologicalAssociations = computed(
-  () => store.getters[GetterNames.GetBiologicalAssociations]
+const props = defineProps({
+  objectId: {
+    type: [String, undefined],
+    required: true
+  },
+
+  objectType: {
+    type: [String, undefined],
+    required: true
+  }
+})
+
+const list = ref([])
+
+watch(
+  () => props.objectId,
+  (id) => {
+    list.value = []
+
+    if (id) {
+      BiologicalAssociation.where({
+        biological_association_subject_id: props.objectId,
+        biological_association_subject_type: props.objectType
+      })
+        .then(({ body }) => {
+          list.value = body
+        })
+        .catch(() => {})
+    }
+  }
 )
 </script>

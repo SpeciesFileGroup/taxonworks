@@ -15,7 +15,7 @@ import TableAttributes from '@/tasks/collection_objects/browse/components/Table/
 
 const props = defineProps({
   objectId: {
-    type: [Number, String],
+    type: [Number, undefined],
     required: true
   },
 
@@ -30,8 +30,9 @@ const identifiers = ref([])
 watch(
   () => props.objectId,
   (id) => {
+    identifiers.value = []
+
     if (id) {
-      identifiers.value = []
       Identifier.where({
         identifier_object_id: props.objectId,
         identifier_object_type: props.objectType
