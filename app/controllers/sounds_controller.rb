@@ -71,6 +71,13 @@ class SoundsController < ApplicationController
     end
   end
 
+  def select_options
+    @sounds = Sound.select_optimized(
+      sessions_current_user_id, 
+      sessions_current_project_id,
+     params.require(:target))
+  end
+
 
   def list
     @sounds = Sound.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])

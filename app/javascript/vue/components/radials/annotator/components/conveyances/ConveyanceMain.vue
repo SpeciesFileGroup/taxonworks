@@ -10,12 +10,25 @@
       @new="() => setConveyance(null)"
       @update="update"
     />
-    <ConveyanceUpload
+    <SmartSelector
       v-else
-      :object-id="objectId"
-      :object-type="objectType"
-      @add="addToList"
-    />
+      model="sounds"
+      :autocomplete="false"
+      :search="false"
+      :target="objectType"
+      :add-tabs="['new']"
+      pin-section="Sounds"
+      @selected="createConveyance"
+    >
+      <template #new>
+        <ConveyanceUpload
+          :object-id="objectId"
+          :object-type="objectType"
+          @add="addToList"
+        />
+      </template>
+    </SmartSelector>
+
     <ConveyanceList
       v-if="!currentConveyance"
       :list="list"
@@ -29,6 +42,7 @@
 import { Conveyance } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
 import { onBeforeMount, ref } from 'vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import ConveyanceList from './ConveyanceList.vue'
 import ConveyanceUpload from './ConveyanceUpload.vue'
@@ -64,6 +78,26 @@ function loadConveyance() {
   }).then(({ body }) => {
     list.value = body
   })
+}
+
+function createConveyance(item) {
+  const payload = {
+    conveyance: {
+      conveyance_object_id: props.objectId,
+      conveyance_object_type: props.objectType,
+      sound_id: item.id
+    }
+  }
+
+  Conveyance.create(payload)
+    .then(({ body }) => {
+      addToList(body)
+      TW.workbench.alert.create(
+        'Conveyance was successfully created.',
+        'notice'
+      )
+    })
+    .catch(() => {})
 }
 
 function setConveyance(conveyance) {

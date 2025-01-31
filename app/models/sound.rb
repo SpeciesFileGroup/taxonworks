@@ -53,4 +53,54 @@ class Sound < ApplicationRecord
   def purge_sound_file
   end
 
+  def self.used_recently(user_id, project_id, used_on = '')
+    i = arel_table
+    d = Conveyance.arel_table
+
+    # i is a select manager
+    j = d.project(d['sound_id'], d['updated_at'], d['conveyance_object_type']).from(d)
+      .where(d['updated_at'].gt( 1.week.ago ))
+      .where(d['updated_by_id'].eq(user_id))
+      .where(d['project_id'].eq(project_id))
+      .order(d['updated_at'].desc)
+
+    z = j.as('recent_i')
+
+    k = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+      z['sound_id'].eq(i['id']).and(z['conveyance_object_type'].eq(used_on))
+    ))
+
+    joins(k).distinct.pluck(:id)
+  end
+
+  # @params target [String] required, one of nil, `CollectionObject`, FieldOccurrence`, `Otu'
+  # @return [Hash] sounds optimized for user selection
+  def self.select_optimized(user_id, project_id, target = nil)
+    r = used_recently(user_id, project_id, target)
+    h = {
+      quick: [],
+      pinboard: Sound.pinned_by(user_id).where(project_id:).to_a,
+      recent: []
+    }
+
+    if target && !r.empty?
+      h[:recent] = (
+        Sound.where('"sounds"."id" IN (?)', r.first(5) ).to_a +
+        Sound.where(project_id:, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
+        .order('updated_at DESC')
+        .limit(3).to_a
+      ).uniq.sort{|a,b| a.updated_at <=> b.updated_at}
+
+      h[:quick] = (
+        Sound.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a +
+        Sound.where('"sounds"."id" IN (?)', r.first(4) ).to_a)
+        .uniq.sort{|a,b| a.updated_at <=> b.updated_at}
+    else
+      h[:recent] = Sound.where(project_id:).order('updated_at DESC').limit(10).to_a
+      h[:quick] = Sound.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).order('updated_at DESC')
+    end
+
+    h
+  end
+
 end

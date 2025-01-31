@@ -754,6 +754,7 @@ resources :sounds do
   concerns [:data_routes]
   collection do
     match :filter, to: 'sounds#index', via: [:get, :post]
+    get :select_options, defaults: {format: :json}
   end
 end
 
