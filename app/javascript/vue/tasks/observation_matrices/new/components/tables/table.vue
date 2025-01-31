@@ -88,7 +88,7 @@ import RadialObject from '@/components/radials/navigation/radial.vue'
 import Draggable from 'vuedraggable'
 import ObjectValidation from '@/components/soft_validations/objectValidation.vue'
 import { GetterNames } from '../../store/getters/getters'
-import { OTU, EXTRACT, DESCRIPTOR, SPECIMEN } from '@/constants/index.js'
+import { OTU, EXTRACT, DESCRIPTOR, SPECIMEN, SOUND } from '@/constants/index.js'
 
 export default {
   components: {
@@ -173,7 +173,8 @@ export default {
         [OTU]: '/otus/',
         [SPECIMEN]: '/collection_objects/',
         [DESCRIPTOR]: '/tasks/descriptors/new_descriptor/',
-        [EXTRACT]: '/tasks/extracts/new_extract?extract_id='
+        [EXTRACT]: '/tasks/extracts/new_extract?extract_id=',
+        [SOUND]: '/sounds/'
       }
     }
   },
