@@ -1,5 +1,27 @@
 <template>
   <div>
+    <div class="field">
+      <label class="d-block">Sound name</label>
+      <input
+        v-model="name"
+        type="text"
+      />
+      <VBtn
+        class="margin-small-left"
+        medium
+        color="create"
+        :disabled="!nameHasChanged"
+        @click="
+          emit('update:sound', {
+            conveyanceId: conveyance.id,
+            soundId: conveyance.sound_id,
+            name
+          })
+        "
+      >
+        Update
+      </VBtn>
+    </div>
     <ConveyanceMoveTo v-model="moveObj" />
     <div class="horizontal-left-content gap-small">
       <VBtn
@@ -27,27 +49,32 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import ConveyanceMoveTo from './ConveyanceMoveTo.vue'
 
 const props = defineProps({
-  conveyence: {
+  conveyance: {
     type: Object,
     required: true
   }
 })
 
-const emit = defineEmits(['update', 'new'])
+const emit = defineEmits(['update', 'update:sound', 'new'])
 const moveObj = ref(null)
 const name = ref(null)
 
-const isCurrent = computed(
-  () =>
-    moveObj.value?.id === props.conveyence.conveyance_object_id &&
-    moveObj.value?.type === props.conveyence.conveyance_object_type
+const nameHasChanged = computed(
+  () => name.value !== props.conveyance?.sound?.name
 )
 
-name.value = props.conveyence.name
+const isCurrent = computed(
+  () =>
+    moveObj.value?.id === props.conveyance.conveyance_object_id &&
+    moveObj.value?.type === props.conveyance.conveyance_object_type
+)
+
+name.value = props.conveyance.sound.name
 
 function update() {
   const payload = {
-    id: props.conveyence.id,
+    id: props.conveyance.id,
+    sound_id: props.conveyance.sound_id,
     conveyance_object_id: moveObj.value?.id,
     conveyance_object_type: moveObj.value?.type
   }

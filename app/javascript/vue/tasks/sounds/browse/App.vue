@@ -58,10 +58,10 @@ function loadData(soundId) {
   isLoading.value = true
 
   Promise.all([store.loadSound(soundId), store.loadConveyances(soundId)])
+    .catch(() => {})
     .finally(() => {
       isLoading.value = false
     })
-    .catch(() => {})
 }
 
 onBeforeMount(() => {

@@ -6,9 +6,10 @@
     />
     <ConveyanceEdit
       v-if="currentConveyance"
-      :conveyence="currentConveyance"
+      :conveyance="currentConveyance"
       @new="() => setConveyance(null)"
       @update="update"
+      @update:sound="updateSound"
     />
     <SmartSelector
       v-else
@@ -39,7 +40,7 @@
 </template>
 
 <script setup>
-import { Conveyance } from '@/routes/endpoints'
+import { Conveyance, Sound } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
 import { onBeforeMount, ref } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
@@ -104,6 +105,24 @@ function setConveyance(conveyance) {
   currentConveyance.value = conveyance
 }
 
+async function updateSound({ conveyanceId, soundId, name }) {
+  try {
+    const payload = {
+      sound: {
+        name
+      }
+    }
+
+    isSaving.value = true
+
+    await Sound.update(soundId, payload)
+    addToList((await Conveyance.find(conveyanceId)).body)
+  } catch {}
+
+  isSaving.value = false
+  TW.workbench.alert.create('Sound was successfully updated.', 'notice')
+}
+
 function removeItem(item) {
   Conveyance.destroy(item.id)
     .then(() => {
@@ -113,7 +132,6 @@ function removeItem(item) {
 }
 
 function update(conveyance) {
-  console.log(conveyance)
   Conveyance.update(conveyance.id, {
     conveyance
   })
