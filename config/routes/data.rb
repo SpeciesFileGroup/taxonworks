@@ -439,14 +439,16 @@ end
 resources :leads do
   concerns [:data_routes]
   member do
-    post :create_for_edit, defaults: {format: :json}
-    post :insert_couplet
-    patch :update_meta
-    post :destroy_couplet
-    post :delete_couplet
+    post :add_children, defaults: {format: :json}
+    post :insert_couplet, defaults: {format: :json}
+    post :destroy_children, defaults: {format: :json}
+    post :delete_children, defaults: {format: :json}
     post :duplicate
-    get :all_texts
-    get :otus
+    get :redirect_option_texts, defaults: {format: :json}
+    get :otus, defaults: {format: :json}
+    post :destroy_subtree, defaults: {format: :json}
+    patch :reorder_children, defaults: {format: :json}
+    post :insert_key, defaults: {format: :json}
   end
 end
 

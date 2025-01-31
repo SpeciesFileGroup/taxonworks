@@ -1,4 +1,6 @@
-# Leads models dichotomous keys; each row represents a single couplet option in a key.
+# Leads model multifurcating keys: each lead represents one option in a key.
+# The set of options at a given step of the key is referred to as a 'couplet'
+# even when there are more than two options.
 #
 # @!attribute parent_id
 #   @return [integer]
@@ -35,7 +37,8 @@
 #
 # @!attribute position
 #   @return [integer]
-#   A sort order used by has_closure_tree
+#   Position of this lead amongst the key options at lead's stage of the key;
+#   maintained by has_closure_tree
 #
 # @!attribute is_public
 #   @return [boolean]
@@ -49,7 +52,7 @@ class Lead < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
 
-  has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true , dependent: nil
+  has_closure_tree order: 'position', numeric_order: true, dont_order_roots: true, dependent: nil
 
   belongs_to :parent, class_name: 'Lead'
 
@@ -59,7 +62,7 @@ class Lead < ApplicationRecord
 
   has_many :redirecters, class_name: 'Lead', foreign_key: :redirect_id, inverse_of: :redirect, dependent: :nullify
 
-  before_save :check_is_public
+  before_save :set_is_public_only_on_root
 
   validate :root_has_title
   validate :link_out_has_protocol
@@ -72,19 +75,22 @@ class Lead < ApplicationRecord
     redirect_id.blank? ? all_children : redirect.all_children
   end
 
-  def go_id
-    (redirect_id.presence || id)
-  end
-
+  # @return [Boolean] true on success, false on error
   def dupe
-    return false if parent_id
+    if parent_id
+      errors.add(:base, 'Can only call dupe on a root lead')
+      return false
+    end
+
     begin
       Lead.transaction do
         dupe_in_transaction(self, parent_id)
       end
-    rescue ActiveRecord::RecordInvalid
+    rescue ActiveRecord::RecordInvalid => e
+      errors.add(:base, "dup failed: #{e}")
       return false
     end
+
     true
   end
 
@@ -99,14 +105,59 @@ class Lead < ApplicationRecord
 
   def self.draw(lead, indent = 0)
     puts Rainbow( (' ' * indent) + lead.text ).purple + ' ' + Rainbow( lead.node_position.to_s ).red + ' ' + Rainbow( lead.position ).blue + ' [.parent: ' + Rainbow(lead.parent&.text || 'none').gold + ']'
-    lead.children.reload.order(:position).each do |c|
+    lead.children.each do |c|
       draw(c, indent + 1)
     end
-    nil
+  end
+
+  # Return [Boolean] true on success, false on failure
+  def insert_key(id)
+    if id.nil?
+      errors.add(:base, 'Id of key to insert not provided')
+      return false
+    end
+    begin
+      Lead.transaction do
+        key_to_insert = Lead.find(id)
+        if key_to_insert.dupe != true
+          raise TaxonWorks::Error, 'dupe failed'
+        end
+
+        dup_prefix = '(COPY OF)'
+        duped_text = "#{dup_prefix} #{key_to_insert.text}"
+        duped_root = Lead.where(text: duped_text).order(:id).last
+        if duped_root.nil?
+          raise TaxonWorks::Error,
+            "failed to find the duped key with text '#{duped_text}'"
+        end
+
+        # Prepare the duped key to be reparented - note that root leads don't
+        # have link_out_text set (the url link is applied to the title in that
+        # case), so link_out_text in the inserted root lead will always be nil.
+        duped_root.update!(
+          text: duped_root.text.sub(dup_prefix, '(INSERTED KEY) '),
+          description: nil,
+          is_public: nil
+        )
+
+        add_child(duped_root)
+      end
+    rescue ActiveRecord::RecordNotFound => e
+      errors.add(:base, "Insert key failed: #{e}")
+      return false
+    rescue TaxonWorks::Error => e
+      errors.add(:base, "Insert key failed: #{e}")
+      return false
+    rescue ActiveRecord::RecordInvalid => e
+      errors.add(:base, "Insert key failed: #{e}")
+      return false
+    end
+
+    true
   end
 
   def insert_couplet
-    c,d = nil, nil
+    c, d = nil, nil
 
     p = node_position
 
@@ -116,26 +167,16 @@ class Lead < ApplicationRecord
     if children.any?
       o = children.to_a
 
-      left_text = (p == :left || p == :root) ? t2 : t1
+      # Reparent under left inserted node unless this is itself a right node.
+      left_text = (p != :right) ? t2 : t1
       right_text = (p == :right) ? t2 : t1
-      # !! middle handling
 
       c = Lead.create!(text: left_text, parent: self)
       d = Lead.create!(text: right_text, parent: self)
 
-      new_parent = (p == :left || p == :root) ? c : d
-      last_sibling = nil
+      new_parent = (p != :right) ? c : d
 
-      # !! The more obvious version using add_child is actually more error
-      # prone than using add_sibling.
-      o.each_with_index do |c, i|
-        if i == 0
-          new_parent.add_child c
-        else
-          last_sibling.append_sibling c
-        end
-        last_sibling = c
-      end
+      Lead.reparent_nodes(o, new_parent)
     else
       c = Lead.create!(text: t1, parent: self)
       d = Lead.create!(text: t1, parent: self)
@@ -144,49 +185,30 @@ class Lead < ApplicationRecord
     [c.id, d.id]
   end
 
-  # Destroy the children of this Lead, re-appending the grand-children to self
-  #  !! Do not destroy couplet if children on > 1 side exist
-  def destroy_couplet
-    k = children.order(:position).reload.to_a
+  # Destroy the children of this Lead, re-appending the grandchildren to self
+  # !! Do not destroy children if more than one child has its own children
+  def destroy_children
+    k = children.to_a
     return true if k.empty?
 
-    # TODO: handle multiple facets
-    # not first/last because that gives us a==b scenarious
-    a = k[0]
-    b = k[1]
+    original_child_count = k.count
+    grandkids = []
+    k.each do |c|
+      if c.children.present?
+        # Fail if more than one child has its own children
+        return false if grandkids.present?
 
-    c = a.children.to_a
-    d = b&.children&.to_a || []
-
-    if (c.size == 0) or (d.size == 0) # At least one side, but not two have children
-      if (c.size > 0) || (d.size > 0) # One side has children
-
-        has_kids = c.size > 0 ? a : b
-        no_kids = c.size == 0 ? a : b
-
-        i = has_kids.children
-
-        # Reparent the children of has_kids to self.
-        # !! The obvious solution using add_child is actually more error-prone
-        # than using add_sibling.
-        last_sibling = children[-1]
-        i.each do |z|
-          last_sibling.append_sibling z
-          last_sibling = z
-        end
-
-        has_kids.destroy!
-        no_kids.destroy!
-      else # Neither side has children
-        Lead.transaction do
-          a.destroy!
-          b&.destroy!
-        end
+        grandkids = c.children
       end
-      true
-    else #
-      false
     end
+
+    Lead.reparent_nodes(grandkids, self)
+
+    children.slice(0, original_child_count).each do |c|
+      c.destroy!
+    end
+
+    true
   end
 
   def transaction_nuke(lead = self)
@@ -204,12 +226,12 @@ class Lead < ApplicationRecord
 
   # TODO: Probably a helper method
   def all_children(node = self, result = [], depth = 0)
-    for c in [node.children.second, node.children.first].compact # intentionally reversed
+    for c in node.children.to_a.reverse # intentionally reversed
       c.all_children(c, result, depth + 1)
       a = {}
       a[:depth] = depth
-      a[:cpl] = c
-      a[:cplLabel] = node.origin_label
+      a[:lead] = c
+      a[:leadLabel] = node.origin_label
       result.push(a)
     end
     result
@@ -221,7 +243,7 @@ class Lead < ApplicationRecord
     for c in ch
       a = {}
       a[:depth] = depth
-      a[:cpl] = c
+      a[:lead] = c
       result.push(a)
     end
 
@@ -231,9 +253,26 @@ class Lead < ApplicationRecord
     result
   end
 
+  # @param reorder_list [Array] array of 0-based positions in which to order
+  #  the children of this lead.
+  # Raises TaxonWorks::Error on error.
+  def reorder_children(reorder_list)
+    validate_reorder_list(reorder_list, children.count)
+
+    i = 0
+    Lead.transaction do
+      children.each do |c|
+        if (new_position = reorder_list[i]) != i
+          c.update_column(:position, new_position)
+        end
+        i = i + 1
+      end
+    end
+  end
+
   # @return [ActiveRecord::Relation] ordered by text.
   # Returns all root nodes, with new properties:
-  #  * couplet_count (number of couplets in the key)
+  #  * couplets_count (declared here, computed in views)
   #  * otus_count (total number of distinct otus on the key)
   #  * key_updated_at (last time the key was updated)
   #  * key_updated_by_id (id of last person to update the key)
@@ -246,8 +285,6 @@ class Lead < ApplicationRecord
     # The updated_at subquery computes key_updated_at (and others), the second
     # query uses that to compute key_updated_by (by finding which node has the
     # corresponding key_updated_at).
-    # TODO: couplet_count will be wrong if any couplets don't have exactly two
-    # children.
     updated_at = Lead
       .joins('JOIN lead_hierarchies AS lh
         ON leads.id = lh.ancestor_id')
@@ -261,9 +298,10 @@ class Lead < ApplicationRecord
       .select('
         leads.*,
         COUNT(DISTINCT otus_source.otu_id) AS otus_count,
-        MAX(otus_source.updated_at) as key_updated_at,
-        (COUNT(otus_source.id) - 1) / 2 AS couplet_count
-      ')
+        MAX(otus_source.updated_at) AS key_updated_at,
+        0 AS couplets_count' # count is now computed in views
+        #·(COUNT(otus_source.id) - 1) / 2 AS couplet_count
+      )
 
     root_leads = Lead
       .joins("JOIN (#{updated_at.to_sql}) AS leads_updated_at
@@ -280,7 +318,50 @@ class Lead < ApplicationRecord
     return load_root_otus ? root_leads.includes(:otu) : root_leads
   end
 
-  protected
+  def redirect_options(project_id)
+    leads = Lead
+      .select(:id, :text, :origin_label)
+      .with_project_id(project_id)
+      .order(:text)
+    anc_ids = ancestor_ids()
+
+    leads.filter_map do |o|
+      if o.id != id && !anc_ids.include?(o.id)
+        {
+          id: o.id,
+          label: o.origin_label,
+          text: o.text.nil? ? '' : o.text.truncate(40)
+        }
+      end
+    end
+  end
+
+  private
+
+  # Appends `nodes`` to the children of `new_parent``, in their given order.
+  # !! Use this instead of add_child to reparent multiple nodes (add_child
+  # doesn't work the way one might naievely expect, see the discussion at
+  # https://github.com/SpeciesFileGroup/taxonworks/pull/3892#issuecomment-2016043296)
+  def self.reparent_nodes(nodes, new_parent)
+    last_sibling = new_parent.children.last # may be nil
+    nodes.each do |n|
+      if last_sibling.nil?
+        new_parent.add_child(n)
+      else
+        last_sibling.append_sibling(n)
+      end
+      last_sibling = n
+    end
+  end
+
+  # Raises TaxonWorks::Error on error.
+  def validate_reorder_list(reorder_list, expected_length)
+    if reorder_list.sort.uniq != (0..expected_length - 1).to_a
+      raise TaxonWorks::Error,
+        "Bad reorder list: #{reorder_list}"
+      return
+    end
+  end
 
   def root_has_title
     errors.add(:root_node, 'must have a title') if parent_id.nil? and text.nil?
@@ -309,15 +390,13 @@ class Lead < ApplicationRecord
   def dupe_in_transaction(node, parentId)
     a = node.dup
     a.parent_id = parentId
-    a.text = '(COPY OF) ' + a.text if parentId == nil
+    a.text = "(COPY OF) #{a.text}" if parentId == nil
     a.save!
 
-    for c in node.children
-      dupe_in_transaction(c, a.id)
-    end
+    node.children.each { |c| dupe_in_transaction(c, a.id) }
   end
 
-  def check_is_public
+  def set_is_public_only_on_root
     if parent_id.nil?
       self.is_public ||= false
     else
