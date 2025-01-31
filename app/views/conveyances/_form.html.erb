@@ -1,0 +1,55 @@
+<%= form_for(@conveyance, multipart: true) do |f| %>
+    <%= render 'shared/errors', object: @conveyance %>
+
+    <div class="field flex-col" id="conveyance_edit">
+      <%= f.label :conveyance_object_type %>
+      <label><%= f.radio_button :conveyance_object_type, 'Otu', id: :otu %> OTU </label>
+      <label><%= f.radio_button :conveyance_object_type, 'CollectionObject', id: :collection_object %> Collection object  </label>
+      <label><%= f.radio_button :conveyance_object_type, 'FieldOccurrence', id: :field_occurrence %> Field occurrence </label>
+    </div>
+
+    <div id="fields_for_otu">
+      <%= f.label :otu_id %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: '/otus',
+                           object:     'conveyance',
+                           method:     'conveyance_object_id',
+                           tag_id:     'otu_id_for_conveyance_object_id',
+                           display:    (@conveyance.conveyance_object&.metamorphosize&.class&.name == 'Otu' ? object_tag(@conveyance.conveyance_object.metamorphosize) : nil)} %>
+    </div>
+
+    <div id="fields_for_collection_object">
+      <%= f.label :collection_object %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: '/collection_objects',
+                           object:     'conveyance',
+                           method:     'conveyance_object_id',
+                           tag_id:     'collection_object_id_for_conveyance_object_id',
+                           display:    (@conveyance.conveyance_object&.metamorphosize&.class&.name == 'CollectionObject' ? object_tag(@conveyance.conveyance_object.metamorphosize) : nil)} %>
+    </div>
+
+    <div id="fields_for_field_occurrence">
+      <%= f.label :field_occurrence_id %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: '/field_occurrences',
+                           object:     'conveyance',
+                           method:     'conveyance_object_id',
+                           tag_id:     'field_occurrence_id_for_conveyance_object_id',
+                           display:    (@conveyance.conveyance_object&.metamorphosize&.class&.name == 'FieldOccurrence' ? object_tag(@conveyance.conveyance_object.metamorphosize) : nil)} %>
+
+
+    </div>
+
+    <%= f.fields_for :sound_attributes do |i| %>
+      <div class="field">
+        <%= i.label :sound_file %><br>
+        <div> <%= audio_tag(@conveyance.sound.sound_file, controls: true) if @conveyance.sound -%> </div>
+        <%= i.file_field :sound_file, class: :required_for_submit %>
+      </div>
+    <% end %>
+
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>
+

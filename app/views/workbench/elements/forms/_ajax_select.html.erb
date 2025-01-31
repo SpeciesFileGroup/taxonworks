@@ -25,7 +25,7 @@
        data-mx-method="<%= methodValue %>"
        <%= ((size ||= nil).nil? ? 'style="width:98%;"' : "size=\"#{size}\"").html_safe -%>
        type="text"
-       value="<%= display -%>"
+       value="<%= strip_tags(display) -%>"
        />
 
 <% if fields_for_object -%>
