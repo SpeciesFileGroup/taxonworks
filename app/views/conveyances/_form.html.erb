@@ -15,7 +15,7 @@
                            object:     'conveyance',
                            method:     'conveyance_object_id',
                            tag_id:     'otu_id_for_conveyance_object_id',
-                           display:    (@conveyance.conveyance_object&.metamorphosize&.class&.name == 'Otu' ? object_tag(@conveyance.conveyance_object.metamorphosize) : nil)} %>
+                           display:    (@conveyance.conveyance_object&.metamorphosize&.class&.name == 'Otu' ? label_for(@conveyance.conveyance_object.metamorphosize) : nil)} %>
     </div>
 
     <div id="fields_for_collection_object">
@@ -25,7 +25,7 @@
                            object:     'conveyance',
                            method:     'conveyance_object_id',
                            tag_id:     'collection_object_id_for_conveyance_object_id',
-                           display:    (@conveyance.conveyance_object&.metamorphosize&.class&.name == 'CollectionObject' ? object_tag(@conveyance.conveyance_object.metamorphosize) : nil)} %>
+                           display:    (@conveyance.conveyance_object&.metamorphosize&.class&.name == 'CollectionObject' ? label_for(@conveyance.conveyance_object.metamorphosize) : nil)} %>
     </div>
 
     <div id="fields_for_field_occurrence">
@@ -35,7 +35,7 @@
                            object:     'conveyance',
                            method:     'conveyance_object_id',
                            tag_id:     'field_occurrence_id_for_conveyance_object_id',
-                           display:    (@conveyance.conveyance_object&.metamorphosize&.class&.name == 'FieldOccurrence' ? object_tag(@conveyance.conveyance_object.metamorphosize) : nil)} %>
+                           display:    (@conveyance.conveyance_object&.metamorphosize&.class&.name == 'FieldOccurrence' ? label_for(@conveyance.conveyance_object.metamorphosize) : nil)} %>
 
 
     </div>

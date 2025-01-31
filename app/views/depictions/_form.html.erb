@@ -16,7 +16,7 @@
                            object:     'depiction',
                            method:     'depiction_object_id',
                            tag_id:     'otu_id_for_depiction_object_id',
-                           display:    (@depiction.depiction_object&.metamorphosize&.class&.name == 'Otu' ? object_tag(@depiction.depiction_object.metamorphosize) : nil)} %>
+                           display:    (@depiction.depiction_object&.metamorphosize&.class&.name == 'Otu' ? label_for(@depiction.depiction_object.metamorphosize) : nil)} %>
     </div>
 
     <div id='fields_for_collecting_event'>
@@ -26,7 +26,7 @@
                            object:     'depiction',
                            method:     'depiction_object_id',
                            tag_id:     'collecting_event_id_for_depiction_object_id',
-                           display:    (@depiction.depiction_object&.metamorphosize&.class&.name == 'CollectingEvent' ? object_tag(@depiction.depiction_object.metamorphosize) : nil)} %>
+                           display:    (@depiction.depiction_object&.metamorphosize&.class&.name == 'CollectingEvent' ? label_for(@depiction.depiction_object.metamorphosize) : nil)} %>
 
 
     </div>
@@ -38,7 +38,7 @@
                            object:     'depiction',
                            method:     'depiction_object_id',
                            tag_id:     'collection_object_id_for_depiction_object_id',
-                           display:    (@depiction.depiction_object&.metamorphosize&.class&.name == 'CollectionObject' ? object_tag(@depiction.depiction_object.metamorphosize) : nil)} %>
+                           display:    (@depiction.depiction_object&.metamorphosize&.class&.name == 'CollectionObject' ? label_for(@depiction.depiction_object.metamorphosize) : nil)} %>
     </div>
 
     <div class="field">
