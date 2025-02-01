@@ -59,9 +59,6 @@ class TaxonNameRelationship < ApplicationRecord
   # After commit only fires if there are changes to the record.
   after_commit :set_cached_names_for_taxon_names, unless: -> {self.no_cached }
 
-
-
-
   # TODO: remove, it's required by STI
   validates_presence_of :type, message: 'Relationship type should be specified'
 
@@ -449,10 +446,9 @@ class TaxonNameRelationship < ApplicationRecord
       if is_invalidating?
         t = subject_taxon_name
 
-        if type_name =~/Misspelling/
-          t.update_column(:cached_misspelling, t.get_cached_misspelling)
-
+        if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY.include?(type_name)
           t.update_columns(
+            cached_misspelling: true,
             cached_author_year: t.get_author_and_year,
             cached_nomenclature_date: t.nomenclature_date,
             cached_original_combination: t.get_original_combination,

@@ -110,12 +110,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           potential_protonyms = Protonym.where(name.slice(:rank_class, :year_of_publication).merge({ field => name[:name], cached_author: }).compact).with_ancestor(parent)
           if potential_protonyms.count > 1
             return parent
-            # potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }
-            # raise DatasetRecord::DarwinCore::InvalidData.new(
-            #   { "scientificName" => ["Intermediate name not present, and multiple matches found: #{potential_protonym_strings.join(', ')}"] }
-            # )
           end
           p = potential_protonyms.first
+          
           # check parent.cached_valid_taxon_name_id if not valid, can have obsolete subgenus Aus (Aus) bus -> Aus bus, bus won't have ancestor (Aus)
           if p.nil? && !parent.cached_is_valid
             p = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent.valid_taxon_name).first
