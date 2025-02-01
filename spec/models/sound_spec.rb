@@ -2,7 +2,25 @@ require 'rails_helper'
 
 RSpec.describe Sound, type: :model do
 
+
   let(:s) { FactoryBot.build(:valid_sound) }
+
+  # Might get in the way of parallel tests
+  #  https://guides.rubyonrails.org/active_storage_overview.html#discarding-files-created-during-tests
+  after(:all) { FileUtils.rm_rf(ActiveStorage::Blob.service.root) }
+
+  specify 'file exists' do
+    s.save
+    path = ActiveStorage::Blob.service.path_for(s.sound_file.attachment.key)
+    expect(File.exist?(path)).to be_truthy
+  end
+
+  specify 'file removed on destroy' do
+    s.save
+    path = ActiveStorage::Blob.service.path_for(s.sound_file.attachment.key)
+    s.destroy!
+    expect(File.exist?(path)).to be_falsey
+  end
 
   specify 'content type is checked' do
     s.sound_file = Rack::Test::UploadedFile.new(

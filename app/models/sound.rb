@@ -52,6 +52,7 @@ class Sound < ApplicationRecord
   end
 
   def purge_sound_file
+    sound_file.attachment.purge
   end
 
   def self.used_recently(user_id, project_id, used_on = '')

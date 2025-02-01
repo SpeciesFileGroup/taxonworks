@@ -23,8 +23,11 @@ module SoundsHelper
 
   def sound_metadata(sound)
     return {} if sound.nil?
-    w = ::WahWah.open(sound.sound_file.download)
-    return { foo: w.year } 
+    t = File.open( ActiveStorage::Blob.service.path_for(sound.sound_file.attachment.key))
+    w = ::WahWah.open(t)
+    m = w.as_json.compact.delete_if{|k,v| v.blank?}
+    m.delete 'file_io'
+    m
   end
 
 end
