@@ -1097,9 +1097,10 @@ class Protonym < TaxonName
   is_cached = false if cached_author_year != get_author_and_year
   is_cached = false if cached_author != get_author
 
+  # Right side values should call methods that calculate from the db
   if is_cached && (
       cached_valid_taxon_name_id != get_valid_taxon_name.id ||
-      cached_is_valid != !unavailable_or_invalid? || # Do not change this, we want the calculated value.
+      cached_is_valid != !unavailable_or_invalid? ||
       cached_html != get_full_name_html ||
       cached_misspelling != get_cached_misspelling ||
       cached_original_combination != get_original_combination ||
@@ -1110,13 +1111,14 @@ class Protonym < TaxonName
       rank_string =~ /Species/ &&
       (cached_secondary_homonym != get_genus_species(:current, :self) ||
        cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)))
+
     is_cached = false
   end
 
   soft_validations.add(
     :base, 'Cached values should be updated',
     success_message: 'Cached values were updated',
-    failure_message:  'Failed to update cached values') if !is_cached
+    failure_message:  'Failed to update cached values') unless is_cached
   end
 
   def set_cached
@@ -1126,12 +1128,11 @@ class Protonym < TaxonName
 
     super
 
-    if parent_id # Don't do this for Root!!
+    if parent_id || parent # Don't do this for Root!!
       set_original_combination_cached_fields
       set_cached_homonymy
       set_cached_species_homonym if is_species_rank?
       set_cached_misspelling
-
 
       tn = TaxonName.find(id) # Why not "reload"
       set_cached_names_for_descendants if tn.cached != old_cached
@@ -1147,7 +1148,9 @@ class Protonym < TaxonName
     )
   end
 
-  # all three in one update here
+  # The only reason this is needed on this side is because
+  # of the verbatim_name checks, otherwise we could drive
+  # it from the TaxonNameRelationship creation.
   def set_cached_misspelling
     update_column(:cached_misspelling, get_cached_misspelling)
   end

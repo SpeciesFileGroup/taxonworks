@@ -1235,8 +1235,12 @@ class TaxonName < ApplicationRecord
     update_column(:cached_classified_as, get_cached_classified_as)
   end
 
+  # @proceps I feel this needs to go away.  If you want to define misspelling you can not use a verbatim_name. In general
+  # verbatim_name should not have downstream factual consequences.
+  #
+  # TODO:  Missing specs
   def get_cached_misspelling
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY).first
+    misspelling = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY).first
     unless misspelling.nil?
       n1 = verbatim_name? ? verbatim_name : name
       n2 = misspelling.object_taxon_name.verbatim_name? ? misspelling.object_taxon_name.verbatim_name : misspelling.object_taxon_name.name
