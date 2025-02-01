@@ -1,9 +1,10 @@
+require "wahwah"
+
+# A Sound is digital representation of some noise.  They are linked ivia Conveyances as Images aer linked via Depictions.
+#
 class Sound < ApplicationRecord
   include Housekeeping
-
-  # TODO: add
   include Shared::MatrixHooks::Member
-
   include Shared::OriginRelationship
   include Shared::Observations
   include Shared::Confidences

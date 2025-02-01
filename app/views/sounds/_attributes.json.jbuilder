@@ -3,6 +3,8 @@ json.partial! '/shared/data/all/metadata', object: sound
 
 json.sound_file url_for(sound.sound_file)
 
+json.metadata sound_metadata(sound)
+
 if extend_response_with('attribution')
   json.attribution do
     if sound.attribution

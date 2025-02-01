@@ -21,4 +21,10 @@ module SoundsHelper
     link_to(sound_tag(sound), sound.metamorphosize).html_safe
   end
 
+  def sound_metadata(sound)
+    return {} if sound.nil?
+    w = ::WahWah.open(sound.sound_file.download)
+    return { foo: w.year } 
+  end
+
 end
