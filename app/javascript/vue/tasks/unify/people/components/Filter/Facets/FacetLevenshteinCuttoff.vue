@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="field"
-    v-help.filter.levenshtein
-  >
+  <FacetContainer v-help.filter.levenshtein>
     <h3>Levenshtein cuttoff</h3>
     <datalist id="days">
       <option
@@ -17,7 +14,7 @@
       min="0"
       max="6"
       step="0"
-      v-model.number="optionValue"
+      v-model.number="levenshteinCuttoff"
     />
     <div class="options-label">
       <span
@@ -26,32 +23,28 @@
         v-html="n - 1"
       />
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
-<script>
-export default {
-  props: {
-    modelValue: {
-      type: [Number, String],
-      default: 0
-    }
+<script setup>
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import { computed } from 'vue'
+
+const params = defineModel({
+  type: Object,
+  required: true
+})
+
+const levenshteinCuttoff = computed({
+  get() {
+    return params.value.levenshtein_cuttoff || 0
   },
-
-  emits: ['update:modelValue'],
-
-  computed: {
-    optionValue: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value === 0 ? undefined : value)
-      }
-    }
+  set(value) {
+    params.value.levenshtein_cuttoff = value === 0 ? undefined : value
   }
-}
+})
 </script>
+
 <style lang="scss" scoped>
 .options-label {
   display: flex;
