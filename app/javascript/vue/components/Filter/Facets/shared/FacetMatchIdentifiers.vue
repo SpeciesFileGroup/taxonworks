@@ -1,13 +1,25 @@
 <template>
   <FacetContainer>
-    <h3>Matching identifiers</h3>
-    <div class="field label-above">
+    <h3>
+      Matching identifiers
+      <template v-if="identifiersCount"> ({{ identifiersCount }}) </template>
+    </h3>
+    <div class="label-above">
       <textarea
         v-tabkey
         class="full_width"
         v-model="matchIdentifiers"
         rows="5"
       />
+    </div>
+    <div class="field">
+      <label>
+        <input
+          type="checkbox"
+          v-model="params.match_identifiers_caseless"
+        />
+        Match case
+      </label>
     </div>
 
     <div class="field label-above">
@@ -61,9 +73,16 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['update:modelValue'])
+
 const type = ref()
 const delimiter = ref()
-const emit = defineEmits(['update:modelValue'])
+
+const identifiersCount = computed(
+  () =>
+    delimiterIdentifier.value &&
+    matchIdentifiers.value?.split(delimiterIdentifier.value).length
+)
 
 const params = computed({
   get: () => props.modelValue,
