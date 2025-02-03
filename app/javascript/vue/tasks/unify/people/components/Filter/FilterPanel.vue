@@ -6,6 +6,7 @@
     <div class="content">
       <div class="field">
         <button
+          v-help.filter.selectedPerson
           class="button normal-input button-default full_width"
           type="button"
           @click="$emit('findPeople', parsedParams)"
@@ -13,6 +14,7 @@
           Selected person
         </button>
         <button
+          v-help.filter.matchPeople
           class="button normal-input button-default full_width margin-medium-top"
           type="button"
           :disabled="disabledMatch"
