@@ -6,7 +6,7 @@
         :href="`/sources/${source.id}`"
       />
     </td>
-    <td class="horizontal-left-content">
+    <td class="horizontal-left-content gap-small">
       <RadialObject :global-id="source.global_id" />
       <VPin
         v-if="source.id"
