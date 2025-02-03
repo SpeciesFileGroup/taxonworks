@@ -23,6 +23,7 @@ module Queries::Concerns::Identifiers
       :local_identifiers,
       :global_identifiers,
       :match_identifiers,
+      :match_identifiers_caseless,
       :match_identifiers_delimiter,
       :match_identifiers_type,
       :namespace_id,
@@ -68,6 +69,13 @@ module Queries::Concerns::Identifiers
     #   false - does not have a global identifier
     #   nil - not applied
     attr_accessor :global_identifiers
+
+    # @param match_identifiers_caseless [Boolean]
+    # @return [Boolean, nil] default true
+    #   if true then LOWER(cached) is matched to values.downcased
+    # 
+    # !! Requires match_identifiers_delimiter to be present
+    attr_accessor :match_identifiers_caseless
 
     # @param match_identifiers [String]
     # @return [String, nil]
@@ -144,6 +152,7 @@ module Queries::Concerns::Identifiers
     @match_identifiers = params[:match_identifiers]
     @match_identifiers_delimiter = params[:match_identifiers_delimiter]
     @match_identifiers_type = params[:match_identifiers_type]
+    @match_identifiers_caseless = boolean_param(params, :match_identifiers_caseless)
     @namespace_id = params[:namespace_id]
   end
 
@@ -196,7 +205,11 @@ module Queries::Concerns::Identifiers
     when 'internal'
       a = referenced_klass.where(id: ids)
     when 'identifier'
-      a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids}).distinct
+      if match_identifiers_caseless != false # nil or true
+        a = referenced_klass.joins(:identifiers).where('LOWER(identifiers.cached) IN (?)', ids.map(&:downcase)).distinct
+      else
+        a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids}).distinct
+      end
     when 'dwc_occurrence_id'
       a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids, type: 'Identifier::Global::Uuid::TaxonworksDwcOccurrence' }).distinct
     else
