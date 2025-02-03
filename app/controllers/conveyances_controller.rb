@@ -85,6 +85,8 @@ class ConveyancesController < ApplicationController
       :conveyance_object_id, 
       :conveyance_object_type,
       :position,
+      :start_time,
+      :end_time,
       sound_attributes: [
         :sound_file,
         :name

@@ -18,6 +18,7 @@
       :search="false"
       :target="objectType"
       :add-tabs="['new']"
+      :pin-type="SOUND"
       pin-section="Sounds"
       @selected="createConveyance"
     >
@@ -48,6 +49,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import ConveyanceList from './ConveyanceList.vue'
 import ConveyanceUpload from './ConveyanceUpload.vue'
 import ConveyanceEdit from './ConveyenceEdit.vue'
+import { SOUND } from '@/constants'
 
 const props = defineProps({
   objectId: {
@@ -137,7 +139,11 @@ function update(conveyance) {
   })
     .then(({ body }) => {
       setConveyance(null)
-      removeFromList(body)
+      if (conveyance.conveyance_object_id) {
+        removeFromList(body)
+      } else {
+        addToList(body)
+      }
 
       TW.workbench.alert.create(
         'Conveyance was successfully updated.',

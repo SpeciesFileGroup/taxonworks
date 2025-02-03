@@ -6,6 +6,7 @@
 import { onMounted, useTemplateRef, onBeforeUnmount, watch } from 'vue'
 import WaveSurfer from 'wavesurfer.js'
 import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js'
+import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js'
 
 const props = defineProps({
   waveColor: {
@@ -46,17 +47,58 @@ const props = defineProps({
   sampleRate: {
     type: Number,
     default: 44100
+  },
+
+  regions: {
+    type: Array,
+    default: () => []
   }
 })
 
-const emit = defineEmits(['load', 'ready', 'finish', 'play', 'pause', 'stop'])
+const emit = defineEmits([
+  'load',
+  'ready',
+  'finish',
+  'play',
+  'pause',
+  'stop',
+  'region:created',
+  'region:click',
+  'region:dblclick',
+  'region:in',
+  'region:out',
+  'region:removed',
+  'region:update',
+  'region:updated'
+])
 
 const audioPlayerRef = useTemplateRef('player')
 let audioPlayer
+let regionsPlugin
 
 onMounted(() => {
+  const plugins = []
+
+  if (props.regions.length) {
+    regionsPlugin = RegionsPlugin.create()
+
+    regionsPlugin.on('region-clicked', (r, e) =>
+      emit('region:click', { region: r, event: e })
+    )
+    regionsPlugin.on('region-created', (e) => emit('region:created', e))
+    regionsPlugin.on('region-double-click', (e) => emit('region:dblclick', e))
+    regionsPlugin.on('region-in', (e) => emit('region:in', e))
+    regionsPlugin.on('region-out', (e) => emit('region:out', e))
+    regionsPlugin.on('region-removed', (e) => emit('region:removed', e))
+    regionsPlugin.on('region-update', (e) => emit('region:update', e))
+    regionsPlugin.on('region-updated', (e) => emit('region:updated', e))
+
+    plugins.push(regionsPlugin)
+  }
+
   audioPlayer = WaveSurfer.create({
     container: audioPlayerRef.value,
+    plugins,
     ...props
   })
 
@@ -74,6 +116,14 @@ onMounted(() => {
     )
   }
 
+  if (props.regions.length) {
+    audioPlayer.on('decode', () => {
+      props.regions.forEach((region) =>
+        regionsPlugin.addRegion(makeRegion(region))
+      )
+    })
+  }
+
   audioPlayer.on('play', () => emit('play'))
   audioPlayer.on('stop', () => emit('stop'))
   audioPlayer.on('pause', () => emit('pause'))
@@ -86,6 +136,20 @@ onBeforeUnmount(() => {
   audioPlayer.destroy()
 })
 
+function makeRegion(region) {
+  const random = (min, max) => Math.random() * (max - min) + min
+  const randomColor = () =>
+    `rgba(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)}, 0.5)`
+
+  return {
+    content: '',
+    color: randomColor(),
+    drag: false,
+    resize: true,
+    ...region
+  }
+}
+
 function load(url) {
   audioPlayer.load(url)
 }
@@ -96,6 +160,14 @@ function play() {
 
 function stop() {
   audioPlayer.stop()
+}
+
+function clearRegions() {
+  regionsPlugin?.clearRegions()
+}
+
+function destroyRegions() {
+  regionsPlugin?.destroy()
 }
 
 function playPause() {
@@ -111,12 +183,26 @@ watch(
   (url) => load(url)
 )
 
+watch(
+  () => props.regions,
+  (newVal) => {
+    regionsPlugin.clearRegions()
+
+    newVal.forEach((region) => {
+      regionsPlugin.addRegion(makeRegion(region))
+    })
+  }
+)
+
 defineExpose({
   audioPlayer,
+  regionsPlugin,
   load,
   play,
   stop,
   pause,
-  playPause
+  playPause,
+  clearRegions,
+  destroyRegions
 })
 </script>

@@ -7,6 +7,8 @@ const permitParams = {
     conveyance_object_id: Number,
     conveyance_object_type: String,
     position: Number,
+    start_time: Number,
+    end_time: Number,
     sound_attributes: {
       name: String,
       sound_file: String
