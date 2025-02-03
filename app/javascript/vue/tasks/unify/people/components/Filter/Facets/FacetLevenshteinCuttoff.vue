@@ -1,11 +1,14 @@
 <template>
-  <div class="field">
+  <div
+    class="field"
+    v-help.filter.levenshtein
+  >
     <h3>Levenshtein cuttoff</h3>
     <datalist id="days">
       <option
         v-for="n in 7"
         :key="n"
-        :value="n-1"
+        :value="n - 1"
       />
     </datalist>
     <input
@@ -15,12 +18,12 @@
       max="6"
       step="0"
       v-model.number="optionValue"
-    >
+    />
     <div class="options-label">
       <span
         :key="n"
         v-for="n in 7"
-        v-html="n-1"
+        v-html="n - 1"
       />
     </div>
   </div>
@@ -39,10 +42,10 @@ export default {
 
   computed: {
     optionValue: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value === 0 ? undefined : value)
       }
     }
@@ -57,15 +60,14 @@ export default {
   margin-top: -10px;
   justify-content: space-between;
 }
-  datalist {
-    display: flex;
-    justify-content: space-between;
-    margin-top: -23px;
-    padding-top: 0px;
-    width: 300px;
-  }
-  input[type="range"] {
-    width: 300px;
-  }
-
+datalist {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -23px;
+  padding-top: 0px;
+  width: 300px;
+}
+input[type='range'] {
+  width: 300px;
+}
 </style>
