@@ -46,6 +46,7 @@
       <label>
         <input
           type="checkbox"
+          :value="SORT_BY_VALUE"
           v-model="sortBy"
         />
         Sort as listed
@@ -129,6 +130,10 @@ import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import VModal from '@/components/ui/Modal.vue'
 
 const SORT_BY_VALUE = 'match_identifiers'
+const SPECIAL_CHAR = {
+  '\n': '\\n',
+  '\t': '\\t'
+}
 
 const TYPE_PARAMETERS = {
   Internal: 'internal',
@@ -146,10 +151,11 @@ const emit = defineEmits(['update:modelValue'])
 
 const type = ref()
 const delimiter = ref()
+const isSortedByMatch = ref(true)
 const isModalVisible = ref(false)
 const shortcuts = ref([
   {
-    keys: [getPlatformKey(), 'm'],
+    keys: [getPlatformKey(), 'Shift', 'M'],
     handler() {
       isModalVisible.value = true
     }
@@ -160,8 +166,10 @@ useHotkey(shortcuts.value)
 
 const identifiersCount = computed(
   () =>
-    delimiterIdentifier.value &&
-    matchIdentifiers.value?.split(delimiterIdentifier.value).length
+    delimiter.value &&
+    matchIdentifiers.value?.split(
+      delimiter.value.replace(/\\n/g, '\n').replace(/\\t/g, '\t')
+    ).length
 )
 
 const params = computed({
@@ -170,9 +178,15 @@ const params = computed({
 })
 
 const sortBy = computed({
-  get: () => params.value.order_by === SORT_BY_VALUE,
+  get: () => isSortedByMatch.value,
   set: (value) => {
-    params.value.order_by = value ? SORT_BY_VALUE : undefined
+    isSortedByMatch.value = value
+
+    if (!matchIdentifiers.value || !value) {
+      params.value.order_by = undefined
+    } else {
+      params.value.order_by = SORT_BY_VALUE
+    }
   }
 })
 
@@ -180,19 +194,27 @@ const matchIdentifiers = computed({
   get: () => props.modelValue.match_identifiers,
   set: (value) => {
     if (value) {
-      params.value.match_identifiers = value
-      params.value.match_identifiers_type = type.value
-      params.value.match_identifiers_delimiter = delimiter.value
+      Object.assign(params.value, {
+        match_identifiers: value,
+        match_identifiers_type: type.value,
+        match_identifiers_delimiter: delimiter.value
+          .replace(/\\n/g, '\n')
+          .replace(/\\t/g, '\t'),
+        order_by: isSortedByMatch.value ? SORT_BY_VALUE : undefined
+      })
     } else {
-      params.value.match_identifiers = undefined
-      params.value.match_identifiers_type = undefined
-      params.value.match_identifiers_delimiter = undefined
+      Object.assign(params.value, {
+        match_identifiers: undefined,
+        match_identifiers_type: undefined,
+        match_identifiers_delimiter: undefined,
+        order_by: undefined
+      })
     }
   }
 })
 
 const delimiterIdentifier = computed({
-  get: () => props.modelValue.match_identifiers_delimiter,
+  get: () => delimiter.value,
   set: (value) => {
     delimiter.value = value
 
@@ -216,12 +238,14 @@ const toggleType = computed({
 })
 
 onBeforeMount(() => {
+  const delimiterValue = params.value.match_identifiers_delimiter
+
   type.value = params.value.match_identifiers_type || TYPE_PARAMETERS.Identifier
-  delimiter.value = params.value.match_identifiers_delimiter || 'n'
+  delimiter.value = SPECIAL_CHAR[delimiterValue] || delimiterValue || '\\n'
 })
 
 TW.workbench.keyboard.createLegend(
-  `${getPlatformKey()}+m`,
+  `${getPlatformKey()}+shift+m`,
   'Open match identifiers facet in full screen mode',
   'Filter task'
 )

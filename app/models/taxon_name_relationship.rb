@@ -708,4 +708,3 @@ class TaxonNameRelationship < ApplicationRecord
     .map { |c| c.join('::') }.map(&:constantize)
 end
 
-#Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].each { |file| require_dependency file }
