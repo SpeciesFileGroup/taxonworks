@@ -21,12 +21,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- OriginRelationship creation for Sequences [#4180]
 - CSD: change of namespace not updating [#4147]
 - TaxonWorks bibliography style for book chapter.
 - Removed obsolete Description table from COLDP exports
 - Remove [sic] from COLDP name fields [#3833]
 - Autonym synonyms bug in COLDP exporter [#4175]
 
+[#4180]: https://github.com/SpeciesFileGroup/taxonworks/issues/4180
 [#3148]: https://github.com/SpeciesFileGroup/taxonworks/issues/3148
 [#3158]: https://github.com/SpeciesFileGroup/taxonworks/issues/3158
 [#3833]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
