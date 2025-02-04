@@ -7,7 +7,7 @@
           <th />
         </tr>
       </thead>
-      <source-row-component
+      <SourceRow
         v-for="src in list"
         :key="src.id"
         :source="src"
@@ -16,19 +16,14 @@
     <span v-if="list.length"> {{ list.length }} sources </span>
   </div>
 </template>
-<script>
-import SourceRowComponent from './source_row_component'
 
-export default {
-  components: {
-    SourceRowComponent
-  },
+<script setup>
+import SourceRow from './SourceRow.vue'
 
-  props: {
-    list: {
-      type: Array,
-      required: true
-    }
+defineProps({
+  list: {
+    type: Array,
+    required: true
   }
-}
+})
 </script>

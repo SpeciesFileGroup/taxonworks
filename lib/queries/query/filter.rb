@@ -767,32 +767,9 @@ module Queries
       #
       # See spec/lib/queries/otu/filter_spec.rb for tests
 
-      # TODO: isolate method
+      # See lib/queries/concerns/identifiers.rb
       if order_by
-        case order_by
-        when :match_identifiers
-          if match_identifiers.present?
-
-            case match_identifiers_type # rubocop:disable Metrics/BlockNesting
-            when 'internal'
-              o = "array_position(ARRAY[#{identifiers_to_match.join(',')}], #{table.name}.id)"
-              q = q.order(Arel.sql(o))
-            else
-              # TODO: optimize, this was done hastily
-              o = "array_position(ARRAY[#{identifiers_to_match.collect{|i| "'#{i}'"}.join(',')}], sid.cached) s"
-
-              i = ::Identifier
-                .from('identifiers sid')
-                .where(sid: {cached: identifiers_to_match}) # This is required to de-duplicate for some reason ?!
-                .select("sid.*, #{o}")
-
-              q = q.with(sid: i)
-                .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
-                .select("#{table.name}.*, sid.s")
-                .order('sid.s')
-            end
-          end
-        end
+        q = match_identifier_order_by(q)
       end
 
       if recent
