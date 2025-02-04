@@ -68,20 +68,22 @@ export default defineStore('store', {
 
         while (cells.length && currentPredicateIndex < this.predicates.length) {
           const predicate = this.predicates[currentPredicateIndex]
-          const value = cells.shift()
+          const value = cells.shift().trim()
 
-          const dataAttributes = this.dataAttributes.filter(
-            (da) =>
-              da.objectId === obj.id &&
-              da.objectType === obj.type &&
-              da.predicateId === predicate.id
-          )
+          if (value.length) {
+            const dataAttributes = this.dataAttributes.filter(
+              (da) =>
+                da.objectId === obj.id &&
+                da.objectType === obj.type &&
+                da.predicateId === predicate.id
+            )
 
-          if (dataAttributes.length === 1) {
-            const [dataAttribute] = dataAttributes
+            if (dataAttributes.length === 1) {
+              const [dataAttribute] = dataAttributes
 
-            dataAttribute.value = value
-            dataAttribute.isUnsaved = true
+              dataAttribute.value = value
+              dataAttribute.isUnsaved = true
+            }
           }
 
           currentPredicateIndex++
@@ -141,11 +143,31 @@ export default defineStore('store', {
       TW.workbench.alert.create('Data attributes were successfully saved.')
     },
 
+    clearColumn(predicate) {
+      const dataAttributes = this.dataAttributes.filter(
+        (da) => da.predicateId === predicate.id
+      )
+
+      dataAttributes.forEach((item) => {
+        if (item.value) {
+          item.value = ''
+          item.isUnsaved = !!item.id
+        }
+      })
+    },
+
     removePredicate(p) {
       this.predicates = this.predicates.filter(({ id }) => id !== p.id)
       this.dataAttributes = this.dataAttributes.filter(
-        ({ predicateId }) => predicateId === p.id
+        ({ predicateId }) => predicateId !== p.id
       )
+    },
+
+    reloadDataAttributes(predicateId) {
+      this.dataAttributes = this.dataAttributes.filter(
+        (da) => da.predicateId !== predicateId
+      )
+      this.loadDataAttributes(predicateId)
     },
 
     saveDataAttributesFor({ objectType, objectId }) {
@@ -237,27 +259,33 @@ export default defineStore('store', {
         per: 5000
       })
 
-      request.then(({ body }) => {
-        const items = body.map(makeDataAttribute)
+      this.isLoading = true
 
-        this.objects.forEach((obj) => {
-          const dataAttributes = items.filter(
-            (item) => item.objectType === obj.type && item.objectId === obj.id
-          )
+      request
+        .then(({ body }) => {
+          const items = body.map(makeDataAttribute)
 
-          if (dataAttributes.length) {
-            this.dataAttributes.push(...dataAttributes)
-          } else {
-            this.dataAttributes.push(
-              makeDataAttribute({
-                controlled_vocabulary_term_id: predicateId,
-                attribute_subject_type: obj.type,
-                attribute_subject_id: obj.id
-              })
+          this.objects.forEach((obj) => {
+            const dataAttributes = items.filter(
+              (item) => item.objectType === obj.type && item.objectId === obj.id
             )
-          }
+
+            if (dataAttributes.length) {
+              this.dataAttributes.push(...dataAttributes)
+            } else {
+              this.dataAttributes.push(
+                makeDataAttribute({
+                  controlled_vocabulary_term_id: predicateId,
+                  attribute_subject_type: obj.type,
+                  attribute_subject_id: obj.id
+                })
+              )
+            }
+          })
         })
-      })
+        .finally(() => {
+          this.isLoading = false
+        })
 
       return request
     }

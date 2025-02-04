@@ -1,5 +1,5 @@
 <template>
-  <div class="full_width">
+  <div class="full_width overflow-x-auto">
     <VirtualScroller
       :items="store.objects"
       :item-height="41"
@@ -9,19 +9,70 @@
         <table class="table-striped table-data-attributes full_width">
           <thead>
             <tr>
-              <th class="position-sticky w-2">ID</th>
-              <th class="position-sticky">Object</th>
+              <th colspan="2"></th>
+              <th :colspan="store.predicates.length + 1"></th>
+            </tr>
+            <tr>
+              <th class="position-sticky w-2">
+                <label class="flex-row middle gap-xsmall cursor-pointer">
+                  <input type="checkbox" />
+                  ID
+                </label>
+              </th>
+              <th class="position-sticky">
+                <label class="flex-row middle gap-xsmall cursor-pointer">
+                  <input type="checkbox" />
+                  Object
+                </label>
+              </th>
               <th
-                v-for="item in store.predicates"
-                :key="item.id"
-                class="position-sticky w-2"
+                v-for="(predicate, index) in store.predicates"
+                :key="predicate.id"
+                :class="[
+                  'position-sticky w-2',
+                  index === 0 && 'cell-left-border'
+                ]"
               >
                 <div class="horizontal-left-content gap-small">
-                  {{ item.label }}
+                  <label class="flex-row middle gap-xsmall cursor-pointer">
+                    <input type="checkbox" />
+                    {{ predicate.label }}
+                  </label>
+
                   <VBtn
                     color="primary"
                     circle
-                    @click="() => store.removePredicate(item)"
+                    title="Clear column"
+                    @click="() => store.clearColumn(predicate)"
+                  >
+                    <VIcon
+                      name="eraser"
+                      x-small
+                      title="Clear column"
+                    />
+                  </VBtn>
+
+                  <VBtn
+                    color="primary"
+                    circle
+                    title="Reload data attributes"
+                    @click="
+                      () => {
+                        store.reloadDataAttributes(predicate.id)
+                      }
+                    "
+                  >
+                    <VIcon
+                      name="undo"
+                      x-small
+                      title="Reload data attributes"
+                    />
+                  </VBtn>
+
+                  <VBtn
+                    color="primary"
+                    circle
+                    @click="() => store.removePredicate(predicate)"
                   >
                     <VIcon
                       name="trash"
@@ -35,8 +86,12 @@
                   color="create"
                   :disabled="!store.hasUnsaved"
                   @click="store.saveDataAttributes"
-                  >Save all</VBtn
                 >
+                  Save all ({{
+                    store.dataAttributes.filter((item) => item.isUnsaved)
+                      .length
+                  }})
+                </VBtn>
               </th>
             </tr>
           </thead>
@@ -44,14 +99,15 @@
             <tr
               v-for="item in items"
               :key="item.id"
+              class="contextMenuCells"
             >
               <td>{{ item.id }}</td>
               <td v-html="item.label" />
               <template
-                v-for="predicate in store.predicates"
+                v-for="(predicate, index) in store.predicates"
                 :key="predicate.id"
               >
-                <td>
+                <td :class="{ 'cell-left-border': index === 0 }">
                   <div class="horizontal-left-content gap-medium">
                     <input
                       v-for="da in store.getDataAttributesByObject({
@@ -60,6 +116,7 @@
                         predicateId: predicate.id
                       })"
                       :key="da.uuid"
+                      class="flex-auto"
                       type="text"
                       v-model="da.value"
                       @change="() => (da.isUnsaved = true)"
@@ -110,6 +167,7 @@ import useStore from '../store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VirtualScroller from '@/components/ui/Table/VirtualScroller.vue'
+import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 
 const store = useStore()
 </script>
@@ -128,5 +186,9 @@ const store = useStore()
     z-index: 2101;
     text-wrap: nowrap;
   }
+}
+
+.cell-left-border {
+  border-left: 3px #eaeaea solid;
 }
 </style>

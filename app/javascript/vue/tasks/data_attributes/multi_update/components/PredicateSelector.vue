@@ -51,10 +51,6 @@ ControlledVocabularyTerm.where({ type: [PREDICATE] }).then(({ body }) => {
 
 function addPredicate(predicate) {
   store.addPredicate(predicate)
-
-  isLoading.value = true
-  store.loadDataAttributes(predicate.id).finally(() => {
-    isLoading.value = false
-  })
+  store.loadDataAttributes(predicate.id)
 }
 </script>
