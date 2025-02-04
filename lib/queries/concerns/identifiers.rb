@@ -442,6 +442,60 @@ module Queries::Concerns::Identifiers
     referenced_klass.joins(:identifiers).where(with_identifier_cached_like_fragments.to_sql)
   end
 
+  def match_identifier_order_by(target_query)
+    case order_by
+    when :match_identifiers
+      if match_identifiers.present?
+
+        ids = if match_identifiers_caseless != false # nil or true
+                identifiers_to_match.map(&:downcase)
+              else
+                identifiers_to_match
+              end
+
+        case match_identifiers_type # rubocop:disable Metrics/BlockNesting
+        when 'internal'
+          o = "array_position(ARRAY[#{ids.join(',')}], #{table.name}.id)"
+          target_query = target_query.order(Arel.sql(o))
+        else
+
+          if match_identifiers_caseless != false # nil or true
+            # caseless
+
+            # TODO: optimize, this was done hastily
+            o = "array_position(ARRAY[#{ids.collect{|i| "'#{i}'"}.join(',')}], LOWER(sid.cached)) s"
+
+            i = ::Identifier
+              .from('identifiers sid')
+              .where('LOWER(sid.cached) IN (?)', ids) # This is required to de-duplicate for some reason ?!
+              .select("sid.*, #{o}")
+
+            target_query = target_query.with(sid: i)
+              .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
+              .select("#{table.name}.*, sid.s")
+              .order('sid.s')
+
+          else
+
+            # TODO: optimize, this was done hastily
+            o = "array_position(ARRAY[#{ids.collect{|i| "'#{i}'"}.join(',')}], sid.cached) s"
+
+            i = ::Identifier
+              .from('identifiers sid')
+              .where(sid: {cached: ids}) # This is required to de-duplicate for some reason ?!
+              .select("sid.*, #{o}")
+
+            target_query = target_query.with(sid: i)
+              .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
+              .select("#{table.name}.*, sid.s")
+              .order('sid.s')
+          end
+        end
+      end
+    end
+    target_query
+  end 
+
   # def substring
   #   Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')
   # end
