@@ -530,20 +530,20 @@ function resetAnnotator() {
 
   .model-tag {
     padding: 5px 8px;
-    //border-radius: 0.6rem;
     border-top-right-radius: 0.6rem;
     border-bottom-right-radius: 0.6rem;
-    //color: var(--color-data);
-    box-shadow: rgba(36, 37, 38, 0.2) 4px 4px 15px 0px;
+    border: 1px solid var(--color-primary);
     border-left: 12px solid var(--color-primary);
-    //font-weight: 700;
+    line-height: 1.2rem;
   }
 
   .shared {
-    border-left: 12px solid var(--color-shared-bg);
+    border: 1px solid var(--data-shared-bg);
+    border-left: 12px solid var(--data-shared-bg);
   }
 
   .application {
+    border: 1px solid var(--data-application-defined-bg);
     border-left: 12px solid var(--data-application-defined-bg);
   }
 }

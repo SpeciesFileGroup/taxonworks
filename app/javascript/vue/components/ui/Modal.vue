@@ -33,6 +33,7 @@
                 <VIcon
                   name="close"
                   x-small
+                  title="Close (escape key)"
                 />
               </VBtn>
             </div>
