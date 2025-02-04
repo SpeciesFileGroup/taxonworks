@@ -149,7 +149,7 @@ const delimiter = ref()
 const isModalVisible = ref(false)
 const shortcuts = ref([
   {
-    keys: [getPlatformKey(), 'm'],
+    keys: [getPlatformKey(), 'shift', 'm'],
     handler() {
       isModalVisible.value = true
     }
