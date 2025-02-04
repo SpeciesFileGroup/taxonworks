@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- CatalogNumbers attached to Containers not appearing in CollectionObject tag [#4163]
 - OriginRelationship creation for Sequences [#4180]
 - CSD: change of namespace not updating [#4147]
 - TaxonWorks bibliography style for book chapter.
@@ -34,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove [sic] from COLDP name fields [#3833]
 - Autonym synonyms bug in COLDP exporter [#4175]
 
+[#4163]: https://github.com/SpeciesFileGroup/taxonworks/issues/4163
 [#4174]: https://github.com/SpeciesFileGroup/taxonworks/issues/4174
 [#4176]: https://github.com/SpeciesFileGroup/taxonworks/issues/4176
 [#4180]: https://github.com/SpeciesFileGroup/taxonworks/issues/4180

@@ -113,7 +113,6 @@ module CollectionObjectsHelper
     ]).html_safe
   end
 
-
   # @return [Array [Identifier, String (type)], nil]
   #   also checks virtual container for identifier by proxy
   def collection_object_visualized_identifier(collection_object)
@@ -125,13 +124,18 @@ module CollectionObjectsHelper
               WHEN identifiers.type IN ('Identifier::Local::CatalogNumber', 'Identifier::Local::RecordNumber') THEN 0  \
               ELSE 1                                                                                        \
             END, \
-          identifiers.position")).first
+          identifiers.position")).select(:type, :identifier, :cached).first
 
-    return [:collection_object, identifier_tag(i)] if i
+    return [:collection_object, identifier_tag(i)] if i.is_local?
 
     # Get some other identifier on container
     j = collection_object.container&.identifiers&.order(:position)&.first
     return [:container, identifier_tag(j)] if j
+
+    # Use a non local/non container if provided 
+    return [:collection_object, identifier_tag(i)] if i
+    return [:container, identifier_tag(j)] if j
+
     nil
   end
 
