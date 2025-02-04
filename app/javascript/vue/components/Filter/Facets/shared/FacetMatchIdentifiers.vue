@@ -46,6 +46,7 @@
       <label>
         <input
           type="checkbox"
+          :value="SORT_BY_VALUE"
           v-model="sortBy"
         />
         Sort as listed
@@ -120,7 +121,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onBeforeMount, watch } from 'vue'
+import { computed, ref, onBeforeMount } from 'vue'
 import { useHotkey } from '@/composables'
 import { vTabkey } from '@/directives'
 import { getPlatformKey } from '@/helpers'
@@ -129,6 +130,10 @@ import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import VModal from '@/components/ui/Modal.vue'
 
 const SORT_BY_VALUE = 'match_identifiers'
+const SPECIAL_CHAR = {
+  '\n': '\\n',
+  '\t': '\\t'
+}
 
 const TYPE_PARAMETERS = {
   Internal: 'internal',
@@ -146,6 +151,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const type = ref()
 const delimiter = ref()
+const isSortedByMatch = ref(true)
 const isModalVisible = ref(false)
 const shortcuts = ref([
   {
@@ -172,9 +178,15 @@ const params = computed({
 })
 
 const sortBy = computed({
-  get: () => params.value.order_by === SORT_BY_VALUE,
+  get: () => isSortedByMatch.value,
   set: (value) => {
-    params.value.order_by = value ? SORT_BY_VALUE : undefined
+    isSortedByMatch.value = value
+
+    if (!matchIdentifiers.value || !value) {
+      params.value.order_by = undefined
+    } else {
+      params.value.order_by = SORT_BY_VALUE
+    }
   }
 })
 
@@ -182,15 +194,21 @@ const matchIdentifiers = computed({
   get: () => props.modelValue.match_identifiers,
   set: (value) => {
     if (value) {
-      params.value.match_identifiers = value
-      params.value.match_identifiers_type = type.value
-      params.value.match_identifiers_delimiter = delimiter.value
-        .replace(/\\n/g, '\n')
-        .replace(/\\t/g, '\t')
+      Object.assign(params.value, {
+        match_identifiers: value,
+        match_identifiers_type: type.value,
+        match_identifiers_delimiter: delimiter.value
+          .replace(/\\n/g, '\n')
+          .replace(/\\t/g, '\t'),
+        order_by: isSortedByMatch.value ? SORT_BY_VALUE : undefined
+      })
     } else {
-      params.value.match_identifiers = undefined
-      params.value.match_identifiers_type = undefined
-      params.value.match_identifiers_delimiter = undefined
+      Object.assign(params.value, {
+        match_identifiers: undefined,
+        match_identifiers_type: undefined,
+        match_identifiers_delimiter: undefined,
+        order_by: undefined
+      })
     }
   }
 })
@@ -219,18 +237,11 @@ const toggleType = computed({
   }
 })
 
-watch(
-  () => params.value.match_idenfiers_delimiter,
-  (newVal) => {
-    if (!newVal) {
-      delimiter.value = undefined
-    }
-  }
-)
-
 onBeforeMount(() => {
+  const delimiterValue = params.value.match_identifiers_delimiter
+
   type.value = params.value.match_identifiers_type || TYPE_PARAMETERS.Identifier
-  delimiter.value = params.value.match_identifiers_delimiter || '\\n'
+  delimiter.value = SPECIAL_CHAR[delimiterValue] || delimiterValue || '\\n'
 })
 
 TW.workbench.keyboard.createLegend(
