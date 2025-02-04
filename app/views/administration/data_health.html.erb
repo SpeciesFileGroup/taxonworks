@@ -8,20 +8,25 @@
   </div>
 </div>
 
-<p><em class="feedback feedback-danger"> Bad things if data listed below here. </em></p>
+<h2> Flagged - DwcOccurrence for rebuild</h3>
+<% f = DwcOccurrence.where(is_flagged_for_rebuild: true) %> 
+Total: <%= f.count %><br>
+From: <%= f.select(:project_id).distinct.collect{|p| project_tag(Project.find(p)) }.join(', ') %>
 
-<h2> Stale DwcOccurrences (record present but object gone) </h2>
-<%= button_to 'Sweep (delete these DwcOccurrences)', sweep_stale_dwc_occurrences_path, method: :post, class: [:button, 'button-delete'] %><br/>
+<p><em class="feedback feedback-danger"> Bad things if data listed below here. </em></p>
+<hr>
+
+<h2> DwcOccurrences </h2>
+<h3> Ghosts - record present but object destroyed</h3>
+<%= button_to 'Sweep (delete these DwcOccurrences)', sweep_ghost_dwc_occurrences_path, method: :post, class: [:button, 'button-delete'] %><br/>
 <div class="flexbox separate-bottom">
   <% %w{CollectionObject AssertedDistribution}.each_with_index do |k, i| -%>
     <div class="panel content separate-left">
-     <h3> <%= k %> </h3>
-        <%= table_from_hash_tag( stale_dwc_occurrences(k).sort ) %>
+      <h3> <%= k %> </h3>
+      <%= table_from_hash_tag( dwc_occurrence_ghosts(k).sort ) %>
     </div>
   <% end %>
 </div>
-
-
 
 <div class="flexbox">
   <div class="item item1">
@@ -53,7 +58,7 @@
     <% [Source, TaxonName, CollectionObject, CollectingEvent].each do |k| -%>
       <% query = k.where('created_at < ?', '1970-1-1') %>
       <% next if query.count == 0 %>
-      <h2> <%= k -%> with dubious created_at values (older than 1970, capped at 100 of <%= query.count %> records)</h2>
+      <h2> <%= k -%> with dubious created_at values (older than 1970, capped at 50 of <%= query.count %> records)</h2>
       <table>
         <tr>
           <th>Id</th>
@@ -62,7 +67,7 @@
           <th>Project</th>
         </tr>
 
-        <% query.limit(100).each_with_index do |o, i| -%>
+        <% query.limit(50).each_with_index do |o, i| -%>
           <tr>
             <%= content_tag(:td, o.id) %>
             <%= content_tag(:td, object_link(o)) %>
@@ -74,5 +79,3 @@
     <% end %>
   </div>
 </div>
-
-

@@ -26,12 +26,12 @@ module SourcesHelper
     if source.respond_to?(:in_project) && !source.in_project.nil?
       s += ' ' + tag.span('in', class: [:feedback, 'feedback-primary', 'feedback-thin'])
       c = source.use_count
-      s += ' ' + ( c > 0 ? tag.span("#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
+      s += ' ' + ( c > 0 ? tag.span("#{c}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
       s += ' ' + tag.span('doc/pdf', class: [:feedback, 'feedback-success', 'feedback-thin']) if source.documentation.where(project_id: sessions_current_project_id).any?
     elsif source.is_in_project?(sessions_current_project_id)
       s += ' ' + tag.span('in', class: [:feedback, 'feedback-primary', 'feedback-thin']) 
       c = source.citations.where(project_id: sessions_current_project_id).count
-      s += ' ' + ( c > 0 ? tag.span("#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
+      s += ' ' + ( c > 0 ? tag.span("#{c}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
       s += ' ' + tag.span('doc/pdf', class: [:feedback, 'feedback-success', 'feedback-thin']) if source.documentation.where(project_id: sessions_current_project_id).any?
     else
       s += ' ' + tag.span('out', class: [:feedback, 'feedback-warning', 'feedback-thin']) 
@@ -50,7 +50,7 @@ module SourcesHelper
     when 'Source::Human'
       source.cached
     when 'Source::Bibtex'
-      source.author_year.present? ? source.author_year : not_provided
+      (source.author_year.presence || not_provided)
     else
       not_provided
     end
@@ -62,7 +62,7 @@ module SourcesHelper
     when 'Source::Human'
       source.cached
     when 'Source::Bibtex'
-      source.author_year.present? ? source.author_year : not_provided
+      (source.author_year.presence || not_provided)
     else
       tag.span(not_provided, class: [:feedback, 'feedback-thin', 'feedback-warning'])
     end
@@ -163,10 +163,16 @@ module SourcesHelper
 
   def source_nomenclature_tag(source, topics)
     t = [tag.span(source_tag(source))]
-    t.push [':', topic_list_tag(topics).html_safe] if !topics.blank?
-    t.push radial_annotator(source)
-    t.push radial_navigation_tag(source)
-    t.flatten.compact.join(' ').html_safe
+    t.push [':', topic_list_tag(topics).html_safe] if topics.present?
+
+    content_tag(:div, 
+      t.flatten.compact.join(' ').html_safe + 
+      content_tag(:div,
+        content_tag(:div, 
+          radial_annotator(source) + 
+          radial_navigation_tag(source), class: 'flex-row gap-small'
+        ), class: 'd-inline-block margin-small-left')
+      )
   end
 
 

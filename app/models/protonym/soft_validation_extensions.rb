@@ -1476,8 +1476,8 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_infrasubspecific_status
-      if nomenclatural_code == :iczn && (self.cached_original_combination&.include?(' var. ') || self.cached_original_combination&.include?(' f. ')) && self.cached_nomenclature_date&.year > 1960 && is_available?(refresh = true)
-        soft_validations.add(:base, 'Missing status. The name described as variety or form after 1960 should be treated as infrasubspecific.')
+      if nomenclatural_code == :iczn && (self.cached_original_combination&.include?(' var. ') || self.cached_original_combination&.include?(' f. ')) && self.cached_nomenclature_date&.year.to_i > 1960 && is_available?(refresh = true)
+        soft_validations.add(:base, 'Missing status. The name described as variety or form after 1960 should be treated as infrasubspecific (it is nevertheless deemed to be subspecific if, before 1985, it was either adopted as the valid name or was treated as a senior homonym).')
       end
     end
 
@@ -1521,8 +1521,8 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_extant_children
-      unless self.parent_id.blank?
-        if self.is_fossil?
+      unless parent_id.blank?
+        if is_fossil?
           taxa = Protonym.where(parent_id: self.id)
           z = 0
           unless taxa.empty?
@@ -1594,7 +1594,8 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_misspelling_roles_are_not_required
-      #DD: do not use .has_misspelling_relationship?
+      # DD: do not use .has_misspelling_relationship?
+      # MJY Why?
       misspellings = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
       if !self.taxon_name_author_roles.empty? && self.source && misspellings
         soft_validations.add(
@@ -1710,6 +1711,3 @@ module Protonym::SoftValidationExtensions
     end
   end
 end
-
-
-

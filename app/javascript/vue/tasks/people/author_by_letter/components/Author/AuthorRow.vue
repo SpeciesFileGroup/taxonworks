@@ -24,7 +24,7 @@
         Unify
       </a>
     </td>
-    <td class="horizontal-left-content">
+    <td class="horizontal-left-content gap-small">
       <RadialAnnotator
         type="annotations"
         :global-id="author.global_id"

@@ -6,7 +6,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   let(:taxon_name) { TaxonName.new }
 
   context 'using before :all' do
-
     let(:subspecies) { FactoryBot.create(:iczn_subspecies) }
     let(:species) { subspecies.ancestor_at_rank('species') }
     let(:subgenus) { subspecies.ancestor_at_rank('subgenus') }
@@ -14,6 +13,37 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     let(:tribe) { subspecies.ancestor_at_rank('tribe') }
     let(:family) { subspecies.ancestor_at_rank('family') }
     let(:root) { subspecies.root }
+
+
+    specify '#related_relationships' do
+      expect(species.related_relationships).to eq([])
+    end
+
+    specify '#related_relationships 2' do
+      species.related_relationships = nil
+      expect(species.related_relationships).to eq([])
+    end
+
+    specify '#related_relationships 3' do
+      species.original_genus = genus
+      expect(species.related_relationships).to contain_exactly(species.original_genus_relationship)
+    end
+
+    specify '#related_relationships 4' do
+      species.original_genus = genus
+      species.related_relationships = nil
+      expect(species.related_relationships).to contain_exactly(species.original_genus_relationship)
+    end
+
+    specify '#related_relationships are reset to nil on reload' do
+      species.original_genus = genus
+      species.related_relationships # setter hit
+
+      species.original_genus_relationship.destroy! # relationship hit
+
+      # This reload tests the reload(*) extension.
+      expect(species.reload.related_relationships).to eq([])
+    end
 
     specify '#name without space' do
       s1 = FactoryBot.build(:relationship_species, name: 'with space', parent: genus)
@@ -216,14 +246,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(c.get_author_and_year).to eq('Dmitriev, 2000')
           end
 
-          specify 'no original combination relationships' do
+          specify 'no OriginalCombination relationships' do
             ssp = FactoryBot.build(:iczn_subspecies, parent: species)
             expect(ssp.get_genus_species(:original, :self).nil?).to be_truthy
             expect(ssp.get_genus_species(:original, :alternative).nil?).to be_truthy
             #            expect(ssp.get_genus_species(:current, :self).nil?).to be_falsey
             #            expect(ssp.get_genus_species(:current, :alternative).nil?).to be_falsey
             ssp.save
-            # expect(ssp.cached_original_combination.nil?).to be_truthy
+            expect(ssp.cached_original_combination.nil?).to be_truthy
             expect(ssp.cached_primary_homonym.nil?).to be_truthy
             expect(ssp.cached_primary_homonym_alternative_spelling.nil?).to be_truthy
             expect(ssp.cached_secondary_homonym).to eq('Erythroneura vitata')
@@ -1015,7 +1045,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   end
 
   specify '#ancestors_through_parents (unsaved, recursion check)' do
-
     a = Protonym.new(name: 'foo')
     b = Protonym.new(name: 'bar', parent: a)
     c = Protonym.new(name: 'bar', parent: b)

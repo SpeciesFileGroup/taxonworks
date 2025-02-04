@@ -1,4 +1,5 @@
 .favourite_link {
+  display: block;
   background-image: image-url('empty_star.svg');
   background-size: 16px;
   background-position: left, center;
@@ -10,6 +11,7 @@
 }
 
 .unfavorite_link {
+  display: block;
   font-size: 0px;
   padding: 16px;
   padding-right: 0px;
@@ -21,10 +23,10 @@
 }
 
 // see navigation_emphasis in palette
-a, .link {
+a,
+.link {
   text-decoration: none;
-  transition: background-color 0.4s ease,
-  color 0.4s ease;
+  transition: background-color 0.4s ease, color 0.4s ease;
   color: $color-secondary-2-4;
 
   &:hover {
@@ -42,7 +44,7 @@ a, .link {
   font-weight: 300;
   position: relative;
   box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.2);
-  background-color: #FFF;
+  background-color: #fff;
   height: 45px;
   padding-right: $standard_margin;
   .hub-project {
@@ -114,9 +116,8 @@ a, .link {
     border-radius: 100%;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
 
-    transition: background-size 0.3s ease,
-    background-color 0.3s ease,
-    opacity 0.5s ease,
+    transition: background-size 0.3s ease, background-color 0.3s ease,
+      opacity 0.5s ease;
   }
 
   .hub_project_name {
@@ -129,9 +130,8 @@ a, .link {
   .hub-project:hover {
     .hub_link {
       opacity: 1;
-      transition: background-size 0.3s ease,
-      background-color 0.3s ease,
-      opacity 0.5s ease;
+      transition: background-size 0.3s ease, background-color 0.3s ease,
+        opacity 0.5s ease;
       background-size: 40px;
       color: $default_text;
     }
@@ -139,9 +139,7 @@ a, .link {
 
   .active-section {
     font-weight: bold;
-
   }
-
 }
 
 .context-menu {
@@ -150,22 +148,21 @@ a, .link {
   align-items: center;
   margin: 0px;
 
-  &> li:last-child:after {
+  & > li:last-child:after {
     content: none;
   }
 
-  &> li:last-child {
+  & > li:last-child {
     border-right: none;
     padding-right: 0px;
     padding-left: $standard_padding;
   }
 
-  &> li:first-child {
+  & > li:first-child {
     padding-left: 0px;
   }
 
-
-  &> li {
+  & > li {
     justify-content: center;
     //text-align: center;
     padding-left: $standard_padding;
@@ -173,7 +170,7 @@ a, .link {
     border-right: 1px solid $navigation_border;
   }
 
-  &> li a {
+  & > li a {
     font-size: $font_small;
     text-decoration: none;
   }
@@ -201,13 +198,15 @@ a, .link {
 }
 
 @media all and (max-width: 800px) {
-  .horizontal_navbar, .hub-navbar {
+  .horizontal_navbar,
+  .hub-navbar {
     justify-content: space-around;
   }
 }
 
 @media all and (max-width: 600px) {
-  .horizontal_navbar, .hub-navbar {
+  .horizontal_navbar,
+  .hub-navbar {
     -webkit-flex-flow: column wrap;
     flex-flow: column wrap;
     padding: 0;

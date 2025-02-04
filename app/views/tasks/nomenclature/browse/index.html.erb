@@ -72,7 +72,7 @@
                   <%= content_tag(:h3, 'References')-%>
                   <ul class="citations">
                     <% @data.sources.each do |s| -%>
-                      <%= content_tag(:li, source_nomenclature_tag(s, @data.topics_for_source(s)), class: 'horizontal-left-content gap-small') -%>
+                      <%= content_tag(:li, source_nomenclature_tag(s, @data.topics_for_source(s))) -%>
                     <% end %>
                   </ul>
                 <% end %>

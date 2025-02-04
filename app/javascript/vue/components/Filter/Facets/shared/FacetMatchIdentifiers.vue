@@ -1,13 +1,26 @@
 <template>
   <FacetContainer>
-    <h3>Matching identifiers</h3>
-    <div class="field label-above">
+    <h3>
+      Matching identifiers
+      <template v-if="identifiersCount"> ({{ identifiersCount }}) </template>
+    </h3>
+    <div class="label-above">
       <textarea
         v-tabkey
-        class="full_width"
         v-model="matchIdentifiers"
+        class="full_width"
+        placeholder="Paste or type identifiers..."
         rows="5"
       />
+    </div>
+    <div class="field">
+      <label>
+        <input
+          type="checkbox"
+          v-model="params.match_identifiers_caseless"
+        />
+        Match case
+      </label>
     </div>
 
     <div class="field label-above">
@@ -38,14 +51,82 @@
         Sort as listed
       </label>
     </div>
+    <VModal
+      v-if="isModalVisible"
+      @close="() => (isModalVisible = false)"
+      :container-style="{
+        width: '80vw'
+      }"
+    >
+      <template #header>
+        <h3>
+          Matching identifiers
+          <template v-if="identifiersCount">
+            ({{ identifiersCount }})
+          </template>
+        </h3>
+      </template>
+      <template #body>
+        <div class="label-above">
+          <textarea
+            v-tabkey
+            class="full_width"
+            v-model="matchIdentifiers"
+            placeholder="Paste or type identifiers..."
+            rows="30"
+          />
+        </div>
+        <div class="field">
+          <label>
+            <input
+              type="checkbox"
+              v-model="params.match_identifiers_caseless"
+            />
+            Match case
+          </label>
+        </div>
+
+        <div class="field label-above">
+          <label><b>Delimiter</b></label>
+          <span class="display-block">
+            <i>Use </i>\n<i> for newlines, </i>\t<i> for tabs.</i>
+          </span>
+          <input
+            v-model="delimiterIdentifier"
+            type="text"
+            class="full_width"
+          />
+        </div>
+
+        <div class="field horizontal-left-content middle">
+          <label>Type: </label>
+          <VToggle
+            v-model="toggleType"
+            :options="['Identifier', 'Internal']"
+          />
+        </div>
+        <div class="field">
+          <label>
+            <input
+              type="checkbox"
+              v-model="sortBy"
+            />
+            Sort as listed
+          </label>
+        </div>
+      </template>
+    </VModal>
   </FacetContainer>
 </template>
 
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
+import { useHotkey } from '@/composables'
 import { vTabkey } from '@/directives'
+import { getPlatformKey } from '@/helpers'
 import VToggle from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import VModal from '@/components/ui/Modal.vue'
 
 const SORT_BY_VALUE = 'match_identifiers'
 
@@ -61,9 +142,27 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['update:modelValue'])
+
 const type = ref()
 const delimiter = ref()
-const emit = defineEmits(['update:modelValue'])
+const isModalVisible = ref(false)
+const shortcuts = ref([
+  {
+    keys: [getPlatformKey(), 'm'],
+    handler() {
+      isModalVisible.value = true
+    }
+  }
+])
+
+useHotkey(shortcuts.value)
+
+const identifiersCount = computed(
+  () =>
+    delimiterIdentifier.value &&
+    matchIdentifiers.value?.split(delimiterIdentifier.value).length
+)
 
 const params = computed({
   get: () => props.modelValue,
@@ -117,7 +216,13 @@ const toggleType = computed({
 })
 
 onBeforeMount(() => {
-  type.value = params.value.match_identifiers_type || TYPE_PARAMETERS.Internal
-  delimiter.value = params.value.match_identifiers_delimiter || ','
+  type.value = params.value.match_identifiers_type || TYPE_PARAMETERS.Identifier
+  delimiter.value = params.value.match_identifiers_delimiter || 'n'
 })
+
+TW.workbench.keyboard.createLegend(
+  `${getPlatformKey()}+m`,
+  'Open match identifiers facet in full screen mode',
+  'Filter task'
+)
 </script>

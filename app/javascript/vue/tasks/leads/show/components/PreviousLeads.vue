@@ -8,9 +8,9 @@
     </template>
 
     <template #body>
-      <PreviousCoupletsList
-        :past="[...parents, lead]"
-        :load-function="(id) => emit('loadCouplet', id)"
+      <PreviousLeadsList
+        :past="[...ancestors, lead]"
+        :load-function="(id) => emit('loadLead', id)"
         :route-name="RouteNames.ShowLead"
         :root-text="rootText"
       />
@@ -20,11 +20,11 @@
 
 <script setup>
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import PreviousCoupletsList from '../../components/PreviousCoupletsList.vue'
+import PreviousLeadsList from '../../components/PreviousLeadsList.vue'
 import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
-  parents: {
+  ancestors: {
     type: Array,
     required: true
   },
@@ -38,7 +38,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['loadCouplet'])
+const emit = defineEmits(['loadLead'])
 </script>
 
 <style lang="scss" scoped>

@@ -10,13 +10,31 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - New image task: Add field occurrence to depict some list [#4135]
+- Grab cursor to make sorting feature visible [#4153]
+- API endpoint for image matrix
+- Added order of depictions comming from the image matrix
+- Hub tasks: Add visual effect for fav icons and tooltip for categories [#4177]
+- Distribution to COLDP exports [#3148]
+- SpeciesInteraction to COLDP exports [#3158]
+- Pull metadata from ChecklistBank in order to merge updated metadata into COLDP exports
+- Add Taxon links to COLDP exports
 
 ### Fixed
 
 - CSD: change of namespace not updating [#4147]
+- TaxonWorks bibliography style for book chapter.
+- Removed obsolete Description table from COLDP exports
+- Remove [sic] from COLDP name fields [#3833]
+- Autonym synonyms bug in COLDP exporter [#4175]
 
+[#3148]: https://github.com/SpeciesFileGroup/taxonworks/issues/3148
+[#3158]: https://github.com/SpeciesFileGroup/taxonworks/issues/3158
+[#3833]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
 [#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
 [#4147]: https://github.com/SpeciesFileGroup/taxonworks/issues/4147
+[#4153]: https://github.com/SpeciesFileGroup/taxonworks/issues/4153
+[#4175]: https://github.com/SpeciesFileGroup/taxonworks/issues/4175
+[#4177]: https://github.com/SpeciesFileGroup/taxonworks/issues/4177
 
 ## [0.46.1] - 2024-12-04
 
@@ -347,6 +365,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3992]: https://github.com/SpeciesFileGroup/taxonworks/issues/3992
 [#3996]: https://github.com/SpeciesFileGroup/taxonworks/issues/3996
 [#3997]: https://github.com/SpeciesFileGroup/taxonworks/issues/3997
+
+### Fixed
+- Handling of [sic] in Protonym#original_combination_infraspecific_element [#3867]
 
 ## [0.42.0] - 2024-06-28
 
@@ -710,6 +731,7 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 [#3774]: https://github.com/SpeciesFileGroup/taxonworks/issues/3774
 [#3794]: https://github.com/SpeciesFileGroup/taxonworks/issues/3794
 [#3824]: https://github.com/SpeciesFileGroup/taxonworks/issues/3824
+[#3833]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
 
 ## [0.38.2] - 2024-02-09
 

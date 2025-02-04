@@ -56,13 +56,12 @@ class TaxonNameRelationship < ApplicationRecord
   belongs_to :subject_taxon_name, class_name: 'TaxonName', inverse_of: :taxon_name_relationships # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', inverse_of: :related_taxon_name_relationships # right side
 
-  # !! Keep as after_commit unless you are wanting to spend a lot of time
-  # !! refactoring tests
-  after_commit :set_cached_names_for_taxon_names, unless: -> {self.no_cached || destroyed?}
-  after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
+  # After commit only fires if there are changes to the record.
+  after_commit :set_cached_names_for_taxon_names, unless: -> {self.no_cached }
 
   # TODO: remove, it's required by STI
   validates_presence_of :type, message: 'Relationship type should be specified'
+
   validates_presence_of :subject_taxon_name, message: 'Missing taxon name on the left side'
   validates_presence_of :object_taxon_name, message: 'Missing taxon name on the right side'
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :project_id], if: :is_combination?
@@ -438,21 +437,22 @@ class TaxonNameRelationship < ApplicationRecord
     errors.add(:subject_taxon_name_id, 'Not a Protonym') if subject_taxon_name.type == 'Combination' && self.type != 'TaxonNameRelationship::CurrentCombination'
   end
 
+  # OriginalCombination has a replacement method.
   def set_cached_names_for_taxon_names
-    # !! only fire if subject_taxon_name changed
     return true unless subject_taxon_name_id_previously_changed? || destroyed?
 
-    TaxonName.transaction do
+    # TODO: this should completely be replaced with Taxonname logic.
+    TaxonName.transaction do # Why?
       if is_invalidating?
         t = subject_taxon_name
 
-        if type_name =~/Misspelling/
-          t.update_column(:cached_misspelling, t.get_cached_misspelling)
+        if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY.include?(type_name)
           t.update_columns(
-              cached_author_year: t.get_author_and_year,
-              cached_nomenclature_date: t.nomenclature_date,
-              cached_original_combination: t.get_original_combination,
-              cached_original_combination_html: t.get_original_combination_html)
+            cached_misspelling: true,
+            cached_author_year: t.get_author_and_year,
+            cached_nomenclature_date: t.nomenclature_date,
+            cached_original_combination: t.get_original_combination,
+            cached_original_combination_html: t.get_original_combination_html)
         end
 
         if type_name =~/Misapplication/
@@ -487,9 +487,7 @@ class TaxonNameRelationship < ApplicationRecord
             c.update_column(:cached_valid_taxon_name_id, vn.id)
           end
         end
-
       end
-
     end
 
     true

@@ -4,19 +4,38 @@
     full-screen
   />
 
-  <div class="cplt_center">
+  <div class="couplet_center">
+
     <VBtn
-      :disabled="!store.lead.parent_id"
+      v-if="store.lead.parent_id"
       color="primary"
       medium
       @click="previousCouplet"
     >
       Go to the previous couplet
     </VBtn>
+
+    <VBtn
+      v-else
+      color="update"
+      medium
+      @click="insertCouplet"
+    >
+      Insert a new initial couplet for the key
+    </VBtn>
+
+    <VBtn
+      color="update"
+      medium
+      @click="() => { insertKeyModalIsVisible = true }"
+      :disabled="store.children.length < 2"
+    >
+      Insert a key
+    </VBtn>
   </div>
 
   <div v-if="hasChildren">
-    <div class="cplt_center">
+    <div class="couplet_center">
       <label>Couplet number from citation: </label>
       <input
         v-model="store.lead.origin_label"
@@ -25,14 +44,24 @@
         size="3"
       />
     </div>
-    <div class="cplt_horizontal_buttons">
-      <VBtn
-        color="update"
-        medium
-        @click="updateCouplet"
-      >
-        Update
-      </VBtn>
+    <div class="couplet_horizontal_buttons">
+      <div>
+        <VBtn
+          color="update"
+          medium
+          @click="saveChanges"
+        >
+          Update
+        </VBtn>
+
+        <VBtn
+          color="update"
+          medium
+          @click="addLead"
+        >
+          Add a lead
+        </VBtn>
+      </div>
 
       <VBtn
         v-if="allowDestroyCouplet"
@@ -40,7 +69,7 @@
         medium
         @click="destroyCouplet"
       >
-        Delete both sides
+        Delete these leads
       </VBtn>
 
       <VBtn
@@ -49,8 +78,7 @@
         medium
         @click="deleteCouplet"
       >
-        Delete both sides and reparent children from
-        {{ leftHasChildren ? 'left' : 'right' }}
+        Delete these leads and reparent the children
       </VBtn>
 
       <VBtn
@@ -59,28 +87,28 @@
         disabled
         medium
       >
-        Can't delete when both sides have children
+        <template v-if="!store.lead.parent_id && noGrandkids()">
+          Can't delete root couplet
+        </template>
+        <template v-else>
+          Can't delete when more than one side has children
+        </template>
       </VBtn>
     </div>
 
-    <div class="left_and_right_cplt">
+    <div class="left_and_right_couplet">
       <Lead
-        side="left"
+        v-for="(child, i) in store.children"
+        :key="child.id"
+        :position="i"
         :redirect-options="redirectOptions"
-        :side-has-children="leftHasChildren"
-        @editing-has-occurred="() => emit('editingHasOccurred')"
-      />
-      <Lead
-        side="right"
-        :redirect-options="redirectOptions"
-        :side-has-children="rightHasChildren"
         @editing-has-occurred="() => emit('editingHasOccurred')"
       />
     </div>
   </div>
 
-  <div v-else class="cplt_center">
-    <p>No couplets below this one.</p>
+  <div v-else class="couplet_center">
+    <p>No remaining choices.</p>
     <VBtn
       color="update"
       medium
@@ -89,14 +117,27 @@
       Create the next couplet
     </VBtn>
   </div>
+
+  <InsertKeyModal
+    v-if="insertKeyModalIsVisible"
+    @close="() => { insertKeyModalIsVisible = false }"
+    @keySelected="
+      (id) => {
+        insertKeyModalIsVisible = false
+        insertKey(id)
+      }"
+    :container-style="{ width: '600px' }"
+  />
 </template>
 
 <script setup>
+import InsertKeyModal from './InsertKeyModal.vue'
 import Lead from './Lead.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { computed, ref, watch } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
+import { useInsertCouplet } from './composables/useInsertCouplet.js'
 import { useStore } from '../store/useStore.js'
 
 const emit = defineEmits(['editingHasOccurred'])
@@ -104,50 +145,41 @@ const emit = defineEmits(['editingHasOccurred'])
 const store = useStore()
 
 const loading = ref(false)
+const insertKeyModalIsVisible = ref(false)
 
 const hasChildren = computed(() => {
-  return store.left && !!store.left.id && store.right && !!store.right.id
-})
-
-const leftHasChildren = computed(() => {
-  return store.left && !!store.left.id &&
-    // Ignore redirect children.
-    !store.left.redirect_id &&
-    store.left_future.length > 0
-})
-
-const rightHasChildren = computed(() => {
-  return store.right && !!store.right.id &&
-    // Ignore redirect children.
-    !store.right.redirect_id &&
-    store.right_future.length > 0
+  return store.children.length >= 2 &&
+    (store.children[0].id && store.children[1].id)
 })
 
 const allowDestroyCouplet = computed(() => {
-  return (
-    (!leftHasChildren.value && !rightHasChildren.value) &&
-    !!store.lead.parent_id
-  )
+  return store.lead.parent_id && noGrandkids()
 })
 
 const allowDeleteCouplet = computed(() => {
-  return (
-    (!leftHasChildren.value && rightHasChildren.value) ||
-    (!rightHasChildren.value && leftHasChildren.value)
-  )
+  let childWithChildrenCount = 0
+  store.children.forEach((child, i) => {
+    if (childHasChildren(child, i)) {
+      childWithChildrenCount++
+    }
+  })
+
+  return childWithChildrenCount == 1
 })
 
 const redirectOptions = ref([])
 
 function loadRedirectOptions() {
-  LeadEndpoint.all_texts(store.lead.id).then(({ body }) => {
-    const texts = body.all_texts.flatMap((o) => {
-      if (
-        (store.left && o.id == store.left.id) ||
-        (store.right && o.id == store.right.id)
+  LeadEndpoint.redirect_option_texts(store.lead.id).then(({ body }) => {
+    const texts = body.redirect_option_texts.flatMap((o) => {
+      if (store.children.some((child) => {
+          // Don't allow redirect to a sibling
+          child.id == o.id
+        }) || o.id == store.lead.id
       ) {
         return []
       }
+
       let id_label = o.label ? ('[' + o.label + ']') : ''
       id_label = id_label + '[tw:' + o.id + ']'
       return [{
@@ -173,23 +205,32 @@ function previousCouplet() {
   ) {
     return
   }
+
   store.loadKey(store.lead.parent_id)
   emit('editingHasOccurred')
 }
 
-function updateCouplet() {
+function insertCouplet() {
+  useInsertCouplet(store.lead.id, loading, store, () => {
+    store.loadKey(store.lead.id)
+      TW.workbench.alert.create(
+        "Success - you're now editing the inserted couplet",
+        'notice'
+      )
+      emit('editingHasOccurred')
+  })
+}
+
+function insertKey(keyId) {
   const payload = {
-      lead: store.lead,
-      left: store.left,
-      right: store.right
+    key_to_insert: keyId
   }
 
   loading.value = true
-  LeadEndpoint.update(store.lead.id, payload)
-    .then(({ body }) => {
-      // Future changes when redirect changes, so reload.
-      store.loadKey(body)
-      TW.workbench.alert.create('Couplet was successfully saved.', 'notice')
+  LeadEndpoint.insert_key(store.lead.id, payload)
+    .then(() => {
+      store.loadKey(store.lead.id)
+      TW.workbench.alert.create("Inserted key - the root lead of the inserted key is now visible here", 'notice')
       emit('editingHasOccurred')
     })
     .catch(() => {})
@@ -198,13 +239,79 @@ function updateCouplet() {
     })
 }
 
+function saveChanges() {
+  const leadOriginLabelChanged = store.originLabelChangedSinceLastSave()
+  const childrenToUpdate = store.childrenChangedSinceLastSaveList()
+  if (!leadOriginLabelChanged && childrenToUpdate.length == 0) {
+    TW.workbench.alert.create('No new changes to save.', 'notice')
+    return
+  }
+
+  const promises = childrenToUpdate.map((lead) => {
+    const payload = {
+      lead
+    }
+
+    return LeadEndpoint.update(lead.id, payload)
+      .then(({ body }) => {
+        // Future changes when redirect changes.
+        store.updateChild(body.lead, body.future)
+        emit('editingHasOccurred')
+      })
+      // TODO: if multiple fail we can get overlapping popup messages, but is
+      // there a way to catch here without also displaying the error message (so
+      // that we can instead combine error messages in allSettled)?
+      .catch(() => {})
+  })
+
+  if (leadOriginLabelChanged) {
+    const payload = {
+      lead: store.lead
+    }
+
+    promises.push(
+      LeadEndpoint.update(store.lead.id, payload)
+        .then(() => {
+          store.last_saved.origin_label = store.lead.origin_label
+          emit('editingHasOccurred')
+        })
+        .catch(() => {})
+    )
+  }
+
+  loading.value = true
+  Promise.allSettled(promises)
+    .then((results) => {
+      if (results.every((r) => r.status == 'fulfilled')) {
+        TW.workbench.alert.create('Update was successful.', 'notice')
+      }
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
+
 function nextCouplet() {
   loading.value = true
-  LeadEndpoint.create_for_edit(store.lead.id)
+  LeadEndpoint.add_children(store.lead.id, { num_to_add: 2 })
     .then(({ body }) => {
       store.loadKey(body)
       emit('editingHasOccurred')
     })
+    .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
+}
+
+function addLead() {
+  loading.value = true
+  LeadEndpoint.add_children(store.lead.id, { num_to_add: 1 })
+    .then(({ body }) => {
+      store.loadKey(body)
+      TW.workbench.alert.create('Added a new lead.', 'notice')
+    })
+    .catch(() => {})
     .finally(() => {
       loading.value = false
     })
@@ -212,10 +319,10 @@ function nextCouplet() {
 
 function destroyCouplet() {
   if (window.confirm(
-    'Delete both left and right sides?'
+    'Delete all leads for this stage of the key?'
   )) {
     loading.value = true
-    LeadEndpoint.destroy_couplet(store.lead.id)
+    LeadEndpoint.destroy_children(store.lead.id)
       .then(() => {
         store.loadKey(store.lead.id)
         TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
@@ -230,10 +337,10 @@ function destroyCouplet() {
 
 function deleteCouplet() {
   if (window.confirm(
-    'Delete both left and right sides and attach orphaned children to this parent?'
+    'Delete all leads at this level of the key and re-attach orphaned children?'
   )) {
     loading.value = true
-    LeadEndpoint.delete_couplet(store.lead.id)
+    LeadEndpoint.delete_children(store.lead.id)
       .then(() => {
         store.loadKey(store.lead.id)
         TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
@@ -245,19 +352,35 @@ function deleteCouplet() {
       })
   }
 }
+
+// !! Redirects **do** count as a child here (they contribute to futures).
+function noGrandkids() {
+  return store.futures.flat().length == 0
+}
+
+// i is the position of child.
+// !! Redirects **do** count as a child here (they contribute to futures).
+function childHasChildren(child, i) {
+  return !!child?.id && store.futures[i].length > 0
+}
 </script>
 
 <style lang="scss" scoped>
-.left_and_right_cplt {
+.left_and_right_couplet {
   display: flex;
-  justify-content:space-around;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 2em;
 }
-.cplt_center {
+.couplet_center {
   margin-top: 1em;
   margin-bottom: 1em;
   text-align: center;
 }
-.cplt_horizontal_buttons {
+.couplet_center button {
+  margin-right: 2em;
+}
+.couplet_horizontal_buttons {
   display: grid;
   grid-template-columns: 50% 50%;
   column-gap: 0px;
