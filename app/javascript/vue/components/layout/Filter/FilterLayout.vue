@@ -310,13 +310,9 @@ function handleClickFilterButton() {
 TW.workbench.keyboard.createLegend(
   `${platformKey()}+f`,
   'Search',
-  'Filter sources'
+  'Filter task'
 )
-TW.workbench.keyboard.createLegend(
-  `${platformKey()}+r`,
-  'Reset task',
-  'Filter sources'
-)
+TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset', 'Filter task')
 
 const stop = useHotkey(hotkeys.value)
 
