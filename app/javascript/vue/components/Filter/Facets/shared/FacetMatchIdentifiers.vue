@@ -120,7 +120,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onBeforeMount } from 'vue'
+import { computed, ref, onBeforeMount, watch } from 'vue'
 import { useHotkey } from '@/composables'
 import { vTabkey } from '@/directives'
 import { getPlatformKey } from '@/helpers'
@@ -149,7 +149,7 @@ const delimiter = ref()
 const isModalVisible = ref(false)
 const shortcuts = ref([
   {
-    keys: [getPlatformKey(), 'shift', 'm'],
+    keys: [getPlatformKey(), 'Shift', 'M'],
     handler() {
       isModalVisible.value = true
     }
@@ -160,8 +160,10 @@ useHotkey(shortcuts.value)
 
 const identifiersCount = computed(
   () =>
-    delimiterIdentifier.value &&
-    matchIdentifiers.value?.split(delimiterIdentifier.value).length
+    delimiter.value &&
+    matchIdentifiers.value?.split(
+      delimiter.value.replace(/\\n/g, '\n').replace(/\\t/g, '\t')
+    ).length
 )
 
 const params = computed({
@@ -183,6 +185,8 @@ const matchIdentifiers = computed({
       params.value.match_identifiers = value
       params.value.match_identifiers_type = type.value
       params.value.match_identifiers_delimiter = delimiter.value
+        .replace(/\\n/g, '\n')
+        .replace(/\\t/g, '\t')
     } else {
       params.value.match_identifiers = undefined
       params.value.match_identifiers_type = undefined
@@ -192,7 +196,7 @@ const matchIdentifiers = computed({
 })
 
 const delimiterIdentifier = computed({
-  get: () => props.modelValue.match_identifiers_delimiter,
+  get: () => delimiter.value,
   set: (value) => {
     delimiter.value = value
 
@@ -215,13 +219,22 @@ const toggleType = computed({
   }
 })
 
+watch(
+  () => params.value.match_idenfiers_delimiter,
+  (newVal) => {
+    if (!newVal) {
+      delimiter.value = undefined
+    }
+  }
+)
+
 onBeforeMount(() => {
   type.value = params.value.match_identifiers_type || TYPE_PARAMETERS.Identifier
-  delimiter.value = params.value.match_identifiers_delimiter || 'n'
+  delimiter.value = params.value.match_identifiers_delimiter || '\\n'
 })
 
 TW.workbench.keyboard.createLegend(
-  `${getPlatformKey()}+m`,
+  `${getPlatformKey()}+shift+m`,
   'Open match identifiers facet in full screen mode',
   'Filter task'
 )
