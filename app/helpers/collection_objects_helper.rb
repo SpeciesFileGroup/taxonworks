@@ -126,7 +126,7 @@ module CollectionObjectsHelper
             END, \
           identifiers.position")).select(:type, :identifier, :cached).first
 
-    return [:collection_object, identifier_tag(i)] if i.is_local?
+    return [:collection_object, identifier_tag(i)] if i&.is_local?
 
     # Get some other identifier on container
     j = collection_object.container&.identifiers&.order(:position)&.first
