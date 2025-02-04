@@ -216,7 +216,7 @@ const toggleType = computed({
 })
 
 onBeforeMount(() => {
-  type.value = params.value.match_identifiers_type || TYPE_PARAMETERS.Internal
+  type.value = params.value.match_identifiers_type || TYPE_PARAMETERS.Identifier
   delimiter.value = params.value.match_identifiers_delimiter || 'n'
 })
 
