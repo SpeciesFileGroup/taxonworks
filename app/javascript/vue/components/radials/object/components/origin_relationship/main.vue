@@ -65,8 +65,8 @@
     <table>
       <thead>
         <tr>
-          <th>New object</th>
           <th>Old object</th>
+          <th>New object</th>
 
           <th />
         </tr>
@@ -80,8 +80,8 @@
       >
         <template #item="{ element }">
           <tr>
-            <td v-html="element.new_object_object_tag" />
             <td v-html="element.old_object_object_tag" />
+            <td v-html="element.new_object_object_tag" />
             <td>
               <span
                 class="circle-button btn-delete"
@@ -108,7 +108,8 @@ const controllerRoute = {
   Extract: 'extracts',
   Lot: 'collection_objects',
   Sequence: 'sequences',
-  Specimen: 'collection_objects'
+  Specimen: 'collection_objects',
+  RangedLot: 'collection_objects'
 }
 
 const props = defineProps({
