@@ -21,6 +21,7 @@ const RouteNames = {
   BrowseCollectionObject: '/tasks/collection_objects/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',
+  BrowseSound: '/tasks/sounds/browse',
   ContentEditorTask: '/tasks/content/editor/index',
   DigitizeTask: '/tasks/accessions/comprehensive',
   DwcDashboard: '/tasks/dwc/dashboard',

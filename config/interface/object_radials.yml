@@ -179,6 +179,9 @@ Person:
     - unify_people_task
   config:
     recent: true
+Sound:
+  tasks:
+    - browse_sounds_task
 Source:
   tasks:
     - source_hub_task

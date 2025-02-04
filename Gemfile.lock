@@ -733,6 +733,7 @@ GEM
       base64
     voight_kampff (2.0.0)
       rack (>= 1.4)
+    wahwah (1.6.6)
     waxy (0.1.1)
       tilt (~> 2.1)
     web-console (4.2.1)
@@ -904,6 +905,7 @@ DEPENDENCIES
   tzinfo-data (~> 1.2019)
   validates_timeliness (~> 7.0.0.beta2)
   vcr (~> 6.0)
+  wahwah (~> 1.6.6)
   waxy (~> 0.1.1)
   web-console (~> 4.0, >= 4.0.1)
   webmock (~> 3.8)

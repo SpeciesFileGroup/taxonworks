@@ -379,6 +379,7 @@ module Queries
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
         f.push ::Queries::Concerns::Confidences if self < ::Queries::Concerns::Confidences
         f.push ::Queries::Concerns::Containable if self < ::Queries::Concerns::Containable
+        f.push ::Queries::Concerns::Conveyances if self < ::Queries::Concerns::Conveyances
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
         f.push ::Queries::Concerns::DateRanges if self < ::Queries::Concerns::DateRanges
         f.push ::Queries::Concerns::Depictions if self < ::Queries::Concerns::Depictions

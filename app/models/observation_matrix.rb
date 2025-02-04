@@ -39,6 +39,7 @@ class ObservationMatrix < ApplicationRecord
   has_many :otus, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Otu'
   has_many :collection_objects, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'CollectionObject'
   has_many :extracts, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Extract'
+  has_many :sounds, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Sound'
 
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, -> { order('observation_matrix_columns.position') }, through: :observation_matrix_columns, inverse_of: :observation_matrices

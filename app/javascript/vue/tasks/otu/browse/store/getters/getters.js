@@ -3,6 +3,7 @@ import getCachedMap from './getCachedMap'
 import getCollectingEvents from './getCollectingEvents'
 import getCollectionObjects from './getCollectionObjects'
 import getCommonNames from './getCommonNames'
+import getConveyances from './getConveyances'
 import getDepictions from './getDepictions'
 import getDescendants from './getDescendants'
 import getGeoreferences from './getGeoreferences'
@@ -24,6 +25,7 @@ const GetterNames = {
   GetCollectionObjects: 'getCollectionObjects',
   GetCollectingEvents: 'getCollectingEvents',
   GetCommonNames: 'getCommonNames',
+  GetConveyances: 'getConveyances',
   GetDepictions: 'getDepictions',
   GetDescendants: 'getDescendants',
   GetGeoreferences: 'getGeoreferences',
@@ -46,6 +48,7 @@ const GetterFunctions = {
   [GetterNames.GetCollectingEvents]: getCollectingEvents,
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetCommonNames]: getCommonNames,
+  [GetterNames.GetConveyances]: getConveyances,
   [GetterNames.GetDepictions]: getDepictions,
   [GetterNames.GetDescendants]: getDescendants,
   [GetterNames.GetGeoreferences]: getGeoreferences,

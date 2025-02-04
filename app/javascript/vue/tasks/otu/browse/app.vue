@@ -85,6 +85,7 @@ import HeaderBar from './components/HeaderBar'
 import SpinnerComponent from '@/components/ui/VSpinner'
 import ImageGallery from './components/gallery/Main'
 import ContentComponent from './components/Content'
+import ConveyanceComponent from './components/Conveyance/PanelConveyance.vue'
 import AssertedDistribution from './components/AssertedDistribution'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
@@ -116,6 +117,7 @@ export default {
     ImageGallery,
     SpinnerComponent,
     ContentComponent,
+    ConveyanceComponent,
     DescriptionComponent,
     AssertedDistribution,
     BiologicalAssociations,

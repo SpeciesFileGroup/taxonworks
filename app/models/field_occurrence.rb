@@ -26,7 +26,7 @@ class FieldOccurrence < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Depictions
-
+  include Shared::Conveyances
   include Shared::OriginRelationship
   include Shared::Confidences
   include Shared::ProtocolRelationships
@@ -39,11 +39,14 @@ class FieldOccurrence < ApplicationRecord
   # At present must be before IsDwcOccurence
   include FieldOccurrence::DwcExtensions
   include Shared::Taxonomy
-
+  
   include Shared::BiologicalExtensions
   include Shared::IsDwcOccurrence
 
-  is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence'
+  is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound'
+  originates_from 'FieldOccurrence'
+
+  GRAPH_ENTRY_POINTS = [:collecting_event, :origin_relationships]
 
   belongs_to :collecting_event, inverse_of: :field_occurrences
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots

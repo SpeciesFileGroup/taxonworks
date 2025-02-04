@@ -33,7 +33,8 @@
     "vue-tippy": "^6.6.0",
     "vuedraggable": "^4.1.0",
     "vuewordcloud": "^19.0.0",
-    "vuex": "^4.1.0"
+    "vuex": "^4.1.0",
+    "wavesurfer.js": "^7.8.16"
   },
   "version": "0.1.0",
   "babel": {
