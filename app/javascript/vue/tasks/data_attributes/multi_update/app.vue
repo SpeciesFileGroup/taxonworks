@@ -1,6 +1,6 @@
 <template>
   <div class="flex-separate middle">
-    <h1>Multi update</h1>
+    <h1>Multi-update data attributes</h1>
     <ul class="context-menu">
       <li>
         <label>

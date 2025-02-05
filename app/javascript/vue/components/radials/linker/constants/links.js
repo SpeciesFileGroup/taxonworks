@@ -100,7 +100,7 @@ export const TASK_FIELD_SYNCHRONIZE = {
 }
 
 export const TASK_MULTI_UPDATE = {
-  label: 'Multi update',
+  label: 'Multi-update Data attributes',
   link: '/tasks/data_attributes/multi_update',
   queryParam: true,
   saveQuery: true
