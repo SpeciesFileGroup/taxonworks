@@ -20,8 +20,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxon links to COLDP exports
 - Filter's match identifiers facet can now be quickly accessed with `shift-ctrl-m` in a modal form
 - `gift` facet to Filter loans.
+- Multi data attribute update task [#4142]
 
 ### Changed
+
 - Match identifiers defaults to match Identifier, not interal, `\n`, and caseless match [#4176]
 - Added Gift status notices to loans form [#4147]
 
@@ -43,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3158]: https://github.com/SpeciesFileGroup/taxonworks/issues/3158
 [#3833]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
 [#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
+[#4142]: https://github.com/SpeciesFileGroup/taxonworks/issues/4142
 [#4147]: https://github.com/SpeciesFileGroup/taxonworks/issues/4147
 [#4153]: https://github.com/SpeciesFileGroup/taxonworks/issues/4153
 [#4175]: https://github.com/SpeciesFileGroup/taxonworks/issues/4175
@@ -379,6 +382,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3997]: https://github.com/SpeciesFileGroup/taxonworks/issues/3997
 
 ### Fixed
+
 - Handling of [sic] in Protonym#original_combination_infraspecific_element [#3867]
 
 ## [0.42.0] - 2024-06-28
