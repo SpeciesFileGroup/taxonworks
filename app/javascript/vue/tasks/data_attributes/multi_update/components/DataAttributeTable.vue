@@ -213,10 +213,19 @@
                         predicateId: predicate.id
                       })"
                       :key="da.uuid"
-                      class="flex-auto"
+                      :class="[
+                        'flex-auto',
+                        da.isUnsaved && da.value.length && 'highlight-unsaved',
+                        da.isUnsaved &&
+                          da.id &&
+                          !da.value.length &&
+                          'highlight-destroy'
+                      ]"
                       type="text"
                       v-model="da.value"
-                      @change="() => (da.isUnsaved = true)"
+                      @change="
+                        () => (da.isUnsaved = (!da.id && da.value) || da.id)
+                      "
                       @paste="
                         (event) => {
                           event.preventDefault(),
@@ -318,5 +327,13 @@ const selectAllProperties = computed({
 
 .cell-left-border {
   border-left: 3px #eaeaea solid;
+}
+
+.highlight-unsaved {
+  outline: 2px solid var(--color-create);
+}
+
+.highlight-destroy {
+  outline: 2px solid var(--color-destroy);
 }
 </style>
