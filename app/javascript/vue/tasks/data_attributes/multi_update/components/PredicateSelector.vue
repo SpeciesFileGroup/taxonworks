@@ -13,7 +13,6 @@
         inline
         :klass="objectType"
         :custom-list="{ all }"
-        :lock-view="false"
         :filter-ids="store.predicates.map((item) => item.id)"
         @selected="addPredicate"
       />

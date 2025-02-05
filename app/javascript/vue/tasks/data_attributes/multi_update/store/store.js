@@ -233,6 +233,32 @@ export default defineStore('store', {
       return requests
     },
 
+    makeTextTableByColumns({ predicateIds, attributes }) {
+      const lines = []
+
+      this.objects.forEach((item) => {
+        const line = []
+
+        line.push(...attributes.map((attr) => item[attr]))
+
+        this.predicates.forEach((p) => {
+          if (predicateIds.includes(p.id)) {
+            const dataAttributes = this.getDataAttributesByObject({
+              objectId: item.id,
+              objectType: item.type,
+              predicateId: p.id
+            })
+
+            line.push(dataAttributes.map((item) => item.value).join('; '))
+          }
+        })
+
+        lines.push(line.join('\t'))
+      })
+
+      return lines.join('\n')
+    },
+
     loadObjects({ queryParam, queryValue }) {
       const { service } = QUERY_PARAMETER[queryParam]
 

@@ -9,22 +9,30 @@
         <table class="table-striped table-data-attributes full_width">
           <thead>
             <tr>
-              <th colspan="2"></th>
+              <th colspan="2">
+                <CopyToClipboard
+                  :predicate-ids="predicateIds"
+                  :attributes="attributes"
+                />
+              </th>
               <th :colspan="store.predicates.length + 1"></th>
             </tr>
             <tr>
-              <th class="position-sticky w-2">
+              <th
+                v-for="(label, attr) in OBJECT_HEADER"
+                class="position-sticky w-2"
+                :key="attr"
+              >
                 <label class="flex-row middle gap-xsmall cursor-pointer">
-                  <input type="checkbox" />
-                  ID
+                  <input
+                    type="checkbox"
+                    v-model="attributes"
+                    :value="attr"
+                  />
+                  {{ label }}
                 </label>
               </th>
-              <th class="position-sticky">
-                <label class="flex-row middle gap-xsmall cursor-pointer">
-                  <input type="checkbox" />
-                  Object
-                </label>
-              </th>
+
               <th
                 v-for="(predicate, index) in store.predicates"
                 :key="predicate.id"
@@ -35,7 +43,11 @@
               >
                 <div class="horizontal-left-content gap-small">
                   <label class="flex-row middle gap-xsmall cursor-pointer">
-                    <input type="checkbox" />
+                    <input
+                      type="checkbox"
+                      :value="predicate.id"
+                      v-model="predicateIds"
+                    />
                     {{ predicate.label }}
                   </label>
 
@@ -163,13 +175,22 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import useStore from '../store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VirtualScroller from '@/components/ui/Table/VirtualScroller.vue'
-import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
+import CopyToClipboard from './CopyToClipboard.vue'
+
+const OBJECT_HEADER = {
+  id: 'ID',
+  plainLabel: 'Label'
+}
 
 const store = useStore()
+
+const predicateIds = ref([])
+const attributes = ref([])
 </script>
 
 <style scoped>
@@ -185,6 +206,10 @@ const store = useStore()
     top: 0;
     z-index: 2101;
     text-wrap: nowrap;
+  }
+
+  td {
+    white-space: nowrap;
   }
 }
 
