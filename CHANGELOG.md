@@ -36,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed obsolete Description table from COLDP exports
 - Remove [sic] from COLDP name fields [#3833]
 - Autonym synonyms bug in COLDP exporter [#4175]
+- New taxon name: Show only subject relationships on Relationships section
 
 [#4163]: https://github.com/SpeciesFileGroup/taxonworks/issues/4163
 [#4174]: https://github.com/SpeciesFileGroup/taxonworks/issues/4174
@@ -50,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4153]: https://github.com/SpeciesFileGroup/taxonworks/issues/4153
 [#4175]: https://github.com/SpeciesFileGroup/taxonworks/issues/4175
 [#4177]: https://github.com/SpeciesFileGroup/taxonworks/issues/4177
+[#4187]: https://github.com/SpeciesFileGroup/taxonworks/issues/4187
 
 ## [0.46.1] - 2024-12-04
 
