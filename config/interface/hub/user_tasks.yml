@@ -1006,3 +1006,11 @@ summarize_projects_controlled_vocabulary_terms_task:
   categories:
   status: prototype
   description: 'Visualize controlled vocabulary terms across the projects you are a member of.'
+
+index_multi_update_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
