@@ -9,13 +9,94 @@
         <table class="table-striped table-data-attributes full_width">
           <thead>
             <tr>
-              <th colspan="2">
+              <th
+                class="position-sticky"
+                colspan="2"
+              >
+                <div class="flex-separate middle">
+                  <label>
+                    <input
+                      type="checkbox"
+                      v-model="selectAllProperties"
+                    />
+                    Attributes
+                  </label>
+                </div>
+              </th>
+              <th
+                v-if="store.predicates.length"
+                :colspan="store.predicates.length"
+                class="position-sticky cell-left-border"
+              >
+                <div class="flex-separate middle">
+                  <label>
+                    <input
+                      type="checkbox"
+                      v-model="selectAllPredicates"
+                    />
+                    Predicates
+                  </label>
+                  <div class="horizontal-right-content middle gap-small">
+                    <VBtn
+                      color="primary"
+                      circle
+                      title="Clear columns"
+                      @click="
+                        () =>
+                          store.predicates.forEach((predicate) =>
+                            store.clearColumn(predicate)
+                          )
+                      "
+                    >
+                      <VIcon
+                        name="eraser"
+                        x-small
+                        title="Clear column"
+                      />
+                    </VBtn>
+                    <VBtn
+                      color="primary"
+                      circle
+                      title="Reload data attributes"
+                      @click="
+                        () => {
+                          store.predicates.forEach((p) =>
+                            store.reloadDataAttributes(p.id)
+                          )
+                        }
+                      "
+                    >
+                      <VIcon
+                        name="undo"
+                        x-small
+                        title="Reload data attributes"
+                      />
+                    </VBtn>
+
+                    <VBtn
+                      color="primary"
+                      circle
+                      @click="
+                        () =>
+                          store.predicates.forEach((p) =>
+                            store.removePredicate(p)
+                          )
+                      "
+                    >
+                      <VIcon
+                        name="trash"
+                        x-small
+                      />
+                    </VBtn>
+                  </div>
+                </div>
+              </th>
+              <th class="position-sticky w-2">
                 <CopyToClipboard
                   :predicate-ids="predicateIds"
                   :attributes="attributes"
                 />
               </th>
-              <th :colspan="store.predicates.length + 1"></th>
             </tr>
             <tr>
               <th
@@ -41,7 +122,7 @@
                   index === 0 && 'cell-left-border'
                 ]"
               >
-                <div class="horizontal-left-content gap-small">
+                <div class="flex-separate gap-small">
                   <label class="flex-row middle gap-xsmall cursor-pointer">
                     <input
                       type="checkbox"
@@ -50,47 +131,48 @@
                     />
                     {{ predicate.label }}
                   </label>
-
-                  <VBtn
-                    color="primary"
-                    circle
-                    title="Clear column"
-                    @click="() => store.clearColumn(predicate)"
-                  >
-                    <VIcon
-                      name="eraser"
-                      x-small
+                  <div class="horizontal-right-content middle gap-small">
+                    <VBtn
+                      color="primary"
+                      circle
                       title="Clear column"
-                    />
-                  </VBtn>
+                      @click="() => store.clearColumn(predicate)"
+                    >
+                      <VIcon
+                        name="eraser"
+                        x-small
+                        title="Clear column"
+                      />
+                    </VBtn>
 
-                  <VBtn
-                    color="primary"
-                    circle
-                    title="Reload data attributes"
-                    @click="
-                      () => {
-                        store.reloadDataAttributes(predicate.id)
-                      }
-                    "
-                  >
-                    <VIcon
-                      name="undo"
-                      x-small
-                      title="Reload data attributes"
-                    />
-                  </VBtn>
+                    <VBtn
+                      color="primary"
+                      circle
+                      title="Reload column"
+                      @click="
+                        () => {
+                          store.reloadDataAttributes(predicate.id)
+                        }
+                      "
+                    >
+                      <VIcon
+                        name="undo"
+                        x-small
+                        title="Reload data attributes"
+                      />
+                    </VBtn>
 
-                  <VBtn
-                    color="primary"
-                    circle
-                    @click="() => store.removePredicate(predicate)"
-                  >
-                    <VIcon
-                      name="trash"
-                      x-small
-                    />
-                  </VBtn>
+                    <VBtn
+                      color="primary"
+                      circle
+                      @click="() => store.removePredicate(predicate)"
+                    >
+                      <VIcon
+                        name="trash"
+                        x-small
+                      />
+                    </VBtn>
+                  </div>
                 </div>
               </th>
               <th class="position-sticky w-2">
@@ -114,7 +196,10 @@
               class="contextMenuCells"
             >
               <td>{{ item.id }}</td>
-              <td v-html="item.label" />
+              <td
+                class="full_width"
+                v-html="item.label"
+              />
               <template
                 v-for="(predicate, index) in store.predicates"
                 :key="predicate.id"
@@ -146,7 +231,7 @@
                   </div>
                 </td>
               </template>
-              <td>
+              <td class="w-2">
                 <VBtn
                   color="create"
                   :disabled="
@@ -175,7 +260,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import useStore from '../store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -191,6 +276,20 @@ const store = useStore()
 
 const predicateIds = ref([])
 const attributes = ref([])
+
+const selectAllPredicates = computed({
+  get: () =>
+    store.predicates.length &&
+    predicateIds.value.length === store.predicates.length,
+
+  set: (value) =>
+    (predicateIds.value = value ? store.predicates.map((p) => p.id) : [])
+})
+
+const selectAllProperties = computed({
+  get: () => attributes.value.length === Object.keys(OBJECT_HEADER).length,
+  set: (value) => (attributes.value = value ? Object.keys(OBJECT_HEADER) : [])
+})
 </script>
 
 <style scoped>
@@ -210,6 +309,10 @@ const attributes = ref([])
 
   td {
     white-space: nowrap;
+  }
+
+  th:last-child {
+    border-left: 1px solid #e5e5e5;
   }
 }
 

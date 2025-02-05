@@ -1,5 +1,18 @@
 <template>
-  <h1>Multi update</h1>
+  <div class="flex-separate middle">
+    <h1>Multi update</h1>
+    <ul class="context-menu">
+      <li>
+        <label>
+          <input
+            type="checkbox"
+            v-model="isPredicatePanelVisible"
+          />
+          Show predicate panel
+        </label>
+      </li>
+    </ul>
+  </div>
   <div class="horizontal-left-content align-start gap-medium">
     <VSpinner
       v-if="store.isLoading"
@@ -10,13 +23,13 @@
       full-screen
       :legend="`Saving... please wait. ${store.save.current} of ${store.save.total}.`"
     />
-    <PredicateSelector />
+    <PredicateSelector v-show="isPredicatePanelVisible" />
     <DataAttributeTable />
   </div>
 </template>
 
 <script setup>
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { useQueryParam } from '../field_synchronize/composables'
 import PredicateSelector from './components/PredicateSelector.vue'
 import useStore from './store/store'
@@ -29,6 +42,8 @@ defineOptions({
 
 const store = useStore()
 const { queryParam, queryValue } = useQueryParam()
+
+const isPredicatePanelVisible = ref(true)
 
 onBeforeMount(() => {
   if (queryParam.value) {

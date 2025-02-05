@@ -1,15 +1,21 @@
 <template>
   <VBtn
     color="primary"
+    circle
     title="Copy selected columns to clipboard"
-    :disabled="!predicateIds.length && !attributes.length"
-    @click="copyToClipboard"
-    >Copy columns to clipboard</VBtn
+    @click="copyToClipboard()"
   >
+    <VIcon
+      name="clip"
+      x-small
+      title="Copy selected columns to clipboard"
+    />
+  </VBtn>
 </template>
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import useStore from '../store/store.js'
 
 const props = defineProps({
