@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter's match identifiers facet can now be quickly accessed with `shift-ctrl-m` in a modal form
 - `gift` facet to Filter loans.
 - Multi data attribute update task [#4142]
+- Keys are now multifurcatable [#4148]
 
 ### Changed
 
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Bug in Image autocomplete
 - CatalogNumbers attached to Containers not appearing in CollectionObject tag [#4163]
 - OriginRelationship creation for Sequences [#4180]
 - CSD: change of namespace not updating [#4147]
@@ -38,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Autonym synonyms bug in COLDP exporter [#4175]
 - New taxon name: Show only subject relationships on Relationships section
 
+[#4148]: https://github.com/SpeciesFileGroup/taxonworks/issues/4148
 [#4163]: https://github.com/SpeciesFileGroup/taxonworks/issues/4163
 [#4174]: https://github.com/SpeciesFileGroup/taxonworks/issues/4174
 [#4176]: https://github.com/SpeciesFileGroup/taxonworks/issues/4176
