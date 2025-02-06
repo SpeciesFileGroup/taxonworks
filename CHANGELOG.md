@@ -9,28 +9,36 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Use Rails 7.2 and Ruby 3.3.6
 - New image task: Add field occurrence to depict some list [#4135]
 - Grab cursor to make sorting feature visible [#4153]
 - API endpoint for image matrix
-- Order of depictions comming from the image matrix
+- Order of depictions coming from the image matrix
 - Hub tasks: Add visual effect for fav icons and tooltip for categories [#4177]
 - Distribution to COLDP exports [#3148]
-- SpeciesInteraction to COLDP exports [#3158]
-- Pull metadata from ChecklistBank in order to merge updated metadata into COLDP exports
 - Taxon links to COLDP exports
+- SpeciesInteraction to COLDP exports [#3158]
+- Specs and optimizations to COLDP
+- Pull metadata from ChecklistBank in order to merge updated metadata into COLDP exports
 - Filter's match identifiers facet can now be quickly accessed with `shift-ctrl-m` in a modal form
 - `gift` facet to Filter loans.
 - Multi data attribute update task [#4142]
 - Keys are now multifurcatable [#4148]
-- Identical Document check
+- Identical Document validation
+- Some inline help and visual improvements [#4177]
+- Keys can be cloned, merged, and inserted to [#4056]
+- API endpoint for serving Image matrices
 
 ### Changed
 
-- Match identifiers defaults to match Identifier, not interal, `\n`, and caseless match [#4176]
-- Added Gift status notices to loans form [#4147]
+- Match identifiers defaults to match Identifier, not internal, `\n`, and caseless match [#4176]
+- Added Gift status notices to loans form [#4174]
+- Improved and clarified DwcOccurrence indexing concepts and application
+- Improved writing to cached* fields for TaxonName 
 
 ### Fixed
 
+- Fixes to TaxonWorks CSL style 
 - Bug in Image autocomplete
 - CatalogNumbers attached to Containers not appearing in CollectionObject tag [#4163]
 - OriginRelationship creation for Sequences [#4180]
@@ -41,7 +49,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Autonym synonyms bug in COLDP exporter [#4175]
 - New taxon name: Show only subject relationships on Relationships section
 - Images added before saving field occurrence are not saved [#4134]
+- Rendering Family group names from invalid names [#4187]
+- Verbatim latitude not displaying [#4178]
 
+
+[#4056]: https://github.com/SpeciesFileGroup/taxonworks/issues/4056
+[#4177]: https://github.com/SpeciesFileGroup/taxonworks/issues/4177
+[#4178]: https://github.com/SpeciesFileGroup/taxonworks/issues/4178
 [#4148]: https://github.com/SpeciesFileGroup/taxonworks/issues/4148
 [#4163]: https://github.com/SpeciesFileGroup/taxonworks/issues/4163
 [#4174]: https://github.com/SpeciesFileGroup/taxonworks/issues/4174

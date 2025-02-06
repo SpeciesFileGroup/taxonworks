@@ -1012,4 +1012,4 @@ index_multi_update_task:
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Faciliate spreadsheet editing of multiple data attributes.'
