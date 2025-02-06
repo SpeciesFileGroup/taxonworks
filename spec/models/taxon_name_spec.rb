@@ -187,7 +187,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
           end
 
-          specify 'ICZN species misspelling' do
+          specify 'ICZN species misapplication' do
             sp  = FactoryBot.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: genus)
             sp.iczn_set_as_misapplication_of = species
             expect(sp.save).to be_truthy
@@ -211,6 +211,27 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             s.reload
             c1 = Combination.create!(genus: g1, species: s)
             expect(c1.cached_author_year).to eq('(McAtee, 1900)')
+          end
+
+          specify 'ICZN misspelling' do
+            g1 = FactoryBot.create(:relationship_genus, parent: family, name: 'Aus')
+            g2 = FactoryBot.create(:relationship_genus, parent: family, name: 'Bus')
+            s = FactoryBot.create(:relationship_species, parent: g1, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
+            s2 = FactoryBot.create(:relationship_species, parent: g1, name: 'ausus', year_of_publication: 1905, verbatim_author: 'Author')
+            s.original_genus = g1
+            s.original_species = s
+            s2.original_genus = g2
+            s2.original_species = s
+            s.save!
+            s.reload
+            s2.save!
+            s2.reload
+            expect(s2.cached_author_year).to eq('(Author, 1905)')
+            expect(s2.original_author_year).to eq('Author, 1905')
+            TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name: s2, object_taxon_name: s)
+            s2.reload
+            expect(s2.cached_author_year).to eq('(McAtee, 1900)')
+            expect(s2.original_author_year).to eq('(McAtee, 1900)')
           end
 
           context 'ICZN family (behaviour for names above genus group)' do
