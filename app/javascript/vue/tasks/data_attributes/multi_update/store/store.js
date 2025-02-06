@@ -81,8 +81,10 @@ export default defineStore('store', {
             if (dataAttributes.length === 1) {
               const [dataAttribute] = dataAttributes
 
-              dataAttribute.value = value
-              dataAttribute.isUnsaved = true
+              if (dataAttribute.value !== value) {
+                dataAttribute.value = value
+                dataAttribute.isUnsaved = true
+              }
             }
           }
 

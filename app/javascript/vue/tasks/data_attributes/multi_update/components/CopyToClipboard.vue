@@ -2,18 +2,20 @@
   <VBtn
     color="primary"
     circle
-    title="Copy selected columns to clipboard"
+    :title="tooltip"
+    :disabled="!hasColumns"
     @click="copyToClipboard()"
   >
     <VIcon
       name="clip"
       x-small
-      title="Copy selected columns to clipboard"
+      :title="tooltip"
     />
   </VBtn>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useStore from '../store/store.js'
@@ -31,6 +33,15 @@ const props = defineProps({
 })
 
 const store = useStore()
+
+const hasColumns = computed(
+  () => props.attributes.length || props.predicateIds.length
+)
+const tooltip = computed(() =>
+  hasColumns.value
+    ? 'Copy selected columns to the clipboard'
+    : 'Check columns first to copy to the clipboard'
+)
 
 function copyToClipboard() {
   const data = store.makeTextTableByColumns({
