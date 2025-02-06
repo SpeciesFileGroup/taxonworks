@@ -28,7 +28,10 @@
             :key="item.id"
             @click="selectFO(item)"
           >
-            <td v-html="item.object_tag" />
+            <td
+              v-html="item.object_tag"
+              class="cursor-pointer"
+            />
           </tr>
         </tbody>
       </table>
