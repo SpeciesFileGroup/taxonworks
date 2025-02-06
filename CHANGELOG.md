@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `gift` facet to Filter loans.
 - Multi data attribute update task [#4142]
 - Keys are now multifurcatable [#4148]
+- Identical Document check
 
 ### Changed
 
