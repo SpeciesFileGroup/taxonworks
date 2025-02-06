@@ -1,6 +1,8 @@
 # A CachedMap is a OTU specific map derived from AssertedDistribution and Georeference data via
 # aggregation of the intermediate CachedMapItem level.
 #
+# One OTU can have many CachedMaps if they are of different types.
+#
 class CachedMap < ApplicationRecord
   include Housekeeping::Projects
   include Housekeeping::Timestamps
