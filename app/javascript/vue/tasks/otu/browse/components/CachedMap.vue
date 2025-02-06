@@ -21,8 +21,8 @@
     <VIcon
       color="warning"
       name="attention"
+      title="Cached map"
       small
-      :title="`Time between data and sync: ${cachedMap.time_between_data_and_sync}`"
       @click="isModalVisible = true"
     />
   </VBtn>

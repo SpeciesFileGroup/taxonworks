@@ -5,7 +5,7 @@ RUN apt-get install -y curl bzip2 unzip default-jre \
                        libgtk-3-0 libgtk-3-dev libdbus-glib-1-2 libxt6 # Firefox requirements
 
 RUN curl -sL 'https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US' | \
-    tar -xjf - -C /usr/bin
+    tar -xJf - -C /usr/bin
   
 RUN /usr/bin/firefox/firefox --version
 

@@ -66,10 +66,10 @@ jobs:
         path: vendor/bundle
         key: ${{ runner.os }}-gems-${{ hashFiles('.ruby-version', '**/Gemfile', '**/Gemfile.lock', 'exe/install-imagemagick7.sh') }}
 
-    - name: Set up Node 18 LTS
+    - name: Set up Node 22 LTS
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
 
     - name: Set up Node packages cache
       uses: actions/cache@v4
@@ -77,7 +77,7 @@ jobs:
         path: |
           ~/.npm
           **/node_modules
-        key: ${{ runner.os }}-node-18-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-node-22-${{ hashFiles('**/package-lock.json') }}
 
     - name: Set up assets cache
       uses: actions/cache@v4

@@ -23,6 +23,10 @@ scope :tasks do
   end
 
   scope :data_attributes do
+    scope :multi_update, controller: 'tasks/data_attributes/multi_update' do
+      get '/', action: :index, as: 'index_multi_update_task'
+    end
+
     scope :field_synchronize, controller: 'tasks/data_attributes/field_synchronize' do
       get '/', action: :index, as: 'field_synchronize_task'
       #get :values, defaults: {format: :json}

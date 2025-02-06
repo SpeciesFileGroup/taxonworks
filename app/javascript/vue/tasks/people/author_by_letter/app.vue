@@ -2,29 +2,29 @@
   <div>
     <spinner
       v-if="isLoading"
-      :full-screen="true"
+      full-screen
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px' }"
     />
     <h1>Author by first letter</h1>
-    <alphabet-buttons
-      @keypress="handleKey"
-      ref="alphabetButtons"
+    <AlphabetButtons
+      class="margin-medium-bottom"
+      v-model="key"
+      @update:model-value="getAuthors"
     />
-    <pagination-component
+    <VPagination
       :pagination="pagination"
-      @nextPage="getAuthors"
+      @next-page="getAuthors"
     />
     <div class="horizontal-left-content align-start">
       <div class="separate-right">
-        <author-list
+        <AuthorList
           :list="authorsList"
-          :pagination="pagination"
           @selected="getSources"
         />
       </div>
       <div class="separate-left">
-        <source-list
+        <SourceList
           v-show="sourcesList.length"
           :list="sourcesList"
         />
@@ -32,81 +32,61 @@
     </div>
   </div>
 </template>
-<script>
-import AlphabetButtons from './components/alphabet_buttons'
-import AuthorList from './components/author_list'
-import SourceList from './components/source_list.vue'
+
+<script setup>
+import AlphabetButtons from './components/AlphabetButtons.vue'
+import AuthorList from './components/Author/AuthorList.vue'
+import SourceList from './components/Source/SourceList.vue'
 import Spinner from '@/components/ui/VSpinner.vue'
-import PaginationComponent from './components/pagination.vue'
+import VPagination from '@/components/pagination.vue'
 import GetPagination from '@/helpers/getPagination.js'
+import { ROLE_SOURCE_AUTHOR } from '@/constants'
 import { Source, People } from '@/routes/endpoints'
+import { ref, onBeforeMount } from 'vue'
+import { URLParamsToJSON } from '@/helpers'
 
-export default {
-  components: {
-    AlphabetButtons,
-    AuthorList,
-    SourceList,
-    Spinner,
-    PaginationComponent
-  },
+const authorsList = ref([])
+const sourcesList = ref([])
+const isLoading = ref(false)
+const key = ref()
+const pagination = ref({})
 
-  data() {
-    return {
-      authorsList: [],
-      sourcesList: [],
-      isLoading: false,
-      key: undefined,
-      pagination: {}
-    }
-  },
+onBeforeMount(() => {
+  const urlParams = URLParamsToJSON(window.location.search)
+  let letterParam = urlParams.letter
 
-  mounted() {
-    const urlParams = new URLSearchParams(window.location.search)
-    let letterParam = urlParams.get('letter')
-
-    if (letterParam) {
-      letterParam = letterParam.toUpperCase()
-    }
-
-    if (/([A-Z])$/.test(letterParam) && letterParam.length == 1) {
-      this.key = letterParam
-      this.getAuthors()
-      this.$refs.alphabetButtons.setSelectedLetter(letterParam)
-    }
-  },
-
-  methods: {
-    getAuthors(args = {}) {
-      const params = {
-        last_name_starts_with: this.key,
-        roles: ['SourceAuthor'],
-        extend: ['roles']
-      }
-      this.isLoading = true
-      People.where({ ...Object.assign({}, args, params) }).then((response) => {
-        this.authorsList = response.body
-        this.pagination = GetPagination(response)
-        this.isLoading = false
-      })
-    },
-
-    getSources(authorId) {
-      this.isLoading = true
-      Source.where({ author_id: [authorId] }).then((response) => {
-        this.sourcesList = response.body
-        this.isLoading = false
-        this.$nextTick(() => {
-          document
-            .getElementById('source-table')
-            .scrollIntoView({ behavior: 'smooth' })
-        })
-      })
-    },
-
-    handleKey(e) {
-      this.key = e
-      this.getAuthors()
-    }
+  if (letterParam) {
+    letterParam = letterParam.toUpperCase()
   }
+
+  if (/([A-Z])$/.test(letterParam) && letterParam.length == 1) {
+    key.value = letterParam
+    getAuthors()
+  }
+})
+
+function getAuthors(params = {}) {
+  const payload = {
+    last_name_starts_with: key.value,
+    roles: [ROLE_SOURCE_AUTHOR],
+    extend: ['roles'],
+    ...params
+  }
+
+  isLoading.value = true
+  People.where(payload)
+    .then((response) => {
+      authorsList.value = response.body
+      pagination.value = GetPagination(response)
+    })
+    .finally(() => (isLoading.value = false))
+}
+
+function getSources(authorId) {
+  isLoading.value = true
+  Source.where({ author_id: [authorId] }).then((response) => {
+    sourcesList.value = response.body
+    isLoading.value = false
+  })
 }
 </script>

@@ -218,3 +218,6 @@ TaxonName:
   home: browse_nomenclature_task
   config:
     recent: true
+Serial:
+  tasks:
+    - unify_objects_task

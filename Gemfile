@@ -7,9 +7,9 @@ ruby '>= 3.2', '< 3.4.0'
 gem 'bundler', '~> 2.5'
 
 gem 'rake', '~> 13.0'
-gem 'rails', '~> 7.1'
+gem 'rails', '~> 7.2'
 gem 'pg', '~> 1.1'
-gem 'activerecord-postgis-adapter', '~> 9.0'
+gem 'activerecord-postgis-adapter', '~> 10.0'
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.5'
 gem 'bootsnap', require: false
@@ -101,7 +101,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '8.0.2'
+gem 'shakapacker', '8.1.0'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'

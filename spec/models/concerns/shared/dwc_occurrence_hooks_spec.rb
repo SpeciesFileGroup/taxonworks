@@ -6,6 +6,7 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
   # TODO: if eager_load paradigm changes this may need update
   ApplicationRecord.descendants.each do |c|
     if c < Shared::DwcOccurrenceHooks
+
       specify "hooked model includes #dwc_occurrences #{c.name}" do
         expect(c.new.respond_to?(:dwc_occurrences)).to be_truthy
       end
@@ -13,6 +14,7 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
       specify "#dwc_occurrences of #{c.name} is a ActiveRecord::Relation" do
         expect(c.new.dwc_occurrences.class.name).to match('ActiveRecord::Relation')
       end
+
     end
   end
 end

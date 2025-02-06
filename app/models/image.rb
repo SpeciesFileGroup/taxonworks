@@ -45,7 +45,6 @@
 #   @return [Float, nil]
 #      used to generate scale bars on the fly
 #
-
 class Image < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers

@@ -1,10 +1,10 @@
 <template>
-  <div class="cplt_center">
+  <div class="lead_center">
     <VBtn
       v-if="lead.parent_id"
       color="primary"
       medium
-      @click="() => emit('loadCouplet', lead.parent_id)"
+      @click="() => emit('loadLead', lead.parent_id)"
     >
       Up
     </VBtn>
@@ -35,26 +35,21 @@
   </div>
 
   <div
-    v-if="left_expanded.lead && right_expanded.lead"
-    class="left_and_right_cplt"
+    v-if="couplet.length > 0"
+    class="couplet"
   >
     <LeadAndFuture
-      class="lead_and_future"
-      :lead="left_expanded.lead"
-      :future="left_expanded.future"
-      @load-couplet="(id) => emit('loadCouplet', id)"
-    />
-    <LeadAndFuture
-      class="lead_and_future"
-      :lead="right_expanded.lead"
-      :future="right_expanded.future"
-      @load-couplet="(id) => emit('loadCouplet', id)"
+      v-for="(l, i) in couplet"
+      :key="l.id"
+      :lead="l"
+      :future="futures[i]"
+      @load-lead="(id) => emit('loadLead', id)"
     />
   </div>
-  <div v-else class="cplt_center">
+  <div v-else class="lead_center">
     <p>
       You're viewing a leaf node without the node it's associated with in the
-      key; go Up to view the full couplet.
+      key; go Up to view the full couplet that includes this lead.
     </p>
   </div>
 </template>
@@ -68,36 +63,28 @@ const props = defineProps({
     type: Object,
     default: {}
   },
-  left_expanded: {
-    type: Object,
-    default: {}
+  couplet: {
+    type: Array,
+    default: []
   },
-  right_expanded: {
-    type: Object,
-    default: {}
+  futures: {
+    type: Array,
+    default: []
   }
 })
 
-const emit = defineEmits(['loadCouplet'])
+const emit = defineEmits(['loadLead'])
 </script>
 
 <style lang="scss" scoped>
-.left_and_right_cplt {
+.couplet {
   margin-top: 2em;
   display: flex;
+  flex-wrap: wrap;
   justify-content:space-around;
-  align-items: flex-start;
   gap: 1em;
 }
-.lead_and_future {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  // Enough for two full-width medium depictions.
-  max-width: calc(600px + 4em + 16px + 4px);
-  margin-bottom: 2em;
-}
-.cplt_center {
+.lead_center {
   display: flex;
   flex-direction: column;
   align-items: center;

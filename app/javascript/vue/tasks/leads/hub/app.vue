@@ -1,5 +1,5 @@
 <template>
-  <h1>Dichotomous Keys Hub</h1>
+  <h1>Keys Hub</h1>
   <div id="leads_hub_components">
     <SearchComponent />
     <NewComponent />

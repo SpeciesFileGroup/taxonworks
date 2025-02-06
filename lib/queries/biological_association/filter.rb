@@ -535,8 +535,6 @@ module Queries
           b_sql = b.all.to_sql
         end
 
-
-
         return nil if a_sql.nil? and b_sql.nil?
 
         # Setup for "WITH" use

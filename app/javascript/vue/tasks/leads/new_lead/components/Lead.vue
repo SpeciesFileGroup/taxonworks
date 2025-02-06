@@ -6,9 +6,50 @@
 
   <BlockLayout class="lead">
     <template #header>
-      <div class="full_width horizontal-right-content">
+      <div class="full_width header-left-right">
+        <div>
+          <VBtn
+            v-if="!positionIsFirst"
+            color="update"
+            circle
+            @click="() => changeLeadPosition(DIRECTIONS['left'])"
+            title="Move this lead left"
+          >
+            <VIcon
+              x-small
+              name="arrowLeft"
+              title="Move this lead left"
+            />
+          </VBtn>
+
+          <VBtn
+            v-if="!positionIsLast"
+            color="update"
+            circle
+            @click="() => changeLeadPosition(DIRECTIONS['right'])"
+            title="Move this lead right"
+          >
+            <VIcon
+              x-small
+              name="arrowRight"
+              title="Move this lead right"
+            />
+          </VBtn>
+
+          <VBtn
+            v-if="store.children.length > 2"
+            color="destroy"
+            circle
+            @click="() => deleteSubTree()"
+          >
+            <VIcon
+              x-small
+              name="trash"
+            />
+          </VBtn>
+        </div>
         <RadialAnnotator
-          :global-id="store[side].global_id"
+          :global-id="store.children[position].global_id"
           @create="handleRadialCreate"
           @delete="handleRadialDelete"
           @update="handleRadialUpdate"
@@ -18,10 +59,10 @@
 
     <template #body>
       <div
-        v-if="!!store.last_saved[side].redirect_id"
+        v-if="!!store.last_saved.children[position].redirect_id"
         class="redirect_notice"
       >
-        <i>This side is currently redirecting, to add couplets below remove the redirection.</i>
+        <i>This side is currently redirecting, to add leads below remove the redirection.</i>
       </div>
       <div class="navigation">
         <VBtn
@@ -34,7 +75,7 @@
         </VBtn>
 
         <VBtn
-          :disabled="!!store.last_saved[side].redirect_id || !sideHasChildren"
+          :disabled="!!store.last_saved.children[position].redirect_id || !leadHasChildren"
           color="create"
           medium
           @click="insertCouplet()"
@@ -48,11 +89,11 @@
         <textarea
           class="full_width"
           rows="5"
-          v-model="store[side].text"
+          v-model="store.children[position].text"
         />
       </div>
 
-      <OtuChooser :lead="store[side]"/>
+      <OtuChooser :lead="store.children[position]"/>
 
       <div class="field label-above">
         <label>External link</label>
@@ -62,7 +103,7 @@
             <textarea
               class="full_width"
               rows="2"
-              v-model="store[side].link_out"
+              v-model="store.children[position].link_out"
             />
           </div>
           <div class="field label-above">
@@ -70,12 +111,12 @@
             <input
               type="text"
               class="normal-input full_width"
-              v-model="store[side].link_out_text"
+              v-model="store.children[position].link_out_text"
             />
           </div>
           <p v-if="displayLinkOut">
-            Link: <a :href="store[side].link_out" target="_blank">
-              {{ store[side].link_out_text }}
+            Link: <a :href="store.children[position].link_out" target="_blank">
+              {{ store.children[position].link_out_text }}
             </a>
           </p>
           <p v-else>
@@ -88,15 +129,15 @@
         <label>Redirect</label>
         <select
           class="redirect_select"
-          v-model="store[side].redirect_id"
-          :disabled="sideHasChildren"
+          v-model="store.children[position].redirect_id"
+          :disabled="leadHasChildren"
         >
           <option :value="null"></option>
           <option
             v-for="option in redirectOptions"
             :key="option.id"
             :value="option.id"
-            :selected="option.id == store[side].redirect_id"
+            :selected="option.id == store.children[position].redirect_id"
           >
             {{ option.text }}
           </option>
@@ -105,13 +146,13 @@
 
       <Annotations
         :object_type="LEAD"
-        :object_id="store[side].id"
+        :object_id="store.children[position].id"
         v-model:depiction="depictions"
       />
 
-      <h3>Future Couplets</h3>
+      <h3>Future couplets</h3>
       <FutureCoupletsList
-        :future="store[side + '_future']"
+        :future="store.futures[position]"
         :route-name="RouteNames.NewLead"
         :load-function="(id) => store.loadKey(id)"
       />
@@ -121,29 +162,26 @@
 
 <script setup>
 import { DEPICTION, LEAD } from '@/constants/index.js'
-import { Lead } from '@/routes/endpoints'
+import { DIRECTIONS } from '../store/constants/directions.js'
 import { computed, ref } from 'vue'
+import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
+import { useInsertCouplet } from './composables/useInsertCouplet.js'
 import { useStore } from '../store/useStore.js'
+import { useUserOkayToLeave } from './composables/useUserOkayToLeave.js'
 import Annotations from './Annotations.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import FutureCoupletsList from '../../components/FutureCoupletsList.vue'
 import OtuChooser from './OtuChooser.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
-  side: {
-    type: String,
-    required: true,
-    validator(value) {
-      return ['left', 'right'].includes(value)
-    }
-  },
-  sideHasChildren: {
-    type: Boolean,
+  position: {
+    type: Number,
     required: true
   },
   redirectOptions: {
@@ -157,35 +195,47 @@ const emit = defineEmits(['editingHasOccurred'])
 const store = useStore()
 
 const depictions = ref([])
-
 const loading = ref(false)
+
+const leadHasChildren = computed(() => {
+  return (!store.children[props.position].redirect_id &&
+    store.futures[props.position].length > 0)
+})
 
 const nextButtonDisabled = computed(() => {
   return (
-    !props.sideHasChildren &&
-    !store.last_saved[props.side].redirect_id &&
-    !store.last_saved[props.side].text
+    !leadHasChildren.value &&
+    !store.last_saved.children[props.position].redirect_id &&
+    !store.last_saved.children[props.position].text
   )
 })
 
 const displayLinkOut = computed(() => {
-  const linkOut = store[props.side].link_out
-  return linkOut && store[props.side].link_out_text &&
+  const linkOut = store.children[props.position].link_out
+  return linkOut && store.children[props.position].link_out_text &&
     (linkOut.startsWith('https://') || linkOut.startsWith('http://'))
 })
 
 const editNextText = computed(() => {
-  if (!!store.last_saved[props.side].redirect_id) {
+  if (!!store.last_saved.children[props.position].redirect_id) {
     return 'Follow redirect and edit'
-  } else if (props.sideHasChildren) {
+  } else if (leadHasChildren.value) {
     return 'Edit the next couplet'
   } else {
-    if (store.last_saved[props.side].text) {
+    if (store.last_saved.children[props.position].text) {
       return 'Create and edit the next couplet'
     } else {
       return 'Save text to enable creating the next couplet'
     }
   }
+})
+
+const positionIsFirst = computed(() => {
+  return props.position == 0
+})
+
+const positionIsLast = computed(() => {
+  return props.position == store.children.length - 1
 })
 
 const annotationLists = { [DEPICTION]: depictions }
@@ -196,39 +246,29 @@ const {
 } = useAnnotationHandlers(annotationLists)
 
 function insertCouplet() {
-  if (!userOkayToLeave() ||
-    !window.confirm(
-      'Insert a couplet below this one? Any existing children will be reparented.'
-    )
-  ) {
-    return
-  }
-  loading.value = true
-  Lead.insert_couplet(store[props.side].id)
-    .then(() => {
-      store.loadKey(store[props.side].id)
+  useInsertCouplet(store.children[props.position].id, loading, store, () => {
+    store.loadKey(store.children[props.position].id)
       TW.workbench.alert.create(
         "Success - you're now editing the inserted couplet",
         'notice'
       )
       emit('editingHasOccurred')
-    })
-    .finally(() => {
-      loading.value = false
-    })
+  })
 }
 
 function nextCouplet() {
-  if (!userOkayToLeave()) {
+  if (!useUserOkayToLeave(store)) {
     return
   }
-  if (props.sideHasChildren) {
-    store.loadKey(store[props.side].id)
-  } else if (!!store.last_saved[props.side].redirect_id) {
-    store.loadKey(store.last_saved[props.side].redirect_id)
+  if (leadHasChildren.value) {
+    store.loadKey(store.children[props.position].id)
+  } else if (!!store.last_saved.children[props.position].redirect_id) {
+    store.loadKey(store.last_saved.children[props.position].redirect_id)
   } else {
     loading.value = true
-    Lead.create_for_edit(store[props.side].id)
+    LeadEndpoint.add_children(
+      store.children[props.position].id, { num_to_add: 2 }
+    )
       .then(({ body }) => {
         store.loadKey(body)
       })
@@ -239,27 +279,87 @@ function nextCouplet() {
   emit('editingHasOccurred')
 }
 
-function userOkayToLeave() {
-  if (store.dataChangedSinceLastSave() &&
-    !window.confirm(
-      'You have unsaved data, are you sure you want to navigate to a new couplet?'
-    )
-  ) {
-    return false
+function deleteSubTree() {
+  const deleteWarningText = leadHasChildren.value
+    ? 'Are you sure you want to delete this lead AND ALL LEADS BELOW IT?'
+    : 'Are you sure you want to delete this lead?'
+
+  if (!window.confirm(deleteWarningText)) {
+    return
   }
-  return true
+
+  loading.value = true
+  LeadEndpoint.destroy_subtree(store.children[props.position].id)
+    .then(() => {
+      const noticeText = (leadHasChildren.value
+        ? 'Lead and descendants deleted.'
+        : 'Lead deleted')
+      store.deleteChild(props.position)
+      TW.workbench.alert.create(noticeText, 'notice')
+      emit('editingHasOccurred')
+    })
+    .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
 }
+
+function changeLeadPosition(direction) {
+  if (!useUserOkayToLeave(store,
+    'You have unsaved data, are you sure you want to proceed?'
+  )) {
+    return
+  }
+
+  let childOrderList = [...Array(store.children.length).keys()]
+  if (direction == DIRECTIONS.left) {
+    childOrderList[props.position] = props.position - 1
+    childOrderList[props.position - 1] = props.position
+  }  else {
+    childOrderList[props.position] = props.position + 1
+    childOrderList[props.position + 1] = props.position
+  }
+  const payload = {
+    reorder_list: childOrderList
+  }
+
+  loading.value = true
+  LeadEndpoint.reorder_children(store.lead.id, payload)
+    .then(({ body }) => {
+      store.resetChildren(body.leads, body.futures)
+
+      const direction_word = (direction == DIRECTIONS.left) ? 'left' : 'right'
+      TW.workbench.alert.create('Moved lead ' + direction_word, 'notice')
+      emit('editingHasOccurred')
+    })
+    .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
+}
+
 </script>
 
 <style lang="scss" scoped>
+.header-left-right {
+  display: flex;
+  > :first-child {
+    flex-grow: 1;
+  }
+  > :first-child button {
+    margin-right: 0.5em;
+  }
+}
 .lead {
   max-width: 600px;
+  min-width: 360px;
   flex-grow: 1;
   margin-bottom: 2em;
 }
 .navigation {
   display: flex;
   justify-content: space-evenly;
+  gap: 3px;
 }
 .redirect_notice {
   margin-bottom: 1em;
