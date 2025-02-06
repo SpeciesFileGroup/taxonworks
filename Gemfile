@@ -7,9 +7,9 @@ ruby '>= 3.2', '< 3.4.0'
 gem 'bundler', '~> 2.5'
 
 gem 'rake', '~> 13.0'
-gem 'rails', '~> 7.2'
+gem 'rails', '~> 8.0'
 gem 'pg', '~> 1.1'
-gem 'activerecord-postgis-adapter', '~> 10.0'
+gem 'activerecord-postgis-adapter', '~> 11.0'
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.5'
 gem 'bootsnap', require: false
@@ -59,7 +59,7 @@ gem 'responders', '~> 3.0' # Used?!
 gem 'addressable', '~> 2.8'
 
 # Email
-gem 'exception_notification', '~> 4.4'
+gem 'exception_notification', github: 'smartinez87/exception_notification', ref: '60e158888bbff96f7a9ae00ae97305cdd33726e9' #'~> 4.5'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
@@ -71,11 +71,11 @@ gem 'delayed_job_active_record', '~> 4.1.3'
 # This is likely not the real propegated error, see similar https://github.com/Shopify/bootsnap/issues/218
 # version 6 beta out now
 
-gem 'validates_timeliness', '~> 7.0.0.beta2' # , '>= 4.1.1'
+gem 'validates_timeliness', '~> 8.0' # , '>= 4.1.1'
 
 gem 'rack', '~> 3.1.8'
 
-gem 'paper_trail', '~> 15.0'
+gem 'paper_trail', '~> 16.0'
 
 gem 'acts_as_list', '~> 1.0'
 gem 'modularity', '~> 3.0.0' # TODO: Used!?
