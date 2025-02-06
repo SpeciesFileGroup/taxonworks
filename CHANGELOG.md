@@ -37,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove [sic] from COLDP name fields [#3833]
 - Autonym synonyms bug in COLDP exporter [#4175]
 - New taxon name: Show only subject relationships on Relationships section
+- Images added before saving field occurrence are not saved [#4134]
 
 [#4163]: https://github.com/SpeciesFileGroup/taxonworks/issues/4163
 [#4174]: https://github.com/SpeciesFileGroup/taxonworks/issues/4174
@@ -45,6 +46,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3148]: https://github.com/SpeciesFileGroup/taxonworks/issues/3148
 [#3158]: https://github.com/SpeciesFileGroup/taxonworks/issues/3158
 [#3833]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
+[#4134]: https://github.com/SpeciesFileGroup/taxonworks/issues/4134
 [#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
 [#4142]: https://github.com/SpeciesFileGroup/taxonworks/issues/4142
 [#4147]: https://github.com/SpeciesFileGroup/taxonworks/issues/4147
