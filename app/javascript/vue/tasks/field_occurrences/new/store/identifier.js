@@ -74,7 +74,7 @@ export default defineStore('identifiers', {
         .then(({ body }) => {
           this.identifier = body
         })
-        .catch({})
+        .catch(() => {})
 
       return request
     }
