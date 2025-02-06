@@ -926,6 +926,8 @@ class TaxonName < ApplicationRecord
       # Not like this:
       # (Baker, 1899) non Gillette, 1898
 
+      return cached_author_year if cached_misspelling
+
       if cached_author_year =~ /^\((.*)\)$/
         return $1
       end
