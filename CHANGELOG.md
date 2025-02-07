@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+
+Sort asserted distributions alphabetically in Quick Forms
 
 ## [0.47.0] - 2025-02-06
 
@@ -38,11 +40,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Match identifiers defaults to match Identifier, not internal, `\n`, and caseless match [#4176]
 - Added Gift status notices to loans form [#4174]
 - Improved and clarified DwcOccurrence indexing concepts and application
-- Improved writing to cached* fields for TaxonName 
+- Improved writing to cached\* fields for TaxonName
 
 ### Fixed
 
-- Fixes to TaxonWorks CSL style 
+- Fixes to TaxonWorks CSL style
 - Bug in Image autocomplete
 - CatalogNumbers attached to Containers not appearing in CollectionObject tag [#4163]
 - OriginRelationship creation for Sequences [#4180]
@@ -55,7 +57,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Images added before saving field occurrence are not saved [#4134]
 - Rendering Family group names from invalid names [#4187]
 - Verbatim latitude not displaying [#4178]
-
 
 [#4056]: https://github.com/SpeciesFileGroup/taxonworks/issues/4056
 [#4177]: https://github.com/SpeciesFileGroup/taxonworks/issues/4177

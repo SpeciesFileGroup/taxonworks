@@ -99,6 +99,7 @@ import { ASSERTED_DISTRIBUTION } from '@/constants/index'
 import { AssertedDistribution } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
 import { ref, computed, reactive } from 'vue'
+import sortArray from '@/helpers/sortArray'
 
 const EXTEND_PARAMS = {
   embed: ['shape'],
@@ -265,7 +266,7 @@ AssertedDistribution.all({
   ...EXTEND_PARAMS
 }).then(({ body }) => {
   isLoading.value = false
-  list.value = body
+  list.value = sortArray('geographic_area.name', body)
 })
 </script>
 <style lang="scss">
