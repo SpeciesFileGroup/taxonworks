@@ -9,7 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-Sort asserted distributions alphabetically in Quick Forms
+- Sort asserted distributions alphabetically in Quick Forms
+- Update taxon nomenclatural date after source update
 
 ## [0.47.0] - 2025-02-06
 
