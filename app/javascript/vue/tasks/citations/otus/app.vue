@@ -183,7 +183,7 @@ export default {
 
           Citation.create({
             citation,
-            extend: ['citation_object', 'citation_topics']
+            extend: ['citation_object', 'citation_topics', 'source']
           }).then((response) => {
             commit(MutationNames.SetCurrentCitation, response.body)
             commit(MutationNames.AddCitation, response.body)
