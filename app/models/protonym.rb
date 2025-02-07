@@ -828,6 +828,7 @@ class Protonym < TaxonName
 
   # This should never require hitting the database.
   def get_original_combination_html
+    return verbatim_name if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
     return  "\"<i>Candidatus</i> #{get_original_combination}\"" if is_candidatus?
 
     # x = get_original_combination
