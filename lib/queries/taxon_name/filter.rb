@@ -579,6 +579,9 @@ module Queries
 
         tnc = ::TaxonNameClassification.arel_table
         if latinized == true
+          # Note the query here does not restrict to genus/species groups - a
+          # genus whose rank is changed to subfamily can retain its gender,
+          # e.g., and we want to include those here.
           ::TaxonName.where(
             ::TaxonNameClassification.where(
               tnc[:taxon_name_id].eq(::TaxonName.arel_table[:id]).and(
