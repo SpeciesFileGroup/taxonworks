@@ -178,14 +178,25 @@ Object.assign(TW.workbench.keyboard, {
     const rowElement = document.createElement('tr')
     const shortcutColumn = document.createElement('td')
     const descriptionColumn = document.createElement('td')
-    const keyDiv = document.createElement('div')
+    const shortcutContainer = document.createElement('div')
+    const keys = shortcutKey.split('+')
+    const keyDivs = keys.map((key) => {
+      const element = document.createElement('div')
 
-    keyDiv.classList.add('key')
-    keyDiv.setAttribute('data-table-shortcut-key', shortcutKey)
-    keyDiv.textContent = shortcutKey
+      element.textContent = key
+      element.classList.add('key', 'capitalize')
+
+      return element.outerHTML
+    })
+
+    //shortcutContainer.classList.add('key')
+
+    shortcutContainer.setAttribute('data-table-shortcut-key', shortcutKey)
+    shortcutContainer.innerHTML = keyDivs.join('+')
+    //shortcutContainer.textContent = shortcutKey.split('+')
     descriptionColumn.textContent = description
 
-    shortcutColumn.append(keyDiv)
+    shortcutColumn.append(shortcutContainer)
     rowElement.append(shortcutColumn)
     rowElement.append(descriptionColumn)
 

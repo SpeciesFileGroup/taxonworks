@@ -133,10 +133,7 @@
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import {
-  TAXON_RELATIONSHIP_CURRENT_COMBINATION,
-  TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM
-} from '@/constants/index.js'
+import { TAXON_RELATIONSHIP_CURRENT_COMBINATION } from '@/constants/index.js'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
@@ -147,7 +144,6 @@ import BlockLayout from '@/components/layout/BlockLayout'
 
 const FILTER_RELATIONSHIPS = [
   TAXON_RELATIONSHIP_CURRENT_COMBINATION,
-  TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM,
   'OriginalCombination',
   'Typification',
   'UncertainPlacement',
@@ -181,7 +177,7 @@ export default {
         (item) =>
           !FILTER_RELATIONSHIPS.some((filterType) =>
             item.type.includes(filterType)
-          )
+          ) && item.subject_taxon_name_id === this.taxon.id
       )
     },
 

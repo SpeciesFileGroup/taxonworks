@@ -4,16 +4,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
   let(:root) { FactoryBot.create(:root_taxon_name) }
 
-
- #  after(:all) do
- #    TaxonNameRelationship.delete_all
- #    TaxonName.delete_all
- #    TaxonNameHierarchy.delete_all
- #    # TODO: find out why this exists and resolve - presently leaving sources in the models
- #    Citation.delete_all
- #    Source.destroy_all
- #  end
-
   context 'quick test' do
     let(:genus) { Protonym.create(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
     let(:original_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
@@ -59,7 +49,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
       end
 
-      let(:family) { FactoryBot.create(:relationship_family) }
+      let(:family) { FactoryBot.create(:relationship_family, name: 'Cicadidae', verbatim_name: 'Cicadaria') }
       let(:genus1) { FactoryBot.create(:relationship_genus, name: 'Aus', parent: family) }
       let(:genus2) { FactoryBot.create(:relationship_genus, name: 'Bus', parent: family) }
       let(:species) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758) }
@@ -187,6 +177,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         specify '#cached_html' do
           expect(family.cached_html).to eq(family.name)
         end
+
+        specify '#cached_original_combiantion' do
+          expect(family.cached_original_combination).to eq('Cicadaria')
+        end
+
+        specify '#cached_original_combiantion_html' do
+          expect(family.cached_original_combination_html).to eq('Cicadaria')
+        end
       end
 
       context '#combination_verbatim_name' do
@@ -213,7 +211,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify '#cached_classified_as' do
-            expect(species.cached_classified_as).to eq(' (as Erythroneuridae)')
+            expect(species.cached_classified_as).to eq(' (as Cicadidae)')
           end
 
           specify '#cached_html' do
@@ -221,11 +219,20 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify '#cached_original_combination_html' do
-            expect(species.reload.cached_original_combination_html).to eq('<i>Bus aus</i>')
+            expect(species.cached_original_combination_html).to eq('<i>Bus aus</i>')
           end
 
           specify '#cached_original_combination' do
-            expect(species.reload.cached_original_combination).to eq('Bus aus')
+            expect(species.cached_original_combination).to eq('Bus aus')
+          end
+
+          specify '#cached_misspelling' do
+            expect(species.cached_misspelling).to eq(nil)
+          end
+
+          specify '#cached_mispelling on relationship create' do
+            TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name: species, object_taxon_name: Protonym.create!(rank_class: Ranks.lookup(:iczn, :species), parent: species.root, name: 'syn'))
+            expect(species.cached_misspelling).to eq(true)
           end
 
           context 'changing the genus (parent) name' do
@@ -250,7 +257,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(species.not_binominal?).to be_falsey
               species.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinominal')
               expect(species.not_binominal?).to be_truthy
-#              species.reload
               species.save
               expect(species.cached_html).to eq('<i>Cus aus</i>')
             end
@@ -309,14 +315,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           context 'species names, genus with gender change' do
             let(:species) {
-              FactoryBot.create(:relationship_species,
-                                 name: 'aus',
-                                 parent: genus1,
-                                 verbatim_author: 'Linnaeus',
-                                 year_of_publication: 1758,
-                                 masculine_name: 'aus',
-                                 feminine_name: 'aa',
-                                 neuter_name: 'aum')
+              FactoryBot.create(
+                :relationship_species,
+                name: 'aus',
+                parent: genus1,
+                verbatim_author: 'Linnaeus',
+                year_of_publication: 1758,
+                masculine_name: 'aus',
+                feminine_name: 'aa',
+                neuter_name: 'aum')
             }
 
             before do

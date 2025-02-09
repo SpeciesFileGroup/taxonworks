@@ -90,7 +90,8 @@ export const LAYOUTS = {
         'specificEpithet',
         'infraspecificEpithet',
         'previousIdentifications',
-        'higherClassification'
+        'higherClassification',
+        'typeStatus'
       ]
     },
     includes: {}

@@ -1,5 +1,10 @@
 <div id="loan_recipient_form">
-  <p id="loan_recipient_form_loan_id" class="no_bullets">Loan ID(s): <%= @loan.identifiers.collect{|a| a.cached}.join('; ') -%></p>
+  <p id="loan_recipient_form_loan_id" class="no_bullets">Loan ID(s): <%= @loan.identifiers.collect{|a| a.cached}.join('; ') -%>
+      <% if @loan.is_gift %>
+        <span id="gift_status"><b>[GIFT]</b></span>
+    <% end %>
+  </p>
+
   <div id="loan_header" class="flexbox panels-container">
 
     <div id="recipient_details" class="item item1">
@@ -19,12 +24,12 @@
       </ul>
     </div>
     <div id="lender_details" class="item item2">
-        <%= tag.li( tag.pre(@loan.lender_address, class: :address) ) -%>
+      <%= tag.li( tag.pre(@loan.lender_address, class: :address) ) -%>
     </div>
   </div>
 
   <div id="sent_date"> Date sent: <%= @loan.date_sent -%> </div>
-  <div id="return_date"> Date return due: <%= @loan.date_return_expected -%></div>
+  <div id="return_date"> <%= loan_due_back_tag(@loan) -%></div>
 
   <div id="loan_items">
     <%= render('/loan_items/loan_table', loan_items: @loan.loan_items.order(:position)) -%>
@@ -47,7 +52,6 @@
       </table>
 
       <br><strong> Compiled by: </strong><%= tag.span((@loan.loan_items.collect{|a| [a.updater.name, a.creator.name]}.flatten.uniq.sort.join(', ')).html_safe) -%>
-
 
     <p>I agree to the terms of this loan.</p>
     <div class="panels-container">

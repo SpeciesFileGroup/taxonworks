@@ -30,14 +30,6 @@ module Export::Coldp::Files::Name
     end
   end
 
-  # @return String
-  # !! Feels like it should be a TN method
-  # !! TODO: add specs defining why it can't be a TaxonName method (partciularly now that original_author_year is updated
-  def self.authorship_field(taxon_name, original)
-    return taxon_name.cached_author_year if taxon_name.is_valid? # impossible for it to need original_author_year check
-    original ? taxon_name.original_author_year : taxon_name.cached_author_year
-  end
-
   # https://api.checklistbank.org/vocab/nomStatus
   # @return [String, nil]
   # @params taxon_name [TaxonName]
@@ -76,7 +68,7 @@ module Export::Coldp::Files::Name
       id,                                                                 # ID
       nil,                                                                # basionymID
       uninomial,                                                          # scientificName
-      authorship_field(t, true),                                          # authorship
+      t.original_author_year,                                             # authorship
       t.rank,                                                             # rank
       uninomial,                                                          # uninomial
       nil,                                                                # genus
@@ -100,8 +92,6 @@ module Export::Coldp::Files::Name
   # @param t [Protonym]
   #    only place that var./frm can be handled.
   def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
-
-
     # TODO: Should [sic] handling be added to the Protonym#original_combination_elements method? Need to discuss with DD and MJY
     e = {}
     
@@ -164,7 +154,7 @@ module Export::Coldp::Files::Name
       id,                                                                 # ID
       basionym_id,                                                        # basionymID
       scientific_name,                                                    # scientificName
-      authorship_field(t, true),                                          # authorship
+      t.original_author_year,                                             # authorship
       rank,                                                               # rank
       uninomial,                                                          # uninomial
       genus,                                                              # genus
@@ -300,13 +290,13 @@ module Export::Coldp::Files::Name
           end
 
           # Here we truly want no higher
-          if !t.cached_original_combination.blank? && (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?))
+          if t.cached_original_combination.present? && (!t.is_combination? && is_genus_species && (!t.is_valid? || t.has_alternate_original?))
             name_total += 1
             add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
           end
 
           # Here we add reified ID's for higher taxa in which cached != cached_original_combination (e.g., TaxonName stores both Lamotialnina and Lamotialnini so needs a reified ID)
-          if !t.cached_original_combination.blank? && t.is_family_rank? && t.cached != t.cached_original_combination
+          if t.cached_original_combination.present? && t.is_family_rank? && t.has_alternate_original? # t.cached != t.cached_original_combination
             add_higher_original_name(t, csv, origin_citation, name_remarks_vocab_id, project_members)
           end
 
