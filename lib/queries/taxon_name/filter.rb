@@ -592,8 +592,7 @@ module Queries
         else
           ::TaxonName
             .where(
-              "rank_class ILIKE '%speciesgroup%' OR \
-               rank_class ILIKE '%genusgroup%'"
+              table[:rank_class].in(GENUS_AND_SPECIES_RANK_NAMES)
             )
             .where.not(
               ::TaxonNameClassification.where(
