@@ -41,15 +41,17 @@ export default defineStore('identifiers', {
     },
 
     reset({ keepNamespace }) {
-      this.identifier.id = null
+      const newIdentifierId = this.increment
+        ? incrementIdentifier(this.identifier.identifier)
+        : null
+      this.identifier = {
+        ...makeIdentifier(),
+        identifier: newIdentifierId,
+      }
 
       if (!keepNamespace) {
         this.namespace = null
       }
-
-      this.identifier.identifier = this.increment
-        ? incrementIdentifier(this.identifier.identifier)
-        : null
     },
 
     save({ objectId, objectType }) {
