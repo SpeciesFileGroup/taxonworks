@@ -32,7 +32,7 @@
               >
                 <VIcon
                   name="close"
-                  x-small
+                  xx-small
                   title="Close (escape key)"
                 />
               </VBtn>
