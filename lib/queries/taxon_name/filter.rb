@@ -584,8 +584,8 @@ module Queries
           # e.g., and we want to include those here.
           ::TaxonName.where(
             ::TaxonNameClassification.where(
-              tnc[:taxon_name_id].eq(::TaxonName.arel_table[:id]).and(
-                tnc[:type].matches('%latinized%')
+              tnc[:taxon_name_id].eq(table[:id]).and(
+                tnc[:type].in(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES)
               )
             ).arel.exists
           )
@@ -597,8 +597,8 @@ module Queries
             )
             .where.not(
               ::TaxonNameClassification.where(
-                tnc[:taxon_name_id].eq(::TaxonName.arel_table[:id]).and(
-                  tnc[:type].matches('%latinized%')
+                tnc[:taxon_name_id].eq(table[:id]).and(
+                  tnc[:type].in(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES)
                 )
               ).arel.exists
             )
