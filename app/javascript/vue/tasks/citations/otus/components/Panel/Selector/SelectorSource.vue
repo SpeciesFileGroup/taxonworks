@@ -49,12 +49,12 @@ const isModalVisible = ref(false)
 
 onBeforeMount(() => {
   const urlParams = new URLSearchParams(window.location.search)
-  const otuId = urlParams.get('source_id')
+  const sourceId = urlParams.get('source_id')
 
-  if (/^\d+$/.test(otuId)) {
-    Source.find(otuId)
+  if (/^\d+$/.test(sourceId)) {
+    Source.find(sourceId)
       .then(({ body }) => {
-        store.selected.otu = body
+        store.selected.source = body
       })
       .finally(() => (isModalVisible.value = false))
   }

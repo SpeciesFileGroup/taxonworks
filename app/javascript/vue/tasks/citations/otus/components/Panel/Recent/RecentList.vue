@@ -19,10 +19,12 @@
             <VBtn
               color="primary"
               circle
+              title="Click to select"
               @click="() => emit('select', item)"
             >
               <VIcon
                 name="pointer"
+                title="Click to select"
                 x-small
               />
             </VBtn>
