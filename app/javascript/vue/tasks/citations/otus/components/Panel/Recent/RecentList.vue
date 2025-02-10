@@ -11,14 +11,23 @@
         v-for="item in list"
         :key="item.id"
       >
-        <td
-          class="cursor-pointer"
-          @click="() => emit('select', item)"
-        >
+        <td>
           <div v-html="item[label]" />
         </td>
         <td class="w-2">
-          <RadialNavigator :global-id="item.globalId" />
+          <div class="horizontal-right-content middle gap-small">
+            <VBtn
+              color="primary"
+              circle
+              @click="() => emit('select', item)"
+            >
+              <VIcon
+                name="pointer"
+                x-small
+              />
+            </VBtn>
+            <RadialNavigator :global-id="item.globalId" />
+          </div>
         </td>
       </tr>
     </tbody>
@@ -26,6 +35,8 @@
 </template>
 
 <script setup>
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 
 defineProps({
