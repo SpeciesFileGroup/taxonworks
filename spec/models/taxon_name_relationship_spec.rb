@@ -263,13 +263,6 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(s1.cached_misspelling).to be_falsey
       end
 
-      # TODO: this can be moved out to the new original_combination specs
-      specify 'for cached_original_combination' do
-        # Use non FactoryBot to get callbacks
-        s1.update(original_genus: g2)
-        expect(s1.cached_original_combination).to eq('Bus aus')
-      end
-
       specify 'for cached_primary_homony' do
         s1.original_genus = g2
         s1.save!
@@ -342,22 +335,6 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r3.soft_validate(only_sets: :not_specific_relationship)
         expect(r3.soft_validations.messages_on(:type).size).to eq(0)
       end
-    end
-
-    specify 'destroy relationship' do
-      g1 = FactoryBot.create(:relationship_genus, name: 'Aus', parent: family)
-      s1 = FactoryBot.create(:relationship_species, name: 'aus', parent: g1)
-      r1 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-      r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
-      r3 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies')
-
-      r1.save!
-      r2.save!
-      r3.save!
-      s1.save!
-      expect(s1.cached_original_combination).to eq('Aus (Aus) aus')
-      r2.destroy
-      expect(s1.cached_original_combination).to eq('Aus aus')
     end
   end
 

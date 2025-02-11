@@ -7,23 +7,77 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- Sort asserted distributions alphabetically in Quick Forms
+- Update taxon nomenclatural date after source update
+
+## [0.47.0] - 2025-02-06
+
 ### Added
 
+- Use Rails 7.2 and Ruby 3.3.6
 - New image task: Add field occurrence to depict some list [#4135]
 - Grab cursor to make sorting feature visible [#4153]
 - API endpoint for image matrix
-- Added order of depictions comming from the image matrix
+- Order of depictions coming from the image matrix
 - Hub tasks: Add visual effect for fav icons and tooltip for categories [#4177]
+- Distribution to COLDP exports [#3148]
+- Taxon links to COLDP exports
+- SpeciesInteraction to COLDP exports [#3158]
+- Specs and optimizations to COLDP
+- Pull metadata from ChecklistBank in order to merge updated metadata into COLDP exports
+- Filter's match identifiers facet can now be quickly accessed with `shift-ctrl-m` in a modal form
+- `gift` facet to Filter loans.
+- Multi data attribute update task [#4142]
+- Keys are now multifurcatable [#4148]
+- Identical Document validation
+- Some inline help and visual improvements [#4177]
+- Keys can be cloned, merged, and inserted to [#4056]
+- API endpoint for serving Image matrices
+
+### Changed
+
+- Match identifiers defaults to match Identifier, not internal, `\n`, and caseless match [#4176]
+- Added Gift status notices to loans form [#4174]
+- Improved and clarified DwcOccurrence indexing concepts and application
+- Improved writing to cached\* fields for TaxonName
 
 ### Fixed
 
+- Fixes to TaxonWorks CSL style
+- Bug in Image autocomplete
+- CatalogNumbers attached to Containers not appearing in CollectionObject tag [#4163]
+- OriginRelationship creation for Sequences [#4180]
 - CSD: change of namespace not updating [#4147]
 - TaxonWorks bibliography style for book chapter.
+- Removed obsolete Description table from COLDP exports
+- Remove [sic] from COLDP name fields [#3833]
+- Autonym synonyms bug in COLDP exporter [#4175]
+- New taxon name: Show only subject relationships on Relationships section
+- Images added before saving field occurrence are not saved [#4134]
+- Rendering Family group names from invalid names [#4187]
+- Verbatim latitude not displaying [#4178]
 
+[#4056]: https://github.com/SpeciesFileGroup/taxonworks/issues/4056
 [#4177]: https://github.com/SpeciesFileGroup/taxonworks/issues/4177
+[#4178]: https://github.com/SpeciesFileGroup/taxonworks/issues/4178
+[#4148]: https://github.com/SpeciesFileGroup/taxonworks/issues/4148
+[#4163]: https://github.com/SpeciesFileGroup/taxonworks/issues/4163
+[#4174]: https://github.com/SpeciesFileGroup/taxonworks/issues/4174
+[#4176]: https://github.com/SpeciesFileGroup/taxonworks/issues/4176
+[#4180]: https://github.com/SpeciesFileGroup/taxonworks/issues/4180
+[#3148]: https://github.com/SpeciesFileGroup/taxonworks/issues/3148
+[#3158]: https://github.com/SpeciesFileGroup/taxonworks/issues/3158
+[#3833]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
+[#4134]: https://github.com/SpeciesFileGroup/taxonworks/issues/4134
 [#4135]: https://github.com/SpeciesFileGroup/taxonworks/issues/4135
+[#4142]: https://github.com/SpeciesFileGroup/taxonworks/issues/4142
 [#4147]: https://github.com/SpeciesFileGroup/taxonworks/issues/4147
 [#4153]: https://github.com/SpeciesFileGroup/taxonworks/issues/4153
+[#4175]: https://github.com/SpeciesFileGroup/taxonworks/issues/4175
+[#4177]: https://github.com/SpeciesFileGroup/taxonworks/issues/4177
+[#4187]: https://github.com/SpeciesFileGroup/taxonworks/issues/4187
 
 ## [0.46.1] - 2024-12-04
 
@@ -354,6 +408,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3992]: https://github.com/SpeciesFileGroup/taxonworks/issues/3992
 [#3996]: https://github.com/SpeciesFileGroup/taxonworks/issues/3996
 [#3997]: https://github.com/SpeciesFileGroup/taxonworks/issues/3997
+
+### Fixed
+
+- Handling of [sic] in Protonym#original_combination_infraspecific_element [#3867]
 
 ## [0.42.0] - 2024-06-28
 
@@ -717,6 +775,7 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 [#3774]: https://github.com/SpeciesFileGroup/taxonworks/issues/3774
 [#3794]: https://github.com/SpeciesFileGroup/taxonworks/issues/3794
 [#3824]: https://github.com/SpeciesFileGroup/taxonworks/issues/3824
+[#3833]: https://github.com/SpeciesFileGroup/taxonworks/issues/3833
 
 ## [0.38.2] - 2024-02-09
 
@@ -5019,7 +5078,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.1..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.47.0..development
+[0.47.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.1...v0.47.0
 [0.46.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.0...v0.46.1
 [0.46.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.44.3...v0.45.0

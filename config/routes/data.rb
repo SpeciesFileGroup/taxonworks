@@ -245,6 +245,7 @@ resources :data_attributes, except: [:show] do
     get :brief, defaults: {format: :json}
     post :brief, defaults: {format: :json} # for length
     get :import_predicate_autocomplete, defaults: {format: :json}
+    match :filter, to: 'data_attributes#index', via: [:get, :post]
   end
 end
 
@@ -312,7 +313,7 @@ resources :dwc_occurrences, only: [:create] do
     get 'status', defaults: {format: :json}
     get 'collector_id_metadata', defaults: {format: :json}
     get 'download'
-    post 'sweep', as: 'sweep_stale' # TODO: ultimately should not be required
+    post 'sweep', as: 'sweep_ghost'
     get :attributes, defaults: {format: :json}
   end
 end
@@ -439,14 +440,16 @@ end
 resources :leads do
   concerns [:data_routes]
   member do
-    post :create_for_edit, defaults: {format: :json}
-    post :insert_couplet
-    patch :update_meta
-    post :destroy_couplet
-    post :delete_couplet
+    post :add_children, defaults: {format: :json}
+    post :insert_couplet, defaults: {format: :json}
+    post :destroy_children, defaults: {format: :json}
+    post :delete_children, defaults: {format: :json}
     post :duplicate
-    get :all_texts
-    get :otus
+    get :redirect_option_texts, defaults: {format: :json}
+    get :otus, defaults: {format: :json}
+    post :destroy_subtree, defaults: {format: :json}
+    patch :reorder_children, defaults: {format: :json}
+    post :insert_key, defaults: {format: :json}
   end
 end
 

@@ -12,10 +12,9 @@ module Otu::Maps
   #       Should, in theory, speed-up higher level maps
   #
   def create_cached_map(cached_map_type = 'CachedMapItem::WebLevel1', force = false)
-
     if force
       cached_map = cached_maps.where(cached_map_type:)
-      cached_map&.destroy
+      cached_map&.destroy_all
     end
 
     # All the OTUs feeding into this map.

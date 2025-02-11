@@ -204,4 +204,11 @@ module LeadsHelper
   def print_key_markdown(lead)
   end
 
+  def couplets_count(lead)
+    # Couplets - which can have more than two options - are in 1-1
+    # correspondence with nodes that have children (via 'couplet' <--> 'parent
+    # of that couplet').
+    lead.descendants.count - lead.leaves.count
+  end
+
 end

@@ -90,7 +90,8 @@ export const LAYOUTS = {
         'specificEpithet',
         'infraspecificEpithet',
         'previousIdentifications',
-        'higherClassification'
+        'higherClassification',
+        'typeStatus'
       ]
     },
     includes: {}
@@ -116,7 +117,7 @@ export const LAYOUTS = {
       ],
       collecting_event: [
         'verbatim_locality',
-        'verbatim_latititude',
+        'verbatim_latitude',
         'verbatim_longitude',
         'verbatim_geolocation_uncertainty',
         'minimum_elevation',

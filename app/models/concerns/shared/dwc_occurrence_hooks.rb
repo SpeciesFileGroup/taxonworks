@@ -1,8 +1,8 @@
-# Add hooks to ensure record changes trigger re-indexing at DwcOccurrence
+# Add hooks to ensure record changes trigger re-indexing at DwcOccurrence.
 #
 # Models including this concern must implement:
 #
-#   def ddwc_occrences
+#   def dwc_occurrences
 #     DwcOccurrence.<select>
 #   end
 #
@@ -21,15 +21,31 @@ module Shared::DwcOccurrenceHooks
 
     def update_dwc_occurrence
       t = dwc_occurrences.count
-      q = dwc_occurrences.unscope(:select).select('dwc_occurrences.id', 'occurrenceID', :dwc_occurrence_object_type, :dwc_occurrence_object_id, :is_stale)
+      q = dwc_occurrences.unscope(:select).select('dwc_occurrences.id', 'occurrenceID', :dwc_occurrence_object_type, :dwc_occurrence_object_id, :is_flagged_for_rebuild)
 
-      if t > 100
-        dwc_occurrences.touch_all(:is_stale) # Quickly mark all records requiring rebuild
-        ::DwcOccurrenceRefreshJob.perform_later(project_id:, user_id: Current.user_id)
-      else
-        q.find_each do |d|
-          d.dwc_occurrence_object.set_dwc_occurrence
+      begin
+        # If the scope is returning every object at this point (arbitrarily > 5k records), then the scope is badly coded.
+        raise TaxonWorks::Error if t > 5000 && (t == DwcOccurrence.where(project_id:).count)
+
+        if t < 100
+          q.find_each do |d|
+            d.dwc_occurrence_object.set_dwc_occurrence
+          end
+        else
+          dwc_occurrences.update_columns(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
+          ::DwcOccurrenceRefreshJob.perform_later(project_id:, user_id: Current.user_id)
         end
+
+      rescue => e
+        ExceptionNotifier.notify_exception(
+          e,
+          data: {
+            message: "Improperly coded scope dwc_occurrences rebuild #{self.class.name}",
+            object_id: id,
+            object_class: self.class.name,
+          }
+        )
+        raise
       end
     end
 

@@ -1,6 +1,8 @@
 # A CachedMap is a OTU specific map derived from AssertedDistribution and Georeference data via
 # aggregation of the intermediate CachedMapItem level.
 #
+# One OTU can have many CachedMaps if they are of different types.
+#
 class CachedMap < ApplicationRecord
   include Housekeeping::Projects
   include Housekeeping::Timestamps
@@ -54,7 +56,7 @@ class CachedMap < ApplicationRecord
   end
 
   def latest_cached_map_item
-    cached_map_items.order(:updated_at).first
+    cached_map_items.order(updated_at: :desc).first
   end
 
   def cached_map_items_reference_total
