@@ -1,13 +1,8 @@
 <template>
   <PanelContainer title="Depictions">
-    <VPagination
-      class="margin-large-top"
-      :pagination="pagination"
-      @next-page="loadDepictions"
-    />
     <div class="flex-wrap-row depictions-list">
       <ImageViewer
-        v-for="depiction in list"
+        v-for="depiction in store.depictions"
         :key="depiction.id"
         :depiction="depiction"
       />
@@ -16,12 +11,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { Depiction } from '@/routes/endpoints.js'
+import { watch } from 'vue'
+import useDepictionStore from '../../store/depictions.js'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
 import PanelContainer from './PanelContainer.vue'
-import VPagination from '@/components/pagination.vue'
-import getPagination from '@/helpers/getPagination.js'
 
 const props = defineProps({
   objectId: {
@@ -35,29 +28,18 @@ const props = defineProps({
   }
 })
 
-const pagination = ref()
-const list = ref([])
-
-function loadDepictions(page = 1) {
-  Depiction.where({
-    depiction_object_id: props.objectId,
-    depiction_object_type: props.objectType,
-    page
-  })
-    .then((response) => {
-      pagination.value = getPagination(response)
-      list.value = response.body
-    })
-    .catch(() => {})
-}
+const store = useDepictionStore()
 
 watch(
   () => props.objectId,
   (id) => {
-    list.value = []
+    store.$reset()
 
     if (id) {
-      loadDepictions()
+      store.load({
+        objectId: props.objectId,
+        objectType: props.objectType
+      })
     }
   }
 )

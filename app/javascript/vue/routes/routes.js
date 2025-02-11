@@ -57,6 +57,7 @@ const RouteNames = {
   NewCombination: '/tasks/nomenclature/new_combination',
   NewDescriptor: '/tasks/descriptors/new_descriptor',
   NewExtract: '/tasks/extracts/new_extract',
+  NewFieldOccurrence: '/tasks/field_occurrences/new_field_occurrences',
   NewLead: '/tasks/leads/new_lead',
   NewNamespace: '/tasks/namespaces/new_namespace',
   NewObservationMatrix: '/tasks/observation_matrices/new_matrix',

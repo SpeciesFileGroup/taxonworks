@@ -2,22 +2,19 @@
   <PanelContainer title="Biocurations">
     <ul class="no_bullets">
       <li
-        v-for="({ groupName, items }) in biocurations"
+        v-for="{ groupName, items } in store.biocurations"
         :key="groupName"
       >
-        {{ groupName }}: <b>{{ items.map(item => item.object_tag).join(', ') }}</b>
+        {{ groupName }}:
+        <b>{{ items.map((item) => item.object_tag).join(', ') }}</b>
       </li>
     </ul>
   </PanelContainer>
 </template>
 
 <script setup>
-import { GetterNames } from '../../store/getters/getters.js'
-import { useStore } from 'vuex'
-import { computed } from 'vue'
 import PanelContainer from './PanelContainer.vue'
+import useBiocurationStore from '../../store/biocurations.js'
 
-const store = useStore()
-const biocurations = computed(() => store.getters[GetterNames.GetBiocurations])
-
+const store = useBiocurationStore()
 </script>

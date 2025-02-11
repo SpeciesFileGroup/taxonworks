@@ -6,21 +6,21 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import {
   PRIORITIZE_ATTRIBUTES,
   HIDE_ATTRIBUTES
 } from '../../constants/collectingEvents.js'
-import { useStore } from 'vuex'
-import { computed } from 'vue'
-import { GetterNames } from '../../store/getters/getters'
+import useCollectingEventStore from '../../store/collectingEvent.js'
 import TableAttributes from '../Table/TableAttributes.vue'
 
-const store = useStore()
-const collectingEvent = computed(() => store.getters[GetterNames.GetCollectingEvent])
+const store = useCollectingEventStore()
 
 const list = computed(() => {
-  const entries = Object.entries(collectingEvent.value)
-  const filteredList = entries.filter(([property, _]) => !HIDE_ATTRIBUTES.includes(property))
+  const entries = Object.entries(store.collectingEvent)
+  const filteredList = entries.filter(
+    ([property, _]) => !HIDE_ATTRIBUTES.includes(property)
+  )
 
   filteredList.sort((a, b) => {
     const index1 = PRIORITIZE_ATTRIBUTES.indexOf(a[0])
@@ -31,5 +31,4 @@ const list = computed(() => {
 
   return Object.fromEntries(filteredList)
 })
-
 </script>
