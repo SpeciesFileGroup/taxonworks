@@ -94,9 +94,9 @@ module Export::Coldp::Files::Name
   def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
     # TODO: Should [sic] handling be added to the Protonym#original_combination_elements method? Need to discuss with DD and MJY
     e = {}
-    
+
     # TODO: Not sure why, but the data stucture from  t.original_combination_elements seems to be either of the following:
-    #   {:genus=>[nil, "Sabacon"], :species=>[nil, "vizcayanus [sic]"]} 
+    #   {:genus=>[nil, "Sabacon"], :species=>[nil, "vizcayanus [sic]"]}
     #   {:genus=>[nil, "Sabacon"], :species=>[nil, "vizcayanus", "[sic]"]}
 
     t.original_combination_elements.each do |k, v|
@@ -135,7 +135,7 @@ module Export::Coldp::Files::Name
                   else
                     id
                   end
- 
+
     # case 1 - original combination difference
     # case 2 - misspelling (same combination)
 
@@ -182,6 +182,25 @@ module Export::Coldp::Files::Name
     end
   end
 
+
+  # Refactored serial appraoch
+  #   valid names
+  #   invalid names
+  #   something about uninomials
+  #   somethign about combinations
+  #   somethign about original combinations
+
+  # The goal here is to create a single scoped TaxonName
+  # returning query that represents the superset of
+  # names condisered valid by TW
+  def self.valid_names(otu)
+    a = otu.taxon_name.self_and_descendants.that_is_valid.select(:id, :cached)
+    b = ::TaxonName.with(valid_scope: a)
+      .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')  #.where(cached_valid_taxon_name_id: name.id) # == .historical_taxon_names
+      .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = valid_scope.cached)") # This eliminates Combinations that are identical to the current placement.
+      .eager_load(origin_citation: [:source])
+  end
+
   # @params otu [Otu]
   #   the top level OTU
   def self.generate(otu, project_members, reference_csv = nil)
@@ -220,13 +239,15 @@ module Export::Coldp::Files::Name
         uri: 'https://github.com/catalogueoflife/coldp#Name.remarks',
         project_id: project_id)&.id
 
+        valid_names(otu).find_each do |t|
+
       # TODO: create a base select that covers all fields, to which we add where'joins to isolate sets of names.
       # TODO: All top level queries should add names from SQL without NOT checks
       # TODO: consider a materialized view for COLDP names, refreshed nightly, outside the loop?
-      #   we are basically going to need that logic for BORG anyways  
-      otu.taxon_name.self_and_descendants.that_is_valid
-        .select(:id, :cached)
-        .find_each do |name|
+      #   we are basically going to need that logic for BORG anyways
+    # otu.taxon_name.self_and_descendants.that_is_valid
+    #   .select(:id, :cached)
+    #   .find_each do |name|
 
         # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
         # Proposal is to exclude names of a specific ranks see taxon.rb
@@ -241,12 +262,12 @@ module Export::Coldp::Files::Name
 
         name_total += 1
 
-        # TODO: remove this loopp, using a with to top 
-        TaxonName
-          .where(cached_valid_taxon_name_id: name.id) # == .historical_taxon_names
-          .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", name.cached) # This eliminates Combinations that are identical to the current placement.
-          .eager_load(origin_citation: [:source])
-          .find_each do |t|
+        # TODO: remove this loopp, using a with to top
+    #   TaxonName
+    #     .where(cached_valid_taxon_name_id: name.id) # == .historical_taxon_names
+    #     .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", name.cached) # This eliminates Combinations that are identical to the current placement.
+    #     .eager_load(origin_citation: [:source])
+    #     .find_each do |t|
 
           #  TODO: refactor to a single method, test, then we should only have to check if the name is valid, without relationships?
           # TODO: family-group cached original combinations do not get exported in either Name or Synonym tables
@@ -337,7 +358,7 @@ module Export::Coldp::Files::Name
           Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
         end
       end
-    end
+  #  end
   end
 
 end

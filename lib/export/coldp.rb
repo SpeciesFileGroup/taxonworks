@@ -1,6 +1,14 @@
 require 'zip'
 require 'yaml'
 
+# To generate a file on the console:
+# 
+#   Current.user_id = 1
+#   Current.project_id = 46
+#   o = Otu.find(id)
+#   d = ::Export::Coldp.download(o, 'foo')
+#   d.file_path
+#
 module Export
 
   # Exports to the Catalog of Life in the new "coldp" format.
@@ -130,10 +138,10 @@ module Export
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
 
-        (FILETYPES - %w{Name Taxon References Synonym}).each do |ft| # TODO: double check Synonym belongs there.
-          m = "Export::Coldp::Files::#{ft}".safe_constantize
-          zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
-        end
+    #   (FILETYPES - %w{Name Taxon References Synonym}).each do |ft| # TODO: double check Synonym belongs there.
+    #     m = "Export::Coldp::Files::#{ft}".safe_constantize
+    #     zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
+    #   end
 
         zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
 
