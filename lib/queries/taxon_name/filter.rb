@@ -588,13 +588,13 @@ module Queries
         if taxon_name_relationship_type_subject.present?
           s = ::TaxonName.as_subject_with_taxon_name_relationship(
             taxon_name_relationship_type_subject
-          ).group(:id)
+          ).distinct
         end
 
         if taxon_name_relationship_type_object.present?
           o = ::TaxonName.as_object_with_taxon_name_relationship(
             taxon_name_relationship_type_object
-          ).group(:id)
+          ).distinct
         end
 
         if taxon_name_relationship_type_either.present?
@@ -635,11 +635,16 @@ module Queries
         return nil if relation_to_relationship.nil?
 
         if relation_to_relationship == 'subject'
-          ::TaxonName.with_taxon_name_relationships_as_subject.group(:id)
+          ::TaxonName.with_taxon_name_relationships_as_subject.distinct
         elsif relation_to_relationship == 'object'
-          ::TaxonName.with_taxon_name_relationships_as_object.group(:id)
+          ::TaxonName.with_taxon_name_relationships_as_object.distinct
         else
-          ::TaxonName.with_taxon_name_relationships.group(:id)
+          # 3-4x more time-performant than using
+          # :with_taxon_name_relationships.distinct
+          ::TaxonName.joins('join taxon_name_relationships ON ' \
+            'taxon_names.id = taxon_name_relationships.subject_taxon_name_id OR ' \
+            'taxon_names.id = taxon_name_relationships.object_taxon_name_id'
+          ).distinct
         end
       end
 
