@@ -220,6 +220,10 @@ module Export::Coldp::Files::Name
         uri: 'https://github.com/catalogueoflife/coldp#Name.remarks',
         project_id: project_id)&.id
 
+      # TODO: create a base select that covers all fields, to which we add where'joins to isolate sets of names.
+      # TODO: All top level queries should add names from SQL without NOT checks
+      # TODO: consider a materialized view for COLDP names, refreshed nightly, outside the loop?
+      #   we are basically going to need that logic for BORG anyways  
       otu.taxon_name.self_and_descendants.that_is_valid
         .select(:id, :cached)
         .find_each do |name|
@@ -237,18 +241,20 @@ module Export::Coldp::Files::Name
 
         name_total += 1
 
+        # TODO: remove this loopp, using a with to top 
         TaxonName
           .where(cached_valid_taxon_name_id: name.id) # == .historical_taxon_names
           .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", name.cached) # This eliminates Combinations that are identical to the current placement.
           .eager_load(origin_citation: [:source])
           .find_each do |t|
 
+          #  TODO: refactor to a single method, test, then we should only have to check if the name is valid, without relationships?
           # TODO: family-group cached original combinations do not get exported in either Name or Synonym tables
           # exclude duplicate protonyms created for family group relationships
-          if !t.is_combination? and t.is_family_rank?
-            if t.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
+          if !t.is_combination? and t.is_family_rank? # We are already excluding combinationss from above
+            if TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm.where(subject_taxon_name: t).any? #  t.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
               valid = TaxonName.find(t.cached_valid_taxon_name_id)
-              if valid.name == t.name and valid.cached_author = t.cached_author and t.id != valid.id
+              if valid.name == t.name  and valid.cached_author = t.cached_author and t.id != valid.id # !! valid.name should never = t.name, by definition?
                 next
               end
             end
