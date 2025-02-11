@@ -122,6 +122,7 @@ jobs:
     - name: Install imagemagick
       run: |
         sudo apt-get purge -y imagemagick
+        sudo sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
         sudo exe/install-imagemagick7.sh
 
     - name: Set up TaxonWorks config files
