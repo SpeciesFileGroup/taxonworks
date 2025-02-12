@@ -71,12 +71,14 @@ import {
   LABEL_CODE_128,
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
   COLLECTION_OBJECT,
-  COLLECTING_EVENT
+  COLLECTING_EVENT,
+  FIELD_OCCURRENCE
 } from '@/constants/index.js'
 import {
   Label,
   Identifier,
   CollectionObject,
+  FieldOccurrence,
   CollectingEvent
 } from '@/routes/endpoints'
 import { onBeforeMount, ref, watch } from 'vue'
@@ -85,6 +87,17 @@ const LABEL_TYPES = {
   [LABEL]: TextComponent,
   [LABEL_QR_CODE]: QRCodeComponent,
   [LABEL_CODE_128]: QRCodeComponent
+}
+
+const TYPES = {
+  [FIELD_OCCURRENCE]: {
+    service: FieldOccurrence,
+    property: 'field_occurrence'
+  },
+  [COLLECTION_OBJECT]: {
+    service: CollectionObject,
+    property: 'collection_object'
+  }
 }
 
 const props = defineProps({
@@ -123,12 +136,12 @@ watch(collectingEvent, (newVal) => {
 })
 
 onBeforeMount(async () => {
-  const ceId = (await CollectionObject.find(props.objectId)).body
-    .collecting_event_id
+  const ceId = (await TYPES[props.objectType].service.find(props.objectId)).body
+    ?.collecting_event_id
 
   Identifier.where({
     identifier_object_id: props.objectId,
-    identifier_object_type: COLLECTION_OBJECT,
+    identifier_object_type: props.objectType,
     type: IDENTIFIER_LOCAL_CATALOG_NUMBER
   }).then(({ body }) => {
     identifier.value = body[0]
@@ -180,10 +193,12 @@ function removeLabel(label) {
 }
 
 function addCollectingEvent(ce) {
-  CollectionObject.update(props.objectId, {
-    collection_object: { collecting_event_id: ce.id || null }
-  }).then((_) => {
-    collectingEvent.value = ce.id ? ce : undefined
-  })
+  TYPES[props.objectType].service
+    .update(props.objectId, {
+      [TYPES[props.objectType].property]: { collecting_event_id: ce.id || null }
+    })
+    .then(() => {
+      collectingEvent.value = ce.id ? ce : undefined
+    })
 }
 </script>

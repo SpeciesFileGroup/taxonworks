@@ -43,6 +43,8 @@ class FieldOccurrence < ApplicationRecord
   include Shared::BiologicalExtensions
   include Shared::IsDwcOccurrence
 
+  GRAPH_ENTRY_POINTS = [:biological_associations, :taxon_determinations, :biocuration_classifications, :collecting_event]
+
   is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence'
 
   belongs_to :collecting_event, inverse_of: :field_occurrences

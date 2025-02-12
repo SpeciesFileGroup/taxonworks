@@ -10,7 +10,6 @@
         <BiocurationForm />
         <VDepiction />
         <CitationForm />
-        <IdentifierForm />
       </div>
 
       <CollectingEventForm class="right-column" />
@@ -23,7 +22,6 @@ import TaxonDeterminationForm from './components/TaxonDeterminationForm.vue'
 import FieldOccurrenceForm from './components/FieldOccurenceForm/FieldOccurrenceForm.vue'
 import HeaderBar from './components/HeaderBar.vue'
 import CollectingEventForm from './components/CollectingEventForm.vue'
-import IdentifierForm from './components/FieldOccurenceForm/Identifier/IdentifierForm.vue'
 import CitationForm from './components/CitationForm.vue'
 import BiocurationForm from './components/BiocurationForm.vue'
 import BiologicalAssociation from './components/BiologicalAssociation.vue'

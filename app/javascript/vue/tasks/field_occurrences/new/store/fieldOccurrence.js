@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { makeFieldOccurrence } from '@/factory'
 import { FieldOccurrence } from '@/routes/endpoints'
-import useDeterminationStore from '../store/determinations.js'
+import useDeterminationStore from './determinations.js'
 
 export default defineStore('fieldOccurrences', {
   state: () => ({
@@ -36,9 +36,11 @@ export default defineStore('fieldOccurrences', {
         ? FieldOccurrence.update(this.fieldOccurrence.id, payload)
         : FieldOccurrence.create(payload)
 
-      request.then(({ body }) => {
-        this.fieldOccurrence = body
-      })
+      request
+        .then(({ body }) => {
+          this.fieldOccurrence = body
+        })
+        .catch(() => {})
 
       return request
     }
