@@ -19,6 +19,7 @@ const RouteNames = {
   BiologicalRelationshipComposer: '/tasks/biological_relationships/composer',
   BrowseAssertedDistribution: '/tasks/otus/browse_asserted_distributions',
   BrowseCollectionObject: '/tasks/collection_objects/browse',
+  BrowseFieldOccurrence: '/tasks/field_occurrences/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',
   ContentEditorTask: '/tasks/content/editor/index',

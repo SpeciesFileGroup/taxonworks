@@ -19,9 +19,6 @@
             <RadialObject :global-id="store.fieldOccurrence.global_id" />
           </li>
           <li>
-            <RadialFilter object-type="CollectionObject" />
-          </li>
-          <li>
             <VBtn
               circle
               color="primary"
@@ -65,12 +62,15 @@ import NavBar from '@/components/layout/NavBar.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
-import RadialFilter from '@/components/radials/linker/radial.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import useDepictionStore from '../store/depictions.js'
+import useIdentifierStore from '../store/identifiers.js'
 
 const emit = defineEmits(['select'])
 
 const store = useStore()
+const depictionStore = useDepictionStore()
+const identifierStore = useIdentifierStore()
 
 const openEditFieldOccurrence = (id) => {
   window.open(
@@ -82,14 +82,11 @@ const openEditFieldOccurrence = (id) => {
 function handleRadialCreate({ item }) {
   switch (item.base_class) {
     case DEPICTION:
-      addToArray(store.depictions, item)
+      addToArray(depictionStore.depictions, item)
       break
 
     case IDENTIFIER:
-      /*       store.commit(MutationNames.AddIdentifier, {
-        objectType: FIELD_OCCURRENCE,
-        item
-      }) */
+      addToArray(identifierStore.identifiers, item)
       break
   }
 }
@@ -97,10 +94,10 @@ function handleRadialCreate({ item }) {
 function handleRadialDelete({ item }) {
   switch (item.base_class) {
     case DEPICTION:
-      removeFromArray(store.depictions, item)
+      removeFromArray(depictionStore.depictions, item)
       break
     case IDENTIFIER:
-      //removeFromArray(store.identifiers[COLLECTION_OBJECT], item)
+      removeFromArray(identifierStore.identifiers, item)
       break
   }
 }
@@ -108,7 +105,7 @@ function handleRadialDelete({ item }) {
 function handleRadialUpdate({ item }) {
   switch (item.base_class) {
     case DEPICTION:
-      addToArray(store.depictions, item)
+      addToArray(depictionStore.depictions, item)
       break
   }
 }

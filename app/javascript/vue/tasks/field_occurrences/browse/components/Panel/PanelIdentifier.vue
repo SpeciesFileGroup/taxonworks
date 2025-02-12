@@ -8,40 +8,16 @@
 </template>
 
 <script setup>
-import { Identifier } from '@/routes/endpoints'
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import PanelContainer from './PanelContainer.vue'
 import TableAttributes from '@/tasks/collection_objects/browse/components/Table/TableAttributes.vue'
+import useIdentifierStore from '../../store/identifiers.js'
 
-const props = defineProps({
-  objectId: {
-    type: [Number, undefined],
-    required: true
-  },
+const store = useIdentifierStore()
 
-  objectType: {
-    type: [String, undefined],
-    required: true
-  }
+const identifiers = computed(() => {
+  return Object.fromEntries(
+    store.identifiers.map((item) => [item.identifier, item.type])
+  )
 })
-
-const identifiers = ref([])
-
-watch(
-  () => props.objectId,
-  (id) => {
-    identifiers.value = []
-
-    if (id) {
-      Identifier.where({
-        identifier_object_id: props.objectId,
-        identifier_object_type: props.objectType
-      })
-        .then(({ body }) => {
-          identifiers.value = body
-        })
-        .catch(() => {})
-    }
-  }
-)
 </script>

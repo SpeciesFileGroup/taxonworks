@@ -9,44 +9,16 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { TaxonDetermination } from '@/routes/endpoints'
+import useStore from '../../store/determinations.js'
 import PanelContainer from './PanelContainer.vue'
 import TableData from '@/tasks/collection_objects/browse/components/Table/TableData.vue'
 
 const HEADERS = ['OTU', 'Determiners', 'Date']
 
-const props = defineProps({
-  objectId: {
-    type: [String, undefined],
-    required: true
-  },
-
-  objectType: {
-    type: [String, undefined],
-    required: true
-  }
-})
-
-const determinations = ref([])
-
-watch(
-  () => props.objectId,
-  (id) => {
-    determinations.value = []
-
-    if (id) {
-      TaxonDetermination.where({
-        taxon_determination_object_id: props.objectId,
-        taxon_determination_object_type: props.objectType
-      }).then(({ body }) => {
-        determinations.value = body
-      })
-    }
-  }
-)
+const store = useStore()
 
 const list = computed(() =>
-  determinations.value.map((d) => ({
+  store.determinations.map((d) => ({
     otu: d.otu.object_tag,
     roles: d?.determiner_roles?.map((r) => r?.person?.cached).join('; '),
     date: [d.day_made, d.month_made, d.year_made].filter(Boolean).join('/')

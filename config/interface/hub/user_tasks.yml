@@ -1006,7 +1006,7 @@ summarize_projects_controlled_vocabulary_terms_task:
   categories:
   status: prototype
   description: 'Visualize controlled vocabulary terms across the projects you are a member of.'
-field_occurrence_browse_task:
+browse_field_occurrence_task:
   hub: true
   name: 'Browse field occurrences'
   related:

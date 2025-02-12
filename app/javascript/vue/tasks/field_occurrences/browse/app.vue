@@ -4,7 +4,7 @@
       v-if="isLoading"
       full-screen
     />
-    <h1>Field occurrence</h1>
+    <h1>Browse field occurrence</h1>
     <VAutocomplete
       v-if="store.fieldOccurrence"
       class="autocomplete"
@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { FIELD_OCCURRENCE } from '@/constants'
+import { FIELD_OCCURRENCE, COLLECTING_EVENT } from '@/constants'
 import { URLParamsToJSON } from '@/helpers'
 import { onBeforeMount, ref } from 'vue'
 
@@ -53,8 +53,13 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 
 import useFieldOccurrenceStore from './store/store.js'
 import useCollectingEventStore from './store/collectingEvent.js'
+import useDeterminationStore from './store/determinations.js'
 import useDepictionStore from './store/depictions.js'
 import useBiocurationStore from './store/biocurations.js'
+import useBiologicalAssociationStore from './store/biologicalAssociations.js'
+import useIdentifierStore from './store/identifiers.js'
+import { setParam } from '@/helpers'
+import { RouteNames } from '@/routes/routes'
 
 defineOptions({
   name: 'BrowseFieldOccurrence'
@@ -64,6 +69,10 @@ const store = useFieldOccurrenceStore()
 const ceStore = useCollectingEventStore()
 const depictionStore = useDepictionStore()
 const biocurationStore = useBiocurationStore()
+const determinationStore = useDeterminationStore()
+const biologicalAssociationStore = useBiologicalAssociationStore()
+const identifierStore = useIdentifierStore()
+
 const isLoading = ref(false)
 
 onBeforeMount(async () => {
@@ -83,15 +92,37 @@ async function loadData(foId) {
 
   try {
     isLoading.value = true
+    store.$reset()
+    ceStore.$reset()
+    depictionStore.$reset()
+    biocurationStore.$reset()
+    determinationStore.$reset()
+    biologicalAssociationStore.$reset()
+    identifierStore.$reset()
+
     await store.load(foId)
 
     const ceId = store.fieldOccurrence.collecting_event_id
 
+    setParam(RouteNames.BrowseFieldOccurrence, 'field_occurrence_id', foId)
+
     if (ceId) {
-      requests.push(ceStore.load(ceId))
+      requests.push(
+        ceStore.load(ceId),
+        identifierStore.load({
+          objectId: ceId,
+          objectType: COLLECTING_EVENT
+        })
+      )
     }
 
-    requests.push(depictionStore.load(args), biocurationStore.load(args))
+    requests.push(
+      depictionStore.load(args),
+      biocurationStore.load(args),
+      determinationStore.load(args),
+      biologicalAssociationStore.load(args),
+      identifierStore.load(args)
+    )
 
     Promise.all(requests).finally(() => {
       isLoading.value = false

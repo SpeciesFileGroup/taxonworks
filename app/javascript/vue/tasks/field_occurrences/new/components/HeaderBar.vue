@@ -148,14 +148,20 @@ async function save() {
       biologicalAssociationStore.save(args)
     ]
 
-    return Promise.all(requests).then(() => {
-      settings.isSaving = false
-      TW.workbench.alert.create(
-        'Field occurrence was successfully saved.',
-        'notice'
-      )
-    })
-  } catch {}
+    return Promise.all(requests)
+      .then(() => {
+        TW.workbench.alert.create(
+          'Field occurrence was successfully saved.',
+          'notice'
+        )
+      })
+      .catch(() => {})
+      .finally(() => {
+        settings.isSaving = false
+      })
+  } catch {
+    settings.isSaving = false
+  }
 }
 
 function reset() {
