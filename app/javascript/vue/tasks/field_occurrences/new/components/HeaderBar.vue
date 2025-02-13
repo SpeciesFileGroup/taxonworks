@@ -88,7 +88,6 @@ import useDeterminationStore from '../store/determinations.js'
 import useSettingStore from '../store/settings.js'
 import useBiocurationStore from '../store/biocurations.js'
 import useBiologicalAssociationStore from '../store/biologicalAssociations.js'
-import useIdentifierStore from '../store/identifier.js'
 import useDepictionStore from '../store/depictions.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VRecent from './Recent.vue'
@@ -106,7 +105,6 @@ const determinationStore = useDeterminationStore()
 const biologicalAssociationStore = useBiologicalAssociationStore()
 const ceStore = useCEStore()
 const biocurationStore = useBiocurationStore()
-const identifierStore = useIdentifierStore()
 const depictionStore = useDepictionStore()
 const fieldOccurrenceId = computed(() => foStore.fieldOccurrence.id)
 const isUnsaved = computed(
@@ -115,8 +113,7 @@ const isUnsaved = computed(
     determinationStore.hasUnsaved ||
     biocurationStore.hasUnsaved ||
     foStore.fieldOccurrence.isUnsaved ||
-    ceStore.isUnsaved ||
-    identifierStore.isUnsaved
+    ceStore.isUnsaved
 )
 
 const validateSave = computed(() => {
@@ -144,7 +141,6 @@ async function save() {
       citationStore.save(args),
       determinationStore.load(args),
       biocurationStore.save(args),
-      identifierStore.save(args),
       biologicalAssociationStore.save(args)
     ]
 
@@ -180,7 +176,6 @@ function reset() {
   }
 
   depictionStore.$reset()
-  identifierStore.reset({ keepNamespace: locked.namespace })
   determinationStore.reset({ keepRecords: locked.taxonDeterminations })
   citationStore.reset({ keepRecords: locked.citations })
   biologicalAssociationStore.reset({
@@ -237,7 +232,6 @@ async function loadForms(id) {
     determinationStore.load(args),
     biocurationStore.load(args),
     citationStore.load(args),
-    identifierStore.load(args),
     biologicalAssociationStore.load(args),
     depictionStore.load(args)
   ]

@@ -3,6 +3,7 @@
     <label>Total</label>
     <input
       type="number"
+      min="0"
       v-model="fieldOccurence.total"
       @change="() => { fieldOccurence.isUnsaved = true }"
     />
