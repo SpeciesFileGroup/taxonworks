@@ -331,6 +331,9 @@ end
 
 resources :field_occurrences do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'field_occurrences#index', via: [:get, :post]
+  end
 end
 
 resources :geographic_areas, only: [:index, :show] do

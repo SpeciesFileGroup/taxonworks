@@ -1020,3 +1020,10 @@ index_multi_update_task:
   categories:
   status: prototype
   description: 'Faciliate spreadsheet editing of multiple data attributes.'
+filter_field_occurrences_task:
+  hub: true
+  name: 'Filter field occurrences'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
