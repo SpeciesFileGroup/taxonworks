@@ -15,7 +15,10 @@
               others.</span
             >
           </div>
-          <NamespaceForm v-model="store.namespace" />
+          <NamespaceForm
+            v-model="store.namespace"
+            @selected="namespaceSelected"
+          />
         </div>
         <div class="separate-top">
           <label>Identifier</label>
@@ -46,7 +49,7 @@
             />
           </div>
           <span
-            v-if="!store.namespace && store.identifier.identifier?.length"
+            v-if="!store.namespace && store.identifier.identifier"
             style="color: red"
             >Namespace is needed.</span
           >
@@ -102,7 +105,7 @@ function findExistingIdentifier() {
   if (timeOut) {
     clearTimeout(timeOut)
   }
-  if (store.identifier.identifier) {
+  if (store.identifier.identifier && store.namespace) {
     timeOut = setTimeout(() => {
       Identifier.where({
         type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
@@ -117,9 +120,8 @@ function findExistingIdentifier() {
   }
 }
 
-function setNamespace(namespace) {
-  store.namespace = namespace
-  store.isUnsaved = true
+function namespaceSelected() {
+  store.identifier.isUnsaved = true
   findExistingIdentifier()
 }
 function unsetNamespace() {

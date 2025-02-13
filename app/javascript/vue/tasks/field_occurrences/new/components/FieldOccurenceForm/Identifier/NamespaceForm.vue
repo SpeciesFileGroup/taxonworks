@@ -10,12 +10,12 @@
       pin-section="Namespaces"
       pin-type="Namespace"
       v-model="namespace"
-      @selected="(item) => (namespace = item)"
+      @selected="(item) => (updateNamespace(item))"
     >
       <template #tabs-right>
         <VLock v-model="settings.locked.namespace" />
 
-        <WidgetNamespace @create="(item) => (namespace = item)" />
+        <WidgetNamespace @create="(item) => (updateNamespace(item))" />
       </template>
     </SmartSelector>
     <template v-if="namespace">
@@ -23,7 +23,7 @@
       <SmartSelectorItem
         :item="namespace"
         label="name"
-        @click="() => (namespace = undefined)"
+        @click="() => (updateNamespace(undefined))"
       />
     </template>
   </fieldset>
@@ -37,10 +37,17 @@ import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import useSettingStore from '../../../store/settings.js'
 
+const emit = defineEmits(['selected'])
+
 const namespace = defineModel({
   type: Object,
   default: undefined
 })
 
 const settings = useSettingStore()
+
+function updateNamespace(newNamespace) {
+  namespace.value = newNamespace
+  emit('selected')
+}
 </script>

@@ -55,7 +55,11 @@ export default defineStore('identifiers', {
     },
 
     save({ objectId, objectType }) {
-      if (!this.identifier.isUnsaved) return
+      if (!this.identifier.isUnsaved ||
+        !this.identifier.identifier || !this.namespace?.id
+      ) {
+        return
+      }
 
       const payload = {
         identifier: {
