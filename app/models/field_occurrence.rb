@@ -36,6 +36,8 @@ class FieldOccurrence < ApplicationRecord
   include Shared::QueryBatchUpdate
   include SoftValidation
 
+  # At present must be before BiologicalExtensions
+  include Shared::TaxonDeterminationRequired
   # At present must be before IsDwcOccurence
   include FieldOccurrence::DwcExtensions
   include Shared::Taxonomy
