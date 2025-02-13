@@ -20,19 +20,30 @@
         <thead>
           <tr>
             <th>Total</th>
+            <th />
           </tr>
         </thead>
         <tbody>
           <tr
             v-for="item in list"
             :key="item.id"
-            @click="selectFO(item)"
           >
-            <td
-              v-html="item.object_tag"
-              class="cursor-pointer"
-            />
+            <td v-html="item.object_tag" />
+            <td>
+              <VBtn
+                circle
+                color="primary"
+                @click="() => selectFO(item)"
+              >
+                <VIcon
+                  name="pencil"
+                  x-small
+                />
+              </VBtn>
+            </td>
           </tr>
+
+
         </tbody>
       </table>
     </template>
@@ -43,6 +54,7 @@
 import VModal from '@/components/ui/Modal'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { FieldOccurrence } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
 
