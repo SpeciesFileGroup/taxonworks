@@ -30,7 +30,7 @@
                   existingIdentifier && !isCreatedIdentifierCurrent
               }"
               type="text"
-              @input="checkIdentifier"
+              @input="findExistingIdentifier"
               @change="() => (store.identifier.isUnsaved = true)"
               v-model="store.identifier.identifier"
             />
