@@ -12,6 +12,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Sort asserted distributions alphabetically in Quick Forms
 - Update taxon nomenclatural date after source update
 
+### Fixed
+
+- Failure to set `dwc_occurrences` for rebuild for background processing
+
 ## [0.47.0] - 2025-02-06
 
 ### Added
