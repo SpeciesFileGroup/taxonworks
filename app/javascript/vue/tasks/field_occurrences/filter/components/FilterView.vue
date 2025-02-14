@@ -3,17 +3,7 @@
   <FacetDetermination v-model="params" />
   <FacetBiocurations v-model="params" />
   <FacetCollectingEvent v-model="params" />
-  <FacetPeople
-    :role="ROLE_COLLECTOR"
-    title="Collectors"
-    :klass="FIELD_OCCURRENCE"
-    param-people="collector_id"
-    param-any="collector_id_or"
-    :role-type="COLLECTOR_SELECTOR"
-    v-model="params"
-  />
   <FacetDataAttribute v-model="params" />
-  <FacetImportAttribute v-model="params" />
   <FacetUsers
     v-model="params"
     :type="COLLECTION_OBJECT"
@@ -39,12 +29,7 @@
 </template>
 
 <script setup>
-import {
-  COLLECTOR_SELECTOR,
-  COLLECTION_OBJECT,
-  FIELD_OCCURRENCE,
-  ROLE_COLLECTOR
-} from '@/constants/index.js'
+import { COLLECTION_OBJECT } from '@/constants/index.js'
 import FacetDetermination from '@/components/Filter/Facets/CollectionObject/Determiner/FacetDetermination.vue'
 import FacetCollectingEvent from '@/components/Filter/Facets/CollectingEvent/FacetCollectingEvent/FacetCollectingEvent.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
@@ -52,11 +37,9 @@ import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.v
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetBiocurations from '@/components/Filter/Facets/CollectionObject/FacetBiocurations.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
-import FacetPeople from '@/components/Filter/Facets/shared/FacetPeople.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
-import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 
 const WITH_PARAMS = [

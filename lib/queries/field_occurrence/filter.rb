@@ -15,44 +15,36 @@ module Queries
         *Queries::Concerns::DateRanges.params, # Fead to CE query. Revisit possibly.
 
       # :biological_association_id,
-      # :biological_associations,
+        :biological_associations,
       # :biological_relationship_id,
-      # :collecting_event,
-       :field_occurrence_id,
-      # :collection_object_type,
+        :collecting_event,
+        :field_occurrence_id,
       # :collectors,
       # :current_determinations,
-      # :current_repository,
-      # :current_repository_id,
-      # :dates,
-      # :deaccessioned,
+        :dates,
       # :descendants,
       # :determiner_id_or,
       # :determiner_name_regex,
       # :determiners,
       # :dwc_indexed,
-      # :extract_id,
-      # :georeferences,
+        :georeferences,
       # :import_dataset_id,
-      # :repository,
-      # :repository_id,
       # :sled_image_id,
-      # :spatial_geographic_areas,
+        :spatial_geographic_areas,
       # :taxon_determination_id,
-      # :taxon_determinations,
+        :taxon_determinations,
       # :taxon_name_id,
       # :validity,
-      # biocuration_class_id: [],
+        biocuration_class_id: [],
       # biological_association_id: [],
       # biological_relationship_id: [],
-      # collecting_event_id: [],
-      # field_occurrence_id: [],
-      # determiner_id: [],
-      # extract_id: [],
-      # geographic_area_id: [],
+        collecting_event_id: [],
+        field_occurrence_id: [],
+        determiner_id: [],
+        geographic_area_id: [],
       # import_dataset_id: [],
       # is_type: [],
-      # otu_id: [],
+        otu_id: [],
       # taxon_name_id: [],
       ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
 
@@ -75,10 +67,6 @@ module Queries
       #    Array or Integer of FieldOccurrence ids
       attr_accessor :field_occurrence_id
 
-      # @param [String, nil]
-      #    one of 'Specimen', 'Lot', or 'RangedLot'
-      attr_accessor :collection_object_type
-
       # [Array]
       #   only return objects with these collecting event ID
       attr_accessor :collecting_event_id
@@ -97,12 +85,6 @@ module Queries
       attr_accessor :taxon_name_id
 
       attr_accessor :descendants
-
-      # @return [Boolean, nil]
-      #  nil = Ignored
-      #  true = FieldOccurrence with deaccessioned_at OR deaccessioned_reason populated or deaccession_recipient.present?
-      #  false = without true
-      attr_accessor :deaccessioned
 
       # @return [Boolean, nil]
       #   nil =  Match against all ancestors, valid or invalid
@@ -142,12 +124,6 @@ module Queries
       #   nil - not applied
       attr_accessor :dwc_indexed
 
-      # @return [Repository#id, nil]
-      attr_accessor :repository_id
-
-      # @return [CurrentRepository#id, nil]
-      attr_accessor :current_repository_id
-
       # @return [Array, nil]
       #  one of `holotype`, `lectotype` etc.
       #   nil - not applied
@@ -173,18 +149,6 @@ module Queries
       #   false - does not have any georeferences
       #   nil - not applied
       attr_accessor :georeferences
-
-      # @return [True, False, nil]
-      #   true - has repository_id
-      #   false - does not have repository_id
-      #   nil - not applied
-      attr_accessor :repository
-
-      # @return [True, False, nil]
-      #   true - has current_repository_id
-      #   false - does not have current_repository_id
-      #   nil - not applied
-      attr_accessor :current_repository
 
       # @return [True, False, nil]
       # @param collecting_event ['true', 'false']
@@ -216,10 +180,6 @@ module Queries
       # !! Probably shouldn't expose to external API.
       attr_accessor :determiner_name_regex
 
-      # @return Array
-      #  match all FieldOccurrences that are the origin of these Extracts
-      attr_accessor :extract_id
-
       # @return Boolean
       #    true - any of start/end date or verbatim date are populated
       #    false - none of start/end date or verbatim date are populated
@@ -246,27 +206,20 @@ module Queries
         @collectors = boolean_param(params, :collectors)
         @collecting_event_id = params[:collecting_event_id]
         @field_occurrence_id = params[:field_occurrence_id]
-        @collection_object_type = params[:collection_object_type].presence
         @current_determinations = boolean_param(params, :current_determinations)
-        @current_repository = boolean_param(params, :current_repository)
-        @current_repository_id = params[:current_repository_id].presence
         @dates = boolean_param(params, :dates)
         @descendants = boolean_param(params, :descendants)
-        @deaccessioned = boolean_param(params, :deaccessioned)
         @determiners = boolean_param(params, :determiners)
         @determiner_id = params[:determiner_id]
         @determiner_id_or = boolean_param(params, :determiner_id_or)
         @determiner_name_regex = params[:determiner_name_regex]
         @dwc_indexed = boolean_param(params, :dwc_indexed)
-        @extract_id = params[:extract_id]
         @geographic_area = boolean_param(params, :geographic_area)
         @georeferences = boolean_param(params, :georeferences)
         @import_dataset_id = params[:import_dataset_id]
         @is_type = params[:is_type] || []
         @otu_descendants = boolean_param(params, :otu_descendants)
         @otu_id = params[:otu_id]
-        @repository = boolean_param(params, :repository)
-        @repository_id = params[:repository_id]
         @sled_image_id = (params[:sled_image_id].presence)
         @taxon_determinations = boolean_param(params, :taxon_determinations)
         @taxon_name_id = params[:taxon_name_id]
@@ -319,10 +272,6 @@ module Queries
         [@determiner_id].flatten.compact.uniq
       end
 
-      def extract_id
-        [@extract_id].flatten.compact.uniq
-      end
-
       def import_dataset_id
         [@import_dataset_id].flatten.compact
       end
@@ -335,10 +284,6 @@ module Queries
         [@taxon_name_id].flatten.compact.uniq
       end
 
-      def repository_id
-        [@repository_id].flatten.compact.uniq
-      end
-
       def field_occurrence_id_facet
         return nil if field_occurrence_id.empty?
         table[:id].in(field_occurrence_id)
@@ -348,13 +293,6 @@ module Queries
         return nil if import_dataset_id.blank?
         ::FieldOccurrence.joins(:related_origin_relationships)
         .where(origin_relationships: {old_object_id: import_dataset_id, old_object_type: 'ImportDataset'})
-      end
-
-      def extract_id_facet
-        return nil if extract_id.empty?
-        ::FieldOccurrence
-          .joins(:origin_relationships)
-          .where(origin_relationships: { new_object_id: extract_id, new_object_type: 'Extract' })
       end
 
       def taxon_determinations_facet
@@ -397,7 +335,7 @@ module Queries
 
         b = b.as('det_z1_')
 
-        ::FieldOccurrence.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['biological_field_occurrence_id'].eq(tt['id']))))
+        ::FieldOccurrence.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['taxon_determination_object_id'].eq(tt['id']))))
       end
 
       def determiners_facet
@@ -406,15 +344,6 @@ module Queries
           ::FieldOccurrence.joins(:determiners)
         else
           ::FieldOccurrence.where.missing(:determiners)
-        end
-      end
-
-      def collectors_facet
-        return nil if collectors.nil?
-        if collectors
-          ::FieldOccurrence.joins(:collectors)
-        else
-          ::FieldOccurrence.where.missing(:collectors)
         end
       end
 
@@ -431,24 +360,6 @@ module Queries
           ::FieldOccurrence.left_outer_joins(:georeferences)
             .where(georeferences: { id: nil })
             .distinct
-        end
-      end
-
-      def repository_facet
-        return nil if repository.nil?
-        if repository
-          ::FieldOccurrence.where.not(repository_id: nil)
-        else
-          ::FieldOccurrence.where(repository_id: nil)
-        end
-      end
-
-      def current_repository_facet
-        return nil if current_repository.nil?
-        if current_repository
-          ::FieldOccurrence.where.not(current_repository_id: nil)
-        else
-          ::FieldOccurrence.where(current_repository_id: nil)
         end
       end
 
@@ -502,20 +413,10 @@ module Queries
         table[:collecting_event_id].in(collecting_event_id)
       end
 
-      def repository_id_facet
-        return nil if repository_id.blank?
-        table[:repository_id].in(repository_id)
-      end
-
-      def current_repository_id_facet
-        return nil if current_repository_id.blank?
-        table[:current_repository_id].eq(current_repository_id)
-      end
-
       def otu_id_facet
         return nil if otu_id.empty?
 
-        w = taxon_determination_table[:biological_field_occurrence_id].eq(table[:id])
+        w = taxon_determination_table[:taxon_determination_object_id].eq(table[:id])
           .and(taxon_determination_table[:otu_id].in(otu_id))
 
         if current_determinations
@@ -540,7 +441,7 @@ module Queries
           t = ::TaxonName.arel_table
 
           q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
-            table[:id].eq(taxon_determination_table[:biological_field_occurrence_id])
+            table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
           ).join(otu_table, Arel::Nodes::InnerJoin).on(
             taxon_determination_table[:otu_id].eq(otu_table[:id])
           ).join(t, Arel::Nodes::InnerJoin).on(
@@ -602,23 +503,6 @@ module Queries
         end
       end
 
-      def deaccessioned_facet
-        return nil if deaccessioned.nil?
-        a = ::FieldOccurrence.where('(deaccession_reason IS NOT NULL) OR (deaccessioned_at IS NOT NULL)')
-        b = ::FieldOccurrence.joins(:deaccession_recipient)
-
-        c = referenced_klass_union([a, b])
-        if deaccessioned
-          c
-        else
-          s = 'WITH query_deac AS (' + c.all.to_sql + ') ' +
-              ::FieldOccurrence
-                .joins('LEFT JOIN query_deac as query_deac1 on query_deac1.id = collection_objects.id')
-                .where('query_deac1.id IS NULL').to_sql
-          ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-        end
-      end
-
       def base_collecting_event_query_facet
         # Turn project_id off and check for a truly empty query
         base_collecting_event_query.project_id = nil
@@ -629,10 +513,10 @@ module Queries
 
         s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
             ::FieldOccurrence
-              .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id')
+              .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = field_occurrences.collecting_event_id')
               .to_sql
 
-        ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
     # def taxon_name_query_facet
@@ -646,91 +530,69 @@ module Queries
     #   ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
     # end
 
-    # def collecting_event_query_facet
-    #   return nil if collecting_event_query.nil?
-    #   s = 'WITH query_ce_co AS (' + collecting_event_query.all.to_sql + ') ' +
-    #       ::FieldOccurrence
-    #         .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
-    #         .to_sql
 
-    #   ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-    # end
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_co AS (' + otu_query.all.to_sql + ') ' +
+            ::FieldOccurrence
+              .joins(:taxon_determinations)
+              .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
+              .where(taxon_determinations: { position: 1 })
+              .to_sql
+
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
+
+      def biological_associations_facet
+        return nil if biological_associations.nil?
+        a = ::FieldOccurrence.joins(:biological_associations)
+        b = ::FieldOccurrence.joins(:related_biological_associations)
+
+        referenced_klass_union([a, b])
+      end
+
+     # TODO: turn into UNION!
+      def biological_association_id_facet
+        return nil if biological_association_id.empty?
+        b = ::BiologicalAssociation.where(id: biological_association_id)
+        s = 'WITH query_ba_id_co AS (' + b.all.to_sql + ') ' +
+            ::FieldOccurrence
+              .joins("LEFT JOIN query_ba_id_co as query_ba_id_co1 on field_occurrences.id = query_ba_id_co1.biological_association_subject_id AND query_ba_id_co1.biological_association_subject_type = 'FieldOccurrence'")
+              .joins("LEFT JOIN query_ba_id_co as query_ba_id_co2 on field_occurrences.id = query_ba_id_co2.biological_association_object_id AND query_ba_id_co2.biological_association_object_type = 'FieldOccurrence'")
+              .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
+              .to_sql
+
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
+
+     # TODO: turn into UNION!
+      def biological_association_query_facet
+        return nil if biological_association_query.nil?
+        s = 'WITH query_ba_co AS (' + biological_association_query.all.to_sql + ') ' +
+            ::FieldOccurrence
+              .joins("LEFT JOIN query_ba_co as query_ba_co1 on field_occurrences.id = query_ba_co1.biological_association_subject_id AND query_ba_co1.biological_association_subject_type = 'FieldOccurrence'")
+              .joins("LEFT JOIN query_ba_co as query_ba_co2 on field_occurrences.id = query_ba_co2.biological_association_object_id AND query_ba_co2.biological_association_object_type = 'FieldOccurrence'")
+              .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
+              .to_sql
+
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
 
 
-#     def otu_query_facet
-#       return nil if otu_query.nil?
-#       s = 'WITH query_otu_co AS (' + otu_query.all.to_sql + ') ' +
-#           ::FieldOccurrence
-#             .joins(:taxon_determinations)
-#             .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
-#             .where(taxon_determinations: { position: 1 })
-#             .to_sql
 
-#       ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-#     end
+      def collecting_event_query_facet
+        return nil if collecting_event_query.nil?
+        s = 'WITH query_ce_co AS (' + collecting_event_query.all.select(:id).to_sql + ') ' +
+          ::FieldOccurrence
+          .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = field_occurrences.collecting_event_id')
+          .to_sql
 
-#     def biological_associations_facet
-#       return nil if biological_associations.nil?
-#       a = ::FieldOccurrence.joins(:biological_associations)
-#       b = ::FieldOccurrence.joins(:related_biological_associations)
-
-#       referenced_klass_union([a, b])
-#     end
-
-#     # TODO: turn into UNION!
-#     def biological_association_id_facet
-#       return nil if biological_association_id.empty?
-#       b = ::BiologicalAssociation.where(id: biological_association_id)
-#       s = 'WITH query_ba_id_co AS (' + b.all.to_sql + ') ' +
-#           ::FieldOccurrence
-#             .joins("LEFT JOIN query_ba_id_co as query_ba_id_co1 on collection_objects.id = query_ba_id_co1.biological_association_subject_id AND query_ba_id_co1.biological_association_subject_type = 'FieldOccurrence'")
-#             .joins("LEFT JOIN query_ba_id_co as query_ba_id_co2 on collection_objects.id = query_ba_id_co2.biological_association_object_id AND query_ba_id_co2.biological_association_object_type = 'FieldOccurrence'")
-#             .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
-#             .to_sql
-
-#       ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-#     end
-
-#     # TODO: turn into UNION!
-#     def biological_association_query_facet
-#       return nil if biological_association_query.nil?
-#       s = 'WITH query_ba_co AS (' + biological_association_query.all.to_sql + ') ' +
-#           ::FieldOccurrence
-#             .joins("LEFT JOIN query_ba_co as query_ba_co1 on collection_objects.id = query_ba_co1.biological_association_subject_id AND query_ba_co1.biological_association_subject_type = 'FieldOccurrence'")
-#             .joins("LEFT JOIN query_ba_co as query_ba_co2 on collection_objects.id = query_ba_co2.biological_association_object_id AND query_ba_co2.biological_association_object_type = 'FieldOccurrence'")
-#             .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
-#             .to_sql
-
-#       ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-#     end
-
-#     def extract_query_facet
-#       return nil if extract_query.nil?
-
-#       s = 'WITH query_extract_co AS (' + extract_query.all.to_sql + ') ' +
-#           ::FieldOccurrence
-#             .joins(:origin_relationships)
-#             .joins("JOIN query_extract_co as query_extract_co1 on origin_relationships.new_object_id = query_extract_co1.id and origin_relationships.new_object_type = 'Extract'")
-#             .to_sql
-
-#       ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-#     end
-
-#     def observation_query_facet
-#       return nil if observation_query.nil?
-
-#       s = 'WITH query_obs_co AS (' + observation_query.all.to_sql + ') ' +
-#           ::FieldOccurrence
-#             .joins(:observations)
-#             .joins('JOIN query_obs_co as query_obs_co1 on observations.id = query_obs_co1.id')
-#             .to_sql
-
-#       ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-#     end
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
 
       def and_clauses
         [
-          #collecting_event_id_facet,
+          collecting_event_id_facet,
           field_occurrence_id_facet,
         ]
       end
@@ -739,34 +601,27 @@ module Queries
         [
 
        #  import_dataset_id_facet,
-       #  observation_query_facet,
-       #  biological_association_id_facet,
-       #  base_collecting_event_query_facet,
-       #  biological_association_query_facet,
-       #  collecting_event_query_facet,
-       #  extract_query_facet,
-       #  otu_query_facet,
+          biological_association_id_facet,
+          base_collecting_event_query_facet,
+          biological_association_query_facet,
+          collecting_event_query_facet,
+          otu_query_facet,
        #  taxon_name_query_facet,
 
-       #  biocuration_facet,
-       #  biological_associations_facet,
+          biocuration_facet,
+          biological_associations_facet,
        #  biological_relationship_id_facet,
-       #  collecting_event_facet,
-       #  collectors_facet,
-       #  current_repository_facet,
-       #  dates_facet,
-       #  deaccessioned_facet,
-       #  determiner_facet,
+          collecting_event_facet,
+          dates_facet,
+          determiner_facet,
        #  determiner_name_regex_facet,
-       #  determiners_facet,
+          determiners_facet,
        #  dwc_indexed_facet,
-       #  extract_id_facet,
-       #  geographic_area_facet,
-       #  georeferences_facet,
-       #  otu_id_facet,
-       #  repository_facet,
+          geographic_area_facet,
+          georeferences_facet,
+          otu_id_facet,
        #  sled_image_facet,
-       #  taxon_determinations_facet,
+          taxon_determinations_facet,
        #  taxon_name_id_facet,
         ]
       end

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Filter Field Occurrences</h1>
+    <h1>Filter field occurrences</h1>
 
     <FilterLayout
       :pagination="pagination"
@@ -21,7 +21,7 @@
       <template #table>
         <FilterList
           :list="list"
-          :attributes="ATTRIBUTES"
+          :layout="LAYOUTS.All"
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"
@@ -44,7 +44,7 @@ import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import { ATTRIBUTES } from './constants/attributes'
+import { LAYOUTS } from './constants/layouts'
 import { listParser } from './utils/listParser'
 import { FIELD_OCCURRENCE } from '@/constants/index.js'
 import { FieldOccurrence } from '@/routes/endpoints'
@@ -52,6 +52,8 @@ import { FieldOccurrence } from '@/routes/endpoints'
 defineOptions({
   name: 'FilterFieldOccurrences'
 })
+
+const extend = ['collecting_event', 'taxon_determinations', 'identifiers']
 
 const {
   isLoading,
@@ -64,5 +66,5 @@ const {
   selectedIds,
   makeFilterRequest,
   resetFilter
-} = useFilter(FieldOccurrence, { listParser })
+} = useFilter(FieldOccurrence, { listParser, initParameters: { extend } })
 </script>
