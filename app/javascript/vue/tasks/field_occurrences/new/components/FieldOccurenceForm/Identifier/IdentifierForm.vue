@@ -30,8 +30,7 @@
                   existingIdentifier && !isCreatedIdentifierCurrent
               }"
               type="text"
-              @input="findExistingIdentifier"
-              @change="() => (store.identifier.isUnsaved = true)"
+              @input="identifierChanged"
               v-model="store.identifier.identifier"
             />
             <label>
@@ -100,6 +99,11 @@ const isCreatedIdentifierCurrent = computed(
 watch(existingIdentifier, (newVal) => {
   settings.saveIdentifier = !newVal
 })
+
+function identifierChanged() {
+  store.identifier.isUnsaved = true
+  findExistingIdentifier()
+}
 
 function findExistingIdentifier() {
   if (timeOut) {
