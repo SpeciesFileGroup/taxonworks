@@ -9,7 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Browse Field Occurrence task
+- Browse Field Occurrence task [#4200]
 - Help for Project Vocabulary task UI fields [#4192]
 
 ### Changed
@@ -31,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4196]: https://github.com/SpeciesFileGroup/taxonworks/pull/4196
 [#4193]: https://github.com/SpeciesFileGroup/taxonworks/pull/4193
 [#4192]: https://github.com/SpeciesFileGroup/taxonworks/pull/4192
+[#4200]: https://github.com/SpeciesFileGroup/taxonworks/pull/4200
 
 ## [0.47.0] - 2025-02-06
 
