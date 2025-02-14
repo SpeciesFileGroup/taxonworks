@@ -102,7 +102,6 @@ jobs:
         sudo sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
         sudo apt-get update
         sudo apt-get install -y tesseract-ocr libgeos-dev libproj-dev build-essential
-        find /usr/lib/gcc/x86_64-linux-gnu/
 
     - name: Change ownership of /usr/src to runner user to allow cache to be restored
       run: sudo chown $(id -u) /usr/src
