@@ -209,6 +209,7 @@ import TagComponent from './Tags'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial'
 import VPagination from '@/components/pagination.vue'
+import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier.js'
 import {
   BiocurationClassification,
   CollectionObject,
@@ -295,7 +296,7 @@ async function createCOs(index = 0) {
       identifiers.push(
         makeIdentifierPayload(
           {
-            identifier: catalogNumber.value.start + index,
+            identifier: incrementIdentifier(catalogNumber.value.start, index),
             namespace: catalogNumber.value.namespace
           },
           IDENTIFIER_LOCAL_CATALOG_NUMBER
@@ -307,7 +308,7 @@ async function createCOs(index = 0) {
       identifiers.push(
         makeIdentifierPayload(
           {
-            identifier: recordNumber.value.start + index,
+            identifier: incrementIdentifier(recordNumber.value.start, index),
             namespace: recordNumber.value.namespace
           },
           IDENTIFIER_LOCAL_RECORD_NUMBER

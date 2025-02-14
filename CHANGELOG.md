@@ -16,6 +16,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Failure to set `dwc_occurrences` for rebuild for background processing
+- New collecting event task: Identifier panel sets and displays an incorrect identifier number [#4208]
+
+[#4208]: https://github.com/SpeciesFileGroup/taxonworks/issues/4208
 
 ## [0.47.0] - 2025-02-06
 
