@@ -7,6 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Browse Field Occurrence task
+- Help for Project Vocabulary task UI fields [#4192]
+
 ### Changed
 
 - Sort asserted distributions alphabetically in Quick Forms
@@ -17,8 +22,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Failure to set `dwc_occurrences` for rebuild for background processing
 - New collecting event task: Identifier panel sets and displays an incorrect identifier number [#4208]
+- Comprehensive digitization sometimes failing to save identifiers [#4206]
+- Bad link when creating a synonym where the old name has children and then clicking the green edit button in Edit Taxon Name [#4196]
+- Taxon names not being displayed in relationships facet of Filter Nomenclature task. [#4193]
 
 [#4208]: https://github.com/SpeciesFileGroup/taxonworks/issues/4208
+[#4206]: https://github.com/SpeciesFileGroup/taxonworks/pull/4206
+[#4196]: https://github.com/SpeciesFileGroup/taxonworks/pull/4196
+[#4193]: https://github.com/SpeciesFileGroup/taxonworks/pull/4193
+[#4192]: https://github.com/SpeciesFileGroup/taxonworks/pull/4192
 
 ## [0.47.0] - 2025-02-06
 
