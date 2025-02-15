@@ -1006,6 +1006,13 @@ summarize_projects_controlled_vocabulary_terms_task:
   categories:
   status: prototype
   description: 'Visualize controlled vocabulary terms across the projects you are a member of.'
+browse_field_occurrence_task:
+  hub: true
+  name: 'Browse field occurrences'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
 index_multi_update_task:
   hub: false
   name: 'Multi-update data attributes'
