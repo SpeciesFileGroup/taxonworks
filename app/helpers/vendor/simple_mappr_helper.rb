@@ -21,8 +21,12 @@ module Vendor::SimpleMapprHelper
       z =  CSV::Row.new(h,h,true)
 
       x = d.values
+      max_points_count = x.max {|a, b| a.length <=> b.length}.length
       y = x.shift
 
+      # The array zip here is based (in part) on the length of y, so make sure y
+      # is as long as the longest d.values array.
+      y.fill(nil, y.length...max_points_count)
       t = y.zip(*x)
 
       tbl = CSV::Table.new([z], headers: true ) # , col_sep: "\t", encoding: Encoding::UTF_8)
