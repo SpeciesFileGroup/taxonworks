@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Append mode to multi update data attributes task [#4204]
+
+[#4204]: https://github.com/SpeciesFileGroup/taxonworks/pull/4204
 
 ## [0.48.0] - 2025-02-14
 
