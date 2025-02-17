@@ -13,8 +13,10 @@ module Vendor::SimpleMapprHelper
 
       a.find_each do |i|
         k = i.scientificName || "[Occurrence id: #{i.occurrenceID}]"
-        d[k] ||= []
-        d[k].push [i.decimalLatitude, i.decimalLongitude].compact.join(',').presence
+        if i.decimalLatitude && i.decimalLongitude
+          d[k] ||= []
+          d[k].push [i.decimalLatitude, i.decimalLongitude].join(',')
+        end
       end
 
       h = d.keys.dup
