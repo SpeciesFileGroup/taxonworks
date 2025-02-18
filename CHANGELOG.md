@@ -7,10 +7,39 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Append mode to multi update data attributes task [#4204]
+
+[#4204]: https://github.com/SpeciesFileGroup/taxonworks/pull/4204
+
+## [0.48.0] - 2025-02-14
+
+### Added
+
+- Browse Field Occurrence task [#4200]
+- Help for Project Vocabulary task UI fields [#4192]
+
 ### Changed
 
 - Sort asserted distributions alphabetically in Quick Forms
 - Update taxon nomenclatural date after source update
+- Updated Ruby Gems
+
+### Fixed
+
+- Failure to set `dwc_occurrences` for rebuild for background processing
+- New collecting event task: Identifier panel sets and displays an incorrect identifier number [#4208]
+- Comprehensive digitization sometimes failing to save identifiers [#4206]
+- Bad link when creating a synonym where the old name has children and then clicking the green edit button in Edit Taxon Name [#4196]
+- Taxon names not being displayed in relationships facet of Filter Nomenclature task. [#4193]
+
+[#4208]: https://github.com/SpeciesFileGroup/taxonworks/issues/4208
+[#4206]: https://github.com/SpeciesFileGroup/taxonworks/pull/4206
+[#4196]: https://github.com/SpeciesFileGroup/taxonworks/pull/4196
+[#4193]: https://github.com/SpeciesFileGroup/taxonworks/pull/4193
+[#4192]: https://github.com/SpeciesFileGroup/taxonworks/pull/4192
+[#4200]: https://github.com/SpeciesFileGroup/taxonworks/pull/4200
 
 ## [0.47.0] - 2025-02-06
 
@@ -5078,7 +5107,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.47.0..development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.48.0...development
+[0.48.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.1...v0.47.0
 [0.46.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.0...v0.46.1
 [0.46.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.45.0...v0.46.0
