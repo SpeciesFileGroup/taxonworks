@@ -48,9 +48,10 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount, shallowRef } from 'vue'
+import { computed, ref, onBeforeMount, shallowRef } from 'vue'
 import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
+import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
 import { CONFIDENCE_LEVEL } from '@/constants'
 import ConfidenceList from './ConfidenceList.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
@@ -63,6 +64,11 @@ const props = defineProps({
   ids: {
     type: Array,
     default: () => []
+  },
+
+  objectId: {
+    type: Number,
+    required: true
   },
 
   objectType: {
@@ -82,6 +88,7 @@ const MODE = {
   Replace: { mode: 'replace', component: ConfidenceReplace, color: 'primary' }
 }
 
+const queryParam = computed(() => [QUERY_PARAM[props.objectType]])
 const confirmationModalRef = ref(null)
 const list = ref([])
 const response = ref(null)
@@ -115,7 +122,7 @@ async function makeBatchRequest(confidence) {
       : makePayload(confidence)
 
     if (props.ids?.length) {
-      payload.filter_query[idParam] = props.ids
+      payload.filter_query[queryParam.value][idParam] = props.ids
     }
 
     isProcessing.value = true
@@ -134,7 +141,9 @@ function makePayload(confidence) {
   return {
     mode: selectedMode.value.mode,
     confidence_level_id: confidence.id,
-    filter_query: props.parameters
+    filter_query: {
+      [queryParam.value]: props.parameters
+    }
   }
 }
 
