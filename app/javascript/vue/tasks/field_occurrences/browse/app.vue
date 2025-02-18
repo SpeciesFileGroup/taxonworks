@@ -58,6 +58,7 @@ import useDepictionStore from './store/depictions.js'
 import useBiocurationStore from './store/biocurations.js'
 import useBiologicalAssociationStore from './store/biologicalAssociations.js'
 import useIdentifierStore from './store/identifiers.js'
+import { usePopstateListener } from '@/composables'
 import { setParam } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 
@@ -75,13 +76,13 @@ const identifierStore = useIdentifierStore()
 
 const isLoading = ref(false)
 
-onBeforeMount(async () => {
+function loadFromIdParameter() {
   const { field_occurrence_id: foId } = URLParamsToJSON(location.href)
 
   if (foId) {
     loadData(foId)
   }
-})
+}
 
 async function loadData(foId) {
   const requests = []
@@ -131,4 +132,7 @@ async function loadData(foId) {
     TW.workbench.alert.create('No field occurrence found.', 'notice')
   }
 }
+
+onBeforeMount(loadFromIdParameter)
+usePopstateListener(loadFromIdParameter)
 </script>
