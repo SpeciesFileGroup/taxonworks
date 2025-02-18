@@ -19,6 +19,14 @@ module Vendor::SimpleMapprHelper
         end
       end
 
+      return CSV::Table.new([CSV::Row.new([], [])]) if d.empty?
+
+      if d.count == 1
+        # SimpleMappr (currently) requires at least 2 columns - otherwise it
+        # parses an input file incorrectly - so add an empty second column.
+        d['sm_empty_column'] = []
+      end
+
       h = d.keys.dup
       z =  CSV::Row.new(h,h,true)
 
