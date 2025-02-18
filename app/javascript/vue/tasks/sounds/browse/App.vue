@@ -36,6 +36,7 @@
 import { onBeforeMount, ref } from 'vue'
 import { URLParamsToJSON } from '@/helpers'
 import { RouteNames } from '@/routes/routes.js'
+import { usePopstateListener } from '@/composables'
 import useStore from './store/store.js'
 import PanelSound from './components/Panel/PanelSound.vue'
 import PanelConveyances from './components/Panel/PanelConveyances.vue'
@@ -64,14 +65,17 @@ function loadData(soundId) {
     })
 }
 
-onBeforeMount(() => {
+function loadDataFromIdParameter() {
   const params = URLParamsToJSON(window.location.href)
   const soundId = params.sound_id
 
   if (soundId) {
     loadData(soundId)
   }
-})
+}
+
+onBeforeMount(loadDataFromIdParameter)
+usePopstateListener(loadDataFromIdParameter)
 </script>
 
 <style scoped>
