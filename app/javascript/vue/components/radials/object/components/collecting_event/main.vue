@@ -177,6 +177,7 @@ function saveLabel() {
 
   saveRequest.then(({ body }) => {
     addToList(body)
+    setLabel(body)
     TW.workbench.alert.create('Label was successfully saved.', 'notice')
   })
 }
