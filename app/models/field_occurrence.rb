@@ -31,7 +31,7 @@ class FieldOccurrence < ApplicationRecord
   include Shared::Confidences
   include Shared::ProtocolRelationships
   include Shared::HasPapertrail
-  include Shared::Observations
+  #include Shared::Observations
   include Shared::IsData
   include Shared::QueryBatchUpdate
   include SoftValidation
