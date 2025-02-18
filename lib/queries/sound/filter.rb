@@ -12,6 +12,7 @@ module Queries
         :name,
         :otu_id,
         :field_occurrence,
+        :with_name,
 
         field_occurrence_id: [],
         collection_object_id: [],
@@ -49,6 +50,12 @@ module Queries
       # @return [Array]
       attr_accessor :sound_id
 
+      # @return Boolean
+      #   true - has name
+      #   false - has no name
+      #   nil - both
+      attr_accessor :with_name
+
       # @param params [Hash]
       def initialize(query_params)
         super
@@ -61,6 +68,7 @@ module Queries
         @name_exact = boolean_param(params, :name_exact)
         @otu_id = params[:otu_id]
         @sound_id = params[:sound_id]
+        @with_name = boolean_param(params, :with_name)
 
         set_citations_params(params)
         set_tags_params(params)
@@ -147,6 +155,15 @@ module Queries
         ::Sound.joins(:field_occurrences).where(field_occurrences: {id: field_occurrence_id})
       end
 
+      def with_name_facet
+        return nil if with_name.nil?
+        if with_name
+          ::Sound.where.not(name: nil)
+        else
+          ::Sound.where(name: nil)
+        end
+      end
+
       def query_facets_facet(name = nil)
         return nil if name.nil?
 
@@ -179,7 +196,8 @@ module Queries
           conveyances_facet,
           otu_id_facet,
           collection_object_facet,
-          field_occurrence_facet
+          field_occurrence_facet,
+          with_name_facet
         ]
       end
 

@@ -40,7 +40,7 @@ const props = defineProps({
   }
 })
 
-const WITH_PARAMS = ['citations', 'conveyances']
+const WITH_PARAMS = ['citations', 'conveyances', 'with_name']
 
 const emit = defineEmits(['update:modelValue'])
 
