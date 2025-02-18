@@ -9,12 +9,12 @@ function getTaxonDetermination(determinations) {
 
 export async function listParser(list, { parameters }) {
   const { extend, exclude, ...rest } = parameters
-  /* const { body } = await DataAttribute.brief({
+  const { body } = await DataAttribute.brief({
     field_occurrence_query: {
       ...rest,
       paginate: true
     }
-  }) */
+  })
 
   return list.map((item) => ({
     id: item.id,

@@ -46,7 +46,7 @@ module Queries
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence],
       content: [:source, :otu, :taxon_name, :image],
       controlled_vocabulary_term: [:data_attribute],
-      data_attribute: [:collection_object, :collecting_event, :taxon_name, :otu],
+      data_attribute: [:collection_object, :collecting_event, :field_occurrence, :taxon_name, :otu],
       dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event],
       depiction: [:image],
       descriptor: [:source, :observation, :otu],
