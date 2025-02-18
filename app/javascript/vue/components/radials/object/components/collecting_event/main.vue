@@ -181,8 +181,8 @@ function saveLabel() {
   })
 }
 
-function setLabel(label) {
-  label.value = label
+function setLabel(labelToSet) {
+  label.value = labelToSet
 }
 
 function removeLabel(label) {

@@ -25,8 +25,10 @@
         <a
           v-if="label.id && label.total > 0"
           target="blank"
-          :href="`/tasks/labels/print_labels?label_id=${label.id}`"
-          >Preview
+          :href="`${RouteNames.PrintLabel}?label_id=${label.id}`"
+          class="preview"
+          >
+            Preview
         </a>
       </div>
     </div>
@@ -40,6 +42,8 @@
 </template>
 
 <script setup>
+import { RouteNames } from '@/routes/routes.js'
+
 const props = defineProps({
   identifier: {
     type: Object,
@@ -56,3 +60,10 @@ function setTextFromIdentifier() {
   label.value.text = props.identifier.cached
 }
 </script>
+
+<style lang="scss">
+.preview {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+</style>
