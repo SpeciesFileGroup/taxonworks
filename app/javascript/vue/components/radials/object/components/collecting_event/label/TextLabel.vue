@@ -13,10 +13,11 @@
       </div>
       <div class="horizontal-right-content middle">
         <label
-          >Que to print
+          >Queue to print
           <input
             class="que-input"
             size="5"
+            min="1"
             v-model="label.total"
             type="number"
           />
@@ -53,7 +54,7 @@ const label = defineModel({
   required: true
 })
 
-const isEmpty = computed(() => props.collectingEvent?.verbatim_label)
+const isEmpty = computed(() => !props.collectingEvent?.verbatim_label)
 
 function copyLabel() {
   label.value.text = props.collectingEvent.verbatim_label
