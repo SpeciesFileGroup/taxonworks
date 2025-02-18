@@ -892,7 +892,18 @@ class Source::Bibtex < Source
         cached_author_string: authority_name(false)
       )
 
+      t_update = true if self.cached_nomenclature_date != attributes_to_update[:cached_nomenclature_date]
       self.reload.update_columns(attributes_to_update)
+
+      if t_update
+        Citation.where(citation_object_type: 'TaxonName', source: self, is_original: true).each do |c|
+          t = c.citation_object
+          if t.type == 'Protonym'
+            t.set_cached_nomenclature_date
+            t.set_cached_author_columns
+          end
+        end
+      end
     end
   end
 

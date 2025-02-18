@@ -33,6 +33,10 @@ scope :tasks do
   end
 
   scope :data_attributes do
+    scope :multi_update, controller: 'tasks/data_attributes/multi_update' do
+      get '/', action: :index, as: 'index_multi_update_task'
+    end
+
     scope :field_synchronize, controller: 'tasks/data_attributes/field_synchronize' do
       get '/', action: :index, as: 'field_synchronize_task'
       #get :values, defaults: {format: :json}
@@ -117,6 +121,10 @@ scope :tasks do
   end
 
   scope :field_occurrences do
+    scope :browse, controller: 'tasks/field_occurrences/browse' do
+      get '/', as: 'browse_field_occurrence_task', action: :index
+    end
+
     scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
       get '/', as: 'new_field_occurrence_task', action: :index
     end

@@ -85,6 +85,8 @@ const CUSTOM_OPTIONS = {
   CircleButton: 'circleButton'
 }
 
+const EXCLUDE_TASKS = ['unify_objects_task']
+
 const props = defineProps({
   globalId: {
     type: String,
@@ -137,7 +139,12 @@ const defaultTasks = computed(() => ({
 }))
 
 const menuOptions = computed(() => {
-  const tasks = metadata.value.tasks || {}
+  const tasks = { ...metadata.value.tasks }
+
+  EXCLUDE_TASKS.forEach((task) => {
+    delete tasks[task]
+  })
+
   const taskSlices = Object.entries(tasks)
     .slice(0, props.maxTaskInPie)
     .map(([task, { name, path }]) => ({

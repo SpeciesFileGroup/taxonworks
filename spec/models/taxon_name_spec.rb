@@ -14,7 +14,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     let(:family) { subspecies.ancestor_at_rank('family') }
     let(:root) { subspecies.root }
 
-
     specify '#related_relationships' do
       expect(species.related_relationships).to eq([])
     end
@@ -83,7 +82,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
     end
 
-
     # TODO: this all needs to go
     context 'lint checking FactoryBot' do
       specify 'is building all related names for respective models' do
@@ -108,7 +106,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(variety.cached_author_year).to eq('McAtee')
         expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i>) <i>aaa</i> subsp. <i>bbb</i> var. <i>ccc</i>')
 
-        basionym = FactoryBot.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus') # source_id: nil,
+        basionym = FactoryBot.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus')
         r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym')
         variety.reload
         expect(variety.save).to be_truthy
@@ -125,13 +123,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       expect(TaxonName.descendants_of(genus).to_a).to contain_exactly(subgenus, species, subspecies)
     end
 
-    context '#ancestors_and_descendants_of' do
-      specify 'returns an unordered list' do
-        expect(TaxonName.ancestors_and_descendants_of(genus).to_a.map(&:name)).to contain_exactly(
-          'Animalia', 'Arthropoda', 'Cicadellidae', 'Erythroneura', 'Erythroneura', 'Erythroneurina',
-          'Erythroneurini', 'Hemiptera', 'Insecta', 'Root', 'Typhlocybinae', 'vitata', 'vitis'
-        )
-      end
+    specify '#ancestors_and_descendants_of' do
+      expect(TaxonName.ancestors_and_descendants_of(genus).to_a.map(&:name)).to contain_exactly(
+        'Animalia', 'Arthropoda', 'Cicadellidae', 'Erythroneura', 'Erythroneura', 'Erythroneurina',
+        'Erythroneurini', 'Hemiptera', 'Insecta', 'Root', 'Typhlocybinae', 'vitata', 'vitis'
+      )
     end
 
     context 'hierarchy' do
@@ -187,8 +183,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
           end
 
-          specify 'ICZN species misspelling' do
-            sp  = FactoryBot.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: genus)
+          specify 'ICZN species misapplication' do
+            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'vitata', verbatim_author: 'Smith', year_of_publication: 2000, parent: genus)
             sp.iczn_set_as_misapplication_of = species
             expect(sp.save).to be_truthy
             expect(sp.cached_author_year).to eq('Smith, 2000 non McAtee, 1830')
@@ -211,6 +207,27 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             s.reload
             c1 = Combination.create!(genus: g1, species: s)
             expect(c1.cached_author_year).to eq('(McAtee, 1900)')
+          end
+
+          specify 'ICZN misspelling' do
+            g1 = FactoryBot.create(:relationship_genus, parent: family, name: 'Aus')
+            g2 = FactoryBot.create(:relationship_genus, parent: family, name: 'Bus')
+            s = FactoryBot.create(:relationship_species, parent: g1, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
+            s2 = FactoryBot.create(:relationship_species, parent: g1, name: 'ausus', year_of_publication: 1905, verbatim_author: 'Author')
+            s.original_genus = g1
+            s.original_species = s
+            s2.original_genus = g2
+            s2.original_species = s
+            s.save!
+            s.reload
+            s2.save!
+            s2.reload
+            expect(s2.cached_author_year).to eq('(Author, 1905)')
+            expect(s2.original_author_year).to eq('Author, 1905')
+            TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name: s2, object_taxon_name: s)
+            s2.reload
+            expect(s2.cached_author_year).to eq('(McAtee, 1900)')
+            expect(s2.original_author_year).to eq('(McAtee, 1900)')
           end
 
           context 'ICZN family (behaviour for names above genus group)' do
@@ -247,7 +264,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify 'no OriginalCombination relationships' do
-            ssp = FactoryBot.build(:iczn_subspecies, parent: species)
+            ssp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'vitata', parent: species) 
             expect(ssp.get_genus_species(:original, :self).nil?).to be_truthy
             expect(ssp.get_genus_species(:original, :alternative).nil?).to be_truthy
             #            expect(ssp.get_genus_species(:current, :self).nil?).to be_falsey
@@ -278,8 +295,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           # What code is this supposed to catch?
           specify 'moving nominotypical taxon' do
-            sp = FactoryBot.create(:iczn_species, name: 'aaa', parent: genus)
-            subsp = FactoryBot.create(:iczn_subspecies, name: 'aaa', parent: sp)
+            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aaa', parent: genus) 
+            subsp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'aaa', parent: sp)
             subsp.parent = species
             subsp.valid?
             expect(subsp.errors.include?(:parent_id)).to be_truthy
@@ -536,8 +553,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
       context 'relationships' do
         specify 'invalid parent' do
-          g  = FactoryBot.create(:iczn_genus, parent: family)
-          s  = FactoryBot.create(:iczn_species, parent: g)
+          g = Protonym.create(rank_class: Ranks.lookup(:iczn, :genus), name: 'Aus', parent: family)
+          s = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'vitata', parent: g)
 
           r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
           c1 = FactoryBot.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
@@ -545,7 +562,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           g.soft_validate(only_sets: :parent_is_valid_name)
           expect(s.soft_validations.messages_on(:parent_id).count).to eq(1)
 
-          # !!
           expect(g.soft_validations.messages_on(:base).count).to eq(1)
 
           s.fix_soft_validations
@@ -863,8 +879,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     context '#gbif_status_array' do
-      let(:t1) { FactoryBot.create(:iczn_species, name: 'aus', parent: root1) }
-      let(:t2) { FactoryBot.create(:iczn_species, name: 'bus', parent: root1) }
+      let(:t1) { Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aus', parent: root1) }
+      let(:t2) { Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'bus', parent: root1) }
       let!(:r2) { FactoryBot.create(:taxon_name_relationship, subject_taxon_name: t2, object_taxon_name: t1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective') }
 
       specify 'valid species' do

@@ -105,6 +105,7 @@ Extract:
     recent: true
 FieldOccurrence:
   tasks:
+    - browse_field_occurrence_task
     - new_field_occurrence_task
     - unify_objects_task
   edit: new_field_occurrence_task
@@ -221,3 +222,6 @@ TaxonName:
   home: browse_nomenclature_task
   config:
     recent: true
+Serial:
+  tasks:
+    - unify_objects_task

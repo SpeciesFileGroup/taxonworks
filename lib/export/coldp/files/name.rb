@@ -30,14 +30,6 @@ module Export::Coldp::Files::Name
     end
   end
 
-  # @return String
-  # !! Feels like it should be a TN method
-  # !! TODO: add specs defining why it can't be a TaxonName method (partciularly now that original_author_year is updated
-  def self.authorship_field(taxon_name, original)
-    return taxon_name.cached_author_year if taxon_name.is_valid? # impossible for it to need original_author_year check
-    original ? taxon_name.original_author_year : taxon_name.cached_author_year
-  end
-
   # https://api.checklistbank.org/vocab/nomStatus
   # @return [String, nil]
   # @params taxon_name [TaxonName]
@@ -76,7 +68,7 @@ module Export::Coldp::Files::Name
       id,                                                                 # ID
       nil,                                                                # basionymID
       uninomial,                                                          # scientificName
-      authorship_field(t, true),                                          # authorship
+      t.original_author_year,                                             # authorship
       t.rank,                                                             # rank
       uninomial,                                                          # uninomial
       nil,                                                                # genus
@@ -100,8 +92,6 @@ module Export::Coldp::Files::Name
   # @param t [Protonym]
   #    only place that var./frm can be handled.
   def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
-
-
     # TODO: Should [sic] handling be added to the Protonym#original_combination_elements method? Need to discuss with DD and MJY
     e = {}
     
@@ -164,7 +154,7 @@ module Export::Coldp::Files::Name
       id,                                                                 # ID
       basionym_id,                                                        # basionymID
       scientific_name,                                                    # scientificName
-      authorship_field(t, true),                                          # authorship
+      t.original_author_year,                                             # authorship
       rank,                                                               # rank
       uninomial,                                                          # uninomial
       genus,                                                              # genus
@@ -230,6 +220,10 @@ module Export::Coldp::Files::Name
         uri: 'https://github.com/catalogueoflife/coldp#Name.remarks',
         project_id: project_id)&.id
 
+      # TODO: create a base select that covers all fields, to which we add where'joins to isolate sets of names.
+      # TODO: All top level queries should add names from SQL without NOT checks
+      # TODO: consider a materialized view for COLDP names, refreshed nightly, outside the loop?
+      #   we are basically going to need that logic for BORG anyways  
       otu.taxon_name.self_and_descendants.that_is_valid
         .select(:id, :cached)
         .find_each do |name|
@@ -247,18 +241,20 @@ module Export::Coldp::Files::Name
 
         name_total += 1
 
+        # TODO: remove this loopp, using a with to top 
         TaxonName
           .where(cached_valid_taxon_name_id: name.id) # == .historical_taxon_names
           .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", name.cached) # This eliminates Combinations that are identical to the current placement.
           .eager_load(origin_citation: [:source])
           .find_each do |t|
 
+          #  TODO: refactor to a single method, test, then we should only have to check if the name is valid, without relationships?
           # TODO: family-group cached original combinations do not get exported in either Name or Synonym tables
           # exclude duplicate protonyms created for family group relationships
-          if !t.is_combination? and t.is_family_rank?
-            if t.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
+          if !t.is_combination? and t.is_family_rank? # We are already excluding combinationss from above
+            if TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm.where(subject_taxon_name: t).any? #  t.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
               valid = TaxonName.find(t.cached_valid_taxon_name_id)
-              if valid.name == t.name and valid.cached_author = t.cached_author and t.id != valid.id
+              if valid.name == t.name  and valid.cached_author = t.cached_author and t.id != valid.id # !! valid.name should never = t.name, by definition?
                 next
               end
             end
@@ -300,13 +296,13 @@ module Export::Coldp::Files::Name
           end
 
           # Here we truly want no higher
-          if !t.cached_original_combination.blank? && (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?))
+          if t.cached_original_combination.present? && (!t.is_combination? && is_genus_species && (!t.is_valid? || t.has_alternate_original?))
             name_total += 1
             add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
           end
 
           # Here we add reified ID's for higher taxa in which cached != cached_original_combination (e.g., TaxonName stores both Lamotialnina and Lamotialnini so needs a reified ID)
-          if !t.cached_original_combination.blank? && t.is_family_rank? && t.cached != t.cached_original_combination
+          if t.cached_original_combination.present? && t.is_family_rank? && t.has_alternate_original? # t.cached != t.cached_original_combination
             add_higher_original_name(t, csv, origin_citation, name_remarks_vocab_id, project_members)
           end
 

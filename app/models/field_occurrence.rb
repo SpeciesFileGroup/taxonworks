@@ -46,7 +46,7 @@ class FieldOccurrence < ApplicationRecord
   is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound'
   originates_from 'FieldOccurrence'
 
-  GRAPH_ENTRY_POINTS = [:collecting_event, :origin_relationships]
+  GRAPH_ENTRY_POINTS = [:biological_associations, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships]
 
   belongs_to :collecting_event, inverse_of: :field_occurrences
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
@@ -64,6 +64,7 @@ class FieldOccurrence < ApplicationRecord
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
   validate :total_zero_when_absent
+  validate :total_positive_when_present
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
@@ -75,6 +76,10 @@ class FieldOccurrence < ApplicationRecord
 
   def total_zero_when_absent
     errors.add(:total, 'Must be zero when absent.') if (total != 0) && is_absent
+  end
+
+  def total_positive_when_present
+    errors.add(:total, 'Must be positive when not absent.') if !is_absent && total.present? && total <= 0
   end
 
   def check_that_both_of_category_and_total_are_not_present

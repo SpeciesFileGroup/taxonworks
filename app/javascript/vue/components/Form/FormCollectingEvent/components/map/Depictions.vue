@@ -66,7 +66,10 @@ import EXIF from 'exif-js'
 import useStore from '../../store/georeferences.js'
 
 const store = useStore()
-const collectingEvent = defineModel()
+const collectingEvent = defineModel({
+  type: Object,
+  required: true
+})
 
 const emit = defineEmits(['create', 'delete'])
 
@@ -116,27 +119,30 @@ const dropzone = {
 }
 const coordinatesEXIF = ref([])
 
-watch(collectingEvent, (newVal, oldVal) => {
-  if (newVal.id && newVal.id !== oldVal.id) {
-    depictionRef.value.setOption('autoProcessQueue', true)
-    depictionRef.value.processQueue()
-    coordinatesEXIF.value = []
-    Depiction.where({
-      depiction_object_id: newVal.id,
-      depiction_object_type: COLLECTING_EVENT
-    })
-      .then((response) => {
-        figuresList.value = response.body
-      })
-      .catch(() => {})
-  } else {
-    if (!newVal.id) {
-      figuresList.value = []
+watch(
+  () => collectingEvent.value.id,
+  (newVal, oldVal) => {
+    if (newVal && newVal !== oldVal) {
+      depictionRef.value.setOption('autoProcessQueue', true)
+      depictionRef.value.processQueue()
       coordinatesEXIF.value = []
-      depictionRef.value.setOption('autoProcessQueue', false)
+      Depiction.where({
+        depiction_object_id: newVal,
+        depiction_object_type: COLLECTING_EVENT
+      })
+        .then((response) => {
+          figuresList.value = response.body
+        })
+        .catch(() => {})
+    } else {
+      if (!newVal) {
+        figuresList.value = []
+        coordinatesEXIF.value = []
+        depictionRef.value.setOption('autoProcessQueue', false)
+      }
     }
   }
-})
+)
 
 watch(
   store.queueGeoreferences,

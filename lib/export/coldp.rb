@@ -144,6 +144,7 @@ module Export
           f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv, prefer_unlabelled_otus, skip_name_ids)
         end
 
+        # TODO: this doesn't really help, and adds time to the process.
         # Sort the refs by full citation string
         sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
 

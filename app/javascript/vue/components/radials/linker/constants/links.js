@@ -99,6 +99,13 @@ export const TASK_FIELD_SYNCHRONIZE = {
   saveQuery: true
 }
 
+export const TASK_MULTI_UPDATE = {
+  label: 'Multi-update Data attributes',
+  link: '/tasks/data_attributes/multi_update',
+  queryParam: true,
+  saveQuery: true
+}
+
 export const TASK_DWC_OCCURRENCE_STATUS = {
   label: 'DwC Occurrence Status',
   link: '/tasks/dwc_occurrences/status'
@@ -117,4 +124,3 @@ export const TASK_SIMPLEMAPPR = {
   post: true,
   queryParam: true
 }
-

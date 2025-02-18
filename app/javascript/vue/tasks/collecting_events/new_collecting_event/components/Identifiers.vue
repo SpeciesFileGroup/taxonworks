@@ -38,7 +38,7 @@
         <input
           class="full_width"
           type="text"
-          v-model.number="identifier.start"
+          v-model="identifier.start"
         />
       </div>
       <div class="field label-above margin-small-left full_width">
@@ -58,6 +58,7 @@
 import { computed } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
+import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier.js'
 
 const props = defineProps({
   count: {
@@ -73,9 +74,7 @@ const props = defineProps({
 
 const identifier = defineModel({ type: Object, required: true })
 const end = computed(() =>
-  Number.isInteger(identifier.value.start)
-    ? identifier.value.start + props.count
-    : ''
+  incrementIdentifier(identifier.value.start, props.count - 1)
 )
 
 function setNamespace(namespace) {

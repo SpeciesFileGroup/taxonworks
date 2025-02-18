@@ -1013,6 +1013,13 @@ browse_sounds_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+browse_field_occurrence_task:
+  hub: true
+  name: 'Browse field occurrences'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
 filter_sounds_task:
   hub: true
   name: 'Filter sounds'
@@ -1020,3 +1027,10 @@ filter_sounds_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+index_multi_update_task:
+  hub: false
+  name: 'Multi-update data attributes'
+  related:
+  categories:
+  status: prototype
+  description: 'Faciliate spreadsheet editing of multiple data attributes.'
