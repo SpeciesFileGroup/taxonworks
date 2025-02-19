@@ -11,6 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Append mode to multi update data attributes task [#4204]
 
+### Changed
+
+- Add total to unmatched panel on Nomenclature match task
+
 [#4204]: https://github.com/SpeciesFileGroup/taxonworks/pull/4204
 
 ## [0.48.0] - 2025-02-14
