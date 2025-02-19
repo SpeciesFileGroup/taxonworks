@@ -4,7 +4,7 @@ import {
   FILTER_OTU
 } from '../constants/filterLinks'
 
-export const FILTER_FIELD_OCCURRENCE = [
+export const FieldOccurrence = [
   FILTER_BIOLOGICAL_ASSOCIATION,
   FILTER_COLLECTING_EVENT,
   FILTER_OTU
