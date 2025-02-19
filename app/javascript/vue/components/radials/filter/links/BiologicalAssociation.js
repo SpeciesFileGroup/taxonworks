@@ -4,7 +4,8 @@ import {
   FILTER_COLLECTION_OBJECT,
   FILTER_OTU,
   FILTER_SOURCE,
-  FILTER_TAXON_NAME
+  FILTER_TAXON_NAME,
+  FILTER_FIELD_OCCURRENCE
 } from '../constants/filterLinks'
 
 export const BiologicalAssociation = [
@@ -13,5 +14,6 @@ export const BiologicalAssociation = [
   FILTER_COLLECTION_OBJECT,
   FILTER_OTU,
   FILTER_SOURCE,
-  FILTER_TAXON_NAME
+  FILTER_TAXON_NAME,
+  FILTER_FIELD_OCCURRENCE
 ]
