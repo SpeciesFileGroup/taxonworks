@@ -12,7 +12,10 @@
         :key="conveyance.id"
       >
         <td>
-          <div v-html="conveyance.object_tag" />
+          <div
+            class="word_break"
+            v-html="conveyance.object_tag"
+          />
           <audio
             controls
             preload="metadata"

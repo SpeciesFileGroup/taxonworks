@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div class="field">
+    <div
+      id="radial-sound-player"
+      class="field"
+    >
       <AudioPlayer
         media-controls
         :url="conveyance.sound.sound_file"
@@ -57,6 +60,7 @@ import { computed, ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import ConveyanceMoveTo from './ConveyanceMoveTo.vue'
 import AudioPlayer from '@/components/audio/AudioPlayer.vue'
+import { secondsToTimeString } from '@/helpers'
 
 const props = defineProps({
   conveyance: {
@@ -78,8 +82,11 @@ const currentEndTime = ref(endTime.value)
 
 const regions = computed(() => [
   {
-    start: startTime.value,
-    end: endTime.value,
+    content: `${secondsToTimeString(
+      currentStartTime.value
+    )} / ${secondsToTimeString(currentEndTime.value)}`,
+    start: currentStartTime.value,
+    end: currentEndTime.value,
     color: 'rgba(66, 249, 69, 0.5)',
     drag: true
   }
@@ -130,3 +137,13 @@ function update() {
   emit('update', payload)
 }
 </script>
+<style>
+text {
+}
+#radial-sound-player ::part(region-content) {
+  background-color: rgba(0, 0, 0, 0.3);
+  filter: drop-shadow(0 1px 2px #000000);
+  color: white;
+  font-weight: 500;
+}
+</style>
