@@ -8,14 +8,14 @@
         v-model="selectedField"
       >
         <template
-          v-for="field in fields"
-          :key="field.name"
+          v-for="name in fieldNames"
+          :key="name"
         >
           <option
-            v-if="!selectedFields.find((item) => item.param === field.name)"
-            :value="field"
+            v-if="!selectedFields.find((item) => item.param === name)"
+            :value="{name, type: fields[name]}"
           >
-            {{ field.name }}
+            {{ name }}
           </option>
         </template>
       </select>
@@ -97,7 +97,8 @@ const params = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
-const fields = ref([])
+const fields = ref({})
+const fieldNames = ref([])
 const selectedFields = ref([])
 const selectedField = ref(undefined)
 
@@ -119,7 +120,7 @@ watch(
 
     params.value.wildcard_attribute = matches
 
-    fields.value.forEach(({ name }) => {
+    fieldNames.value.forEach((name) => {
       attributes[name] = undefined
     })
 
@@ -136,7 +137,7 @@ watch(
   () => props.modelValue,
   (newVal) => {
     const parameters = Object.keys(newVal)
-    const isAttributeSetted = fields.value.some(({ name }) =>
+    const isAttributeSetted = fieldNames.value.some((name) =>
       parameters.includes(name)
     )
 
@@ -148,11 +149,13 @@ watch(
 
 onBeforeMount(() => {
   ajaxCall('get', `/${props.controller}/attributes`).then((response) => {
-    fields.value = response.body.filter(
+    const includedAttributes = response.body.filter(
       ({ name }) => !props.exclude.includes(name)
     )
 
-    fields.value.forEach(({ name, type }) => {
+    fields.value = {}
+    includedAttributes.forEach(({ name, type }) => {
+      fields.value[name] = type
       const value = params.value[name]
       const any = params.value.any_value_attribute?.includes(name)
       const exact = !params.value.wildcard_attribute?.includes(name)
@@ -178,6 +181,8 @@ onBeforeMount(() => {
             }
       )
     })
+
+    fieldNames.value = Object.keys(fields.value).sort()
   })
 })
 
