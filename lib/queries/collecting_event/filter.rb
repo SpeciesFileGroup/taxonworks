@@ -407,10 +407,10 @@ module Queries
         return nil if dwc_occurrence_query.nil?
 
         s = ::CollectingEvent
-          .with(query_dwc_ce: dwc_occurrence_query.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
-          .joins('JOIN collection object co co.collecting_event_id = collecting_events.id')
-          .joins("JOIN dwc_occurrences do on do.dwc_occurrence_object_type = 'CollectionObject' and do.dwc_occurrence_object_id = co.id")
-          .joins('JOIN query_dwc_ce as query_dwc_ce1 on query_dwc_ce1.id = dwc_occurrences.id')
+          .with(query_dwc_ce: dwc_occurrence_query.all.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
+          .joins('JOIN collection_objects co on co.collecting_event_id = collecting_events.id')
+          .joins("JOIN dwc_occurrences dwo on dwo.dwc_occurrence_object_type = 'CollectionObject' and dwo.dwc_occurrence_object_id = co.id")
+          .joins('JOIN query_dwc_ce as query_dwc_ce1 on query_dwc_ce1.id = dwo.id')
           .to_sql
 
         ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
