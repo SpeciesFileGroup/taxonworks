@@ -46,14 +46,17 @@
           <td>{{ field.param }}</td>
           <td>{{ field.value }}</td>
           <td>
-            <input
-              v-if="checkForMatch(field.type) && !field.any && field.value"
-              v-model="field.exact"
-              type="checkbox"
-            />
+
+            <template v-if="allowExactForField(field)">
+              <input
+                v-model="field.exact"
+                type="checkbox"
+              />
+            </template>
             <template v-else>
               <span v-if="field.any">Any</span>
-              <span v-else>Empty</span>
+              <span v-else-if="!field.value">Empty</span>
+              <span v-else>Substring</span>
             </template>
           </td>
           <td>
@@ -97,8 +100,12 @@ const params = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
-const fields = ref({})
+const fields = ref({}) // hash of field_name => field_type
 const fieldNames = ref([])
+// selectedFields are {param: string, type:, value:, any: bool, exact: bool}
+// where type is the class type of the parameter named param, 'any' means filter
+// on any non-null value, and 'exact' means the user checked a box to say
+// 'require an exact match on value'.
 const selectedFields = ref([])
 const selectedField = ref(undefined)
 
@@ -106,9 +113,6 @@ watch(
   selectedFields,
   (newVal) => {
     const attributes = {}
-    const matches = newVal
-      .filter((item) => !item.exact && !item.any && item.value)
-      .map((item) => item.param)
 
     params.value.any_value_attribute = newVal
       .filter((item) => item.any)
@@ -118,7 +122,9 @@ watch(
       .filter((item) => !item.value && !item.any)
       .map((item) => item.param)
 
-    params.value.wildcard_attribute = matches
+    params.value.wildcard_attribute = newVal
+      .filter((item) => fieldIsWildcard(item))
+      .map((item) => item.param)
 
     fieldNames.value.forEach((name) => {
       attributes[name] = undefined
@@ -141,6 +147,7 @@ watch(
       parameters.includes(name)
     )
 
+    // TODO: why wildcard check?
     if (!parameters.includes('wildcard_attribute') && !isAttributeSetted) {
       selectedFields.value = []
     }
@@ -157,28 +164,24 @@ onBeforeMount(() => {
     includedAttributes.forEach(({ name, type }) => {
       fields.value[name] = type
       const value = params.value[name]
-      const any = params.value.any_value_attribute?.includes(name)
-      const exact = !params.value.wildcard_attribute?.includes(name)
       const noValue = params.value.no_value_attribute?.includes(name)
+      const any = params.value.any_value_attribute?.includes(name)
 
       if (value === undefined && !noValue && !any) {
         return
       }
 
-      const field = {
-        param: name,
-        type,
-        any
-      }
+      const exact = !!value && !any &&
+        !params.value.wildcard_attribute?.includes(name)
 
       selectedFields.value.push(
-        any
-          ? field
-          : {
-              ...field,
-              value,
-              exact
-            }
+        {
+          param: name,
+          value,
+          type,
+          any,
+          exact
+        }
       )
     })
 
@@ -187,7 +190,7 @@ onBeforeMount(() => {
 })
 
 const addField = (field) => {
-  selectedFields.value.push(field)
+  selectedFields.value.push({...field, exact: false})
   selectedField.value = undefined
 }
 
@@ -195,7 +198,16 @@ const removeField = (index) => {
   selectedFields.value.splice(index, 1)
 }
 
-const checkForMatch = (type) => {
-  return type === 'string' || type === 'text'
+const fieldIsWildcard = (field) => {
+  // i.e. not none, not any, not checkboxed as Exact by user (could mean a
+  // checkbox was never offered for that field, cf. allowExactForField)
+  return !!field.value && !field.any && !field.exact
+}
+
+const allowExactForField = (field) => {
+  const type = field.type
+  return !!field.value && !field.any && // i.e. not none, not any
+    (type === 'string' || type === 'text' ||
+     type === 'integer' || type === 'decimal')
 }
 </script>
