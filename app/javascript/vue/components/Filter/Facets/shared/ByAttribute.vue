@@ -29,45 +29,37 @@
   />
 
   <div v-if="selectedFields.length">
-    <table class="full_width">
-      <thead>
-        <tr>
-          <th>Field</th>
-          <th>Value</th>
-          <th>Exact</th>
-          <th />
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(field, index) in selectedFields"
-          :key="field.param"
-        >
-          <td>{{ field.param }}</td>
-          <td>{{ field.value }}</td>
-          <td>
-
-            <template v-if="allowExactForField(field)">
-              <input
-                v-model="field.exact"
-                type="checkbox"
-              />
-            </template>
-            <template v-else>
-              <span v-if="field.any">Any</span>
-              <span v-else-if="!field.value">Empty</span>
-              <span v-else>Substring</span>
-            </template>
-          </td>
-          <td>
-            <span
-              class="button circle-button btn-delete button-default"
-              @click="removeField(index)"
+    <div class="facet_grid">
+      <div class="gh">Field</div>
+      <div class="gh">Value</div>
+      <div class="gh">Exact</div>
+      <div class="gh"></div>
+      <template
+        v-for="(field, index) in selectedFields"
+        :key="field.param"
+      >
+        <div class="gd">{{ field.param }}</div>
+        <div class="gd">{{ field.value }}</div>
+        <div class="gd gd_input">
+          <template v-if="allowExactForField(field)">
+            <input
+              v-model="field.exact"
+              type="checkbox"
             />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </template>
+          <template v-else>
+            <template v-if="field.any">Any</template>
+            <template v-else-if="!field.value">Empty</template>
+            <template v-else>Substring</template>
+          </template>
+        </div>
+        <div class="gd">
+          <span class="button circle-button btn-delete button-default"
+            @click="removeField(index)"
+          />
+        </div>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -211,3 +203,40 @@ const allowExactForField = (field) => {
      type === 'integer' || type === 'decimal')
 }
 </script>
+
+<style scoped>
+.facet_grid {
+  display: grid;
+  grid-template-columns: auto auto fit-content(6em) fit-content(24px);
+	box-shadow: 0 0 2px 0 #e5e5e5;
+	border-radius: 2px;
+	background-color: #fff;
+}
+
+.gh {
+  border-bottom: 2px solid #98b798;
+  text-align: left;
+  height: 40px;
+  line-height: 40px;
+  font-size: 12px;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.gh:hover {
+  background: #e3e8e3;
+}
+
+.gd {
+  display: flex;
+  align-items: center;
+  word-break: break-all;
+  padding-left: .5em;
+  padding-right: .5em;
+  min-height: 40px;
+}
+
+.gd_input {
+  justify-content: center;
+}
+</style>
