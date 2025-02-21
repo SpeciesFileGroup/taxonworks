@@ -4,9 +4,12 @@ module Queries
     # Keep this minimal, in pricinple filtering should be done on the base objects, not the core here.
     class Filter < Query::Filter
 
-      ATTRIBUTES = ::DwcOccurrence.column_names.reject{ |c| %w{
-        id project_id created_by_id updated_by_id created_at updated_at
-                                                        }.include?(c)}.map(&:to_sym).freeze
+      ATTRIBUTES = ::DwcOccurrence.column_names.reject{ |c|
+        %w{
+          id project_id created_by_id updated_by_id created_at updated_at
+          is_flagged_for_rebuild
+        }.include?(c)
+      }.map(&:to_sym).freeze
 
       include Queries::Helpers
       include Queries::Concerns::Users
