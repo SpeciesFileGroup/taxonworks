@@ -13,10 +13,11 @@
       </div>
       <div class="horizontal-right-content middle">
         <label
-          >Que to print
+          >Queue to print
           <input
             class="que-input"
             size="5"
+            min="1"
             v-model="label.total"
             type="number"
           />
@@ -24,8 +25,10 @@
         <a
           v-if="label.id && label.total > 0"
           target="blank"
-          :href="`/tasks/labels/print_labels?label_id=${label.id}`"
-          >Preview
+          :href="`${RouteNames.PrintLabel}?label_id=${label.id}`"
+          class="preview"
+        >
+          Preview
         </a>
       </div>
     </div>
@@ -40,6 +43,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { RouteNames } from '@/routes/routes.js'
 
 const props = defineProps({
   collectingEvent: {
@@ -53,9 +57,16 @@ const label = defineModel({
   required: true
 })
 
-const isEmpty = computed(() => props.collectingEvent?.verbatim_label)
+const isEmpty = computed(() => !props.collectingEvent?.verbatim_label)
 
 function copyLabel() {
   label.value.text = props.collectingEvent.verbatim_label
 }
 </script>
+
+<style lang="scss">
+.preview {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+</style>
