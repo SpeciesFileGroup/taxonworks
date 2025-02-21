@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Append mode to multi update data attributes task [#4204]
 - Sticky navbar on browse nomenclature and collecting event
+- Move button to citations and depiction slices in radial annotator
 
 ### Changed
 

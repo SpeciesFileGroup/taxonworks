@@ -39,10 +39,12 @@ class AnnotationsController < ApplicationController
 
     render(json: { success: false}, status: :not_found) and return if @to_object.nil? || @annotation.nil?
 
-    if @annotation.update(annotated_object: @to_object)
-      format.json { render :show, location: @annotation }
-    else
-      render json: {success: false}, status: :unprocessable_entity
+    respond_to do |format|
+      if @annotation.update(annotated_object: @to_object)
+        format.json { render :show, status: :ok, location: @annotation }
+      else
+        render json: {success: false}, status: :unprocessable_entity
+      end
     end
   end
 
