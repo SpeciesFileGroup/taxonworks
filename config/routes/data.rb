@@ -696,6 +696,9 @@ end
 
 resources :protocol_relationships do
   concerns [:data_routes]
+  collection do
+    post :batch_by_filter_scope, defaults: {format: :json}
+  end
 end
 
 resources :public_contents, only: [:create, :update, :destroy]
