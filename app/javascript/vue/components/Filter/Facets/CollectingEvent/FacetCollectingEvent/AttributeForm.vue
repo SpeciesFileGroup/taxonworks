@@ -52,7 +52,7 @@ const props = defineProps({
 
 const emit = defineEmits(['add'])
 
-const attributeValue = ref(null)
+const attributeValue = ref(undefined)
 
 const addField = (fieldOptions) => {
   emit('add', {
