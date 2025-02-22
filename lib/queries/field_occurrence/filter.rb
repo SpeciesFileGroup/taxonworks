@@ -14,48 +14,45 @@ module Queries
         *::Queries::CollectingEvent::Filter::BASE_PARAMS,
         *Queries::Concerns::DateRanges.params, # Fead to CE query. Revisit possibly.
 
-      # :biological_association_id,
+        :biological_association_id,
         :biological_associations,
-      # :biological_relationship_id,
-        :collecting_event,
+        # :biological_relationship_id,
         :field_occurrence_id,
-      # :collectors,
-      # :current_determinations,
+        # :collectors,
+        # :current_determinations,
         :dates,
-      # :descendants,
-      # :determiner_id_or,
-      # :determiner_name_regex,
-      # :determiners,
-      # :dwc_indexed,
+        :descendants,
+        # :determiner_id_or,
+        # :determiner_name_regex,
+        # :determiners,
+        # :dwc_indexed,
         :georeferences,
-      # :import_dataset_id,
-      # :sled_image_id,
+        # :import_dataset_id,
+        # :sled_image_id,
         :spatial_geographic_areas,
-      # :taxon_determination_id,
-        :taxon_determinations,
-      # :taxon_name_id,
-      # :validity,
+        # :taxon_determination_id,
+        # :taxon_name_id,
+        # :validity,
         biocuration_class_id: [],
-      # biological_association_id: [],
-      # biological_relationship_id: [],
+        biological_association_id: [],
+        # biological_relationship_id: [],
         collecting_event_id: [],
         field_occurrence_id: [],
         determiner_id: [],
         geographic_area_id: [],
-      # import_dataset_id: [],
-      # is_type: [],
+        # import_dataset_id: [],
+        # is_type: [],
         otu_id: [],
-      # taxon_name_id: [],
+        # taxon_name_id: [],
       ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
-
 
       # @return [Array]
       #   of ImportDataset ids
       attr_accessor :import_dataset_id
 
       # @return [True, False, nil]
-      #   true - has collecting event that has  geographic_area
-      #   false - does not have  collecting event that has geographic area
+      #   true - is used in a bilogical association
+      #   false - is not used in a biological association
       #   nil - not applied
       attr_accessor :biological_associations
 
@@ -133,32 +130,13 @@ module Queries
       attr_accessor :sled_image_id
 
       # @return [True, False, nil]
-      #   true - has one ore more taxon_determinations
-      #   false - does not have any taxon_determinations
-      #   nil - not applied
-      attr_accessor :taxon_determinations
-
-      # @return [True, False, nil]
       #   true - Otu has taxon name
       #   false - Otu without taxon name
       #   nil - not applied
       attr_accessor :taxon_name
 
       # @return [True, False, nil]
-      #   true - has one ore more georeferences
-      #   false - does not have any georeferences
-      #   nil - not applied
-      attr_accessor :georeferences
-
-      # @return [True, False, nil]
-      # @param collecting_event ['true', 'false']
-      #   true - has collecting_event_id
-      #   false - does not have collecting_event_id
-      #   nil - not applied
-      attr_accessor :collecting_event
-
-      # @return [True, False, nil]
-      #   true - has collecting event that has  geographic_area
+      #   true - has collecting event that has geographic_area
       #   false - does not have  collecting event that has geographic area
       #   nil - not applied
       attr_accessor :geographic_area
@@ -202,7 +180,6 @@ module Queries
         @biocuration_class_id = params[:biocuration_class_id]
         @biological_relationship_id = params[:biological_relationship_id] # TODO: no reference?
         @biological_associations = boolean_param(params, :biological_associations)
-        @collecting_event = boolean_param(params, :collecting_event)
         @collectors = boolean_param(params, :collectors)
         @collecting_event_id = params[:collecting_event_id]
         @field_occurrence_id = params[:field_occurrence_id]
@@ -214,14 +191,11 @@ module Queries
         @determiner_id_or = boolean_param(params, :determiner_id_or)
         @determiner_name_regex = params[:determiner_name_regex]
         @dwc_indexed = boolean_param(params, :dwc_indexed)
-        @geographic_area = boolean_param(params, :geographic_area)
-        @georeferences = boolean_param(params, :georeferences)
         @import_dataset_id = params[:import_dataset_id]
         @is_type = params[:is_type] || []
         @otu_descendants = boolean_param(params, :otu_descendants)
         @otu_id = params[:otu_id]
         @sled_image_id = (params[:sled_image_id].presence)
-        @taxon_determinations = boolean_param(params, :taxon_determinations)
         @taxon_name_id = params[:taxon_name_id]
         @validity = boolean_param(params, :validity)
 
@@ -292,17 +266,7 @@ module Queries
       def import_dataset_id_facet
         return nil if import_dataset_id.blank?
         ::FieldOccurrence.joins(:related_origin_relationships)
-        .where(origin_relationships: {old_object_id: import_dataset_id, old_object_type: 'ImportDataset'})
-      end
-
-      def taxon_determinations_facet
-        return nil if taxon_determinations.nil?
-
-        if taxon_determinations
-          ::FieldOccurrence.joins(:taxon_determinations).distinct
-        else
-          ::FieldOccurrence.where.missing(:taxon_determinations)
-        end
+          .where(origin_relationships: {old_object_id: import_dataset_id, old_object_type: 'ImportDataset'})
       end
 
       # TODO: DRY with Source (author), TaxonName, etc.
@@ -322,8 +286,8 @@ module Queries
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
             a[:id].eq(c[:role_object_id])
-              .and(c[:role_object_type].eq('TaxonDetermination'))
-              .and(c[:type].eq('Determiner'))
+          .and(c[:role_object_type].eq('TaxonDetermination'))
+          .and(c[:type].eq('Determiner'))
           )
 
         e = c[:id].not_eq(nil)
@@ -350,39 +314,6 @@ module Queries
       def determiner_name_regex_facet
         return nil if determiner_name_regex.nil?
         ::FieldOccurrence.joins(:determiners).where('people.cached ~* ?', determiner_name_regex)
-      end
-
-      def georeferences_facet
-        return nil if georeferences.nil?
-        if georeferences
-          ::FieldOccurrence.joins(:georeferences).distinct
-        else
-          ::FieldOccurrence.left_outer_joins(:georeferences)
-            .where(georeferences: { id: nil })
-            .distinct
-        end
-      end
-
-      def collecting_event_facet
-        return nil if collecting_event.nil?
-        if collecting_event
-          ::FieldOccurrence.where.not(collecting_event_id: nil)
-        else
-          ::FieldOccurrence.where(collecting_event_id: nil)
-        end
-      end
-
-      # This is not spatial
-      def geographic_area_facet
-        return nil if geographic_area.nil?
-
-        if geographic_area
-          ::FieldOccurrence.joins(:collecting_event).where.not(collecting_events: { geographic_area_id: nil }).distinct
-        else
-          ::FieldOccurrence.left_outer_joins(:collecting_event)
-            .where(collecting_events: { geographic_area_id: nil })
-            .distinct
-        end
       end
 
       def biocuration_facet
@@ -430,6 +361,7 @@ module Queries
         )
       end
 
+      # TODO: use filter proxy
       def taxon_name_id_facet
         return nil if taxon_name_id.empty?
 
@@ -476,6 +408,7 @@ module Queries
         ::FieldOccurrence.joins(q.join_sources).where(z).distinct
       end
 
+      # TODO: Probably just move to CE
       def dates_facet
         return nil if dates.nil?
         if dates
@@ -512,33 +445,33 @@ module Queries
         base_collecting_event_query.project_id = project_id
 
         s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
-            ::FieldOccurrence
-              .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = field_occurrences.collecting_event_id')
-              .to_sql
+          ::FieldOccurrence
+          .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = field_occurrences.collecting_event_id')
+          .to_sql
 
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
-    # def taxon_name_query_facet
-    #   return nil if taxon_name_query.nil?
-    #   s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
-    #       ::FieldOccurrence
-    #         .joins(:taxon_names)
-    #         .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
-    #         .to_sql
+      # def taxon_name_query_facet
+      #   return nil if taxon_name_query.nil?
+      #   s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
+      #       ::FieldOccurrence
+      #         .joins(:taxon_names)
+      #         .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
+      #         .to_sql
 
-    #   ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-    # end
+      #   ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
+      # end
 
 
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_co AS (' + otu_query.all.to_sql + ') ' +
-            ::FieldOccurrence
-              .joins(:taxon_determinations)
-              .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
-              .where(taxon_determinations: { position: 1 })
-              .to_sql
+          ::FieldOccurrence
+          .joins(:taxon_determinations)
+          .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
+          .where(taxon_determinations: { position: 1 })
+          .to_sql
 
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
@@ -551,34 +484,32 @@ module Queries
         referenced_klass_union([a, b])
       end
 
-     # TODO: turn into UNION!
+      # TODO: turn into UNION!
       def biological_association_id_facet
         return nil if biological_association_id.empty?
         b = ::BiologicalAssociation.where(id: biological_association_id)
         s = 'WITH query_ba_id_co AS (' + b.all.to_sql + ') ' +
-            ::FieldOccurrence
-              .joins("LEFT JOIN query_ba_id_co as query_ba_id_co1 on field_occurrences.id = query_ba_id_co1.biological_association_subject_id AND query_ba_id_co1.biological_association_subject_type = 'FieldOccurrence'")
-              .joins("LEFT JOIN query_ba_id_co as query_ba_id_co2 on field_occurrences.id = query_ba_id_co2.biological_association_object_id AND query_ba_id_co2.biological_association_object_type = 'FieldOccurrence'")
-              .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
-              .to_sql
+          ::FieldOccurrence
+          .joins("LEFT JOIN query_ba_id_co as query_ba_id_co1 on field_occurrences.id = query_ba_id_co1.biological_association_subject_id AND query_ba_id_co1.biological_association_subject_type = 'FieldOccurrence'")
+          .joins("LEFT JOIN query_ba_id_co as query_ba_id_co2 on field_occurrences.id = query_ba_id_co2.biological_association_object_id AND query_ba_id_co2.biological_association_object_type = 'FieldOccurrence'")
+          .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
+          .to_sql
 
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
-     # TODO: turn into UNION!
+      # TODO: turn into UNION!
       def biological_association_query_facet
         return nil if biological_association_query.nil?
         s = 'WITH query_ba_co AS (' + biological_association_query.all.to_sql + ') ' +
-            ::FieldOccurrence
-              .joins("LEFT JOIN query_ba_co as query_ba_co1 on field_occurrences.id = query_ba_co1.biological_association_subject_id AND query_ba_co1.biological_association_subject_type = 'FieldOccurrence'")
-              .joins("LEFT JOIN query_ba_co as query_ba_co2 on field_occurrences.id = query_ba_co2.biological_association_object_id AND query_ba_co2.biological_association_object_type = 'FieldOccurrence'")
-              .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
-              .to_sql
+          ::FieldOccurrence
+          .joins("LEFT JOIN query_ba_co as query_ba_co1 on field_occurrences.id = query_ba_co1.biological_association_subject_id AND query_ba_co1.biological_association_subject_type = 'FieldOccurrence'")
+          .joins("LEFT JOIN query_ba_co as query_ba_co2 on field_occurrences.id = query_ba_co2.biological_association_object_id AND query_ba_co2.biological_association_object_type = 'FieldOccurrence'")
+          .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
+          .to_sql
 
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
-
-
 
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
@@ -599,30 +530,24 @@ module Queries
 
       def merge_clauses
         [
-
-       #  import_dataset_id_facet,
+          #  import_dataset_id_facet,
           biological_association_id_facet,
           base_collecting_event_query_facet,
           biological_association_query_facet,
           collecting_event_query_facet,
           otu_query_facet,
-       #  taxon_name_query_facet,
-
+          #  taxon_name_query_facet,
           biocuration_facet,
           biological_associations_facet,
-       #  biological_relationship_id_facet,
-          collecting_event_facet,
+          #  biological_relationship_id_facet,
           dates_facet,
           determiner_facet,
-       #  determiner_name_regex_facet,
+          # determiner_name_regex_facet,
           determiners_facet,
-       #  dwc_indexed_facet,
-          geographic_area_facet,
-          georeferences_facet,
+          # dwc_indexed_facet,
           otu_id_facet,
-       #  sled_image_facet,
-          taxon_determinations_facet,
-       #  taxon_name_id_facet,
+          # sled_image_facet,
+          # taxon_name_id_facet,
         ]
       end
     end

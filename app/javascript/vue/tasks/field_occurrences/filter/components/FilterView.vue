@@ -45,20 +45,17 @@ import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.v
 const WITH_PARAMS = [
   'biological_associations',
   'citations',
-  'collecting_event',
   'confidences',
   'data_attributes',
   'data_depictions',
   'dates',
   'depictions',
   'determiners',
-  'geographic_area',
-  'georeferences',
   'notes',
   'origin_citation',
   'protocols',
   'tags',
-  'taxon_determinations'
+//  'taxon_determinations'
 ]
 
 const params = defineModel({
