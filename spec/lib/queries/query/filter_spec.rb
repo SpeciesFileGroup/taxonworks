@@ -44,9 +44,9 @@ describe Queries::Query::Filter, type: [:model] do
       expect(a.all).to contain_exactly(o3)
     end
 
-    specify '#apply_venn #venn_mode b' do
-      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o2.id}&otu_id[]=#{o3.id}"
-      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id], venn: v, venn_mode: :b)
+    specify '#apply_venn #venn_mode b multiply encoded' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id%25255B%25255D=#{o2.id}&otu_id%25255B%25255D=#{o3.id}"
+      a = ::Queries::Otu::Filter.new(otu_id: [o2.id], venn: v, venn_mode: :b)
       expect(a.all).to contain_exactly(o3)
     end
   end
@@ -103,13 +103,13 @@ describe Queries::Query::Filter, type: [:model] do
   end
 
   specify '.base_filter 1' do
-     p = ActionController::Parameters.new(collection_object_query: {}, foo: :bar)
-     expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
+    p = ActionController::Parameters.new(collection_object_query: {}, foo: :bar)
+    expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
   end
 
   specify '.base_filter 1' do
-     p = ActionController::Parameters.new(collection_object_query: { otu_query: {}}, foo: :bar)
-     expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
+    p = ActionController::Parameters.new(collection_object_query: { otu_query: {}}, foo: :bar)
+    expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
   end
 
   context 'PARAMS defined' do

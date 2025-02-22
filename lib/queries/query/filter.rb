@@ -707,8 +707,18 @@ module Queries
     end
 
     def venn_query
-      u = ::Addressable::URI.parse(venn)
-      p = ::Rack::Utils.parse_query(u.query)
+      u = ::Addressable::URI.parse(venn).query
+      # Brackets may be multi-encoded
+      t = nil
+      i = 0
+      max = 10
+      while t != u && i < max
+        t = u
+        u = Addressable::URI.unencode(t)
+        i += 1
+      end
+
+      p = ::Rack::Utils.parse_nested_query(u) # nested supports brackets
 
       a = ActionController::Parameters.new(p)
 
