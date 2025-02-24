@@ -250,7 +250,15 @@ class DwcOccurrence < ApplicationRecord
       else # Not recommended at this point
         return 'Occurrence'
       end
+      # TODO: Consider machine_observation
+    when 'FieldOccurrence'
+      if dwc_occurrence_object.machine_output?
+        return 'MachineObservation'
+      else
+        return 'HumanObservation'
+      end
     end
+    
     'Undefined'
   end
 

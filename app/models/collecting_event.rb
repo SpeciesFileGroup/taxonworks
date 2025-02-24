@@ -201,8 +201,6 @@ class CollectingEvent < ApplicationRecord
   include CollectingEvent::GeoLocate
   include CollectingEvent::Georeference
 
-  include CollectingEvent::DwcSerialization
-
   include Shared::QueryBatchUpdate
 
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
