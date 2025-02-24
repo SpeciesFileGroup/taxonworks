@@ -68,6 +68,11 @@ class ProtocolRelationship < ApplicationRecord
             protocol_id: replace_protocol_id
           ).find_each do |o|
             o.update(protocol_id:)
+            if o.valid? 
+              o.updated.push o.id
+            else
+              o.not_updated.push o.id
+            end
           end
       end
     when :remove
@@ -89,13 +94,32 @@ class ProtocolRelationship < ApplicationRecord
         )
       else
         q.find_each do |o|
-          ProtocolRelationship.create(protocol_relationship_object: o, protocol_id:)
+          o = ProtocolRelationship.create(protocol_relationship_object: o, protocol_id:)
+        
+          if o.valid? 
+            o.updated.push o.id
+          else
+            o.not_updated.push o.id
+          end
         end
       end
 
     end
 
     return r.to_json
+  end
+
+  def dwc_occurrences
+    case attribute_subject_type
+    when 'FieldOccurrence'
+      if protocol_relationship_object.protocols.pluck(&:is_machine_output).uniq == [true] # All protocols are machine, not a mix
+        ::DwcOccurrence.where(
+          dwc_occurrence_object_type: 'FieldOccurrence',
+          dwc_occurrence_object_id: protocol_relationship_object_id)
+      end
+    else
+      ::DwcOccurrence.none
+    end
   end
 
 end
