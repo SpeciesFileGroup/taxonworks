@@ -5,10 +5,18 @@
 
   tr:nth-of-type(even) {
     @extend .list_line_even;
+
+    td {
+      @extend .list_line_even;
+    }
   }
 
   tr:nth-of-type(odd) {
     @extend .list_line_odd;
+
+    td {
+      @extend .list_line_odd;
+    }
   }
 }
 

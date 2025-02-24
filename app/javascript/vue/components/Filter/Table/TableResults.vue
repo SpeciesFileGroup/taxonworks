@@ -1,7 +1,7 @@
 <template>
   <HandyScroll>
     <table
-      class="full_width"
+      class="table-striped full_width"
       v-resize-column
       ref="element"
     >
@@ -77,6 +77,7 @@
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
+            class="cursor-pointer"
             @click="sortTable(attr)"
           >
             <div class="horizontal-left-content gap-small">
@@ -121,7 +122,12 @@
             <th
               v-for="(property, pIndex) in propertiesList"
               :key="property"
-              :class="{ 'cell-left-border': pIndex === 0 }"
+              :class="[
+                {
+                  'cell-left-border': pIndex === 0
+                },
+                'cursor-pointer'
+              ]"
               @click="sortTable(`${key}.${property}`)"
             >
               <div class="horizontal-left-content gap-small">
@@ -184,7 +190,6 @@
           :key="item.id"
           class="contextMenuCells"
           :class="{
-            even: index % 2,
             'cell-selected-border': item.id === lastRadialOpenedRow
           }"
           v-show="rowHasCurrentValues(item)"
@@ -250,7 +255,9 @@
               v-for="(property, pIndex) in properties"
               :key="property"
               v-html="renderItem(item, key, property)"
-              :class="{ 'cell-left-border': pIndex === 0 }"
+              :class="{
+                'cell-left-border': pIndex === 0
+              }"
               @dblclick="
                 () => {
                   scrollToTop()
@@ -438,6 +445,9 @@ function scrollToTop() {
 </script>
 
 <style scoped>
+table {
+  border-collapse: collapse;
+}
 .cell-left-border {
   border-left: 3px #eaeaea solid;
 }
@@ -445,5 +455,11 @@ function scrollToTop() {
 .cell-selected-border {
   outline: 2px solid var(--color-primary) !important;
   outline-offset: -2px;
+}
+
+.freeze {
+  left: 0;
+  position: sticky;
+  z-index: 1;
 }
 </style>
