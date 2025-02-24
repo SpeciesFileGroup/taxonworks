@@ -69,9 +69,9 @@ class ProtocolRelationship < ApplicationRecord
           ).find_each do |o|
             o.update(protocol_id:)
             if o.valid? 
-              o.updated.push o.id
+              r.updated.push o.id
             else
-              o.not_updated.push o.id
+              r.not_updated.push o.id
             end
           end
       end
@@ -97,9 +97,9 @@ class ProtocolRelationship < ApplicationRecord
           o = ProtocolRelationship.create(protocol_relationship_object: o, protocol_id:)
         
           if o.valid? 
-            o.updated.push o.id
+            r.updated.push o.id
           else
-            o.not_updated.push o.id
+            r.not_updated.push o.id
           end
         end
       end

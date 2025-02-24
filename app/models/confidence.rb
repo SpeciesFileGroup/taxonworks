@@ -100,9 +100,9 @@ class Confidence < ApplicationRecord
           ).find_each do |o|
             o.update(confidence_level_id:)
             if o.valid? 
-              o.updated.push o.id
+              r.updated.push o.id
             else
-              o.not_updated.push o.id
+              r.not_updated.push o.id
             end
           end
       end
@@ -128,9 +128,9 @@ class Confidence < ApplicationRecord
           o = Confidence.create(confidence_object: o, confidence_level_id:)
           
           if o.valid? 
-            o.updated.push o.id
+            r.updated.push o.id
           else
-            o.not_updated.push o.id
+            r.not_updated.push o.id
           end
         end
       end
