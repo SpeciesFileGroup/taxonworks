@@ -1,7 +1,7 @@
 <template>
   <HandyScroll>
     <table
-      class="table-striped full_width"
+      class="table-striped table-cell-border full_width"
       v-resize-column
       ref="element"
     >
@@ -77,14 +77,21 @@
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
-            class="cursor-pointer"
-            @click="sortTable(attr)"
+            :class="['cursor-pointer', { freeze: freezeColumn.includes(attr) }]"
           >
             <div class="horizontal-left-content gap-small">
+              <input
+                type="checkbox"
+                title="Freeze column"
+                :value="attr"
+                v-model="freezeColumn"
+                @click.stop
+              />
               <span>{{ title }}</span>
               <VBtn
                 color="primary"
                 circle
+                title="Copy column to clipboard"
                 @click.stop="
                   () =>
                     copyColumnToClipboard(
@@ -97,6 +104,19 @@
               >
                 <VIcon
                   name="clip"
+                  title="Copy column to clipboard"
+                  x-small
+                />
+              </VBtn>
+              <VBtn
+                title="Sort alphabetically"
+                color="primary"
+                circle
+                @click.stop="() => sortTable(attr)"
+              >
+                <VIcon
+                  name="alphabeticalSort"
+                  title="Sort alphabetically"
                   x-small
                 />
               </VBtn>
@@ -124,17 +144,26 @@
               :key="property"
               :class="[
                 {
-                  'cell-left-border': pIndex === 0
+                  'cell-left-border': pIndex === 0,
+                  freeze: freezeColumn.includes(`${key}.${property}`)
                 },
                 'cursor-pointer'
               ]"
-              @click="sortTable(`${key}.${property}`)"
             >
               <div class="horizontal-left-content gap-small">
+                <input
+                  type="checkbox"
+                  title="Freeze column"
+                  :value="`${key}.${property}`"
+                  v-model="freezeColumn"
+                  @click.stop
+                />
+
                 <span>{{ property }}</span>
                 <VBtn
                   color="primary"
                   circle
+                  title="Copy column to clipboard"
                   @click.stop="
                     () =>
                       copyColumnToClipboard(
@@ -147,6 +176,19 @@
                 >
                   <VIcon
                     name="clip"
+                    title="Copy column to clipboard"
+                    x-small
+                  />
+                </VBtn>
+                <VBtn
+                  title="Sort alphabetically"
+                  color="primary"
+                  circle
+                  @click.stop="() => sortTable(`${key}.${property}`)"
+                >
+                  <VIcon
+                    name="alphabeticalSort"
+                    title="Sort alphabetically"
                     x-small
                   />
                 </VBtn>
@@ -188,7 +230,6 @@
         <tr
           v-for="(item, index) in list"
           :key="item.id"
-          class="contextMenuCells"
           :class="{
             'cell-selected-border': item.id === lastRadialOpenedRow
           }"
@@ -236,6 +277,7 @@
               :value="item[attr]"
             >
               <td
+                :class="{ freeze: freezeColumn.includes(attr) }"
                 v-html="item[attr]"
                 @dblclick="
                   () => {
@@ -256,7 +298,8 @@
               :key="property"
               v-html="renderItem(item, key, property)"
               :class="{
-                'cell-left-border': pIndex === 0
+                'cell-left-border': pIndex === 0,
+                freeze: freezeColumn.includes(`${key}.${property}`)
               }"
               @dblclick="
                 () => {
@@ -350,6 +393,7 @@ const emit = defineEmits([
   'mouseout:body'
 ])
 
+const freezeColumn = ref([])
 const element = ref(null)
 const ascending = ref(false)
 const lastRadialOpenedRow = ref(null)
@@ -414,7 +458,7 @@ function getValue(item, property) {
   const properties = property.split('.')
 
   return properties.reduce((acc, curr) => {
-    return Array.isArray(acc) ? acc.map((item) => item[curr]) : acc[curr]
+    return Array.isArray(acc) ? acc.map((item) => item?.[curr]) : acc?.[curr]
   }, item)
 }
 
@@ -446,7 +490,7 @@ function scrollToTop() {
 
 <style scoped>
 table {
-  border-collapse: collapse;
+  border-collapse: separate;
 }
 .cell-left-border {
   border-left: 3px #eaeaea solid;

@@ -117,3 +117,16 @@ table {
     background-color: #e3e8e3 !important;
   }
 }
+
+.table-cell-border {
+  td {
+    border-bottom: 1px solid $navigation_border;
+    border-right: 1px solid $navigation_border;
+  }
+
+  tbody {
+    td:first-child {
+      border-left: 1px solid $navigation_border;
+    }
+  }
+}
