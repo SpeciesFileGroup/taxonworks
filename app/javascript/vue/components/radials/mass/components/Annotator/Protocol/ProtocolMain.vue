@@ -49,16 +49,15 @@
 
 <script setup>
 import { ref, onBeforeMount, shallowRef } from 'vue'
-import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
+import { Protocol, ProtocolRelationship } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
-import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
-import { CONFIDENCE_LEVEL } from '@/constants'
-import ConfidenceList from './ConfidenceList.vue'
+import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
+import ConfidenceList from './ProtocolList.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import PreviewTable from '@/components/radials/shared/PreviewTable.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import ConfidenceReplace from './ConfidenceReplace.vue'
+import ConfidenceReplace from './ProtocolReplace.vue'
 
 const props = defineProps({
   ids: {
@@ -92,16 +91,14 @@ const isProcessing = ref(false)
 const selectedMode = shallowRef(MODE.Add)
 
 onBeforeMount(() => {
-  ControlledVocabularyTerm.where({ type: [CONFIDENCE_LEVEL] }).then(
-    ({ body }) => {
-      list.value = body
-    }
-  )
+  Protocol.all().then(({ body }) => {
+    list.value = body
+  })
 })
 
 async function makeBatchRequest(confidence) {
   const ok = await confirmationModalRef.value.show({
-    title: 'Confidences',
+    title: 'Protocols',
     message: 'Are you sure you want to proceed?',
     confirmationWord: 'UPDATE',
     okButton: 'Create',
@@ -120,7 +117,7 @@ async function makeBatchRequest(confidence) {
     }
 
     isProcessing.value = true
-    Confidence.batchByFilter(payload)
+    ProtocolRelationship.batchByFilter(payload)
       .then(({ body }) => {
         response.value = body
         isTableVisible.value = true
@@ -131,10 +128,10 @@ async function makeBatchRequest(confidence) {
   }
 }
 
-function makePayload(confidence) {
+function makePayload(protocol) {
   return {
     mode: selectedMode.value.mode,
-    confidence_level_id: confidence.id,
+    protocol_id: protocol.id,
     filter_query: {
       [QUERY_PARAM[props.objectType]]: props.parameters
     }
@@ -144,8 +141,8 @@ function makePayload(confidence) {
 function makeReplacePayload([replace, to]) {
   return {
     mode: selectedMode.value.mode,
-    confidence_level_id: to.id,
-    replace_confidence_level_id: replace.id,
+    protocol_id: to.id,
+    replace_protocol_id: replace.id,
     filter_query: {
       [QUERY_PARAM[props.objectType]]: props.parameters
     }
