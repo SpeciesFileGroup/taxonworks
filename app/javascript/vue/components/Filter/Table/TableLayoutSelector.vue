@@ -57,7 +57,7 @@
             >
               <template #item="{ element }">
                 <li>
-                  <label>
+                  <label class="cursor-grab">
                     <input
                       type="checkbox"
                       :value="element"
