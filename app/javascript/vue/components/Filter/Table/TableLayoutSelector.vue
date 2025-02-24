@@ -62,7 +62,16 @@
                       type="checkbox"
                       :value="element"
                       v-model="currentLayout.properties[key]"
-                      @change="() => emit('update', key)"
+                      @change="
+                        () => {
+                          currentLayout.properties[key] = sortArrayByArray(
+                            currentLayout.properties[key],
+                            properties[key],
+                            true
+                          )
+                          emit('update', key)
+                        }
+                      "
                     />
                     {{ element }}
                   </label>
@@ -130,12 +139,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { humanize } from '@/helpers/strings.js'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VueDraggable from 'vuedraggable'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import { sortArrayByArray } from '@/helpers'
 
 const props = defineProps({
   layouts: {
@@ -156,4 +166,12 @@ function openLayoutPreferences() {
   currentLayout.value = props.layouts.Custom
   isModalVisible.value = true
 }
+
+watch(
+  () => props.layouts.Custom,
+  () => {
+    currentLayout.value = props.layouts.Custom
+  },
+  { deep: true }
+)
 </script>
