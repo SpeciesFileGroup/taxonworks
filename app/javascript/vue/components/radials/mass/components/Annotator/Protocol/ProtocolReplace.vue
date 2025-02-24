@@ -1,8 +1,8 @@
 <template>
   <div>
-    <ConfidenceList
+    <ProtocolList
       class="margin-medium-bottom"
-      :list="confidences"
+      :list="protocols"
       @select="addItem"
     />
 
@@ -69,7 +69,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import ConfidenceList from './ProtocolList.vue'
+import ProtocolList from './ProtocolList.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -84,7 +84,7 @@ const emit = defineEmits(['select'])
 
 const selected = ref([])
 const isFilled = computed(() => selected.value.length === 2)
-const confidences = computed(() =>
+const protocols = computed(() =>
   props.list.filter((item) => !selected.value.some((c) => c.id == item.id))
 )
 
