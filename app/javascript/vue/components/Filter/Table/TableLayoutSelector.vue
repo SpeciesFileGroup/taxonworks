@@ -27,7 +27,7 @@
           <template #item="{ element: [key] }">
             <div>
               <h3 class="capitalize cursor-grab">
-                <label>
+                <label class="cursor-grab">
                   <input
                     type="checkbox"
                     :checked="
