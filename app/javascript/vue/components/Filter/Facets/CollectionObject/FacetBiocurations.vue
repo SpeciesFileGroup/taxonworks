@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onBeforeMount } from 'vue'
+import { computed, ref, onBeforeMount, watch } from 'vue'
 import { ControlledVocabularyTerm } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
@@ -61,4 +61,13 @@ onBeforeMount(() => {
     }
   )
 })
+
+watch(
+  () => params.value.biocuration_class_id,
+  (newVal) => {
+    if (!newVal) {
+      params.value.biocuration_class_id = []
+    }
+  }
+)
 </script>

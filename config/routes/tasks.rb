@@ -111,6 +111,10 @@ scope :tasks do
   end
 
   scope :field_occurrences do
+    scope :filter, controller: 'tasks/field_occurrences/filter' do
+      get '/', as: 'filter_field_occurrences_task', action: :index
+    end
+
     scope :browse, controller: 'tasks/field_occurrences/browse' do
       get '/', as: 'browse_field_occurrence_task', action: :index
     end

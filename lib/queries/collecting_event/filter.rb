@@ -403,6 +403,17 @@ module Queries
         ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
+      def field_occurrence_query_facet
+        return nil if field_occurrence_query.nil?
+        s = 'WITH query_fo_ce AS (' + field_occurrence_query.all.to_sql + ') ' +
+          ::CollectingEvent
+          .joins(:field_occurrences)
+          .joins('JOIN query_fo_ce as query_fo_ce1 on field_occurrences.id = query_fo_ce1.id')
+          .to_sql
+
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
+      end
+
       def dwc_occurrence_query_facet
         return nil if dwc_occurrence_query.nil?
 
@@ -450,6 +461,7 @@ module Queries
         [
           biological_association_query_facet,
           collection_object_query_facet,
+          field_occurrence_query_facet,
           dwc_occurrence_query_facet,
           otu_query_facet,
           taxon_name_query_facet,

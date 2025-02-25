@@ -90,6 +90,22 @@ class ProtocolRelationshipsController < ApplicationController
     end
   end
 
+  # POST
+  def batch_by_filter_scope
+    if r = ProtocolRelationship.batch_by_filter_scope(
+        mode: params[:mode] || :add,
+        filter_query: params.require(:filter_query), # like filter_query: { otu_query: {}}
+        protocol_id: params.require(:protocol_id),
+        replace_protocol_id: params[:replace_protocol_id]
+    )
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
+
+
   private
 
   def set_protocol_relationship

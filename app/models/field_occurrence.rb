@@ -21,27 +21,24 @@ class FieldOccurrence < ApplicationRecord
   include Housekeeping
 
   include Shared::Citations
+  include Shared::Confidences
   include Shared::DataAttributes
+  include Shared::Depictions
+  include Shared::HasPapertrail
   include Shared::Identifiers
   include Shared::Notes
-  include Shared::Tags
-  include Shared::Depictions
-
-  include Shared::OriginRelationship
-  include Shared::Confidences
-  include Shared::ProtocolRelationships
-  include Shared::HasPapertrail
   include Shared::Observations
+  include Shared::OriginRelationship
+  include Shared::ProtocolRelationships
+  include Shared::Tags
   include Shared::IsData
   include Shared::QueryBatchUpdate
   include SoftValidation
 
-  # At present must be before IsDwcOccurence
-  include FieldOccurrence::DwcExtensions
-  include Shared::Taxonomy
-
   include Shared::BiologicalExtensions
-  include Shared::IsDwcOccurrence
+  
+  include Shared::Taxonomy
+  include FieldOccurrence::DwcExtensions
 
   GRAPH_ENTRY_POINTS = [:biological_associations, :taxon_determinations, :biocuration_classifications, :collecting_event]
 
