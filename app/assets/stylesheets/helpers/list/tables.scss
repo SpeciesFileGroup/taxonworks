@@ -130,3 +130,13 @@ table {
     }
   }
 }
+
+.table-header-border {
+  th {
+    border-right: 1px solid $navigation_border;
+  }
+
+  th:first-child {
+    border-left: 1px solid $navigation_border;
+  }
+}

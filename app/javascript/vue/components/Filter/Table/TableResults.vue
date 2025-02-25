@@ -1,7 +1,7 @@
 <template>
   <HandyScroll>
     <table
-      class="table-striped table-cell-border full_width"
+      class="table-striped table-cell-border table-header-border full_width"
       v-resize-column
       ref="element"
     >
@@ -14,6 +14,7 @@
           "
         >
           <td
+            class="header-empty-td"
             :colspan="
               radialObject || radialAnnotator || radialNavigator ? 2 : 1
             "
@@ -59,21 +60,18 @@
             scope="colgroup"
             class="cell-left-border"
           >
-            Data attributes
+            7 Data attributes
           </th>
         </tr>
+
         <tr>
-          <th class="w-2">
-            <input
-              v-model="selectIds"
-              :disabled="!list.length"
-              type="checkbox"
-            />
-          </th>
-          <th
-            v-if="radialObject || radialAnnotator || radialNavigator"
-            class="w-2"
+          <td
+            class="header-empty-td"
+            :colspan="
+              radialObject || radialAnnotator || radialNavigator ? 2 : 1
+            "
           />
+
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
@@ -83,17 +81,13 @@
                 left: freezeColumnLeftPosition[attr]
               }
             "
-            :data-th-column="attr"
           >
             <div class="horizontal-left-content gap-small">
-              <input
-                type="checkbox"
-                title="Freeze column"
+              <VLock
                 :value="attr"
                 v-model="freezeColumn"
-                @click.stop
               />
-              <span>{{ title }}</span>
+
               <VBtn
                 color="primary"
                 circle
@@ -155,7 +149,6 @@
                 },
                 'cursor-pointer'
               ]"
-              :data-th-column="`${key}.${property}`"
               :style="
                 freezeColumn.includes(`${key}.${property}`) && {
                   left: freezeColumnLeftPosition[`${key}.${property}`]
@@ -163,15 +156,10 @@
               "
             >
               <div class="horizontal-left-content gap-small">
-                <input
-                  type="checkbox"
-                  title="Freeze column"
+                <VLock
                   :value="`${key}.${property}`"
                   v-model="freezeColumn"
-                  @click.stop
                 />
-
-                <span>{{ property }}</span>
                 <VBtn
                   color="primary"
                   circle
@@ -216,6 +204,62 @@
                 >
                   X
                 </VBtn>
+              </div>
+            </th>
+          </template>
+        </tr>
+
+        <tr>
+          <th class="w-2">
+            <input
+              v-model="selectIds"
+              :disabled="!list.length"
+              type="checkbox"
+            />
+          </th>
+          <th
+            v-if="radialObject || radialAnnotator || radialNavigator"
+            class="w-2"
+          />
+          <th
+            v-for="(title, attr) in attributes"
+            :key="attr"
+            :class="['cursor-pointer', { freeze: freezeColumn.includes(attr) }]"
+            :style="
+              freezeColumn.includes(attr) && {
+                left: freezeColumnLeftPosition[attr]
+              }
+            "
+            :data-th-column="attr"
+          >
+            <div class="horizontal-left-content gap-small">
+              <span>{{ title }}</span>
+            </div>
+          </th>
+
+          <template
+            v-for="(propertiesList, key) in layout?.properties"
+            :key="key"
+          >
+            <th
+              v-for="(property, pIndex) in propertiesList"
+              :key="property"
+              :class="[
+                {
+                  'cell-left-border': pIndex === 0,
+                  freeze: freezeColumn.includes(`${key}.${property}`)
+                },
+                'cursor-pointer'
+              ]"
+              :data-th-column="`${key}.${property}`"
+              :style="
+                freezeColumn.includes(`${key}.${property}`) && {
+                  left: freezeColumnLeftPosition[`${key}.${property}`]
+                }
+              "
+            >
+              <div class="horizontal-left-content gap-small">
+                <span>{{ property }}</span>
               </div>
             </th>
           </template>
@@ -362,6 +406,7 @@ import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 import HandyScroll from 'vue-handy-scroll'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
@@ -560,10 +605,15 @@ table {
 .freeze {
   left: 0;
   position: sticky;
-  z-index: 1;
+  z-index: 10;
+}
+
+.header-empty-td {
+  background: #f8f8f8 !important;
+  border-bottom: 0;
 }
 
 :deep(.handy-scroll) {
-  z-index: 2;
+  z-index: 11;
 }
 </style>
