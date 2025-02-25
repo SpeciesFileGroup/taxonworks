@@ -32,3 +32,9 @@ if extend_response_with('data_attributes')
   end
 end
 
+
+if extend_response_with('dwc_occurrence')
+  json.dwc_occurrence do
+    json.merge!(field_occurrence.dwc_occurrence&.attributes&.select{|k,v| v.present?} )
+  end
+end
