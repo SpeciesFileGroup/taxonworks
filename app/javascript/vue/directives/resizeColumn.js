@@ -1,17 +1,23 @@
 export const vResizeColumn = {
   mounted: (el, binding) => {
-    if (el.nodeName !== 'TABLE') { return console.error('This directive is only valid on a table!') }
+    if (el.nodeName !== 'TABLE') {
+      return console.error('This directive is only valid on a table!')
+    }
 
     const opt = binding.value || {}
     const table = el
     const thead = table.querySelector('thead')
     const ths = thead.querySelectorAll('th')
 
-    const handleResize = e => {
+    const handleResize = (e) => {
       const dx = e.x - currentPosition
 
-      activeTh.style.width = `${parseInt(getComputedStyle(activeTh, '').width) + dx}px`
-      activeTh.style.minWidth = `${parseInt(getComputedStyle(activeTh, '').width) + dx}px`
+      activeTh.style.width = `${
+        parseInt(getComputedStyle(activeTh, '').width) + dx
+      }px`
+      activeTh.style.minWidth = `${
+        parseInt(getComputedStyle(activeTh, '').width) + dx
+      }px`
 
       currentPosition = e.x
     }
@@ -19,10 +25,9 @@ export const vResizeColumn = {
     let activeTh = null
     let currentPosition = null
 
-    ths.forEach(th => {
+    ths.forEach((th) => {
       const bar = document.createElement('div')
 
-      th.style.position = 'relative'
       th.originalWidth = th.style.width
 
       bar.style.position = 'absolute'
@@ -34,8 +39,10 @@ export const vResizeColumn = {
       bar.style.zIndex = opt.zIndex || 1
       bar.className = opt.handleClass || 'vue-column-resize-bar'
 
-      bar.addEventListener('click', e => { e.stopPropagation() })
-      bar.addEventListener('mousedown', e => {
+      bar.addEventListener('click', (e) => {
+        e.stopPropagation()
+      })
+      bar.addEventListener('mousedown', (e) => {
         e.stopPropagation()
         if (e.target.parentElement.getAttribute('fixedsize')) {
           return

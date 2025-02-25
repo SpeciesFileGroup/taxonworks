@@ -127,3 +127,15 @@
   @extend .small_space;
   background-color: $color-secondary-1-2;
 }
+
+.sticky-navbar {
+  box-sizing: border-box;
+  min-height: auto;
+}
+
+.sticky-navbar-fixed {
+  position: fixed;
+  box-sizing: border-box;
+  top: 0;
+  z-index: 1001;
+}

@@ -1,7 +1,7 @@
 <template>
   <HandyScroll>
     <table
-      class="full_width"
+      class="table-striped table-cell-border full_width"
       v-resize-column
       ref="element"
     >
@@ -77,13 +77,27 @@
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
-            @click="sortTable(attr)"
+            :class="['cursor-pointer', { freeze: freezeColumn.includes(attr) }]"
+            :style="
+              freezeColumn.includes(attr) && {
+                left: freezeColumnLeftPosition[attr]
+              }
+            "
+            :data-th-column="attr"
           >
             <div class="horizontal-left-content gap-small">
+              <input
+                type="checkbox"
+                title="Freeze column"
+                :value="attr"
+                v-model="freezeColumn"
+                @click.stop
+              />
               <span>{{ title }}</span>
               <VBtn
                 color="primary"
                 circle
+                title="Copy column to clipboard"
                 @click.stop="
                   () =>
                     copyColumnToClipboard(
@@ -96,6 +110,19 @@
               >
                 <VIcon
                   name="clip"
+                  title="Copy column to clipboard"
+                  x-small
+                />
+              </VBtn>
+              <VBtn
+                title="Sort alphabetically"
+                color="primary"
+                circle
+                @click.stop="() => sortTable(attr)"
+              >
+                <VIcon
+                  name="alphabeticalSort"
+                  title="Sort alphabetically"
                   x-small
                 />
               </VBtn>
@@ -121,14 +148,34 @@
             <th
               v-for="(property, pIndex) in propertiesList"
               :key="property"
-              :class="{ 'cell-left-border': pIndex === 0 }"
-              @click="sortTable(`${key}.${property}`)"
+              :class="[
+                {
+                  'cell-left-border': pIndex === 0,
+                  freeze: freezeColumn.includes(`${key}.${property}`)
+                },
+                'cursor-pointer'
+              ]"
+              :data-th-column="`${key}.${property}`"
+              :style="
+                freezeColumn.includes(`${key}.${property}`) && {
+                  left: freezeColumnLeftPosition[`${key}.${property}`]
+                }
+              "
             >
               <div class="horizontal-left-content gap-small">
+                <input
+                  type="checkbox"
+                  title="Freeze column"
+                  :value="`${key}.${property}`"
+                  v-model="freezeColumn"
+                  @click.stop
+                />
+
                 <span>{{ property }}</span>
                 <VBtn
                   color="primary"
                   circle
+                  title="Copy column to clipboard"
                   @click.stop="
                     () =>
                       copyColumnToClipboard(
@@ -141,6 +188,19 @@
                 >
                   <VIcon
                     name="clip"
+                    title="Copy column to clipboard"
+                    x-small
+                  />
+                </VBtn>
+                <VBtn
+                  title="Sort alphabetically"
+                  color="primary"
+                  circle
+                  @click.stop="() => sortTable(`${key}.${property}`)"
+                >
+                  <VIcon
+                    name="alphabeticalSort"
+                    title="Sort alphabetically"
                     x-small
                   />
                 </VBtn>
@@ -182,9 +242,7 @@
         <tr
           v-for="(item, index) in list"
           :key="item.id"
-          class="contextMenuCells"
           :class="{
-            even: index % 2,
             'cell-selected-border': item.id === lastRadialOpenedRow
           }"
           v-show="rowHasCurrentValues(item)"
@@ -231,7 +289,14 @@
               :value="item[attr]"
             >
               <td
+                :class="{ freeze: freezeColumn.includes(attr) }"
                 v-html="item[attr]"
+                :data-td-column="attr"
+                :style="
+                  freezeColumn.includes(attr) && {
+                    left: freezeColumnLeftPosition[attr]
+                  }
+                "
                 @dblclick="
                   () => {
                     scrollToTop()
@@ -250,7 +315,16 @@
               v-for="(property, pIndex) in properties"
               :key="property"
               v-html="renderItem(item, key, property)"
-              :class="{ 'cell-left-border': pIndex === 0 }"
+              :data-td-column="`${key}.${property}`"
+              :class="{
+                'cell-left-border': pIndex === 0,
+                freeze: freezeColumn.includes(`${key}.${property}`)
+              }"
+              :style="
+                freezeColumn.includes(`${key}.${property}`) && {
+                  left: freezeColumnLeftPosition[`${key}.${property}`]
+                }
+              "
               @dblclick="
                 () => {
                   scrollToTop()
@@ -282,7 +356,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { sortArray } from '@/helpers/arrays.js'
 import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
@@ -343,6 +417,8 @@ const emit = defineEmits([
   'mouseout:body'
 ])
 
+const freezeColumn = ref([])
+const freezeColumnLeftPosition = ref({})
 const element = ref(null)
 const ascending = ref(false)
 const lastRadialOpenedRow = ref(null)
@@ -407,8 +483,40 @@ function getValue(item, property) {
   const properties = property.split('.')
 
   return properties.reduce((acc, curr) => {
-    return Array.isArray(acc) ? acc.map((item) => item[curr]) : acc[curr]
+    return Array.isArray(acc) ? acc.map((item) => item?.[curr]) : acc?.[curr]
   }, item)
+}
+
+function sortTable(sortProperty) {
+  emit('onSort', sortArray(props.list, sortProperty, ascending.value))
+  ascending.value = !ascending.value
+}
+
+function scrollToTop() {
+  window.scrollTo(0, 0)
+}
+
+function generateFreezeColumnLeftPosition() {
+  const obj = {}
+  const sizes = {}
+  const columns = [...document.querySelectorAll(`[data-th-column]`)]
+    .map((el) => el.getAttribute('data-th-column'))
+    .filter((attr) => freezeColumn.value.includes(attr))
+
+  columns.forEach((attr, index) => {
+    const el = document.querySelector(`[data-th-column="${attr}"]`)
+    const rect = el.getBoundingClientRect()
+    const sizeValues = Object.values(obj)
+    const size =
+      index === 0
+        ? 0
+        : sizeValues.slice(0, index).reduce((acc, curr) => acc + curr, 0)
+
+    obj[attr] = rect.width
+    sizes[attr] = size + 'px'
+  })
+
+  freezeColumnLeftPosition.value = sizes
 }
 
 watch(
@@ -427,17 +535,19 @@ watch(
   { deep: true }
 )
 
-function sortTable(sortProperty) {
-  emit('onSort', sortArray(props.list, sortProperty, ascending.value))
-  ascending.value = !ascending.value
-}
-
-function scrollToTop() {
-  window.scrollTo(0, 0)
-}
+watch(
+  [() => props.layout, () => props.attributes, freezeColumn],
+  () => nextTick(generateFreezeColumnLeftPosition),
+  {
+    deep: true
+  }
+)
 </script>
 
 <style scoped>
+table {
+  border-collapse: separate;
+}
 .cell-left-border {
   border-left: 3px #eaeaea solid;
 }
@@ -445,5 +555,15 @@ function scrollToTop() {
 .cell-selected-border {
   outline: 2px solid var(--color-primary) !important;
   outline-offset: -2px;
+}
+
+.freeze {
+  left: 0;
+  position: sticky;
+  z-index: 1;
+}
+
+:deep(.handy-scroll) {
+  z-index: 2;
 }
 </style>
