@@ -78,6 +78,12 @@
             v-for="(title, attr) in attributes"
             :key="attr"
             :class="['cursor-pointer', { freeze: freezeColumn.includes(attr) }]"
+            :style="
+              freezeColumn.includes(attr) && {
+                left: freezeColumnLeftPosition[attr]
+              }
+            "
+            :data-th-column="attr"
           >
             <div class="horizontal-left-content gap-small">
               <input
@@ -149,6 +155,12 @@
                 },
                 'cursor-pointer'
               ]"
+              :data-th-column="`${key}.${property}`"
+              :style="
+                freezeColumn.includes(`${key}.${property}`) && {
+                  left: freezeColumnLeftPosition[`${key}.${property}`]
+                }
+              "
             >
               <div class="horizontal-left-content gap-small">
                 <input
@@ -279,6 +291,12 @@
               <td
                 :class="{ freeze: freezeColumn.includes(attr) }"
                 v-html="item[attr]"
+                :data-td-column="attr"
+                :style="
+                  freezeColumn.includes(attr) && {
+                    left: freezeColumnLeftPosition[attr]
+                  }
+                "
                 @dblclick="
                   () => {
                     scrollToTop()
@@ -297,10 +315,16 @@
               v-for="(property, pIndex) in properties"
               :key="property"
               v-html="renderItem(item, key, property)"
+              :data-td-column="`${key}.${property}`"
               :class="{
                 'cell-left-border': pIndex === 0,
                 freeze: freezeColumn.includes(`${key}.${property}`)
               }"
+              :style="
+                freezeColumn.includes(`${key}.${property}`) && {
+                  left: freezeColumnLeftPosition[`${key}.${property}`]
+                }
+              "
               @dblclick="
                 () => {
                   scrollToTop()
@@ -332,7 +356,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { sortArray } from '@/helpers/arrays.js'
 import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
@@ -394,6 +418,7 @@ const emit = defineEmits([
 ])
 
 const freezeColumn = ref([])
+const freezeColumnLeftPosition = ref({})
 const element = ref(null)
 const ascending = ref(false)
 const lastRadialOpenedRow = ref(null)
@@ -462,6 +487,38 @@ function getValue(item, property) {
   }, item)
 }
 
+function sortTable(sortProperty) {
+  emit('onSort', sortArray(props.list, sortProperty, ascending.value))
+  ascending.value = !ascending.value
+}
+
+function scrollToTop() {
+  window.scrollTo(0, 0)
+}
+
+function generateFreezeColumnLeftPosition() {
+  const obj = {}
+  const sizes = {}
+  const columns = [...document.querySelectorAll(`[data-th-column]`)]
+    .map((el) => el.getAttribute('data-th-column'))
+    .filter((attr) => freezeColumn.value.includes(attr))
+
+  columns.forEach((attr, index) => {
+    const el = document.querySelector(`[data-th-column="${attr}"]`)
+    const rect = el.getBoundingClientRect()
+    const sizeValues = Object.values(obj)
+    const size =
+      index === 0
+        ? 0
+        : sizeValues.slice(0, index).reduce((acc, curr) => acc + curr, 0)
+
+    obj[attr] = rect.width
+    sizes[attr] = size + 'px'
+  })
+
+  freezeColumnLeftPosition.value = sizes
+}
+
 watch(
   () => props.list,
   () => {
@@ -478,14 +535,13 @@ watch(
   { deep: true }
 )
 
-function sortTable(sortProperty) {
-  emit('onSort', sortArray(props.list, sortProperty, ascending.value))
-  ascending.value = !ascending.value
-}
-
-function scrollToTop() {
-  window.scrollTo(0, 0)
-}
+watch(
+  [() => props.layout, () => props.attributes, freezeColumn],
+  () => nextTick(generateFreezeColumnLeftPosition),
+  {
+    deep: true
+  }
+)
 </script>
 
 <style scoped>
@@ -505,5 +561,9 @@ table {
   left: 0;
   position: sticky;
   z-index: 1;
+}
+
+:deep(.handy-scroll) {
+  z-index: 2;
 }
 </style>
