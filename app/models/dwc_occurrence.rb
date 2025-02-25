@@ -1,6 +1,7 @@
 # A Darwin Core Record for the Occurrence core.  Field generated from Ruby dwc-meta, which references
 # the same spec that is used in the IPT, and the Dwc Assistant.  Each record
-# references a specific CollectionObject or AssertedDistribution.
+# references a specific CollectionObject, AssertedDistribution, or
+# FieldOccurrence.
 #
 # Important: This is a cache/index, data here are periodically destroyed and regenerated from multiple tables in TW.
 #
@@ -31,7 +32,7 @@
 #   flagged to true when async updates from a DwcOccurrenceHook is set
 #   !! Do not use for other purposes out side of rebuilds
 #
-# 
+#
 #
 class DwcOccurrence < ApplicationRecord
   self.inheritance_column = nil
@@ -115,8 +116,12 @@ class DwcOccurrence < ApplicationRecord
     dwc_occurrence_object_type == 'AssertedDistribution' ? dwc_occurence_object : nil
   end
 
+  def field_occurrence
+    dwc_occurrence_object_type == 'FieldOccurrence' ? dwc_occurence_object : nil
+  end
+
   def collecting_event
-    collection_object&.collecting_event
+    collection_object&.collecting_event || field_occurrence&.collecting_event
   end
 
   def otu
@@ -125,6 +130,8 @@ class DwcOccurrence < ApplicationRecord
       dwc_occurrence_object.otu
     when 'CollectionObject'
       collection_object.otu
+    when 'FieldOccurrence'
+      field_occurrence.otu
     end
   end
 
@@ -160,33 +167,34 @@ class DwcOccurrence < ApplicationRecord
   #   all DwcOccurrences for the Otu
   #   * Includes synonymy (coordinate OTUs).
   def self.scoped_by_otu(otu)
-    a,b = nil, nil
+    a = [:asserted_distribution, :collection_object, :field_occurrence]
+    queries = []
 
     if otu.taxon_name_id.present?
-      a = ::Queries::DwcOccurrence::Filter.new(
-        asserted_distribution_query: {
-          taxon_name_query: {
-            taxon_name_id: otu.taxon_name_id,
-            descendants: false, # include self
-            synonymify: true } })
-
-      b = ::Queries::DwcOccurrence::Filter.new(
-        collection_object_query: {
-          taxon_name_query: {
-            taxon_name_id: otu.taxon_name_id,
-            descendants: false, # include self
-            synonymify: true } })
+      queries = a.map do |k|
+        ::Queries::DwcOccurrence::Filter.new(
+          "#{k}_query": {
+            taxon_name_query: {
+              taxon_name_id: otu.taxon_name_id,
+              descendants: false, # include self
+              synonymify: true
+            }
+          }
+        )
+      end
     else
-      a = ::Queries::DwcOccurrence::Filter.new(
-        asserted_distribution_query: {
-          otu_id: otu.id})
-
-      b = ::Queries::DwcOccurrence::Filter.new(
-        collection_object_query: {
-          otu_query: { otu_id: otu.id}})
+      queries = a.map do |k|
+        ::Queries::DwcOccurrence::Filter.new(
+          "#{k}_query": {
+            otu_id: otu.id
+          }
+        )
+      end
     end
 
-    from("((#{a.all.to_sql}) UNION (#{b.all.to_sql})) as dwc_occurrences")
+    u = queries.map { |q| "(#{q.all.to_sql})" }.join(' UNION ')
+
+    from("(#{u}) as dwc_occurrences")
   end
 
   # TODO: use filters
@@ -387,7 +395,7 @@ class DwcOccurrence < ApplicationRecord
 
   # Delete all DwcOccurrence records where object is missing.
   def self.sweep
-    %w{CollectionObject AssertedDistribution}.each do |k|
+    %w{CollectionObject AssertedDistribution FieldOccurrence}.each do |k|
       stale(k).delete_all
     end
     true
