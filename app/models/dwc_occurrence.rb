@@ -160,41 +160,19 @@ class DwcOccurrence < ApplicationRecord
     joins(j.join_sources)
   end
 
-  # ---
-
-  # TODO: Move to DwcOccurrence filter
   # @return [Scope]
   #   all DwcOccurrences for the Otu
   #   * Includes synonymy (coordinate OTUs).
   def self.scoped_by_otu(otu)
-    a = [:asserted_distribution, :collection_object, :field_occurrence]
-    queries = []
-
     if otu.taxon_name_id.present?
-      queries = a.map do |k|
-        ::Queries::DwcOccurrence::Filter.new(
-          "#{k}_query": {
-            taxon_name_query: {
-              taxon_name_id: otu.taxon_name_id,
-              descendants: false, # include self
-              synonymify: true
-            }
-          }
-        )
-      end
+      ::Queries::DwcOccurrence::Filter.new({
+        taxon_name_id: otu.taxon_name_id,
+      }).all
     else
-      queries = a.map do |k|
-        ::Queries::DwcOccurrence::Filter.new(
-          "#{k}_query": {
-            otu_id: otu.id
-          }
-        )
-      end
+      ::Queries::DwcOccurrence::Filter.new({
+        otu_id: otu.id,
+      }).all
     end
-
-    u = queries.map { |q| "(#{q.all.to_sql})" }.join(' UNION ')
-
-    from("(#{u}) as dwc_occurrences")
   end
 
   # TODO: use filters
