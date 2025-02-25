@@ -13,12 +13,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Sticky navbar on browse nomenclature and collecting event
 - Move button to citations and depiction slices in radial annotator
 - Freeze column checkbox to filter tasks [#4220]
+- Sort layout columns on filter tasks [#4219]
 
 ### Changed
 
 - Add total to unmatched panel on Nomenclature match task
 
 [#4204]: https://github.com/SpeciesFileGroup/taxonworks/pull/4204
+[#4219]: https://github.com/SpeciesFileGroup/taxonworks/pull/4219
 [#4220]: https://github.com/SpeciesFileGroup/taxonworks/pull/4220
 
 ## [0.48.0] - 2025-02-14

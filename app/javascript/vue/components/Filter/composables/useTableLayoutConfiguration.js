@@ -69,6 +69,25 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
     }
   }
 
+  const clearPreferences = async () => {
+    if (keyStorage) {
+      const userId = getCurrentUserId()
+
+      return User.update(userId, {
+        user: {
+          layout: {
+            [keyStorage]: null
+          }
+        }
+      })
+    }
+  }
+
+  const forceUpdatePreference = async () => {
+    await clearPreferences()
+    saveLayoutPreferences()
+  }
+
   const loadCurrentLayout = () => {
     User.preferences().then(({ body }) => {
       const preferences = body.layout[keyStorage]
@@ -93,18 +112,7 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
 
   const resetPreferences = () => {
     initialState(layouts)
-
-    if (keyStorage) {
-      const userId = getCurrentUserId()
-
-      User.update(userId, {
-        user: {
-          layout: {
-            [keyStorage]: null
-          }
-        }
-      })
-    }
+    clearPreferences()
   }
 
   initialState(layouts)
@@ -117,6 +125,8 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
     ...toRefs(state),
     updatePropertiesPositions,
     saveLayoutPreferences,
-    resetPreferences
+    resetPreferences,
+    clearPreferences,
+    forceUpdatePreference
   }
 }
