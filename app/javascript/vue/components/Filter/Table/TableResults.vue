@@ -209,7 +209,7 @@
           </template>
         </tr>
 
-        <tr>
+        <tr class="header-row-attributes">
           <th class="w-2">
             <input
               v-model="selectIds"
@@ -611,6 +611,12 @@ table {
 .header-empty-td {
   background: #f8f8f8 !important;
   border-bottom: 0;
+}
+
+.header-row-attributes {
+  th {
+    font-weight: 700;
+  }
 }
 
 :deep(.handy-scroll) {
