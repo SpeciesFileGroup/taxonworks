@@ -499,7 +499,11 @@ class Protonym < TaxonName
   #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
   def has_misspelling_relationship?
     # taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).any?
-    cached_misspelling ? true : false
+    if cached_misspelling || cached_original_combination_html.to_s.include?('[sic]')
+      return true
+    else
+      return false
+    end
   end
 
   # @return [Boolean]

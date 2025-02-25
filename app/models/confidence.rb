@@ -99,6 +99,11 @@ class Confidence < ApplicationRecord
             confidence_level_id: replace_confidence_level_id
           ).find_each do |o|
             o.update(confidence_level_id:)
+            if o.valid? 
+              r.updated.push o.id
+            else
+              r.not_updated.push o.id
+            end
           end
       end
     when :remove
@@ -120,7 +125,13 @@ class Confidence < ApplicationRecord
         )
       else
         q.find_each do |o|
-          Confidence.create(confidence_object: o, confidence_level_id:)
+          o = Confidence.create(confidence_object: o, confidence_level_id:)
+          
+          if o.valid? 
+            r.updated.push o.id
+          else
+            r.not_updated.push o.id
+          end
         end
       end
 

@@ -29,7 +29,6 @@ class ConfidenceBatchJob < ApplicationJob
         Confidence
           .where(
             confidence_object_id: q.all.pluck(:id),
-            confidence_object_type: q.referenced_klass.name,
             confidence_object_type: q.referenced_klass.base_class.name,
             confidence_level_id: replace_confidence_level_id
           ).find_each do |c|

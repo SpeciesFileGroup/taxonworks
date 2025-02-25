@@ -65,8 +65,7 @@
               'validate-identifier': store.existingIdentifiers.length
             }"
             v-model="store.identifier.identifier"
-            @input="checkIdentifier"
-            @change="() => (store.identifier.isUnsaved = true)"
+            @input="identifierChanged"
           />
           <label>
             <input
@@ -167,6 +166,11 @@ watch(
   },
   { immediate: true }
 )
+
+function identifierChanged() {
+  store.identifier.isUnsaved = true
+  checkIdentifier()
+}
 
 function checkIdentifier() {
   clearTimeout(saveRequest)
