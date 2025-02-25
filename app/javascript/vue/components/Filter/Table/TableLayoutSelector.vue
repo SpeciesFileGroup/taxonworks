@@ -26,7 +26,7 @@
         >
           <template #item="{ element: [key] }">
             <div>
-              <h3 class="capitalize">
+              <h3 class="capitalize cursor-grab">
                 <label>
                   <input
                     type="checkbox"
