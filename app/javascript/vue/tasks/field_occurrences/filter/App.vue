@@ -18,10 +18,23 @@
       <template #facets>
         <FilterView v-model="parameters" />
       </template>
+      <template #nav-right>
+        <span class="separate-left separate-right">|</span>
+        <TableLayoutSelector
+          v-model="currentLayout"
+          v-model:includes="includes"
+          v-model:properties="properties"
+          :layouts="layouts"
+          @reset="resetPreferences"
+          @sort="updatePropertiesPositions"
+          @sort:column="forceUpdatePreference"
+          @update="saveLayoutPreferences"
+        />
+      </template>
       <template #table>
         <FilterList
           :list="list"
-          :layout="LAYOUTS.All"
+          :layout="currentLayout"
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"
@@ -44,16 +57,34 @@ import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import { LAYOUTS } from './constants/layouts'
 import { listParser } from './utils/listParser'
 import { FIELD_OCCURRENCE } from '@/constants/index.js'
 import { FieldOccurrence } from '@/routes/endpoints'
+import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
 
 defineOptions({
   name: 'FilterFieldOccurrences'
 })
 
-const extend = ['collecting_event', 'taxon_determinations', 'identifiers']
+const extend = [
+  'collecting_event',
+  'taxon_determinations',
+  'identifiers',
+  'dwc_occurrence'
+]
+
+const {
+  currentLayout,
+  includes,
+  layouts,
+  properties,
+  updatePropertiesPositions,
+  saveLayoutPreferences,
+  resetPreferences,
+  forceUpdatePreference
+} = useTableLayoutConfiguration({ layouts: LAYOUTS, model: FIELD_OCCURRENCE })
 
 const {
   isLoading,

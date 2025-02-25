@@ -28,6 +28,7 @@ export async function listParser(list, { parameters }) {
     collecting_event: item.collecting_event,
     identifiers: item.identifiers,
     taxon_determinations: getTaxonDetermination(item.taxon_determinations),
+    dwc_occurrence: item.dwc_occurrence,
     data_attributes: getDataAttributesFor(body, item.id)
   }))
 }
