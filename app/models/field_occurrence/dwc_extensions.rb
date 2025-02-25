@@ -2,6 +2,8 @@ module FieldOccurrence::DwcExtensions
   extend ActiveSupport::Concern
 
   include Shared::Dwc::CollectingEventExtensions
+  include Shared::Dwc::TaxonDeterminationExtensions
+  include Shared::IsDwcOccurrence
 
   included do
 
@@ -39,35 +41,6 @@ module FieldOccurrence::DwcExtensions
       maximumDepthInMeters: :dwc_maximum_depth_in_meters,
       verbatimDepth: :dwc_verbatim_depth,
 
-      #  identifiedBy: :dwc_identified_by,
-      #  identifiedByID: :dwc_identified_by_id,
-      #  dateIdentified: :dwc_date_identified,
-      #  nomenclaturalCode: :dwc_nomenclatural_code,
-      #  kingdom: :dwc_kingdom,
-
-      #  phylum: :dwc_phylum,
-      #  dwcClass: :dwc_class,
-      #  order: :dwc_order,
-      #  higherClassification: :dwc_higher_classification,
-
-      #  superfamily: :dwc_superfamily,
-      #  family: :dwc_family,
-      #  subfamily: :dwc_subfamily,
-      #  tribe: :dwc_tribe,
-      #  subtribe: :dwc_subtribe,
-      #  genus: :dwc_genus,
-      #  specificEpithet: :dwc_specific_epithet,
-      #  infraspecificEpithet: :dwc_infraspecific_epithet,
-      #  scientificName: :dwc_scientific_name,
-      #  scientificNameAuthorship: :dwc_taxon_name_authorship,
-      #  taxonRank: :dwc_taxon_rank,
-      #  previousIdentifications: :dwc_previous_identifications,
-
-      #  typeStatus: :dwc_type_status,
-
-      #  institutionCode: :dwc_institution_code,
-      #  institutionID: :dwc_institution_id,
-
       recordedBy: :dwc_recorded_by, # TODO: Do we still use collector as in the data?
       recordedByID: :dwc_recorded_by_id,
 
@@ -89,6 +62,32 @@ module FieldOccurrence::DwcExtensions
       verbatimSRS: :dwc_verbatim_srs,
 
       occurrenceStatus: :dwc_occurrence_status,
+      eventRemarks: :dwc_event_remarks,
+      verbatimLabel: :dwc_verbatim_label,
+
+      identifiedBy: :dwc_identified_by,
+      identifiedByID: :dwc_identified_by_id,
+      dateIdentified: :dwc_date_identified,
+      nomenclaturalCode: :dwc_nomenclatural_code,
+      kingdom: :dwc_kingdom,
+
+      phylum: :dwc_phylum,
+      dwcClass: :dwc_class,
+      order: :dwc_order,
+      higherClassification: :dwc_higher_classification,
+
+      superfamily: :dwc_superfamily,
+      family: :dwc_family,
+      subfamily: :dwc_subfamily,
+      tribe: :dwc_tribe,
+      subtribe: :dwc_subtribe,
+      genus: :dwc_genus,
+      specificEpithet: :dwc_specific_epithet,
+      infraspecificEpithet: :dwc_infraspecific_epithet,
+      scientificName: :dwc_scientific_name,
+      scientificNameAuthorship: :dwc_taxon_name_authorship,
+      taxonRank: :dwc_taxon_rank,
+      previousIdentifications: :dwc_previous_identifications,
 
       #  # TODO: move to a proper extension(?)
       #  associatedMedia: :dwc_associated_media,
@@ -97,12 +96,7 @@ module FieldOccurrence::DwcExtensions
       #  associatedTaxa: :dwc_associated_taxa,
 
       #  occurrenceRemarks: :dwc_occurrence_remarks,
-
       #  identificationRemarks: :dwc_identification_remarks,
-
-      eventRemarks: :dwc_event_remarks,
-
-      verbatimLabel: :dwc_verbatim_label,
 
       #  # -- Core taxon? --
       #  # nomenclaturalCode
@@ -124,7 +118,7 @@ module FieldOccurrence::DwcExtensions
   end
 
   def dwc_occurrence_status
-    'present'
+    is_absent == true ? 'absent' : 'present'
   end
 
   # https://dwc.tdwg.org/list/#dwc_georeferenceRemarks

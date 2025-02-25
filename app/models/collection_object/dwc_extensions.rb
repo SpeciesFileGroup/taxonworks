@@ -2,8 +2,10 @@ module CollectionObject::DwcExtensions
 
   extend ActiveSupport::Concern
 
-  include CollectionObject::DwcExtensions::TaxonworksExtensions
+  include Shared::Dwc::TaxonDeterminationExtensions
   include Shared::Dwc::CollectingEventExtensions
+  include CollectionObject::DwcExtensions::TaxonworksExtensions
+  include Shared::IsDwcOccurrence
 
   included do
 
@@ -121,18 +123,7 @@ module CollectionObject::DwcExtensions
 
     # verbatim label data
 
-    # See attr_accessor in shared/is_dwc_occurrence.rb_
-
-    def target_taxon_name
-      @target_taxon_name ||= current_valid_taxon_name
-    end
-
-    def target_taxon_determination
-      @target_taxon_determination ||= current_taxon_determination
-    end
-
   end
-
 
   # use buffered if any
   # if not check CE verbatim_label
@@ -173,16 +164,6 @@ module CollectionObject::DwcExtensions
     s = s + '/api/v1/images/' + image.image_file_fingerprint # An experiment, use md5 as a proxy for id (also unique id)
   end
 
-  # ISO 8601:2004(E).
-  def dwc_date_identified
-    target_taxon_determination&.date.presence
-  end
-
-  def dwc_identified_by
-    # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    target_taxon_determination&.determiners&.map(&:name)&.join(CollectionObject::DWC_DELIMITER).presence
-  end
-
   # TODO: optimize by finding all relevant identifiers in one query, then looping through them
 
   def dwc_collection_code
@@ -203,30 +184,6 @@ module CollectionObject::DwcExtensions
     i.map(&:cached).join(CollectionObject::DWC_DELIMITER).presence
   end
 
-  def dwc_identified_by_id
-    # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    if target_taxon_determination
-      target_taxon_determination&.determiners
-        .joins(:identifiers)
-        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
-        .select('identifiers.identifier_object_id, identifiers.cached')
-        .unscope(:order)
-        .distinct
-        .pluck('identifiers.cached')
-        .join(CollectionObject::DWC_DELIMITER)&.presence
-    end
-  end
-
-  # https://dwc.tdwg.org/list/#dwc_identificationRemarks
-  def dwc_identification_remarks
-    target_taxon_determination&.notes&.collect{ |n| n.text }&.join(CollectionObject::DWC_DELIMITER).presence
-  end
-
-  def dwc_previous_identifications
-    a = taxon_determinations.order(:position).to_a
-    a.shift
-    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(CollectionObject::DWC_DELIMITER).presence
-  end
 
   # TODO: duplicated in CE extension
   def dwc_internal_attribute_for(target = :collection_object, dwc_term_name)
@@ -293,17 +250,6 @@ module CollectionObject::DwcExtensions
     biocuration_classes.where(uri: DWC_FOSSIL_URI).any?
   end
 
-  def dwc_infraspecific_epithet
-    %w{variety form subspecies}.each do |n| # add more as observed
-      return taxonomy[n].last if taxonomy[n]
-    end
-    nil
-  end
-
-  def dwc_taxon_rank
-    target_taxon_name&.rank
-  end
-
   # holotype of Ctenomys sociabilis. Pearson O. P., and M. I. Christie. 1985. Historia Natural, 5(37):388, holotype of Pinus abies | holotype of Picea abies
   def dwc_type_status
     type_materials.all.collect{|t|
@@ -317,65 +263,6 @@ module CollectionObject::DwcExtensions
     v.pop
     v.compact
     v.join(CollectionObject::DWC_DELIMITER).presence
-  end
-
-  def dwc_kingdom
-    taxonomy['kingdom']
-  end
-
-  def dwc_phylum
-    taxonomy['phylum']
-  end
-
-  def dwc_class
-    taxonomy['class']
-  end
-
-  def dwc_order
-    taxonomy['order']
-  end
-
-  # http://rs.tdwg.org/dwc/terms/superfamily
-  def dwc_superfamily
-    taxonomy['superfamily']
-  end
-
-  # http://rs.tdwg.org/dwc/terms/family
-  def dwc_family
-    taxonomy['family']
-  end
-
-  # http://rs.tdwg.org/dwc/terms/subfamily
-  def dwc_subfamily
-    taxonomy['subfamily']
-  end
-
-  # http://rs.tdwg.org/dwc/terms/tribe
-  def dwc_tribe
-    taxonomy['tribe']
-  end
-
-  # http://rs.tdwg.org/dwc/terms/subtribe
-  def dwc_subtribe
-    taxonomy['subtribe']
-  end
-
-  # http://rs.tdwg.org/dwc/terms/genus
-  def dwc_genus
-    taxonomy['genus'] && taxonomy['genus'].compact.join(' ').presence
-  end
-
-  # http://rs.tdwg.org/dwc/terms/species
-  def dwc_specific_epithet
-    taxonomy['species'] && taxonomy['species'].compact.join(' ').presence
-  end
-
-  def dwc_scientific_name
-    target_taxon_name&.cached_name_and_author_year
-  end
-
-  def dwc_taxon_name_authorship
-    target_taxon_name&.cached_author_year
   end
 
   # Definition: A list (concatenated and separated) of names of people, groups, or organizations responsible for recording the original Occurrence. The primary collector or observer, especially one who applies a personal identifier (recordNumber), should be listed first.
@@ -394,10 +281,6 @@ module CollectionObject::DwcExtensions
   # TODO: handle ranged lots
   def dwc_individual_count
     total
-  end
-
-  def dwc_nomenclatural_code
-    current_otu.try(:taxon_name).try(:nomenclatural_code)
   end
 
   def dwc_event_time

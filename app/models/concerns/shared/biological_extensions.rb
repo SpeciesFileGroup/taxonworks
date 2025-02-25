@@ -1,5 +1,6 @@
-# This is all code that properly belongs in CollectionObject::BiologicalCollectionObject,
-# but because inheritance sucks sometimes we include it at the top level
+# Shared code that references things with TaxonDeterminations and Biocuration classes
+#   Current FieldOccurence
+#           CollectionObject (should be CollectionObject::BiologicalCollectionObject)
 module Shared::BiologicalExtensions
 
   extend ActiveSupport::Concern
@@ -12,7 +13,6 @@ module Shared::BiologicalExtensions
     delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
     delegate :id, to: :current_otu, prefix: :otu, allow_nil: true
 
-    # TODO: polymorphic
     has_many :taxon_determinations, as: :taxon_determination_object, dependent: :destroy, inverse_of: :taxon_determination_object
 
     # All determiners, regardless of what the taxon is
@@ -34,10 +34,7 @@ module Shared::BiologicalExtensions
     accepts_nested_attributes_for :otus, allow_destroy: true, reject_if: :reject_otus
     accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
 
-    # !! New with FieldOccurrence , see current_taxon_determination
     has_one :taxon_determination, -> { order(:position).limit(1) }, as: :taxon_determination_object, class_name: 'TaxonDetermination', inverse_of: :taxon_determination_object
-
-    # !! New with FO
     has_one :otu, through: :taxon_determination, inverse_of: :taxon_determinations
 
     # Note that this should not be a has_one because order is over-ridden on .first
@@ -65,7 +62,7 @@ module Shared::BiologicalExtensions
         .joins('JOIN taxon_determinations td on o.id = td.otu_id')
         .where(td: {
           position: 1,
-          taxon_determination_object_type: 'CollectionObject',
+          taxon_determination_object_type: self.class.base_class.name,
           taxon_determination_object_id: id })
         .first
     end

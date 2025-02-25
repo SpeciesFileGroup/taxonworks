@@ -25,10 +25,6 @@ module Shared::IsDwcOccurrence
     scope :dwc_indexed, -> {joins(:dwc_occurrence)}
     scope :dwc_not_indexed, -> { where.missing(:dwc_occurrence) }
 
-    # Populated in individual models.
-    attr_accessor :target_taxon_determination
-
-    attr_accessor :target_taxon_name
   end
 
   module ClassMethods

@@ -35,12 +35,10 @@ class FieldOccurrence < ApplicationRecord
   include Shared::QueryBatchUpdate
   include SoftValidation
 
-  # At present must be before IsDwcOccurence
-  include FieldOccurrence::DwcExtensions
-  include Shared::Taxonomy
-
   include Shared::BiologicalExtensions
-  include Shared::IsDwcOccurrence
+  
+  include Shared::Taxonomy
+  include FieldOccurrence::DwcExtensions
 
   GRAPH_ENTRY_POINTS = [:biological_associations, :taxon_determinations, :biocuration_classifications, :collecting_event]
 

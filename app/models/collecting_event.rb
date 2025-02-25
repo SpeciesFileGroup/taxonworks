@@ -200,6 +200,7 @@ class CollectingEvent < ApplicationRecord
 
   include CollectingEvent::GeoLocate
   include CollectingEvent::Georeference
+  include CollectingEvent::DwcSerialization
 
   include Shared::QueryBatchUpdate
 
