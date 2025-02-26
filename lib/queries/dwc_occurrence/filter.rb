@@ -113,12 +113,21 @@ module Queries
       end
 
       def all_determined_by
-        ::DwcOccurrence
+        co = ::DwcOccurrence
           .joins("JOIN collection_objects co on co.id = dwc_occurrences.dwc_occurrence_object_id AND dwc_occurrences.dwc_occurrence_object_type = 'CollectionObject'")
           .joins("JOIN taxon_determinations td on td.taxon_determination_object_id = co.id AND td.taxon_determination_object_type = 'CollectionObject'")
           .joins("JOIN roles r on r.role_object_id = td.id AND r.role_object_type = 'TaxonDetermination' AND r.type = 'Determiner'")
           .where(r: {person_id:})
           .distinct
+
+        fo = ::DwcOccurrence
+          .joins("JOIN field_occurrences fo ON fo.id = dwc_occurrences.dwc_occurrence_object_id AND dwc_occurrences.dwc_occurrence_object_type = 'FieldOccurrence'")
+          .joins("JOIN taxon_determinations td on td.taxon_determination_object_id = fo.id AND td.taxon_determination_object_type = 'FieldOccurrence'")
+          .joins("JOIN roles r on r.role_object_id = td.id AND r.role_object_type = 'TaxonDetermination' AND r.type = 'Determiner'")
+          .where(r: {person_id:})
+          .distinct
+
+        ::Queries.union(::DwcOccurrence, [co, fo])
       end
 
       def all_georeferenced_by
