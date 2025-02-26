@@ -109,11 +109,17 @@ class Depiction < ApplicationRecord
   end
 
   def dwc_occurrences
-    # From CollectionObjects
-    DwcOccurrence
+    co = DwcOccurrence
       .joins("JOIN depictions d on d.depiction_object_id = dwc_occurrence_object_id AND d.depiction_object_type = 'CollectionObject'")
       .where(d: {id:}, dwc_occurrences: {dwc_occurrence_object_type: 'CollectionObject'})
       .distinct
+
+    fo = DwcOccurrence
+      .joins("JOIN depictions d on d.depiction_object_id = dwc_occurrence_object_id AND d.depiction_object_type = 'FieldOccurrence'")
+      .where(d: {id:}, dwc_occurrences: {dwc_occurrence_object_type: 'FieldOccurrence'})
+      .distinct
+
+    ::Queries.union(DwcOccurrence, [co, fo])
   end
 
   private

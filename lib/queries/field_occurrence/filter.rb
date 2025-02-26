@@ -14,10 +14,14 @@ module Queries
         *::Queries::CollectingEvent::Filter::BASE_PARAMS,
         *Queries::Concerns::DateRanges.params, # Fead to CE query. Revisit possibly.
 
+        :biocuration_class_id,
         :biological_association_id,
         :biological_associations,
         # :biological_relationship_id,
+        :collecting_event_id,
+        :determiner_id,
         :field_occurrence_id,
+        :geographic_area_id,
         # :collectors,
         # :current_determinations,
         :dates,
@@ -28,6 +32,7 @@ module Queries
         # :dwc_indexed,
         :georeferences,
         # :import_dataset_id,
+        :otu_id,
         # :sled_image_id,
         :spatial_geographic_areas,
         # :taxon_determination_id,
