@@ -109,15 +109,15 @@ class DwcOccurrence < ApplicationRecord
   end
 
   def collection_object
-    dwc_occurrence_object_type == 'CollectionObject' ? dwc_occurence_object : nil
+    dwc_occurrence_object_type == 'CollectionObject' ? dwc_occurrence_object : nil
   end
 
   def asserted_distribution
-    dwc_occurrence_object_type == 'AssertedDistribution' ? dwc_occurence_object : nil
+    dwc_occurrence_object_type == 'AssertedDistribution' ? dwc_occurrence_object : nil
   end
 
   def field_occurrence
-    dwc_occurrence_object_type == 'FieldOccurrence' ? dwc_occurence_object : nil
+    dwc_occurrence_object_type == 'FieldOccurrence' ? dwc_occurrence_object : nil
   end
 
   def collecting_event
