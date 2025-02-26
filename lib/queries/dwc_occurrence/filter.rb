@@ -107,7 +107,8 @@ module Queries
           ::DwcOccurrence, [
             all_determined_by,
             all_georeferenced_by,
-            all_collected_by
+            all_collected_by,
+            all_observed_by
           ])
       end
 
@@ -136,6 +137,16 @@ module Queries
           .joins('JOIN collecting_events ce on co.collecting_event_id = ce.id')
           .joins("JOIN roles r on r.role_object_id = ce.id AND r.role_object_type = 'CollectingEvent' AND r.type = 'Collector'")
           .where(r: {person_id:})
+          .distinct
+      end
+
+      def all_observed_by
+        fo = ::Queries::FieldOccurrence::Filter.new({
+          collector_id: person_id
+        }).all
+
+        ::DwcOccurrence
+          .joins("JOIN (#{fo.to_sql}) AS fo ON dwc_occurrences.dwc_occurrence_object_id = fo.id AND dwc_occurrences.dwc_occurrence_object_type = 'FieldOccurrence'")
           .distinct
       end
 
