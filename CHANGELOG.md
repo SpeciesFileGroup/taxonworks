@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Rendering of Identifier::Local::RecordNumber
 - Reset button is not working on Unify people
 
 [#4204]: https://github.com/SpeciesFileGroup/taxonworks/pull/4204
