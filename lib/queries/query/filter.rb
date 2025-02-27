@@ -316,7 +316,6 @@ module Queries
 
     def venn_mode
       v = @venn_mode.to_s.downcase.to_sym
-      v  = :ab if v.blank?
       if [:a, :ab, :b].include?(v)
         v
       else
@@ -765,7 +764,7 @@ module Queries
         q = referenced_klass.all
       end
 
-      if venn && !api
+      if venn_mode && venn && !api
         q = apply_venn(q)
       end
 
