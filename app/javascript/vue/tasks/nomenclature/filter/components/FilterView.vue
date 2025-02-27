@@ -26,6 +26,7 @@
   <FacetTaxonNameType v-model="params" />
   <FacetRelationships v-model="params" />
   <FacetStatus v-model="params" />
+  <FacetRelationToRelationship v-model="params" />
   <FacetInRelationship v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
   <FacetTags
@@ -83,6 +84,7 @@ import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.v
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
+import FacetRelationToRelationship from './filters/FacetRelationToRelationship.vue'
 import { computed } from 'vue'
 import { TAXON_NAME } from '@/constants'
 

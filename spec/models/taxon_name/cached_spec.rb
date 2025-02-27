@@ -49,7 +49,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
       end
 
-      let(:family) { FactoryBot.create(:relationship_family) }
+      let(:family) { FactoryBot.create(:relationship_family, name: 'Cicadidae', verbatim_name: 'Cicadaria') }
       let(:genus1) { FactoryBot.create(:relationship_genus, name: 'Aus', parent: family) }
       let(:genus2) { FactoryBot.create(:relationship_genus, name: 'Bus', parent: family) }
       let(:species) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758) }
@@ -177,6 +177,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         specify '#cached_html' do
           expect(family.cached_html).to eq(family.name)
         end
+
+        specify '#cached_original_combiantion' do
+          expect(family.cached_original_combination).to eq('Cicadaria')
+        end
+
+        specify '#cached_original_combiantion_html' do
+          expect(family.cached_original_combination_html).to eq('Cicadaria')
+        end
       end
 
       context '#combination_verbatim_name' do
@@ -203,7 +211,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify '#cached_classified_as' do
-            expect(species.cached_classified_as).to eq(' (as Erythroneuridae)')
+            expect(species.cached_classified_as).to eq(' (as Cicadidae)')
           end
 
           specify '#cached_html' do

@@ -32,7 +32,7 @@ module Shared::DwcOccurrenceHooks
             d.dwc_occurrence_object.set_dwc_occurrence
           end
         else
-          dwc_occurrences.update_columns(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
+          dwc_occurrences.update_all(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
           ::DwcOccurrenceRefreshJob.perform_later(project_id:, user_id: Current.user_id)
         end
 
