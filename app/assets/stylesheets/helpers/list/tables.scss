@@ -5,10 +5,18 @@
 
   tr:nth-of-type(even) {
     @extend .list_line_even;
+
+    td {
+      @extend .list_line_even;
+    }
   }
 
   tr:nth-of-type(odd) {
     @extend .list_line_odd;
+
+    td {
+      @extend .list_line_odd;
+    }
   }
 }
 
@@ -107,5 +115,28 @@ table {
 
   .highlight {
     background-color: #e3e8e3 !important;
+  }
+}
+
+.table-cell-border {
+  td {
+    border-bottom: 1px solid $navigation_border;
+    border-right: 1px solid $navigation_border;
+  }
+
+  tbody {
+    td:first-child {
+      border-left: 1px solid $navigation_border;
+    }
+  }
+}
+
+.table-header-border {
+  th {
+    border-right: 1px solid $navigation_border;
+  }
+
+  th:first-child {
+    border-left: 1px solid $navigation_border;
   }
 }

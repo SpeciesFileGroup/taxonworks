@@ -62,6 +62,18 @@ class DwcOccurrence < ApplicationRecord
     d ? d : field
   end
 
+  belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
+
+  before_validation :generate_uuid_if_required
+  before_validation :set_metadata_attributes
+
+  validates_presence_of :basisOfRecord
+
+  validates :dwc_occurrence_object, presence: true
+  validates :dwc_occurrence_object_id, uniqueness: { scope: [:dwc_occurrence_object_type, :project_id] }
+
+  attr_accessor :occurrence_identifier
+
   # Strip nils when `to_json` used
   def as_json(options = {})
     super(options.merge(except: attributes.keys.select{ |key| self[key].nil? }))
@@ -79,18 +91,6 @@ class DwcOccurrence < ApplicationRecord
     end
     a.sort.to_h
   end
-
-  belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
-
-  before_validation :generate_uuid_if_required
-  before_validation :set_metadata_attributes
-
-  validates_presence_of :basisOfRecord
-
-  validates :dwc_occurrence_object, presence: true
-  validates :dwc_occurrence_object_id, uniqueness: { scope: [:dwc_occurrence_object_type,:project_id] }
-
-  attr_accessor :occurrence_identifier
 
   def collection_object
     dwc_occurrence_object_type == 'CollectionObject' ? dwc_occurence_object : nil
@@ -250,7 +250,14 @@ class DwcOccurrence < ApplicationRecord
       else # Not recommended at this point
         return 'Occurrence'
       end
+    when 'FieldOccurrence'
+      if dwc_occurrence_object.machine_output?
+        return 'MachineObservation'
+      else
+        return 'HumanObservation'
+      end
     end
+
     'Undefined'
   end
 

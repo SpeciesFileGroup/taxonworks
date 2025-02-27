@@ -280,12 +280,11 @@ export default {
       this.objectLists.tree = copyList.tree || {}
       this.objectLists.commonList = copyList.common || {}
       this.objectLists.allList = copyList.all || {}
-      this.addType(this.objectLists.allList)
-      this.objectLists.allList = Object.keys(this.objectLists.allList).map(
-        (key) => this.objectLists.allList[key]
-      )
-      this.getTreeList(this.objectLists.tree, copyList.all)
       this.addType(this.objectLists.commonList)
+      this.addType(this.objectLists.allList)
+      this.objectLists.commonList = Object.values(this.objectLists.commonList)
+      this.objectLists.allList = Object.values(this.objectLists.allList)
+      this.getTreeList(this.objectLists.tree, copyList.all)
     },
 
     activeModal(value) {

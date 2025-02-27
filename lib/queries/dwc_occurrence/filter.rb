@@ -4,9 +4,12 @@ module Queries
     # Keep this minimal, in pricinple filtering should be done on the base objects, not the core here.
     class Filter < Query::Filter
 
-      ATTRIBUTES = ::DwcOccurrence.column_names.reject{ |c| %w{
-        id project_id created_by_id updated_by_id created_at updated_at
-                                                        }.include?(c)}.map(&:to_sym).freeze
+      ATTRIBUTES = ::DwcOccurrence.column_names.reject{ |c|
+        %w{
+          id project_id created_by_id updated_by_id created_at updated_at
+          is_flagged_for_rebuild
+        }.include?(c)
+      }.map(&:to_sym).freeze
 
       include Queries::Helpers
       include Queries::Concerns::Users
@@ -16,27 +19,19 @@ module Queries
         *Queries::Concerns::Attributes.params,
         *ATTRIBUTES,
         :dwc_occurrence_id,
-        :dwc_occurrence_object_type,
-        :dwc_occurrence_object_id,
         :person_id,
         :taxon_name_id,
         #  :otu_id,
 
-        dwc_occurrence_object_type: [],
-        dwc_occurrence_object_id: [],
         dwc_occurrence_id: [],
         #   otu_id: [],
         person_id: [],
-        taxon_name_id: [],
+        taxon_name_id: []
       ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
       # @params dwc_occurrence_id [Integer, Array, nil]
       #   the TW native id, *not* the occurrenceID
       attr_accessor :dwc_occurrence_id
-
-      # Used independantly now, not paired
-      attr_accessor :dwc_occurrence_object_id
-      attr_accessor :dwc_occurrence_object_type
 
       #  attr_accessor :otu_id
       attr_accessor :person_id
@@ -46,8 +41,6 @@ module Queries
         super
 
         @dwc_occurrence_id = params[:dwc_occurrence_id]
-        @dwc_occurrence_object_id = params[:dwc_occurrence_object_id]
-        @dwc_occurrence_object_type = params[:dwc_occurrence_object_type]
 
         #  @otu_id = params[:otu_id]
         @person_id = params[:person_id]
@@ -58,14 +51,6 @@ module Queries
 
       def dwc_occurrence_id
         [@dwc_occurrence_id].flatten.compact
-      end
-
-      def dwc_occurrence_object_id
-        [@dwc_occurrence_object_id].flatten.compact
-      end
-
-      def dwc_occurrence_object_type
-        [@dwc_occurrence_object_type].flatten.compact
       end
 
       # def otu_id
@@ -83,16 +68,6 @@ module Queries
       def dwc_occurrence_id_facet
         return nil if dwc_occurrence_id.empty?
         table[:id].in(dwc_occurrence_id)
-      end
-
-      def dwc_occurrence_object_id_facet
-        return nil if dwc_occurrence_object_id.empty?
-        table[:dwc_occurrence_object_id].in(dwc_occurrence_object_id)
-      end
-
-      def dwc_occurrence_object_type_facet
-        return nil if dwc_occurrence_object_type.empty?
-        table[:dwc_occurrence_object_type].in(dwc_occurrence_object_type)
       end
 
       # TODO: these should be referenced through base queries
@@ -208,12 +183,10 @@ module Queries
       end
 
       def and_clauses
-        [ dwc_occurrence_id_facet,
-          dwc_occurrence_object_id_facet,
-          dwc_occurrence_object_type_facet,
+        [
+          dwc_occurrence_id_facet
         ]
       end
-
     end
   end
 end

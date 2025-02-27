@@ -24,6 +24,7 @@ module Shared::IsDwcOccurrence
 
     scope :dwc_indexed, -> {joins(:dwc_occurrence)}
     scope :dwc_not_indexed, -> { where.missing(:dwc_occurrence) }
+
   end
 
   module ClassMethods

@@ -499,6 +499,17 @@ module Queries
         ::Otu.from('(' + s + ') as otus').distinct
       end
 
+      def field_occurrence_query_facet
+        return nil if field_occurrence_query.nil?
+        s = 'WITH query_fo_otus AS (' + field_occurrence_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:field_occurrences)
+          .joins('JOIN query_fo_otus as query_fo_otus1 on field_occurrences.id = query_fo_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
         s = 'WITH query_ce_otus AS (' + collecting_event_query.all.to_sql + ') ' +
@@ -630,6 +641,7 @@ module Queries
           biological_association_query_facet,
           collecting_event_query_facet,
           collection_object_query_facet,
+          field_occurrence_query_facet,
           content_query_facet,
           descriptor_query_facet,
           extract_query_facet,

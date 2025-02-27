@@ -124,7 +124,7 @@ module CollectionObjectsHelper
               WHEN identifiers.type IN ('Identifier::Local::CatalogNumber', 'Identifier::Local::RecordNumber') THEN 0  \
               ELSE 1                                                                                        \
             END, \
-          identifiers.position")).select(:type, :identifier, :cached).first
+           identifiers.position")).select(:type, :identifier, :namespace_id, :cached).first
 
     return [:collection_object, identifier_tag(i)] if i&.is_local?
 
