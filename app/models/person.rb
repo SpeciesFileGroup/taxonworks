@@ -449,6 +449,7 @@ class Person < ApplicationRecord
   end
 
   def dwc_occurrences
+    # Updates in all projects (as it should)
     ::Queries::DwcOccurrence::Filter.new(person_id: [id]).all
   end
 
