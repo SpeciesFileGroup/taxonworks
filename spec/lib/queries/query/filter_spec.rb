@@ -28,7 +28,7 @@ describe Queries::Query::Filter, type: [:model] do
 
     specify '#apply_venn ab' do
       v = "http://127.0.0.1:3000/otus/filter.json?name=#{o2.name}"
-      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id, o3.id], venn: v)
+      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id, o3.id], venn: v, venn_mode: :ab)
       expect(a.all).to contain_exactly(o2)
     end
 
@@ -69,6 +69,7 @@ describe Queries::Query::Filter, type: [:model] do
   end
 
   specify '#venn_mode 0' do
+    query.venn_mode = 'ab'
     expect(query.venn_mode).to eq(:ab)
   end
 
