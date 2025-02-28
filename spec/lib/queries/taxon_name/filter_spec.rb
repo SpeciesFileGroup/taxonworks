@@ -186,6 +186,39 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(genus.id, root.id)
   end
 
+  context '#latinized' do
+    let!(:fem_genus) {
+      g = Protonym.create!(name: 'Rosa',
+        rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      TaxonNameClassification::Latinized::Gender::Feminine.create!(taxon_name: g)
+      g
+    }
+
+    let!(:fem_species) {
+      s = Protonym.create!(
+        name: 'blanda',
+        rank_class: Ranks.lookup(:iczn, 'species'),
+        parent: fem_genus
+      )
+      TaxonNameClassification::Latinized::PartOfSpeech::Adjective.create!(taxon_name: s)
+      s
+    }
+
+    specify '#latinized true' do
+      query.latinized = true
+      expect(query.all.map(&:id)).to contain_exactly(
+        fem_genus.id, fem_species.id
+      )
+    end
+
+    specify '#latinized false' do
+      query.latinized = false
+      expect(query.all.map(&:id)).to contain_exactly(
+        genus.id, original_genus.id, species.id
+      )
+    end
+  end
+
   specify '#nomenclature_group 1' do
     query.nomenclature_group = 'Species'
     expect(query.all.map(&:id)).to contain_exactly(species.id)
