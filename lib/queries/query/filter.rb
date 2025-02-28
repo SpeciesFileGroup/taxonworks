@@ -316,7 +316,6 @@ module Queries
 
     def venn_mode
       v = @venn_mode.to_s.downcase.to_sym
-      v  = :ab if v.blank?
       if [:a, :ab, :b].include?(v)
         v
       else
@@ -707,8 +706,18 @@ module Queries
     end
 
     def venn_query
-      u = ::Addressable::URI.parse(venn)
-      p = ::Rack::Utils.parse_query(u.query)
+      u = ::Addressable::URI.parse(venn).query
+      # Brackets may be multi-encoded
+      t = nil
+      i = 0
+      max = 10
+      while t != u && i < max
+        t = u
+        u = Addressable::URI.unencode(t)
+        i += 1
+      end
+
+      p = ::Rack::Utils.parse_nested_query(u) # nested supports brackets
 
       a = ActionController::Parameters.new(p)
 
@@ -755,7 +764,7 @@ module Queries
         q = referenced_klass.all
       end
 
-      if venn && !api
+      if venn_mode && venn && !api
         q = apply_venn(q)
       end
 
