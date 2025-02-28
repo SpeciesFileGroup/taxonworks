@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Add total to unmatched panel on Nomenclature match task
+- Prevent user destroy last saved TD on New FO task [#4225]
 
 ### Fixed
 
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4204]: https://github.com/SpeciesFileGroup/taxonworks/pull/4204
 [#4219]: https://github.com/SpeciesFileGroup/taxonworks/pull/4219
 [#4220]: https://github.com/SpeciesFileGroup/taxonworks/pull/4220
+[#4225]: https://github.com/SpeciesFileGroup/taxonworks/pull/4225
 
 ## [0.48.0] - 2025-02-14
 

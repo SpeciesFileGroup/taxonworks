@@ -22,7 +22,7 @@
         v-model="determinationStore.determinations"
         v-model:lock="settings.locked.taxonDeterminations"
         @edit="editTaxonDetermination"
-        @delete="determinationStore.remove"
+        @delete="removeDetermination"
       />
     </template>
   </BlockLayout>
@@ -59,6 +59,25 @@ function editTaxonDetermination(item) {
     position: item.position,
     roles_attributes: item?.determiner_roles || item.roles_attributes || []
   })
+}
+
+function removeDetermination(determination) {
+  if (
+    determinationStore.determinations.filter((d) => d.id).length === 1 &&
+    determination.id
+  ) {
+    TW.workbench.alert.create(
+      'You cannot delete this record, at least one taxon determination saved is required.',
+      'error'
+    )
+  } else if (
+    !determination.id ||
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    determinationStore.remove(determination)
+  }
 }
 
 onMounted(() => {
