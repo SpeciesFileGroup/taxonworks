@@ -64,7 +64,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: process.env.REF_SHA,
-              check_name: 'build (0)'
+              check_name: 'build (ubuntu-24.04, 0)'
             })
           ).data.check_runs[0].check_suite.id
 
