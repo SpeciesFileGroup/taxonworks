@@ -168,7 +168,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
             expect(collecting_event.map_center_method).to eq(:geographic_area)
           end
 
-          specify 'return geographic area centroid' do
+          xspecify 'return geographic area centroid' do # Cannot compute centroid of 3D geography: https://github.com/rgeo/rgeo/issues/376
             # check to see if geo_object has native centroid method
             expect(collecting_event.map_center).to eq(area_a.default_geographic_item.geo_object.centroid)
           end
