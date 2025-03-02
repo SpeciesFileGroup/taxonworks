@@ -33,7 +33,7 @@ class ImportDataset < ApplicationRecord
   include Shared::IsData
   include Shared::OriginRelationship
 
-  attribute :status, :string, default: "Uploaded"
+  attribute :status, :string, default: 'Uploaded'
 
   has_many :dataset_record_fields, dependent: :delete_all # To speed up queries, normally should be get through dataset_records
   has_many :dataset_records, dependent: :delete_all
@@ -45,15 +45,15 @@ class ImportDataset < ApplicationRecord
 
   validates :type, presence: true
   validates :status, presence: true
-  validates :description, uniqueness: { scope: :project }, presence: true, length: { minimum: 2 }
+  validates :description, uniqueness: { scope: :project_id }, presence: true, length: { minimum: 2 }
 
   validates_attachment :source, presence: true,
     file_name: { matches: [/\.txt\z/, /\.csv\z/, /\.tsv\z/, /\.xlsx?\z/, /\.ods\z/, /\.zip\z/] },
-    size: { greater_than: 1.bytes }
+    size: { greater_than: 1.byte }
 
   # Stages all records from source file into DB. Implementors must not assume it will be called only once.
   def stage
-    raise "Implementation missing"
+    raise 'Implementation missing'
   end
 
   private

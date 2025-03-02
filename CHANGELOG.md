@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Rendering of Identifier::Local::RecordNumber
 - Reset button is not working on Unify people
+- Import dataset description uniqueness validation failing to detect duplicate
 
 [#4204]: https://github.com/SpeciesFileGroup/taxonworks/pull/4204
 [#4219]: https://github.com/SpeciesFileGroup/taxonworks/pull/4219
