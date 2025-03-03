@@ -1252,6 +1252,22 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_18_185734) do
     t.index ["descendant_id"], name: "lead_desc_idx"
   end
 
+  create_table "lead_items", force: :cascade do |t|
+    t.integer "lead_id", null: false
+    t.integer "otu_id", null: false
+    t.bigint "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_lead_items_on_created_by_id"
+    t.index ["lead_id"], name: "index_lead_items_on_lead_id"
+    t.index ["otu_id"], name: "index_lead_items_on_otu_id"
+    t.index ["project_id"], name: "index_lead_items_on_project_id"
+    t.index ["updated_by_id"], name: "index_lead_items_on_updated_by_id"
+  end
+
   create_table "leads", force: :cascade do |t|
     t.bigint "parent_id"
     t.bigint "otu_id"
@@ -2397,6 +2413,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_18_185734) do
   add_foreign_key "labels", "users", column: "updated_by_id", name: "labels_updated_by_id_fk"
   add_foreign_key "languages", "users", column: "created_by_id", name: "languages_created_by_id_fkey"
   add_foreign_key "languages", "users", column: "updated_by_id", name: "languages_updated_by_id_fkey"
+  add_foreign_key "lead_items", "projects"
   add_foreign_key "leads", "leads", column: "parent_id"
   add_foreign_key "leads", "leads", column: "redirect_id"
   add_foreign_key "leads", "otus"

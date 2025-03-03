@@ -27,3 +27,20 @@ else
 end
 
 json.ancestors @ancestors
+
+# TODO yuk de/re-structuring to get extended otus
+json.lead_item_otus do
+  json.parent do
+    json.array! @lead_item_otus[:parent] do |otu|
+      json.partial! '/otus/attributes', otu:, extensions: false
+    end
+  end
+
+  json.children @lead_item_otus[:children]
+  #   json.array! @lead_item_otus[:children] do |c|
+  #     json.array! c do |otu|
+  #       json.partial! '/otus/attributes', otu:, extensions: false
+  #     end
+  #   end
+  # end
+end

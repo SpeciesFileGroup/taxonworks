@@ -43,11 +43,14 @@ class LeadsController < ApplicationController
   # GET /leads/1.json
   def show
     if @lead.children.present?
+      @lead.register_new_lead_items
       expand_lead
     else
       @children = nil
       @futures = nil
       @ancestors = @lead.ancestors.reverse
+      #@lead.populate_new_lead_items
+      #@lead_item_otus = @lead.apportioned_lead_item_otus
     end
   end
 
@@ -98,6 +101,7 @@ class LeadsController < ApplicationController
     num_to_add.times do
       @lead.children.create!
     end
+    @lead.register_new_lead_items
     expand_lead
     render action: :show, status: :created, location: @lead
   end
@@ -151,12 +155,14 @@ class LeadsController < ApplicationController
   # can be called on any lead, not just root.
   # POST /leads/1/destroy_subtree.json
   def destroy_subtree
+    parent = @lead.parent
     begin
       @lead.transaction_nuke
     rescue ActiveRecord::RecordInvalid
       render json: @lead.errors, status: :unprocessable_entity
     end
 
+    parent.register_new_lead_items
     head :no_content
   end
 
@@ -276,6 +282,30 @@ class LeadsController < ApplicationController
     render '/leads/api/v1/key'
   end
 
+  # TODO: rename, cleanup - it creates one new key, many lead_items
+  def batch_create
+    @lead = Lead.batch_create(params.merge(project_id: sessions_current_project_id))
+    if @lead.present?
+      new_couplet
+      render json: @lead
+    else
+      render json: @lead, status: :unprocessable_entity
+    end
+  end
+
+  def add_otu_index
+    new_lead = Lead.find(params[:lead_id])
+    #byebug
+    LeadItem.where(lead_id: new_lead.siblings.map(&:id),
+      otu_id: params[:otu_id]).destroy_all
+
+    LeadItem.create!(lead_id: params[:lead_id], otu_id: params[:otu_id])
+
+    @lead = new_lead.parent
+    expand_lead
+    render action: :show, location: @lead
+  end
+
   private
 
   def set_lead
@@ -298,6 +328,7 @@ class LeadsController < ApplicationController
     @children = @lead.children
     @futures = @lead.children.map(&:future)
     @ancestors = @lead.ancestors.reverse
+    @lead_item_otus = @lead.apportioned_lead_item_otus
   end
 
   def new_couplet

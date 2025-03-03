@@ -38,6 +38,8 @@ export default async function(id_or_couplet) {
     origin_label: lo.lead.origin_label,
     children: editableFieldsObjectsForLeads(lo.children)
   }
+  this.lead_item_otus = lo.lead_item_otus
+
 
   setParam(RouteNames.NewLead, 'lead_id', lo.lead.id)
 }

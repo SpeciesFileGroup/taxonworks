@@ -103,6 +103,8 @@
         :position="i"
         :redirect-options="redirectOptions"
         @editing-has-occurred="() => emit('editingHasOccurred')"
+        :lead-otus="store.lead_item_otus.parent"
+        :checked-otus="store.lead_item_otus.children[i]"
       />
     </div>
   </div>
@@ -367,9 +369,16 @@ function childHasChildren(child, i) {
 
 <style lang="scss" scoped>
 .left_and_right_couplet {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
+  //display: flex;
+  //justify-content: space-around;
+  //flex-wrap: wrap;
+  //gap: 2em;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-rows: repeat(2, max-content);
+  grid-auto-flow: column;
+  grid-template-columns: repeat(auto-fit, minmax(min-content, 1fr));
+  justify-content: center;
   gap: 2em;
 }
 .couplet_center {

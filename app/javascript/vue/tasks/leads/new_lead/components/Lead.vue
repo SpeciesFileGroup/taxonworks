@@ -64,7 +64,7 @@
       >
         <i>This side is currently redirecting, to add leads below remove the redirection.</i>
       </div>
-      <div class="navigation">
+      <div class="lead_navigation">
         <VBtn
           :disabled="nextButtonDisabled"
           color="update"
@@ -158,6 +158,18 @@
       />
     </template>
   </BlockLayout>
+
+
+  <LeadItems
+    :otu-list="leadOtus"
+    :checked="checkedOtus"
+    @add-otu-index="(otuIndex) => addOtuIndex(otuIndex)"
+    @lead-item-deleted="(otu_id) => leadItemDeleted(otu_id)"
+    @otu-selected="(otu_id) => addLeadItem(otu_id)"
+    :lead-id="store.children[position].id"
+    :show-add-otu="position == 0"
+    class="lead_items"
+  />
 </template>
 
 <script setup>
@@ -165,6 +177,7 @@ import { DEPICTION, LEAD } from '@/constants/index.js'
 import { DIRECTIONS } from '../store/constants/directions.js'
 import { computed, ref } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
+import { LeadItem } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
@@ -173,6 +186,7 @@ import { useUserOkayToLeave } from './composables/useUserOkayToLeave.js'
 import Annotations from './Annotations.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import FutureCoupletsList from '../../components/FutureCoupletsList.vue'
+import LeadItems from './LeadItems.vue'
 import OtuChooser from './OtuChooser.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -187,6 +201,14 @@ const props = defineProps({
   redirectOptions: {
     type: Array,
     required: true
+  },
+  leadOtus: {
+    type: Array,
+    default: []
+  },
+  checkedOtus: {
+    type: Array,
+    default: []
   }
 })
 
@@ -256,6 +278,37 @@ function insertCouplet() {
   })
 }
 
+
+function addOtuIndex(otu_index) {
+  store.addOtuIndex(props.position, otu_index)
+}
+
+function leadItemDeleted(otu_id) {
+  if (!window.confirm('Are you sure you want to delete this otu row?')) {
+    return
+  }
+
+  LeadItem.destroy_item({
+    otu_id,
+    lead_parent_id: store.lead.id
+  })
+    .then(() => {
+      store.loadKey(store.lead.id)
+    })
+    .catch(() => {})
+}
+
+function addLeadItem(otu_id) {
+  LeadItem.create({ lead_item: {
+    otu_id,
+    lead_id: store.lead.id
+  }})
+    .then(() => {
+      store.loadKey(store.lead.id)
+    })
+    .catch(() => {})
+}
+
 function nextCouplet() {
   if (!useUserOkayToLeave(store)) {
     return
@@ -288,6 +341,7 @@ function deleteSubTree() {
     return
   }
 
+  const hasCheckedLeadItems = props.checkedOtus.length > 0
   loading.value = true
   LeadEndpoint.destroy_subtree(store.children[props.position].id)
     .then(() => {
@@ -295,6 +349,11 @@ function deleteSubTree() {
         ? 'Lead and descendants deleted.'
         : 'Lead deleted')
       store.deleteChild(props.position)
+      if (hasCheckedLeadItems) {
+        // Reload the key so that checked items that were on this lead get moved
+        // to a different lead.
+        store.loadKey(store.lead.id)
+      }
       TW.workbench.alert.create(noticeText, 'notice')
       emit('editingHasOccurred')
     })
@@ -350,13 +409,27 @@ function changeLeadPosition(direction) {
     margin-right: 0.5em;
   }
 }
-.lead {
+
+.lead_items {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  margin: 0 auto;
+  margin-bottom: 1.5em;
+  width: 100%;
   max-width: 600px;
-  min-width: 360px;
-  flex-grow: 1;
-  margin-bottom: 2em;
 }
-.navigation {
+
+.lead {
+  display: flex;
+  max-width: 600px;
+  width: 100%;
+  min-width: 360px;
+  //flex-grow: 1;
+  margin-bottom: 2em;
+  margin: 0 auto;
+}
+.lead_navigation {
   display: flex;
   justify-content: space-evenly;
   gap: 3px;
