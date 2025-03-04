@@ -26,3 +26,10 @@ end
 if extend_response_with('bibtex') && source.is_bibtex?
   json.bibtex source.to_bibtex.to_s
 end
+
+if extend_response_with('identifiers')
+  json.identifiers do
+    json.merge! extend_identifiers(source)
+  end
+end
+
