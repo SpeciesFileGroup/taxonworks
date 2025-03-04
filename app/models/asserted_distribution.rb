@@ -31,8 +31,8 @@ class AssertedDistribution < ApplicationRecord
   include Shared::OriginRelationship
   include Shared::Identifiers
   include Shared::HasPapertrail
-  include Shared::Taxonomy # at present must preceed IsDwcOccurence
-  include Shared::IsDwcOccurrence
+  include Shared::Taxonomy # at present must preceed DwcExtensions
+
   include AssertedDistribution::DwcExtensions
   include Shared::IsData
 

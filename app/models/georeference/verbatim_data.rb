@@ -67,11 +67,11 @@ class Georeference::VerbatimData < Georeference
       verbatimLatitude: collecting_event.verbatim_latitude,
       verbatimLongitude: collecting_event.verbatim_longitude,
       coordinateUncertaintyInMeters: error_radius,
-      georeferenceSources: 'Physical collection object.',
+      georeferenceSources: 'Transcribed from verbatim label, field note, or published data.',
       georeferenceRemarks: "Derived from a instance of TaxonWorks' Georeference::VerbatimData.",
       geodeticDatum: nil  # TODO: check
     )
-    h[:georeferenceProtocol] = 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).' if h[:georeferenceProtocol].blank?  
+    h[:georeferenceProtocol] = 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).' if h[:georeferenceProtocol].blank?
     h
   end
 

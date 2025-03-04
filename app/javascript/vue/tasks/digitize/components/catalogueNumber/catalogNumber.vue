@@ -64,8 +64,7 @@
             }"
             type="text"
             v-model="store.identifier.identifier"
-            @input="checkIdentifier"
-            @change="() => (store.identifier.isUnsaved = true)"
+            @input="identifierChanged"
           />
           <label>
             <input
@@ -182,6 +181,11 @@ function handleTabChange(tab) {
   if (tab === 'new') {
     widgetNamespaceRef.value.open()
   }
+}
+
+function identifierChanged() {
+  store.identifier.isUnsaved = true
+  checkIdentifier()
 }
 
 function checkIdentifier() {

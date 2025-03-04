@@ -3,6 +3,17 @@
     <h1>Multi-update data attributes</h1>
     <ul class="context-menu">
       <li>
+        <label
+          title="Enable this option to append clipboard content to the existing cell value instead of replacing it when pasting."
+        >
+          <input
+            type="checkbox"
+            v-model="store.settings.append"
+          />
+          Append
+        </label>
+      </li>
+      <li>
         <label>
           <input
             type="checkbox"

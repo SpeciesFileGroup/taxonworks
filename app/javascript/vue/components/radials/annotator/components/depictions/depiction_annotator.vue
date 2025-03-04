@@ -120,6 +120,7 @@
       />
       <DepictionList
         v-model="list"
+        @move="removeFromList"
         @delete="removeItem"
         @selected="(item) => (depiction = item)"
         @update:caption="updateDepiction"

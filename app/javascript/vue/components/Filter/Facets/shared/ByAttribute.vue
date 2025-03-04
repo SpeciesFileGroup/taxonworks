@@ -8,14 +8,14 @@
         v-model="selectedField"
       >
         <template
-          v-for="field in fields"
-          :key="field.name"
+          v-for="name in fieldNames"
+          :key="name"
         >
           <option
-            v-if="!selectedFields.find((item) => item.param === field.name)"
-            :value="field"
+            v-if="!selectedFields.find((item) => item.param === name)"
+            :value="{name, type: fields[name]}"
           >
-            {{ field.name }}
+            {{ name }}
           </option>
         </template>
       </select>
@@ -29,42 +29,37 @@
   />
 
   <div v-if="selectedFields.length">
-    <table class="full_width">
-      <thead>
-        <tr>
-          <th>Field</th>
-          <th>Value</th>
-          <th>Exact</th>
-          <th />
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(field, index) in selectedFields"
-          :key="field.param"
-        >
-          <td>{{ field.param }}</td>
-          <td>{{ field.value }}</td>
-          <td>
+    <div class="facet_grid">
+      <div class="gh">Field</div>
+      <div class="gh">Value</div>
+      <div class="gh">Exact</div>
+      <div class="gh"></div>
+      <template
+        v-for="(field, index) in selectedFields"
+        :key="field.param"
+      >
+        <div class="gd">{{ field.param }}</div>
+        <div class="gd">{{ field.value }}</div>
+        <div class="gd gd_input">
+          <template v-if="allowExactForField(field)">
             <input
-              v-if="checkForMatch(field.type) && !field.any && field.value"
               v-model="field.exact"
               type="checkbox"
             />
-            <template v-else>
-              <span v-if="field.any">Any</span>
-              <span v-else>Empty</span>
-            </template>
-          </td>
-          <td>
-            <span
-              class="button circle-button btn-delete button-default"
-              @click="removeField(index)"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </template>
+          <template v-else>
+            <template v-if="field.any">Any</template>
+            <template v-else-if="!field.value">Empty</template>
+            <template v-else>Substring</template>
+          </template>
+        </div>
+        <div class="gd">
+          <span class="button circle-button btn-delete button-default"
+            @click="removeField(index)"
+          />
+        </div>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -97,7 +92,12 @@ const params = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
-const fields = ref([])
+const fields = ref({}) // hash of field_name => field_type
+const fieldNames = ref([])
+// selectedFields are {param: string, type:, value:, any: bool, exact: bool}
+// where type is the class type of the parameter named param, 'any' means filter
+// on any non-null value, and 'exact' means the user checked a box to say
+// 'require an exact match on value'.
 const selectedFields = ref([])
 const selectedField = ref(undefined)
 
@@ -105,9 +105,6 @@ watch(
   selectedFields,
   (newVal) => {
     const attributes = {}
-    const matches = newVal
-      .filter((item) => !item.exact && !item.any && item.value)
-      .map((item) => item.param)
 
     params.value.any_value_attribute = newVal
       .filter((item) => item.any)
@@ -117,9 +114,11 @@ watch(
       .filter((item) => !item.value && !item.any)
       .map((item) => item.param)
 
-    params.value.wildcard_attribute = matches
+    params.value.wildcard_attribute = newVal
+      .filter((item) => fieldIsWildcard(item))
+      .map((item) => item.param)
 
-    fields.value.forEach(({ name }) => {
+    fieldNames.value.forEach((name) => {
       attributes[name] = undefined
     })
 
@@ -136,10 +135,11 @@ watch(
   () => props.modelValue,
   (newVal) => {
     const parameters = Object.keys(newVal)
-    const isAttributeSetted = fields.value.some(({ name }) =>
+    const isAttributeSetted = fieldNames.value.some((name) =>
       parameters.includes(name)
     )
 
+    // TODO: why wildcard check?
     if (!parameters.includes('wildcard_attribute') && !isAttributeSetted) {
       selectedFields.value = []
     }
@@ -148,41 +148,41 @@ watch(
 
 onBeforeMount(() => {
   ajaxCall('get', `/${props.controller}/attributes`).then((response) => {
-    fields.value = response.body.filter(
+    const includedAttributes = response.body.filter(
       ({ name }) => !props.exclude.includes(name)
     )
 
-    fields.value.forEach(({ name, type }) => {
+    fields.value = {}
+    includedAttributes.forEach(({ name, type }) => {
+      fields.value[name] = type
       const value = params.value[name]
-      const any = params.value.any_value_attribute?.includes(name)
-      const exact = !params.value.wildcard_attribute?.includes(name)
       const noValue = params.value.no_value_attribute?.includes(name)
+      const any = params.value.any_value_attribute?.includes(name)
 
       if (value === undefined && !noValue && !any) {
         return
       }
 
-      const field = {
-        param: name,
-        type,
-        any
-      }
+      const exact = !!value && !any &&
+        !params.value.wildcard_attribute?.includes(name)
 
       selectedFields.value.push(
-        any
-          ? field
-          : {
-              ...field,
-              value,
-              exact
-            }
+        {
+          param: name,
+          value,
+          type,
+          any,
+          exact
+        }
       )
     })
+
+    fieldNames.value = Object.keys(fields.value).sort()
   })
 })
 
 const addField = (field) => {
-  selectedFields.value.push(field)
+  selectedFields.value.push({...field, exact: false})
   selectedField.value = undefined
 }
 
@@ -190,7 +190,53 @@ const removeField = (index) => {
   selectedFields.value.splice(index, 1)
 }
 
-const checkForMatch = (type) => {
-  return type === 'string' || type === 'text'
+const fieldIsWildcard = (field) => {
+  // i.e. not none, not any, not checkboxed as Exact by user (could mean a
+  // checkbox was never offered for that field, cf. allowExactForField)
+  return !!field.value && !field.any && !field.exact
+}
+
+const allowExactForField = (field) => {
+  const type = field.type
+  return !!field.value && !field.any && // i.e. not none, not any
+    (type === 'string' || type === 'text' ||
+     type === 'integer' || type === 'decimal')
 }
 </script>
+
+<style scoped>
+.facet_grid {
+  display: grid;
+  grid-template-columns: auto auto fit-content(6em) fit-content(24px);
+	box-shadow: 0 0 2px 0 #e5e5e5;
+	border-radius: 2px;
+	background-color: #fff;
+}
+
+.gh {
+  border-bottom: 2px solid #98b798;
+  text-align: left;
+  height: 40px;
+  line-height: 40px;
+  font-size: 12px;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.gh:hover {
+  background: #e3e8e3;
+}
+
+.gd {
+  display: flex;
+  align-items: center;
+  word-break: break-all;
+  padding-left: .5em;
+  padding-right: .5em;
+  min-height: 40px;
+}
+
+.gd_input {
+  justify-content: center;
+}
+</style>

@@ -26,6 +26,7 @@
   <FacetTaxonNameType v-model="params" />
   <FacetRelationships v-model="params" />
   <FacetStatus v-model="params" />
+  <FacetRelationToRelationship v-model="params" />
   <FacetInRelationship v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
   <FacetTags
@@ -83,6 +84,7 @@ import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.v
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
+import FacetRelationToRelationship from './filters/FacetRelationToRelationship.vue'
 import { computed } from 'vue'
 import { TAXON_NAME } from '@/constants'
 
@@ -108,18 +110,19 @@ const WITH_PARAMS = [
   'data_attributes',
   'data_depictions',
   'depictions',
+  'leaves', // 'Descendants'
   'etymology',
   'global_identifiers',
-  'leaves',
+  'not_specified', // 'Incomplete combination relationships'
+  'latinized',
   'local_identifiers',
   'nomenclature_date',
-  'not_specified',
   'notes',
   'origin_citation',
   'original_combination',
   'otus',
   'tags',
-  'type_metadata',
+  'type_metadata', // 'Type information'
   'verbatim_name'
 ]
 
