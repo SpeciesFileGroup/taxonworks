@@ -12,4 +12,32 @@ class TaxonNameClassification::Latinized::Gender < TaxonNameClassification::Lati
     end
   end
 
+  private
+
+  def set_cached_names_for_taxon_names
+    t = taxon_name
+    t.update_column(:cached_gender, classification_label.downcase)
+
+    t.descendants.unscope(:order).with_same_cached_valid_id.each do |t1|
+      n = t1.get_full_name
+      t1.update_columns(
+        cached: n,
+        cached_html: t1.get_full_name_html(n)
+      )
+    end
+
+    TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
+      t1.update_cached_original_combinations
+    end
+
+    TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
+      t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
+      n = t1.get_full_name
+      t1.update_columns(
+        cached: n,
+        cached_html: t1.get_full_name_html(n)
+      )
+    end
+  end
+
 end

@@ -2,10 +2,9 @@ require 'zip'
 require 'yaml'
 
 # To generate a file on the console:
-# 
-#   Current.user_id = 1
-#   Current.project_id = 46
-#   o = Otu.find(id)
+#
+#   Current.user_id = ; Current.project_id = ;
+#   o = Otu.find()
 #   d = ::Export::Coldp.download(o, 'foo')
 #   d.file_path
 #
@@ -207,6 +206,7 @@ module Export
 
     # TODO - perhaps a utilities file --
 
+    # Doesn't exist in ColDP
     # @return [Boolean]
     #  `true` if no parens in `cached_author_year`
     #  `false` if parens in `cached_author_year`

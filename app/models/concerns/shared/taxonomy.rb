@@ -63,8 +63,14 @@ module Shared::Taxonomy
             # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
             a ||= type_materials.primary.first&.protonym
           when 'Otu'
-            taxon_name&.valid_taxon_name
-
+            if taxon_name 
+              if taxon_name.cached_is_valid
+                taxon_name
+              else
+                taxon_name.valid_taxon_name
+              end
+            end
+            
           when 'AssertedDistribution'
 
             # TODO: this is faster, but needs spec confirmation

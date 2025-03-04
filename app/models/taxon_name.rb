@@ -130,6 +130,11 @@
 #   @return [Boolean]
 #   Stores if the status of the name is valid based on both taxon_name_relationships and taxon_name_classifications.
 #
+# @!cached_gender
+#   @return [String, nil]
+#     applicable to genus group names only!
+#     one of 'masculine', 'feminine', neuter'
+#
 # rubocop:disable Metrics/ClassLength
 #
 # TODO: Refactor into
@@ -300,15 +305,13 @@ class TaxonName < ApplicationRecord
   has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'CollectionObject'
   has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object, source_type: 'FieldOccurrence'
 
-  # TODO: check class_name constraints.
-  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
-
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :taxon_name_authors, -> { order('roles.position ASC') }, through: :taxon_name_author_roles, source: :person
 
   # TODO: Combinations shouldn't have classifications or relationships?  Move to Protonym?
   has_many :taxon_name_classifications, dependent: :destroy, inverse_of: :taxon_name
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :restrict_with_error, inverse_of: :subject_taxon_name
+  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
   # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
@@ -641,7 +644,10 @@ class TaxonName < ApplicationRecord
     if target_code = (is_combination? ? combination_taxon_names.first.nomenclatural_code : nomenclatural_code)
       r = Ranks.lookup(target_code, rank)
       return self if include_self && (rank_class.to_s == r)
-      ancestors.with_rank_class( r ).first # @taxonomy here
+      ancestors
+        .unscope(:order) # 24s to 14 savings
+        .with_rank_class( r )
+        .first
     else
       # Root has no nomenclature code
       return nil
@@ -678,8 +684,8 @@ class TaxonName < ApplicationRecord
   def related_taxon_names
     TaxonName.find_by_sql(
       "SELECT tn.* from taxon_names tn join taxon_name_relationships tnr1 on tn.id = tnr1.subject_taxon_name_id and tnr1.object_taxon_name_id = #{self.id}
-      UNION
-      SELECT tn.* from taxon_names tn join taxon_name_relationships tnr2 on tn.id = tnr2.object_taxon_name_id and tnr2.subject_taxon_name_id = #{self.id}"
+       UNION
+       SELECT tn.* from taxon_names tn join taxon_name_relationships tnr2 on tn.id = tnr2.object_taxon_name_id and tnr2.subject_taxon_name_id = #{self.id}"
     )
   end
 
@@ -701,6 +707,11 @@ class TaxonName < ApplicationRecord
     nil
   end
 
+#    @real=6.90503800008446,
+#  @stime=0.23281300000000016,
+#  @total=3.0006990000000044,
+#  @utime=2.7678860000000043>
+
   # @return [Integer]
   #   a 4 digit integer representing year of publication, like 1974
   def year_integer
@@ -711,17 +722,8 @@ class TaxonName < ApplicationRecord
   # @return Year,nil
   #  based on TaxonNameRelationships only at present
   def taxon_name_relationship_minimum_invalidating_year
-    a = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).first
-    if a
-      b = a.nomenclature_date&.year
-      if b == Date.current.year
-        return nil
-      else
-        b
-      end
-    else
-      nil
-    end
+    a = taxon_name_relationships.joins(:source).where(type: ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order('sources.year ASC').first
+    a&.nomenclature_date&.year == Date.current.year ? nil : a&.nomenclature_date&.year
   end
 
   # TODO: @proceps write test please)
@@ -818,7 +820,7 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [String, nil]
-  #    gender as a string (only applicable to Genera)
+  #    gender (feminine, masculine, neuter) as a string (only applicable to Genera)
   def gender_name
     gender_instance.try(:classification_label).try(:downcase)
   end
@@ -961,7 +963,7 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #  true if this name has any classification asserting that it is valid
   def classification_valid?
-    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_VALID).any? # !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
+    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_VALID).any?
   end
 
   # @return [Boolean]
@@ -1049,6 +1051,8 @@ class TaxonName < ApplicationRecord
     nil
   end
 
+  # TODO: remove reloads
+
   # TODO: write test
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where self is the subject.
@@ -1061,7 +1065,7 @@ class TaxonName < ApplicationRecord
 
   # TODO: Write test
   def first_possible_invalid_taxan_name_relationship
-   # TaxonNameRelationship.youngest(taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)) # .reload
+    # TaxonNameRelationship.youngest(taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)) # .reload
     taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).youngest_by_citation
   end
 
@@ -1102,6 +1106,7 @@ class TaxonName < ApplicationRecord
     list.sort_by{|t, a| (t.cached_nomenclature_date&.to_time || Time.zone.now)}.collect{|t, a| t}
   end
 
+  # TODO: belongs in export
   def gbif_status_array
     return nil if self.class.nil?
     return ['combination'] if self.class == 'Combination'
@@ -1216,12 +1221,12 @@ class TaxonName < ApplicationRecord
 
   def set_cached_warnings
     update_columns(
-      cached:  NO_CACHED_MESSAGE,
-      cached_author_year:  NO_CACHED_MESSAGE,
+      cached: NO_CACHED_MESSAGE,
+      cached_author_year: NO_CACHED_MESSAGE,
       cached_author: NO_CACHED_MESSAGE,
       cached_nomenclature_date: NO_CACHED_MESSAGE,
       cached_classified_as: NO_CACHED_MESSAGE,
-      cached_html:  NO_CACHED_MESSAGE
+      cached_html: NO_CACHED_MESSAGE
     )
   end
 
@@ -1306,6 +1311,7 @@ class TaxonName < ApplicationRecord
   def full_name_array
     gender = nil
     data = []
+
     safe_self_and_ancestors.each do |i|
       rank = i.rank
       gender = i.gender_name if rank == 'genus'
@@ -1355,13 +1361,18 @@ class TaxonName < ApplicationRecord
     gender = nil
     data = {}
 
-    safe_self_and_ancestors.each do |i|
+    # We shouldn't need safe here, this is after writing
+    # We also don't require ordering
+    self_and_ancestors.unscope(:order).each do |i|
+      # safe_self_and_ancestors.each do |i|
       rank = i.rank
-      gender = i.gender_name if rank == 'genus'
+      gender = i.cached_gender if rank == 'genus'
 
       if i.is_genus_or_species_rank?
         if ['genus', 'subgenus', 'species', 'subspecies'].include?(rank) && rank_string =~ /Iczn/
+
           data[rank] = [nil, i.name_with_misspelling(gender)]
+
         elsif ['genus', 'subgenus', 'species'].include?(rank)
           data[rank] = [nil, i.name_with_misspelling(gender)]
         else
@@ -1800,8 +1811,6 @@ class TaxonName < ApplicationRecord
     true
   end
 
-
-
   # Note- prior version prevented groups from moving when set in error, and was far too strict
   def check_new_rank_class
     if (rank_class != rank_class_was) && !rank_class_was.nil?
@@ -2008,4 +2017,4 @@ class TaxonName < ApplicationRecord
     true # see validation in Hybrid.rb
   end
 
-  end
+end

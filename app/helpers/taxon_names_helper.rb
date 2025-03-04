@@ -322,7 +322,7 @@ module TaxonNamesHelper
 
   def descendant_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Down'
-    if taxon_name.descendants.any?
+    if taxon_name.descendants.unscope(:order).any?
       a = taxon_name.descendants.first.metamorphosize
       text = taxon_name_tag(a)
       link_to(content_tag(:span, text, data: {icon: 'arrow-down'}, class: 'small-icon'), taxon_name_link_path(a, path), class: 'navigation-item', data: {arrow: 'descendant'})

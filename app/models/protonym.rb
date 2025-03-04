@@ -139,18 +139,17 @@ class Protonym < TaxonName
   # TODO, move to IsData or IsProjectData
   scope :with_project, -> (project_id) {where(project_id:)}
 
-  scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
-  scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
-  scope :is_family_group, -> { where("rank_class ILIKE '%family%'") }
+  scope :is_species_group, -> { where("taxon_names.rank_class ILIKE '%speciesgroup%'") }
+  scope :is_genus_group, -> { where("taxon_names.rank_class ILIKE '%genusgroup%'") }
+  scope :is_family_group, -> { where("taxon_names.rank_class ILIKE '%family%'") }
+  scope :is_species_or_genus_group, -> { where("taxon_names.rank_class ILIKE '%speciesgroup%' OR taxon_names.rank_class ILIKE '%genusgroup%'")   }
 
-  scope :is_species_or_genus_group, -> {  where("rank_class ILIKE '%speciesgroup%' OR rank_class ILIKE '%genusgroup%'")   }
-
-  scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") }
-  scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") }
+  scope :is_original_name, -> { where("taxon_names.cached_author_year NOT ILIKE '(%'") }
+  scope :is_not_original_name, -> { where("taxon_names.cached_author_year ILIKE '(%'") }
 
   after_initialize :_initialize_cached_build_state
 
-  # Reset memomized and utility variable son reload.
+  # Reset memomized and utility variables on reload.
   def reload(*)
     super.tap do
       @_initialize_cached_build_state = {}
@@ -227,7 +226,7 @@ class Protonym < TaxonName
   def all_generic_placements
     valid_name = get_valid_taxon_name
     return nil unless valid_name.rank_string !=~/Species/
-    descendants_and_self = valid_name.descendants + [self] + self.combinations
+    descendants_and_self = valid_name.descendants.unscope(:order) + [self] + self.combinations
     relationships = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
     (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').try(:name)]).uniq
   end

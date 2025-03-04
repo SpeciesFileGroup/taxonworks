@@ -827,7 +827,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         # TaxonNames related by all_taxon_name_relationships
         specify '#related_taxon_names' do
-          expect(species.related_taxon_names.sort).to eq([type_of_genus, original_genus].sort)
+          expect(species.related_taxon_names.pluck(:id)).to contain_exactly(type_of_genus.id, original_genus.id)
         end
 
         context '#unavilable_or_invalid' do
