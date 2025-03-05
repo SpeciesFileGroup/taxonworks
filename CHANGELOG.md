@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `/api/v1/otus/:id/inventory/determined_to_rank`
 - Append mode to multi update data attributes task [#4204]
 - <in progress Batch add/remove Protocols>
 - Protocol `is_machine_output` attribute to facilitate MachineObservation types

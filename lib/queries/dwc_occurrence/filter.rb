@@ -21,8 +21,10 @@ module Queries
         :dwc_occurrence_id,
         :person_id,
         :taxon_name_id,
-        #  :otu_id,
+        :empty_rank,
+        # :otu_id,
 
+        empty_rank: [],
         dwc_occurrence_id: [],
         #   otu_id: [],
         person_id: [],
@@ -37,6 +39,10 @@ module Queries
       attr_accessor :person_id
       attr_accessor :taxon_name_id
 
+      # @return Array
+      #   of labels of ranks in DwcOccurrence
+      attr_accessor :empty_rank
+
       def initialize(query_params)
         super
 
@@ -46,7 +52,13 @@ module Queries
         @person_id = params[:person_id]
         @taxon_name_id = params[:taxon_name_id]
 
+        @empty_rank = params[:empty_rank]
+
         set_attributes_params(params)
+      end
+
+      def empty_rank
+        [@empty_rank].flatten.compact
       end
 
       def dwc_occurrence_id
@@ -68,6 +80,18 @@ module Queries
       def dwc_occurrence_id_facet
         return nil if dwc_occurrence_id.empty?
         table[:id].in(dwc_occurrence_id)
+      end
+
+      def empty_rank_facet
+        return nil if empty_rank.empty?
+
+        q = table[empty_rank.shift].eq(nil)
+
+        empty_rank.each do |r|
+          q = q.and(table[r].eq(nil))
+        end
+
+        q
       end
 
       # TODO: these should be referenced through base queries
@@ -184,6 +208,7 @@ module Queries
 
       def and_clauses
         [
+          empty_rank_facet,
           dwc_occurrence_id_facet
         ]
       end
