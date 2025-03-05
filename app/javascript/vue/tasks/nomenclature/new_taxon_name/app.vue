@@ -281,6 +281,11 @@ function focusSearch() {
     }
   }
 
+  .navbar-button {
+    min-width: 80px;
+    width: 100%;
+  }
+
   .cleft,
   .cright {
     min-width: 350px;

@@ -22,7 +22,7 @@
       </ul>
       <div class="horizontal-center-content margin-medium-left">
         <SaveTaxonName
-          class="normal-input button button-submit separate-right"
+          class="normal-input button button-submit separate-right navbar-button"
         />
         <CloneTaxonName
           v-help.section.navbar.clone
@@ -106,11 +106,6 @@ function getTitle(title) {
 </script>
 
 <style lang="scss" scoped>
-:deep(button) {
-  min-width: 80px;
-  width: 100%;
-}
-
 .button-new-icon {
   min-width: 28px;
   max-width: 28px;
