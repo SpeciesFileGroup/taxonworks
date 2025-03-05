@@ -73,7 +73,7 @@ gem 'delayed_job_active_record', '~> 4.1.3'
 
 gem 'validates_timeliness', '~> 7.0.0.beta2' # , '>= 4.1.1'
 
-gem 'rack', '~> 3.1.8'
+gem 'rack', '~> 3.1.11'
 
 gem 'paper_trail', '~> 15.0'
 
