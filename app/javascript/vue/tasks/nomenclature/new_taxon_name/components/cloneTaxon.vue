@@ -1,13 +1,14 @@
 <template>
   <div>
-    <button
-      type="button"
-      class="button normal-input button-submit navbar-button"
+    <VBtn
+      color="primary"
+      class="navbar-button"
+      medium
       :disabled="!taxon.id || isSaving"
       @click="() => (isModalVisible = true)"
     >
       Clone
-    </button>
+    </VBtn>
     <VModal
       v-show="isModalVisible"
       @close="isModalVisible = false"
@@ -67,6 +68,7 @@ import { ActionNames } from '../store/actions/actions'
 import { computed, ref, watch, onMounted, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import { useHotkey } from '@/composables'
 
