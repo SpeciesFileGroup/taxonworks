@@ -20,21 +20,18 @@
           </li>
         </template>
       </ul>
-      <div class="horizontal-center-content margin-medium-left">
+      <div class="horizontal-center-content gap-small">
         <SaveTaxonName
-          class="normal-input button button-submit separate-right navbar-button"
+          class="normal-input button button-submit navbar-button"
         />
-        <CloneTaxonName
-          v-help.section.navbar.clone
-          class="separate-right"
-        />
+        <CloneTaxonName v-help.section.navbar.clone />
         <button
           type="button"
           title="Create a child of this taxon name"
           v-help.section.navbar.sisterIcon
           @click="createNew(taxon.id)"
           :disabled="!taxon.id"
-          class="button normal-input button-default btn-create-child button-new-icon margin-small-right"
+          class="button normal-input button-default btn-create-child button-new-icon"
         />
         <button
           type="button"
@@ -42,7 +39,7 @@
           :disabled="!parentId"
           title="Create a new taxon name with the same parent"
           v-help.section.navbar.childIcon
-          class="button normal-input button-default btn-create-sister button-new-icon margin-small-right"
+          class="button normal-input button-default btn-create-sister button-new-icon"
         />
         <CreateNewButton />
       </div>
