@@ -2,7 +2,7 @@
   <div>
     <button
       type="button"
-      class="button normal-input button-submit"
+      class="button normal-input button-submit navbar-button"
       :disabled="!taxon.id || isSaving"
       @click="() => (isModalVisible = true)"
     >
