@@ -51,7 +51,7 @@
 import { computed, ref, onBeforeMount, shallowRef } from 'vue'
 import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
-import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
+import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
 import { CONFIDENCE_LEVEL } from '@/constants'
 import ConfidenceList from './ConfidenceList.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
@@ -142,7 +142,7 @@ function makePayload(confidence) {
     mode: selectedMode.value.mode,
     confidence_level_id: confidence.id,
     filter_query: {
-      [queryParam.value]: props.parameters
+      [QUERY_PARAM[props.objectType]]: props.parameters
     }
   }
 }
@@ -152,7 +152,9 @@ function makeReplacePayload([replace, to]) {
     mode: selectedMode.value.mode,
     confidence_level_id: to.id,
     replace_confidence_level_id: replace.id,
-    filter_query: props.parameters
+    filter_query: {
+      [QUERY_PARAM[props.objectType]]: props.parameters
+    }
   }
 }
 </script>

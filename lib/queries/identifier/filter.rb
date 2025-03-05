@@ -113,7 +113,7 @@ module Queries
 
       # Ommits non community klasses of identifiers
       def community_project_id_facet
-        return nil if project_id.nil?
+        return nil if project_id.empty?
         if !ignores_project?
           # Not a community class
           return table[:project_id].in(project_id)
@@ -137,7 +137,7 @@ module Queries
 
       def identifier_object_type_facet
         return nil if identifier_object_type.empty?
-         table[:identifier_object_type].in(identifier_object_type)
+        table[:identifier_object_type].in(identifier_object_type)
       end
 
       def matching_identifier_attribute(attribute)
@@ -174,9 +174,9 @@ module Queries
       def project_id_facet
         if ignores_project?
           nil
-       else
-         super
-       end
+        else
+          super
+        end
       end
 
       # @return [ActiveRecord::Relation]

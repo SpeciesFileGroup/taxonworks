@@ -86,7 +86,7 @@ class CollectionObject < ApplicationRecord
   include Shared::BiologicalExtensions
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence
-  include Shared::IsDwcOccurrence
+
   include CollectionObject::DwcExtensions
 
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)

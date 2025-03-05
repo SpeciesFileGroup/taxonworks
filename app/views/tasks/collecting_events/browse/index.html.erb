@@ -1,34 +1,36 @@
 <h1 class="task_header"> Browse collecting events</h1>
 
 <div id="browse-collecting-event" class="browse-view" data-collection-object-id="<%= @collecting_event.id %>">
-  <div id="browse-collection-object" class="panel content">
-    <div class="flex-separate middle">
+  <div>
+    <div id="browse-collection-object" class="panel content sticky-navbar">
+      <div class="flex-separate middle">
 
-      <div class="middle">
-        <div class="separate-right">
-          <%= form_tag(browse_collecting_events_task_path, method: :get) do %>
-            <%= render  'workbench/elements/forms/ajax_select',
-              controller: '/collecting_events',
-              object: '',
-              method: 'collecting_event_id',
-              send_select: true,
-              tag_id: 'collecting_event_id_for_browse_collecting_event'
-            %>
-        <% end %>
+        <div class="middle">
+          <div class="separate-right">
+            <%= form_tag(browse_collecting_events_task_path, method: :get) do %>
+              <%= render  'workbench/elements/forms/ajax_select',
+                controller: '/collecting_events',
+                object: '',
+                method: 'collecting_event_id',
+                send_select: true,
+                tag_id: 'collecting_event_id_for_browse_collecting_event'
+              %>
+          <% end %>
+          </div>
+
         </div>
 
+        <span class="right_float flex-separate">
+          <ul class="context-menu">
+            <li><%= radial_annotator(@collecting_event) %></li>
+            <li><%= confidence_default_icon(@collecting_event) %></li>
+            <li><%= tag_default_icon(@collecting_event) %></li>
+            <li><%= pin_item_to_pinboard_link(@collecting_event, sessions_current_user) %></li>
+            <li><%= link_to('', new_collecting_event_task_path(collecting_event_id: @collecting_event.id), class: "circle-button btn-edit") -%></li>
+            <li><%= radial_navigation_tag(@collecting_event) %></li>
+          </ul>
+        </span>
       </div>
-
-      <span class="right_float flex-separate">
-        <ul class="context-menu">
-          <li><%= radial_annotator(@collecting_event) %></li>
-          <li><%= confidence_default_icon(@collecting_event) %></li>
-          <li><%= tag_default_icon(@collecting_event) %></li>
-          <li><%= pin_item_to_pinboard_link(@collecting_event, sessions_current_user) %></li>
-          <li><%= link_to('', new_collecting_event_task_path(collecting_event_id: @collecting_event.id), class: "circle-button btn-edit") -%></li>
-          <li><%= radial_navigation_tag(@collecting_event) %></li>
-        </ul>
-      </span>
     </div>
   </div>
 

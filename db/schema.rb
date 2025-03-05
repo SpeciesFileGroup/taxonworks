@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_30_150717) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_22_185950) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1720,6 +1720,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_30_150717) do
     t.integer "project_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.boolean "is_machine_output"
     t.index ["project_id"], name: "index_protocols_on_project_id"
   end
 

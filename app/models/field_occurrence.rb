@@ -21,27 +21,25 @@ class FieldOccurrence < ApplicationRecord
   include Housekeeping
 
   include Shared::Citations
+  include Shared::Confidences
   include Shared::DataAttributes
-  include Shared::Identifiers
-  include Shared::Notes
-  include Shared::Tags
   include Shared::Depictions
   include Shared::Conveyances
-  include Shared::OriginRelationship
-  include Shared::Confidences
-  include Shared::ProtocolRelationships
   include Shared::HasPapertrail
-  #include Shared::Observations
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Observations
+  include Shared::OriginRelationship
+  include Shared::ProtocolRelationships
+  include Shared::Tags
   include Shared::IsData
   include Shared::QueryBatchUpdate
   include SoftValidation
 
-  # At present must be before IsDwcOccurence
-  include FieldOccurrence::DwcExtensions
-  include Shared::Taxonomy
-  
   include Shared::BiologicalExtensions
-  include Shared::IsDwcOccurrence
+  
+  include Shared::Taxonomy
+  include FieldOccurrence::DwcExtensions
 
   is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound'
   originates_from 'FieldOccurrence'

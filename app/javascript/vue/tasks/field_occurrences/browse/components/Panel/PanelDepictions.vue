@@ -11,38 +11,11 @@
 </template>
 
 <script setup>
-import { watch } from 'vue'
 import useDepictionStore from '../../store/depictions.js'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
 import PanelContainer from './PanelContainer.vue'
 
-const props = defineProps({
-  objectId: {
-    type: [String, undefined],
-    required: true
-  },
-
-  objectType: {
-    type: [String, undefined],
-    required: true
-  }
-})
-
 const store = useDepictionStore()
-
-watch(
-  () => props.objectId,
-  (id) => {
-    store.$reset()
-
-    if (id) {
-      store.load({
-        objectId: props.objectId,
-        objectType: props.objectType
-      })
-    }
-  }
-)
 </script>
 
 <style scoped>

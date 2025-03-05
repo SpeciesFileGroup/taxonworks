@@ -40,6 +40,7 @@ class ObservationMatricesController < ApplicationController
 
   # GET /observation_matrices/1/edit
   def edit
+    redirect_to new_matrix_task_path observation_matrix_id: @observation_matrix.id
   end
 
   # POST /observation_matrices

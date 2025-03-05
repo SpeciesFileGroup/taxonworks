@@ -72,8 +72,13 @@ class TaxonDeterminationsController < ApplicationController
   def destroy
     @taxon_determination.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_determinations_url }
-      format.json { head :no_content }
+      if @taxon_determination.destroyed?
+        format.html { destroy_redirect @taxon_determination, notice: 'Taxon determination was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @taxon_determination, notice: 'Taxon determination was not destroyed, ' + @taxon_determination.errors.full_messages.join('; ') }
+        format.json { render json: @taxon_determination.errors, status: :unprocessable_entity }
+      end
     end
   end
 

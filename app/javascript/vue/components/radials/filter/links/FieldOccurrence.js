@@ -1,0 +1,11 @@
+import {
+  FILTER_BIOLOGICAL_ASSOCIATION,
+  FILTER_COLLECTING_EVENT,
+  FILTER_OTU
+} from '../constants/filterLinks'
+
+export const FieldOccurrence = [
+  FILTER_BIOLOGICAL_ASSOCIATION,
+  FILTER_COLLECTING_EVENT,
+  FILTER_OTU
+]

@@ -334,6 +334,9 @@ end
 
 resources :field_occurrences do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'field_occurrences#index', via: [:get, :post]
+  end
 end
 
 resources :geographic_areas, only: [:index, :show] do
@@ -696,6 +699,9 @@ end
 
 resources :protocol_relationships do
   concerns [:data_routes]
+  collection do
+    post :batch_by_filter_scope, defaults: {format: :json}
+  end
 end
 
 resources :public_contents, only: [:create, :update, :destroy]
