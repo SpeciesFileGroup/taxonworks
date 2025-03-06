@@ -28,11 +28,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rendering of Identifier::Local::RecordNumber
 - Reset button is not working on Unify people
 - Import dataset description uniqueness validation failing to detect duplicate
+- CSD: It is not possible to add new taxon determinations to an existing CO [#4227]
 
 [#4204]: https://github.com/SpeciesFileGroup/taxonworks/pull/4204
 [#4219]: https://github.com/SpeciesFileGroup/taxonworks/pull/4219
 [#4220]: https://github.com/SpeciesFileGroup/taxonworks/pull/4220
 [#4225]: https://github.com/SpeciesFileGroup/taxonworks/pull/4225
+[#4227]: https://github.com/SpeciesFileGroup/taxonworks/pull/4227
 
 ## [0.48.0] - 2025-02-14
 
