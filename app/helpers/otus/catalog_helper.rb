@@ -65,9 +65,17 @@ module Otus::CatalogHelper
     similar_otus: [],
     common_names: false,
     language_alpha2: nil,
-    max_descendants_depth: Float::INFINITY
+    max_descendants_depth: Float::INFINITY,
+    project_scope_tag_id: nil
   )
-    s = Otu.where(taxon_name_id: otu.taxon_name_id).where.not(id: otu.id).where.not(name: (otu.name.presence)).to_a
+    q = Otu.where(taxon_name_id: otu.taxon_name_id).where.not(id: otu.id).where.not(name: (otu.name.presence))
+
+    if project_scope_tag_id.present?
+      q = q.joins(:tags)
+        .where("tags.tag_object_type = 'Otu' AND tags.keyword_id = #{project_scope_tag_id}")
+    end
+
+    s = q.to_a
 
     similar_otus += s.collect { |p| p.id }
 
@@ -82,11 +90,22 @@ module Otus::CatalogHelper
              otu_clones: Otu.where(name: otu.name, taxon_name_id: otu.taxon_name_id).where.not(id: otu.id).pluck(:id),
              similar_otus: s.inject({}){|hsh, n| hsh[n.id] = label_for_otu(n) ; hsh },
              nomenclatural_synonyms: ( (synonyms&.collect{|l| full_original_taxon_name_tag(l) || full_taxon_name_tag(l) } || []) - [a]).uniq, # This is labels, combinations can duplicate
+             # TODO: ignores project_scope_tag_id (will require a GA instead).
              common_names: (common_names ? otu_inventory_common_names(otu, language_alpha2) : []),
              descendants: []}
 
     if otu.taxon_name
-      descendants = otu.taxon_name.descendants.where(parent: otu.taxon_name).that_is_valid
+      descendants = otu.taxon_name.descendants
+        .where(parent: otu.taxon_name).that_is_valid
+
+      if project_scope_tag_id
+        # The project scope tag has the property that any ancestor of a tagged
+        # otu is also tagged, so this is legit.
+        descendants = descendants
+          .joins(:otus)
+          .joins("JOIN tags ON tags.tag_object_type = 'Otu' AND tags.tag_object_id = otus.id")
+          .where("tags.keyword_id = #{project_scope_tag_id}")
+      end
 
       if max_descendants_depth >= 1
         descendants.sort{|a,b| [RANK_SORT[a.rank_class.to_s], a.cached, a.cached_author_year || 'ZZZ'] <=> [RANK_SORT[b.rank_class.to_s], b.cached, b.cached_author_year || 'ZZZ']}.each do |d|
@@ -101,9 +120,11 @@ module Otus::CatalogHelper
         end
         data[:leaf_node] = data[:descendants].empty?
       else
+        # TODO comparing TaxonName ids to Otu ids here... Not sure what's intended?
         data[:leaf_node] = descendants.where.not(id: similar_otus).none?
       end
     end
+
     data
   end
 
