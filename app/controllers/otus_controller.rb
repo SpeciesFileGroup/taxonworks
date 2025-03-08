@@ -306,7 +306,8 @@ class OtusController < ApplicationController
       params.require(:term),
       project_id: sessions_current_project_id,
       with_taxon_name: params[:with_taxon_name],
-      having_taxon_name_only: params[:having_taxon_name_only]
+      having_taxon_name_only: params[:having_taxon_name_only],
+      project_scope_tag_id: params[:project_scope_tag_id]
     ).api_autocomplete_extended
 
 
@@ -326,9 +327,9 @@ class OtusController < ApplicationController
      .joins('LEFT OUTER JOIN observation_matrix_column_items ON descriptors.id = observation_matrix_column_items.descriptor_id')
      .eager_load(image: [:attribution])
     if params[:sort_order]
-      @depictions = @depictions.order( Arel.sql( conditional_sort('depictions.depiction_object_type', params[:sort_order]) + ", observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position" ))
+      @depictions = @depictions.order( Arel.sql( conditional_sort('depictions.depiction_object_type', params[:sort_order]) + ', observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position' ))
     else
-      @depictions = @depictions.order("depictions.depiction_object_type, observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position")
+      @depictions = @depictions.order('depictions.depiction_object_type, observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position')
     end
     @depictions = @depictions.page(params[:page]).per(params[:per])
 
