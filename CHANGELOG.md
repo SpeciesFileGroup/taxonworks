@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Add total to unmatched panel on Nomenclature match task
 - Prevent user destroy last saved TD on New FO task [#4225]
+- Updated Ruby gems and Node packages
 
 ### Fixed
 
