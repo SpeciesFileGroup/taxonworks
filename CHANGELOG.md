@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Move button to citations and depiction slices in radial annotator
 - Freeze column checkbox to filter tasks [#4220]
 - Sort layout columns on filter tasks [#4219]
+- Field occurrence panel to Browse OTU
 
 ### Changed
 
