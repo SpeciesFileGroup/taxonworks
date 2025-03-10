@@ -120,8 +120,9 @@ module Otus::CatalogHelper
         end
         data[:leaf_node] = data[:descendants].empty?
       else
-        # TODO comparing TaxonName ids to Otu ids here... Not sure what's intended?
-        data[:leaf_node] = descendants.where.not(id: similar_otus).none?
+        # leaf_node if all descendants are similar to otu
+        data[:leaf_node] = descendants
+          .where.not(id: similar_otus.map(&:taxon_name_id)).none?
       end
     end
 
