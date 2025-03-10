@@ -44,6 +44,7 @@ export default async ({ dispatch, commit, state }, otus) => {
     dispatch(ActionNames.LoadCollectionObjects, otuIds).then(() => {
       dispatch(ActionNames.LoadCollectingEvents, otuIds)
     })
+    dispatch(ActionNames.LoadFieldOccurrences, otuIds)
 
     state.loadState.biologicalAssociations = false
     state.loadState.assertedDistribution = false
