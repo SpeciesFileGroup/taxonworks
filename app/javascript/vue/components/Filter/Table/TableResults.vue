@@ -65,17 +65,37 @@
         </tr>
 
         <tr>
-          <td
-            class="header-empty-td"
-            :colspan="
-              radialObject || radialAnnotator || radialNavigator ? 2 : 1
+          <th
+            :class="[{ freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }]"
+            :style="
+              freezeColumn.includes(FIXED_COLUMNS.Checkbox) && {
+                left: freezeColumnLeftPosition[FIXED_COLUMNS.Checkbox]
+              }
             "
-          />
-
+          >
+            <VLock
+              :value="FIXED_COLUMNS.Checkbox"
+              v-model="freezeColumn"
+            />
+          </th>
+          <th
+            v-if="radialObject || radialAnnotator || radialNavigator"
+            :class="[{ freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }]"
+            :style="
+              freezeColumn.includes(FIXED_COLUMNS.Radial) && {
+                left: freezeColumnLeftPosition[FIXED_COLUMNS.Radial]
+              }
+            "
+          >
+            <VLock
+              :value="FIXED_COLUMNS.Radial"
+              v-model="freezeColumn"
+            />
+          </th>
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
-            :class="['cursor-pointer', { freeze: freezeColumn.includes(attr) }]"
+            :class="[{ freeze: freezeColumn.includes(attr) }]"
             :style="
               freezeColumn.includes(attr) && {
                 left: freezeColumnLeftPosition[attr]
@@ -142,13 +162,10 @@
             <th
               v-for="(property, pIndex) in propertiesList"
               :key="property"
-              :class="[
-                {
-                  'cell-left-border': pIndex === 0,
-                  freeze: freezeColumn.includes(`${key}.${property}`)
-                },
-                'cursor-pointer'
-              ]"
+              :class="{
+                'cell-left-border': pIndex === 0,
+                freeze: freezeColumn.includes(`${key}.${property}`)
+              }"
               :style="
                 freezeColumn.includes(`${key}.${property}`) && {
                   left: freezeColumnLeftPosition[`${key}.${property}`]
@@ -210,7 +227,18 @@
         </tr>
 
         <tr class="header-row-attributes">
-          <th class="w-2">
+          <th
+            :class="[
+              'w-2',
+              { freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }
+            ]"
+            :data-th-column="FIXED_COLUMNS.Checkbox"
+            :style="
+              freezeColumn.includes(FIXED_COLUMNS.Checkbox) && {
+                left: freezeColumnLeftPosition[FIXED_COLUMNS.Checkbox]
+              }
+            "
+          >
             <input
               v-model="selectIds"
               :disabled="!list.length"
@@ -219,12 +247,21 @@
           </th>
           <th
             v-if="radialObject || radialAnnotator || radialNavigator"
-            class="w-2"
+            :class="[
+              'w-2',
+              { freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }
+            ]"
+            :data-th-column="FIXED_COLUMNS.Radial"
+            :style="
+              freezeColumn.includes(FIXED_COLUMNS.Radial) && {
+                left: freezeColumnLeftPosition[FIXED_COLUMNS.Radial]
+              }
+            "
           />
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
-            :class="['cursor-pointer', { freeze: freezeColumn.includes(attr) }]"
+            :class="{ freeze: freezeColumn.includes(attr) }"
             :style="
               freezeColumn.includes(attr) && {
                 left: freezeColumnLeftPosition[attr]
@@ -244,13 +281,10 @@
             <th
               v-for="(property, pIndex) in propertiesList"
               :key="property"
-              :class="[
-                {
-                  'cell-left-border': pIndex === 0,
-                  freeze: freezeColumn.includes(`${key}.${property}`)
-                },
-                'cursor-pointer'
-              ]"
+              :class="{
+                'cell-left-border': pIndex === 0,
+                freeze: freezeColumn.includes(`${key}.${property}`)
+              }"
               :data-th-column="`${key}.${property}`"
               :style="
                 freezeColumn.includes(`${key}.${property}`) && {
@@ -292,14 +326,29 @@
           v-show="rowHasCurrentValues(item)"
           @mouseover="() => emit('mouseover:row', { index, item })"
         >
-          <td>
+          <td
+            :class="{ freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }"
+            :style="
+              freezeColumn.includes(FIXED_COLUMNS.Checkbox) && {
+                left: freezeColumnLeftPosition[FIXED_COLUMNS.Checkbox]
+              }
+            "
+          >
             <input
               v-model="ids"
               :value="item.id"
               type="checkbox"
             />
           </td>
-          <td v-if="radialObject || radialAnnotator || radialNavigator">
+          <td
+            v-if="radialObject || radialAnnotator || radialNavigator"
+            :class="{ freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }"
+            :style="
+              freezeColumn.includes(FIXED_COLUMNS.Radial) && {
+                left: freezeColumnLeftPosition[FIXED_COLUMNS.Radial]
+              }
+            "
+          >
             <div class="horizontal-right-content gap-small">
               <slot
                 name="buttons-left"
@@ -335,7 +384,6 @@
               <td
                 :class="{ freeze: freezeColumn.includes(attr) }"
                 v-html="item[attr]"
-                :data-td-column="attr"
                 :style="
                   freezeColumn.includes(attr) && {
                     left: freezeColumnLeftPosition[attr]
@@ -359,7 +407,6 @@
               v-for="(property, pIndex) in properties"
               :key="property"
               v-html="renderItem(item, key, property)"
-              :data-td-column="`${key}.${property}`"
               :class="{
                 'cell-left-border': pIndex === 0,
                 freeze: freezeColumn.includes(`${key}.${property}`)
@@ -461,6 +508,11 @@ const emit = defineEmits([
   'mouseover:row',
   'mouseout:body'
 ])
+
+const FIXED_COLUMNS = {
+  Checkbox: 'FixedCheckboxesColumn',
+  Radial: 'FixedRadialColumn'
+}
 
 const freezeColumn = ref([])
 const freezeColumnLeftPosition = ref({})
