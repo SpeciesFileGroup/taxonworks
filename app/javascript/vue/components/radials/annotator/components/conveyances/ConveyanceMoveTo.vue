@@ -1,6 +1,6 @@
 <template>
   <div class="separate-top separate-bottom">
-    <h4>Move to</h4>
+    <h4>Move conveyance to</h4>
     <ul class="no_bullets">
       <li
         v-for="({ label }, type) in OBJECT_TYPES"

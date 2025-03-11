@@ -119,6 +119,7 @@ async function updateSound({ conveyanceId, soundId, name }) {
 
     await Sound.update(soundId, payload)
     addToList((await Conveyance.find(conveyanceId)).body)
+    currentConveyance.value.sound.name = name
   } catch {}
 
   isSaving.value = false

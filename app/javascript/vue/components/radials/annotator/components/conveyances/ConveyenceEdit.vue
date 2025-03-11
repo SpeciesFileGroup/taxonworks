@@ -13,25 +13,38 @@
     </div>
     <div class="field">
       <label class="d-block">Sound name</label>
-      <input
-        v-model="name"
-        type="text"
-      />
-      <VBtn
-        class="margin-small-left"
-        medium
-        color="create"
-        :disabled="!nameHasChanged"
-        @click="
-          emit('update:sound', {
-            conveyanceId: conveyance.id,
-            soundId: conveyance.sound_id,
-            name
-          })
-        "
-      >
-        Update
-      </VBtn>
+      <div class="flex-wrap-row middle gap-small">
+        <input
+          v-model="name"
+          type="text"
+        />
+        <VBtn
+          medium
+          color="create"
+          :disabled="!nameHasChanged"
+          @click="
+            emit('update:sound', {
+              conveyanceId: conveyance.id,
+              soundId: conveyance.sound_id,
+              name
+            })
+          "
+        >
+          Update
+        </VBtn>
+        <template v-if="nameHasChanged">
+          <VIcon
+            name="attention"
+            color="attention"
+            small
+          />
+          <span class="text-warning-color">
+            The name corresponds to the sound used for this conveyance. If the
+            same sound is used in other conveyances, the name change will also
+            be visible in them. Press this button to save it.
+          </span>
+        </template>
+      </div>
     </div>
 
     <ConveyanceMoveTo v-model="moveObj" />
@@ -57,6 +70,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import ConveyanceMoveTo from './ConveyanceMoveTo.vue'
 import AudioPlayer from '@/components/audio/AudioPlayer.vue'
