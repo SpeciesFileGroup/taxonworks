@@ -63,7 +63,7 @@ module Queries
       q = queries.compact
 
       # We can return this directly, though we get conflicts with `from:` on merge clauses
-      z = referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' INTERSECT ')}) as #{table.name}")
+      z = referenced_klass.from("( #{q.collect{|i| '(' + i.unscope(:select).select(:id).to_sql + ')' }.join(' INTERSECT ')}) as #{table.name}")
 
       # Probably need a global counter, and this may not be needed
       s = Utilities::Strings.random_string(5)

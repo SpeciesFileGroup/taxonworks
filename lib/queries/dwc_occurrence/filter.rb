@@ -193,7 +193,7 @@ module Queries
           .joins('JOIN query_ce_dwco as query_ce_dwco1 on co.collecting_event_id = query_ce_dwco1.id')
           .to_sql
 
-        ::DwcOccurrence.from('(' + s + ') as dwc_occurrences').distinct
+        ::DwcOccurrence.from('(' + s + ') as dwc_occurrences').select(:id).distinct
       end
 
       def merge_clauses

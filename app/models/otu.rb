@@ -369,6 +369,10 @@ class Otu < ApplicationRecord
     collection_objects.where(taxon_determinations: {position: 1})
   end
 
+  def current_field_occurrences
+    field_occurrences.where(taxon_determinations: {position: 1})
+  end
+
   # @return [Boolean]
   #   whether or not this otu is coordinate (see coordinate_otus) with this otu
   def coordinate_with?(otu_id)

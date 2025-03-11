@@ -62,6 +62,21 @@ class DwcOccurrence < ApplicationRecord
     d ? d : field
   end
 
+  # Supported ranks (fields in db)
+  NOMENCLATURE_RANKS =  [
+    :kingdom,
+    :phylum,
+    :dwcClass,
+    :order,
+    :superfamily,
+    :family,
+    :subfamily,
+    :tribe,
+    :subtribe,
+    :genus,
+    :specificEpithet
+  ].freeze
+
   belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
 
   before_validation :generate_uuid_if_required

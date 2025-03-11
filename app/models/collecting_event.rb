@@ -233,14 +233,16 @@ class CollectingEvent < ApplicationRecord
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy, inverse_of: :role_object
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
+
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :collectors, -> { order('roles.position ASC') }, through: :collector_roles, source: :person, inverse_of: :collecting_events
 
+  has_many :field_occurrences, inverse_of: :collecting_event
+
   # see also app/models/collecting_event/georeference.rb for more has_many
 
-  has_many :otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
-
-  has_many :field_occurrences, inverse_of: :collecting_event
+  has_many :collection_object_otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
+  has_many :field_occurrence_otus, -> { unscope(:order) }, through: :field_occurrences, source: 'otu'
 
   after_create do
     if with_verbatim_data_georeference
@@ -325,12 +327,19 @@ class CollectingEvent < ApplicationRecord
 
   def dwc_occurrences
     # Through CollectionObjects
-    DwcOccurrence
+   a = DwcOccurrence
       .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
       .where(co: {collecting_event_id: id})
-      .distinct
 
-    # TODO: Throuch FieldOccurrence
+   b = DwcOccurrence
+      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
+      .where(fo: {collecting_event_id: id})
+
+   ::Queries.union(DwcOccurrence, [a,b])
+  end
+
+  def otus
+    ::Queries.union(CollectingEvent, [collection_object_otus, field_occurrence_otus])
   end
 
   # @param [String]
@@ -384,6 +393,7 @@ class CollectingEvent < ApplicationRecord
     # Other
     #
 
+    # TODO: remove for filter
     # @param [String] search_start_date string in form 'yyyy/mm/dd'
     # @param [String] search_end_date string in form 'yyyy/mm/dd'
     # @param [String] partial_overlap 'on' or 'off'
@@ -395,6 +405,7 @@ class CollectingEvent < ApplicationRecord
       where(q.between_date_range_facet.to_sql).distinct # TODO: uniq should likely not be here
     end
 
+    # TODO remove, used only in match georeferences 
     # @param [ActionController::Parameters] params in the style Rails of 'params'
     # @return [Scope] of selected collecting_events
     # TODO: deprecate for lib/queries/collecting_event/filter
