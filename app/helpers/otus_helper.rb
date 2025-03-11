@@ -279,6 +279,13 @@ module OtusHelper
       'label' => label_for_otu(otu)
     }
 
+    o.current_field_occurrences.each do |f|
+      if g = field_occurrence_to_geo_json_feature(f)
+        g['properties']['target'] = t
+        h['features'].push g
+      end
+    end
+
     o.current_collection_objects.each do |c|
       if g = collection_object_to_geo_json_feature(c)
         g['properties']['target'] = t
