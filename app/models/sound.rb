@@ -8,6 +8,7 @@ class Sound < ApplicationRecord
   include Shared::OriginRelationship
   include Shared::Observations
   include Shared::Confidences
+  include Shared::ProtocolRelationships
   include Shared::Citations
   include Shared::Attributions
   include Shared::DataAttributes
