@@ -6,7 +6,7 @@ json.set! :keywords do
       end
       json.set! :totals do
         t = 0
-        [Otu, CollectionObject].each do |k|
+        [Otu, CollectionObject, Sound].each do |k|
           c = k.joins(:tags).where(tags: {keyword: kw}).count
           json.set! k, c
           t = t + c
