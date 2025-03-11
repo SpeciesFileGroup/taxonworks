@@ -327,7 +327,7 @@ class CollectingEvent < ApplicationRecord
       .where(co: {collecting_event_id: id})
 
    b = DwcOccurrence
-      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
+      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
       .where(fo: {collecting_event_id: id})
 
    ::Queries.union(DwcOccurrence, [a,b])
