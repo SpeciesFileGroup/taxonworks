@@ -10,6 +10,7 @@ import {
   Observation,
   Otu,
   People,
+  Sound,
   Source,
   TaxonName
 } from '@/routes/endpoints'
@@ -25,6 +26,7 @@ import {
   OBSERVATION,
   OTU,
   PEOPLE,
+  SOUND,
   SOURCE,
   TAXON_NAME
 } from '@/constants'
@@ -96,6 +98,12 @@ export const QUERY_PARAMETER = {
     model: PEOPLE,
     service: People,
     filterUrl: FILTER_ROUTES[PEOPLE]
+  },
+
+  [QUERY_PARAM[SOUND]]: {
+    model: SOUND,
+    service: Sound,
+    filterUrl: FILTER_ROUTES[SOUND]
   },
 
   [QUERY_PARAM[SOURCE]]: {
