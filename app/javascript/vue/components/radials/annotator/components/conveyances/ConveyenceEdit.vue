@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div
-      id="radial-sound-player"
-      class="field"
-    >
+    <div class="field region-sound-player">
       <AudioPlayer
         media-controls
         :url="conveyance.sound.sound_file"
@@ -152,9 +149,7 @@ function update() {
 }
 </script>
 <style>
-text {
-}
-#radial-sound-player ::part(region-content) {
+.region-sound-player ::part(region-content) {
   background-color: rgba(0, 0, 0, 0.3);
   filter: drop-shadow(0 1px 2px #000000);
   color: white;

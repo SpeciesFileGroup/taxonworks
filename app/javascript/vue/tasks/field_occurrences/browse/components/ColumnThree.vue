@@ -9,6 +9,7 @@
     />
     <PanelIdentifier />
     <PanelDepictions />
+    <PanelConveyance />
     <PanelMap />
   </TableGrid>
 </template>
@@ -18,5 +19,6 @@ import SoftValidations from '@/components/soft_validations/panel.vue'
 import PanelIdentifier from './Panel/PanelIdentifier.vue'
 import TableGrid from '@/components/layout/Table/TableGrid.vue'
 import PanelDepictions from './Panel/PanelDepictions.vue'
+import PanelConveyance from './Panel/PanelConveyance.vue'
 import PanelMap from './Panel/PanelMap.vue'
 </script>

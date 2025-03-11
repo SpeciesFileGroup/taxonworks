@@ -58,6 +58,7 @@ import useDepictionStore from './store/depictions.js'
 import useBiocurationStore from './store/biocurations.js'
 import useBiologicalAssociationStore from './store/biologicalAssociations.js'
 import useIdentifierStore from './store/identifiers.js'
+import useConveyanceStore from './store/conveyance.js'
 import { usePopstateListener } from '@/composables'
 import { setParam } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
@@ -73,6 +74,7 @@ const biocurationStore = useBiocurationStore()
 const determinationStore = useDeterminationStore()
 const biologicalAssociationStore = useBiologicalAssociationStore()
 const identifierStore = useIdentifierStore()
+const conveyanceStore = useConveyanceStore()
 
 const isLoading = ref(false)
 
@@ -100,6 +102,7 @@ async function loadData(foId) {
     determinationStore.$reset()
     biologicalAssociationStore.$reset()
     identifierStore.$reset()
+    conveyanceStore.$reset()
 
     await store.load(foId)
 
@@ -122,7 +125,8 @@ async function loadData(foId) {
       biocurationStore.load(args),
       determinationStore.load(args),
       biologicalAssociationStore.load(args),
-      identifierStore.load(args)
+      identifierStore.load(args),
+      conveyanceStore.load(args)
     )
 
     Promise.all(requests).finally(() => {
