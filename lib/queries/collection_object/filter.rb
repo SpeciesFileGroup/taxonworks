@@ -53,7 +53,7 @@ module Queries
         :repository_id,
         :sled_image_id,
         :spatial_geographic_areas,
-        :taxon_determination_id,
+        :taxon_determination_id, # not used?!
         :taxon_determinations,
         :taxon_name_id,
         :type_material,
@@ -837,7 +837,7 @@ module Queries
         if deaccessioned
           c
         else
-          s = 'WITH query_deac AS (' + c.all.to_sql + ') ' +
+          s = 'WITH query_deac AS (' + c.all.unscope(:select).select(:id).to_sql + ') ' +
             ::CollectionObject
             .joins('LEFT JOIN query_deac as query_deac1 on query_deac1.id = collection_objects.id')
             .where('query_deac1.id IS NULL').to_sql
@@ -847,7 +847,7 @@ module Queries
 
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
-        s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
+        s = 'WITH query_tn_co AS (' + taxon_name_query.all.unscope(:select).select(:id).to_sql + ') ' +
           ::CollectionObject
           .joins(:taxon_names)
           .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
@@ -884,7 +884,7 @@ module Queries
         # Turn project_id back on
         base_collecting_event_query.project_id = project_id
 
-        s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
+        s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.select(:id).to_sql + ') ' +
           ::CollectionObject
           .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id')
           .to_sql
@@ -894,7 +894,7 @@ module Queries
 
       def otu_query_facet
         return nil if otu_query.nil?
-        s = 'WITH query_otu_co AS (' + otu_query.all.to_sql + ') ' +
+        s = 'WITH query_otu_co AS (' + otu_query.all.select(:id).to_sql + ') ' +
           ::CollectionObject
           .joins(:taxon_determinations)
           .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
