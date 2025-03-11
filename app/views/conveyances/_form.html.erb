@@ -4,6 +4,7 @@
     <div class="field flex-col" id="conveyance_edit">
       <%= f.label :conveyance_object_type %>
       <label><%= f.radio_button :conveyance_object_type, 'Otu', id: :otu %> OTU </label>
+      <label><%= f.radio_button :conveyance_object_type, 'CollectingEvent', id: :collecting_event %> Collecting event  </label>
       <label><%= f.radio_button :conveyance_object_type, 'CollectionObject', id: :collection_object %> Collection object  </label>
       <label><%= f.radio_button :conveyance_object_type, 'FieldOccurrence', id: :field_occurrence %> Field occurrence </label>
     </div>
@@ -16,6 +17,16 @@
                            method:     'conveyance_object_id',
                            tag_id:     'otu_id_for_conveyance_object_id',
                            display:    (@conveyance.conveyance_object&.metamorphosize&.class&.name == 'Otu' ? label_for(@conveyance.conveyance_object.metamorphosize) : nil)} %>
+    </div>
+
+    <div id="fields_for_collecting_event">
+      <%= f.label :collection_object %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: '/collecting_events',
+                           object:     'conveyance',
+                           method:     'conveyance_object_id',
+                           tag_id:     'collecting_event_id_for_conveyance_object_id',
+                           display:    (@conveyance.conveyance_object&.metamorphosize&.class&.name == 'CollectingEvent' ? label_for(@conveyance.conveyance_object.metamorphosize) : nil)} %>
     </div>
 
     <div id="fields_for_collection_object">
