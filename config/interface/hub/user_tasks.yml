@@ -1011,13 +1011,15 @@ browse_sounds_task:
   name: 'Browse sounds'
   related:
   categories:
+    - browse
   status: prototype
-  description: 'TODO: Task description'
+  description: 'View individual sounds and their related.'
 browse_field_occurrence_task:
   hub: true
   name: 'Browse field occurrences'
   related:
   categories:
+    - browse
   status: prototype
   description: 'Report everything known about a field occurrence. Includes determinations, images, collecting event, biological associations, etc.'
 filter_sounds_task:
@@ -1025,8 +1027,9 @@ filter_sounds_task:
   name: 'Filter sounds'
   related:
   categories:
+    - filters
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Filter sounds by various params.'
 index_multi_update_task:
   hub: false
   name: 'Multi-update data attributes'
@@ -1039,5 +1042,6 @@ filter_field_occurrences_task:
   name: 'Filter field occurrences'
   related:
   categories:
+    - filters
   status: prototype
   description: 'Filter field occurrences by many different facets, download or visualize results.'
