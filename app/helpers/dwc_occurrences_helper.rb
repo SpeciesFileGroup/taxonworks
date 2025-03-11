@@ -116,5 +116,42 @@ module DwcOccurrencesHelper
     )
   end
 
+  def dwc_determined_to_rank(otu, project_id)
+    d = {
+      kingdom: 0,
+      dwcClass: 0,
+      order: 0,
+      family: 0,
+      genus: 0,
+      specificEpithet: 0
+    }
+
+    # TODO: validate
+
+    return d if otu.taxon_name.nil?
+    a = ::Queries::TaxonName::Filter.new(
+      taxon_name_id: otu.taxon_name_id,
+      descendants: true ).all
+
+    b = ::Queries::CollectionObject::Filter.new({})
+    b.taxon_name_query = a
+
+    q = ::Queries::DwcOccurrence::Filter.new( project_id: )
+    q.collection_object_query = b
+
+    k = d.keys
+
+    k.each do |r|
+      q.empty_rank = k[k.index(r)..k.length]
+      d[r] = q.all.select(*k, :individualCount).sum(:individualCount)
+    end
+
+    d[:class] = d[:dwcClass]
+    d[:species] = d[:specificEpithet]
+
+      d.delete(:dwcClass)
+      d.delete(:specificEpithet)
+      d
+  end
 
 end

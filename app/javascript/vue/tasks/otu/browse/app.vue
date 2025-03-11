@@ -99,6 +99,7 @@ import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
 import DescriptionComponent from './components/Description.vue'
 import CoordinateOtus from './components/coordinate/CoordinateOtus.vue'
+import FieldOccurrences from './components/FieldOccurrence/FieldOccurrence.vue'
 import Autocomplete from '@/components/ui/Autocomplete'
 import SearchOtu from './components/SearchOtu'
 import Draggable from 'vuedraggable'
@@ -133,7 +134,8 @@ export default {
     SelectOtu,
     TypeSection,
     CoordinateOtus,
-    Distribution
+    Distribution,
+    FieldOccurrences
   },
   computed: {
     preferences: {

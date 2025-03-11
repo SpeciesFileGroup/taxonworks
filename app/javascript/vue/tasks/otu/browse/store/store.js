@@ -14,7 +14,8 @@ function makeInitialState() {
       descendants: false,
       descendantsDistribution: false,
       distribution: true,
-      conveyances: false
+      conveyances: false,
+      fieldOccurrences: true
     },
     preferences: {
       preferenceSchema: 20231017,
@@ -112,6 +113,7 @@ function makeInitialState() {
     relatedBAs: [],
     collectingEvents: [],
     collectionObjects: [],
+    fieldOccurrences: [],
     otus: [],
     georeferences: { features: [] },
     typeMaterials: [],

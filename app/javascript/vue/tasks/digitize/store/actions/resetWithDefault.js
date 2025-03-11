@@ -1,5 +1,5 @@
 import ActionNames from './actionNames'
-import { useIdentifierStore } from '../pinia/identifiers'
+import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
 import {
   IDENTIFIER_LOCAL_RECORD_NUMBER,
   IDENTIFIER_LOCAL_CATALOG_NUMBER
@@ -9,6 +9,7 @@ export default ({ dispatch, state }) => {
   const { locked } = state.settings
   const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
   const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+  const determinationStore = useTaxonDeterminationStore()
 
   dispatch(ActionNames.NewCollectingEvent)
   dispatch(ActionNames.NewCollectionObject)
@@ -39,6 +40,10 @@ export default ({ dispatch, state }) => {
     increment: state.settings.increment
   })
 
+  determinationStore.reset({
+    keepRecords: locked.taxonDeterminations
+  })
+
   state.biologicalAssociations = locked.biologicalAssociations
     ? state.biologicalAssociations.map((item) => ({
         ...item,
@@ -46,6 +51,4 @@ export default ({ dispatch, state }) => {
         global_id: undefined
       }))
     : []
-
-  dispatch(ActionNames.ResetTaxonDetermination)
 }

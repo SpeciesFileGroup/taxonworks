@@ -15,6 +15,7 @@ import setStore from './setStore'
 import setDepictions from './setDepictions'
 import setCommonNames from './setCommonNames'
 import setObservationsDepictions from './setObservationsDepictions'
+import setFieldOccurrences from './setFieldOccurrences'
 
 const MutationNames = {
   SetBiologicalAssociations: 'setBiologicalAssociations',
@@ -28,6 +29,7 @@ const MutationNames = {
   SetAssertedDistributions: 'setAssertedDistributions',
   SetCurrentOtu: 'setCurrentOtu',
   SetDescendants: 'setDescendants',
+  SetFieldOccurrences: 'setFieldOccurrences',
   SetLoadState: 'setLoadState',
   SetTaxonName: 'setTaxonName',
   SetTaxonNames: 'setTaxonNames',
@@ -48,6 +50,7 @@ const MutationFunctions = {
   [MutationNames.SetAssertedDistributions]: setAssertedDistributions,
   [MutationNames.SetCurrentOtu]: setCurrentOtu,
   [MutationNames.SetDescendants]: setDescendants,
+  [MutationNames.SetFieldOccurrences]: setFieldOccurrences,
   [MutationNames.SetLoadState]: setLoadState,
   [MutationNames.SetTaxonName]: setTaxonName,
   [MutationNames.SetTaxonNames]: setTaxonNames,

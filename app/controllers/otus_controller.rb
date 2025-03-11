@@ -5,7 +5,7 @@ class OtusController < ApplicationController
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
     :breadcrumbs, :timeline, :coordinate, :distribution,
     :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
-    :api_nomenclature_citations, :api_distribution, :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory ]
+    :api_nomenclature_citations, :api_distribution, :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
 
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
@@ -285,6 +285,10 @@ class OtusController < ApplicationController
     end
   end
 
+  def api_determined_to_rank
+    render json: helpers.dwc_determined_to_rank(@otu, sessions_current_project_id)
+  end
+
   # GET /api/v1/otus/:id
   def api_show
     render '/otus/api/v1/show'
@@ -320,10 +324,10 @@ class OtusController < ApplicationController
       otu_id: [params.require(:otu_id)],
       otu_scope: (params[:otu_scope] || :all)
     ).all
-     .joins("LEFT OUTER JOIN observations ON (observations.id = depictions.depiction_object_id and depictions.depiction_object_type = 'Observation')")
-     .joins('LEFT OUTER JOIN descriptors ON descriptors.id = observations.descriptor_id')
-     .joins('LEFT OUTER JOIN observation_matrix_column_items ON descriptors.id = observation_matrix_column_items.descriptor_id')
-     .eager_load(image: [:attribution])
+      .joins("LEFT OUTER JOIN observations ON (observations.id = depictions.depiction_object_id and depictions.depiction_object_type = 'Observation')")
+      .joins('LEFT OUTER JOIN descriptors ON descriptors.id = observations.descriptor_id')
+      .joins('LEFT OUTER JOIN observation_matrix_column_items ON descriptors.id = observation_matrix_column_items.descriptor_id')
+      .eager_load(image: [:attribution])
     if params[:sort_order]
       @depictions = @depictions.order( Arel.sql( conditional_sort('depictions.depiction_object_type', params[:sort_order]) + ", observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position" ))
     else

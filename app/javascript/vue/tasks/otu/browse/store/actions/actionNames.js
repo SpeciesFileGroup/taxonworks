@@ -7,6 +7,7 @@ const ActionNames = {
   LoadConveyances: 'loadConveyances',
   LoadDepictions: 'loadDepictions',
   LoadDistribution: 'loadDistribution',
+  LoadFieldOccurrences: 'loadFieldOccurrences',
   LoadPreferences: 'loadPreferences',
   LoadAssertedDistributions: 'loadAssertedDistributions',
   LoadDescendants: 'loadDescendants',

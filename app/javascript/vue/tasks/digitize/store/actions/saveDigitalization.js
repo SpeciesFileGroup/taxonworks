@@ -2,7 +2,7 @@ import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
 import { EVENT_SMART_SELECTOR_UPDATE } from '@/constants/index.js'
 import { CollectionObject } from '@/routes/endpoints'
-import { useIdentifierStore } from '../pinia/identifiers'
+import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
 import {
   IDENTIFIER_LOCAL_RECORD_NUMBER,
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
@@ -19,6 +19,7 @@ export default ({ commit, dispatch, state }, { resetAfter = false } = {}) =>
   new Promise((resolve, reject) => {
     const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
     const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+    const determinationStore = useTaxonDeterminationStore()
 
     state.settings.saving = true
     dispatch(ActionNames.SaveCollectingEvent)
@@ -38,10 +39,13 @@ export default ({ commit, dispatch, state }, { resetAfter = false } = {}) =>
             const actions = [
               dispatch(ActionNames.SaveTypeMaterial),
               dispatch(ActionNames.SaveCOCitations),
-              dispatch(ActionNames.SaveDeterminations),
               dispatch(ActionNames.SaveBiologicalAssociations),
               recordNumber.save(payload),
-              catalogNumber.save(payload)
+              catalogNumber.save(payload),
+              determinationStore.save({
+                objectId: coCreated.id,
+                objectType: COLLECTION_OBJECT
+              })
             ]
 
             Promise.allSettled(actions)

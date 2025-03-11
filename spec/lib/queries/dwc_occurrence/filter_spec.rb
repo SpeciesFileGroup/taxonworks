@@ -16,4 +16,31 @@ describe Queries::DwcOccurrence::Filter, type: :model, group: [:dwc_occurrence] 
     expect(query.all.first.dwc_occurrence_object).to eq(s)
   end
 
+  specify '#empty_rank' do
+    s = Specimen.create!()
+    t = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
+    n = FactoryBot.create(:iczn_species)
+    t.otu.update!(taxon_name: n.parent.parent)
+    query.empty_rank = [ t.otu.taxon_name.rank_name ]
+    expect(query.all).to be_empty
+  end
+
+   specify '#empty_rank' do
+    s = Specimen.create!()
+    t = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
+    n = FactoryBot.create(:iczn_family)
+    t.otu.update!(taxon_name: n.parent.parent)
+    query.empty_rank = [ 'genus' ]
+    expect(query.all).to contain_exactly(s.dwc_occurrence)
+  end
+
+   specify '#empty_rank' do
+    s = Specimen.create!()
+    t = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
+    n = FactoryBot.create(:iczn_family)
+    t.otu.update!(taxon_name: n.parent.parent)
+    query.empty_rank = [ 'genus', 'specificEpithet' ]
+    expect(query.all).to contain_exactly(s.dwc_occurrence)
+  end
+
 end
