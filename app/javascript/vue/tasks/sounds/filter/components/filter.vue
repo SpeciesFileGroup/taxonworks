@@ -5,6 +5,7 @@
     :target="SOUND"
   />
   <FacetConveyanceObjectType v-model="params" />
+  <FacetCollectingEvent v-model="params" />
   <FacetCollectionObject v-model="params" />
   <FacetFieldOccurrence v-model="params" />
   <FacetTags
@@ -32,6 +33,7 @@ import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetSoundName from '@/components/Filter/Facets/Sound/FacetSoundName.vue'
 import FacetConveyanceObjectType from '@/components/Filter/Facets/Conveyance/FacetConveyanceObjectType.vue'
+import FacetCollectingEvent from '@/components/Filter/Facets/CollectingEvent/FacetCollectingEvent/FacetCollectingEvent.vue'
 
 const props = defineProps({
   modelValue: {

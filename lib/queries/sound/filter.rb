@@ -16,10 +16,14 @@ module Queries
 
         field_occurrence_id: [],
         collection_object_id: [],
+        collecting_event_id: [],
         conveyance_object_type: [],
         sound_id: [],
         otu_id: [],
       ].freeze
+
+      # @return [Array]
+      attr_accessor :collecting_event_id
 
       # @return [Array]
       attr_accessor :collection_object_id
@@ -60,6 +64,7 @@ module Queries
       def initialize(query_params)
         super
 
+        @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @conveyance_object_type = params[:conveyance_object_type]
         @conveyances = boolean_param(params, :conveyances)
@@ -80,6 +85,10 @@ module Queries
 
       def conveyance_object_type
         [@conveyance_object_type].flatten.compact
+      end
+
+      def collecting_event_id
+        [@collecting_event_id].flatten.compact
       end
 
       def collection_object_id
@@ -149,6 +158,12 @@ module Queries
         ::Sound.joins(:collection_objects).where(collection_objects: {id: collection_object_id})
       end
 
+      def collecting_event_facet
+        return nil if collecting_event_id.empty?
+
+        ::Sound.joins(:collecting_events).where(collecting_events: {id: collecting_event_id})
+      end
+
       def field_occurrence_facet
         return nil if field_occurrence_id.empty?
 
@@ -195,6 +210,7 @@ module Queries
           conveyance_object_type_facet,
           conveyances_facet,
           otu_id_facet,
+          collecting_event_facet,
           collection_object_facet,
           field_occurrence_facet,
           with_name_facet

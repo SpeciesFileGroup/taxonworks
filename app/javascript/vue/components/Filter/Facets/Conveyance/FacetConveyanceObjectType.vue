@@ -23,7 +23,12 @@
 import { computed } from 'vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
-const CONVEYANCE_OBJECT_TYPES = ['CollectionObject', 'FieldOccurrence', 'Otu']
+const CONVEYANCE_OBJECT_TYPES = [
+  'CollectingEvent',
+  'CollectionObject',
+  'FieldOccurrence',
+  'Otu'
+]
 
 const props = defineProps({
   modelValue: {
