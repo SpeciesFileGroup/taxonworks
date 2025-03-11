@@ -353,7 +353,9 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id}).distinct
+        a = ::CollectingEvent.joins(:collection_object_otus).where(otus: {id: otu_id})
+        b = ::CollectingEvent.joins(:field_occurrence_otus).where(otus: {id: otu_id})
+        ::Queries.union(::CollectingEvent, [a,b]).distinct
       end
 
       def matching_collection_object_id

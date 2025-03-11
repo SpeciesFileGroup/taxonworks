@@ -18,7 +18,7 @@ module Shared::BiologicalExtensions
     # All determiners, regardless of what the taxon is
     has_many :determiners, through: :taxon_determinations, source: :determiners
 
-    has_many :otus, through: :taxon_determinations # , inverse_of: :collection_objects
+    has_many :otus, through: :taxon_determinations
 
     has_many :taxon_names, through: :otus
 
