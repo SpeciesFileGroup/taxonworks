@@ -38,11 +38,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#4226]: https://github.com/SpeciesFileGroup/taxonworks/issues/4226
 [#4230]: https://github.com/SpeciesFileGroup/taxonworks/issues/4230
-[#4204]: https://github.com/SpeciesFileGroup/taxonworks/pull/4204
-[#4219]: https://github.com/SpeciesFileGroup/taxonworks/pull/4219
-[#4220]: https://github.com/SpeciesFileGroup/taxonworks/pull/4220
-[#4225]: https://github.com/SpeciesFileGroup/taxonworks/pull/4225
-[#4227]: https://github.com/SpeciesFileGroup/taxonworks/pull/4227
+[#4204]: https://github.com/SpeciesFileGroup/taxonworks/issues/4204
+[#4219]: https://github.com/SpeciesFileGroup/taxonworks/issues/4219
+[#4220]: https://github.com/SpeciesFileGroup/taxonworks/issues/4220
+[#4225]: https://github.com/SpeciesFileGroup/taxonworks/issues/4225
+[#4227]: https://github.com/SpeciesFileGroup/taxonworks/issues/4227
 
 ## [0.48.0] - 2025-02-14
 
