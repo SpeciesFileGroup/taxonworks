@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- `verbatim_label` not batch loading to "Castor" form [#4230]
 - Otu content export rendering exceptions
 - ObservationMatrixColumItem show rendering
 - Rendering of Identifier::Local::RecordNumber
