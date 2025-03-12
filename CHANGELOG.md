@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- AssertedDistributions duplicating because of is_absent state [#4226]
 - `verbatim_label` not batch loading to "Castor" form [#4230]
 - Otu content export rendering exceptions
 - ObservationMatrixColumItem show rendering
@@ -35,6 +36,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Import dataset description uniqueness validation failing to detect duplicate
 - CSD: It is not possible to add new taxon determinations to an existing CO [#4227]
 
+[#4226]: https://github.com/SpeciesFileGroup/taxonworks/issues/4226
+[#4230]: https://github.com/SpeciesFileGroup/taxonworks/issues/4230
 [#4204]: https://github.com/SpeciesFileGroup/taxonworks/pull/4204
 [#4219]: https://github.com/SpeciesFileGroup/taxonworks/pull/4219
 [#4220]: https://github.com/SpeciesFileGroup/taxonworks/pull/4220
