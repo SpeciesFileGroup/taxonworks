@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Otu content export rendering exceptions
 - ObservationMatrixColumItem show rendering
 - Rendering of Identifier::Local::RecordNumber
 - Reset button is not working on Unify people
