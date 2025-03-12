@@ -1,7 +1,7 @@
 class FieldOccurrencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_field_occurrence, only: %i[ show edit update destroy ]
+  before_action :set_field_occurrence, only: %i[ show edit update destroy api_dwc]
 
   after_action -> { set_pagination_headers(:field_occurrences) }, only: [:index, :api_index], if: :json_request?
 
@@ -92,6 +92,14 @@ class FieldOccurrencesController < ApplicationController
         alert: 'You must select an item from the list with a click or tab press before clicking show.')
     else
       redirect_to field_occurrence_path(params[:id])
+    end
+  end
+
+  # GET /api/v1/field_occurrences/123/dwc
+  def api_dwc
+    ActiveRecord::Base.connection_pool.with_connection do
+      @field_occurrence.get_dwc_occurrence
+      render json: @field_occurrence.dwc_occurrence_attributes
     end
   end
 

@@ -131,6 +131,8 @@ namespace :api, defaults: {format: :json} do
       get '/depictions/gallery', to: '/depictions#api_gallery'
       get '/depictions/:id', to: '/depictions#api_show'
 
+      get '/field_occurrences/:id/dwc', to: '/field_occurrences#api_dwc'
+
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
 
