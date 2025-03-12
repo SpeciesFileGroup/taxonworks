@@ -39,7 +39,7 @@ describe Image, type: :model, group: [:images] do
 
     i = Image.create(
       image_file: Rack::Test::UploadedFile.new(Spec::Support::Utilities::Files.generate_tiny_random_sized_png(
-        file_name: "unmatched.png",
+        file_name: 'unmatched.png',
       ), 'image/png'),
       filename_depicts_object: true
     )
@@ -110,7 +110,7 @@ describe Image, type: :model, group: [:images] do
     it 'rejects tiny images' do
       image = FactoryBot.build(:very_tiny_image)
       image.save
-      expect(image.errors[:image_file]).to contain_exactly("height must be at least 16 pixels", "width must be at least 16 pixels")
+      expect(image.errors[:image_file]).to contain_exactly('height must be at least 16 pixels', 'width must be at least 16 pixels')
     end
 
     it 'accepts larger images' do
@@ -183,7 +183,7 @@ describe Image, type: :model, group: [:images] do
     end
 
     specify 'destroying an image should remove it from the filesystem' do
-      path = i.image_file.path
+      path = i.tap(&:save!).image_file.path
       i.destroy!
       expect(File.exist?(path)).to be_falsey
     end
