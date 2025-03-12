@@ -4,7 +4,8 @@ json.merge!(
     @otu,
     max_descendants_depth: params[:max_descendants_depth]&.to_i || Float::INFINITY,
     common_names: extend_response_with('common_names'),
-    language_alpha2: ( extend_response_with('common_names') ? params[:common_name_language] : nil) )
+    language_alpha2: ( extend_response_with('common_names') ? params[:common_name_language] : nil),
+    project_scope_tag_id: params[:project_scope_tag_id])
 )
 
 if extend_response_with('common_names')

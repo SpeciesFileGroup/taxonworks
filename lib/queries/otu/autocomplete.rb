@@ -26,6 +26,10 @@ module Queries
       #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
       attr_accessor :exact
 
+      # @return Integer, nil
+      # Only return otus tagged with this tag id
+      attr_accessor :project_scope_tag_id
+
       # Keys are method names. Existence of method is checked
       # before requesting the query
       QUERIES = {
@@ -53,18 +57,20 @@ module Queries
         # common_name_name_similarity: {priority: 200},
       }.freeze
 
-      def initialize(string, project_id: nil, having_taxon_name_only: false, with_taxon_name: nil, exact: 'false')
+      def initialize(string, project_id: nil, having_taxon_name_only: false, with_taxon_name: nil, exact: 'false', project_scope_tag_id: nil)
         super(string, project_id:)
         @having_taxon_name_only = boolean_param({having_taxon_name_only:}, :having_taxon_name_only)
         @with_taxon_name = boolean_param({with_taxon_name:}, :with_taxon_name)
 
         # TODO: move to mode
         @exact = boolean_param({exact:}, :exact)
+        @project_scope_tag_id = project_scope_tag_id
       end
 
       def base_query
         q = ::Otu.all
         q = q.where(project_id:) if project_id.any?
+        q = q.joins(:tags).where("tags.keyword_id = #{project_scope_tag_id}") if project_scope_tag_id.present?
         q
       end
 
@@ -165,9 +171,9 @@ module Queries
 
       # An autocomplete result that permits displaying the TaxonName as originally matched.
       # @return [Array] of
-      #    { otu:,  label_target:, otu_valid_id: } 
+      #    { otu:,  label_target:, otu_valid_id: }
       #
-      # Note that otu: is really only useful when displaying otus without &having_taxon_name_only=true.  We don't, for example make use 
+      # Note that otu: is really only useful when displaying otus without &having_taxon_name_only=true.  We don't, for example make use
       # of this element there.
       def api_autocomplete_extended
         otu_queries = QUERIES.dup
