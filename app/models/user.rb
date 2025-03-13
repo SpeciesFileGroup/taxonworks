@@ -117,7 +117,7 @@ class User < ApplicationRecord
 
   include Shared::RandomTokenFields[:password_reset]
 
-  has_secure_password
+  has_secure_password(reset_token: false) # We use our own reset token
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   HUB_FAVORITES = {'data' => [], 'tasks' => []}.freeze
