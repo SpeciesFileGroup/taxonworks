@@ -138,7 +138,6 @@
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from '@/routes/routes'
 import { TaxonName } from '@/routes/endpoints'
-import { sortArray } from '@/helpers'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import BlockLayout from '@/components/layout/BlockLayout'
 import ModalComponent from '@/components/ui/Modal'
@@ -188,12 +187,13 @@ export default {
               parent_id: [this.taxon.id],
               taxon_name_type: 'Protonym',
               per: 500,
+              sort: 'alphabetical',
               extend: ['parent']
             })
               .then(({ body }) => {
-                const list = body.filter((item) => item.id !== this.taxon.id)
-
-                this.childrenList = sortArray(list, 'name')
+                this.childrenList = body.filter(
+                  (item) => item.id !== this.taxon.id
+                )
               })
               .finally(() => {
                 this.isLoading = false
