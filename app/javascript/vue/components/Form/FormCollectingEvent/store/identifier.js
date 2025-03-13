@@ -58,7 +58,7 @@ export default defineStore('tripCode', {
 
     async load({ objectId, objectType }) {
       try {
-        const { body } = Identifier.where({
+        const { body } = await Identifier.where({
           identifier_object_id: objectId,
           identifier_object_type: objectType,
           type: IDENTIFIER_LOCAL_FIELD_NUMBER
