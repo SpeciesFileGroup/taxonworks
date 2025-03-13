@@ -32,7 +32,8 @@ module SoundsHelper
    
     # Metadata. Add more as needed.
     {
-      duration: w.duration
+      duration: w.duration,
+      sample_rate: w.sample_rate
     }
    end
 

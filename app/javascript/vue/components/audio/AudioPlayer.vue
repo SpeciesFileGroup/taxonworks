@@ -30,7 +30,7 @@ const props = defineProps({
   },
 
   spectrogram: {
-    type: Boolean,
+    type: [Boolean, Object],
     default: false
   },
 
@@ -106,12 +106,10 @@ onMounted(() => {
     audioPlayer.registerPlugin(
       Spectrogram.create({
         labels: true,
-        height: 200,
+        height: 400,
         scale: 'mel',
-        frequencyMax: 8000,
-        frequencyMin: 0,
-        fftSamples: 1024,
-        labelsBackground: 'rgba(0, 0, 0, 0.1)'
+        labelsBackground: 'rgba(0, 0, 0, 0.1)',
+        ...props.spectrogram
       })
     )
   }
