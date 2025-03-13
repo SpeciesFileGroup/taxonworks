@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Synonymy section of Edit Nomenclature alphabetically sorted
 - `/api/v1/otus/:id/inventory/determined_to_rank`
 - Append mode to multi update data attributes task [#4204]
 - <in progress Batch add/remove Protocols>
@@ -27,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- `&sort=alphabetical|classification` param to `/taxon_names/`
 - AssertedDistributions duplicating because of is_absent state [#4226]
 - `verbatim_label` not batch loading to "Castor" form [#4230]
 - Otu content export rendering exceptions
