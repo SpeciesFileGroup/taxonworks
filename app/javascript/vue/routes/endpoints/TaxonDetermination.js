@@ -10,7 +10,6 @@ const permitParams = {
     year_made: Number,
     month_made: Number,
     day_made: Number,
-    position: Number,
     roles_attributes: {
       id: Number,
       _destroy: Boolean,

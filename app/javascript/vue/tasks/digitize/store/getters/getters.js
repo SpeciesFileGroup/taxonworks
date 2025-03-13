@@ -20,7 +20,6 @@ import getPreferences from './getPreferences'
 import getBiocurations from './getBiocurations'
 import getMaterialTypes from './getMaterialTypes'
 import getLabel from './getLabel'
-import getTaxonDeterminations from './getTaxonDeterminations'
 import getNamespaceSelected from './getNamespaceSelected'
 import getSubsequentialUses from './getSubsequentialUses'
 import getCollectingEventIdentifier from './getCollectingEventIdentifier'
@@ -57,7 +56,6 @@ const GetterNames = {
   GetBiocurations: 'getBiocurations',
   GetMaterialTypes: 'getMaterialTypes',
   GetLabel: 'GetLabel',
-  GetTaxonDeterminations: 'GetTaxonDeterminations',
   GetNamespaceSelected: 'getNamespaceSelected',
   GetSubsequentialUses: 'getSubsequentialUses',
   GetProjectPreferences: 'getProjectPreferences',
@@ -93,7 +91,6 @@ const GetterFunctions = {
   [GetterNames.GetBiocurations]: getBiocurations,
   [GetterNames.GetMaterialTypes]: getMaterialTypes,
   [GetterNames.GetLabel]: getLabel,
-  [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,
   [GetterNames.GetNamespaceSelected]: getNamespaceSelected,
   [GetterNames.GetSubsequentialUses]: getSubsequentialUses,
   [GetterNames.GetProjectPreferences]: getProjectPreferences,

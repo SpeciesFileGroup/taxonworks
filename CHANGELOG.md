@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `/api/v1/otus/:id/inventory/determined_to_rank`
 - Append mode to multi update data attributes task [#4204]
 - <in progress Batch add/remove Protocols>
 - Protocol `is_machine_output` attribute to facilitate MachineObservation types
@@ -16,22 +17,32 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Move button to citations and depiction slices in radial annotator
 - Freeze column checkbox to filter tasks [#4220]
 - Sort layout columns on filter tasks [#4219]
+- Field occurrence panel to Browse OTU
 
 ### Changed
 
 - Add total to unmatched panel on Nomenclature match task
 - Prevent user destroy last saved TD on New FO task [#4225]
+- Updated Ruby gems and Node packages
 
 ### Fixed
 
+- AssertedDistributions duplicating because of is_absent state [#4226]
+- `verbatim_label` not batch loading to "Castor" form [#4230]
+- Otu content export rendering exceptions
+- ObservationMatrixColumItem show rendering
 - Rendering of Identifier::Local::RecordNumber
 - Reset button is not working on Unify people
 - Import dataset description uniqueness validation failing to detect duplicate
+- CSD: It is not possible to add new taxon determinations to an existing CO [#4227]
 
-[#4204]: https://github.com/SpeciesFileGroup/taxonworks/pull/4204
-[#4219]: https://github.com/SpeciesFileGroup/taxonworks/pull/4219
-[#4220]: https://github.com/SpeciesFileGroup/taxonworks/pull/4220
-[#4225]: https://github.com/SpeciesFileGroup/taxonworks/pull/4225
+[#4226]: https://github.com/SpeciesFileGroup/taxonworks/issues/4226
+[#4230]: https://github.com/SpeciesFileGroup/taxonworks/issues/4230
+[#4204]: https://github.com/SpeciesFileGroup/taxonworks/issues/4204
+[#4219]: https://github.com/SpeciesFileGroup/taxonworks/issues/4219
+[#4220]: https://github.com/SpeciesFileGroup/taxonworks/issues/4220
+[#4225]: https://github.com/SpeciesFileGroup/taxonworks/issues/4225
+[#4227]: https://github.com/SpeciesFileGroup/taxonworks/issues/4227
 
 ## [0.48.0] - 2025-02-14
 

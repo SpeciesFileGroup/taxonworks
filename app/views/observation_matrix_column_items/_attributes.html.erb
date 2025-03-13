@@ -8,13 +8,19 @@
   <%= @observation_matrix_column_item.type %>
 </p>
 
+
+<% if @observation_matrix_column_item.kind_of?(ObservationMatrixColumnItem::Single) %>
 <p>
   <strong>Descriptor:</strong>
   <%= descriptor_link(@observation_matrix_column_item.descriptor) %>
 </p>
+<% end %>
 
+<% if @observation_matrix_column_item.kind_of?(ObservationMatrixColumnItem::Dynamic::Tag) %>
 <p>
   <strong>Keyword:</strong>
   <%= object_link(@observation_matrix_column_item.controlled_vocabulary_term) %>
 </p>
+
+<% end %>
 

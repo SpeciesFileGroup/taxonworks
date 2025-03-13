@@ -95,10 +95,6 @@ onMounted(() => {
     store.commit(MutationNames.SetProjectPreferences, body)
   })
 
-  if (!coIdParam) {
-    store.dispatch(ActionNames.CreateDeterminationFromParams)
-  }
-
   if (/^\d+$/.test(coId)) {
     store.dispatch(ActionNames.LoadDigitalization, coId)
   } else if (/^\d+$/.test(coIdParam)) {

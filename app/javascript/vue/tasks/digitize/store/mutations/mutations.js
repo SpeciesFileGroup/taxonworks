@@ -45,10 +45,6 @@ import setIdentifiers from './setIdentifiers'
 import setIdentifier from './Identifier/setIdentifier'
 import setIdentifierObjectId from './Identifier/setIdentifierObjectId'
 
-import addTaxonDetermination from './TaxonDetermination/addTaxonDetermination'
-import removeTaxonDetermination from './TaxonDetermination/removeTaxonDetermination'
-import setTaxonDeterminations from './TaxonDetermination/setTaxonDeterminations'
-
 import setSoftValidations from './setSoftValidations'
 import setBiologicalAssociations from './setBiologicalAssociations'
 
@@ -83,10 +79,6 @@ const MutationNames = {
   SetBiocurations: 'setBiocurations',
   AddBiocuration: 'AddBiocuration',
   RemoveBiocuration: 'RemoveBiocuration',
-
-  RemoveTaxonDetermination: 'removeTaxonDetermination',
-  AddTaxonDetermination: 'addTaxonDetermination',
-  SetTaxonDeterminations: 'setTaxonDeterminations',
 
   SetIdentifiers: 'setIdentifiers',
   SetIdentifier: 'setIdentifier',
@@ -139,10 +131,6 @@ const MutationFunctions = {
   [MutationNames.SetBiocurations]: setBiocurations,
   [MutationNames.AddBiocuration]: addBiocuration,
   [MutationNames.RemoveBiocuration]: removeBiocuration,
-
-  [MutationNames.AddTaxonDetermination]: addTaxonDetermination,
-  [MutationNames.RemoveTaxonDetermination]: removeTaxonDetermination,
-  [MutationNames.SetTaxonDeterminations]: setTaxonDeterminations,
 
   [MutationNames.SetIdentifiers]: setIdentifiers,
   [MutationNames.SetIdentifier]: setIdentifier,

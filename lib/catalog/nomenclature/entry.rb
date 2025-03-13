@@ -106,9 +106,12 @@ class Catalog::Nomenclature < Catalog
 
     # @return [Array of NomenclatureCatalog::EntryItem]
     #   sorted by date, then taxon name name as rendered for this item
+    # item.base_object (Protonym or Combination)
+    # item.object (Protonym, Combination, Relationship)
     def ordered_by_nomenclature_date
       now = Time.now
-      items.sort{|a,b| [(a.nomenclature_date&.to_time || now), a.year_suffix.to_s + 'z', a.pages.to_s + 'z', a.object_class, a.base_object.cached_original_combination.to_s ] <=> [(b.nomenclature_date&.to_time || now), b.year_suffix.to_s + 'z', b.pages.to_s + 'z', b.object_class, b.base_object.cached_original_combination.to_s ] }
+      #items.sort{|a,b| [(a.nomenclature_date&.to_time || now), a.year_suffix.to_s + 'z', a.pages.to_s + 'z', a.object_class, a.base_object.cached_original_combination.to_s ] <=> [(b.nomenclature_date&.to_time || now), b.year_suffix.to_s + 'z', b.pages.to_s + 'z', b.object_class, b.base_object.cached_original_combination.to_s ] }
+      items.sort_by{|a| [(a.nomenclature_date&.to_time || now), a.base_object.cached_is_valid.to_s.gsub('true', '1'), a.object_class.to_s.gsub('Combination', 'z'), a.year_suffix.to_s + 'z', a.pages.to_s + 'z', a.base_object.cached_original_combination.to_s ] }
     end
 
     # @return [Array]
