@@ -37,9 +37,9 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
   # Behaviour -
   #   all values, regardless of whether they are clicked on, are saved to iFrame
   iframe_example_values = {
-    drawn_polygon: '|||33.219077,-97.166004,41.974734,' \
-    '-107.185535,46.625796,-89.958972,46.625796,-89.958972,33.219077,-97.166004'.clone, # SUPER silly fix to unexplicable problem of just this string getting frozen
     drawn_point: '36.816903|-112.986316||',
+    drawn_polygon: '|||33.219077,-97.166004,41.974734,' \
+    '-107.185535,46.625796,-89.958972,46.625796,-89.958972,33.219077,-97.166004',
     drawn_point_with_uncertainty: '41.449859|-98.220691|1907|',
     drawn_point_with_polygon_and_uncertainty: '41.449859|-98.220691|9100|' \
     '41.53125216994986,-98.32855566566684,' \

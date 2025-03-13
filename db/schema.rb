@@ -219,7 +219,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_22_185950) do
 
   create_table "cached_maps", force: :cascade do |t|
     t.bigint "otu_id", null: false
-    t.geography "geometry", limit: {:srid=>4326, :type=>"geometry", :geographic=>true}
+    t.geography "geometry", limit: {srid: 4326, type: "geometry", geographic: true}
     t.integer "reference_count"
     t.bigint "project_id", null: false
     t.datetime "created_at", null: false
@@ -1033,13 +1033,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_22_185950) do
   create_table "geographic_items", id: :serial, force: :cascade do |t|
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.geography "point", limit: {:srid=>4326, :type=>"st_point", :has_z=>true, :geographic=>true}
-    t.geography "line_string", limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
-    t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :has_z=>true, :geographic=>true}
-    t.geography "multi_point", limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
-    t.geography "multi_line_string", limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
-    t.geography "multi_polygon", limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
-    t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry_collection", :has_z=>true, :geographic=>true}
+    t.geography "point", limit: {srid: 4326, type: "st_point", has_z: true, geographic: true}
+    t.geography "line_string", limit: {srid: 4326, type: "line_string", has_z: true, geographic: true}
+    t.geography "polygon", limit: {srid: 4326, type: "st_polygon", has_z: true, geographic: true}
+    t.geography "multi_point", limit: {srid: 4326, type: "multi_point", has_z: true, geographic: true}
+    t.geography "multi_line_string", limit: {srid: 4326, type: "multi_line_string", has_z: true, geographic: true}
+    t.geography "multi_polygon", limit: {srid: 4326, type: "multi_polygon", has_z: true, geographic: true}
+    t.geography "geometry_collection", limit: {srid: 4326, type: "geometry_collection", has_z: true, geographic: true}
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.string "type", null: false
