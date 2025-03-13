@@ -37,7 +37,7 @@ module Shared::QueryBatchUpdate
 
       if request.run_async?
         a.all.find_each do |o|
-          o.delay(run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update).query_update(request.object_params)
+          o.delay(run_at: 1.second.from_now, queue: :query_batch_update).query_update(request.object_params)
         end
       else
         self.transaction do
