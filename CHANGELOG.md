@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Synonymy section of Edit Nomenclature alphabetically sorted
+- `/api/v1/field_occurrences/:id/dwc`
 - `/api/v1/otus/:id/inventory/determined_to_rank`
 - Append mode to multi update data attributes task [#4204]
 - <in progress Batch add/remove Protocols>
@@ -37,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Reset button is not working on Unify people
 - Import dataset description uniqueness validation failing to detect duplicate
 - CSD: It is not possible to add new taxon determinations to an existing CO [#4227]
+- New FO, CE Panel: Saved identifiers aren't loaded in the UI on page reload [#4241]
 
 [#4226]: https://github.com/SpeciesFileGroup/taxonworks/issues/4226
 [#4230]: https://github.com/SpeciesFileGroup/taxonworks/issues/4230
@@ -45,6 +47,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4220]: https://github.com/SpeciesFileGroup/taxonworks/issues/4220
 [#4225]: https://github.com/SpeciesFileGroup/taxonworks/issues/4225
 [#4227]: https://github.com/SpeciesFileGroup/taxonworks/issues/4227
+[#4241]: https://github.com/SpeciesFileGroup/taxonworks/pull/4241
 
 ## [0.48.0] - 2025-02-14
 
