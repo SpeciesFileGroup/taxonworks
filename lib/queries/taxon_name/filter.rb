@@ -37,6 +37,7 @@ module Queries
         :otus,
         :rank,
         :relation_to_relationship,
+        :sort,
         :synonymify,
         :taxon_name_author_id_or,
         :taxon_name_id,
