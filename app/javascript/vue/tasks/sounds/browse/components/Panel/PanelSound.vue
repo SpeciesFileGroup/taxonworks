@@ -9,9 +9,9 @@
         <AudioPlayer
           :url="sound.sound_file"
           ref="audioPlayerRef"
-          :sample-rate="sound.metadata.sample_rate"
+          :sample-rate="192000"
           :spectrogram="{
-            frequencyMax: sound.metadata.sample_rate,
+            frequencyMax: 192000,
             fftSamples: 2048
           }"
           media-controls
