@@ -16,18 +16,19 @@ module Shared::DwcOccurrenceHooks
     #   See also Shared::IsDwcOccurrence
     attr_accessor :no_dwc_occurrence
 
-    after_save_commit :update_dwc_occurrence, if: :saved_changes?, unless: :no_dwc_occurrence
-    after_destroy :update_dwc_occurrence
+    after_save :process_dwc_occurrences, if: :saved_changes?, unless: :no_dwc_occurrence
+    after_destroy :process_dwc_occurrences
 
-    def update_dwc_occurrence
+    def process_dwc_occurrences
       t = dwc_occurrences.count
-      q = dwc_occurrences.unscope(:select).select('dwc_occurrences.id', 'occurrenceID', :dwc_occurrence_object_type, :dwc_occurrence_object_id, :is_flagged_for_rebuild)
 
       begin
         # If the scope is returning every object at this point (arbitrarily > 5k records), then the scope is badly coded.
         raise TaxonWorks::Error if t > 5000 && (t == DwcOccurrence.where(project_id:).count)
 
         if t < 100
+          q = dwc_occurrences.reselect('dwc_occurrences.id', :occurrenceID, :dwc_occurrence_object_type, :dwc_occurrence_object_id, :is_flagged_for_rebuild)
+
           q.find_each do |d|
             d.dwc_occurrence_object.set_dwc_occurrence
           end
