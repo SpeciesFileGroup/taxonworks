@@ -3,12 +3,21 @@ class Collector < Role::ProjectRole
   include Shared::DwcOccurrenceHooks
 
   def dwc_occurrences
-    DwcOccurrence
+    co = DwcOccurrence
       .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
       .joins('JOIN collecting_events ce on co.collecting_event_id = ce.id')
       .joins("JOIN roles r on r.type = 'Collector' AND r.role_object_type = 'CollectingEvent' AND r.role_object_id = ce.id")
       .where(r: {id:})
       .distinct
+
+    fo = DwcOccurrence
+      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
+      .joins('JOIN collecting_events ce on fo.collecting_event_id = ce.id')
+      .joins("JOIN roles r on r.type = 'Collector' AND r.role_object_type = 'CollectingEvent' AND r.role_object_id = ce.id")
+      .where(r: {id:})
+      .distinct
+
+    ::Queries.union(DwcOccurrence, [co, fo])
   end
 
   def do_not_set_cached

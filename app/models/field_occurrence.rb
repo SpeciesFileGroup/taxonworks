@@ -36,7 +36,7 @@ class FieldOccurrence < ApplicationRecord
   include SoftValidation
 
   include Shared::BiologicalExtensions
-  
+
   include Shared::Taxonomy
   include FieldOccurrence::DwcExtensions
 

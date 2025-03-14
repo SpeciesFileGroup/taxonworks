@@ -27,12 +27,19 @@ class BiocurationClass < ControlledVocabularyTerm
     # Remember that classes must be tagged by a corresponding group with a URI to
     # become eligible as values for "grouped" Dwc attributes.
     if keywords.where(uri: ::DWC_ATTRIBUTE_URIS.values.flatten).any?
-      ::Queries::DwcOccurrence::Filter.new(
+      co = ::Queries::DwcOccurrence::Filter.new(
         collection_object_query: {
           biocuration_class_id: id
         }
       ).all
 
+      fo = ::Queries::DwcOccurrence::Filter.new(
+        field_occurrence_query: {
+          biocuration_class_id: id
+        }
+      ).all
+
+      ::Queries.union(DwcOccurrence, [co, fo])
     else
       DwcOccurrence.none
     end
