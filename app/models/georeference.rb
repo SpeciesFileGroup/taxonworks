@@ -244,11 +244,19 @@ class Georeference < ApplicationRecord
   end
 
   def dwc_occurrences
-    DwcOccurrence
+    co = DwcOccurrence
       .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
       .joins('JOIN georeferences g on co.collecting_event_id = g.collecting_event_id')
       .where(g: {id:})
       .distinct
+
+    fo = DwcOccurrence
+      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
+      .joins('JOIN georeferences g on fo.collecting_event_id = g.collecting_event_id')
+      .where(g: {id:})
+      .distinct
+
+    ::Queries.union(DwcOccurrence, [co, fo])
   end
 
   # @return [Hash]

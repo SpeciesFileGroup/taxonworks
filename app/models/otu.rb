@@ -543,13 +543,7 @@ class Otu < ApplicationRecord
   end
 
   def dwc_occurrences
-    a = ::Queries::DwcOccurrence::Filter.new( asserted_distribution_query: {otu_id: id, project_id:},).all
-    b = ::Queries::DwcOccurrence::Filter.new( collection_object_query: {otu_id: id, project_id:},).all
-    # TODO FieldOccurrence in same pattern
-
-    ::Queries.union(
-      ::DwcOccurrence, [ a, b ]
-    )
+    ::Queries::DwcOccurrence::Filter.new(otu_id: id).all
   end
 
   protected

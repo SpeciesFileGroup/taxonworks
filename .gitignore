@@ -65,3 +65,5 @@ yarn-debug.log*
 .yarn-integrity
 
 taxonworks.code-workspace
+
+development

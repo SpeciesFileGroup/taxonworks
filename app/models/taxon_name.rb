@@ -790,10 +790,11 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # TODO:  Belongs in catatlog or helper
   # @return [array]
-  # returns array of hashes for history of taxon. Could be used for catalogue construction.  Belongs in catatlog or helper
+  # returns array of hashes for history of taxon. Could be used for catalogue construction.
   def nomeclatural_history
-    history = []
+    h = []
     TaxonName.where(cached_valid_taxon_name_id: self.id).order(:cached_nomenclature_date).each do |t|
       item = {}
       source_author_string = t.is_combination? ? [t.origin_citation&.source&.authority_name, t.origin_citation&.source&.year].join(', ') : nil
@@ -801,9 +802,9 @@ class TaxonName < ApplicationRecord
       item[:name] = t.is_combination? ? t.cached_html : t.cached_original_combination_html
       item[:author_year] = t.is_combination? ? t.cached_author_year + source_author_string : t.original_author_year
       item[:statuses] = t.combined_statuses
-      history.append(item)
+      h.append(item)
     end
-    return history
+    return h
   end
 
   # @return [Class, nil]
