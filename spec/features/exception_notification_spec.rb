@@ -11,25 +11,25 @@ describe 'Exception notification', type: :feature do
   it 'includes user email in message when signed in' do
     sign_in_user
     (visit crash_test_path) rescue nil
-    expect(ActionMailer::Base.deliveries.last.body).to match(/:user_id=>\d+, :user_email=>"user@example.com"/)
+    expect(ActionMailer::Base.deliveries.last.body).to match(/:?user_id(\s*=>|:)\s*\d+, :?user_email(\s*=>|:)\s*"user@example.com"/)
   end
   
   it 'includes project in message when signed in and project selected' do
     sign_in_user_and_select_project
     (visit crash_test_path) rescue nil
-    expect(ActionMailer::Base.deliveries.last.body).to match(/:project_id=>\d+, :project_name=>"My Project"/)
+    expect(ActionMailer::Base.deliveries.last.body).to match(/:?project_id(\s*=>|:)\s*\d+, :?project_name(\s*=>|:)\s*"My Project"/)
   end
 
   it 'includes a link to GitHub when REVISION is available' do
     sign_in_user_and_select_project
-    allow(TaxonworksNet).to receive(:commit_sha).and_return("badc0de")
+    allow(TaxonworksNet).to receive(:commit_sha).and_return('badc0de')
     (visit crash_test_path) rescue nil
-    expect(ActionMailer::Base.deliveries.last.body).to include("https://github.com/SpeciesFileGroup/taxonworks/blob/badc0de/app/controllers/crash_test_controller.rb#L4")
+    expect(ActionMailer::Base.deliveries.last.body).to include('https://github.com/SpeciesFileGroup/taxonworks/blob/badc0de/app/controllers/crash_test_controller.rb#L4')
   end
 
   it 'includes full backtrace' do
     (visit crash_test_path) rescue nil
-    expect(ActionMailer::Base.deliveries.last.body).to include("create!")
+    expect(ActionMailer::Base.deliveries.last.body).to include('create!')
   end
 
 end
