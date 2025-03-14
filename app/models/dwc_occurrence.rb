@@ -31,7 +31,7 @@
 #   flagged to true when async updates from a DwcOccurrenceHook is set
 #   !! Do not use for other purposes out side of rebuilds
 #
-# 
+#
 #
 class DwcOccurrence < ApplicationRecord
   self.inheritance_column = nil
@@ -396,7 +396,7 @@ class DwcOccurrence < ApplicationRecord
   def self.stale(kind = 'CollectionObject')
     tbl = kind.tableize
     DwcOccurrence.joins("LEFT JOIN #{tbl} tbl on dwc_occurrences.dwc_occurrence_object_id = tbl.id")
-      .where("tbl.id IS NULL and dwc_occurrences.dwc_occurrence_object_type = '#{kind}'")
+      .where('tbl.id IS NULL and dwc_occurrences.dwc_occurrence_object_type = ?', kind )
   end
 
 end

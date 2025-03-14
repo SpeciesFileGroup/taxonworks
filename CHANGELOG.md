@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Unescaped search strings on Project vocabulary
 - `&sort=alphabetical|classification` param to `/taxon_names/`
 - AssertedDistributions duplicating because of is_absent state [#4226]
 - `verbatim_label` not batch loading to "Castor" form [#4230]
