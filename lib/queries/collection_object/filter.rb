@@ -459,10 +459,10 @@ module Queries
         [@repository_id].flatten.compact.uniq
       end
 
-      def collection_object_id_facet
-        return nil if collection_object_id.empty?
-        table[:id].in(collection_object_id)
-      end
+   #  def collection_object_id_facet
+   #    return nil if collection_object_id.empty?
+   #    table[:id].in(collection_object_id)
+   #  end
 
       def import_dataset_id_facet
         return nil if import_dataset_id.blank?
@@ -997,7 +997,6 @@ module Queries
           attribute_exact_facet(:buffered_determinations),
           attribute_exact_facet(:buffered_other_labels),
           collecting_event_id_facet,
-          collection_object_id_facet,
           current_repository_id_facet,
           preparation_type_id_facet,
           repository_id_facet,

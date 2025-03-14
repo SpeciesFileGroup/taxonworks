@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Cross link DwcOccurrence to Otu in filters
 - Synonymy section of Edit Nomenclature alphabetically sorted
 - `/api/v1/field_occurrences/:id/dwc`
 - `/api/v1/otus/:id/inventory/determined_to_rank`

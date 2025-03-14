@@ -141,7 +141,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     # A merge with two different from: targets fails no
     #   if we come back to this see `.and()`
-    b = DwcOccurrence.collection_objects_join.merge(a)
+    b = DwcOccurrence.object_join('CollectionObject').merge(a)
 
     expect(b.all.count).to eq(1)
   end

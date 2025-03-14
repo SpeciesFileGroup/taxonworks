@@ -8,6 +8,23 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   let(:o1) { Otu.create!(name: 'Abc 1') }
   let(:o2) { Otu.create!(name: 'Def 2') }
 
+  specify '#dwc_occurrence_query' do
+    s = Specimen.create!
+    d = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s) # Alon doesn't create DwcOccurrence
+
+    Otu.create!(name: 'Noperope')
+
+    a = ::Queries::CollectionObject::Filter.new(collection_object_id: d.taxon_determination_object_id)
+
+    b = ::Queries::DwcOccurrence::Filter.new({})
+    b.collection_object_query = a
+
+    q = Queries::Otu::Filter.new({})
+    q.dwc_occurrence_query = b
+
+    expect(q.all).to contain_exactly(d.otu)
+  end
+
   # confidences query concern
   specify '#confidence_level_id' do
     l = FactoryBot.create(:valid_confidence_level)
@@ -775,4 +792,4 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
   end
 =end
-end
+  end

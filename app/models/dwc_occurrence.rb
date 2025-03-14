@@ -139,24 +139,11 @@ class DwcOccurrence < ApplicationRecord
     false
   end
 
-  # TODO -
-  #   these can be deprecated for integration with Queries::DwcOccurrence::Filter
-
-  # that matches, consider moving to Shared
-  # @return [ActiveRecord::Relation]
-  def self.collection_objects_join
+  def self.object_join(target)
+    return DwcOccurrence.none unless ['CollectionObject', 'AssertedDistribution', 'FieldOccurrence'].include?(target)
     a = arel_table
-    b = ::CollectionObject.arel_table
-    j = a.join(b).on(a[:dwc_occurrence_object_type].eq('CollectionObject').and(a[:dwc_occurrence_object_id].eq(b[:id])))
-    joins(j.join_sources)
-  end
-
-  # that matches, consider moving to Shared
-  # @return [ActiveRecord::Relation]
-  def self.asserted_distributions_join
-    a = arel_table
-    b = ::AssertedDistribution.arel_table
-    j = a.join(b).on(a[:dwc_occurrence_object_type].eq('AssertedDistribution').and(a[:dwc_occurrence_object_id].eq(b[:id])))
+    b = target.safe_constantize.arel_table # hmm - :: required
+    j = a.join(b).on(a[:dwc_occurrence_object_type].eq(target).and(a[:dwc_occurrence_object_id].eq(b[:id])))
     joins(j.join_sources)
   end
 
@@ -186,7 +173,7 @@ class DwcOccurrence < ApplicationRecord
     # TODO: hackish
     k = ::CollectionObject.select('coscope.id').from( '(' + filter_scope.to_sql + ') as coscope ' )
 
-    a = self.collection_objects_join
+    a = self.object_join('CollectionObject')
       .where('dwc_occurrences.project_id = ?', project_id)
       .where(dwc_occurrence_object_id: k)
       .select(::DwcOccurrence.target_columns) # TODO !! Will have to change when AssertedDistribution and other types merge in
