@@ -9,9 +9,9 @@
         <AudioPlayer
           :url="sound.sound_file"
           ref="audioPlayerRef"
-          :sample-rate="192000"
+          :sample-rate="sampleRate"
           :spectrogram="{
-            frequencyMax: 192000,
+            frequencyMax: sampleRate,
             fftSamples: 2048
           }"
           media-controls
@@ -24,17 +24,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import AudioPlayer from '@/components/audio/AudioPlayer.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
-defineProps({
+const props = defineProps({
   sound: {
     type: Object,
     required: true
   }
 })
 
+const sampleRate = computed(() =>
+  Math.min(Math.max(props.sound.metadata.sample_rate, 8000), 192000)
+)
 const isLoading = ref(false)
 </script>
 
