@@ -16,10 +16,10 @@ module Shared::DwcOccurrenceHooks
     #   See also Shared::IsDwcOccurrence
     attr_accessor :no_dwc_occurrence
 
-    after_save :process_dwc_occurrences, if: :saved_changes?, unless: :no_dwc_occurrence
+    after_save_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
     around_destroy :process_destroy
 
-    def process_dwc_occurrences
+    def update_dwc_occurrence
       t = dwc_occurrences.count
 
       begin
@@ -66,11 +66,11 @@ module Shared::DwcOccurrenceHooks
           :dwc_occurrence_object_type, :dwc_occurrence_object_id).to_a
       else
         ::DwcOccurrence
-            .where(id: dwc_occurrences.reselect(:id))
-            .update_all(is_flagged_for_rebuild: true)
+          .where(id: dwc_occurrences.reselect(:id))
+          .update_all(is_flagged_for_rebuild: true)
       end
 
-      yield
+      yield # destroy
 
       if to_be_processed_now.any?
         to_be_processed_now.each { |d|
