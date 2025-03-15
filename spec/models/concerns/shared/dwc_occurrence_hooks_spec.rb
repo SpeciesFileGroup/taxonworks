@@ -76,6 +76,11 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
       expect(fo.reload.dwc_occurrence.coordinateUncertaintyInMeters)
         .to match('345')
     end
+
+    specify 'delete' do
+      fo.collecting_event.georeferences.first.destroy!
+      expect(fo.reload.dwc_occurrence.footprintWKT).to be_nil
+    end
   end
 end
 

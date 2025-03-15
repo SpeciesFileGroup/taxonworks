@@ -17,7 +17,7 @@ module Shared::DwcOccurrenceHooks
     attr_accessor :no_dwc_occurrence
 
     after_save :process_dwc_occurrences, if: :saved_changes?, unless: :no_dwc_occurrence
-    after_destroy :process_dwc_occurrences
+    around_destroy :process_destroy
 
     def process_dwc_occurrences
       t = dwc_occurrences.count
@@ -54,6 +54,31 @@ module Shared::DwcOccurrenceHooks
           }
         )
         raise
+      end
+    end
+
+    def process_destroy
+      t = dwc_occurrences.count
+
+      to_be_processed_now = nil
+      if t < 50
+        to_be_processed_now = dwc_occurrences.select(:id, :occurrenceID,
+          :dwc_occurrence_object_type, :dwc_occurrence_object_id).to_a
+      else
+        ::DwcOccurrence
+            .where(id: dwc_occurrences.reselect(:id))
+            .update_all(is_flagged_for_rebuild: true)
+      end
+
+      yield
+
+      if to_be_processed_now.any?
+        to_be_processed_now.each { |d|
+          d.dwc_occurrence_object.set_dwc_occurrence
+        }
+      else
+        ::DwcOccurrenceRefreshJob
+          .perform_later(project_id:, user_id: Current.user_id)
       end
     end
 
