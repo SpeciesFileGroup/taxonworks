@@ -209,12 +209,10 @@ module Queries
 
       def collection_object_query_facet
         return nil if collection_object_query.nil?
-        s = 'WITH query_co_dwco AS (' + collection_object_query.all.unscope(:select).select(:id).to_sql + ') ' +
-          ::DwcOccurrence
+        s = ::DwcOccurrence.with(query_co_dwco: collection_object_query.all.unscope(:select).select(:id))
           .select(:id, :dwc_occurrence_object_type, :dwc_occurrence_object_id)
-          .joins("JOIN query_co_dwco as query_co_dwco1 on dwc_occurrences.dwc_occurrence_object_id = query_co_dwco1.id
-                      AND dwc_occurrences.dwc_occurrence_object_type = 'CollectionObject'")
-          .to_sql
+          .joins("JOIN query_co_dwco as query_co_dwco1 on dwc_occurrences.dwc_occurrence_object_id = query_co_dwco1.id 
+                  AND dwc_occurrences.dwc_occurrence_object_type = 'CollectionObject'").to_sql
 
         ::DwcOccurrence.from('(' + s + ') as dwc_occurrences').distinct
       end
@@ -224,9 +222,8 @@ module Queries
         s = 'WITH query_fo_dwco AS (' + field_occurrence_query.all.unscope(:select).select(:id).to_sql + ') ' +
           ::DwcOccurrence
           .select(:id, :dwc_occurrence_object_type, :dwc_occurrence_object_id)
-          .joins("JOIN query_fo_dwco as query_fo_dwco1 on dwc_occurrences.dwc_occurrence_object_id = query_fo_dwco1.id
-                      AND dwc_occurrences.dwc_occurrence_object_type = 'FieldOccurrence'")
-          .to_sql
+          .joins('JOIN query_fo_dwco as query_fo_dwco1 on dwc_occurrences.dwc_occurrence_object_id = query_fo_dwco1.id' \
+                   " AND dwc_occurrences.dwc_occurrence_object_type = 'FieldOccurrence'").to_sql
 
         ::DwcOccurrence.from('(' + s + ') as dwc_occurrences').distinct
       end

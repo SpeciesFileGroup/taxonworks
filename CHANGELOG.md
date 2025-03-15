@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Cross link DwcOccurrence to Otu in filters
 - Synonymy section of Edit Nomenclature alphabetically sorted
 - `/api/v1/field_occurrences/:id/dwc`
 - `/api/v1/otus/:id/inventory/determined_to_rank`
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Unescaped search strings on Project vocabulary
 - `&sort=alphabetical|classification` param to `/taxon_names/`
 - AssertedDistributions duplicating because of is_absent state [#4226]
 - `verbatim_label` not batch loading to "Castor" form [#4230]

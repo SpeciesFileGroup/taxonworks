@@ -7,6 +7,17 @@ describe Queries::DwcOccurrence::Filter, type: :model, group: [:dwc_occurrence] 
     expect(Queries::DwcOccurrence::Filter.new({})).to be_truthy
   end
 
+  specify '#collection_object_query' do
+    a = Specimen.create!
+    Specimen.create!
+
+    b = ::Queries::CollectionObject::Filter.new(collection_object_id: a.id)
+
+    query.collection_object_query = b
+
+    expect(query.all).to contain_exactly(a.dwc_occurrence)
+  end
+
   specify '#year' do
     c = FactoryBot.create(:valid_collecting_event, start_date_year: '1920')
     s = Specimen.create!(collecting_event: c)
