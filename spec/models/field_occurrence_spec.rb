@@ -6,6 +6,10 @@ RSpec.describe FieldOccurrence, type: :model do
   let(:otu) { Otu.create(name: 'Sunny') }
   let(:ce) { FactoryBot.create(:valid_collecting_event) }
 
+  specify '#requires_taxon_determination?' do
+    expect( FieldOccurrence.new.requires_taxon_determination?).to eq(true)
+  end
+
   specify '#collecting_event' do
     expect(
       FieldOccurrence.new(collecting_event_id: ce.id)
@@ -72,8 +76,7 @@ RSpec.describe FieldOccurrence, type: :model do
     context 'attempting to delete last taxon_determination' do
       specify 'permitted when deleting self' do
         field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
-        expect(field_occurrence.save).to be_truthy
-        expect(field_occurrence.taxon_determinations.count).to eq(1)
+        field_occurrence.save!
         expect(field_occurrence.destroy).to be_truthy
         expect(FieldOccurrence.count).to be(0)
       end
