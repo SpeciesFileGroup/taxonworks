@@ -334,7 +334,7 @@ class CollectingEvent < ApplicationRecord
   end
 
   def otus
-    ::Queries.union(CollectingEvent, [collection_object_otus, field_occurrence_otus])
+    ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
   end
 
   # @param [String]
