@@ -70,11 +70,11 @@ describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
       expect(class_with_dwc_occurrence.dwc_occurrence_persisted?).to be_falsey
     end
 
-    specify 'a map between TW and DWC attributes is defined in DWC_OCCURRENCE_METADATA' do
+    specify 'a map between TW and DWC attributes is defined in DWC_OCCURRENCE_MAP' do
       expect(TestIsDwcOccurrence::DWC_OCCURRENCE_MAP).to be_truthy
     end
 
-    context 'DWC_OCCURRENCE_METADATA map is used to' do
+    context 'DWC_OCCURRENCE_MAP is used to' do
       before {class_with_dwc_occurrence.save!}
       specify 'generate #dwc_occurrence_attributes' do
         expect(class_with_dwc_occurrence.dwc_occurrence_attributes).to include(island: 'Gold', disposition: 'Old Men')

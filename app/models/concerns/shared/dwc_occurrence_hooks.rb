@@ -16,31 +16,26 @@ module Shared::DwcOccurrenceHooks
     #   See also Shared::IsDwcOccurrence
     attr_accessor :no_dwc_occurrence
 
-    after_save_commit :update_dwc_occurrence, if: :saved_changes?, unless: :no_dwc_occurrence
-    after_destroy :update_dwc_occurrence
+    after_save_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
+    around_destroy :process_destroy
 
     def update_dwc_occurrence
       t = dwc_occurrences.count
-      q = dwc_occurrences.unscope(:select).select('dwc_occurrences.id', 'occurrenceID', :dwc_occurrence_object_type, :dwc_occurrence_object_id, :is_flagged_for_rebuild)
 
       begin
         # If the scope is returning every object at this point (arbitrarily > 5k records), then the scope is badly coded.
         raise TaxonWorks::Error if t > 5000 && (t == DwcOccurrence.where(project_id:).count)
 
         if t < 100
+          q = dwc_occurrences.reselect('dwc_occurrences.id', :occurrenceID, :dwc_occurrence_object_type, :dwc_occurrence_object_id, :is_flagged_for_rebuild)
+
           q.find_each do |d|
             d.dwc_occurrence_object.set_dwc_occurrence
           end
         else
-
-          # `update_all` fails because of missing .from() support, see
-          # dwc_occurrences.update_all(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
-
-          dwc_occurrences.in_batches do |b|
-            b.update_all(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
-          end
-
-          ::DwcOccurrenceRefreshJob.perform_later(project_id:, user_id: Current.user_id)
+          flag_scope_for_rebuild(dwc_occurrences)
+          ::DwcOccurrenceRefreshJob
+            .perform_later(project_id:, user_id: Current.user_id)
         end
 
       rescue => e
@@ -53,6 +48,38 @@ module Shared::DwcOccurrenceHooks
           }
         )
         raise
+      end
+    end
+
+    def process_destroy
+      t = dwc_occurrences.count
+
+      to_be_processed_now = nil
+      if t < 50
+        to_be_processed_now = dwc_occurrences.select(:id, :occurrenceID,
+          :dwc_occurrence_object_type, :dwc_occurrence_object_id).to_a
+      else
+        flag_scope_for_rebuild(dwc_occurrences)
+      end
+
+      yield # destroy
+
+      if to_be_processed_now.any?
+        to_be_processed_now.each { |d|
+          d.dwc_occurrence_object.set_dwc_occurrence
+        }
+      elsif t >= 50
+        ::DwcOccurrenceRefreshJob
+          .perform_later(project_id:, user_id: Current.user_id)
+      end
+    end
+
+    def flag_scope_for_rebuild(scope)
+      # `update_all` fails because of missing .from() support, see
+      # dwc_occurrences.update_all(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
+
+      scope.in_batches do |b|
+        b.update_all(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
       end
     end
 
