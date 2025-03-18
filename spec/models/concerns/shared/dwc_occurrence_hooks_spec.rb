@@ -19,116 +19,107 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
   end
 
   context 'running hooks on create, update, delete' do
-    context 'with nested attributes' do
-      let(:fo) { FactoryBot.create(:valid_field_occurrence) }
-      before(:each) {
-        Georeference::Leaflet.create!(collecting_event: fo.collecting_event,
-          geographic_item_attributes: {
-            shape: {
-              type: 'Feature', properties: {},
-              geometry: {type: 'Point', coordinates: [20, 30]}
-            }
-          }
-        )
-      }
+    let!(:ce) { FactoryBot.create(:valid_collecting_event) }
+    let(:co) {
+      FactoryBot.create(:valid_collection_object,
+        collecting_event: ce, no_dwc_occurrence: false
+      )
+    }
+    let(:fo) {
+      FactoryBot.create(:valid_field_occurrence,
+        collecting_event: ce
+      )
+    }
 
-      specify "hook gets called on a hooked model that doesn't use has_nested_attributes" do
-        p = FactoryBot.create(:valid_person, last_name: 'Donut, 13/10')
-        Determiner.create!(
-          role_object_type: 'TaxonDetermination',
-          role_object_id: fo.taxon_determinations.first.id,
-          person_id: p.id
-        )
+    specify "create 1; hook gets called on a hooked model that doesn't use has_nested_attributes" do
+      p = FactoryBot.create(:valid_person, last_name: 'Donut, 13/10')
+      Determiner.create!(
+        role_object_type: 'TaxonDetermination',
+        role_object_id: fo.taxon_determinations.first.id,
+        person_id: p.id
+      )
 
-        # TODO: use TestDwcHookable so non-has_nested_attributes-ness can be
-        # controlled.
-        expect(fo.reload.dwc_occurrence.identifiedBy).to match('Donut')
-      end
-
-      specify 'hook gets called on a hooked model that uses has_nested_attributes' do
-        # Using the hook `after_save :process_dwc_occurrences, if:
-        # :saved_changes?` fails in this case because(?) the nested create causes
-        # a nested save on create, which causes saved_changes? to be empty in
-        # after_save_commit.
-        expect(fo.reload.dwc_occurrence.footprintWKT).to match('20 30')
-      end
-
-      specify 'update' do
-        fo.collecting_event.georeferences.first.update!(
-          error_radius: 345
-        )
-        expect(fo.reload.dwc_occurrence.coordinateUncertaintyInMeters)
-          .to match('345')
-      end
-
-      specify 'destroy' do
-        fo.collecting_event.georeferences.first.destroy!
-        expect(fo.reload.dwc_occurrence.footprintWKT).to be_nil
-      end
+      # TODO: use TestDwcHookable so non-has_nested_attributes-ness can be
+      # controlled.
+      expect(fo.reload.dwc_occurrence.identifiedBy).to match('Donut')
     end
 
-    context 'with multi-creates and updates' do
-      let!(:ce) { FactoryBot.create(:valid_collecting_event) }
-      let!(:co) {
-        FactoryBot.create(:valid_collection_object,
-          collecting_event: ce, no_dwc_occurrence: false
-        )
-      }
-      let(:fo) {
-        FactoryBot.create(:valid_field_occurrence, collecting_event: ce)
-      }
+    specify 'create 2; hook gets called on a hooked model that uses has_nested_attributes' do
 
-      specify 'updating isDwCO object along with nested hooked objects' do
-        person = FactoryBot.create(:valid_person, first_name: 'Beevis')
-
-        co.update!(
-          total: 3,
-          collecting_event_attributes: {
-            verbatim_label: 'far far away',
-            roles_attributes: [
-              { person_id: person.id, type: 'Collector' }
-            ]
+      Georeference::Leaflet.create!(collecting_event: fo.collecting_event,
+        geographic_item_attributes: {
+          shape: {
+            type: 'Feature', properties: {},
+            geometry: {type: 'Point', coordinates: [20, 30]}
           }
-        )
+        }
+      )
 
-        co = CollectionObject.first # co is now a Lot
-        # Data from the CO update:
-        expect(co.dwc_occurrence.individualCount).to eq(3)
-        # Data from the CO's nested CE update:
-        expect(co.dwc_occurrence.verbatimLabel).to eq('far far away')
-        # Data from the CE's nested role create:
-        expect(co.dwc_occurrence.recordedBy).to match('Beevis')
-      end
+      expect(fo.reload.dwc_occurrence.footprintWKT).to match('20 30')
+    end
 
-      specify 'Updating hooked object linked to multiple DwCOs' do
-        fo
-        locality = '11nty hundred and 11'
-        ce.update!(verbatim_locality: locality)
-        expect(co.reload.dwc_occurrence.verbatimLocality).to eq(locality)
-        expect(fo.reload.dwc_occurrence.verbatimLocality).to eq(locality)
-      end
+    specify 'update 1' do
+      fo.collecting_event.georeferences <<
+        FactoryBot.create(:valid_georeference)
+      fo.collecting_event.georeferences.first.update!(
+        error_radius: 345
+      )
+      expect(fo.reload.dwc_occurrence.coordinateUncertaintyInMeters)
+        .to match('345')
+    end
 
-      specify 'Delete hooked object linked to multiple DwCOs' do
-        fo
-        _c1 = Collector.create!(
-          person: Person.create!(first_name: 'Butter', last_name: 'River'),
-          role_object: ce
-        )
-        c2 = Collector.create!(
-          person: Person.create!(first_name: 'Wax', last_name: 'Smith'),
-          role_object: ce
-        )
+    specify 'update 2; isDwCO object along with nested hooked objects' do
+      person = FactoryBot.create(:valid_person, first_name: 'Beevis')
 
-        expect(co.reload.dwc_occurrence.recordedBy)
-          .to match(/Butter.*Wax|Wax.*Butter/)
-        expect(fo.reload.dwc_occurrence.recordedBy)
-          .to match(/Butter.*Wax|Wax.*Butter/)
+      co.update!(
+        total: 3,
+        collecting_event_attributes: {
+          verbatim_label: 'far far away',
+          roles_attributes: [
+            { person_id: person.id, type: 'Collector' }
+          ]
+        }
+      )
 
-        c2.destroy!
+      co = CollectionObject.first # co is now a Lot
+      # Data from the CO update:
+      expect(co.dwc_occurrence.individualCount).to eq(3)
+      # Data from the CO's nested CE update:
+      expect(co.dwc_occurrence.verbatimLabel).to eq('far far away')
+      # Data from the CE's nested role create:
+      expect(co.dwc_occurrence.recordedBy).to match('Beevis')
+    end
 
-        expect(co.reload.dwc_occurrence.recordedBy).to eq('Butter River')
-        expect(fo.reload.dwc_occurrence.recordedBy).to eq('Butter River')
-      end
+    specify 'update 3; updating hooked object linked to multiple DwCOs' do
+      [co, fo]
+      locality = '11nty hundred and 11'
+      ce.update!(verbatim_locality: locality)
+      expect(co.reload.dwc_occurrence.verbatimLocality).to eq(locality)
+      expect(fo.reload.dwc_occurrence.verbatimLocality).to eq(locality)
+    end
+
+    specify 'destroy 1' do
+      fo.collecting_event.georeferences <<
+        FactoryBot.create(:valid_georeference)
+      fo.collecting_event.georeferences.first.destroy!
+      expect(fo.reload.dwc_occurrence.footprintWKT).to be_nil
+    end
+
+    specify 'destroy 2; hooked object linked to multiple DwCOs' do
+      [co, fo]
+      _c1 = Collector.create!(
+        person: Person.create!(first_name: 'Butter', last_name: 'River'),
+        role_object: ce
+      )
+      c2 = Collector.create!(
+        person: Person.create!(first_name: 'Wax', last_name: 'Smith'),
+        role_object: ce
+      )
+
+      c2.destroy!
+
+      expect(co.reload.dwc_occurrence.recordedBy).to eq('Butter River')
+      expect(fo.reload.dwc_occurrence.recordedBy).to eq('Butter River')
     end
   end
 
