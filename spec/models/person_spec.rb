@@ -1,5 +1,6 @@
 require 'rails_helper'
-describe Person, type: :model, group: [:sources, :people] do
+describe Person, type: :model, group: [:sources, :people, :darwin_core] do
+  include ActiveJob::TestHelper
 
   let(:person) { Person.new }
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
@@ -7,7 +8,6 @@ describe Person, type: :model, group: [:sources, :people] do
 
   let(:p) { FactoryBot.create(:valid_person) }
   let(:ce) { FactoryBot.create(:valid_collecting_event) }
-
 
   specify '#dwc_occurrences is project agnostic' do
     ce.collectors << p
@@ -25,11 +25,15 @@ describe Person, type: :model, group: [:sources, :people] do
 
     Current.project_id = i # reset
 
+    perform_enqueued_jobs
+
     expect(s.dwc_occurrence.recordedBy).to eq(p.cached)
     expect(s2.dwc_occurrence.recordedBy).to eq(p.cached)
 
     v = 'Argyle'
     p.update!(last_name: v)
+
+    perform_enqueued_jobs
 
     expect(p.dwc_occurrences.reload.pluck(:recordedBy)).to contain_exactly(v, v)
   end
@@ -40,6 +44,8 @@ describe Person, type: :model, group: [:sources, :people] do
     expect(s.dwc_occurrence.recordedBy).to eq(p.cached)
     v = 'Argyle'
     p.update!(last_name: v)
+
+    perform_enqueued_jobs
 
     expect(s.dwc_occurrence.reload.recordedBy).to eq(v)
   end

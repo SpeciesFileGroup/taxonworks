@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
+  include ActiveJob::TestHelper
+
   let!(:hookable_class) {TestDwcHookable.new}
 
   # TODO: if eager_load paradigm changes this may need update
@@ -39,6 +41,8 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
         person_id: p.id
       )
 
+      perform_enqueued_jobs
+
       # TODO: use TestDwcHookable so non-has_nested_attributes-ness can be
       # controlled.
       expect(fo.reload.dwc_occurrence.identifiedBy).to match('Donut')
@@ -55,15 +59,19 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
         }
       )
 
+      perform_enqueued_jobs
+
       expect(fo.reload.dwc_occurrence.footprintWKT).to match('20 30')
     end
 
     specify 'update 1' do
-      fo.collecting_event.georeferences <<
-        FactoryBot.create(:valid_georeference)
+      fo.collecting_event.georeferences << FactoryBot.create(:valid_georeference)
       fo.collecting_event.georeferences.first.update!(
         error_radius: 345
       )
+
+      perform_enqueued_jobs
+
       expect(fo.reload.dwc_occurrence.coordinateUncertaintyInMeters)
         .to match('345')
     end
@@ -81,6 +89,8 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
         }
       )
 
+      perform_enqueued_jobs
+
       co = CollectionObject.first # co is now a Lot
       # Data from the CO update:
       expect(co.dwc_occurrence.individualCount).to eq(3)
@@ -94,6 +104,9 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
       [co, fo]
       locality = '11nty hundred and 11'
       ce.update!(verbatim_locality: locality)
+
+      perform_enqueued_jobs
+
       expect(co.reload.dwc_occurrence.verbatimLocality).to eq(locality)
       expect(fo.reload.dwc_occurrence.verbatimLocality).to eq(locality)
     end
@@ -102,6 +115,9 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
       fo.collecting_event.georeferences <<
         FactoryBot.create(:valid_georeference)
       fo.collecting_event.georeferences.first.destroy!
+
+      perform_enqueued_jobs
+
       expect(fo.reload.dwc_occurrence.footprintWKT).to be_nil
     end
 
@@ -118,6 +134,8 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
 
       c2.destroy!
 
+      perform_enqueued_jobs
+      
       expect(co.reload.dwc_occurrence.recordedBy).to eq('Butter River')
       expect(fo.reload.dwc_occurrence.recordedBy).to eq('Butter River')
     end

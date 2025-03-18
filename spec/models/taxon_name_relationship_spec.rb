@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
+  include ActiveJob::TestHelper
 
   let(:taxon_name_relationship) { TaxonNameRelationship.new }
 
@@ -23,12 +24,21 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
     s = Specimen.create
     td = FactoryBot.create(:valid_taxon_determination, otu: FactoryBot.create(:valid_otu, taxon_name: t), taxon_determination_object: s)
 
+
+    perform_enqueued_jobs
+
     expect(s.dwc_occurrence.reload.scientificName).to eq(t.cached_name_and_author_year)
+    
     r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: t, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+   
+    perform_enqueued_jobs
+   
     expect(s.dwc_occurrence.reload.scientificName).to eq(species.cached_name_and_author_year)
 
     # Back the other way
     r1.destroy!
+  
+    perform_enqueued_jobs
     expect(s.dwc_occurrence.reload.scientificName).to eq(t.cached_name_and_author_year)
   end
 

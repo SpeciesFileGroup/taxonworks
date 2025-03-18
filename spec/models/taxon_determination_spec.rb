@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe TaxonDetermination, type: :model, group: [:collection_objects] do
+  include ActiveJob::TestHelper
 
   let(:taxon_determination) {TaxonDetermination.new}
   let(:otu) { Otu.create!(name: 'Foo')  }

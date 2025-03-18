@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe DwcOccurrence, type: :model, group: [:darwin_core] do
+  include ActiveJob::TestHelper
 
   # This now creates a dwc_occurrence by default
   let(:collection_object) { FactoryBot.create(:valid_specimen, no_dwc_occurrence: false) }
@@ -84,17 +85,17 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   specify '.set_dwc_occurrence update is set' do
     s = Specimen.create!
     t = s.dwc_occurrence.updated_at
-    s.dwc_occurrence.update!(is_flagged_for_rebuild: true)
+    s.dwc_occurrence.update!(rebuild_set: '123')
     s.set_dwc_occurrence
     expect(s.dwc_occurrence.updated_at > t).to be_truthy
   end
 
   specify '.set_dwc_occurrence stale is cleared' do
     s = Specimen.create!
-    expect(s.dwc_occurrence.is_flagged_for_rebuild).to eq(nil)
-    s.dwc_occurrence.update!(is_flagged_for_rebuild: true)
+    expect(s.dwc_occurrence.rebuild_set).to eq(nil)
+    s.dwc_occurrence.update!(rebuild_set: '123')
     s.set_dwc_occurrence
-    expect(s.dwc_occurrence.is_flagged_for_rebuild).to eq(nil)
+    expect(s.dwc_occurrence.rebuild_set).to eq(nil)
   end
 
   specify '#dwc_occurrence_id is created on .set_dwc_occurrence' do

@@ -10,7 +10,7 @@ module Queries
       ATTRIBUTES = ::DwcOccurrence.column_names.reject{ |c|
         %w{
           id project_id created_by_id updated_by_id created_at updated_at
-          is_flagged_for_rebuild
+          rebuild_set
         }.include?(c)
       }.map(&:to_sym).freeze
 
@@ -211,7 +211,7 @@ module Queries
         return nil if collection_object_query.nil?
         s = ::DwcOccurrence.with(query_co_dwco: collection_object_query.all.unscope(:select).select(:id))
           .select(:id, :dwc_occurrence_object_type, :dwc_occurrence_object_id)
-          .joins("JOIN query_co_dwco as query_co_dwco1 on dwc_occurrences.dwc_occurrence_object_id = query_co_dwco1.id 
+          .joins("JOIN query_co_dwco as query_co_dwco1 on dwc_occurrences.dwc_occurrence_object_id = query_co_dwco1.id
                   AND dwc_occurrences.dwc_occurrence_object_type = 'CollectionObject'").to_sql
 
         ::DwcOccurrence.from('(' + s + ') as dwc_occurrences').distinct

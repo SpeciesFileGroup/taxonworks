@@ -16,27 +16,38 @@ module Shared::DwcOccurrenceHooks
     #   See also Shared::IsDwcOccurrence
     attr_accessor :no_dwc_occurrence
 
-    after_save_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
-    around_destroy :process_destroy
+    after_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
+
+#   after_save_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
+#   around_destroy :process_destroy
 
     def update_dwc_occurrence
       t = dwc_occurrences.count
+      return if t == 0
+
+      rebuild_set = SecureRandom.hex(10)
 
       begin
-        # If the scope is returning every object at this point (arbitrarily > 5k records), then the scope is badly coded.
-        raise TaxonWorks::Error if t > 5000 && (t == DwcOccurrence.where(project_id:).count)
+        # If the scope is returning every object at this point (arbitrary cutoff), then the scope is badly coded.
+        raise TaxonWorks::Error if t > 20_000 && (t == DwcOccurrence.where(project_id:).count)
 
-        if t < 100
-          q = dwc_occurrences.reselect('dwc_occurrences.id', :occurrenceID, :dwc_occurrence_object_type, :dwc_occurrence_object_id, :is_flagged_for_rebuild)
-
-          q.find_each do |d|
-            d.dwc_occurrence_object.set_dwc_occurrence
-          end
-        else
-          flag_scope_for_rebuild(dwc_occurrences)
-          ::DwcOccurrenceRefreshJob
-            .perform_later(project_id:, user_id: Current.user_id)
+        dwc_occurrences.in_batches do |b|
+          b.update_all(rebuild_set:) # Mark the set of records requiring rebuild
         end
+
+        priority = case t
+                   when 1..100
+                     1
+                   when 101..1000
+                     2
+                   else
+                     6
+                   end
+
+        ::DwcOccurrenceRefreshJob.set(priority:).perform_later(
+          rebuild_set:, 
+          user_id: Current.user_id,
+        )
 
       rescue => e
         ExceptionNotifier.notify_exception(
@@ -49,42 +60,6 @@ module Shared::DwcOccurrenceHooks
         )
         raise
       end
-    end
-
-    def process_destroy
-      t = dwc_occurrences.count
-
-      to_be_processed_now = nil
-      if t < 50
-        to_be_processed_now = dwc_occurrences.select(:id, :occurrenceID,
-          :dwc_occurrence_object_type, :dwc_occurrence_object_id).to_a
-      else
-        flag_scope_for_rebuild(dwc_occurrences)
-      end
-
-      yield # destroy
-
-      if to_be_processed_now.any?
-        to_be_processed_now.each { |d|
-          d.dwc_occurrence_object.set_dwc_occurrence
-        }
-      elsif t >= 50
-        ::DwcOccurrenceRefreshJob
-          .perform_later(project_id:, user_id: Current.user_id)
-      end
-    end
-
-    def flag_scope_for_rebuild(scope)
-      # `update_all` fails because of missing .from() support, see
-      # dwc_occurrences.update_all(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
-
-      scope.in_batches do |b|
-        b.update_all(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
-      end
-    end
-
-    def delay_dwc_reindex(object)
-      object.set_dwc_occurrence
     end
 
   end
