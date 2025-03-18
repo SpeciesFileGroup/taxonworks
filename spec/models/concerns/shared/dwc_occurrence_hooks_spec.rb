@@ -114,6 +114,9 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
     specify 'destroy 1' do
       fo.collecting_event.georeferences <<
         FactoryBot.create(:valid_georeference)
+
+      perform_enqueued_jobs
+
       fo.collecting_event.georeferences.first.destroy!
 
       perform_enqueued_jobs
@@ -132,10 +135,12 @@ describe 'Shared::DwcOccurrenceHooks', type: :model, group: :dwc_occurrence do
         role_object: ce
       )
 
+      perform_enqueued_jobs
+
       c2.destroy!
 
       perform_enqueued_jobs
-      
+
       expect(co.reload.dwc_occurrence.recordedBy).to eq('Butter River')
       expect(fo.reload.dwc_occurrence.recordedBy).to eq('Butter River')
     end
