@@ -8,6 +8,32 @@ describe Person, type: :model, group: [:sources, :people] do
   let(:p) { FactoryBot.create(:valid_person) }
   let(:ce) { FactoryBot.create(:valid_collecting_event) }
 
+
+  specify '#dwc_occurrences is project agnostic' do
+    ce.collectors << p
+    s = Specimen.create!(collecting_event: ce)
+
+    j = FactoryBot.create(:valid_project)
+
+    # Slightly dangerous.
+    i = Current.project_id
+    Current.project_id = j.id
+
+    ce2 = CollectingEvent.create!(verbatim_label: 'Villa Rosa')
+    ce2.collector_roles << Collector.new(person: p)
+    s2 = Specimen.create!(collecting_event: ce2, project: j)
+
+    Current.project_id = i # reset
+
+    expect(s.dwc_occurrence.recordedBy).to eq(p.cached)
+    expect(s2.dwc_occurrence.recordedBy).to eq(p.cached)
+
+    v = 'Argyle'
+    p.update!(last_name: v)
+
+    expect(p.dwc_occurrences.reload.pluck(:recordedBy)).to contain_exactly(v, v)
+  end
+
   specify 'update triggers dwc_occurrences update' do
     ce.collectors << p
     s = Specimen.create!(collecting_event: ce)
@@ -104,9 +130,9 @@ describe Person, type: :model, group: [:sources, :people] do
           expect(Person.used_recently(Current.user_id,'Collector')).to contain_exactly(person.id)
         end
 
-#        specify '.joins.used_recently.where()' do
-#          expect(Person.joins(:roles).used_recently(Current.user_id, 'Collector').where(roles: {project_id: Current.project_id, updated_by_id: Current.user_id}).map(&:id)).to contain_exactly(person.id)
-#        end
+        #        specify '.joins.used_recently.where()' do
+        #          expect(Person.joins(:roles).used_recently(Current.user_id, 'Collector').where(roles: {project_id: Current.project_id, updated_by_id: Current.user_id}).map(&:id)).to contain_exactly(person.id)
+        #        end
 
         specify ':recent' do
           a = Person.select_optimized(Current.user_id, Current.project_id, 'Collector')
@@ -119,13 +145,13 @@ describe Person, type: :model, group: [:sources, :people] do
         end
       end
 
-     # Should be identical, sanity check
+      # Should be identical, sanity check
       context 'Determiner' do
         let!(:td){ TaxonDetermination.create!(taxon_determination_object: Specimen.create!, otu: Otu.create!(name: 'foo'), determiner_roles_attributes: [person:]) }
 
-#        specify '.used_recently' do
-#          expect( Person.joins(:roles).where(roles: {project_id: Current.project_id, updated_by_id: Current.user_id} ).used_recently('Determiner').limit(10).map(&:id)).to contain_exactly(person.id)
-#        end
+        #        specify '.used_recently' do
+        #          expect( Person.joins(:roles).where(roles: {project_id: Current.project_id, updated_by_id: Current.user_id} ).used_recently('Determiner').limit(10).map(&:id)).to contain_exactly(person.id)
+        #        end
 
         specify ':recent' do
           a = Person.select_optimized(Current.user_id, Current.project_id, 'Determiner')

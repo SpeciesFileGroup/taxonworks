@@ -113,7 +113,9 @@ module Queries
     }.freeze
 
     # @return [Array]
-    # @param project_id [Array, Integer]
+    # @param project_id [Array, Integer, false]
+    #  !! when passed false then Current.project_id is not applied, i.e. the result will be []
+    #  !! use the false pattern only for internal calls (e.g. rewriting
     attr_accessor :project_id
 
     # Apply pagination within Filter scope
@@ -268,8 +270,15 @@ module Queries
       # !! This is the *only* place Current.project_id should be seen !! It's still not the best
       # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
       # Ideally we'd have a global class param that stores this that all Filters would have access to,
-      # rather than an instance variable.
-      @project_id = query_params[:project_id] || Current.project_id
+      # rather than an instance variable
+      @project_id = case
+                    when query_params[:project_id] == false # !! Only internal should pass this, therefor no type conversions
+                      nil
+                    when query_params[:project_id].blank?
+                      Current.project_id
+                    else
+                      query_params[:project_id]
+                    end
 
       @paginate = boolean_param(query_params, :paginate)
       @per = query_params[:per]
@@ -725,8 +734,8 @@ module Queries
     end
 
     # @return Boolean
-    #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on iniitializea
-    #   false - there are no params at ALL or at least one that is not `project_id`
+    #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on initialize
+    #   false - there are no params at ALL or at least one that is not `project_id`, and project_id != false
     def only_project?
       (project_id_facet && target_and_clauses.size == 1 && all_merge_clauses.nil?) ? true : false
     end
