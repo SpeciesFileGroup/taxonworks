@@ -37,6 +37,8 @@ class Gazetteer < ApplicationRecord
 
   belongs_to :geographic_item, inverse_of: :gazetteers
 
+  has_many :asserted_distributions, as: :asserted_distribution_shape, inverse_of: :asserted_distribution_shape
+
   before_validation do
     self.iso_3166_a2 = iso_3166_a2.strip.upcase if iso_3166_a2.present?
   end
@@ -295,6 +297,19 @@ class Gazetteer < ApplicationRecord
 
     FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link, cpg_link])
     FileUtils.rmdir(tmp_dir)
+  end
+
+  def geographic_name_classification
+    # Return a2/a3 country?
+    {}
+  end
+
+  def geographic_items
+    [geographic_item]
+  end
+
+  def default_geographic_item
+    geographic_item
   end
 
   private

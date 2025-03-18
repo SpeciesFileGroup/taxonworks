@@ -156,6 +156,8 @@ class AssertedDistributionsController < ApplicationController
     @asserted_distributions = ::Queries::AssertedDistribution::Filter.new(params.merge!(api: true))
       .all
       .where(project_id: sessions_current_project_id)
+      # TODO needs to support GZ as well, which means api update and probably TP
+      # changes
       .includes(:citations, :otu, geographic_area: [:parent, :geographic_area_type], origin_citation: [:source])
       .order('asserted_distributions.id')
       .page(params[:page])
@@ -182,7 +184,8 @@ class AssertedDistributionsController < ApplicationController
   def asserted_distribution_params
     params.require(:asserted_distribution).permit(
       :otu_id,
-      :geographic_area_id,
+      :asserted_distribution_shape_type,
+      :asserted_distribution_shape_id,
       :is_absent,
       otu_attributes: [:id, :_destroy, :name, :taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],

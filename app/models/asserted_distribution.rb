@@ -1,5 +1,5 @@
 # An AssertedDistribution is the Source-backed assertion that a taxon (OTU) is present in some *spatial area*. It requires a Citation indicating where/who made the assertion.
-# In TaxonWorks the areas are drawn from GeographicAreas.
+# In TaxonWorks the areas are drawn from GeographicAreas and Gazetteers.
 #
 # AssertedDistributions can be asserts that the source indicates that a taxon is NOT present in an area.  This is a "positive negative" in , i.e. the Source can be thought of recording evidence that a taxon is not present. TaxonWorks does not differentiate between types of negative evidence.
 #
@@ -7,9 +7,13 @@
 #   @return [Integer]
 #   the OTU ID
 #
-# @!attribute geographic_area_id
+# @!attribute asserted_distribution_shape_type
+#   @return [String]
+#   polymorphic spatial shape type
+#
+# @!attribute asserted_distribution_shape_id
 #   @return [Integer]
-#   the geographic area ID
+#   polymorphic spatial shape ID
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -38,6 +42,8 @@ class AssertedDistribution < ApplicationRecord
 
   include Shared::Maps
   include Shared::QueryBatchUpdate
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates('asserted_distribution_shape')
 
   originates_from 'Specimen', 'Lot', 'FieldOccurrence'
 
@@ -45,19 +51,16 @@ class AssertedDistribution < ApplicationRecord
   #   of known country/state/county values
   attr_accessor :geographic_names
 
+  delegate :geo_object, to: :asserted_distribution_shape
+
   belongs_to :otu, inverse_of: :asserted_distributions
   has_one :taxon_name, through: :otu
-  belongs_to :geographic_area, inverse_of: :asserted_distributions
-
-  has_one :geographic_item, through: :geographic_area, source: :default_geographic_item
-  has_many :geographic_items, through: :geographic_area
 
   before_validation :unify_is_absent
 
-  validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
-  validates :geographic_area, presence: true
   validates :otu, presence: true
-  validates_uniqueness_of :otu, scope: [:project_id, :geographic_area, :is_absent], message: 'this geographic_area, OTU and present/absent combination already exists'
+  validates_uniqueness_of :otu, scope: [:project_id, :asserted_distribution_shape_id, :asserted_distribution_shape_type, :is_absent], message: 'this shape, OTU and present/absent combination already exists'
+  validates_presence_of :asserted_distribution_shape
   validate :new_records_include_citation
 
   # TODO: deprecate scopes referencing single parameter where()
@@ -73,7 +76,10 @@ class AssertedDistribution < ApplicationRecord
   # getter for attr :geographic_names
   def geographic_names
     return @geographic_names if !@geographic_names.nil?
-    @geographic_names ||= geographic_area.geographic_name_classification.delete_if{|k,v| v.nil?}
+    # TODO: Possibly provide a2/a3 info from gazetteers??
+    @geographic_names ||=
+      asserted_distribution_shape.geographic_name_classification
+        .delete_if{|k,v| v.nil?}
     @geographic_names ||= {}
   end
 
@@ -94,7 +100,7 @@ class AssertedDistribution < ApplicationRecord
   def to_geo_json_feature
     retval = {
       'type' => 'Feature',
-      'geometry' => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
+      'geometry' => RGeo::GeoJSON.encode(geo_object),
       'properties' => {'asserted_distribution' => {'id' => self.id}}
     }
     retval
@@ -109,13 +115,14 @@ class AssertedDistribution < ApplicationRecord
   end
 
   def geographic_item
-    geographic_area.default_geographic_item
+    asserted_distribution_shape.default_geographic_item
   end
 
   def has_shape?
-    geographic_area.geographic_items.any?
+    asserted_distribution_shape.geographic_items.any?
   end
 
+  # TODO: support gazetteers as well as geographic_areas
   def self.batch_update(params)
     request = QueryBatchRequest.new(
       async_cutoff: params[:async_cutoff] || 26,
@@ -163,6 +170,7 @@ class AssertedDistribution < ApplicationRecord
 
   # @return [Boolean]
   def sv_conflicting_geographic_area
+    # TODO: more expensive for gazetteers, which would require a spatial check.
     unless geographic_area.nil?
       areas = [geographic_area.level0_id, geographic_area.level1_id, geographic_area.level2_id].compact
       if is_absent # this returns an array, not a single GA so test below is not right

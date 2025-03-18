@@ -4,15 +4,37 @@
     <div class="required">
       <%= render '/otus/otu_picker', otu: @asserted_distribution.otu, f: f -%>
 
-      <div class="field">
-        <%= f.label :geographic_area %>
+      <div class="field" id="asserted_distribution_edit">
+        <%= f.label :asserted_distribution_shape_type %><br>
+        <%= f.radio_button :asserted_distribution_shape_type, 'GeographicArea', id: :geographic_area %> Geographic Area <br>
+        <%= f.radio_button :asserted_distribution_shape_type, 'Gazetteer', id: :gazetteer %> Gazetteer
+      </div>
+
+
+      <div class="fields_for_geographic_area">
+        <%= f.label :geographic_area_id %>
         <br>
         <%= render '/workbench/elements/forms/ajax_select',
           controller: 'geographic_areas',
           object: 'asserted_distribution',
-          method: 'geographic_area_id',
-          tag_id: 'geographic_area_id_for_asserted_distribution',
-          display: geographic_area_tag(@asserted_distribution.geographic_area),
+          method: 'asserted_distribution_shape_id',
+          tag_id: 'geographic_area_id_for_asserted_distribution_shape_id',
+          display: geographic_area_tag(@asserted_distribution.asserted_distribution_shape),
+          size: 20
+        %>
+      </div>
+
+      OR
+
+      <div class="fields_for_gazetteer">
+        <%= f.label :gazetteer_id %>
+        <br>
+        <%= render '/workbench/elements/forms/ajax_select',
+          controller: 'gazetteers',
+          object: 'asserted_distribution',
+          method: 'asserted_distribution_shape_id',
+          tag_id: 'gazetteer_id_for_asserted_distribution_shape_id',
+          display: gazetteer_tag(@asserted_distribution.asserted_distribution_shape),
           size: 20
         %>
       </div>
@@ -28,7 +50,7 @@
                       method: 'source_id',
                       tag_id: 'source_id_for_original_citation_asserted_distribution',
                       size: '50%',
-                      display: source_tag(@asserted_distribution.origin_citation.source)}) 
+                      display: source_tag(@asserted_distribution.origin_citation.source)})
                     %>
       </div>
       <% end %>

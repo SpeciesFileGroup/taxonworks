@@ -84,7 +84,7 @@ class GeographicArea < ApplicationRecord
   belongs_to :level1, class_name: 'GeographicArea'
   belongs_to :level2, class_name: 'GeographicArea'
 
-  has_many :asserted_distributions, inverse_of: :geographic_area
+  has_many :asserted_distributions, as: :asserted_distribution_shape, inverse_of: :asserted_distribution_shape
   has_many :collecting_events, inverse_of: :geographic_area
   has_many :common_names, inverse_of: :geographic_area
   has_many :geographic_areas_geographic_items, -> { ordered_by_data_origin }, dependent: :destroy, inverse_of: :geographic_area
