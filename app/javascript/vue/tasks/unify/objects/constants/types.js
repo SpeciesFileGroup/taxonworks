@@ -18,6 +18,7 @@ import {
   OBSERVATION,
   OBSERVATION_MATRIX,
   OTU,
+  SOUND,
   SOURCE,
   SERIAL,
   TAXON_NAME,
@@ -110,6 +111,9 @@ export const TYPE_LINKS = {
     radialObject: true,
     smartSelector: 'sources',
     smartSelectorLabel: 'cached'
+  },
+  [SOUND]: {
+    autocomplete: '/sounds/autocomplete'
   },
   [TAXON_NAME]: {
     autocomplete: '/taxon_names/autocomplete',

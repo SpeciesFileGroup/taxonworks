@@ -14,7 +14,7 @@
     </thead>
     <tbody>
       <tr
-        v-for="({ name, total }, key) in item.metadata"
+        v-for="({ name, total }, key) in item._metadata"
         :key="key"
       >
         <td>{{ name }}</td>
@@ -59,13 +59,13 @@ const item = defineModel({
 })
 
 const rows = computed(() => {
-  if (!props.mergeItem?.metadata || !item.value?.metadata) {
+  if (!props.mergeItem?._metadata || !item.value?._metadata) {
     return []
   }
 
-  const metadata = Object.keys(item.value.metadata)
+  const metadata = Object.keys(item.value._metadata)
 
-  return Object.entries(props.mergeItem.metadata)
+  return Object.entries(props.mergeItem._metadata)
     .filter(([key]) => props.only.includes(key) && !metadata.includes(key))
     .map(([, value]) => ({ ...value }))
 })
@@ -73,7 +73,7 @@ const rows = computed(() => {
 watch(
   () => item.value.global_id,
   (newVal) => {
-    if (!item.value.metadata) {
+    if (!item.value._metadata) {
       loadMetadata(newVal)
     }
   },
@@ -84,13 +84,13 @@ function loadMetadata(globalId) {
   const obj = item.value
 
   Unify.metadata({ global_id: globalId }).then(({ body }) => {
-    obj.metadata = body
+    obj._metadata = body
   })
 }
 
 function getTotalWithMerge(count, key) {
   const onlyLength = props.only?.length
-  const { total = 0 } = props.mergeItem?.metadata?.[key] || {}
+  const { total = 0 } = props.mergeItem?._metadata?.[key] || {}
 
   return !onlyLength || (onlyLength && props.only.includes(key))
     ? `<b class="text-update-color">${total + count}</b>`
