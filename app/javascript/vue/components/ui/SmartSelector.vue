@@ -362,6 +362,7 @@ const refresh = (forceUpdate = false) => {
     ...props.params
   }
 
+  autocompleteRef.value?.setText('')
   lists.value = []
   isLoading.value = true
   controller.value?.abort()
@@ -472,7 +473,8 @@ document.addEventListener('smartselector:update', refresh)
 defineExpose({
   setFocus,
   setTab,
-  addToList
+  addToList,
+  refresh
 })
 </script>
 <style scoped>

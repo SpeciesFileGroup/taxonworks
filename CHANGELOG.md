@@ -41,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Import dataset description uniqueness validation failing to detect duplicate
 - CSD: It is not possible to add new taxon determinations to an existing CO [#4227]
 - New FO, CE Panel: Saved identifiers aren't loaded in the UI on page reload [#4241]
+- Unify object task: reset button doesn't clear autocompletes [#4242]
 
 [#4226]: https://github.com/SpeciesFileGroup/taxonworks/issues/4226
 [#4230]: https://github.com/SpeciesFileGroup/taxonworks/issues/4230
@@ -50,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4225]: https://github.com/SpeciesFileGroup/taxonworks/issues/4225
 [#4227]: https://github.com/SpeciesFileGroup/taxonworks/issues/4227
 [#4241]: https://github.com/SpeciesFileGroup/taxonworks/pull/4241
+[#4242]: https://github.com/SpeciesFileGroup/taxonworks/issues/4242
 
 ## [0.48.0] - 2025-02-14
 

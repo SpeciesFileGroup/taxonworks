@@ -32,6 +32,7 @@
     <div v-show="!selected">
       <SmartSelector
         v-if="modelOpts.smartSelector"
+        ref="smartSelector"
         :autocomplete-url="modelOpts.autocomplete"
         :autocomplete-params="modelOpts.autocompleteParams"
         :get-url="modelOpts.getUrl"
@@ -46,6 +47,7 @@
         v-else
         :url="modelOpts.autocomplete"
         :min="2"
+        ref="autocompleteRef"
         param="term"
         placeholder="Select an object"
         label="label_html"
@@ -62,7 +64,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { TYPE_LINKS } from '../constants/types'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import * as endpoints from '@/routes/endpoints'
@@ -92,6 +94,9 @@ const props = defineProps({
 
 const emit = defineEmits(['close-annotator'])
 
+const smartRef = useTemplateRef('smartSelector')
+const autocompleteRef = useTemplateRef('autocompleteRef')
+
 const selected = defineModel({
   type: [Object, null],
   default: undefined
@@ -110,7 +115,13 @@ function loadObjectById(id) {
     .catch(() => {})
 }
 
+function refresh() {
+  smartRef.value?.refresh()
+  autocompleteRef.value?.setText('')
+}
+
 defineExpose({
-  loadObjectById
+  loadObjectById,
+  refresh
 })
 </script>

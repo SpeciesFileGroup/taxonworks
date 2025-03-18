@@ -101,6 +101,8 @@
           () => {
             keepObject = null
             destroyObject = null
+            keepRef.refresh()
+            destroyRef.refresh()
           }
         "
       >
