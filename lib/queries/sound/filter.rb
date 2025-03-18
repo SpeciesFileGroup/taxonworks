@@ -134,7 +134,7 @@ module Queries
 
       def conveyance_object_type_facet
         return nil if conveyance_object_type.empty?
-        ::Sound.joins(:conveyances).where(conveyances: {conveyance_object_type:})
+        ::Sound.joins(:conveyances).where(conveyances: {conveyance_object_type:}).distinct
       end
 
       def conveyances_facet
