@@ -1,4 +1,9 @@
 // Styling particular to the hub controller and views
+:root {
+  --data-shared-bg: #e5d2be;
+  --data-default-bg: #5d9ece;
+  --data-application-defined-bg: #c38a8a;
+}
 
 #data_cards {
   display: flex;
@@ -87,10 +92,25 @@
     animation-timing-function: linear;
     animation-fill-mode: forwards;
     margin: $standard_margin * 0.5;
-    [data-method='post'] {
-      position: absolute;
-      right: 12px;
+  }
+
+  .fav-link {
+    position: absolute;
+    right: 12px;
+    border-radius: 100%;
+    a {
+      padding: 8px;
+      border-radius: 100%;
+      right: 0px;
     }
+  }
+
+  .fav-link .unfavorite_link:hover {
+    animation: pulse-red 2s infinite;
+  }
+
+  .fav-link .favourite_link:hover {
+    animation: pulse-green 2s infinite;
   }
 
   .data_card:hover {

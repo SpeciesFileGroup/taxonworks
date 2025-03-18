@@ -14,6 +14,8 @@ module Queries
         :attribute_subject_type,
         :attribute_subject_id,
         :data_attribute_id,
+        attribute_subject_id: [],
+        attribute_subject_type: [],
         controlled_vocabulary_term_id: [],
         data_attribute_id: []
       ].freeze
@@ -57,16 +59,27 @@ module Queries
         [@controlled_vocabulary_term_id].flatten.compact
       end
 
+      def attribute_subject_type
+        [@attribute_subject_type].flatten.compact
+      end
+
+      def attribute_subject_id
+        [@attribute_subject_id].flatten.compact
+      end
+
       # TODO - rename matching to _facet
+      # 
+      #
+      #      def depiction_object_type_facet
 
       # @return [Arel::Node, nil]
       def matching_attribute_subject_type
-        attribute_subject_type.present? ? table[:attribute_subject_type].eq(attribute_subject_type)  : nil
+        attribute_subject_type.present? ? table[:attribute_subject_type].in(attribute_subject_type)  : nil
       end
 
       # @return [Arel::Node, nil]
       def matching_attribute_subject_id
-        attribute_subject_id.present? ? table[:attribute_subject_id].eq(attribute_subject_id)  : nil
+        attribute_subject_id.present? ? table[:attribute_subject_id].in(attribute_subject_id)  : nil
       end
 
       # @return [Arel::Node, nil]
@@ -118,6 +131,7 @@ module Queries
           from_filter_facet(taxon_name_query, project_id),
           from_filter_facet(collecting_event_query, project_id),
           from_filter_facet(collection_object_query, project_id),
+          from_filter_facet(field_occurrence_query, project_id),
         ]
       end
 

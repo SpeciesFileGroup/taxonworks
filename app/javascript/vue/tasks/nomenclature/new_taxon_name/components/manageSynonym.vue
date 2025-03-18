@@ -136,6 +136,7 @@
 
 <script>
 import { GetterNames } from '../store/getters/getters'
+import { RouteNames } from '@/routes/routes'
 import { TaxonName } from '@/routes/endpoints'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import BlockLayout from '@/components/layout/BlockLayout'
@@ -186,13 +187,17 @@ export default {
               parent_id: [this.taxon.id],
               taxon_name_type: 'Protonym',
               per: 500,
+              sort: 'alphabetical',
               extend: ['parent']
-            }).then((response) => {
-              this.childrenList = response.body.filter(
-                (item) => item.id !== this.taxon.id
-              )
-              this.isLoading = false
             })
+              .then(({ body }) => {
+                this.childrenList = body.filter(
+                  (item) => item.id !== this.taxon.id
+                )
+              })
+              .finally(() => {
+                this.isLoading = false
+              })
           })
         }
       },
@@ -206,7 +211,7 @@ export default {
 
     loadTaxon(id) {
       if (window.confirm('Are you sure you want to load this taxon name?')) {
-        window.open(`/tasks/nomenclature/new_taxon_name/${id}`, `_self`)
+        window.open(`${RouteNames.NewTaxonName}?taxon_name_id=${id}`, `_self`)
       }
     },
 

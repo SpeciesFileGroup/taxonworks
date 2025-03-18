@@ -7,15 +7,15 @@
         @close="closeModal()"
       >
         <template #header>
-          <span class="flex-separate middle">
-            <span v-html="title" />
-            <b
+          <div class="horizontal-left-content middle gap-medium">
+            <div
+              :class="['inline model-tag', modelBg]"
               v-if="metadata"
-              class="margin-large-left"
             >
               {{ metadata.object_type }}
-            </b>
-          </span>
+            </div>
+            <span v-html="title" />
+          </div>
         </template>
         <template #body>
           <div class="flex-separate">
@@ -100,8 +100,31 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
 import ContextMenu from './components/contextMenu'
+import {
+  PERSON,
+  PREPARATION_TYPE,
+  REPOSITORY,
+  SERIAL,
+  ORGANIZATION,
+  SOURCE,
+  GEOGRAPHIC_AREA,
+  NAMESPACE
+} from '@/constants/modelTypes.js'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
+
+const DATA_COLOR = {
+  shared: [
+    PERSON,
+    NAMESPACE,
+    REPOSITORY,
+    PREPARATION_TYPE,
+    SERIAL,
+    SOURCE,
+    ORGANIZATION
+  ],
+  application: [GEOGRAPHIC_AREA]
+}
 
 defineOptions({
   name: 'RadialAnnotator'
@@ -173,6 +196,17 @@ const currentAnnotator = ref()
 const title = ref('Radial annotator')
 const metadata = ref(null)
 const defaultTag = ref(null)
+const modelBg = computed(() => {
+  const objectType = metadata.value?.object_type
+
+  if (!objectType) return
+
+  const type = Object.keys(DATA_COLOR).find((key) => {
+    return DATA_COLOR[key].includes(objectType)
+  })
+
+  return type || ''
+})
 const menuOptions = computed(() => {
   const endpoints = metadata.value.endpoints || {}
 
@@ -492,6 +526,25 @@ function resetAnnotator() {
 
   .circle-count {
     bottom: -6px;
+  }
+
+  .model-tag {
+    padding: 5px 8px;
+    border-top-right-radius: 0.6rem;
+    border-bottom-right-radius: 0.6rem;
+    border: 1px solid var(--color-primary);
+    border-left: 12px solid var(--color-primary);
+    line-height: 1.2rem;
+  }
+
+  .shared {
+    border: 1px solid var(--data-shared-bg);
+    border-left: 12px solid var(--data-shared-bg);
+  }
+
+  .application {
+    border: 1px solid var(--data-application-defined-bg);
+    border-left: 12px solid var(--data-application-defined-bg);
   }
 }
 

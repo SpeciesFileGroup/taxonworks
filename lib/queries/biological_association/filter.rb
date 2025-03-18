@@ -535,8 +535,6 @@ module Queries
           b_sql = b.all.to_sql
         end
 
-
-
         return nil if a_sql.nil? and b_sql.nil?
 
         # Setup for "WITH" use
@@ -684,6 +682,21 @@ module Queries
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
 
+      def field_occurrence_query_facet
+        return nil if field_occurrence_query.nil?
+        s = 'WITH query_fo_ba AS (' + field_occurrence_query.all.to_sql + ') '
+
+        a = ::BiologicalAssociation
+          .joins("JOIN query_fo_ba as query_fo_ba1 on biological_associations.biological_association_subject_id = query_fo_ba1.id AND biological_associations.biological_association_subject_type = 'FieldOccurrence'")
+
+        b = ::BiologicalAssociation
+          .joins("JOIN query_fo_ba as query_fo_ba2 on biological_associations.biological_association_object_id = query_fo_ba2.id AND biological_associations.biological_association_object_type = 'FieldOccurrence'")
+
+        s << referenced_klass_union([a,b]).to_sql
+
+        ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+      end
+
       # Brute-force style
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
@@ -738,6 +751,7 @@ module Queries
           asserted_distribution_query_facet,
           collecting_event_query_facet,
           collection_object_query_facet,
+          field_occurrence_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
 

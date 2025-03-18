@@ -68,6 +68,12 @@ module ApplicationEnumeration
     superclass_models.select{|a| a < Shared::IsData}
   end
 
+  # @return [Array]
+  #   all superclass data models
+  def self.community_models
+    superclass_models.select{|a| a < Shared::SharedAcrossProjects}
+  end
+
   # !! See the built in self.descendants for actual inheritance tracking, this is path based.
   # @param [Object] klass
   # @return  [Array of Classes]

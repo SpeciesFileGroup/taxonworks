@@ -14,6 +14,26 @@ class DwcOccurrencesController < ApplicationController
       .per(params[:per] || 1)
   end
 
+  def api_index
+    q = Queries::DwcOccurrence::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .page(params[:page]).per(params[:per])
+
+    respond_to do |format|
+      format.json {
+        @dwc_occurrences = q
+        render '/dwc_occurrences/api/v1/index'
+      }
+      format.csv {
+        @dwc_occurrences = q.limit(100000)
+        send_data Export::CSV.generate_csv(
+          @dwc_occurrences,
+          exclude_columns: %w{updated_by_id created_by_id project_id, is_flagged_for_rebuild},
+        ), type: 'text', filename: "dwc_occurrences_#{DateTime.now}.tsv"
+      }
+    end
+  end
+
   def metadata
     @dwc_occurrences = DwcOccurrence.where(project_id: sessions_current_project_id)
   end
@@ -35,28 +55,6 @@ class DwcOccurrencesController < ApplicationController
 
   def collector_id_metadata
     render json: helpers.collector_global_id_metadata
-  end
-
-  # TODO: remove
-  def create
-    respond_to do |format|
-      format.html do
-        @object.set_dwc_occurrence # TODO: If sync is complete this is not needed.
-        redirect_to browse_collection_objects_task_path(collection_object_id: @object.id)
-      end
-      format.json {
-        render status: :found and return
-      }
-    end
-  end
-
-  # GET /api/v1/dwc_occurrences.json
-  def api_index
-    @dwc_occurrences = Queries::DwcOccurrence::Filter.new(params.merge!(api: true))
-      .all
-      .where(project_id: sessions_current_project_id)
-      .page(params[:page]).per(params[:per] || 1000)
-    render '/dwc_occurrences/api/v1/index'
   end
 
   # GET /dwc_occurence/download

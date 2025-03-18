@@ -21,8 +21,8 @@ class MetadataController < ApplicationController
   end
 
   def class_navigation
-   k = params.require(:klass)
-   render json: helpers.class_navigation_json(k)
+    k = params.require(:klass)
+    render json: helpers.class_navigation_json(k)
   end
 
   def related_summary
@@ -50,16 +50,12 @@ class MetadataController < ApplicationController
     render json: DATA_MODELS.keys.sort
   end
 
-  def data_models
-    render json: DATA_MODELS.keys.sort
-  end
-
   # GET /metadata/attributes?model=CollectingEvent&mode=editable
   def attributes
     render json: Vocabulary.attributes(
       Vocabulary.get_model(
         params.require(:model)
-      ), 
+      ),
       mode: params[:mode]
     )
   end

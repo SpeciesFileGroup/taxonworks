@@ -70,7 +70,7 @@ class Georeference::VerbatimData < Georeference
       verbatimLatitude: collecting_event.verbatim_latitude,
       verbatimLongitude: collecting_event.verbatim_longitude,
       coordinateUncertaintyInMeters: error_radius,
-      georeferenceSources: 'Physical collection object.',
+      georeferenceSources: 'Transcribed from verbatim label, field note, or published data.',
       georeferenceRemarks: "Derived from a instance of TaxonWorks' Georeference::VerbatimData.",
       geodeticDatum: nil  # TODO: check
     )

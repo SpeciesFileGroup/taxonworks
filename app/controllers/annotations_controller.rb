@@ -19,17 +19,32 @@ class AnnotationsController < ApplicationController
     @to_object = GlobalID::Locator.locate(params.require(:to_global_id))
 
     render(json: { success: false}, status: :not_found) and return if @from_object.nil? || @to_object.nil?
- 
+
     e = @from_object.move_annotations(
       to_object: @to_object,
       except: params[:except],
       only: params[:only]
     )
-    
+
     if e.empty?
       render json: {from_object: @from_object, to_object: @to_object}
     else
       render json: {success: false, errors: e }, status: :unprocessable_entity
+    end
+  end
+
+  def move_one
+    @to_object = GlobalID::Locator.locate(params.require(:to_global_id))
+    @annotation = GlobalID::Locator.locate(params.require(:annotation_global_id))
+
+    render(json: { success: false}, status: :not_found) and return if @to_object.nil? || @annotation.nil?
+
+    respond_to do |format|
+      if @annotation.update(annotated_object: @to_object)
+        format.json { render :show, status: :ok, location: @annotation }
+      else
+        render json: {success: false}, status: :unprocessable_entity
+      end
     end
   end
 

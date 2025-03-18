@@ -42,23 +42,23 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
     end
 
     specify '#words_before' do
-      expect(n.words_before).to contain_exactly("The")
+      expect(n.words_before).to contain_exactly('The')
     end
 
     specify '#words_after' do
-      expect(n.words_after).to contain_exactly("of", "the", "World")
+      expect(n.words_after).to contain_exactly('of', 'the', 'World')
     end
   end
 
   specify '#classification_path' do
     expect(mn.classification_path).to contain_exactly(
-      'Biota', 'Animalia', 'Arthropoda', 'Insecta', 'Orthoptera', 'Caelifera', 'Acrididea', 'Acridoidea', 'Acrididae'
+      'Eukaryota', 'Animalia', 'Arthropoda', 'Insecta', 'Orthoptera', 'Caelifera', 'Acrididea', 'Acridoidea', 'Acrididae'
     )
   end
 
   specify '#classification_rank' do
     expect(mn.classification_rank).to contain_exactly(
-      'unranked', 'kingdom', 'phylum', 'class', 'order', 'suborder', 'infraorder', 'superfamily', 'family'
+      'domain', 'kingdom', 'phylum', 'class', 'order', 'suborder', 'infraorder', 'superfamily', 'family'
     )
   end
 

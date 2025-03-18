@@ -286,7 +286,7 @@ module Queries
         return nil if dwc_occurrence_query.nil?
 
          s = ::AssertedDistribution
-          .with(query_dwc_ad: dwc_occurrence_query.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
+          .with(query_dwc_ad: dwc_occurrence_query.all.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
           .joins(:dwc_occurrence)
           .joins('JOIN query_dwc_ad as query_dwc_ad1 on query_dwc_ad1.id = dwc_occurrences.id')
           .to_sql

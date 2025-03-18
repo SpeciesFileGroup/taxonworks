@@ -34,6 +34,7 @@ module Queries
         :with_date_requested,
         :with_date_return_expected,
         :with_date_sent,
+        :gift,
 
         loan_id: [],
         loan_item_disposition: [],
@@ -42,6 +43,9 @@ module Queries
         role: [],
         taxon_name_id: [],
       ].freeze
+
+      # @return [Boolean, nil]
+      attr_accessor :gift
 
       # @return [Boolean, nil]
       attr_accessor :with_date_requested
@@ -142,6 +146,7 @@ module Queries
         @with_date_requested = boolean_param(params, :with_date_requested)
         @with_date_return_expected = boolean_param(params, :with_date_return_expected)
         @with_date_sent = boolean_param(params, :with_date_sent)
+        @gift = boolean_param(params, :gift)
 
         set_attributes_params(params)
         set_notes_params(params)
@@ -278,12 +283,21 @@ module Queries
         end
       end
 
-      def  with_date_sent_facet
+      def with_date_sent_facet
         return nil if with_date_sent.nil?
         if with_date_sent
           table[:date_sent].not_eq(nil)
         else
           table[:date_sent].eq(nil)
+        end
+      end
+
+       def gift_facet
+        return nil if gift.nil?
+        if gift
+          table[:is_gift].eq(true)
+        else
+          table[:is_gift].eq(nil)
         end
       end
 
@@ -349,11 +363,12 @@ module Queries
 
       def and_clauses
         [
+          gift_facet,
           with_date_closed_facet,
           with_date_received_facet,
           with_date_requested_facet,
           with_date_return_expected_facet,
-          with_date_sent_facet,
+          with_date_sent_facet
         ]
       end
 

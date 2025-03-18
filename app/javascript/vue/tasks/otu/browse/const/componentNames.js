@@ -35,6 +35,12 @@ export default {
     otu: true,
     rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
   },
+  FieldOccurrences: {
+    title: 'Field occurrences',
+    status: 'prototype',
+    otu: true,
+    rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+  },
   DescriptionComponent: {
     title: 'Description',
     status: 'prototype'

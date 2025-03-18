@@ -51,6 +51,7 @@ module BatchLoad
           ce_identifiers.push(ce_identifier_drm_field_numbers)  if ce_identifier_drm_field_numbers_text.present?
 
           ce_attributes = {
+            verbatim_label:                   row['verbatim_label'],
             verbatim_locality:                row['verbatim_location'],
             verbatim_geolocation_uncertainty: (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip,
             verbatim_date:                    row['verbatim_date'],

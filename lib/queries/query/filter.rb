@@ -40,22 +40,22 @@ module Queries
     #
     SUBQUERIES = {
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence],
-      biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name, :asserted_distribution], # :field_occurrence
+      biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution], # :field_occurrence
       biological_associations_graph: [:biological_association, :source],
-      collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
+      collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence],
       content: [:source, :otu, :taxon_name, :image],
       controlled_vocabulary_term: [:data_attribute],
-      data_attribute: [:collection_object, :collecting_event, :taxon_name, :otu],
-      dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event],
+      data_attribute: [:collection_object, :collecting_event, :field_occurrence, :taxon_name, :otu],
+      dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event, :field_occurrence],
       depiction: [:image],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
-      field_occurrence: [], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
+      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
       image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
       observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],
-      otu: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
+      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
@@ -315,7 +315,6 @@ module Queries
 
     def venn_mode
       v = @venn_mode.to_s.downcase.to_sym
-      v  = :ab if v.blank?
       if [:a, :ab, :b].include?(v)
         v
       else
@@ -706,8 +705,18 @@ module Queries
     end
 
     def venn_query
-      u = ::Addressable::URI.parse(venn)
-      p = ::Rack::Utils.parse_query(u.query)
+      u = ::Addressable::URI.parse(venn).query
+      # Brackets may be multi-encoded
+      t = nil
+      i = 0
+      max = 10
+      while t != u && i < max
+        t = u
+        u = Addressable::URI.unencode(t)
+        i += 1
+      end
+
+      p = ::Rack::Utils.parse_nested_query(u) # nested supports brackets
 
       a = ActionController::Parameters.new(p)
 
@@ -754,7 +763,7 @@ module Queries
         q = referenced_klass.all
       end
 
-      if venn && !api
+      if venn_mode && venn && !api
         q = apply_venn(q)
       end
 
@@ -765,32 +774,9 @@ module Queries
       #
       # See spec/lib/queries/otu/filter_spec.rb for tests
 
-      # TODO: isolate method
+      # See lib/queries/concerns/identifiers.rb
       if order_by
-        case order_by
-        when :match_identifiers
-          if match_identifiers.present?
-
-            case match_identifiers_type # rubocop:disable Metrics/BlockNesting
-            when 'internal'
-              o = "array_position(ARRAY[#{identifiers_to_match.join(',')}], #{table.name}.id)"
-              q = q.order(Arel.sql(o))
-            else
-              # TODO: optimize, this was done hastily
-              o = "array_position(ARRAY[#{identifiers_to_match.collect{|i| "'#{i}'"}.join(',')}], sid.cached) s"
-
-              i = ::Identifier
-                .from('identifiers sid')
-                .where(sid: {cached: identifiers_to_match}) # This is required to de-duplicate for some reason ?!
-                .select("sid.*, #{o}")
-
-              q = q.with(sid: i)
-                .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
-                .select("#{table.name}.*, sid.s")
-                .order('sid.s')
-            end
-          end
-        end
+        q = match_identifier_order_by(q)
       end
 
       if recent

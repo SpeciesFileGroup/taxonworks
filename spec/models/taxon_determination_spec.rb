@@ -6,9 +6,17 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
   let(:otu) { Otu.create!(name: 'Foo')  }
   let(:specimen) { Specimen.create! }
 
+  specify 'determiner roles are destroyed' do
+    a = FactoryBot.create(:valid_taxon_determination)
+    a.determiners << FactoryBot.create(:valid_person)
+    expect(a.determiner_roles.count).to eq(1)
+    a.destroy
+    expect(Role.all.count).to eq(0)
+  end
+
   specify 'after_save dwc_occurrence 1' do
-    o1 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'ploz') )
-    o2 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'froz') )
+    o1 = Otu.create!(name: 'ploz' )
+    o2 = Otu.create!(name: 'froz' )
 
     specimen.taxon_determinations << TaxonDetermination.new(otu: o1)
     specimen.taxon_determinations << TaxonDetermination.new(otu: o2)
@@ -17,7 +25,7 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
   end
 
   specify 'during save dwc_occurrence 2' do
-    o1 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'ploz') )
+    o1 = Otu.create!(name: 'ploz' )
     o2 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'froz') )
 
     s = Specimen.create!(taxon_determinations_attributes: [{otu: o1}, {otu: o2}])
@@ -27,8 +35,9 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
   end
 
   specify 'during save dwc_occurrence 3' do
-    o1 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'ploz') )
-    o2 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'froz') )
+    o1 = Otu.create!(name: 'ploz' )
+    o2 = Otu.create!(name: 'froz' )
+
     s = Specimen.create!(taxon_determinations_attributes: [{otu: o1}, {otu: o2}])
 
     s.taxon_determinations.first.move_to_top # first is last (position)

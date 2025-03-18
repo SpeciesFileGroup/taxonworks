@@ -10,6 +10,9 @@ Bundler.require *Rails.groups
 module TaxonWorks
   class Application < Rails::Application
 
+    # TODO: remove on Sound implementation
+    config.active_storage.service = false
+
     # Reverted from 7.2
     config.load_defaults 7.1
 

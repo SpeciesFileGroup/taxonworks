@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount } from 'vue'
+import { onBeforeMount } from 'vue'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
@@ -47,13 +47,10 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
-
-const params = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+const params = defineModel({
+  type: Object,
+  required: true
 })
-
 onBeforeMount(() => {
   const urlParams = URLParamsToJSON(location.href)
 

@@ -85,7 +85,7 @@ module Queries::Concerns::Attributes
       end
     end
 
-    a = c.first
+    a = c.shift
     c.each do |b|
       a = a.and(b)
     end

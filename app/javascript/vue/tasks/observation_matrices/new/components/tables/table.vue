@@ -38,13 +38,6 @@
           <td>
             <div class="horizontal-left-content gap-small">
               <a
-                v-if="edit && !element.is_dynamic"
-                type="button"
-                class="circle-button btn-edit"
-                :href="getUrlLink(element)"
-              />
-
-              <a
                 v-if="code"
                 type="button"
                 target="_blank"
@@ -56,7 +49,6 @@
                     : `/tasks/observation_matrices/matrix_column_coder/index?observation_matrix_column_id=${element.id}`
                 "
               />
-              <radial-annotator :global-id="getValue(element, globalIdPath)" />
               <radial-object :global-id="getValue(element, globalIdPath)" />
               <span
                 v-if="filterRemove(element)"
@@ -168,13 +160,7 @@ export default {
 
   data() {
     return {
-      newList: [],
-      urlTypes: {
-        [OTU]: '/otus/',
-        [SPECIMEN]: '/collection_objects/',
-        [DESCRIPTOR]: '/tasks/descriptors/new_descriptor/',
-        [EXTRACT]: '/tasks/extracts/new_extract?extract_id='
-      }
+      newList: []
     }
   },
 
@@ -219,14 +205,6 @@ export default {
         return obj
       }
       return object[attributes]
-    },
-
-    getUrlLink(item) {
-      return this.row
-        ? `${this.urlTypes[item.observation_object.base_class]}${
-            item.observation_object.id
-          }`
-        : `/tasks/descriptors/new_descriptor?descriptor_id=${item.descriptor_id}&observation_matrix_id=${this.matrix.id}`
     }
   }
 }

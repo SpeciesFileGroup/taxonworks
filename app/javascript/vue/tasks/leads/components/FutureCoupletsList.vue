@@ -2,14 +2,14 @@
   <div v-if="future.length">
     <div
       v-for="o in future.toReversed()"
-      :key="o.cpl.id"
+      :key="o.lead.id"
       :style="marginForDepth(o.depth)"
     >
-      <CoupletChoiceLink
+      <CoupletLink
         :load-function="loadFunction"
         :route-name="routeName"
-        :couplet-label="o.cplLabel"
-        :lead="o.cpl"
+        :couplet-label="o.leadLabel"
+        :lead="o.lead"
         :otu-tag="o.otuLabel"
       />
     </div>
@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import CoupletChoiceLink from './CoupletChoiceLink.vue'
+import CoupletLink from './CoupletLink.vue'
 import { marginForDepth } from '../helpers/formatters.js'
 
 const props = defineProps({

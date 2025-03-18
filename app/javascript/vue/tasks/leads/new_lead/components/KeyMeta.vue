@@ -135,7 +135,7 @@ function processKeyMeta() {
       })
       .catch(() => {})
   } else {
-    Lead.update_meta(store.root.id, payload)
+    Lead.update(store.root.id, payload)
       .then(() => {
         TW.workbench.alert.create('Key metadata updated.', 'notice')
       })

@@ -96,6 +96,11 @@ class Otu < ApplicationRecord
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }
+  scope :associated_with_key, -> (root_lead) {
+    joins(:leads)
+      .where(leads: { id: root_lead.self_and_descendants.map(&:id) })
+      .distinct
+  }
 
   validate :check_required_fields
 
@@ -363,6 +368,10 @@ class Otu < ApplicationRecord
     collection_objects.where(taxon_determinations: {position: 1})
   end
 
+  def current_field_occurrences
+    field_occurrences.where(taxon_determinations: {position: 1})
+  end
+
   # @return [Boolean]
   #   whether or not this otu is coordinate (see coordinate_otus) with this otu
   def coordinate_with?(otu_id)
@@ -533,13 +542,7 @@ class Otu < ApplicationRecord
   end
 
   def dwc_occurrences
-    a = ::Queries::DwcOccurrence::Filter.new( asserted_distribution_query: {otu_id: id, project_id:},).all
-    b = ::Queries::DwcOccurrence::Filter.new( collection_object_query: {otu_id: id, project_id:},).all
-    # TODO FieldOccurrence in same pattern
-
-    ::Queries.union(
-      ::DwcOccurrence, [ a, b ]
-    )
+    ::Queries::DwcOccurrence::Filter.new(otu_id: id).all
   end
 
   protected

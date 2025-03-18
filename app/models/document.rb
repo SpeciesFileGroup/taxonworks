@@ -67,6 +67,8 @@ class Document < ApplicationRecord
   has_attached_file :document_file,
     filename_cleaner:  Utilities::CleanseFilename
 
+  validates_uniqueness_of :document_file_fingerprint, scope: :project_id
+
   validates_attachment_content_type :document_file,
     content_type: ['application/octet-stream', 'application/pdf', 'text/plain',
     'text/xml',

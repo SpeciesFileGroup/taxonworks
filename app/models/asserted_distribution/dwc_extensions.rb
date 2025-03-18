@@ -2,13 +2,14 @@ module AssertedDistribution::DwcExtensions
 
   extend ActiveSupport::Concern
 
+  include Shared::IsDwcOccurrence
+
   DWC_OCCURRENCE_MAP = {
     associatedReferences: :dwc_associated_references,
     country: :dwc_country,
     county: :dwc_county,
     occurrenceStatus: :dwc_occurrence_status,
     stateProvince: :dwc_state_province,
-
 
     kingdom: :dwc_kingdom,
     family: :dwc_family,
@@ -66,7 +67,7 @@ module AssertedDistribution::DwcExtensions
   end
 
   def dwc_occurrence_status
-    is_absent ? 'absent' : 'present'
+    is_absent == true ? 'absent' : 'present'
   end
 
   def dwc_country
@@ -108,6 +109,5 @@ module AssertedDistribution::DwcExtensions
   #
   #   h
   # end
-
 
 end

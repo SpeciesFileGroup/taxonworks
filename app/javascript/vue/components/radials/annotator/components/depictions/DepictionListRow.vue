@@ -34,6 +34,10 @@
             x-small
           />
         </VBtn>
+        <MoveAnnotation
+          :annotation="depiction"
+          @move="(item) => emit('move', item)"
+        />
         <VBtn
           class="circle-button"
           color="destroy"
@@ -55,6 +59,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import EditInPlace from '@/components/editInPlace.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'
 import { watch, ref } from 'vue'
 
 const props = defineProps({
@@ -66,6 +71,7 @@ const props = defineProps({
 
 const emit = defineEmits([
   'selected',
+  'move',
   'delete',
   'update:label',
   'update:caption'

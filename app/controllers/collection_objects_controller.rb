@@ -98,6 +98,7 @@ class CollectionObjectsController < ApplicationController
     render '/dwc_occurrences/dwc_index'
   end
 
+  # TODO: Not used in Vue
   # GET /collection_objects/123/dwc
   #  !! Returns a keyless Array of data compatible with combining multiple rows
   def dwc
@@ -105,7 +106,6 @@ class CollectionObjectsController < ApplicationController
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
       if params[:rebuild] == 'true'
-        # get does not rebuild, but does set if it doesn't exist
         o.set_dwc_occurrence
       else
         o.get_dwc_occurrence
@@ -128,7 +128,6 @@ class CollectionObjectsController < ApplicationController
       o = CollectionObject.find(params[:id])
 
       if params[:rebuild] == 'true'
-        # get does not rebuild
         o.set_dwc_occurrence
       else
         o.get_dwc_occurrence

@@ -358,7 +358,9 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id}).distinct
+        a = ::CollectingEvent.joins(:collection_object_otus).where(otus: {id: otu_id})
+        b = ::CollectingEvent.joins(:field_occurrence_otus).where(otus: {id: otu_id})
+        ::Queries.union(::CollectingEvent, [a,b]).distinct
       end
 
       def matching_collection_object_id
@@ -369,7 +371,7 @@ module Queries
       def collectors_facet
         return nil if collectors.nil?
         if collectors
-          ::CollectingEvent.joins(:collectors)
+          ::CollectingEvent.joins(:collectors).distinct
         else
           ::CollectingEvent.where.missing(:collectors)
         end
@@ -408,14 +410,25 @@ module Queries
         ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
+      def field_occurrence_query_facet
+        return nil if field_occurrence_query.nil?
+        s = 'WITH query_fo_ce AS (' + field_occurrence_query.all.to_sql + ') ' +
+          ::CollectingEvent
+          .joins(:field_occurrences)
+          .joins('JOIN query_fo_ce as query_fo_ce1 on field_occurrences.id = query_fo_ce1.id')
+          .to_sql
+
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
+      end
+
       def dwc_occurrence_query_facet
         return nil if dwc_occurrence_query.nil?
 
         s = ::CollectingEvent
-          .with(query_dwc_ce: dwc_occurrence_query.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
-          .joins('JOIN collection object co co.collecting_event_id = collecting_events.id')
-          .joins("JOIN dwc_occurrences do on do.dwc_occurrence_object_type = 'CollectionObject' and do.dwc_occurrence_object_id = co.id")
-          .joins('JOIN query_dwc_ce as query_dwc_ce1 on query_dwc_ce1.id = dwc_occurrences.id')
+          .with(query_dwc_ce: dwc_occurrence_query.all.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
+          .joins('JOIN collection_objects co on co.collecting_event_id = collecting_events.id')
+          .joins("JOIN dwc_occurrences dwo on dwo.dwc_occurrence_object_type = 'CollectionObject' and dwo.dwc_occurrence_object_id = co.id")
+          .joins('JOIN query_dwc_ce as query_dwc_ce1 on query_dwc_ce1.id = dwo.id')
           .to_sql
 
         ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
@@ -455,6 +468,7 @@ module Queries
         [
           biological_association_query_facet,
           collection_object_query_facet,
+          field_occurrence_query_facet,
           dwc_occurrence_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
