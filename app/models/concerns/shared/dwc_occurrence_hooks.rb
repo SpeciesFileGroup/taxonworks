@@ -16,10 +16,8 @@ module Shared::DwcOccurrenceHooks
     #   See also Shared::IsDwcOccurrence
     attr_accessor :no_dwc_occurrence
 
-    after_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
-
-#   after_save_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
-#   around_destroy :process_destroy
+    after_save_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
+    before_destroy :update_dwc_occurrence
 
     def update_dwc_occurrence
       t = dwc_occurrences.count
@@ -45,7 +43,7 @@ module Shared::DwcOccurrenceHooks
                    end
 
         ::DwcOccurrenceRefreshJob.set(priority:).perform_later(
-          rebuild_set:, 
+          rebuild_set:,
           user_id: Current.user_id,
         )
 
