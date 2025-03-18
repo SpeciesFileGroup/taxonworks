@@ -322,15 +322,15 @@ class CollectingEvent < ApplicationRecord
 
   def dwc_occurrences
     # Through CollectionObjects
-   a = DwcOccurrence
+    a = DwcOccurrence
       .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
       .where(co: {collecting_event_id: id})
 
-   b = DwcOccurrence
+    b = DwcOccurrence
       .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
       .where(fo: {collecting_event_id: id})
 
-   ::Queries.union(DwcOccurrence, [a,b])
+    ::Queries.union(DwcOccurrence, [a,b])
   end
 
   def otus
@@ -400,7 +400,7 @@ class CollectingEvent < ApplicationRecord
       where(q.between_date_range_facet.to_sql).distinct # TODO: uniq should likely not be here
     end
 
-    # TODO remove, used only in match georeferences 
+    # TODO remove, used only in match georeferences
     # @param [ActionController::Parameters] params in the style Rails of 'params'
     # @return [Scope] of selected collecting_events
     # TODO: deprecate for lib/queries/collecting_event/filter

@@ -32,7 +32,14 @@ module Shared::DwcOccurrenceHooks
             d.dwc_occurrence_object.set_dwc_occurrence
           end
         else
-          dwc_occurrences.update_all(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
+
+          # `update_all` fails because of missing .from() support, see
+          # dwc_occurrences.update_all(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
+
+          dwc_occurrences.in_batches do |b|
+            b.update_all(is_flagged_for_rebuild: true) # Quickly mark all records requiring rebuild
+          end
+
           ::DwcOccurrenceRefreshJob.perform_later(project_id:, user_id: Current.user_id)
         end
 
