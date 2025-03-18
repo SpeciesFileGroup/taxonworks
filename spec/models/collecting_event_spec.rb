@@ -414,6 +414,16 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       perform_enqueued_jobs
       expect(s.dwc_occurrence.reload.eventDate).to match('2010')
     end
+
+    specify 'does not update with no_dwc_occurrence_index: true' do
+      ce.update!(start_date_year: 2012, no_dwc_occurrence: true)
+      perform_enqueued_jobs
+      expect(s.dwc_occurrence.reload.eventDate).to match('2010')
+    end
+
+
+
+
   end
 
   context 'concerns' do
