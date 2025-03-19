@@ -9,6 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+### Fixed
+
+- Unify Otu failing because of CachedMap references
+
 ## [0.49.0] - 2025-03-18
 
 ### Added
