@@ -1,15 +1,26 @@
 <h1> Simplemappr table </h1>
+<p> Only Collection Objects with geographic data are displayed here. </p>
 <em> Paste the copied table into a text file, name it your_data.txt. The file should load at simplemappr. </em>
 <br/>
 <br/>
 
 <% d = simple_mappr_data(params) %>
 
+<% if d&.headers&.length.present? %>
+  <% if d.headers.length == 0 %>
+    <%= tag.div("None of the provided Collection Objects reference geographic data.", class: [:feedback, 'feedback-warning'])  %>
+  <% elsif d.headers.length == 2 && d.headers.second == 'sm_empty_column' %>
+    <%= tag.div("SimpleMappr can't read a single column of data, so a required 'sm_empty_column' was added as well - it has no effect on the created map.", class: [:feedback, 'feedback-warning'])  %>
+  <% elsif d.headers.length > 13 %>
+    <%= tag.div("Only the first 13 of the #{d.headers.length} columns will be loaded by SimpleMappr.", class: [:feedback, 'feedback-warning'])  %>
+  <% end %>
+<% end %>
+
 <% if d.nil? %>
   <%= tag.div('No data, or > 10k rows returned.', class: [:feedback, 'feedback-warning'])  %>
 <% else %>
   <%= copy_table_to_clipboard('div#simplemappr') %>
   <div id="simplemappr">
-    <%= table_from_csv( d ) %> 
+    <%= table_from_csv( d ) %>
   </div>
 <% end %>

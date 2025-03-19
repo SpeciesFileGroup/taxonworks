@@ -10,6 +10,10 @@ export const FILTER_EXTRACT = {
   label: 'Extracts',
   link: '/tasks/extracts/filter'
 }
+export const FILTER_FIELD_OCCURRENCE = {
+  label: 'Field occurrences',
+  link: '/tasks/field_occurrences/filter'
+}
 export const FILTER_OTU = {
   label: 'OTUs',
   link: '/tasks/otus/filter'

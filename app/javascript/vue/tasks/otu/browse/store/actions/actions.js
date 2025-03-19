@@ -6,6 +6,7 @@ import loadCollectingEvents from './loadCollectingEvents'
 import loadCommonNames from './loadCommonNames'
 import loadDepictions from './loadDepictions'
 import loadDistribution from './loadDistribution'
+import loadFieldOccurrences from './loadFieldOccurrences'
 import loadPreferences from './loadPreferences'
 import loadAssertedDistributions from './loadAssertedDistributions'
 import loadDescendants from './loadDescendants'
@@ -24,6 +25,7 @@ const ActionFunctions = {
   [ActionNames.LoadDescendants]: loadDescendants,
   [ActionNames.LoadDistribution]: loadDistribution,
   [ActionNames.LoadInformation]: loadInformation,
+  [ActionNames.LoadFieldOccurrences]: loadFieldOccurrences,
   [ActionNames.LoadObservationDepictions]: loadObservationDepictions,
   [ActionNames.LoadOtus]: loadOtus,
   [ActionNames.LoadPreferences]: loadPreferences,

@@ -22,8 +22,8 @@ module Vocabulary
 
       c = "COUNT(\"#{attribute}\")" # double quote to handle things like `group`
 
-      words = words.where("\"#{attribute}\" like '#{begins_with}%'") if begins_with.presence
-      words = words.where("\"#{attribute}\" like '%#{contains}%'") if contains.presence
+      words = words.where("\"#{attribute}\" like ?", "%#{begins_with}") if begins_with.presence
+      words = words.where("\"#{attribute}\" like ?", "%#{contains}%") if contains.presence
       words = words.having("#{c} > ?", min) if min.presence
       words = words.having("#{c} < ?", max) if max.presence
       words = words.limit(limit) if limit
@@ -33,8 +33,8 @@ module Vocabulary
 
       c = "COUNT(#{attribute})"
 
-      words = words.where( "#{attribute}::text like '#{begins_with}%'") if begins_with.presence
-      words = words.where("#{attribute}::text like '%#{contains}%'") if contains.presence
+      words = words.where( "#{attribute}::text like ?", "#{begins_with}%") if begins_with.presence
+      words = words.where("#{attribute}::text like ?", "%#{contains}%") if contains.presence
       words = words.having("#{c} > ?", min) if min.presence
       words = words.having("#{c} < ?", max) if max.presence
       words = words.limit(limit) if limit

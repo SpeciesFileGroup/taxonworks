@@ -1012,7 +1012,7 @@ browse_field_occurrence_task:
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Report everything known about a field occurrence. Includes determinations, images, collecting event, biological associations, etc.'
 index_multi_update_task:
   hub: false
   name: 'Multi-update data attributes'
@@ -1020,3 +1020,10 @@ index_multi_update_task:
   categories:
   status: prototype
   description: 'Faciliate spreadsheet editing of multiple data attributes.'
+filter_field_occurrences_task:
+  hub: true
+  name: 'Filter field occurrences'
+  related:
+  categories:
+  status: prototype
+  description: 'Filter field occurrences by many different facets, download or visualize results.'

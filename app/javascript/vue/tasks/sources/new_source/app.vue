@@ -19,29 +19,13 @@
     </div>
     <NavBar class="source-navbar">
       <div class="flex-separate full_width">
-        <div class="middle">
-          <template v-if="source.id">
-            <span
-              class="word_break"
-              v-html="source.cached"
-            />
-
-            <div
-              class="flex-wrap-row nav__source-buttons margin-small-left gap-small"
-            >
-              <VPin
-                class="circle-button"
-                type="Source"
-                :object-id="source.id"
-              />
-              <AddSource
-                :project-source-id="source.project_source_id"
-                :id="source.id"
-              />
-              <RadialAnnotator :global-id="source.global_id" />
-              <RadialObject :global-id="source.global_id" />
-            </div>
-          </template>
+        <div class="middle gap-small">
+          <PanelSearch />
+          <span
+            v-if="source.id"
+            class="word_break"
+            v-html="source.cached"
+          />
           <span v-else>New record</span>
         </div>
         <div class="nav__buttons gap-small">
@@ -60,6 +44,7 @@
             Save
           </button>
           <CloneSource />
+          |
           <button
             v-if="source.type === SOURCE_VERBATIM && source.id"
             class="button normal-input button-submit button-size"
@@ -69,27 +54,23 @@
             To BibTeX
           </button>
           <button
+            type="button"
             v-help.section.navBar.crossRef
             class="button normal-input button-default button-size"
-            type="button"
+            :disabled="source.id"
             @click="() => (isModalVisible = true)"
           >
             CrossRef
           </button>
           <button
-            class="button normal-input button-default button-size"
             type="button"
+            class="button normal-input button-default button-size"
+            :disabled="source.id"
             @click="() => (showBibtex = true)"
           >
             BibTeX
           </button>
-          <button
-            class="button normal-input button-default button-size"
-            type="button"
-            @click="() => (showRecent = true)"
-          >
-            Recent
-          </button>
+
           <button
             class="button normal-input button-default button-size"
             type="button"
@@ -100,15 +81,34 @@
         </div>
       </div>
     </NavBar>
-    <RecentComponent
-      v-if="showRecent"
-      @close="() => (showRecent = false)"
-    />
     <div class="horizontal-left-content align-start">
-      <div class="full_width panel content">
-        <SourceType class="margin-medium-bottom" />
-        <component :is="componentSection[source.type]" />
-      </div>
+      <BlockLayout class="full_width">
+        <template #header>
+          <div class="flex-separate middle full_width">
+            <h3>Source</h3>
+
+            <div class="horizontal-right-content gap-small">
+              <VPin
+                class="circle-button"
+                type="Source"
+                :object-id="source.id"
+              />
+              <AddSource
+                :project-source-id="source.project_source_id"
+                :id="source.id"
+              />
+              <RadialAnnotator :global-id="source.global_id" />
+              <RadialObject :global-id="source.global_id" />
+            </div>
+          </div>
+        </template>
+        <template #body>
+          <div class="full_width panel content">
+            <SourceType class="margin-medium-bottom" />
+            <component :is="componentSection[source.type]" />
+          </div>
+        </template>
+      </BlockLayout>
       <RightSection class="margin-medium-left" />
     </div>
     <CrossRef
@@ -141,7 +141,6 @@ import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/PersonHuman.vue'
 import SourceType from './components/sourceType'
-import RecentComponent from './components/recent'
 
 import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
@@ -153,10 +152,12 @@ import CloneSource from './components/cloneSource'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 
+import PanelSearch from './components/PanelSearch.vue'
 import RightSection from './components/rightSection'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
 import { useHotkey } from '@/composables'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 
 const componentSection = {
   [SOURCE_VERBATIM]: Verbatim,
@@ -201,7 +202,6 @@ const unsave = computed(() => settings.value.lastSave < settings.value.lastEdit)
 
 const isModalVisible = ref(false)
 const showBibtex = ref(false)
-const showRecent = ref(false)
 
 watch(
   source,

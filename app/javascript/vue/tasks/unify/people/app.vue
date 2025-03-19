@@ -143,7 +143,7 @@ function getPerson(id) {
 }
 
 function resetApp() {
-  this.params = {}
+  params.value = {}
   store.dispatch(ActionNames.ResetStore)
 }
 </script>

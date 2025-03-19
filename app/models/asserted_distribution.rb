@@ -31,8 +31,8 @@ class AssertedDistribution < ApplicationRecord
   include Shared::OriginRelationship
   include Shared::Identifiers
   include Shared::HasPapertrail
-  include Shared::Taxonomy # at present must preceed IsDwcOccurence
-  include Shared::IsDwcOccurrence
+  include Shared::Taxonomy # at present must preceed DwcExtensions
+
   include AssertedDistribution::DwcExtensions
   include Shared::IsData
 
@@ -52,18 +52,15 @@ class AssertedDistribution < ApplicationRecord
   has_one :geographic_item, through: :geographic_area, source: :default_geographic_item
   has_many :geographic_items, through: :geographic_area
 
+  before_validation :unify_is_absent
+
   validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
   validates :geographic_area, presence: true
   validates :otu, presence: true
-
   validates_uniqueness_of :otu, scope: [:project_id, :geographic_area, :is_absent], message: 'this geographic_area, OTU and present/absent combination already exists'
-  # !! If we want to unify GeographicAreas then we need to raise a redundat error :geographic_area here, we should write a custom method
-  # that checks for an error on otu then adds a record, i.e. no database calls would be made
-  # validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id, :is_absent], message: 'this geographic_area, OTU and present/absent combination already exists'
-
   validate :new_records_include_citation
 
-  # TODO: deprecate scopes referencing single wheres
+  # TODO: deprecate scopes referencing single parameter where()
   scope :with_otu_id, -> (otu_id) { where(otu_id:) }
   scope :with_is_absent, -> { where('is_absent = true') }
   scope :with_geographic_area_array, -> (geographic_area_array) { where('geographic_area_id IN (?)', geographic_area_array) }
@@ -152,6 +149,11 @@ class AssertedDistribution < ApplicationRecord
 
   protected
 
+  # Never record "false" in the datase, only true
+  def unify_is_absent
+    self.is_absent = nil if self.is_absent != true
+  end
+
   # @return [Boolean]
   def new_records_include_citation
     if new_record? && source.blank? && origin_citation.blank? && !citations.any?
@@ -194,4 +196,7 @@ class AssertedDistribution < ApplicationRecord
     end
     result
   end
+
+
+
 end

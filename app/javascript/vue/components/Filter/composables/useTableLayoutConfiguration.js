@@ -1,10 +1,31 @@
 import { reactive, toRefs } from 'vue'
 import { User } from '@/routes/endpoints'
-import { getCurrentUserId, sortArrayByArray } from '@/helpers'
+import { getCurrentUserId } from '@/helpers'
+
+function sortArrayByArray(arr, arrOrder) {
+  const setOrden = new Set(arrOrder)
+
+  const sorted = arr
+    .filter((item) => setOrden.has(item))
+    .sort((a, b) => arrOrder.indexOf(a) - arrOrder.indexOf(b))
+
+  let result = []
+  let index = 0
+
+  for (const item of arr) {
+    if (setOrden.has(item)) {
+      result.push(sorted[index++])
+    } else {
+      result.push(item)
+    }
+  }
+
+  return result
+}
 
 export function useTableLayoutConfiguration({ model, layouts } = {}) {
   const state = reactive({
-    currentLayout: {},
+    currentLayout: null,
     layouts: {},
     properties: {},
     includes: {}
@@ -13,12 +34,12 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
   const keyStorage = model && `tasks::filters::${model}`
 
   const initialState = (layouts) => {
-    const { All } = layouts
+    const { All } = structuredClone(layouts)
 
     state.properties = { ...All.properties }
     state.includes = { ...All.includes }
-    state.layouts = { ...layouts, Custom: structuredClone(All) }
-    Object.assign(state.currentLayout, All)
+    state.layouts = { ...layouts, Custom: All }
+    state.currentLayout = structuredClone(All)
   }
 
   const updatePropertiesPositions = (listType) => {
@@ -28,8 +49,7 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
 
     state.currentLayout.properties[listType] = sortArrayByArray(
       state.currentLayout.properties[listType],
-      usedProperties,
-      true
+      usedProperties
     )
   }
 
@@ -49,6 +69,25 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
     }
   }
 
+  const clearPreferences = async () => {
+    if (keyStorage) {
+      const userId = getCurrentUserId()
+
+      return User.update(userId, {
+        user: {
+          layout: {
+            [keyStorage]: null
+          }
+        }
+      })
+    }
+  }
+
+  const forceUpdatePreference = async () => {
+    await clearPreferences()
+    saveLayoutPreferences()
+  }
+
   const loadCurrentLayout = () => {
     User.preferences().then(({ body }) => {
       const preferences = body.layout[keyStorage]
@@ -60,11 +99,12 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
         const subGroup = Object.keys(preferences.customLayout?.properties) || []
 
         subGroup.forEach((group) => {
-          state.properties[group] = sortArrayByArray(
+          const newOrder = sortArrayByArray(
             state.properties[group],
-            state.currentLayout.properties[group],
-            true
+            state.currentLayout.properties[group]
           )
+
+          state.properties[group] = newOrder
         })
       }
     })
@@ -72,18 +112,7 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
 
   const resetPreferences = () => {
     initialState(layouts)
-
-    if (keyStorage) {
-      const userId = getCurrentUserId()
-
-      User.update(userId, {
-        user: {
-          layout: {
-            [keyStorage]: null
-          }
-        }
-      })
-    }
+    clearPreferences()
   }
 
   initialState(layouts)
@@ -96,6 +125,8 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
     ...toRefs(state),
     updatePropertiesPositions,
     saveLayoutPreferences,
-    resetPreferences
+    resetPreferences,
+    clearPreferences,
+    forceUpdatePreference
   }
 }

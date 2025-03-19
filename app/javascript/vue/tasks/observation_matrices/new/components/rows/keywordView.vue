@@ -18,7 +18,7 @@
             v-if="key != 'total'"
             class="separate-left button normal-input button-delete"
             type="button"
-            @click="removeKeyword(matrixId, key)">Remove
+            @click="removeKeyword(object.object.id, key)">Remove
           </button>
         </template>
       </div>
@@ -49,20 +49,28 @@
     },
     methods: {
       batchLoad(classType, matrixId, type, keywordId) {
-        let object = {
+        const object = {
           observation_matrix_id: matrixId,
           keyword_id: keywordId,
           batch_type: 'tags',
           klass: (type == 'total' ? undefined : type)
         }
-        CreateRowBatchLoad(object).then((response) => {
-          this.$store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
-        })
+        CreateRowBatchLoad(object)
+          .then((response) => {
+            this.$store.dispatch(
+              ActionNames.GetMatrixObservationRows, { per: 500 }
+            )
+          })
+          .catch(() => {})
       },
       removeKeyword(id, type) {
-        BatchRemoveKeyword(id, type).then(response => {
-          this.$store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
-        })
+        BatchRemoveKeyword(id, type)
+          .then(response => {
+            this.$store.dispatch(
+              ActionNames.GetMatrixObservationRows, { per: 500 }
+            )
+          })
+          .catch(() => {})
       }
     }
   }

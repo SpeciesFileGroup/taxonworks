@@ -68,6 +68,7 @@
             :layouts="layouts"
             @reset="resetPreferences"
             @sort="updatePropertiesPositions"
+            @sort:column="forceUpdatePreference"
             @update="saveLayoutPreferences"
           />
         </div>
@@ -132,7 +133,8 @@ const {
   properties,
   updatePropertiesPositions,
   saveLayoutPreferences,
-  resetPreferences
+  resetPreferences,
+  forceUpdatePreference
 } = useTableLayoutConfiguration({ layouts: LAYOUTS, model: COLLECTION_OBJECT })
 
 const {

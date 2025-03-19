@@ -5,24 +5,38 @@ module Vendor::SimpleMapprHelper
     # TODO: Add support for FieldOccurrence, or by Otu Filter
 
     if params[:collection_object_query]
-      a = ::Queries::DwcOccurrence::Filter.new(collection_object_query: params[:collection_object_query]).all.select(:id, :scientificName, :decimalLatitude, :decimalLongitude)
+      a = ::Queries::DwcOccurrence::Filter.new(collection_object_query: params[:collection_object_query]).all.select(:id, :scientificName, :occurrenceID, :decimalLatitude, :decimalLongitude)
 
       return nil if a.size > 10_000
 
       d = {}
 
       a.find_each do |i|
-        k = i.scientificName
-        d[k] ||= []
-        d[k].push [i.decimalLatitude, i.decimalLongitude].compact.join(',').presence
+        k = i.scientificName || "[Occurrence id: #{i.occurrenceID}]"
+        if i.decimalLatitude && i.decimalLongitude
+          d[k] ||= []
+          d[k].push [i.decimalLatitude, i.decimalLongitude].join(',')
+        end
+      end
+
+      return CSV::Table.new([CSV::Row.new([], [])]) if d.empty?
+
+      if d.count == 1
+        # SimpleMappr (currently) requires at least 2 columns - otherwise it
+        # parses an input file incorrectly - so add an empty second column.
+        d['sm_empty_column'] = []
       end
 
       h = d.keys.dup
       z =  CSV::Row.new(h,h,true)
 
       x = d.values
+      max_points_count = x.max {|a, b| a.length <=> b.length}.length
       y = x.shift
 
+      # The array zip here is based (in part) on the length of y, so make sure y
+      # is as long as the longest d.values array.
+      y.fill(nil, y.length...max_points_count)
       t = y.zip(*x)
 
       tbl = CSV::Table.new([z], headers: true ) # , col_sep: "\t", encoding: Encoding::UTF_8)

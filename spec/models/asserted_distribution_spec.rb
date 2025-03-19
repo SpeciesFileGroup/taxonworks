@@ -7,6 +7,24 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:geographic_area) { FactoryBot.create(:valid_geographic_area) }
 
+  specify '#unique 1' do
+    a = FactoryBot.create(:valid_asserted_distribution)
+    b = FactoryBot.build(:valid_asserted_distribution, geographic_area: a.geographic_area, otu: a.otu)
+    expect(b.valid?).to be_falsey
+  end
+
+  specify '#unique 2' do
+    a = FactoryBot.create(:valid_asserted_distribution)
+    b = FactoryBot.build(:valid_asserted_distribution, geographic_area_id: a.geographic_area.id, otu_id: a.otu_id)
+    expect(b.valid?).to be_falsey
+  end
+
+  specify '#unique is_absent nil/false' do
+    a = FactoryBot.create(:valid_asserted_distribution, is_absent: false)
+    b = FactoryBot.build(:valid_asserted_distribution, geographic_area_id: a.geographic_area.id, otu_id: a.otu_id, is_absent: nil)
+    expect(b.valid?).to be_falsey
+  end
+
   specify '#destroy' do
     a = FactoryBot.create(:valid_asserted_distribution)
     expect(a.destroy).to be_truthy

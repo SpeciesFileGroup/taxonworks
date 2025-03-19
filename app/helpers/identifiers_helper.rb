@@ -136,6 +136,19 @@ module IdentifiersHelper
     a
   end
 
+  def extend_identifiers(object)
+    r = {}
+    object.identifiers.collect{|i|
+      {
+        id: i.id,
+        type: i.type,
+        value: i.cached,
+        created_at: i.created_at,
+        updated_at: i.updated_at
+      }
+    }
+  end
+
   private
 
   def visible_identifiers(object)

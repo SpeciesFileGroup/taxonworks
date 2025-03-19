@@ -33,6 +33,16 @@ export default defineStore('collectingEvent', {
           }
         )
       } catch {}
+    },
+
+    async update(payload) {
+      return CollectingEvent.update(this.collectingEvent.id, {
+        collecting_event: payload
+      })
+        .then(({ body }) => {
+          this.collectingEvent = body
+        })
+        .catch(() => {})
     }
   }
 })

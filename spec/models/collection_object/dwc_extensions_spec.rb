@@ -1,5 +1,6 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
+  include ActiveJob::TestHelper
 
   let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
 
@@ -71,9 +72,13 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     expect(s.dwc_collection_code).to eq('ABC')
   end
 
+  # TODO: WE may remove Note paradigm
   specify '#dwc_occurrence_remarks' do
     s = Specimen.create!
     s.notes << Note.new(text: 'text')
+
+    perform_enqueued_jobs
+
     expect(s.dwc_occurrence_remarks).to eq('text')
   end
 
@@ -220,8 +225,12 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_occurrence).to be_truthy
     end
 
+    # TODO: duplicated in Ce
     specify 'updates after related CE save' do
       ce.update!(start_date_year: 2012)
+
+      perform_enqueued_jobs
+
       expect(s.dwc_occurrence.reload.eventDate).to match('2012')
     end
 
@@ -430,6 +439,8 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
         biocuration_classification_object: s,
         biocuration_class: a)
 
+      perform_enqueued_jobs
+
       expect(s.dwc_caste).to eq('ergatoid')
     end
 
@@ -442,6 +453,8 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
       s = Specimen.create!
       InternalAttribute.create!(predicate: g, attribute_subject: s, value: 'Space alien')
+
+      perform_enqueued_jobs
 
       expect(s.dwc_associated_taxa).to eq('Space alien')
       expect(s.dwc_occurrence.reload.associatedTaxa).to eq('Space alien')

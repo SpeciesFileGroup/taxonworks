@@ -4,12 +4,10 @@
     :status="status"
     :title="title"
   >
-    <AnimationOpacity>
-      <DescendantsTree
-        v-if="taxonomy"
-        :taxonomy="taxonomy"
-      />
-    </AnimationOpacity>
+    <DescendantsTree
+      v-if="taxonomy"
+      :taxonomy="taxonomy"
+    />
   </SectionPanel>
 </template>
 

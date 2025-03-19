@@ -1,97 +1,103 @@
 <template>
-  <block-layout :warning="!list.length">
+  <block-layout :warning="!determinationStore.determinations.length">
     <template #header>
       <h3>Determinations</h3>
     </template>
     <template #body>
       <div id="taxon-determination-digitize">
-        <taxon-determination-form
-          ref="taxonDeterminationComponent"
+        <TaxonDeterminationForm
+          ref="determinationRef"
           v-model:lock-determiner="locked.taxon_determination.roles_attributes"
           v-model:lock-otu="locked.taxon_determination.otu_id"
           v-model:lock-date="locked.taxon_determination.dates"
-          @on-add="addDetermination"
+          @on-add="determinationStore.add"
         />
-        <taxon-determination-list
-          v-model="list"
+        <TaxonDeterminationList
+          v-model="determinationStore.determinations"
           v-model:lock="locked.taxonDeterminations"
-          @sort="updateLastChange"
           @edit="editTaxonDetermination"
-          @delete="removeTaxonDetermination"
+          @delete="determinationStore.remove"
         />
       </div>
     </template>
   </block-layout>
 </template>
 
-<script>
+<script setup>
+import { useStore } from 'vuex'
+import { computed, onBeforeMount, useTemplateRef } from 'vue'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
-import { ActionNames } from '../../store/actions/actions'
+import { useTaxonDeterminationStore } from '../../store/pinia'
+import { randomUUID } from '@/helpers'
+import { Otu } from '@/routes/endpoints'
 import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import TaxonDeterminationList from '@/components/TaxonDetermination/TaxonDeterminationList.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 
-export default {
-  components: {
-    BlockLayout,
-    TaxonDeterminationForm,
-    TaxonDeterminationList
+const store = useStore()
+const determinationStore = useTaxonDeterminationStore()
+const taxonDeterminationRef = useTemplateRef('determinationRef')
+
+const locked = computed({
+  get() {
+    return store.getters[GetterNames.GetLocked]
   },
+  set(value) {
+    store.commit(MutationNames.SetLocked, value)
+  }
+})
 
-  computed: {
-    collectionObject() {
-      return this.$store.getters[GetterNames.GetCollectionObject]
-    },
+function editTaxonDetermination(item) {
+  taxonDeterminationRef.value.setDetermination({
+    id: item.id,
+    uuid: item.uuid,
+    global_id: item.global_id,
+    otu_id: item.otu_id,
+    day_made: item.day_made,
+    month_made: item.month_made,
+    year_made: item.year_made,
+    position: item.position,
+    roles_attributes: item?.determiner_roles || item.roles_attributes || []
+  })
+}
 
-    locked: {
-      get() {
-        return this.$store.getters[GetterNames.GetLocked]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetLocked, value)
-      }
-    },
+async function makeDeterminationFromParameters() {
+  const urlParams = new URLSearchParams(window.location.search)
+  const otuId = urlParams.get('otu_id')
+  const taxonId = urlParams.get('taxon_name_id')
+  const coId = urlParams.get('collection_object_id')
 
-    list: {
-      get() {
-        return this.$store.getters[GetterNames.GetTaxonDeterminations]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetTaxonDeterminations, value)
-      }
-    }
-  },
+  if ((!otuId && !taxonId) || coId) return
 
-  methods: {
-    addDetermination(determination) {
-      this.$store.commit(MutationNames.AddTaxonDetermination, determination)
-      this.updateLastChange()
-    },
+  console.log(coId)
 
-    removeTaxonDetermination(determination) {
-      this.$store.dispatch(ActionNames.RemoveTaxonDetermination, determination)
-    },
+  const params = {
+    otu_id: otuId,
+    taxon_name_id: taxonId
+  }
 
-    editTaxonDetermination(item) {
-      this.$refs.taxonDeterminationComponent.setDetermination({
-        id: item.id,
-        uuid: item.uuid,
-        global_id: item.global_id,
-        otu_id: item.otu_id,
-        day_made: item.day_made,
-        month_made: item.month_made,
-        year_made: item.year_made,
-        position: item.position,
-        roles_attributes: item?.determiner_roles || item.roles_attributes || []
-      })
-    },
+  const otus = (await Otu.where(params)).body
+  let otu
 
-    updateLastChange() {
-      this.$store.dispatch(ActionNames.UpdateLastChange)
-    }
+  if (otus.length) {
+    otu = otus[0]
+  } else if (taxonId) {
+    otu = (await Otu.create({ otu: { taxon_name_id: taxonId } })).body
+  }
+
+  if (otu) {
+    determinationStore.add({
+      uuid: randomUUID(),
+      object_tag: otu.object_tag,
+      otu_id: otu.id,
+      roles_attributes: [],
+      isUnsaved: true
+    })
   }
 }
+
+onBeforeMount(makeDeterminationFromParameters)
 </script>
 
 <style lang="scss">

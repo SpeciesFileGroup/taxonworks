@@ -94,6 +94,7 @@ class ObservationMatrixRowItem < ApplicationRecord
 
 
   # @return [Array] of ObservationMatrixRowItems
+  # @raise [TaxonWorks::Error]
   def self.batch_create(params)
     case params[:batch_type]
     when 'tags'
@@ -104,7 +105,8 @@ class ObservationMatrixRowItem < ApplicationRecord
   end
 
   # @params klass [String] the class name like `Otu` or `CollectionObject`
-  # @return [Array, false]
+  # @return [Array]
+  # @raise [TaxonWorks::Error]
   def self.batch_create_from_tags(keyword_id, klass, observation_matrix_id)
     created = []
     ObservationMatrixRowItem.transaction do
@@ -120,16 +122,20 @@ class ObservationMatrixRowItem < ApplicationRecord
           )
         end
       rescue ActiveRecord::RecordInvalid => e
-        return false
+        raise TaxonWorks::Error, e.to_s, e.backtrace
       end
     end
     return created
   end
 
   # @params klass [String] the class name like `Otu` or `CollectionObject`
-  # @return [Array, false]
+  # @return [Array]
+  # @raise [TaxonWorks::Error]
   def self.batch_create_from_pinboard(observation_matrix_id, project_id, user_id, klass)
-    return false if observation_matrix_id.blank? || project_id.blank? || user_id.blank?
+    if observation_matrix_id.blank? || project_id.blank? || user_id.blank?
+      raise TaxonWorks::Error, 'Internal error, missing required batch create data'
+    end
+
     created = []
     ObservationMatrixRow.transaction do
       begin
@@ -144,7 +150,7 @@ class ObservationMatrixRowItem < ApplicationRecord
           )
         end
       rescue ActiveRecord::RecordInvalid => e
-        raise
+        raise TaxonWorks::Error, e.to_s, e.backtrace
       end
     end
     return created

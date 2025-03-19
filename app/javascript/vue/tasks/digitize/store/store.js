@@ -80,7 +80,6 @@ function makeInitialState() {
     container: undefined,
     containerItems: [],
     depictions: [],
-    determinations: [],
     identifiers: [],
     georeferences: [],
     materialTypes: [],
@@ -91,7 +90,6 @@ function makeInitialState() {
     softValidations: [],
     subsequentialUses: 0,
     ceTotalUsed: 0,
-    taxon_determinations: [],
     typeSpecimens: [],
     existingIdentifiers: [],
     componentsOrder: {

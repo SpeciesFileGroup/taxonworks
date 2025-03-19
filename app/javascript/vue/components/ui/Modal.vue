@@ -9,10 +9,12 @@
       <div class="modal-wrapper">
         <div
           class="modal-container"
-          :class="{
-            'bg-transparent shadow-none': transparent,
-            ...containerClass
-          }"
+          :class="[
+            {
+              'bg-transparent shadow-none': transparent
+            },
+            ...[containerClass].flat()
+          ]"
           :style="containerStyle"
           @mousedown.stop
         >
@@ -58,8 +60,8 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 
 defineProps({
   containerClass: {
-    type: Object,
-    default: () => ({})
+    type: [Object, Array],
+    default: () => []
   },
 
   containerStyle: {

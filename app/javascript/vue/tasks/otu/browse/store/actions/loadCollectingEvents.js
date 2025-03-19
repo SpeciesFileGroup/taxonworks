@@ -1,9 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { CollectingEvent, Georeference } from '@/routes/endpoints'
-
-import { chunkArray } from '@/helpers/arrays'
-
-const maxCEPerCall = 100
+import { CollectingEvent } from '@/routes/endpoints'
 
 export default ({ state, commit }, otusId) =>
   new Promise((resolve, reject) => {

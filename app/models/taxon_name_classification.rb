@@ -266,14 +266,9 @@ class TaxonNameClassification < ApplicationRecord
     true
   end
 
-  #region Validation
   def validate_uniqueness_of_latinized
     true # moved to subclasses
   end
-
-  #endregion
-
-  #region Soft validation
 
   def sv_proper_classification
     if TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type)
@@ -313,8 +308,6 @@ class TaxonNameClassification < ApplicationRecord
     true # moved to subclasses
   end
 
-  #endregion
-
   def self.annotates?
     true
   end
@@ -337,7 +330,6 @@ class TaxonNameClassification < ApplicationRecord
   def validate_taxon_name_classification
     errors.add(:type, 'Status not found') if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
   end
-
 
   # @todo move these to a shared library (see NomenclaturalRank too)
   def self.collect_to_s(*args)

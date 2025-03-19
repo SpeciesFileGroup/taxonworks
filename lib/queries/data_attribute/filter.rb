@@ -131,6 +131,7 @@ module Queries
           from_filter_facet(taxon_name_query, project_id),
           from_filter_facet(collecting_event_query, project_id),
           from_filter_facet(collection_object_query, project_id),
+          from_filter_facet(field_occurrence_query, project_id),
         ]
       end
 

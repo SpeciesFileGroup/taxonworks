@@ -24,6 +24,7 @@ module Shared::IsDwcOccurrence
 
     scope :dwc_indexed, -> {joins(:dwc_occurrence)}
     scope :dwc_not_indexed, -> { where.missing(:dwc_occurrence) }
+
   end
 
   module ClassMethods
@@ -56,7 +57,7 @@ module Shared::IsDwcOccurrence
         dwc_occurrence.generate_uuid_if_required # TODO: at some point when synchronized make this optional
         dwc_occurrence.update_columns(
           dwc_occurrence_attributes.merge(
-            is_flagged_for_rebuild: nil,
+            rebuild_set: nil,
             updated_at: Time.zone.now)
         )
       else

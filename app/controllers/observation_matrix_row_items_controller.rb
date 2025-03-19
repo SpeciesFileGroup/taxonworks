@@ -75,11 +75,12 @@ class ObservationMatrixRowItemsController < ApplicationController
   # POST /observation_matrix_row_items/batch_create?batch_type=tags&observation_matrix_id=123&keyword_id=456&klass=Otu
   # POST /observation_matrix_row_items/batch_create?batch_type=pinboard&observation_matrix_id=123&klass=Otu
   def batch_create
-    if @loan_items = ObservationMatrixRowItem.batch_create(batch_params)
+    begin
+      ObservationMatrixRowItem.batch_create(batch_params)
       render :index
-    else
-      render json: {success: false}
-    end 
+    rescue TaxonWorks::Error => e
+      render json: { errors: e.to_s }, status: :unprocessable_entity
+    end
   end
 
   private

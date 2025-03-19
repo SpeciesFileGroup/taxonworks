@@ -43,6 +43,7 @@
     <div v-if="!citation.id">
       <TableList
         :list="list"
+        @move="removeFromList"
         @edit="citation = $event"
         @delete="removeItem"
       />

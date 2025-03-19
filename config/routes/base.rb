@@ -33,6 +33,7 @@ end
 scope :annotations, controller: :annotations, defaults: {format: :json} do
   get ':global_id/metadata', action: :metadata
   get :types
+  post :move_one
   post :move
 end
 

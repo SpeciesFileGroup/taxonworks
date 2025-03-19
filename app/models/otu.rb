@@ -368,6 +368,10 @@ class Otu < ApplicationRecord
     collection_objects.where(taxon_determinations: {position: 1})
   end
 
+  def current_field_occurrences
+    field_occurrences.where(taxon_determinations: {position: 1})
+  end
+
   # @return [Boolean]
   #   whether or not this otu is coordinate (see coordinate_otus) with this otu
   def coordinate_with?(otu_id)
@@ -538,13 +542,7 @@ class Otu < ApplicationRecord
   end
 
   def dwc_occurrences
-    a = ::Queries::DwcOccurrence::Filter.new( asserted_distribution_query: {otu_id: id, project_id:},).all
-    b = ::Queries::DwcOccurrence::Filter.new( collection_object_query: {otu_id: id, project_id:},).all
-    # TODO FieldOccurrence in same pattern
-
-    ::Queries.union(
-      ::DwcOccurrence, [ a, b ]
-    )
+    ::Queries::DwcOccurrence::Filter.new(otu_id: id).all
   end
 
   protected

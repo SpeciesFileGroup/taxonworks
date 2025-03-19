@@ -1,6 +1,6 @@
 <template>
   <div>
-    <VBtn
+    <VBtn  v-help.nav.previous
       medium
       color="primary"
       :disabled="!previousByCurrent"
@@ -11,7 +11,7 @@
         name="arrowLeft"
       />
     </VBtn>
-    <VBtn
+    <VBtn v-help.nav.go
       medium
       class="margin-small-left margin-small-right"
       color="primary"
@@ -20,7 +20,7 @@
     >
       Go
     </VBtn>
-    <VBtn
+    <VBtn v-help.nav.next
       medium
       color="primary"
       :disabled="!nextByCurrent"

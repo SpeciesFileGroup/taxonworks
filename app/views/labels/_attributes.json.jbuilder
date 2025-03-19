@@ -4,3 +4,5 @@ json.updated_by label.updater.name
 json.url label_url(label, format: :json)
 json.on object_tag(label.label_object)
 json.label taxonworks_label_tag(label)
+
+json.partial! '/shared/data/all/metadata', object: label

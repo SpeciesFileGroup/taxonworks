@@ -38,12 +38,14 @@ import { ActionNames } from '../../store/actions/actions'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useHotkey } from '@/composables'
+import { useTaxonDeterminationStore } from '../../store/pinia'
 import TableCollectionObjects from '../collectionObject/tableCollectionObjects'
 import platformKey from '@/helpers/getPlatformKey.js'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 
 const store = useStore()
+const determinationStore = useTaxonDeterminationStore()
 
 const collectionObject = computed(
   () => store.getters[GetterNames.GetCollectionObject]
@@ -51,6 +53,7 @@ const collectionObject = computed(
 const collectionObjects = computed(
   () => store.getters[GetterNames.GetCollectionObjects]
 )
+const locked = computed(() => store.getters[GetterNames.GetLocked])
 
 const container = computed(() => store.getters[GetterNames.GetContainer])
 
@@ -68,7 +71,8 @@ useHotkey(shortcuts.value)
 function newDigitalization() {
   store.dispatch(ActionNames.NewCollectionObject)
   store.dispatch(ActionNames.NewIdentifier)
-  store.dispatch(ActionNames.ResetTaxonDetermination)
+  console.log(locked.value.taxonDeterminations)
+  determinationStore.reset({ keepRecords: locked.value.taxonDeterminations })
 }
 
 function addToContainer() {

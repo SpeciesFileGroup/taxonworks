@@ -56,6 +56,13 @@ export default defineStore('biologicalAssociations', {
     remove(biologicalAssociation) {
       if (biologicalAssociation.id) {
         BiologicalAssociation.destroy(biologicalAssociation.id)
+          .then(() => {
+            TW.workbench.alert.create(
+              'Biological association was successfully destroyed.',
+              'notice'
+            )
+          })
+          .catch(() => {})
       }
 
       removeFromArray(this.biologicalAssociations, biologicalAssociation, {

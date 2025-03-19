@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] do
+  include ActiveJob::TestHelper
+
   let(:depiction) { Depiction.new() }
   let(:image_file) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_png, 'image/png') }
   let(:specimen) { FactoryBot.create(:valid_specimen) }
@@ -9,6 +11,9 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
     s = Specimen.create!
     expect(s.dwc_occurrence.associatedMedia).to eq(nil)
     d = Depiction.create!(depiction_object: s, image: FactoryBot.create(:valid_image))
+    
+    perform_enqueued_jobs
+    
     expect(s.dwc_occurrence.reload.associatedMedia).to match('http://127.0.0.1:3000/api/v1/images/')
   end
 

@@ -20,6 +20,9 @@ export default defineStore('store', {
     save: {
       total: 0,
       current: 0
+    },
+    settings: {
+      append: false
     }
   }),
 
@@ -68,9 +71,10 @@ export default defineStore('store', {
 
         while (cells.length && currentPredicateIndex < this.predicates.length) {
           const predicate = this.predicates[currentPredicateIndex]
-          const value = cells.shift().trim()
+          const value = cells.shift()
+          const trimmedValue = value.trim()
 
-          if (value.length) {
+          if (trimmedValue.length) {
             const dataAttributes = this.dataAttributes.filter(
               (da) =>
                 da.objectId === obj.id &&
@@ -81,8 +85,13 @@ export default defineStore('store', {
             if (dataAttributes.length === 1) {
               const [dataAttribute] = dataAttributes
 
-              if (dataAttribute.value !== value) {
-                dataAttribute.value = value
+              if (dataAttribute.value !== trimmedValue) {
+                if (this.settings.append) {
+                  dataAttribute.value += value
+                } else {
+                  dataAttribute.value = value
+                }
+
                 dataAttribute.isUnsaved = true
               }
             }

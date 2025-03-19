@@ -1,5 +1,6 @@
 <template>
-  <div class="panel content">
+  <div class="flex-row gap-small">
+    <VRecent />
     <VAutocomplete
       url="/sources/autocomplete"
       param="term"
@@ -15,6 +16,7 @@
 import { useStore } from 'vuex'
 import { ActionNames } from '../store/actions/actions'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import VRecent from './recent'
 
 const store = useStore()
 </script>

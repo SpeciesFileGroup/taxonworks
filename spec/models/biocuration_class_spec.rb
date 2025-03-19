@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe BiocurationClass, type: :model do
+  include ActiveJob::TestHelper
 
   let(:biocuration_class) {BiocurationClass.new}
 
@@ -11,6 +12,7 @@ describe BiocurationClass, type: :model do
     Tag.create!(tag_object: b, keyword: g)
 
     s = Specimen.create!
+
     expect(s.dwc_occurrence.sex).to eq(nil)
 
     c = FactoryBot.create(
@@ -18,10 +20,12 @@ describe BiocurationClass, type: :model do
       biocuration_classification_object: s,
       biocuration_class: b)
 
+    perform_enqueued_jobs
     expect(s.dwc_occurrence.reload.sex).to eq(b.name)
 
     b.update!(name: 'foo')
 
+    perform_enqueued_jobs
     expect(s.dwc_occurrence.reload.sex).to eq('foo')
   end
 

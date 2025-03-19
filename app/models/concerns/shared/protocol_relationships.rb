@@ -19,6 +19,10 @@ module Shared::ProtocolRelationships
     protocols.any?
   end
 
+  def machine_output?
+    protocols.where(is_machine_output: true).any?
+  end
+
   private
 
   def reject_protocols(attributed)

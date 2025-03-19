@@ -54,6 +54,9 @@ namespace :api, defaults: {format: :json} do
       get '/otus/:id/inventory/dwc', to: '/otus#api_dwc_inventory', as: :dwc_inventory
       get '/otus/:id/inventory/type_material', to: '/otus#api_type_material_inventory', as: :type_material_inventory
       get '/otus/:id/inventory/nomenclature_citations', to: '/otus#api_nomenclature_citations', as: :nomenclature_citations_inventory
+
+      get '/otus/:id/inventory/determined_to_rank', to: '/otus#api_determined_to_rank', as: :determined_to_inventory
+
       get '/otus/:id', to: '/otus#api_show'
 
       get '/downloads/:id', to: '/downloads#api_show'
@@ -127,6 +130,8 @@ namespace :api, defaults: {format: :json} do
       get '/depictions', to: '/depictions#api_index'
       get '/depictions/gallery', to: '/depictions#api_gallery'
       get '/depictions/:id', to: '/depictions#api_show'
+
+      get '/field_occurrences/:id/dwc', to: '/field_occurrences#api_dwc'
 
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'

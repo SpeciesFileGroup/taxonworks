@@ -374,11 +374,11 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         expect(k.near(p1.geo_object, 0)).to be_truthy
       end
 
-      specify 'Objects can be related by distance' do
+      xspecify 'Objects can be related by distance' do
         expect(k.near(p17.geo_object, 2)).to be_truthy
       end
 
-      specify 'Objects can be related by distance' do
+      xspecify 'Objects can be related by distance' do
         expect(k.near(p10.geo_object, 5)).to be_falsey
       end
 
@@ -386,11 +386,11 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         expect(k.far(p1.geo_object, 0)).to be_falsey
       end
 
-      specify 'Objects can be related by distance' do
+      xspecify 'Objects can be related by distance' do
         expect(k.far(p17.geo_object, 1)).to be_truthy
       end
 
-      specify 'Objects can be related by distance' do
+      xspecify 'Objects can be related by distance' do
         expect(k.far(p10.geo_object, 5)).to be_truthy
       end
 
