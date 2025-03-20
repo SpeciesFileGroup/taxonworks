@@ -12,6 +12,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Unify Otu failing because of CachedMap references
+- Determiner is not carrying over in locked, containerized COs in CSD [#4250]
+
+[#4250]: https://github.com/SpeciesFileGroup/taxonworks/issues/4250
 
 ## [0.49.0] - 2025-03-18
 
@@ -49,7 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- SimpleMappr output for large results 
+- SimpleMappr output for large results
 - Synonymy section of Edit Nomenclature alphabetically sorted
 - Duplicate CollectingEvents filtered when Collectors facet used
 - FieldOccurrences not destroyable
@@ -68,7 +71,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Unify object task: reset button doesn't clear autocompletes [#4242]
 - Capybara/Chrome testing
 - Venn queries with nested elements (candidate fix) [#4224], [#3983]
-
 
 [#3094]: https://github.com/SpeciesFileGroup/taxonworks/issues/3094
 [#4226]: https://github.com/SpeciesFileGroup/taxonworks/issues/4226
