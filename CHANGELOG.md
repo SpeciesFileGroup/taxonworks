@@ -7,6 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- Determiner is not carrying over in locked, containerized COs in CSD [#4250]
+
+[#4250]: https://github.com/SpeciesFileGroup/taxonworks/issues/4250
+
 ### Added
 
 - Cross link DwcOccurrence to Otu in filters
