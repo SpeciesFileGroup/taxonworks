@@ -20,9 +20,9 @@ export function useRadialBatch({ props, slices, excludeParameters = [] }) {
     }))
 
     return {
-      width: 400,
-      height: 400,
-      sliceSize: 120,
+      width: 440,
+      height: 440,
+      sliceSize: 140,
       centerSize: 34,
       margin: 2,
       svgAttributes: {

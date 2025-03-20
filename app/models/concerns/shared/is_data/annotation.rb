@@ -157,6 +157,7 @@ module Shared::IsData::Annotation
     result['notes'] = notes if has_notes? && notes.load.any?
     result['tags'] = tags if has_tags? && tags.load.any?
     result['depictions'] = depictions.order('depictions.position') if has_depictions? && depictions.load.any?
+    result['conveyances'] = conveyances.order('conveyances.position') if has_conveyances? && conveyances.load.any?
     result['confidences'] = confidences if has_confidences? && confidences.load.any?
     result['protocol relationships'] = protocols if has_protocol_relationships? && protocolled?
     result['alternate values'] = alternate_values if has_alternate_values? && alternate_values.load.any?

@@ -35,6 +35,7 @@ class Otu < ApplicationRecord
   include Shared::Confidences
   include Shared::Observations
   include Shared::BiologicalAssociations
+  include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::OriginRelationship
 
@@ -51,7 +52,7 @@ class Otu < ApplicationRecord
 
   include Shared::QueryBatchUpdate
 
-  is_origin_for 'Sequence', 'Extract'
+  is_origin_for 'Sequence', 'Extract', 'Sound'
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices].freeze
 

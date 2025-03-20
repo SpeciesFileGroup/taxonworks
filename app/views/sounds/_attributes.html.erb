@@ -1,0 +1,9 @@
+<p>
+  <strong>Name:</strong>
+  <%= @sound.name %>
+</p>
+
+<p>
+  <strong>File:</strong>
+  <%= link_to @sound.sound_file.attachment.filename.to_s, url_for(@sound.sound_file) %>
+</p>

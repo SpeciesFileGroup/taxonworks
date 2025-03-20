@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount, shallowRef } from 'vue'
+import { computed, ref, onBeforeMount, shallowRef } from 'vue'
 import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
@@ -64,6 +64,11 @@ const props = defineProps({
   ids: {
     type: Array,
     default: () => []
+  },
+
+  objectId: {
+    type: Number,
+    required: true
   },
 
   objectType: {
@@ -83,6 +88,7 @@ const MODE = {
   Replace: { mode: 'replace', component: ConfidenceReplace, color: 'primary' }
 }
 
+const queryParam = computed(() => [QUERY_PARAM[props.objectType]])
 const confirmationModalRef = ref(null)
 const list = ref([])
 const response = ref(null)
@@ -116,7 +122,7 @@ async function makeBatchRequest(confidence) {
       : makePayload(confidence)
 
     if (props.ids?.length) {
-      payload.filter_query[idParam] = props.ids
+      payload.filter_query[queryParam.value][idParam] = props.ids
     }
 
     isProcessing.value = true
