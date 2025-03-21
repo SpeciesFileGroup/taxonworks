@@ -2,6 +2,8 @@ require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
 describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] do
+  include ActiveJob::TestHelper
+
   include_context 'stuff for complex geo tests'
   let(:georeference) { Georeference.new }
 
@@ -50,6 +52,8 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
 
     expect(s.dwc_occurrence.decimalLatitude).to eq(nil)
     g = FactoryBot.create(:valid_georeference, collecting_event: ce)
+
+    perform_enqueued_jobs
 
     expect(s.dwc_occurrence.reload.decimalLatitude).to eq(g.latitude)
   end

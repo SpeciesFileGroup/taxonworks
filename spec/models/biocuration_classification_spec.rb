@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe BiocurationClassification, type: :model do
+  include ActiveJob::TestHelper
+
   let(:biocuration_classification) {BiocurationClassification.new}
   let(:biocuration_class) { FactoryBot.create(:valid_biocuration_class) }
   let(:specimen) { FactoryBot.create(:valid_specimen) }
@@ -15,11 +17,13 @@ describe BiocurationClassification, type: :model do
 
     s.biocuration_classifications << BiocurationClassification.new(biocuration_class: a)
 
+    perform_enqueued_jobs
     expect(s.dwc_occurrence.reload.sex).to eq(a.name)
 
     s.biocuration_classifications.destroy_all
-    expect(s.dwc_occurrence.reload.sex).to eq(nil)
 
+    perform_enqueued_jobs
+    expect(s.dwc_occurrence.reload.sex).to eq(nil)
   end
 
   context 'associations' do

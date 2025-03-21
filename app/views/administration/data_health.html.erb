@@ -9,9 +9,14 @@
 </div>
 
 <h2> Flagged - DwcOccurrence for rebuild</h3>
-<% f = DwcOccurrence.where(is_flagged_for_rebuild: true) %> 
-Total: <%= f.count %><br>
-From: <%= f.select(:project_id).distinct.collect{|p| project_tag(Project.find(p)) }.join(', ') %>
+<% f = DwcOccurrence.where.not(rebuild_set: nil) %>
+
+<%= table_from_hash_tag(
+  total: f.count,
+  from: f.select(:project_id).distinct.collect{|p| project_tag(Project.find(p.project_id)) }.join('; '),
+  rebuild_sets: f.select(:rebuild_set).distinct.count
+)
+%>
 
 <p><em class="feedback feedback-danger"> Bad things if data listed below here. </em></p>
 <hr>

@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe InternalAttribute, type: :model do
+  include ActiveJob::TestHelper
+
   let(:internal_attribute) { InternalAttribute.new }
   let(:otu) { FactoryBot.build(:valid_otu) }
   let(:predicate) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
@@ -14,9 +16,13 @@ describe InternalAttribute, type: :model do
     p = FactoryBot.create(:valid_predicate, uri: 'http://rs.tdwg.org/dwc/terms/waterBody')
     d = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p) 
 
+    perform_enqueued_jobs
+
     expect(s.dwc_occurrence.reload.waterBody).to eq(d.value)
 
     d.update!(value: 'foo')
+
+    perform_enqueued_jobs
 
     expect(s.dwc_occurrence.reload.waterBody).to eq('foo')
   end
