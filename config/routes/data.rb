@@ -815,6 +815,8 @@ resources :taxon_names do
   resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
 
   collection do
+    get :autoselect, defaults: {format: :json}
+
     get :select_options, defaults: {format: :json}
     match :filter, to: 'taxon_names#index', via: [:get, :post]
 

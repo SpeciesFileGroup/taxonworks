@@ -562,7 +562,138 @@ module TaxonNamesHelper
     rows.join('<br>').html_safe
   end
 
+
+  # TODO: move to queries/fitler paradigm, this is all stubs
+  def autoselect_taxon_name(params)
+
+    path1 = {
+      level: 1,
+      label: 'Fast',
+      description: 'Wildcard wrapped on name only cached only, no author year'
+    }
+
+    path2 = {
+      level: 2,
+      label: 'Regular',
+      description: 'Classic smart autocomplete'
+    }
+
+    operator1 = {
+      '!i' => {
+        label: 'Included expanded information'
+      }
+    }
+
+    config = {
+      resource: '/taxon_names/autoselect',
+      paths: [path1, path2],
+      operators: [operator1],
+      map: { path1[:level] => path2[:level] }
+    }
+    
+    if params[:term].blank?
+      return config    
+    else
+      t = params[:term]
+
+      # TODO: operator parser
+      i_flag = false 
+      
+      if t =~ /!i/
+        i_flag = true
+        t.gsub!(/!i/, '')
+        t.strip!
+      end
+
+      r =  {
+        request: {
+          term: params[:term],
+          operators: [
+            (i_flag ? '!i' : nil)
+          ].compact,
+          realized_term: t
+        },
+        response: [] 
+      }
+
+      l = params[:level] || 1
+
+      case l.to_i
+      when 1
+        r[:request][:level] = 1  
+
+        a = TaxonName.where(project_id: sessions_current_project_id)
+          .where('cached ilike ?', "%#{params[:term]}%")
+          .select(:id, :cached, :cached_html, :cached_valid_taxon_name_id)
+          .order(:cached)
+          .limit(20)
+
+        a.each do |i|
+
+          # TODO: base response
+          b = {
+            id: i.id,
+            label: i.cached,
+            label_html: i.cached_html,
+            expansion: nil,
+            extension: {
+             valid_taxon_name_id: i.cached_valid_taxon_name_id 
+            }
+          }
+
+          b[:info] = 'TODO: Add html info' if i_flag
+
+          r[:response].push b
+        end 
+     
+      when 2
+        r[:request][:level] = 2
+
+        a = ::Queries::TaxonName::Autocomplete.new(
+          t,
+          exact: 'true',
+          **autocomplete_params(params)
+        ).autocomplete.each do |i|
+
+          # TODO: base response
+          b = {
+            id: i.id,
+            label: i.cached,
+            label_html: content_tag(:span, mark_tag(i.cached_html_name_and_author_year, t),  class: :klass),
+            expansion: nil,
+            extension: {
+             valid_taxon_name_id: i.cached_valid_taxon_name_id 
+            }
+          }
+
+          if i_flag
+            b[:info] = [
+              taxon_name_rank_tag(i),
+              taxon_name_parent_tag(i),
+              taxon_name_original_combination_tag(i),
+              taxon_name_type_short_tag(i)
+            ].compact.join('&nbsp;').html_safe
+          end
+
+          r[:response].push b
+        end
+
+      else
+         # config error  
+      end
+    end
+    
+    r
+  end
+
   protected
+
+  def autocomplete_params(params)
+    params.permit(
+      :valid, :exact, :no_leaves,
+      type: [], parent_id: [], nomenclature_group: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
 
   def taxon_name_link_path(taxon_name, path)
     if path == :taxon_name_path
@@ -571,5 +702,7 @@ module TaxonNamesHelper
       send(path, taxon_name_id: taxon_name.id)
     end
   end
+
+
 
 end

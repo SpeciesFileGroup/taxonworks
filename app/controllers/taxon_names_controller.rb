@@ -326,6 +326,10 @@ class TaxonNamesController < ApplicationController
     end
   end
 
+  def autoselect
+    render json: helpers.autoselect_taxon_name(params)
+  end
+
   private
 
   def set_taxon_name
