@@ -10,19 +10,19 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
   specify '#unique 1' do
     a = FactoryBot.create(:valid_asserted_distribution)
-    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape: a.geographic_area, otu: a.otu)
+    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape: a.asserted_distribution_shape, otu: a.otu)
     expect(b.valid?).to be_falsey
   end
 
   specify '#unique 2' do
     a = FactoryBot.create(:valid_asserted_distribution)
-    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape_id: a.geographic_area, asserted_distribution_shape_type: 'GeographicArea', otu_id: a.otu_id)
+    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape_id: a.asserted_distribution_shape_id, asserted_distribution_shape_type: a.asserted_distribution_shape_type, otu_id: a.otu_id)
     expect(b.valid?).to be_falsey
   end
 
   specify '#unique is_absent nil/false' do
     a = FactoryBot.create(:valid_asserted_distribution, is_absent: false)
-    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape: a.geographic_area, otu_id: a.otu_id, is_absent: nil)
+    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape: a.asserted_distribution_shape, otu_id: a.otu_id, is_absent: nil)
     expect(b.valid?).to be_falsey
   end
 
@@ -133,7 +133,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       ad2 = FactoryBot.build_stubbed(
         :valid_asserted_distribution,
         otu_id: ad1.otu_id,
-        asserted_distribution_shape: ad1.geographic_area)
+        asserted_distribution_shape: ad1.asserted_distribution_shape)
       expect(ad1.valid?).to be_truthy
       expect(ad2.valid?).to be_falsey
       expect(ad2.errors.include?(:otu)).to be_truthy
@@ -185,7 +185,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       stubs = AssertedDistribution.stub_new(
         {otu: otu.id,
          source: source.id,
-         geographic_areas: areas}).map(&:geographic_area)
+         geographic_areas: areas}).map(&:asserted_distribution_shape)
       expect(stubs.map(&:name)).to include('A', 'E')
     end
   end

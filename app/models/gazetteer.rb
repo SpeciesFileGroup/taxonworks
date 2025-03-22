@@ -312,6 +312,10 @@ class Gazetteer < ApplicationRecord
     geographic_item
   end
 
+  def default_geographic_item_id
+    geographic_item.id
+  end
+
   private
 
   # @param project_ids [Array] the projects to clone to - does not include the

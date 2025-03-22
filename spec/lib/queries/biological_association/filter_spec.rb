@@ -141,7 +141,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     )
 
     # Use smaller
-    AssertedDistribution.create!(otu: o2, geographic_area: a, source: FactoryBot.create(:valid_source))
+    AssertedDistribution.create!(otu: o2, asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
 
     # Use bigger
     o = {

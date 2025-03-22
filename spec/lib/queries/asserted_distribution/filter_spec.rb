@@ -49,7 +49,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
 
   specify '#geo_json' do
     ad2 # not this
-    b = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
     q.geo_json = big_geo_area.geographic_items.first.to_geo_json
     expect(q.all).to contain_exactly(b)
   end
@@ -57,7 +57,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
   specify '#geographic_area_id #geographic_area_mode (descendants)' do
     ad2 # not this
 
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
     q.geographic_area_id = big_geo_area.parent.id
     q.geographic_area_mode = false
@@ -67,7 +67,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
 
   specify '#geographic_area_id #geographic_area_mode (exact)' do
     ad1 # not this
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
     q.geographic_area_id = big_geo_area.id
     expect(q.all).to contain_exactly(b)
   end
@@ -75,8 +75,8 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
   specify '#geographic_area_id #geographic_area_mode (spatial) 2' do
     ad1 # not this
 
-    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+    a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
     q.geographic_area_id = big_geo_area.id
     q.geographic_area_mode = true
@@ -85,8 +85,8 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
   end
 
   specify '#geographic_area_id #geographic_area_mode (spatial) 1' do
-    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+    a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
     q.geographic_area_id = small_geo_area.id
     q.geographic_area_mode = true
@@ -95,8 +95,8 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
   end
 
   specify '#wkt 1' do
-    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+    a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
     q.wkt = big_polygon.to_s
 
@@ -104,8 +104,8 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
   end
 
   specify '#wkt 2' do
-    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+    a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
     q.wkt = small_polygon.to_s
 
@@ -132,16 +132,16 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
   end
 
   specify '#gazetteer_id small gz' do
-    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
-    _b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+    a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    _b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
     q.gazetteer_id = small_gz.id
     expect(q.all).to contain_exactly(a)
   end
 
   specify '#gazetteer_id large gz' do
-    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+    a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
     q.gazetteer_id = large_gz.id
     expect(q.all).to contain_exactly(a, b)

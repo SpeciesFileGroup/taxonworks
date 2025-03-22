@@ -5,6 +5,7 @@ module AssertedDistributionsHelper
     [
       otu_tag(asserted_distribution.otu).html_safe,
       (asserted_distribution.is_absent ? tag.span(' not in ', class: [:feedback, 'feedback-thin', 'feedback-warning']).html_safe : ' in ').html_safe,
+      # TODO: indicate if the shape is a GA or GZ
       object_tag(asserted_distribution.asserted_distribution_shape.metamorphosize).html_safe
     # ' by ',
     # (asserted_distribution.source.cached_author_string ? asserted_distribution.source.cached_author_string
@@ -15,6 +16,7 @@ module AssertedDistributionsHelper
   def label_for_asserted_distribution(asserted_distribution)
     return nil if asserted_distribution.nil?
     [ label_for_otu(asserted_distribution.otu),
+      # TODO: indicate if the shape is a GA or GZ
       label_for(asserted_distribution.asserted_distribution_shape.metamorphosize),
     ].compact.join(' in ')
   end
@@ -27,6 +29,7 @@ module AssertedDistributionsHelper
         (asserted_distribution.is_absent ? content_tag(:span, ' not in ', class: :warning) : ' in '
       ),
       link_to(
+        # TODO: indicate if the shape is a GA or GZ
         object_tag(asserted_distribution.asserted_distribution_shape.metamorphosize).html_safe,
         asserted_distribution
       )
@@ -38,7 +41,7 @@ module AssertedDistributionsHelper
   end
 
   def no_geographic_items?
-    ' (has no geographic items)' if @asserted_distribution.geographic_item.nil?
+    ' (has no geographic items)' if @asserted_distribution.asserted_distribution_shape.geographic_items.empty?
   end
 
   # @return [Hash] GeoJSON feature

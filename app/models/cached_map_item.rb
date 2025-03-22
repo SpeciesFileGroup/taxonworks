@@ -267,7 +267,8 @@ class CachedMapItem < ApplicationRecord
 
     case base_class_name
     when 'AssertedDistribution'
-      geographic_item_id = o.geographic_area.default_geographic_item_id
+      # TODO make sure cached map works with GZ-backed ADs
+      geographic_item_id = o.asserted_distribution_shape.default_geographic_item_id
       otu_id = [o.otu_id]
     when 'Georeference'
       geographic_item_id = o.geographic_item_id

@@ -66,7 +66,8 @@ class AssertedDistribution < ApplicationRecord
   # TODO: deprecate scopes referencing single parameter where()
   scope :with_otu_id, -> (otu_id) { where(otu_id:) }
   scope :with_is_absent, -> { where('is_absent = true') }
-  scope :with_geographic_area_array, -> (geographic_area_array) { where('geographic_area_id IN (?)', geographic_area_array) }
+  # TODO keep, change?
+  scope :with_geographic_area_array, -> (geographic_area_array) { where("asserted_distribution_shape_type = 'GeographicArea' AND asserted_distribution_shape_id IN (?)", geographic_area_array) }
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
@@ -171,21 +172,22 @@ class AssertedDistribution < ApplicationRecord
   # @return [Boolean]
   def sv_conflicting_geographic_area
     # TODO: more expensive for gazetteers, which would require a spatial check.
-    unless geographic_area.nil?
-      areas = [geographic_area.level0_id, geographic_area.level1_id, geographic_area.level2_id].compact
-      if is_absent # this returns an array, not a single GA so test below is not right
-        presence = AssertedDistribution
-          .without_is_absent
-          .with_geographic_area_array(areas)
-          .where(otu_id:)
-        soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
-      else
-        presence = AssertedDistribution
-          .with_is_absent
-          .where(otu_id:)
-          .with_geographic_area_array(areas)
-        soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
-      end
+    geographic_area = asserted_distribution_shape if asserted_distribution_shape_type == 'GeographicArea'
+    return if geographic_area.nil?
+
+    areas = [geographic_area.level0_id, geographic_area.level1_id, geographic_area.level2_id].compact
+    if is_absent # this returns an array, not a single GA so test below is not right
+      presence = AssertedDistribution
+        .without_is_absent
+        .with_geographic_area_array(areas)
+        .where(otu_id:)
+      soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
+    else
+      presence = AssertedDistribution
+        .with_is_absent
+        .where(otu_id:)
+        .with_geographic_area_array(areas)
+      soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
     end
   end
 
@@ -198,7 +200,7 @@ class AssertedDistribution < ApplicationRecord
       result.push(
         AssertedDistribution.new(
           otu_id: options[:otu_id],
-          geographic_area: ga,
+          asserted_distribution_shape: ga,
           origin_citation_attributes: {source_id: options[:source_id]})
       )
     end
