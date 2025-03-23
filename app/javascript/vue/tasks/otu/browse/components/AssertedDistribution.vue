@@ -44,7 +44,7 @@
             </a>
           </td>
           <td>
-            {{ assertedDistribution.geographic_area.geographic_area_type.name }}
+            {{ assertedDistribution.geographic_area.shape_type.name }}
           </td>
           <td>{{ assertedDistribution.is_absent ? '✕' : '✓' }}</td>
           <td>

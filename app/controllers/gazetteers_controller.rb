@@ -17,8 +17,10 @@ class GazetteersController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json do
-        return
-        # no filter on GZs yet
+        @gazetteers = ::Queries::Gazetteer::Filter.new(params).all
+          .includes(:geographic_item)
+          .page(params[:page])
+          .per(params[:per])
       end
     end
   end
@@ -168,6 +170,14 @@ class GazetteersController < ApplicationController
       render json: { errors: e }, status: :unprocessable_entity
       return
     end
+  end
+
+  # GET /gazetteers/select_options.json
+  def select_options
+    @gazetteers = Gazetteer.select_optimized(
+      sessions_current_user_id, sessions_current_project_id,
+      params.permit(:target)[:target]
+    )
   end
 
   private

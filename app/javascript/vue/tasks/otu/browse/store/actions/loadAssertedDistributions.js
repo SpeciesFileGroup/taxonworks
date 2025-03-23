@@ -5,7 +5,6 @@ const embed = ['level_names']
 const extend = [
   'citations',
   'geographic_area',
-  'geographic_area_type',
   'origin_citation',
   'source',
   'otu'

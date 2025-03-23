@@ -1,15 +1,9 @@
 <template>
   <div>
-    <div
-      v-if="disabled"
-      class="panel content horizontal-center-content padding-large"
-    >
-      <h3>Select a source first</h3>
-    </div>
-    <fieldset v-else>
-      <legend>Geographic area</legend>
+    <fieldset v-if="!disabled">
+      <legend>Gazetteer</legend>
       <SmartSelector
-        model="geographic_areas"
+        model="gazetteers"
         klass="AssertedDistribution"
         target="AssertedDistribution"
         ref="smartSelector"
@@ -17,12 +11,15 @@
         :add-tabs="['map']"
         buttons
         inline
-        pin-section="GeographicAreas"
-        pin-type="GeographicArea"
-        @selected="sendGeographic"
+        pin-section="Gazetteers"
+        pin-type="Gazetteer"
+        @selected="sendGazetteer"
       >
         <template #map>
-          <GeographicAreaMapPicker @select="sendGeographic" />
+          <GeographicAreaMapPicker
+            @select="sendGazetteer"
+            :shape-endpoint="Gazetteer"
+          />
         </template>
       </SmartSelector>
     </fieldset>
@@ -30,8 +27,10 @@
 </template>
 
 <script setup>
+import { Gazetteer } from '@/routes/endpoints'
 import { ref } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector'
+// TODO: rename this component everywhere I guess
 import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
 
 const props = defineProps({
@@ -45,11 +44,11 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['selectGeographicArea'])
+const emit = defineEmits(['selectGazetteer'])
 const smartSelector = ref(null)
 
-function sendGeographic(item) {
-  emit('selectGeographicArea', item.id)
+function sendGazetteer(item) {
+  emit('selectGazetteer', item.id)
   if (props.sourceLock) {
     smartSelector.value.setFocus()
   }

@@ -8,7 +8,7 @@ module Queries
         :geographic_area_id,
         :geographic_items,
         :name,
-        geographic_area_id: []
+        name: []
       ].freeze
 
       # @return Array
@@ -54,7 +54,7 @@ module Queries
 
       def name_facet
         return nil if name.blank?
-        table[:name].eq(name)
+        table[:name].in(name)
       end
 
       def containing_point_facet

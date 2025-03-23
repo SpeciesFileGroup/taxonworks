@@ -58,7 +58,9 @@ class Gazetteer < ApplicationRecord
   def to_geo_json_feature
     to_simple_json_feature.merge(
       properties: {
-        gazetteer: {
+        # cf. GeographicArea
+        shape: {
+          type: 'gazetteer',
           id:,
           tag: name
         }
@@ -297,6 +299,58 @@ class Gazetteer < ApplicationRecord
 
     FileUtils.rm_f([shp_link, dbf_link, shx_link, prj_link, cpg_link])
     FileUtils.rmdir(tmp_dir)
+  end
+
+  # @param used_on [String] currently `AssertedDistribution`
+  # @return [Scope]
+  #    the max 10 most recently used (1 week, could parameterize) gazetteers, as used `use_on`
+  def self.used_recently(user_id, project_id, used_on = 'AssertedDistribution')
+
+    case used_on
+    when 'AssertedDistribution'
+      t = Citation.arel_table
+      # i is a select manager
+      i = t.project(t['citation_object_id'], t['citation_object_type'], t['created_at']).from(t)
+        .where(t['created_at'].gt(1.week.ago))
+        .where(t['created_by_id'].eq(user_id))
+        .where(t['project_id'].eq(project_id))
+        .order(t['created_at'].desc)
+
+      # z is a table alias
+      z = i.as('recent_t')
+      p = AssertedDistribution.arel_table
+
+      AssertedDistribution
+        .joins(
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['citation_object_id'].eq(p['id']).and(z['citation_object_type'].eq('AssertedDistribution')))  )
+        )
+        .where(asserted_distribution_shape_type: 'Gazetteer')
+        .pluck(:asserted_distribution_shape_id).uniq
+    end
+  end
+
+  # @params target [String] currently only `AssertedDistribution`
+  # @return [Hash] gazetteers optimized for user selection
+  def self.select_optimized(user_id, project_id, target = 'AssertedDistributions')
+    r = used_recently(user_id, project_id, target)
+    h = {
+      quick: [],
+      pinboard: Gazetteer.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
+      recent: []
+    }
+
+    if r.empty?
+      h[:quick] = Gazetteer.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a
+    else
+      case target
+      when 'AssertedDistribution'
+        h[:recent] = Gazetteer.where('"gazetteers"."id" IN (?)', r.first(15) ).order(:name).to_a
+      end
+      h[:quick] = (Gazetteer.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
+        Gazetteer.where('"gazetteers"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
+    end
+
+    h
   end
 
   def geographic_name_classification

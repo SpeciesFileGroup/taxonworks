@@ -467,10 +467,13 @@ class GeographicArea < ApplicationRecord
   # @return [Hash] of the pieces of a GeoJSON 'Feature'
   def to_geo_json_feature
     to_simple_json_feature.merge(
-      'properties' => {
-        'geographic_area' => {
-          'id'  => id,
-          'tag' => name
+      # TODO: fix breakage (api???)
+      properties: {
+        # cf. Gazetteer
+        shape: {
+          type: 'geographic_area',
+          id:,
+          tag: name
         }
       }
     )
@@ -597,9 +600,12 @@ class GeographicArea < ApplicationRecord
       z = i.as('recent_t')
       p = AssertedDistribution.arel_table
 
-      ad = AssertedDistribution.joins(
-        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['citation_object_id'].eq(p['id']).and(z['citation_object_type'].eq('AssertedDistribution')))  )
-      ).pluck(:geographic_area_id).uniq
+      AssertedDistribution
+        .joins(
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['citation_object_id'].eq(p['id']).and(z['citation_object_type'].eq('AssertedDistribution')))  )
+        )
+        .where(asserted_distribution_shape_type: 'GeographicArea')
+        .pluck(:asserted_distribution_shape_id).uniq
     end
   end
 
