@@ -88,6 +88,10 @@
         :on-merge="handleMerge"
         :disabled="!enablePreview"
       />
+      <CompareAttributes
+        :keep="keepObject"
+        :destroy="destroyObject"
+      />
       <VBtn
         color="primary"
         :disabled="!(keepObject || destroyObject)"
@@ -124,6 +128,7 @@ import MetadataCount from './components/MetadataCount.vue'
 import KeepMetadata from './components/KeepMetadata.vue'
 import ModelSelector from './components/ModelSelector.vue'
 import PrewiewMerge from './components/PreviewMerge.vue'
+import CompareAttributes from './components/CompareAttributes.vue'
 
 const MAX_TOTAL = 250
 
