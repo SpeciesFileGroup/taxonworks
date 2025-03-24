@@ -32,23 +32,23 @@
           v-for="assertedDistribution in filteredList"
           :key="assertedDistribution.id"
         >
-          <td>{{ assertedDistribution.geographic_area.level0_name }}</td>
-          <td>{{ assertedDistribution.geographic_area.level1_name }}</td>
-          <td>{{ assertedDistribution.geographic_area.level2_name }}</td>
+          <td>{{ assertedDistribution.asserted_distribution_shape.level0_name }}</td>
+          <td>{{ assertedDistribution.asserted_distribution_shape.level1_name }}</td>
+          <td>{{ assertedDistribution.asserted_distribution_shape.level2_name }}</td>
           <td>
             <a
               :href="`/asserted_distributions/${assertedDistribution.id}`"
               title="Edit"
             >
-              <span v-html="assertedDistribution.geographic_area.name" />
+              <span v-html="assertedDistribution.asserted_distribution_shape.name" />
             </a>
           </td>
           <td>
-            {{ assertedDistribution.geographic_area.shape_type.name }}
+            {{ assertedDistribution.asserted_distribution_shape.shape_type.name }}
           </td>
           <td>{{ assertedDistribution.is_absent ? '✕' : '✓' }}</td>
           <td>
-            {{ assertedDistribution.geographic_area.has_shape ? '✓' : '✕' }}
+            {{ assertedDistribution.asserted_distribution_shape.has_shape ? '✓' : '✕' }}
           </td>
           <td>
             <a
