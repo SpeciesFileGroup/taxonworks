@@ -1,12 +1,12 @@
 <template>
-  <BlockLayout :warning="!store.geographicArea">
+  <BlockLayout :warning="!store.assertedDistributionShape">
     <template #header>
       <h3>Geographic area</h3>
     </template>
     <template #body>
       <div class="horizontal-left-content align-start">
         <SmartSelector
-          v-model="store.geographicArea"
+          v-model="store.assertedDistributionShape"
           class="full_width"
           model="geographic_areas"
           klass="AssertedDistribution"
@@ -34,8 +34,8 @@
       />
       <SmartSelectorItem
         label="name"
-        :item="store.geographicArea"
-        @unset="store.geographicArea = null"
+        :item="store.assertedDistributionShape"
+        @unset="store.assertedDistributionShape = null"
       />
     </template>
   </BlockLayout>
@@ -52,7 +52,7 @@ import VLock from '@/components/ui/VLock/index.vue'
 const store = useStore()
 
 function setGeographicArea(item) {
-  store.geographicArea = item
+  store.assertedDistributionShape = item
 
   if (store.isSaveAvailable && store.autosave) {
     store.saveAssertedDistribution()

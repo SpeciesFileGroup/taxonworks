@@ -3,7 +3,7 @@
     <thead>
       <tr>
         <th>Otu</th>
-        <th>Geographic area</th>
+        <th>Shape name</th>
         <th>Citation</th>
         <th>Trash</th>
         <th>Radial annotator</th>
@@ -23,7 +23,7 @@
             v-html="item.otu.object_tag"
           />
         </td>
-        <td v-html="item.geographic_area.name" />
+        <td v-html="item.asserted_distribution_shape.name" />
         <td v-if="item.citations.length > 1">
           <CitationCount :citations="item.citations" />
         </td>
@@ -126,7 +126,7 @@ function setSourceOtu(item) {
 function setSourceGeo(item) {
   store.reset()
   setCitation(item.citations[0])
-  store.geographicArea = item.geographic_area
+  store.assertedDistributionShape = item.asserted_distribution_shape
   store.isAbsent = item.is_absent
 }
 
@@ -134,7 +134,7 @@ function setGeoOtu(item) {
   store.reset()
   store.autosave = false
   store.assertedDistribution.id = item.id
-  store.geographicArea = item.geographic_area
+  store.assertedDistributionShape = item.asserted_distribution_shape
   store.otu = item.otu
   store.isAbsent = item.is_absent
 }
