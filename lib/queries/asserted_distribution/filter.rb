@@ -28,7 +28,7 @@ module Queries
         :wkt,
         asserted_distribution_id: [],
         asserted_distribution_shape_id: [],
-        asserted_distribution_shape_type: [],
+        asserted_distribution_shape_type: [], # TODO: do we really want to support an array here?
         gazetteer_id: [],
         geographic_area_id: [],
         geographic_item_id: [],
@@ -52,7 +52,7 @@ module Queries
       #     true - spatial match TODO matching shape_type?
       #     false - non-spatial match
       #       (descendants, applies only to GeographicAreas)
-      attr_accessor :geographic_area_mode
+      attr_accessor :asserted_distribution_shape_mode
 
       # @param asserted_distribution_shape_type [Array, String]
       # @return [Array]
@@ -172,6 +172,7 @@ module Queries
         from_wkt(wkt)
       end
 
+      # TODO: support gz as well
       def from_wkt(wkt_shape)
         i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.covered_by_wkt_sql(wkt_shape))
 
@@ -182,13 +183,15 @@ module Queries
 
         s = 'WITH query_wkt_ad AS (' + l.all.to_sql + ') ' +
           ::AssertedDistribution
-          .joins('JOIN query_wkt_ad as query_wkt_ad1 on query_wkt_ad1.id = asserted_distributions.geographic_area_id')
+          .joins('JOIN query_wkt_ad as query_wkt_ad1 on query_wkt_ad1.id = asserted_distributions.asserted_distribution_shape_id')
+          .where(asserted_distribution_shape_type: 'GeographicArea')
           .to_sql
 
         ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
       end
 
       # Shape is a Hash in GeoJSON format
+      # TODO: support GZ in addition to GA (return both I guess?)
       def geo_json_facet
         return nil if geo_json.nil?
         if i = spatial_query
@@ -202,7 +205,7 @@ module Queries
 
           l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
 
-          return ::AssertedDistribution.where( geographic_area: l )
+          return ::AssertedDistribution.where( asserted_distribution_shape: l )
         else
           return nil
         end
@@ -259,22 +262,18 @@ module Queries
         b
       end
 
-      # TODO spec
+      # Only supports asserted_distribution_shape_id array of one
+      # asserted_distribution_shape_type
       def asserted_distribution_shape_facet
         return nil if asserted_distribution_shape_id.empty? ||
-          asserted_distribution_shape_type.empty?
+          asserted_distribution_shape_type.empty? ||
+          asserted_distribution_shape_type.count > 1
 
-        return nil if asserted_distribution_shape_type == 'Gazetteer' &&
+        return nil if asserted_distribution_shape_type.first == 'Gazetteer' &&
           # descendants mode is unsupported on Gazetteers
           asserted_distribution_shape_mode == false
 
-        shapeType = nil
-        case asserted_distribution_shape_type
-        when 'GeographicArea'
-          shapeType = ::GeographicArea
-        when 'Gazetteer'
-          shapeType = ::Gazetteer
-        end
+        shapeType = asserted_distribution_shape_type.first.constantize
 
         a = nil
 
@@ -293,8 +292,8 @@ module Queries
             .where(asserted_distribution_shape_type:)
             .where(asserted_distribution_shape_id: a)
         when true # spatial
-          m = asserted_distribution_shape_type.to_s.underscore.pluralize
-          i = ::GeographicItem.joins(m).where(m => a) # .unscope
+          m = shapeType.name.tableize
+          i = ::GeographicItem.joins(m.to_sym).where(m => a) # .unscope
           wkt_shape =
             ::Queries::GeographicItem.st_union(i)
               .to_a.first['st_union'].to_s # todo, check
@@ -393,7 +392,8 @@ module Queries
           taxon_name_query_facet,
 
           gazetteer_id_facet,
-          geographic_area_id_facet,
+          asserted_distribution_shape_facet,
+          #geographic_area_id_facet,
           geographic_item_id_facet,
           taxon_name_id_facet,
           wkt_facet,

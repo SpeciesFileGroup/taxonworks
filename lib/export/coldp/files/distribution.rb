@@ -30,18 +30,18 @@ module Export::Coldp::Files::Distribution
       }
 
       otus.each do |o|
-        o.asserted_distributions.includes(:geographic_area).each do |ad|
+        o.asserted_distributions.includes(:asserted_distribution_shape).each do |ad|
 
-          ga = ad.geographic_area
-          if !ga.iso_3166_a3.blank?
+          ga = ad.asserted_distribution_shape
+          if ga.iso_3166_a3.present?
             gazetteer = 'iso'
             area_id = ga.iso_3166_a3
             area = ga.iso_3166_a3
-          elsif !ga.iso_3166_a2.blank?
+          elsif ga.iso_3166_a2.present?
             gazetteer = 'iso'
             area_id = ga.iso_3166_a2
             area = ga.iso_3166_a2
-          elsif !ga.tdwgID.blank?
+          elsif ga.tdwgID.present?
             gazetteer = 'tdwg'
             if ga.data_origin == 'tdwg_l3' or ga.data_origin == 'tdwg_l4'
               area_id = ga.tdwgID.gsub(/^[0-9]{1,2}(.+)$/, '\1')  # fixes mismatch in TW vs CoL TDWG level 3 & 4 identifiers
@@ -75,7 +75,7 @@ module Export::Coldp::Files::Distribution
 
       otus.joins("INNER JOIN contents ON contents.otu_id = otus.id
                   INNER JOIN controlled_vocabulary_terms ON controlled_vocabulary_terms.id = contents.topic_id")
-          .select("otus.id, contents.text, contents.updated_at, contents.updated_by_id")
+          .select('otus.id, contents.text, contents.updated_at, contents.updated_by_id')
           .where("controlled_vocabulary_terms.name = 'Distribution text'").distinct.each do |o|
         area = o.text
 
