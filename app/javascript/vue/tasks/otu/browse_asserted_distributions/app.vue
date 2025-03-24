@@ -82,7 +82,7 @@ import { AssertedDistribution } from '@/routes/endpoints'
 const embed = ['shape', 'level_names']
 const extend = [
   'citations',
-  'geographic_area',
+  'asserted_distribution_shape',
   'origin_citation',
   'shape',
   'source',
@@ -98,7 +98,7 @@ export default {
 
   computed: {
     geojson() {
-      return this.assertedDistribution.map((item) => item.geographic_area.shape)
+      return this.assertedDistribution.map((item) => item.asserted_distribution_shape.shape)
     }
   },
 
