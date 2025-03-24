@@ -1,4 +1,4 @@
-/* 
+/*
  javascript for tasks/gis/asserted_distribution/new
  */
 
@@ -38,17 +38,17 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
     bind_create_buttons: function () {
       $("[id^=button_]").click(function () {        // set mouseout for each button (condensed)
         var form = $("#new_asserted_distribution_from_map_form");
-        form.append($('<input hidden name="asserted_distribution[geographic_area_id]" value="' + $(this).data('geographic-area-id') + '">'));
+        form.append($('<input hidden name="asserted_distribution[asserted_distribution_shape_id]" value="' + $(this).data('asserted-distribution-shape-id') + '">'));
       });
     },
 
   bind_buttons_mouseover: function (map) {
     $("[id^=button_]").mouseover(function () {       // set mouseover for each button
         var this_id = this.id;
-        var area_id = $(this).data('geographic-area-id');
+        var area_id = $(this).data('asserted-distribution-shape-id');
         map.data.forEach(function (feature) {        // find by geographic area id
           var this_feature = feature;
-          var this_property = this_feature.getProperty('geographic_area');
+          var this_property = this_feature.getProperty('shape');
           if (this_property.id != area_id) {
             map.data.overrideStyle(this_feature, {strokeWeight: 0.0});      // erase borders
             map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent

@@ -1,21 +1,25 @@
 <table class="fixed_width_half_viewport">
   <tr>
     <td class="break_words block_display fixed_width_tenth_viewport">
-      <%= object_tag(asserted_distribution.geographic_area) %>
+      <%= object_tag(asserted_distribution.asserted_distribution_shape) %>
     </td>
     <td class="fixed_width_tenth_viewport">
-      <span class="block_display break_words"> <%= truncate(asserted_distribution.geographic_area.data_origin, length: 12) -%> </span>
+      <span class="block_display break_words"> <%= truncate(asserted_distribution.asserted_distribution_shape.data_origin, length: 12) -%> </span>
     </td>
     <td>
       <%= check_box_tag :is_absent, name: 'asserted_distribution[is_absent]' %> <%= label_tag('Absent?') %>
     </td>
     <td>
       <span class="actions">
-      <%= submit_tag("Create", 
-                     id: "button_#{asserted_distribution.geographic_area.to_param}", 
-                     data: {geographic_area_id: asserted_distribution.geographic_area.to_param },
-                    class: 'button'
-                    ) %></span>
+      <%= submit_tag("Create",
+        id: "button_#{asserted_distribution.asserted_distribution_shape.to_param}",
+        data: {
+          asserted_distribution_shape_id:
+            asserted_distribution.asserted_distribution_shape.to_param,
+          asserted_distribution_shape_type: 'GeographicArea'
+        },
+        class: 'button'
+      ) %></span>
     </td>
   </tr>
 </table>
