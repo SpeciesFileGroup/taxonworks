@@ -18,10 +18,10 @@
             :key="item.id"
           >
             <a
-              :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${item.id}`"
+              :href="browseLink(item)"
             >
-              {{ item.object_label }}</a
-            >
+              {{ item.object_label }}
+            </a>
           </li>
         </ul>
       </template>
@@ -33,10 +33,10 @@
             :key="item.id"
           >
             <a
-              :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${item.id}`"
+              :href="browseLink(item)"
             >
-              {{ item.object_label }}</a
-            >
+              {{ item.object_label }}
+            </a>
           </li>
         </ul>
       </template>
@@ -48,10 +48,10 @@
             :key="item.id"
           >
             <a
-              :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${item.id}`"
+              :href="browseLink(item)"
             >
-              {{ item.object_label }}</a
-            >
+              {{ item.object_label }}
+            </a>
           </li>
         </ul>
       </template>
@@ -61,6 +61,7 @@
 
 <script>
 import { Otu } from '@/routes/endpoints'
+import { RouteNames } from '@/routes/routes'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialObject from '@/components/radials/navigation/radial'
 import OtuRadial from '@/components/radials/object/radial'
@@ -97,9 +98,15 @@ export default {
 
   methods: {
     loadNav(id) {
-      Otu.navigation(id).then((response) => {
+      Otu.navigation(id)
+      .then((response) => {
         this.navList = response.body
       })
+      .catch(() => {})
+    },
+
+    browseLink(item) {
+      return `${RouteNames.BrowseAssertedDistribution}?otu_id=${item.id}`
     }
   }
 }
