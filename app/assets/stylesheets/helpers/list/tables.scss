@@ -20,6 +20,13 @@
   }
 }
 
+.table-cells-border {
+  td {
+    border-bottom: 1px solid $navigation_border;
+    border-left: 1px solid $navigation_border;
+  }
+}
+
 .tablesorter {
   width: 100%;
 

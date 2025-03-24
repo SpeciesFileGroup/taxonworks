@@ -29,7 +29,7 @@
         </VBtn>
       </div>
     </div>
-    <div v-show="!selected">
+    <div v-if="!selected">
       <SmartSelector
         v-if="modelOpts.smartSelector"
         ref="smartSelector"
