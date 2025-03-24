@@ -9,12 +9,12 @@ shared_context 'complex observation matrix' do
     let(:genus2) {  FactoryBot.create(:relationship_genus, name: 'Bus') }
     let(:genus3) {  FactoryBot.create(:relationship_genus, name: 'Cus') }
 
-    let(:species1) { FactoryBot.create(:iczn_species, name: 'aa', parent: genus1) }
-    let(:species2) { FactoryBot.create(:iczn_species, name: 'aaa', parent: genus1) }
-    let(:species3) { FactoryBot.create(:iczn_species, name: 'aaaa', parent: genus1) }
-    let(:species4) { FactoryBot.create(:iczn_species, name: 'bb', parent: genus2) }
-    let(:species5) { FactoryBot.create(:iczn_species, name: 'bbb', parent: genus2) }
-    let(:species6) { FactoryBot.create(:iczn_species, name: 'bbbb', parent: genus2) }
+    let(:species1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :species), name: 'aa', parent: genus1) }
+    let(:species2) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :species), name: 'aaa', parent: genus1) }
+    let(:species3) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :species), name: 'aaaa', parent: genus1) }
+    let(:species4) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :species), name: 'bb', parent: genus2) }
+    let(:species5) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :species), name: 'bbb', parent: genus2) }
+    let(:species6) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :species), name: 'bbbb', parent: genus2) }
 
     let(:otu1) { Otu.create!(taxon_name: species1) }
     let(:otu2) { Otu.create!(taxon_name: species2) }

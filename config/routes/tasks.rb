@@ -415,7 +415,7 @@ scope :tasks do
     end
 
     scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
-      get :index, as: 'grid_digitize_task'
+      get '/', action: :index, as: 'grid_digitize_task'
     end
 
     scope :summary, controller: 'tasks/collection_objects/summary' do

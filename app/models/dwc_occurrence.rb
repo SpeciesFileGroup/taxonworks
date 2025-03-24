@@ -28,10 +28,9 @@
 # Gotchas.
 #   * updated_at is set by touching the record, not via housekeeping.
 #
-# @param is_flagged_for_rebuild Boolean
-#   flagged to true when async updates from a DwcOccurrenceHook is set
+# @param rebuild_set
+#   indcated the record needs to be rebuilt in this set
 #   !! Do not use for other purposes out side of rebuilds
-#
 #
 #
 class DwcOccurrence < ApplicationRecord

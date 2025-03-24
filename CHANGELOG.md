@@ -7,35 +7,58 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
 ### Fixed
 
+- Unify Otu failing because of CachedMap references
 - Determiner is not carrying over in locked, containerized COs in CSD [#4250]
+- CO Filter - blank fields dispersed among sor [#4255]
 
 [#4250]: https://github.com/SpeciesFileGroup/taxonworks/issues/4250
+[#4255]: https://github.com/SpeciesFileGroup/taxonworks/issues/4255
+
+## [0.49.0] - 2025-03-18
 
 ### Added
 
-- Cross link DwcOccurrence to Otu in filters
-- Synonymy section of Edit Nomenclature alphabetically sorted
+- Cross link DwcOccurrence to Otu in filters (with fixes on others)
 - `/api/v1/field_occurrences/:id/dwc`
 - `/api/v1/otus/:id/inventory/determined_to_rank`
 - Append mode to multi update data attributes task [#4204]
 - <in progress Batch add/remove Protocols>
-- Protocol `is_machine_output` attribute to facilitate MachineObservation types
+- Protocol `is_machine_output` attribute to facilitate `MachineObservation` types
+- Batch change Protocol references
 - Sticky navbar on browse nomenclature and collecting event
 - Move button to citations and depiction slices in radial annotator
 - Freeze column checkbox to filter tasks [#4220]
 - Sort layout columns on filter tasks [#4219]
 - Field occurrence panel to Browse OTU
+- Field occurrence attributes to DwcOccurrence
+- Browse field occurrence
+- Filter field occurrences
+- Field occurrences appear in OTU inventory endpoints
+- Taxon names with gender filter facet
+- Subject/object restrictions in filter nomenclature [#3094]
 
 ### Changed
 
+- Filter attribute facet now more precise
+- DwcOccurrence by `otu_id` now checks FieldOccurrence as well
+- Updating a Person updates DwcOccurrence across projects
+- All updates to DwcOccurrence are via delayed jobs
 - Add total to unmatched panel on Nomenclature match task
 - Prevent user destroy last saved TD on New FO task [#4225]
 - Updated Ruby gems and Node packages
+- Navigation bar layout
 
 ### Fixed
 
+- SimpleMappr output for large results
+- Synonymy section of Edit Nomenclature alphabetically sorted
+- Duplicate CollectingEvents filtered when Collectors facet used
+- FieldOccurrences not destroyable
+- DwcOccurrences being updated out of scope
 - Unescaped search strings on Project vocabulary
 - `&sort=alphabetical|classification` param to `/taxon_names/`
 - AssertedDistributions duplicating because of is_absent state [#4226]
@@ -47,15 +70,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Import dataset description uniqueness validation failing to detect duplicate
 - CSD: It is not possible to add new taxon determinations to an existing CO [#4227]
 - New FO, CE Panel: Saved identifiers aren't loaded in the UI on page reload [#4241]
+- Unify object task: reset button doesn't clear autocompletes [#4242]
+- Capybara/Chrome testing
+- Venn queries with nested elements (candidate fix) [#4224], [#3983]
 
+[#3094]: https://github.com/SpeciesFileGroup/taxonworks/issues/3094
 [#4226]: https://github.com/SpeciesFileGroup/taxonworks/issues/4226
 [#4230]: https://github.com/SpeciesFileGroup/taxonworks/issues/4230
 [#4204]: https://github.com/SpeciesFileGroup/taxonworks/issues/4204
 [#4219]: https://github.com/SpeciesFileGroup/taxonworks/issues/4219
 [#4220]: https://github.com/SpeciesFileGroup/taxonworks/issues/4220
 [#4225]: https://github.com/SpeciesFileGroup/taxonworks/issues/4225
+[#4224]: https://github.com/SpeciesFileGroup/taxonworks/issues/4224
+[#3983]: https://github.com/SpeciesFileGroup/taxonworks/issues/3983
 [#4227]: https://github.com/SpeciesFileGroup/taxonworks/issues/4227
 [#4241]: https://github.com/SpeciesFileGroup/taxonworks/pull/4241
+[#4242]: https://github.com/SpeciesFileGroup/taxonworks/issues/4242
 
 ## [0.48.0] - 2025-02-14
 
@@ -5151,7 +5181,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.48.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...development
+[0.49.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.1...v0.47.0
 [0.46.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.0...v0.46.1

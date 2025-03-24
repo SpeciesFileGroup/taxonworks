@@ -757,6 +757,9 @@ resources :sequence_relationships do
 end
 
 resources :sled_images, only: [:update, :create, :destroy, :show], defaults: {format: :json} do
+  collection do
+    get :index, defaults: {format: :json}
+  end
 end
 
 resources :sounds do

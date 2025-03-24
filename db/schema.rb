@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_22_185950) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_18_185734) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -963,10 +963,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_22_185950) do
     t.string "subfamily"
     t.string "tribe"
     t.string "subtribe"
-    t.boolean "is_flagged_for_rebuild"
+    t.text "rebuild_set"
     t.index ["created_at"], name: "index_dwc_occurrences_on_created_at"
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
-    t.index ["is_flagged_for_rebuild"], name: "index_dwc_occurrences_on_is_flagged_for_rebuild"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
     t.index ["updated_at"], name: "index_dwc_occurrences_on_updated_at"
   end

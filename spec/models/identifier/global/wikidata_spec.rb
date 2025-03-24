@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe Identifier::Global::Wikidata, type: :model, group: :identifiers do
+  include ActiveJob::TestHelper
+
   let(:id) { Identifier::Global::Wikidata.new(identifier_object: FactoryBot.create(:valid_person)) }
 
   specify 'dwc_occurrence hooks - Collector' do
@@ -9,6 +11,8 @@ describe Identifier::Global::Wikidata, type: :model, group: :identifiers do
     s.collecting_event.collectors << p
 
     Identifier::Global::Wikidata.create!(identifier_object: p, identifier: 'Q123' )
+
+    perform_enqueued_jobs
 
     expect(s.dwc_occurrence.reload.recordedByID).to eq('Q123')
   end
@@ -19,6 +23,8 @@ describe Identifier::Global::Wikidata, type: :model, group: :identifiers do
     t = FactoryBot.build(:valid_taxon_determination, determiners: [p], taxon_determination_object: s)
 
     Identifier::Global::Wikidata.create!(identifier_object: p, identifier: 'Q123' )
+
+    perform_enqueued_jobs
 
     expect(s.dwc_occurrence.reload.identifiedByID).to eq('Q123')
   end

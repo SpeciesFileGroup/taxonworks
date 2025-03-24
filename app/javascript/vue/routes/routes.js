@@ -47,6 +47,7 @@ const RouteNames = {
   FilterSounds: '/tasks/sounds/filter',
   FilterSources: '/tasks/sources/filter',
   FreeFormTask: '/tasks/collection_objects/freeform_digitize',
+  GridDigitizer: '/tasks/collection_objects/grid_digitize',
   ImageMatrix: '/tasks/observation_matrices/image_matrix',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   LeadsHub: '/tasks/leads/hub',

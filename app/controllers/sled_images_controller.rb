@@ -1,5 +1,13 @@
 class SledImagesController < ApplicationController
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
+
   before_action :set_sled_image, only: [:update, :destroy, :show]
+
+  
+  def index
+    @sled_images = SledImage.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+    render '/sled_images/index'
+  end
 
   def show
   end
@@ -8,7 +16,7 @@ class SledImagesController < ApplicationController
   def create
     @sled_image = SledImage.new(sled_image_params)
     if @sled_image.save
-       render :show, status: :created, location: @sled_image
+      render :show, status: :created, location: @sled_image
     else
       render json: @sled_image.errors, status: :unprocessable_entity
     end

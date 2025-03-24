@@ -66,8 +66,13 @@ class FieldOccurrencesController < ApplicationController
     @field_occurrence.destroy
 
     respond_to do |format|
-      format.html { redirect_to field_occurrences_url, notice: 'Field occurrence was successfully destroyed.' }
-      format.json { head :no_content }
+      if @field_occurrence.destroyed?
+        format.html { destroy_redirect @field_occurrence, notice: 'Field occurrence was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @field_occurrence, notice: 'Field occurrence was not destroyed, ' + @field_occurrence.errors.full_messages.join('; ') }
+        format.json { render json: @field_occurrence.errors, status: :unprocessable_entity }
+      end
     end
   end
 

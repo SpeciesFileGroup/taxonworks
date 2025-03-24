@@ -9,14 +9,20 @@ class DwcOccurrenceRefreshJob < ApplicationJob
     2
   end
 
-  def perform(project_id: nil, user_id: nil)
-    q = DwcOccurrence.where(project_id:, is_flagged_for_rebuild: true)
+  # @parapm rebuild_set
+  #   arbitrary set name, a random string
+  def perform(rebuild_set: nil, user_id: nil)
+    raise TaxonWorks::Error, 'no set id to refresh job' if rebuild_set.blank?
+
+    q = DwcOccurrence.where(rebuild_set:)
 
     Current.user_id = user_id
+
     q.all.find_each do |o|
+
       begin
         o.dwc_occurrence_object.send(:set_dwc_occurrence)
-      rescue =>  ex
+      rescue => ex
         ExceptionNotifier.notify_exception(
           ex,
           data: { project_id:, user_id:}
