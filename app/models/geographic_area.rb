@@ -181,6 +181,9 @@ class GeographicArea < ApplicationRecord
   scope :has_shape, -> (has_shape = true) {
     if has_shape
       joins(:geographic_areas_geographic_items)
+    else
+      left_joins(:geographic_areas_geographic_items)
+      .where(geographic_areas_geographic_items: {id: nil})
     end
   }
 
