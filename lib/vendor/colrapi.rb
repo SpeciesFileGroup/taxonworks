@@ -1,11 +1,171 @@
+# require 'colrapi'
+
 module Vendor
 
   # A middle-layer wrapper between Colrapi and TaxonWorks
   module Colrapi
 
     DATASETS = {
-      col: '3LR'
-  }.freeze
+      col: '3LR',
+      colxr: '3LXR'
+    }.freeze
+
+    class Alignment
+
+      # @return Array
+      #   of classification vectors
+      attr_accessor :nameusage_result
+
+      attr_accessor :taxonworks_ancestors
+
+      attr_accessor :col_ancestors
+
+      attr_reader :project_id
+
+      attr_reader :name
+
+      # ... name objects
+      # id
+      # name
+      # rank
+
+      def initialize(name: nil, dataset_id: '3LXR', project_id: nil)
+        @nameusage_result = ::Colrapi.nameusage_search(dataset_id:, q: name)
+        @project_id = project_id
+        @name = name
+      end
+
+      def response_classification
+        return [] if nameusage_result['total'] == 0
+        nameusage_result.dig('result')&.first['classification']
+      end
+
+      def response_classification_names
+        return [] if nameusage_result['total'] == 0
+        response_classification.collect{|b| b['name']}
+      end
+
+      def taxonworks_ancestors
+        @taxonworks_ancestors ||= ::TaxonName
+          .where(cached: response_classification_names, project_id:)
+          .order_by_rank(RANKS)
+      end
+
+      def taxonworks_ancestor_names
+        taxonworks_ancestors.map(&:name)
+      end
+
+      def align
+        a1, a2 = Utilities::Arrays.align(
+          response_classification_names,
+          taxonworks_ancestor_names
+        )
+        [a1, a2]
+      end
+
+      # TODO: homonomy is a problem, but hopefully rare
+
+      # @return an array of names, existing, or ready to create
+      def stub_names
+        r,t = align
+        o = []
+
+        current_parent = Project.find(project_id).root_taxon_name
+
+        r.each do |n|
+          case n
+          when nil
+            o.push taxonworks_ancestors.select{|a| a.cached == n}.first
+            current_parent = a
+          else
+            if t.include?(n)
+              a = taxonworks_ancestors.select{|a| a.cached == n}.first
+              o.push a
+              current_parent = a
+            else
+              b = response_classification.select{|c| c['name'] == n}.first
+              p = Protonym.new(
+                name: n,
+                rank_class: Ranks.lookup(nomenclature_code, b['rank']).presence,
+                parent: current_parent,
+                verbatim_author: author(b),
+                year_of_publication: year(b)
+              )
+              o.push p
+              current_parent = p
+            end
+          end
+        end
+        o
+      end
+
+      def autoselect_payload_json(kind: :default)
+        r = []
+        stub_names.each do |n|
+
+          r.push({
+            id: n.id,
+            name: n.name,
+            rank_class: n.rank_class,
+            parent_id: n.parent_id,
+            verbatim_author: n.verbatim_author,
+            year_of_publication: n.year_of_publication,
+            cached_html: n.cached_html,
+            cached: n.cached,
+          })
+        end
+        r
+      end
+
+      # minimial stub -
+      # concept of root, and moving back from there
+      # hard target (shared names)
+      # intermediates
+      #   allowed ranks, not
+      # target
+
+      def nomenclature_code
+        return :iczn if response_classification_names.include?('Animalia')
+        return :icn if response_classification_names.include?('Plantae') # untested
+        # ... TODO
+      end
+
+      def exact_match?
+        nameusage_result.dig('result')&.first.dig('usage', 'name', 'scientificName') == name
+      end
+
+      def author(result)
+        result.dig('usage', 'name', 'basionymAuthorship', 'authors')
+      end
+
+      def rank(result)
+        result.dig('usage', 'name', 'rank')
+      end
+
+      def year(result)
+        result.dig('usage', 'name', 'basionymAuthorship', 'year')
+      end
+
+    end
+
+    # @return ActiveRecord Relation
+    def self.ancestors_from_name(name: nil, dataset_id: '3LXR', project_id: nil)
+      return ::TaxonName.none if name.blank? || project_id.blank?
+
+      r = ::Colrapi.nameusage_search(dataset_id:, q: name)
+
+      # Ignoring rank for now, fairly safe
+    end
+
+    def self.taxonworks_root
+      ::TaxonName.lowest_common_ancestor(
+
+      )
+    end
+
+    def self.interect_ancestors(nameusage_result)
+
+    end
 
     # @params taxonworks_object
     #   any object that responds_to `.taxonomy`
@@ -46,9 +206,9 @@ module Vendor
       o = taxonworks_object
 
       r = {
-          taxonworks_name: collection_object_scientific_name(o),
-          col_usages: [],
-          provisional_status: :accepted,
+        taxonworks_name: collection_object_scientific_name(o),
+        col_usages: [],
+        provisional_status: :accepted,
       }
 
       if colrapi_result.dig('total') == 0

@@ -562,9 +562,9 @@ module TaxonNamesHelper
     rows.join('<br>').html_safe
   end
 
-
   # TODO: move to queries/fitler paradigm, this is all stubs
   def autoselect_taxon_name(params)
+    project_id = params[:project_id]
 
     path1 = {
       level: 1,
@@ -578,6 +578,12 @@ module TaxonNamesHelper
       description: 'Classic smart autocomplete'
     }
 
+    path3 = {
+      level: 3,
+      label: 'ChecklistBank extended',
+      description: 'Search against ChecklistBank'
+    }
+
     operator1 = {
       '!i' => {
         label: 'Included expanded information'
@@ -586,7 +592,7 @@ module TaxonNamesHelper
 
     config = {
       resource: '/taxon_names/autoselect',
-      paths: [path1, path2],
+      paths: [path1, path2, path3],
       operators: [operator1],
       map: { path1[:level] => path2[:level] }
     }
@@ -645,7 +651,7 @@ module TaxonNamesHelper
 
           r[:response].push b
         end 
-     
+
       when 2
         r[:request][:level] = 2
 
@@ -662,7 +668,7 @@ module TaxonNamesHelper
             label_html: content_tag(:span, mark_tag(i.cached_html_name_and_author_year, t),  class: :klass),
             expansion: nil,
             extension: {
-             valid_taxon_name_id: i.cached_valid_taxon_name_id 
+              valid_taxon_name_id: i.cached_valid_taxon_name_id 
             }
           }
 
@@ -676,8 +682,23 @@ module TaxonNamesHelper
           end
 
           r[:response].push b
+
         end
 
+      when 3
+
+        r[:request][:level] = 2
+
+         a = Vendor::Colrapi::Alignment.new(name: t, project_id:)
+         b = {
+           id: nil,
+           label: a.name,
+           label_html: a.name, # Todo get html
+           expansion: {
+             simple_taxon_name_classification: a.autoselect_payload_json # `simple_taxon_name_classification` is a autoselect module that can handle this payload
+           }
+         }
+         r[:response].push b
       else
          # config error  
       end

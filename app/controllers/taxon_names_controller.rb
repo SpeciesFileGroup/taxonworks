@@ -327,7 +327,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def autoselect
-    render json: helpers.autoselect_taxon_name(params)
+    render json: helpers.autoselect_taxon_name(params.merge(project_id: sessions_current_project_id))
   end
 
   private
