@@ -594,7 +594,10 @@ module TaxonNamesHelper
       resource: '/taxon_names/autoselect',
       paths: [path1, path2, path3],
       operators: [operator1],
-      map: { path1[:level] => path2[:level] }
+      map: { 
+        path1[:level] => path2[:level], 
+        path2[:level] => path3[:level]
+      }
     }
     
     if params[:term].blank?
@@ -687,7 +690,7 @@ module TaxonNamesHelper
 
       when 3
 
-        r[:request][:level] = 2
+        r[:request][:level] = 3
 
          a = Vendor::Colrapi::Alignment.new(name: t, project_id:)
          b = {
