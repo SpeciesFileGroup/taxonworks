@@ -10,15 +10,15 @@
 #   The id of the parent taxon. The parent child relationship is exclusively organizational. All statuses and relationships
 #   of a taxon name must be explicitly defined via taxon name relationships or classifications. The parent of a taxon name
 #   can be thought of as  "the place where you'd find this name in a hierarchy if you knew literally *nothing* else about that name."
-#   In practice read each monominal in the name (protonym or combination) from right to left, the parent is the parent of the last monominal read.
+#   In practice read each monomial in the name (protonym or combination) from right to left, the parent is the parent of the last monomial read.
 #   There are 3 simple rules for determining the parent of a Protonym or Combination:
 #     1) the parent must always be at least one rank higher than the target names rank
 #     2) the parent of a synonym (any sense) is the parent of the synonym's valid name
-#     3) the parent of a combination is the parent of the highest ranked monominal in the epithet (almost always the parent of the genus)
+#     3) the parent of a combination is the parent of the highest ranked monomial in the epithet (almost always the parent of the genus)
 #
 # @!attribute year_of_publication
 #   @return [Integer]
-#    sensu ICZN - the 4 digit year when this name was published, i.e. made available. Not the publishers date stamped on the title page, but the actual date of publication. Precidence for taxon name publication year is TaxonName#year_of_publication, Source#year, Source#stated_year.
+#    sensu ICZN - the 4 digit year when this name was published, i.e. made available. Not the publishers date stamped on the title page, but the actual date of publication. Precedence for taxon name publication year is TaxonName#year_of_publication, Source#year, Source#stated_year.
 #
 # @!attribute verbatim_author
 #   @return [String]
@@ -60,15 +60,15 @@
 #
 # @!attribute verbatim_name
 #   @return [String]
-#   a representation of what the Combination (fully spelled out) or Protonym (monominal)
+#   a representation of what the Combination (fully spelled out) or Protonym (monomial)
 #   *looked like* in its originating publication.
 #   The sole purpose of this string is to represent visual differences from what is recorded in the
-#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
+#   Latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
 #   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
 #
 #   If at all possible this field SHOULD NOT be used, it has very little downstream inference use.
 #
-#   If a subgenus it should ____TODO____ (not?) contain parens.
+#   If a subgenus it should not contain parens.
 #
 # @!attribute etymology
 #   @return [String]
@@ -76,7 +76,7 @@
 #
 # @!attribute cached
 #   @return [String]
-#   Genus-species combination for genus and lower, monominal for higher. The string has NO html, and no author/year.
+#   Genus-species combination for genus and lower, monomial for higher. The string has NO html, and no author/year.
 #
 # @!attribute cached_html
 #   @return [String]
@@ -124,7 +124,7 @@
 #
 # @!cached_valid_taxon_name_id
 #   @return [Integer]
-#   Stores a taxon_name_id of a 'valid' taxon_name based on taxon_name_relationships. Identifies a claster of taxon_names which should be shown on the same Browse Nomenclature page.
+#   Stores a taxon_name_id of a 'valid' taxon_name based on taxon_name_relationships. Identifies a cluster of taxon_names which should be shown on the same Browse Nomenclature page.
 #
 # @!cached_is_valid
 #   @return [Boolean]
@@ -139,7 +139,7 @@
 #     * once state is loaded, it is never reloaded or hit again
 #       * sensu TaxonomyObjects
 #   * methods that get/check state
-#     * sparesly touches database
+#     * sparsely touches database
 #
 # In general there is too much interplay between the our current variables, they should not (probably) cross boundaries.
 #
@@ -220,7 +220,7 @@ class TaxonName < ApplicationRecord
   # @return Array
   #    all taxon_name_relationships (name is object), memoized
   # !! Memoized attributes are not reset when related objects reload them.
-  # !! For example if species = subject_taxon_name. of a = TaxonNameRelationship
+  # !! For example if species = subject_taxon_name and a = TaxonNameRelationship
   # !!  then a.subject_taxon_name.reload is not the same as species.reload
   attr_accessor :related_relationships
 
@@ -310,7 +310,7 @@ class TaxonName < ApplicationRecord
   has_many :taxon_name_classifications, dependent: :destroy, inverse_of: :taxon_name
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :restrict_with_error, inverse_of: :subject_taxon_name
 
-  # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
+  # NOTE: Protonym subclass methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
   accepts_nested_attributes_for :family_group_name_form_relationship, allow_destroy: true, reject_if: proc { |attributes| attributes['object_taxon_name_id'].blank? }
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
@@ -355,7 +355,7 @@ class TaxonName < ApplicationRecord
   # LEAVE UNORDERED, if you want order:
   #   .order('taxon_name_hierarchies.generations DESC')
   scope :self_and_ancestors_of, -> (taxon_name) {
-    joins(:descendant_hierarchies)
+    joins(:descendant_hierarchies) # ... but this assigns order?!
       .where(taxon_name_hierarchies: {descendant_id: taxon_name.id})
   }
 
@@ -1802,8 +1802,6 @@ class TaxonName < ApplicationRecord
     true
   end
 
-
-
   # Note- prior version prevented groups from moving when set in error, and was far too strict
   def check_new_rank_class
     if (rank_class != rank_class_was) && !rank_class_was.nil?
@@ -1925,7 +1923,7 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  #  Required for synonyms of synomyms
+  #  Required for synonyms of synonyms
   def sv_not_synonym_of_self
     if list_of_invalid_taxon_names.include?(self)
       soft_validations.add(:base, "Taxon has two conflicting relationships (invalidating and validating). To resolve a conflict, add a status 'Valid' to a valid taxon.")
@@ -2010,4 +2008,4 @@ class TaxonName < ApplicationRecord
     true # see validation in Hybrid.rb
   end
 
-  end
+end
