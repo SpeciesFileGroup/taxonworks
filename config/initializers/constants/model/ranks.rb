@@ -170,6 +170,6 @@ Rails.application.reloader.to_prepare do
     d[r].push k
   end
 
-  RANKS_BY_NAME = d.freeze
+  RANKS_BY_NAME ||= d.freeze
 
 end
