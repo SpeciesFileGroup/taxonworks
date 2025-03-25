@@ -42,15 +42,26 @@
           v-else
           v-html="label(item)"
         />
+        <VBtn
+          v-if="item.expansion"
+          color="primary"
+          @click.stop="() => expansionRef.setItem(item)"
+        >
+          Expansion
+        </VBtn>
       </li>
       <li v-if="list.length == 20">Results may be truncated</li>
     </ul>
     <ul
       v-if="inputValue && !isLoading && !list.length"
-      class="vue-autocomplete-empty-list"
+      class="vue-autocomplete-list vue-autocomplete-empty-list"
     >
       <li>--None--</li>
     </ul>
+    <SuperAutocompleteExtension
+      ref="expansionRef"
+      :item="item"
+    />
   </div>
 </template>
 
@@ -58,6 +69,8 @@
 import { computed, ref, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 import Qs from 'qs'
+import SuperAutocompleteExtension from './SuperAutocompleteExpansion.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   inputId: {
@@ -142,8 +155,9 @@ const isListVisible = ref(false)
 const currentIndex = ref(-1)
 const list = ref([])
 const inputRef = useTemplateRef('inputRef')
+const expansionRef = useTemplateRef('expansionRef')
 const metadata = ref(null)
-const level = ref()
+const level = ref(3)
 let requestTimeout = null
 let controller = null
 
@@ -212,13 +226,12 @@ function selectItem(item) {
 }
 
 function makeUrlRequest(params) {
-  let tempUrl =
+  const url =
     props.url + '?' + props.param + '=' + encodeURIComponent(inputValue.value)
 
-  if (Object.keys(params).length) {
-    tempUrl += `&${Qs.stringify(props.params, { arrayFormat: 'brackets' })}`
-  }
-  return tempUrl
+  return Object.keys(params).length
+    ? `${url}&${Qs.stringify(params, { arrayFormat: 'brackets' })}`
+    : url
 }
 
 function updateTimeout() {
@@ -237,11 +250,12 @@ async function update() {
   if (inputValue.value.length < Number(props.min)) return
 
   const levels = Object.values(metadata.value.paths)
+  const lvl = getLevelFromInput()
   list.value = []
   isLoading.value = true
 
-  const maxLevel = level.value || levels.length
-  const currentLevel = level.value || 1
+  const maxLevel = lvl || level.value || levels.length
+  const currentLevel = lvl || level.value || 1
 
   try {
     for (let i = currentLevel; i <= maxLevel; i++) {
@@ -259,6 +273,13 @@ async function update() {
   } catch {}
 
   isLoading.value = false
+}
+
+function getLevelFromInput() {
+  const regex = /!l(\d+)/
+  const levelFromInput = inputValue.value.match(regex)
+
+  return levelFromInput?.[1]
 }
 
 async function makeRequest(level) {

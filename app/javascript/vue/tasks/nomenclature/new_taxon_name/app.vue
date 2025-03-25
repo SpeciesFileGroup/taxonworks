@@ -16,13 +16,12 @@
         <autocomplete
           v-if="!taxon.id"
           class="autocomplete-search-bar"
-          url="/taxon_names/autocomplete"
+          url="/taxon_names/autoselect"
           param="term"
-          :add-params="{ 'type[]': 'Protonym' }"
+          :params="{ type: ['Protonym'] }"
           label="label_html"
           placeholder="Search a taxon name..."
-          clear-after
-          @get-item="loadTaxon"
+          @select="loadTaxon"
         />
       </div>
     </div>
@@ -82,13 +81,14 @@
 </template>
 
 <script setup>
-import Autocomplete from '@/components/ui/Autocomplete'
+import Autocomplete from '@/components/ui/SuperAutocomplete/SuperAutocomplete.vue'
 import NavHeader from './components/navHeader.vue'
 import TaxonNameBox from './components/taxonNameBox.vue'
 import CheckChanges from './components/checkChanges.vue'
 import SoftValidation from '@/components/soft_validations/panel.vue'
 import Spinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
+
 import { useHotkey } from '@/composables'
 import { SectionComponents } from './const/components.js'
 import { convertType } from '@/helpers/types.js'
