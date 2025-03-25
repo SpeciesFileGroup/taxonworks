@@ -46,7 +46,7 @@
       <li v-if="list.length == 20">Results may be truncated</li>
     </ul>
     <ul
-      v-if="inputValue && isLoading && !list.length"
+      v-if="inputValue && !isLoading && !list.length"
       class="vue-autocomplete-empty-list"
     >
       <li>--None--</li>
