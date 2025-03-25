@@ -13,10 +13,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Unify Otu failing because of CachedMap references
 - Determiner is not carrying over in locked, containerized COs in CSD [#4250]
-- CO Filter - blank fields dispersed among sor [#4255]
+- Filter CO: blank fields dispersed among sort [#4255]
+- Filter CO: otu name is empty in taxon determinations rows [#4257]
 
 [#4250]: https://github.com/SpeciesFileGroup/taxonworks/issues/4250
 [#4255]: https://github.com/SpeciesFileGroup/taxonworks/issues/4255
+[#4257]: https://github.com/SpeciesFileGroup/taxonworks/issues/4257
 
 ## [0.49.0] - 2025-03-18
 

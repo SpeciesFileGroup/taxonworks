@@ -4,9 +4,18 @@ import { DataAttribute } from '@/routes/endpoints'
 import { flattenObject } from '@/helpers'
 
 function getTaxonDetermination(determinations) {
-  return determinations.length
-    ? determinations.toSorted((a, b) => a.position - b.position)[0]
-    : []
+  if (determinations.length) {
+    const [determination] = determinations.toSorted(
+      (a, b) => a.position - b.position
+    )
+
+    return {
+      ...determination,
+      otu_name: determination?.otu?.name
+    }
+  }
+
+  return []
 }
 
 export async function listParser(list, { parameters }) {
