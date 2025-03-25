@@ -162,12 +162,6 @@ scope :tasks do
     scope :new_asserted_distribution, controller: 'tasks/asserted_distributions/new_asserted_distribution' do
       get '/', action: :index, as: 'new_asserted_distribution_task'
     end
-
-    scope :new_from_map, controller: 'tasks/asserted_distributions/new_from_map' do
-      get 'new', action: 'new', as: 'new_asserted_distribution_from_map_task'
-      get 'generate_choices'
-      post 'create', action: 'create', as: 'create_asserted_distribution_from_map_task'
-    end
   end
 
   scope :dwc do

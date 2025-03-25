@@ -25,7 +25,7 @@
 AssertedDistribution:
   tasks:
     - asserted_distributions_basic_endemism_task
-    - new_asserted_distribution_from_map_task
+    - new_asserted_distribution_task
     - unify_objects_task
   config:
     recent: true

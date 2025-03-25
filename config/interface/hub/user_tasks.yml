@@ -211,14 +211,6 @@ simple_specimen_task:
     - image
     - new
   status: prototype
-new_asserted_distribution_from_map_task:
-  hub: true
-  name: 'New asserted distribution from map'
-  description: 'Create asserted distributions by selecting OTUs and sources, then click a map to select a geographic area. OTU and source are lockable as defaults for the next record.'
-  status: prototype
-  categories:
-    - source
-    - new
 report_dwc_task:
   hub: true
   name: 'Report DwC-A table'
