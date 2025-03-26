@@ -5,7 +5,6 @@
         <thead>
           <tr>
             <th>Author</th>
-            <th>Roles</th>
             <th v-help.table.column.sources>Sources</th>
             <th>Id</th>
             <th v-help.table.column.unify>Unify</th>

@@ -68,7 +68,7 @@ onBeforeMount(() => {
 function getAuthors(params = {}) {
   const payload = {
     last_name_starts_with: key.value,
-    roles: [ROLE_SOURCE_AUTHOR],
+    role: [ROLE_SOURCE_AUTHOR],
     extend: ['roles'],
     ...params
   }
