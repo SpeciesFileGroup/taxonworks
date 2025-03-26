@@ -42,13 +42,6 @@
           v-else
           v-html="label(item)"
         />
-        <VBtn
-          v-if="item.expansion"
-          color="primary"
-          @click.stop="() => expansionRef.setItem(item)"
-        >
-          Expansion
-        </VBtn>
       </li>
       <li v-if="list.length == 20">Results may be truncated</li>
     </ul>
@@ -58,7 +51,7 @@
     >
       <li>--None--</li>
     </ul>
-    <SuperAutocompleteExtension
+    <SuperAutocompleteExpansion
       ref="expansionRef"
       :item="item"
     />
@@ -69,7 +62,7 @@
 import { computed, ref, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 import Qs from 'qs'
-import SuperAutocompleteExtension from './SuperAutocompleteExpansion.vue'
+import SuperAutocompleteExpansion from './SuperAutocompleteExpansion.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
@@ -217,12 +210,16 @@ function setText(value) {
 function selectItem(item) {
   inputValue.value = ''
 
-  if (props.autofocus) {
-    inputRef.value.focus()
-  }
+  if (item.expansion && !item.id) {
+    expansionRef.value.setItem(item)
+  } else {
+    if (props.autofocus) {
+      inputRef.value.focus()
+    }
 
-  emit('select', item)
-  isListVisible.value = false
+    emit('select', item)
+    isListVisible.value = false
+  }
 }
 
 function makeUrlRequest(params) {
