@@ -58,6 +58,11 @@ const props = defineProps({
   }
 })
 
+const selected = defineModel({
+  type: Array,
+  required: true
+})
+
 const emit = defineEmits(['sources'])
 
 const roleSourcesCount = computed(
