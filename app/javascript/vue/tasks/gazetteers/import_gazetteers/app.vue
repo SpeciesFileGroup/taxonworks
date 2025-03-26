@@ -1,40 +1,60 @@
 <template>
   <VSpinner v-if="isLoading" />
+  <div class="two_column">
+    <div id="column_one">
+      <DocumentSelector
+        v-model="selectedDocs"
+        class="document_selector"
+      />
 
-  <DocumentSelector
-    v-model="selectedDocs"
-    class="document_selector"
-  />
+      <ShapefileFieldsInputs
+        v-model:name="shapeNameField"
+        v-model:iso-a2="shapeIsoA2Field"
+        v-model:iso-a3="shapeIsoA3Field"
+        v-model:is-loading="isLoading"
+        :shp-doc="shpDoc"
+        :dbf-doc="dbfDoc"
+      />
 
-  <ShapefileFieldsInputs
-    v-model:name="shapeNameField"
-    v-model:iso-a2="shapeIsoA2Field"
-    v-model:iso-a3="shapeIsoA3Field"
-    v-model:is-loading="isLoading"
-    :shp-doc="shpDoc"
-    :dbf-doc="dbfDoc"
-  />
+      <CitationOptions
+        v-model="citation"
+        class="citations_options"
+      />
 
-  <CitationOptions
-    v-model="citation"
-    class="citations_options"
-  />
+      <ProjectsChooser
+        v-model="selectedProjects"
+        selection-text="Gazetteers will be imported into each selected project."
+        class="projects_chooser"
+      />
 
-  <ProjectsChooser
-    v-model="selectedProjects"
-    selection-text="Gazetteers will be imported into each selected project."
-    class="projects_chooser"
-  />
+      <div class="process_button">
+        <VBtn
+          :disabled="processingDisabled"
+          color="primary"
+          medium
+          @click="previewTextFields"
+        >
+          Preview name and iso fields
+        </VBtn>
+      </div>
 
-  <div class="process_button">
-    <VBtn
-      :disabled="processingDisabled"
-      color="primary"
-      medium
-      @click="processShapefile"
-    >
-      Process shapefile
-    </VBtn>
+      <div class="process_button">
+        <VBtn
+          :disabled="processingDisabled"
+          color="primary"
+          medium
+          @click="processShapefile"
+        >
+          Process shapefile
+        </VBtn>
+      </div>
+    </div>
+    <div id="column_two">
+      <Preview
+        v-if="shapefileFieldValues.text_values?.length > 0"
+       :data="shapefileFieldValues"
+      />
+    </div>
   </div>
 
   <ImportJobs ref="jobsComponent"/>
@@ -45,6 +65,7 @@
 import CitationOptions from './components/CitationOptions.vue'
 import DocumentSelector from './components/DocumentSelector.vue'
 import ImportJobs from './components/ImportJobs.vue'
+import Preview from './components/Preview.vue'
 import ProjectsChooser from '../components/ProjectsChooser.vue'
 import ShapefileFieldsInputs from './components/ShapefileFieldsInputs.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -59,6 +80,7 @@ const shapeIsoA3Field = ref('')
 const isLoading = ref(false)
 const citation = ref({})
 const selectedProjects = ref([])
+const shapefileFieldValues = ref({text_fields: null, values: null})
 
 const jobsComponent = ref(null)
 
@@ -74,15 +96,18 @@ const dbfDoc = computed(() => {
   return getFileForExtension('.dbf')
 })
 
-function processShapefile() {
+function prepareAndValidateShapefilePayload() {
   const shp = getFileForExtension('.shp')
   const shx = getFileForExtension('.shx')
   const dbf = getFileForExtension('.dbf')
   const prj = getFileForExtension('.prj')
   const cpg = getFileForExtension('.cpg')
 
-  if (!validateShapefileFileset({shp, shx, dbf, prj, cpg})) {
-    return
+  if (!validateShapefileParams({
+    shp, shx, dbf, prj, cpg,
+    a2: shapeIsoA2Field.value, a3: shapeIsoA3Field.value
+  })) {
+    return undefined
   }
 
   const payload = {
@@ -102,6 +127,27 @@ function processShapefile() {
     },
     projects: selectedProjects.value
   }
+
+  return payload
+}
+
+function previewTextFields() {
+  const payload = prepareAndValidateShapefilePayload()
+  if(!payload) return
+
+  isLoading.value = true
+  Gazetteer.shapefile_text_field_values(payload)
+    .then(({ body }) => {
+      shapefileFieldValues.value = body
+      window.scrollTo(0, 0);
+    })
+    .catch(() => {})
+    .finally(() => { isLoading.value = false })
+}
+
+function processShapefile() {
+  const payload = prepareAndValidateShapefilePayload()
+  if(!payload) return
 
   isLoading.value = true
   Gazetteer.import(payload)
@@ -131,6 +177,7 @@ function reset() {
   shapeIsoA3Field.value = ''
   selectedDocs.value = []
   citation.value = {}
+  shapefileFieldValues.value = {}
 }
 
 // Warning: this just returns the first found
@@ -140,15 +187,22 @@ function getFileForExtension(extension) {
   )
 }
 
-function validateShapefileFileset(fileset) {
-  if (!fileset['shp']) {
+function validateShapefileParams(params) {
+  if (params['a2'] && params['a3'] && params['a2'] == params['a3']) {
+    TW.workbench.alert.create(
+      "A2 and A3 can't reference the same field", 'error'
+    )
+    return false
+  }
+
+  if (!params['shp']) {
     TW.workbench.alert.create(
       'A .shp file is required', 'error'
     )
     return false
   }
 
-  const shpBasename = basename(fileset['shp'])
+  const shpBasename = basename(params['shp'])
   if (
     selectedDocs.value.some((d) => {
       return basename(d) != shpBasename
@@ -172,6 +226,17 @@ function basename(file) {
 </script>
 
 <style lang="scss" scoped>
+.two_column {
+  display: flex;
+  gap: 2.5em;
+}
+
+#column_two {
+  // kludge length to try to match the midline height of a fieldset box
+  margin-top: 2.7em;
+  margin-bottom: 2em;
+}
+
 .document_selector {
   margin-bottom: 2em;
 }

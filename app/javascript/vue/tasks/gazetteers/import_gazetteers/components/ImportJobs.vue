@@ -1,5 +1,5 @@
 <template>
-   <BlockLayout
+  <BlockLayout
     expand
     class="status"
   >
@@ -27,7 +27,7 @@
     <template #body>
       <VSpinner v-if="statusLoading" />
       <div>
-        Deleting job status records here has no effect on any import.
+        <i>Deleting job status records here has no effect on any import.</i>
       </div>
       <div class="vue-table-container">
         <table class="vue-table">

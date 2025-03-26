@@ -172,6 +172,20 @@ class GazetteersController < ApplicationController
     end
   end
 
+  # GET /gazetteers/shapefile_text_field_values.json
+  def shapefile_text_field_values
+    begin
+      text_data_hash = validate_and_fetch_shapefile_text_field_values(
+        shapefile_params, sessions_current_project_id
+      )
+    rescue TaxonWorks::Error => e
+      render json: { errors: e }, status: :unprocessable_entity
+      return
+    end
+
+    render json: text_data_hash
+  end
+
   # GET /gazetteers/select_options.json
   def select_options
     @gazetteers = Gazetteer.select_optimized(
