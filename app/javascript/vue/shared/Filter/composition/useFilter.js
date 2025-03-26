@@ -18,7 +18,8 @@ export default function (service, { listParser, initParameters } = {}) {
 
   const makeFilterRequest = (params = state.parameters) => {
     const payload = removeEmptyParameters({
-      ...params
+      ...params,
+      paginate: true
     })
 
     state.isLoading = true
