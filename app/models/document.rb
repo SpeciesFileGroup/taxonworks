@@ -67,7 +67,12 @@ class Document < ApplicationRecord
   has_attached_file :document_file,
     filename_cleaner:  Utilities::CleanseFilename
 
-  validates_uniqueness_of :document_file_fingerprint, scope: :project_id
+  # Don't require uniqueness for shapefile .prj or .cpg files, which are small
+  # and almost always have the same content.
+  # TODO: Revisit when Gazetteer shapefile upload moves away from using
+  # Documents.
+  validates_uniqueness_of :document_file_fingerprint, scope: :project_id,
+    conditions: -> { where.not("document_file_file_name ILIKE '%.prj' OR document_file_file_name ILIKE '%.cpg'")}
 
   validates_attachment_content_type :document_file,
     content_type: ['application/octet-stream', 'application/pdf', 'text/plain',
