@@ -7,98 +7,62 @@
     @reset-gz="() => reset()"
   />
 
-  <div class="top-options">
-    <div>
-      <div class="field label-above">
-        <label>Name</label>
-        <input
-          type="text"
-          class="normal-input name-input"
-          v-model="gz.name"
-        />
+  <BlockLayout :warning="!gz.id">
+    <template #header>
+      <h3>Gazetteer</h3>
+    </template>
+
+    <template #options>
+      <div
+        v-if="gz.id"
+        class="horizontal-left-content gap-small"
+      >
+        <RadialAnnotator :global-id="gz.global_id" />
+        <RadialNavigation :global-id="gz.global_id" />
       </div>
+    </template>
 
-      <div class="field label-above">
-        <label>ISO 3166 A2 country code</label>
-        <input
-          type="text"
-          class="input-xsmall-width"
-          v-model="gz.iso_3166_a2"
+    <template #body>
+      <div id="gazetteer-panels">
+
+        <NonGeoData
+          v-model:gz="gz"
+          v-model:projects="selectedProjects"
+          class="panel content left-column item-1-1"
         />
-      </div>
 
-      <div class="field label-above">
-        <label>ISO 3166 A3 country code</label>
-        <input
-          type="text"
-          class="input-xsmall-width"
-          v-model="gz.iso_3166_a3"
+        <ShapeChoosers
+          v-if="!gz.id"
+          :shapes="leafletShapes"
+          @new-shape="(data, type) => addToShapes(data, type)"
+          @shapes-updated="(shape) => addToShapes(shape, GZ_LEAFLET)"
+          class="panel content left-column item-1-2"
+        </ShapeChoosers>
+
+        <ShapeListAndPreview
+          :gz-saved="!!gz.id"
+          :geojson-shape="previewShape?.shape"
+          :raw-shapes="shapes"
+          @deleteShape="(shape) => removeFromShapes(shape)"
+          @previewing="(bool) => (previewing = bool)"
+          v-model="operationIsUnion"
+          class="right-column"
         />
+
       </div>
-    </div>
-
-    <ProjectsChooser
-      v-if="!gz.id"
-      v-model="selectedProjects"
-      selection-text="Select projects to save this gazetteer to."
-    />
-
-    <ShapeCombinationChooser
-      v-if="!gz.id"
-      :inputs-disabled="shapeEditingDisabled"
-      v-model="operationIsUnion"
-    />
-  </div>
-
-  <OtherInputs
-    v-if="!gz.id"
-    :inputs-disabled="shapeEditingDisabled"
-    @new-shape="(data, type) => addToShapes(data, type)"
-  />
-
-  <Leaflet
-    :shapes="leafletShapes"
-    @shapes-updated="(shape) => addToShapes(shape, GZ_LEAFLET)"
-    :editing-disabled="shapeEditingDisabled"
-  />
-
-  <Preview
-    v-if="!gz.id"
-    v-model="previewing"
-    :preview-disabled="previewDisabled"
-    :operation-is-union="operationIsUnion"
-  />
-
-  <OtherInputs
-    v-if="!gz.id"
-    :inputs-disabled="shapeEditingDisabled"
-    @new-shape="(data, type) => addToShapes(data, type)"
-  />
-
-  <UnionInput
-    v-if="!gz.id"
-    :inputs-disabled="shapeEditingDisabled"
-    @new-shape="(data, type) => addToShapes(data, type)"
-  />
-
-  <DisplayList
-    class="geolist"
-    :list="shapes"
-    @delete="(shape) => removeFromShapes(shape)"
-    :editing-disabled="shapeEditingDisabled"
-  />
+    </template>
+  </BlockLayout>
 </template>
 
 <script setup>
-import DisplayList from './components/DisplayList.vue'
-import Leaflet from './components/Leaflet.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 import NavBar from './components/NavBar.vue'
-import OtherInputs from './components/OtherInputs.vue'
-import Preview from './components/Preview.vue'
-import ProjectsChooser from '../components/ProjectsChooser.vue'
-import ShapeCombinationChooser from './components/ShapeCombinationChooser.vue'
-import UnionInput from './components/UnionInput.vue'
+import NonGeoData from './components/NonGeoData.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import SetParam from '@/helpers/setParam'
+import ShapeListAndPreview from './components/ShapeListAndPreview.vue'
+import ShapeChoosers from './components/ShapeChoosers.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { Gazetteer } from '@/routes/endpoints'
 import { computed, ref, watch } from 'vue'
@@ -125,14 +89,11 @@ const operationIsUnion = ref(true)
 
 const previewing = ref(false)
 const previewShape = ref(null)
+// If the operation at the time of the cached preview shape was Union
 const previewOperationIsUnion = ref(null)
 
 const leafletShapes = computed(() => {
-  if (previewing.value && previewShape.value) {
-    return [previewShape.value.shape]
-  } else {
-    return shapes.value.map((item) => item.shape)
-  }
+  return shapes.value.map((item) => item.shape)
 })
 
 const saveDisabled = computed(() => {
@@ -155,14 +116,6 @@ const saveDisabled = computed(() => {
   )
 })
 
-const shapeEditingDisabled = computed(() => {
-  return previewing.value || !!gz.value.id
-})
-
-const previewDisabled = computed(() => {
-  return !!gz.value.id || shapes.value.length == 0
-})
-
 watch(
   previewing,
   (newVal) => {
@@ -170,6 +123,10 @@ watch(
       previewGz()
     }
   }
+)
+
+watch(
+  operationIsUnion, () => (previewGz()), { immediate: true }
 )
 
 const { gazetteer_id } = URLParamsToJSON(location.href)
@@ -199,9 +156,15 @@ function loadGz(gzId) {
           uuid: randomUUID()
         }
       ]
+      setPreviewData(shapes.value[0], operationIsUnion.value)
     })
     .catch(() => {})
     .finally(() => { isLoading.value = false })
+}
+
+function setPreviewData(shape, union) {
+  previewShape.value = shape
+  previewOperationIsUnion.value = union
 }
 
 function saveGz() {
@@ -250,14 +213,16 @@ function combineShapesToGz() {
 }
 
 function shapesUpdated() {
-  previewing.value = false
   // Bust the preview cache
   previewShape.value = null
   previewOperationIsUnion.value = null
+  if (previewing.value && !gz.value.id) {
+    previewGz()
+  }
 }
 
 function previewGz() {
-  if (previewCacheIsValid()) {
+  if (previewCacheIsValid() || shapes.value.length == 0) {
     return
   }
 
@@ -277,7 +242,7 @@ function previewGz() {
         }
       previewOperationIsUnion.value = operationIsUnion.value
     })
-    .catch(() => { previewing.value = false })
+    .catch(() => { previewShape.value = null })
     .finally(() => { isLoading.value = false})
 }
 
@@ -307,6 +272,7 @@ function saveNewGz() {
       ]
       SetParam(RouteNames.NewGazetteer, 'gazetteer_id', gz.value.id)
       shapesUpdated()
+      setPreviewData(shapes.value[0], operationIsUnion.value)
       TW.workbench.alert.create('New gazetteer created.', 'notice')
     })
     .catch(() => {})
@@ -332,7 +298,7 @@ function updateGz() {
 
 function reset() {
   shapes.value = []
-  previewing.value = false
+  previewing.value = true
   previewShape.value = null
   previewOperationIsUnion.value = null
   gz.value = {}
@@ -384,5 +350,30 @@ function removeFromShapes(shape) {
   display: flex;
   align-items: flex-start;
   gap: 2em;
+}
+
+#gazetteer-panels {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  grid-column-gap: 1em;
+  grid-row-gap: 0.5em;
+}
+
+.left-column {
+}
+
+.right-column {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.item-1-1 {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.item-1-2 {
+  grid-column: 1;
+  grid-row: 2;
 }
 </style>

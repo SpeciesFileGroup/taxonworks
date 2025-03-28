@@ -1,53 +1,91 @@
 <template>
-  <div class="union-inputs">
-    <fieldset class="shape-input">
-      <legend>Add Geographic Areas to this Gazetteer</legend>
-      <VAutocomplete
-        :disabled="inputsDisabled"
-        min="2"
-        placeholder="Select a Geographic Area"
-        label="label_html"
-        display="label"
-        clear-after
-        param="term"
-        :addParams="{ mark: false }"
-        url="/geographic_areas/autocomplete"
-        @get-item="(item) => addShape(item, GZ_COMBINE_GA)"
-      />
-    </fieldset>
+  <div class="shape-choose-buttons">
+    <div class="margin-medium-bottom">
+      <button
+        class="button normal-input button-default shrink-button"
+        @click="() => (showGA = true)"
+      >
+        Add a Geographic Area
+      </button>
+    </div>
 
-    <fieldset class="shape-input">
-      <legend>Add other Gazetteers to this Gazetteer</legend>
-      <VAutocomplete
-        :disabled="inputsDisabled"
-        min="2"
-        placeholder="Select a Gazetteer"
-        label="label_html"
-        display="label"
-        clear-after
-        param="term"
-        url="/gazetteers/autocomplete"
-        @get-item="(item) => addShape(item, GZ_COMBINE_GZ)"
-      />
-    </fieldset>
+    <div>
+      <button
+        class="button normal-input button-default shrink-button"
+        @click="() => (showGZ = true)"
+      >
+        Add a Gazetteer
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <VModal
+      v-if="showGZ || showGA"
+      @close="() => {
+        showGZ = false
+        showGA = false
+      }"
+      :container-style="{
+        width: '600px',
+        height: '80vh'
+      }"
+    >
+      <template #header>
+        <slot name="header"><h3>{{ modalHeader }}</h3></slot>
+      </template>
+
+      <template #body>
+        <VAutocomplete
+          v-if="showGA"
+          min="2"
+          placeholder="Select a Geographic Area"
+          label="label_html"
+          display="label"
+          clear-after
+          param="term"
+          :addParams="{ mark: false }"
+          url="/geographic_areas/autocomplete"
+          @get-item="(item) => addShape(item, GZ_COMBINE_GA)"
+        />
+
+        <VAutocomplete
+          v-if="showGZ"
+          min="2"
+          placeholder="Select a Gazetteer"
+          label="label_html"
+          display="label"
+          clear-after
+          param="term"
+          url="/gazetteers/autocomplete"
+          @get-item="(item) => addShape(item, GZ_COMBINE_GZ)"
+        />
+      </template>
+    </VModal>
   </div>
 </template>
 
 <script setup>
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import VModal from '@/components/ui/Modal.vue'
+import { computed, ref } from 'vue'
 import {
   GZ_COMBINE_GA,
   GZ_COMBINE_GZ
 } from '@/constants/index.js'
 
-const props = defineProps({
-  inputsDisabled: {
-    type: Boolean,
-    default: false
+const emit = defineEmits(['newShape'])
+
+const showGZ = ref(false)
+const showGA = ref(false)
+
+const modalHeader = computed(() => {
+  if (showGZ.value) {
+    return 'Add other Gazetteers to this Gazetteer'
+  } else {
+    return 'Add Geographic Areas to this Gazetteer'
   }
 })
-
-const emit = defineEmits(['newShape'])
 
 function addShape(item, type) {
   if (type == GZ_COMBINE_GA && item.label_html.includes('without shape')) {
@@ -67,8 +105,8 @@ function addShape(item, type) {
   margin-right: 1em;
 }
 
-.union-inputs {
+.shape-choose-buttons {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
 }
 </style>

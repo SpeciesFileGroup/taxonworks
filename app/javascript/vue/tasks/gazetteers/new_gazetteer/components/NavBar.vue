@@ -5,20 +5,8 @@
         <span
           class="margin-small-left"
         >
-          {{ headerLabel }}
+          <h2>{{ headerLabel }}</h2>
         </span>
-        <div
-          v-if="gz.id"
-          class="horizontal-left-content margin-small-left gap-small"
-        >
-          <VPin
-            class="circle-button"
-            :object-id="gz.id"
-            type="Gazetteer"
-          />
-          <RadialAnnotator :global-id="gz.global_id" />
-          <RadialNavigator :global-id="gz.global_id" />
-        </div>
       </div>
       <ul class="context-menu no_bullets">
         <li class="horizontal-right-content">
@@ -60,7 +48,7 @@ import { computed } from 'vue'
 const props = defineProps({
   gz: {
     type: Object,
-    default: {}
+    default: () => ({})
   },
   saveDisabled: {
     type: Boolean,

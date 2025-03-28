@@ -34,7 +34,7 @@
                 v-if="!editingDisabled"
                 color="primary"
                 circle
-                @click="deleteItem(item)"
+                @click="() => (emit('delete', item))"
               >
                 <VIcon
                   name="trash"

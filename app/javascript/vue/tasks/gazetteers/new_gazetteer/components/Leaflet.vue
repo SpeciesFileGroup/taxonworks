@@ -15,8 +15,8 @@
     :edit-mode="false"
     tooltips
     actions
-    @geoJsonLayersEdited="(shape) => addToShapes(shape)"
-    @geoJsonLayerCreated="(shape) => addToShapes(shape)"
+    @geoJsonLayersEdited="(shape) => emit('shapesUpdated', shape)"
+    @geoJsonLayerCreated="(shape) => emit('shapesUpdated', shape)"
   />
 </template>
 
@@ -26,7 +26,7 @@ import VMap from '@/components/georeferences/map'
 const props = defineProps({
   shapes: {
     type: Array,
-    default: []
+    default: () => []
   },
   editingDisabled: {
     type: Boolean,
@@ -36,14 +36,10 @@ const props = defineProps({
 
 const emit = defineEmits(['shapesUpdated'])
 
-function addToShapes(shape) {
-  emit('shapesUpdated', shape)
-}
 </script>
 
 <style lang="scss" scoped>
 .lmap {
   max-width: 80vw;
-  margin: 0px auto 2em auto;
 }
 </style>
