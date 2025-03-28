@@ -2,6 +2,8 @@
   <VSpinner v-if="isLoading" />
   <NavBar
     :gz="gz"
+    :projects-user-is-member-of="projectsUserIsMemberOf"
+    v-model="selectedProjects"
     :save-disabled="saveDisabled"
     @save-gz="() => saveGz()"
     @reset-gz="() => reset()"
@@ -28,6 +30,7 @@
         <NonGeoData
           v-model:gz="gz"
           v-model:projects="selectedProjects"
+          :projects-user-is-member-of="projectsUserIsMemberOf"
           class="panel content left-column item-1-1"
         />
 
@@ -65,12 +68,14 @@ import ShapeListAndPreview from './components/ShapeListAndPreview.vue'
 import ShapeChoosers from './components/ShapeChoosers.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { Gazetteer } from '@/routes/endpoints'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { getCurrentUserId } from '@/helpers'
 import { randomUUID } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import { removeFromArray } from '@/helpers/arrays'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { usePopstateListener } from '@/composables'
+import { User } from '@/routes/endpoints'
 import {
   GZ_POINT,
   GZ_WKT,
@@ -91,6 +96,7 @@ const previewing = ref(false)
 const previewShape = ref(null)
 // If the operation at the time of the cached preview shape was Union
 const previewOperationIsUnion = ref(null)
+const projectsUserIsMemberOf = ref([])
 
 const leafletShapes = computed(() => {
   return shapes.value.map((item) => item.shape)
@@ -335,6 +341,13 @@ function removeFromShapes(shape) {
   shapesUpdated()
 }
 
+onMounted(() => {
+  User.projects(getCurrentUserId())
+    .then(({ body }) => {
+      projectsUserIsMemberOf.value = body
+    })
+    .catch(() => {})
+})
 </script>
 
 <style lang="scss" scoped>

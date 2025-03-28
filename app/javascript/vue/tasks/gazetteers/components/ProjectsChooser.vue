@@ -30,13 +30,18 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 
 const currentProject = Number(getCurrentProjectId())
 const projects = ref([])
+const isLoading = ref(false)
+
 const selectedProjects = defineModel()
-const isLoading = ref(true)
 
 const props = defineProps({
   selectionText: {
     type: String,
     default: ''
+  },
+  projectsUserIsMemberOf: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -51,15 +56,25 @@ watch(
 )
 
 onMounted(() => {
+  if (props.projectsUserIsMemberOf.length > 0) {
+    setInitialValues(props.projectsUserIsMemberOf)
+    return
+  }
+
   isLoading.value = true
   User.projects(getCurrentUserId())
     .then(({ body }) => {
-      projects.value = body
-      selectedProjects.value = [currentProject]
+      setInitialValues(body)
     })
     .finally(() => { isLoading.value = false })
 })
 
+function setInitialValues(projectList) {
+  projects.value = projectList
+  if (selectedProjects.value.length == 0) {
+   selectedProjects.value = [currentProject]
+  }
+}
 </script>
 
 <style lang="scss" scoped>

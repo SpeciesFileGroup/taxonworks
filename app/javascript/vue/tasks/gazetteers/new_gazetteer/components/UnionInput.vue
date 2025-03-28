@@ -11,7 +11,7 @@
 
     <div>
       <button
-        class="button normal-input button-default shrink-button"
+        class="button normal-input button-default"
         @click="() => (showGZ = true)"
       >
         Add a Gazetteer

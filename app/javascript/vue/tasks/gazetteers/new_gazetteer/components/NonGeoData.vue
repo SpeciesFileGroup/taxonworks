@@ -27,17 +27,26 @@
       />
     </div>
 
-    <ProjectsChooser
-      v-if="!gz.id"
+    <ProjectsButton
+      v-if="projectsUserIsMemberOf.length > 1"
+      :gz="gz"
+      :projects-user-is-member-of="projectsUserIsMemberOf"
       v-model="selectedProjects"
-      selection-text="Select projects to save this gazetteer to."
     />
+
   </div>
 
 </template>
 
 <script setup>
-import ProjectsChooser from '../../components/ProjectsChooser.vue'
+import ProjectsButton from './ProjectsButton.vue'
+
+const props = defineProps({
+  projectsUserIsMemberOf: {
+    type: Array,
+    default: () => []
+  }
+})
 
 const gz = defineModel('gz', {type: Object, required: true})
 const selectedProjects = defineModel('projects', {type: Array, required: true})

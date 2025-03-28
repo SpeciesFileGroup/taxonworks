@@ -5,17 +5,26 @@
         <span
           class="margin-small-left"
         >
-          <h2>{{ headerLabel }}</h2>
+          <h3>{{ headerLabel }}</h3>
         </span>
       </div>
       <ul class="context-menu no_bullets">
         <li class="horizontal-right-content">
           <a
             href="/gazetteers"
-            class="gzs-link"
+            class="margin-small-right"
           >
             Gazetteers
           </a>
+
+          <ProjectsButton
+            v-if="projectsUserIsMemberOf.length > 1"
+            :gz="gz"
+            :projects-user-is-member-of="projectsUserIsMemberOf"
+            v-model="selectedProjects"
+            class="margin-large-right"
+          />
+
           <VBtn
             :disabled="saveDisabled"
             @click="emit('saveGz')"
@@ -24,6 +33,7 @@
           >
             {{ saveLabel }}
           </VBtn>
+
           <VBtn
             @click="emit('resetGz')"
             class="button normal-input button-default button-size"
@@ -39,10 +49,8 @@
 
 <script setup>
 import NavBar from '@/components/layout/NavBar.vue'
-import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import ProjectsButton from './ProjectsButton.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VPin from '@/components/ui/Button/ButtonPin.vue'
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -53,10 +61,16 @@ const props = defineProps({
   saveDisabled: {
     type: Boolean,
     default: true
+  },
+  projectsUserIsMemberOf: {
+    type: Array,
+    default: () => []
   }
 })
 
 const emit = defineEmits(['saveGz', 'resetGz'])
+
+const selectedProjects = defineModel({type: Array, required: true})
 
 const headerLabel = computed(() => {
   return props.gz.id ? props.gz.name : 'New Gazetteer'
