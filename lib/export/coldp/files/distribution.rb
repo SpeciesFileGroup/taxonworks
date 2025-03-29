@@ -32,27 +32,27 @@ module Export::Coldp::Files::Distribution
       otus.each do |o|
         o.asserted_distributions.includes(:asserted_distribution_shape).each do |ad|
 
-          ga = ad.asserted_distribution_shape
-          if ga.iso_3166_a3.present?
+          shape = ad.asserted_distribution_shape
+          if shape.iso_3166_a3.present?
             gazetteer = 'iso'
-            area_id = ga.iso_3166_a3
-            area = ga.iso_3166_a3
-          elsif ga.iso_3166_a2.present?
+            area_id = shape.iso_3166_a3
+            area = shape.iso_3166_a3
+          elsif shape.iso_3166_a2.present?
             gazetteer = 'iso'
-            area_id = ga.iso_3166_a2
-            area = ga.iso_3166_a2
-          elsif ga.tdwgID.present?
+            area_id = shape.iso_3166_a2
+            area = shape.iso_3166_a2
+          elsif shape.respond_to?(:tdwgID) && shape.tdwgID.present?
             gazetteer = 'tdwg'
-            if ga.data_origin == 'tdwg_l3' or ga.data_origin == 'tdwg_l4'
-              area_id = ga.tdwgID.gsub(/^[0-9]{1,2}(.+)$/, '\1')  # fixes mismatch in TW vs CoL TDWG level 3 & 4 identifiers
+            if shape.data_origin == 'tdwg_l3' or shape.data_origin == 'tdwg_l4'
+              area_id = shape.tdwgID.gsub(/^[0-9]{1,2}(.+)$/, '\1')  # fixes mismatch in TW vs CoL TDWG level 3 & 4 identifiers
             else
-              area_id = ga.tdwgID
+              area_id = shape.tdwgID
             end
             area = area_id
           else
             gazetteer = 'text'
             area_id = nil
-            area = ga.name
+            area = shape.name
           end
 
           sources = ad.sources.load
