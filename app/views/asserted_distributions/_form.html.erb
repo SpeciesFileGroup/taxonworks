@@ -19,7 +19,7 @@
           object: 'asserted_distribution',
           method: 'asserted_distribution_shape_id',
           tag_id: 'geographic_area_id_for_asserted_distribution_shape_id',
-          display: geographic_area_tag(@asserted_distribution.asserted_distribution_shape),
+          display: @asserted_distribution.asserted_distribution_shape_type == 'GeographicArea' ? geographic_area_tag(@asserted_distribution.asserted_distribution_shape) : '',
           size: 20
         %>
       </div>
@@ -34,7 +34,7 @@
           object: 'asserted_distribution',
           method: 'asserted_distribution_shape_id',
           tag_id: 'gazetteer_id_for_asserted_distribution_shape_id',
-          display: gazetteer_tag(@asserted_distribution.asserted_distribution_shape),
+          display: @asserted_distribution.asserted_distribution_shape_type == 'Gazetteer' ? gazetteer_tag(@asserted_distribution.asserted_distribution_shape) : '',
           size: 20
         %>
       </div>

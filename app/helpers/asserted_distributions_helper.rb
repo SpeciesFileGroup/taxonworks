@@ -6,7 +6,7 @@ module AssertedDistributionsHelper
       otu_tag(asserted_distribution.otu).html_safe,
       (asserted_distribution.is_absent ? tag.span(' not in ', class: [:feedback, 'feedback-thin', 'feedback-warning']).html_safe : ' in ').html_safe,
       # TODO: indicate if the shape is a GA or GZ
-      object_tag(asserted_distribution.asserted_distribution_shape.metamorphosize).html_safe
+      asserted_distribution_geo(asserted_distribution, true).html_safe
     # ' by ',
     # (asserted_distribution.source.cached_author_string ? asserted_distribution.source.cached_author_string
     # : content_tag(:span, '[source authors must be updated]', class: :warning))
@@ -15,9 +15,9 @@ module AssertedDistributionsHelper
 
   def label_for_asserted_distribution(asserted_distribution)
     return nil if asserted_distribution.nil?
-    [ label_for_otu(asserted_distribution.otu),
-      # TODO: indicate if the shape is a GA or GZ
-      label_for(asserted_distribution.asserted_distribution_shape.metamorphosize),
+    [
+      label_for_otu(asserted_distribution.otu),
+      asserted_distribution_geo(asserted_distribution, false)
     ].compact.join(' in ')
   end
 
@@ -25,15 +25,46 @@ module AssertedDistributionsHelper
     return nil if asserted_distribution.nil?
     [
       link_to(
-        otu_tag(asserted_distribution.otu).html_safe, asserted_distribution.otu),
-        (asserted_distribution.is_absent ? content_tag(:span, ' not in ', class: :warning) : ' in '
+        otu_tag(asserted_distribution.otu).html_safe, asserted_distribution.otu
+      ),
+      (asserted_distribution.is_absent ? content_tag(:span, ' not in ', class: :warning) : ' in '
       ),
       link_to(
-        # TODO: indicate if the shape is a GA or GZ
-        object_tag(asserted_distribution.asserted_distribution_shape.metamorphosize).html_safe,
+        asserted_distribution_geo(asserted_distribution, true).html_safe,
         asserted_distribution
       )
     ].join('&nbsp;').html_safe
+  end
+
+  def asserted_distribution_geo(asserted_distribution, html)
+    if html
+      [
+        object_tag(asserted_distribution.asserted_distribution_shape.metamorphosize),
+        geo_flair(asserted_distribution, true)
+      ].join('&nbsp;')
+    else
+      [
+        label_for(asserted_distribution.asserted_distribution_shape.metamorphosize),
+        geo_flair(asserted_distribution, false)
+      ].join(' ')
+    end
+  end
+
+  def geo_flair(asserted_distribution, html)
+    case asserted_distribution.asserted_distribution_shape_type
+    when 'GeographicArea'
+      if html
+        content_tag(:span, 'Geographic Area', class: [:feedback, 'feedback-primary', 'feedback-thin'])
+      else
+        '[Geographic Area]'
+      end
+    when 'Gazetteer'
+      if html
+        content_tag(:span, 'Gazetteer', class: [:feedback, 'feedback-secondary', 'feedback-thin'])
+      else
+        '[Gazetteer]'
+      end
+    end
   end
 
   def asserted_distributions_search_form
