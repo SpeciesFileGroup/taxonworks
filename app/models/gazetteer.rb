@@ -33,6 +33,8 @@ class Gazetteer < ApplicationRecord
 
   ALTERNATE_VALUES_FOR = [:name].freeze
 
+  GZ_DATA_ORIGIN = 'TaxonWorks Gazetteer'.freeze
+
   delegate :geo_object, to: :geographic_item
 
   belongs_to :geographic_item, inverse_of: :gazetteers
@@ -368,6 +370,10 @@ class Gazetteer < ApplicationRecord
 
   def default_geographic_item_id
     geographic_item.id
+  end
+
+  def data_origin
+    GZ_DATA_ORIGIN
   end
 
   private

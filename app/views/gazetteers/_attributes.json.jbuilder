@@ -5,6 +5,7 @@ json.extract! gazetteer, :id, :name, :project_id,
 json.partial!('/shared/data/all/metadata', object: gazetteer)
 
 json.has_shape true
+json.data_origin gazetteer.data_origin
 
 # TODO make this an extended option(?)
 # if embed_response_with('shape')
