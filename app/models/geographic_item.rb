@@ -53,7 +53,6 @@ class GeographicItem < ApplicationRecord
 
   has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_item
   has_many :geographic_areas, through: :geographic_areas_geographic_items
-  has_many :asserted_distributions, through: :geographic_areas
   has_many :geographic_area_types, through: :geographic_areas
   has_many :parent_geographic_areas, through: :geographic_areas, source: :parent
 

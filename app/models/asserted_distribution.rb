@@ -66,9 +66,25 @@ class AssertedDistribution < ApplicationRecord
   # TODO: deprecate scopes referencing single parameter where()
   scope :with_otu_id, -> (otu_id) { where(otu_id:) }
   scope :with_is_absent, -> { where('is_absent = true') }
-  # TODO keep, change?
   scope :with_geographic_area_array, -> (geographic_area_array) { where("asserted_distribution_shape_type = 'GeographicArea' AND asserted_distribution_shape_id IN (?)", geographic_area_array) }
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
+  # Includes a `geographic_item_id` column.
+  scope :associated_with_geographic_items, -> {
+    a = AssertedDistribution
+      .where(asserted_distribution_shape_type: 'GeographicArea')
+      .joins('JOIN geographic_areas ON asserted_distribution_shape_id = geographic_areas.id')
+      .joins('JOIN geographic_areas_geographic_items on geographic_areas.id = geographic_areas_geographic_items.geographic_area_id')
+      .joins('JOIN geographic_items on geographic_items.id = geographic_areas_geographic_items.geographic_item_id')
+      .select('asserted_distributions.*, geographic_items.id geographic_item_id')
+
+    b = AssertedDistribution
+      .where(asserted_distribution_shape_type: 'Gazetteer')
+      .joins('JOIN gazetteers ON asserted_distribution_shape_id = gazetteers.id')
+      .joins('JOIN geographic_items on gazetteers.geographic_item_id = geographic_items.id')
+      .select('asserted_distributions.*, geographic_items.id geographic_item_id')
+
+    ::Queries.union(AssertedDistribution, [a, b])
+  }
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
 

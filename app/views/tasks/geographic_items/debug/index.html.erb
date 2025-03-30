@@ -27,8 +27,13 @@
     <h3> Project specific </h3>
     <%= table_from_hash_tag({
       'Georeferences' => collecting_events_count_using_this_geographic_item(@geographic_item.id),
-      'AssertedDistributions' => @geographic_item.asserted_distributions.where(project_id: sessions_current_project_id).count,
-      'Gazetteers' => @geographic_item.gazetteers.where(project_id: sessions_current_project_id).count
+      'AssertedDistributions' => AssertedDistribution
+        .associated_with_geographic_items
+        .where(project_id: sessions_current_project_id)
+        .where("asserted_distributions.geographic_item_id = #{@geographic_item.id}")
+        .count,
+      'Gazetteers' => @geographic_item.gazetteers
+        .where(project_id: sessions_current_project_id).count
     }) %>
 
   </div>

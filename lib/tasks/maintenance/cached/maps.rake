@@ -175,7 +175,7 @@ namespace :tw do
         task parallel_create_cached_map_from_georeferences: [:environment] do |t|
           q = Georeference.joins(:otus).where.missing(:cached_map_register).distinct
 
-          puts "Caching #{q.all.size} georeferences records."
+          puts "Caching #{q.count} georeferences records."
 
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
@@ -197,9 +197,10 @@ namespace :tw do
 
         desc 'build CachedMapItems for AssertedDistributions that do not have them'
         task parallel_create_cached_map_from_asserted_distributions: [:environment] do |t|
-          q = AssertedDistribution.joins(:geographic_items).where.missing(:cached_map_register).distinct
+          q = AssertedDistribution.associated_with_geographic_items
+            .where.missing(:cached_map_register).distinct
 
-          puts "Caching #{q.all.size} AssertedDistribution records."
+          puts "Caching #{q.count} AssertedDistribution records."
 
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
