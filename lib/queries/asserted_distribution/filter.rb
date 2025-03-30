@@ -12,6 +12,7 @@ module Queries
 
       PARAMS = [
         :asserted_distribution_id,
+        # These 3 are currently reserved for spatial facet searches
         :asserted_distribution_shape_id,
         :asserted_distribution_shape_mode,
         :asserted_distribution_shape_type,
@@ -24,6 +25,7 @@ module Queries
         :otu_id,
         :presence,
         :radius,
+        :shape_type,
         :taxon_name_id,
         :wkt,
         asserted_distribution_id: [],
@@ -33,6 +35,7 @@ module Queries
         geographic_area_id: [],
         geographic_item_id: [],
         otu_id: [],
+        shape_type: [],
         taxon_name_id: [],
       ].freeze
 
@@ -101,6 +104,9 @@ module Queries
       #   !! defaults to 100m
       attr_accessor :radius
 
+      # @return [Array]
+      attr_accessor :shape_type
+
       def initialize(query_params)
         super
         @asserted_distribution_id =
@@ -119,6 +125,7 @@ module Queries
         @otu_id = integer_param(params, :otu_id)
         @presence = boolean_param(params, :presence)
         @radius = params[:radius].presence || 100.0
+        @shape_type = params[:shape_type]
         @taxon_name_id = integer_param(params, :taxon_name_id)
         @wkt = params[:wkt]
 
@@ -152,6 +159,10 @@ module Queries
 
       def geographic_item_id
         [@geographic_item_id].flatten.compact
+      end
+
+      def shape_type
+        [@shape_type].flatten.compact
       end
 
       def taxon_name_id
@@ -231,6 +242,13 @@ module Queries
         else
           nil
         end
+      end
+
+      def shape_type_facet
+        return nil if shape_type.empty?
+
+        ::AssertedDistribution
+          .where(asserted_distribution_shape_type: shape_type)
       end
 
       # DEPRECATED, use asserted_distribution_shape_facet instead
@@ -397,6 +415,7 @@ module Queries
           geographic_item_id_facet,
           taxon_name_id_facet,
           wkt_facet,
+          shape_type_facet
         ]
       end
 

@@ -9,6 +9,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
 
   let(:ad1) { FactoryBot.create(:valid_asserted_distribution, otu: o1) }
   let(:ad2) { FactoryBot.create(:valid_asserted_distribution, otu: o2) }
+  let(:ad_gz) { FactoryBot.create(:valid_gz_asserted_distribution, otu: o1) }
 
   let(:small_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ) }
   let(:big_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 ) }
@@ -166,6 +167,20 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
 
     q = query.new({gazetteer_id: large_gz.id})
     expect(q.all).to contain_exactly(a, b)
+  end
+
+  specify '#shapeType GA' do
+    ad1
+    ad_gz
+    q = query.new({shape_type: 'GeographicArea'})
+    expect(q.all).to contain_exactly(ad1)
+  end
+
+  specify '#shapeType GZ' do
+    ad1
+    ad_gz
+    q = query.new({shape_type: 'Gazetteer'})
+    expect(q.all).to contain_exactly(ad_gz)
   end
 
   # # Source query integration
