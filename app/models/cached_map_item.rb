@@ -186,8 +186,10 @@ class CachedMapItem < ApplicationRecord
   end
 
   # @return [Array]
-  # @param origin_type
-  #   'AssertedDistribution' or 'Georeference'
+  # @param geographic_area_based [Boolean]
+  #   true if geographic_item_id is the geographic_item id of some geographic
+  #   area (and so has a chance of already being associated with a cached map
+  #   item/translation)
   #
   # @param data_origin Array, String
   #   like `ne_states` or ['ne_states, 'ne_countries']
@@ -196,7 +198,9 @@ class CachedMapItem < ApplicationRecord
   #   shr,ink (or grow) the size of the target shape, in meters
   #   Typical use, do not apply for Georeferences, apply -10km for AssertedDistributions
   #
-  def self.translate_geographic_item_id(geographic_item_id, origin_type = nil, data_origin = nil, buffer = nil)
+  def self.translate_geographic_item_id(
+    geographic_item_id, geographic_area_based, data_origin = nil, buffer = nil
+  )
     return nil if data_origin.blank?
 
     cached_map_type = types_by_data_origin(data_origin)
@@ -206,7 +210,7 @@ class CachedMapItem < ApplicationRecord
     b = buffer
 
     # All these methods depend on "prior knowledge" (not spatial calculations)
-    if origin_type == 'AssertedDistribution'
+    if geographic_area_based
       a = translate_by_geographic_item_translation(geographic_item_id, cached_map_type)
       return a if a.present?
 
@@ -260,14 +264,12 @@ class CachedMapItem < ApplicationRecord
     }
 
     geographic_item_id = nil
-    name_hierarchy = nil
     otu_id = nil
 
     base_class_name = o.class.base_class.name
 
     case base_class_name
     when 'AssertedDistribution'
-      # TODO make sure cached map works with GZ-backed ADs
       geographic_item_id = o.asserted_distribution_shape.default_geographic_item_id
       otu_id = [o.otu_id]
     when 'Georeference'
@@ -279,9 +281,11 @@ class CachedMapItem < ApplicationRecord
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 
+      geographic_area_based = base_class_name == 'AssertedDistribution' &&
+        o.asserted_distribution_shape_type == 'GeographicArea'
       h[:geographic_item_id] = translate_geographic_item_id(
         geographic_item_id,
-        base_class_name,
+        geographic_area_based,
         cached_map_type.safe_constantize::SOURCE_GAZETEERS
       )
 

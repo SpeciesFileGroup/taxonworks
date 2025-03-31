@@ -41,7 +41,6 @@
 
 <div class="flexbox separate-bottom">
   <div class="panel content">
-    <% orientations = @geographic_item.orientations %>
     <h3> Shape </h3>
     <%= simple_map([@geographic_item]) -%>
   </div>
@@ -49,7 +48,10 @@
   <% if @geographic_item.st_is_valid %>
     <div class="panel content separate-left">
       <h3> WebLevel1 (full translate) </h3>
-      <% a = CachedMapItem.translate_geographic_item_id( @geographic_item.id, 'AssertedDistribution', ['ne_states']) %>
+      <% a = CachedMapItem.translate_geographic_item_id( @geographic_item.id,
+        true, # A fib, but should give the correct result in all cases
+        ['ne_states'])
+      %>
       <div>
         <%= simple_map( GeographicItem.where(id: a) ) %>
 
