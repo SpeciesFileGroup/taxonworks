@@ -404,6 +404,7 @@
           :class="{
             'cell-selected-border': item.id === lastRadialOpenedRow
           }"
+          v-bind="item._bind"
           v-show="rowHasCurrentValues(item)"
           @mouseover="() => emit('mouseover:row', { index, item })"
         >

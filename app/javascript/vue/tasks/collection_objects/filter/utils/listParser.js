@@ -18,6 +18,17 @@ function getTaxonDetermination(determinations) {
   return []
 }
 
+function makeRowBind(dwc) {
+  return dwc.rebuild_set
+    ? {
+        _bind: {
+          class: 'row-dwc-reindex-pending',
+          title: 'DwcOccurrence re-index is pending.'
+        }
+      }
+    : {}
+}
+
 export async function listParser(list, { parameters }) {
   const { extend, exclude, ...rest } = parameters
   const { body } = await DataAttribute.brief({
@@ -56,7 +67,8 @@ export async function listParser(list, { parameters }) {
       taxon_determinations: getTaxonDetermination(taxon_determinations),
       dwc_occurrence,
       identifiers,
-      data_attributes: getDataAttributesFor(body, item.id)
+      data_attributes: getDataAttributesFor(body, item.id),
+      ...makeRowBind(dwc_occurrence)
     }
   })
 }
