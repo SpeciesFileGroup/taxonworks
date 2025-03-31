@@ -224,6 +224,79 @@
               </div>
             </th>
           </template>
+          <template
+            v-if="
+              dataAttributeHeaders.length &&
+              (!isLayoutConfig || layout.includes.data_attributes)
+            "
+          >
+            <th
+              v-for="(header, index) in dataAttributeHeaders"
+              :key="header"
+              :class="{
+                'cell-left-border': index === 0,
+                freeze: freezeColumn.includes(`data_attributes.${header}`)
+              }"
+              :style="
+                freezeColumn.includes(`data_attributes.${header}`) && {
+                  left: freezeColumnLeftPosition[`data_attributes.${header}`]
+                }
+              "
+            >
+              <div class="horizontal-left-content gap-small">
+                <VLock
+                  :value="`data_attributes.${header}`"
+                  v-model="freezeColumn"
+                />
+                <VBtn
+                  color="primary"
+                  circle
+                  title="Copy column to clipboard"
+                  @click.stop="
+                    () =>
+                      copyColumnToClipboard(
+                        props.list
+                          .filter(rowHasCurrentValues)
+                          .map((item) =>
+                            renderItem(item, 'data_attributes', header)
+                          )
+                          .join('\n')
+                      )
+                  "
+                >
+                  <VIcon
+                    name="clip"
+                    title="Copy column to clipboard"
+                    x-small
+                  />
+                </VBtn>
+                <VBtn
+                  title="Sort alphabetically"
+                  color="primary"
+                  circle
+                  @click.stop="() => sortTable(`data_attributes.${header}`)"
+                >
+                  <VIcon
+                    name="alphabeticalSort"
+                    title="Sort alphabetically"
+                    x-small
+                  />
+                </VBtn>
+                <VBtn
+                  v-if="filterValues[`data_attributes.${header}`]"
+                  color="primary"
+                  circle
+                  @click.stop="
+                    () => {
+                      delete filterValues[`data_attributes.${header}`]
+                    }
+                  "
+                >
+                  X
+                </VBtn>
+              </div>
+            </th>
+          </template>
         </tr>
 
         <tr class="header-row-attributes">
@@ -308,8 +381,16 @@
               v-for="(header, index) in dataAttributeHeaders"
               :key="header"
               scope="colgroup"
-              :class="{ 'cell-left-border': index === 0 }"
-              @click="sortTable(`data_attributes.${header}`)"
+              :data-th-column="`data_attributes.${header}`"
+              :class="{
+                'cell-left-border': index === 0,
+                freeze: freezeColumn.includes(`data_attributes.${header}`)
+              }"
+              :style="
+                freezeColumn.includes(`data_attributes.${header}`) && {
+                  left: freezeColumnLeftPosition[`data_attributes.${header}`]
+                }
+              "
             >
               {{ header }}
             </th>
@@ -436,7 +517,19 @@
             <td
               v-for="(predicateName, dIndex) in dataAttributeHeaders"
               :key="predicateName"
-              :class="{ 'cell-left-border': dIndex === 0 }"
+              :class="{
+                'cell-left-border': dIndex === 0,
+                freeze: freezeColumn.includes(
+                  `data_attributes.${predicateName}`
+                )
+              }"
+              :style="
+                freezeColumn.includes(`data_attributes.${predicateName}`) && {
+                  left: freezeColumnLeftPosition[
+                    `data_attributes.${predicateName}`
+                  ]
+                }
+              "
               v-text="item.data_attributes[predicateName]"
             />
           </template>
