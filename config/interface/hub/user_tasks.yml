@@ -1027,3 +1027,11 @@ filter_field_occurrences_task:
   categories:
   status: prototype
   description: 'Filter field occurrences by many different facets, download or visualize results.'
+taxon_names_table_task:
+  hub: true
+  name: 'Taxon names table'
+  related:
+  categories:
+    - nomeclature
+  status: prototype
+  description: 'A simple table view of taxon names including checklist-style columns of names at rank, author, and year.'

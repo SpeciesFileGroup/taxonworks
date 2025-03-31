@@ -747,6 +747,10 @@ scope :tasks do
     scope :filter, controller: 'tasks/taxon_names/filter' do
       get '/', as: 'filter_taxon_names_task', action: :index
     end
+
+    scope :table, controller: 'tasks/taxon_names/table' do
+      match '/', action: :index, via: [:get, :post], as: :taxon_names_table_task
+    end
   end
 
   scope :type_material do
