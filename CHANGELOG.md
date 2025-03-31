@@ -9,10 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- offset parameter to copy_table_to_clipboard helper [#4265]
-
-### Added
-
+- Offset parameter to copy_table_to_clipboard helper [#4265]
 - Collecting event metadata task (count of use, plot of time), via filter
 
 ### Fixed

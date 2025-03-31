@@ -23,15 +23,17 @@
 
 <%= tag.span(a.length.to_s + ' records' , class: [:feedback, 'feedback-info', 'feedback-thin']) %>
 
+<%= copy_table_to_clipboard('#use_summary', 1) %>
+
 <table id="use_summary" class="tablesorter ">
   <thead>
     <th> </th>
-    <th class="header"> id </th>
-    <th class="header"> Total use </th>
-    <th class="header"> Geographic area </th>
-    <th class="header"> Verbatim_locality </th>
-    <th class="header"> Date range </th>
-    <th class="header"> Collectors </th>
+    <th class="header">id</th>
+    <th class="header">Total use</th>
+    <th class="header">Geographic area</th>
+    <th class="header">Verbatim_locality</th>
+    <th class="header">Date range</th>
+    <th class="header">Collectors</th>
   </thead>
 
   <% a.each do |r| %>
@@ -42,12 +44,12 @@
           <li> <%= radial_annotator(r) %> </li>
         </ul>
       </td>
-      <td> <%= r.id %> </td>
-      <td> <%= r.total %> </td>
-      <td> <%= object_link(r.geographic_area) %> </td>
-      <td> <%= r.verbatim_locality %> </td>
-      <td> <%= r.date_range.join("-") %> </td>
-      <td> <%= collecting_event_collectors_tag(r) %> </td>
+      <td><%= r.id %></td>
+      <td><%= r.total %></td>
+      <td><%= object_link(r.geographic_area) %></td>
+      <td><%= r.verbatim_locality %></td>
+      <td><%= r.date_range.join("-") %></td>
+      <td><%= collecting_event_collectors_tag(r) %></td>
     </tr>
   <% end %>
 </table>
