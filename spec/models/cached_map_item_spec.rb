@@ -5,11 +5,29 @@ RSpec.describe CachedMapItem, type: :model, group: [:geo, :cached_map] do
   include_context 'cached map scenario'
 
   specify '#translate_geographic_item_id' do
-    expect(CachedMapItem.translate_geographic_item_id(gi2.id, 'AssertedDistribution',  ['ne_states'])).to contain_exactly(gi1.id)
+    expect(CachedMapItem.translate_geographic_item_id(gi2.id, true,  ['ne_states'])).to contain_exactly(gi1.id)
   end
 
   specify '#translate_geographic_item_id' do
-    expect(CachedMapItem.translate_geographic_item_id(gi3.id, 'AssertedDistribution', ['ne_states'])).to contain_exactly(gi1.id)
+    expect(CachedMapItem.translate_geographic_item_id(gi3.id, true, ['ne_states'])).to contain_exactly(gi1.id)
+  end
+
+  context 'Gazetteer-backed asserted distributions' do
+    let!(:gz) { FactoryBot.create(:valid_gazetteer, geographic_item_id: gi2.id) }
+    let!(:ad) { FactoryBot.create(:valid_asserted_distribution,
+      asserted_distribution_shape: gz) }
+
+    specify 'Translates CachedMapItem' do
+      Delayed::Worker.new.work_off
+      expect(CachedMapItem.first.geographic_item_id).to eq(gi1.id)
+    end
+
+    specify 'Creates CachedMapItemTranslation for Gazetteer-associated GeographicItems' do
+      Delayed::Worker.new.work_off
+      cmit = CachedMapItemTranslation.first
+      expect(cmit.geographic_item_id).to eq(gi2.id)
+      expect(cmit.translated_geographic_item_id).to eq(gi1.id)
+    end
   end
 
 end
