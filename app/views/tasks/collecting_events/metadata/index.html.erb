@@ -1,0 +1,54 @@
+<%= graph_javascript_tag %>
+
+<h1> Collecting event metadata </h1>
+
+<%= link_to('Filter', filter_collecting_events_task_url(@collecting_event_query.params)) %> <br> <br>
+
+<h2> By start year </h2>
+
+<%= column_chart Utilities::Dates.range_year_hash(
+  ::CollectingEvent.with(ce: @collecting_events)
+  .joins('JOIN ce on ce.id = collecting_events.id')
+  .where('collecting_events.start_date_year is not null')
+  .group('collecting_events.start_date_year')
+  .count), discrete: true, ytitle: 'Count', xtitle: 'Year collected', height: '400px', download: true
+%>
+<h2 data-help="Field occurrence and collection object total."> Use </h2>
+
+<% a = ::CollectingEvent.with(ce: @collecting_events.select(:id))
+  .joins('JOIN ce on ce.id = collecting_events.id')
+  .left_joins(:collection_objects, :field_occurrences)
+  .select('collecting_events.*, (count(collection_objects.id) + count(field_occurrences.id)) as total')
+  .group('collecting_events.id') %>
+
+<%= tag.span(a.length.to_s + ' records' , class: [:feedback, 'feedback-info', 'feedback-thin']) %>
+
+<table id="use_summary" class="tablesorter ">
+  <thead>
+    <th> </th>
+    <th class="header"> id </th>
+    <th class="header"> Total use </th>
+    <th class="header"> Geographic area </th>
+    <th class="header"> Verbatim_locality </th>
+    <th class="header"> Date range </th>
+    <th class="header"> Collectors </th>
+  </thead>
+
+  <% a.each do |r| %>
+    <tr>
+      <td>
+        <ul class="no_bullets context-menu">
+          <li> <%= radial_navigation_tag(r) %> </li>
+          <li> <%= radial_annotator(r) %> </li>
+        </ul>
+      </td>
+      <td> <%= r.id %> </td>
+      <td> <%= r.total %> </td>
+      <td> <%= object_link(r.geographic_area) %> </td>
+      <td> <%= r.verbatim_locality %> </td>
+      <td> <%= r.date_range.join("-") %> </td>
+      <td> <%= collecting_event_collectors_tag(r) %> </td>
+    </tr>
+  <% end %>
+</table>
+

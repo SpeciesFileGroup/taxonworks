@@ -9,14 +9,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+### Added
+
+- Collecting event metadata task (count of use, plot of time), via filter
+
 ### Fixed
 
+- Min/max use of Collecting Event filter facet [#4252]
 - Unify Otu failing because of CachedMap references
 - Determiner is not carrying over in locked, containerized COs in CSD [#4250]
 - Filter CO: blank fields dispersed among sort [#4255]
 - Filter CO: otu name is empty in taxon determinations rows [#4257]
 - Filter CE: some data attributes are missing from results [#4258]
 
+[#4252]: https://github.com/SpeciesFileGroup/taxonworks/issues/4252
 [#4250]: https://github.com/SpeciesFileGroup/taxonworks/issues/4250
 [#4255]: https://github.com/SpeciesFileGroup/taxonworks/issues/4255
 [#4257]: https://github.com/SpeciesFileGroup/taxonworks/issues/4257

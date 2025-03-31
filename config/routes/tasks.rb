@@ -325,6 +325,10 @@ scope :tasks do
   end
 
   scope :collecting_events do
+    scope :metadata, controller: 'tasks/collecting_events/metadata' do
+      match '/', action: :index, via: [:get, :post], as: :collecting_event_metadata_task
+    end
+
     scope :spatial_summary, controller: 'tasks/collecting_events/spatial_summary' do
       match '/', action: :index, via: [:get, :post], as: 'collecting_events_spatial_summary_task'
     end
