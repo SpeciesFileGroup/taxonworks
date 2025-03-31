@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- offset parameter to copy_table_to_clipboard helper [#4265]
 
 ### Added
 
@@ -27,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4255]: https://github.com/SpeciesFileGroup/taxonworks/issues/4255
 [#4257]: https://github.com/SpeciesFileGroup/taxonworks/issues/4257
 [#4258]: https://github.com/SpeciesFileGroup/taxonworks/issues/4258
+[#4265]: https://github.com/SpeciesFileGroup/taxonworks/issues/4265
 
 ## [0.49.0] - 2025-03-18
 
