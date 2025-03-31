@@ -89,8 +89,8 @@ module AssertedDistributionsHelper
           'id' => asserted_distribution.id,
           'label' => label_for_asserted_distribution(asserted_distribution) },
         'shape' => {
-          'type' => 'GeographicArea', # TODO where does this get used? is it needed?
-          'id' => asserted_distribution.asserted_distribution_shape_type },
+          'type' => asserted_distribution.asserted_distribution_shape_type,
+          'id' => asserted_distribution.asserted_distribution_shape_id },
         'is_absent' => asserted_distribution.is_absent
       }
     }

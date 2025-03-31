@@ -211,9 +211,6 @@ class CachedMapItem < ApplicationRecord
 
     # All these methods depend on "prior knowledge" (not spatial calculations)
     if geographic_area_based
-      a = translate_by_geographic_item_translation(geographic_item_id, cached_map_type)
-      return a if a.present?
-
       a = translate_by_data_origin(geographic_item_id, data_origin)
       return a if a.present?
 
@@ -223,6 +220,8 @@ class CachedMapItem < ApplicationRecord
       a = translate_by_cached_map_usage(geographic_item_id, cached_map_type)
       return a if a.present?
 
+      # TODO should Gazetteer GIs be getting a dynamic buffer? They don't
+      # currently.
       b = dynamic_buffer(geographic_item_id) # -1000.0 # Monaco
     end
 
@@ -281,13 +280,19 @@ class CachedMapItem < ApplicationRecord
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 
-      geographic_area_based = base_class_name == 'AssertedDistribution' &&
-        o.asserted_distribution_shape_type == 'GeographicArea'
-      h[:geographic_item_id] = translate_geographic_item_id(
-        geographic_item_id,
-        geographic_area_based,
-        cached_map_type.safe_constantize::SOURCE_GAZETEERS
-      )
+      # We assume georefs won't match on an existing translation
+      if base_class_name != 'Georeference' &&
+         (a = translate_by_geographic_item_translation(geographic_item_id, cached_map_type)).present?
+        h[:geographic_item_id] = a
+      else
+        geographic_area_based = base_class_name == 'AssertedDistribution' &&
+          o.asserted_distribution_shape_type == 'GeographicArea'
+        h[:geographic_item_id] = translate_geographic_item_id(
+          geographic_item_id,
+          geographic_area_based,
+          cached_map_type.safe_constantize::SOURCE_GAZETEERS
+        )
+      end
 
       if h[:geographic_item_id].blank?
         h[:geographic_item_id] = [geographic_item_id]

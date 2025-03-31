@@ -81,7 +81,7 @@ class Georeference < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
-  include Shared::Maps
+  include Shared::Maps # TODO: included twice
   include Shared::DwcOccurrenceHooks
   include Shared::IsData
 
