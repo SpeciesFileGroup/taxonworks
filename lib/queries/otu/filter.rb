@@ -437,7 +437,7 @@ module Queries
 
         case geographic_area_mode
         when nil, false # exact, descendants
-          b = ::Otu.joins(:asserted_distributions).where(asserted_distributions: { geographic_area: a })
+          b = ::Otu.joins(:asserted_distributions).where(asserted_distributions: { asserted_distribution_shape: a })
           c = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: { geographic_area: a })
         when true # spatial
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope

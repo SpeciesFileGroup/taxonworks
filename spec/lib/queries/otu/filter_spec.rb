@@ -3,7 +3,7 @@ require 'support/shared_contexts/shared_geo'
 
 describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, :otus, :shared_geo] do
 
-  let(:q) { Queries::Otu::Filter.new({}) }
+    let(:q) { Queries::Otu::Filter.new({}) }
 
   let(:o1) { Otu.create!(name: 'Abc 1') }
   let(:o2) { Otu.create!(name: 'Def 2') }
@@ -673,7 +673,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       let(:ad2) do
         ad = AssertedDistribution.new(
           otu: by_bill,
-          geographic_area: sub_area_b,
+          asserted_distribution_shape: sub_area_b,
           by: geo_user,
           project: geo_project)
         ad.origin_citation = cite2
@@ -703,7 +703,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
         let(:params) { {drawn_area_shape: area_a.to_simple_json_feature,
                         selection_objects: ['CollectionObject', 'AssertedDistribution']} }
         let(:ad2a) do
-          ad2.update(geographic_area:  sub_area_a)
+          ad2.update(asserted_distribution_shape:  sub_area_a)
         end
 
         specify 'nomen count' do
