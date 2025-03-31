@@ -48,6 +48,8 @@ function sortArray(arr, sortProperty, ascending = true) {
   const len = prop.length
 
   return list.sort((a, b) => {
+    if (!sortProperty) return sortFunction(a, b, ascending)
+
     for (let i = 0; i < len; i++) {
       if (a) {
         a = a[prop[i]]

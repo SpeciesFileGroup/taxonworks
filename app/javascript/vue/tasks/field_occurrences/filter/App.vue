@@ -8,6 +8,7 @@
       :object-type="FIELD_OCCURRENCE"
       :selected-ids="selectedIds"
       :list="list"
+      :csv-options="csvOptions"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -55,7 +56,7 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
-import useFilter from '@/shared/Filter/composition/useFilter.js'
+import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import { LAYOUTS } from './constants/layouts'
@@ -98,4 +99,6 @@ const {
   makeFilterRequest,
   resetFilter
 } = useFilter(FieldOccurrence, { listParser, initParameters: { extend } })
+
+const csvOptions = useCSVOptions({ layout: currentLayout, list })
 </script>
