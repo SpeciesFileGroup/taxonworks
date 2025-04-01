@@ -4,9 +4,29 @@ import { DataAttribute } from '@/routes/endpoints'
 import { flattenObject } from '@/helpers'
 
 function getTaxonDetermination(determinations) {
-  return determinations.length
-    ? determinations.toSorted((a, b) => a.position - b.position)[0]
-    : []
+  if (determinations.length) {
+    const [determination] = determinations.toSorted(
+      (a, b) => a.position - b.position
+    )
+
+    return {
+      ...determination,
+      otu_name: determination?.otu?.name
+    }
+  }
+
+  return []
+}
+
+function makeRowBind(dwc) {
+  return dwc.rebuild_set
+    ? {
+        _bind: {
+          class: 'row-dwc-reindex-pending',
+          title: 'DwcOccurrence re-index is pending.'
+        }
+      }
+    : {}
 }
 
 export async function listParser(list, { parameters }) {
@@ -47,7 +67,8 @@ export async function listParser(list, { parameters }) {
       taxon_determinations: getTaxonDetermination(taxon_determinations),
       dwc_occurrence,
       identifiers,
-      data_attributes: getDataAttributesFor(body, item.id)
+      data_attributes: getDataAttributesFor(body, item.id),
+      ...makeRowBind(dwc_occurrence)
     }
   })
 }

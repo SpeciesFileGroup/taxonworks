@@ -124,3 +124,10 @@ export const TASK_SIMPLEMAPPR = {
   post: true,
   queryParam: true
 }
+
+export const TASK_COLLECTING_EVENT_METADATA = {
+  label: 'Metadata',
+  link: '/tasks/collecting_events/metadata',
+  post: true,
+  queryParam: true
+}

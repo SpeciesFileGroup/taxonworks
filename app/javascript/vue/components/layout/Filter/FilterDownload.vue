@@ -53,7 +53,7 @@ const props = defineProps({
 
   csvOptions: {
     type: Object,
-    default: () => ({})
+    default: () => undefined
   },
 
   extendDownload: {
@@ -86,29 +86,28 @@ function sanatizeValue(value) {
   return DOMPurify.sanitize(value, { USE_PROFILES: { html: false } })
 }
 
-const CSV_DOWNLOAD = {
+const csvDownload = computed(() => ({
   label: 'CSV',
   component: csvButton,
   bind: {
-    options: {
+    options: props.csvOptions || {
       transforms: [flatten({ object: true, array: true, separator: '_' })],
-      formatters: { string: stringFormatter() },
-      ...props.csvOptions
+      formatters: { string: stringFormatter() }
     }
   }
-}
+}))
 
 const DOWNLOAD_LIST = computed(() => {
   const list = props.extendDownload
 
   return list.some((item) => item.label === 'CSV')
     ? list
-    : [CSV_DOWNLOAD, ...list]
+    : [csvDownload.value, ...list]
 })
 
 const selectedDownloadItem = computed(() =>
   DOWNLOAD_LIST.value.find(({ label }) => label === selectedDownloadLabel.value)
 )
 
-const selectedDownloadLabel = ref(CSV_DOWNLOAD.label)
+const selectedDownloadLabel = ref(csvDownload.value.label)
 </script>

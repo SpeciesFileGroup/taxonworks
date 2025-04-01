@@ -117,6 +117,7 @@
             <span class="separate-left separate-right">|</span>
             <FilterDownload
               :list="selectedItems"
+              :csv-options="csvOptions"
               :extend-download="extendDownload"
             />
             <span class="separate-left separate-right">|</span>
@@ -176,6 +177,11 @@ import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 
 const props = defineProps({
   pagination: {
+    type: Object,
+    default: undefined
+  },
+
+  csvOptions: {
     type: Object,
     default: undefined
   },
