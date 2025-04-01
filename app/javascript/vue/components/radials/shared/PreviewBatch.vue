@@ -84,6 +84,7 @@ function makeBatchloadRequest() {
     .then(({ body }) => {
       data.value = body
     })
+    .catch(() => {})
     .finally(() => {
       isLoading.value = false
     })
