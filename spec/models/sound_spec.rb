@@ -2,7 +2,6 @@ require 'rails_helper'
 
 RSpec.describe Sound, type: :model do
 
-
   let(:s) { FactoryBot.build(:valid_sound) }
 
   # Might get in the way of parallel tests
