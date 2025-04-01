@@ -4,13 +4,14 @@ module TaxonWorks
       module BasicEndemism
 
         # @param taxon_name [TaxonName] required
-        # @param geographic_area [GeographicArea] required
+        # @param asserted_distribution_shape_type [String] required
+        # @param asserted_distribution_shape_id [Integer] required
         # @return [Hash]
         #    a very simple report summarizing asserted distributions
-        #    !! only a single geographic area is used (not its children)
-        def self.quick_endemism(taxon_name, geographic_area) # TODO update params for GZ as well as GA
-          asserted_distribution_shape_type = 'GeographicArea'
-          asserted_distribution_shape_id = geographic_area.id
+        #    !! only a single shape is used (not its children)
+        def self.quick_endemism(taxon_name,
+          asserted_distribution_shape_type, asserted_distribution_shape_id
+        )
           data = {}
 
           otus =  Otu.descendant_of_taxon_name(taxon_name.id)

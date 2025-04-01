@@ -31,7 +31,7 @@
   <%= submit_tag 'Set scope', class: 'button-default'  %>
 <% end %>
 
-<h2> Scope: <%= taxon_name_tag(@taxon_name) -%> for <%= geographic_area_tag(@geographic_area) -%> </h2>
+<h2> Scope: <%= taxon_name_tag(@taxon_name) -%> for <%= object_tag(@shape) -%> </h2>
 
 <table>
   <tr>
@@ -49,7 +49,7 @@
       <%= content_tag(:td, object_tag(t.ancestor_at_rank(:genus))) -%>
       <%= content_tag(:td, taxon_name_browse_link(t)) -%>
       <%= content_tag(:td, !@data[t]) -%>
-      
+
       <!-- TODO: we need a more explicit map since invalid OTUs are lost in the linkage below) -->
       <%= content_tag(:td, link_to('map', browse_asserted_distributions_task_path(otu_id: t.otus&.first&.id) )) -%>
     </tr>
