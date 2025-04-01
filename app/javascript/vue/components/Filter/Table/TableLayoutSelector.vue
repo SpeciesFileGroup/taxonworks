@@ -26,7 +26,9 @@
         >
           <template #item="{ element: [key] }">
             <div>
-              <h3 class="capitalize cursor-grab">
+              <h3
+                class="capitalize cursor-grab horizontal-left-content gap-small"
+              >
                 <label class="cursor-grab">
                   <input
                     type="checkbox"
@@ -47,6 +49,7 @@
                   />
                   {{ humanize(key) }}
                 </label>
+                <IcconRightLeft class="w-4" />
               </h3>
               <VueDraggable
                 class="no_bullets"
@@ -135,6 +138,9 @@
       class="rounded-tl-none rounded-bl-none"
       medium
       color="primary"
+      v-help="
+        'Customize layout: Properties can be toggled on or off by clicking the checkboxes. You can also reorder them by dragging. Also, columns can be rearranged by dragging them left or right.'
+      "
       @click="openLayoutPreferences"
     >
       <VIcon
@@ -153,6 +159,8 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VueDraggable from 'vuedraggable'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { sortArrayByArray } from '@/helpers'
+import IcconRightLeft from '@/components/Icon/IcconRightLeft.vue'
+import { vHelp } from '@/directives'
 
 const props = defineProps({
   layouts: {

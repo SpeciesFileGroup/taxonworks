@@ -50,7 +50,7 @@
       </VModal>
       <VBtn
         class="circle-button"
-        title="Radial batch annoator"
+        title="Radial batch annotator"
         circle
         color="radial"
         :disabled="disabled || (!ids.length && !Object.keys(params).length)"
@@ -58,7 +58,7 @@
       >
         <VIcon
           name="radialMassAnnotator"
-          title="Radial batch annoator"
+          title="Radial batch annotator"
           x-small
         />
       </VBtn>

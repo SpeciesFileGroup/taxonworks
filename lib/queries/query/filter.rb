@@ -706,6 +706,13 @@ module Queries
       clauses.compact!
 
       return nil if clauses.empty?
+
+      # TODO: consider whether to implement this.
+      # It should be safe, except, possibly for aggregate based queries
+      # that include custom attributes, would these get cleared.
+      # We could requier that at this level they are wrapped in a From etc.
+      # a = clauses.collect{|q| q.unscope(:select).select(:id) }
+
       referenced_klass_intersection(clauses)
     end
 

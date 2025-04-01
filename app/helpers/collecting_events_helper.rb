@@ -77,7 +77,7 @@ module CollectingEventsHelper
     ) if collecting_event.collectors.any?
 
     a << '&nbsp;'.html_safe + content_tag(:span,  collecting_event.verbatim_collectors, class: [:feedback, 'feedback-thin','feedback-secondary']) if collecting_event.verbatim_collectors
-    a
+    a.html_safe
   end
 
   # Slow, but accurate
