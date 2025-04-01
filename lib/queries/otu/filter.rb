@@ -580,6 +580,30 @@ module Queries
         ::Otu.from('(' + s + ') as otus').distinct
       end
 
+      # !! This is a soft-link (i.e. no otu_id FK directly), so latency between indexing has a very small proability
+      # !! of impacting the results.
+      def dwc_occurrence_query_facet
+        return nil if dwc_occurrence_query.nil?
+
+        a = dwc_occurrence_query.all.object_join('CollectionObject').select(dwc_occurrences: [:dwc_occurrence_object_id])
+        b = dwc_occurrence_query.all.object_join('AssertedDistribution').select(dwc_occurrences: [:dwc_occurrence_object_id])
+        c = dwc_occurrence_query.all.object_join('FieldOccurrence').select(dwc_occurrences: [:dwc_occurrence_object_id])
+
+        d = ::Otu.with(co: a)
+              .joins(:taxon_determinations).where(taxon_determinations: {position: 1})
+              .joins('JOIN co on co.dwc_occurrence_object_id = taxon_determinations.taxon_determination_object_id')
+
+        e = ::Otu.with(ad: b)
+              .joins(:asserted_distributions)
+              .joins('JOIN ad on ad.dwc_occurrence_object_id = asserted_distributions.id')
+
+        f = ::Otu.with(fo: c)
+              .joins(:taxon_determinations).where(taxon_determinations: {position: 1})
+              .joins('JOIN fo on fo.dwc_occurrence_object_id = taxon_determinations.taxon_determination_object_id')
+
+        ::Queries.union(::Otu, [d,e,f])
+      end
+
       # Expands result of OTU filter query in 2 ways:
       #  1 - to include all valid OTUs by (proxy of TaxonName) if OTU is by proxy invalid
       #  2 - to include all invalid OTUS (by proxy of TaxonName) if OTU is by proxy valid
@@ -641,6 +665,7 @@ module Queries
           biological_association_query_facet,
           collecting_event_query_facet,
           collection_object_query_facet,
+          dwc_occurrence_query_facet,
           field_occurrence_query_facet,
           content_query_facet,
           descriptor_query_facet,

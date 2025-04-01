@@ -47,15 +47,15 @@ module Queries
       content: [:source, :otu, :taxon_name, :image],
       controlled_vocabulary_term: [:data_attribute],
       data_attribute: [:collection_object, :collecting_event, :field_occurrence, :taxon_name, :otu],
-      dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event],
+      dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event, :field_occurrence],
       depiction: [:image],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
-      field_occurrence: [:collecting_event, :otu, :biological_association], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
+      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
       image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
       observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],
-      otu: [:asserted_distribution, :biological_association, :collection_object, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
+      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
@@ -113,7 +113,9 @@ module Queries
     }.freeze
 
     # @return [Array]
-    # @param project_id [Array, Integer]
+    # @param project_id [Array, Integer, false]
+    #  !! when passed false then Current.project_id is not applied, i.e. the result will be []
+    #  !! use the false pattern only for internal calls (e.g. rewriting
     attr_accessor :project_id
 
     # Apply pagination within Filter scope
@@ -268,8 +270,15 @@ module Queries
       # !! This is the *only* place Current.project_id should be seen !! It's still not the best
       # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
       # Ideally we'd have a global class param that stores this that all Filters would have access to,
-      # rather than an instance variable.
-      @project_id = query_params[:project_id] || Current.project_id
+      # rather than an instance variable
+      @project_id = case
+                    when query_params[:project_id] == false # !! Only internal should pass this, therefor no type conversions
+                      nil
+                    when query_params[:project_id].blank?
+                      Current.project_id
+                    else
+                      query_params[:project_id]
+                    end
 
       @paginate = boolean_param(query_params, :paginate)
       @per = query_params[:per]
@@ -316,7 +325,6 @@ module Queries
 
     def venn_mode
       v = @venn_mode.to_s.downcase.to_sym
-      v  = :ab if v.blank?
       if [:a, :ab, :b].include?(v)
         v
       else
@@ -699,6 +707,13 @@ module Queries
       clauses.compact!
 
       return nil if clauses.empty?
+
+      # TODO: consider whether to implement this.
+      # It should be safe, except, possibly for aggregate based queries
+      # that include custom attributes, would these get cleared.
+      # We could requier that at this level they are wrapped in a From etc.
+      # a = clauses.collect{|q| q.unscope(:select).select(:id) }
+
       referenced_klass_intersection(clauses)
     end
 
@@ -707,8 +722,18 @@ module Queries
     end
 
     def venn_query
-      u = ::Addressable::URI.parse(venn)
-      p = ::Rack::Utils.parse_query(u.query)
+      u = ::Addressable::URI.parse(venn).query
+      # Brackets may be multi-encoded
+      t = nil
+      i = 0
+      max = 10
+      while t != u && i < max
+        t = u
+        u = Addressable::URI.unencode(t)
+        i += 1
+      end
+
+      p = ::Rack::Utils.parse_nested_query(u) # nested supports brackets
 
       a = ActionController::Parameters.new(p)
 
@@ -716,8 +741,8 @@ module Queries
     end
 
     # @return Boolean
-    #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on iniitializea
-    #   false - there are no params at ALL or at least one that is not `project_id`
+    #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on initialize
+    #   false - there are no params at ALL or at least one that is not `project_id`, and project_id != false
     def only_project?
       (project_id_facet && target_and_clauses.size == 1 && all_merge_clauses.nil?) ? true : false
     end
@@ -755,7 +780,7 @@ module Queries
         q = referenced_klass.all
       end
 
-      if venn && !api
+      if venn_mode && venn && !api
         q = apply_venn(q)
       end
 

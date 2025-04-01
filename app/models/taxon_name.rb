@@ -208,7 +208,7 @@ class TaxonName < ApplicationRecord
   # See related concept in concerns/shared/taxonomy, this may belong there.
   #
   # @return [Hash]
-   attr_reader :taxonomy
+  attr_reader :taxonomy
 
   # @return array of all taxon_name_relationships (name is subject), memoized
   # NOT USED
@@ -381,13 +381,13 @@ class TaxonName < ApplicationRecord
   scope :with_rank_class_including, -> (include_string) { where('rank_class LIKE ?', "%#{include_string}%") }
 
   # A specific relationship
-  scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
+  scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { joins(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
   scope :as_subject_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
   scope :as_subject_without_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('(taxon_name_relationships.type NOT LIKE ?) OR (taxon_name_relationships.subject_taxon_name_id IS NULL)', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
   scope :as_subject_with_taxon_name_relationship_array, -> (taxon_name_relationship_name_array) { includes(:taxon_name_relationships).where('(taxon_name_relationships.type IN (?)) OR (taxon_name_relationships.subject_taxon_name_id IS NULL)', "#{taxon_name_relationship_name_array}%").references(:taxon_name_relationships) }
   scope :as_subject_without_taxon_name_relationship_array, -> (taxon_name_relationship_name_array) { includes(:taxon_name_relationships).where('(taxon_name_relationships.type NOT IN (?)) OR (taxon_name_relationships.subject_taxon_name_id IS NULL)', "#{taxon_name_relationship_name_array}%").references(:taxon_name_relationships) }
   scope :as_subject_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:taxon_name_relationships) }
-  scope :as_object_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
+  scope :as_object_with_taxon_name_relationship, -> (taxon_name_relationship) { joins(:related_taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
   scope :as_object_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
   scope :as_object_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
 
@@ -395,6 +395,7 @@ class TaxonName < ApplicationRecord
   def self.with_taxon_name_relationship(relationship)
     a = TaxonName.joins(:taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
     b = TaxonName.joins(:related_taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
+    # Note UNION removes duplicates so this returns unique results.
     TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
   end
 
@@ -791,10 +792,11 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # TODO:  Belongs in catatlog or helper
   # @return [array]
-  # returns array of hashes for history of taxon. Could be used for catalogue construction.  Belongs in catatlog or helper
+  # returns array of hashes for history of taxon. Could be used for catalogue construction.
   def nomeclatural_history
-    history = []
+    h = []
     TaxonName.where(cached_valid_taxon_name_id: self.id).order(:cached_nomenclature_date).each do |t|
       item = {}
       source_author_string = t.is_combination? ? [t.origin_citation&.source&.authority_name, t.origin_citation&.source&.year].join(', ') : nil
@@ -802,9 +804,9 @@ class TaxonName < ApplicationRecord
       item[:name] = t.is_combination? ? t.cached_html : t.cached_original_combination_html
       item[:author_year] = t.is_combination? ? t.cached_author_year + source_author_string : t.original_author_year
       item[:statuses] = t.combined_statuses
-      history.append(item)
+      h.append(item)
     end
-    return history
+    return h
   end
 
   # @return [Class, nil]
@@ -1060,7 +1062,7 @@ class TaxonName < ApplicationRecord
   # TaxonNameRelationship.youngest(
   #  taxon_name_relationships.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM) # .reload
   # )
-     taxon_name_relationships.reload.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
+    taxon_name_relationships.reload.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
   end
 
   # TODO: Write test

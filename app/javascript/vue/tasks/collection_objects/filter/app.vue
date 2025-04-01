@@ -9,6 +9,7 @@
       :object-type="COLLECTION_OBJECT"
       :list="list"
       :extend-download="extendDownload"
+      :csv-options="csvOptions"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
@@ -98,7 +99,6 @@
 
 <script setup>
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
-import useFilter from '@/shared/Filter/composition/useFilter.js'
 import FilterComponent from './components/filter.vue'
 import TableResults from '@/components/Filter/Table/TableResults.vue'
 import DwcDownload from './components/dwcDownload.vue'
@@ -114,6 +114,7 @@ import { COLLECTION_OBJECT } from '@/constants/index.js'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
 import { LAYOUTS } from './constants/layouts.js'
 import { listParser } from './utils/listParser.js'
+import { useCSVOptions, useFilter } from '@/shared/Filter/composition'
 
 const extend = [
   'dwc_occurrence',
@@ -153,6 +154,8 @@ const {
   listParser
 })
 
+const csvOptions = useCSVOptions({ layout: currentLayout, list })
+
 const extendDownload = computed(() => [
   {
     label: 'DwC',
@@ -167,6 +170,7 @@ const extendDownload = computed(() => [
 ])
 
 function removeCOFromList(ids) {
+  L
   list.value = list.value.filter((item) => !ids.includes(item.id))
   selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }
@@ -177,3 +181,10 @@ export default {
   name: 'FilterCollectionObjects'
 }
 </script>
+
+<style scoped>
+:deep(.row-dwc-reindex-pending) {
+  outline: 2px solid var(--color-attention);
+  outline-offset: -2px;
+}
+</style>

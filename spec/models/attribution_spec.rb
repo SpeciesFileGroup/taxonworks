@@ -4,6 +4,18 @@ RSpec.describe Attribution, type: :model do
 
   let(:attribution) { Attribution.new }
 
+  specify 'can not be built nested and invalid' do
+    a = FactoryBot.create(:valid_attribution)
+    b = FactoryBot.build(:valid_attribution, attribution_object: a.attribution_object) 
+    expect(b.valid?).to be_falsey
+  end
+
+  specify 'unique to object' do
+    a = FactoryBot.create(:valid_attribution)
+    b = FactoryBot.build(:valid_attribution, attribution_object: a.attribution_object) 
+    expect(b.valid?).to be_falsey
+  end
+
   specify '#license' do 
     attribution.license = 'foo'
     attribution.valid?

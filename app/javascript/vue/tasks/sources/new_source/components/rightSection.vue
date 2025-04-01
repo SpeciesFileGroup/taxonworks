@@ -4,7 +4,6 @@
       class="overflow-y-auto"
       ref="section"
     >
-      <PanelSearch class="margin-medium-bottom" />
       <documents-component
         ref="documents"
         class="panel"
@@ -26,14 +25,13 @@
 import DocumentsComponent from './documents'
 import SoftValidation from '@/components/soft_validations/panel'
 import MatchesComponent from './matches'
-import PanelSearch from './PanelSearch.vue'
 import { GetterNames } from '../store/getters/getters'
+
 export default {
   components: {
     SoftValidation,
     MatchesComponent,
-    DocumentsComponent,
-    PanelSearch
+    DocumentsComponent
   },
   computed: {
     validations() {

@@ -21,11 +21,12 @@ module Shared::Unify
   # Never auto-handle these, let the final destroy remove them.
   # Housekeeping relations are not hit here, we don't merge users at the moment.
   EXCLUDE_RELATIONS = [
-    :versions,            # Not picked up, but adding in case
-    :dwc_occurrence,      # Will be destroyed on related objects destruction
-    :pinboard_items,      # Technically not needed here
-    :cached_map_register, # Destroyed on merge of things like Georeferences and AssertedDistributions
-    :cached_map_items,
+    :versions,             # Not picked up, but adding in case
+    :dwc_occurrence,       # Will be destroyed on related objects destruction
+    :pinboard_items,       # Technically not needed here
+    :cached_map_register,  # Destroyed on merge of things like Georeferences and AssertedDistributions
+    :cached_map_items,    
+    :cached_maps,          # Destroy alternate
   ]
 
   # Per class, Iterating through all of these
@@ -58,7 +59,7 @@ module Shared::Unify
   #  * We don't want to target convienience relations as they are in essence alias of base-class relations and redundant
   #  * We don't want anything that relates to a calculated cached value
   #  * We *do* want to catch relations that are edges in which the same class of object is on both sides, these require
-  #   an alias.  We inspect for `related_<name>` as a pattern to select these.
+  #   an alias. We inspect for `related_<name>` as a pattern to select these.
   #
   #  TODO: Revist. depending on the`related_XXX naming pattern is brittle-ish, perhaps
   #  converge on using `unife_relations` to force inclusion.

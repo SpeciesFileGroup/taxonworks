@@ -141,6 +141,7 @@ module Queries
 
       # @return [String, nil]
       #   the maximum number of CollectionObjects linked to CollectingEvent
+      #   must be > use_min, defaults to use_min if blank and use_min
       attr_accessor :use_max
 
       # @return [String, nil]
@@ -200,18 +201,34 @@ module Queries
         [@otu_id].flatten.compact
       end
 
+      def use_min
+        return nil if @use_min.blank? && @use_max.blank?
+        @use_min&.to_i || 0
+      end
+
+      def use_max
+        return nil if @use_min.blank? && @use_max.blank?
+        @use_max&.to_i || use_min
+      end
+
       def use_facet
         return nil if (use_min.blank? && use_max.blank?)
-        min_max = [use_min&.to_i, use_max&.to_i ].compact
+        return ::CollectingEvent.none if use_min > use_max
 
-        q = ::CollectingEvent.joins(:collection_objects)
-          .select('collecting_events.*, COUNT(collection_objects.collecting_event_id)')
-          .group('collecting_events.id')
-          .having("COUNT(collecting_event_id) >= #{min_max[0]}")
+        q = ::CollectingEvent.left_joins(:collection_objects, :field_occurrences)
+          .group(collecting_events: [:id])
 
-        # Untested
-        q = q.having("COUNT(collecting_event_id) <= #{min_max[1]}") if min_max[1]
+        if use_min == use_max
+          if use_min == 0
+            q = ::CollectingEvent.where.missing(:collection_objects, :field_occurrences)
+          else
+            q = q.having("COUNT(collection_objects.id) + COUNT(field_occurrences.id) = ? ", use_min)
+          end
+        else
+          q = q.having("COUNT(collection_objects.id) + COUNT(field_occurrences.id) BETWEEN ? AND ?", use_min, use_max)
+        end
 
+        q = q.select(collecting_events: [:id])
         ::CollectingEvent.from('(' + q.to_sql + ') as collecting_events').distinct
       end
 
@@ -353,7 +370,9 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id}).distinct
+        a = ::CollectingEvent.joins(:collection_object_otus).where(otus: {id: otu_id})
+        b = ::CollectingEvent.joins(:field_occurrence_otus).where(otus: {id: otu_id})
+        ::Queries.union(::CollectingEvent, [a,b]).distinct
       end
 
       def matching_collection_object_id
@@ -364,7 +383,7 @@ module Queries
       def collectors_facet
         return nil if collectors.nil?
         if collectors
-          ::CollectingEvent.joins(:collectors)
+          ::CollectingEvent.joins(:collectors).distinct
         else
           ::CollectingEvent.where.missing(:collectors)
         end

@@ -10,6 +10,7 @@ import getPreferences from './getPreferences'
 import getUserId from './getUserId'
 import getAssertedDistributions from './getAssertedDistributions'
 import getCurrentOtu from './getCurrentOtu'
+import getFieldOccurrences from './getFieldOccurrences'
 import getLoadState from './getLoadState'
 import getTaxonName from './getTaxonName'
 import getTaxonNames from './getTaxonNames'
@@ -27,6 +28,7 @@ const GetterNames = {
   GetDepictions: 'getDepictions',
   GetDescendants: 'getDescendants',
   GetGeoreferences: 'getGeoreferences',
+  GetFieldOccurrences: 'getFieldOccurrences',
   GetPreferences: 'getPreferences',
   GetUserId: 'getUserId',
   GetAssertedDistributions: 'getAssertedDistributions',
@@ -60,6 +62,7 @@ const GetterFunctions = {
   [GetterNames.GetObservationsDepictions]: getObservationsDepictions,
   [GetterNames.GetRelatedBiologicalAssociations]:
     getRelatedBiologicalAssociations,
+  [GetterNames.GetFieldOccurrences]: getFieldOccurrences,
   [GetterNames.IsSpeciesGroup]: isSpeciesGroup
 }
 

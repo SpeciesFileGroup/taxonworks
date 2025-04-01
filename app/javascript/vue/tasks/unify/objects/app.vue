@@ -88,6 +88,10 @@
         :on-merge="handleMerge"
         :disabled="!enablePreview"
       />
+      <CompareAttributes
+        :keep="keepObject"
+        :destroy="destroyObject"
+      />
       <VBtn
         color="primary"
         :disabled="!(keepObject || destroyObject)"
@@ -101,6 +105,8 @@
           () => {
             keepObject = null
             destroyObject = null
+            keepRef.refresh()
+            destroyRef.refresh()
           }
         "
       >
@@ -122,6 +128,9 @@ import MetadataCount from './components/MetadataCount.vue'
 import KeepMetadata from './components/KeepMetadata.vue'
 import ModelSelector from './components/ModelSelector.vue'
 import PrewiewMerge from './components/PreviewMerge.vue'
+import CompareAttributes from './components/CompareAttributes.vue'
+import { MAP_MODEL } from './constants'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
 
 const MAX_TOTAL = 250
 
@@ -172,7 +181,8 @@ onMounted(() => {
 
   Object.entries(params).forEach(([key, value]) => {
     if (key.endsWith('_id')) {
-      model.value = toPascalCase(key.slice(0, -3))
+      const paramIdName = toPascalCase(key.slice(0, -3))
+      model.value = MAP_MODEL[paramIdName] || paramIdName
 
       nextTick(() => {
         if (Array.isArray(value)) {
@@ -194,7 +204,8 @@ onMounted(() => {
 
 watch(keepObject, (newVal) => {
   if (newVal) {
-    const paramName = toSnakeCase(model.value) + '_id'
+    const paramName =
+      ID_PARAM_FOR[model.value] || toSnakeCase(model.value) + '_id'
     const newUrl = `${RouteNames.UnifyObjects}?${paramName}=${newVal.id}`
 
     history.pushState(null, null, newUrl)

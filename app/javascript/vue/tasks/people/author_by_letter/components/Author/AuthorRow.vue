@@ -7,13 +7,15 @@
       />
     </td>
     <td>
-      <button
-        v-if="author.roles[0]"
-        class="button normal-input button-default"
+      <VBtn
+        v-if="roleSourcesCount"
+        class="source-list-button"
+        color="primary"
+        medium
         @click="() => emit('sources')"
       >
-        Sources
-      </button>
+        <span> Show ({{ roleSourcesCount }}) </span>
+      </VBtn>
     </td>
     <td>{{ author.id }}</td>
     <td>
@@ -41,23 +43,48 @@
 </template>
 
 <script setup>
+import VBtn from '@/components/ui/VBtn/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import RadialObject from '@/components/radials/navigation/radial'
 import { RouteNames } from '@/routes/routes'
+import { SOURCE } from '@/constants'
+import { computed } from 'vue'
 
-defineProps({
+const props = defineProps({
   author: {
     type: Object,
     required: true
   }
 })
 
+const selected = defineModel({
+  type: Array,
+  required: true
+})
+
 const emit = defineEmits(['sources'])
+
+const roleSourcesCount = computed(
+  () => props.author.roles.filter((r) => r.role_object_type === SOURCE).length
+)
+
+const roles = computed(() => [
+  ...new Set(props.author.roles.map((r) => r.role_object_type))
+])
 </script>
 
 <style scoped>
 .author-column {
   min-width: 200px;
+}
+
+.roles-column {
+  max-width: 120px;
+  white-space: pre;
+}
+
+.source-list-button {
+  min-width: 60px;
 }
 </style>

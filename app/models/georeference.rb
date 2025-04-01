@@ -130,7 +130,7 @@ class Georeference < ApplicationRecord
   attr_accessor :no_cached
 
   before_validation :round_error_radius
-  
+
   after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
 
   after_destroy :set_cached_collecting_event
@@ -139,6 +139,7 @@ class Georeference < ApplicationRecord
     joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
   end
 
+  # TODO: remove, used in match georeferences
   # @param [Array] of parameters in the style of 'params'
   # @return [Scope] of selected georeferences
   def self.filter_by(params)
@@ -243,11 +244,17 @@ class Georeference < ApplicationRecord
   end
 
   def dwc_occurrences
-    DwcOccurrence
+    co = DwcOccurrence
       .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
       .joins('JOIN georeferences g on co.collecting_event_id = g.collecting_event_id')
       .where(g: {id:})
-      .distinct
+
+    fo = DwcOccurrence
+      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
+      .joins('JOIN georeferences g on fo.collecting_event_id = g.collecting_event_id')
+      .where(g: {id:})
+
+    ::Queries.union(DwcOccurrence, [co, fo])
   end
 
   # @return [Hash]

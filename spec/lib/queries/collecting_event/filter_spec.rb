@@ -23,6 +23,40 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   # let!(:i1) { Identifier::Local::FieldNumber.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
+  specify '#use_min 1' do
+    Specimen.create!(collecting_event: ce2)
+    query.use_min = 0
+    expect(query.all).to contain_exactly(ce1)
+  end
+
+  specify '#use_min 2' do
+    Specimen.create!(collecting_event: ce2)
+    query.use_min = 1
+    expect(query.all).to contain_exactly(ce2)
+  end
+
+  specify '#use_min 3' do
+    Specimen.create!(collecting_event: ce2)
+    query.use_min = 1
+    query.use_max = 0
+    expect(query.all).to be_empty
+  end
+
+  specify '#use_max 1' do
+    Specimen.create!(collecting_event: ce2)
+    query.use_max = 1
+    expect(query.all).to contain_exactly(ce1, ce2)
+  end
+
+  specify '#use_max 2' do
+    Specimen.create!(collecting_event: ce2)
+    Specimen.create!(collecting_event: ce2)
+    Specimen.create!(collecting_event: ce1)
+
+    query.use_max = 1
+    expect(query.all).to contain_exactly(ce1)
+  end
+
   specify '#recent' do
     query.recent = true
     expect(query.all.map(&:id)).to contain_exactly(ce2.id, ce1.id)

@@ -160,11 +160,13 @@ RSpec.configure do |config|
     i = 0
     # TODO: Does this actually fixing something nowadays?
     while User.count > 0 && i <= 3
-      puts "DATABASE NOT YET CLEARED, RETRYING..."
+      puts 'DATABASE NOT YET CLEARED, RETRYING...'
       sleep 2**i
       DatabaseCleaner.clean
       i += 1
     end
   end
 
+  # Disable deprecation warnings (see https://github.com/teamcapybara/capybara/issues/2779)
+  Selenium::WebDriver.logger.ignore(:clear_local_storage, :clear_session_storage)
 end

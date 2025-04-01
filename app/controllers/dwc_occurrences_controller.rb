@@ -28,7 +28,7 @@ class DwcOccurrencesController < ApplicationController
         @dwc_occurrences = q.limit(100000)
         send_data Export::CSV.generate_csv(
           @dwc_occurrences,
-          exclude_columns: %w{updated_by_id created_by_id project_id, is_flagged_for_rebuild},
+          exclude_columns: %w{updated_by_id created_by_id project_id, rebuild_set},
         ), type: 'text', filename: "dwc_occurrences_#{DateTime.now}.tsv"
       }
     end

@@ -1,7 +1,7 @@
 <template>
   <div class="flex-separate">
     <div>
-      <table>
+      <table class="table-striped">
         <thead>
           <tr>
             <th>Author</th>
@@ -17,8 +17,8 @@
             :key="item.id"
           >
             <AuthorRow
-              :class="{ highlight: selected == item.id }"
               :author="item"
+              v-model="selectedIds"
               @sources="selectAuthorSources(item.id)"
             />
           </template>
@@ -39,7 +39,7 @@ defineProps({
 })
 
 const emit = defineEmits(['selected'])
-const selected = ref()
+const selectedIds = ref([])
 
 function selectAuthorSources(id) {
   emit('selected', id)
@@ -47,6 +47,7 @@ function selectAuthorSources(id) {
 </script>
 <style scoped>
 .highlight {
+  border: 2px solid red;
   background-color: #e3e8e3;
 }
 </style>

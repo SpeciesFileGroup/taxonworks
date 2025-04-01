@@ -32,7 +32,7 @@
 #   @return [Integer]
 #   The id of the identified object, used in a polymorphic relationship.
 #
-# @!attribute identifier_object_id
+# @!attribute identifier_object_type
 #   @return [String]
 #   The type of the identified object, used in a polymorphic relationship.
 #

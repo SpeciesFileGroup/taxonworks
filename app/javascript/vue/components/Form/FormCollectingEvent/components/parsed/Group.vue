@@ -8,7 +8,10 @@
         label="name"
         nested="records"
         :send-label="collectingEvent.group"
-        @getItem="collectingEvent.group = $event.name"
+        @getItem="(e) => {
+            collectingEvent.group = e.name
+            collectingEvent.isUnsaved = true
+          }"
         :headers="EXTERNAL_HEADERS"
         :add-params="{
           limit: 30,
@@ -26,7 +29,10 @@
         label="name"
         nested="records"
         :send-label="collectingEvent.formation"
-        @getItem="collectingEvent.formation = $event.name"
+        @getItem="(e) => {
+            collectingEvent.formation = e.name
+            collectingEvent.isUnsaved = true
+          }"
         :headers="EXTERNAL_HEADERS"
         :add-params="{
           limit: 30,
@@ -41,6 +47,7 @@
       <input
         type="text"
         v-model="collectingEvent.member"
+        @change="() => { collectingEvent.isUnsaved = true }"
       />
     </div>
     <div class="field label-above">
@@ -48,14 +55,16 @@
       <input
         type="text"
         v-model="collectingEvent.lithology"
+        @change="() => { collectingEvent.isUnsaved = true }"
       />
     </div>
     <div class="horizontal-left-content ma-fields">
       <div class="separate-right label-above">
-        <label>Minumum MA</label>
+        <label>Minimum MA</label>
         <input
           type="text"
           v-model="collectingEvent.min_ma"
+          @change="() => { collectingEvent.isUnsaved = true }"
         />
       </div>
       <div class="separate-left label-above">
@@ -63,6 +72,7 @@
         <input
           type="text"
           v-model="collectingEvent.max_ma"
+          @change="() => { collectingEvent.isUnsaved = true }"
         />
       </div>
     </div>
