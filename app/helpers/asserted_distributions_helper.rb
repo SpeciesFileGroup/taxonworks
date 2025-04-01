@@ -5,7 +5,6 @@ module AssertedDistributionsHelper
     [
       otu_tag(asserted_distribution.otu).html_safe,
       (asserted_distribution.is_absent ? tag.span(' not in ', class: [:feedback, 'feedback-thin', 'feedback-warning']).html_safe : ' in ').html_safe,
-      # TODO: indicate if the shape is a GA or GZ
       asserted_distribution_geo(asserted_distribution, true).html_safe
     # ' by ',
     # (asserted_distribution.source.cached_author_string ? asserted_distribution.source.cached_author_string
