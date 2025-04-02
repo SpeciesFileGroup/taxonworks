@@ -18,7 +18,7 @@
           @selected="setGeographicArea"
         >
           <template #map>
-            <GeographicAreaMapPicker @select="setGeographicArea" />
+            <MapShapePicker @select="setGeographicArea" />
           </template>
           <template #tabs-right>
             <VLock
@@ -44,7 +44,7 @@
 <script setup>
 import { useStore } from '../../store/store'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
+import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'

@@ -16,7 +16,7 @@
         @selected="sendGazetteer"
       >
         <template #map>
-          <GeographicAreaMapPicker
+          <MapShapePicker
             @select="sendGazetteer"
             :shape-endpoint="Gazetteer"
           />
@@ -31,7 +31,7 @@ import { Gazetteer } from '@/routes/endpoints'
 import { ref } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 // TODO: rename this component everywhere I guess
-import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
+import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
 
 const props = defineProps({
   sourceLock: {

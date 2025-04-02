@@ -22,7 +22,7 @@
         @selected="sendGeographic"
       >
         <template #map>
-          <GeographicAreaMapPicker @select="sendGeographic" />
+          <MapShapePicker @select="sendGeographic" />
         </template>
       </SmartSelector>
     </fieldset>
@@ -32,7 +32,7 @@
 <script setup>
 import { ref } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector'
-import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
+import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
 
 const props = defineProps({
   sourceLock: {
