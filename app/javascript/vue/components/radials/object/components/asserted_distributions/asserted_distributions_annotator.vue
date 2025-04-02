@@ -49,30 +49,30 @@
       @edit="setCitation"
       @delete="removeCitation"
     />
-    <GeographicArea
+
+    <div
+      v-if="!citation.source_id || assertedDistribution.id"
+      class="panel content horizontal-center-content padding-large"
+    >
+      <h3>Select a source first</h3>
+    </div>
+    <fieldset
+      v-else
       class="separate-bottom"
-      :source-lock="lock.source"
-      :disabled="!citation.source_id || assertedDistribution.id"
-      @select-geographic-area="
-        (e) => {
-          assertedDistribution.asserted_distribution_shape_type = 'GeographicArea'
-          assertedDistribution.asserted_distribution_shape_id = e
-          saveAssertedDistribution()
-        }
-      "
-    />
-    <Gazetteer
-      class="separate-bottom"
-      :source-lock="lock.source"
-      :disabled="!citation.source_id || assertedDistribution.id"
-      @select-gazetteer="
-        (e) => {
-          assertedDistribution.asserted_distribution_shape_type = 'Gazetteer'
-          assertedDistribution.asserted_distribution_shape_id = e
-          saveAssertedDistribution()
-        }
-      "
-    />
+    >
+      <legend>Shape</legend>
+      <ShapeSelector
+        :focus-on-select="lock.source"
+        @select-shape="
+          (shape) => {
+            assertedDistribution.asserted_distribution_shape_type = shape.shapeType
+            assertedDistribution.asserted_distribution_shape_id = shape.id
+            saveAssertedDistribution()
+          }
+        "
+      />
+    </fieldset>
+
     <div class="horizontal-left-content">
       <VSpinner
         v-if="isLoading"
@@ -101,8 +101,7 @@
 <script setup>
 import TableList from './table.vue'
 import DisplayList from '@/components/displayList.vue'
-import Gazetteer from './gazetteer.vue'
-import GeographicArea from './geographicArea.vue'
+import ShapeSelector from '@/components/ui/SmartSelector/ShapeSelector.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VMap from '@/components/georeferences/map.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
