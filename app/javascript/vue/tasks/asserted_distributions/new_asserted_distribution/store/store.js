@@ -21,7 +21,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
     lock: {
       source: false,
       otu: false,
-      assertedDistributionShape: false,
+      shape: false,
       confidences: false
     },
 
@@ -29,7 +29,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
     assertedDistributions: [],
     citation: makeCitation(),
     otu: null,
-    assertedDistributionShape: null,
+    shape: null,
     confidences: [],
     isLoading: false,
     autosave: true
@@ -37,7 +37,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
 
   getters: {
     isSaveAvailable(state) {
-      return state.otu && state.assertedDistributionShape && state.citation
+      return state.otu && state.shape && state.citation
     }
   },
 
@@ -85,7 +85,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
       const assertedDistribution = makeAssertedDistributionPayload({
         ad: this.assertedDistribution,
         otu: this.otu,
-        assertedDistributionShape: this.assertedDistributionShape,
+        shape: this.shape,
         citation: this.citation
       })
 
@@ -95,8 +95,10 @@ export const useStore = defineStore('NewAssertedDistribution', {
         try {
           const { body } = await AssertedDistribution.where({
             otu_id: assertedDistribution.otu_id,
-            asserted_distribution_shape_id: assertedDistribution.asserted_distribution_shape_id,
-            asserted_distribution_shape_type: 'GeographicArea', // TODO support gz as well
+            asserted_distribution_shape_type:
+              assertedDistribution.asserted_distribution_shape_type,
+            asserted_distribution_shape_id:
+              assertedDistribution.asserted_distribution_shape_id,
             extend
           })
 
@@ -156,8 +158,8 @@ export const useStore = defineStore('NewAssertedDistribution', {
         this.citation.id = null
       }
 
-      if (!this.lock.geographicArea) {
-        this.geographicArea = null
+      if (!this.lock.shape) {
+        this.shape = null
       }
 
       if (!this.lock.otu) {

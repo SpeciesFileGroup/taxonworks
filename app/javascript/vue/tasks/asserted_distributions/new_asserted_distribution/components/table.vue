@@ -4,6 +4,7 @@
       <tr>
         <th>Otu</th>
         <th>Shape name</th>
+        <th>Shape type</th>
         <th>Citation</th>
         <th>Trash</th>
         <th>Radial annotator</th>
@@ -23,7 +24,12 @@
             v-html="item.otu.object_tag"
           />
         </td>
-        <td v-html="item.asserted_distribution_shape.name" />
+        <td>
+          {{ item.asserted_distribution_shape.name }}
+        </td>
+        <td>
+          {{ item.asserted_distribution_shape_type }}
+        </td>
         <td v-if="item.citations.length > 1">
           <CitationCount :citations="item.citations" />
         </td>
@@ -97,8 +103,6 @@ import { Source } from '@/routes/endpoints'
 
 const store = useStore()
 
-const emit = defineEmits(['onOtuGeo', 'onSourceGeo', 'onSourceOtu', 'remove'])
-
 function nomenclatureBySourceRoute(id) {
   return `${RouteNames.NomenclatureBySource}?source_id=${id}`
 }
@@ -126,7 +130,10 @@ function setSourceOtu(item) {
 function setSourceGeo(item) {
   store.reset()
   setCitation(item.citations[0])
-  store.assertedDistributionShape = item.asserted_distribution_shape
+  store.shape = {
+    shapeType: item.asserted_distribution_shape_type,
+    ...item.asserted_distribution_shape
+  }
   store.isAbsent = item.is_absent
 }
 
@@ -134,7 +141,10 @@ function setGeoOtu(item) {
   store.reset()
   store.autosave = false
   store.assertedDistribution.id = item.id
-  store.assertedDistributionShape = item.asserted_distribution_shape
+  store.shape = {
+    shapeType: item.asserted_distribution_shape_type,
+    ...item.asserted_distribution_shape
+  }
   store.otu = item.otu
   store.isAbsent = item.is_absent
 }

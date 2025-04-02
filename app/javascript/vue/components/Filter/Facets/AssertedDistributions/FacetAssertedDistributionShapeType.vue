@@ -27,6 +27,9 @@ const SHAPE_TYPES = [
   'Gazetteer'
 ]
 
-const params = defineModel()
+const params = defineModel({type: Object, required: true})
+if (!params.value.shape_type) {
+  params.value.shape_type = []
+}
 
 </script>

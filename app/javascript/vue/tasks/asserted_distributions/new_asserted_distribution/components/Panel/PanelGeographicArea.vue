@@ -1,41 +1,31 @@
 <template>
-  <BlockLayout :warning="!store.assertedDistributionShape">
+  <BlockLayout :warning="!store.shape">
     <template #header>
       <h3>Geographic area</h3>
     </template>
     <template #body>
       <div class="horizontal-left-content align-start">
-        <SmartSelector
-          v-model="store.assertedDistributionShape"
+        <ShapeSelector
+          v-model="store.shape"
           class="full_width"
-          model="geographic_areas"
-          klass="AssertedDistribution"
-          target="AssertedDistribution"
-          label="name"
-          :add-tabs="['map']"
-          pin-section="GeographicAreas"
-          pin-type="GeographicArea"
-          @selected="setGeographicArea"
+          @selectShape="setShape"
         >
-          <template #map>
-            <MapShapePicker @select="setGeographicArea" />
-          </template>
           <template #tabs-right>
             <VLock
-              v-model="store.lock.geographicArea"
+              v-model="store.lock.shape"
               class="margin-small-left"
             />
           </template>
-        </SmartSelector>
+        </ShapeSelector>
       </div>
       <hr
-        v-if="store.geographicArea"
+        v-if="store.shape?.id"
         class="divisor"
       />
       <SmartSelectorItem
         label="name"
-        :item="store.assertedDistributionShape"
-        @unset="store.assertedDistributionShape = null"
+        :item="store.shape"
+        @unset="store.shape = null"
       />
     </template>
   </BlockLayout>
@@ -44,15 +34,14 @@
 <script setup>
 import { useStore } from '../../store/store'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
-import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
+import ShapeSelector from '@/components/ui/SmartSelector/ShapeSelector.vue'
 
 const store = useStore()
 
-function setGeographicArea(item) {
-  store.assertedDistributionShape = item
+function setShape(item) {
+  store.shape = item
 
   if (store.isSaveAvailable && store.autosave) {
     store.saveAssertedDistribution()

@@ -1,15 +1,15 @@
 export function makeAssertedDistributionPayload({
   ad,
   otu,
-  assertedDistributionShape,
+  shape,
   citation
 }) {
   return {
     id: ad.id,
     otu_id: otu.id,
     is_absent: ad.isAbsent,
-    asserted_distribution_shape_id: assertedDistributionShape.id,
-    asserted_distribution_shape_type: 'GeographicArea', // TODO support GZ as well
+    asserted_distribution_shape_type: shape.shapeType,
+    asserted_distribution_shape_id: shape.id,
     citations_attributes: [
       {
         id: citation.id,
