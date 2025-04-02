@@ -6,7 +6,7 @@
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px' }"
     />
-    <h1>Author by first letter</h1>
+    <h1>Alphabetical list of source authors</h1>
     <AlphabetButtons
       class="margin-medium-bottom"
       v-model="key"
@@ -68,7 +68,7 @@ onBeforeMount(() => {
 function getAuthors(params = {}) {
   const payload = {
     last_name_starts_with: key.value,
-    roles: [ROLE_SOURCE_AUTHOR],
+    role: [ROLE_SOURCE_AUTHOR],
     extend: ['roles'],
     ...params
   }

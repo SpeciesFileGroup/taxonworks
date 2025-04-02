@@ -9,6 +9,33 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.49.1] - 2025-04-01
+
+### Added
+
+- Offset parameter to copy_table_to_clipboard helper [#4265]
+- Collecting event metadata task (count of use, plot of time), via filter
+- UI flag that a DwcOccurrence re-index is pending. [#4267]
+
+### Fixed
+
+- Min/max use of Collecting Event filter facet [#4252]
+- Unify Otu failing because of CachedMap references
+- Determiner is not carrying over in locked, containerized COs in CSD [#4250]
+- Filter CO: blank fields dispersed among sort [#4255]
+- Filter CO: otu name is empty in taxon determinations rows [#4257]
+- Filter CE: some data attributes are missing from results [#4258]
+- Filters: Download CSV doesn't use selected layout to generate files [#4264]
+
+[#4252]: https://github.com/SpeciesFileGroup/taxonworks/issues/4252
+[#4250]: https://github.com/SpeciesFileGroup/taxonworks/issues/4250
+[#4255]: https://github.com/SpeciesFileGroup/taxonworks/issues/4255
+[#4257]: https://github.com/SpeciesFileGroup/taxonworks/issues/4257
+[#4258]: https://github.com/SpeciesFileGroup/taxonworks/issues/4258
+[#4264]: https://github.com/SpeciesFileGroup/taxonworks/issues/4264
+[#4265]: https://github.com/SpeciesFileGroup/taxonworks/issues/4265
+[#4267]: https://github.com/SpeciesFileGroup/taxonworks/issues/4267
+
 ## [0.49.0] - 2025-03-18
 
 ### Added
@@ -45,7 +72,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- SimpleMappr output for large results 
+- SimpleMappr output for large results
 - Synonymy section of Edit Nomenclature alphabetically sorted
 - Duplicate CollectingEvents filtered when Collectors facet used
 - FieldOccurrences not destroyable
@@ -64,7 +91,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Unify object task: reset button doesn't clear autocompletes [#4242]
 - Capybara/Chrome testing
 - Venn queries with nested elements (candidate fix) [#4224], [#3983]
-
 
 [#3094]: https://github.com/SpeciesFileGroup/taxonworks/issues/3094
 [#4226]: https://github.com/SpeciesFileGroup/taxonworks/issues/4226
@@ -5173,7 +5199,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.1...development
+[0.49.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...v0.49.1
 [0.49.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.1...v0.47.0

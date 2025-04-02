@@ -15,12 +15,13 @@
         <li>
           <a href="/tasks/sources/hub">Back to source hub</a>
         </li>
+        <li><PanelSearch /></li>
       </ul>
     </div>
     <NavBar class="source-navbar">
       <div class="flex-separate full_width">
         <div class="middle gap-small">
-          <PanelSearch />
+          <VRecent />
           <span
             v-if="source.id"
             class="word_break"
@@ -152,6 +153,7 @@ import CloneSource from './components/cloneSource'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 
+import VRecent from './components/recent.vue'
 import PanelSearch from './components/PanelSearch.vue'
 import RightSection from './components/rightSection'
 import NavBar from '@/components/layout/NavBar'
@@ -267,5 +269,9 @@ function convert() {
   .nav__source-buttons {
     min-width: 150px;
   }
+}
+
+:deep(.vue-autocomplete-input) {
+  width: 500px;
 }
 </style>

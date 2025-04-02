@@ -68,9 +68,8 @@ module Queries
       end
 
       # TODO - rename matching to _facet
-      # 
       #
-      #      def depiction_object_type_facet
+      #  def depiction_object_type_facet
 
       # @return [Arel::Node, nil]
       def matching_attribute_subject_type
@@ -106,19 +105,20 @@ module Queries
       def from_filter_facet(query, project_ids = [])
         return nil if query.nil?
         t = "query_#{query.table.name}_da"
-        
+
         k = query.referenced_klass.name
 
         q = query
 
         if !project_ids.empty?
-          q = q.all.where(project_id: project_ids) 
+          q = q.all.select(:id).where(project_id: project_ids)
         else
-          q = q.all
+          q = q.all.select(:id)
         end
 
-        s = "WITH #{t} AS (" + q.to_sql + ') ' +
-          ::DataAttribute
+        #s = "WITH #{t} AS (" + q.to_sql + ') ' +
+        s = ::DataAttribute
+          .with(t => q)
           .joins("JOIN #{t} as #{t}1 on data_attributes.attribute_subject_id = #{t}1.id AND data_attributes.attribute_subject_type = '" + k + "'")
           .to_sql
 

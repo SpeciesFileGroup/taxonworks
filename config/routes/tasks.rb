@@ -325,6 +325,10 @@ scope :tasks do
   end
 
   scope :collecting_events do
+    scope :metadata, controller: 'tasks/collecting_events/metadata' do
+      match '/', action: :index, via: [:get, :post], as: :collecting_event_metadata_task
+    end
+
     scope :spatial_summary, controller: 'tasks/collecting_events/spatial_summary' do
       match '/', action: :index, via: [:get, :post], as: 'collecting_events_spatial_summary_task'
     end
@@ -405,7 +409,7 @@ scope :tasks do
     end
 
     scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
-      get :index, as: 'grid_digitize_task'
+      get '/', action: :index, as: 'grid_digitize_task'
     end
 
     scope :summary, controller: 'tasks/collection_objects/summary' do
