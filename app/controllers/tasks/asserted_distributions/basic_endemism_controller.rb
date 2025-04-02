@@ -9,7 +9,7 @@ class Tasks::AssertedDistributions::BasicEndemismController < ApplicationControl
     @shape =
      (GeographicArea.find(params[:geographic_area_id]) if
        params[:geographic_area_id].present?) ||
-     (Gazetteer.find(params[:gazetteer_id]) if params[:gazetteer].present?) ||
+     (Gazetteer.find(params[:gazetteer_id]) if params[:gazetteer_id].present?) ||
       GeographicArea.first
 
     shape_type = @shape.kind_of?(GeographicArea) ? 'GeographicArea' : 'Gazetteer'

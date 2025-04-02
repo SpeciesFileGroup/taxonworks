@@ -15,18 +15,36 @@
                 size: 20} %>
   </div>
 
-  <div class="field">
-    <%= label_tag 'Geographic area' %>
-    <br>
-    <%= render 'workbench/elements/forms/ajax_select',
-      controller: '/geographic_areas',
-      object:  '',
-      method:  'geographic_area_id',
-      tag_id:  'geographic_area_id_for_query',
-      display:  '' ,
-      size:  40
-    %>
-  </div>
+  <fieldset class="w-fit margin-medium-bottom">
+    <legend>Shape</legend>
+    <div class="field w-fit">
+      <%= label_tag 'Geographic area' %>
+      <br>
+      <%= render 'workbench/elements/forms/ajax_select',
+        controller: '/geographic_areas',
+        object:  '',
+        method:  'geographic_area_id',
+        tag_id:  'geographic_area_id_for_query',
+        display:  '' ,
+        size:  40
+      %>
+    </div>
+
+    OR
+
+    <div class="field w-fit margin-small-top">
+      <%= label_tag 'Gazetteer' %>
+      <br>
+      <%= render 'workbench/elements/forms/ajax_select',
+        controller: '/gazetteers',
+        object:  '',
+        method:  'gazetteer_id',
+        tag_id:  'gazetteer_id_for_query',
+        display:  '' ,
+        size:  40
+      %>
+    </div>
+  </fieldset>
 
   <%= submit_tag 'Set scope', class: 'button-default'  %>
 <% end %>
