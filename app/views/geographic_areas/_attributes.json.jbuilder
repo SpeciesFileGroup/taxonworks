@@ -16,8 +16,8 @@ if embed_response_with('shape')
   json.shape geographic_area.to_geo_json_feature
 end
 
-if extend_response_with('geographic_area_type')
-  json.geographic_area_type do
+if extend_response_with('shape_type')
+  json.shape_type do
     json.extract! geographic_area.geographic_area_type, :id, :name
   end
 end

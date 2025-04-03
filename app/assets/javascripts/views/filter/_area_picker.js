@@ -52,7 +52,7 @@ Object.assign(TW.views.filter.area_picker, {
         this_area_hover.html('... ' + this_area_hover.data('area-label_html'));
       }, // function = onMouseOver callback (REQUIRED)
       out: function () {
-        this.textContent = '...'; 
+        this.textContent = '...';
       } // function = onMouseOut callback (REQUIRED)
     };
     $('.hoverme').hoverIntent(hiConfig);
@@ -64,12 +64,12 @@ Object.assign(TW.views.filter.area_picker, {
         area_list = form.find(".area_list"),
         label_text = document.createElement("div");
         label_text.innerHTML = label;
-        
+
     // insert visible list item
         jQuery(label_text).children("span").remove(); // Remove has shape
         area_list.append($('<li class="area_item" data-area-index="' + random_index + '">')
           .append(TW.views.filter.area_picker.remove_link())
-          .append(jQuery(label_text).text())          
+          .append(jQuery(label_text).text())
           .append($('<input hidden name="' + param_name + '[]" value="' + area_id + '" >'))
         );
   },

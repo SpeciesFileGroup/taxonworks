@@ -81,6 +81,7 @@ function makeBatchloadRequest() {
       emit('update', body)
       data.value = body
     })
+    .catch(() => {})
     .finally(() => {
       isLoading.value = false
     })

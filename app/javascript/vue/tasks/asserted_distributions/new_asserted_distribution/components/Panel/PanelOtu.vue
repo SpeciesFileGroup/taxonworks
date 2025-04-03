@@ -39,6 +39,8 @@
 </template>
 
 <script setup>
+import { onBeforeMount } from 'vue'
+import { Otu } from '@/routes/endpoints'
 import { useStore } from '../../store/store'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
@@ -46,6 +48,19 @@ import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 
 const store = useStore()
+
+onBeforeMount(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const otuId = urlParams.get('otu_id')
+
+  if (!/^\d+$/.test(otuId)) return
+
+  Otu.find(otuId)
+    .then((response) => {
+      store.otu = response.body
+    })
+    .catch(() => {})
+})
 </script>
 
 <style scoped>

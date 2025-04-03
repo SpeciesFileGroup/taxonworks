@@ -34,7 +34,7 @@ class Catalog::Distribution::EntryItem < ::Catalog::EntryItem
     return @geographic_name_classification if @geographic_name_classification
     case object.class.base_class.name
     when 'AssertedDistribution'
-      @geographic_name_classification ||= object.geographic_area.geographic_name_classification
+      @geographic_name_classification ||= object.asserted_distribution_shape.geographic_name_classification
     when 'TypeMaterial'
       @geographic_name_classification ||= object.collection_object.geographic_name_classification
     when 'CollectionObject'

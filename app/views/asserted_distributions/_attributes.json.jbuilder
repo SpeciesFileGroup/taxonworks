@@ -1,4 +1,7 @@
-json.extract! asserted_distribution, :id, :otu_id, :geographic_area_id, :project_id, :created_by_id, :updated_by_id, :is_absent, :created_at, :updated_at
+json.extract! asserted_distribution, :id, :otu_id,
+ :asserted_distribution_shape_type, :asserted_distribution_shape_id,
+ :project_id, :created_by_id, :updated_by_id, :is_absent, :created_at,
+ :updated_at
 json.partial! '/shared/data/all/metadata', object: asserted_distribution
 
 if extend_response_with('otu')
@@ -13,8 +16,14 @@ if extend_response_with('taxonomy')
   end
 end
 
-if extend_response_with('geographic_area')
-  json.geographic_area do
-    json.partial! '/geographic_areas/attributes', geographic_area: asserted_distribution.geographic_area
+if extend_response_with('asserted_distribution_shape')
+  json.asserted_distribution_shape do
+    if asserted_distribution.asserted_distribution_shape_type == 'GeographicArea'
+      json.partial! '/geographic_areas/attributes',
+        geographic_area: asserted_distribution.asserted_distribution_shape
+    elsif asserted_distribution.asserted_distribution_shape_type == 'Gazetteer'
+      json.partial! '/gazetteers/attributes',
+        gazetteer: asserted_distribution.asserted_distribution_shape
+    end
   end
 end

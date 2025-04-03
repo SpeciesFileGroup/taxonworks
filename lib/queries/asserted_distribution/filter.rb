@@ -7,30 +7,59 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Citations
+      include Queries::Concerns::Gazetteers
       include Queries::Concerns::Confidences
 
       PARAMS = [
         :asserted_distribution_id,
+        # These 3 are currently reserved for spatial facet searches
+        :asserted_distribution_shape_id,
+        :asserted_distribution_shape_mode,
+        :asserted_distribution_shape_type,
         :descendants,
         :geo_json,
+        :gazetteer_id,
         :geographic_area_id,
         :geographic_item_id,
         :geographic_area_mode,
         :otu_id,
         :presence,
         :radius,
+        :shape_type,
         :taxon_name_id,
         :wkt,
         asserted_distribution_id: [],
+        asserted_distribution_shape_id: [],
+        asserted_distribution_shape_type: [], # TODO: do we really want to support an array here?
+        gazetteer_id: [],
         geographic_area_id: [],
         geographic_item_id: [],
         otu_id: [],
+        shape_type: [],
         taxon_name_id: [],
       ].freeze
 
       # @param asserted_distribution_id [Array, Integer, String]
       # @return [Array]
       attr_accessor :asserted_distribution_id
+
+      # @param asserted_distribution_shape_id [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :asserted_distribution_shape_id
+
+      # @return [Boolean, nil]
+      # How to treat AssertedDistributionShapes
+      #     nil - non-spatial match by only those records matching the
+      #       asserted_distribution_shape_id and
+      #       asserted_distribution_shape_type exactly
+      #     true - spatial match TODO matching shape_type?
+      #     false - non-spatial match
+      #       (descendants, applies only to GeographicAreas)
+      attr_accessor :asserted_distribution_shape_mode
+
+      # @param asserted_distribution_shape_type [Array, String]
+      # @return [Array]
+      attr_accessor :asserted_distribution_shape_type
 
       # @param otu_id [Array, Integer, String]
       # @return [Array]
@@ -75,30 +104,49 @@ module Queries
       #   !! defaults to 100m
       attr_accessor :radius
 
+      # @return [Array]
+      attr_accessor :shape_type
+
       def initialize(query_params)
         super
-        @asserted_distribution_id = integer_param(params, :asserted_distribution_id)
+        @asserted_distribution_id =
+          integer_param(params, :asserted_distribution_id)
+        @asserted_distribution_shape_id =
+          integer_param(params, :asserted_distribution_shape_id)
+        @asserted_distribution_shape_mode =
+          boolean_param(params, :asserted_distribution_shape_mode)
+        @asserted_distribution_shape_type =
+          params[:asserted_distribution_shape_type]
         @descendants = boolean_param(params, :descendants)
         @geo_json = params[:geo_json]
         @geographic_area_id = integer_param(params,:geographic_area_id)
         @geographic_item_id = integer_param(params, :geographic_item_id)
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
-        @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @otu_id = integer_param(params, :otu_id)
         @presence = boolean_param(params, :presence)
         @radius = params[:radius].presence || 100.0
+        @shape_type = params[:shape_type]
         @taxon_name_id = integer_param(params, :taxon_name_id)
         @wkt = params[:wkt]
 
         set_confidences_params(params)
         set_citations_params(params)
         set_data_attributes_params(params)
+        set_gazetteer_params(params)
         set_notes_params(params)
         set_tags_params(params)
       end
 
       def asserted_distribution_id
         [@asserted_distribution_id].flatten.compact
+      end
+
+      def asserted_distribution_shape_id
+        [@asserted_distribution_shape_id].flatten.compact
+      end
+
+      def asserted_distribution_shape_type
+        [@asserted_distribution_shape_type].flatten.compact
       end
 
       def otu_id
@@ -111,6 +159,10 @@ module Queries
 
       def geographic_item_id
         [@geographic_item_id].flatten.compact
+      end
+
+      def shape_type
+        [@shape_type].flatten.compact
       end
 
       def taxon_name_id
@@ -131,23 +183,26 @@ module Queries
         from_wkt(wkt)
       end
 
+      # TODO: support gz as well
       def from_wkt(wkt_shape)
-        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(wkt_shape))
+        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.covered_by_wkt_sql(wkt_shape))
 
         j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
-        k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have a shapes
+        k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have shapes
 
         l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
 
         s = 'WITH query_wkt_ad AS (' + l.all.to_sql + ') ' +
           ::AssertedDistribution
-          .joins('JOIN query_wkt_ad as query_wkt_ad1 on query_wkt_ad1.id = asserted_distributions.geographic_area_id')
+          .joins('JOIN query_wkt_ad as query_wkt_ad1 on query_wkt_ad1.id = asserted_distributions.asserted_distribution_shape_id')
+          .where(asserted_distribution_shape_type: 'GeographicArea')
           .to_sql
 
         ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
       end
 
       # Shape is a Hash in GeoJSON format
+      # TODO: support GZ in addition to GA (return both I guess?)
       def geo_json_facet
         return nil if geo_json.nil?
         if i = spatial_query
@@ -161,7 +216,7 @@ module Queries
 
           l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
 
-          return ::AssertedDistribution.where( geographic_area: l )
+          return ::AssertedDistribution.where( asserted_distribution_shape: l )
         else
           return nil
         end
@@ -172,9 +227,15 @@ module Queries
         if geometry = RGeo::GeoJSON.decode(geo_json)
           case geometry.geometry_type.to_s
           when 'Point'
-            ::GeographicItem.joins(:geographic_areas).where( ::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) )
+            ::GeographicItem
+              .joins(:geographic_areas)
+              .where(
+                ::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius)
+              )
           when 'Polygon', 'MultiPolygon'
-            ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(geometry.to_s))
+            ::GeographicItem
+              .joins(:geographic_areas)
+              .where(::GeographicItem.covered_by_wkt_sql(geometry.to_s))
           else
             nil
           end
@@ -183,6 +244,14 @@ module Queries
         end
       end
 
+      def shape_type_facet
+        return nil if shape_type.empty?
+
+        ::AssertedDistribution
+          .where(asserted_distribution_shape_type: shape_type)
+      end
+
+      # DEPRECATED, use asserted_distribution_shape_facet instead
       def geographic_area_id_facet
         return nil if geographic_area_id.empty?
 
@@ -202,7 +271,50 @@ module Queries
           b = ::AssertedDistribution.where(geographic_area: a)
         when true # spatial
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
-          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s # todo, check
+          wkt_shape =
+            ::Queries::GeographicItem.st_union(i)
+              .to_a.first['st_union'].to_s # todo, check
+          return from_wkt(wkt_shape)
+        end
+
+        b
+      end
+
+      # Only supports asserted_distribution_shape_id array of one
+      # asserted_distribution_shape_type
+      def asserted_distribution_shape_facet
+        return nil if asserted_distribution_shape_id.empty? ||
+          asserted_distribution_shape_type.empty? ||
+          asserted_distribution_shape_type.count > 1
+
+        return nil if asserted_distribution_shape_type.first == 'Gazetteer' &&
+          # descendants mode is unsupported on Gazetteers
+          asserted_distribution_shape_mode == false
+
+        shapeType = asserted_distribution_shape_type.first.constantize
+
+        a = nil
+
+        case asserted_distribution_shape_mode
+        when nil, true # exact and spatial start the same
+          a = shapeType.where(id: asserted_distribution_shape_id)
+        when false # descendants - GeographicArea only
+          a = shapeType.descendants_of_any(asserted_distribution_shape_id)
+        end
+
+        b = nil # from AssertedDistributions
+
+        case asserted_distribution_shape_mode
+        when nil, false # exact, descendants
+          b = ::AssertedDistribution
+            .where(asserted_distribution_shape_type:)
+            .where(asserted_distribution_shape_id: a)
+        when true # spatial
+          m = shapeType.name.tableize
+          i = ::GeographicItem.joins(m.to_sym).where(m => a) # .unscope
+          wkt_shape =
+            ::Queries::GeographicItem.st_union(i)
+              .to_a.first['st_union'].to_s # todo, check
           return from_wkt(wkt_shape)
         end
 
@@ -297,10 +409,13 @@ module Queries
           otu_query_facet,
           taxon_name_query_facet,
 
-          geographic_area_id_facet,
+          gazetteer_id_facet,
+          asserted_distribution_shape_facet,
+          #geographic_area_id_facet,
           geographic_item_id_facet,
           taxon_name_id_facet,
           wkt_facet,
+          shape_type_facet
         ]
       end
 

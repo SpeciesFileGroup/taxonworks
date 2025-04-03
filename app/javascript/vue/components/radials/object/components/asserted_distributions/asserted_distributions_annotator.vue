@@ -53,9 +53,22 @@
       class="separate-bottom"
       :source-lock="lock.source"
       :disabled="!citation.source_id || assertedDistribution.id"
-      @select="
-        ($event) => {
-          assertedDistribution.geographic_area_id = $event
+      @select-geographic-area="
+        (e) => {
+          assertedDistribution.asserted_distribution_shape_type = 'GeographicArea'
+          assertedDistribution.asserted_distribution_shape_id = e
+          saveAssertedDistribution()
+        }
+      "
+    />
+    <Gazetteer
+      class="separate-bottom"
+      :source-lock="lock.source"
+      :disabled="!citation.source_id || assertedDistribution.id"
+      @select-gazetteer="
+        (e) => {
+          assertedDistribution.asserted_distribution_shape_type = 'Gazetteer'
+          assertedDistribution.asserted_distribution_shape_id = e
           saveAssertedDistribution()
         }
       "
@@ -88,6 +101,7 @@
 <script setup>
 import TableList from './table.vue'
 import DisplayList from '@/components/displayList.vue'
+import Gazetteer from './gazetteer.vue'
 import GeographicArea from './geographicArea.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VMap from '@/components/georeferences/map.vue'
@@ -104,8 +118,8 @@ import sortArray from '@/helpers/sortArray'
 const EXTEND_PARAMS = {
   embed: ['shape'],
   extend: [
-    'geographic_area',
-    'geographic_area_type',
+    'asserted_distribution_shape',
+    'shape_type',
     'parent',
     'citations',
     'source'
@@ -135,7 +149,7 @@ const { list, addToList, removeFromList } = useSlice({
 
 const shapes = computed(() =>
   list.value.map((item) => {
-    const shape = item.geographic_area.shape
+    const shape = item.asserted_distribution_shape.shape
     shape.properties.is_absent = item.is_absent
     return shape
   })
@@ -165,8 +179,10 @@ function setCitation(citation) {
 function saveAssertedDistribution() {
   const createdObject = list.value.find(
     (item) =>
-      item.geographic_area.id ===
-        assertedDistribution.value.geographic_area_id &&
+      item.asserted_distribution_shape_id ===
+        assertedDistribution.value.asserted_distribution_shape_id &&
+      item.asserted_distribution_shape_type ===
+        assertedDistribution.value.asserted_distribution_shape_type &&
       !!assertedDistribution.value.is_absent === !!item.is_absent
   )
   const params = {
@@ -223,7 +239,8 @@ function setDistribution(item) {
     citations: item.citations,
     otu_id: item.otu_id,
     is_absent: item.is_absent,
-    geographic_area_id: item.geographic_area_id
+    asserted_distribution_shape_type: item.asserted_distribution_shape_type,
+    asserted_distribution_shape_id: item.asserted_distribution_shape_id,
   }
 
   editCitation.value = undefined
@@ -233,8 +250,11 @@ function newAsserted() {
   return {
     id: undefined,
     otu_id: props.objectId,
-    geographic_area_id: lock.geo
-      ? assertedDistribution.value.geographic_area_id
+    asserted_distribution_shape_type: lock.geo
+      ? assertedDistribution.value.asserted_distribution_shape_type
+      : undefined,
+    asserted_distribution_shape_id: lock.geo
+      ? assertedDistribution.value.asserted_distribution_shape_id
       : undefined,
     citations: [],
     is_absent: null
@@ -256,18 +276,22 @@ function resetForm() {
 }
 
 function removeItem(item) {
-  AssertedDistribution.destroy(item.id).then(() => {
-    removeFromList(item)
-  })
+  AssertedDistribution.destroy(item.id)
+    .then(() => {
+      removeFromList(item)
+    })
+    .catch(() => {})
 }
 
 AssertedDistribution.all({
   otu_id: props.objectId,
   ...EXTEND_PARAMS
-}).then(({ body }) => {
-  isLoading.value = false
-  list.value = sortArray('geographic_area.name', body)
 })
+  .then(({ body }) => {
+    isLoading.value = false
+    list.value = sortArray('asserted_distribution_shape.name', body)
+  })
+  .catch(() => {})
 </script>
 <style lang="scss">
 .radial-annotator {

@@ -4,6 +4,7 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
+      include Queries::Concerns::Gazetteers
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Concerns::Confidences
@@ -22,6 +23,7 @@ module Queries
         :descendants,
         :descriptor_id,
         :geo_json,
+        :gazetteer_id,
         :geographic_area_id,
         :geographic_area_mode,
         :name,
@@ -36,6 +38,7 @@ module Queries
 
         collecting_event_id: [],
         descriptor_id: [],
+        gazetteer_id: [],
         geographic_area_id: [],
         name: [],
         otu_id: [],
@@ -216,6 +219,7 @@ module Queries
         set_depiction_params(params)
         set_data_attributes_params(params)
         set_tags_params(params)
+        set_gazetteer_params(params)
       end
 
       def biological_associations_table
@@ -433,11 +437,13 @@ module Queries
 
         case geographic_area_mode
         when nil, false # exact, descendants
-          b = ::Otu.joins(:asserted_distributions).where(asserted_distributions: { geographic_area: a })
+          b = ::Otu.joins(:asserted_distributions).where(asserted_distributions: { asserted_distribution_shape: a })
           c = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: { geographic_area: a })
         when true # spatial
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
-          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s # todo, check
+          wkt_shape =
+            ::Queries::GeographicItem.st_union(i)
+              .to_a.first['st_union'].to_s # todo, check
           return from_wkt(wkt_shape)
         end
 
@@ -682,6 +688,7 @@ module Queries
           contents_facet,
           descriptor_id_facet,
           geo_json_facet,
+          gazetteer_id_facet,
           geographic_area_id_facet,
           observations_facet,
           taxon_name_id_facet,

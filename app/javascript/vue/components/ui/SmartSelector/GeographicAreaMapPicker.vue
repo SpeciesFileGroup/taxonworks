@@ -26,7 +26,7 @@
     />
     <ul class="no_bullets">
       <li
-        v-for="item in geographicAreas"
+        v-for="item in shapes"
         :key="item.id"
         class="list__item"
       >
@@ -57,28 +57,29 @@ import VMap from '@/components/georeferences/map.vue'
 import { randomUUID } from '@/helpers'
 
 const props = defineProps({
-  modelValue: {
+  // shapes must have `shape`, `data_origin`, and `name` attributes
+  shapeEndpoint: {
     type: Object,
-    default: undefined
+    default: GeographicArea
   },
-
   name: {
     type: String,
     default: randomUUID()
   }
 })
 
-const emit = defineEmits(['select', 'update:modelValue'])
+const emit = defineEmits(['select'])
 
+const selectedItem = ref(null)
 const mapRef = ref(null)
 const geojson = computed(() => {
-  const data = geographicAreas.value
+  const data = shapes.value
     .filter((g) => g.shape)
     .map((g) => JSON.parse(JSON.stringify(g.shape)))
 
   if (geoHover.value) {
     const current = data.find(
-      (g) => g.properties.geographic_area.id === geoHover.value.id
+      (g) => g.properties.shape.id === geoHover.value.id
     )
 
     current.properties.style = { color: 'blue' }
@@ -89,12 +90,7 @@ const geojson = computed(() => {
   return data
 })
 
-const selectedItem = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
-
-const geographicAreas = ref([])
+const shapes = ref([])
 const isLoading = ref(false)
 const geoHover = ref(null)
 
@@ -119,9 +115,9 @@ function loadGeopgraphicAreas(wkt) {
   }
 
   isLoading.value = true
-  GeographicArea.where(payload)
+  props.shapeEndpoint.where(payload)
     .then(({ body }) => {
-      geographicAreas.value = body
+      shapes.value = body
       disableDraw()
     })
     .finally(() => {

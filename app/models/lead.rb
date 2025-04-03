@@ -44,6 +44,10 @@
 #   @return [boolean]
 #   True if the key is viewable without being logged in
 #
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 class Lead < ApplicationRecord
   include Housekeeping
   include Shared::Citations

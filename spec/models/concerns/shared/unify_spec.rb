@@ -25,7 +25,7 @@ describe 'Shared::Unify', type: :model do
     c2 = FactoryBot.create(:valid_content, topic: t2, text: s, otu: c1.otu)
 
     t1.unify(t2)
-    
+
     expect(t2.destroyed?).to be_truthy
     expect(Content.all.reload.count).to eq(1)
   end
@@ -206,7 +206,7 @@ describe 'Shared::Unify', type: :model do
 
     expect(o2.reload.destroyed?).to be_falsey
     expect(o1.citations.reload.count).to eq(2)
-    expect(o1.citations.last.pages).to eq("456")
+    expect(o1.citations.last.pages).to eq('456')
   end
 
   specify 'merges non-unique DataAttributes' do
@@ -343,7 +343,7 @@ describe 'Shared::Unify', type: :model do
 
     b = Image.create!(
       image_file: Rack::Test::UploadedFile.new(Spec::Support::Utilities::Files.generate_tiny_random_sized_png(
-        file_name: "foo.png",
+        file_name: 'foo.png',
       ), 'image/png'),
     )
 
@@ -475,7 +475,7 @@ describe 'Shared::Unify', type: :model do
     ad1 = AssertedDistribution.create!(
       otu: o2,
       source:,
-      geographic_area: ad0.geographic_area
+      asserted_distribution_shape: ad0.asserted_distribution_shape
     )
 
     ad0.origin_citation.update!(pages: 123)
@@ -496,7 +496,7 @@ describe 'Shared::Unify', type: :model do
     o1.unify(o2)
 
     expect(o1.citations.reload.count).to eq(2)
-    expect(o1.citations.last.pages).to eq("456")
+    expect(o1.citations.last.pages).to eq('456')
   end
 
   specify '#unify' do
@@ -530,7 +530,7 @@ describe 'Shared::Unify', type: :model do
 
   specify '#identical' do
     ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, geographic_area: ad1.geographic_area)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape)
 
     ad2.otu = o1
 
@@ -557,7 +557,7 @@ describe 'Shared::Unify', type: :model do
   #
   specify 'unify one degree of seperation' do
     ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, geographic_area: ad1.geographic_area) # differ only by OTU
+    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
 
     n = FactoryBot.create(:valid_note, note_object: ad1)
 
@@ -570,7 +570,7 @@ describe 'Shared::Unify', type: :model do
 
   specify 'unify one degree of seperation - records deduplication result in preview' do
     ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, geographic_area: ad1.geographic_area) # differ only by OTU
+    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
 
     n = FactoryBot.create(:valid_note, note_object: ad1)
 
@@ -581,7 +581,7 @@ describe 'Shared::Unify', type: :model do
 
   specify 'unify one degree of seperation - records deduplication result' do
     ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, geographic_area: ad1.geographic_area) # differ only by OTU
+    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
 
     n = FactoryBot.create(:valid_note, note_object: ad1)
 
@@ -603,7 +603,7 @@ describe 'Shared::Unify', type: :model do
     s = FactoryBot.create(:valid_source)
 
     ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1, source: s)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, geographic_area: ad1.geographic_area, source: s)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape, source: s)
 
     expect(Citation.all.size).to eq(2)
 

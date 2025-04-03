@@ -67,7 +67,9 @@ const payload = computed(() => {
   return {
     asserted_distribution_query: props.parameters,
     asserted_distribution: {
-      geographic_area_id: geographicArea.value?.id
+      // TODO: support GZ as well (in the selector above)
+      asserted_distribution_shape_type: 'GeographicArea',
+      asserted_distribution_shape_id: geographicArea.value?.id
     }
   }
 })

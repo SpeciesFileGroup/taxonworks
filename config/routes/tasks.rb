@@ -1,4 +1,14 @@
 scope :tasks do
+  scope :gazetteers do
+    scope :import_gazetteers, controller: 'tasks/gazetteers/import_gazetteers' do
+      get '/', action: :index, as: 'import_gazetteers_task'
+    end
+
+    scope :new_gazetteer, controller: 'tasks/gazetteers/new_gazetteer' do
+      get '/', action: :index, as: 'new_gazetteer_task'
+    end
+  end
+
   scope :controlled_vocabulary_terms do
     scope :projects_summary, controller: 'tasks/controlled_vocabulary_terms/projects_summary' do
       get '/', action: :index, as: 'summarize_projects_controlled_vocabulary_terms_task'
@@ -151,12 +161,6 @@ scope :tasks do
 
     scope :new_asserted_distribution, controller: 'tasks/asserted_distributions/new_asserted_distribution' do
       get '/', action: :index, as: 'new_asserted_distribution_task'
-    end
-
-    scope :new_from_map, controller: 'tasks/asserted_distributions/new_from_map' do
-      get 'new', action: 'new', as: 'new_asserted_distribution_from_map_task'
-      get 'generate_choices'
-      post 'create', action: 'create', as: 'create_asserted_distribution_from_map_task'
     end
   end
 

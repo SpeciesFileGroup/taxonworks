@@ -81,7 +81,7 @@ class Georeference < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
-  include Shared::Maps
+  include Shared::Maps # TODO: included twice
   include Shared::DwcOccurrenceHooks
   include Shared::IsData
 
@@ -136,7 +136,8 @@ class Georeference < ApplicationRecord
   after_destroy :set_cached_collecting_event
 
   def self.point_type
-    joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
+    joins(:geographic_item)
+      .where(geographic_items: {geo_object_type: :point})
   end
 
   # TODO: remove, used in match georeferences
@@ -154,16 +155,11 @@ class Georeference < ApplicationRecord
   # @return [Scope] georeferences
   #   all georeferences within some distance of a geographic_item, by id
   def self.within_radius_of_item(geographic_item_id, distance)
-    return where(id: -1) if geographic_item_id.nil? || distance.nil?
-    # sanitize_sql_array(["name=:name and group_id=:group_id", name: "foo'bar", group_id: 4])
-    # => "name='foo''bar' and group_id=4"
-    q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
-      "(#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}"
-    # q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) < ?',
-    #                                                    GeographicItem::GEOGRAPHY_SQL,
-    #                                                    GeographicItem.select_geography_sql(geographic_item_id),
-    #                                                    distance])
-    Georeference.joins(:geographic_item).where(q1)
+    return none if geographic_item_id.nil? || distance.nil?
+
+    Georeference.joins(:geographic_item).where(
+      GeographicItem.within_radius_of_item_sql(geographic_item_id, distance)
+    )
   end
 
   # @param [String] locality string
@@ -274,10 +270,9 @@ class Georeference < ApplicationRecord
       georeferenceProtocol: protocols.collect{|p| p.name}.join('|')
     )
 
-    if geographic_item.type == 'GeographicItem::Point'
-      b = geographic_item.to_a
-      h[:decimalLongitude] = b.first
-      h[:decimalLatitude] = b.second
+    if geographic_item.geo_object_type == :point
+      h[:decimalLongitude] = geographic_item.geo_object.x
+      h[:decimalLatitude] = geographic_item.geo_object.y
       h[:coordinateUncertaintyInMeters] = error_radius
     end
 
@@ -316,10 +311,12 @@ class Georeference < ApplicationRecord
     retval
   end
 
+  # DEPRECATED
   # @return [Rgeo::polygon, nil]
   #   a polygon representing the buffer
   def error_radius_buffer_polygon
     return nil if error_radius.nil? || geographic_item.nil?
+
     sql_str = ActivRecord::Base.send(
       :sanitize_sql_array,
       ['SELECT ST_Buffer(?, ?)',
@@ -342,12 +339,12 @@ class Georeference < ApplicationRecord
     )
   end
 
-  # @return [Float]
+  # @return [String]
   def latitude
     geographic_item.center_coords[0]
   end
 
-  # @return [Float]
+  # @return [String]
   def longitude
     geographic_item.center_coords[1]
   end

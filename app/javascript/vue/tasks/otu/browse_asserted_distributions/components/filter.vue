@@ -83,7 +83,7 @@ export default {
         base: {
           otu_id: undefined,
           embed: ['shape'],
-          extend: ['geographic_area']
+          extend: ['asserted_distribution_shape']
         }
       }
     },

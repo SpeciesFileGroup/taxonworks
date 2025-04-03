@@ -45,11 +45,11 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['selectGeographicArea'])
 const smartSelector = ref(null)
 
 function sendGeographic(item) {
-  emit('select', item.id)
+  emit('selectGeographicArea', item.id)
   if (props.sourceLock) {
     smartSelector.value.setFocus()
   }

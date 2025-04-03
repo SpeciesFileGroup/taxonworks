@@ -8,7 +8,7 @@ module Queries
         :geographic_area_id,
         :geographic_items,
         :name,
-        geographic_area_id: []
+        name: []
       ].freeze
 
       # @return Array
@@ -54,13 +54,31 @@ module Queries
 
       def name_facet
         return nil if name.blank?
-        table[:name].eq(name)
+        table[:name].in(name)
       end
 
       def containing_point_facet
         return nil if containing_point.nil?
-        a = ::GeographicArea.joins(:geographic_items).where("ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{containing_point}'))")
-        b = ::GeographicArea.joins(:geographic_items).where("ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{containing_point}'))")
+        a = ::GeographicArea
+          .joins(:geographic_items)
+          .merge(::GeographicItem.polygons)
+          .where(
+            ::GeographicItem.st_covers_sql(
+              ::GeographicItem.geography_as_geometry,
+              ::GeographicItem.st_geom_from_text_sql(containing_point)
+            )
+          )
+
+        b = ::GeographicArea
+          .joins(:geographic_items)
+          .merge(::GeographicItem.multi_polygons)
+          .where(
+            ::GeographicItem.st_covers_sql(
+              ::GeographicItem.geography_as_geometry,
+              ::GeographicItem.st_geom_from_text_sql(containing_point)
+            )
+          )
+
         referenced_klass_union([a,b])
       end
 
