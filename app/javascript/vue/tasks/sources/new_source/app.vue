@@ -16,12 +16,12 @@
           <a href="/tasks/sources/hub">Back to source hub</a>
         </li>
         <li><PanelSearch /></li>
+        <li><VRecent /></li>
       </ul>
     </div>
     <NavBar class="source-navbar">
       <div class="flex-separate full_width">
         <div class="middle gap-small">
-          <VRecent />
           <span
             v-if="source.id"
             class="word_break"
