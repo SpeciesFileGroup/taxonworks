@@ -76,10 +76,6 @@ const props = defineProps({
 
 const emit = defineEmits(['delete'])
 
-function deleteItem(item) {
-  emit('delete', item)
-}
-
 function shapeType(item) {
   switch(item.type) {
     case GZ_LEAFLET:
@@ -170,8 +166,8 @@ function coordinatesForListItem(item) {
   }
 
   let returnString = JSON.stringify(returnArray)
-  if (returnString.length > 1000) {
-    returnString = returnString.slice(0, 1000) + ' ...'
+  if (returnString.length > 150) {
+    returnString = returnString.slice(0, 150) + ' ...'
   }
   // Geometry collection needs a little cleanup
   return gc ? returnString.replaceAll(/",?/g, '') : returnString
