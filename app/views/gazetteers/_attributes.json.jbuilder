@@ -7,10 +7,9 @@ json.partial!('/shared/data/all/metadata', object: gazetteer)
 json.has_shape true
 json.data_origin gazetteer.data_origin
 
-# TODO make this an extended option(?)
-# if embed_response_with('shape')
+if embed_response_with('shape')
   json.shape gazetteer.to_geo_json_feature
-#end
+end
 
 if extend_response_with('shape_type')
   json.shape_type do
