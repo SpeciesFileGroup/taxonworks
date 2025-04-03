@@ -153,19 +153,10 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def api_index
-    @asserted_distributions = ::Queries::AssertedDistribution::Filter.new(params.merge!(api: true))
-      .all
-      .where(project_id: sessions_current_project_id)
-      # TODO needs to support GZ as well, which means api update and probably TP
-      # changes
-      .includes(:citations, :otu, geographic_area: [:parent, :geographic_area_type], origin_citation: [:source])
-      .order('asserted_distributions.id')
-      .page(params[:page])
-      .per(params[:per])
-
-      if @asserted_distributions.all.count > 50
-        params['extend']&.delete('geo_json')
-      end
+    @asserted_distributions =
+      AssertedDistribution.asserted_distributions_for_api_index(
+        params.merge!(api: true), sessions_current_project_id
+      )
 
     render '/asserted_distributions/api/v1/index'
   end

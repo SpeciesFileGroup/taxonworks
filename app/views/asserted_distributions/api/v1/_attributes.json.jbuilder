@@ -25,9 +25,9 @@ json.asserted_distribution_shape do
   json.type asserted_distribution.asserted_distribution_shape_type
   if asserted_distribution.asserted_distribution_shape_type == 'GeographicArea'
     json.partial! '/geographic_areas/api/v1/attributes',
-      geographic_area: asserted_distribution.asserted_distribution_shape
+      geographic_area: asserted_distribution.geographic_area
   else
     json.partial! '/gazetteers/api/v1/attributes',
-      gazeteer: asserted_distribution.asserted_distribution_shape
+      gazetteer: asserted_distribution.gazetteer
   end
 end
