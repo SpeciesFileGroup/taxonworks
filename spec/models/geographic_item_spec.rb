@@ -858,16 +858,23 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       end
 
       specify 'has approximate expected shape' do
-        c = GeographicItem.circle(origin, 10)
-        # Rough estimates - the input unit to buffer here is "degrees" since
-        # our factory projection is WGS84
-        # (buffer is 2d so all z-coordinates are NaN, but that seems to be okay
-        # for our purposes)
-        smaller_circle = origin.buffer(9.5 / Utilities::Geo::ONE_WEST_MEAN)
-        larger_circle = origin.buffer(10.5 / Utilities::Geo::ONE_WEST_MEAN)
+        r = 10 # meters
+        c = GeographicItem.circle(origin, r)
 
-        expect(c.contains?(smaller_circle)).to be true
-        expect(larger_circle.contains?(c)).to be true
+        # Sanity check that points of the circle are roughly at the expected
+        # distance from the origin.
+        distances = c.exterior_ring.points
+          .map { |p|
+            # convert to meters (roughly)
+            [p.x / Utilities::Geo::ONE_WEST_MEAN,
+             p.y / Utilities::Geo::ONE_WEST_MEAN]
+          }
+          .map { |p| Math.sqrt(p[0] * p[0] + p[1] * p[1]) }
+          .map { |d| (r - d).abs }
+
+        epsilon = 0.001
+        expect(distances.min).to be_within(epsilon).of(r)
+        expect(distances.max).to be_within(epsilon).of(r)
       end
     end
   end
