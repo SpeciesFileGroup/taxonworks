@@ -17,7 +17,7 @@ function makeInitialState() {
       fieldOccurrences: true
     },
     preferences: {
-      preferenceSchema: 20231017,
+      preferenceSchema: 20250404,
       sections: Object.keys(componentNames),
       filterSections: {
         and: {
