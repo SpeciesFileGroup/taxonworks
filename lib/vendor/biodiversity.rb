@@ -106,12 +106,20 @@ module Vendor
 
       # @return [String, nil]
       def genus
-        parse_result[:words]&.detect { |w| %w{UNINOMIAL GENUS}.include?(w[:wordType]) }&.dig(:normalized)
+        if parse_result[:rank] == 'subgen.'
+          parse_result.dig(:details, :uninomial, :parent)
+        else
+          parse_result[:words]&.detect{ |w| %w{UNINOMIAL GENUS}.include?(w[:wordType]) }&.dig(:normalized)
+        end
       end
 
       # @return [String, nil] 
       def subgenus
-        (parse_result[:words] || [])[1..]&.detect { |w| %w{UNINOMIAL INFRA_GENUS}.include?(w[:wordType]) }&.dig(:normalized)
+        if parse_result[:rank] == 'subgen.'
+          parse_result.dig(:details, :uninomial, :uninomial)
+        else
+          (parse_result[:words] || [])[1..]&.detect{ |w| %w{UNINOMIAL INFRA_GENUS}.include?(w[:wordType]) }&.dig(:normalized)
+        end
       end
 
       # @return [String, nil]
