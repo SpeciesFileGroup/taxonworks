@@ -24,9 +24,11 @@
             v-html="item.otu.object_tag"
           />
         </td>
-        <td>
-          {{ item.asserted_distribution_shape.name }}
-        </td>
+        <td v-html="shapeLink(
+            item.asserted_distribution_shape,
+            item.asserted_distribution_shape_type
+          )"
+        />
         <td>
           {{ item.asserted_distribution_shape_type }}
         </td>
@@ -160,6 +162,15 @@ function setCitation(citation) {
     }
   })
 }
+
+function shapeLink(shape, type) {
+  if (type == 'GeographicArea') {
+    return `<a href="/geographic_areas/${shape.id}">${shape.name}</a>`
+  } else {
+    return `<a href="/gazetteers/${shape.id}">${shape.name}</a>`
+  }
+}
+
 </script>
 <style scoped>
 table,
