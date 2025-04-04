@@ -220,11 +220,6 @@ class TaxonNameClassification < ApplicationRecord
 
         elsif type_name =~ /Latinized::Gender/
           raise
-        elsif TAXON_NAME_CLASS_NAMES_UNAVAILABLE.include?( type_name )
-          t.update_columns(
-            cached_is_available: false
-          )
-
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
           vn = t.get_valid_taxon_name
           vn.update_columns(
@@ -243,6 +238,12 @@ class TaxonNameClassification < ApplicationRecord
           end
         else
           t.update_columns(cached_is_valid: false)
+        end
+
+        if TAXON_NAME_CLASS_NAMES_UNAVAILABLE.include?( type_name )
+          t.update_columns(
+            cached_is_available: false
+          )
         end
       end
     rescue ActiveRecord::RecordInvalid
