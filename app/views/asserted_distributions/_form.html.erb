@@ -14,13 +14,13 @@
       <div class="fields_for_geographic_area">
         <%= f.label :geographic_area_id %>
         <br>
-        <%= render '/workbench/elements/forms/ajax_select',
-          controller: 'geographic_areas',
+        <%= render partial:'/workbench/elements/forms/ajax_select', locals: {
+          controller: '/geographic_areas',
           object: 'asserted_distribution',
           method: 'asserted_distribution_shape_id',
           tag_id: 'geographic_area_id_for_asserted_distribution_shape_id',
           display: @asserted_distribution.asserted_distribution_shape_type == 'GeographicArea' ? geographic_area_tag(@asserted_distribution.asserted_distribution_shape) : '',
-          size: 20
+          size: 20}
         %>
       </div>
 
@@ -29,13 +29,13 @@
       <div class="fields_for_gazetteer">
         <%= f.label :gazetteer_id %>
         <br>
-        <%= render '/workbench/elements/forms/ajax_select',
-          controller: 'gazetteers',
+        <%= render partial: '/workbench/elements/forms/ajax_select', locals: {
+          controller: '/gazetteers',
           object: 'asserted_distribution',
           method: 'asserted_distribution_shape_id',
           tag_id: 'gazetteer_id_for_asserted_distribution_shape_id',
           display: @asserted_distribution.asserted_distribution_shape_type == 'Gazetteer' ? gazetteer_tag(@asserted_distribution.asserted_distribution_shape) : '',
-          size: 20
+          size: 20}
         %>
       </div>
 
