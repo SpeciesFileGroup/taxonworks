@@ -180,7 +180,7 @@ import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
 import { Organization } from '@/routes/endpoints'
 import { ref, useTemplateRef, watch } from 'vue'
 
-const emit = defineEmits(['select', 'getItem'])
+const emit = defineEmits(['select'])
 
 const isModalVisible = ref(false)
 const nothing = ref(false)
@@ -228,7 +228,7 @@ function loadOrganization(item) {
 }
 
 function setOrganization(organization) {
-  emit('getItem', organization)
+  emit('select', organization)
 }
 </script>
 
