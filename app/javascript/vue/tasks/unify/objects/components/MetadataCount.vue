@@ -24,7 +24,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="({ name, total }, key) in item.metadata"
+          v-for="({ name, total }, key) in item._metadata"
           :key="key"
           @click="() => checkboxes && toggleOnly(key)"
         >
@@ -88,11 +88,11 @@ const only = defineModel('only', {
 watch(
   () => item.value.global_id,
   (newVal) => {
-    if (!item.value.metadata) {
+    if (!item.value._metadata) {
       loadMetadata(newVal)
     } else {
       nextTick(() => {
-        only.value = Object.keys(item.value.metadata)
+        only.value = Object.keys(item.value._metadata)
       })
     }
   },
@@ -101,9 +101,9 @@ watch(
 
 const selectAll = computed({
   get: () =>
-    only.value.length === Object.keys(item.value?.metadata || {}).length,
+    only.value.length === Object.keys(item.value?._metadata || {}).length,
   set: (value) => {
-    only.value = value ? Object.keys(item.value?.metadata) : []
+    only.value = value ? Object.keys(item.value?._metadata) : []
   }
 })
 
@@ -111,14 +111,14 @@ function loadMetadata(globalId) {
   const obj = item.value
 
   Unify.metadata({ global_id: globalId }).then(({ body }) => {
-    obj.metadata = body
+    obj._metadata = body
     only.value = Object.keys(body)
   })
 }
 
 function getTotalWithMerge(count, key) {
   const onlyLength = only.value?.length
-  const { total = 0 } = props.mergeItem?.metadata?.[key] || {}
+  const { total = 0 } = props.mergeItem?._metadata?.[key] || {}
 
   return !onlyLength || (onlyLength && only.value.includes(key))
     ? `<b class="text-update-color">${total + count}</b>`

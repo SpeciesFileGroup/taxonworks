@@ -91,6 +91,7 @@ const WITH_PARAMS = [
   'collectors',
   'confidences',
   'current_repository',
+  'conveyances',
   'data_attributes',
   'data_depictions',
   'dates',

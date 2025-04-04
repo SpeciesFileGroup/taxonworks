@@ -58,6 +58,7 @@ module Queries
       otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],
+      sound: [],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
     }.freeze
 
@@ -108,6 +109,7 @@ module Queries
       observation_query: '::Queries::Observation::Filter',
       otu_query: '::Queries::Otu::Filter',
       person_query: '::Queries::Person::Filter',
+      sound_query: '::Queries::Sound::Filter',
       source_query: '::Queries::Source::Filter',
       taxon_name_query: '::Queries::TaxonName::Filter',
     }.freeze
@@ -206,6 +208,9 @@ module Queries
 
     # @return [Query::Person::Filter, nil]
     attr_accessor :person_query
+
+    # @return [Query::Sound::Filter, nil]
+    attr_accessor :sound_query
 
     # @return Boolean
     #   Applies an order on updated.
@@ -387,6 +392,7 @@ module Queries
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
         f.push ::Queries::Concerns::Confidences if self < ::Queries::Concerns::Confidences
         f.push ::Queries::Concerns::Containable if self < ::Queries::Concerns::Containable
+        f.push ::Queries::Concerns::Conveyances if self < ::Queries::Concerns::Conveyances
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
         f.push ::Queries::Concerns::DateRanges if self < ::Queries::Concerns::DateRanges
         f.push ::Queries::Concerns::Depictions if self < ::Queries::Concerns::Depictions

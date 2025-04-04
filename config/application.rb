@@ -43,7 +43,6 @@ module TaxonWorks
     #   config.active_support.message_serializer = nil
     #   config.active_support.raise_on_invalid_cache_expiration_time = nil
     #   config.active_support.use_message_serializer_for_metadata = nil
-    #   config.add_autoload_paths_to_load_path = true #  !! (this must be it, false in 7.1)
     #   config.dom_testing_default_html_version = :html4 # !! (Nokogiri/HTML 5 options here)
     #   config.precompile_filter_parameters = nil
 
@@ -75,6 +74,7 @@ module TaxonWorks
     # Breaks rake/loading because of existing Rails.application.eager_load! statements
 
     # zeitwerk not needed?
+
     config.eager_load_paths += config.autoload_paths     # Tentatively reverted from 7.2 update
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.

@@ -96,6 +96,11 @@ Core: # a Section
     categories:
       - dna
       - matrix
+  Sound:
+    status: :prototype
+    related_model:
+    categories:
+      - matrix
 Supporting:
   AssertedDistribution:
     status: :prototype
@@ -141,6 +146,14 @@ Supporting:
     status: :prototype
     related_models:
       - ControlledVocabularyTerm
+  Conveyance:
+    status: :prototype
+    related_models:
+      - Sound 
+    categories:
+      - collection_object
+      - otu
+      - observation 
   CommonName:
     status: :prototype
     categories:
