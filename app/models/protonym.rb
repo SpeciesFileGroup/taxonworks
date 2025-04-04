@@ -17,7 +17,8 @@ class Protonym < TaxonName
 
   # @return [Boolean]
   #   memoize `#is_avaiable?`
-  attr_reader :is_available
+  # TODO: CACHED NOW
+  # attr_reader :is_available
 
   # @return Hash
   #   !! Use only during building cached values. Idea
@@ -66,6 +67,8 @@ class Protonym < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
+  has_many :original_combination_protonyms, through: :original_combination_relationships, source: :subject_taxon_name
+
   has_many :combination_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Combination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
@@ -74,6 +77,7 @@ class Protonym < TaxonName
 
   has_many :type_materials, class_name: 'TypeMaterial', inverse_of: :protonym
 
+  # Dynamically define relations based the model metadata
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
       if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icvcn|Icnp|SourceClassifiedAs)/
@@ -163,11 +167,13 @@ class Protonym < TaxonName
     Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id:, by:)
   end
 
+  # TODO: Move to Utilities::Nomenclature, rename iczn_family_group_base
   def self.family_group_base(name_string)
     name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)$/)
     $1 || name_string
   end
 
+  # TODO: replace with @taxonomy
   def self.family_group_name_at_rank(name_string, rank_string)
     if name_string == Protonym.family_group_base(name_string)
       name_string
@@ -176,11 +182,11 @@ class Protonym < TaxonName
     end
   end
 
+  # TODO: feels like TaxonNames Filter f(n)
   # @param rank full String to match rank_class, like '%genusgroup%' or '%::Family'
   #    scope to names used in taxon determinations
   #  !! Ensure collection_object_query is scoped to project
   def self.names_at_rank_group_for_collection_objects(rank: nil, collection_object_query: nil)
-
     # Find all the names for the objects in question
     names = ::Queries::TaxonName::Filter.new(collection_object_query:).all
 
@@ -192,6 +198,16 @@ class Protonym < TaxonName
       .to_sql
 
     ::Protonym.from('(' + s + ') as taxon_names').distinct
+  end
+
+  # @return Scope
+  #   unavailable Protonyms as inferred from the data
+  # Note that Combinations are considered innaplicable, and are treated as unavailable for data-persistence purposes.
+  def self.calculated_unavailable
+    a = Protonym.joins(:taxon_name_relationships).where(taxon_name_relationships: {type: TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION})
+    b = Protonym.joins(:taxon_name_classifications).where(taxon_name_classifications: {type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE})
+
+    ::Queries.union(TaxonName, [a,b])
   end
 
   # A convenience method to make this
@@ -217,31 +233,38 @@ class Protonym < TaxonName
     rescue ActiveRecord::RecordInvalid
       return false
     end
-
   end
-
 
   # @return [Array of Strings]
   #   genera where the species was placed
+  # TODO: Move to Homonym logic, it's only used there
   def all_generic_placements
-    valid_name = get_valid_taxon_name
+    valid_name = get_valid_taxon_name  # TODO: depend on cached
     return nil unless valid_name.rank_string !=~/Species/
     descendants_and_self = valid_name.descendants.unscope(:order) + [self] + self.combinations
     relationships = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
     (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').try(:name)]).uniq
   end
 
+  # @return Array of Protonyms
+  # TODO: @proceps - define/describe this
   def list_of_coordinated_names
     list = []
-    if self.rank_string
-      r = self.iczn_set_as_incorrect_original_spelling_of_relationship
-      if r.blank?
+    if self.rank_string # why wouldn't we have this?
+
+      # TODO: this is this the only place this relationship is used
+      # in name resolution logic, it's a costly single call for a
+      # very rarely used check?
+      # r = self.iczn_set_as_incorrect_original_spelling_of_relationship
+
+      if !cached_misspelling #  r.blank?
+
         search_rank = NomenclaturalRank::Iczn.group_base(rank_string)
-        if !!search_rank
+        if !!search_rank # how can this not hit?
           if search_rank =~ /Family/
-            if self.cached_is_valid
-              z = Protonym.family_group_base(self.name)
-              search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
+            if cached_is_valid
+              z = Protonym.family_group_base(name)
+              search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i} # ! array
             else
               search_name = nil
             end
@@ -254,31 +277,38 @@ class Protonym < TaxonName
 
         #  r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
         #  if !search_name.nil? && r.empty?
-        if !search_name.nil? && is_available?
+        if !search_name.blank? && cached_is_available #  is_available? # DB hit here.
           list = Protonym
             .ancestors_and_descendants_of(self)
             .with_rank_class_including(search_rank)
             .where(name: search_name)
             .not_self(self)
             .that_is_valid
+            .unscope(:order)
         else
           list = []
         end
+
       else
-        list = [r.object_taxon_name]
+        # list = [r.object_taxon_name]
+        list = [ self.iczn_set_as_incorrect_original_spelling_of_relationship&.object_taxon_name ].compact
       end
     end
-    return list
+
+    # byebug if list.size > 0
+    list
   end
 
-  def is_available?(refresh = false)
-    if !refresh
-      @is_available ||= !has_misspelling_or_misapplication_relationship? && !classification_unavailable?
-    else
-      @is_available = !has_misspelling_or_misapplication_relationship? && !classification_unavailable?
-    end
-    @is_available
+  # @return [Boolean]
+  def has_misspelling_or_misapplication_relationship?
+    # TODO: Looping the constant and meomizing the taxon_name_relationships prevents another query
+    taxon_name_relationships.where(type: TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
   end
+
+  def get_is_available
+    !has_misspelling_or_misapplication_relationship? && !classification_unavailable?
+  end
+
 
   # @return [Protonym]
   #   the accepted "valid" version of this name in the present classification
@@ -342,7 +372,7 @@ class Protonym < TaxonName
   # @return [Array]
   #    all descendant and ancestor protonyms for this Protonym
   def ancestors_and_descendants
-    Protonym.ancestors_and_descendants_of(self).not_self(self).to_a
+    Protonym.ancestors_and_descendants_of(self).not_self(self).unscope(:order).to_a
   end
 
   # @return [ TypeMaterial, [] ]  ?!
@@ -413,7 +443,7 @@ class Protonym < TaxonName
       if z.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
         if z.cached_is_valid
           a[year][:valid] = a[year][:valid] += 1
-        elsif TaxonNameRelationship.where_subject_is_taxon_name(z.id).with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).any?
+        elsif TaxonNameRelationship.where_subject_is_taxon_name(z.id).where(type: ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).any?
           a[year][:synonyms] = a[year][:synonyms] += 1
         end
       end
@@ -439,7 +469,7 @@ class Protonym < TaxonName
 
     taxon1_types = get_primary_type.sort_by{|i| i.id}
     taxon2_types = taxon2.get_primary_type.sort_by{|i| i.id}
-    return true if taxon1_types.empty? && taxon2_types.empty? # both are empty !! If they are both empty then they don't have the same type, the have no types  !!
+    return true if taxon1_types.empty? && taxon2_types.empty?  # both are empty !! If they are both empty then they don't have the same type, they have no types  !!
     return false if taxon1_types.empty? || taxon2_types.empty? # one is empty
 
     taxon1_types.map(&:collection_object_id) == taxon2_types.map(&:collection_object_id) # collect{|i| i.collection_object_id}
@@ -505,11 +535,6 @@ class Protonym < TaxonName
     end
   end
 
-  # @return [Boolean]
-  def has_misspelling_or_misapplication_relationship?
-    taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
-  end
-
   def has_alternate_original?
     cached_original_combination && (cached != cached_original_combination) ? true : false
   end
@@ -545,7 +570,7 @@ class Protonym < TaxonName
 
   # @return Boolean
   def has_latinized_classification?
-    TaxonNameClassification.where_taxon_name(self).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).any?
+    TaxonNameClassification.where_taxon_name(self).where(type: LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).any?
   end
 
   def reduce_list_of_synonyms(list)
@@ -730,13 +755,18 @@ class Protonym < TaxonName
 
     # Why this?
     #   We need to apply gender to "internal" names for original combinations, everything
-    #   but the last name
-    # DD: if we have subspecies, the species name should be used not in the original form,
-    # but the form correlated with the present genus gender
+    #   but the last name. If we have subspecies, the species name should be used not in the original form,
+    #   but the form correlated with the present genus gender
+
+    # Protonym.joins(:original_combination_relationships)
+    #     .first.original_combination_protonyms
+    #     .order(Arel.sql("ARRAY_POSITION(ARRAY[#{ORIGINAL_COMBINATION_RANKS.collect{|a| "'" + a + "'"}.join(',')}], taxon_name_relationships.type)"))
 
     # order the relationships
     # TODO: remove reload, at this point the name should be saved
-    r = original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
+    r = original_combination_relationships
+      .eager_load(:subject_taxon_name)
+      .sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
 
     # This is using the memoized version, but needs to always reload at this point. If we can work this
     # into an early call then we can re-use the relationship load.
@@ -748,7 +778,7 @@ class Protonym < TaxonName
 
     genus = r.select{|r| r.type =~ /Genus/}.first&.subject_taxon_name # This is the original genus
 
-    gender = genus&.gender_name
+    gender = genus&.cached_gender # &.gender_name
 
     # Apply gender to everything but the last
     total = r.count - 1
@@ -768,7 +798,10 @@ class Protonym < TaxonName
     # Plug in self if self referencing OriginalCombination is not present (we do not require it).
     if r.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id
       if elements[this_rank].nil?
-        elements[this_rank] = [nil, original_name]
+        v = [nil]
+        v.push
+        elements[this_rank] = [nil, original_name] # WRONG, original name is like 'name [sic]', and we need [sic], removed
+
       end
     end
 
@@ -789,6 +822,14 @@ class Protonym < TaxonName
     @original_combination_elements = elements
   end
 
+  # @return [String, nil]
+  #    a monominal, as originally rendered, with parens if subgenus, and '[sic]' (bad!) if misspelled
+  def original_name
+    n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
+    n = "(#{n})" if n && rank_name == 'subgenus'
+    n
+  end
+
   # @return [[rank_name, name], nil]
   #   Used in ColDP export
   def original_combination_infraspecific_element(elements = nil, remove_sic = false)
@@ -801,14 +842,6 @@ class Protonym < TaxonName
       return [r.to_s, elements[r].last] if elements[r]
     end
     nil
-  end
-
-  # @return [String, nil]
-  #    a monominal, as originally rendered, with parens if subgenus
-  def original_name
-    n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
-    n = "(#{n})" if n && rank_name == 'subgenus'
-    n
   end
 
   def get_original_combination
@@ -920,14 +953,14 @@ class Protonym < TaxonName
         combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
       end
 
-     # byebug if name == 'Dus'
+      # byebug if name == 'Dus'
 
       classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
 
       related_through_original_combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
         all_names.push i
         i.reload
-      #  byebug if name == 'Dus'
+        #  byebug if name == 'Dus'
         i.update_cached_original_combinations
       end
 
@@ -956,14 +989,14 @@ class Protonym < TaxonName
           cached_nomenclature_date: i.nomenclature_date)
       end
 
-      misspelling_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION)
+      misspelling_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).where(type: TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION)
       misspelling_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
         all_names.push i
         i.update_columns(
           cached_author_year: i.get_author_and_year,
           cached_nomenclature_date: i.nomenclature_date)
       end
-     #  byebug if all_names.uniq.size != all_names.size || all_names.size > 1
+      #  byebug if all_names.uniq.size != all_names.size || all_names.size > 1
 
     end
   end
@@ -1138,7 +1171,8 @@ class Protonym < TaxonName
       set_cached_species_homonym if is_species_rank?
       set_cached_misspelling
 
-      tn = TaxonName.find(id) # Why not "reload"
+      # Here we start to calculate off of what was previously set
+      tn = TaxonName.find(id) # Why not "reload" (maybe OK with re-initialize)
       set_cached_names_for_descendants if tn.cached != old_cached
       set_cached_names_for_dependants if  tn.cached.to_s != old_cached || tn.cached_author_year.to_s != old_cached_author_year
     end
@@ -1160,7 +1194,7 @@ class Protonym < TaxonName
   end
 
   def set_cached_original_combination
-  #  byebug if name == 'aus'
+    #  byebug if name == 'aus'
     update_column(:cached_original_combination, get_original_combination)
   end
 

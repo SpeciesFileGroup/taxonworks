@@ -60,7 +60,7 @@ class TaxonNameClassification < ApplicationRecord
                 description: 'More specific statuses are preffered, for example: "Nomen nudum, no description" is better than "Nomen nudum".' )
 
   after_commit :set_cached
-  
+
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
     return :icnp if type.match(/::Icnp/)
@@ -180,7 +180,6 @@ class TaxonNameClassification < ApplicationRecord
     set_cached_names_for_taxon_names
   end
 
-
   # TODO: move these to individual classes?!
   # Starting to move to individual classes
   #     Gender is sone
@@ -218,13 +217,15 @@ class TaxonNameClassification < ApplicationRecord
                 cached_html: t1.get_full_name_html(n)
             )
           end
-          
+
         elsif type_name =~ /Latinized::Gender/
           raise
+        elsif TAXON_NAME_CLASS_NAMES_UNAVAILABLE.include?( type_name )
+          t.update_columns(
+            cached_is_available: false
+          )
+
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
-#          TaxonName.where(cached_valid_taxon_name_id: t.cached_valid_taxon_name_id).each do |vn|
-          #            vn.update_column(:cached_valid_taxon_name_id, vn.get_valid_taxon_name.id)  # update self too!
-          #          end
           vn = t.get_valid_taxon_name
           vn.update_columns(
             cached_valid_taxon_name_id: vn.id,
@@ -304,7 +305,7 @@ class TaxonNameClassification < ApplicationRecord
 
   def nomenclature_code_matches
     if taxon_name && type && nomenclature_code
-      tn = taxon_name.type == 'Combination' ? taxon_name.protonyms.last : taxon_name
+      tn = taxon_name.is_combination? ? taxon_name.protonyms.last : taxon_name
       nc = tn.rank_class.nomenclatural_code
       errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != nc
     end

@@ -319,7 +319,8 @@ class TaxonName < ApplicationRecord
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
-  has_many :classified_as_unavailable_or_invalid, -> { where type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }, class_name: 'TaxonNameClassification'
+  # TODO: deprecate for cached_is_available
+  has_many :classified_as_unavailable_or_invalid, -> { where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID) }, class_name: 'TaxonNameClassification'
 
   # Combinations are rankless, but we need this scope here for generic returns
   scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
@@ -635,7 +636,7 @@ class TaxonName < ApplicationRecord
       .out_of_scope_combinations(id)
   end
 
-  # TODO: replace with @taxonomy
+  # TODO !!: replace with @taxonomy
   # @return [TaxonName, nil] an ancestor at the specified rank
   # @param rank [symbol|string|
   #   like :species or 'genus'
@@ -821,6 +822,7 @@ class TaxonName < ApplicationRecord
     taxon_name_classifications.with_type_base('TaxonNameClassification::Latinized::Gender').first
   end
 
+  # TODO: this is cached_gender_name now, deprecate
   # @return [String, nil]
   #    gender (feminine, masculine, neuter) as a string (only applicable to Genera)
   def gender_name
@@ -995,6 +997,12 @@ class TaxonName < ApplicationRecord
     cached_is_valid
   end
 
+  # @return [Boolean]
+  #   after all inference on the validity of a name, the result is stored
+  def is_available?
+    cached_is_available
+  end
+
   # Has Classification, but no relationship describing why
   def is_ambiguously_invalid?
     !is_valid? && (id == cached_valid_taxon_name_id)
@@ -1125,7 +1133,7 @@ class TaxonName < ApplicationRecord
 
   # @param gender, String
   # @return String, nil
-  #   then name according to the gender requested
+  #   then name according to the gender requested, if none, then `name`
   def name_in_gender(gender = nil)
     case gender
     when 'masculine'
@@ -1195,6 +1203,7 @@ class TaxonName < ApplicationRecord
 
     set_cached_valid_taxon_name_id
     set_cached_is_valid
+    set_cached_is_available
     set_cached_classified_as
 
     set_cached_author_columns
@@ -1219,6 +1228,12 @@ class TaxonName < ApplicationRecord
   def set_cached_is_valid
     v = is_combination? ? false : !unavailable_or_invalid?
     update_column(:cached_is_valid, v)
+  end
+
+  def set_cached_is_available
+    # TODO: @proceps vs. hybrids? Confirm combinations, Hybrid class vs. TaxonName Hybrid
+    v = (is_combination? || is_hybrid?) ? false : get_is_available
+    update_column(:cached_is_available, v)
   end
 
   def set_cached_warnings
@@ -1316,7 +1331,7 @@ class TaxonName < ApplicationRecord
 
     safe_self_and_ancestors.each do |i|
       rank = i.rank
-      gender = i.gender_name if rank == 'genus'
+      gender = i.cached_gender if rank == 'genus' # gender_name
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)
     end
@@ -1358,6 +1373,8 @@ class TaxonName < ApplicationRecord
   #        "species" => [nil, "aaa"],
   #        "subspecies" => [nil, "bbb"],
   #        "variety" => ["var.", "ccc"]}
+  #
+  #        # TODO: document 'sic', it should be third placement
   #
   def full_name_hash
     gender = nil
@@ -1463,9 +1480,11 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [String]
-  #    TODO: does this form of the name contain parens for subgenus?
-  #    TODO: provide a default to gender (but do NOT eliminate param)
-  #    TODO: on third thought- eliminate this mess
+  #   TODO: does this form of the name contain parens for subgenus?
+  #   TODO: don't use this when [nil, name, 'sic'] is expected
+  #   TODO: provide a default to gender (but do NOT eliminate param)
+  #   TODO: on third thought- eliminate this mess
+  #
   def name_with_misspelling(gender)
     if cached_misspelling
       if rank_string =~ /Icnp/
@@ -1474,7 +1493,7 @@ class TaxonName < ApplicationRecord
         name_in_gender(gender).to_s + ' [sic]'
       end
     elsif gender.nil? || rank_string =~ /Genus/
-      name.to_s
+      name
     else
       name_in_gender(gender).to_s
     end

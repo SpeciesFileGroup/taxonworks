@@ -1,33 +1,17 @@
 require 'rails_helper'
 
 describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validation] do
-
-  before(:all) do
-    TaxonNameRelationship.delete_all
-    TaxonNameClassification.delete_all
-    TaxonName.delete_all
-    TaxonNameHierarchy.delete_all
-  end
-
-  after(:all) do
-    TaxonNameRelationship.delete_all
-    TaxonNameClassification.delete_all
-    TaxonName.delete_all
-    Citation.delete_all
-    Source.destroy_all
-    TaxonNameHierarchy.delete_all
-  end
+  include ActiveJob::TestHelper
 
   let(:protonym) { Protonym.new }
-
-  #TODO citeproc gem doesn't currently support lastname without firstname
+  let(:root) {FactoryBot.create(:root_taxon_name) }
   let(:source) { FactoryBot.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev, D.')   }
 
   context 'misspelling' do
-    let(:genus) { Protonym.new(name: 'Mus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+    let(:genus) { Protonym.create!(name: 'Mus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
 
     context 'ICZN names' do
-      let(:s) { Protonym.new(parent: genus, rank_class: Ranks.lookup(:iczn, :species) ) }
+      let(:s) { Protonym.create!(parent: genus, rank_class: Ranks.lookup(:iczn, :species), name: 'aus' ) }
       context 'legal forms' do
         legal = ['vitis', 'a-nigrum']
         legal.each do |l|
@@ -54,6 +38,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
 
   context 'soft_validation' do
     # TODO: all these need to not be @
+
     before(:each) do
       @subspecies = FactoryBot.create(:iczn_subspecies)
       @kingdom = @subspecies.ancestor_at_rank('kingdom')
@@ -426,8 +411,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         s.save
         s.soft_validate(only_sets: :missing_infrasubspecific_status)
         expect(s.soft_validations.messages_on(:base).size).to eq(1)
-        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific')
+        c1 = TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific.create!(taxon_name: s)
+        perform_enqueued_jobs # updated unavailabe
         s.soft_validate(only_sets: :missing_infrasubspecific_status)
+
         expect(s.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 

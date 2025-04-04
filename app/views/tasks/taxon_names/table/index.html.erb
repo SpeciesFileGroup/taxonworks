@@ -1,5 +1,3 @@
-
-
 <h1> Taxon names table </h1>
 
 <%= link_to('Filter', filter_taxon_names_task_url(@taxon_names_query.params)) %> <br> <br>
@@ -22,7 +20,7 @@
     <th class="header">original Combination</th>
   </thead>
 
-  <% a.each do |r| %>
+  <% @taxon_names.sort(:cached).each do |r| %>
     <tr>
       <td>
         <ul class="no_bullets context-menu">
@@ -31,7 +29,7 @@
         </ul>
       </td>
       <td><%= r.id %></td>
-      <td><%= r.total %></td>
+      <td><%= r.cached %></td>
       <td><%= object_link(r.geographic_area) %></td>
       <td><%= r.verbatim_locality %></td>
       <td><%= r.date_range.join("-") %></td>
@@ -39,4 +37,3 @@
     </tr>
   <% end %>
 </table>
-
