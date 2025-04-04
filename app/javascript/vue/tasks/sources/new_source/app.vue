@@ -88,7 +88,10 @@
           <div class="flex-separate middle full_width">
             <h3>Source</h3>
 
-            <div class="horizontal-right-content gap-small">
+            <div
+              class="horizontal-right-content gap-small"
+              v-if="source.id"
+            >
               <VPin
                 class="circle-button"
                 type="Source"
@@ -104,8 +107,11 @@
           </div>
         </template>
         <template #body>
-          <div class="full_width panel content">
-            <SourceType class="margin-medium-bottom" />
+          <div class="full_width">
+            <SourceType
+              v-if="source.type !== SOURCE_BIBTEX"
+              class="margin-medium-bottom"
+            />
             <component :is="componentSection[source.type]" />
           </div>
         </template>
