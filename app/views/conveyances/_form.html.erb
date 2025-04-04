@@ -54,7 +54,11 @@
     <%= f.fields_for :sound_attributes do |i| %>
       <div class="field">
         <%= i.label :sound_file %><br>
-        <div> <%= audio_tag(@conveyance.sound.sound_file, controls: true) if @conveyance.sound -%> </div>
+        <% if @conveyance.sound&.persisted? && @conveyance.sound.sound_file.attached? %>
+        <div> 
+          <%= audio_tag(@conveyance.sound.sound_file, controls: true) -%>
+        </div>
+        <% end %>
         <%= i.file_field :sound_file, class: :required_for_submit %>
       </div>
     <% end %>

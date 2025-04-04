@@ -32,6 +32,10 @@ class ConveyancesController < ApplicationController
   def show
   end
 
+  def new
+    @conveyance = Conveyance.new
+  end
+
   # GET /conveyances/1/edit
   def edit
   end

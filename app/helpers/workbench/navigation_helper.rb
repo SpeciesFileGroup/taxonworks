@@ -3,7 +3,7 @@
 # helpers.
 module Workbench::NavigationHelper
 
-  NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRowItem ObservationMatrixColumnItem ObservationMatrixRow ObservationMatrixColumn Note Tag Conveyance
+  NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRowItem ObservationMatrixColumnItem ObservationMatrixRow ObservationMatrixColumn Note Tag
   Citation Identifier DataAttribute AlternateValue TaxonNameClassification
   GeographicArea ContainerItem ProtocolRelationship Download}.freeze
 
