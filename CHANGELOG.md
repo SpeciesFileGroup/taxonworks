@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Radial annotator and navigator to role picker list
 
 ## [0.49.1] - 2025-04-01
 
