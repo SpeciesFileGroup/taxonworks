@@ -205,21 +205,31 @@ module Queries
       # TODO: support GZ in addition to GA (return both I guess?)
       def geo_json_facet
         return nil if geo_json.nil?
-        if i = spatial_query
 
-          # All spatial records
-          j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
+        i = spatial_query
+        return nil if i.nil?
 
-          # Expand to include all descendants of any spatial match!
-          # We only care about areas actually used here.
-          k = ::GeographicArea.joins(:asserted_distributions).descendants_of(j)
+        # All spatial records, both GeographicAreas and Gazetteers
+        j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
 
-          l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
+        # Expand to include all descendants of any spatial match!
+        # We only care about areas actually used here.
+        k = ::GeographicArea.joins(:asserted_distributions).descendants_of(j)
 
-          return ::AssertedDistribution.where( asserted_distribution_shape: l )
-        else
-          return nil
-        end
+        ga_ids = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
+
+        gz_ids = ::Gazetteer.joins(:geographic_item).where(geographic_item: i)
+
+        return ::AssertedDistribution
+          .where( asserted_distribution_shape: ga_ids )
+          .where( asserted_distribution_shape_type: 'GeographicArea')
+          .or(
+            ::AssertedDistribution
+              .where( asserted_distribution_shape: gz_ids )
+              .where( asserted_distribution_shape_type: 'Gazetteer')
+
+          )
+
       end
 
       # @return [GeographicItem scope]
