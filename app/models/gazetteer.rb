@@ -59,12 +59,12 @@ class Gazetteer < ApplicationRecord
   # @return [Hash] of the pieces of a GeoJSON 'Feature'
   def to_geo_json_feature
     to_simple_json_feature.merge(
-      properties: {
+      'properties' => {
         # cf. GeographicArea
-        shape: {
-          type: 'gazetteer',
-          id:,
-          tag: name
+        'shape' => {
+          'type' => 'gazetteer',
+          'id' => id,
+          'tag' => name
         }
       }
     )
@@ -72,9 +72,9 @@ class Gazetteer < ApplicationRecord
 
   def to_simple_json_feature
     {
-      type: 'Feature',
-      properties: {},
-      geometry: geographic_item.to_geo_json
+      'type' => 'Feature',
+      'properties' => {},
+      'geometry' => geographic_item.to_geo_json
     }
   end
 
