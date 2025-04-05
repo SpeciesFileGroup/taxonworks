@@ -160,9 +160,10 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
-  specify '#geographic_area_id[]' do
+  specify '#geo_shape_id[]' do
     ce1.update!(geographic_area: FactoryBot.create(:valid_geographic_area))
-    query.geographic_area_id = [ce1.geographic_area_id]
+    query.geo_shape_id = [ce1.geographic_area_id]
+    query.geo_shape_type = ['GeographicArea']
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
@@ -220,8 +221,10 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 
-    specify '#gazetteer_id' do
-      query.gazetteer_id = gz_polygon.id
+    specify '#geo_shape_id Gazetteer' do
+      query.geo_shape_id = gz_polygon.id
+      query.geo_shape_type = 'Gazetteer'
+      query.geo_mode = true
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 

@@ -287,7 +287,7 @@ module Queries
       end
 
       def asserted_distribution_geo_facet_by_type(shape_string, shape_ids)
-        b = nil # AssertedDistributions
+        b = nil
 
         case geo_mode
         when nil, false # exact, descendants
