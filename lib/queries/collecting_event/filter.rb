@@ -3,9 +3,9 @@ module Queries
     class Filter < Query::Filter
 
       # Params exists for all CollectingEvent attributes except these.
-      # geo_shape_id is excluded because we handle it specially in conjunction with `geo_mode``
+      # geo_shape_id is excluded because we handle it specially in conjunction with `geo_mode`
       # Definition must preceed include.
-      ATTRIBUTES = (::CollectingEvent.core_attributes - %w{geo_shape_id} + %w(cached_level0_geographic_name cached_level1_geographic_name cached_level2_geographic_name)).map(&:to_sym).freeze
+      ATTRIBUTES = (::CollectingEvent.core_attributes - %w{geo_shape_id geo_shape_type} + %w(cached_level0_geographic_name cached_level1_geographic_name cached_level2_geographic_name)).map(&:to_sym).freeze
 
       include Queries::Concerns::Attributes
       include Queries::Concerns::Citations
