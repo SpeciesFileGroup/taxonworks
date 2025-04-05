@@ -4,7 +4,7 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
-      include Queries::Concerns::Gazetteers
+      include Queries::Concerns::Geo
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Concerns::Confidences

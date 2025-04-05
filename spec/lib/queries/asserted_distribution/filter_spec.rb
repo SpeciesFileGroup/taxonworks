@@ -55,57 +55,57 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all).to contain_exactly(b)
   end
 
-  specify '#asserted_distribution_shape_id #asserted_distribution_shape_mode (descendants)' do
+  specify '#geo_shape_id #geo_mode (descendants)' do
     ad2 # not this
 
     b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
     h = {
-      asserted_distribution_shape_id: big_geo_area.parent.id,
-      asserted_distribution_shape_type: 'GeographicArea',
-      asserted_distribution_shape_mode: false
+      geo_shape_id: big_geo_area.parent.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: false
     }
     q = query.new(h)
     expect(q.all).to contain_exactly(b)
   end
 
-  specify '#asserted_distribution_shape_id #asserted_distribution_shape_mode (exact)' do
+  specify '#geo_shape_id #geo_mode (exact)' do
     ad1 # not this
     b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
     h = {
-      asserted_distribution_shape_id: big_geo_area.id,
-      asserted_distribution_shape_type: 'GeographicArea'
+      geo_shape_id: big_geo_area.id,
+      geo_shape_type: 'GeographicArea'
     }
     q = query.new(h)
 
     expect(q.all).to contain_exactly(b)
   end
 
-  specify '#asserted_distribution_shape_id #asserted_distribution_shape_mode (spatial) 2' do
+  specify '#geo_shape_id #geo_mode (spatial) 2' do
     ad1 # not this
 
     a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
     b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
     h = {
-      asserted_distribution_shape_id: big_geo_area.id,
-      asserted_distribution_shape_type: 'GeographicArea',
-      asserted_distribution_shape_mode: true
+      geo_shape_id: big_geo_area.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: true
     }
     q = query.new(h)
 
     expect(q.all).to contain_exactly(a, b)
   end
 
-  specify '#asserted_distribution_shape_id #asserted_distribution_shape_mode (spatial) 1' do
+  specify '#geo_shape_id #geo_mode (spatial) 1' do
     a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
     b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
     h = {
-      asserted_distribution_shape_id: small_geo_area.id,
-      asserted_distribution_shape_type: 'GeographicArea',
-      asserted_distribution_shape_mode: true
+      geo_shape_id: small_geo_area.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: true
     }
     q = query.new(h)
 
@@ -136,11 +136,11 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all.map(&:id)).to contain_exactly(ad1.id)
   end
 
-  specify '#asserted_distribution_shape_id' do
+  specify '#geo_shape_id' do
     o = ad1
     h = {
-      asserted_distribution_shape_id: o.asserted_distribution_shape_id,
-      asserted_distribution_shape_type: 'GeographicArea'
+      geo_shape_id: o.asserted_distribution_shape_id,
+      geo_shape_type: 'GeographicArea'
     }
     q = query.new(h)
     expect(q.all.map(&:id)).to contain_exactly(ad1.id)
@@ -157,7 +157,10 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
     _b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
-    q = query.new({gazetteer_id: small_gz.id})
+    q = query.new({
+      geo_shape_id: small_gz.id,
+      geo_shape_type: 'Gazetteer',
+      geo_mode: true})
     expect(q.all).to contain_exactly(a)
   end
 
@@ -165,21 +168,24 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
     b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
-    q = query.new({gazetteer_id: large_gz.id})
+    q = query.new({
+      geo_shape_id: large_gz.id,
+      geo_shape_type: 'Gazetteer',
+      geo_mode: true})
     expect(q.all).to contain_exactly(a, b)
   end
 
-  specify '#shapeType GA' do
+  specify '#asserted_distribution_shape_type GA' do
     ad1
     ad_gz
-    q = query.new({shape_type: 'GeographicArea'})
+    q = query.new({asserted_distribution_shape_type: 'GeographicArea'})
     expect(q.all).to contain_exactly(ad1)
   end
 
-  specify '#shapeType GZ' do
+  specify '#asserted_distribution_shape_type GZ' do
     ad1
     ad_gz
-    q = query.new({shape_type: 'Gazetteer'})
+    q = query.new({asserted_distribution_shape_type: 'Gazetteer'})
     expect(q.all).to contain_exactly(ad_gz)
   end
 

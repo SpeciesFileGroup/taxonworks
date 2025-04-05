@@ -13,7 +13,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Depictions
-      include Queries::Concerns::Gazetteers
+      include Queries::Concerns::Geo
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
@@ -226,10 +226,10 @@ module Queries
           if use_min == 0
             q = ::CollectingEvent.where.missing(:collection_objects, :field_occurrences)
           else
-            q = q.having("COUNT(collection_objects.id) + COUNT(field_occurrences.id) = ? ", use_min)
+            q = q.having('COUNT(collection_objects.id) + COUNT(field_occurrences.id) = ? ', use_min)
           end
         else
-          q = q.having("COUNT(collection_objects.id) + COUNT(field_occurrences.id) BETWEEN ? AND ?", use_min, use_max)
+          q = q.having('COUNT(collection_objects.id) + COUNT(field_occurrences.id) BETWEEN ? AND ?', use_min, use_max)
         end
 
         q = q.select(collecting_events: [:id])
