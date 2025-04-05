@@ -53,7 +53,6 @@ module Queries
         :wkt,
         collecting_event_id: [],
         collector_id: [],
-        geographic_area_id: [],
         geo_shape_id: [],
         geo_shape_type: []
       ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
