@@ -41,8 +41,9 @@ module Queries
         :determiner_name_regex,
         :geo_json,
         :geographic_area,
-        :geographic_area_id,
-        :geographic_area_mode,
+        :geo_mode,
+        :geo_shape_id,
+        :geo_shape_type,
         :georeferences,
         :in_labels,
         :md5_verbatim_label,
@@ -53,15 +54,15 @@ module Queries
         collecting_event_id: [],
         collector_id: [],
         geographic_area_id: [],
+        geo_shape_id: [],
+        geo_shape_type: []
       ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
       PARAMS = [
         *BASE_PARAMS,
-        :gazetteer_id,
         :otu_id,
         :collection_object_id,
         collection_object_id: [],
-        gazetteer_id: [],
         otu_id: [],
       ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
@@ -179,7 +180,7 @@ module Queries
         set_data_attributes_params(params)
         set_date_params(params)
         set_depiction_params(params)
-        set_gazetteer_params(params)
+        set_geo_params(params)
         set_notes_params(params)
         set_protocols_params(params)
         set_tags_params(params)
@@ -494,7 +495,6 @@ module Queries
           collection_objects_facet,
           collector_id_facet,
           geo_json_facet,
-          gazetteer_id_facet,
           geographic_area_facet,
           geographic_area_id_facet,
           georeferences_facet,

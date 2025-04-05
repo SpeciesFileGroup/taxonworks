@@ -266,11 +266,11 @@ module Queries
 
         geographic_area_shapes, gazetteer_shapes = shapes_for_geo_mode
 
-        a = asserted_distribution_shape_facet_by_type(
+        a = asserted_distribution_geo_facet_by_type(
           'GeographicArea', geographic_area_shapes
         )
 
-        b = asserted_distribution_shape_facet_by_type(
+        b = asserted_distribution_geo_facet_by_type(
           'Gazetteer', gazetteer_shapes
         )
 
@@ -286,14 +286,13 @@ module Queries
         referenced_klass_union([a,b])
       end
 
-      def asserted_distribution_shape_facet_by_type(shape_string, shape_ids)
+      def asserted_distribution_geo_facet_by_type(shape_string, shape_ids)
         b = nil # AssertedDistributions
 
         case geo_mode
         when nil, false # exact, descendants
           b = ::AssertedDistribution
-            .where(asserted_distribution_shape_type: shape_string)
-            .where(asserted_distribution_shape_id: shape_ids)
+            .where(asserted_distribution_shape: shape_ids)
         when true # spatial
           m = shape_string.tableize
           b = ::GeographicItem.joins(m.to_sym).where(m => shape_ids)

@@ -276,7 +276,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
   end
 
-  specify '#geographic_area_id and #geographic_area_mode, spatial (Query::AssertedDistribution integration)' do
+  specify '#geo_shape_id and #geo_mode, spatial (Query::AssertedDistribution integration)' do
     o2
     # smaller
     a = FactoryBot.create(:level1_geographic_area)
@@ -294,13 +294,14 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     AssertedDistribution.create!(otu: o1, asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
 
     # Use bigger
-    q.geographic_area_id = b.id
-    q.geographic_area_mode = true
+    q.geo_shape_id = b.id
+    q.geo_shape_type = 'GeographicArea'
+    q.geo_mode = true
 
     expect(q.all).to contain_exactly( o1 )
   end
 
-  specify '#gazetteer_id, spatial (Query::AssertedDistribution integration)' do
+  specify '#geo_shape_id, spatial (Query::AssertedDistribution integration)' do
     o2
 
     bigger_polygon = RspecGeoHelpers.make_polygon(
@@ -325,7 +326,9 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       source: FactoryBot.create(:valid_source))
 
     # Use bigger gz
-    q.gazetteer_id = bigger_gz.id
+    q.geo_shape_id = bigger_gz.id
+    q.geo_shape_type = 'Gazetteer'
+    q.geo_mode = true
 
     expect(q.all).to contain_exactly( o1 )
   end
