@@ -1,6 +1,5 @@
 <template>
   <FacetGeographic v-model="params" />
-  <FacetGazetteer v-model="params" />
   <FacetAssertedDistributionShapeType v-model="params" />
   <FacetWKT v-model="params" />
   <FacetTaxonName
@@ -41,7 +40,6 @@
 <script setup>
 import { computed } from 'vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
-import FacetGazetteer from '@/components/Filter/Facets/shared/FacetGazetteer.vue'
 import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetAssertedDistributionShapeType from '@/components/Filter/Facets/AssertedDistributions/FacetAssertedDistributionShapeType.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'

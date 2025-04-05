@@ -1,6 +1,5 @@
 <template>
   <FacetGeographic v-model="params" />
-  <FacetGazetteer v-model="params" />
   <FacetDetermination v-model="params" />
   <FacetTaxonName
     v-model="params"
@@ -63,7 +62,6 @@ import FacetCollectingEvent from '@/components/Filter/Facets/CollectingEvent/Fac
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
-import FacetGazetteer from '@/components/Filter/Facets/shared/FacetGazetteer.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetTypeMaterial from '@/components/Filter/Facets/CollectionObject/FacetTypeMaterial.vue'

@@ -10,7 +10,7 @@
           <input
             type="checkbox"
             :value="type"
-            v-model="params.shape_type"
+            v-model="params.asserted_distribution_shape_type"
           />
           {{ type }}
         </label>
@@ -28,8 +28,8 @@ const SHAPE_TYPES = [
 ]
 
 const params = defineModel({type: Object, required: true})
-if (!params.value.shape_type) {
-  params.value.shape_type = []
+if (!params.value.asserted_distribution_shape_type) {
+  params.value.asserted_distribution_shape_type = []
 }
 
 </script>
