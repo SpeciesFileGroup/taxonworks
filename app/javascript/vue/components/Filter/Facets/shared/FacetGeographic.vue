@@ -274,8 +274,8 @@ function addShape(shape) {
   shapes.value.push(shape)
 }
 
-function convertGeoJSONParam(urlParams) {
-  const geojson = JSON.parse(urlParams.geo_json)
+function convertGeoJSONParam(geojsonParam) {
+  const geojson = JSON.parse(geojsonParam)
 
   return {
     type: 'Feature',
@@ -285,28 +285,27 @@ function convertGeoJSONParam(urlParams) {
       type: geojson.type === 'Point' ? 'Point' : 'Polygon'
     },
     properties: {
-      radius: urlParams?.radius
+      radius: geojsonParam?.radius
     }
   }
 }
 
 onBeforeMount(() => {
-  if (params.value.geo_shape_id?.length > 0) {
-    const shapeIds = [params.value.geo_shape_id].flat()
-    const shapeTypes = [params.value.geo_shape_type].flat()
+  try {
+    if (params.value.geo_shape_id?.length > 0) {
+      const shapeIds = [params.value.geo_shape_id].flat()
+      const shapeTypes = [params.value.geo_shape_type].flat()
 
-    let i = 0
-    shapeIds.forEach((id) => {
-      addShapeFromId(id, shapeTypes[i])
-      i = i + 1
-    })
-
-    geoMode.value = params.value.geo_mode
-  }
-
-  if (params.value.geo_json) {
-    // TODO: this might be broken *and* memory leaking
-    addShapeFromMap(convertGeoJSONParam(params.value.geo_json))
-  }
+      let i = 0
+      shapeIds.forEach((id) => {
+        addShapeFromId(id, shapeTypes[i])
+        i = i + 1
+      })
+      geoMode.value = params.value.geo_mode
+    } else if (params.value.geo_json) {
+      addShapeFromMap(convertGeoJSONParam(params.value.geo_json))
+      view.value = TABS.Map
+    }
+  } catch {}
 })
 </script>
