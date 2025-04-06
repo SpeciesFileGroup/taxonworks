@@ -65,7 +65,8 @@ module Queries::Concerns::Geo
   #     nil ("Exact"), returns shapes of each geo_shape_id/type
   #     true ("Spatial") same as nil
   #     false ("Descendants") returns shapes of each geo_shape_id/type and each
-  #       of its descendants
+  #       of its descendants - each Gazetteer is considered a descendant of
+  #       itself
   def shapes_for_geo_mode
     geographic_area_ids, gazetteer_ids = param_shapes_by_type
 
@@ -81,6 +82,7 @@ module Queries::Concerns::Geo
 
   def shapes_for_geo_mode_by_type(shape_string, ids)
     shape = shape_string.constantize
+    return shape.none if ids.empty?
 
     a = nil
 

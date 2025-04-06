@@ -624,10 +624,10 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       gz = FactoryBot.create(:gazetteer,
         geographic_item: gi, name: 'gz matching ce1 georef')
 
-        query.base_collecting_event_query.geo_shape_id = [gz.id]
-        query.base_collecting_event_query.geo_shape_type = ['Gazetteer']
-        query.base_collecting_event_query.geo_mode = true
-        expect(query.all.pluck(:id)).to contain_exactly(co1.id)
+      query.base_collecting_event_query.geo_shape_id = [gz.id]
+      query.base_collecting_event_query.geo_shape_type = ['Gazetteer']
+      query.base_collecting_event_query.geo_mode = true
+      expect(query.all.pluck(:id)).to contain_exactly(co1.id)
     end
 
     specify '#verbatim_locality (partial)' do

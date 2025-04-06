@@ -9,7 +9,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
 
   let(:ad1) { FactoryBot.create(:valid_asserted_distribution, otu: o1) }
   let(:ad2) { FactoryBot.create(:valid_asserted_distribution, otu: o2) }
-  let(:ad_gz) { FactoryBot.create(:valid_gz_asserted_distribution, otu: o1) }
+  let(:ad_gz) { FactoryBot.create(:valid_gazetteer_asserted_distribution, otu: o1) }
 
   let(:small_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ) }
   let(:big_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 ) }
@@ -80,6 +80,23 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     q = query.new(h)
 
     expect(q.all).to contain_exactly(b)
+  end
+
+  specify '#geo_shape_id #geo_mode (exact) GA and GZ' do
+    [ad1, ad_gz] # not this
+    b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
+
+    c = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_gz, source: FactoryBot.create(:valid_source))
+
+    d = AssertedDistribution.create!(otu: o2, asserted_distribution_shape: small_gz, source: FactoryBot.create(:valid_source))
+
+    h = {
+      geo_shape_id: [big_geo_area.id, small_gz.id],
+      geo_shape_type: ['GeographicArea', 'Gazetteer']
+    }
+    q = query.new(h)
+
+    expect(q.all).to contain_exactly(b, c, d)
   end
 
   specify '#geo_shape_id #geo_mode (spatial) 2' do
@@ -153,18 +170,19 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all.map(&:id)).to contain_exactly(ad2.id)
   end
 
-  specify '#gazetteer_id small gz' do
+  specify '#geo_shape_id small gz spatial' do
     a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
     _b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
+    c = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_gz, source: FactoryBot.create(:valid_source))
 
     q = query.new({
       geo_shape_id: small_gz.id,
       geo_shape_type: 'Gazetteer',
       geo_mode: true})
-    expect(q.all).to contain_exactly(a)
+    expect(q.all).to contain_exactly(a, c)
   end
 
-  specify '#gazetteer_id large gz' do
+  specify '#geo_shape_id large gz spatial' do
     a = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
     b = AssertedDistribution.create!(otu: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
@@ -173,6 +191,37 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
       geo_shape_type: 'Gazetteer',
       geo_mode: true})
     expect(q.all).to contain_exactly(a, b)
+  end
+
+  specify '#geo_shape_id spatial combines GA and GZ geo_shape_ids before testing against ADs' do
+    [ad1, ad2, ad_gz]
+
+    big_polygon_neighbor = RspecGeoHelpers.make_polygon(
+      RSPEC_GEO_FACTORY.point(15, 10),0,0, 10.0, 10.0
+    )
+
+    big_geo_area_neighbor = FactoryBot.create(:valid_gazetteer,
+      geographic_item: GeographicItem.create!( geography: big_polygon_neighbor)
+    )
+
+    # Interior to union of big_polygon and big_polygon_neighbor, but not to either
+    # on its own:
+    i = RspecGeoHelpers.make_polygon(
+      RSPEC_GEO_FACTORY.point(12, 7),0,0, 5.0, 5.0
+    )
+
+    a = AssertedDistribution.create!(otu: o1,
+      asserted_distribution_shape: FactoryBot.create(:valid_gazetteer,
+        geographic_item: GeographicItem.create!( geography: i)),
+        source: FactoryBot.create(:valid_source)
+    )
+
+    q = query.new({
+      geo_shape_id: [big_geo_area.id, big_geo_area_neighbor.id],
+      geo_shape_type: ['GeographicArea', 'Gazetteer'],
+      geo_mode: true})
+
+    expect(q.all).to contain_exactly(a)
   end
 
   specify '#asserted_distribution_shape_type GA' do

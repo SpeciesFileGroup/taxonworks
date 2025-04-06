@@ -27,7 +27,12 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
   end
 
   specify '#destroy' do
-    a = FactoryBot.create(:valid_asserted_distribution)
+    a = FactoryBot.create(:valid_geographic_area_asserted_distribution)
+    expect(a.destroy).to be_truthy
+  end
+
+  specify '#destroy 2' do
+    a = FactoryBot.create(:valid_gazetteer_asserted_distribution)
     expect(a.destroy).to be_truthy
   end
 
@@ -37,11 +42,11 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         expect(asserted_distribution.otu = Otu.new).to be_truthy
       end
 
-      specify 'geographic_area' do
+      specify 'polymorphic for geographic_area shape' do
         expect(asserted_distribution.asserted_distribution_shape = GeographicArea.new).to be_truthy
       end
 
-      specify 'gazetteer' do
+      specify 'polymorphic for gazetteer shape' do
         expect(asserted_distribution.asserted_distribution_shape = Gazetteer.new).to be_truthy
       end
     end
