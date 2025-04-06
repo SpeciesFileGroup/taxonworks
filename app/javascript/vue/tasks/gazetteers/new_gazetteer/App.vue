@@ -31,7 +31,7 @@
           v-model:gz="gz"
           v-model:projects="selectedProjects"
           :projects-user-is-member-of="projectsUserIsMemberOf"
-          class="panel content left-column item-1-1"
+          class="panel content item-1-1"
         />
 
         <ShapeChoosers
@@ -39,7 +39,7 @@
           :shapes="leafletShapes"
           @new-shape="(data, type) => addToShapes(data, type)"
           @shapes-updated="(shape) => addToShapes(shape, GZ_LEAFLET)"
-          class="panel content left-column item-1-2"
+          class="panel content item-1-2"
         </ShapeChoosers>
 
         <ShapeListAndPreview
@@ -377,9 +377,6 @@ onMounted(() => {
   grid-row-gap: 0.5em;
 }
 
-.left-column {
-}
-
 .right-column {
   grid-column: 2;
   grid-row: 1 / 3;
@@ -388,10 +385,12 @@ onMounted(() => {
 .item-1-1 {
   grid-column: 1;
   grid-row: 1;
+  min-height: 250px; // right-column height with map is 2 * 265 = 530
 }
 
 .item-1-2 {
   grid-column: 1;
   grid-row: 2;
+  min-height: 250px;
 }
 </style>

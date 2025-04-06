@@ -3,8 +3,7 @@
     <thead>
       <tr>
         <th>Otu</th>
-        <th>Shape name</th>
-        <th>Shape type</th>
+        <th>Shape</th>
         <th>Citation</th>
         <th>Trash</th>
         <th>Radial annotator</th>
@@ -29,9 +28,6 @@
             item.asserted_distribution_shape_type
           )"
         />
-        <td>
-          {{ item.asserted_distribution_shape_type }}
-        </td>
         <td v-if="item.citations.length > 1">
           <CitationCount :citations="item.citations" />
         </td>

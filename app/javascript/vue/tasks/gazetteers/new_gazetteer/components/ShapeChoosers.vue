@@ -29,7 +29,7 @@
       }"
     >
       <template #header>
-        <slot name="header"><h3>Draw a shape</h3></slot>
+        <slot name="header"><h3>Draw shapes</h3></slot>
       </template>
 
       <template #body>
