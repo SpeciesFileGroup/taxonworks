@@ -526,6 +526,60 @@ describe GeographicItem, type: :model, group: :geo do
         end
       end
 
+      context 'covered_by_wkt_sql applied to leaflet-provided wkt' do
+        let(:leaflet_wkt) {
+          'MULTIPOLYGON (((140 40, 140 70, 240 70, 240 40, 140 40)))'
+          # ST_SHIFTs to "MULTIPOLYGON(((140 40,140 75,-120 75,-120 40,140 40)))"
+        }
+
+        let!(:gi_one_side) {
+          FactoryBot.create(:valid_geographic_item, geography:
+            'MULTIPOLYGON (((150 50, 150 60, 160 60, 160 50, 150 50)))'
+          )
+        }
+
+        # "sides" meaning hemispheres...
+        let(:wkt_two_sides) {
+          'MULTIPOLYGON (((140 40, 170 40, 170 70, 140 70, 140 40),' \
+          '(-140 40, -170 40, -170 70, -140 70, -140 40)))'
+        }
+
+        let!(:gi_two_sides) {
+          FactoryBot.create(:valid_geographic_item, geography:
+            'MULTIPOLYGON (((150 50, 150 60, 160 60, 160 50, 150 50), ' \
+            '(-150 50, -160 50, -160 60, -150 60, -150 50)))'
+          )
+        }
+
+        # Yes, it passes
+        xspecify 'covered_by_wkt_sql sanity check' do
+          expect(::GeographicItem.where(
+            ::GeographicItem.covered_by_wkt_sql(gi_two_sides.to_wkt)).pluck(:id)
+          ).to eq [gi_one_side.id, gi_two_sides.id]
+        end
+
+        # Passes # TODO: what if you reverse orientation on gi_one_side?
+        xspecify 'covered_by_wkt_sql not anti-meridian-crossing but two "sides" wkt contains one side' do
+          expect(::GeographicItem.where(
+            ::GeographicItem.covered_by_wkt_sql(wkt_two_sides)).pluck(:id)
+          ).to contain_exactly(gi_one_side.id)
+        end
+
+        # Fails, only contains one_side
+        xspecify 'covered_by_wkt_sql not anti-meridian-crossing but two "sides" wkt contains two sides' do
+          expect(::GeographicItem.where(
+            ::GeographicItem.covered_by_wkt_sql(wkt_two_sides)).pluck(:id)
+          ).to contain_exactly(gi_one_side.id, gi_two_sides.id)
+        end
+
+        # Fails, contains neither
+        xspecify 'covered_by_wkt_sql anti-meridian-crossing wkt' do
+          expect(::GeographicItem.where(
+            ::GeographicItem.covered_by_wkt_sql(leaflet_wkt)).pluck(:id)
+          ).to contain_exactly(gi_one_side.id, gi_two_sides.id)
+        end
+      end
+
       context 'GeographicItem.split_along_anti_meridian(wkt)' do
         # GeographicItem.split_along_anti_meridian has the pre-condition that
         # its input crosses_anti_meridian? and so applies ST_ShiftLongitude to
