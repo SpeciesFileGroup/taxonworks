@@ -362,7 +362,7 @@ class Combination < TaxonName
   # TODO: add higher classifcation here
   def combination_taxonomy
     d = full_name_hash
-    protonyms_by_rank.to_a.first[1].ancestors.each do |a|
+    protonyms_by_rank.to_a.first[1].ancestors.each do |a| # unscope?
       d[a.rank] = a.name
     end
 
@@ -401,6 +401,13 @@ class Combination < TaxonName
     end
 
     @protonyms_by_rank
+  end
+
+  # @return String
+  #   like 'species'
+  # Adds a lot of SQL overhead
+  def inferred_rank
+    protonyms_by_rank.to_a.last.first
   end
 
   # @return [Array of TaxonNames, nil]
@@ -474,6 +481,18 @@ class Combination < TaxonName
   end
 
   protected
+
+  def to_node
+    ::Utilities::Hierarchy::Node.new(
+      id,
+      cached_valid_taxon_name_id, # protonyms_by_rank.to_a.last.last.id,
+      ['≡' + cached, cached_author_year, "[#{inferred_rank}]" ].compact.join(' '),
+      nil,
+      nil,
+      nil,
+      nil
+    )
+  end
 
   def reset_protonyms_by_rank
     @protonyms_by_rank = nil

@@ -135,6 +135,14 @@
 #     applicable to genus group names only!
 #     one of 'masculine', 'feminine', neuter'
 #
+# @!cached_is_available
+#   @return [Boolean]
+#     true - by default
+#     false - calculated from TaxonNameRelationships and TaxonNameClassifications
+# Tracks, for computation purposes, that status of assertions of availability.
+# !! Since Combinations do not recieve TaxonNameRelationship or Classifications
+# they are defaulted to false.
+#
 # rubocop:disable Metrics/ClassLength
 #
 # TODO: Refactor into
@@ -177,6 +185,7 @@ class TaxonName < ApplicationRecord
   include Shared::QueryBatchUpdate
   include TaxonName::OtuSyncronization
   include TaxonName::Hierarchy
+  include TaxonName::TextTree
 
   include Shared::MatrixHooks::Member
   include Shared::MatrixHooks::Dynamic
@@ -1132,7 +1141,7 @@ class TaxonName < ApplicationRecord
   end
 
   # @param gender, String
-  # @return String, nil
+  # @return String
   #   then name according to the gender requested, if none, then `name`
   def name_in_gender(gender = nil)
     case gender
@@ -1487,15 +1496,19 @@ class TaxonName < ApplicationRecord
   #
   def name_with_misspelling(gender)
     if cached_misspelling
-      if rank_string =~ /Icnp/
-        name_in_gender(gender).to_s + ' (sic)'
-      else
-        name_in_gender(gender).to_s + ' [sic]'
-      end
+      name_in_gender(gender) + ' ' + misspelling_tag
     elsif gender.nil? || rank_string =~ /Genus/
       name
     else
-      name_in_gender(gender).to_s
+      name_in_gender(gender)
+    end
+  end
+
+  def misspelling_tag
+    if rank_string =~ /Icnp/
+      '(sic)'
+    else
+      '[sic]'
     end
   end
 
