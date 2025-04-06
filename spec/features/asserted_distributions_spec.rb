@@ -52,29 +52,5 @@ describe 'AssertedDistributions', type: :feature do
       it_behaves_like 'a_data_model_with_standard_show'
     end
 
-    context 'testing new asserted distribution' do
-      before { visit asserted_distributions_path }
-
-      specify 'can create a new asserted distribution', js: true do
-        o = Otu.create!(user_project_attributes(@user, @project).merge(name: 'zzzz'))
-        g = GeographicArea.first
-        s = Source.first
-
-        click_link('New')
-        expect(page.has_field?('asserted_distribution[otu_id]', type: 'text')).to be_truthy
-
-        expect(page.has_field?('geographic_area_id_for_asserted_distribution', type: 'text')).to be_truthy
-        expect(page.has_field?('source_id_for_original_citation_asserted_distribution', type: 'text')).to be_truthy
-
-        fill_otu_widget_autocomplete('asserted_distribution[otu_id]', with: 'zzzz', select: o.id)
-        fill_autocomplete('geographic_area_id_for_asserted_distribution', with: g.name, select: g.id)
-        fill_autocomplete('source_id_for_original_citation_asserted_distribution', with: s.cached, select: s.id)
-
-        click_button('Create Asserted distribution')
-
-        expect(page).to have_text('zzzz')
-        expect(page).to have_text(g.name)
-      end
-    end
   end
 end

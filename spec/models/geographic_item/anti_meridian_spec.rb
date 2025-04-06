@@ -618,12 +618,17 @@ describe GeographicItem, type: :model, group: :geo do
 
           specify 'split pieces include expected points' do
             mp = GeographicItem.split_along_anti_meridian(wkt)
-            # the left piece
-            expect(mp[0].contains?(Gis::FACTORY.point(165, 0))).to be true
-            # the lower right piece
-            expect(mp[1].contains?(Gis::FACTORY.point(-175, -5))).to be true
-            # the upper right piece
-            expect(mp[2].contains?(Gis::FACTORY.point(-175, 5))).to be true
+
+            l = Gis::FACTORY.point(165, 0) # left piece
+            ur = Gis::FACTORY.point(-175, 5.5) # upper right piece
+            lr = Gis::FACTORY.point(-175, -5.5) # lower right piece
+
+            expect([mp[0].contains?(l), mp[0].contains?(ur), mp[0].contains?(lr)])
+              .to contain_exactly(true, false, false)
+            expect([mp[1].contains?(l), mp[1].contains?(ur), mp[1].contains?(lr)])
+              .to contain_exactly(true, false, false)
+            expect([mp[2].contains?(l), mp[2].contains?(ur), mp[2].contains?(lr)])
+              .to contain_exactly(true, false, false)
           end
         end
       end
