@@ -9,6 +9,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Radial annotator and navigator to role picker list
+
+## [0.49.1] - 2025-04-01
+
+### Added
+
 - Offset parameter to copy_table_to_clipboard helper [#4265]
 - Collecting event metadata task (count of use, plot of time), via filter
 - UI flag that a DwcOccurrence re-index is pending. [#4267]
@@ -5195,7 +5201,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.1...development
+[0.49.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...v0.49.1
 [0.49.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.1...v0.47.0
