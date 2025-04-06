@@ -1,4 +1,6 @@
 # !! Current setup for WebLevel1 assumes shapes are all `multi_polygon`` !!
+# TODO: GeographicItems for Gazetteers can be any shape type - also note
+# g2 and g3 below are polygons so some specs already test polygon support.
 
 # Usage:
 #   spec/models/cached_map_spec.rb

@@ -417,7 +417,7 @@ module Queries
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_ces AS (' + otu_query.all.to_sql + ') ' +
-          ::CollectingEvent.joins(:otus)
+          ::CollectingEvent.joins(:otu)
           .joins('JOIN query_otu_ces as query_otu_ces1 on query_otu_ces1.id = otus.id')
           .to_sql
 
