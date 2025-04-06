@@ -246,18 +246,17 @@ class Protonym < TaxonName
     (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').try(:name)]).uniq
   end
 
-  # @return Array of Protonyms
+  # @return Array
+  #     Protonyms
   # TODO: @proceps - define/describe this
   def list_of_coordinated_names
     list = []
-    if self.rank_string # why wouldn't we have this?
 
-      # TODO: this is this the only place this relationship is used
-      # in name resolution logic, it's a costly single call for a
-      # very rarely used check?
-      # r = self.iczn_set_as_incorrect_original_spelling_of_relationship
+    if self.rank_string  ## All Protonym must have this.
 
-      if !cached_misspelling #  r.blank?
+      if cached_misspelling
+        list = [ self.iczn_set_as_incorrect_original_spelling_of_relationship&.object_taxon_name ].compact
+      else
 
         search_rank = NomenclaturalRank::Iczn.group_base(rank_string)
         if !!search_rank # how can this not hit?
@@ -277,7 +276,7 @@ class Protonym < TaxonName
 
         #  r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
         #  if !search_name.nil? && r.empty?
-        if !search_name.blank? && cached_is_available #  is_available? # DB hit here.
+        if !search_name.blank? && cached_is_available
           list = Protonym
             .ancestors_and_descendants_of(self)
             .with_rank_class_including(search_rank)
@@ -288,14 +287,9 @@ class Protonym < TaxonName
         else
           list = []
         end
-
-      else
-        # list = [r.object_taxon_name]
-        list = [ self.iczn_set_as_incorrect_original_spelling_of_relationship&.object_taxon_name ].compact
       end
-    end
 
-    # byebug if list.size > 0
+    end
     list
   end
 
@@ -305,10 +299,11 @@ class Protonym < TaxonName
     taxon_name_relationships.where(type: TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
   end
 
+  # @return Boolean
+  #   See cached_is_available attribute in TaxonName
   def get_is_available
     !has_misspelling_or_misapplication_relationship? && !classification_unavailable?
   end
-
 
   # @return [Protonym]
   #   the accepted "valid" version of this name in the present classification
@@ -358,7 +353,7 @@ class Protonym < TaxonName
     [genus, name1].compact.join(' ')
   end
 
-  # TODO, make back half of this raw SQL
+  # @return Protonym
   def lowest_rank_coordinated_taxon
     list = [self] + list_of_coordinated_names
     if list.count == 1
@@ -745,7 +740,7 @@ class Protonym < TaxonName
   #  form: ['frm', 'aus']
   # }
   #
-  def original_combination_elements # Need reload off mode for write
+  def original_combination_elements # ?? Need reload off mode for write
     return @original_combination_elements unless @original_combination_elements.nil?
 
     elements = { }
@@ -796,12 +791,12 @@ class Protonym < TaxonName
     # TODO: We apparently have no specs testing the need from here...
 
     # Plug in self if self referencing OriginalCombination is not present (we do not require it).
-    if r.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id
+    if r.last.subject_taxon_name.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id # hella expensive
+
       if elements[this_rank].nil?
         v = [nil]
         v.push
-        elements[this_rank] = [nil, original_name] # WRONG, original name is like 'name [sic]', and we need [sic], removed
-
+        elements[this_rank] = [nil , original_name] # WRONG, original name is like 'name [sic]', and we need [sic], removed
       end
     end
 

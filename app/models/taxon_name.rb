@@ -647,7 +647,7 @@ class TaxonName < ApplicationRecord
 
   # TODO !!: replace with @taxonomy
   # @return [TaxonName, nil] an ancestor at the specified rank
-  # @param rank [symbol|string|
+  # @param rank [symbol|string]
   #   like :species or 'genus'
   # @param include_self [Boolean]
   #   if true then self will also be returned
