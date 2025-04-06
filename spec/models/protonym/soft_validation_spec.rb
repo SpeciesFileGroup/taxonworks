@@ -1,5 +1,14 @@
 require 'rails_helper'
 
+# TODO: @proceps, please cleanup
+#
+# * [ ] Eliminate all "@", these introduce all sorts of confusion, see  e.g. `if` statements -> not good
+# * [ ] Eliminate all multi-expectation specifies, a specify should have a single expecitation, or expectations should follow from the setup, no mulit-part setups
+# * [ ] Do not use complex chains of data as the basis for simple tests (e.g. most missing field tests require a simple species->root name, not 31 names in place
+# * [ ] Start with a completely empty slate, not Factories, for basic tests like missing data, the full scenario should be obvious from reading what is set *in the specify*
+# * [ ] Only use complex factory chains when complexity is being tests, for example methods that return ancestors (but likely not descendants)
+# * [ ] Fix descriptions of all specifications, many are not doing what they say they are, or doing more, or less
+
 describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validation] do
   include ActiveJob::TestHelper
 
