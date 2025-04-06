@@ -12,6 +12,25 @@ require 'rails_helper'
 describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validation] do
   include ActiveJob::TestHelper
 
+  # These can be eliminated when @ are removed, until then they impact multiple downstream specs
+  before(:all) do
+    TaxonNameRelationship.delete_all
+    TaxonNameClassification.delete_all
+    TaxonName.delete_all
+    TaxonNameHierarchy.delete_all
+    Citation.delete_all
+    Source.destroy_all
+  end
+
+  after(:all) do
+    TaxonNameRelationship.delete_all
+    TaxonNameClassification.delete_all
+    TaxonName.delete_all
+    Citation.delete_all
+    Source.destroy_all
+    TaxonNameHierarchy.delete_all
+  end
+
   let(:protonym) { Protonym.new }
   let(:root) {FactoryBot.create(:root_taxon_name) }
   let(:source) { FactoryBot.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev, D.')   }
