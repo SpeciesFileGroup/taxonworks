@@ -142,7 +142,6 @@ class AssertedDistribution < ApplicationRecord
     asserted_distribution_shape.geographic_items.any?
   end
 
-  # TODO: support gazetteers as well as geographic_areas
   def self.batch_update(params)
     request = QueryBatchRequest.new(
       async_cutoff: params[:async_cutoff] || 26,
@@ -154,7 +153,9 @@ class AssertedDistribution < ApplicationRecord
 
     a = request.filter
 
-    v1 = a.all.distinct.limit(2).pluck(:geographic_area_id).uniq.count
+    v1 = a.all.distinct.limit(2)
+      .pluck(:asserted_distribution_shape_id, :asserted_distribution_shape_type)
+      .uniq.count
     v2 = a.all.distinct.limit(2).pluck(:otu_id).uniq.count
 
     cap = 0
@@ -164,7 +165,7 @@ class AssertedDistribution < ApplicationRecord
       request.cap_reason = 'Records include multiple OTUs *and* multiple geographic areas.'
     elsif v1 > 1
       cap = 0
-      request.cap_reason = 'May not update multiple geographic areas to one.' # TODO: revist constraint
+      request.cap_reason = 'May not update multiple shapes to one.' # TODO: revist constraint
     else
       cap = 2000
     end
