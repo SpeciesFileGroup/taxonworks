@@ -5,7 +5,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   let!(:root) { FactoryBot.create(:root_taxon_name) }
   let!(:genus) { Protonym.create!(name: 'Erythroneura', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
   let!(:subspecies) { Protonym.create!(name: 'vitata', parent: genus, rank_class: Ranks.lookup(:iczn, :subspecies)) }
-  let(:species) { FactoryBot.create(:iczn_species, parent: genus) }
+  let(:species) { Protonym.create!(name: 'vitis', parent: genus, rank_class: Ranks.lookup(:iczn, :species) ) }
 
   context 'asserting gender with a TaxonNameClassification' do
     before {
@@ -26,9 +26,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   end
 
   context 'modifying gender' do
-    let!(:gender) { FactoryBot.create(
-      :taxon_name_classification, 
-      taxon_name: genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine') }
+    let!(:gender) { TaxonNameClassification::Latinized::Gender::Masculine.create!(
+      taxon_name: genus)}
 
     specify 'with no attributes' do
       expect(species.get_full_name_html).to eq('<i>Erythroneura vitis</i>')
@@ -36,7 +35,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
     context 'with gender attributes set' do
       before do 
-        species.update(
+        species.update!(
           masculine_name: 'vitus',
           feminine_name: 'vita',
           neuter_name: 'vitum'
@@ -49,6 +48,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
       context 'ending changes with TaxonNameClassification' do
         specify 'when classified as masculine' do
+          gender.update_attribute(:type, 'TaxonNameClassification::Latinized::Gender::Masculine')
           expect(species.get_full_name_html).to eq('<i>Erythroneura vitus</i>')
         end 
 
