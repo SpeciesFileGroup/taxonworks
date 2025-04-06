@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+import { watch } from 'vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const SHAPE_TYPES = [
@@ -28,8 +29,13 @@ const SHAPE_TYPES = [
 ]
 
 const params = defineModel({type: Object, required: true})
-if (!params.value.asserted_distribution_shape_type) {
-  params.value.asserted_distribution_shape_type = []
-}
+
+watch(params, (newVal) => {
+  if (!Array.isArray(newVal.asserted_distribution_shape_type)) {
+    params.value.asserted_distribution_shape_type = []
+  }
+},
+{ immediate: true }
+)
 
 </script>

@@ -12,6 +12,7 @@ module Queries
 
       PARAMS = [
         :asserted_distribution_id,
+        :asserted_distribution_shape_type,
         :geo_shape_id,
         :geo_mode,
         :geo_shape_type,
@@ -27,13 +28,13 @@ module Queries
         :taxon_name_id,
         :wkt,
         asserted_distribution_id: [],
+        asserted_distribution_shape_type: [],
         geo_shape_id: [],
         geo_shape_type: [],
         geographic_area_id: [],
         geographic_item_id: [],
         otu_id: [],
-        aserted_distribution_shape_type: [],
-        taxon_name_id: [],
+        taxon_name_id: []
       ].freeze
 
       # @param asserted_distribution_id [Array, Integer, String]

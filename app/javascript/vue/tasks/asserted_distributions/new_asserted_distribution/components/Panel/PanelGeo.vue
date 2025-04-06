@@ -1,7 +1,7 @@
 <template>
   <BlockLayout :warning="!store.shape">
     <template #header>
-      <h3>Geographic area</h3>
+      <h3>Shape</h3>
     </template>
     <template #body>
       <div class="horizontal-left-content align-start">

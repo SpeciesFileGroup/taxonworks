@@ -152,7 +152,7 @@ usePopstateListener(() => {
 
 function loadGz(gzId) {
   isLoading.value = true
-  Gazetteer.find(gzId)
+  Gazetteer.find(gzId, { embed: ['shape'] })
     .then(({ body }) => {
       gz.value = body
       shapes.value = [
@@ -234,7 +234,8 @@ function previewGz() {
 
   const payload = {
     gazetteer: combineShapesToGz(),
-    geometry_operation_is_union: operationIsUnion.value
+    geometry_operation_is_union: operationIsUnion.value,
+    embed: ['shape']
   }
 
   isLoading.value = true
@@ -262,7 +263,8 @@ function saveNewGz() {
   const payload = {
     gazetteer,
     geometry_operation_is_union: operationIsUnion.value,
-    projects: selectedProjects.value
+    projects: selectedProjects.value,
+    embed: ['shape']
   }
 
   isLoading.value = true
@@ -286,14 +288,17 @@ function saveNewGz() {
 }
 
 function updateGz() {
-  const gazetteer = {
-    name: gz.value.name,
-    iso_3166_a2: gz.value.iso_3166_a2,
-    iso_3166_a3: gz.value.iso_3166_a3
+  const payload = {
+    gazetteer: {
+      name: gz.value.name,
+      iso_3166_a2: gz.value.iso_3166_a2,
+      iso_3166_a3: gz.value.iso_3166_a3
+    },
+    embed: ['shape']
   }
 
   isLoading.value = true
-  Gazetteer.update(gz.value.id, { gazetteer })
+  Gazetteer.update(gz.value.id, payload)
     .then(({ body }) => {
       gz.value = body
       TW.workbench.alert.create('Gazetteer updated.', 'notice')
