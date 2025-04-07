@@ -1,0 +1,61 @@
+
+# category
+# expertise
+# position/role
+  # teacher/student new to taxonworrs/manager/website expert
+# subject:
+# actions
+# goals
+
+# experience
+#   has three levels, novice, intermediate, expert
+
+# Require attributes
+# question:
+# type:
+#   - one of
+#       position: 
+#       subject: 
+#       action: 
+#       goal:  
+# Optional attributes
+#   yes_level - one of experience; if the question is answered then +1 to experience of this type 
+#   no_level - one of experience; if the question is answered no then +1 to experience of this type
+#   required: true - if present then this question must always be presented in the wizard (default)
+#             false - only shown when user asks "Ask me more?"
+#   tasks: 
+#      - one or more categories drawn from user_tasks.yml
+#   data:
+#      - one or more categories drawn from data.yml 
+#  
+#
+#  Adapt/change status(?) to level of expertise, not level of completion?
+#   
+#
+---
+  -
+    question: 'Do you use the orange help in the user interface?'
+    type: :position 
+    yes_level: :intermediate
+    no_level: :novice
+    tasks: 
+     data: 
+  - 
+    question: 'Are you student?'
+    type: :position
+    yes_level: :intermediate
+    no_level: :intermediate
+  - 
+    question: 'Do you work with plants?'
+    type: :subject
+  - 
+    question: 'Do you work with specimens?'
+    type: :subject
+    tasks:
+      - collection_object
+    data:
+      - collection_object
+
+
+
+
