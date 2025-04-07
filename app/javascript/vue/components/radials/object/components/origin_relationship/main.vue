@@ -109,6 +109,7 @@ const controllerRoute = {
   Lot: 'collection_objects',
   Sequence: 'sequences',
   Specimen: 'collection_objects',
+  Sound: 'sounds',
   RangedLot: 'collection_objects'
 }
 

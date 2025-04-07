@@ -14,6 +14,7 @@ function makeInitialState() {
       descendants: false,
       descendantsDistribution: false,
       distribution: true,
+      conveyances: false,
       fieldOccurrences: true
     },
     preferences: {
@@ -118,6 +119,7 @@ function makeInitialState() {
     typeMaterials: [],
     depictions: [],
     commonNames: [],
+    conveyances: [],
     descendants: {
       taxon_names: [],
       collecting_events: [],

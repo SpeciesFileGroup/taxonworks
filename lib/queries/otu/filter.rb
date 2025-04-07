@@ -2,6 +2,7 @@ module Queries
   module Otu
     class Filter < Query::Filter
       include Queries::Concerns::Citations
+      include Queries::Concerns::Conveyances
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Tags
@@ -211,6 +212,7 @@ module Queries
         @wkt = params[:wkt]
 
         set_confidences_params(params)
+        set_conveyance_params(params)
         set_notes_params(params)
         set_citations_params(params)
         set_depiction_params(params)

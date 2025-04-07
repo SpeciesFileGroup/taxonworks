@@ -7,8 +7,7 @@ import {
   BiologicalAssociation,
   TypeMaterial,
   GeographicArea,
-  Repository,
-  Depiction
+  Repository
 } from '@/routes/endpoints'
 import { sortArray } from '@/helpers'
 import { makeCollectionObject } from '@/adapters/index.js'
@@ -57,6 +56,7 @@ export default ({ state, dispatch }, coId) => {
   })
 
   dispatch(ActionNames.LoadDepictions, { id: coId, page: 1 })
+  dispatch(ActionNames.LoadConveyances, coId)
 
   TaxonDetermination.where({
     taxon_determination_object_id: [coId],
