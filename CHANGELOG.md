@@ -14,8 +14,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
+- Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
 
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
+[#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
 
 ## [0.49.1] - 2025-04-01
 
