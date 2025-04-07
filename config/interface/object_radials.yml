@@ -166,7 +166,7 @@ Otu:
     - comprehensive_collection_object_task
     - new_field_occurrence_task
     - edit_biological_associations_graph_task
-    - index_editor_task
+    - content_editor_task
     - cite_otus_task
     - browse_asserted_distributions_task
     - otu_distribution_data_task

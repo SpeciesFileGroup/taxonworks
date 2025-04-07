@@ -15,7 +15,6 @@
 
     <component
       :is="selectedDownloadItem.component"
-      :list="list"
       v-bind="selectedDownloadItem.bind"
       v-slot="{ action }"
     >
@@ -90,6 +89,7 @@ const csvDownload = computed(() => ({
   label: 'CSV',
   component: csvButton,
   bind: {
+    list: props.list,
     options: props.csvOptions || {
       transforms: [flatten({ object: true, array: true, separator: '_' })],
       formatters: { string: stringFormatter() }

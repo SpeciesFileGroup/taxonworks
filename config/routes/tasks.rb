@@ -226,7 +226,7 @@ scope :tasks do
     end
 
     scope :editor, controller: 'tasks/content/editor' do
-      get 'index', as: 'index_editor_task'
+      get '/', action: :index, as: 'content_editor_task'
       get 'recent_topics', as: 'content_editor_recent_topics_task'
       get 'recent_otus', as: 'content_editor_recent_otus_task'
     end

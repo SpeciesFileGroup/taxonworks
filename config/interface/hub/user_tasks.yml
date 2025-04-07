@@ -244,7 +244,7 @@ collecting_event_lat_long_task:
     - collecting_event
   status: prototype
   description: "Parse the collecting_events table's verbatim label for possible lat/long combinations."
-index_editor_task:
+content_editor_task:
   hub: true
   name: 'Content editor'
   related:
