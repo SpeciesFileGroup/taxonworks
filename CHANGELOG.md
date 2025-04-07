@@ -11,6 +11,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Radial annotator and navigator to role picker list
 
+### Fixed
+
+- Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
+
+[#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
+
 ## [0.49.1] - 2025-04-01
 
 ### Added

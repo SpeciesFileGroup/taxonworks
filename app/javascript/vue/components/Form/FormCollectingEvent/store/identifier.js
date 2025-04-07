@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { Identifier, Namespace } from '@/routes/endpoints'
 import { IDENTIFIER_LOCAL_FIELD_NUMBER } from '@/constants'
 
-export default defineStore('tripCode', {
+export default defineStore('collectingEventForm:identifiers', {
   state: () => ({
     namespace: undefined,
     identifier: {
