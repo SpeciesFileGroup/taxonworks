@@ -1033,6 +1033,7 @@ class TaxonName < ApplicationRecord
 
   # @return [True|False]
   #   true if this name has a TaxonNameClassification of Fossil
+  # !!# Note that this is not possible for non icn or iczn names yet!
   def is_fossil?
     taxon_name_classifications.with_type_contains('::Fossil').any?
   end
@@ -1041,6 +1042,7 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   true if this name has a TaxonNameClassification of hybrid
   def is_hybrid?
+    return false unless rank_string =~  /::Icn::/ # don't make costly check!
     taxon_name_classifications.with_type_contains('Hybrid').any?
   end
 
@@ -1053,7 +1055,9 @@ class TaxonName < ApplicationRecord
 
   # @return [True|False]
   #   true if this name has a TaxonNameClassification of not_binominal
+  # Only applicable to ICN names!
   def not_binominal?
+    # return false unless rank_string =~  /::Icn::/ # don't make costly check! TODO: interwined with TNC 
     taxon_name_classifications.with_type_contains('NonBinominal').any?
   end
 
@@ -1140,23 +1144,6 @@ class TaxonName < ApplicationRecord
     s
   end
 
-  # @param gender, String
-  # @return String
-  #   then name according to the gender requested, if none, then `name`
-  def name_in_gender(gender = nil)
-    case gender
-    when 'masculine'
-      n = masculine_name
-    when 'feminine'
-      n = feminine_name
-    when 'neuter'
-      n = neuter_name
-    else
-      n = nil
-    end
-    n.presence || name
-  end
-
   def dwc_occurrences
     ::Queries::DwcOccurrence::Filter.new(taxon_name_id: id).all
   end
@@ -1177,9 +1164,15 @@ class TaxonName < ApplicationRecord
       cached_valid_taxon_name_id: nil,
       cached_is_valid: nil,
       cached_original_combination: nil,
-      cached_nomenclature_date: nil
+      cached_nomenclature_date: nil,
+      cached_gender: nil,
+      cached_is_available: nil,
     )
     save if update
+  end
+
+  def full_name
+    ::Utilities::Nomenclature.full_name(full_name_hash)
   end
 
   # TODO: We need to isolate this into 2 subclasses,
@@ -1355,170 +1348,6 @@ class TaxonName < ApplicationRecord
       h[n.rank] = n.name
     end
     h
-  end
-
-  # !! TODO: Higher classification does not follow the same pattern
-  # !! TODO: when name is a subgenus will not grab genus (still true?)
-  #
-  #
-  # Conceptually there are 2 objects required to build @taxonomy,
-  # one for the scientific name, the other for the higher taxa.
-  # These need to be kept seperately in terms of optimizing
-  # queries, or at least isolatable if combined.
-  #
-  # This method covers scientific name, gathering all string
-  # elements, including 'sic' etc., and pointing to them
-  # by rank. It therefor sits between model/helper.
-  #
-  # @!return [ { rank => [prefix, name] } ]
-  #    for genus and below:
-  #
-  # @taxon_name.full_name_hash # =>
-  #      { "family' => 'Gidae',
-  #        "genus" => [nil, "Aus"],  # Note Array!
-  #        "subgenus" => [nil, "Aus"],
-  #        "section" => ["sect.", "Aus"],
-  #        "series" => ["ser.", "Aus"],
-  #        "species" => [nil, "aaa"],
-  #        "subspecies" => [nil, "bbb"],
-  #        "variety" => ["var.", "ccc"]}
-  #
-  #        # TODO: document 'sic', it should be third placement
-  #
-  def full_name_hash
-    gender = nil
-    data = {}
-
-    # We shouldn't need safe here, this is after writing
-    # We also don't require ordering
-    self_and_ancestors.unscope(:order).each do |i|
-      # safe_self_and_ancestors.each do |i|
-      rank = i.rank
-      gender = i.cached_gender if rank == 'genus'
-
-      if i.is_genus_or_species_rank?
-        if ['genus', 'subgenus', 'species', 'subspecies'].include?(rank) && rank_string =~ /Iczn/
-
-          data[rank] = [nil, i.name_with_misspelling(gender)]
-
-        elsif ['genus', 'subgenus', 'species'].include?(rank)
-          data[rank] = [nil, i.name_with_misspelling(gender)]
-        else
-          data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
-        end
-      else
-        data[rank] = i.name
-      end
-    end
-
-    # Only check for these ranks
-    if COMBINATION_ELEMENTS.include?(rank.to_sym)
-      if data['genus'].nil?
-        if original_genus
-          data['genus'] = [nil, "[#{original_genus&.name}]"]
-        else
-          data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
-        end
-      end
-
-      if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
-        data['species'] = [nil, '[SPECIES NOT SPECIFIED]']
-      end
-
-      if !data['subvariety'].nil? && data['variety'].nil?
-        data['variety'] = [nil, '[VARIETY NOT SPECIFIED]']
-      end
-
-      if !data['subform'].nil? && data['form'].nil?
-        data['form'] = [nil, '[FORM NOT SPECIFIED]']
-      end
-    end
-    data
-  end
-
-  # @return [String, nil]
-  #  A monominal if names is above genus, or a full epithet if below.
-  #  Does not include author_year. Does not include HTML.
-  #
-  #  !! Combination has its own version now.
-  #
-  def get_full_name
-    return name_with_misspelling(nil) if !is_genus_or_species_rank?
-    return name if rank_class.to_s =~ /Icvcn/
-    full_name
-  end
-
-  # @return [String, nil]
-  #   returns nil for Higher names
-  def full_name
-    d = full_name_hash # @taxonomy ?
-
-    elements = []
-
-    elements.push(d['genus']) unless (not_binominal? && d['genus'][1] == '[GENUS NOT SPECIFIED]')
-
-    elements.push ['(', d['subgenus'], ')']
-    elements.push ['(', d['infragenus'], ')'] if rank_name == 'infragenus'
-    elements.push ['(', d['supergenus'], ')'] if rank_name == 'supergenus'
-    elements.push ['(', d['supersubgenus'], ')'] if rank_name == 'supersubgenus'
-    elements.push ['(', d['supersupersubgenus'], ')'] if rank_name == 'supersupersubgenus'
-    elements.push [d['supersuperspecies']] if rank_name == 'supersuperspecies'
-    elements.push [d['superspecies']] if rank_name == 'superspecies'
-    elements.push [d['subsuperspecies']] if rank_name == 'subsuperspecies'
-
-    elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
-
-    elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
-    elements.presence
-  end
-
-  # @return String
-  def get_full_name_html(name = nil)
-    name = get_full_name if name.nil?
-    return  "\"<i>Candidatus</i> #{name}\"" if is_candidatus?
-    if name.present? && is_hybrid?
-      w = name.split(' ')
-      w[-1] = ('×' + w[-1]).gsub('×(', '(×')
-      name = w.join(' ')
-    end
-
-    m = name
-    m = Utilities::Italicize.taxon_name(name) if is_italicized?
-    m = '† ' + m if is_fossil?
-    m
-  end
-
-  # @return [String]
-  #   TODO: does this form of the name contain parens for subgenus?
-  #   TODO: don't use this when [nil, name, 'sic'] is expected
-  #   TODO: provide a default to gender (but do NOT eliminate param)
-  #   TODO: on third thought- eliminate this mess
-  #
-  def name_with_misspelling(gender)
-    if cached_misspelling
-      name_in_gender(gender) + ' ' + misspelling_tag
-    elsif gender.nil? || rank_string =~ /Genus/
-      name
-    else
-      name_in_gender(gender)
-    end
-  end
-
-  def misspelling_tag
-    if rank_string =~ /Icnp/
-      '(sic)'
-    else
-      '[sic]'
-    end
-  end
-
-  # @return [String, nil]
-  def genderized_name(gender = nil)
-    if gender.nil? || is_genus_rank?
-      name
-    else
-      name_in_gender(gender)
-    end
   end
 
   # return [String, nil, false] # TODO: fix
@@ -1806,6 +1635,23 @@ class TaxonName < ApplicationRecord
     end
 
     @result
+  end
+
+  # @return String
+  #   name is `full_name` in TaxonWorks, a string
+  #
+  # Gathers the metdata required to htmlize and decorate the name.
+  #
+  # You should pass name if possible, rather than regenerating with the default.
+  # 
+  # TODO: spawn for each class, combination etc. so that we don't include settings that don't apply.
+  def get_full_name_html(name = get_full_name)
+    ::Utilities::Nomenclature.htmlize(
+      name,
+      italicized: is_italicized?,
+      hybrid: is_hybrid?,
+      fossil: is_fossil?,
+      candidatus: is_candidatus?)
   end
 
   protected

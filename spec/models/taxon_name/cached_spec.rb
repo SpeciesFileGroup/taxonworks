@@ -61,8 +61,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         species.taxon_name_classifications.create!(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinominal')
         species.update( original_species: species)
         genus1.update( original_genus: genus1)
+
         expect(species.cached_original_combination).to eq('aus')
         expect(species.cached).to eq('Aus aus')
+
         expect(genus1.cached_original_combination).to eq('Aus')
         expect(genus1.cached).to eq('Aus')
       end
@@ -115,14 +117,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
 
       specify '#cached for subspecies' do
-        genus2.update(parent: genus1, rank_class: Ranks.lookup(:iczn, :subgenus))
-        species.update(parent: genus2)
+        genus2.update!(parent: genus1, rank_class: Ranks.lookup(:iczn, :subgenus))
+        species.update!(parent: genus2)
         expect(subspecies.cached_html).to eq('<i>Aus</i> (<i>Bus</i>) <i>aus aus</i>')
       end
 
       context 'Candidatus' do
-        let(:icnp_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icnp, :genus), parent: root) }
-        let(:icnp_species) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:icnp, :species), parent: icnp_genus) }
+        let(:icnp_genus) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:icnp, :genus), parent: root) }
+        let(:icnp_species) { Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:icnp, :species), parent: icnp_genus) }
 
         before { TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus.create!(taxon_name: icnp_species) }
 

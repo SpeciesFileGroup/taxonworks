@@ -188,7 +188,7 @@ class TaxonNameClassification < ApplicationRecord
       TaxonName.transaction_with_retry do
         t = taxon_name
 
-        if type_name =~ /(Fossil|Hybrid|Candidatus)/
+        if type_name =~ /(Fossil|Hybrid|Candidatus)/ # Break these out, they don't all apply to the same codes
           n = t.get_full_name
           t.update_columns(
             cached: n,

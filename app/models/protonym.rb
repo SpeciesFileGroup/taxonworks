@@ -14,6 +14,7 @@ class Protonym < TaxonName
   extend Protonym::SoftValidationExtensions::Klass
   include Protonym::SoftValidationExtensions::Instance
   include Protonym::Becomes
+  include Protonym::Format
 
   # @return [Boolean]
   #   memoize `#is_avaiable?`
@@ -758,7 +759,6 @@ class Protonym < TaxonName
     #     .order(Arel.sql("ARRAY_POSITION(ARRAY[#{ORIGINAL_COMBINATION_RANKS.collect{|a| "'" + a + "'"}.join(',')}], taxon_name_relationships.type)"))
 
     # order the relationships
-    # TODO: remove reload, at this point the name should be saved
     r = original_combination_relationships
       .eager_load(:subject_taxon_name)
       .sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
@@ -817,14 +817,6 @@ class Protonym < TaxonName
     @original_combination_elements = elements
   end
 
-  # @return [String, nil]
-  #    a monominal, as originally rendered, with parens if subgenus, and '[sic]' (bad!) if misspelled
-  def original_name
-    n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
-    n = "(#{n})" if n && rank_name == 'subgenus'
-    n
-  end
-
   # @return [[rank_name, name], nil]
   #   Used in ColDP export
   def original_combination_infraspecific_element(elements = nil, remove_sic = false)
@@ -837,48 +829,6 @@ class Protonym < TaxonName
       return [r.to_s, elements[r].last] if elements[r]
     end
     nil
-  end
-
-  def get_original_combination
-    return verbatim_name if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
-    e = original_combination_elements
-    return nil if e.none?
-
-    # Weird, why?
-    # DD: in ICVCN the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
-    #
-    # @proceps: then we should exclude or alter elements before we get to this point, not here, so that the renderer still works, exceptions at this point are bad
-    # and this didn't do what you think it did, it's was returning an Array of two things
-    return e[:species][1] if rank_class.to_s =~ /Icvcn/
-
-    p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
-
-    s = p.flatten.compact.join(' ')
-    @_cached_build_state[:original_combination] = s.presence
-  end
-
-  # This should never require hitting the database.
-  def get_original_combination_html
-    return verbatim_name if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
-    return  "\"<i>Candidatus</i> #{get_original_combination}\"" if is_candidatus?
-
-    # x = get_original_combination
-    # y = cached_original_combination # In a transaction this is not available
-    v = @_cached_build_state[:original_combination]
-
-    return nil if v.blank?
-
-    if is_hybrid?
-      w = v.split(' ')
-      w[-1] = ('×' + w[-1]).gsub('×(', '(×').gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))')
-      v = w.join(' ')
-    end
-
-    v = v.gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))')
-
-    v = Utilities::Italicize.taxon_name(v) if is_genus_or_species_rank?
-    v = '† ' + v  if is_fossil? # This doesn't belong here, it's touching the DB.
-    v
   end
 
   def update_cached_original_combinations
@@ -918,7 +868,7 @@ class Protonym < TaxonName
         n = i.get_full_name
         columns_to_update = {
           cached: n,
-          cached_html: i.get_full_name_html(n),
+          cached_html:  i.get_full_name_html(n),
           cached_author_year: i.get_author_and_year,
           cached_nomenclature_date: i.nomenclature_date
         }
@@ -979,7 +929,7 @@ class Protonym < TaxonName
         n = i.get_full_name
         i.update_columns(
           cached: n,
-          cached_html: i.get_full_name_html(n),
+          cached_html: i.get_full_name_html(n), 
           cached_author_year: i.get_author_and_year,
           cached_nomenclature_date: i.nomenclature_date)
       end
@@ -1209,4 +1159,4 @@ class Protonym < TaxonName
     @_cached_build_state = {}
   end
 
-end
+  end

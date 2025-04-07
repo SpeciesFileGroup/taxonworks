@@ -318,7 +318,7 @@ class Combination < TaxonName
 
   def get_full_name
     return verbatim_name if verbatim_name.present?
-    full_name
+    ::Utilities::Nomenclature.full_name(full_name_hash)
   end
 
   # Is this used before persistence of the complete Combination?!
@@ -571,13 +571,16 @@ class Combination < TaxonName
     is_cached = false if cached_author_year != get_author_and_year
     is_cached = false if cached_author != get_author
 
-    if  is_cached && (
+    n = get_full_name
+
+    if is_cached && (
         cached_is_valid.nil? ||
-        cached != get_full_name ||
-        cached_html != get_full_name_html ||
+        cached != n ||
+        cached_html != get_full_name_html(n) ||
         cached_nomenclature_date != nomenclature_date)
       is_cached = false
     end
+    
     soft_validations.add(
       :base, 'Cached values should be updated',
       success_message: 'Cached values were updated',
