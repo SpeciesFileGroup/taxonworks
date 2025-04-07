@@ -1,8 +1,8 @@
 class ConveyancesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_conveyance, only: %i[ show edit update destroy ]
-  after_action -> { set_pagination_headers(:conveyances) }, only: [:index], if: :json_request?
+  before_action :set_conveyance, only: %i[ show edit update destroy api_show ]
+  after_action -> { set_pagination_headers(:conveyances) }, only: [:index, :api_index], if: :json_request?
 
   # GET /conveyances or /conveyances.json
   def index
@@ -22,6 +22,19 @@ class ConveyancesController < ApplicationController
           .per(params[:per])
       }
     end
+  end
+
+  def api_index
+    @conveyances = Queries::Conveyance::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('conveyances.conveyance_object_type, conveyances.conveyance_object_id, conveyances.position')
+      .page(params[:page])
+      .per(params[:per])
+    render '/conveyances/api/v1/index'
+  end
+
+  def api_show
+    render '/conveyances/api/v1/show'
   end
 
   def list

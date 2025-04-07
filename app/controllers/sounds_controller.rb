@@ -1,7 +1,7 @@
 class SoundsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   
-  before_action :set_sound, only: %i[ show edit update destroy ]
+  before_action :set_sound, only: %i[ show edit update destroy api_show ]
 
   after_action -> { set_pagination_headers(:sounds) }, only: [:index, :api_index], if: :json_request?
 
@@ -18,6 +18,14 @@ class SoundsController < ApplicationController
           .page(params[:page]).per(params[:per])
       }
     end
+  end
+
+  # GET /api/v1/sounds
+  def api_index
+    @sounds = Queries::Sound::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .page(params[:page]).per(params[:per])
+    render '/sounds/api/v1/index'
   end
 
   # GET /sounds/1 or /sounds/1.json
