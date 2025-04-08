@@ -15,19 +15,9 @@ import 'leaflet.pattern/src/PatternShape'
 import 'leaflet.pattern/src/PatternShape.SVG'
 import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
-import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
-import iconUrl from 'leaflet/dist/images/marker-icon.png'
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
 import { Icon } from '@/components/georeferences/icons'
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import { ASSERTED_DISTRIBUTION, GEOGRAPHIC_AREA } from '@/constants/index.js'
-
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: iconRetina,
-  iconUrl,
-  shadowUrl
-})
 
 let drawnItems
 let mapObject
@@ -213,7 +203,10 @@ onMounted(() => {
   addDrawControllers()
   handleEvents()
 
-  mapObject.pm.setGlobalOptions({ tooltips: props.tooltips })
+  mapObject.pm.setGlobalOptions({
+    tooltips: props.tooltips,
+    markerStyle: { icon: L.divIcon(Icon.Georeference) }
+  })
 
   if (props.geojson.length) {
     geoJSON(props.geojson)
@@ -419,7 +412,9 @@ const centerShapesInMap = () => {
 }
 
 const createMarker = (feature, latlng) => {
-  const icon = Icon[feature?.properties?.marker?.icon] || Icon.blue
+  const icon = L.divIcon(
+    Icon[feature?.properties?.marker?.icon] || Icon.Georeference
+  )
   const marker = L.marker(latlng, { icon })
 
   return marker

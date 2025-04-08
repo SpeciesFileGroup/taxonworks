@@ -71,6 +71,7 @@ const RouteNames = {
   NewObservationMatrix: '/tasks/observation_matrices/new_matrix',
   NewSource: '/tasks/sources/new_source',
   NewTaxonName: '/tasks/nomenclature/new_taxon_name',
+  NewTypeMaterial: '/tasks/type_material/edit_type_material',
   NomenclatureBySource: '/tasks/nomenclature/by_source',
   NomenclatureStats: '/tasks/nomenclature/stats',
   ObservationMatricesDashboard: '/tasks/observation_matrices/dashboard',

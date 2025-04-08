@@ -19,6 +19,7 @@ import getOtus from './getOtus'
 import getObservationsDepictions from './getObservationsDepictions'
 import getRelatedBiologicalAssociations from './getRelatedBiologicalAssociations'
 import isSpeciesGroup from './isSpeciesGroup'
+import getLegend from './getLegend'
 
 const GetterNames = {
   GetBiologicalAssociations: 'getBiologicalAssociations',
@@ -37,6 +38,7 @@ const GetterNames = {
   GetRelatedBiologicalAssociations: 'getRelatedBiologicalAssociations',
   GetObservationsDepictions: 'getObservationsDepictions',
   GetCurrentOtu: 'getCurrentOtu',
+  GetLegend: 'getLegend',
   GetLoadState: 'getLoadState',
   GetTaxonName: 'getTaxonName',
   GetTaxonNames: 'getTaxonNames',
@@ -58,6 +60,7 @@ const GetterFunctions = {
   [GetterNames.GetUserId]: getUserId,
   [GetterNames.GetAssertedDistributions]: getAssertedDistributions,
   [GetterNames.GetCurrentOtu]: getCurrentOtu,
+  [GetterNames.GetLegend]: getLegend,
   [GetterNames.GetLoadState]: getLoadState,
   [GetterNames.GetTaxonName]: getTaxonName,
   [GetterNames.GetTaxonNames]: getTaxonNames,

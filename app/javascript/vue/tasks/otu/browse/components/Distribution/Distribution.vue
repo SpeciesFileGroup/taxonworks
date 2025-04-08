@@ -21,15 +21,17 @@
         :cached-map="cachedMap"
       />
     </div>
+    <DistributionLegend />
   </SectionPanel>
 </template>
 
 <script setup>
-import SectionPanel from './shared/sectionPanel'
+import SectionPanel from '../shared/sectionPanel'
 import VMap from '@/components/georeferences/map.vue'
 import SwitchComponent from '@/components/ui/VSwitch.vue'
 import CachedMap from './CachedMap.vue'
-import { GetterNames } from '../store/getters/getters'
+import DistributionLegend from './DistributionLegend.vue'
+import { GetterNames } from '../../store/getters/getters'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import {
@@ -82,8 +84,8 @@ const isLoading = computed(() => {
 const shapes = computed(() => {
   switch (view.value) {
     case TABS.AssertedDistributions:
-      return features.value.filter(
-        (item) => item.properties.base.type === ASSERTED_DISTRIBUTION
+      return features.value.filter((item) =>
+        item.properties.base.some((b) => b.type === ASSERTED_DISTRIBUTION)
       )
     case TABS.Georeferences:
       return features.value.filter(
