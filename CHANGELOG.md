@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Radial annotator and navigator to role picker list
+- CSD: Highlight header bar when DwC re-index is pending [#4275]
 
 ### Fixed
 
@@ -19,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radials from facets side are enabled when no filters are active [#4281]
 
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
+[#4275]: https://github.com/SpeciesFileGroup/taxonworks/issues/4275
 [#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
 [#4279]: https://github.com/SpeciesFileGroup/taxonworks/issues/4279
 [#4281]: https://github.com/SpeciesFileGroup/taxonworks/issues/4281
