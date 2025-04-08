@@ -27,7 +27,7 @@
       color="radial"
       :title="title"
       circle
-      :disabled="disabled || !filterLinks.length || !Object.keys(params).length"
+      :disabled="disabled || !filterLinks.length || !hasParameters"
       @click="openRadialMenu()"
     >
       <VIcon
@@ -91,6 +91,16 @@ const params = computed(() =>
     isOnlyIds.value ? getParametersForId() : getParametersForAll()
   )
 )
+
+const hasParameters = computed(() => {
+  const parameters = { ...params.value }
+
+  EXCLUDE_PARAMETERS.forEach((param) => {
+    delete parameters[param]
+  })
+
+  return Object.keys(parameters).length
+})
 
 const filterLinks = computed(() => {
   const objLinks = LINKER_LIST[props.objectType]
@@ -159,10 +169,6 @@ function getParametersForAll(params) {
   const filteredParameters = params
     ? copyObjectByArray({ ...objParameters.value, ...props.parameters }, params)
     : { ...objParameters.value, ...props.parameters }
-
-  EXCLUDE_PARAMETERS.forEach((param) => {
-    delete filteredParameters[param]
-  })
 
   return filteredParameters
 }
