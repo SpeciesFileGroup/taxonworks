@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="overflow-x-auto">
     <FormCitation
       v-model="citation"
       class="separate-top"
