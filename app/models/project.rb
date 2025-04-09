@@ -52,6 +52,7 @@ class Project < ApplicationRecord
      Protocol
      SqedDepiction
      Depiction
+     Conveyance
      SledImage
      Documentation
      Document
@@ -83,6 +84,7 @@ class Project < ApplicationRecord
      TaxonDetermination
      TypeMaterial
      Image
+     Sound
      CommonName
      TaxonNameClassification
      TaxonNameRelationship

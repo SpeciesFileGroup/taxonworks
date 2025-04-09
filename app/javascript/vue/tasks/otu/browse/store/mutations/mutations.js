@@ -1,6 +1,7 @@
 import setBiologicalAssociations from './setBiologicalAssociations'
 import setCollectingEvents from './setCollectingEvents'
 import setCollectionObjects from './setCollectionObjects'
+import setConveyances from './setConveyances'
 import setGeoreferences from './setGeoreferences'
 import setPreferences from './setPreferences'
 import setAssertedDistributions from './setAssertedDistributions'
@@ -21,6 +22,7 @@ const MutationNames = {
   SetCollectingEvents: 'setCollectingEvents',
   SetCollectionObjects: 'setCollectionObjects',
   SetCommonNames: 'setCommonNames',
+  SetConveyances: 'setConveyances',
   SetDepictions: 'setDepictions',
   SetGeoreferences: 'setGeoreferences',
   SetPreferences: 'setPreferences',
@@ -41,6 +43,7 @@ const MutationFunctions = {
   [MutationNames.SetCollectingEvents]: setCollectingEvents,
   [MutationNames.SetCollectionObjects]: setCollectionObjects,
   [MutationNames.SetCommonNames]: setCommonNames,
+  [MutationNames.SetConveyances]: setConveyances,
   [MutationNames.SetDepictions]: setDepictions,
   [MutationNames.SetGeoreferences]: setGeoreferences,
   [MutationNames.SetPreferences]: setPreferences,

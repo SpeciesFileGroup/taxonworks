@@ -10,6 +10,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Radial annotator and navigator to role picker list
+- CSD: Highlight header bar when DwC re-index is pending [#4275]
+
+### Fixed
+
+- Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
+- Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
+- Content editor: Close modal is enable when nothing is selected [#4279]
+- Radials from facets side are enabled when no filters are active [#4281]
+
+[#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
+[#4275]: https://github.com/SpeciesFileGroup/taxonworks/issues/4275
+[#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
+[#4279]: https://github.com/SpeciesFileGroup/taxonworks/issues/4279
+[#4281]: https://github.com/SpeciesFileGroup/taxonworks/issues/4281
 
 ## [0.49.1] - 2025-04-01
 

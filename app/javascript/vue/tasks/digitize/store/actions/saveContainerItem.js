@@ -37,7 +37,9 @@ export default ({ commit, state }) =>
           recordNumber.save(args)
         }
         if (state.collection_object.id === body.contained_object_id) {
-          CollectionObject.find(body.contained_object_id).then((response) => {
+          CollectionObject.find(body.contained_object_id, {
+            extend: ['dwc_occurrence']
+          }).then((response) => {
             commit(MutationNames.SetCollectionObject, response.body)
           })
         }

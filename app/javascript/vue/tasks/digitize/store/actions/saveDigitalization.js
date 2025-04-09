@@ -58,11 +58,12 @@ export default ({ commit, dispatch, state }, { resetAfter = false } = {}) =>
                   dispatch(ActionNames.ResetWithDefault)
                 } else {
                   await dispatch(ActionNames.LoadSoftValidations)
-                  await CollectionObject.find(state.collection_object.id).then(
-                    ({ body }) => {
-                      state.collection_object.object_tag = body.object_tag
-                    }
-                  )
+                  await CollectionObject.find(state.collection_object.id, {
+                    extend: ['dwc_occurrence']
+                  }).then(({ body }) => {
+                    state.collection_object.object_tag = body.object_tag
+                    state.collection_object.dwc_occurrence = body.dwc_occurrence
+                  })
 
                   state.settings.lastSave = Date.now()
                 }

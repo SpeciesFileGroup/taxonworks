@@ -10,7 +10,9 @@ export default ({ commit }, globalId) => {
       body.container_items.forEach((item) => {
         commit(MutationNames.AddContainerItem, item)
 
-        CollectionObject.find(item.contained_object_id).then(({ body }) => {
+        CollectionObject.find(item.contained_object_id, {
+          extend: ['dwc_occurrence']
+        }).then(({ body }) => {
           commit(MutationNames.AddCollectionObject, body)
         })
       })

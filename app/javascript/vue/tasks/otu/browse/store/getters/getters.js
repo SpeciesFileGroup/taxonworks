@@ -3,6 +3,7 @@ import getCachedMap from './getCachedMap'
 import getCollectingEvents from './getCollectingEvents'
 import getCollectionObjects from './getCollectionObjects'
 import getCommonNames from './getCommonNames'
+import getConveyances from './getConveyances'
 import getDepictions from './getDepictions'
 import getDescendants from './getDescendants'
 import getGeoreferences from './getGeoreferences'
@@ -18,6 +19,7 @@ import getOtus from './getOtus'
 import getObservationsDepictions from './getObservationsDepictions'
 import getRelatedBiologicalAssociations from './getRelatedBiologicalAssociations'
 import isSpeciesGroup from './isSpeciesGroup'
+import getLegend from './getLegend'
 
 const GetterNames = {
   GetBiologicalAssociations: 'getBiologicalAssociations',
@@ -25,6 +27,7 @@ const GetterNames = {
   GetCollectionObjects: 'getCollectionObjects',
   GetCollectingEvents: 'getCollectingEvents',
   GetCommonNames: 'getCommonNames',
+  GetConveyances: 'getConveyances',
   GetDepictions: 'getDepictions',
   GetDescendants: 'getDescendants',
   GetGeoreferences: 'getGeoreferences',
@@ -35,6 +38,7 @@ const GetterNames = {
   GetRelatedBiologicalAssociations: 'getRelatedBiologicalAssociations',
   GetObservationsDepictions: 'getObservationsDepictions',
   GetCurrentOtu: 'getCurrentOtu',
+  GetLegend: 'getLegend',
   GetLoadState: 'getLoadState',
   GetTaxonName: 'getTaxonName',
   GetTaxonNames: 'getTaxonNames',
@@ -48,6 +52,7 @@ const GetterFunctions = {
   [GetterNames.GetCollectingEvents]: getCollectingEvents,
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetCommonNames]: getCommonNames,
+  [GetterNames.GetConveyances]: getConveyances,
   [GetterNames.GetDepictions]: getDepictions,
   [GetterNames.GetDescendants]: getDescendants,
   [GetterNames.GetGeoreferences]: getGeoreferences,
@@ -55,6 +60,7 @@ const GetterFunctions = {
   [GetterNames.GetUserId]: getUserId,
   [GetterNames.GetAssertedDistributions]: getAssertedDistributions,
   [GetterNames.GetCurrentOtu]: getCurrentOtu,
+  [GetterNames.GetLegend]: getLegend,
   [GetterNames.GetLoadState]: getLoadState,
   [GetterNames.GetTaxonName]: getTaxonName,
   [GetterNames.GetTaxonNames]: getTaxonNames,

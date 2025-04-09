@@ -127,6 +127,9 @@ gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
 gem 'barby', '~> 0.6.8'
 gem 'ruby-graphviz', '~> 1.2.5', require: false
 
+# Sound
+gem 'wahwah', '~> 1.6.6'
+
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.6.0'
 gem 'sqed', '~>0.8.3'
