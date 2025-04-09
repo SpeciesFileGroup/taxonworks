@@ -274,7 +274,7 @@ function addShape(shape) {
   shapes.value.push(shape)
 }
 
-function convertGeoJSONParam(geojsonParam) {
+function convertGeoJSONParam(geojsonParam, radius) {
   const geojson = JSON.parse(geojsonParam)
 
   return {
@@ -285,13 +285,13 @@ function convertGeoJSONParam(geojsonParam) {
       type: geojson.type === 'Point' ? 'Point' : 'Polygon'
     },
     properties: {
-      radius: geojsonParam?.radius
+      radius
     }
   }
 }
 
 onBeforeMount(() => {
-  try {
+  try { // Have had bad cascading ooms with exceptions here
     if (params.value.geo_shape_id?.length > 0) {
       const shapeIds = [params.value.geo_shape_id].flat()
       const shapeTypes = [params.value.geo_shape_type].flat()
@@ -303,7 +303,9 @@ onBeforeMount(() => {
       })
       geoMode.value = params.value.geo_mode
     } else if (params.value.geo_json) {
-      addShapeFromMap(convertGeoJSONParam(params.value.geo_json))
+      addShapeFromMap(
+        convertGeoJSONParam(params.value.geo_json, params.value.radius)
+      )
       view.value = TABS.Map
     }
   } catch {}
