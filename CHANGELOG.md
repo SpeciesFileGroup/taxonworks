@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Radial annotator and navigator to role picker list
 - CSD: Highlight header bar when DwC re-index is pending [#4275]
+- New source task: Citations count [#4237]
 
 ### Fixed
 
@@ -19,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Content editor: Close modal is enable when nothing is selected [#4279]
 - Radials from facets side are enabled when no filters are active [#4281]
 
+[#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
 [#4275]: https://github.com/SpeciesFileGroup/taxonworks/issues/4275
 [#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278

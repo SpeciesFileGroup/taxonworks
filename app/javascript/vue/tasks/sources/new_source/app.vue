@@ -32,6 +32,7 @@
               class="horizontal-right-content gap-small"
               v-if="source.id"
             >
+              <CitationTotal :source-id="source.id" />
               <VPin
                 class="circle-button"
                 type="Source"
@@ -159,6 +160,7 @@ import AddSource from '@/components/ui/Button/ButtonAddToProjectSource'
 import CloneSource from './components/cloneSource'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
+import CitationTotal from './components/CitationTotal.vue'
 
 import VRecent from './components/recent.vue'
 import PanelSearch from './components/PanelSearch.vue'
