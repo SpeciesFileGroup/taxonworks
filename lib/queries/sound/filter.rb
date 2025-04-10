@@ -11,6 +11,7 @@ module Queries
         :sound_id,
         :name,
         :otu_id,
+        :otu_scope,
         :field_occurrence,
         :with_name,
 
@@ -20,6 +21,7 @@ module Queries
         conveyance_object_type: [],
         sound_id: [],
         otu_id: [],
+        otu_scope: [],
       ].freeze
 
       # @return [Array]
@@ -52,6 +54,9 @@ module Queries
       attr_accessor :otu_id
 
       # @return [Array]
+      attr_accessor :otu_scope
+
+      # @return [Array]
       attr_accessor :sound_id
 
       # @return Boolean
@@ -72,6 +77,7 @@ module Queries
         @name = params[:name]
         @name_exact = boolean_param(params, :name_exact)
         @otu_id = params[:otu_id]
+        @otu_scope = params[:otu_scope]
         @sound_id = params[:sound_id]
         @with_name = boolean_param(params, :with_name)
 
@@ -101,6 +107,10 @@ module Queries
 
       def otu_id
         [@otu_id].flatten.compact
+      end
+
+      def otu_scope
+        [ @otu_scope ].flatten.compact.map(&:to_sym)
       end
 
       # @return [Arel::Table]
@@ -147,7 +157,7 @@ module Queries
       end
 
       def otu_id_facet
-        return nil if otu_id.empty?
+        return nil if otu_id.empty? || !otu_scope.empty?
 
         ::Sound.joins(:otus).where(otus: {id: otu_id})
       end
@@ -170,6 +180,45 @@ module Queries
         ::Sound.joins(:field_occurrences).where(field_occurrences: {id: field_occurrence_id})
       end
 
+      def otu_facet_field_occurrence(otu_ids)
+        ::Sound.joins(field_occurrences: [:taxon_determinations])
+          .where(taxon_determinations: {otu_id: otu_ids})
+      end
+
+      def otu_facet_collection_objects(otu_ids)
+        ::Sound.joins(collection_objects: [:taxon_determinations])
+         .where(taxon_determinations: {otu_id: otu_ids})
+      end
+
+      def otu_facet_otus(otu_ids)
+        ::Sound.joins(:conveyances).where(conveyances: { conveyance_object_type: 'Otu', conveyance_object_id: otu_ids })
+      end
+
+      def otu_scope_facet
+        return nil if otu_id.empty? || otu_scope.empty?
+
+        selected = []
+
+        if otu_scope.include?(:all)
+          selected = [
+            :otu_facet_otus,
+            :otu_facet_collection_objects,
+            :otu_facet_field_occurrence,
+          ]
+        elsif otu_scope.empty?
+          selected = [:otu_facet_otus]
+        else
+          selected.push :otu_facet_otus if otu_scope.include?(:otus)
+          selected.push :otu_facet_collection_objects if otu_scope.include?(:collection_objects)
+          selected.push :otu_facet_field_occurrence if otu_scope.include?(:field_occurrences)
+        end
+
+        q = selected.collect{|a| '(' + send(a, otu_id).to_sql + ')'}.join(' UNION ')
+
+        d = ::Sound.from('(' + q + ')' + ' as sounds')
+        d
+      end
+
       def with_name_facet
         return nil if with_name.nil?
         if with_name
@@ -186,7 +235,7 @@ module Queries
 
         return nil if q.nil?
 
-        n = "query_#{name}_img"
+        n = "query_#{name}_snd"
 
         s = "WITH #{n} AS (" + q.all.to_sql + ') ' +
           ::Sound
@@ -210,6 +259,7 @@ module Queries
           conveyance_object_type_facet,
           conveyances_facet,
           otu_id_facet,
+          otu_scope_facet,
           collecting_event_facet,
           collection_object_facet,
           field_occurrence_facet,
