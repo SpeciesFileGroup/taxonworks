@@ -535,6 +535,9 @@ class GeographicItem < ApplicationRecord
     #   wkt
     def within_radius_of_wkt_sql(wkt, distance)
       wkt = quote_string(wkt)
+      # TODO: this is *not* anti-meridian aware. If the buffer intersects the
+      # anti-meridian then longitude shifts may be required to get the correct
+      # result.
       subset_of_sql(
         st_buffer_sql(
           st_geography_from_text_sql(wkt),
@@ -580,9 +583,15 @@ class GeographicItem < ApplicationRecord
     # crosses anti-meridian
     def covered_by_wkt_shifted_sql(wkt)
       wkt = quote_string(wkt)
+
+      translate_longitudes = wkt_needs_longitude_translation(wkt)
+      wkt_geom = st_geom_from_text_sql(wkt)
       st_covered_by_sql(
+        # All database geographic_items are (!! should be !!) stored in our
+        # Gis::FACTORY-enforced longitude range (-180, 180), so always need to
+        # be shifted in this case to the range (0, 360).
         st_shift_longitude_sql(geography_as_geometry),
-        st_shift_longitude_sql(st_geom_from_text_sql(wkt))
+        translate_longitudes ? st_shift_longitude_sql(wkt_geom) : wkt_geom
       )
     end
 
@@ -1239,6 +1248,32 @@ class GeographicItem < ApplicationRecord
       new_lon = new_lon - 360.0 if new_lon > 180.0
       self.geography = Gis::FACTORY.point(new_lon, geography.y)
     end
+  end
+
+  # @return [Boolean] true if wkt needs to be longitude-translated to make its
+  # longitudes be in the interval (0, 360).
+  # This is a bit of a hack: whether or not to shift wkt depends on whether or
+  # not its longitudes are already in the range (0,360), which indicates to rgeo
+  # that hemisphere-crossing lines cross the anti-meridian, not the meridian.
+  # (We make the assumption that there aren't coordinates in both (180, 360) and
+  # (-180, 0), which is actually possible with hand-entered wkt, and not easy
+  # to deal with.)
+  # TODO: find a more canonical/rgeo way to do this?
+  # TODO: support other wkt shape types as needed. MultiPolygon covers all
+  # polygon inputs from leaflet, the main case.
+  def self.wkt_needs_longitude_translation(wkt)
+    # Use a cartesian factory that doesn't automagically normalize its
+    # longitude inputs, as Gis::FACTORY does.
+    s = RGeo::Cartesian.simple_factory.parse_wkt(wkt)
+
+    translate_longitudes = true
+    # Currently this is intended to support Leaflet polygons.
+    if (s.geometry_type.type_name == 'MultiPolygon' && s.count == 1)
+      translate_longitudes =
+        s[0].exterior_ring.points.map(&:x).any? { |l| l < 0 }
+    end
+
+    translate_longitudes
   end
 
   def self.geography_cast(sql)

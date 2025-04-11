@@ -196,7 +196,6 @@ module Queries
         i = spatial_query
         return nil if i.nil?
 
-        # All spatial records, both GeographicAreas and Gazetteers
         j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
 
         # Expand to include all descendants of any spatial match!

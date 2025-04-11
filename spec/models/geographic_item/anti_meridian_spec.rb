@@ -526,57 +526,99 @@ describe GeographicItem, type: :model, group: :geo do
         end
       end
 
-      context 'covered_by_wkt_sql applied to leaflet-provided wkt' do
-        let(:leaflet_wkt) {
-          'MULTIPOLYGON (((140 40, 140 70, 240 70, 240 40, 140 40)))'
-          # ST_SHIFTs to "MULTIPOLYGON(((140 40,140 75,-120 75,-120 40,140 40)))"
+      context 'covering predicates involving map-drawn anti-meridian wkt' do
+        # The leaflet coordinates below are for the case where you create an
+        # anti-meridian-crossing rectangle/polygon across the "left" leaflet
+        # anti-meridian (i.e. by scrolling the map to the west to a leaflet
+        # anti-meridian). If you scroll to the east to a leaflet anti-meridian
+        # instead you get all cases resembling leaflet_ur below.
+
+        # Leaflet rectangle drawn crossing the anti-meridian by first clicking
+        # the lower left corner and then the upper right.
+        let(:leaflet_ll) { # :leaflet_ul would be the same
+          'MULTIPOLYGON (((-220 40, -220 70, -140 70, -140 40, -220 40)))'
+          # ST_SHIFTs to (140 40, 140 70, 220 70, 220 40, 140 40)
         }
 
-        let!(:gi_one_side) {
-          FactoryBot.create(:valid_geographic_item, geography:
-            'MULTIPOLYGON (((150 50, 150 60, 160 60, 160 50, 150 50)))'
-          )
+        let(:leaflet_ur) { # :leaflet_lr would be the same
+          'MULTIPOLYGON (((140 40, 140 70, 220 70, 220 40, 140 40)))'
         }
+
+        # Longitudes here should be as in the database, in (-180, 180)
+        let!(:side_one) {'(140 40, 140 70, 170 70, 170 40, 140 40)'}
+        let!(:side_two) {'(-140 40, -170 40, -170 70, -140 70, -140 40)'}
 
         # "sides" meaning hemispheres...
         let(:wkt_two_sides) {
-          'MULTIPOLYGON (((140 40, 170 40, 170 70, 140 70, 140 40),' \
-          '(-140 40, -170 40, -170 70, -140 70, -140 40)))'
+          "MULTIPOLYGON ((#{side_one}), (#{side_two}))"
+        }
+
+        let(:wkt_two_sides_side_one) {
+          "MULTIPOLYGON ((#{side_one}))"
+        }
+
+        let(:wkt_two_sides_side_two) {
+          "MULTIPOLYGON ((#{side_two}))"
+        }
+
+        # Google Maps polygon fom the Match Georeferences task, e.g. You can
+        # only draw polygons point by point, and GMaps sends those points in the
+        # order you click, so they're all just cyclic permutations of each other
+        # (and orientation doesn't matter per a geographic_item_spec spec), so
+        # we only need to test one.
+        let(:gmaps_wkt) {
+          # Note POLYGON here, not MULTIPOLYGON
+          'POLYGON (((140 40, 140 70, -140 70, -140 40, 140 40)))'
+          # ST_SHIFTs to (140 40, 140 70, 220 70, 220 40, 140 40)
         }
 
         let!(:gi_two_sides) {
           FactoryBot.create(:valid_geographic_item, geography:
-            'MULTIPOLYGON (((150 50, 150 60, 160 60, 160 50, 150 50), ' \
-            '(-150 50, -160 50, -160 60, -150 60, -150 50)))'
+            wkt_two_sides
           )
         }
 
-        # Yes, it passes
-        xspecify 'covered_by_wkt_sql sanity check' do
+        let!(:gi_side_one) {
+          FactoryBot.create(:valid_geographic_item, geography:
+            wkt_two_sides_side_one
+          )
+        }
+
+        let!(:gi_side_two) {
+          FactoryBot.create(:valid_geographic_item, geography:
+            wkt_two_sides_side_two
+          )
+        }
+
+        # A possible fly in the ointment: this gets shifted to the range (0,
+        # 360) and then crosses the anti-meridian, but (lucky for us) it's too
+        # "big" to be contained by the leaflet shapes now, even though it does
+        # intersect them.
+        let!(:meridian_crossing) {
+          'MULTIPOLYGON (((-40 40, 40 40, 40 70, -40 70, -40 40)))'
+        }
+        let!(:meridian_crossing_gi) {
+          FactoryBot.create(:valid_geographic_item, geography:
+            meridian_crossing
+          )
+        }
+
+        specify 'covered_by_wkt_sql leaflet_ll' do
           expect(::GeographicItem.where(
-            ::GeographicItem.covered_by_wkt_sql(gi_two_sides.to_wkt)).pluck(:id)
-          ).to eq [gi_one_side.id, gi_two_sides.id]
+            ::GeographicItem.covered_by_wkt_sql(leaflet_ll)).pluck(:id)
+          ).to contain_exactly(gi_side_one.id, gi_side_two.id, gi_two_sides.id)
         end
 
-        # Passes # TODO: what if you reverse orientation on gi_one_side?
-        xspecify 'covered_by_wkt_sql not anti-meridian-crossing but two "sides" wkt contains one side' do
+        specify 'covered_by_wkt_sql leaflet_ur' do
           expect(::GeographicItem.where(
-            ::GeographicItem.covered_by_wkt_sql(wkt_two_sides)).pluck(:id)
-          ).to contain_exactly(gi_one_side.id)
+            ::GeographicItem.covered_by_wkt_sql(leaflet_ur)).pluck(:id)
+          ).to contain_exactly(gi_side_one.id, gi_side_two.id, gi_two_sides.id)
         end
 
-        # Fails, only contains one_side
-        xspecify 'covered_by_wkt_sql not anti-meridian-crossing but two "sides" wkt contains two sides' do
+        specify 'covered_by_wkt_sql gmaps_wkt' do
           expect(::GeographicItem.where(
-            ::GeographicItem.covered_by_wkt_sql(wkt_two_sides)).pluck(:id)
-          ).to contain_exactly(gi_one_side.id, gi_two_sides.id)
-        end
-
-        # Fails, contains neither
-        xspecify 'covered_by_wkt_sql anti-meridian-crossing wkt' do
-          expect(::GeographicItem.where(
-            ::GeographicItem.covered_by_wkt_sql(leaflet_wkt)).pluck(:id)
-          ).to contain_exactly(gi_one_side.id, gi_two_sides.id)
+            ::GeographicItem.covered_by_wkt_sql(gmaps_wkt)).pluck(:id)
+          ).to contain_exactly(gi_side_one.id, gi_side_two.id, gi_two_sides.id)
         end
       end
 

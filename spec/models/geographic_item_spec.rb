@@ -797,6 +797,33 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           donut_left_interior_edge_point, rectangle_intersecting_box
         )
       end
+
+      context "doesn't depend on wkt orientation" do
+        # Google Maps polygons are sent in whatever order they were clicked
+        let(:p_clockwise) {
+          'MULTIPOLYGON (((-5 -5, -5 15, 15 15, 15 -5, -5 -5)))'
+        }
+
+        let(:p_counter_clockwise) {
+          'MULTIPOLYGON (((-5 -5, 15 -5, 15 15, -5 15, -5 -5)))'
+        }
+
+        specify 'clockwise' do
+          [simple_polygon, simple_multi_point]
+
+          expect(GeographicItem.where(
+            GeographicItem.covered_by_wkt_sql(p_clockwise)
+          )).to contain_exactly(simple_polygon)
+        end
+
+        specify 'counter-clockwise' do
+          [simple_polygon, simple_multi_point]
+
+          expect(GeographicItem.where(
+            GeographicItem.covered_by_wkt_sql(p_counter_clockwise)
+          )).to contain_exactly(simple_polygon)
+        end
+      end
     end
 
     context '::st_buffer_st_within_sql' do
