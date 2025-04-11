@@ -3,7 +3,8 @@
     <thead>
       <tr>
         <th>Name</th>
-        <th />
+        <th class="w-2">Sound</th>
+        <th class="w-2" />
       </tr>
     </thead>
     <tbody>
@@ -23,6 +24,9 @@
           />
         </td>
         <td>
+          <RadialAnnotator :global-id="conveyance.sound.global_id" />
+        </td>
+        <td>
           <div class="horizontal-right-content gap-small">
             <RadialAnnotator :global-id="conveyance.global_id" />
             <VBtn
@@ -35,6 +39,10 @@
                 x-small
               />
             </VBtn>
+            <MoveAnnotation
+              :annotation="conveyance"
+              @move="(item) => emit('move', item)"
+            />
             <VBtn
               color="destroy"
               circle
@@ -56,6 +64,7 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'
 
 defineProps({
   list: {
@@ -64,5 +73,5 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['select', 'remove'])
+const emit = defineEmits(['select', 'remove', 'move'])
 </script>

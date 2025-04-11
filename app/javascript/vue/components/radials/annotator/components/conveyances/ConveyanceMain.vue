@@ -34,6 +34,7 @@
     <ConveyanceList
       v-if="!currentConveyance"
       :list="list"
+      @move="removeFromList"
       @remove="removeItem"
       @select="setConveyance"
     />
