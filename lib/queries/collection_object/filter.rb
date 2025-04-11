@@ -7,6 +7,7 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::Confidences
       include Queries::Concerns::Containable
+      include Queries::Concerns::Conveyances
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
@@ -380,6 +381,7 @@ module Queries
         set_confidences_params(params)
         set_citations_params(params)
         set_containable_params(params)
+        set_conveyance_params(params)
         set_data_attributes_params(params)
         set_depiction_params(params)
         set_notes_params(params)

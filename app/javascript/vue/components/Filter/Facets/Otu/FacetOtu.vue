@@ -19,7 +19,8 @@
     />
     <OtuCoordinate v-if="coordinate" />
     <VIncludes
-      v-if="includes"
+      v-if="includes.length"
+      :includes="includes"
       v-model="params"
     />
   </FacetContainer>
@@ -48,8 +49,8 @@ const props = defineProps({
   },
 
   includes: {
-    type: Boolean,
-    default: false
+    type: Array,
+    default: () => []
   },
 
   coordinate: {

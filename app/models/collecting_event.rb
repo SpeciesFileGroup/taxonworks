@@ -182,7 +182,9 @@
 #
 class CollectingEvent < ApplicationRecord
   include Housekeeping
+  include Shared::OriginRelationship
   include Shared::Citations
+  include Shared::Conveyances
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
@@ -198,6 +200,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::DwcOccurrenceHooks
   include Shared::IsData
 
+
   include CollectingEvent::GeoLocate
   include CollectingEvent::Georeference
   include CollectingEvent::DwcSerialization
@@ -205,6 +208,8 @@ class CollectingEvent < ApplicationRecord
   include Shared::QueryBatchUpdate
 
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
+
+  is_origin_for 'Sound'
 
   NEARBY_DISTANCE = 5000
   MINIMUM_ELEVATION = -11000
@@ -1040,7 +1045,7 @@ class CollectingEvent < ApplicationRecord
           add_incremented_identifier(to_object: a, incremented_identifier_id:)
         end
 
-        if !annotations.blank? # TODO: boolean param this
+        if annotations.present? # TODO: boolean param this
           clone_annotations(to_object: a, except: [:identifiers])
         end
 

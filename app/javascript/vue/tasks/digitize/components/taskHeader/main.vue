@@ -1,12 +1,18 @@
 <template>
-  <nav-bar style="z-index: 1001">
+  <nav-bar
+    style="z-index: 1001"
+    :navbar-class="{
+      panel: true,
+      content: true,
+      'pending-dwc-regeneration': collectionObject?.dwc_occurrence?.rebuild_set
+    }"
+  >
     <div
       id="comprehensive-navbar"
       class="flex-separate"
     >
-      <div class="horizontal-left-content">
+      <div class="horizontal-left-content gap-small">
         <autocomplete
-          class="separate-right"
           url="/collection_objects/autocomplete"
           placeholder="Search"
           label="label_html"
@@ -15,16 +21,24 @@
           min="1"
           @get-item="(item) => loadAssessionCode(item.id)"
         />
-        <soft-validation
-          v-if="collectionObject.id"
-          class="margin-small-left margin-small-right"
-        />
-        <a
-          class="separate-left"
-          v-if="collectionObject.id"
-          :href="`/tasks/collection_objects/browse?collection_object_id=${collectionObject.id}`"
-          v-html="collectionObject.object_tag"
-        />
+        <template v-if="collectionObject.id">
+          <soft-validation v-if="collectionObject.id" />
+          <a
+            :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${collectionObject.id}`"
+            v-html="collectionObject.object_tag"
+          />
+          <div
+            v-if="collectionObject?.dwc_occurrence?.rebuild_set"
+            class="horizontal-left-content gap-small middle text-warning-color"
+          >
+            <VIcon
+              name="attention"
+              small
+              color="warning"
+            />
+            DwCOccurrence re-index is pending.
+          </div>
+        </template>
         <span v-else>New record</span>
       </div>
       <div class="horizontal-left-content">
@@ -130,6 +144,7 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { useHotkey } from '@/composables'
+import { RouteNames } from '@/routes/routes.js'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import RecentComponent from './recent.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
@@ -137,6 +152,7 @@ import Autocomplete from '@/components/ui/Autocomplete.vue'
 import NavBar from '@/components/layout/NavBar'
 import AjaxCall from '@/helpers/ajaxCall'
 import SoftValidation from './softValidation'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const MAX_CO_LIMIT = 100
 
@@ -272,11 +288,17 @@ function loadCollectionObject(co) {
   store.dispatch(ActionNames.LoadDigitalization, co.id)
 }
 </script>
+
 <style lang="scss" scoped>
 .fixed-bar {
   position: fixed;
   top: 0px;
   width: calc(100% - 52px);
   z-index: 200;
+}
+
+:deep(.pending-dwc-regeneration) {
+  outline: 2px solid var(--color-attention);
+  outline-offset: -2px;
 }
 </style>

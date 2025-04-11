@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="overflow-x-auto">
     <h2>Repository</h2>
     <div class="horizontal-right-content">
       <switch-component

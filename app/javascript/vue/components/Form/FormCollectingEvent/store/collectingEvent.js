@@ -48,8 +48,10 @@ export default defineStore('collectingEventForm', {
   actions: {
     reset() {
       const georeferenceStore = useGeoreferenceStore()
+      const identifierStore = useIdentifierStore()
 
       this.$reset()
+      identifierStore.$reset()
       georeferenceStore.$reset()
     },
 

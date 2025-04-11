@@ -5,6 +5,8 @@ TaxonWorks::Application.configure do
   # See https://github.com/kvokka/pp_sql
   PpSql.rewrite_to_sql_method = false
   PpSql.add_rails_logger_formatting = false
+  
+  config.active_storage.service = :local
 
   # Code is not reloaded between requests.
   config.cache_classes = true

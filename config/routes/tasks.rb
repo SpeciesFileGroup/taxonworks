@@ -1,4 +1,14 @@
 scope :tasks do
+  scope :sounds do
+    scope :filter, controller: 'tasks/sounds/filter' do
+      get '/', action: :index, as: 'filter_sounds_task'
+    end
+
+    scope :browse, controller: 'tasks/sounds/browse' do
+      get '/', action: :index, as: 'browse_sounds_task'
+    end
+  end
+
   scope :controlled_vocabulary_terms do
     scope :projects_summary, controller: 'tasks/controlled_vocabulary_terms/projects_summary' do
       get '/', action: :index, as: 'summarize_projects_controlled_vocabulary_terms_task'
@@ -216,7 +226,7 @@ scope :tasks do
     end
 
     scope :editor, controller: 'tasks/content/editor' do
-      get 'index', as: 'index_editor_task'
+      get '/', action: :index, as: 'content_editor_task'
       get 'recent_topics', as: 'content_editor_recent_topics_task'
       get 'recent_otus', as: 'content_editor_recent_otus_task'
     end

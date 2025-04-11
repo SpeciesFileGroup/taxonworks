@@ -9,6 +9,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Radial annotator and navigator to role picker list
+- CSD: Highlight header bar when DwC re-index is pending [#4275]
+- New source task: Citations count [#4237]
+
+### Fixed
+
+- Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
+- Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
+- Content editor: Close modal is enable when nothing is selected [#4279]
+- Radials from facets side are enabled when no filters are active [#4281]
+
+[#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
+[#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
+[#4275]: https://github.com/SpeciesFileGroup/taxonworks/issues/4275
+[#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
+[#4279]: https://github.com/SpeciesFileGroup/taxonworks/issues/4279
+[#4281]: https://github.com/SpeciesFileGroup/taxonworks/issues/4281
+
+## [0.49.1] - 2025-04-01
+
+### Added
+
 - Offset parameter to copy_table_to_clipboard helper [#4265]
 - Collecting event metadata task (count of use, plot of time), via filter
 - UI flag that a DwcOccurrence re-index is pending. [#4267]
@@ -5195,7 +5217,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.1...development
+[0.49.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...v0.49.1
 [0.49.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.1...v0.47.0

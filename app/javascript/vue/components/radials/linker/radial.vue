@@ -27,7 +27,7 @@
       color="radial"
       :title="title"
       circle
-      :disabled="disabled || !filterLinks.length"
+      :disabled="disabled || !filterLinks.length || !hasParameters"
       @click="openRadialMenu()"
     >
       <VIcon
@@ -54,6 +54,7 @@ import qs from 'qs'
 import * as LINKER_LIST from './links/index.js'
 
 const MAX_LINK_SIZE = 2000
+const EXCLUDE_PARAMETERS = ['page', 'per', 'extend']
 
 defineOptions({
   name: 'RadialLinker'
@@ -84,6 +85,23 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const objParameters = ref(getFilterAttributes())
 const isOnlyIds = computed(() => Array.isArray(props.ids))
+
+const params = computed(() =>
+  filterEmptyParams(
+    isOnlyIds.value ? getParametersForId() : getParametersForAll()
+  )
+)
+
+const hasParameters = computed(() => {
+  const parameters = { ...params.value }
+
+  EXCLUDE_PARAMETERS.forEach((param) => {
+    delete parameters[param]
+  })
+
+  return Object.keys(parameters).length
+})
+
 const filterLinks = computed(() => {
   const objLinks = LINKER_LIST[props.objectType]
 
@@ -189,7 +207,11 @@ function filterEmptyParams(object) {
   for (const key in obj) {
     const value = obj[key]
 
-    if (value === '' || (Array.isArray(value) && !value.length)) {
+    if (
+      value === undefined ||
+      value === '' ||
+      (Array.isArray(value) && !value.length)
+    ) {
       delete obj[key]
     }
   }
@@ -203,20 +225,17 @@ function getItemByName(name) {
 
 function getLinkParameters(item) {
   const { queryParam, parseParams } = item
-  const filteredParameters = filterEmptyParams(
-    isOnlyIds.value ? getParametersForId() : getParametersForAll()
-  )
 
-  const params = queryParam
-    ? { [QUERY_PARAM[props.objectType]]: filteredParameters }
-    : filteredParameters
+  const parameters = queryParam
+    ? { [QUERY_PARAM[props.objectType]]: params.value }
+    : params.value
 
   const args = {
-    params,
+    params: parameters,
     objectType: props.objectType
   }
 
-  return typeof parseParams === 'function' ? parseParams(args) : params
+  return typeof parseParams === 'function' ? parseParams(args) : parameters
 }
 
 function setParametersFor({ name }) {

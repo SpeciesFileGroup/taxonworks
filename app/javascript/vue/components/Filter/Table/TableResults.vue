@@ -687,6 +687,10 @@ function scrollToTop() {
   window.scrollTo(0, 0)
 }
 
+function clearFilterValues() {
+  filterValues.value = {}
+}
+
 function generateFreezeColumnLeftPosition() {
   const obj = {}
   const sizes = {}
@@ -712,8 +716,19 @@ function generateFreezeColumnLeftPosition() {
 
 watch(
   () => props.list,
-  () => {
+  (newVal, oldVal) => {
     HandyScroll.EventBus.emit('update', { sourceElement: element.value })
+
+    if (oldVal && oldVal?.length === newVal?.length) {
+      const ids = oldVal.map((item) => item.id)
+      const hasSameIds = newVal.every((item) => ids.includes(item.id))
+
+      if (!hasSameIds) {
+        clearFilterValues()
+      }
+    } else {
+      clearFilterValues()
+    }
   },
   { immediate: true }
 )
@@ -733,6 +748,10 @@ watch(
     deep: true
   }
 )
+
+defineExpose({
+  clearFilterValues
+})
 </script>
 
 <style scoped>
