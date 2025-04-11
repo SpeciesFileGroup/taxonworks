@@ -5,6 +5,8 @@ module Export::Coldp::Files::Name
 
   @skipped_name_ids = []
 
+  @parser = Vendor::Biodiversity::Result.new
+
   def self.skipped_name_ids
     @skipped_name_ids
   end
@@ -60,9 +62,9 @@ module Export::Coldp::Files::Name
   end
 
   # add_reified_higher_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
-  def self.add_reified_higher_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv) # origin_citation, name_remarks_vocab_id, project_members)
+  def self.add_reified_family_and_higher_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv) # origin_citation, name_remarks_vocab_id, project_members)
 
-    reified_higher_names(otu). each do |t|
+    reified_family_and_higher_names(otu). each do |t|
 
       origin_citation = t.origin_citation
 
@@ -91,7 +93,6 @@ module Export::Coldp::Files::Name
         Export::Coldp.modified(t[:updated_at]),                             # modified
         Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
       ]
-
     end
   end
 
@@ -111,7 +112,9 @@ module Export::Coldp::Files::Name
       e[k] = v
     end
 
-    epithets = clean_sic({:scientific_name => t.cached_original_combination, :genus => e[:genus]&.last, :subgenus => e[:subgenus]&.last, :species => e[:species]&.last, :subspecies => e[:subspecies]&.last})
+    epithets = clean_sic(
+      {:scientific_name => t.cached_original_combination, :genus => e[:genus]&.last, :subgenus => e[:subgenus]&.last, :species => e[:species]&.last, :subspecies => e[:subspecies]&.last})
+
     infraspecific_element = t.original_combination_infraspecific_element(t.original_combination_elements, remove_sic: true)
 
     rank = nil
@@ -183,7 +186,7 @@ module Export::Coldp::Files::Name
 
   def self.clean_sic(epithets)
     if epithets.values.any? { |value| value&.include?('[sic]') }
-      epithets.transform_values { |value| value&.gsub(/\s*\[sic\]/, '') }
+      epithets.transform_values{ |value| value&.gsub(/\s*\[sic\]/, '') }  # TODO: 
     else
       epithets
     end
@@ -221,16 +224,17 @@ module Export::Coldp::Files::Name
   # The goal here is to create a single scoped TaxonName
   # returning query that represents the superset of
   # names considered valid by TW
+  #
+  # Core names are:
+  #   - valid
+  #   - genus or species group
+  #   - protonyms
   def self.core_names(otu)
-    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id, :cached)
+    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id, :cached) # TODO: need :cached?
 
     b = ::Protonym.is_species_or_genus_group.with(valid_scope: a)
-      .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')  #.where(cached_valid_taxon_name_id: name.id) # == .historical_taxon_names
+      .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id') # .where(cached_valid_taxon_name_id: name.id) # == .historical_taxon_names
       .and(TaxonName.where.not("taxon_names.rank_class like '%::Iczn::Family%' AND taxon_names.cached_is_valid = FALSE")) # This eliminates Combinations that are identical to the current placement.
-
-
-   
-
 
     select = 'taxon_names.id,'
     select << ::NomenclaturalRank.rank_expansion_sql(ranks: %w{genus subgenus species}, nomenclatural_code: otu.taxon_name.nomenclatural_code)
@@ -291,11 +295,11 @@ module Export::Coldp::Files::Name
         project_id:
       )&.id
 
-      # add_higher_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
+       add_higher_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
       # add_core_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
-      
-      add_valid_family_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
-      add_reified_higher_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
+
+      # add_valid_family_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
+      # add_reified_higher_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
 
       # add_original_combinations(otu, csv, name_remarks_vocab_id, project_members)
       # add_combinations(otu, csv, name_remarks_vocab_id, project_members)
@@ -303,117 +307,71 @@ module Export::Coldp::Files::Name
     end
   end
 
-  # names considered valid by TW
-  def self.original_combinations(otu)
-    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id, :cached)
-
-    b = ::Protonym.is_species_or_genus_group.with(valid_scope: a)
-      .joins(:original_combination_relationships)
-
-    select = 'taxon_names.id,'
-
-
-
-    select << ::NomenclaturalRank.rank_expansion_sql(ranks: %w{genus subgenus species}, nomenclatural_code: otu.taxon_name.nomenclatural_code)
-
-    # We group some ranks here
-    select << ", MAX(CASE WHEN parent.rank_class LIKE \'%::Subspecies\' OR parent.rank_class LIKE \'%::Variety\' OR parent.rank_class LIKE \'%::Form\' THEN parent.name END) AS infraspecies"
-
-    b = b
-
-    b = b.select(select)
-      .joins('INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id')
-      .joins('LEFT JOIN taxon_names AS parent ON parent.id = taxon_name_hierarchies.ancestor_id')
-      .group('taxon_names.id')
+  # Valid original combinations are:
+  #   - species or genus group names
+  #   - valid names
+  #   - names with original combinations set
+  #
+  # As a test these should parse correctly in the Biodiversity wrapper as of 4/8/2025.
+  # 
+  def self.complete_original_combinations_of_valid_genera_and_species(otu)
+    otu.taxon_name.self_and_descendants.unscope(:order)
+      .is_species_or_genus_group
+      .with_complete_original_combination
+      .where(cached_is_valid: true)
       .eager_load(origin_citation: [:source])
-
-    c = ::TaxonName.with(n: b)
-      .joins('JOIN n on n.id = taxon_names.id')
-      .eager_load(origin_citation: [:source])
-      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies')
+      .select(:id, :cached, :cached_original_combination)
   end
- 
 
-
-
-
-
-  def self.higher_names(otu)
-    # TODO scope to valid likely?
+  # Higher names are:
+  #   - valid family group names
+  # Notes
+  #   - candidate for merging with valid_higher_names
+  def self.valid_higher_names(otu)
     a = otu.taxon_name.self_and_descendants
-      .where(rank_class: HIGHER_RANK_NAMES)
+      .where(rank_class: HIGHER_RANK_NAMES, cached_is_valid: true)
       .unscope(:order)
-      .select(:id, :cached, :type, :cached_original_combination, :cached_author_year, :year_of_publication, :cached_is_valid, :updated_at, :updated_by_id)
+      .select(:id, :name, :type, :cached_author_year, :year_of_publication, :cached_is_valid, :updated_at, :updated_by_id) # :cached_original_combination
       .eager_load(origin_citation: [:source])
   end
 
+  # Valid family names are:
+  #   - valid family group names
   def self.valid_family_names(otu)
     a = otu.taxon_name.self_and_descendants
-      .that_is_valid
-      .where(rank_class: FAMILY_RANK_NAMES)
+      .where(rank_class: FAMILY_RANK_NAMES, cached_is_valid: true)
       .unscope(:order)
       .select(:id, :cached, :type, :cached_original_combination, :cached_author_year, :year_of_publication, :cached_is_valid, :updated_at, :updated_by_id)
       .eager_load(origin_citation: [:source])
   end
 
-  def self.reified_higher_names(otu)
+  # TODO: Reified vs. Invalid set
+  # Reified family and higher names are
+  def self.reified_family_and_higher_names(otu)
     a = otu.taxon_name.self_and_descendants
       .where.not(cached_original_combination: nil)
       .where('taxon_names.cached_original_combination != taxon_names.cached')
-      .where(rank_class: FAMILY_RANK_NAMES + HIGHER_RANK_NAMES)
+      .where(rank_class: FAMILY_RANK_NAMES + HIGHER_RANK_NAMES) # TODO: Can HIGHER_RANK_NAMES actually be reified?
       .unscope(:order)
       .select(:id, :cached, :type, :cached_original_combination, :cached_author_year, :year_of_publication, :cached_is_valid, :updated_at, :updated_by_id)
       .eager_load(origin_citation: [:source])
   end
 
-  def self.add_valid_family_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
-    valid_family_names(otu).find_each do |t|
+  def self.add_original_combinations_of_valid_genera_and_species(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
+    complete_original_combinations_of_valid_genera_and_species(otu).find_each do |t|
 
-      # TODO: refactor to a single method, test, then we should only have to check if the name is valid, without relationships?
-      # TODO: family-group cached original combinations do not get exported in either Name or Synonym tables
-      # exclude duplicate protonyms created for family group relationships
-      #    if t.is_family_rank? # '%::Iczn::Family%' We are already excluding combinations from above
-      #      if TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm.where(subject_taxon_name: t).any? #  t.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
-      #        valid = TaxonName.find(t.cached_valid_taxon_name_id)
-      #        if valid.name == t.name and valid.cached_author = t.cached_author and t.id != valid.id # !! valid.name should never = t.name, by definition?
-      #          next
-      #        end
-      #      end
-      #    end
-
-      #   if !t.is_combination? and t.is_family_rank? # We are already excluding combinationss from above
-      #     if TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm.where(subject_taxon_name: t).any? #  t.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
-      #       valid = TaxonName.find(t.cached_valid_taxon_name_id)
-      #       if valid.name == t.name  and valid.cached_author = t.cached_author and t.id != valid.id # !! valid.name should never = t.name, by definition?
-      #         next
-      #       end
-      #     end
-      #   end
+      v = @paraser.new(
+        query_string: t.original_combination,
+        verbatim: true
+      )
 
       origin_citation = t.origin_citation
-
-      basionym_id = t.reified_id
-
-      name_string = (t.cached =~ /[sic]/) ?
-        t.cached.gsub(/\s*\[sic\]/, '') :
-        t.cached
-
-      rank = t.rank
-
-      # TODO: Revisit
-      # # Here we add reified ID's for higher taxa in which cached != cached_original_combination (e.g., TaxonName stores both Lamotialnina and Lamotialnini so needs a reified ID)
-      # if t.has_alternate_original?  # 
-      #   add_higher_original_name(t, csv, origin_citation, name_remarks_vocab_id, project_members)
-      # end
-
-      basionym_id = nil if @skipped_name_ids.include?(basionym_id)
-
       csv << [
         t.id,                                                               # ID
-        basionym_id,                                                        # basionymID
-        name_string,                                                        # scientificName  # should just be t.cached
+        nil,                                                                # basionymID
+        t.name,                                                             # scientificName  # should just be t.cached
         t.cached_author_year,                                               # authorship
-        rank,                                                               # rank
+        t.rank,                                                             # rank
         nil,                                                                # uninomial   <- if genus here
         nil,                                                                # genus and below - IIF species or lower
         nil,                                                                # infragenericEpithet (subgenus)
@@ -434,10 +392,117 @@ module Export::Coldp::Files::Name
     end
   end
 
+  def self.add_valid_family_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
+    valid_family_names(otu).find_each do |t|
+      origin_citation = t.origin_citation
+      csv << [
+        t.id,                                                               # ID
+        nil,                                                                # basionymID
+        t.name,                                                             # scientificName  # should just be t.cached
+        t.cached_author_year,                                               # authorship
+        t.rank,                                                              # rank
+        nil,                                                                # uninomial   <- if genus here
+        nil,                                                                # genus and below - IIF species or lower
+        nil,                                                                # infragenericEpithet (subgenus)
+        nil,                                                                # specificEpithet
+        nil,                                                                # infraspecificEpithet
+        origin_citation&.source_id,                                         # publishedInID
+        origin_citation&.pages,                                             # publishedInPage
+        t.year_of_publication,                                              # publishedInYear
+        code_field(t),                                                      # code
+        nom_status_field(t),                                                # nomStatus
+        nil,                                                                # link (probably TW public or API)
+        Export::Coldp.sanitize_remarks(remarks(t, name_remarks_vocab_id)),  # remarks
+        Export::Coldp.modified(t[:updated_at]),                             # modified
+        Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
+      ]
 
+      Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
+    end
+  end
 
-  def self.add_higher_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
-    higher_names(otu).find_each do |t|
+  def self.add_valid_higher_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
+    valid_higher_names(otu).find_each do |t|
+      origin_citation = t.origin_citation
+
+      # TODO: confirm it shouldn't be needed for higher, it might because these are invalid and valid..
+      #      basionym_id = t.reified_id 
+
+      # Probably need sic clean
+      #     name_string = (t.cached =~ /[sic]/) ?
+      #       t.cached.gsub(/\s*\[sic\]/, '') :
+      #       t.cached
+      #      rank = t.rank
+
+      # # Here we add reified ID's for higher taxa in which cached != cached_original_combination (e.g., TaxonName stores both Lamotialnina and Lamotialnini so needs a reified ID)
+      # if t.cached_original_combination.present? && t.is_family_rank? && t.has_alternate_original? # t.cached != t.cached_original_combination
+      #   add_higher_original_name(t, csv, origin_citation, name_remarks_vocab_id, project_members)
+      # end
+
+      # basionym_id = nil if @skipped_name_ids.include?(basionym_id)
+
+      csv << [
+        t.id,                                                               # ID
+        nil,                                                                # basionymID
+        t.name,                                                             # scientificName  # should just be t.cached
+        t.cached_author_year,                                               # authorship
+        t.rank,                                                             # rank
+        nil,                                                                # uninomial   <- if genus here
+        nil,                                                                # genus and below - IIF species or lower
+        nil,                                                                # infragenericEpithet (subgenus)
+        nil,                                                                # specificEpithet
+        nil,                                                                # infraspecificEpithet
+        origin_citation&.source_id,                                         # publishedInID
+        origin_citation&.pages,                                             # publishedInPage
+        t.year_of_publication,                                              # publishedInYear
+        code_field(t),                                                      # code
+        nom_status_field(t),                                                # nomStatus
+        nil,                                                                # link (probably TW public or API)
+        Export::Coldp.sanitize_remarks(remarks(t, name_remarks_vocab_id)),  # remarks
+        Export::Coldp.modified(t[:updated_at]),                             # modified
+        Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
+      ]
+
+      Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
+    end
+  end
+
+  # TODO: Complete combinations only 
+  def self.combination_names(otu)
+    a = otu.taxon_name.self_and_descendants.unscope(:order)
+      .where(taxon_names: { type: 'Combination' })
+      .select(:id)
+
+    Combination.with(combination_scope: a)
+      .joins('JOIN combination_scope on taxon_names.id = combination_scope.id')
+      .complete
+      .eager_load(combination_relationships: [:subject_taxon_name])
+#      .select(combination_relationships: {subject_taxon_name: [:name, :cached, :gender, :neuter_name, :masculine_name, :feminine_name]  } )
+  end
+
+  def self.combinations(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
+
+    combination_names(otu).find_each do |t|
+
+      # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
+      # Proposal is to exclude names of a specific ranks see taxon.rb
+      #
+      # Need the next highest valid parent not in this list!!
+      # %w{
+      #   NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
+      #   NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
+      # }
+      #
+      # infragenericEpithet needs to handle subsection (NomenclaturalRank::Icn::GenusGroup::Subsection)
+
+      # name_total += 1
+
+      # TODO: remove this loopp, using a with to top
+      #   TaxonName
+      #     .where(cached_valid_taxon_name_id: name.id) # == .historical_taxon_names
+      #     .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", name.cached) # This eliminates Combinations that are identical to the current placement.
+      #     .eager_load(origin_citation: [:source])
+      #     .find_each do |t|
 
       # TODO: refactor to a single method, test, then we should only have to check if the name is valid, without relationships?
       # TODO: family-group cached original combinations do not get exported in either Name or Synonym tables
@@ -464,13 +529,38 @@ module Export::Coldp::Files::Name
 
       basionym_id = t.reified_id
 
-      uninomial, generic_epithet, infrageneric_epithet, specific_epithet, infraspecific_epithet = nil, nil, nil, nil, nil
+    # Not combinations, not genus by itself, not genus species names
+    #  is_col_uninomial = t.rank == 'genus' ? true : false
 
-      name_string = (t.cached =~ /[sic]/) ?
-        t.cached.gsub(/\s*\[sic\]/, '') :
-        t.cached
+ #     uninomial, generic_epithet, infrageneric_epithet, specific_epithet, infraspecific_epithet = nil, nil, nil, nil, nil
 
-      rank = t.rank
+    #  if !is_col_uninomial
+        # TODO: eliminate, or further minimize calls to full_name hash (15ms?)
+        #  - write a method that limits to genus group names and below
+        # elements = t.full_name_hash
+        #
+     #  name_string = (t.cached =~ /[sic]/) ?
+     #    t.cached.gsub(/\s*\[sic\]/, '') :
+     #    t.cached
+
+
+ #  generic_epithet = t.genus
+ #  infrageneric_epithet = t.subgenus
+ #  specific_epithet =  t.species
+ #  infraspecific_epithet = t.infraspecies
+    # else
+    #   # In sic is never hit!
+    #   # TODO: is this ever hit?
+    #   # uninomial = name_string = clean_sic({:scientific_name => t.cached})[:scientific_name]
+    # end
+
+ #     rank = t.rank
+
+      # Here we truly want no higher
+ #    if t.cached_original_combination.present? # && (!t.is_combination? && is_genus_species && (!t.is_valid? || t.has_alternate_original?))
+ #      # name_total += 1
+ #      #  add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
+ #    end
 
       # # Here we add reified ID's for higher taxa in which cached != cached_original_combination (e.g., TaxonName stores both Lamotialnina and Lamotialnini so needs a reified ID)
       # if t.cached_original_combination.present? && t.is_family_rank? && t.has_alternate_original? # t.cached != t.cached_original_combination
@@ -479,19 +569,21 @@ module Export::Coldp::Files::Name
 
       basionym_id = nil if @skipped_name_ids.include?(basionym_id)
 
+      uninomial = t.cached if t.rank == 'genus'
+
       # Set is: no original combination OR (valid or invalid higher, valid lower, past combinations)
       #    if t.cached_original_combination.blank? || higher || t.is_valid? || t.is_combination?
       csv << [
         t.id,                                                               # ID
         basionym_id,                                                        # basionymID
-        name_string,                                                        # scientificName  # should just be t.cached
+        t.cached,                                                           # scientificName  # should just be t.cached
         t.cached_author_year,                                               # authorship
-        rank,                                                               # rank
+        t.rank,                                                             # rank
         uninomial,                                                          # uninomial   <- if genus here
-        generic_epithet,                                                    # genus and below - IIF species or lower
-        infrageneric_epithet,                                               # infragenericEpithet (subgenus)
-        specific_epithet,                                                   # specificEpithet
-        infraspecific_epithet,                                              # infraspecificEpithet
+        t.genus,                                                            # genus and below - IIF species or lower # TODO: confirm this is OK now
+        t.subgenus,                                                         # infragenericEpithet (subgenus)
+        t.species,                                                          # specificEpithet
+        t.infraspecies,                                                     # infraspecificEpithet
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
         t.year_of_publication,                                              # publishedInYear
@@ -506,6 +598,8 @@ module Export::Coldp::Files::Name
       Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
     end
   end
+
+
 
   def self.add_core_names(otu, csv, name_remarks_vocab_id, project_members, reference_csv)
 
@@ -556,34 +650,38 @@ module Export::Coldp::Files::Name
 
       basionym_id = t.reified_id
 
-      # Not combinations, not genus by itself, not genus species names
-      is_col_uninomial = t.rank == 'genus' ? true : false
+    # Not combinations, not genus by itself, not genus species names
+    #  is_col_uninomial = t.rank == 'genus' ? true : false
 
-      uninomial, generic_epithet, infrageneric_epithet, specific_epithet, infraspecific_epithet = nil, nil, nil, nil, nil
+ #     uninomial, generic_epithet, infrageneric_epithet, specific_epithet, infraspecific_epithet = nil, nil, nil, nil, nil
 
-      if !is_col_uninomial
+    #  if !is_col_uninomial
         # TODO: eliminate, or further minimize calls to full_name hash (15ms?)
         #  - write a method that limits to genus group names and below
         # elements = t.full_name_hash
         #
-        name_string = (t.cached =~ /[sic]/) ?
-          t.cached.gsub(/\s*\[sic\]/, '') :
-          t.cached
-        generic_epithet = t.genus
-        infrageneric_epithet = t.subgenus
-        specific_epithet =  t.species
-        infraspecific_epithet = t.infraspecies
-      else
-        uninomial = name_string = clean_sic({:scientific_name => t.cached})[:scientific_name]
-      end
+     #  name_string = (t.cached =~ /[sic]/) ?
+     #    t.cached.gsub(/\s*\[sic\]/, '') :
+     #    t.cached
 
-      rank = t.rank
+
+ #  generic_epithet = t.genus
+ #  infrageneric_epithet = t.subgenus
+ #  specific_epithet =  t.species
+ #  infraspecific_epithet = t.infraspecies
+    # else
+    #   # In sic is never hit!
+    #   # TODO: is this ever hit?
+    #   # uninomial = name_string = clean_sic({:scientific_name => t.cached})[:scientific_name]
+    # end
+
+ #     rank = t.rank
 
       # Here we truly want no higher
-      if t.cached_original_combination.present? # && (!t.is_combination? && is_genus_species && (!t.is_valid? || t.has_alternate_original?))
-        # name_total += 1
-        #  add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
-      end
+ #    if t.cached_original_combination.present? # && (!t.is_combination? && is_genus_species && (!t.is_valid? || t.has_alternate_original?))
+ #      # name_total += 1
+ #      #  add_original_combination(t, csv, origin_citation, name_remarks_vocab_id, project_members)
+ #    end
 
       # # Here we add reified ID's for higher taxa in which cached != cached_original_combination (e.g., TaxonName stores both Lamotialnina and Lamotialnini so needs a reified ID)
       # if t.cached_original_combination.present? && t.is_family_rank? && t.has_alternate_original? # t.cached != t.cached_original_combination
@@ -592,19 +690,21 @@ module Export::Coldp::Files::Name
 
       basionym_id = nil if @skipped_name_ids.include?(basionym_id)
 
+      uninomial = t.cached if t.rank == 'genus'
+
       # Set is: no original combination OR (valid or invalid higher, valid lower, past combinations)
       #    if t.cached_original_combination.blank? || higher || t.is_valid? || t.is_combination?
       csv << [
         t.id,                                                               # ID
         basionym_id,                                                        # basionymID
-        name_string,                                                        # scientificName  # should just be t.cached
+        t.cached,                                                           # scientificName  # should just be t.cached
         t.cached_author_year,                                               # authorship
-        rank,                                                               # rank
+        t.rank,                                                             # rank
         uninomial,                                                          # uninomial   <- if genus here
-        generic_epithet,                                                    # genus and below - IIF species or lower
-        infrageneric_epithet,                                               # infragenericEpithet (subgenus)
-        specific_epithet,                                                   # specificEpithet
-        infraspecific_epithet,                                              # infraspecificEpithet
+        t.genus,                                                            # genus and below - IIF species or lower # TODO: confirm this is OK now
+        t.subgenus,                                                         # infragenericEpithet (subgenus)
+        t.species,                                                          # specificEpithet
+        t.infraspecies,                                                     # infraspecificEpithet
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
         t.year_of_publication,                                              # publishedInYear
@@ -615,7 +715,6 @@ module Export::Coldp::Files::Name
         Export::Coldp.modified(t[:updated_at]),                             # modified
         Export::Coldp.modified_by(t[:updated_by_id], project_members)       # modifiedBy
       ]
-      #    end
 
       Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
     end

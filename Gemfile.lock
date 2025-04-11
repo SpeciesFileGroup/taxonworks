@@ -124,6 +124,7 @@ GEM
       public_suffix (>= 2.0.2, < 7.0)
     afm (0.2.2)
     amazing_print (1.7.2)
+    anbt-sql-formatter (0.1.2)
     asciidoctor (2.0.23)
     ast (2.4.3)
     babel-source (5.8.35)
@@ -447,6 +448,9 @@ GEM
       activerecord (>= 6.0)
     pp (0.6.2)
       prettyprint
+    pp_sql (2.1.0)
+      activerecord
+      anbt-sql-formatter (~> 0.1.0)
     prawn (2.5.0)
       matrix (~> 0.4)
       pdf-core (~> 0.10.0)
@@ -857,6 +861,7 @@ DEPENDENCIES
   pdf-reader (~> 2.2)
   pg (~> 1.1)
   postgresql_cursor (~> 0.6.1)
+  pp_sql
   prawn (~> 2.5.0)
   psych (~> 5.1)
   puma (~> 6.3)

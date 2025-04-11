@@ -1,3 +1,9 @@
+
+# Conceptually there are 2 aspects of building @taxonomy
+# 1) The higher, monomial names
+# 2) The elements of the scientificNamm.
+#
+#
 module Shared::Taxonomy
   extend ActiveSupport::Concern
 
@@ -26,8 +32,8 @@ module Shared::Taxonomy
     # Currently based on full_name_hash format
     #   TODO: simplify from fnh
     #     * See Nodes experiment with text_tree
-    # @taxonomy.<rank> should return the name at that rank if any 
-    # 
+    # @taxonomy.<rank> should return the name at that rank if any
+    #
     attr_accessor :taxonomy
 
     # @params reset [Boolean]
@@ -66,14 +72,14 @@ module Shared::Taxonomy
             # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
             a ||= type_materials.primary.first&.protonym
           when 'Otu'
-            if taxon_name 
+            if taxon_name
               if taxon_name.cached_is_valid
                 taxon_name
               else
                 taxon_name.valid_taxon_name
               end
             end
-            
+
           when 'AssertedDistribution'
 
             # TODO: this is faster, but needs spec confirmation

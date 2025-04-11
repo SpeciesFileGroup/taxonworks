@@ -16,13 +16,13 @@ class TaxonNameClassification::Latinized::Gender < TaxonNameClassification::Lati
 
   def set_cached_names_for_taxon_names
     t = taxon_name
-    t.update_column(:cached_gender, classification_label.downcase)
+    t.update_columns(cached_gender: classification_label.downcase)
 
     t.descendants.unscope(:order).with_same_cached_valid_id.each do |t1|
       n = t1.get_full_name
       t1.update_columns(
         cached: n,
-        cached_html: t1.get_full_name_html(n)
+        cached_html: t1.get_full_name_html(n),
       )
     end
 

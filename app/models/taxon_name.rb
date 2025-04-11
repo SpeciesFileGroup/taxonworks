@@ -132,7 +132,7 @@
 #
 # @!cached_gender
 #   @return [String, nil]
-#     applicable to genus group names only!
+#     applicable to genus group names only!!!
 #     one of 'masculine', 'feminine', neuter'
 #
 # @!cached_is_available
@@ -332,6 +332,7 @@ class TaxonName < ApplicationRecord
   has_many :classified_as_unavailable_or_invalid, -> { where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID) }, class_name: 'TaxonNameClassification'
 
   # Combinations are rankless, but we need this scope here for generic returns
+  # In small batches ordering in memory is likely more efficient.
   scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
 
   scope :with_same_cached_valid_id, -> { where(arel_table[:id].eq(arel_table[:cached_valid_taxon_name_id])) }
@@ -339,6 +340,13 @@ class TaxonName < ApplicationRecord
 
   scope :that_is_valid, -> {where(cached_is_valid: true) }
   scope :that_is_invalid, -> {where(cached_is_valid: false) }
+
+  # @params names Array of Protonym, Hybrid
+  #   orders them from Root to tip.
+  def self.rank_order(names)
+    # There is an edge-case where Combination is converting to Protonym in which there is no rank_class.
+    names.sort_by{|a| RANKS.index(a.rank_class.to_s) || 999}
+  end
 
   def self.calculated_invalid
     a = TaxonName.with_different_cached_valid_id # that_is_invalid
@@ -831,13 +839,6 @@ class TaxonName < ApplicationRecord
     taxon_name_classifications.with_type_base('TaxonNameClassification::Latinized::Gender').first
   end
 
-  # TODO: this is cached_gender_name now, deprecate
-  # @return [String, nil]
-  #    gender (feminine, masculine, neuter) as a string (only applicable to Genera)
-  def gender_name
-    gender_instance.try(:classification_label).try(:downcase)
-  end
-
   # @return [Class]
   #   part of speech of a species as class.
   def part_of_speech_class
@@ -1057,7 +1058,7 @@ class TaxonName < ApplicationRecord
   #   true if this name has a TaxonNameClassification of not_binominal
   # Only applicable to ICN names!
   def not_binominal?
-    # return false unless rank_string =~  /::Icn::/ # don't make costly check! TODO: interwined with TNC 
+    # return false unless rank_string =~  /::Icn::/ # don't make costly check! TODO: interwined with TNC
     taxon_name_classifications.with_type_contains('NonBinominal').any?
   end
 
@@ -1333,7 +1334,7 @@ class TaxonName < ApplicationRecord
 
     safe_self_and_ancestors.each do |i|
       rank = i.rank
-      gender = i.cached_gender if rank == 'genus' # gender_name
+      gender = i.cached_gender if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)
     end
@@ -1637,17 +1638,24 @@ class TaxonName < ApplicationRecord
     @result
   end
 
+  # @param undecorated_name String
+  #   required
+  #
   # @return String
   #   name is `full_name` in TaxonWorks, a string
   #
-  # Gathers the metdata required to htmlize and decorate the name.
+  # A slim wrapper around the decorator.
   #
-  # You should pass name if possible, rather than regenerating with the default.
-  # 
+  # Gathers the metdata required to htmlize and decorate the name. This method
+  # is only and always used to set cached values, those values are
+  # related to the use of get_full_name, therefor we always have a name to start with
+  # and decorate.
+  #
   # TODO: spawn for each class, combination etc. so that we don't include settings that don't apply.
-  def get_full_name_html(name = get_full_name)
+  #
+  def get_full_name_html(undecorated_name = nil)
     ::Utilities::Nomenclature.htmlize(
-      name,
+      undecorated_name,
       italicized: is_italicized?,
       hybrid: is_hybrid?,
       fossil: is_fossil?,
@@ -1828,11 +1836,13 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # TODO: Split and move components to Combination
   def sv_incomplete_combination
     soft_validations.add(:base, 'The genus in the combination is not specified') if !cached.nil? && cached.include?('GENUS NOT SPECIFIED')
     soft_validations.add(:base, 'The species in the combination is not specified') if !cached.nil? && cached.include?('SPECIES NOT SPECIFIED')
     soft_validations.add(:base, 'The variety in the combination is not specified') if !cached.nil? && cached.include?('VARIETY NOT SPECIFIED')
     soft_validations.add(:base, 'The form in the combination is not specified') if !cached.nil? && cached.include?('FORM NOT SPECIFIED')
+
     soft_validations.add(:base, 'The genus in the original combination is not specified') if !cached_original_combination.nil? && cached_original_combination.include?('GENUS NOT SPECIFIED')
     soft_validations.add(:base, 'The species in the original combination is not specified') if !cached_original_combination.nil? && cached_original_combination.include?('SPECIES NOT SPECIFIED')
   end

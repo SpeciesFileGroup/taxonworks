@@ -201,7 +201,7 @@ module TaxonNamesHelper
 
   def taxon_name_gender_sentence_tag(taxon_name)
     return nil if taxon_name.nil?
-    "The name is #{taxon_name.gender_name}." if taxon_name.gender_name
+    "The name is #{taxon_name.cached_gender}." if taxon_name.cached_gender
   end
 
   def cached_classified_as_tag(taxon_name)

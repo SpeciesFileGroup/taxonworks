@@ -219,6 +219,7 @@ class TaxonNameClassification < ApplicationRecord
           end
 
         elsif type_name =~ /Latinized::Gender/
+          # Handled in subclasses
           raise
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
           vn = t.get_valid_taxon_name

@@ -61,6 +61,8 @@ class Combination < TaxonName
     hsh[r] = "TaxonNameRelationship::Combination::#{r.capitalize}"; hsh;
   }.freeze
 
+  INVERTED_RANKS = APPLICABLE_RANKS.dup.invert.freeze
+
   before_validation :set_parent
 
   # Before we set cached ensure we draw current data
@@ -162,6 +164,9 @@ class Combination < TaxonName
     includes(:combination_relationships).
     where('taxon_name_relationships.type = ? and taxon_name_relationships.subject_taxon_name_id = ?', rank, protonym).
     references(:combination_relationships)}
+
+  scope :incomplete, -> { where("taxon_names.cached LIKE '%NOT SPECIFIED%'") }
+  scope :complete, -> { where("taxon_names.cached IS NOT null AND taxon_names.cached NOT LIKE '%NOT SPECIFIED%'") }
 
   validate :is_unique
   validate :does_not_exist_as_original_combination, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' }
@@ -330,13 +335,15 @@ class Combination < TaxonName
     gender = nil
     data = {}
 
-    protonyms_by_rank.each do |rank, i|
-      gender = i.gender_name if rank == 'genus'
+    light_protonyms_by_rank.each do |rank, i|
+      gender = i.cached_gender if rank == 'genus'
 
+      v = i.genderized_elements(gender)
       if ['genus', 'subgenus', 'species', 'subspecies'].include?(rank)
-        data[rank] = [nil, i.name_with_misspelling(gender)]
+        data[rank] = v #  [nil, i.name_with_misspelling(gender)]
       else
-        data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
+        v[0] = i.rank_class.abbreviation
+        data[rank] = v
       end
     end
 
@@ -377,27 +384,71 @@ class Combination < TaxonName
     end
   end
 
-  # @return [Hash of {rank: Protonym}, nil]
+  # An experimental approach to return all required information to format the 
+  # scientific name via a single query. Not in use.  Potentially 
+  # scalable to table rendering in a performant way.
+  def protonyms_flat
+    s = []
+    TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES.select{|n| !(n =~ /Family/)}.each do |rank, t|
+      s.push "MAX(name) FILTER (WHERE rt = '#{t}') AS #{rank},
+              MAX(cached_gender) FILTER (WHERE rt = '#{t}') AS #{rank}_gender,
+              MAX(neuter_name) FILTER (WHERE rt = '#{t}') AS #{rank}_neuter,
+              MAX(masculine_name) FILTER (WHERE rt =  '#{t}') AS #{rank}_masculine,
+              MAX(feminine_name) FILTER (WHERE rt = '#{t}') AS #{rank}_feminine"
+    end
+
+    a = Protonym
+      .joins(:combination_relationships)
+      .where(taxon_name_relationships: {
+        object_taxon_name_id: id
+      }   )
+        .select(:id,  :name, :cached_gender, :neuter_name, :masculine_name, :feminine_name, 'taxon_name_relationships.type as rt')
+
+      Protonym.with(filtered: a).select(s.join(',')).from('filtered').unscope(:where)[0]
+  end
+
+  # @return [Hash of {rank: Protonym}, {}]
   #  the component names for this combination, sorted in order
-  #   _prior to it being saved_
+  #
   def protonyms_by_rank
-    result = {}
     if persisted?
       ar = APPLICABLE_RANKS.values
-      # nX fewer calls to database than send()
+
       @protonyms_by_rank ||= TaxonNameRelationship::Combination
         .where(object_taxon_name: self)
         .eager_load(:subject_taxon_name)
         .sort{|a,b| ar.index(a.type) <=> ar.index(b.type)}
-        .inject({}) {|hsh,n| hsh[n.rank_name] = n.subject_taxon_name; hsh}
+        .inject({}){|hsh,n| hsh[n.rank_name] = n.subject_taxon_name; hsh}
         .to_h
     else
+      result = {}
       APPLICABLE_RANKS.keys.each do |rank|
         if protonym = send(rank.to_sym)
           result[rank] = protonym
         end
       end
       @protonyms_by_rank = result
+    end
+    @protonyms_by_rank
+  end
+
+  def light_protonyms_by_rank
+    if persisted?
+      ar = APPLICABLE_RANKS.values
+      @protonyms_by_rank ||= Protonym.joins(:combinations)
+        .where(taxon_name_relationships: {object_taxon_name_id: id })
+        .select(
+          :id, :name, :type, :rank_class, :verbatim_author, :year_of_publication,
+          :verbatim_name,
+          :neuter_name, :masculine_name, :feminine_name,
+          :cached_gender, :cached_misspelling,
+          :cached_valid_taxon_name_id,
+          'taxon_name_relationships.type tnr_type')
+        .sort{|a,b| ar.index(a.tnr_type) <=> ar.index(b.tnr_type)}
+        .inject({}){|hsh,n| hsh[ INVERTED_RANKS[n.tnr_type] ] = n; hsh}
+        .to_h
+    else
+      protonyms_by_rank
     end
 
     @protonyms_by_rank
@@ -580,7 +631,7 @@ class Combination < TaxonName
         cached_nomenclature_date != nomenclature_date)
       is_cached = false
     end
-    
+
     soft_validations.add(
       :base, 'Cached values should be updated',
       success_message: 'Cached values were updated',

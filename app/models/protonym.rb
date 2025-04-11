@@ -75,8 +75,10 @@ class Protonym < TaxonName
   }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
 
   has_many :combinations, through: :combination_relationships, source: :object_taxon_name
-
   has_many :type_materials, class_name: 'TypeMaterial', inverse_of: :protonym
+
+  scope :with_incomplete_original_combination, -> { where("taxon_names.cached_original_combination LIKE '%NOT SPECIFIED%'") }
+  scope :with_complete_original_combination, -> { where("taxon_names.cached_original_combination IS NOT null AND cached_original_combination NOT LIKE '%NOT SPECIFIED%'") }
 
   # Dynamically define relations based the model metadata
   TaxonNameRelationship.descendants.each do |d|
@@ -773,7 +775,7 @@ class Protonym < TaxonName
 
     genus = r.select{|r| r.type =~ /Genus/}.first&.subject_taxon_name # This is the original genus
 
-    gender = genus&.cached_gender # &.gender_name
+    gender = genus&.cached_gender
 
     # Apply gender to everything but the last
     total = r.count - 1
@@ -788,15 +790,17 @@ class Protonym < TaxonName
       elements.merge! j.combination_name(g) # this is like '{genus: [nil, 'Aus']}
     end
 
-    # TODO: We apparently have no specs testing the need from here...
+    # TODO: Confirm specific tests exist for this block.
 
     # Plug in self if self referencing OriginalCombination is not present (we do not require it).
     if r.last.subject_taxon_name.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id # hella expensive
 
       if elements[this_rank].nil?
-        v = [nil]
-        v.push
-        elements[this_rank] = [nil , original_name] # WRONG, original name is like 'name [sic]', and we need [sic], removed
+        n = verbatim_name.nil? ? name : verbatim_name
+        n = "(#{n})" if n && rank_name == 'subgenus'
+        v = [nil, n] # It is never genderized
+        v.push misspelling_tag if cached_misspelling
+        elements[this_rank] = v
       end
     end
 
@@ -811,8 +815,6 @@ class Protonym < TaxonName
       # If there is no :species, but some species group, add element
       elements[:species] = [nil, '[SPECIES NOT SPECIFIED]'] if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
     end
-
-    # ... to here
 
     @original_combination_elements = elements
   end
@@ -916,8 +918,8 @@ class Protonym < TaxonName
         j.update_columns(
           cached: n,
           cached_html: j.get_full_name_html(n),
-          cached_author_year: j.get_author_and_year, # !! Only if it changed?
-          cached_nomenclature_date: j.nomenclature_date) ## Only if it changed?
+          cached_author_year: j.get_author_and_year,     # !! Only if it changed?
+          cached_nomenclature_date: j.nomenclature_date) # !! Only if it changed?
       end
 
       classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
@@ -929,7 +931,7 @@ class Protonym < TaxonName
         n = i.get_full_name
         i.update_columns(
           cached: n,
-          cached_html: i.get_full_name_html(n), 
+          cached_html: i.get_full_name_html(n),
           cached_author_year: i.get_author_and_year,
           cached_nomenclature_date: i.nomenclature_date)
       end
@@ -1079,11 +1081,17 @@ class Protonym < TaxonName
   is_cached = false if cached_author_year != get_author_and_year
   is_cached = false if cached_author != get_author
 
+  n = get_full_name
+
+  # TODO: missing `cached_gender`
+  # TODO: missing `cached` ?!
+
   # Right side values should call methods that calculate from the db
   if is_cached && (
       cached_valid_taxon_name_id != get_valid_taxon_name.id ||
       cached_is_valid != !unavailable_or_invalid? ||
-      cached_html != get_full_name_html ||
+      cached_is_available != get_is_available ||
+      cached_html != get_full_name_html(n) ||
       cached_misspelling != get_cached_misspelling ||
       cached_original_combination != get_original_combination ||
       cached_original_combination_html != get_original_combination_html ||
@@ -1119,7 +1127,7 @@ class Protonym < TaxonName
       # Here we start to calculate off of what was previously set
       tn = TaxonName.find(id) # Why not "reload" (maybe OK with re-initialize)
       set_cached_names_for_descendants if tn.cached != old_cached
-      set_cached_names_for_dependants if  tn.cached.to_s != old_cached || tn.cached_author_year.to_s != old_cached_author_year
+      set_cached_names_for_dependants if tn.cached.to_s != old_cached || tn.cached_author_year.to_s != old_cached_author_year
     end
     true
   end
@@ -1139,7 +1147,6 @@ class Protonym < TaxonName
   end
 
   def set_cached_original_combination
-    #  byebug if name == 'aus'
     update_column(:cached_original_combination, get_original_combination)
   end
 

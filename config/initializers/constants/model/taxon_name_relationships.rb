@@ -126,7 +126,6 @@
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling}.freeze
 
-
       TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY ||= %w{
       TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling

@@ -8,21 +8,13 @@ module Protonym::Format
   module ClassMethods
   end
 
-  # !! TODO: Higher classification does not follow the same pattern
-  # !! TODO: when name is a subgenus will not grab genus (still true?)
-  #
-  #
-  # Conceptually there are 2 objects required to build @taxonomy,
-  # one for the scientific name, the other for the higher taxa.
-  # These need to be kept seperately in terms of optimizing
-  # queries, or at least isolatable if combined.
   #
   # This method covers scientific name, gathering all string
-  # elements, including 'sic' etc., and pointing to them
-  # by rank. It therefor sits between model/helper.
+  # elements, including '[sic]' and pointing to them
+  # by rank.
   #
   # @!return [ { rank => [prefix, name] } ]
-  #    for genus and below:
+  #    for ALL names
   #
   # @taxon_name.full_name_hash # =>
   #      { "family' => 'Gidae',
@@ -30,39 +22,44 @@ module Protonym::Format
   #        "subgenus" => [nil, "Aus"],
   #        "section" => ["sect.", "Aus"],
   #        "series" => ["ser.", "Aus"],
-  #        "species" => [nil, "aaa"],
+  #        "species" => [nil, "aaa", '[sic]'],
   #        "subspecies" => [nil, "bbb"],
   #        "variety" => ["var.", "ccc"]}
-  #
-  #        # TODO: document 'sic', it should be third placement
   #
   def full_name_hash
     gender = nil
     data = {}
 
-    # We shouldn't need safe here, this is after writing
-    # We also don't require ordering
-    self_and_ancestors.unscope(:order).each do |i|
-      # safe_self_and_ancestors.each do |i|
+    # Faster to sort in memory.
+    r = TaxonName.rank_order(
+      self_and_ancestors.unscope(:order)
+    )
+
+    # In the first pass we build out the known vectors
+    r.each do |i|
       rank = i.rank
+
+      # Sort order is critical, we need to hit genus before
+      # species name to set a gender constant.
       gender = i.cached_gender if rank == 'genus'
 
       if i.is_genus_or_species_rank?
         if ['genus', 'subgenus', 'species', 'subspecies'].include?(rank) && rank_string =~ /Iczn/
-
-          data[rank] = [nil, i.name_with_misspelling(gender)]
-
+          data[rank] = i.genderized_elements(gender)
         elsif ['genus', 'subgenus', 'species'].include?(rank)
-          data[rank] = [nil, i.name_with_misspelling(gender)]
+          data[rank] = i.genderized_elements(gender)
         else
-          data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
+          v = i.genderized_elements(gender)
+          v[0] = i.rank_class.abbreviation
+          data[rank] = v
         end
       else
         data[rank] = i.name
       end
     end
 
-    # Only check for these ranks
+    # In the second pass we populate gaps where we can infer them,
+    # for rendering purposes.
     if TaxonName::COMBINATION_ELEMENTS.include?(rank.to_sym)
       if data['genus'].nil?
         if original_genus
@@ -84,6 +81,7 @@ module Protonym::Format
         data['form'] = [nil, '[FORM NOT SPECIFIED]']
       end
     end
+
     data
   end
 
@@ -94,9 +92,17 @@ module Protonym::Format
   #  !! Combination has its own version now.
   #
   def get_full_name
-    return name_with_misspelling(nil) if !is_genus_or_species_rank?
+    # TODO: eliminate these for full_name_hash
+    return [name, (cached_misspelling? ? misspelling_tag : nil)].compact.join(' ') if !is_genus_or_species_rank?
     return name if rank_class.to_s =~ /Icvcn/
-    ::Utilities::Nomenclature.full_name(full_name_hash, rank: rank_name, non_binomial: not_binominal? )
+
+    # Technically we don't always want/need full_name_hash, as it gives us
+    # all ancestors.
+    ::Utilities::Nomenclature.full_name(
+      full_name_hash,
+      rank: rank_name,
+      non_binomial: not_binominal?
+    )
   end
 
   def get_original_combination
@@ -104,16 +110,12 @@ module Protonym::Format
     e = original_combination_elements
     return nil if e.none?
 
-    # Weird, why?
-    # DD: in ICVCN the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
-    #
-    # @proceps: then we should exclude or alter elements before we get to this point, not here, so that the renderer still works, exceptions at this point are bad
-    # and this didn't do what you think it did, it's was returning an Array of two things
+    # TODO: try to catch this before we hit it here.
+    # In ICVCN the species name is "Potato spindle tuber viroid", the genus name is only used for classification
     return e[:species][1] if rank_class.to_s =~ /Icvcn/
 
-    p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
-
-    s = p.flatten.compact.join(' ')
+    # Order the results.
+    s = TaxonName::COMBINATION_ELEMENTS.collect{|k| e[k]}.flatten.compact.join(' ')
     @_cached_build_state[:original_combination] = s.presence
   end
 
@@ -142,28 +144,19 @@ module Protonym::Format
     v
   end
 
-  # @return [String]
-  #   TODO: does this form of the name contain parens for subgenus?
-  #   TODO: don't use this when [nil, name, 'sic'] is expected
-  #   TODO: provide a default to gender (but do NOT eliminate param)
-  #   TODO: on third thought- eliminate this mess
-  #
-  def name_with_misspelling(gender)
-    if cached_misspelling
-      name_in_gender(gender) + ' ' + misspelling_tag
-    elsif gender.nil? || rank_string =~ /Genus/
-      name
-    else
-      name_in_gender(gender)
-    end
-  end
+  # @return a vector
+  #   nil, name, [sic]
+  def genderized_elements(gender)
+    n = genderized_name(gender)
 
-  def misspelling_tag
-    if rank_string =~ /Icnp/
-      '(sic)'
-    else
-      '[sic]'
+    if n.blank?
+      n = verbatim_name.nil? ? name : verbatim_name
     end
+
+    #  n = "(#{n})" if n && rank_name == 'subgenus'
+    v = [nil, n]
+    v.push misspelling_tag if cached_misspelling
+    v
   end
 
   # @return [String, nil]
@@ -173,14 +166,6 @@ module Protonym::Format
     else
       name_in_gender(gender)
     end
-  end
-
-  # @return [String, nil]
-  #    a monominal, as originally rendered, with parens if subgenus, and '[sic]' (bad!) if misspelled
-  def original_name
-    n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
-    n = "(#{n})" if n && rank_name == 'subgenus'
-    n
   end
 
   # @param gender, String
@@ -200,5 +185,12 @@ module Protonym::Format
     n.presence || name
   end
 
-  private
+  def misspelling_tag
+    if rank_string =~ /Icnp/
+      '(sic)'
+    else
+      '[sic]'
+    end
+  end
+
 end

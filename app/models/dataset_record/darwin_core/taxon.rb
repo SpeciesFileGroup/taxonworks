@@ -430,7 +430,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
             if oc_dataset_record_id != self.id &&
               taxon_name.is_species_rank? &&
-              taxon_name.ancestor_at_rank('genus').gender_name
+              taxon_name.ancestor_at_rank('genus').cached_gender
 
               oc_name = import_dataset.core_records_fields
                             .where(dataset_record_id: oc_dataset_record_id)
