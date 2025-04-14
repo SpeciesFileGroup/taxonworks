@@ -19,6 +19,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
 - Content editor: Close modal is enable when nothing is selected [#4279]
 - Radials from facets side are enabled when no filters are active [#4281]
+- Some identifiers are missing on DwC otherCatalogNumbers column
+- Identifiers cached is empty in CSV table
 
 [#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
