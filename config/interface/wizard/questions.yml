@@ -33,21 +33,6 @@
 #   
 #
 ---
-  -
-    question: 'Do you use the orange help in the user interface?'
-    type: :position 
-    yes_level: :intermediate
-    no_level: :novice
-    tasks: 
-     data: 
-  - 
-    question: 'Are you student?'
-    type: :position
-    yes_level: :intermediate
-    no_level: :intermediate
-  - 
-    question: 'Do you work with plants?'
-    type: :subject
   - 
     question: 'Do you work with specimens?'
     type: :subject
@@ -55,7 +40,66 @@
       - collection_object
     data:
       - collection_object
-
+  -
+    question: 'Do you use the orange help in the user interface?'
+    type: :position 
+    yes_level: :intermediate
+    no_level: :novice
+    categories: 
+    tasks:
+      - some_specific_task_name
+    data:
+      - otu
+      - taxon_name
+    docs: 
+      - 
+        link: url
+        label: "Some label"
+      - 
+        link: url
+        label: "Some label"
+  - 
+    question: 'Are you a student?'
+    type: :position
+    yes_level: :intermediate
+    no_level: :intermediate
+  - 
+    question: 'Are you a website expert?'
+    type: :position
+    yes_level: :intermediate
+    no_level: :novice
+  - 
+    question: 'Are you currently managing a team of people?'
+    type: :position
+    yes_level: :intermediate
+    no_level: 
+  - 
+    question: 'Do you work with plants?'
+    type: :subject
+ - 
+    question: 'Do you manage genetic data?'
+    type: :dna
+ - 
+    question: 'Do you know where to find data in Taxonworks?'
+    type: :actions
+    yes_level: :intermediate
+    no_level: :intermediate
+  - 
+    question: 'Do you know how to favorite objects?'
+    type: :actions
+    yes_level: :intermediate
+    no_level: :intermediate
+  - 
+    question: 'Are you looking to work with collection objects?'
+    type: :goals
+    tasks:
+      - otu
+  - 
+    question: 'Are you looking to create tasks?'
+    type: :goals
+    tasks:
+      - new
+      
 
 
 
