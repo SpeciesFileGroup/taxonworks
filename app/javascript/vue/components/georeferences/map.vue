@@ -448,7 +448,7 @@ const generateHue = (index) => {
 }
 
 const randomShapeStyle = (index) => ({
-  weight: 1,
+  weight: 2,
   color: generateHue(index + 6),
   dashArray: '3',
   dashOffset: '3',
