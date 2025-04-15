@@ -22,11 +22,30 @@
     <NavBar class="source-navbar">
       <div class="flex-separate full_width">
         <div class="middle gap-small">
-          <span
-            v-if="source.id"
-            class="word_break"
-            v-html="source.cached"
-          />
+          <template v-if="source.id">
+            <span
+              class="word_break"
+              v-html="source.cached"
+            />
+
+            <div
+              class="horizontal-right-content gap-small"
+              v-if="source.id"
+            >
+              <CitationTotal :source-id="source.id" />
+              <VPin
+                class="circle-button"
+                type="Source"
+                :object-id="source.id"
+              />
+              <AddSource
+                :project-source-id="source.project_source_id"
+                :id="source.id"
+              />
+              <RadialAnnotator :global-id="source.global_id" />
+              <RadialObject :global-id="source.global_id" />
+            </div>
+          </template>
           <span v-else>New record</span>
         </div>
         <div class="nav__buttons gap-small">
@@ -87,23 +106,6 @@
         <template #header>
           <div class="flex-separate middle full_width">
             <h3>Source</h3>
-
-            <div
-              class="horizontal-right-content gap-small"
-              v-if="source.id"
-            >
-              <VPin
-                class="circle-button"
-                type="Source"
-                :object-id="source.id"
-              />
-              <AddSource
-                :project-source-id="source.project_source_id"
-                :id="source.id"
-              />
-              <RadialAnnotator :global-id="source.global_id" />
-              <RadialObject :global-id="source.global_id" />
-            </div>
           </div>
         </template>
         <template #body>
@@ -158,6 +160,7 @@ import AddSource from '@/components/ui/Button/ButtonAddToProjectSource'
 import CloneSource from './components/cloneSource'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
+import CitationTotal from './components/CitationTotal.vue'
 
 import VRecent from './components/recent.vue'
 import PanelSearch from './components/PanelSearch.vue'

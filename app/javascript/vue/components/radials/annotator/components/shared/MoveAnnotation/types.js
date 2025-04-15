@@ -2,27 +2,34 @@ import {
   OTU,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
+  FIELD_OCCURRENCE,
   TAXON_NAME,
   PERSON,
   CITATION,
-  DEPICTION
+  DEPICTION,
+  CONVEYANCE
 } from '@/constants'
 
 export const OBJECT_TYPES = {
   [OTU]: {
     label: 'Otu',
     url: '/otus/autocomplete',
-    annotations: [CITATION, DEPICTION]
+    annotations: [CITATION, DEPICTION, CONVEYANCE]
   },
   [COLLECTING_EVENT]: {
     label: 'Collecting event',
     url: '/collecting_events/autocomplete',
-    annotations: [CITATION, DEPICTION]
+    annotations: [CITATION, DEPICTION, CONVEYANCE]
   },
   [COLLECTION_OBJECT]: {
     label: 'Collection object',
     url: '/collection_objects/autocomplete',
-    annotations: [CITATION, DEPICTION]
+    annotations: [CITATION, DEPICTION, CONVEYANCE]
+  },
+  [FIELD_OCCURRENCE]: {
+    label: 'Field occurrence',
+    url: '/field_occurrences/autocomplete',
+    annotations: [CITATION, DEPICTION, CONVEYANCE]
   },
   [TAXON_NAME]: {
     label: 'Taxon name',

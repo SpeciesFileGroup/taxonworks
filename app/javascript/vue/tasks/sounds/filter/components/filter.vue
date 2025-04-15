@@ -3,6 +3,7 @@
   <FacetOtu
     v-model="params"
     :target="SOUND"
+    :includes="['otus', 'collection_objects', 'field_occurrences']"
   />
   <FacetConveyanceObjectType v-model="params" />
   <FacetCollectingEvent v-model="params" />

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="overflow-x-auto">
     <h2>Catalog number</h2>
     <div class="flex-wrap-column middle align-start full_width">
       <div class="separate-right full_width">

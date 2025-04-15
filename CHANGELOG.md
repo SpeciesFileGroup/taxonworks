@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Radial annotator and navigator to role picker list
 - CSD: Highlight header bar when DwC re-index is pending [#4275]
+- New source task: Citations count [#4237]
 
 ### Fixed
 
@@ -18,7 +19,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
 - Content editor: Close modal is enable when nothing is selected [#4279]
 - Radials from facets side are enabled when no filters are active [#4281]
+- Some identifiers are missing on DwC otherCatalogNumbers column
+- Identifiers cached is empty in CSV table
 
+[#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
 [#4275]: https://github.com/SpeciesFileGroup/taxonworks/issues/4275
 [#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
