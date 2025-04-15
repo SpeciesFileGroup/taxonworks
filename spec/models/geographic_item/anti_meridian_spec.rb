@@ -568,7 +568,7 @@ describe GeographicItem, type: :model, group: :geo do
         # we only need to test one.
         let(:gmaps_wkt) {
           # Note POLYGON here, not MULTIPOLYGON
-          'POLYGON (((140 40, 140 70, -140 70, -140 40, 140 40)))'
+          'POLYGON ((140 40, 140 70, -140 70, -140 40, 140 40))'
           # ST_SHIFTs to (140 40, 140 70, 220 70, 220 40, 140 40)
         }
 
