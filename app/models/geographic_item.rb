@@ -146,6 +146,18 @@ class GeographicItem < ApplicationRecord
       )
     end
 
+    # Only called when shape crosses the anti-meridian
+    # !! shape must be pre-shifted to longitude-range (0, 360) !!
+    def subset_of_shifted_anti_meridian_shape_sql(shape)
+      st_covered_by_sql(
+        # All database geographic_items are (!! should be !!) stored in our
+        # Gis::FACTORY-enforced longitude range (-180, 180), so always need to
+        # be shifted in this case to the range (0, 360).
+        st_shift_longitude_sql(geography_as_geometry),
+        shape
+      )
+    end
+
     # Note: !! If the target GeographicItem#id crosses the anti-meridian then
     # you may/will get unexpected results.
     def subset_of_union_of_sql(*geographic_item_ids)
@@ -422,6 +434,24 @@ class GeographicItem < ApplicationRecord
       )
     end
 
+    # @param [String] wkt
+    # @param [Integer] buffer distance
+    # @return [Boolean]
+    #   whether or not the radius-buffer of wkt-point intersects the
+    #   anti-meridian
+    def buffer_crosses_anti_meridian?(wkt, distance)
+      wkt = quote_string(wkt)
+      select_value(
+        st_intersects_sql(
+          st_buffer_sql(
+            st_geography_from_text_sql(wkt),
+            distance
+          ),
+          st_geography_from_text_sql(ANTI_MERIDIAN)
+        )
+      )
+    end
+
     # Unused, kept for reference
     # @param [Integer] ids
     # @return [Boolean]
@@ -535,15 +565,26 @@ class GeographicItem < ApplicationRecord
     #   wkt
     def within_radius_of_wkt_sql(wkt, distance)
       wkt = quote_string(wkt)
-      # TODO: this is *not* anti-meridian aware. If the buffer intersects the
-      # anti-meridian then longitude shifts may be required to get the correct
-      # result.
-      subset_of_sql(
-        st_buffer_sql(
-          st_geography_from_text_sql(wkt),
-          distance
+
+      if buffer_crosses_anti_meridian?(wkt, distance)
+        subset_of_shifted_anti_meridian_shape_sql(
+          # st_buffer_sql always has longitudes in (-180, 180) in this case, so
+          # shift to (0, 360)
+          st_shift_longitude_sql(
+            st_buffer_sql(
+              st_geography_from_text_sql(wkt),
+              distance
+            )
+          )
         )
-      )
+      else
+        subset_of_sql(
+          st_buffer_sql(
+            st_geography_from_text_sql(wkt),
+            distance
+          )
+        )
+      end
     end
 
     # @param [Integer, Array of Integer] geographic_item_ids
@@ -576,32 +617,17 @@ class GeographicItem < ApplicationRecord
       end
     end
 
-    # @params [String] well known text
-    # @return [NamedFunction] the SQL fragment for those geometric shapes
-    # covered by wkt
-    # Note: this routine is called when it is already known that wkt
-    # crosses anti-meridian
-    def covered_by_wkt_shifted_sql(wkt)
-      wkt = quote_string(wkt)
-
-      translate_longitudes = wkt_needs_longitude_translation(wkt)
-      wkt_geom = st_geom_from_text_sql(wkt)
-      st_covered_by_sql(
-        # All database geographic_items are (!! should be !!) stored in our
-        # Gis::FACTORY-enforced longitude range (-180, 180), so always need to
-        # be shifted in this case to the range (0, 360).
-        st_shift_longitude_sql(geography_as_geometry),
-        translate_longitudes ? st_shift_longitude_sql(wkt_geom) : wkt_geom
-      )
-    end
-
     # @params [String] wkt
     # @return [NamedFunction] SQL fragment limiting geographic items to those
     # covered by this WKT
     def covered_by_wkt_sql(wkt)
       wkt = quote_string(wkt)
       if crosses_anti_meridian?(wkt)
-        covered_by_wkt_shifted_sql(wkt)
+        translate_longitudes = wkt_needs_longitude_translation(wkt)
+        wkt_geom = st_geom_from_text_sql(wkt)
+        subset_of_shifted_anti_meridian_shape_sql(
+          translate_longitudes ? st_shift_longitude_sql(wkt_geom) : wkt_geom
+        )
       else
         subset_of_sql(
           st_geom_from_text_sql(wkt)

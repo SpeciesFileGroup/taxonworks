@@ -620,6 +620,22 @@ describe GeographicItem, type: :model, group: :geo do
             ::GeographicItem.covered_by_wkt_sql(gmaps_wkt)).pluck(:id)
           ).to contain_exactly(gi_side_one.id, gi_side_two.id, gi_two_sides.id)
         end
+
+        specify 'within_radius_of_wkt_sql 1' do
+          wkt = 'POINT (-179.99 50)'
+          radius = 40 * Utilities::Geo::ONE_WEST_MEAN # (overkill at this latitiude)
+          expect(::GeographicItem.where(
+            ::GeographicItem.within_radius_of_wkt_sql(wkt, radius)).pluck(:id)
+          ).to contain_exactly(gi_side_one.id, gi_side_two.id, gi_two_sides.id)
+        end
+
+        specify 'within_radius_of_wkt_sql 2' do
+          wkt = 'POINT (179.99 50)'
+          radius = 40 * Utilities::Geo::ONE_WEST_MEAN
+          expect(::GeographicItem.where(
+            ::GeographicItem.within_radius_of_wkt_sql(wkt, radius)).pluck(:id)
+          ).to contain_exactly(gi_side_one.id, gi_side_two.id, gi_two_sides.id)
+        end
       end
 
       context 'GeographicItem.split_along_anti_meridian(wkt)' do
