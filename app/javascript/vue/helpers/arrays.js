@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify'
+
 function chunkArray(arr, chunkSize) {
   const results = []
   const tmpArr = arr.slice()
@@ -42,10 +44,12 @@ function sortFunction(a, b, asc) {
       })
 }
 
-function sortArray(arr, sortProperty, ascending = true) {
+function sortArray(arr, sortProperty, ascending = true, opts = {}) {
   const list = arr.slice()
   const prop = String(sortProperty).split('.')
   const len = prop.length
+
+  const { stripHtml } = opts
 
   return list.sort((a, b) => {
     if (!sortProperty) return sortFunction(a, b, ascending)
@@ -57,6 +61,11 @@ function sortArray(arr, sortProperty, ascending = true) {
       if (b) {
         b = b[prop[i]]
       }
+    }
+
+    if (stripHtml) {
+      a = DOMPurify.sanitize(a, { USE_PROFILES: { html: false } })
+      b = DOMPurify.sanitize(b, { USE_PROFILES: { html: false } })
     }
 
     return sortFunction(a, b, ascending)

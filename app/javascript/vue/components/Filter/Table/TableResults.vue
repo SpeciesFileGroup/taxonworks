@@ -679,7 +679,10 @@ function getValue(item, property) {
 }
 
 function sortTable(sortProperty) {
-  emit('onSort', sortArray(props.list, sortProperty, ascending.value))
+  emit(
+    'onSort',
+    sortArray(props.list, sortProperty, ascending.value, { stripHtml: true })
+  )
   ascending.value = !ascending.value
 }
 

@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some identifiers are missing on DwC otherCatalogNumbers column
 - Identifiers cached is empty in CSV table
 - DwC importer creating sex biocuration group with an array as URI
+- Filters: Sorting alphabetically does not work correctly when values ​​are in HTML
 
 [#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
