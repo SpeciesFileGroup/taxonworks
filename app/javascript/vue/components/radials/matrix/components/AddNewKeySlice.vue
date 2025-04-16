@@ -14,7 +14,7 @@
       class="margin-large-top"
       color="create"
       medium
-      :disabled="!keyName.length"
+      :disabled="!keyName"
       @click="addToLead"
     >
       Create
@@ -25,10 +25,10 @@
       class="margin-medium-top"
     >
       <h3>Created</h3>
-      <a
-        :href="`${RouteNames.NewLead}?lead_id=${created.id}`"
-        >Edit: {{  }}</a
-      >
+      Edit
+      <a :href="`${RouteNames.NewLead}?lead_id=${created.id}`">
+        {{ created.text }}
+      </a>
     </div>
   </div>
 </template>

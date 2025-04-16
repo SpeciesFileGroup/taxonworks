@@ -57,6 +57,7 @@
 
     <VModal
       v-if="modalVisible"
+      @close="() => { modalVisible = false }"
       :container-style="{
         width: '80vw'
       }"
@@ -90,7 +91,6 @@ import { Lead } from '@/routes/endpoints'
 import { OTU } from '@/constants'
 import { ref } from 'vue'
 import { useStore } from '../store/useStore.js'
-import { check } from '@/components/ui/VIcon/icons'
 
 const props = defineProps({
   otuList: {

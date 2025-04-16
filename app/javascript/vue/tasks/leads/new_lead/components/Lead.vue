@@ -4,172 +4,173 @@
     full-screen
   />
 
-  <BlockLayout class="lead">
-    <template #header>
-      <div class="full_width header-left-right">
-        <div>
-          <VBtn
-            v-if="!positionIsFirst"
-            color="update"
-            circle
-            @click="() => changeLeadPosition(DIRECTIONS['left'])"
-            title="Move this lead left"
-          >
-            <VIcon
-              x-small
-              name="arrowLeft"
+  <div class="lead_and_lead_items">
+    <BlockLayout class="lead">
+      <template #header>
+        <div class="full_width header-left-right">
+          <div>
+            <VBtn
+              v-if="!positionIsFirst"
+              color="update"
+              circle
+              @click="() => changeLeadPosition(DIRECTIONS['left'])"
               title="Move this lead left"
-            />
-          </VBtn>
+            >
+              <VIcon
+                x-small
+                name="arrowLeft"
+                title="Move this lead left"
+              />
+            </VBtn>
 
-          <VBtn
-            v-if="!positionIsLast"
-            color="update"
-            circle
-            @click="() => changeLeadPosition(DIRECTIONS['right'])"
-            title="Move this lead right"
-          >
-            <VIcon
-              x-small
-              name="arrowRight"
+            <VBtn
+              v-if="!positionIsLast"
+              color="update"
+              circle
+              @click="() => changeLeadPosition(DIRECTIONS['right'])"
               title="Move this lead right"
-            />
+            >
+              <VIcon
+                x-small
+                name="arrowRight"
+                title="Move this lead right"
+              />
+            </VBtn>
+
+            <VBtn
+              v-if="store.children.length > 2"
+              color="destroy"
+              circle
+              @click="() => deleteSubTree()"
+            >
+              <VIcon
+                x-small
+                name="trash"
+              />
+            </VBtn>
+          </div>
+          <RadialAnnotator
+            :global-id="store.children[position].global_id"
+            @create="handleRadialCreate"
+            @delete="handleRadialDelete"
+            @update="handleRadialUpdate"
+          />
+        </div>
+      </template>
+
+      <template #body>
+        <div
+          v-if="!!store.last_saved.children[position].redirect_id"
+          class="redirect_notice"
+        >
+          <i>This side is currently redirecting, to add leads below remove the redirection.</i>
+        </div>
+        <div class="lead_navigation">
+          <VBtn
+            :disabled="nextButtonDisabled"
+            color="update"
+            medium
+            @click="nextCouplet()"
+          >
+            {{ editNextText }}
           </VBtn>
 
           <VBtn
-            v-if="store.children.length > 2"
-            color="destroy"
-            circle
-            @click="() => deleteSubTree()"
+            :disabled="!!store.last_saved.children[position].redirect_id || !leadHasChildren"
+            color="create"
+            medium
+            @click="insertCouplet()"
           >
-            <VIcon
-              x-small
-              name="trash"
-            />
+            Insert a couplet below
           </VBtn>
         </div>
-        <RadialAnnotator
-          :global-id="store.children[position].global_id"
-          @create="handleRadialCreate"
-          @delete="handleRadialDelete"
-          @update="handleRadialUpdate"
-        />
-      </div>
-    </template>
 
-    <template #body>
-      <div
-        v-if="!!store.last_saved.children[position].redirect_id"
-        class="redirect_notice"
-      >
-        <i>This side is currently redirecting, to add leads below remove the redirection.</i>
-      </div>
-      <div class="lead_navigation">
-        <VBtn
-          :disabled="nextButtonDisabled"
-          color="update"
-          medium
-          @click="nextCouplet()"
-        >
-          {{ editNextText }}
-        </VBtn>
+        <div class="field label-above">
+          <label>Text</label>
+          <textarea
+            class="full_width"
+            rows="5"
+            v-model="store.children[position].text"
+          />
+        </div>
 
-        <VBtn
-          :disabled="!!store.last_saved.children[position].redirect_id || !leadHasChildren"
-          color="create"
-          medium
-          @click="insertCouplet()"
-        >
-          Insert a couplet below
-        </VBtn>
-      </div>
+        <OtuChooser :lead="store.children[position]"/>
 
-      <div class="field label-above">
-        <label>Text</label>
-        <textarea
-          class="full_width"
-          rows="5"
-          v-model="store.children[position].text"
-        />
-      </div>
+        <div class="field label-above">
+          <label>External link</label>
+          <fieldset>
+            <div class="field label-above">
+              <label>URL (must include https:// or http://)</label>
+              <textarea
+                class="full_width"
+                rows="2"
+                v-model="store.children[position].link_out"
+              />
+            </div>
+            <div class="field label-above">
+              <label>URL text</label>
+              <input
+                type="text"
+                class="normal-input full_width"
+                v-model="store.children[position].link_out_text"
+              />
+            </div>
+            <p v-if="displayLinkOut">
+              Link: <a :href="store.children[position].link_out" target="_blank">
+                {{ store.children[position].link_out_text }}
+              </a>
+            </p>
+            <p v-else>
+              Link: <i>(Requires both URL and text)</i>
+            </p>
+          </fieldset>
+        </div>
 
-      <OtuChooser :lead="store.children[position]"/>
-
-      <div class="field label-above">
-        <label>External link</label>
-        <fieldset>
-          <div class="field label-above">
-            <label>URL (must include https:// or http://)</label>
-            <textarea
-              class="full_width"
-              rows="2"
-              v-model="store.children[position].link_out"
-            />
-          </div>
-          <div class="field label-above">
-            <label>URL text</label>
-            <input
-              type="text"
-              class="normal-input full_width"
-              v-model="store.children[position].link_out_text"
-            />
-          </div>
-          <p v-if="displayLinkOut">
-            Link: <a :href="store.children[position].link_out" target="_blank">
-              {{ store.children[position].link_out_text }}
-            </a>
-          </p>
-          <p v-else>
-            Link: <i>(Requires both URL and text)</i>
-          </p>
-        </fieldset>
-      </div>
-
-      <div class="field label-above">
-        <label>Redirect</label>
-        <select
-          class="redirect_select"
-          v-model="store.children[position].redirect_id"
-          :disabled="leadHasChildren"
-        >
-          <option :value="null"></option>
-          <option
-            v-for="option in redirectOptions"
-            :key="option.id"
-            :value="option.id"
-            :selected="option.id == store.children[position].redirect_id"
+        <div class="field label-above">
+          <label>Redirect</label>
+          <select
+            class="redirect_select"
+            v-model="store.children[position].redirect_id"
+            :disabled="leadHasChildren"
           >
-            {{ option.text }}
-          </option>
-        </select>
-      </div>
+            <option :value="null"></option>
+            <option
+              v-for="option in redirectOptions"
+              :key="option.id"
+              :value="option.id"
+              :selected="option.id == store.children[position].redirect_id"
+            >
+              {{ option.text }}
+            </option>
+          </select>
+        </div>
 
-      <Annotations
-        :object_type="LEAD"
-        :object_id="store.children[position].id"
-        v-model:depiction="depictions"
-      />
+        <Annotations
+          :object_type="LEAD"
+          :object_id="store.children[position].id"
+          v-model:depiction="depictions"
+        />
 
-      <h3>Future couplets</h3>
-      <FutureCoupletsList
-        :future="store.futures[position]"
-        :route-name="RouteNames.NewLead"
-        :load-function="(id) => store.loadKey(id)"
-      />
-    </template>
-  </BlockLayout>
+        <h3>Future couplets</h3>
+        <FutureCoupletsList
+          :future="store.futures[position]"
+          :route-name="RouteNames.NewLead"
+          :load-function="(id) => store.loadKey(id)"
+        />
+      </template>
+    </BlockLayout>
 
-
-  <LeadItems
-    :otu-list="leadOtus"
-    :checked="checkedOtus"
-    @add-otu-index="(otuIndex) => addOtuIndex(otuIndex)"
-    @lead-item-deleted="(otu_id) => leadItemDeleted(otu_id)"
-    @otu-selected="(otu_id) => addLeadItem(otu_id)"
-    :lead-id="store.children[position].id"
-    :show-add-otu="position == 0"
-    class="lead_items"
-  />
+    <LeadItems
+      :otu-list="leadOtus"
+      :checked="checkedOtus"
+      @add-otu-index="(otuIndex) => addOtuIndex(otuIndex)"
+      @lead-item-deleted="(otu_id) => leadItemDeleted(otu_id)"
+      @otu-selected="(otu_id) => addLeadItem(otu_id)"
+      :lead-id="store.children[position].id"
+      :show-add-otu="position == 0"
+      class="lead_items"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -425,18 +426,28 @@ function changeLeadPosition(direction) {
   max-width: 600px;
   width: 100%;
   min-width: 360px;
+  height: 100%;
   //flex-grow: 1;
   margin-bottom: 2em;
   margin: 0 auto;
 }
+
+.lead_and_lead_items {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
 .lead_navigation {
   display: flex;
   justify-content: space-evenly;
   gap: 3px;
 }
+
 .redirect_notice {
   margin-bottom: 1em;
 }
+
 .redirect_select[disabled] {
   opacity: .5;
 }
