@@ -7,7 +7,7 @@ export function getDataAttributesFor({ data, index }, objectId) {
   const headers = makeDataAttributeObjectHeaders(index)
 
   return Object.assign(
-    {},
+    Object.fromEntries(Object.values(headers).map((key) => [key, ''])),
     ...list.map(([, , attrId, value]) => ({
       [headers[attrId]]: value
     }))
