@@ -205,11 +205,11 @@ const props = defineProps({
   },
   leadOtus: {
     type: Array,
-    default: []
+    default: () => []
   },
   checkedOtus: {
     type: Array,
-    default: []
+    default: () => []
   }
 })
 
@@ -386,7 +386,7 @@ function changeLeadPosition(direction) {
   loading.value = true
   LeadEndpoint.reorder_children(store.lead.id, payload)
     .then(({ body }) => {
-      store.resetChildren(body.leads, body.futures)
+      store.resetChildren(body.leads, body.futures, body.lead_item_otus)
 
       const direction_word = (direction == DIRECTIONS.left) ? 'left' : 'right'
       TW.workbench.alert.create('Moved lead ' + direction_word, 'notice')

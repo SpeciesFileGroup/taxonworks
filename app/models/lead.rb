@@ -378,7 +378,6 @@ class Lead < ApplicationRecord
       parent: lead_item_otus,
       children: children.map { |c|
         c.lead_item_otus.map { |o|
-        # TODO only return matches
           lead_item_otus.find_index{ |oo| oo.id == o.id }
         }
       }

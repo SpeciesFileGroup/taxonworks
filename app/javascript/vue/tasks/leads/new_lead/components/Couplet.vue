@@ -312,6 +312,7 @@ function addLead() {
     .then(({ body }) => {
       store.loadKey(body)
       TW.workbench.alert.create('Added a new lead.', 'notice')
+      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {

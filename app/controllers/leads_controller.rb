@@ -245,6 +245,7 @@ class LeadsController < ApplicationController
 
     @leads = @lead.reload.children
     @futures = @leads.map(&:future)
+    @lead_item_otus = @lead.apportioned_lead_item_otus
   end
 
   # GET /leads/1/otus.json
