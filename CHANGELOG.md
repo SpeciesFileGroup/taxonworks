@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radials from facets side are enabled when no filters are active [#4281]
 - Some identifiers are missing on DwC otherCatalogNumbers column
 - Identifiers cached is empty in CSV table
+- DwC importer creating sex biocuration group with an array as URI
 
 [#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
