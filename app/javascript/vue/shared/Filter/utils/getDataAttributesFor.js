@@ -8,8 +8,10 @@ export function getDataAttributesFor({ data, index }, objectId) {
 
   return Object.assign(
     Object.fromEntries(Object.values(headers).map((key) => [key, ''])),
-    ...list.map(([, , attrId, value]) => ({
-      [headers[attrId]]: value
-    }))
+    ...list
+      .filter(([, , attrId]) => headers[attrId])
+      .map(([, , attrId, value]) => ({
+        [headers[attrId]]: value
+      }))
   )
 }
