@@ -467,7 +467,7 @@ end
 resources :lead_items do
   concerns [:data_routes]
   collection do
-    post :destroy_item, defaults: {format: :json}
+    post :destroy_item_in_lead_and_descendants, defaults: {format: :json}
   end
 end
 

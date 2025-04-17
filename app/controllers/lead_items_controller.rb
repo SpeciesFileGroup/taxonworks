@@ -57,11 +57,18 @@ class LeadItemsController < ApplicationController
     end
   end
 
-  def destroy_item
-    children_ids = Lead.find(params[:lead_parent_id]).children.map(&:id)
-    # TODO: transaction
-    LeadItem.where(lead_id: children_ids, otu_id: params[:otu_id]).destroy_all
-    LeadItem.where(lead_id: params[:lead_parent_id], otu_id: params[:otu_id]).destroy_all
+  def destroy_item_in_lead_and_descendants
+    lead_ids = Lead.find(params[:lead_id]).self_and_descendant_ids
+    begin
+      LeadItem.transaction do
+        LeadItem
+          .where(lead_id: lead_ids, otu_id: params[:otu_id])
+          .destroy_all
+      end
+    rescue ActiveRecord::RecordNotDestroyed => e
+      errors.add(:base, "Destroy lead items failed! '#{e}'")
+      return false
+    end
   end
 
   private

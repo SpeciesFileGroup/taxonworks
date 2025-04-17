@@ -285,13 +285,13 @@ function addOtuIndex(otu_index) {
 }
 
 function leadItemDeleted(otu_id) {
-  if (!window.confirm('Are you sure you want to delete this otu row?')) {
+  if (!window.confirm('Are you sure you want to delete this otu row? It will be removed in this couplet AND all descendant couplets.')) {
     return
   }
 
-  LeadItem.destroy_item({
+  LeadItem.destroyItemInLeadAndDescendants({
     otu_id,
-    lead_parent_id: store.lead.id
+    lead_id: store.lead.id // the parent lead
   })
     .then(() => {
       store.loadKey(store.lead.id)
