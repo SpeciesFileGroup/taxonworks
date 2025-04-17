@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial annotator and navigator to role picker list
 - CSD: Highlight header bar when DwC re-index is pending [#4275]
 - New source task: Citations count [#4237]
+- Allow catalog number to start with zeros in Grid digitizer task [#4291]
 
 ### Fixed
 
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
 [#4279]: https://github.com/SpeciesFileGroup/taxonworks/issues/4279
 [#4281]: https://github.com/SpeciesFileGroup/taxonworks/issues/4281
+[#4291]: https://github.com/SpeciesFileGroup/taxonworks/issues/4291
 
 ## [0.49.1] - 2025-04-01
 
