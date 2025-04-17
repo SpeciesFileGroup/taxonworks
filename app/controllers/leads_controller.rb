@@ -308,11 +308,20 @@ class LeadsController < ApplicationController
 
   def add_otu_index
     new_lead = Lead.find(params[:lead_id])
-    #byebug
-    LeadItem.where(lead_id: new_lead.siblings.map(&:id),
-      otu_id: params[:otu_id]).destroy_all
+    begin
+      Lead.transaction do
+        LeadItem.where(lead_id: new_lead.sibling_ids, otu_id: params[:otu_id])
+          .destroy_all
 
-    LeadItem.create!(lead_id: params[:lead_id], otu_id: params[:otu_id])
+        LeadItem.create!(lead_id: params[:lead_id], otu_id: params[:otu_id])
+      end
+    rescue ActiveRecord::RecordNotDestroyed => e
+      errors.add(:base, "Destroy sibling items failed! '#{e}'")
+      return false
+    rescue ActiveRecord::RecordInvalid => e
+      errors.add(:base, "New LeadItem creation failed! '#{e}'")
+      return false
+    end
 
     @lead = new_lead.parent
     expand_lead

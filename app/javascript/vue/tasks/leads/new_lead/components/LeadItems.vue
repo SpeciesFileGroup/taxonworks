@@ -123,7 +123,6 @@ function addOtu() {
 
 function setLeadOtu() {
   const checkedOtu = props.otuList[props.checked[0]]
-  // TODO? check if this is a new/different otu
   const payload = {
     lead: {
       otu_id: checkedOtu.id
