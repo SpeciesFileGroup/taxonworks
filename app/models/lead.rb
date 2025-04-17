@@ -359,15 +359,33 @@ class Lead < ApplicationRecord
     end
   end
 
-  def self.batch_create(params)
+  def self.batch_populate_lead_items(otu_query, lead_id)
+    otus = ::Queries::Otu::Filter.new(otu_query).all
+    LeadItem.batch_populate(lead_id, otus)
+  end
+
+  def self.batch_create_lead_items(params)
     l = Lead.create(params.require(:lead).permit(:text))
     if l.persisted?
-      otus = ::Queries::Otu::Filter.new(params[:otu_query]).all
-      LeadItem.batch_populate(l.id, otus)
-      return l
+      self.batch_populate_lead_items(params[:otu_query], l.id)
+      l
     else
       l.errors.full_messages
     end
+  end
+
+  def self.batch_add_lead_items(params)
+    return false if params[:lead_id].blank?
+
+    l = Lead.find_by(
+      project_id: params[:project_id], id: params[:lead_id]
+    )
+    if l.nil?
+      return "Lead with id '#{lead_id}' couldn't be found"
+    end
+
+    self.batch_populate_lead_items(params[:otu_query], l.id)
+    l
   end
 
   def apportioned_lead_item_otus

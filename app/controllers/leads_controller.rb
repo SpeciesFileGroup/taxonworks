@@ -283,14 +283,26 @@ class LeadsController < ApplicationController
     render '/leads/api/v1/key'
   end
 
-  # TODO: rename, cleanup - it creates one new key, many lead_items
-  def batch_create
-    @lead = Lead.batch_create(params.merge(project_id: sessions_current_project_id))
-    if @lead.present?
+  def batch_create_lead_items
+    @lead = Lead.batch_create_lead_items(params)
+
+    if @lead.kind_of?(Lead)
       new_couplet
       render json: @lead
     else
       render json: @lead, status: :unprocessable_entity
+    end
+  end
+
+  def batch_add_lead_items
+    l = Lead.batch_add_lead_items(
+      params.merge(project_id: sessions_current_project_id)
+    )
+
+    if l.kind_of?(Lead)
+      render json: l
+    else
+      render json: l, status: :unprocessable_entity
     end
   end
 

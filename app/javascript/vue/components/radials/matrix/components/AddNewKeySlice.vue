@@ -60,12 +60,11 @@ function addToLead() {
   }
 
   isSaving.value = true
-
-  Lead.batch_create(payload)
+  Lead.batchCreateLeadItems(payload)
     .then(({ body }) => {
       created.value = body
       TW.workbench.alert.create(
-        `New key was successfully created.`,
+        `New key was successfully created and otus were added.`,
         'notice'
       )
       keyName.value = ''
