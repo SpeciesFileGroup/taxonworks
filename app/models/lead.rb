@@ -44,6 +44,10 @@
 #   @return [boolean]
 #   True if the key is viewable without being logged in
 #
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 class Lead < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -359,11 +363,6 @@ class Lead < ApplicationRecord
     end
   end
 
-  def self.batch_populate_lead_items(otu_query, lead_id)
-    otus = ::Queries::Otu::Filter.new(otu_query).all
-    LeadItem.batch_populate(lead_id, otus)
-  end
-
   def self.batch_create_lead_items(params)
     l = Lead.create(params.require(:lead).permit(:text))
     if l.persisted?
@@ -403,6 +402,11 @@ class Lead < ApplicationRecord
   end
 
   private
+
+  def self.batch_populate_lead_items(otu_query, lead_id)
+    otus = ::Queries::Otu::Filter.new(otu_query).all
+    LeadItem.batch_populate(lead_id, otus)
+  end
 
   # Appends `nodes`` to the children of `new_parent``, in their given order.
   # !! Use this instead of add_child to reparent multiple nodes (add_child

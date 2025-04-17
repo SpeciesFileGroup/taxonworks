@@ -1,9 +1,10 @@
 class LeadItemsController < ApplicationController
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
+
   before_action :set_lead_item, only: %i[ show edit update destroy ]
 
   # GET /lead_items or /lead_items.json
   def index
-    @lead_items = LeadItem.all
   end
 
   # GET /lead_items/1 or /lead_items/1.json
