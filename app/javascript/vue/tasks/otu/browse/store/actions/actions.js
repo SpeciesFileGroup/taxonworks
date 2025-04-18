@@ -1,8 +1,6 @@
 import ActionNames from './actionNames'
 import loadBiologicalAssociations from './loadBiologicalAssociations'
 import loadInformation from './loadInformation'
-import loadCollectionObjects from './loadCollectionObjects'
-import loadCollectingEvents from './loadCollectingEvents'
 import loadCommonNames from './loadCommonNames'
 import loadConveyances from './loadConveyances'
 import loadDepictions from './loadDepictions'
@@ -19,8 +17,6 @@ import resetStore from './resetStore'
 const ActionFunctions = {
   [ActionNames.LoadAssertedDistributions]: loadAssertedDistributions,
   [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
-  [ActionNames.LoadCollectingEvents]: loadCollectingEvents,
-  [ActionNames.LoadCollectionObjects]: loadCollectionObjects,
   [ActionNames.LoadConveyances]: loadConveyances,
   [ActionNames.LoadCommonNames]: loadCommonNames,
   [ActionNames.LoadDepictions]: loadDepictions,
