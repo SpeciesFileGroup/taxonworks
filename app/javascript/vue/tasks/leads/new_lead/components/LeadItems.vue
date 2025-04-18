@@ -1,12 +1,9 @@
 <template>
 
   <div>
-    <div
-      class="lead_item_buttons"
-      v-if="otuList.length > 0"
-    >
+    <div class="lead_item_buttons">
       <VBtn
-        :disabled="checked.length != 1"
+        :disabled="otuIndices.length != 1"
         medium
         color="create"
         @click="setLeadOtu"
@@ -26,13 +23,13 @@
     </div>
 
     <div
-      v-if="otuList && checked"
-      v-for="(otu, i) in otuList"
+      v-if="!store.lead_item_otus.children[position].fixed"
+      v-for="(otu, i) in store.lead_item_otus.parent"
       :index="otu.id"
       class="lead_otu_row"
     >
       <span
-        v-if="checked.findIndex((c) => (c == i)) != -1"
+        v-if="otuIndices.findIndex((c) => (c == i)) != -1"
         class="in"
       >
         &#10003;
@@ -53,6 +50,10 @@
           >Remove
         </span>
       </span>
+    </div>
+
+    <div v-else>
+      Fixed
     </div>
 
     <VModal
@@ -89,18 +90,10 @@ import RadialObject from '@/components/radials/navigation/radial.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { Lead } from '@/routes/endpoints'
 import { OTU } from '@/constants'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from '../store/useStore.js'
 
 const props = defineProps({
-  otuList: {
-    type: Array,
-    default: []
-  },
-  checked: {
-    type: Array,
-    default: []
-  },
   leadId: {
     type: Number,
     required: true
@@ -108,6 +101,10 @@ const props = defineProps({
   showAddOtu: {
     type: Boolean,
     default: false
+  },
+  position: {
+    type: Number,
+    required: true
   }
 })
 
@@ -116,6 +113,12 @@ const emit = defineEmits(['addOtuIndex', 'leadItemDeleted', 'otuSelected'])
 const store = useStore()
 
 const modalVisible = ref(false)
+
+const otuIndices = computed(() => {
+  // A list of indices into the parent otu list indicating which of the parent
+  // otus are checked for this child.
+  return store.lead_item_otus.children[props.position].otu_indices
+})
 
 function addOtu() {
   modalVisible.value = true

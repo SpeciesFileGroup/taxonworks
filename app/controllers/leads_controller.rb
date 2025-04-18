@@ -43,14 +43,12 @@ class LeadsController < ApplicationController
   # GET /leads/1.json
   def show
     if @lead.children.present?
-      @lead.register_new_lead_items
       expand_lead
     else
       @children = nil
       @futures = nil
       @ancestors = @lead.ancestors.reverse
-      #@lead.populate_new_lead_items
-      #@lead_item_otus = @lead.apportioned_lead_item_otus
+      @lead_item_otus = @lead.apportioned_lead_item_otus
     end
   end
 
@@ -98,10 +96,8 @@ class LeadsController < ApplicationController
       return
     end
 
-    num_to_add.times do
-      @lead.children.create!
-    end
-    @lead.register_new_lead_items
+    # currently infers num_to_add
+    @lead.add_children(sessions_current_project_id, sessions_current_user_id)
     expand_lead
     render action: :show, status: :created, location: @lead
   end
@@ -157,34 +153,33 @@ class LeadsController < ApplicationController
   def destroy_subtree
     parent = @lead.parent
     begin
-      @lead.transaction_nuke
-    rescue ActiveRecord::RecordInvalid
-      render json: @lead.errors, status: :unprocessable_entity
+      Lead.destroy_lead_and_descendants(
+        @lead, sessions_current_project_id, sessions_current_user_id
+      )
+    rescue TaxonWorks::Error => e
+      parent.errors.add(:error, e)
+      render json: parent.errors, status: :unprocessable_entity
+      return
     end
 
-    parent.register_new_lead_items
-    head :no_content
+    @lead = parent.reload
+    expand_lead
+    render :show, status: :ok, location: @lead
   end
 
   # For destroying all children at a particular level of the key where none of
   # the children have their own children.
   def destroy_children
-    respond_to do |format|
-      if @lead.parent_id.present?
-        if @lead.destroy_children
-          format.json { head :no_content }
-        else
-          @lead.errors.add(:delete, 'failed!')
-          format.json {
-            render json: @lead.errors, status: :unprocessable_entity
-          }
-        end
+    if @lead.parent_id.present?
+      if @lead.destroy_children
+        head :no_content
       else
-        @lead.errors.add(:destroy, "failed - can't delete the only couplet.")
-        format.json {
-          render json: @lead.errors, status: :unprocessable_entity
-        }
+        @lead.errors.add(:delete, 'failed!')
+        render json: @lead.errors, status: :unprocessable_entity
       end
+    else
+      @lead.errors.add(:destroy, "failed - can't delete the only couplet.")
+      render json: @lead.errors, status: :unprocessable_entity
     end
   end
 
@@ -283,47 +278,26 @@ class LeadsController < ApplicationController
     render '/leads/api/v1/key'
   end
 
+  # Creates a new key populated with otus from params[:otu_query].
   def batch_create_lead_items
-    @lead = Lead.batch_create_lead_items(params)
-
-    if @lead.kind_of?(Lead)
-      new_couplet
-      render json: @lead
-    else
-      render json: @lead, status: :unprocessable_entity
-    end
-  end
-
-  def batch_add_lead_items
-    l = Lead.batch_add_lead_items(
-      params.merge(project_id: sessions_current_project_id)
+    @lead = Lead.create!(params.require(:lead).permit(:text))
+    @lead.batch_populate_lead_items(params[:otu_query],
+      sessions_current_project_id, sessions_current_user_id
     )
 
-    if l.kind_of?(Lead)
-      render json: l
-    else
-      render json: l, status: :unprocessable_entity
-    end
+    @lead.add_children(sessions_current_project_id, sessions_current_user_id)
+
+    render json: @lead
   end
 
   def add_otu_index
-    new_lead = Lead.find(params[:lead_id])
-    begin
-      Lead.transaction do
-        LeadItem.where(lead_id: new_lead.sibling_ids, otu_id: params[:otu_id])
-          .destroy_all
-
-        LeadItem.create!(lead_id: params[:lead_id], otu_id: params[:otu_id])
-      end
-    rescue ActiveRecord::RecordNotDestroyed => e
-      errors.add(:base, "Destroy sibling items failed! '#{e}'")
-      return false
-    rescue ActiveRecord::RecordInvalid => e
-      errors.add(:base, "New LeadItem creation failed! '#{e}'")
-      return false
+    lead = Lead.find(params[:lead_id])
+    added = LeadItem.add_otu_index_for_lead(lead, params[:otu_id])
+    if !added
+      render json: lead.errors, status: :unprocessable_entity
     end
 
-    @lead = new_lead.parent
+    @lead = lead.parent
     expand_lead
     render action: :show, location: @lead
   end

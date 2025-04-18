@@ -103,8 +103,6 @@
         :position="i"
         :redirect-options="redirectOptions"
         @editing-has-occurred="() => emit('editingHasOccurred')"
-        :lead-otus="store.lead_item_otus.parent"
-        :checked-otus="store.lead_item_otus.children[i]"
       />
     </div>
   </div>

@@ -161,11 +161,11 @@
     </BlockLayout>
 
     <LeadItems
-      :otu-list="leadOtus"
-      :checked="checkedOtus"
+      v-if="store.lead_item_otus.children.length > 0"
       @add-otu-index="(otuIndex) => addOtuIndex(otuIndex)"
-      @lead-item-deleted="(otu_id) => leadItemDeleted(otu_id)"
-      @otu-selected="(otu_id) => addLeadItem(otu_id)"
+      @lead-item-deleted="(otuId) => leadItemDeleted(otuId)"
+      @otu-selected="(otuId) => addLeadItem(otuId)"
+      :position="position"
       :lead-id="store.children[position].id"
       :show-add-otu="position == 0"
       class="lead_items"
@@ -202,14 +202,6 @@ const props = defineProps({
   redirectOptions: {
     type: Array,
     required: true
-  },
-  leadOtus: {
-    type: Array,
-    default: () => []
-  },
-  checkedOtus: {
-    type: Array,
-    default: () => []
   }
 })
 
@@ -342,19 +334,13 @@ function deleteSubTree() {
     return
   }
 
-  const hasCheckedLeadItems = props.checkedOtus.length > 0
   loading.value = true
   LeadEndpoint.destroy_subtree(store.children[props.position].id)
-    .then(() => {
+    .then(({ body }) => {
       const noticeText = (leadHasChildren.value
         ? 'Lead and descendants deleted.'
-        : 'Lead deleted')
-      store.deleteChild(props.position)
-      if (hasCheckedLeadItems) {
-        // Reload the key so that checked items that were on this lead get moved
-        // to a different lead.
-        store.loadKey(store.lead.id)
-      }
+        : 'Lead deleted.')
+      store.loadKey(body)
       TW.workbench.alert.create(noticeText, 'notice')
       emit('editingHasOccurred')
     })

@@ -194,22 +194,24 @@ class Lead < ApplicationRecord
     [c.id, d.id]
   end
 
-  def register_new_lead_items
-    otus = []
-    child_ids = children.map(&:id)
-    lead_item_otus.each do |o|
-      if !LeadItem.exists_on_lead_set(o.id, child_ids)
-        otus << o
-      end
+  def add_children(project_id, user_id)
+    if children.exists?
+      children.create! # now multi-furcating, if it wasn't already
+      return
     end
 
-    populate_lead_items(otus)
-  end
+    # Create a new couplet.
+    children.create!
+    right_child = children.create!
 
-  def populate_lead_items(otus = lead_item_otus)
-    return if lead_items.count == 0 || children.count < 2
-
-    LeadItem.batch_populate(children.last.id, otus)
+    if lead_items.exists?
+      Lead.transaction do
+        # On a new couplet all otus start on the right hand side (the left hand
+        # side typically being the shorter path through the key).
+        # No ancestor leads ever retain their lead_items.
+        LeadItem.move_items(self.lead_items, right_child)
+      end
+    end
   end
 
   # Destroy the children of this Lead, re-appending the grandchildren to self
@@ -225,14 +227,32 @@ class Lead < ApplicationRecord
         # Fail if more than one child has its own children
         return false if grandkids.present?
 
-        grandkids = c.children
+        grandkids = c.children.to_a
       end
     end
 
-    Lead.reparent_nodes(grandkids, self)
+    Lead.transaction do
+      if grandkids.present?
+        lead_item_ids = children.map { |c|
+          c.children.exists? ? [] : c.lead_items
+        }.flatten(1).map(&:id)
 
-    children.slice(0, original_child_count).each do |c|
-      c.destroy!
+        if lead_item_ids.present?
+          placeholder = Lead.create!(
+            text: 'PLACEHOLDER TO HOLD OTU OPTIONS FROM DELETED CHILDREN'
+          )
+          LeadItem.move_items(LeadItem.where(id: lead_item_ids), placeholder)
+          grandkids = grandkids.prepend(placeholder)
+        end
+      else
+        LeadItem.consolidate_descendant_items(self, self)
+      end
+
+      Lead.reparent_nodes(grandkids, self)
+
+      children.slice(0, original_child_count).each do |c|
+        c.destroy!
+      end
     end
 
     true
@@ -363,50 +383,53 @@ class Lead < ApplicationRecord
     end
   end
 
-  def self.batch_create_lead_items(params)
-    l = Lead.create(params.require(:lead).permit(:text))
-    if l.persisted?
-      self.batch_populate_lead_items(params[:otu_query], l.id)
-      l
-    else
-      l.errors.full_messages
-    end
-  end
-
-  def self.batch_add_lead_items(params)
-    return false if params[:lead_id].blank?
-
-    l = Lead.find_by(
-      project_id: params[:project_id], id: params[:lead_id]
-    )
-    if l.nil?
-      return "Lead with id '#{lead_id}' couldn't be found"
-    end
-
-    self.batch_populate_lead_items(params[:otu_query], l.id)
-    l
-  end
-
   def apportioned_lead_item_otus
+    # The data get ordered in the view, where we'll know how they'll be
+    # displayed.
+    combined_otus =
+      children.map { |c| c.lead_item_otus.includes(:taxon_name) }.flatten
+    return { parent: [], children: [] } if combined_otus.empty?
+
     {
-      # It should be the case that the children otu lists are all disjoint, and
-      # their sum equals self's otu list.
-      # TODO: some (unresolved) otus may be repeated on children at this point.
-      parent: lead_item_otus,
-      children: children.map { |c|
-        c.lead_item_otus.map { |o|
-          lead_item_otus.find_index{ |oo| oo.id == o.id }
+      parent: combined_otus,
+      children: children.map do |c|
+        fixed = c.children.exists?
+        {
+          fixed:,
+          otu_ids: fixed ? [] : c.lead_item_otus.map(&:id)
         }
-      }
+      end
     }
   end
 
-  private
-
-  def self.batch_populate_lead_items(otu_query, lead_id)
+  def batch_populate_lead_items(otu_query, project_id, user_id)
     otus = ::Queries::Otu::Filter.new(otu_query).all
-    LeadItem.batch_populate(lead_id, otus)
+    LeadItem.batch_add_otus_for_lead(id, otus.map(&:id), project_id, user_id)
   end
+
+  # Raises TaxonWorks::Error on error.
+  def self.destroy_lead_and_descendants(lead, project_id, user_id)
+    parent = lead.parent
+
+    begin
+      if lead.children.exists?
+        items_lead = LeadItem.consolidate_descendant_items(lead)
+        lead.prepend_sibling(items_lead) if items_lead.present?
+      elsif lead.lead_items.exists? # lead_items with no children
+        raise TaxonWorks::Error,
+          'Delete not permitted; remove all checked otus first.'
+      end
+
+      lead.transaction_nuke
+    rescue ActiveRecord::RecordInvalid
+      raise TaxonWorks::Error,
+        "Subtree destroy failed! '#{lead.errors.full_messages.join('; ')}'"
+    rescue TaxonWorks::Error
+      raise
+    end
+  end
+
+  private
 
   # Appends `nodes`` to the children of `new_parent``, in their given order.
   # !! Use this instead of add_child to reparent multiple nodes (add_child
