@@ -99,12 +99,14 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
         const subGroup = Object.keys(preferences.customLayout?.properties) || []
 
         subGroup.forEach((group) => {
-          const newOrder = sortArrayByArray(
-            state.properties[group],
-            state.currentLayout.properties[group]
-          )
+          if (Array.isArray(state.properties[group])) {
+            const newOrder = sortArrayByArray(
+              state.properties[group],
+              state.currentLayout.properties[group]
+            )
 
-          state.properties[group] = newOrder
+            state.properties[group] = newOrder
+          }
         })
       }
     })

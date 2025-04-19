@@ -783,12 +783,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     sex = get_field_value(:sex)
     if sex
       raise DarwinCore::InvalidData.new({ "sex": ['Only single-word controlled vocabulary supported at this time.'] }) if sex =~ /\s/
-      group   = BiocurationGroup.find_by(project_id: Current.project_id, uri: DWC_ATTRIBUTE_URIS[:sex])
+      group   = BiocurationGroup.find_by(project_id: Current.project_id, uri: DWC_ATTRIBUTE_URIS[:sex].first)
       group ||= BiocurationGroup.where(project_id: Current.project_id).where('name ILIKE ?', 'sex').first
       group ||= BiocurationGroup.create!(
         name: 'Sex',
         definition: 'The sex of the individual(s) [CREATED FROM DWC-A IMPORT]',
-        uri: DWC_ATTRIBUTE_URIS[:sex]
+        uri: DWC_ATTRIBUTE_URIS[:sex].first
       )
       # TODO: BiocurationGroup.biocuration_classes not returning AR relation
       sex_biocuration = group.biocuration_classes.detect { |c| c.name.casecmp(sex) == 0 }

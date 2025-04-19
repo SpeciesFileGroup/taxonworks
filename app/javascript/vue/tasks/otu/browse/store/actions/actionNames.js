@@ -1,8 +1,6 @@
 const ActionNames = {
   LoadBiologicalAssociations: 'loadBiologicalAssociations',
   LoadInformation: 'loadInformation',
-  LoadCollectionObjects: 'loadCollectionObjects',
-  LoadCollectingEvents: 'loadCollectingEvents',
   LoadCommonNames: 'loadCommonNames',
   LoadConveyances: 'loadConveyances',
   LoadDepictions: 'loadDepictions',

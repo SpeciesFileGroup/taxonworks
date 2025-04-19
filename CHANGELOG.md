@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial annotator and navigator to role picker list
 - CSD: Highlight header bar when DwC re-index is pending [#4275]
 - New source task: Citations count [#4237]
+- Allow catalog number to start with zeros in Grid digitizer task [#4291]
 
 ### Fixed
 
@@ -19,6 +20,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
 - Content editor: Close modal is enable when nothing is selected [#4279]
 - Radials from facets side are enabled when no filters are active [#4281]
+- Some identifiers are missing on DwC otherCatalogNumbers column
+- Identifiers cached is empty in CSV table
+- DwC importer creating sex biocuration group with an array as URI
+- Filters: Sorting alphabetically does not work correctly when values ​​are in HTML
 
 [#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
@@ -26,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
 [#4279]: https://github.com/SpeciesFileGroup/taxonworks/issues/4279
 [#4281]: https://github.com/SpeciesFileGroup/taxonworks/issues/4281
+[#4291]: https://github.com/SpeciesFileGroup/taxonworks/issues/4291
 
 ## [0.49.1] - 2025-04-01
 

@@ -1,17 +1,28 @@
 import { computed } from 'vue'
-import { sortArray } from '@/helpers'
 
 export function useCSVOptions({ layout, list }) {
-  const predicateNames = computed(() => {
-    return sortArray([
-      ...new Set(
-        list.value?.map((item) => Object.keys(item.data_attributes)).flat()
-      )
-    ])
-  })
-
   const csvFields = computed(() => {
-    const { includes, properties } = layout.value
+    if (!layout.value) return {}
+
+    const properties = {
+      ...layout.value.properties
+    }
+
+    for (const key in properties) {
+      if (!Array.isArray(properties[key])) {
+        if (properties[key].show) {
+          const [item] = list.value
+
+          if (item) {
+            properties[key] = Object.keys(item[key])
+          } else {
+            properties[key] = []
+          }
+        } else {
+          delete properties[key]
+        }
+      }
+    }
 
     function getObjectPaths(obj, prefix = '') {
       return Object.entries(obj).flatMap(([key, value]) =>
@@ -25,15 +36,6 @@ export function useCSVOptions({ layout, list }) {
     }
 
     const fields = getObjectPaths(properties)
-
-    if (includes.data_attributes) {
-      fields.push(
-        ...predicateNames.value.map((p) => ({
-          label: `data_attributes_${p}`,
-          value: `data_attributes.${p}`
-        }))
-      )
-    }
 
     return { fields }
   })

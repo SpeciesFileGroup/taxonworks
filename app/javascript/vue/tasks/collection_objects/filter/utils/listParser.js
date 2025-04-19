@@ -66,7 +66,9 @@ export async function listParser(list, { parameters }) {
       collecting_event,
       taxon_determinations: getTaxonDetermination(taxon_determinations),
       dwc_occurrence,
-      identifiers,
+      identifiers: {
+        cached: identifiers?.map((item) => item.cached).join(' | ')
+      },
       data_attributes: getDataAttributesFor(body, item.id),
       ...makeRowBind(dwc_occurrence)
     }

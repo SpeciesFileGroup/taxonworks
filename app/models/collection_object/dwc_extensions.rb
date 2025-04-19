@@ -179,8 +179,7 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_other_catalog_numbers
-    i = identifiers.where.not('type ilike ?', 'Identifier::Global::Uuid%').order(:position).to_a
-    i.shift
+    i = identifiers.where.not('type ilike ?', 'Identifier::Global::Uuid%').where.not(cached: catalog_number_cached).order(:position).to_a
     i.map(&:cached).join(CollectionObject::DWC_DELIMITER).presence
   end
 
