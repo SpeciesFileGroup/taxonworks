@@ -26,8 +26,6 @@ class Protonym < TaxonName
   #   !! is to store values used downstream in setting cached values.
   attr_reader :_cached_build_state
 
-  attr_accessor :original_combination_elements
-
   alias_method :original_combination_source, :source
 
   FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}.freeze
@@ -77,8 +75,9 @@ class Protonym < TaxonName
   has_many :combinations, through: :combination_relationships, source: :object_taxon_name
   has_many :type_materials, class_name: 'TypeMaterial', inverse_of: :protonym
 
-  scope :with_incomplete_original_combination, -> { where("taxon_names.cached_original_combination LIKE '%NOT SPECIFIED%'") }
-  scope :with_complete_original_combination, -> { where("taxon_names.cached_original_combination IS NOT null AND cached_original_combination NOT LIKE '%NOT SPECIFIED%'") }
+  # Probably reference 'specified'
+  scope :original_combination_unspecified, -> { where("taxon_names.cached_original_combination LIKE '%NOT SPECIFIED%'") }
+  scope :original_combination_specified, -> { where("taxon_names.cached_original_combination IS NOT null AND taxon_names.cached_original_combination NOT LIKE '%NOT SPECIFIED%'") }
 
   # Dynamically define relations based the model metadata
   TaxonNameRelationship.descendants.each do |d|
@@ -373,20 +372,6 @@ class Protonym < TaxonName
     Protonym.ancestors_and_descendants_of(self).not_self(self).unscope(:order).to_a
   end
 
-  # @return [ TypeMaterial, [] ]  ?!
-  def get_primary_type
-    return [] unless self.rank_class.parent.to_s =~ /Species/
-    s = self.type_materials.syntypes
-    p = self.type_materials.primary
-    if s.empty? && p.count == 1
-      p
-    elsif p.empty? && !s.empty?
-      s
-    else
-      []
-    end
-  end
-
   ## taxon_name.predicted_children_rank('Cicadellidae') >> NomenclaturalRank::Iczn::FamilyGroup::Family
   def predicted_child_rank(child_string)
     return nil if child_string.blank?
@@ -430,6 +415,7 @@ class Protonym < TaxonName
     r.constantize
   end
 
+  # TODO: Move to helper or lib/
   # temporary method to get a number of taxa described by year
   def number_of_taxa_by_year
     file_name = '/tmp/taxa_by_year' + '_' + Time.now.to_i.to_s + '.csv'
@@ -456,6 +442,20 @@ class Protonym < TaxonName
       b.keys.each do |i|
         csv << [i, b[i][:valid], b[i][:synonyms]]
       end
+    end
+  end
+
+  # @return [ TypeMaterial, [] ]  ?!
+  def get_primary_type
+    return [] unless self.rank_class.parent.to_s =~ /Species/
+    s = self.type_materials.syntypes
+    p = self.type_materials.primary
+    if s.empty? && p.count == 1
+      p
+    elsif p.empty? && !s.empty?
+      s
+    else
+      []
     end
   end
 
@@ -584,6 +584,7 @@ class Protonym < TaxonName
     list1
   end
 
+  # TODO: refactor for Utilities::Nomenclature
   def name_with_alternative_spelling
     if rank_class.nil? || nomenclatural_code != :iczn
       # rank_string =~ /::Icn::/ # self.class != Protonym
@@ -642,46 +643,6 @@ class Protonym < TaxonName
     return n
   end
 
-  def predict_three_forms
-    exception = LATIN_ADJECTIVES[name]
-
-    return exception unless exception.nil?
-    m_name, f_name, n_name = nil, nil, nil
-    case name
-    when /(color|coloris)$/
-      m_name, f_name, n_name = name, name, name
-    when /is$/
-      m_name, f_name, n_name = name, name, name[0..-3] + 'e'
-    when /e$/
-      m_name, f_name, n_name = name[0..-2] + 'is', name[0..-2] + 'is', name
-    when /us$/
-      m_name, f_name, n_name = name, name[0..-3] + 'a', name[0..-3] + 'um'
-    when /(niger|integer)$/
-      m_name, f_name, n_name = name, name[0..-3] + 'ra', name[0..-3] + 'rum'
-    when /(fer|ger)$/
-      m_name, f_name, n_name = name, name + 'a', name + 'um'
-    when /er$/
-      m_name, f_name, n_name = name, name[0..-3] + 'ra', name[0..-3] + 'rum'
-    when /(ferum|gerum)$/
-      m_name, f_name, n_name = name[0..-3], name[0..-3] + 'a', name
-    when /(gera|fera)$/
-      m_name, f_name, n_name = name[0..-2], name, name[0..-2] + 'um'
-    when /(brum|frum|grum)$/
-      m_name, f_name, n_name = name[0..-4] + 'er', name[0..-3] + 'a', name
-    when /(bra|gra|fra)$/
-      m_name, f_name, n_name = name[0..-3] + 'er', name, name[0..-2] + 'um'
-    when /(um)$/
-      m_name, f_name, n_name = name[0..-3] + 'us', name[0..-3] + 'a', name
-    when /a$/
-      m_name, f_name, n_name = name[0..-2] + 'us', name, name[0..-2] + 'um'
-    when /(nor|ior|jor)$/
-      m_name, f_name, n_name = name, name, name[0..-3] + 'us'
-    else
-      m_name, f_name, n_name = name, name, name
-    end
-    {masculine_name: m_name, feminine_name: f_name, neuter_name: n_name}
-  end
-
   def genus_suggested_gender
     return nil unless rank_string =~/Genus/
     TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.each do |g|
@@ -735,89 +696,6 @@ class Protonym < TaxonName
     true
   end
 
-  # @return [Hash]
-  #
-  # {
-  #  genus: ["", 'Aus' ],
-  #  ...
-  #  form: ['frm', 'aus']
-  # }
-  #
-  def original_combination_elements # ?? Need reload off mode for write
-    return @original_combination_elements unless @original_combination_elements.nil?
-
-    elements = { }
-    return elements if rank.blank?
-
-    this_rank = rank.to_sym
-
-    # Why this?
-    #   We need to apply gender to "internal" names for original combinations, everything
-    #   but the last name. If we have subspecies, the species name should be used not in the original form,
-    #   but the form correlated with the present genus gender
-
-    # Protonym.joins(:original_combination_relationships)
-    #     .first.original_combination_protonyms
-    #     .order(Arel.sql("ARRAY_POSITION(ARRAY[#{ORIGINAL_COMBINATION_RANKS.collect{|a| "'" + a + "'"}.join(',')}], taxon_name_relationships.type)"))
-
-    # order the relationships
-    r = original_combination_relationships
-      .eager_load(:subject_taxon_name)
-      .sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
-
-    # This is using the memoized version, but needs to always reload at this point. If we can work this
-    # into an early call then we can re-use the relationship load.
-    #
-    # r = related_relationships(true).select{|r| r.type.match('Orig')}  # =~ /Orig/} #  original_combination_relationships
-    #  .sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
-
-    return {} if r.blank?
-
-    genus = r.select{|r| r.type =~ /Genus/}.first&.subject_taxon_name # This is the original genus
-
-    gender = genus&.cached_gender
-
-    # Apply gender to everything but the last
-    total = r.count - 1
-
-    r.each_with_index do |j, i|
-      if j.type =~ /enus/ || i == total
-        g = nil
-      else
-        g = gender
-      end
-
-      elements.merge! j.combination_name(g) # this is like '{genus: [nil, 'Aus']}
-    end
-
-    # TODO: Confirm specific tests exist for this block.
-
-    # Plug in self if self referencing OriginalCombination is not present (we do not require it).
-    if r.last.subject_taxon_name.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id # hella expensive
-
-      if elements[this_rank].nil?
-        n = verbatim_name.nil? ? name : verbatim_name
-        n = "(#{n})" if n && rank_name == 'subgenus'
-        v = [nil, n] # It is never genderized
-        v.push misspelling_tag if cached_misspelling
-        elements[this_rank] = v
-      end
-    end
-
-    if elements.any?
-      if !elements[:genus] && !not_binominal?
-        if genus
-          elements[:genus] = [nil, "[#{genus&.name}]"] # !? why
-        else
-          elements[:genus] = [nil, '[GENUS NOT SPECIFIED]']
-        end
-      end
-      # If there is no :species, but some species group, add element
-      elements[:species] = [nil, '[SPECIES NOT SPECIFIED]'] if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
-    end
-
-    @original_combination_elements = elements
-  end
 
   # @return [[rank_name, name], nil]
   #   Used in ColDP export

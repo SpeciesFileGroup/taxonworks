@@ -1,11 +1,183 @@
-# Methods for constructing names from the graph of data.
+#
+# Methods for gathering elements for use in constructing names from the graph of data.
+#
 module Protonym::Format
   extend ActiveSupport::Concern
 
   included do
+    attr_accessor :original_combination_elements
+
+    # @return [Hash]
+    #
+    # {
+    #  genus: ["", 'Aus' ],
+    #  ...
+    #  form: ['frm', 'aus']
+    # }
+    #
+    def original_combination_elements # ?? Need reload off mode for write
+      return @original_combination_elements unless @original_combination_elements.nil?
+
+      elements = { }
+      return elements if rank.blank?
+
+      this_rank = rank.to_sym
+
+      # Why this?
+      #   We need to apply gender to "internal" names for original combinations, everything
+      #   but the last name. If we have subspecies, the species name should be used not in the original form,
+      #   but the form correlated with the present genus gender
+
+      # Protonym.joins(:original_combination_relationships)
+      #     .first.original_combination_protonyms
+      #     .order(Arel.sql("ARRAY_POSITION(ARRAY[#{ORIGINAL_COMBINATION_RANKS.collect{|a| "'" + a + "'"}.join(',')}], taxon_name_relationships.type)"))
+
+      # order the relationships
+      r = original_combination_relationships
+        .eager_load(:subject_taxon_name)
+        .sort{|a,b| ORIGINAL_COMBINATION_RANKS.values.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.values.index(b.type) }
+
+      # This is using the memoized version, but needs to always reload at this point. If we can work this
+      # into an early call then we can re-use the relationship load.
+      #
+      # r = related_relationships(true).select{|r| r.type.match('Orig')}  # =~ /Orig/} #  original_combination_relationships
+      #  .sort{|a,b| ORIGINAL_COMBINATION_RANKS.values.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.values.index(b.type) }
+
+      return {} if r.blank?
+
+      genus = r.select{|r| r.type =~ /Genus/}.first&.subject_taxon_name # This is the original genus
+
+      gender = genus&.cached_gender
+
+      # Apply gender to everything but the last
+      total = r.count - 1
+
+      r.each_with_index do |j, i|
+        if j.type =~ /enus/ || i == total
+          g = nil
+        else
+          g = gender
+        end
+
+        elements.merge! j.combination_name(g) # this is like '{genus: [nil, 'Aus']}
+      end
+
+      # TODO: Confirm specific tests exist for this block.
+
+      # Plug in self if self referencing OriginalCombination is not present (we do not require it).
+      if r.last.subject_taxon_name.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id # hella expensive
+
+        if elements[this_rank].nil?
+          n = verbatim_name.nil? ? name : verbatim_name
+          n = "(#{n})" if n && rank_name == 'subgenus'
+          v = [nil, n] # It is never genderized
+          v.push misspelling_tag if cached_misspelling
+          elements[this_rank] = v
+        end
+      end
+
+      if elements.any?
+        if !elements[:genus] && !not_binominal?
+          if genus
+            elements[:genus] = [nil, "[#{genus&.name}]"] # !? why
+          else
+            elements[:genus] = [nil, '[GENUS NOT SPECIFIED]']
+          end
+        end
+        # If there is no :species, but some species group, add element
+        elements[:species] = [nil, '[SPECIES NOT SPECIFIED]'] if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
+      end
+
+      @original_combination_elements = elements
+    end
+
   end
 
   module ClassMethods
+
+    # TODO: consider an 'include_cached_misspelling' Boolean to extend result to include `cached_misspelling`
+    def original_combinations_flattened
+      s = []
+      abbreviation_cutoff = 'subspecies'
+      abbreviate = false
+      ::ORIGINAL_COMBINATION_RANKS.each do |rank, t|
+        s.push "MAX(original_combination_protonyms_taxon_names.name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}"
+
+        if abbreviate
+          s.push "MAX(original_combination_protonyms_taxon_names.rank_class) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_rank_class"
+        end
+
+        abbreviate = true if rank == abbreviation_cutoff
+      end
+
+      s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_original_combination, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date, 
+        taxon_names.rank_class, taxon_names.cached_misspelling, taxon_names.cached_is_valid, taxon_names.cached_valid_taxon_name_id, taxon_names.updated_by_id, taxon_names.updated_at, sources.id source_id, citations.pages'
+
+      sel = s.join(',')
+
+      Protonym.joins(:original_combination_protonyms, :source)
+        .select(sel)
+        .group('taxon_names.id, sources.id, citations.pages')
+    end
+
+    # @return [Hash]
+    #   Similar pattern to full_name hash
+    # !! Does not include '[sic]'
+    # !! Does not include 'NOT SPECIFIED' ranks.
+    #
+    # Intent is to chain with scopes within COLDP export.
+    #
+    # If this becomes more broadly useful consider optional `sic` includion
+    #
+    def original_combination_full_name_hash_from_flat(row)
+      gender = nil
+      data = {}
+
+      # ranks are symbols here, elsewhere strings.  
+      # protonym loop
+      ORIGINAL_COMBINATION_RANKS.each do |rank, type|
+        if rank == :genus
+          a = "#{rank}_gender".to_sym
+          gender = row[a]
+        end
+
+        name_target = gender.nil? ? rank : (rank.to_s + '_' + gender).to_sym
+
+        # TODO: add  verbatim to row
+        name = row[name_target] || row[rank.to_s] || row[(rank.to_s + '_' + 'verbatim')]
+
+        next if name.nil?
+
+        v = [nil, name]
+
+        unless ['genus', 'subgenus', 'species', 'subspecies'].include?(rank.to_s)
+          v[0] = row[rank.to_s + ' ' + 'rank_class']
+        end
+
+        data[rank.to_s] = v
+      end
+      data
+    end
+
+  end # End Class methods
+
+  def original_combination_flat
+    s = []
+    ::ORIGINAL_COMBINATION_RANKS.each do |rank, t|
+      s.push "MAX(name) FILTER (WHERE rt = '#{t}') AS #{rank},
+              MAX(cached_gender) FILTER (WHERE rt = '#{t}') AS #{rank}_gender,
+              MAX(neuter_name) FILTER (WHERE rt = '#{t}') AS #{rank}_neuter,
+              MAX(masculine_name) FILTER (WHERE rt =  '#{t}') AS #{rank}_masculine,
+              MAX(feminine_name) FILTER (WHERE rt = '#{t}') AS #{rank}_feminine"
+    end
+
+    a = Protonym
+      .joins(:original_combination_relationships)
+      .where(taxon_name_relationships: {
+        object_taxon_name_id: id
+      }).select(:id, :name, :cached_gender, :neuter_name, :masculine_name, :feminine_name, 'taxon_name_relationships.type as rt')
+
+    Protonym.with(filtered: a).select(s.join(',')).from('filtered').unscope(:where)[0]
   end
 
   #
@@ -144,8 +316,10 @@ module Protonym::Format
     v
   end
 
-  # @return a vector
-  #   nil, name, [sic]
+  # @return an Array
+  #   [<rank abbreiviation>, name, <misspelling tag>]]]]]
+  #
+  # !! No parens shoould be added here
   def genderized_elements(gender)
     n = genderized_name(gender)
 
@@ -153,7 +327,6 @@ module Protonym::Format
       n = verbatim_name.nil? ? name : verbatim_name
     end
 
-    #  n = "(#{n})" if n && rank_name == 'subgenus'
     v = [nil, n]
     v.push misspelling_tag if cached_misspelling
     v

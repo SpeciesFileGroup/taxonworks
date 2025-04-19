@@ -1596,7 +1596,7 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  #  a reified ID is used when the original combination, which does not yet have it's own ID, is not the same as the current classification
+  #  A reified ID is used when the original combination, which does not yet have its own ID and is not the same as the current classification
   # Some observations:
   #  - reified ids are only for original combinations (for which we have no ID)
   #  - reified ids never reference gender changes because they are always in context of original combination, i.e. there is never a gender change

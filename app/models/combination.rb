@@ -63,6 +63,10 @@ class Combination < TaxonName
 
   INVERTED_RANKS = APPLICABLE_RANKS.dup.invert.freeze
 
+  APPLICABLE_RANK_CLASSES = INVERTED_RANKS.keys.freeze
+
+  APPLICABLE_RANK_SORT = INVERTED_RANKS.keys.inject({}){|hsh, r| hsh[r] = INVERTED_RANKS.keys.index(r) || 0 + 1; hsh}
+
   before_validation :set_parent
 
   # Before we set cached ensure we draw current data
@@ -88,7 +92,7 @@ class Combination < TaxonName
   }, class_name: 'TaxonNameRelationship',
   foreign_key: :object_taxon_name_id
 
-  has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name
+  has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name # Should be combination_protonyms, or just protonyms?
 
   # Create syntactic helper methods
   TaxonNameRelationship.descendants.each do |d|
@@ -314,6 +318,25 @@ class Combination < TaxonName
     a ? a : false
   end
 
+  # TODO: add higher classifcation here
+  def combination_taxonomy
+    d = full_name_hash
+    protonyms_by_rank.to_a.first[1].ancestors.each do |a| # unscope?
+      d[a.rank] = a.name
+    end
+
+    d
+  end
+
+  # This is not used.
+  def taxonomy(rebuild = false)
+    if rebuild
+      @taxonomy = combination_taxonomy
+    else
+      @taxonomy ||= combination_taxonomy
+    end
+  end
+
   # @return [Boolean]
   #   true if the finest level (typically species) currently has the same parent
   def is_current_placement?
@@ -326,11 +349,12 @@ class Combination < TaxonName
     ::Utilities::Nomenclature.full_name(full_name_hash)
   end
 
-  # Is this used before persistence of the complete Combination?!
   # Overrides {TaxonName#full_name_hash}
   # @return [Hash]
   #
   #  Benchmark.measure { 1000.times do; Combination.find_by_id(ids.sample).full_name_hash; end}
+  #
+  # TODO: Is this used before persistence of the complete Combination?!
   def full_name_hash
     gender = nil
     data = {}
@@ -340,7 +364,7 @@ class Combination < TaxonName
 
       v = i.genderized_elements(gender)
       if ['genus', 'subgenus', 'species', 'subspecies'].include?(rank)
-        data[rank] = v #  [nil, i.name_with_misspelling(gender)]
+        data[rank] = v
       else
         v[0] = i.rank_class.abbreviation
         data[rank] = v
@@ -366,30 +390,85 @@ class Combination < TaxonName
     data
   end
 
-  # TODO: add higher classifcation here
-  def combination_taxonomy
-    d = full_name_hash
-    protonyms_by_rank.to_a.first[1].ancestors.each do |a| # unscope?
-      d[a.rank] = a.name
-    end
+  # @return [Hash]
+  #   Similar pattern to full_name hash
+  # !! Does not include '[sic]'
+  # !! Does not include 'NOT SPECIFIED' ranks.
+  #
+  # Intent is to chain with scopes within COLDP export.
+  #
+  # If this becomes more broadly useful consider optional `sic` includion
+  #
+  def self.full_name_hash_from_row(row)
+    gender = nil
+    data = {}
 
-    d
+    # protonym loop
+    APPLICABLE_RANKS.each do |rank, type|
+      if rank == 'genus'
+        a = "#{rank}_gender".to_sym
+        gender = row[a]
+      end
+
+      name_target = gender.nil? ? rank.to_sym : (rank + '_' + gender).to_sym
+
+      # TODO: add  verbatim to row
+      name = row[name_target] || row[rank.to_sym] || row[(rank + '_' + 'verbatim')]
+
+      next if name.nil?
+
+      v = [nil, name]
+
+      unless ['genus', 'subgenus', 'species', 'subspecies'].include?(rank)
+        v[0] = row[rank + ' ' + 'rank_class']
+      end
+
+      data[rank] = v
+    end
+    data
   end
 
-  def taxonomy(rebuild = false)
-    if rebuild
-      @taxonomy = combination_taxonomy
-    else
-      @taxonomy ||= combination_taxonomy
+  # TODO: consider an 'include_cached_misspelling' Boolean to extend result to include `cached_misspelling`
+  def self.flattened
+    s = []
+    abbreviation_cutoff = 'subspecies'
+    abbreviate = false
+    APPLICABLE_RANKS.each do |rank, t|
+      s.push "MAX(combination_taxon_names_taxon_names.name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank},
+              MAX(combination_taxon_names_taxon_names.neuter_name) FILTER (WHERE taxon_name_relationships.type  = '#{t}') AS #{rank}_neuter,
+              MAX(combination_taxon_names_taxon_names.masculine_name) FILTER (WHERE taxon_name_relationships.type =  '#{t}') AS #{rank}_masculine,
+              MAX(combination_taxon_names_taxon_names.feminine_name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_feminine"
+
+      if abbreviate
+        s.push "MAX(combination_taxon_names_taxon_names.rank_class) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_rank_class"
+      end
+
+      # Include the rank of the genus, which is typicaly there, for reference so we can return the code of nomenclature behind this combination
+      s.push "MAX(combination_taxon_names_taxon_names.rank_class) AS reference_rank_class"
+
+      abbreviate = true if rank == abbreviation_cutoff
     end
+
+    # Get the gender designation for genus-group names
+    APPLICABLE_RANKS.select{|k,v| v  =~ /[Gg]enus/}.each do |rank, t|
+      s.push "MAX(combination_taxon_names_taxon_names.cached_gender) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_gender"
+    end
+
+    s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date, taxon_names.updated_by_id, taxon_names.updated_at,sources.id source_id, citations.pages'
+
+    sel = s.join(',')
+
+    Combination.joins(:combination_taxon_names, :source)
+      .select(sel)
+      .group('taxon_names.id, sources.id, citations.pages')
   end
 
-  # An experimental approach to return all required information to format the 
-  # scientific name via a single query. Not in use.  Potentially 
+  # An experimental approach to return all required information to format the
+  # scientific name via a single query. Not in use.  Potentially
   # scalable to table rendering in a performant way.
   def protonyms_flat
     s = []
-    TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES.select{|n| !(n =~ /Family/)}.each do |rank, t|
+    TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES.select{|n| !n.match('Family')}.each do |rank, t|
       s.push "MAX(name) FILTER (WHERE rt = '#{t}') AS #{rank},
               MAX(cached_gender) FILTER (WHERE rt = '#{t}') AS #{rank}_gender,
               MAX(neuter_name) FILTER (WHERE rt = '#{t}') AS #{rank}_neuter,
@@ -401,8 +480,10 @@ class Combination < TaxonName
       .joins(:combination_relationships)
       .where(taxon_name_relationships: {
         object_taxon_name_id: id
-      }   )
-        .select(:id,  :name, :cached_gender, :neuter_name, :masculine_name, :feminine_name, 'taxon_name_relationships.type as rt')
+      }).select(
+        :id, :name, :cached_gender,
+        :neuter_name, :masculine_name, :feminine_name,
+        'taxon_name_relationships.type as rt')
 
       Protonym.with(filtered: a).select(s.join(',')).from('filtered').unscope(:where)[0]
   end
@@ -432,10 +513,12 @@ class Combination < TaxonName
     @protonyms_by_rank
   end
 
+  # This is 15s/1000 vs. 40ms/1000 of protonyms_by_rank
   def light_protonyms_by_rank
     if persisted?
-      ar = APPLICABLE_RANKS.values
-      @protonyms_by_rank ||= Protonym.joins(:combinations)
+      @protonyms_by_rank ||=
+
+        Protonym.joins(:combinations)
         .where(taxon_name_relationships: {object_taxon_name_id: id })
         .select(
           :id, :name, :type, :rank_class, :verbatim_author, :year_of_publication,
@@ -444,9 +527,9 @@ class Combination < TaxonName
           :cached_gender, :cached_misspelling,
           :cached_valid_taxon_name_id,
           'taxon_name_relationships.type tnr_type')
-        .sort{|a,b| ar.index(a.tnr_type) <=> ar.index(b.tnr_type)}
-        .inject({}){|hsh,n| hsh[ INVERTED_RANKS[n.tnr_type] ] = n; hsh}
-        .to_h
+        .sort_by{|a| APPLICABLE_RANK_SORT[a.tnr_type]}
+        .each_with_object({}) {|n, h| h[INVERTED_RANKS[n.tnr_type]] = n }
+
     else
       protonyms_by_rank
     end

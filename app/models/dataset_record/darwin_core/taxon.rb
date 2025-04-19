@@ -11,7 +11,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
   PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies).freeze
 
-  ORIGINAL_COMBINATION_RANKS = {
+  TARGET_ORIGINAL_COMBINATION_RANKS = {
     genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
     subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
     species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
@@ -198,7 +198,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 ancestor_protonym = ancestor[:protonym].finest_protonym
               end
 
-              if (rank_in_type = ORIGINAL_COMBINATION_RANKS[ancestor_rank&.downcase&.to_sym])
+              if (rank_in_type = TARGET_ORIGINAL_COMBINATION_RANKS[ancestor_rank&.downcase&.to_sym])
 
                 # if the subgenus is newer than taxon_name's authorship, skip it (the name must have been classified in the subgenus later)
                 next if ancestor_rank&.downcase&.to_sym == :subgenus &&
@@ -232,9 +232,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                                              .pick(:value)
                                              .downcase.to_sym
 
-            if ORIGINAL_COMBINATION_RANKS.has_key?(oc_protonym_rank)
+            if TARGET_ORIGINAL_COMBINATION_RANKS.has_key?(oc_protonym_rank)
               TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
-                type: ORIGINAL_COMBINATION_RANKS[oc_protonym_rank],
+                type: TARGET_ORIGINAL_COMBINATION_RANKS[oc_protonym_rank],
                 object_taxon_name: taxon_name)
 
               # detect if current name rank is genus and original combination is with self at subgenus level, eg Aus (Aus)
@@ -242,7 +242,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               if oc_protonym_rank == :subgenus && get_field_value('taxonRank').downcase == 'genus' &&
                 (get_original_combination&.metadata['parent'] == get_field_value('taxonID'))
                 TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
-                  type: ORIGINAL_COMBINATION_RANKS[:genus],
+                  type: TARGET_ORIGINAL_COMBINATION_RANKS[:genus],
                   object_taxon_name: taxon_name)
               end
             end
@@ -297,7 +297,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
                 if (old_rank = get_field_value('taxonRank').downcase) != rank.downcase &&
                   metadata['original_combination'] != get_field_value('taxonID') &&
-                  ORIGINAL_COMBINATION_RANKS.has_key?(old_rank.downcase.to_sym)
+                  TARGET_ORIGINAL_COMBINATION_RANKS.has_key?(old_rank.downcase.to_sym)
 
                   # save taxon so we can create a combination
                   taxon_name.save!
@@ -571,7 +571,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
     end
 
-    parent_elements.filter! { |p_rank, _| ORIGINAL_COMBINATION_RANKS.has_key?(p_rank) }
+    parent_elements.filter! { |p_rank, _| TARGET_ORIGINAL_COMBINATION_RANKS.has_key?(p_rank) }
     parent_elements
   end
 

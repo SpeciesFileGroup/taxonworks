@@ -18,6 +18,17 @@ module Export
   # * Pending handling of both BibTeX and Verbatim
   module Coldp
 
+    attr_accessor :remarks
+
+    def remarks
+      @remarks ||= []
+      @remarks
+    end
+
+    def self.remarks=(values)
+      @remarks = values
+    end
+
     FILETYPES = %w{Distribution Name NameRelation SpeciesInteraction Synonym TaxonConceptRelation TypeMaterial VernacularName Taxon References}.freeze
 
     # @return [Scope]
@@ -25,6 +36,8 @@ module Export
     #  !! At present no OTU with a `name` is sent. In the future this may need to change.
     #
     #  !! No synonym TaxonName is send if they don't have an OTU
+    # 
+    #  This is presently not scoping Names.csv. That's probably OK.
     #
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
@@ -34,6 +47,17 @@ module Export
         .where(taxon_names: {cached_is_valid: true} )
         .where('taxon_name_hierarchies.ancestor_id = ?', o.taxon_name_id)
         .where('(otus.name IS NULL) OR (otus.name = taxon_names.cached)') # !! Union does not make this faster
+    end
+
+    # Accessed per file type
+    def self.get_remarks(scope, predicate_id)
+      c = DataAttribute.with(invalid_names: scope.select('taxon_names.id invalid_id'))
+        .joins("JOIN invalid_names ON invalid_names.invalid_id = data_attributes.attribute_subject_id AND data_attributes.attribute_subject_type = 'TaxonName'")
+        .select("data_attributes.attribute_subject_id, STRING_AGG(data_attributes.value, '|') AS values")
+        .where(data_attributes: {controlled_vocabulary_term_id: predicate_id})
+        .group('data_attributes.attribute_subject_id')
+
+      ApplicationRecord.connection.execute(c.to_sql).to_a
     end
 
     def self.project_members(project_id)
@@ -61,8 +85,12 @@ module Export
     end
 
     # TODO: Move to Strings::Utilities
-    def self.sanitize_remarks(remarks)
-      remarks&.gsub('\r\n', ' ')&.gsub('\n', ' ')&.gsub('\t', ' ')&.gsub(/[ ]+/, ' ')
+    def self.sanitize_remarks(id)
+      return nil if @remarks.blank?
+      v = @remarks.bsearch{|i| i['attribute_subject_id'] >= id}
+      return nil if v['attribute_subject_id'] != id # bsearch finds >=
+      return v['values']&.gsub('\r\n', ' ')&.gsub('\n', ' ')&.gsub('\t', ' ')&.gsub(/[ ]+/, ' ')   if v
+      nil
     end
 
     # Return path to the data itself
