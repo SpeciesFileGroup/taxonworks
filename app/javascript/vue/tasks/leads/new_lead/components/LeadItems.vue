@@ -23,7 +23,6 @@
     </div>
 
     <div
-      v-if="!store.lead_item_otus.children[position].fixed"
       v-for="(otu, i) in store.lead_item_otus.parent"
       :index="otu.id"
       class="lead_otu_row"
@@ -50,10 +49,6 @@
           >Remove
         </span>
       </span>
-    </div>
-
-    <div v-else>
-      Fixed
     </div>
 
     <VModal

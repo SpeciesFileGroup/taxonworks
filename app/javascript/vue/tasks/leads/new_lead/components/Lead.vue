@@ -161,7 +161,7 @@
     </BlockLayout>
 
     <LeadItems
-      v-if="store.lead_item_otus.children.length > 0"
+      v-if="showLeadItems"
       @add-otu-index="(otuIndex) => addOtuIndex(otuIndex)"
       @lead-item-deleted="(otuId) => leadItemDeleted(otuId)"
       @otu-selected="(otuId) => addLeadItem(otuId)"
@@ -251,6 +251,11 @@ const positionIsFirst = computed(() => {
 
 const positionIsLast = computed(() => {
   return props.position == store.children.length - 1
+})
+
+const showLeadItems = computed(() => {
+  return !!store.lead_item_otus.children[props.position] &&
+    !store.lead_item_otus.children[props.position].fixed
 })
 
 const annotationLists = { [DEPICTION]: depictions }

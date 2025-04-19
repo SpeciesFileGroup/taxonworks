@@ -83,6 +83,7 @@ class Lead < ApplicationRecord
   end
 
   # @return [Boolean] true on success, false on error
+  # dupe does not dupe lead_items
   def dupe
     if parent_id
       errors.add(:base, 'Can only call dupe on a root lead')
@@ -188,8 +189,6 @@ class Lead < ApplicationRecord
       c = Lead.create!(text: t1, parent: self)
       d = Lead.create!(text: t1, parent: self)
     end
-
-    populate_lead_items
 
     [c.id, d.id]
   end
@@ -384,10 +383,12 @@ class Lead < ApplicationRecord
   end
 
   def apportioned_lead_item_otus
-    # The data get ordered in the view, where we'll know how they'll be
-    # displayed.
     combined_otus =
       children.map { |c| c.lead_item_otus.includes(:taxon_name) }.flatten
+    # TODO: Currently there's no (cheap) way to know if this is empty because
+    # this isn't a lead_items key or because we're on a couplet that has no
+    # lead_items (because, for example, it was an inserted couplet). It would be
+    # useful to send an indication if we're in the latter case.
     return { parent: [], children: [] } if combined_otus.empty?
 
     {

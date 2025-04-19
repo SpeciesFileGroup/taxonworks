@@ -52,7 +52,8 @@ class LeadItem < ApplicationRecord
   def self.consolidate_descendant_items(lead, target = nil)
     # Both lead and lead_item have `position`, which .leaves orders by, so need
     # to remove that.
-    items = lead.leaves.except(:order).joins(:lead_items).pluck('lead_items.id')
+    items =
+      lead.leaves.unscope(:order).joins(:lead_items).pluck('lead_items.id')
 
     return nil if items.empty?
 
