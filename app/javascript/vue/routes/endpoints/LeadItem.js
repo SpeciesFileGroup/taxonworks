@@ -12,7 +12,11 @@ const permitParams = {
 export const LeadItem = {
   ...baseCRUD(controller, permitParams),
 
-  destroyItemInLeadAndDescendants: (payload) => AjaxCall(
-    'post', `/${controller}/destroy_item_in_lead_and_descendants.json`, payload
+  destroyItemInChildren: (payload) => AjaxCall(
+    'post', `/${controller}/destroy_item_in_children.json`, payload
+  ),
+
+  addLeadItemToChildLead: (payload) => AjaxCall(
+    'post', `/${controller}/add_lead_item_to_child_lead.json`, payload
   )
 }

@@ -60,7 +60,7 @@
       v-if="modalVisible"
       @close="() => { modalVisible = false }"
       :container-style="{
-        width: '80vw'
+        width: '600px'
       }"
     >
       <template #header>

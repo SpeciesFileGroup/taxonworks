@@ -277,27 +277,29 @@ function addOtuIndex(otu_index) {
 }
 
 function leadItemDeleted(otu_id) {
-  if (!window.confirm('Are you sure you want to delete this otu row? It will be removed in this couplet AND all descendant couplets.')) {
+  if (!window.confirm('Are you sure you want to delete this otu row?')) {
     return
   }
 
-  LeadItem.destroyItemInLeadAndDescendants({
+  LeadItem.destroyItemInChildren({
     otu_id,
-    lead_id: store.lead.id // the parent lead
+    parent_id: store.lead.id
   })
     .then(() => {
       store.loadKey(store.lead.id)
+      TW.workbench.alert.create('Removed otu from lists.', 'notice')
     })
     .catch(() => {})
 }
 
 function addLeadItem(otu_id) {
-  LeadItem.create({ lead_item: {
+  LeadItem.addLeadItemToChildLead({
     otu_id,
-    lead_id: store.lead.id
-  }})
+    parent_id: store.lead.id
+  })
     .then(() => {
       store.loadKey(store.lead.id)
+      TW.workbench.alert.create('Added otu to the last lead list.', 'notice')
     })
     .catch(() => {})
 }
