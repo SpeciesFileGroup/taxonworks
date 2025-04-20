@@ -96,53 +96,71 @@
 
         <OtuChooser :lead="store.children[position]"/>
 
-        <div class="field label-above">
-          <label>External link</label>
-          <fieldset>
-            <div class="field label-above">
-              <label>URL (must include https:// or http://)</label>
-              <textarea
-                class="full_width"
-                rows="2"
-                v-model="store.children[position].link_out"
-              />
-            </div>
-            <div class="field label-above">
-              <label>URL text</label>
-              <input
-                type="text"
-                class="normal-input full_width"
-                v-model="store.children[position].link_out_text"
-              />
-            </div>
-            <p v-if="displayLinkOut">
-              Link: <a :href="store.children[position].link_out" target="_blank">
-                {{ store.children[position].link_out_text }}
-              </a>
-            </p>
-            <p v-else>
-              Link: <i>(Requires both URL and text)</i>
-            </p>
-          </fieldset>
+        <div
+          @click="() => { expandOptions = !expandOptions }"
+          class="cursor-pointer inline"
+        >
+          <div
+            :data-icon="expandOptions ? 'w-arrow-down' : 'w-arrow-right'"
+            class="expand-box button-circle button-default separate-right"
+          />
+          <span class="margin-small-left">
+            {{ expandOptions ? 'Fewer options' : 'More options' }}
+          </span>
         </div>
 
-        <div class="field label-above">
-          <label>Redirect</label>
-          <select
-            class="redirect_select"
-            v-model="store.children[position].redirect_id"
-            :disabled="leadHasChildren"
-          >
-            <option :value="null"></option>
-            <option
-              v-for="option in redirectOptions"
-              :key="option.id"
-              :value="option.id"
-              :selected="option.id == store.children[position].redirect_id"
+        <div
+          v-if="expandOptions"
+          class="separate-top"
+        >
+          <div class="field label-above">
+            <label>External link</label>
+            <fieldset>
+              <div class="field label-above">
+                <label>URL (must include https:// or http://)</label>
+                <textarea
+                  class="full_width"
+                  rows="2"
+                  v-model="store.children[position].link_out"
+                />
+              </div>
+              <div class="field label-above">
+                <label>URL text</label>
+                <input
+                  type="text"
+                  class="normal-input full_width"
+                  v-model="store.children[position].link_out_text"
+                />
+              </div>
+              <p v-if="displayLinkOut">
+                Link: <a :href="store.children[position].link_out" target="_blank">
+                  {{ store.children[position].link_out_text }}
+                </a>
+              </p>
+              <p v-else>
+                Link: <i>(Requires both URL and text)</i>
+              </p>
+            </fieldset>
+          </div>
+
+          <div class="field label-above">
+            <label>Redirect</label>
+            <select
+              class="redirect_select"
+              v-model="store.children[position].redirect_id"
+              :disabled="leadHasChildren"
             >
-              {{ option.text }}
-            </option>
-          </select>
+              <option :value="null"></option>
+              <option
+                v-for="option in redirectOptions"
+                :key="option.id"
+                :value="option.id"
+                :selected="option.id == store.children[position].redirect_id"
+              >
+                {{ option.text }}
+              </option>
+            </select>
+          </div>
         </div>
 
         <Annotations
@@ -210,6 +228,7 @@ const store = useStore()
 
 const depictions = ref([])
 const loading = ref(false)
+const expandOptions = ref(false)
 
 const leadHasChildren = computed(() => {
   return (!store.children[props.position].redirect_id &&
@@ -428,5 +447,13 @@ function changeLeadPosition(direction) {
 
 .redirect_select[disabled] {
   opacity: .5;
+}
+
+.inline .expand-box {
+	width: 24px;
+	height: 24px;
+	padding: 0px;
+	background-size: 10px;
+	background-position: center;
 }
 </style>
