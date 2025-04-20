@@ -283,22 +283,6 @@ class Lead < ApplicationRecord
     result
   end
 
-  # TODO: Probably a helper method
-  def all_children_standard_key(node = self, result = [], depth = 0) # couplets before depth
-    ch = node.children
-    for c in ch
-      a = {}
-      a[:depth] = depth
-      a[:lead] = c
-      result.push(a)
-    end
-
-    for c in ch
-      c.all_children_standard_key(c, result, depth + 1)
-    end
-    result
-  end
-
   # @param reorder_list [Array] array of 0-based positions in which to order
   #  the children of this lead.
   # Raises TaxonWorks::Error on error.

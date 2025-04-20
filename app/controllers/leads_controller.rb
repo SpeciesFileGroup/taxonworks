@@ -1,7 +1,7 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_lead, only: %i[
-    edit add_children update destroy show show_all show_all_print
+    edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
     duplicate otus destroy_subtree reorder_children insert_key]
 
@@ -50,14 +50,6 @@ class LeadsController < ApplicationController
       @ancestors = @lead.ancestors.reverse
       @lead_item_otus = @lead.apportioned_lead_item_otus
     end
-  end
-
-  def show_all
-    @key = @lead.all_children
-  end
-
-  def show_all_print
-    @key = @lead.all_children_standard_key
   end
 
   # GET /leads/new
