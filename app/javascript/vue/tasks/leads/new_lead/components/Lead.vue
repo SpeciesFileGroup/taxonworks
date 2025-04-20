@@ -168,7 +168,6 @@
       :position="position"
       :lead-id="store.children[position].id"
       :show-add-otu="position == 0"
-      class="lead_items"
     />
   </div>
 </template>
@@ -407,17 +406,6 @@ function changeLeadPosition(direction) {
 .lead {
   display: flex;
   width: 100%;
-  height: 100%;
-  margin-bottom: 2em;
-}
-
-.lead_items {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  margin: 0 auto;
-  margin-bottom: 1.5em;
-  width: 100%;
 }
 
 .lead_and_lead_items {
@@ -426,7 +414,6 @@ function changeLeadPosition(direction) {
   max-width: 600px;
   display: flex;
   flex-direction: column;
-  gap: 2em;
 }
 
 .lead_navigation {

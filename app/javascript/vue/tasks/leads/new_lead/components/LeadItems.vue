@@ -1,6 +1,8 @@
 <template>
 
-  <div class="separate-bottom">
+  <div class="connector" />
+
+  <div class="lead-items">
     <div class="flex-separate full_width">
       <div>
         <VBtn
@@ -150,6 +152,23 @@ function setLeadOtu() {
 </script>
 
 <style scoped>
+.connector {
+  width: 12px;
+  height: 2em;
+  background: #fff;
+  z-index: -100;
+  box-shadow: rgba(36, 37, 38, 0.08) 4px 0px 15px 0px;
+  margin: 0px auto;
+  flex-shrink: 0;
+}
+
+.lead-items {
+  padding: 1em 2em;
+  box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
+  border-radius: 0.9rem;
+  background-color: #fff;
+}
+
 .in {
   display: inline-block;
   width: 16px;
