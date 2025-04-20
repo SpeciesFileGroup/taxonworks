@@ -120,7 +120,7 @@ function addOtu() {
 }
 
 function setLeadOtu() {
-  const checkedOtu = props.otuList[props.checked[0]]
+  const checkedOtu = store.lead_item_otus.parent[0]
   const payload = {
     lead: {
       otu_id: checkedOtu.id

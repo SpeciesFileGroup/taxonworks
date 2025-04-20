@@ -278,6 +278,9 @@ class Lead < ApplicationRecord
       a[:depth] = depth
       a[:lead] = c
       a[:leadLabel] = node.origin_label
+      # TODO: avoid the extra query (and hash value) when this isn't a
+      # lead_items key - currently no way to know except by checking every lead.
+      a[:leadItemsCount] = c.lead_items.count
       result.push(a)
     end
     result
