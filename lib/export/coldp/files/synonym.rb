@@ -1,5 +1,5 @@
 # The synonym table is simply a list of all the Names that have been used for valid OTUs (Taxa) in the current classification
-# regardless of whether they are valid or invalid names.  Only TaxonIds for valid OTUs should be here, though the format
+# regardless of whether they are valid or invalid names. Only TaxonIds for valid OTUs should be here, though the format
 # will apparently handle taxon ids that are not in the taxon table.
 
 # Bigger picture: understand how this maps to core name usage table in CoL
@@ -26,6 +26,8 @@ module Export::Coldp::Files::Synonym
   end
 
   # This is currently factored to use *no* ActiveRecord instances
+  #   TODO: mirror Name generation, remove the n=1 otus
+  #
   def self.generate(otus, project_members, reference_csv = nil, skip_name_ids = [])
     ::CSV.generate(col_sep: "\t") do |csv|
 
@@ -35,7 +37,7 @@ module Export::Coldp::Files::Synonym
       #  ?! in groups of
       otus.select('otus.id id, taxon_names.cached cached, otus.taxon_name_id taxon_name_id')
         .pluck(:id, :cached, :taxon_name_id)
-        .each do |o|
+        .find_each do |o|
 
           # TODO: Confirm resolved: original combinations of invalid names are not being handled correclty in reified
 
@@ -65,7 +67,7 @@ module Export::Coldp::Files::Synonym
           c.pluck(:id, :cached, :cached_original_combination, :type, :rank_class, :cached_secondary_homonym, :updated_at, :updated_by_id)
             .each do |t|
               reified_id = ::Export::Coldp.reified_id(t[0], t[1], t[2])
-              next if skip_name_ids.include?               reified_id = ::Export::Coldp.reified_id(t[0], t[1], t[2])
+              next if skip_name_ids.include? reified_id = ::Export::Coldp.reified_id(t[0], t[1], t[2])
 
 
               # skip duplicate protonyms created for family group relationships

@@ -156,7 +156,7 @@ module Export::Coldp::Files::Taxon
 
       link_base_url = root_otu.data_attributes.where(type: 'InternalAttribute', controlled_vocabulary_term_id: link_vocab_id).first&.value
 
-      otus.each do |o|
+      otus.find_each do |o|
         # !! When a name is a synonmy (combination), but that combination has no OTU
         # !! then the parent of the name in the taxon table is nil
         # !! Handle this edge case (probably resolved now)

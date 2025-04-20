@@ -13,14 +13,14 @@
 #
 module Export::Coldp::Files::Name
 
-  # TODO: Not implemented, resolve
+  #  TODO: Not implemented, resolve
   # and re-implement if needed
-  # @skipped_name_ids = []
-  #
+  @skipped_name_ids = []
 
-  # def self.skipped_name_ids
-  #   @skipped_name_ids
-  # end
+
+  def self.skipped_name_ids
+    @skipped_name_ids
+  end
 
   def self.code_field(rank_class)
     return 'ICZN' if rank_class =~ /Iczn/
@@ -135,6 +135,7 @@ module Export::Coldp::Files::Name
       ::Export::Coldp.remarks = ::Export::Coldp.get_remarks(otu.taxon_name.self_and_descendants, predicate_id)
     end
 
+    # TODO: Why is thie output here?
     output = {}
     output[:csv] = ::CSV.generate(col_sep: "\t") do |csv|
       csv << %w{

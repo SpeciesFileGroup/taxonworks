@@ -18,6 +18,7 @@ module Export
   # * Pending handling of both BibTeX and Verbatim
   module Coldp
 
+    # TODO: probably doing nothing
     attr_accessor :remarks
 
     def remarks
@@ -36,7 +37,7 @@ module Export
     #  !! At present no OTU with a `name` is sent. In the future this may need to change.
     #
     #  !! No synonym TaxonName is send if they don't have an OTU
-    # 
+    #
     #  This is presently not scoping Names.csv. That's probably OK.
     #
     def self.otus(otu_id)
@@ -62,7 +63,7 @@ module Export
 
     def self.project_members(project_id)
       project_members = {}
-      ProjectMember.where(project_id:).each do |pm|
+      ProjectMember.eager_load(:user).where(project_id:).each do |pm|
         if pm.user.orcid.nil?
           project_members[pm.user_id] = pm.user.name
         else
@@ -110,6 +111,9 @@ module Export
       clb_dataset_id =  otu.identifiers.where(namespace_id: ns.id)&.first&.identifier unless ns.nil?
 
       project = ::Project.find(otu.project_id)
+
+      project_id = otu.project_id
+
       project_members = project_members(project.id)
       feedback_url = project[:data_curation_issue_tracker_url] unless project[:data_curation_issue_tracker_url].nil?
 
@@ -122,7 +126,7 @@ module Export
         version = Settings.sandbox_commit_sha
       end
 
-      # We lose the ability to maintain title in TW but until we can model metadata in TW, 
+      # We lose the ability to maintain title in TW but until we can model metadata in TW,
       #   it seems desirable because there's a lot of TW vs CLB title mismatches
       if clb_dataset_id.nil?
         metadata = {
@@ -165,19 +169,20 @@ module Export
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
 
-        #   (FILETYPES - %w{Name Taxon References Synonym}).each do |ft| # TODO: double check Synonym belongs there.
-        #     m = "Export::Coldp::Files::#{ft}".safe_constantize
-        #     zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
-        #   end
+        (FILETYPES - %w{Name Taxon References Synonym}).each do |ft| # TODO: double check Synonym belongs there.
+           m = "Export::Coldp::Files::#{ft}".safe_constantize
+           zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
+         end
 
         zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
 
-        #  skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids
-        #  zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otus, project_members, ref_tsv, skip_name_ids) }
+        skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids  ||  [] # TODO: Probably not used
 
-        #  zipfile.get_output_stream('Taxon.tsv') do |f|
-        #    f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv, prefer_unlabelled_otus, skip_name_ids)
-        #  end
+        zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otus, project_members, ref_tsv, skip_name_ids) }
+
+        zipfile.get_output_stream('Taxon.tsv') do |f|
+          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv, prefer_unlabelled_otus, skip_name_ids)
+        end
 
         # TODO: this doesn't really help, and adds time to the process.
         # Sort the refs by full citation string
@@ -191,7 +196,7 @@ module Export
         end
 
         zipfile.get_output_stream('References.tsv') { |f| f.write d }
-        zipfile.add('metadata.yaml', metadata_file.path)
+        zipfile.add('metadata.yaml', metadata_file.path) # TODO: consider isolating Files.metadata logic
       end
 
       zip_file_path
