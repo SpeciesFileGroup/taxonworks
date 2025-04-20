@@ -1,25 +1,34 @@
 <template>
 
-  <div>
-    <div class="lead_item_buttons">
-      <VBtn
-        :disabled="otuIndices.length != 1"
-        medium
-        color="create"
-        @click="setLeadOtu"
-        class="lead_item_button"
+  <div class="separate-bottom">
+    <div class="flex-separate full_width">
+      <div>
+        <VBtn
+          :disabled="otuIndices.length != 1"
+          medium
+          color="create"
+          @click="setLeadOtu"
+          class="lead_item_button"
+        >
+          Set as lead otu
+        </VBtn>
+        <VBtn
+          v-if="showAddOtu"
+          medium
+          color="create"
+          @click="addOtu"
+          class="lead_item_button"
+        >
+          Add an otu
+        </VBtn>
+      </div>
+
+      <a
+        :href="printKeyLink"
+        target="_blank"
       >
-        Set as lead otu
-      </VBtn>
-      <VBtn
-        v-if="showAddOtu"
-        medium
-        color="create"
-        @click="addOtu"
-        class="lead_item_button"
-      >
-        Add an otu
-      </VBtn>
+        print key
+      </a>
     </div>
 
     <div
@@ -50,31 +59,31 @@
         </span>
       </span>
     </div>
-
-    <VModal
-      v-if="modalVisible"
-      @close="() => { modalVisible = false }"
-      :container-style="{
-        width: '600px'
-      }"
-    >
-      <template #header>
-        <h3>Select an OTU to add to the lists</h3>
-      </template>
-      <template #body>
-        <SmartSelector
-          model="otus"
-          klass="otus"
-          :target="OTU"
-          :pin-type="OTU"
-          @selected="(otu) => {
-            modalVisible = false
-            emit('otuSelected', otu.id)
-          }"
-        />
-      </template>
-    </VModal>
   </div>
+
+  <VModal
+    v-if="modalVisible"
+    @close="() => { modalVisible = false }"
+    :container-style="{
+      width: '600px'
+    }"
+  >
+    <template #header>
+      <h3>Select an OTU to add to the lists</h3>
+    </template>
+    <template #body>
+      <SmartSelector
+        model="otus"
+        klass="otus"
+        :target="OTU"
+        :pin-type="OTU"
+        @selected="(otu) => {
+          modalVisible = false
+          emit('otuSelected', otu.id)
+        }"
+      />
+    </template>
+  </VModal>
 
 </template>
 
@@ -86,6 +95,7 @@ import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { Lead } from '@/routes/endpoints'
 import { OTU } from '@/constants'
 import { computed, ref } from 'vue'
+import { RouteNames } from '@/routes/routes'
 import { useStore } from '../store/useStore.js'
 
 const props = defineProps({
@@ -113,6 +123,10 @@ const otuIndices = computed(() => {
   // A list of indices into the parent otu list indicating which of the parent
   // otus are checked for this child.
   return store.lead_item_otus.children[props.position].otu_indices
+})
+
+const printKeyLink = computed(() => {
+  return `${RouteNames.PrintKey}?lead_id=${store.root.id}&lead_items=true`
 })
 
 function addOtu() {
@@ -167,13 +181,10 @@ function setLeadOtu() {
   height: calc(26px + 1em);
 }
 
-.lead_item_buttons {
-  display: inline-block;
-}
-
 .lead_item_button {
   width: 10em;
   margin-bottom: 1em;
   margin-right: 0.5em;
 }
+
 </style>

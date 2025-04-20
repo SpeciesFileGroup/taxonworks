@@ -48,28 +48,28 @@ module LeadsHelper
     true
   end
 
-  def print_key(lead)
+  def print_key(lead, lead_items = false)
     metadata = key_metadata(lead)
 
     t = tag.h1(lead.text)
-    t << print_key_body(lead, metadata)
+    t << print_key_body(lead, metadata, lead_items)
     t.html_safe
   end
 
-  def print_key_table(lead)
+  def print_key_table(lead, lead_items = false)
     metadata = key_metadata(lead)
 
     t = tag.h1(lead.text)
     t << tag.table(
-      print_key_table_body(lead, metadata),
+      print_key_table_body(lead, metadata, lead_items),
       id: 'key_table'
     )
 
     t
   end
 
-  def print_key_table_body(lead, metadata)
-    data = key_data(lead, metadata)
+  def print_key_table_body(lead, metadata, lead_items = false)
+    data = key_data(lead, metadata, lead_items)
     x = []
 
     metadata.keys.each do |k|
@@ -77,8 +77,8 @@ module LeadsHelper
         a = data.dig(lid, :position) == 0 ? metadata.dig(k, :couplet_number).to_s : '&mdash;'
         b = data.dig(lid, :text)
 
-        if data.dig(lid, :target_label)
-          c = tag.b(data.dig(lid, :target_label))
+        if label = data.dig(lid, :target_label)
+          c = tag.b(label)
         end
 
         c = 'TODO: PROVIDE ENDPOINT' if c.blank?
@@ -95,8 +95,8 @@ module LeadsHelper
     x.join.html_safe
   end
 
-  def print_key_body(lead, metadata)
-    data = key_data(lead, metadata)
+  def print_key_body(lead, metadata, lead_items = false)
+    data = key_data(lead, metadata, lead_items)
     x = []
 
     metadata.keys.each do |k|
@@ -104,8 +104,8 @@ module LeadsHelper
         a = data.dig(lid, :position) == 0 ? metadata.dig(k, :couplet_number).to_s + '.' : '&mdash;'
         b = data.dig(lid, :text)
 
-        if data.dig(lid, :target_label)
-          c = tag.b(data.dig(lid, :target_label))
+        if label = data.dig(lid, :target_label)
+          c = tag.b(label)
         end
 
         c = 'TODO: PROVIDE ENDPOINT' if c.blank?
@@ -142,7 +142,7 @@ module LeadsHelper
   end
 
   # An index of lead.id pointing to its content
-  def key_data(lead, metadata)
+  def key_data(lead, metadata, lead_items = false)
     data = {}
     lead.self_and_descendants.find_each do |l|
       d = {
@@ -170,6 +170,18 @@ module LeadsHelper
         )
       end
 
+      if lead_items && d[:target_type] != :internal
+        target_label = lead_item_otus_string(l)
+        if target_label.present?
+          # Overwrite
+          d.merge!(
+            target_label:,
+            target_id: '',
+            target_type: 'lead_item_otus'
+          )
+        end
+      end
+
       if l.depictions.load.any?
         d.merge!( figures: l.depictions.order(:position).collect{|d| depiction_to_json(d)}  )
       end
@@ -177,6 +189,19 @@ module LeadsHelper
       data[l.id] = d
     end
     data
+  end
+
+  def lead_item_otus_string(lead)
+    otu_ids = lead.lead_items.map(&:otu_id)
+    if otu_ids.empty?
+      return nil
+    end
+
+    otu_labels = Otu.where(id: otu_ids).map { |o| label_for_otu(o) }.sort!
+    count = otu_labels.count
+    s = count > 1 ? 's' : ''
+
+    "#{count} otu#{s} left: #{otu_labels.join('; &nbsp;&nbsp; ')}".html_safe
   end
 
   # Used to serve Keys to the API.
