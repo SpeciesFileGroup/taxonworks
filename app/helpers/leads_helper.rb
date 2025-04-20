@@ -14,15 +14,9 @@ module LeadsHelper
     text.slice(0..25) + (text.size > 25 ? '...' : '')
   end
 
-  def lead_edges(lead)
-    edges =
-      (lead.parent_id ? '↑' : '') +
-      (lead.children.size > 0 ? '↓' : '')
-  end
-
   def lead_tag(lead)
     return nil if lead.nil?
-    lead_edges(lead) + lead_id(lead) + ' ' + lead_truncated_text(lead)
+    lead_id(lead) + ' ' + lead_truncated_text(lead)
   end
 
   def lead_link(lead)
