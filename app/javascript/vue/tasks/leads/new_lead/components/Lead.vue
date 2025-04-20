@@ -404,6 +404,13 @@ function changeLeadPosition(direction) {
   }
 }
 
+.lead {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  margin-bottom: 2em;
+}
+
 .lead_items {
   display: flex;
   justify-content: center;
@@ -411,21 +418,12 @@ function changeLeadPosition(direction) {
   margin: 0 auto;
   margin-bottom: 1.5em;
   width: 100%;
-  max-width: 600px;
-}
-
-.lead {
-  display: flex;
-  max-width: 600px;
-  width: 100%;
-  min-width: 360px;
-  height: 100%;
-  //flex-grow: 1;
-  margin-bottom: 2em;
-  margin: 0 auto;
 }
 
 .lead_and_lead_items {
+  flex-grow: 1;
+  min-width: 360px;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
   gap: 2em;
