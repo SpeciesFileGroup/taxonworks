@@ -136,17 +136,23 @@ function addOtu() {
 }
 
 function setLeadOtu() {
-  const checkedOtu = store.lead_item_otus.parent[0]
+  const checkedOtu =
+    store.lead_item_otus.parent[
+      store.lead_item_otus.children[props.position].otu_indices[0]
+    ]
   const payload = {
     lead: {
       otu_id: checkedOtu.id
     }
   }
+
+  store.loading = true
   Lead.update(props.leadId, payload)
     .then(() => {
       store.loadKey(store.lead.id)
     })
     .catch(() => {})
+    .finally(() => { store.loading = false })
 }
 
 </script>
