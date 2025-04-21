@@ -84,4 +84,33 @@ class LeadItem < ApplicationRecord
     true
   end
 
+  def self.add_item_to_child_lead(parent_lead, otu_id)
+    otu_already_added = false
+    child_to_add_to = nil
+    parent_lead.children.to_a.reverse.each do |c|
+      if c.children.exists?
+        next
+      else
+        # We add to the rightmost available child.
+        child_to_add_to ||= c
+      end
+
+      if c.lead_items.to_a.any? { |li| li.otu_id == otu_id }
+        otu_already_added = true
+        break
+      end
+    end
+
+    if otu_already_added
+      parent_lead.errors.add(:base, 'Otu is already on the list!')
+      return false
+    elsif child_to_add_to == nil
+      parent_lead.errors.add(:base, 'No available child to add otu to!')
+      return false
+    end
+
+    LeadItem.create!(lead_id: child_to_add_to.id, otu_id:)
+    true
+  end
+
 end

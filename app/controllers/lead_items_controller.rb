@@ -75,23 +75,11 @@ class LeadItemsController < ApplicationController
   def add_lead_item_to_child_lead
     parent = Lead.find(params[:parent_id])
     otu_id = params[:otu_id]
-    parent.children.to_a.reverse.each do |c|
-      if c.lead_items.exists?
-        otu_exists = c.lead_items.to_a.any? { |li| li.otu_id == otu_id }
-        if otu_exists
-          parent.errors.add(:base, 'Otu is already on the list!')
-          render json: parent.errors, status: :unprocessable_entity
-          return
-        end
+    added = LeadItem.add_item_to_child_lead(parent, otu_id)
 
-        LeadItem.create!(lead_id: c.id, otu_id:)
-        head :no_content
-        return
-      end
+    if !added
+      render json: parent.errors, status: :unprocessable_entity
     end
-
-    parent.errors.add(:base, "Couldn't find a lead to add LeadItem to!")
-    render json: parent.errors, status: :unprocessable_entity
   end
 
   private
