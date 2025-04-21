@@ -30,7 +30,7 @@
             url="/otus/autocomplete"
             placeholder="Search a otu"
             param="term"
-            :clear-after="true"
+            clear-after
             @getItem="loadOtu"
             label="label_html"
           />

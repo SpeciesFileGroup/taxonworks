@@ -24,6 +24,18 @@ import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import { useStore } from 'vuex'
 
+defineProps({
+  title: {
+    type: String,
+    required: true
+  },
+
+  status: {
+    type: String,
+    required: true
+  }
+})
+
 const store = useStore()
 
 const conveyances = computed(() => store.getters[GetterNames.GetConveyances])

@@ -14,6 +14,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New source task: Citations count [#4237]
 - Allow catalog number to start with zeros in Grid digitizer task [#4291]
 
+### Changed
+
+- Browse OTU: Specimen records are displayed on DwC table [#4138]
+
 ### Fixed
 
 - Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
@@ -25,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer creating sex biocuration group with an array as URI
 - Filters: Sorting alphabetically does not work correctly when values ​​are in HTML
 
+[#4138]: https://github.com/SpeciesFileGroup/taxonworks/issues/4138
 [#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
 [#4275]: https://github.com/SpeciesFileGroup/taxonworks/issues/4275
