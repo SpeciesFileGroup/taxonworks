@@ -148,13 +148,13 @@ function setLeadOtu() {
     }
   }
 
-  store.loading = true
+  store.setLoading(true)
   Lead.update(props.leadId, payload)
     .then(() => {
       store.loadKey(store.lead.id)
     })
     .catch(() => {})
-    .finally(() => { store.loading = false })
+    .finally(() => { store.setLoading(false) })
 }
 
 function leadItemDeleted(otuId) {
@@ -162,7 +162,7 @@ function leadItemDeleted(otuId) {
     return
   }
 
-  store.loading = true
+  store.setLoading(true)
   LeadItem.destroyItemInChildren({
     otu_id: otuId,
     parent_id: store.lead.id
@@ -172,11 +172,11 @@ function leadItemDeleted(otuId) {
       TW.workbench.alert.create('Removed otu from lists.', 'notice')
     })
     .catch(() => {})
-    .finally(() => { store.loading = false })
+    .finally(() => { store.setLoading(false) })
 }
 
 function otuSelected(otuId) {
-  store.loading = true
+  store.setLoading(true)
   LeadItem.addLeadItemToChildLead({
     otu_id: otuId,
     parent_id: store.lead.id
@@ -185,7 +185,8 @@ function otuSelected(otuId) {
       store.loadKey(store.lead.id)
       TW.workbench.alert.create('Added otu to the last lead list.', 'notice')
     })
-    .catch(() => { store.loading = false })
+    .catch(() => {})
+    .finally(() => { store.setLoading(false) })
 }
 
 </script>

@@ -12,8 +12,11 @@ const makeInitialState = () => ({
   futures: [],
   // Ancestors of lead.
   ancestors: [],
-  // Use this to indicate data is being retrieved, not for database changes.
+  // A small corner spinner - !! do not set directly !! since it's shared; use
+  // store.setLoading instead.
   loading: false,
+  // Ref count for loading spinner.
+  loadingCount: 0,
   // Keep a copy of values from the last time a save occurred.
   last_saved: {
     origin_label: undefined,

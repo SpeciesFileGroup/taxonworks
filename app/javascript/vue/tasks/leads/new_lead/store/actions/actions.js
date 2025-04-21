@@ -5,6 +5,7 @@ import { childrenChangedSinceLastSaveList, originLabelChangedSinceLastSave }
 import addOtuIndex from './addOtuIndex.js'
 import deleteChild from './deleteChild'
 import loadKey from './loadKey.js'
+import setLoading from './setLoading.js'
 import resetChildren from './resetChildren.js'
 import updateChild from './updateChild.js'
 
@@ -17,6 +18,7 @@ const ActionNames = {
   LoadKey: 'loadKey',
   OriginLabelChangedSinceLastSave: 'originLabelChangedSinceLastSave',
   ResetChildren: 'resetChildren',
+  SetLoading: 'setLoading',
   UpdateChild: 'updateChild'
 }
 
@@ -29,6 +31,7 @@ const ActionFunctions = {
   [ActionNames.LoadKey]: loadKey,
   [ActionNames.OriginLabelChangedSinceLastSave]: originLabelChangedSinceLastSave,
   [ActionNames.ResetChildren]: resetChildren,
+  [ActionNames.SetLoading]: setLoading,
   [ActionNames.UpdateChild]: updateChild
 }
 
