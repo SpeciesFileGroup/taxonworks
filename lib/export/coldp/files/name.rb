@@ -210,9 +210,11 @@ module Export::Coldp::Files::Name
   #   - species or genus group names
   #   - valid names
   #   - names with original combinations set
+  #   - names where cached != original_combination, i.e. it needs re-ification
   #
   # As a test these should parse correctly in the Biodiversity wrapper as of 4/8/2025.
   #
+  # TODO: only reified!!
   def self.original_combination_names(otu)
     a = otu.taxon_name.self_and_descendants
       .where(taxon_names: { type: 'Protonym' })
@@ -222,6 +224,7 @@ module Export::Coldp::Files::Name
     b = Protonym
       .original_combination_specified
       .original_combinations_flattened.with(project_scope: a)
+      .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!! 
       .joins('JOIN project_scope ps on ps.id = taxon_names.id')
   end
 
@@ -241,6 +244,8 @@ module Export::Coldp::Files::Name
       # TODO: resolve/verify needed
       uninomial = row['genus'] if rank == 'genus'
 
+      # !! Ideally we de-reify these names inathe query with (cached != cached_original_combination)
+      # !! SO that we know these *must* be reified
       id = ::Utilities::Nomenclature.reified_id(row['id'], row['cached_original_combination'])
 
       # by definition
@@ -494,7 +499,7 @@ module Export::Coldp::Files::Name
   #
   def self.add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
 
-    names =  invalid_family_and_higher_names(otu)
+    names = invalid_family_and_higher_names(otu)
 
     classification_status = taxon_name_classification_status(names)
     relationship_status = taxon_name_relationship_status(names)
