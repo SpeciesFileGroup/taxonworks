@@ -23,7 +23,7 @@ module Export::Coldp::Files::TypeMaterial
   def self.locality(co)
     [co.dwc_country, co.dwc_state_province, co.dwc_county, co.dwc_locality].compact.join(', ')
   end
-  
+
   def self.date(co)
     co.dwc_event_date&.split('/')[0] unless co.dwc_event_date.nil?
   end
@@ -86,7 +86,7 @@ module Export::Coldp::Files::TypeMaterial
           nil                                                             # remarks
         ]
 
-          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
+        Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
       end
     end
   end

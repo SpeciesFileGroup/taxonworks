@@ -29,10 +29,6 @@ module Export::Coldp::Files::Synonym
     'synonym'
   end
 
-  def self.reference_id_field(otu)
-    nil
-  end
-
   # @params otu [Otu]
   #   the top level OTU
   def self.generate(otu, otus, project_members, reference_csv = nil, skip_name_ids = [])
@@ -58,7 +54,7 @@ module Export::Coldp::Files::Synonym
       .unscope(:select)
       .select('taxon_names.id, vhn_otu_scope.id otu_id, otus.updated_at, otus.updated_by_id')
 
-    a.length
+    a.length # TODO: likley not needed
 
     a.find_each do |n|
 

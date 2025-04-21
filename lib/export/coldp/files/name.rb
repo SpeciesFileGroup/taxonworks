@@ -562,7 +562,7 @@ module Export::Coldp::Files::Name
       csv << [
         t.id,                                                               # ID
         nil,                                                                # basionymID
-        scientific_name,                                                           # scientificName  # should just be t.cached
+        scientific_name,                                                    # scientificName  # should just be t.cached
         t.cached_author_year,                                               # authorship
         t.rank,                                                             # rank
         uninomial,                                                          # uninomial   <- if genus here
