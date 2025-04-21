@@ -6,6 +6,10 @@ if extend_response_with('container_label')
   json.container_label label_for_collection_object_container(collection_object)
 end
 
+if extend_response_with('container_item')
+  json.container_item collection_object.container_item
+end
+
 if extend_response_with('dwc_occurrence')
   json.dwc_occurrence do
     json.merge!(collection_object.dwc_occurrence&.attributes&.select{|k,v| v.present?} )

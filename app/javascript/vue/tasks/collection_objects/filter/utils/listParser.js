@@ -47,25 +47,27 @@ export async function listParser(list, { parameters }) {
     )
 
     const {
-      current_repository,
-      repository,
+      id,
+      global_id,
       collecting_event,
-      taxon_determinations,
+      container_item,
+      current_repository,
       dwc_occurrence,
       identifiers,
-      id,
-      global_id
+      repository,
+      taxon_determinations
     } = item
 
     return {
       id,
       global_id,
-      collection_object,
-      current_repository,
-      repository,
       collecting_event,
-      taxon_determinations: getTaxonDetermination(taxon_determinations),
+      collection_object,
+      container_item,
+      current_repository,
       dwc_occurrence,
+      repository,
+      taxon_determinations: getTaxonDetermination(taxon_determinations),
       identifiers: {
         cached: identifiers?.map((item) => item.cached).join(' | ')
       },

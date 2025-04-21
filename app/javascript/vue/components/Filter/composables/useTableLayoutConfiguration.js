@@ -24,6 +24,7 @@ function sortArrayByArray(arr, arrOrder) {
 }
 
 export function useTableLayoutConfiguration({ model, layouts } = {}) {
+  const CURRENT_SCHEMA_DATE = 20250421
   const state = reactive({
     currentLayout: null,
     layouts: {},
@@ -61,6 +62,7 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
         user: {
           layout: {
             [keyStorage]: {
+              preferenceSchema: CURRENT_SCHEMA_DATE,
               customLayout: state.currentLayout
             }
           }
@@ -92,7 +94,7 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
     User.preferences().then(({ body }) => {
       const preferences = body.layout[keyStorage]
 
-      if (preferences) {
+      if (preferences && preferences.preferenceSchema === CURRENT_SCHEMA_DATE) {
         state.layouts.Custom = preferences.customLayout
         state.currentLayout = preferences.customLayout
 
