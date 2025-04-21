@@ -456,7 +456,6 @@ resources :leads do
     post :destroy_subtree, defaults: {format: :json}
     patch :reorder_children, defaults: {format: :json}
     post :insert_key, defaults: {format: :json}
-    post :batch_add_lead_items, defaults: {format: :json}
   end
   collection do
     post :add_otu_index, defaults: {format: :json}

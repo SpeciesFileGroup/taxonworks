@@ -65,10 +65,6 @@ export const Lead = {
     'post', `/${controller}/add_otu_index.json`, payload
   ),
 
-  batchAddLeadItems: (id, params) => AjaxCall(
-    'post', `/${controller}/${id}/batch_add_lead_items.json`, params
-  ),
-
   batchCreateLeadItems: (params) => AjaxCall(
     'post', `/${controller}/batch_create_lead_items.json`, params
   ),
