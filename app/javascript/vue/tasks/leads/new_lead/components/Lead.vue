@@ -180,9 +180,6 @@
 
     <LeadItems
       v-if="showLeadItems"
-      @add-otu-index="(otuIndex) => addOtuIndex(otuIndex)"
-      @lead-item-deleted="(otuId) => leadItemDeleted(otuId)"
-      @otu-selected="(otuId) => addLeadItem(otuId)"
       :position="position"
       :lead-id="store.children[position].id"
       :show-add-otu="position == 0"
@@ -195,7 +192,6 @@ import { DEPICTION, LEAD } from '@/constants/index.js'
 import { DIRECTIONS } from '../store/constants/directions.js'
 import { computed, ref } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
-import { LeadItem } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
@@ -292,39 +288,6 @@ function insertCouplet() {
       )
       emit('editingHasOccurred')
   })
-}
-
-
-function addOtuIndex(otu_index) {
-  store.addOtuIndex(props.position, otu_index)
-}
-
-function leadItemDeleted(otu_id) {
-  if (!window.confirm('Are you sure you want to delete this otu row?')) {
-    return
-  }
-
-  LeadItem.destroyItemInChildren({
-    otu_id,
-    parent_id: store.lead.id
-  })
-    .then(() => {
-      store.loadKey(store.lead.id)
-      TW.workbench.alert.create('Removed otu from lists.', 'notice')
-    })
-    .catch(() => {})
-}
-
-function addLeadItem(otu_id) {
-  LeadItem.addLeadItemToChildLead({
-    otu_id,
-    parent_id: store.lead.id
-  })
-    .then(() => {
-      store.loadKey(store.lead.id)
-      TW.workbench.alert.create('Added otu to the last lead list.', 'notice')
-    })
-    .catch(() => {})
 }
 
 function nextCouplet() {

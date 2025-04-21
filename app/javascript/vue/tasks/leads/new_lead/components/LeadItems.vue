@@ -48,7 +48,7 @@
       <span
         v-else
         class="out"
-        @click="emit('addOtuIndex', i)"
+        @click="() => addOtuIndex(i)"
       />
       <span v-html="otu.object_tag" />
 
@@ -56,7 +56,7 @@
         <radial-object :global-id="otu.global_id" />
         <span
           class="circle-button btn-delete"
-          @click="emit('leadItemDeleted', otu.id)"
+          @click="() => { leadItemDeleted(otu.id) }"
           >Remove
         </span>
       </span>
@@ -81,7 +81,7 @@
         :pin-type="OTU"
         @selected="(otu) => {
           modalVisible = false
-          emit('otuSelected', otu.id)
+          otuSelected(otu.id)
         }"
       />
     </template>
@@ -94,7 +94,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
-import { Lead } from '@/routes/endpoints'
+import { Lead, LeadItem } from '@/routes/endpoints'
 import { OTU } from '@/constants'
 import { computed, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
@@ -115,8 +115,6 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['addOtuIndex', 'leadItemDeleted', 'otuSelected'])
-
 const store = useStore()
 
 const modalVisible = ref(false)
@@ -133,6 +131,10 @@ const printKeyLink = computed(() => {
 
 function addOtu() {
   modalVisible.value = true
+}
+
+function addOtuIndex(otu_index) {
+  store.addOtuIndex(props.position, otu_index)
 }
 
 function setLeadOtu() {
@@ -153,6 +155,37 @@ function setLeadOtu() {
     })
     .catch(() => {})
     .finally(() => { store.loading = false })
+}
+
+function leadItemDeleted(otuId) {
+  if (!window.confirm('Are you sure you want to delete this otu row?')) {
+    return
+  }
+
+  store.loading = true
+  LeadItem.destroyItemInChildren({
+    otu_id: otuId,
+    parent_id: store.lead.id
+  })
+    .then(() => {
+      store.loadKey(store.lead.id)
+      TW.workbench.alert.create('Removed otu from lists.', 'notice')
+    })
+    .catch(() => {})
+    .finally(() => { store.loading = false })
+}
+
+function otuSelected(otuId) {
+  store.loading = true
+  LeadItem.addLeadItemToChildLead({
+    otu_id: otuId,
+    parent_id: store.lead.id
+  })
+    .then(() => {
+      store.loadKey(store.lead.id)
+      TW.workbench.alert.create('Added otu to the last lead list.', 'notice')
+    })
+    .catch(() => { store.loading = false })
 }
 
 </script>
