@@ -147,10 +147,15 @@ module Export::Coldp::Files::Taxon
       }
 
       root_otu = Otu.find_by(id: root_otu_id) unless root_otu_id.nil?
-      taxon_remarks_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
-                                                 project_id: otus[0]&.project_id)&.id
-      name_phrase_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.namePhrase',
-                                               project_id: otus[0]&.project_id)&.id
+
+      taxon_remarks_vocab_id = Predicate.find_by(
+        uri: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
+        project_id: otus[0]&.project_id)&.id
+
+      name_phrase_vocab_id = Predicate.find_by(
+        uri: 'https://github.com/catalogueoflife/coldp#Taxon.namePhrase',
+        project_id: otus[0]&.project_id)&.id
+
       link_vocab_id = Predicate.find_by(uri: 'https://api.checklistbank.org/vocab/term/col:link',
                                         project_id: otus[0]&.project_id)&.id
 
