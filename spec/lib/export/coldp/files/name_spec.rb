@@ -28,7 +28,7 @@ describe Export::Coldp::Files::Name, type: :model, group: :col do
 
   specify '#core_names' do
     q = Export::Coldp::Files::Name.core_names(otu)
-    expect(q.all.length).to eq(8) # Subfamily if invalid properly will be excluded # Why size doesn't work
+    expect(q.all.length).to eq(4) # Subfamily if invalid properly will be excluded # Why size doesn't work
   end
 
   specify '#core names excludes invalid nominotypical families' do
@@ -36,14 +36,14 @@ describe Export::Coldp::Files::Name, type: :model, group: :col do
     expect(q.all).to_not include(bad_nominotypical_family)
   end
 
-  specify '#core names includes invalid names' do
+  specify '#core names do not include invalid names' do
     q = Export::Coldp::Files::Name.core_names(otu)
-    expect(q.all).to include(synonymous_species)
+    expect(q.all).to_not include(synonymous_species)
   end
 
-  specify '#core names includes Combination names' do
+  specify '#core names do not include Combination names' do
     q = Export::Coldp::Files::Name.core_names(otu)
-    expect(q.all).to include(combination)
+    expect(q.all).to_not include(combination)
   end
 
 end
