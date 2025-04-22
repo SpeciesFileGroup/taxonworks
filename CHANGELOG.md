@@ -19,6 +19,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Browse OTU: Specimen records are displayed on DwC table [#4138]
 
+### Changed
+
+- Updated Ruby gems
+
 ### Fixed
 
 - Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
