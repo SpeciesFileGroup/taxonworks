@@ -50,6 +50,8 @@ module Export
         .where('(otus.name IS NULL) OR (otus.name = taxon_names.cached)') # !! Union does not make this faster
     end
 
+    # TODO: We are using `,` to delimit values elsewhere (e.g. Taxon)
+    # TODO: find by IRI, not predicate_id so that we can unify the vocabulary.
     # Accessed per file type
     def self.get_remarks(scope, predicate_id)
       c = DataAttribute.with(invalid_names: scope.select('taxon_names.id invalid_id'))
@@ -169,24 +171,27 @@ module Export
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
 
-       (FILETYPES - %w{Name Taxon References Synonym}).each do |ft| # TODO: double check Synonym belongs there.
-          m = "Export::Coldp::Files::#{ft}".safe_constantize
-          zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
-        end
+      (FILETYPES - %w{Name Taxon References Synonym TypeMaterial}).each do |ft|
+        m = "Export::Coldp::Files::#{ft}".safe_constantize
+        zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
+      end
 
-       zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+      zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
 
-       skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids  ||  [] # TODO: Probably not used
+      zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
 
-        zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv, skip_name_ids) }
+      # TODO: Probably not used
+      skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids  ||  []
 
-        zipfile.get_output_stream('Taxon.tsv') do |f|
-          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv, prefer_unlabelled_otus, skip_name_ids)
-        end
+      zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv, skip_name_ids) }
 
-        # TODO: this doesn't really help, and adds time to the process.
-        # Sort the refs by full citation string
-        sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
+      zipfile.get_output_stream('Taxon.tsv') do |f|
+        f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus, skip_name_ids)
+      end
+
+      # TODO: this doesn't really help, and adds time to the process.
+      # Sort the refs by full citation string
+      sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
 
         d = ::CSV.generate(col_sep: "\t") do |tsv|
           tsv << %w{ID citation	doi modified modifiedBy} # author year source details

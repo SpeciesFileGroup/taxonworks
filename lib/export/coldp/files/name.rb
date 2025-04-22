@@ -128,6 +128,7 @@ module Export::Coldp::Files::Name
     # We should not be setting this here !!
     project_id = otu.project_id
 
+    # TODO: scope this to name_remarks, keep internal
     if predicate_id = Predicate.find_by(
         uri: 'https://github.com/catalogueoflife/coldp#Name.remarks',
         project_id:)&.id

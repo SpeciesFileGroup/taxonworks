@@ -8,12 +8,6 @@
 #
 module Export::Coldp::Files::Distribution
 
-  def self.reference_id(content)
-    i = content.sources.pluck(:id)
-    return i.join(',') if i.any?
-    nil
-  end
-
   # TODO:
   #   Arbitrarily using MAX to grab one source is janky, but if CoL doesn't have
   #   extended model perhaps it doesn't matter.
@@ -111,7 +105,7 @@ module Export::Coldp::Files::Distribution
         area,
         gazetteer,
         nil,
-        ad.source_id,                                                  # reference_id: only 1 distribution reference allowed
+        ad.source_id,                                                  # reference_id - only 1 distribution reference allowed
         Export::Coldp.modified(ad.updated_at),                         # modified
         Export::Coldp.modified_by(ad.updated_by_id, project_members),  # modified_by
         nil
