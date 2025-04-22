@@ -71,6 +71,7 @@ module Export::Coldp::Files::Name
 
     # b sets up the query that aggregates the different ranks in one row
     b = ::Protonym.is_species_or_genus_group.with(valid_scope: a)
+      .where(cached_is_valid: true)
       .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
 
     select = 'taxon_names.id,'
@@ -87,6 +88,7 @@ module Export::Coldp::Files::Name
 
     c = ::TaxonName.with(n: b)
       .joins('JOIN n on n.id = taxon_names.id')
+      .where(cached_is_valid: true)
       .eager_load(origin_citation: [:source])
       .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies')
   end
@@ -114,8 +116,8 @@ module Export::Coldp::Files::Name
       .eager_load(origin_citation: [:source])
 
     c = ::TaxonName.with(n: b)
-      .where(cached_is_valid: false) # redundant
       .joins('JOIN n on n.id = taxon_names.id')
+      .where(cached_is_valid: false) # redundant
       .eager_load(origin_citation: [:source])
       .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies')
   end
