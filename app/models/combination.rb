@@ -65,7 +65,7 @@ class Combination < TaxonName
 
   APPLICABLE_RANK_CLASSES = INVERTED_RANKS.keys.freeze
 
-  APPLICABLE_RANK_SORT = INVERTED_RANKS.keys.inject({}){|hsh, r| hsh[r] = INVERTED_RANKS.keys.index(r) || 0 + 1; hsh}
+  APPLICABLE_RANK_SORT = INVERTED_RANKS.keys.inject({}){|hsh, r| hsh[r] = INVERTED_RANKS.keys.index(r) || 0 + 1; hsh}.freeze
 
   before_validation :set_parent
 

@@ -1050,6 +1050,6 @@ taxon_names_table_task:
   name: 'Taxon names table'
   related:
   categories:
-    - nomeclature
+    - nomenclature
   status: prototype
   description: 'A simple table view of taxon names including checklist-style columns of names at rank, author, and year.'

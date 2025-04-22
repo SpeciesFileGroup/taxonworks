@@ -2,13 +2,13 @@
   <%= render 'shared/errors', object: @otu %>
 
   <div class="field">
-    <%= f.label 'Name', data: {help: 'Typicaly a non-converened component of a taxon name, or a verbatim name not yet linked into the formal nomenclature.'}  %>
+    <%= f.label 'Name', data: {help: 'Typicaly a non-governed component of a taxon name, or a verbatim name not yet linked into the formal nomenclature.'}  %>
     <br>
     <%= f.text_field :name, size: 60, placeholder: '"n.sp. 123", or "TW123", or a verbatim name not yet linked to a taxon name.' %>
   </div>
 
   <div class="field">
-    <%= f.label :taxon_name, data: {help: 'Select the finest level of nomenclature applicable to the OTU.  For new species you would might select the genus, for example.'}  %>
+    <%= f.label :taxon_name, data: {help: 'Select the finest level of nomenclature applicable to the OTU. For new species you might select the genus, for example.'}  %>
     <br>
     <%= render partial: 'workbench/elements/forms/ajax_select',
       locals: {
