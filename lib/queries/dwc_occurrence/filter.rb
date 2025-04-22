@@ -174,6 +174,8 @@ module Queries
           ).all
         end
 
+        byebug
+
         ::Queries.union(
           ::DwcOccurrence, queries
         )

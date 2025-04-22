@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- DwcOccurrence FieldOccurrence scoping
 - TypeMaterial hook to DwcOccurrence update
 - Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
 - Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
