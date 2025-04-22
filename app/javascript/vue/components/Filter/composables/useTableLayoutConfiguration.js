@@ -24,7 +24,8 @@ function sortArrayByArray(arr, arrOrder) {
 }
 
 export function useTableLayoutConfiguration({ model, layouts } = {}) {
-  const CURRENT_SCHEMA_DATE = 20250421
+  const CURRENT_SCHEMA_DATE = 20250422
+
   const state = reactive({
     currentLayout: null,
     layouts: {},

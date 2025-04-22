@@ -123,7 +123,8 @@ const extend = [
   'collecting_event',
   'taxon_determinations',
   'identifiers',
-  'container_item'
+  'container_item',
+  'container'
 ]
 
 const exclude = ['object_labels']
