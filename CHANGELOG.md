@@ -13,6 +13,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CSD: Highlight header bar when DwC re-index is pending [#4275]
 - New source task: Citations count [#4237]
 - Allow catalog number to start with zeros in Grid digitizer task [#4291]
+- Filter collection objects: Extend response to include container item [#4285]
+
+### Changed
+
+- Browse OTU: Specimen records are displayed on DwC table [#4138]
+
+### Changed
+
+- Updated Ruby gems
 
 ### Fixed
 
@@ -25,12 +34,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer creating sex biocuration group with an array as URI
 - Filters: Sorting alphabetically does not work correctly when values ​​are in HTML
 
+[#4138]: https://github.com/SpeciesFileGroup/taxonworks/issues/4138
 [#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
 [#4275]: https://github.com/SpeciesFileGroup/taxonworks/issues/4275
 [#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
 [#4279]: https://github.com/SpeciesFileGroup/taxonworks/issues/4279
 [#4281]: https://github.com/SpeciesFileGroup/taxonworks/issues/4281
+[#4285]: https://github.com/SpeciesFileGroup/taxonworks/issues/4285
 [#4291]: https://github.com/SpeciesFileGroup/taxonworks/issues/4291
 
 ## [0.49.1] - 2025-04-01

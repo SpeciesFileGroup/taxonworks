@@ -122,7 +122,8 @@ const extend = [
   'current_repository',
   'collecting_event',
   'taxon_determinations',
-  'identifiers'
+  'identifiers',
+  'container_item'
 ]
 
 const exclude = ['object_labels']
