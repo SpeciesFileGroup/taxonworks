@@ -338,10 +338,6 @@ class CollectingEvent < ApplicationRecord
     ::Queries.union(DwcOccurrence, [a,b])
   end
 
-  def otus
-    ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
-  end
-
   # @param [String]
   def verbatim_label=(value)
     write_attribute(:verbatim_label, value)

@@ -30,7 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter CollectingEvent to OTU Filter linkage broken [#4277]
 - Filter OTU CSV download ommitted OTUs with no taxon name
 - DwcOccurrence FieldOccurrence scoping
-- TypeMaterial hook to DwcOccurrence update
+- TypeMaterial hook to DwcOccurrence update [#4266]
 - Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
 - Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
 - Content editor: Close modal is enable when nothing is selected [#4279]
@@ -40,7 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer creating sex biocuration group with an array as URI
 - Filters: Sorting alphabetically does not work correctly when values ​​are in HTML
 
-
+[#4266]: https://github.com/SpeciesFileGroup/taxonworks/issues/4266
 [#4284]: https://github.com/SpeciesFileGroup/taxonworks/issues/4284
 [#4277]: https://github.com/SpeciesFileGroup/taxonworks/issues/4277
 [#244]: https://github.com/SpeciesFileGroup/taxonworks/issues/244
