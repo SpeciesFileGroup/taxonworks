@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Filter OTU CSV download ommitted OTUs with no taxon name
 - DwcOccurrence FieldOccurrence scoping
 - TypeMaterial hook to DwcOccurrence update
 - Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]

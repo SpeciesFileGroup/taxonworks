@@ -310,7 +310,7 @@ module OtusHelper
   end
 
   def ranked_otu_table(otus)
-    d = TaxonName.ranked_otus(otu_scope: otus)
+    d = TaxonName.ranked_otus(otu_scope: otus, project_id: sessions_current_project_id)
 
     tbl = %w{otu_id order family genus species otu_name taxon_name taxon_name_author_year}
     output = StringIO.new
