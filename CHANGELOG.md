@@ -9,7 +9,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Sound and Conveyance models.  Browse, filter, new from radial. [#244]
 - `decorator_status` to `api/v1/taxon_names/:id/inventory/summary`
 - Radial annotator and navigator to role picker list
 - CSD: Highlight header bar when DwC re-index is pending [#4275]
@@ -17,7 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Allow catalog number to start with zeros in Grid digitizer task [#4291]
 - Filter collection objects: Extend response to include container item [#4285]
 - Browse Nomenclature: Focus button [#4283]
-- Sounds and conveyances [#244]
+- Sounds and conveyances. Browse, filter, new from radial. [#244]
 
 ### Changed
 
@@ -38,7 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some identifiers are missing on DwC otherCatalogNumbers column
 - Identifiers cached is empty in CSV table
 - DwC importer creating sex biocuration group with an array as URI
-- Filters: Sorting alphabetically does not work correctly when values ​​are in HTML
+- Filters: Sorting alphabetically does not work correctly when values are in HTML
 
 [#4266]: https://github.com/SpeciesFileGroup/taxonworks/issues/4266
 [#4284]: https://github.com/SpeciesFileGroup/taxonworks/issues/4284
