@@ -39,6 +39,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { flatten } from '@json2csv/transforms'
+import { decodeBasicEntities } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import csvButton from '@/components/csvButton.vue'
@@ -87,7 +88,11 @@ function stringFormatter(opts = {}) {
 }
 
 function sanatizeValue(value) {
-  return DOMPurify.sanitize(value, { USE_PROFILES: { html: false } })
+  const sanitizedValue = DOMPurify.sanitize(value, {
+    USE_PROFILES: { html: false }
+  })
+
+  return decodeBasicEntities(sanitizedValue)
 }
 
 const csvDownload = computed(() => ({
