@@ -18,6 +18,8 @@
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
+const CSS_CLASSES = ['d-none', 'hidden-taxon']
+
 const props = defineProps({
   objectId: {
     type: Array,
@@ -31,14 +33,25 @@ defineOptions({
 
 function setFocus() {
   const elements = [...document.querySelectorAll('.history__record')]
+  const hasHiddenColumns = elements.some((el) =>
+    el.classList.contains('hidden-taxon')
+  )
+
+  if (hasHiddenColumns) {
+    elements.forEach((el) => {
+      CSS_CLASSES.forEach((c) => el.classList.remove(c))
+    })
+
+    return
+  }
 
   elements.forEach((el) => {
-    const id = Number(el.getAttribute('data-history-object-id'))
+    const ids = el.getAttribute('data-history-protonym-id')?.split(',')
 
-    if (props.objectId.includes(id)) {
-      el.classList.remove('d-none')
+    if (ids.some((id) => props.objectId.includes(id))) {
+      CSS_CLASSES.forEach((c) => el.classList.remove(c))
     } else {
-      el.classList.add('d-none')
+      CSS_CLASSES.forEach((c) => el.classList.add(c))
     }
   })
 }

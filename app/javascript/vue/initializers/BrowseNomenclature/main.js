@@ -14,7 +14,7 @@ function initFocusButtons() {
       el.querySelector('[data-focus-button]') || document.createElement('div')
     const objectId = el.getAttribute('data-history-protonym-id')
     const app = createApp(ButtonFocus, {
-      objectId: [JSON.parse(objectId)].flat()
+      objectId: objectId.split(',')
     })
 
     container.setAttribute('data-focus-button', true)
