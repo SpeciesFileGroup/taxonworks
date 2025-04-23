@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Eliminate 404 behaviour in Synchronize nomenclature [#4284]
 - Filter CollectingEvent to OTU Filter linkage broken [#4277]
 - Filter OTU CSV download ommitted OTUs with no taxon name
 - DwcOccurrence FieldOccurrence scoping
@@ -39,6 +40,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer creating sex biocuration group with an array as URI
 - Filters: Sorting alphabetically does not work correctly when values ​​are in HTML
 
+
+[#4284]: https://github.com/SpeciesFileGroup/taxonworks/issues/4284
 [#4277]: https://github.com/SpeciesFileGroup/taxonworks/issues/4277
 [#244]: https://github.com/SpeciesFileGroup/taxonworks/issues/244
 [#4138]: https://github.com/SpeciesFileGroup/taxonworks/issues/4138
