@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Sound and Conveyance models.  Browse, filter, new from radial. [#244]
 - `decorator_status` to `api/v1/taxon_names/:id/inventory/summary`
 - Radial annotator and navigator to role picker list
 - CSD: Highlight header bar when DwC re-index is pending [#4275]
@@ -37,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer creating sex biocuration group with an array as URI
 - Filters: Sorting alphabetically does not work correctly when values ​​are in HTML
 
+[#244]: https://github.com/SpeciesFileGroup/taxonworks/issues/244
 [#4138]: https://github.com/SpeciesFileGroup/taxonworks/issues/4138
 [#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274

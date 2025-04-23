@@ -237,28 +237,28 @@ module OtusHelper
 
     if gj = otu.cached_map_geo_json(cached_map_type)
 
-     i =
-       {
-         **gj,
-        # 'type' => gj['type'],  # 'Feature',
+      i =
+        {
+          **gj,
+          # 'type' => gj['type'],  # 'Feature',
 
-        'properties' => {
-          'base' => {
-            'type' => 'Otu',
-            'id' => otu.id,
-            'label' => label_for_otu(otu) },
-    #     'shape' => {
-    #       'type' => cached_map_type,
-    #       'id' => 99999 }, # was nil
-         'updated_at' => 'foo' # last updated at on CachedMapItem scope, possibly
+          'properties' => {
+            'base' => {
+              'type' => 'Otu',
+              'id' => otu.id,
+              'label' => label_for_otu(otu) },
+            #     'shape' => {
+            #       'type' => cached_map_type,
+            #       'id' => 99999 }, # was nil
+            'updated_at' => 'foo' # last updated at on CachedMapItem scope, possibly
+          }
         }
-      }
 
-     if gj.keys.include?('coordinates')
-       i['coordinates'] = gj['coordinates'] # was 'coordinates' TODO: might not work
-     elsif gj.keys.include?('geometries')
-       i['geometries'] = gj['geometries'] # was 'coordinates' TODO: might not work
-     end
+      if gj.keys.include?('coordinates')
+        i['coordinates'] = gj['coordinates'] # was 'coordinates' TODO: might not work
+      elsif gj.keys.include?('geometries')
+        i['geometries'] = gj['geometries'] # was 'coordinates' TODO: might not work
+      end
 
       i
 
@@ -311,6 +311,7 @@ module OtusHelper
 
   def ranked_otu_table(otus)
     d = TaxonName.ranked_otus(otu_scope: otus)
+
     tbl = %w{otu_id order family genus species otu_name taxon_name taxon_name_author_year}
     output = StringIO.new
     output.puts ::CSV.generate_line(tbl, col_sep: "\t", encoding: Encoding::UTF_8)
@@ -327,7 +328,7 @@ module OtusHelper
           o.cached,
           o.cached_author_year
         ],
-      col_sep: "\t", encoding: Encoding::UTF_8)
+        col_sep: "\t", encoding: Encoding::UTF_8)
     end
 
     output.string

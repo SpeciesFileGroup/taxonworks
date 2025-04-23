@@ -84,8 +84,10 @@ module TaxonName::Hierarchy
       tns = ::Queries::TaxonName::Filter.new({})
       tns.otu_query = otu_scope.unscope(:order).unscope(:select)
 
-      s = 'WITH tn_anc AS (' + taxon_name_ancestors_sql(taxon_name_scope: tns.all, ranks: ) + '), otu_limit AS (' + otu_scope.select(:id).to_sql + ')' +
-        ::Otu
+      tn = Arel.sql(taxon_name_ancestors_sql(taxon_name_scope: tns.all, ranks: ))
+      os = otu_scope.select(:id)
+
+      s = ::Otu.with(tn_anc: tn, otu_limit: os) 
         .joins('LEFT JOIN taxon_names tn_ca on otus.taxon_name_id = tn_ca.id')
         .joins('JOIN otu_limit AS ol on ol.id = otus.id')
         .select("otus.id, otus.name, tn_ca.cached, tn_ca.cached_author_year, otus.taxon_name_id, #{ranks.collect{|r| "tn_anc1.#{r}"}.join(', ')}").joins('JOIN tn_anc as tn_anc1 ON otus.taxon_name_id = tn_anc1.id')
