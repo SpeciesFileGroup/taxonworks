@@ -54,5 +54,7 @@ function setFocus() {
       CSS_CLASSES.forEach((c) => el.classList.add(c))
     }
   })
+
+  window.scrollTo(0, 0)
 }
 </script>
