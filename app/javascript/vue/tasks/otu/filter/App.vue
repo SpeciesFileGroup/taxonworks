@@ -9,6 +9,7 @@
       :selected-ids="selectedIds"
       :extend-download="extendDownload"
       :list="list"
+      only-extend-download
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -93,7 +94,7 @@ const {
 
 const extendDownload = computed(() => [
   {
-    label: 'CSV',
+    label: 'TSV',
     component: csvDownload,
     bind: {
       params: parameters.value
