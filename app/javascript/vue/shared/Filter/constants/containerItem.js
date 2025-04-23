@@ -1,6 +1,7 @@
-export const CONTAINER_ITEM = [
-  'id',
-  'parent_id',
+export const CONTAINER_ITEM_PROPERTIES = [
+  'name',
+  'print_label',
+  'identifier',
   'disposition',
   'disposition_x',
   'disposition_y',

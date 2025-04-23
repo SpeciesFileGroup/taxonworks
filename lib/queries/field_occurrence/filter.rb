@@ -36,7 +36,7 @@ module Queries
         # :sled_image_id,
         :spatial_geographic_areas,
         # :taxon_determination_id,
-        # :taxon_name_id,
+        :taxon_name_id,
         # :validity,
         biocuration_class_id: [],
         biological_association_id: [],
@@ -48,7 +48,7 @@ module Queries
         # import_dataset_id: [],
         # is_type: [],
         otu_id: [],
-        # taxon_name_id: [],
+        taxon_name_id: [],
       ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
 
       # @return [Array]
@@ -457,17 +457,17 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
-      # def taxon_name_query_facet
-      #   return nil if taxon_name_query.nil?
-      #   s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
-      #       ::FieldOccurrence
-      #         .joins(:taxon_names)
-      #         .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
-      #         .to_sql
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
 
-      #   ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-      # end
+        s = ::FieldOccurrence
+          .with(query_tn_fo: taxon_name_query.all.select(:id))
+          .joins(:taxon_names)
+          .joins('JOIN query_tn_fo on query_tn_fo.id = taxon_names.id')
+          .to_sql
 
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
 
       def otu_query_facet
         return nil if otu_query.nil?
@@ -554,7 +554,7 @@ module Queries
           collecting_event_query_facet,
           dwc_occurrence_query_facet,
           otu_query_facet,
-          #  taxon_name_query_facet,
+          taxon_name_query_facet,
           biocuration_facet,
           biological_associations_facet,
           #  biological_relationship_id_facet,
@@ -565,7 +565,7 @@ module Queries
           # dwc_indexed_facet,
           otu_id_facet,
           # sled_image_facet,
-          # taxon_name_id_facet,
+          taxon_name_id_facet,
         ]
       end
     end

@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `decorator_status` to `api/v1/taxon_names/:id/inventory/summary`
 - Radial annotator and navigator to role picker list
 - CSD: Highlight header bar when DwC re-index is pending [#4275]
 - New source task: Citations count [#4237]
@@ -25,6 +26,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- DwcOccurrence FieldOccurrence scoping
+- TypeMaterial hook to DwcOccurrence update
 - Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
 - Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
 - Content editor: Close modal is enable when nothing is selected [#4279]

@@ -1,4 +1,4 @@
-import { COLLECTION_OBJECT_PROPERTIES } from '@/shared/Filter/constants'
+import { COLLECTION_OBJECT_PROPERTIES, CONTAINER_ITEM_PROPERTIES } from '@/shared/Filter/constants'
 import { getDataAttributesFor } from '@/shared/Filter/utils'
 import { DataAttribute } from '@/routes/endpoints'
 import { flattenObject } from '@/helpers'
@@ -50,6 +50,7 @@ export async function listParser(list, { parameters }) {
       id,
       global_id,
       collecting_event,
+      container,
       container_item,
       current_repository,
       dwc_occurrence,
@@ -63,7 +64,10 @@ export async function listParser(list, { parameters }) {
       global_id,
       collecting_event,
       collection_object,
-      container_item,
+      container: {
+        ...container_item,
+        ...container
+      },
       current_repository,
       dwc_occurrence,
       repository,

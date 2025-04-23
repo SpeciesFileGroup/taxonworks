@@ -5,7 +5,7 @@ import {
   REPOSITORY_PROPERTIES,
   TAXON_DETERMINATION_PROPERTIES,
   IDENTIFIER_PROPERTIES,
-  CONTAINER_ITEM
+  CONTAINER_ITEM_PROPERTIES
 } from '@/shared/Filter/constants'
 
 export const LAYOUTS = {
@@ -18,7 +18,7 @@ export const LAYOUTS = {
       taxon_determinations: TAXON_DETERMINATION_PROPERTIES,
       dwc_occurrence: DWC_OCCURRENCE_PROPERTIES,
       identifiers: IDENTIFIER_PROPERTIES,
-      container_item: CONTAINER_ITEM,
+      container: CONTAINER_ITEM_PROPERTIES,
       data_attributes: { show: true }
     }
   },
@@ -38,7 +38,7 @@ export const LAYOUTS = {
       collecting_event: COLLECTING_EVENT_PROPERTIES,
       taxon_determinations: TAXON_DETERMINATION_PROPERTIES,
       identifiers: IDENTIFIER_PROPERTIES,
-      container_item: CONTAINER_ITEM,
+      container: CONTAINER_ITEM_PROPERTIES,
       data_attributes: { show: true }
     }
   },
