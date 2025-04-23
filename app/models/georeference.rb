@@ -96,11 +96,10 @@ class Georeference < ApplicationRecord
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
+  has_many :field_occurrences, through: :collecting_event, inverse_of: :georeferences
 
   has_many :collection_object_otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
   has_many :field_occurrence_otus, -> { unscope(:order) }, through: :field_occurrences, source: 'otu'
-
-
 
   has_many :otus, through: :collection_objects, source: 'otus'
 
