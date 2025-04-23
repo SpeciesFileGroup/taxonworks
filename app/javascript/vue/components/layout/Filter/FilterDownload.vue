@@ -55,6 +55,11 @@ const props = defineProps({
     default: () => undefined
   },
 
+  onlyExtendDownload: {
+    type: Boolean,
+    default: false
+  },
+
   extendDownload: {
     type: Array,
     default: () => []
@@ -100,7 +105,7 @@ const csvDownload = computed(() => ({
 const DOWNLOAD_LIST = computed(() => {
   const list = props.extendDownload
 
-  return list.some((item) => item.label === 'CSV')
+  return props.onlyExtendDownload || list.some((item) => item.label === 'CSV')
     ? list
     : [csvDownload.value, ...list]
 })
@@ -109,5 +114,5 @@ const selectedDownloadItem = computed(() =>
   DOWNLOAD_LIST.value.find(({ label }) => label === selectedDownloadLabel.value)
 )
 
-const selectedDownloadLabel = ref(csvDownload.value.label)
+const selectedDownloadLabel = ref(DOWNLOAD_LIST.value[0]?.label)
 </script>
