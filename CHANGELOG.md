@@ -16,13 +16,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New source task: Citations count [#4237]
 - Allow catalog number to start with zeros in Grid digitizer task [#4291]
 - Filter collection objects: Extend response to include container item [#4285]
+- Browse Nomenclature: Focus button [#4283]
+- Sounds and conveyances [#244]
 
 ### Changed
 
 - Browse OTU: Specimen records are displayed on DwC table [#4138]
-
-### Changed
-
 - Updated Ruby gems
 
 ### Fixed
@@ -46,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
 [#4279]: https://github.com/SpeciesFileGroup/taxonworks/issues/4279
 [#4281]: https://github.com/SpeciesFileGroup/taxonworks/issues/4281
+[#4283]: https://github.com/SpeciesFileGroup/taxonworks/issues/4283
 [#4285]: https://github.com/SpeciesFileGroup/taxonworks/issues/4285
 [#4291]: https://github.com/SpeciesFileGroup/taxonworks/issues/4291
 
