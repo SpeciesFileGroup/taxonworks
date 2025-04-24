@@ -4,17 +4,20 @@ module Queries
 
       PARAMS = [
         :collection_object_id,
+        :determiner_id,
         :field_occurrence_id,
         :otu_id,
         :taxon_determination_id,
+        :taxon_determination_object_id,
+        :taxon_determination_object_type,
 
-        taxon_determination_object_type: [],
-        taxon_determination_object_id: [],
         collection_object_id: [],
-        field_occurrence_id: [],
         determiner_id: [],
+        field_occurrence_id: [],
         otu_id: [],
         taxon_determination_id: [],
+        taxon_determination_object_id: [],
+        taxon_determination_object_type: []
       ].freeze
 
       # all Arrays
