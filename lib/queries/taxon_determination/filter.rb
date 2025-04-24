@@ -4,12 +4,14 @@ module Queries
 
       PARAMS = [
         :collection_object_id,
+        :field_occurrence_id,
         :otu_id,
         :taxon_determination_id,
 
         taxon_determination_object_type: [],
         taxon_determination_object_id: [],
         collection_object_id: [],
+        field_occurrence_id: [],
         determiner_id: [],
         otu_id: [],
         taxon_determination_id: [],
@@ -27,6 +29,7 @@ module Queries
         super
 
         @collection_object_id = params[:collection_object_id]
+        @field_occurrence_id = params[:field_occurrence_id]
         @determiner_id = params[:determiner_id]
         @otu_id = params[:otu_id]
         @taxon_determination_id = params[:taxon_determination_id]
@@ -44,6 +47,10 @@ module Queries
 
       def collection_object_id
         [@collection_object_id].flatten.compact.uniq
+      end
+
+      def field_occurrence_id
+        [@field_occurrence_id].flatten.compact.uniq
       end
 
       def taxon_determination_object_id
@@ -67,6 +74,12 @@ module Queries
         return nil if collection_object_id.empty?
         table[:taxon_determination_object_id].in(collection_object_id)
         .and(table[:taxon_determination_object_type].eq('CollectionObject'))
+      end
+
+      def field_occurrence_id_facet
+        return nil if field_occurrence_id.empty?
+        table[:taxon_determination_object_id].in(field_occurrence_id)
+        .and(table[:taxon_determination_object_type].eq('FieldOccurrence'))
       end
 
       def taxon_determination_object_type_facet
@@ -101,6 +114,7 @@ module Queries
         [
           otu_id_facet,
           collection_object_id_facet,
+          field_occurrence_id_facet,
           taxon_determination_object_id_facet,
           taxon_determination_object_type_facet
         ]
