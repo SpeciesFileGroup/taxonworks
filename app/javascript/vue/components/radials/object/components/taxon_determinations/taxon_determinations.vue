@@ -23,11 +23,6 @@ import { onBeforeMount } from 'vue'
 import { useSlice } from '@/components/radials/composables'
 
 const props = defineProps({
-  metadata: {
-    type: Object,
-    required: true
-  },
-
   objectId: {
     type: Number,
     required: true
@@ -71,8 +66,8 @@ function addDetermination(taxonDetermination) {
   const payload = {
     taxon_determination: {
       ...taxonDetermination,
-      taxon_determination_object_id: props.metadata.object_id,
-      taxon_determination_object_type: props.metadata.object_type
+      taxon_determination_object_id: props.objectId,
+      taxon_determination_object_type: props.objectType
     }
   }
 
