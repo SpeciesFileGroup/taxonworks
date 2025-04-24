@@ -37,7 +37,7 @@ defineOptions({
 <style scoped>
 .left-column {
   max-width: 25%;
-  min-width: 440px;
+  min-width: 500px;
 }
 
 .right-column {
