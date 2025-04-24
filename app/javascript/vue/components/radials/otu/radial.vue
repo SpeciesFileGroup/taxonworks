@@ -46,6 +46,7 @@
       >
         <VIcon
           name="batch"
+          title="Radial OTU"
           x-small
         />
       </VBtn>
