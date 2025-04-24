@@ -24,6 +24,8 @@ function sortArrayByArray(arr, arrOrder) {
 }
 
 export function useTableLayoutConfiguration({ model, layouts } = {}) {
+  const CURRENT_SCHEMA_DATE = 20250422
+
   const state = reactive({
     currentLayout: null,
     layouts: {},
@@ -61,6 +63,7 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
         user: {
           layout: {
             [keyStorage]: {
+              preferenceSchema: CURRENT_SCHEMA_DATE,
               customLayout: state.currentLayout
             }
           }
@@ -92,19 +95,21 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
     User.preferences().then(({ body }) => {
       const preferences = body.layout[keyStorage]
 
-      if (preferences) {
+      if (preferences && preferences.preferenceSchema === CURRENT_SCHEMA_DATE) {
         state.layouts.Custom = preferences.customLayout
         state.currentLayout = preferences.customLayout
 
         const subGroup = Object.keys(preferences.customLayout?.properties) || []
 
         subGroup.forEach((group) => {
-          const newOrder = sortArrayByArray(
-            state.properties[group],
-            state.currentLayout.properties[group]
-          )
+          if (Array.isArray(state.properties[group])) {
+            const newOrder = sortArrayByArray(
+              state.properties[group],
+              state.currentLayout.properties[group]
+            )
 
-          state.properties[group] = newOrder
+            state.properties[group] = newOrder
+          }
         })
       }
     })

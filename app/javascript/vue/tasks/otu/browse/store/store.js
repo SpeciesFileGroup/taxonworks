@@ -14,10 +14,11 @@ function makeInitialState() {
       descendants: false,
       descendantsDistribution: false,
       distribution: true,
+      conveyances: false,
       fieldOccurrences: true
     },
     preferences: {
-      preferenceSchema: 20231017,
+      preferenceSchema: 20250404,
       sections: Object.keys(componentNames),
       filterSections: {
         and: {
@@ -114,10 +115,12 @@ function makeInitialState() {
     collectionObjects: [],
     fieldOccurrences: [],
     otus: [],
+    shapeTypes: [],
     georeferences: { features: [] },
     typeMaterials: [],
     depictions: [],
     commonNames: [],
+    conveyances: [],
     descendants: {
       taxon_names: [],
       collecting_events: [],

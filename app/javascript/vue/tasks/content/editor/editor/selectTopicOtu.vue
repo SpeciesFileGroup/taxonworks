@@ -1,13 +1,16 @@
 <template>
   <div>
     <button
-      @click="showModal = true"
+      @click="() => (isModalVisible = true)"
       class="button normal-input button-default"
     >
       Select
     </button>
-    <modal
-      v-if="showModal"
+    <VModal
+      v-if="isModalVisible"
+      :button-close="{
+        disabled: !(topic && otu)
+      }"
       @close="closeModal()"
     >
       <template #header>
@@ -15,72 +18,42 @@
       </template>
       <template #body>
         <div class="flex-wrap-column middle">
-          <topic-modal />
-          <otu-modal />
-          <content-modal />
+          <TopicModal />
+          <OtuModal />
+          <ContentModal />
         </div>
       </template>
-    </modal>
+    </VModal>
   </div>
 </template>
 
-<script>
+<script setup>
 import { GetterNames } from '../store/getters/getters'
-import Modal from '@/components/ui/Modal.vue'
+import { useStore } from 'vuex'
+import { computed, ref, watch } from 'vue'
+import VModal from '@/components/ui/Modal.vue'
 import TopicModal from '../components/Topic/TopicModal.vue'
 import OtuModal from '../components/Otu/OtuModal.vue'
 import ContentModal from '../components/Content/ContentModal.vue'
 
-export default {
-  name: 'SelectTopicOtu',
+const emit = defineEmits(['close'])
 
-  components: {
-    Modal,
-    ContentModal,
-    TopicModal,
-    OtuModal
-  },
+const store = useStore()
+const isModalVisible = ref(true)
 
-  emits: ['close'],
+const topic = computed(() => store.getters[GetterNames.GetTopicSelected])
+const otu = computed(() => store.getters[GetterNames.GetOtuSelected])
 
-  data() {
-    return {
-      showModal: true,
-      selectedPanel: ''
-    }
-  },
+watch([otu, topic], ([newOtu, newTopic]) => {
+  if (newOtu && newTopic) {
+    isModalVisible.value = false
+  }
+})
 
-  computed: {
-    topic() {
-      return this.$store.getters[GetterNames.GetTopicSelected]
-    },
-
-    otu() {
-      return this.$store.getters[GetterNames.GetOtuSelected]
-    }
-  },
-
-  watch: {
-    topic(newVal) {
-      if (newVal && this.otu) {
-        this.showModal = false
-      }
-    },
-
-    otu(newVal) {
-      if (newVal && this.topic) {
-        this.showModal = false
-      }
-    }
-  },
-
-  methods: {
-    closeModal() {
-      if (this.otu && this.topic) {
-        this.showModal = false
-        this.$emit('close')
-      }
-    }
+function closeModal() {
+  if (otu.value && topic.value) {
+    isModalVisible.value = false
+    emit('close')
   }
 }
 </script>

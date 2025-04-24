@@ -1,4 +1,5 @@
-# Be sure to restart your server (or console) when you modify this file.
+# Be sure to exit and restart your console or server when you modify this file.
+# `reload!` will not work!
 
 Rails.application.reloader.to_prepare do
 
@@ -106,6 +107,27 @@ EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS ||= [
     TaxonNameClassification::Iczn::Unavailable::Excluded,
     TaxonNameClassification::Iczn::Unavailable::Excluded.descendants,
     TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::NotLatin
+].flatten.map(&:to_s).freeze
+
+TAXON_NAME_CLASSIFICATIONS_FOR_DECORATION ||= [
+  TaxonNameClassification::Iczn::Available::Valid.descendants,
+  TaxonNameClassification::Iczn::Available::Invalid,
+  TaxonNameClassification::Iczn::Available::Invalid.descendants,
+  TaxonNameClassification::Iczn::Unavailable::NotLatin,
+  TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters,
+  TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899,
+  TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted,
+  TaxonNameClassification::Iczn::Unavailable::NonBinominal,
+  TaxonNameClassification::Iczn::Unavailable::NonBinominal.descendants,
+  TaxonNameClassification::Iczn::Unavailable::NomenNudum,
+  TaxonNameClassification::Iczn::Unavailable::NomenNudum.descendants,
+  TaxonNameClassification::Iczn::Unavailable::Excluded,
+  TaxonNameClassification::Iczn::Unavailable::Excluded.descendants,
+  TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
+  TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished.descendants,
+  TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished,
+  TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished.descendants,
+  TaxonNameClassification::Icvcn::Valid::Unaccepted
 ].flatten.map(&:to_s).freeze
 
 

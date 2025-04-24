@@ -15,7 +15,6 @@
 
     <component
       :is="selectedDownloadItem.component"
-      :list="list"
       v-bind="selectedDownloadItem.bind"
       v-slot="{ action }"
     >
@@ -40,6 +39,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { flatten } from '@json2csv/transforms'
+import { decodeBasicEntities } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import csvButton from '@/components/csvButton.vue'
@@ -54,6 +54,11 @@ const props = defineProps({
   csvOptions: {
     type: Object,
     default: () => undefined
+  },
+
+  onlyExtendDownload: {
+    type: Boolean,
+    default: false
   },
 
   extendDownload: {
@@ -83,13 +88,18 @@ function stringFormatter(opts = {}) {
 }
 
 function sanatizeValue(value) {
-  return DOMPurify.sanitize(value, { USE_PROFILES: { html: false } })
+  const sanitizedValue = DOMPurify.sanitize(value, {
+    USE_PROFILES: { html: false }
+  })
+
+  return decodeBasicEntities(sanitizedValue)
 }
 
 const csvDownload = computed(() => ({
   label: 'CSV',
   component: csvButton,
   bind: {
+    list: props.list,
     options: props.csvOptions || {
       transforms: [flatten({ object: true, array: true, separator: '_' })],
       formatters: { string: stringFormatter() }
@@ -100,7 +110,7 @@ const csvDownload = computed(() => ({
 const DOWNLOAD_LIST = computed(() => {
   const list = props.extendDownload
 
-  return list.some((item) => item.label === 'CSV')
+  return props.onlyExtendDownload || list.some((item) => item.label === 'CSV')
     ? list
     : [csvDownload.value, ...list]
 })
@@ -109,5 +119,5 @@ const selectedDownloadItem = computed(() =>
   DOWNLOAD_LIST.value.find(({ label }) => label === selectedDownloadLabel.value)
 )
 
-const selectedDownloadLabel = ref(csvDownload.value.label)
+const selectedDownloadLabel = ref(DOWNLOAD_LIST.value[0]?.label)
 </script>

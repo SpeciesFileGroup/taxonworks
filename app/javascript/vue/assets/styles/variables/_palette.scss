@@ -20,14 +20,34 @@ $tw-colors: (
   'border': #f5f5f5
 );
 
+$tw-map-colors: (
+  'collection-object': #ef4444,
+  'field-occurrence': #84cc16,
+  'type-material': #3388ff,
+  'asserted-distribution': #f97316,
+  'georeference': #ef4444
+);
+
 @each $key, $value in $tw-colors {
   :root {
     --color-#{$key}: #{$value};
   }
 }
 
+@each $key, $value in $tw-map-colors {
+  :root {
+    --color-map-#{$key}: #{$value};
+  }
+}
+
 @each $key, $value in $tw-colors {
   .text-#{$key}-color {
     color: #{$value};
+  }
+}
+
+@each $key, $value in $tw-map-colors {
+  .bg-#{$key} {
+    background-color: #{$value};
   }
 }

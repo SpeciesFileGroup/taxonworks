@@ -403,12 +403,18 @@ module Queries
 
       def otu_query_facet
         return nil if otu_query.nil?
-        s = 'WITH query_otu_ces AS (' + otu_query.all.to_sql + ') ' +
-          ::CollectingEvent.joins(:otus)
-          .joins('JOIN query_otu_ces as query_otu_ces1 on query_otu_ces1.id = otus.id')
-          .to_sql
 
-        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
+        a = ::CollectingEvent.with(otu_scope: otu_query.all)
+          .joins(collection_objects: [:taxon_determinations])
+          .joins('JOIN otu_scope on otu_scope.id = taxon_determinations.otu_id')
+          .where(taxon_determinations: {position: 1})
+       
+        b = ::CollectingEvent.with(otu_scope: otu_query.all)
+          .joins(field_occurrences: [:taxon_determinations])
+          .joins('JOIN otu_scope on otu_scope.id = taxon_determinations.otu_id')
+          .where(taxon_determinations: {position: 1})
+
+        ::Queries.union(::CollectingEvent, [a,b])
       end
 
       def collection_object_query_facet

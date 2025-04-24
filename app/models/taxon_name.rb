@@ -806,7 +806,7 @@ class TaxonName < ApplicationRecord
     end
     return h
   end
-
+ 
   # @return [Class, nil]
   #   gender of a genus as class
   def gender_class

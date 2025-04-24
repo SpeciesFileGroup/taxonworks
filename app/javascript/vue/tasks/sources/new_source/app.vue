@@ -16,17 +16,36 @@
           <a href="/tasks/sources/hub">Back to source hub</a>
         </li>
         <li><PanelSearch /></li>
+        <li><VRecent /></li>
       </ul>
     </div>
     <NavBar class="source-navbar">
       <div class="flex-separate full_width">
         <div class="middle gap-small">
-          <VRecent />
-          <span
-            v-if="source.id"
-            class="word_break"
-            v-html="source.cached"
-          />
+          <template v-if="source.id">
+            <span
+              class="word_break"
+              v-html="source.cached"
+            />
+
+            <div
+              class="horizontal-right-content gap-small"
+              v-if="source.id"
+            >
+              <CitationTotal :source-id="source.id" />
+              <VPin
+                class="circle-button"
+                type="Source"
+                :object-id="source.id"
+              />
+              <AddSource
+                :project-source-id="source.project_source_id"
+                :id="source.id"
+              />
+              <RadialAnnotator :global-id="source.global_id" />
+              <RadialObject :global-id="source.global_id" />
+            </div>
+          </template>
           <span v-else>New record</span>
         </div>
         <div class="nav__buttons gap-small">
@@ -87,25 +106,14 @@
         <template #header>
           <div class="flex-separate middle full_width">
             <h3>Source</h3>
-
-            <div class="horizontal-right-content gap-small">
-              <VPin
-                class="circle-button"
-                type="Source"
-                :object-id="source.id"
-              />
-              <AddSource
-                :project-source-id="source.project_source_id"
-                :id="source.id"
-              />
-              <RadialAnnotator :global-id="source.global_id" />
-              <RadialObject :global-id="source.global_id" />
-            </div>
           </div>
         </template>
         <template #body>
-          <div class="full_width panel content">
-            <SourceType class="margin-medium-bottom" />
+          <div class="full_width">
+            <SourceType
+              v-if="source.type !== SOURCE_BIBTEX"
+              class="margin-medium-bottom"
+            />
             <component :is="componentSection[source.type]" />
           </div>
         </template>
@@ -152,6 +160,7 @@ import AddSource from '@/components/ui/Button/ButtonAddToProjectSource'
 import CloneSource from './components/cloneSource'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
+import CitationTotal from './components/CitationTotal.vue'
 
 import VRecent from './components/recent.vue'
 import PanelSearch from './components/PanelSearch.vue'

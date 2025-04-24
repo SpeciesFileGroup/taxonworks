@@ -2,6 +2,28 @@ import { createApp } from 'vue'
 import NomenclatureSearch from '@/tasks/nomenclature/browse/components/search.vue'
 import SoftValidation from '@/tasks/nomenclature/browse/components/validations.vue'
 import ValidationModal from '@/tasks/nomenclature/browse/components/ValidationModal.vue'
+import ButtonFocus from '@/tasks/nomenclature/browse/components/ButtonFocus.vue'
+
+function initFocusButtons() {
+  const elements = [
+    ...document.querySelectorAll('[data-history-origin="protonym"]')
+  ]
+
+  elements.forEach((el) => {
+    const container =
+      el.querySelector('[data-focus-button]') || document.createElement('div')
+    const objectId = el.getAttribute('data-history-protonym-id')
+    const app = createApp(ButtonFocus, {
+      objectId: objectId.split(',')
+    })
+
+    container.setAttribute('data-focus-button', true)
+
+    el.appendChild(container)
+
+    app.mount(container)
+  })
+}
 
 function initSearch(el) {
   const app = createApp(NomenclatureSearch)
@@ -48,6 +70,8 @@ function initValidations(element) {
 }
 
 document.addEventListener('turbolinks:load', () => {
+  const isBrowseNomenclature = !!document.querySelector('#browse-nomenclature')
+
   const searchElement = document.querySelector(
     '#vue-browse-nomenclature-search'
   )
@@ -57,6 +81,10 @@ document.addEventListener('turbolinks:load', () => {
   const validationModalElement = document.querySelector(
     '#vue-browse-nomenclature-validation-modal'
   )
+
+  if (isBrowseNomenclature) {
+    initFocusButtons()
+  }
 
   if (validationModalElement) {
     initValidationModal(validationModalElement)
