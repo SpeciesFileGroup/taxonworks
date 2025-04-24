@@ -11,6 +11,7 @@
         param="term"
         label="label_html"
         placeholder="Search a sound..."
+        autofocus
         @get-item="(item) => emit('select', item.id)"
       />
       <ul
