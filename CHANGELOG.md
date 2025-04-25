@@ -9,6 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+### Fixed
+
+- Browse collecting event fails to load
+
 ## [0.50.0] - 2025-04-24
 
 ### Added
