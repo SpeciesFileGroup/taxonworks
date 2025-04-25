@@ -39,7 +39,7 @@ module ContainersHelper
   # TODO: Clean, refactor
   def label_for_container_container(container)
     return nil if container.nil?
-    container.name || container.print_label || label_for_identifier(container.identifiers.first) || container.id
+    container.name || container.print_label || label_for_identifier(container.identifiers.first) || container.id.to_s
   end
 
   def container_autocomplete_tag(container)
@@ -75,8 +75,8 @@ module ContainersHelper
     return nil if !object.containable?
     parts = []
     object.enclosing_containers.each do |c|
-      s = c.name.blank? ? c.class.class_name : c.name
-      s += " [#{c.disposition}]" if !c.disposition.blank?
+      s = (c.name.presence || c.class.class_name)
+      s += " [#{c.disposition}]" if c.disposition.present?
       parts.push s
     end
     parts.join('; ')
