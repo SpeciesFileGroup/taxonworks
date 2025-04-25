@@ -313,7 +313,7 @@ class OtusController < ApplicationController
       having_taxon_name_only: params[:having_taxon_name_only]
     ).api_autocomplete_extended
 
-    render '/otus/api/v1/autocomplete'
+    render '/otus/api/v1/autocomplete', locals: { include_common_names: params[:include_common_names] }
   end
 
   # GET /api/v1/otus/:id/inventory/images

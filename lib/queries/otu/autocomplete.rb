@@ -21,6 +21,12 @@ module Queries
       #   nil - ignored
       attr_accessor :with_taxon_name
 
+      # @return Boolean, nil
+      #  true - include common names in response
+      # false - do not include common names in response
+      # nil - ignored
+      attr_accessor :include_common_names
+
       # @return [Boolean]
       #   &exact=<"true"|"false">
       #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
@@ -53,10 +59,11 @@ module Queries
         # common_name_name_similarity: {priority: 200},
       }.freeze
 
-      def initialize(string, project_id: nil, having_taxon_name_only: false, with_taxon_name: nil, exact: 'false')
+      def initialize(string, project_id: nil, having_taxon_name_only: false, with_taxon_name: nil, include_common_names: false, exact: 'false')
         super(string, project_id:)
         @having_taxon_name_only = boolean_param({having_taxon_name_only:}, :having_taxon_name_only)
         @with_taxon_name = boolean_param({with_taxon_name:}, :with_taxon_name)
+        @include_common_names = boolean_param({ include_common_names:}, :with_common_names)
 
         # TODO: move to mode
         @exact = boolean_param({exact:}, :exact)

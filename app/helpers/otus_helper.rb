@@ -1,8 +1,8 @@
 module OtusHelper
 
-  def otu_tag(otu)
+  def otu_tag(otu, include_common_names = false)
     return nil if otu.nil?
-    a = otu_tag_elements(otu)
+    a = otu_tag_elements(otu, include_common_names)
     a.push taxon_name_type_short_tag(otu.taxon_name)
     content_tag(:span, a.compact.join(' ').html_safe, class: :otu_tag)
   end
@@ -14,21 +14,26 @@ module OtusHelper
     ].compact.join(': ')
   end
 
-  def otu_tag_elements(otu)
+  def otu_tag_elements(otu, include_common_names = false)
     return nil if otu.nil?
     [
       ( otu.name ? content_tag(:span, otu.name, class: :otu_tag_otu_name, title: otu.id) : nil ),
-      ( otu.taxon_name ? content_tag(:span, full_taxon_name_tag(otu.taxon_name).html_safe, class: :otu_tag_taxon_name, title: otu.taxon_name.id) : nil)
+      ( otu.taxon_name ? content_tag(:span, full_taxon_name_tag(otu.taxon_name).html_safe, class: :otu_tag_taxon_name, title: otu.taxon_name.id) : nil),
+      ( include_common_names && otu.common_names.present? ? content_tag(:span, "(" + otu.common_names.map(&:name).join(', ') + ")", class: :otu_tag_common_name) : nil ),
     ].compact
   end
 
   # Used exclusively in /api/v1/otus/autocomplete
-  def otu_extended_autocomplete_tag(target)
+  def otu_extended_autocomplete_tag(target, include_common_names = false)
     if target.kind_of?(Otu)
-      otu_tag(target)
+      otu_tag(target, include_common_names)
     else # TaxonName
       a = [ tag.span( full_taxon_name_tag(target).html_safe, class: :otu_tag_taxon_name, title: target.id) ]
       a.push taxon_name_type_short_tag(target)
+      if include_common_names
+        common_names = target.common_names.map(&:name).join(', ')
+        a.push tag.span("(" + common_names + ")", class: :otu_tag_common_name) if common_names.present?
+      end
       tag.span( a.compact.join(' ').html_safe, class: :otu_tag )
     end
   end
