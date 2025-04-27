@@ -7,27 +7,60 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-### Added
-
-- Radial annotator and navigator to role picker list
-- CSD: Highlight header bar when DwC re-index is pending [#4275]
-- New source task: Citations count [#4237]
+\-
 
 ### Fixed
 
+- Browse collecting event fails to load
+
+## [0.50.0] - 2025-04-24
+
+### Added
+
+- `decorator_status` to `api/v1/taxon_names/:id/inventory/summary`
+- Radial annotator and navigator to role picker list
+- CSD: Highlight header bar when DwC re-index is pending [#4275]
+- New source task: Citations count [#4237]
+- Allow catalog number to start with zeros in Grid digitizer task [#4291]
+- Filter collection objects: Extend response to include container item [#4285]
+- Browse Nomenclature: Focus button [#4283]
+- Sounds and conveyances. Browse, filter, new from radial. [#244]
+
+### Changed
+
+- Browse OTU: Specimen records are displayed on DwC table [#4138]
+- Updated Ruby gems
+
+### Fixed
+
+- Eliminate 404 behaviour in Synchronize nomenclature [#4284]
+- Filter CollectingEvent to OTU Filter linkage broken [#4277]
+- Filter OTU CSV download ommitted OTUs with no taxon name
+- DwcOccurrence FieldOccurrence scoping
+- TypeMaterial hook to DwcOccurrence update [#4266]
 - Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
 - Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
 - Content editor: Close modal is enable when nothing is selected [#4279]
 - Radials from facets side are enabled when no filters are active [#4281]
 - Some identifiers are missing on DwC otherCatalogNumbers column
 - Identifiers cached is empty in CSV table
+- DwC importer creating sex biocuration group with an array as URI
+- Filters: Sorting alphabetically does not work correctly when values are in HTML
 
+[#4266]: https://github.com/SpeciesFileGroup/taxonworks/issues/4266
+[#4284]: https://github.com/SpeciesFileGroup/taxonworks/issues/4284
+[#4277]: https://github.com/SpeciesFileGroup/taxonworks/issues/4277
+[#244]: https://github.com/SpeciesFileGroup/taxonworks/issues/244
+[#4138]: https://github.com/SpeciesFileGroup/taxonworks/issues/4138
 [#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
 [#4275]: https://github.com/SpeciesFileGroup/taxonworks/issues/4275
 [#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
 [#4279]: https://github.com/SpeciesFileGroup/taxonworks/issues/4279
 [#4281]: https://github.com/SpeciesFileGroup/taxonworks/issues/4281
+[#4283]: https://github.com/SpeciesFileGroup/taxonworks/issues/4283
+[#4285]: https://github.com/SpeciesFileGroup/taxonworks/issues/4285
+[#4291]: https://github.com/SpeciesFileGroup/taxonworks/issues/4291
 
 ## [0.49.1] - 2025-04-01
 
@@ -5219,7 +5252,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.0...development
+[0.50.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.1...v0.50.0
 [0.49.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...v0.49.1
 [0.49.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.47.0...v0.48.0

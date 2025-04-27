@@ -42,9 +42,6 @@ export default async ({ dispatch, commit, state }, otus) => {
       await loadOtuInformation(item)
     }
 
-    dispatch(ActionNames.LoadCollectionObjects, otuIds).then(() => {
-      dispatch(ActionNames.LoadCollectingEvents, otuIds)
-    })
     dispatch(ActionNames.LoadFieldOccurrences, otuIds)
 
     state.loadState.biologicalAssociations = false

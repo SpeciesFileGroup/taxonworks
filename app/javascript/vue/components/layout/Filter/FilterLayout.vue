@@ -119,6 +119,7 @@
               :list="selectedItems"
               :csv-options="csvOptions"
               :extend-download="extendDownload"
+              :only-extend-download="onlyExtendDownload"
             />
             <span class="separate-left separate-right">|</span>
             <FilterSettings
@@ -184,6 +185,11 @@ const props = defineProps({
   csvOptions: {
     type: Object,
     default: undefined
+  },
+
+  onlyExtendDownload: {
+    type: Boolean,
+    default: false
   },
 
   extendDownload: {

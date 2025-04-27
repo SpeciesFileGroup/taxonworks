@@ -273,7 +273,7 @@ class CachedMapItem < ApplicationRecord
       otu_id = [o.otu_id]
     when 'Georeference'
       geographic_item_id = o.geographic_item_id
-      otu_id = o.otus.joins('LEFT JOIN taxon_determinations td on otus.id = td.otu_id').where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
+      otu_id = o.otus.left_joins(:taxon_determinations).where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
     end
 
     # Some AssertedDistribution don't have shapes

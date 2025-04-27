@@ -32,4 +32,17 @@ class Catalog::Nomenclature::EntryItem < ::Catalog::EntryItem
     )
   end
 
+  def protonym_ids
+    case object_class
+    when 'Protonym'
+      [object.id]
+    when 'Hybrid'
+      [object.id]
+    when 'Combination'
+      object.combination_relationships.pluck(:subject_taxon_name_id)
+    when /TaxonNameRelationship/
+      [object.subject_taxon_name_id, object.object_taxon_name_id]
+    end
+  end
+
 end

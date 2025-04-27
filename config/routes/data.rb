@@ -334,6 +334,9 @@ end
 
 resources :field_occurrences do
   concerns [:data_routes]
+
+  resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
+
   collection do
     match :filter, to: 'field_occurrences#index', via: [:get, :post]
   end

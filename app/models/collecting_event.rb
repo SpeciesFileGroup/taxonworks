@@ -325,6 +325,10 @@ class CollectingEvent < ApplicationRecord
     name: 'Missing geographic area',
     description: 'Georaphic area is missing')
 
+  def otus
+    ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
+  end
+
   def dwc_occurrences
     # Through CollectionObjects
     a = DwcOccurrence
@@ -336,10 +340,6 @@ class CollectingEvent < ApplicationRecord
       .where(fo: {collecting_event_id: id})
 
     ::Queries.union(DwcOccurrence, [a,b])
-  end
-
-  def otus
-    ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
   end
 
   # @param [String]

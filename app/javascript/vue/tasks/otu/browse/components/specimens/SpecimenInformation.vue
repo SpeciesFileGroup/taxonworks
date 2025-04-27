@@ -26,6 +26,18 @@
     </span>
     <ul class="no_bullets">
       <li>
+        <template v-if="identifiers.length">
+          Identifiers:
+          <ul>
+            <li
+              v-for="identifier in identifiers"
+              :key="identifier.id"
+              v-text="identifier.cached"
+            ></li>
+          </ul>
+        </template>
+      </li>
+      <li>
         <span>Counts: <b v-html="countAndBiocurations" /></span>
       </li>
       <li>
@@ -71,7 +83,8 @@ import {
   TaxonDetermination,
   Repository,
   Depiction,
-  Citation
+  Citation,
+  Identifier
 } from '@/routes/endpoints'
 
 import { GetterNames } from '../../store/getters/getters'
@@ -144,7 +157,8 @@ export default {
       determinationCitations: [],
       determinations: [],
       expand: false,
-      repository: undefined
+      repository: undefined,
+      identifiers: []
     }
   },
 
@@ -163,6 +177,8 @@ export default {
 
   methods: {
     loadData() {
+      const coId = this.specimen.collection_objects_id
+
       CollectionObject.find(this.specimen.collection_objects_id, {
         extend: ['citations']
       }).then((response) => {
@@ -177,24 +193,31 @@ export default {
       })
 
       BiocurationClassification.where({
-        biocuration_classification_object_id:
-          this.specimen.collection_objects_id,
+        biocuration_classification_object_id: coId,
         biocuration_classification_object_type: COLLECTION_OBJECT
       }).then(({ body }) => {
         this.biocurations = body
       })
 
       Depiction.where({
-        depiction_object_id: this.specimen.collection_objects_id,
+        depiction_object_id: coId,
         depiction_object_type: COLLECTION_OBJECT
       }).then((response) => {
         this.depictions = response.body
       })
+
       Citation.where({
-        citation_object_id: this.specimen.collection_objects_id,
+        citation_object_id: coId,
         citation_object_type: COLLECTION_OBJECT
       }).then((response) => {
         this.citations = response.body
+      })
+
+      Identifier.where({
+        identifier_object_id: coId,
+        identifier_object_type: COLLECTION_OBJECT
+      }).then(({ body }) => {
+        this.identifiers = body
       })
 
       TaxonDetermination.where({

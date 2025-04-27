@@ -96,6 +96,11 @@ class Georeference < ApplicationRecord
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
+  has_many :field_occurrences, through: :collecting_event, inverse_of: :georeferences
+
+  has_many :collection_object_otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
+  has_many :field_occurrence_otus, -> { unscope(:order) }, through: :field_occurrences, source: 'otu'
+
   has_many :otus, through: :collection_objects, source: 'otus'
 
   has_many :georeferencer_roles, class_name: 'Georeferencer', as: :role_object, dependent: :destroy, inverse_of: :role_object
@@ -134,6 +139,10 @@ class Georeference < ApplicationRecord
   after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
 
   after_destroy :set_cached_collecting_event
+
+  def otus
+    ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
+  end
 
   def self.point_type
     joins(:geographic_item)
