@@ -7,7 +7,7 @@ namespace :tw do
       puts 'Loading geo data...'
       [GeographicArea, GeographicAreaType, GeographicItem, GeographicAreasGeographicItem].each do |klass|
         if klass.count > 0
-          puts "There are existing #{klass.name.humanize}, doing nothing.".red.on_white
+          puts Rainbow("There are existing #{klass.name.humanize}, doing nothing.").red.on_white
           raise
         end
       end
@@ -20,10 +20,10 @@ namespace :tw do
       geographic_items_file                  = "#{data_store}geographic_items.dump"
       geographic_areas_geographic_items_file = "#{data_store}geographic_areas_geographic_items.dump"
 
-      raise "Missing #{geographic_areas_file}, doing nothing.".red unless File.exist?(geographic_areas_file)
-      raise "Missing #{geographic_items_file}, doing nothing.".red unless File.exist?(geographic_items_file)
-      raise "Missing #{geographic_area_types_file}, doing nothing.".red unless File.exist?(geographic_area_types_file)
-      raise "Missing #{geographic_areas_geographic_items_file}, doing nothing.red" unless File.exist?(geographic_areas_geographic_items_file)
+      raise Rainbow("Missing #{geographic_areas_file}, doing nothing.").red unless File.exist?(geographic_areas_file)
+      raise Rainbow("Missing #{geographic_items_file}, doing nothing.").red unless File.exist?(geographic_items_file)
+      raise Rainbow("Missing #{geographic_area_types_file}, doing nothing.").red unless File.exist?(geographic_area_types_file)
+      raise Rainbow("Missing #{geographic_areas_geographic_items_file}, doing nothing.").red unless File.exist?(geographic_areas_geographic_items_file)
 
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_area_types_file}"
 
