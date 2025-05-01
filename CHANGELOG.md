@@ -9,6 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.50.1] - 2025-05-01
+
 ### Added
 
 - TaxonName filter report summarizing gender in a table
@@ -17,11 +19,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-* Improved data overview graphs, options
-* Further improvements to Container metadata display
-* Update Rubygems
-* Update NPM packages
-* Improved some auto-focus behaviour
+- Improved data overview graphs, options
+- Further improvements to Container metadata display
+- Update Rubygems
+- Update NPM packages
+- Improved some auto-focus behaviour
 
 ### Fixed
 
@@ -5280,7 +5282,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.1...development
+[0.50.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.0...v0.50.1
 [0.50.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.1...v0.50.0
 [0.49.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...v0.49.1
 [0.49.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.48.0...v0.49.0
