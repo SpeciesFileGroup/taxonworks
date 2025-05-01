@@ -24,7 +24,7 @@ gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 5.1'
-gem 'rmagick', '~> 6.0' 
+gem 'rmagick', '~> 6.0'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 
@@ -111,6 +111,7 @@ gem 'csl-styles', '~> 2.0.1'
 gem 'serrano', '~> 1.4'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
+gem 'prawn', '~> 2.5.0'
 
 # UI/UX
 gem 'chartkick', '~> 5.0'
@@ -178,7 +179,6 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
-  gem 'prawn', '~> 2.5.0'
   gem 'puma', '~> 6.3'
 end
 
