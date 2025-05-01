@@ -9,9 +9,34 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+### Added
+
+- Tooltips on various radials
+- More DwC fields for FieldOccurrences
+
+### Changed
+
+* Improved data overview graphs, options
+* Further improvements to Container metadata display
+* Update Rubygems
+* Update NPM packages
+* Improved some auto-focus behaviour
+
 ### Fixed
 
+- Various filter Content fixes
+- Various Batch/Mass annotator fixes
 - Browse collecting event fails to load
+- A TaxonDetermination related filter parameter issue
+- TaxonDetermination related issues on FieldOccurrence and CollectionObject
+- When Sounds fail to destroy the error is not caught
+- Unify fails to activate [#4310]
+- Unify fails to merge FieldOccurrences [#4315]
+- Repositories shouldn't try to render Citations
+
+
+[#4310]: https://github.com/SpeciesFileGroup/taxonworks/issues/4266
+[#4315]: https://github.com/SpeciesFileGroup/taxonworks/issues/4266
 
 ## [0.50.0] - 2025-04-24
 
