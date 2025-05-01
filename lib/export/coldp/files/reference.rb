@@ -29,7 +29,7 @@ module Export::Coldp::Files::Reference
 #     source.year,
 #     source.journal,                # source.source
 #     reference_details(source),     # details (pages, volume, year)
-      source.doi,
+      nil, # TODO return to this in new model   source.doi,
       Export::Coldp.modified(source[:updated_at]),                        # modified
       Export::Coldp.modified_by(source[:updated_by_id], project_members)  # modifiedBy 
     ]

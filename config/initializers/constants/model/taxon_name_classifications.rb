@@ -83,7 +83,6 @@ TAXON_NAME_CLASS_NAMES_UNAVAILABLE ||= [
   TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished.descendants
 ].flatten.map(&:to_s).freeze
 
-
 TAXON_NAME_CLASS_NAMES_VALID ||= [
   TaxonNameClassification::Iczn::Available::Valid,
   TaxonNameClassification::Iczn::Available::Valid.descendants,

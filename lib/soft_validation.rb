@@ -7,9 +7,12 @@
 # Vaguely inspired by concepts from by svn://rubyforge.org/var/svn/softvalidations, but not as elegant.
 #
 # Soft validations are a means to tie warnings or suggestions to instances of data.
+# Soft validations should only be tested on persisted objects (ones that have an id populated).
+#
 # Soft validations do not prevent an instance from being saved.  They are not intended
-# to be bound to AR callbacks, but this may be possible ultimately. They may be used to
-# alert the user to data issues that need to be addressed, or alert the programmer
+# to be bound to AR callbacks.
+#
+# They may be used to alert the user to data issues that need to be addressed, or alert the programmer
 # who is batch parsing data as to the quality of the incoming data, etc..
 #
 # There are 2 stages to defining a soft validation. First index and provide an option general description

@@ -46,8 +46,8 @@ module Workbench::TableHelper
     end
   end
 
-  def copy_table_to_clipboard(selector, offset = 0)
-    content_tag(:button, 'Copy to clipboard', data: { 'clipboard-table-selector': selector, offset: }, type: 'button')
+  def copy_table_to_clipboard(selector, offset = 0, message = 'Copy to clipboard' )
+    content_tag(:button, message , data: { 'clipboard-table-selector': selector, offset: }, type: 'button')
   end
 
   def table_from_hash_tag(hash)

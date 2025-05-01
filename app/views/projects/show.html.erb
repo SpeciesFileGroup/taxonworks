@@ -22,18 +22,27 @@
     </ul>
 
     <% if @project.users.any? -%>
-      <table>
-        <tr>
-          <th> Name </th>
-          <th> Last seen in project </th>
-          <th> Time in project </th>
-          <th> Member since </th>
-          <th> Project administrator? </th>
-          <th> </th>
-        </tr>
+      <% if sessions_current_user.is_superuser? %>
+        <%= tag.p copy_table_to_clipboard('#users', 6, "Copy emails to clipboard") %> 
+      <% end %>
+
+      <table id="users" class="tablesorter">
+        <thead>
+          <tr>
+            <th>Name </th>
+            <th>Last seen in project </th>
+            <th>Time in project </th>
+            <th>Member since </th>
+            <th>Project<br> administrator</th>
+            <th></th>
+            <% if sessions_current_user.is_superuser? %>
+              <th> Email </th>
+            <% end %>
+          </tr>
+        </thead>
 
         <tbody>
-          <% @project.project_members.includes(:user).order('users.name').each do |pm| -%>
+          <% @project.project_members.eager_load(:user).order('users.name').each do |pm| -%>
             <tr>
               <td>
                 <% if is_administrator? %>
@@ -54,12 +63,18 @@
                   </div>
                 <% end %>
               </td>
+
               <td>
                 <%= form_for(pm, method: :delete) do |f| -%>
                   <%= f.hidden_field :_destroy, value: :true -%>
                   <%= f.submit 'Remove', method: :delete, class: ['button-delete'] %>
                 <% end %>
               </td>
+
+              <% if sessions_current_user.is_superuser? %>
+                <td> <%= pm.user.email %></td>
+              <% end %>
+
             </tr>
           <% end %>
         </tbody>

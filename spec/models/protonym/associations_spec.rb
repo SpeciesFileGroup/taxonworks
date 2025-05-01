@@ -15,7 +15,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     Citation.delete_all
     Source.destroy_all
     TaxonNameHierarchy.delete_all
-    
+
   end
 
   let(:protonym) { Protonym.new }
@@ -23,7 +23,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   context 'associations' do
     before(:all) do
-      
+
       init_housekeeping
 
       @family = FactoryBot.create(:relationship_family, name: 'Aidae', parent: @order)
@@ -42,11 +42,11 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     context 'has_many' do
-      specify 'combination_relationships' do 
+      specify 'combination_relationships' do
         expect(protonym).to respond_to(:combination_relationships)
       end
 
-      specify 'combinations' do 
+      specify 'combinations' do
         expect(protonym).to respond_to(:combinations)
       end
     end
@@ -61,7 +61,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(gender.valid?).to be_truthy
         expect(gender.errors.include?(:taxon_name_id)).to be_falsey
         @genus.reload
-        expect(@genus.gender_name).to eq('masculine')
+        expect(@genus.cached_gender).to eq('masculine')
         gender2 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
         gender2.valid?
         expect(gender2.errors.include?(:taxon_name_id)).to be_truthy
@@ -76,7 +76,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
             relationships = "#{d.inverse_assignment_method}_relationships".to_sym
             method = d.assignment_method.to_sym
             methods = d.inverse_assignment_method.to_s.pluralize.to_sym
-          elsif d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/ # 
+          elsif d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/ #
             relationship = "#{d.inverse_assignment_method}_relationship".to_sym
             relationships = "#{d.assignment_method}_relationships".to_sym
             method = d.inverse_assignment_method.to_sym
@@ -90,7 +90,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
             expect(protonym).to respond_to(relationships)
           end
           specify method do
-            expect(protonym.send("#{method}=", Protonym.new)).to be_truthy 
+            expect(protonym.send("#{method}=", Protonym.new)).to be_truthy
           end
 
           specify methods do
@@ -106,13 +106,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
           expect(@genus).to respond_to(:type_taxon_name)
           expect(@genus.type_taxon_name).to eq(@protonym)
           expect(@family.type_taxon_name).to eq(@genus)
-        end 
+        end
 
         specify 'type_taxon_name_relationship' do
           expect(protonym).to respond_to(:type_taxon_name_relationship)
           expect(@genus.type_taxon_name_relationship.id).to eq(@species_type_of_genus.id)
           expect(@family.type_taxon_name_relationship.id).to eq(@genus_type_of_family.id)
-        end 
+        end
 
         specify 'has at most one has_type relationship' do
           extra_type_relation = FactoryBot.build_stubbed(:taxon_name_relationship,
@@ -130,7 +130,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
           c2 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
           expect(c2.valid?).to be_falsey
         end
-      end 
+      end
 
       specify 'type_of_relationships' do
         expect(@protonym.type_of_relationships.collect{|i| i.id}).to eq([@species_type_of_genus.id])
