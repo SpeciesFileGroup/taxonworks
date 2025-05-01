@@ -22,8 +22,6 @@ module Shared::BiologicalExtensions
 
     has_many :taxon_names, through: :otus
 
-    has_many :type_materials, inverse_of: :collection_object, dependent: :restrict_with_error
-
     has_many :biocuration_classifications, as: :biocuration_classification_object, dependent: :destroy, inverse_of: :biocuration_classification_object
 
     has_many :biocuration_classes, through: :biocuration_classifications #, inverse_of: :biological_collection_objects
