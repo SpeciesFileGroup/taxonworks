@@ -33,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Unify fails to activate [#4310]
 - Unify fails to merge FieldOccurrences [#4315]
 - Repositories shouldn't try to render Citations
+- Pdf download of formatted sources
 - 500 on filter mass annotate for an annotation not supported on the model [#4307]
 
 [#4307]: https://github.com/SpeciesFileGroup/taxonworks/issues/4307
