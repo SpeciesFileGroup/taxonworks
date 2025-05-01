@@ -44,7 +44,7 @@ module CollectionObjectsHelper
     return nil if collection_object.nil?
     collection_object.dwc_catalog_number ||
       collection_object.dwc_scientific_name ||
-      collection_object.id
+      collection_object.id.to_s
   end
 
   def collection_object_autocomplete_tag(collection_object)
@@ -132,7 +132,7 @@ module CollectionObjectsHelper
     j = collection_object.container&.identifiers&.order(:position)&.first
     return [:container, identifier_tag(j)] if j
 
-    # Use a non local/non container if provided 
+    # Use a non local/non container if provided
     return [:collection_object, identifier_tag(i)] if i
     return [:container, identifier_tag(j)] if j
 

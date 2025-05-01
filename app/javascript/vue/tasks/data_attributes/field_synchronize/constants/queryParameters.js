@@ -3,6 +3,7 @@ import {
   BiologicalAssociation,
   CollectionObject,
   CollectingEvent,
+  Content,
   Descriptor,
   Extract,
   Image,
@@ -19,6 +20,7 @@ import {
   BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
+  CONTENT,
   DESCRIPTOR,
   EXTRACT,
   IMAGE,
@@ -50,6 +52,12 @@ export const QUERY_PARAMETER = {
     model: COLLECTING_EVENT,
     service: CollectingEvent,
     filterUrl: FILTER_ROUTES[COLLECTING_EVENT]
+  },
+
+  [QUERY_PARAM[CONTENT]]: {
+    model: CONTENT,
+    service: Content,
+    filterUrl: FILTER_ROUTES[CONTENT]
   },
 
   [QUERY_PARAM[COLLECTION_OBJECT]]: {

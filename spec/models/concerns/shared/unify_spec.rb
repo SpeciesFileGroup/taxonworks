@@ -71,7 +71,7 @@ describe 'Shared::Unify', type: :model do
 
     ba1 = FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: o1)
     ba2 = FactoryBot.create(:valid_biological_association, biological_association_subject: o2,
-      biological_association_object: o3, biological_relationship: ba1.biological_relationship)
+                            biological_association_object: o3, biological_relationship: ba1.biological_relationship)
 
     s = FactoryBot.create(:valid_source)
     c1  = FactoryBot.create(:valid_citation, citation_object: ba1)
@@ -369,6 +369,22 @@ describe 'Shared::Unify', type: :model do
     expect(b.destroyed?).to be_truthy
     expect(a.taxon_determinations.reload.size).to eq(2)
   end
+
+  # Tries to move the required TD, which isn't allowed
+  #  - perhaps dup and not add error then destroy @ end?
+  specify 'unifies FieldOccurrence with CEs linked to COs' do
+    a = FactoryBot.create(:valid_field_occurrence)
+    ce = a.collecting_event
+    b = FactoryBot.create(:valid_field_occurrence, collecting_event: ce)
+
+    s = FactoryBot.create(:valid_specimen, collecting_event: ce) 
+
+    r = a.unify(b)
+    expect(b.destroyed?).to be_truthy
+    expect(a.taxon_determinations.reload.size).to eq(2)
+  end
+
+
 
   specify 'unifies Extract' do
     a = FactoryBot.create(:valid_extract)

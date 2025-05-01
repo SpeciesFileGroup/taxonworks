@@ -1053,3 +1053,11 @@ filter_field_occurrences_task:
     - filters
   status: prototype
   description: 'Filter field occurrences by many different facets, download or visualize results.'
+taxon_name_gender_task:
+  hub: true
+  name: 'Nomenclatural gender summary'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Brief summary of gender status for a filtered set of names.'

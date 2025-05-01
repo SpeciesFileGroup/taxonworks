@@ -745,6 +745,10 @@ scope :tasks do
   end
 
   scope :taxon_names do
+    scope :gender, controller: 'tasks/taxon_names/gender' do
+      get '/', action: :index, as: 'taxon_name_gender_task'
+    end
+
     scope :stats, controller: 'tasks/taxon_names/stats' do
       get '/', action: :index,  as: 'taxon_name_stats_task'
       post '/', action: :index,  as: 'post_taxon_name_stats_task'

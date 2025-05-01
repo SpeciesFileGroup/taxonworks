@@ -91,6 +91,7 @@ const FILTER_ROUTES = {
   [BIOLOGICAL_ASSOCIATION]: RouteNames.FilterBiologicalAssociations,
   [COLLECTING_EVENT]: RouteNames.FilterCollectingEvents,
   [COLLECTION_OBJECT]: RouteNames.FilterCollectionObjects,
+  [CONTENT]: RouteNames.FilterContents,
   [DWC_OCCURRENCE]: RouteNames.FilterDwcOccurrences,
   [EXTRACT]: RouteNames.FilterExtracts,
   [FIELD_OCCURRENCE]: RouteNames.FilterFieldOccurrence,

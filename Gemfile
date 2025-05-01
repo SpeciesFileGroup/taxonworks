@@ -100,7 +100,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '8.2.0'
+gem 'shakapacker', '8.3.0'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'
@@ -110,6 +110,7 @@ gem 'csl-styles', '~> 2.0.1'
 gem 'serrano', '~> 1.4'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
+gem 'prawn', '~> 2.5.0'
 
 # UI/UX
 gem 'chartkick', '~> 5.0'
@@ -177,7 +178,6 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
-  gem 'prawn', '~> 2.5.0'
   gem 'puma', '~> 6.3'
 end
 

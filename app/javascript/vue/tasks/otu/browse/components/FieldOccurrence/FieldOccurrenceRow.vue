@@ -80,12 +80,10 @@
 import { FIELD_OCCURRENCE } from '@/constants'
 import { Depiction, TaxonDetermination } from '@/routes/endpoints'
 import { computed, ref, watch } from 'vue'
-import { useStore } from 'vuex'
+import { RouteNames } from '@/routes/routes'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import { GetterNames } from '../../store/getters/getters'
-import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
   fieldOccurrence: {
@@ -94,7 +92,6 @@ const props = defineProps({
   }
 })
 
-const store = useStore()
 const depictions = ref([])
 const determinations = ref([])
 const isExpanded = ref(false)
@@ -106,12 +103,6 @@ const ceLabel = computed(() => {
     .filter(Boolean)
     .join(', ')
 })
-
-const collectingEvent = computed(() =>
-  store.getters[GetterNames.GetCollectingEvents].find(
-    (c) => c.id === props.fieldOccurrence.collecting_event_id
-  )
-)
 
 function loadData() {
   TaxonDetermination.where({
@@ -127,6 +118,12 @@ function loadData() {
   }).then(({ body }) => {
     depictions.value = body
   })
+
+  CollectingEvent.find(props.fieldOccurrence.collecting_event_id).then(
+    ({ body }) => {
+      collectingEvent.value = body
+    }
+  )
 }
 
 watch(isExpanded, loadData, {
