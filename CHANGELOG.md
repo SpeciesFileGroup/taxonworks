@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- TaxonName filter report summarizing gender in a table
 - Tooltips on various radials
 - More DwC fields for FieldOccurrences
 
