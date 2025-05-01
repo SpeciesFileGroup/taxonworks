@@ -143,6 +143,8 @@ class CollectionObject < ApplicationRecord
 
   has_many :collectors, through: :collecting_event
 
+  has_many :type_materials, inverse_of: :collection_object, dependent: :restrict_with_error
+
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
   before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
