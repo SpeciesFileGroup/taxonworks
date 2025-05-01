@@ -206,7 +206,7 @@ describe 'Shared::Unify', type: :model do
 
     expect(o2.reload.destroyed?).to be_falsey
     expect(o1.citations.reload.count).to eq(2)
-    expect(o1.citations.last.pages).to eq("456")
+    expect(o1.citations.pluck(:pages)).to contain_exactly('123', "456")
   end
 
   specify 'merges non-unique DataAttributes' do
@@ -216,7 +216,7 @@ describe 'Shared::Unify', type: :model do
     o1.unify(o2)
     expect(o2.destroyed?).to be_truthy
     expect(o1.data_attributes.reload.size).to eq(2)
-    expect(o1.data_attributes.last.value).to eq('456')
+    expect(o1.data_attributes.pluck(:value)).to contain_exactly('123', '456')
   end
 
   specify 'deduplicates DataAttributes' do
@@ -502,7 +502,7 @@ describe 'Shared::Unify', type: :model do
     expect(ad1.destroyed?).to be_truthy
 
     expect(ad0.citations.reload.size).to eq(2)
-    expect(ad0.citations.last.pages).to eq('456')
+    expect(ad0.citations.pluck(:pages)).to contain_exactly('123', '456')
   end
 
   specify 'unify preserves citations differing by pages' do
@@ -512,7 +512,7 @@ describe 'Shared::Unify', type: :model do
     o1.unify(o2)
 
     expect(o1.citations.reload.count).to eq(2)
-    expect(o1.citations.last.pages).to eq("456")
+    expect(o1.citations.pluck(:pages)).to contain_exactly('123', "456")
   end
 
   specify '#unify' do
