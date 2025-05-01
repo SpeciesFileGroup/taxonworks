@@ -111,6 +111,8 @@ const props = defineProps({
   }
 })
 
+const annotatorComponents = ANNOTATORS[props.objectType] || ANNOTATORS.DEFAULT
+
 const {
   closeRadialBatch,
   currentSlice,
@@ -123,7 +125,7 @@ const {
 } = useRadialBatch({
   excludeParameters: EXCLUDE_PARAMETERS,
   props,
-  slices: props.nestedQuery ? ANNOTATORS.all : ANNOTATORS.ids
+  slices: props.nestedQuery ? annotatorComponents.all : annotatorComponents.ids
 })
 
 const annotatorTypes = ref({})
