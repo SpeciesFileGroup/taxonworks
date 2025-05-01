@@ -131,3 +131,11 @@ export const TASK_COLLECTING_EVENT_METADATA = {
   post: true,
   queryParam: true
 }
+
+export const TASK_TAXON_NAME_GENDER = {
+  label: 'Gender summary',
+  link: '/tasks/taxon_names/gender',
+  post: false,
+  queryParam: true
+}
+

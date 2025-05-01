@@ -2120,11 +2120,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_18_185734) do
     t.date "cached_nomenclature_date"
     t.boolean "cached_is_valid"
     t.text "cached_author"
-    t.text "cached_gender"
     t.index ["cached"], name: "index_taxon_names_on_cached"
     t.index ["cached"], name: "tn_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_author_year"], name: "tn_cached_auth_year_gin_trgm", opclass: :gin_trgm_ops, using: :gin
-    t.index ["cached_gender"], name: "index_taxon_names_on_cached_gender"
     t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
     t.index ["cached_original_combination"], name: "tn_cached_original_gin_trgm", opclass: :gin_trgm_ops, using: :gin

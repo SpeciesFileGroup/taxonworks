@@ -25,7 +25,7 @@ describe 'Shared::Unify', type: :model do
     c2 = FactoryBot.create(:valid_content, topic: t2, text: s, otu: c1.otu)
 
     t1.unify(t2)
-    
+
     expect(t2.destroyed?).to be_truthy
     expect(Content.all.reload.count).to eq(1)
   end
@@ -71,7 +71,7 @@ describe 'Shared::Unify', type: :model do
 
     ba1 = FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: o1)
     ba2 = FactoryBot.create(:valid_biological_association, biological_association_subject: o2,
-      biological_association_object: o3, biological_relationship: ba1.biological_relationship)
+                            biological_association_object: o3, biological_relationship: ba1.biological_relationship)
 
     s = FactoryBot.create(:valid_source)
     c1  = FactoryBot.create(:valid_citation, citation_object: ba1)
@@ -206,7 +206,7 @@ describe 'Shared::Unify', type: :model do
 
     expect(o2.reload.destroyed?).to be_falsey
     expect(o1.citations.reload.count).to eq(2)
-    expect(o1.citations.last.pages).to eq("456")
+    expect(o1.citations.pluck(:pages)).to contain_exactly('123', "456")
   end
 
   specify 'merges non-unique DataAttributes' do
@@ -216,7 +216,7 @@ describe 'Shared::Unify', type: :model do
     o1.unify(o2)
     expect(o2.destroyed?).to be_truthy
     expect(o1.data_attributes.reload.size).to eq(2)
-    expect(o1.data_attributes.last.value).to eq('456')
+    expect(o1.data_attributes.pluck(:value)).to contain_exactly('123', '456')
   end
 
   specify 'deduplicates DataAttributes' do
@@ -370,6 +370,22 @@ describe 'Shared::Unify', type: :model do
     expect(a.taxon_determinations.reload.size).to eq(2)
   end
 
+  # Tries to move the required TD, which isn't allowed
+  #  - perhaps dup and not add error then destroy @ end?
+  specify 'unifies FieldOccurrence with CEs linked to COs' do
+    a = FactoryBot.create(:valid_field_occurrence)
+    ce = a.collecting_event
+    b = FactoryBot.create(:valid_field_occurrence, collecting_event: ce)
+
+    s = FactoryBot.create(:valid_specimen, collecting_event: ce) 
+
+    r = a.unify(b)
+    expect(b.destroyed?).to be_truthy
+    expect(a.taxon_determinations.reload.size).to eq(2)
+  end
+
+
+
   specify 'unifies Extract' do
     a = FactoryBot.create(:valid_extract)
     b = FactoryBot.create(:valid_extract)
@@ -486,7 +502,7 @@ describe 'Shared::Unify', type: :model do
     expect(ad1.destroyed?).to be_truthy
 
     expect(ad0.citations.reload.size).to eq(2)
-    expect(ad0.citations.last.pages).to eq('456')
+    expect(ad0.citations.pluck(:pages)).to contain_exactly('123', '456')
   end
 
   specify 'unify preserves citations differing by pages' do
@@ -496,7 +512,7 @@ describe 'Shared::Unify', type: :model do
     o1.unify(o2)
 
     expect(o1.citations.reload.count).to eq(2)
-    expect(o1.citations.last.pages).to eq("456")
+    expect(o1.citations.pluck(:pages)).to contain_exactly('123', "456")
   end
 
   specify '#unify' do

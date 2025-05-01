@@ -9,6 +9,40 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.50.1] - 2025-05-01
+
+### Added
+
+- TaxonName filter report summarizing gender in a table
+- Tooltips on various radials
+- More DwC fields for FieldOccurrences
+
+### Changed
+
+- Improved data overview graphs, options
+- Further improvements to Container metadata display
+- Update Rubygems
+- Update NPM packages
+- Improved some auto-focus behaviour
+
+### Fixed
+
+- Various filter Content fixes
+- Various Batch/Mass annotator fixes
+- Browse collecting event fails to load
+- A TaxonDetermination related filter parameter issue
+- TaxonDetermination related issues on FieldOccurrence and CollectionObject
+- When Sounds fail to destroy the error is not caught
+- Unify fails to activate [#4310]
+- Unify fails to merge FieldOccurrences [#4315]
+- Repositories shouldn't try to render Citations
+- Pdf download of formatted sources
+- 500 on filter mass annotate for an annotation not supported on the model [#4307]
+
+[#4307]: https://github.com/SpeciesFileGroup/taxonworks/issues/4307
+[#4310]: https://github.com/SpeciesFileGroup/taxonworks/issues/4310
+[#4315]: https://github.com/SpeciesFileGroup/taxonworks/issues/4315
+
 ## [0.50.0] - 2025-04-24
 
 ### Added
@@ -5248,7 +5282,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.1...development
+[0.50.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.0...v0.50.1
 [0.50.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.1...v0.50.0
 [0.49.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...v0.49.1
 [0.49.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.48.0...v0.49.0

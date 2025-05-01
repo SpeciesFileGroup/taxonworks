@@ -32,19 +32,31 @@ class AdministrationController < ApplicationController
 
     @data = []
 
-    @projects.each do |u|
+    data = @klass.where("#{@klass.table_name}.#{@target} BETWEEN ? AND ?", @start_date, @end_date).distinct
+
+    if @klass.column_names.include?('project_id')
+
+      @projects.each do |u|
+        d = {
+          id: u.id,
+          name: u.name
+        }
+
+        data = @klass.where("#{@klass.table_name}.#{@target} BETWEEN ? AND ?", @start_date, @end_date).distinct
+        data = data.where(project_id: u)
+
+        d[:data] = data.send("group_by_#{@time_span}", "#{@target}".to_sym ).count
+        @data.push d
+      end
+
+    else
       d = {
-        id: u.id,
-        name: u.name
+        id: @klass.name,
+        name: @klass.name
       }
 
-      data = @klass.where(project: u).where("#{@klass.table_name}.#{@target} BETWEEN ? AND ?", @start_date, @end_date)
-
-    # if !@klass.is_community?
-    #   data = data.where(project_id: sessions_current_project_id)
-    # end
-
       d[:data] = data.send("group_by_#{@time_span}", "#{@target}".to_sym ).count
+
       @data.push d
     end
 
@@ -63,6 +75,25 @@ class AdministrationController < ApplicationController
         end
       end
       a[:data] = a[:data].sort.to_h
+    end
+
+    @aggregate_data = {}
+
+    @data.each do |r|
+      r[:data].each do |k, v|
+        if @aggregate_data[k]
+          @aggregate_data[k] += v
+        else
+          @aggregate_data[k] = v
+        end
+      end
+    end
+
+    @year_over_year = {}
+    t = 0
+    @aggregate_data.each do |k,v|
+      t += v
+      @year_over_year[k] = t
     end
 
   end

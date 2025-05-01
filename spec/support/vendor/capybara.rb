@@ -11,7 +11,7 @@ Capybara.default_max_wait_time = 30
 #   selenium:                                          # defaults to firefox, without
 #     browser: 'firefox'                               # or chrome
 #     firefox_binary_path: ''                          #  '/Applications/FirefoxDeveloperEdition.app/Contents/MacOS/firefox'
-#     chromedriver_path: '/usr/local/bin/chromedriver' # only possible when test_browser is 'chrome'
+#     driver_path: '/usr/local/bin/chromedriver'       # Used when autodetection causes failures (like snaps on Ubuntu 22.04+)
 
 
 # Settings are taken from config/application_settings.yml
@@ -19,13 +19,17 @@ Capybara.default_max_wait_time = 30
 # https://github.com/SeleniumHQ/selenium/wiki/Ruby-Bindings
 # https://github.com/SeleniumHQ/docker-selenium/issues/198
 
+if Settings.selenium_settings[:driver_path]
+  Selenium::WebDriver::Service.driver_path = Settings.selenium_settings[:driver_path]
+end
+
 Capybara.register_driver :selenium do |app|
 
   case Settings.selenium_settings[:browser]
 
   when 'chrome'
     options = if Settings.selenium_settings[:headless]
-      Selenium::WebDriver::Options.chrome(args: ['--headless'])
+                Selenium::WebDriver::Options.chrome(args: ['--headless'])
     else
       Selenium::WebDriver::Options.chrome
     end
@@ -65,9 +69,8 @@ Capybara.register_driver :selenium do |app|
     profile['browser.download.manager.showWhenStarting'] = false
     profile['browser.helperApps.neverAsk.saveToDisk'] = 'TEXT/PLAIN;application/zip;'
 
-
     options = if Settings.selenium_settings[:headless]
-      Selenium::WebDriver::Options.firefox(args: ['--headless'])
+                Selenium::WebDriver::Options.firefox(args: ['--headless'])
     else
       Selenium::WebDriver::Options.firefox
     end
@@ -75,6 +78,7 @@ Capybara.register_driver :selenium do |app|
     # options = Selenium::WebDriver::Firefox::Options.new
 
     options.profile = profile
+    options.binary = Settings.selenium_settings[:firefox_binary_path] if Settings.selenium_settings[:firefox_binary_path].present?
 
     Capybara::Selenium::Driver.new(
       app,
