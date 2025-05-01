@@ -147,8 +147,9 @@ const keepRef = ref(null)
 const keepMetadataRef = ref(null)
 const destroyMetadataRef = ref(null)
 
-const destroyTotal = computed(() =>
-  getMetadataTotal(destroyObject.value?.metadata)
+const destroyTotal = computed(() => {
+  return getMetadataTotal(destroyObject.value?._metadata)
+}
 )
 
 const enablePreview = computed(() => {
