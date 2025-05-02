@@ -668,9 +668,11 @@ class CollectingEvent < ApplicationRecord
       .where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance))
   end
 
+  # DEPRECATED (unused)
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def collecting_events_intersecting_with
+    # TODO may need to optimize through .intersecting
     pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first.id).distinct
     gr     = [] # all collecting events for a geographic_item
 
