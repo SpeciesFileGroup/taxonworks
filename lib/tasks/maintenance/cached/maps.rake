@@ -105,7 +105,7 @@ namespace :tw do
             z = CachedMapItem.where(geographic_item_id: o.geographic_item_id)
               .where.not(untranslated: true)
 
-            puts 'Size: ' + z.size.to_s
+            #puts 'Size: ' + z.size.to_s
 
             z.update_all(
               level0_geographic_name: h[:country],
@@ -113,8 +113,8 @@ namespace :tw do
               level2_geographic_name: h[:county]
             )
 
-            puts o.geographic_item_id
-            puts h
+            #puts o.geographic_item_id
+            #puts h
           end
           puts 'Done labelling cached map items.'
         end
@@ -277,7 +277,7 @@ namespace :tw do
           begin
             #  print "#{id}: "
             t = CachedMapItem.translate_geographic_item_id(
-              geographic_item_id, geographic_area_based, ['ne_states']
+              geographic_item_id, geographic_area_based, false, ['ne_states']
             )
             # if t.present?
             #   print t.join(', ')
