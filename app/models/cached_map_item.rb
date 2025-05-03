@@ -168,17 +168,16 @@ class CachedMapItem < ApplicationRecord
     # aware of this assumption
 
     # This is a fast first pass, pure intersection
-    gi = GeographicItem.arel_table
     a = GeographicItem
-      .joins(:geographic_areas_geographic_items)
-      .where(geographic_areas_geographic_items: { data_origin: })
-      # !! very slow, don't use
-      #.merge(GeographicItem.intersecting(:multi_polygon, geographic_item_id))
+      .with(b: GeographicItem
+        .joins(:geographic_areas_geographic_items)
+        .where(geographic_areas_geographic_items: { data_origin: })
+      )
+      .from('b')
+      .select('b.*')
       .where(
-        GeographicItem.st_intersects_sql(
-          gi[:geography],
-          gi.project(gi[:geography]).where(gi[:id].eq(geographic_item_id))
-        )
+        'ST_Intersects(b.geography, (SELECT geography FROM geographic_items ' \
+        'WHERE geographic_items.id = ?))', geographic_item_id
       )
       .pluck(:id)
 
