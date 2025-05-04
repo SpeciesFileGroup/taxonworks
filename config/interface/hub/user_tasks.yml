@@ -211,14 +211,6 @@ simple_specimen_task:
     - image
     - new
   status: prototype
-new_asserted_distribution_from_map_task:
-  hub: true
-  name: 'New asserted distribution from map'
-  description: 'Create asserted distributions by selecting OTUs and sources, then click a map to select a geographic area. OTU and source are lockable as defaults for the next record.'
-  status: prototype
-  categories:
-    - source
-    - new
 report_dwc_task:
   hub: true
   name: 'Report DwC-A table'
@@ -379,7 +371,7 @@ new_asserted_distribution_task:
   categories:
     - new
   status: prototype
-  description: 'Create new asserted distributions (Otu, source, and geographic area combinations). Has locking and cloning mechanisms.'
+  description: 'Create new asserted distributions (Otu, source, and shape combinations). Has locking and cloning mechanisms.'
 index_topics_hub_task:
   hub: true
   name: 'Topics hub'
@@ -956,9 +948,25 @@ filter_dwc_occurrences_task:
     - collecting_event
     - asserted_distribution
   categories:
-    - filter
+    - filters
   status: prototype
   description: 'Filter records in the DarwinCore index.'
+new_gazetteer_task:
+  hub: true
+  name: 'Create or edit Gazetteers'
+  related:
+  categories:
+    - collecting_event
+    - new
+  status: prototype
+  description: 'Create or edit named shapes for use in your project.'
+import_gazetteers_task:
+  hub: true
+  name: 'Import Gazetteers'
+  related:
+  categories:
+  status: prototype
+  description: 'Import Gazetteers from a shapefile.'
 unify_objects_task:
   hub: true
   name: 'Unify objects'

@@ -22,7 +22,7 @@ describe GeographicItemsController, type: :controller do
       geographic_item = GeographicItem.create!(valid_attributes)
 
       get :show, params: {id: geographic_item.to_param}, session: valid_session
-      expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem::Point))
+      expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem))
     end
   end
 
@@ -30,7 +30,7 @@ describe GeographicItemsController, type: :controller do
     it 'assigns the requested geographic_item as @geographic_item' do
       geographic_item = GeographicItem.create!(valid_attributes)
       get :edit, params: {id: geographic_item.to_param}, session: valid_session
-      expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem::Point))
+      expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem))
     end
   end
 

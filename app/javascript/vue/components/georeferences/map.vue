@@ -25,6 +25,21 @@ let geographicArea
 
 const TILE_MAP_STORAGE_KEY = 'tw::map::tile'
 
+const DRAW_CONTROLS_PROPS = [
+  'drawCircle',
+  'drawCircleMarker',
+  'drawMarker',
+  'drawPolyline',
+  'drawPolygon',
+  'drawRectangle',
+  'drawText',
+  'editMode',
+  'dragMode',
+  'cutPolygon',
+  'removalMode',
+  'rotateMode'
+]
+
 const props = defineProps({
   zoomAnimate: {
     type: Boolean,
@@ -188,6 +203,13 @@ watch(
   }
 )
 
+watch(
+  () => props.drawControls,
+  (newVal) => {
+    mapObject.pm.addControls(getControls(newVal))
+  }
+)
+
 onMounted(() => {
   mapObject = L.map(leafletMap.value, {
     center: props.center,
@@ -238,6 +260,15 @@ onUnmounted(() => {
   observeMap?.disconnect()
 })
 
+function getControls(show) {
+  let controls = { position: 'topleft' }
+  DRAW_CONTROLS_PROPS.forEach((prop) => {
+    controls[prop] = show ? props[prop] : false
+  })
+
+  return controls
+}
+
 const addDrawControllers = () => {
   getDefaultTile().addTo(mapObject)
   if (props.tilesSelection) {
@@ -247,21 +278,7 @@ const addDrawControllers = () => {
   }
 
   if (props.drawControls) {
-    mapObject.pm.addControls({
-      position: 'topleft',
-      drawCircle: props.drawCircle,
-      drawCircleMarker: props.drawCircleMarker,
-      drawMarker: props.drawMarker,
-      drawPolyline: props.drawPolyline,
-      drawPolygon: props.drawPolygon,
-      drawRectangle: props.drawRectangle,
-      drawText: props.drawText,
-      editMode: props.editMode,
-      dragMode: props.dragMode,
-      cutPolygon: props.cutPolygon,
-      removalMode: props.removalMode,
-      rotateMode: props.rotateMode
-    })
+    mapObject.pm.addControls(getControls(true))
   }
 
   if (!props.actions) {
@@ -270,6 +287,7 @@ const addDrawControllers = () => {
     })
   }
 }
+
 const handleEvents = () => {
   mapObject.on('baselayerchange', (e) => {
     localStorage.setItem(TILE_MAP_STORAGE_KEY, e.name)
@@ -430,7 +448,7 @@ const generateHue = (index) => {
 }
 
 const randomShapeStyle = (index) => ({
-  weight: 1,
+  weight: 2,
   color: generateHue(index + 6),
   dashArray: '3',
   dashOffset: '3',

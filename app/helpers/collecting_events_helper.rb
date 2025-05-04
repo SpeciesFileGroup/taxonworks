@@ -241,8 +241,7 @@ module CollectingEventsHelper
 
     if collecting_event.geographic_items.any?
       geo_item_id = collecting_event.geographic_items.select(:id).first.id
-      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
-      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
+      base['geometry'] = GeographicItem.find(geo_item_id).to_geo_json
     end
     base
   end

@@ -14,14 +14,14 @@ function makeAssertedDistribution(data = {}) {
   }
 }
 
-const extend = ['citations', 'geographic_area', 'otu', 'source']
+const extend = ['citations', 'asserted_distribution_shape', 'otu', 'source']
 
 export const useStore = defineStore('NewAssertedDistribution', {
   state: () => ({
     lock: {
       source: false,
       otu: false,
-      geographicArea: false,
+      shape: false,
       confidences: false
     },
 
@@ -29,7 +29,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
     assertedDistributions: [],
     citation: makeCitation(),
     otu: null,
-    geographicArea: null,
+    shape: null,
     confidences: [],
     isLoading: false,
     autosave: true
@@ -37,7 +37,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
 
   getters: {
     isSaveAvailable(state) {
-      return state.otu && state.geographicArea && state.citation
+      return state.otu && state.shape && state.citation
     }
   },
 
@@ -85,11 +85,9 @@ export const useStore = defineStore('NewAssertedDistribution', {
       const assertedDistribution = makeAssertedDistributionPayload({
         ad: this.assertedDistribution,
         otu: this.otu,
-        geographicArea: this.geographicArea,
+        shape: this.shape,
         citation: this.citation
       })
-
-      console.log(assertedDistribution)
 
       if (assertedDistribution.id) {
         this.saveRecord(assertedDistribution)
@@ -97,7 +95,10 @@ export const useStore = defineStore('NewAssertedDistribution', {
         try {
           const { body } = await AssertedDistribution.where({
             otu_id: assertedDistribution.otu_id,
-            geographic_area_id: assertedDistribution.geographic_area_id,
+            asserted_distribution_shape_type:
+              assertedDistribution.asserted_distribution_shape_type,
+            asserted_distribution_shape_id:
+              assertedDistribution.asserted_distribution_shape_id,
             extend
           })
 
@@ -157,8 +158,8 @@ export const useStore = defineStore('NewAssertedDistribution', {
         this.citation.id = null
       }
 
-      if (!this.lock.geographicArea) {
-        this.geographicArea = null
+      if (!this.lock.shape) {
+        this.shape = null
       }
 
       if (!this.lock.otu) {

@@ -73,8 +73,8 @@ module Otu::Maps
   end
 
   # Prioritize an existing version
-  #   !! Always builds
   def quicker_cached_map(cached_map_type = 'CachedMapItem::WebLevel1')
+    # TODO: sort by last_updated?
     m = cached_maps.select('id, otu_id, reference_count, project_id, created_at, updated_at, cached_map_type, ST_AsGeoJSON(geometry) geo_json').where(cached_map_type:).first
     m ||= create_cached_map
     m

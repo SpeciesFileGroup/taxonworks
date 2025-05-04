@@ -427,7 +427,7 @@ const alreadyOnLists = () => {
   )
 }
 const setFocus = () => {
-  autocompleteRef.value.setFocus()
+  autocompleteRef.value?.setFocus()
 }
 
 const changeTab = (e) => {

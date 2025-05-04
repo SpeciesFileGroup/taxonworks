@@ -3,9 +3,9 @@ module Queries
     class Filter < Query::Filter
 
       # Params exists for all CollectingEvent attributes except these.
-      # geographic_area_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
+      # geo_shape_id is excluded because we handle it specially in conjunction with `geo_mode`
       # Definition must preceed include.
-      ATTRIBUTES = (::CollectingEvent.core_attributes - %w{geographic_area_id} + %w(cached_level0_geographic_name cached_level1_geographic_name cached_level2_geographic_name)).map(&:to_sym).freeze
+      ATTRIBUTES = (::CollectingEvent.core_attributes - %w{geo_shape_id geo_shape_type} + %w(cached_level0_geographic_name cached_level1_geographic_name cached_level2_geographic_name)).map(&:to_sym).freeze
 
       include Queries::Concerns::Attributes
       include Queries::Concerns::Citations
@@ -13,6 +13,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Depictions
+      include Queries::Concerns::Geo
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
@@ -40,8 +41,9 @@ module Queries
         :determiner_name_regex,
         :geo_json,
         :geographic_area,
-        :geographic_area_id,
-        :geographic_area_mode,
+        :geo_mode,
+        :geo_shape_id,
+        :geo_shape_type,
         :georeferences,
         :in_labels,
         :md5_verbatim_label,
@@ -51,7 +53,8 @@ module Queries
         :wkt,
         collecting_event_id: [],
         collector_id: [],
-        geographic_area_id: [],
+        geo_shape_id: [],
+        geo_shape_type: []
       ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
       PARAMS = [
@@ -135,10 +138,6 @@ module Queries
       #   nil - not applied
       attr_accessor :geographic_area
 
-      # See /lib/queries/otu/filter.rb
-      attr_accessor :geographic_area_id
-      attr_accessor :geographic_area_mode
-
       # @return [String, nil]
       #   the maximum number of CollectionObjects linked to CollectingEvent
       #   must be > use_min, defaults to use_min if blank and use_min
@@ -159,8 +158,6 @@ module Queries
         @collector_id_or = boolean_param(params, :collector_id_or )
         @geo_json = params[:geo_json]
         @geographic_area = boolean_param(params, :geographic_area)
-        @geographic_area_id = params[:geographic_area_id]
-        @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @georeferences = boolean_param(params, :georeferences)
         @in_labels = params[:in_labels]
         @md5_verbatim_label = params[:md5_verbatim_label]&.to_s&.downcase == 'true'
@@ -176,6 +173,7 @@ module Queries
         set_data_attributes_params(params)
         set_date_params(params)
         set_depiction_params(params)
+        set_geo_params(params)
         set_notes_params(params)
         set_protocols_params(params)
         set_tags_params(params)
@@ -187,10 +185,6 @@ module Queries
 
       def collection_object_id
         [@collection_object_id].flatten.compact
-      end
-
-      def geographic_area_id
-        [@geographic_area_id].flatten.compact
       end
 
       def collector_id
@@ -222,10 +216,10 @@ module Queries
           if use_min == 0
             q = ::CollectingEvent.where.missing(:collection_objects, :field_occurrences)
           else
-            q = q.having("COUNT(collection_objects.id) + COUNT(field_occurrences.id) = ? ", use_min)
+            q = q.having('COUNT(collection_objects.id) + COUNT(field_occurrences.id) = ? ', use_min)
           end
         else
-          q = q.having("COUNT(collection_objects.id) + COUNT(field_occurrences.id) BETWEEN ? AND ?", use_min, use_max)
+          q = q.having('COUNT(collection_objects.id) + COUNT(field_occurrences.id) BETWEEN ? AND ?', use_min, use_max)
         end
 
         q = q.select(collecting_events: [:id])
@@ -241,27 +235,46 @@ module Queries
         end
       end
 
-      def geographic_area_id_facet
-        return nil if geographic_area_id.empty?
+      def collecting_event_geo_facet
+        return nil if geo_shape_id.empty? || geo_shape_type.empty? ||
+          # TODO: this should raise an error(?)
+          geo_shape_id.length != geo_shape_type.length
 
-        a = nil
+        geographic_area_shapes, gazetteer_shapes = shapes_for_geo_mode
 
-        case geographic_area_mode
-        when nil, true # exact and spatial start the same
-          a = ::GeographicArea.where(id: geographic_area_id)
-        when false # descendants
-          a = ::GeographicArea.descendants_of_any(geographic_area_id)
-        end
+        a = collecting_event_geo_facet_by_type(
+          'GeographicArea', geographic_area_shapes
+        )
 
-        b = nil
-        case geographic_area_mode
-        when nil, false # exact, descendants
-          return ::CollectingEvent.where(geographic_area: a)
-        when true # spatial
-          i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
-          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s
+        b = collecting_event_geo_facet_by_type(
+          'Gazetteer', gazetteer_shapes
+        )
+
+        if geo_mode == true # spatial
+          i = ::Queries.union(::GeographicItem, [a,b])
+          wkt_shape =
+            ::Queries::GeographicItem.st_union(i)
+              .to_a.first['st_union'].to_s
+
           return from_wkt(wkt_shape)
         end
+
+        referenced_klass_union([a,b])
+      end
+
+      def collecting_event_geo_facet_by_type(shape_string, shape_ids)
+        b = nil
+
+        case geo_mode
+        when nil, false # exact, descendants
+          return nil if shape_string == 'Gazetteer'
+          b = ::CollectingEvent.where(geographic_area: shape_ids)
+        when true # spatial
+          m = shape_string.tableize
+          b = ::GeographicItem.joins(m.to_sym).where(m => shape_ids)
+        end
+
+        b
       end
 
       def georeferences_facet
@@ -340,11 +353,11 @@ module Queries
         when 'Point'
           ::CollectingEvent
             .joins(:geographic_items)
-            .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius ))
+            .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius))
         when 'Polygon', 'MultiPolygon'
           ::CollectingEvent
             .joins(:geographic_items)
-            .where(::GeographicItem.contained_by_wkt_sql(wkt))
+            .where(::GeographicItem.covered_by_wkt_sql(wkt))
         else
           nil
         end
@@ -408,7 +421,7 @@ module Queries
           .joins(collection_objects: [:taxon_determinations])
           .joins('JOIN otu_scope on otu_scope.id = taxon_determinations.otu_id')
           .where(taxon_determinations: {position: 1})
-       
+
         b = ::CollectingEvent.with(otu_scope: otu_query.all)
           .joins(field_occurrences: [:taxon_determinations])
           .joins('JOIN otu_scope on otu_scope.id = taxon_determinations.otu_id')
@@ -491,12 +504,12 @@ module Queries
           otu_query_facet,
           taxon_name_query_facet,
 
+          collecting_event_geo_facet,
           collectors_facet,
           collection_objects_facet,
           collector_id_facet,
           geo_json_facet,
           geographic_area_facet,
-          geographic_area_id_facet,
           georeferences_facet,
           matching_collection_object_id,
           otu_id_facet,

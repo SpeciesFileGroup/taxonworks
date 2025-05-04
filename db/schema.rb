@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_18_185734) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -70,13 +70,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_18_185734) do
 
   create_table "asserted_distributions", id: :serial, force: :cascade do |t|
     t.integer "otu_id", null: false
-    t.integer "geographic_area_id", null: false
+    t.integer "geographic_area_id"
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.boolean "is_absent"
+    t.integer "asserted_distribution_shape_id", null: false
+    t.string "asserted_distribution_shape_type", null: false
+    t.index ["asserted_distribution_shape_id", "asserted_distribution_shape_type"], name: "asserted_distribution_polymorphic_shape_index"
     t.index ["created_by_id"], name: "index_asserted_distributions_on_created_by_id"
     t.index ["geographic_area_id"], name: "index_asserted_distributions_on_geographic_area_id"
     t.index ["otu_id"], name: "index_asserted_distributions_on_otu_id"
@@ -1002,6 +1005,43 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_18_185734) do
     t.index ["updated_by_id"], name: "index_field_occurrences_on_updated_by_id"
   end
 
+  create_table "gazetteer_imports", force: :cascade do |t|
+    t.string "shapefile"
+    t.integer "num_records"
+    t.integer "num_records_imported"
+    t.string "error_messages"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.bigint "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.string "project_names"
+    t.index ["created_by_id"], name: "index_gazetteer_imports_on_created_by_id"
+    t.index ["project_id"], name: "index_gazetteer_imports_on_project_id"
+    t.index ["updated_by_id"], name: "index_gazetteer_imports_on_updated_by_id"
+  end
+
+  create_table "gazetteers", force: :cascade do |t|
+    t.integer "geographic_item_id", null: false
+    t.string "name", null: false
+    t.string "iso_3166_a2"
+    t.string "iso_3166_a3"
+    t.bigint "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.index ["created_by_id"], name: "index_gazetteers_on_created_by_id"
+    t.index ["geographic_item_id"], name: "index_gazetteers_on_geographic_item_id"
+    t.index ["iso_3166_a2"], name: "index_gazetteers_on_iso_3166_a2"
+    t.index ["iso_3166_a3"], name: "index_gazetteers_on_iso_3166_a3"
+    t.index ["name"], name: "index_gazetteers_on_name"
+    t.index ["project_id"], name: "index_gazetteers_on_project_id"
+    t.index ["updated_by_id"], name: "index_gazetteers_on_updated_by_id"
+  end
+
   create_table "gene_attributes", id: :serial, force: :cascade do |t|
     t.integer "descriptor_id", null: false
     t.integer "sequence_id", null: false
@@ -1088,10 +1128,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_18_185734) do
     t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry_collection", :has_z=>true, :geographic=>true}
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.string "type", null: false
+    t.string "type"
     t.decimal "cached_total_area"
+    t.geography "geography", limit: {:srid=>4326, :type=>"geometry", :has_z=>true, :geographic=>true}
     t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
+    t.index ["geography"], name: "index_geographic_items_on_geography", using: :gist
     t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
     t.index ["line_string"], name: "line_string_gix", using: :gist
     t.index ["multi_line_string"], name: "multi_line_string_gix", using: :gist
@@ -2358,6 +2400,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_18_185734) do
   add_foreign_key "field_occurrences", "ranged_lot_categories"
   add_foreign_key "field_occurrences", "users", column: "created_by_id"
   add_foreign_key "field_occurrences", "users", column: "updated_by_id"
+  add_foreign_key "gazetteer_imports", "projects"
+  add_foreign_key "gazetteers", "projects"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
   add_foreign_key "gene_attributes", "projects"
   add_foreign_key "gene_attributes", "sequences"
