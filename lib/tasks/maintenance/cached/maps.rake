@@ -103,7 +103,7 @@ namespace :tw do
             h = CachedMapItem.cached_map_name_hierarchy(o.geographic_item_id)
 
             z = CachedMapItem.where(geographic_item_id: o.geographic_item_id)
-              .where('untranslated IS NULL OR untranslated = FALSE')
+              .where(untranslated: [nil, false])
 
             #puts 'Size: ' + z.size.to_s
 
