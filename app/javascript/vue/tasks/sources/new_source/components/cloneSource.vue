@@ -15,9 +15,9 @@ import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
-import useHotkey from 'vue3-hotkey'
 
 const store = useStore()
 

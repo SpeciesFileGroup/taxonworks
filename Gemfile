@@ -7,9 +7,9 @@ ruby '>= 3.2', '< 3.4.0'
 gem 'bundler', '~> 2.5'
 
 gem 'rake', '~> 13.0'
-gem 'rails', '~> 7.1'
+gem 'rails', '~> 7.2'
 gem 'pg', '~> 1.1'
-gem 'activerecord-postgis-adapter', '~> 9.0'
+gem 'activerecord-postgis-adapter', '~> 10.0'
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.5'
 gem 'bootsnap', require: false
@@ -24,20 +24,17 @@ gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 5.1'
-gem 'rmagick', '~> 5.1' # , '>= 4.2.2'
+gem 'rmagick', '~> 6.0'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 
 gem 'csv', '~> 3.2'
-
 
 gem 'net-smtp', '~> 0.4'
 gem 'mail', '~> 2.8', '>= 2.8.1'
 gem 'matrix', '~> 0.4.2'
 
 # Geo
-
-# gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
 
 # gem 'ffi-geos', '~> 2.3.0'
 # gem 'rgeo', '~> 2.2'
@@ -48,11 +45,12 @@ gem 'ffi-geos', '~> 2.4.0'
 gem 'rgeo', '~> 3.0'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
 gem 'rgeo-proj4', '~> 4.0' #, '>= 3.0.1'
+gem 'rgeo-shapefile', '~> 3.0'
 
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # translate for geo
-gem 'gpx', github: 'LocoDelAssembly/gpx', branch: 'ruby3'
+gem 'gpx', '~> 1.2'
 
 # API/controllers
 gem 'jbuilder', '~> 2.7'
@@ -74,7 +72,7 @@ gem 'delayed_job_active_record', '~> 4.1.3'
 
 gem 'validates_timeliness', '~> 7.0.0.beta2' # , '>= 4.1.1'
 
-
+gem 'rack', '~> 3.1.8'
 
 gem 'paper_trail', '~> 15.0'
 
@@ -86,7 +84,6 @@ gem 'kt-paperclip', '~> 7.2'
 # gem 'paperclip', github: 'LocoDelAssembly/paperclip', branch: 'migration-fix' # gem 'paperclip', '~> 6.1.0'
 gem 'paperclip-meta', github: 'LocoDelAssembly/paperclip-meta', branch: 'kt-paperclip'
 
-gem 'voight_kampff', github: 'LocoDelAssembly/Voight-Kampff'
 gem 'shortener', '~> 1.0'
 gem 'rails_or', '~> 1.1.8'
 
@@ -98,21 +95,22 @@ gem 'terser', '~> 1.2'
 
 gem 'jquery-rails', '~> 4.4'
 # gem 'jquery-ui-rails', '~> 6.0.1'
-gem "jquery-ui-rails", :git => 'https://github.com/jquery-ui-rails/jquery-ui-rails.git'
+gem 'jquery-ui-rails', git: 'https://github.com/jquery-ui-rails/jquery-ui-rails.git'
 gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '8.0.0'
+gem 'shakapacker', '8.3.0'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'
 gem 'bibtex-ruby', '~> 6.0'
 gem 'citeproc-ruby', '~> 2.0'
 gem 'csl-styles', '~> 2.0.1'
-gem 'serrano', github: 'LocoDelAssembly/serrano', branch: 'older_thor' #gem 'serrano', '~> 1.0.0'
+gem 'serrano', '~> 1.4'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
+gem 'prawn', '~> 2.5.0'
 
 # UI/UX
 gem 'chartkick', '~> 5.0'
@@ -130,12 +128,15 @@ gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
 gem 'barby', '~> 0.6.8'
 gem 'ruby-graphviz', '~> 1.2.5', require: false
 
+# Sound
+gem 'wahwah', '~> 1.6.6'
+
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.6.0'
-gem 'sqed', '~>0.8.1'
+gem 'sqed', '~>0.8.3'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul', require: 'dwc_archive' # '~> 1.1', '>= 1.1.2'
-gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
+gem 'biodiversity', '~> 6.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 gem 'colrapi', '~>0.1.1'
@@ -150,7 +151,7 @@ gem 'gnfinder', '~> 1.0'
 gem 'amazing_print', '~> 1.5'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 3.0'
-gem 'term-ansicolor', '~> 1.6' # DEPRECATED
+
 gem 'chronic', '~> 0.10.2'
 gem 'logical_query_parser'
 gem 'logic_tools'
@@ -170,13 +171,13 @@ gem 'parallel', '~> 1.23'
 gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
+  # gem 'term-ansicolor', '~> 1.6' # DEPRECATED
   gem 'faker', '~> 3.2'
   gem 'rspec-rails', '~> 6.1'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
-  gem 'prawn', '~> 2.4.0'
   gem 'puma', '~> 6.3'
 end
 

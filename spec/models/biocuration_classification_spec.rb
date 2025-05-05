@@ -1,9 +1,30 @@
 require 'rails_helper'
 
 describe BiocurationClassification, type: :model do
+  include ActiveJob::TestHelper
+
   let(:biocuration_classification) {BiocurationClassification.new}
   let(:biocuration_class) { FactoryBot.create(:valid_biocuration_class) }
   let(:specimen) { FactoryBot.create(:valid_specimen) }
+
+  specify '#dwc_occurrences' do
+    s = Specimen.create!
+    expect(s.dwc_occurrence.sex).to eq(nil)
+
+    g = FactoryBot.create(:valid_biocuration_group, uri: ::DWC_ATTRIBUTE_URIS[:sex].first)
+    a = FactoryBot.create(:valid_biocuration_class)
+    Tag.create!(keyword: g, tag_object: a)
+
+    s.biocuration_classifications << BiocurationClassification.new(biocuration_class: a)
+
+    perform_enqueued_jobs
+    expect(s.dwc_occurrence.reload.sex).to eq(a.name)
+
+    s.biocuration_classifications.destroy_all
+
+    perform_enqueued_jobs
+    expect(s.dwc_occurrence.reload.sex).to eq(nil)
+  end
 
   context 'associations' do
     context 'belongs_to' do
@@ -29,7 +50,7 @@ describe BiocurationClassification, type: :model do
       expect(biocuration_classification.errors.include?(:biocuration_class)).to be_truthy
     end
 
-    specify '#biocuration_class built through paramss' do
+    specify '#biocuration_class built t, hrough paramss' do
       biocuration_classification.biocuration_class_id = biocuration_class.id
       biocuration_classification.biocuration_classification_object_id = specimen.id
       biocuration_classification.biocuration_classification_object_type = 'CollectionObject'

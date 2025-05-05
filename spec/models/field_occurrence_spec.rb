@@ -6,6 +6,10 @@ RSpec.describe FieldOccurrence, type: :model do
   let(:otu) { Otu.create(name: 'Sunny') }
   let(:ce) { FactoryBot.create(:valid_collecting_event) }
 
+  specify '#requires_taxon_determination?' do
+    expect( FieldOccurrence.new.requires_taxon_determination?).to eq(true)
+  end
+
   specify '#collecting_event' do
     expect(
       FieldOccurrence.new(collecting_event_id: ce.id)
@@ -16,7 +20,7 @@ RSpec.describe FieldOccurrence, type: :model do
     field_occurrence.is_absent = true
     field_occurrence.valid?
     expect(field_occurrence.errors.messages).to include(:total)
-  end 
+  end
 
   context 'a taxon_determination is required' do
     before do
@@ -54,7 +58,7 @@ RSpec.describe FieldOccurrence, type: :model do
     end
 
     specify 'providing a taxon_determination with #taxon_determinations <<  validates' do
-      field_occurrence.taxon_determinations << TaxonDetermination.new(otu:) 
+      field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
       expect(field_occurrence.save).to be_truthy
       expect(field_occurrence.taxon_determinations.count).to eq(1)
     end
@@ -70,6 +74,13 @@ RSpec.describe FieldOccurrence, type: :model do
     end
 
     context 'attempting to delete last taxon_determination' do
+      specify 'permitted when deleting self' do
+        field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
+        field_occurrence.save!
+        expect(field_occurrence.destroy).to be_truthy
+        expect(FieldOccurrence.count).to be(0)
+      end
+
       specify 'when taxon_determination is origin_ciation' do
         field_occurrence.otu = otu
         field_occurrence.save!
@@ -78,7 +89,7 @@ RSpec.describe FieldOccurrence, type: :model do
       end
 
       specify 'when taxon_determination is not origin taxon_determination' do
-        field_occurrence.taxon_determinations <<  TaxonDetermination.new(otu:) 
+        field_occurrence.taxon_determinations <<  TaxonDetermination.new(otu:)
         expect(field_occurrence.save).to be_truthy
         expect(field_occurrence.taxon_determinations.count).to eq(1)
         expect(field_occurrence.taxon_determinations.reload.first.destroy).to be_falsey

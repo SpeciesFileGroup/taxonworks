@@ -5,7 +5,9 @@ module Queries
       # !! May not include Concerns::Attributes (used by CE)
       include Queries::Helpers
       include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
       include Queries::Concerns::Containable
+      include Queries::Concerns::Conveyances
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
@@ -52,7 +54,7 @@ module Queries
         :repository_id,
         :sled_image_id,
         :spatial_geographic_areas,
-        :taxon_determination_id,
+        :taxon_determination_id, # not used?!
         :taxon_determinations,
         :taxon_name_id,
         :type_material,
@@ -376,8 +378,10 @@ module Queries
         @with_buffered_determinations = boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
+        set_confidences_params(params)
         set_citations_params(params)
         set_containable_params(params)
+        set_conveyance_params(params)
         set_data_attributes_params(params)
         set_depiction_params(params)
         set_notes_params(params)
@@ -457,10 +461,10 @@ module Queries
         [@repository_id].flatten.compact.uniq
       end
 
-      def collection_object_id_facet
-        return nil if collection_object_id.empty?
-        table[:id].in(collection_object_id)
-      end
+   #  def collection_object_id_facet
+   #    return nil if collection_object_id.empty?
+   #    table[:id].in(collection_object_id)
+   #  end
 
       def import_dataset_id_facet
         return nil if import_dataset_id.blank?
@@ -515,9 +519,11 @@ module Queries
 
         b = b.as('det_z1_')
 
-        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b,
-        Arel::Nodes::On.new( b['taxon_determination_object_id'].eq(tt['id']).and( b['taxon_determination_object_type'].eq('CollectionObject') )
-        )))
+        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(
+          b,
+          Arel::Nodes::On.new(
+            b['taxon_determination_object_id'].eq(tt['id']).and( b['taxon_determination_object_type'].eq('CollectionObject'))
+          )))
       end
 
       def determiners_facet
@@ -833,7 +839,7 @@ module Queries
         if deaccessioned
           c
         else
-          s = 'WITH query_deac AS (' + c.all.to_sql + ') ' +
+          s = 'WITH query_deac AS (' + c.all.unscope(:select).select(:id).to_sql + ') ' +
             ::CollectionObject
             .joins('LEFT JOIN query_deac as query_deac1 on query_deac1.id = collection_objects.id')
             .where('query_deac1.id IS NULL').to_sql
@@ -843,7 +849,7 @@ module Queries
 
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
-        s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
+        s = 'WITH query_tn_co AS (' + taxon_name_query.all.unscope(:select).select(:id).to_sql + ') ' +
           ::CollectionObject
           .joins(:taxon_names)
           .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
@@ -854,7 +860,7 @@ module Queries
 
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
-        s = 'WITH query_ce_co AS (' + collecting_event_query.all.to_sql + ') ' +
+        s = 'WITH query_ce_co AS (' + collecting_event_query.all.select(:id).to_sql + ') ' +
           ::CollectionObject
           .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
           .to_sql
@@ -880,7 +886,7 @@ module Queries
         # Turn project_id back on
         base_collecting_event_query.project_id = project_id
 
-        s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
+        s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.select(:id).to_sql + ') ' +
           ::CollectionObject
           .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id')
           .to_sql
@@ -890,7 +896,7 @@ module Queries
 
       def otu_query_facet
         return nil if otu_query.nil?
-        s = 'WITH query_otu_co AS (' + otu_query.all.to_sql + ') ' +
+        s = 'WITH query_otu_co AS (' + otu_query.all.select(:id).to_sql + ') ' +
           ::CollectionObject
           .joins(:taxon_determinations)
           .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
@@ -903,8 +909,8 @@ module Queries
       def dwc_occurrence_query_facet
         return nil if dwc_occurrence_query.nil?
 
-         s = ::CollectionObject
-          .with(query_dwc_co: dwc_occurrence_query.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
+        s = ::CollectionObject
+          .with(query_dwc_co: dwc_occurrence_query.all.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
           .joins(:dwc_occurrence)
           .joins('JOIN query_dwc_co as query_dwc_co1 on query_dwc_co1.id = dwc_occurrences.id')
           .to_sql
@@ -993,7 +999,6 @@ module Queries
           attribute_exact_facet(:buffered_determinations),
           attribute_exact_facet(:buffered_other_labels),
           collecting_event_id_facet,
-          collection_object_id_facet,
           current_repository_id_facet,
           preparation_type_id_facet,
           repository_id_facet,
@@ -1049,6 +1054,6 @@ module Queries
           with_buffered_other_labels_facet,
         ]
       end
-      end
-      end
-      end
+    end
+  end
+end

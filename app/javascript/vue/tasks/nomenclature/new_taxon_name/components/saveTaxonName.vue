@@ -14,7 +14,7 @@ import { useStore } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import platformKey from '@/helpers/getPlatformKey'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const store = useStore()
 
@@ -32,6 +32,7 @@ const isSaving = computed(() => store.getters[GetterNames.GetSaving])
 const shortcuts = ref([
   {
     keys: [platformKey(), 's'],
+    preventDefault: true,
     handler() {
       saveTaxon()
     }

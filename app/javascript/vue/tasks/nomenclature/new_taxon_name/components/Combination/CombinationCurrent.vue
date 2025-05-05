@@ -2,13 +2,14 @@
   <div class="original-combination-picker">
     <div class="horizontal-left-content">
       <div class="button-current separate-right">
-        <v-btn
+        <VBtn
           medium
           color="primary"
+          :disabled="manualMode"
           @click="setCurrent()"
         >
           Set as current
-        </v-btn>
+        </VBtn>
       </div>
       <div>
         <draggable
@@ -30,18 +31,18 @@
                 :value="element.taxon.object_label"
                 disabled
               />
-              <v-btn
+              <VBtn
                 class="margin-small-left"
                 color="primary"
                 circle
                 title="Press and hold to drag input"
               >
-                <v-icon
+                <VIcon
                   color="white"
                   name="scrollV"
                   small
                 />
-              </v-btn>
+              </VBtn>
             </div>
           </template>
         </draggable>
@@ -64,6 +65,11 @@ const props = defineProps({
   combinationRanks: {
     type: Object,
     required: true
+  },
+
+  manualMode: {
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits(['onSet'])
@@ -71,11 +77,13 @@ const emit = defineEmits(['onSet'])
 const store = useStore()
 const currentTaxonName = computed(() => store.getters[GetterNames.GetTaxon])
 const groupName = computed(() =>
-  Object.keys(props.combinationRanks).find((group) =>
-    Object.keys(props.combinationRanks[group]).includes(
-      currentTaxonName.value.rank
-    )
-  )
+  props.manualMode
+    ? 'subsequent-combination'
+    : Object.keys(props.combinationRanks).find((group) =>
+        Object.keys(props.combinationRanks[group]).includes(
+          currentTaxonName.value.rank
+        )
+      )
 )
 const ranks = computed(() =>
   [].concat(

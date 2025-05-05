@@ -67,7 +67,7 @@ class Distribution
   # @param [String] type
   # @return [Array]
   def insert_for_asserted_distribution(otu, source, type)
-    insert_source_object(otu, source, source.geographic_area, type)
+    insert_source_object(otu, source, source.asserted_distribution_shape, type)
   end
 
   # @param [Otu] otu

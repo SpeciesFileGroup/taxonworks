@@ -8,7 +8,7 @@
       <p>Creates sequences and origin relationships and attaches at most 2 identifiers to each sequence</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are "filename" and "file_content" (see <%= link_to('sample template', asset_path('batch_load_templates/sequences/sequences_genbank_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Column headers are "filename" and "file_content" (see <%= link_to('sample template', asset_path('batch_load_templates/sequences/sequences_genbank_batch_load.tab', skip_pipeline: true), target: '_blank') -%>).</li>
         <li>Multiple uploads of the same data will fail.</li>
         <li>Assumes a namespace with name "DRMSequenceId" and shortname "DRMSEQID" exists</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>

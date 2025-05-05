@@ -8,7 +8,7 @@
       <p> Modifies each gene descriptors gene attribute logic to be at least one forward primer and one reverse primer. </p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are (see <%= link_to('sample template', asset_path('batch_load_templates/descriptors/modify_gene_descriptor_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Column headers are (see <%= link_to('sample template', asset_path('batch_load_templates/descriptors/modify_gene_descriptor_batch_load.tab', skip_pipeline: true), target: '_blank') -%>).</li>
         <li>Each primer is separated by a comma and space (", ")</li>
         <li>Multiple uploads of the same data will X.</li>
         <li>It is assumed each gene has one forward primer and one reverse primer.</li>

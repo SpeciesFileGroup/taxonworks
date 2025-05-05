@@ -190,6 +190,14 @@ module TaxonNamesHelper
     end
   end
 
+  def taxon_name_decorator_status(taxon_name)
+    return nil if taxon_name.nil?
+    taxon_name.taxon_name_classifications
+      .where(taxon_name_classifications: {type: TAXON_NAME_CLASSIFICATIONS_FOR_DECORATION})
+      .select('taxon_name_classifications.type')
+      .map{|a| a.type.demodulize.underscore.gsub(/(\d+)/,  ' \1').gsub('_', ' ').capitalize}
+  end
+
   def taxon_name_inferred_combination_tag(taxon_name)
     return nil if taxon_name.nil? || taxon_name.is_combination? || taxon_name.is_valid?
     if taxon_name.is_protonym?

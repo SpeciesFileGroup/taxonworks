@@ -2,6 +2,8 @@ require 'settings'
 TaxonWorks::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  config.active_storage.service = :local
+
   config.file_watcher = ActiveSupport::FileUpdateChecker
 
   # In the development environment your application's code is reloaded on
@@ -34,12 +36,9 @@ TaxonWorks::Application.configure do
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
-  config.assets.debug = false # false # true if you are stuck
+  config.assets.debug = false # true if you are stuck
   #config.assets.quiet = false # is true by default
   config.assets.raise_runtime_errors = true
-
-  # Needed to make shakapacker not use yarn
-  config.shakapacker.check_yarn_integrity = false
 
   config.action_mailer.default_url_options = { host: 'localhost:3000' }
 

@@ -6,6 +6,7 @@
       placeholder="Search an OTU"
       param="term"
       label="label_html"
+      autofocus
       :clear-after="true"
       @getItem="$emit('update:modelValue', $event.id)"
     />

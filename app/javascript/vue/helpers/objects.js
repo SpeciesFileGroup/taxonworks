@@ -37,6 +37,7 @@ function removeEmptyProperties(object) {
     if (
       value === '' ||
       value === undefined ||
+      value === null ||
       (Array.isArray(value) && !value.length) ||
       (typeof value === 'object' && !Object.keys(value).length)
     ) {

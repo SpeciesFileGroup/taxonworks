@@ -1,6 +1,7 @@
 export const TASK_COLLECTING_EVENT_SPATIAL_SUMMARY = {
   label: 'Spatial summary',
-  link: '/tasks/collecting_events/spatial_summary'
+  link: '/tasks/collecting_events/spatial_summary',
+  post: true
 }
 
 export const TASK_COLLECTION_OBJECT_MATCH = {
@@ -48,6 +49,14 @@ export const TASK_FILTER_IMAGES = {
   link: '/tasks/images/filter'
 }
 
+export const TASK_IMAGE_MATRIX = {
+  label: 'Image matrix',
+  link: '/tasks/observation_matrices/image_matrix',
+  parseParams: ({ params }) => ({
+    otu_filter: params.otu_id?.join('|')
+  })
+}
+
 export const TASK_BIOLOGICAL_ASSOCIATION_EXTENSION = {
   label: 'DwC Extension Preview',
   link: '/tasks/biological_associations/dwc_extension_preview'
@@ -86,5 +95,47 @@ export const TASK_PEOPLE_METADATA = {
 export const TASK_FIELD_SYNCHRONIZE = {
   label: 'Field synchronize',
   link: '/tasks/data_attributes/field_synchronize',
+  queryParam: true,
+  saveQuery: true
+}
+
+export const TASK_MULTI_UPDATE = {
+  label: 'Multi-update Data attributes',
+  link: '/tasks/data_attributes/multi_update',
+  queryParam: true,
+  saveQuery: true
+}
+
+export const TASK_DWC_OCCURRENCE_STATUS = {
+  label: 'DwC Occurrence Status',
+  link: '/tasks/dwc_occurrences/status'
+}
+
+export const TASK_NEW_CONTAINER = {
+  label: 'New container',
+  link: '/tasks/containers/new_container',
+  queryParam: true,
+  saveQuery: true
+}
+
+export const TASK_SIMPLEMAPPR = {
+  label: 'SimpleMappr',
+  link: '/tasks/gis/simplemappr',
+  post: true,
   queryParam: true
 }
+
+export const TASK_COLLECTING_EVENT_METADATA = {
+  label: 'Metadata',
+  link: '/tasks/collecting_events/metadata',
+  post: true,
+  queryParam: true
+}
+
+export const TASK_TAXON_NAME_GENDER = {
+  label: 'Gender summary',
+  link: '/tasks/taxon_names/gender',
+  post: false,
+  queryParam: true
+}
+

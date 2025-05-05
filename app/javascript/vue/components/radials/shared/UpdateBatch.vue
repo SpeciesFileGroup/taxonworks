@@ -5,7 +5,7 @@
     :disabled="disabled"
     @click="openModal"
   >
-    Update
+    {{ buttonLabel }}
   </VBtn>
   <VModal
     v-if="isModalVisible"
@@ -16,7 +16,10 @@
     </template>
     <template #body>
       <VSpinner v-if="isLoading" />
-      <PreviewTable :data="data" />
+      <PreviewTable
+        v-if="data"
+        :data="data"
+      />
     </template>
     <template #footer>
       <div class="horizontal-right-content">
@@ -55,6 +58,11 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+
+  buttonLabel: {
+    type: String,
+    default: 'Update'
   }
 })
 
@@ -73,6 +81,7 @@ function makeBatchloadRequest() {
       emit('update', body)
       data.value = body
     })
+    .catch(() => {})
     .finally(() => {
       isLoading.value = false
     })

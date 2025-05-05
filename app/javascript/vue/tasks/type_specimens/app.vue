@@ -57,7 +57,7 @@ import platformKey from '@/helpers/getPlatformKey.js'
 import setParamsId from '@/helpers/setParam.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import ActionNames from './store/actions/actionNames'
 import { GetterNames } from './store/getters/getters'
 import { RouteNames } from '@/routes/routes'
@@ -234,12 +234,13 @@ function switchToTask(url) {
     flex-direction: column;
     .header {
       border-left: 4px solid green;
-      h3 {
-        font-weight: 300;
-      }
       padding: 1em;
       padding-left: 1.5em;
       border-bottom: 1px solid #f5f5f5;
+
+      h3 {
+        font-weight: 300;
+      }
     }
     .body {
       padding: 2em;

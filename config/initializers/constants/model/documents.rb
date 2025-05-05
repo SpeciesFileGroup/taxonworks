@@ -6,18 +6,114 @@ Rails.application.config.after_initialize do
     {
       group: '',
       content_type: '',
-      extensions: ['Any extension']
+      extensions: [
+        {
+          extension: 'Any extension',
+          content_type: ''
+        }
+      ]
     },
+
     {
       group: 'pdf',
-      content_type: 'application/pdf',
-      extensions: ['.pdf']
+      extensions: [
+        {
+          extension: '.pdf',
+          content_type: 'application/pdf',
+        }
+      ]
     },
+
     {
       group: 'nexus',
-      content_type: 'text/plain',
-      extensions: ['.nex', '.nxs']
+      extensions: [
+        {
+          extension: '.nex',
+          content_type: 'text/plain'
+        },
+        {
+          extension: '.nxs',
+          content_type: 'text/plain'
+        }
+      ]
+    },
+
+    {
+      group: 'shapefile',
+      extensions: [
+        {
+          extension: '.shp',
+          content_type: 'application/x-shapefile'
+        },
+        {
+          extension: '.shx',
+          content_type: 'application/x-shapefile'
+        },
+        {
+          extension: '.dbf',
+          content_type: 'application/x-dbf'
+        },
+        {
+          extension: '.prj',
+          content_type: 'text/plain'
+        },
+        {
+          extension: '.cpg',
+          content_type: 'text/plain'
+        }
+      ]
+    },
+
+    {
+      group: 'shp',
+      extensions: [
+        {
+          extension: '.shp',
+          content_type: 'application/x-shapefile'
+        }
+      ]
+    },
+
+    {
+      group: 'shx',
+      extensions: [
+        {
+          extension: '.shx',
+          content_type: 'application/x-shapefile'
+        }
+      ]
+    },
+
+    {
+      group: 'dbf',
+      extensions: [
+        {
+          extension: '.dbf',
+          content_type: 'application/x-dbf'
+        }
+      ]
+    },
+
+    {
+      group: 'prj',
+      extensions: [
+        {
+          extension: '.prj',
+          content_type: 'text/plain'
+        }
+      ]
+    },
+
+    {
+      group: 'cpg',
+      extensions: [
+        {
+          extension: '.cpg',
+          content_type: 'text/plain'
+        }
+      ]
     }
+
   ].freeze
 
 end

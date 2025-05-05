@@ -6,7 +6,7 @@
       :href="RouteNames.LeadsHub"
       data-turbolinks="false"
     >
-      Dichotomous Keys Hub
+      Keys Hub
     </a>
   </p>
   <BlockLayout
@@ -44,7 +44,7 @@
     </template>
   </BlockLayout>
 
-  <PreviousCouplets v-if="store.lead.id" />
+  <PreviousLeads v-if="store.lead.id" />
   <Couplet
     v-if="store.lead.id"
     @editing-has-occurred="() => (editingHasOccurred = true)"
@@ -62,7 +62,7 @@ import { useStore } from './store/useStore'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import CornerSpinner from '../components/CornerSpinner.vue'
 import Couplet from './components/Couplet.vue'
-import PreviousCouplets from './components/PreviousCouplets.vue'
+import PreviousLeads from './components/PreviousLeads.vue'
 import KeyMeta from './components/KeyMeta.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'

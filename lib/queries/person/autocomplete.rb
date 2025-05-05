@@ -110,7 +110,7 @@ module Queries
           [ autocomplete_alternate_values_first_name.limit(20), true ],
           [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(5), true ],
           [ autocomplete_cached_wildcard_anywhere&.limit(20), true ], # in Queries::Query::Autocomplete
-          [ autocomplete_cached, true ]
+          [ autocomplete_cached.limit(20), true ]
         ]
 
         queries.compact!

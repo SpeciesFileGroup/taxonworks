@@ -16,7 +16,11 @@ class Tasks::Dwc::DashboardController < ApplicationController
       taxonworks_extensions: taxonworks_extension_params,
       extension_scopes: {
         biological_associations: (params[:biological_associations_extension] ?
-        ::Queries::BiologicalAssociation::Filter.new(collection_object_query: q.params).all.to_sql : nil)
+        ::Queries::BiologicalAssociation::Filter.new(
+          collection_object_query: ::Queries::CollectionObject::Filter.new(
+            dwc_occurrence_query: q.params
+          ).params
+        ).all.to_sql : nil)
       }
     )
     render '/downloads/show'

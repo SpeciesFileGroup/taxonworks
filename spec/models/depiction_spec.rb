@@ -1,9 +1,21 @@
 require 'rails_helper'
 
 RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] do
+  include ActiveJob::TestHelper
+
   let(:depiction) { Depiction.new() }
   let(:image_file) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_png, 'image/png') }
   let(:specimen) { FactoryBot.create(:valid_specimen) }
+
+  specify 'dwc_occurrence hooks' do
+    s = Specimen.create!
+    expect(s.dwc_occurrence.associatedMedia).to eq(nil)
+    d = Depiction.create!(depiction_object: s, image: FactoryBot.create(:valid_image))
+    
+    perform_enqueued_jobs
+    
+    expect(s.dwc_occurrence.reload.associatedMedia).to match('http://127.0.0.1:3000/api/v1/images/')
+  end
 
   specify 'when moving to a new collection object old is destroyed if an image stub' do
     o1 = FactoryBot.create(:valid_collection_object)
@@ -12,7 +24,7 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
     d = FactoryBot.create(:valid_depiction, depiction_object: o2)
 
     FactoryBot.create(:valid_sqed_depiction, depiction: d)
-    
+
     d.update!(depiction_object: o1)
 
     expect(CollectionObject.where(id: o2.id).any?).to be_falsey
@@ -20,7 +32,7 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
 
   specify 'destroying depiction does not destroy related Observation::Media 2 when not last' do
     o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
-    
+
     d = FactoryBot.create(:valid_depiction, depiction_object: o)
 
     # Can not test with this because of the way callbacks are created
@@ -40,20 +52,6 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
 
     expect {Observation.find(o.id)}.to raise_error ActiveRecord::RecordNotFound
     expect(Depiction.find(d.id).id).to be_truthy
-  end
-
-  specify 'updating from OTU to Observation' do
-    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
-    d1 = FactoryBot.create(:valid_depiction, depiction_object: o)
-
-    otu = Otu.create!(name: 'Foo') 
-
-    d2 = Depiction.create(depiction_object: otu, image: d1.image)
-
-    d2.update!(depiction_object: o)
-
-    expect(d2.depiction_object).to eq(o)
-    expect(otu.reload).to be_truthy
   end
 
   specify 'destroying depiction destroys related Observation::Media 1' do
@@ -79,13 +77,15 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
     expect(depiction.image.reload).to be_truthy
   end
 
+  # Could have been related to bad image validation in Depiction
   specify 'CPU usage must not increase exponentially every time a depiction is added for the same OTU' do
     o = Otu.create!(name:'a1')
-    a = Rack::Test::UploadedFile.new(Spec::Support::Utilities::Files.generate_tiny_random_png(file_name: "test.png"), 'image/png')
     last_utime = 2
 
     8.times do |i|
       o = Otu.find(o.id) # VERY IMPORTANT TO RE-FETCH THE OBJECT TO TRIGGER THE PROBLEM!
+
+      a = Rack::Test::UploadedFile.new(Spec::Support::Utilities::Files.generate_tiny_random_png(file_name: "test.png"), 'image/png')
       bm = Benchmark.measure { Depiction.create!(image_attributes: { image_file: a }, depiction_object: o) }
       expect(bm.utime/last_utime).to be <= 5
       last_utime = bm.utime

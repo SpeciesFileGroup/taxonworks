@@ -77,7 +77,7 @@ module CollectingEventsHelper
     ) if collecting_event.collectors.any?
 
     a << '&nbsp;'.html_safe + content_tag(:span,  collecting_event.verbatim_collectors, class: [:feedback, 'feedback-thin','feedback-secondary']) if collecting_event.verbatim_collectors
-    a
+    a.html_safe
   end
 
   # Slow, but accurate
@@ -118,14 +118,6 @@ module CollectingEventsHelper
 
   def collecting_events_search_form
     render('/collecting_events/quick_search_form')
-  end
-
-  def next_without_georeference_for_google_maps_link(collecting_event)
-    if n = collecting_event.next_without_georeference
-      link_to('Skip to next CE without georeference', new_georeferences_google_map_path(georeference: {collecting_event_id: n.to_param}), id: :next_without_georeference)
-    else
-      nil
-    end
   end
 
   # @return [String]
@@ -249,8 +241,7 @@ module CollectingEventsHelper
 
     if collecting_event.geographic_items.any?
       geo_item_id = collecting_event.geographic_items.select(:id).first.id
-      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
-      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
+      base['geometry'] = GeographicItem.find(geo_item_id).to_geo_json
     end
     base
   end

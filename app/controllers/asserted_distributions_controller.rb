@@ -116,7 +116,7 @@ class AssertedDistributionsController < ApplicationController
   # PATCH /asserted_distributions/batch_update.json?asserted_distributions_query=<>&asserted_distribution={taxon_name_id=123}}
   def batch_update
     if r = AssertedDistribution.batch_update(
-        preview: params[:preview], 
+        preview: params[:preview],
         asserted_distribution: asserted_distribution_params.merge(by: sessions_current_user_id),
         asserted_distribution_query: params[:asserted_distribution_query],
     )
@@ -153,17 +153,10 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def api_index
-    @asserted_distributions = ::Queries::AssertedDistribution::Filter.new(params.merge!(api: true))
-      .all
-      .where(project_id: sessions_current_project_id)
-      .includes(:citations, :otu, geographic_area: [:parent, :geographic_area_type], origin_citation: [:source])
-      .order('asserted_distributions.id')
-      .page(params[:page])
-      .per(params[:per])
-
-      if @asserted_distributions.all.count > 50
-        params['extend']&.delete('geo_json')
-      end
+    @asserted_distributions =
+      AssertedDistribution.asserted_distributions_for_api_index(
+        params.merge!(api: true), sessions_current_project_id
+      )
 
     render '/asserted_distributions/api/v1/index'
   end
@@ -182,7 +175,8 @@ class AssertedDistributionsController < ApplicationController
   def asserted_distribution_params
     params.require(:asserted_distribution).permit(
       :otu_id,
-      :geographic_area_id,
+      :asserted_distribution_shape_type,
+      :asserted_distribution_shape_id,
       :is_absent,
       otu_attributes: [:id, :_destroy, :name, :taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],

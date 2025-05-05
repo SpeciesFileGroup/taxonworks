@@ -51,7 +51,7 @@ import NavbarComponent from '@/components/layout/NavBar'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const emit = defineEmits(['onSave', 'onReset'])
 

@@ -1,118 +1,139 @@
 <template>
-  <div>
-    <block-layout :warning="!list.find((item) => item['id'])">
-      <template #header>
-        <h3>Biological Associations</h3>
-      </template>
-      <template #body>
-        <div class="separate-bottom">
-          <div class="flex-separate middle">
-            <h3
-              v-if="biologicalRelationship"
-              class="relationship-title"
-            >
-              <template v-if="flip">
-                <span
-                  v-for="item in biologicalRelationship.object_biological_properties"
-                  :key="item.id"
-                  class="separate-right background-info"
-                  v-html="item.name"
-                />
-                <span v-html="biologicalRelationship.inverted_name" />
-                <span
-                  v-for="item in biologicalRelationship.subject_biological_properties"
-                  :key="item.id"
-                  class="separate-left background-info"
-                  v-html="item.name"
-                />
-              </template>
-              <template v-else>
-                <span
-                  v-for="item in biologicalRelationship.subject_biological_properties"
-                  :key="item.id"
-                  class="separate-right background-info"
-                  v-html="item.name"
-                />
-                <span>{{
+  <block-layout :warning="!list.find((item) => item['id'])">
+    <template #header>
+      <h3>Biological Associations</h3>
+    </template>
+    <template #body>
+      <div class="separate-bottom">
+        <div class="flex-separate middle margin-xsmall-bottom">
+          <div
+            v-if="biologicalRelationship"
+            class="relationship-title flex-separate middle full_width"
+          >
+            <template v-if="flip">
+              <span
+                v-for="item in biologicalRelationship.object_biological_properties"
+                :key="item.id"
+                class="separate-right background-info"
+                v-html="item.name"
+              />
+              <span v-html="biologicalRelationship.inverted_name" />
+              <span
+                v-for="item in biologicalRelationship.subject_biological_properties"
+                :key="item.id"
+                class="separate-left background-info"
+                v-html="item.name"
+              />
+            </template>
+            <template v-else>
+              <span
+                v-for="item in biologicalRelationship.subject_biological_properties"
+                :key="item.id"
+                class="separate-right background-info"
+                v-html="item.name"
+              />
+              <span>
+                {{
                   biologicalRelationship.hasOwnProperty('label')
                     ? biologicalRelationship.label
                     : biologicalRelationship.name
-                }}</span>
-                <span
-                  v-for="item in biologicalRelationship.object_biological_properties"
-                  :key="item.id"
-                  class="separate-left background-info"
-                  v-html="item.name"
-                />
-              </template>
-              <button
+                }}
+              </span>
+              <span
+                v-for="item in biologicalRelationship.object_biological_properties"
+                :key="item.id"
+                class="separate-left background-info"
+                v-html="item.name"
+              />
+            </template>
+            <div
+              class="horizontal-right-content middle gap-small margin-small-right"
+            >
+              <VBtn
                 v-if="biologicalRelationship.inverted_name"
-                class="separate-left button button-default flip-button"
+                color="primary"
+                medium
                 type="button"
-                @click="flip = !flip"
+                @click="() => (flip = !flip)"
               >
                 Flip
-              </button>
-              <span
+              </VBtn>
+              <VBtn
+                color="primary"
+                circle
                 @click="
                   () => {
                     biologicalRelationship = undefined
                     flip = false
                   }
                 "
-                class="separate-left"
-                data-icon="reset"
-              />
-            </h3>
-            <h3
-              class="subtle relationship-title"
-              v-else
-            >
-              Choose relationship
-            </h3>
-            <lock-component
-              v-model="settings.locked.biological_association.relationship"
-            />
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
+            </div>
           </div>
-          <div class="flex-separate middle">
-            <h3
+          <h3
+            class="subtle relationship-title"
+            v-else
+          >
+            Choose relationship
+          </h3>
+          <lock-component
+            v-model="settings.locked.biological_association.relationship"
+          />
+        </div>
+        <div class="flex-separate middle gap-small">
+          <span
+            v-if="biologicalRelation"
+            v-html="displayRelated"
+          />
+
+          <h3
+            v-else
+            class="subtle relation-title"
+          >
+            Choose relation
+          </h3>
+
+          <div class="horizontal-right-content middle gap-small">
+            <VBtn
               v-if="biologicalRelation"
-              class="relation-title"
+              class="margin-medium-left"
+              color="primary"
+              circle
+              @click="biologicalRelation = undefined"
             >
-              <span v-html="displayRelated" />
-              <span
-                @click="biologicalRelation = undefined"
-                class="separate-left"
-                data-icon="reset"
+              <VIcon
+                name="trash"
+                x-small
               />
-            </h3>
-            <h3
-              v-else
-              class="subtle relation-title"
-            >
-              Choose relation
-            </h3>
+            </VBtn>
             <lock-component
               v-model="settings.locked.biological_association.related"
             />
           </div>
         </div>
-        <div
-          v-if="!biologicalRelationship"
-          class="horizontal-left-content full_width"
-        >
-          <biological
-            class="separate-bottom"
-            @select="biologicalRelationship = $event"
-          />
-        </div>
-        <div class="horizontal-left-content">
-          <related
-            v-if="!biologicalRelation"
-            class="separate-bottom separate-top"
-            @select="biologicalRelation = $event"
-          />
-        </div>
+      </div>
+      <div
+        v-if="!biologicalRelationship"
+        class="horizontal-left-content overflow-x-auto"
+      >
+        <biological
+          class="separate-bottom"
+          @select="biologicalRelationship = $event"
+        />
+      </div>
+      <div class="horizontal-left-content overflow-x-auto">
+        <related
+          v-if="!biologicalRelation"
+          class="separate-bottom separate-top"
+          @select="biologicalRelation = $event"
+        />
+      </div>
+      <div class="overflow-x-auto">
         <FormCitation
           v-model="citation"
           class="separate-top"
@@ -120,26 +141,27 @@
           original
           @source="addLabel"
         />
+      </div>
 
-        <div class="separate-top">
-          <button
-            type="button"
-            :disabled="!validateFields"
-            @click="addAssociation"
-            class="normal-input button button-default"
-          >
-            Add
-          </button>
-        </div>
-        <table-list
-          class="separate-top"
-          :list="list"
-          @delete="removeBiologicalRelationship"
-        />
-      </template>
-    </block-layout>
-  </div>
+      <div class="separate-top">
+        <button
+          type="button"
+          :disabled="!validateFields"
+          @click="addAssociation"
+          class="normal-input button button-default"
+        >
+          Add
+        </button>
+      </div>
+      <table-list
+        class="separate-top"
+        :list="list"
+        @delete="removeBiologicalRelationship"
+      />
+    </template>
+  </block-layout>
 </template>
+
 <script>
 import Biological from './biological.vue'
 import Related from './related.vue'
@@ -148,6 +170,8 @@ import TableList from './table.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import makeCitation from '@/factory/Citation.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations'
@@ -160,7 +184,9 @@ export default {
     FormCitation,
     BlockLayout,
     TableList,
-    LockComponent
+    LockComponent,
+    VBtn,
+    VIcon
   },
 
   computed: {
@@ -259,44 +285,3 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-.radial-annotator {
-  .biological_relationships_annotator {
-    overflow-y: scroll;
-    .flip-button {
-      min-width: 30px;
-    }
-    .relationship-title {
-      margin-left: 1em;
-    }
-    .relation-title {
-      margin-left: 2em;
-    }
-    .switch-radio {
-      label {
-        min-width: 95px;
-      }
-    }
-    .background-info {
-      padding: 3px;
-      padding-left: 6px;
-      padding-right: 6px;
-      border-radius: 3px;
-      background-color: #ded2f9;
-    }
-    textarea {
-      padding-top: 14px;
-      padding-bottom: 14px;
-      width: 100%;
-      height: 100px;
-    }
-    .pages {
-      width: 86px;
-    }
-    .vue-autocomplete-input,
-    .vue-autocomplete {
-      width: 376px;
-    }
-  }
-}
-</style>

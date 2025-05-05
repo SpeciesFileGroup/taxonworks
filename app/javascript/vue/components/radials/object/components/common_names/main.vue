@@ -22,7 +22,7 @@
         @selected="(item) => (geographicArea = item)"
       >
         <template #map>
-          <GeographicAreaMapPicker
+          <MapShapePicker
             @select="(item) => (geographicArea = item)"
           />
         </template>
@@ -121,7 +121,7 @@ import TableList from '@/components/table_list.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import makeCommonName from '@/factory/CommonName.js'
-import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
+import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { CommonName } from '@/routes/endpoints'
 import { computed, ref } from 'vue'

@@ -85,9 +85,14 @@ export default {
         const store = this.preferences.layout[this.keyStorage]
         if (
           store &&
-          Object.keys(this.componentsOrder).every(
-            (key) => store[key].length === this.componentsOrder[key].length
-          )
+          Object.keys(this.componentsOrder).every((key) => {
+            const section = this.componentsOrder[key]
+
+            return (
+              store[key]?.length === section.length &&
+              section.every((item) => store[key].includes(item))
+            )
+          })
         ) {
           this.componentsOrder = store
         }

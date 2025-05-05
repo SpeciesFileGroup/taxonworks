@@ -51,7 +51,11 @@ class CollectingEventsController < ApplicationController
 
   # POST /collecting_events/1/clone.json
   def clone
-    @collecting_event = @collecting_event.clone
+    @collecting_event = @collecting_event.clone(
+      annotations: params[:annotations],
+      incremented_identifier_id: params[:incremented_identifier_id]
+    )
+
     respond_to do |format|
       if @collecting_event.persisted?
         format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Clone successful, editing new record.' }
@@ -283,7 +287,7 @@ class CollectingEventsController < ApplicationController
     params.require(:collecting_event).permit(
       :verbatim_label, :print_label, :print_label_number_to_print, :document_label,
       :verbatim_locality, :verbatim_date, :verbatim_longitude, :verbatim_latitude,
-      :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors,
+      :verbatim_geolocation_uncertainty, :verbatim_field_number, :verbatim_collectors,
       :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation,
       :elevation_precision, :time_start_hour, :time_start_minute, :time_start_second,
       :time_end_hour, :time_end_minute, :time_end_second, :start_date_day,
@@ -291,8 +295,8 @@ class CollectingEventsController < ApplicationController
       :group, :member, :formation, :lithology, :max_ma, :min_ma,
       :end_date_year, :verbatim_habitat, :field_notes, :verbatim_datum,
       :verbatim_elevation, :meta_prioritize_geographic_area,
-      roles_attributes: [:id, :_destroy, :type, :person_id, :position,
-                         person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+      roles_attributes: [:id, :_destroy, :type, :person_id, :position, :by,
+                         person_attributes: [:last_name, :first_name, :suffix, :prefix, :by]],
     identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
     data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )

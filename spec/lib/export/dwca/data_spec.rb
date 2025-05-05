@@ -88,7 +88,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
 
         specify 'with .join clauses' do
-          s = scope.collection_objects_join
+          s = scope.object_join('CollectionObject')
           d = Export::Dwca::Data.new(core_scope: s)
           expect(d.meta_fields).to contain_exactly(*(headers + valid_collecting_event_headers))
         end

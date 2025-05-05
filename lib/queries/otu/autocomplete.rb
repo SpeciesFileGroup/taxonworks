@@ -214,7 +214,8 @@ module Queries
         # Extra query is painful.
         f = ::Otu.where(id: otu_order)
           .joins('left join taxon_names t1 on otus.taxon_name_id = t1.id')
-          .joins('left join otus o2 on t1.cached_valid_taxon_name_id = o2.taxon_name_id')
+#         .joins('left join otus o2 on t1.cached_valid_taxon_name_id = o2.taxon_name_id')
+          .joins('left join otus o2 on t1.cached_valid_taxon_name_id = o2.taxon_name_id and o2.taxon_name_id <> otus.taxon_name_id') # See https://github.com/sfg-taxonpages/orthoptera/issues/90
           .select('distinct on (otus.id) otus.id, otus.name, otus.taxon_name_id, COALESCE(o2.id, otus.id) as otu_valid_id')
 
         compact.each do |h|

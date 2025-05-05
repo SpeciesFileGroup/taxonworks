@@ -32,7 +32,7 @@
 
 <script setup>
 import VModal from '@/components/ui/Modal.vue'
-import { ref, onMounted, onBeforeUnmount, defineOptions } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 defineOptions({
   name: 'IssueTracker'

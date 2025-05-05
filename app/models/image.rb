@@ -45,7 +45,6 @@
 #   @return [Float, nil]
 #      used to generate scale bars on the fly
 #
-
 class Image < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
@@ -61,6 +60,10 @@ class Image < ApplicationRecord
 
   attr_accessor :rotate
 
+  # ANY non-blank? value here will attempt to also create a depiction 
+  # for the Image, linking it to a CollectionObject
+  attr_accessor :filename_depicts_object
+
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
   GRAPH_ENTRY_POINTS = [:depictions]
@@ -70,7 +73,7 @@ class Image < ApplicationRecord
     medium: { width: 300, height: 300 }
   }.freeze
 
-  has_one :sled_image, dependent: :destroy
+  has_one :sled_image, dependent: :destroy, inverse_of: :image
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 
@@ -78,6 +81,7 @@ class Image < ApplicationRecord
   has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
   has_many :taxon_names, through: :otus
 
+  after_validation :stub_depiction, if: Proc.new {|n| !n.filename_depicts_object.blank?}
   before_save :extract_tw_attributes
 
   # also using https://github.com/teeparham/paperclip-meta
@@ -97,6 +101,33 @@ class Image < ApplicationRecord
   validates_uniqueness_of :image_file_fingerprint, scope: :project_id
 
   accepts_nested_attributes_for :sled_image, allow_destroy: true
+
+  accepts_nested_attributes_for :depictions, allow_destroy: false
+
+  # This is bad and you should feel bad if your digitization workflow uses it.
+  def stub_depiction
+    identifier = File.basename(
+      image_file.queued_for_write[:original].original_filename,
+      '.*'
+    )
+
+    co = CollectionObject.joins(:identifiers).where(
+      identifiers: {cached: identifier},
+      project_id: Current.project_id,
+    ).first
+
+    if co.nil?
+      errors.add(:base, 'filename does not match any known CollectionObject identifier')
+      return
+    end
+
+    depictions.build(
+      depiction_object_id: co.id,
+      depiction_object_type: 'CollectionObject',
+      by: Current.user_id,
+      project_id: Current.project_id
+    )
+  end
 
   # Replaces Image.create!
   def self.deduplicate_create(image_params)

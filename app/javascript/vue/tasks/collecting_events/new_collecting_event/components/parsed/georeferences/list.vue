@@ -47,7 +47,7 @@
                 placeholder
               />
               <v-btn
-                color="update"
+                :color="item.id ? 'update' : 'primary'"
                 medium
                 @click="$emit('dateChanged', item)"
               >

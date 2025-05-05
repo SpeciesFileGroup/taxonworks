@@ -15,6 +15,7 @@ module Shared::IsData
     include Metamorphosize
     include HasRoles
     include Shared::Verifiers
+    include Shared::Unify
   end
 
   module ClassMethods
@@ -98,7 +99,7 @@ module Shared::IsData
       klass = self
       attr  = Stripper.strip_identical_attributes(klass, attr)
 
-      scope = klass.where(attr)
+      scope = klass.where(attr) #.where.not(id:)
       scope
     end
 
@@ -158,6 +159,8 @@ module Shared::IsData
     return true if u.is_administrator?
 
     p = u.projects.pluck(:id)
+
+    # TODO: !! replace with a simple wrapped transaction and roll it back
 
     self.class.reflect_on_all_associations(:has_many).each do |r|
       if r.klass.column_names.include?('project_id')
@@ -221,6 +224,7 @@ module Shared::IsData
     self.class < Shared::SharedAcrossProjects ? true : false
   end
 
+  # TODO: reconcile with Shared::IsData::Metamorphosize
   # @return [Object]
   #   the same object, but namespaced to the base class
   #   used many places, might be good target for optimization

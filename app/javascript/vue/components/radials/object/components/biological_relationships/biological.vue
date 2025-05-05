@@ -2,7 +2,7 @@
   <div>
     <fieldset>
       <legend>Biological relationship</legend>
-      <smart-selector
+      <SmartSelector
         class="full_width"
         ref="smartSelector"
         model="biological_relationships"
@@ -13,43 +13,26 @@
         inline
         label="name"
         pin-type="BiologicalRelationship"
-        @selected="$emit('select', $event)"
         :custom-list="list"
         :lock-view="false"
+        @selected="(item) => emit('select', item)"
       />
     </fieldset>
   </div>
 </template>
 
-<script>
+<script setup>
 import SmartSelector from '@/components/ui/SmartSelector'
-import CRUD from '../../request/crud.js'
+import { ref } from 'vue'
+import { BiologicalRelationship } from '@/routes/endpoints/BiologicalRelationship.js'
 
-export default {
-  mixins: [CRUD],
+const emit = defineEmits(['select'])
 
-  components: { SmartSelector },
+const list = ref({
+  all: []
+})
 
-  emits: ['select'],
-
-  data() {
-    return {
-      list: {
-        all: []
-      }
-    }
-  },
-
-  created() {
-    this.loadTabList()
-  },
-
-  methods: {
-    loadTabList() {
-      this.getList('/biological_relationships.json').then((response) => {
-        this.list = { all: response.body }
-      })
-    }
-  }
-}
+BiologicalRelationship.all().then((response) => {
+  list.value = { all: response.body }
+})
 </script>

@@ -1,5 +1,12 @@
 # A view to a set of Observations.
 #
+# @params otu_id
+#   .the "parent" concept that this key applies to, for example
+#   if this is species concepts it might be a species group, or genus.
+#   Used primarly to index keys.
+# TODO: soft validate that this OTU actually makes sense given the content of the key
+#
+#
 class ObservationMatrix < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -8,6 +15,7 @@ class ObservationMatrix < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
   include Shared::DataAttributes
+  include Shared::Attributions
   include Shared::AlternateValues
   include Shared::IsData # Hybrid of sorts, is a layout engine, but people cite matrices ...
 
@@ -15,6 +23,9 @@ class ObservationMatrix < ApplicationRecord
 
   validates_presence_of :name
   validates_uniqueness_of :name, scope: [:project_id]
+
+  # We can not inverse: `observation_matrices` as that comes from row content.
+  belongs_to :otu, inverse_of: :in_scope_observation_matrices
 
   has_many :observation_matrix_column_items, dependent: :delete_all, inverse_of: :observation_matrix
   has_many :observation_matrix_row_items, dependent: :delete_all, inverse_of: :observation_matrix
@@ -28,6 +39,8 @@ class ObservationMatrix < ApplicationRecord
   has_many :otus, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Otu'
   has_many :collection_objects, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'CollectionObject'
   has_many :extracts, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Extract'
+  has_many :sounds, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Sound'
+  has_many :field_occurrences, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'FieldOccurrence'
 
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, -> { order('observation_matrix_columns.position') }, through: :observation_matrix_columns, inverse_of: :observation_matrices

@@ -64,6 +64,23 @@ class CharacterStatesController < ApplicationController
     end
   end
 
+  def autocomplete
+    @character_states = CharacterState.find_for_autocomplete(params).where(project_id: sessions_current_project_id)
+
+    data = @character_states.collect do |t|
+      label = helpers.expanded_character_state_tag(t)
+      {id: t.id,
+       label:,
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html: label 
+      }
+    end
+    render json: data
+  end
+
+
   def list
     @character_states = CharacterState.with_project_id(sessions_current_project_id).page(params[:page])
   end

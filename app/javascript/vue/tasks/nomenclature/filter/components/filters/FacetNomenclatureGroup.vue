@@ -20,25 +20,38 @@
     <div class="field label-above margin-medium-top">
       <label>Ranks</label>
       <select
+        v-model="currentRank"
         @change="
-          addToArray(selectedRanks, rankList[$event.target.value], {
-            property: 'rankClass'
-          })
+          () => {
+            addToArray(selectedRanks, currentRank, {
+              property: 'rankClass'
+            })
+            currentRank = null
+          }
         "
       >
         <option
           disabled
           selected
+          :value="null"
         >
           Select rank
         </option>
-        <option
-          v-for="(rank, index) in rankList"
+        <template
+          v-for="rank in rankList"
           :key="rank.rankClass"
-          :value="index"
         >
-          {{ rank.name }}
-        </option>
+          <option
+            v-if="
+              !selectedRanks.some(
+                ({ rankClass }) => rankClass === rank.rankClass
+              )
+            "
+            :value="rank"
+          >
+            {{ rank.name }}
+          </option>
+        </template>
       </select>
     </div>
 
@@ -100,6 +113,7 @@ const params = computed({
 })
 
 const selectedRanks = ref([])
+const currentRank = ref(null)
 
 const ranks = ref({})
 

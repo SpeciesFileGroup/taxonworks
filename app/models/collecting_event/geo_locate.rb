@@ -25,8 +25,8 @@ module CollectingEvent::GeoLocate
             end
 
     parameters.merge!(
-      'Longitude' => focus.point.x,
-      'Latitude'  => focus.point.y
+      'Longitude' => focus.geography.x,
+      'Latitude'  => focus.geography.y
     ) unless focus.nil?
     parameters
   end

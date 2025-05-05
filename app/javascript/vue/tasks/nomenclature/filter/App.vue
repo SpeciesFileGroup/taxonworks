@@ -70,7 +70,7 @@ import { listParser } from './utils/listParser'
 import { TaxonName } from '@/routes/endpoints'
 import { TAXON_NAME } from '@/constants/index.js'
 
-const extend = ['parent']
+const extend = ['parent', 'valid_name']
 
 const {
   isLoading,

@@ -13,7 +13,7 @@
             :checked="h['group'] == ''"
             name="extensions"
           />
-          {{ h['extensions'].join(', ') }}
+          {{ h['extensions'].map((hh => hh.extension)).join(', ') }}
         </label>
       </div>
     </div>
@@ -24,6 +24,20 @@
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
+  // An example extension group:
+  // {
+  //   group: 'nexus',
+  //   extensions: [
+  //     {
+  //       extension: '.nex',
+  //       content_type: 'text/plain'
+  //     },
+  //     {
+  //       extension: '.nxs',
+  //       content_type: 'text/plain'
+  //     }
+  //   ]
+  // }
   extensionGroups: {
     type: Array,
     default: []
@@ -32,8 +46,8 @@ const props = defineProps({
 
 const params = defineModel()
 
-function updateParams(extensionGroup) {
-  params.value.file_extension_group = extensionGroup
+function updateParams(extensionGroupName) {
+  params.value.file_extension_group_name = extensionGroupName
 }
 </script>
 

@@ -8,7 +8,7 @@ import getMatrixObservationColumnsDynamic from './loadColumnDynamicItems'
 import loadMatrix from './loadMatrix'
 import removeRow from './removeRow'
 import removeColumn from './removeColumn'
-import updateMatrix from './updateMatrix'
+import saveMatrix from './saveMatrix'
 
 const ActionFunctions = {
   [ActionNames.CreateRowItem]: createRowItem,
@@ -20,7 +20,7 @@ const ActionFunctions = {
   [ActionNames.GetMatrixObservationColumnsDynamic]: getMatrixObservationColumnsDynamic,
   [ActionNames.RemoveRow]: removeRow,
   [ActionNames.RemoveColumn]: removeColumn,
-  [ActionNames.UpdateMatrix]: updateMatrix
+  [ActionNames.SaveMatrix]: saveMatrix
 }
 
 export { ActionNames, ActionFunctions }

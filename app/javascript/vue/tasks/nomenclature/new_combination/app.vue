@@ -180,20 +180,21 @@ export default {
 
   .new-combination-box {
     transition: all 1s;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 
     label {
       display: block;
     }
 
-    height: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
     .body {
       padding: 2em;
       padding-top: 1em;
       padding-bottom: 1em;
     }
+
     .taxonName-input,
     #error_explanation {
       width: 300px;

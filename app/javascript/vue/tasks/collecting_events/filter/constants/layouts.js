@@ -3,10 +3,14 @@ import { COLLECTING_EVENT_PROPERTIES } from '@/shared/Filter/constants'
 export const LAYOUTS = {
   All: {
     properties: {
-      collecting_event: [...COLLECTING_EVENT_PROPERTIES, 'identifiers', 'roles']
-    },
-    includes: {
-      data_attributes: true
+      collecting_event: [
+        ...COLLECTING_EVENT_PROPERTIES,
+        'identifiers',
+        'roles'
+      ],
+      data_attributes: {
+        show: true
+      }
     }
   },
 
@@ -19,10 +23,10 @@ export const LAYOUTS = {
 
   Labels: {
     properties: {
-      collecting_event: ['verbatim_label', 'print_label', 'document_label']
-    },
-    includes: {
-      data_attributes: true
+      collecting_event: ['verbatim_label', 'print_label', 'document_label'],
+      data_attributes: {
+        show: true
+      }
     }
   },
 
@@ -38,10 +42,10 @@ export const LAYOUTS = {
         'verbatim_geolocation_uncertainty',
         'minimum_elevation',
         'maximum_elevation'
-      ]
-    },
-    includes: {
-      data_attributes: true
+      ],
+      data_attributes: {
+        show: true
+      }
     }
   },
 
@@ -63,10 +67,10 @@ export const LAYOUTS = {
         'time_end_second',
         'max_ma',
         'min_ma'
-      ]
-    },
-    includes: {
-      data_attributes: true
+      ],
+      data_attributes: {
+        show: true
+      }
     }
   },
 
@@ -79,10 +83,10 @@ export const LAYOUTS = {
         'lithology',
         'max_ma',
         'min_ma'
-      ]
-    },
-    includes: {
-      data_attributes: true
+      ],
+      data_attributes: {
+        show: true
+      }
     }
   }
 }

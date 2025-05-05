@@ -1,7 +1,7 @@
 json.extract! asserted_distribution, :id, :otu_id, :geographic_area_id, :project_id, :created_by_id, :updated_by_id, :is_absent, :created_at, :updated_at
 
 json.origin_citation_source_id asserted_distribution.origin_citation_source_id
-json.global_id asserted_distribution.to_global_id.to_s 
+json.global_id asserted_distribution.to_global_id.to_s
 
 json.citations(asserted_distribution.citations) do |citation|
   json.id citation.id.to_s
@@ -21,6 +21,13 @@ json.otu do
   json.global_id asserted_distribution.otu.to_global_id.to_s
 end
 
-json.geographic_area do
-  json.partial! '/geographic_areas/api/v1/attributes', geographic_area: asserted_distribution.geographic_area
+json.asserted_distribution_shape do
+  json.type asserted_distribution.asserted_distribution_shape_type
+  if asserted_distribution.asserted_distribution_shape_type == 'GeographicArea'
+    json.partial! '/geographic_areas/api/v1/attributes',
+      geographic_area: asserted_distribution.geographic_area
+  else
+    json.partial! '/gazetteers/api/v1/attributes',
+      gazetteer: asserted_distribution.gazetteer
+  end
 end

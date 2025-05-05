@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
@@ -47,6 +47,8 @@ function handleUpdateName() {
 }
 
 onMounted(() => {
-  inputName.value.focus()
+  nextTick(() => {
+    inputName.value.focus()
+  })
 })
 </script>

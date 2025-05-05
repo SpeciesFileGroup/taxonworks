@@ -1,5 +1,5 @@
-import makeTypeSpecimen from '../../../helpers/makeTypeSpecimen'
+import makeTypeMaterial from '@/factory/TypeMaterial.js'
 
-export default state => {
-  state.typeSpecimen = makeTypeSpecimen()
+export default (state) => {
+  state.typeSpecimen = makeTypeMaterial()
 }

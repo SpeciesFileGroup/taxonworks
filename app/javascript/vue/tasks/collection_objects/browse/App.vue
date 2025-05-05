@@ -8,6 +8,7 @@
         placeholder="Search a collection object"
         param="term"
         label="label_html"
+        autofocus
         clear-after
         @get-item="({ id }) => loadCO(id)"
       />
@@ -87,13 +88,9 @@ usePopstateListener(() => {
 <style lang="scss">
 #vue-browse-collection-object {
   .panel {
-    border-radius: 0px;
-    //box-shadow: 0 3 6 0 rgba(0,0,0, .18);
-
     &__title {
       padding: 0px;
       margin: 0px;
-      font-size: 1em;
       text-transform: uppercase;
       color: #444444;
     }
@@ -101,10 +98,6 @@ usePopstateListener(() => {
     &__subtitle {
       font-size: 1em;
       font-weight: 700;
-    }
-
-    &__content {
-      padding: 2em;
     }
   }
 

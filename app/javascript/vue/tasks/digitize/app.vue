@@ -42,7 +42,7 @@ import CollectingEventLayout from './components/collectingEvent/main.vue'
 import SettingsCollectionObject from './components/settings/SettingCollectionObject.vue'
 import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import LeftColumn from './components/LeftColumn.vue'
 import { User, Project } from '@/routes/endpoints'
 import { MutationNames } from './store/mutations/mutations.js'
@@ -95,10 +95,6 @@ onMounted(() => {
     store.commit(MutationNames.SetProjectPreferences, body)
   })
 
-  if (!coIdParam) {
-    store.dispatch(ActionNames.CreateDeterminationFromParams)
-  }
-
   if (/^\d+$/.test(coId)) {
     store.dispatch(ActionNames.LoadDigitalization, coId)
   } else if (/^\d+$/.test(coIdParam)) {
@@ -136,6 +132,11 @@ function addShortcutsDescription() {
   TW.workbench.keyboard.createLegend(
     `${key}+b`,
     'Go to browse nomenclature',
+    TASK
+  )
+  TW.workbench.keyboard.createLegend(
+    `${key}+v`,
+    'Go to new collecting event',
     TASK
   )
 }

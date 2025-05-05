@@ -15,62 +15,83 @@
       </VBtn>
     </template>
     <template #body>
-      <div class="horizontal-left-content align-start">
-        <template
-          v-for="(propertiesList, key) in properties"
-          :key="key"
+      <div class="horizontal-left-content align-start gap-medium">
+        <VueDraggable
+          class="horizontal-left-content align-start gap-medium"
+          element="div"
+          group="lists"
+          :list="Object.entries(props.layouts.Custom.properties)"
+          :item-key="([key]) => key"
+          @end="sortObjects"
         >
-          <div class="margin-medium-right">
-            <h3 class="capitalize">
-              <label>
-                <input
-                  type="checkbox"
-                  :checked="
-                    propertiesList.length ===
-                    currentLayout.properties[key].length
-                  "
-                  @click="
-                    () => {
-                      currentLayout.properties[key] =
-                        propertiesList.length ===
-                        currentLayout.properties[key].length
-                          ? []
-                          : [...propertiesList]
-                      emit('update')
-                    }
-                  "
-                />
-                {{ humanize(key) }}
-              </label>
-            </h3>
-            <VueDraggable
-              class="no_bullets"
-              element="ul"
-              v-model="properties[key]"
-              :item-key="(item) => item"
-              @end="
-                () => {
-                  emit('sort', key)
-                  emit('update')
-                }
-              "
-            >
-              <template #item="{ element }">
-                <li>
-                  <label>
-                    <input
-                      type="checkbox"
-                      :value="element"
-                      v-model="currentLayout.properties[key]"
-                      @change="() => emit('update', key)"
-                    />
-                    {{ element }}
-                  </label>
-                </li>
-              </template>
-            </VueDraggable>
-          </div>
-        </template>
+          <template #item="{ element: [key] }">
+            <div>
+              <h3
+                class="capitalize cursor-grab horizontal-left-content gap-small"
+              >
+                <label class="cursor-grab">
+                  <input
+                    type="checkbox"
+                    :checked="
+                      isTheSameValue({
+                        properties: properties[key],
+                        layout: currentLayout.properties[key]
+                      })
+                    "
+                    @click="
+                      () => {
+                        currentLayout.properties[key] = setProperties({
+                          properties: properties[key],
+                          layout: currentLayout.properties[key]
+                        })
+                        emit('update')
+                      }
+                    "
+                  />
+                  {{ humanize(key) }}
+                </label>
+                <IcconRightLeft class="w-4" />
+              </h3>
+              <VueDraggable
+                v-if="Array.isArray(properties[key])"
+                class="no_bullets"
+                element="ul"
+                :group="`items-${key}`"
+                v-model="properties[key]"
+                :item-key="(item) => item"
+                @end="
+                  () => {
+                    emit('sort', key)
+                    emit('update')
+                  }
+                "
+              >
+                <template #item="{ element }">
+                  <li>
+                    <label class="cursor-grab">
+                      <input
+                        type="checkbox"
+                        :value="element"
+                        v-model="currentLayout.properties[key]"
+                        @change="
+                          () => {
+                            currentLayout.properties[key] = sortArrayByArray(
+                              currentLayout.properties[key],
+                              properties[key],
+                              true
+                            )
+                            emit('update', key)
+                          }
+                        "
+                      />
+                      {{ element }}
+                    </label>
+                  </li>
+                </template>
+              </VueDraggable>
+            </div>
+          </template>
+        </VueDraggable>
         <div v-if="Object.keys(includes).length">
           <h3>Includes</h3>
           <ul class="no_bullets">
@@ -119,6 +140,9 @@
       class="rounded-tl-none rounded-bl-none"
       medium
       color="primary"
+      v-help="
+        'Customize layout: Properties can be toggled on or off by clicking the checkboxes. You can also reorder them by dragging. Also, columns can be rearranged by dragging them left or right.'
+      "
       @click="openLayoutPreferences"
     >
       <VIcon
@@ -130,12 +154,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { humanize } from '@/helpers/strings.js'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VueDraggable from 'vuedraggable'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import { sortArrayByArray } from '@/helpers'
+import IcconRightLeft from '@/components/Icon/IcconRightLeft.vue'
+import { vHelp } from '@/directives'
 
 const props = defineProps({
   layouts: {
@@ -148,7 +175,7 @@ const currentLayout = defineModel()
 const includes = defineModel('includes')
 const properties = defineModel('properties')
 
-const emit = defineEmits(['update', 'select', 'sort', 'reset'])
+const emit = defineEmits(['update', 'select', 'sort', 'reset', 'sort:column'])
 
 const isModalVisible = ref(false)
 
@@ -156,4 +183,41 @@ function openLayoutPreferences() {
   currentLayout.value = props.layouts.Custom
   isModalVisible.value = true
 }
+
+function isTheSameValue({ properties, layout }) {
+  return Array.isArray(properties)
+    ? properties.length === layout.length
+    : properties.show === layout.show
+}
+
+function setProperties({ properties, layout }) {
+  const isTheSame = isTheSameValue({ properties, layout })
+
+  if (Array.isArray(properties)) {
+    return isTheSame ? [] : [...properties]
+  } else {
+    return {
+      show: !layout.show
+    }
+  }
+}
+
+function sortObjects(e) {
+  const newArr = Object.entries(currentLayout.value.properties)
+  const { newIndex, oldIndex } = e
+  const [movedElement] = newArr.splice(oldIndex, 1)
+
+  newArr.splice(newIndex, 0, movedElement)
+  currentLayout.value.properties = Object.fromEntries(newArr)
+
+  emit('sort:column')
+}
+
+watch(
+  () => props.layouts.Custom,
+  () => {
+    currentLayout.value = props.layouts.Custom
+  },
+  { deep: true }
+)
 </script>

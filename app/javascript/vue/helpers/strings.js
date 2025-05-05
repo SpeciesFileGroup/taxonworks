@@ -13,8 +13,22 @@ function shorten(str, maxLen, separator = ' ') {
 
 function toSnakeCase(string) {
   return string
-    .replace(/\.?([A-Z])/g, (x, y) => `_${y.toLowerCase()}`)
+    .replace(/\s+/g, '_')
+    .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
+    .replace(/-+/g, '_')
+    .replace(/_+/g, '_')
     .replace(/^_/, '')
+    .replace(/_$/, '')
+    .toLowerCase()
+}
+
+function toPascalCase(str) {
+  const words = str.replace(/([a-z])([A-Z])/g, '$1 $2').split(/[_-\s]+/)
+  const pascalCaseStr = words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('')
+
+  return pascalCaseStr
 }
 
 function replaceAt(index, string, newString) {
@@ -51,5 +65,6 @@ export {
   replaceAt,
   stringInline,
   humanize,
-  isEmpty
+  isEmpty,
+  toPascalCase
 }

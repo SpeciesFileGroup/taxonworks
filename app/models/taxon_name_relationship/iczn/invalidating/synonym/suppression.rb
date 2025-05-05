@@ -6,8 +6,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective) +
         self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
-            TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName,
-            TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective)
+            TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName)
   end
 
   def subject_properties

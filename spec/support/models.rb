@@ -1,9 +1,14 @@
 RSpec.configure do |config|
   config.before(:all, type: :model) do
     ProjectsAndUsers.spin_up_projects_users_and_housekeeping
-  end 
+  end
 
-  config.after(:all, type: :model) { 
+  config.before(:each, type: :model) do
+    Current.project_id = 1
+    Current.user_id = 1
+  end
+
+  config.after(:all, type: :model) {
     ProjectsAndUsers.clean_slate
   }
 end
@@ -13,13 +18,19 @@ end
 # These methods are available throughout specs.
 module ModelHelper
 
-  # Returns the name of the TW factory for a class, includes 
+  # TODO: Reconsider need if occurrence import specs are refactored
+  def init_housekeeping(user_id: 1, project_id: 1)
+    Current.user_id = user_id
+    Current.project_id = project_id
+  end
+
+  # Returns the name of the TW factory for a class, includes
   # the formatting for nested subclasses.
   def class_factory_name(klass)
     klass.name.tableize.singularize.gsub('/', '_')
   end
 
-  # Return the name of the valid TW factory for the class. This 
+  # Return the name of the valid TW factory for the class. This
   # factory should be directly creatable, e.g. Factory.create(valid_class_factory_name(Otu))
   def valid_class_factory_name(klass)
     "valid_#{class_factory_name(klass)}"
@@ -45,7 +56,3 @@ module ModelHelper
     Current.project_id
   end
 end
-
-
-
-

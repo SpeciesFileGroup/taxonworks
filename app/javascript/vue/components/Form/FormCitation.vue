@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend>Source</legend>
+  <component :is="fieldset ? 'fieldset' : 'div'">
+    <legend v-if="fieldset">Source</legend>
     <div class="horizontal-left-content align-start">
       <SmartSelector
         class="full_width"
@@ -13,13 +13,20 @@
         label="cached"
         v-model="source"
         @selected="setSource"
-      />
+      >
+        <template #tabs-right>
+          <FormCitationClone
+            v-if="!inlineClone"
+            @clone="(item) => Object.assign(citation, item)"
+          />
+          <slot name="tabs-right" />
+          <VLock
+            v-if="lockButton"
+            v-model="isLocked"
+          />
+        </template>
+      </SmartSelector>
       <slot name="smart-selector-right" />
-      <VLock
-        v-if="lockButton"
-        class="margin-small-left"
-        v-model="isLocked"
-      />
     </div>
     <div
       class="horizontal-left-content margin-medium-top gap-small"
@@ -42,10 +49,6 @@
       >
         New
       </VBtn>
-      <FormCitationClone
-        v-if="!inlineClone"
-        @clone="(item) => Object.assign(citation, item)"
-      />
       <slot name="footer" />
     </div>
     <SmartSelectorItem
@@ -91,7 +94,7 @@
         </li>
       </ul>
     </div>
-  </fieldset>
+  </component>
 </template>
 
 <script setup>
@@ -159,6 +162,11 @@ const props = defineProps({
     default: undefined
   },
 
+  fieldset: {
+    type: Boolean,
+    default: true
+  },
+
   original: {
     type: Boolean,
     default: true
@@ -183,7 +191,10 @@ const isAbsent = computed({
   set: (value) => emit('update:absent', value)
 })
 
-const isLocked = ref(false)
+const isLocked = defineModel('lock', {
+  type: Boolean,
+  default: false
+})
 
 const sourceId = computed(() => props.modelValue.source_id)
 const source = ref(undefined)

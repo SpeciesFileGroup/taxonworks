@@ -1,12 +1,12 @@
 <template>
   <div>
-    <h3>Identifier</h3>
+    <h3>{{ title }}</h3>
     <fieldset>
       <legend>Namespace</legend>
       <div
-        class="horizontal-left-content align-start separate-bottom full_width"
+        class="horizontal-left-content align-start separate-bottom full_width gap-small"
       >
-        <smart-selector
+        <SmartSelector
           class="full_width"
           ref="smartSelector"
           model="namespaces"
@@ -16,11 +16,7 @@
           pin-type="Namespace"
           @selected="setNamespace"
         />
-        <a
-          class="margin-small-top margin-small-left"
-          href="/namespaces/new"
-          >New</a
-        >
+        <WidgetNamespace @create="setNamespace" />
       </div>
       <template v-if="identifier.namespace">
         <div class="middle separate-top">
@@ -36,14 +32,13 @@
         </div>
       </template>
     </fieldset>
-    <p>Catalogue number</p>
     <div class="horizontal-left-content full_width">
       <div class="field label-above full_width">
         <label>Start</label>
         <input
           class="full_width"
           type="text"
-          v-model.number="identifier.start"
+          v-model="identifier.start"
         />
       </div>
       <div class="field label-above margin-small-left full_width">
@@ -59,58 +54,31 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
+import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier.js'
 
-export default {
-  components: { SmartSelector },
-
-  props: {
-    count: {
-      type: Number,
-      default: 0
-    },
-
-    modelValue: {
-      type: Object,
-      required: true
-    }
+const props = defineProps({
+  count: {
+    type: Number,
+    default: 0
   },
 
-  emits: ['update:modelValue'],
-
-  computed: {
-    end() {
-      return this.identifier.start + this.count - 1
-    },
-
-    identifier: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
-
-  data() {
-    return {
-      start: null
-    }
-  },
-
-  methods: {
-    setNamespace(namespace) {
-      this.identifier.namespace = namespace
-      this.namespace = namespace
-    },
-
-    unset() {
-      this.identifier.namespace = undefined
-      this.namespace = undefined
-    }
+  title: {
+    type: String,
+    required: true
   }
+})
+
+const identifier = defineModel({ type: Object, required: true })
+const end = computed(() =>
+  incrementIdentifier(identifier.value.start, props.count - 1)
+)
+
+function setNamespace(namespace) {
+  identifier.value.namespace = namespace
 }
 </script>
 

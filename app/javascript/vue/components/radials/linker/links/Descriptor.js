@@ -1,6 +1,6 @@
-import { TASK_FIELD_SYNCHRONIZE } from '../constants/links'
+import { TASK_FIELD_SYNCHRONIZE, TASK_MULTI_UPDATE } from '../constants/links'
 
 export const Descriptor = {
-  all: [TASK_FIELD_SYNCHRONIZE],
-  ids: [TASK_FIELD_SYNCHRONIZE]
+  all: [TASK_FIELD_SYNCHRONIZE, TASK_MULTI_UPDATE],
+  ids: [TASK_FIELD_SYNCHRONIZE, TASK_MULTI_UPDATE]
 }

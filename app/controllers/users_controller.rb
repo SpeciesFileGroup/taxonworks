@@ -1,11 +1,11 @@
 class UsersController < ApplicationController
 
-  before_action :require_sign_in, only: [:recently_created_stats, :recently_created]
+  before_action :require_sign_in, only: [:data, :recently_created]
 
   before_action :require_administrator_sign_in, only: [:index, :destroy, :batch_create]
   before_action :require_superuser_sign_in, only: [:new, :create, :autocomplete]
 
-  before_action :set_user, only: [:show, :edit, :update, :destroy, :recently_created_stats, :recently_created_data]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :data]
 
   # GET /users
   def index
@@ -121,9 +121,7 @@ class UsersController < ApplicationController
   def recently_created
   end
 
-  def recently_created_stats
-    render json: @user.data_breakdown_for_chartkick_recent
-  end
+
 
   def preferences
     @user = sessions_current_user
@@ -160,6 +158,12 @@ class UsersController < ApplicationController
     )
 
     render '/tasks/administrator/batch_add_users/index'
+  end
+
+  def data
+    weeks_ago = params[:weeks_ago]
+    @weeks_ago = weeks_ago =~ (/\A\d+\z/) ? weeks_ago : nil
+    @target = params[:target]&.to_sym || :created
   end
 
   private

@@ -19,7 +19,11 @@
   <FacetIdentifier v-model="params" />
   <FacetTags
     v-model="params"
-    target="CollectionObject"
+    :target="BIOLOGICAL_ASSOCIATION"
+  />
+  <FacetConfidence
+    v-model="params"
+    target="BIOLOGICAL_ASSOCIATION"
   />
   <FacetUsers v-model="params" />
   <FacetWith
@@ -59,11 +63,17 @@ import FacetBiologicalProperty from '@/components/Filter/Facets/BiologicalAssoci
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
-import { OTU, COLLECTION_OBJECT } from '@/constants/index.js'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
+import {
+  OTU,
+  COLLECTION_OBJECT,
+  BIOLOGICAL_ASSOCIATION
+} from '@/constants/index.js'
 import { computed } from 'vue'
 
 const WITH_PARAMS = [
   'citations',
+  'confidences',
   'data_depictions',
   'depictions',
   'notes',

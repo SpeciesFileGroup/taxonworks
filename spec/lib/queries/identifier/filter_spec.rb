@@ -2,9 +2,9 @@ require 'rails_helper'
 
 describe Queries::Identifier::Filter, type: :model, group: :identifiers do
 
-  let(:o1) { FactoryBot.create(:valid_otu) }
+  let(:o1) { FactoryBot.create(:valid_specimen) }
   let(:o2) { FactoryBot.create(:valid_specimen) }
-  let(:o3) { FactoryBot.create(:valid_collecting_event) }
+  let(:o3) { FactoryBot.create(:valid_specimen) }
 
   let(:n) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
 
@@ -119,18 +119,18 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
   end
 
   specify '#identifier_object_type' do
-    query.identifier_object_type = 'Otu'
+    query.identifier_object_type = 'CollectionObject'
     expect(query.all.map(&:id)).to include(i1.id)
   end
 
   specify '#identifier_object_id' do
     query.identifier_object_id = o1.id
-    expect(query.all.map(&:id)).to include(i1.id, i2.id, i3.id) # when new objects identified, add here as necessary
+    expect(query.all.map(&:id)).to include(i1.id) # when new objects identified, add here as necessary
   end
 
   specify '#identifier_object_id 2' do
     query.identifier_object_id = [o1.id, 99]
-    expect(query.all.map(&:id)).to include(i1.id, i2.id, i3.id) # when new objects identified, add here as necessary
+    expect(query.all.map(&:id)).to include(i1.id) # when new objects identified, add here as necessary
   end
 
   specify '#identifier_type' do

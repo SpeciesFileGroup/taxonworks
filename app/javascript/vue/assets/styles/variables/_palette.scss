@@ -10,12 +10,22 @@ $tw-colors: (
   'create': #9ccc65,
   'data': #006ebf,
   'destroy': #f44336,
+  'error': #f44336,
   'panel': #ffffff,
   'primary': #5d9ece,
   'secondary': #5a1321,
   'update': #9ccc65,
   'warning': #ff8c00,
-  'white': #ffffff
+  'white': #ffffff,
+  'border': #f5f5f5
+);
+
+$tw-map-colors: (
+  'collection-object': #ef4444,
+  'field-occurrence': #84cc16,
+  'type-material': #3388ff,
+  'asserted-distribution': #f97316,
+  'georeference': #ef4444
 );
 
 @each $key, $value in $tw-colors {
@@ -24,8 +34,20 @@ $tw-colors: (
   }
 }
 
+@each $key, $value in $tw-map-colors {
+  :root {
+    --color-map-#{$key}: #{$value};
+  }
+}
+
 @each $key, $value in $tw-colors {
   .text-#{$key}-color {
     color: #{$value};
+  }
+}
+
+@each $key, $value in $tw-map-colors {
+  .bg-#{$key} {
+    background-color: #{$value};
   }
 }

@@ -40,7 +40,7 @@ import { computed, ref, watch, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import Modal from '@/components/ui/Modal.vue'
 import PlatformKey from '@/helpers/getPlatformKey'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const store = useStore()
 
@@ -56,18 +56,21 @@ const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 const shortcuts = ref([
   {
     keys: [PlatformKey(), 'p'],
+    preventDefault: true,
     handler() {
       createNewWithParent()
     }
   },
   {
     keys: [PlatformKey(), 'd'],
+    preventDefault: true,
     handler() {
       createNewWithChild()
     }
   },
   {
     keys: [PlatformKey(), 'n'],
+    preventDefault: true,
     handler() {
       createNew()
     }

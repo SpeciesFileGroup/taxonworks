@@ -1,30 +1,28 @@
 <template>
-  <div>
-    <h3>BibTeX</h3>
-    <div class="horizontal-left-content align-start">
-      <draggable
-        class="vue-new-source-task-bibtex full_width"
-        v-for="(column, key) in columns"
-        v-model="columns[key]"
-        :key="key"
-        :item-key="(element) => element"
-        :disabled="!sortable"
-        :group="{ name: 'components' }"
-        @end="updatePreferences"
-      >
-        <template #item="{ element }">
-          <component
-            class="separate-bottom separate-right"
-            :is="element"
-            @on-modal="setDraggable"
-          />
-        </template>
-      </draggable>
-    </div>
+  <div class="horizontal-left-content align-start gap-small">
+    <draggable
+      class="vue-new-source-task-bibtex full_width"
+      v-for="(column, key) in columns"
+      v-model="columns[key]"
+      :key="key"
+      :item-key="(element) => element"
+      :disabled="!sortable"
+      :group="{ name: 'components' }"
+      @end="updatePreferences"
+    >
+      <template #item="{ element }">
+        <component
+          class="separate-bottom"
+          :is="element"
+          @on-modal="setDraggable"
+        />
+      </template>
+    </draggable>
   </div>
 </template>
 
 <script>
+import SourceType from '../sourceType'
 import BibtexType from './type'
 import BibtexTitle from './title'
 import BibtexAuthors from './author'
@@ -62,6 +60,7 @@ import { User } from '@/routes/endpoints'
 export default {
   components: {
     Draggable,
+    SourceType,
     BibtexType,
     BibtexTitle,
     BibtexAuthors,
@@ -88,7 +87,8 @@ export default {
     BibtexUrl,
     BibtexVerbatim,
     BibtexCrosslinks,
-    BibtexTwAttributes
+    BibtexTwAttributes,
+    SourceType
   },
 
   computed: {
@@ -110,6 +110,7 @@ export default {
       disableDraggable: false,
       columns: {
         componentsOrderOne: [
+          'SourceType',
           'BibtexType',
           'BibtexTitle',
           'BibtexAuthors',
@@ -150,16 +151,20 @@ export default {
   watch: {
     preferences: {
       handler() {
-        if (this.preferences.hasOwnProperty('layout')) {
-          if (
-            this.preferences.layout[this.keyStorage] &&
-            Object.keys(this.columns).every((key) =>
-              Object.keys(this.preferences.layout[this.keyStorage]).includes(
-                key
-              )
-            )
+        if (this.preferences?.layout?.[this.keyStorage]) {
+          const componentNames = Object.values(this.columns).flat()
+          const userLayoutComponentNames = Object.values(
+            this.preferences.layout[this.keyStorage]
+          ).flat()
+          const hasTheSameAmount =
+            componentNames.length === userLayoutComponentNames.length
+          const hasTheSameComponents = componentNames.every((name) =>
+            userLayoutComponentNames.includes(name)
           )
+
+          if (hasTheSameAmount && hasTheSameComponents) {
             this.columns = this.preferences.layout[this.keyStorage]
+          }
         }
       },
       deep: true,

@@ -47,13 +47,12 @@ class Serial < ApplicationRecord
   ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published].freeze
 
   belongs_to :translated_from_serial, foreign_key: :translated_from_serial_id, class_name: 'Serial'
-  belongs_to :language, foreign_key: :primary_language_id
-
+  belongs_to :language, foreign_key: :primary_language_id, inverse_of: :serials
   has_many :sources, class_name: 'Source::Bibtex', inverse_of: :serial, dependent: :restrict_with_error
-  has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial', dependent: :destroy
 
-  has_many :succeeding_serial_chronologies, foreign_key: :succeeding_serial_id, class_name: 'SerialChronology', dependent: :restrict_with_error
-  has_many :preceding_serial_chronologies, foreign_key: :preceding_serial_id, class_name: 'SerialChronology', dependent: :restrict_with_error
+  has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial', dependent: :destroy
+  has_many :succeeding_serial_chronologies, foreign_key: :succeeding_serial_id, inverse_of: :succeeding_serial, class_name: 'SerialChronology', dependent: :restrict_with_error
+  has_many :preceding_serial_chronologies, foreign_key: :preceding_serial_id, inverse_of: :preceding_serial, class_name: 'SerialChronology', dependent: :restrict_with_error
 
   # Single preceding chronology will be multiple serials if there is a merge
   has_many :immediately_preceding_serials, through: :succeeding_serial_chronologies, source: :preceding_serial
@@ -66,6 +65,19 @@ class Serial < ApplicationRecord
   validates_presence_of :name
 
   soft_validate(:sv_duplicate?)
+
+  # Force self-referential relations to be included in unify(),
+  # These would otherwise all be excluded because they reference 'class_name',
+  # which triggers their elimination in the unify code base
+  def unify_relations
+    ApplicationEnumeration.klass_reflections(self.class).select{|a|
+      [
+        :translations,
+        :sources,
+        :succeeding_serial_chronologies,
+        :preceding_serial_chronologies
+      ].include?(a.name) }
+  end
 
   # @param [String] compared_string
   # @param [String] column
@@ -111,12 +123,6 @@ class Serial < ApplicationRecord
     end
     ret_val
   end
-
-=begin
-  def full_chronology
-    # return ordered array of serials associated with this serial
-  end
-=end
 
   # @param [Serial] start_serial
   # @return [Array]

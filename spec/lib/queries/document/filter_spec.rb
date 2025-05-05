@@ -20,28 +20,33 @@ describe Queries::Source::Filter, type: :model, group: [:documents, :filter] do
   }
 
   let!(:pdf_doc) {
-    FactoryBot.create(:valid_document)
+    Document.create!(
+      document_file: Rack::Test::UploadedFile.new(
+      Spec::Support::Utilities::Files.generate_pdf(pages:1),
+      'application/pdf'
+      )
+    )
   }
 
-  specify '#file_extension_group matches extension classes with a single extension' do
-    query.file_extension_group = 'pdf'
+  specify '#file_extension_group_name matches extension classes with a single extension' do
+    query.file_extension_group_name = 'pdf'
     expect(Document.all.count).to eq(3)
     expect(query.all.map(&:id)).to eq([pdf_doc.id])
   end
 
-  specify '#file_extension_group matches extension classes with multiple extensions' do
-    query.file_extension_group = 'nexus'
+  specify '#file_extension_group_name matches extension classes with multiple extensions' do
+    query.file_extension_group_name = 'nexus'
     expect(Document.all.count).to eq(3)
-    expect(query.all.order(updated_at: :desc).map(&:id)).to eq([nxs_doc.id, nex_doc.id])
+    expect(query.all.map(&:id)).to contain_exactly(nxs_doc.id, nex_doc.id)
   end
 
-  specify '#file_extension_group with no matches returns nothing' do
-    query.file_extension_group = 'asdffdsa'
+  specify '#file_extension_group_name with no matches returns nothing' do
+    query.file_extension_group_name = 'asdffdsa'
     expect(query.all.count).to eq(0)
   end
 
-  specify 'empty #file_extension_group matches all files' do
-    query.file_extension_group = ''
+  specify 'empty #file_extension_group_name matches all files' do
+    query.file_extension_group_name = ''
     expect(query.all.count).to eq(3)
   end
 end

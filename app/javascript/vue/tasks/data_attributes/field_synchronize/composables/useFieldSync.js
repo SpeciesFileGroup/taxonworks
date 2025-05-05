@@ -24,6 +24,7 @@ import {
 import Qs from 'qs'
 
 export function useFieldSync() {
+  const userPredicates = ref([])
   const attributes = ref([])
   const dataAttributes = ref([])
   const from = ref()
@@ -313,9 +314,9 @@ export function useFieldSync() {
     })
 
     request.then(({ body }) => {
+      body.index.push(...userPredicates.value)
       predicates.value = body.index.map((item) => {
-        const [id] = Object.keys(item)
-        const [name] = Object.values(item)
+        const [id, name] = Object.entries(item)[0]
 
         return {
           id: Number(id),
@@ -334,15 +335,9 @@ export function useFieldSync() {
 
   function loadAttributes(params) {
     const request = ajaxCall(
-      'get',
+      'post',
       '/tasks/data_attributes/field_synchronize/values',
-      {
-        params,
-        paramsSerializer: {
-          serialize: (params) =>
-            Qs.stringify(params, { arrayFormat: 'brackets' })
-        }
-      }
+      params
     )
 
     request.then((response) => {
@@ -443,6 +438,7 @@ export function useFieldSync() {
   return {
     attributes,
     currentModel,
+    currentPage,
     extractOperation,
     filterUrl,
     from,
@@ -469,8 +465,9 @@ export function useFieldSync() {
     sortListByEmpty,
     sortListByMatched,
     tableList,
-    updatedCount,
+    to,
     totalUpdate,
-    to
+    updatedCount,
+    userPredicates
   }
 }

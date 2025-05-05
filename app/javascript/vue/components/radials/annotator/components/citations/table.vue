@@ -28,7 +28,7 @@
             <div class="horizontal-right-content middle gap-small">
               <a
                 class="button-default circle-button btn-citation"
-                :href="`/tasks/nomenclature/by_source?source_id=${item.source_id}`"
+                :href="`${RouteNames.NomenclatureBySource}?source_id=${item.source_id}`"
                 target="blank"
               />
               <PdfButton
@@ -36,6 +36,10 @@
                 :pdf="item.target_document"
               />
               <RadialAnnotator :global-id="item.global_id" />
+              <MoveAnnotation
+                :annotation="item"
+                @move="(e) => emit('move', e)"
+              />
               <VBtn
                 circle
                 color="update"
@@ -64,10 +68,13 @@
     </table>
   </div>
 </template>
+
 <script setup>
+import { RouteNames } from '@/routes/routes'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation'
+import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -78,7 +85,7 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['delete', 'edit'])
+const emit = defineEmits(['delete', 'edit', 'move'])
 
 function deleteItem(item) {
   if (

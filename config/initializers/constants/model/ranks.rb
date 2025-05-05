@@ -161,4 +161,15 @@ Rails.application.reloader.to_prepare do
   TaxonNameRelationship::OriginalCombination::OriginalSubform
   }.freeze
 
+  d = {}
+
+  RANKS_LOOKUP.keys.each do |k|
+    r = RANKS_LOOKUP[k]
+
+    d[r] ||= []
+    d[r].push k
+  end
+
+  RANKS_BY_NAME = d.freeze
+
 end

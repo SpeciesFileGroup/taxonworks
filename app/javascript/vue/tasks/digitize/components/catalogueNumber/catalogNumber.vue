@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="overflow-x-auto">
     <h2>Catalog number</h2>
     <div class="flex-wrap-column middle align-start full_width">
       <div class="separate-right full_width">
         <div
-          v-if="identifiers > 1"
+          v-if="store.identifiers > 1"
           class="separate-bottom"
         >
           <span data-icon="warning"
@@ -15,34 +15,38 @@
         <fieldset>
           <legend>Namespace</legend>
           <div class="horizontal-left-content align-start separate-bottom">
-            <smart-selector
+            <SmartSelector
               class="full_width"
-              ref="smartSelector"
+              ref="smartSelectorRef"
               model="namespaces"
               input-id="namespace-autocomplete"
               target="CollectionObject"
               klass="CollectionObject"
               pin-section="Namespaces"
               pin-type="Namespace"
-              v-model="namespaceSelected"
+              :add-tabs="['new']"
+              v-model="namespace"
               @selected="setNamespace"
-            />
-            <lock-component
-              class="margin-small-left"
-              v-model="locked.identifier"
-            />
-            <a
-              class="margin-small-top margin-small-left"
-              href="/namespaces/new"
-              >New</a
+              @on-tab-selected="handleTabChange"
             >
+              <template #tabs-right>
+                <lock-component v-model="locked.identifier" />
+              </template>
+            </SmartSelector>
+            <WidgetNamespace
+              ref="widgetNamespaceRef"
+              @create="setNamespace"
+              @close="() => smartSelectorRef.setTab('quick')"
+            >
+              <div />
+            </WidgetNamespace>
           </div>
-          <template v-if="namespaceSelected">
+          <template v-if="namespace">
             <hr />
             <SmartSelectorItem
-              :item="namespaceSelected"
+              :item="namespace"
               label="name"
-              @unset="unsetNamespace"
+              @unset="() => (store.identifier.namespaceId = id)"
             />
           </template>
         </fieldset>
@@ -54,14 +58,13 @@
         <label>Identifier</label>
         <div class="horizontal-left-content field">
           <input
-            id="identifier-field"
+            id="catalog-number-identifier-field"
             :class="{
-              'validate-identifier':
-                existingIdentifiers.length && !isCreatedIdentifierCurrent
+              'validate-identifier': store.existingIdentifiers.length
             }"
             type="text"
-            @input="checkIdentifier"
-            v-model="identifier.identifier"
+            v-model="store.identifier.identifier"
+            @input="identifierChanged"
           />
           <label>
             <input
@@ -70,8 +73,8 @@
             />
             Increment
           </label>
-          <validate-component
-            v-if="identifier.namespace_id"
+          <ValidateComponent
+            v-if="store.identifier.namespaceId"
             class="separate-left"
             :show-message="checkValidation"
             legend="Namespace and identifier needs to be set to be saved."
@@ -79,22 +82,18 @@
         </div>
         <span
           v-if="
-            !identifier.namespace_id &&
-            identifier.identifier &&
-            identifier.identifier.length
+            !store.identifier.namespaceId && store.identifier.identifier?.length
           "
           style="color: red"
           >Namespace is needed.</span
         >
-        <template
-          v-if="existingIdentifiers.length && !isCreatedIdentifierCurrent"
-        >
-          <span style="color: red"
-            >Identifier already exists, and it won't be saved:</span
-          >
+        <template v-if="store.existingIdentifiers.length">
+          <span class="text-error-color">
+            Identifier already exists, and it won't be saved:
+          </span>
           <a
-            :href="existingIdentifiers[0].identifier_object.object_url"
-            v-html="existingIdentifiers[0].identifier_object.object_tag"
+            :href="store.existingIdentifiers[0].identifier_object.object_url"
+            v-html="store.existingIdentifiers[0].identifier_object.object_tag"
           />
         </template>
       </div>
@@ -105,118 +104,104 @@
 <script setup>
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
-import { Identifier } from '@/routes/endpoints'
 import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants/index.js'
+import { Namespace } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import validateComponent from '../shared/validate.vue'
+import ValidateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import LockComponent from '@/components/ui/VLock/index.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
+import { useIdentifierStore } from '../../store/pinia/identifiers'
 
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
+const store = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+
 const DELAY = 1000
 let saveRequest = undefined
 
-const store = useStore()
-const existingIdentifiers = ref([])
+const coStore = useStore()
+const namespace = ref([])
+const widgetNamespaceRef = ref()
+const smartSelectorRef = ref()
 
-const coId = computed(() => store.getters[GetterNames.GetCollectionObject]?.id)
-const identifiers = computed(() => store.getters[GetterNames.GetIdentifiers])
+const coId = computed(
+  () => coStore.getters[GetterNames.GetCollectionObject]?.id
+)
 
 const locked = computed({
   get() {
-    return store.getters[GetterNames.GetLocked]
+    return coStore.getters[GetterNames.GetLocked]
   },
   set(value) {
-    store.commit([MutationNames.SetLocked, value])
+    coStore.commit([MutationNames.SetLocked, value])
   }
 })
 
 const settings = computed({
   get() {
-    return store.getters[GetterNames.GetSettings]
+    return coStore.getters[GetterNames.GetSettings]
   },
   set(value) {
-    store.commit(MutationNames.SetSettings, value)
-  }
-})
-
-const identifier = computed({
-  get() {
-    return store.getters[GetterNames.GetIdentifier]
-  },
-  set(value) {
-    store.commit(MutationNames.SetIdentifier, value)
+    coStore.commit(MutationNames.SetSettings, value)
   }
 })
 
 const checkValidation = computed(
   () =>
     !validateIdentifier({
-      namespace_id: identifier.value.namespace_id,
-      identifier: identifier.value.identifier
+      namespace_id: store.identifier.namespaceId,
+      identifier: store.identifier.identifier
     })
 )
 
-const namespaceSelected = computed({
-  get() {
-    return store.getters[GetterNames.GetNamespaceSelected]
-  },
-  set(value) {
-    store.commit(MutationNames.SetNamespaceSelected, value)
-  }
-})
-
-const isCreatedIdentifierCurrent = computed(() =>
-  existingIdentifiers.value.find((item) => item.id === identifier.value.id)
-)
-
-watch(existingIdentifiers, (newVal) => {
+watch(store.existingIdentifiers, (newVal) => {
   settings.value.saveIdentifier = !newVal.length
 })
 
 watch(coId, () => {
-  existingIdentifiers.value = []
+  store.existingIdentifiers = []
 })
 
 watch(
-  () => identifier.value.namespace_id,
-  (newVal) => {
-    if (!newVal) {
-      unsetNamespace()
+  () => store.identifier.namespaceId,
+  async (id) => {
+    try {
+      namespace.value = id ? (await Namespace.find(id)).body : null
+    } catch {
+      namespace.value = null
     }
-  }
+  },
+  { immediate: true }
 )
 
-function checkIdentifier() {
-  if (saveRequest) {
-    clearTimeout(saveRequest)
-  }
-  if (identifier.value.identifier) {
-    saveRequest = setTimeout(() => {
-      Identifier.where({
-        type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
-        namespace_id: identifier.value.namespace_id,
-        identifier: identifier.value.identifier
-      }).then(({ body }) => {
-        existingIdentifiers.value = body
-      })
-    }, DELAY)
-  } else {
-    existingIdentifiers.value = []
+function handleTabChange(tab) {
+  if (tab === 'new') {
+    widgetNamespaceRef.value.open()
   }
 }
 
-function setNamespace(namespace) {
-  identifier.value.namespace_id = namespace.id
+function identifierChanged() {
+  store.identifier.isUnsaved = true
   checkIdentifier()
 }
 
-function unsetNamespace() {
-  identifier.value.namespace_id = undefined
-  namespaceSelected.value = undefined
+function checkIdentifier() {
+  clearTimeout(saveRequest)
+
+  if (store.identifier.identifier) {
+    saveRequest = setTimeout(store.checkExistingIdentifiers, DELAY)
+  } else {
+    store.existingIdentifiers = []
+  }
+}
+
+function setNamespace({ id }) {
+  store.identifier.namespaceId = id
+  store.identifier.isUnsaved = true
+  checkIdentifier()
 }
 </script>
 

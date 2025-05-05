@@ -115,13 +115,13 @@ export default {
 }
 .header {
   align-items: center;
-  h3 {
-    font-weight: 300;
-  }
   padding: 1em;
   padding-left: 1.5em;
   border-left: none;
-
   border-bottom: 1px solid #f5f5f5;
+
+  h3 {
+    font-weight: 300;
+  }
 }
 </style>

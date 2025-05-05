@@ -63,7 +63,7 @@ import { listParser } from './utils/listParser'
 import { AssertedDistribution } from '@/routes/endpoints'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 
-const extend = ['otu', 'citations', 'geographic_area', 'taxonomy']
+const extend = ['otu', 'citations', 'asserted_distribution_shape', 'taxonomy']
 
 const {
   isLoading,

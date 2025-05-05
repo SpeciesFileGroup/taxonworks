@@ -79,7 +79,7 @@ class Utilities::Hierarchy
   end
 
   def draw(node_id, level = 0, result = [])
-    z = "  " * level + "ID: #{node_id} #{node_map[node_id].label}\n"
+    z = '  ' * level + "ID: #{node_id} #{node_map[node_id].label}\n"
     # puts z
     result.push z #  += z
     hierarchy[node_id]&.each do |child|
@@ -89,7 +89,7 @@ class Utilities::Hierarchy
   end
 
   def draw(node_id, level = 0, result = "")
-    z = "  " * level + node_map[node_id].label
+    z = '  ' * level + node_map[node_id].label
     z << '*' if match? && matched?(node_id)
     z << "\n"
 

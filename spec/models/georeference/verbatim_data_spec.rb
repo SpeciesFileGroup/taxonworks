@@ -22,7 +22,7 @@ describe Georeference::VerbatimData, type: :model, group: [:geo, :georeferences]
   specify '#error_radius 2' do
     c.update!(verbatim_geolocation_uncertainty: '4 ft')
     h = Georeference::VerbatimData.create!(collecting_event: c)
-    expect(h.error_radius).to eq(0.12192e1)
+    expect(h.error_radius).to eq(1) # Rounds to 1 meter
   end 
 
   specify '#error_radius 3' do

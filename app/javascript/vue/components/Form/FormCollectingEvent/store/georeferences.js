@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import { Georeference } from '@/routes/endpoints'
-import { addToArray, removeFromArray } from '@/helpers'
+import { addToArray, removeFromArray, randomUUID } from '@/helpers'
 
-export default defineStore('georeferences', {
+export default defineStore('collectingEventForm:georeferences', {
   state: () => ({
-    georeferences: []
+    georeferences: [],
+    queueGeoreferences: []
   }),
 
   getters: {
@@ -20,7 +21,7 @@ export default defineStore('georeferences', {
 
         this.georeferences = body.map((item) => ({
           ...item,
-          uuid: crypto.randomUUID(),
+          uuid: randomUUID(),
           isUnsaved: false
         }))
 

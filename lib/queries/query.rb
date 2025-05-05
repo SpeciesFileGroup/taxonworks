@@ -63,7 +63,7 @@ module Queries
       q = queries.compact
 
       # We can return this directly, though we get conflicts with `from:` on merge clauses
-      z = referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' INTERSECT ')}) as #{table.name}")
+      z = referenced_klass.from("( #{q.collect{|i| '(' + i.unscope(:select).select(:id).to_sql + ')' }.join(' INTERSECT ')}) as #{table.name}")
 
       # Probably need a global counter, and this may not be needed
       s = Utilities::Strings.random_string(5)
@@ -79,8 +79,10 @@ module Queries
     #  in the related query
     def referenced_klass_except(query)
       t = "q_#{table.name}"
-      s = "with #{t} AS (" + query.to_sql + ')' +
-      referenced_klass.joins("LEFT JOIN #{t} AS #{t}1 on #{t}1.id = #{table.name}.id").to_sql
+      s = "with #{t} AS (" + query.to_sql + ') ' +
+      referenced_klass
+        .joins("LEFT JOIN #{t} AS #{t}1 on #{t}1.id = #{table.name}.id")
+        .to_sql
       referenced_klass.from("(#{s}) as #{table.name}")
     end
 

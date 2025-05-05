@@ -3,13 +3,14 @@ module Queries
 
     # !! TODO: needs tests
     class Filter < Query::Filter
-      include Queries::Concerns::Notes
-      include Queries::Concerns::Tags
-      include Queries::Concerns::Depictions
-      include Queries::Concerns::DataAttributes
-      include Queries::Concerns::Protocols
-      include Queries::Concerns::Notes
       include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
+      include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Depictions
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Protocols
+      include Queries::Concerns::Tags
 
       PARAMS = [
         :character_state_id,
@@ -82,6 +83,7 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @descendants = boolean_param(params, :descendants)
 
+        set_confidences_params(params)
         set_data_attributes_params(params)
         set_protocols_params(params)
         set_citations_params(params)

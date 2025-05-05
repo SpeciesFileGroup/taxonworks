@@ -5,6 +5,7 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
       include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
       include Queries::Concerns::Depictions
 
       PARAMS = [
@@ -16,8 +17,9 @@ module Queries
         :descendants,
         :exclude_taxon_name_relationship,
         :geo_json,
-        :geographic_area_id,
-        :geographic_area_mode,
+        :geo_mode,
+        :geo_shape_id,
+        :geo_shape_type,
         :object_biological_property_id,
         :object_object_global_id,
         :object_taxon_name_id,
@@ -41,7 +43,8 @@ module Queries
         biological_relationship_id: [],
         collecting_event_id: [],
         collection_object_id: [],
-        geographic_area_id: [],
+        geo_shape_id: [],
+        geo_shape_type: [],
         object_biological_property_id: [],
         object_object_global_id: [],
         object_taxon_name_id: [],
@@ -146,9 +149,9 @@ module Queries
       # See lib/queries/otu/filter.rb
       attr_accessor :wkt
       attr_accessor :geo_json
-      attr_accessor :geographic_area_id
-
-      attr_accessor :geographic_area_mode
+      attr_accessor :geo_mode
+      attr_accessor :geo_shape_id
+      attr_accessor :geo_shape_type
 
       # @return [nil, 'Otu', 'CollectionObject']
       #  limit subject to a type
@@ -178,8 +181,9 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @exclude_taxon_name_relationship = boolean_param(params, :exclude_taxon_name_relationship)
         @geo_json = params[:geo_json]
-        @geographic_area_id = params[:geographic_area_id]
-        @geographic_area_mode = boolean_param(params, :geographic_area_mode)
+        @geo_mode = params[:geo_mode]
+        @geo_shape_id = params[:geo_shape_id]
+        @geo_shape_type = params[:geo_shape_type]
         @object_biological_property_id = params[:object_biological_property_id]
         @object_object_global_id = params[:object_object_global_id]
         @object_taxon_name_id = params[:object_taxon_name_id]
@@ -197,6 +201,7 @@ module Queries
         @biological_association_subject_id = params[:biological_association_subject_id]
         @biological_association_subject_type = params[:biological_association_subject_type]
 
+        set_confidences_params(params)
         set_notes_params(params)
         set_tags_params(params)
         set_citations_params(params)
@@ -275,10 +280,6 @@ module Queries
         [@any_global_id].flatten.compact
       end
 
-      def geographic_area_id
-        [@geographic_area_id].flatten.compact
-      end
-
       def subject_matches(object)
         table['biological_association_subject_id'].eq(object.id).and(
           table['biological_association_subject_type'].eq(object.class.base_class.name)
@@ -334,8 +335,9 @@ module Queries
           :collecting_event_id,
           :collection_object_id,
           :geo_json,
-          :geographic_area_id,
-          :geographic_area_mode,
+          :geo_mode,
+          :geo_shape_id,
+          :geo_shape_type,
           :wkt,
         ].each
           .each do |p|
@@ -349,8 +351,9 @@ module Queries
         h = {}
         [
           :geo_json,
-          :geographic_area_id,
-          :geographic_area_mode,
+          :geo_mode,
+          :geo_shape_id,
+          :geo_shape_type,
           :otu_id,
           :wkt,
         ].each do |p|
@@ -533,8 +536,6 @@ module Queries
           b_sql = b.all.to_sql
         end
 
-
-
         return nil if a_sql.nil? and b_sql.nil?
 
         # Setup for "WITH" use
@@ -682,6 +683,21 @@ module Queries
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
 
+      def field_occurrence_query_facet
+        return nil if field_occurrence_query.nil?
+        s = 'WITH query_fo_ba AS (' + field_occurrence_query.all.to_sql + ') '
+
+        a = ::BiologicalAssociation
+          .joins("JOIN query_fo_ba as query_fo_ba1 on biological_associations.biological_association_subject_id = query_fo_ba1.id AND biological_associations.biological_association_subject_type = 'FieldOccurrence'")
+
+        b = ::BiologicalAssociation
+          .joins("JOIN query_fo_ba as query_fo_ba2 on biological_associations.biological_association_object_id = query_fo_ba2.id AND biological_associations.biological_association_object_type = 'FieldOccurrence'")
+
+        s << referenced_klass_union([a,b]).to_sql
+
+        ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+      end
+
       # Brute-force style
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
@@ -736,6 +752,7 @@ module Queries
           asserted_distribution_query_facet,
           collecting_event_query_facet,
           collection_object_query_facet,
+          field_occurrence_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
 

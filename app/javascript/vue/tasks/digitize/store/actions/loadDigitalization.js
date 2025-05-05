@@ -1,9 +1,19 @@
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
-import { COLLECTION_OBJECT, CONTAINER } from '@/constants/index.js'
+import {
+  COLLECTION_OBJECT,
+  CONTAINER,
+  IDENTIFIER_LOCAL_RECORD_NUMBER,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER
+} from '@/constants/index.js'
+import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
 
 export default ({ commit, dispatch, state }, coId) =>
   new Promise((resolve, reject) => {
+    const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
+    const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+    const determinationStore = useTaxonDeterminationStore()
+
     state.settings.loading = true
     dispatch(ActionNames.GetCollectionObject, coId)
       .then(({ body }) => {
@@ -11,29 +21,27 @@ export default ({ commit, dispatch, state }, coId) =>
         const promises = []
 
         dispatch(ActionNames.LoadContainer, coObject.global_id)
-          .then((response) => {
+          .then(({ body }) => {
             promises.push(
-              dispatch(ActionNames.GetIdentifiers, {
-                id: response.body.id,
-                type: CONTAINER
-              }).then((response) => {
-                if (response.length) {
-                  commit(MutationNames.SetIdentifier, response[0])
-                  dispatch(ActionNames.GetNamespace, response[0].namespace_id)
-                }
+              catalogNumber.load({
+                objectId: body.id,
+                objectType: CONTAINER
+              }),
+              recordNumber.load({
+                objectId: body.id,
+                objectType: CONTAINER
               })
             )
           })
-          .catch((_) => {
+          .catch(() => {
             promises.push(
-              dispatch(ActionNames.GetIdentifiers, {
-                id: coId,
-                type: COLLECTION_OBJECT
-              }).then((response) => {
-                if (response.length) {
-                  commit(MutationNames.SetIdentifier, response[0])
-                  dispatch(ActionNames.GetNamespace, response[0].namespace_id)
-                }
+              catalogNumber.load({
+                objectId: coId,
+                objectType: COLLECTION_OBJECT
+              }),
+              recordNumber.load({
+                objectId: coId,
+                objectType: COLLECTION_OBJECT
               })
             )
           })
@@ -43,24 +51,26 @@ export default ({ commit, dispatch, state }, coId) =>
             dispatch(
               ActionNames.GetCollectingEvent,
               coObject.collecting_event_id
-            )
-          )
-          promises.push(
+            ),
             dispatch(
               ActionNames.LoadGeoreferences,
               coObject.collecting_event_id
-            )
-          )
-          promises.push(
+            ),
             dispatch(ActionNames.GetLabels, coObject.collecting_event_id)
           )
         } else {
           dispatch(ActionNames.NewLabel)
         }
 
+        promises.push(
+          determinationStore.load({
+            objectId: coId,
+            objectType: COLLECTION_OBJECT
+          })
+        )
+
         promises.push(dispatch(ActionNames.LoadTypeSpecimens, coId))
         promises.push(dispatch(ActionNames.GetCOCitations, coId))
-        promises.push(dispatch(ActionNames.GetTaxonDeterminations, coId))
         promises.push(dispatch(ActionNames.LoadBiologicalAssociations))
 
         commit(MutationNames.AddCollectionObject, coObject)
@@ -68,13 +78,12 @@ export default ({ commit, dispatch, state }, coId) =>
         Promise.allSettled(promises).then(() => {
           dispatch(ActionNames.LoadSoftValidations)
           state.settings.lastChange = 0
+          state.settings.loading = false
           resolve()
         })
       })
       .catch((error) => {
         reject(error)
-      })
-      .finally(() => {
         state.settings.loading = false
       })
   })

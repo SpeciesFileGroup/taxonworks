@@ -12,7 +12,7 @@ module GraphHelper
 
       g = { target: i }
 
-      q = sessions_current_project.send(i.to_sym).where("#{i}.created_at > ?", @weeks_ago.week.ago)
+      q = sessions_current_project.send(i.to_sym).where("#{i}.created_at > ?", weeks.week.ago)
 
       g[:data] = q.group(:created_by_id).count.collect{|k,v| [k, User.find(k).name, v]}.sort{|a,b| b.last <=> a.last}
       g[:count] = q.count

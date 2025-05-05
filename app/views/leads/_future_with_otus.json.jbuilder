@@ -1,4 +1,4 @@
 json.array! future do |o|
-  json.extract! o, :cpl, :depth, :cplLabel
-  json.otuLabel (o[:cpl].otu_id ? otu_tag(o[:cpl].otu) : nil)
+  json.extract! o, :lead, :depth, :leadLabel
+  json.otuLabel (o[:lead].otu_id ? otu_tag(o[:lead].otu) : nil)
 end

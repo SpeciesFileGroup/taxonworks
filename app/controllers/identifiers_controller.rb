@@ -16,6 +16,7 @@ class IdentifiersController < ApplicationController
       format.json {
         # project_id handling logic is in filter, it must be handled there. This contrasts pattern used elsewhere, but see alternate_values_controller.rb
         @identifiers = Queries::Identifier::Filter.new(params.merge(project_id: sessions_current_project_id)).all
+         .order(:identifier_object_type, :identifier_object_id, :position)
          .page(params[:page])
          .per(params[:per])
       }
@@ -67,6 +68,14 @@ class IdentifiersController < ApplicationController
     end
   end
 
+  # PATCH /identifiers/reorder?id[]=1
+  def reorder
+    params[:id].reverse.each do |identifier_id|
+      Identifier.find(identifier_id).move_to_top
+    end
+    render json: true
+  end
+
   # DELETE /identifiers/1
   # DELETE /identifiers/1.json
   def destroy
@@ -98,12 +107,23 @@ class IdentifiersController < ApplicationController
 
   # GET /api/v1/identifiers
   def api_index
-    @identifiers = Queries::Identifier::Filter.new(params.merge!(api: true)).all
-      .where(project_id: sessions_current_project_id)
+    @identifiers = api_identifiers
       .order('identifiers.id')
       .page(params[:page])
       .per(params[:per])
     render '/identifiers/api/v1/index'
+  end
+
+  def api_identifiers
+    q = Queries::Identifier::Filter.new(params)
+    q.api = true
+    a = q.all.where(project_id: sessions_current_project_id)
+
+    q.api = false
+    q.project_id = nil
+    b = q.all.where(identifier_object_type: ApplicationEnumeration.community_models.map(&:to_s))
+    
+    ::Queries.union(Identifier, [a,b])
   end
 
   # GET /api/v1/identifiers/:id

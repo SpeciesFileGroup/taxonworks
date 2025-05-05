@@ -18,8 +18,8 @@ class SerialChronology < ApplicationRecord
   include Shared::IsData
   include Shared::SharedAcrossProjects
 
-  belongs_to :preceding_serial, class_name: 'Serial', foreign_key: :preceding_serial_id
-  belongs_to :succeeding_serial, class_name: 'Serial', foreign_key: :succeeding_serial_id
+  belongs_to :preceding_serial, class_name: 'Serial', foreign_key: :preceding_serial_id, inverse_of: :preceding_serial_chronologies
+  belongs_to :succeeding_serial, class_name: 'Serial', foreign_key: :succeeding_serial_id, inverse_of: :succeeding_serial_chronologies
 
   validates_presence_of :preceding_serial_id, :succeeding_serial_id, :type
 end

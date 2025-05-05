@@ -12,11 +12,11 @@
         pin-type="Repository"
         v-model="repositorySelected"
         @selected="setRepository"
-      />
-      <lock-component
-        class="margin-small-left"
-        v-model="locked"
-      />
+      >
+        <template #tabs-right>
+          <lock-component v-model="locked" />
+        </template>
+      </smart-selector>
     </div>
     <template v-if="repositorySelected">
       <hr />

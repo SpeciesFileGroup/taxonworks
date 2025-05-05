@@ -117,23 +117,25 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
   end
 
   specify 'nested pagination' do
-    3.times { FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) ) }
+    s1 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
+    s2 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
+    s3 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
 
     # Get the second CE
     h = { collecting_event_query: {paginate: true, per: 1, page: 2 } }
 
     p = ActionController::Parameters.new(h)
-
     q = Queries::CollectionObject::Filter.new(p)
-    expect(q.all.order(:id).first).to eq(Specimen.second)
+
+    expect(q.all.unscope(:order).order(:id).first).to eq( s2 )
   end
 
   specify 'CollectingEvent params are permitted' do
-    h = {geographic_area_id: 1 }
+    h = {geo_shape_id: 1 }
     p = ActionController::Parameters.new(h)
     q = Queries::CollectionObject::Filter.new(p)
 
-    expect(q.base_collecting_event_query.geographic_area_id).to eq([1])
+    expect(q.base_collecting_event_query.geo_shape_id).to eq([1])
   end
 
   specify '#determiner_name_regex' do
@@ -394,7 +396,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     let(:ce2) { CollectingEvent.create(
       verbatim_locality: 'Out there, under the stars',
-      verbatim_trip_identifier: 'Foo manchu',
+      verbatim_field_number: 'Foo manchu',
       start_date_year: 2000,
       start_date_month: 2,
       start_date_day: 18,
@@ -604,9 +606,27 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.pluck(:id)).to contain_exactly(s.id)
     end
 
-    specify '#geographic_area_id' do
-      ce1.update(geographic_area: FactoryBot.create(:valid_geographic_area))
-      query.base_collecting_event_query.geographic_area_id = [ce1.geographic_area.id]
+    specify '#geo_shape_id GeographicArea' do
+      ce1.update!(geographic_area: FactoryBot.create(:valid_geographic_area))
+      query.base_collecting_event_query.geo_shape_id = [ce1.geographic_area.id]
+      query.base_collecting_event_query.geo_shape_type = ['GeographicArea']
+      expect(query.all.pluck(:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#geo_shape_id Gazetteer' do
+      gi = FactoryBot.create(:valid_geographic_item)
+      _point_georeference =
+        Georeference::VerbatimData.create!(
+          collecting_event: ce1,
+          geographic_item: gi,
+        )
+
+      gz = FactoryBot.create(:gazetteer,
+        geographic_item: gi, name: 'gz matching ce1 georef')
+
+      query.base_collecting_event_query.geo_shape_id = [gz.id]
+      query.base_collecting_event_query.geo_shape_type = ['Gazetteer']
+      query.base_collecting_event_query.geo_mode = true
       expect(query.all.pluck(:id)).to contain_exactly(co1.id)
     end
 
@@ -693,7 +713,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     # Merge clauses
     context 'merge' do
       let(:factory_point) { RSPEC_GEO_FACTORY.point('10.0', '10.0') }
-      let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
+      let(:geographic_item) { GeographicItem.create!( geography: factory_point ) }
 
       let!(:point_georeference) {
         Georeference::VerbatimData.create!(

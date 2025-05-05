@@ -6,7 +6,7 @@ namespace :tw do
 
       print 'Loading repositories...'
       if Repository.all.count > 0 
-        puts 'There are existing repositories, doing nothing.'.red.on_white 
+        puts Rainbow('There are existing repositories, doing nothing.').red.on_white 
         raise 
       end
 
@@ -31,7 +31,7 @@ namespace :tw do
         end
         print "success!\n"
       rescue
-        puts 'Problem laoding repositories'.red.on_white
+        puts Rainbow('Problem laoding repositories').red.on_white
         raise
       end
     end

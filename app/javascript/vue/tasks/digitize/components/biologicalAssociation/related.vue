@@ -1,74 +1,49 @@
 <template>
   <fieldset class="full_width">
     <legend>Related</legend>
-    <switch-component
-      class="separate-bottom"
-      :options="tabOptions"
-      v-model="view"
+    <VSwitch
+      class="margin-small-bottom"
+      :options="Object.keys(TABS)"
+      v-model="tab"
       name="related"
     />
-    <smart-selector
-      v-show="otuView"
+    <SmartSelector
       class="full_width"
-      ref="otuSmartSelector"
-      model="otus"
-      target="BiologicalAssociation"
-      klass="BiologicalAssociation"
-      pin-section="Otus"
-      pin-type="Otu"
-      :autocomplete="false"
-      :otu-picker="true"
-      @selected="sendRelated"
-    />
-    <smart-selector
-      v-show="!otuView"
-      ref="smartSelector"
-      class="full_width"
-      model="collection_objects"
-      target="BiologicalAssociation"
-      klass="BiologicalAssociation"
-      pin-section="CollectionObjects"
-      pin-type="CollectionObject"
+      :target="BIOLOGICAL_ASSOCIATION"
+      :klass="BIOLOGICAL_ASSOCIATION"
+      v-bind="TABS[tab]"
       @selected="sendRelated"
     />
   </fieldset>
 </template>
 
-<script>
+<script setup>
 import SmartSelector from '@/components/ui/SmartSelector'
-import SwitchComponent from '@/components/ui/VSwitch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
+import { BIOLOGICAL_ASSOCIATION, COLLECTION_OBJECT, OTU } from '@/constants'
+import { ref } from 'vue'
 
-import { GetterNames } from '../../store/getters/getters'
-
-export default {
-  components: {
-    SwitchComponent,
-    SmartSelector
+const TABS = {
+  [OTU]: {
+    model: 'otus',
+    pinSection: 'Otus',
+    pinType: OTU,
+    otuPicker: true,
+    autocomplete: false
   },
-
-  emits: ['select'],
-
-  computed: {
-    otuView() {
-      return this.view === 'otu'
-    },
-    lastSave() {
-      return this.$store.getters[GetterNames.GetLastSave]
-    }
-  },
-
-  data() {
-    return {
-      view: 'otu',
-      tabOptions: ['otu', 'collection object']
-    }
-  },
-
-  methods: {
-    sendRelated(item) {
-      item.type = item.base_class
-      this.$emit('select', item)
-    }
+  [COLLECTION_OBJECT]: {
+    model: 'collection_objects',
+    pinSection: 'CollectionObjects',
+    pinType: COLLECTION_OBJECT
   }
+}
+
+const emit = defineEmits(['select'])
+
+const tab = ref(OTU)
+
+function sendRelated(item) {
+  item.type = item.base_class
+  emit('select', item)
 }
 </script>

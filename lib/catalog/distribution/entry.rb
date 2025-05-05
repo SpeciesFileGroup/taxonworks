@@ -91,6 +91,7 @@ class Catalog::Distribution::Entry< ::Catalog::Entry
     d
   end
 
+  # @return String
   # Includes County records
   def to_s_verbose
     d = data
@@ -126,10 +127,11 @@ class Catalog::Distribution::Entry< ::Catalog::Entry
 
     str.gsub!(/,\sUNPARSED\.$/, '.')
 
-    return nil if str == '.'
+    return '' if str == '.'
     str
   end
 
+  # @return String
   def to_s
     d = data
     str = ''
@@ -148,7 +150,7 @@ class Catalog::Distribution::Entry< ::Catalog::Entry
 
     str.gsub!(/,\sUNPARSED\.$/, '.')
 
-    return nil if str == '.'
+    return '' if str == '.'
     str
   end
 

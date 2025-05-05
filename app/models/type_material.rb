@@ -29,6 +29,7 @@ class TypeMaterial < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Confidences
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
   include SoftValidation
 
@@ -98,6 +99,14 @@ class TypeMaterial < ApplicationRecord
     else
       false
     end
+  end
+
+  def dwc_occurrences
+    return DwcOccurrence.none unless collection_object.present?
+    DwcOccurrence.where(
+      dwc_occurrence_object_type: 'CollectionObject',
+      dwc_occurrence_object_id: collection_object_id 
+    ).distinct
   end
 
   protected

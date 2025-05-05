@@ -5,6 +5,7 @@
     class="slide-panel slide-document"
     :style="styleWidth"
   >
+    <VSpinner v-if="state.loadingPdf" />
     <div class="slide-panel-header flex-separate">
       <span>PDF Document viewer</span>
       <a
@@ -99,6 +100,7 @@
 import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
 import IndexedDBStorage from '@/storage/indexddb.js'
+import VSpinner from '../ui/VSpinner.vue'
 import { ajaxCall } from '@/helpers'
 import { getCurrentProjectId } from '@/helpers/project.js'
 import { getCurrentUserId } from '@/helpers/user.js'

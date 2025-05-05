@@ -12,7 +12,7 @@ describe 'Identifiers', type: :feature do
 
       (1..3).each do |n|
         o = Otu.create(name: 'O', by: @user, project: @project)
-        Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: o, identifier: n, by: @user, project: @project)
+        Identifier::Local::OtuUtility.create!(namespace: namespace, identifier_object: o, identifier: n, by: @user, project: @project)
       end
     }
 

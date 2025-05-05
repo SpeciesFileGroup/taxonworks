@@ -5,7 +5,7 @@
         v-if="hasFuture"
         color="primary"
         medium
-        @click="() => emit('loadCouplet', goId)"
+        @click="() => emit('loadLead', goId)"
       >
         {{ goText }}
       </VBtn>
@@ -14,17 +14,17 @@
     <div class="lead_data">
       <div
         v-if="lead.text"
-        class="lead_text"
+        class="lead_text data_item"
       >
         {{ lead.text }}
       </div>
-      <div v-else>
+      <div v-else class="data_item">
         <i>(No text)</i>
       </div>
 
       <div
         v-if="displayLinkOut"
-        class="lead_determination"
+        class="lead_determination data_item"
       >
         <a
           :href="lead.link_out"
@@ -36,7 +36,7 @@
 
       <div
         v-if="lead.otu"
-        class="lead_determination"
+        class="lead_determination data_item"
       >
         <a
           :href="lead.otu.object_url"
@@ -50,6 +50,7 @@
         :show-citations="false"
         medium-depictions
         v-model="hasDepictions"
+        class="data_item"
       />
     </div>
 
@@ -60,7 +61,7 @@
       <VBtn
         color="primary"
         medium
-        @click="() => emit('loadCouplet', goId)"
+        @click="() => emit('loadLead', goId)"
       >
         {{ goText }}
       </VBtn>
@@ -84,7 +85,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['loadCouplet'])
+const emit = defineEmits(['loadLead'])
 
 const hasDepictions = ref(false)
 
@@ -103,7 +104,6 @@ const displayLinkOut = computed(() => {
 
 <style lang="scss" scoped>
 .lead {
-  margin-bottom: 2em;
   padding: 1em 2em;
   transition: all 1s;
   box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
@@ -113,9 +113,9 @@ const displayLinkOut = computed(() => {
 .lead_data {
   margin-top: 1em;
   margin-bottom: 1em;
-  * {
-    margin-bottom: 1em;
-  }
+}
+.data_item {
+  margin-bottom: 1em;
 }
 .lead_text {
   padding: 1em;

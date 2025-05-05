@@ -3,7 +3,7 @@
 <% end %>
 
 <%= content_for :edit do
-  link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), new_field_occurrence_path(collecting_event_id: @field_occurrence.id), class: 'navigation-item')
+  link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), new_field_occurrence_task_path(field_occurrence_id: @field_occurrence.id), class: 'navigation-item')
 end %>
 
 <%= content_for :report do -%>

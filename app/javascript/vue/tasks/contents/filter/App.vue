@@ -8,6 +8,7 @@
       :object-type="CONTENT"
       :selected-ids="selectedIds"
       :list="list"
+      :radial-navigator="false"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"

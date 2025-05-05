@@ -1,11 +1,12 @@
 <template>
   <table>
-    <tr>
-      <th class="full_width">Value</th>
-      <th>Exact</th>
-      <th />
-    </tr>
-    <thead></thead>
+    <thead>
+      <tr>
+        <th class="full_width">Value</th>
+        <th>Exact</th>
+        <th />
+      </tr>
+    </thead>
     <tbody>
       <tr v-for="(row, index) in values">
         <td>{{ row.text }}</td>

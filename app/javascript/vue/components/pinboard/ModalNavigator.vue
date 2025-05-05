@@ -58,7 +58,7 @@
 <script setup>
 import VModal from '@/components/ui/Modal'
 import Shortcuts from './const/shortcuts.js'
-import useHotKey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import { shorten } from '@/helpers/strings.js'
 import { computed, ref, onBeforeMount } from 'vue'
 
@@ -81,7 +81,7 @@ const hotkeys = computed(() => {
   return keys
 })
 
-useHotKey(hotkeys.value)
+useHotkey(hotkeys.value)
 
 function redirect() {
   const selectedKlass = selected.value.klass

@@ -9,17 +9,23 @@
         </div>
 
         <div class="attributes">
-          <%= button_to 'Edit', edit_user_path(@user), method: :get, class: 'button-default' %><br>
+          <%= button_to 'Edit', edit_user_path(@user), method: :get, class: 'button btn-primary btn btn-medium-size' %><br>
           <%= render 'attributes' %>
         </div>
 
         <% if sessions_current_user.is_administrator? %>
           <h2> Administration (not visible to user)</h2>
           <div>
+            <h3> User data </h3>
+            <%= link_to('Created', data_user_path(@user, target: :created),  data: { turbolinks: false } ) -%>,
+            <%= link_to('Updated', data_user_path(@user, target: :updated),  data: { turbolinks: false } ) -%>
+          </div>
+
+          <div>
             <h3> User's projects </h3>
             <ul>
               <% if @user.projects.any? %>
-                <%= @user.projects.pluck(:name).collect{|n| tag.li n}.join.html_safe %>
+                <%= @user.projects.order(:name).collect{|n| tag.li link_to(n.name, select_project_path(n))}.join.html_safe %>
               <% else %>
                 <li><i>None</i></li>
               <% end %>
@@ -47,7 +53,7 @@
 
       <h3>General</h3>
       <%= form_for @user, url: reset_preferences_user_path(@user), method: :patch do |f| %>
-        <%= f.submit "Reset" , class: 'button-submit' %> <%= tag.span 'Warning, this will reset all preferences aross all projects!', class: [:feedback, 'feedback-thin', 'feedback-danger'] %>
+        <%= f.submit "Reset" , class: 'button btn btn-medium-size button-submit' %> <%= tag.span 'Warning, this will reset all preferences aross all projects!', class: [:feedback, 'feedback-thin', 'feedback-danger'] %>
       <% end %>
 
       <%= ap(@user.preferences).html_safe %>

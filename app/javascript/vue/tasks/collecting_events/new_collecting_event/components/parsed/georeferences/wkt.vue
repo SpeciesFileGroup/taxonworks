@@ -1,17 +1,18 @@
 <template>
   <div>
     <button
+      :disabled="disabled"
       class="button normal-input button-default"
       @click="setModalView(true)"
     >
       WKT coordinates
     </button>
-    <modal-component
+    <VModal
       v-if="show"
       @close="setModalView(false)"
     >
       <template #header>
-        <h3>Create WKT georeference</h3>
+        <slot name="header"><h3>Create WKT georeference</h3></slot>
       </template>
       <template #body>
         <div class="field label-above">
@@ -20,6 +21,7 @@
             class="full_width"
             rows="8"
             v-model="wkt"
+            ref="textArea"
           />
         </div>
       </template>
@@ -32,44 +34,60 @@
           Add
         </button>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
-<script>
-import ModalComponent from '@/components/ui/Modal'
+<script setup>
+import VModal from '@/components/ui/Modal'
 import { GEOREFERENCE_WKT } from '@/constants/index.js'
+import { nextTick, ref } from 'vue'
 
-export default {
-  components: { ModalComponent },
-
-  emits: ['create'],
-
-  data() {
-    return {
-      show: false,
-      wkt: undefined
-    }
+const props = defineProps({
+  type: {
+    type: String,
+    default: GEOREFERENCE_WKT
   },
+  idKey: {
+    type: String,
+    default: 'tmpId'
+  },
+  idGenerator: {
+    type: Function,
+    default: () => Math.random().toString(36).substr(2, 5)
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+})
 
-  methods: {
-    createShape() {
-      this.$emit('create', {
-        tmpId: Math.random().toString(36).substr(2, 5),
-        wkt: this.wkt,
-        type: GEOREFERENCE_WKT
-      })
-      this.show = false
-    },
+const emit = defineEmits(['create'])
 
-    resetShape() {
-      this.wkt = undefined
-    },
+const show = ref(false)
+const wkt = ref(undefined)
+const textArea = ref(null)
 
-    setModalView(value) {
-      this.resetShape()
-      this.show = value
-    }
+function createShape() {
+  emit('create', {
+      [props.idKey]: (props.idGenerator)(),
+      wkt: wkt.value,
+      type: props.type
+    })
+  show.value = false
+}
+
+function resetShape() {
+  wkt.value = undefined
+}
+
+function setModalView(value) {
+  resetShape()
+  show.value = value
+  if (value) {
+    nextTick(() => {
+      textArea.value.focus()
+    })
   }
 }
 </script>

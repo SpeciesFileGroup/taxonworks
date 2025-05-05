@@ -55,19 +55,6 @@ class Source::Verbatim < Source
     end
   end
 
-  # @param [Source] source
-  # @return [Boolean]
-  # def similar(source)
-  #   false
-  # end
-
-  # @param [Source] source
-  # @return [Boolean]
-  # def identical(source)
-  #   false
-  # end
-
-
   # @retun [nil]
   #   verbatim sources do not have nomenclature dates, but this method is used in catalogs
   def nomenclature_date

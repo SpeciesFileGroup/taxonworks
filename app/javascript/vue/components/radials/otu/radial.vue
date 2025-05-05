@@ -15,7 +15,7 @@
               <div>
                 <radial-menu
                   :options="menuOptions"
-                  @on-click="selectSlice"
+                  @click="selectSlice"
                 />
               </div>
             </div>
@@ -46,6 +46,7 @@
       >
         <VIcon
           name="batch"
+          title="Radial OTU"
           x-small
         />
       </VBtn>

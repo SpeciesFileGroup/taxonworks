@@ -73,6 +73,9 @@ resources :character_states do
   member do
     get :annotations, defaults: {format: :json}
   end
+  collection do
+    get :autocomplete, defaults: {format: :json}
+  end
 end
 
 resources :citation_topics, only: [:create, :update, :destroy]
@@ -89,6 +92,7 @@ resources :confidences do # , except: [:edit, :show]
   concerns [:data_routes]
   collection do
     post :confidence_object_update
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 end
 
@@ -98,6 +102,10 @@ resources :confidence_levels, only: [:index] do
     get 'autocomplete'
     get :select_options, defaults: {format: :json}
   end
+end
+
+resources :conveyances do
+  concerns [:data_routes]
 end
 
 resources :collection_objects do
@@ -117,6 +125,7 @@ resources :collection_objects do
     get 'biocuration_classifications', defaults: {format: :json}
 
     get 'dwc', defaults: {format: :json}
+    get 'dwc_compact', defaults: {format: :json}
     get 'dwc_verbose', defaults: {format: :json}
     get 'depictions', constraints: {format: :html}
     get 'containerize'
@@ -195,10 +204,16 @@ end
 match 'containers/for', to: 'containers#for', via: :get, defaults: {format: :json}
 resources :containers do # , only: [:create, :update, :destroy] do
   concerns [:data_routes]
+  collection do
+    get :container_types, defaults: {format: :json}
+  end
 end
 
 resources :container_items, except: [:edit] do
   concerns [:data_routes]
+  collection do
+    post :batch_add, defaults: {format: :json}
+  end
 end
 
 resources :contents do
@@ -233,6 +248,7 @@ resources :data_attributes, except: [:show] do
     get :brief, defaults: {format: :json}
     post :brief, defaults: {format: :json} # for length
     get :import_predicate_autocomplete, defaults: {format: :json}
+    match :filter, to: 'data_attributes#index', via: [:get, :post]
   end
 end
 
@@ -293,13 +309,14 @@ end
 # TODO: these should default json?
 resources :dwc_occurrences, only: [:create] do
   collection do
+    match :filter, to: 'dwc_occurrences#index', via: [:get, :post]
     get :index, defaults: {format: :json}
     get 'metadata', defaults: {format: :json}
     get 'predicates', defaults: {format: :json}
     get 'status', defaults: {format: :json}
     get 'collector_id_metadata', defaults: {format: :json}
     get 'download'
-    post 'sweep', as: 'sweep_stale' # TODO: ultimately should not be required
+    post 'sweep', as: 'sweep_ghost'
     get :attributes, defaults: {format: :json}
   end
 end
@@ -317,6 +334,29 @@ end
 
 resources :field_occurrences do
   concerns [:data_routes]
+
+  resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
+
+  collection do
+    match :filter, to: 'field_occurrences#index', via: [:get, :post]
+  end
+end
+
+resources :gazetteer_imports, only: [:destroy], defaults: { format: :json } do
+  collection do
+    get :all, defaults: {format: :json}
+  end
+end
+
+resources :gazetteers do
+  concerns [:data_routes]
+  collection do
+    post :import, defaults: {format: :json}
+    post :preview, defaults: {format: :json} # post to support long WKT strings
+    get :shapefile_fields, default: {format: :json}
+    get :shapefile_text_field_values, default: {format: :json}
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :geographic_areas, only: [:index, :show] do
@@ -354,8 +394,6 @@ end
 # TODO: fix broken interfaces, deprecate?
 namespace :georeferences do
   resources :geo_locates, only: [:new, :create]
-  resources :google_maps, only: [:new, :create]
-  # verbatim_data
 end
 
 resources :identifiers, except: [:show] do
@@ -363,6 +401,7 @@ resources :identifiers, except: [:show] do
 
   # Must be before member
   collection do
+    patch :reorder, defaults: {format: :json}
     get :identifier_types, {format: :json}
   end
 
@@ -427,14 +466,16 @@ end
 resources :leads do
   concerns [:data_routes]
   member do
-    post :create_for_edit, defaults: {format: :json}
-    post :insert_couplet
-    patch :update_meta
-    post :destroy_couplet
-    post :delete_couplet
+    post :add_children, defaults: {format: :json}
+    post :insert_couplet, defaults: {format: :json}
+    post :destroy_children, defaults: {format: :json}
+    post :delete_children, defaults: {format: :json}
     post :duplicate
-    get :all_texts
-    get :otus
+    get :redirect_option_texts, defaults: {format: :json}
+    get :otus, defaults: {format: :json}
+    post :destroy_subtree, defaults: {format: :json}
+    patch :reorder_children, defaults: {format: :json}
+    post :insert_key, defaults: {format: :json}
   end
 end
 
@@ -678,6 +719,9 @@ end
 
 resources :protocol_relationships do
   concerns [:data_routes]
+  collection do
+    post :batch_by_filter_scope, defaults: {format: :json}
+  end
 end
 
 resources :public_contents, only: [:create, :update, :destroy]
@@ -733,6 +777,17 @@ resources :sequence_relationships do
 end
 
 resources :sled_images, only: [:update, :create, :destroy, :show], defaults: {format: :json} do
+  collection do
+    get :index, defaults: {format: :json}
+  end
+end
+
+resources :sounds do
+  concerns [:data_routes]
+  collection do
+    match :filter, to: 'sounds#index', via: [:get, :post]
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :sources do
@@ -748,6 +803,7 @@ resources :sources do
     get :csl_types, defaults: {format: :json}
     get :generate, defaults: {format: :json}
     patch :batch_update
+    get :download_formatted, defaults: {format: :json}
   end
 
   member do

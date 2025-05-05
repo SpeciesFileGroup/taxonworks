@@ -7,7 +7,7 @@
 #
 class Specimen < CollectionObject::BiologicalCollectionObject
 
-  is_origin_for 'Specimen', 'Extract', 'AssertedDistribution', 'Sequence'
+  is_origin_for 'Specimen', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound'
   originates_from 'Specimen', 'Lot', 'RangedLot'
 
   with_options if: -> {self.type == 'Specimen'} do |s|

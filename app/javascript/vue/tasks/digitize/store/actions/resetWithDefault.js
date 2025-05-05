@@ -1,7 +1,15 @@
 import ActionNames from './actionNames'
+import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
+import {
+  IDENTIFIER_LOCAL_RECORD_NUMBER,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER
+} from '@/constants'
 
 export default ({ dispatch, state }) => {
   const { locked } = state.settings
+  const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
+  const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+  const determinationStore = useTaxonDeterminationStore()
 
   dispatch(ActionNames.NewCollectingEvent)
   dispatch(ActionNames.NewCollectionObject)
@@ -14,7 +22,6 @@ export default ({ dispatch, state }) => {
   state.containerItems = []
   state.depictions = []
   state.determinations = []
-  state.identifiers = []
   state.materialTypes = []
   state.typeSpecimens = []
   state.preparation_type_id = undefined
@@ -23,9 +30,25 @@ export default ({ dispatch, state }) => {
     state.georeferences = []
   }
 
-  state.biologicalAssociations = locked.biologicalAssociations
-    ? state.biologicalAssociations.map(item => ({ ...item, id: undefined, global_id: undefined }))
-    : []
+  recordNumber.reset({
+    keepNamespace: locked.recordNumber,
+    increment: state.settings.incrementRecordNumber
+  })
 
-  dispatch(ActionNames.ResetTaxonDetermination)
+  catalogNumber.reset({
+    keepNamespace: locked.identifier,
+    increment: state.settings.increment
+  })
+
+  determinationStore.reset({
+    keepRecords: locked.taxonDeterminations
+  })
+
+  state.biologicalAssociations = locked.biologicalAssociations
+    ? state.biologicalAssociations.map((item) => ({
+        ...item,
+        id: undefined,
+        global_id: undefined
+      }))
+    : []
 }

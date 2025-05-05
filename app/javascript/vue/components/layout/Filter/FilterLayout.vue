@@ -7,7 +7,7 @@
   <NavBar navbar-class>
     <div class="middle grid-filter__nav">
       <div class="panel content">
-        <div class="flex-separate middle">
+        <div class="flex-separate middle gap-small">
           <div class="horizontal-left-content gap-small">
             <VBtn
               color="primary"
@@ -25,19 +25,24 @@
             </label>
             <ModalNestedParameters :parameters="parameters" />
             <slot name="nav-query-left" />
+          </div>
+          <div class="horizontal-left-content gap-small">
             <template v-if="objectType">
               <RadialFilter
+                v-if="radialFilter"
                 :parameters="parameters"
                 :object-type="objectType"
                 :disabled="!list.length"
               />
               <RadialLinker
+                v-if="radialLinker"
                 all
                 :parameters="parameters"
                 :object-type="objectType"
                 :disabled="!list.length"
               />
               <RadialMassAnnotator
+                v-if="radialMassAnnotator"
                 :object-type="objectType"
                 :parameters="parameters"
                 :disabled="!list.length"
@@ -72,27 +77,37 @@
           <PaginationCount
             v-if="pagination"
             :pagination="pagination"
+            custom
             v-model="perValue"
           />
           <div class="horizontal-right-content gap-small">
             <template v-if="selectedIds">
+              <ButtonUnify
+                v-if="buttonUnify"
+                :ids="selectedIds"
+                :model="objectType"
+              />
               <RadialFilter
+                v-if="radialFilter"
                 :ids="selectedIds"
                 :parameters="parameters"
                 :disabled="!selectedIds.length"
                 :object-type="objectType"
               />
               <RadialLinker
+                v-if="radialLinker"
                 :ids="selectedIds"
                 :disabled="!selectedIds.length"
                 :object-type="objectType"
               />
               <RadialMassAnnotator
+                v-if="radialMassAnnotator"
                 :object-type="objectType"
                 :ids="selectedIds"
                 :disabled="!selectedIds.length"
               />
               <RadialNavigation
+                v-if="radialNavigator"
                 :model="objectType"
                 :ids="selectedIds"
                 :disabled="!selectedIds.length"
@@ -102,7 +117,9 @@
             <span class="separate-left separate-right">|</span>
             <FilterDownload
               :list="selectedItems"
+              :csv-options="csvOptions"
               :extend-download="extendDownload"
+              :only-extend-download="onlyExtendDownload"
             />
             <span class="separate-left separate-right">|</span>
             <FilterSettings
@@ -141,12 +158,13 @@
 </template>
 
 <script setup>
+import { ref, computed, onBeforeUnmount, reactive } from 'vue'
+import { useHotkey } from '@/composables'
 import FilterDownload from './FilterDownload.vue'
 import FilterJsonRequestPanel from './FilterJsonRequestPanel.vue'
 import PaginationComponent from '@/components/pagination'
 import PaginationCount from '@/components/pagination/PaginationCount'
 import NavBar from '@/components/layout/NavBar.vue'
-import useHotkey from 'vue3-hotkey'
 import platformKey from '@/helpers/getPlatformKey'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -156,12 +174,22 @@ import RadialLinker from '@/components/radials/linker/radial.vue'
 import RadialMassAnnotator from '@/components/radials/mass/radial.vue'
 import FilterSettings from './FilterSettings.vue'
 import RadialNavigation from '@/components/radials/MassNavigation/radial.vue'
-import { ref, computed, onBeforeUnmount, reactive } from 'vue'
+import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 
 const props = defineProps({
   pagination: {
     type: Object,
     default: undefined
+  },
+
+  csvOptions: {
+    type: Object,
+    default: undefined
+  },
+
+  onlyExtendDownload: {
+    type: Boolean,
+    default: false
   },
 
   extendDownload: {
@@ -202,6 +230,31 @@ const props = defineProps({
   append: {
     type: Boolean,
     default: false
+  },
+
+  radialLinker: {
+    type: Boolean,
+    default: true
+  },
+
+  radialMassAnnotator: {
+    type: Boolean,
+    default: true
+  },
+
+  radialFilter: {
+    type: Boolean,
+    default: true
+  },
+
+  radialNavigator: {
+    type: Boolean,
+    default: true
+  },
+
+  buttonUnify: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -269,13 +322,9 @@ function handleClickFilterButton() {
 TW.workbench.keyboard.createLegend(
   `${platformKey()}+f`,
   'Search',
-  'Filter sources'
+  'Filter task'
 )
-TW.workbench.keyboard.createLegend(
-  `${platformKey()}+r`,
-  'Reset task',
-  'Filter sources'
-)
+TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset', 'Filter task')
 
 const stop = useHotkey(hotkeys.value)
 

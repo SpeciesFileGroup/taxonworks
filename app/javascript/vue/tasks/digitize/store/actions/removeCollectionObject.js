@@ -44,7 +44,6 @@ export default ({ commit, dispatch, state }, id) =>
             type: IDENTIFIER_LOCAL_CATALOG_NUMBER
           })
         }
-        dispatch(ActionNames.SaveIdentifier, state.collection_objects[0].id)
       })
     }
   })

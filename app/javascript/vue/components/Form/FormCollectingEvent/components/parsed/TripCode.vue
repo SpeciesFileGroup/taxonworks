@@ -1,24 +1,22 @@
 <template>
   <div>
-    <h2>Trip code</h2>
+    <h2>Field number</h2>
     <div class="flex-wrap-column middle align-start">
       <div class="full_width">
         <fieldset>
           <legend>Namespace</legend>
-          <smart-selector
-            class="full_width"
-            ref="smartSelector"
-            model="namespaces"
-            target="CollectingEvent"
-            klass="CollectingEvent"
-            v-model="store.namespace"
-            @selected="
-              (item) => {
-                store.namespace = item
-                store.identifier.isUnsaved = true
-              }
-            "
-          />
+          <div class="horizontal-left-content align-start gap-small">
+            <SmartSelector
+              class="full_width"
+              ref="smartSelector"
+              model="namespaces"
+              target="CollectingEvent"
+              klass="CollectingEvent"
+              v-model="store.namespace"
+              @selected="setNamespace"
+            />
+            <WidgetNamespace @create="setNamespace" />
+          </div>
           <template v-if="store.namespace">
             <div class="middle separate-top">
               <span data-icon="ok" />
@@ -63,7 +61,13 @@
 
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 import useStore from '../../store/identifier.js'
 
 const store = useStore()
+
+function setNamespace(namespace) {
+  store.namespace = namespace
+  store.identifier.isUnsaved = true
+}
 </script>

@@ -324,7 +324,6 @@ module Queries
         min_max = [use_min&.to_i, use_max&.to_i ].compact
 
         q = ::Person.joins(:roles)
-          .select('people.*, COUNT(roles.person_id)')
           .group('people.id, roles.person_id')
           .having("COUNT(roles.person_id) >= #{min_max[0]}")
 

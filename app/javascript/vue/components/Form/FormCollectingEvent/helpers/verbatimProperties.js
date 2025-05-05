@@ -9,5 +9,5 @@ export const verbatimProperties = {
   DateComponent: 'verbatim_date',
   Collectors: 'verbatim_collectors',
   Method: 'verbatim_method',
-  TripIdentifier: 'verbatim_trip_identifier'
+  FieldNumber: 'verbatim_field_number'
 }

@@ -51,7 +51,7 @@ import setParam from '@/helpers/setParam'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { Source, Serial } from '@/routes/endpoints'
-import { ref, onMounted } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
 const emit = defineEmits(['close'])
@@ -62,7 +62,9 @@ const textareaRef = ref(null)
 const store = useStore()
 
 onMounted(() => {
-  textareaRef.value.focus()
+  nextTick(() => {
+    textareaRef.value.focus()
+  })
 })
 
 function createSource() {

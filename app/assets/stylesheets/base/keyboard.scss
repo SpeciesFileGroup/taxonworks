@@ -1,5 +1,4 @@
 #keyShortcuts {
-
   .legend {
     z-index: 2101;
     display: block;
@@ -42,7 +41,7 @@
     }
     .close {
       cursor: pointer;
-      margin-right: $standard_margin*0.5;
+      margin-right: $standard_margin * 0.5;
       opacity: 0.5;
     }
     .close:hover {
@@ -66,11 +65,10 @@
       font-weight: 700;
     }
     th:hover {
-      background-color: #FFF;
+      background-color: #fff;
     }
     td {
       padding-left: $standard_padding;
-      font-size: $font_small;
       vertical-align: center;
     }
     td:first-child {
@@ -79,7 +77,6 @@
       text-align: right;
       height: auto;
     }
-
   }
 
   .keyboard-background {
@@ -104,15 +101,14 @@
   .key {
     font-size: $font_tiny;
     font-weight: 500;
-    min-width: 12px;
+    line-height: 10px;
     text-align: center;
     display: inline-block;
-    padding-left: 2px;
-    padding-right: 2px;
+    padding: 3px 5px;
     border: 1px solid $navigation_border;
     border-radius: 3px;
     border-bottom: 2px solid $navigation_border;
-
+    background-color: $body_background;
   }
 }
 

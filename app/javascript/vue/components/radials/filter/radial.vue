@@ -15,7 +15,7 @@
         <div class="horizontal-center-content">
           <RadialMenu
             :options="menuOptions"
-            @on-click="saveParametersOnStorage"
+            @click="saveParametersOnStorage"
           />
         </div>
       </template>
@@ -49,7 +49,7 @@ import Qs from 'qs'
 import * as FILTER_LINKS from './links'
 
 const MAX_LINK_SIZE = 2048
-const EXCLUDE_PARAMETERS = ['per', 'extend', 'venn', 'venn_mode']
+const EXCLUDE_PARAMETERS = ['page', 'per', 'extend', 'venn', 'venn_mode']
 
 const props = defineProps({
   disabled: {

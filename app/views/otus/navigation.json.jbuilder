@@ -6,7 +6,8 @@ json.parent_otus do
   json.array! parent_otus(@otu) do |o|
     json.id o.id
     json.name o.name
-    json.object_tag otu_tag(o) 
+    json.object_tag otu_tag(o)
+    json.object_label label_for_otu(o)
   end
 end
 
@@ -14,7 +15,8 @@ json.previous_otus do
   json.array! previous_otus(@otu) do |o|
     json.id o.id
     json.name o.name
-    json.object_tag otu_tag(o) 
+    json.object_tag otu_tag(o)
+    json.object_label label_for_otu(o)
   end
 end
 
@@ -22,7 +24,8 @@ json.next_otus do
   json.array! next_otus(@otu) do |o|
     json.id o.id
     json.name o.name
-    json.object_tag otu_tag(o) 
+    json.object_tag otu_tag(o)
+    json.object_label label_for_otu(o)
   end
 end
 

@@ -35,11 +35,11 @@
       </tr>
       <tr>
         <td>Updated</td>
-        <td>{{ data.updated.length }}</td>
+        <td>{{ data.async ? 'Not determined' : data.updated.length }}</td>
       </tr>
       <tr>
         <td>Not updated</td>
-        <td>{{ data.not_updated.length }}</td>
+        <td>{{ data.async ? 'Not determined' : data.not_updated.length }}</td>
       </tr>
       <tr>
         <td>Total attempted</td>

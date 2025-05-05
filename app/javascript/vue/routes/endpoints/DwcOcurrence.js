@@ -14,6 +14,8 @@ export const DwcOcurrence = {
   collectorMetadata: () =>
     AjaxCall('get', `/${controller}/collector_id_metadata`),
 
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
   predicates: () => AjaxCall('get', `/${controller}/predicates.json`),
 
   taxonworksExtensionMethods: () =>

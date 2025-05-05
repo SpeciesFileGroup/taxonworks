@@ -23,25 +23,22 @@
         @create="saveIdentifier"
       />
     </div>
-    <table-list
-      :list="list"
-      :header="['Identifier', 'Type', '']"
-      :attributes="['cached', 'type']"
-      :annotator="false"
-      @edit="data_attribute = $event"
+    <IdentifierTable
+      v-model="list"
       @delete="removeItem"
     />
   </div>
 </template>
 <script setup>
-import TableList from '@/components/table_list.vue'
 import IdentifierList from './identifierList.vue'
 import IdentifierType from './IdentifierType.vue'
 import IdentifierLocal from './IdentifierLocal.vue'
 import IdentifierForm from './IdentifierForm.vue'
+import IdentifierTable from './IdentifierTable.vue'
 import { useSlice } from '@/components/radials/composables'
 import { Identifier } from '@/routes/endpoints'
 import { computed, ref, watch } from 'vue'
+import { IDENTIFIER_UNKNOWN } from '@/constants'
 
 const props = defineProps({
   objectId: {
@@ -63,7 +60,7 @@ const props = defineProps({
 const isLocal = computed(() => listSelected.value === 'local')
 const typeList = ref([])
 const listSelected = ref()
-const typeIdentifier = ref()
+const typeIdentifier = ref(null)
 const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
 })
@@ -85,8 +82,8 @@ Identifier.types().then(({ body }) => {
   typeList.value = body
 })
 
-watch(listSelected, () => {
-  typeIdentifier.value = undefined
+watch(listSelected, (newVal) => {
+  typeIdentifier.value = newVal === 'unknown' ? IDENTIFIER_UNKNOWN : null
 })
 
 function saveIdentifier(params) {
@@ -97,14 +94,16 @@ function saveIdentifier(params) {
     identifier_object_type: props.objectType
   }
 
-  Identifier.create({ identifier }).then(({ body }) => {
-    addToList(body)
-    listSelected.value = undefined
-  })
+  Identifier.create({ identifier })
+    .then(({ body }) => {
+      addToList(body)
+      listSelected.value = undefined
+    })
+    .catch(() => {})
 }
 
 function removeItem(item) {
-  Identifier.destroy(item.id).then((_) => {
+  Identifier.destroy(item.id).then(() => {
     removeFromList(item)
   })
 }

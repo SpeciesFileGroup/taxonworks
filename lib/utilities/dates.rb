@@ -158,6 +158,26 @@ module Utilities::Dates
     end
   end
 
+  def self.range_years(years)
+    min = years.min
+    max = years.max
+    (min..max).to_a
+  end
+
+  # @param data [ a year => count r]
+  #
+  # Injects years with zeroes.
+  #
+  def self.range_year_hash(data)
+    min = data.keys.min
+    max = data.keys.max
+    b = data.dup
+    (min..max).each do |y|
+      next if b[y]
+      b[y] = 0
+    end
+    b.sort{|a,b| a <=> b}.to_h
+  end
 
   # @param [String]
   # @param [Integer]

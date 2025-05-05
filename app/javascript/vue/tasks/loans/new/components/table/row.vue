@@ -18,6 +18,7 @@
     </td>
     <td>
       <select v-model="itemStatus">
+        <option :value="null">None</option>
         <option
           v-for="status in statusList"
           :key="status"

@@ -59,8 +59,10 @@ class Person < ApplicationRecord
   include Shared::Tags
   include Shared::SharedAcrossProjects
   include Shared::HasPapertrail
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
   include Shared::OriginRelationship
+
 
   ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
   IGNORE_SIMILAR = [:type, :cached].freeze
@@ -122,7 +124,6 @@ class Person < ApplicationRecord
   has_many :sources, through: :roles, source: :role_object, source_type: 'Source' # Editor or Author or Person
 
   has_many :collection_objects, through: :collecting_events
-  has_many :dwc_occurrences, through: :collection_objects
 
   scope :created_before, -> (time) { where('created_at < ?', time) }
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
@@ -181,6 +182,12 @@ class Person < ApplicationRecord
   #   convenience, maybe a delegate: candidate
   def orcid
     identifiers.where(type: 'Identifier::Global::Orcid').first&.cached
+  end
+
+  # Return [String, nil]
+  #   convenience, maybe a delegate: candidate
+  def wikidata_id
+    identifiers.where(type: 'Identifier::Global::Wikidata').first&.cached
   end
 
   # @param [Integer] person_id
@@ -433,13 +440,17 @@ class Person < ApplicationRecord
     collector_roles.any?
   end
 
-
   def role_counts(project_id)
     {
       in_project: self.roles.where(project_id:).group(:type).count,
       not_in_project: self.roles.where.not(project_id:).where.not(project_id: nil).group(:type).count,
       community: self.roles.where(project_id: nil).group(:type).count
     }
+  end
+
+  def dwc_occurrences
+    # Updates in all projects (as it should)
+    ::Queries::DwcOccurrence::Filter.new(person_id: [id], project_id: false).all
   end
 
   # @param [String] name_string

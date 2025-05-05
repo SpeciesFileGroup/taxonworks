@@ -1,31 +1,5 @@
 module CollectionObjectsHelper
 
-  def table_example(collection_objects)
-    cols = %i{
-      class
-      order
-      family
-      genus
-      scientificName
-      sex
-    }
-
-    tag.table do
-      tag.tr { cols.collect{|h| tag.th(h.to_s) }.join.html_safe } +
-
-      collection_objects.collect{|co|
-        tag.tr do
-          (tag.td( co.dwc_class) +
-          tag.td( co.dwc_order) +
-          tag.td( co.dwc_family) +
-          tag.td( co.dwc_genus) +
-          tag.td( co.dwc_scientific_name) +
-          tag.td( co.dwc_sex)).html_safe
-        end
-      }.join.html_safe
-    end.html_safe
-  end
-
   # Return [String, nil]
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
@@ -64,6 +38,13 @@ module CollectionObjectsHelper
     [ 'CollectionObject ' + collection_object.id.to_s,
       identifier_list_labels(collection_object)
     ].compact.join('; ')
+  end
+
+  def label_for_collection_object_container(collection_object)
+    return nil if collection_object.nil?
+    collection_object.dwc_catalog_number ||
+      collection_object.dwc_scientific_name ||
+      collection_object.id.to_s
   end
 
   def collection_object_autocomplete_tag(collection_object)
@@ -132,21 +113,29 @@ module CollectionObjectsHelper
     ]).html_safe
   end
 
-
   # @return [Array [Identifier, String (type)], nil]
-  #    also checks virtual container for identifier by proxy
+  #   also checks virtual container for identifier by proxy
   def collection_object_visualized_identifier(collection_object)
     return nil if collection_object.nil?
-    # Get the Identifier::Local::Catalog number on collection_object, or immediate containing Container
-    i = collection_object.preferred_catalog_number # see delegation in collection_object.rb
 
-    # Get some other identifier on collection_object
-    i ||= collection_object.identifiers.order(:position)&.first
-    return  [:collection_object, identifier_tag(i)] if i
+    # We now return the first Local identifier by default here
+    # This accomodates RecordNumber vs CatalogNumber
+    i = collection_object.identifiers.order(Arel.sql("CASE \
+              WHEN identifiers.type IN ('Identifier::Local::CatalogNumber', 'Identifier::Local::RecordNumber') THEN 0  \
+              ELSE 1                                                                                        \
+            END, \
+           identifiers.position")).select(:type, :identifier, :namespace_id, :cached).first
+
+    return [:collection_object, identifier_tag(i)] if i&.is_local?
 
     # Get some other identifier on container
-    j = collection_object&.container&.identifiers&.first
+    j = collection_object.container&.identifiers&.order(:position)&.first
     return [:container, identifier_tag(j)] if j
+
+    # Use a non local/non container if provided
+    return [:collection_object, identifier_tag(i)] if i
+    return [:container, identifier_tag(j)] if j
+
     nil
   end
 
@@ -158,7 +147,7 @@ module CollectionObjectsHelper
   end
 
   # TODO: Isolate into own helper
-  # TODO: syncronize with class methods
+  # TODO: synchronize with class methods
   def dwc_occurrence_table_header_tag
     content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error])
   end
@@ -388,6 +377,31 @@ module CollectionObjectsHelper
     end.html_safe
   end
 
+  def table_example(collection_objects)
+    cols = %i{
+      class
+      order
+      family
+      genus
+      scientificName
+      sex
+    }
+
+    tag.table do
+      tag.tr { cols.collect{|h| tag.th(h.to_s) }.join.html_safe } +
+
+      collection_objects.collect{|co|
+        tag.tr do
+          (tag.td( co.dwc_class) +
+          tag.td( co.dwc_order) +
+          tag.td( co.dwc_family) +
+          tag.td( co.dwc_genus) +
+          tag.td( co.dwc_scientific_name) +
+          tag.td( co.dwc_sex)).html_safe
+        end
+      }.join.html_safe
+    end.html_safe
+  end
 
 
 end

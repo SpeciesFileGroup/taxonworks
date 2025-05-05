@@ -2,7 +2,10 @@ import { reactive, toRefs, onBeforeMount } from 'vue'
 import getPagination from '@/helpers/getPagination'
 import qs from 'qs'
 
-export default function (service, { listParser, initParameters } = {}) {
+export default function (service, { listParser, initParameters = {} } = {}) {
+  const DEFAULT_PARAMETERS = {
+    paginate: true
+  }
   const state = reactive({
     append: false,
     parameters: {
@@ -18,7 +21,8 @@ export default function (service, { listParser, initParameters } = {}) {
 
   const makeFilterRequest = (params = state.parameters) => {
     const payload = removeEmptyParameters({
-      ...params
+      ...params,
+      ...DEFAULT_PARAMETERS
     })
 
     state.isLoading = true
@@ -49,6 +53,7 @@ export default function (service, { listParser, initParameters } = {}) {
         setRequestUrl(response.request.responseURL, payload)
         sessionStorage.setItem('totalFilterResult', state.pagination.total)
       })
+      .catch(() => {})
       .finally(() => {
         state.isLoading = false
       })
@@ -105,6 +110,14 @@ export default function (service, { listParser, initParameters } = {}) {
       ...qs.parse(location.search, { ignoreQueryPrefix: true }),
       ...JSON.parse(sessionStorage.getItem('filterQuery'))
     }
+    const exclude = Object.keys({
+      ...state.initParameters,
+      ...DEFAULT_PARAMETERS
+    })
+
+    exclude.forEach((param) => {
+      delete urlParameters[param]
+    })
 
     Object.assign(state.parameters, urlParameters)
 

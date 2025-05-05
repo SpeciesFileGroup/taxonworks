@@ -3,20 +3,20 @@
     <button
       type="button"
       class="button normal-input button-default"
-      @click="showModal = true"
+      @click="isModalVisible = true"
     >
       Recent
     </button>
-    <modal-component
-      v-if="showModal"
+    <VModal
+      v-if="isModalVisible"
       :container-style="{ width: '90vw' }"
-      @close="showModal = false"
+      @close="isModalVisible = false"
     >
       <template #header>
         <h3>Recent collection objects</h3>
       </template>
       <template #body>
-        <spinner-component v-if="isLoading" />
+        <VSpinner v-if="isLoading" />
         <table class="full_width">
           <thead>
             <tr>
@@ -33,6 +33,7 @@
               <th>Date start</th>
               <th>Container</th>
               <th>Update at</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -41,7 +42,7 @@
               :key="item.id"
               class="contextMenuCells"
               :class="{ even: index % 2 == 0 }"
-              @click="sendCO(item)"
+              @dblclick="() => sendCO(item)"
             >
               <td>{{ item.dwc_attributes.individualCount }}</td>
               <td>{{ item.dwc_attributes.family }}</td>
@@ -62,52 +63,51 @@
               <td>{{ item.dwc_attributes.eventDate }}</td>
               <td v-html="item.container" />
               <td>{{ item.updated_at }}</td>
+              <td>
+                <VBtn
+                  circle
+                  color="primary"
+                  @click="() => sendCO(item)"
+                >
+                  <VIcon
+                    name="pencil"
+                    x-small
+                  />
+                </VBtn>
+              </td>
             </tr>
           </tbody>
         </table>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
-<script>
-import ModalComponent from '@/components/ui/Modal'
-import SpinnerComponent from '@/components/ui/VSpinner'
+<script setup>
+import VModal from '@/components/ui/Modal'
+import VSpinner from '@/components/ui/VSpinner'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { CollectionObject } from '@/routes/endpoints'
+import { ref, watch } from 'vue'
 
-export default {
-  components: {
-    ModalComponent,
-    SpinnerComponent
-  },
+const emit = defineEmits(['selected'])
+const isModalVisible = ref(false)
+const list = ref([])
+const isLoading = ref(false)
 
-  emits: ['selected'],
-
-  data() {
-    return {
-      showModal: false,
-      list: [],
-      isLoading: false
-    }
-  },
-
-  watch: {
-    showModal(newVal) {
-      if (newVal) {
-        this.isLoading = true
-        CollectionObject.reportDwc({ per: 10 }).then((response) => {
-          this.list = response.body
-          this.isLoading = false
-        })
-      }
-    }
-  },
-
-  methods: {
-    sendCO(item) {
-      this.showModal = false
-      this.$emit('selected', item)
-    }
+watch(isModalVisible, (newVal) => {
+  if (newVal) {
+    isLoading.value = true
+    CollectionObject.reportDwc({ per: 10 }).then(({ body }) => {
+      list.value = body
+      isLoading.value = false
+    })
   }
+})
+
+function sendCO(item) {
+  isModalVisible.value = false
+  emit('selected', item)
 }
 </script>

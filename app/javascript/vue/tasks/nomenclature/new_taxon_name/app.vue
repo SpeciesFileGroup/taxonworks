@@ -89,7 +89,7 @@ import CheckChanges from './components/checkChanges.vue'
 import SoftValidation from '@/components/soft_validations/panel.vue'
 import Spinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import { SectionComponents } from './const/components.js'
 import { convertType } from '@/helpers/types.js'
 import { GetterNames } from './store/getters/getters'
@@ -109,6 +109,7 @@ const isLoading = ref()
 const shortcuts = ref([
   {
     keys: [platformKey(), 'f'],
+    preventDefault: true,
     handler() {
       focusSearch()
     }
@@ -278,6 +279,11 @@ function focusSearch() {
     input {
       width: 500px;
     }
+  }
+
+  .navbar-button {
+    min-width: 80px;
+    width: 100%;
   }
 
   .cleft,

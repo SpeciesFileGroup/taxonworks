@@ -119,7 +119,7 @@ new_image_task:
     - collection_object
     - new
   status: prototype
-index_matrix_image_task:
+image_matrix_task:
   hub: true
   name: 'Image matrix'
   related:
@@ -211,14 +211,6 @@ simple_specimen_task:
     - image
     - new
   status: prototype
-new_asserted_distribution_from_map_task:
-  hub: true
-  name: 'New asserted distribution from map'
-  description: 'Create asserted distributions by selecting OTUs and sources, then click a map to select a geographic area. OTU and source are lockable as defaults for the next record.'
-  status: prototype
-  categories:
-    - source
-    - new
 report_dwc_task:
   hub: true
   name: 'Report DwC-A table'
@@ -244,7 +236,7 @@ collecting_event_lat_long_task:
     - collecting_event
   status: prototype
   description: "Parse the collecting_events table's verbatim label for possible lat/long combinations."
-index_editor_task:
+content_editor_task:
   hub: true
   name: 'Content editor'
   related:
@@ -345,18 +337,19 @@ new_matrix_task:
     - new
   status: prototype
   description: 'Assign the rows and columns of observation matrices.'
-uniquify_people_task:
+unify_people_task:
   hub: true
-  name: 'Uniquify people'
+  name: 'Unify people'
   related:
   categories:
+    - people
     - source
     - nomenclature
   status: stable
-  description: 'Find and merge redundant or duplicated people, e.g., from import.'
+  description: 'Find and merge identical/duplicate people removing redundancy.'
 observation_matrix_view_task:
   hub: true
-  name: 'View an observation matrix'
+  name: 'View observation matrix'
   related:
   categories:
     - matrix
@@ -378,7 +371,7 @@ new_asserted_distribution_task:
   categories:
     - new
   status: prototype
-  description: 'Create new asserted distributions (Otu, source, and geographic area combinations). Has locking and cloning mechanisms.'
+  description: 'Create new asserted distributions (Otu, source, and shape combinations). Has locking and cloning mechanisms.'
 index_topics_hub_task:
   hub: true
   name: 'Topics hub'
@@ -468,7 +461,7 @@ filter_collection_objects_task:
     - filters
   status: prototype
   description: 'Filter collection objects by many different facets, download or visualize results.'
-syncronize_otus_to_nomenclature_task:
+synchronize_otus_to_nomenclature_task:
   hub: true
   name: 'Synchronize nomenclature and OTUs'
   related:
@@ -809,7 +802,7 @@ source_citation_totals_task:
   description: 'Report a count per citation object type for each source in the result.'
 edit_biological_associations_graph_task:
   hub: true
-  name: 'New biological associations'
+  name: 'New biological associations graph'
   related:
   categories:
     - biology
@@ -853,6 +846,7 @@ new_field_occurrence_task:
   categories:
     - collecting_event
     - georeference
+    - new
   status: prototype
   description: 'Link OTUs to collecting events. Used when no physical object was collected and returned to a repository.'
 debug_geographic_item_task:
@@ -867,19 +861,19 @@ debug_geographic_item_task:
   description: 'Report metadat about a geographic item.'
 new_lead_task:
   hub: true
-  name: 'New dichotomous key'
+  name: 'New key'
   related:
   categories:
     - new
   status: prototype
-  description: 'Create a new dichotomous key.'
+  description: 'Create a new key.'
 show_lead_task:
   hub: true
-  name: 'Use dichotomous key'
+  name: 'Use a key'
   related:
   categories:
   status: prototype
-  description: 'Use an existing dichotomous key.'
+  description: 'Use an existing key.'
 project_vocabulary_task:
   hub: true
   name: 'Project vocabulary'
@@ -893,15 +887,16 @@ new_otu_task:
   related:
   categories:
     - otu
+    - new
   status: prototype
   description: 'Create one or many OTUs in batch.'
 leads_hub_task:
   hub: true
-  name: 'Dichotomous keys hub'
+  name: 'Keys hub'
   related:
   categories:
   status: prototype
-  description: 'A centralized hub unifying access to the different means of creating and displaying dichotomous keys.'
+  description: 'A centralized hub unifying access to the different means of creating and displaying keys.'
 week_in_review_task:
   hub: true
   name: 'Week in review'
@@ -911,12 +906,12 @@ week_in_review_task:
   status: prototype
   description: 'A quick look dashboard of past activity'
 field_synchronize_task:
-  hub: false 
+  hub: false
   name: 'Field synchronize'
   related:
   categories:
   status: prototype
-  description: 'Batch edit or syncronize the values in one or two fields or data-attributes.'
+  description: 'Batch edit or synchronize the values in one or two fields or data-attribute'
 collecting_events_spatial_summary_task:
   hub: false
   name: 'Collecting Event Spatial Summary'
@@ -924,6 +919,17 @@ collecting_events_spatial_summary_task:
   categories:
   status: prototype
   description: 'Summarize spatial characteristics of a set of Collecting Events.'
+new_container_task:
+  hub: true
+  name: 'New container'
+  related:
+    - collection_object
+    - extract
+  categories:
+    - new
+    - collection_object
+  status: prototype
+  description: 'Create containers and edit their contents. Add collection objects to containers.'
 import_nexus_task:
   hub: true
   name: 'Import Nexus file data'
@@ -933,5 +939,125 @@ import_nexus_task:
     - matrix
     - new
   status: prototype
-  description: 'Populate an observation matrix with data imported from a Nexus
-  file.'
+  description: 'Populate an observation matrix with data imported from a Nexus file.'
+filter_dwc_occurrences_task:
+  hub: true
+  name: 'Filter DwC Occurrences'
+  related:
+    - collection_object
+    - collecting_event
+    - asserted_distribution
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter records in the DarwinCore index.'
+new_gazetteer_task:
+  hub: true
+  name: 'Create or edit Gazetteers'
+  related:
+  categories:
+    - collecting_event
+    - new
+  status: prototype
+  description: 'Create or edit named shapes for use in your project.'
+import_gazetteers_task:
+  hub: true
+  name: 'Import Gazetteers'
+  related:
+  categories:
+  status: prototype
+  description: 'Import Gazetteers from a shapefile.'
+unify_objects_task:
+  hub: true
+  name: 'Unify objects'
+  related:
+  categories:
+    - unify
+  status: prototype
+  description: 'Merge two objects into a single one.  Moves annotations and unifies would-be duplicates and their annotations if possible.'
+new_filename_depicting_image_task:
+  hub: true
+  name: 'New filename depicting image'
+  related:
+  categories:
+    - image
+    - collection_object
+  status: prototype
+  description: "Upload images assigning them as depictions of CollectionObjects based on the identifier in the filename. You shouldn't really be using this as a day-to-day workflow, there are better approaches."
+new_biological_association_task:
+  hub: true
+  name: 'New biological association'
+  related:
+  categories:
+    - biology
+  status: prototype
+  description: 'Create, edit, and cite biological associations.'
+duplicate_otus_task:
+  hub: true
+  name: 'Duplicate OTU predictor'
+  related:
+  categories:
+    - otu
+  status: prototype
+  description: 'A list of OTUs with whose combination of name and taxon name are found exactly/ in duplicate.'
+print_key_task:
+  hub: false
+  name: 'Print key'
+  related:
+  categories:
+  status: prototype
+  description: 'Format a key for print.'
+summarize_projects_controlled_vocabulary_terms_task:
+  hub: true
+  name: 'Controlled vocabulary across projects'
+  related:
+  categories:
+  status: prototype
+  description: 'Visualize controlled vocabulary terms across the projects you are a member of.'
+browse_sounds_task:
+  hub: true
+  name: 'Browse sounds'
+  related:
+  categories:
+    - browse
+  status: prototype
+  description: 'View individual sounds and their related.'
+browse_field_occurrence_task:
+  hub: true
+  name: 'Browse field occurrences'
+  related:
+  categories:
+    - browse
+  status: prototype
+  description: 'Report everything known about a field occurrence. Includes determinations, images, collecting event, biological associations, etc.'
+filter_sounds_task:
+  hub: true
+  name: 'Filter sounds'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter sounds by various params.'
+index_multi_update_task:
+  hub: false
+  name: 'Multi-update data attributes'
+  related:
+  categories:
+  status: prototype
+  description: 'Faciliate spreadsheet editing of multiple data attributes.'
+filter_field_occurrences_task:
+  hub: true
+  name: 'Filter field occurrences'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter field occurrences by many different facets, download or visualize results.'
+taxon_name_gender_task:
+  hub: true
+  name: 'Nomenclatural gender summary'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Brief summary of gender status for a filtered set of names.'

@@ -1,13 +1,12 @@
 import { CollectingEvent } from '@/routes/endpoints'
 import ActionNames from './actionNames'
-import extend from '../../const/extendRequest.js'
 
-export default ({ dispatch, state }) => {
+export default ({ dispatch, state }, params) => {
   state.settings.isSaving = true
 
-  CollectingEvent.clone(state.collectingEvent.id, { extend })
-    .then((response) => {
-      dispatch(ActionNames.LoadCollectingEvent, response.body.id)
+  CollectingEvent.clone(state.collectingEvent.id, { ...params })
+    .then(({ body }) => {
+      dispatch(ActionNames.LoadCollectingEvent, body.id)
       TW.workbench.alert.create(
         'Collecting event was successfully cloned.',
         'notice'

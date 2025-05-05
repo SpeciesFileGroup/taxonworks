@@ -4,6 +4,7 @@ module Queries
     class Filter < Query::Filter
       include Queries::Concerns::Citations
       include Queries::Concerns::Containable
+      include Queries::Concerns::Confidences
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
@@ -95,6 +96,7 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @verbatim_anatomical_origin = params[:verbatim_anatomical_origin]
 
+        set_confidences_params(params)
         set_containable_params(params)
         set_citations_params(params)
         set_date_params(params)

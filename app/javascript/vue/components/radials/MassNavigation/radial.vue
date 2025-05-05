@@ -23,7 +23,7 @@
               v-if="metadata"
               ref="radialElement"
               :options="menuOptions"
-              @onClick="selectRadialOption"
+              @click="selectRadialOption"
             />
           </div>
         </template>

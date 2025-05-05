@@ -118,7 +118,7 @@ export default {
 
     updatePosition() {
       Depiction.sort({
-        depiction_id: this.depictions.map((depiction) => depiction.id)
+        depiction_ids: this.depictions.map((depiction) => depiction.id)
       })
     }
   }

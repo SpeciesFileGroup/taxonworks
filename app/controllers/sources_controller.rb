@@ -75,7 +75,7 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
 
-      if @source.save
+      if @source && @source.save
         format.html { redirect_to url_for(@source.metamorphosize),
                       notice: "#{@source.type} successfully created." }
         format.json { render action: 'show', status: :created, location: @source.metamorphosize }
@@ -244,7 +244,29 @@ class SourcesController < ApplicationController
       (params[:is_public] == 'true' ? true : false),
       params[:style_id]
     )
-    render '/downloads/show.json'
+    render '/downloads/show'
+  end
+
+  # GET /sources/generate.json?<filter params>
+  def download_formatted
+    params.require(:style_id)
+    @sources = Queries::Source::Filter.new(params).all
+      .order(:cached)
+
+    f = render_to_string(:index, formats: [:bib])
+
+    respond_to do |format|
+      format.pdf do
+        pdf = ::Prawn::Document.new
+        pdf.text(f, inline_format: true) # Formats <i>
+
+        send_data(pdf.render, filename: "tw_bibliography_#{DateTime.now}.pdf", type: 'application/pdf')
+      end
+
+      format.json do
+        send_data(f, filename: "tw_bibliography_#{DateTime.now}.txt", type: 'text/plain')
+      end 
+    end
   end
 
   # GET /api/v1/sources

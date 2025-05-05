@@ -2,7 +2,6 @@ module ControlledVocabularyTermsHelper
 
   def controlled_vocabulary_term_tag(controlled_vocabulary_term)
     return nil if controlled_vocabulary_term.nil?
-    # content_tag(:span, color_tag(controlled_vocabulary_term.css_color, controlled_vocabulary_term.name), title: controlled_vocabulary_term.definition, class: 'cvt-tag')
     content_tag(
       :span,
       content_tag(:span, controlled_vocabulary_term.name),
@@ -20,12 +19,12 @@ module ControlledVocabularyTermsHelper
   def controlled_vocabulary_term_autocomplete_tag(controlled_vocabulary_term)
     [ controlled_vocabulary_term_tag(controlled_vocabulary_term),
       content_tag(:span, controlled_vocabulary_term.type, class: [:feedback, 'feedback-secondary', 'feedback-thin']),
-        content_tag(:span, pluralize( controlled_vocabulary_term_use(controlled_vocabulary_term), 'use'), class: [:feedback, 'feedback-info', 'feedback-thin'])
+      content_tag(:span, pluralize( controlled_vocabulary_term_use(controlled_vocabulary_term), 'use'), class: [:feedback, 'feedback-info', 'feedback-thin'])
     ].compact.join(' ')
   end
 
   def controlled_vocabulary_term_use(controlled_vocabulary_term)
-    return nil if controlled_vocabulary_term.nil? 
+    return nil if controlled_vocabulary_term.nil?
     a = { project_id: sessions_current_project_id }
     case controlled_vocabulary_term.type
     when 'Topic'
@@ -58,6 +57,58 @@ module ControlledVocabularyTermsHelper
 
   def controlled_vocabulary_terms_search_form
     render('/controlled_vocabulary_terms/quick_search_form')
+  end
+
+  def controlled_vocabulary_terms_across_projects_data(user)
+    projects = user.projects
+
+    terms, term_types = [], []
+    data = projects.inject({}) {|hsh, i| hsh[i.id] = []; hsh }
+
+    project_names = ['Term', 'Type']
+
+    projects.joins(:controlled_vocabulary_terms).select('projects.*, COUNT(controlled_vocabulary_terms.*) c').group('projects.id').order(:c).each do |p|
+      project_names.push(p.name)
+      p.controlled_vocabulary_terms.order(:type, :name).each do |t|
+        unless terms.index(t.name)
+          terms.push t.name
+          term_types.push t.type
+        end
+
+        data[p.id][terms.index(t.name)] = true
+      end
+    end
+
+    # The columns
+    y = data.values
+
+    # Sort columns to place those with more values to the right
+    y.sort!{|a,b| b.compact.count <=> a.compact.count}
+
+    # Injdect the CVT type column
+    y.unshift(term_types)
+
+    z = terms.zip(*y)
+    z.unshift project_names
+    z
+  end
+
+  def controlled_vocabulary_terms_across_projects_table(data)
+    t = '<table class="table table-striped tablesorter"><thead>'.html_safe
+    t << tag.tr( data.shift.collect{|c| tag.th(c) }.join.html_safe )
+    t << '</thead><tbody>'.html_safe
+
+    data.each do |r|
+      t << tag.tr( r.collect{|c| tag.td(c) }.join.html_safe )
+    end
+
+    t << '</tbody></table>'.html_safe
+    t.html_safe
+  end
+
+  def controlled_vocabulary_terms_across_projects_tag(user)
+    d = controlled_vocabulary_terms_across_projects_data(user)
+    controlled_vocabulary_terms_across_projects_table(d)
   end
 
 end

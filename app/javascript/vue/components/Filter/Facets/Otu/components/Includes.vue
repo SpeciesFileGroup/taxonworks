@@ -26,19 +26,14 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({})
+  },
+  includes: {
+    type: Array,
+    required: true
   }
 })
 
 const emit = defineEmits(['update:modelValue'])
-
-const includes = [
-  'otus',
-  'collection_objects',
-  'collection_object_observations',
-  'otu_observations',
-  'type_material',
-  'type_material_observations'
-]
 
 const params = computed({
   get: () => props.modelValue,

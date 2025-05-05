@@ -20,10 +20,12 @@ class DataAttributesController < ApplicationController
     end
   end
 
+  # NOTE: We should try and only hit this if we know a-prior that we have a reasonable incoming query.
   def brief
     q = ::Queries::DataAttribute::Filter.new(params)
 
-    render json: [], status: :unprocessable_entity and return if q.all.count > 30000
+    # Disabling now, the extra over-head on complex queries is costly
+    # render json: [], status: :unprocessable_entity and return if q.all.count > 30000
 
     @data = q.all.pluck('data_attributes.id, data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, data_attributes.value')
 

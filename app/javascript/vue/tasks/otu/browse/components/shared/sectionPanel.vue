@@ -1,6 +1,6 @@
 <template>
   <div class="panel basic-information">
-    <spinner-component v-if="spinner" />
+    <VSpinner v-if="spinner" />
     <a
       :name="linkName"
       class="anchor"
@@ -26,7 +26,7 @@
           :class="{ 'button-default': menu }"
           :disabled="!menu"
           v-help.section.options.filter
-          @click="$emit('menu')"
+          @click="emit('menu')"
         >
           <div class="hamburger-menu">
             <div class="hamburger-menu-bar" />
@@ -42,51 +42,39 @@
   </div>
 </template>
 
-<script>
-import SpinnerComponent from '@/components/ui/VSpinner'
-export default {
-  components: {
-    SpinnerComponent
+<script setup>
+import VSpinner from '@/components/ui/VSpinner'
+import { computed, ref } from 'vue'
+
+const props = defineProps({
+  title: {
+    type: String,
+    default: ''
   },
-
-  props: {
-    title: {
-      type: String,
-      default: ''
-    },
-    spinner: {
-      type: Boolean,
-      default: false
-    },
-    status: {
-      type: String,
-      default: 'unknown'
-    },
-    name: {
-      type: String,
-      default: undefined
-    },
-    menu: {
-      type: Boolean,
-      default: false
-    }
+  spinner: {
+    type: Boolean,
+    default: false
   },
-
-  emits: ['menu'],
-
-  computed: {
-    linkName() {
-      return this.name || this.title
-    }
+  status: {
+    type: String,
+    default: 'unknown'
   },
-
-  data() {
-    return {
-      hidden: false
-    }
+  name: {
+    type: String,
+    default: undefined
+  },
+  menu: {
+    type: Boolean,
+    default: false
   }
-}
+})
+
+const emit = defineEmits(['menu'])
+
+const linkName = computed(() => props.name || props.title)
+const hidden = ref(false)
 </script>
+
 <style scoped>
 .option-box {
   position: relative;

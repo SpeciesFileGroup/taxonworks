@@ -233,7 +233,6 @@ CarrouselTask.prototype.showchildren = function (childIndex) {
     )
     if (count < this.maxCards) {
       child.addClass('show')
-      child.attr('tabindex', 0)
     }
     count++
   }

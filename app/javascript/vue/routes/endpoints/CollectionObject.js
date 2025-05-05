@@ -83,6 +83,9 @@ export const CollectionObject = {
   dwcVerbose: (id, params = { rebuild: true }) =>
     AjaxCall('get', `/${controller}/${id}/dwc_verbose`, { params }),
 
+  dwcCompact: (id, params = { rebuild: true }) =>
+    AjaxCall('get', `/${controller}/${id}/dwc_compact`, { params }),
+
   reportDwc: (params) =>
     AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),
 

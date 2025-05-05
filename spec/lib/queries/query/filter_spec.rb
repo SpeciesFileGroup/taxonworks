@@ -10,6 +10,29 @@ describe Queries::Query::Filter, type: [:model] do
   let(:query) { Queries::Query::Filter.new({}) }
   filters = ::Queries::Query::Filter.descendants
 
+  # !! Careful, this is internal use only, involved
+  # !! in things like Person filters across projects.
+  specify '#project_id = false? / #only_project?' do
+    a = ::Queries::Otu::Filter.new(project_id: false)
+    expect(a.only_project?).to be_falsey
+  end
+
+  specify '#project_id = false' do
+    a = ::Queries::Otu::Filter.new(project_id: false)
+    expect(a.project_id).to eq([])
+  end
+
+  specify '#only_project?' do
+    a = ::Queries::Otu::Filter.new({})
+    expect(a.only_project?).to be_truthy # project_id is applied by default
+  end
+
+  specify '#only_project?' do
+    a = ::Queries::Otu::Filter.new({})
+    a.otu_id = 1
+    expect(a.only_project?).to be_falsey # project_id is applied by default
+  end
+
   context '#apply_venn' do
     let(:o1) { FactoryBot.create(:valid_otu) }
     let(:o2) { FactoryBot.create(:valid_otu) }
@@ -17,7 +40,7 @@ describe Queries::Query::Filter, type: [:model] do
 
     specify '#apply_venn ab' do
       v = "http://127.0.0.1:3000/otus/filter.json?name=#{o2.name}"
-      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id, o3.id], venn: v)
+      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id, o3.id], venn: v, venn_mode: :ab)
       expect(a.all).to contain_exactly(o2)
     end
 
@@ -33,9 +56,9 @@ describe Queries::Query::Filter, type: [:model] do
       expect(a.all).to contain_exactly(o3)
     end
 
-    specify '#apply_venn #venn_mode b' do
-      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o2.id}&otu_id[]=#{o3.id}"
-      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id], venn: v, venn_mode: :b)
+    specify '#apply_venn #venn_mode b multiply encoded' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id%25255B%25255D=#{o2.id}&otu_id%25255B%25255D=#{o3.id}"
+      a = ::Queries::Otu::Filter.new(otu_id: [o2.id], venn: v, venn_mode: :b)
       expect(a.all).to contain_exactly(o3)
     end
   end
@@ -58,6 +81,7 @@ describe Queries::Query::Filter, type: [:model] do
   end
 
   specify '#venn_mode 0' do
+    query.venn_mode = 'ab'
     expect(query.venn_mode).to eq(:ab)
   end
 
@@ -73,32 +97,32 @@ describe Queries::Query::Filter, type: [:model] do
 
   specify '.instantiated_base_filter 1' do
     p = ActionController::Parameters.new(otu_query: {}, foo: :bar)
-    expect(Queries::Query::Filter.instatiated_base_filter(p).referenced_klass).to eq(::Otu)
+    expect(Queries::Query::Filter.instantiated_base_filter(p).referenced_klass).to eq(::Otu)
   end
 
   specify '.instantiated_base_filter 1' do
     p = ActionController::Parameters.new(otu_query: {otu_id: [1,2,3]}, foo: :bar)
-    expect(Queries::Query::Filter.instatiated_base_filter(p).otu_id).to eq([1,2,3])
+    expect(Queries::Query::Filter.instantiated_base_filter(p).otu_id).to eq([1,2,3])
   end
 
   specify '.instantiated_base_filter params 1 ' do
     p = ActionController::Parameters.new(collecting_event_query: {wildcard_attribute: 'verbatim_locality'})
-    expect(Queries::Query::Filter.instatiated_base_filter(p).params).to include(:wildcard_attribute)
+    expect(Queries::Query::Filter.instantiated_base_filter(p).params).to include(:wildcard_attribute)
   end
 
   specify '.instantiated_base_filter params 2 ' do
     p = ActionController::Parameters.new(collecting_event_query: {wildcard_attribute: ['verbatim_locality']})
-    expect(Queries::Query::Filter.instatiated_base_filter(p).params).to include(:wildcard_attribute)
+    expect(Queries::Query::Filter.instantiated_base_filter(p).params).to include(:wildcard_attribute)
   end
 
   specify '.base_filter 1' do
-     p = ActionController::Parameters.new(collection_object_query: {}, foo: :bar)
-     expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
+    p = ActionController::Parameters.new(collection_object_query: {}, foo: :bar)
+    expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
   end
 
   specify '.base_filter 1' do
-     p = ActionController::Parameters.new(collection_object_query: { otu_query: {}}, foo: :bar)
-     expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
+    p = ActionController::Parameters.new(collection_object_query: { otu_query: {}}, foo: :bar)
+    expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
   end
 
   context 'PARAMS defined' do
@@ -159,9 +183,9 @@ describe Queries::Query::Filter, type: [:model] do
       specify "#{n}" do
         a = *::Queries::Query::Filter.inverted_subqueries[filter_name]
         a.delete(:biological_associations_graph) if a # There is no BiologicalAssociationsGraph UI
-        a.delete(:dwc_occurrence) if a # ... or  DwcOccurrence
         a.delete(:data_attribute) if a # etc
         a.delete(:controlled_vocabulary_term) if a
+        a.delete(:depiction) if a # There is no depiction filter
 
         expect( query_names ).to contain_exactly( *a )
       end

@@ -237,28 +237,28 @@ module OtusHelper
 
     if gj = otu.cached_map_geo_json(cached_map_type)
 
-     i =
-       {
-         **gj,
-        # 'type' => gj['type'],  # 'Feature',
+      i =
+        {
+          **gj,
+          # 'type' => gj['type'],  # 'Feature',
 
-        'properties' => {
-          'base' => {
-            'type' => 'Otu',
-            'id' => otu.id,
-            'label' => label_for_otu(otu) },
-    #     'shape' => {
-    #       'type' => cached_map_type,
-    #       'id' => 99999 }, # was nil
-         'updated_at' => 'foo' # last updated at on CachedMapItem scope, possibly
+          'properties' => {
+            'base' => {
+              'type' => 'Otu',
+              'id' => otu.id,
+              'label' => label_for_otu(otu) },
+            #     'shape' => {
+            #       'type' => cached_map_type,
+            #       'id' => 99999 }, # was nil
+            'updated_at' => 'foo' # last updated at on CachedMapItem scope, possibly
+          }
         }
-      }
 
-     if gj.keys.include?('coordinates')
-       i['coordinates'] = gj['coordinates'] # was 'coordinates' TODO: might not work
-     elsif gj.keys.include?('geometries')
-       i['geometries'] = gj['geometries'] # was 'coordinates' TODO: might not work
-     end
+      if gj.keys.include?('coordinates')
+        i['coordinates'] = gj['coordinates'] # was 'coordinates' TODO: might not work
+      elsif gj.keys.include?('geometries')
+        i['geometries'] = gj['geometries'] # was 'coordinates' TODO: might not work
+      end
 
       i
 
@@ -278,6 +278,13 @@ module OtusHelper
       'type' => 'Otu',
       'label' => label_for_otu(otu)
     }
+
+    o.current_field_occurrences.each do |f|
+      if g = field_occurrence_to_geo_json_feature(f)
+        g['properties']['target'] = t
+        h['features'].push g
+      end
+    end
 
     o.current_collection_objects.each do |c|
       if g = collection_object_to_geo_json_feature(c)
@@ -300,6 +307,76 @@ module OtusHelper
       end
     end
     h
+  end
+
+  def ranked_otu_table(otus)
+    d = TaxonName.ranked_otus(otu_scope: otus, project_id: sessions_current_project_id)
+
+    tbl = %w{otu_id order family genus species otu_name taxon_name taxon_name_author_year}
+    output = StringIO.new
+    output.puts ::CSV.generate_line(tbl, col_sep: "\t", encoding: Encoding::UTF_8)
+
+    d.each do |o|
+      output.puts ::CSV.generate_line(
+        [
+          o.id,
+          o['order'],
+          o['family'],
+          o['genus'],
+          o['species'],
+          o.name,
+          o.cached,
+          o.cached_author_year
+        ],
+        col_sep: "\t", encoding: Encoding::UTF_8)
+    end
+
+    output.string
+  end
+
+  # @return Hash
+  #   { dwc_occurrence_id: [ image1, image2 ... ], ... }
+  def dwc_gallery_data(otu, dwc_occurrence_id: [], pagination_headers: true)
+    a = DwcOccurrence.scoped_by_otu(otu)
+      .select(:id, :dwc_occurrence_object_id, :dwc_occurrence_object_type)
+
+    dwc_ids = [dwc_occurrence_id].flatten.compact.uniq
+
+    if dwc_ids.any?
+      a = a.where(id: dwc_ids)
+    end
+
+    a = a.page(params[:page]).per(params[:per])
+
+    # Somehwhat of a janky pattern, probably needs to be
+    # moved into Controller.
+    assign_pagination(a) if pagination_headers
+
+    b = Image.with(dwc_scope: a)
+      .joins("JOIN depictions d on d.image_id = images.id" )
+      .joins("JOIN dwc_scope on d.depiction_object_id = dwc_scope.dwc_occurrence_object_id AND d.depiction_object_type = 'CollectionObject' AND dwc_scope.dwc_occurrence_object_type = 'CollectionObject'")
+      .select('images.*, dwc_scope.id dwc_id')
+      .distinct
+
+    r = {}
+    b.find_each do |o|
+      r[o.dwc_id] ||= []
+      r[o.dwc_id].push o
+    end
+    r
+  end
+
+  def otu_key_inventory(otu, is_public: true)
+    return {
+      observation_matrices: {
+        scoped: otu.in_scope_observation_matrices.where(is_public:).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {} ,
+        in: otu.observation_matrices.where(is_public:).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {},
+      },
+      leads: {
+        scoped: otu.leads.where(parent_id: nil, is_public:).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
+        in:  otu.leads.where.not(parent_id: nil).where(is_public: true).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
+      }
+    }
   end
 
 end

@@ -1,10 +1,33 @@
 require 'rails_helper'
 
 describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
+  include ActiveJob::TestHelper
+
   let(:collecting_event) { CollectingEvent.new }
   let(:county) { FactoryBot.create(:valid_geographic_area_stack) }
   let(:state) { county.parent }
   let(:country) { state.parent }
+
+  # Added as a context for exploring re-indexing DwC based on DataAttribute updates
+  xspecify 'data_attributes_attributes cascades' do
+    p = FactoryBot.create(:valid_predicate, uri: 'http://rs.tdwg.org/dwc/terms/waterBody', name: 'waterBody')
+
+    ce = CollectingEvent.create!(
+      "id"=>nil, "roles_attributes"=>[], "identifiers_attributes"=>[], "data_attributes_attributes"=>[{"type"=>"InternalAttribute", "controlled_vocabulary_term_id"=>p.id, "attribute_subject_id"=>nil, "attribute_subject_type"=>"CollectingEvent", "value"=>"test"}      ]
+    )
+
+    s = FactoryBot.create(:valid_specimen, collecting_event: ce)
+
+    ce2 = CollectingEvent.create!(
+      "id"=>nil, "roles_attributes"=>[], "identifiers_attributes"=>[], "data_attributes_attributes"=>[{"type"=>"InternalAttribute", "controlled_vocabulary_term_id"=>p.id, "attribute_subject_id"=>nil, "attribute_subject_type"=>"CollectingEvent", "value"=>"test"}      ]
+    )
+
+    ce3 = CollectingEvent.create!(
+      "id"=>nil, "roles_attributes"=>[], "identifiers_attributes"=>[], "data_attributes_attributes"=>[{"type"=>"InternalAttribute", "controlled_vocabulary_term_id"=>p.id, "attribute_subject_id"=>nil, "attribute_subject_type"=>"CollectingEvent", "value"=>"test"}      ]
+    )
+
+    expect(Delayed::Job.count).to eq(0)
+  end
 
   context '.batch_update' do
     specify 'can update a verbatim field' do
@@ -30,8 +53,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       specify 'can add the first collector' do
         collector = FactoryBot.create(:valid_person)
         params = { collecting_event: { roles_attributes:
-                                         [{ person_id: collector.id, type: 'Collector' }] },
-                   collecting_event_query: { collecting_event_id: [c1.id] }
+                                       [{ person_id: collector.id, type: 'Collector' }] },
+        collecting_event_query: { collecting_event_id: [c1.id] }
         }
 
         response = CollectingEvent.batch_update(params).to_json
@@ -48,8 +71,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
         second_collector = FactoryBot.create(:valid_person)
 
         params = { collecting_event: { roles_attributes:
-                                         [{ person_id: second_collector.id, type: 'Collector' }] },
-                   collecting_event_query: { collecting_event_id: [c1.id] }
+                                       [{ person_id: second_collector.id, type: 'Collector' }] },
+        collecting_event_query: { collecting_event_id: [c1.id] }
         }
 
         response = CollectingEvent.batch_update(params).to_json
@@ -68,9 +91,9 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
         third_collector = FactoryBot.create(:valid_person)
 
         params = { collecting_event: { roles_attributes:
-                                         [{ person_id: second_collector.id, type: 'Collector' },
-                                          { person_id: third_collector.id, type: 'Collector' }] },
-                   collecting_event_query: { collecting_event_id: [c1.id] }
+                                       [{ person_id: second_collector.id, type: 'Collector' },
+                                        { person_id: third_collector.id, type: 'Collector' }] },
+        collecting_event_query: { collecting_event_id: [c1.id] }
         }
 
         response = CollectingEvent.batch_update(params).to_json
@@ -145,7 +168,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
     specify 'not Valhala' do
       collecting_event.minimum_elevation = 9999
-      collecting_event.maximum_elevation = 11001 
+      collecting_event.maximum_elevation = 11001
 
       expect(collecting_event.valid?).to be_falsey
       expect(collecting_event.errors[:maximum_elevation].present?).to be_truthy
@@ -305,6 +328,58 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       a = collecting_event.clone
       expect(a.georeferences.count).to eq(1)
     end
+
+    specify 'increments identifier' do
+      a = Identifier::Local::FieldNumber.create(
+        namespace: FactoryBot.create(:valid_namespace),
+        identifier_object: collecting_event,
+        identifier: '1'
+      )
+
+      b = collecting_event.clone(incremented_identifier_id: a.id)
+      expect(b.local_identifiers.first.identifier).to eq('2')
+    end
+
+    specify 'does not infinite loop dwc indexing' do
+      collecting_event.collectors << FactoryBot.create(:valid_person)
+      collecting_event.update!(verbatim_label: 'Some text')
+
+      s1 = Specimen.create(collecting_event: collecting_event)
+      s2 = Specimen.create(collecting_event: collecting_event)
+
+      s1.biocuration_classes << FactoryBot.create(:valid_biocuration_class)
+
+      t = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s1)
+
+      t.determiners << FactoryBot.create(:valid_person)
+
+      a = Identifier::Local::FieldNumber.create(
+        namespace: FactoryBot.create(:valid_namespace),
+        identifier_object: collecting_event,
+        identifier: '1'
+      )
+
+      FactoryBot.create(:valid_data_attribute, attribute_subject: collecting_event)
+
+      g = FactoryBot.create(:valid_georeference, collecting_event: collecting_event)
+      g.georeference_authors << FactoryBot.create(:valid_person)
+
+      n = collecting_event.clone(incremented_identifier_id: a.id, annotations: true)
+
+      expect(n.persisted?).to be_truthy
+      expect(n.georeferences.first.georeference_authors.count).to eq(1)
+
+      expect(collecting_event.georeferences.first.georeference_authors.count).to eq(1)
+    end
+
+    specify 'does not clone collection objects' do
+      a = FactoryBot.create(:valid_collecting_event)
+      b = FactoryBot.create(:valid_collection_object, collecting_event: a)
+
+      c = a.clone
+      expect(c.collection_objects.reload.count).to eq(0)
+    end
+
   end
 
   context 'roles' do
@@ -328,15 +403,27 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       expect(s.dwc_occurrence_persisted?).to be_truthy
     end
 
-    specify 'updating ce updates dwc_occurrence' do
+    specify 'updating ce delayed update dwc_occurrence' do
       ce.update!(start_date_year: 2012)
+      perform_enqueued_jobs
       expect(s.dwc_occurrence.reload.eventDate).to match('2012')
     end
 
     specify 'does not update with no_dwc_occurrence_index: true' do
       ce.update!(start_date_year: 2012, no_dwc_occurrence: true)
-      expect(s.dwc_occurrence.eventDate).to match('2010')
+      perform_enqueued_jobs
+      expect(s.dwc_occurrence.reload.eventDate).to match('2010')
     end
+
+    specify 'does not update with no_dwc_occurrence_index: true' do
+      ce.update!(start_date_year: 2012, no_dwc_occurrence: true)
+      perform_enqueued_jobs
+      expect(s.dwc_occurrence.reload.eventDate).to match('2010')
+    end
+
+
+
+
   end
 
   context 'concerns' do
