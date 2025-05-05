@@ -1,5 +1,4 @@
 import setBiologicalAssociations from './setBiologicalAssociations'
-import setCollectingEvents from './setCollectingEvents'
 import setCollectionObjects from './setCollectionObjects'
 import setConveyances from './setConveyances'
 import setGeoreferences from './setGeoreferences'
@@ -19,7 +18,6 @@ import setFieldOccurrences from './setFieldOccurrences'
 
 const MutationNames = {
   SetBiologicalAssociations: 'setBiologicalAssociations',
-  SetCollectingEvents: 'setCollectingEvents',
   SetCollectionObjects: 'setCollectionObjects',
   SetCommonNames: 'setCommonNames',
   SetConveyances: 'setConveyances',
@@ -40,7 +38,6 @@ const MutationNames = {
 
 const MutationFunctions = {
   [MutationNames.SetBiologicalAssociations]: setBiologicalAssociations,
-  [MutationNames.SetCollectingEvents]: setCollectingEvents,
   [MutationNames.SetCollectionObjects]: setCollectionObjects,
   [MutationNames.SetCommonNames]: setCommonNames,
   [MutationNames.SetConveyances]: setConveyances,

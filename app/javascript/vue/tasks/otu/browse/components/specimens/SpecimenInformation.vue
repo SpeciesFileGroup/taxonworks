@@ -84,10 +84,10 @@ import {
   Repository,
   Depiction,
   Citation,
-  Identifier
+  Identifier,
+  CollectingEvent
 } from '@/routes/endpoints'
 
-import { GetterNames } from '../../store/getters/getters'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
 
 export default {
@@ -117,16 +117,8 @@ export default {
         : this.specimen.individualCount
     },
 
-    collectingEvents() {
-      return this.$store.getters[GetterNames.GetCollectingEvents]
-    },
-
     collectingEventLabel() {
-      const ce = this.collectingEvents.find(
-        (item) => this.collectionObject.collecting_event_id === item.id
-      )
-
-      return ce ? ce.object_tag : 'not specified'
+      return this.collectingEvent?.object_tag || 'not specified'
     },
 
     repositoryLabel() {
@@ -152,6 +144,7 @@ export default {
       alreadyLoaded: false,
       biocurations: [],
       citations: [],
+      collectingEvent: undefined,
       collectionObject: {},
       depictions: [],
       determinationCitations: [],
@@ -197,6 +190,13 @@ export default {
         biocuration_classification_object_type: COLLECTION_OBJECT
       }).then(({ body }) => {
         this.biocurations = body
+      })
+
+      CollectingEvent.where({
+        collection_object_id: [coId]
+      }).then(({ body }) => {
+        const [ce] = body
+        this.collectingEvent = ce
       })
 
       Depiction.where({
