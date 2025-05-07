@@ -10,8 +10,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Filters: pop up screen overlap when columns are locked [#4322]
+- Browse Otu: display verbatimLocality in Specimen Records section [#4331]
 
 [#4322]: https://github.com/SpeciesFileGroup/taxonworks/issues/4322
+[#4331]: https://github.com/SpeciesFileGroup/taxonworks/issues/4331
 
 ## [0.50.1] - 2025-05-01
 

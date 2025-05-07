@@ -73,7 +73,7 @@ const DWC_ATTRIBUTES = [
   'individualCount',
   'country',
   'stateProvince',
-  'locality',
+  'verbatimLocality',
   'year',
   'typeStatus',
   'repository',
