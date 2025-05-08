@@ -27,6 +27,7 @@ class Sound < ApplicationRecord
     audio/x-wav
     audio/x-ms-wma
     audio/m4a
+    audio/mpeg
   }
 
   originates_from 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence', 'CollectingEvent'
