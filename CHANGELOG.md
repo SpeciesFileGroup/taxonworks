@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+
+- Updated Ruby gems
+
 ### Fixed
 
 - Filters: pop up screen overlap when columns are locked [#4322]
