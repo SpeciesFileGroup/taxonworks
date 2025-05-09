@@ -255,7 +255,7 @@ class CollectingEvent < ApplicationRecord
   after_save :set_cached, unless: -> { no_cached }
 
   # See also app/models/collecting_event/georeference.rb for more accepts_nested_attributes
-  accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
+  accepts_nested_attributes_for :collectors, :collector_roles, :georeferences, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
     :check_date_range,
