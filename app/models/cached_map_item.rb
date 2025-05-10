@@ -169,9 +169,16 @@ class CachedMapItem < ApplicationRecord
 
     # This is a fast first pass, pure intersection
     a = GeographicItem
-      .joins(:geographic_areas_geographic_items)
-      .where(geographic_areas_geographic_items: { data_origin: })
-      .merge(GeographicItem.intersecting(:multi_polygon, geographic_item_id))
+      .with(b: GeographicItem
+        .joins(:geographic_areas_geographic_items)
+        .where(geographic_areas_geographic_items: { data_origin: })
+      )
+      .from('b')
+      .select('b.*')
+      .where(
+        'ST_Intersects(b.geography, (SELECT geography FROM geographic_items ' \
+        'WHERE geographic_items.id = ?))', geographic_item_id
+      )
       .pluck(:id)
 
     return a if buffer.nil?
@@ -191,6 +198,10 @@ class CachedMapItem < ApplicationRecord
   #   area (and so has a chance of already being associated with a cached map
   #   item/translation)
   #
+  # @param search_existing_translates [Boolean]
+  #   true if existing cached_map_item_translations should be checked for a
+  #   match.
+  #
   # @param data_origin Array, String
   #   like `ne_states` or ['ne_states, 'ne_countries']
   #
@@ -199,7 +210,8 @@ class CachedMapItem < ApplicationRecord
   #   Typical use, do not apply for Georeferences, apply -10km for AssertedDistributions
   #
   def self.translate_geographic_item_id(
-    geographic_item_id, geographic_area_based, data_origin = nil, buffer = nil
+    geographic_item_id, geographic_area_based,
+    search_existing_translates = true, data_origin = nil, buffer = nil
   )
     return nil if data_origin.blank?
 
@@ -208,6 +220,13 @@ class CachedMapItem < ApplicationRecord
     a = nil
 
     b = buffer
+
+    if search_existing_translates
+      a = translate_by_geographic_item_translation(
+        geographic_item_id, cached_map_type
+      )
+      return a if a.present?
+    end
 
     # All these methods depend on "prior knowledge" (not spatial calculations)
     if geographic_area_based
@@ -280,19 +299,14 @@ class CachedMapItem < ApplicationRecord
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 
-      # We assume georefs won't match on an existing translation
-      if base_class_name != 'Georeference' &&
-         (a = translate_by_geographic_item_translation(geographic_item_id, cached_map_type)).present?
-        h[:geographic_item_id] = a
-      else
-        geographic_area_based = base_class_name == 'AssertedDistribution' &&
-          o.asserted_distribution_shape_type == 'GeographicArea'
-        h[:geographic_item_id] = translate_geographic_item_id(
-          geographic_item_id,
-          geographic_area_based,
-          cached_map_type.safe_constantize::SOURCE_GAZETEERS
-        )
-      end
+      geographic_area_based = base_class_name == 'AssertedDistribution' &&
+        o.asserted_distribution_shape_type == 'GeographicArea'
+      search_existing_translates = base_class_name == 'AssertedDistribution'
+
+      h[:geographic_item_id] = translate_geographic_item_id(
+        geographic_item_id, geographic_area_based, search_existing_translates,
+        cached_map_type.safe_constantize::SOURCE_GAZETEERS
+      )
 
       if h[:geographic_item_id].blank?
         h[:geographic_item_id] = [geographic_item_id]

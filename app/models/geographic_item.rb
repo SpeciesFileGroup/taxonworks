@@ -673,6 +673,7 @@ class GeographicItem < ApplicationRecord
                           ).distinct
     end
 
+    # DEPRECATED (unused)
     # This is a geographic intersect, not geometric
     def intersecting(shape, *geographic_item_ids)
       shape = shape.to_s.downcase

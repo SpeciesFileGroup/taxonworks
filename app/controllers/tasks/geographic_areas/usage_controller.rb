@@ -4,7 +4,7 @@ class Tasks::GeographicAreas::UsageController < ApplicationController
   # GET
   def index
     if params[:geographic_area_id].present?
-      @geogrpahic_areas = GeographicArea.where(id: params[:geographic_area_id])
+      @geographic_areas = GeographicArea.where(id: params[:geographic_area_id])
     else
       @geographic_areas = GeographicArea.all
     end
