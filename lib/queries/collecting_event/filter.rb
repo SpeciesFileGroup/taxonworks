@@ -239,6 +239,7 @@ module Queries
         return nil if geo_shape_id.empty? || geo_shape_type.empty? ||
           # TODO: this should raise an error(?)
           geo_shape_id.length != geo_shape_type.length
+        return ::CollectingEvent.none if roll_call
 
         geographic_area_shapes, gazetteer_shapes = shapes_for_geo_mode
 
@@ -327,6 +328,8 @@ module Queries
 
       def wkt_facet
         return nil if wkt.blank?
+        return ::CollectingEvent.none if roll_call
+
         from_wkt(wkt)
       end
 
@@ -340,6 +343,8 @@ module Queries
       # Shape is a Hash in GeoJSON format
       def geo_json_facet
         return nil if geo_json.nil?
+        return ::CollectingEvent.none if roll_call
+
         if a = RGeo::GeoJSON.decode(geo_json)
           return spatial_query(a.geometry_type.to_s, a.to_s)
         else
