@@ -278,6 +278,7 @@ module Queries
 
       def geo_json_facet
         return nil if geo_json.blank?
+        return ::Otu.none if roll_call
 
         c = ::Queries::CollectingEvent::Filter.new(geo_json:, project_id:, radius:)
         a = ::Queries::AssertedDistribution::Filter.new(geo_json:, project_id:, radius:)
@@ -410,6 +411,7 @@ module Queries
         return nil if geo_shape_id.empty? || geo_shape_type.empty? ||
           # TODO: this should raise an error(?)
           geo_shape_id.length != geo_shape_type.length
+          return ::Otu.none if roll_call
 
         geographic_area_shapes, gazetteer_shapes = shapes_for_geo_mode
 
