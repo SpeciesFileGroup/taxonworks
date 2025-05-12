@@ -167,14 +167,6 @@ build_biocuration_group_task:
   name:
   related:
     - build_biocuration_groups_task
-match_georeference_task:
-  hub: true
-  name: 'Match georeferences'
-  description: 'Re-use georeference efforts from past collecting events.'
-  categories:
-    - collecting_event
-    - collection_object
-  status: prototype
 otu_distribution_data_task:
   hub: true
   name: 'Otu distribution'

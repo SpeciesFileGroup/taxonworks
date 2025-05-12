@@ -1,6 +1,6 @@
 <template>
   <div ref="rootRef">
-    <div class="separate-bottom flex-separate">
+    <div class="separate-bottom horizontal-left-content gap-small">
       <div class="horizontal-left-content">
         <VSpinner
           v-if="isLoading"
@@ -22,7 +22,6 @@
       <div class="horizontal-left-content gap-small">
         <default-pin
           v-if="pinSection"
-          class="margin-small-left"
           :section="pinSection"
           :type="pinType"
           @get-id="getObject"

@@ -135,10 +135,11 @@ class Georeference < ApplicationRecord
   attr_accessor :no_cached
 
   before_validation :round_error_radius
-
+  before_validation :set_geographic_item, unless: -> { self.geographic_item_id.blank? }
   after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
-
   after_destroy :set_cached_collecting_event
+
+
 
   def otus
     ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
@@ -611,6 +612,10 @@ class Georeference < ApplicationRecord
   end
 
   private
+
+  def set_geographic_item
+    self.geographic_item = GeographicItem.find(geographic_item_id)
+  end
 
   def round_error_radius
     if error_radius.present?
