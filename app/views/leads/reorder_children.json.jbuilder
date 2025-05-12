@@ -5,3 +5,4 @@ json.leads do
 end
 
 json.futures @futures
+json.partial! 'lead_item_otus', lead_item_otus: @lead_item_otus

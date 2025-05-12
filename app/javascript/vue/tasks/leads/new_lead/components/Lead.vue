@@ -4,160 +4,187 @@
     full-screen
   />
 
-  <BlockLayout class="lead">
-    <template #header>
-      <div class="full_width header-left-right">
-        <div>
-          <VBtn
-            v-if="!positionIsFirst"
-            color="update"
-            circle
-            @click="() => changeLeadPosition(DIRECTIONS['left'])"
-            title="Move this lead left"
-          >
-            <VIcon
-              x-small
-              name="arrowLeft"
+  <div class="lead_and_lead_items">
+    <BlockLayout class="lead">
+      <template #header>
+        <div class="full_width header-left-right">
+          <div>
+            <VBtn
+              v-if="!positionIsFirst"
+              color="update"
+              circle
+              @click="() => changeLeadPosition(DIRECTIONS['left'])"
               title="Move this lead left"
-            />
-          </VBtn>
+            >
+              <VIcon
+                x-small
+                name="arrowLeft"
+                title="Move this lead left"
+              />
+            </VBtn>
 
-          <VBtn
-            v-if="!positionIsLast"
-            color="update"
-            circle
-            @click="() => changeLeadPosition(DIRECTIONS['right'])"
-            title="Move this lead right"
-          >
-            <VIcon
-              x-small
-              name="arrowRight"
+            <VBtn
+              v-if="!positionIsLast"
+              color="update"
+              circle
+              @click="() => changeLeadPosition(DIRECTIONS['right'])"
               title="Move this lead right"
-            />
+            >
+              <VIcon
+                x-small
+                name="arrowRight"
+                title="Move this lead right"
+              />
+            </VBtn>
+
+            <VBtn
+              v-if="store.children.length > 2"
+              color="destroy"
+              circle
+              @click="() => deleteSubTree()"
+            >
+              <VIcon
+                x-small
+                name="trash"
+              />
+            </VBtn>
+          </div>
+          <RadialAnnotator
+            :global-id="store.children[position].global_id"
+            @create="handleRadialCreate"
+            @delete="handleRadialDelete"
+            @update="handleRadialUpdate"
+          />
+        </div>
+      </template>
+
+      <template #body>
+        <div
+          v-if="!!store.last_saved.children[position].redirect_id"
+          class="redirect_notice"
+        >
+          <i>This side is currently redirecting, to add leads below remove the redirection.</i>
+        </div>
+        <div class="lead_navigation">
+          <VBtn
+            :disabled="nextButtonDisabled"
+            color="update"
+            medium
+            @click="nextCouplet()"
+          >
+            {{ editNextText }}
           </VBtn>
 
           <VBtn
-            v-if="store.children.length > 2"
-            color="destroy"
-            circle
-            @click="() => deleteSubTree()"
+            :disabled="!!store.last_saved.children[position].redirect_id || !leadHasChildren"
+            color="create"
+            medium
+            @click="insertCouplet()"
           >
-            <VIcon
-              x-small
-              name="trash"
-            />
+            Insert a couplet below
           </VBtn>
         </div>
-        <RadialAnnotator
-          :global-id="store.children[position].global_id"
-          @create="handleRadialCreate"
-          @delete="handleRadialDelete"
-          @update="handleRadialUpdate"
-        />
-      </div>
-    </template>
 
-    <template #body>
-      <div
-        v-if="!!store.last_saved.children[position].redirect_id"
-        class="redirect_notice"
-      >
-        <i>This side is currently redirecting, to add leads below remove the redirection.</i>
-      </div>
-      <div class="navigation">
-        <VBtn
-          :disabled="nextButtonDisabled"
-          color="update"
-          medium
-          @click="nextCouplet()"
+        <div class="field label-above">
+          <label>Text</label>
+          <textarea
+            class="full_width"
+            rows="5"
+            v-model="store.children[position].text"
+          />
+        </div>
+
+        <OtuChooser :lead="store.children[position]"/>
+
+        <div
+          @click="() => { expandOptions = !expandOptions }"
+          class="cursor-pointer inline"
         >
-          {{ editNextText }}
-        </VBtn>
+          <div
+            :data-icon="expandOptions ? 'w-arrow-down' : 'w-arrow-right'"
+            class="expand-box button-circle button-default separate-right"
+          />
+          <span class="margin-small-left">
+            {{ expandOptions ? 'Fewer options' : 'More options' }}
+          </span>
+        </div>
 
-        <VBtn
-          :disabled="!!store.last_saved.children[position].redirect_id || !leadHasChildren"
-          color="create"
-          medium
-          @click="insertCouplet()"
+        <div
+          v-if="expandOptions"
+          class="separate-top"
         >
-          Insert a couplet below
-        </VBtn>
-      </div>
-
-      <div class="field label-above">
-        <label>Text</label>
-        <textarea
-          class="full_width"
-          rows="5"
-          v-model="store.children[position].text"
-        />
-      </div>
-
-      <OtuChooser :lead="store.children[position]"/>
-
-      <div class="field label-above">
-        <label>External link</label>
-        <fieldset>
           <div class="field label-above">
-            <label>URL (must include https:// or http://)</label>
-            <textarea
-              class="full_width"
-              rows="2"
-              v-model="store.children[position].link_out"
-            />
+            <label>External link</label>
+            <fieldset>
+              <div class="field label-above">
+                <label>URL (must include https:// or http://)</label>
+                <textarea
+                  class="full_width"
+                  rows="2"
+                  v-model="store.children[position].link_out"
+                />
+              </div>
+              <div class="field label-above">
+                <label>URL text</label>
+                <input
+                  type="text"
+                  class="normal-input full_width"
+                  v-model="store.children[position].link_out_text"
+                />
+              </div>
+              <p v-if="displayLinkOut">
+                Link: <a :href="store.children[position].link_out" target="_blank">
+                  {{ store.children[position].link_out_text }}
+                </a>
+              </p>
+              <p v-else>
+                Link: <i>(Requires both URL and text)</i>
+              </p>
+            </fieldset>
           </div>
+
           <div class="field label-above">
-            <label>URL text</label>
-            <input
-              type="text"
-              class="normal-input full_width"
-              v-model="store.children[position].link_out_text"
-            />
+            <label>Redirect</label>
+            <select
+              class="redirect_select"
+              v-model="store.children[position].redirect_id"
+              :disabled="leadHasChildren"
+            >
+              <option :value="null"></option>
+              <option
+                v-for="option in redirectOptions"
+                :key="option.id"
+                :value="option.id"
+                :selected="option.id == store.children[position].redirect_id"
+              >
+                {{ option.text }}
+              </option>
+            </select>
           </div>
-          <p v-if="displayLinkOut">
-            Link: <a :href="store.children[position].link_out" target="_blank">
-              {{ store.children[position].link_out_text }}
-            </a>
-          </p>
-          <p v-else>
-            Link: <i>(Requires both URL and text)</i>
-          </p>
-        </fieldset>
-      </div>
+        </div>
 
-      <div class="field label-above">
-        <label>Redirect</label>
-        <select
-          class="redirect_select"
-          v-model="store.children[position].redirect_id"
-          :disabled="leadHasChildren"
-        >
-          <option :value="null"></option>
-          <option
-            v-for="option in redirectOptions"
-            :key="option.id"
-            :value="option.id"
-            :selected="option.id == store.children[position].redirect_id"
-          >
-            {{ option.text }}
-          </option>
-        </select>
-      </div>
+        <Annotations
+          :object_type="LEAD"
+          :object_id="store.children[position].id"
+          v-model:depiction="depictions"
+        />
 
-      <Annotations
-        :object_type="LEAD"
-        :object_id="store.children[position].id"
-        v-model:depiction="depictions"
-      />
+        <h3>Future couplets</h3>
+        <FutureCoupletsList
+          :future="store.futures[position]"
+          :route-name="RouteNames.NewLead"
+          :load-function="(id) => store.loadKey(id)"
+        />
+      </template>
+    </BlockLayout>
 
-      <h3>Future couplets</h3>
-      <FutureCoupletsList
-        :future="store.futures[position]"
-        :route-name="RouteNames.NewLead"
-        :load-function="(id) => store.loadKey(id)"
-      />
-    </template>
-  </BlockLayout>
+    <LeadItems
+      v-if="showLeadItems"
+      :position="position"
+      :lead-id="store.children[position].id"
+      :show-add-otu="position == 0"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -173,6 +200,7 @@ import { useUserOkayToLeave } from './composables/useUserOkayToLeave.js'
 import Annotations from './Annotations.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import FutureCoupletsList from '../../components/FutureCoupletsList.vue'
+import LeadItems from './LeadItems.vue'
 import OtuChooser from './OtuChooser.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -196,6 +224,7 @@ const store = useStore()
 
 const depictions = ref([])
 const loading = ref(false)
+const expandOptions = ref(false)
 
 const leadHasChildren = computed(() => {
   return (!store.children[props.position].redirect_id &&
@@ -236,6 +265,11 @@ const positionIsFirst = computed(() => {
 
 const positionIsLast = computed(() => {
   return props.position == store.children.length - 1
+})
+
+const showLeadItems = computed(() => {
+  return !!store.lead_item_otus.children[props.position] &&
+    !store.lead_item_otus.children[props.position].fixed
 })
 
 const annotationLists = { [DEPICTION]: depictions }
@@ -290,11 +324,11 @@ function deleteSubTree() {
 
   loading.value = true
   LeadEndpoint.destroy_subtree(store.children[props.position].id)
-    .then(() => {
+    .then(({ body }) => {
       const noticeText = (leadHasChildren.value
         ? 'Lead and descendants deleted.'
-        : 'Lead deleted')
-      store.deleteChild(props.position)
+        : 'Lead deleted.')
+      store.loadKey(body)
       TW.workbench.alert.create(noticeText, 'notice')
       emit('editingHasOccurred')
     })
@@ -326,7 +360,7 @@ function changeLeadPosition(direction) {
   loading.value = true
   LeadEndpoint.reorder_children(store.lead.id, payload)
     .then(({ body }) => {
-      store.resetChildren(body.leads, body.futures)
+      store.resetChildren(body.leads, body.futures, body.lead_item_otus)
 
       const direction_word = (direction == DIRECTIONS.left) ? 'left' : 'right'
       TW.workbench.alert.create('Moved lead ' + direction_word, 'notice')
@@ -350,21 +384,39 @@ function changeLeadPosition(direction) {
     margin-right: 0.5em;
   }
 }
+
 .lead {
-  max-width: 600px;
-  min-width: 360px;
-  flex-grow: 1;
-  margin-bottom: 2em;
+  display: flex;
+  width: 100%;
 }
-.navigation {
+
+.lead_and_lead_items {
+  flex-grow: 1;
+  min-width: 360px;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.lead_navigation {
   display: flex;
   justify-content: space-evenly;
   gap: 3px;
 }
+
 .redirect_notice {
   margin-bottom: 1em;
 }
+
 .redirect_select[disabled] {
   opacity: .5;
+}
+
+.inline .expand-box {
+	width: 24px;
+	height: 24px;
+	padding: 0px;
+	background-size: 10px;
+	background-position: center;
 }
 </style>

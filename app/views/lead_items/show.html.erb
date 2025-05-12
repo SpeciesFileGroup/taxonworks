@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @lead_item %>
+
+<div>
+  <%= link_to "Edit this lead item", edit_lead_item_path(@lead_item) %> |
+  <%= link_to "Back to lead items", lead_items_path %>
+
+  <%= button_to "Destroy this lead item", @lead_item, method: :delete %>
+</div>

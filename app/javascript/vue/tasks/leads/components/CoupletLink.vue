@@ -13,6 +13,11 @@
     <template v-else>
       <i>(No text)</i>
     </template>
+
+    <template v-if="!!leadItemsCount">
+      <span v-if="leadItemsCount == 1"> (&#10003;)</span>
+      <span v-else> ({{ leadItemsCount }} otus left)</span>
+    </template>
   </a>
   <span
     v-if="otuTag"
@@ -43,6 +48,12 @@ const props = defineProps({
   otuTag: {
     type: String,
     default: ''
+  },
+  // Only ever actually used with the New/Edit task, not Show.
+  leadItemsCount: {
+    type: Number,
+    default: 0
   }
 })
+
 </script>

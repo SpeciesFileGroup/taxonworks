@@ -12,11 +12,21 @@ const makeInitialState = () => ({
   futures: [],
   // Ancestors of lead.
   ancestors: [],
-  // Use this to indicate data is being retrieved, not for database changes.
+  // A small corner spinner - !! do not set directly !! since it's shared; use
+  // store.setLoading instead.
   loading: false,
+  // Ref count for loading spinner.
+  loadingCount: 0,
   // Keep a copy of values from the last time a save occurred.
   last_saved: {
     origin_label: undefined,
+    children: []
+  },
+  lead_item_otus: {
+    // List of otu objects.
+    parent: [],
+    // Array of arrays, one for each child - each child array consists of those
+    // otu indices (corresponding to the `parent` array) which are checked.
     children: []
   }
 })

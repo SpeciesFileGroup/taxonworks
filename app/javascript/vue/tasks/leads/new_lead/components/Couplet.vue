@@ -96,7 +96,7 @@
       </VBtn>
     </div>
 
-    <div class="left_and_right_couplet">
+    <div class="lead_children">
       <Lead
         v-for="(child, i) in store.children"
         :key="child.id"
@@ -310,6 +310,7 @@ function addLead() {
     .then(({ body }) => {
       store.loadKey(body)
       TW.workbench.alert.create('Added a new lead.', 'notice')
+      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {
@@ -366,11 +367,12 @@ function childHasChildren(child, i) {
 </script>
 
 <style lang="scss" scoped>
-.left_and_right_couplet {
+.lead_children {
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
   gap: 2em;
+  margin-bottom: 1.5em;
 }
 .couplet_center {
   margin-top: 1em;
