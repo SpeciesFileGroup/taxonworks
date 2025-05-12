@@ -107,10 +107,12 @@ const selectedGeoreferences = ref([])
 const payload = computed(() => ({
   collecting_event_query: props.parameters,
   collecting_event: {
-    georeferences_attributes: georeferences.value.map(({ id, type }) => ({
-      geographic_item_id: id,
-      type
-    }))
+    georeferences_attributes: georeferences.value.map(
+      ({ geographic_item_id, type }) => ({
+        geographic_item_id,
+        type
+      })
+    )
   }
 }))
 
