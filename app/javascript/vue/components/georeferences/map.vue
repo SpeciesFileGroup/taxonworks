@@ -55,7 +55,7 @@ const props = defineProps({
   },
   zoom: {
     type: Number,
-    default: 18
+    default: 1
   },
   drawControls: {
     type: Boolean,
@@ -152,7 +152,8 @@ const emit = defineEmits([
   'geoJsonLayersEdited',
   'geojson',
   'shapeCreated',
-  'shapesEdited'
+  'shapesEdited',
+  'click:marker'
 ])
 
 const leafletMap = ref(null)
@@ -434,6 +435,8 @@ const createMarker = (feature, latlng) => {
     Icon[feature?.properties?.marker?.icon] || Icon.Georeference
   )
   const marker = L.marker(latlng, { icon })
+
+  marker.on('click', (event) => emit('click:marker', event))
 
   return marker
 }
