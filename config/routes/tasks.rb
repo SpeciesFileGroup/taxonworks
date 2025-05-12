@@ -583,21 +583,6 @@ scope :tasks do
     get 'collect_item', as: 'collect_draw_item_task'
   end
 
-  scope :gis, controller: 'tasks/gis/match_georeference' do
-    get 'match_georeference', action: 'index', as: 'match_georeference_task'
-    get 'filtered_collecting_events'
-    get 'recent_collecting_events'
-    get 'tagged_collecting_events'
-    get 'drawn_collecting_events'
-
-    get 'filtered_georeferences'
-    get 'recent_georeferences'
-    get 'tagged_georeferences'
-    get 'drawn_georeferences'
-
-    post 'batch_create_match_georeferences'
-  end
-
   scope :gis, controller: 'tasks/gis/otu_distribution_data' do
     get 'otu_distribution_data', action: 'show', as: 'otu_distribution_data_task'
   end
