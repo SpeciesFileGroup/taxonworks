@@ -81,7 +81,9 @@ function makeBatchloadRequest() {
       emit('update', body)
       data.value = body
     })
-    .catch(() => {})
+    .catch(() => {
+      isModalVisible.value = false
+    })
     .finally(() => {
       isLoading.value = false
     })
