@@ -3,21 +3,25 @@
     <div class="margin-small-bottom">
       Re-use georeference efforts from past collecting events.
     </div>
-    <div>
-      <b>Collecting event</b>
+    <fieldset>
+      <legend>Collecting event</legend>
       <SmartSelector
         model="collecting_events"
         klass="CollectionObject"
         pin-section="CollectingEvents"
         pin-type="CollectingEvent"
+        v-model="collectingEvent"
         @selected="setCollectingEvent"
       />
-    </div>
+    </fieldset>
+    <SmartSelectorItem
+      :item="collectingEvent"
+      @unset="reset"
+    />
     <template v-if="collectingEvent">
-      <span v-html="collectingEvent.object_tag" />
       <VMap
         width="100%"
-        height="400px"
+        height="300px"
         zoom="1"
         :zoom-bounds="5"
         :geojson="georeferences.map((item) => item.geo_json)"
@@ -81,6 +85,7 @@ import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import VMap from '@/components/georeferences/map.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 const MAX_LIMIT = 250
 
@@ -101,8 +106,9 @@ const emit = defineEmits(['close'])
 const updateBatchRef = ref(null)
 const collectingEvent = ref(null)
 const georeferences = ref([])
-const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const selectedGeoreferences = ref([])
+
+const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
 const payload = computed(() => ({
   collecting_event_query: props.parameters,
@@ -115,6 +121,12 @@ const payload = computed(() => ({
     )
   }
 }))
+
+function reset() {
+  collectingEvent.value = null
+  georeferences.value = []
+  selectedGeoreferences.value = []
+}
 
 function updateMessage(data) {
   const message = data.sync

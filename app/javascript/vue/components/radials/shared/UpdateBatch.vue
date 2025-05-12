@@ -21,17 +21,6 @@
         :data="data"
       />
     </template>
-    <template #footer>
-      <div class="horizontal-right-content">
-        <VBtn
-          color="primary"
-          medium
-          @click="closeModal"
-        >
-          Close
-        </VBtn>
-      </div>
-    </template>
   </VModal>
   <ConfirmationModal ref="confirmationModalRef" />
 </template>
