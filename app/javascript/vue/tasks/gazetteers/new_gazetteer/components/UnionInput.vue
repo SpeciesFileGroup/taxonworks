@@ -54,6 +54,7 @@
           :addParams="{ mark: false }"
           url="/geographic_areas/autocomplete"
           @get-item="(item) => addShape(item, GZ_COMBINE_GA)"
+          autofocus
         />
 
         <VAutocomplete
@@ -66,6 +67,7 @@
           param="term"
           url="/gazetteers/autocomplete"
           @get-item="(item) => addShape(item, GZ_COMBINE_GZ)"
+          autofocus
         />
       </template>
     </VModal>
