@@ -3,7 +3,10 @@
     <div class="margin-medium-bottom">
       <button
         class="button normal-input button-default shrink-button"
-        @click="() => (showGA = true)"
+        @click="() => {
+          showGA = true
+          emit('modalVisible', true)
+        }"
       >
         Add a Geographic Area
       </button>
@@ -12,7 +15,10 @@
     <div>
       <button
         class="button normal-input button-default"
-        @click="() => (showGZ = true)"
+        @click="() => {
+          showGZ = true
+          emit('modalVisible', true)
+        }"
       >
         Add a Gazetteer
       </button>
@@ -25,6 +31,7 @@
       @close="() => {
         showGZ = false
         showGA = false
+        emit('modalVisible', false)
       }"
       :container-style="{
         width: '600px',
@@ -74,7 +81,7 @@ import {
   GZ_COMBINE_GZ
 } from '@/constants/index.js'
 
-const emit = defineEmits(['newShape'])
+const emit = defineEmits(['newShape', 'modalVisible'])
 
 const showGZ = ref(false)
 const showGA = ref(false)
