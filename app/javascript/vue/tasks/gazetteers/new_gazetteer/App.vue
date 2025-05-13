@@ -1,5 +1,5 @@
 <template>
-  <VSpinner v-if="isLoading" />
+  <VSpinner v-if="isLoading && !modalVisible" />
   <NavBar
     :gz="gz"
     :projects-user-is-member-of="projectsUserIsMemberOf"
@@ -39,6 +39,7 @@
           :shapes="leafletShapes"
           @new-shape="(data, type) => addToShapes(data, type)"
           @shapes-updated="(shape) => addToShapes(shape, GZ_LEAFLET)"
+          @modal-visible="(visible) => (modalVisible = visible)"
           class="panel content item-1-2"
         </ShapeChoosers>
 
@@ -88,6 +89,7 @@ import {
 const shapes = ref([])
 const gz = ref({})
 const isLoading = ref(false)
+const modalVisible = ref(false)
 const selectedProjects = ref([])
 // Shapes are combined by Union if true, Intersection if false
 const operationIsUnion = ref(true)
@@ -338,6 +340,7 @@ function addToShapes(shape, type) {
       })
       break
   }
+  TW.workbench.alert.create('Shape added.', 'notice')
   shapesUpdated()
 }
 
