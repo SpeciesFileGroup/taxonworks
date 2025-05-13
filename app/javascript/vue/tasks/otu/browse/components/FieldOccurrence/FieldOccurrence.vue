@@ -16,7 +16,7 @@
         v-if="pagination"
         class="margin-small-top margin-small-bottom"
         :pagination="pagination"
-        @next-page="(e) => loadCollectionObjects(e.page)"
+        @next-page="(e) => loadFieldOccurrences(e.page)"
       />
       <table class="full_width">
         <thead>
@@ -124,7 +124,7 @@ async function listParser(list) {
   }))
 }
 
-function loadCollectionObjects(page = 1) {
+function loadFieldOccurrences(page = 1) {
   isLoading.value = true
   FieldOccurrence.filter({
     otu_id: [props.otu.id],
@@ -143,7 +143,7 @@ watch(
   () => props.otu?.id,
   (newVal) => {
     if (newVal) {
-      loadCollectionObjects()
+      loadFieldOccurrences()
     }
   },
   { immediate: true }
