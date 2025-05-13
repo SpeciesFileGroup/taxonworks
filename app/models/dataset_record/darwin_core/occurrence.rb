@@ -112,7 +112,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             return parent
           end
           p = potential_protonyms.first
-          
+
           # check parent.cached_valid_taxon_name_id if not valid, can have obsolete subgenus Aus (Aus) bus -> Aus bus, bus won't have ancestor (Aus)
           if p.nil? && !parent.cached_is_valid
             p = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent.valid_taxon_name).first
@@ -353,7 +353,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           collecting_event ||= field_number_identifier&.identifier_object
           collecting_event_identifiers << {type: Identifier::Local::FieldNumber, attributes: identifier_attributes}
         end
-        
+
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
         if collecting_event
           if field_number_identifier && event_id_identifier &&
@@ -492,7 +492,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def term_value_changed(name, value)
     if ['institutioncode', 'collectioncode', 'catalognumber', 'basisofrecord'].include?(name.downcase) and self.status != 'Imported'
-      ready = get_field_value('catalogNumber').blank? || get_field_value('TW:Namespaces:catalogNumber').present?
+      ready = get_field_value('catalogNumber').blank? || get_field_value('TW:Namespace:catalogNumber').present?
       ready ||= !!self.import_dataset.get_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
 
       self.metadata.delete('error_data')
@@ -1462,7 +1462,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
 
     ident_qualifier = get_field_value(:identificationQualifier)
-    otu_names << ident_qualifier unless ident_qualifier.nil? 
+    otu_names << ident_qualifier unless ident_qualifier.nil?
 
     names.last&.merge!({otu_attributes: {name: otu_names.join(' ')}}) unless otu_names.empty?
 
