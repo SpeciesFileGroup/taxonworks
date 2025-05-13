@@ -7,8 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Batch georeference on Filter CE  [#4336] 
+
 ### Changed
 
+- Removed Match geoference task [#4336] 
 - Updated Ruby gems
 
 ### Fixed
@@ -17,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse Otu: display verbatimLocality in Specimen Records section [#4331]
 - CSD: Missing Georeferences when collecting_event_id is passed by parameter [#4339]
 
+[#4336]: https://github.com/SpeciesFileGroup/taxonworks/issues/4336
 [#4322]: https://github.com/SpeciesFileGroup/taxonworks/issues/4322
 [#4331]: https://github.com/SpeciesFileGroup/taxonworks/issues/4331
 [#4339]: https://github.com/SpeciesFileGroup/taxonworks/issues/4339
