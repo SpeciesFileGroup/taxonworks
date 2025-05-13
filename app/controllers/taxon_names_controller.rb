@@ -14,8 +14,8 @@ class TaxonNamesController < ApplicationController
       end
       format.json {
         @taxon_names = ::Queries::TaxonName::Filter.new(params).all
-        .page(params[:page])
-        .per(params[:per])
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -171,7 +171,6 @@ class TaxonNamesController < ApplicationController
   end
 
   def create_simple_batch_load
-
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :simple_taxon_names_md5)
       @result = BatchLoad::Import::TaxonifiToTaxonworks.new(**batch_params)
       if @result.create
@@ -187,6 +186,7 @@ class TaxonNamesController < ApplicationController
     render :batch_load
   end
 
+  # TODO: Move to seperate Task
   def preview_nomen_batch_load
     if params[:file]
       @result = BatchLoad::Import::TaxonNames::NomenInterpreter.new(**batch_params)
@@ -377,7 +377,6 @@ class TaxonNamesController < ApplicationController
   end
 
 end
-
 
 Rails.application.reloader.to_prepare do
   require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/nomen_interpreter.rb'

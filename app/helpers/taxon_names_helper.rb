@@ -735,6 +735,4 @@ module TaxonNamesHelper
     end
   end
 
-
-
 end

@@ -241,7 +241,6 @@ module Vendor
       r
     end
 
-
     # Extend to buffered with GNA in middle layer?
     # Text only, taxon name cached or OTU name for the
     # most recent determination
