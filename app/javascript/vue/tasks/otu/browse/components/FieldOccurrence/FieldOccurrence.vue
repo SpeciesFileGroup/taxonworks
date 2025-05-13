@@ -1,26 +1,82 @@
 <template>
   <SectionPanel
-    :title="title"
     :status="status"
-    :spinner="loadState.fieldOccurrences"
+    :name="title"
+    :title="`${title} ${pagination ? '(' + pagination.total + ')' : ''}`"
   >
-    <ul class="no_bullets">
-      <li
-        v-for="fieldOccurrence in fieldOccurrences"
-        :key="fieldOccurrence.id"
+    <VSpinner v-if="isLoading" />
+    <div
+      v-if="list.length"
+      class="separate-top"
+    >
+      <a :href="`${RouteNames.FilterFieldOccurrence}?otu_id[]=${otu.id}`"
+        >Open filter</a
       >
-        <FieldOccurrenceRow :field-occurrence="fieldOccurrence" />
-      </li>
-    </ul>
+      <VPagination
+        v-if="pagination"
+        class="margin-small-top margin-small-bottom"
+        :pagination="pagination"
+        @next-page="(e) => loadCollectionObjects(e.page)"
+      />
+      <table class="full_width">
+        <thead>
+          <tr>
+            <th class="w-2" />
+            <th
+              v-for="attr in DWC_ATTRIBUTES"
+              :key="attr"
+              v-text="attr"
+            />
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="item in list"
+            :key="item.id"
+          >
+            <td>
+              <div class="horizontal-left-content middle gap-small">
+                <RadialAnnotator :global-id="item.globalId" />
+                <RadialObject :global-id="item.globalId" />
+                <RadialNavigator :global-id="item.globalId" />
+              </div>
+            </td>
+            <td
+              v-for="attr in DWC_ATTRIBUTES"
+              :key="attr"
+              v-text="item[attr]"
+            />
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </SectionPanel>
 </template>
 
 <script setup>
+import { FieldOccurrence, Citation } from '@/routes/endpoints'
+import { ref, watch } from 'vue'
+import { RouteNames } from '@/routes/routes'
+import { getPagination } from '@/helpers'
+import { FIELD_OCCURRENCE } from '@/constants'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 import SectionPanel from '../shared/sectionPanel'
-import { useStore } from 'vuex'
-import { computed } from 'vue'
-import { GetterNames } from '../../store/getters/getters'
-import FieldOccurrenceRow from './FieldOccurrenceRow.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import VPagination from '@/components/pagination.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+
+const DWC_ATTRIBUTES = [
+  'catalogNumber',
+  'recordNumber',
+  'otherCatalogNumbers',
+  'individualCount',
+  'country',
+  'stateProvince',
+  'verbatimLocality',
+  'year',
+  'citation'
+]
 
 const props = defineProps({
   status: {
@@ -39,9 +95,57 @@ const props = defineProps({
   }
 })
 
-const store = useStore()
-const loadState = computed(() => store.getters[GetterNames.GetLoadState])
-const fieldOccurrences = computed(
-  () => store.getters[GetterNames.GetFieldOccurrences]
+const list = ref([])
+const pagination = ref()
+const isLoading = ref(false)
+
+async function listParser(list) {
+  const citations = (
+    await Citation.where({
+      citation_object_id: list.map((item) => item.id),
+      citation_object_type: [FIELD_OCCURRENCE]
+    })
+  ).body
+
+  const getCitations = (citations, objectId) => {
+    const items = citations.filter(
+      (item) => item.citation_object_id === objectId
+    )
+
+    return items.map((item) => item.citation_source_body).join('; ')
+  }
+
+  return list.map((item) => ({
+    id: item.id,
+    globalId: item.global_id,
+    ...item.dwc_occurrence,
+    repository: item.repository?.object_label,
+    citation: getCitations(citations, item.id)
+  }))
+}
+
+function loadCollectionObjects(page = 1) {
+  isLoading.value = true
+  FieldOccurrence.filter({
+    otu_id: [props.otu.id],
+    page,
+    per: 50,
+    extend: ['dwc_occurrence']
+  })
+    .then(async (response) => {
+      pagination.value = getPagination(response)
+      list.value = await listParser(response.body)
+    })
+    .finally(() => (isLoading.value = false))
+}
+
+watch(
+  () => props.otu?.id,
+  (newVal) => {
+    if (newVal) {
+      loadCollectionObjects()
+    }
+  },
+  { immediate: true }
 )
 </script>
