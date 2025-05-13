@@ -96,7 +96,9 @@ class ProtocolRelationshipsController < ApplicationController
         mode: params[:mode] || :add,
         filter_query: params.require(:filter_query), # like filter_query: { otu_query: {}}
         protocol_id: params.require(:protocol_id),
-        replace_protocol_id: params[:replace_protocol_id]
+        replace_protocol_id: params[:replace_protocol_id],
+        project_id: sessions_current_project_id,
+        user_id: sessions_current_user_id
     )
       render json: r.to_json, status: :ok
     else
