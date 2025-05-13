@@ -90,7 +90,7 @@ module FieldOccurrence::DwcExtensions
       previousIdentifications: :dwc_previous_identifications,
 
       #  # TODO: move to a proper extension(?)
-      #  associatedMedia: :dwc_associated_media,
+      associatedMedia: :dwc_associated_media,
 
       #  # TODO: move to a proper extension(?)
       #  associatedTaxa: :dwc_associated_taxa,

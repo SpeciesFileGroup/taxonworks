@@ -1,20 +1,13 @@
 <template>
   <div>
-    <fieldset>
-      <legend>Geographic area</legend>
-      <SmartSelector
-        model="geographic_areas"
-        :klass="ASSERTED_DISTRIBUTION"
-        :target="ASSERTED_DISTRIBUTION"
-        label="name"
-        @selected="(item) => (geographicArea = item)"
-      />
-      <SmartSelectorItem
-        :item="geographicArea"
-        label="name"
-        @unset="geographicArea = undefined"
-      />
-    </fieldset>
+    <ShapeSelector
+      @selectShape="(selectedShape) => (shape = selectedShape)"
+    />
+    <SmartSelectorItem
+      :item="shape"
+      label="name"
+      @unset="() => (shape = undefined)"
+    />
 
     <div
       class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
@@ -23,7 +16,7 @@
         ref="updateBatchRef"
         :batch-service="AssertedDistribution.batchUpdate"
         :payload="payload"
-        :disabled="!geographicArea"
+        :disabled="!shape"
         @update="updateMessage"
         @close="emit('close')"
       />
@@ -31,7 +24,7 @@
       <PreviewBatch
         :batch-service="AssertedDistribution.batchUpdate"
         :payload="payload"
-        :disabled="!geographicArea"
+        :disabled="!shape"
         @finalize="
           () => {
             updateBatchRef.openModal()
@@ -43,12 +36,11 @@
 </template>
 
 <script setup>
-import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
+import ShapeSelector from '@/components/ui/SmartSelector/ShapeSelector.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import { AssertedDistribution } from '@/routes/endpoints'
-import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 import { ref, computed } from 'vue'
 
 const props = defineProps({
@@ -61,13 +53,14 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 
 const updateBatchRef = ref(null)
-const geographicArea = ref()
+const shape = ref()
 
 const payload = computed(() => {
   return {
     asserted_distribution_query: props.parameters,
     asserted_distribution: {
-      geographic_area_id: geographicArea.value?.id
+      asserted_distribution_shape_type: shape.value?.shapeType,
+      asserted_distribution_shape_id: shape.value?.id
     }
   }
 })

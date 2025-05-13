@@ -24,7 +24,7 @@ gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 5.1'
-gem 'rmagick', '~> 6.0' 
+gem 'rmagick', '~> 6.0'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 
@@ -36,8 +36,6 @@ gem 'matrix', '~> 0.4.2'
 
 # Geo
 
-# gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
-
 # gem 'ffi-geos', '~> 2.3.0'
 # gem 'rgeo', '~> 2.2'
 # gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
@@ -47,6 +45,7 @@ gem 'ffi-geos', '~> 2.4.0'
 gem 'rgeo', '~> 3.0'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
 gem 'rgeo-proj4', '~> 4.0' #, '>= 3.0.1'
+gem 'rgeo-shapefile', '~> 3.0'
 
 gem 'postgresql_cursor', '~> 0.6.1'
 
@@ -101,7 +100,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '8.2.0'
+gem 'shakapacker', '8.3.0'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'
@@ -111,6 +110,7 @@ gem 'csl-styles', '~> 2.0.1'
 gem 'serrano', '~> 1.4'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
+gem 'prawn', '~> 2.5.0'
 
 # UI/UX
 gem 'chartkick', '~> 5.0'
@@ -127,6 +127,9 @@ gem 'rgb', '~> 0.1'
 gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
 gem 'barby', '~> 0.6.8'
 gem 'ruby-graphviz', '~> 1.2.5', require: false
+
+# Sound
+gem 'wahwah', '~> 1.6.6'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.6.0'
@@ -172,7 +175,6 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
-  gem 'prawn', '~> 2.5.0'
   gem 'puma', '~> 6.3'
 end
 

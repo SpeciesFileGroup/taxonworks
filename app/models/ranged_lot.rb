@@ -2,7 +2,7 @@
 #
 class RangedLot < CollectionObject::BiologicalCollectionObject
 
-  is_origin_for 'Sequence', 'Lot', 'Specimen', 'Extract'
+  is_origin_for 'Sequence', 'Lot', 'Specimen', 'Extract', 'Sound'
   originates_from 'Lot', 'RangedLot'
 
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots

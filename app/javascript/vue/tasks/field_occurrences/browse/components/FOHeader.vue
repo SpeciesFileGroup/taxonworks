@@ -45,6 +45,7 @@
       placeholder="Search a field occurrence"
       param="term"
       label="label_html"
+      autofocus
       clear-after
       @get-item="(item) => emit('select', item.id)"
     />

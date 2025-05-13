@@ -85,7 +85,7 @@ describe Identifier::Global, type: :model, group: :identifiers do
 
   describe 'soft validation' do
     specify 'responding URI' do
-      global_identifier.identifier = 'http://data.nhm.ac.uk/object/a9bdc16d-c9ba-4e32-9311-d5250af2b5ac'
+      global_identifier.identifier = 'http://orthoptera.speciesfile.org/otus/817876/'
       VCR.use_cassette('responding URI') do
         global_identifier.soft_validate(only_sets: [:resolved])
       end

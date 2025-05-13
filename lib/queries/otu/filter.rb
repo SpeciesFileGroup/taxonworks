@@ -2,8 +2,10 @@ module Queries
   module Otu
     class Filter < Query::Filter
       include Queries::Concerns::Citations
+      include Queries::Concerns::Conveyances
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
+      include Queries::Concerns::Geo
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Concerns::Confidences
@@ -21,9 +23,10 @@ module Queries
         :coordinatify,
         :descendants,
         :descriptor_id,
+        :geo_shape_id,
+        :geo_mode,
+        :geo_shape_type,
         :geo_json,
-        :geographic_area_id,
-        :geographic_area_mode,
         :name,
         :name_exact,
         :observations,
@@ -36,7 +39,8 @@ module Queries
 
         collecting_event_id: [],
         descriptor_id: [],
-        geographic_area_id: [],
+        geo_shape_id: [],
+        geo_shape_type: [],
         name: [],
         otu_id: [],
         taxon_name_id: [],
@@ -121,17 +125,6 @@ module Queries
       #  in geo_json format (no Feature ...) ?!
       attr_accessor :geo_json
 
-      # @param geographic_area_id [String, Array]
-      # @return [Array]
-      attr_accessor :geographic_area_id
-
-      # @return [Boolean, nil]
-      #   How to treat GeographicAreas
-      #     nil - non-spatial match by only those records matching the geographic_area_id exactly
-      #     true - spatial match
-      #     false - non-spatial match (exact and descendants)
-      attr_accessor :geographic_area_mode
-
       # @return [True, False, nil]
       #   true - Otu has taxon name
       #   false - Otu without taxon name
@@ -197,8 +190,6 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @descriptor_id = params[:descriptor_id]
         @geo_json = params[:geo_json]
-        @geographic_area_id = params[:geographic_area_id]
-        @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @historical_determinations = boolean_param(params, :historical_determinations)
         @name = params[:name]
         @name_exact = boolean_param(params, :name_exact)
@@ -211,11 +202,13 @@ module Queries
         @wkt = params[:wkt]
 
         set_confidences_params(params)
+        set_conveyance_params(params)
         set_notes_params(params)
         set_citations_params(params)
         set_depiction_params(params)
         set_data_attributes_params(params)
         set_tags_params(params)
+        set_geo_params(params)
       end
 
       def biological_associations_table
@@ -228,10 +221,6 @@ module Queries
 
       def name
         [@name].flatten.compact.collect { |n| n.strip }
-      end
-
-      def geographic_area_id
-        [@geographic_area_id].flatten.compact
       end
 
       def otu_id
@@ -417,31 +406,49 @@ module Queries
         ::Otu.from("(#{query.to_sql}) as otus").distinct
       end
 
-      def geographic_area_id_facet
-        return nil if geographic_area_id.empty?
-        a = nil
+      def otu_geo_facet
+        return nil if geo_shape_id.empty? || geo_shape_type.empty? ||
+          # TODO: this should raise an error(?)
+          geo_shape_id.length != geo_shape_type.length
 
-        case geographic_area_mode
-        when nil, true # exact and spatial start the same
-          a = ::GeographicArea.where(id: geographic_area_id)
-        when false # descendants
-          a = ::GeographicArea.descendants_of_any(geographic_area_id)
-        end
+        geographic_area_shapes, gazetteer_shapes = shapes_for_geo_mode
 
-        b = nil # from AssertedDistributions
-        c = nil # from CollectionObjects
+        a, b = otu_geo_facet_by_type('GeographicArea', geographic_area_shapes)
 
-        case geographic_area_mode
-        when nil, false # exact, descendants
-          b = ::Otu.joins(:asserted_distributions).where(asserted_distributions: { geographic_area: a })
-          c = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: { geographic_area: a })
-        when true # spatial
-          i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
-          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s # todo, check
+        c, _d = otu_geo_facet_by_type('Gazetteer', gazetteer_shapes)
+
+        if geo_mode == true # spatial
+          i = ::Queries.union(::GeographicItem, [a,c])
+          wkt_shape =
+            ::Queries::GeographicItem.st_union(i)
+              .to_a.first['st_union'].to_s
+
           return from_wkt(wkt_shape)
         end
 
-        referenced_klass_union([b, c])
+        referenced_klass_union([a,b,c])
+      end
+
+      def otu_geo_facet_by_type(shape_string, shape_ids)
+        b = nil # from AssertedDistributions
+        c = nil # from CollectionObjects
+
+        case geo_mode
+        when nil, false # exact, descendants
+          b = ::Otu.joins(:asserted_distributions)
+           .where(asserted_distributions: {
+              asserted_distribution_shape: shape_ids
+           })
+          if shape_string == 'GeographicArea'
+            c = ::Otu.joins(collection_objects: [:collecting_event])
+              .where(collecting_events: { geographic_area: shape_ids })
+          end
+        when true # spatial
+          m = shape_string.tableize
+          b = ::GeographicItem.joins(m.to_sym).where(m => shape_ids)
+        end
+
+        [b,c]
       end
 
       def descriptor_id_facet
@@ -682,8 +689,8 @@ module Queries
           contents_facet,
           descriptor_id_facet,
           geo_json_facet,
-          geographic_area_id_facet,
           observations_facet,
+          otu_geo_facet,
           taxon_name_id_facet,
           with_name_facet,
           wkt_facet,

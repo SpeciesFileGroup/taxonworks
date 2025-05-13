@@ -182,7 +182,9 @@
 #
 class CollectingEvent < ApplicationRecord
   include Housekeeping
+  include Shared::OriginRelationship
   include Shared::Citations
+  include Shared::Conveyances
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
@@ -198,6 +200,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::DwcOccurrenceHooks
   include Shared::IsData
 
+
   include CollectingEvent::GeoLocate
   include CollectingEvent::Georeference
   include CollectingEvent::DwcSerialization
@@ -205,6 +208,8 @@ class CollectingEvent < ApplicationRecord
   include Shared::QueryBatchUpdate
 
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
+
+  is_origin_for 'Sound'
 
   NEARBY_DISTANCE = 5000
   MINIMUM_ELEVATION = -11000
@@ -250,7 +255,7 @@ class CollectingEvent < ApplicationRecord
   after_save :set_cached, unless: -> { no_cached }
 
   # See also app/models/collecting_event/georeference.rb for more accepts_nested_attributes
-  accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
+  accepts_nested_attributes_for :collectors, :collector_roles, :georeferences, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
     :check_date_range,
@@ -320,6 +325,10 @@ class CollectingEvent < ApplicationRecord
     name: 'Missing geographic area',
     description: 'Georaphic area is missing')
 
+  def otus
+    ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
+  end
+
   def dwc_occurrences
     # Through CollectionObjects
     a = DwcOccurrence
@@ -331,10 +340,6 @@ class CollectingEvent < ApplicationRecord
       .where(fo: {collecting_event_id: id})
 
     ::Queries.union(DwcOccurrence, [a,b])
-  end
-
-  def otus
-    ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
   end
 
   # @param [String]
@@ -372,9 +377,10 @@ class CollectingEvent < ApplicationRecord
 
     # @param [GeographicItem] geographic_item
     # @return [Scope]
-    # TODO: use joins(:geographic_items).where(containing scope), simplied to
     def contained_within(geographic_item)
-      CollectingEvent.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id))
+      CollectingEvent.joins(:geographic_items).where(
+        GeographicItem.subset_of_union_of_sql(geographic_item.id)
+      )
     end
 
     # @param [CollectingEvent Scope] collecting_events
@@ -607,7 +613,7 @@ class CollectingEvent < ApplicationRecord
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
       elev            = Utilities::Geo.distance_in_meters(verbatim_elevation).to_f
       point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
-      GeographicItem.new(point:)
+      GeographicItem.new(geography: point)
     else
       nil
     end
@@ -650,13 +656,6 @@ class CollectingEvent < ApplicationRecord
     end
   end
 
-  # @param [GeographicItem]
-  # @return [String]
-  #   see how far away we are from another gi
-  def distance_to(geographic_item_id)
-    GeographicItem.distance_between(preferred_georeference.geographic_item_id, geographic_item_id)
-  end
-
   # @param [Double] distance in meters
   # @return [Scope]
   def collecting_events_within_radius_of(distance)
@@ -672,7 +671,7 @@ class CollectingEvent < ApplicationRecord
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def collecting_events_intersecting_with
-    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).distinct
+    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first.id).distinct
     gr     = [] # all collecting events for a geographic_item
 
     pieces.each { |o|
@@ -833,15 +832,18 @@ class CollectingEvent < ApplicationRecord
       #
       #  Struck EGI, EGI must contain GI, therefor anything that contains EGI contains GI, threfor containing GI will always be the bigger set
       #   !! and there was no tests broken
-      # GeographicItem.are_contained_in_item('any_poly', self.geographic_items.to_a).pluck(:id).uniq
-      gi_list = GeographicItem.containing(*geographic_items.pluck(:id)).pluck(:id).uniq
+      # GeographicItem.st_covers('any_poly', self.geographic_items.to_a).pluck(:id).uniq
+      gi_list = GeographicItem
+       .superset_of_union_of(*geographic_items.pluck(:id))
+       .pluck(:id)
+       .uniq
 
     else
       # use geographic_area only if there are no GIs or EGIs
       unless self.geographic_area.nil?
         # unless self.geographic_area.geographic_items.empty?
         # we need to use the geographic_area directly
-        gi_list = GeographicItem.are_contained_in_item('any_poly', self.geographic_area.geographic_items).pluck(:id).uniq
+        gi_list = GeographicItem.st_covers('any_poly', self.geographic_area.geographic_items).pluck(:id).uniq
         # end
       end
     end
@@ -913,7 +915,6 @@ class CollectingEvent < ApplicationRecord
   # @return [GeoJSON::Feature]
   #   the first geographic item of the first georeference on this collecting event
   def to_geo_json_feature
-    # !! avoid loading the whole geographic item, just grab the bits we need:
     # self.georeferences(true)  # do this to
     to_simple_json_feature.merge({
       'properties' => {
@@ -934,13 +935,11 @@ class CollectingEvent < ApplicationRecord
     }
 
     if geographic_items.any?
-      geo_item_id      = geographic_items.select(:id).first.id
-      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
-      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
+      base['geometry'] = RGeo::GeoJSON.encode(geographic_items.first.geo_object)
     end
+
     base
   end
-
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
   # @return [RGeo::Geographic::ProjectedPointImpl, nil]
@@ -1040,7 +1039,7 @@ class CollectingEvent < ApplicationRecord
           add_incremented_identifier(to_object: a, incremented_identifier_id:)
         end
 
-        if !annotations.blank? # TODO: boolean param this
+        if annotations.present? # TODO: boolean param this
           clone_annotations(to_object: a, except: [:identifiers])
         end
 
@@ -1086,8 +1085,8 @@ class CollectingEvent < ApplicationRecord
         preview: params[:preview],
       )
 
-      request.cap = 1000
-      request.cap_reason = 'Max 500 updated at a time.'
+      request.cap = 5000
+      request.cap_reason = 'Max 5000 updated at a time.'
       query_batch_update(request)
     end
   end

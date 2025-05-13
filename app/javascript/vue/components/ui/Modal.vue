@@ -30,6 +30,7 @@
                 circle
                 color="primary"
                 title="Close (escape key)"
+                v-bind="buttonClose"
                 @click="() => emit('close')"
               >
                 <VIcon
@@ -59,6 +60,11 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
 defineProps({
+  buttonClose: {
+    type: Object,
+    default: () => ({})
+  },
+
   containerClass: {
     type: [Object, Array],
     default: () => []

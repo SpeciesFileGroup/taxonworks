@@ -11,7 +11,7 @@ module Queries
   # acceptable params, dynamically, based on the nature
   # of the nested queries.
   #
-  # Test coverage is currently in /spec/lib/queries/otu/filter_spec.rb.
+  # Test coverage is currently in /spec/lib/queries/.
   #
   # !! When adding a new query tests do some linting of parameters, constants etc. Run them early and often !!
   #
@@ -51,13 +51,14 @@ module Queries
       depiction: [:image],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
-      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
+      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :taxon_name], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
       image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
       observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],
       otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],
+      sound: [],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
     }.freeze
 
@@ -108,6 +109,7 @@ module Queries
       observation_query: '::Queries::Observation::Filter',
       otu_query: '::Queries::Otu::Filter',
       person_query: '::Queries::Person::Filter',
+      sound_query: '::Queries::Sound::Filter',
       source_query: '::Queries::Source::Filter',
       taxon_name_query: '::Queries::TaxonName::Filter',
     }.freeze
@@ -207,6 +209,9 @@ module Queries
     # @return [Query::Person::Filter, nil]
     attr_accessor :person_query
 
+    # @return [Query::Sound::Filter, nil]
+    attr_accessor :sound_query
+
     # @return Boolean
     #   Applies an order on updated.
     attr_accessor :recent
@@ -297,7 +302,6 @@ module Queries
       else
         raise TaxonWorks::Error, "can not initialize filter with #{query_params.class.name}"
       end
-
       set_identifier_params(params)
       set_nested_queries(params)
       set_user_dates(params)
@@ -387,6 +391,7 @@ module Queries
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
         f.push ::Queries::Concerns::Confidences if self < ::Queries::Concerns::Confidences
         f.push ::Queries::Concerns::Containable if self < ::Queries::Concerns::Containable
+        f.push ::Queries::Concerns::Conveyances if self < ::Queries::Concerns::Conveyances
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
         f.push ::Queries::Concerns::DateRanges if self < ::Queries::Concerns::DateRanges
         f.push ::Queries::Concerns::Depictions if self < ::Queries::Concerns::Depictions
@@ -707,6 +712,13 @@ module Queries
       clauses.compact!
 
       return nil if clauses.empty?
+
+      # TODO: consider whether to implement this.
+      # It should be safe, except, possibly for aggregate based queries
+      # that include custom attributes, would these get cleared.
+      # We could requier that at this level they are wrapped in a From etc.
+      # a = clauses.collect{|q| q.unscope(:select).select(:id) }
+
       referenced_klass_intersection(clauses)
     end
 

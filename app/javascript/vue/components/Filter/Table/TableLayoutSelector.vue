@@ -26,29 +26,34 @@
         >
           <template #item="{ element: [key] }">
             <div>
-              <h3 class="capitalize cursor-grab">
+              <h3
+                class="capitalize cursor-grab horizontal-left-content gap-small"
+              >
                 <label class="cursor-grab">
                   <input
                     type="checkbox"
                     :checked="
-                      properties[key].length ===
-                      currentLayout.properties[key].length
+                      isTheSameValue({
+                        properties: properties[key],
+                        layout: currentLayout.properties[key]
+                      })
                     "
                     @click="
                       () => {
-                        currentLayout.properties[key] =
-                          properties[key].length ===
-                          currentLayout.properties[key].length
-                            ? []
-                            : [...properties[key]]
+                        currentLayout.properties[key] = setProperties({
+                          properties: properties[key],
+                          layout: currentLayout.properties[key]
+                        })
                         emit('update')
                       }
                     "
                   />
                   {{ humanize(key) }}
                 </label>
+                <IcconRightLeft class="w-4" />
               </h3>
               <VueDraggable
+                v-if="Array.isArray(properties[key])"
                 class="no_bullets"
                 element="ul"
                 :group="`items-${key}`"
@@ -135,6 +140,9 @@
       class="rounded-tl-none rounded-bl-none"
       medium
       color="primary"
+      v-help="
+        'Customize layout: Properties can be toggled on or off by clicking the checkboxes. You can also reorder them by dragging. Also, columns can be rearranged by dragging them left or right.'
+      "
       @click="openLayoutPreferences"
     >
       <VIcon
@@ -153,6 +161,8 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VueDraggable from 'vuedraggable'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { sortArrayByArray } from '@/helpers'
+import IcconRightLeft from '@/components/Icon/IcconRightLeft.vue'
+import { vHelp } from '@/directives'
 
 const props = defineProps({
   layouts: {
@@ -172,6 +182,24 @@ const isModalVisible = ref(false)
 function openLayoutPreferences() {
   currentLayout.value = props.layouts.Custom
   isModalVisible.value = true
+}
+
+function isTheSameValue({ properties, layout }) {
+  return Array.isArray(properties)
+    ? properties.length === layout.length
+    : properties.show === layout.show
+}
+
+function setProperties({ properties, layout }) {
+  const isTheSame = isTheSameValue({ properties, layout })
+
+  if (Array.isArray(properties)) {
+    return isTheSame ? [] : [...properties]
+  } else {
+    return {
+      show: !layout.show
+    }
+  }
 }
 
 function sortObjects(e) {

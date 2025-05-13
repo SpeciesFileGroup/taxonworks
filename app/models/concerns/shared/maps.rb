@@ -2,7 +2,7 @@
 #
 # TODO:
 # - callbacks in all potentially altering models, e.g.:
-#   * AssertedDistribution (geographic_area_id change, otu_id change)
+#   * AssertedDistribution (asserted_distribution_shape change, otu_id change)
 #   * GeographicItem (shape change) ?! necessary or we destroy/update !?
 #   * CollectionObject (collecting_event_id change)
 #   * Georeference (geographic_item change, position_change, collecting_event_id change)

@@ -6,13 +6,7 @@
       ref="element"
     >
       <thead>
-        <tr
-          v-if="
-            headerGroups.length ||
-            dataAttributeHeaders.length ||
-            layout?.properties
-          "
-        >
+        <tr v-if="headerGroups.length || layout?.properties">
           <td
             class="header-empty-td"
             :colspan="
@@ -36,32 +30,32 @@
             v-for="(properties, key) in layout?.properties"
             :key="key"
           >
-            <th
-              v-if="properties.length"
-              :colspan="properties.length"
-              scope="colgroup"
-              class="cell-left-border"
-            >
-              {{ humanize(key) }}
-            </th>
+            <template v-if="Array.isArray(properties)">
+              <th
+                v-if="properties.length"
+                :colspan="properties.length"
+                scope="colgroup"
+                class="cell-left-border"
+              >
+                {{ humanize(key) }}
+              </th>
+            </template>
+            <template v-else>
+              <th
+                v-if="getDynamicColumns(key).length"
+                scope="colgroup"
+                class="cell-left-border"
+                :colspan="getDynamicColumns(key).length"
+              >
+                {{ humanize(key) }}
+              </th>
+            </template>
           </template>
 
           <td
             v-if="!headerGroups.length && !isLayoutConfig"
             :colspan="Object.keys(attributes).length"
           />
-
-          <th
-            v-if="
-              dataAttributeHeaders.length &&
-              (!isLayoutConfig || layout.includes.data_attributes)
-            "
-            :colspan="dataAttributeHeaders.length"
-            scope="colgroup"
-            class="cell-left-border"
-          >
-            7 Data attributes
-          </th>
         </tr>
 
         <tr>
@@ -159,70 +153,138 @@
             v-for="(propertiesList, key) in layout?.properties"
             :key="key"
           >
-            <th
-              v-for="(property, pIndex) in propertiesList"
-              :key="property"
-              :class="{
-                'cell-left-border': pIndex === 0,
-                freeze: freezeColumn.includes(`${key}.${property}`)
-              }"
-              :style="
-                freezeColumn.includes(`${key}.${property}`) && {
-                  left: freezeColumnLeftPosition[`${key}.${property}`]
-                }
-              "
-            >
-              <div class="horizontal-left-content gap-small">
-                <VLock
-                  :value="`${key}.${property}`"
-                  v-model="freezeColumn"
-                />
-                <VBtn
-                  color="primary"
-                  circle
-                  title="Copy column to clipboard"
-                  @click.stop="
-                    () =>
-                      copyColumnToClipboard(
-                        props.list
-                          .filter(rowHasCurrentValues)
-                          .map((item) => renderItem(item, key, property))
-                          .join('\n')
-                      )
-                  "
-                >
-                  <VIcon
-                    name="clip"
+            <template v-if="Array.isArray(propertiesList)">
+              <th
+                v-for="(property, pIndex) in propertiesList"
+                :key="property"
+                :class="{
+                  'cell-left-border': pIndex === 0,
+                  freeze: freezeColumn.includes(`${key}.${property}`)
+                }"
+                :style="
+                  freezeColumn.includes(`${key}.${property}`) && {
+                    left: freezeColumnLeftPosition[`${key}.${property}`]
+                  }
+                "
+              >
+                <div class="horizontal-left-content gap-small">
+                  <VLock
+                    :value="`${key}.${property}`"
+                    v-model="freezeColumn"
+                  />
+                  <VBtn
+                    color="primary"
+                    circle
                     title="Copy column to clipboard"
-                    x-small
-                  />
-                </VBtn>
-                <VBtn
-                  title="Sort alphabetically"
-                  color="primary"
-                  circle
-                  @click.stop="() => sortTable(`${key}.${property}`)"
-                >
-                  <VIcon
-                    name="alphabeticalSort"
+                    @click.stop="
+                      () =>
+                        copyColumnToClipboard(
+                          props.list
+                            .filter(rowHasCurrentValues)
+                            .map((item) => renderItem(item, key, property))
+                            .join('\n')
+                        )
+                    "
+                  >
+                    <VIcon
+                      name="clip"
+                      title="Copy column to clipboard"
+                      x-small
+                    />
+                  </VBtn>
+                  <VBtn
                     title="Sort alphabetically"
-                    x-small
+                    color="primary"
+                    circle
+                    @click.stop="() => sortTable(`${key}.${property}`)"
+                  >
+                    <VIcon
+                      name="alphabeticalSort"
+                      title="Sort alphabetically"
+                      x-small
+                    />
+                  </VBtn>
+                  <VBtn
+                    v-if="filterValues[`${key}.${property}`]"
+                    color="primary"
+                    circle
+                    @click.stop="
+                      () => {
+                        delete filterValues[`${key}.${property}`]
+                      }
+                    "
+                  >
+                    X
+                  </VBtn>
+                </div>
+              </th>
+            </template>
+            <template v-else>
+              <th
+                v-for="(property, pIndex) in getDynamicColumns(key)"
+                :key="property"
+                :class="{
+                  'cell-left-border': pIndex === 0,
+                  freeze: freezeColumn.includes(`${key}.${property}`)
+                }"
+                :style="
+                  freezeColumn.includes(`${key}.${property}`) && {
+                    left: freezeColumnLeftPosition[`${key}.${property}`]
+                  }
+                "
+              >
+                <div class="horizontal-left-content gap-small">
+                  <VLock
+                    :value="`${key}.${property}`"
+                    v-model="freezeColumn"
                   />
-                </VBtn>
-                <VBtn
-                  v-if="filterValues[`${key}.${property}`]"
-                  color="primary"
-                  circle
-                  @click.stop="
-                    () => {
-                      delete filterValues[`${key}.${property}`]
-                    }
-                  "
-                >
-                  X
-                </VBtn>
-              </div>
-            </th>
+                  <VBtn
+                    color="primary"
+                    circle
+                    title="Copy column to clipboard"
+                    @click.stop="
+                      () =>
+                        copyColumnToClipboard(
+                          props.list
+                            .filter(rowHasCurrentValues)
+                            .map((item) => renderItem(item, key, property))
+                            .join('\n')
+                        )
+                    "
+                  >
+                    <VIcon
+                      name="clip"
+                      title="Copy column to clipboard"
+                      x-small
+                    />
+                  </VBtn>
+                  <VBtn
+                    title="Sort alphabetically"
+                    color="primary"
+                    circle
+                    @click.stop="() => sortTable(`${key}.${property}`)"
+                  >
+                    <VIcon
+                      name="alphabeticalSort"
+                      title="Sort alphabetically"
+                      x-small
+                    />
+                  </VBtn>
+                  <VBtn
+                    v-if="filterValues[`${key}.${property}`]"
+                    color="primary"
+                    circle
+                    @click.stop="
+                      () => {
+                        delete filterValues[`${key}.${property}`]
+                      }
+                    "
+                  >
+                    X
+                  </VBtn>
+                </div>
+              </th>
+            </template>
           </template>
         </tr>
 
@@ -278,41 +340,46 @@
             v-for="(propertiesList, key) in layout?.properties"
             :key="key"
           >
-            <th
-              v-for="(property, pIndex) in propertiesList"
-              :key="property"
-              :class="{
-                'cell-left-border': pIndex === 0,
-                freeze: freezeColumn.includes(`${key}.${property}`)
-              }"
-              :data-th-column="`${key}.${property}`"
-              :style="
-                freezeColumn.includes(`${key}.${property}`) && {
-                  left: freezeColumnLeftPosition[`${key}.${property}`]
-                }
-              "
-            >
-              <div class="horizontal-left-content gap-small">
-                <span>{{ property }}</span>
-              </div>
-            </th>
-          </template>
-
-          <template
-            v-if="
-              dataAttributeHeaders.length &&
-              (!isLayoutConfig || layout.includes.data_attributes)
-            "
-          >
-            <th
-              v-for="(header, index) in dataAttributeHeaders"
-              :key="header"
-              scope="colgroup"
-              :class="{ 'cell-left-border': index === 0 }"
-              @click="sortTable(`data_attributes.${header}`)"
-            >
-              {{ header }}
-            </th>
+            <template v-if="Array.isArray(propertiesList)">
+              <th
+                v-for="(property, pIndex) in propertiesList"
+                :key="property"
+                :class="{
+                  'cell-left-border': pIndex === 0,
+                  freeze: freezeColumn.includes(`${key}.${property}`)
+                }"
+                :data-th-column="`${key}.${property}`"
+                :style="
+                  freezeColumn.includes(`${key}.${property}`) && {
+                    left: freezeColumnLeftPosition[`${key}.${property}`]
+                  }
+                "
+              >
+                <div class="horizontal-left-content gap-small">
+                  <span>{{ property }}</span>
+                </div>
+              </th>
+            </template>
+            <template v-else>
+              <th
+                v-for="(property, pIndex) in getDynamicColumns(key)"
+                :key="property"
+                :class="{
+                  'cell-left-border': pIndex === 0,
+                  freeze: freezeColumn.includes(`${key}.${property}`)
+                }"
+                :data-th-column="`${key}.${property}`"
+                :style="
+                  freezeColumn.includes(`${key}.${property}`) && {
+                    left: freezeColumnLeftPosition[`${key}.${property}`]
+                  }
+                "
+              >
+                <div class="horizontal-left-content gap-small">
+                  <span>{{ property }}</span>
+                </div>
+              </th>
+            </template>
           </template>
         </tr>
       </thead>
@@ -323,6 +390,7 @@
           :class="{
             'cell-selected-border': item.id === lastRadialOpenedRow
           }"
+          v-bind="item._bind"
           v-show="rowHasCurrentValues(item)"
           @mouseover="() => emit('mouseover:row', { index, item })"
         >
@@ -358,6 +426,7 @@
                 v-if="radialAnnotator"
                 :global-id="item.global_id"
                 reload
+                teleport
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
               <RadialObject
@@ -403,42 +472,62 @@
             v-for="(properties, key) in layout?.properties"
             :key="key"
           >
-            <td
-              v-for="(property, pIndex) in properties"
-              :key="property"
-              v-html="renderItem(item, key, property)"
-              :class="{
-                'cell-left-border': pIndex === 0,
-                freeze: freezeColumn.includes(`${key}.${property}`)
-              }"
-              :style="
-                freezeColumn.includes(`${key}.${property}`) && {
-                  left: freezeColumnLeftPosition[`${key}.${property}`]
-                }
+            <template
+              v-if="
+                !Array.isArray(properties) && typeof properties === 'object'
               "
-              @dblclick="
-                () => {
-                  scrollToTop()
-                  filterValues[`${key}.${property}`] = Array.isArray(item[key])
-                    ? item[key].map((obj) => obj[property])
-                    : item[key][property]
-                }
-              "
-            />
-          </template>
-
-          <template
-            v-if="
-              dataAttributeHeaders.length &&
-              (!isLayoutConfig || layout.includes.data_attributes)
-            "
-          >
-            <td
-              v-for="(predicateName, dIndex) in dataAttributeHeaders"
-              :key="predicateName"
-              :class="{ 'cell-left-border': dIndex === 0 }"
-              v-text="item.data_attributes[predicateName]"
-            />
+            >
+              <td
+                v-for="(value, property, dIndex) in item[key]"
+                :key="property"
+                :class="{
+                  'cell-left-border': dIndex === 0,
+                  freeze: freezeColumn.includes(`${key}.${property}`)
+                }"
+                :style="
+                  freezeColumn.includes(`${key}.${property}`) && {
+                    left: freezeColumnLeftPosition[`${key}.${property}`]
+                  }
+                "
+                @dblclick="
+                  () => {
+                    scrollToTop()
+                    filterValues[`${key}.${property}`] = Array.isArray(
+                      item[key]
+                    )
+                      ? item[key].map((obj) => obj[property])
+                      : item[key][property]
+                  }
+                "
+                v-text="value"
+              />
+            </template>
+            <template v-else>
+              <td
+                v-for="(property, pIndex) in properties"
+                :key="property"
+                v-html="renderItem(item, key, property)"
+                :class="{
+                  'cell-left-border': pIndex === 0,
+                  freeze: freezeColumn.includes(`${key}.${property}`)
+                }"
+                :style="
+                  freezeColumn.includes(`${key}.${property}`) && {
+                    left: freezeColumnLeftPosition[`${key}.${property}`]
+                  }
+                "
+                @dblclick="
+                  () => {
+                    scrollToTop()
+                    filterValues[`${key}.${property}`] = Array.isArray(
+                      item[key]
+                    )
+                      ? item[key].map((obj) => obj[property])
+                      : item[key][property]
+                  }
+                "
+              />
+            </template>
           </template>
         </tr>
       </tbody>
@@ -533,20 +622,6 @@ const ids = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
-const dataAttributeHeaders = computed(() => {
-  const predicateNames = []
-
-  props.list.forEach((item) => {
-    Object.keys(item.data_attributes || {}).forEach((name) => {
-      if (!predicateNames.includes(name)) {
-        predicateNames.push(name)
-      }
-    })
-  })
-
-  return predicateNames.sort()
-})
-
 const filterValues = ref({})
 
 function copyColumnToClipboard(text) {
@@ -576,6 +651,14 @@ function renderItem(item, listType, property) {
     : value && value[property]
 }
 
+function getDynamicColumns(type) {
+  const [item] = props.list
+
+  return props.layout.properties[type].show && item
+    ? Object.keys(item[type])
+    : []
+}
+
 function getValue(item, property) {
   const properties = property.split('.')
 
@@ -585,12 +668,19 @@ function getValue(item, property) {
 }
 
 function sortTable(sortProperty) {
-  emit('onSort', sortArray(props.list, sortProperty, ascending.value))
+  emit(
+    'onSort',
+    sortArray(props.list, sortProperty, ascending.value, { stripHtml: true })
+  )
   ascending.value = !ascending.value
 }
 
 function scrollToTop() {
   window.scrollTo(0, 0)
+}
+
+function clearFilterValues() {
+  filterValues.value = {}
 }
 
 function generateFreezeColumnLeftPosition() {
@@ -618,8 +708,19 @@ function generateFreezeColumnLeftPosition() {
 
 watch(
   () => props.list,
-  () => {
+  (newVal, oldVal) => {
     HandyScroll.EventBus.emit('update', { sourceElement: element.value })
+
+    if (oldVal && oldVal?.length === newVal?.length) {
+      const ids = oldVal.map((item) => item.id)
+      const hasSameIds = newVal.every((item) => ids.includes(item.id))
+
+      if (!hasSameIds) {
+        clearFilterValues()
+      }
+    } else {
+      clearFilterValues()
+    }
   },
   { immediate: true }
 )
@@ -639,6 +740,10 @@ watch(
     deep: true
   }
 )
+
+defineExpose({
+  clearFilterValues
+})
 </script>
 
 <style scoped>
@@ -652,6 +757,30 @@ table {
 .cell-selected-border {
   outline: 2px solid var(--color-primary) !important;
   outline-offset: -2px;
+
+  .freeze {
+    border-bottom: 1px solid var(--color-primary) !important;
+  }
+
+  .freeze::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-primary);
+  }
+
+  .freeze::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1.5px;
+    background-color: var(--color-primary);
+  }
 }
 
 .freeze {

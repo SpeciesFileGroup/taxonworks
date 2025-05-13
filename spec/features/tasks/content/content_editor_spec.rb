@@ -5,7 +5,7 @@ describe 'Content editor', type: :feature, group: :contents do
     before { sign_in_user_and_select_project}
 
     context 'when I visit the task page', js: true do
-      before { visit index_editor_task_path }
+      before { visit content_editor_task_path }
 
       specify 'can create new topic' do
         click_button('Topic')

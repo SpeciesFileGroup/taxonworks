@@ -6,7 +6,6 @@
         :href="`/people/${author.id}`"
       />
     </td>
-    <td class="roles-column">{{ roles.join('\n') }}</td>
     <td>
       <VBtn
         v-if="roleSourcesCount"
@@ -57,6 +56,11 @@ const props = defineProps({
     type: Object,
     required: true
   }
+})
+
+const selected = defineModel({
+  type: Array,
+  required: true
 })
 
 const emit = defineEmits(['sources'])

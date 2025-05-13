@@ -10,7 +10,6 @@ concern :data_routes do |options|
     get 'batch_load'
     get 'autocomplete'
     get 'search' # TODO: deprecate/remove
-
   end
 
   member do
@@ -103,6 +102,10 @@ resources :confidence_levels, only: [:index] do
     get 'autocomplete'
     get :select_options, defaults: {format: :json}
   end
+end
+
+resources :conveyances do
+  concerns [:data_routes]
 end
 
 resources :collection_objects do
@@ -331,8 +334,28 @@ end
 
 resources :field_occurrences do
   concerns [:data_routes]
+
+  resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
+
   collection do
     match :filter, to: 'field_occurrences#index', via: [:get, :post]
+  end
+end
+
+resources :gazetteer_imports, only: [:destroy], defaults: { format: :json } do
+  collection do
+    get :all, defaults: {format: :json}
+  end
+end
+
+resources :gazetteers do
+  concerns [:data_routes]
+  collection do
+    post :import, defaults: {format: :json}
+    post :preview, defaults: {format: :json} # post to support long WKT strings
+    get :shapefile_fields, default: {format: :json}
+    get :shapefile_text_field_values, default: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -756,6 +779,14 @@ end
 resources :sled_images, only: [:update, :create, :destroy, :show], defaults: {format: :json} do
   collection do
     get :index, defaults: {format: :json}
+  end
+end
+
+resources :sounds do
+  concerns [:data_routes]
+  collection do
+    match :filter, to: 'sounds#index', via: [:get, :post]
+    get :select_options, defaults: {format: :json}
   end
 end
 

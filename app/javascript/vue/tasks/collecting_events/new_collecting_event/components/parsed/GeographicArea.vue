@@ -11,7 +11,7 @@
       @selected="selectGeographicArea"
     >
       <template #map>
-        <GeographicAreaMapPicker @select="selectGeographicArea" />
+        <MapShapePicker @select="selectGeographicArea" />
       </template>
     </SmartSelector>
     <div v-if="areasByCoors.length">
@@ -89,7 +89,7 @@ import convertDMS from '@/helpers/parseDMS.js'
 import ModalComponent from '@/components/ui/Modal'
 import MetaPrioritizeGeographicArea from '../Meta/MetaPrioritizeGeographicArea.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import GeographicAreaMapPicker from '@/components/ui/SmartSelector/GeographicAreaMapPicker.vue'
+import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
 
 import extendCE from '../mixins/extendCE'
 
@@ -101,7 +101,7 @@ export default {
     ModalComponent,
     MetaPrioritizeGeographicArea,
     SmartSelectorItem,
-    GeographicAreaMapPicker
+    MapShapePicker
   },
 
   computed: {

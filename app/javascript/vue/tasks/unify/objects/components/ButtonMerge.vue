@@ -87,7 +87,7 @@ async function mergeObjects() {
       keep_global_id: props.keepGlobalId
     }
 
-    if (props.only.length !== Object.keys(props.remove.metadata).length) {
+    if (props.only.length !== Object.keys(props.remove._metadata).length) {
       Object.assign(payload, { only: props.only })
     }
 

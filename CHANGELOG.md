@@ -7,20 +7,134 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Batch georeference on Filter CE  [#4336] 
+
+### Changed
+
+- Removed Match geoference task [#4336] 
+- Updated Ruby gems
 
 ### Fixed
 
+- Filters: pop up screen overlap when columns are locked [#4322]
+- Browse Otu: display verbatimLocality in Specimen Records section [#4331]
+- CSD: Missing Georeferences when collecting_event_id is passed by parameter [#4339]
+
+[#4336]: https://github.com/SpeciesFileGroup/taxonworks/issues/4336
+[#4322]: https://github.com/SpeciesFileGroup/taxonworks/issues/4322
+[#4331]: https://github.com/SpeciesFileGroup/taxonworks/issues/4331
+[#4339]: https://github.com/SpeciesFileGroup/taxonworks/issues/4339
+
+## [0.50.1] - 2025-05-01
+
+### Added
+
+- TaxonName filter report summarizing gender in a table
+- Tooltips on various radials
+- More DwC fields for FieldOccurrences
+
+### Changed
+
+- Improved data overview graphs, options
+- Further improvements to Container metadata display
+- Update Rubygems
+- Update NPM packages
+- Improved some auto-focus behaviour
+
+### Fixed
+
+- Various filter Content fixes
+- Various Batch/Mass annotator fixes
+- Browse collecting event fails to load
+- A TaxonDetermination related filter parameter issue
+- TaxonDetermination related issues on FieldOccurrence and CollectionObject
+- When Sounds fail to destroy the error is not caught
+- Unify fails to activate [#4310]
+- Unify fails to merge FieldOccurrences [#4315]
+- Repositories shouldn't try to render Citations
+- Pdf download of formatted sources
+- 500 on filter mass annotate for an annotation not supported on the model [#4307]
+
+[#4307]: https://github.com/SpeciesFileGroup/taxonworks/issues/4307
+[#4310]: https://github.com/SpeciesFileGroup/taxonworks/issues/4310
+[#4315]: https://github.com/SpeciesFileGroup/taxonworks/issues/4315
+
+## [0.50.0] - 2025-04-24
+
+### Added
+
+- `decorator_status` to `api/v1/taxon_names/:id/inventory/summary`
+- Radial annotator and navigator to role picker list
+- CSD: Highlight header bar when DwC re-index is pending [#4275]
+- New source task: Citations count [#4237]
+- Allow catalog number to start with zeros in Grid digitizer task [#4291]
+- Filter collection objects: Extend response to include container item [#4285]
+- Browse Nomenclature: Focus button [#4283]
+- Sounds and conveyances. Browse, filter, new from radial. [#244]
+
+### Changed
+
+- Browse OTU: Specimen records are displayed on DwC table [#4138]
+- Updated Ruby gems
+
+### Fixed
+
+- Eliminate 404 behaviour in Synchronize nomenclature [#4284]
+- Filter CollectingEvent to OTU Filter linkage broken [#4277]
+- Filter OTU CSV download ommitted OTUs with no taxon name
+- DwcOccurrence FieldOccurrence scoping
+- TypeMaterial hook to DwcOccurrence update [#4266]
+- Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
+- Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
+- Content editor: Close modal is enable when nothing is selected [#4279]
+- Radials from facets side are enabled when no filters are active [#4281]
+- Some identifiers are missing on DwC otherCatalogNumbers column
+- Identifiers cached is empty in CSV table
+- DwC importer creating sex biocuration group with an array as URI
+- Filters: Sorting alphabetically does not work correctly when values are in HTML
+
+[#4266]: https://github.com/SpeciesFileGroup/taxonworks/issues/4266
+[#4284]: https://github.com/SpeciesFileGroup/taxonworks/issues/4284
+[#4277]: https://github.com/SpeciesFileGroup/taxonworks/issues/4277
+[#244]: https://github.com/SpeciesFileGroup/taxonworks/issues/244
+[#4138]: https://github.com/SpeciesFileGroup/taxonworks/issues/4138
+[#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
+[#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
+[#4275]: https://github.com/SpeciesFileGroup/taxonworks/issues/4275
+[#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
+[#4279]: https://github.com/SpeciesFileGroup/taxonworks/issues/4279
+[#4281]: https://github.com/SpeciesFileGroup/taxonworks/issues/4281
+[#4283]: https://github.com/SpeciesFileGroup/taxonworks/issues/4283
+[#4285]: https://github.com/SpeciesFileGroup/taxonworks/issues/4285
+[#4291]: https://github.com/SpeciesFileGroup/taxonworks/issues/4291
+
+## [0.49.1] - 2025-04-01
+
+### Added
+
+- Offset parameter to copy_table_to_clipboard helper [#4265]
+- Collecting event metadata task (count of use, plot of time), via filter
+- UI flag that a DwcOccurrence re-index is pending. [#4267]
+
+### Fixed
+
+- Min/max use of Collecting Event filter facet [#4252]
 - Unify Otu failing because of CachedMap references
 - Determiner is not carrying over in locked, containerized COs in CSD [#4250]
 - Filter CO: blank fields dispersed among sort [#4255]
 - Filter CO: otu name is empty in taxon determinations rows [#4257]
 - Filter CE: some data attributes are missing from results [#4258]
+- Filters: Download CSV doesn't use selected layout to generate files [#4264]
 
+[#4252]: https://github.com/SpeciesFileGroup/taxonworks/issues/4252
 [#4250]: https://github.com/SpeciesFileGroup/taxonworks/issues/4250
 [#4255]: https://github.com/SpeciesFileGroup/taxonworks/issues/4255
 [#4257]: https://github.com/SpeciesFileGroup/taxonworks/issues/4257
 [#4258]: https://github.com/SpeciesFileGroup/taxonworks/issues/4258
+[#4264]: https://github.com/SpeciesFileGroup/taxonworks/issues/4264
+[#4265]: https://github.com/SpeciesFileGroup/taxonworks/issues/4265
+[#4267]: https://github.com/SpeciesFileGroup/taxonworks/issues/4267
 
 ## [0.49.0] - 2025-03-18
 
@@ -5185,7 +5299,10 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.1...development
+[0.50.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.0...v0.50.1
+[0.50.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.1...v0.50.0
+[0.49.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...v0.49.1
 [0.49.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.46.1...v0.47.0

@@ -1,0 +1,12 @@
+<% content_for :title, "Editing conveyance" %>
+
+<h1>Editing conveyance</h1>
+
+<%= render "form", conveyance: @conveyance %>
+
+<br>
+
+<div>
+  <%= link_to "Show this conveyance", @conveyance %> |
+  <%= link_to "Back to conveyances", conveyances_path %>
+</div>
