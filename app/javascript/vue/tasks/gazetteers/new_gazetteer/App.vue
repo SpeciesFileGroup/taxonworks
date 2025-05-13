@@ -340,6 +340,7 @@ function addToShapes(shape, type) {
       })
       break
   }
+  TW.workbench.alert.create('Shape added.', 'notice')
   shapesUpdated()
 }
 
