@@ -23,13 +23,19 @@ module SoundsHelper
 
   def sound_metadata(sound)
     return {} if sound.nil?
-    t = File.open( ActiveStorage::Blob.service.path_for(sound.sound_file.attachment.key))
+    begin
+      t = File.open(
+        ActiveStorage::Blob.service.path_for(sound.sound_file.attachment.key)
+      )
+    rescue Errno::ENOENT
+      return { error: 'Missing sound file' }
+    end
     w = ::WahWah.open(t)
     # This brakes on binary strings
     #m = w.as_json.compact.delete_if{|k,v| v.blank?}
     #m.delete 'file_io'
     #m
-   
+
     # Metadata. Add more as needed.
     {
       duration: w.duration,

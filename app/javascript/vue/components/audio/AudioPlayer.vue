@@ -52,6 +52,11 @@ const props = defineProps({
   regions: {
     type: Array,
     default: () => []
+  },
+
+  error: {
+    type: String,
+    default: ''
   }
 })
 
@@ -77,6 +82,12 @@ let audioPlayer
 let regionsPlugin
 
 onMounted(() => {
+  if (props.error) {
+    audioPlayerRef.value.innerHTML =
+      `<div style="color: red">${props.error}</div>`
+    return
+  }
+
   const plugins = []
 
   if (props.regions.length) {
@@ -131,6 +142,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  if (props.error) return
+
   audioPlayer.destroy()
 })
 
