@@ -8,11 +8,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Batch georeference on Filter CE  [#4336] 
+
+- Batch georeference on Filter CE [#4336]
+- New content task: Publish content button
+- Filter sounds: Radial matrix
 
 ### Changed
 
-- Removed Match geoference task [#4336] 
+- Removed Match geoference task [#4336]
 - Updated Ruby gems
 
 ### Fixed
