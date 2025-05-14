@@ -724,6 +724,7 @@ resources :protocol_relationships do
   end
 end
 
+get 'public_contents/exists', to: 'public_contents#exists', defaults: {format: :json}
 resources :public_contents, only: [:create, :update, :destroy]
 
 resources :ranged_lot_categories do
