@@ -266,12 +266,20 @@ module Queries
         from_wkt(wkt)
       end
 
-      def from_wkt(wkt_shape)
-        c = ::Queries::CollectingEvent::Filter.new(wkt: wkt_shape, project_id:)
-        a = ::Queries::AssertedDistribution::Filter.new(wkt: wkt_shape, project_id:)
+      def from_wkt(wkt_shape, wkt_geometry_type)
+        c = ::Queries::CollectingEvent::Filter.new(
+          wkt: wkt_shape, wkt_geometry_type:, project_id:
+        )
+        a = ::Queries::AssertedDistribution::Filter.new(
+          wkt: wkt_shape, project_id:
+        )
 
-        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all, project_id:)
-        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all, project_id:)
+        q1 = ::Otu
+          .joins(collection_objects: [:collecting_event])
+          .where(collecting_events: c.all, project_id:)
+        q2 = ::Otu
+          .joins(:asserted_distributions)
+          .where(asserted_distributions: a.all, project_id:)
 
         referenced_klass_union([q1, q2]).distinct # Not needed, union should be distinct
       end
@@ -421,11 +429,11 @@ module Queries
 
         if geo_mode == true # spatial
           i = ::Queries.union(::GeographicItem, [a,c])
-          wkt_shape =
-            ::Queries::GeographicItem.st_union(i)
-              .to_a.first['st_union'].to_s
+          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
 
-          return from_wkt(wkt_shape)
+          return from_wkt(
+            u['st_astext'], u['st_geometrytype'].delete_prefix!('ST_')
+          )
         end
 
         referenced_klass_union([a,b,c])

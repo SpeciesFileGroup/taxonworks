@@ -51,6 +51,7 @@ module Queries
         :use_max,
         :use_min,
         :wkt,
+        :wkt_geometry_type,
         collecting_event_id: [],
         collector_id: [],
         geo_shape_id: [],
@@ -89,6 +90,9 @@ module Queries
 
       # A spatial representation in well known text
       attr_accessor :wkt
+
+      # Geometry type (Point, MultiPolygon, etc.) of `wkt`
+      attr_accessor :wkt_geometry_type
 
       # Integer in Meters
       #   !! defaults to 100m
@@ -166,6 +170,7 @@ module Queries
         @use_max = params[:use_max]
         @use_min = params[:use_min]
         @wkt = params[:wkt]
+        @wkt_geometry_type = params[:wkt_geometry_type]
 
         set_confidences_params(params)
         set_attributes_params(params)
@@ -330,7 +335,7 @@ module Queries
         return nil if wkt.blank?
         return ::CollectingEvent.none if roll_call
 
-        from_wkt(wkt)
+        from_wkt(wkt, wkt_geometry_type)
       end
 
       # TODO: check, this should be simplifiable.
