@@ -253,11 +253,11 @@ module Queries
 
         if geo_mode == true # spatial
           i = ::Queries.union(::GeographicItem, [a,b])
-          wkt_shape =
-            ::Queries::GeographicItem.st_union(i)
-              .to_a.first['st_union'].to_s
+          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
 
-          return from_wkt(wkt_shape)
+          return from_wkt(
+            u['st_astext'], u['st_geometrytype'].delete_prefix!('ST_')
+          )
         end
 
         referenced_klass_union([a,b])
@@ -334,10 +334,13 @@ module Queries
       end
 
       # TODO: check, this should be simplifiable.
-      def from_wkt(wkt_shape)
-        a = RGeo::WKRep::WKTParser.new(Gis::FACTORY, support_wkt12: true)
-        b = a.parse(wkt_shape)
-        spatial_query(b.geometry_type.to_s, wkt_shape)
+      def from_wkt(wkt_shape, geometry_type = nil)
+        if (geometry_type.nil?)
+          a = RGeo::WKRep::WKTParser.new(Gis::FACTORY, support_wkt12: true)
+          b = a.parse(wkt_shape)
+          geometry_type = b.geometry_type.to_s
+        end
+        spatial_query(geometry_type, wkt_shape)
       end
 
       # Shape is a Hash in GeoJSON format
@@ -359,7 +362,7 @@ module Queries
           ::CollectingEvent
             .joins(:geographic_items)
             .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius))
-        when 'Polygon', 'MultiPolygon'
+        when 'Polygon', 'MultiPolygon', 'GeometryCollection'
           ::CollectingEvent
             .joins(:geographic_items)
             .where(::GeographicItem.covered_by_wkt_sql(wkt))
