@@ -4,12 +4,12 @@ RSpec.describe CachedMapItem, type: :model, group: [:geo, :cached_map] do
 
   include_context 'cached map scenario'
 
-  specify '#translate_geographic_item_id' do
-    expect(CachedMapItem.translate_geographic_item_id(gi2.id, true,  ['ne_states'])).to contain_exactly(gi1.id)
+  specify '#translate_geographic_item_id 1' do
+    expect(CachedMapItem.translate_geographic_item_id(gi2.id, true, true, ['ne_states'])).to contain_exactly(gi1.id)
   end
 
-  specify '#translate_geographic_item_id' do
-    expect(CachedMapItem.translate_geographic_item_id(gi3.id, true, ['ne_states'])).to contain_exactly(gi1.id)
+  specify '#translate_geographic_item_id 2' do
+    expect(CachedMapItem.translate_geographic_item_id(gi3.id, true, true, ['ne_states'])).to contain_exactly(gi1.id)
   end
 
   context 'Gazetteer-backed asserted distributions' do
