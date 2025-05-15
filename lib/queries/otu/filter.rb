@@ -266,7 +266,7 @@ module Queries
         from_wkt(wkt)
       end
 
-      def from_wkt(wkt_shape, wkt_geometry_type)
+      def from_wkt(wkt_shape, wkt_geometry_type = nil)
         c = ::Queries::CollectingEvent::Filter.new(
           wkt: wkt_shape, wkt_geometry_type:, project_id:
         )
