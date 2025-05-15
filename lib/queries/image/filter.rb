@@ -87,6 +87,7 @@ module Queries
       #     :otu_observations (those on just the OTU)
       #     :collection_object_observations (those on just those determined as the OTU)
       #     :collection_objects (those on just those on the collection objects)
+      #     :field_occurrences (those on just field occurrences)
       #     :type_material (those on CollectionObjects that have TaxonName used in OTU)
       #     :type_material_observations (those on CollectionObjects that have TaxonName used in OTU)
       #
@@ -308,6 +309,7 @@ module Queries
           selected = [
             :otu_facet_otus,
             :otu_facet_collection_objects,
+            :otu_facet_field_occurrences,
             :otu_facet_otu_observations,
             :otu_facet_collection_object_observations,
             :otu_facet_type_material,
@@ -319,6 +321,7 @@ module Queries
           selected.push :otu_facet_otus if otu_scope.include?(:otus)
           selected.push :otu_facet_collection_objects if otu_scope.include?(:collection_objects)
           selected.push :otu_facet_collection_object_observations if otu_scope.include?(:collection_object_observations)
+          selected.push :otu_facet_field_occurrences if otu_scope.include?(:field_occurrences)
           selected.push :otu_facet_otu_observations if otu_scope.include?(:otu_observations)
           selected.push :otu_facet_type_material if otu_scope.include?(:type_material)
           selected.push :otu_facet_type_material_observations if otu_scope.include?(:type_material_observations)
@@ -403,6 +406,11 @@ module Queries
 
       def otu_facet_collection_objects(otu_ids)
         ::Image.joins(collection_objects: [:taxon_determinations])
+          .where(taxon_determinations: {otu_id: otu_ids})
+      end
+
+      def otu_facet_field_occurrences(otu_ids)
+        ::Image.joins(field_occurrences: [:taxon_determinations])
           .where(taxon_determinations: {otu_id: otu_ids})
       end
 
