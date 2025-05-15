@@ -6,6 +6,7 @@
         :url="conveyance.sound.sound_file"
         :regions="regions"
         @region:updated="updateRegion"
+        :error="conveyance.sound.metadata.error"
       />
     </div>
     <div class="field">
