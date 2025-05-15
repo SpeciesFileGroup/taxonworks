@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Removed Match geoference task [#4336]
 - Updated Ruby gems
+- Radial CO: Increase Taxon Determinations batch load limit to 5000 [#4349]
 
 ### Fixed
 
@@ -34,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4339]: https://github.com/SpeciesFileGroup/taxonworks/issues/4339
 [#4334]: https://github.com/SpeciesFileGroup/taxonworks/issues/4344
 [#4348]: https://github.com/SpeciesFileGroup/taxonworks/issues/4348
+[#4349]: https://github.com/SpeciesFileGroup/taxonworks/issues/4349
 
 ## [0.50.1] - 2025-05-01
 
