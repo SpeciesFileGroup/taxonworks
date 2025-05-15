@@ -1,6 +1,7 @@
 module Queries
   module GeographicItem
 
+    # DEPRECATED, unused
     def self.st_union(geographic_item_scope)
       ::GeographicItem
         .select(

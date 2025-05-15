@@ -277,11 +277,9 @@ module Queries
 
         if geo_mode == true # spatial
           i = ::Queries.union(::GeographicItem, [a,b])
-          wkt_shape =
-            ::Queries::GeographicItem.st_union(i)
-              .to_a.first['st_union'].to_s
+          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
 
-          return from_wkt(wkt_shape)
+          return from_wkt(u['st_astext'])
         end
 
         referenced_klass_union([a,b])
