@@ -29,8 +29,13 @@ module ConveyancesHelper
     if File.exist?(sound_path)
       audio_tag(sound.sound_file, controls: true)
     else
-      content_tag(:div, style: 'color: red') do
-        'Missing sound file'
+      if Rails.env.production?
+        raise TaxonWorks::Error,
+          "Sound #{sound.id} missing its sound file at '#{sound.sound_file}'"
+      else
+        content_tag(:div, style: 'color: red') do
+          'Missing sound file'
+        end
       end
     end
   end
