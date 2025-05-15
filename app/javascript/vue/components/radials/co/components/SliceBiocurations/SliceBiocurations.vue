@@ -28,7 +28,7 @@ import { ControlledVocabularyTerm, Tag } from '@/routes/endpoints'
 import { BIOCURATION_CLASS, BIOCURATION_GROUP } from '@/constants'
 import BiocurationGroup from './BiocurationGroup.vue'
 
-const MAX_LIMIT = 50
+const MAX_LIMIT = 5000
 
 const props = defineProps({
   parameters: {
