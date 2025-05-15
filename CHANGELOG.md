@@ -12,6 +12,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Batch georeference on Filter CE [#4336]
 - New content task: Publish content button
 - Filter sounds: Radial matrix
+- Batch georeference on Filter CE  [#4336] 
+- Send Filter Field Occurrence results to Filter Image, and vice versa [#4348]
+- Add Field Occurrence as an option to more facets in Filter Images
 
 ### Changed
 
@@ -30,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4331]: https://github.com/SpeciesFileGroup/taxonworks/issues/4331
 [#4339]: https://github.com/SpeciesFileGroup/taxonworks/issues/4339
 [#4334]: https://github.com/SpeciesFileGroup/taxonworks/issues/4344
+[#4348]: https://github.com/SpeciesFileGroup/taxonworks/issues/4348
 
 ## [0.50.1] - 2025-05-01
 
