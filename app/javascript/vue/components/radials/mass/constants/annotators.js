@@ -208,21 +208,5 @@ export const ANNOTATORS = {
     all: buildSliceObject(DATA_ATTRIBUTE_SLICE),
 
     ids: buildSliceObject(DATA_ATTRIBUTE_SLICE, NOTE_SLICE, TAG_SLICE)
-  },
-
-  [SOUND]: {
-    all: buildSliceObject(
-      CONFIDENCE_SLICE,
-      DATA_ATTRIBUTE_SLICE,
-      PROTOCOL_SLICE
-    ),
-
-    ids: buildSliceObject(
-      CITATION_SLICE,
-      CONFIDENCE_SLICE,
-      DATA_ATTRIBUTE_SLICE,
-      NOTE_SLICE,
-      TAG_SLICE
-    )
   }
 }

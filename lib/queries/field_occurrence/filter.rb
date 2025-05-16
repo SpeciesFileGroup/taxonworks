@@ -21,7 +21,6 @@ module Queries
         :collecting_event_id,
         :determiner_id,
         :field_occurrence_id,
-        :geographic_area_id,
         # :collectors,
         # :current_determinations,
         :dates,
@@ -44,7 +43,6 @@ module Queries
         collecting_event_id: [],
         field_occurrence_id: [],
         determiner_id: [],
-        geographic_area_id: [],
         # import_dataset_id: [],
         # is_type: [],
         otu_id: [],
@@ -442,12 +440,7 @@ module Queries
       end
 
       def base_collecting_event_query_facet
-        # Turn project_id off and check for a truly empty query
-        base_collecting_event_query.project_id = nil
-        return nil if base_collecting_event_query.all(true).nil?
-
-        # Turn project_id back on
-        base_collecting_event_query.project_id = project_id
+        return nil if base_collecting_event_query.only_project?
 
         s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
           ::FieldOccurrence
@@ -538,6 +531,30 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
+      def image_query_facet
+        return nil if image_query.nil?
+
+        s = ::FieldOccurrence
+          .with(query_image: image_query.all)
+          .joins(:depictions)
+          .joins('JOIN query_image ON query_image.id = depictions.image_id')
+          .to_sql
+
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
+
+      def observation_query_facet
+        return nil if observation_query.nil?
+
+        s = ::FieldOccurrence
+          .with(obs_query_fo: observation_query.all)
+          .joins(:observations)
+          .joins('JOIN obs_query_fo on observations.id = obs_query_fo.id')
+          .to_sql
+
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
+
       def and_clauses
         [
           collecting_event_id_facet,
@@ -553,6 +570,8 @@ module Queries
           biological_association_query_facet,
           collecting_event_query_facet,
           dwc_occurrence_query_facet,
+          image_query_facet,
+          observation_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
           biocuration_facet,

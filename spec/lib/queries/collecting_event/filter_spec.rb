@@ -160,9 +160,10 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
-  specify '#geographic_area_id[]' do
+  specify '#geo_shape_id[]' do
     ce1.update!(geographic_area: FactoryBot.create(:valid_geographic_area))
-    query.geographic_area_id = [ce1.geographic_area_id]
+    query.geo_shape_id = [ce1.geographic_area_id]
+    query.geo_shape_type = ['GeographicArea']
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
@@ -170,14 +171,14 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     let(:point_lat) { '10.0' }
     let(:point_long) { '10.0' }
 
-   # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
-   let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
-    let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
+    # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
+    let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
+    let(:geographic_item) { GeographicItem.create!( geography: factory_point ) }
 
     let!(:point_georeference) {
       Georeference::VerbatimData.create!(
         collecting_event: ce1,
-        geographic_item: geographic_item,
+        geographic_item:
       )
     }
 
@@ -189,13 +190,24 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
       '{ "type": "Polygon","coordinates": [[ [5.0, 5.0], [15.0, 5.0], [15.0, 15.0], [5.0, 15.0], [5.0, 5.0] ]] }'
     }
 
+    let(:gi_polygon) {
+      FactoryBot.create(:geographic_item, geography: wkt_polygon)
+    }
+
+    let(:gz_polygon) {
+      FactoryBot.create(:gazetteer,
+        geographic_item: gi_polygon,
+        name: 'gi_polygon'
+      )
+    }
+
     specify '#wkt (POINT)' do
       query.wkt = wkt_point
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 
     specify '#wkt (POLYGON)' do
-      query.wkt = wkt_point
+      query.wkt = wkt_polygon
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 
@@ -206,6 +218,13 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
 
     specify '#geo_json (POLYGON)' do
       query.geo_json = geo_json_polygon
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+    end
+
+    specify '#geo_shape_id Gazetteer' do
+      query.geo_shape_id = gz_polygon.id
+      query.geo_shape_type = 'Gazetteer'
+      query.geo_mode = true
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 

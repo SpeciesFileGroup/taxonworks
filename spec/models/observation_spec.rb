@@ -73,11 +73,6 @@ RSpec.describe Observation, type: :model, group: :observation_matrix do
     expect(observation.observation_object_global_id).to eq(collection_object.to_global_id.to_s)
   end
 
-  specify '#observation_object_global_id' do
-    observation.observation_object_global_id = collection_object.to_global_id.to_s
-    expect(observation.observation_object_global_id).to eq(collection_object.to_global_id.to_s)
-  end
-
   specify 'new() initializes row object via observation_object_global_id' do
     o = Observation.new(observation_object_global_id: otu.to_global_id.to_s)
     expect(o.observation_object).to eq(otu)

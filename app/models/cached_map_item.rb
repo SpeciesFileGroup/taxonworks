@@ -169,9 +169,16 @@ class CachedMapItem < ApplicationRecord
 
     # This is a fast first pass, pure intersection
     a = GeographicItem
-      .joins(:geographic_areas_geographic_items)
-      .where(geographic_areas_geographic_items: { data_origin: })
-      .where( "ST_Intersects( multi_polygon, ( select #{ GeographicItem::GEOGRAPHY_SQL } from geographic_items where geographic_items.id = #{geographic_item_id}) )" )
+      .with(b: GeographicItem
+        .joins(:geographic_areas_geographic_items)
+        .where(geographic_areas_geographic_items: { data_origin: })
+      )
+      .from('b')
+      .select('b.*')
+      .where(
+        'ST_Intersects(b.geography, (SELECT geography FROM geographic_items ' \
+        'WHERE geographic_items.id = ?))', geographic_item_id
+      )
       .pluck(:id)
 
     return a if buffer.nil?
@@ -179,13 +186,21 @@ class CachedMapItem < ApplicationRecord
     # Refine the pass by smoothing using buffer/st_within
     return GeographicItem
       .where(id: a)
-      .where( GeographicItem.st_buffer_st_within(geographic_item_id, 0.0, buffer) )
+      .where(
+        GeographicItem.st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
+      )
       .pluck(:id)
   end
 
   # @return [Array]
-  # @param origin_type
-  #   'AssertedDistribution' or 'Georeference'
+  # @param geographic_area_based [Boolean]
+  #   true if geographic_item_id is the geographic_item id of some geographic
+  #   area (and so has a chance of already being associated with a cached map
+  #   item/translation)
+  #
+  # @param search_existing_translates [Boolean]
+  #   true if existing cached_map_item_translations should be checked for a
+  #   match.
   #
   # @param data_origin Array, String
   #   like `ne_states` or ['ne_states, 'ne_countries']
@@ -194,7 +209,10 @@ class CachedMapItem < ApplicationRecord
   #   shr,ink (or grow) the size of the target shape, in meters
   #   Typical use, do not apply for Georeferences, apply -10km for AssertedDistributions
   #
-  def self.translate_geographic_item_id(geographic_item_id, origin_type = nil, data_origin = nil, buffer = nil)
+  def self.translate_geographic_item_id(
+    geographic_item_id, geographic_area_based,
+    search_existing_translates = true, data_origin = nil, buffer = nil
+  )
     return nil if data_origin.blank?
 
     cached_map_type = types_by_data_origin(data_origin)
@@ -203,11 +221,15 @@ class CachedMapItem < ApplicationRecord
 
     b = buffer
 
-    # All these methods depend on "prior knowledge" (not spatial calculations)
-    if origin_type == 'AssertedDistribution'
-      a = translate_by_geographic_item_translation(geographic_item_id, cached_map_type)
+    if search_existing_translates
+      a = translate_by_geographic_item_translation(
+        geographic_item_id, cached_map_type
+      )
       return a if a.present?
+    end
 
+    # All these methods depend on "prior knowledge" (not spatial calculations)
+    if geographic_area_based
       a = translate_by_data_origin(geographic_item_id, data_origin)
       return a if a.present?
 
@@ -217,6 +239,8 @@ class CachedMapItem < ApplicationRecord
       a = translate_by_cached_map_usage(geographic_item_id, cached_map_type)
       return a if a.present?
 
+      # TODO should Gazetteer GIs be getting a dynamic buffer? They don't
+      # currently.
       b = dynamic_buffer(geographic_item_id) # -1000.0 # Monaco
     end
 
@@ -225,7 +249,7 @@ class CachedMapItem < ApplicationRecord
 
   def self.dynamic_buffer(geographic_item_id)
     v = GeographicItem.select(:id, :cached_total_area).find(geographic_item_id).cached_total_area
-    return 0 if v.nil?
+    return 0 if v.nil? || v.to_i == 0
     case Math.log10(v).to_i
     when 0..2 # 3786
       0.0
@@ -258,14 +282,13 @@ class CachedMapItem < ApplicationRecord
     }
 
     geographic_item_id = nil
-    name_hierarchy = nil
     otu_id = nil
 
     base_class_name = o.class.base_class.name
 
     case base_class_name
     when 'AssertedDistribution'
-      geographic_item_id = o.geographic_area.default_geographic_item_id
+      geographic_item_id = o.asserted_distribution_shape.default_geographic_item_id
       otu_id = [o.otu_id]
     when 'Georeference'
       geographic_item_id = o.geographic_item_id
@@ -276,9 +299,12 @@ class CachedMapItem < ApplicationRecord
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 
+      geographic_area_based = base_class_name == 'AssertedDistribution' &&
+        o.asserted_distribution_shape_type == 'GeographicArea'
+      search_existing_translates = base_class_name == 'AssertedDistribution'
+
       h[:geographic_item_id] = translate_geographic_item_id(
-        geographic_item_id,
-        base_class_name,
+        geographic_item_id, geographic_area_based, search_existing_translates,
         cached_map_type.safe_constantize::SOURCE_GAZETEERS
       )
 

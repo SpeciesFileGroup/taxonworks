@@ -9,7 +9,6 @@ function makeInitialState() {
     loadState: {
       assertedDistribution: false,
       biologicalAssociations: true,
-      collectingEvents: true,
       collectionObjects: true,
       descendants: false,
       descendantsDistribution: false,
@@ -111,7 +110,6 @@ function makeInitialState() {
     assertedDistributions: [],
     biologicalAssociations: [],
     relatedBAs: [],
-    collectingEvents: [],
     collectionObjects: [],
     fieldOccurrences: [],
     otus: [],

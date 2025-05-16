@@ -6,9 +6,11 @@
     :key="citation.id"
   >
     <div class="lead_citation">
-      <a :href="citation.source.object_url" target="_blank">
-        {{ citation.citation_source_body }}
-      </a>
+      <a
+        :href="citation.source.object_url"
+        target="_blank"
+        v-html="citation.citation_source_body"
+      />
     </div>
   </div>
   <div v-else>

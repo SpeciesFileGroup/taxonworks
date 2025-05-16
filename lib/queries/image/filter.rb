@@ -87,6 +87,7 @@ module Queries
       #     :otu_observations (those on just the OTU)
       #     :collection_object_observations (those on just those determined as the OTU)
       #     :collection_objects (those on just those on the collection objects)
+      #     :field_occurrences (those on just field occurrences)
       #     :type_material (those on CollectionObjects that have TaxonName used in OTU)
       #     :type_material_observations (those on CollectionObjects that have TaxonName used in OTU)
       #
@@ -120,7 +121,7 @@ module Queries
       attr_accessor :sqed_image
 
       # @return [Array]
-      #   one or both of 'Otu', 'CollectionObject', defaults to both if nothing provided
+      #   one or all of 'Otu', 'CollectionObject', 'FieldOccurrence', defaults to all if nothing provided
       # Only used when `taxon_name_id` provided
       attr_accessor :taxon_name_id_target
 
@@ -175,7 +176,7 @@ module Queries
 
       def taxon_name_id_target
         a = [ @taxon_name_id_target ].flatten.compact
-        a = ['Otu', 'CollectionObject'] if a.empty?
+        a = ['Otu', 'CollectionObject', 'FieldOccurrence'] if a.empty?
         a
       end
 
@@ -212,6 +213,11 @@ module Queries
       # @return [Arel::Table]
       def collection_object_table
         ::CollectionObject.arel_table
+      end
+
+      # @return [Arel::Table]
+      def field_occurrence_table
+        ::FieldOccurrence.arel_table
       end
 
       # @return [Arel::Table]
@@ -308,6 +314,7 @@ module Queries
           selected = [
             :otu_facet_otus,
             :otu_facet_collection_objects,
+            :otu_facet_field_occurrences,
             :otu_facet_otu_observations,
             :otu_facet_collection_object_observations,
             :otu_facet_type_material,
@@ -319,6 +326,7 @@ module Queries
           selected.push :otu_facet_otus if otu_scope.include?(:otus)
           selected.push :otu_facet_collection_objects if otu_scope.include?(:collection_objects)
           selected.push :otu_facet_collection_object_observations if otu_scope.include?(:collection_object_observations)
+          selected.push :otu_facet_field_occurrences if otu_scope.include?(:field_occurrences)
           selected.push :otu_facet_otu_observations if otu_scope.include?(:otu_observations)
           selected.push :otu_facet_type_material if otu_scope.include?(:type_material)
           selected.push :otu_facet_type_material_observations if otu_scope.include?(:type_material_observations)
@@ -406,6 +414,11 @@ module Queries
           .where(taxon_determinations: {otu_id: otu_ids})
       end
 
+      def otu_facet_field_occurrences(otu_ids)
+        ::Image.joins(field_occurrences: [:taxon_determinations])
+          .where(taxon_determinations: {otu_id: otu_ids})
+      end
+
       def otu_facet_collection_object_observations(otu_ids)
         ::Image.joins(:observations)
           .joins("INNER JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = observations.observation_object_id AND taxon_determinations.taxon_determination_object_type = 'CollectionObject'")
@@ -435,7 +448,7 @@ module Queries
         h = Arel::Table.new(:taxon_name_hierarchies)
         t = ::TaxonName.arel_table
 
-        j1, j2, q1, q2 = nil, nil, nil, nil
+        j1, j2, j3, q1, q2, q3 = nil, nil, nil, nil, nil, nil
 
         if taxon_name_id_target.include?('Otu')
           a = otu_table.alias('oj1')
@@ -472,12 +485,34 @@ module Queries
             q2 = ::Image.joins(j2.join_sources).where(z)
         end
 
-        if q1 && q2
-          ::Image.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as images")
+        if taxon_name_id_target.include?('FieldOccurrence')
+          a = otu_table.alias('oj3')
+          b = t.alias('tj3')
+          h_alias = h.alias('th3')
+
+          j3 = table
+            .join(depiction_table, Arel::Nodes::InnerJoin).on(table[:id].eq(depiction_table[:image_id]))
+            .join(field_occurrence_table, Arel::Nodes::InnerJoin).on( depiction_table[:depiction_object_id].eq(field_occurrence_table[:id]).and( depiction_table[:depiction_object_type].eq('FieldOccurrence') ))
+            .join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
+              field_occurrence_table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
+            .and(taxon_determination_table[:taxon_determination_object_type].eq('FieldOccurrence'))
+            )
+              .join(a, Arel::Nodes::InnerJoin).on(  taxon_determination_table[:otu_id].eq(a[:id]) )
+              .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
+              .join(h_alias, Arel::Nodes::InnerJoin).on(b[:id].eq(h_alias[:descendant_id]))
+
+            z = h_alias[:ancestor_id].in(taxon_name_id)
+            q3 = ::Image.joins(j3.join_sources).where(z)
+        end
+
+        if q1 && q2 && q3
+          ::Image.from("((#{q1.to_sql}) UNION (#{q2.to_sql}) UNION (#{q3.to_sql})) AS images")
         elsif q1
           q1.distinct
-        else
+        elsif q2
           q2.distinct
+        else
+          q3.distinct
         end
       end
 

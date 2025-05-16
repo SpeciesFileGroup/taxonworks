@@ -9,6 +9,7 @@
           media-controls
           :url="conveyance.sound.sound_file"
           :regions="regions"
+          :error="conveyance.sound.metadata.error"
         />
       </div>
       <div v-html="conveyance.object_tag" />

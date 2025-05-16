@@ -36,8 +36,6 @@ gem 'matrix', '~> 0.4.2'
 
 # Geo
 
-# gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
-
 # gem 'ffi-geos', '~> 2.3.0'
 # gem 'rgeo', '~> 2.2'
 # gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
@@ -47,6 +45,7 @@ gem 'ffi-geos', '~> 2.4.0'
 gem 'rgeo', '~> 3.0'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
 gem 'rgeo-proj4', '~> 4.0' #, '>= 3.0.1'
+gem 'rgeo-shapefile', '~> 3.0'
 
 gem 'postgresql_cursor', '~> 0.6.1'
 
@@ -138,7 +137,7 @@ gem 'sqed', '~>0.8.3'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul', require: 'dwc_archive' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', '~> 6.0'
-gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
+gem 'ruby-units', '~> 4.1.0', require: 'ruby_units/namespaced'
 
 gem 'colrapi', '~>0.1.1'
 

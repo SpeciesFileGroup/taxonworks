@@ -426,6 +426,7 @@
                 v-if="radialAnnotator"
                 :global-id="item.global_id"
                 reload
+                teleport
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
               <RadialObject
@@ -621,20 +622,6 @@ const ids = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
-const dataAttributeHeaders = computed(() => {
-  const predicateNames = []
-
-  props.list.forEach((item) => {
-    Object.keys(item.data_attributes || {}).forEach((name) => {
-      if (!predicateNames.includes(name)) {
-        predicateNames.push(name)
-      }
-    })
-  })
-
-  return predicateNames.sort()
-})
-
 const filterValues = ref({})
 
 function copyColumnToClipboard(text) {
@@ -770,6 +757,30 @@ table {
 .cell-selected-border {
   outline: 2px solid var(--color-primary) !important;
   outline-offset: -2px;
+
+  .freeze {
+    border-bottom: 1px solid var(--color-primary) !important;
+  }
+
+  .freeze::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-primary);
+  }
+
+  .freeze::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1.5px;
+    background-color: var(--color-primary);
+  }
 }
 
 .freeze {

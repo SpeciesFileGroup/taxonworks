@@ -1,4 +1,14 @@
 scope :tasks do
+  scope :gazetteers do
+    scope :import_gazetteers, controller: 'tasks/gazetteers/import_gazetteers' do
+      get '/', action: :index, as: 'import_gazetteers_task'
+    end
+
+    scope :new_gazetteer, controller: 'tasks/gazetteers/new_gazetteer' do
+      get '/', action: :index, as: 'new_gazetteer_task'
+    end
+  end
+
   scope :sounds do
     scope :filter, controller: 'tasks/sounds/filter' do
       get '/', action: :index, as: 'filter_sounds_task'
@@ -161,12 +171,6 @@ scope :tasks do
 
     scope :new_asserted_distribution, controller: 'tasks/asserted_distributions/new_asserted_distribution' do
       get '/', action: :index, as: 'new_asserted_distribution_task'
-    end
-
-    scope :new_from_map, controller: 'tasks/asserted_distributions/new_from_map' do
-      get 'new', action: 'new', as: 'new_asserted_distribution_from_map_task'
-      get 'generate_choices'
-      post 'create', action: 'create', as: 'create_asserted_distribution_from_map_task'
     end
   end
 
@@ -577,21 +581,6 @@ scope :tasks do
     get 'new_map_item', action: 'new', as: 'new_draw_map_item_task'
     post 'create_map_item', action: 'create', as: 'create_draw_map_item_task'
     get 'collect_item', as: 'collect_draw_item_task'
-  end
-
-  scope :gis, controller: 'tasks/gis/match_georeference' do
-    get 'match_georeference', action: 'index', as: 'match_georeference_task'
-    get 'filtered_collecting_events'
-    get 'recent_collecting_events'
-    get 'tagged_collecting_events'
-    get 'drawn_collecting_events'
-
-    get 'filtered_georeferences'
-    get 'recent_georeferences'
-    get 'tagged_georeferences'
-    get 'drawn_georeferences'
-
-    post 'batch_create_match_georeferences'
   end
 
   scope :gis, controller: 'tasks/gis/otu_distribution_data' do

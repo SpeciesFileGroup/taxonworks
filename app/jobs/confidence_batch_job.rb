@@ -21,7 +21,7 @@ class ConfidenceBatchJob < ApplicationJob
             confidence_object: o,
             confidence_level_id:,
             by: user_id,
-            project_id:,
+            project_id:
           )
         end
 
@@ -32,14 +32,18 @@ class ConfidenceBatchJob < ApplicationJob
             confidence_object_type: q.referenced_klass.base_class.name,
             confidence_level_id: replace_confidence_level_id
           ).find_each do |c|
-            c.update(confidence_level_id:)
+            c.update(
+              confidence_level_id:,
+              by: user_id
+            )
           end
       end
 
     rescue  => ex
       ExceptionNotifier.notify_exception(
         ex,
-        data: { project: target_project&.id, download: download&.id&.to_s }
+        data: { project_id:, filter_query:,
+          mode:, confidence_level_id:, replace_confidence_level_id: }
       )
       raise
     end

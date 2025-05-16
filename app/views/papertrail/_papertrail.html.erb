@@ -10,13 +10,21 @@
       <strong>Author:</strong>
       <%= User.find(papertrail.whodunnit).name %>
     </p>
+
+    <% attributes = papertrail.reify&.attributes %>
+
+
+    <% if attributes.present? %>
     <p>
       <strong>Updated at:</strong>
-      <% attributes = papertrail.reify.attributes %>
       <%= attributes["updated_at"] %> - <%= time_ago_in_words(attributes['updated_at']) -%> ago
     </p>
+
+    <% end %>
   </div>
 
+
+    <% if attributes.present? %>
   <div id="version_details_<%= papertrail.index %>" data-object-type="<%= object_type %>" class="version_details">
       <strong>Attributes then:</strong>
       
@@ -31,6 +39,7 @@
         </div>
       <% end %>
   </div>
+<% end %>
 
     <div class="version_restore_buttons">
       <%= button_tag 'Restore', class: ['button_restore_mode', :button, 'normal-input', 'button-default'], data: {'papertrail-index' => papertrail.index} -%>
