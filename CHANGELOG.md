@@ -25,6 +25,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Observation matrix OTU content exception
+- Syncronize nomenclature/OTUs task initialization
 - Filters: pop up screen overlap when columns are locked [#4322]
 - Browse Otu: display verbatimLocality in Specimen Records section [#4331]
 - CSD: Missing Georeferences when collecting_event_id is passed by parameter [#4339]
