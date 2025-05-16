@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Project not required for batch add users [#4327]
 - Repository edits trigger DwcOccurrence updates [#4342]
 - Observation matrix OTU content exception
 - Syncronize nomenclature/OTUs task initialization
@@ -33,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CSD: Missing Georeferences when collecting_event_id is passed by parameter [#4339]
 - Background mass annotate Confidence or Protocol Relationship on >300 filter results [#4344]
 
+[#4327]: https://github.com/SpeciesFileGroup/taxonworks/issues/4327
 [#4342]: https://github.com/SpeciesFileGroup/taxonworks/issues/4342
 [#4336]: https://github.com/SpeciesFileGroup/taxonworks/issues/4336
 [#4322]: https://github.com/SpeciesFileGroup/taxonworks/issues/4322
