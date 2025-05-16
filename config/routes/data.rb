@@ -871,6 +871,8 @@ resources :taxon_names do
 
     get :origin_citation, defaults: {format: :json}
     post :origin_citation, defaults:  {format: :json}
+
+    post :classification, defaults: {format: :json}
   end
 
   member do

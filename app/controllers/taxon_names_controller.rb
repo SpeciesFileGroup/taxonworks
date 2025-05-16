@@ -229,7 +229,7 @@ class TaxonNamesController < ApplicationController
   # PATCH /taxon_names/batch_update.json?taxon_names_query=<>&taxon_name={taxon_name_id=123}}
   def batch_update
     if r = Protonym.batch_update(
-        preview: params[:preview], 
+        preview: params[:preview],
         taxon_name: taxon_name_params.merge(by: sessions_current_user_id),
         taxon_name_query: params[:taxon_name_query].merge(by: sessions_current_user_id),
     )
@@ -330,6 +330,20 @@ class TaxonNamesController < ApplicationController
     render json: helpers.autoselect_taxon_name(params.merge(project_id: sessions_current_project_id))
   end
 
+  # POST /taxon_names/classification
+  def classification
+    @taxon_name = TaxonName.create_with_classification(
+      params.require(:classification).permit(
+        classification: [:id, :name, :rank_class, :parent_id, :verbatim_author, :year_of_publication, :gap_fill] # TODO: identifiers?
+      ))
+
+    if @taxon_name.valid?
+      render :show, status: :created, location: @taxon_name.metamorphosize
+    else
+      render json: @taxon_name.errors, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_taxon_name
@@ -360,7 +374,8 @@ class TaxonNamesController < ApplicationController
       ],
       family_group_name_form_relationship_attributes: [:id, :_destroy, :object_taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
-      taxon_name_classifications_attributes: [:id, :_destroy, :type]
+      taxon_name_classifications_attributes: [:id, :_destroy, :type],
+      classification: [:id, :name, :rank_class, :parent_id, :verbatim_author, :year_of_publication, :gap_fill] # TODO: identifiers?
     )
   end
 
@@ -375,7 +390,6 @@ class TaxonNamesController < ApplicationController
         project_id: sessions_current_project_id
       ).to_h.symbolize_keys
   end
-
 end
 
 Rails.application.reloader.to_prepare do

@@ -570,7 +570,12 @@ module TaxonNamesHelper
     rows.join('<br>').html_safe
   end
 
-  # TODO: move to queries/fitler paradigm, this is all stubs
+  # TODO: move to queries/filter paradigm, this is all stubs
+  # @params params
+  #   required:
+  #     project_id: no nil
+  #
+  # TaxonNamesController.helpers.autoselect_taxon_name({project_id: 1, term: 'Diapriid'})
   def autoselect_taxon_name(params)
     project_id = params[:project_id]
 
@@ -602,20 +607,20 @@ module TaxonNamesHelper
       resource: '/taxon_names/autoselect',
       paths: [path1, path2, path3],
       operators: [operator1],
-      map: { 
-        path1[:level] => path2[:level], 
+      map: {
+        path1[:level] => path2[:level],
         path2[:level] => path3[:level]
       }
     }
-    
+
     if params[:term].blank?
-      return config    
+      return config
     else
       t = params[:term]
 
       # TODO: operator parser
-      i_flag = false 
-      
+      i_flag = false
+
       if t =~ /!i/
         i_flag = true
         t.gsub!(/!i/, '')
@@ -630,16 +635,16 @@ module TaxonNamesHelper
           ].compact,
           realized_term: t
         },
-        response: [] 
+        response: []
       }
 
       l = params[:level] || 1
 
       case l.to_i
       when 1
-        r[:request][:level] = 1  
+        r[:request][:level] = 1
 
-        a = TaxonName.where(project_id: sessions_current_project_id)
+        a = TaxonName.where(project_id:)
           .where('cached ilike ?', "%#{params[:term]}%")
           .select(:id, :cached, :cached_html, :cached_valid_taxon_name_id)
           .order(:cached)
@@ -654,14 +659,14 @@ module TaxonNamesHelper
             label_html: i.cached_html,
             expansion: nil,
             extension: {
-             valid_taxon_name_id: i.cached_valid_taxon_name_id 
+             valid_taxon_name_id: i.cached_valid_taxon_name_id
             }
           }
 
           b[:info] = 'TODO: Add html info' if i_flag
 
           r[:response].push b
-        end 
+        end
 
       when 2
         r[:request][:level] = 2
@@ -679,7 +684,7 @@ module TaxonNamesHelper
             label_html: content_tag(:span, mark_tag(i.cached_html_name_and_author_year, t),  class: :klass),
             expansion: nil,
             extension: {
-              valid_taxon_name_id: i.cached_valid_taxon_name_id 
+              valid_taxon_name_id: i.cached_valid_taxon_name_id
             }
           }
 
@@ -704,27 +709,28 @@ module TaxonNamesHelper
          b = {
            id: nil,
            label: a.name,
-           label_html: a.name, # Todo get html
+           label_html: a.name, # TODO get html
            expansion: {
              simple_taxon_name_classification: a.autoselect_payload_json # `simple_taxon_name_classification` is a autoselect module that can handle this payload
            }
          }
          r[:response].push b
       else
-         # config error  
+         # config error
       end
     end
-    
+
     r
   end
 
   protected
 
+  # TODO: Dry with controller
   def autocomplete_params(params)
     params.permit(
       :valid, :exact, :no_leaves,
       type: [], parent_id: [], nomenclature_group: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+    ).to_h.symbolize_keys.merge(project_id: params[:project_id])
   end
 
   def taxon_name_link_path(taxon_name, path)

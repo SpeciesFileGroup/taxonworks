@@ -806,7 +806,7 @@ class TaxonName < ApplicationRecord
     end
     return h
   end
- 
+
   # @return [Class, nil]
   #   gender of a genus as class
   def gender_class
@@ -1646,6 +1646,38 @@ class TaxonName < ApplicationRecord
 
   def create_otu
     Otu.create(by: creator, project_id:, taxon_name_id: id)
+  end
+
+  # @return Protonym
+  #   also creates a classification of all parents
+  def self.create_with_classification(params)
+    project_id = params[:project_id]
+    by = params[:by]
+
+    names = []
+
+    current_parent_id = params[:classification].first[:parent_id]
+
+    transaction do
+      params[:classification].each do |i|
+        p = i.deep_symbolize_keys
+        next if p[:rank_class].blank?
+
+        begin
+          if p[:id].nil?
+            n = Protonym.create!( **p.merge(by:, project_id:, parent_id: current_parent_id) )
+            names.push n
+            current_parent_id = n.id
+          else
+            current_parent_id = p[:parent_id]
+          end
+        rescue ActiveRecord::RecordInvalid
+          transaction.rollback
+          return n
+        end
+      end
+    end
+    names.pop
   end
 
   # @return [Scope]

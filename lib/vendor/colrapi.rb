@@ -24,20 +24,34 @@ module Vendor
 
       attr_reader :name
 
+      # The one we will operate on
+      attr_accessor :target_usage
+
       # ... name objects
       # id
       # name
       # rank
 
+      # TODO: revisit tuning, especially exact
+      # TYPE: PREFIX, WHOLE_WORDS, EXACT
       def initialize(name: nil, dataset_id: '3LXR', project_id: nil)
-        @nameusage_result = ::Colrapi.nameusage_search(dataset_id:, q: name)
+        @nameusage_result = ::Colrapi.nameusage_search(dataset_id:, q: name, limit: 100, sort_by: 'RELEVANCE', type: 'EXACT')
         @project_id = project_id
         @name = name
       end
 
+      def target_usage
+        @target_usage ||= if nameusage_result['total'] == 0
+                            nil
+                          else
+                            nameusage_result.dig('result')&.first
+                          end
+        @target_usage
+      end
+
       def response_classification
         return [] if nameusage_result['total'] == 0
-        nameusage_result.dig('result')&.first['classification']
+        target_usage['classification']
       end
 
       def response_classification_names
@@ -46,13 +60,13 @@ module Vendor
       end
 
       def taxonworks_ancestors
-        @taxonworks_ancestors ||= ::TaxonName
+        @taxonworks_ancestors ||= ::Protonym
           .where(cached: response_classification_names, project_id:)
           .order_by_rank(RANKS)
       end
 
       def taxonworks_ancestor_names
-        taxonworks_ancestors.map(&:name)
+        taxonworks_ancestors.map(&:cached)
       end
 
       def align
@@ -72,20 +86,32 @@ module Vendor
 
         current_parent = Project.find(project_id).root_taxon_name
 
-        r.each do |n|
+        r.each_with_index do |n, i|
+
           case n
           when nil
-            o.push taxonworks_ancestors.select{|a| a.cached == n}.first
-            current_parent = a
+            z = taxonworks_ancestors.select{|a| a.cached == n}.first
+            o.push(z)
+            current_parent = z
           else
             if t.include?(n)
-              a = taxonworks_ancestors.select{|a| a.cached == n}.first
-              o.push a
-              current_parent = a
+              y = taxonworks_ancestors.select{|a| a.cached == n}.first
+              o.push(y)
+              current_parent = y
             else
               b = response_classification.select{|c| c['name'] == n}.first
+
+              x = n
+
+              case b['rank']
+              when 'species'
+                x = specific_epithet(target_usage)
+              when 'subspecies'
+                x = infraspecific_epithet(target_usage)
+              end
+
               p = Protonym.new(
-                name: n,
+                name: x,
                 rank_class: Ranks.lookup(nomenclature_code, b['rank']).presence,
                 parent: current_parent,
                 verbatim_author: author(b),
@@ -146,13 +172,25 @@ module Vendor
         result.dig('usage', 'name', 'basionymAuthorship', 'year')
       end
 
-    end
+      def scientific_name(result)
+        result.dig('usage', 'name', 'scientificName')
+      end
+
+      def specific_epithet(result)
+        result.dig('usage', 'name', 'specificEpithet')
+      end
+
+      def infraspecific_epithet(result)
+        result.dig('usage', 'name', 'infraspecificEpithet')
+      end
+
+    end # end Alignment class
 
     # @return ActiveRecord Relation
     def self.ancestors_from_name(name: nil, dataset_id: '3LXR', project_id: nil)
       return ::TaxonName.none if name.blank? || project_id.blank?
 
-      r = ::Colrapi.nameusage_search(dataset_id:, q: name)
+      r = ::Colrapi.nameusage_search(dataset_id:, q: name, limit: 100)
 
       # Ignoring rank for now, fairly safe
     end

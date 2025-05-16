@@ -5,6 +5,39 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
   let(:taxon_name) { TaxonName.new }
 
+  context '.classification' do
+
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+
+    let(:animalia) { Protonym.create!(name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom), parent: root  ) }
+
+    let(:data) {
+      { classification: [
+        {id: nil, :name=>"Eukaryota", :rank_class=> "", :parent_id=> root.id, :verbatim_author=>nil, :year_of_publication=>nil, :cached_html=>nil, :cached=>nil},
+        {id: animalia.id, :name=>"Animalia", :rank_class=> 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom', :parent_id=> root.id, :verbatim_author=>nil, :year_of_publication=>nil, :cached_html=>"Animalia", :cached=>"Animalia"},
+        {id: nil, :name=>"Chordata", :rank_class=> 'NomenclaturalRank::Iczn::HigherClassificationGroup::Phylum', :parent_id=> animalia.id, :verbatim_author=>"Haeckel", :year_of_publication=>1874, :cached_html=>"Chordata", :cached=>"Chordata"},
+        {id: nil, :name=>"Vertebrata", :rank_class=> 'NomenclaturalRank::Iczn::HigherClassificationGroup::Subphylum', :parent_id=> nil, :verbatim_author=>nil, :year_of_publication=>nil, :cached_html=>"Vertebrata", :cached=>"Vertebrata"},
+        {id: nil, :name=>"Gnathostomata", :rank_class=> 'NomenclaturalRank::Iczn::HigherClassificationGroup::Infraphylum', :parent_id=> nil, :verbatim_author=>nil, :year_of_publication=>nil, :cached_html=>nil, :cached=>nil},
+        {id: nil, :name=>"Osteichthyes", :rank_class=> 'NomenclaturalRank::Iczn::HigherClassificationGroup::Superclass', :parent_id=> nil, :verbatim_author=>nil, :year_of_publication=>nil, :cached_html=>"Osteichthyes", :cached=>"Osteichthyes"},
+        {id: nil, :name=>"Actinopterygii", :rank_class=> 'NomenclaturalRank::Iczn::HigherClassificationGroup::ClassRank', :parent_id=> nil, :verbatim_author=>nil, :year_of_publication=>nil, :cached_html=>"Actinopterygii", :cached=>"Actinopterygii"},
+        {id: nil, :name=>"Tetraodontiformes", :rank_class=> 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', :parent_id=> nil, :verbatim_author=>nil, :year_of_publication=>nil, :cached_html=>nil, :cached=>nil},
+        {id: nil, :name=>"Molidae", :rank_class=> 'NomenclaturalRank::Iczn::FamilyGroup::Family', :parent_id=>nil, :verbatim_author=>nil, :year_of_publication=>nil, :cached_html=>nil, :cached=>nil},
+        {id: nil, :name=>"Mola", :rank_class=> 'NomenclaturalRank::Iczn::GenusGroup::Genus', :parent_id=>nil, :verbatim_author=>nil, :year_of_publication=>nil, :cached_html=>nil, :cached=>nil},
+        {id: nil, :name=>"mola", :rank_class=> 'NomenclaturalRank::Iczn::SpeciesGroup::Species', :parent_id=>nil, :verbatim_author=>nil, :year_of_publication=>nil, :cached_html=>nil, :cached=>nil}
+      ]} }
+
+    specify '.classification 1' do
+      TaxonName.create_with_classification(data)
+      expect(TaxonName.count).to eq(11)
+    end
+
+    specify '.classification 2' do
+      n = TaxonName.create_with_classification(data)
+      expect(n.cached).to eq('Mola mola')
+    end
+
+  end
+
   context 'using before :all' do
     let(:subspecies) { FactoryBot.create(:iczn_subspecies) }
     let(:species) { subspecies.ancestor_at_rank('species') }
@@ -264,7 +297,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify 'no OriginalCombination relationships' do
-            ssp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'vitata', parent: species) 
+            ssp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'vitata', parent: species)
             expect(ssp.get_genus_species(:original, :self).nil?).to be_truthy
             expect(ssp.get_genus_species(:original, :alternative).nil?).to be_truthy
             #            expect(ssp.get_genus_species(:current, :self).nil?).to be_falsey
@@ -295,7 +328,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           # What code is this supposed to catch?
           specify 'moving nominotypical taxon' do
-            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aaa', parent: genus) 
+            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aaa', parent: genus)
             subsp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'aaa', parent: sp)
             subsp.parent = species
             subsp.valid?
