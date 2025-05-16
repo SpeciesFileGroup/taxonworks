@@ -29,6 +29,7 @@ const DEPICTION_OBJECT_TYPES = [
   'CollectionObject',
   'Content',
   'Descriptor',
+  'FieldOccurrence',
   'Label',
   'Loan',
   'Observation',

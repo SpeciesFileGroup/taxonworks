@@ -8,23 +8,34 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+
+- Batch georeference on Filter CE [#4336]
+- New content task: Publish content button
+- Filter sounds: Radial matrix
 - Batch georeference on Filter CE  [#4336] 
+- Send Filter Field Occurrence results to Filter Image, and vice versa [#4348]
+- Add Field Occurrence as an option to more facets in Filter Images
 
 ### Changed
 
-- Removed Match geoference task [#4336] 
+- Removed Match geoference task [#4336]
 - Updated Ruby gems
+- Radial CO: Increase Taxon Determinations batch load limit to 5000 [#4349]
 
 ### Fixed
 
 - Filters: pop up screen overlap when columns are locked [#4322]
 - Browse Otu: display verbatimLocality in Specimen Records section [#4331]
 - CSD: Missing Georeferences when collecting_event_id is passed by parameter [#4339]
+- Background mass annotate Confidence or Protocol Relationship on >300 filter results [#4344]
 
 [#4336]: https://github.com/SpeciesFileGroup/taxonworks/issues/4336
 [#4322]: https://github.com/SpeciesFileGroup/taxonworks/issues/4322
 [#4331]: https://github.com/SpeciesFileGroup/taxonworks/issues/4331
 [#4339]: https://github.com/SpeciesFileGroup/taxonworks/issues/4339
+[#4334]: https://github.com/SpeciesFileGroup/taxonworks/issues/4344
+[#4348]: https://github.com/SpeciesFileGroup/taxonworks/issues/4348
+[#4349]: https://github.com/SpeciesFileGroup/taxonworks/issues/4349
 
 ## [0.50.1] - 2025-05-01
 

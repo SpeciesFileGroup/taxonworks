@@ -133,9 +133,8 @@ RSpec.configure do |config|
     FileUtils.rm_rf(Download.storage_path)
   end
 
-  config.after(:each, js: true) do
-    Capybara.use_default_driver
-    set_selenium_window_size(1600, 1200) if Capybara.current_driver == :selenium
+  config.before(:each, js: true) do
+    set_selenium_window_size(1280, 720) if Capybara.current_driver == :selenium
   end
 
   config.before(:each) do

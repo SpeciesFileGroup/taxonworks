@@ -541,6 +541,18 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
+      def image_query_facet
+        return nil if image_query.nil?
+
+        s = ::FieldOccurrence
+          .with(query_image: image_query.all)
+          .joins(:depictions)
+          .joins('JOIN query_image ON query_image.id = depictions.image_id')
+          .to_sql
+
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
+
       def and_clauses
         [
           collecting_event_id_facet,
@@ -556,6 +568,7 @@ module Queries
           biological_association_query_facet,
           collecting_event_query_facet,
           dwc_occurrence_query_facet,
+          image_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
           biocuration_facet,

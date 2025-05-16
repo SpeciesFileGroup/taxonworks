@@ -21,7 +21,7 @@ module Queries
     # include Queries::Concerns::Identifiers # Presently in Queries for other use in autocompletes
 
     #
-    # !! SUBQUERIES is cross-referenced in app/views/javascript/vue/components/radials/filter/links/*.js models.
+    # !! SUBQUERIES is cross-referenced in app/javascript/vue/components/radials/filter/links/*.js models.
     # !! When you add a reference here, ensure corresponding js model is aligned. There are tests that will catch if they are not.
     #
     # For example:
@@ -51,8 +51,8 @@ module Queries
       depiction: [:image],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
-      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :taxon_name], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
-      image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
+      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :image, :taxon_name], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
+      image: [:content, :collection_object, :collecting_event, :field_occurrence, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
       observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],
       otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
@@ -66,9 +66,7 @@ module Queries
       base_name + '_query'
     end
 
-    def query_name
-      self.class.query_name
-    end
+    delegate :query_name, to: :class
 
     # @return [Hash]
     #  only referenced in specs
