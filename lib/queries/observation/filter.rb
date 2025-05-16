@@ -263,6 +263,21 @@ module Queries
         ::Observation.from('(' + s + ') as observations')
       end
 
+      def observable_facet(name)
+        return nil if name.nil?
+
+        q = send((name + '_query').to_sym)
+
+        return nil if q.nil?
+
+        s = ::Observation
+          .with(query_obs: q.all)
+          .joins("JOIN query_obs ON observations.observation_object_id = query_obs.id AND observations.observation_object_type = '#{name.camelize}'")
+          .to_sql
+
+        ::Observation.from('(' + s + ') as observations')
+      end
+
       def and_clauses
         [
           character_state_id_facet,
@@ -277,10 +292,9 @@ module Queries
 
       def merge_clauses
         [
-          collection_object_query_facet,
+          *OBSERVABLE_TYPES.collect{ |t| observable_facet(t.underscore) },
           descriptor_query_facet,
           observation_matrix_id_facet,
-          otu_query_facet,
 
           taxon_name_query_facet,
           taxon_name_id_facet,

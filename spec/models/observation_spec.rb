@@ -73,11 +73,6 @@ RSpec.describe Observation, type: :model, group: :observation_matrix do
     expect(observation.observation_object_global_id).to eq(collection_object.to_global_id.to_s)
   end
 
-  specify '#observation_object_global_id' do
-    observation.observation_object_global_id = collection_object.to_global_id.to_s
-    expect(observation.observation_object_global_id).to eq(collection_object.to_global_id.to_s)
-  end
-
   specify 'new() initializes row object via observation_object_global_id' do
     o = Observation.new(observation_object_global_id: otu.to_global_id.to_s)
     expect(o.observation_object).to eq(otu)
@@ -142,6 +137,18 @@ RSpec.describe Observation, type: :model, group: :observation_matrix do
     observation.description = s
     observation.valid?
     expect(observation.description).to eq(s)
+  end
+
+  context '#observation_query_facet is required for all observable models' do
+    OBSERVABLE_TYPES.each do |t|
+      specify "Filter #{t} should have observation_query_facet" do
+        f = "::Queries::#{t}::Filter".safe_constantize
+        return if f.nil? # t doesn't have a filter yet
+        # TODO: this should really be testing that the filter is in
+        # merge_clauses, not just that it's defined.
+        expect(f.new({}).respond_to?(:observation_query_facet)).to be_truthy
+      end
+    end
   end
 
 end
