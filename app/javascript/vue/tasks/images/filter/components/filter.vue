@@ -7,6 +7,7 @@
       'otus',
       'collection_objects',
       'collection_object_observations',
+      'field_occurrences',
       'otu_observations',
       'type_material',
       'type_material_observations'
