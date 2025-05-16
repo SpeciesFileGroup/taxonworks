@@ -7,18 +7,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- Unify task: No message error is displayed when merging fails
+
 \-
 
 ## [0.51.0] - 2025-05-16
 
 ### Added
 
-- `Gazetteer` model - custom geospatial shapes for your project [#1954] 
+- `Gazetteer` model - custom geospatial shapes for your project [#1954]
 - Matrix radial to Sound and FieldOccurrence filters
 - Celsius and Hertz quantitative units to Descriptors
 - Batch georeference on Filter CE [#4336]
 - New content task: Publish content button
-- Batch georeference on Filter CE [#4336] 
+- Batch georeference on Filter CE [#4336]
 - Send Filter Field Occurrence results to Filter Image, and vice versa [#4348]
 - Add Field Occurrence as an option to more facets in Filter Images and Filter Observations
 - Send filter results between Observations and: field occurrences, extracts, and sounds
