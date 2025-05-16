@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Asserted Distributions returned by the `/api/v1/asserted_distributions.json` endpoint include distributions based on both Geographic Areas and Gazetteers (new). You can check the type of each distribution using the new type key of the distribution record: `{type: 'GeographicArea' or 'Gazetteer', ... }`
 - Improved performance on cached map building and spatial filtering
 - Removed Match geoference task [#4336]
 - Updated Ruby gems
