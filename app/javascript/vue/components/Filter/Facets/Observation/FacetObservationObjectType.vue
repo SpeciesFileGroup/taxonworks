@@ -21,13 +21,15 @@
 
 <script setup>
 import { computed } from 'vue'
-import { EXTRACT, COLLECTION_OBJECT, OTU } from '@/constants/index.js'
+import { EXTRACT, COLLECTION_OBJECT, OTU, FIELD_OCCURRENCE, SOUND } from '@/constants/index.js'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const OPTIONS = {
-  [EXTRACT]: 'Extract',
   [COLLECTION_OBJECT]: 'Collection object',
-  [OTU]: 'OTU'
+  [EXTRACT]: 'Extract',
+  [FIELD_OCCURRENCE]: 'Field occurrence',
+  [OTU]: 'OTU',
+  [SOUND]: 'Sound'
 }
 
 const props = defineProps({

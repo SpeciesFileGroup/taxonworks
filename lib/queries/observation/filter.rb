@@ -220,28 +220,6 @@ module Queries
         ::Observation.from('(' + s + ') as observations')
       end
 
-      def collection_object_query_facet
-        return nil if collection_object_query.nil?
-
-        s = 'WITH query_co_obs AS (' + collection_object_query.all.to_sql + ') ' +
-          ::Observation
-          .joins("JOIN query_co_obs as query_co_obs1 on observations.observation_object_id = query_co_obs1.id and observations.observation_object_type = 'CollectionObject'")
-          .to_sql
-
-        ::Observation.from('(' + s + ') as observations')
-      end
-
-      def otu_query_facet
-        return nil if otu_query.nil?
-
-        s = 'WITH query_otu_obs AS (' + otu_query.all.to_sql + ') ' +
-          ::Observation
-          .joins("JOIN query_otu_obs as query_otu_obs1 on observations.observation_object_id = query_otu_obs1.id and observations.observation_object_type = 'Otu'")
-          .to_sql
-
-        ::Observation.from('(' + s + ') as observations')
-      end
-
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
         s = 'WITH query_tn_obs AS (' + taxon_name_query.all.to_sql + ') '
