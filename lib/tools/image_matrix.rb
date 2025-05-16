@@ -209,8 +209,7 @@ class Tools::ImageMatrix
     @descriptor_available_languages = descriptor_available_languages_list
     @language_to_use = language_to_use
 
-
-    ###main_logic
+    ### main_logic
     @list_of_image_ids = []
 
     # Initiate on getter, memoized, only breaks then when requested
@@ -219,19 +218,20 @@ class Tools::ImageMatrix
     @depiction_matrix = descriptors_hash_initiate
     @image_hash = build_image_hash
 
-    ###delete temporary data
+    ### delete temporary data
     @row_hash = nil
     @rows_with_filter = []
     @list_of_image_ids = nil
-    @descriptors_with_filter = nil
+    @descriptors_with_filter = [] #  nil # SHOULD BE []?!
   end
 
   def find_observation_matrix
     ObservationMatrix.where(id: observation_matrix_id.to_i, project_id: project_id).first
   end
 
+  # @return Descriptor scope
   def descriptors
-    return nil if observation_matrix.nil? # Might be more universal if Descriptors.none
+    return Descriptor.none if observation_matrix.nil? # Might be more universal if Descriptors.none
     observation_matrix.descriptors.where("descriptors.type = 'Descriptor::Media'").not_weight_zero
   end
 
@@ -262,10 +262,11 @@ class Tools::ImageMatrix
       .where('tags.tag_object_id IN (?)', descriptor_ids ).order('name').distinct.to_a
   end
 
+  # @return Enumberable
   def descriptors_with_keywords
     if observation_matrix_id.to_i == 0 && !otu_filter.blank?
       d = observation_depictions_from_otu_filter.pluck(:descriptor_id).uniq
-      ds = Descriptor.where("descriptors.type = 'Descriptor::Media' AND descriptors.id IN (?)", d).not_weight_zero
+      ds = Descriptor::Media.where(id: d).not_weight_zero
     elsif keyword_ids
       ds = descriptors.joins(:tags).where('tags.keyword_id IN (?)', keyword_ids.to_s.split('|').map(&:to_i) )
     else
