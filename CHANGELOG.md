@@ -9,20 +9,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Celcius and Hertz units to Descriptors
+- `Gazetteer` model - custom geospatial shapes for your project [#1954] 
+- Matrix radial to Sound and FieldOccurrence filters
+- Celsius and Hertz quantitative units to Descriptors
 - Batch georeference on Filter CE [#4336]
 - New content task: Publish content button
-- Filter sounds: Radial matrix
-- Filter field occurrences: Radial matrix
-- Batch georeference on Filter CE  [#4336] 
+- Batch georeference on Filter CE [#4336] 
 - Send Filter Field Occurrence results to Filter Image, and vice versa [#4348]
 - Add Field Occurrence as an option to more facets in Filter Images and Filter Observations
 - Send filter results between Observations and: field occurrences, extracts, and sounds
 
 ### Changed
 
+- Improved performance on cached map building and spatial filtering
 - Removed Match geoference task [#4336]
 - Updated Ruby gems
+- Updated NPM packages
 - Radial CO: Increase Taxon Determinations batch load limit to 5000 [#4349]
 
 ### Fixed
@@ -36,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CSD: Missing Georeferences when collecting_event_id is passed by parameter [#4339]
 - Background mass annotate Confidence or Protocol Relationship on >300 filter results [#4344]
 
+[#1954]: https://github.com/SpeciesFileGroup/taxonworks/issues/1954
 [#4327]: https://github.com/SpeciesFileGroup/taxonworks/issues/4327
 [#4342]: https://github.com/SpeciesFileGroup/taxonworks/issues/4342
 [#4336]: https://github.com/SpeciesFileGroup/taxonworks/issues/4336
