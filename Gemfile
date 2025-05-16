@@ -137,7 +137,7 @@ gem 'sqed', '~>0.8.3'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul', require: 'dwc_archive' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', '~> 6.0'
-gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
+gem 'ruby-units', '~> 4.1.0', require: 'ruby_units/namespaced'
 
 gem 'colrapi', '~>0.1.1'
 
