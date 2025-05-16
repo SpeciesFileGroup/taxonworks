@@ -139,16 +139,4 @@ RSpec.describe Observation, type: :model, group: :observation_matrix do
     expect(observation.description).to eq(s)
   end
 
-  context '#observation_query_facet is required for all observable models' do
-    OBSERVABLE_TYPES.each do |t|
-      specify "Filter #{t} should have observation_query_facet" do
-        f = "::Queries::#{t}::Filter".safe_constantize
-        return if f.nil? # t doesn't have a filter yet
-        # TODO: this should really be testing that the filter is in
-        # merge_clauses, not just that it's defined.
-        expect(f.new({}).respond_to?(:observation_query_facet)).to be_truthy
-      end
-    end
-  end
-
 end

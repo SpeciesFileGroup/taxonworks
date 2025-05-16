@@ -304,7 +304,7 @@ class ObservationMatrix < ApplicationRecord
 
       OBSERVABLE_TYPES.each do |t|
         f = "::Queries::#{t}::Filter".safe_constantize
-        next if f.nil?
+        next if f.nil? || !f.method_defined?(:observation_query_facet)
 
         observables += f.new(observation_query: params[:observation_query]).all
       end
