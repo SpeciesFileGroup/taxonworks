@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Celcius and Hertz units to Descriptors
 - Batch georeference on Filter CE [#4336]
 - New content task: Publish content button
 - Filter sounds: Radial matrix
