@@ -192,6 +192,7 @@ module Queries
       # Shape is a Hash in GeoJSON format
       def geo_json_facet
         return nil if geo_json.nil?
+        return ::AssertedDistribution.none if roll_call
 
         i = spatial_query
         return nil if i.nil?
@@ -213,7 +214,6 @@ module Queries
             ::AssertedDistribution
               .where( asserted_distribution_shape: gz_ids )
               .where( asserted_distribution_shape_type: 'Gazetteer')
-
           )
 
       end
@@ -263,6 +263,7 @@ module Queries
         return nil if geo_shape_id.empty? || geo_shape_type.empty? ||
           # TODO: this should raise an error(?)
           geo_shape_id.length != geo_shape_type.length
+        return ::AssertedDistribution.none if roll_call
 
         geographic_area_shapes, gazetteer_shapes = shapes_for_geo_mode
 
@@ -276,11 +277,9 @@ module Queries
 
         if geo_mode == true # spatial
           i = ::Queries.union(::GeographicItem, [a,b])
-          wkt_shape =
-            ::Queries::GeographicItem.st_union(i)
-              .to_a.first['st_union'].to_s
+          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
 
-          return from_wkt(wkt_shape)
+          return from_wkt(u['st_astext'])
         end
 
         referenced_klass_union([a,b])

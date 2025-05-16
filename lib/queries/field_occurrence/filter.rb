@@ -29,9 +29,6 @@ module Queries
         # :determiner_name_regex,
         # :determiners,
         # :dwc_indexed,
-        :geo_mode,
-        :geo_shape_id,
-        :geo_shape_type,
         :georeferences,
         # :import_dataset_id,
         :otu_id,
@@ -46,8 +43,6 @@ module Queries
         collecting_event_id: [],
         field_occurrence_id: [],
         determiner_id: [],
-        geo_shape_id: [],
-        geo_shape_type: [],
         # import_dataset_id: [],
         # is_type: [],
         otu_id: [],
@@ -445,12 +440,7 @@ module Queries
       end
 
       def base_collecting_event_query_facet
-        # Turn project_id off and check for a truly empty query
-        base_collecting_event_query.project_id = nil
-        return nil if base_collecting_event_query.all(true).nil?
-
-        # Turn project_id back on
-        base_collecting_event_query.project_id = project_id
+        return nil if base_collecting_event_query.only_project?
 
         s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
           ::FieldOccurrence

@@ -255,6 +255,16 @@ module Queries
     # !! This is used strictly during the permission process of ActionController::Parameters !!
     attr_reader :params
 
+    # @return Boolean
+    # If true then *_facet methods need only return
+    # scope.none to indicate that the facet is active
+    # given the current parameters. Facet return scopes
+    # are never actually queried in this case.
+    # If you're a facet that does work to create your scope
+    # then you should check this attribute and *not* do
+    # that work when it's true. Otherwise you can safely
+    # ignore this.
+    attr_accessor :roll_call
 
     # @params query_params [ActionController::Parameters]
     def initialize(query_params)
@@ -288,6 +298,8 @@ module Queries
       @page = query_params[:page]
 
       @order_by = query_params[:order_by]
+
+      @roll_call = false
 
       # After this point, if you started with ActionController::Parameters,
       # then all values have been explicitly permitted.
@@ -747,7 +759,13 @@ module Queries
     #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on initialize
     #   false - there are no params at ALL or at least one that is not `project_id`, and project_id != false
     def only_project?
-      (project_id_facet && target_and_clauses.size == 1 && all_merge_clauses.nil?) ? true : false
+      @roll_call = true
+      a = (project_id_facet &&
+        target_and_clauses.size == 1 &&
+        all_merge_clauses.nil?) ? true : false
+      @roll_call = false
+
+      a
     end
 
     # @param nil_empty [Boolean]
