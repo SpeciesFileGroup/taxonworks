@@ -543,6 +543,18 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
+      def observation_query_facet
+        return nil if observation_query.nil?
+
+        s = ::FieldOccurrence
+          .with(obs_query_fo: observation_query.all)
+          .joins(:observations)
+          .joins('JOIN obs_query_fo on observations.id = obs_query_fo.id')
+          .to_sql
+
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
+
       def and_clauses
         [
           collecting_event_id_facet,
@@ -559,6 +571,7 @@ module Queries
           collecting_event_query_facet,
           dwc_occurrence_query_facet,
           image_query_facet,
+          observation_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
           biocuration_facet,

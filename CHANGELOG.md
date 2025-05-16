@@ -13,9 +13,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Batch georeference on Filter CE [#4336]
 - New content task: Publish content button
 - Filter sounds: Radial matrix
+- Filter field occurrences: Radial matrix
 - Batch georeference on Filter CE  [#4336] 
 - Send Filter Field Occurrence results to Filter Image, and vice versa [#4348]
-- Add Field Occurrence as an option to more facets in Filter Images
+- Add Field Occurrence as an option to more facets in Filter Images and Filter Observations
+- Send filter results between Observations and: field occurrences, extracts, and sounds
 
 ### Changed
 
