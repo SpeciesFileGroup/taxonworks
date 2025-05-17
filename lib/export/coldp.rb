@@ -1,6 +1,13 @@
 require 'zip'
 require 'yaml'
 
+# To generate a file on the console:
+#
+#   Current.user_id = ; Current.project_id = ;
+#   o = Otu.find()
+#   d = ::Export::Coldp.download(o, 'foo')
+#   d.file_path
+#
 module Export
 
   # Exports to the Catalog of Life in the new "coldp" format.
@@ -11,6 +18,18 @@ module Export
   # * Pending handling of both BibTeX and Verbatim
   module Coldp
 
+    # TODO: probably doing nothing
+    attr_accessor :remarks
+
+    def remarks
+      @remarks ||= []
+      @remarks
+    end
+
+    def self.remarks=(values)
+      @remarks = values
+    end
+
     FILETYPES = %w{Distribution Name NameRelation SpeciesInteraction Synonym TaxonConceptRelation TypeMaterial VernacularName Taxon References}.freeze
 
     # @return [Scope]
@@ -18,6 +37,8 @@ module Export
     #  !! At present no OTU with a `name` is sent. In the future this may need to change.
     #
     #  !! No synonym TaxonName is send if they don't have an OTU
+    #
+    #  This is presently not scoping Names.csv. That's probably OK.
     #
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
@@ -29,9 +50,22 @@ module Export
         .where('(otus.name IS NULL) OR (otus.name = taxon_names.cached)') # !! Union does not make this faster
     end
 
+    # TODO: We are using `,` to delimit values elsewhere (e.g. Taxon)
+    # TODO: find by IRI, not predicate_id so that we can unify the vocabulary.
+    # Accessed per file type
+    def self.get_remarks(scope, predicate_id)
+      c = DataAttribute.with(invalid_names: scope.select('taxon_names.id invalid_id'))
+        .joins("JOIN invalid_names ON invalid_names.invalid_id = data_attributes.attribute_subject_id AND data_attributes.attribute_subject_type = 'TaxonName'")
+        .select("data_attributes.attribute_subject_id, STRING_AGG(data_attributes.value, '|') AS values")
+        .where(data_attributes: {controlled_vocabulary_term_id: predicate_id})
+        .group('data_attributes.attribute_subject_id')
+
+      ApplicationRecord.connection.execute(c.to_sql).to_a
+    end
+
     def self.project_members(project_id)
       project_members = {}
-      ProjectMember.where(project_id:).each do |pm|
+      ProjectMember.eager_load(:user).where(project_id:).each do |pm|
         if pm.user.orcid.nil?
           project_members[pm.user_id] = pm.user.name
         else
@@ -54,8 +88,12 @@ module Export
     end
 
     # TODO: Move to Strings::Utilities
-    def self.sanitize_remarks(remarks)
-      remarks&.gsub('\r\n', ' ')&.gsub('\n', ' ')&.gsub('\t', ' ')&.gsub(/[ ]+/, ' ')
+    def self.sanitize_remarks(id)
+      return nil if @remarks.blank?
+      v = @remarks.bsearch{|i| i['attribute_subject_id'] >= id}
+      return nil if v['attribute_subject_id'] != id # bsearch finds >=
+      return v['values']&.gsub('\r\n', ' ')&.gsub('\n', ' ')&.gsub('\t', ' ')&.gsub(/[ ]+/, ' ')   if v
+      nil
     end
 
     # Return path to the data itself
@@ -75,6 +113,9 @@ module Export
       clb_dataset_id =  otu.identifiers.where(namespace_id: ns.id)&.first&.identifier unless ns.nil?
 
       project = ::Project.find(otu.project_id)
+
+      project_id = otu.project_id
+
       project_members = project_members(project.id)
       feedback_url = project[:data_curation_issue_tracker_url] unless project[:data_curation_issue_tracker_url].nil?
 
@@ -87,7 +128,7 @@ module Export
         version = Settings.sandbox_commit_sha
       end
 
-      # We lose the ability to maintain title in TW but until we can model metadata in TW, 
+      # We lose the ability to maintain title in TW but until we can model metadata in TW,
       #   it seems desirable because there's a lot of TW vs CLB title mismatches
       if clb_dataset_id.nil?
         metadata = {
@@ -118,9 +159,9 @@ module Export
       metadata['version'] = DateTime.now.strftime('%b %Y')
 
       platform = {
-          'name' => 'TaxonWorks',
-          'alias' => 'TW',
-          'version' => version
+        'name' => 'TaxonWorks',
+        'alias' => 'TW',
+        'version' => version
       }
       metadata['platform'] = platform
 
@@ -130,23 +171,27 @@ module Export
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
 
-        (FILETYPES - %w{Name Taxon References Synonym}).each do |ft| # TODO: double check Synonym belongs there.
-          m = "Export::Coldp::Files::#{ft}".safe_constantize
-          zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
-        end
+      (FILETYPES - %w{Name Taxon References Synonym TypeMaterial}).each do |ft|
+        m = "Export::Coldp::Files::#{ft}".safe_constantize
+        zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
+      end
 
-        zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+      zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
 
-        skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids
-        zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otus, project_members, ref_tsv, skip_name_ids) }
+      zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
 
-        zipfile.get_output_stream('Taxon.tsv') do |f|
-          f.write Export::Coldp::Files::Taxon.generate(otus, project_members, otu_id, ref_tsv, prefer_unlabelled_otus, skip_name_ids)
-        end
+      # TODO: Probably not used
+      skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids  ||  []
 
-        # TODO: this doesn't really help, and adds time to the process.
-        # Sort the refs by full citation string
-        sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
+      zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv, skip_name_ids) }
+
+      zipfile.get_output_stream('Taxon.tsv') do |f|
+        f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus, skip_name_ids)
+      end
+
+      # TODO: this doesn't really help, and adds time to the process.
+      # Sort the refs by full citation string
+      sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
 
         d = ::CSV.generate(col_sep: "\t") do |tsv|
           tsv << %w{ID citation	doi modified modifiedBy} # author year source details
@@ -156,7 +201,7 @@ module Export
         end
 
         zipfile.get_output_stream('References.tsv') { |f| f.write d }
-        zipfile.add('metadata.yaml', metadata_file.path)
+        zipfile.add('metadata.yaml', metadata_file.path) # TODO: consider isolating Files.metadata logic
       end
 
       zip_file_path
@@ -199,6 +244,7 @@ module Export
 
     # TODO - perhaps a utilities file --
 
+    # Doesn't exist in ColDP
     # @return [Boolean]
     #  `true` if no parens in `cached_author_year`
     #  `false` if parens in `cached_author_year`

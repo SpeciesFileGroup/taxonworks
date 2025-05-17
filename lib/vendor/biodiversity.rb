@@ -55,13 +55,24 @@ module Vendor
       #   a memoized combiantion with only unambiguous elements 
       attr_reader :combination
 
-      def initialize(query_string: nil, project_id: nil, code: :iczn, match_mode: :groups)
+      # @return Boolean
+      #   - true, we match on words from verbatim:
+      #   - false, we match on words from normalized:
+      attr_reader :normalized
+       
+
+      def initialize(query_string: nil, project_id: nil, code: :iczn, match_mode: :groups, verbatim: false)
         @project_id = project_id
         @name = query_string
         @nomenclature_code = code
         @mode = match_mode
+        @normalized = !verbatim
 
         parse if !query_string.blank?
+      end
+
+      def normalized
+        @normalized ? :normalized : :verbatim
       end
 
       # @return [@parse_result]
@@ -83,7 +94,7 @@ module Vendor
           end
         end
 
-        @parse_result[:scientificName] = parse_result[:normalized]
+        @parse_result[:scientificName] = parse_result[normalized]
         @parse_result
       end
 
@@ -106,17 +117,25 @@ module Vendor
 
       # @return [String, nil]
       def genus
-        parse_result[:words]&.detect { |w| %w{UNINOMIAL GENUS}.include?(w[:wordType]) }&.dig(:normalized)
+        if parse_result[:rank] == 'subgen.'
+          parse_result.dig(:details, :uninomial, :parent)
+        else
+          parse_result[:words]&.detect{ |w| %w{UNINOMIAL GENUS}.include?(w[:wordType]) }&.dig(normalized)
+        end
       end
 
       # @return [String, nil] 
       def subgenus
-        (parse_result[:words] || [])[1..]&.detect { |w| %w{UNINOMIAL INFRA_GENUS}.include?(w[:wordType]) }&.dig(:normalized)
+        if parse_result[:rank] == 'subgen.'
+          parse_result.dig(:details, :uninomial, :uninomial)
+        else
+          (parse_result[:words] || [])[1..]&.detect{ |w| %w{UNINOMIAL INFRA_GENUS}.include?(w[:wordType]) }&.dig(normalized)
+        end
       end
 
       # @return [String, nil]
       def species
-        parse_result[:words]&.detect { |w| 'SPECIES' == w[:wordType] }&.dig(:normalized)
+        parse_result[:words]&.detect { |w| 'SPECIES' == w[:wordType] }&.dig(normalized)
       end
 
       # @return [String, nil]

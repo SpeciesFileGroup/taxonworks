@@ -57,8 +57,6 @@ module Export::Coldp::Files::SpeciesInteraction
   end
 
   def self.generate(otus, project_members, reference_csv = nil )
-
-
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
@@ -97,7 +95,6 @@ module Export::Coldp::Files::SpeciesInteraction
 
         Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
       end
-      # end
     end
   end
 end

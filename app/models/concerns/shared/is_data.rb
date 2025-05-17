@@ -142,6 +142,23 @@ module Shared::IsData
       h
     end
 
+    private
+
+    # @return Array of IDs for this class
+    #
+    #  Make cutoff smaller to reach higher ids.
+    #  Useful for pseudo-benchmarking.
+    #  TODO: doesn't return total. There are some
+    #  nice discussions on stack overflow.
+    def random_ids(total = 100)
+      return self.none if total.blank?
+      if column_names.include?('type')
+        self.find_by_sql( "select id, type from #{self.table_name} where type = '#{self.name}' AND  random() < 0.0001 limit #{total};").pluck(:id)
+      else
+        self.find_by_sql( "select id from #{self.table_name} where random() < 0.0001 limit #{total};").pluck(:id)
+      end
+    end
+
   end  # END CLASS METHODS
 
   # Returns whether it is permissible to try to destroy

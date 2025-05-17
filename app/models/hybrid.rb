@@ -41,6 +41,11 @@ class Hybrid < TaxonName
     true 
   end
 
+  # TODO: Revist. Hybrid is subclass of TN, so this doesn't quite follow discussion with @proceps.
+  def get_is_available
+    false
+  end
+
   protected
 
   def validate_rank_class_class
