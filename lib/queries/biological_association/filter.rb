@@ -17,8 +17,9 @@ module Queries
         :descendants,
         :exclude_taxon_name_relationship,
         :geo_json,
-        :geographic_area_id,
-        :geographic_area_mode,
+        :geo_mode,
+        :geo_shape_id,
+        :geo_shape_type,
         :object_biological_property_id,
         :object_object_global_id,
         :object_taxon_name_id,
@@ -42,7 +43,8 @@ module Queries
         biological_relationship_id: [],
         collecting_event_id: [],
         collection_object_id: [],
-        geographic_area_id: [],
+        geo_shape_id: [],
+        geo_shape_type: [],
         object_biological_property_id: [],
         object_object_global_id: [],
         object_taxon_name_id: [],
@@ -147,9 +149,9 @@ module Queries
       # See lib/queries/otu/filter.rb
       attr_accessor :wkt
       attr_accessor :geo_json
-      attr_accessor :geographic_area_id
-
-      attr_accessor :geographic_area_mode
+      attr_accessor :geo_mode
+      attr_accessor :geo_shape_id
+      attr_accessor :geo_shape_type
 
       # @return [nil, 'Otu', 'CollectionObject']
       #  limit subject to a type
@@ -179,8 +181,9 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @exclude_taxon_name_relationship = boolean_param(params, :exclude_taxon_name_relationship)
         @geo_json = params[:geo_json]
-        @geographic_area_id = params[:geographic_area_id]
-        @geographic_area_mode = boolean_param(params, :geographic_area_mode)
+        @geo_mode = params[:geo_mode]
+        @geo_shape_id = params[:geo_shape_id]
+        @geo_shape_type = params[:geo_shape_type]
         @object_biological_property_id = params[:object_biological_property_id]
         @object_object_global_id = params[:object_object_global_id]
         @object_taxon_name_id = params[:object_taxon_name_id]
@@ -277,10 +280,6 @@ module Queries
         [@any_global_id].flatten.compact
       end
 
-      def geographic_area_id
-        [@geographic_area_id].flatten.compact
-      end
-
       def subject_matches(object)
         table['biological_association_subject_id'].eq(object.id).and(
           table['biological_association_subject_type'].eq(object.class.base_class.name)
@@ -336,8 +335,9 @@ module Queries
           :collecting_event_id,
           :collection_object_id,
           :geo_json,
-          :geographic_area_id,
-          :geographic_area_mode,
+          :geo_mode,
+          :geo_shape_id,
+          :geo_shape_type,
           :wkt,
         ].each
           .each do |p|
@@ -351,8 +351,9 @@ module Queries
         h = {}
         [
           :geo_json,
-          :geographic_area_id,
-          :geographic_area_mode,
+          :geo_mode,
+          :geo_shape_id,
+          :geo_shape_type,
           :otu_id,
           :wkt,
         ].each do |p|
@@ -375,15 +376,11 @@ module Queries
       end
 
       def base_otu_query(opts)
-        q = ::Queries::Otu::Filter.new(opts)
-        q.project_id = nil # reset at use
-        q
+        ::Queries::Otu::Filter.new(opts)
       end
 
       def base_collection_object_query(opts)
-        q = ::Queries::CollectionObject::Filter.new(opts)
-        q.project_id = nil # reset at use
-        q
+        ::Queries::CollectionObject::Filter.new(opts)
       end
 
       def subject_collection_object_query
@@ -464,13 +461,11 @@ module Queries
 
         a_sql, b_sql = nil, nil
 
-        if !a&.all(true).nil?
-          a.project_id = project_id
+        if !a.nil? && !a.only_project?
           a_sql = a.all.to_sql
         end
 
-        if !b&.all(true).nil?
-          b.project_id = project_id
+        if !b.nil? && !b.only_project?
           b_sql = b.all.to_sql
         end
 
@@ -525,13 +520,11 @@ module Queries
 
         a_sql, b_sql = nil, nil
 
-        if !a&.all(true).nil?
-          a.project_id = project_id
+        if !a.nil? && !a.only_project?
           a_sql = a.all.to_sql
         end
 
-        if !b&.all(true).nil?
-          b.project_id = project_id
+        if !b.nil? && !b.only_project?
           b_sql = b.all.to_sql
         end
 

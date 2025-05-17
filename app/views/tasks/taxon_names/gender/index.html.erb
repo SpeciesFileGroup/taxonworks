@@ -1,0 +1,40 @@
+<h1> Gender summary </h1>
+
+<div>
+  <%= tag.span 'Query is auto-restricted to Protonyms only.', class: [:feedback, 'feedback-info'] %>
+  <%= tag.span('Status presently not calculated for results over 200 records.', class: [:feedback, 'feedback-warning']) if @taxon_names.size > 200 %>
+</div>
+<br/>
+
+<%= copy_table_to_clipboard('#gender_table') %>
+
+<table id="gender_table" >
+  <thead>
+    <tr>
+      <th>name</th>
+      <th>gender</th>
+      <th>authorship</th>
+      <th>year</th>
+      <th>valid name</th>
+      <th>family</th>
+      <th>etymology</th>
+      <th>status</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @taxon_names.each do |n| %>
+      <tr>
+        <td><%= n.name %></td>
+        <td><%= n.gender_name %></td>
+        <td><%= n.cached_author %></td>
+        <td><%= n.cached_nomenclature_date&.year %></td>
+        <td><%= n.valid_taxon_name.name %></td>
+        <td><%= n.ancestor_at_rank(:family)&.name %></td>
+        <td><%= n.etymology %></td>
+        <td><%= taxon_name_status_label(n) unless n.cached_is_valid || @taxon_names.count > 100 %></td>
+      </tr>
+    <% end %> 
+  </tbody>
+</table>
+

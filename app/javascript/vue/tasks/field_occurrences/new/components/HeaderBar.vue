@@ -32,6 +32,7 @@
         >
           <RadialAnnotator :global-id="foStore.fieldOccurrence.global_id" />
           <RadialObject :global-id="foStore.fieldOccurrence.global_id" />
+          <RadialNavigator :global-id="foStore.fieldOccurrence.global_id" />
         </div>
       </div>
       <ul class="context-menu no_bullets">
@@ -79,6 +80,7 @@
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import Navbar from '@/components/layout/NavBar.vue'
 import useFieldOccurrenceStore from '../store/fieldOccurrence.js'
@@ -89,6 +91,7 @@ import useSettingStore from '../store/settings.js'
 import useBiocurationStore from '../store/biocurations.js'
 import useBiologicalAssociationStore from '../store/biologicalAssociations.js'
 import useDepictionStore from '../store/depictions.js'
+import useOriginRelationshipStore from '../store/originRelationships.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VRecent from './Recent.vue'
 import { useHotkey } from '@/composables'
@@ -106,9 +109,11 @@ const biologicalAssociationStore = useBiologicalAssociationStore()
 const ceStore = useCEStore()
 const biocurationStore = useBiocurationStore()
 const depictionStore = useDepictionStore()
+const originRelationshipStore = useOriginRelationshipStore()
 const fieldOccurrenceId = computed(() => foStore.fieldOccurrence.id)
 const isUnsaved = computed(
   () =>
+    originRelationshipStore.hasUnsaved ||
     citationStore.hasUnsaved ||
     determinationStore.hasUnsaved ||
     biocurationStore.hasUnsaved ||
@@ -141,6 +146,7 @@ async function save() {
       citationStore.save(args),
       determinationStore.load(args),
       biocurationStore.save(args),
+      originRelationshipStore.save(args),
       biologicalAssociationStore.save(args)
     ]
 
@@ -175,6 +181,7 @@ function reset() {
     biocurationStore.list = []
   }
 
+  originRelationshipStore.$reset()
   depictionStore.$reset()
   determinationStore.reset({ keepRecords: locked.taxonDeterminations })
   citationStore.reset({ keepRecords: locked.citations })
@@ -229,6 +236,7 @@ async function loadForms(id) {
   })
 
   const requests = [
+    originRelationshipStore.load(args),
     determinationStore.load(args),
     biocurationStore.load(args),
     citationStore.load(args),

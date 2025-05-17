@@ -3,10 +3,27 @@ require 'support/shared_contexts/shared_geo'
 
 describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, :otus, :shared_geo] do
 
-  let(:q) { Queries::Otu::Filter.new({}) }
+    let(:q) { Queries::Otu::Filter.new({}) }
 
   let(:o1) { Otu.create!(name: 'Abc 1') }
   let(:o2) { Otu.create!(name: 'Def 2') }
+
+  specify '#dwc_occurrence_query' do
+    s = Specimen.create!
+    d = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s) # Alon doesn't create DwcOccurrence
+
+    Otu.create!(name: 'Noperope')
+
+    a = ::Queries::CollectionObject::Filter.new(collection_object_id: d.taxon_determination_object_id)
+
+    b = ::Queries::DwcOccurrence::Filter.new({})
+    b.collection_object_query = a
+
+    q = Queries::Otu::Filter.new({})
+    q.dwc_occurrence_query = b
+
+    expect(q.all).to contain_exactly(d.otu)
+  end
 
   # confidences query concern
   specify '#confidence_level_id' do
@@ -259,26 +276,59 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
   end
 
-  specify '#geographic_area_id and #geographic_area_mode, spatial (Query::AssertedDistribution integration)' do
+  specify '#geo_shape_id and #geo_mode, spatial (Query::AssertedDistribution integration)' do
     o2
     # smaller
     a = FactoryBot.create(:level1_geographic_area)
     s1 = a.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
     )
 
     # bigger
     b = FactoryBot.create(:level1_geographic_area)
     s2 = b.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
     )
 
     # Use smaller
-    AssertedDistribution.create!(otu: o1, geographic_area: a, source: FactoryBot.create(:valid_source))
+    AssertedDistribution.create!(otu: o1, asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
 
     # Use bigger
-    q.geographic_area_id = b.id
-    q.geographic_area_mode = true
+    q.geo_shape_id = b.id
+    q.geo_shape_type = 'GeographicArea'
+    q.geo_mode = true
+
+    expect(q.all).to contain_exactly( o1 )
+  end
+
+  specify '#geo_shape_id, spatial (Query::AssertedDistribution integration)' do
+    o2
+
+    bigger_polygon = RspecGeoHelpers.make_polygon(
+      RSPEC_GEO_FACTORY.point(10, 10), 0, 0, 10.0, 10.0
+    )
+    bigger_gz =
+      FactoryBot.create(:gazetteer,
+        geographic_item:
+          FactoryBot.create(:geographic_item, geography: bigger_polygon),
+        name: 'large'
+      )
+
+    smaller_ga = FactoryBot.create(:level1_geographic_area)
+    smaller_ga.geographic_items << GeographicItem.create!(
+      geography: RspecGeoHelpers.make_polygon(
+        RSPEC_GEO_FACTORY.point(10, 10), 0, 0, 5.0, 5.0
+      )
+    )
+
+    # Use smaller ga
+    AssertedDistribution.create!(otu: o1, asserted_distribution_shape: smaller_ga,
+      source: FactoryBot.create(:valid_source))
+
+    # Use bigger gz
+    q.geo_shape_id = bigger_gz.id
+    q.geo_shape_type = 'Gazetteer'
+    q.geo_mode = true
 
     expect(q.all).to contain_exactly( o1 )
   end
@@ -626,7 +676,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       let(:ad2) do
         ad = AssertedDistribution.new(
           otu: by_bill,
-          geographic_area: sub_area_b,
+          asserted_distribution_shape: sub_area_b,
           by: geo_user,
           project: geo_project)
         ad.origin_citation = cite2
@@ -656,7 +706,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
         let(:params) { {drawn_area_shape: area_a.to_simple_json_feature,
                         selection_objects: ['CollectionObject', 'AssertedDistribution']} }
         let(:ad2a) do
-          ad2.update(geographic_area:  sub_area_a)
+          ad2.update(asserted_distribution_shape:  sub_area_a)
         end
 
         specify 'nomen count' do
@@ -775,4 +825,4 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
   end
 =end
-end
+  end

@@ -62,3 +62,7 @@ export const FILTER_DWC_OCCURRENCE = {
   label: 'DwcOccurrences',
   link: '/tasks/dwc_occurrences/filter'
 }
+export const FILTER_SOUND = {
+  label: 'Sounds',
+  link: '/tasks/sounds/filter'
+}

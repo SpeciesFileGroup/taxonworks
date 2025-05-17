@@ -7,6 +7,7 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::Confidences
       include Queries::Concerns::Containable
+      include Queries::Concerns::Conveyances
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
@@ -380,6 +381,7 @@ module Queries
         set_confidences_params(params)
         set_citations_params(params)
         set_containable_params(params)
+        set_conveyance_params(params)
         set_data_attributes_params(params)
         set_depiction_params(params)
         set_notes_params(params)
@@ -459,10 +461,10 @@ module Queries
         [@repository_id].flatten.compact.uniq
       end
 
-      def collection_object_id_facet
-        return nil if collection_object_id.empty?
-        table[:id].in(collection_object_id)
-      end
+   #  def collection_object_id_facet
+   #    return nil if collection_object_id.empty?
+   #    table[:id].in(collection_object_id)
+   #  end
 
       def import_dataset_id_facet
         return nil if import_dataset_id.blank?
@@ -877,12 +879,8 @@ module Queries
       end
 
       def base_collecting_event_query_facet
-        # Turn project_id off and check for a truly empty query
-        base_collecting_event_query.project_id = nil
-        return nil if base_collecting_event_query.all(true).nil?
-
-        # Turn project_id back on
-        base_collecting_event_query.project_id = project_id
+        return nil if
+          base_collecting_event_query.only_project?
 
         s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.select(:id).to_sql + ') ' +
           ::CollectionObject
@@ -997,7 +995,6 @@ module Queries
           attribute_exact_facet(:buffered_determinations),
           attribute_exact_facet(:buffered_other_labels),
           collecting_event_id_facet,
-          collection_object_id_facet,
           current_repository_id_facet,
           preparation_type_id_facet,
           repository_id_facet,

@@ -1,9 +1,11 @@
 <template>
-  <form-citation
-    v-model="typeMaterial.originCitation"
-    :klass="TYPE_MATERIAL"
-    original
-  />
+  <div class="overflow-x-auto">
+    <FormCitation
+      v-model="typeMaterial.originCitation"
+      :klass="TYPE_MATERIAL"
+      original
+    />
+  </div>
 </template>
 
 <script setup>

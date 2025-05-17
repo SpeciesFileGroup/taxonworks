@@ -74,7 +74,7 @@
                   circle
                   @click="
                     () => {
-                      ceStore.$reset()
+                      ceStore.reset()
                     }
                   "
                 >

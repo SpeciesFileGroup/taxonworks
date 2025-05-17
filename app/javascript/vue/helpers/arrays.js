@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify'
+
 function chunkArray(arr, chunkSize) {
   const results = []
   const tmpArr = arr.slice()
@@ -14,31 +16,44 @@ function getUnique(arr, property) {
 }
 
 function sortFunction(a, b, asc) {
-  if (a === null) return 1
-  if (b === null) return -1
-  if (a === null && b === null) return 0
+  if (a == null && b == null) return 0
 
-  const result = a - b
-
-  if (isNaN(result)) {
-    return asc
-      ? a
-          ?.toString()
-          .localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-      : b
-          ?.toString()
-          .localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
+  if (asc) {
+    if (a == null) return -1
+    if (b == null) return 1
   } else {
-    return asc ? result : -result
+    if (a == null) return 1
+    if (b == null) return -1
   }
+
+  const numA = parseFloat(a)
+  const numB = parseFloat(b)
+
+  if (!isNaN(numA) && !isNaN(numB)) {
+    return asc ? numA - numB : numB - numA
+  }
+
+  return asc
+    ? a.toString().localeCompare(b.toString(), undefined, {
+        numeric: true,
+        sensitivity: 'base'
+      })
+    : b.toString().localeCompare(a.toString(), undefined, {
+        numeric: true,
+        sensitivity: 'base'
+      })
 }
 
-function sortArray(arr, sortProperty, ascending = true) {
+function sortArray(arr, sortProperty, ascending = true, opts = {}) {
   const list = arr.slice()
   const prop = String(sortProperty).split('.')
   const len = prop.length
 
+  const { stripHtml } = opts
+
   return list.sort((a, b) => {
+    if (!sortProperty) return sortFunction(a, b, ascending)
+
     for (let i = 0; i < len; i++) {
       if (a) {
         a = a[prop[i]]
@@ -46,6 +61,11 @@ function sortArray(arr, sortProperty, ascending = true) {
       if (b) {
         b = b[prop[i]]
       }
+    }
+
+    if (stripHtml) {
+      a = DOMPurify.sanitize(a, { USE_PROFILES: { html: false } })
+      b = DOMPurify.sanitize(b, { USE_PROFILES: { html: false } })
     }
 
     return sortFunction(a, b, ascending)

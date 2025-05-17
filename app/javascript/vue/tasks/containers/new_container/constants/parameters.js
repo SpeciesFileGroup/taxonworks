@@ -1,1 +1,1 @@
-export const CONTAINER_PARAMETERS = { extend: ['container_label'] }
+export const CONTAINER_PARAMETERS = { extend: ['container_label', 'container_items'] }

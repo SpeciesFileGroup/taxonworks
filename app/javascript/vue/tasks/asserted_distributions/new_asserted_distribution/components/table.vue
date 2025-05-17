@@ -3,7 +3,7 @@
     <thead>
       <tr>
         <th>Otu</th>
-        <th>Geographic area</th>
+        <th>Shape</th>
         <th>Citation</th>
         <th>Trash</th>
         <th>Radial annotator</th>
@@ -23,7 +23,11 @@
             v-html="item.otu.object_tag"
           />
         </td>
-        <td v-html="item.geographic_area.name" />
+        <td v-html="shapeLink(
+            item.asserted_distribution_shape,
+            item.asserted_distribution_shape_type
+          )"
+        />
         <td v-if="item.citations.length > 1">
           <CitationCount :citations="item.citations" />
         </td>
@@ -97,8 +101,6 @@ import { Source } from '@/routes/endpoints'
 
 const store = useStore()
 
-const emit = defineEmits(['onOtuGeo', 'onSourceGeo', 'onSourceOtu', 'remove'])
-
 function nomenclatureBySourceRoute(id) {
   return `${RouteNames.NomenclatureBySource}?source_id=${id}`
 }
@@ -126,7 +128,10 @@ function setSourceOtu(item) {
 function setSourceGeo(item) {
   store.reset()
   setCitation(item.citations[0])
-  store.geographicArea = item.geographic_area
+  store.shape = {
+    shapeType: item.asserted_distribution_shape_type,
+    ...item.asserted_distribution_shape
+  }
   store.isAbsent = item.is_absent
 }
 
@@ -134,7 +139,10 @@ function setGeoOtu(item) {
   store.reset()
   store.autosave = false
   store.assertedDistribution.id = item.id
-  store.geographicArea = item.geographic_area
+  store.shape = {
+    shapeType: item.asserted_distribution_shape_type,
+    ...item.asserted_distribution_shape
+  }
   store.otu = item.otu
   store.isAbsent = item.is_absent
 }
@@ -150,6 +158,15 @@ function setCitation(citation) {
     }
   })
 }
+
+function shapeLink(shape, type) {
+  if (type == 'GeographicArea') {
+    return `<a href="/geographic_areas/${shape.id}">${shape.name}</a>`
+  } else {
+    return `<a href="/gazetteers/${shape.id}">${shape.name}</a>`
+  }
+}
+
 </script>
 <style scoped>
 table,

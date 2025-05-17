@@ -86,7 +86,12 @@ export const useTaxonDeterminationStore = defineStore('taxonDeterminations', {
           Object.assign(item, {
             id: null,
             global_id: null,
-            isUnsaved: true
+            isUnsaved: true,
+            roles_attributes:
+              item.determiner_roles?.map((item) => ({
+                type: item.type,
+                person_id: item.person.id
+              })) || []
           })
         })
       } else {

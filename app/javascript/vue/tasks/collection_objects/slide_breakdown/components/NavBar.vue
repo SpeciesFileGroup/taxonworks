@@ -1,14 +1,15 @@
 <template>
-  <nav-bar>
+  <NavBar>
     <div class="flex-separate full_width">
-      <div class="middle">
+      <div class="middle gap-small">
+        <RecentButton @select="openGridDigitizer" />
         <span
           v-if="sledImage.id"
           v-html="sledImage.object_tag"
         />
         <span v-else>New record</span>
         <template v-if="sledImage.id">
-          <radial-annotator :global-id="sledImage.global_id" />
+          <RadialAnnotator :global-id="sledImage.global_id" />
         </template>
       </div>
       <div class="horizontal-right-content">
@@ -16,7 +17,7 @@
           <li>
             <a
               v-if="navigation.previous"
-              :href="`/tasks/collection_objects/grid_digitize/index?sled_image_id=${navigation.previous}`"
+              :href="`${RouteNames.GridDigitizer}?sled_image_id=${navigation.previous}`"
             >
               Previous
             </a>
@@ -29,7 +30,7 @@
           <li>
             <a
               v-if="navigation.next"
-              :href="`/tasks/collection_objects/grid_digitize/index?sled_image_id=${navigation.next}`"
+              :href="`${RouteNames.GridDigitizer}?sled_image_id=${navigation.next}`"
             >
               Next
             </a>
@@ -42,51 +43,41 @@
         </ul>
       </div>
     </div>
-  </nav-bar>
+  </NavBar>
 </template>
 
-<script>
+<script setup>
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { NavigationSled } from '../request/resource'
+import { computed, watch } from 'vue'
+import { useStore } from 'vuex'
+import { RouteNames } from '@/routes/routes'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import NavBar from '@/components/layout/NavBar'
+import RecentButton from './RecentList.vue'
 
-export default {
-  components: {
-    NavBar,
-    RadialAnnotator
+const store = useStore()
+const sledImage = computed(() => store.getters[GetterNames.GetSledImage])
+const navigation = computed({
+  get() {
+    return store.getters[GetterNames.GetNavigation]
   },
-
-  computed: {
-    sledImage() {
-      return this.$store.getters[GetterNames.GetSledImage]
-    },
-    navigation: {
-      get() {
-        return this.$store.getters[GetterNames.GetNavigation]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetNavigation, value)
-      }
-    }
-  },
-
-  watch: {
-    sledImage: {
-      handler(newVal, oldVal) {
-        if (newVal.id && oldVal.id != newVal.id) {
-          NavigationSled(this.sledImage.global_id).then((response) => {
-            this.navigation.next = response.headers['navigation-next']
-              ? response.headers['navigation-next'][0]
-              : undefined
-            this.navigation.previous = response.headers['navigation-previous']
-              ? response.headers['navigation-previous'][0]
-              : undefined
-          })
-        }
-      }
-    }
+  set(value) {
+    store.commit(MutationNames.SetNavigation, value)
   }
+})
+
+watch(sledImage, (newVal, oldVal) => {
+  if (newVal.id && oldVal.id != newVal.id) {
+    NavigationSled(sledImage.value.global_id).then(({ headers }) => {
+      navigation.value.next = headers['navigation-next']?.[0]
+      navigation.value.previous = headers['navigation-previous']?.[0]
+    })
+  }
+})
+
+function openGridDigitizer(item) {
+  window.open(`${RouteNames.GridDigitizer}?sled_image_id=${item.id}`, '_self')
 }
 </script>

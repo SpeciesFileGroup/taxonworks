@@ -13,19 +13,19 @@ export const LAYOUTS = {
       collecting_event: COLLECTING_EVENT_PROPERTIES,
       taxon_determinations: TAXON_DETERMINATION_PROPERTIES,
       dwc_occurrence: DWC_OCCURRENCE_PROPERTIES,
-      identifiers: IDENTIFIER_PROPERTIES
-    },
-    includes: {
-      data_attributes: true
+      identifiers: IDENTIFIER_PROPERTIES,
+      data_attributes: {
+        show: true
+      }
     }
   },
 
   DwC: {
     properties: {
-      dwc_occurrence: DWC_OCCURRENCE_PROPERTIES
-    },
-    includes: {
-      data_attributes: false
+      dwc_occurrence: DWC_OCCURRENCE_PROPERTIES,
+      data_attributes: {
+        show: true
+      }
     }
   },
 
@@ -34,18 +34,17 @@ export const LAYOUTS = {
       field_occurrence: FIELD_OCCURRENCE_PROPERTIES,
       collecting_event: COLLECTING_EVENT_PROPERTIES,
       taxon_determinations: TAXON_DETERMINATION_PROPERTIES,
-      identifiers: IDENTIFIER_PROPERTIES
-    },
-    includes: {
-      data_attributes: true
+      identifiers: IDENTIFIER_PROPERTIES,
+      data_attributes: {
+        show: true
+      }
     }
   },
 
   CollectingEvent: {
     properties: {
       collecting_event: COLLECTING_EVENT_PROPERTIES
-    },
-    includes: {}
+    }
   },
 
   Place: {
@@ -74,8 +73,7 @@ export const LAYOUTS = {
         'minimum_elevation',
         'maximum_elevation'
       ]
-    },
-    includes: {}
+    }
   },
 
   Time: {
@@ -98,8 +96,7 @@ export const LAYOUTS = {
         'min_ma'
       ],
       dwc_occurrence: []
-    },
-    includes: {}
+    }
   },
 
   Georeference: {
@@ -122,14 +119,14 @@ export const LAYOUTS = {
         'verbatim_longitude',
         'verbatim_geolocation_uncertainty'
       ]
-    },
-    includes: {}
+    }
   },
 
   DataAttributes: {
-    properties: {},
-    includes: {
-      data_attributes: true
+    properties: {
+      data_attributes: {
+        show: true
+      }
     }
   }
 }

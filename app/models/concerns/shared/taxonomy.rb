@@ -61,7 +61,9 @@ module Shared::Taxonomy
 
             # If we have no name, see if there is a Type reference and use it as proxy
             # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
-            a ||= type_materials.primary.first&.protonym
+            if self.class.base_class.name == 'CollectionObject'
+              a ||= type_materials.primary.first&.protonym
+            end
           when 'Otu'
             taxon_name&.valid_taxon_name
 

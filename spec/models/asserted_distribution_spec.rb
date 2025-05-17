@@ -6,27 +6,33 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
   let(:source) { FactoryBot.create(:valid_source) }
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:geographic_area) { FactoryBot.create(:valid_geographic_area) }
+  let(:gazetteer) { FactoryBot.create(:valid_gazetteer) }
 
   specify '#unique 1' do
     a = FactoryBot.create(:valid_asserted_distribution)
-    b = FactoryBot.build(:valid_asserted_distribution, geographic_area: a.geographic_area, otu: a.otu)
+    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape: a.asserted_distribution_shape, otu: a.otu)
     expect(b.valid?).to be_falsey
   end
 
   specify '#unique 2' do
     a = FactoryBot.create(:valid_asserted_distribution)
-    b = FactoryBot.build(:valid_asserted_distribution, geographic_area_id: a.geographic_area.id, otu_id: a.otu_id)
+    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape_id: a.asserted_distribution_shape_id, asserted_distribution_shape_type: a.asserted_distribution_shape_type, otu_id: a.otu_id)
     expect(b.valid?).to be_falsey
   end
 
   specify '#unique is_absent nil/false' do
     a = FactoryBot.create(:valid_asserted_distribution, is_absent: false)
-    b = FactoryBot.build(:valid_asserted_distribution, geographic_area_id: a.geographic_area.id, otu_id: a.otu_id, is_absent: nil)
+    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape: a.asserted_distribution_shape, otu_id: a.otu_id, is_absent: nil)
     expect(b.valid?).to be_falsey
   end
 
   specify '#destroy' do
-    a = FactoryBot.create(:valid_asserted_distribution)
+    a = FactoryBot.create(:valid_geographic_area_asserted_distribution)
+    expect(a.destroy).to be_truthy
+  end
+
+  specify '#destroy 2' do
+    a = FactoryBot.create(:valid_gazetteer_asserted_distribution)
     expect(a.destroy).to be_truthy
   end
 
@@ -36,8 +42,12 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         expect(asserted_distribution.otu = Otu.new).to be_truthy
       end
 
-      specify 'geographic_area' do
-        expect(asserted_distribution.geographic_area = GeographicArea.new).to be_truthy
+      specify 'polymorphic for geographic_area shape' do
+        expect(asserted_distribution.asserted_distribution_shape = GeographicArea.new).to be_truthy
+      end
+
+      specify 'polymorphic for gazetteer shape' do
+        expect(asserted_distribution.asserted_distribution_shape = Gazetteer.new).to be_truthy
       end
     end
   end
@@ -50,14 +60,14 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         expect(asserted_distribution.errors.include?(:otu)).to be_truthy
       end
 
-      specify '#geographic_area is required' do
-        expect(asserted_distribution.errors.include?(:geographic_area)).to be_truthy
+      specify 'a shape is required' do
+        expect(asserted_distribution.errors.include?(:asserted_distribution_shape)).to be_truthy
       end
     end
 
     context 'a citation is required' do
       before do
-        asserted_distribution.geographic_area = geographic_area
+        asserted_distribution.asserted_distribution_shape = geographic_area
         asserted_distribution.otu = otu
       end
 
@@ -99,7 +109,8 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       specify 'all attributes with #new validates' do
         a = AssertedDistribution.new(
           otu:,
-          geographic_area:,
+          asserted_distribution_shape_id: geographic_area.id,
+          asserted_distribution_shape_type: 'GeographicArea',
           citations_attributes: [{source_id: source.id}])
         expect(a.save).to be_truthy
         expect(a.citations.count).to eq(1)
@@ -127,7 +138,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       ad2 = FactoryBot.build_stubbed(
         :valid_asserted_distribution,
         otu_id: ad1.otu_id,
-        geographic_area_id: ad1.geographic_area_id)
+        asserted_distribution_shape: ad1.asserted_distribution_shape)
       expect(ad1.valid?).to be_truthy
       expect(ad2.valid?).to be_falsey
       expect(ad2.errors.include?(:otu)).to be_truthy
@@ -137,13 +148,13 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       before do
         asserted_distribution.update!(
           otu:,
-          geographic_area:,
+          asserted_distribution_shape: gazetteer,
           citations_attributes: [{source_id: source.id}]
         )
       end
 
       specify 'is allowed with identical' do
-        expect( AssertedDistribution.create!(otu:, geographic_area:, is_absent: true, citations_attributes: [{source_id: source.id}])).to be_truthy
+        expect( AssertedDistribution.create!(otu:, asserted_distribution_shape: gazetteer, is_absent: true, citations_attributes: [{source_id: source.id}])).to be_truthy
       end
     end
   end
@@ -152,16 +163,16 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     # Can't miss source, it's required by definition
     specify 'is_absent - False' do
       ga  = FactoryBot.create(:level2_geographic_area)
-      _ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga.parent, is_absent: true)
-      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, otu_id: _ad1.otu_id, geographic_area: ga)
+      _ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_shape: ga.parent, is_absent: true)
+      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, otu_id: _ad1.otu_id, asserted_distribution_shape: ga)
       ad2.soft_validate(only_methods: :sv_conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
     end
 
     specify 'is_absent - True' do
       ga  = FactoryBot.create(:level2_geographic_area)
-      _ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga)
-      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, otu_id: _ad1.otu_id, geographic_area: ga, is_absent: true)
+      _ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_shape: ga)
+      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, otu_id: _ad1.otu_id, asserted_distribution_shape: ga, is_absent: true)
       ad2.soft_validate(only_methods: [:sv_conflicting_geographic_area])
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
     end
@@ -179,7 +190,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       stubs = AssertedDistribution.stub_new(
         {otu: otu.id,
          source: source.id,
-         geographic_areas: areas}).map(&:geographic_area)
+         geographic_areas: areas}).map(&:asserted_distribution_shape)
       expect(stubs.map(&:name)).to include('A', 'E')
     end
   end

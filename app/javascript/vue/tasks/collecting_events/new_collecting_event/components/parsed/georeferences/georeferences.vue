@@ -279,8 +279,9 @@ export default {
         : this.queueGeoreferences
     },
     count() {
-      return this.geojson.filter((item) => !item?.properties?.geographic_area)
-        .length
+      return this.geojson.filter(
+        (item) => item?.properties?.shape?.type !== 'geographic_area'
+      ).length
     },
     verbatimLat() {
       return this.collectingEvent.verbatim_latitude

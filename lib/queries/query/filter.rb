@@ -11,7 +11,7 @@ module Queries
   # acceptable params, dynamically, based on the nature
   # of the nested queries.
   #
-  # Test coverage is currently in /spec/lib/queries/otu/filter_spec.rb.
+  # Test coverage is currently in /spec/lib/queries/.
   #
   # !! When adding a new query tests do some linting of parameters, constants etc. Run them early and often !!
   #
@@ -21,7 +21,7 @@ module Queries
     # include Queries::Concerns::Identifiers # Presently in Queries for other use in autocompletes
 
     #
-    # !! SUBQUERIES is cross-referenced in app/views/javascript/vue/components/radials/filter/links/*.js models.
+    # !! SUBQUERIES is cross-referenced in app/javascript/vue/components/radials/filter/links/*.js models.
     # !! When you add a reference here, ensure corresponding js model is aligned. There are tests that will catch if they are not.
     #
     # For example:
@@ -47,17 +47,18 @@ module Queries
       content: [:source, :otu, :taxon_name, :image],
       controlled_vocabulary_term: [:data_attribute],
       data_attribute: [:collection_object, :collecting_event, :field_occurrence, :taxon_name, :otu],
-      dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event],
+      dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event, :field_occurrence],
       depiction: [:image],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
-      field_occurrence: [:collecting_event, :otu, :biological_association], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
-      image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
+      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :image, :observation, :taxon_name], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
+      image: [:content, :collection_object, :collecting_event, :field_occurrence, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
-      observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],
-      otu: [:asserted_distribution, :biological_association, :collection_object, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
+      observation: [:collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name],
+      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],
+      sound: [:observation],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
     }.freeze
 
@@ -65,9 +66,7 @@ module Queries
       base_name + '_query'
     end
 
-    def query_name
-      self.class.query_name
-    end
+    delegate :query_name, to: :class
 
     # @return [Hash]
     #  only referenced in specs
@@ -108,12 +107,15 @@ module Queries
       observation_query: '::Queries::Observation::Filter',
       otu_query: '::Queries::Otu::Filter',
       person_query: '::Queries::Person::Filter',
+      sound_query: '::Queries::Sound::Filter',
       source_query: '::Queries::Source::Filter',
       taxon_name_query: '::Queries::TaxonName::Filter',
     }.freeze
 
     # @return [Array]
-    # @param project_id [Array, Integer]
+    # @param project_id [Array, Integer, false]
+    #  !! when passed false then Current.project_id is not applied, i.e. the result will be []
+    #  !! use the false pattern only for internal calls (e.g. rewriting
     attr_accessor :project_id
 
     # Apply pagination within Filter scope
@@ -205,6 +207,9 @@ module Queries
     # @return [Query::Person::Filter, nil]
     attr_accessor :person_query
 
+    # @return [Query::Sound::Filter, nil]
+    attr_accessor :sound_query
+
     # @return Boolean
     #   Applies an order on updated.
     attr_accessor :recent
@@ -250,6 +255,16 @@ module Queries
     # !! This is used strictly during the permission process of ActionController::Parameters !!
     attr_reader :params
 
+    # @return Boolean
+    # If true then *_facet methods need only return
+    # scope.none to indicate that the facet is active
+    # given the current parameters. Facet return scopes
+    # are never actually queried in this case.
+    # If you're a facet that does work to create your scope
+    # then you should check this attribute and *not* do
+    # that work when it's true. Otherwise you can safely
+    # ignore this.
+    attr_accessor :roll_call
 
     # @params query_params [ActionController::Parameters]
     def initialize(query_params)
@@ -268,14 +283,23 @@ module Queries
       # !! This is the *only* place Current.project_id should be seen !! It's still not the best
       # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
       # Ideally we'd have a global class param that stores this that all Filters would have access to,
-      # rather than an instance variable.
-      @project_id = query_params[:project_id] || Current.project_id
+      # rather than an instance variable
+      @project_id = case
+                    when query_params[:project_id] == false # !! Only internal should pass this, therefor no type conversions
+                      nil
+                    when query_params[:project_id].blank?
+                      Current.project_id
+                    else
+                      query_params[:project_id]
+                    end
 
       @paginate = boolean_param(query_params, :paginate)
       @per = query_params[:per]
       @page = query_params[:page]
 
       @order_by = query_params[:order_by]
+
+      @roll_call = false
 
       # After this point, if you started with ActionController::Parameters,
       # then all values have been explicitly permitted.
@@ -288,7 +312,6 @@ module Queries
       else
         raise TaxonWorks::Error, "can not initialize filter with #{query_params.class.name}"
       end
-
       set_identifier_params(params)
       set_nested_queries(params)
       set_user_dates(params)
@@ -378,6 +401,7 @@ module Queries
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
         f.push ::Queries::Concerns::Confidences if self < ::Queries::Concerns::Confidences
         f.push ::Queries::Concerns::Containable if self < ::Queries::Concerns::Containable
+        f.push ::Queries::Concerns::Conveyances if self < ::Queries::Concerns::Conveyances
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
         f.push ::Queries::Concerns::DateRanges if self < ::Queries::Concerns::DateRanges
         f.push ::Queries::Concerns::Depictions if self < ::Queries::Concerns::Depictions
@@ -698,6 +722,13 @@ module Queries
       clauses.compact!
 
       return nil if clauses.empty?
+
+      # TODO: consider whether to implement this.
+      # It should be safe, except, possibly for aggregate based queries
+      # that include custom attributes, would these get cleared.
+      # We could requier that at this level they are wrapped in a From etc.
+      # a = clauses.collect{|q| q.unscope(:select).select(:id) }
+
       referenced_klass_intersection(clauses)
     end
 
@@ -725,10 +756,16 @@ module Queries
     end
 
     # @return Boolean
-    #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on iniitializea
-    #   false - there are no params at ALL or at least one that is not `project_id`
+    #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on initialize
+    #   false - there are no params at ALL or at least one that is not `project_id`, and project_id != false
     def only_project?
-      (project_id_facet && target_and_clauses.size == 1 && all_merge_clauses.nil?) ? true : false
+      @roll_call = true
+      a = (project_id_facet &&
+        target_and_clauses.size == 1 &&
+        all_merge_clauses.nil?) ? true : false
+      @roll_call = false
+
+      a
     end
 
     # @param nil_empty [Boolean]

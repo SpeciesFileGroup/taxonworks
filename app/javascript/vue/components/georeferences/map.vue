@@ -15,25 +15,30 @@ import 'leaflet.pattern/src/PatternShape'
 import 'leaflet.pattern/src/PatternShape.SVG'
 import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
-import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
-import iconUrl from 'leaflet/dist/images/marker-icon.png'
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
 import { Icon } from '@/components/georeferences/icons'
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import { ASSERTED_DISTRIBUTION, GEOGRAPHIC_AREA } from '@/constants/index.js'
-
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: iconRetina,
-  iconUrl,
-  shadowUrl
-})
 
 let drawnItems
 let mapObject
 let geographicArea
 
 const TILE_MAP_STORAGE_KEY = 'tw::map::tile'
+
+const DRAW_CONTROLS_PROPS = [
+  'drawCircle',
+  'drawCircleMarker',
+  'drawMarker',
+  'drawPolyline',
+  'drawPolygon',
+  'drawRectangle',
+  'drawText',
+  'editMode',
+  'dragMode',
+  'cutPolygon',
+  'removalMode',
+  'rotateMode'
+]
 
 const props = defineProps({
   zoomAnimate: {
@@ -50,7 +55,7 @@ const props = defineProps({
   },
   zoom: {
     type: Number,
-    default: 18
+    default: 1
   },
   drawControls: {
     type: Boolean,
@@ -147,7 +152,8 @@ const emit = defineEmits([
   'geoJsonLayersEdited',
   'geojson',
   'shapeCreated',
-  'shapesEdited'
+  'shapesEdited',
+  'click:marker'
 ])
 
 const leafletMap = ref(null)
@@ -198,6 +204,13 @@ watch(
   }
 )
 
+watch(
+  () => props.drawControls,
+  (newVal) => {
+    mapObject.pm.addControls(getControls(newVal))
+  }
+)
+
 onMounted(() => {
   mapObject = L.map(leafletMap.value, {
     center: props.center,
@@ -213,7 +226,10 @@ onMounted(() => {
   addDrawControllers()
   handleEvents()
 
-  mapObject.pm.setGlobalOptions({ tooltips: props.tooltips })
+  mapObject.pm.setGlobalOptions({
+    tooltips: props.tooltips,
+    markerStyle: { icon: L.divIcon(Icon.Georeference) }
+  })
 
   if (props.geojson.length) {
     geoJSON(props.geojson)
@@ -245,6 +261,15 @@ onUnmounted(() => {
   observeMap?.disconnect()
 })
 
+function getControls(show) {
+  let controls = { position: 'topleft' }
+  DRAW_CONTROLS_PROPS.forEach((prop) => {
+    controls[prop] = show ? props[prop] : false
+  })
+
+  return controls
+}
+
 const addDrawControllers = () => {
   getDefaultTile().addTo(mapObject)
   if (props.tilesSelection) {
@@ -254,21 +279,7 @@ const addDrawControllers = () => {
   }
 
   if (props.drawControls) {
-    mapObject.pm.addControls({
-      position: 'topleft',
-      drawCircle: props.drawCircle,
-      drawCircleMarker: props.drawCircleMarker,
-      drawMarker: props.drawMarker,
-      drawPolyline: props.drawPolyline,
-      drawPolygon: props.drawPolygon,
-      drawRectangle: props.drawRectangle,
-      drawText: props.drawText,
-      editMode: props.editMode,
-      dragMode: props.dragMode,
-      cutPolygon: props.cutPolygon,
-      removalMode: props.removalMode,
-      rotateMode: props.rotateMode
-    })
+    mapObject.pm.addControls(getControls(true))
   }
 
   if (!props.actions) {
@@ -277,6 +288,7 @@ const addDrawControllers = () => {
     })
   }
 }
+
 const handleEvents = () => {
   mapObject.on('baselayerchange', (e) => {
     localStorage.setItem(TILE_MAP_STORAGE_KEY, e.name)
@@ -419,8 +431,12 @@ const centerShapesInMap = () => {
 }
 
 const createMarker = (feature, latlng) => {
-  const icon = Icon[feature?.properties?.marker?.icon] || Icon.blue
+  const icon = L.divIcon(
+    Icon[feature?.properties?.marker?.icon] || Icon.Georeference
+  )
   const marker = L.marker(latlng, { icon })
+
+  marker.on('click', (event) => emit('click:marker', event))
 
   return marker
 }
@@ -435,7 +451,7 @@ const generateHue = (index) => {
 }
 
 const randomShapeStyle = (index) => ({
-  weight: 1,
+  weight: 2,
   color: generateHue(index + 6),
   dashArray: '3',
   dashOffset: '3',

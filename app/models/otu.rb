@@ -35,6 +35,7 @@ class Otu < ApplicationRecord
   include Shared::Confidences
   include Shared::Observations
   include Shared::BiologicalAssociations
+  include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::OriginRelationship
 
@@ -51,7 +52,7 @@ class Otu < ApplicationRecord
 
   include Shared::QueryBatchUpdate
 
-  is_origin_for 'Sequence', 'Extract'
+  is_origin_for 'Sequence', 'Extract', 'Sound'
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices].freeze
 
@@ -542,13 +543,7 @@ class Otu < ApplicationRecord
   end
 
   def dwc_occurrences
-    a = ::Queries::DwcOccurrence::Filter.new( asserted_distribution_query: {otu_id: id, project_id:},).all
-    b = ::Queries::DwcOccurrence::Filter.new( collection_object_query: {otu_id: id, project_id:},).all
-    # TODO FieldOccurrence in same pattern
-
-    ::Queries.union(
-      ::DwcOccurrence, [ a, b ]
-    )
+    ::Queries::DwcOccurrence::Filter.new(otu_id: id).all
   end
 
   protected
