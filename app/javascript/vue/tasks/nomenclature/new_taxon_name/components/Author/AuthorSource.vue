@@ -9,13 +9,13 @@
         placeholder="Type a source..."
         display="label"
         clear-after
-        @getItem="setSource"
+        @getItem="({id}) => setSource({ id, pages: citation?.pages })"
       />
       <ButtonPinned
         label="source"
         type="Source"
         section="Sources"
-        @get-item="setSource"
+        @get-item="({id}) => setSource({ id, pages: citation?.pages })"
       />
       <FormCitationClone
         @clone="(c) => setSource({ id: c.source_id, pages: c.pages })"
@@ -97,8 +97,6 @@ function setSource({ id, pages }) {
     id,
     pages: pages || null
   }
-
-  console.log(payload)
 
   store.dispatch(ActionNames.ChangeTaxonSource, payload)
   store.dispatch(ActionNames.UpdateTaxonName, taxon.value)

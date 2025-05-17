@@ -7,7 +7,7 @@ export default ({ commit }) =>
     const container = {
       type: CONTAINER_VIRTUAL
     }
-    Container.create({ container })
+    Container.create({ container, extend: ['container_items'] })
       .then((response) => {
         commit(MutationNames.SetContainer, response.body)
         return resolve(response.body)

@@ -11,10 +11,9 @@
     border-radius: 3px;
   }
 
-  .figures-container, .dropzone-card {
+  .dropzone-card {
     box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.2);
-    margin: $standard_margin;
-    background-color: #FFF;
+    background-color: #fff;
     width: 270px;
     min-height: 300px;
     img {
@@ -24,61 +23,6 @@
     .header {
       position: relative;
     }
-    .figures-body {
-      position: relative;
-      margin-top: 2.5em;
-      height: 120px;
-      padding: $standard_padding;
-      padding-top: 0em;
-      color: #444;
-      overflow-y: scroll;
-      textarea {
-        box-sizing: border-box;
-        height: 100%;
-        width: 100%;
-      }
-    }
-
-    .figures-header {
-      .figures-label {
-        background-color: #B7B7B7;
-        font-size: $font_title;
-        font-weight: 700;
-        color: #FFF;
-        position: absolute;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        bottom: -23px;
-        left: $standard_margin;
-        box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.2);
-      }
-      .circle-button {
-        box-shadow: 0 1px 1px 0px rgba(0, 0, 0, 0.2);
-        margin: 0px;
-      }
-      position: relative;
-      .circle-button {
-        width: 30px;
-        height: 30px;
-      }
-      .figures-delete {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-      }
-      .figures-edit {
-        position: absolute;
-        bottom: -12px;
-        right: 12px;
-      }
-
-      .figures-link {
-        position: absolute;
-        top: 12px;
-        left: 24px;
-      }
-    }
   }
 
   .button-select {
@@ -87,7 +31,8 @@
     font-size: 14px;
   }
 
-  #clone-modal, #compare-modal {
+  #clone-modal,
+  #compare-modal {
     .modal-container {
       width: 70%;
     }
@@ -99,11 +44,11 @@
       @include arrow-box-top(17px);
       display: none;
       position: absolute;
-      padding: $standard_padding*0.5;
+      padding: $standard_padding * 0.5;
       padding-left: $standard_padding;
       padding-right: $standard_padding;
       background-color: $color-help-description;
-      color: #FFF;
+      color: #fff;
       box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
       left: -10px;
       top: 20px;
@@ -111,11 +56,11 @@
       border-radius: 3px;
     }
 
-    [data-icon="show"] {
+    [data-icon='show'] {
       position: relative;
     }
 
-    [data-icon="show"]:hover {
+    [data-icon='show']:hover {
       .clone-content-text {
         z-index: 1200;
         display: flex;
@@ -161,7 +106,8 @@
     position: relative;
     display: flex;
 
-    .left, .right {
+    .left,
+    .right {
       display: flex;
       flex-direction: column;
       flex: 1;
@@ -172,11 +118,11 @@
       border: 1px solid $navigation_border;
       border-top: none;
       font-size: 14px;
-      padding: $standard_margin*0.5;
+      padding: $standard_margin * 0.5;
       white-space: pre-wrap;
       word-break: break-all;
       word-wrap: break-word;
-      background-color: #F5F5F5;
+      background-color: #f5f5f5;
       border-left: none;
       box-sizing: border-box;
     }

@@ -99,7 +99,7 @@ class Confidence < ApplicationRecord
             confidence_level_id: replace_confidence_level_id
           ).find_each do |o|
             o.update(confidence_level_id:)
-            if o.valid? 
+            if o.valid?
               r.updated.push o.id
             else
               r.not_updated.push o.id
@@ -111,7 +111,8 @@ class Confidence < ApplicationRecord
       Confidence
         .where(
           confidence_object_id: q.pluck(:id),
-          confidence_object_type: b.referenced_klass.name
+          confidence_object_type: b.referenced_klass.name,
+          confidence_level_id:
         ).delete_all
     when :add
       if async
@@ -126,8 +127,8 @@ class Confidence < ApplicationRecord
       else
         q.find_each do |o|
           o = Confidence.create(confidence_object: o, confidence_level_id:)
-          
-          if o.valid? 
+
+          if o.valid?
             r.updated.push o.id
           else
             r.not_updated.push o.id

@@ -5,7 +5,7 @@ describe 'Utilities::Net' do
   context '#resolves?' do
 
     specify 'responding URI' do
-      text = 'http://data.nhm.ac.uk/object/a9bdc16d-c9ba-4e32-9311-d5250af2b5ac'
+      text = 'http://sfg.taxonworks.org/api/v1/ping'
       VCR.use_cassette('responding URI') do
         expect(Utilities::Net.resolves?(text)).to be_truthy
       end

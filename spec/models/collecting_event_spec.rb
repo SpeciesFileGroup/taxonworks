@@ -29,7 +29,27 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     expect(Delayed::Job.count).to eq(0)
   end
 
+
+
   context '.batch_update' do
+
+    specify 'georeferences' do
+      c1 =  FactoryBot.create(:valid_collecting_event)
+      c2 = FactoryBot.create(:valid_collecting_event)
+      g = FactoryBot.create(:valid_georeference, collecting_event: c2)
+
+      params = {
+        async_cutoff: 3,
+        collecting_event: { georeferences_attributes: [{type: g.type, geographic_item_id: g.geographic_item_id}] },
+      }.merge( collecting_event_query: { collecting_event_id: [c1.id] })
+
+      response = CollectingEvent.batch_update(params).to_json
+
+      expect(response[:updated]).to include(c1.id)
+      expect(response[:not_updated]).to eq([])
+      expect(c1.reload.georeferences.count).to eq(1)
+    end
+
     specify 'can update a verbatim field' do
       c1 =  FactoryBot.create(:valid_collecting_event)
       c2 = FactoryBot.create(:valid_collecting_event)

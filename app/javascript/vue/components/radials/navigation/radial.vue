@@ -1,59 +1,63 @@
 <template>
   <div v-if="!deleted">
-    <div class="radial-annotator">
-      <VModal
-        v-if="isRadialOpen"
-        transparent
-        @close="closeModal()"
-      >
-        <template #header>
-          <span class="flex-separate middle">
-            <span v-html="title" />
-            <b
-              v-if="metadata"
-              class="separate-right"
-              v-text="metadata.type"
-            />
-          </span>
-        </template>
-        <template #body>
-          <div class="horizontal-center-content">
-            <spinner v-if="isLoading" />
-            <RadialMenu
-              v-if="metadata"
-              ref="radialElement"
-              :options="menuOptions"
-              @click="selectedRadialOption"
-            />
-            <DestroyConfirmation
-              v-if="showDestroyModal"
-              @close="showDestroyModal = false"
-              @confirm="destroyObject"
-            />
-          </div>
-        </template>
-      </VModal>
-      <AllTasks
-        v-if="isAlltaskSelected"
-        @close="isAlltaskSelected = false"
-        :metadata="metadata"
-      />
-
-      <VBtn
-        v-if="showBottom"
-        :title="buttonTitle"
-        color="radial"
-        circle
-        :disabled="disabled"
-        @click="openRadialMenu()"
-      >
-        <VIcon
-          :title="buttonTitle"
-          name="radialNavigator"
-          x-small
+    <Teleport
+      v-if="isRadialOpen"
+      :disabled="!teleport"
+      to="body"
+    >
+      <div class="radial-annotator">
+        <VModal
+          transparent
+          @close="closeModal()"
+        >
+          <template #header>
+            <span class="flex-separate middle">
+              <span v-html="title" />
+              <b
+                v-if="metadata"
+                class="separate-right"
+                v-text="metadata.type"
+              />
+            </span>
+          </template>
+          <template #body>
+            <div class="horizontal-center-content">
+              <spinner v-if="isLoading" />
+              <RadialMenu
+                v-if="metadata"
+                ref="radialElement"
+                :options="menuOptions"
+                @click="selectedRadialOption"
+              />
+              <DestroyConfirmation
+                v-if="showDestroyModal"
+                @close="showDestroyModal = false"
+                @confirm="destroyObject"
+              />
+            </div>
+          </template>
+        </VModal>
+        <AllTasks
+          v-if="isAlltaskSelected"
+          @close="isAlltaskSelected = false"
+          :metadata="metadata"
         />
-      </VBtn>
-    </div>
+      </div>
+    </Teleport>
+    <VBtn
+      v-if="showBottom"
+      :title="buttonTitle"
+      color="radial"
+      circle
+      :disabled="disabled"
+      @click="openRadialMenu()"
+    >
+      <VIcon
+        :title="buttonTitle"
+        name="radialNavigator"
+        x-small
+      />
+    </VBtn>
   </div>
 </template>
 
@@ -126,6 +130,11 @@ const props = defineProps({
   redirect: {
     type: Boolean,
     default: true
+  },
+
+  teleport: {
+    type: Boolean,
+    default: false
   }
 })
 

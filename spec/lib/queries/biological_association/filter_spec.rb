@@ -127,26 +127,27 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(q.all).to contain_exactly(ba1, ba2)
   end
 
-  specify '#geographic_area_id #geographic_area_mode = true (spatial) against AssertedDistribution' do
+  specify '#geo_shape_id #geo_mode = true (spatial) against AssertedDistribution' do
     # smaller
     a = FactoryBot.create(:level1_geographic_area)
     s1 = a.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
     )
 
     # bigger
     b = FactoryBot.create(:level1_geographic_area)
     s2 = b.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
     )
 
     # Use smaller
-    AssertedDistribution.create!(otu: o2, geographic_area: a, source: FactoryBot.create(:valid_source))
+    AssertedDistribution.create!(otu: o2, asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
 
     # Use bigger
     o = {
-      geographic_area_id: b.id,
-      geographic_area_mode: true
+      geo_shape_id: b.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: true
     }
 
     q = query.new(o)
@@ -155,18 +156,19 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
   end
 
 
-  specify '#geographic_area_id #geographic_area_mode = true (spatial) against Georeference' do
+  specify '#geo_shape_id #geo_mode = true (spatial) against Georeference' do
     a = FactoryBot.create(:level1_geographic_area)
     s = a.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
     )
 
     o3.update!(collecting_event: FactoryBot.create(:valid_collecting_event, verbatim_latitude: '7.0', verbatim_longitude: '12.0'))
     g = Georeference::VerbatimData.create!(collecting_event: o3.collecting_event)
 
     o = {
-      geographic_area_id: a.id,
-      geographic_area_mode: true
+      geo_shape_id: a.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: true
     }
 
     q = query.new(o)

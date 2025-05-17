@@ -5,6 +5,7 @@
       url="/otus/autocomplete"
       placeholder="Search a otu"
       param="term"
+      autofocus
       clear-after
       label="label_html"
       @get-item="($event) => emit('select', $event)"

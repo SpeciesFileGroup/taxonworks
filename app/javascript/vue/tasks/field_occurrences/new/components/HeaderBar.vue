@@ -32,6 +32,7 @@
         >
           <RadialAnnotator :global-id="foStore.fieldOccurrence.global_id" />
           <RadialObject :global-id="foStore.fieldOccurrence.global_id" />
+          <RadialNavigator :global-id="foStore.fieldOccurrence.global_id" />
         </div>
       </div>
       <ul class="context-menu no_bullets">
@@ -79,6 +80,7 @@
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import Navbar from '@/components/layout/NavBar.vue'
 import useFieldOccurrenceStore from '../store/fieldOccurrence.js'

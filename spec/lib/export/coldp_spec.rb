@@ -23,7 +23,7 @@ describe Export::Coldp, type: :model, group: :col do
     let!(:synonym) { TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: invalid_species, object_taxon_name: species) }
     let!(:common_name) { FactoryBot.create(:valid_common_name, otu: otu) }
     let!(:type_material) { FactoryBot.create(:valid_type_material, collection_object: specimen, protonym: species) }
-    let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu: otu) }
+    let!(:asserted_distribution) { FactoryBot.create(:valid_geographic_area_asserted_distribution, otu: otu) }
     let!(:homonym_species) { Protonym.create(name: 'hus', rank_class: Ranks.lookup(:iczn, :species), parent: species.root) }
     let!(:homonym) { TaxonNameRelationship::Iczn::Invalidating::Homonym.create!(subject_taxon_name: homonym_species, object_taxon_name: species )  }
     let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: otu, biological_association_object: Otu.create!(name: 'ba'))  }
@@ -51,13 +51,13 @@ describe Export::Coldp, type: :model, group: :col do
       let!(:download) { Download.first }
       let!(:z) { Zip::File.open(download.file_path) }
 
-      specify "includes tsv" do
+      specify 'includes tsv' do
         ::Export::Coldp::FILETYPES.each do |t|
           expect(z.find_entry("#{t}.tsv")).to be_truthy
         end
       end
 
-      specify "writes to tsv" do
+      specify 'writes to tsv' do
         ::Export::Coldp::FILETYPES.each do |t|
           c = z.find_entry("#{t}.tsv").get_input_stream.read.lines.count
           expect(c > 1).to be_truthy,  "Can't find #{t}.tsv"

@@ -164,6 +164,19 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
         filterElement.classList.remove('active')
         filterElement.children[0].setAttribute('data-icon', 'show')
 
+        const rows = [...document.querySelectorAll('.history__record')]
+        const event = new CustomEvent('history-focus-button', {
+          detail: {
+            focus: false
+          }
+        })
+
+        document.dispatchEvent(event)
+
+        rows.forEach((r) => {
+          r.classList.remove('hidden-taxon')
+          r.classList.remove('d-none')
+        })
         elements.forEach((element) => {
           element.classList.remove('d-none')
         })

@@ -167,14 +167,6 @@ build_biocuration_group_task:
   name:
   related:
     - build_biocuration_groups_task
-match_georeference_task:
-  hub: true
-  name: 'Match georeferences'
-  description: 'Re-use georeference efforts from past collecting events.'
-  categories:
-    - collecting_event
-    - collection_object
-  status: prototype
 otu_distribution_data_task:
   hub: true
   name: 'Otu distribution'
@@ -211,14 +203,6 @@ simple_specimen_task:
     - image
     - new
   status: prototype
-new_asserted_distribution_from_map_task:
-  hub: true
-  name: 'New asserted distribution from map'
-  description: 'Create asserted distributions by selecting OTUs and sources, then click a map to select a geographic area. OTU and source are lockable as defaults for the next record.'
-  status: prototype
-  categories:
-    - source
-    - new
 report_dwc_task:
   hub: true
   name: 'Report DwC-A table'
@@ -379,7 +363,7 @@ new_asserted_distribution_task:
   categories:
     - new
   status: prototype
-  description: 'Create new asserted distributions (Otu, source, and geographic area combinations). Has locking and cloning mechanisms.'
+  description: 'Create new asserted distributions (Otu, source, and shape combinations). Has locking and cloning mechanisms.'
 index_topics_hub_task:
   hub: true
   name: 'Topics hub'
@@ -956,9 +940,25 @@ filter_dwc_occurrences_task:
     - collecting_event
     - asserted_distribution
   categories:
-    - filter
+    - filters
   status: prototype
   description: 'Filter records in the DarwinCore index.'
+new_gazetteer_task:
+  hub: true
+  name: 'Create or edit Gazetteers'
+  related:
+  categories:
+    - collecting_event
+    - new
+  status: prototype
+  description: 'Create or edit named shapes for use in your project.'
+import_gazetteers_task:
+  hub: true
+  name: 'Import Gazetteers'
+  related:
+  categories:
+  status: prototype
+  description: 'Import Gazetteers from a shapefile.'
 unify_objects_task:
   hub: true
   name: 'Unify objects'
@@ -1048,8 +1048,15 @@ filter_field_occurrences_task:
 taxon_names_table_task:
   hub: true
   name: 'Taxon names table'
+  description: 'A simple table view of taxon names including checklist-style columns of names at rank, author, and year.'
+  status: prototype
+  categories:
+    - nomenclature
+taxon_name_gender_task:
+  hub: true
+  name: 'Nomenclatural gender summary'
   related:
   categories:
     - nomenclature
   status: prototype
-  description: 'A simple table view of taxon names including checklist-style columns of names at rank, author, and year.'
+  description: 'Brief summary of gender status for a filtered set of names.'

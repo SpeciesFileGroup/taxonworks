@@ -11,6 +11,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   let(:o) { Otu.create(name: 'o1') }
   let(:co) { Specimen.create!  }
   let(:ce) { CollectingEvent.create!(verbatim_label: 'Test') }
+  let(:fo) { FactoryBot.create(:valid_field_occurrence, otu: o) }
 
   let(:t1) { FactoryBot.create(:root_taxon_name) }
   let(:t2) { Protonym.create(name: 'Aus', parent: t1, rank_class: Ranks.lookup(:iczn, :genus) ) }
@@ -191,6 +192,15 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
+  specify '#otu_scope :field_occurrences' do
+    #TaxonDetermination.create!(otu: o, taxon_determination_object: fo)
+    fo.images << i1
+    i2 # not this one
+    q.otu_id = o.id
+    q.otu_scope = [:field_occurrences]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   specify '#otu_id one' do
     o.images << i1
     q.otu_id = o.id
@@ -281,6 +291,13 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
+  specify '#depiction_object_type FieldOccurrence' do
+    fo.images << i1
+    co.images << i2 # not i2
+    q.depiction_object_type = 'FieldOccurrence'
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   specify '#taxon_name_id id' do
     o.update!(taxon_name: t3)
     o.images << i1
@@ -300,6 +317,14 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     co.images << i1
     co.otus << o
     q.taxon_name_id = [t2.id]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#taxon_name_id array, FieldOccurrence' do
+    o.update!(taxon_name: t3)
+    fo.images << i1
+    i2 # not this
+    q.taxon_name_id = [t1.id]
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 

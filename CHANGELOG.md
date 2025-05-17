@@ -7,6 +7,93 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- Unify task: No message error is displayed when merging fails
+
+\-
+
+## [0.51.0] - 2025-05-16
+
+### Added
+
+- `Gazetteer` model - custom geospatial shapes for your project [#1954]
+- Matrix radial to Sound and FieldOccurrence filters
+- Celsius and Hertz quantitative units to Descriptors
+- Batch georeference on Filter CE [#4336]
+- New content task: Publish content button
+- Batch georeference on Filter CE [#4336]
+- Send Filter Field Occurrence results to Filter Image, and vice versa [#4348]
+- Add Field Occurrence as an option to more facets in Filter Images and Filter Observations
+- Send filter results between Observations and: field occurrences, extracts, and sounds
+
+### Changed
+
+- Asserted Distributions returned by the `/api/v1/asserted_distributions.json` endpoint include distributions based on both Geographic Areas and Gazetteers (new). You can check the type of each distribution using the new type key of the distribution record: `{type: 'GeographicArea' or 'Gazetteer', ... }`
+- Improved performance on cached map building and spatial filtering
+- Removed Match geoference task [#4336]
+- Updated Ruby gems
+- Updated NPM packages
+- Radial CO: Increase Taxon Determinations batch load limit to 5000 [#4349]
+
+### Fixed
+
+- Project not required for batch add users [#4327]
+- Repository edits trigger DwcOccurrence updates [#4342]
+- Observation matrix OTU content exception
+- Syncronize nomenclature/OTUs task initialization
+- Filters: pop up screen overlap when columns are locked [#4322]
+- Browse Otu: display verbatimLocality in Specimen Records section [#4331]
+- CSD: Missing Georeferences when collecting_event_id is passed by parameter [#4339]
+- Background mass annotate Confidence or Protocol Relationship on >300 filter results [#4344]
+
+[#1954]: https://github.com/SpeciesFileGroup/taxonworks/issues/1954
+[#4327]: https://github.com/SpeciesFileGroup/taxonworks/issues/4327
+[#4342]: https://github.com/SpeciesFileGroup/taxonworks/issues/4342
+[#4336]: https://github.com/SpeciesFileGroup/taxonworks/issues/4336
+[#4322]: https://github.com/SpeciesFileGroup/taxonworks/issues/4322
+[#4331]: https://github.com/SpeciesFileGroup/taxonworks/issues/4331
+[#4339]: https://github.com/SpeciesFileGroup/taxonworks/issues/4339
+[#4334]: https://github.com/SpeciesFileGroup/taxonworks/issues/4344
+[#4348]: https://github.com/SpeciesFileGroup/taxonworks/issues/4348
+[#4349]: https://github.com/SpeciesFileGroup/taxonworks/issues/4349
+
+## [0.50.1] - 2025-05-01
+
+### Added
+
+- TaxonName filter report summarizing gender in a table
+- Tooltips on various radials
+- More DwC fields for FieldOccurrences
+
+### Changed
+
+- Improved data overview graphs, options
+- Further improvements to Container metadata display
+- Update Rubygems
+- Update NPM packages
+- Improved some auto-focus behaviour
+
+### Fixed
+
+- Various filter Content fixes
+- Various Batch/Mass annotator fixes
+- Browse collecting event fails to load
+- A TaxonDetermination related filter parameter issue
+- TaxonDetermination related issues on FieldOccurrence and CollectionObject
+- When Sounds fail to destroy the error is not caught
+- Unify fails to activate [#4310]
+- Unify fails to merge FieldOccurrences [#4315]
+- Repositories shouldn't try to render Citations
+- Pdf download of formatted sources
+- 500 on filter mass annotate for an annotation not supported on the model [#4307]
+
+[#4307]: https://github.com/SpeciesFileGroup/taxonworks/issues/4307
+[#4310]: https://github.com/SpeciesFileGroup/taxonworks/issues/4310
+[#4315]: https://github.com/SpeciesFileGroup/taxonworks/issues/4315
+
+## [0.50.0] - 2025-04-24
+
 ### Added
 
 - `decorator_status` to `api/v1/taxon_names/:id/inventory/summary`
@@ -15,19 +102,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New source task: Citations count [#4237]
 - Allow catalog number to start with zeros in Grid digitizer task [#4291]
 - Filter collection objects: Extend response to include container item [#4285]
+- Browse Nomenclature: Focus button [#4283]
+- Sounds and conveyances. Browse, filter, new from radial. [#244]
 
 ### Changed
 
 - Browse OTU: Specimen records are displayed on DwC table [#4138]
-
-### Changed
-
 - Updated Ruby gems
 
 ### Fixed
 
+- Eliminate 404 behaviour in Synchronize nomenclature [#4284]
+- Filter CollectingEvent to OTU Filter linkage broken [#4277]
+- Filter OTU CSV download ommitted OTUs with no taxon name
 - DwcOccurrence FieldOccurrence scoping
-- TypeMaterial hook to DwcOccurrence update
+- TypeMaterial hook to DwcOccurrence update [#4266]
 - Georeferences in the CollectingEvent section of FieldOccurrence don't reset when the CollectingEvent is reset [#4274]
 - Filter tasks: Back to Field Occurrence filter from nested parameters modal doesn't work [#4278]
 - Content editor: Close modal is enable when nothing is selected [#4279]
@@ -35,8 +124,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some identifiers are missing on DwC otherCatalogNumbers column
 - Identifiers cached is empty in CSV table
 - DwC importer creating sex biocuration group with an array as URI
-- Filters: Sorting alphabetically does not work correctly when values ​​are in HTML
+- Filters: Sorting alphabetically does not work correctly when values are in HTML
 
+[#4266]: https://github.com/SpeciesFileGroup/taxonworks/issues/4266
+[#4284]: https://github.com/SpeciesFileGroup/taxonworks/issues/4284
+[#4277]: https://github.com/SpeciesFileGroup/taxonworks/issues/4277
+[#244]: https://github.com/SpeciesFileGroup/taxonworks/issues/244
 [#4138]: https://github.com/SpeciesFileGroup/taxonworks/issues/4138
 [#4237]: https://github.com/SpeciesFileGroup/taxonworks/issues/4237
 [#4274]: https://github.com/SpeciesFileGroup/taxonworks/issues/4274
@@ -44,6 +137,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4278]: https://github.com/SpeciesFileGroup/taxonworks/issues/4278
 [#4279]: https://github.com/SpeciesFileGroup/taxonworks/issues/4279
 [#4281]: https://github.com/SpeciesFileGroup/taxonworks/issues/4281
+[#4283]: https://github.com/SpeciesFileGroup/taxonworks/issues/4283
 [#4285]: https://github.com/SpeciesFileGroup/taxonworks/issues/4285
 [#4291]: https://github.com/SpeciesFileGroup/taxonworks/issues/4291
 
@@ -5237,7 +5331,10 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.51.0...development
+[0.51.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.1...v0.51.0
+[0.50.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.0...v0.50.1
+[0.50.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.1...v0.50.0
 [0.49.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...v0.49.1
 [0.49.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.47.0...v0.48.0

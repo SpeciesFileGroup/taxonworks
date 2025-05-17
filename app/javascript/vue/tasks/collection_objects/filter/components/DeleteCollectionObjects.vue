@@ -7,9 +7,11 @@
       circle
       :disabled="disabled"
       @click="openModal"
+      title="Delete collection objects"
     >
       <VIcon
         name="trash"
+        title="Delete collection objects"
         x-small
       />
     </VBtn>

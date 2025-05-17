@@ -87,7 +87,7 @@ async function mergeObjects() {
       keep_global_id: props.keepGlobalId
     }
 
-    if (props.only.length !== Object.keys(props.remove.metadata).length) {
+    if (props.only.length !== Object.keys(props.remove._metadata).length) {
       Object.assign(payload, { only: props.only })
     }
 
@@ -99,12 +99,16 @@ async function mergeObjects() {
           emit('merge')
         }
 
-        response.value = body
+        if (body.result.message) {
+          TW.workbench.alert.create(body.result.message, 'error')
+        } else {
+          response.value = body
+          isModalVisible.value = true
+        }
       })
       .catch(() => {})
       .finally(() => {
         isSaving.value = false
-        isModalVisible.value = true
       })
   }
 }

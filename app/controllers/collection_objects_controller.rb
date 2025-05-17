@@ -139,7 +139,8 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/123/dwc_compact
   # !! Never recalculates !!
   def dwc_compact
-    render json:  @collection_object.dwc_occurrence.dwc_json
+    # Batch imports delay the indexing, so we need to be able to respond empty as well
+    render json:  @collection_object.dwc_occurrence&.dwc_json || {}
   end
 
   # Intent is DWC fields + quick summary fields for reports

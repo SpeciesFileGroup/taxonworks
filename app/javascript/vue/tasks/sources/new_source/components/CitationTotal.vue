@@ -1,7 +1,7 @@
 <template>
   <div>
     <span
-      class="feedback feedback-secondary feedback-thin"
+      class="feedback feedback-secondary feedback-thin line-nowrap"
       :title="`${total} citations in project`"
     >
       <span v-if="isLoading">Loading...</span>

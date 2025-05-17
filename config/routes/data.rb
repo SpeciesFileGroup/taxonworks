@@ -334,8 +334,28 @@ end
 
 resources :field_occurrences do
   concerns [:data_routes]
+
+  resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
+
   collection do
     match :filter, to: 'field_occurrences#index', via: [:get, :post]
+  end
+end
+
+resources :gazetteer_imports, only: [:destroy], defaults: { format: :json } do
+  collection do
+    get :all, defaults: {format: :json}
+  end
+end
+
+resources :gazetteers do
+  concerns [:data_routes]
+  collection do
+    post :import, defaults: {format: :json}
+    post :preview, defaults: {format: :json} # post to support long WKT strings
+    get :shapefile_fields, default: {format: :json}
+    get :shapefile_text_field_values, default: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -704,6 +724,7 @@ resources :protocol_relationships do
   end
 end
 
+get 'public_contents/exists', to: 'public_contents#exists', defaults: {format: :json}
 resources :public_contents, only: [:create, :update, :destroy]
 
 resources :ranged_lot_categories do
