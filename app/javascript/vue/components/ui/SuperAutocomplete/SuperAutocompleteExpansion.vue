@@ -38,11 +38,14 @@
 import { ref, watch } from 'vue'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { TaxonName } from '@/routes/endpoints'
 
 const item = ref(null)
 const isModalVisible = ref(false)
 const selectedParents = ref([])
 const parentList = ref([])
+
+const emit = defineEmits(['create'])
 
 function setItem(value) {
   item.value = value
@@ -52,11 +55,15 @@ function setItem(value) {
 function createTaxonNames() {
   const classification = item.value.expansion.simple_taxon_name_classification
   const selectedNames = selectedParents.value.map((item) => item.name)
-  const payload = classification.filter((item) =>
-    selectedNames.includes(item.name)
-  )
+  const payload = {
+    classification: classification.filter((item) =>
+      selectedNames.includes(item.name)
+    )
+  }
 
-  console.log(payload)
+  TaxonName.classification(payload).then(({ body }) => {
+    emit('create', body)
+  })
 }
 
 watch(item, (newVal) => {

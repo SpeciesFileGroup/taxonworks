@@ -53,6 +53,8 @@ export const TaxonName = {
 
   rankTable: (params) => AjaxCall('get', `/${model}/rank_table`, { params }),
 
+  classification: params => AjaxCall('post', '/taxon_names/classification', params),
+
   classifications: (id) =>
     AjaxCall('get', `/${model}/${id}/taxon_name_classifications`),
 

@@ -81,7 +81,7 @@
 </template>
 
 <script setup>
-import Autocomplete from '@/components/ui/SuperAutocomplete/SuperAutocomplete.vue'
+import Autocomplete from '@/components/ui/SuperAutocomplete/TaxonNameAutocomplete.vue'
 import NavHeader from './components/navHeader.vue'
 import TaxonNameBox from './components/taxonNameBox.vue'
 import CheckChanges from './components/checkChanges.vue'

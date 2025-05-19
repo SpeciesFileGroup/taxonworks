@@ -51,10 +51,6 @@
     >
       <li>--None--</li>
     </ul>
-    <SuperAutocompleteExpansion
-      ref="expansionRef"
-      :item="item"
-    />
   </div>
 </template>
 
@@ -62,8 +58,6 @@
 import { computed, ref, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 import Qs from 'qs'
-import SuperAutocompleteExpansion from './SuperAutocompleteExpansion.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   inputId: {
@@ -142,13 +136,13 @@ const inputValue = defineModel({
   default: ''
 })
 
-const emit = defineEmits(['select', 'keyEvent', 'end'])
+const emit = defineEmits(['select', 'keyEvent', 'end', 'expand'])
+
 const isLoading = ref(false)
 const isListVisible = ref(false)
 const currentIndex = ref(-1)
 const list = ref([])
 const inputRef = useTemplateRef('inputRef')
-const expansionRef = useTemplateRef('expansionRef')
 const metadata = ref(null)
 const level = ref(3)
 let requestTimeout = null
@@ -211,7 +205,7 @@ function selectItem(item) {
   inputValue.value = ''
 
   if (item.expansion && !item.id) {
-    expansionRef.value.setItem(item)
+    emit('expand', item)
   } else {
     if (props.autofocus) {
       inputRef.value.focus()
