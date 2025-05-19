@@ -332,11 +332,8 @@ class TaxonNamesController < ApplicationController
 
   # POST /taxon_names/classification
   def classification
-    @taxon_name = TaxonName.create_with_classification(
-      params.require(:classification).permit(
-        classification: [:id, :name, :rank_class, :parent_id, :verbatim_author, :year_of_publication, :gap_fill] # TODO: identifiers?
-      ))
-
+    @taxon_name = TaxonName.create_with_classification( classification_params ) 
+    
     if @taxon_name.valid?
       render :show, status: :created, location: @taxon_name.metamorphosize
     else
@@ -345,6 +342,13 @@ class TaxonNamesController < ApplicationController
   end
 
   private
+
+  def classification_params
+    return { classification: params.require(:classification).map{|p| p.permit(:id, :name, :rank_class, :parent_id, :verbatim_author, :year_of_publication, :gap_fill).to_h },
+             project_id: sessions_current_project_id,
+             by: sessions_current_user_id
+    }
+  end
 
   def set_taxon_name
     @taxon_name = TaxonName.with_project_id(sessions_current_project_id).includes(:creator, :updater).find(params[:id])

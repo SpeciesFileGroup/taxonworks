@@ -1532,8 +1532,8 @@ class TaxonName < ApplicationRecord
     current_parent_id = params[:classification].first[:parent_id]
 
     transaction do
-      params[:classification].each do |i|
-        p = i.deep_symbolize_keys
+      params[:classification].each do |p|
+        # p = i.deep_symbolize_keys
         next if p[:rank_class].blank?
 
         begin
