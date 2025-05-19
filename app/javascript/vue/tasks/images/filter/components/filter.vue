@@ -23,7 +23,10 @@
     v-model="params"
     includes
   />
-  <FacetFieldOccurrence v-mode="params" />
+  <FacetFieldOccurrence
+    v-model="params"
+    includes
+  />
   <FacetBiocurations v-model="params" />
   <FacetIdentifiers v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
