@@ -51,9 +51,3 @@ end
   count.aliases      = %w{ng/ul ng/µl nanogram/microliter}
   count.display_name = "ng/µl"
 end
-
-::RubyUnits::Unit.define("degC") do |count|
-  count.definition   = ::RubyUnits::Unit.new("1/300 degK")
-  count.aliases      = %w{degC celcius}
-  count.display_name = "degC"
-end
