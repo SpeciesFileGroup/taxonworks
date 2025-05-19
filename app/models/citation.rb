@@ -168,9 +168,11 @@ class Citation < ApplicationRecord
             t = citation_object.subject_taxon_name
             vn = t.get_valid_taxon_name
 
+            n = t.get_full_name
+
             t.update_columns(
-              cached: t.get_full_name,
-              cached_html: t.get_full_name_html,
+              cached: n,
+              cached_html: t.get_full_name_html(n),
               cached_valid_taxon_name_id: vn.id)
 
             # @proceps: This and below is not updating cached names.  Is this required because timing (new dates) may change synonymy?

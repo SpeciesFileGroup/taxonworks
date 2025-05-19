@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Temperature units
 - Unify task: No message error is displayed when merging fails
 
 \-

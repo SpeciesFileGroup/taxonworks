@@ -365,6 +365,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
   end
 
+  # TODO: Move to Utilities::Nomenclature specs
   context 'predict three name forms' do
     use_cases = {
         'albus'      => 'albus|alba|album',
@@ -418,7 +419,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       @entry += 1
       specify "case #{@entry}: '#{name}' should yield #{result}" do
         t = FactoryBot.build(:relationship_species, name: name, parent: nil)
-        forms = t.predict_three_forms
+        forms = Utilities::Nomenclature.predict_three_forms(t.name)
         u = forms[:masculine_name].to_s + '|' +
             forms[:feminine_name].to_s + '|' +
             forms[:neuter_name].to_s

@@ -135,7 +135,7 @@ FactoryBot.define do
       association :source, factory: :valid_source_bibtex, year: 1830
       year_of_publication { 1830 }
       verbatim_author { 'McAtee' }
-      rank_class { Ranks.lookup(:iczn, 'SPECIES') }
+      rank_class { Ranks.lookup(:iczn, :species) }
     end
 
     factory :iczn_subspecies do

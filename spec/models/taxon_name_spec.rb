@@ -317,9 +317,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(g.save).to be_truthy
 
             subspecies.original_genus = g # ! not saved originally !!
+            subspecies.save!
             subspecies.reload
 
-            expect(g.reload.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
+            g.reload
+
+            expect(g.get_full_name_html(g.get_full_name)).to eq('<i>Errorneura</i> [sic]')
 
             expect(subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
             expect(subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] [SPECIES NOT SPECIFIED] <i>vitata</i>')
@@ -860,7 +863,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         # TaxonNames related by all_taxon_name_relationships
         specify '#related_taxon_names' do
-          expect(species.related_taxon_names.sort).to eq([type_of_genus, original_genus].sort)
+          expect(species.related_taxon_names.pluck(:id)).to contain_exactly(type_of_genus.id, original_genus.id)
         end
 
         context '#unavilable_or_invalid' do
