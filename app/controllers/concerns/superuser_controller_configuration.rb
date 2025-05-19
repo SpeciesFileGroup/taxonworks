@@ -1,9 +1,10 @@
-module TaskControllerConfiguration
+module SuperuserControllerConfiguration
   extend ActiveSupport::Concern
 
   included do
+    before_action :require_superuser_sign_in
     before_action :set_is_task_controller
-    before_action :require_sign_in_and_project_selection
+
   end
 
   protected

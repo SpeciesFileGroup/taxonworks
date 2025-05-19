@@ -376,15 +376,11 @@ module Queries
       end
 
       def base_otu_query(opts)
-        q = ::Queries::Otu::Filter.new(opts)
-        q.project_id = nil # reset at use
-        q
+        ::Queries::Otu::Filter.new(opts)
       end
 
       def base_collection_object_query(opts)
-        q = ::Queries::CollectionObject::Filter.new(opts)
-        q.project_id = nil # reset at use
-        q
+        ::Queries::CollectionObject::Filter.new(opts)
       end
 
       def subject_collection_object_query
@@ -465,13 +461,11 @@ module Queries
 
         a_sql, b_sql = nil, nil
 
-        if !a&.all(true).nil?
-          a.project_id = project_id
+        if !a.nil? && !a.only_project?
           a_sql = a.all.to_sql
         end
 
-        if !b&.all(true).nil?
-          b.project_id = project_id
+        if !b.nil? && !b.only_project?
           b_sql = b.all.to_sql
         end
 
@@ -526,13 +520,11 @@ module Queries
 
         a_sql, b_sql = nil, nil
 
-        if !a&.all(true).nil?
-          a.project_id = project_id
+        if !a.nil? && !a.only_project?
           a_sql = a.all.to_sql
         end
 
-        if !b&.all(true).nil?
-          b.project_id = project_id
+        if !b.nil? && !b.only_project?
           b_sql = b.all.to_sql
         end
 

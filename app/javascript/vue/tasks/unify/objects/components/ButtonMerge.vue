@@ -99,12 +99,16 @@ async function mergeObjects() {
           emit('merge')
         }
 
-        response.value = body
+        if (body.result.message) {
+          TW.workbench.alert.create(body.result.message, 'error')
+        } else {
+          response.value = body
+          isModalVisible.value = true
+        }
       })
       .catch(() => {})
       .finally(() => {
         isSaving.value = false
-        isModalVisible.value = true
       })
   }
 }

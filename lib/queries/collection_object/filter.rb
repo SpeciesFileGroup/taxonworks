@@ -879,12 +879,8 @@ module Queries
       end
 
       def base_collecting_event_query_facet
-        # Turn project_id off and check for a truly empty query
-        base_collecting_event_query.project_id = nil
-        return nil if base_collecting_event_query.all(true).nil?
-
-        # Turn project_id back on
-        base_collecting_event_query.project_id = project_id
+        return nil if
+          base_collecting_event_query.only_project?
 
         s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.select(:id).to_sql + ') ' +
           ::CollectionObject

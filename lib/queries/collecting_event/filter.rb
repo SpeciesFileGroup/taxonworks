@@ -51,6 +51,7 @@ module Queries
         :use_max,
         :use_min,
         :wkt,
+        :wkt_geometry_type,
         collecting_event_id: [],
         collector_id: [],
         geo_shape_id: [],
@@ -89,6 +90,9 @@ module Queries
 
       # A spatial representation in well known text
       attr_accessor :wkt
+
+      # Geometry type (Point, MultiPolygon, etc.) of `wkt`
+      attr_accessor :wkt_geometry_type
 
       # Integer in Meters
       #   !! defaults to 100m
@@ -166,6 +170,7 @@ module Queries
         @use_max = params[:use_max]
         @use_min = params[:use_min]
         @wkt = params[:wkt]
+        @wkt_geometry_type = params[:wkt_geometry_type]
 
         set_confidences_params(params)
         set_attributes_params(params)
@@ -239,6 +244,7 @@ module Queries
         return nil if geo_shape_id.empty? || geo_shape_type.empty? ||
           # TODO: this should raise an error(?)
           geo_shape_id.length != geo_shape_type.length
+        return ::CollectingEvent.none if roll_call
 
         geographic_area_shapes, gazetteer_shapes = shapes_for_geo_mode
 
@@ -252,11 +258,11 @@ module Queries
 
         if geo_mode == true # spatial
           i = ::Queries.union(::GeographicItem, [a,b])
-          wkt_shape =
-            ::Queries::GeographicItem.st_union(i)
-              .to_a.first['st_union'].to_s
+          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
 
-          return from_wkt(wkt_shape)
+          return from_wkt(
+            u['st_astext'], u['st_geometrytype'].delete_prefix!('ST_')
+          )
         end
 
         referenced_klass_union([a,b])
@@ -327,19 +333,26 @@ module Queries
 
       def wkt_facet
         return nil if wkt.blank?
-        from_wkt(wkt)
+        return ::CollectingEvent.none if roll_call
+
+        from_wkt(wkt, wkt_geometry_type)
       end
 
       # TODO: check, this should be simplifiable.
-      def from_wkt(wkt_shape)
-        a = RGeo::WKRep::WKTParser.new(Gis::FACTORY, support_wkt12: true)
-        b = a.parse(wkt_shape)
-        spatial_query(b.geometry_type.to_s, wkt_shape)
+      def from_wkt(wkt_shape, geometry_type = nil)
+        if (geometry_type.nil?)
+          a = RGeo::WKRep::WKTParser.new(Gis::FACTORY, support_wkt12: true)
+          b = a.parse(wkt_shape)
+          geometry_type = b.geometry_type.to_s
+        end
+        spatial_query(geometry_type, wkt_shape)
       end
 
       # Shape is a Hash in GeoJSON format
       def geo_json_facet
         return nil if geo_json.nil?
+        return ::CollectingEvent.none if roll_call
+
         if a = RGeo::GeoJSON.decode(geo_json)
           return spatial_query(a.geometry_type.to_s, a.to_s)
         else
@@ -354,7 +367,7 @@ module Queries
           ::CollectingEvent
             .joins(:geographic_items)
             .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius))
-        when 'Polygon', 'MultiPolygon'
+        when 'Polygon', 'MultiPolygon', 'GeometryCollection'
           ::CollectingEvent
             .joins(:geographic_items)
             .where(::GeographicItem.covered_by_wkt_sql(wkt))

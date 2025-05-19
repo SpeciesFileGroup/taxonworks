@@ -7,28 +7,49 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- Unify task: No message error is displayed when merging fails
+
+\-
+
+## [0.51.0] - 2025-05-16
+
 ### Added
 
+- `Gazetteer` model - custom geospatial shapes for your project [#1954]
+- Matrix radial to Sound and FieldOccurrence filters
+- Celsius and Hertz quantitative units to Descriptors
 - Batch georeference on Filter CE [#4336]
 - New content task: Publish content button
-- Filter sounds: Radial matrix
-- Batch georeference on Filter CE  [#4336] 
+- Batch georeference on Filter CE [#4336]
 - Send Filter Field Occurrence results to Filter Image, and vice versa [#4348]
-- Add Field Occurrence as an option to more facets in Filter Images
+- Add Field Occurrence as an option to more facets in Filter Images and Filter Observations
+- Send filter results between Observations and: field occurrences, extracts, and sounds
 
 ### Changed
 
+- Asserted Distributions returned by the `/api/v1/asserted_distributions.json` endpoint include distributions based on both Geographic Areas and Gazetteers (new). You can check the type of each distribution using the new type key of the distribution record: `{type: 'GeographicArea' or 'Gazetteer', ... }`
+- Improved performance on cached map building and spatial filtering
 - Removed Match geoference task [#4336]
 - Updated Ruby gems
+- Updated NPM packages
 - Radial CO: Increase Taxon Determinations batch load limit to 5000 [#4349]
 
 ### Fixed
 
+- Project not required for batch add users [#4327]
+- Repository edits trigger DwcOccurrence updates [#4342]
+- Observation matrix OTU content exception
+- Syncronize nomenclature/OTUs task initialization
 - Filters: pop up screen overlap when columns are locked [#4322]
 - Browse Otu: display verbatimLocality in Specimen Records section [#4331]
 - CSD: Missing Georeferences when collecting_event_id is passed by parameter [#4339]
 - Background mass annotate Confidence or Protocol Relationship on >300 filter results [#4344]
 
+[#1954]: https://github.com/SpeciesFileGroup/taxonworks/issues/1954
+[#4327]: https://github.com/SpeciesFileGroup/taxonworks/issues/4327
+[#4342]: https://github.com/SpeciesFileGroup/taxonworks/issues/4342
 [#4336]: https://github.com/SpeciesFileGroup/taxonworks/issues/4336
 [#4322]: https://github.com/SpeciesFileGroup/taxonworks/issues/4322
 [#4331]: https://github.com/SpeciesFileGroup/taxonworks/issues/4331
@@ -5310,7 +5331,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.51.0...development
+[0.51.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.1...v0.51.0
 [0.50.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.0...v0.50.1
 [0.50.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.1...v0.50.0
 [0.49.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.49.0...v0.49.1
