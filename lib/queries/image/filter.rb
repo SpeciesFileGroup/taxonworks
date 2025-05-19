@@ -386,14 +386,8 @@ module Queries
         if t_scope.include?(:all) # unused
           selected = [
             images_on(t, t_id).to_sql,
-
-            images_on_observations_linked_to(
-              t.to_s.classify, t_id
-            ).to_sql,
-
-            images_on_collecting_events_via_observed(
-              t, t_id
-            ).to_sql
+            images_on_observations_linked_to(t, t_id).to_sql,
+            images_on_collecting_events_via_observed(t, t_id).to_sql
           ]
         elsif t_scope.empty?
           selected =
@@ -404,15 +398,11 @@ module Queries
           ) if t_scope.include?(t)
 
           selected.push(
-            images_on_observations_linked_to(
-              t.to_s.classify, t_id
-            ).to_sql
+            images_on_observations_linked_to(t, t_id).to_sql
           ) if t_scope.include?(:observations)
 
           selected.push(
-            images_on_collecting_events_via_observed(
-              :collection_objects, t_id
-            ).to_sql
+            images_on_collecting_events_via(t, t_id).to_sql
           ) if t_scope.include?(:collecting_events)
         end
 
@@ -421,24 +411,22 @@ module Queries
         ::Image.from('(' + q + ')' + ' as images')
       end
 
-      def images_on(t, t_ids)
-        ::Image.joins(t).where(**{t => {id: t_ids}})
+      def images_on(t, t_id)
+        ::Image.joins(t).where(**{t => {id: t_id}})
       end
 
-      def images_on_observations_linked_to(t, t_ids)
+      def images_on_observations_linked_to(t, t_id)
         ::Image.joins(:observations)
           .where(observations: {
-            observation_object_type: t,
-            observation_object_id: t_ids
+            observation_object_type: t.to_s.classify,
+            observation_object_id: t_id
           })
       end
 
-      def images_on_collecting_events_via_observed(t, t_ids)
+      def images_on_collecting_events_via(t, t_id)
         ::Image
-          .joins(:collecting_events)
-          .joins(t)
-          .where(**{t => {id: t_ids}})
-          .joins(:observations)
+          .joins(collecting_events: t)
+          .where("#{t}.id IN (?)", t_id)
       end
 
       def otu_facet_type_material_observations(otu_ids)
