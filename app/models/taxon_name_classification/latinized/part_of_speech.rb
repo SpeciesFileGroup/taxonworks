@@ -12,7 +12,7 @@ class TaxonNameClassification::Latinized::PartOfSpeech < TaxonNameClassification
   def set_gender_in_taxon_name
     t = taxon_name
     if t.masculine_name.blank? && t.feminine_name.blank? && t.neuter_name.blank?
-      forms = t.predict_three_forms
+      forms = Utilities::Nomenclature.predict_three_forms(t.name)
       t.update_columns(
         masculine_name: forms[:masculine_name],
         feminine_name: forms[:feminine_name],

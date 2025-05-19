@@ -124,52 +124,52 @@ describe Combination, type: :model, group: :nomenclature do
       before do
         p.update(original_genus: genus, original_species: p)
         invalidating_relationship
-      enlet!(:c) { p.becomes_combination }
+        enlet!(:c) { p.becomes_combination }
 
-      specify 'is Combination' do
-        expect(c.type).to eq('Combination')
-      end
+        specify 'is Combination' do
+          expect(c.type).to eq('Combination')
+        end
 
-      specify '#name cleared' do
-        expect(c.name).to eq(nil)
-      end
+        specify '#name cleared' do
+          expect(c.name).to eq(nil)
+        end
 
-      specify '#rank_class cleared' do
-        expect(c.rank_class).to eq(nil)
-      end
+        specify '#rank_class cleared' do
+          expect(c.rank_class).to eq(nil)
+        end
 
-      specify 'relationship types are updated' do
-        expect(TaxonNameRelationship.all.pluck(:type)).to contain_exactly('TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Species' )
-      end
+        specify 'relationship types are updated' do
+          expect(TaxonNameRelationship.all.pluck(:type)).to contain_exactly('TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Species' )
+        end
 
-      specify '#original_relationships' do
-        expect(c.combination_relationships.count).to eq(2)
-      end
+        specify '#original_relationships' do
+          expect(c.combination_relationships.count).to eq(2)
+        end
 
-      specify '#genus' do
-        expect(c.genus).to eq(genus)
-      end
+        specify '#genus' do
+          expect(c.genus).to eq(genus)
+        end
 
-      specify '#species' do
-        expect(c.species).to eq(species)
-      end
+        specify '#species' do
+          expect(c.species).to eq(species)
+        end
 
-      specify '#verbatim_name' do
-        expect(c.verbatim_name).to eq('Aus bum')
-      end
+        specify '#verbatim_name' do
+          expect(c.verbatim_name).to eq('Aus bum')
+        end
 
-      specify '#cached' do
-        expect(c.cached).to eq('Aus bum')
-      end
+        specify '#cached' do
+          expect(c.cached).to eq('Aus bum')
+        end
 
-      specify '#cached_author_year' do
-        expect(c.cached_author_year).to eq('McAtee, 1830') # regenerated on cache from save
-      end
+        specify '#cached_author_year' do
+          expect(c.cached_author_year).to eq('McAtee, 1830') # regenerated on cache from save
+        end
 
-      specify '#cached_original_combination_html' do
-        expect(c.cached_original_combination_html).to eq(nil)
+        specify '#cached_original_combination_html' do
+          expect(c.cached_original_combination_html).to eq(nil)
+        end
       end
     end
-  end
   end
 end

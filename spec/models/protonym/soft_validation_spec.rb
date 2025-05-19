@@ -1,12 +1,25 @@
 require 'rails_helper'
 
-describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validation] do
+# TODO: @proceps, please cleanup
+#
+# * [ ] Eliminate all "@", these introduce all sorts of confusion, see  e.g. `if` statements -> not good
+# * [ ] Eliminate all multi-expectation specifies, a specify should have a single expecitation, or expectations should follow from the setup, no mulit-part setups
+# * [ ] Do not use complex chains of data as the basis for simple tests (e.g. most missing field tests require a simple species->root name, not 31 names in place
+# * [ ] Start with a completely empty slate, not Factories, for basic tests like missing data, the full scenario should be obvious from reading what is set *in the specify*
+# * [ ] Only use complex factory chains when complexity is being tests, for example methods that return ancestors (but likely not descendants)
+# * [ ] Fix descriptions of all specifications, many are not doing what they say they are, or doing more, or less
 
+describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validation] do
+  include ActiveJob::TestHelper
+
+  # These can be eliminated when @ are removed, until then they impact multiple downstream specs
   before(:all) do
     TaxonNameRelationship.delete_all
     TaxonNameClassification.delete_all
     TaxonName.delete_all
     TaxonNameHierarchy.delete_all
+    Citation.delete_all
+    Source.destroy_all
   end
 
   after(:all) do
@@ -19,15 +32,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
   end
 
   let(:protonym) { Protonym.new }
-
-  #TODO citeproc gem doesn't currently support lastname without firstname
+  let(:root) {FactoryBot.create(:root_taxon_name) }
   let(:source) { FactoryBot.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev, D.')   }
 
   context 'misspelling' do
-    let(:genus) { Protonym.new(name: 'Mus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+    let(:genus) { Protonym.create!(name: 'Mus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
 
     context 'ICZN names' do
-      let(:s) { Protonym.new(parent: genus, rank_class: Ranks.lookup(:iczn, :species) ) }
+      let(:s) { Protonym.create!(parent: genus, rank_class: Ranks.lookup(:iczn, :species), name: 'aus' ) }
       context 'legal forms' do
         legal = ['vitis', 'a-nigrum']
         legal.each do |l|
@@ -54,6 +66,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
 
   context 'soft_validation' do
     # TODO: all these need to not be @
+
     before(:each) do
       @subspecies = FactoryBot.create(:iczn_subspecies)
       @kingdom = @subspecies.ancestor_at_rank('kingdom')
@@ -426,8 +439,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         s.save
         s.soft_validate(only_sets: :missing_infrasubspecific_status)
         expect(s.soft_validations.messages_on(:base).size).to eq(1)
-        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific')
+        c1 = TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific.create!(taxon_name: s)
+        perform_enqueued_jobs # updated unavailabe
         s.soft_validate(only_sets: :missing_infrasubspecific_status)
+
         expect(s.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 

@@ -186,6 +186,8 @@ gem 'parallel_tests', group: [:development, :test]
 group :development do
   # gem "ruby-lsp", "~> 0.4.1", require: false
 
+  gem 'pp_sql', group: :development
+
   gem 'thruster'
 
   # gem 'tunemygc'
