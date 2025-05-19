@@ -71,6 +71,7 @@ export default defineStore('collectingEventForm', {
       request.then(({ body }) => {
         store.processGeoreferenceQueue(body.id)
         this.collectingEvent.id = body.id
+        this.collectingEvent.global_id = body.global_id
 
         if (idStore.isUnsaved) {
           idStore.save({ objectId: body.id, objectType: COLLECTING_EVENT })
