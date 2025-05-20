@@ -301,7 +301,6 @@ function makeUrlRequest(params) {
 }
 
 function updateTimeout() {
-  console.log(inputValue.value)
   currentIndex.value = -1
   isLoading.value = false
   isListVisible.value = false
