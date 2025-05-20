@@ -74,7 +74,7 @@ class Lead < ApplicationRecord
   validate :node_parent_doesnt_have_redirect
   validate :root_has_no_redirect
   validate :redirect_isnt_ancestor_or_self
-  validates_uniqueness_of :text, scope: [:otu_id, :parent_id], unless: -> { otu_id.nil? }
+  validates :text, uniqueness: { scope: [:otu_id, :parent_id], unless: -> { otu_id.nil? } }
 
   def future
     redirect_id.blank? ? all_children : redirect.all_children
@@ -341,7 +341,7 @@ class Lead < ApplicationRecord
     end
   end
 
-  def self.root_leads_for_leaf_otus(otu)
+  def self.public_root_leads_for_leaf_otus(otu)
     # Leaf leads that have otu as their Otu.
     leaf_otu_leads = Lead
       .with(l_h: LeadHierarchy.where('ancestor_id != descendant_id'))
@@ -354,9 +354,9 @@ class Lead < ApplicationRecord
     # descendant.
     Lead
       .with(l_o_l: leaf_otu_leads)
-      .where(parent_id: nil)
       .joins('JOIN lead_hierarchies l_h2 ON l_h2.ancestor_id = leads.id')
       .where('l_h2.descendant_id IN (SELECT id FROM l_o_l)')
+      .where(parent_id: nil)
       .where(is_public: true)
   end
 

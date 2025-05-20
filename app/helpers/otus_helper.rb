@@ -366,17 +366,17 @@ module OtusHelper
     r
   end
 
-  def otu_key_inventory(otu, is_public: true)
+  def otu_key_inventory(otu)
     return {
       observation_matrices: {
-        scoped: otu.in_scope_observation_matrices.where(is_public:).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {} ,
+        scoped: otu.in_scope_observation_matrices.where(is_public: true).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {} ,
 
-        in: otu.observation_matrices.where(is_public:).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {},
+        in: otu.observation_matrices.where(is_public: true).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {},
       },
       leads: {
-        scoped: otu.leads.where(parent_id: nil, is_public:).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
+        scoped: otu.leads.where(parent_id: nil, is_public: true).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
 
-        in: Lead.root_leads_for_leaf_otus(otu).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
+        in: Lead.public_root_leads_for_leaf_otus(otu).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
       }
     }
   end
