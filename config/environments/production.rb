@@ -2,10 +2,6 @@ require 'settings'
 TaxonWorks::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  # See https://github.com/kvokka/pp_sql
-  PpSql.rewrite_to_sql_method = false
-  PpSql.add_rails_logger_formatting = false
-  
   config.active_storage.service = :local
 
   # Code is not reloaded between requests.
