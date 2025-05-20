@@ -25,6 +25,7 @@
       @keydown.down="downKey"
       @keydown.up="upKey"
       @keydown.enter="enterKey"
+      @keydown.esc="stopLevelLoop"
       @keyup="sendKeyEvent"
     />
     <template v-if="isLoading">
@@ -76,12 +77,7 @@
         <VBtn
           color="primary"
           medium
-          @click="
-            () => {
-              isLoopOnLevels = false
-              clearTimeout(requestTimeout)
-            }
-          "
+          @click="stopLevelLoop"
         >
           Cancel
         </VBtn>
@@ -270,6 +266,11 @@ function cleanInput() {
 
 function setText(value) {
   inputValue.value = value
+}
+
+function stopLevelLoop() {
+  isLoopOnLevels.value = false
+  clearTimeout(requestTimeout)
 }
 
 function selectItem(item) {
