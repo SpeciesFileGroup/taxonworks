@@ -3,7 +3,11 @@ class ApplicationRecord < ActiveRecord::Base
   include NilifyBlanks
 
   # Prettify SQL in console
-  include PpSql::ToSqlBeautify if defined?(Rails::Console)
+  # !! Do not use, it will break queries since we use .to_sql in constructing
+  # queries and prettify currently does things like turning `)::float` into
+  # `) : : float`.
+  # Use .pp_sql in place of .to_sql where you want prettified output.
+  #include PpSql::ToSqlBeautify if defined?(Rails::Console)
 
   self.abstract_class = true
 
