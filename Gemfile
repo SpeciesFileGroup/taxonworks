@@ -172,6 +172,7 @@ gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
   # gem 'term-ansicolor', '~> 1.6' # DEPRECATED
+  gem 'pp_sql'
   gem 'faker', '~> 3.2'
   gem 'rspec-rails', '~> 6.1'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'

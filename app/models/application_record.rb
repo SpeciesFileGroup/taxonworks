@@ -1,13 +1,15 @@
 class ApplicationRecord < ActiveRecord::Base
-
   # Required here due to the eager load before config/routes.rb
   include NilifyBlanks
 
-  self.abstract_class = true
+  # Prettify SQL in console
+  # !! Do not use, it will break queries since we use .to_sql in constructing
+  # queries and prettify currently does things like turning `)::float` into
+  # `) : : float`.
+  # Use .pp_sql in place of .to_sql where you want prettified output.
+  #include PpSql::ToSqlBeautify if defined?(Rails::Console)
 
-    # def []=(index, object)
-    #   super(index, object)
-    # end
+  self.abstract_class = true
 
   # Will run block on transaction, repeating 3 times if failed due to ActiveRecord:DeadLock exception.
   def self.transaction_with_retry(&block)

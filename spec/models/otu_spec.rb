@@ -10,35 +10,70 @@ describe Otu, type: :model, group: :otu do
   end
 
   context 'parent otu' do
+    specify '#parent_otu_id 1, skip_ranks' do
+      t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
+      t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
+
+      o0 = Otu.create!(taxon_name: t0)
+      o1 = Otu.create!(taxon_name: t)
+      o2 = Otu.create!(taxon_name: t1)
+      expect(o2.parent_otu_id(skip_ranks: [t.rank_class.name])).to eq(o0.id)
+    end
 
     specify '#parent_otu_id 1' do
       t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
       t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
       t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
 
-      o0 = Otu.create(taxon_name:t0)
-      o1 = Otu.create(taxon_name:t)
-      o2 = Otu.create(taxon_name:t1)
-      expect(o2.parent_otu_id).to eq(o1.id)
+      o0 = Otu.create!(taxon_name: t0)
+      o1 = Otu.create!(taxon_name: t)
+      o2 = Otu.create!(taxon_name: t1)
+      expect(o2.parent_otu_id).to eq(o1.id) # test is good
     end
 
-    specify '#parent_otu_id 2' do
+    specify '.parent_otu_ids 1' do
       t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
       t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
       t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
 
-      o0 = Otu.create(taxon_name: t)
-      o1 = Otu.create(taxon_name: t)
-      o2 = Otu.create(taxon_name: t1)
+      o0 = Otu.create!(taxon_name: t0)
+      o1 = Otu.create!(taxon_name: t)
+      o2 = Otu.create!(taxon_name: t1)
+
+      expect(Otu.parent_otu_ids(Otu.where(id: o2.id)).first.valid_ancestor_otu_ids).to eq( "#{o1.id},#{o0.id}")
+    end
+
+    specify '#parent_otu_id 2 (arbitrary split)' do
+      t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
+      t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
+
+      o0 = Otu.create!(taxon_name: t)
+      o1 = Otu.create!(taxon_name: t)
+      o2 = Otu.create!(taxon_name: t1)
+
       expect(o2.parent_otu_id).to eq(o0.id)
     end
 
-    specify '#parent_otu_id 3' do
+    specify '.parent_otu_ids' do
       t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
       t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
       t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
 
-      o2 = Otu.create(taxon_name:t1)
+      o0 = Otu.create!(taxon_name: t)
+      o1 = Otu.create!(taxon_name: t)
+      o2 = Otu.create!(taxon_name: t1)
+
+      expect(Otu.parent_otu_ids(Otu.where(id: o2.id)).first.valid_ancestor_otu_ids).to eq( "#{o0.id},#{o1.id}")
+    end
+
+    specify '#parent_otu_id 3 (no OTU in parent chain)' do
+      t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
+      t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
+
+      o2 = Otu.create!(taxon_name:t1)
       expect(o2.parent_otu_id).to eq(nil)
     end
   end

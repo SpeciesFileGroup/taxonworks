@@ -7,18 +7,32 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- Temperature units
+- Unify task: No message error is displayed when merging fails
+- New field occurrence task: Collecting event radials don't work on new CE [#4354]
+- Filter CE: Data attributes layout [#4355]
+
+### Changed
+
+- Updated Ruby gems
+
+[#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
+[#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
+
 \-
 
 ## [0.51.0] - 2025-05-16
 
 ### Added
 
-- `Gazetteer` model - custom geospatial shapes for your project [#1954] 
+- `Gazetteer` model - custom geospatial shapes for your project [#1954]
 - Matrix radial to Sound and FieldOccurrence filters
 - Celsius and Hertz quantitative units to Descriptors
 - Batch georeference on Filter CE [#4336]
 - New content task: Publish content button
-- Batch georeference on Filter CE [#4336] 
+- Batch georeference on Filter CE [#4336]
 - Send Filter Field Occurrence results to Filter Image, and vice versa [#4348]
 - Add Field Occurrence as an option to more facets in Filter Images and Filter Observations
 - Send filter results between Observations and: field occurrences, extracts, and sounds
