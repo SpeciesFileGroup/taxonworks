@@ -193,7 +193,6 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   end
 
   specify '#otu_scope :field_occurrences' do
-    #TaxonDetermination.create!(otu: o, taxon_determination_object: fo)
     fo.images << i1
     i2 # not this one
     q.otu_id = o.id
@@ -223,6 +222,41 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     co.images << i1
     q.collection_object_id = [co.id]
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#collection_object_scope :observations' do
+    d = Descriptor::Working.create!(name: 'working')
+    obs = Observation::Working.create!(
+      descriptor: d, observation_object: co, description: 'mostly fuzz'
+    )
+    obs.images << i1
+    co.images << i2
+    i3 # not this one
+    q.collection_object_id = co.id
+    q.collection_object_scope = :observations
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#field_occurrence_scope :collecting_event' do
+    fo.collecting_event.images << i1
+    fo.images << i2 # not this one
+    i3 # not this one
+    q.field_occurrence_id = fo.id
+    q.field_occurrence_scope = :collecting_events
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#field_occurrence_scope [:field_occurrence, :observations]' do
+    d = Descriptor::Working.create!(name: 'working')
+    obs = Observation::Working.create!(
+      descriptor: d, observation_object: fo, description: 'mostly wuzz'
+    )
+    obs.images << i1
+    fo.images << i2
+    i3 # not this one
+    q.field_occurrence_id = fo.id
+    q.field_occurrence_scope = [:observations, :field_occurrences]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
   end
 
   specify '#collecting_event_id id' do

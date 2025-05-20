@@ -7,6 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Tab options on Field Occurrence smart selectors (select_options)
+- FieldOccurrences facet to Filter Images
+
 ### Fixed
 
 - Temperature units
