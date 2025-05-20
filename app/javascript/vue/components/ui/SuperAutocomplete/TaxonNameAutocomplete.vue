@@ -2,6 +2,7 @@
   <SuperAutocomplete
     v-bind="attrs"
     @expand="(item) => expandRef.setItem(item)"
+    @select="(taxon) => emit('select', taxon)"
   />
   <SuperAutocompleteExpansion
     ref="expandRef"

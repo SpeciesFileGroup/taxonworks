@@ -34,7 +34,7 @@
     <ul
       class="vue-autocomplete-list"
       v-show="isListVisible"
-      v-if="inputValue && list.length"
+      v-if="parsedInputValue.length && list.length"
     >
       <li
         v-for="(item, index) in limitList"
@@ -58,10 +58,35 @@
       <li v-if="list.length == 20">Results may be truncated</li>
     </ul>
     <ul
-      v-if="inputValue && !isLoading && !list.length"
-      class="vue-autocomplete-list vue-autocomplete-empty-list"
+      v-if="
+        parsedInputValue.length > Number(props.min) &&
+        !isLoading &&
+        nothingFound
+      "
+      :class="[
+        'vue-autocomplete-list vue-autocomplete-empty-list',
+        isLoopOnLevels && 'super-autocomplete-countdown-list'
+      ]"
     >
-      <li>--None--</li>
+      <li
+        v-if="isLoopOnLevels"
+        class="flex-separate middle"
+      >
+        Nothing found, continuing on the next level...
+        <VBtn
+          color="primary"
+          medium
+          @click="
+            () => {
+              isLoopOnLevels = false
+              clearTimeout(requestTimeout)
+            }
+          "
+        >
+          Cancel
+        </VBtn>
+      </li>
+      <li v-else>--None--</li>
     </ul>
   </div>
 </template>
@@ -79,6 +104,7 @@ import AjaxCall from '@/helpers/ajaxCall'
 import Qs from 'qs'
 import SuperAutocompleteSpinner from './SuperAutocompleteSpinner.vue'
 import SuperAutocompleteLevelTracker from './SuperAutocompleteLevelTracker.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { randomHue } from '@/helpers'
 import SuperAutocompleteSpinnerBank from './SuperAutocompleteSpinnerBank.vue'
 
@@ -169,12 +195,18 @@ const inputRef = useTemplateRef('inputRef')
 const metadata = ref(null)
 const level = ref(1)
 const isLoadingMetadata = ref(false)
+const nothingFound = ref(false)
+const isLoopOnLevels = ref(false)
 
 let requestTimeout = null
 let controller = null
 
+const parsedInputValue = computed(() =>
+  removeLevelShortcut(inputValue.value).trim()
+)
+
 const levels = computed(() =>
-  metadata.value?.paths.map((item) => ({
+  metadata.value?.paths?.map((item) => ({
     ...item,
     color: randomHue(item.level)
   }))
@@ -261,7 +293,7 @@ function makeUrlRequest(params) {
     '?' +
     props.param +
     '=' +
-    encodeURIComponent(removeLevelShortcut(inputValue.value))
+    encodeURIComponent(parsedInputValue.value)
 
   return Object.keys(params).length
     ? `${url}&${Qs.stringify(params, { arrayFormat: 'brackets' })}`
@@ -269,8 +301,12 @@ function makeUrlRequest(params) {
 }
 
 function updateTimeout() {
+  console.log(inputValue.value)
   currentIndex.value = -1
   isLoading.value = false
+  isListVisible.value = false
+  nothingFound.value = false
+  list.value = []
   controller?.abort()
 
   if (requestTimeout) {
@@ -281,51 +317,55 @@ function updateTimeout() {
 }
 
 async function update() {
-  if (inputValue.value.length < Number(props.min)) return
+  if (parsedInputValue.value.length < Number(props.min)) return
 
   const lvl = getLevelFromInput()
-  list.value = []
+  const currentLevel = lvl || level.value || 1
+
+  isLoopOnLevels.value = true
+
+  getLevelRecords(currentLevel)
+}
+
+async function getLevelRecords(lvl) {
+  level.value = lvl
   isLoading.value = true
-
-  if (lvl) {
-    level.value = lvl
-  }
-
-  const maxLevel = level.value || levels.value.length
-  const currentLevel = level.value || 1
-
   try {
-    for (let i = currentLevel; i <= maxLevel; i++) {
-      const response = await makeRequest(i)
-      const data = response.body.response
+    const response = await makeRequest(lvl)
+    const data = response.body.response
 
-      if (data.length) {
-        list.value = props.exclude ? data.filter(props.exclude) : data
-        isListVisible.value = list.value.length > 0
+    isLoading.value = false
+    isListVisible.value = data.length > 0
+    nothingFound.value = !data.length
 
-        emit('end', list.value)
-        break
+    if (data.length) {
+      list.value = props.exclude ? data.filter(props.exclude) : data
+
+      emit('end', list.value)
+    } else {
+      if (lvl < levels.value.length) {
+        requestTimeout = setTimeout(() => getLevelRecords(lvl + 1), 2000)
+      } else {
+        isLoopOnLevels.value = false
       }
     }
   } catch {}
-
-  isLoading.value = false
 }
 
 function removeLevelShortcut(text) {
-  return text.replace(/!l\d+\s*/g, '')
+  return text.replace(/!\d+\s*/g, '')
 }
 
 function setLevel(lvl) {
   level.value = lvl
   list.value = []
-  inputValue.value = inputValue.value.replace(/!l\d+\s*/g, '')
+  inputValue.value = inputValue.value.replace(/!\d+\s*/g, '')
   inputRef.value.focus()
   updateTimeout()
 }
 
 function getLevelFromInput() {
-  const regex = /!l(\d+)/
+  const regex = /!(\d+)/
   const levelFromInput = inputValue.value.match(regex)
   const lvl = levelFromInput?.[1]
 
@@ -355,3 +395,32 @@ function setFocus() {
 
 defineExpose({ cleanInput, setText, setFocus })
 </script>
+
+<style>
+.super-autocomplete-countdown-list {
+  position: relative;
+  padding: 8px 0;
+  margin-bottom: 12px;
+  list-style: none;
+}
+
+.super-autocomplete-countdown-list::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: #1f94d2;
+  animation: fillLine 2s linear forwards;
+}
+
+@keyframes fillLine {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+</style>
