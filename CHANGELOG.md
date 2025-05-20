@@ -12,6 +12,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Temperature units
 - Unify task: No message error is displayed when merging fails
 - New field occurrence task: Collecting event radials don't work on new CE [#4354]
+- Filter CE: Data attributes layout [#4355]
+
+[#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
+[#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
 
 \-
 
