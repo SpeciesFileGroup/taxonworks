@@ -353,7 +353,7 @@ module OtusHelper
     assign_pagination(a) if pagination_headers
 
     b = Image.with(dwc_scope: a)
-      .joins("JOIN depictions d on d.image_id = images.id" )
+      .joins('JOIN depictions d on d.image_id = images.id' )
       .joins("JOIN dwc_scope on d.depiction_object_id = dwc_scope.dwc_occurrence_object_id AND d.depiction_object_type = 'CollectionObject' AND dwc_scope.dwc_occurrence_object_type = 'CollectionObject'")
       .select('images.*, dwc_scope.id dwc_id')
       .distinct
@@ -370,11 +370,13 @@ module OtusHelper
     return {
       observation_matrices: {
         scoped: otu.in_scope_observation_matrices.where(is_public:).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {} ,
+
         in: otu.observation_matrices.where(is_public:).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {},
       },
       leads: {
         scoped: otu.leads.where(parent_id: nil, is_public:).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
-        in:  otu.leads.where.not(parent_id: nil).where(is_public: true).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
+
+        in: Lead.root_leads_for_leaf_otus(otu).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
       }
     }
   end
