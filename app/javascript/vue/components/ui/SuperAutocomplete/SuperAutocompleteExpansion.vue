@@ -4,12 +4,14 @@
     @close="() => (isModalVisible = false)"
   >
     <template #header>
-      <h3>Create taxon name</h3>
+      <h3>Create new taxon name</h3>
     </template>
     <template #body>
-      <h4>Name</h4>
-      <span v-html="item.label_html" />
-      <h4>Parents</h4>
+      <VSpinner
+        v-if="isSaving"
+        legend="Creating..."
+      />
+      <b>Taxon names</b>
       <ul class="tree">
         <li v-for="item in parentList">
           <label>
@@ -27,21 +29,27 @@
       <VBtn
         class="margin-medium-top"
         color="create"
+        medium
+        :disabled="!namesCount"
         @click="createTaxonNames"
-        >Create
+        >{{
+          namesCount > 1 ? `Create ${namesCount} new names` : 'Create new name'
+        }}
       </VBtn>
     </template>
   </VModal>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { TaxonName } from '@/routes/endpoints'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { TaxonName } from '@/routes/endpoints'
+import VSpinner from '../VSpinner.vue'
 
 const item = ref(null)
 const isModalVisible = ref(false)
+const isSaving = ref(false)
 const selectedParents = ref([])
 const parentList = ref([])
 
@@ -52,6 +60,8 @@ function setItem(value) {
   isModalVisible.value = true
 }
 
+const namesCount = computed(() => selectedParents.value.length)
+
 function createTaxonNames() {
   const classification = item.value.expansion.simple_taxon_name_classification
   const selectedNames = selectedParents.value.map((item) => item.name)
@@ -61,9 +71,16 @@ function createTaxonNames() {
     )
   }
 
-  TaxonName.classification(payload).then(({ body }) => {
-    emit('create', body)
-  })
+  isSaving.value = true
+
+  TaxonName.classification(payload)
+    .then(({ body }) => {
+      emit('create', body)
+    })
+    .catch(() => {})
+    .finally(() => {
+      isSaving.value = false
+    })
 }
 
 watch(item, (newVal) => {

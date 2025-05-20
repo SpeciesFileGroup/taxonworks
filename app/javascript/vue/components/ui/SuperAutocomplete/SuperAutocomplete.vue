@@ -1,18 +1,23 @@
 <template>
   <div class="vue-autocomplete">
+    <SuperAutocompleteLevelTracker
+      v-if="metadata"
+      :current-level="level"
+      :levels="levels"
+      @select="setLevel"
+    />
     <input
       type="text"
       ref="inputRef"
       :id="inputId"
-      :placeholder="placeholder"
+      :placeholder="isLoadingMetadata ? 'Loading...' : placeholder"
       :autofocus="autofocus"
-      :disabled="disabled"
+      :disabled="isLoadingMetadata || disabled"
       v-model="inputValue"
       v-bind="inputAttributes"
       autocomplete="off"
       :class="[
         'vue-autocomplete-input normal-input',
-        isLoading && 'ui-autocomplete-loading',
         !isLoading && 'vue-autocomplete-input-search',
         inputClass
       ]"
@@ -22,6 +27,10 @@
       @keydown.enter="enterKey"
       @keyup="sendKeyEvent"
     />
+    <template v-if="isLoading">
+      <SuperAutocompleteSpinnerBank v-if="level === 3" />
+      <SuperAutocompleteSpinner v-else />
+    </template>
     <ul
       class="vue-autocomplete-list"
       v-show="isListVisible"
@@ -29,8 +38,11 @@
     >
       <li
         v-for="(item, index) in limitList"
-        class="vue-autocomplete-item"
+        class="vue-autocomplete-item horizontal-left-content middle"
         :class="{ active: currentIndex === index }"
+        :style="{
+          borderLeft: `4px solid ${levels[level - 1].color}`
+        }"
         @mouseover="() => (currentIndex = index)"
         @click.prevent="() => selectItem(item)"
       >
@@ -55,9 +67,20 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
+import {
+  computed,
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  useTemplateRef,
+  nextTick
+} from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 import Qs from 'qs'
+import SuperAutocompleteSpinner from './SuperAutocompleteSpinner.vue'
+import SuperAutocompleteLevelTracker from './SuperAutocompleteLevelTracker.vue'
+import { randomHue } from '@/helpers'
+import SuperAutocompleteSpinnerBank from './SuperAutocompleteSpinnerBank.vue'
 
 const props = defineProps({
   inputId: {
@@ -144,9 +167,18 @@ const currentIndex = ref(-1)
 const list = ref([])
 const inputRef = useTemplateRef('inputRef')
 const metadata = ref(null)
-const level = ref(3)
+const level = ref(1)
+const isLoadingMetadata = ref(false)
+
 let requestTimeout = null
 let controller = null
+
+const levels = computed(() =>
+  metadata.value?.paths.map((item) => ({
+    ...item,
+    color: randomHue(item.level)
+  }))
+)
 
 const limitList = computed(() => {
   if (props.limit == 0) {
@@ -156,13 +188,20 @@ const limitList = computed(() => {
 })
 
 onMounted(() => {
-  if (props.autofocus) {
-    inputRef.value.focus()
-  }
+  isLoadingMetadata.value = true
 
-  AjaxCall('get', props.url).then(({ body }) => {
-    metadata.value = body
-  })
+  AjaxCall('get', props.url)
+    .then(({ body }) => {
+      metadata.value = body
+      isLoadingMetadata.value = false
+
+      if (props.autofocus) {
+        nextTick(() => {
+          inputRef.value.focus()
+        })
+      }
+    })
+    .catch(() => {})
 })
 
 onBeforeUnmount(() => controller?.abort())
@@ -240,13 +279,16 @@ function updateTimeout() {
 async function update() {
   if (inputValue.value.length < Number(props.min)) return
 
-  const levels = Object.values(metadata.value.paths)
   const lvl = getLevelFromInput()
   list.value = []
   isLoading.value = true
 
-  const maxLevel = lvl || level.value || levels.length
-  const currentLevel = lvl || level.value || 1
+  if (lvl) {
+    level.value = lvl
+  }
+
+  const maxLevel = level.value || levels.value.length
+  const currentLevel = level.value || 1
 
   try {
     for (let i = currentLevel; i <= maxLevel; i++) {
@@ -266,11 +308,20 @@ async function update() {
   isLoading.value = false
 }
 
+function setLevel(lvl) {
+  level.value = lvl
+  list.value = []
+  inputValue.value = inputValue.value.replace(/!l\d+\s*/g, '')
+  inputRef.value.focus()
+  updateTimeout()
+}
+
 function getLevelFromInput() {
   const regex = /!l(\d+)/
   const levelFromInput = inputValue.value.match(regex)
+  const lvl = levelFromInput?.[1]
 
-  return levelFromInput?.[1]
+  return lvl ? Number(lvl) : null
 }
 
 async function makeRequest(level) {

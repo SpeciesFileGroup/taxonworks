@@ -15,6 +15,7 @@
         </label>
         <autocomplete
           v-if="!taxon.id"
+          autofocus
           class="autocomplete-search-bar"
           url="/taxon_names/autoselect"
           param="term"
