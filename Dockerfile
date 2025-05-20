@@ -17,7 +17,7 @@ RUN npm install
 
 COPY . /app
 
-# See https://github.com/phusion/passenger-docker 
+# See https://github.com/phusion/passenger-docker
 RUN mkdir -p /etc/my_init.d
 ADD config/docker/nginx/init.sh /etc/my_init.d/init.sh
 RUN chmod +x /etc/my_init.d/init.sh && \

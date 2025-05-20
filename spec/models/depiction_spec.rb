@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] do
+  include ActiveJob::TestHelper
+
   let(:depiction) { Depiction.new() }
   let(:image_file) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_png, 'image/png') }
   let(:specimen) { FactoryBot.create(:valid_specimen) }
@@ -9,6 +11,9 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
     s = Specimen.create!
     expect(s.dwc_occurrence.associatedMedia).to eq(nil)
     d = Depiction.create!(depiction_object: s, image: FactoryBot.create(:valid_image))
+    
+    perform_enqueued_jobs
+    
     expect(s.dwc_occurrence.reload.associatedMedia).to match('http://127.0.0.1:3000/api/v1/images/')
   end
 
@@ -48,20 +53,6 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
     expect {Observation.find(o.id)}.to raise_error ActiveRecord::RecordNotFound
     expect(Depiction.find(d.id).id).to be_truthy
   end
-
-  # Deprecated for unify()
-  # specify 'updating from OTU to Observation' do
-  #   o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
-  #   d1 = FactoryBot.create(:valid_depiction, depiction_object: o)
-
-  #   otu = Otu.create!(name: 'Foo')
-  #   d2 = Depiction.create(depiction_object: otu, image: d1.image)
-
-  #   d2.update!(depiction_object: o)
-
-  #   expect(d2.depiction_object).to eq(o)
-  #   expect(otu.reload).to be_truthy
-  # end
 
   specify 'destroying depiction destroys related Observation::Media 1' do
     o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))

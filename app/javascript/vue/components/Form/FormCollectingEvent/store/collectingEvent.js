@@ -48,8 +48,10 @@ export default defineStore('collectingEventForm', {
   actions: {
     reset() {
       const georeferenceStore = useGeoreferenceStore()
+      const identifierStore = useIdentifierStore()
 
       this.$reset()
+      identifierStore.$reset()
       georeferenceStore.$reset()
     },
 
@@ -59,7 +61,8 @@ export default defineStore('collectingEventForm', {
       const payload = {
         collecting_event: {
           ...this.collectingEvent
-        }
+        },
+        extend: EXTEND
       }
 
       const request = this.collectingEvent.id
@@ -69,6 +72,8 @@ export default defineStore('collectingEventForm', {
       request.then(({ body }) => {
         store.processGeoreferenceQueue(body.id)
         this.collectingEvent.id = body.id
+        this.collectingEvent.global_id = body.global_id
+        this.collectingEvent.roles_attributes = body.collector_roles || []
 
         if (idStore.isUnsaved) {
           idStore.save({ objectId: body.id, objectType: COLLECTING_EVENT })

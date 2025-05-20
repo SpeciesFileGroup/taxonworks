@@ -26,6 +26,18 @@
     </span>
     <ul class="no_bullets">
       <li>
+        <template v-if="identifiers.length">
+          Identifiers:
+          <ul>
+            <li
+              v-for="identifier in identifiers"
+              :key="identifier.id"
+              v-text="identifier.cached"
+            ></li>
+          </ul>
+        </template>
+      </li>
+      <li>
         <span>Counts: <b v-html="countAndBiocurations" /></span>
       </li>
       <li>
@@ -71,10 +83,11 @@ import {
   TaxonDetermination,
   Repository,
   Depiction,
-  Citation
+  Citation,
+  Identifier,
+  CollectingEvent
 } from '@/routes/endpoints'
 
-import { GetterNames } from '../../store/getters/getters'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
 
 export default {
@@ -104,16 +117,8 @@ export default {
         : this.specimen.individualCount
     },
 
-    collectingEvents() {
-      return this.$store.getters[GetterNames.GetCollectingEvents]
-    },
-
     collectingEventLabel() {
-      const ce = this.collectingEvents.find(
-        (item) => this.collectionObject.collecting_event_id === item.id
-      )
-
-      return ce ? ce.object_tag : 'not specified'
+      return this.collectingEvent?.object_tag || 'not specified'
     },
 
     repositoryLabel() {
@@ -139,12 +144,14 @@ export default {
       alreadyLoaded: false,
       biocurations: [],
       citations: [],
+      collectingEvent: undefined,
       collectionObject: {},
       depictions: [],
       determinationCitations: [],
       determinations: [],
       expand: false,
-      repository: undefined
+      repository: undefined,
+      identifiers: []
     }
   },
 
@@ -163,6 +170,8 @@ export default {
 
   methods: {
     loadData() {
+      const coId = this.specimen.collection_objects_id
+
       CollectionObject.find(this.specimen.collection_objects_id, {
         extend: ['citations']
       }).then((response) => {
@@ -177,24 +186,38 @@ export default {
       })
 
       BiocurationClassification.where({
-        biocuration_classification_object_id:
-          this.specimen.collection_objects_id,
+        biocuration_classification_object_id: coId,
         biocuration_classification_object_type: COLLECTION_OBJECT
       }).then(({ body }) => {
         this.biocurations = body
       })
 
+      CollectingEvent.where({
+        collection_object_id: [coId]
+      }).then(({ body }) => {
+        const [ce] = body
+        this.collectingEvent = ce
+      })
+
       Depiction.where({
-        depiction_object_id: this.specimen.collection_objects_id,
+        depiction_object_id: coId,
         depiction_object_type: COLLECTION_OBJECT
       }).then((response) => {
         this.depictions = response.body
       })
+
       Citation.where({
-        citation_object_id: this.specimen.collection_objects_id,
+        citation_object_id: coId,
         citation_object_type: COLLECTION_OBJECT
       }).then((response) => {
         this.citations = response.body
+      })
+
+      Identifier.where({
+        identifier_object_id: coId,
+        identifier_object_type: COLLECTION_OBJECT
+      }).then(({ body }) => {
+        this.identifiers = body
       })
 
       TaxonDetermination.where({

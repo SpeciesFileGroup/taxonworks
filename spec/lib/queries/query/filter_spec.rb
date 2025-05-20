@@ -10,6 +10,18 @@ describe Queries::Query::Filter, type: [:model] do
   let(:query) { Queries::Query::Filter.new({}) }
   filters = ::Queries::Query::Filter.descendants
 
+  # !! Careful, this is internal use only, involved
+  # !! in things like Person filters across projects.
+  specify '#project_id = false? / #only_project?' do
+    a = ::Queries::Otu::Filter.new(project_id: false)
+    expect(a.only_project?).to be_falsey
+  end
+
+  specify '#project_id = false' do
+    a = ::Queries::Otu::Filter.new(project_id: false)
+    expect(a.project_id).to eq([])
+  end
+
   specify '#only_project?' do
     a = ::Queries::Otu::Filter.new({})
     expect(a.only_project?).to be_truthy # project_id is applied by default
@@ -128,7 +140,7 @@ describe Queries::Query::Filter, type: [:model] do
   context 'SUBQUERY reference of _query_facet present in filter' do
     ::Queries::Query::Filter::SUBQUERIES.each do |k,v|
       k = ::Queries::Query::Filter::FILTER_QUERIES[(k.to_s + '_query').to_sym].constantize
-      next if k.name =~ /Image|Source|DataAttribute/ # Queries are dynamically added in these filters, and have no corresponding method name
+      next if k.name =~ /Image|Source|DataAttribute|Observation/ # Queries are dynamically added in these filters, and have no corresponding method name
       v.each do |t|
         specify "#{k.name}: #{t}" do
           m = (t.to_s + '_query_facet' ).to_sym

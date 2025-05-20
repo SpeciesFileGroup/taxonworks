@@ -3,6 +3,7 @@ import {
   BiologicalAssociation,
   CollectionObject,
   CollectingEvent,
+  Content,
   Descriptor,
   Extract,
   Image,
@@ -10,6 +11,7 @@ import {
   Observation,
   Otu,
   People,
+  Sound,
   Source,
   TaxonName
 } from '@/routes/endpoints'
@@ -18,6 +20,7 @@ import {
   BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
+  CONTENT,
   DESCRIPTOR,
   EXTRACT,
   IMAGE,
@@ -25,6 +28,7 @@ import {
   OBSERVATION,
   OTU,
   PEOPLE,
+  SOUND,
   SOURCE,
   TAXON_NAME
 } from '@/constants'
@@ -48,6 +52,12 @@ export const QUERY_PARAMETER = {
     model: COLLECTING_EVENT,
     service: CollectingEvent,
     filterUrl: FILTER_ROUTES[COLLECTING_EVENT]
+  },
+
+  [QUERY_PARAM[CONTENT]]: {
+    model: CONTENT,
+    service: Content,
+    filterUrl: FILTER_ROUTES[CONTENT]
   },
 
   [QUERY_PARAM[COLLECTION_OBJECT]]: {
@@ -96,6 +106,12 @@ export const QUERY_PARAMETER = {
     model: PEOPLE,
     service: People,
     filterUrl: FILTER_ROUTES[PEOPLE]
+  },
+
+  [QUERY_PARAM[SOUND]]: {
+    model: SOUND,
+    service: Sound,
+    filterUrl: FILTER_ROUTES[SOUND]
   },
 
   [QUERY_PARAM[SOURCE]]: {

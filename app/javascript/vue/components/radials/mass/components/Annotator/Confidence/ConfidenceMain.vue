@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount, shallowRef } from 'vue'
+import { computed, ref, onBeforeMount, shallowRef } from 'vue'
 import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
@@ -66,6 +66,11 @@ const props = defineProps({
     default: () => []
   },
 
+  objectId: {
+    type: Number,
+    required: true
+  },
+
   objectType: {
     type: String,
     required: true
@@ -74,6 +79,11 @@ const props = defineProps({
   parameters: {
     type: Object,
     default: undefined
+  },
+
+  nestedQuery: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -83,6 +93,7 @@ const MODE = {
   Replace: { mode: 'replace', component: ConfidenceReplace, color: 'primary' }
 }
 
+const queryParam = computed(() => [QUERY_PARAM[props.objectType]])
 const confirmationModalRef = ref(null)
 const list = ref([])
 const response = ref(null)
@@ -116,7 +127,7 @@ async function makeBatchRequest(confidence) {
       : makePayload(confidence)
 
     if (props.ids?.length) {
-      payload.filter_query[idParam] = props.ids
+      payload.filter_query[queryParam.value][idParam] = props.ids
     }
 
     isProcessing.value = true
@@ -135,9 +146,7 @@ function makePayload(confidence) {
   return {
     mode: selectedMode.value.mode,
     confidence_level_id: confidence.id,
-    filter_query: {
-      [QUERY_PARAM[props.objectType]]: props.parameters
-    }
+    filter_query: filterQuery()
   }
 }
 
@@ -146,9 +155,13 @@ function makeReplacePayload([replace, to]) {
     mode: selectedMode.value.mode,
     confidence_level_id: to.id,
     replace_confidence_level_id: replace.id,
-    filter_query: {
-      [QUERY_PARAM[props.objectType]]: props.parameters
-    }
+    filter_query: filterQuery()
   }
+}
+
+function filterQuery() {
+  return props.nestedQuery
+    ? props.parameters
+    : {[QUERY_PARAM[props.objectType]]: props.parameters}
 }
 </script>

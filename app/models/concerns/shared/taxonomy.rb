@@ -1,3 +1,9 @@
+
+# Conceptually there are 2 aspects of building @taxonomy
+# 1) The higher, monomial names
+# 2) The elements of the scientificNamm.
+#
+#
 module Shared::Taxonomy
   extend ActiveSupport::Concern
 
@@ -19,11 +25,14 @@ module Shared::Taxonomy
     #     ]
     # }
     #
-    # !! Calling taxonom.keys gives ranks back from root to target.
+    # !! Calling taxonomy.keys gives ranks back from root to target.
     # !! Note Root is included, this may be deprecated ultimate
     # !!  as it is rarely used
     #
     # Currently based on full_name_hash format
+    #   TODO: simplify from fnh
+    #     * See Nodes experiment with text_tree
+    # @taxonomy.<rank> should return the name at that rank if any
     #
     attr_accessor :taxonomy
 
@@ -61,9 +70,17 @@ module Shared::Taxonomy
 
             # If we have no name, see if there is a Type reference and use it as proxy
             # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
-            a ||= type_materials.primary.first&.protonym
+            if self.class.base_class.name == 'CollectionObject'
+              a ||= type_materials.primary.first&.protonym
+            end
           when 'Otu'
-            taxon_name&.valid_taxon_name
+            if taxon_name
+              if taxon_name.cached_is_valid
+                taxon_name
+              else
+                taxon_name.valid_taxon_name
+              end
+            end
 
           when 'AssertedDistribution'
 

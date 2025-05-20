@@ -73,6 +73,11 @@ const props = defineProps({
   parameters: {
     type: Object,
     default: undefined
+  },
+
+  nestedQuery: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -132,9 +137,7 @@ function makePayload(protocol) {
   return {
     mode: selectedMode.value.mode,
     protocol_id: protocol.id,
-    filter_query: {
-      [QUERY_PARAM[props.objectType]]: props.parameters
-    }
+    filter_query: filterQuery()
   }
 }
 
@@ -143,9 +146,13 @@ function makeReplacePayload([replace, to]) {
     mode: selectedMode.value.mode,
     protocol_id: to.id,
     replace_protocol_id: replace.id,
-    filter_query: {
-      [QUERY_PARAM[props.objectType]]: props.parameters
-    }
+    filter_query: filterQuery()
   }
+}
+
+function filterQuery() {
+  return props.nestedQuery
+    ? props.parameters
+    : {[QUERY_PARAM[props.objectType]]: props.parameters}
 }
 </script>

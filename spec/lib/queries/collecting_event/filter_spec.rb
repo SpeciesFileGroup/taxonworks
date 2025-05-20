@@ -23,6 +23,40 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   # let!(:i1) { Identifier::Local::FieldNumber.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
+  specify '#use_min 1' do
+    Specimen.create!(collecting_event: ce2)
+    query.use_min = 0
+    expect(query.all).to contain_exactly(ce1)
+  end
+
+  specify '#use_min 2' do
+    Specimen.create!(collecting_event: ce2)
+    query.use_min = 1
+    expect(query.all).to contain_exactly(ce2)
+  end
+
+  specify '#use_min 3' do
+    Specimen.create!(collecting_event: ce2)
+    query.use_min = 1
+    query.use_max = 0
+    expect(query.all).to be_empty
+  end
+
+  specify '#use_max 1' do
+    Specimen.create!(collecting_event: ce2)
+    query.use_max = 1
+    expect(query.all).to contain_exactly(ce1, ce2)
+  end
+
+  specify '#use_max 2' do
+    Specimen.create!(collecting_event: ce2)
+    Specimen.create!(collecting_event: ce2)
+    Specimen.create!(collecting_event: ce1)
+
+    query.use_max = 1
+    expect(query.all).to contain_exactly(ce1)
+  end
+
   specify '#recent' do
     query.recent = true
     expect(query.all.map(&:id)).to contain_exactly(ce2.id, ce1.id)
@@ -126,9 +160,10 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
-  specify '#geographic_area_id[]' do
+  specify '#geo_shape_id[]' do
     ce1.update!(geographic_area: FactoryBot.create(:valid_geographic_area))
-    query.geographic_area_id = [ce1.geographic_area_id]
+    query.geo_shape_id = [ce1.geographic_area_id]
+    query.geo_shape_type = ['GeographicArea']
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
@@ -136,14 +171,14 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     let(:point_lat) { '10.0' }
     let(:point_long) { '10.0' }
 
-   # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
-   let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
-    let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
+    # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
+    let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
+    let(:geographic_item) { GeographicItem.create!( geography: factory_point ) }
 
     let!(:point_georeference) {
       Georeference::VerbatimData.create!(
         collecting_event: ce1,
-        geographic_item: geographic_item,
+        geographic_item:
       )
     }
 
@@ -155,13 +190,24 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
       '{ "type": "Polygon","coordinates": [[ [5.0, 5.0], [15.0, 5.0], [15.0, 15.0], [5.0, 15.0], [5.0, 5.0] ]] }'
     }
 
+    let(:gi_polygon) {
+      FactoryBot.create(:geographic_item, geography: wkt_polygon)
+    }
+
+    let(:gz_polygon) {
+      FactoryBot.create(:gazetteer,
+        geographic_item: gi_polygon,
+        name: 'gi_polygon'
+      )
+    }
+
     specify '#wkt (POINT)' do
       query.wkt = wkt_point
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 
     specify '#wkt (POLYGON)' do
-      query.wkt = wkt_point
+      query.wkt = wkt_polygon
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 
@@ -172,6 +218,13 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
 
     specify '#geo_json (POLYGON)' do
       query.geo_json = geo_json_polygon
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+    end
+
+    specify '#geo_shape_id Gazetteer' do
+      query.geo_shape_id = gz_polygon.id
+      query.geo_shape_type = 'Gazetteer'
+      query.geo_mode = true
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 

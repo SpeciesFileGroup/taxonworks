@@ -1,4 +1,24 @@
 scope :tasks do
+  scope :gazetteers do
+    scope :import_gazetteers, controller: 'tasks/gazetteers/import_gazetteers' do
+      get '/', action: :index, as: 'import_gazetteers_task'
+    end
+
+    scope :new_gazetteer, controller: 'tasks/gazetteers/new_gazetteer' do
+      get '/', action: :index, as: 'new_gazetteer_task'
+    end
+  end
+
+  scope :sounds do
+    scope :filter, controller: 'tasks/sounds/filter' do
+      get '/', action: :index, as: 'filter_sounds_task'
+    end
+
+    scope :browse, controller: 'tasks/sounds/browse' do
+      get '/', action: :index, as: 'browse_sounds_task'
+    end
+  end
+
   scope :controlled_vocabulary_terms do
     scope :projects_summary, controller: 'tasks/controlled_vocabulary_terms/projects_summary' do
       get '/', action: :index, as: 'summarize_projects_controlled_vocabulary_terms_task'
@@ -152,12 +172,6 @@ scope :tasks do
     scope :new_asserted_distribution, controller: 'tasks/asserted_distributions/new_asserted_distribution' do
       get '/', action: :index, as: 'new_asserted_distribution_task'
     end
-
-    scope :new_from_map, controller: 'tasks/asserted_distributions/new_from_map' do
-      get 'new', action: 'new', as: 'new_asserted_distribution_from_map_task'
-      get 'generate_choices'
-      post 'create', action: 'create', as: 'create_asserted_distribution_from_map_task'
-    end
   end
 
   scope :dwc do
@@ -216,7 +230,7 @@ scope :tasks do
     end
 
     scope :editor, controller: 'tasks/content/editor' do
-      get 'index', as: 'index_editor_task'
+      get '/', action: :index, as: 'content_editor_task'
       get 'recent_topics', as: 'content_editor_recent_topics_task'
       get 'recent_otus', as: 'content_editor_recent_otus_task'
     end
@@ -325,6 +339,10 @@ scope :tasks do
   end
 
   scope :collecting_events do
+    scope :metadata, controller: 'tasks/collecting_events/metadata' do
+      match '/', action: :index, via: [:get, :post], as: :collecting_event_metadata_task
+    end
+
     scope :spatial_summary, controller: 'tasks/collecting_events/spatial_summary' do
       match '/', action: :index, via: [:get, :post], as: 'collecting_events_spatial_summary_task'
     end
@@ -405,7 +423,7 @@ scope :tasks do
     end
 
     scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
-      get :index, as: 'grid_digitize_task'
+      get '/', action: :index, as: 'grid_digitize_task'
     end
 
     scope :summary, controller: 'tasks/collection_objects/summary' do
@@ -565,21 +583,6 @@ scope :tasks do
     get 'collect_item', as: 'collect_draw_item_task'
   end
 
-  scope :gis, controller: 'tasks/gis/match_georeference' do
-    get 'match_georeference', action: 'index', as: 'match_georeference_task'
-    get 'filtered_collecting_events'
-    get 'recent_collecting_events'
-    get 'tagged_collecting_events'
-    get 'drawn_collecting_events'
-
-    get 'filtered_georeferences'
-    get 'recent_georeferences'
-    get 'tagged_georeferences'
-    get 'drawn_georeferences'
-
-    post 'batch_create_match_georeferences'
-  end
-
   scope :gis, controller: 'tasks/gis/otu_distribution_data' do
     get 'otu_distribution_data', action: 'show', as: 'otu_distribution_data_task'
   end
@@ -727,6 +730,10 @@ scope :tasks do
   end
 
   scope :taxon_names do
+    scope :gender, controller: 'tasks/taxon_names/gender' do
+      get '/', action: :index, as: 'taxon_name_gender_task'
+    end
+
     scope :stats, controller: 'tasks/taxon_names/stats' do
       get '/', action: :index,  as: 'taxon_name_stats_task'
       post '/', action: :index,  as: 'post_taxon_name_stats_task'
@@ -746,6 +753,10 @@ scope :tasks do
 
     scope :filter, controller: 'tasks/taxon_names/filter' do
       get '/', as: 'filter_taxon_names_task', action: :index
+    end
+
+    scope :table, controller: 'tasks/taxon_names/table' do
+      match '/', action: :index, via: [:get, :post], as: :taxon_names_table_task
     end
   end
 

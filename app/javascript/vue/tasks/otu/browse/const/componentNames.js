@@ -15,6 +15,10 @@ export default {
     title: 'Images',
     status: 'prototype'
   },
+  ConveyanceComponent: {
+    title: 'Sounds',
+    status: 'prototype'
+  },
   CommonNames: {
     title: 'Common names',
     status: 'prototype'
@@ -60,11 +64,6 @@ export default {
   AnnotationsComponent: {
     title: 'Annotations',
     status: 'prototype'
-  },
-  CollectingEventSection: {
-    title: 'Collecting events',
-    status: 'prototype',
-    rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
   },
   Distribution: {
     title: 'Distribution',

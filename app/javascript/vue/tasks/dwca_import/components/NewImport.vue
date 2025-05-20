@@ -151,14 +151,14 @@ function addedFile(file) {
       .show(defaultValues)
       .then((payload) => {
         delimiterParams.value = payload
-        dwcDropzone.value.dropzone.processQueue()
+        dwcDropzone.value.processQueue()
       })
       .catch(() => {
-        dwcDropzone.value.dropzone.removeAllFiles()
+        dwcDropzone.value.removeAllFiles()
       })
   } else {
     nextTick(() => {
-      dwcDropzone.value.dropzone.processQueue()
+      dwcDropzone.value.processQueue()
     })
   }
 }
@@ -189,6 +189,6 @@ function error(file, error, xhr) {
     )
   }
   isUploading.value = false
-  dwcDropzone.value.dropzone.removeFile(file)
+  dwcDropzone.value.removeFile(file)
 }
 </script>

@@ -73,11 +73,6 @@ class Depiction < ApplicationRecord
   # TODO: almost certainly deprecate
   after_update :destroy_image_stub_collection_object, if: Proc.new {|d| d.depiction_object_type_previously_was == 'CollectionObject' && d.depiction_object_type == 'CollectionObject' }
 
-  # !? This is purposefully redundant with Shared::DwcOccurrencHooks without
-  # constraints because that version doesn't catch `saved_changes?` in specs.
-  # Maybe because specs pass objects. Maybe because other hooks?
-  after_save_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
-
   def normalize_image
     if o = Image.where(project_id: Current.project_id, image_file_fingerprint: image.image_file_fingerprint).first
       self.image = o
@@ -109,11 +104,17 @@ class Depiction < ApplicationRecord
   end
 
   def dwc_occurrences
-    # From CollectionObjects
-    DwcOccurrence
+    co = DwcOccurrence
       .joins("JOIN depictions d on d.depiction_object_id = dwc_occurrence_object_id AND d.depiction_object_type = 'CollectionObject'")
       .where(d: {id:}, dwc_occurrences: {dwc_occurrence_object_type: 'CollectionObject'})
       .distinct
+
+    fo = DwcOccurrence
+      .joins("JOIN depictions d on d.depiction_object_id = dwc_occurrence_object_id AND d.depiction_object_type = 'FieldOccurrence'")
+      .where(d: {id:}, dwc_occurrences: {dwc_occurrence_object_type: 'FieldOccurrence'})
+      .distinct
+
+    ::Queries.union(DwcOccurrence, [co, fo])
   end
 
   private

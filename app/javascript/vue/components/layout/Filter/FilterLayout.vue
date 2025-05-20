@@ -117,7 +117,9 @@
             <span class="separate-left separate-right">|</span>
             <FilterDownload
               :list="selectedItems"
+              :csv-options="csvOptions"
               :extend-download="extendDownload"
+              :only-extend-download="onlyExtendDownload"
             />
             <span class="separate-left separate-right">|</span>
             <FilterSettings
@@ -178,6 +180,16 @@ const props = defineProps({
   pagination: {
     type: Object,
     default: undefined
+  },
+
+  csvOptions: {
+    type: Object,
+    default: undefined
+  },
+
+  onlyExtendDownload: {
+    type: Boolean,
+    default: false
   },
 
   extendDownload: {

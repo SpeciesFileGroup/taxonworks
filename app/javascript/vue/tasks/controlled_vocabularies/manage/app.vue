@@ -162,6 +162,7 @@ function createCTV() {
       addToArray(list.value, body, { prepend: true })
       cvt.value = makeControlledVocabularyTerm()
     })
+    .catch(() => {})
     .finally(() => {
       isSaving.value = false
     })

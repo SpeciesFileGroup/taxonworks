@@ -1,22 +1,24 @@
 <template>
   <div class="full_width">
-    <div class="horizontal-left-content full_width">
-      <autocomplete
+    <div class="horizontal-left-content full_width gap-small">
+      <VAutocomplete
         url="/sources/autocomplete"
         min="3"
         param="term"
         label="label_html"
-        placeholder="Type for search..."
+        placeholder="Type a source..."
         display="label"
         clear-after
-        @getItem="setSource($event.id)"
+        @getItem="({id}) => setSource({ id, pages: citation?.pages })"
       />
-      <default-element
-        class="margin-small-left"
+      <ButtonPinned
         label="source"
         type="Source"
         section="Sources"
-        @getId="setSource"
+        @get-item="({id}) => setSource({ id, pages: citation?.pages })"
+      />
+      <FormCitationClone
+        @clone="(c) => setSource({ id: c.source_id, pages: c.pages })"
       />
     </div>
     <hr />
@@ -28,24 +30,24 @@
             v-html="citation.source.cached"
           />
           <span class="padding-xsmall">
-            <soft-validation
+            <SoftValidation
               :validate-object="citation"
               :global-id="citation.global_id"
             />
           </span>
         </p>
         <div class="horizontal-left-content gap-small">
-          <citation-pages
+          <CitationPages
             @setPages="addPages"
             @save="triggerSave"
             :citation="taxon"
           />
-          <pdf-button
+          <PdfButton
             v-if="citation.hasOwnProperty('target_document')"
             :pdf="citation.target_document"
           />
-          <radial-object :global-id="citation.source.global_id" />
-          <radial-annotator
+          <RadialObject :global-id="citation.source.global_id" />
+          <RadialAnnotator
             type="annotations"
             :global-id="citation.source.global_id"
           />
@@ -58,104 +60,76 @@
     </div>
   </div>
 </template>
-<script>
+
+<script setup>
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import { useStore } from 'vuex'
+import { computed } from 'vue'
 
-import Autocomplete from '@/components/ui/Autocomplete.vue'
-import DefaultElement from '@/components/ui/Button/ButtonPinned.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import ButtonPinned from '@/components/ui/Button/ButtonPinned.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial'
 import PdfButton from '@/components/ui/Button/ButtonPdf'
 import CitationPages from '../citationPages.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
+import FormCitationClone from '@/components/Form/FormCitation/FormCitationClone.vue'
 
-export default {
-  components: {
-    Autocomplete,
-    CitationPages,
-    DefaultElement,
-    RadialAnnotator,
-    RadialObject,
-    PdfButton,
-    SoftValidation
+let autosave = null
+
+const store = useStore()
+const citation = computed(() => store.getters[GetterNames.GetCitation])
+const taxon = computed({
+  get() {
+    return store.getters[GetterNames.GetTaxon]
   },
+  set(value) {
+    store.commit(MutationNames.SetTaxon, value)
+  }
+})
 
-  data() {
-    return {
-      autosave: undefined
-    }
-  },
+const isAutosaveActive = computed(() => store.getters[GetterNames.GetAutosave])
 
-  computed: {
-    citation() {
-      return this.$store.getters[GetterNames.GetCitation]
-    },
+function setSource({ id, pages }) {
+  const payload = {
+    id,
+    pages: pages || null
+  }
 
-    taxon: {
-      get() {
-        return this.$store.getters[GetterNames.GetTaxon]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetTaxon, value)
-      }
-    },
+  store.dispatch(ActionNames.ChangeTaxonSource, payload)
+  store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
+}
 
-    isAutosaveActive() {
-      return this.$store.getters[GetterNames.GetAutosave]
-    }
-  },
+function addPages(citation) {
+  const newSource = {
+    id: citation.source_id,
+    pages: citation?.pages || null
+  }
+  store.dispatch(ActionNames.ChangeTaxonSource, newSource)
 
-  watch: {
-    lastSave() {
-      if (this.autosave) {
-        clearTimeout(this.autosave)
-        this.autosave = null
-      }
-    }
-  },
+  clearTimeout(autosave)
 
-  methods: {
-    setSource(source) {
-      const newSource = {
-        id: source?.id || source,
-        pages: this.citation?.pages || null
-      }
-      this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
-      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
-    },
+  if (isAutosaveActive.value) {
+    autosave = setTimeout(() => {
+      triggerSave(citation)
+    }, 3000)
+  }
+}
 
-    addPages(citation) {
-      const newSource = {
-        id: citation.source_id,
-        pages: citation?.pages || null
-      }
-      this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
+function triggerSave(citation) {
+  clearTimeout(autosave)
+  store.dispatch(ActionNames.UpdateSource, citation)
+}
 
-      clearTimeout(this.autosave)
-
-      if (this.isAutosaveActive) {
-        this.autosave = setTimeout(() => {
-          this.triggerSave(citation)
-        }, 3000)
-      }
-    },
-
-    triggerSave(citation) {
-      clearTimeout(this.autosave)
-      this.$store.dispatch(ActionNames.UpdateSource, citation)
-    },
-
-    removeSource(id) {
-      if (
-        window.confirm(
-          "You're trying to delete this record. Are you sure want to proceed?"
-        )
-      ) {
-        this.$store.dispatch(ActionNames.RemoveSource, id)
-      }
-    }
+function removeSource(id) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    store.dispatch(ActionNames.RemoveSource, id)
   }
 }
 </script>

@@ -103,9 +103,9 @@ namespace :tw do
             h = CachedMapItem.cached_map_name_hierarchy(o.geographic_item_id)
 
             z = CachedMapItem.where(geographic_item_id: o.geographic_item_id)
-              .where.not(untranslated: true)
+              .where(untranslated: [nil, false])
 
-            puts 'Size: ' + z.size.to_s
+            #puts 'Size: ' + z.size.to_s
 
             z.update_all(
               level0_geographic_name: h[:country],
@@ -113,8 +113,8 @@ namespace :tw do
               level2_geographic_name: h[:county]
             )
 
-            puts o.geographic_item_id
-            puts h
+            #puts o.geographic_item_id
+            #puts h
           end
           puts 'Done labelling cached map items.'
         end
@@ -175,7 +175,7 @@ namespace :tw do
         task parallel_create_cached_map_from_georeferences: [:environment] do |t|
           q = Georeference.joins(:otus).where.missing(:cached_map_register).distinct
 
-          puts "Caching #{q.all.size} georeferences records."
+          puts "Caching #{q.count} georeferences records."
 
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
@@ -197,9 +197,10 @@ namespace :tw do
 
         desc 'build CachedMapItems for AssertedDistributions that do not have them'
         task parallel_create_cached_map_from_asserted_distributions: [:environment] do |t|
-          q = AssertedDistribution.joins(:geographic_items).where.missing(:cached_map_register).distinct
+          q = AssertedDistribution.associated_with_geographic_items
+            .where.missing(:cached_map_register).distinct
 
-          puts "Caching #{q.all.size} AssertedDistribution records."
+          puts "Caching #{q.count} AssertedDistribution records."
 
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
@@ -232,53 +233,80 @@ namespace :tw do
 
           puts 'Preparing...'
 
-          ids_in = GeographicArea.joins(:asserted_distributions).distinct.map(&:default_geographic_item_id).compact
-          puts "Total: #{ids_in.count}"
+          ids_out = CachedMapItemTranslation.select(:geographic_item_id)
+          .distinct.pluck(:geographic_item_id).compact
 
-          ids_out = CachedMapItemTranslation.select(:geographic_item_id).distinct.pluck(:geographic_item_id).compact
-          puts "Already done: #{ids_out.count}"
+          ids_in__ga = GeographicArea.joins(:asserted_distributions).distinct
+            .map(&:default_geographic_item_id).compact
+          puts "Total GeographicArea-based asserted distributions: #{ids_in__ga.count}"
+          puts "GeographicArea-based asserted distributions already done: #{(ids_out & ids_in__ga).count}"
 
-          ids_in = ids_in - ids_out
-          puts "Processing: #{ids_in.count}"
+          ids_in__gz = Gazetteer.joins(:asserted_distributions).distinct
+            .map(&:default_geographic_item_id).compact
+          puts "Total Gazetteer-based asserted distributions: #{ids_in__gz.count}"
+          puts "Gazetteer-based asserted distributions already done: #{(ids_out & ids_in__gz).count}"
 
-          ids_in.sort!
+          ids_in__ga = ids_in__ga - ids_out
+          ids_in__gz = ids_in__gz - ids_out
 
-          Parallel.each(ids_in, progress: 'build_cached_map_item_translations', in_processes: cached_rebuild_processes ) do |id|
+          puts "Processing #{ids_in__ga.count} GeographicArea-based asserted distributions"
+          puts "Processing #{ids_in__gz.count} Gazetteer-based asserted distributions"
+
+          ids_in__ga.sort!
+          ids_in__gz.sort!
+
+          Parallel.each(ids_in__ga, progress: 'build_cached_map_item_translations GA', in_processes: cached_rebuild_processes ) do |id|
             reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
-
-            translations = []
-
-            #  b = ( Benchmark.measure {
-            begin
-              #  print "#{id}: "
-              t = CachedMapItem.translate_geographic_item_id(id, 'AssertedDistribution', ['ne_states'])
-              # if t.present?
-              #   print t.join(', ')
-              # else
-              #   print ' !! NO MATCH'
-              # end
-            rescue ActiveRecord::StatementInvalid  => e
-              puts "#{id}:" + e.to_s.gsub(/\n/, '')
-              t = []
-            end
-
-            #  })
-            #  puts ' | ' + b.to_s
-
-            t.each do |u|
-              translations.push({
-                geographic_item_id: id,
-                translated_geographic_item_id: u,
-                cached_map_type: 'CachedMapItem::WebLevel1',
-                created_at: Time.current,
-                updated_at: Time.current,
-              })
-            end
-
-            CachedMapItemTranslation.insert_all(translations) if translations.present?
+            process_asserted_distribution_translation(id, true)
           end
 
+          puts 'Geographic Area-based Asserted Distributions done.'
+
+          Parallel.each(ids_in__gz, progress: 'build_cached_map_item_translations GZ', in_processes: cached_rebuild_processes ) do |id|
+            reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
+            process_asserted_distribution_translation(id, false)
+          end
+
+          puts 'Gazetteer-based Asserted Distributions done.'
+
           puts 'Done.'
+        end
+
+        def process_asserted_distribution_translation(
+          geographic_item_id, geographic_area_based
+        )
+          translations = []
+
+          #  b = ( Benchmark.measure {
+          begin
+            #  print "#{id}: "
+            t = CachedMapItem.translate_geographic_item_id(
+              geographic_item_id, geographic_area_based, false, ['ne_states']
+            )
+            # if t.present?
+            #   print t.join(', ')
+            # else
+            #   print ' !! NO MATCH'
+            # end
+          rescue ActiveRecord::StatementInvalid  => e
+            puts "#{geographic_item_id}:" + e.to_s.gsub(/\n/, '')
+            t = []
+          end
+
+          #  })
+          #  puts ' | ' + b.to_s
+
+          t.each do |u|
+            translations.push({
+              geographic_item_id:,
+              translated_geographic_item_id: u,
+              cached_map_type: 'CachedMapItem::WebLevel1',
+              created_at: Time.current,
+              updated_at: Time.current,
+            })
+          end
+
+          CachedMapItemTranslation.insert_all(translations) if translations.present?
         end
 
         # This is Idempotent

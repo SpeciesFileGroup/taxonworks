@@ -18,14 +18,16 @@ import {
   OBSERVATION,
   OBSERVATION_MATRIX,
   OTU,
+  SOUND,
   SOURCE,
   SERIAL,
   TAXON_NAME,
   TYPE_MATERIAL,
   TOPIC,
-  REPOSITORY
+  REPOSITORY,
+  PEOPLE
 } from '@/constants'
-import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import { ControlledVocabularyTerm, People } from '@/routes/endpoints'
 
 export const TYPE_LINKS = {
   [ASSERTED_DISTRIBUTION]: {
@@ -111,6 +113,9 @@ export const TYPE_LINKS = {
     smartSelector: 'sources',
     smartSelectorLabel: 'cached'
   },
+  [SOUND]: {
+    autocomplete: '/sounds/autocomplete'
+  },
   [TAXON_NAME]: {
     autocomplete: '/taxon_names/autocomplete',
     smartSelector: 'taxon_names'
@@ -126,4 +131,10 @@ export const TYPE_LINKS = {
   [TYPE_MATERIAL]: {
     autocomplete: '/type_materials/autocomplete'
   }
+  /*   [PEOPLE]: {
+    autocomplete: '/people/autocomplete',
+    smartSelector: 'people',
+    klass: PEOPLE,
+    service: People
+  } */
 }

@@ -29,7 +29,6 @@ const dropzoneOptions = {
   paramName: 'depiction[image_attributes][image_file]',
   url: '/depictions',
   autoProcessQueue: false,
-  addRemoveLinks: true,
   headers: {
     'X-CSRF-Token': document
       .querySelector('meta[name="csrf-token"]')
@@ -49,7 +48,7 @@ const unsubscribe = store.$onAction(({ name, after }) => {
   }
 
   after((_) => {
-    if (dropzoneComponent.value.dropzone.getQueuedFiles().length) {
+    if (dropzoneComponent.value.getQueuedFiles().length) {
       isUploading.value = true
       dropzoneComponent.value.processQueue()
     }

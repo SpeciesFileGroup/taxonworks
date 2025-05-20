@@ -2,8 +2,16 @@
   <FacetOtu
     v-model="params"
     target="Image"
-    includes
     coordinate
+    :includes="[
+      'otus',
+      'collection_objects',
+      'collection_object_observations',
+      'field_occurrences',
+      'otu_observations',
+      'type_material',
+      'type_material_observations'
+    ]"
   />
   <FacetTaxonName v-model="params">
     <template #bottom>

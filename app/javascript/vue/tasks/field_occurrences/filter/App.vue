@@ -8,6 +8,7 @@
       :object-type="FIELD_OCCURRENCE"
       :selected-ids="selectedIds"
       :list="list"
+      :csv-options="csvOptions"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -18,7 +19,19 @@
       <template #facets>
         <FilterView v-model="parameters" />
       </template>
+      <template #nav-query-right>
+        <RadialMatrix
+          :parameters="parameters"
+          :disabled="!list.length"
+          :object-type="FIELD_OCCURRENCE"
+        />
+      </template>
       <template #nav-right>
+        <RadialMatrix
+          :ids="selectedIds"
+          :disabled="!list.length"
+          :object-type="FIELD_OCCURRENCE"
+        />
         <span class="separate-left separate-right">|</span>
         <TableLayoutSelector
           v-model="currentLayout"
@@ -55,7 +68,8 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
-import useFilter from '@/shared/Filter/composition/useFilter.js'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
+import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import { LAYOUTS } from './constants/layouts'
@@ -98,4 +112,13 @@ const {
   makeFilterRequest,
   resetFilter
 } = useFilter(FieldOccurrence, { listParser, initParameters: { extend } })
+
+const csvOptions = useCSVOptions({ layout: currentLayout, list })
 </script>
+
+<style scoped>
+:deep(.row-dwc-reindex-pending) {
+  outline: 2px solid var(--color-attention);
+  outline-offset: -2px;
+}
+</style>

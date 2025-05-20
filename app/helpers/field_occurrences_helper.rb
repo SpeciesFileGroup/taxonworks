@@ -48,4 +48,28 @@ module FieldOccurrencesHelper
     render('/field_occurrences/quick_search_form')
   end
 
+  # @return [GeoJSON feature, nil]
+  # @param base [Boolean]
+  #   wehther to annotate the feature properties with TW 'base' attributes
+  def field_occurrence_to_geo_json_feature(field_occurrence, base = true)
+    return nil if field_occurrence.nil?
+    if a = collecting_event_to_geo_json_feature(field_occurrence.collecting_event)
+      l = label_for_field_occurrence(field_occurrence)
+      a['properties']['target'] = {
+        'type' => 'FieldOccurrence',
+        'id' => field_occurrence.id,
+        'label' => l
+      }
+      if base
+        a['properties']['base'] =  {
+          'type' => 'FieldOccurrence',
+          'id' => field_occurrence.id,
+          'label' => l}
+      end
+      a
+    else
+      nil
+    end
+  end
+
 end

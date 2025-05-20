@@ -39,6 +39,7 @@ class Repository < ApplicationRecord
   include Shared::Tags
   include Shared::Confidences
   include Shared::HasPapertrail
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
 
   ALTERNATE_VALUES_FOR = [:name, :acronym]
@@ -52,6 +53,12 @@ class Repository < ApplicationRecord
 
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
 
+  def dwc_occurrences
+    DwcOccurrence
+      .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
+      .where(co: {repository_id: id})
+  end
+
   # See serial.rb
   def unify_relations
     ApplicationEnumeration.klass_reflections(self.class).select{|a|
@@ -59,8 +66,6 @@ class Repository < ApplicationRecord
         :current_collection_objects,
       ].include?(a.name) }
   end
-
-
 
   def self.used_recently(user_id, project_id)
     t = CollectionObject.arel_table
