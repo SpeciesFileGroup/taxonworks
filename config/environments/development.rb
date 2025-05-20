@@ -2,6 +2,15 @@ require 'settings'
 TaxonWorks::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # See https://github.com/kvokka/pp_sql
+  # Necessary since we use .to_sql during the creation of many of our queries
+  # and currently pp_sql prettifies things like `)::float` to
+  # `) : : float`.
+  # Use .pp_sql in place of .to_sql where you want prettified output.
+  PpSql.rewrite_to_sql_method = false
+  # Logger formatting applies to rails s output as well as console output.
+  #PpSql.add_rails_logger_formatting = false
+
   config.active_storage.service = :local
 
   config.file_watcher = ActiveSupport::FileUpdateChecker

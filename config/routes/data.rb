@@ -339,6 +339,7 @@ resources :field_occurrences do
 
   collection do
     match :filter, to: 'field_occurrences#index', via: [:get, :post]
+    get :select_options, defaults: {format: :json}
   end
 end
 

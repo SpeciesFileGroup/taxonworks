@@ -7,10 +7,24 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Tab options on Field Occurrence smart selectors (select_options)
+- FieldOccurrences facet to Filter Images
+
 ### Fixed
 
 - Temperature units
 - Unify task: No message error is displayed when merging fails
+- New field occurrence task: Collecting event radials don't work on new CE [#4354]
+- Filter CE: Data attributes layout [#4355]
+
+### Changed
+
+- Updated Ruby gems
+
+[#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
+[#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
 
 \-
 
