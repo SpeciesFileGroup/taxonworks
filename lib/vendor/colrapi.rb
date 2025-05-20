@@ -3,6 +3,10 @@
 module Vendor
 
   # A middle-layer wrapper between Colrapi and TaxonWorks
+  #
+  # Usage
+  #   a = Vendor::Colrapi::Alignment.new(name: 'Quercus', project_id: 1)
+  #   ap a.stub_names
   module Colrapi
 
     DATASETS = {
@@ -110,13 +114,20 @@ module Vendor
                 x = infraspecific_epithet(target_usage)
               end
 
+              a, y = if i + 1 == r.size
+                       [author, year]
+                     else
+                       [nil, nil]
+                     end
+
               p = Protonym.new(
                 name: x,
                 rank_class: Ranks.lookup(nomenclature_code, b['rank']).presence,
                 parent: current_parent,
-                verbatim_author: author(b),
-                year_of_publication: year(b)
+                verbatim_author: a,
+                year_of_publication: y
               )
+
               o.push p
               current_parent = p
             end
@@ -128,7 +139,6 @@ module Vendor
       def autoselect_payload_json(kind: :default)
         r = []
         stub_names.each do |n|
-
           r.push({
             id: n.id,
             name: n.name,
@@ -160,16 +170,20 @@ module Vendor
         nameusage_result.dig('result')&.first.dig('usage', 'name', 'scientificName') == name
       end
 
-      def author(result)
-        result.dig('usage', 'name', 'basionymAuthorship', 'authors')
+      def author
+        a = target_usage.dig('usage', 'name', 'combinationAuthorship', 'authors')
+        unless a.blank?
+          return a.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ' )
+        end
+        nil
       end
 
       def rank(result)
         result.dig('usage', 'name', 'rank')
       end
 
-      def year(result)
-        result.dig('usage', 'name', 'basionymAuthorship', 'year')
+      def year
+        target_usage.dig('usage', 'name', 'combinationAuthorship', 'year')
       end
 
       def scientific_name(result)
