@@ -257,7 +257,11 @@ function selectItem(item) {
 
 function makeUrlRequest(params) {
   const url =
-    props.url + '?' + props.param + '=' + encodeURIComponent(inputValue.value)
+    props.url +
+    '?' +
+    props.param +
+    '=' +
+    encodeURIComponent(removeLevelShortcut(inputValue.value))
 
   return Object.keys(params).length
     ? `${url}&${Qs.stringify(params, { arrayFormat: 'brackets' })}`
@@ -306,6 +310,10 @@ async function update() {
   } catch {}
 
   isLoading.value = false
+}
+
+function removeLevelShortcut(text) {
+  return text.replace(/!l\d+\s*/g, '')
 }
 
 function setLevel(lvl) {
