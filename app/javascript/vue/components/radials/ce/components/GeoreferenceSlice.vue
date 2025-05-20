@@ -113,10 +113,14 @@ const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const payload = computed(() => ({
   collecting_event_query: props.parameters,
   collecting_event: {
-    georeferences_attributes: georeferences.value.map(
-      ({ geographic_item_id, type }) => ({
+    georeferences_attributes: selectedGeoreferences.value.map(
+      ({ geographic_item_id, type , error_radius, error_depth,
+         error_geographic_item_id }) => ({
         geographic_item_id,
-        type
+        type,
+        error_radius,
+        error_depth,
+        error_geographic_item_id
       })
     )
   }
