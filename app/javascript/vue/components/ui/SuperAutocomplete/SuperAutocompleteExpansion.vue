@@ -1,10 +1,11 @@
 <template>
   <VModal
     v-if="isModalVisible"
+    :container-style="{ width: '500px' }"
     @close="() => (isModalVisible = false)"
   >
     <template #header>
-      <h3>Create new taxon name</h3>
+      <h3>Select taxon names to import from ChecklistBank</h3>
     </template>
     <template #body>
       <VSpinner
@@ -23,6 +24,11 @@
               :value="item"
             />
             <span v-html="item.cached_name || item.name" />
+            {{
+              [item.verbatim_author, item.year_of_publication]
+                .filter(Boolean)
+                .join(', ')
+            }}
           </label>
         </li>
       </ul>
