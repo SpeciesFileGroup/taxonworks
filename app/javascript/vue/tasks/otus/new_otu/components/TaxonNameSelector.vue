@@ -12,7 +12,7 @@
         <VAutocomplete
           v-if="!isMatch && !taxonName"
           class="margin-medium-top margin-medium-bottom"
-          placeholder="Search a taxon name..."
+          placeholder="Search taxon names..."
           url="/taxon_names/autocomplete"
           param="term"
           label="label_html"

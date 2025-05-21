@@ -19,7 +19,7 @@
         display="label"
         label="label_html"
         :clear-after="true"
-        placeholder="Search a taxon name"
+        placeholder="Search taxon names..."
         :add-params="{
           'type[]': 'Protonym'
         }"
