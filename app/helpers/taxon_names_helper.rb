@@ -706,12 +706,15 @@ module TaxonNamesHelper
         r[:request][:level] = 3
 
          a = Vendor::Colrapi::Alignment.new(name: t, project_id:)
+         
+         p = a.autoselect_payload_json
+
          b = {
-           id: nil,
+           id: p.last[:id],
            label: a.name,
            label_html: a.name, # TODO get html
            expansion: {
-             simple_taxon_name_classification: a.autoselect_payload_json # `simple_taxon_name_classification` is a autoselect module that can handle this payload
+             simple_taxon_name_classification: p # `simple_taxon_name_classification` is a autoselect module that can handle this payload
            }
          }
          r[:response].push b
