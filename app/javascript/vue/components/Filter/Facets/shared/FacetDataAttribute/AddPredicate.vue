@@ -48,7 +48,7 @@
         }
       "
     />
-    <label>Value</label>
+    <label>Value (with predicate)</label>
     <div class="field">
       <textarea
         v-model="inputValue"
@@ -68,8 +68,8 @@
           <VBtn
             color="primary"
             medium
-            :disabled="!predicate"
-            @click="() => addPredicate({ any: true, text: '' })"
+            :disabled="!predicate || !!inputValue"
+            @click="() => addPredicate({ any: true, text: '', exact: false })"
           >
             Any
           </VBtn>
@@ -77,6 +77,7 @@
         <label>
           <input
             v-model="exact"
+            :disabled="!inputValue"
             type="checkbox"
           />
           Exact
