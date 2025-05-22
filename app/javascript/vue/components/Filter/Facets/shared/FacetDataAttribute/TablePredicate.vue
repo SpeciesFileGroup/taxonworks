@@ -4,25 +4,25 @@
       <tr>
         <th>Predicate</th>
         <th>Value</th>
-        <th>Exact/Any</th>
+        <th>Exact</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
       <tr
         v-for="(predicate, index) in predicates"
-        :key="predicate.id"
+        :key="predicate.uuid"
       >
-        <td>{{ predicate.name }}</td>
+        <td v-html="predicate.name || '<i>Any</i>'"></td>
         <td>{{ predicate.text }}</td>
         <td>
           <span v-if="predicate.any">Any</span>
-          <span v-else-if="!predicate.text.length">Empty</span>
+          <span v-else-if="!predicate.text?.length">Empty</span>
           <label v-else>
             <input
               :checked="predicate.exact"
               @click="
-                (e) =>
+                () =>
                   emit('update', {
                     index,
                     predicate: { ...predicate, exact: !predicate.exact }

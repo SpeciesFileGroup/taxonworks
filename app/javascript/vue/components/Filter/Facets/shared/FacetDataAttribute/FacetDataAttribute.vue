@@ -1,41 +1,28 @@
 <template>
   <FacetContainer v-help="en.facets.dataAttributes">
     <h3>Data attributes</h3>
-    <AddPredicate @add="(p) => predicates.push(p)" />
-    <TablePredicate
-      v-if="predicates.length"
-      :predicates="predicates"
-      @update="
-        ({ index, predicate }) => {
-          predicates[index] = predicate
-        }
-      "
-      @remove="
-        (index) => {
-          predicates.splice(index, 1)
-        }
-      "
-    />
+    <AddPredicate @add="(p) => addPredicate(p)" />
+
     <hr class="divisor full_width" />
     <AddValue
       label="Value (any predicate)"
       @add="
         (value) => {
-          values.push(value)
+          addValue(value)
         }
       "
     />
-    <TableValue
-      v-if="values.length"
-      :values="values"
+    <TablePredicate
+      v-if="attributes.length"
+      :predicates="attributes"
       @update="
-        ({ index, value }) => {
-          values[index] = value
+        ({ index, predicate }) => {
+          attributes[index] = predicate
         }
       "
       @remove="
         (index) => {
-          values.splice(index, 1)
+          attributes.splice(index, 1)
         }
       "
     />
@@ -43,77 +30,51 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onBeforeMount } from 'vue'
+import { ref, watch, onBeforeMount } from 'vue'
 import { ControlledVocabularyTerm } from '@/routes/endpoints'
 import { vHelp } from '@/directives'
-import { en } from '../../help'
-import TablePredicate from './FacetDataAttribute/TablePredicate.vue'
-import TableValue from './FacetDataAttribute/TableValue.vue'
-import AddPredicate from './FacetDataAttribute/AddPredicate.vue'
-import AddValue from './FacetDataAttribute/AddValue.vue'
+import { en } from '../../../help'
+import { randomUUID } from '@/helpers'
+import TablePredicate from './TablePredicate.vue'
+import AddPredicate from './AddPredicate.vue'
+import AddValue from './AddValue.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
-const props = defineProps({
-  modelValue: {
-    type: Object,
-    required: true
-  }
-})
+const attributes = ref([])
 
-const emit = defineEmits(['update:modelValue'])
-const predicates = ref([])
-const values = ref([])
-
-const params = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+const params = defineModel({
+  type: Object,
+  required: true
 })
 
 watch(
-  predicates,
+  attributes,
   (newVal) => {
-    params.value.data_attribute_predicate_id = newVal
-      .filter((p) => p.any)
-      .map((p) => p.id)
-    params.value.data_attribute_without_predicate_id = newVal
-      .filter((p) => !p.any && !p.text)
-      .map((p) => p.id)
-    params.value.data_attribute_exact_pair = newVal
-      .filter((p) => !p.any && p.exact && p.text.length)
-      .map((p) => `${p.id}:${p.text}`)
-    params.value.data_attribute_wildcard_pair = newVal
-      .filter((p) => !p.any && !p.exact && p.text.length)
-      .map((p) => `${p.id}:${p.text}`)
-  },
-  { deep: true }
-)
+    const pair = newVal.filter((a) => a.isPair)
+    const values = newVal.filter((a) => !a.isPair)
 
-watch(
-  values,
-  (newVal) => {
-    params.value.data_attribute_exact_value = newVal
-      .filter((item) => item.exact)
-      .map((item) => item.text)
-    params.value.data_attribute_wildcard_value = newVal
-      .filter((item) => !item.exact)
-      .map((item) => item.text)
-  },
-  { deep: true }
-)
+    if (pair.length) {
+      params.value.data_attribute_predicate_id = pair
+        .filter((p) => p.any)
+        .map((p) => p.id)
+      params.value.data_attribute_without_predicate_id = pair
+        .filter((p) => !p.any && !p.text)
+        .map((p) => p.id)
+      params.value.data_attribute_exact_pair = pair
+        .filter((p) => !p.any && p.exact && p.text.length)
+        .map((p) => `${p.id}:${p.text}`)
+      params.value.data_attribute_wildcard_pair = pair
+        .filter((p) => !p.any && !p.exact && p.text.length)
+        .map((p) => `${p.id}:${p.text}`)
+    }
 
-watch(
-  [
-    () => props.modelValue.data_attribute_predicate_id,
-    () => props.modelValue.data_attribute_without_predicate_id,
-    () => props.modelValue.data_attribute_exact_pair,
-    () => props.modelValue.data_attribute_wildcard_pair
-  ],
-  (newVals, oldVals) => {
-    if (
-      newVals.every((value) => !value?.length) &&
-      oldVals.some((value) => value?.length)
-    ) {
-      predicates.value = []
+    if (values.length) {
+      params.value.data_attribute_exact_value = values
+        .filter((item) => item.exact)
+        .map((item) => item.text)
+      params.value.data_attribute_wildcard_value = values
+        .filter((item) => !item.exact)
+        .map((item) => item.text)
     }
   },
   { deep: true }
@@ -121,27 +82,56 @@ watch(
 
 watch(
   [
-    () => props.modelValue.data_attribute_exact_value,
-    () => props.modelValue.data_attribute_wildcard_value
+    () => params.value.data_attribute_predicate_id,
+    () => params.value.data_attribute_without_predicate_id,
+    () => params.value.data_attribute_exact_pair,
+    () => params.value.data_attribute_wildcard_pair
   ],
   (newVals, oldVals) => {
     if (
       newVals.every((value) => !value?.length) &&
       oldVals.some((value) => value?.length)
     ) {
-      values.value = []
+      attributes.value = attributes.value.filter((item) => !item.isPair)
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  [
+    () => params.value.data_attribute_exact_value,
+    () => params.value.data_attribute_wildcard_value
+  ],
+  (newVals, oldVals) => {
+    if (
+      newVals.every((value) => !value?.length) &&
+      oldVals.some((value) => value?.length)
+    ) {
+      attributes.value = attributes.value.filter((item) => item.isPair)
     }
   },
   { deep: true }
 )
 
 function addPredicate(p) {
-  predicates.value.push({
+  attributes.value.push({
+    uuid: randomUUID(),
+    isPair: true,
     id: p.id,
     name: p.name,
     exact: p.exact,
     any: p.any,
     text: p.text
+  })
+}
+
+function addValue({ text, exact }) {
+  attributes.value.push({
+    uuid: randomUUID(),
+    isPair: false,
+    text,
+    exact
   })
 }
 
@@ -174,16 +164,22 @@ onBeforeMount(async () => {
     params.value.data_attribute_without_predicate_id || []
   const predicateWithAnyValues = params.value.data_attribute_predicate_id || []
 
-  values.value = [
-    ...(params.value.data_attribute_exact_value || []).map((text) => ({
+  const exactValues = params.value.data_attribute_exact_value || []
+  const wildcardValues = params.value.data_attribute_wildcard_value || []
+
+  exactValues.forEach((text) =>
+    addValue({
       text,
       exact: true
-    })),
-    ...(params.value.data_attribute_wildcard_value || []).map((text) => ({
+    })
+  )
+
+  wildcardValues.map((text) =>
+    addValue({
       text,
       exact: false
-    }))
-  ]
+    })
+  )
 
   const predicateIds = [
     ...predicateWithAnyValues,
@@ -211,7 +207,7 @@ onBeforeMount(async () => {
 
     predicateWithValues.forEach(([id, text]) => {
       const p = predicateList.find((item) => item.id === id)
-      addPredicate({ ...p, text })
+      addPredicate({ ...p, text, exact: false })
     })
 
     predicateWithValuesExact.forEach(([id, text]) => {
