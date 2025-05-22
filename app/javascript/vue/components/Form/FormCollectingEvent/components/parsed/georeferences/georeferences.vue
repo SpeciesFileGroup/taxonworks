@@ -124,11 +124,11 @@
             </button>
           </div>
           <DisplayList
+            label="object_tag"
             :list="store.georeferences"
             @delete="removeGeoreference"
             @update="updateRadius"
             @date-changed="addToQueue"
-            label="object_tag"
           />
         </div>
       </template>
