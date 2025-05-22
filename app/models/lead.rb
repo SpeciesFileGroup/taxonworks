@@ -341,14 +341,17 @@ class Lead < ApplicationRecord
     end
   end
 
+  # @return Public root leads that have a leaf descendant with `otu` as its Otu,
+  # i.e. keys that have otu on a leaf node.
+  # !! Note it doesn't count if a key only has otu on an internal node;
+  # currently that's only allowed in TW, not in TP.
   def self.public_root_leads_for_leaf_otus(otu)
     # Leaf leads that have otu as their Otu.
     leaf_otu_leads = Lead
       .with(l_h: LeadHierarchy.where('ancestor_id != descendant_id'))
-      .with(otu_lead_ids: otu.leads)
+      .merge(otu.leads)
       .joins('LEFT OUTER JOIN l_h ON leads.id = l_h.ancestor_id')
       .where(l_h: {ancestor_id: nil})
-      .where('id IN (SELECT id FROM otu_lead_ids)')
 
     # Root leads that are public and have one of leaf_otu_leads as their
     # descendant.
