@@ -709,14 +709,19 @@ module TaxonNamesHelper
          
          p = a.autoselect_payload_json
 
-         b = {
-           id: p.last[:id],
-           label: a.name,
-           label_html: a.name, # TODO get html
-           expansion: {
-             simple_taxon_name_classification: p # `simple_taxon_name_classification` is a autoselect module that can handle this payload
-           }
-         }
+         b = if p.blank?
+               { }
+             else
+               {
+                 id: (p.blank? ? nil : p.last[:id]),
+                 label: a.name,
+                 label_html: a.name, # TODO get html
+                 expansion: {
+                   simple_taxon_name_classification: p # `simple_taxon_name_classification` is a autoselect module that can handle this payload
+                 }
+               }
+             end
+
          r[:response].push b
       else
          # config error
