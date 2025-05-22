@@ -217,7 +217,7 @@ describe 'TaxonName - cached', type: :model, group: [:nomenclature] do
           end
 
           specify '#cached_classified_as' do
-            expect(species.cached_classified_as).to eq(' (as Cicadidae)')
+            expect(species.cached_classified_as).to eq('(as Cicadidae)')
           end
 
           specify '#cached_html' do
@@ -307,7 +307,7 @@ describe 'TaxonName - cached', type: :model, group: [:nomenclature] do
             end
 
             specify '#cached_classified_as' do
-              expect(species.cached_classified_as).to eq(' (as Cicadellidae)')
+              expect(species.cached_classified_as).to eq('(as Cicadellidae)')
             end
 
             specify '#created_at' do
