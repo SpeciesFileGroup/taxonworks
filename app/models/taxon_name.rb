@@ -780,7 +780,9 @@ class TaxonName < ApplicationRecord
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
   def get_author
-    cached_author_year.to_s.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '').gsub(') ', ', ').gsub('(', '').gsub(')', '')
+    a = cached_author_year.to_s.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '').gsub(') ', ', ').gsub('(', '').gsub(')', '')
+    return nil if a.blank?
+    a
   end
 
   # @return [Time]
@@ -1490,7 +1492,7 @@ class TaxonName < ApplicationRecord
     return nil unless is_protonym? || is_combination?
     # source_classified_as is a method generated through relationships
     r = reload_source_classified_as
-    return " (as #{r.name})" if r.present?
+    return "(as #{r.name})" if r.present?
     nil
   end
 

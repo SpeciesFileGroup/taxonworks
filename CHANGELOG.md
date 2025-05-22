@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- updated: cached_classified_as [#4373]
 - Temperature units
 - Unify task: No message error is displayed when merging fails
 - New field occurrence task: Collecting event radials don't work on new CE [#4354]
