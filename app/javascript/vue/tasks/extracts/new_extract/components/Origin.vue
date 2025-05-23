@@ -1,5 +1,5 @@
 <template>
-  <block-layout>
+  <BlockLayout>
     <template #header>
       <h3>Origin</h3>
     </template>
@@ -7,17 +7,17 @@
       <div>
         <template v-if="!originRelationship.old_object_id">
           <div class="horizontal-left-content middle margin-small-bottom">
-            <switch-component
+            <SwitchComponent
               v-model="tabSelected"
               :options="Object.keys(smartTypes)"
             />
-            <lock-component
+            <LockComponent
               class="margin-small-left"
               v-model="settings.lock.originRelationships"
             />
           </div>
 
-          <smart-selector
+          <SmartSelector
             :model="smartTypes[tabSelected]"
             klass="Extract"
             target="Extract"
@@ -40,7 +40,7 @@
               )
             "
           />
-          <lock-component
+          <LockComponent
             class="margin-small-left"
             v-model="settings.lock.originRelationship"
           />
@@ -57,22 +57,24 @@
           />
         </div>
 
-        <v-btn
-          color="create"
+        <VBtn
+          color="primary"
           medium
           @click="addOriginToList"
         >
           Add
-        </v-btn>
+        </VBtn>
 
         <DisplayList
           :list="list"
           label="label"
+          soft-delete
+          :warning="false"
           @delete="removeOriginRelationship"
         />
       </div>
     </template>
-  </block-layout>
+  </BlockLayout>
 </template>
 
 <script setup>
@@ -84,13 +86,16 @@ import useSettings from '../composables/useSettings.js'
 import useExtract from '../composables/useExtract.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import DisplayList from '@/components/displayList.vue'
+import makeOriginRelationship from '../helpers/makeOriginRelationship'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
+import { CollectionObject, Extract, Otu } from '@/routes/endpoints'
 import { COLLECTION_OBJECT, EXTRACT, OTU } from '@/constants/index.js'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
-import makeOriginRelationship from '../helpers/makeOriginRelationship'
+import { URLParamsToJSON } from '@/helpers'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 
 const smartTypes = {
   [COLLECTION_OBJECT]: 'collection_objects',
@@ -98,6 +103,11 @@ const smartTypes = {
   [OTU]: 'otus'
 }
 
+const services = {
+  CollectionObject,
+  Extract,
+  Otu
+}
 const store = useStore()
 
 const tabSelected = ref(COLLECTION_OBJECT)
@@ -108,12 +118,8 @@ const isExtract = computed(() => tabSelected.value === EXTRACT)
 const list = computed(() => store.getters[GetterNames.GetOriginRelationships])
 
 const originRelationship = computed({
-  get() {
-    return store.getters[GetterNames.GetOriginRelationship]
-  },
-  set(value) {
-    store.commit(MutationNames.SetOriginRelationship, value)
-  }
+  get: () => store.getters[GetterNames.GetOriginRelationship],
+  set: (value) => store.commit(MutationNames.SetOriginRelationship, value)
 })
 
 watch(
@@ -134,7 +140,30 @@ watch(
   }
 )
 
-const setOrigin = ({ base_class, id, object_tag }) => {
+onBeforeMount(() => {
+  const params = URLParamsToJSON(location.href)
+  const entry = Object.entries(ID_PARAM_FOR).find(
+    ([type, param]) => params[param]
+  )
+
+  if (entry) {
+    const [objectType, param] = entry
+
+    const value = params[param]
+
+    services[objectType]
+      .find(value)
+      .then(({ body }) => {
+        if (body) {
+          setOrigin(body)
+          addOriginToList()
+        }
+      })
+      .catch(() => {})
+  }
+})
+
+function setOrigin({ base_class, id, object_tag }) {
   store.commit(MutationNames.SetOriginRelationship, {
     ...originRelationship.value,
     label: object_tag,
@@ -144,12 +173,12 @@ const setOrigin = ({ base_class, id, object_tag }) => {
   })
 }
 
-const addOriginToList = () => {
+function addOriginToList() {
   store.commit(MutationNames.AddOriginToList, originRelationship.value)
   store.commit(MutationNames.SetOriginRelationship, makeOriginRelationship())
 }
 
-const removeOriginRelationship = (relationship) => {
+function removeOriginRelationship(relationship) {
   store.dispatch(ActionNames.RemoveOriginRelationship, relationship)
 }
 </script>

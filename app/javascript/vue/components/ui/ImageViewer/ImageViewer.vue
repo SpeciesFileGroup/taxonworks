@@ -106,7 +106,7 @@
               </div>
 
               <div
-                v-if="depiction"
+                v-if="depiction?.global_id"
                 class="horizontal-left-content margin-large-left"
               >
                 <span class="margin-small-right">Depiction</span>

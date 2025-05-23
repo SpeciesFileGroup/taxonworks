@@ -5,7 +5,7 @@ import { addToArray, removeFromArray, randomUUID } from '@/helpers'
 export default defineStore('collectingEventForm:georeferences', {
   state: () => ({
     georeferences: [],
-    queueGeoreferences: []
+    exifGeoreferences: []
   }),
 
   getters: {

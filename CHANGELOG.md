@@ -11,20 +11,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Tab options on Field Occurrence smart selectors (select_options)
 - FieldOccurrences facet to Filter Images
+- Radial CE: Add remove geographic area option in `Set geographic area` slice [#4375]
+- Filter sources: `With/without pages` facet [#4374]
 
 ### Fixed
 
+- updated: cached_classified_as [#4373]
 - Temperature units
 - Unify task: No message error is displayed when merging fails
 - New field occurrence task: Collecting event radials don't work on new CE [#4354]
 - Filter CE: Data attributes layout [#4355]
+- Radial CE: error radius is not copy on `Set Georeference` slice [#4358]
 
 ### Changed
 
 - Updated Ruby gems
+- Updated layout of data and internal attribute facets
 
 [#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
 [#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
+[#4358]: https://github.com/SpeciesFileGroup/taxonworks/pull/4358
+[#4374]: https://github.com/SpeciesFileGroup/taxonworks/issues/4374
+[#4375]: https://github.com/SpeciesFileGroup/taxonworks/issues/4375
 
 \-
 

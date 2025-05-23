@@ -95,10 +95,7 @@ function generateParsedLabel() {
         [key]: func({
           ce: collectingEvent.value,
           tripCode: store.tripCode,
-          georeferences: [].concat(
-            store.georeferences,
-            store.queueGeoreferences
-          ),
+          georeferences: [].concat(store.georeferences),
           unit: collectingEvent.unit || ''
         })
       }

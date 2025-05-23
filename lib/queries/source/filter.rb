@@ -31,6 +31,7 @@ module Queries
         :source_type,
         :title,
         :with_doi,
+        :with_pages,
         :with_title,
         :year_end,
         :year_start,
@@ -143,6 +144,12 @@ module Queries
       attr_accessor :serial
 
       # @return [Boolean, nil]
+      # true - with pages
+      # false - without pages
+      # nil - both
+      attr_accessor :with_pages
+
+      # @return [Boolean, nil]
       # true - with a title
       # false - without a title
       # nil - both
@@ -179,6 +186,7 @@ module Queries
         @title = params[:title]
         @topic_id = params[:topic_id]
         @with_doi = boolean_param(params, :with_doi)
+        @with_pages = boolean_param(params, :with_pages)
         @with_title = boolean_param(params, :with_title)
         @year_end = params[:year_end]
         @year_start = params[:year_start]
@@ -343,6 +351,16 @@ module Queries
         end
       end
 
+      def with_pages_facet
+        return nil if with_pages.nil?
+
+        if with_pages
+          table[:pages].not_eq(nil)
+        else
+          table[:pages].eq(nil)
+        end
+      end
+
       # TODO: move to a concern
       def role_facet
         return nil if roles.nil?
@@ -459,6 +477,7 @@ module Queries
           serial_facet,
           serial_id_facet,
           source_type_facet,
+          with_pages_facet,
           with_title_facet,
           year_facet,
         ]
