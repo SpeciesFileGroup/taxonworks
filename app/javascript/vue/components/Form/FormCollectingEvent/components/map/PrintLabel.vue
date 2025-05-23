@@ -54,7 +54,9 @@ import { parsedProperties } from '../../helpers/parsedProperties.js'
 import { verbatimProperties } from '../../helpers/verbatimProperties.js'
 import { sortArrayByArray } from '@/helpers/arrays.js'
 import { computed } from 'vue'
-import useStore from '../../store/collectingEvent.js'
+import useIdentifierStore from '../../store/identifier.js'
+import useStore from '../../store/label.js'
+import useGeoreferenceStore from '../../store/georeferences.js'
 
 const props = defineProps({
   componentsOrder: {
@@ -65,6 +67,9 @@ const props = defineProps({
 
 const collectingEvent = defineModel()
 const store = useStore()
+const identifierStore = useIdentifierStore()
+const georeferenceStore = useGeoreferenceStore()
+
 const isEmpty = computed(() => store.label.text.length === 0)
 
 function copyLabel() {
@@ -94,9 +99,14 @@ function generateParsedLabel() {
       return {
         [key]: func({
           ce: collectingEvent.value,
-          tripCode: store.tripCode,
-          georeferences: [].concat(store.georeferences),
-          unit: collectingEvent.unit || ''
+          tripCode: [
+            identifierStore.identifier.identifier,
+            identifierStore.namespace?.name
+          ]
+            .filter(Boolean)
+            .join(' '),
+          georeferences: georeferenceStore.georeferences,
+          unit: collectingEvent.value.unit || ''
         })
       }
     })
@@ -122,6 +132,7 @@ function generateLabel() {
   store.label.text = [...new Set(sortedLabels)].join('\n')
 }
 </script>
+
 <style scoped>
 textarea {
   width: 100%;

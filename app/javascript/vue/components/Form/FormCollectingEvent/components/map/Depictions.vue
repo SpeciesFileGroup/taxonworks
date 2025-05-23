@@ -10,6 +10,7 @@
         :target="COLLECTING_EVENT"
         :add-tabs="['new']"
         pin-section="Images"
+        :pin-type="IMAGE"
         @selected="addDepiction"
       >
         <template #new>
@@ -39,7 +40,10 @@
         />
       </div>
     </fieldset>
-    <table class="full_width">
+    <table
+      v-if="store.exifGeoreferences.length"
+      class="full_width"
+    >
       <thead>
         <tr>
           <th>
@@ -71,7 +75,11 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { GEOREFERENCE_EXIF, COLLECTING_EVENT } from '@/constants/index.js'
+import {
+  GEOREFERENCE_EXIF,
+  COLLECTING_EVENT,
+  IMAGE
+} from '@/constants/index.js'
 import Dropzone from '@/components/dropzone.vue'
 import ParseDMS from '@/helpers/parseDMS.js'
 import addGeoreference from '../../helpers/addGeoreference.js'

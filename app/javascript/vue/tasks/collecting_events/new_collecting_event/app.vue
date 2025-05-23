@@ -6,7 +6,7 @@
       v-if="isSaving || isLoading"
     />
     <div class="flex-separate middle">
-      <h1>{{ collectingEvent.id ? 'Edit' : 'New' }} collecting event</h1>
+      <h1>{{ store.collectingEvent.id ? 'Edit' : 'New' }} collecting event</h1>
       <ul class="context-menu">
         <li>
           <label>
@@ -25,8 +25,11 @@
             label="label_html"
             :clear-after="true"
             placeholder="Search a collecting event"
-            @get-item="loadCollectingEvent($event.id)"
+            @get-item="(e) => loadCollectingEvent(e.id)"
           />
+        </li>
+        <li>
+          <RecentComponent @select="(e) => loadCollectingEvent(e.id)" />
         </li>
       </ul>
     </div>
@@ -34,9 +37,9 @@
       <div class="flex-separate full_width">
         <div class="middle margin-small-left">
           <span
-            v-if="collectingEvent.id"
+            v-if="store.collectingEvent.id"
             class="margin-small-left"
-            v-html="collectingEvent.object_tag"
+            v-html="store.collectingEvent.object_tag"
           />
           <span
             class="margin-small-left"
@@ -45,16 +48,16 @@
             New record
           </span>
           <div
-            v-if="collectingEvent.id"
+            v-if="store.collectingEvent.id"
             class="horizontal-left-content margin-small-left gap-small"
           >
             <pin-component
               class="circle-button"
-              :object-id="collectingEvent.id"
-              type="CollectingEvent"
+              :object-id="store.collectingEvent.id"
+              :type="COLLECTING_EVENT"
             />
-            <radial-annotator :global-id="collectingEvent.global_id" />
-            <radial-object :global-id="collectingEvent.global_id" />
+            <radial-annotator :global-id="store.collectingEvent.global_id" />
+            <radial-object :global-id="store.collectingEvent.global_id" />
           </div>
         </div>
         <ul class="context-menu no_bullets">
@@ -65,22 +68,15 @@
               title="You have unsaved changes."
               data-icon="warning"
             />
-            <button
-              @click="showRecent = true"
-              class="button normal-input button-default button-size"
-              type="button"
-            >
-              Recent
-            </button>
             <navigate-component
-              :collecting-event="collectingEvent"
-              @select="loadCollectingEvent"
+              :collecting-event="store.collectingEvent"
+              @select="(e) => loadCollectingEvent(e.id)"
             />
-            <CloneForm :disabled="!collectingEvent.id" />
+            <CloneForm :disabled="!store.collectingEvent.id" />
             <button
-              @click="saveCollectingEvent"
               class="button normal-input button-submit button-size"
               type="button"
+              @click="saveCollectingEvent"
             >
               Save
             </button>
@@ -96,18 +92,10 @@
       </div>
       <ConfirmationModal ref="confirmationModal" />
     </NavBar>
-    <recent-component
-      v-if="showRecent"
-      @select="loadCollectingEvent($event.id)"
-      @close="showRecent = false"
-    />
-    <div class="horizontal-left-content align-start">
-      <collecting-event-form
-        v-model="collectingEvent"
-        :sortable="sortable"
-        class="full_width"
-      />
-      <div class="margin-medium-left">
+
+    <div class="horizontal-left-content align-start gap-medium">
+      <FormCollectingEvent class="full_width panel content" />
+      <div>
         <div class="panel content">
           <h3>Collection object</h3>
           <div class="horizontal-left-content">
@@ -115,21 +103,18 @@
               type="button"
               class="button normal-input button-default margin-small-right"
               @click="openComprehensive"
-              :disabled="!collectingEvent.id"
+              :disabled="!store.collectingEvent.id"
             >
               New
             </button>
-            <collection-objects-table
+            <CollectionObjectsTable
               class="margin-small-right"
-              :ce-id="collectingEvent.id"
+              :ce-id="store.collectingEvent.id"
             />
-            <parse-data @on-parse="setCollectingEvent" />
+            <ParseData @parse="setParsedData" />
           </div>
         </div>
-        <right-section
-          v-model="collectingEvent"
-          @select="loadCollectingEvent($event.id)"
-        />
+        <RightSection @select="(e) => loadCollectingEvent(e.id)" />
       </div>
     </div>
   </div>
@@ -137,11 +122,11 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useStore } from 'vuex'
 import { RouteNames } from '@/routes/routes'
 import { useHotkey } from '@/composables'
 import Autocomplete from '@/components/ui/Autocomplete'
-
+import FormCollectingEvent from '@/components/Form/FormCollectingEvent/FormCollectingEvent.vue'
+import useStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import RecentComponent from './components/Recent'
 
 import RadialAnnotator from '@/components/radials/annotator/annotator'
@@ -155,17 +140,14 @@ import NavBar from '@/components/layout/NavBar'
 import ParseData from './components/parseData'
 import CloneForm from './components/CloneForm.vue'
 
-import CollectingEventForm from './components/CollectingEventForm'
 import CollectionObjectsTable from './components/CollectionObjectsTable.vue'
 import NavigateComponent from './components/Navigate'
 import VSpinner from '@/components/ui/VSpinner'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
-import { ActionNames } from './store/actions/actions'
-import { GetterNames } from './store/getters/getters'
-import { MutationNames } from './store/mutations/mutations'
-
 import { CollectionObject } from '@/routes/endpoints'
+import { getTotalCOByCEId } from './helpers'
+import { COLLECTING_EVENT } from '@/constants'
 
 const MAX_CO_LIMIT = 100
 const store = useStore()
@@ -175,7 +157,7 @@ const hotkeys = ref([
     keys: [platformKey(), 's'],
     preventDefault: true,
     handler() {
-      saveCollectingEvent()
+      store.save()
     }
   },
   {
@@ -187,34 +169,25 @@ const hotkeys = ref([
   }
 ])
 
+const totalCO = ref(0)
+
 useHotkey(hotkeys.value)
 
-const collectingEvent = computed({
-  get() {
-    return store.getters[GetterNames.GetCollectingEvent]
-  },
-  set(value) {
-    store.commit(MutationNames.SetCollectingEvent, value)
+watch(
+  () => store.collectingEvent.id,
+  async (newVal) => {
+    if (newVal) {
+      totalCO.value = await getTotalCOByCEId(newVal)
+    }
   }
-})
-
-const isUnsaved = computed(() => store.getters[GetterNames.IsUnsaved])
-const isLoading = computed(
-  () => store.getters[GetterNames.GetSettings].isLoading
 )
-const isSaving = computed(() => store.getters[GetterNames.GetSettings].isSaving)
 
-const showRecent = ref(false)
+const isUnsaved = computed(() => store.isUnsaved)
+const isLoading = computed(() => false)
+const isSaving = computed(() => false)
+
 const sortable = ref(false)
 const confirmationModal = ref(null)
-
-watch(
-  collectingEvent,
-  (_) => {
-    store.commit(MutationNames.UpdateLastChange)
-  },
-  { deep: true }
-)
 
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
@@ -233,10 +206,11 @@ onMounted(() => {
   )
 
   if (/^\d+$/.test(collectingEventId)) {
-    loadCollectingEvent(collectingEventId)
+    store.load(collectingEventId)
   } else if (/^\d+$/.test(collectionObjectId)) {
-    CollectionObject.find(collectionObjectId).then((response) => {
-      const ceId = response.body.collecting_event_id
+    CollectionObject.find(collectionObjectId).then(({ body }) => {
+      const ceId = body.collecting_event_id
+
       if (ceId) {
         loadCollectingEvent(ceId)
       }
@@ -244,49 +218,33 @@ onMounted(() => {
   }
 })
 
-async function cloneCE() {
-  const ok = await confirmationModal.value.show({
-    title: 'Clone collecting event',
-    message:
-      'This will clone the current collecting event. Are you sure you want to proceed?',
-    confirmationWord: 'CLONE',
-    okButton: 'Clone',
-    cancelButton: 'Cancel',
-    typeButton: 'submit'
-  })
-
-  if (ok) {
-    store.dispatch(ActionNames.CloneCollectingEvent)
-  }
-}
-
 function reset() {
-  store.dispatch(ActionNames.ResetStore)
+  store.reset()
   SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id')
   SetParam(RouteNames.NewCollectingEvent, 'collection_object_id')
 }
 
-function loadCollectingEvent(id) {
-  store.dispatch(ActionNames.LoadCollectingEvent, id)
+function loadCollectingEvent(ceId) {
+  store.load(ceId)
+  SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id', ceId)
 }
 
-function setCollectingEvent(ce) {
-  collectingEvent.value = Object.assign({}, collectingEvent.value, ce)
-  SetParam(
-    RouteNames.NewCollectingEvent,
-    'collecting_event_id',
-    collectingEvent.value.id
-  )
+function setParsedData(data) {
+  store.collectingEvent = {
+    ...store.collectingEvent,
+    ...data,
+    isUnsaved: true
+  }
 }
 
 async function saveCollectingEvent() {
-  const underThreshold = store.getters[GetterNames.GetTotalCO] < MAX_CO_LIMIT
+  const underThreshold = totalCO.value < MAX_CO_LIMIT
 
   const ok =
     underThreshold ||
     (await confirmationModal.value.show({
       title: 'Save collecting event',
-      message: `This collecting event is used for over ${MAX_CO_LIMIT} collection objects. Are you sure you want to proceed?`,
+      message: `This collecting event is used for ${totalCO.value} collection objects. Are you sure you want to proceed?`,
       confirmationWord: 'SAVE',
       okButton: 'Save',
       cancelButton: 'Cancel',
@@ -294,13 +252,13 @@ async function saveCollectingEvent() {
     }))
 
   if (ok) {
-    store.dispatch(ActionNames.SaveCollectingEvent)
+    store.save()
   }
 }
 
 function openComprehensive() {
   window.open(
-    `${RouteNames.DigitizeTask}?collecting_event_id=${collectingEvent.value.id}`,
+    `${RouteNames.DigitizeTask}?collecting_event_id=${store.collectingEvent.id}`,
     '_self'
   )
 }

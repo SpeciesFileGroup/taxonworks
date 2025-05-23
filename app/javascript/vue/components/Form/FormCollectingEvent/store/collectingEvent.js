@@ -11,6 +11,7 @@ import makeLabel from '@/factory/Label'
 import useGeoreferenceStore from './georeferences.js'
 import useIdentifierStore from './identifier.js'
 import useDepictionStore from './depictions.js'
+import useLabelStore from './label.js'
 
 async function getTotalUsed(ceId) {
   const response = await CollectionObject.where({
@@ -53,17 +54,20 @@ export default defineStore('collectingEventForm', {
       const georeferenceStore = useGeoreferenceStore()
       const identifierStore = useIdentifierStore()
       const depictionStore = useDepictionStore()
+      const labelStore = useLabelStore()
 
       this.$reset()
       depictionStore.reset()
       identifierStore.$reset()
       georeferenceStore.$reset()
+      labelStore.$reset()
     },
 
     async save() {
-      const store = useGeoreferenceStore()
+      const georeferenceStore = useGeoreferenceStore()
       const idStore = useIdentifierStore()
       const depictionStore = useDepictionStore()
+      const labelStore = useLabelStore()
       const payload = {
         collecting_event: {
           ...this.collectingEvent
@@ -78,12 +82,13 @@ export default defineStore('collectingEventForm', {
       request.then(({ body }) => {
         const payload = { objectId: body.id, objectType: COLLECTING_EVENT }
 
-        store.processGeoreferenceQueue(body.id)
         this.collectingEvent.id = body.id
         this.collectingEvent.global_id = body.global_id
         this.collectingEvent.roles_attributes = body.collector_roles || []
 
+        georeferenceStore.save(body.id)
         depictionStore.save(payload)
+        labelStore.save(payload)
 
         if (idStore.isUnsaved) {
           idStore.save(payload)
@@ -97,6 +102,7 @@ export default defineStore('collectingEventForm', {
       const idStore = useIdentifierStore()
       const georeferenceStore = useGeoreferenceStore()
       const depictionStore = useDepictionStore()
+      const labelStore = useLabelStore()
 
       this.reset()
 
@@ -112,6 +118,7 @@ export default defineStore('collectingEventForm', {
         await idStore.load(payload)
         await georeferenceStore.load(ceId)
         await depictionStore.load(payload)
+        await labelStore.load(payload)
 
         return body
       } catch (e) {}

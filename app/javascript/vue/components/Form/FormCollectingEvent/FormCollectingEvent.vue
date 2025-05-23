@@ -22,6 +22,7 @@
               v-model="store.collectingEvent"
               :components-order="componentsOrder"
               :is="VueComponents[element]"
+              :exclude="exclude"
             />
           </template>
         </draggable>
@@ -34,7 +35,7 @@
 import Draggable from 'vuedraggable'
 import useStore from './store/collectingEvent.js'
 import { User } from '@/routes/endpoints'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, provide } from 'vue'
 import {
   ComponentMap,
   ComponentParse,
@@ -48,7 +49,7 @@ const TITLE_SECTION = {
   componentParse: 'Parsed'
 }
 
-defineProps({
+const props = defineProps({
   sortable: {
     type: Boolean,
     default: false
@@ -59,6 +60,8 @@ defineProps({
     default: () => []
   }
 })
+
+provide('exclude', props.exclude)
 
 const store = useStore()
 const preferences = ref({})
