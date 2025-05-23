@@ -14,9 +14,6 @@ class Georeference::VerbatimData < Georeference
   def initialize(params = {})
     super
 
-    self.is_median_z    = false
-    self.is_undefined_z = false # and delta_z is zero, or ignored
-
     unless collecting_event.nil? || geographic_item
       # value from collecting_event is normalised to meters
       z1 = collecting_event.minimum_elevation
@@ -24,7 +21,6 @@ class Georeference::VerbatimData < Georeference
 
       if z1.blank?
         # no valid elevation provided
-        self.is_undefined_z = true
         delta_z             = 0.0
       else
         # we have at least half of the range data
@@ -35,8 +31,6 @@ class Georeference::VerbatimData < Georeference
         else
           # we have full range data, so elevation is (top - bottom) / 2
           delta_z = z1 + ((z2 - z1) * 0.5)
-          # and show calculated median
-          self.is_median_z = true
         end
       end
 

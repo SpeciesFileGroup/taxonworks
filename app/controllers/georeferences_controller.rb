@@ -161,8 +161,6 @@ class GeoreferencesController < ApplicationController
       :position,
       :is_public,
       :api_request,
-      :is_undefined_z,
-      :is_median_z,
       :year_georeferenced,
       :day_georeferenced,
       :month_georeferenced,
