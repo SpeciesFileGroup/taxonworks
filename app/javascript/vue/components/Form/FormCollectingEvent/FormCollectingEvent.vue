@@ -35,7 +35,7 @@
 import Draggable from 'vuedraggable'
 import useStore from './store/collectingEvent.js'
 import { User } from '@/routes/endpoints'
-import { ref, computed, watch, provide } from 'vue'
+import { ref, computed, watch } from 'vue'
 import {
   ComponentMap,
   ComponentParse,
@@ -60,8 +60,6 @@ const props = defineProps({
     default: () => []
   }
 })
-
-provide('exclude', props.exclude)
 
 const store = useStore()
 const preferences = ref({})

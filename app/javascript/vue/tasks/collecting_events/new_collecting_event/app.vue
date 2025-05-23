@@ -63,7 +63,7 @@
         <ul class="context-menu no_bullets">
           <li class="horizontal-right-content gap-small">
             <span
-              v-if="isUnsaved"
+              v-if="store.isUnsaved"
               class="medium-icon"
               title="You have unsaved changes."
               data-icon="warning"
@@ -72,18 +72,21 @@
               :collecting-event="store.collectingEvent"
               @select="(e) => loadCollectingEvent(e.id)"
             />
-            <CloneForm :disabled="!store.collectingEvent.id" />
+            <CloneForm
+              :disabled="!store.collectingEvent.id"
+              @clone="(e) => loadCollectingEvent(e.id)"
+            />
             <button
-              class="button normal-input button-submit button-size"
               type="button"
+              class="button normal-input button-submit button-size"
               @click="saveCollectingEvent"
             >
               Save
             </button>
             <button
-              @click="reset"
-              class="button normal-input button-default button-size"
               type="button"
+              class="button normal-input button-default button-size"
+              @click="reset"
             >
               New
             </button>
@@ -94,7 +97,10 @@
     </NavBar>
 
     <div class="horizontal-left-content align-start gap-medium">
-      <FormCollectingEvent class="full_width panel content" />
+      <FormCollectingEvent
+        :sortable="sortable"
+        class="full_width panel content"
+      />
       <div>
         <div class="panel content">
           <h3>Collection object</h3>
@@ -121,7 +127,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, useTemplateRef } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { useHotkey } from '@/composables'
 import Autocomplete from '@/components/ui/Autocomplete'
@@ -146,10 +152,15 @@ import VSpinner from '@/components/ui/VSpinner'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 import { CollectionObject } from '@/routes/endpoints'
-import { getTotalCOByCEId } from './helpers'
+import { getTotalCOByCEId } from './helpers/getTotalCO.js'
 import { COLLECTING_EVENT } from '@/constants'
 
 const MAX_CO_LIMIT = 100
+
+defineOptions({
+  name: 'NewCollectingEvent'
+})
+
 const store = useStore()
 
 const hotkeys = ref([
@@ -177,17 +188,38 @@ watch(
   () => store.collectingEvent.id,
   async (newVal) => {
     if (newVal) {
-      totalCO.value = await getTotalCOByCEId(newVal)
+      totalCO.value = newVal ? await getTotalCOByCEId(newVal) : 0
     }
   }
 )
 
-const isUnsaved = computed(() => store.isUnsaved)
-const isLoading = computed(() => false)
-const isSaving = computed(() => false)
+const isLoading = ref(false)
+const isSaving = ref(false)
 
 const sortable = ref(false)
-const confirmationModal = ref(null)
+const confirmationModal = useTemplateRef('confirmationModal')
+
+store.$onAction(({ name, after }) => {
+  switch (name) {
+    case 'load':
+      isLoading.value = true
+      break
+    case 'save':
+      isSaving.value = true
+      break
+  }
+
+  after(() => {
+    switch (name) {
+      case 'load':
+        isLoading.value = false
+        break
+      case 'save':
+        isSaving.value = false
+        break
+    }
+  })
+})
 
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)

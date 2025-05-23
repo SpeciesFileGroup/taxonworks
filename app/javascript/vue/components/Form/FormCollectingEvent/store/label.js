@@ -7,7 +7,7 @@ export default defineStore('collectingEvent:label', {
       id: undefined,
       text: '',
       total: 1,
-      isUnsaved: true
+      isUnsaved: false
     }
   }),
 

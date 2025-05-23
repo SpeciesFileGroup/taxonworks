@@ -12,7 +12,6 @@
       "
     />
     <button
-      v-if="!exclude.includes(ComponentMap.PrintLabel)"
       type="button"
       class="button normal-input button-default"
       :disabled="!collectingEvent.verbatim_label"
@@ -24,16 +23,12 @@
 </template>
 
 <script setup>
-import { inject } from 'vue'
 import { CollectingEvent } from '@/routes/endpoints'
-import { ComponentMap } from '../../const/components.js'
 
 const collectingEvent = defineModel({
   type: Object,
   requierd: true
 })
-
-const exclude = inject('exclude')
 
 function parseData() {
   const payload = {

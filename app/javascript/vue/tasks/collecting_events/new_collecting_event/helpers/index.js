@@ -1,5 +1,0 @@
-export { default as addGeoreference } from './addGeoreference'
-export { default as createGeoJSONFeature } from './createGeoJSONFeature'
-export * from './getTotalCO'
-export * from './parsedProperties'
-export * from './verbatimProperties'

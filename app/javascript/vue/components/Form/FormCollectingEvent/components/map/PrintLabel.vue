@@ -22,10 +22,11 @@
         >Que to print
         <input
           class="que-input"
-          :disabled="!(store.label.text && store.label.text.length)"
+          type="number"
           size="5"
           v-model="store.label.total"
-          type="number"
+          :disabled="!(store.label.text && store.label.text.length)"
+          @change="() => (store.label.isUnsaved = true)"
         />
       </label>
       <a
@@ -39,12 +40,14 @@
       v-model="store.label.text"
       cols="45"
       rows="12"
+      @change="() => (store.label.isUnsaved = true)"
     />
     <label>Document label</label>
     <textarea
       v-model="collectingEvent.document_label"
       cols="45"
       rows="6"
+      @change="() => (store.label.isUnsaved = true)"
     />
   </div>
 </template>
@@ -99,12 +102,15 @@ function generateParsedLabel() {
       return {
         [key]: func({
           ce: collectingEvent.value,
-          tripCode: [
-            identifierStore.identifier.identifier,
-            identifierStore.namespace?.name
-          ]
-            .filter(Boolean)
-            .join(' '),
+          tripCode: {
+            cached: [
+              identifierStore.namespace?.short_name ||
+                identifierStore.namespace?.name,
+              identifierStore.identifier.identifier
+            ]
+              .filter(Boolean)
+              .join(' ')
+          },
           georeferences: georeferenceStore.georeferences,
           unit: collectingEvent.value.unit || ''
         })

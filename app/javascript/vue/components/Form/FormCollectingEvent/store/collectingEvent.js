@@ -39,10 +39,12 @@ export default defineStore('collectingEventForm', {
       const idStore = useIdentifierStore()
       const georeferencesStore = useGeoreferenceStore()
       const depictionStore = useDepictionStore()
+      const labelStore = useLabelStore()
 
       return (
         state.collectingEvent.isUnsaved ||
         idStore.identifier.isUnsaved ||
+        labelStore.label.isUnsaved ||
         georeferencesStore.hasUnsaved ||
         depictionStore.hasUnsaved
       )
