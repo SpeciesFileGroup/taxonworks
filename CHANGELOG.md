@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Tab options on Field Occurrence smart selectors (select_options)
 - FieldOccurrences facet to Filter Images
 - Radial CE: Add remove geographic area option in `Set geographic area` slice [#4375]
+- Filter sources: `With/without pages` facet [#4374]
 
 ### Fixed
 
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
 [#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
 [#4358]: https://github.com/SpeciesFileGroup/taxonworks/pull/4358
+[#4374]: https://github.com/SpeciesFileGroup/taxonworks/issues/4374
 [#4375]: https://github.com/SpeciesFileGroup/taxonworks/issues/4375
 
 \-

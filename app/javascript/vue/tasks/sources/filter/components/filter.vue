@@ -71,7 +71,8 @@ import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_TITLES = {
-  with_title: 'BibTeX title'
+  with_title: 'BibTeX title',
+  with_pages: 'Pages'
 }
 
 const IN_PROJECT_OPTIONS = [
@@ -100,7 +101,8 @@ const WITH_PARAMS = [
   'tags',
   'notes',
   'serial',
-  'with_title'
+  'with_title',
+  'with_pages'
 ]
 
 const props = defineProps({
