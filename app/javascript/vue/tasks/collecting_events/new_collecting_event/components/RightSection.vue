@@ -1,58 +1,83 @@
 <template>
-  <div class="right-section">
+  <div
+    class="right-section"
+    ref="root"
+  >
     <div ref="section">
-      <soft-validation
+      <PanelSoftValidation
         :validations="softValidation"
         class="soft-validation-box margin-medium-top"
       />
-      <matches-component
+      <MatchesComponent
         class="margin-medium-top"
-        @select="$emit('select', $event)"
-        :collecting-event="collectingEvent"
+        :collecting-event="store.collectingEvent"
+        @select="(e) => emit('select', e)"
       />
     </div>
   </div>
 </template>
 
-<script>
-import SoftValidation from '@/components/soft_validations/panel'
-import { GetterNames } from '../store/getters/getters'
+<script setup>
+import { ref, onMounted, watch, onBeforeUnmount, useTemplateRef } from 'vue'
+import { SoftValidation } from '@/routes/endpoints'
 import MatchesComponent from './Matches'
-import extendCE from './mixins/extendCE'
+import PanelSoftValidation from '@/components/soft_validations/panel'
+import useStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 
-export default {
-  mixins: [extendCE],
+const emit = defineEmits(['select'])
 
-  components: {
-    SoftValidation,
-    MatchesComponent
-  },
+const store = useStore()
 
-  emits: ['select'],
+const softValidation = ref({})
+const section = useTemplateRef('section')
+const root = useTemplateRef('root')
 
-  computed: {
-    softValidation() {
-      return this.$store.getters[GetterNames.GetSoftValidations]
-    }
-  },
+onMounted(() => {
+  window.addEventListener('scroll', scrollBox)
+})
 
-  mounted() {
-    window.addEventListener('scroll', this.scrollBox)
-  },
-
-  methods: {
-    scrollBox() {
-      const element = this.$el
-      if (element) {
-        if (element.offsetTop < document.documentElement.scrollTop + 50) {
-          this.$refs.section.classList.add('float-box')
-        } else {
-          this.$refs.section.classList.remove('float-box')
-        }
-      }
+function scrollBox() {
+  if (root.value) {
+    if (root.value.offsetTop < document.documentElement.scrollTop + 50) {
+      section.value.classList.add('float-box')
+    } else {
+      section.value.classList.remove('float-box')
     }
   }
 }
+
+onBeforeUnmount(() => window.removeEventListener('scroll', scrollBox))
+
+function loadSoftValidation(globalId) {
+  SoftValidation.find(globalId).then(({ body }) => {
+    if (body.soft_validations.length) {
+      softValidation.value = {
+        collectingEvent: { list: [body], title: 'Collecting event' }
+      }
+    }
+  })
+}
+store.$onAction(({ name, after }) => {
+  const actions = ['save', 'load']
+  after(() => {
+    if (actions.includes(name)) {
+      const globalId = store.collectingEvent.global_id
+
+      if (globalId) {
+        loadSoftValidation(globalId)
+      }
+    }
+  })
+})
+
+watch(
+  () => store.collectingEvent.id,
+  (newVal) => {
+    if (!newVal) {
+      softValidation.value = {}
+    }
+  }
+)
 </script>
 
 <style lang="scss" scoped>
