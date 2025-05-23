@@ -74,7 +74,7 @@ class Lead < ApplicationRecord
   validate :node_parent_doesnt_have_redirect
   validate :root_has_no_redirect
   validate :redirect_isnt_ancestor_or_self
-  validates_uniqueness_of :text, scope: [:otu_id, :parent_id], unless: -> { otu_id.nil? }
+  validates :text, uniqueness: { scope: [:otu_id, :parent_id], unless: -> { otu_id.nil? } }
 
   def future
     redirect_id.blank? ? all_children : redirect.all_children
@@ -339,6 +339,28 @@ class Lead < ApplicationRecord
         }
       end
     end
+  end
+
+  # @return Public root leads that have a leaf descendant with `otu` as its Otu,
+  # i.e. keys that have otu on a leaf node.
+  # !! Note it doesn't count if a key only has otu on an internal node;
+  # currently that's only allowed in TW, not in TP.
+  def self.public_root_leads_for_leaf_otus(otu)
+    # Leaf leads that have otu as their Otu.
+    leaf_otu_leads = Lead
+      .with(l_h: LeadHierarchy.where('ancestor_id != descendant_id'))
+      .merge(otu.leads)
+      .joins('LEFT OUTER JOIN l_h ON leads.id = l_h.ancestor_id')
+      .where(l_h: {ancestor_id: nil})
+
+    # Root leads that are public and have one of leaf_otu_leads as their
+    # descendant.
+    Lead
+      .with(l_o_l: leaf_otu_leads)
+      .joins('JOIN lead_hierarchies l_h2 ON l_h2.ancestor_id = leads.id')
+      .where('l_h2.descendant_id IN (SELECT id FROM l_o_l)')
+      .where(parent_id: nil)
+      .where(is_public: true)
   end
 
   private
