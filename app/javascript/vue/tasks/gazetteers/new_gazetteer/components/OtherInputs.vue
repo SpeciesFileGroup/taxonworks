@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="margin-medium-top margin-medium-bottom"
-  >
+  <div class="margin-medium-top margin-medium-bottom">
     <WktComponent
       :type="GZ_WKT"
       id-key="uuid"
@@ -19,7 +17,7 @@
       :include-range="false"
       @create="(e) => emit('newShape', e, GZ_POINT)"
     />
-<!--
+    <!--
     <geolocate-component
       :disabled="!collectingEvent.id"
       class="margin-small-right"
@@ -31,12 +29,9 @@
 
 <script setup>
 import PointComponent from '@/components/georeferences/manuallyComponent.vue'
-import WktComponent from '@/tasks/collecting_events/new_collecting_event/components/parsed/georeferences/wkt.vue'
+import WktComponent from '@/components/Form/FormCollectingEvent/components/parsed/georeferences/wkt.vue'
 import { randomUUID } from '@/helpers'
-import {
-  GZ_POINT,
-  GZ_WKT,
-} from '@/constants/index.js'
+import { GZ_POINT, GZ_WKT } from '@/constants/index.js'
 
 const emit = defineEmits(['newShape'])
 </script>

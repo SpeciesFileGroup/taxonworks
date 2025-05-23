@@ -5,15 +5,16 @@
       full-screen
     />
     <button
-      @click="showModalView(true)"
-      class="button normal-input button-default button-size separate-left"
       type="button"
+      class="button normal-input button-default button-size"
+      @click="() => (isModalVisible = true)"
     >
       Recent
     </button>
     <VModal
+      v-if="isModalVisible"
       :container-style="{ width: '90%' }"
-      @close="showModalView(false)"
+      @close="() => (isModalVisible = false)"
     >
       <template #header>
         <h3>Recent collecting events</h3>
@@ -77,6 +78,7 @@ import { ref, onBeforeMount } from 'vue'
 const emit = defineEmits(['close', 'select'])
 const collectingEvents = ref([])
 const isLoading = ref(false)
+const isModalVisible = ref(false)
 
 onBeforeMount(() => {
   isLoading.value = true
@@ -88,10 +90,6 @@ onBeforeMount(() => {
       isLoading.value = false
     })
 })
-
-function showModalView(value) {
-  emit('close', value)
-}
 
 function removeCollectingEvent(index) {
   if (
@@ -107,6 +105,6 @@ function removeCollectingEvent(index) {
 
 function selectCollectingEvent(collectingEvent) {
   emit('select', collectingEvent)
-  showModalView(false)
+  isModalVisible.value = false
 }
 </script>

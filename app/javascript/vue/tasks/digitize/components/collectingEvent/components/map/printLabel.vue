@@ -53,8 +53,8 @@
 <script>
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
-import { parsedProperties } from '@/tasks/collecting_events/new_collecting_event/helpers/parsedProperties.js'
-import { verbatimProperties } from '@/tasks/collecting_events/new_collecting_event/helpers/verbatimProperties.js'
+import { parsedProperties } from '@/components/Form/FormCollectingEvent/helpers/parsedProperties.js'
+import { verbatimProperties } from '@/components/Form/FormCollectingEvent/helpers/verbatimProperties.js'
 import { sortArrayByArray } from '@/helpers/arrays.js'
 import expandCE from '../../mixins/extendCE'
 

@@ -22,6 +22,7 @@
               v-model="store.collectingEvent"
               :components-order="componentsOrder"
               :is="VueComponents[element]"
+              :exclude="exclude"
             />
           </template>
         </draggable>
@@ -48,7 +49,7 @@ const TITLE_SECTION = {
   componentParse: 'Parsed'
 }
 
-defineProps({
+const props = defineProps({
   sortable: {
     type: Boolean,
     default: false

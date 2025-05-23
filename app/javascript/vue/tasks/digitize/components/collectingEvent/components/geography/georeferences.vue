@@ -151,7 +151,7 @@ import DisplayList from '@/components/georeferences/list.vue'
 import ManuallyComponent from '@/components/georeferences/manuallyComponent'
 import GeolocateComponent from '@/components/georeferences/geolocateComponent'
 import DateComponent from '@/components/ui/Date/DateFields.vue'
-import WtkComponent from '@/tasks/collecting_events/new_collecting_event/components/parsed/georeferences/wkt.vue'
+import WtkComponent from '@/components/Form/FormCollectingEvent/components/parsed/georeferences/wkt.vue'
 import { Georeference } from '@/routes/endpoints'
 import {
   GEOREFERENCE_GEOLOCATE,
