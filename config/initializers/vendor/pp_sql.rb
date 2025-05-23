@@ -1,7 +1,7 @@
 if Rails.env.development? && defined?(Rails::Console)
   require 'pp_sql'
 
-  if ENV['RAILS_PP_SQL_CONSOLE_LOGGING']
+  if ENV['TW_PP_SQL_CONSOLE_LOGGING']
     PpSql.add_rails_logger_formatting = true
   end
 
