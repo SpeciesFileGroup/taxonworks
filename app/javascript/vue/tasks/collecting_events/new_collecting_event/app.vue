@@ -168,7 +168,7 @@ const hotkeys = ref([
     keys: [platformKey(), 's'],
     preventDefault: true,
     handler() {
-      store.save()
+      saveCollectingEvent()
     }
   },
   {
@@ -284,7 +284,16 @@ async function saveCollectingEvent() {
     }))
 
   if (ok) {
-    store.save()
+    store
+      .save()
+      .then(() => {
+        SetParam(
+          RouteNames.NewCollectingEvent,
+          'collecting_event_id',
+          store.collectingEvent.id
+        )
+      })
+      .catch(() => {})
   }
 }
 
