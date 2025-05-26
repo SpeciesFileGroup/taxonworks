@@ -24,7 +24,7 @@ import { CollectingEvent } from '@/routes/endpoints'
 import DisplayList from '@/components/displayList.vue'
 import VSpinner from '@/components/ui/VSpinner'
 
-const delay = 1000
+const DELAY = 1000
 
 let timer = undefined
 
@@ -51,15 +51,13 @@ function getRecent() {
   CollectingEvent.where({
     verbatim_label: verbatimLabel.value,
     per: 5
-  }).then(
-    ({ body }) => {
+  })
+    .then(({ body }) => {
       list.value = body
+    })
+    .finally(() => {
       isSearching.value = false
-    },
-    () => {
-      isSearching.value = false
-    }
-  )
+    })
 }
 
 watch(verbatimLabel, (newVal) => {
@@ -67,7 +65,7 @@ watch(verbatimLabel, (newVal) => {
   if (newVal && newVal.length) {
     timer = setTimeout(() => {
       getRecent()
-    }, delay)
+    }, DELAY)
   } else {
     list.value = []
   }

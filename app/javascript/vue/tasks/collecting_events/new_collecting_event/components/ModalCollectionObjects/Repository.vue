@@ -4,7 +4,7 @@
     <fieldset class="fieldset">
       <legend>Repository</legend>
       <div class="horizontal-left-content align-start separate-bottom">
-        <smart-selector
+        <SmartSelector
           class="full_width"
           ref="smartSelector"
           model="repositories"
@@ -29,46 +29,24 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 
-export default {
-  components: { SmartSelector },
+const repositoryId = defineModel({
+  type: [String, Number],
+  default: undefined
+})
 
-  props: {
-    modelValue: {
-      type: [String, Number],
-      default: undefined
-    }
-  },
+const repository = ref()
 
-  computed: {
-    repositoryId: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
+function setRepository(data) {
+  repository.value = data
+  repositoryId.value = data.id
+}
 
-  data() {
-    return {
-      repository: undefined
-    }
-  },
-
-  methods: {
-    setRepository(repository) {
-      this.repository = repository
-      this.repositoryId = repository.id
-    },
-
-    unsetRepository() {
-      this.repository = undefined
-      this.repositoryId = undefined
-    }
-  }
+function unsetRepository() {
+  repository.value = undefined
+  repositoryId.value = undefined
 }
 </script>

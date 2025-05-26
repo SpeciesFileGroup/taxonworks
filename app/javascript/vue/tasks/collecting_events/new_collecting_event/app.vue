@@ -18,7 +18,7 @@
           </label>
         </li>
         <li>
-          <autocomplete
+          <VAutocomplete
             url="/collecting_events/autocomplete"
             class="autocomplete-search-bar"
             param="term"
@@ -35,29 +35,22 @@
     </div>
     <NavBar>
       <div class="flex-separate full_width">
-        <div class="middle margin-small-left">
+        <div class="horizontal-left-content middle gap-small">
           <span
             v-if="store.collectingEvent.id"
-            class="margin-small-left"
             v-html="store.collectingEvent.object_tag"
           />
-          <span
-            class="margin-small-left"
-            v-else
-          >
-            New record
-          </span>
+          <span v-else> New record </span>
           <div
             v-if="store.collectingEvent.id"
-            class="horizontal-left-content margin-small-left gap-small"
+            class="horizontal-left-content gap-small"
           >
-            <pin-component
-              class="circle-button"
+            <VPin
               :object-id="store.collectingEvent.id"
               :type="COLLECTING_EVENT"
             />
-            <radial-annotator :global-id="store.collectingEvent.global_id" />
-            <radial-object :global-id="store.collectingEvent.global_id" />
+            <RadialAnnotator :global-id="store.collectingEvent.global_id" />
+            <RadialObject :global-id="store.collectingEvent.global_id" />
           </div>
         </div>
         <ul class="context-menu no_bullets">
@@ -68,7 +61,7 @@
               title="You have unsaved changes."
               data-icon="warning"
             />
-            <navigate-component
+            <VNavigate
               :collecting-event="store.collectingEvent"
               @select="(e) => loadCollectingEvent(e.id)"
             />
@@ -76,20 +69,22 @@
               :disabled="!store.collectingEvent.id"
               @clone="(e) => loadCollectingEvent(e.id)"
             />
-            <button
-              type="button"
-              class="button normal-input button-submit button-size"
+            <VBtn
+              color="primary"
+              medium
+              class="button-size"
               @click="saveCollectingEvent"
             >
               Save
-            </button>
-            <button
-              type="button"
-              class="button normal-input button-default button-size"
+            </VBtn>
+            <VBtn
+              color="primary"
+              medium
+              class="button-size"
               @click="reset"
             >
               New
-            </button>
+            </VBtn>
           </li>
         </ul>
       </div>
@@ -104,19 +99,16 @@
       <div>
         <div class="panel content">
           <h3>Collection object</h3>
-          <div class="horizontal-left-content">
-            <button
-              type="button"
-              class="button normal-input button-default margin-small-right"
-              @click="openComprehensive"
+          <div class="horizontal-left-content gap-small">
+            <VBtn
+              color="primary"
+              medium
               :disabled="!store.collectingEvent.id"
+              @click="openComprehensive"
             >
               New
-            </button>
-            <CollectionObjectsTable
-              class="margin-small-right"
-              :ce-id="store.collectingEvent.id"
-            />
+            </VBtn>
+            <ModalCollectionObjects :ce-id="store.collectingEvent.id" />
             <ParseData @parse="setParsedData" />
           </div>
         </div>
@@ -130,7 +122,8 @@
 import { ref, watch, onMounted, useTemplateRef } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { useHotkey } from '@/composables'
-import Autocomplete from '@/components/ui/Autocomplete'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VAutocomplete from '@/components/ui/Autocomplete'
 import FormCollectingEvent from '@/components/Form/FormCollectingEvent/FormCollectingEvent.vue'
 import useStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import RecentComponent from './components/Recent'
@@ -140,14 +133,14 @@ import RadialObject from '@/components/radials/navigation/radial'
 import platformKey from '@/helpers/getPlatformKey'
 import SetParam from '@/helpers/setParam'
 
-import PinComponent from '@/components/ui/Button/ButtonPin.vue'
+import VPin from '@/components/ui/Button/ButtonPin.vue'
 import RightSection from './components/RightSection'
 import NavBar from '@/components/layout/NavBar'
 import ParseData from './components/parseData'
 import CloneForm from './components/CloneForm.vue'
 
-import CollectionObjectsTable from './components/CollectionObjectsTable.vue'
-import NavigateComponent from './components/Navigate'
+import ModalCollectionObjects from './components/ModalCollectionObjects/ModalCollectionObjects.vue'
+import VNavigate from './components/Navigate'
 import VSpinner from '@/components/ui/VSpinner'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 

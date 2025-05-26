@@ -26,12 +26,11 @@
 </template>
 
 <script setup>
-import ModalComponent from '@/components/ui/Modal'
-import SmartSelector from '@/components/ui/SmartSelector'
-import useStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import { ref } from 'vue'
 import { COLLECTING_EVENT } from '@/constants'
 import { CollectingEvent } from '@/routes/endpoints'
-import { ref } from 'vue'
+import ModalComponent from '@/components/ui/Modal'
+import SmartSelector from '@/components/ui/SmartSelector'
 
 const emit = defineEmits(['parse'])
 

@@ -20,7 +20,7 @@
         :disabled="!ceId"
         @click="showModal = true"
       >
-        Add/Current ({{ pagination.total }})
+        Add/Current ({{ pagination.total || 0 }})
       </button>
     </div>
     <modal-component
@@ -197,18 +197,20 @@ import {
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
   IDENTIFIER_LOCAL_RECORD_NUMBER
 } from '@/constants/index.js'
-import BiocurationComponent from './Biocuration'
-import PreparationTypes from './PreparationTypes'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialNavigation from '@/components/radials/navigation/radial'
 import ModalComponent from '@/components/ui/Modal'
 import SpinnerComponent from '@/components/ui/VSpinner'
+import VPagination from '@/components/pagination.vue'
+
+import BiocurationComponent from './Biocuration'
+import PreparationTypes from './PreparationTypes'
 import IdentifiersComponent from './Identifiers'
 import DeterminerComponent from './Determiner'
 import RepositoryComponent from './Repository'
 import LabelComponent from './Label'
 import TagComponent from './Tags'
-import RadialAnnotator from '@/components/radials/annotator/annotator'
-import RadialNavigation from '@/components/radials/navigation/radial'
-import VPagination from '@/components/pagination.vue'
+
 import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier.js'
 import {
   BiocurationClassification,
@@ -255,10 +257,12 @@ watch(
   () => props.ceId,
   (newVal) => {
     noCreated.value = []
+
     if (newVal) {
       loadTable()
     } else {
       list.value = []
+      pagination.value = {}
     }
   }
 )
