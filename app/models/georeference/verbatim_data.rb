@@ -51,7 +51,7 @@ class Georeference::VerbatimData < Georeference
         test_grs = GeographicItem
           # && is a fast indexed-bounding-box comparison
           .where('geography && ST_GeographyFromText(:wkt) AND ' \
-            'geography = ST_GeographyFromText(:wkt)',
+                 'geography = ST_GeographyFromText(:wkt)',
             wkt: "POINT(#{point.x} #{point.y} #{point.z})"
           )
       end
