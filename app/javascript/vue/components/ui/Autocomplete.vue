@@ -60,7 +60,7 @@ headers to be used in the call. Using it will override the common headers
     </ul>
     <ul
       v-if="type && searchEnd && !json.length"
-      class="vue-autocomplete-empty-list"
+      class="vue-autocomplete-list vue-autocomplete-empty-list"
     >
       <li>--None--</li>
     </ul>
