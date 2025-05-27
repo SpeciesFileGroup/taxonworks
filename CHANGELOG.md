@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - FieldOccurrences facet to Filter Images
 - Radial CE: Add remove geographic area option in `Set geographic area` slice [#4375]
 - Filter sources: `With/without pages` facet [#4374]
+- Field occurrences to biological associations graph task
 
 ### Fixed
 
