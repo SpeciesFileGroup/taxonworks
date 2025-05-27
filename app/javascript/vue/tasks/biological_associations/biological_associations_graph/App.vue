@@ -192,21 +192,27 @@ onMounted(() => {
   }
 
   if (coId) {
-    CollectionObject.find(coId).then(({ body }) => {
-      graph.value.addNodeObject(body)
-    })
+    CollectionObject.find(coId)
+      .then(({ body }) => {
+        graph.value.addNodeObject(body)
+      })
+      .catch(() => {})
   }
 
-  if (coId) {
-    FieldOccurrence.find(foId).then(({ body }) => {
-      graph.value.addNodeObject(body)
-    })
+  if (foId) {
+    FieldOccurrence.find(foId)
+      .then(({ body }) => {
+        graph.value.addNodeObject(body)
+      })
+      .catch(() => {})
   }
 
   if (otuId) {
-    Otu.find(otuId).then(({ body }) => {
-      graph.value.addNodeObject(body)
-    })
+    Otu.find(otuId)
+      .then(({ body }) => {
+        graph.value.addNodeObject(body)
+      })
+      .catch(() => {})
   }
 
   if (baId) {
