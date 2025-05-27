@@ -10,7 +10,8 @@ module Features
         # fill_in 'session[email]', with: email, id: 'session_email'
         # fill_in 'session[password]', with: password, id: 'session_password'
         click_button 'sign_in'
-        find_link('sign_out')  # TODO: check for Capybara bug fix down the road?
+        expect(page).to have_link('sign_out')
+        #find_link('sign_out')  # TODO: check for Capybara bug fix down the road?
       rescue
         # puts "<Current.user_id = #{Current.user_id.inspect}; Current.project_id = #{Current.project_id.inspect}>"
         # puts page.body

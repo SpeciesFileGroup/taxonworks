@@ -10,7 +10,6 @@ export function makeContainer(container = {}) {
       z: container.size_z || 0
     },
     objectTag: container.container_label,
-    parentId: null,
     isUnsaved: false
   }
 }
