@@ -92,6 +92,10 @@ export function useIdentifierStore(type) {
         return request
       },
 
+      setIdentifier(item) {
+        this.identifier = makeIdentifier(item)
+      },
+
       load({ objectId, objectType }) {
         const request = Identifier.where({
           identifier_object_type: objectType,

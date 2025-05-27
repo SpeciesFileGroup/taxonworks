@@ -4,8 +4,8 @@ import { MutationNames } from '../mutations/mutations'
 const embed = ['level_names']
 const extend = [
   'citations',
-  'geographic_area',
-  'geographic_area_type',
+  'asserted_distribution_shape',
+  'shape_type',
   'origin_citation',
   'source',
   'otu'
@@ -16,8 +16,8 @@ export default ({ commit }, otusId) =>
     AssertedDistribution.all({ otu_id: otusId, embed, extend }).then(
       (response) => {
         const assertedDistributions = response.body.sort((a, b) => {
-          const compareA = a.geographic_area.name
-          const compareB = b.geographic_area.name
+          const compareA = a.asserted_distribution_shape.name
+          const compareB = b.asserted_distribution_shape.name
           if (compareA < compareB) {
             return -1
           } else if (compareA > compareB) {

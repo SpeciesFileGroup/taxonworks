@@ -28,7 +28,7 @@ export default ({ state, dispatch }, coId) => {
       state.biologicalAssociations = body
     })
 
-    Container.for(co.globalId)
+    Container.for({ global_id: co.globalId, extend: ['container_items'] })
       .then(({ body }) => {
         state.container = body
       })

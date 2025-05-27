@@ -1,8 +1,5 @@
 <template>
-  <FacetGeographicArea
-    v-model="params"
-    input-id="area_picker_autocomplete"
-  />
+  <FacetGeographic v-model="params" />
   <FacetTaxonName
     v-model="params"
     coverage
@@ -47,9 +44,9 @@ import { OTU } from '@/constants'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FacetBiologicalRelationship from '@/components/Filter/Facets/BiologicalAssociation/FacetBiologicalRelationship.vue'
 import FacetCollectingEvent from '@/tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
-import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetDescriptor from '@/components/Filter/Facets/shared/FacetDescriptor.vue'
-import FacetGeographicArea from '@/components/Filter/Facets/shared/FacetGeographic.vue'
+import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetHistorialDeterminations from './Facet/FacetHistorialDeterminations.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'

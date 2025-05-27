@@ -126,7 +126,6 @@
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling}.freeze
 
-
       TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY ||= %w{
       TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling
@@ -160,7 +159,8 @@
       }.freeze
 
       # { genus: 'TaxonNameRelationship::Combination::Genus, ... }
-      TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES ||= TaxonNameRelationship::Combination.descendants.inject({}){|hsh, a| hsh.merge!( a.rank_name.to_sym => a.name)}.freeze
+      TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES ||= TaxonNameRelationship::Combination.descendants
+      .inject({}){|hsh, a| hsh.merge!( a.rank_name.to_sym => a.name)}.freeze
 
       TAXON_NAME_RELATIONSHIPS_JSON ||= {
         iczn: {

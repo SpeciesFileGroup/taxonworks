@@ -117,6 +117,6 @@ class ContainersController < ApplicationController
   end
 
   def container_params
-    params.require(:container).permit(:parent_id, :type, :name, :disposition, :size_x, :size_y, :size_z, :empty_container)
+    params.require(:container).permit(:type, :name, :disposition, :size_x, :size_y, :size_z, :empty_container)
   end
 end

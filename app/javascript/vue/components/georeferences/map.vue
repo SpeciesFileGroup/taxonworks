@@ -17,13 +17,30 @@ import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
 import { Icon } from '@/components/georeferences/icons'
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
-import { ASSERTED_DISTRIBUTION, GEOGRAPHIC_AREA } from '@/constants/index.js'
+
+const ASSERTED_DISTRIBUTION = 'asserted_distribution'
+const GEOGRAPHIC_AREA = 'geographic_area'
 
 let drawnItems
 let mapObject
 let geographicArea
 
 const TILE_MAP_STORAGE_KEY = 'tw::map::tile'
+
+const DRAW_CONTROLS_PROPS = [
+  'drawCircle',
+  'drawCircleMarker',
+  'drawMarker',
+  'drawPolyline',
+  'drawPolygon',
+  'drawRectangle',
+  'drawText',
+  'editMode',
+  'dragMode',
+  'cutPolygon',
+  'removalMode',
+  'rotateMode'
+]
 
 const props = defineProps({
   zoomAnimate: {
@@ -40,7 +57,7 @@ const props = defineProps({
   },
   zoom: {
     type: Number,
-    default: 18
+    default: 1
   },
   drawControls: {
     type: Boolean,
@@ -137,7 +154,8 @@ const emit = defineEmits([
   'geoJsonLayersEdited',
   'geojson',
   'shapeCreated',
-  'shapesEdited'
+  'shapesEdited',
+  'click:marker'
 ])
 
 const leafletMap = ref(null)
@@ -185,6 +203,13 @@ watch(
   () => props.zoom,
   (newVal) => {
     mapObject.setZoom(newVal)
+  }
+)
+
+watch(
+  () => props.drawControls,
+  (newVal) => {
+    mapObject.pm.addControls(getControls(newVal))
   }
 )
 
@@ -238,6 +263,15 @@ onUnmounted(() => {
   observeMap?.disconnect()
 })
 
+function getControls(show) {
+  let controls = { position: 'topleft' }
+  DRAW_CONTROLS_PROPS.forEach((prop) => {
+    controls[prop] = show ? props[prop] : false
+  })
+
+  return controls
+}
+
 const addDrawControllers = () => {
   getDefaultTile().addTo(mapObject)
   if (props.tilesSelection) {
@@ -247,21 +281,7 @@ const addDrawControllers = () => {
   }
 
   if (props.drawControls) {
-    mapObject.pm.addControls({
-      position: 'topleft',
-      drawCircle: props.drawCircle,
-      drawCircleMarker: props.drawCircleMarker,
-      drawMarker: props.drawMarker,
-      drawPolyline: props.drawPolyline,
-      drawPolygon: props.drawPolygon,
-      drawRectangle: props.drawRectangle,
-      drawText: props.drawText,
-      editMode: props.editMode,
-      dragMode: props.dragMode,
-      cutPolygon: props.cutPolygon,
-      removalMode: props.removalMode,
-      rotateMode: props.rotateMode
-    })
+    mapObject.pm.addControls(getControls(true))
   }
 
   if (!props.actions) {
@@ -270,6 +290,7 @@ const addDrawControllers = () => {
     })
   }
 }
+
 const handleEvents = () => {
   mapObject.on('baselayerchange', (e) => {
     localStorage.setItem(TILE_MAP_STORAGE_KEY, e.name)
@@ -361,8 +382,8 @@ const addGeoJsonLayer = (geoJsonLayers) => {
       if (
         feature.properties?.geographic_area ||
         feature.properties?.aggregate ||
-        feature.properties?.type === ASSERTED_DISTRIBUTION ||
-        feature.properties?.type === GEOGRAPHIC_AREA
+        feature.properties?.shape?.type === ASSERTED_DISTRIBUTION ||
+        feature.properties?.shape?.type === GEOGRAPHIC_AREA
       ) {
         geographicArea.addLayer(
           L.GeoJSON.geometryToLayer(
@@ -417,6 +438,8 @@ const createMarker = (feature, latlng) => {
   )
   const marker = L.marker(latlng, { icon })
 
+  marker.on('click', (event) => emit('click:marker', event))
+
   return marker
 }
 
@@ -430,7 +453,7 @@ const generateHue = (index) => {
 }
 
 const randomShapeStyle = (index) => ({
-  weight: 1,
+  weight: 2,
   color: generateHue(index + 6),
   dashArray: '3',
   dashOffset: '3',

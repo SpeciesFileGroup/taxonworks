@@ -1,4 +1,4 @@
-require "wahwah"
+require 'wahwah'
 
 # A Sound is digital representation of some noise.  They are linked ivia Conveyances as Images aer linked via Depictions.
 #
@@ -20,16 +20,13 @@ class Sound < ApplicationRecord
   # See canonical list at
   ALLOWED_CONTENT_TYPES = %w{
     audio/wma 
-    audio/aac
-    audio/aiff
     audio/flac
-    audio/mp4
     audio/mp3
     audio/ogg
     audio/wav
     audio/x-wav
     audio/x-ms-wma
-    audio/x-aiff
+    audio/m4a
     audio/mpeg
   }
 

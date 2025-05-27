@@ -8,6 +8,7 @@
         placeholder="Search a collection object"
         param="term"
         label="label_html"
+        autofocus
         clear-after
         @get-item="({ id }) => loadCO(id)"
       />

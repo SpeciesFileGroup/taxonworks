@@ -101,6 +101,7 @@ onMounted(() => {
     store.dispatch(ActionNames.LoadDigitalization, coIdParam)
   } else if (/^\d+$/.test(ceIdParam)) {
     store.dispatch(ActionNames.GetCollectingEvent, ceIdParam)
+    store.dispatch(ActionNames.LoadGeoreferences, ceIdParam)
   }
 })
 

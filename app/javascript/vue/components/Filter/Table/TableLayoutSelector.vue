@@ -33,16 +33,17 @@
                   <input
                     type="checkbox"
                     :checked="
-                      properties[key].length ===
-                      currentLayout.properties[key].length
+                      isTheSameValue({
+                        properties: properties[key],
+                        layout: currentLayout.properties[key]
+                      })
                     "
                     @click="
                       () => {
-                        currentLayout.properties[key] =
-                          properties[key].length ===
-                          currentLayout.properties[key].length
-                            ? []
-                            : [...properties[key]]
+                        currentLayout.properties[key] = setProperties({
+                          properties: properties[key],
+                          layout: currentLayout.properties[key]
+                        })
                         emit('update')
                       }
                     "
@@ -52,6 +53,7 @@
                 <IcconRightLeft class="w-4" />
               </h3>
               <VueDraggable
+                v-if="Array.isArray(properties[key])"
                 class="no_bullets"
                 element="ul"
                 :group="`items-${key}`"
@@ -180,6 +182,24 @@ const isModalVisible = ref(false)
 function openLayoutPreferences() {
   currentLayout.value = props.layouts.Custom
   isModalVisible.value = true
+}
+
+function isTheSameValue({ properties, layout }) {
+  return Array.isArray(properties)
+    ? properties.length === layout.length
+    : properties.show === layout.show
+}
+
+function setProperties({ properties, layout }) {
+  const isTheSame = isTheSameValue({ properties, layout })
+
+  if (Array.isArray(properties)) {
+    return isTheSame ? [] : [...properties]
+  } else {
+    return {
+      show: !layout.show
+    }
+  }
 }
 
 function sortObjects(e) {

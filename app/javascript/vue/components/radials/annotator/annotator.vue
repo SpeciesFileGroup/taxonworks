@@ -1,88 +1,92 @@
 <template>
   <div>
-    <div class="radial-annotator">
-      <VModal
-        v-if="isVisible"
-        transparent
-        @close="closeModal()"
-      >
-        <template #header>
-          <div class="horizontal-left-content middle gap-medium">
-            <div
-              :class="['inline model-tag', modelBg]"
-              v-if="metadata"
-            >
-              {{ metadata.object_type }}
+    <Teleport
+      v-if="isVisible"
+      :disabled="!teleport"
+      to="body"
+    >
+      <div class="radial-annotator">
+        <VModal
+          transparent
+          @close="closeModal()"
+        >
+          <template #header>
+            <div class="horizontal-left-content middle gap-medium">
+              <div
+                :class="['inline model-tag', modelBg]"
+                v-if="metadata"
+              >
+                {{ metadata.object_type }}
+              </div>
+              <span v-html="title" />
             </div>
-            <span v-html="title" />
-          </div>
-        </template>
-        <template #body>
-          <div class="flex-separate">
-            <VSpinner v-if="!isMetadataLoaded" />
-            <div class="radial-annotator-menu">
-              <div>
-                <radial-menu
+          </template>
+          <template #body>
+            <div class="flex-separate">
+              <VSpinner v-if="!isMetadataLoaded" />
+              <div class="radial-annotator-menu">
+                <div>
+                  <radial-menu
+                    v-if="isMetadataLoaded"
+                    :options="menuOptions"
+                    @click="selectComponent"
+                  />
+                </div>
+              </div>
+              <div
+                class="radial-annotator-template panel"
+                v-if="currentAnnotator"
+              >
+                <h2 class="capitalize view-title">
+                  {{ currentAnnotator.replace('_', ' ') }}
+                </h2>
+                <component
                   v-if="isMetadataLoaded"
-                  :options="menuOptions"
-                  @click="selectComponent"
+                  class="radial-annotator-container"
+                  :is="SLICE[currentAnnotator]"
+                  :type="currentAnnotator"
+                  :url="metadata.url"
+                  :metadata="metadata"
+                  :global-id="globalId"
+                  :object-type="metadata.object_type"
+                  :object-id="metadata.object_id"
+                  :radial-emit="handleEmitRadial"
+                  @update-count="setTotal"
                 />
               </div>
             </div>
-            <div
-              class="radial-annotator-template panel"
-              v-if="currentAnnotator"
-            >
-              <h2 class="capitalize view-title">
-                {{ currentAnnotator.replace('_', ' ') }}
-              </h2>
-              <component
-                v-if="isMetadataLoaded"
-                class="radial-annotator-container"
-                :is="SLICE[currentAnnotator]"
-                :type="currentAnnotator"
-                :url="metadata.url"
-                :metadata="metadata"
-                :global-id="globalId"
-                :object-type="metadata.object_type"
-                :object-id="metadata.object_id"
-                :radial-emit="handleEmitRadial"
-                @update-count="setTotal"
-              />
-            </div>
-          </div>
-        </template>
-      </VModal>
-
-      <VBtn
-        v-if="showBottom"
-        circle
-        color="radial"
-        :title="buttonTitle"
-        :class="[pulse ? 'pulse-blue' : '']"
-        :disabled="disabled"
-        @contextmenu.prevent="loadContextMenu"
-        @click="displayAnnotator()"
-      >
-        <VIcon
-          :title="buttonTitle"
-          name="radialAnnotator"
-          x-small
-        />
-      </VBtn>
-      <div
-        v-if="metadataCount && showCount"
-        class="circle-count button-submit middle"
-      >
-        <span class="citation-count-text">{{ metadataCount }}</span>
+          </template>
+        </VModal>
       </div>
-      <ContextMenu
-        :metadata="metadata"
-        :global-id="globalId"
-        v-model="isContextMenuVisible"
-        v-if="isContextMenuVisible"
+    </Teleport>
+    <VBtn
+      v-if="showBottom"
+      circle
+      color="radial"
+      :title="buttonTitle"
+      :class="[pulse ? 'pulse-blue' : '']"
+      :disabled="disabled"
+      @contextmenu.prevent="loadContextMenu"
+      @click="displayAnnotator()"
+    >
+      <VIcon
+        :title="buttonTitle"
+        name="radialAnnotator"
+        x-small
       />
+    </VBtn>
+    <div
+      v-if="metadataCount && showCount"
+      class="circle-count button-submit middle"
+    >
+      <span class="citation-count-text">{{ metadataCount }}</span>
     </div>
+    <ContextMenu
+      :metadata="metadata"
+      :global-id="globalId"
+      v-model="isContextMenuVisible"
+      v-if="isContextMenuVisible"
+    />
   </div>
 </template>
 
@@ -182,6 +186,11 @@ const props = defineProps({
   },
 
   disabled: {
+    type: Boolean,
+    default: false
+  },
+
+  teleport: {
     type: Boolean,
     default: false
   }

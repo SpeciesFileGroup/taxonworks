@@ -1,6 +1,8 @@
 # Facilitate sorting and rendering objects that have an id and parent_id.
 class Utilities::Hierarchy
 
+  Node = Data.define(:id, :parent_id, :label, :url, :weight, :klass, :alias)
+
   # Objects (nodes) can have attributes
   #
   #   id
@@ -45,7 +47,7 @@ class Utilities::Hierarchy
     @root = params[:root_id]
     @nodes = params[:objects]
     @match = params[:match] || []
-    @node_map = nodes.inject({}) {|hsh, n| hsh[n.id] = n; hsh}
+    @node_map = nodes.inject({}) {|hsh, n| hsh[n.id] = n; hsh;}
   end
 
   def hierarchy
@@ -78,15 +80,15 @@ class Utilities::Hierarchy
     @root_nodes
   end
 
-  def draw(node_id, level = 0, result = [])
-    z = '  ' * level + "ID: #{node_id} #{node_map[node_id].label}\n"
-    # puts z
-    result.push z #  += z
-    hierarchy[node_id]&.each do |child|
-      result += draw(child, level + 1)
-    end
-    result
-  end
+  # def draw(node_id, level = 0, result = [])
+  #   z = '  ' * level + "ID: #{node_id} #{node_map[node_id].label}\n"
+  #   # puts z
+  #   result.push z #  += z
+  #   hierarchy[node_id]&.each do |child|
+  #     result += draw(child, level + 1)
+  #   end
+  #   result
+  # end
 
   def draw(node_id, level = 0, result = "")
     z = '  ' * level + node_map[node_id].label

@@ -28,7 +28,7 @@ RSpec.describe CachedMap, type: :model, group: [:geo, :cached_map] do
     let(:ad) {
       AssertedDistribution.create!(
         otu:,
-        geographic_area: ga,
+        asserted_distribution_shape: ga,
         source: FactoryBot.create(:valid_source)
       )
     }
@@ -38,7 +38,7 @@ RSpec.describe CachedMap, type: :model, group: [:geo, :cached_map] do
       # cmi from ad to be incremented.
       AssertedDistribution.create!(
         otu:,
-        geographic_area: ga_offset,
+        asserted_distribution_shape: ga_offset,
         source: FactoryBot.create(:valid_source)
       )
     }
@@ -58,7 +58,7 @@ RSpec.describe CachedMap, type: :model, group: [:geo, :cached_map] do
       # incremented).
       AssertedDistribution.create!(
         otu:,
-        geographic_area: ga_new_cmi,
+        asserted_distribution_shape: ga_new_cmi,
         source: FactoryBot.create(:valid_source)
       )
     }
@@ -66,6 +66,7 @@ RSpec.describe CachedMap, type: :model, group: [:geo, :cached_map] do
     specify 'new cached_maps are synced' do
       [ad, ad_ref_count, ad_new_cmi] # instantiate
       Delayed::Worker.new.work_off
+
       expect(otu.cached_map.synced?).to be_truthy
     end
 

@@ -9,7 +9,6 @@ function makeInitialState() {
     loadState: {
       assertedDistribution: false,
       biologicalAssociations: true,
-      collectingEvents: true,
       collectionObjects: true,
       descendants: false,
       descendantsDistribution: false,
@@ -18,7 +17,7 @@ function makeInitialState() {
       fieldOccurrences: true
     },
     preferences: {
-      preferenceSchema: 20250404,
+      preferenceSchema: 20250519,
       sections: Object.keys(componentNames),
       filterSections: {
         and: {
@@ -111,7 +110,6 @@ function makeInitialState() {
     assertedDistributions: [],
     biologicalAssociations: [],
     relatedBAs: [],
-    collectingEvents: [],
     collectionObjects: [],
     fieldOccurrences: [],
     otus: [],

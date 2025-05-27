@@ -126,7 +126,9 @@ class ConfidencesController < ApplicationController
         mode: params[:mode] || :add,
         filter_query: params.require(:filter_query), # like filter_query: { otu_query: {}}
         confidence_level_id: params.require(:confidence_level_id),
-        replace_confidence_level_id: params[:replace_confidence_level_id]
+        replace_confidence_level_id: params[:replace_confidence_level_id],
+        project_id: sessions_current_project_id,
+        user_id: sessions_current_user_id
     )
       render json: r.to_json, status: :ok
     else

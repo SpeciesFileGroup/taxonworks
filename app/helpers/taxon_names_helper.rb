@@ -190,6 +190,14 @@ module TaxonNamesHelper
     end
   end
 
+  def taxon_name_decorator_status(taxon_name)
+    return nil if taxon_name.nil?
+    taxon_name.taxon_name_classifications
+      .where(taxon_name_classifications: {type: TAXON_NAME_CLASSIFICATIONS_FOR_DECORATION})
+      .select('taxon_name_classifications.type')
+      .map{|a| a.type.demodulize.underscore.gsub(/(\d+)/,  ' \1').gsub('_', ' ').capitalize}
+  end
+
   def taxon_name_inferred_combination_tag(taxon_name)
     return nil if taxon_name.nil? || taxon_name.is_combination? || taxon_name.is_valid?
     if taxon_name.is_protonym?
@@ -201,7 +209,7 @@ module TaxonNamesHelper
 
   def taxon_name_gender_sentence_tag(taxon_name)
     return nil if taxon_name.nil?
-    "The name is #{taxon_name.gender_name}." if taxon_name.gender_name
+    "The name is #{taxon_name.cached_gender}." if taxon_name.cached_gender
   end
 
   def cached_classified_as_tag(taxon_name)
@@ -322,7 +330,7 @@ module TaxonNamesHelper
 
   def descendant_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Down'
-    if taxon_name.descendants.any?
+    if taxon_name.descendants.unscope(:order).any?
       a = taxon_name.descendants.first.metamorphosize
       text = taxon_name_tag(a)
       link_to(content_tag(:span, text, data: {icon: 'arrow-down'}, class: 'small-icon'), taxon_name_link_path(a, path), class: 'navigation-item', data: {arrow: 'descendant'})

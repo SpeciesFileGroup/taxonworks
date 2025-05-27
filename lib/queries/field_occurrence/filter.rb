@@ -21,7 +21,6 @@ module Queries
         :collecting_event_id,
         :determiner_id,
         :field_occurrence_id,
-        :geographic_area_id,
         # :collectors,
         # :current_determinations,
         :dates,
@@ -36,7 +35,7 @@ module Queries
         # :sled_image_id,
         :spatial_geographic_areas,
         # :taxon_determination_id,
-        # :taxon_name_id,
+        :taxon_name_id,
         # :validity,
         biocuration_class_id: [],
         biological_association_id: [],
@@ -44,11 +43,10 @@ module Queries
         collecting_event_id: [],
         field_occurrence_id: [],
         determiner_id: [],
-        geographic_area_id: [],
         # import_dataset_id: [],
         # is_type: [],
         otu_id: [],
-        # taxon_name_id: [],
+        taxon_name_id: [],
       ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
 
       # @return [Array]
@@ -442,12 +440,7 @@ module Queries
       end
 
       def base_collecting_event_query_facet
-        # Turn project_id off and check for a truly empty query
-        base_collecting_event_query.project_id = nil
-        return nil if base_collecting_event_query.all(true).nil?
-
-        # Turn project_id back on
-        base_collecting_event_query.project_id = project_id
+        return nil if base_collecting_event_query.only_project?
 
         s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
           ::FieldOccurrence
@@ -457,17 +450,17 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
-      # def taxon_name_query_facet
-      #   return nil if taxon_name_query.nil?
-      #   s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
-      #       ::FieldOccurrence
-      #         .joins(:taxon_names)
-      #         .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
-      #         .to_sql
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
 
-      #   ::FieldOccurrence.from('(' + s + ') as collection_objects').distinct
-      # end
+        s = ::FieldOccurrence
+          .with(query_tn_fo: taxon_name_query.all.select(:id))
+          .joins(:taxon_names)
+          .joins('JOIN query_tn_fo on query_tn_fo.id = taxon_names.id')
+          .to_sql
 
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
 
       def otu_query_facet
         return nil if otu_query.nil?
@@ -538,6 +531,30 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
+      def image_query_facet
+        return nil if image_query.nil?
+
+        s = ::FieldOccurrence
+          .with(query_image: image_query.all)
+          .joins(:depictions)
+          .joins('JOIN query_image ON query_image.id = depictions.image_id')
+          .to_sql
+
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
+
+      def observation_query_facet
+        return nil if observation_query.nil?
+
+        s = ::FieldOccurrence
+          .with(obs_query_fo: observation_query.all)
+          .joins(:observations)
+          .joins('JOIN obs_query_fo on observations.id = obs_query_fo.id')
+          .to_sql
+
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
+
       def and_clauses
         [
           collecting_event_id_facet,
@@ -553,8 +570,10 @@ module Queries
           biological_association_query_facet,
           collecting_event_query_facet,
           dwc_occurrence_query_facet,
+          image_query_facet,
+          observation_query_facet,
           otu_query_facet,
-          #  taxon_name_query_facet,
+          taxon_name_query_facet,
           biocuration_facet,
           biological_associations_facet,
           #  biological_relationship_id_facet,
@@ -565,7 +584,7 @@ module Queries
           # dwc_indexed_facet,
           otu_id_facet,
           # sled_image_facet,
-          # taxon_name_id_facet,
+          taxon_name_id_facet,
         ]
       end
     end

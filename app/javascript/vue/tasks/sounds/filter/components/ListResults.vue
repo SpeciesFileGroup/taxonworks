@@ -13,10 +13,10 @@
               v-model="selectAll"
             />
           </th>
+          <th class="w-2" />
           <th>Name</th>
           <th>Object tag</th>
           <th></th>
-          <th />
         </tr>
       </thead>
       <tbody>
@@ -32,19 +32,25 @@
               :value="item.id"
             />
           </td>
+          <td>
+            <div class="horizontal-right-content middle gap-small">
+              <RadialAnnotator :global-id="item.global_id" />
+              <RadialNavigator :global-id="item.global_id" />
+            </div>
+          </td>
           <td>{{ item.name }}</td>
           <td v-html="item.object_tag" />
           <td>
             <audio
+              v-if="!item.metadata.error"
               :src="item.sound_file"
               controls
               preload="metadata"
             />
-          </td>
-          <td class="w-2">
-            <div class="horizontal-right-content middle gap-small">
-              <RadialAnnotator :global-id="item.global_id" />
-              <RadialNavigator :global-id="item.global_id" />
+            <div v-else>
+              <div style="color: red">
+                {{ item.metadata.error }}
+              </div>
             </div>
           </td>
         </tr>

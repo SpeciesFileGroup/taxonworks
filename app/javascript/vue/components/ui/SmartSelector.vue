@@ -1,6 +1,6 @@
 <template>
   <div ref="rootRef">
-    <div class="separate-bottom flex-separate">
+    <div class="separate-bottom horizontal-left-content gap-small">
       <div class="horizontal-left-content">
         <VSpinner
           v-if="isLoading"
@@ -22,7 +22,6 @@
       <div class="horizontal-left-content gap-small">
         <default-pin
           v-if="pinSection"
-          class="margin-small-left"
           :section="pinSection"
           :type="pinType"
           @get-id="getObject"
@@ -166,6 +165,11 @@ const props = defineProps({
   buttonClass: {
     type: String,
     default: 'button-data'
+  },
+
+  default: {
+    type: String,
+    default: undefined
   },
 
   otuPicker: {
@@ -378,7 +382,9 @@ const refresh = (forceUpdate = false) => {
       options.value = Object.keys(lists.value).concat(props.addTabs)
       options.value = OrderSmart(options.value)
 
-      view.value = SelectFirst(lists.value, options.value)
+      view.value = props.default
+        ? props.default
+        : SelectFirst(lists.value, options.value)
     })
     .catch(() => {
       options.value = []
@@ -427,7 +433,7 @@ const alreadyOnLists = () => {
   )
 }
 const setFocus = () => {
-  autocompleteRef.value.setFocus()
+  autocompleteRef.value?.setFocus()
 }
 
 const changeTab = (e) => {

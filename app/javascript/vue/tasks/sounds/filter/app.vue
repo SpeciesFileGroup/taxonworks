@@ -15,11 +15,19 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialMatrix
+          :parameters="parameters"
+          :disabled="!list.length"
+          :object-type="SOUND"
+        />
+      </template>
       <template #nav-right>
-        <div
-          v-if="list.length"
-          class="horizontal-right-content"
-        ></div>
+        <RadialMatrix
+          :ids="selectedIds"
+          :disabled="!list.length"
+          :object-type="SOUND"
+        />
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
@@ -48,6 +56,7 @@ import FilterComponent from './components/filter.vue'
 import ListResults from './components/ListResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import { SOUND } from '@/constants/index.js'
 import { Sound } from '@/routes/endpoints'
 

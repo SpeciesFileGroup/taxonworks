@@ -21,17 +21,6 @@
         :data="data"
       />
     </template>
-    <template #footer>
-      <div class="horizontal-right-content">
-        <VBtn
-          color="primary"
-          medium
-          @click="closeModal"
-        >
-          Close
-        </VBtn>
-      </div>
-    </template>
   </VModal>
   <ConfirmationModal ref="confirmationModalRef" />
 </template>
@@ -80,6 +69,9 @@ function makeBatchloadRequest() {
     .then(({ body }) => {
       emit('update', body)
       data.value = body
+    })
+    .catch(() => {
+      isModalVisible.value = false
     })
     .finally(() => {
       isLoading.value = false

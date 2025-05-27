@@ -7,6 +7,7 @@
       'otus',
       'collection_objects',
       'collection_object_observations',
+      'field_occurrences',
       'otu_observations',
       'type_material',
       'type_material_observations'
@@ -19,6 +20,10 @@
   </FacetTaxonName>
   <FacetDepictionObjectType v-model="params" />
   <FacetCollectionObject
+    v-model="params"
+    includes
+  />
+  <FacetFieldOccurrence
     v-model="params"
     includes
   />
@@ -54,6 +59,7 @@ import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetDepictionObjectType from '@/components/Filter/Facets/Depiction/FacetDepictionObjectType.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetFieldOccurrence from '@/components/Filter/Facets/FieldOccurrence/FacetFieldOccurrence.vue'
 
 const props = defineProps({
   modelValue: {

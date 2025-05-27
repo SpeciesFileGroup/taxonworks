@@ -10,7 +10,7 @@
       Clone
     </VBtn>
     <VModal
-      v-show="isModalVisible"
+      v-if="isModalVisible"
       @close="isModalVisible = false"
     >
       <template #header>
@@ -43,9 +43,9 @@
           type="text"
           class="full_width"
           v-model="inputValue"
-          @keypress.enter.prevent="cloneTaxon()"
           ref="inputTextRef"
           :placeholder="`Write ${checkWord} to continue`"
+          @keypress.enter.prevent="cloneTaxon()"
         />
       </template>
       <template #footer>

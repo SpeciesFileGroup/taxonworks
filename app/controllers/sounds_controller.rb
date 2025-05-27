@@ -1,6 +1,6 @@
 class SoundsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  
+
   before_action :set_sound, only: %i[ show edit update destroy api_show ]
 
   after_action -> { set_pagination_headers(:sounds) }, only: [:index, :api_index], if: :json_request?
@@ -71,17 +71,22 @@ class SoundsController < ApplicationController
 
   # DELETE /sounds/1 or /sounds/1.json
   def destroy
-    @sound.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to sounds_path, status: :see_other, notice: 'Sound was successfully destroyed.' }
-      format.json { head :no_content }
+    if @sound.destroy
+      respond_to do |format|
+        format.html { redirect_to sounds_path, status: :see_other, notice: 'Sound was successfully destroyed.' }
+        format.json { head :no_content }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to sounds_path, notice: @sound.errors.full_messages.join('. ') }
+        format.json { head :no_content, status: :unprocessable_entity }
+      end
     end
   end
 
   def select_options
     @sounds = Sound.select_optimized(
-      sessions_current_user_id, 
+      sessions_current_user_id,
       sessions_current_project_id,
      params.require(:target))
   end

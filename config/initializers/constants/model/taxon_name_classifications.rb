@@ -1,4 +1,5 @@
-# Be sure to restart your server (or console) when you modify this file.
+# Be sure to exit and restart your console or server when you modify this file.
+# `reload!` will not work!
 
 Rails.application.reloader.to_prepare do
 
@@ -82,7 +83,6 @@ TAXON_NAME_CLASS_NAMES_UNAVAILABLE ||= [
   TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished.descendants
 ].flatten.map(&:to_s).freeze
 
-
 TAXON_NAME_CLASS_NAMES_VALID ||= [
   TaxonNameClassification::Iczn::Available::Valid,
   TaxonNameClassification::Iczn::Available::Valid.descendants,
@@ -108,7 +108,7 @@ EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS ||= [
     TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::NotLatin
 ].flatten.map(&:to_s).freeze
 
-TAXON_NAME_CLASSIFICATIONS_FOR_TAXONPAGES ||= [
+TAXON_NAME_CLASSIFICATIONS_FOR_DECORATION ||= [
   TaxonNameClassification::Iczn::Available::Valid.descendants,
   TaxonNameClassification::Iczn::Available::Invalid,
   TaxonNameClassification::Iczn::Available::Invalid.descendants,

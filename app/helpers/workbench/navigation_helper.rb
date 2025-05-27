@@ -262,8 +262,8 @@ module Workbench::NavigationHelper
     content_tag(:title, ['TaxonWorks', splash].compact.join(' - ') )
   end
 
-  def radial_navigation_tag(object)
-    content_tag(:span, '', data: { 'global-id': object.to_global_id.to_s, 'radial-navigation': 'true'})
+  def radial_navigation_tag(object, teleport = nil)
+    content_tag(:span, '', data: { 'global-id': object.to_global_id.to_s, 'radial-navigation': 'true', 'teleport': teleport})
   end
 
   # If a "home" is provided, use it instead of show link

@@ -47,22 +47,17 @@
     <div class="grid-panels gap-medium margin-medium-bottom">
       <PanelCitation />
       <PanelOtu />
-      <PanelGeographicArea />
+      <PanelGeo />
       <PanelConfidence />
     </div>
 
-    <TableComponent
-      class="full_width"
-      @on-source-otu="setSourceOtu"
-      @on-source-geo="setSourceGeo"
-      @on-otu-geo="setGeoOtu"
-    />
+    <TableComponent class="full_width" />
   </div>
 </template>
 
 <script setup>
 import PanelOtu from './components/Panel/PanelOtu.vue'
-import PanelGeographicArea from './components/Panel/PanelGeographicArea.vue'
+import PanelGeo from './components/Panel/PanelGeo.vue'
 import PanelCitation from './components/Panel/PanelCitation.vue'
 import PanelConfidence from './components/Panel/PanelConfidence.vue'
 import TableComponent from './components/table'
@@ -71,7 +66,6 @@ import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
 
 import { useHotkey } from '@/composables'
-import { Source } from '@/routes/endpoints'
 import { computed, ref, onBeforeMount } from 'vue'
 import { useStore } from './store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -109,39 +103,6 @@ onBeforeMount(() => {
   )
 })
 
-function setSourceOtu(item) {
-  store.reset()
-  setCitation(item.citations[0])
-  store.otu = item.otu
-}
-
-function setSourceGeo(item) {
-  store.reset()
-  setCitation(item.citations[0])
-  store.geographicArea = item.geographic_area
-  store.isAbsent = item.is_absent
-}
-
-function setGeoOtu(item) {
-  store.reset()
-  store.autosave = false
-  store.assertedDistribution.id = item.id
-  store.geographicArea = item.geographic_area
-  store.otu = item.otu
-  store.isAbsent = item.is_absent
-}
-
-function setCitation(citation) {
-  Source.find(citation.source_id).then(({ body }) => {
-    store.citation = {
-      id: undefined,
-      source: body,
-      source_id: citation.source_id,
-      is_original: citation.is_original,
-      pages: citation.pages
-    }
-  })
-}
 </script>
 
 <style scoped>

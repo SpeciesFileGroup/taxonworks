@@ -30,7 +30,7 @@
             url="/otus/autocomplete"
             placeholder="Search a otu"
             param="term"
-            :clear-after="true"
+            clear-after
             @getItem="loadOtu"
             label="label_html"
           />
@@ -91,7 +91,6 @@ import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
 import NomenclatureHistory from './components/timeline/Timeline.vue'
 import Distribution from './components/Distribution/Distribution.vue'
-import CollectingEventSection from './components/collectingEvent/CollectingEventSection.vue'
 import Descendants from './components/Descendants/Descendants.vue'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
@@ -124,7 +123,6 @@ export default {
     BiologicalAssociations,
     AnnotationsComponent,
     NomenclatureHistory,
-    CollectingEventSection,
     CollectionObjects,
     TypeSpecimens,
     CommonNames,

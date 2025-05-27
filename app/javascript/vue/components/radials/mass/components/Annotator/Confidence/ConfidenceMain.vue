@@ -79,6 +79,11 @@ const props = defineProps({
   parameters: {
     type: Object,
     default: undefined
+  },
+
+  nestedQuery: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -141,9 +146,7 @@ function makePayload(confidence) {
   return {
     mode: selectedMode.value.mode,
     confidence_level_id: confidence.id,
-    filter_query: {
-      [QUERY_PARAM[props.objectType]]: props.parameters
-    }
+    filter_query: filterQuery()
   }
 }
 
@@ -152,9 +155,13 @@ function makeReplacePayload([replace, to]) {
     mode: selectedMode.value.mode,
     confidence_level_id: to.id,
     replace_confidence_level_id: replace.id,
-    filter_query: {
-      [QUERY_PARAM[props.objectType]]: props.parameters
-    }
+    filter_query: filterQuery()
   }
+}
+
+function filterQuery() {
+  return props.nestedQuery
+    ? props.parameters
+    : {[QUERY_PARAM[props.objectType]]: props.parameters}
 }
 </script>
