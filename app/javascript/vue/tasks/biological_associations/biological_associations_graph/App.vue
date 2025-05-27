@@ -140,7 +140,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import ModalRelated from './components/ModalRelated.vue'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { onMounted, ref } from 'vue'
-import { CollectionObject, Otu } from '@/routes/endpoints'
+import { CollectionObject, FieldOccurrence, Otu } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes.js'
 
 const graph = ref()
@@ -183,6 +183,7 @@ onMounted(() => {
   const params = URLParamsToJSON(location.href)
   const biologicalAssociationGraphId = params.biological_associations_graph_id
   const coId = params.collection_object_id
+  const foId = params.field_occurrence_id
   const otuId = params.otu_id
   const baId = params.biological_association_id
 
@@ -192,6 +193,12 @@ onMounted(() => {
 
   if (coId) {
     CollectionObject.find(coId).then(({ body }) => {
+      graph.value.addNodeObject(body)
+    })
+  }
+
+  if (coId) {
+    FieldOccurrence.find(foId).then(({ body }) => {
       graph.value.addNodeObject(body)
     })
   }
@@ -232,15 +239,15 @@ function loadGraph(id) {
 }
 
 function saveGraph() {
-  graph.value.save().then(({ biologicalAssociationGraphId }) => {
+  graph.value.save().then(({ biologicalAssociationGraph }) => {
     TW.workbench.alert.create(
       'Biological association(s) were successfully saved.',
       'notice'
     )
 
-    if (biologicalAssociationGraphId) {
+    if (biologicalAssociationGraph.id) {
       setParam(RouteNames.NewBiologicalAssociationGraph, {
-        biological_associations_graph_id: biologicalAssociationGraphId.id
+        biological_associations_graph_id: biologicalAssociationGraph.id
       })
     }
   })
