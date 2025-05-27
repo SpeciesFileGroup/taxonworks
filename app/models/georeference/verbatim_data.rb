@@ -48,8 +48,10 @@ class Georeference::VerbatimData < Georeference
       if point.nil?
         test_grs = []
       else
-        test_grs = GeographicItem.points
-          .where('geography = ST_GeographyFromText(:wkt)',
+        test_grs = GeographicItem
+          # && is a fast indexed-bounding-box comparison
+          .where('geography && ST_GeographyFromText(:wkt) AND ' \
+            'geography = ST_GeographyFromText(:wkt)',
             wkt: "POINT(#{point.x} #{point.y} #{point.z})"
           )
       end
