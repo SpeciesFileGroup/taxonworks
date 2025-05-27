@@ -46,7 +46,7 @@
         <VBtn
           v-if="edit"
           circle
-          color="update"
+          color="primary"
           @click="$emit('edit', Object.assign({}, item))"
         >
           <VIcon

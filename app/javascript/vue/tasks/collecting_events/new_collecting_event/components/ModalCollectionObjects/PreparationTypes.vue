@@ -27,46 +27,26 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed, onBeforeMount, ref } from 'vue'
 import { PreparationType } from '@/routes/endpoints'
 
-export default {
-  props: {
-    modelValue: {
-      type: [String, Number],
-      default: undefined
-    }
-  },
+const preparationType = defineModel({
+  type: [String, Number],
+  default: undefined
+})
 
-  computed: {
-    preparationGroups() {
-      return this.preparationTypes.chunk(
-        Math.ceil(this.preparationTypes.length / 3)
-      )
-    },
+const preparationTypes = ref([])
 
-    preparationType: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
+const preparationGroups = computed(() =>
+  preparationTypes.value.chunk(Math.ceil(preparationTypes.value.length / 3))
+)
 
-  async mounted() {
-    this.preparationTypes = (await PreparationType.all()).body
-    this.preparationTypes.push({
-      id: undefined,
-      name: 'None'
-    })
-  },
-
-  data() {
-    return {
-      preparationTypes: []
-    }
-  }
-}
+onBeforeMount(async () => {
+  preparationTypes.value = (await PreparationType.all()).body
+  preparationTypes.value.push({
+    id: undefined,
+    name: 'None'
+  })
+})
 </script>

@@ -89,7 +89,7 @@ import { GeographicArea } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
-import MetaPrioritizeGeographicArea from '@/tasks/collecting_events/new_collecting_event/components/Meta/MetaPrioritizeGeographicArea.vue'
+import MetaPrioritizeGeographicArea from '@/components/Form/FormCollectingEvent/components/Meta/MetaPrioritizeGeographicArea.vue'
 
 import convertDMS from '@/helpers/parseDMS.js'
 import ModalComponent from '@/components/ui/Modal'
