@@ -289,9 +289,9 @@ class LeadsController < ApplicationController
       render json: lead.errors, status: :unprocessable_entity
     end
 
-    @lead = lead.parent
-    expand_lead
-    render action: :show, location: @lead
+    @lead_item_otus = lead.parent.apportioned_lead_item_otus
+    render partial: 'leads/lead_item_otus',
+      locals: { lead_item_otus: @lead_item_otus }
   end
 
   private

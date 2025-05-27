@@ -9,7 +9,7 @@ export default function addOtuIndex(child_index, otu_index) {
   this.setLoading(true)
   Lead.add_otu_index(payload)
     .then(({ body }) => {
-      this.loadKey(body)
+      this.lead_item_otus = body.lead_item_otus
     })
     .catch(() => {})
     .finally(() => { this.setLoading(false) })
