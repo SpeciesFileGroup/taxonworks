@@ -282,18 +282,6 @@ class LeadsController < ApplicationController
     render json: @lead
   end
 
-  def add_otu_index
-    lead = Lead.find(params[:lead_id])
-    added = LeadItem.add_otu_index_for_lead(lead, params[:otu_id])
-    if !added
-      render json: lead.errors, status: :unprocessable_entity
-    end
-
-    @lead_item_otus = lead.parent.apportioned_lead_item_otus
-    render partial: 'leads/lead_item_otus',
-      locals: { lead_item_otus: @lead_item_otus }
-  end
-
   private
 
   def set_lead

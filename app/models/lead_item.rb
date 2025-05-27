@@ -25,7 +25,7 @@ class LeadItem < ApplicationRecord
 
   has_one :taxon_name, through: :otu
 
-  validates_presence_of :otu, :lead
+  validates :otu, :lead, presence: true
 
   def self.batch_add_otus_for_lead(lead_id, otu_ids, project_id, user_id)
     attributes = otu_ids.map { |otu_id|
@@ -66,10 +66,12 @@ class LeadItem < ApplicationRecord
     items_lead
   end
 
-  def self.add_otu_index_for_lead(lead, otu_id)
+  def self.add_otu_index_for_lead(lead, otu_id, exclusive)
     begin
       Lead.transaction do
-        LeadItem.where(lead_id: lead.sibling_ids, otu_id:).destroy_all
+        if exclusive
+          LeadItem.where(lead_id: lead.sibling_ids, otu_id:).destroy_all
+        end
 
         LeadItem.create!(lead_id: lead.id, otu_id:)
       end
@@ -78,6 +80,25 @@ class LeadItem < ApplicationRecord
       return false
     rescue ActiveRecord::RecordInvalid => e
       lead.errors.add(:base, "New LeadItem creation failed! '#{e}'")
+      return false
+    end
+
+    true
+  end
+
+  def self.remove_otu_index_for_lead(lead, otu_id)
+    count = LeadItem
+      .where(otu_id:, lead_id: lead.self_and_siblings.map(&:id)).count
+
+    if count == 1
+      lead.errors.add(:base, "Can't destroy last lead item for otu #{otu_id}!")
+      return false
+    end
+
+    begin
+      LeadItem.where(lead_id: lead.id, otu_id:).destroy_all
+    rescue ActiveRecord::RecordNotDestroyed => e
+      lead.errors.add(:base, "Destroy LeadItem for lead #{lead.id}, otu #{otu_id} failed! '#{e}'")
       return false
     end
 

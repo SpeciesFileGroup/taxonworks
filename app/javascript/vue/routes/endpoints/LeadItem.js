@@ -18,5 +18,14 @@ export const LeadItem = {
 
   addLeadItemToChildLead: (payload) => AjaxCall(
     'post', `/${controller}/add_lead_item_to_child_lead.json`, payload
-  )
+  ),
+
+  addOtuIndex: (payload) => AjaxCall(
+    'post', `/${controller}/add_otu_index.json`, payload
+  ),
+
+  removeOtuIndex: (payload) => AjaxCall(
+    'post', `/${controller}/remove_otu_index.json`, payload
+  ),
+
 }

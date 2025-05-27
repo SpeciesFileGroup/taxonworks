@@ -38,27 +38,38 @@
       :index="otu.id"
       class="lead_otu_row"
     >
-      <span
-        v-if="otuIndices.findIndex((c) => (c == i)) != -1"
-        class="in"
-      >
-        &#10003;
+      <span v-if="otuIndices.findIndex((c) => (c == i)) != -1">
+        <span class="in">
+          &#10003;
+        </span>
+        <span
+          title="Remove otu from this lead"
+          :class="['remove', 'circle-button', 'btn-delete',
+            { 'btn-disabled': leadItemCount(i) == 1 }]"
+          @click="() => removeOtuIndex(i)"
+        />
       </span>
-
-      <span
-        v-else
-        class="out"
-        @click="() => addOtuIndex(i)"
-      />
+      <span v-else>
+        <span
+          class="out circle"
+          title="Add otu to this lead and remove from others"
+          @click="() => addOtuIndex(i)"
+        />
+        <span
+          class="out"
+          title="Add otu to this lead and don't remove from others"
+          @click="() => addAdditionalOtuIndex(i)"
+        />
+      </span>
       <span v-html="otu.object_tag" />
 
       <span class="horizontal-right-content gap-small radials">
         <radial-object :global-id="otu.global_id" />
         <span
           class="circle-button btn-delete"
-          @click="() => { leadItemDeleted(otu.id) }"
-          >Remove
-        </span>
+          title="Remove otu from all leads"
+          @click="() => leadItemDeleted(otu.id)"
+        />
       </span>
     </div>
   </div>
@@ -133,8 +144,20 @@ function addOtu() {
   modalVisible.value = true
 }
 
-function addOtuIndex(otu_index) {
-  store.addOtuIndex(props.position, otu_index)
+function addOtuIndex(otuIndex) {
+  store.addOtuIndex(props.position, otuIndex)
+}
+
+function addAdditionalOtuIndex(otuIndex) {
+  store.addOtuIndex(props.position, otuIndex, false)
+}
+
+function removeOtuIndex(otuIndex) {
+  if (leadItemCount(otuIndex) == 1) {
+    return
+  }
+
+  store.removeOtuIndex(props.position, otuIndex)
 }
 
 function setLeadOtu() {
@@ -189,6 +212,18 @@ function otuSelected(otuId) {
     .finally(() => { store.setLoading(false) })
 }
 
+function leadItemCount(i) {
+  let selectedCount = 0
+
+  store.lead_item_otus.children.forEach((leadChildOtus) => {
+    if (leadChildOtus.otu_indices.includes(i)) {
+      selectedCount += 1
+    }
+  })
+
+  return selectedCount
+}
+
 </script>
 
 <style scoped>
@@ -211,21 +246,34 @@ function otuSelected(otuId) {
 
 .in {
   display: inline-block;
-  width: 16px;
-  height: 16px;
-  margin-right: .5em;
+  width: 24px;
+  height: 24px;
+  margin-right: 6.5px;
   color: green;
+  vertical-align: middle;
   text-align: center;
 }
 
 .out {
   display: inline-block;
-  width: 10px;
-  height: 10px;
-  margin-right: .5em;
+  width: 24px;
+  height: 24px;
+  margin-right: 6.5px;
   cursor: pointer;
-  border: 2px solid rgb(70, 70, 70);
   vertical-align: middle;
+  text-align: center;
+  background-color: var(--color-create);
+  color: white;
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.remove {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6.5px;
 }
 
 .lead_otu_row:nth-child(odd) {

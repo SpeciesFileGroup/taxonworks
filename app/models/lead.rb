@@ -76,7 +76,7 @@ class Lead < ApplicationRecord
   validate :node_parent_doesnt_have_redirect
   validate :root_has_no_redirect
   validate :redirect_isnt_ancestor_or_self
-  validates_uniqueness_of :text, scope: [:otu_id, :parent_id], unless: -> { otu_id.nil? }
+  validates :text, uniqueness: { scope: [:otu_id, :parent_id], unless: -> { otu_id.nil? } }
 
   def future
     redirect_id.blank? ? all_children : redirect.all_children
@@ -371,7 +371,7 @@ class Lead < ApplicationRecord
 
   def apportioned_lead_item_otus
     combined_otus =
-      children.map { |c| c.lead_item_otus.includes(:taxon_name) }.flatten
+      children.map { |c| c.lead_item_otus.includes(:taxon_name) }.flatten.uniq
     # TODO: Currently there's no (cheap) way to know if this is empty because
     # this isn't a lead_items key or because we're on a couplet that has no
     # lead_items (because, for example, it was an inserted couplet). It would be

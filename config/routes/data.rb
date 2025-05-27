@@ -479,7 +479,6 @@ resources :leads do
     post :insert_key, defaults: {format: :json}
   end
   collection do
-    post :add_otu_index, defaults: {format: :json}
     post :batch_create_lead_items, defaults: {format: :json}
   end
 end
@@ -489,6 +488,8 @@ resources :lead_items do
   collection do
     post :destroy_item_in_children, defaults: {format: :json}
     post :add_lead_item_to_child_lead, defaults: {format: :json}
+    post :add_otu_index, defaults: {format: :json}
+    post :remove_otu_index, defaults: {format: :json}
   end
 end
 
