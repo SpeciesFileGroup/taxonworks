@@ -35,7 +35,8 @@ module CollectionObjectsHelper
 
   def label_for_collection_object(collection_object)
     return nil if collection_object.nil?
-    [ 'CollectionObject ' + collection_object.id.to_s,
+    [ 
+      label_for_otu(collection_object.current_otu),
       identifier_list_labels(collection_object)
     ].compact.join('; ')
   end

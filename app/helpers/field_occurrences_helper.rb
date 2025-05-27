@@ -31,7 +31,7 @@ module FieldOccurrencesHelper
 
   def label_for_field_occurrence(field_occurrence)
     return nil if field_occurrence.nil?
-    [ 'FieldOccurrence ' + field_occurrence.id.to_s,
+    [ label_for_otu(field_occurrence.current_otu),
       identifier_list_labels(field_occurrence),
       label_for_collecting_event(field_occurrence.collecting_event)
     ].compact.join('; ')
