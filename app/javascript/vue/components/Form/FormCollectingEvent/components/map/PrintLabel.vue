@@ -10,10 +10,10 @@
           Generate
         </button>
         <button
-          @click="copyLabel"
           class="button normal-input button-default"
           type="button"
           :disabled="!isEmpty"
+          @click="copyLabel"
         >
           Copy verbatim label
         </button>
@@ -77,6 +77,7 @@ const isEmpty = computed(() => store.label.text.length === 0)
 
 function copyLabel() {
   store.label.text = collectingEvent.value.verbatim_label
+  store.label.isUnsaved = true
 }
 
 function generateVerbatimLabel() {
@@ -136,6 +137,7 @@ function generateLabel() {
     .filter(Boolean)
 
   store.label.text = [...new Set(sortedLabels)].join('\n')
+  store.label.isUnsaved = true
 }
 </script>
 

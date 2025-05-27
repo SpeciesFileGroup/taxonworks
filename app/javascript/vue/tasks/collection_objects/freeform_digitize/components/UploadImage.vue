@@ -1,64 +1,70 @@
 <template>
-  <div class="panel full-width">
-    <div class="content">
-      <dropzone
-        class="dropzone-card"
-        @vdropzone-success="success"
-        @vdropzone-sending="sending"
-        @vdropzone-queue-complete="completeQueue"
-        ref="imageDropzone"
-        url="/images"
-        :use-custom-dropzone-options="true"
-        :dropzone-options="dropzone"
-      />
-    </div>
+  <div class="panel content full-width">
+    <SmartSelector
+      model="images"
+      default="new"
+      :target="COLLECTION_OBJECT"
+      :autocomplete="false"
+      :search="false"
+      :add-tabs="['new']"
+      pin-section="Images"
+      @selected="(item) => emit('created', item)"
+    >
+      <template #new>
+        <VDropzone
+          ref="imageDropzoneRef"
+          url="/images"
+          use-custom-dropzone-options
+          :dropzone-options="DROPZONE_CONFIG"
+          @vdropzone-success="success"
+          @vdropzone-sending="sending"
+          @vdropzone-queue-complete="completeQueue"
+        />
+      </template>
+    </SmartSelector>
   </div>
 </template>
 
-<script>
-import Dropzone from '@/components/dropzone'
+<script setup>
+import { ref, useTemplateRef } from 'vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import VDropzone from '@/components/dropzone'
+import { COLLECTION_OBJECT } from '@/constants'
 
-export default {
-  components: { Dropzone },
+const dropzoneRef = useTemplateRef('imageDropzoneRef')
+const firstUploaded = ref()
 
-  emits: ['created'],
+const emit = defineEmits(['created'])
 
-  data() {
-    return {
-      dropzone: {
-        paramName: 'image[image_file]',
-        url: '/images',
-        uploadMultiple: false,
-        autoProcessQueue: true,
-        parallelUploads: 1,
-        timeout: 600000,
-        headers: {
-          'X-CSRF-Token': document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute('content')
-        },
-        dictDefaultMessage: 'Drop image here',
-        acceptedFiles: 'image/*,.heic'
-      },
-      firstUploaded: undefined
-    }
+const DROPZONE_CONFIG = {
+  paramName: 'image[image_file]',
+  url: '/images',
+  uploadMultiple: false,
+  autoProcessQueue: true,
+  parallelUploads: 1,
+  timeout: 600000,
+  headers: {
+    'X-CSRF-Token': document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute('content')
   },
-  methods: {
-    success(file, response) {
-      this.$refs.imageDropzone.removeFile(file)
-      if (!this.firstUploaded) {
-        this.firstUploaded = response
-      }
-    },
+  dictDefaultMessage: 'Drop image here',
+  acceptedFiles: 'image/*,.heic'
+}
 
-    sending(file, xhr, formData) {
-      formData.append('image[sled_image_attributes][metadata]', '[]')
-    },
-
-    completeQueue(file, response) {
-      this.$emit('created', this.firstUploaded)
-      this.firstUploaded = undefined
-    }
+function success(file, response) {
+  dropzoneRef.value.removeFile(file)
+  if (!firstUploaded.value) {
+    firstUploaded.value = response
   }
+}
+
+function sending(file, xhr, formData) {
+  formData.append('image[sled_image_attributes][metadata]', '[]')
+}
+
+function completeQueue() {
+  emit('created', firstUploaded.value)
+  firstUploaded.value = undefined
 }
 </script>
