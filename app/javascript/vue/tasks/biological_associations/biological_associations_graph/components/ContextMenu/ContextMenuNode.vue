@@ -3,6 +3,7 @@
   <div class="flex-separate middle gap-small graph-context-menu-list-item">
     <a
       v-if="objectBrowseLink"
+      class="word_break"
       :href="objectBrowseLink"
       >{{ node.name }}</a
     >
