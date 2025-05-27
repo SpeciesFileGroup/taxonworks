@@ -13,17 +13,19 @@
       color="create"
       medium
       :disabled="!!store.collectionObject.id"
+      title="Save and add a new collection object"
       @click="saveAndNew"
     >
-      Save and new
+      Save and new collecting object
     </VBtn>
 
     <VBtn
       color="primary"
       medium
+      title="Add a new collection object"
       @click="resetStore"
     >
-      New
+      New collection object
     </VBtn>
   </div>
 </template>
