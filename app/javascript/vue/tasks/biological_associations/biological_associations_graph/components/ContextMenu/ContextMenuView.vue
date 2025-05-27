@@ -26,6 +26,16 @@
     Add Collection object
   </div>
   <div
+    class="graph-context-menu-list-item"
+    @click="
+      () => {
+        emit('add:node', { type: FIELD_OCCURRENCE })
+      }
+    "
+  >
+    Add Field occurrence
+  </div>
+  <div
     v-if="isGraph"
     class="graph-context-menu-list-item"
     @click="() => emit('cite:graph')"
@@ -35,7 +45,7 @@
 </template>
 
 <script setup>
-import { COLLECTION_OBJECT, OTU } from '@/constants/index.js'
+import { COLLECTION_OBJECT, FIELD_OCCURRENCE, OTU } from '@/constants/index.js'
 
 const emit = defineEmits(['add:node', 'cite:graph'])
 
