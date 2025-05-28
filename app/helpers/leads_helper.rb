@@ -42,6 +42,8 @@ module LeadsHelper
     true
   end
 
+  # @param lead_items [Boolean] If true, print the LeadItem otus for each lead
+  #  in the key.
   def print_key(lead, lead_items = false)
     metadata = key_metadata(lead)
 

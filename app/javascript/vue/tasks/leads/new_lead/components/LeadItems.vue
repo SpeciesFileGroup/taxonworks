@@ -12,7 +12,7 @@
           @click="setLeadOtu"
           class="lead_item_button"
         >
-          Set as lead otu
+          Set as lead OTU
         </VBtn>
         <VBtn
           v-if="showAddOtu"
@@ -43,7 +43,7 @@
           &#10003;
         </span>
         <span
-          title="Remove otu from this lead"
+          title="Remove OTU from this lead"
           :class="['remove', 'circle-button', 'btn-delete',
             { 'btn-disabled': leadItemCount(i) == 1 }]"
           @click="() => removeOtuIndex(i)"
@@ -52,12 +52,12 @@
       <span v-else>
         <span
           class="out circle"
-          title="Add otu to this lead and remove from others"
+          title="Add OTU to this lead and remove from others"
           @click="() => addOtuIndex(i)"
         />
         <span
           class="out"
-          title="Add otu to this lead and don't remove from others"
+          title="Add OTU to this lead and don't remove from others"
           @click="() => addAdditionalOtuIndex(i)"
         />
       </span>
@@ -67,7 +67,7 @@
         <radial-object :global-id="otu.global_id" />
         <span
           class="circle-button btn-delete"
-          title="Remove otu from all leads"
+          title="Remove OTU from all leads"
           @click="() => leadItemDeleted(otu.id)"
         />
       </span>

@@ -39,7 +39,7 @@ export default async function(id_or_couplet) {
     children: editableFieldsObjectsForLeads(lo.children)
   }
   this.lead_item_otus = lo.lead_item_otus
-
+  this.print_key = lo.print_key
 
   setParam(RouteNames.NewLead, 'lead_id', lo.lead.id)
 }

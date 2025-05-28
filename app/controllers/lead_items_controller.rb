@@ -94,7 +94,7 @@ class LeadItemsController < ApplicationController
 
     @lead_item_otus = lead.parent.apportioned_lead_item_otus
     render partial: 'leads/lead_item_otus',
-      locals: { lead_item_otus: @lead_item_otus }
+      locals: { lead_item_otus: @lead_item_otus, root: lead.root }
   end
 
   def remove_otu_index
@@ -107,7 +107,7 @@ class LeadItemsController < ApplicationController
 
     @lead_item_otus = lead.parent.apportioned_lead_item_otus
     render partial: 'leads/lead_item_otus',
-      locals: { lead_item_otus: @lead_item_otus }
+      locals: { lead_item_otus: @lead_item_otus, root: lead.root }
   end
 
   private

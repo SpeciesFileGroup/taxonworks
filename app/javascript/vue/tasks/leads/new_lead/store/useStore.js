@@ -28,7 +28,9 @@ const makeInitialState = () => ({
     // Array of arrays, one for each child - each child array consists of those
     // otu indices (corresponding to the `parent` array) which are checked.
     children: []
-  }
+  },
+  // Print version of the entire key, used only in association with lead items.
+  print_key: ''
 })
 
 export const useStore = defineStore('leads', {

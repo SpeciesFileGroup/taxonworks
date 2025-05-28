@@ -1,14 +1,13 @@
 import { LeadItem } from '@/routes/endpoints'
 
-export default function addOtuIndex(childIndex, otuIndex, exclusive = true) {
+export default function removeOtuIndex(childIndex, otuIndex) {
   const payload = {
     lead_id: this.children[childIndex].id,
     otu_id: this.lead_item_otus.parent[otuIndex].id,
-    exclusive // exclusive if adding this one removes all others
   }
 
   this.setLoading(true)
-  LeadItem.addOtuIndex(payload)
+  LeadItem.removeOtuIndex(payload)
     .then(({ body }) => {
       this.lead_item_otus = body.lead_item_otus
       this.print_key = body.print_key

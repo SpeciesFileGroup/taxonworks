@@ -45,6 +45,11 @@
   </BlockLayout>
 
   <PreviousLeads v-if="store.lead.id" />
+  <div
+    v-if="store.print_key"
+    v-html="store.print_key"
+    class="print-key"
+  />
   <Couplet
     v-if="store.lead.id"
     @editing-has-occurred="() => (editingHasOccurred = true)"
@@ -119,7 +124,21 @@ usePopstateListener(() => {
   max-width: 1240px;
   margin: 0 auto;
 }
+
 .header-radials {
   margin-right: .5em;
+}
+
+.print-key {
+  width: 80vw;
+  margin: 0 auto;
+  border: 2px solid rgb(70, 70, 70);
+  border-radius: 12px;
+  padding-left: 2em;
+  padding-right: 2em;
+  background-color: rgb(240, 240, 240);
+  height: 400px;
+  overflow-y: scroll;
+  margin-bottom: 1.5em;
 }
 </style>

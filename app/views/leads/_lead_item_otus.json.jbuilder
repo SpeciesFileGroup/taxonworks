@@ -1,5 +1,5 @@
 json.lead_item_otus do
-  parent_otus = @lead_item_otus[:parent].map do |otu|
+  parent_otus = lead_item_otus[:parent].map do |otu|
     JSON.parse(render(
       partial: '/otus/attributes',
       locals: { otu:, extensions: false }
@@ -14,10 +14,14 @@ json.lead_item_otus do
 
   parent_otu_ids = parent_otus.map { |otu| otu['id'] }
   json.children do
-    json.array! @lead_item_otus[:children] do |c|
+    json.array! lead_item_otus[:children] do |c|
       json.fixed c[:fixed]
       json.otu_indices  c[:otu_ids].map { |id| parent_otu_ids.find_index(id) }
     end
   end
 
+end
+
+if lead_item_otus[:parent].count > 0
+  json.print_key print_key(root, true)
 end
