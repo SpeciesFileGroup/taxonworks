@@ -18,7 +18,7 @@ function getTaxonDetermination(determinations) {
 }
 
 function makeRowBind(dwc) {
-  return dwc.rebuild_set
+  return dwc?.rebuild_set
     ? {
         _bind: {
           class: 'row-dwc-reindex-pending',
@@ -72,7 +72,7 @@ export async function listParser(list, { parameters }) {
       repository,
       taxon_determinations: getTaxonDetermination(taxon_determinations),
       identifiers: {
-        cached: identifiers.map((item) => item.cached).join(' | ')
+        cached: identifiers?.map((item) => item.cached).join(' | ')
       },
       data_attributes: getDataAttributesFor(body, item.id),
       ...makeRowBind(dwc_occurrence)

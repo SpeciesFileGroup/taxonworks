@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New field occurrence task: Collecting event radials don't work on new CE [#4354]
 - Filter CE: Data attributes layout [#4355]
 - Radial CE: error radius is not copy on `Set Georeference` slice [#4358]
+- Filter CO: Results are not displayed when DwC information is missing
 
 ### Changed
 
