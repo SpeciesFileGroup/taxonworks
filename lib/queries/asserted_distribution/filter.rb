@@ -12,7 +12,6 @@ module Queries
 
       PARAMS = [
         :asserted_distribution_id,
-        :asserted_distribution_shape_id,
         :asserted_distribution_shape_type,
         :geo_shape_id,
         :geo_mode,
@@ -29,7 +28,6 @@ module Queries
         :taxon_name_id,
         :wkt,
         asserted_distribution_id: [],
-        asserted_distribution_shape_id: [],
         asserted_distribution_shape_type: [],
         geo_shape_id: [],
         geo_shape_type: [],
@@ -87,9 +85,6 @@ module Queries
       attr_accessor :radius
 
       # @return [Array]
-      attr_accessor :asserted_distribution_shape_id
-
-      # @return [Array]
       attr_accessor :asserted_distribution_shape_type
 
       def initialize(query_params)
@@ -104,8 +99,8 @@ module Queries
         @otu_id = integer_param(params, :otu_id)
         @presence = boolean_param(params, :presence)
         @radius = params[:radius].presence || 100.0
-        @asserted_distribution_shape_id = params[:asserted_distribution_shape_id]
-        @asserted_distribution_shape_type = params[:asserted_distribution_shape_type]
+        @asserted_distribution_shape_type =
+          params[:asserted_distribution_shape_type]
         @taxon_name_id = integer_param(params, :taxon_name_id)
         @wkt = params[:wkt]
 
@@ -135,10 +130,6 @@ module Queries
 
       def asserted_distribution_shape_type
         [@asserted_distribution_shape_type].flatten.compact
-      end
-
-      def asserted_distribution_shape_id
-        [@asserted_distribution_shape_id].flatten.compact
       end
 
       def taxon_name_id
@@ -266,13 +257,6 @@ module Queries
 
         ::AssertedDistribution
           .where(asserted_distribution_shape_type:)
-      end
-
-      def asserted_distribution_shape_id_facet
-        return nil if asserted_distribution_shape_id.empty?
-
-        ::AssertedDistribution
-          .where(asserted_distribution_shape_id:)
       end
 
       def asserted_distribution_geo_facet
@@ -408,8 +392,7 @@ module Queries
           geographic_item_id_facet,
           taxon_name_id_facet,
           wkt_facet,
-          asserted_distribution_shape_type_facet,
-          asserted_distribution_shape_id_facet
+          asserted_distribution_shape_type_facet
         ]
       end
 
