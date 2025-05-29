@@ -8,6 +8,7 @@
       :search="false"
       :add-tabs="['new']"
       pin-section="Images"
+      :pin-type="IMAGE"
       @selected="(item) => emit('created', item)"
     >
       <template #new>
@@ -29,7 +30,7 @@
 import { ref, useTemplateRef } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VDropzone from '@/components/dropzone'
-import { COLLECTION_OBJECT } from '@/constants'
+import { COLLECTION_OBJECT, IMAGE } from '@/constants'
 
 const dropzoneRef = useTemplateRef('imageDropzoneRef')
 const firstUploaded = ref()
