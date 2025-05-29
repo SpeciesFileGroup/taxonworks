@@ -1,10 +1,15 @@
 <template>
   <div class="horizontal-left-content gap-small">
+    <VSpinner
+      v-if="isSaving"
+      full-screen
+      legend="Saving"
+    />
     <VBtn
       color="create"
       medium
       :disabled="!!store.collectionObject.id"
-      @click="store.saveCollectionObject()"
+      @click="save"
     >
       Save
     </VBtn>
@@ -31,19 +36,49 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import useStore from '../store/store'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const store = useStore()
+const isSaving = ref(false)
 
 function resetStore() {
   store.reset()
 }
 
+async function save() {
+  isSaving.value = true
+
+  store
+    .saveCollectionObject()
+    .then(() => {
+      TW.workbench.alert.create(
+        'Collection object was successfully saved.',
+        'notice'
+      )
+    })
+    .finally(() => {
+      isSaving.value = false
+    })
+}
+
 function saveAndNew() {
-  store.saveCollectionObject().then(() => {
-    resetStore()
-  })
+  isSaving.value = true
+
+  store
+    .saveCollectionObject()
+    .then(() => {
+      resetStore()
+      TW.workbench.alert.create(
+        'Collection object was successfully saved.',
+        'notice'
+      )
+    })
+    .finally(() => {
+      isSaving.value = false
+    })
 }
 </script>
 
