@@ -73,7 +73,7 @@ module Queries::Concerns::Identifiers
     # @param match_identifiers_caseless [Boolean]
     # @return [Boolean, nil] default true
     #   if true then LOWER(cached) is matched to values.downcased
-    # 
+    #
     # !! Requires match_identifiers_delimiter to be present
     attr_accessor :match_identifiers_caseless
 
@@ -469,12 +469,6 @@ module Queries::Concerns::Identifiers
               .from('identifiers sid')
               .where('LOWER(sid.cached) IN (?)', ids) # This is required to de-duplicate for some reason ?!
               .select("sid.*, #{o}")
-
-            target_query = target_query.with(sid: i)
-              .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
-              .select("#{table.name}.*, sid.s")
-              .order('sid.s')
-
           else
 
             # TODO: optimize, this was done hastily
@@ -484,17 +478,17 @@ module Queries::Concerns::Identifiers
               .from('identifiers sid')
               .where(sid: {cached: ids}) # This is required to de-duplicate for some reason ?!
               .select("sid.*, #{o}")
-
-            target_query = target_query.with(sid: i)
-              .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
-              .select("#{table.name}.*, sid.s")
-              .order('sid.s')
           end
+
+          target_query = target_query.with(sid: i)
+            .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
+            .select("DISTINCT #{table.name}.*, sid.s")
+            .order('sid.s')
         end
       end
     end
     target_query
-  end 
+  end
 
   # def substring
   #   Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')
