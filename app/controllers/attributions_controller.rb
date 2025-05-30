@@ -85,6 +85,21 @@ class AttributionsController < ApplicationController
     render json: ['AttributionCreator', 'AttributionOwner', 'AttributionEditor', 'AttributionCopyrightHolder']
   end
 
+  # POST
+  def batch_by_filter_scope
+    if r = Attribution.batch_by_filter_scope(
+        mode: params[:mode] || :add,
+        filter_query: params.require(:filter_query), # like filter_query: { otu_query: {}}
+        params: attribution_params.to_h,
+        project_id: sessions_current_project_id,
+        user_id: sessions_current_user_id
+    )
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_attribution
