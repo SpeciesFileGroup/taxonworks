@@ -11,24 +11,36 @@
         }
       "
     />
-    <button
-      type="button"
-      class="button normal-input button-default"
-      :disabled="!collectingEvent.verbatim_label"
-      @click="parseData"
-    >
-      Parse fields
-    </button>
+    <div class="horizontal-left-content gap-small">
+      <VBtn
+        color="primary"
+        medium
+        :disabled="!collectingEvent.verbatim_label"
+        @click="parseData"
+      >
+        Parse fields
+      </VBtn>
+      <CloneLabel
+        v-if="bufferedCollectingEvent"
+        v-model="collectingEvent"
+        :buffered-collecting-event="bufferedCollectingEvent"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
+import { inject } from 'vue'
 import { CollectingEvent } from '@/routes/endpoints'
+import CloneLabel from './CloneLabel.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const collectingEvent = defineModel({
   type: Object,
   requierd: true
 })
+
+const bufferedCollectingEvent = inject('bufferedCollectingEvent')
 
 function parseData() {
   const payload = {

@@ -1,11 +1,11 @@
 <template>
   <nav-bar
     style="z-index: 1001"
-    :navbar-class="{
-      panel: true,
-      content: true,
-      'pending-dwc-regeneration': collectionObject?.dwc_occurrence?.rebuild_set
-    }"
+    :navbar-class="`panel content ${
+      collectionObject?.dwc_occurrence?.rebuild_set
+        ? 'pending-dwc-regeneration'
+        : ''
+    }`"
   >
     <div
       id="comprehensive-navbar"
@@ -153,10 +153,12 @@ import NavBar from '@/components/layout/NavBar'
 import AjaxCall from '@/helpers/ajaxCall'
 import SoftValidation from './softValidation'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 
 const MAX_CO_LIMIT = 100
 
 const store = useStore()
+const collectingEventStore = useCollectingEventStore()
 
 const confirmationModalRef = ref(null)
 const shortcuts = ref([
@@ -187,9 +189,7 @@ useHotkey(shortcuts.value)
 const collectionObject = computed(
   () => store.getters[GetterNames.GetCollectionObject]
 )
-const collectingEvent = computed(
-  () => store.getters[GetterNames.GetCollectingEvent]
-)
+
 const settings = computed({
   get() {
     return store.getters[GetterNames.GetSettings]
@@ -200,11 +200,13 @@ const settings = computed({
 })
 
 const hasChanges = computed(
-  () => settings.value.lastChange > settings.value.lastSave
+  () =>
+    settings.value.lastChange > settings.value.lastSave ||
+    collectingEventStore.isUnsaved
 )
 
 const underThreshold = computed(
-  () => store.getters[GetterNames.GetCETotalUsed] < MAX_CO_LIMIT
+  () => collectingEventStore.totalUsed < MAX_CO_LIMIT
 )
 
 const loadingNavigation = ref(false)
@@ -239,18 +241,10 @@ watch(
   { deep: true }
 )
 
-watch(
-  collectingEvent,
-  () => {
-    settings.value.lastChange = Date.now()
-  },
-  { deep: true }
-)
-
 async function saveDigitalization() {
   const ok =
     underThreshold.value ||
-    !collectingEvent.value.isUpdated ||
+    collectingEventStore.isUnsaved ||
     (await confirmationModalRef.value.show({
       title: 'Save',
       message: `The collecting event was modified and is used by over ${MAX_CO_LIMIT}. Are you sure you want to proceed?`,
