@@ -64,7 +64,7 @@ class Attribution < ApplicationRecord
 
     case mode.to_sym
     when :add
-      if async
+      if async && !called_from_async
         BatchByFilterScopeJob.perform_later(
           klass: self.name,
           hash_query:,
@@ -74,7 +74,7 @@ class Attribution < ApplicationRecord
           user_id:
         )
       else
-        attribution_object_type = query.klass
+        attribution_object_type = query.klass.name
         attribution = params[:attribution]
         query.find_each do |o|
           o_params = attribution.merge({
