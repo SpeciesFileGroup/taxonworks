@@ -60,6 +60,7 @@ class Identifier < ApplicationRecord
 
   include Shared::DualAnnotator
   include Shared::PolymorphicAnnotator
+  include Shared::BatchByFilterScope
 
   polymorphic_annotates('identifier_object')
 
@@ -119,45 +120,25 @@ class Identifier < ApplicationRecord
       .pluck(:short_name)
   end
 
-  def self.batch_by_filter_scope(
-    filter_query: nil, params: nil, mode: :add, async_cutoff: 300,
-    project_id: nil, user_id: nil
+  def self.process_batch_by_filter_scope(
+    batch_response: nil, query: nil, hash_query: nil, mode: nil, params: nil,
+    async: nil, project_id: nil, user_id: nil,
+    called_from_async: false
   )
-    params = params.to_h.symbolize_keys
+    # Don't call async from async: the point is we do the same processing in
+    # async and not in async, and this function handles both that processing and
+    # making the async call, so it's this much janky.
+    async = false if called_from_async == true
 
-    r = ::BatchResponse.new(
-      preview: false,
-      method: 'Identifier batch_by_filter_scope',
-    )
-
+    r = batch_response
     # TODO: make sure params.identifier_types are actually allowed on klass
-    if filter_query.nil?
-      r.errors['scoping filter not provided'] = 1
-      return r
-    elsif params[:namespace_id].nil?
+    if params[:namespace_id].nil?
       r.errors['replacement namespace id not provided'] = 1
+      return
     elsif params[:identifier_types].empty?
       r.errors['no identifier types provided'] = 1
-    end
-
-    b = ::Queries::Query::Filter.instantiated_base_filter(filter_query)
-    q = b.all(true)
-
-    fq = ::Queries::Query::Filter.base_query_to_h(filter_query)
-
-    r.klass =  b.referenced_klass.name
-
-    if b.only_project?
-      r.total_attempted = 0
-      r.errors['can not update records without at least one filter parameter'] = 1
       return r
     end
-
-    c = q.count
-    async = c > async_cutoff ? true : false
-
-    r.total_attempted = c
-    r.async = async
 
     case mode.to_sym
     when :replace
@@ -166,20 +147,20 @@ class Identifier < ApplicationRecord
         return r.to_json
       end
 
-      if async
-        IdentifierBatchJob.perform_later(
-          filter_query: fq,
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query: hash_query,
+          mode:,
           params:,
-          mode: :replace,
           project_id:,
           user_id:
         )
       else
-        klass = b.referenced_klass.name
         Identifier
-          .with(a: q.select(:id))
+          .with(a: query.select(:id))
           .joins('JOIN a ON identifiers.identifier_object_id = a.id AND ' \
-                 "identifiers.identifier_object_type = '#{klass}'")
+                 "identifiers.identifier_object_type = '#{query.klass}'")
           .where(type: params[:identifier_types])
           #.where.not(namespace_id: params.namespace_id)
           .distinct
@@ -194,7 +175,8 @@ class Identifier < ApplicationRecord
       end
     end
 
-    return r.to_json
+    r.total_attempted = r.updated.length + r.not_updated.length
+    return r
   end
 
   protected
