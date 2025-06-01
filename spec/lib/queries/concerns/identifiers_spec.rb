@@ -81,7 +81,7 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
   specify '#match_identifiers 2 #match_identifiers_caseless' do
     query.match_identifiers = "a,b,  #{n1.short_name.downcase} 123 \n\n,  c, #{co1.id}, 99"
     query.match_identifiers_type = 'identifier'
-    query.match_identifiers_caseless = true 
+    query.match_identifiers_caseless = true
     expect(query.all.pluck(:id)).to contain_exactly(co1.id)
   end
 

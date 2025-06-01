@@ -71,7 +71,7 @@ class Identifier < ApplicationRecord
 
   belongs_to :namespace, inverse_of: :identifiers  # only applies to Identifier::Local, here for create purposes
 
-  validates_presence_of :type, :identifier
+  validates :type, :identifier, presence: true
 
   validates :identifier, presence: true
 
@@ -106,6 +106,95 @@ class Identifier < ApplicationRecord
 
   def is_global?
     false
+  end
+
+  def self.namespaces_for_types_from_query(identifier_types, query)
+    q = ::Queries::Query::Filter.instantiated_base_filter(query)
+    @namespaces = q.all
+      .joins(identifiers: :namespace)
+      .where(identifiers: {type: identifier_types})
+      .select('namespaces.short_name')
+      .order('namespaces.short_name')
+      .distinct
+      .pluck(:short_name)
+  end
+
+  def self.batch_by_filter_scope(
+    filter_query: nil, params: nil, mode: :add, async_cutoff: 300,
+    project_id: nil, user_id: nil
+  )
+    params = params.to_h.symbolize_keys
+
+    r = ::BatchResponse.new(
+      preview: false,
+      method: 'Identifier batch_by_filter_scope',
+    )
+
+    # TODO: make sure params.identifier_types are actually allowed on klass
+    if filter_query.nil?
+      r.errors['scoping filter not provided'] = 1
+      return r
+    elsif params[:namespace_id].nil?
+      r.errors['replacement namespace id not provided'] = 1
+    elsif params[:identifier_types].empty?
+      r.errors['no identifier types provided'] = 1
+    end
+
+    b = ::Queries::Query::Filter.instantiated_base_filter(filter_query)
+    q = b.all(true)
+
+    fq = ::Queries::Query::Filter.base_query_to_h(filter_query)
+
+    r.klass =  b.referenced_klass.name
+
+    if b.only_project?
+      r.total_attempted = 0
+      r.errors['can not update records without at least one filter parameter'] = 1
+      return r
+    end
+
+    c = q.count
+    async = c > async_cutoff ? true : false
+
+    r.total_attempted = c
+    r.async = async
+
+    case mode.to_sym
+    when :replace
+      if params[:namespace_id].nil?
+        r.errors['no replacement namespace id provided'] = 1
+        return r.to_json
+      end
+
+      if async
+        IdentifierBatchJob.perform_later(
+          filter_query: fq,
+          params:,
+          mode: :replace,
+          project_id:,
+          user_id:
+        )
+      else
+        klass = b.referenced_klass.name
+        Identifier
+          .with(a: q.select(:id))
+          .joins('JOIN a ON identifiers.identifier_object_id = a.id AND ' \
+                 "identifiers.identifier_object_type = '#{klass}'")
+          .where(type: params[:identifier_types])
+          #.where.not(namespace_id: params.namespace_id)
+          .distinct
+          .find_each do |o|
+            o.update(namespace_id: params[:namespace_id])
+            if o.valid?
+              r.updated.push o.id
+            else
+              r.not_updated.push nil
+            end
+          end
+      end
+    end
+
+    return r.to_json
   end
 
   protected

@@ -122,7 +122,7 @@ class IdentifiersController < ApplicationController
     q.api = false
     q.project_id = nil
     b = q.all.where(identifier_object_type: ApplicationEnumeration.community_models.map(&:to_s))
-    
+
     ::Queries.union(Identifier, [a,b])
   end
 
@@ -138,7 +138,6 @@ class IdentifiersController < ApplicationController
     render '/identifiers/api/v1/autocomplete'
   end
 
-
   # GET /identifiers/download
   def download
     send_data Export::CSV.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.tsv"
@@ -147,6 +146,32 @@ class IdentifiersController < ApplicationController
   # GET /identifiers/identifier_types
   def identifier_types
     render json: IDENTIFIERS_JSON
+  end
+
+  # POST /identifiers/namespaces.json
+  def namespaces
+    @namespaces = Identifier.namespaces_for_types_from_query(
+      params[:identifier_types], params[:filter_query]
+    )
+
+    render json: @namespaces
+  end
+
+  # POST
+  def batch_by_filter_scope
+    r = Identifier.batch_by_filter_scope(
+      filter_query: params.require(:filter_query), # like filter_query: { otu_query: {} }
+      params: batch_by_filter_scope_params,
+      mode: params.require(:mode),
+      project_id: sessions_current_project_id,
+      user_id: sessions_current_user_id
+    )
+
+    if r[:errors].empty?
+      render json: r.to_json, status: :ok
+    else
+      render json: r.to_json, status: :unprocessable_entity
+    end
   end
 
   private
@@ -171,6 +196,10 @@ class IdentifiersController < ApplicationController
 
   def autocomplete_params
     params.permit(identifier_object_type: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(:namespace_id, identifier_types: [])
   end
 
 end

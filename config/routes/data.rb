@@ -404,6 +404,8 @@ resources :identifiers, except: [:show] do
   collection do
     patch :reorder, defaults: {format: :json}
     get :identifier_types, {format: :json}
+    post :namespaces, {format: :json}
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 
   member do

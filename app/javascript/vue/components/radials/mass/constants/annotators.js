@@ -19,6 +19,7 @@ import AnnotatorConfidence from '../components/Annotator/Confidence/ConfidenceMa
 import AnnotatorAttribution from '../components/Annotator/Attribution/AttributionMain.vue'
 import AnnotatorCitation from '../components/Annotator/AnnotatorCitation.vue'
 import AnnotatorDataAttribute from '../components/Annotator/DataAttribute/AnnotatorDataAttribute.vue'
+import AnnotatorIdentifier from '../components/Annotator/Identifier/IdentifierMain.vue'
 import AnnotatorProtocol from '../components/Annotator/Protocol/ProtocolMain.vue'
 
 const TAG_SLICE = {
@@ -49,6 +50,10 @@ const PROTOCOL_SLICE = {
   Protocol: AnnotatorProtocol
 }
 
+const IDENTIFIER_SLICE = {
+  Identifier: AnnotatorIdentifier
+}
+
 function buildSliceObject(...slices) {
   return Object.assign({}, ...slices)
 }
@@ -65,6 +70,7 @@ export const ANNOTATORS = {
       CITATION_SLICE,
       CONFIDENCE_SLICE,
       DATA_ATTRIBUTE_SLICE,
+      IDENTIFIER_SLICE, // TODO is this right?
       NOTE_SLICE,
       PROTOCOL_SLICE,
       TAG_SLICE
