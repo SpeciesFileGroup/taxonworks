@@ -230,7 +230,6 @@ module Queries
     attr_accessor :venn
 
     # @return Symbol one of :a, :ab, :b
-    #  defaults to :ab
     #    :a :ab  :b
     #  ( A ( B ) C )
     attr_accessor :venn_mode
@@ -749,6 +748,7 @@ module Queries
       end
 
       p = ::Rack::Utils.parse_nested_query(u) # nested supports brackets
+      p = p.except('per', 'page', 'paginate')
 
       a = ActionController::Parameters.new(p)
 

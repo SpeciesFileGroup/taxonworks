@@ -71,13 +71,13 @@ describe Queries::Query::Filter, type: [:model] do
     expect(q.venn_query.class).to eq(::Queries::Otu::Filter)
   end
 
-  specify '#venn_query params' do
-    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1'
+  specify '#venn_query params excludes pagination params' do
+    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1&paginate=true'
 
     a = ::Queries::Otu::Filter.new({})
     a.venn = v
     b = a.venn_query
-    expect(b.params).to eq({name: 'Ant', page: '1', per: '50'})
+    expect(b.params).to eq({name: 'Ant'})
   end
 
   specify '#venn_mode 0' do
