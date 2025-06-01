@@ -47,7 +47,11 @@ RSpec.describe Attribution, type: :model do
     Attribution.batch_by_filter_scope(
       filter_query: { 'image_query' => q.params },
       mode: :add,
-      params: {license:	'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'}
+      params: {
+        attribution: {
+          license:'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'
+        }
+      }
     )
     expect(Attribution.all.count).to eq(1)
   end
@@ -57,7 +61,11 @@ RSpec.describe Attribution, type: :model do
     Attribution.batch_by_filter_scope(
       filter_query: { 'image_query' => q.params },
       mode: :add,
-      params: {license:	'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'},
+      params: {
+        attribution: {
+          license:	'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'
+        }
+      },
       async_cutoff: 0
     )
     expect(Attribution.all.count).to eq(0)

@@ -6,8 +6,6 @@ module Shared::BatchByFilterScope
       filter_query: nil, mode: :add, params: nil, async_cutoff: 300,
       project_id: nil, user_id: nil
     )
-      params = params.to_h.symbolize_keys
-
       r = ::BatchResponse.new(
         preview: false,
         method: "#{self.name} batch_by_filter_scope"
@@ -23,7 +21,7 @@ module Shared::BatchByFilterScope
 
       fq = ::Queries::Query::Filter.base_query_to_h(filter_query)
 
-      r.klass =  b.referenced_klass.name
+      r.klass = b.referenced_klass.name
 
       if b.only_project?
         r.total_attempted = 0

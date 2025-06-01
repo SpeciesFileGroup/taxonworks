@@ -9,18 +9,18 @@ module BatchByFilterScope
       klass = controller_path.classify.constantize
 
       r = klass.batch_by_filter_scope(
-      filter_query: params.require(:filter_query), # like filter_query: { otu_query: {} }
-      params: batch_by_filter_scope_params,
-      mode: params.require(:mode),
-      project_id: sessions_current_project_id,
-      user_id: sessions_current_user_id
-    )
+        filter_query: params.require(:filter_query), # like filter_query: { otu_query: {} }
+        params: batch_by_filter_scope_params.to_h.symbolize_keys,
+        mode: params.require(:mode),
+        project_id: sessions_current_project_id,
+        user_id: sessions_current_user_id
+      )
 
-    if r[:errors].empty?
-      render json: r.to_json, status: :ok
-    else
-      render json: r.to_json, status: :unprocessable_entity
-    end
+      if r[:errors].empty?
+        render json: r.to_json, status: :ok
+      else
+        render json: r.to_json, status: :unprocessable_entity
+      end
 
     end
 

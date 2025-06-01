@@ -58,9 +58,9 @@
 class Identifier < ApplicationRecord
   acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ], add_new_at: :top
 
+  include Shared::BatchByFilterScope
   include Shared::DualAnnotator
   include Shared::PolymorphicAnnotator
-  include Shared::BatchByFilterScope
 
   polymorphic_annotates('identifier_object')
 
@@ -125,12 +125,12 @@ class Identifier < ApplicationRecord
     async: nil, project_id: nil, user_id: nil,
     called_from_async: false
   )
-    # Don't call async from async: the point is we do the same processing in
+    # Don't call async from async (the point is we do the same processing in
     # async and not in async, and this function handles both that processing and
-    # making the async call, so it's this much janky.
+    # making the async call, so it's this much janky).
     async = false if called_from_async == true
-
     r = batch_response
+
     # TODO: make sure params.identifier_types are actually allowed on klass
     if params[:namespace_id].nil?
       r.errors['replacement namespace id not provided'] = 1

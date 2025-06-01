@@ -1,5 +1,6 @@
 class AttributionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include BatchByFilterScope
 
   before_action :set_attribution, only: [:show, :edit, :update, :destroy]
   after_action -> { set_pagination_headers(:attributions) }, only: [:index, :api_index ], if: :json_request?
@@ -85,21 +86,6 @@ class AttributionsController < ApplicationController
     render json: ['AttributionCreator', 'AttributionOwner', 'AttributionEditor', 'AttributionCopyrightHolder']
   end
 
-  # POST
-  def batch_by_filter_scope
-    if r = Attribution.batch_by_filter_scope(
-        mode: params[:mode] || :add,
-        filter_query: params.require(:filter_query), # like filter_query: { otu_query: {}}
-        params: attribution_params.to_h,
-        project_id: sessions_current_project_id,
-        user_id: sessions_current_user_id
-    )
-      render json: r.to_json, status: :ok
-    else
-      render json: {}, status: :unprocessable_entity
-    end
-  end
-
   private
 
   def set_attribution
@@ -107,9 +93,17 @@ class AttributionsController < ApplicationController
   end
 
   def attribution_params
-    params.require(:attribution).permit(
-      :copyright_year, :license, :attribution_object_type, :attribution_object_id,
-      :annotated_global_entity, :_destroy,
+    params.require(:attribution).permit(*attribution_params_list)
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(attribution: [*attribution_params_list])
+  end
+
+  def attribution_params_list
+    [
+      :copyright_year, :license, :attribution_object_type,
+      :attribution_object_id, :annotated_global_entity, :_destroy,
       roles_attributes: [
         :id,
         :_destroy,
@@ -119,6 +113,8 @@ class AttributionsController < ApplicationController
         :position,
         person_attributes: [
           :last_name, :first_name, :suffix, :prefix
-        ]])
+        ]
+      ]
+    ]
   end
 end

@@ -10,6 +10,7 @@
 #
 class Attribution < ApplicationRecord
   include Housekeeping
+  include Shared::BatchByFilterScope
   include Shared::Notes
   include Shared::Confidences
   include Shared::Tags
@@ -50,50 +51,33 @@ class Attribution < ApplicationRecord
 
   validate :some_data_provided
 
-  def self.batch_by_filter_scope(filter_query: nil, params: nil, mode: :add, async_cutoff: 300, project_id: nil, user_id: nil)
-    r = ::BatchResponse.new(
-      preview: false,
-      method: 'Attribution batch_by_filter_scope',
-    )
-
-    if filter_query.nil?
-      r.errors['scoping filter not provided'] = 1
-      return r
-    end
-
-    b = ::Queries::Query::Filter.instantiated_base_filter(filter_query)
-    q = b.all(true)
-
-    fq = ::Queries::Query::Filter.base_query_to_h(filter_query)
-
-    r.klass =  b.referenced_klass.name
-
-    if b.only_project?
-      r.total_attempted = 0
-      r.errors['can not update records without at least one filter parameter'] = 1
-      return r
-    else
-      c = q.count
-      async = c > async_cutoff ? true : false
-
-      r.total_attempted = c
-      r.async = async
-    end
+  def self.process_batch_by_filter_scope(
+    batch_response: nil, query: nil, hash_query: nil, mode: nil, params: nil,
+    async: nil, project_id: nil, user_id: nil,
+    called_from_async: false
+  )
+    # Don't call async from async (the point is we do the same processing in
+    # async and not in async, and this function handles both that processing and
+    # making the async call, so it's this much janky).
+    async = false if called_from_async == true
+    r = batch_response
 
     case mode.to_sym
     when :add
       if async
-        AttributionBatchJob.perform_later(
-          filter_query: fq,
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
           params:,
-          mode: :add,
           project_id:,
-          user_id:,
+          user_id:
         )
       else
-        attribution_object_type = b.referenced_klass.name
-        q.find_each do |o|
-          o_params = params.merge({
+        attribution_object_type = query.klass
+        attribution = params[:attribution]
+        query.find_each do |o|
+          o_params = attribution.merge({
             attribution_object_id: o.id,
             attribution_object_type:
           })
@@ -116,7 +100,7 @@ class Attribution < ApplicationRecord
     #     ).delete_all
     end
 
-    return r.to_json
+    r
   end
 
   protected

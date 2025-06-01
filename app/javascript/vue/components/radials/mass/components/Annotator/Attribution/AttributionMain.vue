@@ -78,9 +78,11 @@ async function makeBatchRequest(attribution) {
   if (ok) {
     const idParam = ID_PARAM_FOR[props.objectType]
     const payload = {
-      ...attribution,
+      filter_query: filterQuery(),
       mode: 'add',
-      filter_query: filterQuery()
+      params: {
+        attribution
+      }
     }
 
     if (props.ids?.length) {
