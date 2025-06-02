@@ -1,24 +1,23 @@
 import { MutationNames } from '../mutations/mutations'
 import { SoftValidation } from '@/routes/endpoints'
 import { useTaxonDeterminationStore } from '../pinia'
+import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import useGeoreferenceStore from '@/components/Form/FormCollectingEvent/store/georeferences.js'
 
 export default ({ commit, state }) => {
   const determinationStore = useTaxonDeterminationStore()
-  const {
-    collection_object,
-    collecting_event,
-    materialTypes,
-    biologicalAssociations,
-    georeferences
-  } = state
+  const collectingEventStore = useCollectingEventStore()
+  const georeferenceStore = useGeoreferenceStore()
+
+  const { collection_object, materialTypes, biologicalAssociations } = state
 
   const objects = [
     collection_object,
-    collecting_event,
+    collectingEventStore.collectingEvent,
+    ...georeferenceStore.georeferences,
     ...determinationStore.determinations,
     ...materialTypes,
-    ...biologicalAssociations,
-    ...georeferences
+    ...biologicalAssociations
   ]
 
   const promises = objects

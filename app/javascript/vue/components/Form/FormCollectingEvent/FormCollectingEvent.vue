@@ -35,7 +35,7 @@
 import Draggable from 'vuedraggable'
 import useStore from './store/collectingEvent.js'
 import { User } from '@/routes/endpoints'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, provide } from 'vue'
 import {
   ComponentMap,
   ComponentParse,
@@ -55,11 +55,22 @@ const props = defineProps({
     default: false
   },
 
+  bufferedCollectingEvent: {
+    type: [String, undefined],
+    default: undefined
+  },
+
   exclude: {
     type: Array,
     default: () => []
   }
 })
+
+const bufferedCollectingEventComputed = computed(
+  () => props.bufferedCollectingEvent
+)
+
+provide('bufferedCollectingEvent', bufferedCollectingEventComputed)
 
 const store = useStore()
 const preferences = ref({})

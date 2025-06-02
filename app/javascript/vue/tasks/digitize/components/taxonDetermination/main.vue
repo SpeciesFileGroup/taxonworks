@@ -70,8 +70,6 @@ async function makeDeterminationFromParameters() {
 
   if ((!otuId && !taxonId) || coId) return
 
-  console.log(coId)
-
   const params = {
     otu_id: otuId,
     taxon_name_id: taxonId
