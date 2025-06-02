@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Updated Ruby gems
 - Updated layout of data and internal attribute facets
+- Filters: Selected records are kept if they appear in new searches [#4393]
 
 [#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
 [#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
@@ -37,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4374]: https://github.com/SpeciesFileGroup/taxonworks/issues/4374
 [#4375]: https://github.com/SpeciesFileGroup/taxonworks/issues/4375
 [#4388]: https://github.com/SpeciesFileGroup/taxonworks/issues/4388
+[#4393]: https://github.com/SpeciesFileGroup/taxonworks/issues/4393
 
 \-
 
