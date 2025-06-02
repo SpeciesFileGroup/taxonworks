@@ -1,5 +1,6 @@
 class ProtocolRelationshipsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include BatchByFilterScope
 
   before_action :set_protocol_relationship, only: [:show, :edit, :update, :destroy]
 
@@ -90,24 +91,6 @@ class ProtocolRelationshipsController < ApplicationController
     end
   end
 
-  # POST
-  def batch_by_filter_scope
-    if r = ProtocolRelationship.batch_by_filter_scope(
-        mode: params[:mode] || :add,
-        filter_query: params.require(:filter_query), # like filter_query: { otu_query: {}}
-        protocol_id: params.require(:protocol_id),
-        replace_protocol_id: params[:replace_protocol_id],
-        project_id: sessions_current_project_id,
-        user_id: sessions_current_user_id
-    )
-      render json: r.to_json, status: :ok
-    else
-      render json: {}, status: :unprocessable_entity
-    end
-  end
-
-
-
   private
 
   def set_protocol_relationship
@@ -116,5 +99,9 @@ class ProtocolRelationshipsController < ApplicationController
 
   def protocol_relationship_params
     params.require(:protocol_relationship).permit(:protocol_id, :protocol_relationship_object_id, :protocol_relationship_object_type, :annotated_global_entity)
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(:protocol_id, :replace_protocol_id)
   end
 end
