@@ -17,8 +17,7 @@ export default ({ commit, state }) => {
     ...georeferenceStore.georeferences,
     ...determinationStore.determinations,
     ...materialTypes,
-    ...biologicalAssociations,
-    ...georeferences
+    ...biologicalAssociations
   ]
 
   const promises = objects

@@ -148,7 +148,10 @@ export default defineStore('collectingEventForm', {
 
         body.roles_attributes = body.collector_roles || []
 
-        this.collectingEvent = body
+        this.collectingEvent = {
+          ...body,
+          isUnsaved: false
+        }
         this.totalUsed = await getTotalUsed(body.id)
 
         await idStore.load(payload)

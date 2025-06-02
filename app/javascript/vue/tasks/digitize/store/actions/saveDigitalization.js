@@ -27,7 +27,7 @@ export default async (
     const collectingEventStore = useCollectingEventStore()
 
     state.settings.saving = true
-    if (collectingEventStore.collectingEvent.isUnsaved) {
+    if (collectingEventStore.isUnsaved) {
       await collectingEventStore.save()
     }
 
@@ -71,8 +71,6 @@ export default async (
         state.collection_object.object_tag = body.object_tag
         state.collection_object.dwc_occurrence = body.dwc_occurrence
       })
-
-      state.settings.lastSave = Date.now()
     }
 
     if (allSaved) {
@@ -80,6 +78,7 @@ export default async (
         'All records were successfully saved.',
         'notice'
       )
+      state.settings.lastSave = Date.now()
     }
 
     updateSmartSelectors()
