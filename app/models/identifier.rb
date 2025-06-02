@@ -169,7 +169,7 @@ class Identifier < ApplicationRecord
             if o.valid?
               r.updated.push o.id
             else
-              r.not_updated.push nil
+              r.not_updated.push o.id
             end
           end
       end

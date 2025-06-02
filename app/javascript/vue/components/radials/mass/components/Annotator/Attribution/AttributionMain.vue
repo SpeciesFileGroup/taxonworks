@@ -95,6 +95,7 @@ async function makeBatchRequest(attribution) {
         response.value = body
         isTableVisible.value = true
       })
+      .catch(() => {})
       .finally(() => {
         isSaving.value = false
       })

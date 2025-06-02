@@ -1,6 +1,8 @@
 import {
   ASSERTED_DISTRIBUTION,
   BIOLOGICAL_ASSOCIATION,
+  COLLECTING_EVENT,
+  COLLECTION_OBJECT,
   CONTENT,
   DESCRIPTOR,
   EXTRACT,
@@ -51,7 +53,7 @@ const PROTOCOL_SLICE = {
 }
 
 const IDENTIFIER_SLICE = {
-  Identifier: AnnotatorIdentifier
+  Identifiers: AnnotatorIdentifier
 }
 
 function buildSliceObject(...slices) {
@@ -70,7 +72,40 @@ export const ANNOTATORS = {
       CITATION_SLICE,
       CONFIDENCE_SLICE,
       DATA_ATTRIBUTE_SLICE,
-      IDENTIFIER_SLICE, // TODO is this right?
+      NOTE_SLICE,
+      PROTOCOL_SLICE,
+      TAG_SLICE
+    )
+  },
+  [COLLECTING_EVENT]: {
+    all: buildSliceObject(
+      CONFIDENCE_SLICE,
+      DATA_ATTRIBUTE_SLICE,
+      PROTOCOL_SLICE
+    ),
+
+    ids: buildSliceObject(
+      CITATION_SLICE,
+      CONFIDENCE_SLICE,
+      DATA_ATTRIBUTE_SLICE,
+      IDENTIFIER_SLICE,
+      NOTE_SLICE,
+      PROTOCOL_SLICE,
+      TAG_SLICE
+    )
+  },
+  [COLLECTION_OBJECT]: {
+    all: buildSliceObject(
+      CONFIDENCE_SLICE,
+      DATA_ATTRIBUTE_SLICE,
+      PROTOCOL_SLICE
+    ),
+
+    ids: buildSliceObject(
+      CITATION_SLICE,
+      CONFIDENCE_SLICE,
+      DATA_ATTRIBUTE_SLICE,
+      IDENTIFIER_SLICE,
       NOTE_SLICE,
       PROTOCOL_SLICE,
       TAG_SLICE

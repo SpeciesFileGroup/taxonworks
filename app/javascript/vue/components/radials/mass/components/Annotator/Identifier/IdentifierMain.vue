@@ -55,6 +55,11 @@ import { COLLECTING_EVENT, COLLECTION_OBJECT } from '@/constants'
 import { Identifier } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
+import {
+  IDENTIFIER_LOCAL_CATALOG_NUMBER,
+  IDENTIFIER_LOCAL_RECORD_NUMBER,
+  IDENTIFIER_LOCAL_FIELD_NUMBER
+} from '@/constants'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import NamespaceSelect from './NamespaceSelect.vue'
 import PreviewTable from '@/components/radials/shared/PreviewTable.vue'
@@ -67,17 +72,17 @@ const IDENTIFIER_TYPES = {
   [COLLECTION_OBJECT]: [
     {
       display: 'Catalog Numbers',
-      klass: 'Identifier::Local::CatalogNumber'
+      klass: IDENTIFIER_LOCAL_CATALOG_NUMBER
     },
     {
       display: 'Record Numbers',
-      klass: 'Identifier::Local::RecordNumber'
+      klass: IDENTIFIER_LOCAL_RECORD_NUMBER
     }
   ],
   [COLLECTING_EVENT]: [
     {
       display: 'Field Numbers',
-      klass: 'Identifier::Local::FieldNumber'
+      klass: IDENTIFIER_LOCAL_FIELD_NUMBER
     }
   ]
 }
@@ -110,8 +115,8 @@ const response = ref(null)
 const isTableVisible = ref(false)
 const isProcessing = ref(false)
 const identifierTypes = ref(
-  props.objectType == 'CollectingEvent'
-    ? [IDENTIFIER_TYPES[COLLECTING_EVENT][0]['display']]
+  props.objectType == COLLECTING_EVENT
+    ? [IDENTIFIER_TYPES[COLLECTING_EVENT][0]['klass']]
     : []
   )
 const namespace = ref(null)

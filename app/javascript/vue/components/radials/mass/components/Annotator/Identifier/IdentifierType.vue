@@ -1,6 +1,6 @@
 <template>
   <div v-if="types.length == 1">
-    <h3>Change namespace of {{ Object.keys(types[0])[0] }}</h3>
+    <h3>Change namespace of {{ types[0]['display'] }}</h3>
   </div>
 
   <div v-else>
@@ -26,8 +26,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-const a = ref(null)
 const props = defineProps({
   types: {
     type: Array,

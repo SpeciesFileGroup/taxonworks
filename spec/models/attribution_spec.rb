@@ -49,7 +49,7 @@ RSpec.describe Attribution, type: :model do
       mode: :add,
       params: {
         attribution: {
-          license:'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'
+          license: 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'
         }
       }
     )
@@ -63,7 +63,7 @@ RSpec.describe Attribution, type: :model do
       mode: :add,
       params: {
         attribution: {
-          license:	'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'
+          license: 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'
         }
       },
       async_cutoff: 0
