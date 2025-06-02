@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - FieldOccurrences facet to Filter Images
 - Radial CE: Add remove geographic area option in `Set geographic area` slice [#4375]
 - Filter sources: `With/without pages` facet [#4374]
+- Field occurrences to biological associations graph task
 
 ### Fixed
 
@@ -22,17 +23,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New field occurrence task: Collecting event radials don't work on new CE [#4354]
 - Filter CE: Data attributes layout [#4355]
 - Radial CE: error radius is not copy on `Set Georeference` slice [#4358]
+- Filter CO: Results are not displayed when DwC information is missing
+- New Asserted Distribution task can't create more than one AD on a given OTU [#4388]
 
 ### Changed
 
 - Updated Ruby gems
 - Updated layout of data and internal attribute facets
+- Filters: Selected records are kept if they appear in new searches [#4393]
 
 [#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
 [#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
 [#4358]: https://github.com/SpeciesFileGroup/taxonworks/pull/4358
 [#4374]: https://github.com/SpeciesFileGroup/taxonworks/issues/4374
 [#4375]: https://github.com/SpeciesFileGroup/taxonworks/issues/4375
+[#4388]: https://github.com/SpeciesFileGroup/taxonworks/issues/4388
+[#4393]: https://github.com/SpeciesFileGroup/taxonworks/issues/4393
 
 \-
 

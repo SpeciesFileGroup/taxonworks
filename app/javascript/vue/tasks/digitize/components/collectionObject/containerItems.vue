@@ -70,8 +70,6 @@ useHotkey(shortcuts.value)
 
 function newDigitalization() {
   store.dispatch(ActionNames.NewCollectionObject)
-  store.dispatch(ActionNames.NewIdentifier)
-  console.log(locked.value.taxonDeterminations)
   determinationStore.reset({ keepRecords: locked.value.taxonDeterminations })
 }
 

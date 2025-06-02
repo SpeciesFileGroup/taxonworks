@@ -58,6 +58,7 @@
 class Identifier < ApplicationRecord
   acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ], add_new_at: :top
 
+  include Shared::BatchByFilterScope
   include Shared::DualAnnotator
   include Shared::PolymorphicAnnotator
 
@@ -71,7 +72,7 @@ class Identifier < ApplicationRecord
 
   belongs_to :namespace, inverse_of: :identifiers  # only applies to Identifier::Local, here for create purposes
 
-  validates_presence_of :type, :identifier
+  validates :type, :identifier, presence: true
 
   validates :identifier, presence: true
 
@@ -106,6 +107,76 @@ class Identifier < ApplicationRecord
 
   def is_global?
     false
+  end
+
+  def self.namespaces_for_types_from_query(identifier_types, query)
+    q = ::Queries::Query::Filter.instantiated_base_filter(query)
+    @namespaces = q.all
+      .joins(identifiers: :namespace)
+      .where(identifiers: {type: identifier_types})
+      .select('namespaces.short_name')
+      .order('namespaces.short_name')
+      .distinct
+      .pluck(:short_name)
+  end
+
+  def self.process_batch_by_filter_scope(
+    batch_response: nil, query: nil, hash_query: nil, mode: nil, params: nil,
+    async: nil, project_id: nil, user_id: nil,
+    called_from_async: false
+  )
+    # Don't call async from async (the point is we do the same processing in
+    # async and not in async, and this function handles both that processing and
+    # making the async call, so it's this much janky).
+    async = false if called_from_async == true
+    r = batch_response
+
+    # TODO: make sure params.identifier_types are actually allowed on klass
+    if params[:namespace_id].nil?
+      r.errors['replacement namespace id not provided'] = 1
+      return
+    elsif params[:identifier_types].empty?
+      r.errors['no identifier types provided'] = 1
+      return r
+    end
+
+    case mode.to_sym
+    when :replace
+      if params[:namespace_id].nil?
+        r.errors['no replacement namespace id provided'] = 1
+        return r.to_json
+      end
+
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query: hash_query,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        Identifier
+          .with(a: query.select(:id))
+          .joins('JOIN a ON identifiers.identifier_object_id = a.id AND ' \
+                 "identifiers.identifier_object_type = '#{query.klass}'")
+          .where(type: params[:identifier_types])
+          #.where.not(namespace_id: params.namespace_id)
+          .distinct
+          .find_each do |o|
+            o.update(namespace_id: params[:namespace_id])
+            if o.valid?
+              r.updated.push o.id
+            else
+              r.not_updated.push o.id
+            end
+          end
+      end
+    end
+
+    r.total_attempted = r.updated.length + r.not_updated.length
+    return r
   end
 
   protected

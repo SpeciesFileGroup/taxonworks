@@ -10,6 +10,7 @@
         :target="COLLECTING_EVENT"
         :add-tabs="['new']"
         pin-section="Images"
+        :pin-type="IMAGE"
         @selected="addDepiction"
       >
         <template #new>
@@ -39,7 +40,10 @@
         />
       </div>
     </fieldset>
-    <table class="full_width">
+    <table
+      v-if="store.exifGeoreferences.length"
+      class="full_width"
+    >
       <thead>
         <tr>
           <th>
@@ -71,13 +75,17 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { GEOREFERENCE_EXIF, COLLECTING_EVENT } from '@/constants/index.js'
+import {
+  GEOREFERENCE_EXIF,
+  COLLECTING_EVENT,
+  IMAGE
+} from '@/constants/index.js'
+import EXIF from 'exifr'
 import Dropzone from '@/components/dropzone.vue'
 import ParseDMS from '@/helpers/parseDMS.js'
 import addGeoreference from '../../helpers/addGeoreference.js'
 import createGeoJSONFeature from '../../helpers/createGeoJSONFeature.js'
 import DepictionImage from './depictionImage'
-import EXIF from 'exif-js'
 import useStore from '../../store/georeferences.js'
 import useDepictionStore from '../../store/depictions.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
@@ -192,7 +200,7 @@ function sending(file, xhr, formData) {
   formData.append('depiction[depiction_object_type]', 'CollectingEvent')
 }
 
-function addedfile(file) {
+async function addedfile(file) {
   getEXIFFromFile(file).then((metadata) => {
     processEXIF(metadata)
   })
@@ -204,12 +212,10 @@ function addedfile(file) {
 }
 
 function getEXIFFromFile(image) {
-  return new Promise((resolve, reject) => {
-    EXIF.getData(image, function () {
-      const allMetadata = EXIF.getAllTags(this)
+  return new Promise(async (resolve, reject) => {
+    const metadata = await EXIF.parse(image)
 
-      resolve(allMetadata)
-    })
+    resolve(metadata)
   })
 }
 
@@ -254,10 +260,12 @@ function processEXIF(allMetaData) {
     setExifCoordinates(coordinates)
   }
   if (allMetaData?.DateTimeOriginal) {
-    let [date, time] = allMetaData.DateTimeOriginal.split(' ')
+    const d = allMetaData.DateTimeOriginal
+    const pad = (n) => n.toString().padStart(2, '0')
 
-    date = date.split(':')
-    time = time.split(':')
+    const date = [d.getFullYear(), pad(d.getMonth() + 1), pad(d.getDate())]
+    const time = [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())]
+
     setExitDate(date)
     setExifTime(time)
   }

@@ -8,7 +8,7 @@ function getTaxonDetermination(determinations) {
 }
 
 function makeRowBind(dwc) {
-  return dwc.rebuild_set
+  return dwc?.rebuild_set
     ? {
         _bind: {
           class: 'row-dwc-reindex-pending',

@@ -7,11 +7,13 @@ import {
   IDENTIFIER_LOCAL_CATALOG_NUMBER
 } from '@/constants/index.js'
 import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
+import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 
 export default ({ commit, dispatch, state }, coId) =>
   new Promise((resolve, reject) => {
     const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
     const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+    const collectingEventStore = useCollectingEventStore()
     const determinationStore = useTaxonDeterminationStore()
 
     state.settings.loading = true
@@ -47,19 +49,7 @@ export default ({ commit, dispatch, state }, coId) =>
           })
 
         if (coObject.collecting_event_id) {
-          promises.push(
-            dispatch(
-              ActionNames.GetCollectingEvent,
-              coObject.collecting_event_id
-            ),
-            dispatch(
-              ActionNames.LoadGeoreferences,
-              coObject.collecting_event_id
-            ),
-            dispatch(ActionNames.GetLabels, coObject.collecting_event_id)
-          )
-        } else {
-          dispatch(ActionNames.NewLabel)
+          collectingEventStore.load(coObject.collecting_event_id)
         }
 
         promises.push(

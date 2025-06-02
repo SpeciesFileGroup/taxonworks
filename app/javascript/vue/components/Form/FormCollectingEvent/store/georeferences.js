@@ -37,7 +37,7 @@ export default defineStore('collectingEventForm:georeferences', {
       removeFromArray(this.georeferences, georeference, { property: 'uuid' })
     },
 
-    async processGeoreferenceQueue(ceId) {
+    async save(ceId) {
       if (!ceId) return
 
       const unsaved = this.georeferences.filter((item) => item.isUnsaved)
@@ -70,7 +70,7 @@ export default defineStore('collectingEventForm:georeferences', {
         return request
       })
 
-      return Promise.allSettled(requests)
+      return Promise.all(requests)
     }
   }
 })
