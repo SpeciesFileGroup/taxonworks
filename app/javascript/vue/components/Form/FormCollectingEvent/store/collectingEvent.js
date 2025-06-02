@@ -106,13 +106,13 @@ export default defineStore('collectingEventForm', {
       const idStore = useIdentifierStore()
       const depictionStore = useDepictionStore()
       const labelStore = useLabelStore()
-      const payload = makeCollectingEventPayload(this.collectingEvent)
+      const cePayload = makeCollectingEventPayload(this.collectingEvent)
 
-      const request = this.collectingEvent.id
-        ? CollectingEvent.update(this.collectingEvent.id, payload)
-        : CollectingEvent.create(payload)
+      try {
+        const { body } = this.collectingEvent.id
+          ? await CollectingEvent.update(this.collectingEvent.id, cePayload)
+          : await CollectingEvent.create(cePayload)
 
-      request.then(({ body }) => {
         const { collector_roles = [], ...rest } = body
         const payload = { objectId: body.id, objectType: COLLECTING_EVENT }
 
@@ -122,16 +122,22 @@ export default defineStore('collectingEventForm', {
           isUnsaved: false
         }
 
-        georeferenceStore.save(body.id)
-        depictionStore.save(payload)
-        labelStore.save(payload)
+        const promises = [
+          georeferenceStore.save(body.id),
+          depictionStore.save(payload),
+          labelStore.save(payload)
+        ]
 
         if (idStore.isUnsaved) {
-          idStore.save(payload)
+          promises.push(idStore.save(payload))
         }
-      })
 
-      return request
+        await Promise.all(promises)
+
+        return body
+      } catch (e) {
+        throw e
+      }
     },
 
     async load(ceId) {
@@ -148,10 +154,7 @@ export default defineStore('collectingEventForm', {
 
         body.roles_attributes = body.collector_roles || []
 
-        this.collectingEvent = {
-          ...body,
-          isUnsaved: false
-        }
+        this.collectingEvent = { ...body, isUnsaved: false }
         this.totalUsed = await getTotalUsed(body.id)
 
         await idStore.load(payload)
@@ -160,7 +163,9 @@ export default defineStore('collectingEventForm', {
         await labelStore.load(payload)
 
         return body
-      } catch (e) {}
+      } catch (e) {
+        throw e
+      }
     },
 
     async clone() {
