@@ -44,28 +44,28 @@ module LeadsHelper
 
   # @param lead_items [Boolean] If true, print the LeadItem otus for each lead
   #  in the key.
-  def print_key(lead, lead_items = false)
+  def print_key(lead)
     metadata = key_metadata(lead)
 
     t = tag.h1(lead.text)
-    t << print_key_body(lead, metadata, lead_items)
+    t << print_key_body(lead, metadata)
     t.html_safe
   end
 
-  def print_key_table(lead, lead_items = false)
+  def print_key_table(lead)
     metadata = key_metadata(lead)
 
     t = tag.h1(lead.text)
     t << tag.table(
-      print_key_table_body(lead, metadata, lead_items),
+      print_key_table_body(lead, metadata),
       id: 'key_table'
     )
 
     t
   end
 
-  def print_key_table_body(lead, metadata, lead_items = false)
-    data = key_data(lead, metadata, lead_items)
+  def print_key_table_body(lead, metadata)
+    data = key_data(lead, metadata)
     x = []
 
     metadata.keys.each do |k|
@@ -91,8 +91,8 @@ module LeadsHelper
     x.join.html_safe
   end
 
-  def print_key_body(lead, metadata, lead_items = false)
-    data = key_data(lead, metadata, lead_items)
+  def print_key_body(lead, metadata)
+    data = key_data(lead, metadata)
     x = []
 
     metadata.keys.each do |k|
@@ -138,7 +138,7 @@ module LeadsHelper
   end
 
   # An index of lead.id pointing to its content
-  def key_data(lead, metadata, lead_items = false)
+  def key_data(lead, metadata, lead_items: false)
     data = {}
     lead.self_and_descendants.find_each do |l|
       d = {
@@ -167,11 +167,17 @@ module LeadsHelper
       end
 
       if lead_items && d[:target_type] != :internal
-        target_label = lead_item_otus_string(l)
+        target_label =
+          if d[:target_label]
+            d[:target_label] + lead_item_otus_string(l)
+          else
+            lead_item_otus_string(l)
+          end
+
         if target_label.present?
           # Overwrite
           d.merge!(
-            target_label:,
+            target_label: target_label,
             target_id: '',
             target_type: 'lead_item_otus'
           )
@@ -187,6 +193,7 @@ module LeadsHelper
     data
   end
 
+  # Contains html.
   def lead_item_otus_string(lead)
     otu_ids = lead.lead_items.map(&:otu_id)
     if otu_ids.empty?
@@ -194,10 +201,8 @@ module LeadsHelper
     end
 
     otu_labels = Otu.where(id: otu_ids).map { |o| label_for_otu(o) }.sort!
-    count = otu_labels.count
-    s = count > 1 ? 's' : ''
 
-    "#{count} otu#{s} left: #{otu_labels.join('; &nbsp;&nbsp; ')}".html_safe
+    '<br />&nbsp;&nbsp;' + otu_labels.join('<br />&nbsp;&nbsp;').html_safe
   end
 
   # Used to serve Keys to the API.
@@ -222,29 +227,41 @@ module LeadsHelper
     }
   end
 
-  def print_key_markdown(lead)
+  def print_key_markdown(lead, lead_items: false)
     metadata = key_metadata(lead)
 
-    data = key_data(lead, metadata)
+    data = key_data(lead, metadata, lead_items:)
 
     t = ["# #{lead.text}\n\n"]
 
-    metadata.keys.each do |k|
-      metadata[k][:children].each do |lid|
-        if data.dig(lid, :position) == 0
-          cplt_num = metadata.dig(k, :couplet_number).to_s
-          # The <a> tag here provides an id to link to.
-          a = "#{cplt_num}\.<a id=\"cplt-#{cplt_num}\"/>"
+    # key is couplet number, value is which couplet was sent to that number
+    backlinks = {}
+
+    metadata.keys.each do |parent|
+      metadata[parent][:children].each do |child|
+        # Construct child lines of the form:
+        # 1. Child 1 text ... [next couplet # | otu] OR
+        # -- Child 2 text ... [next couplet # | otu]
+        # a        b                   c          (a,b,c defined below)
+        cplt_num = metadata.dig(parent, :couplet_number).to_s
+        if data.dig(child, :position) == 0
+          backlink = ''
+          if p = backlinks[cplt_num]
+            backlink = "([#{p}](#cplt-#{p}))"
+          end
+          # The empty <a> tag here provides an id object to link *to*.
+          a = "#{cplt_num}#{backlink}\.<a id=\"cplt-#{cplt_num}\"></a>"
+
         else
           a = '--'
         end
 
-        b = data.dig(lid, :text)
+        b = data.dig(child, :text)
 
-        if data.dig(lid, :target_label)
-          target = data.dig(lid, :target_label)
+        if (target = data.dig(child, :target_label))
           c = "**#{target}**"
-          if data.dig(lid, :target_type) == :internal
+          if data.dig(child, :target_type) == :internal # points to next couplet
+            backlinks[target.to_s] = cplt_num
             c = "[#{c}](#cplt-#{target})"
           end
         end

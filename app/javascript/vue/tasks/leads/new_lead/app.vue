@@ -45,11 +45,13 @@
   </BlockLayout>
 
   <PreviousLeads v-if="store.lead.id" />
-  <div
+  <fieldset
     v-if="store.print_key"
-    v-html="store.print_key"
     class="print-key"
-  />
+  >
+    <legend>Key Preview</legend>
+    <div v-html="store.print_key" />
+  </fieldset>
   <Couplet
     v-if="store.lead.id"
     @editing-has-occurred="() => (editingHasOccurred = true)"
@@ -58,7 +60,7 @@
 
 <script setup>
 import { CITATION, DEPICTION } from '@/constants'
-import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { useAnnotationHandlers } from './components/composables/useAnnotationHandlers.js'
@@ -151,13 +153,14 @@ onBeforeMount(() => {
 .print-key {
   width: 80vw;
   margin: 0 auto;
-  border: 2px solid rgb(70, 70, 70);
-  border-radius: 12px;
+  border-top-left-radius: 0.9rem;
+  border-bottom-left-radius: 0.9rem;
   padding-left: 2em;
   padding-right: 2em;
-  background-color: rgb(240, 240, 240);
   height: 400px;
   overflow-y: scroll;
   margin-bottom: 1.5em;
+  box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
+  background-color: #fff;
 }
 </style>
