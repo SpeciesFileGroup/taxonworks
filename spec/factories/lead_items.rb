@@ -1,10 +1,8 @@
 FactoryBot.define do
-  factory :lead_item do
-    lead_id { 1 }
-    otu_id { 1 }
-    project { nil }
-    created_by_id { 1 }
-    updated_by_id { 1 }
-    position { 1 }
+  factory :lead_item, traits: [:housekeeping] do
+    factory :valid_lead_item do
+      association :lead, factory: :valid_lead
+      association :otu, factory: :valid_otu
+    end
   end
 end
