@@ -1,6 +1,7 @@
 module Queries
   module TaxonNameRelationship
     class Filter < Query::Filter
+      include Queries::Concerns::Citations
 
       PARAMS = [
         :object_taxon_name_id,
@@ -68,6 +69,8 @@ module Queries
         @taxon_name_relationship_type = params[:taxon_name_relationship_type]
 
         @taxon_name_relationship_id = params[:taxon_name_relationship_id]
+
+        set_citations_params(params)
       end
 
       def taxon_name_relationship_id
