@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial CE: error radius is not copy on `Set Georeference` slice [#4358]
 - Filter CO: Results are not displayed when DwC information is missing
 - New Asserted Distribution task can't create more than one AD on a given OTU [#4388]
+- Radial filter: When opening a filter link in a new tab, the filter page loads empty when the URL is too long [#4360]
 
 ### Changed
 
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
 [#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
 [#4358]: https://github.com/SpeciesFileGroup/taxonworks/pull/4358
+[#4360]: https://github.com/SpeciesFileGroup/taxonworks/issues/4360
 [#4374]: https://github.com/SpeciesFileGroup/taxonworks/issues/4374
 [#4375]: https://github.com/SpeciesFileGroup/taxonworks/issues/4375
 [#4388]: https://github.com/SpeciesFileGroup/taxonworks/issues/4388
