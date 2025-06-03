@@ -58,7 +58,7 @@
 
 <script setup>
 import { CITATION, DEPICTION } from '@/constants'
-import { computed, ref } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { useAnnotationHandlers } from './components/composables/useAnnotationHandlers.js'
@@ -117,6 +117,25 @@ usePopstateListener(() => {
     store.$reset()
   }
 })
+
+// TODO Currently this is needed (why?) in the lead otu case where we have #id
+// links in the v-html'ed html version of the key.
+// LLM
+onBeforeMount(() => {
+  document.addEventListener('click', (e) => {
+    const elt = e.target.closest("a[href^='#']");
+    if (elt) {
+      const id = elt.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      if (target) {
+        e.preventDefault(); // prevent full-page reload
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  });
+});
+// END LLM
+
 </script>
 
 <style lang="scss" scoped>
