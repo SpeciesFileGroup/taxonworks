@@ -256,6 +256,7 @@ function saveChanges() {
       .then(({ body }) => {
         // Future changes when redirect changes.
         store.updateChild(body.lead, body.future)
+        store.print_key = body.print_key
         emit('editingHasOccurred')
       })
       // TODO: if multiple fail we can get overlapping popup messages, but is
