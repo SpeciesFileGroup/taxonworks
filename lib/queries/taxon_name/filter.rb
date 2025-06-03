@@ -924,6 +924,22 @@ module Queries
         ::TaxonName.from('(' + s + ') as taxon_names')
       end
 
+      def taxon_name_relationship_query_facet
+        return nil if taxon_name_relationship_query.nil?
+
+        a = ::TaxonName
+          .with(tnr_query: taxon_name_relationship_query.all)
+          .joins(:taxon_name_relationships)
+          .where('taxon_name_relationships.id IN (SELECT id FROM tnr_query)')
+
+        b = ::TaxonName
+          .with(tnr_query: taxon_name_relationship_query.all)
+          .joins(:related_taxon_name_relationships)
+          .where('taxon_name_relationships.id IN (SELECT id FROM tnr_query)')
+
+        referenced_klass_union([a,b])
+      end
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         [
@@ -948,6 +964,7 @@ module Queries
           collecting_event_query_facet,
           collection_object_query_facet,
           otu_query_facet,
+          taxon_name_relationship_query_facet,
 
           ancestor_facet,
           authors_facet,

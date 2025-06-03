@@ -102,7 +102,11 @@ const OPTIONS = {
   all: 'all'
 }
 
-const params = defineModel()
+const params = defineModel({
+  type: Object,
+  required: true
+})
+params.value.taxon_name_relationship_type = []
 
 const view = ref(OPTIONS.common)
 const relationshipsList = ref({})
@@ -122,7 +126,7 @@ watch(params, (newVal) => {
 
 watch(relationshipsSelected,
   (newVal) => {
-    params.value.taxon_name_relationship_type_subject = newVal.map((r) => r.type)
+    params.value.taxon_name_relationship_type = newVal.map((r) => r.type)
   },
   { deep: true }
 )
@@ -140,7 +144,7 @@ onMounted(() => {
     merge()
 
     const queryParams = URLParamsToJSON(location.href)
-    queryParams.taxon_name_relationship_type.forEach((relationship) => {
+    queryParams.taxon_name_relationship_type?.forEach((relationship) => {
       const data = mergeLists.value.all[relationship]
       data.type = relationship
       data.name = mergeLists.value.all[relationship][display.value]

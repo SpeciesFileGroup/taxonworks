@@ -59,7 +59,8 @@ module Queries
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],
       sound: [:observation],
-      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
+      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source, :taxon_name_relationship],
+      taxon_name_relationship: [:taxon_name],
     }.freeze
 
     def self.query_name
@@ -110,6 +111,7 @@ module Queries
       sound_query: '::Queries::Sound::Filter',
       source_query: '::Queries::Source::Filter',
       taxon_name_query: '::Queries::TaxonName::Filter',
+      taxon_name_relationship_query: '::Queries::TaxonNameRelationship::Filter',
     }.freeze
 
     # @return [Array]
@@ -191,6 +193,9 @@ module Queries
 
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :taxon_name_query
+
+    # @return [Query::TaxonNameRelationship::Filter, nil]
+    attr_accessor :taxon_name_relationship_query
 
     # @return [Query::Otu::Filter, nil]
     attr_accessor :otu_query
@@ -589,7 +594,7 @@ module Queries
         q = FILTER_QUERIES[query_name].safe_constantize.new(query_params)
 
         # assign to @<model>_query
-        v = send("#{query_name}=".to_sym, q)
+        send("#{query_name}=".to_sym, q)
       end
 
       true

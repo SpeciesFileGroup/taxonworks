@@ -141,6 +141,22 @@ module Queries
         table[:object_taxon_name_id].in(object_taxon_name_id)
       end
 
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+
+        a = ::TaxonNameRelationship
+          .with(tn_query: taxon_name_query.all)
+          .joins(:subject_taxon_name)
+          .where('taxon_name_relationships.subject_taxon_name_id IN (SELECT id FROM tn_query)')
+
+        b = ::TaxonNameRelationship
+          .with(tn_query: taxon_name_query.all)
+          .joins(:object_taxon_name)
+          .where('taxon_name_relationships.object_taxon_name_id IN (SELECT id FROM tn_query)')
+
+        referenced_klass_union([a,b])
+      end
+
       def and_clauses
         [
           taxon_name_relationship_type_facet,
@@ -148,6 +164,12 @@ module Queries
           taxon_name_id_facet,
           as_subject_facet,
           as_object_facet,
+        ]
+      end
+
+      def merge_clauses
+        [
+          taxon_name_query_facet,
         ]
       end
     end
