@@ -1,6 +1,6 @@
 class ProtocolRelationshipsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  include BatchByFilterScope
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_protocol_relationship, only: [:show, :edit, :update, :destroy]
 
