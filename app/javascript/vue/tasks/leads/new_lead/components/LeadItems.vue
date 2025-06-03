@@ -51,12 +51,12 @@
       </span>
       <span v-else>
         <span
-          class="out circle"
+          class="out circle btn-radio-like-add"
           title="Add OTU to this lead and remove from others"
           @click="() => addOtuIndex(i)"
         />
         <span
-          class="out"
+          class="out btn-checkbox-like-add"
           title="Add OTU to this lead and don't remove from others"
           @click="() => addAdditionalOtuIndex(i)"
         />
@@ -68,7 +68,7 @@
         <span
           class="circle-button btn-delete"
           title="Remove OTU from all leads"
-          @click="() => leadItemDeleted(otu.id)"
+          @click="() => leadItemOtuDeleted(otu.id)"
         />
       </span>
     </div>
@@ -180,7 +180,7 @@ function setLeadOtu() {
     .finally(() => { store.setLoading(false) })
 }
 
-function leadItemDeleted(otuId) {
+function leadItemOtuDeleted(otuId) {
   if (!window.confirm('Are you sure you want to delete this otu row?')) {
     return
   }
