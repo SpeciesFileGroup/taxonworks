@@ -1,7 +1,18 @@
 import { defineStore } from 'pinia'
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { addToArray, removeFromArray, randomUUID } from '@/helpers'
-import makeCitation from '@/factory/Citation'
+
+const extend = ['subject', 'object', 'biological_relationship', 'citations']
+
+function makeCitation(data) {
+  return {
+    uuid: randomUUID(),
+    source_id: data.source_id,
+    label: data.object_label,
+    pages: data.pages,
+    isUnsaved: false
+  }
+}
 
 export default defineStore('biologicalAssociations', {
   state: () => ({
@@ -23,19 +34,20 @@ export default defineStore('biologicalAssociations', {
       return BiologicalAssociation.where({
         biological_association_subject_id: [objectId],
         biological_association_subject_type: [objectType],
-        extend: ['subject', 'object', 'biological_relationship', 'citations']
+        extend
       }).then(({ body }) => {
         this.biologicalAssociations = body.map((item) => {
-          const citation = { ...item.citations[0], ...makeCitation() }
-
-          citation.label = citation.object_label
+          const citation = makeCitation(item.citations[0] || {})
 
           return {
             id: item.id,
-            related: item.subject,
-            relationship: item.biological_relationship,
-            citation,
             uuid: randomUUID(),
+            related: item.object,
+            relationship: {
+              id: item.biological_relationship_id,
+              ...item.biological_relationship
+            },
+            citation,
             isUnsaved: false
           }
         })
@@ -83,7 +95,9 @@ export default defineStore('biologicalAssociations', {
             biological_association_object_id: ba.related.id,
             biological_association_object_type: ba.related.base_class,
             biological_relationship_id: ba.relationship.id,
-            citation_attribute: ba.citation
+            citations_attributes: ba.citation.source_id
+              ? [ba.citation]
+              : undefined
           }
         }
 

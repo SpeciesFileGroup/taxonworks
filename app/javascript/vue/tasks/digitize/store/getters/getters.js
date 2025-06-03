@@ -15,12 +15,10 @@ import getContainerItems from './getContainerItems'
 import getPreferences from './getPreferences'
 import getBiocurations from './getBiocurations'
 import getMaterialTypes from './getMaterialTypes'
-import getNamespaceSelected from './getNamespaceSelected'
 import getSubsequentialUses from './getSubsequentialUses'
 import getProjectPreferences from './getProjectPreferences'
 import getLastSave from './getLastSave'
 import getSoftValidations from './getSoftValidations'
-import getBiologicalAssociations from './getBiologicalAssociations'
 
 const GetterNames = {
   IsSaving: 'isSaving',
@@ -40,12 +38,10 @@ const GetterNames = {
   GetPreferences: 'getPreferences',
   GetBiocurations: 'getBiocurations',
   GetMaterialTypes: 'getMaterialTypes',
-  GetNamespaceSelected: 'getNamespaceSelected',
   GetSubsequentialUses: 'getSubsequentialUses',
   GetProjectPreferences: 'getProjectPreferences',
   GetLastSave: 'getLastSave',
-  GetSoftValidations: 'getSoftValidations',
-  GetBiologicalAssociations: 'getBiologicalAssociations'
+  GetSoftValidations: 'getSoftValidations'
 }
 
 const GetterFunctions = {
@@ -66,12 +62,10 @@ const GetterFunctions = {
   [GetterNames.GetPreferences]: getPreferences,
   [GetterNames.GetBiocurations]: getBiocurations,
   [GetterNames.GetMaterialTypes]: getMaterialTypes,
-  [GetterNames.GetNamespaceSelected]: getNamespaceSelected,
   [GetterNames.GetSubsequentialUses]: getSubsequentialUses,
   [GetterNames.GetProjectPreferences]: getProjectPreferences,
   [GetterNames.GetLastSave]: getLastSave,
-  [GetterNames.GetSoftValidations]: getSoftValidations,
-  [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations
+  [GetterNames.GetSoftValidations]: getSoftValidations
 }
 
 export { GetterNames, GetterFunctions }

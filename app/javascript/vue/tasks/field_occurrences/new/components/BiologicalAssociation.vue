@@ -26,9 +26,9 @@
 import { useTemplateRef } from 'vue'
 import useSettingStore from '../store/settings.js'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import BiologicalAssociationForm from './BiologicalAssociation/BiologicalAssociation.vue'
-import useBiologicalAssociationStore from '../store/biologicalAssociations.js'
-import BiologicalAssociationList from './BiologicalAssociation/BiologicalAssociationList.vue'
+import BiologicalAssociationForm from '@/components/Form/FormBiologicalAssociation/BiologicalAssociation.vue'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
+import BiologicalAssociationList from '@/components/Form/FormBiologicalAssociation/BiologicalAssociationList.vue'
 
 const settings = useSettingStore()
 const store = useBiologicalAssociationStore()

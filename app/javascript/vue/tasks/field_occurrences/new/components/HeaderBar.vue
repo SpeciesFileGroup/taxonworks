@@ -89,7 +89,7 @@ import useCEStore from '@/components/Form/FormCollectingEvent/store/collectingEv
 import useDeterminationStore from '../store/determinations.js'
 import useSettingStore from '../store/settings.js'
 import useBiocurationStore from '../store/biocurations.js'
-import useBiologicalAssociationStore from '../store/biologicalAssociations.js'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
 import useDepictionStore from '../store/depictions.js'
 import useOriginRelationshipStore from '../store/originRelationships.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
