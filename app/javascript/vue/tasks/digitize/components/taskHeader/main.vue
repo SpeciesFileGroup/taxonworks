@@ -154,11 +154,13 @@ import AjaxCall from '@/helpers/ajaxCall'
 import SoftValidation from './softValidation'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
 
 const MAX_CO_LIMIT = 100
 
 const store = useStore()
 const collectingEventStore = useCollectingEventStore()
+const biologicalAssociationStore = useBiologicalAssociationStore()
 
 const confirmationModalRef = ref(null)
 const shortcuts = ref([
@@ -202,7 +204,8 @@ const settings = computed({
 const hasChanges = computed(
   () =>
     settings.value.lastChange > settings.value.lastSave ||
-    collectingEventStore.isUnsaved
+    collectingEventStore.isUnsaved ||
+    biologicalAssociationStore.hasUnsaved
 )
 
 const underThreshold = computed(

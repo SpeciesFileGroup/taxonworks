@@ -14,8 +14,6 @@ import resetStore from './resetStore'
 
 import setDepictions from './setDepictions'
 
-import setNamespaceSelected from './setNamespaceSelected'
-
 import setBiocurations from './setBiocurations'
 import addBiocuration from './addBiocuration'
 import removeBiocuration from './removeBiocuration'
@@ -36,13 +34,10 @@ import newTypeMaterial from './TypeMaterial/newTypeMaterial'
 import removeTypeMaterial from './TypeMaterial/removeTypeMaterial'
 
 import setSoftValidations from './setSoftValidations'
-import setBiologicalAssociations from './setBiologicalAssociations'
 
 import setProjectPreferences from './setProjectPreferences'
 
 const MutationNames = {
-  SetBiologicalAssociations: 'setBiologicalAssociations',
-
   SetSubsequentialUses: 'setSubsequentialUses',
 
   SetLocked: 'setLocked',
@@ -57,7 +52,6 @@ const MutationNames = {
   ResetStore: 'resetStore',
 
   SetDepictions: 'setDepictions',
-  SetNamespaceSelected: 'setNamespaceSelected',
 
   SetPreparationType: 'setPreparationType',
 
@@ -84,7 +78,6 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
-  [MutationNames.SetBiologicalAssociations]: setBiologicalAssociations,
   [MutationNames.SetProjectPreferences]: setProjectPreferences,
   [MutationNames.SetSubsequentialUses]: setSubsequentialUses,
 
@@ -101,7 +94,6 @@ const MutationFunctions = {
   [MutationNames.ResetStore]: resetStore,
 
   [MutationNames.SetDepictions]: setDepictions,
-  [MutationNames.SetNamespaceSelected]: setNamespaceSelected,
 
   [MutationNames.SetBiocurations]: setBiocurations,
   [MutationNames.AddBiocuration]: addBiocuration,
