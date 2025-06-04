@@ -26,6 +26,9 @@ match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults
 match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
 resources :attributions, except: [:new] do
   concerns [:data_routes]
+  collection do
+    post :batch_by_filter_scope, defaults: {format: :json}
+  end
 end
 
 resources :asserted_distributions do
@@ -404,6 +407,8 @@ resources :identifiers, except: [:show] do
   collection do
     patch :reorder, defaults: {format: :json}
     get :identifier_types, {format: :json}
+    post :namespaces, {format: :json}
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 
   member do

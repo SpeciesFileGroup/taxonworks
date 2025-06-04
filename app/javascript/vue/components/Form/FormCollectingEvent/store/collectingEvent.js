@@ -7,11 +7,51 @@ import {
 } from '@/routes/endpoints'
 import { getPagination } from '@/helpers'
 import makeCollectingEvent from '@/factory/CollectingEvent.js'
-import makeLabel from '@/factory/Label'
 import useGeoreferenceStore from './georeferences.js'
 import useIdentifierStore from './identifier.js'
 import useDepictionStore from './depictions.js'
 import useLabelStore from './label.js'
+
+const ELEVATION_ATTRS = [
+  'minimum_elevation',
+  'maximum_elevation',
+  'elevation_precision'
+]
+
+const EXTEND = ['roles']
+
+function feetsToMeters(feets) {
+  return feets / 3.281
+}
+
+function parseEvelation(collectingEvent) {
+  const elevation = {}
+
+  ELEVATION_ATTRS.forEach((attr) => {
+    const elevationValue = Number(collectingEvent[attr])
+
+    if (elevationValue > 0) {
+      elevation[attr] = feetsToMeters(elevationValue)
+    }
+  })
+
+  return elevation
+}
+
+function makeCollectingEventPayload(collectingEvent) {
+  const ce =
+    collectingEvent.unit === 'ft'
+      ? {
+          ...collectingEvent,
+          ...parseEvelation(collectingEvent)
+        }
+      : { ...collectingEvent }
+
+  return {
+    collecting_event: ce,
+    extend: EXTEND
+  }
+}
 
 async function getTotalUsed(ceId) {
   const response = await CollectionObject.where({
@@ -23,14 +63,10 @@ async function getTotalUsed(ceId) {
   return pagination.total
 }
 
-const EXTEND = ['roles']
-
 export default defineStore('collectingEventForm', {
   state: () => ({
     collectingEvent: makeCollectingEvent(),
     geographicArea: undefined,
-    label: makeLabel(COLLECTING_EVENT),
-    unit: 'm',
     totalUsed: 0
   }),
 
@@ -70,34 +106,38 @@ export default defineStore('collectingEventForm', {
       const idStore = useIdentifierStore()
       const depictionStore = useDepictionStore()
       const labelStore = useLabelStore()
-      const payload = {
-        collecting_event: {
-          ...this.collectingEvent
-        },
-        extend: EXTEND
-      }
+      const cePayload = makeCollectingEventPayload(this.collectingEvent)
 
-      const request = this.collectingEvent.id
-        ? CollectingEvent.update(this.collectingEvent.id, payload)
-        : CollectingEvent.create(payload)
+      try {
+        const { body } = this.collectingEvent.id
+          ? await CollectingEvent.update(this.collectingEvent.id, cePayload)
+          : await CollectingEvent.create(cePayload)
 
-      request.then(({ body }) => {
+        const { collector_roles = [], ...rest } = body
         const payload = { objectId: body.id, objectType: COLLECTING_EVENT }
 
-        this.collectingEvent.id = body.id
-        this.collectingEvent.global_id = body.global_id
-        this.collectingEvent.roles_attributes = body.collector_roles || []
+        this.collectingEvent = {
+          ...rest,
+          roles_attributes: collector_roles,
+          isUnsaved: false
+        }
 
-        georeferenceStore.save(body.id)
-        depictionStore.save(payload)
-        labelStore.save(payload)
+        const promises = [
+          georeferenceStore.save(body.id),
+          depictionStore.save(payload),
+          labelStore.save(payload)
+        ]
 
         if (idStore.isUnsaved) {
-          idStore.save(payload)
+          promises.push(idStore.save(payload))
         }
-      })
 
-      return request
+        await Promise.all(promises)
+
+        return body
+      } catch (e) {
+        throw e
+      }
     },
 
     async load(ceId) {
@@ -114,7 +154,7 @@ export default defineStore('collectingEventForm', {
 
         body.roles_attributes = body.collector_roles || []
 
-        this.collectingEvent = body
+        this.collectingEvent = { ...body, isUnsaved: false }
         this.totalUsed = await getTotalUsed(body.id)
 
         await idStore.load(payload)
@@ -123,7 +163,9 @@ export default defineStore('collectingEventForm', {
         await labelStore.load(payload)
 
         return body
-      } catch (e) {}
+      } catch (e) {
+        throw e
+      }
     },
 
     async clone() {

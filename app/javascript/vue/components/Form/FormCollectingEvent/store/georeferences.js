@@ -70,7 +70,7 @@ export default defineStore('collectingEventForm:georeferences', {
         return request
       })
 
-      return Promise.allSettled(requests)
+      return Promise.all(requests)
     }
   }
 })

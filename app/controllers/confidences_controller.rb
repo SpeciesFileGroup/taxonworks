@@ -13,6 +13,7 @@ confidence_level_id
 
 class ConfidencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_confidence, only: [:edit, :update, :destroy]
   after_action -> { set_pagination_headers(:confidences) }, only: [:index, :api_index ], if: :json_request?
@@ -120,22 +121,6 @@ class ConfidencesController < ApplicationController
     end
   end
 
-  # POST
-  def batch_by_filter_scope
-    if r = Confidence.batch_by_filter_scope(
-        mode: params[:mode] || :add,
-        filter_query: params.require(:filter_query), # like filter_query: { otu_query: {}}
-        confidence_level_id: params.require(:confidence_level_id),
-        replace_confidence_level_id: params[:replace_confidence_level_id],
-        project_id: sessions_current_project_id,
-        user_id: sessions_current_user_id
-    )
-      render json: r.to_json, status: :ok
-    else
-      render json: {}, status: :unprocessable_entity
-    end
-  end
-
   private
 
   def set_confidence
@@ -165,6 +150,12 @@ class ConfidencesController < ApplicationController
       :annotated_global_entity,
       :confidence_level_id,
       confidence_level_attributes: [:_destroy, :id, :name, :definition, :uri, :uri_relation]
+    )
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(
+      :confidence_level_id, :replace_confidence_level_id
     )
   end
 

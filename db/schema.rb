@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_05_151422) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1120,27 +1120,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_05_151422) do
   create_table "geographic_items", id: :serial, force: :cascade do |t|
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.geography "point", limit: {srid: 4326, type: "st_point", has_z: true, geographic: true}
-    t.geography "line_string", limit: {srid: 4326, type: "line_string", has_z: true, geographic: true}
-    t.geography "polygon", limit: {srid: 4326, type: "st_polygon", has_z: true, geographic: true}
-    t.geography "multi_point", limit: {srid: 4326, type: "multi_point", has_z: true, geographic: true}
-    t.geography "multi_line_string", limit: {srid: 4326, type: "multi_line_string", has_z: true, geographic: true}
-    t.geography "multi_polygon", limit: {srid: 4326, type: "multi_polygon", has_z: true, geographic: true}
-    t.geography "geometry_collection", limit: {srid: 4326, type: "geometry_collection", has_z: true, geographic: true}
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.string "type"
     t.decimal "cached_total_area"
-    t.geography "geography", limit: {:srid=>4326, :type=>"geometry", :has_z=>true, :geographic=>true}
+    t.geography "geography", limit: {srid: 4326, type: "geometry", has_z: true, geographic: true}
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
     t.index ["geography"], name: "index_geographic_items_on_geography", using: :gist
-    t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
-    t.index ["line_string"], name: "line_string_gix", using: :gist
-    t.index ["multi_line_string"], name: "multi_line_string_gix", using: :gist
-    t.index ["multi_point"], name: "multi_point_gix", using: :gist
-    t.index ["multi_polygon"], name: "multi_polygon_gix", using: :gist
-    t.index ["point"], name: "point_gix", using: :gist
-    t.index ["polygon"], name: "polygon_gix", using: :gist
     t.index ["type"], name: "index_geographic_items_on_type"
     t.index ["updated_by_id"], name: "index_geographic_items_on_updated_by_id"
   end
