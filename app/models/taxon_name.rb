@@ -1537,7 +1537,6 @@ class TaxonName < ApplicationRecord
       params[:classification].each do |p|
         # p = i.deep_symbolize_keys
         next if p[:rank_class].blank?
-
         begin
           if p[:id].nil?
             n = Protonym.create!( **p.merge(by:, project_id:, parent_id: current_parent_id) )

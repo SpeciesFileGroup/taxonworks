@@ -272,6 +272,7 @@ class Tools::InteractiveKey
       else
         h[otu_collection_object][:object_at_rank] = r
       end
+      # TODO: Not all COS have determinations
       h[otu_collection_object][:otu_id] = r.observation_object_type == 'CollectionObject' ? r.current_otu.id : r.observation_object_id
       h[otu_collection_object][:errors] = 0
       h[otu_collection_object][:error_descriptors] = []
