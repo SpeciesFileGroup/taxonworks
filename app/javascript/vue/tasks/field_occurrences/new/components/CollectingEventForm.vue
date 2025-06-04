@@ -96,7 +96,10 @@
           </div>
         </div>
       </fieldset>
-      <FormCollectingEvent :exclude="[ComponentMap.PrintLabel]" />
+      <FormCollectingEvent
+        :exclude="[ComponentMap.PrintLabel]"
+        :sortable="settings.sortable"
+      />
     </template>
   </BlockLayout>
 </template>
