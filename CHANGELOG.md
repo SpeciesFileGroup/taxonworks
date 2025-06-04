@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial CE: Add remove geographic area option in `Set geographic area` slice [#4375]
 - Filter sources: `With/without pages` facet [#4374]
 - Field occurrences to biological associations graph task
+- Browse OTU: Depictions to `Field occurrences` and `Specimen records` panels
 
 ### Fixed
 
