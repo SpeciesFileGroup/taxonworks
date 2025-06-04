@@ -421,6 +421,7 @@ module Queries
         f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes
         f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
         f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
+        f.push ::Queries::Concerns::Verifiers if self < ::Queries::Concerns::Verifiers
       end
 
       f
