@@ -40,6 +40,16 @@
           </label>
         </li>
       </ul>
+
+      <label>B query paging</label>
+      <label>
+        <input
+          type="checkbox"
+          :value="true"
+          v-model="params.venn_b_one_page"
+        />
+        Restrict the B query to the page of results from which you copied the query. If not checked, all results of the B query will be included.
+      </label>
     </div>
   </FacetContainer>
 </template>

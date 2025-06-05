@@ -234,6 +234,13 @@ module Queries
     #  ( A ( B ) C )
     attr_accessor :venn_mode
 
+    # @return Boolean
+    # When true, the B venn query will use only the single page indicated by
+    # whatever paging parameters are set on the query.
+    # When false, all paging parameters will be removed from the B query and it
+    # will return its full result set for venn processing.
+    attr_accessor :venn_b_one_page
+
     # @return symbol
     #   must match a existing parameter name (used to check if values provided)
     #
@@ -278,6 +285,7 @@ module Queries
 
       @venn = query_params[:venn]
       @venn_mode = query_params[:venn_mode]
+      @venn_b_one_page = boolean_param(query_params, :venn_b_one_page)
 
       # !! This is the *only* place Current.project_id should be seen !! It's still not the best
       # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
@@ -748,7 +756,7 @@ module Queries
       end
 
       p = ::Rack::Utils.parse_nested_query(u) # nested supports brackets
-      p = p.except('per', 'page', 'paginate')
+      p = p.except('per', 'page', 'paginate') unless venn_b_one_page
 
       a = ActionController::Parameters.new(p)
 
