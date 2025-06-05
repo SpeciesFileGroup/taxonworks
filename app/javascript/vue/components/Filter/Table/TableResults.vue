@@ -432,12 +432,14 @@
               <RadialObject
                 v-if="radialObject"
                 :global-id="item.global_id"
+                teleport
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
               <RadialNavigation
                 v-if="radialNavigator"
                 :global-id="item.global_id"
                 :redirect="false"
+                teleport
                 @delete="emit('remove', { item, index })"
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
