@@ -9,8 +9,6 @@
     <SmartSelector
       v-bind="TAB[tabSelected]"
       :target="FIELD_OCCURRENCE"
-      buttons
-      inline
       @selected="(item) => emit('select', item)"
     />
   </fieldset>

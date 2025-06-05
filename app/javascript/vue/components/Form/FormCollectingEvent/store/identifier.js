@@ -57,13 +57,13 @@ export default defineStore('collectingEventForm:identifiers', {
     },
 
     async load({ objectId, objectType }) {
-      try {
-        const { body } = await Identifier.where({
-          identifier_object_id: objectId,
-          identifier_object_type: objectType,
-          type: IDENTIFIER_LOCAL_FIELD_NUMBER
-        })
+      const request = Identifier.where({
+        identifier_object_id: objectId,
+        identifier_object_type: objectType,
+        type: IDENTIFIER_LOCAL_FIELD_NUMBER
+      })
 
+      request.then(({ body }) => {
         const [identifier] = body
 
         if (identifier) {
@@ -77,9 +77,9 @@ export default defineStore('collectingEventForm:identifiers', {
             this.namespace = body
           })
         }
+      })
 
-        return body
-      } catch (e) {}
+      return request
     }
   }
 })

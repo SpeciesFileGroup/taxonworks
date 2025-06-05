@@ -32,12 +32,16 @@ export default defineStore('collectingEventForm:depictions', {
 
   actions: {
     async load({ objectId, objectType }) {
-      return Depiction.where({
+      const request = Depiction.where({
         depiction_object_id: objectId,
         depiction_object_type: objectType
-      }).then(({ body }) => {
+      })
+
+      request.then(({ body }) => {
         this.depictions = body.map(makeDepiction)
       })
+
+      return request
     },
 
     addImage(image) {

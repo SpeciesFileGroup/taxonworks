@@ -13,10 +13,12 @@ export default defineStore('collectingEvent:label', {
 
   actions: {
     async load({ objectId, objectType }) {
-      return Label.where({
+      const request = Label.where({
         label_object_id: objectId,
         label_object_type: objectType
-      }).then(({ body }) => {
+      })
+
+      request.then(({ body }) => {
         const [label] = body
 
         if (label) {
@@ -26,12 +28,13 @@ export default defineStore('collectingEvent:label', {
           this.label.isUnsaved = false
         }
       })
+
+      return request
     },
 
     save({ objectId, objectType }) {
       const label = this.label
 
-      if (!label.isUnsaved) return
       if (!label.text.trim().length) {
         if (label.id) {
           Label.destroy(label.id).then((_) => {
@@ -39,7 +42,7 @@ export default defineStore('collectingEvent:label', {
           })
         }
 
-        return
+        return Promise.resolve([])
       }
 
       const payload = {

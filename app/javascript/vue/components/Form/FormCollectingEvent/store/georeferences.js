@@ -16,17 +16,17 @@ export default defineStore('collectingEventForm:georeferences', {
 
   actions: {
     async load(ceId) {
-      try {
-        const { body } = await Georeference.where({ collecting_event_id: ceId })
+      const request = Georeference.where({ collecting_event_id: ceId })
 
+      request.then(({ body }) => {
         this.georeferences = body.map((item) => ({
           ...item,
           uuid: randomUUID(),
           isUnsaved: false
         }))
+      })
 
-        return body
-      } catch (e) {}
+      return request
     },
 
     async remove(georeference) {

@@ -28,12 +28,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter CO: Results are not displayed when DwC information is missing
 - New Asserted Distribution task can't create more than one AD on a given OTU [#4388]
 - Radial filter: When opening a filter link in a new tab, the filter page loads empty when the URL is too long [#4360]
+- Smart selectors don't refresh on new CE and new FO after save
 
 ### Changed
 
 - Updated Ruby gems
 - Updated layout of data and internal attribute facets
 - Filters: Selected records are kept if they appear in new searches [#4393]
+- CSD, New CE and New FO tasks now use the same collection event form
 
 [#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
 [#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355

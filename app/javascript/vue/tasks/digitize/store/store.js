@@ -70,7 +70,7 @@ function makeInitialState() {
     preferences: {},
     preparation_type_id: undefined,
     project_preferences: undefined,
-    softValidations: [],
+    softValidations: {},
     subsequentialUses: 0,
     ceTotalUsed: 0,
     typeSpecimens: [],

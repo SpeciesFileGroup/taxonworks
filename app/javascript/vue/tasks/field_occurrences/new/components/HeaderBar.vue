@@ -78,6 +78,11 @@
 </template>
 
 <script setup>
+import { computed, onBeforeMount, watch, ref } from 'vue'
+import { setParam, smartSelectorRefresh } from '@/helpers'
+import { FIELD_OCCURRENCE } from '@/constants'
+import { useHotkey } from '@/composables'
+
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
@@ -94,12 +99,8 @@ import useDepictionStore from '../store/depictions.js'
 import useOriginRelationshipStore from '../store/originRelationships.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VRecent from './Recent.vue'
-import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import { setParam } from '@/helpers'
-import { computed, onBeforeMount, watch, ref } from 'vue'
-import { FIELD_OCCURRENCE } from '@/constants'
 
 const foStore = useFieldOccurrenceStore()
 const settings = useSettingStore()
@@ -159,6 +160,7 @@ async function save() {
       })
       .catch(() => {})
       .finally(() => {
+        smartSelectorRefresh()
         settings.isSaving = false
       })
   } catch {

@@ -1,5 +1,10 @@
 import { defineStore } from 'pinia'
-import { COLLECTING_EVENT } from '@/constants/index.js'
+import {
+  COLLECTING_EVENT,
+  DEPICTION,
+  LABEL,
+  IDENTIFIER
+} from '@/constants/index.js'
 import {
   GeographicArea,
   CollectingEvent,
@@ -11,6 +16,9 @@ import useGeoreferenceStore from './georeferences.js'
 import useIdentifierStore from './identifier.js'
 import useDepictionStore from './depictions.js'
 import useLabelStore from './label.js'
+import useSoftValidationStore from './softValidations.js'
+
+const EXCLUDE_SOFT_VALIDATIONS = [LABEL, DEPICTION, IDENTIFIER]
 
 const ELEVATION_ATTRS = [
   'minimum_elevation',
@@ -36,6 +44,15 @@ function parseEvelation(collectingEvent) {
   })
 
   return elevation
+}
+
+function getGlobalIdFromResponse(responses) {
+  return responses
+    .flat()
+    .map((r) => r.body)
+    .flat()
+    .filter((item) => !EXCLUDE_SOFT_VALIDATIONS.includes(item.base_class))
+    .map((item) => item.global_id)
 }
 
 function makeCollectingEventPayload(collectingEvent) {
@@ -93,11 +110,13 @@ export default defineStore('collectingEventForm', {
       const identifierStore = useIdentifierStore()
       const depictionStore = useDepictionStore()
       const labelStore = useLabelStore()
+      const softValidationStore = useSoftValidationStore()
 
       this.$reset()
       depictionStore.reset()
       identifierStore.$reset()
       georeferenceStore.$reset()
+      softValidationStore.$reset()
       labelStore.$reset()
     },
 
@@ -106,35 +125,44 @@ export default defineStore('collectingEventForm', {
       const idStore = useIdentifierStore()
       const depictionStore = useDepictionStore()
       const labelStore = useLabelStore()
+      const softValidationStore = useSoftValidationStore()
       const cePayload = makeCollectingEventPayload(this.collectingEvent)
 
       try {
-        const { body } = this.collectingEvent.id
+        const response = this.collectingEvent.id
           ? await CollectingEvent.update(this.collectingEvent.id, cePayload)
           : await CollectingEvent.create(cePayload)
 
-        const { collector_roles = [], ...rest } = body
-        const payload = { objectId: body.id, objectType: COLLECTING_EVENT }
+        const { id, collector_roles = [], ...rest } = response.body
+        const payload = { objectId: id, objectType: COLLECTING_EVENT }
 
         this.collectingEvent = {
+          id,
           ...rest,
           roles_attributes: collector_roles,
           isUnsaved: false
         }
 
         const promises = [
-          georeferenceStore.save(body.id),
-          depictionStore.save(payload),
-          labelStore.save(payload)
+          response,
+          georeferenceStore.save(id),
+          depictionStore.save(payload)
         ]
 
         if (idStore.isUnsaved) {
           promises.push(idStore.save(payload))
         }
 
-        await Promise.all(promises)
+        if (labelStore.label.isUnsaved) {
+          promises.push(labelStore.save(payload))
+        }
 
-        return body
+        const responses = await Promise.all(promises)
+        const globalIds = getGlobalIdFromResponse(responses)
+
+        softValidationStore.load(globalIds)
+
+        return responses
       } catch (e) {
         throw e
       }
@@ -145,24 +173,37 @@ export default defineStore('collectingEventForm', {
       const georeferenceStore = useGeoreferenceStore()
       const depictionStore = useDepictionStore()
       const labelStore = useLabelStore()
+      const softValidationStore = useSoftValidationStore()
 
       this.reset()
 
       try {
-        const { body } = await CollectingEvent.find(ceId, { extend: EXTEND })
+        const response = await CollectingEvent.find(ceId, { extend: EXTEND })
         const payload = { objectId: ceId, objectType: COLLECTING_EVENT }
+        const { id, collector_roles, ...rest } = response.body
 
-        body.roles_attributes = body.collector_roles || []
+        this.collectingEvent = {
+          id,
+          ...rest,
+          roles_attributes: collector_roles,
+          isUnsaved: false
+        }
+        this.totalUsed = await getTotalUsed(id)
 
-        this.collectingEvent = { ...body, isUnsaved: false }
-        this.totalUsed = await getTotalUsed(body.id)
+        const promises = [
+          response,
+          idStore.load(payload),
+          georeferenceStore.load(ceId),
+          depictionStore.load(payload),
+          labelStore.load(payload)
+        ]
 
-        await idStore.load(payload)
-        await georeferenceStore.load(ceId)
-        await depictionStore.load(payload)
-        await labelStore.load(payload)
+        const responses = await Promise.all(promises)
+        const globalIds = getGlobalIdFromResponse(responses)
 
-        return body
+        softValidationStore.load(globalIds)
+
+        return responses
       } catch (e) {
         throw e
       }
