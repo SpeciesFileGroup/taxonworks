@@ -8,11 +8,10 @@
 #   The the id of the ControlledVocabularyTerm::Predicate.  Term is referenced as #predicate.
 #
 class InternalAttribute < DataAttribute
-
   include Shared::DwcOccurrenceHooks
 
-  validates_presence_of :predicate
-  validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id, :project_id]
+  validates :predicate, presence: true
+  validates :value, uniqueness: { scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id, :project_id] }
 
   def dwc_occurrences
     if DWC_ATTRIBUTE_URIS.values.flatten.include?(predicate&.uri)
@@ -38,101 +37,163 @@ class InternalAttribute < DataAttribute
 
   # @params attribute_scope a Query::X::Filter instance
   #   that is NOT Query::DataAttribute::Filter
+  # @return [Number or False] number of records updated
   def self.update_value(attribute_scope, controlled_vocabulary_term_id, value_from, value_to)
     return false if controlled_vocabulary_term_id.nil? || value_from.nil? || value_to.nil?
-    b = ::Queries::DataAttribute::Filter.new(
-      attribute_scope.query_name.to_sym => attribute_scope.params,
-      controlled_vocabulary_term_id:,
-      value: value_from,
-    )
 
-    b.all.update_all(value: value_to)
+    b = ::DataAttribute
+      .with(attr_subject_ids: attribute_scope.select(:id))
+      .where('attribute_subject_id IN (SELECT id FROM attr_subject_ids)')
+      .where(value: value_from, type: 'InternalAttribute')
+
+    count = b.count # count before you change values read by the query!
+    # update_all doesn't work with .with() (at least here)
+    ::DataAttribute.where(id: b).update_all(value: value_to)
+
+    count
   end
 
   # Add attributes to the objects in the filter that do not have them
   #
-  # @return attribute_scope a Filter instance
+  # @return [Array or False] array of internal attribute ids created
   def self.add_value(attribute_scope, controlled_vocabulary_term_id, value_to)
     return false if controlled_vocabulary_term_id.nil? || value_to.nil?
+    rv = []
 
     # with (not these)
-    a = attribute_scope.all.joins(:internal_attributes).where(
+    a = attribute_scope.joins(:internal_attributes).where(
       data_attributes: {
         value: value_to,
         controlled_vocabulary_term_id:
       })
-
     # If the join is empty, we need to add to all
     if a.size == 0
-      b = attribute_scope.all
+      b = attribute_scope
     else
-      s = 'WITH query_with_ia AS (' + a.to_sql + ') ' +
-        attribute_scope.referenced_klass
-        .joins("LEFT JOIN query_with_ia as query_with_ia1 ON query_with_ia1.id = #{attribute_scope.table.name}.id")
-        .where("query_with_ia1.id is null")
-        .to_sql
-
-      b = attribute_scope.referenced_klass.from('(' + s + ") as #{attribute_scope.table.name}").distinct
+      klass = attribute_scope.name.underscore.pluralize
+      t = attribute_scope.klass
+        .with(klass_ids: a.select(:id))
+        .joins("LEFT JOIN klass_ids ON klass_ids.id = #{klass}.id")
+        .where('klass_ids.id IS null')
+      b = attribute_scope.from("(#{t.to_sql}) AS sounds")
     end
-
-    # stop-gap, we shouldn't hit this
-    return false if b.size > 1000
 
     InternalAttribute.transaction do
       b.each do |o|
         begin
-          ::InternalAttribute.create!(
+          ia = ::InternalAttribute.create!(
             controlled_vocabulary_term_id:,
             value: value_to,
-            attribute_subject: o)
+            attribute_subject: o,
+          )
+
+          rv.push(ia.id)
         rescue ActiveRecord::RecordInvalid => e
           # TODO: check necessity of this
           # This should not be necessary, but proceed
         end
       end
     end
+
+    rv
   end
 
-  # <some_object>_query={}&value_from=123&value_to=456&predicate_id=890
-  def self.batch_update_or_create(params)
-    a = Queries::Query::Filter.base_filter(params)
+  def self.process_batch_by_filter_scope(batch_response: nil, query: nil,
+    hash_query: nil, mode: nil, params: nil, async: nil,
+    project_id: nil, user_id: nil,
+    called_from_async: false
+  )
+    # Don't call async from async (the point is we do the same processing in
+    # async and not in async, and this function handles both that processing and
+    # making the async call, so it's this much janky).
+    async = false if called_from_async == true
+    r = batch_response
 
-    q = params.keys.select{|z| z =~ /_query/}.first
-
-    return false if q.nil?
-
-    b = a.new(params[q])
-
-    s = b.all.count
-
-    return false if b.params.empty? || s > 1000 || s == 0
-
-    transaction do
-      update_value(b, params[:predicate_id], params[:value_from], params[:value_to])
-      add_value(b, params[:predicate_id], params[:value_to])
-    end
-
-    true
-  end
-
-  def self.batch_create(params)
-    ids = params[:attribute_subject_id]
-    params.delete(:attribute_subject_id)
-
-    internal_attributes = []
-    InternalAttribute.transaction do
-      begin
-        ids.each do |id|
-          internal_attributes.push InternalAttribute.create!(
-            params.merge(
-              attribute_subject_id: id
-            )
-          )
-        end
-      rescue ActiveRecord::RecordInvalid
-        return false
+    case mode.to_sym
+    when :replace
+      if params[:predicate_id].nil?
+        r.errors['no predicate id provided'] = nil
+        return r
+      elsif params[:value_from].nil?
+        r.errors["no 'from' value provided"] = nil
+        return r
+      elsif params[:value_to].nil?
+        r.errors["no 'to' value provided"] = nil
+        return r
       end
+
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        num_updated = update_value(
+          query, params[:predicate_id], params[:value_from], params[:value_to]
+        )
+
+        r.updated = Array.new(num_updated)
+      end
+
+    when :remove
+      # Just delete, async or not
+      if params[:predicate_id].nil?
+        r.errors['no predicate id provided'] = nil
+        return r
+      elsif params[:value].nil?
+        r.errors['no predicate value provided'] = nil
+        return r
+      end
+
+      # delete_all doesn't support .with()
+      s = "WITH attr_subject_ids AS ( #{ query.select(:id).to_sql } ) "
+      s << ::DataAttribute
+        .where(
+          'attribute_subject_id IN (SELECT id FROM attr_subject_ids)'
+        )
+        .where(
+          attribute_subject_type: query.name,
+          controlled_vocabulary_term_id: params[:predicate_id],
+          value: params[:value],
+          # query is on DataAttribute, so we need to do this
+          type: 'InternalAttribute'
+        ).to_sql
+
+      q = ::DataAttribute.from( "(#{s}) AS data_attributes")
+
+      r.updated = Array.new(q.count)
+      # Beware q.delete_all!
+      ::DataAttribute.where(id: q).delete_all
+
+    when :add
+      if params[:predicate_id].nil?
+        r.errors['no predicate id provided'] = nil
+        return r
+      elsif params[:value].nil?
+        r.errors['no predicate value provided'] = nil
+        return r
+      end
+
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:,
+        )
+      else
+        ia_ids = add_value(query, params[:predicate_id], params[:value])
+        r.updated = ia_ids
+      end
+
     end
-    internal_attributes
+
+    return r
   end
 end

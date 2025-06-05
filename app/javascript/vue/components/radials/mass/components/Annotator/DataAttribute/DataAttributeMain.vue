@@ -33,8 +33,8 @@
     <PredicateValueSelector
       v-else
       v-model:predicate="predicate"
-      v-model:predicate-value1="predicateValueToUpdate"
-      v-model:predicate-value2="predicateValueNewValue"
+      v-model:predicate-value1="predicateValueFrom"
+      v-model:predicate-value2="predicateValueTo"
       :text-box1-default="selectedMode.textBox1Text"
       :text-box2-default="selectedMode.textBox2Text"
       :controlled-vocabulary-terms="cvtList"
@@ -85,7 +85,7 @@
 
 <script setup>
 import { computed, ref, onBeforeMount, shallowRef } from 'vue'
-import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
@@ -93,6 +93,17 @@ import PreviewTable from '@/components/radials/shared/PreviewTable.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import PredicateValueSelector from './PredicateValueSelector.vue'
+
+const MODES = [
+  { mode: 'add', display: 'Add', textBox1Text: 'Value', textBox2Text: '',
+    confirmationWord: 'CREATE'
+   },
+  { mode: 'remove', display: 'Remove',  textBox1Text: 'Value', textBox2Text: '',
+    confirmationWord: 'DELETE'
+  },
+  { mode: 'replace', display: 'Replace', textBox1Text: 'From',
+    textBox2Text: 'To', confirmationWord: 'UPDATE' }
+]
 
 const props = defineProps({
   ids: {
@@ -116,12 +127,6 @@ const props = defineProps({
   }
 })
 
-const MODES = [
-  { mode: 'add', display: 'Add', textBox1Text: 'Value', textBox2Text: '' },
-  { mode: 'remove', display: 'Remove',  textBox1Text: 'Value', textBox2Text: ''},
-  { mode: 'replace', display: 'Replace', textBox1Text: 'From', textBox2Text: 'To' }
-]
-
 const confirmationModalRef = ref(null)
 const cvtList = ref([])
 const response = ref(null)
@@ -129,8 +134,8 @@ const isTableVisible = ref(false)
 const isProcessing = ref(false)
 const predicate = ref(null)
 const predicateValue = ref(null) // Value for create or delete
-const predicateValueToUpdate = ref(null) // For update
-const predicateValueNewValue = ref(null) // For update
+const predicateValueFrom = ref(null) // For update
+const predicateValueTo = ref(null) // For update
 
 const selectedMode = shallowRef(MODES[0]) // Add
 
@@ -139,8 +144,8 @@ const submitDisabled = computed(
     if (selectedMode.value.mode == 'add' || selectedMode.value.mode == 'remove') {
       return !(predicate.value && predicateValue.value?.length)
     } else {
-      return !(predicate.value && predicateValueToUpdate.value?.length &&
-        predicateValueNewValue.value?.length)
+      return !(predicate.value && predicateValueFrom.value?.length &&
+        predicateValueTo.value?.length)
     }
   }
 )
@@ -153,9 +158,9 @@ onBeforeMount(() => {
 
 async function makeBatchRequest() {
   const ok = await confirmationModalRef.value.show({
-    title: 'Protocols',
+    title: 'Data attributes',
     message: 'Are you sure you want to proceed?',
-    confirmationWord: 'UPDATE',
+    confirmationWord: selectedMode.value.confirmationWord,
     okButton: 'Create',
     cancelButton: 'Cancel',
     typeButton: 'submit'
@@ -165,31 +170,32 @@ async function makeBatchRequest() {
     const idParam = ID_PARAM_FOR[props.objectType]
     const payload = selectedMode.value.mode == 'replace'
       ? makeUpdatePayload()
-      : makeCreateOrDestroyPayload()
+      : makeCreateOrDeletePayload()
 
     if (props.ids?.length) {
       payload.filter_query[idParam] = props.ids
     }
 
     isProcessing.value = true
-    DataAttribute.batchByFilter(payload)
+    DataAttribute.batchByFilterScope(payload)
       .then(({ body }) => {
         response.value = body
         isTableVisible.value = true
       })
+      .catch(() => {})
       .finally(() => {
         isProcessing.value = false
       })
   }
 }
 
-function makeCreateOrDestroyPayload() {
+function makeCreateOrDeletePayload() {
   return {
     filter_query: filterQuery(),
     mode: selectedMode.value.mode,
     params: {
       type: 'InternalAttribute',
-      controlled_vocabulary_term_id: predicate.value,
+      predicate_id: predicate.value.id,
       value: predicateValue.value
     }
   }
@@ -201,9 +207,9 @@ function makeUpdatePayload() {
     mode: selectedMode.value.mode,
     params: {
       type: 'InternalAttribute',
-      controlled_vocabulary_term_id: predicate.value,
-      value_to_update: predicateValueToUpdate.value,
-      new_value: predicateValueNewValue.value
+      predicate_id: predicate.value.id,
+      value_from: predicateValueFrom.value,
+      value_to: predicateValueTo.value
     }
   }
 }
@@ -217,8 +223,8 @@ function filterQuery() {
 function resetForm() {
   predicate.value = null
   predicateValue.value = ''
-  predicateValueNewValue.value = ''
-  predicateValueToUpdate.value = ''
+  predicateValueFrom.value = ''
+  predicateValueTo.value = ''
 
 }
 </script>
