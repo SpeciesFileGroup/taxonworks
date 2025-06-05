@@ -296,7 +296,8 @@ class CollectingEventsController < ApplicationController
       :end_date_year, :verbatim_habitat, :field_notes, :verbatim_datum,
       :verbatim_elevation, :meta_prioritize_geographic_area,
       georeferences_attributes: [:type, :geographic_item_id, :error_radius,
-        :error_depth, :error_geographic_item], # batch add only use right now
+        :error_depth, :error_geographic_item, :is_public, :api_request,
+        :year_georeferenced, :month_georeferenced, :day_georeferenced], # batch add only use right now
       roles_attributes: [:id, :_destroy, :type, :person_id, :position, :by,
                          person_attributes: [:last_name, :first_name, :suffix, :prefix, :by]],
     identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
