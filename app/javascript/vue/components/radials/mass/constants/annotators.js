@@ -13,14 +13,13 @@ import {
   PEOPLE,
   SOUND,
   SOURCE,
-  TAXON_NAME
 } from '@/constants'
 import AnnotatorTag from '../components/Annotator/AnnotatorTag.vue'
 import AnnotatorNote from '../components/Annotator/AnnotatorNote.vue'
 import AnnotatorConfidence from '../components/Annotator/Confidence/ConfidenceMain.vue'
 import AnnotatorAttribution from '../components/Annotator/Attribution/AttributionMain.vue'
 import AnnotatorCitation from '../components/Annotator/AnnotatorCitation.vue'
-import AnnotatorDataAttribute from '../components/Annotator/DataAttribute/AnnotatorDataAttribute.vue'
+import AnnotatorDataAttribute from '../components/Annotator/DataAttribute/DataAttributeMain.vue'
 import AnnotatorIdentifier from '../components/Annotator/Identifier/IdentifierMain.vue'
 import AnnotatorProtocol from '../components/Annotator/Protocol/ProtocolMain.vue'
 
@@ -77,6 +76,7 @@ export const ANNOTATORS = {
       TAG_SLICE
     )
   },
+
   [COLLECTING_EVENT]: {
     all: buildSliceObject(
       CONFIDENCE_SLICE,
@@ -94,6 +94,7 @@ export const ANNOTATORS = {
       TAG_SLICE
     )
   },
+
   [COLLECTION_OBJECT]: {
     all: buildSliceObject(
       CONFIDENCE_SLICE,
@@ -111,6 +112,7 @@ export const ANNOTATORS = {
       TAG_SLICE
     )
   },
+
   [OTU]: {
     all: buildSliceObject(CONFIDENCE_SLICE, DATA_ATTRIBUTE_SLICE),
 
@@ -122,6 +124,7 @@ export const ANNOTATORS = {
       TAG_SLICE
     )
   },
+
   [ASSERTED_DISTRIBUTION]: {
     all: buildSliceObject(CONFIDENCE_SLICE, DATA_ATTRIBUTE_SLICE),
 
