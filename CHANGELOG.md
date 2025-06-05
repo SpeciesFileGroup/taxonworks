@@ -7,19 +7,44 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Tab options on Field Occurrence smart selectors (select_options)
+- FieldOccurrences facet to Filter Images
+- Radial CE: Add remove geographic area option in `Set geographic area` slice [#4375]
+- Filter sources: `With/without pages` facet [#4374]
+- Field occurrences to biological associations graph task
+- Browse OTU: Depictions to `Field occurrences` and `Specimen records` panels
+- New Field occurrences: Reorder fields
+
 ### Fixed
 
+- updated: cached_classified_as [#4373]
 - Temperature units
 - Unify task: No message error is displayed when merging fails
 - New field occurrence task: Collecting event radials don't work on new CE [#4354]
 - Filter CE: Data attributes layout [#4355]
+- Radial CE: error radius is not copy on `Set Georeference` slice [#4358]
+- Filter CO: Results are not displayed when DwC information is missing
+- New Asserted Distribution task can't create more than one AD on a given OTU [#4388]
+- Radial filter: When opening a filter link in a new tab, the filter page loads empty when the URL is too long [#4360]
+- Smart selectors don't refresh on new CE and new FO after save
 
 ### Changed
 
 - Updated Ruby gems
+- Updated layout of data and internal attribute facets
+- Filters: Selected records are kept if they appear in new searches [#4393]
+- CSD, New CE and New FO tasks now use the same collection event form
 
 [#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
 [#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
+[#4358]: https://github.com/SpeciesFileGroup/taxonworks/pull/4358
+[#4360]: https://github.com/SpeciesFileGroup/taxonworks/issues/4360
+[#4374]: https://github.com/SpeciesFileGroup/taxonworks/issues/4374
+[#4375]: https://github.com/SpeciesFileGroup/taxonworks/issues/4375
+[#4388]: https://github.com/SpeciesFileGroup/taxonworks/issues/4388
+[#4393]: https://github.com/SpeciesFileGroup/taxonworks/issues/4393
 
 \-
 

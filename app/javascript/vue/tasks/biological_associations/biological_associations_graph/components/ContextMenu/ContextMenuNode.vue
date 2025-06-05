@@ -1,8 +1,9 @@
 <template>
-  <div class="graph-context-menu-list-header">CO/OTU</div>
+  <div class="graph-context-menu-list-header">CO/FO/OTU</div>
   <div class="flex-separate middle gap-small graph-context-menu-list-item">
     <a
       v-if="objectBrowseLink"
+      class="word_break"
       :href="objectBrowseLink"
       >{{ node.name }}</a
     >
@@ -56,7 +57,7 @@
 <script setup>
 import { computed } from 'vue'
 import { parseNodeId } from '../../utils'
-import { OTU, COLLECTION_OBJECT } from '@/constants'
+import { OTU, COLLECTION_OBJECT, FIELD_OCCURRENCE } from '@/constants'
 import { RouteNames } from '@/routes/routes'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -103,7 +104,9 @@ const emit = defineEmits([
 const browseTask = {
   [OTU]: (id) => `${RouteNames.BrowseOtu}?otu_id=${id}`,
   [COLLECTION_OBJECT]: (id) =>
-    `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`
+    `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
+  [FIELD_OCCURRENCE]: (id) =>
+    `${RouteNames.BrowseFieldOccurrence}?field_occurrence_id=${id}`
 }
 
 const objectBrowseLink = computed(() => {

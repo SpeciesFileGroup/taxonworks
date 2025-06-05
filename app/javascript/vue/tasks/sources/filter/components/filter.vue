@@ -64,14 +64,15 @@ import FacetSomeValue from '@/components/Filter/Facets/shared/FacetSomeValue.vue
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetBibtexType from '@/components/Filter/Facets/Source/FacetBibtexType.vue'
-import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import CitationOnOtus from '@/components/Filter/Facets/Source/CitationOnOtus.vue'
 import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_TITLES = {
-  with_title: 'BibTeX title'
+  with_title: 'BibTeX title',
+  with_pages: 'Pages'
 }
 
 const IN_PROJECT_OPTIONS = [
@@ -100,7 +101,8 @@ const WITH_PARAMS = [
   'tags',
   'notes',
   'serial',
-  'with_title'
+  'with_title',
+  'with_pages'
 ]
 
 const props = defineProps({

@@ -95,11 +95,12 @@ export const useStore = defineStore('NewAssertedDistribution', {
         try {
           const { body } = await AssertedDistribution.where({
             otu_id: assertedDistribution.otu_id,
-            asserted_distribution_shape_type:
+            geo_shape_type:
               assertedDistribution.asserted_distribution_shape_type,
-            asserted_distribution_shape_id:
+            geo_shape_id:
               assertedDistribution.asserted_distribution_shape_id,
             extend
+            // geo_mode: nil // i.e. Exact
           })
 
           const record = body.find(

@@ -61,6 +61,24 @@ describe Queries::Query::Filter, type: [:model] do
       a = ::Queries::Otu::Filter.new(otu_id: [o2.id], venn: v, venn_mode: :b)
       expect(a.all).to contain_exactly(o3)
     end
+
+    specify '#venn_query includes b pagination by default' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o1.id}&otu_id[]=#{o2.id}&otu_id[]=#{o3.id}&paginate=true&page=2&per=1"
+
+      a = ::Queries::Otu::Filter.new(
+        otu_id: [o1.id, o2.id, o3.id], venn: v, venn_mode: :a)
+      expect(a.all).to contain_exactly(o1, o3)
+    end
+
+    specify '#venn_query #venn_ignore_pagination' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o1.id}&otu_id[]=#{o2.id}&paginate=true&page=2&per=1"
+
+      a = ::Queries::Otu::Filter.new(
+        otu_id: [o1.id, o2.id, o3.id],
+        venn: v, venn_mode: :a, venn_ignore_pagination: true
+      )
+      expect(a.all).to contain_exactly(o3)
+    end
   end
 
   specify '#venn_query' do
@@ -71,13 +89,24 @@ describe Queries::Query::Filter, type: [:model] do
     expect(q.venn_query.class).to eq(::Queries::Otu::Filter)
   end
 
-  specify '#venn_query params' do
-    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1'
+  specify '#venn_query params includes pagination params by default' do
+    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1&paginate=true'
 
-    a = ::Queries::Otu::Filter.new({})
-    a.venn = v
-    b = a.venn_query
-    expect(b.params).to eq({name: 'Ant', page: '1', per: '50'})
+    q = ::Queries::Otu::Filter.new({})
+    q.venn = v
+    b = q.venn_query
+    expect(b.params).to eq({name: 'Ant', paginate: 'true', page: '1', per: '50'})
+  end
+
+  specify '#venn_query #venn_ignore_pagination=true' do
+    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1&paginate=true'
+
+    q = ::Queries::Otu::Filter.new({
+      venn: v,
+      venn_ignore_pagination: 'true'
+    })
+    b = q.venn_query
+    expect(b.params).to eq({name: 'Ant'})
   end
 
   specify '#venn_mode 0' do

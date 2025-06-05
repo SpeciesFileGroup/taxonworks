@@ -1,5 +1,6 @@
 import { makeInitialState } from '../store.js'
 import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
+import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import {
   EVENT_TAXON_DETERMINATION_FORM_RESET,
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
@@ -16,11 +17,13 @@ export default ({ state }) => {
   const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
   const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
   const determinationStore = useTaxonDeterminationStore()
+  const collectingEVentStore = useCollectingEventStore()
 
   history.replaceState(null, null, '/tasks/accessions/comprehensive')
   state = Object.assign(state, makeInitialState())
   state.preferences = preferences
   state.project_preferences = project_preferences
+  collectingEVentStore.reset()
   recordNumber.$reset()
   catalogNumber.$reset()
   determinationStore.$reset()

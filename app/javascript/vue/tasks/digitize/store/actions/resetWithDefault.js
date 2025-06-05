@@ -1,5 +1,7 @@
 import ActionNames from './actionNames'
 import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
+import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations'
 import {
   IDENTIFIER_LOCAL_RECORD_NUMBER,
   IDENTIFIER_LOCAL_CATALOG_NUMBER
@@ -7,15 +9,14 @@ import {
 
 export default ({ dispatch, state }) => {
   const { locked } = state.settings
+  const collectingEventStore = useCollectingEventStore()
   const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
   const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
   const determinationStore = useTaxonDeterminationStore()
+  const biologicalAssociationStore = useBiologicalAssociationStore()
 
-  dispatch(ActionNames.NewCollectingEvent)
   dispatch(ActionNames.NewCollectionObject)
   dispatch(ActionNames.NewTypeMaterial)
-  dispatch(ActionNames.NewIdentifier)
-  dispatch(ActionNames.NewLabel)
 
   state.collection_objects = []
   state.container = undefined
@@ -27,7 +28,7 @@ export default ({ dispatch, state }) => {
   state.preparation_type_id = undefined
 
   if (!locked.collecting_event) {
-    state.georeferences = []
+    collectingEventStore.reset()
   }
 
   recordNumber.reset({
@@ -38,6 +39,10 @@ export default ({ dispatch, state }) => {
   catalogNumber.reset({
     keepNamespace: locked.identifier,
     increment: state.settings.increment
+  })
+
+  biologicalAssociationStore.reset({
+    keepRecords: locked.biologicalAssociations
   })
 
   determinationStore.reset({

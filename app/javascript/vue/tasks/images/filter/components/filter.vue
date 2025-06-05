@@ -23,6 +23,10 @@
     v-model="params"
     includes
   />
+  <FacetFieldOccurrence
+    v-model="params"
+    includes
+  />
   <FacetBiocurations v-model="params" />
   <FacetIdentifiers v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
@@ -55,6 +59,7 @@ import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetDepictionObjectType from '@/components/Filter/Facets/Depiction/FacetDepictionObjectType.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetFieldOccurrence from '@/components/Filter/Facets/FieldOccurrence/FacetFieldOccurrence.vue'
 
 const props = defineProps({
   modelValue: {

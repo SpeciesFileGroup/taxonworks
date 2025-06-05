@@ -10,6 +10,7 @@
 #
 class Attribution < ApplicationRecord
   include Housekeeping
+  include Shared::BatchByFilterScope
   include Shared::Notes
   include Shared::Confidences
   include Shared::Tags
@@ -40,7 +41,7 @@ class Attribution < ApplicationRecord
     accepts_nested_attributes_for role_organization
   end
 
-  validates_uniqueness_of :attribution_object_id, scope: [:attribution_object_type, :project_id]
+  validates :attribution_object_id, uniqueness: { scope: [:attribution_object_type, :project_id] }
 
   validates :license, inclusion: {in: CREATIVE_COMMONS_LICENSES.keys}, allow_nil: true
 
@@ -49,6 +50,58 @@ class Attribution < ApplicationRecord
     message: 'must be an integer greater than 999 and no more than 5 years in the future'}
 
   validate :some_data_provided
+
+  def self.process_batch_by_filter_scope(
+    batch_response: nil, query: nil, hash_query: nil, mode: nil, params: nil,
+    async: nil, project_id: nil, user_id: nil,
+    called_from_async: false
+  )
+    # Don't call async from async (the point is we do the same processing in
+    # async and not in async, and this function handles both that processing and
+    # making the async call, so it's this much janky).
+    async = false if called_from_async == true
+    r = batch_response
+
+    case mode.to_sym
+    when :add
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        attribution_object_type = query.klass.name
+        attribution = params[:attribution]
+        query.find_each do |o|
+          o_params = attribution.merge({
+            attribution_object_id: o.id,
+            attribution_object_type:
+          })
+          o = Attribution.create(o_params)
+
+          if o.valid?
+            r.updated.push o.id
+          else
+            r.not_updated.push nil # no id to add
+          end
+        end
+      end
+
+    # when :remove
+    #   # Just delete, async or not
+    #   Attribution
+    #     .where(
+    #       attribution_object_id: q.pluck(:id),
+    #       attribution_object_type: b.referenced_klass.name
+    #     ).delete_all
+    end
+
+    r
+  end
 
   protected
 

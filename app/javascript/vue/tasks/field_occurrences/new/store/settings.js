@@ -4,6 +4,7 @@ export default defineStore('settings', {
   state: () => ({
     isLoading: false,
     isSaving: false,
+    sortable: false,
     locked: {
       biocurations: false,
       citations: false,

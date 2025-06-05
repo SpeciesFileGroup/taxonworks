@@ -13,6 +13,7 @@ import {
 import {
   unsavedEdge,
   nodeCollectionObjectStyle,
+  nodeFieldOccurrenceStyle,
   nodeOtuStyle,
   unsavedNodeStyle
 } from '../constants/graphStyle.js'
@@ -25,7 +26,12 @@ import {
 } from '../utils'
 import { randomUUID } from '@/helpers'
 import { addToArray } from '@/helpers/arrays'
-import { COLLECTION_OBJECT, BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
+import {
+  COLLECTION_OBJECT,
+  FIELD_OCCURRENCE,
+  BIOLOGICAL_ASSOCIATION,
+  OTU
+} from '@/constants/index.js'
 
 const EXTEND_GRAPH = [
   'biological_associations_biological_associations_graphs',
@@ -51,6 +57,16 @@ function initState() {
   }
 }
 
+function getNodeStyleByType(objectType) {
+  const styles = {
+    [COLLECTION_OBJECT]: nodeCollectionObjectStyle,
+    [FIELD_OCCURRENCE]: nodeFieldOccurrenceStyle,
+    [OTU]: nodeOtuStyle
+  }
+
+  return styles[objectType]
+}
+
 export function useGraph() {
   const state = reactive(initState())
 
@@ -65,12 +81,7 @@ export function useGraph() {
           name: obj.name
         }
 
-        Object.assign(
-          node,
-          obj.objectType === COLLECTION_OBJECT
-            ? nodeCollectionObjectStyle
-            : nodeOtuStyle
-        )
+        Object.assign(node, getNodeStyleByType(obj.objectType))
 
         if (!isSaved) {
           Object.assign(node, unsavedNodeStyle)
@@ -379,7 +390,7 @@ export function useGraph() {
 
     return {
       biologicalAssociations: createdBiologicalAssociations,
-      biologicalAssociationGraph,
+      biologicalAssociationGraph: biologicalAssociationGraph.body,
       citations
     }
   }
