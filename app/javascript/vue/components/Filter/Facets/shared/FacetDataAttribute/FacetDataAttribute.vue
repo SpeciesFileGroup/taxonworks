@@ -160,8 +160,8 @@ onBeforeMount(async () => {
   const predicateWithValuesExact = parsedPredicateParam(
     params.value.data_attribute_exact_pair || []
   )
-  const predicatesWithoutValues =
-    params.value.data_attribute_without_predicate_id || []
+  const predicatesWithout =
+    params.value.data_attribute_without_predicate_id?.map(Number) || []
   const predicateWithAnyValues = params.value.data_attribute_predicate_id || []
 
   const exactValues = params.value.data_attribute_exact_value || []
@@ -183,7 +183,7 @@ onBeforeMount(async () => {
 
   const predicateIds = [
     ...predicateWithAnyValues,
-    ...predicatesWithoutValues,
+    ...predicatesWithout,
     ...predicateWithValues.map(([value]) => value),
     ...predicateWithValuesExact.map(([value]) => value)
   ]
@@ -194,9 +194,9 @@ onBeforeMount(async () => {
     ).body
 
     loadPredicates({
-      predicateIds: predicatesWithoutValues,
+      predicateIds: predicatesWithout,
       predicateList,
-      predicateValues: { text: '' }
+      predicateValues: { text: '', any: false }
     })
 
     loadPredicates({
