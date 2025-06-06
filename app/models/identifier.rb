@@ -117,7 +117,7 @@ class Identifier < ApplicationRecord
       .select('namespaces.short_name')
       .order('namespaces.short_name')
       .distinct
-      .pluck(:short_name)
+      .pluck('namespaces.short_name')
   end
 
   def self.process_batch_by_filter_scope(
