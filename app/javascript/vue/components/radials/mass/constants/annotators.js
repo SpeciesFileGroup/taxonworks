@@ -13,7 +13,8 @@ import {
   PEOPLE,
   SOUND,
   SOURCE,
-  TAXON_NAME
+  TAXON_NAME,
+  TAXON_NAME_RELATIONSHIP
 } from '@/constants'
 import AnnotatorTag from '../components/Annotator/AnnotatorTag.vue'
 import AnnotatorNote from '../components/Annotator/AnnotatorNote.vue'
@@ -249,5 +250,11 @@ export const ANNOTATORS = {
     all: buildSliceObject(DATA_ATTRIBUTE_SLICE),
 
     ids: buildSliceObject(DATA_ATTRIBUTE_SLICE, NOTE_SLICE, TAG_SLICE)
-  }
+  },
+
+  [TAXON_NAME_RELATIONSHIP]: {
+    all: buildSliceObject(),
+
+    ids: buildSliceObject(CITATION_SLICE, NOTE_SLICE)
+  },
 }

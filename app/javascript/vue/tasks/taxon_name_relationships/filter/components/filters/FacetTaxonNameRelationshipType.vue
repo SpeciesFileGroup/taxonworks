@@ -1,6 +1,6 @@
 <template>
   <FacetContainer>
-    <h3>In relationship</h3>
+    <h3>Relationship type</h3>
 
     <VSwitch
       class="separate-bottom"

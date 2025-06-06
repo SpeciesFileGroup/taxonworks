@@ -8,6 +8,9 @@
       :object-type="TAXON_NAME_RELATIONSHIP"
       :list="list"
       :selected-ids="selectedIds"
+      :button-unify="false"
+      :radial-linker="false"
+      :radial-navigator="false"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
@@ -15,20 +18,6 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
-      <template #nav-query-right>
-        <RadialMatrix
-          :parameters="parameters"
-          :disabled="!list.length"
-          :object-type="TAXON_NAME_RELATIONSHIP"
-        />
-      </template>
-      <template #nav-right>
-        <RadialMatrix
-          :ids="selectedIds"
-          :disabled="!list.length"
-          :object-type="TAXON_NAME_RELATIONSHIP"
-        />
-      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
