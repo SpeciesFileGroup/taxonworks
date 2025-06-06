@@ -35,59 +35,51 @@ class InternalAttribute < DataAttribute
     end
   end
 
-  # @params attribute_scope a Query::X::Filter instance
+  # @params subject_scope a Query::X::Filter instance
   #   that is NOT Query::DataAttribute::Filter
-  # @return [Number or False] number of records updated
-  def self.update_value(attribute_scope, controlled_vocabulary_term_id, value_from, value_to)
-    return false if controlled_vocabulary_term_id.nil? || value_from.nil? || value_to.nil?
-
-    b = ::DataAttribute
-      .with(attr_subject_ids: attribute_scope.select(:id))
+  def self.update_value(subject_scope, predicate_id, value_from, value_to)
+    total = identifiers_on_subjects_count(subject_scope, predicate_id)
+    b = ::InternalAttribute
+      .with(attr_subject_ids: subject_scope.select(:id))
       .where('attribute_subject_id IN (SELECT id FROM attr_subject_ids)')
-      .where(value: value_from, type: 'InternalAttribute')
+      .where(value: value_from)
 
-    count = b.count # count before you change values read by the query!
+    updated = b.count # count before you change values read by the query!
     # update_all doesn't work with .with() (at least here)
-    ::DataAttribute.where(id: b).update_all(value: value_to)
+    ::InternalAttribute.where(id: b).update_all(value: value_to)
 
-    count
+    [total, updated]
   end
 
   # Add attributes to the objects in the filter that do not have them
-  #
-  # @return [Array or False] array of internal attribute ids created
-  def self.add_value(attribute_scope, controlled_vocabulary_term_id, value_to)
-    return false if controlled_vocabulary_term_id.nil? || value_to.nil?
-    rv = []
-
+  def self.add_value(subject_scope, predicate_id, value_to)
     # with (not these)
-    a = attribute_scope.joins(:internal_attributes).where(
+    a = subject_scope.joins(:internal_attributes).where(
       data_attributes: {
         value: value_to,
-        controlled_vocabulary_term_id:
+        controlled_vocabulary_term_id: predicate_id
       })
     # If the join is empty, we need to add to all
     if a.size == 0
-      b = attribute_scope
+      b = subject_scope
     else
-      klass = attribute_scope.name.underscore.pluralize
-      t = attribute_scope.klass
+      klass = subject_scope.name.underscore.pluralize
+      t = subject_scope.klass
         .with(klass_ids: a.select(:id))
         .joins("LEFT JOIN klass_ids ON klass_ids.id = #{klass}.id")
         .where('klass_ids.id IS null')
-      b = attribute_scope.from("(#{t.to_sql}) AS sounds")
+      b = subject_scope.from("(#{t.to_sql}) AS #{klass}")
     end
 
-    InternalAttribute.transaction do
+    added = b.count
+    ::InternalAttribute.transaction do
       b.each do |o|
         begin
-          ia = ::InternalAttribute.create!(
-            controlled_vocabulary_term_id:,
+          ::InternalAttribute.create!(
+            controlled_vocabulary_term_id: predicate_id,
             value: value_to,
             attribute_subject: o,
           )
-
-          rv.push(ia.id)
         rescue ActiveRecord::RecordInvalid => e
           # TODO: check necessity of this
           # This should not be necessary, but proceed
@@ -95,7 +87,32 @@ class InternalAttribute < DataAttribute
       end
     end
 
-    rv
+    [subject_scope.count, added]
+  end
+
+  # @return [Number] total processed, total removed
+  def self.remove_value(subject_scope, predicate_id, value)
+    total = identifiers_on_subjects_count(subject_scope, predicate_id)
+
+    # delete_all doesn't support .with()
+    s = "WITH attr_subject_ids AS ( #{ subject_scope.select(:id).to_sql } ) "
+    s << ::InternalAttribute
+      .where(
+        'attribute_subject_id IN (SELECT id FROM attr_subject_ids)'
+      )
+      .where(
+        attribute_subject_type: subject_scope.name,
+        controlled_vocabulary_term_id: predicate_id,
+        value:,
+      ).to_sql
+
+    q = ::InternalAttribute.from( "(#{s}) AS data_attributes")
+
+    removed = q.count
+    # Beware q.delete_all here!
+    ::InternalAttribute.where(id: q).delete_all
+
+    [total, removed]
   end
 
   def self.process_batch_by_filter_scope(batch_response: nil, query: nil,
@@ -131,16 +148,18 @@ class InternalAttribute < DataAttribute
           project_id:,
           user_id:
         )
-      else
-        num_updated = update_value(
-          query, params[:predicate_id], params[:value_from], params[:value_to]
-        )
-
-        r.updated = Array.new(num_updated)
+        return r
       end
 
+      attempted, updated = update_value(
+        query, params[:predicate_id], params[:value_from], params[:value_to]
+      )
+
+      r.total_attempted = Array.new(attempted)
+      r.updated = Array.new(updated)
+      r.not_updated = Array.new(attempted - updated)
+
     when :remove
-      # Just delete, async or not
       if params[:predicate_id].nil?
         r.errors['no predicate id provided'] = nil
         return r
@@ -149,25 +168,13 @@ class InternalAttribute < DataAttribute
         return r
       end
 
-      # delete_all doesn't support .with()
-      s = "WITH attr_subject_ids AS ( #{ query.select(:id).to_sql } ) "
-      s << ::DataAttribute
-        .where(
-          'attribute_subject_id IN (SELECT id FROM attr_subject_ids)'
-        )
-        .where(
-          attribute_subject_type: query.name,
-          controlled_vocabulary_term_id: params[:predicate_id],
-          value: params[:value],
-          # query is on DataAttribute, so we need to do this
-          type: 'InternalAttribute'
-        ).to_sql
+      # No async here, just bulk delete.
+      attempted, removed =
+        remove_value(query, params[:predicate_id], params[:value])
 
-      q = ::DataAttribute.from( "(#{s}) AS data_attributes")
-
-      r.updated = Array.new(q.count)
-      # Beware q.delete_all!
-      ::DataAttribute.where(id: q).delete_all
+      r.total_attempted = Array.new(attempted)
+      r.updated = Array.new(removed)
+      r.not_updated = Array.new(attempted - removed)
 
     when :add
       if params[:predicate_id].nil?
@@ -187,13 +194,25 @@ class InternalAttribute < DataAttribute
           project_id:,
           user_id:,
         )
-      else
-        ia_ids = add_value(query, params[:predicate_id], params[:value])
-        r.updated = ia_ids
+        return r
       end
 
+      attempted, added =
+        add_value(query, params[:predicate_id], params[:value])
+
+      r.total_attempted = Array.new(attempted)
+      r.updated = Array.new(added)
+      r.not_updated = Array.new(attempted - added)
     end
 
-    return r
+    r
+  end
+
+  def self.identifiers_on_subjects_count(subjects_query, predicate_id)
+    # How many data attributes total are on our subjects?
+    ::InternalAttribute
+      .with(attr_subject_ids: subjects_query.select(:id))
+      .where('attribute_subject_id IN (SELECT id FROM attr_subject_ids)')
+      .count
   end
 end

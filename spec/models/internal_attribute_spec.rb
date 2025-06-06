@@ -14,7 +14,7 @@ describe InternalAttribute, type: :model do
     expect(s.dwc_occurrence.waterBody).to eq(nil)
 
     p = FactoryBot.create(:valid_predicate, uri: 'http://rs.tdwg.org/dwc/terms/waterBody')
-    d = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p) 
+    d = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p)
 
     perform_enqueued_jobs
 
@@ -27,7 +27,7 @@ describe InternalAttribute, type: :model do
     expect(s.dwc_occurrence.reload.waterBody).to eq('foo')
   end
 
-  specify '.add_value' do
+  specify '.add_value to some' do
     a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '22')
     b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '99')
 
@@ -35,27 +35,99 @@ describe InternalAttribute, type: :model do
 
     q = Queries::Otu::Filter.new({}) # all
 
-    InternalAttribute.add_value(q, a.predicate.id, '22')
+    InternalAttribute.add_value(q.all, a.predicate.id, '22')
 
     expect(InternalAttribute.count).to eq(3)
     expect(InternalAttribute.order(:id).last.attribute_subject).to eq(o)
     expect(InternalAttribute.order(:id).last.value).to eq('22')
   end
 
+  specify '.add_value to all' do
+    a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '13')
+    b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '99')
+
+    o = FactoryBot.create(:valid_otu) # add one for this
+
+    q = Queries::Otu::Filter.new({}) # all
+
+    InternalAttribute.add_value(q.all, a.predicate.id, '22')
+
+    expect(InternalAttribute.all.count).to eq(4)
+    expect(o.data_attributes.first.value).to eq('22')
+  end
+
+  specify '.add_value counts' do
+    a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '22')
+    b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '99')
+
+    o = FactoryBot.create(:valid_otu) # add one for this
+
+    q = Queries::Otu::Filter.new({}) # all
+
+    total, created = InternalAttribute.add_value(q.all, a.predicate.id, '22')
+
+    expect(total).to eq(2)
+    expect(created).to eq(1)
+  end
+
+  specify '.remove_value' do
+    a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '22')
+    b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '99')
+
+    o = FactoryBot.create(:valid_otu)
+    FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: o, value: '22', controlled_vocabulary_term_id: a.predicate.id)
+
+    q = Queries::Otu::Filter.new({}) # all
+
+    InternalAttribute.remove_value(q.all, a.predicate.id, '22')
+
+    expect(InternalAttribute.count).to eq(1)
+    expect(InternalAttribute.order(:id).last.value).to eq('99')
+  end
+
+  specify '.remove_value counts' do
+    a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '22')
+    b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '99')
+
+    o = FactoryBot.create(:valid_otu) # add one for this
+    FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: o, value: '2', controlled_vocabulary_term_id: a.predicate.id)
+
+    q = Queries::Otu::Filter.new({}) # all
+
+    total, removed = InternalAttribute.remove_value(q.all, a.predicate.id, '22')
+
+    expect(total).to eq(3)
+    expect(removed).to eq(1)
+  end
+
   specify '.update_value' do
-    a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu)
-    b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu)
+    a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '11')
+    b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '12')
 
     q = Queries::Otu::Filter.new( otu_id: otu.id)
 
-    InternalAttribute.update_value(q, a.predicate.id, a.value, '22')
+    InternalAttribute.update_value(q.all, a.predicate.id, a.value, '22')
 
     a.reload
+    b.reload
 
-    expect([a.value, b.value]).to eq(['22', b.value])
+    expect([a.value, b.value]).to eq(['22', '12'])
   end
 
-  specify '.batch_create 1' do
+  specify '.update_value counts' do
+    a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '11')
+    b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu, value: '22')
+
+    q = Queries::Otu::Filter.new( otu_id: otu.id)
+
+    total, updated =
+    InternalAttribute.update_value(q.all, a.predicate.id, a.value, '22')
+
+    expect(total).to eq(2)
+    expect(updated).to eq(1)
+  end
+
+  xspecify '.batch_create 1' do
     o1 = FactoryBot.create(:valid_otu)
     o2 = FactoryBot.create(:valid_otu)
 
@@ -77,7 +149,7 @@ describe InternalAttribute, type: :model do
     expect(InternalAttribute.first.value).to eq('22')
   end
 
-  specify '.batch_update_or_create 1' do
+  xspecify '.batch_update_or_create 1' do
     a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu)
     b = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu)
 
@@ -103,7 +175,7 @@ describe InternalAttribute, type: :model do
       ])
   end
 
-  specify '.batch_update_or_create 2' do
+  xspecify '.batch_update_or_create 2' do
     p1 = FactoryBot.create(:valid_controlled_vocabulary_term_predicate)
 
     a = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: otu)

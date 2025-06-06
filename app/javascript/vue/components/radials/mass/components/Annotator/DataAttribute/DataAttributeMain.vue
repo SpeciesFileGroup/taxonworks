@@ -84,7 +84,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onBeforeMount, shallowRef } from 'vue'
+import { computed, ref, onBeforeMount, shallowRef, watch } from 'vue'
 import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
@@ -156,6 +156,10 @@ onBeforeMount(() => {
   })
 })
 
+watch(() => selectedMode.value.mode, () => {
+  resetForm()
+})
+
 async function makeBatchRequest() {
   const ok = await confirmationModalRef.value.show({
     title: 'Data attributes',
@@ -194,7 +198,6 @@ function makeCreateOrDeletePayload() {
     filter_query: filterQuery(),
     mode: selectedMode.value.mode,
     params: {
-      type: 'InternalAttribute',
       predicate_id: predicate.value.id,
       value: predicateValue.value
     }
@@ -206,7 +209,6 @@ function makeUpdatePayload() {
     filter_query: filterQuery(),
     mode: selectedMode.value.mode,
     params: {
-      type: 'InternalAttribute',
       predicate_id: predicate.value.id,
       value_from: predicateValueFrom.value,
       value_to: predicateValueTo.value
@@ -225,6 +227,5 @@ function resetForm() {
   predicateValue.value = ''
   predicateValueFrom.value = ''
   predicateValueTo.value = ''
-
 }
 </script>
