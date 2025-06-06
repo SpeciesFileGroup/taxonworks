@@ -53,7 +53,11 @@
         title="Radial batch annotator"
         circle
         color="radial"
-        :disabled="disabled || (!ids.length && !Object.keys(params).length)"
+        :disabled="
+          disabled ||
+          !menuOptions.slices.length ||
+          (!ids.length && !Object.keys(params).length)
+        "
         @click="openRadialBatch"
       >
         <VIcon
