@@ -1,5 +1,6 @@
 class DataAttributesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_data_attribute, only: [:update, :destroy, :api_show]
   after_action -> { set_pagination_headers(:data_attributes) }, only: [:index, :api_index ], if: :json_request?
@@ -208,5 +209,11 @@ class DataAttributesController < ApplicationController
 
   def data_attribute_params
     params.require(:data_attribute).permit(base_params)
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(
+      :type, :predicate_id, :value, :value_from, :value_to
+    )
   end
 end

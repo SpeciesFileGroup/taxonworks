@@ -17,11 +17,8 @@ const permitParams = {
 export const DataAttribute = {
   ...baseCRUD(controller, permitParams),
 
-  createBatch: (params) =>
-    ajaxCall('post', `/${controller}/batch_create`, params),
-
-  updateBatch: (params) =>
-    ajaxCall('post', `/${controller}/batch_update_or_create`, params),
+  batchByFilterScope: (params) =>
+    ajaxCall('post', `/${controller}/batch_by_filter_scope.json`, params),
 
   brief: (params) => ajaxCall('post', `/${controller}/brief.json`, params),
 

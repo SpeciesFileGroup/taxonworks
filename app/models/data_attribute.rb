@@ -28,6 +28,7 @@
 #
 class DataAttribute < ApplicationRecord
   include Housekeeping
+  include Shared::BatchByFilterScope
   include Shared::Citations
   include Shared::DualAnnotator
   # include Shared::Protocol
@@ -37,7 +38,7 @@ class DataAttribute < ApplicationRecord
 
   belongs_to :predicate, foreign_key: 'controlled_vocabulary_term_id', class_name: 'Predicate', inverse_of: :internal_attributes
 
-  validates_presence_of :type, :value
+  validates :type, :value, presence: true
 
   # Needs to extend to predicate/value searches
   def self.find_for_autocomplete(params)
@@ -57,5 +58,15 @@ class DataAttribute < ApplicationRecord
     type.start_with?('Im') ? import_predicate : predicate.name
   end
 
+  def self.process_batch_by_filter_scope(batch_response: nil, query: nil,
+    hash_query: nil, mode: nil, params: nil, async: nil,
+    project_id: nil, user_id: nil,
+    called_from_async: false
+  )
+    InternalAttribute.process_batch_by_filter_scope(
+      batch_response:, query:, hash_query:, mode:, params:,
+      async:, project_id:, user_id:, called_from_async:
+    )
+  end
 
 end

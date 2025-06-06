@@ -1,5 +1,5 @@
 <template>
-  <div class="confidence_annotator">
+  <div>
     <VSpinner
       v-if="isProcessing"
       legend="Updating..."
@@ -52,12 +52,12 @@ import { ref, onBeforeMount, shallowRef } from 'vue'
 import { Protocol, ProtocolRelationship } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
-import ConfidenceList from './ProtocolList.vue'
+import ProtocolList from './ProtocolList.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import PreviewTable from '@/components/radials/shared/PreviewTable.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import ConfidenceReplace from './ProtocolReplace.vue'
+import ProtocolReplace from './ProtocolReplace.vue'
 
 const props = defineProps({
   ids: {
@@ -82,9 +82,9 @@ const props = defineProps({
 })
 
 const MODE = {
-  Add: { mode: 'add', component: ConfidenceList, color: 'create' },
-  Remove: { mode: 'remove', component: ConfidenceList, color: 'destroy' },
-  Replace: { mode: 'replace', component: ConfidenceReplace, color: 'primary' }
+  Add: { mode: 'add', component: ProtocolList, color: 'create' },
+  Remove: { mode: 'remove', component: ProtocolList, color: 'destroy' },
+  Replace: { mode: 'replace', component: ProtocolReplace, color: 'primary' }
 }
 
 const confirmationModalRef = ref(null)
@@ -101,7 +101,7 @@ onBeforeMount(() => {
   })
 })
 
-async function makeBatchRequest(confidence) {
+async function makeBatchRequest(protocol) {
   const ok = await confirmationModalRef.value.show({
     title: 'Protocols',
     message: 'Are you sure you want to proceed?',
@@ -113,9 +113,9 @@ async function makeBatchRequest(confidence) {
 
   if (ok) {
     const idParam = ID_PARAM_FOR[props.objectType]
-    const payload = Array.isArray(confidence)
-      ? makeReplacePayload(confidence)
-      : makePayload(confidence)
+    const payload = Array.isArray(protocol)
+      ? makeReplacePayload(protocol)
+      : makePayload(protocol)
 
     if (props.ids?.length) {
       payload.filter_query[idParam] = props.ids
