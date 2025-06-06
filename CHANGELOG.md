@@ -16,6 +16,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Field occurrences to biological associations graph task
 - Browse OTU: Depictions to `Field occurrences` and `Specimen records` panels
 - New Field occurrences: Reorder fields
+- Identifier batch annotator to Filter CO, Filter CE
+- 'Ignore pagination' option to Venn facet of filters [#4390]
 
 ### Fixed
 
@@ -29,6 +31,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New Asserted Distribution task can't create more than one AD on a given OTU [#4388]
 - Radial filter: When opening a filter link in a new tab, the filter page loads empty when the URL is too long [#4360]
 - Smart selectors don't refresh on new CE and new FO after save
+- Import DwC slowdown (thanks for reporting Davide)
+- Filter CE: "In range (Integers)" not including full range of CEs [#4387]
+- Searching by Data Attribute can fail to find some/all [#4365]
 
 ### Changed
 
@@ -41,9 +46,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
 [#4358]: https://github.com/SpeciesFileGroup/taxonworks/pull/4358
 [#4360]: https://github.com/SpeciesFileGroup/taxonworks/issues/4360
+[#4360]: https://github.com/SpeciesFileGroup/taxonworks/issues/4365
 [#4374]: https://github.com/SpeciesFileGroup/taxonworks/issues/4374
 [#4375]: https://github.com/SpeciesFileGroup/taxonworks/issues/4375
+[#4387]: https://github.com/SpeciesFileGroup/taxonworks/issues/4387
 [#4388]: https://github.com/SpeciesFileGroup/taxonworks/issues/4388
+[#4390]: https://github.com/SpeciesFileGroup/taxonworks/issues/4390
 [#4393]: https://github.com/SpeciesFileGroup/taxonworks/issues/4393
 
 \-
