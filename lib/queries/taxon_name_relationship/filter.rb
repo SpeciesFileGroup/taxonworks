@@ -66,8 +66,8 @@ module Queries
       attr_accessor :taxon_name_relationship_set
 
       # @param taxon_name_subject_object [String, nil]
-      #   When 'subject', match taxon_name_ids to subjects of relationships,
-      #   when 'object', match taxon_name_ids to objects of relationships,
+      #   When 'subject', match taxon_name_id to subjects of relationships,
+      #   when 'object', match taxon_name_id to objects of relationships,
       #   when nil, match to either subject or object.
       attr_accessor :taxon_name_subject_object
 
