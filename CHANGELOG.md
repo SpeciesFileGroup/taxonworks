@@ -34,6 +34,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Import DwC slowdown (thanks for reporting Davide)
 - Filter CE: "In range (Integers)" not including full range of CEs [#4387]
 - Searching by Data Attribute can fail to find some/all [#4365]
+- Browse OTU: The map render each asserted distribution shape in a different color [#4404]
+- Filters: Radial navigator overlaps when columns are locked [#4408]
 
 ### Changed
 
@@ -41,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated layout of data and internal attribute facets
 - Filters: Selected records are kept if they appear in new searches [#4393]
 - CSD, New CE and New FO tasks now use the same collection event form
+- Disable CrossRef and BibTeX only when created source has unsaved changes [#4405]
 
 [#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
 [#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
@@ -53,6 +56,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4388]: https://github.com/SpeciesFileGroup/taxonworks/issues/4388
 [#4390]: https://github.com/SpeciesFileGroup/taxonworks/issues/4390
 [#4393]: https://github.com/SpeciesFileGroup/taxonworks/issues/4393
+[#4404]: https://github.com/SpeciesFileGroup/taxonworks/pull/4404
+[#4408]: https://github.com/SpeciesFileGroup/taxonworks/issues/4408
 
 \-
 
