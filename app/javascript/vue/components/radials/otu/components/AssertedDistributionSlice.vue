@@ -92,8 +92,8 @@ const payload = computed(() => ({
 }))
 
 function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} asserted distributions queued for creation.`
+  const message = data.async
+    ? `${data.total_attempted} asserted distributions queued for creation.`
     : `${data.updated.length} asserted distribution items were successfully created.`
 
   TW.workbench.alert.create(message, 'notice')

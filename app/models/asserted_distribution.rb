@@ -176,30 +176,25 @@ class AssertedDistribution < ApplicationRecord
   end
 
   def self.batch_template_create(params)
-    # TODO: This is not how QueryBatchRequest was intended to be used (per
-    # its own documentation), we're only using it to get a return object. This
-    # is really not good.
-    request = QueryBatchRequest.new(
-      async_cutoff: 2,#params[:async_cutoff] || 26,
-      klass: 'Otu',
-      object_filter_params: params[:otu_query],
-      object_params: params[:template_asserted_distribution],
+    async_cutoff = params[:async_cutoff] || 26
+    a = Queries::Otu::Filter.new(params[:otu_query])
+
+    r = BatchResponse.new({
+      async: a.all.count > async_cutoff,
       preview: params[:preview],
-    )
+      total_attempted: a.all.count,
+      method: 'batch_template_create'
+    })
 
-    r = request.stub_response
-    r.method = 'batch_template_create'
-
-    request.cap = 250
-    if request.total_attempted > request.cap
-      r.errors["Max #{request.cap} query records allowed"] = nil
+    max_allowed = 250
+    if r.total_attempted > max_allowed
+      r.errors["Max #{max_allowed} query records allowed"] = 1
       return r
     end
 
-    return r if request.unprocessable? # includes preview
+    return r if r.async && r.preview
 
-    a = request.filter
-    if request.run_async?
+    if r.async
       otu_ids = a.all.pluck(:id)
       user_id = params[:user_id]
       project_id = params[:project_id]
@@ -226,7 +221,7 @@ class AssertedDistribution < ApplicationRecord
             r.errors[e.message] += 1
           end
         end
-        raise ActiveRecord::Rollback if request.preview
+        raise ActiveRecord::Rollback if r.preview
       end
     end
 
@@ -240,7 +235,6 @@ class AssertedDistribution < ApplicationRecord
 
     otu_ids.each do |otu_id|
       begin
-        byebug
         ad = AssertedDistribution.new(params.merge({otu_id:}))
         ad.save!
       rescue ActiveRecord::RecordInvalid => e
