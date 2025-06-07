@@ -9,6 +9,8 @@
       <meta name="<%= name.to_s %>" content="<%= content.to_s %>">
     <% end %>
 
+    <meta name="color-scheme" content="light">
+
     <%= yield :head %>
 
     <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
