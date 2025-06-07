@@ -1060,3 +1060,12 @@ taxon_name_gender_task:
     - nomenclature
   status: prototype
   description: 'Brief summary of gender status for a filtered set of names.'
+filter_taxon_name_relationships_task:
+  hub: true
+  name: 'Filter taxon name relationships'
+  related:
+  categories:
+    - filters
+    - nomenclature
+  status: prototype
+  description: 'Filter taxon name relationships by many different facets, download or visualize results.'
