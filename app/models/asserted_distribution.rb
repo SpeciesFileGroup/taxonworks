@@ -62,8 +62,8 @@ class AssertedDistribution < ApplicationRecord
   before_validation :unify_is_absent
 
   validates :otu, presence: true
-  validates_uniqueness_of :otu, scope: [:project_id, :asserted_distribution_shape_id, :asserted_distribution_shape_type, :is_absent], message: 'this shape, OTU and present/absent combination already exists'
-  validates_presence_of :asserted_distribution_shape
+  validates :otu, uniqueness: { scope: [:project_id, :asserted_distribution_shape_id, :asserted_distribution_shape_type, :is_absent], message: 'this shape, OTU and present/absent combination already exists' }
+  validates :asserted_distribution_shape, presence: true
   validate :new_records_include_citation
 
   # TODO: deprecate scopes referencing single parameter where()
@@ -175,6 +175,79 @@ class AssertedDistribution < ApplicationRecord
     query_batch_update(request)
   end
 
+  def self.batch_template_create(params)
+    # TODO: This is not how QueryBatchRequest was intended to be used (per
+    # its own documentation), we're only using it to get a return object. This
+    # is really not good.
+    request = QueryBatchRequest.new(
+      async_cutoff: 2,#params[:async_cutoff] || 26,
+      klass: 'Otu',
+      object_filter_params: params[:otu_query],
+      object_params: params[:template_asserted_distribution],
+      preview: params[:preview],
+    )
+
+    r = request.stub_response
+    r.method = 'batch_template_create'
+
+    request.cap = 250
+    if request.total_attempted > request.cap
+      r.errors["Max #{request.cap} query records allowed"] = nil
+      return r
+    end
+
+    return r if request.unprocessable? # includes preview
+
+    a = request.filter
+    if request.run_async?
+      otu_ids = a.all.pluck(:id)
+      user_id = params[:user_id]
+      project_id = params[:project_id]
+      AssertedDistribution
+        .delay(run_at: 1.second.from_now, queue: :query_batch_update)
+        .batch_create_from_params(
+          params[:template_asserted_distribution], otu_ids, user_id, project_id
+        )
+    else
+      self.transaction do
+        template_params = params[:template_asserted_distribution]
+        a.all.find_each do |o|
+          begin
+            ad = AssertedDistribution.new(
+              template_params.merge({otu_id: o.id})
+            )
+            ad.save!
+            r.updated.push ad.id
+          rescue ActiveRecord::RecordInvalid => e
+            r.not_updated.push e.record.id
+
+            r.errors[e.message] = 0 unless r.errors[e.message]
+
+            r.errors[e.message] += 1
+          end
+        end
+        raise ActiveRecord::Rollback if request.preview
+      end
+    end
+
+    r
+  end
+
+  # Intended to be run in a background job.
+  def self.batch_create_from_params(params, otu_ids, user_id, project_id)
+    Current.user_id = user_id
+    Current.project_id = project_id
+
+    otu_ids.each do |otu_id|
+      begin
+        byebug
+        ad = AssertedDistribution.new(params.merge({otu_id:}))
+        ad.save!
+      rescue ActiveRecord::RecordInvalid => e
+        # Just continue
+      end
+    end
+  end
 
   def self.asserted_distributions_for_api_index(params, project_id)
     a = ::Queries::AssertedDistribution::Filter.new(params)

@@ -23,7 +23,7 @@
     <div class="horizontal-left-content gap-small margin-medium-top">
       <UpdateBatch
         ref="updateBatchRef"
-        :batch-service="AssertedDistribution.batchUpdate"
+        :batch-service="AssertedDistribution.batchTemplateCreate"
         :payload="payload"
         :disabled="!citation.source_id || !shape || isCountExceeded"
         @update="updateMessage"
@@ -31,7 +31,7 @@
       />
 
       <PreviewBatch
-        :batch-service="AssertedDistribution.batchUpdate"
+        :batch-service="AssertedDistribution.batchTemplateCreate"
         :payload="payload"
         :disabled="!citation.source_id || !shape || isCountExceeded"
         @finalize="
@@ -86,15 +86,15 @@ const payload = computed(() => ({
   asserted_distribution: {
     asserted_distribution_shape_type: shape.value?.shapeType,
     asserted_distribution_shape_id: shape.value?.id,
-    citations: [citation.value],
+    citations_attributes: [citation.value],
     is_absent: isAbsent.value
   }
 }))
 
 function updateMessage(data) {
   const message = data.sync
-    ? `${data.updated.length} OTUs queued for updating.`
-    : `${data.updated.length} asserted distribution items were successfully updated.`
+    ? `${data.updated.length} asserted distributions queued for creation.`
+    : `${data.updated.length} asserted distribution items were successfully created.`
 
   TW.workbench.alert.create(message, 'notice')
 }
