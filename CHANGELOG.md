@@ -18,6 +18,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New Field occurrences: Reorder fields
 - Identifier batch annotator to Filter CO, Filter CE
 - 'Ignore pagination' option to Venn facet of filters [#4390]
+- New filter for Taxon Name Relationships
+- General verifier facet
 
 ### Fixed
 
@@ -36,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Searching by Data Attribute can fail to find some/all [#4365]
 - Browse OTU: The map render each asserted distribution shape in a different color [#4404]
 - Filters: Radial navigator overlaps when columns are locked [#4408]
+- Task - Filter Nomenclature - TaxonName relationship without citation. [#4010]
 
 ### Changed
 
@@ -45,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CSD, New CE and New FO tasks now use the same collection event form
 - Disable CrossRef and BibTeX only when created source has unsaved changes [#4405]
 
+[#4010]: https://github.com/SpeciesFileGroup/taxonworks/issues/4010
 [#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
 [#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
 [#4358]: https://github.com/SpeciesFileGroup/taxonworks/pull/4358
