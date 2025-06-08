@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `.text_tree` rendering for TaxonName instances
 - Help for new OTU fields
 - Task - Filter Nomenclature - TaxonName relationship without citation. [#4010]
+- Browse OTU: Sort buttons to Asserted distributions table [#4411]
 
 ### Changed
 
@@ -81,6 +82,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4393]: https://github.com/SpeciesFileGroup/taxonworks/issues/4393
 [#4404]: https://github.com/SpeciesFileGroup/taxonworks/pull/4404
 [#4408]: https://github.com/SpeciesFileGroup/taxonworks/issues/4408
+[#4411]: https://github.com/SpeciesFileGroup/taxonworks/issues/4411
 
 \-
 
