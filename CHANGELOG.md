@@ -39,7 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Unifies `full_name_hash` return
 - Filters: Selected records are kept if they appear in new searches [#4393]
 - Refactored and unified collecting event form across all tasks
-- Unified and improved some batch functions  
+- Unified and improved some batch functions
 - Disable CrossRef and BibTeX only when created source has unsaved changes [#4405]
 - Switch shape geo_json type attribute value from snake to Pascal
 - Improve performance of DwC importer vs. georeference related data
@@ -47,6 +47,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Begins to isolate and unify Protonym name formatting code (`protonym/format.rb`)
 - Better `.heic` image support.
 - Better Container autocomplete
+- New taxon name: Moved checkboxes next to names in Manage synonyms [#4414]
 
 ### Fixed
 
@@ -83,6 +84,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4404]: https://github.com/SpeciesFileGroup/taxonworks/pull/4404
 [#4408]: https://github.com/SpeciesFileGroup/taxonworks/issues/4408
 [#4411]: https://github.com/SpeciesFileGroup/taxonworks/issues/4411
+[#4414]: https://github.com/SpeciesFileGroup/taxonworks/issues/4414
 
 \-
 
