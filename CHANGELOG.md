@@ -9,44 +9,62 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `cached_gender` and `cached_is_available` to TaxonName (eliminate many n+1 queries)
+- Filter `TaxonNameRelationship`
 - Tab options on Field Occurrence smart selectors (select_options)
-- FieldOccurrences facet to Filter Images
-- Radial CE: Add remove geographic area option in `Set geographic area` slice [#4375]
+- Radial Collecting event: Add remove geographic area option in `Set geographic area` slice [#4375]
 - Filter sources: `With/without pages` facet [#4374]
+- Field occurrences facet to Filter images
 - Field occurrences to biological associations graph task
-- Browse OTU: Depictions to `Field occurrences` and `Specimen records` panels
+- Field occurrences to observation matrices
 - New Field occurrences: Reorder fields
-- Identifier batch annotator to Filter CO, Filter CE
+- Browse OTU: Depictions to `Field occurrences` and `Specimen records` panels
+- Identifier batch annotator to Filter Collecting event and Collection object
 - 'Ignore pagination' option to Venn facet of filters [#4390]
 - New filter for Taxon Name Relationships
 - General verifier facet
-
-### Fixed
-
-- updated: cached_classified_as [#4373]
-- Temperature units
-- Unify task: No message error is displayed when merging fails
-- New field occurrence task: Collecting event radials don't work on new CE [#4354]
-- Filter CE: Data attributes layout [#4355]
-- Radial CE: error radius is not copy on `Set Georeference` slice [#4358]
-- Filter CO: Results are not displayed when DwC information is missing
-- New Asserted Distribution task can't create more than one AD on a given OTU [#4388]
-- Radial filter: When opening a filter link in a new tab, the filter page loads empty when the URL is too long [#4360]
-- Smart selectors don't refresh on new CE and new FO after save
-- Import DwC slowdown (thanks for reporting Davide)
-- Filter CE: "In range (Integers)" not including full range of CEs [#4387]
-- Searching by Data Attribute can fail to find some/all [#4365]
-- Browse OTU: The map render each asserted distribution shape in a different color [#4404]
-- Filters: Radial navigator overlaps when columns are locked [#4408]
+- `.text_tree` rendering for TaxonName instances
+- Help for new OTU fields
 - Task - Filter Nomenclature - TaxonName relationship without citation. [#4010]
 
 ### Changed
 
 - Updated Ruby gems
 - Updated layout of data and internal attribute facets
+- Remove unused GeographicItem columns
+- Optimizes a lot of nomenclature related SQL, removing, for example, unnecessary ordering
+- A massive speedup of the CoLDP export across the board, ~25x
+- `ORIGINAL_COMBINATION_RANKS` to align with other constants
+- Unifies `full_name_hash` return
 - Filters: Selected records are kept if they appear in new searches [#4393]
-- CSD, New CE and New FO tasks now use the same collection event form
+- Refactored and unified collecting event form across all tasks
+- Unified and improved some batch functions  
 - Disable CrossRef and BibTeX only when created source has unsaved changes [#4405]
+- Switch shape geo_json type attribute value from snake to Pascal
+- Improve performance of DwC importer vs. georeference related data
+- Tweaks to Biodiversity wrapper to better handle subgenera
+- Begins to isolate and unify Protonym name formatting code (`protonym/format.rb`)
+- Better `.heic` image support.
+- Better Container autocomplete
+
+### Fixed
+
+- TaxonName `cached_classified_as` built with space [#4373]
+- Temperature units
+- Unify task: No message error is displayed when merging fails
+- New field occurrence task: Collecting event radials don't work on new CE [#4354]
+- Filter Collecting event: Data attributes layout [#4355]
+- Radial Collecting event: error radius is not copy on `Set Georeference` slice [#4358]
+- Filter Collection object: Results are not displayed when DwC information is missing
+- New Asserted Distribution task can't create more than one Asserted distribution on a given OTU [#4388]
+- Radial filter: When opening a filter link in a new tab, the filter page loads empty when the URL is too long [#4360]
+- Smart selectors don't refresh on new Collecting event and new Field occurrence after save
+- Import DwC slowdown (thanks for reporting Davide)
+- Filter Collecting event: "In range (Integers)" missing data [#4387]
+- Searching by Data Attribute can fail to find some/all [#4365]
+- Browse OTU: The map render each asserted distribution shape in a different color [#4404]
+- Filters: Radial navigator overlaps when columns are locked [#4408]
+- API identifies more OTUs in key related responses
 
 [#4010]: https://github.com/SpeciesFileGroup/taxonworks/issues/4010
 [#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
@@ -54,6 +72,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4358]: https://github.com/SpeciesFileGroup/taxonworks/pull/4358
 [#4360]: https://github.com/SpeciesFileGroup/taxonworks/issues/4360
 [#4360]: https://github.com/SpeciesFileGroup/taxonworks/issues/4365
+[#4373]: https://github.com/SpeciesFileGroup/taxonworks/issues/4373
 [#4374]: https://github.com/SpeciesFileGroup/taxonworks/issues/4374
 [#4375]: https://github.com/SpeciesFileGroup/taxonworks/issues/4375
 [#4387]: https://github.com/SpeciesFileGroup/taxonworks/issues/4387
