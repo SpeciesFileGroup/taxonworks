@@ -74,39 +74,17 @@
     </div>
   </div>
 
-  <VModal
-    v-if="modalVisible"
-    @close="() => { modalVisible = false }"
-    :container-style="{
-      width: '600px'
-    }"
-  >
-    <template #header>
-      <h3>Select an OTU to add to the lists</h3>
-    </template>
-    <template #body>
-      <SmartSelector
-        model="otus"
-        klass="otus"
-        :target="OTU"
-        :pin-type="OTU"
-        @selected="(otu) => {
-          modalVisible = false
-          otuSelected(otu.id)
-        }"
-      />
-    </template>
-  </VModal>
+  <LeadItemOtuModal
+    v-model="modalVisible"
+  />
 
 </template>
 
 <script setup>
+import LeadItemOtuModal from './LeadItemOtuModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VModal from '@/components/ui/Modal.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
-import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { Lead, LeadItem } from '@/routes/endpoints'
-import { OTU } from '@/constants'
 import { computed, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { useStore } from '../store/useStore.js'
@@ -193,20 +171,6 @@ function leadItemOtuDeleted(otuId) {
     .then(() => {
       store.loadKey(store.lead.id)
       TW.workbench.alert.create('Removed otu from lists.', 'notice')
-    })
-    .catch(() => {})
-    .finally(() => { store.setLoading(false) })
-}
-
-function otuSelected(otuId) {
-  store.setLoading(true)
-  LeadItem.addLeadItemToChildLead({
-    otu_id: otuId,
-    parent_id: store.lead.id
-  })
-    .then(() => {
-      store.loadKey(store.lead.id)
-      TW.workbench.alert.create('Added otu to the last lead list.', 'notice')
     })
     .catch(() => {})
     .finally(() => { store.setLoading(false) })
