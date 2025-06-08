@@ -15,7 +15,7 @@
         <div class="horizontal-center-content">
           <RadialMenu
             :options="menuOptions"
-            @click="saveParametersOnStorage"
+            @mousedown="saveParametersOnStorage"
           />
         </div>
       </template>
@@ -38,7 +38,11 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import {
+  STORAGE_FILTER_QUERY_KEY,
+  STORAGE_FILTER_QUERY_STATE_PARAMETER
+} from '@/constants'
 import { QUERY_PARAM } from './constants/queryParam'
 import { ID_PARAM_FOR } from './constants/idParams'
 import RadialMenu from '@/components/radials/RadialMenu.vue'
@@ -46,10 +50,13 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import Qs from 'qs'
+import { randomUUID } from '@/helpers'
 import * as FILTER_LINKS from './links'
 
 const MAX_LINK_SIZE = 2048
 const EXCLUDE_PARAMETERS = ['page', 'per', 'extend', 'venn', 'venn_mode']
+
+const uuid = randomUUID()
 
 const props = defineProps({
   disabled: {
@@ -123,7 +130,9 @@ const menuOptions = computed(() => {
     return addSlice({
       ...item,
       link:
-        urlWithParameters.length < MAX_LINK_SIZE ? urlWithParameters : item.link
+        urlWithParameters.length < MAX_LINK_SIZE
+          ? urlWithParameters
+          : item.link + `?${STORAGE_FILTER_QUERY_STATE_PARAMETER}=${uuid}`
     })
   })
 
@@ -175,7 +184,6 @@ function openRadialMenu() {
 function saveParametersOnStorage() {
   if (hasParameters.value) {
     const params = { ...queryObject.value, per: props.parameters?.per }
-    const state = JSON.stringify(params)
     const total = sessionStorage.getItem('totalFilterResult')
     const totalQueries =
       JSON.parse(sessionStorage.getItem('totalQueries')) || []
@@ -187,7 +195,10 @@ function saveParametersOnStorage() {
     })
 
     sessionStorage.setItem('totalQueries', JSON.stringify(totalQueries))
-    sessionStorage.setItem('filterQuery', state)
+    localStorage.setItem(
+      STORAGE_FILTER_QUERY_KEY,
+      JSON.stringify({ [uuid]: params })
+    )
   }
 }
 

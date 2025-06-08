@@ -14,6 +14,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial CE: Add remove geographic area option in `Set geographic area` slice [#4375]
 - Filter sources: `With/without pages` facet [#4374]
 - Field occurrences to biological associations graph task
+- Browse OTU: Depictions to `Field occurrences` and `Specimen records` panels
+- New Field occurrences: Reorder fields
+- Identifier batch annotator to Filter CO, Filter CE
+- 'Ignore pagination' option to Venn facet of filters [#4390]
+- New filter for Taxon Name Relationships
+- General verifier facet
 
 ### Fixed
 
@@ -25,20 +31,37 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial CE: error radius is not copy on `Set Georeference` slice [#4358]
 - Filter CO: Results are not displayed when DwC information is missing
 - New Asserted Distribution task can't create more than one AD on a given OTU [#4388]
+- Radial filter: When opening a filter link in a new tab, the filter page loads empty when the URL is too long [#4360]
+- Smart selectors don't refresh on new CE and new FO after save
+- Import DwC slowdown (thanks for reporting Davide)
+- Filter CE: "In range (Integers)" not including full range of CEs [#4387]
+- Searching by Data Attribute can fail to find some/all [#4365]
+- Browse OTU: The map render each asserted distribution shape in a different color [#4404]
+- Filters: Radial navigator overlaps when columns are locked [#4408]
+- Task - Filter Nomenclature - TaxonName relationship without citation. [#4010]
 
 ### Changed
 
 - Updated Ruby gems
 - Updated layout of data and internal attribute facets
 - Filters: Selected records are kept if they appear in new searches [#4393]
+- CSD, New CE and New FO tasks now use the same collection event form
+- Disable CrossRef and BibTeX only when created source has unsaved changes [#4405]
 
+[#4010]: https://github.com/SpeciesFileGroup/taxonworks/issues/4010
 [#4354]: https://github.com/SpeciesFileGroup/taxonworks/issues/4354
 [#4355]: https://github.com/SpeciesFileGroup/taxonworks/issues/4355
 [#4358]: https://github.com/SpeciesFileGroup/taxonworks/pull/4358
+[#4360]: https://github.com/SpeciesFileGroup/taxonworks/issues/4360
+[#4360]: https://github.com/SpeciesFileGroup/taxonworks/issues/4365
 [#4374]: https://github.com/SpeciesFileGroup/taxonworks/issues/4374
 [#4375]: https://github.com/SpeciesFileGroup/taxonworks/issues/4375
+[#4387]: https://github.com/SpeciesFileGroup/taxonworks/issues/4387
 [#4388]: https://github.com/SpeciesFileGroup/taxonworks/issues/4388
+[#4390]: https://github.com/SpeciesFileGroup/taxonworks/issues/4390
 [#4393]: https://github.com/SpeciesFileGroup/taxonworks/issues/4393
+[#4404]: https://github.com/SpeciesFileGroup/taxonworks/pull/4404
+[#4408]: https://github.com/SpeciesFileGroup/taxonworks/issues/4408
 
 \-
 

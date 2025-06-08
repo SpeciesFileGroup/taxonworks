@@ -4,11 +4,9 @@ import addToContainer from './AddToContainer'
 import addTypeSpecimen from './addTypeSpecimen'
 import getCOCitations from './getCOCitations'
 import getCollectionObject from './getCollectionObject'
-import getNamespace from './getNamespace'
 import setTypeMaterial from './setTypeMaterial'
 import setTypeMaterialTaxonName from './setTypeMaterialTaxonName'
 import loadTypeSpecimens from './loadTypeSpecimens'
-import loadBiologicalAssociations from './loadBiologicalAssociations'
 import loadContainer from './loadContainer'
 import loadDigitalization from './loadDigitalization'
 import loadSoftValidations from './loadSoftValidations'
@@ -27,7 +25,6 @@ import saveContainer from './saveContainer'
 import saveContainerItem from './saveContainerItem'
 import saveDigitalization from './saveDigitalization'
 import saveTypeMaterial from './saveTypeMaterial'
-import saveBiologicalAssociations from './saveBiologicalAssociations'
 import updateLayoutPreferences from './updateLayoutPreferences'
 import updateLastChange from './updateLastChange'
 import updateCEChange from './updateCEChange'
@@ -37,7 +34,6 @@ const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
   [ActionNames.AddTypeSpecimen]: addTypeSpecimen,
   [ActionNames.GetCollectionObject]: getCollectionObject,
-  [ActionNames.GetNamespace]: getNamespace,
   [ActionNames.SetTypeMaterial]: setTypeMaterial,
   [ActionNames.SetTypeMaterialTaxonName]: setTypeMaterialTaxonName,
   [ActionNames.LoadTypeSpecimens]: loadTypeSpecimens,
@@ -60,9 +56,7 @@ const ActionFunctions = {
   [ActionNames.SaveContainer]: saveContainer,
   [ActionNames.SaveDigitalization]: saveDigitalization,
   [ActionNames.SaveTypeMaterial]: saveTypeMaterial,
-  [ActionNames.SaveBiologicalAssociations]: saveBiologicalAssociations,
   [ActionNames.LoadSoftValidations]: loadSoftValidations,
-  [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
   [ActionNames.UpdateLayoutPreferences]: updateLayoutPreferences,
   [ActionNames.UpdateLastChange]: updateLastChange,
   [ActionNames.UpdateCEChange]: updateCEChange

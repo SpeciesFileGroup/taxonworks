@@ -4,6 +4,7 @@ import { EVENT_SMART_SELECTOR_UPDATE } from '@/constants/index.js'
 import { CollectionObject } from '@/routes/endpoints'
 import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations'
 import {
   IDENTIFIER_LOCAL_RECORD_NUMBER,
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
@@ -16,6 +17,20 @@ const updateSmartSelectors = () => {
   document.dispatchEvent(event)
 }
 
+function makeContainerArgs(id) {
+  return {
+    objectId: id,
+    objectType: CONTAINER
+  }
+}
+
+function makeCOArgs(id) {
+  return {
+    objectId: id,
+    objectType: COLLECTION_OBJECT
+  }
+}
+
 export default async (
   { commit, dispatch, state },
   { resetAfter = false } = {}
@@ -25,6 +40,7 @@ export default async (
     const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
     const determinationStore = useTaxonDeterminationStore()
     const collectingEventStore = useCollectingEventStore()
+    const biologicalAssociationStore = useBiologicalAssociationStore()
 
     state.settings.saving = true
     if (collectingEventStore.isUnsaved) {
@@ -37,10 +53,9 @@ export default async (
     )
 
     const coCreated = body
-    const payload = {
-      objectId: state.container ? state.container.id : coCreated.id,
-      objectType: state.container ? CONTAINER : COLLECTION_OBJECT
-    }
+    const payload = state.container
+      ? makeContainerArgs(state.container.id)
+      : makeCOArgs(coCreated.id)
 
     commit(MutationNames.SetCollectionObject, coCreated)
     commit(MutationNames.AddCollectionObject, coCreated)
@@ -48,13 +63,10 @@ export default async (
     const actions = [
       dispatch(ActionNames.SaveTypeMaterial),
       dispatch(ActionNames.SaveCOCitations),
-      dispatch(ActionNames.SaveBiologicalAssociations),
       recordNumber.save(payload),
       catalogNumber.save(payload),
-      determinationStore.save({
-        objectId: coCreated.id,
-        objectType: COLLECTION_OBJECT
-      })
+      determinationStore.save(makeCOArgs(coCreated.id)),
+      biologicalAssociationStore.save(makeCOArgs(coCreated.id))
     ]
 
     const promises = await Promise.allSettled(actions)

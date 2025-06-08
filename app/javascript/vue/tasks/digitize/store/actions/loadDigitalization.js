@@ -7,6 +7,7 @@ import {
   IDENTIFIER_LOCAL_CATALOG_NUMBER
 } from '@/constants/index.js'
 import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 
 export default ({ commit, dispatch, state }, coId) =>
@@ -15,12 +16,17 @@ export default ({ commit, dispatch, state }, coId) =>
     const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
     const collectingEventStore = useCollectingEventStore()
     const determinationStore = useTaxonDeterminationStore()
+    const biologicalAssociationStore = useBiologicalAssociationStore()
 
     state.settings.loading = true
     dispatch(ActionNames.GetCollectionObject, coId)
       .then(({ body }) => {
         const coObject = body
         const promises = []
+        const payload = {
+          objectId: body.id,
+          objectType: COLLECTION_OBJECT
+        }
 
         dispatch(ActionNames.LoadContainer, coObject.global_id)
           .then(({ body }) => {
@@ -37,14 +43,8 @@ export default ({ commit, dispatch, state }, coId) =>
           })
           .catch(() => {
             promises.push(
-              catalogNumber.load({
-                objectId: coId,
-                objectType: COLLECTION_OBJECT
-              }),
-              recordNumber.load({
-                objectId: coId,
-                objectType: COLLECTION_OBJECT
-              })
+              catalogNumber.load(payload),
+              recordNumber.load(payload)
             )
           })
 
@@ -53,15 +53,12 @@ export default ({ commit, dispatch, state }, coId) =>
         }
 
         promises.push(
-          determinationStore.load({
-            objectId: coId,
-            objectType: COLLECTION_OBJECT
-          })
+          determinationStore.load(payload),
+          biologicalAssociationStore.load(payload)
         )
 
         promises.push(dispatch(ActionNames.LoadTypeSpecimens, coId))
         promises.push(dispatch(ActionNames.GetCOCitations, coId))
-        promises.push(dispatch(ActionNames.LoadBiologicalAssociations))
 
         commit(MutationNames.AddCollectionObject, coObject)
 

@@ -117,7 +117,7 @@ class Identifier < ApplicationRecord
       .select('namespaces.short_name')
       .order('namespaces.short_name')
       .distinct
-      .pluck(:short_name)
+      .pluck('namespaces.short_name')
   end
 
   def self.process_batch_by_filter_scope(
@@ -188,8 +188,14 @@ class Identifier < ApplicationRecord
 
   def build_cached_numeric_identifier
     return nil if is_global?
-    if a = identifier.match(/\A[\d\.\,]+\z/)
-      b = a.to_s.gsub(',', '')
+    re = if is_local? && is_virtual?
+           /[\d\.\,]+\z/ # namespace prefix allowed
+         else
+           /\A[\d\.\,]+\z/ # only 'numeric' supported
+         end
+
+    if a = identifier.match(re)
+      b = a[0].to_s.gsub(',', '')
       b.to_f
     else
       nil
@@ -197,8 +203,11 @@ class Identifier < ApplicationRecord
   end
 
   def set_cached
+    # build_cached_numeric_identifier uses the value of #cached, so update it
+    # locally first.
+    self.cached = build_cached
     update_columns(
-      cached: build_cached,
+      cached:,
       cached_numeric_identifier: build_cached_numeric_identifier
     )
   end

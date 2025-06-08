@@ -911,6 +911,7 @@ resources :taxon_name_relationships do
   collection do
     get :type_relationships, {format: :json}
     get :taxon_name_relationship_types, {format: :json}
+    match :filter, to: 'taxon_name_relationships#index', via: [:get, :post]
   end
 end
 

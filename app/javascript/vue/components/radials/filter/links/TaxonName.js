@@ -9,6 +9,7 @@ import {
   FILTER_SOURCE,
   FILTER_OBSERVATION,
   FILTER_IMAGE,
+  FILTER_TAXON_NAME_RELATIONSHIP,
 } from '../constants/filterLinks'
 
 export const TaxonName = [
@@ -22,4 +23,5 @@ export const TaxonName = [
   FILTER_SOURCE,
   FILTER_OBSERVATION,
   FILTER_IMAGE,
+  FILTER_TAXON_NAME_RELATIONSHIP,
 ]

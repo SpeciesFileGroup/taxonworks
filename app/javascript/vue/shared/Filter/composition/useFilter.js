@@ -1,4 +1,9 @@
 import { reactive, toRefs, onBeforeMount } from 'vue'
+import {
+  STORAGE_FILTER_QUERY_STATE_PARAMETER,
+  STORAGE_FILTER_QUERY_KEY
+} from '@/constants'
+import { getParametersFromSession } from '../utils'
 import getPagination from '@/helpers/getPagination'
 import qs from 'qs'
 
@@ -108,10 +113,13 @@ export default function (service, { listParser, initParameters = {} } = {}) {
   }
 
   onBeforeMount(() => {
-    const urlParameters = {
-      ...qs.parse(location.search, { ignoreQueryPrefix: true }),
-      ...JSON.parse(sessionStorage.getItem('filterQuery'))
-    }
+    const {
+      [STORAGE_FILTER_QUERY_STATE_PARAMETER]: stateId,
+      ...urlParameters
+    } = qs.parse(location.search, { ignoreQueryPrefix: true })
+
+    Object.assign(urlParameters, getParametersFromSession(stateId))
+
     const exclude = Object.keys({
       ...state.initParameters,
       ...DEFAULT_PARAMETERS
@@ -123,7 +131,7 @@ export default function (service, { listParser, initParameters = {} } = {}) {
 
     Object.assign(state.parameters, urlParameters)
 
-    sessionStorage.removeItem('filterQuery')
+    localStorage.removeItem(STORAGE_FILTER_QUERY_KEY)
 
     if (Object.keys(urlParameters).length) {
       makeFilterRequest({

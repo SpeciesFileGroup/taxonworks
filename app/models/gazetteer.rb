@@ -62,7 +62,7 @@ class Gazetteer < ApplicationRecord
       'properties' => {
         # cf. GeographicArea
         'shape' => {
-          'type' => 'gazetteer',
+          'type' => 'Gazetteer',
           'id' => id,
           'tag' => name
         }

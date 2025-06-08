@@ -115,12 +115,18 @@ const payload = computed(() => ({
   collecting_event: {
     georeferences_attributes: selectedGeoreferences.value.map(
       ({ geographic_item_id, type , error_radius, error_depth,
-         error_geographic_item_id }) => ({
+         error_geographic_item_id, is_public, api_request, year_georeferenced,
+         month_georeferenced, day_georeferenced }) => ({
         geographic_item_id,
         type,
         error_radius,
         error_depth,
-        error_geographic_item_id
+        error_geographic_item_id,
+        is_public,
+        api_request,
+        year_georeferenced,
+        month_georeferenced,
+        day_georeferenced
       })
     )
   }

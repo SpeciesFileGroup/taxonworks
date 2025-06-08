@@ -50,15 +50,19 @@
       </VModal>
       <VBtn
         class="circle-button"
-        title="Radial batch annotator"
         circle
         color="radial"
-        :disabled="disabled || (!ids.length && !Object.keys(params).length)"
+        :title="title"
+        :disabled="
+          disabled ||
+          !menuOptions.slices.length ||
+          (!ids.length && !Object.keys(params).length)
+        "
         @click="openRadialBatch"
       >
         <VIcon
           name="radialMassAnnotator"
-          title="Radial batch annotator"
+          :title="title"
           x-small
         />
       </VBtn>
@@ -76,7 +80,7 @@ import { useRadialBatch } from '@/components/radials/shared/useRadialBatch'
 import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
 import { ANNOTATORS } from './constants/annotators.js'
 import { Metadata } from '@/routes/endpoints'
-import { ref, onBeforeMount } from 'vue'
+import { computed, ref, onBeforeMount } from 'vue'
 
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 
@@ -127,6 +131,10 @@ const {
   props,
   slices: props.nestedQuery ? annotatorComponents.all : annotatorComponents.ids
 })
+
+const title = menuOptions.value.slices.length
+  ? 'Radial batch annotator'
+  : 'Radial batch annotator (No annotators available)'
 
 const annotatorTypes = ref({})
 

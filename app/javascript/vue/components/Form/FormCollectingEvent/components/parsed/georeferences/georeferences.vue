@@ -17,7 +17,7 @@
     >
       Create georeference from verbatim
     </VBtn>
-    <template v-if="isVerbatimCreated">
+    <template v-if="!!isVerbatimCreated">
       <span>
         Lat: {{ verbatimCoordinates.latitude }}, Long:
         {{ verbatimCoordinates.longitude }}
@@ -50,7 +50,7 @@
               v-if="verbatimLat && verbatimLng"
               color="primary"
               medium
-              :disabled="isVerbatimCreated"
+              :disabled="!!isVerbatimCreated"
               @click="createVerbatimShape"
             >
               Create georeference from verbatim
@@ -98,7 +98,7 @@
               v-if="verbatimLat && verbatimLng"
               color="primary"
               medium
-              :disabled="isVerbatimCreated"
+              :disabled="!!isVerbatimCreated"
               @click="createVerbatimShape"
             >
               Create georeference from verbatim

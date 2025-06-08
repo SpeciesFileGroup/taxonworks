@@ -1,9 +1,11 @@
 # Users must implement batch_by_filter_scop_params, which should require a
 # `batch_params` key and permit batch parameters specific to the model.
-module BatchByFilterScope
+module DataControllerConfiguration::BatchByFilterScope
   extend ActiveSupport::Concern
 
   included do
+    include DataControllerConfiguration
+
     # POST
     def batch_by_filter_scope
       klass = controller_path.classify.constantize

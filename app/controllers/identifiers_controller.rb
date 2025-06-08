@@ -1,6 +1,6 @@
 class IdentifiersController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  include BatchByFilterScope
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_identifier, only: [:update, :destroy, :show]
 

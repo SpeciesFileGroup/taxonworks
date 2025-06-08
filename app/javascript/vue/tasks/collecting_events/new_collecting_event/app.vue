@@ -122,6 +122,7 @@
 import { ref, watch, onMounted, useTemplateRef } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { useHotkey } from '@/composables'
+import { smartSelectorRefresh } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VAutocomplete from '@/components/ui/Autocomplete'
 import FormCollectingEvent from '@/components/Form/FormCollectingEvent/FormCollectingEvent.vue'
@@ -285,6 +286,7 @@ async function saveCollectingEvent() {
           'collecting_event_id',
           store.collectingEvent.id
         )
+        smartSelectorRefresh()
       })
       .catch(() => {})
   }

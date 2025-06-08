@@ -1,6 +1,6 @@
 class AttributionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  include BatchByFilterScope
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_attribution, only: [:show, :edit, :update, :destroy]
   after_action -> { set_pagination_headers(:attributions) }, only: [:index, :api_index ], if: :json_request?
