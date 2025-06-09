@@ -17,7 +17,7 @@ import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
 import { Icon } from '@/components/georeferences/icons'
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
-import { ASSERTED_DISTRIBUTION, GEOGRAPHIC_AREA } from '@/constants/index.js'
+import { GEOGRAPHIC_AREA } from '@/constants'
 
 let drawnItems
 let mapObject
@@ -378,10 +378,8 @@ const addGeoJsonLayer = (geoJsonLayers) => {
     },
     filter: (feature) => {
       if (
-        feature.properties?.geographic_area ||
         feature.properties?.aggregate ||
-        feature.properties?.type === ASSERTED_DISTRIBUTION ||
-        feature.properties?.type === GEOGRAPHIC_AREA
+        feature.properties?.shape?.type === GEOGRAPHIC_AREA
       ) {
         geographicArea.addLayer(
           L.GeoJSON.geometryToLayer(

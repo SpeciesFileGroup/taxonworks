@@ -26,8 +26,8 @@ class Identifier::Local < Identifier
   # namespaces in this belongs_to.
   validates :namespace_id, presence: true
 
-  validates_uniqueness_of :identifier, scope: [:namespace_id, :project_id, :type], message: lambda { |error, attributes| "#{attributes[:value]} already taken"},
-    unless: ->(obj) { obj.is_a?(Identifier::Local::RecordNumber) }
+  validates :identifier, uniqueness: { scope: [:namespace_id, :project_id, :type], message: lambda { |error, attributes| "#{attributes[:value]} already taken"},
+    unless: ->(obj) { obj.is_a?(Identifier::Local::RecordNumber) } }
 
   # @return boolean
   #   We don't have to inspect the namespace because it's appended to cached
@@ -65,7 +65,7 @@ class Identifier::Local < Identifier
   end
 
   def increment_identifier
-    write_attribute(:identifier, ::Utilities::Strings.increment_contained_integer(identifier))
+    self[:identifier] = ::Utilities::Strings.increment_contained_integer(identifier)
   end
 
   protected

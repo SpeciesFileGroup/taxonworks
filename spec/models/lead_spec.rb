@@ -325,8 +325,8 @@ RSpec.describe Lead, type: :model do
       end
 
       specify 'creates expected number of leads' do
+        # We've added (other_key) + (dup of other_key)
         expect(Lead.all.size)
-          # We've added (other_key) + (dup of other_key)
           .to eq(lead_all_size + other_key_size + other_key_size)
       end
 
@@ -573,6 +573,42 @@ RSpec.describe Lead, type: :model do
       expect(lrr.parent_id).to eq(l.id)
       expect(lrll.parent_id).to eq(lrl.id)
       expect(lrlr.parent_id).to eq(lrl.id)
+    end
+
+    context '::public_root_leads_for_leaf_otus' do
+      let!(:o) { FactoryBot.create(:valid_otu) }
+      let!(:root2) { FactoryBot.create(:valid_lead, is_public: true) }
+      let!(:l2) { root2.children.create!(text: 'l2') }
+      let!(:r2) { root2.children.create!(text: 'r2', otu: o) } # has otu
+      let!(:nope_root) { FactoryBot.create(:valid_lead, is_public: true) }
+      # otu on internal node only
+      let!(:nope_l) { nope_root.children.create!(text: 'nope_l', otu: o) }
+      let!(:nope_ll) { nope_l.children.create!(text: 'nope_ll') }
+
+      before(:each) { root.update!(is_public: true) }
+
+      specify 'finds roots from leaf otus' do
+        r.update!(otu: o)
+        o.reload
+        expect(Lead.public_root_leads_for_leaf_otus(o).map(&:id))
+          .to contain_exactly(root.id, root2.id)
+      end
+
+      specify "doesn't find key from root otu only" do
+        root.update!(otu: o) # on root lead of key only
+        o.reload
+        expect(Lead.public_root_leads_for_leaf_otus(o).map(&:id))
+          .to contain_exactly(root2.id)
+      end
+
+      specify "doesn't return not-public keys" do
+        r.update!(otu: o) # matches
+        root2.update!(is_public: false) # no longer matches
+        o.reload
+        expect(Lead.public_root_leads_for_leaf_otus(o).map(&:id))
+          .to contain_exactly(root.id)
+      end
+
     end
   end
 end

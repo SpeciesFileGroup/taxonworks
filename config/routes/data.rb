@@ -26,6 +26,9 @@ match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults
 match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
 resources :attributions, except: [:new] do
   concerns [:data_routes]
+  collection do
+    post :batch_by_filter_scope, defaults: {format: :json}
+  end
 end
 
 resources :asserted_distributions do
@@ -339,6 +342,7 @@ resources :field_occurrences do
 
   collection do
     match :filter, to: 'field_occurrences#index', via: [:get, :post]
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -403,6 +407,8 @@ resources :identifiers, except: [:show] do
   collection do
     patch :reorder, defaults: {format: :json}
     get :identifier_types, {format: :json}
+    post :namespaces, {format: :json}
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 
   member do
@@ -892,6 +898,7 @@ resources :taxon_name_relationships do
   collection do
     get :type_relationships, {format: :json}
     get :taxon_name_relationship_types, {format: :json}
+    match :filter, to: 'taxon_name_relationships#index', via: [:get, :post]
   end
 end
 

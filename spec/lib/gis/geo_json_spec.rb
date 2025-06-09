@@ -196,7 +196,7 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
                                                               'coordinates' => [[[[0, 0, 0], [10, 0, 0],
                                                                                   [10, 10, 0], [0, 10, 0],
                                                                                   [0, 0, 0]]]] },
-                                              'properties' => { 'shape' => { 'type' => 'geographic_area',
+                                              'properties' => { 'shape' => { 'type' => 'GeographicArea',
                                               'id' => object.id,
                                                                                        'tag' => 'A' } },
                                               'id' => feature_index.to_i }] })
@@ -278,7 +278,7 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
                                                             'coordinates' => [5, 5, 0] },
                                             'id' => (feature_index.to_i + 0) },
                                           { 'type' => 'Feature',
-                                            'properties' => { 'shape' => { 'type' => 'geographic_area',
+                                            'properties' => { 'shape' => { 'type' => 'GeographicArea',
                                             'id' => area_b.id,
                                                                                      'tag' => area_b.name } },
                                             'geometry' => { 'type' => 'MultiPolygon',

@@ -48,7 +48,7 @@
         }
       "
     />
-    <label>Value</label>
+    <label>Value (with predicate)</label>
     <div class="field">
       <textarea
         v-model="inputValue"
@@ -60,7 +60,7 @@
           <VBtn
             color="primary"
             medium
-            :disabled="!predicate"
+            :disabled="!predicate || !inputValue.length"
             @click="() => addPredicate({ any: false })"
           >
             Add
@@ -68,19 +68,22 @@
           <VBtn
             color="primary"
             medium
-            :disabled="!predicate"
-            @click="() => addPredicate({ any: true, text: '' })"
+            :disabled="!predicate || !!inputValue.length"
+            title="With any value"
+            @click="() => addPredicate({ any: true, text: '', exact: false })"
           >
             Any
           </VBtn>
+          <VBtn
+            color="primary"
+            medium
+            :disabled="!predicate || inputValue.length"
+            title="Without predicate"
+            @click="() => addPredicate({ any: false, text: '', exact: false })"
+          >
+            Without
+          </VBtn>
         </div>
-        <label>
-          <input
-            v-model="exact"
-            type="checkbox"
-          />
-          Exact
-        </label>
       </div>
     </div>
   </div>
@@ -99,7 +102,6 @@ const emit = defineEmits(['add'])
 const smartSelectorRef = ref(null)
 const inputValue = ref('')
 const predicate = ref()
-const exact = ref(false)
 const list = ref([])
 
 function addPredicate(params) {
@@ -107,7 +109,7 @@ function addPredicate(params) {
     id: predicate.value.id,
     name: predicate.value.name,
     text: inputValue.value,
-    exact: exact.value,
+    exact: false,
     ...params
   }
 

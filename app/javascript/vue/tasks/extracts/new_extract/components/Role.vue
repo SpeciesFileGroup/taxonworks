@@ -5,34 +5,33 @@
     </template>
     <template #body>
       <div class="horizontal-left-content align-start">
-        <smart-selector
+        <SmartSelector
           class="full_width"
           model="people"
-          :params="{ role_type: 'SourceAuthor' }"
+          :params="{ role_type: ROLE_EXTRACTOR }"
           :autocomplete-params="{
-            roles: ['Extractor']
+            roles: [ROLE_EXTRACTOR]
           }"
           label="cached"
           @selected="addRole"
         />
-        <lock-component
+        <LockComponent
           class="margin-small-left"
           v-model="settings.lock.roles"
         />
       </div>
 
-      <role-picker
+      <RolePicker
         class="margin-medium-top"
-        role-type="Extractor"
+        :role-type="ROLE_EXTRACTOR"
         v-model="roles"
       />
     </template>
   </block-layout>
 </template>
 
-<script>
+<script setup>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
-import componentExtend from './mixins/componentExtend'
 import RolePicker from '@/components/role_picker'
 import BlockLayout from '@/components/layout/BlockLayout'
 import makePerson from '@/factory/Person'
@@ -40,36 +39,26 @@ import LockComponent from '@/components/ui/VLock/index.vue'
 import { findRole } from '@/helpers/people/people.js'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+import { ROLE_EXTRACTOR } from '@/constants'
 
-export default {
-  mixins: [componentExtend],
+const store = useStore()
+const roles = computed({
+  get: () => store.getters[GetterNames.GetRoles],
+  set: (value) => store.commit(MutationNames.SetRoles, value)
+})
 
-  components: {
-    SmartSelector,
-    RolePicker,
-    BlockLayout,
-    LockComponent
-  },
+const settings = computed({
+  get: () => store.getters[GetterNames.GetSettings],
+  set: (value) => store.commit(MutationNames.SetSettings, value)
+})
 
-  computed: {
-    roles: {
-      get() {
-        return this.$store.getters[GetterNames.GetRoles]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetRoles, value)
-      }
-    }
-  },
-
-  methods: {
-    addRole(role) {
-      if (!findRole(this.roles, role.id)) {
-        this.roles.push(
-          makePerson(role.first_name, role.last_name, role.id, 'Extractor')
-        )
-      }
-    }
+function addRole(role) {
+  if (!findRole(roles.value, role.id)) {
+    roles.value.push(
+      makePerson(role.first_name, role.last_name, role.id, ROLE_EXTRACTOR)
+    )
   }
 }
 </script>

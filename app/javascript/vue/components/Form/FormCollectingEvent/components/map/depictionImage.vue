@@ -9,7 +9,7 @@
           class="horizontal-left-content padding-xsmall-top padding-xsmall-bottom"
         >
           <VBtn
-            color="destroy"
+            :color="depiction.id ? 'destroy' : 'primary'"
             circle
             @click="deleteDepiction"
           >

@@ -4,93 +4,70 @@
     class="matches-panel panel content"
   >
     <h3>Matches</h3>
-    <spinner-component
-      v-if="searching"
+    <VSpinner
+      v-if="isSearching"
       legend="Searching..."
     />
-    <display-list
+    <DisplayList
       :list="founded"
       label="object_tag"
       :remove="false"
       edit
-      @edit="$emit('select', $event)"
+      @edit="(e) => emit('select', e)"
     />
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed, ref, watch } from 'vue'
 import { CollectingEvent } from '@/routes/endpoints'
-import DisplayList from '@/components/displayList'
-import SpinnerComponent from '@/components/ui/VSpinner'
+import DisplayList from '@/components/displayList.vue'
+import VSpinner from '@/components/ui/VSpinner'
 
-export default {
-  components: {
-    DisplayList,
-    SpinnerComponent
-  },
+const DELAY = 1000
 
-  props: {
-    collectingEvent: {
-      type: Object,
-      required: true
-    }
-  },
+let timer = undefined
 
-  emits: ['select'],
-
-  computed: {
-    verbatimLabel() {
-      return this.collectingEvent.verbatim_label
-    },
-
-    founded() {
-      return this.list.filter((item) => item.id !== this.collectingEvent.id)
-    }
-  },
-
-  data() {
-    return {
-      list: [],
-      delay: 1000,
-      timer: undefined,
-      searching: false
-    }
-  },
-
-  watch: {
-    verbatimLabel(newVal) {
-      clearTimeout(this.timer)
-      if (newVal && newVal.length) {
-        this.timer = setTimeout(() => {
-          this.getRecent()
-        }, this.delay)
-      } else {
-        this.list = []
-      }
-    }
-  },
-
-  methods: {
-    getRecent() {
-      this.searching = true
-      CollectingEvent.where({
-        verbatim_label: this.verbatimLabel,
-        per: 5
-      }).then(
-        (response) => {
-          this.list = response.body
-          this.searching = false
-        },
-        () => {
-          this.searching = false
-        }
-      )
-    }
+const props = defineProps({
+  collectingEvent: {
+    type: Object,
+    required: true
   }
+})
+
+const emit = defineEmits(['select'])
+
+const isSearching = ref(false)
+const list = ref([])
+
+const verbatimLabel = computed(() => props.collectingEvent.verbatim_label)
+
+const founded = computed(() =>
+  list.value.filter((item) => item.id !== props.collectingEvent.id)
+)
+
+function getRecent() {
+  isSearching.value = true
+  CollectingEvent.where({
+    verbatim_label: verbatimLabel.value,
+    per: 5
+  })
+    .then(({ body }) => {
+      list.value = body
+    })
+    .finally(() => {
+      isSearching.value = false
+    })
 }
+
+watch(verbatimLabel, (newVal) => {
+  clearTimeout(timer)
+  if (newVal && newVal.length) {
+    timer = setTimeout(() => {
+      getRecent()
+    }, DELAY)
+  } else {
+    list.value = []
+  }
+})
 </script>
-<style scoped>
-.matches-panel {
-  min-height: 500px;
-}
-</style>

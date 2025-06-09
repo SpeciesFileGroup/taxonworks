@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :taxon_name_relationships do
+    scope :filter, controller: 'tasks/taxon_name_relationships/filter' do
+      get '/', action: :index, as: 'filter_taxon_name_relationships_task'
+    end
+  end
+
   scope :gazetteers do
     scope :import_gazetteers, controller: 'tasks/gazetteers/import_gazetteers' do
       get '/', action: :index, as: 'import_gazetteers_task'
@@ -753,6 +759,10 @@ scope :tasks do
 
     scope :filter, controller: 'tasks/taxon_names/filter' do
       get '/', as: 'filter_taxon_names_task', action: :index
+    end
+
+    scope :table, controller: 'tasks/taxon_names/table' do
+      match '/', action: :index, via: [:get, :post], as: :taxon_names_table_task
     end
   end
 

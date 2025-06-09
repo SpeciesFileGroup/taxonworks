@@ -1,12 +1,14 @@
 import { CollectionObject } from '@/routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
 import SetParam from '@/helpers/setParam'
+import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 
 export default ({ commit, state }, co) => {
+  const store = useCollectingEventStore()
   const payload = {
     collection_object: {
       ...co,
-      collecting_event_id: state.collecting_event.id
+      collecting_event_id: store.collectingEvent.id
     }
   }
 

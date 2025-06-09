@@ -10,6 +10,8 @@ module Queries
         :collection_object_scope,
         :depiction_object_type,
         :depictions,
+        :field_occurrence_id,
+        :field_occurrence_scope,
         :freeform_svg,
         :image_id,
         :otu_id,
@@ -24,7 +26,10 @@ module Queries
 
         biocuration_class_id: [],
         collection_object_id: [],
+        collection_object_scope: [],
         depiction_object_type: [],
+        field_occurrence_id: [],
+        field_occurrence_scope: [],
         image_id: [],
         otu_id: [],
         otu_scope: [],
@@ -43,8 +48,7 @@ module Queries
       #
       #     :collection_objects (those on the collection_object)
       #     :observations (those on just the CollectionObject observations)
-      #      collecting_events (those on the associated collecting event)
-      #     # maybe those on the CE
+      #     :collecting_events (those on the associated collecting event)
       attr_accessor :collection_object_scope
 
       # @return [Boolean, nil]
@@ -52,6 +56,19 @@ module Queries
       #   false - image is not used
       #   nil - either
       attr_accessor :depictions
+
+      # @return [Array]
+      #   images depicting field_occurrence
+      attr_accessor :field_occurrence_id
+
+      # @param field_occurrence_scope
+      #   One or more of:
+      #     :all (default, includes all below)
+      #
+      #     :field_occurrence (those on the field_occurrence)
+      #     :observations (those on just the FieldOccurrence observations)
+      #     :collecting_events (those on the associated collecting event)
+      attr_accessor :field_occurrence_scope
 
       # @return [Boolean, nil]
       #   true - image is used (in a depiction) that has svg
@@ -138,6 +155,8 @@ module Queries
         @collection_object_scope = params[:collection_object_scope]
         @depiction_object_type = params[:depiction_object_type]
         @depictions = boolean_param(params, :depictions)
+        @field_occurrence_id = params[:field_occurrence_id]
+        @field_occurrence_scope = params[:field_occurrence_scope]
         @freeform_svg = boolean_param(params, :freeform_svg)
         @image_id = params[:image_id]
         @otu_id = params[:otu_id]
@@ -170,6 +189,18 @@ module Queries
         [ @collection_object_id ].flatten.compact
       end
 
+      def collection_object_scope
+        [ @collection_object_scope ].flatten.compact.map(&:to_sym)
+      end
+
+      def field_occurrence_id
+        [ @field_occurrence_id ].flatten.compact
+      end
+
+      def field_occurrence_scope
+        [ @field_occurrence_scope ].flatten.compact.map(&:to_sym)
+      end
+
       def otu_id
         [ @otu_id ].flatten.compact
       end
@@ -186,10 +217,6 @@ module Queries
 
       def otu_scope
         [ @otu_scope ].flatten.compact.map(&:to_sym)
-      end
-
-      def collection_object_scope
-        [ @collection_object_scope ].flatten.compact.map(&:to_sym)
       end
 
       def sled_image_id
@@ -310,7 +337,7 @@ module Queries
 
         selected = []
 
-        if otu_scope.include?(:all)
+        if otu_scope.include?(:all) # unused
           selected = [
             :otu_facet_otus,
             :otu_facet_collection_objects,
@@ -341,41 +368,65 @@ module Queries
       def collection_object_scope_facet
         return nil if collection_object_id.empty?
 
-        selected = []
+        scope_facet_for(
+          :collection_objects, collection_object_id, collection_object_scope
+        )
+      end
 
-        if collection_object_scope.include?(:all)
+      def field_occurrence_scope_facet
+        return nil if field_occurrence_id.empty?
+
+        scope_facet_for(
+          :field_occurrences, field_occurrence_id, field_occurrence_scope
+        )
+      end
+
+      def scope_facet_for(t, t_id, t_scope)
+        selected = []
+        if t_scope.include?(:all) # unused
           selected = [
-            :collection_object_facet_collection_objects,
-            :collection_object_facet_observations,
-            :collection_object_facet_collecting_events,
+            images_on(t, t_id).to_sql,
+            images_on_observations_linked_to(t, t_id).to_sql,
+            images_on_collecting_events_via_observed(t, t_id).to_sql
           ]
-        elsif collection_object_scope.present?
-          selected.push :collection_object_facet_collection_objects if collection_object_scope.include?(:collection_objects)
-          selected.push :collection_object_facet_observations if collection_object_scope.include?(:observations)
-          selected.push :collection_object_facet_collecting_events if collection_object_scope.include?(:collecting_events)
+        elsif t_scope.empty?
+          selected =
+            [images_on(t, t_id).to_sql]
         else
-          selected.push :collection_object_facet_collection_objects
+          selected.push(
+            images_on(t, t_id).to_sql
+          ) if t_scope.include?(t)
+
+          selected.push(
+            images_on_observations_linked_to(t, t_id).to_sql
+          ) if t_scope.include?(:observations)
+
+          selected.push(
+            images_on_collecting_events_via(t, t_id).to_sql
+          ) if t_scope.include?(:collecting_events)
         end
 
-        q = selected.collect{|a| '(' + send(a).to_sql + ')'}.join(' UNION ')
+        q = selected.map{ |q| '(' + q + ')' }.join(' UNION ')
 
-        d = ::Image.from('(' + q + ')' + ' as images')
-        d
+        ::Image.from('(' + q + ')' + ' as images')
       end
 
-      def collection_object_facet_collection_objects
-        ::Image.joins(:collection_objects).where(collection_objects: {id: collection_object_id})
+      def images_on(t, t_id)
+        ::Image.joins(t).where(**{t => {id: t_id}})
       end
 
-      def collection_object_facet_observations
-        ::Image.joins(:observations).where(observations: {observation_object_type: 'CollectionObject', observation_object_id: collection_object_id })
-      end
-
-      def collection_object_facet_collecting_events
+      def images_on_observations_linked_to(t, t_id)
         ::Image.joins(:observations)
-          .joins("INNER JOIN collecting_events on collecting_events.id = observations.observation_object_id AND observations.observation_object_type = 'CollectingEvent'")
-          .joins('INNER JOIN collection_objects on collection_objects.collecting_event_id = collecting_events.id')
-          .where(collection_objects: {id: collection_object_id})
+          .where(observations: {
+            observation_object_type: t.to_s.classify,
+            observation_object_id: t_id
+          })
+      end
+
+      def images_on_collecting_events_via(t, t_id)
+        ::Image
+          .joins(collecting_events: t)
+          .where("#{t}.id IN (?)", t_id)
       end
 
       def otu_facet_type_material_observations(otu_ids)
@@ -540,6 +591,7 @@ module Queries
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
           biocuration_facet,
           collection_object_scope_facet,
+          field_occurrence_scope_facet,
           depiction_object_type_facet,
           depictions_facet,
           freeform_svg_facet,

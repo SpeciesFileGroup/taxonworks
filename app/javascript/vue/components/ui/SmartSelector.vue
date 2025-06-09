@@ -167,6 +167,11 @@ const props = defineProps({
     default: 'button-data'
   },
 
+  default: {
+    type: String,
+    default: undefined
+  },
+
   otuPicker: {
     type: Boolean,
     default: false
@@ -377,7 +382,9 @@ const refresh = (forceUpdate = false) => {
       options.value = Object.keys(lists.value).concat(props.addTabs)
       options.value = OrderSmart(options.value)
 
-      view.value = SelectFirst(lists.value, options.value)
+      view.value = props.default
+        ? props.default
+        : SelectFirst(lists.value, options.value)
     })
     .catch(() => {
       options.value = []

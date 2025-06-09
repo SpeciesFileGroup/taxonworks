@@ -22,6 +22,10 @@ export const FILTER_TAXON_NAME = {
   label: 'Nomenclature',
   link: '/tasks/taxon_names/filter'
 }
+export const FILTER_TAXON_NAME_RELATIONSHIP = {
+  label: 'Taxon name relationships',
+  link: '/tasks/taxon_name_relationships/filter'
+}
 export const FILTER_SOURCE = {
   label: 'Sources',
   link: '/tasks/sources/filter'

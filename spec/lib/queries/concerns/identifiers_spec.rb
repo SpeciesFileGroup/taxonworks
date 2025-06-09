@@ -81,7 +81,7 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
   specify '#match_identifiers 2 #match_identifiers_caseless' do
     query.match_identifiers = "a,b,  #{n1.short_name.downcase} 123 \n\n,  c, #{co1.id}, 99"
     query.match_identifiers_type = 'identifier'
-    query.match_identifiers_caseless = true 
+    query.match_identifiers_caseless = true
     expect(query.all.pluck(:id)).to contain_exactly(co1.id)
   end
 
@@ -136,6 +136,15 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
     query.identifier_start = '120'
     query.identifier_end = '457'
     expect(query.all.pluck(:id)).to contain_exactly()
+  end
+
+  specify 'range 6 virtual namespace' do
+    co3 = Specimen.create!
+    n3 = Namespace.create!(name: 'Fifth', short_name: 'sixth', is_virtual: true)
+    Identifier::Local::CatalogNumber.create!(namespace: n3, identifier: 'superZekret234', identifier_object: co3)
+    query.identifier_start = '200'
+    query.identifier_end = '457'
+    expect(query.all.pluck(:id)).to contain_exactly(co2.id, co3.id)
   end
 
   specify '#identifier_exact 1' do

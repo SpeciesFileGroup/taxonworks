@@ -1,5 +1,6 @@
 class ProtocolRelationship < ApplicationRecord
   include Housekeeping
+  include Shared::BatchByFilterScope
   include Shared::PolymorphicAnnotator
   include Shared::IsData
 
@@ -10,103 +11,86 @@ class ProtocolRelationship < ApplicationRecord
   belongs_to :protocol, inverse_of: :protocol_relationships
 
   validates :protocol, presence: true
-  validates_uniqueness_of :protocol_id, scope: [:protocol_relationship_object_id, :protocol_relationship_object_type]
+  validates :protocol_id, uniqueness: { scope: [:protocol_relationship_object_id, :protocol_relationship_object_type] }
 
-  # TODO: See parallel logic in Confidence batch.
-  def self.batch_by_filter_scope(filter_query: nil, protocol_id: nil, replace_protocol_id: nil, mode: :add, async_cutoff: 300, project_id: nil, user_id: nil)
-    r = ::BatchResponse.new(
-      preview: false,
-      method: 'Protocol relationship batch_by_filter_scope',
-    )
-
-    if filter_query.nil?
-      r.errors['scoping filter not provided'] = 1
-      return r
-    end
-
-    b = ::Queries::Query::Filter.instantiated_base_filter(filter_query)
-    q = b.all(true)
-
-    fq = ::Queries::Query::Filter.base_query_to_h(filter_query)
-
-    r.klass =  b.referenced_klass.name
-
-    if b.only_project?
-      r.total_attempted = 0
-      r.errors['can not update records without at least one filter parameter'] = 1
-      return r
-    else
-      c = q.count
-      async = c > async_cutoff ? true : false
-
-      r.total_attempted = c
-      r.async = async
-    end
+  def self.process_batch_by_filter_scope(
+    batch_response: nil, query: nil, hash_query: nil, mode: nil, params: nil,
+    async: nil, project_id: nil, user_id: nil,
+    called_from_async: false
+  )
+    # Don't call async from async (the point is we do the same processing in
+    # async and not in async, and this function handles both that processing and
+    # making the async call, so it's this much janky).
+    async = false if called_from_async == true
+    r = batch_response
 
     case mode.to_sym
     when :replace
       # TODO: Return response
-      if replace_protocol_id.nil?
+      if params[:replace_protocol_id].nil?
         r.errors['no replacement protocol provided'] = 1
-        return r.to_json
+        return r
       end
 
-      if async
-        ProtocolRelationshipBatchJob.perform_later(
-          filter_query: fq,
-          protocol_id:,
-          replace_protocol_id:,
-          mode: :replace,
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query: hash_query,
+          mode:,
+          params:,
           project_id:,
-          user_id:,
+          user_id:
         )
       else
         ProtocolRelationship
           .where(
-            protocol_relationship_object_id: q.pluck(:id),
-            protocol_relationship_object_type: b.referenced_klass.base_class.name,
-            protocol_id: replace_protocol_id
+            protocol_relationship_object_id: query.pluck(:id),
+            protocol_relationship_object_type: query.klass.name,
+            protocol_id: params[:replace_protocol_id]
           ).find_each do |o|
-            o.update(protocol_id:)
-            if o.valid? 
+            o.update(protocol_id: params[:protocol_id])
+            if o.valid?
               r.updated.push o.id
             else
               r.not_updated.push o.id
             end
           end
       end
+
     when :remove
       # Just delete, async or not
       ProtocolRelationship
         .where(
-          protocol_relationship_object_id: q.pluck(:id),
-          protocol_relationship_object_type: b.referenced_klass.name
+          protocol_relationship_object_id: query.pluck(:id),
+          protocol_relationship_object_type: query.klass.name
         ).delete_all
+
     when :add
-      if async
-        ProtocolRelationshipBatchJob.perform_later(
-          filter_query: fq,
-          protocol_id:,
-          replace_protocol_id:,
-          mode: :add,
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query: hash_query,
+          mode:,
+          params:,
           project_id:,
-          user_id:,
+          user_id:
         )
       else
-        q.find_each do |o|
-          o = ProtocolRelationship.create(protocol_relationship_object: o, protocol_id:)
-        
-          if o.valid? 
+        query.find_each do |o|
+          o = ProtocolRelationship.create(protocol_relationship_object: o,
+            protocol_id: params[:protocol_id])
+
+          if o.valid?
             r.updated.push o.id
           else
-            r.not_updated.push o.id
+            r.not_updated.push nil
           end
         end
       end
 
     end
 
-    return r.to_json
+    r
   end
 
   def dwc_occurrences

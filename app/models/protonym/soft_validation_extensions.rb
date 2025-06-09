@@ -507,7 +507,7 @@ module Protonym::SoftValidationExtensions
             if !feminine_name.blank? && !masculine_name.blank? && !neuter_name.blank? && name != masculine_name && name != feminine_name && name != neuter_name
               soft_validations.add(:base, 'Species name does not match with either of three alternative forms')
             else
-              forms = predict_three_forms
+              forms = Utilities::Nomenclature.predict_three_forms(name)
               if feminine_name.blank?
                 soft_validations.add(:feminine_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in feminine is not provided")
               else
@@ -1476,7 +1476,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_infrasubspecific_status
-      if nomenclatural_code == :iczn && (self.cached_original_combination&.include?(' var. ') || self.cached_original_combination&.include?(' f. ')) && self.cached_nomenclature_date&.year.to_i > 1960 && is_available?(refresh = true)
+      if nomenclatural_code == :iczn && (self.cached_original_combination&.include?(' var. ') || self.cached_original_combination&.include?(' f. ')) && self.cached_nomenclature_date&.year.to_i > 1960 && is_available?
         soft_validations.add(:base, 'Missing status. The name described as variety or form after 1960 should be treated as infrasubspecific (it is nevertheless deemed to be subspecific if, before 1985, it was either adopted as the valid name or was treated as a senior homonym).')
       end
     end

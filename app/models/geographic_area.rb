@@ -93,7 +93,7 @@ class GeographicArea < ApplicationRecord
   accepts_nested_attributes_for :geographic_areas_geographic_items
 
   validates :geographic_area_type, presence: true
-  validates_presence_of :geographic_area_type_id
+  validates :geographic_area_type_id, presence: true
 
   validates :parent, presence: true, unless: -> { self.name == 'Earth' } # || ENV['NO_GEO_VALID']}
   validates :level0, presence: true, allow_nil: true, unless: -> { self.name == 'Earth' }
@@ -461,7 +461,7 @@ class GeographicArea < ApplicationRecord
       'properties' => {
         # cf. Gazetteer
         'shape' => {
-          'type' => 'geographic_area',
+          'type' => 'GeographicArea',
           'id' => id,
           'tag' => name
         }

@@ -40,13 +40,22 @@
           </label>
         </li>
       </ul>
+
+      <label>B query paging</label>
+      <label>
+        <input
+          type="checkbox"
+          :value="true"
+          v-model="params.venn_ignore_pagination"
+        />
+        <span data-help="If checked, all results of the B query are used. Otherwise only the page of results from which you copied the B query is used.">Ignore pagination</span>
+      </label>
     </div>
   </FacetContainer>
 </template>
 
 <script setup>
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import { computed } from 'vue'
 
 const VENN_MODES = {
   a: 'Exclude (A not B)',
@@ -54,22 +63,8 @@ const VENN_MODES = {
   b: 'Inverse exclude (B not A)'
 }
 
-const props = defineProps({
-  modelValue: {
-    type: Object,
-    required: true
-  }
-})
-
-const emit = defineEmits(['update:modelValue'])
-
-const params = computed({
-  get() {
-    return props.modelValue
-  },
-
-  set(value) {
-    emit('update:modelValue', value)
-  }
+const params = defineModel({
+  type: Object,
+  default: () => ({})
 })
 </script>

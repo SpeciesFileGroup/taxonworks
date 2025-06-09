@@ -3,6 +3,8 @@ import { MutationNames } from '../mutations/mutations'
 import { EVENT_SMART_SELECTOR_UPDATE } from '@/constants/index.js'
 import { CollectionObject } from '@/routes/endpoints'
 import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
+import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations'
 import {
   IDENTIFIER_LOCAL_RECORD_NUMBER,
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
@@ -15,78 +17,86 @@ const updateSmartSelectors = () => {
   document.dispatchEvent(event)
 }
 
-export default ({ commit, dispatch, state }, { resetAfter = false } = {}) =>
-  new Promise((resolve, reject) => {
+function makeContainerArgs(id) {
+  return {
+    objectId: id,
+    objectType: CONTAINER
+  }
+}
+
+function makeCOArgs(id) {
+  return {
+    objectId: id,
+    objectType: COLLECTION_OBJECT
+  }
+}
+
+export default async (
+  { commit, dispatch, state },
+  { resetAfter = false } = {}
+) => {
+  try {
     const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
     const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
     const determinationStore = useTaxonDeterminationStore()
+    const collectingEventStore = useCollectingEventStore()
+    const biologicalAssociationStore = useBiologicalAssociationStore()
 
     state.settings.saving = true
-    dispatch(ActionNames.SaveCollectingEvent)
-      .then(() => {
-        dispatch(ActionNames.SaveLabel)
-        dispatch(ActionNames.SaveCollectionObject, state.collection_object)
-          .then(({ body }) => {
-            const coCreated = body
-            const payload = {
-              objectId: state.container ? state.container.id : coCreated.id,
-              objectType: state.container ? CONTAINER : COLLECTION_OBJECT
-            }
+    if (collectingEventStore.isUnsaved) {
+      await collectingEventStore.save()
+    }
 
-            commit(MutationNames.SetCollectionObject, coCreated)
-            commit(MutationNames.AddCollectionObject, coCreated)
+    const { body } = await dispatch(
+      ActionNames.SaveCollectionObject,
+      state.collection_object
+    )
 
-            const actions = [
-              dispatch(ActionNames.SaveTypeMaterial),
-              dispatch(ActionNames.SaveCOCitations),
-              dispatch(ActionNames.SaveBiologicalAssociations),
-              recordNumber.save(payload),
-              catalogNumber.save(payload),
-              determinationStore.save({
-                objectId: coCreated.id,
-                objectType: COLLECTION_OBJECT
-              })
-            ]
+    const coCreated = body
+    const payload = state.container
+      ? makeContainerArgs(state.container.id)
+      : makeCOArgs(coCreated.id)
 
-            Promise.allSettled(actions)
-              .then(async (promises) => {
-                const allSaved = promises.every(
-                  (item) => item.status == 'fulfilled'
-                )
+    commit(MutationNames.SetCollectionObject, coCreated)
+    commit(MutationNames.AddCollectionObject, coCreated)
 
-                if (resetAfter && allSaved) {
-                  dispatch(ActionNames.ResetWithDefault)
-                } else {
-                  await dispatch(ActionNames.LoadSoftValidations)
-                  await CollectionObject.find(state.collection_object.id, {
-                    extend: ['dwc_occurrence']
-                  }).then(({ body }) => {
-                    state.collection_object.object_tag = body.object_tag
-                    state.collection_object.dwc_occurrence = body.dwc_occurrence
-                  })
+    const actions = [
+      dispatch(ActionNames.SaveTypeMaterial),
+      dispatch(ActionNames.SaveCOCitations),
+      recordNumber.save(payload),
+      catalogNumber.save(payload),
+      determinationStore.save(makeCOArgs(coCreated.id)),
+      biologicalAssociationStore.save(makeCOArgs(coCreated.id))
+    ]
 
-                  state.settings.lastSave = Date.now()
-                }
+    const promises = await Promise.allSettled(actions)
 
-                if (allSaved) {
-                  TW.workbench.alert.create(
-                    'All records were successfully saved.',
-                    'notice'
-                  )
-                }
+    const allSaved = promises.every((item) => item.status == 'fulfilled')
 
-                resolve(true)
-              })
-              .finally(() => {
-                updateSmartSelectors()
-                state.settings.saving = false
-              })
-          })
-          .catch(() => {
-            state.settings.saving = false
-          })
+    if (resetAfter && allSaved) {
+      dispatch(ActionNames.ResetWithDefault)
+    } else {
+      await dispatch(ActionNames.LoadSoftValidations)
+      await CollectionObject.find(state.collection_object.id, {
+        extend: ['dwc_occurrence']
+      }).then(({ body }) => {
+        state.collection_object.object_tag = body.object_tag
+        state.collection_object.dwc_occurrence = body.dwc_occurrence
       })
-      .catch(() => {
-        state.settings.saving = false
-      })
-  })
+    }
+
+    if (allSaved) {
+      TW.workbench.alert.create(
+        'All records were successfully saved.',
+        'notice'
+      )
+      state.settings.lastSave = Date.now()
+    }
+
+    updateSmartSelectors()
+    state.settings.saving = false
+    return true
+  } catch {
+    state.settings.saving = false
+  }
+}

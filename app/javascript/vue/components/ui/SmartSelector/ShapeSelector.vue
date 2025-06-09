@@ -30,7 +30,6 @@
         @get-item="(item) => sendMinimalGazetteer(item.id)"
         class="separate-bottom"
       />
-
     </div>
 
     <div v-else>
@@ -45,14 +44,13 @@
         ref="smartSelector"
         :add-tabs="['map']"
         inline
+        buttons
         pin-section="GeographicAreas"
         pin-type="GeographicArea"
         @selected="(shape) => sendGeographicArea(shape)"
       >
         <template #map>
-          <MapShapePicker
-            @select="(shape) => sendGeographicArea(shape)"
-          />
+          <MapShapePicker @select="(shape) => sendGeographicArea(shape)" />
         </template>
       </SmartSelector>
 
@@ -67,6 +65,7 @@
         ref="smartSelector"
         :add-tabs="['map']"
         inline
+        buttons
         pin-section="Gazetteers"
         pin-type="Gazetteer"
         @selected="(shape) => sendGazetteer(shape)"
@@ -78,7 +77,6 @@
           />
         </template>
       </SmartSelector>
-
     </div>
   </div>
 </template>
@@ -107,7 +105,7 @@ const props = defineProps({
   }
 })
 
-const inputShape = defineModel({type: Object, default: () => {}})
+const inputShape = defineModel({ type: Object, default: () => {} })
 
 const emit = defineEmits(['selectShape'])
 
@@ -166,5 +164,4 @@ function sendShape(shape) {
     smartSelector.value?.setFocus()
   }
 }
-
 </script>

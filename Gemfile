@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 2.0', require: 'rack/cors'
 
-ruby '>= 3.2', '< 3.4.0'
+ruby '>= 3.2', '< 3.5.0'
 
 gem 'bundler', '~> 2.5'
 
@@ -72,7 +72,7 @@ gem 'delayed_job_active_record', '~> 4.1.3'
 
 gem 'validates_timeliness', '~> 7.0.0.beta2' # , '>= 4.1.1'
 
-gem 'rack', '~> 3.1.8'
+gem 'rack', '~> 3.1.16'
 
 gem 'paper_trail', '~> 15.0'
 
@@ -172,6 +172,7 @@ gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
   # gem 'term-ansicolor', '~> 1.6' # DEPRECATED
+  gem 'pp_sql'
   gem 'faker', '~> 3.2'
   gem 'rspec-rails', '~> 6.1'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
