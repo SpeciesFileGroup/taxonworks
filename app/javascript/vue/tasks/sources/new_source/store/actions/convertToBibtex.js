@@ -7,7 +7,8 @@ export default ({ state, commit }) => {
   state.settings.isConverting = true
   if (state.source.id) {
     Source.update(state.source.id, {
-      source: { convert_to_bibtex: true }
+      source: { convert_to_bibtex: true },
+      extend: ['roles']
     }).then(
       (response) => {
         if (response.body.type === 'Source::Bibtex') {
