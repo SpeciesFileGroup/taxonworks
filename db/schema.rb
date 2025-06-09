@@ -1992,7 +1992,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.index ["author"], name: "index_sources_on_author"
     t.index ["bibtex_type"], name: "index_sources_on_bibtex_type"
     t.index ["cached"], name: "index_sources_on_cached"
-    t.index ["cached"], name: "src_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_author_string"], name: "index_sources_on_cached_author_string"
     t.index ["cached_nomenclature_date"], name: "index_sources_on_cached_nomenclature_date"
     t.index ["created_at"], name: "index_sources_on_created_at"
@@ -2084,7 +2083,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.index ["otu_id"], name: "index_taxon_determinations_on_otu_id"
     t.index ["position"], name: "index_taxon_determinations_on_position"
     t.index ["project_id"], name: "index_taxon_determinations_on_project_id"
-    t.index ["taxon_determination_object_type", "taxon_determination_object_id"], name: "td_poly"
     t.index ["updated_by_id"], name: "index_taxon_determinations_on_updated_by_id"
   end
 
@@ -2107,10 +2105,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.integer "ancestor_id", null: false
     t.integer "descendant_id", null: false
     t.integer "generations", null: false
-    t.index ["ancestor_id", "descendant_id", "generations"], name: "taxon_name_anc_desc_idx", unique: true
-    t.index ["ancestor_id", "descendant_id"], name: "index_taxon_name_hierarchies_on_ancestor_id_and_descendant_id"
     t.index ["ancestor_id"], name: "index_taxon_name_hierarchies_on_ancestor_id"
-    t.index ["descendant_id"], name: "taxon_name_desc_idx"
   end
 
   create_table "taxon_name_relationships", id: :serial, force: :cascade do |t|
@@ -2122,12 +2117,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.index ["created_by_id"], name: "index_taxon_name_relationships_on_created_by_id"
-    t.index ["object_taxon_name_id"], name: "index_taxon_name_relationships_on_object_taxon_name_id"
-    t.index ["project_id"], name: "index_taxon_name_relationships_on_project_id"
-    t.index ["subject_taxon_name_id"], name: "index_taxon_name_relationships_on_subject_taxon_name_id"
-    t.index ["type"], name: "index_taxon_name_relationships_on_type"
-    t.index ["updated_by_id"], name: "index_taxon_name_relationships_on_updated_by_id"
   end
 
   create_table "taxon_names", id: :serial, force: :cascade do |t|
@@ -2164,23 +2153,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.text "cached_author"
     t.text "cached_gender"
     t.boolean "cached_is_available"
-    t.index ["cached"], name: "index_taxon_names_on_cached"
-    t.index ["cached"], name: "tn_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
-    t.index ["cached_author_year"], name: "tn_cached_auth_year_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_gender"], name: "index_taxon_names_on_cached_gender"
     t.index ["cached_is_available"], name: "index_taxon_names_on_cached_is_available"
-    t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
-    t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
-    t.index ["cached_original_combination"], name: "tn_cached_original_gin_trgm", opclass: :gin_trgm_ops, using: :gin
-    t.index ["cached_valid_taxon_name_id"], name: "index_taxon_names_on_cached_valid_taxon_name_id"
-    t.index ["created_at"], name: "index_taxon_names_on_created_at"
-    t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"
-    t.index ["name"], name: "index_taxon_names_on_name"
-    t.index ["parent_id"], name: "index_taxon_names_on_parent_id"
-    t.index ["project_id"], name: "index_taxon_names_on_project_id"
-    t.index ["rank_class"], name: "index_taxon_names_on_rank_class"
-    t.index ["type"], name: "index_taxon_names_on_type"
-    t.index ["updated_at"], name: "index_taxon_names_on_updated_at"
     t.index ["updated_by_id"], name: "index_taxon_names_on_updated_by_id"
   end
 
