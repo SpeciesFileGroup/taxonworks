@@ -19,6 +19,8 @@
   --table-row-bg-odd: #f8f8f8;
 
   --button-shadow: 0px 1px 2px 0px var(--border-color);
+
+  --soft-validation-bg-color: #fff9f9;
 }
 
 .dark {
@@ -43,9 +45,12 @@
 
   --table-row-bg-even: #333333;
   --table-row-bg-odd: #3b3b3b;
+
+  --soft-validation-bg-color: #37332f;
 }
 
 $tw-dark-colors: (
+  'link': #479ef5,
   'attention': #ffda44,
   'background': #f7f8fc,
   'black': #444444,
@@ -54,7 +59,7 @@ $tw-dark-colors: (
   'destroy': #a2131d,
   'error': #a2131d,
   'panel': #ffffff,
-  'primary': #225994,
+  'primary': #006cbe,
   'secondary': #5a1321,
   'update': #20612d,
   'warning': #e48e30,
@@ -63,6 +68,7 @@ $tw-dark-colors: (
 );
 
 $tw-colors: (
+  'link': #5d9ece,
   'attention': #ffda44,
   'background': #f7f8fc,
   'black': #444444,

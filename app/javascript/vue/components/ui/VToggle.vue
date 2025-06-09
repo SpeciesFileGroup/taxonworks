@@ -84,7 +84,7 @@ $lightGrey: #99a3ba;
       &:after {
         width: 24px;
         height: 24px;
-        background: #fff;
+        background: var(--panel-bg-color);
         top: 2px;
         left: 3px;
         box-shadow: 0 1px 3px rgba(#121621, 0.1);
@@ -97,7 +97,7 @@ $lightGrey: #99a3ba;
           background: v-bind('props.onColor');
         }
         &:after {
-          background: #fff;
+          background: var(--panel-bg-color);
           transform: translate(18px, 0);
         }
       }

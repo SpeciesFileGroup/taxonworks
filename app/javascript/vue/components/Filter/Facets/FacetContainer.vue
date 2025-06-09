@@ -16,6 +16,6 @@ defineProps({
 </script>
 <style scoped>
 .facet-container-highlight {
-  background-color: #fff1d5;
+  background-color: var(--soft-validation-bg-color);
 }
 </style>

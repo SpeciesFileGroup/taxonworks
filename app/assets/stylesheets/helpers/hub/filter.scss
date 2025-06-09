@@ -1,3 +1,12 @@
+.dark {
+  #hub {
+    img,
+    .favourite_link {
+      filter: invert(1);
+    }
+  }
+}
+
 #hub {
   #navigation_list {
     flex-direction: row !important;
@@ -25,12 +34,11 @@
     .filter-title {
       font-size: $font_small;
       font-weight: $font_light;
-      color: gray;
     }
 
     .navigation-controls-type {
       .navigation-item {
-        border: 1px solid #e5e5e5;
+        border: 1px solid var(--border-color);
         justify-content: center;
         border-right: 0px;
       }
@@ -44,7 +52,6 @@
       box-sizing: border-box;
       width: 100%;
       padding: $standard_padding;
-      font-size: $font_small;
       justify-content: flex-start;
       border-left: 4px solid transparent;
     }
@@ -172,7 +179,7 @@
       bottom: 4px;
       border-radius: 3px;
       border: 1px solid var(--border-color);
-      background-color: #fff;
+      background-color: var(--bg-color);
       transition: 0.3s;
     }
 
@@ -185,7 +192,7 @@
       display: flex;
       align-items: center;
       position: absolute;
-      background-color: $navigation_background;
+      background-color: var(--border-color);
       width: 90px;
       height: 24px;
       justify-content: space-around;
@@ -193,7 +200,6 @@
       border-bottom-left-radius: 0px;
       border-top-left-radius: 0px;
       border: 1px solid var(--border-color);
-      background-color: $color-secondary-2-1;
     }
 
     input:checked ~ .filter-category {

@@ -30,7 +30,7 @@ a,
   color: $color-secondary-2-4;
 
   &:hover {
-    color: $default_text;
+    color: var(--text-color);
   }
 }
 

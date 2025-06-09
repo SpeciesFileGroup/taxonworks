@@ -5,6 +5,7 @@
   align-items: center;
   background-color: $color-header;
   height: 60px;
+  color: white;
 
   #taxonworks_logo {
     width: 160px;
@@ -18,7 +19,6 @@
   }
 
   #taxonworks_left {
-    flex-grow: 1;
     line-height: $font_small;
   }
 
@@ -34,17 +34,10 @@
     padding: 0;
   }
 
-  #session_nav {
-    flex-grow: 0;
-  }
-
   .horizontal_navbar {
     a {
       padding: 0px;
       color: #fff;
-    }
-    li {
-      padding-left: $standard_padding;
     }
   }
 }
@@ -63,7 +56,7 @@
 
 .current_hub_category a {
   border-bottom: 2px solid $color-secondary-2-4 !important;
-  color: $default_text !important;
+  color: var(--text-color) !important;
 }
 
 #main {

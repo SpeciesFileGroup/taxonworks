@@ -148,8 +148,8 @@ function getFixPresent(list) {
   border-left: 4px solid var(--color-warning);
 }
 .soft-validation-box {
-  background-color: #fff9f9;
-  color: black;
+  background-color: var(--soft-validation-bg-color);
+  color: var(--text-color);
   .body {
     padding: 12px;
   }

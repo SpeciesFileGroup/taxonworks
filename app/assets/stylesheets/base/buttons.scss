@@ -129,7 +129,7 @@
 }
 
 .btn-add {
-  background-color: $color-action-button;
+  background-color: var(--color-create);
   background-image: image-url('bplus.svg');
 }
 
@@ -144,7 +144,7 @@
 }
 
 .btn-edit {
-  background-color: $color-action-button;
+  background-color: var(--color-create);
   background-image: image-url('w_pencil.svg');
 }
 
@@ -225,7 +225,7 @@
 }
 
 .btn-tag-add {
-  background-color: $color-action-button;
+  background-color: var(--color-create);
   background-size: 12px;
   background-image: image-url('label.svg');
 }

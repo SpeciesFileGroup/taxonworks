@@ -16,7 +16,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  //   background-color: $color-action-button;
+  //   background-color: var(--color-create);
   -webkit-transition: 0.2s;
   transition: 0.2s;
 }
@@ -34,11 +34,11 @@
 }
 
 input:checked + .slider {
-  //   background-color: $color-action-button;
+  //   background-color: var(--color-create);
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px $color-action-button;
+  box-shadow: 0 0 1px var(--color-create);
 }
 
 input:checked + .slider:before {

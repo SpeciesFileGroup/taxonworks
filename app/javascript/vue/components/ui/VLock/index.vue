@@ -66,13 +66,13 @@ $lightGrey: #99a3ba;
         left: 0;
         width: 48px;
         height: 28px;
-        background: #e4ecfa;
+        background: var(--bg-color);
         transition: all 0.3s ease;
       }
       &:after {
         width: 24px;
         height: 24px;
-        background: #fff;
+        background: var(--panel-bg-color);
         top: 2px;
         left: 3px;
         box-shadow: 0 1px 3px rgba(#121621, 0.1);
@@ -94,7 +94,7 @@ $lightGrey: #99a3ba;
           width: 2px;
           height: 2px;
           border-radius: 1px;
-          background: #fff;
+          background: var(--panel-bg-color);
           position: absolute;
           display: block;
           left: 50%;
@@ -155,7 +155,7 @@ $lightGrey: #99a3ba;
           background: rgba($primary, 1);
         }
         &:after {
-          background: #fff;
+          background: var(--panel-bg-color);
           transform: translate(18px, 0);
         }
         em {

@@ -112,12 +112,13 @@
 
   .disable {
     opacity: 0.5;
-    background-color: $navigation_background;
+    color: var(--button-disabled-text-color);
+    background-color: var(--button-disabled-bg-color);
     background-image: none !important;
   }
 
   .disable:hover {
-    background-color: $navigation_background !important;
+    background-color: var(--button-disabled-bg-color) !important;
     box-shadow: none !important;
     opacity: 0.5 !important;
   }
