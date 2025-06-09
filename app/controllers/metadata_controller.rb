@@ -37,9 +37,9 @@ class MetadataController < ApplicationController
 
   # !! DO NOT EXPOSE TO API !! until santize tested
   def vocabulary
+    p = params.permit(:model, :attribute, :begins_with, :limit, :contains, :min, :max, otu_query: {otu_id: []}).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
 
-    p = params.permit(:model, :attribute, :begins_with, :limit, :contains, :min, :max).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
-    if @words = Vocabulary.words(**p)
+    if @words = Vocabulary.words(**p.to_h)
       render json: @words, status: :ok
     else
       render json: {}, status: :unprocessable_entity

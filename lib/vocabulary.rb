@@ -2,9 +2,14 @@ module Vocabulary
 
   # TODO: differentiate between no data and bad request
   # @return nil (bad request), {} (good request)
-  def self.words(model: nil, attribute: nil, min: 0, max: nil, limit: nil, begins_with: nil, contains: nil, project_id: [])
+  def self.words(model: nil, attribute: nil, min: 0, max: nil, limit: nil, begins_with: nil, contains: nil, project_id: [], **query)
 
     klass = get_model(model)
+    if klass.nil? &&
+       (query_name = query.keys&.find { |k| k.end_with?('_query') })
+      klass = get_query_model(query_name)
+    end
+
     return nil if klass.nil?
 
     t = klass.columns_hash[attribute]&.type
@@ -12,10 +17,15 @@ module Vocabulary
     # Happens on bad request
     return nil if t.nil? || [:xml].include?(t)
 
-    if klass.new.attributes.symbolize_keys.keys.include?(:project_id)
-      words = klass.where(project_id:)
+    if query.present?
+      query_hash = query.values.first.symbolize_keys
+      words = "Queries::#{klass}::Filter".safe_constantize.new(query_hash).all
     else
       words = klass
+    end
+
+    if klass.new.attributes.symbolize_keys.keys.include?(:project_id)
+      words = words.where(project_id:)
     end
 
     if [:string, :text].include?(t)
@@ -49,7 +59,7 @@ module Vocabulary
   def self.attributes(model, mode: nil)
     return [] if model.nil?
     xml_fields = %i{svg_clip} # for now just subtract known unprocessable fields across models.
-    
+
     a = ApplicationEnumeration.attributes(model.new) - xml_fields
 
     case mode&.to_sym
@@ -68,6 +78,14 @@ module Vocabulary
     rescue KeyError
       nil
     end
+  end
+
+  def self.get_query_model(query_name)
+    return nil if query_name.nil?
+
+    name = query_name.delete_suffix('_query').camelize
+
+    get_model(name)
   end
 
   # WITH words_list AS (

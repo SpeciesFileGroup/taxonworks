@@ -67,7 +67,7 @@
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { TASK } from './constants/links'
 import { RouteNames } from '@/routes/routes'
-import { setParam } from '@/helpers'
+import { setParam, toPascalCase } from '@/helpers'
 import { Metadata } from '@/routes/endpoints'
 import { computed, ref, onBeforeMount, watch } from 'vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -76,6 +76,9 @@ import PanelSettings from './components/PanelSettings.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import TableWords from './components/TableWords.vue'
 import PanelLinks from './components/PanelLinks.vue'
+import qs from 'qs'
+
+const LIMIT = 100
 
 defineOptions({
   name: 'ProjectVocabulary'
@@ -104,21 +107,45 @@ function getWords() {
 
 function initParameters() {
   return {
-    limit: 100
+    limit: LIMIT
   }
 }
 
 onBeforeMount(() => {
   const urlParams = URLParamsToJSON(window.location.href)
-
   if (Object.keys(urlParams).length) {
-    parameters.value = urlParams
-
+    processUrlParams(urlParams)
     if (validate.value) {
       getWords()
     }
   }
 })
+
+function processUrlParams(urlParams) {
+  let updated = false
+  const keys = Object.keys(urlParams)
+  if (!keys.includes('limit')) {
+    urlParams.limit = LIMIT
+  }
+
+  if (!keys.includes('model')) {
+    // Get model name from something like
+    // otu_query[otu_id][]=1&otu_query[otu_id][]=2
+    for (const key of keys) {
+      const match = key.match(/^([\w]+)_query/)
+      if (match[1]) {
+        urlParams.model = toPascalCase(match[1])
+        updated = true
+        break
+      }
+    }
+  }
+
+  parameters.value = urlParams
+  if (updated) {
+    setParam(RouteNames.ProjectVocabulary, parameters.value, undefined, true)
+  }
+}
 
 function updateLoadState(e) {
   if (e) {
@@ -142,6 +169,31 @@ function openTask(word) {
     window.open(`${task.url}?${parameter}=${word}`, '_blank')
   }
 }
+
+function clearUrlQueryArray() {
+  for (const key of Object.keys(parameters.value)) {
+    if (key.endsWith('_query')) {
+      delete parameters.value[key]
+
+      const queryString =
+        qs.stringify(parameters.value, { arrayFormat: 'brackets' })
+
+      const url = new URL(window.location)
+      url.search = queryString
+      window.history.replaceState(null, '', url)
+    }
+  }
+}
+
+watch(
+  () => parameters.value.model,
+  (newVal, oldVal) => {
+    if (oldVal && oldVal != newVal) {
+      console.log('here')
+      clearUrlQueryArray()
+    }
+  }
+)
 
 watch(
   parameters,

@@ -32,7 +32,7 @@ function areEqual (URLParams, objectParams, value) {
     : URLParams.get(objectParams) == value
 }
 
-export default (url, param, value = undefined) => {
+export default (url, param, value = undefined, removeTextObject = false) => {
   let urlParams = new URLSearchParams(window.location.search)
   const sameValue = areEqual(urlParams, param, value)
 
@@ -45,6 +45,15 @@ export default (url, param, value = undefined) => {
       urlParams.delete(param)
     }
   }
+
+  // TODO: temporary workaround for URLSearchParams adding an [object: Object]
+  // value to your params when you have a[b][]=1&a[b][]=2 params.
+  for (const [key, value] of urlParams) {
+    if (value == '[object Object]') {
+      urlParams.delete(key)
+    }
+  }
+
   const paramsString = urlParams.toString()
   const urlString = paramsString.length
     ? `${url}?${urlParams.toString()}`
