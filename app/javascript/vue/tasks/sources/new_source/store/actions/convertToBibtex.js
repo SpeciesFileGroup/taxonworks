@@ -6,7 +6,9 @@ import setParam from '@/helpers/setParam'
 export default ({ state, commit }) => {
   state.settings.isConverting = true
   if (state.source.id) {
-    Source.update(state.source.id, { convert_to_bibtex: true }).then(
+    Source.update(state.source.id, {
+      source: { convert_to_bibtex: true }
+    }).then(
       (response) => {
         if (response.body.type === 'Source::Bibtex') {
           setSource(response.body)
