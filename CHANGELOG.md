@@ -7,6 +7,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- GeographicArea is missing on Georeference modal [#4420]
+- Saved GeoLocate georeferences are missing on Georeference modal [#4422]
+
+[#4420]: https://github.com/SpeciesFileGroup/taxonworks/issues/4420
+[#4422]: https://github.com/SpeciesFileGroup/taxonworks/issues/4422
+
 \-
 
 ## [0.52.0] - 2025-06-09
