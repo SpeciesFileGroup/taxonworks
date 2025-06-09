@@ -228,7 +228,7 @@ const middleButton = computed(() => ({
     height: '20'
   },
   svgAttributes: {
-    fill: isPinned.value ? '#F44336' : '#9ccc65'
+    fill: isPinned.value ? 'var(--color-destroy)' : 'var(--color-create)'
   }
 }))
 

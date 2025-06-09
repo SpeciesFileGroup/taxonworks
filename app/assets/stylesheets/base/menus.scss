@@ -2,30 +2,30 @@
   font-weight: 300;
   display: flex;
   font-size: $font_small;
-  flex-direction:row;
-  justify-content:space-between;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  input[type="text"] {
-    width:170px;
-  }                    
+  input[type='text'] {
+    width: 170px;
+  }
 
   .navigation-item:first-child {
-    border-left:none;
+    border-left: none;
   }
   .navigation-item {
     color: $default_text;
-    border-bottom:1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
     cursor: pointer;
     width: 100%;
     display: flex;
-    flex-direction:row;
-    justify-content:center;
-    align-items:center;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     position: relative;
     align-items: center;
     padding-top: $standard_padding;
     padding-bottom: $standard_padding;
-    border-left: 1px solid $navigation_border;
+    border-left: 1px solid var(--border-color);
     text-align: center;
     a {
       color: $default_text;
@@ -44,11 +44,11 @@
       position: absolute;
       border-bottom-left-radius: 2px;
       border-bottom-right-radius: 2px;
-      background-color: #FFF; 
-      box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3); 
-      margin: 0px;  
-      padding: 0px; 
-      text-align: left; 
+      background-color: #fff;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+      margin: 0px;
+      padding: 0px;
+      text-align: left;
 
       li {
         margin: 0px;
@@ -57,10 +57,10 @@
         a {
           width: 100%;
           height: 100%;
-          display:block;
+          display: block;
           font-weight: 500;
           color: #444;
-          padding: $standard_padding*0.5;
+          padding: $standard_padding * 0.5;
           padding-left: $standard_padding;
           font-size: $font_normal;
         }
@@ -79,16 +79,16 @@
   }
 
   .menu-drop {
-    background-image: image-url("arrow-down.svg");
-    background-position: 95%,center;
+    background-image: image-url('arrow-down.svg');
+    background-position: 95%, center;
     background-repeat: no-repeat;
   }
 
   .menu-drop:hover {
-    background-image: image-url("g_arrow-down.svg");
-    background-position: 95%,center;
+    background-image: image-url('g_arrow-down.svg');
+    background-position: 95%, center;
     background-repeat: no-repeat;
-  } 
+  }
 
   .navigation-item:hover {
     background-color: $color-complement-2;
@@ -97,13 +97,13 @@
     }
     .dropdown {
       display: flex;
-      background-color: #FFF;
+      background-color: #fff;
     }
   }
 }
 
-  @media screen and (max-width: 980px) {
-    .navigation-controls {
-      flex-direction: column;
-    }
+@media screen and (max-width: 980px) {
+  .navigation-controls {
+    flex-direction: column;
   }
+}

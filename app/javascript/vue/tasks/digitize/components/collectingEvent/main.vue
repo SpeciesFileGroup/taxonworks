@@ -23,7 +23,7 @@
             v-model="locked.collecting_event"
           />
         </div>
-        <hr />
+        <hr class="divisor" />
         <div>
           <span data-icon="warning" />
           <span v-if="collectingEvent.id">

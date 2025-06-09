@@ -12,8 +12,9 @@
   }
 
   .dropzone-card {
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.2);
-    background-color: #fff;
+    box-shadow: var(--panel-shadow);
+    background-color: var(--panel-bg-color);
+    color: var(--text-color);
     width: 270px;
     min-height: 300px;
     img {
@@ -48,7 +49,7 @@
       padding-left: $standard_padding;
       padding-right: $standard_padding;
       background-color: $color-help-description;
-      color: #fff;
+      color: var(--text-color);
       box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
       left: -10px;
       top: 20px;
@@ -73,14 +74,14 @@
     .menu-item {
       margin-bottom: $standard_margin;
       cursor: pointer;
-      border-left: 1px solid $navigation_border;
-      border-bottom: 1px solid $navigation_border;
+      border-left: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
       .big-icon {
         opacity: 0.8;
       }
     }
     .menu-item:last-child {
-      border-right: 1px solid $navigation_border;
+      border-right: 1px solid var(--border-color);
     }
     .menu-item:hover {
       background-color: $color-complement-2;
@@ -115,7 +116,7 @@
     .compare {
       margin: 0px;
       flex: 1;
-      border: 1px solid $navigation_border;
+      border: 1px solid var(--border-color);
       border-top: none;
       font-size: 14px;
       padding: $standard_margin * 0.5;
@@ -127,7 +128,7 @@
       box-sizing: border-box;
     }
     .compare-toolbar {
-      border: 1px solid $navigation_border;
+      border: 1px solid var(--border-color);
       border-left: none;
       height: 50px;
       padding: 0 10px;
@@ -151,7 +152,7 @@
       padding: $standard_padding * 0.5;
       padding-left: $standard_padding;
       padding-right: $standard_padding;
-      border-bottom: 1px solid $navigation_border;
+      border-bottom: 1px solid var(--border-color);
     }
   }
 

@@ -9,9 +9,9 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
+  box-shadow: var(--panel-shadow);
   border-radius: 0.9rem;
-  background-color: $panel_background;
+  background-color: var(--panel-bg-color);
   a {
     text-decoration: none;
   }
@@ -26,7 +26,7 @@
   .subtitle {
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
   }
 
   .subheader {
@@ -47,7 +47,7 @@
   }
 
   .border-bottom {
-    border-bottom: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
   }
 
   .title {

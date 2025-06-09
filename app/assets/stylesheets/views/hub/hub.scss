@@ -1,4 +1,3 @@
-
 // Styling particular to the hub controller and views
 
 #hub {
@@ -8,12 +7,10 @@
 
   h1 {
     font-weight: 300;
-
   }
 
   h2 {
     font-weight: 300;
-
   }
 
   h3 {
@@ -34,7 +31,7 @@
       min-width: 60px;
       height: 60px;
       background-position: center;
-      background-image: image-url("restart.svg");
+      background-image: image-url('restart.svg');
     }
     h1 {
       font-weight: 500;
@@ -46,24 +43,23 @@
     transition: opacity 0.5s ease;
   }
   .restart-background:hover {
-    -webkit-animation-name: rotate-inverted; 
-    -webkit-animation-duration: 0.5s; 
+    -webkit-animation-name: rotate-inverted;
+    -webkit-animation-duration: 0.5s;
     -webkit-animation-iteration-count: 1;
     -webkit-animation-timing-function: linear;
-    -moz-animation-name: rotate-inverted; 
-    -moz-animation-duration: 0.5s; 
+    -moz-animation-name: rotate-inverted;
+    -moz-animation-duration: 0.5s;
     -moz-animation-iteration-count: 1;
     -moz-animation-timing-function: linear;
   }
 
-  
- #hub_tabs { 
+  #hub_tabs {
     display: flex;
-    justify-content: center; 
+    justify-content: center;
     align-items: center;
     z-index: 1;
-    position: absolute; 
-    top: 60px; 
+    position: absolute;
+    top: 60px;
     left: 50%;
     width: auto;
     transform: translateX(-50%);
@@ -75,52 +71,52 @@
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        margin-bottom: $standard_padding*0.5;
+        margin-bottom: $standard_padding * 0.5;
       }
 
       a {
-        padding: $standard_padding*2;
+        padding: $standard_padding * 2;
         padding-top: $standard_padding;
-        padding-bottom: $standard_padding*0.9;
-        font-size:$font_small;
+        padding-bottom: $standard_padding * 0.9;
+        font-size: $font_small;
         font-weight: 300;
         text-transform: uppercase;
         border-bottom: 2px solid transparent;
         border-top: 2px solid transparent;
       }
     }
-  }  
+  }
 
   #navigation_list {
     margin-top: $standard_margin;
     display: flex;
-    justify-content:flex-start;
+    justify-content: flex-start;
     align-items: center;
-    flex-direction:column; 
+    flex-direction: column;
 
     li {
-      padding: $standard_padding * .3;
+      padding: $standard_padding * 0.3;
       list-style-type: none;
       border-left: 1px solid $color-secondary-2-2;
       margin-bottom: 1em;
-      a.task_name { 
-        display: block; 
+      a.task_name {
+        display: block;
       }
       .task_description {
         display: block;
         background-color: $note_yellow;
         margin-left: $standard_padding;
-        padding: $standard_padding * .3;
+        padding: $standard_padding * 0.3;
       }
     }
   }
 
   .related_links_set {
     margin: $standard_padding * 0.5;
-    min-height: 200px !important;  
+    min-height: 200px !important;
     width: 260px;
     li:first-letter {
-      text-transform:uppercase;
+      text-transform: uppercase;
     }
 
     .related-title {
@@ -128,13 +124,13 @@
       font-size: 15px;
       margin: 0;
       padding-bottom: $standard_padding * 0.5;
-      border-bottom: 1px solid $navigation_border;
+      border-bottom: 1px solid var(--border-color);
     }
     .related-title:first-letter {
-        text-transform: uppercase;
+      text-transform: uppercase;
     }
-    h4 { 
-      margin-top: $standard_padding ;
+    h4 {
+      margin-top: $standard_padding;
       font-weight: 500;
     }
     h4:first-letter {
@@ -142,7 +138,7 @@
     }
     ul {
       li {
-        margin-left: .4em;
+        margin-left: 0.4em;
         padding: 0;
       }
     }

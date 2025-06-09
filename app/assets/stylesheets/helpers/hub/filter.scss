@@ -1,22 +1,21 @@
 #hub {
-
-   #navigation_list { 
+  #navigation_list {
     flex-direction: row !important;
     align-items: flex-start !important;
     margin-top: $standard_margin !important;
     justify-content: flex-start !important;
-  } 
+  }
 
   #filter {
     margin-top: 0px;
-    margin-right: $standard_margin; 
+    margin-right: $standard_margin;
     font-weight: $font_light;
-    position:relative;
+    position: relative;
 
     #search-filter {
       width: 100%;
       box-sizing: border-box;
-      background-image: image-url("search.svg");
+      background-image: image-url('search.svg');
       background-size: 18px;
       background-repeat: no-repeat;
       background-position: right 4px center;
@@ -24,12 +23,12 @@
     }
 
     .filter-title {
-      font-size: $font_small; 
+      font-size: $font_small;
       font-weight: $font_light;
-      color:gray;
+      color: gray;
     }
 
-    .navigation-controls-type  {
+    .navigation-controls-type {
       .navigation-item {
         border: 1px solid #e5e5e5;
         justify-content: center;
@@ -47,7 +46,7 @@
       padding: $standard_padding;
       font-size: $font_small;
       justify-content: flex-start;
-      border-left:4px solid transparent;
+      border-left: 4px solid transparent;
     }
 
     .reset {
@@ -58,20 +57,20 @@
       align-items: center;
       font-size: $font_small;
       opacity: 0.5;
-      right:$standard_padding;
+      right: $standard_padding;
     }
 
     .reset:hover {
       opacity: 1;
-      fill:#444;
-    }  
+      fill: #444;
+    }
 
-  .horizontal-left-content {
-    display: flex;
-    flex-direction: column;
-    align-items: left;
-    justify-content: flex-start;
-  }
+    .horizontal-left-content {
+      display: flex;
+      flex-direction: column;
+      align-items: left;
+      justify-content: flex-start;
+    }
     .filter-status {
       margin: $standard_margin;
       margin-top: 0px;
@@ -83,33 +82,32 @@
 
     .activated {
       background-color: $color-complement-3 !important;
-            opacity: 1 !important;
-    } 
+      opacity: 1 !important;
+    }
     .activated.status {
-      box-shadow:none !important;
+      box-shadow: none !important;
     }
 
     .activated.prototype {
       background-color: #fc615d !important;
-    } 
+    }
 
     .activated.unknown {
-      background-color: #bbbbbb!important;
+      background-color: #bbbbbb !important;
     }
 
     .activated.stable {
-      background-color: #fdbd41!important;
-    }    
+      background-color: #fdbd41 !important;
+    }
 
     .activated.complete {
-      background-color: #35c94a!important;
+      background-color: #35c94a !important;
     }
 
     img {
       padding-right: 5px;
       opacity: 0.8;
     }
-
 
     .flexbox {
       display: flex;
@@ -119,8 +117,8 @@
         display: flex;
       }
 
-      .item { 
-        flex-direction:column;
+      .item {
+        flex-direction: column;
       }
     }
 
@@ -135,9 +133,9 @@
       padding-left: $standard_padding * 0.25;
       padding-right: $standard_padding * 0.25;
       margin-left: 90px;
-      border:1px solid $navigation_border;
+      border: 1px solid var(--border-color);
       background-color: $navigation_background;
-      box-shadow:inset 0px 1px 4px 0px $navigation_border; 
+      box-shadow: inset 0px 1px 4px 0px var(--border-color);
       border-top-left-radius: 0px;
       border-bottom-left-radius: 0px;
       .status {
@@ -150,8 +148,9 @@
       }
     }
 
-
-    .switch input {display:none;}
+    .switch input {
+      display: none;
+    }
 
     .slider {
       position: absolute;
@@ -160,40 +159,40 @@
       left: 0;
       right: 0;
       bottom: 0;
-      -webkit-transition: .4s;
-      transition: .4s;
+      -webkit-transition: 0.4s;
+      transition: 0.4s;
     }
 
     .slider:before {
       position: absolute;
-      content: "";
+      content: '';
       height: 14px;
       width: 14px;
       left: 4px;
       bottom: 4px;
       border-radius: 3px;
-      border:1px solid $navigation_border;
-      background-color: #FFF;
-      transition: .3s;
+      border: 1px solid var(--border-color);
+      background-color: #fff;
+      transition: 0.3s;
     }
 
     .status-name {
       z-index: 2;
-      text-transform:capitalize;
+      text-transform: capitalize;
       font-size: $font_small;
-      left:40px;
+      left: 40px;
       top: -1px;
       display: flex;
       align-items: center;
       position: absolute;
       background-color: $navigation_background;
       width: 90px;
-      height: 24px;    
+      height: 24px;
       justify-content: space-around;
       border-radius: 3px;
       border-bottom-left-radius: 0px;
-      border-top-left-radius: 0px;  
-      border:1px solid $navigation_border;
+      border-top-left-radius: 0px;
+      border: 1px solid var(--border-color);
       background-color: $color-secondary-2-1;
     }
 
@@ -210,20 +209,20 @@
       position: relative;
       display: inline-block;
       width: 40px;
-      height: 24px;    
+      height: 24px;
       justify-content: space-around;
       border-radius: 3px;
       border-bottom-right-radius: 0px;
       border-top-right-radius: 0px;
-      border:1px solid $navigation_border;
-      border-right: 0px;    
+      border: 1px solid var(--border-color);
+      border-right: 0px;
       background-color: $navigation_background;
-      box-shadow:inset 0px 1px 4px 0px $navigation_border; 
-    }  
+      box-shadow: inset 0px 1px 4px 0px var(--border-color);
+    }
   }
 
   .status {
-    box-shadow: 0 0 3px 0 $navigation_border;
+    box-shadow: 0 0 3px 0 var(--border-color);
     border-radius: 50%;
     font-size: 0px;
     width: 12px;
@@ -232,25 +231,25 @@
 
   .status.unknown {
     box-shadow: 0 0 1px 0 #adadad;
-    border:0.5px solid #adadad;
+    border: 0.5px solid #adadad;
     background-color: #bbbbbb;
   }
 
   .status.stable {
     box-shadow: 0 0 1px 0 #de9f34;
-    border:0.5px solid #de9f34;
+    border: 0.5px solid #de9f34;
     background-color: #fdbd41;
-  }    
+  }
 
   .status.prototype {
     box-shadow: 0 0 1px 0 #ef4b47;
-    border:0.5px solid #ef4b47;      
+    border: 0.5px solid #ef4b47;
     background-color: #fc615d;
-  }   
+  }
 
   .status.complete {
     box-shadow: 0 0 1px 0 #27aa35;
-    border:0.5px solid #27aa35;
+    border: 0.5px solid #27aa35;
     background-color: #35c94a;
   }
 }

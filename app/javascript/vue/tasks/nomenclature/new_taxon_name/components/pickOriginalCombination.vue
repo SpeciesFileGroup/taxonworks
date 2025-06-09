@@ -58,7 +58,7 @@
             </draggable>
           </div>
         </form>
-        <hr />
+        <hr class="divisor" />
         <original-combination
           class="separate-top separate-bottom"
           nomenclature-group="Genus"

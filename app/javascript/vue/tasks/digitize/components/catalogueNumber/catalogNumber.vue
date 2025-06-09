@@ -42,7 +42,7 @@
             </WidgetNamespace>
           </div>
           <template v-if="namespace">
-            <hr />
+            <hr class="divisor" />
             <SmartSelectorItem
               :item="namespace"
               label="name"

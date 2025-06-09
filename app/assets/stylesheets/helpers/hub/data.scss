@@ -227,7 +227,7 @@
   align-items: center;
   margin-left: $standard_margin;
   margin-right: $standard_margin;
-  border-bottom: 1px solid $navigation_border;
+  border-bottom: 1px solid var(--border-color);
   text-align: center;
 }
 .hub_section_label h3 {

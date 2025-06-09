@@ -55,7 +55,7 @@
                   runFix([
                     {
                       global_id: list.instance.global_id,
-                      only_methods: [error.soft_validation_method]
+                      only_methods: [error_validation_method]
                     }
                   ])
                 "
@@ -145,10 +145,11 @@ function getFixPresent(list) {
 </script>
 <style lang="scss" scope>
 .soft-validation-box.validation-warning {
-  border-left: 4px solid #ff8c00;
+  border-left: 4px solid var(--color-warning);
 }
 .soft-validation-box {
   background-color: #fff9f9;
+  color: black;
   .body {
     padding: 12px;
   }

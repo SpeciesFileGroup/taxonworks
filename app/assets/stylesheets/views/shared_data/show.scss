@@ -1,6 +1,6 @@
 #show {
   /* Panel size for show view */
-  .item1 { 
+  .item1 {
     display: block;
     width: 300px;
     min-width: 270px;
@@ -17,13 +17,13 @@
     min-width: 450px;
   }
 
-  #related-panel { 
+  #related-panel {
     display: flex;
     min-width: 40%;
     flex: 1 100%;
   }
 
-  #annotations-panel { 
+  #annotations-panel {
     display: flex;
     min-width: 40%;
     flex: 1 auto;
@@ -45,7 +45,7 @@
     display: flex;
     min-width: 50%;
     flex: 1 auto;
-  } 
+  }
 
   #vue-validation-panel {
     .soft-validation-box {
@@ -58,15 +58,16 @@
   .fullSize {
     width: 100%;
     flex: 1 auto;
-  }   
+  }
 
-  .item { 
+  .item {
     word-wrap: break-word;
-    flex-direction:column;
+    flex-direction: column;
   }
 }
 
-.icn, .iczn {
+.icn,
+.iczn {
   color: $default_text;
   background: none;
 }
@@ -76,22 +77,22 @@ mark {
   background-color: transparent;
   a {
     font-weight: 700;
-  }        
+  }
 }
 
 .housekeeping {
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
 }
 
 .attributes {
-  .easyzoom  {
+  .easyzoom {
     width: 100%;
 
     .imageZoom {
-      box-shadow: 0px 2px 3px 0px $navigation_border;
+      box-shadow: 0px 2px 3px 0px var(--border-color);
       max-width: 100%;
-    }                     
+    }
   }
 
   strong {
@@ -106,24 +107,21 @@ mark {
   }
 }
 
-
 .soft_validation {
   color: $soft_validation;
-  
+
   ul {
     list-style: none;
     padding: 0px;
   }
 
   li {
-    background-image: image-url("attention.svg");
-    background-repeat: no-repeat;  
-    background-position: left, center;   
+    background-image: image-url('attention.svg');
+    background-repeat: no-repeat;
+    background-position: left, center;
   }
 }
 
-[data-view="development"] {
+[data-view='development'] {
   display: none;
 }
-
-

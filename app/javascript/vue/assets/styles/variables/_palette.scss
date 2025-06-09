@@ -2,7 +2,65 @@
   color-scheme: light;
   --btn-radial-background: white;
   --btn-radial-color: #5d9ece;
+
+  --bg-color: #f7f8fc;
+  --bg-foreground: #ffffff;
+  --border-color: #d5d5d5;
+  --button-disabled-bg-color: #ececec;
+  --button-disabled-text-color: #999;
+  --input-bg-color: #ffffff;
+  --panel-bg-color: #ffffff;
+  --panel-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
+  --text-color: #000000;
+
+  --modal-bg-color: rgba(0, 0, 0, 0.7);
+
+  --table-row-bg-even: #ffffff;
+  --table-row-bg-odd: #f8f8f8;
+
+  --button-shadow: 0px 1px 2px 0px var(--border-color);
 }
+
+.dark {
+  color-scheme: dark;
+
+  --btn-radial-background: white;
+  --btn-radial-color: #225994;
+
+  --bg-color: #333333;
+  --bg-foreground: #3b3b3b;
+  --border-color: #6b6b6b;
+  --button-disabled-bg-color: #555555;
+  --button-disabled-text-color: #aaaaaa;
+  --input-bg-color: #2b2b2b;
+  --panel-bg-color: #3b3b3b;
+  --panel-shadow: rgba(0, 0, 0, 0.08) 4px 4px 15px 0px;
+  --text-color: #ffffff;
+
+  --modal-mask-bg-color: rgba(0, 0, 0, 0.7);
+
+  --button-shadow: none;
+
+  --table-row-bg-even: #333333;
+  --table-row-bg-odd: #3b3b3b;
+}
+
+$tw-dark-colors: (
+  'attention': #ffda44,
+  'background': #f7f8fc,
+  'black': #444444,
+  'create': #20612d,
+  'data': #0f2b48,
+  'destroy': #a2131d,
+  'error': #a2131d,
+  'panel': #ffffff,
+  'primary': #225994,
+  'secondary': #5a1321,
+  'update': #20612d,
+  'warning': #e48e30,
+  'white': #ffffff,
+  'border': #f5f5f5
+);
 
 $tw-colors: (
   'attention': #ffda44,
@@ -31,6 +89,12 @@ $tw-map-colors: (
 
 @each $key, $value in $tw-colors {
   :root {
+    --color-#{$key}: #{$value};
+  }
+}
+
+@each $key, $value in $tw-dark-colors {
+  .dark {
     --color-#{$key}: #{$value};
   }
 }

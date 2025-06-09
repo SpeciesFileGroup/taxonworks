@@ -3,7 +3,8 @@
 #otu_by_area_and_nomen {
   position: relative;
 
-  h1, h2 {
+  h1,
+  h2 {
     font-weight: 400;
     margin-top: 20px;
     margin-bottom: 10px;
@@ -13,7 +14,8 @@
   }
 
   .area_selection {
-    .ui-menu-item, .area_item {
+    .ui-menu-item,
+    .area_item {
       span {
         display: none;
       }
@@ -22,10 +24,11 @@
 
   .filter-button {
     background-color: green;
-    background-image: image-url("filter.svg");
+    background-image: image-url('filter.svg');
   }
 
-  #find_area_and_date_commit, #find_area_and_nomen_commit {
+  #find_area_and_date_commit,
+  #find_area_and_nomen_commit {
     @extend .button-default;
     top: 15px;
     right: 20px;
@@ -35,11 +38,13 @@
     height: 30px;
   }
 
-  #result_view, .range-label {
+  #result_view,
+  .range-label {
     display: none;
   }
 
-  #set_area, #set_otu {
+  #set_area,
+  #set_otu {
     margin-top: $standard_margin;
   }
   #result_span {
@@ -50,9 +55,10 @@
     padding-left: $standard_padding;
     list-style: none;
   }
-  #filter-collection-objects, #filter-otus {
-
-    .panel, .slide-panel {
+  #filter-collection-objects,
+  #filter-otus {
+    .panel,
+    .slide-panel {
       box-sizing: border-box;
       width: 590px;
       min-width: 590px;
@@ -69,7 +75,7 @@
 
     .title-filter-categories {
       font-size: $font_small;
-      border-bottom: 1px solid $navigation-border;
+      border-bottom: 1px solid var(--border-color);
     }
   }
 

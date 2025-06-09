@@ -1,10 +1,10 @@
 .expandable {
   min-width: 200px;
-  border: 1px solid #AED581;
+  border: 1px solid #aed581;
 }
 
 .ui-autocomplete-input {
-  background-image: image-url("search.svg");
+  background-image: image-url('search.svg');
   background-position: right 4px center;
   background-repeat: no-repeat;
   padding-right: $standard_padding;
@@ -15,7 +15,7 @@
 }
 
 .ui-autocomplete-loading {
-  background-image: image-url("spinner.gif");
+  background-image: image-url('spinner.gif');
   background-repeat: no-repeat;
   background-position: right, center;
 }
@@ -29,7 +29,7 @@
 .ui-menu {
   width: auto;
   max-width: 90vw;
-  background-color: #FFF;
+  background-color: #fff;
   z-index: 99;
   list-style: none;
   margin-left: 0px;
@@ -42,12 +42,13 @@
 
 .ui-autocomplete {
   border: none;
-  box-shadow: 0 2px 4px 0 $navigation_border;
+  box-shadow: 0 2px 4px 0 var(--border-color);
   font-weight: 300;
   background-color: $color-secondary-2-1;
 }
 
-.ui-menu-item, .vue-autocomplete-list {
+.ui-menu-item,
+.vue-autocomplete-list {
   font-size: 12px;
   padding: 5px;
   .subtle {
@@ -67,11 +68,12 @@
 
 .ui-menu-item:hover {
   background: none;
-  background-color: #e5e5e5;
-  border: 1px solid #e5e5e5;
+  background-color: var(--panel-bg-color);
+  border: 1px solid var(--border-color);
 }
 
-.ui-menu-item-wrapper, .ui-menu-item-wrapper:hover {
+.ui-menu-item-wrapper,
+.ui-menu-item-wrapper:hover {
   color: inherit !important;
   background-color: transparent !important;
   background-image: none !important;
@@ -80,7 +82,7 @@
 
 .autocomplete.ui-menu-item {
   word-wrap: break-word;
-  padding: .2em;
+  padding: 0.2em;
   border-bottom: 1px solid silver;
 }
 
@@ -94,4 +96,3 @@
     font-weight: 300;
   }
 }
-
