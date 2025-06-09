@@ -15,7 +15,8 @@ import {
   PEOPLE,
   SOUND,
   SOURCE,
-  TAXON_NAME
+  TAXON_NAME,
+  TAXON_NAME_RELATIONSHIP
 } from '@/constants/index.js'
 
 export const QUERY_PARAM = {
@@ -35,5 +36,6 @@ export const QUERY_PARAM = {
   [PEOPLE]: 'people_query',
   [SOUND]: 'sound_query',
   [SOURCE]: 'source_query',
-  [TAXON_NAME]: 'taxon_name_query'
+  [TAXON_NAME]: 'taxon_name_query',
+  [TAXON_NAME_RELATIONSHIP]: 'taxon_name_relationship_query'
 }
