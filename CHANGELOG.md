@@ -12,8 +12,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - GeographicArea is missing on Georeference modal [#4420]
 - Saved GeoLocate georeferences are missing on Georeference modal [#4422]
 
+### Changed
+
+- Rename `Browse nomenclature and classification` to `Browse taxon names`
+- Rename `Filter nomenclature` to `Filter taxon names`
+
 [#4420]: https://github.com/SpeciesFileGroup/taxonworks/issues/4420
 [#4422]: https://github.com/SpeciesFileGroup/taxonworks/issues/4422
+[#4370]: https://github.com/SpeciesFileGroup/taxonworks/issues/4370
 
 \-
 

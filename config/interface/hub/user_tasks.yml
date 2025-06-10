@@ -22,7 +22,7 @@
 ---
 filter_taxon_names_task:
   hub: true
-  name: 'Filter nomenclature'
+  name: 'Filter taxon names'
   related:
   categories:
     - nomenclature
@@ -84,7 +84,7 @@ new_taxon_name_task:
   description: 'Create or edit a taxon name along with its related metadata including original combinations, status, type material and synonym.'
 browse_nomenclature_task:
   hub: true
-  name: 'Browse nomenclature and classification'
+  name: 'Browse taxon names'
   description: 'Browse through nomenclature and classification, focusing on a single record at a time.'
   status: stable
   categories:

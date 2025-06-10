@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Filter nomenclature</h1>
+    <h1>Filter taxon names</h1>
 
     <FilterLayout
       :pagination="pagination"
