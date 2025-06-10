@@ -1078,13 +1078,14 @@ class CollectingEvent < ApplicationRecord
 
     # @return [Hash, false]
     def batch_update(params)
-
       request = QueryBatchRequest.new(
         klass: 'CollectingEvent',
         object_filter_params: params[:collecting_event_query],
         object_params: params[:collecting_event],
         async_cutoff: params[:async_cutoff] || 26,
         preview: params[:preview],
+        project_id: params[:project_id],
+        user_id: params[:user_id]
       )
 
       request.cap = 5000
