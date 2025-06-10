@@ -28,7 +28,6 @@ import {
   OBSERVATION,
   OTU,
   PERSON,
-  PEOPLE,
   SOUND,
   SOURCE,
   TAXON_NAME
@@ -104,7 +103,7 @@ export const QUERY_PARAMETER = {
   },
 
   [QUERY_PARAM[PERSON]]: {
-    model: PEOPLE,
+    model: PERSON,
     service: People,
     filterUrl: FILTER_ROUTES[PERSON]
   },
