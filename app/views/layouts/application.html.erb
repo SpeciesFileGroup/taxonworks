@@ -11,8 +11,9 @@
 
     <%= yield :head %>
 
-    <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
     <%= favicon_link_tag asset_path('favicon.svg') %>
+    <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
+    <%= javascript_include_tag "theme" %>
     <% if sessions_signed_in? %>
       <%= javascript_include_tag "application", "data-turbolinks-track" => 'reload' %>
       <%= javascript_include_tag "separated_application", "data-turbolinks-track" => 'reload' %>

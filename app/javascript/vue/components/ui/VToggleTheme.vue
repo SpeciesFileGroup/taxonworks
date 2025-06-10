@@ -1,6 +1,6 @@
 <template>
   <button
-    class="toggle-theme"
+    class="toggle-theme cursor-pointer"
     type="button"
     :title="
       themeMode === themeModes.light
@@ -58,7 +58,7 @@ watch(
   (value, oldValue) => {
     document.documentElement.classList.add(value)
     document.documentElement.classList.remove(oldValue)
-    localStorage.setItem('tw-theme', value)
+    localStorage.setItem('theme', value)
   },
   { immediate: true }
 )
