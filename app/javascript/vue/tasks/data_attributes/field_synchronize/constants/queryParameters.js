@@ -27,6 +27,7 @@ import {
   LOAN,
   OBSERVATION,
   OTU,
+  PERSON,
   PEOPLE,
   SOUND,
   SOURCE,
@@ -102,10 +103,10 @@ export const QUERY_PARAMETER = {
     filterUrl: FILTER_ROUTES[OTU]
   },
 
-  [QUERY_PARAM[PEOPLE]]: {
+  [QUERY_PARAM[PERSON]]: {
     model: PEOPLE,
     service: People,
-    filterUrl: FILTER_ROUTES[PEOPLE]
+    filterUrl: FILTER_ROUTES[PERSON]
   },
 
   [QUERY_PARAM[SOUND]]: {
