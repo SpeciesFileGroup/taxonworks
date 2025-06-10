@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - GeographicArea is missing on Georeference modal [#4420]
 - Saved GeoLocate georeferences are missing on Georeference modal [#4422]
+- Filters: Data attributes display in filter results even if they are not selected in custom layout [#4424]
 
 ### Changed
 
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4420]: https://github.com/SpeciesFileGroup/taxonworks/issues/4420
 [#4422]: https://github.com/SpeciesFileGroup/taxonworks/issues/4422
 [#4370]: https://github.com/SpeciesFileGroup/taxonworks/issues/4370
+[#4424]: https://github.com/SpeciesFileGroup/taxonworks/issues/4424
 
 \-
 
