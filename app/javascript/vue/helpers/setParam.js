@@ -46,11 +46,13 @@ export default (url, param, value = undefined, removeTextObject = false) => {
     }
   }
 
-  // TODO: temporary workaround for URLSearchParams adding an [object: Object]
-  // value to your params when you have a[b][]=1&a[b][]=2 params.
-  for (const [key, value] of urlParams) {
-    if (value == '[object Object]') {
-      urlParams.delete(key)
+  if (removeTextObject) {
+    // TODO: temporary workaround for URLSearchParams adding an [object: Object]
+    // value to your params when you have a[b][]=1&a[b][]=2 params.
+    for (const [key, value] of urlParams) {
+      if (value == '[object Object]') {
+        urlParams.delete(key)
+      }
     }
   }
 

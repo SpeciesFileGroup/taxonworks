@@ -97,7 +97,7 @@ function getWords() {
   isLoading.value = true
   Metadata.vocabulary(parameters.value)
     .then(({ body }) => {
-      setParam(RouteNames.ProjectVocabulary, parameters.value)
+      setParam(RouteNames.ProjectVocabulary, parameters.value, null, true)
       words.value = Object.entries(body)
     })
     .catch(() => {})
@@ -116,7 +116,7 @@ onBeforeMount(() => {
   let urlParams = URLParamsToJSON(window.location.href)
 
   const { queryParam, queryValue } = useQueryParam()
-  urlParams[queryParam.value] = {...queryValue}
+  urlParams[queryParam.value] = {...queryValue.value}
 
   if (Object.keys(urlParams).length) {
     processUrlParams(urlParams)
@@ -131,6 +131,7 @@ function processUrlParams(urlParams) {
   const keys = Object.keys(urlParams)
   if (!keys.includes('limit')) {
     urlParams.limit = LIMIT
+    updated = true
   }
 
   if (!keys.includes('model')) {

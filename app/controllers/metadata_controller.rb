@@ -41,7 +41,7 @@ class MetadataController < ApplicationController
       .merge(project_id: sessions_current_project_id)
       .to_h.symbolize_keys
 
-    if @words = Vocabulary.words(**p.to_h)
+    if @words = Vocabulary.words(**p)
       render json: @words, status: :ok
     else
       render json: {}, status: :unprocessable_entity

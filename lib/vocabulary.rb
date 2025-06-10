@@ -5,10 +5,6 @@ module Vocabulary
   def self.words(model: nil, attribute: nil, min: 0, max: nil, limit: nil, begins_with: nil, contains: nil, project_id: [], **query)
 
     klass = get_model(model)
-    if klass.nil? &&
-       (query_name = query.keys&.find { |k| k.end_with?('_query') })
-      klass = get_query_model(query_name)
-    end
 
     return nil if klass.nil?
 
@@ -78,14 +74,6 @@ module Vocabulary
     rescue KeyError
       nil
     end
-  end
-
-  def self.get_query_model(query_name)
-    return nil if query_name.nil?
-
-    name = query_name.delete_suffix('_query').camelize
-
-    get_model(name)
   end
 
   # WITH words_list AS (
