@@ -7,7 +7,7 @@ describe 'DataAttributes', type: :model do
     specify 'has many data_attributes - includes creating a data_attribute' do
       expect(class_with_data_attributes).to respond_to(:data_attributes)
       expect(class_with_data_attributes.data_attributes.to_a).to eq([])
-      expect(class_with_data_attributes.data_attributes << FactoryBot.build(:data_attribute, value: '10', import_predicate: 'foos', type: 'DataAttribute::ImportAttribute')).to be_truthy
+      expect(class_with_data_attributes.data_attributes << FactoryBot.build(:data_attribute, value: '10', import_predicate: 'foos', type: 'ImportAttribute')).to be_truthy
       expect(class_with_data_attributes.data_attributes.size).to eq(1)
       expect(class_with_data_attributes.save).to be_truthy
       expect(class_with_data_attributes.data_attributes.any?).to eq(true)
