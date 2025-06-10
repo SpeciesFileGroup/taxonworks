@@ -26,6 +26,8 @@
         :batch-service="AssertedDistribution.batchTemplateCreate"
         :payload="payload"
         :disabled="!citation.source_id || !shape || isCountExceeded"
+        confirmation-word="CREATE"
+        button-label="Create"
         @update="updateMessage"
         @close="emit('close')"
       />
