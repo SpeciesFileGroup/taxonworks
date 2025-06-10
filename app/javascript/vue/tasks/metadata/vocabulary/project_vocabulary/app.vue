@@ -70,6 +70,7 @@ import { RouteNames } from '@/routes/routes'
 import { setParam, toPascalCase } from '@/helpers'
 import { Metadata } from '@/routes/endpoints'
 import { computed, ref, onBeforeMount, watch } from 'vue'
+import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables/useQueryParam.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VueWordCloud from 'vuewordcloud'
 import PanelSettings from './components/PanelSettings.vue'
@@ -112,7 +113,11 @@ function initParameters() {
 }
 
 onBeforeMount(() => {
-  const urlParams = URLParamsToJSON(window.location.href)
+  let urlParams = URLParamsToJSON(window.location.href)
+
+  const { queryParam, queryValue } = useQueryParam()
+  urlParams[queryParam.value] = {...queryValue}
+
   if (Object.keys(urlParams).length) {
     processUrlParams(urlParams)
     if (validate.value) {
@@ -143,6 +148,9 @@ function processUrlParams(urlParams) {
 
   parameters.value = urlParams
   if (updated) {
+    // Note: this may drop a long *_query: { *_id: [...] } param from the url,
+    // but we'll still be using it to get the project vocabulary (via
+    // parameters).
     setParam(RouteNames.ProjectVocabulary, parameters.value, undefined, true)
   }
 }
@@ -189,7 +197,6 @@ watch(
   () => parameters.value.model,
   (newVal, oldVal) => {
     if (oldVal && oldVal != newVal) {
-      console.log('here')
       clearUrlQueryArray()
     }
   }

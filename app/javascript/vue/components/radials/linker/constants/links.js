@@ -143,6 +143,7 @@ export const TASK_PROJECT_VOCABULARY = {
   label: 'Project vocabulary',
   link: '/tasks/metadata/vocabulary/project_vocabulary',
   post: false,
-  queryParam: true
+  queryParam: true,
+  saveQuery: true
 }
 

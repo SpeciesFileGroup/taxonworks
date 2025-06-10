@@ -37,7 +37,9 @@ class MetadataController < ApplicationController
 
   # !! DO NOT EXPOSE TO API !! until santize tested
   def vocabulary
-    p = params.permit(:model, :attribute, :begins_with, :limit, :contains, :min, :max, otu_query: {otu_id: []}).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
+    p = vocabulary_params
+      .merge(project_id: sessions_current_project_id)
+      .to_h.symbolize_keys
 
     if @words = Vocabulary.words(**p.to_h)
       render json: @words, status: :ok
@@ -72,6 +74,21 @@ class MetadataController < ApplicationController
       @object = GlobalID::Locator.locate(params.require(:global_id))
       @klass = OBJECT_RADIALS[@object.class.name] ? @object.class.name : @object.class.base_class.name
     end
+  end
+
+  def vocabulary_params
+    model_query_params = DATA_MODELS.keys.map do |m|
+      m = m.underscore
+      {
+        "#{m}_query".to_sym => {
+          "#{m}_id".to_sym => []
+        }
+      }
+    end
+    return params.permit(
+      :model, :attribute, :begins_with, :limit, :contains, :min, :max,
+      *model_query_params
+    )
   end
 
 end
