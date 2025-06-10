@@ -10,20 +10,20 @@
       pin-section="Namespaces"
       pin-type="Namespace"
       v-model="namespace"
-      @selected="(item) => (updateNamespace(item))"
+      @selected="(item) => updateNamespace(item)"
     >
       <template #tabs-right>
         <VLock v-model="settings.locked.namespace" />
 
-        <WidgetNamespace @create="(item) => (updateNamespace(item))" />
+        <WidgetNamespace @create="(item) => updateNamespace(item)" />
       </template>
     </SmartSelector>
     <template v-if="namespace">
-      <hr />
+      <hr class="divisor" />
       <SmartSelectorItem
         :item="namespace"
         label="name"
-        @click="() => (updateNamespace(undefined))"
+        @click="() => updateNamespace(undefined)"
       />
     </template>
   </fieldset>

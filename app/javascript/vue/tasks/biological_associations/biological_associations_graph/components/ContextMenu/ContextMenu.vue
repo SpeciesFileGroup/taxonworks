@@ -60,7 +60,7 @@ defineExpose({
   position: fixed;
   font-size: 12px;
   border: 1px solid var(--border-color);
-  box-shadow: 2px 2px 2px #aaa;
+  box-shadow: var(--panel-shadow);
   overflow: hidden;
 }
 
