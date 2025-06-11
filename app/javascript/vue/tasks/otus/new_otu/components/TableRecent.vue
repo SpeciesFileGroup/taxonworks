@@ -2,8 +2,8 @@
   <table class="table-striped table-cells-border">
     <thead>
       <tr>
-        <th>OTU</th>
         <th class="w-2" />
+        <th>OTU</th>
       </tr>
     </thead>
     <tbody>
@@ -11,7 +11,6 @@
         v-for="otu in list"
         :key="otu.id"
       >
-        <td v-html="otu.object_tag" />
         <td>
           <div class="horizontal-left-content gap-small">
             <RadialAnnotator :global-id="otu.global_id" />
@@ -19,6 +18,7 @@
             <RadialNavigator :global-id="otu.global_id" />
           </div>
         </td>
+        <td v-html="otu.object_tag" />
       </tr>
     </tbody>
   </table>
