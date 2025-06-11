@@ -44,6 +44,7 @@ class AssertedDistribution < ApplicationRecord
   include Shared::QueryBatchUpdate
   include Shared::PolymorphicAnnotator
   polymorphic_annotates('asserted_distribution_shape')
+  polymorphic_annotates('asserted_distribution_object')
 
   originates_from 'Specimen', 'Lot', 'FieldOccurrence'
 
@@ -53,17 +54,16 @@ class AssertedDistribution < ApplicationRecord
 
   delegate :geo_object, to: :asserted_distribution_shape
 
-  belongs_to :geographic_area, class_name: :GeographicArea, foreign_key: :asserted_distribution_shape_id
-  belongs_to :gazetteer, class_name: :Gazetteer, foreign_key: :asserted_distribution_shape_id
+  belongs_to :geographic_area, class_name: :GeographicArea, foreign_key: :asserted_distribution_shape_id, inverse_of: :asserted_distributions
+  belongs_to :gazetteer, class_name: :Gazetteer, foreign_key: :asserted_distribution_shape_id, inverse_of: :asserted_distributions
 
-  belongs_to :otu, inverse_of: :asserted_distributions
+  belongs_to :otu, class_name: :Otu, foreign_key: :asserted_distribution_object_id, inverse_of: :asserted_distributions
+  belongs_to :biological_association, class_name: :BiologicalAssociation, foreign_key: :asserted_distribution_object_id, inverse_of: :asserted_distributions
   has_one :taxon_name, through: :otu
 
   before_validation :unify_is_absent
 
-  validates :otu, presence: true
-  validates :otu, uniqueness: { scope: [:project_id, :asserted_distribution_shape_id, :asserted_distribution_shape_type, :is_absent], message: 'this shape, OTU and present/absent combination already exists' }
-  validates :asserted_distribution_shape, presence: true
+  validates_uniqueness_of [:asserted_distribution_object_id, :asserted_distribution_object_type], scope: [:project_id, :asserted_distribution_shape_id, :asserted_distribution_shape_type, :is_absent], message: 'this shape, object and present/absent combination already exists'
   validate :new_records_include_citation
 
   # TODO: deprecate scopes referencing single parameter where()
@@ -89,6 +89,7 @@ class AssertedDistribution < ApplicationRecord
     ::Queries.union(AssertedDistribution, [a, b])
   }
 
+  # TODO: No longer workable (probably)
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area, name: 'conflicting geographic area', description: 'conflicting geographic area')
@@ -101,17 +102,6 @@ class AssertedDistribution < ApplicationRecord
       asserted_distribution_shape.geographic_name_classification
         .delete_if{|k,v| v.nil?}
     @geographic_names ||= {}
-  end
-
-  # @param [Hash] defaults
-  # @return [AssertedDistribution]
-  #   used to also stub an #origin_citation, as required
-  def self.stub(defaults: {})
-    a = AssertedDistribution.new(
-      otu_id: defaults[:otu_id],
-      origin_citation_attributes: {source_id: defaults[:source_id]})
-    a.origin_citation = Citation.new if defaults[:source_id].blank?
-    a
   end
 
   # rubocop:disable Style/StringHashKeys
@@ -142,6 +132,7 @@ class AssertedDistribution < ApplicationRecord
     asserted_distribution_shape.geographic_items.any?
   end
 
+  # TODO BA
   def self.batch_update(params)
     request = QueryBatchRequest.new(
       async_cutoff: params[:async_cutoff] || 26,
@@ -243,6 +234,7 @@ class AssertedDistribution < ApplicationRecord
     end
   end
 
+  # TODO BA
   def self.asserted_distributions_for_api_index(params, project_id)
     a = ::Queries::AssertedDistribution::Filter.new(params)
       .all
@@ -286,18 +278,34 @@ class AssertedDistribution < ApplicationRecord
       presence = AssertedDistribution
         .without_is_absent
         .with_geographic_area_array(areas)
-        .where(otu_id:)
+        .where(asserted_distribution_object:)
       soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
     else
       presence = AssertedDistribution
         .with_is_absent
-        .where(otu_id:)
+        .where(asserted_distribution_object:)
         .with_geographic_area_array(areas)
       soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
     end
   end
 
-  # @param [Hash] options of e.g., {otu_id: 5, source_id: 5, geographic_areas: Array of {GeographicArea}}
+  # DEPRECATED, unused (maybe)
+  # @param [Hash] defaults
+  # @return [AssertedDistribution]
+  #   used to also stub an #origin_citation, as required
+  def self.stub(defaults: {})
+    a = AssertedDistribution.new(
+      asserted_distribution_object_id:
+        defaults[:asserted_distribution_object_id],
+      asserted_distribution_object_type:
+        defaults[:asserted_distribution_object_type],
+      origin_citation_attributes: {source_id: defaults[:source_id]})
+    a.origin_citation = Citation.new if defaults[:source_id].blank?
+    a
+  end
+
+  # Currently only used in specs
+  # @param [Hash] options of e.g., {asserted_distribution_object_id: 5, asserted_distribution_object_type: 'Otu' source_id: 5, geographic_areas: Array of {GeographicArea}}
   # @return [Array] an array of AssertedDistributions
   def self.stub_new(options = {})
     options.symbolize_keys!
@@ -305,7 +313,8 @@ class AssertedDistribution < ApplicationRecord
     options[:geographic_areas].each do |ga|
       result.push(
         AssertedDistribution.new(
-          otu_id: options[:otu_id],
+          asserted_distribution_object_id: options[:otu_id],
+          asserted_distribution_object_type: 'Otu',
           asserted_distribution_shape: ga,
           origin_citation_attributes: {source_id: options[:source_id]})
       )

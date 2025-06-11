@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_11_140727) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -70,7 +70,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
   end
 
   create_table "asserted_distributions", id: :serial, force: :cascade do |t|
-    t.integer "otu_id", null: false
+    t.integer "otu_id"
     t.integer "geographic_area_id"
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -80,6 +80,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
     t.boolean "is_absent"
     t.integer "asserted_distribution_shape_id", null: false
     t.string "asserted_distribution_shape_type", null: false
+    t.integer "asserted_distribution_object_id", null: false
+    t.string "asserted_distribution_object_type", null: false
+    t.index ["asserted_distribution_object_id", "asserted_distribution_object_type"], name: "asserted_distribution_polymorphic_object_index"
     t.index ["asserted_distribution_shape_id", "asserted_distribution_shape_type"], name: "asserted_distribution_polymorphic_shape_index"
     t.index ["created_by_id"], name: "index_asserted_distributions_on_created_by_id"
     t.index ["geographic_area_id"], name: "index_asserted_distributions_on_geographic_area_id"
