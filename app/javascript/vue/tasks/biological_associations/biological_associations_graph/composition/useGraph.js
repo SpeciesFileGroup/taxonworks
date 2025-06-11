@@ -364,12 +364,12 @@ export function useGraph() {
   }
 
   async function save() {
-    state.isSaving = true
     let createdBiologicalAssociations
     let biologicalAssociationGraph
     let citations
 
     try {
+      state.isSaving = true
       createdBiologicalAssociations = await saveBiologicalAssociations()
 
       const savedCitations = [
@@ -386,11 +386,12 @@ export function useGraph() {
       state.isSaving = false
     } catch (e) {
       state.isSaving = false
+      throw e
     }
 
     return {
       biologicalAssociations: createdBiologicalAssociations,
-      biologicalAssociationGraph: biologicalAssociationGraph.body,
+      biologicalAssociationGraph: biologicalAssociationGraph?.body,
       citations
     }
   }

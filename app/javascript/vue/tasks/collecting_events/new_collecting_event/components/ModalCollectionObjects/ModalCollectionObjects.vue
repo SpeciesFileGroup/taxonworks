@@ -326,37 +326,18 @@ async function createCOs(index = 0) {
       preparation_type_id: preparationType.value,
       collecting_event_id: props.ceId,
       tags_attributes: tagList.value.map((tag) => ({ keyword_id: tag.id })),
-      identifiers_attributes: identifiers
+      identifiers_attributes: identifiers,
+      taxon_determinations_attributes: determinations.value,
+      biocuration_classifications_attributes: biocurations.value.map(
+        (biocurationId) => ({ biocuration_class_id: biocurationId })
+      )
     }
 
     await CollectionObject.create({ collection_object: co, extend }).then(
       ({ body }) => {
-        const promises = [
-          ...determinations.value.map((determination) =>
-            TaxonDetermination.create({
-              taxon_determination: {
-                ...determination,
-                taxon_determination_object_id: body.id,
-                taxon_determination_object_type: COLLECTION_OBJECT
-              }
-            })
-          ),
-          ...biocurations.value.map((biocurationId) =>
-            BiocurationClassification.create({
-              biocuration_classification: {
-                biocuration_class_id: biocurationId,
-                biocuration_classification_object_id: body.id,
-                biocuration_classification_object_type: COLLECTION_OBJECT
-              }
-            })
-          )
-        ]
-
         index++
 
-        Promise.all(promises).then(() => {
-          createCOs(index)
-        })
+        createCOs(index)
       },
       (error) => {
         noCreated.value.unshift({
