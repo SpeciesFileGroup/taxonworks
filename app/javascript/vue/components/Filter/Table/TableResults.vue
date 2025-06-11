@@ -446,28 +446,31 @@
             </div>
           </td>
           <template v-if="attributes">
-            <slot
+            <td
               v-for="(_, attr) in attributes"
               :key="attr"
               :name="attr"
               :value="item[attr]"
+              :class="{ freeze: freezeColumn.includes(attr) }"
+              :style="
+                freezeColumn.includes(attr) && {
+                  left: freezeColumnLeftPosition[attr]
+                }
+              "
+              @dblclick="
+                () => {
+                  scrollToTop()
+                  filterValues[attr] = item[attr]
+                }
+              "
             >
-              <td
-                :class="{ freeze: freezeColumn.includes(attr) }"
-                v-html="item[attr]"
-                :style="
-                  freezeColumn.includes(attr) && {
-                    left: freezeColumnLeftPosition[attr]
-                  }
-                "
-                @dblclick="
-                  () => {
-                    scrollToTop()
-                    filterValues[attr] = item[attr]
-                  }
-                "
-              />
-            </slot>
+              <slot
+                :name="attr"
+                :value="item[attr]"
+              >
+                <div v-html="item[attr]" />
+              </slot>
+            </td>
           </template>
 
           <template

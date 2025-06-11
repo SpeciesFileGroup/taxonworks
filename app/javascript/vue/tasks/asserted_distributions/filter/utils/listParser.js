@@ -6,6 +6,7 @@ export function listParser(result) {
   return result.map((item) => ({
     id: item.id,
     global_id: item.global_id,
+    otuGlobalId: item.otu.global_id,
     otu_taxonomy_order: parseRank(item.taxonomy?.order),
     otu_taxonomy_family: parseRank(item.taxonomy?.family),
     otu_taxonomy_genus: parseRank(item.taxonomy?.genus),

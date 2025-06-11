@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Filter asserted distributions: OTU Radial to table results
+
 ### Fixed
 
 - GeographicArea is missing on Georeference modal [#4420]
