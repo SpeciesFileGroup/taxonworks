@@ -5,6 +5,7 @@
 
   --bg-color: #f7f8fc;
   --bg-foreground: #ffffff;
+  --bg-action: #e3e8e3;
   --border-color: #d5d5d5;
   --button-disabled-bg-color: #ececec;
   --button-disabled-text-color: #999;
@@ -21,6 +22,8 @@
   --button-shadow: 0px 1px 2px 0px var(--border-color);
 
   --soft-validation-bg-color: #fff9f9;
+
+  --table-row-bg-hover: #e4f2fc;
 }
 
 .dark {
@@ -29,6 +32,7 @@
   --btn-radial-background: white;
   --btn-radial-color: #225994;
 
+  --bg-action: #000000;
   --bg-color: #333333;
   --bg-foreground: #3b3b3b;
   --border-color: #6b6b6b;
@@ -43,10 +47,11 @@
 
   --button-shadow: none;
 
+  --soft-validation-bg-color: #37332f;
+
   --table-row-bg-even: #333333;
   --table-row-bg-odd: #3b3b3b;
-
-  --soft-validation-bg-color: #37332f;
+  --table-row-bg-hover: #000000;
 }
 
 $tw-dark-colors: (

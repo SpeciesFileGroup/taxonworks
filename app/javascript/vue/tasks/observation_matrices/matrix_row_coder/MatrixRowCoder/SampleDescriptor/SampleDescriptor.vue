@@ -13,7 +13,7 @@
             :observation="o"
             :descriptor="descriptor"
           />
-          <hr />
+          <hr class="divisor" />
         </template>
       </div>
       <v-btn

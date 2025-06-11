@@ -86,7 +86,7 @@ table {
   }
 
   th:hover {
-    background-color: $color-complement-2;
+    background-color: var(--table-row-bg-hover);
   }
 
   tr {
@@ -101,7 +101,7 @@ table {
     height: 40px;
     color: var(--text-color);
     font-size: 12px;
-    border-bottom: 2px solid $color-complement-3;
+    border-bottom: 2px solid var(--border-color);
     text-align: left;
     a {
       img {
@@ -117,12 +117,12 @@ table {
     }
   }
   .contextMenuCells:hover {
-    background-color: $color-complement-2;
+    background-color: var(--table-row-bg-hover);
     color: var(--text--color);
   }
 
   .highlight {
-    background-color: #e3e8e3 !important;
+    outline: 2px solid var(--color-primary);
   }
 }
 

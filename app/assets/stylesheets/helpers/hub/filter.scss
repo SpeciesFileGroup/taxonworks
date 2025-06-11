@@ -137,8 +137,7 @@
       padding-right: $standard_padding * 0.25;
       margin-left: 90px;
       border: 1px solid var(--border-color);
-      background-color: $navigation_background;
-      box-shadow: inset 0px 1px 4px 0px var(--border-color);
+      background-color: var(--bg-color);
       border-top-left-radius: 0px;
       border-bottom-left-radius: 0px;
       .status {
@@ -175,7 +174,7 @@
       bottom: 4px;
       border-radius: 3px;
       border: 1px solid var(--border-color);
-      background-color: var(--bg-color);
+      background-color: var(--panel-bg-color);
       transition: 0.3s;
     }
 
@@ -185,10 +184,11 @@
       font-size: $font_small;
       left: 40px;
       top: -1px;
+      cursor: pointer;
       display: flex;
       align-items: center;
       position: absolute;
-      background-color: var(--border-color);
+      background-color: var(--bg-color);
       width: 90px;
       height: 24px;
       justify-content: space-around;
@@ -204,7 +204,7 @@
 
     input:checked + .slider:before {
       transform: translateX(16px);
-      background-color: $color-complement-2;
+      background-color: var(--panel-bg-color);
     }
 
     .switch {
@@ -218,13 +218,11 @@
       border-top-right-radius: 0px;
       border: 1px solid var(--border-color);
       border-right: 0px;
-      background-color: $navigation_background;
-      box-shadow: inset 0px 1px 4px 0px var(--border-color);
+      background-color: var(--bg-color);
     }
   }
 
   .status {
-    box-shadow: 0 0 3px 0 var(--border-color);
     border-radius: 50%;
     font-size: 0px;
     width: 12px;

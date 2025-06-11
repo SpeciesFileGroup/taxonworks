@@ -66,7 +66,7 @@
       }
       li:hover {
         color: $body_background;
-        background-color: $color-complement-3;
+        background-color: var(--bg-action);
         a {
           color: $body_background;
         }
@@ -90,7 +90,7 @@
   }
 
   .navigation-item:hover {
-    background-color: $color-complement-2;
+    background-color: var(--bg-action);
     img {
       opacity: 1;
     }

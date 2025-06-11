@@ -91,6 +91,10 @@ const CUSTOM_OPTIONS = {
 
 const EXCLUDE_TASKS = ['unify_objects_task']
 
+defineOptions({
+  name: 'RadialNavigation'
+})
+
 const props = defineProps({
   globalId: {
     type: String,
@@ -192,7 +196,7 @@ const menuOptions = computed(() => {
     sliceSize: 190,
     innerPosition: 1.4,
     centerSize: 34,
-    margin: 0,
+    margin: 2,
     middleButton: middleButton.value,
     svgAttributes: {
       class: 'svg-radial-menu svg-radial-menu-navigator'
@@ -454,15 +458,3 @@ function destroyObject() {
     .catch(() => {})
 }
 </script>
-
-<script>
-export default {
-  name: 'RadialNavigation'
-}
-</script>
-<style>
-.svg-radial-menu-navigator path {
-  stroke: #444;
-  stroke-width: 2px;
-}
-</style>

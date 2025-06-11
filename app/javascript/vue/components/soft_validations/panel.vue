@@ -86,7 +86,10 @@
               </template>
             </li>
           </ul>
-          <hr v-if="index !== validationSections.length - 1" />
+          <hr
+            v-if="index !== validationSections.length - 1"
+            class="divisor"
+          />
         </div>
       </template>
     </div>

@@ -69,7 +69,7 @@
               Expand
             </VBtn>
           </div>
-          <hr />
+          <hr class="divisor" />
           <div
             class="flex-wrap-column"
             v-if="expandPerson"

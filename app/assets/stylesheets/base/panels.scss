@@ -72,7 +72,7 @@
   }
 
   .nav-line {
-    border-bottom: 2px solid $color-secondary-2-4;
+    border-bottom: 2px solid var(--color-primary);
   }
 
   .title.shared {
@@ -84,7 +84,7 @@
   }
 
   .action-line {
-    border-bottom: 2px solid $color-complement-3;
+    border-bottom: 2px solid var(--color-create);
   }
 
   .navigation-bar-right {

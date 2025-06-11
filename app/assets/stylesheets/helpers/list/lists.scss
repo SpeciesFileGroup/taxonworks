@@ -23,7 +23,7 @@
     }
 
     li:hover {
-      background-color: $navigation_background;
+      background-color: var(--bg-action);
       opacity: 1 !important;
     }
     .navigation-item {

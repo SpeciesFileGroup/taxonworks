@@ -235,7 +235,7 @@ export default {
 </script>
 <style scoped>
 .highlight {
-  background-color: #e3e8e3;
+  outline: 2px solid var(--color-primary);
 }
 .vue-table {
   min-width: 100%;

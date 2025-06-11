@@ -18,7 +18,7 @@
       >
         Apply
       </button>
-      <hr />
+      <hr class="divisor" />
       <div class="horizontal-center-content">
         <div
           v-for="depiction in depictions"
@@ -43,6 +43,7 @@
         v-if="
           descriptor.description && depictions.find((d) => d.caption != null)
         "
+        class="divisor"
       />
       <div v-if="descriptor.states">
         <template
@@ -79,7 +80,7 @@
       </div>
     </template>
     <template #footer>
-      <hr />
+      <hr class="divisor" />
       <button
         type="button"
         class="button normal-input button-default"

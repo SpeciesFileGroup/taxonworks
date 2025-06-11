@@ -29,7 +29,7 @@
 .ui-menu {
   width: auto;
   max-width: 90vw;
-  background-color: #fff;
+  background-color: var(--bg-foreground);
   z-index: 99;
   list-style: none;
   margin-left: 0px;
@@ -42,9 +42,12 @@
 
 .ui-autocomplete {
   border: none;
-  box-shadow: 0 2px 4px 0 var(--border-color);
+  box-shadow: 0 2px 4px 0 var(--border-color) !important;
   font-weight: 300;
-  background-color: $color-secondary-2-1;
+  background: none;
+  background-color: var(--panel-bg-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
 }
 
 .ui-menu-item,

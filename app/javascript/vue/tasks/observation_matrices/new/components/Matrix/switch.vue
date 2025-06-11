@@ -53,6 +53,7 @@ export default {
   border: solid black;
   border-width: 0 2px 2px 0;
   display: inline-block;
+  filter: invert(1);
 }
 
 .left {
@@ -79,6 +80,6 @@ export default {
 }
 
 .switch-lock input:checked + span:before {
-  background: #e4ecfa;
+  background: var(--bg-color);
 }
 </style>

@@ -4,7 +4,7 @@
   padding: $standard_padding * 4 !important;
   width: 100%;
   color: var(--text-color);
-  background-color: var(--panel-bg-color) !important;
+  background-color: var(--bg-color) !important;
   border-radius: 5px !important;
   .dz-details,
   span {
@@ -15,5 +15,4 @@
 .dz-default {
   font-size: $font_title * 1.5 !important;
   font-weight: 300 !important;
-  color: #555 !important;
 }
