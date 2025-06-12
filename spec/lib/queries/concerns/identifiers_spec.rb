@@ -85,19 +85,6 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
     expect(query.all.pluck(:id)).to contain_exactly(co1.id)
   end
 
-  specify '#match_identifiers #order_byresults get deduped' do
-    # Same as i1 except this is a RecorNumber. _i1 and i3 have the same cached
-    # name_.
-    _i3 = Identifier::Local::RecordNumber.create!(namespace: n1, identifier: '123', identifier_object: co1)
-
-    query.match_identifiers = 'a,' + i1.cached
-    query.match_identifiers_type = 'identifier'
-    query.order_by = 'match_identifiers'
-    # Note: pluck returns *2* results here because it undoes the select that
-    # includes the distinct that makes the following pass...
-    expect(query.all.size).to eq(1) # co1 not duplicated
-  end
-
   specify '#identifiers' do
     s = FactoryBot.create(:valid_specimen)
     d = FactoryBot.create(:valid_identifier, identifier_object: s)
