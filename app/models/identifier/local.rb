@@ -26,7 +26,7 @@ class Identifier::Local < Identifier
   # namespaces in this belongs_to.
   validates :namespace_id, presence: true
 
-  # A stricter validation now exists on Identifier.
+  # A different validation now exists on Identifier, both weaker and stronger.
   #validates :identifier, uniqueness: { scope: [:namespace_id, :project_id, :type], message: lambda { |error, attributes| "#{attributes[:value]} already taken"},
   #  unless: ->(obj) { obj.is_a?(Identifier::Local::RecordNumber) } }
 

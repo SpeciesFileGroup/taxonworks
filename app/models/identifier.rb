@@ -217,13 +217,19 @@ class Identifier < ApplicationRecord
   end
 
   def cache_not_duplicated
+    # (We run before subclass validations, so need to do something here. Yuk.)
+    return if is_local? && namespace_id.nil?
+
     tmp_cached = build_cached # an extra db call for type Local
     error = Identifier
       .where.not(id:)
       .where(type:, cached: tmp_cached, identifier_object_type:, project_id:)
-      .or(Identifier
-        .where.not(id:)
-        .where(identifier_object_id:, cached: tmp_cached)
+      .or(
+        Identifier
+          .where.not(id:)
+          .where(
+            identifier_object_id:, identifier_object_type:, cached: tmp_cached
+          )
       )
       .exists?
 

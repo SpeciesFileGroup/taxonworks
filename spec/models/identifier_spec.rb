@@ -71,7 +71,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
 
     context 'unique' do
       context 'Local identifier unique on type/object_type/cached' do
-        specify 'Same identifier type, object type, cached' do
+        specify 'Same identifier type, object type, cached fails' do
           i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
           i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen2, identifier: 123)
           expect(i1.save).to be_truthy
@@ -79,7 +79,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           expect(i2.errors.include?(:identifier)).to be_truthy
         end
 
-        specify 'Same cached via virtual identifiers' do
+        specify 'Same cached via virtual identifiers fails' do
           n1 = FactoryBot.create(:valid_namespace, is_virtual: true, short_name: 'AB')
           n2 = FactoryBot.create(:valid_namespace, is_virtual: true, short_name: 'YZ')
           i1 = Identifier::Local::CatalogNumber.new(namespace: n1, identifier_object: specimen1, identifier: 'MN 123')
@@ -89,7 +89,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           expect(i2.errors.include?(:identifier)).to be_truthy
         end
 
-        specify 'Same cached via virtual, non-virtual' do
+        specify 'Same cached via virtual, non-virtual fails' do
           n1 = FactoryBot.create(:valid_namespace, short_name: 'CAW')
           n2 = FactoryBot.create(
             :valid_namespace, is_virtual: true, short_name: 'NOT_CAW'
@@ -105,7 +105,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           expect(i2.errors.include?(:identifier)).to be_truthy
         end
 
-        specify 'Same cached, same object, different identifier types' do
+        specify 'Same cached, same object, different identifier types fails' do
           i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
           i2 = Identifier::Local::RecordNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
           expect(i1.save).to be_truthy
@@ -113,7 +113,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           expect(i2.errors.include?(:identifier)).to be_truthy
         end
 
-        specify 'Same cached, same object, different identifier types 2' do
+        specify 'Same cached, same object, different identifier types 2 fails' do
           i1 = Identifier::Global.new(identifier_object: specimen1, identifier: 123)
           i2 = Identifier::Unknown.new(identifier_object: specimen1, identifier: 123)
           expect(i1.save).to be_truthy
