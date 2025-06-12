@@ -69,12 +69,76 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
       expect(identifier.identifier_object).to be(nil)
     end
 
-    specify 'you can\'t add non-unique identifiers of the same type to a two objects' do
-      i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
-      i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen2, identifier: 123)
-      expect(i1.save).to be_truthy
-      expect(i2.save).to be_falsey
-      expect(i2.errors.include?(:identifier)).to be_truthy
+    context 'unique' do
+      context 'Local identifier unique on type/object_type/cached' do
+        specify 'Same identifier type, object type, cached' do
+          i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
+          i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen2, identifier: 123)
+          expect(i1.save).to be_truthy
+          expect(i2.save).to be_falsey
+          expect(i2.errors.include?(:identifier)).to be_truthy
+        end
+
+        specify 'Same cached via virtual identifiers' do
+          n1 = FactoryBot.create(:valid_namespace, is_virtual: true, short_name: 'AB')
+          n2 = FactoryBot.create(:valid_namespace, is_virtual: true, short_name: 'YZ')
+          i1 = Identifier::Local::CatalogNumber.new(namespace: n1, identifier_object: specimen1, identifier: 'MN 123')
+          i2 = Identifier::Local::CatalogNumber.new(namespace: n2, identifier_object: specimen2, identifier: 'MN 123')
+          expect(i1.save).to be_truthy
+          expect(i2.save).to be_falsey
+          expect(i2.errors.include?(:identifier)).to be_truthy
+        end
+
+        specify 'Same cached via virtual, non-virtual' do
+          n1 = FactoryBot.create(:valid_namespace, short_name: 'CAW')
+          n2 = FactoryBot.create(
+            :valid_namespace, is_virtual: true, short_name: 'NOT_CAW'
+          )
+          i1 = Identifier::Local::CatalogNumber.new(
+            namespace: n1, identifier_object: specimen1, identifier: '123'
+          )
+          i2 = Identifier::Local::CatalogNumber.new(
+            namespace: n2, identifier_object: specimen2, identifier: 'CAW 123'
+          )
+          expect(i1.save).to be_truthy
+          expect(i2.save).to be_falsey
+          expect(i2.errors.include?(:identifier)).to be_truthy
+        end
+
+        specify 'Same cached, same identifier type, different object types *allowed*' do
+          e = FactoryBot.create(:valid_extract)
+          i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
+          i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: e, identifier: 123)
+          expect(i1.save).to be_truthy
+          expect(i2.save).to be_truthy
+        end
+
+        specify 'Same cached, same _object_, different identifier types *allowed*' do
+          i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
+          i2 = Identifier::Local::RecordNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
+          expect(i1.save).to be_truthy
+          expect(i2.save).to be_truthy
+        end
+      end
+
+      specify 'Unknown type identifiers unique' do
+        e = FactoryBot.create(:valid_extract)
+        i1 = Identifier::Unknown.new(identifier_object: e, identifier: 123)
+        i2 = Identifier::Unknown.new(identifier_object: specimen2, identifier: 123)
+        expect(i1.save).to be_truthy
+        expect(i2.save).to be_falsey
+        expect(i2.errors.include?(:identifier)).to be_truthy
+      end
+
+      specify 'Global type identifiers unique' do
+        e = FactoryBot.create(:valid_extract)
+        i1 = Identifier::Global.new(identifier_object: specimen2, identifier: 123)
+        i2 = Identifier::Global.new(identifier_object: e, identifier: 123)
+
+        expect(i1.save).to be_truthy
+        expect(i2.save).to be_falsey
+        expect(i2.errors.include?(:identifier)).to be_truthy
+      end
     end
   end
 
