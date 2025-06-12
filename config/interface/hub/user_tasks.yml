@@ -316,7 +316,6 @@ new_descriptor_task:
   categories:
     - matrix
     - new
-    - browse
   status: prototype
   description: 'Create and update descriptors (e.g. phylogenetic or descriptive characters).'
 new_matrix_task:
