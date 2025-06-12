@@ -76,6 +76,8 @@ class Identifier < ApplicationRecord
 
   validates :identifier, presence: true
 
+  validate :cache_not_duplicated
+
   # TODO: DRY to IsData? Test.
   scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}")}
 
@@ -106,6 +108,10 @@ class Identifier < ApplicationRecord
   end
 
   def is_global?
+    false
+  end
+
+  def is_unknown?
     false
   end
 
@@ -187,7 +193,7 @@ class Identifier < ApplicationRecord
   end
 
   def build_cached_numeric_identifier
-    return nil if is_global?
+    return nil if is_global? || is_unknown?
     re = if is_local? && is_virtual?
            /[\d\.\,]+\z/ # namespace prefix allowed
          else
@@ -210,6 +216,20 @@ class Identifier < ApplicationRecord
       cached:,
       cached_numeric_identifier: build_cached_numeric_identifier
     )
+  end
+
+  def cache_not_duplicated
+    tmp_cached = build_cached # an extra db call for type Local
+    error = Identifier
+      .where(type:, cached: tmp_cached, identifier_object_type:, project_id:)
+      .or(Identifier
+        .where(identifier_object_id:, cached: tmp_cached)
+      )
+      .exists?
+
+    if error
+      errors.add(:identifier, "'#{tmp_cached}' already exists either on this object or as an #{type} on another #{identifier_object_type}")
+    end
   end
 end
 

@@ -26,7 +26,7 @@ class Identifier::Local < Identifier
   # namespaces in this belongs_to.
   validates :namespace_id, presence: true
 
-  validate :cache_not_duplicated
+  # A stricter validation now exists on Identifier.
   #validates :identifier, uniqueness: { scope: [:namespace_id, :project_id, :type], message: lambda { |error, attributes| "#{attributes[:value]} already taken"},
   #  unless: ->(obj) { obj.is_a?(Identifier::Local::RecordNumber) } }
 
@@ -87,15 +87,6 @@ class Identifier::Local < Identifier
       delimiter = '' if delimiter == 'NONE'
 
       [namespace&.verbatim_short_name, namespace&.short_name, ''].compact.first + delimiter
-    end
-  end
-
-  def cache_not_duplicated
-    tmp_cached = build_cached # an extra db call for type Local
-    if Identifier
-         .where(type:, cached: tmp_cached, identifier_object_type:, project_id:)
-         .exists?
-      errors.add(:identifier, "Identifier of type '#{type}' on '#{identifier_object_type}' already exists with cached value '#{cached}'!")
     end
   end
 
