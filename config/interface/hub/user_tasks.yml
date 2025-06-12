@@ -512,7 +512,7 @@ export_basic_nomenclature_task:
   description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
 match_nomenclature_task:
   hub: true
-  name: 'Nomenclature match'
+  name: 'Match taxon names'
   related:
   categories:
     - nomenclature
@@ -527,7 +527,7 @@ manage_controlled_vocabulary_terms_task:
   description: 'View and create custom fields, tags, etc. used throughout this project.'
 match_collection_objects_task:
   hub: true
-  name: 'Collection object match'
+  name: 'Match collection objects'
   related:
   categories:
     - collection_object
