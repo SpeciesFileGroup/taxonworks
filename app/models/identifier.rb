@@ -74,8 +74,6 @@ class Identifier < ApplicationRecord
 
   validates :type, :identifier, presence: true
 
-  validates :identifier, presence: true
-
   validate :cache_not_duplicated
 
   # TODO: DRY to IsData? Test.
@@ -221,8 +219,10 @@ class Identifier < ApplicationRecord
   def cache_not_duplicated
     tmp_cached = build_cached # an extra db call for type Local
     error = Identifier
+      .where.not(id:)
       .where(type:, cached: tmp_cached, identifier_object_type:, project_id:)
       .or(Identifier
+        .where.not(id:)
         .where(identifier_object_id:, cached: tmp_cached)
       )
       .exists?
