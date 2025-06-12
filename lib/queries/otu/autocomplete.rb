@@ -26,6 +26,11 @@ module Queries
       #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
       attr_accessor :exact
 
+      # @return Boolean, nil
+      #  true - 'pre-load' common names with otus
+      #  false/nil - ignored
+      attr_accessor :include_common_names
+
       # Keys are method names. Existence of method is checked
       # before requesting the query
       QUERIES = {
@@ -53,13 +58,16 @@ module Queries
         # common_name_name_similarity: {priority: 200},
       }.freeze
 
-      def initialize(string, project_id: nil, having_taxon_name_only: false, with_taxon_name: nil, exact: 'false')
+      def initialize(string, project_id: nil, having_taxon_name_only: false, with_taxon_name: nil, exact: 'false', include_common_names: false)
         super(string, project_id:)
         @having_taxon_name_only = boolean_param({having_taxon_name_only:}, :having_taxon_name_only)
         @with_taxon_name = boolean_param({with_taxon_name:}, :with_taxon_name)
 
         # TODO: move to mode
         @exact = boolean_param({exact:}, :exact)
+
+        @include_common_names =
+          boolean_param({include_common_names:}, :include_common_names)
       end
 
       def base_query
@@ -160,14 +168,14 @@ module Queries
 
         otus = scope_autocomplete(otus).includes(:taxon_name)
 
-        otus
+        return include_common_names ? otus.includes(:common_names) : otus
       end
 
       # An autocomplete result that permits displaying the TaxonName as originally matched.
       # @return [Array] of
-      #    { otu:,  label_target:, otu_valid_id: } 
+      #    { otu:,  label_target:, otu_valid_id: }
       #
-      # Note that otu: is really only useful when displaying otus without &having_taxon_name_only=true.  We don't, for example make use 
+      # Note that otu: is really only useful when displaying otus without &having_taxon_name_only=true.  We don't, for example make use
       # of this element there.
       def api_autocomplete_extended
         otu_queries = QUERIES.dup
@@ -265,7 +273,9 @@ module Queries
         end
 
         queries.compact!
-        referenced_klass_union(queries).order('priority')
+        q = referenced_klass_union(queries).order('priority')
+
+        return include_common_names ? q.includes(:common_names) : q
       end
 
       def scope_autocomplete(query)
