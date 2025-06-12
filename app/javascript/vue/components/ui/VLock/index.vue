@@ -82,6 +82,7 @@ $lightGrey: #99a3ba;
         width: 8px;
         height: 7px;
         background: var(--text-color);
+        opacity: 0.7;
         position: absolute;
         left: 11px;
         bottom: 8px;
@@ -106,9 +107,9 @@ $lightGrey: #99a3ba;
           display: block;
           border-top-left-radius: 4px;
           border-top-right-radius: 4px;
-          border: 1px solid $lightGrey;
+          border: 1px solid var(--text-color);
           border-bottom: 0;
-          width: 6px;
+          width: 5px;
           height: 4px;
           left: 1px;
           bottom: 6px;
@@ -161,7 +162,7 @@ $lightGrey: #99a3ba;
         em {
           transform: translate(18px, 0);
           &:after {
-            transform: rotate(0deg) translate(-1px, 0);
+            transform: rotate(0deg) translate(0px, 0);
           }
         }
         strong {

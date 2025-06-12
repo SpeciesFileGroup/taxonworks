@@ -19,16 +19,16 @@
 
 // blue
 .feedback-primary {
-  color: --feedback-primary-text-color;
-  background-color: --feedback-primary-bg-color;
-  border-color: --feedback-primary-border-color;
+  color: var(--feedback-primary-text-color);
+  background-color: var(--feedback-primary-bg-color);
+  border-color: var(--feedback-primary-border-color);
 }
 
 // gray
 .feedback-secondary {
-  color: $color-secondary-2-4;
-  background-color: $color-secondary-2-1;
-  border-color: $color-secondary-2-3;
+  color: var(--feedback-secondary-text-color);
+  background-color: var(--feedback-secondary-bg-color);
+  border-color: var(--feedback-secondary-border-color);
 }
 
 // green
@@ -54,9 +54,9 @@
 
 // brighter blue !! Same as feedback-primary, why?
 .feedback-info {
-  color: $color-blue-4;
-  background-color: $color-blue-0;
-  border-color: $color-blue-3;
+  color: var(--feedback-info-text-color);
+  background-color: var(--feedback-info-bg-color);
+  border-color: var(--feedback-info-border-color);
 }
 
 // gray on white

@@ -3,7 +3,8 @@
     filter: invert(1);
   }
 
-  [data-icon='warning'] {
+  [data-icon='warning'],
+  [data-icon='ok'] {
     filter: invert(0);
   }
 }

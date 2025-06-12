@@ -1,3 +1,11 @@
+.dark {
+  .navigation-controls {
+    .menu-drop {
+      background-image: image-url('w-arrow-down.svg');
+    }
+  }
+}
+
 .navigation-controls {
   font-weight: 300;
   display: flex;
