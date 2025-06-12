@@ -7,6 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Filter asserted distributions: OTU Radial to table results
+- New OTU task: Recent list [#4413]
+
 ### Fixed
 
 - GeographicArea is missing on Georeference modal [#4420]
@@ -18,7 +23,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Rename `Browse nomenclature and classification` to `Browse taxon names`
 - Rename `Filter nomenclature` to `Filter taxon names`
+- Rename `Nomenclature match` to `Match taxon names`
+- Rename `collection object match` to `Match collection objects`
 
+[#4413]: https://github.com/SpeciesFileGroup/taxonworks/issues/4413
 [#4420]: https://github.com/SpeciesFileGroup/taxonworks/issues/4420
 [#4422]: https://github.com/SpeciesFileGroup/taxonworks/issues/4422
 [#4370]: https://github.com/SpeciesFileGroup/taxonworks/issues/4370
