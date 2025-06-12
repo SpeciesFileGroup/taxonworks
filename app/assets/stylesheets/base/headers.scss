@@ -3,7 +3,7 @@
   padding-left: $standard_padding;
   padding-right: $standard_padding;
   align-items: center;
-  background-color: $color-header;
+  background-color: var(--header-bg-color);
   height: 60px;
   color: white;
 
@@ -47,7 +47,7 @@
 }
 
 #header_bar.sandbox {
-  background-color: #4a4564;
+  background-color: var(--header-sandbox-bg-color);
 
   #taxonworks a {
     color: $default_text;

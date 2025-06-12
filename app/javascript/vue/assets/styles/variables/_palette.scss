@@ -1,5 +1,9 @@
 :root {
   color-scheme: light;
+
+  --header-sandbox-bg-color: #4a4564;
+  --header-bg-color: #455a64;
+
   --btn-radial-background: white;
   --btn-radial-color: var(--color-primary);
 
@@ -41,6 +45,9 @@
 
 .dark {
   color-scheme: dark;
+
+  --header-sandbox-bg-color: #201e2e;
+  --header-bg-color: #1b2326;
 
   --btn-radial-background: #eeeeee;
   --btn-radial-color: var(--color-primary);
