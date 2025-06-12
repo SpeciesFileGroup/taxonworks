@@ -141,7 +141,10 @@ module TaxonNamesHelper
       (s.join(' ') + '.').html_safe
     else
       if taxon_name.is_valid? # taxon_name.unavailable_or_invalid?
-        content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok, status: :valid })
+        content_tag(:span, safe_join([
+          content_tag(:span, '',data: {icon: :ok, status: :valid }), 
+          content_tag(:span, 'This name is valid/accepted.', data: { status: :valid })
+        ], ''), class: :brief_status, data: { status: :valid })
       else
         if taxon_name.is_ambiguously_invalid?
           tag.span('This name is not valid/accepted.'.html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})

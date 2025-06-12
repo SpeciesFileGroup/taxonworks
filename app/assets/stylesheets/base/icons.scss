@@ -1,3 +1,13 @@
+.dark {
+  [data-icon] {
+    filter: invert(1);
+  }
+
+  [data-icon='warning'] {
+    filter: invert(0);
+  }
+}
+
 [data-icon] {
   background-size: 14px 14px;
   background-repeat: no-repeat;

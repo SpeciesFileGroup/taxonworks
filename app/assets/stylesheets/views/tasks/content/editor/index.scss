@@ -84,7 +84,7 @@
       border-right: 1px solid var(--border-color);
     }
     .menu-item:hover {
-      background-color: $color-complement-2;
+      background-color: var(--table-row-bg-hover);
     }
 
     .menu-button {
@@ -96,7 +96,7 @@
       background-color: $color-complement-2;
     }
     .disabled {
-      background-color: $navigation_background;
+      background-color: var(--button-disabled-bg-color);
       &:hover {
         background-color: $navigation_background;
       }
@@ -123,7 +123,7 @@
       white-space: pre-wrap;
       word-break: break-all;
       word-wrap: break-word;
-      background-color: #f5f5f5;
+      background-color: var(--panel-bg-color);
       border-left: none;
       box-sizing: border-box;
     }

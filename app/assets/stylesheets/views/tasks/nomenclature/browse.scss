@@ -65,6 +65,12 @@
     }
   }
 
+  #summary-panel {
+    [data-icon] {
+      filter: invert(0);
+    }
+  }
+
   .modal-container {
     width: 600px;
   }

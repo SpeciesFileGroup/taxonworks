@@ -1,7 +1,7 @@
 :root {
   color-scheme: light;
   --btn-radial-background: white;
-  --btn-radial-color: #5d9ece;
+  --btn-radial-color: var(--color-primary);
 
   --bg-color: #f7f8fc;
   --bg-foreground: #ffffff;
@@ -15,6 +15,7 @@
   --text-color: #000000;
 
   --modal-bg-color: rgba(0, 0, 0, 0.7);
+  --modal-mask-bg-color: rgba(0, 0, 0, 0.7);
 
   --table-row-bg-even: #ffffff;
   --table-row-bg-odd: #f8f8f8;
@@ -23,23 +24,27 @@
 
   --soft-validation-bg-color: #fff9f9;
 
-  --table-row-bg-hover: #e4f2fc;
+  --table-row-bg-hover: #e3e8e3;
+
+  --feedback-primary-text-color: #4c81eb;
+  --feedback-primary-bg-color: #b0caff;
+  --feedback-primary-border-color: #6899fa;
 }
 
 .dark {
   color-scheme: dark;
 
-  --btn-radial-background: white;
-  --btn-radial-color: #225994;
+  --btn-radial-background: #eeeeee;
+  --btn-radial-color: var(--color-primary);
 
   --bg-action: #000000;
-  --bg-color: #333333;
-  --bg-foreground: #3b3b3b;
-  --border-color: #6b6b6b;
+  --bg-color: #242424;
+  --bg-foreground: #333333;
+  --border-color: #5b5b5b;
   --button-disabled-bg-color: #555555;
   --button-disabled-text-color: #aaaaaa;
   --input-bg-color: #2b2b2b;
-  --panel-bg-color: #3b3b3b;
+  --panel-bg-color: #333333;
   --panel-shadow: rgba(0, 0, 0, 0.08) 4px 4px 15px 0px;
   --text-color: #ffffff;
 
@@ -50,11 +55,16 @@
   --soft-validation-bg-color: #37332f;
 
   --table-row-bg-even: #333333;
-  --table-row-bg-odd: #3b3b3b;
+  --table-row-bg-odd: #444444;
   --table-row-bg-hover: #000000;
+
+  --feedback-primary-text-color: #b6cfff;
+  --feedback-primary-bg-color: #234079;
+  --feedback-primary-border-color: #0e2c67;
 }
 
 $tw-dark-colors: (
+  'focus': #e3e8e3,
   'link': #479ef5,
   'attention': #ffda44,
   'background': #f7f8fc,
@@ -73,6 +83,7 @@ $tw-dark-colors: (
 );
 
 $tw-colors: (
+  'focus': #000000,
   'link': #5d9ece,
   'attention': #ffda44,
   'background': #f7f8fc,

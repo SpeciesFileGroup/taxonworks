@@ -42,7 +42,7 @@
 
 .ui-autocomplete {
   border: none;
-  box-shadow: 0 2px 4px 0 var(--border-color) !important;
+  box-shadow: var(--panel-shadow) !important;
   font-weight: 300;
   background: none;
   background-color: var(--panel-bg-color) !important;

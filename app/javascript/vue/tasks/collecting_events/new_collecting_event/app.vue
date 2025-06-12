@@ -55,11 +55,12 @@
         </div>
         <ul class="context-menu no_bullets">
           <li class="horizontal-right-content gap-small">
-            <span
+            <VIcon
               v-if="store.isUnsaved"
-              class="medium-icon"
+              name="attention"
+              color="attention"
+              small
               title="You have unsaved changes."
-              data-icon="warning"
             />
             <VNavigate
               :collecting-event="store.collectingEvent"
@@ -134,6 +135,7 @@ import RadialObject from '@/components/radials/navigation/radial'
 import platformKey from '@/helpers/getPlatformKey'
 import SetParam from '@/helpers/setParam'
 
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import RightSection from './components/RightSection'
 import NavBar from '@/components/layout/NavBar'

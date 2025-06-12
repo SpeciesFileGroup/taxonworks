@@ -19,9 +19,9 @@
 
 // blue
 .feedback-primary {
-  color: $color-blue-4;
-  background-color: $color-blue-0;
-  border-color: $color-blue-3;
+  color: --feedback-primary-text-color;
+  background-color: --feedback-primary-bg-color;
+  border-color: --feedback-primary-border-color;
 }
 
 // gray

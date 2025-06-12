@@ -49,7 +49,7 @@ $lightGrey: #99a3ba;
       min-height: 28px;
       line-height: 28px;
       display: block;
-      color: $lightGrey;
+      color: var(--text-color);
       position: relative;
       vertical-align: middle;
       white-space: nowrap;
@@ -81,7 +81,7 @@ $lightGrey: #99a3ba;
       em {
         width: 8px;
         height: 7px;
-        background: $lightGrey;
+        background: var(--text-color);
         position: absolute;
         left: 11px;
         bottom: 8px;

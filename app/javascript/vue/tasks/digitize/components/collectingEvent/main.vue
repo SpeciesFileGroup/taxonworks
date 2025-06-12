@@ -24,8 +24,14 @@
           />
         </div>
         <hr class="divisor" />
-        <div>
-          <span data-icon="warning" />
+        <div
+          class="horizontal-left-content gap-small middle margin-medium-top margin-small-bottom"
+        >
+          <VIcon
+            name="attention"
+            color="attention"
+            small
+          />
           <span v-if="collectingEvent.id">
             Modifying existing ({{ collectingEventStore.totalUsed }} uses)
           </span>
@@ -95,6 +101,7 @@ import { COLLECTING_EVENT, COLLECTION_OBJECT } from '@/constants/modelTypes.js'
 import FormCollectingEvent from '@/components/Form/FormCollectingEvent/FormCollectingEvent.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VLock from '@/components/ui/VLock/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'

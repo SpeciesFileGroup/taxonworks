@@ -84,7 +84,6 @@ watch(expanded, (newVal) => {
 <style lang="scss" scoped>
 .block-layout {
   border-top-left-radius: 0px;
-  transition: all 1s;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
