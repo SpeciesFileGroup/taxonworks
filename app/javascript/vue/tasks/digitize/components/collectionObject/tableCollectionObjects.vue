@@ -1,5 +1,5 @@
 <template>
-  <table class="vue-table">
+  <table class="vue-table table-striped">
     <thead>
       <tr>
         <th>Total</th>

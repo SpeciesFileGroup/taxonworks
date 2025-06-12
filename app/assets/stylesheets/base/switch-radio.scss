@@ -43,8 +43,8 @@
   }
 
   input:focus + label {
-    border: 1px solid var(--color-focus);
-    box-shadow: 0 0px 5px 1px var(--color-focus) inset;
+    border: 1px solid var(--color-primary);
+    box-shadow: 0 0px 5px 1px var(--color-primary) inset;
   }
 
   label:first-of-type {
