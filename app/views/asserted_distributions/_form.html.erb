@@ -2,9 +2,32 @@
     <%= render '/shared/errors', object: @asserted_distribution %>
 
     <div class="required">
+      <div class="field" id="asserted_distribution_object_edit">
+        <%= f.label :asserted_distribution_object_type %><br>
+        <%= f.radio_button :asserted_distribution_object_type, 'Otu', id: :otu %> Otu <br>
+        <%= f.radio_button :asserted_distribution_object_type, 'BiologicalAssociation', id: :biological_association %> Biological association
+      </div>
+
       <%= render '/otus/otu_picker', otu: @asserted_distribution.otu, f: f -%>
 
-      <div class="field" id="asserted_distribution_edit">
+      OR
+
+      <div class="fields_for_biological_association">
+        <%= f.label :biological_association_id %>
+        <br>
+        <%= render partial: '/workbench/elements/forms/ajax_select', locals: {
+          controller: '/biological_associations',
+          object: 'asserted_distribution',
+          method: 'asserted_distribution_object_id',
+          tag_id: 'biological_association_id_for_asserted_distribution_object_id',
+          display: @asserted_distribution.asserted_distribution_object_type == 'BiologicalAssociation' ? biological_association_tag(@asserted_distribution.asserted_distribution_object) : '',
+          size: 20}
+        %>
+      </div>
+
+      <br />
+
+      <div class="field" id="asserted_distribution_shape_edit">
         <%= f.label :asserted_distribution_shape_type %><br>
         <%= f.radio_button :asserted_distribution_shape_type, 'GeographicArea', id: :geographic_area %> Geographic Area <br>
         <%= f.radio_button :asserted_distribution_shape_type, 'Gazetteer', id: :gazetteer %> Gazetteer

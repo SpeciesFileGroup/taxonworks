@@ -188,7 +188,8 @@ class AssertedDistributionsController < ApplicationController
 
   def asserted_distribution_params
     params.require(:asserted_distribution).permit(
-      :otu_id,
+      :asserted_distribution_object_id,
+      :asserted_distribution_object_type,
       :asserted_distribution_shape_type,
       :asserted_distribution_shape_id,
       :is_absent,
