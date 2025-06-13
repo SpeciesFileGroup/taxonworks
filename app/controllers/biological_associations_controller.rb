@@ -179,6 +179,23 @@ class BiologicalAssociationsController < ApplicationController
     end
   end
 
+  def autocomplete
+    @biological_associations =
+      ::Queries::BiologicalAssociation::Autocomplete.new(
+        params.require(:term),
+        project_id: sessions_current_project_id,
+      ).autocomplete
+  end
+
+  def search
+    if params[:id].blank?
+      redirect_to(biological_association_path,
+                  alert: 'You must select an item from the list with a click or tab press before clicking show.')
+    else
+      redirect_to biological_association_path(params[:id])
+    end
+  end
+
   private
 
   def set_biological_association
