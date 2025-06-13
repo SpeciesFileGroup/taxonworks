@@ -71,7 +71,7 @@
               @clone="(e) => loadCollectingEvent(e.id)"
             />
             <VBtn
-              color="primary"
+              color="create"
               medium
               class="button-size"
               @click="saveCollectingEvent"

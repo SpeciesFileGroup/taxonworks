@@ -55,6 +55,16 @@ function getGlobalIdFromResponse(responses) {
     .map((item) => item.global_id)
 }
 
+function parseCEResponse(ce) {
+  const { collector_roles = [], ...rest } = ce
+
+  return {
+    ...rest,
+    roles_attributes: collector_roles,
+    isUnsaved: false
+  }
+}
+
 function makeCollectingEventPayload(collectingEvent) {
   const ce =
     collectingEvent.unit === 'ft'
@@ -133,15 +143,10 @@ export default defineStore('collectingEventForm', {
           ? await CollectingEvent.update(this.collectingEvent.id, cePayload)
           : await CollectingEvent.create(cePayload)
 
-        const { id, collector_roles = [], ...rest } = response.body
+        const { id } = response.body
         const payload = { objectId: id, objectType: COLLECTING_EVENT }
 
-        this.collectingEvent = {
-          id,
-          ...rest,
-          roles_attributes: collector_roles,
-          isUnsaved: false
-        }
+        this.collectingEvent = parseCEResponse(response.body)
 
         const promises = [
           response,
@@ -180,14 +185,9 @@ export default defineStore('collectingEventForm', {
       try {
         const response = await CollectingEvent.find(ceId, { extend: EXTEND })
         const payload = { objectId: ceId, objectType: COLLECTING_EVENT }
-        const { id, collector_roles, ...rest } = response.body
+        const { id } = response.body
 
-        this.collectingEvent = {
-          id,
-          ...rest,
-          roles_attributes: collector_roles,
-          isUnsaved: false
-        }
+        this.collectingEvent = parseCEResponse(response.body)
         this.totalUsed = await getTotalUsed(id)
 
         const promises = [
