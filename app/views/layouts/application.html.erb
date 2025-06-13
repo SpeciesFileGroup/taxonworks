@@ -19,7 +19,10 @@
       <%= javascript_include_tag "separated_application", "data-turbolinks-track" => 'reload' %>
       <%= javascript_pack_tag "application" %>
       <%= stylesheet_pack_tag "application" %>
+    <% else %>
+      <%= stylesheet_pack_tag "login" %>
     <% end %>
+
     <%= csrf_meta_tags %>
 
   </head>

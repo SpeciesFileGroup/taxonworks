@@ -22,12 +22,12 @@ const props = defineProps({
 
   onColor: {
     type: String,
-    default: '#9ccc65'
+    default: 'var(--color-create)'
   },
 
   offColor: {
     type: String,
-    default: '#F44336'
+    default: 'var(--color-destroy)'
   },
 
   title: {

@@ -1,12 +1,12 @@
 // see application for notices related styling
 
 .feedback {
-  color: $default_text;
+  color: var(--text-color);
   position: relative;
   padding: 0.75rem 1.25rem;
   margin-bottom: 1rem;
   border-radius: 0.25rem;
-  border: 1px solid;
+  border: 1px solid var(--text-color);
   line-height: 2;
 }
 

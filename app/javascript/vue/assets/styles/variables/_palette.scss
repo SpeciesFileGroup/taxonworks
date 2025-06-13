@@ -88,11 +88,12 @@
 
 $tw-dark-colors: (
   'focus': #000000,
+  'active': #000000,
   'link': #479ef5,
   'attention': #ffda44,
   'background': #f7f8fc,
   'black': #444444,
-  'create': #20612d,
+  'create': #2b793b,
   'data': #0f2b48,
   'destroy': #a2131d,
   'error': #a2131d,
@@ -107,6 +108,7 @@ $tw-dark-colors: (
 
 $tw-colors: (
   'focus': #e3e8e3,
+  'active': #000000,
   'link': #5d9ece,
   'attention': #ffda44,
   'background': #f7f8fc,
