@@ -319,11 +319,9 @@ class OtusController < ApplicationController
       include_taxon_name: true
     ).api_autocomplete_extended
 
-    @common_names = {}
     if include_common_names
       @otu_metadata.each do |m|
-        otu = m[:otu]
-        @common_names[otu.id] = otu.common_names
+        m[:common_names] = m[:otu].common_names
       end
     end
 

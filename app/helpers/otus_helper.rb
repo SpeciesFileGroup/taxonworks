@@ -22,9 +22,8 @@ module OtusHelper
     ].compact
   end
 
-  # @param common_names [Hash] hash of otu_id => array of common names
   # Used exclusively in /api/v1/otus/autocomplete
-  def otu_extended_autocomplete_tag(target, otu, term, common_names)
+  def otu_extended_autocomplete_tag(target, otu, common_names, term)
     if target.kind_of?(Otu)
       t = otu_tag(target)
     else # TaxonName
@@ -34,8 +33,8 @@ module OtusHelper
     end
 
     if common_names.present? && otu.present? &&
-       (common_names = otu_common_names_label(common_names[otu.id], term)).present?
-      tag.span( "#{common_names} (#{t})".html_safe )
+       (common_names_label = otu_common_names_label(common_names, term)).present?
+      tag.span( "#{common_names_label} (#{t})".html_safe )
     else
       t
     end
