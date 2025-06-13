@@ -31,6 +31,11 @@ module Queries
       #  false/nil - ignored
       attr_accessor :include_common_names
 
+      # @return Boolean, nil
+      #  true - 'pre-load' taxon name with otus
+      #  false/nil - ignored
+      attr_accessor :include_taxon_name
+
       # Keys are method names. Existence of method is checked
       # before requesting the query
       QUERIES = {
@@ -58,7 +63,11 @@ module Queries
         # common_name_name_similarity: {priority: 200},
       }.freeze
 
-      def initialize(string, project_id: nil, having_taxon_name_only: false, with_taxon_name: nil, exact: 'false', include_common_names: false)
+      def initialize(
+        string, project_id: nil, having_taxon_name_only: false,
+        with_taxon_name: nil, exact: 'false', include_common_names: false,
+        include_taxon_name: false
+      )
         super(string, project_id:)
         @having_taxon_name_only = boolean_param({having_taxon_name_only:}, :having_taxon_name_only)
         @with_taxon_name = boolean_param({with_taxon_name:}, :with_taxon_name)
@@ -68,6 +77,8 @@ module Queries
 
         @include_common_names =
           boolean_param({include_common_names:}, :include_common_names)
+        @include_taxon_name =
+          boolean_param({include_taxon_name:}, :include_taxon_name)
       end
 
       def base_query
@@ -168,7 +179,10 @@ module Queries
 
         otus = scope_autocomplete(otus).includes(:taxon_name)
 
-        return include_common_names ? otus.includes(:common_names) : otus
+        otus = include_common_names ? otus.includes(:common_names) : otus
+        otus = include_taxon_name ? otus.includes(:taxon_name) : otus
+
+        otus
       end
 
       # An autocomplete result that permits displaying the TaxonName as originally matched.
@@ -275,7 +289,10 @@ module Queries
         queries.compact!
         q = referenced_klass_union(queries).order('priority')
 
-        return include_common_names ? q.includes(:common_names) : q
+        q = include_common_names ? q.includes(:common_names) : q
+        q = include_taxon_name ? q.includes(:taxon_name) : q
+
+        q
       end
 
       def scope_autocomplete(query)

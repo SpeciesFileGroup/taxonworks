@@ -6,6 +6,6 @@ json.array! @otu_metadata do |r|
   json.label otu_autocomplete_selected_tag(r[:otu]) # !! Note this is not used in TaxonPages
 
   json.label_html otu_extended_autocomplete_tag(
-    r[:label_target], r[:otu], @term, @include_common_names
+    r[:label_target], r[:otu], @term, @common_names
   )
 end
