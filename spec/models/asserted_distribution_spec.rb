@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
-
   let(:asserted_distribution) { AssertedDistribution.new }
   let(:source) { FactoryBot.create(:valid_source) }
   let(:otu) { FactoryBot.create(:valid_otu) }
@@ -198,6 +197,80 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
   context 'concerns' do
     it_behaves_like 'notable'
     it_behaves_like 'citations'
+  end
+
+  context '::batch_template_create' do
+    let!(:template_asserted_distribution) {{
+      asserted_distribution_shape_id: geographic_area.id,
+      asserted_distribution_shape_type: 'GeographicArea',
+      citations_attributes: [{ source_id: source.id }]
+    }}
+
+    let(:otu2) { FactoryBot.create(:valid_otu) }
+
+    specify 'preview creates none' do
+      r = AssertedDistribution.batch_template_create(
+        preview: true,
+        async_cutoff: 10,
+        otu_query: { otu_id: [otu.id] },
+        template_asserted_distribution:
+      )
+
+      expect(AssertedDistribution.count).to eq(0)
+      expect(r.preview).to be_truthy
+    end
+
+    specify 'non-async create creates' do
+      r = AssertedDistribution.batch_template_create(
+        preview: false,
+        async_cutoff: 10,
+        otu_query: { otu_id: [otu.id, otu2.id] },
+        template_asserted_distribution:
+      )
+
+      expect(AssertedDistribution.all.map(&:otu_id))
+        .to contain_exactly(otu.id, otu2.id)
+      expect(AssertedDistribution.all.map(&:asserted_distribution_shape_id))
+        .to contain_exactly(geographic_area.id, geographic_area.id)
+    end
+
+    specify 'non-async create returns correct counts' do
+      AssertedDistribution.create!(
+        template_asserted_distribution.merge(otu_id: otu.id)
+      )
+
+      r = AssertedDistribution.batch_template_create(
+        preview: false,
+        async_cutoff: 10,
+        otu_query: { otu_id: [otu.id, otu2.id] },
+        template_asserted_distribution:
+      )
+
+      expect(r.total_attempted).to eq(2)
+      expect(r.updated.count).to eq(1)
+      expect(r.not_updated.count).to eq(1)
+    end
+
+    specify 'async create creates in the background' do
+      # Cause the async delayed job to run immediately here.
+      allow_any_instance_of(ActiveSupport::Duration).to receive(:from_now).and_return(Time.now)
+      r = AssertedDistribution.batch_template_create(
+        preview: false,
+        async_cutoff: 1,
+        otu_query: { otu_id: [otu.id, otu2.id] },
+        template_asserted_distribution:,
+        user_id: Current.user_id,
+        project_id: Current.project_id
+      )
+      expect(AssertedDistribution.count).to eq(0)
+
+      Delayed::Worker.new.work_off
+
+      expect(AssertedDistribution.all.map(&:otu_id))
+        .to contain_exactly(otu.id, otu2.id)
+      expect(AssertedDistribution.all.map(&:asserted_distribution_shape_id))
+        .to contain_exactly(geographic_area.id, geographic_area.id)
+    end
   end
 
 end
