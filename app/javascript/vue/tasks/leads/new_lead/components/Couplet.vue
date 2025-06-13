@@ -32,6 +32,15 @@
     >
       Insert a key
     </VBtn>
+
+    <VBtn
+      v-if="offerLeadItemCreate"
+      color="update"
+      medium
+      @click="() => { leadItemOtusModalVisible = true }"
+    >
+      Start an OTUs list
+    </VBtn>
   </div>
 
   <div v-if="hasChildren">
@@ -96,7 +105,7 @@
       </VBtn>
     </div>
 
-    <div class="left_and_right_couplet">
+    <div class="lead_children">
       <Lead
         v-for="(child, i) in store.children"
         :key="child.id"
@@ -128,11 +137,16 @@
       }"
     :container-style="{ width: '600px' }"
   />
+
+  <LeadItemOtuModal
+    v-model="leadItemOtusModalVisible"
+  />
 </template>
 
 <script setup>
 import InsertKeyModal from './InsertKeyModal.vue'
 import Lead from './Lead.vue'
+import LeadItemOtuModal from './LeadItemOtuModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { computed, ref, watch } from 'vue'
@@ -146,6 +160,7 @@ const store = useStore()
 
 const loading = ref(false)
 const insertKeyModalIsVisible = ref(false)
+const leadItemOtusModalVisible = ref(false)
 
 const hasChildren = computed(() => {
   return store.children.length >= 2 &&
@@ -165,6 +180,17 @@ const allowDeleteCouplet = computed(() => {
   })
 
   return childWithChildrenCount == 1
+})
+
+const offerLeadItemCreate = computed(() => {
+  let childExistsForItems = false
+  store.futures.forEach((future) => {
+    if (future.length == 0) {
+      childExistsForItems = true
+    }
+  })
+  return !store.lead.parent_id && childExistsForItems &&
+    store.lead_item_otus.parent.length == 0
 })
 
 const redirectOptions = ref([])
@@ -256,6 +282,7 @@ function saveChanges() {
       .then(({ body }) => {
         // Future changes when redirect changes.
         store.updateChild(body.lead, body.future)
+        store.print_key = body.print_key
         emit('editingHasOccurred')
       })
       // TODO: if multiple fail we can get overlapping popup messages, but is
@@ -310,6 +337,7 @@ function addLead() {
     .then(({ body }) => {
       store.loadKey(body)
       TW.workbench.alert.create('Added a new lead.', 'notice')
+      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {
@@ -366,11 +394,12 @@ function childHasChildren(child, i) {
 </script>
 
 <style lang="scss" scoped>
-.left_and_right_couplet {
+.lead_children {
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
   gap: 2em;
+  margin-bottom: 1.5em;
 }
 .couplet_center {
   margin-top: 1em;

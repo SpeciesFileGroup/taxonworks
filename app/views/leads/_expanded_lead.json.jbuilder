@@ -27,3 +27,5 @@ else
 end
 
 json.ancestors @ancestors
+
+json.partial! 'lead_item_otus', lead_item_otus: @lead_item_otus, root: @lead.root

@@ -14,15 +14,9 @@ module LeadsHelper
     text.slice(0..25) + (text.size > 25 ? '...' : '')
   end
 
-  def lead_edges(lead)
-    edges =
-      (lead.parent_id ? '↑' : '') +
-      (lead.children.size > 0 ? '↓' : '')
-  end
-
   def lead_tag(lead)
     return nil if lead.nil?
-    lead_edges(lead) + lead_id(lead) + ' ' + lead_truncated_text(lead)
+    lead_id(lead) + ' ' + lead_truncated_text(lead)
   end
 
   def lead_link(lead)
@@ -48,6 +42,8 @@ module LeadsHelper
     true
   end
 
+  # @param lead_items [Boolean] If true, print the LeadItem otus for each lead
+  #  in the key.
   def print_key(lead)
     metadata = key_metadata(lead)
 
@@ -77,8 +73,8 @@ module LeadsHelper
         a = data.dig(lid, :position) == 0 ? metadata.dig(k, :couplet_number).to_s : '&mdash;'
         b = data.dig(lid, :text)
 
-        if data.dig(lid, :target_label)
-          c = tag.b(data.dig(lid, :target_label))
+        if label = data.dig(lid, :target_label)
+          c = tag.b(label)
         end
 
         c = 'TODO: PROVIDE ENDPOINT' if c.blank?
@@ -104,8 +100,8 @@ module LeadsHelper
         a = data.dig(lid, :position) == 0 ? metadata.dig(k, :couplet_number).to_s + '.' : '&mdash;'
         b = data.dig(lid, :text)
 
-        if data.dig(lid, :target_label)
-          c = tag.b(data.dig(lid, :target_label))
+        if label = data.dig(lid, :target_label)
+          c = tag.b(label)
         end
 
         c = 'TODO: PROVIDE ENDPOINT' if c.blank?
@@ -142,7 +138,7 @@ module LeadsHelper
   end
 
   # An index of lead.id pointing to its content
-  def key_data(lead, metadata)
+  def key_data(lead, metadata, lead_items: false)
     data = {}
     lead.self_and_descendants.find_each do |l|
       d = {
@@ -170,6 +166,24 @@ module LeadsHelper
         )
       end
 
+      if lead_items && d[:target_type] != :internal
+        target_label =
+          if d[:target_label]
+            d[:target_label] + lead_item_otus_string(l)
+          else
+            lead_item_otus_string(l)
+          end
+
+        if target_label.present?
+          # Overwrite
+          d.merge!(
+            target_label: target_label,
+            target_id: '',
+            target_type: 'lead_item_otus'
+          )
+        end
+      end
+
       if l.depictions.load.any?
         d.merge!( figures: l.depictions.order(:position).collect{|d| depiction_to_json(d)}  )
       end
@@ -177,6 +191,18 @@ module LeadsHelper
       data[l.id] = d
     end
     data
+  end
+
+  # Contains html.
+  def lead_item_otus_string(lead)
+    otu_ids = lead.lead_items.map(&:otu_id)
+    if otu_ids.empty?
+      return nil
+    end
+
+    otu_labels = Otu.where(id: otu_ids).map { |o| label_for_otu(o) }.sort!
+
+    '<br />&nbsp;&nbsp;' + otu_labels.join('<br />&nbsp;&nbsp;').html_safe
   end
 
   # Used to serve Keys to the API.
@@ -201,14 +227,61 @@ module LeadsHelper
     }
   end
 
-  def print_key_markdown(lead)
+  def print_key_markdown(lead, lead_items: false)
+    metadata = key_metadata(lead)
+
+    data = key_data(lead, metadata, lead_items:)
+
+    t = ["# #{lead.text}\n\n"]
+
+    # key is couplet number, value is which couplet was sent to that number
+    backlinks = {}
+
+    metadata.keys.each do |parent|
+      metadata[parent][:children].each do |child|
+        # Construct child lines of the form:
+        # 1. Child 1 text ... [next couplet # | otu] OR
+        # -- Child 2 text ... [next couplet # | otu]
+        # a        b                   c          (a,b,c defined below)
+        cplt_num = metadata.dig(parent, :couplet_number).to_s
+        if data.dig(child, :position) == 0
+          backlink = ''
+          if p = backlinks[cplt_num]
+            backlink = "([#{p}](#cplt-#{p}))"
+          end
+          # The empty <a> tag here provides an id object to link *to*.
+          a = "#{cplt_num}#{backlink}\.<a id=\"cplt-#{cplt_num}\"></a>"
+
+        else
+          a = '--'
+        end
+
+        b = data.dig(child, :text)
+
+        if (target = data.dig(child, :target_label))
+          c = "**#{target}**"
+          if data.dig(child, :target_type) == :internal # points to next couplet
+            backlinks[target.to_s] = cplt_num
+            c = "[#{c}](#cplt-#{target})"
+          end
+        end
+
+        c = 'TODO: PROVIDE ENDPOINT' if c.blank?
+
+        t.push [a, b, '...', c, " \n"].join(' ')
+      end
+      t.push "\n"
+    end
+
+    t.join.html_safe
+
   end
 
   def couplets_count(lead)
     # Couplets - which can have more than two options - are in 1-1
     # correspondence with nodes that have children (via 'couplet' <--> 'parent
     # of that couplet').
-    lead.descendants.count - lead.leaves.count
+    lead.self_and_descendants.count - lead.leaves.count
   end
 
 end

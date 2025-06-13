@@ -61,4 +61,10 @@ watch(
   () => loadOtu(),
   { immediate: true }
 )
+
+watch(
+  () => props.lead.otu_id,
+  () => loadOtu(),
+  { immediate: true }
+)
 </script>

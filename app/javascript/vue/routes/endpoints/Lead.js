@@ -59,5 +59,9 @@ export const Lead = {
 
   insert_key: (id, params) => AjaxCall(
     'post', `/${controller}/${id}/insert_key.json`, params
-  )
+  ),
+
+  batchCreateLeadItems: (params) => AjaxCall(
+    'post', `/${controller}/batch_create_lead_items.json`, params
+  ),
 }
