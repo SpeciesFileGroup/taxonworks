@@ -20,7 +20,7 @@
             >
               {{ attribute }}
             </option>
-            <hr />
+            <hr class="divisor" />
             <option
               v-for="predicate in predicates"
               :key="predicate.id"
@@ -46,7 +46,7 @@
             >
               {{ attribute }}
             </option>
-            <hr />
+            <hr class="divisor" />
             <option
               v-for="predicate in predicates"
               :key="predicate.id"

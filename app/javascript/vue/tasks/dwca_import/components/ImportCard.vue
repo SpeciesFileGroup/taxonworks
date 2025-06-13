@@ -30,7 +30,7 @@
     <span
       >Status: <b>{{ dataset.status }}</b></span
     >
-    <hr class="line full_width" />
+    <hr class="line full_width divisor" />
     <progress-bar
       class="full_width"
       :progress="dataset.progress"

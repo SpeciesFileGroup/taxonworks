@@ -33,7 +33,7 @@
         </label>
       </div>
       <template v-if="matrix.id">
-        <hr />
+        <hr class="divisor" />
         <div>
           <VSwitch
             class="margin-small-bottom"

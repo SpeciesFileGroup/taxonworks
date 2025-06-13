@@ -4,14 +4,15 @@
       v-for="(item, gid) in keywords"
       :key="gid"
     >
-      <hr>
+      <hr class="divisor" />
       <p>
         <b v-html="item.object.object_tag" />
       </p>
 
       <template
         v-for="(object, key) in item.totals"
-        :key="key">
+        :key="key"
+      >
         <div
           v-if="object"
           class="tag_list"
@@ -50,7 +51,6 @@
 </template>
 
 <script>
-
 import { MutationNames } from '../store/mutations/mutations'
 import { batchRemoveKeyword } from '../request/resources'
 import Batch from './mixins/batch'
@@ -60,7 +60,7 @@ export default {
 
   mixins: [Batch],
 
-  data () {
+  data() {
     return {
       batchType: 'tags',
       metadataList: 'keywords'
@@ -68,7 +68,7 @@ export default {
   },
 
   methods: {
-    removeKeyword (id, type) {
+    removeKeyword(id, type) {
       this.$store.commit(MutationNames.SetSaving, true)
       batchRemoveKeyword(id, type).then(async () => {
         this.getMeta()
@@ -76,8 +76,11 @@ export default {
       })
     },
 
-    isOneRow ({ totals }) {
-      return Object.entries(totals).filter(([k, v]) => k !== 'total' && v > 0).length === 1
+    isOneRow({ totals }) {
+      return (
+        Object.entries(totals).filter(([k, v]) => k !== 'total' && v > 0)
+          .length === 1
+      )
     }
   }
 }

@@ -754,7 +754,7 @@ table {
   border-collapse: separate;
 }
 .cell-left-border {
-  border-left: 3px #eaeaea solid;
+  border-left: 3px var(--border-color) solid;
 }
 
 .cell-selected-border {
@@ -793,8 +793,7 @@ table {
 }
 
 .header-empty-td {
-  background: #f8f8f8 !important;
-  border-bottom: 0;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .header-row-attributes {

@@ -47,6 +47,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 li {
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--border-color);
 }
 </style>

@@ -103,6 +103,6 @@ export default {
 </script>
 <style scoped>
 :deep(.btn-delete) {
-  background-color: #5d9ece;
+  background-color: var(--color-primary);
 }
 </style>

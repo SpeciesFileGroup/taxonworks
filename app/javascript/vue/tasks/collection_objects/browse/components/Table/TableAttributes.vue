@@ -56,12 +56,9 @@ const getFilterAttribute = (atrr) =>
   box-shadow: none;
 
   tr {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--border-color);
   }
 
-  th {
-    border-bottom: 2px solid #eaeaea;
-  }
   .cell-value {
     font-weight: 500;
     word-break: break-all;

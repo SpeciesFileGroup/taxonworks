@@ -5,21 +5,25 @@ html {
   box-sizing: border-box;
 }
 
-p, ol, ul, td {
+p,
+ol,
+ul,
+td {
   font-size: 13px;
   line-height: 18px;
 }
 
 pre {
-  background-color: #eee;
+  background-color: var(--bg-foreground);
   padding: 10px;
   font-size: 11px;
 }
 
-// see navigation for a 
+// see navigation for a
 
 div {
-  &.field, &.actions {
+  &.field,
+  &.actions {
     margin-bottom: 10px;
   }
 }

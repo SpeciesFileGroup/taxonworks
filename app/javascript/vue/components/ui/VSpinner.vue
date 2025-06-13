@@ -125,7 +125,6 @@ export default {
     legendStyle: {
       type: Object,
       default: () => ({
-        color: '#444',
         marginTop: '30px',
         textAlign: 'center'
       })
@@ -278,7 +277,8 @@ export default {
 .vue-box-spinner {
   box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
   background-image: none !important;
-  background-color: #fff;
+  background-color: var(--panel-bg-color);
+  color: var(--text-color);
   z-index: 999999;
   height: 100%;
   opacity: 0.9;

@@ -30,7 +30,7 @@ a,
   color: $color-secondary-2-4;
 
   &:hover {
-    color: $default_text;
+    color: var(--text-color);
   }
 }
 
@@ -43,8 +43,8 @@ a,
   justify-content: space-between;
   font-weight: 300;
   position: relative;
-  box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.2);
-  background-color: #fff;
+  box-shadow: var(--panel-shadow);
+  background-color: var(--panel-bg-color);
   height: 45px;
   padding-right: $standard_margin;
   .hub-project {
@@ -167,7 +167,7 @@ a,
     //text-align: center;
     padding-left: $standard_padding;
     padding-right: $standard_padding;
-    border-right: 1px solid $navigation_border;
+    border-right: 1px solid var(--border-color);
   }
 
   & > li a {

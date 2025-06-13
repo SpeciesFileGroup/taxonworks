@@ -5,7 +5,9 @@
 <% end %>
 
 <%= content_for :edit do
-  link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), new_collecting_event_task_path(collecting_event_id: @collecting_event.id), class: 'navigation-item')
+  content = safe_join([content_tag(:span, '', data: { icon: 'edit' }, class: 'small-icon'), 'Edit'], '')
+
+  link_to(content, new_collecting_event_task_path(collecting_event_id: @collecting_event.id), class: 'navigation-item')
 end %>
 
 <%= content_for :tasks do -%>

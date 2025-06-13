@@ -3,7 +3,10 @@
 <div class="flexbox panels-container ">
   <div class="item panel separate-left separate-right">
     <div class="title nav-line">
-      <span data-icon="folders">Projects</span>
+      <div>
+        <span data-icon="folders"></span>
+        <span>Projects</span>
+      </div>
     </div>
     <nav class="content">
     <em> To add a project member view that project. </em>
@@ -16,21 +19,39 @@
 
   <div class="item panel separate-left separate-right">
     <div class="title nav-line">
-      <span data-icon="users">Users</span>
+      <div>
+        <span data-icon="users"></span>
+        <span>Users</span>
+      </div>
     </div>
     <div class="content">
       <ul class="no_bullets list list-arrow">
-        <%= content_tag(:li, link_to("New", signup_path, data: { icon: "new" })) -%>
-        <%= content_tag(:li, link_to("Batch add new", batch_add_users_task_path, data: { turbolinks: false, icon: "new" })) -%>
-        <%= content_tag(:li, link_to("List", users_path, data: { icon: "list" })) -%>
-        <%= content_tag(:li, link_to("Activity", user_activity_path, data: { turbolinks: false, icon: "list" })) -%>
+        <li>
+          <%= content_tag(:span, '', data: { icon: "new" }) %>
+          <%= link_to("New", signup_path) %>
+        </li>
+        <li>
+          <%= content_tag(:span, '', data: { icon: "new" }) %>
+          <%= link_to("Batch add new", batch_add_users_task_path, data: { turbolinks: false }) %>
+        </li>
+        <li>
+          <%= content_tag(:span, '', data: { icon: "list" }) %>
+          <%= link_to("List", users_path) %>
+        </li>
+        <li>
+          <%= content_tag(:span, '', data: { icon: "list" }) %>
+          <%= link_to("Activity", user_activity_path, data: { turbolinks: false }) %>
+        </li>
       </ul>
     </div>
   </div>
 
   <div class="item panel separate-left separate-right">
     <div class="title nav-line">
-      <span data-icon="openFolder">Data</span>
+      <div>
+        <span data-icon="openFolder"></span>
+        <span>Data</span>
+      </div>
     </div>
     <div class="content">
       <ul class="no_bullets list list-arrow">

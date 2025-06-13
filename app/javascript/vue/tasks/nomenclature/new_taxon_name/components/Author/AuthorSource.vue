@@ -9,19 +9,19 @@
         placeholder="Type a source..."
         display="label"
         clear-after
-        @getItem="({id}) => setSource({ id, pages: citation?.pages })"
+        @getItem="({ id }) => setSource({ id, pages: citation?.pages })"
       />
       <ButtonPinned
         label="source"
         type="Source"
         section="Sources"
-        @get-item="({id}) => setSource({ id, pages: citation?.pages })"
+        @get-item="({ id }) => setSource({ id, pages: citation?.pages })"
       />
       <FormCitationClone
         @clone="(c) => setSource({ id: c.source_id, pages: c.pages })"
       />
     </div>
-    <hr />
+    <hr class="divisor" />
     <div v-if="citation">
       <div class="flex-separate middle">
         <p>
