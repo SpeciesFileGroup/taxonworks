@@ -159,6 +159,7 @@ module Queries
         @levenshtein_cuttoff = params[:levenshtein_cuttoff]
         @name = params[:name]
         @only_project_id = params[:only_project_id]
+        @person_id = params[:person_id]
         @regex = params[:regex]
         @repeated_total = params[:repeated_total]
         @role = params[:role]

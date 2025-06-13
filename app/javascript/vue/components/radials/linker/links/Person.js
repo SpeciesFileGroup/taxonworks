@@ -5,7 +5,7 @@ import {
   TASK_PROJECT_VOCABULARY
 } from '../constants/links'
 
-export const People = {
+export const Person = {
   all: [TASK_PEOPLE_METADATA, TASK_FIELD_SYNCHRONIZE, TASK_MULTI_UPDATE],
   ids: [
     TASK_PEOPLE_METADATA,

@@ -127,6 +127,7 @@ import VModal from '@/components/ui/Modal'
 import VWkt from './wkt'
 import DateComponent from '@/components/ui/Date/DateFields.vue'
 import useStore from '../../../store/georeferences.js'
+import useCEStore from '../../../store/collectingEvent.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { addToArray, randomUUID } from '@/helpers'
 import { computed, ref, watch } from 'vue'
@@ -139,6 +140,8 @@ import {
   GEOREFERENCE_WKT,
   GEOREFERENCE_LEAFLET
 } from '@/constants/index.js'
+
+const EXCLUDE = [GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT]
 
 const props = defineProps({
   height: {
@@ -164,13 +167,9 @@ const props = defineProps({
 
 const collectingEvent = defineModel()
 const store = useStore()
+const ceStore = useCEStore()
 
 const isModalVisible = ref(false)
-
-const shapes = ref({
-  type: 'FeatureCollection',
-  features: []
-})
 
 const date = ref({
   year_georeferenced: undefined,
@@ -227,12 +226,12 @@ const verbatimRadiusError = computed(() => {
   return undefined
 })
 
-const mapGeoreferences = computed(() =>
-  store.georeferences
+const mapGeoreferences = computed(() => {
+  const geographicArea = ceStore.geographicArea
+  const georeferences = store.georeferences
     .filter(
       (item) =>
-        item.type !== GEOREFERENCE_WKT &&
-        item.type !== GEOREFERENCE_GEOLOCATE &&
+        (item.id || !EXCLUDE.includes(item.type)) &&
         (item?.geographic_item_attributes?.shape || item?.geo_json)
     )
     .map((item) =>
@@ -240,10 +239,10 @@ const mapGeoreferences = computed(() =>
         ? item.geo_json
         : JSON.parse(item?.geographic_item_attributes?.shape)
     )
-)
 
-watch([() => store.georeferences, () => store.geographicArea], populateShapes, {
-  deep: true
+  return geographicArea?.has_shape
+    ? [geographicArea.shape, ...georeferences]
+    : georeferences
 })
 
 function updateRadius(geo) {
@@ -277,22 +276,8 @@ function updateGeoreference(shape, type = GEOREFERENCE_LEAFLET) {
   })
 }
 
-function populateShapes() {
-  shapes.value.features = []
-  if (store.geographicArea) {
-    shapes.value.features.unshift(store.geographicArea)
-  }
-  store.georeferences.forEach((geo) => {
-    if (geo.error_radius != null) {
-      geo.geo_json.properties.radius = geo.error_radius
-    }
-    shapes.value.features.push(geo.geo_json)
-  })
-}
-
 function removeGeoreference(geo) {
   store.remove(geo)
-  populateShapes()
 }
 
 function createVerbatimShape() {

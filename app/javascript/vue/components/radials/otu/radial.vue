@@ -60,13 +60,15 @@ import VModal from '@/components/ui/Modal.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import TaxonNameSlice from './components/TaxonNameSlice.vue'
+import AssertedDistributionSlice from './components/AssertedDistributionSlice.vue'
 
 import { computed, ref } from 'vue'
 import { removeEmptyProperties } from '@/helpers/objects.js'
 
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 const SLICES = {
-  'Update Taxon name': TaxonNameSlice
+  'Update Taxon name': TaxonNameSlice,
+  'Add asserted distribution': AssertedDistributionSlice
 }
 
 const props = defineProps({

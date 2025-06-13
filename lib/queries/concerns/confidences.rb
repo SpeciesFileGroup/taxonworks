@@ -59,7 +59,7 @@ module Queries::Concerns::Confidences
 
   def confidence_level_id_facet
     return nil if confidence_level_id.empty?
-    referenced_klass.joins(:confidences).where(confidences: {confidence_level_id: confidence_level_id})
+    referenced_klass.joins(:confidences).where(confidences: {confidence_level_id: confidence_level_id}).distinct
   end
 
   def without_confidence_level_id_facet

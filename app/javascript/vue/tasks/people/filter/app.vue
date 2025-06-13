@@ -5,7 +5,7 @@
     <FilterLayout
       :list="list"
       :url-request="urlRequest"
-      :object-type="PEOPLE"
+      :object-type="PERSON"
       :pagination="pagination"
       :button-unify="false"
       :selected-ids="selectedIds"
@@ -44,7 +44,7 @@ import FilterList from '@/components/Filter/Table/TableResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { ATTRIBUTES } from './constants/attributes.js'
-import { PEOPLE } from '@/constants/index.js'
+import { PERSON } from '@/constants/index.js'
 import { People } from '@/routes/endpoints'
 
 const {

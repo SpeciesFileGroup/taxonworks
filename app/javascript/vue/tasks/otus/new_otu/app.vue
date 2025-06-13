@@ -82,6 +82,11 @@
         </div>
       </template>
     </BlockLayout>
+    <TableRecent
+      v-if="recent.length"
+      class="margin-medium-top full_width"
+      :list="recent"
+    />
   </div>
 </template>
 
@@ -94,7 +99,10 @@ import InputNames from './components/InputNames.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import TableOtu from './components/TableOtu.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import TableRecent from './components/TableRecent.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+
+const MAX_RECENT = 10
 
 const names = ref('')
 const taxonName = ref(null)
@@ -104,6 +112,7 @@ const isMatch = ref(false)
 const isLoading = ref(false)
 const isCreating = ref(false)
 const selected = ref([])
+const recent = ref([])
 const nameList = computed(() => {
   return names.value.split('\n').filter(Boolean)
 })
@@ -118,6 +127,10 @@ const list = computed(() =>
       : taxonName.value
   }))
 )
+
+Otu.where({ per: MAX_RECENT, recent: true }).then(({ body }) => {
+  recent.value = body
+})
 
 watch([isMatch, taxonName], ([newVal]) => {
   otuList.value = []
@@ -170,6 +183,14 @@ function getOtus(otuNames) {
   })
 }
 
+function addToRecent(otu) {
+  if (recent.value.length >= MAX_RECENT) {
+    recent.value.pop()
+  }
+
+  recent.value.unshift(otu)
+}
+
 function createOTUs(otus) {
   const uuids = []
 
@@ -182,9 +203,14 @@ function createOTUs(otus) {
         taxon_name_id: item.taxonName?.id
       }
     }
-    return Otu.create(payload).then(() => {
+    const request = Otu.create(payload)
+
+    request.then(({ body }) => {
       uuids.push(item.uuid)
+      addToRecent(body)
     })
+
+    return request
   })
 
   Promise.all(requests).then(() => {
