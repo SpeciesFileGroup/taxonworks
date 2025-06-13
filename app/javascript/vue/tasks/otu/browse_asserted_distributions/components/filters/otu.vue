@@ -1,59 +1,44 @@
 <template>
   <div>
     <h3>Otu</h3>
-    <autocomplete
+    <VAutocomplete
       url="/otus/autocomplete"
       placeholder="Search an OTU"
       param="term"
       label="label_html"
       autofocus
       :clear-after="true"
-      @getItem="$emit('update:modelValue', $event.id)"
+      @get-item="(otu) => { otuId = otu.id }"
     />
   </div>
 </template>
 
-<script>
-import Autocomplete from '@/components/ui/Autocomplete'
+<script setup>
+import VAutocomplete from '@/components/ui/Autocomplete'
 import { Otu } from '@/routes/endpoints'
+import { defineModel, onMounted } from 'vue'
 
-export default {
-  components: {
-    Autocomplete
-  },
-  props: {
-    modelValue: {
-      type: [String, Number],
-      default: undefined
-    }
-  },
+const otuId = defineModel({
+  type: [String, Number],
+  default: undefined
+})
 
-  data() {
-    return {
-      otu: undefined
-    }
-  },
+onMounted(() => {
+  getParams()
+})
 
-  mounted() {
-    this.GetParams()
-  },
+function getParams() {
+  const urlParams = new URLSearchParams(window.location.search)
+  const id = urlParams.get('otu_id')
 
-  methods: {
-    GetParams() {
-      const urlParams = new URLSearchParams(window.location.search)
-      const otuId = urlParams.get('otu_id')
-
-      if (/^\d+$/.test(otuId)) {
-        this.loadOtu(otuId)
-      }
-    },
-
-    loadOtu(id) {
-      Otu.find(id).then((response) => {
-        this.otu = response.body
-        this.$emit('update:modelValue', id)
-      })
-    }
+  if (/^\d+$/.test(id)) {
+    loadOtu(id)
   }
+}
+
+function loadOtu(id) {
+  Otu.find(id).then(({ otu }) => {
+    otuId.value = otu.id
+  })
 }
 </script>

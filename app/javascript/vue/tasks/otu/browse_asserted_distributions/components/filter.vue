@@ -6,100 +6,80 @@
         data-icon="reset"
         class="cursor-pointer"
         @click="resetFilter"
-        >Reset
+      >
+        Reset
       </span>
     </div>
-    <spinner-component
+    <VSpinner
       v-if="searching"
       full-screen
       legend="Searching..."
       :logo-size="{ width: '100px', height: '100px' }"
     />
     <div class="content">
-      <otu-component v-model="params.base.otu_id" />
-      <nav-bar-component :otu-id="params.base.otu_id" />
+      <Otu
+        v-model="params.base.otu_id"
+      />
+      <NavBar
+        :otu-id="params.base.otu_id"
+      />
     </div>
   </div>
 </template>
 
-<script>
-import OtuComponent from './filters/otu'
-import NavBarComponent from './navBar'
-import SpinnerComponent from '@/components/ui/VSpinner'
+<script setup>
+import VSpinner from '@/components/ui/VSpinner.vue'
+import Otu from './filters/otu.vue'
+import NavBar from './navBar.vue'
 import { AssertedDistribution } from '@/routes/endpoints'
+import { defineEmits, ref, watch } from 'vue'
 
-export default {
-  components: {
-    OtuComponent,
-    SpinnerComponent,
-    NavBarComponent
-  },
+const params = ref(initParams())
+const result = ref([])
+const searching = ref(false)
 
-  data() {
-    return {
-      params: this.initParams(),
-      result: [],
-      searching: false
-    }
-  },
+const emit = defineEmits(['reset'])
 
-  watch: {
-    params: {
-      handler(newVal) {
-        if (newVal.base.otu_id) {
-          this.search()
-        }
-      },
-      deep: true
-    }
-  },
+watch(() => params.value.base.otu_id, (newVal) => {
+  if (newVal) {
+    search()
+  }
+})
 
-  methods: {
-    resetFilter() {
-      this.$emit('reset')
-      this.params = this.initParams()
-    },
+function  resetFilter() {
+  emit('reset', 'result', 'urlRequest')
+  params.value = initParams()
+}
 
-    search() {
-      const params = { ...this.params.base }
+function search() {
+  const params = { ...this.params.base }
 
-      this.searching = true
-      AssertedDistribution.where(params)
-        .then((response) => {
-          this.result = response.body
-          this.$emit('result', this.result)
-          this.$emit('urlRequest', response.request.responseURL)
-          if (this.result.length === 500) {
-            TW.workbench.alert.create('Results may be truncated.', 'notice')
-          }
-        })
-        .finally(() => {
-          this.searching = false
-        })
-    },
-
-    initParams() {
-      return {
-        base: {
-          otu_id: undefined,
-          embed: ['shape'],
-          extend: ['asserted_distribution_shape']
-        }
+  searching.value = true
+  AssertedDistribution.where(params)
+    .then((response) => {
+      result.value = response.body
+      emit('result', result.value)
+      emit('urlRequest', response.request.responseURL)
+      if (result.value.length === 500) {
+        TW.workbench.alert.create('Results may be truncated.', 'notice')
       }
-    },
+    })
+    .catch(() => {})
+    .finally(() => {
+      searching.value = false
+    })
+}
 
-    filterEmptyParams(object) {
-      const keys = Object.keys(object)
-
-      keys.forEach((key) => {
-        if (object[key] === '') {
-          delete object[key]
-        }
-      })
-      return object
+function initParams() {
+  return {
+    base: {
+      asserted_distribution_object_type: undefined,
+      embed: ['shape'],
+      extend: ['asserted_distribution_shape']
     }
   }
 }
+
 </script>
 <style scoped>
 :deep(.btn-delete) {

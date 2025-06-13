@@ -42,16 +42,16 @@
     </div>
 
     <div class="horizontal-left-content align-start">
-      <filter-component
+      <FilterComponent
         class="separate-right filter"
         v-show="activeFilter"
-        @urlRequest="urlRequest = $event"
+        @url-request="(e) => (urlRequest = e)"
         @result="loadList"
         @reset="resetTask"
       />
       <div class="full_width">
         <div class="panel container">
-          <map-component
+          <VMap
             :lat="0"
             :lng="0"
             :zoom="1"
@@ -61,7 +61,9 @@
             :resize="true"
           />
         </div>
-        <list-component :list="assertedDistribution" />
+        <ListComponent
+          :list="assertedDistribution"
+        />
         <h3
           v-if="alreadySearch && !assertedDistribution.length"
           class="subtle middle horizontal-center-content"
@@ -73,14 +75,14 @@
   </div>
 </template>
 
-<script>
-import MapComponent from '@/components/georeferences/map.vue'
+<script setup>
+import VMap from '@/components/georeferences/map.vue'
 import FilterComponent from './components/filter.vue'
-import ListComponent from './components/list'
-import { AssertedDistribution } from '@/routes/endpoints'
+import ListComponent from './components/list.vue'
+import { computed, ref } from 'vue'
 
-const embed = ['shape', 'level_names']
-const extend = [
+const EMBED = ['shape', 'level_names']
+const EXTEND = [
   'citations',
   'asserted_distribution_shape',
   'origin_citation',
@@ -89,61 +91,37 @@ const extend = [
   'asserted_distribution_object'
 ]
 
-export default {
-  components: {
-    MapComponent,
-    FilterComponent,
-    ListComponent
-  },
+const geojson = computed(() => {
+  return assertedDistribution.value.map(
+    (item) => item.asserted_distribution_shape.shape
+  )
+})
 
-  computed: {
-    geojson() {
-      return this.assertedDistribution.map((item) => item.asserted_distribution_shape.shape)
-    }
-  },
+const assertedDistribution = ref([])
+const urlRequest = ref('')
+const activeFilter = ref(true)
+const activeJSONRequest = ref(false)
+const append = ref(false)
+const alreadySearch = ref(false)
 
-  data() {
-    return {
-      assertedDistribution: [],
-      urlRequest: '',
-      activeFilter: true,
-      activeJSONRequest: false,
-      append: false,
-      alreadySearch: false
-    }
-  },
+function resetTask() {
+  alreadySearch.value = false
+  urlRequest.value = ''
+  assertedDistribution.value = []
+}
 
-  methods: {
-    searchDistribution(otu) {
-      AssertedDistribution.where({
-        otu_id: otu.id,
-        embed,
-        extend
-      }).then((response) => {
-        this.assertedDistribution = response.body
-      })
-    },
-
-    resetTask() {
-      this.alreadySearch = false
-      this.urlRequest = ''
-      this.assertedDistribution = []
-    },
-
-    loadList(newList) {
-      if (this.append) {
-        let concat = newList.concat(this.assertedDistribution)
-        concat = concat.filter(
-          (item, index, self) =>
-            index === self.findIndex((i) => i.id === item.id)
-        )
-        this.assertedDistribution = concat
-      } else {
-        this.assertedDistribution = newList
-      }
-      this.alreadySearch = true
-    }
+function loadList(newList) {
+  if (append.value) {
+    let concat = newList.concat(assertedDistribution.value)
+    concat = concat.filter(
+      (item, index, self) =>
+        index === self.findIndex((i) => i.id === item.id)
+    )
+    assertedDistribution.value = concat
+  } else {
+    assertedDistribution.value = newList
   }
+  alreadySearch.value = true
 }
 </script>
 <style lang="scss">
