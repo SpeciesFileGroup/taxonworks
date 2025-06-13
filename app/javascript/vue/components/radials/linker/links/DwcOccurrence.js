@@ -1,6 +1,9 @@
-import { TASK_DWC_OCCURRENCE_STATUS } from '../constants/links'
+import {
+  TASK_DWC_OCCURRENCE_STATUS,
+  TASK_PROJECT_VOCABULARY
+} from '../constants/links'
 
 export const DwcOccurrence = {
   all: [TASK_DWC_OCCURRENCE_STATUS],
-  ids: [TASK_DWC_OCCURRENCE_STATUS]
+  ids: [TASK_DWC_OCCURRENCE_STATUS, TASK_PROJECT_VOCABULARY]
 }

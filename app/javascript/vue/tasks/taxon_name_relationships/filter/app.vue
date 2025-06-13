@@ -9,7 +9,7 @@
       :list="list"
       :selected-ids="selectedIds"
       :button-unify="false"
-      :radial-linker="false"
+      :radial-linker="true"
       :radial-navigator="false"
       v-model="parameters"
       v-model:append="append"
@@ -45,7 +45,6 @@ import FilterComponent from './components/filter.vue'
 import ListResults from './components/ListResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import { TAXON_NAME_RELATIONSHIP } from '@/constants/index.js'
 import { TaxonNameRelationship } from '@/routes/endpoints'
 
