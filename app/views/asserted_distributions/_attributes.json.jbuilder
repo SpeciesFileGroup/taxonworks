@@ -1,13 +1,16 @@
-json.extract! asserted_distribution, :id, :otu_id,
- :asserted_distribution_shape_type, :asserted_distribution_shape_id,
- :project_id, :created_by_id, :updated_by_id, :is_absent, :created_at,
- :updated_at
+json.extract! asserted_distribution, :id,
+  :asserted_distribution_object_id, :asserted_distribution_object_type,
+  :asserted_distribution_shape_type, :asserted_distribution_shape_id,
+  :project_id, :created_by_id, :updated_by_id, :is_absent, :created_at,
+  :updated_at
+
 json.partial! '/shared/data/all/metadata', object: asserted_distribution
 
-if extend_response_with('otu')
-  json.otu do
-    json.partial! '/shared/data/all/metadata', object: asserted_distribution.otu, extensions: false
-  end
+if extend_response_with('asserted_distribution_object')
+  json.asserted_distribution_object do
+    json.partial! '/shared/data/all/metadata',
+      object: asserted_distribution.asserted_distribution_object,
+      extensions: false
 end
 
 if extend_response_with('taxonomy')

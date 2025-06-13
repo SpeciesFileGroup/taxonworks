@@ -86,7 +86,7 @@ const extend = [
   'origin_citation',
   'shape',
   'source',
-  'otu'
+  'asserted_distribution_object'
 ]
 
 export default {
