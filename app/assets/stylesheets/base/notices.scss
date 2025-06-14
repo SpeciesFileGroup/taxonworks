@@ -5,9 +5,10 @@
   flex-direction: row;
   margin: 0px;
   align-items: center;
+  color: black;
   left: 50%;
   bottom: 0px;
-  transform:translate(-50%,105%);
+  transform: translate(-50%, 105%);
   padding: $standard_padding;
   border-top: none;
   border-top-right-radius: 3px;
@@ -24,7 +25,7 @@
     opacity: 0.5;
     background-repeat: no-repeat;
     background-position: center;
-    background-image: image-url("close.svg");
+    background-image: image-url('close.svg');
   }
 
   .alert-close:hover {

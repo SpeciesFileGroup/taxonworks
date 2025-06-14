@@ -72,21 +72,20 @@ const sortColumns = ref({
 })
 
 function sortTable(sortProperty) {
-  // TODO: pickup here
-  // let that =
-  // function compare(a, b) {
-  //   if (a[sortProperty] < b[sortProperty])
-  //     return that.sortColumns[sortProperty] ? -1 : 1
-  //   if (a[sortProperty] > b[sortProperty])
-  //     return that.sortColumns[sortProperty] ? 1 : -1
-  //   return 0
-  // }
-  // if (this.sortColumns[sortProperty] == undefined) {
-  //   this.sortColumns[sortProperty] = true
-  // } else {
-  //   this.sortColumns[sortProperty] = !this.sortColumns[sortProperty]
-  // }
-  // this.list.sort(compare)
+  function compare(a, b) {
+    if (a[sortProperty] < b[sortProperty])
+      return sortColumns.value[sortProperty] ? -1 : 1
+    if (a[sortProperty] > b[sortProperty])
+      return sortColumns.value[sortProperty] ? 1 : -1
+    return 0
+  }
+
+  if (sortColumns.value[sortProperty] == undefined) {
+    sortColumns.value[sortProperty] = true
+  } else {
+    sortColumns.value[sortProperty] = !sortColumns.value[sortProperty]
+  }
+  list.value.sort(compare)
 }
 
 function classSort(value) {

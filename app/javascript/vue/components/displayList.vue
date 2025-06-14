@@ -249,7 +249,7 @@ export default {
     margin: 0px;
     padding: 1em 0;
     border: 0px;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--border-color);
   }
 
   .list-complete-enter,

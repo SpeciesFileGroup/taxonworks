@@ -192,9 +192,3 @@ function loadMetadata(model) {
     })
 }
 </script>
-<style>
-.svg-radial-menu-navigator path {
-  stroke: #444;
-  stroke-width: 2px;
-}
-</style>

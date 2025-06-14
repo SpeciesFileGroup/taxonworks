@@ -58,6 +58,7 @@
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-vue": "^10.2.0",
+    "launch-editor-middleware": "^2.10.0",
     "mini-css-extract-plugin": "^2.9.2",
     "postcss": "^8.5.4",
     "postcss-flexbugs-fixes": "^5.0.2",

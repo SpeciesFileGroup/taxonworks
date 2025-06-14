@@ -41,7 +41,7 @@
           />
         </template>
       </SmartSelector>
-      <hr />
+      <hr class="divisor" />
       <SmartSelectorItem
         :item="topic"
         label="name"

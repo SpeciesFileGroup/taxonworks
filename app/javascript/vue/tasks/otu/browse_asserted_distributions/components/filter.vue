@@ -40,8 +40,10 @@ const searching = ref(false)
 
 const emit = defineEmits(['reset'])
 
-watch(() => params.value.base.otu_id, (newVal) => {
-  if (newVal) {
+watch(() => [params.value.base.asserted_distribution_object_id,
+  params.value.base.asserted_distribution_object_type],
+(newVal) => {
+  if (newVal[0] && newVal[1]) {
     search()
   }
 })
@@ -74,6 +76,7 @@ function initParams() {
   return {
     base: {
       asserted_distribution_object_type: undefined,
+      asserted_distribution_object_id: undefined,
       embed: ['shape'],
       extend: ['asserted_distribution_shape']
     }
@@ -83,6 +86,6 @@ function initParams() {
 </script>
 <style scoped>
 :deep(.btn-delete) {
-  background-color: #5d9ece;
+  background-color: var(--color-primary);
 }
 </style>

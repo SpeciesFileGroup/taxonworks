@@ -1,5 +1,5 @@
 <template>
-  <table class="vue-table">
+  <table class="vue-table table-striped">
     <thead>
       <tr>
         <th>Total</th>
@@ -235,7 +235,7 @@ export default {
 </script>
 <style scoped>
 .highlight {
-  background-color: #e3e8e3;
+  outline: 2px solid var(--color-primary);
 }
 .vue-table {
   min-width: 100%;

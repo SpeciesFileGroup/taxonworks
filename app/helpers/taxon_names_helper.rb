@@ -141,7 +141,10 @@ module TaxonNamesHelper
       (s.join(' ') + '.').html_safe
     else
       if taxon_name.is_valid? # taxon_name.unavailable_or_invalid?
-        content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok, status: :valid })
+        content_tag(:span, safe_join([
+          content_tag(:span, '',data: {icon: :ok, status: :valid }), 
+          content_tag(:span, 'This name is valid/accepted.', data: { status: :valid })
+        ], ''), class: :brief_status, data: { status: :valid })
       else
         if taxon_name.is_ambiguously_invalid?
           tag.span('This name is not valid/accepted.'.html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
@@ -284,6 +287,8 @@ module TaxonNamesHelper
   def edit_taxon_name_link(taxon_name, target: nil)
     i = {'Combination': :combination, 'Protonym': :taxon_name}[taxon_name.type.to_sym]
     t = taxon_name.metamorphosize
+    icon = content_tag(:span, '', data: { icon: 'edit' }, class: 'small-icon')
+
     case target
     when :edit_task
       path = case i
@@ -292,15 +297,10 @@ module TaxonNamesHelper
              when :combination
                new_combination_task_path(taxon_name_id: t.id, literal: URI.encode_www_form_component(t.cached)) # only spaces should be an issue
              end
-      link_to(
-        content_tag(
-          :span, 'Edit (task)',
-          'data-icon' => 'edit',
-          class: 'small-icon'
-        ),
-        path, class: 'navigation-item', 'data-task' => 'new_taxon_name')
+
+      link_to(safe_join([icon, 'Edit (task)'], ''), path, class: 'navigation-item', 'data-task' => 'new_taxon_name')
     else
-      link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), send("edit_#{i}_path}", taxon_name.metamorphosize), 'class' => 'navigation-item')
+      link_to(safe_join([icon, 'Edit'], ''), send("edit_#{i}_path}", taxon_name.metamorphosize), 'class' => 'navigation-item')
     end
   end
 

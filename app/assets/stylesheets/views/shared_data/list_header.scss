@@ -1,8 +1,8 @@
 .pagination-bar {
   display: flex;
   flex-direction: column;
-  justify-content:flex-start;
-  align-items:left;
+  justify-content: flex-start;
+  align-items: left;
   padding: 6px;
   padding-left: $standard_padding;
   a {
@@ -15,52 +15,52 @@
   align-items: center;
   margin-right: 10px;
   span:last-child:before {
-    color:$navigation_border;
-    content: ("|");
+    color: var(--border-color);
+    content: ('|');
     padding-left: 10px;
     padding-right: 5px;
   }
 }
 
 .pagination {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    .first {
-        order: 4;
-        padding : 3px;
-        float: none;
-        border: none;
-    }
-    .prev {
-        display: none;
-        order: 1;
-        padding : 3px;
-        float: none;
-        border: none;
-    }
-    .page {
-        order: 3;
-        padding : 3px;
-        float: none;
-        border: none;
-    }
-    .current {
-      font-size: 14px;
-      font-weight: 500;
-    }
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  .first {
+    order: 4;
+    padding: 3px;
+    float: none;
+    border: none;
+  }
+  .prev {
+    display: none;
+    order: 1;
+    padding: 3px;
+    float: none;
+    border: none;
+  }
+  .page {
+    order: 3;
+    padding: 3px;
+    float: none;
+    border: none;
+  }
+  .current {
+    font-size: 14px;
+    font-weight: 500;
+  }
 
-    .next {
-        display: none;
-        order: 2;
-        padding : 3px;
-        float: none;
-        border: none;
-    }
-    .last {
-        order: 5;
-        padding : 3px;
-        float: none;
-        border: none;
-    }
+  .next {
+    display: none;
+    order: 2;
+    padding: 3px;
+    float: none;
+    border: none;
+  }
+  .last {
+    order: 5;
+    padding: 3px;
+    float: none;
+    border: none;
+  }
 }

@@ -17,9 +17,13 @@
       <div class="horizontal-left-content">
         <div
           v-help.section.options.drag
-          data-icon="w_scroll-v"
           class="option-box button-default circle-button cursor-pointer handle"
-        />
+        >
+          <VIcon
+            name="scrollV"
+            x-small
+          />
+        </div>
         <button
           type="button"
           class="option-box cursor-pointer circle-button"
@@ -45,6 +49,7 @@
 <script setup>
 import VSpinner from '@/components/ui/VSpinner'
 import { computed, ref } from 'vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   title: {
@@ -78,6 +83,9 @@ const hidden = ref(false)
 <style scoped>
 .option-box {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 24px;
   height: 24px;
   margin: 0 auto;

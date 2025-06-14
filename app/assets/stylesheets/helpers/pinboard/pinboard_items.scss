@@ -6,7 +6,7 @@
   }
 
   .pinboard-default-item {
-    border-left: 5px solid $color-action-button;
+    border-left: 5px solid var(--color-create);
   }
 
   .slide-panel-category-content {
@@ -65,7 +65,7 @@
   }
 
   .pinboard-dropdown:hover {
-    background-color: white;
+    background-color: var(--bg-body);
   }
 
   .pinboard-dropdown:hover .pinboard-dropdown-content {
@@ -74,17 +74,17 @@
     z-index: 9999;
     right: 0px;
     top: 0px;
-    border-left: 1px solid $navigation_background;
+    border-left: 1px solid var(--border-color);
     height: 100%;
     align-items: center;
     padding-left: $standard_padding * 0.5;
     padding-right: $standard_padding * 0.5;
-    background-color: #fff;
+    background-color: var(--bg-action);
   }
   .pinboard-menu-bar {
     width: 14px;
     height: 3px;
-    background-color: $color-secondary-2-4;
+    background-color: var(--color-primary);
     margin: 2px 0;
     transition: 0.4s;
   }
@@ -104,7 +104,7 @@
 
   li {
     position: relative;
-    border-bottom: 1px solid #fafafa;
+    border-bottom: 1px solid var(--border-color);
     border-left: 5px solid transparent;
     display: flex;
     align-items: center;
