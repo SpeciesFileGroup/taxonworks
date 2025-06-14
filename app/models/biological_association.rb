@@ -37,6 +37,7 @@ class BiologicalAssociation < ApplicationRecord
   include Shared::Confidences
   include Shared::Depictions
   include Shared::AutoUuid
+  include Shared::AssertedDistributions
   include Shared::IsData
 
   include BiologicalAssociation::GlobiExtensions
@@ -57,8 +58,6 @@ class BiologicalAssociation < ApplicationRecord
 
   has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_association, dependent: :destroy
   has_many :biological_associations_graphs, through: :biological_associations_biological_associations_graphs, inverse_of: :biological_associations
-
-  has_many :asserted_distributions, inverse_of: :biological_association, dependent: :restrict_with_error
 
   validates_presence_of :biological_relationship
   validates_presence_of :biological_association_subject

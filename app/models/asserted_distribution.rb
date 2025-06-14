@@ -57,9 +57,10 @@ class AssertedDistribution < ApplicationRecord
   belongs_to :geographic_area, class_name: :GeographicArea, foreign_key: :asserted_distribution_shape_id, inverse_of: :asserted_distributions
   belongs_to :gazetteer, class_name: :Gazetteer, foreign_key: :asserted_distribution_shape_id, inverse_of: :asserted_distributions
 
-  belongs_to :otu, class_name: :Otu, foreign_key: :asserted_distribution_object_id, inverse_of: :asserted_distributions
-  belongs_to :biological_association, class_name: :BiologicalAssociation, foreign_key: :asserted_distribution_object_id, inverse_of: :asserted_distributions
-  has_one :taxon_name, through: :otu
+  # TODO use asserted_distribution_object unless you really need these
+  #belongs_to :otu, class_name: :Otu, foreign_key: :asserted_distribution_object_id, inverse_of: :asserted_distributions
+  #belongs_to :biological_association, class_name: :BiologicalAssociation, foreign_key: :asserted_distribution_object_id, inverse_of: :asserted_distributions
+  #has_one :taxon_name, through: :otu
 
   before_validation :unify_is_absent
 
@@ -89,8 +90,8 @@ class AssertedDistribution < ApplicationRecord
     ::Queries.union(AssertedDistribution, [a, b])
   }
 
-  # TODO: No longer workable (probably)
-  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
+  # TODO: revive as needed
+  #accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area, name: 'conflicting geographic area', description: 'conflicting geographic area')
 
