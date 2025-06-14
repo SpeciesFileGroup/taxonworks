@@ -85,7 +85,7 @@ function sortTable(sortProperty) {
   } else {
     sortColumns.value[sortProperty] = !sortColumns.value[sortProperty]
   }
-  list.value.sort(compare)
+  props.list.sort(compare)
 }
 
 function classSort(value) {

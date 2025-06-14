@@ -18,10 +18,10 @@
     />
     <div class="content">
       <Otu
-        v-model="params.base.otu_id"
+        v-model="params.base.asserted_distribution_object_id"
       />
       <NavBar
-        :otu-id="params.base.otu_id"
+        :otu-id="params.base.asserted_distribution_object_id"
       />
     </div>
   </div>
@@ -54,10 +54,10 @@ function  resetFilter() {
 }
 
 function search() {
-  const params = { ...this.params.base }
+  const p = { ...params.value.base }
 
   searching.value = true
-  AssertedDistribution.where(params)
+  AssertedDistribution.where(p)
     .then((response) => {
       result.value = response.body
       emit('result', result.value)
@@ -75,7 +75,8 @@ function search() {
 function initParams() {
   return {
     base: {
-      asserted_distribution_object_type: undefined,
+      // TODO: type will need to be chooseable
+      asserted_distribution_object_type: 'Otu',
       asserted_distribution_object_id: undefined,
       embed: ['shape'],
       extend: ['asserted_distribution_shape']

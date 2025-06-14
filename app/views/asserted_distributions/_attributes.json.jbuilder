@@ -1,3 +1,4 @@
+
 json.extract! asserted_distribution, :id,
   :asserted_distribution_object_id, :asserted_distribution_object_type,
   :asserted_distribution_shape_type, :asserted_distribution_shape_id,
@@ -11,6 +12,7 @@ if extend_response_with('asserted_distribution_object')
     json.partial! '/shared/data/all/metadata',
       object: asserted_distribution.asserted_distribution_object,
       extensions: false
+  end
 end
 
 if extend_response_with('taxonomy')
