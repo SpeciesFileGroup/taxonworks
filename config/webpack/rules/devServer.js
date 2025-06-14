@@ -2,6 +2,8 @@ const { DefinePlugin } = require('webpack')
 const openInEditor = require('launch-editor-middleware')
 
 module.exports = (webpackConfig) => {
+  if (!webpackConfig.devServer) return {}
+
   const { server, host, port } = webpackConfig.devServer
 
   return {
