@@ -15,7 +15,7 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
   specify '#local_identifiers_container_match' do
     c = FactoryBot.create(:valid_container)
     e = FactoryBot.create(:valid_specimen, contained_in: c)
-    e.identifiers << FactoryBot.create(:valid_identifier_local)
+    FactoryBot.create(:valid_identifier_local, identifier_object: e)
 
     query.local_identifiers = false
     expect(query.local_identifiers_container_match).to eq(nil)
@@ -24,7 +24,7 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
   specify '#local_identifiers false 2' do
     c = FactoryBot.create(:valid_container)
     e = FactoryBot.create(:valid_specimen, contained_in: c)
-    e.identifiers << FactoryBot.create(:valid_identifier_local)
+    FactoryBot.create(:valid_identifier_local, identifier_object: e)
 
     query.local_identifiers = false
     expect(query.all).to contain_exactly()
@@ -35,8 +35,8 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
     e = FactoryBot.create(:valid_specimen, contained_in: c)  # not this
     n = FactoryBot.create(:valid_specimen)
 
-    c.identifiers << FactoryBot.create(:valid_identifier_local)
-    n.identifiers << FactoryBot.create(:valid_identifier_local) # or this
+    FactoryBot.create(:valid_identifier_local, identifier_object: c)
+    FactoryBot.create(:valid_identifier_local, identifier_object: n) # or this
 
     s = Specimen.create!
 
@@ -49,8 +49,8 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
     e = FactoryBot.create(:valid_specimen, contained_in: c)
     n = FactoryBot.create(:valid_specimen)
 
-    c.identifiers << FactoryBot.create(:valid_identifier_local) # on container
-    n.identifiers << FactoryBot.create(:valid_identifier_local) # on specimen
+    FactoryBot.create(:valid_identifier_local, identifier_object: c) # on container
+    FactoryBot.create(:valid_identifier_local, identifier_object: n) # on specimen
 
     query.local_identifiers = true
     expect(query.all).to contain_exactly(e, n, co1, co2)
