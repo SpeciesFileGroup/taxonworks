@@ -10,6 +10,14 @@
 /* import 'core-js/stable'
 import 'regenerator-runtime/runtime' */
 // Styles
+
+if (
+  process.env.NODE_ENV === 'development' &&
+  typeof __VUE_DEVTOOLS_CONFIG__ !== 'undefined'
+) {
+  window.VUE_DEVTOOLS_CONFIG = __VUE_DEVTOOLS_CONFIG__
+}
+
 import 'easymde/dist/easymde.min.css'
 import '@fontsource/ibm-plex-sans'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
