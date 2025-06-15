@@ -36,7 +36,7 @@ import { useStore } from '../../store/store'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
-import ShapeSelector from '@/components/ui/SmartSelector/ShapeSelector.vue'
+import ShapeSelector from '@/components/ui/SmartSelector/AssertedDistributionShapePicker.vue'
 
 const store = useStore()
 

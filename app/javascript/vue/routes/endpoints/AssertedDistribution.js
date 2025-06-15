@@ -52,4 +52,5 @@ export const AssertedDistribution = {
 
   batchTemplateCreate: (params) =>
     AjaxCall('post', `/${controller}/batch_template_create.json`, params),
+
 }

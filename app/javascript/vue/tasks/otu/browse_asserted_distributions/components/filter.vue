@@ -17,8 +17,12 @@
       :logo-size="{ width: '100px', height: '100px' }"
     />
     <div class="content">
-      <Otu
-        v-model="params.base.asserted_distribution_object_id"
+      <AssertedDistributionObjectPicker
+        minimal
+        autofocus
+        @select-object="(o) => {
+          params.base.asserted_distribution_object_id = o.id
+        }"
       />
       <NavBar
         :otu-id="params.base.asserted_distribution_object_id"
@@ -29,10 +33,10 @@
 
 <script setup>
 import VSpinner from '@/components/ui/VSpinner.vue'
-import Otu from './filters/otu.vue'
 import NavBar from './navBar.vue'
 import { AssertedDistribution } from '@/routes/endpoints'
 import { defineEmits, ref, watch } from 'vue'
+import AssertedDistributionObjectPicker from '@/components/ui/SmartSelector/AssertedDistributionObjectPicker.vue'
 
 const params = ref(initParams())
 const result = ref([])

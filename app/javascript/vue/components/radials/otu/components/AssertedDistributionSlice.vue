@@ -50,7 +50,7 @@
 import { ref, computed } from 'vue'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index'
 import { AssertedDistribution } from '@/routes/endpoints'
-import ShapeSelector from '@/components/ui/SmartSelector/ShapeSelector.vue'
+import ShapeSelector from '@/components/ui/SmartSelector/AssertedDistributionShapePicker.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
