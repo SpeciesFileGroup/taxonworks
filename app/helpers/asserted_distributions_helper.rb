@@ -3,7 +3,7 @@ module AssertedDistributionsHelper
   def asserted_distribution_tag(asserted_distribution)
     return nil if asserted_distribution.nil?
     [
-      otu_tag(asserted_distribution.otu).html_safe,
+      asserted_distribution_object(asserted_distribution, true).html_safe,
       (asserted_distribution.is_absent ? tag.span(' not in ', class: [:feedback, 'feedback-thin', 'feedback-warning']).html_safe : ' in ').html_safe,
       asserted_distribution_geo(asserted_distribution, true).html_safe
     # ' by ',
@@ -15,7 +15,7 @@ module AssertedDistributionsHelper
   def label_for_asserted_distribution(asserted_distribution)
     return nil if asserted_distribution.nil?
     [
-      label_for_otu(asserted_distribution.otu),
+      asserted_distribution_object(asserted_distribution, false),
       asserted_distribution_geo(asserted_distribution, false)
     ].compact.join(' in ')
   end
@@ -24,7 +24,8 @@ module AssertedDistributionsHelper
     return nil if asserted_distribution.nil?
     [
       link_to(
-        otu_tag(asserted_distribution.otu).html_safe, asserted_distribution.otu
+        asserted_distribution_object(asserted_distribution, true).html_safe,
+        asserted_distribution.asserted_distribution_object
       ),
       (asserted_distribution.is_absent ? content_tag(:span, ' not in ', class: :warning) : ' in '
       ),
@@ -35,34 +36,55 @@ module AssertedDistributionsHelper
     ].join('&nbsp;').html_safe
   end
 
+  def asserted_distribution_object(asserted_distribution, html)
+    object = asserted_distribution.asserted_distribution_object
+    klass = object.class.name.underscore
+
+    if html
+      send("#{klass}_tag", object)
+    else
+      send("label_for_#{klass}", object)
+    end
+  end
+
+  def geo_flair(asserted_distribution, html)
+    type = asserted_distribution.asserted_distribution_shape_type
+    feedback_type =
+      type == 'GeographicArea' ? 'feedback-primary' : 'feedback-secondary'
+
+    if html
+      content_tag(:span, type.titleize,
+         class: [:feedback, feedback_type, 'feedback-thin'])
+    else
+      "[#{type.titleize}]"
+    end
+  end
+
   def asserted_distribution_geo(asserted_distribution, html)
+    shape = asserted_distribution.asserted_distribution_shape
     if html
       [
-        object_tag(asserted_distribution.asserted_distribution_shape.metamorphosize),
+        object_tag(shape),
         geo_flair(asserted_distribution, true)
       ].join('&nbsp;')
     else
       [
-        label_for(asserted_distribution.asserted_distribution_shape.metamorphosize),
+        label_for(shape),
         geo_flair(asserted_distribution, false)
       ].join(' ')
     end
   end
 
   def geo_flair(asserted_distribution, html)
-    case asserted_distribution.asserted_distribution_shape_type
-    when 'GeographicArea'
-      if html
-        content_tag(:span, 'Geographic Area', class: [:feedback, 'feedback-primary', 'feedback-thin'])
-      else
-        '[Geographic Area]'
-      end
-    when 'Gazetteer'
-      if html
-        content_tag(:span, 'Gazetteer', class: [:feedback, 'feedback-secondary', 'feedback-thin'])
-      else
-        '[Gazetteer]'
-      end
+    type = asserted_distribution.asserted_distribution_shape_type
+    feedback_type =
+      type == 'GeographicArea' ? 'feedback-primary' : 'feedback-secondary'
+
+    if html
+      content_tag(:span, type.titleize,
+         class: [:feedback, feedback_type, 'feedback-thin'])
+    else
+      "[#{type.titleize}]"
     end
   end
 

@@ -7,7 +7,7 @@ module BiologicalAssociationsHelper
       object_tag(biological_association.biological_association_object)
   end
 
-  def biological_association_label(biological_association)
+  def label_for_biological_association(biological_association)
     return nil if biological_association.nil?
 
     label_for(biological_association.biological_association_subject) +
