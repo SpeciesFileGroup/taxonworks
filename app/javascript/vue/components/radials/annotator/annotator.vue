@@ -502,7 +502,6 @@ function resetAnnotator() {
 .radial-annotator {
   position: relative;
   width: initial;
-  color: initial;
 
   .modal-close {
     top: 30px;
