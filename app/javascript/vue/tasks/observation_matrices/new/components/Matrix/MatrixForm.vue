@@ -1,9 +1,9 @@
 <template>
-  <div class="panel basic-information">
-    <div class="header flex-separate">
+  <BlockLayout>
+    <template #header>
       <h3>Matrix</h3>
-    </div>
-    <div class="body">
+    </template>
+    <template #body>
       <div class="field label-above">
         <label>Name</label>
         <div class="horizontal-left-content full_width">
@@ -46,8 +46,8 @@
           />
         </div>
       </template>
-    </div>
-  </div>
+    </template>
+  </BlockLayout>
 </template>
 
 <script setup>
@@ -60,6 +60,7 @@ import { useStore } from 'vuex'
 import MatrixParent from './MatrixParent.vue'
 import VSwitch from './switch.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 
 const store = useStore()
 

@@ -1,72 +1,63 @@
 <template>
-  <div class="panel basic-information separate-top">
-    <div class="header">
+  <BlockLayout>
+    <template #header>
       <h3>Columns</h3>
-    </div>
-    <div class="body">
-      <smart-selector
+    </template>
+    <template #body>
+      <SmartSelector
         :options="smartOptions"
-        :add-option="moreOptions"
+        :add-option="DEFAULT_OPTIONS"
         v-model="view"
-        name="rows-smart"/>
+        name="rows-smart"
+      />
       <component
-        v-if="componentExist"
-        :is="componentSelected"
+        :is="currentComponent"
         :batch-type="view"
         :matrix-id="matrix.id"
         :list="lists[view]"
         type="descriptor"
-        @close="view = undefined"/>
-    </div>
-  </div>
+        @close="view = undefined"
+      />
+    </template>
+  </BlockLayout>
 </template>
-<script>
 
-  import { GetMatrixColumnMetadata } from '../../request/resources'
-  import SmartSelector from '../shared/smartSelector.vue'
-  import pinboardComponent from './batchView.vue'
-  import keywordsComponent from './keywordView.vue'
-  import searchComponent from './search.vue'
-  import FromAnotherMatrixComponent from './copyDescriptors'
-  import { GetterNames } from '../../store/getters/getters'
+<script setup>
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
+import { GetterNames } from '../../store/getters/getters'
+import { GetMatrixColumnMetadata } from '../../request/resources'
+import SmartSelector from '../shared/smartSelector.vue'
+import pinboard from './batchView.vue'
+import keywords from './keywordView.vue'
+import search from './search.vue'
+import FromAnotherMatrix from './copyDescriptors'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 
-  export default {
-    components: {
-      keywordsComponent,
-      pinboardComponent,
-      searchComponent,
-      SmartSelector,
-      FromAnotherMatrixComponent
-    },
-    computed: {
-      componentSelected () {
-        return this.removeSpaces(this.view + 'Component')
-      },
-      componentExist () {
-        return this.$options.components[this.removeSpaces(this.view + 'Component')]
-      },
-      matrix () {
-        return this.$store.getters[GetterNames.GetMatrix]
-      }
-    },
-    data() {
-      return {  
-        view: undefined,
-        smartOptions: [],
-        moreOptions: ['search', 'From Another Matrix'],
-        lists: []
-      }
-    },
-    mounted() {
-      GetMatrixColumnMetadata().then(response => {
-        this.smartOptions = Object.keys(response.body)
-        this.lists = response.body
-      })
-    },
-    methods: {
-      removeSpaces(line) {
-        return line.replace(/ /g, '')
-      }
-    }
-  }
+const DEFAULT_OPTIONS = ['search', 'From Another Matrix']
+
+const COMPONENTS = {
+  keywords,
+  pinboard,
+  search,
+  FromAnotherMatrix
+}
+
+const store = useStore()
+
+const matrix = computed(() => store.getters[GetterNames.GetMatrix])
+const currentComponent = computed(() => COMPONENTS[removeSpaces(view.value)])
+
+const smartOptions = ref([])
+const view = ref()
+const lists = ref([])
+
+GetMatrixColumnMetadata().then(({ body }) => {
+  smartOptions.value = [...Object.keys(body)]
+  lists.value = body
+})
+
+function removeSpaces(line) {
+  return line?.replace(/ /g, '')
+}
 </script>
