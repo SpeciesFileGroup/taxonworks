@@ -4,10 +4,10 @@
       <h3>Current</h3>
       <div class="flex-separate middle">
         {{ navList.current_otu.object_label }}
-        <div class="horizontal-left-content">
-          <otu-radial :global-id="navList.current_otu.global_id" />
-          <radial-annotator :global-id="navList.current_otu.global_id" />
-          <radial-object :global-id="navList.current_otu.global_id" />
+        <div class="horizontal-left-content gap-small">
+          <RadialOtu :global-id="navList.current_otu.global_id" />
+          <RadialAnnotator :global-id="navList.current_otu.global_id" />
+          <RadialObject :global-id="navList.current_otu.global_id" />
         </div>
       </div>
       <template v-if="navList.parent_otus.length">
@@ -17,9 +17,7 @@
             v-for="item in navList.parent_otus"
             :key="item.id"
           >
-            <a
-              :href="browseLink(item)"
-            >
+            <a :href="browseLink(item)">
               {{ item.object_label }}
             </a>
           </li>
@@ -32,9 +30,7 @@
             v-for="item in navList.previous_otus"
             :key="item.id"
           >
-            <a
-              :href="browseLink(item)"
-            >
+            <a :href="browseLink(item)">
               {{ item.object_label }}
             </a>
           </li>
@@ -47,9 +43,7 @@
             v-for="item in navList.next_otus"
             :key="item.id"
           >
-            <a
-              :href="browseLink(item)"
-            >
+            <a :href="browseLink(item)">
               {{ item.object_label }}
             </a>
           </li>
@@ -59,55 +53,43 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { Otu } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
+import { ref, watch } from 'vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialObject from '@/components/radials/navigation/radial'
-import OtuRadial from '@/components/radials/object/radial'
+import RadialOtu from '@/components/radials/object/radial'
 
-export default {
-  components: {
-    RadialAnnotator,
-    RadialObject,
-    OtuRadial
-  },
+const props = defineProps({
+  otuId: {
+    type: [String, Number],
+    default: undefined
+  }
+})
 
-  props: {
-    otuId: {
-      type: [String, Number],
-      default: undefined
-    }
-  },
+const navList = ref()
 
-  data() {
-    return {
-      navList: undefined
-    }
-  },
-
-  watch: {
-    otuId(newVal) {
-      if (newVal) {
-        this.loadNav(newVal)
-      } else {
-        this.navList = undefined
-      }
-    }
-  },
-
-  methods: {
-    loadNav(id) {
-      Otu.navigation(id)
-      .then((response) => {
-        this.navList = response.body
-      })
-      .catch(() => {})
-    },
-
-    browseLink(item) {
-      return `${RouteNames.BrowseAssertedDistribution}?otu_id=${item.id}`
+watch(
+  () => props.otuId,
+  (newVal) => {
+    if (newVal) {
+      loadNav(newVal)
+    } else {
+      navList.value = undefined
     }
   }
+)
+
+function loadNav(id) {
+  Otu.navigation(id)
+    .then((response) => {
+      navList.value = response.body
+    })
+    .catch(() => {})
+}
+
+function browseLink(item) {
+  return `${RouteNames.BrowseAssertedDistribution}?otu_id=${item.id}`
 }
 </script>
