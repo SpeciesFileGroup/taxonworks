@@ -4,8 +4,8 @@
       :object-types="AssertedDistributionShape"
       v-model="inputShape"
       :minimal="minimal"
-      :focus-on-select="focusOnSelect"
       :autofocus="autofocus"
+      :focus-on-select="focusOnSelect"
       @select-object="(o) => { emit('selectObject', o) }"
     />
   </div>

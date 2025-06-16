@@ -85,7 +85,10 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def list
-    @asserted_distributions = AssertedDistribution.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @asserted_distributions = AssertedDistribution
+      .with_project_id(sessions_current_project_id)
+      .order(:id)
+      .page(params[:page]) #.per(10) #.per(3)
   end
 
   def autocomplete

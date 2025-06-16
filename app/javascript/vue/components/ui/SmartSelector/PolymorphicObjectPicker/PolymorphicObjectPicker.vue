@@ -81,7 +81,7 @@ const inputObject = defineModel({
 })
 
 const smartSelector = ref(null)
-const tab = ref('Otu')
+const tab = ref(props.objectTypes[0]['display'])
 const loading = ref(false)
 
 const emit = defineEmits(['selectObject'])
