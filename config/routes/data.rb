@@ -51,9 +51,11 @@ end
 
 resources :biological_associations do
   concerns [:data_routes]
+  member do
+    get :navigation, defaults: {format: :json}
+  end
   collection do
     match :filter, to: 'biological_associations#index', via: [:get, :post]
-
     patch :batch_update
   end
 end

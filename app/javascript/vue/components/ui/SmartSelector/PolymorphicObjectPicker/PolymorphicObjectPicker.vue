@@ -117,7 +117,7 @@ function sendObjectFromId(id) {
 }
 
 function sendObject(object) {
-  object.objectType = tabData['singular']
+  object.objectType = tabData.value['singular']
   emit('selectObject', object)
   if (props.focusOnSelect) {
     smartSelector.value?.setFocus()

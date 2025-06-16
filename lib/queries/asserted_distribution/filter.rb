@@ -12,6 +12,8 @@ module Queries
 
       PARAMS = [
         :asserted_distribution_id,
+        :asserted_distribution_object_id,
+        :asserted_distribution_object_type,
         :asserted_distribution_shape_type,
         :geo_shape_id,
         :geo_mode,
@@ -28,7 +30,8 @@ module Queries
         :taxon_name_id,
         :wkt,
         asserted_distribution_id: [],
-        asserted_distribution_shape_type: [],
+        asserted_distribution_object_id: [],
+        asserted_distribution_object_type: [],        asserted_distribution_shape_type: [],
         geo_shape_id: [],
         geo_shape_type: [],
         geographic_area_id: [],
@@ -40,6 +43,14 @@ module Queries
       # @param asserted_distribution_id [Array, Integer, String]
       # @return [Array]
       attr_accessor :asserted_distribution_id
+
+      # @param asserted_distribution_object_id [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :asserted_distribution_object_id
+
+      # @param asserted_distribution_object_type [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :asserted_distribution_object_type
 
       # @param otu_id [Array, Integer, String]
       # @return [Array]
@@ -91,6 +102,10 @@ module Queries
         super
         @asserted_distribution_id =
           integer_param(params, :asserted_distribution_id)
+        @asserted_distribution_object_id =
+          integer_param(params, :asserted_distribution_object_id)
+        @asserted_distribution_object_type =
+          params[:asserted_distribution_object_type]
         @descendants = boolean_param(params, :descendants)
         @geo_json = params[:geo_json]
         @geographic_area_id = integer_param(params,:geographic_area_id)
@@ -114,6 +129,14 @@ module Queries
 
       def asserted_distribution_id
         [@asserted_distribution_id].flatten.compact
+      end
+
+      def asserted_distribution_object_id
+        [@asserted_distribution_object_id].flatten.compact
+      end
+
+      def asserted_distribution_object_type
+        [@asserted_distribution_object_type].flatten.compact
       end
 
       def otu_id
@@ -250,6 +273,16 @@ module Queries
         else
           nil
         end
+      end
+
+      def asserted_distribution_object_facet
+        return nil if asserted_distribution_object_id.nil? ||
+          asserted_distribution_object_type.nil?
+
+        ::AssertedDistribution
+          .where(asserted_distribution_object_id:)
+          .where(asserted_distribution_object_type:)
+
       end
 
       def asserted_distribution_shape_type_facet
@@ -392,7 +425,8 @@ module Queries
           geographic_item_id_facet,
           taxon_name_id_facet,
           wkt_facet,
-          asserted_distribution_shape_type_facet
+          asserted_distribution_shape_type_facet,
+          asserted_distribution_object_facet,
         ]
       end
 

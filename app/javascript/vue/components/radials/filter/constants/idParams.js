@@ -41,3 +41,8 @@ export const ID_PARAM_FOR = {
   [TAXON_NAME]: 'taxon_name_id',
   [TAXON_NAME_RELATIONSHIP]: 'taxon_name_relationship_id'
 }
+
+export const MODEL_FOR_ID_PARAM = {
+  'biological_association_id': BIOLOGICAL_ASSOCIATION,
+  'otu_id': OTU
+}

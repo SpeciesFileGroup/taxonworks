@@ -1,4 +1,5 @@
 module OtusHelper
+  include RecordNavigationHelper
 
   def otu_tag(otu)
     return nil if otu.nil?
@@ -75,20 +76,20 @@ module OtusHelper
 
   # @return [Array]
   #   of OTUs
-  def next_otus(otu)
+  def next_records(otu)
     if otu.taxon_name_id
       o = []
       t = otu.taxon_name.next_sibling
       unless t.nil?
         while o.empty?
-          o = t&.otus.to_a
           break if t.nil?
+          o = t.otus.to_a
           t = t.next_sibling
         end
       end
       o
     else
-      Otu.where(project_id: otu.id).where('id > ?', otu.id).all
+      super
     end
   end
 
@@ -96,24 +97,24 @@ module OtusHelper
   #   of OTUs
   # Some OTUs don't have TaxonName, skip along
   # until we hit one.
-  def previous_otus(otu)
+  def previous_records(otu)
     if otu.taxon_name_id
       o = []
       t = otu.taxon_name.previous_sibling
       unless t.nil?
         while o.empty?
-          o = t&.otus.to_a
           break if t.nil?
+          o = t.otus.to_a
           t = t.previous_sibling
         end
       end
       o
     else
-      Otu.where(project_id: otu.id).where('id < ?', otu.id).all
+      super
     end
   end
 
-  def parent_otus(otu)
+  def parent_records(otu)
     otu.taxon_name&.parent&.otus&.all || []
   end
 

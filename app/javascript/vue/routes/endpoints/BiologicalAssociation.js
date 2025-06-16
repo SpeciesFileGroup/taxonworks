@@ -41,5 +41,7 @@ export const BiologicalAssociation = {
     AjaxCall('post', `/${controller}/batch_rotate`, params),
 
   batchUpdate: (params) =>
-    AjaxCall('patch', `/${controller}/batch_update`, params)
+    AjaxCall('patch', `/${controller}/batch_update`, params),
+
+  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 }

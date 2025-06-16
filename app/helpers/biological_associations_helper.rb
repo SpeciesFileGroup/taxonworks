@@ -1,4 +1,5 @@
 module BiologicalAssociationsHelper
+  include RecordNavigationHelper
 
   def biological_association_tag(biological_association)
     return nil if biological_association.nil?

@@ -21,11 +21,11 @@
         minimal
         autofocus
         @select-object="(o) => {
-          params.base.asserted_distribution_object_id = o.id
+          params.asserted_distribution_object = o
         }"
       />
       <NavBar
-        :otu-id="params.base.asserted_distribution_object_id"
+        :asserted-distribution-object="params.asserted_distribution_object"
       />
     </div>
   </div>
@@ -35,33 +35,40 @@
 import VSpinner from '@/components/ui/VSpinner.vue'
 import NavBar from './navBar.vue'
 import { AssertedDistribution } from '@/routes/endpoints'
-import { defineEmits, ref, watch } from 'vue'
+import { ENDPOINTS_HASH } from '../const/endpoints'
+import { MODEL_FOR_ID_PARAM } from '@/components/radials/filter/constants/idParams'
+import { defineEmits, onMounted, ref, watch } from 'vue'
 import AssertedDistributionObjectPicker from '@/components/ui/SmartSelector/AssertedDistributionObjectPicker.vue'
 
 const params = ref(initParams())
 const result = ref([])
 const searching = ref(false)
 
-const emit = defineEmits(['reset'])
+const emit = defineEmits(['reset', 'result', 'urlRequest'])
 
-watch(() => [params.value.base.asserted_distribution_object_id,
-  params.value.base.asserted_distribution_object_type],
-(newVal) => {
-  if (newVal[0] && newVal[1]) {
-    search()
-  }
+watch(() => params.value.asserted_distribution_object,
+  (newVal) => {
+    if (newVal) {
+      search()
+    }
 })
 
 function  resetFilter() {
-  emit('reset', 'result', 'urlRequest')
+  emit('reset')
   params.value = initParams()
 }
 
 function search() {
-  const p = { ...params.value.base }
+  const payload = {
+    ...params.value.options,
+    asserted_distribution_object_id:
+      params.value.asserted_distribution_object.id,
+    asserted_distribution_object_type:
+      params.value.asserted_distribution_object.objectType,
+  }
 
   searching.value = true
-  AssertedDistribution.where(p)
+  AssertedDistribution.where(payload)
     .then((response) => {
       result.value = response.body
       emit('result', result.value)
@@ -78,14 +85,42 @@ function search() {
 
 function initParams() {
   return {
-    base: {
-      // TODO: type will need to be chooseable
-      asserted_distribution_object_type: 'Otu',
-      asserted_distribution_object_id: undefined,
+    asserted_distribution_object: undefined,
+    options: {
       embed: ['shape'],
       extend: ['asserted_distribution_shape']
     }
   }
+}
+
+onMounted(() => {
+  getParams()
+})
+
+function getParams() {
+  const urlParams = new URLSearchParams(window.location.search)
+  //const id = urlParams.get('otu_id')
+
+  for (const p of urlParams.keys()) {
+    const model = MODEL_FOR_ID_PARAM[p]
+    const endpoint = ENDPOINTS_HASH[model]
+    if (model && endpoint) {
+      const id = urlParams.get(p)
+      if (id && (/^\d+$/.test(id))) {
+        loadObject(model, endpoint, id)
+        break
+      }
+    }
+  }
+}
+
+function loadObject(model, endpoint, id) {
+  endpoint.find(id)
+    .then(({ body }) => {
+      body.objectType = model
+      params.value.asserted_distribution_object = body
+    })
+    .catch(() => {})
 }
 
 </script>

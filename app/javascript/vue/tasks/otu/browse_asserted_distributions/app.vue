@@ -45,8 +45,8 @@
       <FilterComponent
         class="separate-right filter"
         v-show="activeFilter"
-        @url-request="(e) => (urlRequest = e)"
-        @result="loadList"
+        @url-request="(url) => (urlRequest = url)"
+        @result="(list) => loadList(list)"
         @reset="resetTask"
       />
       <div class="full_width">
