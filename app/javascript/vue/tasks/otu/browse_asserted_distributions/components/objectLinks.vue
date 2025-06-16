@@ -88,6 +88,9 @@ watch(
     } else {
       navigation.value = undefined
     }
+  },
+  {
+    immediate: true
   }
 )
 
