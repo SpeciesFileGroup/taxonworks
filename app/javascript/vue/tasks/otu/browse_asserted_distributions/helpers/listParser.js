@@ -9,7 +9,7 @@ export default (list) => {
   return list.map((item) => ({
     id: item.id,
     globalId: item.global_id,
-    otu: item.otu.object_tag,
+    object: item.asserted_distribution_object.object_tag,
     level0: item.asserted_distribution_shape.level0_name,
     level1: item.asserted_distribution_shape.level1_name,
     level2: item.asserted_distribution_shape.level2_name,

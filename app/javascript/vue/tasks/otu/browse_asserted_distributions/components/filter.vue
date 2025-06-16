@@ -1,7 +1,7 @@
 <template>
   <BlockLayout>
     <template #header>
-      <h3>OTU</h3>
+      <h3>Object</h3>
     </template>
 
     <template #options>
@@ -19,37 +19,53 @@
     </template>
 
     <template #body>
-      <OtuComponent v-model="otuId" />
-      <OtuLinks :otu-id="otuId" />
+      <AssertedDistributionObjectPicker
+        minimal
+        autofocus
+        @select-object="(o) => {
+          objectId = o.id
+          objectType = o.objectType
+        }"
+      />
+      <ObjectLinks
+        :objectId="objectId"
+        :objectType="objectType"
+      />
     </template>
   </BlockLayout>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { setParam } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
-import OtuComponent from './filters/otu'
-import OtuLinks from './navBar'
+import { toSnakeCase } from '@/helpers'
+import { MODEL_FOR_ID_PARAM } from '@/components/radials/filter/constants/idParams'
+import { ENDPOINTS_HASH } from '../const/endpoints'
+import AssertedDistributionObjectPicker from '@/components/ui/SmartSelector/AssertedDistributionObjectPicker.vue'
+import ObjectLinks from './objectLinks.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 
-const otuId = ref(null)
+const objectId = ref(null)
+const objectType = ref(null)
 
 const emit = defineEmits(['select'])
 
-watch(otuId, (newVal) => {
-  if (newVal) {
-    emit('select', { otu_id: newVal })
+watch([objectId, objectType], ([newId, newType]) => {
+  if (newId && newType) {
+    emit('select', { object_id: newId, object_type: newType })
   }
 
-  setParam(RouteNames.BrowseAssertedDistribution, 'otu_id', newVal)
+  const id_param = `${toSnakeCase(newType)}_id`
+  setParam(RouteNames.BrowseAssertedDistribution, id_param, newId)
 })
 
 function resetFilter() {
   emit('reset')
-  otuId.value = null
+  objectId.value = null
+  objectType.value = null
 }
 
 onMounted(() => {
@@ -58,7 +74,6 @@ onMounted(() => {
 
 function getParams() {
   const urlParams = new URLSearchParams(window.location.search)
-  //const id = urlParams.get('otu_id')
 
   for (const p of urlParams.keys()) {
     const model = MODEL_FOR_ID_PARAM[p]
@@ -76,15 +91,14 @@ function getParams() {
 function loadObject(model, endpoint, id) {
   endpoint.find(id)
     .then(({ body }) => {
-      body.objectType = model
-      params.value.asserted_distribution_object = body
+      objectId.value = body.id
+      objectType.value = model
     })
     .catch(() => {})
 }
 
 </script>
+
 <style scoped>
-:deep(.btn-delete) {
-  background-color: var(--color-primary);
-}
+
 </style>

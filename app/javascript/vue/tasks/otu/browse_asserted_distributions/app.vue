@@ -1,5 +1,5 @@
 <template>
-  <div id="vue-task-browse-asserted-distribution-otu">
+  <div id="vue-task-browse-asserted-distribution-object">
     <VSpinner
       v-if="isLoading"
       full-screen
@@ -118,7 +118,7 @@ import { computed, ref } from 'vue'
 import { useFilter } from '@/shared/Filter/composition'
 import { AssertedDistribution } from '@/routes/endpoints'
 
-const COLUMNS = ['name', 'type', 'presence', 'shape', 'citations', 'otu']
+const COLUMNS = ['name', 'type', 'presence', 'shape', 'citations', 'object']
 
 const extend = [
   'citations',
@@ -151,7 +151,7 @@ function sortTable(sortProperty) {
 </script>
 
 <style lang="scss">
-#vue-task-browse-asserted-distribution-otu {
+#vue-task-browse-asserted-distribution-object {
   .header-box {
     height: 30px;
   }
