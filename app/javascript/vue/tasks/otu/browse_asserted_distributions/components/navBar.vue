@@ -10,11 +10,11 @@
         }}
       </h3>
       <div class="flex-separate middle">
-        {{ navList.current.object_label }}
-        <div class="horizontal-left-content">
-          <QuickForms :global-id="navList.current.global_id" />
-          <RadialAnnotator :global-id="navList.current.global_id" />
-          <RadialNavigator :global-id="navList.current.global_id" />
+        {{ navList.current_otu.object_label }}
+        <div class="horizontal-left-content gap-small">
+          <RadialOtu :global-id="navList.current_otu.global_id" />
+          <RadialAnnotator :global-id="navList.current_otu.global_id" />
+          <RadialObject :global-id="navList.current_otu.global_id" />
         </div>
       </div>
       <template v-if="navList.parents.length">
@@ -24,9 +24,7 @@
             v-for="item in navList.parents"
             :key="item.id"
           >
-            <a
-              :href="browseLink(item)"
-            >
+            <a :href="browseLink(item)">
               {{ item.object_label }}
             </a>
           </li>
@@ -39,9 +37,7 @@
             v-for="item in navList.previous"
             :key="item.id"
           >
-            <a
-              :href="browseLink(item)"
-            >
+            <a :href="browseLink(item)">
               {{ item.object_label }}
             </a>
           </li>
@@ -54,9 +50,7 @@
             v-for="item in navList.next"
             :key="item.id"
           >
-            <a
-              :href="browseLink(item)"
-            >
+            <a :href="browseLink(item)">
               {{ item.object_label }}
             </a>
           </li>
@@ -67,42 +61,42 @@
 </template>
 
 <script setup>
-import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
-import { ENDPOINTS_HASH } from '../const/endpoints'
-import { decapitalize, humanize, toSnakeCase } from '@/helpers'
+import { Otu } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { ref, watch } from 'vue'
-import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import RadialNavigator from '@/components/radials/navigation/radial.vue'
-import QuickForms from '@/components/radials/object/radial.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialObject from '@/components/radials/navigation/radial'
+import RadialOtu from '@/components/radials/object/radial'
 
 const props = defineProps({
-  assertedDistributionObject: {
-    type: Object,
+  otuId: {
+    type: [String, Number],
     default: undefined
   }
 })
 
-const navList = ref(undefined)
+const navList = ref()
 
-watch(() => props.assertedDistributionObject, (newVal) => {
-  if (newVal) {
-    loadNav(newVal)
-  } else {
-    navList.value = undefined
+watch(
+  () => props.otuId,
+  (newVal) => {
+    if (newVal) {
+      loadNav(newVal)
+    } else {
+      navList.value = undefined
+    }
   }
-})
+)
 
-function loadNav(o) {
-  ENDPOINTS_HASH[o.objectType].navigation(o.id)
-    .then(({ body }) => {
-      navList.value = body
+function loadNav(id) {
+  Otu.navigation(id)
+    .then((response) => {
+      navList.value = response.body
     })
     .catch(() => {})
 }
 
 function browseLink(item) {
-
-  return `${RouteNames.BrowseAssertedDistribution}?${ID_PARAM_FOR[props.assertedDistributionObject.objectType]}=${item.id}`
+  return `${RouteNames.BrowseAssertedDistribution}?otu_id=${item.id}`
 }
 </script>

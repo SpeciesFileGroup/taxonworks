@@ -3,14 +3,23 @@
     <table class="full_width">
       <thead>
         <tr>
-          <th
-            :class="() => classSort('object_tag')"
-            @click="() => sortTable('object_tag')"
-          >
-            Object tag
+          <th class="w-2" />
+          <th>
+            <div class="gap-small">
+              Object tag
+              <VBtn
+                color="primary"
+                circle
+                @click="sortColumn('object_tag')"
+              >
+                <VIcon
+                  name="alphabeticalSort"
+                  x-small
+                />
+              </VBtn>
+            </div>
           </th>
-          <th>Citations</th>
-          <th>Options</th>
+          <th @click="sortColumn('object_tag')">Citations</th>
         </tr>
       </thead>
       <tbody>
@@ -18,6 +27,15 @@
           v-for="item in list"
           :key="item.id"
         >
+          <td>
+            <div class="horizontal-right-content gap-small">
+              <RadialAnnotator
+                type="annotations"
+                :global-id="item.global_id"
+              />
+              <RadialObject :global-id="item.global_id" />
+            </div>
+          </td>
           <td>
             <span v-html="item.object_tag" />
           </td>
@@ -28,17 +46,6 @@
             >
               <span>{{ citation.citation_source_body }};</span>
             </template>
-          </td>
-          <td class="options-column">
-            <div class="horizontal-left-content">
-              <RadialNavigator
-                :global-id="item.global_id"
-              />
-              <RadialAnnotator
-                type="annotations"
-                :global-id="item.global_id"
-              />
-            </div>
           </td>
         </tr>
       </tbody>
@@ -53,7 +60,10 @@
 
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import RadialNavigator from '@/components/radials/navigation/radial'
+import RadialObject from '@/components/radials/navigation/radial'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { sortArray } from '@/helpers'
 import { ref } from 'vue'
 
 const props = defineProps({
@@ -63,50 +73,15 @@ const props = defineProps({
   }
 })
 
-const sortColumns = ref({
-  name: undefined,
-  verbatim_author: undefined,
-  year_of_publication: undefined,
-  rank: undefined,
-  original_combination: undefined
-})
+const emit = defineEmits(['sort'])
+const ascending = ref(false)
 
-function sortTable(sortProperty) {
-  function compare(a, b) {
-    if (a[sortProperty] < b[sortProperty])
-      return sortColumns.value[sortProperty] ? -1 : 1
-    if (a[sortProperty] > b[sortProperty])
-      return sortColumns.value[sortProperty] ? 1 : -1
-    return 0
-  }
+function sortColumn(attr) {
+  emit(
+    'sort',
+    sortArray(props.list, attr, ascending.value, { stripHtml: true })
+  )
 
-  if (sortColumns.value[sortProperty] == undefined) {
-    sortColumns.value[sortProperty] = true
-  } else {
-    sortColumns.value[sortProperty] = !sortColumns.value[sortProperty]
-  }
-  props.list.sort(compare)
-}
-
-function classSort(value) {
-  if (sortColumns.value[value] == true) {
-    return 'headerSortDown'
-  }
-  if (sortColumns.value[value] == false) {
-    return 'headerSortUp'
-  }
-  return ''
+  ascending.value = !ascending.value
 }
 </script>
-
-<style lang="scss" scoped>
-table {
-  margin-top: 0px;
-}
-tr {
-  height: 44px;
-}
-.options-column {
-  width: 130px;
-}
-</style>

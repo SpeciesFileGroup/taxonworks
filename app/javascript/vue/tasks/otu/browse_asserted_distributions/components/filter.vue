@@ -1,96 +1,55 @@
 <template>
-  <div class="panel">
-    <div class="flex-separate content middle action-line">
-      <span>Filter</span>
-      <span
-        data-icon="reset"
-        class="cursor-pointer"
+  <BlockLayout>
+    <template #header>
+      <h3>OTU</h3>
+    </template>
+
+    <template #options>
+      <VBtn
+        color="primary"
+        circle
         @click="resetFilter"
       >
-        Reset
-      </span>
-    </div>
-    <VSpinner
-      v-if="searching"
-      full-screen
-      legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px' }"
-    />
-    <div class="content">
-      <AssertedDistributionObjectPicker
-        minimal
-        autofocus
-        @select-object="(o) => {
-          params.asserted_distribution_object = o
-        }"
-      />
-      <NavBar
-        :asserted-distribution-object="params.asserted_distribution_object"
-      />
-    </div>
-  </div>
+        <VIcon
+          name="reset"
+          x-small
+          title="Reset"
+        />
+      </VBtn>
+    </template>
+
+    <template #body>
+      <OtuComponent v-model="otuId" />
+      <OtuLinks :otu-id="otuId" />
+    </template>
+  </BlockLayout>
 </template>
 
 <script setup>
-import VSpinner from '@/components/ui/VSpinner.vue'
-import NavBar from './navBar.vue'
-import { AssertedDistribution } from '@/routes/endpoints'
-import { ENDPOINTS_HASH } from '../const/endpoints'
-import { MODEL_FOR_ID_PARAM } from '@/components/radials/filter/constants/idParams'
-import { defineEmits, onMounted, ref, watch } from 'vue'
-import AssertedDistributionObjectPicker from '@/components/ui/SmartSelector/AssertedDistributionObjectPicker.vue'
+import { ref, watch } from 'vue'
+import { setParam } from '@/helpers'
+import { RouteNames } from '@/routes/routes'
+import OtuComponent from './filters/otu'
+import OtuLinks from './navBar'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 
-const params = ref(initParams())
-const result = ref([])
-const searching = ref(false)
+const otuId = ref(null)
 
-const emit = defineEmits(['reset', 'result', 'urlRequest'])
+const emit = defineEmits(['select'])
 
-watch(() => params.value.asserted_distribution_object,
-  (newVal) => {
-    if (newVal) {
-      search()
-    }
+watch(otuId, (newVal) => {
+  if (newVal) {
+    emit('select', { otu_id: newVal })
+  }
+
+  setParam(RouteNames.BrowseAssertedDistribution, 'otu_id', newVal)
 })
 
-function  resetFilter() {
+function resetFilter() {
   emit('reset')
-  params.value = initParams()
-}
-
-function search() {
-  const payload = {
-    ...params.value.options,
-    asserted_distribution_object_id:
-      params.value.asserted_distribution_object.id,
-    asserted_distribution_object_type:
-      params.value.asserted_distribution_object.objectType,
-  }
-
-  searching.value = true
-  AssertedDistribution.where(payload)
-    .then((response) => {
-      result.value = response.body
-      emit('result', result.value)
-      emit('urlRequest', response.request.responseURL)
-      if (result.value.length === 500) {
-        TW.workbench.alert.create('Results may be truncated.', 'notice')
-      }
-    })
-    .catch(() => {})
-    .finally(() => {
-      searching.value = false
-    })
-}
-
-function initParams() {
-  return {
-    asserted_distribution_object: undefined,
-    options: {
-      embed: ['shape'],
-      extend: ['asserted_distribution_shape']
-    }
-  }
+  otuId.value = null
 }
 
 onMounted(() => {
