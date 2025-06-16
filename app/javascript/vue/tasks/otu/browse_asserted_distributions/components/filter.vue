@@ -25,8 +25,8 @@
         @select-object="(o) => objectSelected(o)"
       />
       <ObjectLinks
-        :objectId="parameters.objectId"
-        :objectType="parameters.objectType"
+        :object-id="parameters.asserted_distribution_object_id"
+        :object-type="parameters.asserted_distribution_object_type"
       />
     </template>
   </BlockLayout>
@@ -38,7 +38,6 @@ import ObjectLinks from './objectLinks.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import { toSnakeCase } from '@/helpers'
 
 const parameters = defineModel({
   type: Object,
@@ -52,12 +51,13 @@ function resetFilter() {
 }
 
 function objectSelected(o) {
-  parameters.objectId = o.id
-  parameters.objectType = o.objectType
+  parameters.value.asserted_distribution_object_id = o.id
+  parameters.value.asserted_distribution_object_type = o.objectType
 
-  const model = toSnakeCase(o.objectType)
-  const model_query_term = `${model}_id`
-  emit('select', { [model_query_term]: item.id })
+  emit('select', {
+    asserted_distribution_object_id: o.id,
+    asserted_distribution_object_type: o.objectType
+  })
 }
 
 </script>

@@ -58,10 +58,9 @@
 
 <script setup>
 import { ENDPOINTS_HASH } from '../const/endpoints'
-import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
 import { RouteNames } from '@/routes/routes'
 import { ref, watch } from 'vue'
-import { toSnakeCase, humanize } from '@/helpers'
+import { decapitalize, toSnakeCase, humanize } from '@/helpers'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialObject from '@/components/radials/navigation/radial'
 import RadialOtu from '@/components/radials/object/radial'
@@ -81,10 +80,10 @@ const props = defineProps({
 const navigation = ref()
 
 watch(
-  () => props.objectId,
-  (newVal) => {
-    if (newVal) {
-      loadNav(newVal)
+  () => [props.objectId, props.objectType],
+  ([newId, newType]) => {
+    if (newId || newType) {
+      loadNav()
     } else {
       navigation.value = undefined
     }
@@ -94,8 +93,8 @@ watch(
   }
 )
 
-function loadNav(id) {
-  ENDPOINTS_HASH[props.objectType].navigation(id)
+function loadNav() {
+  ENDPOINTS_HASH[props.objectType].navigation(props.objectId)
     .then((response) => {
       navigation.value = response.body
     })
@@ -103,6 +102,8 @@ function loadNav(id) {
 }
 
 function browseLink(item) {
-  return `${RouteNames.BrowseAssertedDistribution}?${ID_PARAM_FOR[props.objectType]}=${item.id}`
+  const idParam = `asserted_distribution_object_id=${item.id}`
+  const typeParam = `asserted_distribution_object_type=${props.objectType}`
+  return `${RouteNames.BrowseAssertedDistribution}?${idParam}&${typeParam}`
 }
 </script>

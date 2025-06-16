@@ -124,11 +124,12 @@ const COLUMNS = [
   'level1',
   'level2',
   'name',
-  'type',
+  'shape type',
   'presence',
   'shape',
   'citations',
-  'object'
+  'object',
+  'object type'
 ]
 
 const extend = [
@@ -151,7 +152,7 @@ const {
   resetFilter,
   isLoading,
   parameters
-} = useFilter(AssertedDistribution, { initParameters: { extend }, listParser })
+} = useFilter(AssertedDistribution, { initParameters: { extend, embed }, listParser })
 
 const geojson = computed(() => list.value.map((item) => item.feature))
 
