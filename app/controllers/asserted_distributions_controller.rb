@@ -41,7 +41,8 @@ class AssertedDistributionsController < ApplicationController
   # POST /asserted_distributions
   # POST /asserted_distributions.json
   def create
-    @asserted_distribution = AssertedDistribution.new(asserted_distribution_params)
+    @asserted_distribution =
+      AssertedDistribution.new(asserted_distribution_params)
     respond_to do |format|
       if @asserted_distribution.save
         format.html { redirect_to @asserted_distribution, notice: 'Asserted distribution was successfully created.' }
@@ -191,8 +192,8 @@ class AssertedDistributionsController < ApplicationController
 
   def asserted_distribution_params
     params.require(:asserted_distribution).permit(
-      :asserted_distribution_object_id,
       :asserted_distribution_object_type,
+      :asserted_distribution_object_id,
       :asserted_distribution_shape_type,
       :asserted_distribution_shape_id,
       :is_absent,

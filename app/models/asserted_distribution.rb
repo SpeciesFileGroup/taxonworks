@@ -1,11 +1,15 @@
-# An AssertedDistribution is the Source-backed assertion that a taxon (OTU) is present in some *spatial area*. It requires a Citation indicating where/who made the assertion.
+# An AssertedDistribution is the Source-backed assertion that a record (e.g. Otu, BiologicalAssociation, etc.) is present in some *spatial area*. It requires a Citation indicating where/who made the assertion.
 # In TaxonWorks the areas are drawn from GeographicAreas and Gazetteers.
 #
 # AssertedDistributions can be asserts that the source indicates that a taxon is NOT present in an area.  This is a "positive negative" in , i.e. the Source can be thought of recording evidence that a taxon is not present. TaxonWorks does not differentiate between types of negative evidence.
 #
-# @!attribute otu_id
+# @!attribute asserted_distribution_object_type
+#   @return [String]
+#   polymorphic object type
+#
+# @!attribute asserted_distribution_object_id
 #   @return [Integer]
-#   the OTU ID
+#   polymorphic object ID
 #
 # @!attribute asserted_distribution_shape_type
 #   @return [String]
@@ -58,14 +62,13 @@ class AssertedDistribution < ApplicationRecord
   belongs_to :gazetteer, class_name: :Gazetteer, foreign_key: :asserted_distribution_shape_id, inverse_of: :asserted_distributions
 
   # TODO use asserted_distribution_object unless you really need these
-  #belongs_to :otu, class_name: :Otu, foreign_key: :asserted_distribution_object_id, inverse_of: :asserted_distributions
   #belongs_to :biological_association, class_name: :BiologicalAssociation, foreign_key: :asserted_distribution_object_id, inverse_of: :asserted_distributions
   #has_one :taxon_name, through: :otu
 
   before_validation :unify_is_absent
 
-  validates_uniqueness_of [:asserted_distribution_object_id, :asserted_distribution_object_type], scope: [:project_id, :asserted_distribution_shape_id, :asserted_distribution_shape_type, :is_absent], message: 'this shape, object and present/absent combination already exists'
   validate :new_records_include_citation
+  validate :object_shape_absence_triple_is_unique
 
   # TODO: deprecate scopes referencing single parameter where()
   scope :with_otu_id, -> (otu_id) { where(otu_id:) }
@@ -127,6 +130,12 @@ class AssertedDistribution < ApplicationRecord
 
   def geographic_item
     asserted_distribution_shape.default_geographic_item
+  end
+
+  def otu
+    return nil if asserted_distribution_object_type != 'Otu'
+
+    asserted_distribution_object
   end
 
   def has_shape?
@@ -323,6 +332,19 @@ class AssertedDistribution < ApplicationRecord
     result
   end
 
+  def object_shape_absence_triple_is_unique
+    if AssertedDistribution
+        .where(
+          asserted_distribution_object_type:, asserted_distribution_object_id:,
+          asserted_distribution_shape_type:, asserted_distribution_shape_id:,
+          is_absent:
+        )
+        .where.not(id:)
+        .exists?
 
-
+      errors.add(:base,
+        'this shape, object and present/absent combination already exists'
+      )
+    end
+  end
 end

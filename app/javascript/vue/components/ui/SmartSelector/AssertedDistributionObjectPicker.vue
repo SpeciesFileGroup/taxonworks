@@ -6,8 +6,13 @@
       :minimal="minimal"
       :autofocus="autofocus"
       :focus-on-select="focusOnSelect"
+      :label="label"
       @select-object="(o) => { emit('selectObject', o) }"
-    />
+    >
+      <template #tabs-right>
+        <slot name="tabs-right" />
+      </template>
+    </PolymorphicObjectPicker>
   </div>
 </template>
 
@@ -29,6 +34,11 @@ const props = defineProps({
   autofocus: {
     type: Boolean,
     default: false
+  },
+
+  label: {
+    type: String,
+    required: false
   }
 })
 

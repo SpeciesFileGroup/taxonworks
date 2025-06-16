@@ -30,9 +30,9 @@
         v-model="selectorModelObject"
         :placeholder="`Search for a ${tabData['human']}`"
         :model="tabData['snake']"
+        :label="label"
         klass="AssertedDistribution"
         target="AssertedDistribution"
-        label="name"
         ref="smartSelector"
         inline
         buttons
@@ -72,6 +72,16 @@ const props = defineProps({
   autofocus: {
     type: Boolean,
     default: false
+  },
+
+  label: {
+    type: String,
+    required: false
+  },
+
+  klassKey: {
+    type: String,
+    default: 'objectType'
   }
 })
 
@@ -103,7 +113,7 @@ const selectorModelObject = computed({
       : {}
   },
   set(value) {
-    value.meta = tabData.value
+    setTypeOnObject(value)
     inputObject.value = value
   }
 })
@@ -111,17 +121,23 @@ const selectorModelObject = computed({
 function sendObjectFromId(id) {
   tabData.value['endpoint'].find(id)
     .then(({ body }) => {
+      setTypeOnObject(body)
+      inputObject.value = body
       sendObject(body)
     })
     .catch(() => {})
 }
 
 function sendObject(object) {
-  object.objectType = tabData.value['singular']
+  setTypeOnObject(object)
   emit('selectObject', object)
   if (props.focusOnSelect) {
     smartSelector.value?.setFocus()
   }
+}
+
+function setTypeOnObject(o) {
+  o[props.klassKey] = tabData.value['singular']
 }
 
 </script>

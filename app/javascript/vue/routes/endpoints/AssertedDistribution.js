@@ -6,6 +6,8 @@ const permitParams = {
   asserted_distribution: {
     id: Number,
     otu_id: String,
+    asserted_distribution_object_type: String,
+    asserted_distribution_object_id: Number,
     asserted_distribution_shape_type: String,
     asserted_distribution_shape_id: Number,
     is_absent: Boolean,

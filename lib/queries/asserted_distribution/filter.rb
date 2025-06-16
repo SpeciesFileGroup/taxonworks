@@ -31,7 +31,8 @@ module Queries
         :wkt,
         asserted_distribution_id: [],
         asserted_distribution_object_id: [],
-        asserted_distribution_object_type: [],        asserted_distribution_shape_type: [],
+        asserted_distribution_object_type: [],
+        asserted_distribution_shape_type: [],
         geo_shape_id: [],
         geo_shape_type: [],
         geographic_area_id: [],
@@ -276,9 +277,10 @@ module Queries
       end
 
       def asserted_distribution_object_facet
-        return nil if asserted_distribution_object_id.nil? ||
-          asserted_distribution_object_type.nil?
+        return nil if asserted_distribution_object_id.empty? ||
+          asserted_distribution_object_type.empty?
 
+        # TODO: should these params really be arrays?
         ::AssertedDistribution
           .where(asserted_distribution_object_id:)
           .where(asserted_distribution_object_type:)

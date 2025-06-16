@@ -9,9 +9,9 @@ json.partial! '/shared/data/all/metadata', object: asserted_distribution
 
 if extend_response_with('asserted_distribution_object')
   json.asserted_distribution_object do
-    json.partial! '/shared/data/all/metadata',
-      object: asserted_distribution.asserted_distribution_object,
-      extensions: false
+    klass = asserted_distribution.asserted_distribution_object_type.underscore
+    json.partial! "/#{klass.pluralize}/attributes",
+      {klass.to_sym => asserted_distribution.asserted_distribution_object}
   end
 end
 

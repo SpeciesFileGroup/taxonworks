@@ -1,21 +1,13 @@
 <template>
-  <BlockLayout :warning="!store.otu">
+  <BlockLayout :warning="!store.object">
     <template #header>
-      <h3>Otu</h3>
+      <h3>Object</h3>
     </template>
     <template #body>
       <div class="horizontal-left-content align-start">
-        <SmartSelector
-          v-model="store.otu"
+        <AssertedDistributionObjectPicker
+          v-model="store.object"
           class="full_width"
-          model="otus"
-          klass="AssertedDistribution"
-          target="AssertedDistribution"
-          pin-section="Otus"
-          pin-type="Otu"
-          search
-          :autocomplete="false"
-          otu-picker
         >
           <template #tabs-right>
             <VLock
@@ -23,7 +15,7 @@
               class="margin-small-left"
             />
           </template>
-        </SmartSelector>
+        </AssertedDistributionObjectPicker>
       </div>
       <hr
         v-if="store.otu"
@@ -31,8 +23,8 @@
       />
       <SmartSelectorItem
         label="object_tag"
-        :item="store.otu"
-        @unset="store.otu = null"
+        :item="store.object"
+        @unset="store.object = null"
       />
     </template>
   </BlockLayout>
@@ -42,14 +34,15 @@
 import { onBeforeMount } from 'vue'
 import { Otu } from '@/routes/endpoints'
 import { useStore } from '../../store/store'
+import AssertedDistributionObjectPicker from '@/components/ui/SmartSelector/AssertedDistributionObjectPicker.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 
 const store = useStore()
 
 onBeforeMount(() => {
+  // TODO: handle other types
   const urlParams = new URLSearchParams(window.location.search)
   const otuId = urlParams.get('otu_id')
 
@@ -57,7 +50,7 @@ onBeforeMount(() => {
 
   Otu.find(otuId)
     .then((response) => {
-      store.otu = response.body
+      store.object = response.body
     })
     .catch(() => {})
 })
