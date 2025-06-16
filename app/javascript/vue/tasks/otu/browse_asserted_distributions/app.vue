@@ -49,6 +49,7 @@
       <VFilter
         class="filter"
         v-show="activeFilter"
+        v-model="parameters"
         @reset="resetFilter"
         @select="
           (params) => makeFilterRequest({ ...params, per: 500, extend, embed })
@@ -118,7 +119,17 @@ import { computed, ref } from 'vue'
 import { useFilter } from '@/shared/Filter/composition'
 import { AssertedDistribution } from '@/routes/endpoints'
 
-const COLUMNS = ['name', 'type', 'presence', 'shape', 'citations', 'otu']
+const COLUMNS = [
+  'level0',
+  'level1',
+  'level2',
+  'name',
+  'type',
+  'presence',
+  'shape',
+  'citations',
+  'otu'
+]
 
 const extend = [
   'citations',
@@ -132,8 +143,15 @@ const embed = ['level_names', 'shape']
 
 defineOptions({ name: 'BrowseAssertedDistributions' })
 
-const { list, append, makeFilterRequest, urlRequest, resetFilter, isLoading } =
-  useFilter(AssertedDistribution, { initParameters: { extend }, listParser })
+const {
+  list,
+  append,
+  makeFilterRequest,
+  urlRequest,
+  resetFilter,
+  isLoading,
+  parameters
+} = useFilter(AssertedDistribution, { initParameters: { extend }, listParser })
 
 const geojson = computed(() => list.value.map((item) => item.feature))
 

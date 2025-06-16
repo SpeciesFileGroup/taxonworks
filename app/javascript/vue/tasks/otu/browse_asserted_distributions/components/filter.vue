@@ -19,37 +19,44 @@
     </template>
 
     <template #body>
-      <OtuComponent v-model="otuId" />
-      <OtuLinks :otu-id="otuId" />
+      <div>
+        <span>Name</span>
+        <VAutocomplete
+          url="/otus/autocomplete"
+          placeholder="Search an OTU"
+          param="term"
+          label="label_html"
+          autofocus
+          clear-after
+          @get-item="
+            (item) => {
+              parameters.otu_id = item.id
+              emit('select', { otu_id: item.id })
+            }
+          "
+        />
+      </div>
+      <OtuLinks :otu-id="parameters.otu_id" />
     </template>
   </BlockLayout>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { setParam } from '@/helpers'
-import { RouteNames } from '@/routes/routes'
-import OtuComponent from './filters/otu'
 import OtuLinks from './navBar'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-
-const otuId = ref(null)
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
 
 const emit = defineEmits(['select'])
 
-watch(otuId, (newVal) => {
-  if (newVal) {
-    emit('select', { otu_id: newVal })
-  }
-
-  setParam(RouteNames.BrowseAssertedDistribution, 'otu_id', newVal)
+const parameters = defineModel({
+  type: Object,
+  required: true
 })
 
 function resetFilter() {
   emit('reset')
-  otuId.value = null
 }
 </script>
 <style scoped>

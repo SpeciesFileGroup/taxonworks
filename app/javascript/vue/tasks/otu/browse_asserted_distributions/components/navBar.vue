@@ -78,6 +78,9 @@ watch(
     } else {
       navList.value = undefined
     }
+  },
+  {
+    immediate: true
   }
 )
 
