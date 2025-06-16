@@ -68,11 +68,12 @@ const isExpanded = computed({
   left: -0.625rem;
   padding: 0px;
   color: var(--color-primary);
-  background: var(--color-panel);
+  background: var(--bg-foreground);
   border: none;
   outline: none;
   box-shadow: none;
   z-index: 2;
+  cursor: pointer;
 }
 
 svg {

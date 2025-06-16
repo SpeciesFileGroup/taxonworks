@@ -1,5 +1,5 @@
 <template>
-  <BlockLayout class="panel basic-information separate-top">
+  <BlockLayout>
     <template #header>
       <h3>Rows</h3>
     </template>

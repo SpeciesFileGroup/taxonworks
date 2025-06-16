@@ -12,7 +12,7 @@
     />
     <div
       class="header flex-separate middle"
-      :class="{ 'validation-warning': warning }"
+      :class="{ 'validation-warning': warning, [headerClass]: headerClass }"
     >
       <slot name="header">
         <h3>Default title</h3>
@@ -46,6 +46,11 @@ const props = defineProps({
   },
 
   anchor: {
+    type: String,
+    default: undefined
+  },
+
+  headerClass: {
     type: String,
     default: undefined
   },
