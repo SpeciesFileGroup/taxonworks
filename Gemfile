@@ -177,7 +177,7 @@ group :test, :development do
   gem 'rspec-rails', '~> 6.1'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'factory_bot_rails', '~> 6.2'
+  gem 'factory_bot_rails', '~> 6.5'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
   gem 'puma', '~> 6.3'
 end
