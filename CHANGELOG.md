@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Filter asserted distributions: OTU Radial to table results
 - New OTU task: Recent list [#4413]
+- Sound size summary to Admin user activity task
 
 ### Changed
 
