@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New OTU task: Recent list [#4413]
 - Sound size summary to Admin user activity task
 - Multi-update DA task: Allow empty cell pasting [#4436]
+- Created and updated dates to DwC import cards [#4439]
 
 ### Changed
 
@@ -41,6 +42,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4425]: https://github.com/SpeciesFileGroup/taxonworks/issues/4425
 [#4434]: https://github.com/SpeciesFileGroup/taxonworks/issues/4434
 [#4436]: https://github.com/SpeciesFileGroup/taxonworks/issues/4436
+[#4439]: https://github.com/SpeciesFileGroup/taxonworks/issues/4439
 [#4441]: https://github.com/SpeciesFileGroup/taxonworks/issues/4441
 
 \-
