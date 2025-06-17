@@ -82,7 +82,7 @@ const navigation = ref()
 watch(
   () => [props.objectId, props.objectType],
   ([newId, newType]) => {
-    if (newId || newType) {
+    if (newId && newType) {
       loadNav()
     } else {
       navigation.value = undefined

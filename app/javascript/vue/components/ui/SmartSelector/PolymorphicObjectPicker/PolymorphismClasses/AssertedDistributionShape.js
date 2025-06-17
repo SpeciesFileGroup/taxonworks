@@ -8,7 +8,8 @@ export default [
     human: 'geographic area',
     display: 'Geographic area',
     snake: 'geographic_areas',
-    endpoint: GeographicArea
+    endpoint: GeographicArea,
+    query_key: 'geographic_area_id',
   },
 
   {
@@ -17,7 +18,8 @@ export default [
     human: 'gazetteer',
     display: 'Gazetteer',
     snake: 'gazetteers',
-    endpoint: Gazetteer
+    endpoint: Gazetteer,
+    query_key: 'gazetteer_id',
   },
 
 ]

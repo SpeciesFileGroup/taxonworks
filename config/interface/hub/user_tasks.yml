@@ -362,7 +362,7 @@ new_asserted_distribution_task:
   categories:
     - new
   status: prototype
-  description: 'Create new asserted distributions (Otu, source, and shape combinations). Has locking and cloning mechanisms.'
+  description: 'Create new asserted distributions (Object, source, and shape combinations). Has locking and cloning mechanisms.'
 index_topics_hub_task:
   hub: true
   name: 'Topics hub'
@@ -442,7 +442,7 @@ browse_asserted_distributions_task:
   categories:
     - browse
   status: prototype
-  description: 'Browse through asserted distributions summarized by OTU.  Map, table, and CSV downloads.'
+  description: 'Browse through asserted distributions summarized by object.  Map, table, and CSV downloads.'
 filter_collection_objects_task:
   hub: true
   name: 'Filter collection objects'

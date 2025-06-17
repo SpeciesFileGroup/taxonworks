@@ -81,7 +81,7 @@ const props = defineProps({
 
   klassKey: {
     type: String,
-    default: 'objectType'
+    default: 'objectType' // 'shapeType', etc. The polymorphic relation descriptor.
   }
 })
 

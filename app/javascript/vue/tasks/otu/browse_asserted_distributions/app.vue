@@ -118,6 +118,8 @@ import { sortArray } from '@/helpers'
 import { computed, ref } from 'vue'
 import { useFilter } from '@/shared/Filter/composition'
 import { AssertedDistribution } from '@/routes/endpoints'
+import { usePolymorphicConverter } from '@/composables/usePolymorphismConverter'
+import AssertedDistributionObject from '@/components/ui/SmartSelector/PolymorphicObjectPicker/PolymorphismClasses/AssertedDistributionObject'
 
 const COLUMNS = [
   'level0',
@@ -143,6 +145,11 @@ const extend = [
 const embed = ['level_names', 'shape']
 
 defineOptions({ name: 'BrowseAssertedDistributions' })
+
+// Must come before useFilter.
+usePolymorphicConverter(
+  'asserted_distribution_object', AssertedDistributionObject
+)
 
 const {
   list,

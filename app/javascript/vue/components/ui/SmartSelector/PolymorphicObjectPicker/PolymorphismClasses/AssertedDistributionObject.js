@@ -8,7 +8,8 @@ export default [
     human: 'otu',
     display: 'Otu',
     snake: 'otus',
-    endpoint: Otu
+    endpoint: Otu,
+    query_key: 'otu_id',
   },
 
   {
@@ -17,7 +18,8 @@ export default [
     human: 'biological association',
     display: 'Biological association',
     snake: 'biological_associations',
-    endpoint: BiologicalAssociation
+    endpoint: BiologicalAssociation,
+    query_key: 'biological_association_id',
   },
 
 ]

@@ -15,6 +15,7 @@ module Queries
         :asserted_distribution_object_id,
         :asserted_distribution_object_type,
         :asserted_distribution_shape_type,
+        :biological_association_id,
         :geo_shape_id,
         :geo_mode,
         :geo_shape_type,
@@ -33,6 +34,7 @@ module Queries
         asserted_distribution_object_id: [],
         asserted_distribution_object_type: [],
         asserted_distribution_shape_type: [],
+        biological_association_id: [],
         geo_shape_id: [],
         geo_shape_type: [],
         geographic_area_id: [],
@@ -52,6 +54,10 @@ module Queries
       # @param asserted_distribution_object_type [Array, Integer, String]
       # @return [Array]
       attr_accessor :asserted_distribution_object_type
+
+      # @param biological_association_id [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :biological_association_id
 
       # @param otu_id [Array, Integer, String]
       # @return [Array]
@@ -107,6 +113,8 @@ module Queries
           integer_param(params, :asserted_distribution_object_id)
         @asserted_distribution_object_type =
           params[:asserted_distribution_object_type]
+        @biological_association_id =
+          integer_param(params, :biological_association_id)
         @descendants = boolean_param(params, :descendants)
         @geo_json = params[:geo_json]
         @geographic_area_id = integer_param(params,:geographic_area_id)
@@ -138,6 +146,10 @@ module Queries
 
       def asserted_distribution_object_type
         [@asserted_distribution_object_type].flatten.compact
+      end
+
+      def biological_association_id
+        [@biological_association_id].flatten.compact
       end
 
       def otu_id
@@ -337,7 +349,17 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        table[:otu_id].in(otu_id)
+        table[:asserted_distribution_object_type].eq('Otu').and(
+          table[:asserted_distribution_object_id].in(otu_id)
+        )
+      end
+
+      def biological_association_id_facet
+        return nil if biological_association_id.empty?
+        table[:asserted_distribution_object_type].eq('BiologicalAssociation')
+          .and(table[:asserted_distribution_object_id]
+            .in(biological_association_id)
+          )
       end
 
       def geographic_item_id_facet
@@ -410,6 +432,7 @@ module Queries
 
       def and_clauses
         [
+          biological_association_id_facet,
           otu_id_facet,
           presence_facet,
         ]
