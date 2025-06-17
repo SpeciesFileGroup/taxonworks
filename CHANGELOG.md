@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Organization related Attribution validation [#4433]
 - Gender summary task (linked from `Filter taxon names`)
 - GeographicArea is missing on Georeference modal [#4420]
 - Saved GeoLocate georeferences are missing on Georeference modal [#4422]
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Field synchronize task doesn't work when you open it from Filter people [#4425]
 - Collecting event form: CE generate label not working when there aren't collectors [#4434]
 
+[#4433]: https://github.com/SpeciesFileGroup/taxonworks/issues/4433
 [#4413]: https://github.com/SpeciesFileGroup/taxonworks/issues/4413
 [#4420]: https://github.com/SpeciesFileGroup/taxonworks/issues/4420
 [#4422]: https://github.com/SpeciesFileGroup/taxonworks/issues/4422
