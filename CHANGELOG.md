@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter asserted distributions: OTU Radial to table results
 - New OTU task: Recent list [#4413]
 - Sound size summary to Admin user activity task
+- Multi-update DA task: Allow empty cell pasting [#4436]
 
 ### Changed
 
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4424]: https://github.com/SpeciesFileGroup/taxonworks/issues/4424
 [#4425]: https://github.com/SpeciesFileGroup/taxonworks/issues/4425
 [#4434]: https://github.com/SpeciesFileGroup/taxonworks/issues/4434
+[#4436]: https://github.com/SpeciesFileGroup/taxonworks/issues/4436
 
 \-
 
