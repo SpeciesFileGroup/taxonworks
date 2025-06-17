@@ -12,20 +12,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter asserted distributions: OTU Radial to table results
 - New OTU task: Recent list [#4413]
 
-### Fixed
-
-- GeographicArea is missing on Georeference modal [#4420]
-- Saved GeoLocate georeferences are missing on Georeference modal [#4422]
-- Filters: Data attributes display in filter results even if they are not selected in custom layout [#4424]
-- Field synchronize task doesn't work when you open it from Filter people [#4425]
-- Collecting event form: CE generate label not working when there aren't collectors [#4434]
-
 ### Changed
 
 - Rename `Browse nomenclature and classification` to `Browse taxon names`
 - Rename `Filter nomenclature` to `Filter taxon names`
 - Rename `Nomenclature match` to `Match taxon names`
 - Rename `collection object match` to `Match collection objects`
+
+### Fixed
+
+- Gender summary task (linked from `Filter taxon names`)
+- GeographicArea is missing on Georeference modal [#4420]
+- Saved GeoLocate georeferences are missing on Georeference modal [#4422]
+- Filters: Data attributes display in filter results even if they are not selected in custom layout [#4424]
+- Field synchronize task doesn't work when you open it from Filter people [#4425]
+- Collecting event form: CE generate label not working when there aren't collectors [#4434]
 
 [#4413]: https://github.com/SpeciesFileGroup/taxonworks/issues/4413
 [#4420]: https://github.com/SpeciesFileGroup/taxonworks/issues/4420
