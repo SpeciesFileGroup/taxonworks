@@ -4,13 +4,13 @@
     <ul class="context-menu">
       <li>
         <label
-          title="If checked, empty pasted cells will clear existing values"
+          title="When checked, pasting blank cells will delete existing records."
         >
           <input
             type="checkbox"
             v-model="store.settings.override"
           />
-          Allow overwrite with blanks
+          Allow override with blanks
         </label>
       </li>
       <li>
