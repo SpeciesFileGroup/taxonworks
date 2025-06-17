@@ -4,6 +4,17 @@
     <ul class="context-menu">
       <li>
         <label
+          title="If checked, empty pasted cells will clear existing values"
+        >
+          <input
+            type="checkbox"
+            v-model="store.settings.override"
+          />
+          Allow overwrite with blanks
+        </label>
+      </li>
+      <li>
+        <label
           title="Enable this option to append clipboard content to the existing cell value instead of replacing it when pasting."
         >
           <input
