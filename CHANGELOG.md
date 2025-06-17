@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rename `Filter nomenclature` to `Filter taxon names`
 - Rename `Nomenclature match` to `Match taxon names`
 - Rename `collection object match` to `Match collection objects`
+- DwC import task: display imports from newest to oldest [#4441]
 
 ### Fixed
 
@@ -40,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4425]: https://github.com/SpeciesFileGroup/taxonworks/issues/4425
 [#4434]: https://github.com/SpeciesFileGroup/taxonworks/issues/4434
 [#4436]: https://github.com/SpeciesFileGroup/taxonworks/issues/4436
+[#4441]: https://github.com/SpeciesFileGroup/taxonworks/issues/4441
 
 \-
 
