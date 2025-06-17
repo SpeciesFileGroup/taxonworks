@@ -134,7 +134,7 @@ module Workbench::NavigationHelper
       'List'], 
     '')
 
-    has_records = model.has_attribute?(:project_id) ? model.where(project_id: sessions_current_project).exists?  : model.any?
+    has_records = model.has_attribute?(:project_id) ? model.where(project_id: sessions_current_project_id).exists?  : model.any?
 
     if has_records
       link_to(content, list_path_for_model(model))
