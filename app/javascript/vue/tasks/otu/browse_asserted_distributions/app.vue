@@ -1,5 +1,9 @@
 <template>
   <div id="vue-task-browse-asserted-distribution-otu">
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+    />
     <div class="flex-separate middle">
       <h1>Browse asserted distributions</h1>
       <ul class="context-menu">
@@ -41,111 +45,129 @@
       </div>
     </div>
 
-    <div class="horizontal-left-content align-start">
-      <filter-component
-        class="separate-right filter"
+    <div class="horizontal-left-content align-start gap-medium">
+      <VFilter
+        class="filter"
         v-show="activeFilter"
-        @urlRequest="urlRequest = $event"
-        @result="loadList"
-        @reset="resetTask"
+        v-model="parameters"
+        @reset="resetFilter"
+        @select="
+          (params) => makeFilterRequest({ ...params, per: 500, extend, embed })
+        "
       />
       <div class="full_width">
-        <div class="panel container">
-          <map-component
-            :lat="0"
-            :lng="0"
-            :zoom="1"
-            width="100%"
-            height="80vh"
-            :geojson="geojson"
-            :resize="true"
-          />
-        </div>
-        <list-component :list="assertedDistribution" />
-        <h3
-          v-if="alreadySearch && !assertedDistribution.length"
-          class="subtle middle horizontal-center-content"
+        <VMap
+          :lat="0"
+          :lng="0"
+          :zoom="1"
+          width="100%"
+          height="70vh"
+          :geojson="geojson"
+          resize
+        />
+
+        <TableList
+          :list="list"
+          :columns="COLUMNS"
+          @sort="sortTable"
         >
-          No records found.
-        </h3>
+          <template #citations="{ column }">
+            <div class="flex-row gap-small middle">
+              Citations
+              <VBtn
+                title="Sort alphabetically"
+                color="primary"
+                circle
+                @click.stop="() => sortTable(column)"
+              >
+                <VIcon
+                  name="alphabeticalSort"
+                  title="Sort alphabetically"
+                  x-small
+                />
+              </VBtn>
+              <VBtn
+                color="primary"
+                circle
+                title="Sort by year"
+                @click.stop="() => sortTable('year')"
+              >
+                <VIcon
+                  name="numberSort"
+                  title="Sort by year"
+                  x-small
+                />
+              </VBtn>
+            </div>
+          </template>
+        </TableList>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import MapComponent from '@/components/georeferences/map.vue'
-import FilterComponent from './components/filter.vue'
-import ListComponent from './components/list'
+<script setup>
+import VMap from '@/components/georeferences/map.vue'
+import VFilter from './components/filter.vue'
+import TableList from '@/tasks/otu/browse/components/assertedDistribution/TableList.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import listParser from './helpers/listParser'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { sortArray } from '@/helpers'
+import { computed, ref } from 'vue'
+import { useFilter } from '@/shared/Filter/composition'
 import { AssertedDistribution } from '@/routes/endpoints'
 
-const embed = ['shape', 'level_names']
-const extend = [
-  'citations',
-  'asserted_distribution_shape',
-  'origin_citation',
+const COLUMNS = [
+  'level0',
+  'level1',
+  'level2',
+  'name',
+  'type',
+  'presence',
   'shape',
-  'source',
+  'citations',
   'otu'
 ]
 
-export default {
-  components: {
-    MapComponent,
-    FilterComponent,
-    ListComponent
-  },
+const extend = [
+  'citations',
+  'asserted_distribution_shape',
+  'shape_type',
+  'origin_citation',
+  'source',
+  'otu'
+]
+const embed = ['level_names', 'shape']
 
-  computed: {
-    geojson() {
-      return this.assertedDistribution.map((item) => item.asserted_distribution_shape.shape)
-    }
-  },
+defineOptions({ name: 'BrowseAssertedDistributions' })
 
-  data() {
-    return {
-      assertedDistribution: [],
-      urlRequest: '',
-      activeFilter: true,
-      activeJSONRequest: false,
-      append: false,
-      alreadySearch: false
-    }
-  },
+const {
+  list,
+  append,
+  makeFilterRequest,
+  urlRequest,
+  resetFilter,
+  isLoading,
+  parameters
+} = useFilter(AssertedDistribution, { initParameters: { extend }, listParser })
 
-  methods: {
-    searchDistribution(otu) {
-      AssertedDistribution.where({
-        otu_id: otu.id,
-        embed,
-        extend
-      }).then((response) => {
-        this.assertedDistribution = response.body
-      })
-    },
+const geojson = computed(() => list.value.map((item) => item.feature))
 
-    resetTask() {
-      this.alreadySearch = false
-      this.urlRequest = ''
-      this.assertedDistribution = []
-    },
+const ascending = ref(false)
+const activeFilter = ref(true)
+const activeJSONRequest = ref(false)
 
-    loadList(newList) {
-      if (this.append) {
-        let concat = newList.concat(this.assertedDistribution)
-        concat = concat.filter(
-          (item, index, self) =>
-            index === self.findIndex((i) => i.id === item.id)
-        )
-        this.assertedDistribution = concat
-      } else {
-        this.assertedDistribution = newList
-      }
-      this.alreadySearch = true
-    }
-  }
+function sortTable(sortProperty) {
+  list.value = sortArray(list.value, sortProperty, ascending.value, {
+    stripHtml: true
+  })
+
+  ascending.value = !ascending.value
 }
 </script>
+
 <style lang="scss">
 #vue-task-browse-asserted-distribution-otu {
   .header-box {

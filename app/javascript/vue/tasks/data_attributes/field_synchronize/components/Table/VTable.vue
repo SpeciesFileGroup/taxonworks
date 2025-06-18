@@ -459,7 +459,7 @@ async function updatePredicateColumn({ predicateId, title }) {
 
 <style scoped>
 .cell-left-border {
-  border-left: 3px #eaeaea solid;
+  border-left: 3px var(--border-color) solid;
 }
 
 .cell-selected-border {

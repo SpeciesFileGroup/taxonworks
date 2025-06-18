@@ -68,7 +68,8 @@
     min-height: 160px;
     border-top-right-radius: 0.9rem;
     border-bottom-right-radius: 0.9rem;
-    background-color: #fff;
+    background-color: var(--panel-bg-color);
+    color: var(--text-color);
     box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     .task_header {
@@ -128,7 +129,7 @@
     width: 34px;
     display: flex;
     position: absolute;
-    border-bottom: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
     padding: $standard_padding * 0.5;
     padding-left: $standard_padding;
     padding-right: $standard_padding;
@@ -216,13 +217,13 @@
     font-weight: 400;
     line-height: 20px;
     max-width: 350px;
-    color: $default_text;
+    color: var(--text-color);
     padding-left: $standard_padding * 1.4;
   }
 
   .navigation {
     display: flex;
-    background-color: #fff;
+    background-color: var(--panel-bg-color);
     box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.2);
     flex-direction: row;
     justify-content: center;
@@ -270,7 +271,7 @@
     align-items: center;
 
     .task-nav-item {
-      background-color: $navigation_border;
+      background-color: var(--border-color);
       border-radius: 2px;
       width: 15px;
       height: 15px;

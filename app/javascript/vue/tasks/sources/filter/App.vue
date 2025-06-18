@@ -56,15 +56,13 @@
             />
           </template>
           <template #documents="{ value }">
-            <td>
-              <div class="flex-wrap-row gap-xsmall">
-                <PdfButton
-                  v-for="pdf in value"
-                  :key="pdf.id"
-                  :pdf="pdf"
-                />
-              </div>
-            </td>
+            <div class="flex-wrap-row gap-xsmall">
+              <PdfButton
+                v-for="pdf in value"
+                :key="pdf.id"
+                :pdf="pdf"
+              />
+            </div>
           </template>
         </FilterList>
       </template>

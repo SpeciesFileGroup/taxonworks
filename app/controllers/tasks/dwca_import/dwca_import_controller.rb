@@ -10,7 +10,7 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
       format.json {
         @datasets = ImportDataset::DarwinCore
           .where(project_id: sessions_current_project_id)
-          .order(:updated_at, :description)
+          .order(updated_at: :desc, description: :asc)
           .page(params[:page]).per(params[:per] || 25)
       }
     end

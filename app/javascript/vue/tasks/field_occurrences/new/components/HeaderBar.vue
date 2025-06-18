@@ -37,11 +37,12 @@
       </div>
       <ul class="context-menu no_bullets">
         <li class="horizontal-right-content gap-small">
-          <span
+          <VIcon
             v-if="isUnsaved"
-            class="medium-icon margin-small-right"
+            name="attention"
+            color="attention"
+            small
             title="You have unsaved changes."
-            data-icon="warning"
           />
           <VRecent @selected="({ id }) => loadForms(id)" />
           <VBtn
@@ -98,6 +99,7 @@ import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssoc
 import useDepictionStore from '../store/depictions.js'
 import useOriginRelationshipStore from '../store/originRelationships.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VRecent from './Recent.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import VSpinner from '@/components/ui/VSpinner.vue'

@@ -161,7 +161,8 @@ const tiles = {
   OSM: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution:
       '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 18
+    maxZoom: 18,
+    className: 'map-tiles'
   }),
   Google: L.tileLayer(
     'http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
@@ -174,7 +175,8 @@ const tiles = {
     'https://tile.gbif.org/3857/omt/{z}/{x}/{y}@1x.png?style=gbif-natural-en',
     {
       attribution: 'GBIF',
-      maxZoom: 18
+      maxZoom: 18,
+      className: 'map-tiles'
     }
   )
 }
@@ -513,9 +515,3 @@ defineExpose({
   getMapObject
 })
 </script>
-
-<style>
-.leaflet-interactive:hover {
-  //filter: hue-rotate(90deg);
-}
-</style>

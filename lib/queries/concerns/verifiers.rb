@@ -32,7 +32,7 @@ module Queries::Concerns::Verifiers
     return nil if verifiers.nil?
 
     if verifiers
-      referenced_klass.joins(:verifiers)
+      referenced_klass.joins(:verifiers).distinct
     else
       referenced_klass.where.missing(:verifiers)
     end

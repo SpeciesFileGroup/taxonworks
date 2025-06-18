@@ -41,7 +41,10 @@ module Queries::Concerns::Conveyances
 
   def sound_id_facet
     return nil if sound_id.empty?
-    referenced_klass.joins(:conveyances).where(conveyances: {sound_id:})
+    referenced_klass
+      .joins(:conveyances)
+      .where(conveyances: {sound_id:})
+      .distinct
   end
 
   # !! Duplicate with sounds

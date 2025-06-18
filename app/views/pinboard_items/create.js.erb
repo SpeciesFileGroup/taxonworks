@@ -18,7 +18,9 @@ if (defaultExist) {
 
 var injectItem = `<li class="slide-panel-category-item" data-insert="<%= @pinboard_item.is_inserted -%>" data-pinboard-object-id="<%= @pinboard_item.pinned_object.id -%>" data-pinboard-item-id="<%= @pinboard_item.id -%>" data-pin-item="<%= @pinboard_item.id -%>" id="<%= "order_#{@pinboard_item.id}" -%>">
                 <div class="handle flex-separate middle ui-sortable-handle">
-                  <%= object_link(@pinboard_item.pinned_object) -%>
+                  <div class="flex-col">
+                    <%= object_link(@pinboard_item.pinned_object) -%>
+                  </div>
                 </div>
                 <%= pinboard_item_options(@pinboard_item) -%>
               </li>`

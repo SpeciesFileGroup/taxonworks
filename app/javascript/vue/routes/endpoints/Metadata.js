@@ -11,7 +11,7 @@ export const Metadata = {
   annotators: () => AjaxCall('get', `/${controller}/annotators`),
 
   vocabulary: (params) =>
-    AjaxCall('get', `/${controller}/vocabulary`, { params }),
+    AjaxCall('post', `/${controller}/vocabulary`, params),
 
   attributes: (params) =>
     AjaxCall('get', `/${controller}/attributes`, { params }),

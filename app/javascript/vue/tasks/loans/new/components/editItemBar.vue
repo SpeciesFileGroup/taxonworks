@@ -13,7 +13,7 @@
       <div id="loan-update-items">
         <div>
           <span><b>Loan item information</b></span>
-          <hr />
+          <hr class="divisor" />
           <div class="field label-above">
             <label>Status</label>
             <select

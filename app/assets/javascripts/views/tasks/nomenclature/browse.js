@@ -160,9 +160,11 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
             filterElement.getAttribute('data-filter-row')
           )
         ]
+        const icon = filterElement.querySelector('[data-icon]')
 
         filterElement.classList.remove('active')
-        filterElement.children[0].setAttribute('data-icon', 'show')
+
+        icon.setAttribute('data-icon', 'show')
 
         const rows = [...document.querySelectorAll('.history__record')]
         const event = new CustomEvent('history-focus-button', {
@@ -185,7 +187,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 
     filterButtons.forEach((element) => {
       element.addEventListener('click', () => {
-        const childElement = element.children[0]
+        const childElement = element.querySelector('[data-icon]')
         const isVisible = childElement.getAttribute('data-icon') === 'show'
         const filterSelector =
           element.getAttribute('data-filter') ||
@@ -193,6 +195,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
         const filterElements = [...document.querySelectorAll(filterSelector)]
 
         element.classList.toggle('active')
+
         childElement.setAttribute('data-icon', isVisible ? 'hide' : 'show')
 
         filterElements.forEach((node) => {

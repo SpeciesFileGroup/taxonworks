@@ -50,7 +50,7 @@ module Queries::Concerns::Depictions
 
   def image_id_facet
     return nil if image_id.empty?
-    referenced_klass.joins(:depictions).where(depictions: {image_id:})
+    referenced_klass.joins(:depictions).where(depictions: {image_id:}).distinct
   end
 
   # !! Duplicate with images

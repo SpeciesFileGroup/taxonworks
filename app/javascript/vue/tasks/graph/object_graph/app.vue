@@ -143,6 +143,10 @@ onMounted(() => {
     width: 100%;
     height: calc(100vh - 250px);
     cursor: move;
+
+    text {
+      fill: var(--text-color);
+    }
   }
 
   &__stats {

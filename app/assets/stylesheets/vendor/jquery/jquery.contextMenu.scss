@@ -27,35 +27,34 @@
   color: #2980b9;
   text-align: center;
   -webkit-transform: translateY(-50%);
-      -ms-transform: translateY(-50%);
-       -o-transform: translateY(-50%);
-          transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .context-menu-icon {
-  background-position: 8px,center;
+  background-position: 8px, center;
   background-repeat: no-repeat;
-  background-size: 14px 14px;  
+  background-size: 14px 14px;
 }
 
-
 .context-menu-icon-delete {
-  background-image: image-url("trash.svg");
+  background-image: image-url('trash.svg');
 }
 
 .context-menu-icon-edit {
-  background-image: image-url("new.svg");
+  background-image: image-url('new.svg');
 }
 
 .context-menu-icon-show {
-  background-image: image-url("show.svg");
+  background-image: image-url('show.svg');
 }
 
 .context-menu-icon-pin {
-  background-image: image-url("pin.svg");
+  background-image: image-url('pin.svg');
 }
 
 .context-menu-icon.context-menu-hover:before {
@@ -63,7 +62,7 @@
 }
 
 .context-menu-list {
-  position: absolute; 
+  position: absolute;
   display: inline-block;
   min-width: 180px;
   max-width: 360px;
@@ -75,8 +74,8 @@
   background: #fff;
   border: 1px solid #bebebe;
   border-radius: 3px;
-  -webkit-box-shadow: 0 2px 5px $navigation_border;
-          box-shadow: 0 2px 5px $navigation_border;
+  -webkit-box-shadow: 0 2px 5px var(--border-color);
+  box-shadow: 0 2px 5px var(--border-color);
 }
 
 .context-menu-item {
@@ -84,14 +83,14 @@
   padding: 3px 28px;
   color: #2f2f2f;
   -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none; 
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   background-color: #fff;
 }
 
 .context-menu-separator {
-  padding: 0; 
+  padding: 0;
   margin: 5px 0;
   border-bottom: 1px solid #e6e6e6;
 }
@@ -99,19 +98,19 @@
 .context-menu-item > label > input,
 .context-menu-item > label > textarea {
   -webkit-user-select: text;
-     -moz-user-select: text;
-      -ms-user-select: text;
-          user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 .context-menu-item.context-menu-hover {
   color: #fff;
-  cursor: pointer; 
+  cursor: pointer;
   background-color: #2980b9;
 }
 
 .context-menu-item.context-menu-disabled {
-  color: #626262; 
+  color: #626262;
   background-color: #fff;
 }
 
@@ -121,7 +120,7 @@
 
 .context-menu-input.context-menu-hover,
 .context-menu-item.context-menu-disabled.context-menu-hover {
-  cursor: default; 
+  cursor: default;
   background-color: #eee;
 }
 
@@ -129,7 +128,7 @@
   position: absolute;
   top: 50%;
   right: 8px;
-  z-index: 1; 
+  z-index: 1;
   width: 0;
   height: 0;
   content: '';
@@ -137,9 +136,9 @@
   border-style: solid;
   border-width: 4px 0 4px 4px;
   -webkit-transform: translateY(-50%);
-      -ms-transform: translateY(-50%);
-       -o-transform: translateY(-50%);
-          transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
 }
 
 /**
@@ -155,21 +154,21 @@
 }
 
 /* position checkboxes and radios as icons */
-.context-menu-input > label > input[type="checkbox"],
-.context-menu-input > label > input[type="radio"] {
+.context-menu-input > label > input[type='checkbox'],
+.context-menu-input > label > input[type='radio'] {
   position: relative;
   top: 3px;
 }
 
 .context-menu-input > label,
-.context-menu-input > label > input[type="text"],
+.context-menu-input > label > input[type='text'],
 .context-menu-input > label > textarea,
 .context-menu-input > label > select {
   display: block;
-  width: 100%; 
+  width: 100%;
   -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .context-menu-input > label > textarea {
@@ -177,7 +176,7 @@
 }
 
 .context-menu-item > .context-menu-list {
-  top: 5px; 
+  top: 5px;
   /* re-positioned by js */
   right: -5px;
   display: none;

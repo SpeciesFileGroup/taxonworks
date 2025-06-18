@@ -7,15 +7,18 @@
           :key="key"
           :href="taskUrl(key, item)"
           target="_blank"
-          v-html="row.status"/>
+          v-html="row.status"
+        />
       </template>
       <a
         v-else
         v-html="row.status"
-        @click="openModal"/>
+        @click="openModal"
+      />
       <modal-component
         v-if="showModal"
-        @close="showModal = false">
+        @close="showModal = false"
+      >
         <template #header>
           <h3>Imported objects</h3>
         </template>
@@ -23,10 +26,12 @@
           <ul class="no_billets">
             <li
               v-for="(item, key) in importedObjects"
-              :key="(item + key)">
+              :key="item + key"
+            >
               <a
                 :href="loadTask(key, item)"
-                target="_blank">{{ key }}
+                target="_blank"
+                >{{ key }}
               </a>
             </li>
           </ul>
@@ -37,7 +42,8 @@
       <template v-if="importedErrors">
         <modal-component
           v-if="showErrors"
-          @close="showErrors = false">
+          @close="showErrors = false"
+        >
           <template #header>
             <h3>Errors</h3>
           </template>
@@ -45,16 +51,21 @@
             <div>
               <template
                 v-for="(messages, typeError) in importedErrors.messages"
-                :key="typeError">
-                <span
-                  class="soft_validation"
-                  data-icon="warning">
+                :key="typeError"
+              >
+                <VIcon
+                  name="attention"
+                  color="attention"
+                  small
+                />
+                <span>
                   {{ typeError }}
                 </span>
                 <ul>
                   <li
                     v-for="error in messages"
-                    v-html="error"/>
+                    v-html="error"
+                  />
                 </ul>
               </template>
             </div>
@@ -63,20 +74,26 @@
         <a
           class="red"
           @click="showErrors = true"
-          v-html="row.status"/>
+          v-html="row.status"
+        />
       </template>
       <span
         v-else
-        v-html="row.status"/>
+        v-html="row.status"
+      />
     </template>
   </td>
 </template>
 
 <script>
-
+import VIcon from '@/components/ui/VIcon/index.vue'
 import ButtonMixin from './shared/browseMixin'
 
 export default {
+  components: {
+    VIcon
+  },
+
   mixins: [ButtonMixin]
 }
 </script>

@@ -1,5 +1,4 @@
 #quick_task {
-
   .item {
     flex-grow: 0;
   }
@@ -16,12 +15,12 @@
       display: inline-block;
     }
     textarea {
-      border: 1px solid $navigation_border;
+      border: 1px solid var(--border-color);
       width: 300px;
       min-height: 50px;
       resize: none;
     }
-    input[type=checkbox] {
+    input[type='checkbox'] {
       vertical-align: top;
     }
   }
@@ -47,10 +46,9 @@
 
   .biocuration_option {
     display: inline-block;
-    background-color: #FFF9C4;
+    background-color: #fff9c4;
     border-radius: 3px;
     margin: 2px;
     padding: 5px;
   }
-
 }

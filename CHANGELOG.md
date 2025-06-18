@@ -9,6 +9,46 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.52.1] - 2025-06-17
+
+### Added
+
+- Filter asserted distributions: OTU Radial to table results
+- New OTU task: Recent list [#4413]
+- Sound size summary to Admin user activity task
+- Multi-update DA task: Allow empty cell pasting [#4436]
+- Created and updated dates to DwC import cards [#4439]
+
+### Changed
+
+- Rename `Browse nomenclature and classification` to `Browse taxon names`
+- Rename `Filter nomenclature` to `Filter taxon names`
+- Rename `Nomenclature match` to `Match taxon names`
+- Rename `collection object match` to `Match collection objects`
+- DwC import task: display imports from newest to oldest [#4441]
+
+### Fixed
+
+- Organization related Attribution validation [#4433]
+- Gender summary task (linked from `Filter taxon names`)
+- GeographicArea is missing on Georeference modal [#4420]
+- Saved GeoLocate georeferences are missing on Georeference modal [#4422]
+- Filters: Data attributes display in filter results even if they are not selected in custom layout [#4424]
+- Field synchronize task doesn't work when you open it from Filter people [#4425]
+- Collecting event form: CE generate label not working when there aren't collectors [#4434]
+
+[#4433]: https://github.com/SpeciesFileGroup/taxonworks/issues/4433
+[#4413]: https://github.com/SpeciesFileGroup/taxonworks/issues/4413
+[#4420]: https://github.com/SpeciesFileGroup/taxonworks/issues/4420
+[#4422]: https://github.com/SpeciesFileGroup/taxonworks/issues/4422
+[#4370]: https://github.com/SpeciesFileGroup/taxonworks/issues/4370
+[#4424]: https://github.com/SpeciesFileGroup/taxonworks/issues/4424
+[#4425]: https://github.com/SpeciesFileGroup/taxonworks/issues/4425
+[#4434]: https://github.com/SpeciesFileGroup/taxonworks/issues/4434
+[#4436]: https://github.com/SpeciesFileGroup/taxonworks/issues/4436
+[#4439]: https://github.com/SpeciesFileGroup/taxonworks/issues/4439
+[#4441]: https://github.com/SpeciesFileGroup/taxonworks/issues/4441
+
 ## [0.52.0] - 2025-06-09
 
 ### Added
@@ -5408,7 +5448,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.1...development
+[0.52.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.0...v0.52.1
 [0.52.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.1...v0.51.0
 [0.50.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.0...v0.50.1

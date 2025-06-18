@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Nomenclature match</h1>
+    <h1>Match taxon names</h1>
     <spinner-component
       v-if="isLoading"
       full-screen

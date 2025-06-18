@@ -127,7 +127,7 @@
             </div>
           </div>
         </template>
-        <hr />
+        <hr class="divisor" />
 
         <div class="flex-separate">
           <slot name="infoColumn" />

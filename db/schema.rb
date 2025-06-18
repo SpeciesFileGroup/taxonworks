@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -18,7 +18,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "postgis_raster"
   enable_extension "tablefunc"
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -470,8 +469,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.integer "confidence_object_id", null: false
     t.string "confidence_object_type", null: false
+    t.integer "confidence_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -723,8 +722,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.integer "documentation_object_id", null: false
     t.string "documentation_object_type", null: false
+    t.integer "documentation_object_id", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -742,7 +741,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.integer "document_file_file_size", null: false
+    t.bigint "document_file_file_size", null: false
     t.datetime "document_file_updated_at", precision: nil, null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -951,8 +950,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.integer "dwc_occurrence_object_id"
     t.string "dwc_occurrence_object_type"
+    t.integer "dwc_occurrence_object_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -1198,7 +1197,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.datetime "updated_at", precision: nil, null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.integer "image_file_file_size"
+    t.bigint "image_file_file_size"
     t.datetime "image_file_updated_at", precision: nil
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -1313,8 +1312,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.integer "project_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.integer "loan_item_object_id"
     t.string "loan_item_object_type"
+    t.integer "loan_item_object_id"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1343,7 +1342,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.datetime "updated_at", precision: nil, null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", default: "Lender's address not provided.", null: false
+    t.text "lender_address", null: false
     t.boolean "is_gift"
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
@@ -1542,10 +1541,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.integer "old_object_id", null: false
     t.string "old_object_type", null: false
-    t.integer "new_object_id", null: false
+    t.integer "old_object_id", null: false
     t.string "new_object_type", null: false
+    t.integer "new_object_id", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1647,8 +1646,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.integer "pinned_object_id", null: false
     t.string "pinned_object_type", null: false
+    t.integer "pinned_object_id", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1714,7 +1713,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: {}, null: false
+    t.jsonb "preferences", default: "{}", null: false
     t.string "api_access_token"
     t.string "data_curation_issue_tracker_url"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
@@ -1723,8 +1722,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.integer "protocol_relationship_object_id", null: false
     t.string "protocol_relationship_object_type", null: false
+    t.integer "protocol_relationship_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1976,6 +1975,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.index ["author"], name: "index_sources_on_author"
     t.index ["bibtex_type"], name: "index_sources_on_bibtex_type"
     t.index ["cached"], name: "index_sources_on_cached"
+    t.index ["cached"], name: "src_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_author_string"], name: "index_sources_on_cached_author_string"
     t.index ["cached_nomenclature_date"], name: "index_sources_on_cached_nomenclature_date"
     t.index ["created_at"], name: "index_sources_on_created_at"
@@ -1995,8 +1995,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: {}, null: false
-    t.jsonb "specimen_coordinates", default: {}, null: false
+    t.jsonb "metadata_map", default: "{}", null: false
+    t.jsonb "specimen_coordinates", default: "{}", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -2067,6 +2067,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.index ["otu_id"], name: "index_taxon_determinations_on_otu_id"
     t.index ["position"], name: "index_taxon_determinations_on_position"
     t.index ["project_id"], name: "index_taxon_determinations_on_project_id"
+    t.index ["taxon_determination_object_type", "taxon_determination_object_id"], name: "td_poly"
     t.index ["updated_by_id"], name: "index_taxon_determinations_on_updated_by_id"
   end
 
@@ -2089,7 +2090,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.integer "ancestor_id", null: false
     t.integer "descendant_id", null: false
     t.integer "generations", null: false
+    t.index ["ancestor_id", "descendant_id", "generations"], name: "taxon_name_anc_desc_idx", unique: true
+    t.index ["ancestor_id", "descendant_id"], name: "index_taxon_name_hierarchies_on_ancestor_id_and_descendant_id"
     t.index ["ancestor_id"], name: "index_taxon_name_hierarchies_on_ancestor_id"
+    t.index ["descendant_id"], name: "taxon_name_desc_idx"
   end
 
   create_table "taxon_name_relationships", id: :serial, force: :cascade do |t|
@@ -2101,6 +2105,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
+    t.index ["created_by_id"], name: "index_taxon_name_relationships_on_created_by_id"
+    t.index ["object_taxon_name_id"], name: "index_taxon_name_relationships_on_object_taxon_name_id"
+    t.index ["project_id"], name: "index_taxon_name_relationships_on_project_id"
+    t.index ["subject_taxon_name_id"], name: "index_taxon_name_relationships_on_subject_taxon_name_id"
+    t.index ["type"], name: "index_taxon_name_relationships_on_type"
+    t.index ["updated_by_id"], name: "index_taxon_name_relationships_on_updated_by_id"
   end
 
   create_table "taxon_names", id: :serial, force: :cascade do |t|
@@ -2137,8 +2147,23 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.text "cached_author"
     t.text "cached_gender"
     t.boolean "cached_is_available"
+    t.index ["cached"], name: "index_taxon_names_on_cached"
+    t.index ["cached"], name: "tn_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["cached_author_year"], name: "tn_cached_auth_year_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_gender"], name: "index_taxon_names_on_cached_gender"
     t.index ["cached_is_available"], name: "index_taxon_names_on_cached_is_available"
+    t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
+    t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
+    t.index ["cached_original_combination"], name: "tn_cached_original_gin_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["cached_valid_taxon_name_id"], name: "index_taxon_names_on_cached_valid_taxon_name_id"
+    t.index ["created_at"], name: "index_taxon_names_on_created_at"
+    t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"
+    t.index ["name"], name: "index_taxon_names_on_name"
+    t.index ["parent_id"], name: "index_taxon_names_on_parent_id"
+    t.index ["project_id"], name: "index_taxon_names_on_project_id"
+    t.index ["rank_class"], name: "index_taxon_names_on_rank_class"
+    t.index ["type"], name: "index_taxon_names_on_type"
+    t.index ["updated_at"], name: "index_taxon_names_on_updated_at"
     t.index ["updated_by_id"], name: "index_taxon_names_on_updated_by_id"
   end
 
@@ -2228,4 +2253,353 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_02_194448) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
     t.index ["transaction_id"], name: "index_versions_on_transaction_id"
   end
+
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "alternate_values", "languages", name: "alternate_values_language_id_fkey"
+  add_foreign_key "alternate_values", "projects", name: "alternate_values_project_id_fkey"
+  add_foreign_key "alternate_values", "users", column: "created_by_id", name: "alternate_values_created_by_id_fkey"
+  add_foreign_key "alternate_values", "users", column: "updated_by_id", name: "alternate_values_updated_by_id_fkey"
+  add_foreign_key "asserted_distributions", "geographic_areas", name: "asserted_distributions_geographic_area_id_fkey"
+  add_foreign_key "asserted_distributions", "otus", name: "asserted_distributions_otu_id_fkey"
+  add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
+  add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
+  add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
+  add_foreign_key "attributions", "projects"
+  add_foreign_key "attributions", "users", column: "created_by_id"
+  add_foreign_key "attributions", "users", column: "updated_by_id"
+  add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
+  add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
+  add_foreign_key "biocuration_classifications", "users", column: "created_by_id", name: "biocuration_classifications_created_by_id_fkey"
+  add_foreign_key "biocuration_classifications", "users", column: "updated_by_id", name: "biocuration_classifications_updated_by_id_fkey"
+  add_foreign_key "biological_associations", "biological_relationships", name: "biological_associations_biological_relationship_id_fkey"
+  add_foreign_key "biological_associations", "projects", name: "biological_associations_project_id_fkey"
+  add_foreign_key "biological_associations", "users", column: "created_by_id", name: "biological_associations_created_by_id_fkey"
+  add_foreign_key "biological_associations", "users", column: "updated_by_id", name: "biological_associations_updated_by_id_fkey"
+  add_foreign_key "biological_associations_biological_associations_graphs", "biological_associations", name: "biological_associations_biologic_biological_association_id_fkey"
+  add_foreign_key "biological_associations_biological_associations_graphs", "biological_associations_graphs", name: "biological_associations_biolo_biological_associations_grap_fkey"
+  add_foreign_key "biological_associations_biological_associations_graphs", "projects", name: "biological_associations_biological_associations_project_id_fkey"
+  add_foreign_key "biological_associations_biological_associations_graphs", "users", column: "created_by_id", name: "biological_associations_biological_associati_created_by_id_fkey"
+  add_foreign_key "biological_associations_biological_associations_graphs", "users", column: "updated_by_id", name: "biological_associations_biological_associati_updated_by_id_fkey"
+  add_foreign_key "biological_associations_graphs", "projects", name: "biological_associations_graphs_project_id_fkey"
+  add_foreign_key "biological_associations_graphs", "users", column: "created_by_id", name: "biological_associations_graphs_created_by_id_fkey"
+  add_foreign_key "biological_associations_graphs", "users", column: "updated_by_id", name: "biological_associations_graphs_updated_by_id_fkey"
+  add_foreign_key "biological_relationship_types", "biological_relationships", name: "biological_relationship_types_biological_relationship_id_fkey"
+  add_foreign_key "biological_relationship_types", "controlled_vocabulary_terms", column: "biological_property_id", name: "biological_relationship_types_biological_property_id_fkey"
+  add_foreign_key "biological_relationship_types", "projects", name: "biological_relationship_types_project_id_fkey"
+  add_foreign_key "biological_relationship_types", "users", column: "created_by_id", name: "biological_relationship_types_created_by_id_fkey"
+  add_foreign_key "biological_relationship_types", "users", column: "updated_by_id", name: "biological_relationship_types_updated_by_id_fkey"
+  add_foreign_key "biological_relationships", "projects", name: "biological_relationships_project_id_fkey"
+  add_foreign_key "biological_relationships", "users", column: "created_by_id", name: "biological_relationships_created_by_id_fkey"
+  add_foreign_key "biological_relationships", "users", column: "updated_by_id", name: "biological_relationships_updated_by_id_fkey"
+  add_foreign_key "cached_map_item_translations", "geographic_items"
+  add_foreign_key "cached_map_item_translations", "geographic_items", column: "translated_geographic_item_id"
+  add_foreign_key "cached_map_registers", "projects"
+  add_foreign_key "character_states", "descriptors"
+  add_foreign_key "character_states", "projects"
+  add_foreign_key "character_states", "users", column: "created_by_id"
+  add_foreign_key "character_states", "users", column: "updated_by_id"
+  add_foreign_key "citation_topics", "citations", name: "citation_topics_citation_id_fkey"
+  add_foreign_key "citation_topics", "controlled_vocabulary_terms", column: "topic_id", name: "citation_topics_topic_id_fkey"
+  add_foreign_key "citation_topics", "projects", name: "citation_topics_project_id_fkey"
+  add_foreign_key "citation_topics", "users", column: "created_by_id", name: "citation_topics_created_by_id_fkey"
+  add_foreign_key "citation_topics", "users", column: "updated_by_id", name: "citation_topics_updated_by_id_fkey"
+  add_foreign_key "citations", "projects", name: "citations_project_id_fkey"
+  add_foreign_key "citations", "sources", name: "citations_source_id_fkey"
+  add_foreign_key "citations", "users", column: "created_by_id", name: "citations_created_by_id_fkey"
+  add_foreign_key "citations", "users", column: "updated_by_id", name: "citations_updated_by_id_fkey"
+  add_foreign_key "collecting_events", "geographic_areas", name: "collecting_events_geographic_area_id_fkey"
+  add_foreign_key "collecting_events", "projects", name: "collecting_events_project_id_fkey"
+  add_foreign_key "collecting_events", "users", column: "created_by_id", name: "collecting_events_created_by_id_fkey"
+  add_foreign_key "collecting_events", "users", column: "updated_by_id", name: "collecting_events_updated_by_id_fkey"
+  add_foreign_key "collection_objects", "collecting_events", name: "collection_objects_collecting_event_id_fkey"
+  add_foreign_key "collection_objects", "preparation_types", name: "collection_objects_preparation_type_id_fkey"
+  add_foreign_key "collection_objects", "projects", name: "collection_objects_project_id_fkey"
+  add_foreign_key "collection_objects", "ranged_lot_categories", name: "collection_objects_ranged_lot_category_id_fkey"
+  add_foreign_key "collection_objects", "repositories", name: "collection_objects_repository_id_fkey"
+  add_foreign_key "collection_objects", "users", column: "created_by_id", name: "collection_objects_created_by_id_fkey"
+  add_foreign_key "collection_objects", "users", column: "updated_by_id", name: "collection_objects_updated_by_id_fkey"
+  add_foreign_key "collection_profiles", "containers", name: "collection_profiles_container_id_fkey"
+  add_foreign_key "collection_profiles", "otus", name: "collection_profiles_otu_id_fkey"
+  add_foreign_key "collection_profiles", "projects", name: "collection_profiles_project_id_fkey"
+  add_foreign_key "collection_profiles", "users", column: "created_by_id", name: "collection_profiles_created_by_id_fkey"
+  add_foreign_key "collection_profiles", "users", column: "updated_by_id", name: "collection_profiles_updated_by_id_fkey"
+  add_foreign_key "common_names", "geographic_areas"
+  add_foreign_key "common_names", "languages"
+  add_foreign_key "common_names", "otus"
+  add_foreign_key "common_names", "projects"
+  add_foreign_key "common_names", "users", column: "created_by_id"
+  add_foreign_key "common_names", "users", column: "updated_by_id"
+  add_foreign_key "confidences", "controlled_vocabulary_terms", column: "confidence_level_id"
+  add_foreign_key "confidences", "projects"
+  add_foreign_key "confidences", "users", column: "created_by_id"
+  add_foreign_key "confidences", "users", column: "updated_by_id"
+  add_foreign_key "container_items", "projects", name: "container_items_project_id_fkey"
+  add_foreign_key "container_items", "users", column: "created_by_id", name: "container_items_created_by_id_fkey"
+  add_foreign_key "container_items", "users", column: "updated_by_id", name: "container_items_updated_by_id_fkey"
+  add_foreign_key "containers", "projects", name: "containers_project_id_fkey"
+  add_foreign_key "containers", "users", column: "created_by_id", name: "containers_created_by_id_fkey"
+  add_foreign_key "containers", "users", column: "updated_by_id", name: "containers_updated_by_id_fkey"
+  add_foreign_key "contents", "controlled_vocabulary_terms", column: "topic_id", name: "contents_topic_id_fkey"
+  add_foreign_key "contents", "languages"
+  add_foreign_key "contents", "otus", name: "contents_otu_id_fkey"
+  add_foreign_key "contents", "projects", name: "contents_project_id_fkey"
+  add_foreign_key "contents", "users", column: "created_by_id", name: "contents_created_by_id_fkey"
+  add_foreign_key "contents", "users", column: "updated_by_id", name: "contents_updated_by_id_fkey"
+  add_foreign_key "controlled_vocabulary_terms", "projects", name: "controlled_vocabulary_terms_project_id_fkey"
+  add_foreign_key "controlled_vocabulary_terms", "users", column: "created_by_id", name: "controlled_vocabulary_terms_created_by_id_fkey"
+  add_foreign_key "controlled_vocabulary_terms", "users", column: "updated_by_id", name: "controlled_vocabulary_terms_updated_by_id_fkey"
+  add_foreign_key "conveyances", "projects"
+  add_foreign_key "conveyances", "sounds"
+  add_foreign_key "conveyances", "users", column: "created_by_id"
+  add_foreign_key "conveyances", "users", column: "updated_by_id"
+  add_foreign_key "data_attributes", "controlled_vocabulary_terms", name: "data_attributes_controlled_vocabulary_term_id_fkey"
+  add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
+  add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
+  add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
+  add_foreign_key "dataset_record_fields", "dataset_records"
+  add_foreign_key "dataset_record_fields", "import_datasets"
+  add_foreign_key "dataset_record_fields", "projects"
+  add_foreign_key "dataset_records", "import_datasets"
+  add_foreign_key "dataset_records", "projects"
+  add_foreign_key "depictions", "sled_images"
+  add_foreign_key "descriptors", "projects"
+  add_foreign_key "descriptors", "users", column: "created_by_id"
+  add_foreign_key "descriptors", "users", column: "updated_by_id"
+  add_foreign_key "documentation", "documents"
+  add_foreign_key "documentation", "projects"
+  add_foreign_key "documentation", "users", column: "created_by_id"
+  add_foreign_key "documentation", "users", column: "updated_by_id"
+  add_foreign_key "documents", "users", column: "created_by_id"
+  add_foreign_key "documents", "users", column: "updated_by_id"
+  add_foreign_key "downloads", "projects"
+  add_foreign_key "downloads", "users", column: "created_by_id"
+  add_foreign_key "downloads", "users", column: "updated_by_id"
+  add_foreign_key "dwc_occurrences", "projects"
+  add_foreign_key "dwc_occurrences", "users", column: "created_by_id"
+  add_foreign_key "dwc_occurrences", "users", column: "updated_by_id"
+  add_foreign_key "extracts", "projects"
+  add_foreign_key "extracts", "repositories"
+  add_foreign_key "extracts", "users", column: "created_by_id"
+  add_foreign_key "extracts", "users", column: "updated_by_id"
+  add_foreign_key "field_occurrences", "collecting_events"
+  add_foreign_key "field_occurrences", "projects"
+  add_foreign_key "field_occurrences", "ranged_lot_categories"
+  add_foreign_key "field_occurrences", "users", column: "created_by_id"
+  add_foreign_key "field_occurrences", "users", column: "updated_by_id"
+  add_foreign_key "gazetteer_imports", "projects"
+  add_foreign_key "gazetteers", "projects"
+  add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
+  add_foreign_key "gene_attributes", "projects"
+  add_foreign_key "gene_attributes", "sequences"
+  add_foreign_key "gene_attributes", "users", column: "created_by_id"
+  add_foreign_key "gene_attributes", "users", column: "updated_by_id"
+  add_foreign_key "geographic_area_types", "users", column: "created_by_id", name: "geographic_area_types_created_by_id_fkey"
+  add_foreign_key "geographic_area_types", "users", column: "updated_by_id", name: "geographic_area_types_updated_by_id_fkey"
+  add_foreign_key "geographic_areas", "geographic_area_types", name: "geographic_areas_geographic_area_type_id_fkey"
+  add_foreign_key "geographic_areas", "geographic_areas", column: "level0_id", name: "geographic_areas_level0_id_fkey"
+  add_foreign_key "geographic_areas", "geographic_areas", column: "level1_id", name: "geographic_areas_level1_id_fkey"
+  add_foreign_key "geographic_areas", "geographic_areas", column: "level2_id", name: "geographic_areas_level2_id_fkey"
+  add_foreign_key "geographic_areas", "geographic_areas", column: "parent_id", name: "geographic_areas_parent_id_fkey"
+  add_foreign_key "geographic_areas", "users", column: "created_by_id", name: "geographic_areas_created_by_id_fkey"
+  add_foreign_key "geographic_areas", "users", column: "updated_by_id", name: "geographic_areas_updated_by_id_fkey"
+  add_foreign_key "geographic_areas_geographic_items", "geographic_areas", name: "geographic_areas_geographic_items_geographic_area_id_fkey"
+  add_foreign_key "geographic_areas_geographic_items", "geographic_items", name: "geographic_areas_geographic_items_geographic_item_id_fkey"
+  add_foreign_key "geographic_items", "users", column: "created_by_id", name: "geographic_items_created_by_id_fkey"
+  add_foreign_key "geographic_items", "users", column: "updated_by_id", name: "geographic_items_updated_by_id_fkey"
+  add_foreign_key "georeferences", "collecting_events", name: "georeferences_collecting_event_id_fkey"
+  add_foreign_key "georeferences", "geographic_items", column: "error_geographic_item_id", name: "georeferences_error_geographic_item_id_fkey"
+  add_foreign_key "georeferences", "geographic_items", name: "georeferences_geographic_item_id_fkey"
+  add_foreign_key "georeferences", "projects", name: "georeferences_project_id_fkey"
+  add_foreign_key "georeferences", "users", column: "created_by_id", name: "georeferences_created_by_id_fkey"
+  add_foreign_key "georeferences", "users", column: "updated_by_id", name: "georeferences_updated_by_id_fkey"
+  add_foreign_key "identifiers", "namespaces", name: "identifiers_namespace_id_fkey"
+  add_foreign_key "identifiers", "projects", name: "identifiers_project_id_fkey"
+  add_foreign_key "identifiers", "users", column: "created_by_id", name: "identifiers_created_by_id_fkey"
+  add_foreign_key "identifiers", "users", column: "updated_by_id", name: "identifiers_updated_by_id_fkey"
+  add_foreign_key "images", "projects", name: "images_project_id_fkey"
+  add_foreign_key "images", "users", column: "created_by_id", name: "images_created_by_id_fkey"
+  add_foreign_key "images", "users", column: "updated_by_id", name: "images_updated_by_id_fkey"
+  add_foreign_key "import_datasets", "projects"
+  add_foreign_key "labels", "projects"
+  add_foreign_key "labels", "users", column: "created_by_id", name: "labels_created_by_id_fk"
+  add_foreign_key "labels", "users", column: "updated_by_id", name: "labels_updated_by_id_fk"
+  add_foreign_key "languages", "users", column: "created_by_id", name: "languages_created_by_id_fkey"
+  add_foreign_key "languages", "users", column: "updated_by_id", name: "languages_updated_by_id_fkey"
+  add_foreign_key "leads", "leads", column: "parent_id"
+  add_foreign_key "leads", "leads", column: "redirect_id"
+  add_foreign_key "leads", "otus"
+  add_foreign_key "leads", "projects"
+  add_foreign_key "loan_items", "loans", name: "loan_items_loan_id_fkey"
+  add_foreign_key "loan_items", "projects", name: "loan_items_project_id_fkey"
+  add_foreign_key "loan_items", "users", column: "created_by_id", name: "loan_items_created_by_id_fkey"
+  add_foreign_key "loan_items", "users", column: "updated_by_id", name: "loan_items_updated_by_id_fkey"
+  add_foreign_key "loans", "projects", name: "loans_project_id_fkey"
+  add_foreign_key "loans", "users", column: "created_by_id", name: "loans_created_by_id_fkey"
+  add_foreign_key "loans", "users", column: "updated_by_id", name: "loans_updated_by_id_fkey"
+  add_foreign_key "namespaces", "users", column: "created_by_id", name: "namespaces_created_by_id_fkey"
+  add_foreign_key "namespaces", "users", column: "updated_by_id", name: "namespaces_updated_by_id_fkey"
+  add_foreign_key "notes", "projects", name: "notes_project_id_fkey"
+  add_foreign_key "notes", "users", column: "created_by_id", name: "notes_created_by_id_fkey"
+  add_foreign_key "notes", "users", column: "updated_by_id", name: "notes_updated_by_id_fkey"
+  add_foreign_key "observation_matrices", "otus"
+  add_foreign_key "observation_matrices", "projects"
+  add_foreign_key "observation_matrices", "users", column: "created_by_id"
+  add_foreign_key "observation_matrices", "users", column: "updated_by_id"
+  add_foreign_key "observation_matrix_column_items", "controlled_vocabulary_terms"
+  add_foreign_key "observation_matrix_column_items", "descriptors"
+  add_foreign_key "observation_matrix_column_items", "observation_matrices"
+  add_foreign_key "observation_matrix_column_items", "projects"
+  add_foreign_key "observation_matrix_column_items", "users", column: "created_by_id"
+  add_foreign_key "observation_matrix_column_items", "users", column: "updated_by_id"
+  add_foreign_key "observation_matrix_columns", "descriptors"
+  add_foreign_key "observation_matrix_columns", "observation_matrices"
+  add_foreign_key "observation_matrix_columns", "projects"
+  add_foreign_key "observation_matrix_columns", "users", column: "created_by_id"
+  add_foreign_key "observation_matrix_columns", "users", column: "updated_by_id"
+  add_foreign_key "observation_matrix_row_items", "controlled_vocabulary_terms"
+  add_foreign_key "observation_matrix_row_items", "observation_matrices"
+  add_foreign_key "observation_matrix_row_items", "projects"
+  add_foreign_key "observation_matrix_row_items", "taxon_names"
+  add_foreign_key "observation_matrix_row_items", "users", column: "created_by_id"
+  add_foreign_key "observation_matrix_row_items", "users", column: "updated_by_id"
+  add_foreign_key "observation_matrix_rows", "observation_matrices"
+  add_foreign_key "observation_matrix_rows", "projects"
+  add_foreign_key "observation_matrix_rows", "users", column: "created_by_id"
+  add_foreign_key "observation_matrix_rows", "users", column: "updated_by_id"
+  add_foreign_key "observations", "descriptors"
+  add_foreign_key "observations", "projects"
+  add_foreign_key "observations", "users", column: "created_by_id"
+  add_foreign_key "observations", "users", column: "updated_by_id"
+  add_foreign_key "organizations", "geographic_areas", column: "area_served_id"
+  add_foreign_key "organizations", "organizations", column: "department_id"
+  add_foreign_key "organizations", "organizations", column: "parent_organization_id"
+  add_foreign_key "organizations", "organizations", column: "same_as_id"
+  add_foreign_key "organizations", "users", column: "created_by_id"
+  add_foreign_key "organizations", "users", column: "updated_by_id"
+  add_foreign_key "origin_relationships", "projects"
+  add_foreign_key "origin_relationships", "users", column: "created_by_id"
+  add_foreign_key "origin_relationships", "users", column: "updated_by_id"
+  add_foreign_key "otu_page_layout_sections", "controlled_vocabulary_terms", column: "topic_id", name: "otu_page_layout_sections_topic_id_fkey"
+  add_foreign_key "otu_page_layout_sections", "otu_page_layouts", name: "otu_page_layout_sections_otu_page_layout_id_fkey"
+  add_foreign_key "otu_page_layout_sections", "projects", name: "otu_page_layout_sections_project_id_fkey"
+  add_foreign_key "otu_page_layout_sections", "users", column: "created_by_id", name: "otu_page_layout_sections_created_by_id_fkey"
+  add_foreign_key "otu_page_layout_sections", "users", column: "updated_by_id", name: "otu_page_layout_sections_updated_by_id_fkey"
+  add_foreign_key "otu_page_layouts", "projects", name: "otu_page_layouts_project_id_fkey"
+  add_foreign_key "otu_page_layouts", "users", column: "created_by_id", name: "otu_page_layouts_created_by_id_fkey"
+  add_foreign_key "otu_page_layouts", "users", column: "updated_by_id", name: "otu_page_layouts_updated_by_id_fkey"
+  add_foreign_key "otu_relationships", "otus", column: "object_otu_id"
+  add_foreign_key "otu_relationships", "otus", column: "subject_otu_id"
+  add_foreign_key "otu_relationships", "projects"
+  add_foreign_key "otu_relationships", "users", column: "created_by_id"
+  add_foreign_key "otu_relationships", "users", column: "updated_by_id"
+  add_foreign_key "otus", "projects", name: "otus_project_id_fkey"
+  add_foreign_key "otus", "taxon_names", name: "otus_taxon_name_id_fkey"
+  add_foreign_key "otus", "users", column: "created_by_id", name: "otus_created_by_id_fkey"
+  add_foreign_key "otus", "users", column: "updated_by_id", name: "otus_updated_by_id_fkey"
+  add_foreign_key "people", "users", column: "created_by_id", name: "people_created_by_id_fkey"
+  add_foreign_key "people", "users", column: "updated_by_id", name: "people_updated_by_id_fkey"
+  add_foreign_key "pinboard_items", "projects", name: "pinboard_items_project_id_fkey"
+  add_foreign_key "pinboard_items", "users", column: "created_by_id", name: "pinboard_items_created_by_id_fkey"
+  add_foreign_key "pinboard_items", "users", column: "updated_by_id", name: "pinboard_items_updated_by_id_fkey"
+  add_foreign_key "pinboard_items", "users", name: "pinboard_items_user_id_fkey"
+  add_foreign_key "preparation_types", "users", column: "created_by_id", name: "preparation_types_created_by_id_fkey"
+  add_foreign_key "preparation_types", "users", column: "updated_by_id", name: "preparation_types_updated_by_id_fkey"
+  add_foreign_key "project_members", "projects", name: "project_members_project_id_fkey"
+  add_foreign_key "project_members", "users", column: "created_by_id", name: "project_members_created_by_id_fkey"
+  add_foreign_key "project_members", "users", column: "updated_by_id", name: "project_members_updated_by_id_fkey"
+  add_foreign_key "project_members", "users", name: "project_members_user_id_fkey"
+  add_foreign_key "project_sources", "projects", name: "project_sources_project_id_fkey"
+  add_foreign_key "project_sources", "sources", name: "project_sources_source_id_fkey"
+  add_foreign_key "project_sources", "users", column: "created_by_id", name: "project_sources_created_by_id_fkey"
+  add_foreign_key "project_sources", "users", column: "updated_by_id", name: "project_sources_updated_by_id_fkey"
+  add_foreign_key "projects", "users", column: "created_by_id", name: "projects_created_by_id_fkey"
+  add_foreign_key "projects", "users", column: "updated_by_id", name: "projects_updated_by_id_fkey"
+  add_foreign_key "protocol_relationships", "projects"
+  add_foreign_key "protocol_relationships", "protocols"
+  add_foreign_key "protocol_relationships", "users", column: "created_by_id"
+  add_foreign_key "protocol_relationships", "users", column: "updated_by_id"
+  add_foreign_key "protocols", "projects"
+  add_foreign_key "protocols", "users", column: "created_by_id"
+  add_foreign_key "protocols", "users", column: "updated_by_id"
+  add_foreign_key "public_contents", "contents", name: "public_contents_content_id_fkey"
+  add_foreign_key "public_contents", "controlled_vocabulary_terms", column: "topic_id", name: "public_contents_topic_id_fkey"
+  add_foreign_key "public_contents", "otus", name: "public_contents_otu_id_fkey"
+  add_foreign_key "public_contents", "projects", name: "public_contents_project_id_fkey"
+  add_foreign_key "public_contents", "users", column: "created_by_id", name: "public_contents_created_by_id_fkey"
+  add_foreign_key "public_contents", "users", column: "updated_by_id", name: "public_contents_updated_by_id_fkey"
+  add_foreign_key "ranged_lot_categories", "projects", name: "ranged_lot_categories_project_id_fkey"
+  add_foreign_key "ranged_lot_categories", "users", column: "created_by_id", name: "ranged_lot_categories_created_by_id_fkey"
+  add_foreign_key "ranged_lot_categories", "users", column: "updated_by_id", name: "ranged_lot_categories_updated_by_id_fkey"
+  add_foreign_key "repositories", "users", column: "created_by_id", name: "repositories_created_by_id_fkey"
+  add_foreign_key "repositories", "users", column: "updated_by_id", name: "repositories_updated_by_id_fkey"
+  add_foreign_key "roles", "organizations"
+  add_foreign_key "roles", "people", name: "roles_person_id_fkey"
+  add_foreign_key "roles", "projects", name: "roles_project_id_fkey"
+  add_foreign_key "roles", "users", column: "created_by_id", name: "roles_created_by_id_fkey"
+  add_foreign_key "roles", "users", column: "updated_by_id", name: "roles_updated_by_id_fkey"
+  add_foreign_key "sequence_relationships", "projects"
+  add_foreign_key "sequence_relationships", "sequences", column: "object_sequence_id"
+  add_foreign_key "sequence_relationships", "sequences", column: "subject_sequence_id"
+  add_foreign_key "sequence_relationships", "users", column: "created_by_id"
+  add_foreign_key "sequence_relationships", "users", column: "updated_by_id"
+  add_foreign_key "sequences", "projects"
+  add_foreign_key "sequences", "users", column: "created_by_id"
+  add_foreign_key "sequences", "users", column: "updated_by_id"
+  add_foreign_key "serial_chronologies", "serials", column: "preceding_serial_id", name: "serial_chronologies_preceding_serial_id_fkey"
+  add_foreign_key "serial_chronologies", "serials", column: "succeeding_serial_id", name: "serial_chronologies_succeeding_serial_id_fkey"
+  add_foreign_key "serial_chronologies", "users", column: "created_by_id", name: "serial_chronologies_created_by_id_fkey"
+  add_foreign_key "serial_chronologies", "users", column: "updated_by_id", name: "serial_chronologies_updated_by_id_fkey"
+  add_foreign_key "serials", "languages", column: "primary_language_id", name: "serials_primary_language_id_fkey"
+  add_foreign_key "serials", "serials", column: "translated_from_serial_id", name: "serials_translated_from_serial_id_fkey"
+  add_foreign_key "serials", "users", column: "created_by_id", name: "serials_created_by_id_fkey"
+  add_foreign_key "serials", "users", column: "updated_by_id", name: "serials_updated_by_id_fkey"
+  add_foreign_key "sled_images", "projects"
+  add_foreign_key "sled_images", "users", column: "created_by_id"
+  add_foreign_key "sled_images", "users", column: "updated_by_id"
+  add_foreign_key "sounds", "projects"
+  add_foreign_key "sounds", "users", column: "created_by_id"
+  add_foreign_key "sounds", "users", column: "updated_by_id"
+  add_foreign_key "sources", "languages", name: "sources_language_id_fkey"
+  add_foreign_key "sources", "serials", name: "sources_serial_id_fkey"
+  add_foreign_key "sources", "users", column: "created_by_id", name: "sources_created_by_id_fkey"
+  add_foreign_key "sources", "users", column: "updated_by_id", name: "sources_updated_by_id_fkey"
+  add_foreign_key "sqed_depictions", "depictions"
+  add_foreign_key "sqed_depictions", "projects"
+  add_foreign_key "sqed_depictions", "users", column: "created_by_id"
+  add_foreign_key "sqed_depictions", "users", column: "updated_by_id"
+  add_foreign_key "tagged_section_keywords", "controlled_vocabulary_terms", column: "keyword_id", name: "tagged_section_keywords_keyword_id_fkey"
+  add_foreign_key "tagged_section_keywords", "otu_page_layout_sections", name: "tagged_section_keywords_otu_page_layout_section_id_fkey"
+  add_foreign_key "tagged_section_keywords", "projects", name: "tagged_section_keywords_project_id_fkey"
+  add_foreign_key "tagged_section_keywords", "users", column: "created_by_id", name: "tagged_section_keywords_created_by_id_fkey"
+  add_foreign_key "tagged_section_keywords", "users", column: "updated_by_id", name: "tagged_section_keywords_updated_by_id_fkey"
+  add_foreign_key "tags", "controlled_vocabulary_terms", column: "keyword_id", name: "tags_keyword_id_fkey"
+  add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
+  add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
+  add_foreign_key "tags", "users", column: "updated_by_id", name: "tags_updated_by_id_fkey"
+  add_foreign_key "taxon_determinations", "otus", name: "taxon_determinations_otu_id_fkey"
+  add_foreign_key "taxon_determinations", "projects", name: "taxon_determinations_project_id_fkey"
+  add_foreign_key "taxon_determinations", "users", column: "created_by_id", name: "taxon_determinations_created_by_id_fkey"
+  add_foreign_key "taxon_determinations", "users", column: "updated_by_id", name: "taxon_determinations_updated_by_id_fkey"
+  add_foreign_key "taxon_name_classifications", "projects", name: "taxon_name_classifications_project_id_fkey"
+  add_foreign_key "taxon_name_classifications", "taxon_names", name: "taxon_name_classifications_taxon_name_id_fkey"
+  add_foreign_key "taxon_name_classifications", "users", column: "created_by_id", name: "taxon_name_classifications_created_by_id_fkey"
+  add_foreign_key "taxon_name_classifications", "users", column: "updated_by_id", name: "taxon_name_classifications_updated_by_id_fkey"
+  add_foreign_key "taxon_name_relationships", "projects", name: "taxon_name_relationships_project_id_fkey"
+  add_foreign_key "taxon_name_relationships", "taxon_names", column: "object_taxon_name_id", name: "taxon_name_relationships_object_taxon_name_id_fkey"
+  add_foreign_key "taxon_name_relationships", "taxon_names", column: "subject_taxon_name_id", name: "taxon_name_relationships_subject_taxon_name_id_fkey"
+  add_foreign_key "taxon_name_relationships", "users", column: "created_by_id", name: "taxon_name_relationships_created_by_id_fkey"
+  add_foreign_key "taxon_name_relationships", "users", column: "updated_by_id", name: "taxon_name_relationships_updated_by_id_fkey"
+  add_foreign_key "taxon_names", "projects", name: "taxon_names_project_id_fkey"
+  add_foreign_key "taxon_names", "taxon_names", column: "parent_id", name: "taxon_names_parent_id_fkey"
+  add_foreign_key "taxon_names", "users", column: "created_by_id", name: "taxon_names_created_by_id_fkey"
+  add_foreign_key "taxon_names", "users", column: "updated_by_id", name: "taxon_names_updated_by_id_fkey"
+  add_foreign_key "type_materials", "collection_objects", name: "type_materials_biological_object_id_fkey"
+  add_foreign_key "type_materials", "projects", name: "type_materials_project_id_fkey"
+  add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
+  add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"
+  add_foreign_key "type_materials", "users", column: "updated_by_id", name: "type_materials_updated_by_id_fkey"
+  add_foreign_key "users", "people"
+  add_foreign_key "users", "users", column: "created_by_id", name: "users_created_by_id_fkey"
+  add_foreign_key "users", "users", column: "updated_by_id", name: "users_updated_by_id_fkey"
 end

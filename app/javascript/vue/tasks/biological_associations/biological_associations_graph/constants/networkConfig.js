@@ -5,6 +5,9 @@ export const configs = defineConfigs({
     boxSelectionEnabled: true
   },
   node: {
+    label: {
+      color: 'var(--text-color)'
+    },
     normal: {
       type: (node) => node.type || 'circle',
       strokeDasharray: (node) => node.strokeDasharray || 0,
@@ -19,6 +22,9 @@ export const configs = defineConfigs({
   },
   edge: {
     selectable: true,
+    label: {
+      color: 'var(--text-color)'
+    },
     normal: {
       width: 3,
       color: (edge) => edge.color || '#4466cc',
