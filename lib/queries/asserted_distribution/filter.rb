@@ -279,7 +279,13 @@ module Queries
           i = ::Queries.union(::GeographicItem, [a,b])
           u = ::Queries::GeographicItem.st_union_text(i).to_a.first
 
-          return from_wkt(u['st_astext'])
+          if u['st_astext'].nil?
+            # Normally shouldn't be the case unless we were passed some bad
+            # params.
+            return ::AssertedDistribution.none
+          else
+            return from_wkt(u['st_astext'])
+          end
         end
 
         referenced_klass_union([a,b])

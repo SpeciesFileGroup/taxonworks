@@ -4,8 +4,6 @@ require_dependency Rails.root.to_s + '/lib/queries/geographic_item/filter.rb'
 #
 # !! You must call set_geo_params in initialize()
 #
-# Concern specs are in
-#   spec/lib/queries/source/filter_spec.rb
 module Queries::Concerns::Geo
   extend ActiveSupport::Concern
 
@@ -87,9 +85,15 @@ module Queries::Concerns::Geo
     a = nil
 
     case geo_mode
-    # exact and spatial start the same
-    when nil, true
+    when nil # exact
       a = shape.where(id: ids)
+    when true #spatial
+      if shape_string == 'GeographicArea'
+        # In spatial mode GAs must have shape.
+        a = shape.joins(:geographic_items).where(id: ids)
+      else
+        a = shape.where(id: ids)
+      end
     when false # descendants
       if shape_string == 'Gazetteer'
         # For Gazetteers, descendants is the same as exact
