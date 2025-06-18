@@ -7,7 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+
+- Rename `Content by nomenclature ("Brock")` to `Content by taxon names ("Brock")`
+- Rename `Download nomenclature (basic)` to `Download taxon names (basic)`
+- Rename `Nomenclature stats` to `Taxon names stats`
+- Rename `Synchronize nomenclature and OTUs` to `Syncrhonize taxon names and OTUs`
 
 ## [0.52.1] - 2025-06-17
 

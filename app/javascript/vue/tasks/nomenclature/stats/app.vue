@@ -6,7 +6,7 @@
       legend="Loading..."
     />
     <div class="flex-separate middle">
-      <h1>Nomenclature stats</h1>
+      <h1>Taxon names stats</h1>
       <ul class="context-menu">
         <li>
           <label>
