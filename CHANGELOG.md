@@ -7,12 +7,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- Soft validation "Fix" buttons not working [#4450]
+
 ### Changed
 
 - Rename `Content by nomenclature ("Brock")` to `Content by taxon names ("Brock")`
 - Rename `Download nomenclature (basic)` to `Download taxon names (basic)`
 - Rename `Nomenclature stats` to `Taxon names stats`
 - Rename `Synchronize nomenclature and OTUs` to `Synchronize taxon names and OTUs`
+
+[#4450]: https://github.com/SpeciesFileGroup/taxonworks/issues/4450
 
 ## [0.52.1] - 2025-06-17
 
