@@ -15,7 +15,8 @@ if extend_response_with('asserted_distribution_object')
   end
 end
 
-if extend_response_with('taxonomy')
+if asserted_distribution.asserted_distribution_object_type == 'Otu' &&
+   extend_response_with('taxonomy')
   json.taxonomy do
     json.merge! asserted_distribution.otu.taxonomy
   end

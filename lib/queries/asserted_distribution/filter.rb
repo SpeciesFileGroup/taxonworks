@@ -289,21 +289,28 @@ module Queries
       end
 
       def asserted_distribution_object_facet
-        return nil if asserted_distribution_object_id.empty? ||
-          asserted_distribution_object_type.empty?
+        return nil if asserted_distribution_object_type.length != 1 ||
+          asserted_distribution_object_id.empty?
 
-        # TODO: should these params really be arrays?
-        ::AssertedDistribution
-          .where(asserted_distribution_object_id:)
-          .where(asserted_distribution_object_type:)
+        table[:asserted_distribution_object_id]
+          .in(asserted_distribution_object_id).and(
+            table[:asserted_distribution_object_type]
+              .eq(asserted_distribution_object_type.first)
+          )
+      end
 
+      def asserted_distribution_object_type_facet
+        return nil if asserted_distribution_object_type.empty?
+
+        table[:asserted_distribution_object_type]
+          .in(asserted_distribution_object_type)
       end
 
       def asserted_distribution_shape_type_facet
         return nil if asserted_distribution_shape_type.empty?
 
-        ::AssertedDistribution
-          .where(asserted_distribution_shape_type:)
+        table[:asserted_distribution_shape_type]
+          .in(asserted_distribution_shape_type)
       end
 
       def asserted_distribution_geo_facet
@@ -435,6 +442,9 @@ module Queries
           biological_association_id_facet,
           otu_id_facet,
           presence_facet,
+          asserted_distribution_shape_type_facet,
+          asserted_distribution_object_type_facet,
+          asserted_distribution_object_facet,
         ]
       end
 
@@ -450,8 +460,6 @@ module Queries
           geographic_item_id_facet,
           taxon_name_id_facet,
           wkt_facet,
-          asserted_distribution_shape_type_facet,
-          asserted_distribution_object_facet,
         ]
       end
 
