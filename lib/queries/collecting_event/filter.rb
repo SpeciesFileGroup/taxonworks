@@ -260,9 +260,16 @@ module Queries
           i = ::Queries.union(::GeographicItem, [a,b])
           u = ::Queries::GeographicItem.st_union_text(i).to_a.first
 
-          return from_wkt(
-            u['st_astext'], u['st_geometrytype'].delete_prefix!('ST_')
-          )
+          if u['st_astext'].nil? || u['st_geometrytype'].nil?
+            # Normally shouldn't be the case unless we were passed some bad
+            # params.
+            return ::CollectingEvent.none
+          else
+            return from_wkt(
+              u['st_astext'], u['st_geometrytype'].delete_prefix!('ST_')
+            )
+          end
+
         end
 
         referenced_klass_union([a,b])

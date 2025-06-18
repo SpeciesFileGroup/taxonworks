@@ -42,14 +42,19 @@
             v-for="(shape, index) in shapes"
             :key="shape.id"
           >
-            <span
-              :class="{
-                subtle:
-                  params.geo_mode ===
-                    GEOGRAPHIC_OPTIONS.Spatial && !shape.has_shape
-              }"
-              v-html="shape.name"
-            />
+            <span>
+              <span
+                v-html="shape.name"
+              />
+              <VIcon
+                v-if="geoMode === GEOGRAPHIC_OPTIONS.Spatial && !shape.has_shape"
+                color="attention"
+                name="attention"
+                small
+                title="This has no shape and so won't participate in spatial search"
+                class="separate-left center_text"
+              />
+            </span>
             <VBtn
               circle
               color="primary"
@@ -205,7 +210,6 @@ watch(
 watch(
   [shapes, geoMode],
   () => {
-    // TODO: revisit, simplify
     if (geoMode.value === GEOGRAPHIC_OPTIONS.Spatial) {
       params.value.geo_shape_id =
         shapes.value
