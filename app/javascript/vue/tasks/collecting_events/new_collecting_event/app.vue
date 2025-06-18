@@ -195,7 +195,7 @@ const isSaving = ref(false)
 const sortable = ref(false)
 const confirmationModal = useTemplateRef('confirmationModal')
 
-store.$onAction(({ name, after }) => {
+store.$onAction(({ name, after, onError }) => {
   switch (name) {
     case 'load':
       isLoading.value = true
@@ -214,6 +214,11 @@ store.$onAction(({ name, after }) => {
         isSaving.value = false
         break
     }
+  })
+
+  onError(() => {
+    isSaving.value = false
+    isLoading.value = false
   })
 })
 
@@ -289,6 +294,11 @@ async function saveCollectingEvent() {
           store.collectingEvent.id
         )
         smartSelectorRefresh()
+
+        TW.workbench.alert.create(
+          'Collecting event was successfully saved.',
+          'notice'
+        )
       })
       .catch(() => {})
   }

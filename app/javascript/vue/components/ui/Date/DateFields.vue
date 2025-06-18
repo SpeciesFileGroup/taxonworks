@@ -15,7 +15,7 @@
       </label>
       <input
         :type="field.type"
-        :placeholder="placeholder ? field.property : ''"
+        :placeholder="placeholder ? capitalize(field.property) : ''"
         :ref="
           (el) => {
             if (el) fieldsRef[index] = el
@@ -33,6 +33,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { capitalize } from '@/helpers'
 
 const props = defineProps({
   day: {

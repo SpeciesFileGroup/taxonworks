@@ -334,7 +334,8 @@ class Georeference < ApplicationRecord
         'georeference' => {
           'id' => id,
           'tag' => "Georeference ID = #{id}"
-        }
+        },
+        'radius': error_radius
       }
     )
   end
