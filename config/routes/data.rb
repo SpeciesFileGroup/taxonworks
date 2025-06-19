@@ -260,9 +260,13 @@ end
 
 resources :depictions do
   concerns [:data_routes]
+  member do
+    get :navigation, defaults: {format: :json}
+  end
   collection do
     patch :sort
     match :filter, to: 'depictions#index', via: [:get, :post]
+    get :autocomplete, defaults: {format: :json}
   end
 end
 

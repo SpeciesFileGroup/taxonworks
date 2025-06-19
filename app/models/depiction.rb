@@ -46,6 +46,7 @@ class Depiction < ApplicationRecord
   include Housekeeping
   include Shared::Tags
   include Shared::DataAttributes
+  include Shared::AssertedDistributions
   include Shared::DwcOccurrenceHooks
   include Shared::IsData
   include Shared::PolymorphicAnnotator

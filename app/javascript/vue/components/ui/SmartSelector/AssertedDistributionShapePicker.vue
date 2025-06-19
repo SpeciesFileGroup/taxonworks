@@ -7,6 +7,7 @@
       :autofocus="autofocus"
       :focus-on-select="focusOnSelect"
       :label="label"
+      :under-text="underText"
       klass-key="shapeType"
       @select-object="(o) => { emit('selectObject', o) }"
     >
@@ -38,6 +39,11 @@ const props = defineProps({
   },
 
   label: {
+    type: String,
+    required: false
+  },
+
+  underText: {
     type: String,
     required: false
   }

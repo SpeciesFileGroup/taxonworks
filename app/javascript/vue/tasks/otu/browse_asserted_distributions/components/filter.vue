@@ -22,6 +22,7 @@
       <AssertedDistributionObjectPicker
         minimal
         autofocus
+        under-text
         @select-object="(o) => objectSelected(o)"
       />
       <ObjectLinks

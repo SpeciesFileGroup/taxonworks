@@ -58,6 +58,12 @@ class AssertedDistribution < ApplicationRecord
 
   delegate :geo_object, to: :asserted_distribution_shape
 
+  # This only asserts when the asserted distribution object is polymorphic and
+  # has a restriction on its type in order to be an AD.
+  ASSERTED_DISTRIBUTION_OBJECT_RELATED_TYPES = {
+    depiction: ['Otu']
+  }.freeze
+
   belongs_to :geographic_area, class_name: :GeographicArea, foreign_key: :asserted_distribution_shape_id, inverse_of: :asserted_distributions
   belongs_to :gazetteer, class_name: :Gazetteer, foreign_key: :asserted_distribution_shape_id, inverse_of: :asserted_distributions
 
@@ -70,8 +76,9 @@ class AssertedDistribution < ApplicationRecord
   validate :new_records_include_citation
   validate :object_shape_absence_triple_is_unique
 
+  validate :asserted_distribution_object_has_allowed_type
+
   # TODO: deprecate scopes referencing single parameter where()
-  scope :with_otu_id, -> (otu_id) { where(otu_id:) }
   scope :with_is_absent, -> { where('is_absent = true') }
   scope :with_geographic_area_array, -> (geographic_area_array) { where("asserted_distribution_shape_type = 'GeographicArea' AND asserted_distribution_shape_id IN (?)", geographic_area_array) }
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
@@ -343,8 +350,19 @@ class AssertedDistribution < ApplicationRecord
         .exists?
 
       errors.add(:base,
-        'this shape, object and present/absent combination already exists'
+        'this shape, object, and present/absent combination already exists'
       )
+    end
+  end
+
+  def asserted_distribution_object_has_allowed_type
+    t = asserted_distribution_object_type
+    if (
+      (a = ASSERTED_DISTRIBUTION_OBJECT_RELATED_TYPES[t]) &&
+      !a.include?(asserted_distribution_object&.send("#{t}_object_type"))
+    )
+     errors.add(t,
+       "object type for an asserted distribution can only be in #{a}")
     end
   end
 end

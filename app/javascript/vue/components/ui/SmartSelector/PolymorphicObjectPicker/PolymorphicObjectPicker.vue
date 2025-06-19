@@ -15,7 +15,8 @@
     <div v-if="minimal">
       <VAutocomplete
         :url="`/${tabData['snake']}/autocomplete`"
-        :placeholder="`Search for a ${tabData['singular']}`"
+        :placeholder="tabData['searchbox_text'] || `Search for a ${tabData['human']}`"
+        :add-params="tabData['polymorphic_types_allowed'] || {}"
         label="label_html"
         clear-after
         param="term"
@@ -28,9 +29,10 @@
     <div v-else>
       <SmartSelector
         v-model="selectorModelObject"
-        :placeholder="`Search for a ${tabData['human']}`"
+        :placeholder="tabData['searchbox_text'] || `Search for a ${tabData['human']}`"
         :model="tabData['snake']"
         :label="label"
+        :autocomplete-params="tabData['polymorphic_types_allowed'] || {}"
         klass="AssertedDistribution"
         target="AssertedDistribution"
         ref="smartSelector"
@@ -82,7 +84,7 @@ const props = defineProps({
   klassKey: {
     type: String,
     default: 'objectType' // 'shapeType', etc. The polymorphic relation descriptor.
-  }
+  },
 })
 
 const inputObject = defineModel({

@@ -92,7 +92,7 @@ module Shared::Taxonomy
             #   .where(o: { id: otu_id })
             #   .first
 
-            otu.taxon_name&.valid_taxon_name
+            otu&.taxon_name&.valid_taxon_name
 
           when 'TaxonName' # not used (probably has to be subclassed)
             self

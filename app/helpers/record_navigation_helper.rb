@@ -6,6 +6,7 @@ module RecordNavigationHelper
   # dynamically loading the correct helper module from its name (string).
   HELPER_MODULES_HASH = {
     BiologicalAssociation: BiologicalAssociationsHelper,
+    Depiction: DepictionsHelper,
     Otu: OtusHelper,
   }
 

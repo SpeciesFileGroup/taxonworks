@@ -39,7 +39,7 @@ const props = defineProps({
   label: {
     type: String,
     required: false
-  }
+  },
 })
 
 const inputObject = defineModel({
