@@ -112,12 +112,11 @@ module Queries
       def autocomplete_depicting_otu_by_taxon_name
         o = ::TaxonName.arel_table[:cached].matches_any(terms)
 
-        ::Image.
-          includes(:taxon_names).
-          joins(:taxon_names).
-          where(o.to_sql).
-          references(:depictions, :taxon_names).
-          order('taxon_names.cached ASC').limit(20)
+        ::Image
+          .with_taxon_names
+          .where(o.to_sql)
+          .order('taxon_names.cached ASC')
+          .limit(20)
       end
 
     end

@@ -78,8 +78,6 @@ class Image < ApplicationRecord
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
-  has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
-  has_many :taxon_names, through: :otus
 
   after_validation :stub_depiction, if: Proc.new {|n| !n.filename_depicts_object.blank?}
   before_save :extract_tw_attributes
@@ -103,6 +101,12 @@ class Image < ApplicationRecord
   accepts_nested_attributes_for :sled_image, allow_destroy: true
 
   accepts_nested_attributes_for :depictions, allow_destroy: false
+
+  scope :with_taxon_names, -> {
+    joins(:depictions)
+    .joins("JOIN otus ON depictions.depiction_object_type = 'Otu' AND depictions.depiction_object_id = otus.id")
+    .joins("JOIN taxon_names ON taxon_names.id = otus.taxon_name_id")
+  }
 
   # This is bad and you should feel bad if your digitization workflow uses it.
   def stub_depiction

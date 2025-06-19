@@ -17,7 +17,6 @@ module Queries
         # Image autocomplete already includes queries for depictions on otus:
         a = Queries::Image::Autocomplete
           .new(query_string, project_id: project_id).updated_queries
-          byebug
 
         queries = a.map do |q|
           d = ::Depiction.where(image_id: q.select(:id))
