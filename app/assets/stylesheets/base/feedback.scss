@@ -47,9 +47,9 @@
 
 // yellow
 .feedback-warning {
-  color: $color-secondary-1-4;
-  background-color: $color-secondary-1-0;
-  border-color: $color-secondary-1-3;
+  color: var(--feedback-warning-text-color);
+  background-color: var(--feedback-warning-bg-color);
+  border-color: var(--feedback-warning-border-color);
 }
 
 // brighter blue !! Same as feedback-primary, why?
@@ -109,7 +109,7 @@
 }
 
 .bg-combination {
-  background-color: $navigation_background;
+  background-color: var(--bg-muted);
 }
 
 .mx-spinner {
