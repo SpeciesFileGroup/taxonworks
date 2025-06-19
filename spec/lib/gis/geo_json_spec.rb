@@ -214,7 +214,7 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
                                               'properties' => { 'georeference' =>
                                                                     { 'id' => object.id,
                                                                       'tag' => "Georeference ID = #{object.id}" },
-                                                                radius: nil },
+                                                                'radius' => nil },
                                               'id' => feature_index.to_i }] })
       end
     end
@@ -293,7 +293,7 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
                                             'properties' => { 'georeference' => { 'id' => ce_b.georeferences.first.id,
                                                                                   'tag' => 'Georeference ID = ' \
                                                                               "#{ce_b.georeferences.first.id}" },
-                                                              radius: nil },
+                                                              'radius' => nil },
                                             'id' => (feature_index.to_i + 2) },
                                           { 'type' => 'Feature',
                                             'geometry' => { 'type' => 'Point',
