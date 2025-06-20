@@ -2,8 +2,14 @@ module ObservationsHelper
 
   def observation_tag(observation)
     return nil if observation.nil?
-    [descriptor_tag(observation.descriptor), observation_cell_tag(observation, true)].join(': ').html_safe
-    #"#{observation.descriptor.name}: #{observation.id}"
+    a = descriptor_tag(observation.descriptor)
+    b = observation_cell_tag(observation, true)
+    c = send(
+      "#{observation.observation_object_type.underscore}_tag",
+      observation.observation_object
+    )
+
+    "#{a}: #{b} on #{c}".html_safe
   end
 
   def observation_autocomplete_tag(observation, on: nil)
