@@ -1,51 +1,42 @@
 <template>
-  <div>
-    <table class="vue-table">
-      <thead>
-        <tr>
-          <th>Relationship</th>
-          <th>Related</th>
-          <th>Inverted</th>
-          <th></th>
-        </tr>
-      </thead>
-      <transition-group
-        name="list-complete"
-        tag="tbody"
+  <table class="vue-table">
+    <thead>
+      <tr>
+        <th>Relationship</th>
+        <th>Related</th>
+        <th>Citation</th>
+        <th></th>
+      </tr>
+    </thead>
+    <transition-group
+      name="list-complete"
+      tag="tbody"
+    >
+      <template
+        v-for="(item, index) in renderList"
+        :key="item.id"
       >
-        <tr
-          v-for="item in list"
-          :key="item.id"
-          class="list-complete-item"
-        >
-          <td v-html="item.biological_relationship.object_tag" />
-          <td v-html="getSubjectOrObject(item)" />
+        <tr class="list-complete-item">
+          <td v-html="item.relationship" />
+          <td v-html="item.related" />
+          <td v-html="item.citation" />
           <td>
-            {{ item.biological_association_object_id === metadata.object_id }}
-          </td>
-          <td>
-            <div class="horizontal-right-content gap-xsmall">
-              <citation-count
-                :object="item"
-                :values="item.citations"
-                target="biological_associations"
-              />
-              <RadialAnnotator :global-id="item.global_id" />
+            <div class="middle horizontal-right-content gap-small">
+              <RadialAnnotator :global-id="item.globalId" />
               <VBtn
                 circle
-                color="update"
-                @click="emit('edit', Object.assign({}, item))"
+                color="primary"
+                @click="() => emit('edit', list[index])"
               >
                 <VIcon
                   name="pencil"
                   x-small
                 />
               </VBtn>
-
               <VBtn
                 circle
-                :color="softDelete ? 'primary' : 'destroy'"
-                @click="deleteItem(item, index)"
+                color="destroy"
+                @click="() => deleteItem(list[index])"
               >
                 <VIcon
                   name="trash"
@@ -55,24 +46,21 @@
             </div>
           </td>
         </tr>
-      </transition-group>
-    </table>
-  </div>
+      </template>
+    </transition-group>
+  </table>
 </template>
+
 <script setup>
+import { computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import CitationCount from '../shared/citationsCount.vue'
 
 const props = defineProps({
   list: {
     type: Array,
     default: () => []
-  },
-  metadata: {
-    type: Object,
-    required: true
   }
 })
 
@@ -88,10 +76,18 @@ function deleteItem(item) {
   }
 }
 
-function getSubjectOrObject(item) {
-  return item.biological_association_object_id === props.metadata.object_id
-    ? item.subject.object_tag
-    : item.object.object_tag
+const renderList = computed(() =>
+  props.list.map((item) => ({
+    id: item.id,
+    globalId: item.globalId,
+    relationship: getRelationshipString(item),
+    related: item.related.object_tag,
+    citation: item.citation.label
+  }))
+)
+
+function getRelationshipString(item) {
+  return item.relationship.name || item.relationship.object_label
 }
 </script>
 <style lang="scss" scoped>

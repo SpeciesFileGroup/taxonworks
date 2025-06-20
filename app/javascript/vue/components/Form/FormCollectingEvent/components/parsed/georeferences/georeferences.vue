@@ -252,7 +252,8 @@ function updateRadius(geo) {
 
   Object.assign(georeference, {
     error_geographic_item_id: geo.geographic_item_id,
-    error_radius: geo.error_radius
+    error_radius: geo.error_radius,
+    isUnsaved: true
   })
 }
 

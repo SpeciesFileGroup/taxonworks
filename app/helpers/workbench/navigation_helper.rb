@@ -134,10 +134,15 @@ module Workbench::NavigationHelper
       'List'], 
     '')
 
-    if model.any?
+    has_records = model.has_attribute?(:project_id) ? model.where(project_id: sessions_current_project_id).exists?  : model.any?
+
+    if has_records
       link_to(content, list_path_for_model(model))
     else
-      content_tag(:span, "No #{model.name} to list", class: :disabled, 'data-icon' => 'list')
+      content_tag(:span, safe_join([
+        content_tag(:span, '', data: { icon: :list }),
+        content_tag(:span, "No #{model.name} to list")
+      ], ''), class: :disabled)
     end
   end
 

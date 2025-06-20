@@ -19,7 +19,7 @@ export const FILTER_OTU = {
   link: '/tasks/otus/filter'
 }
 export const FILTER_TAXON_NAME = {
-  label: 'Nomenclature',
+  label: 'Taxon names',
   link: '/tasks/taxon_names/filter'
 }
 export const FILTER_TAXON_NAME_RELATIONSHIP = {

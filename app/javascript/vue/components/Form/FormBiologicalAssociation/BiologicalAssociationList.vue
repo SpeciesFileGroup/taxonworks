@@ -73,7 +73,7 @@ const renderList = computed(() =>
   props.list.map((item) => ({
     id: item.id,
     uuid: item.uuid,
-    globalId: item.global_id,
+    globalId: item.globalId,
     relationship: getRelationshipString(item),
     related: item.related.object_tag,
     citation: item.citation.label

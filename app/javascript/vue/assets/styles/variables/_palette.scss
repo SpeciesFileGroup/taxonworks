@@ -9,6 +9,7 @@
 
   --bg-color: #f7f8fc;
   --bg-foreground: #ffffff;
+  --bg-muted: #f2f2f2;
   --bg-action: #e3e8e3;
   --border-color: #d5d5d5;
   --button-disabled-bg-color: #ececec;
@@ -41,6 +42,10 @@
   --feedback-info-text-color: #4c81eb;
   --feedback-info-bg-color: #b0caff;
   --feedback-info-border-color: #6899fa;
+
+  --feedback-warning-text-color: #c3a78a;
+  --feedback-warning-bg-color: #fff5ea;
+  --feedback-warning-border-color: #e5d2be;
 }
 
 .dark {
@@ -55,6 +60,7 @@
   --bg-action: #000000;
   --bg-color: #242424;
   --bg-foreground: #333333;
+  --bg-muted: #1b1b1b;
   --border-color: #5b5b5b;
   --button-disabled-bg-color: #555555;
   --button-disabled-text-color: #aaaaaa;
@@ -84,6 +90,10 @@
   --feedback-info-text-color: #4c81eb;
   --feedback-info-bg-color: #2e3646;
   --feedback-info-border-color: #6899fa;
+
+  --feedback-warning-text-color: #cf873b;
+  --feedback-warning-bg-color: #37332f;
+  --feedback-warning-border-color: #6b461e;
 }
 
 $tw-dark-colors: (

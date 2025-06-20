@@ -169,7 +169,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import { sortArray } from '@/helpers/arrays'
 import { People } from '@/routes/endpoints'
-import { ref, computed, watch, useTemplateRef } from 'vue'
+import { ref, watch, useTemplateRef } from 'vue'
 
 const props = defineProps({
   roleType: {
@@ -362,7 +362,7 @@ function processedList(list) {
     position: element.position,
     person_attributes: element.person_attributes,
     person_id: element.person_id,
-    global_id: element.global_id,
+    global_id: element.global_id || element?.organization?.global_id,
     person: element.person,
     cached: element.cached,
     _destroy: element._destroy,
