@@ -37,7 +37,7 @@ module AssertedDistributionsHelper
   end
 
   def asserted_distribution_object(asserted_distribution, html)
-    object = asserted_distribution.asserted_distribution_object
+    object = asserted_distribution.asserted_distribution_object.metamorphosize
     klass = object.class.name.underscore
 
     if html

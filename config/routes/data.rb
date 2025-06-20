@@ -112,6 +112,9 @@ end
 
 resources :conveyances do
   concerns [:data_routes]
+  collection do
+    get :autocomplete, defaults: {format: :json}
+  end
 end
 
 resources :collection_objects do
@@ -599,6 +602,7 @@ resources :observations do
     delete :destroy_row, defaults: {format: :json}
     delete :destroy_column, defaults: {format: :json}
     post :code_column, defaults: {format: :json}
+    get :autocomplete, defaults: {format: :json}
   end
 
   member do

@@ -1,7 +1,8 @@
 class ConveyancesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_conveyance, only: %i[ show edit update destroy api_show ]
+  before_action :set_conveyance, only: %i[ show edit update destroy api_show
+    navigation]
   after_action -> { set_pagination_headers(:conveyances) }, only: [:index, :api_index], if: :json_request?
 
   # GET /conveyances or /conveyances.json
@@ -91,6 +92,16 @@ class ConveyancesController < ApplicationController
     end
   end
 
+  def autocomplete
+    @conveyances = Queries::Conveyance::Autocomplete.new(
+      params[:term], project_id: sessions_current_project_id,
+      polymorphic_types: params[:polymorphic_types_allowed]
+    ).autocomplete
+  end
+
+  def navigation
+  end
+
   private
   def set_conveyance
     @conveyance = Conveyance.find(params[:id])
@@ -98,8 +109,8 @@ class ConveyancesController < ApplicationController
 
   def conveyance_params
     params.require(:conveyance).permit(
-      :sound_id, 
-      :conveyance_object_id, 
+      :sound_id,
+      :conveyance_object_id,
       :conveyance_object_type,
       :position,
       :start_time,

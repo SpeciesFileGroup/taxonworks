@@ -69,7 +69,7 @@ module DepictionsHelper
     a
   end
 
-   # @return !!Array!!
+  # @return !!Array!!
   def previous_records(depiction)
     # !! Note we only return depictions on Otus currently.
     d = ::Depiction

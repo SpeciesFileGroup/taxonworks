@@ -61,7 +61,9 @@ class AssertedDistribution < ApplicationRecord
   # This only asserts when the asserted distribution object is polymorphic and
   # has a restriction on its type in order to be an AD.
   ASSERTED_DISTRIBUTION_OBJECT_RELATED_TYPES = {
-    depiction: ['Otu']
+    conveyance: ['Otu'],
+    depiction: ['Otu'],
+    observation: ['Otu']
   }.freeze
 
   belongs_to :geographic_area, class_name: :GeographicArea, foreign_key: :asserted_distribution_shape_id, inverse_of: :asserted_distributions

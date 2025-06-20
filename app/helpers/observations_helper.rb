@@ -6,6 +6,15 @@ module ObservationsHelper
     #"#{observation.descriptor.name}: #{observation.id}"
   end
 
+  def observation_autocomplete_tag(observation, on: nil)
+    t = observation_tag(observation)
+    if on == 'Otu'
+      [t, 'on:', otu_tag(observation.observation_object)].join(' ').html_safe
+    else
+      t
+    end
+  end
+
   def label_for_observation(observation)
     return nil if observation.nil?
     observation.descriptor.name # TODO: add values
@@ -85,4 +94,29 @@ module ObservationsHelper
     r.compact.join(' ').html_safe
   end
 
+  # @return !!Array!!
+  def previous_records(observation)
+    # !! Note we only return observations on Otus currently.
+    o = ::Observation
+      .joins("JOIN otus ON observations.observation_object_type = 'Otu' AND observations.observation_object_id = otus.id")
+      .where(project_id: observation.project_id)
+      .where('observations.id < ?', observation.id)
+      .order(id: :desc)
+      .first
+
+    [o].compact
+  end
+
+  # @return !!Array!!
+  def next_records(observation)
+    # !! Note we only return observations on Otus currently.
+    o = ::Observation
+      .joins("JOIN otus ON observations.observation_object_type = 'Otu' AND observations.observation_object_id = otus.id")
+      .where(project_id: observation.project_id)
+      .where('observations.id > ?', observation.id)
+      .order(:id)
+      .first
+
+    [o].compact
+  end
 end

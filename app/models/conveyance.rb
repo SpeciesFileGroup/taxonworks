@@ -20,12 +20,13 @@
 # @!attribute end_time
 #   @return [Numeric]
 #     in seconds
-#     
+#
 class Conveyance < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::Notes
   include Shared::Tags
+  include Shared::AssertedDistributions
   include Shared::PolymorphicAnnotator
   include Shared::IsData
   polymorphic_annotates(:conveyance_object)
@@ -49,7 +50,7 @@ class Conveyance < ApplicationRecord
     if (start_time && end_time) && start_time > end_time
       errors.add(:end_time, 'must be after start time')
     end
-  end 
+  end
 
 end
 

@@ -78,6 +78,7 @@ class Image < ApplicationRecord
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
+  has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
 
   after_validation :stub_depiction, if: Proc.new {|n| !n.filename_depicts_object.blank?}
   before_save :extract_tw_attributes

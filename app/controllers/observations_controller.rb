@@ -2,7 +2,7 @@ class ObservationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_observation, only: [:show, :edit, :update, :destroy, :annotations]
-  after_action -> { set_pagination_headers(:observations) }, only: [:index, :api_index], if: :json_request? 
+  after_action -> { set_pagination_headers(:observations) }, only: [:index, :api_index], if: :json_request?
 
   # GET /observations
   # GET /observations.json
@@ -133,6 +133,16 @@ class ObservationsController < ApplicationController
   def annotations
     @object = @observation
     render '/shared/data/all/annotations'
+  end
+
+  def autocomplete
+    @observations = Queries::Observation::Autocomplete.new(
+      params[:term], project_id: sessions_current_project_id,
+      polymorphic_types: params[:polymorphic_types_allowed]
+    ).autocomplete
+  end
+
+  def navigation
   end
 
   private
