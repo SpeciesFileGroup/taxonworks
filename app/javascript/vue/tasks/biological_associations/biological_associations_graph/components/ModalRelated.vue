@@ -134,7 +134,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import { ref, onBeforeMount, computed } from 'vue'
 import {
   BiologicalAssociation,
-  BiologicalAssociationGraph
+  BiologicalAssociationsGraph
 } from '@/routes/endpoints'
 import { COLLECTION_OBJECT, FIELD_OCCURRENCE, OTU } from '@/constants/index.js'
 
@@ -218,7 +218,7 @@ function loadGraphs() {
     biological_association_id: baIds
   }
 
-  return BiologicalAssociationGraph.where(payload).then(({ body }) => {
+  return BiologicalAssociationsGraph.where(payload).then(({ body }) => {
     graphs.value = body.filter((graph) => graph.id !== props.currentGraph.id)
   })
 }

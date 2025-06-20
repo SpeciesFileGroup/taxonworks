@@ -1,4 +1,4 @@
-import { BiologicalAssociation, Conveyance, Depiction, Observation, Otu } from "@/routes/endpoints"
+import { BiologicalAssociation, BiologicalAssociationsGraph, Conveyance, Depiction, Observation, Otu } from "@/routes/endpoints"
 
 export default [
   // Default first.
@@ -24,10 +24,20 @@ export default [
   },
 
   {
+    singular: 'BiologicalAssociationsGraph',
+    plural: 'BiologicalAssociationsGraphs',
+    human: 'biological associations graph',
+    display: 'Biological associations graph',
+    snake: 'biological_associations_graphs',
+    endpoint: BiologicalAssociationsGraph,
+    query_key: 'biological_associations_graph_id',
+  },
+
+  {
     singular: 'Conveyance',
     plural: 'Conveyances',
     human: 'conveyance',
-    display: 'Conveyance',
+    display: 'Conveyance on OTU',
     snake: 'conveyances',
     endpoint: Conveyance,
     query_key: 'conveyance_id',
@@ -40,7 +50,7 @@ export default [
     singular: 'Depiction',
     plural: 'Depictions',
     human: 'depiction',
-    display: 'Depiction',
+    display: 'Depiction on OTU',
     snake: 'depictions',
     endpoint: Depiction,
     query_key: 'depiction_id',
@@ -53,7 +63,7 @@ export default [
     singular: 'Observation',
     plural: 'Observations',
     human: 'observation',
-    display: 'Observation',
+    display: 'Observation on OTU',
     snake: 'observations',
     endpoint: Observation,
     query_key: 'observation_id',

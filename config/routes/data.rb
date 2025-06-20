@@ -57,11 +57,15 @@ resources :biological_associations do
   collection do
     match :filter, to: 'biological_associations#index', via: [:get, :post]
     patch :batch_update
+    get :autocomplete, defaults: {format: :json}
   end
 end
 
 resources :biological_associations_graphs do
   concerns [:data_routes]
+  collection do
+    get :autocomplete, defaults: {format: :json}
+  end
 end
 
 resources :biological_relationships do

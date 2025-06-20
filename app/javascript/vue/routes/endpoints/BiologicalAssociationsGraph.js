@@ -20,7 +20,7 @@ const permitParams = {
   }
 }
 
-export const BiologicalAssociationGraph = {
+export const BiologicalAssociationsGraph = {
   ...baseCRUD(controller, permitParams),
 
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)

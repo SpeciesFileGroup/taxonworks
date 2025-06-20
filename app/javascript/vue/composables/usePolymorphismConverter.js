@@ -12,7 +12,7 @@ import qs from 'qs'
 // @param polymorphismBase like, e.g., 'asserted_distribution_object' (the base
 //   of 'asserted_distribution_object_id and asserted_distribution_object_type)
 // @param polymorphismTypes allowed type data of, e.g.,
-// asserted_distribution_object_type. See
+//   asserted_distribution_object_type. See
 // app/javascript/vue/components/ui/SmartSelector/PolymorphicObjectPicker/PolymorphismClasses
 export function usePolymorphicConverter(polymorphismBase, polymorphismTypes) {
   // Like 'otu_id', etc.

@@ -3,10 +3,13 @@ function parseRank(rank) {
 }
 
 export function listParser(result) {
+  const withoutObjectRadial = ['BiologicalAssociation',
+    'BiologicalAssociationsGraph', 'Conveyance', 'Depiction', 'Observation']
+
   return result.map((item) => ({
     id: item.id,
     global_id: item.global_id,
-    objectGlobalId: item.asserted_distribution_object_type == 'BiologicalAssociation' ? null : item.asserted_distribution_object.global_id,
+    objectGlobalId: withoutObjectRadial.includes(item.asserted_distribution_object_type) ? null : item.asserted_distribution_object.global_id,
     object_object_tag: item.asserted_distribution_object.object_tag,
     object_type: item.asserted_distribution_object_type,
     asserted_distribution_shape: item.asserted_distribution_shape.name,

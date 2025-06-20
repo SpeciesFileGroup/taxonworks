@@ -1,7 +1,8 @@
 class BiologicalAssociationsGraphsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_biological_associations_graph, only: [:show, :edit, :update, :destroy]
+  before_action :set_biological_associations_graph, only: [:show, :edit,
+    :update, :destroy, :navigation]
   after_action -> { set_pagination_headers(:biological_associations_graphs) }, only: [:index], if: :json_request?
 
   # GET /biological_associations_graphs
@@ -93,6 +94,9 @@ class BiologicalAssociationsGraphsController < ApplicationController
     else
       redirect_to biological_associations_graph_path(params[:id])
     end
+  end
+
+  def navigation
   end
 
   private

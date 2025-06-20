@@ -11,13 +11,14 @@
 # @!attribute graph
 #   @return [Json]
 #      a layout for the graph
-#      
+#
 class BiologicalAssociationsGraph < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::Notes
   include Shared::Tags
   include Shared::Identifiers
+  include Shared::AssertedDistributions
   include Shared::IsData
 
   has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_associations_graph, dependent: :delete_all

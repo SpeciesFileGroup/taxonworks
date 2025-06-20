@@ -80,7 +80,7 @@ module Queries
         return nil if biological_association_query.nil?
         s = 'WITH query_ba_bag AS (' + biological_association_query.all.to_sql + ') '
 
-        s << ::BiologicalAssociationGraph.joins(:biological_associations_biological_associations_graphs)
+        s << ::BiologicalAssociationsGraph.joins(:biological_associations_biological_associations_graphs)
           .joins('JOIN query_ba_bag as query_ba_bag1 on biological_associations_biological_associations_graphs.biological_association_id = query_ba_bag1.id').to_sql
 
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')

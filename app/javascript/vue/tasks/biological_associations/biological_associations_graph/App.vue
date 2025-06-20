@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Biological associations graph</h1>
-    <BiologicalAssociationGraph ref="graph">
+    <BiologicalAssociationsGraph ref="graph">
       <template #header="{ isGraphUnsaved, edges, currentGraph, sourceIds }">
         <VNavbar>
           <div class="flex-separate">
@@ -123,12 +123,12 @@
           </div>
         </VNavbar>
       </template>
-    </BiologicalAssociationGraph>
+    </BiologicalAssociationsGraph>
   </div>
 </template>
 
 <script setup>
-import BiologicalAssociationGraph from './components/BiologicalAssociationGraph.vue'
+import BiologicalAssociationsGraph from './components/BiologicalAssociationsGraph.vue'
 import VNavbar from '@/components/layout/NavBar'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -239,7 +239,7 @@ onMounted(() => {
 function loadGraph(id) {
   graph.value.resetStore()
   graph.value.setGraph(id)
-  setParam(RouteNames.NewBiologicalAssociationGraph, {
+  setParam(RouteNames.NewBiologicalAssociationsGraph, {
     biological_associations_graph_id: id
   })
 }
@@ -252,7 +252,7 @@ function saveGraph() {
     )
 
     if (biologicalAssociationGraph?.id) {
-      setParam(RouteNames.NewBiologicalAssociationGraph, {
+      setParam(RouteNames.NewBiologicalAssociationsGraph, {
         biological_associations_graph_id: biologicalAssociationGraph.id
       })
     }
@@ -272,7 +272,7 @@ function addBiologicalAssociationsToGraph(ids) {
 function reset() {
   graph.value.resetStore()
   setParam(
-    RouteNames.NewBiologicalAssociationGraph,
+    RouteNames.NewBiologicalAssociationsGraph,
     'biological_associations_graph_id'
   )
 }
