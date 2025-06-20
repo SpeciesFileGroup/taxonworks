@@ -308,9 +308,9 @@ class Otu < ApplicationRecord
                 t['biological_association_object_type'].eq('Otu')
               )
             )
-              .where(t['updated_by_id'].eq(user_id))
-              .where(t['project_id'].eq(project_id))
-              .order(t['updated_at'].desc)
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
         else
           t.project(t['otu_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.week.ago ))

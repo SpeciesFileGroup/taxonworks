@@ -47,7 +47,7 @@ module DepictionsHelper
   end
 
   def depictions_sled_tag(depiction, size: :thumb)
-    content_tag(:figure) do
+    content_tag(:figure, style: 'margin: 0.5em; margin-left: 0; margin-right: 0;') do
       image_tag(depiction.sled_extraction_path(size), skip_pipeline: true) +
         content_tag(:figcaption, image_context_depiction_tag(depiction))
     end

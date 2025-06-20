@@ -25,7 +25,7 @@ module AssertedDistributionsHelper
     [
       link_to(
         asserted_distribution_object(asserted_distribution, true).html_safe,
-        asserted_distribution.asserted_distribution_object
+        asserted_distribution
       ),
       (asserted_distribution.is_absent ? content_tag(:span, ' not in ', class: :warning) : ' in '
       ),

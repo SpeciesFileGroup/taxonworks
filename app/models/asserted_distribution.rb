@@ -253,14 +253,14 @@ class AssertedDistribution < ApplicationRecord
     end
   end
 
-  # TODO BA
   def self.asserted_distributions_for_api_index(params, project_id)
     a = ::Queries::AssertedDistribution::Filter.new(params)
       .all
       .where(project_id: project_id)
-      .includes(:citations, :otu, origin_citation: [:source])
+      .includes(:citations, origin_citation: [:source])
       .includes(geographic_area: :parent)
       .includes(:gazetteer)
+      .includes(:asserted_distribution_object)
       .order('asserted_distributions.id')
       .page(params[:page])
       .per(params[:per])

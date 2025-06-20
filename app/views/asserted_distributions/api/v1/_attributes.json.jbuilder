@@ -17,22 +17,20 @@ json.citations(asserted_distribution.citations) do |citation|
     json.global_id citation.source.to_global_id.to_s
   end
 end
-
 json.asserted_distribution_object do
-  json.type asserted_distribution.asserted_distribution_object_type
+  klass = asserted_distribution.asserted_distribution_object_type
+  # TODO should this be metamorphosized?
+  json.type klass
 
-  if asserted_distribution.asserted_distribution_object_type == 'Otu'
-    json.name asserted_distribution.otu.name
-    json.taxon_name_id asserted_distribution.otu.taxon_name_id
-    json.taxon_name asserted_distribution.otu.taxon_name&.cached
-    json.global_id asserted_distribution.otu.to_global_id.to_s
-  elsif asserted_distribution.asserted_distribution_object_type == 'BiologicalAssociation'
-    extend = ['biological_relationship', 'subject', 'object']
-    params[:extend] = (params[:extend] || []) + extend
-    # TODO make sure extend works
-    json.partial! '/biological_associations/api/v1/attributes',
-      biological_association:
-        asserted_distribution.asserted_distribution_object
+  k = klass.underscore
+  json.partial! "/#{k.pluralize}/api/v1/attributes",
+    { k.to_sym => asserted_distribution.asserted_distribution_object }
+
+  #Additional data.
+  case klass
+  when 'Otu'
+    json.taxon_name asserted_distribution.asserted_distribution_object.taxon_name&.cached
+  end
 end
 
 json.asserted_distribution_shape do
