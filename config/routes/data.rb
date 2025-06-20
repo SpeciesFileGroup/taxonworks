@@ -58,6 +58,7 @@ resources :biological_associations do
     match :filter, to: 'biological_associations#index', via: [:get, :post]
     patch :batch_update
     get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -65,6 +66,7 @@ resources :biological_associations_graphs do
   concerns [:data_routes]
   collection do
     get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -94,30 +96,6 @@ resources :citations do # except: [:show]
   concerns [:data_routes]
   collection do
     post :batch_create, defaults: {format: :json}
-  end
-end
-
-get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
-resources :confidences do # , except: [:edit, :show]
-  concerns [:data_routes]
-  collection do
-    post :confidence_object_update
-    post :batch_by_filter_scope, defaults: {format: :json}
-  end
-end
-
-resources :confidence_levels, only: [:index] do
-  collection do
-    get 'lookup'
-    get 'autocomplete'
-    get :select_options, defaults: {format: :json}
-  end
-end
-
-resources :conveyances do
-  concerns [:data_routes]
-  collection do
-    get :autocomplete, defaults: {format: :json}
   end
 end
 
@@ -214,6 +192,23 @@ resources :common_names do
   concerns [:data_routes]
 end
 
+get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
+resources :confidences do # , except: [:edit, :show]
+  concerns [:data_routes]
+  collection do
+    post :confidence_object_update
+    post :batch_by_filter_scope, defaults: {format: :json}
+  end
+end
+
+resources :confidence_levels, only: [:index] do
+  collection do
+    get 'lookup'
+    get 'autocomplete'
+    get :select_options, defaults: {format: :json}
+  end
+end
+
 match 'containers/for', to: 'containers#for', via: :get, defaults: {format: :json}
 resources :containers do # , only: [:create, :update, :destroy] do
   concerns [:data_routes]
@@ -248,7 +243,14 @@ resources :controlled_vocabulary_terms do
   collection do
     post :clone_from_project, default: {format: :json}
   end
+end
 
+resources :conveyances do
+  concerns [:data_routes]
+  collection do
+    get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :data_attributes, except: [:show] do
@@ -274,6 +276,7 @@ resources :depictions do
     patch :sort
     match :filter, to: 'depictions#index', via: [:get, :post]
     get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -607,6 +610,7 @@ resources :observations do
     delete :destroy_column, defaults: {format: :json}
     post :code_column, defaults: {format: :json}
     get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
 
   member do

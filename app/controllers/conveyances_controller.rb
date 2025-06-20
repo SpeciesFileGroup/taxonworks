@@ -102,6 +102,10 @@ class ConveyancesController < ApplicationController
   def navigation
   end
 
+  def select_options
+    @conveyances = Conveyance.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+  end
+
   private
   def set_conveyance
     @conveyance = Conveyance.find(params[:id])

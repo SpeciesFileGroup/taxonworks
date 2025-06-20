@@ -145,6 +145,10 @@ class ObservationsController < ApplicationController
   def navigation
   end
 
+  def select_options
+    @observations = Observation.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+  end
+
   private
 
   def set_observation

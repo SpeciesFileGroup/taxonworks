@@ -99,6 +99,10 @@ class BiologicalAssociationsGraphsController < ApplicationController
   def navigation
   end
 
+  def select_options
+    @biological_associations_graphs = BiologicalAssociationsGraph.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+  end
+
   private
 
   def set_biological_associations_graph

@@ -198,8 +198,12 @@ class BiologicalAssociationsController < ApplicationController
     end
   end
 
-  # GET /otus/1/navigation.json
+  # GET /biological_associations/1/navigation.json
   def navigation
+  end
+
+  def select_options
+    @biological_associations = BiologicalAssociation.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   private
