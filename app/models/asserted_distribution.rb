@@ -74,6 +74,10 @@ class AssertedDistribution < ApplicationRecord
   #has_one :taxon_name, through: :otu
 
   before_validation :unify_is_absent
+  before_save do
+    # TODO: handle non-otu types.
+    self.no_dwc_occurrence = asserted_distribution_object_type != 'Otu'
+  end
 
   validate :new_records_include_citation
   validate :object_shape_absence_triple_is_unique
