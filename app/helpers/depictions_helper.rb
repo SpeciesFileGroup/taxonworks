@@ -8,7 +8,7 @@ module DepictionsHelper
       depictions_sled_tag(depiction, size: size)
       # depiction_svg_tag(depiction)
     else
-      tag.figure do
+      tag.figure style: 'margin: 0.5em; margin-left: 0; margin-right: 0;' do
         image_tag(depiction.image.image_file.url(size)) +
           tag.figcaption(image_context_depiction_tag(depiction))
       end
