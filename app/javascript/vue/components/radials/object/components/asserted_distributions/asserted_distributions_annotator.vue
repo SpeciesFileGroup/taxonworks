@@ -63,7 +63,7 @@
       <legend>Shape</legend>
       <ShapeSelector
         :focus-on-select="lock.source"
-        @select-shape="
+        @select-object="
           (shape) => {
             assertedDistribution.asserted_distribution_shape_type = shape.shapeType
             assertedDistribution.asserted_distribution_shape_id = shape.id
@@ -236,7 +236,8 @@ function setDistribution(item) {
   assertedDistribution.value = {
     id: item.id,
     citations: item.citations,
-    otu_id: item.otu_id,
+    asserted_distribution_object_id: item.asserted_distribution_object_id,
+    asserted_distribution_object_type: item.asserted_distribution_object_type,
     is_absent: item.is_absent,
     asserted_distribution_shape_type: item.asserted_distribution_shape_type,
     asserted_distribution_shape_id: item.asserted_distribution_shape_id,
@@ -248,7 +249,8 @@ function setDistribution(item) {
 function newAsserted() {
   return {
     id: undefined,
-    otu_id: props.objectId,
+    asserted_distribution_object_id: props.objectId,
+    asserted_distribution_object_type: props.objectType,
     asserted_distribution_shape_type: lock.geo
       ? assertedDistribution.value.asserted_distribution_shape_type
       : undefined,
@@ -283,7 +285,8 @@ function removeItem(item) {
 }
 
 AssertedDistribution.all({
-  otu_id: props.objectId,
+  asserted_distribution_object_id: props.objectId,
+  asserted_distribution_object_type: props.objectType,
   ...EXTEND_PARAMS
 })
   .then(({ body }) => {

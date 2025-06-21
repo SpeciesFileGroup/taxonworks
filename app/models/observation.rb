@@ -138,6 +138,8 @@ class Observation < ApplicationRecord
   include Shared::IsData
   include Shared::ObservationIndex
 
+  GRAPH_ENTRY_POINTS = [:asserted_distributions].freeze
+
   ignore_whitespace_on(:description)
 
   self.skip_time_zone_conversion_for_attributes = [:time_made]

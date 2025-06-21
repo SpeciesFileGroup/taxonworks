@@ -8,9 +8,9 @@
       <div class="flex-separate middle">
         {{ navigation.current.object_label }}
         <div class="horizontal-left-content gap-small">
-          <RadialOtu :global-id="navigation.current.global_id" />
-          <RadialAnnotator :global-id="navigation.current.global_id" />
           <RadialObject :global-id="navigation.current.global_id" />
+          <RadialAnnotator :global-id="navigation.current.global_id" />
+          <RadialNavigator :global-id="navigation.current.global_id" />
         </div>
       </div>
       <template v-if="navigation.parents.length">
@@ -61,9 +61,9 @@ import { ASSERTED_DISTRIBUTION_OBJECT_ENDPOINT_HASH } from '@/components/ui/Smar
 import { RouteNames } from '@/routes/routes'
 import { ref, watch } from 'vue'
 import { decapitalize, toSnakeCase, humanize } from '@/helpers'
-import RadialAnnotator from '@/components/radials/annotator/annotator'
-import RadialObject from '@/components/radials/navigation/radial'
-import RadialOtu from '@/components/radials/object/radial'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 
 const props = defineProps({
   objectId: {

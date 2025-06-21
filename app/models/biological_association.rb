@@ -45,6 +45,8 @@ class BiologicalAssociation < ApplicationRecord
 
   include Shared::QueryBatchUpdate
 
+  GRAPH_ENTRY_POINTS = [:asserted_distributions].freeze
+
   belongs_to :biological_relationship, inverse_of: :biological_associations
 
   has_many :subject_biological_relationship_types, through: :biological_relationship

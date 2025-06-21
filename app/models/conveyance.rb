@@ -31,6 +31,8 @@ class Conveyance < ApplicationRecord
   include Shared::IsData
   polymorphic_annotates(:conveyance_object)
 
+  GRAPH_ENTRY_POINTS = [:asserted_distributions].freeze
+
   acts_as_list scope: [:project_id, :conveyance_object_type, :conveyance_object_id]
 
   belongs_to :sound, inverse_of: :conveyances

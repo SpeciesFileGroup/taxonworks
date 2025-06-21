@@ -21,6 +21,8 @@ class BiologicalAssociationsGraph < ApplicationRecord
   include Shared::AssertedDistributions
   include Shared::IsData
 
+  GRAPH_ENTRY_POINTS = [:asserted_distributions].freeze
+
   has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_associations_graph, dependent: :delete_all
   has_many :biological_associations, through: :biological_associations_biological_associations_graphs
 

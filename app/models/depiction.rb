@@ -53,6 +53,8 @@ class Depiction < ApplicationRecord
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:depiction_object)
 
+  GRAPH_ENTRY_POINTS = [:asserted_distributions].freeze
+
   acts_as_list scope: [:project_id, :depiction_object_type, :depiction_object_id]
 
   belongs_to :image, inverse_of: :depictions
