@@ -102,6 +102,9 @@ class AssertedDistribution < ApplicationRecord
 
     ::Queries.union(AssertedDistribution, [a, b])
   }
+  scope :with_otus, -> {
+    joins("JOIN otus ON otus.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
+  }
 
   # TODO: revive as needed
   #accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }

@@ -385,9 +385,9 @@ module Queries
           j = o.join(h, Arel::Nodes::InnerJoin).on(o[:taxon_name_id].eq(h[:descendant_id]))
           z = h[:ancestor_id].in(taxon_name_id)
 
-          ::AssertedDistribution.joins(:otu).joins(j.join_sources).where(z)
+          ::AssertedDistribution.with_otus.joins(j.join_sources).where(z)
         else
-          ::AssertedDistribution.joins(:otu).where(otus: {taxon_name_id:})
+          ::AssertedDistribution.with_otus.where(otus: {taxon_name_id:})
         end
       end
 
@@ -395,7 +395,7 @@ module Queries
         return nil if otu_query.nil?
         s = 'WITH query_otu_ad AS (' + otu_query.all.to_sql + ') ' +
           ::AssertedDistribution
-          .joins('JOIN query_otu_ad as query_otu_ad1 on query_otu_ad1.id = asserted_distributions.otu_id')
+          .joins("JOIN query_otu_ad AS query_otu_ad1 ON query_otu_ad1.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
           .to_sql
         ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
       end
@@ -404,7 +404,7 @@ module Queries
         return nil if taxon_name_query.nil?
         s = 'WITH query_tn_ad AS (' + taxon_name_query.all.to_sql + ') ' +
           ::AssertedDistribution
-          .joins(:otu)
+          .with_otus
           .joins('JOIN query_tn_ad as query_tn_ad1 on query_tn_ad1.id = otus.taxon_name_id')
           .to_sql
         ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
@@ -415,10 +415,10 @@ module Queries
         s = 'WITH query_ad_ba AS (' + biological_association_query.all.to_sql + ') '
 
         a = ::AssertedDistribution
-          .joins("JOIN query_ad_ba as query_ad_ba1 on asserted_distributions.otu_id = query_ad_ba1.biological_association_subject_id AND query_ad_ba1.biological_association_subject_type = 'Otu'")
+          .joins("JOIN query_ad_ba AS query_ad_ba1 ON asserted_distributions.otu_id = query_ad_ba1.biological_association_subject_id AND query_ad_ba1.biological_association_subject_type = 'Otu' AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
 
         b = ::AssertedDistribution
-          .joins("JOIN query_ad_ba as query_ad_ba2 on asserted_distributions.otu_id = query_ad_ba2.biological_association_object_id AND query_ad_ba2.biological_association_object_type = 'Otu'")
+          .joins("JOIN query_ad_ba AS query_ad_ba2 ON asserted_distributions.otu_id = query_ad_ba2.biological_association_object_id AND query_ad_ba2.biological_association_object_type = 'Otu' AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
 
         s << referenced_klass_union([a,b]).to_sql
 
