@@ -1,19 +1,11 @@
 # An interface implemented by model helpers requiring previous/next/parents
 # navigation links.
-# Users must add themselves to HELPER_MODULES_HASH.
 module RecordNavigationHelper
-  # TODO Make this go away if possible - currently it's used in place of
-  # dynamically loading the correct helper module from its name (string).
-  HELPER_MODULES_HASH = {
-    BiologicalAssociation: BiologicalAssociationsHelper,
-    Depiction: DepictionsHelper,
-    Otu: OtusHelper,
-  }
-
   # @return [Object] An object implementing the helper methods from
   # <model>Helper.
   def self.for(model_name)
-    Object.new.extend(HELPER_MODULES_HASH[model_name.to_sym])
+    helper_module = "#{model_name.pluralize}Helper".constantize # can explode
+    return Object.new.extend(helper_module)
   end
 
   # @return Array

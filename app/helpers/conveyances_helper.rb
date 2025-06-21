@@ -1,4 +1,5 @@
 module ConveyancesHelper
+  include RecordNavigationHelper
 
   def conveyance_tag(conveyance)
     return nil if conveyance.nil?

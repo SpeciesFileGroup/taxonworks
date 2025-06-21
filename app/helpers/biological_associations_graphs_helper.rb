@@ -1,4 +1,5 @@
 module BiologicalAssociationsGraphsHelper
+  include RecordNavigationHelper
 
   def biological_associations_graph_tag(biological_associations_graph)
     return nil if biological_associations_graph.nil?

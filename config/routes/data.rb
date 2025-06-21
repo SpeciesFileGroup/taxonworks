@@ -64,6 +64,9 @@ end
 
 resources :biological_associations_graphs do
   concerns [:data_routes]
+  member do
+    get :navigation, defaults: {format: :json}
+  end
   collection do
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
@@ -247,6 +250,9 @@ end
 
 resources :conveyances do
   concerns [:data_routes]
+  member do
+    get :navigation, defaults: {format: :json}
+  end
   collection do
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
@@ -536,6 +542,10 @@ resources :namespaces do
   concerns [:data_routes]
 end
 
+resources :notes, except: [:show] do
+  concerns [:data_routes]
+end
+
 match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
 match 'observation_matrices/column/', to: 'observation_matrices#column', via: :get, method: :json
 resources :observation_matrices do
@@ -615,14 +625,9 @@ resources :observations do
 
   member do
     get :annotations, defaults: {format: :json}
+    get :navigation, defaults: {format: :json}
   end
 end
-
-resources :notes, except: [:show] do
-  concerns [:data_routes]
-end
-
-
 
 resources :otus do
   concerns [:data_routes]

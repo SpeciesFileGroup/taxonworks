@@ -1,6 +1,6 @@
 import { BiologicalAssociation, BiologicalAssociationsGraph, Conveyance, Depiction, Observation, Otu } from "@/routes/endpoints"
 
-export default [
+const AssertedDistributionObject = [
   // Default first.
   {
     singular: 'Otu',
@@ -72,3 +72,14 @@ export default [
     polymorphic_types_allowed: { polymorphic_types_allowed: ['Otu'] }
   },
 ]
+
+const ASSERTED_DISTRIBUTION_OBJECT_ENDPOINT_HASH =
+  AssertedDistributionObject.reduce((acc, value) => {
+      acc[value.singular] = value.endpoint
+      return acc
+    },
+    {}
+  )
+
+export default AssertedDistributionObject
+export { ASSERTED_DISTRIBUTION_OBJECT_ENDPOINT_HASH }

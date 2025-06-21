@@ -1,4 +1,6 @@
 # Users must have the helpers RecordNavigationHelper interface
+object = object.metamorphosize
+
 h = RecordNavigationHelper.for(object.class.name)
 
 klass = object.class.name.underscore

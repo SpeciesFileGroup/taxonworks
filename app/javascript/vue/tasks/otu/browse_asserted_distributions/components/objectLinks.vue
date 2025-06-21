@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import { ENDPOINTS_HASH } from '../const/endpoints'
+import { ASSERTED_DISTRIBUTION_OBJECT_ENDPOINT_HASH } from '@/components/ui/SmartSelector/PolymorphicObjectPicker/PolymorphismClasses/AssertedDistributionObject'
 import { RouteNames } from '@/routes/routes'
 import { ref, watch } from 'vue'
 import { decapitalize, toSnakeCase, humanize } from '@/helpers'
@@ -94,7 +94,8 @@ watch(
 )
 
 function loadNav() {
-  ENDPOINTS_HASH[props.objectType].navigation(props.objectId)
+  ASSERTED_DISTRIBUTION_OBJECT_ENDPOINT_HASH[props.objectType]
+    .navigation(props.objectId)
     .then((response) => {
       navigation.value = response.body
     })

@@ -1,7 +1,8 @@
 class ObservationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_observation, only: [:show, :edit, :update, :destroy, :annotations]
+  before_action :set_observation, only: [:show, :edit, :update, :destroy,
+    :annotations, :navigation]
   after_action -> { set_pagination_headers(:observations) }, only: [:index, :api_index], if: :json_request?
 
   # GET /observations
