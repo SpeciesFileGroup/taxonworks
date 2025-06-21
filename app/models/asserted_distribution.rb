@@ -66,9 +66,6 @@ class AssertedDistribution < ApplicationRecord
     observation: ['Otu']
   }.freeze
 
-  belongs_to :geographic_area, class_name: :GeographicArea, foreign_key: :asserted_distribution_shape_id, inverse_of: :asserted_distributions
-  belongs_to :gazetteer, class_name: :Gazetteer, foreign_key: :asserted_distribution_shape_id, inverse_of: :asserted_distributions
-
   # TODO use asserted_distribution_object unless you really need these
   #belongs_to :biological_association, class_name: :BiologicalAssociation, foreign_key: :asserted_distribution_object_id, inverse_of: :asserted_distributions
   #has_one :taxon_name, through: :otu
@@ -262,8 +259,7 @@ class AssertedDistribution < ApplicationRecord
       .all
       .where(project_id: project_id)
       .includes(:citations, origin_citation: [:source])
-      .includes(geographic_area: :parent)
-      .includes(:gazetteer)
+      .includes(asserted_distribution_shape: :parent)
       .includes(:asserted_distribution_object)
       .order('asserted_distributions.id')
       .page(params[:page])
