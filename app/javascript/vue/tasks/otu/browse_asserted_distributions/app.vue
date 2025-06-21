@@ -161,11 +161,11 @@ const {
   parameters
 } = useFilter(AssertedDistribution, { initParameters: { extend, embed }, listParser })
 
-const geojson = computed(() => list.value.map((item) => item.feature))
-
 const ascending = ref(false)
 const activeFilter = ref(true)
 const activeJSONRequest = ref(false)
+
+const geojson = computed(() => list.value.map((item) => item.feature))
 
 function sortTable(sortProperty) {
   list.value = sortArray(list.value, sortProperty, ascending.value, {

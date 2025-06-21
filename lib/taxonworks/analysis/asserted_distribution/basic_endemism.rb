@@ -17,7 +17,7 @@ module TaxonWorks
           otus =  Otu.descendant_of_taxon_name(taxon_name.id)
           if otus.count > 2000
             return {
-              basic_endemism_error: 'Error: Taxon name has too many descendants'
+              basic_endemism_error: 'Taxon name has too many descendants'
             }
           end
 

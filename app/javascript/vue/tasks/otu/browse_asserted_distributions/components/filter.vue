@@ -39,6 +39,8 @@ import ObjectLinks from './objectLinks.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
+import { watch } from 'vue'
+import { AssertedDistribution } from '@/routes/endpoints'
 
 const parameters = defineModel({
   type: Object,
@@ -46,6 +48,24 @@ const parameters = defineModel({
 })
 
 const emit = defineEmits(['select'])
+
+watch(parameters, () => {
+  if (parameters.value.asserted_distribution_id &&
+      !parameters.value.asserted_distribution_object_id &&
+      !parameters.value.asserted_distribution_object_type) {
+    // Coming from an AD radial navigator.
+    AssertedDistribution.find(parameters.value.asserted_distribution_id)
+      .then(({ body }) => {
+        parameters.value.asserted_distribution_object_id =
+          body.asserted_distribution_object_id
+        parameters.value.asserted_distribution_object_type =
+          body.asserted_distribution_object_type
+      })
+      .catch(() => {})
+  }
+},
+{immediate: true}
+)
 
 function resetFilter() {
   emit('reset')
