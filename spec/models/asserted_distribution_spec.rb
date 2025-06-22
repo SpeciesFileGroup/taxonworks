@@ -302,7 +302,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         .to contain_exactly(geographic_area.id, geographic_area.id)
     end
 
-    specify 'adds citation to existing AD' do
+    specify 'adds citation to existing AD instead of creating new' do
       source2 = FactoryBot.create(:valid_source, title: 'Where the pigeons poop')
       # Dup of the AD to be batch-created below, execept for citation.
       ad = AssertedDistribution.create!(
@@ -323,6 +323,55 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         .to contain_exactly(otu.id)
 
       expect(AssertedDistribution.first.citations.count).to eq(2)
+    end
+  end
+
+  context '::batch_update' do
+    let!(:ga1) { FactoryBot.create(:valid_geographic_area, name: 'pre') }
+    let!(:ga2) { FactoryBot.create(:valid_geographic_area, name: 'post') }
+    let!(:ad1) { FactoryBot.create(:valid_asserted_distribution,
+      asserted_distribution_object: otu,
+      asserted_distribution_shape: ga1)
+    }
+    let!(:ad2) { FactoryBot.create(:valid_asserted_distribution,
+      asserted_distribution_object: FactoryBot.create(:valid_biological_association),
+      asserted_distribution_shape: ga1)
+    }
+    let!(:params) {{
+	    asserted_distribution: {
+		    asserted_distribution_shape_id: ga2.id,
+		    asserted_distribution_shape_type: 'GeographicArea'
+	    },
+      asserted_distribution_query: {
+		    asserted_distribution_id: [ad1.id, ad2.id]
+	    }
+    }}
+
+    specify 'moves' do
+      AssertedDistribution.batch_update(params)
+      expect(ad1.reload.asserted_distribution_shape_id).to eq(ga2.id)
+      expect(ad2.reload.asserted_distribution_shape_id).to eq(ga2.id)
+    end
+
+    specify 'async moves' do
+      # Cause the async delayed job to run immediately here.
+      allow_any_instance_of(ActiveSupport::Duration).to receive(:from_now).and_return(Time.now)
+
+      AssertedDistribution.batch_update(params.merge({ async_cutoff: 1 }))
+
+      expect(ad1.reload.asserted_distribution_shape_id).to eq(ga1.id)
+
+      Delayed::Worker.new.work_off
+
+      expect(ad1.reload.asserted_distribution_shape_id).to eq(ga2.id)
+      expect(ad2.reload.asserted_distribution_shape_id).to eq(ga2.id)
+    end
+
+    specify 'sets counts' do
+      r = AssertedDistribution.batch_update(params)
+      expect(r.total_attempted).to eq(2)
+      expect(r.updated.count).to eq(2)
+      expect(r.not_updated.count).to eq(0)
     end
   end
 

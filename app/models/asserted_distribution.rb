@@ -155,7 +155,6 @@ class AssertedDistribution < ApplicationRecord
     asserted_distribution_shape.geographic_items.any?
   end
 
-  # TODO BA
   def self.batch_update(params)
     request = QueryBatchRequest.new(
       async_cutoff: params[:async_cutoff] || 26,
@@ -170,13 +169,13 @@ class AssertedDistribution < ApplicationRecord
     v1 = a.all.distinct.limit(2)
       .pluck(:asserted_distribution_shape_id, :asserted_distribution_shape_type)
       .uniq.count
-    v2 = a.all.distinct.limit(2).pluck(:otu_id).uniq.count
+    v2 = a.all.distinct.limit(2).pluck(:asserted_distribution_object_id).uniq.count
 
     cap = 0
 
-    if v1 > 1 && v2 > 1 # many otus, many geographic areas
+    if v1 > 1 && v2 > 1 # many objects, many geographic areas
       cap = 0
-      request.cap_reason = 'Records include multiple OTUs *and* multiple geographic areas.'
+      request.cap_reason = 'Records include multiple asserted distribution objects *and* multiple asserted distribution shapes.'
     elsif v1 > 1
       cap = 0
       request.cap_reason = 'May not update multiple shapes to one.' # TODO: revist constraint
