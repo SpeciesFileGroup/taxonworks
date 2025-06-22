@@ -223,7 +223,7 @@ class AssertedDistribution < ApplicationRecord
         a.all.find_each do |o|
           begin
             ad = AssertedDistribution.new(
-              template_params.merge({otu_id: o.id})
+              template_params.merge({asserted_distribution_object: o})
             )
             ad.save!
             r.updated.push ad.id
@@ -249,7 +249,10 @@ class AssertedDistribution < ApplicationRecord
 
     otu_ids.each do |otu_id|
       begin
-        ad = AssertedDistribution.new(params.merge({otu_id:}))
+        ad = AssertedDistribution.new(params.merge({
+          asserted_distribution_object_id: otu_id,
+          asserted_distribution_object_type: 'Otu'
+        }))
         ad.save!
       rescue ActiveRecord::RecordInvalid => e
         # Just continue
