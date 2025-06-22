@@ -9,19 +9,19 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
   specify '#unique 1' do
     a = FactoryBot.create(:valid_asserted_distribution)
-    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape: a.asserted_distribution_shape, otu: a.otu)
+    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape: a.asserted_distribution_shape, asserted_distribution_object: a.asserted_distribution_object)
     expect(b.valid?).to be_falsey
   end
 
   specify '#unique 2' do
     a = FactoryBot.create(:valid_asserted_distribution)
-    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape_id: a.asserted_distribution_shape_id, asserted_distribution_shape_type: a.asserted_distribution_shape_type, otu_id: a.otu_id)
+    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape_id: a.asserted_distribution_shape_id, asserted_distribution_shape_type: a.asserted_distribution_shape_type, asserted_distribution_object_id: a.asserted_distribution_object_id, asserted_distribution_object_type: a.asserted_distribution_object_type)
     expect(b.valid?).to be_falsey
   end
 
   specify '#unique is_absent nil/false' do
     a = FactoryBot.create(:valid_asserted_distribution, is_absent: false)
-    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape: a.asserted_distribution_shape, otu_id: a.otu_id, is_absent: nil)
+    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape: a.asserted_distribution_shape, asserted_distribution_object: a.asserted_distribution_object, is_absent: nil)
     expect(b.valid?).to be_falsey
   end
 
@@ -35,10 +35,35 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     expect(a.destroy).to be_truthy
   end
 
+  specify '#destroy 3' do
+    a = FactoryBot.create(:valid_observation_asserted_distribution)
+    expect(a.destroy).to be_truthy
+  end
+
   context 'associations' do
     context 'belongs_to' do
-      specify 'otu' do
-        expect(asserted_distribution.otu = Otu.new).to be_truthy
+      specify 'polymorphic for biological_association object' do
+        expect(asserted_distribution.asserted_distribution_object = BiologicalAssociation.new).to be_truthy
+      end
+
+      specify 'polymorphic for biological_associations_graph object' do
+        expect(asserted_distribution.asserted_distribution_object = BiologicalAssociationsGraph.new).to be_truthy
+      end
+
+      specify 'polymorphic for conveyance object' do
+        expect(asserted_distribution.asserted_distribution_object = Conveyance.new).to be_truthy
+      end
+
+      specify 'polymorphic for depiction object' do
+        expect(asserted_distribution.asserted_distribution_object = Depiction.new).to be_truthy
+      end
+
+      specify 'polymorphic for Observation object' do
+        expect(asserted_distribution.asserted_distribution_object = Observation.new).to be_truthy
+      end
+
+      specify 'polymorphic for otu object' do
+        expect(asserted_distribution.asserted_distribution_object = Otu.new).to be_truthy
       end
 
       specify 'polymorphic for geographic_area shape' do
@@ -55,8 +80,8 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     context 'required base attributes' do
       before { asserted_distribution.valid? }
 
-      specify '#otu is required' do
-        expect(asserted_distribution.errors.include?(:otu)).to be_truthy
+      specify 'an object is required' do
+        expect(asserted_distribution.errors.include?(:asserted_distribution_object)).to be_truthy
       end
 
       specify 'a shape is required' do
@@ -67,7 +92,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     context 'a citation is required' do
       before do
         asserted_distribution.asserted_distribution_shape = geographic_area
-        asserted_distribution.otu = otu
+        asserted_distribution.asserted_distribution_object = otu
       end
 
       specify 'absence of #source, #origin_citation, #citations invalidates' do
@@ -107,7 +132,8 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
       specify 'all attributes with #new validates' do
         a = AssertedDistribution.new(
-          otu:,
+          asserted_distribution_object_id: otu.id,
+          asserted_distribution_object_type: 'Otu',
           asserted_distribution_shape_id: geographic_area.id,
           asserted_distribution_shape_type: 'GeographicArea',
           citations_attributes: [{source_id: source.id}])
@@ -116,7 +142,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       end
 
       context 'attempting to delete last citation' do
-        specify 'when citation is origin_ciation' do
+        specify 'when citation is origin_citation' do
           asserted_distribution.source = source
           asserted_distribution.save!
           expect(asserted_distribution.citations.count).to eq(1)
@@ -136,24 +162,24 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       ad1 = FactoryBot.create(:valid_asserted_distribution)
       ad2 = FactoryBot.build_stubbed(
         :valid_asserted_distribution,
-        otu_id: ad1.otu_id,
+        asserted_distribution_object: ad1.asserted_distribution_object,
         asserted_distribution_shape: ad1.asserted_distribution_shape)
       expect(ad1.valid?).to be_truthy
       expect(ad2.valid?).to be_falsey
-      expect(ad2.errors.include?(:otu)).to be_truthy
+      expect(ad2.errors.include?(:base)).to be_truthy
     end
 
     context 'is_absent' do
       before do
         asserted_distribution.update!(
-          otu:,
+          asserted_distribution_object: otu,
           asserted_distribution_shape: gazetteer,
           citations_attributes: [{source_id: source.id}]
         )
       end
 
       specify 'is allowed with identical' do
-        expect( AssertedDistribution.create!(otu:, asserted_distribution_shape: gazetteer, is_absent: true, citations_attributes: [{source_id: source.id}])).to be_truthy
+        expect( AssertedDistribution.create!(asserted_distribution_object: otu, asserted_distribution_shape: gazetteer, is_absent: true, citations_attributes: [{source_id: source.id}])).to be_truthy
       end
     end
   end
@@ -163,7 +189,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     specify 'is_absent - False' do
       ga  = FactoryBot.create(:level2_geographic_area)
       _ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_shape: ga.parent, is_absent: true)
-      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, otu_id: _ad1.otu_id, asserted_distribution_shape: ga)
+      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, asserted_distribution_object: _ad1.asserted_distribution_object, asserted_distribution_shape: ga)
       ad2.soft_validate(only_methods: :sv_conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
     end
@@ -171,7 +197,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     specify 'is_absent - True' do
       ga  = FactoryBot.create(:level2_geographic_area)
       _ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_shape: ga)
-      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, otu_id: _ad1.otu_id, asserted_distribution_shape: ga, is_absent: true)
+      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, asserted_distribution_object: _ad1.asserted_distribution_object, asserted_distribution_shape: ga, is_absent: true)
       ad2.soft_validate(only_methods: [:sv_conflicting_geographic_area])
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
     end
@@ -228,7 +254,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         template_asserted_distribution:
       )
 
-      expect(AssertedDistribution.all.map(&:otu_id))
+      expect(AssertedDistribution.all.map(&:asserted_distribution_object_id))
         .to contain_exactly(otu.id, otu2.id)
       expect(AssertedDistribution.all.map(&:asserted_distribution_shape_id))
         .to contain_exactly(geographic_area.id, geographic_area.id)
@@ -236,7 +262,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
     specify 'non-async create returns correct counts' do
       AssertedDistribution.create!(
-        template_asserted_distribution.merge(otu_id: otu.id)
+        template_asserted_distribution.merge(asserted_distribution_object: otu)
       )
 
       r = AssertedDistribution.batch_template_create(
@@ -266,7 +292,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
       Delayed::Worker.new.work_off
 
-      expect(AssertedDistribution.all.map(&:otu_id))
+      expect(AssertedDistribution.all.map(&:asserted_distribution_object_id))
         .to contain_exactly(otu.id, otu2.id)
       expect(AssertedDistribution.all.map(&:asserted_distribution_shape_id))
         .to contain_exactly(geographic_area.id, geographic_area.id)
