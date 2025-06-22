@@ -19,6 +19,19 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     expect(b.valid?).to be_falsey
   end
 
+  specify '#unique on object_id *and* object_type' do
+    bag = FactoryBot.create(:valid_biological_associations_graph)
+
+    a = FactoryBot.create(:valid_biological_association_asserted_distribution)
+    expect(a.asserted_distribution_object_id).to eq(bag.id)
+
+    # Same as a except for object type.
+    b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape_id: a.asserted_distribution_shape_id, asserted_distribution_shape_type: a.asserted_distribution_shape_type, asserted_distribution_object_id: a.asserted_distribution_object_id,
+    is_absent: a.is_absent,
+    asserted_distribution_object_type: 'BiologicalAssociationsGraph')
+    expect(b.valid?).to be_truthy
+  end
+
   specify '#unique is_absent nil/false' do
     a = FactoryBot.create(:valid_asserted_distribution, is_absent: false)
     b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape: a.asserted_distribution_shape, asserted_distribution_object: a.asserted_distribution_object, is_absent: nil)

@@ -7,6 +7,7 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::Confidences
       include Queries::Concerns::Depictions
+      include Queries::Concerns::Geo
 
       PARAMS = [
         :biological_association_id,
@@ -25,6 +26,7 @@ module Queries
         :object_taxon_name_id,
         :object_type,
         :otu_id,
+        :radius,
         :subject_biological_property_id,
         :subject_object_global_id,
         :subject_taxon_name_id,
@@ -149,9 +151,6 @@ module Queries
       # See lib/queries/otu/filter.rb
       attr_accessor :wkt
       attr_accessor :geo_json
-      attr_accessor :geo_mode
-      attr_accessor :geo_shape_id
-      attr_accessor :geo_shape_type
 
       # @return [nil, 'Otu', 'CollectionObject']
       #  limit subject to a type
@@ -169,6 +168,10 @@ module Queries
 
       attr_accessor :biological_association_subject_type
 
+      # Integer in Meters
+      #   !! defaults to 100m
+      attr_accessor :radius
+
       def initialize(query_params)
         super
 
@@ -181,14 +184,12 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @exclude_taxon_name_relationship = boolean_param(params, :exclude_taxon_name_relationship)
         @geo_json = params[:geo_json]
-        @geo_mode = params[:geo_mode]
-        @geo_shape_id = params[:geo_shape_id]
-        @geo_shape_type = params[:geo_shape_type]
         @object_biological_property_id = params[:object_biological_property_id]
         @object_object_global_id = params[:object_object_global_id]
         @object_taxon_name_id = params[:object_taxon_name_id]
         @object_type = params[:object_type]
         @otu_id = params[:otu_id]
+        @radius = params[:radius].presence || 100.0
         @subject_biological_property_id = params[:subject_biological_property_id]
         @subject_object_global_id = params[:subject_object_global_id]
         @subject_taxon_name_id = params[:subject_taxon_name_id]
@@ -206,6 +207,7 @@ module Queries
         set_tags_params(params)
         set_citations_params(params)
         set_depiction_params(params)
+        set_geo_params(params)
       end
 
       def biological_association_id
@@ -278,6 +280,79 @@ module Queries
 
       def any_global_id
         [@any_global_id].flatten.compact
+      end
+
+      def wkt_facet
+        return nil if wkt.nil?
+        from_wkt(wkt)
+      end
+
+      # Results are also returned from the otu and CO queries on subject/object.
+      def from_wkt(wkt_shape)
+        a = ::Queries::AssertedDistribution::Filter.new(
+          wkt: wkt_shape, project_id:,
+          asserted_distribution_object_type: 'BiologicalAssociation'
+        )
+
+        ::BiologicalAssociation
+          .with(ad: a.all)
+          .joins('JOIN ad ON ad.asserted_distribution_object_id = biological_associations.id')
+      end
+
+      # Results are also returned from the otu and CO queries on subject/object.
+      def geo_json_facet
+        return nil if geo_json.blank?
+        return ::BiologicalAssociation.none if roll_call
+
+        a = ::Queries::AssertedDistribution::Filter.new(
+          geo_json:, project_id:, radius:,
+          asserted_distribution_object_type: 'BiologicalAssociation'
+        )
+
+        ::BiologicalAssociation
+          .with(ad: a.all)
+          .joins('JOIN ad ON ad.asserted_distribution_object_id = biological_associations.id')
+      end
+
+      # Results are also returned from the otu and CO queries on subject/object.
+      def biological_association_geo_facet
+        return nil if geo_shape_id.empty? || geo_shape_type.empty? ||
+          # TODO: this should raise an error(?)
+          geo_shape_id.length != geo_shape_type.length
+        return ::BiologicalAssociation.none if roll_call
+
+        geographic_area_shapes, gazetteer_shapes = shapes_for_geo_mode
+
+        a = biological_association_geo_facet_by_type(
+          'GeographicArea', geographic_area_shapes
+        )
+
+        b = biological_association_geo_facet_by_type(
+          'Gazetteer', gazetteer_shapes
+        )
+
+        if geo_mode == true # spatial
+          i = ::Queries.union(::GeographicItem, [a,b])
+          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
+
+          return from_wkt(u['st_astext'])
+        end
+
+        referenced_klass_union([a,b])
+      end
+
+      def biological_association_geo_facet_by_type(shape_string, shape_ids)
+        case geo_mode
+        when nil, false # exact, descendants
+          ::BiologicalAssociation
+            .joins("JOIN asserted_distributions ON asserted_distributions.asserted_distribution_object_id = biological_associations.id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociation'")
+            .where(asserted_distributions: {
+              asserted_distribution_shape: shape_ids
+           })
+        when true # spatial
+          m = shape_string.tableize
+          b = ::GeographicItem.joins(m.to_sym).where(m => shape_ids)
+        end
       end
 
       def subject_matches(object)
@@ -717,6 +792,17 @@ module Queries
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
 
+      # Combines facets that apply to both BA itself and to subject/object.
+      def biological_association_and_subject_object_facet
+        # These are facets that need to be (individually) *unioned* with the
+        # subject_object_facet, not intersected.
+        a = [wkt_facet, geo_json_facet, biological_association_geo_facet].compact
+        return subject_object_facet if a.empty?
+
+        i = referenced_klass_intersection(a)
+        referenced_klass_union([i, subject_object_facet])
+      end
+
       def and_clauses
         [
           any_global_id_facet,
@@ -745,7 +831,8 @@ module Queries
           biological_associations_graph_id_facet,
           object_biological_property_id_facet,
           subject_biological_property_id_facet,
-          subject_object_facet, # This handles all Otu/CollectionObject attributes
+          # This handles all Otu/CollectionObject attributes
+          biological_association_and_subject_object_facet,
         ]
       end
 

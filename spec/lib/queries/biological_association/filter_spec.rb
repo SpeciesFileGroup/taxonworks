@@ -130,13 +130,13 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
   specify '#geo_shape_id #geo_mode = true (spatial) against AssertedDistribution' do
     # smaller
     a = FactoryBot.create(:level1_geographic_area)
-    s1 = a.geographic_items << GeographicItem.create!(
+    a.geographic_items << GeographicItem.create!(
       geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
     )
 
     # bigger
     b = FactoryBot.create(:level1_geographic_area)
-    s2 = b.geographic_items << GeographicItem.create!(
+    b.geographic_items << GeographicItem.create!(
       geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
     )
 
@@ -155,6 +155,37 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(q.all).to contain_exactly( ba1, ba3 )
   end
 
+  specify '#geo_shape_id #geo_mode = true (spatial) against AssertedDistribution 2' do
+    # smaller
+    a = FactoryBot.create(:level1_geographic_area)
+    s1 = a.geographic_items << GeographicItem.create!(
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+    )
+
+    # bigger
+    b = FactoryBot.create(:level1_geographic_area)
+    s2 = b.geographic_items << GeographicItem.create!(
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
+    )
+
+    source = FactoryBot.create(:valid_source)
+    # Use smaller
+    AssertedDistribution.create!(asserted_distribution_object: o2,asserted_distribution_shape: a, source:)
+
+    # Use smaller
+    AssertedDistribution.create!(asserted_distribution_object: ba2,asserted_distribution_shape: a, source:)
+
+    # Use bigger
+    o = {
+      geo_shape_id: b.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: true
+    }
+
+    q = query.new(o)
+
+    expect(q.all).to contain_exactly( ba1, ba2, ba3 )
+  end
 
   specify '#geo_shape_id #geo_mode = true (spatial) against Georeference' do
     a = FactoryBot.create(:level1_geographic_area)
@@ -174,6 +205,28 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     q = query.new(o)
 
     expect(q.all).to contain_exactly( ba2, ba3 )
+  end
+
+  specify '#geo_shape_id #geo_mode = nil (exact) against AssertedDistribution and AssertedDistribution repeated' do
+    a = FactoryBot.create(:level1_geographic_area)
+    a.geographic_items << GeographicItem.create!(
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+    )
+
+    source = FactoryBot.create(:valid_source)
+    AssertedDistribution.create!(asserted_distribution_object: o2,asserted_distribution_shape: a, source:)
+    AssertedDistribution.create!(asserted_distribution_object: ba3,asserted_distribution_shape: a, source:)
+
+    o = {
+      geo_shape_id: a.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: nil # exact
+    }
+
+    q = query.new(o)
+
+    # Matches ba3 twice.
+    expect(q.all).to contain_exactly( ba1, ba3 )
   end
 
   specify '#wkt & #taxon_name_id 2' do
@@ -225,6 +278,24 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     o = {wkt: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ).to_s}
     q =  query.new(o)
     expect(q.all.map(&:id)).to contain_exactly( ba2.id, ba3.id )
+  end
+
+  specify '#wkt spatial against georeference and AssertedDistribution' do
+    p = RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+
+    o3.update!(collecting_event: FactoryBot.create(:valid_collecting_event, verbatim_latitude: '7.0', verbatim_longitude: '12.0'))
+    g = Georeference::VerbatimData.create!(collecting_event: o3.collecting_event)
+
+
+    a = FactoryBot.create(:level1_geographic_area)
+    a.geographic_items << GeographicItem.create!(geography: p)
+
+    AssertedDistribution.create!(asserted_distribution_object: ba1,asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
+
+    o = {wkt: p.to_s}
+    q =  query.new(o)
+
+    expect(q.all.map(&:id)).to contain_exactly( ba1.id, ba2.id, ba3.id )
   end
 
   specify '#object_biological_property_id' do

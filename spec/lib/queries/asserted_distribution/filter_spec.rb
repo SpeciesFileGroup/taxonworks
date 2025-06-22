@@ -238,6 +238,13 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all).to contain_exactly(ad_gz)
   end
 
+  specify '#asserted_distribution_object_type' do
+    ad1
+    ad_ba = FactoryBot.create(:valid_biological_association_asserted_distribution)
+    q = query.new({asserted_distribution_object_type: 'BiologicalAssociation'})
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
   # # Source query integration
   # specify '#source_id' do
   #   FactoryBot.create(:valid_asserted_distribution)
