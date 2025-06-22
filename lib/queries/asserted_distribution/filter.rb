@@ -400,6 +400,14 @@ module Queries
         ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
       end
 
+      def observation_query_facet
+        return nil if observation_query.nil?
+        ::AssertedDistribution
+          .with(obs: observation_query.all)
+          .joins("JOIN obs ON obs.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Observation'")
+          .distinct
+      end
+
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
         s = 'WITH query_tn_ad AS (' + taxon_name_query.all.to_sql + ') ' +
@@ -407,22 +415,15 @@ module Queries
           .with_otus
           .joins('JOIN query_tn_ad as query_tn_ad1 on query_tn_ad1.id = otus.taxon_name_id')
           .to_sql
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+        ::AssertedDistribution.from('(' + s + ') as asserted_distributions').distinct
       end
 
       def biological_association_query_facet
         return nil if biological_association_query.nil?
-        s = 'WITH query_ad_ba AS (' + biological_association_query.all.to_sql + ') '
-
-        a = ::AssertedDistribution
-          .joins("JOIN query_ad_ba AS query_ad_ba1 ON asserted_distributions.otu_id = query_ad_ba1.biological_association_subject_id AND query_ad_ba1.biological_association_subject_type = 'Otu' AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
-
-        b = ::AssertedDistribution
-          .joins("JOIN query_ad_ba AS query_ad_ba2 ON asserted_distributions.otu_id = query_ad_ba2.biological_association_object_id AND query_ad_ba2.biological_association_object_type = 'Otu' AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
-
-        s << referenced_klass_union([a,b]).to_sql
-
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions').distinct
+        ::AssertedDistribution
+          .with(ba: biological_association_query.all)
+          .joins("JOIN ba ON ba.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociation'")
+          .distinct
       end
 
       def dwc_occurrence_query_facet
@@ -459,6 +460,7 @@ module Queries
           asserted_distribution_geo_facet,
           geographic_item_id_facet,
           taxon_name_id_facet,
+          observation_query_facet,
           wkt_facet,
         ]
       end

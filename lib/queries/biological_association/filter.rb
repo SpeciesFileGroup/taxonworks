@@ -648,16 +648,10 @@ module Queries
 
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
-        s = 'WITH query_ad_ba AS (' + asserted_distribution_query.all.to_sql + ') '
 
-        a = ::BiologicalAssociation
-          .joins("JOIN query_ad_ba as query_ad_ba1 on biological_associations.biological_association_subject_id = query_ad_ba1.otu_id AND biological_associations.biological_association_subject_type = 'Otu'")
-
-        b = ::BiologicalAssociation
-          .joins("JOIN query_ad_ba as query_ad_ba2 on biological_associations.biological_association_object_id = query_ad_ba2.otu_id AND biological_associations.biological_association_object_type = 'Otu'")
-
-        s << referenced_klass_union([a,b]).to_sql
-        ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+        ::BiologicalAssociation
+          .with(ad: asserted_distribution_query.all)
+          .joins("JOIN asserted_distributions ON asserted_distributions.asserted_distribution_object_id = biological_associations.id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociation'").distinct
       end
 
       def collection_object_query_facet

@@ -241,6 +241,14 @@ module Queries
         ::Observation.from('(' + s + ') as observations')
       end
 
+      def asserted_distribution_query_facet
+        return nil if asserted_distribution_query.nil?
+        ::Observation
+          .with(ad: asserted_distribution_query.all)
+          .joins("JOIN ad ON observations.id = ad.asserted_distribution_object_id AND ad.asserted_distribution_object_type = 'Observation' AND observations.observation_object_type = 'Otu'")
+          .distinct
+      end
+
       def observable_facet(name)
         return nil if name.nil?
 
@@ -275,6 +283,7 @@ module Queries
           observation_matrix_id_facet,
 
           taxon_name_query_facet,
+          asserted_distribution_query_facet,
           taxon_name_id_facet,
         ]
       end
