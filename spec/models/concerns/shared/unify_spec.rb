@@ -487,9 +487,9 @@ describe 'Shared::Unify', type: :model do
 
   specify 'unify preserves once-removed citations differing only by page / AssertedDstribution test ' do
     # Create a GA and a non-target record
-    ad0 = FactoryBot.create(:valid_asserted_distribution, otu: o1, source:)
+    ad0 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1, source:)
     ad1 = AssertedDistribution.create!(
-      otu: o2,
+      asserted_distribution_object: o2,
       source:,
       asserted_distribution_shape: ad0.asserted_distribution_shape
     )
@@ -545,8 +545,8 @@ describe 'Shared::Unify', type: :model do
   end
 
   specify '#identical' do
-    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape)
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape)
 
     ad2.otu = o1
 
@@ -572,8 +572,8 @@ describe 'Shared::Unify', type: :model do
   #               and we delete A
   #
   specify 'unify one degree of seperation' do
-    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
 
     n = FactoryBot.create(:valid_note, note_object: ad1)
 
@@ -585,8 +585,8 @@ describe 'Shared::Unify', type: :model do
   end
 
   specify 'unify one degree of seperation - records deduplication result in preview' do
-    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
 
     n = FactoryBot.create(:valid_note, note_object: ad1)
 
@@ -596,8 +596,8 @@ describe 'Shared::Unify', type: :model do
   end
 
   specify 'unify one degree of seperation - records deduplication result' do
-    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
 
     n = FactoryBot.create(:valid_note, note_object: ad1)
 
@@ -618,8 +618,8 @@ describe 'Shared::Unify', type: :model do
   specify 'would-be duplicate citations do not halt unify' do
     s = FactoryBot.create(:valid_source)
 
-    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1, source: s)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape, source: s)
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1, source: s)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape, source: s)
 
     expect(Citation.all.size).to eq(2)
 

@@ -14,7 +14,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     Delayed::Worker.new.work_off # triggers cached map item build
     expect(ad_offset.otu.cached_map).to be_truthy
 
-    a = FactoryBot.create(:valid_asserted_distribution, otu: ad_offset.otu)
+    a = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: ad_offset.otu)
     Delayed::Worker.new.work_off # triggers cached map destroy
 
     expect(ad_offset.otu.cached_maps).to be_empty
@@ -114,7 +114,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     end
 
     specify 'decrements CachedMapItem reference_count' do
-      b = FactoryBot.create( :valid_asserted_distribution, otu: ad_offset.otu, asserted_distribution_shape: ga_offset2)
+      b = FactoryBot.create( :valid_asserted_distribution, asserted_distribution_object: ad_offset.otu, asserted_distribution_shape: ga_offset2)
       Delayed::Worker.new.work_off
 
       expect(b.otu.cached_map_items.count).to eq(1)
@@ -147,7 +147,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
   specify 'Delayed::Job increments map when > 1 reference' do
     ad_offset.save!
     Delayed::Worker.new.work_off
-    FactoryBot.create( :valid_asserted_distribution, otu: ad_offset.otu, asserted_distribution_shape: ga_offset2)
+    FactoryBot.create( :valid_asserted_distribution, asserted_distribution_object: ad_offset.otu, asserted_distribution_shape: ga_offset2)
     Delayed::Worker.new.work_off
     expect(ad_offset.otu.cached_map.reload.reference_count).to eq(2)
   end
