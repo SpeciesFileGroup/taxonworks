@@ -238,7 +238,8 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       r = AssertedDistribution.batch_template_create(
         preview: true,
         async_cutoff: 10,
-        otu_query: { otu_id: [otu.id] },
+        object_query: { otu_id: [otu.id] },
+        object_type: 'Otu',
         template_asserted_distribution:
       )
 
@@ -250,7 +251,8 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       r = AssertedDistribution.batch_template_create(
         preview: false,
         async_cutoff: 10,
-        otu_query: { otu_id: [otu.id, otu2.id] },
+        object_query: { otu_id: [otu.id, otu2.id] },
+        object_type: 'Otu',
         template_asserted_distribution:
       )
 
@@ -268,7 +270,8 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       r = AssertedDistribution.batch_template_create(
         preview: false,
         async_cutoff: 10,
-        otu_query: { otu_id: [otu.id, otu2.id] },
+        object_query: { otu_id: [otu.id, otu2.id] },
+        object_type: 'Otu',
         template_asserted_distribution:
       )
 
@@ -283,7 +286,8 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       r = AssertedDistribution.batch_template_create(
         preview: false,
         async_cutoff: 1,
-        otu_query: { otu_id: [otu.id, otu2.id] },
+        object_query: { otu_id: [otu.id, otu2.id] },
+        object_type: 'Otu',
         template_asserted_distribution:,
         user_id: Current.user_id,
         project_id: Current.project_id
@@ -296,6 +300,29 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         .to contain_exactly(otu.id, otu2.id)
       expect(AssertedDistribution.all.map(&:asserted_distribution_shape_id))
         .to contain_exactly(geographic_area.id, geographic_area.id)
+    end
+
+    specify 'adds citation to existing AD' do
+      source2 = FactoryBot.create(:valid_source, title: 'Where the pigeons poop')
+      # Dup of the AD to be batch-created below, execept for citation.
+      ad = AssertedDistribution.create!(
+        asserted_distribution_object: otu,
+        asserted_distribution_shape: geographic_area,
+        citations_attributes: [{ source_id: source2.id }]
+      )
+
+      r = AssertedDistribution.batch_template_create(
+        preview: false,
+        async_cutoff: 10,
+        object_query: { otu_id: [otu.id] },
+        object_type: 'Otu',
+        template_asserted_distribution:
+      )
+
+      expect(AssertedDistribution.all.map(&:asserted_distribution_object_id))
+        .to contain_exactly(otu.id)
+
+      expect(AssertedDistribution.first.citations.count).to eq(2)
     end
   end
 

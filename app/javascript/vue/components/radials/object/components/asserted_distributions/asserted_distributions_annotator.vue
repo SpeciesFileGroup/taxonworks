@@ -63,7 +63,7 @@
       <legend>Shape</legend>
       <ShapeSelector
         :focus-on-select="lock.source"
-        @select-object="
+        @select-shape="
           (shape) => {
             assertedDistribution.asserted_distribution_shape_type = shape.shapeType
             assertedDistribution.asserted_distribution_shape_id = shape.id

@@ -191,7 +191,8 @@ class AssertedDistribution < ApplicationRecord
 
   def self.batch_template_create(params)
     async_cutoff = params[:async_cutoff] || 26
-    a = Queries::Otu::Filter.new(params[:otu_query])
+    klass = params[:object_type]
+    a = "Queries::#{klass}::Filter".constantize.new(params[:object_query])
 
     r = BatchResponse.new({
       async: a.all.count > async_cutoff,
@@ -209,23 +210,21 @@ class AssertedDistribution < ApplicationRecord
     return r if r.async && r.preview
 
     if r.async
-      otu_ids = a.all.pluck(:id)
+      object_ids = a.all.pluck(:id)
       user_id = params[:user_id]
       project_id = params[:project_id]
       AssertedDistribution
         .delay(run_at: 1.second.from_now, queue: :query_batch_update)
         .batch_create_from_params(
-          params[:template_asserted_distribution], otu_ids, user_id, project_id
+          params[:template_asserted_distribution], object_ids, klass,
+          user_id, project_id
         )
     else
       self.transaction do
         template_params = params[:template_asserted_distribution]
-        a.all.find_each do |o|
+        a.all.select(:id).find_each do |o|
           begin
-            ad = AssertedDistribution.new(
-              template_params.merge({asserted_distribution_object: o})
-            )
-            ad.save!
+            ad = update_or_create_by_template(template_params, o.id, klass)
             r.updated.push ad.id
           rescue ActiveRecord::RecordInvalid => e
             r.not_updated.push e.record.id
@@ -243,21 +242,47 @@ class AssertedDistribution < ApplicationRecord
   end
 
   # Intended to be run in a background job.
-  def self.batch_create_from_params(params, otu_ids, user_id, project_id)
+  def self.batch_create_from_params(
+    params, object_ids, object_type, user_id, project_id
+  )
     Current.user_id = user_id
     Current.project_id = project_id
 
-    otu_ids.each do |otu_id|
+    object_ids.each do |object_id|
       begin
-        ad = AssertedDistribution.new(params.merge({
-          asserted_distribution_object_id: otu_id,
-          asserted_distribution_object_type: 'Otu'
-        }))
-        ad.save!
+        update_or_create_by_template(params, object_id, object_type)
       rescue ActiveRecord::RecordInvalid => e
         # Just continue
       end
     end
+  end
+
+  # Raises on error.
+  def self.update_or_create_by_template(template_params, object_id, object_type)
+    ad = ::AssertedDistribution.find_by(
+      asserted_distribution_object_id: object_id,
+      asserted_distribution_object_type: object_type,
+      asserted_distribution_shape_id:
+        template_params[:asserted_distribution_shape_id],
+      asserted_distribution_shape_type:
+        template_params[:asserted_distribution_shape_type],
+      is_absent: template_params[:is_absent]
+    )
+
+    if ad
+      # Create/add the citation.
+      # TODO: this can create a duplicate citation.
+      ad.update!(template_params)
+    else
+      ad = ::AssertedDistribution.create!(
+        template_params.merge({
+          asserted_distribution_object_id: object_id,
+          asserted_distribution_object_type: object_type
+        })
+      )
+    end
+
+    ad
   end
 
   def self.asserted_distributions_for_api_index(params, project_id)

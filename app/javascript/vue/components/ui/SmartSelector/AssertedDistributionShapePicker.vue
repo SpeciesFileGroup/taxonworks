@@ -9,7 +9,7 @@
       :label="label"
       :under-text="underText"
       klass-key="shapeType"
-      @select-object="(o) => { emit('selectObject', o) }"
+      @select-object="(o) => { emit('selectShape', o) }"
     >
       <template #tabs-right>
         <slot name="tabs-right" />
@@ -54,6 +54,6 @@ const inputShape = defineModel({
   default: () => ({})
 })
 
-const emit = defineEmits(['selectObject'])
+const emit = defineEmits(['selectShape'])
 
 </script>

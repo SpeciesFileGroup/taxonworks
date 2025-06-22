@@ -67,6 +67,11 @@ const props = defineProps({
   count: {
     type: Number,
     required: true
+  },
+
+  objectType: {
+    type: String,
+    default: 'Otu'
   }
 })
 
@@ -84,7 +89,8 @@ const citation = ref({
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
 const payload = computed(() => ({
-  otu_query: props.parameters,
+  object_query: props.parameters,
+  object_type: props.objectType,
   asserted_distribution: {
     asserted_distribution_shape_type: shape.value?.shapeType,
     asserted_distribution_shape_id: shape.value?.id,
