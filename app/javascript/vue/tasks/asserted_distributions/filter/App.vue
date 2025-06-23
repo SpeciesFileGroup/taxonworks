@@ -40,7 +40,7 @@
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         >
-          <template #otuGlobalId="{ value, setHighlight }">
+          <template #objectGlobalId="{ value, setHighlight }">
             <RadialObject
               v-if="value"
               :global-id="value"
