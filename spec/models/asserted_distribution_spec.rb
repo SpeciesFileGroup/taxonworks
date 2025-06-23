@@ -179,7 +179,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         asserted_distribution_shape: ad1.asserted_distribution_shape)
       expect(ad1.valid?).to be_truthy
       expect(ad2.valid?).to be_falsey
-      expect(ad2.errors.include?(:base)).to be_truthy
+      expect(ad2.errors.include?(:asserted_distribution_object)).to be_truthy
     end
 
     context 'is_absent' do
