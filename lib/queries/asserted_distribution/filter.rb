@@ -420,10 +420,27 @@ module Queries
 
       def biological_association_query_facet
         return nil if biological_association_query.nil?
-        ::AssertedDistribution
+        # On the BA itself.
+        a = ::AssertedDistribution
           .with(ba: biological_association_query.all)
           .joins("JOIN ba ON ba.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociation'")
-          .distinct
+
+        # On subject/object of the BA.
+        b = ::AssertedDistribution
+          .with(ba: biological_association_query.all)
+          .joins("JOIN ba ON asserted_distributions.asserted_distribution_object_id = ba.biological_association_subject_id AND ba.biological_association_subject_type = 'Otu'")
+
+        c = ::AssertedDistribution
+          .with(ba: biological_association_query.all)
+          .joins("JOIN ba ON asserted_distributions.asserted_distribution_object_id = ba.biological_association_object_id AND ba.biological_association_object_type = 'Otu'")
+
+        # On a graph containing the BA.
+        d = ::AssertedDistribution
+          .with(ba: biological_association_query.all)
+          .joins("JOIN biological_associations_graphs ON biological_associations_graphs.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociationsGraph' " \
+          "JOIN biological_associations_biological_associations_graphs ON biological_associations_biological_associations_graphs.biological_associations_graph_id = biological_associations_graphs.id JOIN ba ON ba.id = biological_associations_biological_associations_graphs.biological_association_id")
+
+          referenced_klass_union([a,b,c,d])
       end
 
       def dwc_occurrence_query_facet
