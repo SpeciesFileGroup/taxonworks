@@ -374,7 +374,9 @@ class AssertedDistribution < ApplicationRecord
         .where.not(id:)
         .exists?
 
-      errors.add(:base,
+      # Put the error on asserted_distribution_object so that unify can handle
+      # duplicates.
+      errors.add(:asserted_distribution_object,
         'this shape, object, and present/absent combination already exists'
       )
     end

@@ -548,7 +548,7 @@ describe 'Shared::Unify', type: :model do
     ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1)
     ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape)
 
-    ad2.otu = o1
+    ad2.asserted_distribution_object = o1
 
     expect(ad2.identical.first).to eq(ad1)
   end

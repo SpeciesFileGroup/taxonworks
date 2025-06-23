@@ -20,7 +20,7 @@ FactoryBot.define do
 
     factory :valid_biological_association_asserted_distribution do
       association :asserted_distribution_object, factory: :valid_biological_association
-      association :asserted_distribution_shape, factory: :valid_gazetteer
+      association :asserted_distribution_shape, factory: :valid_geographic_area
       association :source, factory: :valid_source
     end
 
@@ -32,7 +32,7 @@ FactoryBot.define do
 
     factory :valid_conveyance_asserted_distribution do
       association :asserted_distribution_object, factory: :valid_conveyance
-      association :asserted_distribution_shape, factory: :valid_gazetteer
+      association :asserted_distribution_shape, factory: :valid_geographic_area
       association :source, factory: :valid_source
     end
 
@@ -50,7 +50,7 @@ FactoryBot.define do
 
     factory :valid_otu_asserted_distribution do
       association :asserted_distribution_object, factory: :valid_otu
-      association :asserted_distribution_shape, factory: :valid_gazetteer
+      association :asserted_distribution_shape, factory: :valid_geographic_area
       association :source, factory: :valid_source
     end
   end
