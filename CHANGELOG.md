@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Soft validation fix for combinations of plant names.
 - Soft validation "Fix" buttons not working [#4450]
 - Error radius not rendering in Georeference panel [#4448]
 - Issues pop-up screen not rendering properly [#4447]
