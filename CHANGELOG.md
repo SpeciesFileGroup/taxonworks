@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Soft validation "Fix" buttons not working [#4450]
 - Error radius not rendering in Georeference panel [#4448]
 - Issues pop-up screen not rendering properly [#4447]
+- Prevent cycles in SerialChronology (no accompanying data migration, remove bad data manually)
 
 ### Changed
 

@@ -467,6 +467,7 @@
               <slot
                 :name="attr"
                 :value="item[attr]"
+                :set-highlight="() => (lastRadialOpenedRow = item.id)"
               >
                 <div v-html="item[attr]" />
               </slot>
