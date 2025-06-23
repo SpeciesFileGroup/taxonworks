@@ -355,6 +355,25 @@ module Queries
         end
       end
 
+      # Results are also returned from the otu and CO queries on subject/object.
+      def biological_associations_graph_geo_facet
+        bag_query = ::Queries::BiologicalAssociationsGraph::Filter.new({
+          geo_json:,
+          geo_shape_id:,
+          geo_shape_type:,
+          geo_mode:,
+          radius:,
+          wkt:
+        })
+
+        bag_scope = bag_query.all
+        return nil if bag_query.only_project?() || bag_scope.nil?
+
+        ::BiologicalAssociation
+          .joins(:biological_associations_graphs)
+          .where(biological_associations_graphs: {id: bag_scope.select(:id)})
+      end
+
       def subject_matches(object)
         table['biological_association_subject_id'].eq(object.id).and(
           table['biological_association_subject_type'].eq(object.class.base_class.name)
@@ -795,12 +814,22 @@ module Queries
       # Combines facets that apply to both BA itself and to subject/object.
       def biological_association_and_subject_object_facet
         # These are facets that need to be (individually) *unioned* with the
-        # subject_object_facet, not intersected.
+        # subject_object_facet and biological_associations_graph_geo_facet, not
+        # intersected.
+        # The final result, modulo nils, is just intersection(a) union b.
         a = [wkt_facet, geo_json_facet, biological_association_geo_facet].compact
-        return subject_object_facet if a.empty?
+        b = if biological_associations_graph_geo_facet.nil? &&
+               subject_object_facet.nil?
+              nil
+            else
+              referenced_klass_union(
+                [biological_associations_graph_geo_facet, subject_object_facet]
+              )
+            end
+        return b if a.empty?
 
         i = referenced_klass_intersection(a)
-        referenced_klass_union([i, subject_object_facet])
+        referenced_klass_union([i, b])
       end
 
       def and_clauses
