@@ -53,8 +53,7 @@ class Sound < ApplicationRecord
   accepts_nested_attributes_for :conveyances, allow_destroy: false
 
   scope :with_taxon_names, -> {
-    joins(:conveyances)
-    .joins("JOIN otus ON conveyances.conveyance_object_type = 'Otu' AND conveyances.conveyance_object_id = otus.id")
+    joins(:otus)
     .joins("JOIN taxon_names ON taxon_names.id = otus.taxon_name_id")
   }
 

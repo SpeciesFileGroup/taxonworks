@@ -47,19 +47,6 @@ module AssertedDistributionsHelper
     end
   end
 
-  def geo_flair(asserted_distribution, html)
-    type = asserted_distribution.asserted_distribution_shape_type
-    feedback_type =
-      type == 'GeographicArea' ? 'feedback-primary' : 'feedback-secondary'
-
-    if html
-      content_tag(:span, type.titleize,
-         class: [:feedback, feedback_type, 'feedback-thin'])
-    else
-      "[#{type.titleize}]"
-    end
-  end
-
   def asserted_distribution_geo(asserted_distribution, html)
     shape = asserted_distribution.asserted_distribution_shape
     if html

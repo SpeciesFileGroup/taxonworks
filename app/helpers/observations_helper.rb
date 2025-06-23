@@ -16,7 +16,7 @@ module ObservationsHelper
   def observation_autocomplete_tag(observation, on: nil)
     t = observation_tag(observation)
     if on == 'Otu'
-      [t, 'on:', otu_tag(observation.observation_object)].join(' ').html_safe
+      [t, 'on', otu_tag(observation.observation_object)].join(' ').html_safe
     else
       t
     end
@@ -48,7 +48,7 @@ module ObservationsHelper
     q.collect{|o| observation_cell(o, 'tag')}.sort.join(' ').html_safe
   end
 
-  def observation_cell(observation, label_or_tag = 'tag', verbose = false)
+  def observation_cell(observation, label_or_tag, verbose = false)
     case observation.type
     when 'Observation::Qualitative'
       qualitative_observation_cell_label(observation, verbose)

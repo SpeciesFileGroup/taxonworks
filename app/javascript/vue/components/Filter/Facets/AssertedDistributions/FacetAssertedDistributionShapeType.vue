@@ -22,9 +22,9 @@
 <script setup>
 import { watch } from 'vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import AssertedDistributionShape from '@/components/ui/SmartSelector/PolymorphicObjectPicker/PolymorphismClasses/AssertedDistributionShape'
+import PolymorphicShapes from '@/components/ui/SmartSelector/PolymorphicObjectPicker/PolymorphismClasses/PolymorphicShapes'
 
-const SHAPE_TYPES = AssertedDistributionShape.map((o) => o['singular'])
+const SHAPE_TYPES = PolymorphicShapes.map((o) => o['singular'])
 
 const params = defineModel({type: Object, required: true})
 

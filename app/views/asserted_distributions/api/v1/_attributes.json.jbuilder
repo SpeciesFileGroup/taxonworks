@@ -19,7 +19,6 @@ json.citations(asserted_distribution.citations) do |citation|
 end
 json.asserted_distribution_object do
   klass = asserted_distribution.asserted_distribution_object_type
-  # TODO should this be metamorphosized?
   json.type klass
 
   k = klass.underscore

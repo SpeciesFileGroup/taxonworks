@@ -42,7 +42,7 @@ import VLock from '@/components/ui/VLock/index.vue'
 const store = useStore()
 
 onBeforeMount(() => {
-  // TODO: handle other types
+  // Handle other non-otu types as needed (currently no other users).
   const urlParams = new URLSearchParams(window.location.search)
   const otuId = urlParams.get('otu_id')
 

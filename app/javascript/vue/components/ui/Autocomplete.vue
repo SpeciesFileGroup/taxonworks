@@ -388,10 +388,3 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-.under {
-  position: absolute;
-  padding: 0.2em;
-  padding-left: 1em;
-}
-</style>

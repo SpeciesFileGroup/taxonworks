@@ -66,10 +66,6 @@ class AssertedDistribution < ApplicationRecord
     observation: ['Otu']
   }.freeze
 
-  # TODO use asserted_distribution_object unless you really need these
-  #belongs_to :biological_association, class_name: :BiologicalAssociation, foreign_key: :asserted_distribution_object_id, inverse_of: :asserted_distributions
-  #has_one :taxon_name, through: :otu
-
   before_validation :unify_is_absent
   before_save do
     # TODO: handle non-otu types.
@@ -105,9 +101,6 @@ class AssertedDistribution < ApplicationRecord
   scope :with_otus, -> {
     joins("JOIN otus ON otus.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
   }
-
-  # TODO: revive as needed
-  #accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area, name: 'conflicting geographic area', description: 'conflicting geographic area')
 
@@ -394,7 +387,7 @@ class AssertedDistribution < ApplicationRecord
       !a.include?(asserted_distribution_object&.send("#{t}_object_type"))
     )
      errors.add(t,
-       "object type for an asserted distribution can only be in #{a}")
+       "object type of this asserted distribution object can only be in #{a}")
     end
   end
 end

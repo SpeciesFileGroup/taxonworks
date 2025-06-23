@@ -61,7 +61,7 @@
       class="separate-bottom"
     >
       <legend>Shape</legend>
-      <ShapeSelector
+      <ShapePicker
         :focus-on-select="lock.source"
         @select-shape="
           (shape) => {
@@ -101,7 +101,7 @@
 <script setup>
 import TableList from './table.vue'
 import DisplayList from '@/components/displayList.vue'
-import ShapeSelector from '@/components/ui/SmartSelector/AssertedDistributionShapePicker.vue'
+import ShapePicker from '@/components/ui/SmartSelector/ShapePicker.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VMap from '@/components/georeferences/map.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'

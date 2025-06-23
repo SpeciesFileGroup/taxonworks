@@ -5,7 +5,7 @@
     </template>
     <template #body>
       <div class="horizontal-left-content align-start">
-        <AssertedDistributionShapePicker
+        <ShapePicker
           v-model="store.shape"
           class="full_width"
           @selectShape="setShape"
@@ -17,7 +17,7 @@
               class="margin-small-left"
             />
           </template>
-        </AssertedDistributionShapePicker>
+        </ShapePicker>
       </div>
       <hr
         v-if="store.shape?.id"
@@ -37,7 +37,7 @@ import { useStore } from '../../store/store'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
-import AssertedDistributionShapePicker from '@/components/ui/SmartSelector/AssertedDistributionShapePicker.vue'
+import ShapePicker from '@/components/ui/SmartSelector/ShapePicker.vue'
 
 const store = useStore()
 

@@ -10,60 +10,6 @@ module Queries
         @polymorphic_types = polymorphic_types
       end
 
-      # @return [Arel:Nodes]
-      def or_clauses
-        return []
-        # clauses = []
-
-        #  clauses += [
-        #    #  only_ids,
-        #  ] unless exact
-
-        #  clauses.compact!
-
-        #  a = clauses.shift
-        #  clauses.each do |b|
-        #    a = a.or(b)
-        #  end
-        #  a
-      end
-
-    # # @return [Arel:Nodes, nil]
-    # def and_clauses
-    #   return []
-    #   # clauses = [
-    #   #   #  valid_state,
-    #   #   #  is_type,
-    #   #   #  with_parent_id,
-    #   #   #  with_nomenclature_group
-    #   # ].compact
-    #   #
-    #   # return nil if clauses.nil?
-    #   #
-    #   # a = clauses.shift
-    #   # clauses.each do |b|
-    #   #   a = a.and(b)
-    #   # end
-    #   # a
-    # end
-
-      # @return [Arel:Nodes]
-      def or_and
-        a = or_clauses
-        # b = and_clauses
-
-        if a && b
-          a.and(b)
-        else
-          a
-        end
-      end
-
-      # @return [String]
-      def where_sql
-        with_project_id.and(or_and).to_sql
-      end
-
       def updated_queries
         queries = [
           autocomplete_exact_id,

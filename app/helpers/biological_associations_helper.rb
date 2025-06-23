@@ -12,11 +12,11 @@ module BiologicalAssociationsHelper
     return nil if biological_association.nil?
 
     label_for(biological_association.biological_association_subject) +
-    ' > ' +
+    ' ' +
     label_for_biological_relationship(
       biological_association.biological_relationship
     ) +
-    ' > ' +
+    ' ' +
     label_for(biological_association.biological_association_object)
   end
 

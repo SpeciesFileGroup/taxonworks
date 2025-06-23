@@ -102,9 +102,6 @@ class SoundsController < ApplicationController
     ).autocomplete
   end
 
-  def navigation
-  end
-
   private
     # Use callbacks to share common setup or constraints between actions.
   def set_sound
