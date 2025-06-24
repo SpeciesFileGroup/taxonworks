@@ -101,6 +101,28 @@ class AssertedDistribution < ApplicationRecord
   scope :with_otus, -> {
     joins("JOIN otus ON otus.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
   }
+  scope :with_taxon_names, -> {
+    joins("JOIN otus ON otus.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'
+    JOIN taxon_names ON taxon_names.id = otus.taxon_name_id")
+  }
+  scope :with_biological_associations, -> {
+    joins("JOIN biological_associations ON biological_associations.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociation'")
+  }
+  scope :with_biological_associations_graphs, -> {
+    joins("JOIN biological_associations_graphs ON biological_associations_graphs.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociationsGraph'")
+  }
+  scope :with_otu_conveyances, -> {
+    joins("JOIN conveyances ON conveyances.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Conveyance'
+    AND conveyances.conveyance_object_type = 'Otu'")
+  }
+  scope :with_otu_depictions, -> {
+    joins("JOIN depictions ON depictions.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Depiction'
+    AND depictions.depiction_object_type = 'Otu'")
+  }
+  scope :with_otu_observations, -> {
+    joins("JOIN observations ON observations.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Observation'
+    AND observations.observation_object_type = 'Otu'")
+  }
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area, name: 'conflicting geographic area', description: 'conflicting geographic area')
 

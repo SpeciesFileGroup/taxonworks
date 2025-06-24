@@ -2,6 +2,7 @@ module Queries
   module Depiction
     class Autocomplete < Query::Autocomplete
 
+      # [Array] Depiction object types to restrict search to.
       attr_accessor :polymorphic_types
 
       def initialize(string, project_id: nil, polymorphic_types: nil)

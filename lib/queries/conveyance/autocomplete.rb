@@ -2,6 +2,7 @@ module Queries
   module Conveyance
     class Autocomplete < Query::Autocomplete
 
+      # [Array] Conveyance object types to restrict search to.
       attr_accessor :polymorphic_types
 
       def initialize(string, project_id: nil, polymorphic_types: nil)

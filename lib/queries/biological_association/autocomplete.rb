@@ -6,8 +6,7 @@ module Queries
         super
       end
 
-      # @return [Array]
-      def autocomplete
+      def updated_queries
         a = Queries::Otu::Autocomplete
           .new(query_string, project_id: project_id).autocomplete_base
 
@@ -20,15 +19,14 @@ module Queries
         return [] if a.nil? && b.nil? && c.nil?
 
         updated_queries = []
-
-        j = ::BiologicalAssociation
+        j = base_query
           .joins("JOIN otus ON biological_associations.biological_association_subject_id = otus.id AND biological_associations.biological_association_subject_type = 'Otu'")
-          .where(otu: { id: a.limit(50).pluck(:id) })
+          .where(otus: { id: a.limit(50).pluck(:id) })
         updated_queries << j
 
-        j = ::BiologicalAssociation
+        j = base_query
           .joins("JOIN otus ON biological_associations.biological_association_object_id = otus.id AND biological_associations.biological_association_object_type = 'Otu'")
-          .where(otu: { id: a.limit(50).pluck(:id) })
+          .where(otus: { id: a.limit(50).pluck(:id) })
         updated_queries << j
 
         b.each do |q|
@@ -49,7 +47,10 @@ module Queries
           .joins(:biological_relationship)
           .where(biological_relationship: { id: c.limit(50).pluck(:id) })
         updated_queries << j
+      end
 
+      # @return [Array]
+      def autocomplete
         result = []
         updated_queries.each do |q|
           result += q.to_a
