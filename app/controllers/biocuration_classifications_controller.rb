@@ -6,9 +6,19 @@ class BiocurationClassificationsController < ApplicationController
 
   # GET /biocuration_classifications.json
   def index
-    @biocuration_classifications = BiocurationClassification.where(filter_params).page(params[:page])
+    respond_to do |format|
+      format.html {
+        @recent_objects = BiocurationClassification.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @biocuration_classifications = ::Queries::BiocurationClassification::Filter.new(params)
+          .all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
           .per(params[:per])
- 
+      }
+    end
   end
 
   # POST /biocuration_classifications
