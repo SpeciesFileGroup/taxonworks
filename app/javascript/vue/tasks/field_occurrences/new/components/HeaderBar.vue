@@ -179,12 +179,7 @@ function reset() {
     ceStore.reset()
   }
 
-  if (locked.biocurations) {
-    biocurationStore.resetIds()
-  } else {
-    biocurationStore.list = []
-  }
-
+  biocurationStore.reset({ keepRecords: locked.biocurations })
   originRelationshipStore.$reset()
   depictionStore.$reset()
   determinationStore.reset({ keepRecords: locked.taxonDeterminations })

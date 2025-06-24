@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Error radius not rendering in Georeference panel [#4448]
 - Issues pop-up screen not rendering properly [#4447]
 - Prevent cycles in SerialChronology (no accompanying data migration, remove bad data manually)
+- Biocuration lock "lost" when rapidly creating records [#4415]
 
 ### Changed
 
@@ -22,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rename `Nomenclature stats` to `Taxon names stats`
 - Rename `Synchronize nomenclature and OTUs` to `Synchronize taxon names and OTUs`
 
+[#4415]: https://github.com/SpeciesFileGroup/taxonworks/issues/4415
 [#4447]: https://github.com/SpeciesFileGroup/taxonworks/issues/4447
 [#4448]: https://github.com/SpeciesFileGroup/taxonworks/issues/4448
 [#4450]: https://github.com/SpeciesFileGroup/taxonworks/issues/4450

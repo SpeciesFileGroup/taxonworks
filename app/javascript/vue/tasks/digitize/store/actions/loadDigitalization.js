@@ -9,6 +9,7 @@ import {
 import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
 import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
 
 export default ({ commit, dispatch, state }, coId) =>
   new Promise((resolve, reject) => {
@@ -17,6 +18,7 @@ export default ({ commit, dispatch, state }, coId) =>
     const collectingEventStore = useCollectingEventStore()
     const determinationStore = useTaxonDeterminationStore()
     const biologicalAssociationStore = useBiologicalAssociationStore()
+    const biocurationStore = useBiocurationStore()
 
     state.settings.loading = true
     dispatch(ActionNames.GetCollectionObject, coId)
@@ -54,7 +56,8 @@ export default ({ commit, dispatch, state }, coId) =>
 
         promises.push(
           determinationStore.load(payload),
-          biologicalAssociationStore.load(payload)
+          biologicalAssociationStore.load(payload),
+          biocurationStore.load(payload)
         )
 
         promises.push(dispatch(ActionNames.LoadTypeSpecimens, coId))
