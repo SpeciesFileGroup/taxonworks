@@ -106,7 +106,7 @@
               <RadialAnnotator :global-id="item.global_id" />
               <VBtn
                 circle
-                color="create"
+                color="primary"
                 @click="setCO(item)"
               >
                 <VIcon
