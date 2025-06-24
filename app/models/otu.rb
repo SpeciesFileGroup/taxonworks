@@ -311,6 +311,13 @@ class Otu < ApplicationRecord
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
+        when 'AssertedDistribution'
+          t.project(t['asserted_distribution_object_id'].as('otu_id'),
+                    t['updated_at']).from(t)
+            .where(t['updated_at'].gt( 1.week.ago ))
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
         else
           t.project(t['otu_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.week.ago ))
