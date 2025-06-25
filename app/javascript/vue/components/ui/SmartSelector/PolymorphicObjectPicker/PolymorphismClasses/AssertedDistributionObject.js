@@ -6,7 +6,7 @@ const AssertedDistributionObject = [
     singular: 'Otu',
     plural: 'Otus',
     human: 'OTU',
-    display: 'Otu',
+    display: 'OTU',
     snake: 'otus',
     endpoint: Otu,
     query_key: 'otu_id',
