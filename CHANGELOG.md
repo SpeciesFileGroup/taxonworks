@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Radial mass annotatior: Add `is original` to citations slice
+- New FO: `Lock/Unlock all` shortcut
 
 ### Fixed
 
