@@ -13,13 +13,8 @@ module ObservationsHelper
     "#{a}: #{b} on #{c}".html_safe
   end
 
-  def observation_autocomplete_tag(observation, on: nil)
-    t = observation_tag(observation)
-    if on == 'Otu'
-      [t, 'on', otu_tag(observation.observation_object)].join(' ').html_safe
-    else
-      t
-    end
+  def observation_autocomplete_tag(observation)
+    observation_tag(observation)
   end
 
   def label_for_observation(observation)
@@ -32,9 +27,9 @@ module ObservationsHelper
     )
 
     if b.empty?
-      "#{a} on #{c}".html_safe
+      "#{a} on #{c}"
     else
-      "#{a}: #{b} on #{c}".html_safe
+      "#{a}: #{b} on #{c}"
     end
   end
 
