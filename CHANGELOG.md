@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Radial mass annotatior: Add `is original` to citations slice
+
 ### Fixed
 
 - Soft validation fix for combinations of plant names.
