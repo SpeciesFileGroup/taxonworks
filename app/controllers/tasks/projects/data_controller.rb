@@ -7,7 +7,8 @@ class Tasks::Projects::DataController < ApplicationController
   end
 
   def sql_download
-    download = ::Export::ProjectData::Sql.download_async(sessions_current_project)
+    custom_password = params[:custom_password].presence
+    download = ::Export::ProjectData::Sql.download_async(sessions_current_project, custom_password: custom_password)
     redirect_to download_path(download)
   end
 
