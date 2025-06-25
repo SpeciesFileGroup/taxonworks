@@ -61,9 +61,9 @@ class AssertedDistribution < ApplicationRecord
   # This only asserts when the asserted distribution object is polymorphic and
   # has a restriction on its type in order to be an AD.
   ASSERTED_DISTRIBUTION_OBJECT_RELATED_TYPES = {
-    conveyance: ['Otu'],
-    depiction: ['Otu'],
-    observation: ['Otu']
+    'Conveyance' => ['Otu'],
+    'Depiction' => ['Otu'],
+    'Observation' => ['Otu']
   }.freeze
 
   before_validation :unify_is_absent
@@ -405,13 +405,19 @@ class AssertedDistribution < ApplicationRecord
   end
 
   def asserted_distribution_object_has_allowed_type
-    t = asserted_distribution_object_type
+    t = asserted_distribution_object_type&.to_s # STRING (not symbol)
+
+    if !DISTRIBUTION_ASSERTABLE_TYPES.include?(t)
+      errors.add(t || :base, " - the type of this asserted distribution's object can only be one of #{DISTRIBUTION_ASSERTABLE_TYPES}, not '#{t}'")
+      return
+    end
+
     if (
       (a = ASSERTED_DISTRIBUTION_OBJECT_RELATED_TYPES[t]) &&
-      !a.include?(asserted_distribution_object&.send("#{t}_object_type"))
+      !a.include?(asserted_distribution_object&.send("#{t.underscore}_object_type"))
     )
-     errors.add(t,
-       "object type of this asserted distribution object can only be in #{a}")
+     errors.add(t || :base,
+       " - the target of this asserted distribution's object can only be in #{a}")
     end
   end
 end

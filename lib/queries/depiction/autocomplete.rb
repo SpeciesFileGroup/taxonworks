@@ -20,7 +20,7 @@ module Queries
           .new(query_string, project_id: project_id).updated_queries
 
         queries = a.map do |q|
-          d = ::Depiction.where(image_id: q.select(:id))
+          d = ::Depiction.where(image_id: q.pluck(:id))
 
           if polymorphic_types
             d = d.where(depiction_object_type: polymorphic_types)

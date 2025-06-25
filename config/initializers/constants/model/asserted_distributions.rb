@@ -1,6 +1,7 @@
 # Be sure to restart your server when you modify this file.
 #
 Rails.application.config.after_initialize do
+  # STRINGS (not symbols)
   DISTRIBUTION_ASSERTABLE_TYPES = ApplicationRecord
     .descendants
     .select { |m|

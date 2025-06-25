@@ -20,7 +20,7 @@ module Queries
           .new(query_string, project_id: project_id).updated_queries
 
         queries = a.map do |q|
-          c = ::Conveyance.where(sound_id: q.select(:id))
+          c = ::Conveyance.where(sound_id: q.pluck(:id))
 
           if polymorphic_types
             c = c.where(conveyance_object_type: polymorphic_types)

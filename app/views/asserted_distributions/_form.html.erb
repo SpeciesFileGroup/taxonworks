@@ -5,12 +5,24 @@
       <div class="field" id="asserted_distribution_object_edit">
         <%= f.label :asserted_distribution_object_type %><br>
         <%= f.radio_button :asserted_distribution_object_type, 'Otu', id: :otu %> Otu <br>
-        <%= f.radio_button :asserted_distribution_object_type, 'BiologicalAssociation', id: :biological_association %> Biological association
+        <%= f.radio_button :asserted_distribution_object_type, 'BiologicalAssociation', id: :biological_association %> Biological association <br>
+        <%= f.radio_button :asserted_distribution_object_type, 'BiologicalAssociationsGraph', id: :biological_associations_graph %> Biological associations graph <br>
+        <%= f.radio_button :asserted_distribution_object_type, 'Conveyance', id: :conveyance %> Conveyance (of Otu only) <br>
+        <%= f.radio_button :asserted_distribution_object_type, 'Depiction', id: :depiction %> Depiction (of Otu only) <br>
+        <%= f.radio_button :asserted_distribution_object_type, 'Observation', id: :observation %> Observation (of Otu only)
       </div>
 
-      <%= render '/otus/otu_picker', otu: @asserted_distribution.otu, f: f -%>
-
-      OR
+      <div id="fields_for_otu">
+        <%= f.label :otu_id %><br>
+        <%= render partial: 'workbench/elements/forms/ajax_select', locals: {
+          controller: '/otus',
+          object: 'asserted_distribution',
+          method: 'asserted_distribution_object_id',
+          tag_id: 'otu_id_for_asserted_distribution_object_id',
+          display: @asserted_distribution.asserted_distribution_object_type == 'BiologicalAssociation' ? biological_association_tag(@asserted_distribution.asserted_distribution_object) : '',
+          size: 20}
+        %>
+      </div>
 
       <div class="fields_for_biological_association">
         <%= f.label :biological_association_id %>
@@ -21,6 +33,58 @@
           method: 'asserted_distribution_object_id',
           tag_id: 'biological_association_id_for_asserted_distribution_object_id',
           display: @asserted_distribution.asserted_distribution_object_type == 'BiologicalAssociation' ? biological_association_tag(@asserted_distribution.asserted_distribution_object) : '',
+          size: 20}
+        %>
+      </div>
+
+      <div class="fields_for_biological_associations_graph">
+        <%= f.label :biological_associations_graph_id %>
+        <br>
+        <%= render partial: '/workbench/elements/forms/ajax_select', locals: {
+          controller: '/biological_associations_graphs',
+          object: 'asserted_distribution',
+          method: 'asserted_distribution_object_id',
+          tag_id: 'biological_associations_graph_id_for_asserted_distribution_object_id',
+          display: @asserted_distribution.asserted_distribution_object_type == 'BiologicalAssociationsGraph' ? biological_associations_graph_tag(@asserted_distribution.asserted_distribution_object) : '',
+          size: 20}
+        %>
+      </div>
+
+      <div class="fields_for_conveyance">
+        <%= f.label :conveyance_id %>
+        <br>
+        <%= render partial: '/workbench/elements/forms/ajax_select', locals: {
+          controller: '/conveyances',
+          object: 'asserted_distribution',
+          method: 'asserted_distribution_object_id',
+          tag_id: 'conveyance_id_for_asserted_distribution_object_id',
+          display: @asserted_distribution.asserted_distribution_object_type == 'Conveyance' ? conveyance_tag(@asserted_distribution.asserted_distribution_object) : '',
+          size: 20}
+        %>
+      </div>
+
+      <div class="fields_for_depiction">
+        <%= f.label :depiction_id %>
+        <br>
+        <%= render partial: '/workbench/elements/forms/ajax_select', locals: {
+          controller: '/depictions',
+          object: 'asserted_distribution',
+          method: 'asserted_distribution_object_id',
+          tag_id: 'depiction_id_for_asserted_distribution_object_id',
+          display: @asserted_distribution.asserted_distribution_object_type == 'Depiction' ? depiction_tag(@asserted_distribution.asserted_distribution_object) : '',
+          size: 20}
+        %>
+      </div>
+
+      <div class="fields_for_observation">
+        <%= f.label :observation_id %>
+        <br>
+        <%= render partial: '/workbench/elements/forms/ajax_select', locals: {
+          controller: '/observations',
+          object: 'asserted_distribution',
+          method: 'asserted_distribution_object_id',
+          tag_id: 'observations_id_for_asserted_distribution_object_id',
+          display: @asserted_distribution.asserted_distribution_object_type == 'Observation' ? observation_tag(@asserted_distribution.asserted_distribution_object) : '',
           size: 20}
         %>
       </div>
@@ -47,8 +111,6 @@
         %>
       </div>
 
-      OR
-
       <div class="fields_for_gazetteer">
         <%= f.label :gazetteer_id %>
         <br>
@@ -61,6 +123,8 @@
           size: 20}
         %>
       </div>
+
+      <br>
 
       <%= f.fields_for :origin_citation, @asserted_distribution.origin_citation do |s| -%>
         <div class="field">

@@ -55,28 +55,70 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
   context 'associations' do
     context 'belongs_to' do
-      specify 'polymorphic for biological_association object' do
-        expect(asserted_distribution.asserted_distribution_object = BiologicalAssociation.new).to be_truthy
-      end
+      context 'object' do
+        DISTRIBUTION_ASSERTABLE_TYPES.each do |t|
+          specify "polymorphic for #{t} object" do
+            expect(
+              asserted_distribution.asserted_distribution_object =
+                t.constantize.new
+            ).to be_truthy
+          end
+        end
 
-      specify 'polymorphic for biological_associations_graph object' do
-        expect(asserted_distribution.asserted_distribution_object = BiologicalAssociationsGraph.new).to be_truthy
-      end
+        specify 'there are types not accepted as object' do
+          expect{
+            asserted_distribution.asserted_distribution_object =
+              CollectionObject.new
+          }.to raise_error(ActiveRecord::InverseOfAssociationNotFoundError)
+        end
 
-      specify 'polymorphic for conveyance object' do
-        expect(asserted_distribution.asserted_distribution_object = Conveyance.new).to be_truthy
-      end
+        specify 'conveyance on otu is accepted as object' do
+          expect(
+            FactoryBot.create(:valid_asserted_distribution,
+              asserted_distribution_object: FactoryBot.create(:valid_conveyance,
+                conveyance_object: FactoryBot.create(:valid_otu)))
+          ).to be_truthy
+        end
 
-      specify 'polymorphic for depiction object' do
-        expect(asserted_distribution.asserted_distribution_object = Depiction.new).to be_truthy
-      end
+        specify 'not everything is acccepted as conveyance object type' do
+          expect{
+            FactoryBot.create(:valid_asserted_distribution,
+              asserted_distribution_object: FactoryBot.create(:valid_conveyance,
+                conveyance_object: FactoryBot.create(:valid_collection_object)))
+          }.to raise_error(ActiveRecord::RecordInvalid)
+        end
 
-      specify 'polymorphic for Observation object' do
-        expect(asserted_distribution.asserted_distribution_object = Observation.new).to be_truthy
-      end
+        specify 'conveyance on depiction is accepted as object' do
+          expect(
+            FactoryBot.create(:valid_asserted_distribution,
+              asserted_distribution_object: FactoryBot.create(:valid_depiction,
+                depiction_object: FactoryBot.create(:valid_otu)))
+          ).to be_truthy
+        end
 
-      specify 'polymorphic for otu object' do
-        expect(asserted_distribution.asserted_distribution_object = Otu.new).to be_truthy
+        specify 'not everything is acccepted as depiction object type' do
+          expect{
+            FactoryBot.create(:valid_asserted_distribution,
+              asserted_distribution_object: FactoryBot.create(:valid_depiction,
+                depiction_object: FactoryBot.create(:valid_collection_object)))
+          }.to raise_error(ActiveRecord::RecordInvalid)
+        end
+
+        specify 'observation on otu is accepted as object' do
+          expect(
+            FactoryBot.create(:valid_asserted_distribution,
+              asserted_distribution_object: FactoryBot.create(:valid_observation,
+                observation_object: FactoryBot.create(:valid_otu)))
+          ).to be_truthy
+        end
+
+        specify 'not everything is acccepted as observation object type' do
+          expect{
+            FactoryBot.create(:valid_asserted_distribution,
+              asserted_distribution_object: FactoryBot.create(:valid_observation,
+                observation_object: FactoryBot.create(:valid_collection_object)))
+          }.to raise_error(ActiveRecord::RecordInvalid)
+        end
       end
 
       specify 'polymorphic for geographic_area shape' do
