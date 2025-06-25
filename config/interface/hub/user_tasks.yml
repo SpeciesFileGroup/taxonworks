@@ -1068,3 +1068,10 @@ filter_taxon_name_relationships_task:
     - nomenclature
   status: prototype
   description: 'Filter taxon name relationships by many different facets, download or visualize results.'
+monograph_facilitator_task:
+  hub: true
+  name: 'Monograph facilitator'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

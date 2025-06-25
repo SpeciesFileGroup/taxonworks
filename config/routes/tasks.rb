@@ -573,6 +573,10 @@ scope :tasks do
   end
 
   scope :gis do
+    scope :monograph_facilitator, controller: 'tasks/gis/monograph_facilitator' do
+      get '/', action: :index, as: 'monograph_facilitator_task'
+    end
+
     scope :simplemappr, controller: 'tasks/gis/simplemappr' do
       match '/', action: :index, via: [:get, :post]
     end
