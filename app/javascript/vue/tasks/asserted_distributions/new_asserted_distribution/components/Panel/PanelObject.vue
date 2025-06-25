@@ -11,7 +11,7 @@
         >
           <template #tabs-right>
             <VLock
-              v-model="store.lock.otu"
+              v-model="store.lock.object"
               class="margin-small-left"
             />
           </template>

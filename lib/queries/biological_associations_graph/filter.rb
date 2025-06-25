@@ -63,12 +63,23 @@ module Queries
         set_geo_params(params)
       end
 
+      def biological_association_id
+        [@biological_association_id].flatten.compact.uniq
+      end
+
+      def biological_relationship_id
+        [@biological_relationship_id].flatten.compact.uniq
+      end
+
+      def biological_associations_graph_id
+        [@biological_associations_graph_id].flatten.compact.uniq
+      end
+
       def wkt_facet
         return nil if wkt.nil?
         from_wkt(wkt)
       end
 
-      # Results are also returned from the otu and CO queries on subject/object.
       def from_wkt(wkt_shape)
         a = ::Queries::AssertedDistribution::Filter.new(
           wkt: wkt_shape, project_id:,
@@ -132,18 +143,6 @@ module Queries
           m = shape_string.tableize
           b = ::GeographicItem.joins(m.to_sym).where(m => shape_ids)
         end
-      end
-
-      def biological_association_id
-        [@biological_association_id].flatten.compact.uniq
-      end
-
-      def biological_relationship_id
-        [@biological_relationship_id].flatten.compact.uniq
-      end
-
-      def biological_associations_graph_id
-        [@biological_associations_graph_id].flatten.compact.uniq
       end
 
       def biological_associations_graph_id_facet

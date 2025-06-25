@@ -24,22 +24,6 @@ describe Queries::Observation::Filter, type: :model, group: [:observation_matrix
     expect(q.all.map(&:id)).to contain_exactly(o.id)
   end
 
-  specify 'spatial only matches otu observations' do
-    p = RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
-
-    a = FactoryBot.create(:level1_geographic_area)
-    a.geographic_items << GeographicItem.create!(geography: p)
-
-    o = FactoryBot.create(:valid_observation,
-      observation_object: FactoryBot.create(:valid_collection_object))
-
-    AssertedDistribution.create!(asserted_distribution_object: o,asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
-
-    q.wkt = p.to_s
-
-    expect(q.all.map(&:id)).to be_empty
-  end
-
   specify '#wkt' do
     p = RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
 

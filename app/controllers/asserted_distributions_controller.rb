@@ -135,7 +135,7 @@ class AssertedDistributionsController < ApplicationController
         preview: params[:preview],
         template_asserted_distribution: asserted_distribution_params,
         object_query: params[:object_query],
-        objectType: params[:object_type],
+        object_type: params[:object_type],
         user_id: sessions_current_user_id,
         project_id: sessions_current_project_id
     )

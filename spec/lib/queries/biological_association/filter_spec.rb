@@ -195,26 +195,28 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     let(:ba_2) { BiologicalAssociation.create!(biological_association_subject: o_2, biological_association_object: o_3, biological_relationship: r2) }
     let(:ba_3) { BiologicalAssociation.create!(biological_association_subject: o_1, biological_association_object: o_3, biological_relationship: r1) }
     let!(:bag) { FactoryBot.create(:valid_biological_associations_graph) }
+    let(:ga) {
+      a = FactoryBot.create(:level1_geographic_area)
+      a.geographic_items << GeographicItem.create!(
+        geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+      )
+      a
+    }
 
     specify 'spatial all possible asserted_distribution sources' do
       bag.biological_associations << ba_1
       bag.biological_associations << ba_2
 
-      a = FactoryBot.create(:level1_geographic_area)
-      a.geographic_items << GeographicItem.create!(
-        geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
-      )
-
       source = FactoryBot.create(:valid_source)
       # On a BiologicalAssociationsGraph
-      AssertedDistribution.create!(asserted_distribution_object: bag,asserted_distribution_shape: a, source:)
+      AssertedDistribution.create!(asserted_distribution_object: bag,asserted_distribution_shape: ga, source:)
       # On a BiologicalAssociation
-      AssertedDistribution.create!(asserted_distribution_object: ba_3,asserted_distribution_shape: a, source:)
+      AssertedDistribution.create!(asserted_distribution_object: ba_3,asserted_distribution_shape: ga, source:)
       # On the subject/object of a BiologicalAssociation
-      AssertedDistribution.create!(asserted_distribution_object: o1,asserted_distribution_shape: a, source:)
+      AssertedDistribution.create!(asserted_distribution_object: o1,asserted_distribution_shape: ga, source:)
 
       o = {
-        geo_shape_id: a.id,
+        geo_shape_id: ga.id,
         geo_shape_type: 'GeographicArea',
         geo_mode: true
       }
@@ -228,16 +230,11 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
       bag.biological_associations << ba_1
       bag.biological_associations << ba_2
 
-      a = FactoryBot.create(:level1_geographic_area)
-      a.geographic_items << GeographicItem.create!(
-        geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
-      )
-
       source = FactoryBot.create(:valid_source)
-      AssertedDistribution.create!(asserted_distribution_object: bag,asserted_distribution_shape: a, source:)
+      AssertedDistribution.create!(asserted_distribution_object: bag,asserted_distribution_shape: ga, source:)
 
       o = {
-        geo_shape_id: a.id,
+        geo_shape_id: ga.id,
         geo_shape_type: 'GeographicArea',
         geo_mode: true
       }
