@@ -12,7 +12,7 @@ module Workbench::LayoutHelper
 
   def development_header_tag
     if Rails.env.development? 
-      content_tag(:span, 'DEVELOPMENT', class: 'subtle')
+      content_tag(:span, 'DEVELOPMENT', class: 'text-warning-color')
     end 
   end
 

@@ -44,6 +44,9 @@
 
 #header_bar.header_development {
   background-color: black;
+  background-image: linear-gradient(to right, #3a3a3a 1px, transparent 1px),
+    linear-gradient(to bottom, #3a3a3a 1px, transparent 1px);
+  background-size: 12px 12px;
 }
 
 #header_bar.sandbox {
