@@ -2,6 +2,15 @@ require 'settings'
 TaxonWorks::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # Configure allowed hosts from application_settings.yml
+  # This allows each developer to specify their own host without
+  # adding it to version control
+  if Settings.allowed_hosts.present?
+    Settings.allowed_hosts.each do |host|
+      config.hosts << host
+    end
+  end
+
   # See https://github.com/kvokka/pp_sql
   # Have to turn this off since we use .to_sql during the creation of many of
   # our queries and currently pp_sql prettifies things like `)::float` to
