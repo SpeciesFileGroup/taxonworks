@@ -5,8 +5,9 @@ TaxonWorks::Application.configure do
   # Configure allowed hosts from application_settings.yml
   # This allows each developer to specify their own host without
   # adding it to version control
-  if Settings.allowed_hosts.present?
-    Settings.allowed_hosts.each do |host|
+  settings_hash = Settings.get_config_hash
+  if settings_hash && settings_hash[:allowed_hosts].present?
+    settings_hash[:allowed_hosts].each do |host|
       config.hosts << host
     end
   end
