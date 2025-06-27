@@ -2,15 +2,6 @@ require 'settings'
 TaxonWorks::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  # Configure allowed hosts from application_settings.yml
-  # This allows each developer to specify their own host without
-  # adding it to version control
-  settings_hash = Settings.get_config_hash
-  if settings_hash && settings_hash[:allowed_hosts].present?
-    settings_hash[:allowed_hosts].each do |host|
-      config.hosts << host
-    end
-  end
 
   # See https://github.com/kvokka/pp_sql
   # Have to turn this off since we use .to_sql during the creation of many of
@@ -67,6 +58,16 @@ TaxonWorks::Application.configure do
 
   # Load local settings
   Settings.load_from_settings_file(config, :development)
+
+  # Configure allowed hosts from application_settings.yml
+  # This allows each developer to specify their own host without
+  # adding it to version control
+  settings_hash = Settings.get_config_hash
+  if settings_hash && settings_hash[:allowed_hosts].present?
+    settings_hash[:allowed_hosts].each do |host|
+      config.hosts << host
+    end
+  end
 
   BetterErrors.editor='x-mine://open?file=%{file}&line=%{line}' if defined? BetterErrors
 
