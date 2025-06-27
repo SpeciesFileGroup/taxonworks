@@ -1,0 +1,62 @@
+import { ICONS, SHAPES_CONFIG } from '../constants'
+import {
+  TYPE_MATERIAL,
+  COLLECTION_OBJECT,
+  ASSERTED_DISTRIBUTION,
+  GEOREFERENCE
+} from '@/constants'
+import makeGeoJSONObject from './makeGeoJSONObject'
+
+const TYPES = [
+  TYPE_MATERIAL,
+  COLLECTION_OBJECT,
+  ASSERTED_DISTRIBUTION,
+  GEOREFERENCE
+]
+
+function getRelevantType(base) {
+  const types = base.map((b) => b.type)
+
+  types.sort((a, b) => TYPES.indexOf(a) - TYPES.indexOf(b))
+
+  return types[0]
+}
+
+export default ({ L }) => ({
+  onEachFeature: (feature, layer) => {
+    const shapeType = feature.properties.shape?.type
+    const layerConfiguration =
+      feature.properties.options || SHAPES_CONFIG[shapeType]
+
+    if (feature.properties?.popup) {
+      layer.bindPopup(feature.properties.popup)
+    }
+
+    layer.pm.setOptions(layerConfiguration)
+    layer.pm.disable()
+  },
+
+  pointToLayer: (feature, latLng) => {
+    const base = feature.properties.base
+    const type = base ? getRelevantType(feature.properties.base) : null
+    const radius = feature.properties.radius
+    const markerStyle = ICONS[type] || ICONS[GEOREFERENCE]
+    const marker = radius
+      ? L.circle(latLng, Number(layer.properties.radius))
+      : L.marker(latLng, {
+          icon: L.divIcon(markerStyle)
+        })
+
+    return marker
+  },
+
+  style: (feature) => {
+    const base = feature.properties.base
+    const type = base ? getRelevantType(feature.properties.base) : null
+    const style = feature.properties.style || SHAPES_CONFIG[type]
+
+    if (style) {
+      return style
+    }
+  }
+})
