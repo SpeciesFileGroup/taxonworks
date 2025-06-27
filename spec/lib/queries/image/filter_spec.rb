@@ -393,4 +393,67 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
+  context 'attributions' do
+    let!(:attribution) { FactoryBot.create(:valid_attribution,
+      attribution_object: i1) }
+
+    let(:p1) { FactoryBot.create(:valid_person) }
+    let(:p2) { FactoryBot.create(:valid_person) }
+
+    specify 'creator' do
+      r = Role.create!(person: p1, type: 'AttributionCreator',
+        role_object: attribution)
+
+      q.creator_id = p1.id
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+
+    specify 'two creators \'and\'' do
+      r1 = Role.create!(person: p1, type: 'AttributionCreator',
+        role_object: attribution)
+
+      r2 = Role.create!(person: p2, type: 'AttributionCreator',
+        role_object: attribution)
+
+      q.creator_id = [p1.id, p2.id]
+      q.creator_id_or = true # Actually means 'and'
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+
+    specify 'two creators \'and\'' do
+      r1 = Role.create!(person: p1, type: 'AttributionCreator',
+        role_object: attribution)
+
+      q.creator_id = [p1.id, p2.id]
+      q.creator_id_or = true # Actually means 'and'
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to be_empty
+    end
+
+    specify 'two creators \'or\'' do
+      r1 = Role.create!(person: p1, type: 'AttributionCreator',
+        role_object: attribution)
+
+      q.creator_id = [p1.id, p2.id]
+      q.creator_id_or = false # Actually means 'or'
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+
+    specify 'editor' do
+      r = Role.create!(person: p1, type: 'AttributionEditor',
+        role_object: attribution)
+
+      q.editor_id = p1.id
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+  end
 end

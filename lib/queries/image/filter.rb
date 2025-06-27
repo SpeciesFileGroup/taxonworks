@@ -8,8 +8,12 @@ module Queries
         :biocuration_class_id,
         :collection_object_id,
         :collection_object_scope,
+        :creator_id,
+        :creator_id_or,
         :depiction_object_type,
         :depictions,
+        :editor_id,
+        :editor_id_or,
         :field_occurrence_id,
         :field_occurrence_scope,
         :freeform_svg,
@@ -27,7 +31,9 @@ module Queries
         biocuration_class_id: [],
         collection_object_id: [],
         collection_object_scope: [],
+        creator_id: [],
         depiction_object_type: [],
+        editor_id: [],
         field_occurrence_id: [],
         field_occurrence_scope: [],
         image_id: [],
@@ -146,6 +152,28 @@ module Queries
       #   depicts some  that is a type specimen
       attr_accessor :type_material_depictions
 
+      # @return [Array]
+      # @param creator [Array or Person#id]
+      #   one ore more people id
+      attr_accessor :creator_id
+
+      # @return [Boolean]
+      # @param creator_id_or [String, nil]
+      #   `false`, nil - treat the ids in creator_id as "or"
+      #   'true' - treat the ids in creator_id as "and" (only images with all and only all will match)
+      attr_accessor :creator_id_or
+
+      # @return [Array]
+      # @param editor [Array or Person#id]
+      #   one ore more people id
+      attr_accessor :editor_id
+
+      # @return [Boolean]
+      # @param editor_id_or [String, nil]
+      #   `false`, nil - treat the ids in editor_id as "or"
+      #   'true' - treat the ids in editor_id as "and" (only images with all and only all will match)
+      attr_accessor :editor_id_or
+
       # @param params [Hash]
       def initialize(query_params)
         super
@@ -153,8 +181,12 @@ module Queries
         @biocuration_class_id = params[:biocuration_class_id]
         @collection_object_id = params[:collection_object_id]
         @collection_object_scope = params[:collection_object_scope]
+        @creator_id = params[:creator_id]
+        @creator_id_or = boolean_param(params, :creator_id_or)
         @depiction_object_type = params[:depiction_object_type]
         @depictions = boolean_param(params, :depictions)
+        @editor_id = params[:editor_id]
+        @editor_id_or = boolean_param(params, :editor_id_or)
         @field_occurrence_id = params[:field_occurrence_id]
         @field_occurrence_scope = params[:field_occurrence_scope]
         @freeform_svg = boolean_param(params, :freeform_svg)
@@ -191,6 +223,14 @@ module Queries
 
       def collection_object_scope
         [ @collection_object_scope ].flatten.compact.map(&:to_sym)
+      end
+
+      def creator_id
+        [@creator_id].flatten.compact.uniq
+      end
+
+      def editor_id
+        [@editor_id].flatten.compact.uniq
       end
 
       def field_occurrence_id
@@ -411,6 +451,40 @@ module Queries
         ::Image.from('(' + q + ')' + ' as images')
       end
 
+      def creator_facet
+        return nil if creator_id.empty?
+
+        q = ::Image
+          .joins(attribution: :roles)
+          .where(roles: {type: 'AttributionCreator'})
+          .where(roles: {person_id: creator_id})
+
+        if creator_id_or
+          q
+            .group(:id)
+            .having("count(images.id) = #{creator_id.length}")
+        else
+          q.distinct
+        end
+      end
+
+      def editor_facet
+        return nil if editor_id.empty?
+
+        q = ::Image
+          .joins(attribution: :roles)
+          .where(roles: {type: 'AttributionEditor'})
+          .where(roles: {person_id: editor_id})
+
+        if editor_id_or
+          q
+            .group(:id)
+            .having("count(images.id) = #{editor_id.length}")
+        else
+          q.distinct
+        end
+      end
+
       def images_on(t, t_id)
         ::Image.joins(t).where(**{t => {id: t_id}})
       end
@@ -591,9 +665,11 @@ module Queries
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
           biocuration_facet,
           collection_object_scope_facet,
-          field_occurrence_scope_facet,
+          creator_facet,
+          editor_facet,
           depiction_object_type_facet,
           depictions_facet,
+          field_occurrence_scope_facet,
           freeform_svg_facet,
           otu_id_facet,
           otu_scope_facet,

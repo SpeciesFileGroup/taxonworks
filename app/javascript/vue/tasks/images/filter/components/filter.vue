@@ -30,6 +30,14 @@
   <FacetBiocurations v-model="params" />
   <FacetIdentifiers v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
+  <FacetPeople
+    title="Creator"
+    klass="Image"
+    param-people="creator_id"
+    param-any="creator_id_or"
+    :role-type="ROLE_ATTRIBUTION_CREATOR"
+    v-model="params"
+  />
   <FacetTags
     target="Image"
     v-model="params"
@@ -60,6 +68,7 @@ import FacetDepictionObjectType from '@/components/Filter/Facets/Depiction/Facet
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetFieldOccurrence from '@/components/Filter/Facets/FieldOccurrence/FacetFieldOccurrence.vue'
+import FacetPeople from '@/components/Filter/Facets/shared/FacetPeople.vue'
 
 const props = defineProps({
   modelValue: {
