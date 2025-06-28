@@ -35,7 +35,7 @@
     klass="Image"
     param-people="creator_id"
     param-any="creator_id_or"
-    :role-type="ROLE_ATTRIBUTION_CREATOR"
+    :role-type="[ROLE_ATTRIBUTION_CREATOR]"
     v-model="params"
   />
   <FacetTags
@@ -55,6 +55,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { ROLE_ATTRIBUTION_CREATOR } from '@/constants'
 import FacetCollectionObject from '@/components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetBiocurations from '@/components/Filter/Facets/CollectionObject/FacetBiocurations.vue'

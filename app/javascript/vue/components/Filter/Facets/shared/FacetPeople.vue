@@ -2,7 +2,7 @@
   <FacetContainer>
     <div class="flex-separate middle">
       <h3>{{ title }}</h3>
-      <SwitchButtom
+      <VSwitch
         v-if="toggle"
         v-model="isPeopleView"
         :options="switchOptions"
@@ -16,7 +16,7 @@
         pin-section="People"
         pin-type="People"
         label="cached"
-        @selected="addPerson"
+        @selected="(person) => addPerson(person)"
       />
       <label>
         <input
@@ -25,12 +25,12 @@
         />
         Any
       </label>
-      <display-list
+      <DisplayList
         :list="list"
         label="cached"
         :delete-warning="false"
         soft-delete
-        @delete-index="removePerson"
+        @delete-index="(person) => removePerson(person)"
       />
     </div>
     <div v-else>
@@ -45,124 +45,103 @@
   </FacetContainer>
 </template>
 
-<script>
-import SwitchButtom from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
-import SmartSelector from '@/components/ui/SmartSelector'
-import DisplayList from '@/components/displayList'
+<script setup>
+import VSwitch from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import DisplayList from '@/components/displayList.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import { People } from '@/routes/endpoints'
+import { Organization, People } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { onMounted, ref, watch } from 'vue'
 
-export default {
-  components: {
-    SmartSelector,
-    DisplayList,
-    SwitchButtom,
-    FacetContainer
+const props = defineProps({
+  paramAny: {
+    type: String,
+    required: true
   },
 
-  props: {
-    modelValue: {
-      type: Object,
-      default: () => ({})
-    },
-
-    paramAny: {
-      type: String,
-      required: true
-    },
-
-    paramPeople: {
-      type: String,
-      required: true
-    },
-
-    title: {
-      type: String,
-      default: ''
-    },
-
-    roleType: {
-      type: Array,
-      required: true
-    },
-
-    klass: {
-      type: String,
-      required: true
-    },
-
-    toggle: {
-      type: Boolean,
-      default: false
-    }
+  paramPeople: {
+    type: String,
+    required: true
   },
 
-  emits: ['update:modelValue', 'toggle'],
-
-  data() {
-    return {
-      list: [],
-      switchOptions: ['People', 'Name'],
-      isPeopleView: true
-    }
+  title: {
+    type: String,
+    default: ''
   },
 
-  computed: {
-    params: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
+  roleType: {
+    type: Array,
+    required: true
   },
 
-  watch: {
-    modelValue(newVal) {
-      if (!newVal[this.paramPeople]?.length && this.list.length) {
-        this.list = []
-      }
-    },
-
-    list: {
-      handler() {
-        this.params[this.paramPeople] = this.list.map((item) => item.id)
-      },
-      deep: true
-    },
-
-    isPeopleView(newVal) {
-      this.$emit('toggle', newVal)
-      this.list = []
-      this.params.determiner_name_regex = undefined
-    }
+  klass: {
+    type: String,
+    required: true
   },
 
-  created() {
-    const urlParams = URLParamsToJSON(location.href)
-    const peopleIds = urlParams[this.paramPeople] || []
+  toggle: {
+    type: Boolean,
+    default: false
+  }
+})
 
-    this.params[this.paramAny] = urlParams[this.paramAny]
-    peopleIds.forEach((id) => {
-      People.find(id).then(({ body }) => {
-        this.addPerson(body)
-      })
-    })
-  },
+const params = defineModel({
+  type: Object,
+  default: () => ({})
+})
 
-  methods: {
-    addPerson(person) {
-      if (!this.list.find((item) => item.id === person.id)) {
-        this.list.push(person)
-      }
-    },
+const emit = defineEmits(['toggle'])
 
-    removePerson(index) {
-      this.list.splice(index, 1)
+const list = ref([])
+const switchOptions = ref(['People', 'Name'])
+const isPeopleView = ref(true)
+
+watch(
+  params,
+  (newVal) => {
+    if (!newVal[props.paramPeople]?.length && list.value.length) {
+      list.value = []
     }
   }
+)
+
+watch(
+  list,
+  () => {
+    params.value[props.paramPeople] = list.value.map((item) => item.id)
+  },
+  { deep: true }
+)
+
+watch(
+  isPeopleView, (newVal) => {
+    emit('toggle', newVal)
+    list.value = []
+    params.value.determiner_name_regex = undefined
+  }
+)
+
+onMounted(() => {
+  const urlParams = URLParamsToJSON(location.href)
+  const peopleIds = urlParams[props.paramPeople] || []
+
+  params.value[props.paramAny] = urlParams[props.paramAny]
+  peopleIds.forEach((id) => {
+    People.find(id).then(({ body }) => {
+      addPerson(body)
+    })
+  })
+})
+
+function addPerson(person) {
+  if (!list.value.find((item) => item.id === person.id)) {
+    list.value.push(person)
+  }
+}
+
+function removePerson(index) {
+  list.value.splice(index, 1)
 }
 </script>
 <style scoped>
