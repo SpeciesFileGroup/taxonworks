@@ -32,12 +32,14 @@
         @selected="(organization) => addEntity(organization, 'Organization')"
       />
 
-      <label>
+      <label
+        data-help="If checked, filter results must match all items listed here"
+      >
         <input
-          v-model="params[paramAny]"
+          v-model="params[paramAll]"
           type="checkbox"
         />
-        Any
+        All
       </label>
 
       <DisplayList
@@ -45,7 +47,7 @@
         label="display"
         :delete-warning="false"
         soft-delete
-        @delete-index="(person) => removeEntity(person)"
+        @delete-index="(index) => removeEntity(index)"
       />
     </div>
   </FacetContainer>
@@ -61,7 +63,7 @@ import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { onMounted, ref, watch } from 'vue'
 
 const props = defineProps({
-  paramAny: {
+  paramAll: {
     type: String,
     required: true
   },
@@ -126,7 +128,7 @@ watch(
 onMounted(() => {
   const urlParams = URLParamsToJSON(location.href)
 
-  params.value[props.paramAny] = urlParams[props.paramAny]
+  params.value[props.paramAll] = urlParams[props.paramAll]
 
   const peopleIds = urlParams[props.paramPeople] || []
   peopleIds.forEach((id) => {

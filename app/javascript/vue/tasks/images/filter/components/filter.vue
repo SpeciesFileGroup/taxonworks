@@ -34,7 +34,7 @@
     title="Creator"
     klass="Image"
     param-people="creator_id"
-    param-any="creator_id_or"
+    param-all="creator_id_all"
     :role-type="[ROLE_ATTRIBUTION_CREATOR]"
     v-model="params"
   />
@@ -42,7 +42,7 @@
     title="Editor"
     klass="Image"
     param-people="editor_id"
-    param-any="editor_id_or"
+    param-all="editor_id_all"
     :role-type="[ROLE_ATTRIBUTION_EDITOR]"
     v-model="params"
   />
@@ -51,7 +51,7 @@
     klass="Image"
     param-people="owner_id"
     param-organization="owner_organization_id"
-    param-any="owner_id_or"
+    param-all="owner_id_all"
     :role-type="[ROLE_ATTRIBUTION_OWNER]"
     v-model="params"
   />
@@ -60,8 +60,14 @@
     klass="Image"
     param-people="copyright_holder_id"
     param-organization="copyright_holder_organization_id"
-    param-any="copyright_holder_id_or"
+    param-all="copyright_holder_id_all"
     :role-type="[ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]"
+    v-model="params"
+  />
+  <FacetSource
+    klass="Image"
+    param-source="source_id"
+    param-all="source_id_all"
     v-model="params"
   />
   <FacetTags
@@ -97,6 +103,7 @@ import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetFieldOccurrence from '@/components/Filter/Facets/FieldOccurrence/FacetFieldOccurrence.vue'
 import FacetPeople from '@/components/Filter/Facets/shared/FacetPeople.vue'
 import FacetPeopleOrOrganizations from '@/components/Filter/Facets/shared/FacetPeopleOrOrganizations.vue'
+import FacetSource from '@/components/Filter/Facets/shared/FacetSource.vue'
 
 const props = defineProps({
   modelValue: {

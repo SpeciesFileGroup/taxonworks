@@ -424,7 +424,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
         role_object: attribution1)
 
       q.creator_id = [p1.id, p2.id]
-      q.creator_id_or = true # Actually means 'and'
+      q.creator_id_all = true
 
       i2 # not this one
       expect(q.all.map(&:id)).to contain_exactly(i1.id)
@@ -435,7 +435,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
         role_object: attribution1)
 
       q.creator_id = [p1.id, p2.id]
-      q.creator_id_or = true # Actually means 'and'
+      q.creator_id_all = true
 
       i2 # not this one
       expect(q.all.map(&:id)).to be_empty
@@ -446,7 +446,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
         role_object: attribution1)
 
       q.creator_id = [p1.id, p2.id]
-      q.creator_id_or = false # Actually means 'or'
+      q.creator_id_all = false
 
       i2 # not this one
       expect(q.all.map(&:id)).to contain_exactly(i1.id)
@@ -470,7 +470,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
         role_object: attribution1)
 
       q.owner_id = p1.id
-      q.creator_id_or = false # Actually means 'or'
+      q.creator_id_all = false
 
       i2 # not this one
       expect(q.all.map(&:id)).to contain_exactly(i1.id)
@@ -484,7 +484,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
         role_object: attribution1)
 
       q.owner_organization_id = o1.id
-      q.creator_id_or = false # Actually means 'or'
+      q.creator_id_all = false
 
       i2 # not this one
       expect(q.all.map(&:id)).to contain_exactly(i1.id)
@@ -499,7 +499,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
 
       q.owner_id = p1.id
       q.owner_organization_id = o1.id
-      q.creator_id_or = true # Actually means 'or'
+      q.creator_id_all = true
 
       i2 # not this one
       expect(q.all.map(&:id)).to contain_exactly(i1.id)
@@ -511,7 +511,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
 
       q.owner_id = p1.id
       q.owner_organization_id = o1.id
-      q.owner_id_or = true # Actually means 'or'
+      q.owner_id_all = true
 
       i2 # not this one
       expect(q.all.map(&:id)).to be_empty
@@ -525,7 +525,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
         role_object: attribution2)
 
       q.owner_id = p1.id
-      q.creator_id_or = false # Actually means 'or'
+      q.creator_id_all = false
 
       i3 # not this one
       expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
@@ -539,7 +539,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
         role_object: attribution2)
 
       q.owner_organization_id = [o1.id, o2.id]
-      q.creator_id_or = false # Actually means 'or'
+      q.creator_id_all = false
 
       i3 # not this one
       expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)

@@ -18,19 +18,21 @@
         label="cached"
         @selected="(person) => addPerson(person)"
       />
-      <label>
+      <label
+        data-help="If checked, filter results must match all items listed here"
+      >
         <input
-          v-model="params[paramAny]"
+          v-model="params[paramAll]"
           type="checkbox"
         />
-        Any
+        All
       </label>
       <DisplayList
         :list="list"
         label="cached"
         :delete-warning="false"
         soft-delete
-        @delete-index="(person) => removePerson(person)"
+        @delete-index="(index) => removePerson(index)"
       />
     </div>
     <div v-else>
@@ -50,12 +52,12 @@ import VSwitch from '@/tasks/observation_matrices/new/components/Matrix/switch.v
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import DisplayList from '@/components/displayList.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import { Organization, People } from '@/routes/endpoints'
+import { People } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { onMounted, ref, watch } from 'vue'
 
 const props = defineProps({
-  paramAny: {
+  paramAll: {
     type: String,
     required: true
   },
@@ -126,7 +128,7 @@ onMounted(() => {
   const urlParams = URLParamsToJSON(location.href)
   const peopleIds = urlParams[props.paramPeople] || []
 
-  params.value[props.paramAny] = urlParams[props.paramAny]
+  params.value[props.paramAll] = urlParams[props.paramAll]
   peopleIds.forEach((id) => {
     People.find(id).then(({ body }) => {
       addPerson(body)

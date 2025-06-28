@@ -9,20 +9,20 @@ module Queries
         :collection_object_id,
         :collection_object_scope,
         :copyright_holder_id,
-        :copyright_holder_id_or,
+        :copyright_holder_id_all,
         :copyright_holder_organization_id,
         :creator_id,
-        :creator_id_or,
+        :creator_id_all,
         :depiction_object_type,
         :depictions,
         :editor_id,
-        :editor_id_or,
+        :editor_id_all,
         :field_occurrence_id,
         :field_occurrence_scope,
         :freeform_svg,
         :image_id,
         :owner_id,
-        :owner_id_or,
+        :owner_id_all,
         :owner_organization_id,
         :otu_id,
         :otu_scope,
@@ -168,10 +168,10 @@ module Queries
       attr_accessor :creator_id
 
       # @return [Boolean]
-      # @param creator_id_or [String, nil]
+      # @param creator_id_all [String, nil]
       #   `false`, nil - treat the ids in creator_id as "or"
       #   'true' - treat the ids in creator_id as "and" (only images with all and only all will match)
-      attr_accessor :creator_id_or
+      attr_accessor :creator_id_all
 
       # @return [Array]
       # @param editor_id [Array or Person#id]
@@ -179,10 +179,10 @@ module Queries
       attr_accessor :editor_id
 
       # @return [Boolean]
-      # @param editor_id_or [String, nil]
+      # @param editor_id_all [String, nil]
       #   `false`, nil - treat the ids in editor_id as "or"
       #   'true' - treat the ids in editor_id as "and" (only images with all and only all will match)
-      attr_accessor :editor_id_or
+      attr_accessor :editor_id_all
 
       # @return [Array]
       # @param owner_id [Array or Person#id]
@@ -195,10 +195,10 @@ module Queries
       attr_accessor :owner_organization_id
 
       # @return [Boolean]
-      # @param owner_id_or [String, nil]
+      # @param owner_id_all [String, nil]
       #   `false`, nil - treat the ids in editor_id as "or"
       #   'true' - treat the ids in owner_id as "and" (only images with all and only all will match)
-      attr_accessor :owner_id_or
+      attr_accessor :owner_id_all
 
       # @return [Array]
       # @param copyright_holder_id [Array or Person#id]
@@ -211,10 +211,10 @@ module Queries
       attr_accessor :copyright_holder_organization_id
 
       # @return [Boolean]
-      # @param copryight_holder_id_or [String, nil]
+      # @param copryight_holder_id_all [String, nil]
       #   `false`, nil - treat the ids in editor_id as "or"
       #   'true' - treat the ids in copyright_holder_id as "and" (only images with all and only all will match)
-      attr_accessor :copyright_holder_id_or
+      attr_accessor :copyright_holder_id_all
 
       # @param params [Hash]
       def initialize(query_params)
@@ -224,15 +224,15 @@ module Queries
         @collection_object_id = params[:collection_object_id]
         @collection_object_scope = params[:collection_object_scope]
         @copyright_holder_id = params[:copyright_holder_id]
-        @copyright_holder_id_or = boolean_param(params, :copyright_holder_id_or)
+        @copyright_holder_id_all = boolean_param(params, :copyright_holder_id_all)
         @copyright_holder_organization_id =
           params[:copyright_holder_organization_id]
         @creator_id = params[:creator_id]
-        @creator_id_or = boolean_param(params, :creator_id_or)
+        @creator_id_all = boolean_param(params, :creator_id_all)
         @depiction_object_type = params[:depiction_object_type]
         @depictions = boolean_param(params, :depictions)
         @editor_id = params[:editor_id]
-        @editor_id_or = boolean_param(params, :editor_id_or)
+        @editor_id_all = boolean_param(params, :editor_id_all)
         @field_occurrence_id = params[:field_occurrence_id]
         @field_occurrence_scope = params[:field_occurrence_scope]
         @freeform_svg = boolean_param(params, :freeform_svg)
@@ -240,7 +240,7 @@ module Queries
         @otu_id = params[:otu_id]
         @otu_scope = params[:otu_scope]
         @owner_id = params[:owner_id]
-        @owner_id_or = boolean_param(params, :owner_id_or)
+        @owner_id_all = boolean_param(params, :owner_id_all)
         @owner_organization_id = params[:owner_organization_id]
         @sled_image = boolean_param(params, :sled_image)
         @sled_image_id = params[:sled_image_id]
@@ -524,7 +524,7 @@ module Queries
           .where(roles: {type: 'AttributionCreator'})
           .where(roles: {person_id: creator_id})
 
-        if creator_id_or
+        if creator_id_all
           q
             .group(:id)
             .having("count(images.id) = #{creator_id.length}")
@@ -541,7 +541,7 @@ module Queries
           .where(roles: {type: 'AttributionEditor'})
           .where(roles: {person_id: editor_id})
 
-        if editor_id_or
+        if editor_id_all
           q
             .group(:id)
             .having("count(images.id) = #{editor_id.length}")
@@ -560,10 +560,30 @@ module Queries
             owner_id, owner_organization_id
           )
 
-        if owner_id_or
+        if owner_id_all
           q
             .group(:id)
             .having("count(images.id) = #{owner_id.length + owner_organization_id.length}")
+        else
+          q.distinct
+        end
+      end
+
+      def copyright_holder_facet
+        return nil if copyright_holder_id.empty? &&
+          copyright_holder_organization_id.empty?
+
+        q = ::Image
+          .joins(attribution: :roles)
+          .where(roles: {type: 'AttributionCopyrightHolder'})
+          .where('roles.person_id IN (?) OR roles.organization_id IN (?)',
+            copyright_holder_id, copyright_holder_organization_id
+          )
+
+        if copyright_holder_id_all
+          q
+            .group(:id)
+            .having("count(images.id) = #{copyright_holder_id.length + copyright_holder_organization_id.length}")
         else
           q.distinct
         end
