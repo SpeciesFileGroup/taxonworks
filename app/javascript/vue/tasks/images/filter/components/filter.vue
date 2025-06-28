@@ -38,6 +38,32 @@
     :role-type="[ROLE_ATTRIBUTION_CREATOR]"
     v-model="params"
   />
+  <FacetPeople
+    title="Editor"
+    klass="Image"
+    param-people="editor_id"
+    param-any="editor_id_or"
+    :role-type="[ROLE_ATTRIBUTION_EDITOR]"
+    v-model="params"
+  />
+  <FacetPeopleOrOrganizations
+    title="Owner"
+    klass="Image"
+    param-people="owner_id"
+    param-organization="owner_organization_id"
+    param-any="owner_id_or"
+    :role-type="[ROLE_ATTRIBUTION_OWNER]"
+    v-model="params"
+  />
+  <FacetPeopleOrOrganizations
+    title="Copyright holder"
+    klass="Image"
+    param-people="copyright_holder_id"
+    param-organization="copyright_holder_organization_id"
+    param-any="copyright_holder_id_or"
+    :role-type="[ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]"
+    v-model="params"
+  />
   <FacetTags
     target="Image"
     v-model="params"
@@ -55,7 +81,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { ROLE_ATTRIBUTION_CREATOR } from '@/constants'
+import { ROLE_ATTRIBUTION_COPYRIGHT_HOLDER, ROLE_ATTRIBUTION_CREATOR, ROLE_ATTRIBUTION_EDITOR, ROLE_ATTRIBUTION_OWNER } from '@/constants'
 import FacetCollectionObject from '@/components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetBiocurations from '@/components/Filter/Facets/CollectionObject/FacetBiocurations.vue'
@@ -70,6 +96,7 @@ import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchI
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetFieldOccurrence from '@/components/Filter/Facets/FieldOccurrence/FacetFieldOccurrence.vue'
 import FacetPeople from '@/components/Filter/Facets/shared/FacetPeople.vue'
+import FacetPeopleOrOrganizations from '@/components/Filter/Facets/shared/FacetPeopleOrOrganizations.vue'
 
 const props = defineProps({
   modelValue: {
