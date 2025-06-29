@@ -8,9 +8,12 @@ module Queries
         :biocuration_class_id,
         :collection_object_id,
         :collection_object_scope,
+        :copyright_after_year,
         :copyright_holder_id,
         :copyright_holder_id_all,
         :copyright_holder_organization_id,
+        :copyright_prior_to_year,
+        :copyright_year,
         :creator_id,
         :creator_id_all,
         :depiction_object_type,
@@ -230,6 +233,21 @@ module Queries
       #   here.
       attr_accessor :source_id
 
+      # @return [Number]
+      # @param copyright_after_year [Number]
+      #   Images match if their copyright year is > copyright_after_year
+      attr_accessor :copyright_after_year
+
+      # @return [Number]
+      # @param copyright_prior_to_year [Number]
+      #   Images match if their copyright year is < copyright_prior_to_year
+      attr_accessor :copyright_prior_to_year
+
+      # @return [Number]
+      # @param copyright_year [Number]
+      #   Images match if their copyright year == copyright_year
+      attr_accessor :copyright_year
+
       # @param params [Hash]
       def initialize(query_params)
         super
@@ -237,10 +255,13 @@ module Queries
         @biocuration_class_id = params[:biocuration_class_id]
         @collection_object_id = params[:collection_object_id]
         @collection_object_scope = params[:collection_object_scope]
+        @copyright_after_year = params[:copyright_after_year]
         @copyright_holder_id = params[:copyright_holder_id]
         @copyright_holder_id_all = boolean_param(params, :copyright_holder_id_all)
         @copyright_holder_organization_id =
           params[:copyright_holder_organization_id]
+        @copyright_prior_to_year = params[:copyright_prior_to_year]
+        @copyright_year = params[:copyright_year]
         @creator_id = params[:creator_id]
         @creator_id_all = boolean_param(params, :creator_id_all)
         @depiction_object_type = params[:depiction_object_type]
@@ -625,6 +646,29 @@ module Queries
         ::Image.joins(:attribution).where(attribution: { license: }).distinct
       end
 
+      def copyright_year_facet
+        return nil if copyright_year.nil? && copyright_after_year.nil? &&
+          copyright_prior_to_year.nil?
+
+        if copyright_year
+          a = ::Image.joins(:attribution).where(attribution: { copyright_year: })
+          return a
+        end
+
+        t = ::Attribution.arel_table
+        if copyright_after_year && copyright_prior_to_year.nil?
+          y = t[:copyright_year].gt(copyright_after_year)
+        elsif copyright_after_year.nil? && copyright_prior_to_year
+          y = t[:copyright_year].lt(copyright_prior_to_year)
+        else
+          y = t[:copyright_year].gt(copyright_after_year).and(
+              t[:copyright_year].lt(copyright_prior_to_year)
+            )
+        end
+
+        ::Image.joins(:attribution).where(y)
+      end
+
       def images_on(t, t_id)
         ::Image.joins(t).where(**{t => {id: t_id}})
       end
@@ -805,6 +849,7 @@ module Queries
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
           biocuration_facet,
           collection_object_scope_facet,
+          copyright_year_facet,
           creator_facet,
           editor_facet,
           depiction_object_type_facet,

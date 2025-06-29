@@ -37,7 +37,6 @@ const params = defineModel({
   type: Object,
   default: () => ({})
 })
-params.value[props.paramLicenses] ||= []
 
 const licenses = ref([])
 
@@ -45,7 +44,8 @@ watch(
   () => params.value[props.paramLicenses],
   () => {
     params.value[props.paramLicenses] ||= []
-  }
+  },
+  { immediate: true }
 )
 
 onBeforeMount(() => {

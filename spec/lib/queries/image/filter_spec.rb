@@ -411,6 +411,9 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     let(:attribution2) { FactoryBot.create(:valid_attribution,
       attribution_object: i2) }
 
+    let(:attribution3) { FactoryBot.create(:valid_attribution,
+      attribution_object: i3) }
+
     let(:p1) { FactoryBot.create(:valid_person) }
     let(:p2) { FactoryBot.create(:valid_person) }
 
@@ -564,8 +567,60 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
 
       q.license = 'Attribution-NoDerivs'
 
-      i3 # not this one
+      i3 # not this one either
       expect(q.all.map(&:id)).to contain_exactly(i2.id)
+    end
+
+    specify 'copyright year' do
+      attribution1.copyright_year = 1930
+      attribution2.copyright_year = 1990
+      attribution1.save!
+      attribution2.save!
+
+      q.copyright_year = 1990
+
+      i3 # not this one either
+      expect(q.all.map(&:id)).to contain_exactly(i2.id)
+    end
+
+    specify 'copyright year after' do
+      attribution1.copyright_year = 1930
+      attribution2.copyright_year = 1990
+      attribution3.copyright_year = 1931
+      attribution1.save!
+      attribution2.save!
+      attribution3.save!
+
+      q.copyright_after_year = 1930
+
+      expect(q.all.map(&:id)).to contain_exactly(i2.id, i3.id)
+    end
+
+    specify 'copyright year prior to' do
+      attribution1.copyright_year = 1930
+      attribution2.copyright_year = 1990
+      attribution3.copyright_year = 1989
+      attribution1.save!
+      attribution2.save!
+      attribution3.save!
+
+      q.copyright_prior_to_year = 1990
+
+      expect(q.all.map(&:id)).to contain_exactly(i1.id, i3.id)
+    end
+
+    specify 'copyright year between' do
+      attribution1.copyright_year = 1930
+      attribution2.copyright_year = 1990
+      attribution3.copyright_year = 1931
+      attribution1.save!
+      attribution2.save!
+      attribution3.save!
+
+      q.copyright_after_year = 1930
+      q.copyright_prior_to_year = 1940
+
+      expect(q.all.map(&:id)).to contain_exactly(i3.id)
     end
   end
 end

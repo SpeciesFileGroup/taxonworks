@@ -73,6 +73,12 @@
     param-licenses="license"
     v-model="params"
   />
+  <FacetYears
+    param-year="copyright_year"
+    param-prior-to="copyright_prior_to_year"
+    param-after="copyright_after_year"
+    v-model="params"
+  />
   <FacetTags
     target="Image"
     v-model="params"
@@ -108,6 +114,7 @@ import FacetPeople from '@/components/Filter/Facets/shared/FacetPeople.vue'
 import FacetPeopleOrOrganizations from '@/components/Filter/Facets/shared/FacetPeopleOrOrganizations.vue'
 import FacetSource from '@/components/Filter/Facets/shared/FacetSource.vue'
 import FacetLicenses from '@/components/Filter/Facets/shared/FacetLicenses.vue'
+import FacetYears from '@/components/Filter/Facets/shared/FacetYears.vue'
 
 const props = defineProps({
   modelValue: {
