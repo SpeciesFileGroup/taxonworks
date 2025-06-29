@@ -1,6 +1,6 @@
 <template>
   <FacetContainer>
-    <h3>Licenses</h3>
+    <h3>License</h3>
     <ul class="no_bullets">
       <li
         v-for="lic in licenses"
@@ -12,8 +12,13 @@
             :value="lic.key"
             v-model="params[paramLicenses]"
             type="checkbox"
+            class="margin-small-right"
           />
-          <span>{{ lic.label }}</span>
+          <a
+            :href="lic.link"
+          >
+            {{ lic.name }}
+          </a>
         </label>
       </li>
     </ul>
@@ -52,7 +57,8 @@ onBeforeMount(() => {
   Attribution.licenses().then(({ body }) => {
     licenses.value = Object.entries(body).map(([key, { name, link }]) => ({
       key,
-      label: `${name}: ${link}`
+      name,
+      link
     }))
 
     const urlParams = URLParamsToJSON(location.href)

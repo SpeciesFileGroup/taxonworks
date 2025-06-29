@@ -170,7 +170,7 @@ module Queries
 
       # @return [Array]
       # @param creator_id [Array or Person#id]
-      #   one ore more people id
+      #   one or more people id
       attr_accessor :creator_id
 
       # @return [Boolean]
@@ -181,7 +181,7 @@ module Queries
 
       # @return [Array]
       # @param editor_id [Array or Person#id]
-      #   one ore more people id
+      #   one or more people id
       attr_accessor :editor_id
 
       # @return [Boolean]
@@ -197,12 +197,12 @@ module Queries
 
       # @return [Array]
       # @param owner_id [Array or Person#id]
-      #   one ore more people id
+      #   one or more people id
       attr_accessor :owner_id
 
       # @return [Array]
       # @param owner_organization_id [Array or Organization#id]
-      #   one ore more organization ids
+      #   one or more organization ids
       attr_accessor :owner_organization_id
 
       # @return [Boolean]
@@ -213,12 +213,12 @@ module Queries
 
       # @return [Array]
       # @param copyright_holder_id [Array or Person#id]
-      #   one ore more people id
+      #   one or more people id
       attr_accessor :copyright_holder_id
 
       # @return [Array]
       # @param copyright_holder_organization_id [Array or Organization#id]
-      #   one ore more organization ids
+      #   one or more organization ids
       attr_accessor :copyright_holder_organization_id
 
       # @return [Boolean]
@@ -866,6 +866,7 @@ module Queries
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
           biocuration_facet,
           collection_object_scope_facet,
+          copyright_holder_facet,
           copyright_year_facet,
           creator_facet,
           editor_facet,

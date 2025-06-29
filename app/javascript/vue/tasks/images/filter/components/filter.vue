@@ -64,6 +64,12 @@
     :role-type="[ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]"
     v-model="params"
   />
+  <FacetYears
+    param-year="copyright_year"
+    param-prior-to="copyright_prior_to_year"
+    param-after="copyright_after_year"
+    v-model="params"
+  />
   <FacetSource
     klass="Image"
     param-source="source_id"
@@ -71,12 +77,6 @@
   />
   <FacetLicenses
     param-licenses="license"
-    v-model="params"
-  />
-  <FacetYears
-    param-year="copyright_year"
-    param-prior-to="copyright_prior_to_year"
-    param-after="copyright_after_year"
     v-model="params"
   />
   <FacetText
