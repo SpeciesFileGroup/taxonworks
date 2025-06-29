@@ -16,6 +16,7 @@ module Queries
         :copyright_year,
         :creator_id,
         :creator_id_all,
+        :depiction_caption,
         :depiction_object_type,
         :depictions,
         :editor_id,
@@ -248,6 +249,12 @@ module Queries
       #   Images match if their copyright year == copyright_year
       attr_accessor :copyright_year
 
+      # @return [String]
+      # @param depiction_caption [String]
+      #   Images match if they have a depiction whose caption matches
+      #   depiction_caption.
+      attr_accessor :depiction_caption
+
       # @param params [Hash]
       def initialize(query_params)
         super
@@ -264,6 +271,7 @@ module Queries
         @copyright_year = params[:copyright_year]
         @creator_id = params[:creator_id]
         @creator_id_all = boolean_param(params, :creator_id_all)
+        @depiction_caption = params[:depiction_caption]
         @depiction_object_type = params[:depiction_object_type]
         @depictions = boolean_param(params, :depictions)
         @editor_id = params[:editor_id]
@@ -669,6 +677,15 @@ module Queries
         ::Image.joins(:attribution).where(y)
       end
 
+      def depiction_caption_facet
+        return nil if depiction_caption.nil?
+
+        caption = "%#{depiction_caption.strip.gsub(/\s+/, '%')}%"
+        ::Image
+          .joins(:depictions)
+          .where('depictions.caption ILIKE ?', caption)
+      end
+
       def images_on(t, t_id)
         ::Image.joins(t).where(**{t => {id: t_id}})
       end
@@ -852,6 +869,7 @@ module Queries
           copyright_year_facet,
           creator_facet,
           editor_facet,
+          depiction_caption_facet,
           depiction_object_type_facet,
           depictions_facet,
           field_occurrence_scope_facet,

@@ -404,6 +404,26 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
+  specify 'depiction_caption substring' do
+    Depiction.create!(depiction_object: o, image: i1, caption: 'bonkers')
+    Depiction.create!(depiction_object: o, image: i2, caption: 'Kevin')
+
+    q.depiction_caption = 'onk'
+
+    i3 # not this one
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify 'depiction_caption match across whitespace' do
+    Depiction.create!(depiction_object: o, image: i1, caption: 'bonkers wint baloo')
+    Depiction.create!(depiction_object: o, image: i2, caption: 'cuckoo')
+
+    q.depiction_caption = 'onk aloo'
+
+    i3 # not this one
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   context 'attributions' do
     let!(:attribution1) { FactoryBot.create(:valid_attribution,
       attribution_object: i1) }

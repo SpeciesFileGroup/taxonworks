@@ -79,6 +79,10 @@
     param-after="copyright_after_year"
     v-model="params"
   />
+  <FacetText
+    param-text="depiction_caption"
+    v-model="params"
+  />
   <FacetTags
     target="Image"
     v-model="params"
@@ -115,6 +119,7 @@ import FacetPeopleOrOrganizations from '@/components/Filter/Facets/shared/FacetP
 import FacetSource from '@/components/Filter/Facets/shared/FacetSource.vue'
 import FacetLicenses from '@/components/Filter/Facets/shared/FacetLicenses.vue'
 import FacetYears from '@/components/Filter/Facets/shared/FacetYears.vue'
+import FacetText from '@/components/Filter/Facets/shared/FacetText.vue'
 
 const props = defineProps({
   modelValue: {
