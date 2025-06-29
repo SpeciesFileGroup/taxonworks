@@ -7,12 +7,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Radial mass annotatior: Add `is original` to citations slice
+- New FO: `Lock/Unlock all` shortcut
+
 ### Fixed
 
+- Soft validation fix for combinations of plant names.
 - Soft validation "Fix" buttons not working [#4450]
 - Error radius not rendering in Georeference panel [#4448]
 - Issues pop-up screen not rendering properly [#4447]
 - Prevent cycles in SerialChronology (no accompanying data migration, remove bad data manually)
+- Biocuration lock "lost" when rapidly creating records [#4415]
 
 ### Changed
 
@@ -20,10 +27,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rename `Download nomenclature (basic)` to `Download taxon names (basic)`
 - Rename `Nomenclature stats` to `Taxon names stats`
 - Rename `Synchronize nomenclature and OTUs` to `Synchronize taxon names and OTUs`
+- Topic facet: Show all topics in a modal [#4456]
 
+[#4415]: https://github.com/SpeciesFileGroup/taxonworks/issues/4415
 [#4447]: https://github.com/SpeciesFileGroup/taxonworks/issues/4447
 [#4448]: https://github.com/SpeciesFileGroup/taxonworks/issues/4448
 [#4450]: https://github.com/SpeciesFileGroup/taxonworks/issues/4450
+[#4456]: https://github.com/SpeciesFileGroup/taxonworks/issues/4456
 
 ## [0.52.1] - 2025-06-17
 

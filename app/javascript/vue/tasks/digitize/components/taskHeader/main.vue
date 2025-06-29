@@ -154,12 +154,14 @@ import SoftValidation from './softValidation'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
+import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
 
 const MAX_CO_LIMIT = 100
 
 const store = useStore()
 const collectingEventStore = useCollectingEventStore()
 const biologicalAssociationStore = useBiologicalAssociationStore()
+const biocurationStore = useBiocurationStore()
 
 const confirmationModalRef = ref(null)
 const shortcuts = ref([
@@ -204,7 +206,8 @@ const hasChanges = computed(
   () =>
     settings.value.lastChange > settings.value.lastSave ||
     collectingEventStore.isUnsaved ||
-    biologicalAssociationStore.hasUnsaved
+    biologicalAssociationStore.hasUnsaved ||
+    biocurationStore.hasUnsaved
 )
 
 const underThreshold = computed(

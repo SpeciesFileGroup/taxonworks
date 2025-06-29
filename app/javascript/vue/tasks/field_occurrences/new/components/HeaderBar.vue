@@ -179,12 +179,7 @@ function reset() {
     ceStore.reset()
   }
 
-  if (locked.biocurations) {
-    biocurationStore.resetIds()
-  } else {
-    biocurationStore.list = []
-  }
-
+  biocurationStore.reset({ keepRecords: locked.biocurations })
   originRelationshipStore.$reset()
   depictionStore.$reset()
   determinationStore.reset({ keepRecords: locked.taxonDeterminations })
@@ -278,6 +273,13 @@ const hotkeys = ref([
     handler() {
       reset()
     }
+  },
+  {
+    keys: [platformKey(), 'l'],
+    preventDefault: true,
+    handler() {
+      settings.toggleLock()
+    }
   }
 ])
 
@@ -296,6 +298,12 @@ TW.workbench.keyboard.createLegend(
 TW.workbench.keyboard.createLegend(
   `${platformKey()}+r`,
   'Reset all',
+  'New field occurrence'
+)
+
+TW.workbench.keyboard.createLegend(
+  `${platformKey()}+l`,
+  'Lock/Unlock all',
   'New field occurrence'
 )
 </script>
