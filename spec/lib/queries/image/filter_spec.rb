@@ -393,6 +393,17 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
+  specify 'source_id' do
+    s1 = FactoryBot.create(:valid_source, title: 'pickles')
+    s2 = FactoryBot.create(:valid_source, title: 'ginger')
+    i1.citations << Citation.new(source: s1)
+
+    q.source_id = [s1.id, s2.id]
+
+    i2 # not this one
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   context 'attributions' do
     let!(:attribution1) { FactoryBot.create(:valid_attribution,
       attribution_object: i1) }
@@ -543,6 +554,18 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
 
       i3 # not this one
       expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
+    end
+
+    specify 'license' do
+      attribution1.license = 'Attribution-ShareAlike'
+      attribution2.license = 'Attribution-NoDerivs'
+      attribution1.save!
+      attribution2.save!
+
+      q.license = 'Attribution-NoDerivs'
+
+      i3 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i2.id)
     end
   end
 end

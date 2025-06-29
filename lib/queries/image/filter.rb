@@ -21,6 +21,7 @@ module Queries
         :field_occurrence_scope,
         :freeform_svg,
         :image_id,
+        :license,
         :owner_id,
         :owner_id_all,
         :owner_organization_id,
@@ -45,6 +46,7 @@ module Queries
         field_occurrence_id: [],
         field_occurrence_scope: [],
         image_id: [],
+        license: [],
         otu_id: [],
         otu_scope: [],
         owner_id: [],
@@ -185,6 +187,11 @@ module Queries
       attr_accessor :editor_id_all
 
       # @return [Array]
+      # @param license [Array or String]
+      #    string keys of the CREATIVE_COMMONS_LICENSES list
+      attr_accessor :license
+
+      # @return [Array]
       # @param owner_id [Array or Person#id]
       #   one ore more people id
       attr_accessor :owner_id
@@ -216,6 +223,13 @@ module Queries
       #   'true' - treat the ids in copyright_holder_id as "and" (only images with all and only all will match)
       attr_accessor :copyright_holder_id_all
 
+      # @return [Array]
+      # @param source_id [Array or Source#id]
+      #   One or more source_ids cited by matching images. Note that a given
+      #   image may only have one citation, so the 'all' option doesn't exist
+      #   here.
+      attr_accessor :source_id
+
       # @param params [Hash]
       def initialize(query_params)
         super
@@ -237,6 +251,7 @@ module Queries
         @field_occurrence_scope = params[:field_occurrence_scope]
         @freeform_svg = boolean_param(params, :freeform_svg)
         @image_id = params[:image_id]
+        @license = params[:license]
         @otu_id = params[:otu_id]
         @otu_scope = params[:otu_scope]
         @owner_id = params[:owner_id]
@@ -244,6 +259,7 @@ module Queries
         @owner_organization_id = params[:owner_organization_id]
         @sled_image = boolean_param(params, :sled_image)
         @sled_image_id = params[:sled_image_id]
+        @source_id = params[:source_id]
         @sqed_depiction_id = params[:sqed_depiction_id]
         @sqed_image = boolean_param(params, :sqed_image)
         @taxon_name_id = params[:taxon_name_id]
@@ -298,6 +314,10 @@ module Queries
         [ @field_occurrence_scope ].flatten.compact.map(&:to_sym)
       end
 
+      def license
+        [ @license ].flatten.compact.uniq.map(&:to_s)
+      end
+
       def otu_id
         [ @otu_id ].flatten.compact
       end
@@ -326,6 +346,10 @@ module Queries
 
       def sled_image_id
         [ @sled_image_id ].flatten.compact
+      end
+
+      def source_id
+        [ @source_id ].flatten.compact
       end
 
       def sqed_depiction_id
@@ -589,6 +613,18 @@ module Queries
         end
       end
 
+      def source_facet
+        return nil if source_id.empty?
+
+        ::Image.joins(:citations).where(citations: { source_id: })
+      end
+
+      def license_facet
+        return nil if license.empty?
+
+        ::Image.joins(:attribution).where(attribution: { license: }).distinct
+      end
+
       def images_on(t, t_id)
         ::Image.joins(t).where(**{t => {id: t_id}})
       end
@@ -775,11 +811,13 @@ module Queries
           depictions_facet,
           field_occurrence_scope_facet,
           freeform_svg_facet,
+          license_facet,
           otu_id_facet,
           otu_scope_facet,
           owner_facet,
           sled_image_facet,
           sled_image_id_facet,
+          source_facet,
           sqed_image_facet,
           sqed_depiction_id_facet,
           sqed_image_facet,

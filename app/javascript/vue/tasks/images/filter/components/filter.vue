@@ -67,7 +67,10 @@
   <FacetSource
     klass="Image"
     param-source="source_id"
-    param-all="source_id_all"
+    v-model="params"
+  />
+  <FacetLicenses
+    param-licenses="license"
     v-model="params"
   />
   <FacetTags
@@ -104,6 +107,7 @@ import FacetFieldOccurrence from '@/components/Filter/Facets/FieldOccurrence/Fac
 import FacetPeople from '@/components/Filter/Facets/shared/FacetPeople.vue'
 import FacetPeopleOrOrganizations from '@/components/Filter/Facets/shared/FacetPeopleOrOrganizations.vue'
 import FacetSource from '@/components/Filter/Facets/shared/FacetSource.vue'
+import FacetLicenses from '@/components/Filter/Facets/shared/FacetLicenses.vue'
 
 const props = defineProps({
   modelValue: {
