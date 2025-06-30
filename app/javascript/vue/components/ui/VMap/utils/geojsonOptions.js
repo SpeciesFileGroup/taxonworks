@@ -44,7 +44,10 @@ export default ({ L }) => ({
     const marker = radius
       ? L.circle(latLng, Number(layer.properties.radius))
       : L.marker(latLng, {
-          icon: L.divIcon(markerStyle)
+          icon: L.divIcon({
+            ...markerStyle,
+            ...feature.properties.style
+          })
         })
 
     return marker
