@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rename `Nomenclature stats` to `Taxon names stats`
 - Rename `Synchronize nomenclature and OTUs` to `Synchronize taxon names and OTUs`
 - Topic facet: Show all topics in a modal [#4456]
+- Updated Ruby gems
 
 [#4415]: https://github.com/SpeciesFileGroup/taxonworks/issues/4415
 [#4447]: https://github.com/SpeciesFileGroup/taxonworks/issues/4447
