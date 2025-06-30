@@ -433,11 +433,10 @@ module Queries
           :geo_shape_id,
           :geo_shape_type,
           :wkt,
-        ].each
-          .each do |p|
-            v = send(p)
-            h[p] = v if v.present?
-          end
+        ].each do |p|
+          v = send(p)
+          h[p] = v if v.present?
+        end
         h
       end
 
@@ -533,10 +532,12 @@ module Queries
         base_otu_query(p)
       end
 
+      # Unused
       def otu_facet
         subject_object_scope(subject_otu_query, object_otu_query, 'Otu' )
       end
 
+      # Unused
       def collection_object_facet
         subject_object_scope(subject_collection_object_query, object_collection_object_query, 'CollectionObject' )
       end
@@ -553,37 +554,33 @@ module Queries
         a = send((target + '_otu_query').to_sym)
         b = send((target + '_collection_object_query').to_sym)
 
-        a_sql, b_sql = nil, nil
+        a_query, b_query = nil, nil
 
         if !a.nil? && !a.only_project?
-          a_sql = a.all.to_sql
+          a_query = a.all
         end
 
         if !b.nil? && !b.only_project?
-          b_sql = b.all.to_sql
+          b_query = b.all
         end
 
-        return nil if a_sql.nil? and b_sql.nil?
-
-        # Setup for "WITH" use
-        a_with = "WITH a_#{target}_objects AS (" + a_sql + ') ' if a_sql
-        b_with = "WITH b_#{target}_objects AS (" + b_sql + ') ' if b_sql
+        return nil if a_query.nil? && b_query.nil?
 
         d, e = nil, nil
 
-        if a_with
-          d = a_with + ::BiologicalAssociation
-            .joins("JOIN a_#{target}_objects as a_#{target}_objects1 on a_#{target}_objects1.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'Otu'").to_sql
+        if a_query
+          d = ::BiologicalAssociation
+            .with(a: a_query)
+            .joins("JOIN a ON a.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'Otu'")
         end
 
-        if b_with
-          e = b_with + ::BiologicalAssociation
-            .joins("JOIN b_#{target}_objects as b_#{target}_objects1 on b_#{target}_objects1.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'CollectionObject'").to_sql
+        if b_query
+          e = ::BiologicalAssociation
+            .with(b: b_query)
+            .joins("JOIN b ON b.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'CollectionObject'")
         end
 
-        ::BiologicalAssociation.from(
-          '(' + [d,e].compact.collect{|q| '(' + q + ')'}.join(' UNION ') + ') as biological_associations'
-        )
+        referenced_klass_union([d,e])
       end
 
       # Merges results from Otu and CollectionObject filters
@@ -596,16 +593,13 @@ module Queries
 
         case taxon_name_id_mode
         when true # and
-          ::BiologicalAssociation.from(
-            '(' + [a,b].compact.collect{|q| '(' + q.to_sql + ')'}.join(' INTERSECT ') + ') as biological_associations'
-          )
+          referenced_klass_intersection([a,b])
         when false, nil # or
-          ::BiologicalAssociation.from(
-            '(' + [a,b].compact.collect{|q| '(' + q.to_sql + ')'}.join(' UNION ') + ') as biological_associations'
-          )
+          referenced_klass_union([a,b])
         end
       end
 
+      # Unused
       # rubocop:disable Metrics/MethodLength
       # This is "or"
       def subject_object_scope(subject_query, object_query, target = 'Otu')
