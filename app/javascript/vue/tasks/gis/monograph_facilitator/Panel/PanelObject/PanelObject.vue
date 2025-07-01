@@ -1,5 +1,5 @@
 <template>
-  <div class="panel panel-attributes">
+  <div class="panel-attributes">
     <PanelAttributeGroup
       v-for="group in store.groups"
       :key="group.determination.id"
@@ -17,5 +17,10 @@ const store = useStore()
 
 <style scoped>
 .panel-attributes {
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-width: 400px;
+  width: 400px;
 }
 </style>

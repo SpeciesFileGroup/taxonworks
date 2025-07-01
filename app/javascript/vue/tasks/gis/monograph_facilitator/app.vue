@@ -4,7 +4,7 @@
     v-if="store.isLoading"
     full-screen
   />
-  <div class="horizontal-left-content gap-medium align-start">
+  <div class="app-container horizontal-left-content gap-medium align-start">
     <PanelObject />
     <PanelMap />
   </div>
@@ -30,3 +30,10 @@ onBeforeMount(() => {
   store.load(queryValue.value)
 })
 </script>
+
+<style scoped>
+.app-container {
+  max-height: calc(100vh - 16rem);
+  height: calc(100vh - 16rem);
+}
+</style>

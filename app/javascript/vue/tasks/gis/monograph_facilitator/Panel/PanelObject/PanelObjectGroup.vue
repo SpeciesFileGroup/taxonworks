@@ -78,19 +78,19 @@ const selectAll = computed({
   }
 
   .group-label {
-    width: 380px;
-    max-width: 380px;
+    width: 360px;
+    max-width: 360px;
   }
 
   .group-header {
-    width: 380px;
-    max-width: 380px;
+    width: 360px;
+    max-width: 360px;
   }
 
   .group-list {
     li {
-      width: 380px;
-      max-width: 380px;
+      width: 360px;
+      max-width: 360px;
       padding: 0.5rem;
       box-sizing: border-box;
       border-bottom: 1px solid var(--border-color);

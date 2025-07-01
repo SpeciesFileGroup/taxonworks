@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { Georeference, CollectionObject } from '@/routes/endpoints'
 import { getUnique, randomHue } from '@/helpers'
+import { toRaw } from 'vue'
 
 const extend = ['taxon_determinations']
 
@@ -48,7 +49,7 @@ export default defineStore('monographFacilitator', {
   }),
 
   getters: {
-    getGeoreferenceOtuId(state) {
+    getGeoreferenceByOtuId(state) {
       return (otuId) => {
         const objects = state.objects.filter(
           (o) => o.determination.otuId === otuId
@@ -66,7 +67,7 @@ export default defineStore('monographFacilitator', {
         const georeference = state.georeferences.find((g) => g.id === id)
 
         return state.objects.filter(
-          (o) => o.collectingEventId === georeference.id
+          (o) => o.collectingEventId === georeference.collecting_event_id
         )
       }
     },
@@ -76,8 +77,8 @@ export default defineStore('monographFacilitator', {
         .map((group) => {
           const otuId = group.determination.otuId
           const features = state
-            .getGeoreferenceOtuId(otuId)
-            .map((g) => makeFeatureProperties(g.geo_json, group.color))
+            .getGeoreferenceByOtuId(otuId)
+            .map((g) => toRaw(makeFeatureProperties(g.geo_json, group.color)))
 
           return features
         })

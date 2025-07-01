@@ -1,4 +1,4 @@
-export function setRectangleSelectTool(map) {
+export function setRectangleSelectTool({ map, layerGroup, callback }) {
   let startPoint = null
   let selectionRect = null
   let isSelecting = false
@@ -42,7 +42,7 @@ export function setRectangleSelectTool(map) {
 
     const selected = []
 
-    map.eachLayer((layer) => {
+    layerGroup.eachLayer((layer) => {
       if (!layer || layer === selectionRect) return
 
       if (layer.getLatLng && bounds.contains(layer.getLatLng())) {
@@ -52,7 +52,7 @@ export function setRectangleSelectTool(map) {
       }
     })
 
-    console.log('Selected:', selected)
+    callback(selected)
   }
 
   enableBoxSelect()

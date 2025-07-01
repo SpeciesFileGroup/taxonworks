@@ -184,6 +184,7 @@ const emit = defineEmits([
   'layer:edit',
   'layer:remove',
   'layer:update',
+  'select',
   'update:geojson'
 ])
 
@@ -233,7 +234,11 @@ onMounted(() => {
   addDrawControllers()
   handleEvents()
 
-  setRectangleSelectTool(mapObject)
+  setRectangleSelectTool({
+    map: mapObject,
+    callback: select,
+    layerGroup: drawnItems
+  })
 
   mapObject.pm.setGlobalOptions({
     tooltips: props.tooltips,
@@ -249,7 +254,7 @@ onMounted(() => {
   }
 })
 
-const resizeMap = () => {
+function resizeMap() {
   mapObject.invalidateSize()
 
   if (props.fitBounds) {
@@ -257,7 +262,13 @@ const resizeMap = () => {
   }
 }
 
-const initEvents = () => {
+function select(layers) {
+  const payload = layers.map((layer) => makeLayerPayload(layer))
+
+  emit('select', payload)
+}
+
+function initEvents() {
   observeMap = new ResizeObserver((entries) => {
     const { width } = entries[0].contentRect
 
@@ -283,7 +294,7 @@ function getControls(show) {
 function addEventsToLayer(layer) {
   const makeEventPayload = (event) => ({
     event,
-    ...makeLayerPayload({ layer })
+    ...makeLayerPayload(layer)
   })
 
   layer.on('click', (event) => emit('layer:click', makeEventPayload(event)))
@@ -328,11 +339,10 @@ const addDrawControllers = () => {
   }
 }
 
-function makeLayerPayload(e) {
-  const layer = e.layer
+function makeLayerPayload(layer) {
   const feature = makeGeoJSONObject(layer)
 
-  if (e.layerType === 'circle') {
+  if (layer instanceof L.Circle) {
     feature.properties.radius = layer.getRadius()
   }
 
@@ -345,17 +355,17 @@ function handleEvents() {
   })
 
   mapObject.on('pm:create', (e) => {
-    emit('layer:create', makeLayerPayload(e))
+    emit('layer:create', makeLayerPayload(e.layer))
     emit('update:geojson', drawnItems.toGeoJSON())
   })
 
   drawnItems.on('pm:update', (e) => {
-    emit('layer:update', makeLayerPayload(e))
+    emit('layer:update', makeLayerPayload(e.layer))
     emit('update:geojson', drawnItems.toGeoJSON())
   })
 
   mapObject.on('pm:remove', (e) => {
-    emit('layer:remove', makeLayerPayload(e))
+    emit('layer:remove', makeLayerPayload(e.layer))
     emit('update:geojson', drawnItems.toGeoJSON())
   })
 }
