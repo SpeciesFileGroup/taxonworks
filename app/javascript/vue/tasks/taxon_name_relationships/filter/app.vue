@@ -21,6 +21,37 @@
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
+      <template #nav-options-left>
+        <div
+          class="horizontal-left-content middle margin-small-right gap-small"
+        >
+          Subject/Object
+          <div class="square-brackets">
+            <ul class="no_bullets context-menu">
+              <li>
+                <RadialFilter
+                  title="Radial Filter (Subject)"
+                  :ids="subjectIds"
+                  :parameters="parameters"
+                  :disabled="!subjectIds.length"
+                  :object-type="TAXON_NAME_RELATIONSHIP"
+                  :id-param="ID_PARAM_FOR[TAXON_NAME]"
+                />
+              </li>
+              <li>
+                <RadialFilter
+                  title="Radial Filter (Object)"
+                  :ids="objectIds"
+                  :parameters="parameters"
+                  :disabled="!objectIds.length"
+                  :object-type="TAXON_NAME_RELATIONSHIP"
+                  :id-param="ID_PARAM_FOR[TAXON_NAME]"
+                />
+              </li>
+            </ul>
+          </div>
+        </div>
+      </template>
       <template #table>
         <ListResults
           v-model="selectedIds"
@@ -45,8 +76,15 @@ import FilterComponent from './components/filter.vue'
 import ListResults from './components/ListResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import { TAXON_NAME_RELATIONSHIP } from '@/constants/index.js'
+import RadialFilter from '@/components/radials/filter/radial.vue'
+import { TAXON_NAME_RELATIONSHIP, TAXON_NAME } from '@/constants/index.js'
 import { TaxonNameRelationship } from '@/routes/endpoints'
+import { computed } from 'vue'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
+
+defineOptions({
+  name: 'FilterTaxonNameRelationships'
+})
 
 const {
   isLoading,
@@ -60,10 +98,19 @@ const {
   makeFilterRequest,
   resetFilter
 } = useFilter(TaxonNameRelationship)
-</script>
 
-<script>
-export default {
-  name: 'FilterTaxonNameRelationships'
-}
+const subjectIds = computed(() => [
+  ...new Set(
+    selectedIds.value.map(
+      (id) => list.value.find((item) => item.id === id).subject_taxon_name_id
+    )
+  )
+])
+const objectIds = computed(() => [
+  ...new Set(
+    selectedIds.value.map(
+      (id) => list.value.find((item) => item.id === id).object_taxon_name_id
+    )
+  )
+])
 </script>

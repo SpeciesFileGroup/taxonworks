@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import {
   STORAGE_FILTER_QUERY_KEY,
   STORAGE_FILTER_QUERY_STATE_PARAMETER
@@ -74,8 +74,18 @@ const props = defineProps({
     default: undefined
   },
 
+  title: {
+    type: String,
+    default: 'Radial Filter'
+  },
+
   ids: {
     type: Array,
+    default: undefined
+  },
+
+  idParam: {
+    type: String,
     default: undefined
   }
 })
@@ -94,8 +104,8 @@ const filteredParameters = computed(() => {
 
 const title = computed(() =>
   isOnlyIds.value
-    ? 'Radial Filter (Send checked rows to filter)'
-    : 'Radial Filter (Send full request to filter)'
+    ? `${props.title} (Send checked rows to filter)`
+    : `${props.title} (Send full request to filter)`
 )
 
 const isOnlyIds = computed(() => Array.isArray(props.ids))
@@ -107,7 +117,7 @@ const filterLinks = computed(() => {
 
 const queryObject = computed(() => {
   const params = isOnlyIds.value
-    ? { [ID_PARAM_FOR[props.objectType]]: props.ids }
+    ? { [props.idParam || ID_PARAM_FOR[props.objectType]]: props.ids }
     : { ...filteredParameters.value }
 
   return { [QUERY_PARAM[props.objectType]]: params }

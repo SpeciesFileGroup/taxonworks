@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Radial mass annotatior: Add `is original` to citations slice
 - New FO: `Lock/Unlock all` shortcut
+- Filter taxon name relationship: Add radial filter for subject/object [#4461]
 
 ### Fixed
 
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4448]: https://github.com/SpeciesFileGroup/taxonworks/issues/4448
 [#4450]: https://github.com/SpeciesFileGroup/taxonworks/issues/4450
 [#4456]: https://github.com/SpeciesFileGroup/taxonworks/issues/4456
+[#4461]: https://github.com/SpeciesFileGroup/taxonworks/issues/4461
 
 ## [0.52.1] - 2025-06-17
 
