@@ -3,10 +3,18 @@
     <h3> {{ title }} </h3>
     <div class="field">
       <input
+        type="text"
         v-model="params[paramText]"
         class="full_width"
       />
     </div>
+    <label>
+      <input
+        v-model="params[paramExact]"
+        type="checkbox"
+      />
+      Exact
+    </label>
   </FacetContainer>
 </template>
 
@@ -20,7 +28,13 @@ const props = defineProps({
     type: String,
     default: 'Depiction caption'
   },
+
   paramText: {
+    type: String,
+    required: true
+  },
+
+  paramExact: {
     type: String,
     required: true
   },

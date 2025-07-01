@@ -81,6 +81,7 @@
   />
   <FacetText
     param-text="depiction_caption"
+    param-exact="depiction_caption_exact"
     v-model="params"
   />
   <FacetTags

@@ -404,6 +404,17 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
+  specify 'depiction_caption exact' do
+    Depiction.create!(depiction_object: o, image: i1, caption: 'rain')
+    Depiction.create!(depiction_object: o, image: i2, caption: 'spraingle')
+
+    q.depiction_caption = 'rain'
+    q.depiction_caption_exact = true
+
+    i3 # not this one
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   specify 'depiction_caption substring' do
     Depiction.create!(depiction_object: o, image: i1, caption: 'bonkers')
     Depiction.create!(depiction_object: o, image: i2, caption: 'Kevin')

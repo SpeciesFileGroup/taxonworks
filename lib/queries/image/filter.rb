@@ -17,6 +17,7 @@ module Queries
         :creator_id,
         :creator_id_all,
         :depiction_caption,
+        :depiction_caption_exact,
         :depiction_object_type,
         :depictions,
         :editor_id,
@@ -255,6 +256,11 @@ module Queries
       #   depiction_caption.
       attr_accessor :depiction_caption
 
+      # @return [Boolean]
+      # @param depiction_caption_exact [Boolean]
+      #   depiction_caption must match exactly if true.
+      attr_accessor :depiction_caption_exact
+
       # @param params [Hash]
       def initialize(query_params)
         super
@@ -272,6 +278,7 @@ module Queries
         @creator_id = params[:creator_id]
         @creator_id_all = boolean_param(params, :creator_id_all)
         @depiction_caption = params[:depiction_caption]
+        @depiction_caption_exact = boolean_param(params, :depiction_caption_exact)
         @depiction_object_type = params[:depiction_object_type]
         @depictions = boolean_param(params, :depictions)
         @editor_id = params[:editor_id]
@@ -680,10 +687,16 @@ module Queries
       def depiction_caption_facet
         return nil if depiction_caption.nil?
 
-        caption = "%#{depiction_caption.strip.gsub(/\s+/, '%')}%"
-        ::Image
-          .joins(:depictions)
-          .where('depictions.caption ILIKE ?', caption)
+        if depiction_caption_exact
+          ::Image
+            .joins(:depictions)
+            .where('depictions.caption = ?', depiction_caption)
+        else
+          caption = "%#{depiction_caption.strip.gsub(/\s+/, '%')}%"
+          ::Image
+            .joins(:depictions)
+            .where('depictions.caption ILIKE ?', caption)
+        end
       end
 
       def images_on(t, t_id)
