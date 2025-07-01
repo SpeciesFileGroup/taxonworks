@@ -7,6 +7,8 @@
         model="sources"
         klass="Depiction"
         label="cached"
+        pin-section="Sources"
+        pin-type="Source"
         @selected="(source) => addSource(source)"
       />
 
