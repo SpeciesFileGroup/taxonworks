@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New FO: `Lock/Unlock all` shortcut
 - Filter taxon name relationship: Add radial filter for subject/object [#4461]
 - The following facets to Filter Images: Creator, Editor, Owner, Copyright holder, Source, License, Copyright Year, Depiction caption [#3511]
+- Add with/without origin citation facet to Filter Taxon Name Relationships
 
 ### Fixed
 
