@@ -16,7 +16,7 @@
     title="Collectors"
     klass="CollectingEvent"
     param-people="collector_id"
-    param-any="collector_id_or"
+    param-any="collector_id_all"
     :role-type="COLLECTOR_SELECTOR"
     v-model="params"
   />
