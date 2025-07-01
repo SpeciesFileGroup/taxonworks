@@ -1,6 +1,6 @@
 <template>
   <div
-    :style="{ width: props.width, height: props.height }"
+    :style="{ width: props.width, height: props.height, userSelect: 'none' }"
     ref="leafletMap"
   />
 </template>
@@ -11,6 +11,7 @@ import { Icon } from '@/components/georeferences/icons'
 import { MAP_TILES } from './constants'
 import geojsonOptions from './utils/geojsonOptions'
 import makeGeoJSONObject from './utils/makeGeoJSONObject'
+import { setRectangleSelectTool } from './tools/rectangleSelect'
 import L from 'leaflet'
 import '@geoman-io/leaflet-geoman-free'
 
@@ -231,6 +232,8 @@ onMounted(() => {
 
   addDrawControllers()
   handleEvents()
+
+  setRectangleSelectTool(mapObject)
 
   mapObject.pm.setGlobalOptions({
     tooltips: props.tooltips,
