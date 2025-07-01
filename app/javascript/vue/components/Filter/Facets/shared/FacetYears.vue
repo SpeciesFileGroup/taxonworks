@@ -6,8 +6,7 @@
       <br />
       <input
         type="number"
-        :min="minYear"
-        :max="maxYear"
+        v-between-numbers="[minYear, maxYear]"
         v-model="params[paramYear]"
       />
     </div>
@@ -23,8 +22,7 @@
         <br />
         <input
           type="number"
-          :min="minYear"
-          :max="maxYear"
+          v-between-numbers="[minYear, maxYear]"
           v-model="params[paramAfter]"
         />
       </div>
@@ -33,8 +31,7 @@
         <br />
         <input
           type="number"
-          :min="minYear"
-          :max="maxYear"
+          v-between-numbers="[minYear, maxYear]"
           v-model="params[paramPriorTo]"
         />
       </div>
@@ -45,6 +42,7 @@
 <script setup>
 import { onBeforeMount } from 'vue'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { vBetweenNumbers } from '@/directives/betweenNumbers'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
