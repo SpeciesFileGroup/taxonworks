@@ -12,6 +12,7 @@ export function listParser(result) {
     object_type: item.asserted_distribution_object_type,
     asserted_distribution_shape: item.asserted_distribution_shape.name,
     data_origin: item.asserted_distribution_shape.data_origin,
-    citations: item?.citations?.map((c) => c.citation_source_body).join('; ')
+    citations: item?.citations?.map((c) => c.citation_source_body).join('; '),
+    geojson: item.asserted_distribution_shape.shape
   }))
 }
