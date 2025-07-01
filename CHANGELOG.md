@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial mass annotatior: Add `is original` to citations slice
 - New FO: `Lock/Unlock all` shortcut
 - Filter taxon name relationship: Add radial filter for subject/object [#4461]
+- The following facets to Filter Images: Creator, Editor, Owner, Copyright holder, Source, License, Copyright Year, Depiction caption [#3511]
 
 ### Fixed
 
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Topic facet: Show all topics in a modal [#4456]
 - Updated Ruby gems
 
+[#3511]: https://github.com/SpeciesFileGroup/taxonworks/issues/3511
 [#4415]: https://github.com/SpeciesFileGroup/taxonworks/issues/4415
 [#4447]: https://github.com/SpeciesFileGroup/taxonworks/issues/4447
 [#4448]: https://github.com/SpeciesFileGroup/taxonworks/issues/4448
