@@ -36,11 +36,13 @@
                   :disabled="!subjectIds.length"
                   :object-type="TAXON_NAME_RELATIONSHIP"
                   :id-param="ID_PARAM_FOR[TAXON_NAME]"
+                  :nest="false"
                 />
               </li>
               <li>
                 <RadialFilter
                   title="Radial Filter (Object)"
+                  :nest="false"
                   :ids="objectIds"
                   :parameters="parameters"
                   :disabled="!objectIds.length"

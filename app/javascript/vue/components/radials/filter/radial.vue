@@ -87,6 +87,11 @@ const props = defineProps({
   idParam: {
     type: String,
     default: undefined
+  },
+
+  nest: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -120,7 +125,7 @@ const queryObject = computed(() => {
     ? { [props.idParam || ID_PARAM_FOR[props.objectType]]: props.ids }
     : { ...filteredParameters.value }
 
-  return { [QUERY_PARAM[props.objectType]]: params }
+  return props.nest ? { [QUERY_PARAM[props.objectType]]: params } : params
 })
 
 const hasParameters = computed(
