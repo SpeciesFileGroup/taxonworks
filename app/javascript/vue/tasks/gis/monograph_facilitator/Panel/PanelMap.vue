@@ -31,3 +31,20 @@ function setSelectedObjects(arr) {
   store.selectedIds = [...new Set(ids)]
 }
 </script>
+
+<style>
+@keyframes pulse-marker {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 currentColor;
+  }
+  50% {
+    transform: scale(1.5);
+    box-shadow: 0 0 18px currentColor;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 currentColor;
+  }
+}
+</style>

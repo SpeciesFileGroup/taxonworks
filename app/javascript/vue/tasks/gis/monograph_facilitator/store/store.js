@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { Georeference, CollectionObject } from '@/routes/endpoints'
 import { getUnique, randomHue } from '@/helpers'
+import { makeMarkerStyle } from '../utils'
 import { toRaw } from 'vue'
 
 const extend = ['taxon_determinations']
@@ -11,21 +12,6 @@ function makeDetermination(d = {}) {
     otuId: d.otu_id,
     label: d.object_tag
   }
-}
-
-function makeMarkerStyle(color) {
-  return {
-    className: '',
-    iconSize: [8, 8],
-    iconAnchor: [4, 4],
-    html: `<div class="map-point-marker" style="width: 8px; height: 8px; background-color: ${color}"></div>`
-  }
-}
-
-function makeFeatureProperties(feature, color) {
-  feature.properties.style = makeMarkerStyle(color)
-
-  return feature
 }
 
 function makeObject(o) {
@@ -76,9 +62,21 @@ export default defineStore('monographFacilitator', {
       return state.groups
         .map((group) => {
           const otuId = group.determination.otuId
-          const features = state
-            .getGeoreferenceByOtuId(otuId)
-            .map((g) => toRaw(makeFeatureProperties(g.geo_json, group.color)))
+          const features = state.getGeoreferenceByOtuId(otuId).map((g) => {
+            const objects = state.getObjectByGeoreferenceId(g.id)
+            const feature = g.geo_json
+
+            const isSelected = objects.some((o) =>
+              state.selectedIds.includes(o.objectId)
+            )
+
+            feature.properties.style = makeMarkerStyle({
+              color: group.color,
+              isSelected
+            })
+
+            return toRaw(feature)
+          })
 
           return features
         })
