@@ -34,7 +34,7 @@ import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 const props = defineProps({
   paramLicenses: {
     type: String,
-    required: true
+    default: 'license'
   },
 })
 

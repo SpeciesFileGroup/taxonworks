@@ -50,7 +50,7 @@ const props = defineProps({
 
   paramSource: {
     type: String,
-    required: true
+    default: 'source_id'
   },
 
   title: {

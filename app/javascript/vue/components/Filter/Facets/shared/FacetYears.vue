@@ -52,15 +52,15 @@ const props = defineProps({
   },
   paramPriorTo: {
     type: String,
-    required: true
+    default: 'copyright_prior_to_year'
   },
   paramAfter: {
     type: String,
-    required: true
+    default: 'copyright_after_year'
   },
   paramYear: {
     type: String,
-    required: true
+    default: 'copyright_year'
   },
   minYear: {
     type: Number,
