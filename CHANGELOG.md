@@ -11,9 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Radial mass annotatior: Add `is original` to citations slice
 - New FO: `Lock/Unlock all` shortcut
-- Filter taxon name relationship: Add radial filter for subject/object [#4461]
+- Filter taxon name relationship: Add slices to radial filter for taxon name subject/object [#4461]
 - The following facets to Filter Images: Creator, Editor, Owner, Copyright holder, Source, License, Copyright Year, Depiction caption [#3511]
 - Add with/without origin citation facet to Filter Taxon Name Relationships
+- Radial mass annotator: `is original` flag option in batch citation [#4458]
 
 ### Fixed
 
@@ -23,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Issues pop-up screen not rendering properly [#4447]
 - Prevent cycles in SerialChronology (no accompanying data migration, remove bad data manually)
 - Biocuration lock "lost" when rapidly creating records [#4415]
+- Depiction list isn't populated in Image's depictions quick form [#4465]
 
 ### Changed
 
@@ -39,7 +41,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4448]: https://github.com/SpeciesFileGroup/taxonworks/issues/4448
 [#4450]: https://github.com/SpeciesFileGroup/taxonworks/issues/4450
 [#4456]: https://github.com/SpeciesFileGroup/taxonworks/issues/4456
+[#4458]: https://github.com/SpeciesFileGroup/taxonworks/issues/4458
 [#4461]: https://github.com/SpeciesFileGroup/taxonworks/issues/4461
+[#4465]: https://github.com/SpeciesFileGroup/taxonworks/issues/4465
 
 ## [0.52.1] - 2025-06-17
 
