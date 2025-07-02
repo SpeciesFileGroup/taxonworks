@@ -1,7 +1,11 @@
 import {
   FILTER_TAXON_NAME,
+  FILTER_TAXON_NAME_SUBJECT,
+  FILTER_TAXON_NAME_OBJECT
 } from '../constants/filterLinks'
 
 export const TaxonNameRelationship = [
   FILTER_TAXON_NAME,
+  FILTER_TAXON_NAME_SUBJECT,
+  FILTER_TAXON_NAME_OBJECT
 ]

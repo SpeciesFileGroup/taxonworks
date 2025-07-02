@@ -82,16 +82,6 @@ const props = defineProps({
   ids: {
     type: Array,
     default: undefined
-  },
-
-  idParam: {
-    type: String,
-    default: undefined
-  },
-
-  nest: {
-    type: Boolean,
-    default: true
   }
 })
 
@@ -122,10 +112,10 @@ const filterLinks = computed(() => {
 
 const queryObject = computed(() => {
   const params = isOnlyIds.value
-    ? { [props.idParam || ID_PARAM_FOR[props.objectType]]: props.ids }
+    ? { [ID_PARAM_FOR[props.objectType]]: props.ids }
     : { ...filteredParameters.value }
 
-  return props.nest ? { [QUERY_PARAM[props.objectType]]: params } : params
+  return { [QUERY_PARAM[props.objectType]]: params }
 })
 
 const hasParameters = computed(
@@ -134,7 +124,11 @@ const hasParameters = computed(
 
 const menuOptions = computed(() => {
   const slices = filterLinks.value.map((item) => {
-    const urlParameters = { ...queryObject.value, per: props.parameters?.per }
+    const urlParameters = {
+      ...queryObject.value,
+      ...item.params,
+      per: props.parameters?.per
+    }
 
     const urlWithParameters =
       item.link +
@@ -196,9 +190,18 @@ function openRadialMenu() {
   isVisible.value = true
 }
 
-function saveParametersOnStorage() {
+function saveParametersOnStorage(e) {
+  const filterlink = filterLinks.value.find(
+    (l) => l.label === e.segmentObject.slice.label
+  )
+
+  console.log(filterlink)
   if (hasParameters.value) {
-    const params = { ...queryObject.value, per: props.parameters?.per }
+    const params = {
+      ...queryObject.value,
+      ...filterlink?.params,
+      per: props.parameters?.per
+    }
     const total = sessionStorage.getItem('totalFilterResult')
     const totalQueries =
       JSON.parse(sessionStorage.getItem('totalQueries')) || []
