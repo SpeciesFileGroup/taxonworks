@@ -310,6 +310,38 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(a.id)
   end
 
+  context '#taxon_name_relationship_target' do
+    before(:each) do
+      TaxonNameRelationship::Typification::Genus.create!(
+        subject_taxon_name_id: species.id, object_taxon_name_id: genus.id
+      )
+    end
+
+    let!(:tnr_query) {
+      ::TaxonNameRelationship.where(type:
+        'TaxonNameRelationship::Typification::Genus'
+      )
+    }
+
+    specify 'subject' do
+      query.taxon_name_relationship_query = tnr_query
+      query.taxon_name_relationship_target = 'subject'
+      expect(query.all.map(&:id)).to contain_exactly(species.id)
+    end
+
+    specify 'object' do
+      query.taxon_name_relationship_query = tnr_query
+      query.taxon_name_relationship_target = 'object'
+      expect(query.all.map(&:id)).to contain_exactly(genus.id)
+    end
+
+    specify 'both' do
+      query.taxon_name_relationship_query = tnr_query
+      query.taxon_name_relationship_target = nil
+      expect(query.all.map(&:id)).to contain_exactly(genus.id, species.id)
+    end
+  end
+
   context '#relationToRelationship' do
     before(:each) do
       # There's already an OriginalCombination::OriginalGenus
