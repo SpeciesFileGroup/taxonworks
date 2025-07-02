@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Prevent cycles in SerialChronology (no accompanying data migration, remove bad data manually)
 - Biocuration lock "lost" when rapidly creating records [#4415]
 - Depiction list isn't populated in Image's depictions quick form [#4465]
+- Specimens lots failing to generate DwC indexing in DwC importer [#4466]
 
 ### Changed
 
@@ -44,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4458]: https://github.com/SpeciesFileGroup/taxonworks/issues/4458
 [#4461]: https://github.com/SpeciesFileGroup/taxonworks/issues/4461
 [#4465]: https://github.com/SpeciesFileGroup/taxonworks/issues/4465
+[#4466]: https://github.com/SpeciesFileGroup/taxonworks/issues/4466
 
 ## [0.52.1] - 2025-06-17
 
