@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Biocuration lock "lost" when rapidly creating records [#4415]
 - Depiction list isn't populated in Image's depictions quick form [#4465]
 - Specimens lots failing to generate DwC indexing in DwC importer [#4466]
+- Filters: Sometimes sort column button doesn't work [#4442]
 
 ### Changed
 
@@ -38,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3511]: https://github.com/SpeciesFileGroup/taxonworks/issues/3511
 [#4415]: https://github.com/SpeciesFileGroup/taxonworks/issues/4415
+[#4442]: https://github.com/SpeciesFileGroup/taxonworks/issues/4442
 [#4447]: https://github.com/SpeciesFileGroup/taxonworks/issues/4447
 [#4448]: https://github.com/SpeciesFileGroup/taxonworks/issues/4448
 [#4450]: https://github.com/SpeciesFileGroup/taxonworks/issues/4450
