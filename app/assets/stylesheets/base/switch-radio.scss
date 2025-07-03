@@ -1,6 +1,6 @@
 .switch-radio {
   display: flex;
-  flex-wrap: wrap;
+  overflow: hidden;
   .switch-title {
     margin-bottom: 6px;
   }

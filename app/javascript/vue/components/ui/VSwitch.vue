@@ -1,5 +1,5 @@
 <template>
-  <div class="switch-radio">
+  <div :class="{ 'switch-radio': true, 'wrap-switch': options.length > 4 }">
     <template
       v-for="(item, index) in options"
       :key="index"
@@ -82,5 +82,9 @@ export default {
 <style scoped>
 label::first-letter {
   text-transform: capitalize;
+}
+
+.wrap-switch {
+  flex-wrap: wrap;
 }
 </style>
