@@ -10,23 +10,23 @@
       :url-request="urlRequest"
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @nextpage="loadPage"
-      @reset="resetFilter"
+      @filter="() => {
+        makeFilterRequest({ ...parameters, extend, page: 1 })
+        resetMap()
+      }"
+      @per="() => {
+        makeFilterRequest({ ...parameters, extend, page: 1 })
+        resetMap()
+      }"
+      @nextpage="(event) => {
+        loadPage(event)
+        resetMap()
+      }"
+      @reset="() => {
+        resetFilter()
+        resetMap()
+      }"
     >
-      <template #preferences-last>
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="preferences.showMap"
-            />
-            Show map
-          </label>
-        </li>
-      </template>
-
       <template #nav-query-right>
         <RadialAssertedDistribution
           :disabled="!list.length"
@@ -46,8 +46,10 @@
       </template>
       <template #above-table>
         <FloatMap
-          v-if="preferences.showMap"
-          :geojson="geojson"
+          v-if="idForMap"
+          :geojson="geojson || [{}]"
+          @close="() => resetMap()"
+          show-close
         />
       </template>
       <template #table>
@@ -55,8 +57,6 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
-          @mouseover:row="(row) => setRowHover(row)"
-          @mouseout:body="() => (rowHover = null)"
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         >
@@ -66,6 +66,15 @@
               :global-id="value"
               @click="setHighlight"
             />
+          </template>
+
+          <template #map="{ value }">
+            <VBtn
+              @click="() => loadMap(value)"
+              color="primary"
+            >
+              {{ idForMap == value ? 'Hide map' : 'Map' }}
+            </VBtn>
           </template>
         </FilterList>
       </template>
@@ -83,6 +92,7 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import FloatMap from '@/components/ui/map/FloatMap.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
@@ -92,25 +102,18 @@ import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { AssertedDistribution } from '@/routes/endpoints'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
-import { computed, onBeforeMount, onMounted, reactive, ref } from 'vue'
-import { sortArray } from '@/helpers/arrays'
+import { ref } from 'vue'
 
 const extend = ['citations', 'asserted_distribution_shape',
   'asserted_distribution_object'
 ]
 
-const embed = ['shape']
-
 defineOptions({
   name: 'FilterAssertedDistributions'
 })
 
-const rowHover = ref(null)
-const isMouseDown = ref(false)
-
-const preferences = reactive({
-  showMap: false
-})
+const idForMap = ref(null)
+const geojson = ref(null)
 
 const {
   isLoading,
@@ -123,60 +126,25 @@ const {
   selectedIds,
   makeFilterRequest,
   resetFilter
-} = useFilter(AssertedDistribution, { listParser,
-  initParameters: { extend, embed } })
+} = useFilter(AssertedDistribution, { listParser, initParameters: { extend } })
 
-const geojson = computed(() => {
-  const hoverId = rowHover.value?.asserted_distribution?.id
-  const hoverAssertedDistributions = list.value.filter(
-    (item) => item.id === hoverId
-  )
-  const items = hoverAssertedDistributions.length
-    ? hoverAssertedDistributions
-    : list.value
+function loadMap(id) {
+  idForMap.value = idForMap.value == id ? null : id
 
-  const geojsonObjects = items.map((assertedDistribution) => {
-    const geojson = assertedDistribution.geojson
+  if (!idForMap.value) return
 
-    geojson.properties.style = {
-      fillOpacity: 0.2
-    }
-    // geojson['properties'].marker = {
-    //   icon:
-    //     assertedDistribution.id === hoverId ||
-    //     selectedIds.value.includes(assertedDistribution.id)
-    //       ? 'green'
-    //       : 'blue'
-    // }
-
-    return geojson
-  })
-
-  return sortArray(geojsonObjects, 'properties.marker.icon')
-})
-
-const setRowHover = ({ item }) => {
-  if (!isMouseDown.value) {
-    rowHover.value = item
-  }
+  AssertedDistribution.find(
+      id, { extend: ['asserted_distribution_shape'], embed: ['shape']}
+    )
+    .then(({ body }) => {
+      geojson.value = [body.asserted_distribution_shape.shape]
+    })
+    .catch(() => {})
 }
 
-function onMouseDown() {
-  isMouseDown.value = true
+function resetMap() {
+  idForMap.value = null
+  geojson.value = null
 }
-
-function onMouseUp() {
-  isMouseDown.value = false
-}
-
-onMounted(() => {
-  document.addEventListener('mousedown', onMouseDown)
-  document.addEventListener('mouseup', onMouseUp)
-})
-
-onBeforeMount(() => {
-  document.removeEventListener('mousedown', onMouseDown)
-  document.removeEventListener('mouseup', onMouseUp)
-})
 
 </script>

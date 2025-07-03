@@ -31,6 +31,16 @@
         small
       />
     </div>
+    <div
+      v-if="showClose"
+      class="close-button panel padding-small"
+      @click="() => (emit('close'))"
+    >
+      <VIcon
+        name="close"
+        small
+      />
+    </div>
   </div>
 </template>
 
@@ -44,8 +54,15 @@ defineProps({
   geojson: {
     type: Array,
     default: () => []
-  }
+  },
+
+  showClose: {
+    type: Boolean,
+    default: false
+  },
 })
+
+const emit = defineEmits(['close'])
 
 const floatPanel = ref(null)
 const handler = ref(null)
@@ -95,6 +112,13 @@ const styleFloatmap = computed(() =>
   position: absolute;
   top: 12px;
   right: 48px;
+  z-index: 2000;
+}
+
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 84px;
   z-index: 2000;
 }
 </style>

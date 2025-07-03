@@ -4,5 +4,6 @@ export const ATTRIBUTES = {
   object_object_tag: 'Object',
   asserted_distribution_shape: 'Shape',
   data_origin: 'Data origin',
-  citations: 'Citations'
+  citations: 'Citations',
+  map: 'Map',
 }

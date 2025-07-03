@@ -13,6 +13,6 @@ export function listParser(result) {
     asserted_distribution_shape: item.asserted_distribution_shape.name,
     data_origin: item.asserted_distribution_shape.data_origin,
     citations: item?.citations?.map((c) => c.citation_source_body).join('; '),
-    geojson: item.asserted_distribution_shape.shape
+    map: item.id
   }))
 }
