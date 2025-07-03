@@ -65,7 +65,7 @@
       </template>
 
       <template #above-table>
-        <map-component
+        <FloatMap
           v-if="preferences.showMap"
           :geojson="geojson"
         />
@@ -92,7 +92,7 @@
 
 <script setup>
 import FilterComponent from './components/Filter.vue'
-import MapComponent from './components/Map.vue'
+import FloatMap from '@/components/ui/map/FloatMap.vue'
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { useFilter, useCSVOptions } from '@/shared/Filter/composition'

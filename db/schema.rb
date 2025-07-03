@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_11_140727) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -18,6 +18,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
   enable_extension "postgis"
+  enable_extension "postgis_raster"
   enable_extension "tablefunc"
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -69,7 +70,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
   end
 
   create_table "asserted_distributions", id: :serial, force: :cascade do |t|
-    t.integer "otu_id", null: false
+    t.integer "otu_id"
     t.integer "geographic_area_id"
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -79,6 +80,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
     t.boolean "is_absent"
     t.integer "asserted_distribution_shape_id", null: false
     t.string "asserted_distribution_shape_type", null: false
+    t.integer "asserted_distribution_object_id", null: false
+    t.string "asserted_distribution_object_type", null: false
+    t.index ["asserted_distribution_object_id", "asserted_distribution_object_type"], name: "asserted_distribution_polymorphic_object_index"
     t.index ["asserted_distribution_shape_id", "asserted_distribution_shape_type"], name: "asserted_distribution_polymorphic_shape_index"
     t.index ["created_by_id"], name: "index_asserted_distributions_on_created_by_id"
     t.index ["geographic_area_id"], name: "index_asserted_distributions_on_geographic_area_id"
@@ -722,8 +726,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.string "documentation_object_type", null: false
     t.integer "documentation_object_id", null: false
+    t.string "documentation_object_type", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -741,7 +745,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.bigint "document_file_file_size", null: false
+    t.integer "document_file_file_size", null: false
     t.datetime "document_file_updated_at", precision: nil, null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -1197,7 +1201,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
     t.datetime "updated_at", precision: nil, null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.bigint "image_file_file_size"
+    t.integer "image_file_file_size"
     t.datetime "image_file_updated_at", precision: nil
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -1312,8 +1316,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
     t.integer "project_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.string "loan_item_object_type"
     t.integer "loan_item_object_id"
+    t.string "loan_item_object_type"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1646,8 +1650,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.string "pinned_object_type", null: false
     t.integer "pinned_object_id", null: false
+    t.string "pinned_object_type", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1713,7 +1717,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
     t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: "{}", null: false
+    t.jsonb "preferences", default: {}, null: false
     t.string "api_access_token"
     t.string "data_curation_issue_tracker_url"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
@@ -1995,8 +1999,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: "{}", null: false
-    t.jsonb "specimen_coordinates", default: "{}", null: false
+    t.jsonb "metadata_map", default: {}, null: false
+    t.jsonb "specimen_coordinates", default: {}, null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false

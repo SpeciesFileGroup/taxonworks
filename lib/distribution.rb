@@ -187,8 +187,9 @@ class Distribution
   # @param [Object] data
   # @return [JSON]
   def asserted_distribution_properties(json, asserted_distribution, data)
-    json['properties']['label'] =  asserted_distribution.geographic_area.name
-    json['properties']['metadata']['GeographicArea'] = asserted_distribution.geographic_area.attributes
+    json['properties']['label'] =
+      asserted_distribution.asserted_distribution_shape.name
+    json['properties']['metadata'][asserted_distribution.asserted_distribution_shape_type] = asserted_distribution.asserted_distribution_shape.attributes
     json['properties']['metadata']['Source'] = asserted_distribution.source.attributes if asserted_distribution.source
   end
 

@@ -17,7 +17,7 @@ describe 'AssertedDistributions', type: :feature do
       5.times { factory_bot_create_for_user_and_project(:valid_otu, @user, @project) }
       5.times.each_with_index { |i|
         AssertedDistribution.create!(
-          otu: Otu.all[i],
+          asserted_distribution_object: Otu.all[i],
           asserted_distribution_shape: g,
           origin_citation_attributes: {source: s, by: @user, project: @project},
           by: @user,

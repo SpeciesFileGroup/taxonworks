@@ -84,7 +84,7 @@ module Shared::Citations
 
       citations.sort_by(&:cached_nomenclature_date)&.last&.citation_object
     end
-    
+
   end
 
   # @return [Date, nil]

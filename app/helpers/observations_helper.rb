@@ -1,14 +1,36 @@
 module ObservationsHelper
+  include RecordNavigationHelper
 
   def observation_tag(observation)
     return nil if observation.nil?
-    [descriptor_tag(observation.descriptor), observation_cell_tag(observation, true)].join(': ').html_safe
-    #"#{observation.descriptor.name}: #{observation.id}"
+    a = descriptor_tag(observation.descriptor)
+    b = observation_cell(observation, 'tag', true)
+    c = send(
+      "#{observation.observation_object_type.underscore}_tag",
+      observation.observation_object
+    )
+
+    "#{a}: #{b} on #{c}".html_safe
+  end
+
+  def observation_autocomplete_tag(observation)
+    observation_tag(observation)
   end
 
   def label_for_observation(observation)
     return nil if observation.nil?
-    observation.descriptor.name # TODO: add values
+    a = observation.descriptor.name
+    b = observation_cell(observation, 'label', true)
+    c = send(
+      "label_for_#{observation.observation_object_type.underscore}",
+      observation.observation_object
+    )
+
+    if b.empty?
+      "#{a} on #{c}"
+    else
+      "#{a}: #{b} on #{c}"
+    end
   end
 
   def observation_type_label(observation)
@@ -18,22 +40,35 @@ module ObservationsHelper
   # Joins multiple observations to concat for cells
   def observation_matrix_cell_tag(observation_object, descriptor)
     q = Observation.object_scope(observation_object).where(descriptor: descriptor)
-    q.collect{|o| observation_cell_tag(o)}.sort.join(' ').html_safe
+    q.collect{|o| observation_cell(o, 'tag')}.sort.join(' ').html_safe
   end
 
-  def observation_cell_tag(observation, verbose = false)
+  def observation_cell(observation, label_or_tag, verbose = false)
     case observation.type
     when 'Observation::Qualitative'
-      qualitative_observation_cell_tag(observation, verbose)
+      qualitative_observation_cell_label(observation, verbose)
     when 'Observation::Continuous'
-      continuous_observation_cell_tag(observation)
+      continuous_observation_cell_label(observation)
     when 'Observation::Sample'
-      sample_observation_cell_tag(observation)
+      if label_or_tag == 'tag'
+        sample_observation_cell_tag(observation)
+      else
+        # TODO
+        ''
+      end
     when 'Observation::PresenceAbsence'
-      presence_absence_observation_cell_tag(observation)
-
+      if label_or_tag == 'tag'
+        presence_absence_observation_cell_tag(observation)
+      else
+        presence_absence_observation_cell_label(observation)
+      end
     when 'Observation::Working' # TODO: Validate in format
-      tag.span('X', title: observation.description)
+      if label_or_tag == 'tag'
+        tag.span('X', title: observation.description)
+      else
+        # TODO
+        ''
+      end
     else
       '!! display not done !!'
     end
@@ -48,7 +83,7 @@ module ObservationsHelper
      observation.time_made ].compact.join('-')
   end
 
-  def qualitative_observation_cell_tag(observation, verbose = false)
+  def qualitative_observation_cell_label(observation, verbose = false)
     if verbose
       observation.character_state.label + ': ' + observation.character_state.name
     else
@@ -56,13 +91,17 @@ module ObservationsHelper
     end
   end
 
-  def continuous_observation_cell_tag(observation)
+  def continuous_observation_cell_label(observation)
     [observation.continuous_value, observation.continuous_unit].compact.join(' ')
   end
 
   def presence_absence_observation_cell_tag(observation)
     # TODO: messing with visualization here, do something more clean
     observation.presence ? '&#10003;' : '&#x274c;'
+  end
+
+  def presence_absence_observation_cell_label(observation)
+    observation.presence ? 'present' : 'absent'
   end
 
   def sample_observation_cell_tag(observation)
@@ -85,4 +124,29 @@ module ObservationsHelper
     r.compact.join(' ').html_safe
   end
 
+  # @return !!Array!!
+  def previous_records(observation)
+    # !! Note we only return observations on Otus currently.
+    o = ::Observation
+      .joins("JOIN otus ON observations.observation_object_type = 'Otu' AND observations.observation_object_id = otus.id")
+      .where(project_id: observation.project_id)
+      .where('observations.id < ?', observation.id)
+      .order(id: :desc)
+      .first
+
+    [o].compact
+  end
+
+  # @return !!Array!!
+  def next_records(observation)
+    # !! Note we only return observations on Otus currently.
+    o = ::Observation
+      .joins("JOIN otus ON observations.observation_object_type = 'Otu' AND observations.observation_object_id = otus.id")
+      .where(project_id: observation.project_id)
+      .where('observations.id > ?', observation.id)
+      .order(:id)
+      .first
+
+    [o].compact
+  end
 end

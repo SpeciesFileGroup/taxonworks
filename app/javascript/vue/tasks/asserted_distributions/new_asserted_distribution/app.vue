@@ -46,7 +46,7 @@
 
     <div class="grid-panels gap-medium margin-medium-bottom">
       <PanelCitation />
-      <PanelOtu />
+      <PanelObject />
       <PanelGeo />
       <PanelConfidence />
     </div>
@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import PanelOtu from './components/Panel/PanelOtu.vue'
+import PanelObject from './components/Panel/PanelObject.vue'
 import PanelGeo from './components/Panel/PanelGeo.vue'
 import PanelCitation from './components/Panel/PanelCitation.vue'
 import PanelConfidence from './components/Panel/PanelConfidence.vue'

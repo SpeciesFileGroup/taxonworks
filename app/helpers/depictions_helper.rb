@@ -1,4 +1,5 @@
 module DepictionsHelper
+  include RecordNavigationHelper
 
   # Should this have Image?
   def depiction_tag(depiction, size: :thumb)
@@ -7,11 +8,15 @@ module DepictionsHelper
       depictions_sled_tag(depiction, size: size)
       # depiction_svg_tag(depiction)
     else
-      tag.figure do
+      tag.figure style: 'margin: 0.5em; margin-left: 0; margin-right: 0;' do
         image_tag(depiction.image.image_file.url(size)) +
           tag.figcaption(image_context_depiction_tag(depiction))
       end
     end
+  end
+
+  def depiction_autocomplete_tag(depiction)
+    depiction_tag(depiction)
   end
 
   # Only text, no HTML
@@ -42,7 +47,7 @@ module DepictionsHelper
   end
 
   def depictions_sled_tag(depiction, size: :thumb)
-    content_tag(:figure) do
+    content_tag(:figure, style: 'margin: 0.5em; margin-left: 0; margin-right: 0;') do
       image_tag(depiction.sled_extraction_path(size), skip_pipeline: true) +
         content_tag(:figcaption, image_context_depiction_tag(depiction))
     end
@@ -62,6 +67,33 @@ module DepictionsHelper
       original_png: original_as_png_via_api(depiction.image)
     }
     a
+  end
+
+  # @return !!Array!!
+  def previous_records(depiction)
+    # !! Note we only return depictions on Otus currently.
+    d = ::Depiction
+      .joins("JOIN otus ON depictions.depiction_object_type = 'Otu' AND depictions.depiction_object_id = otus.id")
+      .where(project_id: depiction.project_id)
+      .where('depictions.id < ?', depiction.id)
+      .order(id: :desc)
+      .first
+
+    [d].compact
+  end
+
+  # @return !!Array!!
+  def next_records(depiction)
+    # !! Note we only return depictions on Otus currently.
+
+    d = ::Depiction
+      .joins("JOIN otus ON depictions.depiction_object_type = 'Otu' AND depictions.depiction_object_id = otus.id")
+      .where(project_id: depiction.project_id)
+      .where('depictions.id > ?', depiction.id)
+      .order(:id)
+      .first
+
+    [d].compact
   end
 
 end

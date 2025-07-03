@@ -38,6 +38,7 @@ class Otu < ApplicationRecord
   include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::OriginRelationship
+  include Shared::AssertedDistributions
 
   include Shared::AutoUuid
   include Shared::Taxonomy
@@ -63,7 +64,6 @@ class Otu < ApplicationRecord
 
   has_many :in_scope_observation_matrices, inverse_of: :otu, class_name: 'ObservationMatrix'
 
-  has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
 
@@ -84,7 +84,6 @@ class Otu < ApplicationRecord
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :public_contents, inverse_of: :otu, dependent: :destroy
 
-  has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
   has_many :georeferences, through: :collecting_events
 
@@ -308,9 +307,16 @@ class Otu < ApplicationRecord
                 t['biological_association_object_type'].eq('Otu')
               )
             )
-              .where(t['updated_by_id'].eq(user_id))
-              .where(t['project_id'].eq(project_id))
-              .order(t['updated_at'].desc)
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
+        when 'AssertedDistribution'
+          t.project(t['asserted_distribution_object_id'].as('otu_id'),
+                    t['updated_at']).from(t)
+            .where(t['updated_at'].gt( 1.week.ago ))
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
         else
           t.project(t['otu_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.week.ago ))
@@ -393,10 +399,16 @@ class Otu < ApplicationRecord
 
   # TODO: move to helper method likely
   def distribution_geoJSON
-    a_ds = Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions)
+
+    ga_ads = Gis::GeoJSON.feature_collection(
+      ::AssertedDistribution.with_geographic_areas, :asserted_distributions
+    )
+    gz_ads = Gis::GeoJSON.feature_collection(
+      ::AssertedDistribution.with_gazetteers, :asserted_distributions
+    )
     c_os = Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences)
     c_es = Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
-    Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
+    Gis::GeoJSON.aggregation([ga_ads, gz_ads, c_os, c_es], :distribution)
   end
 
   # TODO: needs spec

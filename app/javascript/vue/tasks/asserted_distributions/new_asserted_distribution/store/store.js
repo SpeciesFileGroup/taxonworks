@@ -14,13 +14,14 @@ function makeAssertedDistribution(data = {}) {
   }
 }
 
-const extend = ['citations', 'asserted_distribution_shape', 'otu', 'source']
+const extend = ['citations', 'asserted_distribution_shape',
+  'asserted_distribution_object', 'source']
 
 export const useStore = defineStore('NewAssertedDistribution', {
   state: () => ({
     lock: {
       source: false,
-      otu: false,
+      object: false,
       shape: false,
       confidences: false
     },
@@ -28,7 +29,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
     assertedDistribution: makeAssertedDistribution(),
     assertedDistributions: [],
     citation: makeCitation(),
-    otu: null,
+    object: null,
     shape: null,
     confidences: [],
     isLoading: false,
@@ -37,7 +38,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
 
   getters: {
     isSaveAvailable(state) {
-      return state.otu && state.shape && state.citation
+      return state.object && state.shape && state.citation
     }
   },
 
@@ -84,7 +85,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
 
       const assertedDistribution = makeAssertedDistributionPayload({
         ad: this.assertedDistribution,
-        otu: this.otu,
+        object: this.object,
         shape: this.shape,
         citation: this.citation
       })
@@ -94,7 +95,10 @@ export const useStore = defineStore('NewAssertedDistribution', {
       } else {
         try {
           const { body } = await AssertedDistribution.where({
-            otu_id: assertedDistribution.otu_id,
+            asserted_distribution_object_id:
+              assertedDistribution.asserted_distribution_object_id,
+            asserted_distribution_object_type:
+              assertedDistribution.asserted_distribution_object_type,
             geo_shape_type:
               assertedDistribution.asserted_distribution_shape_type,
             geo_shape_id:
@@ -163,8 +167,8 @@ export const useStore = defineStore('NewAssertedDistribution', {
         this.shape = null
       }
 
-      if (!this.lock.otu) {
-        this.otu = null
+      if (!this.lock.object) {
+        this.object = null
       }
 
       this.confidences = this.lock.confidences

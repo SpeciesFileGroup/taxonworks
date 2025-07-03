@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import SectionPanel from './shared/sectionPanel'
+import SectionPanel from './shared/sectionPanel.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import TableList from './assertedDistribution/TableList.vue'
@@ -81,11 +81,12 @@ const COLUMNS = [
   'level1',
   'level2',
   'name',
-  'type',
+  'shape type',
   'presence',
   'shape',
   'citations',
-  'otu'
+  'object',
+  'object type'
 ]
 
 const store = useStore()

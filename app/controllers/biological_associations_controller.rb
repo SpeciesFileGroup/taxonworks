@@ -1,8 +1,10 @@
 class BiologicalAssociationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_biological_association, only: [:show, :edit, :update, :destroy, :api_show, :api_globi, :api_resource_relationship]
-  after_action -> { set_pagination_headers(:biological_associations) }, only: [:index, :api_index, :api_index_simple], if: :json_request?
+  before_action :set_biological_association, only: [:show, :edit, :update,
+    :destroy, :api_show, :api_globi, :api_resource_relationship, :navigation]
+  after_action -> { set_pagination_headers(:biological_associations) },
+    only: [:index, :api_index, :api_index_simple], if: :json_request?
 
   # GET /biological_associations
   # GET /biological_associations.json
@@ -177,6 +179,31 @@ class BiologicalAssociationsController < ApplicationController
     else
       render json: {}, status: :unprocessable_entity
     end
+  end
+
+  def autocomplete
+    @biological_associations =
+      ::Queries::BiologicalAssociation::Autocomplete.new(
+        params.require(:term),
+        project_id: sessions_current_project_id,
+      ).autocomplete
+  end
+
+  def search
+    if params[:id].blank?
+      redirect_to(biological_association_path,
+                  alert: 'You must select an item from the list with a click or tab press before clicking show.')
+    else
+      redirect_to biological_association_path(params[:id])
+    end
+  end
+
+  # GET /biological_associations/1/navigation.json
+  def navigation
+  end
+
+  def select_options
+    @biological_associations = BiologicalAssociation.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   private

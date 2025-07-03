@@ -38,7 +38,7 @@
 <script setup>
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
-import ShapeSelector from '@/components/ui/SmartSelector/ShapeSelector.vue'
+import ShapeSelector from '@/components/ui/SmartSelector/ShapePicker.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import { AssertedDistribution } from '@/routes/endpoints'
 import { ref, computed } from 'vue'

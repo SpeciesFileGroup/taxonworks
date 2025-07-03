@@ -7,6 +7,7 @@ import {
     FILTER_OTU,
     FILTER_SOUND,
     FILTER_SOURCE,
+    FILTER_ASSERTED_DISTRIBUTION,
 } from '../constants/filterLinks'
 
 export const Observation = [
@@ -18,4 +19,5 @@ export const Observation = [
     FILTER_OTU,
     FILTER_SOUND,
     FILTER_SOURCE,
+    FILTER_ASSERTED_DISTRIBUTION,
 ]

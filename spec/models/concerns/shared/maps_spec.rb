@@ -4,7 +4,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
 
   include_context 'cached map scenario'
 
-  let(:ad_offset) { FactoryBot.build( :valid_asserted_distribution, asserted_distribution_shape: ga_offset) }
+  let(:ad_offset) { FactoryBot.build( :valid_otu_asserted_distribution, asserted_distribution_shape: ga_offset) }
 
 
   # Must turn back on the after_destroy in the maps.concern to revisit these.
@@ -14,7 +14,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     Delayed::Worker.new.work_off # triggers cached map item build
     expect(ad_offset.otu.cached_map).to be_truthy
 
-    a = FactoryBot.create(:valid_asserted_distribution, otu: ad_offset.otu)
+    a = FactoryBot.create(:valid_otu_asserted_distribution, asserted_distribution_object: ad_offset.otu)
     Delayed::Worker.new.work_off # triggers cached map destroy
 
     expect(ad_offset.otu.cached_maps).to be_empty
@@ -37,23 +37,29 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
   end
 
   specify '#touched_cached_maps' do
-    expect(ad_offset.send(:touched_cached_maps).pluck(:id)).to eq([ad_offset.otu_id])
+    expect(ad_offset.send(:touched_cached_maps).pluck(:id)).to eq([ad_offset.asserted_distribution_object_id])
   end
 
   specify '#touched_cached_maps (untouched)' do
     ad_offset.save!
     p = FactoryBot.create(:valid_project)
-    a = FactoryBot.create(:valid_asserted_distribution, project: p, asserted_distribution_shape: ga_offset)
+    potu = FactoryBot.create(:valid_otu, project: p)
+    a = FactoryBot.create(:valid_otu_asserted_distribution,
+      asserted_distribution_object: potu,
+      asserted_distribution_shape: ga_offset)
 
     Delayed::Worker.new.work_off
 
-    expect(ad_offset.send(:touched_cached_maps)).to contain_exactly(ad_offset.otu)
+    expect(ad_offset.send(:touched_cached_maps).map(&:id)).to contain_exactly(ad_offset.asserted_distribution_object_id)
   end
 
   specify '#cached_maps_to_clear 1' do
     ad_offset.save!
     p = FactoryBot.create(:valid_project)
-    a = FactoryBot.create(:valid_asserted_distribution, project: p, asserted_distribution_shape: ga_offset)
+    potu = FactoryBot.create(:valid_otu, project: p)
+    a = FactoryBot.create(:valid_otu_asserted_distribution,
+      asserted_distribution_object: potu,
+      asserted_distribution_shape: ga_offset)
     Delayed::Worker.new.work_off
 
     expect(ad_offset.send(:cached_maps_to_clear).all).to eq([])
@@ -62,11 +68,14 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
   specify '#cached_maps_to_clear 2' do
     ad_offset.save!
     p = FactoryBot.create(:valid_project)
-    a = FactoryBot.create(:valid_asserted_distribution, project: p, asserted_distribution_shape: ga_offset)
+    potu = FactoryBot.create(:valid_otu, project: p)
+    a = FactoryBot.create(:valid_otu_asserted_distribution,
+      asserted_distribution_object: potu,
+      asserted_distribution_shape: ga_offset)
     Delayed::Worker.new.work_off
 
-    a.otu.cached_map
-    ad_offset.otu.cached_map
+    a.asserted_distribution_object.cached_map
+    ad_offset.asserted_distribution_object.cached_map
     Delayed::Worker.new.work_off
 
     expect(ad_offset.send(:cached_maps_to_clear).all).to eq([ad_offset.otu.cached_map])
@@ -114,7 +123,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     end
 
     specify 'decrements CachedMapItem reference_count' do
-      b = FactoryBot.create( :valid_asserted_distribution, otu: ad_offset.otu, asserted_distribution_shape: ga_offset2)
+      b = FactoryBot.create( :valid_otu_asserted_distribution, asserted_distribution_object: ad_offset.otu, asserted_distribution_shape: ga_offset2)
       Delayed::Worker.new.work_off
 
       expect(b.otu.cached_map_items.count).to eq(1)
@@ -147,7 +156,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
   specify 'Delayed::Job increments map when > 1 reference' do
     ad_offset.save!
     Delayed::Worker.new.work_off
-    FactoryBot.create( :valid_asserted_distribution, otu: ad_offset.otu, asserted_distribution_shape: ga_offset2)
+    FactoryBot.create( :valid_otu_asserted_distribution, asserted_distribution_object: ad_offset.otu, asserted_distribution_shape: ga_offset2)
     Delayed::Worker.new.work_off
     expect(ad_offset.otu.cached_map.reload.reference_count).to eq(2)
   end

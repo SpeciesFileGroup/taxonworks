@@ -4,8 +4,9 @@
   <p id="notice"><%= notice %></p>
 
   <p>
-    <strong>Otu:</strong>
-    <%= object_link(@asserted_distribution.otu) %>
+    <strong>Object:</strong>
+    <%= @asserted_distribution.asserted_distribution_object_type %>
+    <%= object_link(@asserted_distribution.asserted_distribution_object.metamorphosize) %>
   </p>
 
   <p>

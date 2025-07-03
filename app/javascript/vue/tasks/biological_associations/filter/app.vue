@@ -44,6 +44,7 @@
           :attributes="ATTRIBUTES"
           :header-groups="HEADERS"
           :list="list"
+          radial-object
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />

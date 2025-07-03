@@ -288,8 +288,13 @@ class CachedMapItem < ApplicationRecord
 
     case base_class_name
     when 'AssertedDistribution'
+      if o.asserted_distribution_object_type == 'Otu'
+        otu_id = [o.asserted_distribution_object_id]
+      else
+        # TODO handle other types
+        return h
+      end
       geographic_item_id = o.asserted_distribution_shape.default_geographic_item_id
-      otu_id = [o.otu_id]
     when 'Georeference'
       geographic_item_id = o.geographic_item_id
       otu_id = o.otus.left_joins(:taxon_determinations).where(taxon_determinations: { position: 1 }).distinct.pluck(:id)

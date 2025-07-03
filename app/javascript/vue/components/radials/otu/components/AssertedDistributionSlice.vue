@@ -50,7 +50,7 @@
 import { ref, computed } from 'vue'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index'
 import { AssertedDistribution } from '@/routes/endpoints'
-import ShapeSelector from '@/components/ui/SmartSelector/ShapeSelector.vue'
+import ShapeSelector from '@/components/ui/SmartSelector/ShapePicker.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
@@ -67,6 +67,11 @@ const props = defineProps({
   count: {
     type: Number,
     required: true
+  },
+
+  objectType: {
+    type: String,
+    default: 'Otu'
   }
 })
 
@@ -84,7 +89,8 @@ const citation = ref({
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
 const payload = computed(() => ({
-  otu_query: props.parameters,
+  object_query: props.parameters,
+  object_type: props.objectType,
   asserted_distribution: {
     asserted_distribution_shape_type: shape.value?.shapeType,
     asserted_distribution_shape_id: shape.value?.id,

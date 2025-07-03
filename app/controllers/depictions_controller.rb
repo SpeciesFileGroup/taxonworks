@@ -1,7 +1,8 @@
 class DepictionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_depiction, only: [:show, :edit, :update, :destroy, :api_show]
+  before_action :set_depiction, only: [:show, :edit, :update, :destroy,
+    :api_show, :navigation]
   after_action -> { set_pagination_headers(:depictions) }, only: [:index, :api_index, :api_gallery], if: :json_request?
 
   # GET /depictions
@@ -125,6 +126,20 @@ class DepictionsController < ApplicationController
   def download
     send_data Export::CSV.generate_csv(
       Depiction.where(project_id: sessions_current_project_id)), type: 'text', filename: "depictions_#{DateTime.now}.tsv"
+  end
+
+  def autocomplete
+    @depictions = Queries::Depiction::Autocomplete.new(
+      params[:term], project_id: sessions_current_project_id,
+      polymorphic_types: params[:polymorphic_types_allowed]
+    ).autocomplete
+  end
+
+  def navigation
+  end
+
+  def select_options
+    @depictions = Depiction.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   private

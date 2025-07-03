@@ -17,7 +17,7 @@
           v-if="navigate"
           class="no_bullets"
         >
-          <li v-for="item in navigate.previous_otus">
+          <li v-for="item in navigate.previous">
             <a
               :href="`/tasks/otus/browse?otu_id=${item.id}`"
               v-html="item.object_tag"
@@ -38,7 +38,7 @@
             v-if="navigate"
             class="no_bullets"
           >
-            <li v-for="item in navigate.next_otus">
+            <li v-for="item in navigate.next">
               <a
                 :href="`/tasks/otus/browse?otu_id=${item.id}`"
                 v-html="item.object_tag"

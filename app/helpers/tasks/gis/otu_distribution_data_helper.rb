@@ -9,7 +9,7 @@ module Tasks::Gis::OtuDistributionDataHelper
   def without_shape?(distributions)
     count = 0
     distributions.each { |dist|
-      count += 1 if dist.geographic_area.geographic_items.count == 0
+      count += 1 if dist.asserted_distribution_shape.geographic_items.count == 0
     }
     ", #{count} without shape" if count > 0
   end
@@ -21,7 +21,7 @@ module Tasks::Gis::OtuDistributionDataHelper
     when 'Taxon name'
       content_tag(:span, (previous_taxon_name_distribution_link(object) + ' | ' + next_taxon_name_distribution_link(object)).html_safe)
     end
-    
+
   end
 
   def next_taxon_name_distribution_link(taxon_name)
@@ -34,18 +34,18 @@ module Tasks::Gis::OtuDistributionDataHelper
 
   def previous_taxon_name_distribution_link(taxon_name)
     if id = TaxonName.where("id < #{taxon_name.id}").with_project_id(sessions_current_project_id).order(id: :desc).limit(1).pluck(:id).first
-      link_to 'Previous', otu_distribution_data_task_url(taxon_name_id: id) 
+      link_to 'Previous', otu_distribution_data_task_url(taxon_name_id: id)
     else
       'Previous'
-    end 
+    end
   end
 
   def next_otu_distribution_link(otu, distribution)
-    if id = Otu.where("id > #{distribution.otus.first.id}").with_project_id(sessions_current_project_id).order(id: :asc).limit(1).pluck(:id).first 
+    if id = Otu.where("id > #{distribution.otus.first.id}").with_project_id(sessions_current_project_id).order(id: :asc).limit(1).pluck(:id).first
       link_to 'Next', otu_distribution_data_task_url(otu_id: id)
     else
       'Next'
-    end 
+    end
   end
 
   def previous_otu_distribution_link(otu, distribution)

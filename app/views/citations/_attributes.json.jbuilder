@@ -19,6 +19,7 @@ end
 
 if extend_response_with('source')
   json.source do
+    json.id citation.source.id
     json.partial! '/shared/data/all/metadata', object: citation.source, extensions: false
     if citation.source.is_bibtex?
       json.author_year citation.source.author_year

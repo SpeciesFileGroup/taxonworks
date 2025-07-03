@@ -1,3 +1,6 @@
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, radial_quick_forms_tag(@observation) )  %>
+<% end %>
 
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @observation}) -%>

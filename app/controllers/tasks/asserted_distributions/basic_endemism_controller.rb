@@ -15,6 +15,18 @@ class Tasks::AssertedDistributions::BasicEndemismController < ApplicationControl
     shape_type = @shape.kind_of?(GeographicArea) ? 'GeographicArea' : 'Gazetteer'
     @data = TaxonWorks::Analysis::AssertedDistribution::BasicEndemism
       .quick_endemism(@taxon_name, shape_type, @shape.id)
+
+    if @data[:basic_endemism_error]
+      # The defaults will often produce a too-many-descendants error, ignore
+      # that.
+      if params[:taxon_name_id].present? ||
+         params[:geographic_area_id].present? ||
+         params[:gazetteer_id].present?
+        @error_message = @data[:basic_endemism_error]
+      end
+      @data = {}
+      return
+    end
   end
 
 end

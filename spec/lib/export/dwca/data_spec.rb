@@ -543,7 +543,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
             s2.dwc_occurrence.delete # !!
 
-            qq = FactoryBot.create(:valid_asserted_distribution, otu: o1)
+            qq = FactoryBot.create(:valid_asserted_distribution,
+              asserted_distribution_object: o1)
 
             e = d.taxonworks_extension_data.read
 
@@ -579,7 +580,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
             # Mess with things
             s2.dwc_occurrence.delete
-            qq = FactoryBot.create(:valid_asserted_distribution, otu: o1)
+            qq = FactoryBot.create(:valid_asserted_distribution,
+              asserted_distribution_object: o1)
 
             expect(d.extension_computed_fields_data({otu_name: 'TW:Internal:otu_name' })).to eq(
               [[s3.id, 'TW:Internal:otu_name', "aus"]]
