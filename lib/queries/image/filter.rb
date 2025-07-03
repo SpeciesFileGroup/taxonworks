@@ -8,12 +8,28 @@ module Queries
         :biocuration_class_id,
         :collection_object_id,
         :collection_object_scope,
+        :copyright_after_year,
+        :copyright_holder_id,
+        :copyright_holder_id_all,
+        :copyright_holder_organization_id,
+        :copyright_prior_to_year,
+        :copyright_year,
+        :creator_id,
+        :creator_id_all,
+        :depiction_caption,
+        :depiction_caption_exact,
         :depiction_object_type,
         :depictions,
+        :editor_id,
+        :editor_id_all,
         :field_occurrence_id,
         :field_occurrence_scope,
         :freeform_svg,
         :image_id,
+        :license,
+        :owner_id,
+        :owner_id_all,
+        :owner_organization_id,
         :otu_id,
         :otu_scope,
         :sled_image,
@@ -27,12 +43,19 @@ module Queries
         biocuration_class_id: [],
         collection_object_id: [],
         collection_object_scope: [],
+        copyright_holder_id: [],
+        copyright_holder_organization_id: [],
+        creator_id: [],
         depiction_object_type: [],
+        editor_id: [],
         field_occurrence_id: [],
         field_occurrence_scope: [],
         image_id: [],
+        license: [],
         otu_id: [],
         otu_scope: [],
+        owner_id: [],
+        owner_organization_id: [],
         sled_image_id: [],
         source_id: [],
         taxon_name_id: [],
@@ -146,6 +169,98 @@ module Queries
       #   depicts some  that is a type specimen
       attr_accessor :type_material_depictions
 
+      # @return [Array]
+      # @param creator_id [Array or Person#id]
+      #   one or more people id
+      attr_accessor :creator_id
+
+      # @return [Boolean]
+      # @param creator_id_all [String, nil]
+      #   `false`, nil - treat the ids in creator_id as "or"
+      #   'true' - treat the ids in creator_id as "and" (only images with all and only all will match)
+      attr_accessor :creator_id_all
+
+      # @return [Array]
+      # @param editor_id [Array or Person#id]
+      #   one or more people id
+      attr_accessor :editor_id
+
+      # @return [Boolean]
+      # @param editor_id_all [String, nil]
+      #   `false`, nil - treat the ids in editor_id as "or"
+      #   'true' - treat the ids in editor_id as "and" (only images with all and only all will match)
+      attr_accessor :editor_id_all
+
+      # @return [Array]
+      # @param license [Array or String]
+      #    string keys of the CREATIVE_COMMONS_LICENSES list
+      attr_accessor :license
+
+      # @return [Array]
+      # @param owner_id [Array or Person#id]
+      #   one or more people id
+      attr_accessor :owner_id
+
+      # @return [Array]
+      # @param owner_organization_id [Array or Organization#id]
+      #   one or more organization ids
+      attr_accessor :owner_organization_id
+
+      # @return [Boolean]
+      # @param owner_id_all [String, nil]
+      #   `false`, nil - treat the ids in editor_id as "or"
+      #   'true' - treat the ids in owner_id as "and" (only images with all and only all will match)
+      attr_accessor :owner_id_all
+
+      # @return [Array]
+      # @param copyright_holder_id [Array or Person#id]
+      #   one or more people id
+      attr_accessor :copyright_holder_id
+
+      # @return [Array]
+      # @param copyright_holder_organization_id [Array or Organization#id]
+      #   one or more organization ids
+      attr_accessor :copyright_holder_organization_id
+
+      # @return [Boolean]
+      # @param copryight_holder_id_all [String, nil]
+      #   `false`, nil - treat the ids in editor_id as "or"
+      #   'true' - treat the ids in copyright_holder_id as "and" (only images with all and only all will match)
+      attr_accessor :copyright_holder_id_all
+
+      # @return [Array]
+      # @param source_id [Array or Source#id]
+      #   One or more source_ids cited by matching images. Note that a given
+      #   image may only have one citation, so the 'all' option doesn't exist
+      #   here.
+      attr_accessor :source_id
+
+      # @return [Number]
+      # @param copyright_after_year [Number]
+      #   Images match if their copyright year is > copyright_after_year
+      attr_accessor :copyright_after_year
+
+      # @return [Number]
+      # @param copyright_prior_to_year [Number]
+      #   Images match if their copyright year is < copyright_prior_to_year
+      attr_accessor :copyright_prior_to_year
+
+      # @return [Number]
+      # @param copyright_year [Number]
+      #   Images match if their copyright year == copyright_year
+      attr_accessor :copyright_year
+
+      # @return [String]
+      # @param depiction_caption [String]
+      #   Images match if they have a depiction whose caption matches
+      #   depiction_caption.
+      attr_accessor :depiction_caption
+
+      # @return [Boolean]
+      # @param depiction_caption_exact [Boolean]
+      #   depiction_caption must match exactly if true.
+      attr_accessor :depiction_caption_exact
+
       # @param params [Hash]
       def initialize(query_params)
         super
@@ -153,16 +268,34 @@ module Queries
         @biocuration_class_id = params[:biocuration_class_id]
         @collection_object_id = params[:collection_object_id]
         @collection_object_scope = params[:collection_object_scope]
+        @copyright_after_year = params[:copyright_after_year]
+        @copyright_holder_id = params[:copyright_holder_id]
+        @copyright_holder_id_all = boolean_param(params, :copyright_holder_id_all)
+        @copyright_holder_organization_id =
+          params[:copyright_holder_organization_id]
+        @copyright_prior_to_year = params[:copyright_prior_to_year]
+        @copyright_year = params[:copyright_year]
+        @creator_id = params[:creator_id]
+        @creator_id_all = boolean_param(params, :creator_id_all)
+        @depiction_caption = params[:depiction_caption]
+        @depiction_caption_exact = boolean_param(params, :depiction_caption_exact)
         @depiction_object_type = params[:depiction_object_type]
         @depictions = boolean_param(params, :depictions)
+        @editor_id = params[:editor_id]
+        @editor_id_all = boolean_param(params, :editor_id_all)
         @field_occurrence_id = params[:field_occurrence_id]
         @field_occurrence_scope = params[:field_occurrence_scope]
         @freeform_svg = boolean_param(params, :freeform_svg)
         @image_id = params[:image_id]
+        @license = params[:license]
         @otu_id = params[:otu_id]
         @otu_scope = params[:otu_scope]
+        @owner_id = params[:owner_id]
+        @owner_id_all = boolean_param(params, :owner_id_all)
+        @owner_organization_id = params[:owner_organization_id]
         @sled_image = boolean_param(params, :sled_image)
         @sled_image_id = params[:sled_image_id]
+        @source_id = params[:source_id]
         @sqed_depiction_id = params[:sqed_depiction_id]
         @sqed_image = boolean_param(params, :sqed_image)
         @taxon_name_id = params[:taxon_name_id]
@@ -193,6 +326,22 @@ module Queries
         [ @collection_object_scope ].flatten.compact.map(&:to_sym)
       end
 
+      def copyright_holder_id
+        [@copyright_holder_id].flatten.compact.uniq
+      end
+
+      def copyright_holder_organization_id
+        [@copyright_holder_organization_id].flatten.compact.uniq
+      end
+
+      def creator_id
+        [@creator_id].flatten.compact.uniq
+      end
+
+      def editor_id
+        [@editor_id].flatten.compact.uniq
+      end
+
       def field_occurrence_id
         [ @field_occurrence_id ].flatten.compact
       end
@@ -201,8 +350,20 @@ module Queries
         [ @field_occurrence_scope ].flatten.compact.map(&:to_sym)
       end
 
+      def license
+        [ @license ].flatten.compact.uniq.map(&:to_s)
+      end
+
       def otu_id
         [ @otu_id ].flatten.compact
+      end
+
+      def owner_id
+        [@owner_id].flatten.compact.uniq
+      end
+
+      def owner_organization_id
+        [@owner_organization_id].flatten.compact.uniq
       end
 
       def taxon_name_id_target
@@ -221,6 +382,10 @@ module Queries
 
       def sled_image_id
         [ @sled_image_id ].flatten.compact
+      end
+
+      def source_id
+        [ @source_id ].flatten.compact
       end
 
       def sqed_depiction_id
@@ -411,6 +576,129 @@ module Queries
         ::Image.from('(' + q + ')' + ' as images')
       end
 
+      def creator_facet
+        return nil if creator_id.empty?
+
+        q = ::Image
+          .joins(attribution: :roles)
+          .where(roles: {type: 'AttributionCreator'})
+          .where(roles: {person_id: creator_id})
+
+        if creator_id_all
+          q
+            .group(:id)
+            .having("count(images.id) = #{creator_id.length}")
+        else
+          q.distinct
+        end
+      end
+
+      def editor_facet
+        return nil if editor_id.empty?
+
+        q = ::Image
+          .joins(attribution: :roles)
+          .where(roles: {type: 'AttributionEditor'})
+          .where(roles: {person_id: editor_id})
+
+        if editor_id_all
+          q
+            .group(:id)
+            .having("count(images.id) = #{editor_id.length}")
+        else
+          q.distinct
+        end
+      end
+
+      def owner_facet
+        return nil if owner_id.empty? && owner_organization_id.empty?
+
+        q = ::Image
+          .joins(attribution: :roles)
+          .where(roles: {type: 'AttributionOwner'})
+          .where('roles.person_id IN (?) OR roles.organization_id IN (?)',
+            owner_id, owner_organization_id
+          )
+
+        if owner_id_all
+          q
+            .group(:id)
+            .having("count(images.id) = #{owner_id.length + owner_organization_id.length}")
+        else
+          q.distinct
+        end
+      end
+
+      def copyright_holder_facet
+        return nil if copyright_holder_id.empty? &&
+          copyright_holder_organization_id.empty?
+
+        q = ::Image
+          .joins(attribution: :roles)
+          .where(roles: {type: 'AttributionCopyrightHolder'})
+          .where('roles.person_id IN (?) OR roles.organization_id IN (?)',
+            copyright_holder_id, copyright_holder_organization_id
+          )
+
+        if copyright_holder_id_all
+          q
+            .group(:id)
+            .having("count(images.id) = #{copyright_holder_id.length + copyright_holder_organization_id.length}")
+        else
+          q.distinct
+        end
+      end
+
+      def source_facet
+        return nil if source_id.empty?
+
+        ::Image.joins(:citations).where(citations: { source_id: })
+      end
+
+      def license_facet
+        return nil if license.empty?
+
+        ::Image.joins(:attribution).where(attribution: { license: }).distinct
+      end
+
+      def copyright_year_facet
+        return nil if copyright_year.nil? && copyright_after_year.nil? &&
+          copyright_prior_to_year.nil?
+
+        if copyright_year
+          a = ::Image.joins(:attribution).where(attribution: { copyright_year: })
+          return a
+        end
+
+        t = ::Attribution.arel_table
+        if copyright_after_year && copyright_prior_to_year.nil?
+          y = t[:copyright_year].gt(copyright_after_year)
+        elsif copyright_after_year.nil? && copyright_prior_to_year
+          y = t[:copyright_year].lt(copyright_prior_to_year)
+        else
+          y = t[:copyright_year].gt(copyright_after_year).and(
+              t[:copyright_year].lt(copyright_prior_to_year)
+            )
+        end
+
+        ::Image.joins(:attribution).where(y)
+      end
+
+      def depiction_caption_facet
+        return nil if depiction_caption.nil?
+
+        if depiction_caption_exact
+          ::Image
+            .joins(:depictions)
+            .where('depictions.caption = ?', depiction_caption)
+        else
+          caption = "%#{depiction_caption.strip.gsub(/\s+/, '%')}%"
+          ::Image
+            .joins(:depictions)
+            .where('depictions.caption ILIKE ?', caption)
+        end
+      end
+
       def images_on(t, t_id)
         ::Image.joins(t).where(**{t => {id: t_id}})
       end
@@ -591,14 +879,22 @@ module Queries
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
           biocuration_facet,
           collection_object_scope_facet,
-          field_occurrence_scope_facet,
+          copyright_holder_facet,
+          copyright_year_facet,
+          creator_facet,
+          editor_facet,
+          depiction_caption_facet,
           depiction_object_type_facet,
           depictions_facet,
+          field_occurrence_scope_facet,
           freeform_svg_facet,
+          license_facet,
           otu_id_facet,
           otu_scope_facet,
+          owner_facet,
           sled_image_facet,
           sled_image_id_facet,
+          source_facet,
           sqed_image_facet,
           sqed_depiction_id_facet,
           sqed_image_facet,

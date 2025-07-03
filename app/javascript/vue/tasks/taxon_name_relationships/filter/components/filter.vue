@@ -35,7 +35,7 @@ import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.
 import FacetTaxonNameRelationshipType from './filters/FacetTaxonNameRelationshipType.vue'
 import SubjectObjectSelector from './SubjectObjectSelector.vue'
 
-const WITH_PARAMS = ['citations', 'notes', 'verifiers']
+const WITH_PARAMS = ['citations', 'notes', 'origin_citation', 'verifiers']
 
 const params = defineModel({
   type: Object,

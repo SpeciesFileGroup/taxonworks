@@ -30,6 +30,55 @@
   <FacetBiocurations v-model="params" />
   <FacetIdentifiers v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
+  <FacetPeople
+    title="Creator"
+    klass="Image"
+    param-people="creator_id"
+    param-all="creator_id_all"
+    :role-type="[ROLE_ATTRIBUTION_CREATOR]"
+    v-model="params"
+  />
+  <FacetPeople
+    title="Editor"
+    klass="Image"
+    param-people="editor_id"
+    param-all="editor_id_all"
+    :role-type="[ROLE_ATTRIBUTION_EDITOR]"
+    v-model="params"
+  />
+  <FacetPeopleOrOrganizations
+    title="Owner"
+    klass="Image"
+    param-people="owner_id"
+    param-organization="owner_organization_id"
+    param-all="owner_id_all"
+    :role-type="[ROLE_ATTRIBUTION_OWNER]"
+    v-model="params"
+  />
+  <FacetPeopleOrOrganizations
+    title="Copyright holder"
+    klass="Image"
+    param-people="copyright_holder_id"
+    param-organization="copyright_holder_organization_id"
+    param-all="copyright_holder_id_all"
+    :role-type="[ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]"
+    v-model="params"
+  />
+  <FacetYears
+    v-model="params"
+  />
+  <FacetSource
+    klass="Image"
+    v-model="params"
+  />
+  <FacetLicenses
+    v-model="params"
+  />
+  <FacetText
+    param-text="depiction_caption"
+    param-exact="depiction_caption_exact"
+    v-model="params"
+  />
   <FacetTags
     target="Image"
     v-model="params"
@@ -47,6 +96,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { ROLE_ATTRIBUTION_COPYRIGHT_HOLDER, ROLE_ATTRIBUTION_CREATOR, ROLE_ATTRIBUTION_EDITOR, ROLE_ATTRIBUTION_OWNER } from '@/constants'
 import FacetCollectionObject from '@/components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetBiocurations from '@/components/Filter/Facets/CollectionObject/FacetBiocurations.vue'
@@ -60,6 +110,12 @@ import FacetDepictionObjectType from '@/components/Filter/Facets/Depiction/Facet
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetFieldOccurrence from '@/components/Filter/Facets/FieldOccurrence/FacetFieldOccurrence.vue'
+import FacetPeople from '@/components/Filter/Facets/shared/FacetPeople.vue'
+import FacetPeopleOrOrganizations from '@/components/Filter/Facets/shared/FacetPeopleOrOrganizations.vue'
+import FacetSource from '@/components/Filter/Facets/shared/FacetSource.vue'
+import FacetLicenses from '@/components/Filter/Facets/shared/FacetLicenses.vue'
+import FacetYears from '@/components/Filter/Facets/shared/FacetYears.vue'
+import FacetText from '@/components/Filter/Facets/shared/FacetText.vue'
 
 const props = defineProps({
   modelValue: {

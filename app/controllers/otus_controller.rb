@@ -306,12 +306,24 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus/autocomplete
   def api_autocomplete
+    @term = params.require(:term)
+    include_common_names =
+      params[:include_common_names].present? ? true : false
+
     @otu_metadata = ::Queries::Otu::Autocomplete.new(
-      params.require(:term),
+      @term,
       project_id: sessions_current_project_id,
       with_taxon_name: params[:with_taxon_name],
-      having_taxon_name_only: params[:having_taxon_name_only]
+      having_taxon_name_only: params[:having_taxon_name_only],
+      include_common_names:,
+      include_taxon_name: true
     ).api_autocomplete_extended
+
+    if include_common_names
+      @otu_metadata.each do |m|
+        m[:common_names] = m[:otu].common_names
+      end
+    end
 
     render '/otus/api/v1/autocomplete'
   end

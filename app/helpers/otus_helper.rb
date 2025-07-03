@@ -24,14 +24,50 @@ module OtusHelper
   end
 
   # Used exclusively in /api/v1/otus/autocomplete
-  def otu_extended_autocomplete_tag(target)
+  def otu_extended_autocomplete_tag(target, otu, common_names, term)
     if target.kind_of?(Otu)
-      otu_tag(target)
+      t = otu_tag(target)
     else # TaxonName
       a = [ tag.span( full_taxon_name_tag(target).html_safe, class: :otu_tag_taxon_name, title: target.id) ]
       a.push taxon_name_type_short_tag(target)
-      tag.span( a.compact.join(' ').html_safe, class: :otu_tag )
+      t = tag.span( a.compact.join(' ').html_safe, class: :otu_tag )
     end
+
+    if common_names.present? && otu.present? &&
+       (common_names_label = otu_common_names_label(common_names, term)).present?
+      tag.span( "#{common_names_label} (#{t})".html_safe )
+    else
+      t
+    end
+  end
+
+  def otu_common_names_label(common_names, term = nil)
+    return nil if common_names.nil? || common_names.empty?
+
+    if term.empty?
+      return common_names.map(&:name).sort.join(', ')
+    end
+
+    prefix_matches = []
+    wildcard_matches = []
+    non_matches = []
+
+    term = term.downcase
+    # Regexp.escape turns each space into '\\ '.
+    wildcard_term = Regexp.escape(term).gsub(/(\\ )+/, '.*')
+
+    common_names.each do |o|
+      name = o.name.downcase
+      if name.start_with?(term)
+        prefix_matches << name
+      elsif name =~ /#{wildcard_term}/
+        wildcard_matches << name
+      else
+        non_matches << name
+      end
+    end
+
+    (prefix_matches.sort + wildcard_matches.sort + non_matches.sort).join(', ')
   end
 
   # @return [String]

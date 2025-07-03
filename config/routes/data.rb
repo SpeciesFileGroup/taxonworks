@@ -693,6 +693,7 @@ end
 resources :organizations do
   collection do
     get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
   concerns [:data_routes]
 end
