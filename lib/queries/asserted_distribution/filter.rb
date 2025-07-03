@@ -151,15 +151,27 @@ module Queries
       end
 
       def from_wkt(wkt_shape)
-        a = from_wkt_geographic_area(wkt_shape)
-        b = from_wkt_gazetteer(wkt_shape)
+        a = geographic_areas_for_geographic_items(
+          ::GeographicItem.covered_by_wkt_sql(wkt_shape)
+        )
+        b = gazetteers_for_geographic_items(
+          ::GeographicItem.covered_by_wkt_sql(wkt_shape)
+        )
 
         ::Queries.union(::AssertedDistribution, [a, b])
       end
 
-      def from_wkt_geographic_area(wkt_shape)
+      def from_geographic_items(geographic_items_sql)
+        a = geographic_areas_for_geographic_items(geographic_items_sql)
+        b = gazetteers_for_geographic_items(geographic_items_sql)
 
-        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.covered_by_wkt_sql(wkt_shape))
+        ::Queries.union(::AssertedDistribution, [a, b])
+      end
+
+      def geographic_areas_for_geographic_items(geographic_items_sql)
+        i = ::GeographicItem
+          .joins(:geographic_areas)
+          .where(geographic_items_sql)
 
         j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
         k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have shapes
@@ -175,8 +187,8 @@ module Queries
         ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
       end
 
-      def from_wkt_gazetteer(wkt_shape)
-        i = ::GeographicItem.joins(:gazetteers).where(::GeographicItem.covered_by_wkt_sql(wkt_shape))
+      def gazetteers_for_geographic_items(condition)
+        i = ::GeographicItem.joins(:gazetteers).where(condition)
 
         j = ::Gazetteer.joins(:geographic_item).where(geographic_item: i)
 
@@ -277,15 +289,10 @@ module Queries
 
         if geo_mode == true # spatial
           i = ::Queries.union(::GeographicItem, [a,b])
-          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
 
-          if u['st_astext'].nil?
-            # Normally shouldn't be the case unless we were passed some bad
-            # params.
-            return ::AssertedDistribution.none
-          else
-            return from_wkt(u['st_astext'])
-          end
+          return from_geographic_items(
+            ::GeographicItem.covered_by_geographic_items_sql(i.pluck(:id))
+          )
         end
 
         referenced_klass_union([a,b])

@@ -596,7 +596,7 @@ class GeographicItem < ApplicationRecord
       geographic_item_ids.flatten!
 
       Arel.sql(
-        "SELECT ST_Collect(f.the_geom) AS single_geometry
+        "SELECT ST_Union(f.the_geom) AS single_geometry
           FROM (
             SELECT (
               ST_DUMP(geography::geometry)
@@ -635,6 +635,15 @@ class GeographicItem < ApplicationRecord
           st_geom_from_text_sql(wkt)
         )
       end
+    end
+
+    # !! CURRENTLY ASSUMES no geographic_item_id crosses the anti-meridian. This
+    # is true for GA and AD shapes, but !! not necessarily for GEOREF shapes !!
+    # !!.
+    def covered_by_geographic_items_sql(*geographic_item_ids)
+      geom = items_as_one_geometry_sql(geographic_item_ids)
+
+      subset_of_sql(geom)
     end
 
     #
