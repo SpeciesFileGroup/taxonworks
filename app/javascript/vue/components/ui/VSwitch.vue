@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'switch-radio': true, 'wrap-switch': options.length > 4 }">
+  <div :class="{ 'switch-radio': true, 'wrap-switch': options.length >= wrap }">
     <template
       v-for="(item, index) in options"
       :key="index"
@@ -56,7 +56,12 @@ export default {
     fullWidth: {
       type: Boolean,
       default: false
-    }
+    },
+
+    wrap: {
+      type: Number,
+      default: 5
+    },
   },
 
   emits: ['update:modelValue', 'index'],
