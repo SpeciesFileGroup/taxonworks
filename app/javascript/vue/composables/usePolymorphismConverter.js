@@ -5,7 +5,6 @@
 // form
 // `asserted_distribution_object_id=1&asserted_distribution_object_type='*'`
 import { getParametersFromSession } from "@/shared/Filter/utils"
-import { onBeforeMount } from "vue"
 import { STORAGE_FILTER_QUERY_STATE_PARAMETER } from "@/constants"
 import qs from 'qs'
 
@@ -18,27 +17,25 @@ export function usePolymorphicConverter(polymorphismBase, polymorphismTypes) {
   // Like 'otu_id', etc.
   const typeQueryKeys = polymorphismTypes.map((t) => t.query_key)
 
-  onBeforeMount(() => {
-    // Compare with useFilter.js
-    const {
-      [STORAGE_FILTER_QUERY_STATE_PARAMETER]: stateId,
-      ...urlParameters
-    } = qs.parse(location.search, { ignoreQueryPrefix: true })
+  // Compare with useFilter.js
+  const {
+    [STORAGE_FILTER_QUERY_STATE_PARAMETER]: stateId,
+    ...urlParameters
+  } = qs.parse(location.search, { ignoreQueryPrefix: true })
 
-    Object.assign(urlParameters, getParametersFromSession(stateId))
+  Object.assign(urlParameters, getParametersFromSession(stateId))
 
-    for (const param of Object.keys(urlParameters)) {
-      const i = typeQueryKeys.indexOf(param)
-      if (i != -1) {
-        urlParameters[`${polymorphismBase}_id`] = urlParameters[param]
-        urlParameters[`${polymorphismBase}_type`] =
-          polymorphismTypes[i]['singular']
+  for (const param of Object.keys(urlParameters)) {
+    const i = typeQueryKeys.indexOf(param)
+    if (i != -1) {
+      urlParameters[`${polymorphismBase}_id`] = urlParameters[param]
+      urlParameters[`${polymorphismBase}_type`] =
+        polymorphismTypes[i]['singular']
 
-        delete urlParameters[param]
-      }
+      delete urlParameters[param]
     }
+  }
 
-    const urlParams = qs.stringify(urlParameters, { arrayFormat: 'brackets' })
-    history.replaceState(null, null, `${window.location.pathname}?${urlParams}`)
-  })
+  const urlParams = qs.stringify(urlParameters, { arrayFormat: 'brackets' })
+  history.replaceState(null, null, `${window.location.pathname}?${urlParams}`)
 }

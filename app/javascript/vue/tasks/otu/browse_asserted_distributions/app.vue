@@ -146,7 +146,6 @@ const embed = ['level_names', 'shape']
 
 defineOptions({ name: 'BrowseAssertedDistributions' })
 
-// Must come before useFilter.
 usePolymorphicConverter(
   'asserted_distribution_object', AssertedDistributionObject
 )
