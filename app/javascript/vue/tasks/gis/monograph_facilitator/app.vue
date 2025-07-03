@@ -33,7 +33,7 @@ onBeforeMount(() => {
 
 <style scoped>
 .app-container {
-  max-height: calc(100vh - 16rem);
-  height: calc(100vh - 16rem);
+  max-height: calc(100vh - 12rem);
+  height: calc(100vh - 12rem);
 }
 </style>

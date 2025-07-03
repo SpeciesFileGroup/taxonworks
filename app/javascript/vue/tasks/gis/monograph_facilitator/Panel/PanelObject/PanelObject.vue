@@ -4,6 +4,7 @@
       v-for="group in store.groups"
       :key="group.determination.id"
       :group="group"
+      @toggle="group.visible = !group.visible"
     />
   </div>
 </template>
@@ -20,7 +21,8 @@ const store = useStore()
   max-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  max-width: 400px;
+  min-width: 400px;
   width: 400px;
+  font-size: 12px;
 }
 </style>

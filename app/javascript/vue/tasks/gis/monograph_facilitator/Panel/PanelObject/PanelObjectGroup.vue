@@ -1,6 +1,6 @@
 <template>
   <div
-    class="group"
+    :class="['group', { 'group-hidden': !group.visible }]"
     :style="`border-color: ${group.color}`"
   >
     <div class="group-header padding-small">
@@ -11,6 +11,12 @@
         />
         <span v-html="group.determination.label" />
       </label>
+      <VIcon
+        class="cursor-pointer"
+        :name="group.visible ? 'show' : 'hide'"
+        small
+        @click="emit('toggle')"
+      />
     </div>
     <ul class="no_bullets group-list">
       <li
@@ -34,6 +40,7 @@
 <script setup>
 import { computed } from 'vue'
 import useStore from '../../store/store.js'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   group: {
@@ -42,6 +49,7 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['toggle'])
 const store = useStore()
 
 const selectAll = computed({
@@ -66,6 +74,9 @@ const selectAll = computed({
 </script>
 
 <style scoped>
+.group-hidden {
+  opacity: 0.4;
+}
 .group {
   border-left: 4px solid;
 
@@ -78,8 +89,12 @@ const selectAll = computed({
   }
 
   .group-label {
-    width: 360px;
-    max-width: 360px;
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    width: 340px;
+    max-width: 340px;
+    font-size: 12px;
   }
 
   .group-header {
@@ -94,6 +109,7 @@ const selectAll = computed({
       padding: 0.5rem;
       box-sizing: border-box;
       border-bottom: 1px solid var(--border-color);
+      font-size: 12px;
     }
   }
 }

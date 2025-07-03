@@ -24,6 +24,20 @@ function makeObject(o) {
   }
 }
 
+function buildGroups(objects) {
+  const determinations = getUnique(
+    objects.map((o) => o.determination).filter((d) => d.otuId),
+    'otuId'
+  )
+
+  return determinations.map((d, index) => ({
+    determination: d,
+    color: randomHue(index),
+    list: objects.filter((o) => o.determination?.otuId === d.otuId),
+    visible: true
+  }))
+}
+
 export default defineStore('monographFacilitator', {
   state: () => ({
     isLoading: false,
@@ -31,7 +45,8 @@ export default defineStore('monographFacilitator', {
     determinations: [],
     objects: [],
     selectedIds: [],
-    settings: {}
+    settings: {},
+    groups: []
   }),
 
   getters: {
@@ -60,6 +75,7 @@ export default defineStore('monographFacilitator', {
 
     shapes(state) {
       return state.groups
+        .filter((group) => group.visible)
         .map((group) => {
           const otuId = group.determination.otuId
           const features = state.getGeoreferenceByOtuId(otuId).map((g) => {
@@ -81,19 +97,6 @@ export default defineStore('monographFacilitator', {
           return features
         })
         .flat()
-    },
-
-    groups(state) {
-      const determinations = getUnique(
-        state.objects.map((o) => o.determination).filter((d) => d.otuId),
-        'otuId'
-      )
-
-      return determinations.map((d, index) => ({
-        determination: d,
-        color: randomHue(index),
-        list: state.objects.filter((o) => o.determination?.otuId === d.otuId)
-      }))
     }
   },
 
@@ -115,6 +118,7 @@ export default defineStore('monographFacilitator', {
         }
 
         this.objects = body.map(makeObject)
+        this.groups = buildGroups(this.objects)
       } catch (e) {
         throw e
       }
