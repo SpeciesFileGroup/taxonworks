@@ -1,40 +1,64 @@
 <template>
-  <div
-    :class="['group', { 'group-hidden': !group.visible }]"
+  <table
+    :class="['group', { 'group-hidden': allHidden }]"
     :style="`border-color: ${group.color}`"
   >
-    <div class="group-header padding-small">
-      <label class="group-label ellipsis">
-        <input
-          type="checkbox"
-          v-model="selectAll"
-        />
-        <span v-html="group.determination.label" />
-      </label>
-      <VIcon
-        class="cursor-pointer"
-        :name="group.visible ? 'show' : 'hide'"
-        small
-        @click="emit('toggle')"
-      />
-    </div>
-    <ul class="no_bullets group-list">
-      <li
+    <thead>
+      <tr class="group-header">
+        <th class="w-6">
+          <input
+            type="checkbox"
+            v-model="selectAll"
+          />
+        </th>
+
+        <th class="label-column ellipsis">
+          <span
+            class="ellipsis"
+            v-html="group.determination.label"
+          />
+        </th>
+        <th class="w-8">
+          <VIcon
+            class="cursor-pointer"
+            :name="allHidden ? 'hide' : 'show'"
+            small
+            @click="toggleGroup"
+          />
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
         v-for="item in group.list"
         :key="item.id"
-        class="ellipsis"
+        class="no_bullets group-list"
       >
-        <label>
+        <td>
           <input
             type="checkbox"
             :value="item.objectId"
             v-model="store.selectedIds"
           />
-          <span v-html="item.label" />
-        </label>
-      </li>
-    </ul>
-  </div>
+        </td>
+        <td class="label-column ellipsis"><span v-html="item.label" /></td>
+        <td>
+          <VIcon
+            class="cursor-pointer"
+            :name="store.hiddenIds.includes(item.objectId) ? 'hide' : 'show'"
+            small
+            @click="
+              () =>
+                store.setObjectVisibilityById(
+                  item.objectId,
+                  !store.hiddenIds.includes(item.objectId)
+                )
+            "
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script setup>
@@ -71,6 +95,18 @@ const selectAll = computed({
     }
   }
 })
+
+const allHidden = computed(() =>
+  props.group.list.every((item) => store.hiddenIds.includes(item.objectId))
+)
+
+function toggleGroup() {
+  const value = !allHidden.value
+
+  props.group.list.forEach((item) => {
+    store.setObjectVisibilityById(item.objectId, value)
+  })
+}
 </script>
 
 <style scoped>
@@ -79,27 +115,34 @@ const selectAll = computed({
 }
 .group {
   border-left: 4px solid;
+  width: 400px;
+  max-width: 400px;
+  table-layout: fixed;
+
+  .checkbox-column {
+    width: 20px;
+  }
+
+  .label-column {
+    width: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 0;
+    padding-right: 0;
+  }
 
   .group-header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--border-color);
+    th,
+    th:hover {
+      background-color: var(--bg-color);
+    }
   }
 
   .group-label {
-    display: flex;
-    gap: 0.25rem;
-    align-items: center;
     width: 340px;
     max-width: 340px;
     font-size: 12px;
-  }
-
-  .group-header {
-    width: 360px;
-    max-width: 360px;
   }
 
   .group-list {

@@ -17,16 +17,21 @@
 <script setup>
 import VMap from '@/components/ui/VMap/VMap.vue'
 import useStore from '../store/store.js'
+import { usePressedKey } from '@/composables/usePressedKey.js'
 
 const store = useStore()
+const { isKeyPressed, pressedKeys } = usePressedKey()
 
 function setSelectedObjects(arr) {
   const features = arr.map((item) => item.feature)
-  console.log(arr, features)
   const objects = features
     .map((f) => store.getObjectByGeoreferenceId(f.properties.georeference.id))
     .flat()
   const ids = objects.map((o) => o.objectId)
+
+  if (isKeyPressed('Control')) {
+    ids.push(...store.selectedIds)
+  }
 
   store.selectedIds = [...new Set(ids)]
 }

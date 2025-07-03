@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { Georeference, CollectionObject } from '@/routes/endpoints'
 import { getUnique, randomHue } from '@/helpers'
 import { makeMarkerStyle } from '../utils'
+import { addToArray, removeFromArray } from '@/helpers'
 import { toRaw } from 'vue'
 
 const extend = ['taxon_determinations']
@@ -19,7 +20,7 @@ function makeObject(o) {
     objectId: o.id,
     objectType: o.type,
     collectingEventId: o.collecting_event_id,
-    label: o.object_tag,
+    label: o.object_label,
     determination: makeDetermination(o.taxon_determinations?.[0])
   }
 }
@@ -33,8 +34,7 @@ function buildGroups(objects) {
   return determinations.map((d, index) => ({
     determination: d,
     color: randomHue(index),
-    list: objects.filter((o) => o.determination?.otuId === d.otuId),
-    visible: true
+    list: objects.filter((o) => o.determination?.otuId === d.otuId)
   }))
 }
 
@@ -46,13 +46,14 @@ export default defineStore('monographFacilitator', {
     objects: [],
     selectedIds: [],
     settings: {},
-    groups: []
+    groups: [],
+    hiddenIds: []
   }),
 
   getters: {
     getGeoreferenceByOtuId(state) {
       return (otuId) => {
-        const objects = state.objects.filter(
+        const objects = state.getVisibleObjects.filter(
           (o) => o.determination.otuId === otuId
         )
         const ceIds = objects.map((o) => o.collectingEventId)
@@ -61,6 +62,10 @@ export default defineStore('monographFacilitator', {
           ceIds.includes(g.collecting_event_id)
         )
       }
+    },
+
+    getVisibleObjects(state) {
+      return state.objects.filter((o) => !state.hiddenIds.includes(o.objectId))
     },
 
     getObjectByGeoreferenceId(state) {
@@ -75,7 +80,6 @@ export default defineStore('monographFacilitator', {
 
     shapes(state) {
       return state.groups
-        .filter((group) => group.visible)
         .map((group) => {
           const otuId = group.determination.otuId
           const features = state.getGeoreferenceByOtuId(otuId).map((g) => {
@@ -124,6 +128,14 @@ export default defineStore('monographFacilitator', {
       }
 
       this.isLoading = false
+    },
+
+    setObjectVisibilityById(id, visible) {
+      if (visible) {
+        addToArray(this.hiddenIds, id, { primitive: true })
+      } else {
+        removeFromArray(this.hiddenIds, id, { primitive: true })
+      }
     }
   }
 })

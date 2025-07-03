@@ -8,12 +8,10 @@ export function usePressedKey() {
   }
 
   const removeKey = (e) => {
-    pressedKeys.value.remove(e.key)
+    pressedKeys.value.delete(e.key)
   }
 
-  const isKeyPressed = (key) => {
-    pressedKeys.value.has(key)
-  }
+  const isKeyPressed = (key) => pressedKeys.value.has(key)
 
   onBeforeMount(() => {
     window.addEventListener('keydown', addKey)

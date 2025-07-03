@@ -4,7 +4,6 @@
       v-for="group in store.groups"
       :key="group.determination.id"
       :group="group"
-      @toggle="group.visible = !group.visible"
     />
   </div>
 </template>
