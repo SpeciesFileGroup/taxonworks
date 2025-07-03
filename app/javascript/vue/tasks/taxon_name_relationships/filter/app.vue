@@ -21,45 +21,12 @@
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
-      <template #nav-options-left>
-        <div
-          class="horizontal-left-content middle margin-small-right gap-small"
-        >
-          Subject/Object
-          <div class="square-brackets">
-            <ul class="no_bullets context-menu">
-              <li>
-                <RadialFilter
-                  title="Radial Filter (Subject)"
-                  :ids="subjectIds"
-                  :parameters="parameters"
-                  :disabled="!subjectIds.length"
-                  :object-type="TAXON_NAME_RELATIONSHIP"
-                  :id-param="ID_PARAM_FOR[TAXON_NAME]"
-                  :nest="false"
-                />
-              </li>
-              <li>
-                <RadialFilter
-                  title="Radial Filter (Object)"
-                  :nest="false"
-                  :ids="objectIds"
-                  :parameters="parameters"
-                  :disabled="!objectIds.length"
-                  :object-type="TAXON_NAME_RELATIONSHIP"
-                  :id-param="ID_PARAM_FOR[TAXON_NAME]"
-                />
-              </li>
-            </ul>
-          </div>
-        </div>
-      </template>
       <template #table>
-        <ListResults
+        <FilterList
           v-model="selectedIds"
+          :attributes="ATTRIBUTES"
           :list="list"
-          @on-sort="list = $event"
-          @remove="({ index }) => list.splice(index, 1)"
+          @on-sort="(sorted) => (list = sorted)"
         />
       </template>
     </FilterLayout>
@@ -75,14 +42,14 @@
 <script setup>
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
-import ListResults from './components/ListResults.vue'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import RadialFilter from '@/components/radials/filter/radial.vue'
-import { TAXON_NAME_RELATIONSHIP, TAXON_NAME } from '@/constants/index.js'
+import { listParser } from '../utils/listParser.js'
+import { TAXON_NAME_RELATIONSHIP } from '@/constants/index.js'
 import { TaxonNameRelationship } from '@/routes/endpoints'
 import { computed } from 'vue'
-import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
+import { ATTRIBUTES } from './constants/attributes'
 
 defineOptions({
   name: 'FilterTaxonNameRelationships'
@@ -99,20 +66,5 @@ const {
   selectedIds,
   makeFilterRequest,
   resetFilter
-} = useFilter(TaxonNameRelationship)
-
-const subjectIds = computed(() => [
-  ...new Set(
-    selectedIds.value.map(
-      (id) => list.value.find((item) => item.id === id).subject_taxon_name_id
-    )
-  )
-])
-const objectIds = computed(() => [
-  ...new Set(
-    selectedIds.value.map(
-      (id) => list.value.find((item) => item.id === id).object_taxon_name_id
-    )
-  )
-])
+} = useFilter(TaxonNameRelationship, { listParser })
 </script>
