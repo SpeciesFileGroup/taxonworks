@@ -295,9 +295,7 @@ module Queries
         i = ::Queries.union(::GeographicItem, [a,b])
 
         from_geographic_items(
-          ::GeographicItem.covered_by_geographic_items_sql(
-            i, at_most_one_geo_shape
-          )
+          ::GeographicItem.covered_by_geographic_items_sql(i)
         )
       end
 

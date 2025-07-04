@@ -639,16 +639,7 @@ class GeographicItem < ApplicationRecord
 
     # !! CURRENTLY ASSUMES no geographic_item_id crosses the anti-meridian. This
     # is true for GA and AD shapes, but not necessarily for GEOREF shapes.
-    def covered_by_geographic_items_sql(geographic_item_scope, one_shape)
-      if one_shape
-        bounding_box_match =
-          "geography && (#{geographic_item_scope.select(:geography).to_sql})"
-
-        return bounding_box_match + ' AND ' +
-          # TODO change back to .arel
-          subset_of_sql(Arel.sql(geographic_item_scope.select(:geography).to_sql)).to_sql
-      end
-
+    def covered_by_geographic_items_sql(geographic_item_scope)
       f = geographic_item_scope.select(
         '(ST_DUMP(geography::geometry)).geom AS the_geom'
       )
@@ -656,8 +647,8 @@ class GeographicItem < ApplicationRecord
       # Trying out ST_Union here instead of our more traditional ST_Collect
       # since, e.g. a geographic_item (like a Gaz AD shape) that crosses the
       # border of Canada and the U.S. would *not* be contained by
-      # ST_Collect(Canada, U.S.).
-      # THIS MAY BE SLOW.
+      # ST_Collect(Canada, U.S.). This is unexpectedly fast in tests, but be
+      # wary here with new use cases.
       geom = Arel.sql(
         'SELECT ST_Union(f.the_geom) AS single_geometry FROM (' +
           f.to_sql +
