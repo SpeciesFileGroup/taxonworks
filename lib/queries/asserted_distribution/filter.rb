@@ -287,15 +287,18 @@ module Queries
           'Gazetteer', gazetteer_shapes
         )
 
-        if geo_mode == true # spatial
-          i = ::Queries.union(::GeographicItem, [a,b])
-
-          return from_geographic_items(
-            ::GeographicItem.covered_by_geographic_items_sql(i.pluck(:id))
-          )
+        if geo_mode != true # exact or descendants
+          return referenced_klass_union([a,b])
         end
 
-        referenced_klass_union([a,b])
+        # Spatial.
+        i = ::Queries.union(::GeographicItem, [a,b])
+
+        from_geographic_items(
+          ::GeographicItem.covered_by_geographic_items_sql(
+            i, at_most_one_geo_shape
+          )
+        )
       end
 
       def asserted_distribution_geo_facet_by_type(shape_string, shape_ids)
