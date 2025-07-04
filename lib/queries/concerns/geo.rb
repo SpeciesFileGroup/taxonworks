@@ -40,6 +40,11 @@ module Queries::Concerns::Geo
     @geo_mode = boolean_param(params, :geo_mode)
   end
 
+  # There could be 0 if none of the supplied GAs have a shape.
+  def at_most_one_geo_shape
+    geo_shape_id.length < 2
+  end
+
   def param_shapes_by_type
     geographic_area_ids = []
     gazetteer_ids = []
