@@ -176,29 +176,21 @@ module Queries
         j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
         k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have shapes
 
-        l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
+        l = ::Queries.union(::AssertedDistribution, [j,k])
 
-        s = 'WITH query_wkt_ad AS (' + l.all.to_sql + ') ' +
-          ::AssertedDistribution
-          .joins('JOIN query_wkt_ad as query_wkt_ad1 on query_wkt_ad1.id = asserted_distributions.asserted_distribution_shape_id')
-          .where(asserted_distribution_shape_type: 'GeographicArea')
-          .to_sql
-
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+        ::AssertedDistribution
+          .with(ad: l)
+          .joins("JOIN ad ON ad.id = asserted_distributions.asserted_distribution_shape_id AND asserted_distribution_shape_type = 'GeographicArea'")
       end
 
-      def gazetteers_for_geographic_items(condition)
-        i = ::GeographicItem.joins(:gazetteers).where(condition)
+      def gazetteers_for_geographic_items(geographic_items_sql)
+        i = ::GeographicItem.joins(:gazetteers).where(geographic_items_sql)
 
         j = ::Gazetteer.joins(:geographic_item).where(geographic_item: i)
 
-        s = 'WITH query_wkt_ad AS (' + j.to_sql + ') ' +
-          ::AssertedDistribution
-          .joins('JOIN query_wkt_ad as query_wkt_ad1 on query_wkt_ad1.id = asserted_distributions.asserted_distribution_shape_id')
-          .where(asserted_distribution_shape_type: 'Gazetteer')
-          .to_sql
-
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+        ::AssertedDistribution
+          .with(gz: j)
+          .joins("JOIN gz ON gz.id = asserted_distributions.asserted_distribution_shape_id AND asserted_distribution_shape_type = 'Gazetteer'")
       end
 
       # Shape is a Hash in GeoJSON format
