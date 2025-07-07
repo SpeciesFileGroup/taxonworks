@@ -15,12 +15,19 @@ if observation.type == 'Observation::Qualitative'
   end
 end
 
+if extend_response_with('descriptor')
+  json.descriptor do
+    json.name observation.descriptor.name
+    json.description observation.descriptor.description
+  end
+end
+
 if extend_response_with('depictions')
   if observation.depictions.any?
     json.depictions do
       json.array! observation.depictions.each do |depiction|
         #TODO: Not an API endpoint
-        json.partial! '/depictions/attributes', depiction: depiction
+        json.partial! '/depictions/api/v1/attributes', depiction: depiction
       end
     end
   end
