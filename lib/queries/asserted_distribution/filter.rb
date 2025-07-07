@@ -183,6 +183,10 @@ module Queries
         k = ::GeographicArea.descendants_of(j).pluck(:id) # Add children that might not be caught because they don't have shapes
 
         geographic_area_ids = (j + k).uniq.join(',')
+        if geographic_area_ids.empty?
+          return ::AssertedDistribution.none
+        end
+
         ::AssertedDistribution
           .where("asserted_distributions.asserted_distribution_shape_id IN (#{geographic_area_ids}) AND asserted_distributions.asserted_distribution_shape_type = 'GeographicArea'")
       end
@@ -193,8 +197,13 @@ module Queries
         j = ::Gazetteer
           .joins(:geographic_item).where(geographic_item: i).pluck(:id)
 
+        gazetteer_ids = j.join(',')
+        if gazetteer_ids.empty?
+          return ::AssertedDistribution.none
+        end
+
         ::AssertedDistribution
-          .where("asserted_distributions.asserted_distribution_shape_id IN (#{j.join(',')}) AND asserted_distributions.asserted_distribution_shape_type = 'Gazetteer'")
+          .where("asserted_distributions.asserted_distribution_shape_id IN (#{gazetteer_ids}) AND asserted_distributions.asserted_distribution_shape_type = 'Gazetteer'")
       end
 
       # Shape is a Hash in GeoJSON format
