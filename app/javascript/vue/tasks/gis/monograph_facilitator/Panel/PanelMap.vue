@@ -5,11 +5,7 @@
     :geojson="store.shapes"
     fit-bounds
     resize
-    draw-controls
-    :draw-polyline="false"
-    :cut-polygon="false"
     tooltips
-    actions
     @select="setSelectedObjects"
   />
 </template>
@@ -20,7 +16,7 @@ import useStore from '../store/store.js'
 import { usePressedKey } from '@/composables/usePressedKey.js'
 
 const store = useStore()
-const { isKeyPressed, pressedKeys } = usePressedKey()
+const { isKeyPressed } = usePressedKey()
 
 function setSelectedObjects(arr) {
   const features = arr.map((item) => item.feature)
