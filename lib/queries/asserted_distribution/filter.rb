@@ -151,29 +151,33 @@ module Queries
       end
 
       def from_wkt(wkt_shape)
-        a = geographic_areas_for_geographic_items(
+        a = self.class.geographic_areas_for_geographic_items(
           ::GeographicItem.covered_by_wkt_sql(wkt_shape)
         )
-        b = gazetteers_for_geographic_items(
+        b = self.class.gazetteers_for_geographic_items(
           ::GeographicItem.covered_by_wkt_sql(wkt_shape)
         )
 
         ::Queries.union(::AssertedDistribution, [a, b])
       end
 
-      def from_geographic_items(geographic_items_sql)
-        a = geographic_areas_for_geographic_items(geographic_items_sql)
-        b = gazetteers_for_geographic_items(geographic_items_sql)
+      def self.from_geographic_items(geographic_items_sql)
+        # TODO: can we combine GAs and GAZs *before* joining with
+        # geographic_items_sql? That would save a spatial contains query.
+        a = self.geographic_areas_for_geographic_items(geographic_items_sql)
+        b = self.gazetteers_for_geographic_items(geographic_items_sql)
 
         ::Queries.union(::AssertedDistribution, [a, b])
       end
 
-      def geographic_areas_for_geographic_items(geographic_items_sql)
+      def self.geographic_areas_for_geographic_items(geographic_items_sql)
         i = ::GeographicItem
           .joins(:geographic_areas)
           .where(geographic_items_sql)
 
         j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
+        # TODO: There are only 58 GAs with shape that have a descendant without
+        # shape: could this be a lookup table instead?
         k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have shapes
 
         l = ::Queries.union(::AssertedDistribution, [j,k])
@@ -183,7 +187,7 @@ module Queries
           .joins("JOIN ad ON ad.id = asserted_distributions.asserted_distribution_shape_id AND asserted_distribution_shape_type = 'GeographicArea'")
       end
 
-      def gazetteers_for_geographic_items(geographic_items_sql)
+      def self.gazetteers_for_geographic_items(geographic_items_sql)
         i = ::GeographicItem.joins(:gazetteers).where(geographic_items_sql)
 
         j = ::Gazetteer.joins(:geographic_item).where(geographic_item: i)
@@ -286,7 +290,7 @@ module Queries
         # Spatial.
         i = ::Queries.union(::GeographicItem, [a,b])
 
-        from_geographic_items(
+        self.class.from_geographic_items(
           ::GeographicItem.covered_by_geographic_items_sql(i)
         )
       end
