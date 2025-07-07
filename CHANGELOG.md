@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - The following facets to Filter Images: Creator, Editor, Owner, Copyright holder, Source, License, Copyright Year, Depiction caption [#3511]
 - Add with/without origin citation facet to Filter Taxon Name Relationships
 - Radial mass annotator: `is original` flag option in batch citation [#4458]
+- Filter Observations: Sounds facet
 
 ### Fixed
 
