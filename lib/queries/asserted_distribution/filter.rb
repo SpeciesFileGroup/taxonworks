@@ -167,7 +167,7 @@ module Queries
         a = self.geographic_areas_for_geographic_items(geographic_items_sql)
         b = self.gazetteers_for_geographic_items(geographic_items_sql)
 
-        ::Queries.union(::AssertedDistribution, [a, b])
+        ::Queries.union(::AssertedDistribution, [a,b])
       end
 
       def self.geographic_areas_for_geographic_items(geographic_items_sql)
@@ -175,26 +175,26 @@ module Queries
           .joins(:geographic_areas)
           .where(geographic_items_sql)
 
-        j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
+        j = ::GeographicArea
+          .joins(:geographic_items).where(geographic_items: i).pluck(:id)
+
         # TODO: There are only 58 GAs with shape that have a descendant without
         # shape: could this be a lookup table instead?
-        k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have shapes
+        k = ::GeographicArea.descendants_of(j).pluck(:id) # Add children that might not be caught because they don't have shapes
 
-        l = ::Queries.union(::AssertedDistribution, [j,k])
-
+        geographic_area_ids = (j + k).uniq.join(',')
         ::AssertedDistribution
-          .with(ad: l)
-          .joins("JOIN ad ON ad.id = asserted_distributions.asserted_distribution_shape_id AND asserted_distribution_shape_type = 'GeographicArea'")
+          .where("asserted_distributions.asserted_distribution_shape_id IN (#{geographic_area_ids}) AND asserted_distributions.asserted_distribution_shape_type = 'GeographicArea'")
       end
 
       def self.gazetteers_for_geographic_items(geographic_items_sql)
         i = ::GeographicItem.joins(:gazetteers).where(geographic_items_sql)
 
-        j = ::Gazetteer.joins(:geographic_item).where(geographic_item: i)
+        j = ::Gazetteer
+          .joins(:geographic_item).where(geographic_item: i).pluck(:id)
 
         ::AssertedDistribution
-          .with(gz: j)
-          .joins("JOIN gz ON gz.id = asserted_distributions.asserted_distribution_shape_id AND asserted_distribution_shape_type = 'Gazetteer'")
+          .where("asserted_distributions.asserted_distribution_shape_id IN (#{j.join(',')}) AND asserted_distributions.asserted_distribution_shape_type = 'Gazetteer'")
       end
 
       # Shape is a Hash in GeoJSON format
@@ -289,9 +289,8 @@ module Queries
 
         # Spatial.
         i = ::Queries.union(::GeographicItem, [a,b])
-
         self.class.from_geographic_items(
-          ::GeographicItem.covered_by_geographic_items_sql(i)
+          ::GeographicItem.covered_by_geographic_items_sql(i.to_a)
         )
       end
 
