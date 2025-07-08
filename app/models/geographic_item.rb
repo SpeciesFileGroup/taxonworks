@@ -639,7 +639,7 @@ class GeographicItem < ApplicationRecord
 
     # !! CURRENTLY ASSUMES no geographic_item_id crosses the anti-meridian. This
     # is true for GA and AD shapes, but not necessarily for GEOREF shapes.
-    def covered_by_geographic_items_sql(geographic_item_id)
+    def covered_by_geographic_items_sql(*geographic_item_id)
       f = ::GeographicItem.where(id: geographic_item_id).select(
         '(ST_DUMP(geography::geometry)).geom AS the_geom'
       )
