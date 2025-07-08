@@ -640,6 +640,8 @@ class GeographicItem < ApplicationRecord
     # !! CURRENTLY ASSUMES no geographic_item_id crosses the anti-meridian. This
     # is true for GA and AD shapes, but not necessarily for GEOREF shapes.
     def covered_by_geographic_items_sql(*geographic_item_id)
+      geographic_item_id = geographic_item_id.flatten
+
       f = ::GeographicItem.where(id: geographic_item_id).select(
         '(ST_DUMP(geography::geometry)).geom AS the_geom'
       )
@@ -655,14 +657,18 @@ class GeographicItem < ApplicationRecord
         ') AS f'
       )
 
-      precheck = "geography && (#{geom}) AND "
       # Russia and U.S.A. both have land just either side of the anti-meridian,
       # so doing a pre-bounding box check actually checks against basically
       # every shape in the northern hemisphere (i.e. the spatial index helps
       # very little), which turns out to be quite slow even though it's just
       # rectangle intersection.
-      if geographic_item_id.include?(192) || geographic_item_id.include?(30449)
+      skip_precheck = [192, 30449, 132534].any? do |x|
+        geographic_item_id.include?(x)
+      end
+      if skip_precheck
         precheck = ''
+      else
+        precheck = "geography && (#{geom}) AND "
       end
 
       precheck + subset_of_sql(geom).to_sql
