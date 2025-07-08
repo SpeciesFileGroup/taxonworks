@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add with/without origin citation facet to Filter Taxon Name Relationships
 - Radial mass annotator: `is original` flag option in batch citation [#4458]
 - Filter Observations: Sounds facet
+- Add 'include_common_names' parameter to API Otu autocomplete
 
 ### Fixed
 
