@@ -5,6 +5,60 @@
 # See app/javascript/vue/tasks/dwca_import/components/settings/Occurrences/OccurrenceSettings.vue for UI defined parameters
 #
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
+  SUPPORTED_DWC_TERMS = %w{
+    basisOfRecord
+    catalogNumber
+    class
+    collectionCode
+    coordinateUncertaintyInMeters
+    country
+    countryCode
+    county
+    decimalLatitude
+    decimalLongitude
+    eventID
+    eventRemarks
+    eventTime
+    family
+    fieldNotes
+    fieldNumber
+    genus
+    geodeticDatum
+    georeferencedBy
+    georeferenceRemarks
+    habitat
+    higherClassification
+    identificationQualifier
+    identificationRemarks
+    individualCount
+    institutionCode
+    kingdom
+    maximumElevationInMeters
+    minimumElevationInMeters
+    nomenclaturalCode
+    occurrenceID
+    occurrenceRemarks
+    order
+    phylum
+    preparations
+    recordedBy
+    recordNumber
+    samplingProtocol
+    scientificName
+    scientificNameAuthorship
+    sex
+    stateProvince
+    subfamily
+    subtribe
+    superfamily
+    taxonRank
+    tribe
+    type
+    typeStatus
+    verbatimElevation
+    verbatimEventDate
+    verbatimLocality
+  }
 
   DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order superfamily family subfamily tribe subtribe}.freeze # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
   PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies).freeze
@@ -153,6 +207,24 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         }
       end
     end
+  end
+
+  def get_mapped_fields(dwc_data_attributes = {})
+    project_dwc_data_attributes = dwc_data_attributes.slice('CollectingEvent', 'CollectionObject')
+      .values.map(&:keys).flatten
+      .map { |f| get_field_mapping(f) }.compact
+    tw_namespaces = %w(catalogNumber eventID fieldNumber recordNumber).map { |f| get_field_mapping("TW:Namespace:#{f}") }.compact
+    tw_data = (
+      get_tw_biocuration_groups +
+      get_tw_data_attribute_fields_for('CollectionObject') +
+      get_tw_data_attribute_fields_for('CollectingEvent') +
+      get_tw_fields_for('CollectionObject') +
+      get_tw_fields_for('CollectingEvent') +
+      get_tw_tag_fields_for('CollectionObject') +
+      get_tw_tag_fields_for('CollectingEvent')
+    ).map { |f| get_field_mapping(f[:field]) }.compact
+
+    (super + project_dwc_data_attributes + tw_namespaces + tw_data).uniq.sort
   end
 
   def import(dwc_data_attributes = {})

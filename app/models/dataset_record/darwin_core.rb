@@ -65,6 +65,10 @@ class DatasetRecord::DarwinCore < DatasetRecord
     ) if %w{NotReady Imported Unsupported}.include?(status)
   end
 
+  def get_mapped_fields(dwc_data_attributes = {})
+    self.class::SUPPORTED_DWC_TERMS.map { |f| get_field_mapping(f) }.compact.sort
+  end
+
   private
 
   # Re-implemented method from DatasetRecord
