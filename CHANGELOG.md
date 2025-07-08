@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial mass annotator: `is original` flag option in batch citation [#4458]
 - Filter Observations: Sounds facet
 - Add 'include_common_names' parameter to API Otu autocomplete
+- DwC import task: Detect and highlight columns that will be ignored [#4406]
 
 ### Fixed
 
@@ -42,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3511]: https://github.com/SpeciesFileGroup/taxonworks/issues/3511
 [#4399]: https://github.com/SpeciesFileGroup/taxonworks/issues/4399
+[#4406]: https://github.com/SpeciesFileGroup/taxonworks/issues/4406
 [#4415]: https://github.com/SpeciesFileGroup/taxonworks/issues/4415
 [#4442]: https://github.com/SpeciesFileGroup/taxonworks/issues/4442
 [#4447]: https://github.com/SpeciesFileGroup/taxonworks/issues/4447
