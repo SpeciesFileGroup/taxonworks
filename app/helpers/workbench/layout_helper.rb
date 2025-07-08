@@ -49,6 +49,7 @@ module Workbench::LayoutHelper
         'Issues', 
         'https://github.com/SpeciesFileGroup/taxonworks/issues',
         target: '_blank',
+        class: 'issues-link',
         data: { 'curation-issue-tracker': sessions_current_project&.data_curation_issue_tracker_url }, rel: 'noopener'
       ),
       (content_tag('div','', id: 'curation-issue-tracker-container') if sessions_current_project&.data_curation_issue_tracker_url)

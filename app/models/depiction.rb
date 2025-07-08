@@ -42,6 +42,14 @@
 #   @return [Integer]
 #      Not null if sled_image_is present.  The row (top left 0,0) derived from
 #
+# @!attribute figure_label
+#   @return [String, nil]
+#     Figure label, as in '<figure_label>. Dorsal habitus.'
+#
+# @!attribute caption
+#   @return [String, nil]
+#     Figure description, as in 'Figure 1. <caption>'
+#
 class Depiction < ApplicationRecord
   include Housekeeping
   include Shared::Tags

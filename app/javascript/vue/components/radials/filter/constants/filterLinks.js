@@ -22,6 +22,23 @@ export const FILTER_TAXON_NAME = {
   label: 'Taxon names',
   link: '/tasks/taxon_names/filter'
 }
+
+export const FILTER_TAXON_NAME_SUBJECT = {
+  label: 'Taxon names (Subject)',
+  link: '/tasks/taxon_names/filter',
+  params: {
+    taxon_name_relationship_target: 'subject'
+  }
+}
+
+export const FILTER_TAXON_NAME_OBJECT = {
+  label: 'Taxon names (Object)',
+  link: '/tasks/taxon_names/filter',
+  params: {
+    taxon_name_relationship_target: 'object'
+  }
+}
+
 export const FILTER_TAXON_NAME_RELATIONSHIP = {
   label: 'Taxon name relationships',
   link: '/tasks/taxon_name_relationships/filter'

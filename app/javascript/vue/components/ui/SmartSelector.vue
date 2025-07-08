@@ -38,7 +38,7 @@
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
           :excluded-ids="filterIds"
-          placeholder="Search..."
+          :placeholder="placeholder || 'Search...'"
           :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
           param="term"
           :add-params="autocompleteParams"
@@ -291,6 +291,11 @@ const props = defineProps({
   extend: {
     type: Array,
     default: () => []
+  },
+
+  placeholder: {
+    type: String,
+    required: false
   }
 })
 
