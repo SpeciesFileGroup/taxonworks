@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Gazetteer shapes can now be added to/removed after save [#4399]
 - Rename `Content by nomenclature ("Brock")` to `Content by taxon names ("Brock")`
 - Rename `Download nomenclature (basic)` to `Download taxon names (basic)`
 - Rename `Nomenclature stats` to `Taxon names stats`
@@ -40,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems
 
 [#3511]: https://github.com/SpeciesFileGroup/taxonworks/issues/3511
+[#4399]: https://github.com/SpeciesFileGroup/taxonworks/issues/4399
 [#4415]: https://github.com/SpeciesFileGroup/taxonworks/issues/4415
 [#4442]: https://github.com/SpeciesFileGroup/taxonworks/issues/4442
 [#4447]: https://github.com/SpeciesFileGroup/taxonworks/issues/4447

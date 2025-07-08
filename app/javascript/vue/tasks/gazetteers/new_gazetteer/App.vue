@@ -35,7 +35,6 @@
         />
 
         <ShapeChoosers
-          v-if="!gz.id"
           :shapes="leafletShapes"
           @new-shape="(data, type) => addToShapes(data, type)"
           @shapes-updated="(shape) => addToShapes(shape, GZ_LEAFLET)"
@@ -44,7 +43,6 @@
         </ShapeChoosers>
 
         <ShapeListAndPreview
-          :gz-saved="!!gz.id"
           :geojson-shape="previewShape?.shape"
           :raw-shapes="shapes"
           @deleteShape="(shape) => removeFromShapes(shape)"
@@ -185,7 +183,7 @@ function saveGz() {
 
 function combineShapesToGz() {
   const geojson = shapes.value
-    .filter((item) => item.type == GZ_LEAFLET)
+    .filter((item) => (item.type == GZ_LEAFLET || item.type == GZ_DATABASE))
     .map((item) => JSON.stringify(item.shape))
 
   const wkt = shapes.value
@@ -224,7 +222,7 @@ function shapesUpdated() {
   // Bust the preview cache
   previewShape.value = null
   previewOperationIsUnion.value = null
-  if (previewing.value && !gz.value.id) {
+  if (previewing.value) {
     previewGz()
   }
 }
@@ -290,12 +288,11 @@ function saveNewGz() {
 }
 
 function updateGz() {
+  const gazetteer = combineShapesToGz()
+  // Updates only apply to this project.
   const payload = {
-    gazetteer: {
-      name: gz.value.name,
-      iso_3166_a2: gz.value.iso_3166_a2,
-      iso_3166_a3: gz.value.iso_3166_a3
-    },
+    gazetteer,
+    geometry_operation_is_union: operationIsUnion.value,
     embed: ['shape']
   }
 
@@ -303,6 +300,15 @@ function updateGz() {
   Gazetteer.update(gz.value.id, payload)
     .then(({ body }) => {
       gz.value = body
+      shapes.value = [
+        {
+          shape: gz.value.shape,
+          type: GZ_DATABASE,
+          uuid: randomUUID()
+        }
+      ]
+      shapesUpdated()
+      setPreviewData(shapes.value[0], operationIsUnion.value)
       TW.workbench.alert.create('Gazetteer updated.', 'notice')
     })
     .catch(() => {})
