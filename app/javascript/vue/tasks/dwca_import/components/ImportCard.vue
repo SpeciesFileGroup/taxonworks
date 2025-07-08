@@ -16,6 +16,7 @@
           color="primary"
           :href="dataset.source_file"
           title="Download original"
+          @click.stop
         >
           <VIcon
             color="white"
