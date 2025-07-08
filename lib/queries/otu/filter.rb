@@ -454,7 +454,7 @@ module Queries
         i = ::Queries.union(::GeographicItem, [a,c])
 
         from_geographic_items(
-          ::GeographicItem.covered_by_geographic_items_sql(i)
+          ::GeographicItem.covered_by_geographic_items_sql(i.pluck(:id))
         )
       end
 

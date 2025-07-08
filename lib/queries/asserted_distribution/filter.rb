@@ -299,7 +299,7 @@ module Queries
         # Spatial.
         i = ::Queries.union(::GeographicItem, [a,b])
         self.class.from_geographic_items(
-          ::GeographicItem.covered_by_geographic_items_sql(i.to_a)
+          ::GeographicItem.covered_by_geographic_items_sql(i.pluck(:id))
         )
       end
 
