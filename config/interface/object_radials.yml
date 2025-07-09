@@ -35,6 +35,7 @@ BiologicalAssociation:
     - edit_biological_associations_graph_task
     - filter_biological_associations_task
     - browse_asserted_distributions_task
+    - new_asserted_distribution_task
     - unify_objects_task
   edit: edit_biological_associations_graph_task
   new: edit_biological_associations_graph_task

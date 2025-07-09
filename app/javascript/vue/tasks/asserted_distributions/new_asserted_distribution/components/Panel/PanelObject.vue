@@ -32,7 +32,7 @@
 
 <script setup>
 import { onBeforeMount } from 'vue'
-import { Otu } from '@/routes/endpoints'
+import { BiologicalAssociation, Otu } from '@/routes/endpoints'
 import { useStore } from '../../store/store'
 import AssertedDistributionObjectPicker from '@/components/ui/SmartSelector/AssertedDistributionObjectPicker.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
@@ -41,16 +41,24 @@ import VLock from '@/components/ui/VLock/index.vue'
 
 const store = useStore()
 
+const paramToService = {
+  otu_id: Otu,
+  biological_association_id: BiologicalAssociation
+}
+
 onBeforeMount(() => {
-  // Handle other non-otu types as needed (currently no other users).
+  const parameters = Object.keys(paramToService)
   const urlParams = new URLSearchParams(window.location.search)
-  const otuId = urlParams.get('otu_id')
+  const idParam = parameters.find((param) => /^\d+$/.test(urlParams.get(param)))
 
-  if (!/^\d+$/.test(otuId)) return
+  if (!idParam) return
 
-  Otu.find(otuId)
-    .then((response) => {
-      store.object = response.body
+  const id = urlParams.get(idParam)
+
+  paramToService[idParam]
+    .find(id)
+    .then(({ body }) => {
+      store.object = body
     })
     .catch(() => {})
 })
