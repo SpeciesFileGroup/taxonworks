@@ -175,8 +175,7 @@ module Queries
           .joins(:geographic_areas)
           .where(geographic_items_sql)
 
-        j = ::GeographicArea
-          .joins(:geographic_items).where(geographic_items: i).pluck(:id)
+        j = ::GeographicArea.joins(:geographic_items).merge(i).pluck(:id)
 
         # TODO: There are only 58 GAs with shape that have a descendant without
         # shape: could this be a lookup table instead?
@@ -196,7 +195,7 @@ module Queries
         i = ::GeographicItem.joins(:gazetteers).where(geographic_items_sql)
 
         gazetteer_ids = ::Gazetteer
-          .joins(:geographic_item).where(geographic_item: i).pluck(:id)
+          .joins(:geographic_item).merge(i).pluck(:id)
 
         if gazetteer_ids.empty?
           return ::AssertedDistribution.none
