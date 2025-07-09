@@ -1,5 +1,5 @@
 <template>
-  <nav-bar
+  <NavBar
     style="z-index: 1001"
     :navbar-class="`panel content ${
       collectionObject?.dwc_occurrence?.rebuild_set
@@ -12,7 +12,7 @@
       class="flex-separate"
     >
       <div class="horizontal-left-content gap-small">
-        <autocomplete
+        <VAutocomplete
           url="/collection_objects/autocomplete"
           placeholder="Search"
           label="label_html"
@@ -22,7 +22,7 @@
           @get-item="(item) => loadAssessionCode(item.id)"
         />
         <template v-if="collectionObject.id">
-          <soft-validation v-if="collectionObject.id" />
+          <SoftValidation v-if="collectionObject.id" />
           <a
             :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${collectionObject.id}`"
             v-html="collectionObject.object_tag"
@@ -41,9 +41,9 @@
         </template>
         <span v-else>New record</span>
       </div>
-      <div class="horizontal-left-content">
+      <div class="horizontal-left-content gap-small middle">
         <div
-          class="margin-medium-right horizontal-left-content"
+          class="horizontal-left-content"
           v-if="collectionObject.id"
         >
           <ul class="context-menu no_bullets">
@@ -100,25 +100,24 @@
           <template #content>
             <p>You have unsaved changes.</p>
           </template>
-          <div
-            class="medium-icon separate-right"
-            data-icon="warning"
+          <VIcon
+            name="attention"
+            color="attention"
+            title="You have unsaved changes."
+            small
           />
         </tippy>
-        <recent-component
-          class="separate-right margin-small-left"
-          @selected="loadCollectionObject($event)"
-        />
+        <RecentComponent @selected="loadCollectionObject($event)" />
         <button
           type="button"
-          class="button normal-input button-submit separate-right"
+          class="button normal-input button-submit"
           @click="saveDigitalization"
         >
           Save
         </button>
         <button
           type="button"
-          class="button normal-input button-submit separate-right"
+          class="button normal-input button-submit"
           @click="saveAndNew"
         >
           Save and new
@@ -133,7 +132,7 @@
       </div>
       <ConfirmationModal ref="confirmationModalRef" />
     </div>
-  </nav-bar>
+  </NavBar>
 </template>
 
 <script setup>
@@ -148,19 +147,21 @@ import { RouteNames } from '@/routes/routes.js'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import RecentComponent from './recent.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
-import Autocomplete from '@/components/ui/Autocomplete.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import NavBar from '@/components/layout/NavBar'
 import AjaxCall from '@/helpers/ajaxCall'
 import SoftValidation from './softValidation'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
+import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
 
 const MAX_CO_LIMIT = 100
 
 const store = useStore()
 const collectingEventStore = useCollectingEventStore()
 const biologicalAssociationStore = useBiologicalAssociationStore()
+const biocurationStore = useBiocurationStore()
 
 const confirmationModalRef = ref(null)
 const shortcuts = ref([
@@ -205,7 +206,8 @@ const hasChanges = computed(
   () =>
     settings.value.lastChange > settings.value.lastSave ||
     collectingEventStore.isUnsaved ||
-    biologicalAssociationStore.hasUnsaved
+    biologicalAssociationStore.hasUnsaved ||
+    biocurationStore.hasUnsaved
 )
 
 const underThreshold = computed(

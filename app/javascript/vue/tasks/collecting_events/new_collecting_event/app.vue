@@ -55,11 +55,12 @@
         </div>
         <ul class="context-menu no_bullets">
           <li class="horizontal-right-content gap-small">
-            <span
+            <VIcon
               v-if="store.isUnsaved"
-              class="medium-icon"
+              name="attention"
+              color="attention"
+              small
               title="You have unsaved changes."
-              data-icon="warning"
             />
             <VNavigate
               :collecting-event="store.collectingEvent"
@@ -70,7 +71,7 @@
               @clone="(e) => loadCollectingEvent(e.id)"
             />
             <VBtn
-              color="primary"
+              color="create"
               medium
               class="button-size"
               @click="saveCollectingEvent"
@@ -134,6 +135,7 @@ import RadialObject from '@/components/radials/navigation/radial'
 import platformKey from '@/helpers/getPlatformKey'
 import SetParam from '@/helpers/setParam'
 
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import RightSection from './components/RightSection'
 import NavBar from '@/components/layout/NavBar'
@@ -193,7 +195,7 @@ const isSaving = ref(false)
 const sortable = ref(false)
 const confirmationModal = useTemplateRef('confirmationModal')
 
-store.$onAction(({ name, after }) => {
+store.$onAction(({ name, after, onError }) => {
   switch (name) {
     case 'load':
       isLoading.value = true
@@ -212,6 +214,11 @@ store.$onAction(({ name, after }) => {
         isSaving.value = false
         break
     }
+  })
+
+  onError(() => {
+    isSaving.value = false
+    isLoading.value = false
   })
 })
 
@@ -287,6 +294,11 @@ async function saveCollectingEvent() {
           store.collectingEvent.id
         )
         smartSelectorRefresh()
+
+        TW.workbench.alert.create(
+          'Collecting event was successfully saved.',
+          'notice'
+        )
       })
       .catch(() => {})
   }

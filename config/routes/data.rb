@@ -35,8 +35,9 @@ resources :asserted_distributions do
   concerns [:data_routes]
   collection do
     patch :batch_update
+    post :batch_template_create, defaults: {format: :json}
     post :preview_simple_batch_load # should be get
-    post :create_simple_batch_load
+    post :create_simple_batch_load, defaults: {format: :json}
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
   end
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
@@ -682,6 +683,7 @@ end
 resources :organizations do
   collection do
     get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
   concerns [:data_routes]
 end

@@ -22,7 +22,7 @@ input[type='checkbox'].increment {
   background-repeat: no-repeat;
   border-radius: 2px;
   transition: background-color 0.5s ease;
-  border: 1px solid $navigation_border;
+  border: 1px solid var(--border-color);
   background-color: $color-secondary-2-1;
 }
 
@@ -42,13 +42,13 @@ button {
 
 input[type='checkbox']:checked + label.lock {
   background-image: image-url('locked.svg');
-  box-shadow: inset 0px 1px 2px 0px $navigation_border;
+  box-shadow: inset 0px 1px 2px 0px var(--border-color);
   background-color: $navigation_background;
 }
 
 input[type='checkbox']:checked + label.increment {
   background-image: image-url('inc.svg');
-  box-shadow: inset 0px 1px 2px 0px $navigation_border;
+  box-shadow: inset 0px 1px 2px 0px var(--border-color);
   background-color: $navigation_background;
 }
 
@@ -67,7 +67,7 @@ input[type='checkbox']:checked + label.increment {
 }
 
 .mx-autocomplete {
-  border: 1px $color-secondary-1-3 solid;
+  border: 1px var(--border-color) solid;
 }
 
 textarea:focus,
@@ -78,8 +78,8 @@ input:focus {
 fieldset {
   margin: 0px;
   border-radius: 2px;
-  border: 1px solid $navigation_border;
-  background-color: #fff;
+  border: 1px solid var(--border-color);
+  background-color: var(--panel-bg-color);
 }
 
 input,
@@ -90,9 +90,9 @@ textarea {
   padding-left: $standard_padding * 0.9;
   padding-right: $standard_padding * 0.9;
   border-radius: 2px;
-  border: 1px solid $input-border-color;
-  background-color: #fff;
+  border: 1px solid var(--border-color);
   box-sizing: border-box;
+  background-color: var(--input-bg-color);
   min-height: $normal-input-size;
 }
 
@@ -111,9 +111,8 @@ input[type='submit'] {
 }
 
 input[type='submit'][disabled] {
-  color: #000;
   opacity: 0.5;
-  background-color: $navigation_border;
+  background-color: var(--border-color);
 }
 
 select {
@@ -121,8 +120,7 @@ select {
   padding-left: $standard_padding;
   padding-right: $standard_padding;
   border-radius: 2px;
-  border: 1px solid $muted_blue;
-  background-color: #fff;
+  border: 1px solid var(--border-color);
   font-size: $font_tiny;
   min-height: $normal-input-size;
 }

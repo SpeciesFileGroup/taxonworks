@@ -75,7 +75,9 @@ function makeBatchloadRequest() {
     .then(({ body }) => {
       data.value = body
     })
-    .catch(() => {})
+    .catch(() => {
+      isModalVisible.value = false
+    })
     .finally(() => {
       isLoading.value = false
     })

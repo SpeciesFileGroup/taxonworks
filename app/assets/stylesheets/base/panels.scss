@@ -9,9 +9,9 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
+  box-shadow: var(--panel-shadow);
   border-radius: 0.9rem;
-  background-color: $panel_background;
+  background-color: var(--panel-bg-color);
   a {
     text-decoration: none;
   }
@@ -26,7 +26,7 @@
   .subtitle {
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
   }
 
   .subheader {
@@ -47,7 +47,7 @@
   }
 
   .border-bottom {
-    border-bottom: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
   }
 
   .title {
@@ -72,7 +72,7 @@
   }
 
   .nav-line {
-    border-bottom: 2px solid $color-secondary-2-4;
+    border-bottom: 2px solid var(--color-primary);
   }
 
   .title.shared {
@@ -84,7 +84,7 @@
   }
 
   .action-line {
-    border-bottom: 2px solid $color-complement-3;
+    border-bottom: 2px solid var(--color-create);
   }
 
   .navigation-bar-right {
@@ -112,12 +112,13 @@
 
   .disable {
     opacity: 0.5;
-    background-color: $navigation_background;
+    color: var(--button-disabled-text-color);
+    background-color: var(--button-disabled-bg-color);
     background-image: none !important;
   }
 
   .disable:hover {
-    background-color: $navigation_background !important;
+    background-color: var(--button-disabled-bg-color) !important;
     box-shadow: none !important;
     opacity: 0.5 !important;
   }

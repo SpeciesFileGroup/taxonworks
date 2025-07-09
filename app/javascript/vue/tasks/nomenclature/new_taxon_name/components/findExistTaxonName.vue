@@ -179,7 +179,7 @@ export default {
   padding: 12px;
   border-radius: 3px;
   .header {
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--border-color);
   }
   .body {
     padding: 12px;

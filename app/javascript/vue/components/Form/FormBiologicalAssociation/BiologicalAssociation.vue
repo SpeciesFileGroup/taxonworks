@@ -22,13 +22,21 @@
       v-if="!relationship"
       @select="(item) => (relationship = item)"
     />
-    <FormCitation v-model="citation" />
+    <FormCitation
+      v-model="citation"
+      :lock-button="citationLock"
+    />
     <VBtn
       class="margin-medium-top"
-      color="primary"
+      :color="buttonColor"
       medium
       :disabled="!related || !relationship"
-      @click="() => emit('add', makeBiologicalAssociationPayload())"
+      @click="
+        () => {
+          emit('add', makeBiologicalAssociationPayload())
+          resetForm()
+        }
+      "
     >
       {{ biologicalAssociation.id ? 'Update' : 'Add' }}
     </VBtn>
@@ -43,9 +51,20 @@ import FormCitation from '@/components/Form/FormCitation.vue'
 import BiologicalAssociationRelated from './BiologicalAssociationRelated.vue'
 import BiologicalAssociationRelationship from './BiologicalAssociationRelationship.vue'
 import BiologicalAssociationObject from './BiologicalAssociationObject.vue'
-import makeCitation from '@/factory/Citation.js'
 
 const emit = defineEmits(['add'])
+
+defineProps({
+  buttonColor: {
+    type: String,
+    default: 'primary'
+  }
+})
+
+const citationLock = defineModel('citation-lock', {
+  type: Boolean,
+  default: false
+})
 
 const relatedLock = defineModel('related-lock', {
   type: Boolean,
@@ -74,14 +93,27 @@ function makeBiologicalAssociationPayload() {
   }
 }
 
+function makeCitation(data = {}) {
+  return {
+    id: data.id,
+    source_id: data.source_id,
+    pages: data.pages,
+    is_original: null
+  }
+}
+
 function setBiologicalAssociation(ba) {
-  const { related, relationship, ...rest } = ba
+  const { id, globalId, uuid } = ba
 
-  citation.value = makeCitation()
-  biologicalAssociation.value = rest
+  biologicalAssociation.value = {
+    id,
+    globalId,
+    uuid
+  }
 
-  relationship.value = relationship
+  relationship.value = ba.relationship
   related.value = ba.related
+  citation.value = makeCitation(ba.citation)
 }
 
 function resetForm() {
@@ -93,7 +125,11 @@ function resetForm() {
     relationship.value = null
   }
 
-  biologicalAssociation.value = ref({})
+  citation.value = citationLock.value
+    ? makeCitation({ ...citation.value, id: undefined })
+    : makeCitation()
+
+  biologicalAssociation.value = {}
 }
 
 defineExpose({

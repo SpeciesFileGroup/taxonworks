@@ -112,7 +112,7 @@ class Attribution < ApplicationRecord
 
     if self.roles.any?
       self.roles.each do |r|
-        return true if r.type.present? && r.person_id.present?
+        return true if r.type.present? && (r.person_id.present? || r.organization_id.present?)
       end
     end
 

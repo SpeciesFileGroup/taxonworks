@@ -108,7 +108,7 @@ function singularize(text) {
 </script>
 <style lang="scss" scoped>
 .section-title {
-  background-color: #5d9ece;
+  background-color: var(--color-primary);
   color: white;
   width: 100%;
 
@@ -127,7 +127,8 @@ function singularize(text) {
   transform: translateX(calc(-50% + 24px));
   z-index: 999;
   position: absolute;
-  background-color: white;
+  background-color: var(--panel-bg-color);
+  color: var(--text-color);
   box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
   min-width: 200px;
   display: block;
@@ -145,7 +146,7 @@ function singularize(text) {
 
   li {
     width: 100%;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid var(--border-color);
     padding-top: 8px;
     white-space: nowrap;
     padding-bottom: 8px;

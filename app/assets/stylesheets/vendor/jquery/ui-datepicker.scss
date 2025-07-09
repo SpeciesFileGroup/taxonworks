@@ -1,19 +1,19 @@
 .ui-dialog {
-  border:none !important;
+  border: none !important;
   padding: 0px;
 }
-.ui-corner-all { 
-  background: #FFF !important;
-  display:flex;
+.ui-corner-all {
+  background: #fff !important;
+  display: flex;
   align-items: center;
 }
 .ui-datepicker {
   display: none;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.3);
-  border:none !important;
-  margin:0px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  border: none !important;
+  margin: 0px;
   .ui-corner-all {
-    border:none;
+    border: none;
     border-radius: 0px;
   }
 }
@@ -26,7 +26,6 @@
   justify-content: space-around;
 }
 
-
 .ui-datepicker-calendar {
   margin: 0px;
   margin-top: 5px;
@@ -37,7 +36,6 @@
   a.ui-state-default {
     background: none !important;
     border: none;
-
   }
 
   .ui-datepicker-today {
@@ -49,17 +47,17 @@
     background-color: $color-complement-3;
   }
   td {
-    border-bottom: 1px solid $navigation_border;
-    border-left: 1px solid $navigation_border;    
+    border-bottom: 1px solid var(--border-color);
+    border-left: 1px solid var(--border-color);
     text-align: center;
   }
   tr:hover {
     background-color: transparent;
     td {
-      border-left:1px solid $navigation_border;
+      border-left: 1px solid var(--border-color);
     }
     td:hover {
-      background-color:  $color-complement-2;
+      background-color: $color-complement-2;
     }
   }
 }

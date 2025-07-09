@@ -12,7 +12,7 @@ import {
   LOAN,
   OBSERVATION,
   OTU,
-  PEOPLE,
+  PERSON,
   SOUND,
   SOURCE,
   TAXON_NAME,
@@ -101,7 +101,7 @@ const FILTER_ROUTES = {
   [FIELD_OCCURRENCE]: RouteNames.FilterFieldOccurrence,
   [IMAGE]: RouteNames.FilterImages,
   [OTU]: RouteNames.FilterOtus,
-  [PEOPLE]: RouteNames.FilterPeople,
+  [PERSON]: RouteNames.FilterPeople,
   [SOUND]: RouteNames.FilterSounds,
   [SOURCE]: RouteNames.FilterSources,
   [TAXON_NAME]: RouteNames.FilterNomenclature,
@@ -110,7 +110,7 @@ const FILTER_ROUTES = {
   [CONTENT]: RouteNames.FilterContents,
   [LOAN]: RouteNames.FilterLoans,
   [TAXON_NAME]: RouteNames.FilterTaxonNames,
-  [TAXON_NAME_RELATIONSHIP]: RouteNames.FilterTaxonNameRelationships,
+  [TAXON_NAME_RELATIONSHIP]: RouteNames.FilterTaxonNameRelationships
 }
 
 export { RouteNames, FILTER_ROUTES }

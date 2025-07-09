@@ -199,6 +199,8 @@ describe Queries::Query::Filter, type: [:model] do
     Dir.glob('app/javascript/**/filter/links/*.js').each do |file|
       n = file.split('/').last
       next unless n =~ /^[A-Z]/ # Constants start with a capital
+      # TaxonNameRelationship sends to TaxonName in 3 different ways.
+      next if ['TaxonNameRelationship.js'].include?(n)
 
       # puts n
 

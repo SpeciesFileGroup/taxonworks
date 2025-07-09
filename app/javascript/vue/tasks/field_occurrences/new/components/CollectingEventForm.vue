@@ -36,7 +36,7 @@
             v-model="settings.locked.collectingEvent"
           />
         </div>
-        <hr />
+        <hr class="divisor" />
         <div class="horizontal-left-content middle gap-small">
           <VIcon
             color="attention"

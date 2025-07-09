@@ -86,7 +86,10 @@
               </template>
             </li>
           </ul>
-          <hr v-if="index !== validationSections.length - 1" />
+          <hr
+            v-if="index !== validationSections.length - 1"
+            class="divisor"
+          />
         </div>
       </template>
     </div>
@@ -145,10 +148,11 @@ function getFixPresent(list) {
 </script>
 <style lang="scss" scope>
 .soft-validation-box.validation-warning {
-  border-left: 4px solid #ff8c00;
+  border-left: 4px solid var(--color-warning);
 }
 .soft-validation-box {
-  background-color: #fff9f9;
+  background-color: var(--soft-validation-bg-color);
+  color: var(--text-color);
   .body {
     padding: 12px;
   }

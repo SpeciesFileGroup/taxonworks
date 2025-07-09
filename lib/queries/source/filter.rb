@@ -422,7 +422,7 @@ module Queries
         if citations
           ::Source.joins(:citations).distinct
         else
-          ::Source.where.missing(:citations).distinct
+          ::Source.where.missing(:citations)
         end
       end
 

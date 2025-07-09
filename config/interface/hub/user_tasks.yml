@@ -22,7 +22,7 @@
 ---
 filter_taxon_names_task:
   hub: true
-  name: 'Filter nomenclature'
+  name: 'Filter taxon names'
   related:
   categories:
     - nomenclature
@@ -84,7 +84,7 @@ new_taxon_name_task:
   description: 'Create or edit a taxon name along with its related metadata including original combinations, status, type material and synonym.'
 browse_nomenclature_task:
   hub: true
-  name: 'Browse nomenclature and classification'
+  name: 'Browse taxon names'
   description: 'Browse through nomenclature and classification, focusing on a single record at a time.'
   status: stable
   categories:
@@ -316,7 +316,6 @@ new_descriptor_task:
   categories:
     - matrix
     - new
-    - browse
   status: prototype
   description: 'Create and update descriptors (e.g. phylogenetic or descriptive characters).'
 new_matrix_task:
@@ -422,7 +421,7 @@ interactive_key_task:
   description: 'Interactive key based on an observation matrix.'
 nomenclature_stats_task:
   hub: true
-  name: 'Nomenclature stats'
+  name: 'Taxon name stats'
   related:
   categories:
     - nomenclature
@@ -455,7 +454,7 @@ filter_collection_objects_task:
   description: 'Filter collection objects by many different facets, download or visualize results.'
 synchronize_otus_to_nomenclature_task:
   hub: true
-  name: 'Synchronize nomenclature and OTUs'
+  name: 'Synchronize taxon names and OTUs'
   related:
   categories:
     - nomenclature
@@ -504,7 +503,7 @@ grid_digitize_task:
   description: 'Break images of collection objects in a grid (e.g. slide folders) into individual collection objects and their depictions.'
 export_basic_nomenclature_task:
   hub: true
-  name: 'Download nomenclature (basic)'
+  name: 'Download taxon names (basic)'
   related:
   categories:
     - nomenclature
@@ -512,7 +511,7 @@ export_basic_nomenclature_task:
   description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
 match_nomenclature_task:
   hub: true
-  name: 'Nomenclature match'
+  name: 'Match taxon names'
   related:
   categories:
     - nomenclature
@@ -527,7 +526,7 @@ manage_controlled_vocabulary_terms_task:
   description: 'View and create custom fields, tags, etc. used throughout this project.'
 match_collection_objects_task:
   hub: true
-  name: 'Collection object match'
+  name: 'Match collection objects'
   related:
   categories:
     - collection_object
@@ -604,7 +603,7 @@ new_extract_task:
   description: 'Create new extracts, e.g. for DNA purposes.'
 content_by_nomenclature_task:
   hub: true
-  name: 'Content by nomenclature ("Brock")'
+  name: 'Content by taxon names ("Brock")'
   related:
   categories:
   status: prototype
@@ -817,7 +816,7 @@ geographic_area_usage_task:
   description: 'Summarize this projects geographic area usage'
 taxon_name_stats_task:
   hub: false
-  name: 'Taxon name stats'
+  name: 'Taxon names stats'
   related:
   categories:
   status: prototype

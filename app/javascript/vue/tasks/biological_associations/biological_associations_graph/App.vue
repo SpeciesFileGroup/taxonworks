@@ -251,7 +251,7 @@ function saveGraph() {
       'notice'
     )
 
-    if (biologicalAssociationGraph.id) {
+    if (biologicalAssociationGraph?.id) {
       setParam(RouteNames.NewBiologicalAssociationGraph, {
         biological_associations_graph_id: biologicalAssociationGraph.id
       })

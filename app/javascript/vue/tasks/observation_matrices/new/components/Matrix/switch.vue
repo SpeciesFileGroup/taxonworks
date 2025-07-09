@@ -50,17 +50,15 @@ export default {
 
 <style lang="scss" scoped>
 .arrow {
-  border: solid black;
+  border: solid var(--text-color);
   border-width: 0 2px 2px 0;
   display: inline-block;
+  bottom: 10px;
 }
 
 .left {
   transform: rotate(135deg);
   -webkit-transform: rotate(135deg);
-}
-
-.switch-option {
 }
 
 .switch-lock input + span em {
@@ -79,6 +77,6 @@ export default {
 }
 
 .switch-lock input:checked + span:before {
-  background: #e4ecfa;
+  background: var(--bg-color);
 }
 </style>

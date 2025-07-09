@@ -15,16 +15,22 @@
             v-if="!isInList(item.id)"
             color="primary"
             medium
-            class="biocuration-toggle-button"
-            @click="() => emit('add', item)"
+            :class="[
+              'biocuration-toggle-button',
+              disabled && 'biocuration-toggle-button__disabled'
+            ]"
+            @click="() => !disabled && emit('add', item)"
           >
             {{ item.name }}
           </VBtn>
           <VBtn
             v-else
             medium
-            class="biocuration-toggle-button"
-            @click="() => emit('remove', item)"
+            :class="[
+              'biocuration-toggle-button',
+              disabled && 'biocuration-toggle-button__disabled'
+            ]"
+            @click="() => !disabled && emit('remove', item)"
           >
             {{ item.name }}
           </VBtn>
@@ -41,6 +47,11 @@ defineProps({
   biocurationsGroups: {
     type: Array,
     default: () => []
+  },
+
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -52,7 +63,9 @@ const list = defineModel({
 })
 
 function isInList(id) {
-  return !!list.value.find((bio) => id === bio.biocurationClassId)
+  return !!list.value.find(
+    (bio) => id === bio.biocurationClassId && !bio._destroy
+  )
 }
 </script>
 
@@ -69,7 +82,7 @@ function isInList(id) {
   border-bottom-left-radius: 14px;
 
   &__disabled {
-    opacity: 0.3;
+    opacity: 0.5;
   }
 }
 </style>

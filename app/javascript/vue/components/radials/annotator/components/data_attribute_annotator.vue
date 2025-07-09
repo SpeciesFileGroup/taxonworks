@@ -17,7 +17,10 @@
       "
       v-model="predicate"
     />
-    <hr v-if="predicate" />
+    <hr
+      v-if="predicate"
+      class="divisor"
+    />
     <SmartSelectorItem
       :item="predicate"
       @unset="() => (predicate = undefined)"

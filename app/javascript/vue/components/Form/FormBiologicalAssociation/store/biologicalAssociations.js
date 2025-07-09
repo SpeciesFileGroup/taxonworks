@@ -42,6 +42,7 @@ export default defineStore('biologicalAssociations', {
           return {
             id: item.id,
             uuid: randomUUID(),
+            globalId: item.global_id,
             related: item.object,
             relationship: {
               id: item.biological_relationship_id,
@@ -106,7 +107,11 @@ export default defineStore('biologicalAssociations', {
           : BiologicalAssociation.create(payload)
 
         request.then(({ body }) => {
-          Object.assign(ba, { isUnsaved: false, id: body.id })
+          Object.assign(ba, {
+            isUnsaved: false,
+            id: body.id,
+            globalId: item.global_id
+          })
         })
 
         return request

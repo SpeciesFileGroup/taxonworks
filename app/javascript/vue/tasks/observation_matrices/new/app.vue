@@ -211,14 +211,6 @@ export default {
     margin-top: -65px;
     visibility: hidden;
   }
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
-  }
 
   .matrix-tables {
     overflow-y: auto;
