@@ -182,28 +182,29 @@ module Queries
         # shape: could this be a lookup table instead?
         k = ::GeographicArea.descendants_of(j).pluck(:id) # Add children that might not be caught because they don't have shapes
 
-        geographic_area_ids = (j + k).uniq.join(',')
+        geographic_area_ids = (j + k).uniq
         if geographic_area_ids.empty?
           return ::AssertedDistribution.none
         end
 
         ::AssertedDistribution
-          .where("asserted_distributions.asserted_distribution_shape_id IN (#{geographic_area_ids}) AND asserted_distributions.asserted_distribution_shape_type = 'GeographicArea'")
+          .where(asserted_distribution_shape_id: geographic_area_ids,
+            asserted_distribution_shape_type: 'GeographicArea')
       end
 
       def self.gazetteers_for_geographic_items(geographic_items_sql)
         i = ::GeographicItem.joins(:gazetteers).where(geographic_items_sql)
 
-        j = ::Gazetteer
+        gazetteer_ids = ::Gazetteer
           .joins(:geographic_item).where(geographic_item: i).pluck(:id)
 
-        gazetteer_ids = j.join(',')
         if gazetteer_ids.empty?
           return ::AssertedDistribution.none
         end
 
         ::AssertedDistribution
-          .where("asserted_distributions.asserted_distribution_shape_id IN (#{gazetteer_ids}) AND asserted_distributions.asserted_distribution_shape_type = 'Gazetteer'")
+          .where(asserted_distribution_shape_id: gazetteer_ids,
+            asserted_distribution_shape_type: 'Gazetteer')
       end
 
       # Shape is a Hash in GeoJSON format
@@ -299,7 +300,7 @@ module Queries
         # Spatial.
         i = ::Queries.union(::GeographicItem, [a,b])
         self.class.from_geographic_items(
-          ::GeographicItem.covered_by_geographic_items_sql(i.pluck(:id))
+          ::GeographicItem.covered_by_geographic_items_sql(i)
         )
       end
 
