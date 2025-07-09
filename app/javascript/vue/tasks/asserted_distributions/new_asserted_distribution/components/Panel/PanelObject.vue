@@ -32,7 +32,15 @@
 
 <script setup>
 import { onBeforeMount } from 'vue'
-import { BiologicalAssociation, Otu } from '@/routes/endpoints'
+import {
+  BiologicalAssociation,
+  BiologicalAssociationsGraph,
+  Conveyance,
+  Depiction,
+  Observation,
+  Otu
+} from '@/routes/endpoints'
+import { OTU } from '@/constants'
 import { useStore } from '../../store/store'
 import AssertedDistributionObjectPicker from '@/components/ui/SmartSelector/AssertedDistributionObjectPicker.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
@@ -43,7 +51,26 @@ const store = useStore()
 
 const paramToService = {
   otu_id: Otu,
-  biological_association_id: BiologicalAssociation
+  biological_association_id: BiologicalAssociation,
+  observation_id: Observation,
+  biological_associations_graph_id: BiologicalAssociationsGraph,
+  conveyance_id: Conveyance,
+  depiction_id: Depiction
+}
+
+function isTypeAllowed(obj) {
+  const keys = Object.keys(obj)
+  const attrType = keys.find((k) => k.endsWith('_object_type'))
+
+  return !attrType || obj[attrType] === OTU
+}
+
+function setObject(obj) {
+  if (isTypeAllowed(obj)) {
+    store.object = obj
+  } else {
+    TW.workbench.alert.create('Object type is not supported.', 'error')
+  }
 }
 
 onBeforeMount(() => {
@@ -57,9 +84,7 @@ onBeforeMount(() => {
 
   paramToService[idParam]
     .find(id)
-    .then(({ body }) => {
-      store.object = body
-    })
+    .then(({ body }) => setObject(body))
     .catch(() => {})
 })
 </script>

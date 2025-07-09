@@ -45,6 +45,7 @@ BiologicalAssociationsGraph:
   tasks:
     - edit_biological_associations_graph_task
     - browse_asserted_distributions_task
+    - new_asserted_distribution_task
     - unify_objects_task
   edit: edit_biological_associations_graph_task
   new: edit_biological_associations_graph_task
@@ -96,9 +97,11 @@ Container:
 Conveyance:
   tasks:
     - browse_asserted_distributions_task
+    - new_asserted_distribution_task
 Depiction:
   tasks:
     - browse_asserted_distributions_task
+    - new_asserted_distribution_task
 Descriptor:
   tasks:
     - observation_matrices_hub_task
@@ -171,6 +174,7 @@ Loan:
 Observation:
   tasks:
     - browse_asserted_distributions_task
+    - new_asserted_distribution_task
     - unify_objects_task
 ObservationMatrix:
   tasks:
