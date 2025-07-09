@@ -23,6 +23,7 @@
           <td>
             <div class="middle horizontal-right-content gap-small">
               <RadialAnnotator :global-id="item.globalId" />
+              <RadialObject :global-id="item.globalId" />
               <VBtn
                 circle
                 color="primary"
@@ -56,6 +57,7 @@ import { computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 
 const props = defineProps({
   list: {

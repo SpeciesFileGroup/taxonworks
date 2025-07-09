@@ -14,6 +14,7 @@ function makeBiologicalAssociation(data = {}) {
 function makeBiologicalAssociationItem(item) {
   return {
     id: item.id,
+    global_id: item.global_id,
     object_tag: item.object_tag,
     object: {
       id: item.biological_association_object_id,
