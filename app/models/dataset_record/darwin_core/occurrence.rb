@@ -14,8 +14,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     country
     countryCode
     county
+    dateIdentified
+    day
     decimalLatitude
     decimalLongitude
+    endDayOfYear
+    eventDate
     eventID
     eventRemarks
     eventTime
@@ -30,11 +34,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     higherClassification
     identificationQualifier
     identificationRemarks
+    identifiedBy
     individualCount
     institutionCode
     kingdom
     maximumElevationInMeters
     minimumElevationInMeters
+    month
     nomenclaturalCode
     occurrenceID
     occurrenceRemarks
@@ -47,6 +53,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     scientificName
     scientificNameAuthorship
     sex
+    startDayOfYear
     stateProvince
     subfamily
     subtribe
@@ -58,6 +65,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     verbatimElevation
     verbatimEventDate
     verbatimLocality
+    year
   }
 
   DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order superfamily family subfamily tribe subtribe}.freeze # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
