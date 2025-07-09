@@ -37,7 +37,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       TW.workbench.keyboard.createShortcut(
         platformKey + '+t',
         'Edit taxon name',
-        'Browse nomenclature',
+        'Browse taxon names',
         () => {
           window.open(editTaskUrl, '_self')
         }
@@ -46,7 +46,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       TW.workbench.keyboard.createShortcut(
         platformKey + '+m',
         'New type specimen',
-        'Browse nomenclature',
+        'Browse taxon names',
         () => {
           window.open(
             `/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxonId}`,
@@ -58,7 +58,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       TW.workbench.keyboard.createShortcut(
         platformKey + '+e',
         'Comprehensive specimen digitization',
-        'Browse nomenclature',
+        'Browse taxon names',
         () => {
           window.open(
             `/tasks/accessions/comprehensive?taxon_name_id=${taxonId}`,
@@ -70,7 +70,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       TW.workbench.keyboard.createShortcut(
         platformKey + '+o',
         'Browse OTU',
-        'Browse nomenclature',
+        'Browse taxon names',
         () => {
           window.open(`/tasks/otus/browse?taxon_name_id=${taxonId}`, '_self')
         }

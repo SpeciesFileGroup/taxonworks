@@ -80,6 +80,11 @@ class OrganizationsController < ApplicationController
     @organizations = Organization.page(params[:page])
   end
 
+  # GET /organizations/select_options
+  def select_options
+    @organizations = Organization.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
+  end
+
   private
 
   def set_organization

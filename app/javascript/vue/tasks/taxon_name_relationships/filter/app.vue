@@ -22,11 +22,11 @@
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <ListResults
+        <FilterList
           v-model="selectedIds"
+          :attributes="ATTRIBUTES"
           :list="list"
-          @on-sort="list = $event"
-          @remove="({ index }) => list.splice(index, 1)"
+          @on-sort="(sorted) => (list = sorted)"
         />
       </template>
     </FilterLayout>
@@ -42,11 +42,18 @@
 <script setup>
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
-import ListResults from './components/ListResults.vue'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
+import { listParser } from '../utils/listParser.js'
 import { TAXON_NAME_RELATIONSHIP } from '@/constants/index.js'
 import { TaxonNameRelationship } from '@/routes/endpoints'
+import { computed } from 'vue'
+import { ATTRIBUTES } from './constants/attributes'
+
+defineOptions({
+  name: 'FilterTaxonNameRelationships'
+})
 
 const {
   isLoading,
@@ -59,11 +66,5 @@ const {
   selectedIds,
   makeFilterRequest,
   resetFilter
-} = useFilter(TaxonNameRelationship)
-</script>
-
-<script>
-export default {
-  name: 'FilterTaxonNameRelationships'
-}
+} = useFilter(TaxonNameRelationship, { listParser })
 </script>

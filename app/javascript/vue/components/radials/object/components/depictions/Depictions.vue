@@ -88,7 +88,7 @@
 
       <DepictionList
         class="margin-medium-top"
-        :list="list"
+        v-model="list"
         @delete="removeDepiction"
         @update:caption="saveDepiction"
         @update:label="saveDepiction"
@@ -102,7 +102,6 @@
 import { ref, computed, onBeforeMount } from 'vue'
 import { Depiction } from '@/routes/endpoints'
 import { DEPICTION } from '@/constants'
-import { removeFromArray, addToArray } from '@/helpers'
 import { useSlice } from '@/components/radials/composables'
 import DepictionList from '@/components/radials/annotator/components/depictions/DepictionList.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'

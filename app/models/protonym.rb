@@ -327,7 +327,7 @@ class Protonym < TaxonName
   # @return [nil, false, String]
   #   !! Why both?
   def get_genus_species(genus_option, self_option)
-    return nil if rank_class.nil?
+    return nil if rank_class.nil? || rank_class.to_s == 'NomenclaturalRank'
 
     genus = nil
     name1 = nil
