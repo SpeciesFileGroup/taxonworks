@@ -637,8 +637,8 @@ class GeographicItem < ApplicationRecord
       end
     end
 
-    # !! CURRENTLY ASSUMES no geographic_item_id crosses the anti-meridian. This
-    # is true for GA and AD shapes, but not necessarily for GEOREF shapes.
+    # !! CURRENTLY ASSUMES no geographic_item_id crosses the anti-meridian. That
+    # is true for GA and Gaz shapes, but not necessarily for GEOREF shapes.
     def covered_by_geographic_items_sql(*geographic_item_id)
       geographic_item_id = geographic_item_id.flatten
 
@@ -646,32 +646,16 @@ class GeographicItem < ApplicationRecord
         '(ST_DUMP(geography::geometry)).geom AS the_geom'
       )
 
-      # Trying out ST_Union here instead of our more traditional ST_Collect
-      # since, e.g. a geographic_item (like a Gaz AD shape) that crosses the
-      # border of Canada and the U.S. would *not* be contained by
-      # ST_Collect(Canada, U.S.). This is unexpectedly fast in tests, but be
-      # wary here with new use cases.
+      # Note we need ST_Union here instead of ST_Collect since, e.g., a
+      # geographic_item (like an AD Gaz shape) that crosses the border of Canada
+      # and the U.S. would *not* be contained by ST_Collect(Canada, U.S.).
       geom = Arel.sql(
         'SELECT ST_Union(f.the_geom) AS single_geometry FROM (' +
           f.to_sql +
         ') AS f'
       )
 
-      # Russia and U.S.A. both have land just either side of the anti-meridian,
-      # so doing a pre-bounding box check actually checks against basically
-      # every shape in the northern hemisphere (i.e. the spatial index helps
-      # very little), which turns out to be quite slow even though it's just
-      # rectangle intersection.
-      skip_precheck = [192, 30449, 132534].any? do |x|
-        geographic_item_id.include?(x)
-      end
-      if skip_precheck
-        precheck = ''
-      else
-        precheck = "geography && (#{geom}) AND "
-      end
-
-      precheck + subset_of_sql(geom).to_sql
+      "geography && (#{geom}) AND " + subset_of_sql(geom).to_sql
     end
 
     #
