@@ -265,7 +265,7 @@ module Queries
 
         ::CollectingEvent
           .joins(:geographic_items)
-          .where(::GeographicItem.covered_by_geographic_items_sql(i.pluck(:id)))
+          .where(::GeographicItem.covered_by_geographic_items_sql(i))
       end
 
       def collecting_event_geo_facet_by_type(shape_string, shape_ids)
