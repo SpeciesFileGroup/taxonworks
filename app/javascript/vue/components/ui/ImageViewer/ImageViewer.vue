@@ -1,18 +1,19 @@
 <template>
   <div class="depiction-thumb-container">
-    <v-modal
+    <VModal
       v-if="isModalVisible"
-      @close="isModalVisible = false"
+      class="depiction-modal-container"
       :container-style="{
         width: `${imageObject.width}px`,
         minWidth: '700px'
       }"
+      @close="isModalVisible = false"
     >
       <template #header>
         <h3>View</h3>
       </template>
       <template #body>
-        <div class="image-container">
+        <div class="image-container margin-medium-bottom">
           <SvgViewer
             v-if="svgClip"
             class="img-maxsize full_width"
@@ -152,7 +153,7 @@
           <ImageViewerCitations :citations="state.citations" />
         </div>
       </template>
-    </v-modal>
+    </VModal>
     <div>
       <div
         class="cursor-pointer"
@@ -343,10 +344,12 @@ watch(isModalVisible, (newVal) => {
 .depiction-thumb-container {
   margin: 4px;
 
-  .modal-container {
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow: auto;
+  .depiction-modal-container {
+    .modal-container {
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: auto;
+    }
   }
 
   .img-thumb {
