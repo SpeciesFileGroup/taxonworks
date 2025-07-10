@@ -2,4 +2,4 @@
 set -e
 
 cd /app
-exec chpst -u app env QUEUE=project_download,cached_map,dwca_export,coldp_export,basic_nomenclature_export,dwc_occurrence_index,dwca_build_index,import_dataset_import,import_dataset_stage,cache,query_batch_update,import_nexus /usr/bin/bundle exec rails jobs:work
+exec chpst -u app env QUEUE=project_download,cached_map,dwca_export,coldp_export,basic_nomenclature_export,dwc_occurrence_index,dwca_build_index,import_dataset_import,import_dataset_stage,cache,query_batch_update,import_nexus,import_gazetteers /usr/bin/bundle exec rails jobs:work

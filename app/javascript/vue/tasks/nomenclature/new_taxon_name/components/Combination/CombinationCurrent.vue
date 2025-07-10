@@ -48,7 +48,7 @@
         </draggable>
       </div>
     </div>
-    <hr />
+    <hr class="divisor" />
   </div>
 </template>
 

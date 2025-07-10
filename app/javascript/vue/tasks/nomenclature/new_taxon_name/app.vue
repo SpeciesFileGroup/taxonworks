@@ -281,6 +281,11 @@ function focusSearch() {
     }
   }
 
+  .navbar-button {
+    min-width: 80px;
+    width: 100%;
+  }
+
   .cleft,
   .cright {
     min-width: 350px;
@@ -305,14 +310,6 @@ function focusSearch() {
     height: 65px;
     margin-top: -65px;
     visibility: hidden;
-  }
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
   }
 }
 </style>

@@ -172,6 +172,7 @@ export default defineStore('freeform', {
         this.taxonDeterminations = []
       }
 
+      this.selectedId = []
       this.collectionObject = initialCO()
 
       boardStore.SVGBoard.apiClearAll()

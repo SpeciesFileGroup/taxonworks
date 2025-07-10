@@ -623,7 +623,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       DatabaseCleaner.clean
     end
 
-    let(:kraussei_krausse) { TaxonName.find_by(name: 'kraussei', cached_author_year: 'Krausse, 1912') }
+    let(:kraussei_krausse) { TaxonName.find_by(name: 'kraussei', cached_author_year: '(Krausse, 1912)') } # Has an original_genus that now differs!
     let(:kraussei_emery) { TaxonName.find_by(name: 'kraussei', cached_author_year: '(Emery, 1916)') }
 
     # Root, Myrmica, Leptothorax, Temnothorax, angustulus, "kraussei Emery, 1916", "kraussei Krausse, 1912", mediterraneus

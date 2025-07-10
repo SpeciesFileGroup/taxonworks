@@ -26,6 +26,7 @@
   <FacetTaxonNameType v-model="params" />
   <FacetRelationships v-model="params" />
   <FacetStatus v-model="params" />
+  <FacetRelationToRelationship v-model="params" />
   <FacetInRelationship v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
   <FacetTags
@@ -76,13 +77,14 @@ import FacetCombinationify from './filters/FacetCombinationify.vue'
 import FacetSynonymify from './filters/FacetSynonymify.vue'
 import FacetAncestrify from '@/components/Filter/Facets/shared/FacetAncestrify.vue'
 import FacetAuthors from './filters/FacetAuthors.vue'
-import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetDateYear from '@/components/Filter/Facets/Source/FacetDate.vue'
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
+import FacetRelationToRelationship from './filters/FacetRelationToRelationship.vue'
 import { computed } from 'vue'
 import { TAXON_NAME } from '@/constants'
 
@@ -108,18 +110,19 @@ const WITH_PARAMS = [
   'data_attributes',
   'data_depictions',
   'depictions',
+  'leaves', // 'Descendants'
   'etymology',
   'global_identifiers',
-  'leaves',
+  'not_specified', // 'Incomplete combination relationships'
+  'latinized',
   'local_identifiers',
   'nomenclature_date',
-  'not_specified',
   'notes',
   'origin_citation',
   'original_combination',
   'otus',
   'tags',
-  'type_metadata',
+  'type_metadata', // 'Type information'
   'verbatim_name'
 ]
 

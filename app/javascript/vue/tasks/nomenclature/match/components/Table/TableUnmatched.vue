@@ -2,7 +2,7 @@
   <table class="table-striped">
     <thead>
       <tr>
-        <th>Unmatched</th>
+        <th>Unmatched ({{ list.length }})</th>
       </tr>
     </thead>
     <tbody>
@@ -17,7 +17,6 @@
 </template>
 
 <script setup>
-
 defineProps({
   list: {
     type: Array,

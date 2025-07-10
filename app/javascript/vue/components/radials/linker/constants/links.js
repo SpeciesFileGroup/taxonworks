@@ -99,6 +99,13 @@ export const TASK_FIELD_SYNCHRONIZE = {
   saveQuery: true
 }
 
+export const TASK_MULTI_UPDATE = {
+  label: 'Multi-update Data attributes',
+  link: '/tasks/data_attributes/multi_update',
+  queryParam: true,
+  saveQuery: true
+}
+
 export const TASK_DWC_OCCURRENCE_STATUS = {
   label: 'DwC Occurrence Status',
   link: '/tasks/dwc_occurrences/status'
@@ -116,5 +123,27 @@ export const TASK_SIMPLEMAPPR = {
   link: '/tasks/gis/simplemappr',
   post: true,
   queryParam: true
+}
+
+export const TASK_COLLECTING_EVENT_METADATA = {
+  label: 'Metadata',
+  link: '/tasks/collecting_events/metadata',
+  post: true,
+  queryParam: true
+}
+
+export const TASK_TAXON_NAME_GENDER = {
+  label: 'Gender summary',
+  link: '/tasks/taxon_names/gender',
+  post: false,
+  queryParam: true
+}
+
+export const TASK_PROJECT_VOCABULARY = {
+  label: 'Project vocabulary',
+  link: '/tasks/metadata/vocabulary/project_vocabulary',
+  post: false,
+  queryParam: true,
+  saveQuery: true
 }
 

@@ -116,7 +116,7 @@ class SledImage < ApplicationRecord
   end
 
   def _first_identifier
-    @_first_identifier ||= new_collection_object.identifiers&.first&.identifier&.to_i
+    @_first_identifier ||= new_collection_object.identifiers&.first&.identifier&.to_s
   end
 
   def _row_total
@@ -141,6 +141,21 @@ class SledImage < ApplicationRecord
       i[r][c] = s['metadata'].blank? ? 0 : 1
     end
     i
+  end
+
+  def increment_identifier(code, increment = 1)
+    if code =~ /(.*?)(\d+)([^0-9]*)$/
+      prefix = Regexp.last_match(1)
+      number = Regexp.last_match(2)
+      suffix = Regexp.last_match(3)
+
+      new_number = number.to_i + increment
+      padded_number = new_number.to_s.rjust(number.length, '0')
+
+      "#{prefix}#{padded_number}#{suffix}"
+    else
+      nil
+    end
   end
 
   def increment_matrix
@@ -178,16 +193,17 @@ class SledImage < ApplicationRecord
       r = s['row'].to_i
       c = s['column'].to_i
       m[r] ||= []
-      m[r][c] = nil if !s['metadata'].blank?
-      next if !s['metadata'].blank? || _first_identifier.nil?
+      m[r][c] = nil if s['metadata'].present?
+      next if s['metadata'].present? || _first_identifier.nil?
 
-      inc = r + c - i[r][c] + _first_identifier
+      inc = r + c - i[r][c]
       v = nil
+
       case step_identifier_on
-      when 'row'
-        v = (r * _column_total) + inc
-      when 'column'
-        v = (c * _row_total) + inc
+        when 'row'
+          v = increment_identifier(_first_identifier, (r * _column_total) + inc)
+        when 'column'
+          v = increment_identifier(_first_identifier, (c * _row_total) + inc)
       end
 
       m[r][c] = v
@@ -208,7 +224,7 @@ class SledImage < ApplicationRecord
     return true unless !collection_object_params.nil?
     begin
       metadata.each do |i|
-        next unless i['metadata'].blank?
+        next if i['metadata'].present?
         p = collection_object_params.merge(
           depictions_attributes: [
             {
@@ -309,7 +325,7 @@ class SledImage < ApplicationRecord
   private
 
   def is_metadata_depiction?
-    if depiction_params && !depiction_params.empty?
+    if depiction_params.present?
       a = depiction_params[:is_metadata_depiction]
       ((a == 'true') || (a == true)) ? true : false
     else

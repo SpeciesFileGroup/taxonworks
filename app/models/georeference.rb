@@ -54,14 +54,6 @@
 #   @return [Integer]
 #   the project ID
 #
-# @!attribute is_undefined_z
-#   @return [Boolean]
-#   True if this georeference cannot be located vertically, otherwise false.
-#
-# @!attribute is_median_z
-#   @return [Boolean]
-#   True if this georeference represents an average vertical distance, otherwise false.
-#
 # @!attribute year_georeferenced
 #   @return [Integer, nil]
 #     4 digit year the georeference was *first* created/captured
@@ -81,7 +73,7 @@ class Georeference < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
-  include Shared::Maps
+  include Shared::Maps # TODO: included twice
   include Shared::DwcOccurrenceHooks
   include Shared::IsData
 
@@ -96,6 +88,11 @@ class Georeference < ApplicationRecord
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
+  has_many :field_occurrences, through: :collecting_event, inverse_of: :georeferences
+
+  has_many :collection_object_otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
+  has_many :field_occurrence_otus, -> { unscope(:order) }, through: :field_occurrences, source: 'otu'
+
   has_many :otus, through: :collection_objects, source: 'otus'
 
   has_many :georeferencer_roles, class_name: 'Georeferencer', as: :role_object, dependent: :destroy, inverse_of: :role_object
@@ -130,15 +127,22 @@ class Georeference < ApplicationRecord
   attr_accessor :no_cached
 
   before_validation :round_error_radius
-  
+  before_validation :set_geographic_item, unless: -> { self.geographic_item_id.blank? }
   after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
-
   after_destroy :set_cached_collecting_event
 
-  def self.point_type
-    joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
+
+
+  def otus
+    ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
   end
 
+  def self.point_type
+    joins(:geographic_item)
+      .where(geographic_items: {geo_object_type: :point})
+  end
+
+  # TODO: remove, used in match georeferences
   # @param [Array] of parameters in the style of 'params'
   # @return [Scope] of selected georeferences
   def self.filter_by(params)
@@ -153,16 +157,11 @@ class Georeference < ApplicationRecord
   # @return [Scope] georeferences
   #   all georeferences within some distance of a geographic_item, by id
   def self.within_radius_of_item(geographic_item_id, distance)
-    return where(id: -1) if geographic_item_id.nil? || distance.nil?
-    # sanitize_sql_array(["name=:name and group_id=:group_id", name: "foo'bar", group_id: 4])
-    # => "name='foo''bar' and group_id=4"
-    q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
-      "(#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}"
-    # q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) < ?',
-    #                                                    GeographicItem::GEOGRAPHY_SQL,
-    #                                                    GeographicItem.select_geography_sql(geographic_item_id),
-    #                                                    distance])
-    Georeference.joins(:geographic_item).where(q1)
+    return none if geographic_item_id.nil? || distance.nil?
+
+    Georeference.joins(:geographic_item).where(
+      GeographicItem.within_radius_of_item_sql(geographic_item_id, distance)
+    )
   end
 
   # @param [String] locality string
@@ -216,9 +215,7 @@ class Georeference < ApplicationRecord
           error_geographic_item_id: gr.error_geographic_item_id,
           type: gr.type,
           is_public: gr.is_public,
-          api_request: gr.api_request,
-          is_undefined_z: gr.is_undefined_z,
-          is_median_z: gr.is_median_z)
+          api_request: gr.api_request)
         if new_gr.valid? # generally, this catches the case of multiple identical georeferences per collecting_event.
           new_gr.save!
           result.push new_gr
@@ -243,11 +240,17 @@ class Georeference < ApplicationRecord
   end
 
   def dwc_occurrences
-    DwcOccurrence
+    co = DwcOccurrence
       .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
       .joins('JOIN georeferences g on co.collecting_event_id = g.collecting_event_id')
       .where(g: {id:})
-      .distinct
+
+    fo = DwcOccurrence
+      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
+      .joins('JOIN georeferences g on fo.collecting_event_id = g.collecting_event_id')
+      .where(g: {id:})
+
+    ::Queries.union(DwcOccurrence, [co, fo])
   end
 
   # @return [Hash]
@@ -267,10 +270,9 @@ class Georeference < ApplicationRecord
       georeferenceProtocol: protocols.collect{|p| p.name}.join('|')
     )
 
-    if geographic_item.type == 'GeographicItem::Point'
-      b = geographic_item.to_a
-      h[:decimalLongitude] = b.first
-      h[:decimalLatitude] = b.second
+    if geographic_item.geo_object_type == :point
+      h[:decimalLongitude] = geographic_item.geo_object.x
+      h[:decimalLatitude] = geographic_item.geo_object.y
       h[:coordinateUncertaintyInMeters] = error_radius
     end
 
@@ -309,10 +311,12 @@ class Georeference < ApplicationRecord
     retval
   end
 
+  # DEPRECATED
   # @return [Rgeo::polygon, nil]
   #   a polygon representing the buffer
   def error_radius_buffer_polygon
     return nil if error_radius.nil? || geographic_item.nil?
+
     sql_str = ActivRecord::Base.send(
       :sanitize_sql_array,
       ['SELECT ST_Buffer(?, ?)',
@@ -330,17 +334,18 @@ class Georeference < ApplicationRecord
         'georeference' => {
           'id' => id,
           'tag' => "Georeference ID = #{id}"
-        }
+        },
+        'radius' => error_radius
       }
     )
   end
 
-  # @return [Float]
+  # @return [String]
   def latitude
     geographic_item.center_coords[0]
   end
 
-  # @return [Float]
+  # @return [String]
   def longitude
     geographic_item.center_coords[1]
   end
@@ -599,9 +604,13 @@ class Georeference < ApplicationRecord
 
   private
 
+  def set_geographic_item
+    self.geographic_item = GeographicItem.find(geographic_item_id)
+  end
+
   def round_error_radius
     if error_radius.present?
-      write_attribute(:error_radius, error_radius.round)
+      self[:error_radius] = error_radius.round
     end
   end
 

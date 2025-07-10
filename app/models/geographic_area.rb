@@ -84,7 +84,7 @@ class GeographicArea < ApplicationRecord
   belongs_to :level1, class_name: 'GeographicArea'
   belongs_to :level2, class_name: 'GeographicArea'
 
-  has_many :asserted_distributions, inverse_of: :geographic_area
+  has_many :asserted_distributions, as: :asserted_distribution_shape, inverse_of: :asserted_distribution_shape
   has_many :collecting_events, inverse_of: :geographic_area
   has_many :common_names, inverse_of: :geographic_area
   has_many :geographic_areas_geographic_items, -> { ordered_by_data_origin }, dependent: :destroy, inverse_of: :geographic_area
@@ -93,7 +93,7 @@ class GeographicArea < ApplicationRecord
   accepts_nested_attributes_for :geographic_areas_geographic_items
 
   validates :geographic_area_type, presence: true
-  validates_presence_of :geographic_area_type_id
+  validates :geographic_area_type_id, presence: true
 
   validates :parent, presence: true, unless: -> { self.name == 'Earth' } # || ENV['NO_GEO_VALID']}
   validates :level0, presence: true, allow_nil: true, unless: -> { self.name == 'Earth' }
@@ -181,12 +181,15 @@ class GeographicArea < ApplicationRecord
   scope :has_shape, -> (has_shape = true) {
     if has_shape
       joins(:geographic_areas_geographic_items)
+    else
+      left_joins(:geographic_areas_geographic_items)
+      .where(geographic_areas_geographic_items: {id: nil})
     end
   }
 
   scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
 
-  # Based strictly on the original data recording a level ID, 
+  # Based strictly on the original data recording a level ID,
   # this is *inferrence* and it will fail with some data.
   def self.inferred_as_country
     where('geographic_areas.level0_id = geographic_areas.id')
@@ -245,7 +248,8 @@ class GeographicArea < ApplicationRecord
   def self.is_contained_by(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
-      pieces = GeographicItem.is_contained_by('any_poly', geographic_area.geo_object)
+      pieces = GeographicItem.st_covered_by('any_poly',
+        geographic_area.default_geographic_item)
       others = []
       pieces.each { |other|
         others.push(other.geographic_areas.to_a)
@@ -260,7 +264,8 @@ class GeographicArea < ApplicationRecord
   def self.are_contained_in(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
-      pieces = GeographicItem.are_contained_in_item('any_poly', geographic_area.geo_object)
+      pieces = GeographicItem.st_covers('any_poly',
+        geographic_area.default_geographic_item)
       others = []
       pieces.each { |other|
         others.push(other.geographic_areas.to_a)
@@ -275,9 +280,14 @@ class GeographicArea < ApplicationRecord
   # @return [Scope] all areas which contain the point specified.
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
     point = ActiveRecord::Base.send(:sanitize_sql_array, ['POINT(:long :lat)', long: longitude, lat: latitude])
-    a = ::GeographicArea.joins(:geographic_items).where("ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))")
-    b = ::GeographicArea.joins(:geographic_items).where("ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))")
-    GeographicArea.from("((#{a.to_sql}) UNION (#{b.to_sql})) as geographic_areas")
+
+    ::GeographicArea.joins(:geographic_items)
+      .where(
+        ::GeographicItem.st_covers_sql(
+          ::GeographicItem.geography_as_geometry,
+          ::GeographicItem.st_geom_from_text_sql(point)
+        )
+      )
   end
 
   # @return [Scope]
@@ -287,7 +297,7 @@ class GeographicArea < ApplicationRecord
     ::GeographicArea
       .joins(:geographic_items)
       .merge(GeographicArea.find_by_lat_long(latitude, longitude))
-      .select("geographic_areas.*, ST_Area(#{::GeographicItem::GEOMETRY_SQL.to_sql}) As sqft")
+      .select('geographic_areas.*, ST_Area(geography::geometry) AS sqft')
       .order('sqft')
       .distinct
   end
@@ -419,7 +429,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [RGeo object] of the default GeographicItem
   def geo_object
-    default_geographic_item
+    default_geographic_item&.geo_object
   end
 
   alias shape geo_object
@@ -449,8 +459,10 @@ class GeographicArea < ApplicationRecord
   def to_geo_json_feature
     to_simple_json_feature.merge(
       'properties' => {
-        'geographic_area' => {
-          'id'  => id,
+        # cf. Gazetteer
+        'shape' => {
+          'type' => 'GeographicArea',
+          'id' => id,
           'tag' => name
         }
       }
@@ -479,7 +491,7 @@ class GeographicArea < ApplicationRecord
       # this nil signals the top of the stack: Everything terminates at 'Earth'
       item = parent.geographic_area_map_focus unless parent.nil?
     else
-      item = GeographicItem.new(point: geographic_items.first.st_centroid)
+      item = GeographicItem.new(geography: geographic_items.first.st_centroid)
     end
     item
   end
@@ -490,8 +502,8 @@ class GeographicArea < ApplicationRecord
     h = name_hash
 
     if item = geographic_area_map_focus # rubocop:disable Lint/AssignmentInCondition
-      h['Longitude'] = item.point.x
-      h['Latitude']  = item.point.y
+      h['Longitude'] = item.geography.x
+      h['Latitude']  = item.geography.y
     end
 
     h
@@ -578,9 +590,12 @@ class GeographicArea < ApplicationRecord
       z = i.as('recent_t')
       p = AssertedDistribution.arel_table
 
-      ad = AssertedDistribution.joins(
-        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['citation_object_id'].eq(p['id']).and(z['citation_object_type'].eq('AssertedDistribution')))  )
-      ).pluck(:geographic_area_id).uniq
+      AssertedDistribution
+        .joins(
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['citation_object_id'].eq(p['id']).and(z['citation_object_type'].eq('AssertedDistribution')))  )
+        )
+        .where(asserted_distribution_shape_type: 'GeographicArea')
+        .pluck(:asserted_distribution_shape_id).uniq
     end
   end
 

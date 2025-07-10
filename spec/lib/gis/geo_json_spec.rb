@@ -44,17 +44,17 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
 
   let(:polygon) { RSPEC_GEO_FACTORY.polygon(polygon_outer, [polygon_inner]) }
 
-  let(:polygon_b) { FactoryBot.create(:geographic_item_polygon, polygon: polygon.as_binary, by: geo_user) }
+  let(:polygon_b) { FactoryBot.create(:geographic_item, geography: polygon.as_binary, by: geo_user) }
 
-  let(:gi_line_string) { FactoryBot.create(:geographic_item_line_string, line_string: linestring.as_binary) }
+  let(:gi_line_string) { FactoryBot.create(:geographic_item, geography: linestring.as_binary) }
 
-  let(:multipoint_b) { FactoryBot.create(:geographic_item_multi_point, multi_point: multipoint.as_binary) }
+  let(:multipoint_b) { FactoryBot.create(:geographic_item, geography: multipoint.as_binary) }
 
-  let(:multilinestring_b) { FactoryBot.create(:geographic_item_multi_line_string,
-                                              multi_line_string: multilinestring.as_binary) }
+  let(:multilinestring_b) { FactoryBot.create(:geographic_item,
+                                              geography: multilinestring.as_binary) }
 
-  let(:multipolygon_b) { FactoryBot.create(:geographic_item_multi_polygon,
-                                           multi_polygon: multipolygon.as_binary,
+  let(:multipolygon_b) { FactoryBot.create(:geographic_item,
+                                           geography: multipolygon.as_binary,
                                            by: geo_user) }
 
   context "outputting GeoJSON 'Feature's" do
@@ -117,8 +117,8 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
         expect(json).to eq({ 'type' => 'FeatureCollection',
                              'features' => [{ 'type' => 'Feature',
                                               'geometry' => { 'type' => 'Polygon',
-                                                              'coordinates' => [[[1, -1, 0], [9, -1, 0],
-                                                                                 [9, -9, 0], [1, -9, 0],
+                                                              'coordinates' => [[[1, -1, 0], [1, -9, 0],
+                                                                                 [9, -9, 0], [9, -1, 0],
                                                                                  [1, -1, 0]],
                                                                                 [[2.5, -2.5, 0], [7.5, -2.5, 0],
                                                                                  [7.5, -7.5, 0], [2.5, -7.5, 0],
@@ -156,17 +156,17 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
         expect(json).to eq({ 'type' => 'FeatureCollection',
                              'features' => [{ 'type' => 'Feature',
                                               'geometry' => { 'type' => 'MultiPolygon',
-                                                              'coordinates' => [[[[1, -1, 0], [9, -1, 0],
-                                                                                  [9, -9, 0], [1, -9, 0], [1, -1, 0]]],
-                                                                                [[[2.5, -2.5, 0], [7.5, -2.5, 0],
-                                                                                  [7.5, -7.5, 0], [2.5, -7.5, 0],
+                                                              'coordinates' => [[[[1, -1, 0], [1, -9, 0],
+                                                                                  [9, -9, 0], [9, -1, 0], [1, -1, 0]]],
+                                                                                [[[2.5, -2.5, 0], [2.5, -7.5, 0],
+                                                                                  [7.5, -7.5, 0], [7.5, -2.5, 0],
                                                                                   [2.5, -2.5, 0]]]] },
                                               'properties' => { 'geographic_item' => { 'id' => multipolygon_b.id } },
                                               'id' => feature_index.to_i }] })
       end
 
       specify "that the geographic_item type 'geometry_collection' produce GeoJSON" do
-        object = GeographicItem.create!(geometry_collection: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, ' \
+        object = GeographicItem.create!(geography: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, ' \
                                                               '10.0 0.0 0.0, 10.0 10.0 0.0, ' \
                                                               '0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) ')
         json = Gis::GeoJSON.feature_collection([object])
@@ -193,10 +193,11 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
         expect(json).to eq({ 'type' => 'FeatureCollection',
                              'features' => [{ 'type' => 'Feature',
                                               'geometry' => { 'type' => 'MultiPolygon',
-                                                              'coordinates' => [[[[0, 0, 0], [0, 10, 0],
-                                                                                  [10, 10, 0], [10, 0, 0],
+                                                              'coordinates' => [[[[0, 0, 0], [10, 0, 0],
+                                                                                  [10, 10, 0], [0, 10, 0],
                                                                                   [0, 0, 0]]]] },
-                                              'properties' => { 'geographic_area' => { 'id' => object.id,
+                                              'properties' => { 'shape' => { 'type' => 'GeographicArea',
+                                              'id' => object.id,
                                                                                        'tag' => 'A' } },
                                               'id' => feature_index.to_i }] })
       end
@@ -209,10 +210,11 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
         expect(json).to eq({ 'type' => 'FeatureCollection',
                              'features' => [{ 'type' => 'Feature',
                                               'geometry' => { 'type' => 'Point',
-                                                              'coordinates' => [5, 5, 0.0] },
+                                                              'coordinates' => [5.0, 5.0, 0.0] },
                                               'properties' => { 'georeference' =>
                                                                     { 'id' => object.id,
-                                                                      'tag' => "Georeference ID = #{object.id}" } },
+                                                                      'tag' => "Georeference ID = #{object.id}" },
+                                                                'radius' => nil },
                                               'id' => feature_index.to_i }] })
       end
     end
@@ -247,15 +249,15 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
         expect(json).to eq({ 'type' => 'FeatureCollection',
                              'features' => [{ 'type' => 'Feature',
                                               'geometry' => { 'type' => 'MultiPolygon',
-                                                              'coordinates' => [[[[0.0, 0.0, 0.0], [10.0, 0.0, 0.0],
-                                                                                  [10.0, -10.0, 0.0], [0.0, -10.0, 0.0],
+                                                              'coordinates' => [[[[0.0, 0.0, 0.0], [0.0, -10.0, 0.0],
+                                                                                  [10.0, -10.0, 0.0], [10.0, 0.0, 0.0],
                                                                                   [0.0, 0.0, 0.0]]]] },
                                               'properties' => { 'asserted_distribution' => { 'id' => objects[0].id } },
                                               'id' => (feature_index.to_i + 0) },
                                             { 'type' => 'Feature',
                                               'geometry' => { 'type' => 'MultiPolygon',
-                                                              'coordinates' => [[[[0.0, 10.0, 0.0], [10.0, 10.0, 0.0],
-                                                                                  [10.0, -10.0, 0.0], [0.0, -10.0, 0.0],
+                                                              'coordinates' => [[[[0.0, 10.0, 0.0], [0.0, -10.0, 0.0],
+                                                                                  [10.0, -10.0, 0.0], [10.0, 10.0, 0.0],
                                                                                   [0.0, 10.0, 0.0]]]] },
                                               'properties' => { 'asserted_distribution' => { 'id' => objects[1].id } },
                                               'id' => (feature_index.to_i + 1) }] })
@@ -274,14 +276,15 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
                                                                   { 'id' => ce_a.id,
                                                                     'tag' => "Collecting event #{ce_a.id}." } },
                                             'geometry' => { 'type' => 'Point',
-                                                            'coordinates' => [5, 5, 0] },
+                                                            'coordinates' => [5.0, 5.0, 0] },
                                             'id' => (feature_index.to_i + 0) },
                                           { 'type' => 'Feature',
-                                            'properties' => { 'geographic_area' => { 'id' => area_b.id,
+                                            'properties' => { 'shape' => { 'type' => 'GeographicArea',
+                                            'id' => area_b.id,
                                                                                      'tag' => area_b.name } },
                                             'geometry' => { 'type' => 'MultiPolygon',
-                                                            'coordinates' => [[[[0, 0, 0], [10, 0, 0],
-                                                                                [10, -10, 0], [0, -10, 0],
+                                                            'coordinates' => [[[[0, 0, 0], [0, -10, 0],
+                                                                                [10, -10, 0], [10, 0, 0],
                                                                                 [0, 0, 0]]]] },
                                             'id' => (feature_index.to_i + 1) },
                                           { 'type' => 'Feature',
@@ -289,7 +292,8 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
                                                             'coordinates' => [5.0, -5.0, 0.0] },
                                             'properties' => { 'georeference' => { 'id' => ce_b.georeferences.first.id,
                                                                                   'tag' => 'Georeference ID = ' \
-                                                                              "#{ce_b.georeferences.first.id}" } },
+                                                                              "#{ce_b.georeferences.first.id}" },
+                                                              'radius' => nil },
                                             'id' => (feature_index.to_i + 2) },
                                           { 'type' => 'Feature',
                                             'geometry' => { 'type' => 'Point',

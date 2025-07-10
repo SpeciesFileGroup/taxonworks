@@ -3,17 +3,20 @@ import {
   BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
+  CONTENT,
   DESCRIPTOR,
+  DWC_OCCURRENCE,
   EXTRACT,
+  FIELD_OCCURRENCE,
   IMAGE,
+  LOAN,
+  OBSERVATION,
   OTU,
-  PEOPLE,
+  PERSON,
+  SOUND,
   SOURCE,
   TAXON_NAME,
-  OBSERVATION,
-  LOAN,
-  CONTENT,
-  DWC_OCCURRENCE
+  TAXON_NAME_RELATIONSHIP
 } from '@/constants/index.js'
 
 export const QUERY_PARAM = {
@@ -21,15 +24,18 @@ export const QUERY_PARAM = {
   [BIOLOGICAL_ASSOCIATION]: 'biological_association_query',
   [COLLECTING_EVENT]: 'collecting_event_query',
   [COLLECTION_OBJECT]: 'collection_object_query',
+  [CONTENT]: 'content_query',
   [DESCRIPTOR]: 'descriptor_query',
   [DWC_OCCURRENCE]: 'dwc_occurrence_query',
   [EXTRACT]: 'extract_query',
+  [FIELD_OCCURRENCE]: 'field_occurrence_query',
   [IMAGE]: 'image_query',
+  [LOAN]: 'loan_query',
+  [OBSERVATION]: 'observation_query',
   [OTU]: 'otu_query',
+  [PERSON]: 'person_query',
+  [SOUND]: 'sound_query',
   [SOURCE]: 'source_query',
   [TAXON_NAME]: 'taxon_name_query',
-  [PEOPLE]: 'people_query',
-  [CONTENT]: 'content_query',
-  [LOAN]: 'loan_query',
-  [OBSERVATION]: 'observation_query'
+  [TAXON_NAME_RELATIONSHIP]: 'taxon_name_relationship_query'
 }

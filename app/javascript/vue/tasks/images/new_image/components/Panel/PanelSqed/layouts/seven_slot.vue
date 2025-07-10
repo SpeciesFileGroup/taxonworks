@@ -66,7 +66,7 @@ export default {
       padding: 30px;
       border: 1px solid gray;
       border-radius: 3px;
-      background-color: #FFFFFF;
+      background-color: var(--panel-bg-color);
     }
 
     .row {

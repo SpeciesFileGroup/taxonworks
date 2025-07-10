@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Browse nomenclature task', type: :feature, group: :nomenclature do
+describe 'Browse taxon names task', type: :feature, group: :nomenclature do
   context 'when signed in and a project is selected' do
 
     before { sign_in_user_and_select_project}
@@ -12,7 +12,7 @@ describe 'Browse nomenclature task', type: :feature, group: :nomenclature do
       before { visit browse_nomenclature_task_path(taxon_name_id: genus.id) }
 
       specify "#{OS.mac? ? 'ctrl': 'alt'}-t navigates to New taxon name task" do
-        expect(page).to have_text('Browse nomenclature')
+        expect(page).to have_text('Browse taxon names')
         find('body').send_keys([OS.mac? ? :control : :alt, 't'])
         expect(page).to have_text('Edit taxon name')
       end

@@ -26,7 +26,7 @@ jobs:
       REF_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       CACHE_PATH: ".github/.docker-cache"
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Get startup date
       id: datetime
@@ -64,7 +64,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: process.env.REF_SHA,
-              check_name: 'build (0)'
+              check_name: 'build (ubuntu-24.04, 0)'
             })
           ).data.check_runs[0].check_suite.id
 

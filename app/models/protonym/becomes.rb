@@ -95,6 +95,7 @@ module Protonym::Becomes
   # Convert a Protonym into a Combination.
   # @return [self, or self as Combination]
   def becomes_combination
+    reload # This is allowed (but see ARCHITECTURE.md)
     a, original_relationships, c = nil, nil, nil
 
     if b = convertable_to_combination?

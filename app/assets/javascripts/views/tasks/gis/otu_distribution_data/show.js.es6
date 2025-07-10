@@ -11,7 +11,7 @@ Object.assign(TW.views.tasks.gis.otu_distribution, {
     init_otu_distribution_data();
 
     function init_otu_distribution_data() {
-      
+
         if (document.getElementById('_displayed_distribution_form') != null) {
           var newfcdata = $("#_displayed_distribution_form");
           var fcdata = newfcdata.data('feature-collection');
@@ -25,7 +25,7 @@ Object.assign(TW.views.tasks.gis.otu_distribution, {
             add_otu_distribution_data_listeners(otu_map);
           });
         }
-      
+
     };
 
     function add_otu_distribution_data_listeners(map) {
@@ -75,9 +75,11 @@ Object.assign(TW.views.tasks.gis.otu_distribution, {
         map.data.overrideStyle(event.feature, {fillOpacity: 1.0});  // bolder
         map.data.overrideStyle(event.feature, {icon: TW.vendor.lib.google.maps.mapIcons['white']});       // highlight markers
         //if (event.feature.getProperty('label') != undefined) {
-        document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('label');
-        //$("#displayed_distribution_style").html(event.feature.getProperty('label'));
+        if (document.getElementById('displayed_distribution_style') != null) {
+          document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('label');
+          //$("#displayed_distribution_style").html(event.feature.getProperty('label'));
         //}
+        }
       });
 
       map.data.addListener('mouseout', function (event) {

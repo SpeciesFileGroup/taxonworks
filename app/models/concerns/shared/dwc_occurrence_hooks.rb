@@ -1,8 +1,8 @@
-# Add hooks to ensure record changes trigger re-indexing at DwcOccurrence
+# Add hooks to ensure record changes trigger re-indexing at DwcOccurrence.
 #
 # Models including this concern must implement:
 #
-#   def ddwc_occrences
+#   def dwc_occurrences
 #     DwcOccurrence.<select>
 #   end
 #
@@ -16,25 +16,55 @@ module Shared::DwcOccurrenceHooks
     #   See also Shared::IsDwcOccurrence
     attr_accessor :no_dwc_occurrence
 
-    after_save_commit :update_dwc_occurrence, if: :saved_changes?, unless: :no_dwc_occurrence
-    after_destroy :update_dwc_occurrence
+    after_save_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
+    before_destroy :update_dwc_occurrence
 
     def update_dwc_occurrence
       t = dwc_occurrences.count
-      q = dwc_occurrences.unscope(:select).select('dwc_occurrences.id', 'occurrenceID', :dwc_occurrence_object_type, :dwc_occurrence_object_id, :is_stale)
+      return if t == 0
 
-      if t > 100
-        dwc_occurrences.touch_all(:is_stale) # Quickly mark all records requiring rebuild
-        ::DwcOccurrenceRefreshJob.perform_later(project_id:, user_id: Current.user_id)
-      else
-        q.find_each do |d|
-          d.dwc_occurrence_object.set_dwc_occurrence
+      rebuild_set = SecureRandom.hex(10)
+
+      begin
+        # If the scope is returning every object at this point (arbitrary cutoff), then the scope is badly coded.
+        if t > 20_000 && (
+            (respond_to?(:project_id) &&
+              (t == DwcOccurrence.where(project_id:).count)
+            ) ||
+            (!respond_to?(:project_id) && (t == DwcOccurrence.count))
+          )
+          raise TaxonWorks::Error
         end
-      end
-    end
 
-    def delay_dwc_reindex(object)
-      object.set_dwc_occurrence
+        dwc_occurrences.in_batches do |b|
+          b.update_all(rebuild_set:) # Mark the set of records requiring rebuild
+        end
+
+        priority = case t
+                   when 1..100
+                     1
+                   when 101..1000
+                     2
+                   else
+                     6
+                   end
+
+        ::DwcOccurrenceRefreshJob.set(priority:).perform_later(
+          rebuild_set:,
+          user_id: Current.user_id,
+        )
+
+      rescue => e
+        ExceptionNotifier.notify_exception(
+          e,
+          data: {
+            message: "Improperly coded scope dwc_occurrences rebuild #{self.class.name}",
+            object_id: id,
+            object_class: self.class.name,
+          }
+        )
+        raise
+      end
     end
 
   end

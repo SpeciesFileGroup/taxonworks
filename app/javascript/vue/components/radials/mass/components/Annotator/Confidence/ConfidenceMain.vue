@@ -48,9 +48,10 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount, shallowRef } from 'vue'
+import { computed, ref, onBeforeMount, shallowRef } from 'vue'
 import { ControlledVocabularyTerm, Confidence } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
+import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
 import { CONFIDENCE_LEVEL } from '@/constants'
 import ConfidenceList from './ConfidenceList.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
@@ -65,6 +66,11 @@ const props = defineProps({
     default: () => []
   },
 
+  objectId: {
+    type: Number,
+    required: true
+  },
+
   objectType: {
     type: String,
     required: true
@@ -73,6 +79,11 @@ const props = defineProps({
   parameters: {
     type: Object,
     default: undefined
+  },
+
+  nestedQuery: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -82,6 +93,7 @@ const MODE = {
   Replace: { mode: 'replace', component: ConfidenceReplace, color: 'primary' }
 }
 
+const queryParam = computed(() => [QUERY_PARAM[props.objectType]])
 const confirmationModalRef = ref(null)
 const list = ref([])
 const response = ref(null)
@@ -115,7 +127,7 @@ async function makeBatchRequest(confidence) {
       : makePayload(confidence)
 
     if (props.ids?.length) {
-      payload.filter_query[idParam] = props.ids
+      payload.filter_query[queryParam.value][idParam] = props.ids
     }
 
     isProcessing.value = true
@@ -132,18 +144,28 @@ async function makeBatchRequest(confidence) {
 
 function makePayload(confidence) {
   return {
+    filter_query: filterQuery(),
     mode: selectedMode.value.mode,
-    confidence_level_id: confidence.id,
-    filter_query: props.parameters
+    params: {
+      confidence_level_id: confidence.id
+    }
   }
 }
 
 function makeReplacePayload([replace, to]) {
   return {
+    filter_query: filterQuery(),
     mode: selectedMode.value.mode,
-    confidence_level_id: to.id,
-    replace_confidence_level_id: replace.id,
-    filter_query: props.parameters
+    params: {
+      confidence_level_id: to.id,
+      replace_confidence_level_id: replace.id
+    }
   }
+}
+
+function filterQuery() {
+  return props.nestedQuery
+    ? props.parameters
+    : {[QUERY_PARAM[props.objectType]]: props.parameters}
 }
 </script>

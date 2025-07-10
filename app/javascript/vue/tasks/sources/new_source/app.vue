@@ -15,11 +15,13 @@
         <li>
           <a href="/tasks/sources/hub">Back to source hub</a>
         </li>
+        <li><PanelSearch /></li>
+        <li><VRecent /></li>
       </ul>
     </div>
     <NavBar class="source-navbar">
       <div class="flex-separate full_width">
-        <div class="middle">
+        <div class="middle gap-small">
           <template v-if="source.id">
             <span
               class="word_break"
@@ -27,8 +29,10 @@
             />
 
             <div
-              class="flex-wrap-row nav__source-buttons margin-small-left gap-small"
+              class="horizontal-right-content gap-small"
+              v-if="source.id"
             >
+              <CitationTotal :source-id="source.id" />
               <VPin
                 class="circle-button"
                 type="Source"
@@ -46,7 +50,7 @@
         </div>
         <div class="nav__buttons gap-small">
           <VIcon
-            v-if="unsave"
+            v-if="isUnsaved"
             name="attention"
             color="attention"
             title="You have unsaved changes."
@@ -60,6 +64,7 @@
             Save
           </button>
           <CloneSource />
+          |
           <button
             v-if="source.type === SOURCE_VERBATIM && source.id"
             class="button normal-input button-submit button-size"
@@ -69,27 +74,23 @@
             To BibTeX
           </button>
           <button
+            type="button"
             v-help.section.navBar.crossRef
             class="button normal-input button-default button-size"
-            type="button"
+            :disabled="source.id && isUnsaved"
             @click="() => (isModalVisible = true)"
           >
             CrossRef
           </button>
           <button
-            class="button normal-input button-default button-size"
             type="button"
+            class="button normal-input button-default button-size"
+            :disabled="source.id && isUnsaved"
             @click="() => (showBibtex = true)"
           >
             BibTeX
           </button>
-          <button
-            class="button normal-input button-default button-size"
-            type="button"
-            @click="() => (showRecent = true)"
-          >
-            Recent
-          </button>
+
           <button
             class="button normal-input button-default button-size"
             type="button"
@@ -100,15 +101,23 @@
         </div>
       </div>
     </NavBar>
-    <RecentComponent
-      v-if="showRecent"
-      @close="() => (showRecent = false)"
-    />
     <div class="horizontal-left-content align-start">
-      <div class="full_width panel content">
-        <SourceType class="margin-medium-bottom" />
-        <component :is="componentSection[source.type]" />
-      </div>
+      <BlockLayout class="full_width">
+        <template #header>
+          <div class="flex-separate middle full_width">
+            <h3>Source</h3>
+          </div>
+        </template>
+        <template #body>
+          <div class="full_width">
+            <SourceType
+              v-if="source.type !== SOURCE_BIBTEX"
+              class="margin-medium-bottom"
+            />
+            <component :is="componentSection[source.type]" />
+          </div>
+        </template>
+      </BlockLayout>
       <RightSection class="margin-medium-left" />
     </div>
     <CrossRef
@@ -141,7 +150,6 @@ import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/PersonHuman.vue'
 import SourceType from './components/sourceType'
-import RecentComponent from './components/recent'
 
 import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
@@ -152,11 +160,15 @@ import AddSource from '@/components/ui/Button/ButtonAddToProjectSource'
 import CloneSource from './components/cloneSource'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
+import CitationTotal from './components/CitationTotal.vue'
 
+import VRecent from './components/recent.vue'
+import PanelSearch from './components/PanelSearch.vue'
 import RightSection from './components/rightSection'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
 import { useHotkey } from '@/composables'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 
 const componentSection = {
   [SOURCE_VERBATIM]: Verbatim,
@@ -197,11 +209,12 @@ const settings = computed({
   }
 })
 
-const unsave = computed(() => settings.value.lastSave < settings.value.lastEdit)
+const isUnsaved = computed(
+  () => settings.value.lastSave < settings.value.lastEdit
+)
 
 const isModalVisible = ref(false)
 const showBibtex = ref(false)
-const showRecent = ref(false)
 
 watch(
   source,
@@ -235,7 +248,14 @@ onMounted(() => {
 })
 
 function reset() {
-  store.dispatch(ActionNames.ResetSource)
+  if (
+    !isUnsaved.value ||
+    window.confirm(
+      'You have unsaved changes. If you continue, your changes will be lost. Do you want to proceed?'
+    )
+  ) {
+    store.dispatch(ActionNames.ResetSource)
+  }
 }
 function saveSource() {
   if (source.value.type === SOURCE_BIBTEX && !source.value.bibtex_type) return
@@ -267,5 +287,9 @@ function convert() {
   .nav__source-buttons {
     min-width: 150px;
   }
+}
+
+:deep(.vue-autocomplete-input) {
+  width: 500px;
 }
 </style>

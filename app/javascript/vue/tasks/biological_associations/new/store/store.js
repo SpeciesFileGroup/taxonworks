@@ -78,12 +78,7 @@ export const useStore = defineStore('NewBiologicalAssociation', {
 
   getters: {
     isSaveAvailable(state) {
-      return (
-        state.object &&
-        state.subject &&
-        state.relationship &&
-        state.citation.source_id
-      )
+      return state.object && state.subject && state.relationship
     }
   },
 

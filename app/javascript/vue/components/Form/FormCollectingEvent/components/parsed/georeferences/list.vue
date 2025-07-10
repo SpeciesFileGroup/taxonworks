@@ -1,6 +1,6 @@
 <template>
   <div class="vue-table-container">
-    <table class="vue-table">
+    <table class="vue-table table-striped">
       <thead>
         <tr>
           <th class="word-keep-all line-nowrap">Georeference ID</th>
@@ -17,7 +17,7 @@
       <tbody>
         <tr
           v-for="item in list"
-          :key="item.id"
+          :key="item.uuid"
           class="list-complete-item"
         >
           <td>{{ item.id }}</td>
@@ -31,28 +31,22 @@
           <td>{{ getCoordinatesByType(item) }}</td>
           <td>{{ item.has_error_polygon ? 'Yes' : 'No' }}</td>
           <td class="line-nowrap">
-            <edit-in-place
+            <EditInPlace
               v-model="item.error_radius"
-              @end="$emit('update', item)"
+              @end="emit('update', item)"
             />
           </td>
           <td>{{ item.inferred_error_radius }}</td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td>
             <div class="horizontal-left-content">
-              <date-component
+              <VDate
                 v-model:day="item.day_georeferenced"
                 v-model:month="item.month_georeferenced"
                 v-model:year="item.year_georeferenced"
                 placeholder
+                @change="emit('dateChanged', item)"
               />
-              <VBtn
-                color="primary"
-                medium
-                @click="$emit('dateChanged', item)"
-              >
-                Update
-              </VBtn>
             </div>
           </td>
           <td>
@@ -78,98 +72,70 @@
     </table>
   </div>
 </template>
-<script>
+
+<script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import EditInPlace from '@/components/editInPlace'
-import DateComponent from '@/components/ui/Date/DateFields.vue'
+import VDate from '@/components/ui/Date/DateFields.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { convertToLatLongOrder } from '@/helpers/geojson'
 import { GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT } from '@/constants/index.js'
 
-export default {
-  components: {
-    RadialAnnotator,
-    DateComponent,
-    EditInPlace,
-    VBtn,
-    VIcon
-  },
-  props: {
-    list: {
-      type: Array,
-      default: () => []
-    },
-    header: {
-      type: Array,
-      default: () => []
-    },
-    destroy: {
-      type: Boolean,
-      default: true
-    },
-    deleteWarning: {
-      type: Boolean,
-      default: true
-    },
-    annotator: {
-      type: Boolean,
-      default: true
-    },
-    edit: {
-      type: Boolean,
-      default: false
+const props = defineProps({
+  list: {
+    type: Array,
+    default: () => []
+  }
+})
+
+const emit = defineEmits(['delete', 'update', 'dateChanged'])
+
+function deleteItem(item) {
+  if (item.id) {
+    if (
+      window.confirm(
+        "You're trying to delete this record. Are you sure want to proceed?"
+      )
+    ) {
+      emit('delete', item)
     }
-  },
+  } else {
+    emit('delete', item)
+  }
+}
+function getCoordinates(coordinates) {
+  const flatten = coordinates.flat(1)
 
-  emits: ['delete', 'update', 'dateChanged'],
+  return typeof flatten[0] === 'number'
+    ? convertToLatLongOrder(coordinates)
+    : flatten.map((arr) => convertToLatLongOrder(arr))
+}
+function geojsonObject(object) {
+  return object.geo_json
+    ? object.geo_json
+    : JSON.parse(object.geographic_item_attributes.shape)
+}
 
-  methods: {
-    deleteItem(item) {
-      if (this.deleteWarning) {
-        if (
-          window.confirm(
-            "You're trying to delete this record. Are you sure want to proceed?"
-          )
-        ) {
-          this.$emit('delete', item)
-        }
-      } else {
-        this.$emit('delete', item)
-      }
-    },
-    getCoordinates(coordinates) {
-      const flatten = coordinates.flat(1)
+function getGeoJsonType(object) {
+  return geojsonObject(object).geometry.type
+}
 
-      return typeof flatten[0] === 'number'
-        ? convertToLatLongOrder(coordinates)
-        : flatten.map((arr) => convertToLatLongOrder(arr))
-    },
-    geojsonObject(object) {
-      return object.geo_json
-        ? object.geo_json
-        : JSON.parse(object.geographic_item_attributes.shape)
-    },
-    getGeoJsonType(object) {
-      return this.geojsonObject(object).geometry.type
-    },
-    isTmpWkt(object) {
-      return object.type === GEOREFERENCE_WKT && object.tmpId
-    },
-    isTempGeolocate(object) {
-      return object.type === GEOREFERENCE_GEOLOCATE && object.tmpId
-    },
-    getCoordinatesByType(object) {
-      if (this.isTmpWkt(object)) {
-        return object.wkt
-      } else if (this.isTempGeolocate(object)) {
-        return object.iframe_response
-      } else {
-        return this.getCoordinates(
-          this.geojsonObject(object).geometry.coordinates
-        )
-      }
-    }
+function isTmpWkt(object) {
+  return object.type === GEOREFERENCE_WKT && !object.id
+}
+
+function isTempGeolocate(object) {
+  return object.type === GEOREFERENCE_GEOLOCATE && !object.id
+}
+
+function getCoordinatesByType(object) {
+  if (isTmpWkt(object)) {
+    return object.wkt
+  } else if (isTempGeolocate(object)) {
+    return object.iframe_response
+  } else {
+    return getCoordinates(geojsonObject(object).geometry.coordinates)
   }
 }
 </script>

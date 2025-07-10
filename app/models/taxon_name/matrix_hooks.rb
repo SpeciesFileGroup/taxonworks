@@ -1,9 +1,8 @@
 module TaxonName::MatrixHooks
   extend ActiveSupport::Concern
 
-  # @return Scope
   def coordinate_observation_matrix_row_items
-    ObservationMatrixRowItem::Dynamic::TaxonName #.joins(:taxon_name)
+    ObservationMatrixRowItem::Dynamic::TaxonName
       .where( observation_object: self_and_ancestors )
   end
 

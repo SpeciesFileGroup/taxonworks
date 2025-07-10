@@ -79,13 +79,14 @@ import FacetPerson from './Facet/FacetPerson.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = [
+  'documentation',
+  'gift',
+  'identifiers',
   'with_date_closed',
   'with_date_received',
   'with_date_requested',
   'with_date_return_expected',
-  'with_date_sent',
-  'documentation',
-  'identifiers'
+  'with_date_sent'
 ]
 
 const OVERDUE_OPTIONS = [

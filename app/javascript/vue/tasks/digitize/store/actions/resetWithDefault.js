@@ -1,5 +1,8 @@
 import ActionNames from './actionNames'
-import { useIdentifierStore } from '../pinia/identifiers'
+import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
+import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations'
+import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
 import {
   IDENTIFIER_LOCAL_RECORD_NUMBER,
   IDENTIFIER_LOCAL_CATALOG_NUMBER
@@ -7,14 +10,15 @@ import {
 
 export default ({ dispatch, state }) => {
   const { locked } = state.settings
+  const collectingEventStore = useCollectingEventStore()
   const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
   const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+  const determinationStore = useTaxonDeterminationStore()
+  const biologicalAssociationStore = useBiologicalAssociationStore()
+  const biocurationStore = useBiocurationStore()
 
-  dispatch(ActionNames.NewCollectingEvent)
   dispatch(ActionNames.NewCollectionObject)
   dispatch(ActionNames.NewTypeMaterial)
-  dispatch(ActionNames.NewIdentifier)
-  dispatch(ActionNames.NewLabel)
 
   state.collection_objects = []
   state.container = undefined
@@ -26,7 +30,7 @@ export default ({ dispatch, state }) => {
   state.preparation_type_id = undefined
 
   if (!locked.collecting_event) {
-    state.georeferences = []
+    collectingEventStore.reset()
   }
 
   recordNumber.reset({
@@ -39,6 +43,16 @@ export default ({ dispatch, state }) => {
     increment: state.settings.increment
   })
 
+  biologicalAssociationStore.reset({
+    keepRecords: locked.biologicalAssociations
+  })
+
+  determinationStore.reset({
+    keepRecords: locked.taxonDeterminations
+  })
+
+  biocurationStore.reset({ keepRecords: locked.settings.biocuration })
+
   state.biologicalAssociations = locked.biologicalAssociations
     ? state.biologicalAssociations.map((item) => ({
         ...item,
@@ -46,6 +60,4 @@ export default ({ dispatch, state }) => {
         global_id: undefined
       }))
     : []
-
-  dispatch(ActionNames.ResetTaxonDetermination)
 }

@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
+  include ActiveJob::TestHelper
 
   let(:taxon_name_relationship) { TaxonNameRelationship.new }
 
@@ -23,12 +24,21 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
     s = Specimen.create
     td = FactoryBot.create(:valid_taxon_determination, otu: FactoryBot.create(:valid_otu, taxon_name: t), taxon_determination_object: s)
 
+
+    perform_enqueued_jobs
+
     expect(s.dwc_occurrence.reload.scientificName).to eq(t.cached_name_and_author_year)
+    
     r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: t, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+   
+    perform_enqueued_jobs
+   
     expect(s.dwc_occurrence.reload.scientificName).to eq(species.cached_name_and_author_year)
 
     # Back the other way
     r1.destroy!
+  
+    perform_enqueued_jobs
     expect(s.dwc_occurrence.reload.scientificName).to eq(t.cached_name_and_author_year)
   end
 
@@ -263,13 +273,6 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(s1.cached_misspelling).to be_falsey
       end
 
-      # TODO: this can be moved out to the new original_combination specs
-      specify 'for cached_original_combination' do
-        # Use non FactoryBot to get callbacks
-        s1.update(original_genus: g2)
-        expect(s1.cached_original_combination).to eq('Bus aus')
-      end
-
       specify 'for cached_primary_homony' do
         s1.original_genus = g2
         s1.save!
@@ -279,7 +282,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       specify 'for cached_classified_as' do
         r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: family, type: 'TaxonNameRelationship::SourceClassifiedAs')
         r2.save!
-        expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
+        expect(s1.cached_classified_as).to eq('(as Erythroneuridae)')
       end
 
       specify 'for cached_author' do
@@ -295,7 +298,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       specify 'for cached_classified_as with original genus present' do
         s1.update(original_genus: g2)
         r2 = TaxonNameRelationship::SourceClassifiedAs.create!(subject_taxon_name: s1, object_taxon_name: family, type: 'TaxonNameRelationship::SourceClassifiedAs')
-        expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
+        expect(s1.cached_classified_as).to eq('(as Erythroneuridae)')
       end
 
       specify 'for cached_valid_taxon_name_id' do
@@ -342,22 +345,6 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r3.soft_validate(only_sets: :not_specific_relationship)
         expect(r3.soft_validations.messages_on(:type).size).to eq(0)
       end
-    end
-
-    specify 'destroy relationship' do
-      g1 = FactoryBot.create(:relationship_genus, name: 'Aus', parent: family)
-      s1 = FactoryBot.create(:relationship_species, name: 'aus', parent: g1)
-      r1 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-      r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
-      r3 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies')
-
-      r1.save!
-      r2.save!
-      r3.save!
-      s1.save!
-      expect(s1.cached_original_combination).to eq('Aus (Aus) aus')
-      r2.destroy
-      expect(s1.cached_original_combination).to eq('Aus aus')
     end
   end
 

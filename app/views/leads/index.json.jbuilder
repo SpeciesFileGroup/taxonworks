@@ -1,4 +1,5 @@
 json.array!(@leads) do |lead|
+  lead[:couplets_count] = couplets_count(lead)
   if params[:load_root_otus]
     json.otu do
       if lead.otu.nil?

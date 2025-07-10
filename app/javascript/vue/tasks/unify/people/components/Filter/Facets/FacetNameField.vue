@@ -6,57 +6,58 @@
         class="full_width"
         type="text"
         :disabled="disabled"
-        v-model="params[param]">
+        v-model="params[param]"
+      />
     </div>
     <div class="field">
-      <br>
+      <br />
       <label class="horizontal-left-content">
         <input
           type="checkbox"
           :value="param"
           :disabled="disabled"
-          v-model="params.person_wildcard">
+          v-model="personWildcard"
+        />
         Wildcard
       </label>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    title: {
-      type: String,
-      required: true
-    },
+<script setup>
+import { onMounted, computed } from 'vue'
 
-    modelValue: {
-      type: Object,
-      required: true
-    },
-
-    param: {
-      type: String,
-      required: true
-    },
-
-    disabled: {
-      type: Boolean,
-      default: false
-    }
+defineProps({
+  title: {
+    type: String,
+    required: true
   },
 
-  emits: ['update:modelValue'],
+  param: {
+    type: String,
+    required: true
+  },
 
-  computed: {
-    params: {
-      get () {
-        return this.modelValue
-      },
-      set (value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
+  disabled: {
+    type: Boolean,
+    default: false
   }
-}
+})
+
+const params = defineModel({
+  type: Object,
+  required: true
+})
+
+const personWildcard = computed({
+  get() {
+    return params.value.person_wildcard || []
+  },
+
+  set(value) {
+    params.value.personWildcard = value
+  }
+})
+
+onMounted(() => {})
 </script>

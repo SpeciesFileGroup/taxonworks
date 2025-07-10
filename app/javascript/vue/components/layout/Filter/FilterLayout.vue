@@ -81,6 +81,7 @@
             v-model="perValue"
           />
           <div class="horizontal-right-content gap-small">
+            <slot name="nav-options-left" />
             <template v-if="selectedIds">
               <ButtonUnify
                 v-if="buttonUnify"
@@ -117,7 +118,9 @@
             <span class="separate-left separate-right">|</span>
             <FilterDownload
               :list="selectedItems"
+              :csv-options="csvOptions"
               :extend-download="extendDownload"
+              :only-extend-download="onlyExtendDownload"
             />
             <span class="separate-left separate-right">|</span>
             <FilterSettings
@@ -178,6 +181,16 @@ const props = defineProps({
   pagination: {
     type: Object,
     default: undefined
+  },
+
+  csvOptions: {
+    type: Object,
+    default: undefined
+  },
+
+  onlyExtendDownload: {
+    type: Boolean,
+    default: false
   },
 
   extendDownload: {
@@ -310,13 +323,9 @@ function handleClickFilterButton() {
 TW.workbench.keyboard.createLegend(
   `${platformKey()}+f`,
   'Search',
-  'Filter sources'
+  'Filter task'
 )
-TW.workbench.keyboard.createLegend(
-  `${platformKey()}+r`,
-  'Reset task',
-  'Filter sources'
-)
+TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset', 'Filter task')
 
 const stop = useHotkey(hotkeys.value)
 

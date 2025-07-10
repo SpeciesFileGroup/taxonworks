@@ -12,7 +12,7 @@ module ::Export::CSV
   # @param [Array] header_converters
   # @param [Boolean] trim_rows
   # @param [Boolean] trim_columns
-  # @return [CSV]
+  # @return [String] in CSV format
   def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false, column_order: [])
 
     column_names = scope.columns_hash.keys

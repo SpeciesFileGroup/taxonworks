@@ -9,13 +9,13 @@
   <h1>Available Keys</h1>
   <div class="leads_list">
     <table
-      v-if="keys.length"
+      v-if="keys.length > 0"
       class="vue-table"
     >
       <thead>
         <tr>
           <th>Name</th>
-          <th># Couplets</th>
+          <th># of couplets</th>
           <th>Is Public</th>
           <th>Last Modified</th>
           <th>Last Modified By</th>
@@ -28,13 +28,13 @@
         >
           <td>
             <a
-              @click.prevent="() => emit('loadCouplet', key.id)"
+              @click.prevent="() => emit('loadKey', key.id)"
               :href="RouteNames.ShowLead + '?lead_id=' + key.id"
             >
               {{ key.text }}
             </a>
           </td>
-          <td>{{ key.couplet_count }}</td>
+          <td>{{ key.couplets_count }}</td>
           <td>{{ key.is_public? 'True' : 'False' }}</td>
           <td>{{ key.key_updated_at_in_words }}</td>
           <td>{{ key.key_updated_by }}</td>
@@ -53,7 +53,7 @@
         :href="RouteNames.NewLead"
         data-turbolinks="false"
       >
-        New dichotomous key
+        New key
       </a>
       task to create one.
     </div>
@@ -68,7 +68,7 @@ import { RouteNames } from '@/routes/routes'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
-const emit = defineEmits(['loadCouplet'])
+const emit = defineEmits(['loadKey'])
 
 const keys = ref([])
 const loading = ref(true)

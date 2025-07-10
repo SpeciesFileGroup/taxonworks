@@ -5,6 +5,68 @@
 # See app/javascript/vue/tasks/dwca_import/components/settings/Occurrences/OccurrenceSettings.vue for UI defined parameters
 #
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
+  SUPPORTED_DWC_TERMS = %w{
+    basisOfRecord
+    catalogNumber
+    class
+    collectionCode
+    coordinateUncertaintyInMeters
+    country
+    countryCode
+    county
+    dateIdentified
+    day
+    decimalLatitude
+    decimalLongitude
+    endDayOfYear
+    eventDate
+    eventID
+    eventRemarks
+    eventTime
+    family
+    fieldNotes
+    fieldNumber
+    genus
+    geodeticDatum
+    georeferencedBy
+    georeferenceRemarks
+    habitat
+    higherClassification
+    identificationQualifier
+    identificationRemarks
+    identifiedBy
+    individualCount
+    institutionCode
+    kingdom
+    maximumElevationInMeters
+    minimumElevationInMeters
+    month
+    nomenclaturalCode
+    occurrenceID
+    occurrenceRemarks
+    order
+    phylum
+    preparations
+    recordedBy
+    recordNumber
+    samplingProtocol
+    scientificName
+    scientificNameAuthorship
+    sex
+    startDayOfYear
+    stateProvince
+    subfamily
+    subtribe
+    superfamily
+    taxonRank
+    tribe
+    type
+    typeStatus
+    verbatimElevation
+    verbatimEventDate
+    verbatimLocality
+    year
+  }
 
   DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order superfamily family subfamily tribe subtribe}.freeze # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
   PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies).freeze
@@ -110,12 +172,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           potential_protonyms = Protonym.where(name.slice(:rank_class, :year_of_publication).merge({ field => name[:name], cached_author: }).compact).with_ancestor(parent)
           if potential_protonyms.count > 1
             return parent
-            # potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }
-            # raise DatasetRecord::DarwinCore::InvalidData.new(
-            #   { "scientificName" => ["Intermediate name not present, and multiple matches found: #{potential_protonym_strings.join(', ')}"] }
-            # )
           end
           p = potential_protonyms.first
+
           # check parent.cached_valid_taxon_name_id if not valid, can have obsolete subgenus Aus (Aus) bus -> Aus bus, bus won't have ancestor (Aus)
           if p.nil? && !parent.cached_is_valid
             p = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent.valid_taxon_name).first
@@ -156,6 +215,24 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         }
       end
     end
+  end
+
+  def get_mapped_fields(dwc_data_attributes = {})
+    project_dwc_data_attributes = dwc_data_attributes.slice('CollectingEvent', 'CollectionObject')
+      .values.map(&:keys).flatten
+      .map { |f| get_field_mapping(f) }.compact
+    tw_namespaces = %w(catalogNumber eventID fieldNumber recordNumber).map { |f| get_field_mapping("TW:Namespace:#{f}") }.compact
+    tw_data = (
+      get_tw_biocuration_groups +
+      get_tw_data_attribute_fields_for('CollectionObject') +
+      get_tw_data_attribute_fields_for('CollectingEvent') +
+      get_tw_fields_for('CollectionObject') +
+      get_tw_fields_for('CollectingEvent') +
+      get_tw_tag_fields_for('CollectionObject') +
+      get_tw_tag_fields_for('CollectingEvent')
+    ).map { |f| get_field_mapping(f[:field]) }.compact
+
+    (super + project_dwc_data_attributes + tw_namespaces + tw_data).uniq.sort
   end
 
   def import(dwc_data_attributes = {})
@@ -203,7 +280,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           (attributes.dig(:specimen, :biocuration_classifications) || [])
         )
 
-        specimen = Specimen.create!({
+        collection_object = (attributes.dig(:specimen, :total) == '1' ? Specimen : Lot).create!({
           no_dwc_occurrence: true
         }.merge!(attributes[:specimen]))
 
@@ -212,7 +289,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           type_material = TypeMaterial.new(
             {
               protonym: innermost_protonym,
-              collection_object: specimen,
+              collection_object: collection_object,
             }.merge!(attributes[:type_material])) # protoynm can be overwritten in type_materials hash if OC did not match scientific name / innermost_protonym
 
           if self.import_dataset.require_type_material_success? # raise error if validations fail and it cannot be imported
@@ -235,10 +312,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
           identifier_attributes[:namespace] = record_number_namespace
           identifier = Identifier::Local::RecordNumber
-            .create_with(identifier_object: specimen, annotator_batch_mode: true)
+            .create_with(identifier_object: collection_object, annotator_batch_mode: true)
             .find_or_create_by!(identifier_attributes)
 
-          unless identifier.identifier_object == specimen
+          unless identifier.identifier_object == collection_object
             raise DarwinCore::InvalidData.new({ 'recordNumber' => ['Is already in use'] })
           end
         end
@@ -248,7 +325,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           delete_namespace_prefix!(attributes.dig(:catalog_number, :identifier), namespace)
 
           identifier = Identifier::Local::CatalogNumber
-            .create_with(identifier_object: specimen, annotator_batch_mode: true)
+            .create_with(identifier_object: collection_object, annotator_batch_mode: true)
             .find_or_create_by!(attributes[:catalog_number])
 
           # if desired, ensure that cached CO identifier will match verbatim catalogNumber
@@ -263,15 +340,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
           object = identifier.identifier_object
 
-          unless object == specimen
+          unless object == collection_object
             unless record_number || self.import_dataset.containerize_dup_cat_no?
               raise DarwinCore::InvalidData.new({ 'catalogNumber' => ['Is already in use'] })
             end
             if object.is_a?(Container)
-              object.add_container_items([specimen])
+              object.add_container_items([collection_object])
             else
               identifier.update!(
-                identifier_object: Container::Virtual.containerize([object, specimen])
+                identifier_object: Container::Virtual.containerize([object, collection_object])
               )
             end
           end
@@ -279,12 +356,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         Identifier::Local::Import::Dwc.create!(
           namespace: import_dataset.get_core_record_identifier_namespace,
-          identifier_object: specimen,
+          identifier_object: collection_object,
           identifier: get_field_value(:occurrenceID),
           annotator_batch_mode: true
         ) unless get_field_value(:occurrenceID).nil? || import_dataset.get_core_record_identifier_namespace.nil?
 
-        specimen.taxon_determinations.create!({
+        collection_object.taxon_determinations.create!({
           otu: innermost_otu || innermost_protonym.otus.find_by(name: nil) || innermost_protonym.otus.first # TODO: Might require select-and-confirm functionality
         }.merge(attributes[:taxon_determination]))
 
@@ -356,7 +433,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           collecting_event ||= field_number_identifier&.identifier_object
           collecting_event_identifiers << {type: Identifier::Local::FieldNumber, attributes: identifier_attributes}
         end
-        
+
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
         if collecting_event
           if field_number_identifier && event_id_identifier &&
@@ -381,10 +458,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             end
           end
 
-          specimen.update!(collecting_event:)
+          collection_object.update!(collecting_event:)
         else
           collecting_event = CollectingEvent.create!({
-            collection_objects: [specimen],
+            collection_objects: [collection_object],
             no_dwc_occurrence: true,
             no_cached: true
           }.merge!(attributes[:collecting_event]))
@@ -450,9 +527,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           collecting_event.save!
         end
 
-        DwcOccurrenceUpsertJob.perform_later(specimen)
+        DwcOccurrenceUpsertJob.perform_later(collection_object)
 
-        self.metadata['imported_objects'] = { collection_object: { id: specimen.id } }
+        self.metadata['imported_objects'] = { collection_object: { id: collection_object.id } }
         self.status = 'Imported'
       end
     rescue DarwinCore::InvalidData => invalid
@@ -495,7 +572,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def term_value_changed(name, value)
     if ['institutioncode', 'collectioncode', 'catalognumber', 'basisofrecord'].include?(name.downcase) and self.status != 'Imported'
-      ready = get_field_value('catalogNumber').blank? || get_field_value('TW:Namespaces:catalogNumber').present?
+      ready = get_field_value('catalogNumber').blank? || get_field_value('TW:Namespace:catalogNumber').present?
       ready ||= !!self.import_dataset.get_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
 
       self.metadata.delete('error_data')
@@ -776,7 +853,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     Utilities::Hashes::set_unless_nil(res[:collecting_event], :verbatim_collectors, get_field_value(:recordedBy))
 
     # individualCount: [specimen.total]
-    Utilities::Hashes::set_unless_nil(res[:specimen], :total, get_field_value(:individualCount) || 1)
+    Utilities::Hashes::set_unless_nil(res[:specimen], :total, get_field_value(:individualCount) || '1')
 
     # organismQuantity: [Not mapped. Check relation with invidivialCount]
 
@@ -786,12 +863,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     sex = get_field_value(:sex)
     if sex
       raise DarwinCore::InvalidData.new({ "sex": ['Only single-word controlled vocabulary supported at this time.'] }) if sex =~ /\s/
-      group   = BiocurationGroup.find_by(project_id: Current.project_id, uri: DWC_ATTRIBUTE_URIS[:sex])
+      group   = BiocurationGroup.find_by(project_id: Current.project_id, uri: DWC_ATTRIBUTE_URIS[:sex].first)
       group ||= BiocurationGroup.where(project_id: Current.project_id).where('name ILIKE ?', 'sex').first
       group ||= BiocurationGroup.create!(
         name: 'Sex',
         definition: 'The sex of the individual(s) [CREATED FROM DWC-A IMPORT]',
-        uri: DWC_ATTRIBUTE_URIS[:sex]
+        uri: DWC_ATTRIBUTE_URIS[:sex].first
       )
       # TODO: BiocurationGroup.biocuration_classes not returning AR relation
       sex_biocuration = group.biocuration_classes.detect { |c| c.name.casecmp(sex) == 0 }
@@ -1465,7 +1542,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
 
     ident_qualifier = get_field_value(:identificationQualifier)
-    otu_names << ident_qualifier unless ident_qualifier.nil? 
+    otu_names << ident_qualifier unless ident_qualifier.nil?
 
     names.last&.merge!({otu_attributes: {name: otu_names.join(' ')}}) unless otu_names.empty?
 

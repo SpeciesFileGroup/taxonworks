@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
+  include ActiveJob::TestHelper
+
   let(:collecting_event) { CollectingEvent.new }
   let(:county) { FactoryBot.create(:valid_geographic_area_stack) }
   let(:state) { county.parent }
@@ -16,8 +18,6 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
     s = FactoryBot.create(:valid_specimen, collecting_event: ce)
 
-    Delayed::Worker.new.work_off
-
     ce2 = CollectingEvent.create!(
       "id"=>nil, "roles_attributes"=>[], "identifiers_attributes"=>[], "data_attributes_attributes"=>[{"type"=>"InternalAttribute", "controlled_vocabulary_term_id"=>p.id, "attribute_subject_id"=>nil, "attribute_subject_type"=>"CollectingEvent", "value"=>"test"}      ]
     )
@@ -29,7 +29,27 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     expect(Delayed::Job.count).to eq(0)
   end
 
+
+
   context '.batch_update' do
+
+    specify 'georeferences' do
+      c1 =  FactoryBot.create(:valid_collecting_event)
+      c2 = FactoryBot.create(:valid_collecting_event)
+      g = FactoryBot.create(:valid_georeference, collecting_event: c2)
+
+      params = {
+        async_cutoff: 3,
+        collecting_event: { georeferences_attributes: [{type: g.type, geographic_item_id: g.geographic_item_id}] },
+      }.merge( collecting_event_query: { collecting_event_id: [c1.id] })
+
+      response = CollectingEvent.batch_update(params).to_json
+
+      expect(response[:updated]).to include(c1.id)
+      expect(response[:not_updated]).to eq([])
+      expect(c1.reload.georeferences.count).to eq(1)
+    end
+
     specify 'can update a verbatim field' do
       c1 =  FactoryBot.create(:valid_collecting_event)
       c2 = FactoryBot.create(:valid_collecting_event)
@@ -104,6 +124,106 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
         expect(c1.collectors.first.id).to eq(first_collector.id)
         expect(c1.collectors.second.id).to eq(second_collector.id)
         expect(c1.collectors.third.id).to eq(third_collector.id)
+      end
+
+      specify 'can add georeferences' do
+        georef1 = FactoryBot.create(:valid_georeference)
+        c1.georeferences << georef1
+        georef2 = FactoryBot.create(:valid_georeference)
+        georef3 = FactoryBot.create(:valid_georeference)
+
+        params = {
+          collecting_event: {
+            georeferences_attributes: [
+              {
+                geographic_item_id: georef2.geographic_item.id,
+                type: 'Georeference::VerbatimData',
+              },
+              {
+                geographic_item_id: georef3.geographic_item.id,
+                type: 'Georeference::Leaflet',
+              }
+            ]
+          },
+          collecting_event_query: { collecting_event_id: [c1.id] }
+        }
+
+        CollectingEvent.batch_update(params).to_json
+
+        expect(c1.reload.georeferences.count).to eq(3)
+        expect(c1.georeferences.first.geographic_item.id)
+          .to eq(georef1.geographic_item.id)
+        expect(c1.georeferences.second.geographic_item.id)
+          .to eq(georef2.geographic_item.id)
+        expect(c1.georeferences.third.geographic_item.id)
+          .to eq(georef3.geographic_item.id)
+      end
+
+      specify 'add georeferences response object' do
+        georef1 = FactoryBot.create(:valid_georeference)
+        c1.georeferences << georef1
+        georef2 = FactoryBot.create(:valid_georeference)
+        georef3 = FactoryBot.create(:valid_georeference)
+
+        params = {
+          collecting_event: {
+            georeferences_attributes: [
+              {
+                geographic_item_id: georef2.geographic_item.id,
+                type: 'Georeference::VerbatimData',
+              },
+              {
+                geographic_item_id: georef3.geographic_item.id,
+                type: 'Georeference::Leaflet',
+              }
+            ]
+          },
+          collecting_event_query: { collecting_event_id: [c1.id] }
+        }
+
+        response = CollectingEvent.batch_update(params).to_json
+
+        expect(response[:total_attempted]).to eq(1)
+        expect(response[:updated]).to include(c1.id)
+        expect(response[:not_updated]).to eq([])
+      end
+
+      specify 'can add georeferences async' do
+        georef1 = FactoryBot.create(:valid_georeference)
+        c1.georeferences << georef1
+        georef2 = FactoryBot.create(:valid_georeference)
+        georef3 = FactoryBot.create(:valid_georeference)
+
+        params = {
+          async_cutoff: 0,
+          collecting_event: {
+            georeferences_attributes: [
+              {
+                geographic_item_id: georef2.geographic_item.id,
+                type: 'Georeference::VerbatimData',
+              },
+              {
+                geographic_item_id: georef3.geographic_item.id,
+                type: 'Georeference::Leaflet',
+              }
+            ]
+          },
+          collecting_event_query: { collecting_event_id: [c1.id] }
+        }
+
+        CollectingEvent.batch_update(params).to_json
+
+        expect(c1.reload.georeferences.count).to eq(1)
+
+        Delayed::Worker.new.work_off
+
+        expect(c1.reload.georeferences.count).to eq(3)
+        expect(c1.georeferences.first.geographic_item.id)
+          .to eq(georef1.geographic_item.id)
+        expect(c1.georeferences.second.geographic_item.id)
+          .to eq(georef2.geographic_item.id)
+        expect(c1.georeferences.third.geographic_item.id)
+          .to eq(georef3.geographic_item.id)
       end
     end
   end
@@ -370,7 +490,14 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       expect(n.georeferences.first.georeference_authors.count).to eq(1)
 
       expect(collecting_event.georeferences.first.georeference_authors.count).to eq(1)
+    end
 
+    specify 'does not clone collection objects' do
+      a = FactoryBot.create(:valid_collecting_event)
+      b = FactoryBot.create(:valid_collection_object, collecting_event: a)
+
+      c = a.clone
+      expect(c.collection_objects.reload.count).to eq(0)
     end
 
   end
@@ -396,15 +523,27 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       expect(s.dwc_occurrence_persisted?).to be_truthy
     end
 
-    specify 'updating ce updates dwc_occurrence' do
+    specify 'updating ce delayed update dwc_occurrence' do
       ce.update!(start_date_year: 2012)
+      perform_enqueued_jobs
       expect(s.dwc_occurrence.reload.eventDate).to match('2012')
     end
 
     specify 'does not update with no_dwc_occurrence_index: true' do
       ce.update!(start_date_year: 2012, no_dwc_occurrence: true)
-      expect(s.dwc_occurrence.eventDate).to match('2010')
+      perform_enqueued_jobs
+      expect(s.dwc_occurrence.reload.eventDate).to match('2010')
     end
+
+    specify 'does not update with no_dwc_occurrence_index: true' do
+      ce.update!(start_date_year: 2012, no_dwc_occurrence: true)
+      perform_enqueued_jobs
+      expect(s.dwc_occurrence.reload.eventDate).to match('2010')
+    end
+
+
+
+
   end
 
   context 'concerns' do

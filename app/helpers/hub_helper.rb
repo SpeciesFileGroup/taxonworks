@@ -8,7 +8,7 @@ module HubHelper
         content_tag(:div,'' , class: "task_header status #{task.status}") {
           content_tag(:div, '') {
             task.categories.collect{|c| 
-              content_tag(:div, c.humanize, class: "categories #{c}", "data-category-#{c}" => 'true', "data-category-#{task.status}" => 'true' )
+              content_tag(:div, c.humanize, title: c.humanize, class: "categories #{c}", "data-category-#{c}" => 'true', "data-category-#{task.status}" => 'true' )
             }.join().html_safe 
           } 
         } +      
@@ -39,10 +39,12 @@ module HubHelper
     content_tag(:div, class: 'data_card') do  
       content_tag(:div, '') +
       content_tag(:div, '', 
-                  data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => 'true') }.merge(class: [:filter_data, :middle, 'card-categories', "#{data.status}", data.shared_css, data.application_css].flatten.join(' '), "data-category-#{data.status}" => 'true')
+                  data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => 'true') }.merge(class: [:filter_data, :middle, 'card-categories', "#{data.status}", data.shared_css, data.application_css].flatten.join(' '), title: data.categories.map{|c| c.humanize}.join(', '), "data-category-#{data.status}" => 'true')
                  ) + 
         data_link(data) +
+      content_tag(:div, '', class: 'fav-link') {
         favorite_page_link('data', data.klass.to_s)
+      }
     end
   end
 

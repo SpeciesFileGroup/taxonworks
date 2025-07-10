@@ -67,6 +67,7 @@ class CollectionObject < ApplicationRecord
 
   include Shared::Citations
   include Shared::Containable
+  include Shared::Conveyances
   include Shared::DataAttributes
   include Shared::Loanable
   include Shared::Identifiers
@@ -85,7 +86,7 @@ class CollectionObject < ApplicationRecord
   include Shared::BiologicalExtensions
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence
-  include Shared::IsDwcOccurrence
+
   include CollectionObject::DwcExtensions
 
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
@@ -141,6 +142,8 @@ class CollectionObject < ApplicationRecord
   has_many :geographic_items, through: :georeferences
 
   has_many :collectors, through: :collecting_event
+
+  has_many :type_materials, inverse_of: :collection_object, dependent: :restrict_with_error
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
@@ -338,7 +341,7 @@ class CollectionObject < ApplicationRecord
     if steps
       gi = GeographicItem.find(geographic_item_id)
       # find the geographic_items inside gi
-      step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
+      step_1 = GeographicItem.st_covered_by('any', gi) # .pluck(:id)
       # find the georeferences from the geographic_items
       step_2 = step_1.map(&:georeferences).uniq.flatten
       # find the collecting events connected to the georeferences
@@ -348,7 +351,7 @@ class CollectionObject < ApplicationRecord
       retval = CollectionObject.where(id: step_4.sort)
     else
       retval = CollectionObject.joins(:geographic_items)
-        .where(GeographicItem.contained_by_where_sql(geographic_item.id))
+        .where(GeographicItem.subset_of_union_of_sql(geographic_item.id))
         .limit(limit)
         .includes(:data_attributes, :collecting_event)
     end

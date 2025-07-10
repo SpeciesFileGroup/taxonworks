@@ -97,9 +97,15 @@ module LoansHelper
   end
 
   def loan_due_back_tag(loan)
-    'Due back on ' +
-      ( loan.date_return_expected.present? ? loan.date_return_expected.to_s : 'NOT PROVIDED' ) +
-      '.'
+    s = 'Date return due: '
+
+    if loan.is_gift
+      s << ' GIFT, return not expected.'
+    else
+      s << (loan.date_return_expected.present? ? loan.date_return_expected.to_s : 'NOT PROVIDED')
+    end
+
+    s
   end
 
   def keywords_on_loanable_items

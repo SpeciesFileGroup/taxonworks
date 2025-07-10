@@ -10,7 +10,7 @@ shared_examples 'a_login_required_and_project_selected_controller' do
     describe 'submitting request without sign_in redirects to root_path' do
       before { visit index_path }
       specify {
-        expect(page).to have_button 'Sign in'
+        expect(page).to have_button('Sign in'), "Expected to find 'Sign in' button, but the page content was:\n#{page.body}" # CI Debugging
       }
     end
 

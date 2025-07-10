@@ -3,14 +3,11 @@ require 'rails_helper'
 RSpec.describe Document, type: :model, group: :documentation do
 
   let(:document) { FactoryBot.create(:valid_document) } # a 1 page pdf
-  let(:pdf) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) } 
+  let(:pdf) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) }
 
-  after(:each) {
-    document.destroy
-    document.run_callbacks(:commit)
-  }
+  after(:each) { document.destroy }
 
-  # Taken verbatim from the doc. 
+  # Taken verbatim from the doc.
   context 'default paperclip tests' do
     it { is_expected.to have_attached_file(:document_file) }
     it { is_expected.to validate_attachment_presence(:document_file) }
@@ -21,7 +18,6 @@ RSpec.describe Document, type: :model, group: :documentation do
          greater_than(1.byte) }
   end
 
-
   context 'should manipulate the file system' do
     specify 'creating a document should add it to the filesystem' do
       expect(document.save).to be_truthy
@@ -30,9 +26,7 @@ RSpec.describe Document, type: :model, group: :documentation do
 
     specify 'destroying an image should remove it from the filesystem' do
       path = document.document_file.path
-      expect(document.destroy).to be_truthy
-
-      document.run_callbacks(:commit) # NOTE: apparently resolved in Paperclip 
+      document.destroy
       expect(File.exist?(path)).to be_falsey
     end
 
@@ -46,7 +40,7 @@ RSpec.describe Document, type: :model, group: :documentation do
       a = FactoryBot.create(:valid_documentation, document: document)
       b = FactoryBot.create(:valid_documentation, document: document)
       document.destroy
-      expect(document.destroyed?).to be_falsey 
+      expect(document.destroyed?).to be_falsey
       expect(a.reload).to be_truthy
       expect(b.reload).to be_truthy
     end
@@ -58,7 +52,7 @@ RSpec.describe Document, type: :model, group: :documentation do
     context 'setting on create()' do
       let!(:d) { Document.create!(
         initialize_start_page: 99,
-        document_file: Rack::Test::UploadedFile.new( Rack::Test::UploadedFile.new( pdf, 'application/pdf')) 
+        document_file: Rack::Test::UploadedFile.new( Rack::Test::UploadedFile.new( pdf, 'application/pdf'))
       )}
 
       specify 'page_map is built' do
@@ -110,25 +104,25 @@ RSpec.describe Document, type: :model, group: :documentation do
           before { document.set_page_map_page(1, 99) }
           specify 'updates page_map' do
             expect(document.page_map).to eq({'1' => '99'})
-          end 
+          end
         end
 
         context 'one to many' do
           before { document.set_page_map_page(1, [99, 'xi']) }
           specify 'updates page_map' do
             expect(document.page_map).to eq({'1' => ['99', 'xi']})
-          end 
+          end
         end
 
         context 'many to one' do
           before do
             document.update_attribute(:page_total, 10)  # !! fake page total
             document.set_page_map_page([1,2,3], 1)
-          end 
+          end
 
           specify 'updates page_map' do
             expect(document.page_map).to eq({'1' => '1', '2' => '1', '3' => '1'})
-          end 
+          end
         end
       end
 
@@ -139,7 +133,7 @@ RSpec.describe Document, type: :model, group: :documentation do
           document.set_page_map_page(4, '2')
           document.set_page_map_page('5', 3)
           document.set_page_map_page(7, ['xi', 'xii'])
-        end 
+        end
 
         specify '1 to 1' do
           expect(document.pdf_page_for('2')).to contain_exactly('4')
@@ -152,7 +146,7 @@ RSpec.describe Document, type: :model, group: :documentation do
         specify 'non numerical' do
           expect(document.pdf_page_for('xi')).to contain_exactly('7')
         end
-      end 
+      end
     end
   end
 

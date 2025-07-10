@@ -21,8 +21,8 @@ class MetadataController < ApplicationController
   end
 
   def class_navigation
-   k = params.require(:klass)
-   render json: helpers.class_navigation_json(k)
+    k = params.require(:klass)
+    render json: helpers.class_navigation_json(k)
   end
 
   def related_summary
@@ -37,8 +37,10 @@ class MetadataController < ApplicationController
 
   # !! DO NOT EXPOSE TO API !! until santize tested
   def vocabulary
+    p = vocabulary_params
+      .merge(project_id: sessions_current_project_id)
+      .to_h.symbolize_keys
 
-    p = params.permit(:model, :attribute, :begins_with, :limit, :contains, :min, :max).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
     if @words = Vocabulary.words(**p)
       render json: @words, status: :ok
     else
@@ -50,16 +52,12 @@ class MetadataController < ApplicationController
     render json: DATA_MODELS.keys.sort
   end
 
-  def data_models
-    render json: DATA_MODELS.keys.sort
-  end
-
   # GET /metadata/attributes?model=CollectingEvent&mode=editable
   def attributes
     render json: Vocabulary.attributes(
       Vocabulary.get_model(
         params.require(:model)
-      ), 
+      ),
       mode: params[:mode]
     )
   end
@@ -76,6 +74,21 @@ class MetadataController < ApplicationController
       @object = GlobalID::Locator.locate(params.require(:global_id))
       @klass = OBJECT_RADIALS[@object.class.name] ? @object.class.name : @object.class.base_class.name
     end
+  end
+
+  def vocabulary_params
+    model_query_params = DATA_MODELS.keys.map do |m|
+      m = m.underscore
+      {
+        "#{m}_query".to_sym => {
+          "#{m}_id".to_sym => []
+        }
+      }
+    end
+    return params.permit(
+      :model, :attribute, :begins_with, :limit, :contains, :min, :max,
+      *model_query_params
+    )
   end
 
 end

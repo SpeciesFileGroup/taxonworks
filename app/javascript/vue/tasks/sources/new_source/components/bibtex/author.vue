@@ -1,38 +1,40 @@
 <template>
-  <fieldset v-help.section.BibTeX.authors>
-    <legend>Authors</legend>
-    <smart-selector
-      model="people"
-      :target="ROLE_SOURCE_AUTHOR"
-      :klass="SOURCE"
-      label="cached"
-      :params="{ role_type: ROLE_SOURCE_AUTHOR }"
-      :autocomplete-params="{
-        roles: [ROLE_SOURCE_AUTHOR]
-      }"
-      :filter-ids="peopleIds"
-      :autocomplete="false"
-      @selected="addRole"
-    >
-      <template #header>
+  <div>
+    <fieldset v-help.section.BibTeX.authors>
+      <legend>Authors</legend>
+      <SmartSelector
+        model="people"
+        :target="ROLE_SOURCE_AUTHOR"
+        :klass="SOURCE"
+        label="cached"
+        :params="{ role_type: ROLE_SOURCE_AUTHOR }"
+        :autocomplete-params="{
+          roles: [ROLE_SOURCE_AUTHOR]
+        }"
+        :filter-ids="peopleIds"
+        :autocomplete="false"
+        @selected="addRole"
+      >
+        <template #header>
+          <RolePicker
+            ref="rolePicker"
+            v-model="roleAttributes"
+            :autofocus="false"
+            :hidden-list="true"
+            :filter-by-role="true"
+            :role-type="ROLE_SOURCE_AUTHOR"
+          />
+        </template>
         <RolePicker
-          ref="rolePicker"
           v-model="roleAttributes"
+          :create-form="false"
           :autofocus="false"
-          :hidden-list="true"
           :filter-by-role="true"
           :role-type="ROLE_SOURCE_AUTHOR"
         />
-      </template>
-      <RolePicker
-        v-model="roleAttributes"
-        :create-form="false"
-        :autofocus="false"
-        :filter-by-role="true"
-        :role-type="ROLE_SOURCE_AUTHOR"
-      />
-    </smart-selector>
-  </fieldset>
+      </SmartSelector>
+    </fieldset>
+  </div>
 </template>
 
 <script setup>

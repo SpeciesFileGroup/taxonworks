@@ -29,73 +29,27 @@ module Shared::Citations
 
     scope :without_citations, -> {includes(:citations).where(citations: {id: nil})}
 
-    # scope :order_by_youngest_source_first, -> {
-    #  joins("LEFT OUTER JOIN citations on #{related_table_name}.id = citations.citation_object_id
-    # LEFT OUTER JOIN sources ON citations.source_id = sources.id").
-    #  group("#{related_table_name}.id").order("MAX(COALESCE(sources.cached_nomenclature_date,
-    # Date('1-1-0001'))) DESC").
-    #  where("((citations.citation_object_type = '#{related_class}') OR (citations.citation_object_type is null))")
-    # }
-
+    # LLM generated optimization on 2025/1/23 as "optimization of query"
+    # Roughly 2x as fast in this incarnation.  See also `.youngest"
     scope :order_by_youngest_source_first, -> {
-      join_str = ActiveRecord::Base.send(
-        :sanitize_sql_array,
-        ["LEFT OUTER JOIN citations ON #{related_table_name}.id = " \
-         'citations.citation_object_id ' \
-         'AND citations.citation_object_type = ? LEFT OUTER JOIN sources ' \
-         'ON citations.source_id = sources.id',
-         related_class])
-      joins(join_str).group("#{related_table_name}.id")
-        .order(Arel.sql("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-0001'))) DESC"))
+      joins("LEFT JOIN LATERAL (
+        SELECT MAX(sources.cached_nomenclature_date) AS max_date
+        FROM citations
+        JOIN sources ON citations.source_id = sources.id
+        WHERE citations.citation_object_id = #{related_table_name}.id AND citations.citation_object_type = '#{related_class}'
+      ) AS max_dates ON TRUE")
+        .order(Arel.sql("max_dates.max_date DESC NULLS LAST"))
     }
 
-    # SEE https://github.com/rails/arel/issues/399 for issue with ordering by named function
-    #define_singleton_method "order_by_youngest_source_first" do
-    #  d =  Arel::Attribute.new(Arel::Table.new(:sources), :cached_nomenclature_date)
-    #  r  = Arel::Attribute.new(Arel::Table.new(related_table_name), :id)
-    #  f1 = Arel::Nodes::NamedFunction.new('Now', [] )
-    #  func = Arel::Nodes::NamedFunction.new('COALESCE', [d, f1])
-
-    #  # Fails with bind error, maybe real bug
-    #  #  inner_joins = joins(:citations,  :sources).arel.join_sources
-    #  #  left_joins = inner_joins.map do |join|
-    #  #    Arel::Nodes::OuterJoin.new(join.left, join.right)
-    #  #  end
-
-    #  joins("LEFT OUTER JOIN citations on #{related_table_name}.id = citations.citation_object_id
-    # LEFT OUTER JOIN sources ON citations.source_id = sources.id").
-    #    where("citations.citation_object_type = '#{related_class}'").
-    #    group(r).
-    #    order(func.desc)
-    # end
-
-    define_singleton_method 'order_by_oldest_source_first' do
-      d  = Arel::Attribute.new(Arel::Table.new(:sources), :cached_nomenclature_date)
-      r  = Arel::Attribute.new(Arel::Table.new(related_table_name), :id)
-      f1 = Arel::Nodes::NamedFunction.new('Now', [])
-
-      func  = Arel::Nodes::NamedFunction.new('COALESCE', [d, f1])
-      func2 = Arel::Nodes::NamedFunction.new('min', [func])
-
-      # Fails with bind error, maybe real bug with AREL, PSQL
-      #  inner_joins = joins(:citations,  :sources).arel.join_sources
-      #  left_joins = inner_joins.map do |join|
-      #    Arel::Nodes::OuterJoin.new(join.left, join.right)
-      #  end
-
-      # was
-      #      joins("LEFT OUTER JOIN citations ON #{related_table_name}.id = citations.citation_object_id LEFT OUTER
-      # JOIN sources ON citations.source_id = sources.id").
-      #      where("citations.citation_object_type = '#{related_class}' OR citations.citation_object_type is null").
-      join_str = ActiveRecord::Base.send(
-        :sanitize_sql_array,
-        ["LEFT OUTER JOIN citations ON #{related_table_name}.id = " \
-         'citations.citation_object_id ' \
-         'AND citations.citation_object_type = ? LEFT OUTER JOIN sources ' \
-         'ON citations.source_id = sources.id',
-         related_class])
-      joins(join_str).group(r).order(func2)
-    end
+    scope :order_by_oldest_source_first, -> {
+      joins("LEFT JOIN LATERAL (
+        SELECT MIN(sources.cached_nomenclature_date) AS min_date
+        FROM citations
+        JOIN sources ON citations.source_id = sources.id
+        WHERE citations.citation_object_id = #{related_table_name}.id AND citations.citation_object_type = '#{related_class}'
+      ) AS min_dates ON TRUE")
+        .order(Arel.sql("min_dates.min_date ASC NULLS LAST"))
+    }
 
     accepts_nested_attributes_for :citations, reject_if: :reject_citations, allow_destroy: true
     accepts_nested_attributes_for :origin_citation, reject_if: :reject_citations, allow_destroy: true
@@ -112,9 +66,25 @@ module Shared::Citations
       order_by_oldest_source_first.to_a.first
     end
 
+    # @return Object
+    #   Assuming the scope returns something an object
+    #   returns regardless if it has citations or not.
     def youngest_by_citation
       order_by_youngest_source_first.to_a.first
     end
+
+    # @return Object, nil
+    # !! Only returns an object if citations exist on objects in scope!
+    # Far more performant than youngest_by_citation
+    def youngest(scope)
+      citations = Citation.with(objects: scope.select(:id))
+        .joins(:source)
+        .joins("JOIN objects o on o.id = citations.citation_object_id AND citations.citation_object_type = '#{base_class.name}'")
+        .select('citations.id, sources.cached_nomenclature_date, citations.citation_object_type, citations.citation_object_id')
+
+      citations.sort_by(&:cached_nomenclature_date)&.last&.citation_object
+    end
+    
   end
 
   # @return [Date, nil]

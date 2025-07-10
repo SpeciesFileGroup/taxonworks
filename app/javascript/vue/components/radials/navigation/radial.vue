@@ -1,59 +1,63 @@
 <template>
   <div v-if="!deleted">
-    <div class="radial-annotator">
-      <VModal
-        v-if="isRadialOpen"
-        transparent
-        @close="closeModal()"
-      >
-        <template #header>
-          <span class="flex-separate middle">
-            <span v-html="title" />
-            <b
-              v-if="metadata"
-              class="separate-right"
-              v-text="metadata.type"
-            />
-          </span>
-        </template>
-        <template #body>
-          <div class="horizontal-center-content">
-            <spinner v-if="isLoading" />
-            <RadialMenu
-              v-if="metadata"
-              ref="radialElement"
-              :options="menuOptions"
-              @click="selectedRadialOption"
-            />
-            <DestroyConfirmation
-              v-if="showDestroyModal"
-              @close="showDestroyModal = false"
-              @confirm="destroyObject"
-            />
-          </div>
-        </template>
-      </VModal>
-      <AllTasks
-        v-if="isAlltaskSelected"
-        @close="isAlltaskSelected = false"
-        :metadata="metadata"
-      />
-
-      <VBtn
-        v-if="showBottom"
-        :title="buttonTitle"
-        color="radial"
-        circle
-        :disabled="disabled"
-        @click="openRadialMenu()"
-      >
-        <VIcon
-          :title="buttonTitle"
-          name="radialNavigator"
-          x-small
+    <Teleport
+      v-if="isRadialOpen"
+      :disabled="!teleport"
+      to="body"
+    >
+      <div class="radial-annotator">
+        <VModal
+          transparent
+          @close="closeModal()"
+        >
+          <template #header>
+            <span class="flex-separate middle">
+              <span v-html="title" />
+              <b
+                v-if="metadata"
+                class="separate-right"
+                v-text="metadata.type"
+              />
+            </span>
+          </template>
+          <template #body>
+            <div class="horizontal-center-content">
+              <spinner v-if="isLoading" />
+              <RadialMenu
+                v-if="metadata"
+                ref="radialElement"
+                :options="menuOptions"
+                @click="selectedRadialOption"
+              />
+              <DestroyConfirmation
+                v-if="showDestroyModal"
+                @close="showDestroyModal = false"
+                @confirm="destroyObject"
+              />
+            </div>
+          </template>
+        </VModal>
+        <AllTasks
+          v-if="isAlltaskSelected"
+          @close="isAlltaskSelected = false"
+          :metadata="metadata"
         />
-      </VBtn>
-    </div>
+      </div>
+    </Teleport>
+    <VBtn
+      v-if="showBottom"
+      :title="buttonTitle"
+      color="radial"
+      circle
+      :disabled="disabled"
+      @click="openRadialMenu()"
+    >
+      <VIcon
+        :title="buttonTitle"
+        name="radialNavigator"
+        x-small
+      />
+    </VBtn>
   </div>
 </template>
 
@@ -84,6 +88,12 @@ const CUSTOM_OPTIONS = {
   AllTasks: 'allTasks',
   CircleButton: 'circleButton'
 }
+
+const EXCLUDE_TASKS = ['unify_objects_task']
+
+defineOptions({
+  name: 'RadialNavigation'
+})
 
 const props = defineProps({
   globalId: {
@@ -124,6 +134,11 @@ const props = defineProps({
   redirect: {
     type: Boolean,
     default: true
+  },
+
+  teleport: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -137,7 +152,12 @@ const defaultTasks = computed(() => ({
 }))
 
 const menuOptions = computed(() => {
-  const tasks = metadata.value.tasks || {}
+  const tasks = { ...metadata.value.tasks }
+
+  EXCLUDE_TASKS.forEach((task) => {
+    delete tasks[task]
+  })
+
   const taskSlices = Object.entries(tasks)
     .slice(0, props.maxTaskInPie)
     .map(([task, { name, path }]) => ({
@@ -176,7 +196,7 @@ const menuOptions = computed(() => {
     sliceSize: 190,
     innerPosition: 1.4,
     centerSize: 34,
-    margin: 0,
+    margin: 2,
     middleButton: middleButton.value,
     svgAttributes: {
       class: 'svg-radial-menu svg-radial-menu-navigator'
@@ -192,8 +212,8 @@ const menuOptions = computed(() => {
 const defaultSlices = computed(() => {
   const exclude = [props.exclude].flat()
 
-  if (!metadata.value.destroy) {
-    exclude.push(addSlice(DEFAULT_OPTIONS.Destroy))
+  if (!metadata.value?.tasks?.unify_objects_task) {
+    exclude.push(DEFAULT_OPTIONS.Unify)
   }
 
   return defaultSlicesTypes
@@ -212,7 +232,7 @@ const middleButton = computed(() => ({
     height: '20'
   },
   svgAttributes: {
-    fill: isPinned.value ? '#F44336' : '#9ccc65'
+    fill: isPinned.value ? 'var(--color-destroy)' : 'var(--color-create)'
   }
 }))
 
@@ -438,15 +458,3 @@ function destroyObject() {
     .catch(() => {})
 }
 </script>
-
-<script>
-export default {
-  name: 'RadialNavigation'
-}
-</script>
-<style>
-.svg-radial-menu-navigator path {
-  stroke: #444;
-  stroke-width: 2px;
-}
-</style>

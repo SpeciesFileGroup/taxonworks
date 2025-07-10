@@ -21,9 +21,11 @@ module Queries
         :observation_id,
         :observation_matrix_id,
         :observation_object_global_id,
+        :observation_object_id,
         :observation_object_type,
         :observation_type,
         :otu_id,
+        :sound_id,
         :taxon_name_id,
 
         charater_state_id: [],
@@ -32,8 +34,10 @@ module Queries
         observation_id: [],
         observation_matrix_id: [],
         observation_object_type: [],
+        observation_object_id: [],
         observation_type: [],
         otu_id: [],
+        sound_id: [],
         taxon_name_id: [],
       ].freeze
 
@@ -62,7 +66,16 @@ module Queries
       attr_accessor :observation_type
 
       # @return Array
+      attr_accessor :observation_object_id
+
+      # @return Array
+      attr_accessor :observation_object_type
+
+      # @return Array
       attr_accessor :otu_id
+
+      # @return Array
+      attr_accessor :sound_id
 
       # @return Array
       attr_accessor :taxon_name_id
@@ -72,12 +85,14 @@ module Queries
 
         @observation_id = params[:observation_id]
         @otu_id = params[:otu_id]
+        @sound_id = params[:sound_id]
         @collection_object_id = params[:collection_object_id]
         @observation_object_global_id = params[:observation_object_global_id]
         @descriptor_id = params[:descriptor_id]
         @observation_type = params[:observation_type]
         @character_state_id = params[:character_state_id]
         @observation_matrix_id = params[:observation_matrix_id]
+        @observation_object_id = params[:observation_object_id]
         @observation_object_type = params[:observation_object_type]
 
         @taxon_name_id = params[:taxon_name_id]
@@ -94,6 +109,10 @@ module Queries
 
       def observation_id
         [@observation_id].flatten.compact.uniq
+      end
+
+      def observation_object_id
+        [@observation_object_id].flatten.compact.uniq
       end
 
       def observation_object_type
@@ -114,6 +133,10 @@ module Queries
 
       def collection_object_id
         [@collection_object_id].flatten.compact.uniq
+      end
+
+      def sound_id
+        [@sound_id].flatten.compact.uniq
       end
 
       def descriptor_id
@@ -199,6 +222,16 @@ module Queries
         table[:observation_object_id].in(otu_id).and(table[:observation_object_type].eq('Otu'))
       end
 
+      def sound_id_facet
+        return nil if sound_id.empty?
+        table[:observation_object_id].in(sound_id).and(table[:observation_object_type].eq('Sound'))
+      end
+
+      def observation_object_id_facet
+        return nil if observation_object_id.empty?
+        table[:observation_object_id].in(observation_object_id)
+      end
+
       def observation_object_type_facet
         return nil if observation_object_type.empty?
         table[:observation_object_type].in(observation_object_type)
@@ -215,28 +248,6 @@ module Queries
         s = 'WITH query_desc_obs AS (' + descriptor_query.all.to_sql + ') ' +
           ::Observation
           .joins('JOIN query_desc_obs as query_desc_obs1 on observations.descriptor_id = query_desc_obs1.id')
-          .to_sql
-
-        ::Observation.from('(' + s + ') as observations')
-      end
-
-      def collection_object_query_facet
-        return nil if collection_object_query.nil?
-
-        s = 'WITH query_co_obs AS (' + collection_object_query.all.to_sql + ') ' +
-          ::Observation
-          .joins("JOIN query_co_obs as query_co_obs1 on observations.observation_object_id = query_co_obs1.id and observations.observation_object_type = 'CollectionObject'")
-          .to_sql
-
-        ::Observation.from('(' + s + ') as observations')
-      end
-
-      def otu_query_facet
-        return nil if otu_query.nil?
-
-        s = 'WITH query_otu_obs AS (' + otu_query.all.to_sql + ') ' +
-          ::Observation
-          .joins("JOIN query_otu_obs as query_otu_obs1 on observations.observation_object_id = query_otu_obs1.id and observations.observation_object_type = 'Otu'")
           .to_sql
 
         ::Observation.from('(' + s + ') as observations')
@@ -263,24 +274,40 @@ module Queries
         ::Observation.from('(' + s + ') as observations')
       end
 
+      def observable_facet(name)
+        return nil if name.nil?
+
+        q = send((name + '_query').to_sym)
+
+        return nil if q.nil?
+
+        s = ::Observation
+          .with(query_obs: q.all)
+          .joins("JOIN query_obs ON observations.observation_object_id = query_obs.id AND observations.observation_object_type = '#{name.camelize}'")
+          .to_sql
+
+        ::Observation.from('(' + s + ') as observations')
+      end
+
       def and_clauses
         [
           character_state_id_facet,
           collection_object_id_facet,
           descriptor_id_facet,
           observation_object_global_id_facet,
+          observation_object_id_facet,
           observation_object_type_facet,
           observation_type_facet,
           otu_id_facet,
+          sound_id_facet
         ]
       end
 
       def merge_clauses
         [
-          collection_object_query_facet,
+          *OBSERVABLE_TYPES.collect{ |t| observable_facet(t.underscore) },
           descriptor_query_facet,
           observation_matrix_id_facet,
-          otu_query_facet,
 
           taxon_name_query_facet,
           taxon_name_id_facet,

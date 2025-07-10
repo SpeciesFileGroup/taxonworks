@@ -18,7 +18,7 @@ resource :hub, controller: 'hub', only: [:index] do
 end
 
 scope :metadata, controller: 'metadata' do
-  get :vocabulary, defaults: {format: :json}
+  post :vocabulary, defaults: {format: :json}
   get :data_models, defaults: {format: :json}
   get :attributes, defaults: {format: :json}
   get :annotators, defaults: {format: :json}
@@ -33,6 +33,7 @@ end
 scope :annotations, controller: :annotations, defaults: {format: :json} do
   get ':global_id/metadata', action: :metadata
   get :types
+  post :move_one
   post :move
 end
 

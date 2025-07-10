@@ -113,6 +113,10 @@ http://css-tricks.com/snippets/css/a-guide-to-flexbox/
   flex: 1 auto;
 }
 
+.flex-auto {
+  flex: auto;
+}
+
 @media all and (min-width: 400px) {
   .item {
     flex: 1 auto;

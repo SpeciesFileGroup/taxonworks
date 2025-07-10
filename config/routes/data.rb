@@ -10,7 +10,6 @@ concern :data_routes do |options|
     get 'batch_load'
     get 'autocomplete'
     get 'search' # TODO: deprecate/remove
-
   end
 
   member do
@@ -27,14 +26,18 @@ match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults
 match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
 resources :attributions, except: [:new] do
   concerns [:data_routes]
+  collection do
+    post :batch_by_filter_scope, defaults: {format: :json}
+  end
 end
 
 resources :asserted_distributions do
   concerns [:data_routes]
   collection do
     patch :batch_update
+    post :batch_template_create, defaults: {format: :json}
     post :preview_simple_batch_load # should be get
-    post :create_simple_batch_load
+    post :create_simple_batch_load, defaults: {format: :json}
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
   end
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
@@ -103,6 +106,10 @@ resources :confidence_levels, only: [:index] do
     get 'autocomplete'
     get :select_options, defaults: {format: :json}
   end
+end
+
+resources :conveyances do
+  concerns [:data_routes]
 end
 
 resources :collection_objects do
@@ -245,6 +252,7 @@ resources :data_attributes, except: [:show] do
     get :brief, defaults: {format: :json}
     post :brief, defaults: {format: :json} # for length
     get :import_predicate_autocomplete, defaults: {format: :json}
+    match :filter, to: 'data_attributes#index', via: [:get, :post]
   end
 end
 
@@ -312,7 +320,7 @@ resources :dwc_occurrences, only: [:create] do
     get 'status', defaults: {format: :json}
     get 'collector_id_metadata', defaults: {format: :json}
     get 'download'
-    post 'sweep', as: 'sweep_stale' # TODO: ultimately should not be required
+    post 'sweep', as: 'sweep_ghost'
     get :attributes, defaults: {format: :json}
   end
 end
@@ -330,6 +338,30 @@ end
 
 resources :field_occurrences do
   concerns [:data_routes]
+
+  resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
+
+  collection do
+    match :filter, to: 'field_occurrences#index', via: [:get, :post]
+    get :select_options, defaults: {format: :json}
+  end
+end
+
+resources :gazetteer_imports, only: [:destroy], defaults: { format: :json } do
+  collection do
+    get :all, defaults: {format: :json}
+  end
+end
+
+resources :gazetteers do
+  concerns [:data_routes]
+  collection do
+    post :import, defaults: {format: :json}
+    post :preview, defaults: {format: :json} # post to support long WKT strings
+    get :shapefile_fields, default: {format: :json}
+    get :shapefile_text_field_values, default: {format: :json}
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :geographic_areas, only: [:index, :show] do
@@ -376,6 +408,8 @@ resources :identifiers, except: [:show] do
   collection do
     patch :reorder, defaults: {format: :json}
     get :identifier_types, {format: :json}
+    post :namespaces, {format: :json}
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 
   member do
@@ -439,14 +473,16 @@ end
 resources :leads do
   concerns [:data_routes]
   member do
-    post :create_for_edit, defaults: {format: :json}
-    post :insert_couplet
-    patch :update_meta
-    post :destroy_couplet
-    post :delete_couplet
+    post :add_children, defaults: {format: :json}
+    post :insert_couplet, defaults: {format: :json}
+    post :destroy_children, defaults: {format: :json}
+    post :delete_children, defaults: {format: :json}
     post :duplicate
-    get :all_texts
-    get :otus
+    get :redirect_option_texts, defaults: {format: :json}
+    get :otus, defaults: {format: :json}
+    post :destroy_subtree, defaults: {format: :json}
+    patch :reorder_children, defaults: {format: :json}
+    post :insert_key, defaults: {format: :json}
   end
 end
 
@@ -634,6 +670,7 @@ end
 resources :organizations do
   collection do
     get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
   concerns [:data_routes]
 end
@@ -690,8 +727,12 @@ end
 
 resources :protocol_relationships do
   concerns [:data_routes]
+  collection do
+    post :batch_by_filter_scope, defaults: {format: :json}
+  end
 end
 
+get 'public_contents/exists', to: 'public_contents#exists', defaults: {format: :json}
 resources :public_contents, only: [:create, :update, :destroy]
 
 resources :ranged_lot_categories do
@@ -745,6 +786,17 @@ resources :sequence_relationships do
 end
 
 resources :sled_images, only: [:update, :create, :destroy, :show], defaults: {format: :json} do
+  collection do
+    get :index, defaults: {format: :json}
+  end
+end
+
+resources :sounds do
+  concerns [:data_routes]
+  collection do
+    match :filter, to: 'sounds#index', via: [:get, :post]
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :sources do
@@ -848,6 +900,7 @@ resources :taxon_name_relationships do
   collection do
     get :type_relationships, {format: :json}
     get :taxon_name_relationship_types, {format: :json}
+    match :filter, to: 'taxon_name_relationships#index', via: [:get, :post]
   end
 end
 

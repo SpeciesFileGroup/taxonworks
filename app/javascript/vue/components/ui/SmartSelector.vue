@@ -1,6 +1,6 @@
 <template>
   <div ref="rootRef">
-    <div class="separate-bottom flex-separate">
+    <div class="separate-bottom horizontal-left-content gap-small">
       <div class="horizontal-left-content">
         <VSpinner
           v-if="isLoading"
@@ -22,7 +22,6 @@
       <div class="horizontal-left-content gap-small">
         <default-pin
           v-if="pinSection"
-          class="margin-small-left"
           :section="pinSection"
           :type="pinType"
           @get-id="getObject"
@@ -39,7 +38,7 @@
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
           :excluded-ids="filterIds"
-          placeholder="Search..."
+          :placeholder="placeholder || 'Search...'"
           :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
           param="term"
           :add-params="autocompleteParams"
@@ -168,6 +167,11 @@ const props = defineProps({
     default: 'button-data'
   },
 
+  default: {
+    type: String,
+    default: undefined
+  },
+
   otuPicker: {
     type: Boolean,
     default: false
@@ -287,6 +291,11 @@ const props = defineProps({
   extend: {
     type: Array,
     default: () => []
+  },
+
+  placeholder: {
+    type: String,
+    required: false
   }
 })
 
@@ -362,6 +371,7 @@ const refresh = (forceUpdate = false) => {
     ...props.params
   }
 
+  autocompleteRef.value?.setText('')
   lists.value = []
   isLoading.value = true
   controller.value?.abort()
@@ -377,7 +387,9 @@ const refresh = (forceUpdate = false) => {
       options.value = Object.keys(lists.value).concat(props.addTabs)
       options.value = OrderSmart(options.value)
 
-      view.value = SelectFirst(lists.value, options.value)
+      view.value = props.default
+        ? props.default
+        : SelectFirst(lists.value, options.value)
     })
     .catch(() => {
       options.value = []
@@ -426,7 +438,7 @@ const alreadyOnLists = () => {
   )
 }
 const setFocus = () => {
-  autocompleteRef.value.setFocus()
+  autocompleteRef.value?.setFocus()
 }
 
 const changeTab = (e) => {
@@ -472,7 +484,8 @@ document.addEventListener('smartselector:update', refresh)
 defineExpose({
   setFocus,
   setTab,
-  addToList
+  addToList,
+  refresh
 })
 </script>
 <style scoped>

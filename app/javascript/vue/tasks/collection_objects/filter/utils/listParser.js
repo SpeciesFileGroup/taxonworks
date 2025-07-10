@@ -1,12 +1,31 @@
 import { COLLECTION_OBJECT_PROPERTIES } from '@/shared/Filter/constants'
 import { getDataAttributesFor } from '@/shared/Filter/utils'
 import { DataAttribute } from '@/routes/endpoints'
-import { flattenObject } from '@/helpers'
 
 function getTaxonDetermination(determinations) {
-  return determinations.length
-    ? determinations.toSorted((a, b) => a.position - b.position)[0]
-    : []
+  if (determinations.length) {
+    const [determination] = determinations.toSorted(
+      (a, b) => a.position - b.position
+    )
+
+    return {
+      ...determination,
+      otu_name: determination?.otu?.name
+    }
+  }
+
+  return []
+}
+
+function makeRowBind(dwc) {
+  return dwc?.rebuild_set
+    ? {
+        _bind: {
+          class: 'row-dwc-reindex-pending',
+          title: 'DwcOccurrence re-index is pending.'
+        }
+      }
+    : {}
 }
 
 export async function listParser(list, { parameters }) {
@@ -27,27 +46,36 @@ export async function listParser(list, { parameters }) {
     )
 
     const {
-      current_repository,
-      repository,
-      collecting_event,
-      taxon_determinations,
-      dwc_occurrence,
-      identifiers,
       id,
-      global_id
+      global_id,
+      collecting_event = {},
+      container,
+      container_item,
+      current_repository = {},
+      dwc_occurrence = {},
+      identifiers = [],
+      repository = {},
+      taxon_determinations = []
     } = item
 
     return {
       id,
       global_id,
-      collection_object,
-      current_repository,
-      repository,
       collecting_event,
-      taxon_determinations: getTaxonDetermination(taxon_determinations),
+      collection_object,
+      container: {
+        ...container_item,
+        ...container
+      },
+      current_repository,
       dwc_occurrence,
-      identifiers,
-      data_attributes: getDataAttributesFor(body, item.id)
+      repository,
+      taxon_determinations: getTaxonDetermination(taxon_determinations),
+      identifiers: {
+        cached: identifiers?.map((item) => item.cached).join(' | ')
+      },
+      data_attributes: getDataAttributesFor(body, item.id),
+      ...makeRowBind(dwc_occurrence)
     }
   })
 }

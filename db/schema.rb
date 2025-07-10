@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_10_141214) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -19,6 +19,34 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
   enable_extension "plpgsql"
   enable_extension "postgis"
   enable_extension "tablefunc"
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
 
   create_table "alternate_values", id: :serial, force: :cascade do |t|
     t.text "value", null: false
@@ -42,13 +70,16 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
 
   create_table "asserted_distributions", id: :serial, force: :cascade do |t|
     t.integer "otu_id", null: false
-    t.integer "geographic_area_id", null: false
+    t.integer "geographic_area_id"
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.boolean "is_absent"
+    t.integer "asserted_distribution_shape_id", null: false
+    t.string "asserted_distribution_shape_type", null: false
+    t.index ["asserted_distribution_shape_id", "asserted_distribution_shape_type"], name: "asserted_distribution_polymorphic_shape_index"
     t.index ["created_by_id"], name: "index_asserted_distributions_on_created_by_id"
     t.index ["geographic_area_id"], name: "index_asserted_distributions_on_geographic_area_id"
     t.index ["otu_id"], name: "index_asserted_distributions_on_otu_id"
@@ -218,7 +249,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
 
   create_table "cached_maps", force: :cascade do |t|
     t.bigint "otu_id", null: false
-    t.geography "geometry", limit: {:srid=>4326, :type=>"geometry", :geographic=>true}
+    t.geography "geometry", limit: {srid: 4326, type: "geometry", geographic: true}
     t.integer "reference_count"
     t.bigint "project_id", null: false
     t.datetime "created_at", null: false
@@ -537,6 +568,26 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
     t.index ["type"], name: "index_controlled_vocabulary_terms_on_type"
     t.index ["updated_at"], name: "index_controlled_vocabulary_terms_on_updated_at"
     t.index ["updated_by_id"], name: "index_controlled_vocabulary_terms_on_updated_by_id"
+  end
+
+  create_table "conveyances", force: :cascade do |t|
+    t.bigint "sound_id", null: false
+    t.string "conveyance_object_type", null: false
+    t.bigint "conveyance_object_id", null: false
+    t.bigint "project_id", null: false
+    t.integer "position", null: false
+    t.bigint "created_by_id", null: false
+    t.bigint "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "start_time"
+    t.decimal "end_time"
+    t.index ["conveyance_object_type", "conveyance_object_id"], name: "index_conveyances_on_conveyance_object"
+    t.index ["created_by_id"], name: "index_conveyances_on_created_by_id"
+    t.index ["position"], name: "index_conveyances_on_position"
+    t.index ["project_id"], name: "index_conveyances_on_project_id"
+    t.index ["sound_id"], name: "index_conveyances_on_sound_id"
+    t.index ["updated_by_id"], name: "index_conveyances_on_updated_by_id"
   end
 
   create_table "data_attributes", id: :serial, force: :cascade do |t|
@@ -914,10 +965,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
     t.string "subfamily"
     t.string "tribe"
     t.string "subtribe"
-    t.boolean "is_stale"
+    t.text "rebuild_set"
     t.index ["created_at"], name: "index_dwc_occurrences_on_created_at"
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
-    t.index ["is_stale"], name: "index_dwc_occurrences_on_is_stale"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
     t.index ["updated_at"], name: "index_dwc_occurrences_on_updated_at"
   end
@@ -953,6 +1003,43 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
     t.index ["project_id"], name: "index_field_occurrences_on_project_id"
     t.index ["ranged_lot_category_id"], name: "index_field_occurrences_on_ranged_lot_category_id"
     t.index ["updated_by_id"], name: "index_field_occurrences_on_updated_by_id"
+  end
+
+  create_table "gazetteer_imports", force: :cascade do |t|
+    t.string "shapefile"
+    t.integer "num_records"
+    t.integer "num_records_imported"
+    t.string "error_messages"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.bigint "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.string "project_names"
+    t.index ["created_by_id"], name: "index_gazetteer_imports_on_created_by_id"
+    t.index ["project_id"], name: "index_gazetteer_imports_on_project_id"
+    t.index ["updated_by_id"], name: "index_gazetteer_imports_on_updated_by_id"
+  end
+
+  create_table "gazetteers", force: :cascade do |t|
+    t.integer "geographic_item_id", null: false
+    t.string "name", null: false
+    t.string "iso_3166_a2"
+    t.string "iso_3166_a3"
+    t.bigint "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.index ["created_by_id"], name: "index_gazetteers_on_created_by_id"
+    t.index ["geographic_item_id"], name: "index_gazetteers_on_geographic_item_id"
+    t.index ["iso_3166_a2"], name: "index_gazetteers_on_iso_3166_a2"
+    t.index ["iso_3166_a3"], name: "index_gazetteers_on_iso_3166_a3"
+    t.index ["name"], name: "index_gazetteers_on_name"
+    t.index ["project_id"], name: "index_gazetteers_on_project_id"
+    t.index ["updated_by_id"], name: "index_gazetteers_on_updated_by_id"
   end
 
   create_table "gene_attributes", id: :serial, force: :cascade do |t|
@@ -1032,26 +1119,13 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
   create_table "geographic_items", id: :serial, force: :cascade do |t|
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.geography "point", limit: {:srid=>4326, :type=>"st_point", :has_z=>true, :geographic=>true}
-    t.geography "line_string", limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
-    t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :has_z=>true, :geographic=>true}
-    t.geography "multi_point", limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
-    t.geography "multi_line_string", limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
-    t.geography "multi_polygon", limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
-    t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry_collection", :has_z=>true, :geographic=>true}
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.string "type", null: false
+    t.string "type"
     t.decimal "cached_total_area"
-    t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
+    t.geography "geography", limit: {srid: 4326, type: "geometry", has_z: true, geographic: true}
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
-    t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
-    t.index ["line_string"], name: "line_string_gix", using: :gist
-    t.index ["multi_line_string"], name: "multi_line_string_gix", using: :gist
-    t.index ["multi_point"], name: "multi_point_gix", using: :gist
-    t.index ["multi_polygon"], name: "multi_polygon_gix", using: :gist
-    t.index ["point"], name: "point_gix", using: :gist
-    t.index ["polygon"], name: "polygon_gix", using: :gist
+    t.index ["geography"], name: "index_geographic_items_on_geography", using: :gist
     t.index ["type"], name: "index_geographic_items_on_type"
     t.index ["updated_by_id"], name: "index_geographic_items_on_updated_by_id"
   end
@@ -1071,8 +1145,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.boolean "is_undefined_z"
-    t.boolean "is_median_z"
     t.integer "year_georeferenced"
     t.integer "month_georeferenced"
     t.integer "day_georeferenced"
@@ -1535,7 +1607,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
   end
 
   create_table "otus", id: :serial, force: :cascade do |t|
-    t.string "name"
+    t.text "name"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
@@ -1671,6 +1743,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
     t.integer "project_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.boolean "is_machine_output"
     t.index ["project_id"], name: "index_protocols_on_project_id"
   end
 
@@ -1836,6 +1909,18 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
     t.index ["image_id"], name: "index_sled_images_on_image_id"
     t.index ["project_id"], name: "index_sled_images_on_project_id"
     t.index ["updated_by_id"], name: "index_sled_images_on_updated_by_id"
+  end
+
+  create_table "sounds", force: :cascade do |t|
+    t.text "name"
+    t.bigint "project_id", null: false
+    t.bigint "created_by_id", null: false
+    t.bigint "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_sounds_on_created_by_id"
+    t.index ["project_id"], name: "index_sounds_on_project_id"
+    t.index ["updated_by_id"], name: "index_sounds_on_updated_by_id"
   end
 
   create_table "sources", id: :serial, force: :cascade do |t|
@@ -2029,40 +2114,44 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
   end
 
   create_table "taxon_names", id: :serial, force: :cascade do |t|
-    t.string "name"
+    t.text "name"
     t.integer "parent_id"
-    t.string "cached_html"
-    t.string "cached_author_year"
+    t.text "cached_html"
+    t.text "cached_author_year"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.integer "year_of_publication"
-    t.string "verbatim_author"
-    t.string "rank_class"
+    t.text "verbatim_author"
+    t.text "rank_class"
     t.string "type", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.string "cached_original_combination_html"
-    t.string "cached_secondary_homonym"
-    t.string "cached_primary_homonym"
-    t.string "cached_secondary_homonym_alternative_spelling"
-    t.string "cached_primary_homonym_alternative_spelling"
+    t.text "cached_original_combination_html"
+    t.text "cached_secondary_homonym"
+    t.text "cached_primary_homonym"
+    t.text "cached_secondary_homonym_alternative_spelling"
+    t.text "cached_primary_homonym_alternative_spelling"
     t.boolean "cached_misspelling"
-    t.string "masculine_name"
-    t.string "feminine_name"
-    t.string "neuter_name"
-    t.string "cached_classified_as"
-    t.string "cached"
-    t.string "verbatim_name"
+    t.text "masculine_name"
+    t.text "feminine_name"
+    t.text "neuter_name"
+    t.text "cached_classified_as"
+    t.text "cached"
+    t.text "verbatim_name"
     t.integer "cached_valid_taxon_name_id"
     t.text "etymology"
-    t.string "cached_original_combination"
+    t.text "cached_original_combination"
     t.date "cached_nomenclature_date"
     t.boolean "cached_is_valid"
-    t.string "cached_author"
+    t.text "cached_author"
+    t.text "cached_gender"
+    t.boolean "cached_is_available"
     t.index ["cached"], name: "index_taxon_names_on_cached"
     t.index ["cached"], name: "tn_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_author_year"], name: "tn_cached_auth_year_gin_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["cached_gender"], name: "index_taxon_names_on_cached_gender"
+    t.index ["cached_is_available"], name: "index_taxon_names_on_cached_is_available"
     t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
     t.index ["cached_original_combination"], name: "tn_cached_original_gin_trgm", opclass: :gin_trgm_ops, using: :gin
@@ -2165,6 +2254,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
     t.index ["transaction_id"], name: "index_versions_on_transaction_id"
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "alternate_values", "languages", name: "alternate_values_language_id_fkey"
   add_foreign_key "alternate_values", "projects", name: "alternate_values_project_id_fkey"
   add_foreign_key "alternate_values", "users", column: "created_by_id", name: "alternate_values_created_by_id_fkey"
@@ -2258,6 +2349,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
   add_foreign_key "controlled_vocabulary_terms", "projects", name: "controlled_vocabulary_terms_project_id_fkey"
   add_foreign_key "controlled_vocabulary_terms", "users", column: "created_by_id", name: "controlled_vocabulary_terms_created_by_id_fkey"
   add_foreign_key "controlled_vocabulary_terms", "users", column: "updated_by_id", name: "controlled_vocabulary_terms_updated_by_id_fkey"
+  add_foreign_key "conveyances", "projects"
+  add_foreign_key "conveyances", "sounds"
+  add_foreign_key "conveyances", "users", column: "created_by_id"
+  add_foreign_key "conveyances", "users", column: "updated_by_id"
   add_foreign_key "data_attributes", "controlled_vocabulary_terms", name: "data_attributes_controlled_vocabulary_term_id_fkey"
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
@@ -2292,6 +2387,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
   add_foreign_key "field_occurrences", "ranged_lot_categories"
   add_foreign_key "field_occurrences", "users", column: "created_by_id"
   add_foreign_key "field_occurrences", "users", column: "updated_by_id"
+  add_foreign_key "gazetteer_imports", "projects"
+  add_foreign_key "gazetteers", "projects"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
   add_foreign_key "gene_attributes", "projects"
   add_foreign_key "gene_attributes", "sequences"
@@ -2460,6 +2557,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_13_193336) do
   add_foreign_key "sled_images", "projects"
   add_foreign_key "sled_images", "users", column: "created_by_id"
   add_foreign_key "sled_images", "users", column: "updated_by_id"
+  add_foreign_key "sounds", "projects"
+  add_foreign_key "sounds", "users", column: "created_by_id"
+  add_foreign_key "sounds", "users", column: "updated_by_id"
   add_foreign_key "sources", "languages", name: "sources_language_id_fkey"
   add_foreign_key "sources", "serials", name: "sources_serial_id_fkey"
   add_foreign_key "sources", "users", column: "created_by_id", name: "sources_created_by_id_fkey"

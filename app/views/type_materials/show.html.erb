@@ -1,11 +1,13 @@
-<%= content_for :tasks do %>
-  <%= content_tag(
+<%= content_for :tasks do 
+  content = safe_join([content_tag(:span, '', data: { icon: 'edit' }, class: 'small-icon'), 'Edit type material (task)'], '')
+  
+  content_tag(
     :li,
     link_to(
-      content_tag(:span, 'Edit type material (task)', 'data-icon' => 'edit', class: 'small-icon'),
+      content,
       edit_type_material_task_path(protonym_id: @type_material.protonym, target: :edit_type_material),
       class: 'navigation-item'
-    )) -%>
-<% end %>
+    )) 
+end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @type_material}) -%>

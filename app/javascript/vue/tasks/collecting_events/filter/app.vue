@@ -6,9 +6,10 @@
       :pagination="pagination"
       v-model="parameters"
       :object-type="COLLECTING_EVENT"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :url-request="urlRequest"
       :list="list"
+      :csv-options="csvOptions"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -40,8 +41,8 @@
         <div class="horizontal-right-content gap-small">
           <RadialCollectingEvent
             :disabled="!list.length"
-            :ids="selectedIds"
-            :count="selectedIds.length"
+            :ids="sortedSelectedIds"
+            :count="sortedSelectedIds.length"
             @update="
               () => makeFilterRequest({ ...parameters, extend, page: 1 })
             "
@@ -53,6 +54,7 @@
             :layouts="layouts"
             @reset="resetPreferences"
             @sort="updatePropertiesPositions"
+            @sort:column="forceUpdatePreference"
             @update="saveLayoutPreferences"
           />
         </div>
@@ -93,7 +95,7 @@ import FilterComponent from './components/Filter.vue'
 import MapComponent from './components/Map.vue'
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import useFilter from '@/shared/Filter/composition/useFilter.js'
+import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
 import RadialCollectingEvent from '@/components/radials/ce/radial.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
@@ -118,7 +120,8 @@ const {
   properties,
   updatePropertiesPositions,
   saveLayoutPreferences,
-  resetPreferences
+  resetPreferences,
+  forceUpdatePreference
 } = useTableLayoutConfiguration({ layouts: LAYOUTS, model: COLLECTING_EVENT })
 
 const geojson = computed(() => {
@@ -155,18 +158,20 @@ const {
   append,
   isLoading,
   list,
-  pagination,
-  urlRequest,
   loadPage,
   makeFilterRequest,
-  selectedIds,
+  pagination,
+  parameters,
   resetFilter,
-  parameters
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(CollectingEvent, {
   listParser,
   initParameters: { extend }
 })
 
+const csvOptions = useCSVOptions({ layout: currentLayout, list })
 const isMouseDown = ref(false)
 const rowHover = ref()
 const georeferences = computed(() =>

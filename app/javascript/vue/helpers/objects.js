@@ -37,6 +37,7 @@ function removeEmptyProperties(object) {
     if (
       value === '' ||
       value === undefined ||
+      value === null ||
       (Array.isArray(value) && !value.length) ||
       (typeof value === 'object' && !Object.keys(value).length)
     ) {
@@ -84,6 +85,13 @@ function flattenObject(obj, prefix = '') {
   }, {})
 }
 
+function getNestedValue(obj, pathArray) {
+  return pathArray.reduce(
+    (acc, key) => (acc && acc[key] != null ? acc[key] : null),
+    obj
+  )
+}
+
 export {
   copyObject,
   copyObjectByArray,
@@ -92,5 +100,6 @@ export {
   isObject,
   removeEmptyProperties,
   isDeepEqual,
-  flattenObject
+  flattenObject,
+  getNestedValue
 }

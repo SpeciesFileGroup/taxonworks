@@ -1,6 +1,6 @@
 <template>
   <div>
-    <hr />
+    <hr class="divisor" />
     <div class="flex-separate middle">
       <h3>Collecting event</h3>
       <VLock v-model="store.settings.lock.collectingEvent" />

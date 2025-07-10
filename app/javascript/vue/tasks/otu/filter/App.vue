@@ -6,9 +6,10 @@
       :pagination="pagination"
       :url-request="urlRequest"
       :object-type="OTU"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :extend-download="extendDownload"
       :list="list"
+      only-extend-download
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -27,14 +28,14 @@
       <template #nav-right>
         <RadialOtu
           :disabled="!list.length"
-          :ids="selectedIds"
-          :count="selectedIds.length"
+          :ids="sortedSelectedIds"
+          :count="sortedSelectedIds.length"
           @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
         <RadialMatrix
           :object-type="OTU"
           :disabled="!list.length"
-          :ids="selectedIds"
+          :ids="sortedSelectedIds"
           @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
@@ -79,21 +80,22 @@ import csvDownload from './components/csvDownload.vue'
 const extend = ['taxonomy']
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Otu, { listParser, initParameters: { extend } })
 
 const extendDownload = computed(() => [
   {
-    label: 'CSV',
+    label: 'TSV',
     component: csvDownload,
     bind: {
       params: parameters.value

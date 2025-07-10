@@ -18,10 +18,11 @@ module DepictionsHelper
   def label_for_depiction(depiction)
     return nil if depiction.nil?
     [
-      depiction.figure_label,
-      depiction.caption,
-      ('Depicts ' + label_for(depiction.depiction_object.metamorphosize).to_s + ', ' + Utilities::Strings.a_label(depiction.depiction_object_type).to_s + '.'),
-    ].compact.join('. ').gsub(/\.\./, '')
+      label_for(depiction.depiction_object.metamorphosize).to_s + ':',
+      [depiction.figure_label, depiction.caption].compact.join('. ') + '.',
+    '(' + depiction.depiction_object_type.to_s + ').'
+    #      ('Depicts ' + label_for(depiction.depiction_object.metamorphosize).to_s + ', ' + Utilities::Strings.a_label(depiction.depiction_object_type).to_s + '.'),
+    ].compact.join(' ').gsub(/\.\./, '.').gsub(' . ', ' ')
   end
 
   def image_context_depiction_tag(depiction)

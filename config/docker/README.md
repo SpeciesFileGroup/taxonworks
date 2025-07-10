@@ -1,3 +1,2 @@
-
-See the [install_taxonworks](https://github.com/SpeciesFileGroup/install_taxonworks/tree/master/development/docker) repo.
+See the [Docker install instructions](https://docs.taxonworks.org/develop/Install/Development/Docker/).
 

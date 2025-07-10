@@ -98,6 +98,7 @@ class CollectionObjectsController < ApplicationController
     render '/dwc_occurrences/dwc_index'
   end
 
+  # TODO: Not used in Vue
   # GET /collection_objects/123/dwc
   #  !! Returns a keyless Array of data compatible with combining multiple rows
   def dwc
@@ -105,7 +106,6 @@ class CollectionObjectsController < ApplicationController
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
       if params[:rebuild] == 'true'
-        # get does not rebuild, but does set if it doesn't exist
         o.set_dwc_occurrence
       else
         o.get_dwc_occurrence
@@ -128,7 +128,6 @@ class CollectionObjectsController < ApplicationController
       o = CollectionObject.find(params[:id])
 
       if params[:rebuild] == 'true'
-        # get does not rebuild
         o.set_dwc_occurrence
       else
         o.get_dwc_occurrence
@@ -140,7 +139,8 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/123/dwc_compact
   # !! Never recalculates !!
   def dwc_compact
-    render json:  @collection_object.dwc_occurrence.dwc_json
+    # Batch imports delay the indexing, so we need to be able to respond empty as well
+    render json:  @collection_object.dwc_occurrence&.dwc_json || {}
   end
 
   # Intent is DWC fields + quick summary fields for reports
@@ -528,4 +528,5 @@ class CollectionObjectsController < ApplicationController
 
 end
 
+# TODO: remove and test
 require_dependency Rails.root.to_s + '/lib/batch_load/import/collection_objects/castor_interpreter.rb'

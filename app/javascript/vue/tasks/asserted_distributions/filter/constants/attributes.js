@@ -1,9 +1,10 @@
 export const ATTRIBUTES = {
+  otuGlobalId: 'OTU Radial',
   otu_taxonomy_order: 'Order',
   otu_taxonomy_family: 'Family',
   otu_taxonomy_genus: 'Genus',
   otu_object_tag: 'OTU',
-  geographic_area: 'Geographic area',
+  shape: 'Shape',
   data_origin: 'Data origin',
   citations: 'Citations'
 }

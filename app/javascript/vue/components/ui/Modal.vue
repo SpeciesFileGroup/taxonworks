@@ -3,24 +3,43 @@
     <div
       v-if="isVisible"
       class="modal-mask"
-      @click="emit('close')"
+      @mousedown="emit('close')"
       @key.esc.stop="emit('close')"
     >
       <div class="modal-wrapper">
         <div
           class="modal-container"
-          :class="{
-            'bg-transparent shadow-none': transparent,
-            ...containerClass
-          }"
+          :class="[
+            {
+              'bg-transparent shadow-none': transparent
+            },
+            ...[containerClass].flat()
+          ]"
           :style="containerStyle"
-          @click.stop
+          @mousedown.stop
         >
           <div
             class="modal-header"
             :class="{ 'panel content': transparent }"
           >
-            <slot name="header"> default header </slot>
+            <div class="flex-separate middle gap-small">
+              <div class="full_width">
+                <slot name="header"> default header </slot>
+              </div>
+              <VBtn
+                circle
+                color="primary"
+                title="Close (escape key)"
+                v-bind="buttonClose"
+                @click="() => emit('close')"
+              >
+                <VIcon
+                  name="close"
+                  xx-small
+                  title="Close (escape key)"
+                />
+              </VBtn>
+            </div>
           </div>
           <div class="modal-body">
             <slot name="body"> default body </slot>
@@ -37,11 +56,18 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ModalEventStack } from '@/utils'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 defineProps({
-  containerClass: {
+  buttonClose: {
     type: Object,
     default: () => ({})
+  },
+
+  containerClass: {
+    type: [Object, Array],
+    default: () => []
   },
 
   containerStyle: {

@@ -24,40 +24,38 @@
             This name is invalid. The valid name is
             <span v-html="validTaxon.name" />
           </p>
-          <div class="horizontal-right-content">
-            <button
-              class="button normal-input button-default separate-right"
-              @click="selectAll"
-            >
-              All
-            </button>
-            <button
-              class="button normal-input button-default"
-              @click="selected = []"
-            >
-              None
-            </button>
-          </div>
-          <table class="full_width margin-small-bottom margin-small-top">
+          <table class="full_width margin-medium-bottom margin-small-top">
             <thead>
               <tr>
+                <th class="w-2">
+                  <input
+                    type="checkbox"
+                    v-model="selectAll"
+                  />
+                </th>
                 <th>Child</th>
-                <th>Valid</th>
+                <th class="w-2">Valid</th>
                 <th>Current parent</th>
                 <th>New parent</th>
-                <th>Options</th>
-                <th>Select</th>
+                <th class="w-2">Options</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="child in childrenList">
+                <td>
+                  <input
+                    :value="child.id"
+                    type="checkbox"
+                    v-model="selected"
+                  />
+                </td>
                 <td>
                   {{ child.name }}
                 </td>
                 <td>
                   {{ child.cached_is_valid ? 'Yes' : 'No' }}
                 </td>
-                <td v-html="child.parent.name" />
+                <td v-html="child.parent.object_tag" />
                 <td>
                   <autocomplete
                     url="/taxon_names/autocomplete"
@@ -81,13 +79,6 @@
                     <radial-annotator :global-id="child.global_id" />
                   </div>
                 </td>
-                <td>
-                  <input
-                    :value="child.id"
-                    type="checkbox"
-                    v-model="selected"
-                  />
-                </td>
               </tr>
             </tbody>
           </table>
@@ -101,7 +92,7 @@
         </div>
       </template>
     </block-layout>
-    <modal-component
+    <VModal
       v-if="showModal"
       @close="showModal = false"
     >
@@ -130,22 +121,23 @@
           Move all
         </button>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
 <script>
 import { GetterNames } from '../store/getters/getters'
+import { RouteNames } from '@/routes/routes'
 import { TaxonName } from '@/routes/endpoints'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import BlockLayout from '@/components/layout/BlockLayout'
-import ModalComponent from '@/components/ui/Modal'
+import VModal from '@/components/ui/Modal'
 import SpinnerComponent from '@/components/ui/VSpinner'
 import Autocomplete from '@/components/ui/Autocomplete'
 
 export default {
   components: {
-    ModalComponent,
+    VModal,
     RadialAnnotator,
     SpinnerComponent,
     Autocomplete,
@@ -160,6 +152,16 @@ export default {
     },
     checkInput() {
       return this.moveInput.toUpperCase() !== 'MOVE'
+    },
+    selectAll: {
+      get() {
+        return this.selected.length === this.childrenList.length
+      },
+      set(value) {
+        this.selected = value
+          ? (this.selected = this.childrenList.map((child) => child.id))
+          : []
+      }
     }
   },
   data() {
@@ -186,13 +188,17 @@ export default {
               parent_id: [this.taxon.id],
               taxon_name_type: 'Protonym',
               per: 500,
+              sort: 'alphabetical',
               extend: ['parent']
-            }).then((response) => {
-              this.childrenList = response.body.filter(
-                (item) => item.id !== this.taxon.id
-              )
-              this.isLoading = false
             })
+              .then(({ body }) => {
+                this.childrenList = body.filter(
+                  (item) => item.id !== this.taxon.id
+                )
+              })
+              .finally(() => {
+                this.isLoading = false
+              })
           })
         }
       },
@@ -200,13 +206,9 @@ export default {
     }
   },
   methods: {
-    selectAll() {
-      this.selected = this.childrenList.map((children) => children.id)
-    },
-
     loadTaxon(id) {
       if (window.confirm('Are you sure you want to load this taxon name?')) {
-        window.open(`/tasks/nomenclature/new_taxon_name/${id}`, `_self`)
+        window.open(`${RouteNames.NewTaxonName}?taxon_name_id=${id}`, `_self`)
       }
     },
 

@@ -80,29 +80,29 @@ module Workbench::NavigationHelper
   # Used in show/REST
   # A previous record link.
   def previous_link(instance, text: 'Previous', target: nil)
-    link_text = content_tag(:span, text,  'data-icon' => 'arrow-left', 'class' => 'small-icon')
+    link_text = safe_join([content_tag(:span, '',  data: { icon: 'arrow-left' }, class: 'small-icon'), text], '')
     link_object = instance.previous
-    return content_tag(:div, link_text, 'class' => 'navigation-item disable') if link_object.nil?
+    return content_tag(:div, link_text, class: 'navigation-item disable') if link_object.nil?
     if target.nil?
       target ||= link_object.metamorphosize
     else
       target = send(target, id: link_object.id)
     end
-    link_to(link_text, target, 'data-arrow' => 'back', 'class' => 'navigation-item')
+    link_to(link_text, target, data: { arrow: 'back' }, class: 'navigation-item')
   end
 
   # Used in show/REST
   # A next record link.
   def next_link(instance, text: 'Next', target: nil)
-    link_text = content_tag(:span, text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
+    link_text = safe_join([text, content_tag(:span, '', class: 'small-icon margin-small-left', data: { icon: 'arrow-right' })], '')
     link_object = instance.next
-    return content_tag(:div, link_text, 'class' => 'navigation-item disable') if link_object.nil?
+    return content_tag(:div, link_text, class: 'navigation-item disable') if link_object.nil?
     if target.nil?
       target ||= link_object.metamorphosize
     else
       target = send(target, id: link_object.id)
     end
-    link_to(link_text, target, 'data-arrow' => 'next', 'class' => 'navigation-item')
+    link_to(link_text, target, data: { arrow: 'next' }, class: 'navigation-item')
   end
 
   def new_path_for_model(model)
@@ -114,26 +114,46 @@ module Workbench::NavigationHelper
   end
 
   def new_for_model_link(model)
+    content = safe_join([
+      content_tag(:span, '', class: 'icon', data: { icon: 'new' }),
+      'New'], 
+    '')
+    
     if NO_NEW_FORMS.include?(model.name)
       nil
     elsif model.name == 'ProjectSource'
-      link_to('New', new_source_path, 'class' => 'small-icon', 'data-icon' => 'new')
+      link_to(content, new_source_path)
     else
-      link_to(content_tag(:span, 'New', 'class' => 'small-icon', data: { icon: :new }), new_path_for_model(model), 'class' => 'navigation-item')
+      link_to(content, new_path_for_model(model), 'class' => 'navigation-item')
     end
   end
 
   def list_for_model_link(model)
-    if model.any?
-      link_to('List', list_path_for_model(model), 'data-icon' => 'list')
+    content = safe_join([
+      content_tag(:span, '', class: 'icon', data: { icon: 'list'}),
+      'List'], 
+    '')
+
+    has_records = model.has_attribute?(:project_id) ? model.where(project_id: sessions_current_project_id).exists?  : model.any?
+
+    if has_records
+      link_to(content, list_path_for_model(model))
     else
-      content_tag(:span, 'List', class: :disabled, 'data-icon' => 'list')
+      content_tag(:span, safe_join([
+        content_tag(:span, '', data: { icon: :list }),
+        content_tag(:span, "No #{model.name} to list")
+      ], ''), class: :disabled)
     end
   end
 
   def download_for_model_link(model)
+    content = safe_join([
+      content_tag(:span, '', class: 'icon', data: { icon: :download }),
+      'Download'], 
+    '')
+
     if self.controller.respond_to?(:download)
-      link_to('Download', download_path_for_model(model), data: { icon: :download, turbolinks: false })
+      link_to(content, download_path_for_model(model), data: { turbolinks: false })
     else
       content_tag(:em, 'Download not yet available.')
     end
@@ -193,26 +213,35 @@ module Workbench::NavigationHelper
   # return [A tag, nil]
   #   a link, or disabled link
   def edit_object_link(object)
+    content = safe_join([content_tag(:span, '', data: { icon: 'edit' }, class: 'small-icon'), 'Edit'], '')
+
     if has_route_for_edit?(object) && object.is_editable?(sessions_current_user)
-      link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), edit_object_path(metamorphosize_if(object)), class: 'navigation-item')
+      link_to(content, edit_object_path(metamorphosize_if(object)), class: 'navigation-item')
     else
-      content_tag(:div, content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), class: 'navigation-item disable')
+      content_tag(:div, content, class: 'navigation-item disable')
     end
   end
 
   def destroy_object_link(object)
+    content = safe_join([content_tag(:span, '', data: { icon: 'trash' }, class: 'small-icon'), 'Destroy'], '')
+
     if object.is_destroyable?(sessions_current_user)
-      link_to(content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'}, class: 'navigation-item')
+      link_to(content, object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'}, class: 'navigation-item')
     else
-      content_tag(:div, content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), class: 'navigation-item disable')
+      content_tag(:div, content, class: 'navigation-item disable')
     end
   end
 
   def batch_load_link
+    content = safe_join([
+      content_tag(:span, '', class: 'icon', data: { icon: 'batch' }),
+      'Batch load'], 
+    '')
+
     if self.controller.respond_to?(:batch_load)
-      link_to('Batch load', {action: :batch_load, controller: self.controller_name}, 'data-icon' => 'batch')
+      link_to(content, { action: :batch_load, controller: self.controller_name })
     else
-      content_tag(:span, 'Batch load', class: 'disabled', 'data-icon' => 'batch')
+      content_tag(:span, content, class: 'disabled')
     end
   end
 
@@ -262,8 +291,8 @@ module Workbench::NavigationHelper
     content_tag(:title, ['TaxonWorks', splash].compact.join(' - ') )
   end
 
-  def radial_navigation_tag(object)
-    content_tag(:span, '', data: { 'global-id': object.to_global_id.to_s, 'radial-navigation': 'true'})
+  def radial_navigation_tag(object, teleport = nil)
+    content_tag(:span, '', data: { 'global-id': object.to_global_id.to_s, 'radial-navigation': 'true', 'teleport': teleport})
   end
 
   # If a "home" is provided, use it instead of show link

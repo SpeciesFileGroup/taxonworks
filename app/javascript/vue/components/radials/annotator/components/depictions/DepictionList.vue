@@ -20,6 +20,7 @@
         <DepictionListRow
           :key="element.id"
           :depiction="element"
+          @move="(item) => emit('move', item)"
           @delete="emit('delete', element)"
           @selected="emit('selected', element)"
           @update:label="
@@ -45,6 +46,7 @@ const list = defineModel({
 
 const emit = defineEmits([
   'delete',
+  'move',
   'selected',
   'update:label',
   'update:caption',

@@ -11,6 +11,7 @@ const makeInitialState = () => {
     collectionObject: {},
     container: {},
     currentRepository: {},
+    conveyances: [],
     depictions: {
       list: [],
       pagination: {}

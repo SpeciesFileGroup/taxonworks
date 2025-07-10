@@ -1,11 +1,10 @@
 <div id="dashboard">
-  <div class="flexbox panels-container">
-    <div class="item item1 column-tiny separate-right">
+  <div class="flexbox panels-container  gap-medium">
+    <div class="item item1 column-tiny">
       <div class="panel">
         <div class="title nav-line">
-          <span data-icon="folders" class="inline">
-            Projects
-          </span>
+          <span data-icon="folders"></span>
+          <span>Projects</span>
         </div>
         <div class="content space-distance">
           <ul class="no_bullets">
@@ -14,25 +13,27 @@
         </div>
       </div>
     </div>
-    <div class="item item1 column-big separate-right separate-left">
+
+    <div class="item item1 column-big ">
       <div class="panel">
         <div class="title nav-line">
-          <span data-icon="openFolder" class="inline"> Data Overview </span>
+          <span data-icon="openFolder"></span>
+          <span>Data Overview</span>
         </div>
-        <div class="content ">
-          <ul class=" no_bullets content">
+        <div class="content space-distance">
+          <ul class="no_bullets">
             <%= content_tag :li, link_to('Created', data_user_path(sessions_current_user, target: :created),  data: { turbolinks: false } ) -%>
             <%= content_tag :li, link_to('Updated', data_user_path(sessions_current_user, target: :updated),  data: { turbolinks: false } ) -%>
           </ul>
         </div>
       </div>
     </div>
-    <div class="item item3 column-tiny separate-left">
+
+    <div class="item item3 column-tiny ">
       <div class="panel">
         <div class="title action-line">
-          <span data-icon="options" class="inline">
-            Preferences
-          </span>
+          <span data-icon="options" class="inline"></span>
+          <span>Preferences</span>
         </div>
         <div class="content space-distance">
           <ul class="no_bullets">

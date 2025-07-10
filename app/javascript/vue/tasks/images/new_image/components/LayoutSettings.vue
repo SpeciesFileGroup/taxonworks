@@ -21,7 +21,7 @@
         />
         Panels
       </label>
-      <hr />
+      <hr class="divisor" />
       <VDraggable
         v-model="panelList"
         tag="ul"
@@ -43,7 +43,7 @@
           </li>
         </template>
       </VDraggable>
-      <hr />
+      <hr class="divisor" />
       <label>
         <input
           type="checkbox"

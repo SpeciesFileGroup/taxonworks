@@ -12,6 +12,7 @@
       use-custom-dropzone-options
       @vdropzone-sending="sending"
       @vdropzone-success="success"
+      @vdropzone-error="error"
       @click="openInputFile"
       :dropzone-options="
         existObservations ? dropzoneDepiction : dropzoneObservation
@@ -243,6 +244,11 @@ function removeDepiction(depiction) {
       store.commit(MutationNames.SetIsSaving, false)
     })
   }
+}
+
+function error(_, error) {
+  isLoading.value = false
+  TW.workbench.alert.create(Object.values(error).join('; '), 'error')
 }
 
 function success(file, response) {

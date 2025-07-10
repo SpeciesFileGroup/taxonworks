@@ -207,7 +207,9 @@ export default {
 
   mounted() {
     if (this.autofocus) {
-      this.$refs.autofocus.focus()
+      this.$nextTick(() => {
+        this.$refs.autofocus.focus()
+      })
     }
   },
 

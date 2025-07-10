@@ -35,6 +35,7 @@ class Otu < ApplicationRecord
   include Shared::Confidences
   include Shared::Observations
   include Shared::BiologicalAssociations
+  include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::OriginRelationship
 
@@ -51,7 +52,7 @@ class Otu < ApplicationRecord
 
   include Shared::QueryBatchUpdate
 
-  is_origin_for 'Sequence', 'Extract'
+  is_origin_for 'Sequence', 'Extract', 'Sound'
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices].freeze
 
@@ -96,6 +97,11 @@ class Otu < ApplicationRecord
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }
+  scope :associated_with_key, -> (root_lead) {
+    joins(:leads)
+      .where(leads: { id: root_lead.self_and_descendants.map(&:id) })
+      .distinct
+  }
 
   validate :check_required_fields
 
@@ -363,6 +369,10 @@ class Otu < ApplicationRecord
     collection_objects.where(taxon_determinations: {position: 1})
   end
 
+  def current_field_occurrences
+    field_occurrences.where(taxon_determinations: {position: 1})
+  end
+
   # @return [Boolean]
   #   whether or not this otu is coordinate (see coordinate_otus) with this otu
   def coordinate_with?(otu_id)
@@ -402,6 +412,7 @@ class Otu < ApplicationRecord
 
   # @return [Array]
   #   of ancestral otu_ids
+  # Not used?
   # !! This method does not fork, as soon as 2 ancestors are
   # !! hit the list terminates.
   def ancestor_otu_ids(prefer_unlabelled_otus: true)
@@ -431,37 +442,37 @@ class Otu < ApplicationRecord
            AND biological_associations.biological_association_object_type = 'Otu' ")
   end
 
+  # @return Otu scope
+  #   aggregates valid OTUs id ancestors for an OTU, with the first in the list
+  #   the first OTU ancestor with a valid id
+  # Used in CoL export
+  def self.parent_otu_ids(otu_scope = nil, skip_ranks: [])
+    otu_scope ||= Otu.all
+
+    s = Otu.with(otu_scope: otu_scope.select(:id))
+      .joins('JOIN otu_scope on otu_scope.id = otus.id')
+      .joins('JOIN taxon_name_hierarchies tnh on tnh.descendant_id = otus.taxon_name_id') # get all ancestors
+      .joins('LEFT JOIN taxon_names tna on tna.id = tnh.ancestor_id')
+      .joins('JOIN otus otu_valid ON otu_valid.taxon_name_id = tna.id')
+      .where("tna.cached_is_valid = '1' AND tnh.ancestor_id != tnh.descendant_id")
+      .group('otus.id')
+      .select("otus.id, STRING_AGG(otu_valid.id::text, ',' ORDER BY tnh.generations, otu_valid.name DESC) AS valid_ancestor_otu_ids") # generations, then unlabelled OTUs
+
+    s = s.where('tna.rank_class NOT IN (?)', skip_ranks) unless skip_ranks.empty?
+
+    s
+  end
+
   # @return [Otu#id, nil, false]
   #  nil - there is no OTU parent with a valid taxon name possible
   #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taxon name
   #
   #  Note this is used CoLDP export. Do not change without considerations there.
-  def parent_otu_id(skip_ranks: [], prefer_unlabelled_otus: false)
+  #  Unlabelled OTUs are always preferred by default now.
+  def parent_otu_id(skip_ranks: [])
     return nil if taxon_name_id.nil?
-
-    # TODO: Unify to a single query
-
-    candidates = TaxonName.joins(:otus, :descendant_hierarchies)
-      .that_is_valid
-      .where.not(id: taxon_name_id)
-      .where(taxon_name_hierarchies: {descendant_id: taxon_name_id})
-      .where.not(rank_class: skip_ranks)
-      .order('taxon_name_hierarchies.generations')
-      .limit(1)
-      .pluck(:id)
-
-    if candidates.size == 1
-      otus = Otu.where(taxon_name_id: candidates.first).to_a
-      otus.select! { |o| o.name.nil? } if prefer_unlabelled_otus && otus.size > 1
-
-      if otus.size > 0
-        return otus.first.id
-      else
-        return nil
-      end
-    else
-      return nil
-    end
+    z = Otu.parent_otu_ids(Otu.where(id:), skip_ranks:).map{|a| [a.id, a.valid_ancestor_otu_ids&.split(',')&.first&.to_i]}.to_h
+    z[id]
   end
 
   # TODO: Re/move
@@ -533,13 +544,7 @@ class Otu < ApplicationRecord
   end
 
   def dwc_occurrences
-    a = ::Queries::DwcOccurrence::Filter.new( asserted_distribution_query: {otu_id: id, project_id:},).all
-    b = ::Queries::DwcOccurrence::Filter.new( collection_object_query: {otu_id: id, project_id:},).all
-    # TODO FieldOccurrence in same pattern
-
-    ::Queries.union(
-      ::DwcOccurrence, [ a, b ]
-    )
+    ::Queries::DwcOccurrence::Filter.new(otu_id: id).all
   end
 
   protected

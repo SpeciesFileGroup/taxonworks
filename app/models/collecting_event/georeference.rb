@@ -124,30 +124,6 @@ module CollectingEvent::Georeference
     nil
   end
 
-  # CollectingEvent.select {|d| !(d.verbatim_latitude.nil? || d.verbatim_longitude.nil?)}
-  # .select {|ce| ce.georeferences.empty?}
-  # @param [Boolean] reference_self
-  # @param [Boolean] no_cached
-  # @return [Georeference::VerbatimData, false]
-  #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values
-  def generate_verbatim_data_georeference(reference_self = false, no_cached: false)
-    return false if (verbatim_latitude.nil? || verbatim_longitude.nil?)
-    begin
-      CollectingEvent.transaction do
-        vg_attributes = {collecting_event_id: id.to_s, no_cached: no_cached}
-        vg_attributes.merge!(by: self.creator.id, project_id: self.project_id) if reference_self
-        a = Georeference::VerbatimData.new(vg_attributes)
-        if a.valid?
-          a.save
-        end
-        return a
-      end
-    rescue
-      raise
-    end
-    false
-  end
-
   # @return [Symbol, nil]
   #   Prioritizes and identifies the source of the latitude/longitude values that
   #   will be calculated for DWCA and primary display

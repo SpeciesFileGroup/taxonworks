@@ -1,5 +1,4 @@
 #simple-specimen-task {
-
   padding: 0px;
   border: none;
 
@@ -33,7 +32,6 @@
       text-align: right;
       display: inline-block;
     }
-
   }
 
   #new_otu {
@@ -58,7 +56,7 @@
     display: flex;
     justify-content: flex-start;
     flex-direction: row;
-    border: 1px solid $navigation-border;
+    border: 1px solid var(--border-color);
     background-color: $body-background;
     display: block;
     border-radius: 3px;
@@ -66,7 +64,7 @@
 
   #collecting_event_fields {
     padding-right: 10px;
-    border-right: 1px solid $navigation-border;
+    border-right: 1px solid var(--border-color);
   }
 
   #selected_collecting_event {
@@ -91,12 +89,12 @@
       padding: $standard_padding;
       width: 400px;
       max-height: 500px;
-      border: 1px solid $navigation-border;
+      border: 1px solid var(--border-color);
       overflow: scroll;
     }
 
     li {
-      border-bottom: 1px solid $navigation-border;
+      border-bottom: 1px solid var(--border-color);
       display: flex;
       list-style: none;
       align-items: center;

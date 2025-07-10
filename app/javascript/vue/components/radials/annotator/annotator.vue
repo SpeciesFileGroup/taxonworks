@@ -1,88 +1,92 @@
 <template>
   <div>
-    <div class="radial-annotator">
-      <VModal
-        v-if="isVisible"
-        transparent
-        @close="closeModal()"
-      >
-        <template #header>
-          <span class="flex-separate middle">
-            <span v-html="title" />
-            <b
-              v-if="metadata"
-              class="margin-large-left"
-            >
-              {{ metadata.object_type }}
-            </b>
-          </span>
-        </template>
-        <template #body>
-          <div class="flex-separate">
-            <VSpinner v-if="!isMetadataLoaded" />
-            <div class="radial-annotator-menu">
-              <div>
-                <radial-menu
+    <Teleport
+      v-if="isVisible"
+      :disabled="!teleport"
+      to="body"
+    >
+      <div class="radial-annotator">
+        <VModal
+          transparent
+          @close="closeModal()"
+        >
+          <template #header>
+            <div class="horizontal-left-content middle gap-medium">
+              <div
+                :class="['inline model-tag', modelBg]"
+                v-if="metadata"
+              >
+                {{ metadata.object_type }}
+              </div>
+              <span v-html="title" />
+            </div>
+          </template>
+          <template #body>
+            <div class="flex-separate">
+              <VSpinner v-if="!isMetadataLoaded" />
+              <div class="radial-annotator-menu">
+                <div>
+                  <radial-menu
+                    v-if="isMetadataLoaded"
+                    :options="menuOptions"
+                    @click="selectComponent"
+                  />
+                </div>
+              </div>
+              <div
+                class="radial-annotator-template panel"
+                v-if="currentAnnotator"
+              >
+                <h2 class="capitalize view-title">
+                  {{ currentAnnotator.replace('_', ' ') }}
+                </h2>
+                <component
                   v-if="isMetadataLoaded"
-                  :options="menuOptions"
-                  @click="selectComponent"
+                  class="radial-annotator-container"
+                  :is="SLICE[currentAnnotator]"
+                  :type="currentAnnotator"
+                  :url="metadata.url"
+                  :metadata="metadata"
+                  :global-id="globalId"
+                  :object-type="metadata.object_type"
+                  :object-id="metadata.object_id"
+                  :radial-emit="handleEmitRadial"
+                  @update-count="setTotal"
                 />
               </div>
             </div>
-            <div
-              class="radial-annotator-template panel"
-              v-if="currentAnnotator"
-            >
-              <h2 class="capitalize view-title">
-                {{ currentAnnotator.replace('_', ' ') }}
-              </h2>
-              <component
-                v-if="isMetadataLoaded"
-                class="radial-annotator-container"
-                :is="SLICE[currentAnnotator]"
-                :type="currentAnnotator"
-                :url="metadata.url"
-                :metadata="metadata"
-                :global-id="globalId"
-                :object-type="metadata.object_type"
-                :object-id="metadata.object_id"
-                :radial-emit="handleEmitRadial"
-                @update-count="setTotal"
-              />
-            </div>
-          </div>
-        </template>
-      </VModal>
-
-      <VBtn
-        v-if="showBottom"
-        circle
-        color="radial"
-        :title="buttonTitle"
-        :class="[pulse ? 'pulse-blue' : '']"
-        :disabled="disabled"
-        @contextmenu.prevent="loadContextMenu"
-        @click="displayAnnotator()"
-      >
-        <VIcon
-          :title="buttonTitle"
-          name="radialAnnotator"
-          x-small
-        />
-      </VBtn>
-      <div
-        v-if="metadataCount && showCount"
-        class="circle-count button-submit middle"
-      >
-        <span class="citation-count-text">{{ metadataCount }}</span>
+          </template>
+        </VModal>
       </div>
-      <ContextMenu
-        :metadata="metadata"
-        :global-id="globalId"
-        v-model="isContextMenuVisible"
-        v-if="isContextMenuVisible"
+    </Teleport>
+    <VBtn
+      v-if="showBottom"
+      circle
+      color="radial"
+      :title="buttonTitle"
+      :class="[pulse ? 'pulse-blue' : '']"
+      :disabled="disabled"
+      @contextmenu.prevent="loadContextMenu"
+      @click="displayAnnotator()"
+    >
+      <VIcon
+        :title="buttonTitle"
+        name="radialAnnotator"
+        x-small
       />
+    </VBtn>
+    <div
+      v-if="metadataCount && showCount"
+      class="circle-count button-submit middle"
+    >
+      <span class="citation-count-text">{{ metadataCount }}</span>
     </div>
+    <ContextMenu
+      :metadata="metadata"
+      :global-id="globalId"
+      v-model="isContextMenuVisible"
+      v-if="isContextMenuVisible"
+    />
   </div>
 </template>
 
@@ -100,8 +104,31 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
 import ContextMenu from './components/contextMenu'
+import {
+  PERSON,
+  PREPARATION_TYPE,
+  REPOSITORY,
+  SERIAL,
+  ORGANIZATION,
+  SOURCE,
+  GEOGRAPHIC_AREA,
+  NAMESPACE
+} from '@/constants/modelTypes.js'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
+
+const DATA_COLOR = {
+  shared: [
+    PERSON,
+    NAMESPACE,
+    REPOSITORY,
+    PREPARATION_TYPE,
+    SERIAL,
+    SOURCE,
+    ORGANIZATION
+  ],
+  application: [GEOGRAPHIC_AREA]
+}
 
 defineOptions({
   name: 'RadialAnnotator'
@@ -161,6 +188,11 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+
+  teleport: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -173,6 +205,17 @@ const currentAnnotator = ref()
 const title = ref('Radial annotator')
 const metadata = ref(null)
 const defaultTag = ref(null)
+const modelBg = computed(() => {
+  const objectType = metadata.value?.object_type
+
+  if (!objectType) return
+
+  const type = Object.keys(DATA_COLOR).find((key) => {
+    return DATA_COLOR[key].includes(objectType)
+  })
+
+  return type || ''
+})
 const menuOptions = computed(() => {
   const endpoints = metadata.value.endpoints || {}
 
@@ -207,9 +250,9 @@ const menuOptions = computed(() => {
   }))
 
   return {
-    width: 400,
-    height: 400,
-    sliceSize: 120,
+    width: 440,
+    height: 440,
+    sliceSize: 140,
     centerSize: 34,
     margin: 2,
     middleButton: middleButton.value,
@@ -415,6 +458,16 @@ function resetAnnotator() {
 }
 </script>
 <style lang="scss">
+.dark {
+  .svg-radial-menu {
+    .slice {
+      image {
+        filter: invert(1);
+      }
+    }
+  }
+}
+
 .svg-radial-menu {
   text-anchor: middle;
 
@@ -424,7 +477,13 @@ function resetAnnotator() {
   }
 
   path.slice {
-    fill: #ffffff;
+    fill: var(--bg-foreground);
+  }
+
+  .slice {
+    tspan {
+      fill: var(--text-color);
+    }
   }
 
   path.active {
@@ -443,7 +502,6 @@ function resetAnnotator() {
 .radial-annotator {
   position: relative;
   width: initial;
-  color: initial;
 
   .modal-close {
     top: 30px;
@@ -461,11 +519,11 @@ function resetAnnotator() {
   }
 
   .radial-annotator-template {
-    background: #ffffff;
+    background: var(--bg-foreground);
     padding: 1em;
     width: 100%;
     max-width: 100%;
-    height: 80vh;
+    height: 70vh;
     overflow-y: auto;
   }
 
@@ -492,6 +550,25 @@ function resetAnnotator() {
 
   .circle-count {
     bottom: -6px;
+  }
+
+  .model-tag {
+    padding: 5px 8px;
+    border-top-right-radius: 0.6rem;
+    border-bottom-right-radius: 0.6rem;
+    border: 1px solid var(--color-primary);
+    border-left: 12px solid var(--color-primary);
+    line-height: 1.2rem;
+  }
+
+  .shared {
+    border: 1px solid var(--data-shared-bg);
+    border-left: 12px solid var(--data-shared-bg);
+  }
+
+  .application {
+    border: 1px solid var(--data-application-defined-bg);
+    border-left: 12px solid var(--data-application-defined-bg);
   }
 }
 

@@ -449,7 +449,8 @@ class Person < ApplicationRecord
   end
 
   def dwc_occurrences
-    ::Queries::DwcOccurrence::Filter.new(person_id: [id]).all
+    # Updates in all projects (as it should)
+    ::Queries::DwcOccurrence::Filter.new(person_id: [id], project_id: false).all
   end
 
   # @param [String] name_string
@@ -494,7 +495,7 @@ class Person < ApplicationRecord
   end
 
   # @params Role [String] one the available roles
-  # @return [Hash] geographic_areas optimized for user selection
+  # @return [Hash] people optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
     r = used_recently(user_id, role_type)
     h = {

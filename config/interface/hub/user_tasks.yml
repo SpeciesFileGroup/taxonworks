@@ -22,7 +22,7 @@
 ---
 filter_taxon_names_task:
   hub: true
-  name: 'Filter nomenclature'
+  name: 'Filter taxon names'
   related:
   categories:
     - nomenclature
@@ -84,7 +84,7 @@ new_taxon_name_task:
   description: 'Create or edit a taxon name along with its related metadata including original combinations, status, type material and synonym.'
 browse_nomenclature_task:
   hub: true
-  name: 'Browse nomenclature and classification'
+  name: 'Browse taxon names'
   description: 'Browse through nomenclature and classification, focusing on a single record at a time.'
   status: stable
   categories:
@@ -167,14 +167,6 @@ build_biocuration_group_task:
   name:
   related:
     - build_biocuration_groups_task
-match_georeference_task:
-  hub: true
-  name: 'Match georeferences'
-  description: 'Re-use georeference efforts from past collecting events.'
-  categories:
-    - collecting_event
-    - collection_object
-  status: prototype
 otu_distribution_data_task:
   hub: true
   name: 'Otu distribution'
@@ -211,14 +203,6 @@ simple_specimen_task:
     - image
     - new
   status: prototype
-new_asserted_distribution_from_map_task:
-  hub: true
-  name: 'New asserted distribution from map'
-  description: 'Create asserted distributions by selecting OTUs and sources, then click a map to select a geographic area. OTU and source are lockable as defaults for the next record.'
-  status: prototype
-  categories:
-    - source
-    - new
 report_dwc_task:
   hub: true
   name: 'Report DwC-A table'
@@ -244,7 +228,7 @@ collecting_event_lat_long_task:
     - collecting_event
   status: prototype
   description: "Parse the collecting_events table's verbatim label for possible lat/long combinations."
-index_editor_task:
+content_editor_task:
   hub: true
   name: 'Content editor'
   related:
@@ -332,7 +316,6 @@ new_descriptor_task:
   categories:
     - matrix
     - new
-    - browse
   status: prototype
   description: 'Create and update descriptors (e.g. phylogenetic or descriptive characters).'
 new_matrix_task:
@@ -379,7 +362,7 @@ new_asserted_distribution_task:
   categories:
     - new
   status: prototype
-  description: 'Create new asserted distributions (Otu, source, and geographic area combinations). Has locking and cloning mechanisms.'
+  description: 'Create new asserted distributions (Otu, source, and shape combinations). Has locking and cloning mechanisms.'
 index_topics_hub_task:
   hub: true
   name: 'Topics hub'
@@ -438,7 +421,7 @@ interactive_key_task:
   description: 'Interactive key based on an observation matrix.'
 nomenclature_stats_task:
   hub: true
-  name: 'Nomenclature stats'
+  name: 'Taxon name stats'
   related:
   categories:
     - nomenclature
@@ -471,7 +454,7 @@ filter_collection_objects_task:
   description: 'Filter collection objects by many different facets, download or visualize results.'
 synchronize_otus_to_nomenclature_task:
   hub: true
-  name: 'Synchronize nomenclature and OTUs'
+  name: 'Synchronize taxon names and OTUs'
   related:
   categories:
     - nomenclature
@@ -520,7 +503,7 @@ grid_digitize_task:
   description: 'Break images of collection objects in a grid (e.g. slide folders) into individual collection objects and their depictions.'
 export_basic_nomenclature_task:
   hub: true
-  name: 'Download nomenclature (basic)'
+  name: 'Download taxon names (basic)'
   related:
   categories:
     - nomenclature
@@ -528,7 +511,7 @@ export_basic_nomenclature_task:
   description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
 match_nomenclature_task:
   hub: true
-  name: 'Nomenclature match'
+  name: 'Match taxon names'
   related:
   categories:
     - nomenclature
@@ -543,7 +526,7 @@ manage_controlled_vocabulary_terms_task:
   description: 'View and create custom fields, tags, etc. used throughout this project.'
 match_collection_objects_task:
   hub: true
-  name: 'Collection object match'
+  name: 'Match collection objects'
   related:
   categories:
     - collection_object
@@ -620,7 +603,7 @@ new_extract_task:
   description: 'Create new extracts, e.g. for DNA purposes.'
 content_by_nomenclature_task:
   hub: true
-  name: 'Content by nomenclature ("Brock")'
+  name: 'Content by taxon names ("Brock")'
   related:
   categories:
   status: prototype
@@ -833,7 +816,7 @@ geographic_area_usage_task:
   description: 'Summarize this projects geographic area usage'
 taxon_name_stats_task:
   hub: false
-  name: 'Taxon name stats'
+  name: 'Taxon names stats'
   related:
   categories:
   status: prototype
@@ -869,19 +852,19 @@ debug_geographic_item_task:
   description: 'Report metadat about a geographic item.'
 new_lead_task:
   hub: true
-  name: 'New dichotomous key'
+  name: 'New key'
   related:
   categories:
     - new
   status: prototype
-  description: 'Create a new dichotomous key.'
+  description: 'Create a new key.'
 show_lead_task:
   hub: true
-  name: 'Use dichotomous key'
+  name: 'Use a key'
   related:
   categories:
   status: prototype
-  description: 'Use an existing dichotomous key.'
+  description: 'Use an existing key.'
 project_vocabulary_task:
   hub: true
   name: 'Project vocabulary'
@@ -900,11 +883,11 @@ new_otu_task:
   description: 'Create one or many OTUs in batch.'
 leads_hub_task:
   hub: true
-  name: 'Dichotomous keys hub'
+  name: 'Keys hub'
   related:
   categories:
   status: prototype
-  description: 'A centralized hub unifying access to the different means of creating and displaying dichotomous keys.'
+  description: 'A centralized hub unifying access to the different means of creating and displaying keys.'
 week_in_review_task:
   hub: true
   name: 'Week in review'
@@ -956,9 +939,25 @@ filter_dwc_occurrences_task:
     - collecting_event
     - asserted_distribution
   categories:
-    - filter
+    - filters
   status: prototype
   description: 'Filter records in the DarwinCore index.'
+new_gazetteer_task:
+  hub: true
+  name: 'Create or edit Gazetteers'
+  related:
+  categories:
+    - collecting_event
+    - new
+  status: prototype
+  description: 'Create or edit named shapes for use in your project.'
+import_gazetteers_task:
+  hub: true
+  name: 'Import Gazetteers'
+  related:
+  categories:
+  status: prototype
+  description: 'Import Gazetteers from a shapefile.'
 unify_objects_task:
   hub: true
   name: 'Unify objects'
@@ -1006,3 +1005,66 @@ summarize_projects_controlled_vocabulary_terms_task:
   categories:
   status: prototype
   description: 'Visualize controlled vocabulary terms across the projects you are a member of.'
+browse_sounds_task:
+  hub: true
+  name: 'Browse sounds'
+  related:
+  categories:
+    - browse
+  status: prototype
+  description: 'View individual sounds and their related.'
+browse_field_occurrence_task:
+  hub: true
+  name: 'Browse field occurrences'
+  related:
+  categories:
+    - browse
+  status: prototype
+  description: 'Report everything known about a field occurrence. Includes determinations, images, collecting event, biological associations, etc.'
+filter_sounds_task:
+  hub: true
+  name: 'Filter sounds'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter sounds by various params.'
+index_multi_update_task:
+  hub: false
+  name: 'Multi-update data attributes'
+  related:
+  categories:
+  status: prototype
+  description: 'Faciliate spreadsheet editing of multiple data attributes.'
+filter_field_occurrences_task:
+  hub: true
+  name: 'Filter field occurrences'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter field occurrences by many different facets, download or visualize results.'
+taxon_names_table_task:
+  hub: true
+  name: 'Taxon names table'
+  description: 'A simple table view of taxon names including checklist-style columns of names at rank, author, and year.'
+  status: prototype
+  categories:
+    - nomenclature
+taxon_name_gender_task:
+  hub: true
+  name: 'Nomenclatural gender summary'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Brief summary of gender status for a filtered set of names.'
+filter_taxon_name_relationships_task:
+  hub: true
+  name: 'Filter taxon name relationships'
+  related:
+  categories:
+    - filters
+    - nomenclature
+  status: prototype
+  description: 'Filter taxon name relationships by many different facets, download or visualize results.'

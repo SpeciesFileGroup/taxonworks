@@ -19,7 +19,8 @@
     />
     <OtuCoordinate v-if="coordinate" />
     <VIncludes
-      v-if="includes"
+      v-if="includes.length"
+      :includes="includes"
       v-model="params"
     />
   </FacetContainer>
@@ -27,7 +28,6 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { Otu } from '@/routes/endpoints'
 import { addToArray, removeFromArray } from '@/helpers/arrays'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
@@ -48,8 +48,8 @@ const props = defineProps({
   },
 
   includes: {
-    type: Boolean,
-    default: false
+    type: Array,
+    default: () => []
   },
 
   coordinate: {

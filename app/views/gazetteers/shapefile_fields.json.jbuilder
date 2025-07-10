@@ -1,0 +1,1 @@
+json.shapefile_fields @shapefile_fields

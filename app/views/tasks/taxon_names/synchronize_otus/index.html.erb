@@ -1,5 +1,4 @@
-<h1> Task - Synchronize nomenclature to OTUs </h1>
-
+<h1> Task - Synchronize taxon names to OTUs </h1>
 <h2> Current scope: <%= taxon_name_browse_link(@taxon_name) -%> </h2>
 
 <%= form_tag(synchronize_otus_to_nomenclature_task_path) do |f| %>
@@ -8,12 +7,12 @@
     <br>
     <%= render partial: '/workbench/elements/forms/ajax_select',
       locals: {
-      controller: '/taxon_names',
-      object: '',
-      method:  'taxon_name_id',
-      tag_id:  'taxon_name_id_for_otu',
-      display:  taxon_name_autocomplete_selected_tag(@taxon_name),
-      size: 20} %>
+        controller: '/taxon_names',
+        object: 'taxon_name',
+        method: 'id',
+        tag_id: 'taxon_name_id_for_otu',
+        display: taxon_name_autocomplete_selected_tag(@taxon_name),
+        size: 60} %>
   </div>
 
   <%= submit_tag 'Preview/set scope', class: 'button button-default', formaction: preview_synchronize_otus_to_nomenclature_task_path %> <br><br>

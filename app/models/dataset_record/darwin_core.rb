@@ -26,17 +26,17 @@ class DatasetRecord::DarwinCore < DatasetRecord
         /(TW:DataAttribute:#{Regexp.escape(subject_class)}:).+/i =~ field
         {field:, selector: field.sub($1, '')} if $1
       end
-      .reject(&:nil?)
+        .reject(&:nil?)
   end
 
   def get_tw_tag_fields_for(subject_class)
     get_fields_mapping.values
-                      .select { |f| f.is_a?(String) }
-                      .map do |field|
-      /(TW:Tag:#{Regexp.escape(subject_class)}:).+/i =~ field
-      {field:, selector: field.sub($1, '')} if $1
-    end
-                      .reject(&:nil?)
+      .select { |f| f.is_a?(String) }
+      .map do |field|
+        /(TW:Tag:#{Regexp.escape(subject_class)}:).+/i =~ field
+        {field:, selector: field.sub($1, '')} if $1
+      end
+        .reject(&:nil?)
   end
 
   def get_tw_fields_for(subject_class)
@@ -46,7 +46,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
         /(TW:#{Regexp.escape(subject_class)}:).+/i =~ field
         {field:, name: field.sub($1, '').downcase.to_sym} if $1
       end
-      .reject(&:nil?)
+        .reject(&:nil?)
   end
 
   def get_tw_biocuration_groups
@@ -56,13 +56,17 @@ class DatasetRecord::DarwinCore < DatasetRecord
         /(TW:BiocurationGroup:).+/i =~ field
         {field:, selector: field.sub($1, '')} if $1
       end
-      .reject(&:nil?)
+        .reject(&:nil?)
   end
 
   def import(dwc_data_attributes = {})
     raise DatasetRecord::DarwinCore::InvalidData.new(
       {status: ["Import attempted with '#{status}' status"]}
     ) if %w{NotReady Imported Unsupported}.include?(status)
+  end
+
+  def get_mapped_fields(dwc_data_attributes = {})
+    self.class::SUPPORTED_DWC_TERMS.map { |f| get_field_mapping(f) }.compact.sort
   end
 
   private

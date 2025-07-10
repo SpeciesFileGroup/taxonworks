@@ -26,9 +26,15 @@ class Identifier::Local::CatalogNumber < Identifier::Local
   private
 
   def assigned_to_valid_object
-    # TODO: unkludge
-    if (identifier_object_type && !(TARGETS.include?(identifier_object_type))) || ( identifier_object && !identifier_object.kind_of?(CollectionObject) && !identifier_object.kind_of?(Container) && !identifier_object.kind_of?(Extract)  )
-      errors.add(:identifier_object_type, "only assignable to #{TARGETS.join(', ')}")
+    type_issue =
+      identifier_object_type && !TARGETS.include?(identifier_object_type)
+
+    object_issue = identifier_object &&
+      TARGETS.none? { |c| identifier_object.kind_of?(c.constantize) }
+
+    if type_issue || object_issue
+      errors.add(:identifier_object_type, "only assignable to #{TARGETS.join(', ')}
+      ")
     end
   end
 

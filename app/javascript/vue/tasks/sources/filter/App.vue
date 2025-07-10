@@ -7,7 +7,7 @@
       :url-request="urlRequest"
       v-model="parameters"
       :object-type="SOURCE"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :list="list"
       :extend-download="extendDownload"
       v-model:append="append"
@@ -27,8 +27,8 @@
       <template #nav-right>
         <RadialSource
           :disabled="!list.length"
-          :ids="selectedIds"
-          :count="selectedIds.length"
+          :ids="sortedSelectedIds"
+          :count="sortedSelectedIds.length"
           @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
@@ -56,15 +56,13 @@
             />
           </template>
           <template #documents="{ value }">
-            <td>
-              <div class="flex-wrap-row gap-xsmall">
-                <PdfButton
-                  v-for="pdf in value"
-                  :key="pdf.id"
-                  :pdf="pdf"
-                />
-              </div>
-            </td>
+            <div class="flex-wrap-row gap-xsmall">
+              <PdfButton
+                v-for="pdf in value"
+                :key="pdf.id"
+                :pdf="pdf"
+              />
+            </div>
           </template>
         </FilterList>
       </template>
@@ -100,16 +98,17 @@ import { computed } from 'vue'
 const extend = ['documents']
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Source, { initParameters: { extend } })
 
 const extendDownload = computed(() => [

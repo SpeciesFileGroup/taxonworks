@@ -70,76 +70,81 @@ class Sequence < ApplicationRecord
   validates_presence_of :sequence
   validates_inclusion_of :sequence_type, in: ['DNA', 'RNA', 'AA']
 
+  # @return [Array]
+  #   all SequenceRElationships where this sequences is an object or subject.
+  def all_sequence_relationships
+    SequenceRelationship.find_by_sql(
+      "SELECT sequence_relationships.*
+         FROM sequence_relationships
+         WHERE sequence_relationships.subject_sequence_id = #{self.id}
+       UNION
+       SELECT sequence_relationships.*
+         FROM sequence_relationships
+         WHERE sequence_relationships.object_sequence_id = #{self.id}")
+  end
+
   # @param used_on [String] required, one of `GeneAttribute` or `SequenceRelationship`
   # @return [Scope]
   #   the max 10 most recently used otus, as `used_on`
   def self.used_recently(user_id, project_id, used_on = nil)
     return Sequence.none if used_on.nil?
-    t = case used_on
-        when 'GeneAttribute'
-          GeneAttribute.arel_table
-        when 'SequenceRelationship'
-          SequenceRelationship.arel_table
-        end
+    case used_on
+    when 'GeneAttribute'
+       Sequence.joins(:gene_attributes)
+         .where(
+           gene_attributes: {
+             updated_by_id: user_id,
+             project_id:,
+             updated_at: 1.week.ago..}
+         )
+    when 'SequenceRelationship'
+      a = Sequence.joins(:sequence_relationships)
+        .where(
+          sequence_relationships: {
+            updated_by_id: user_id,
+            project_id:,
+            updated_at: 1.week.ago..}
+        )
+      b = Sequence.joins(:related_sequence_relationships)
+        .where(
+          sequence_relationships: {
+            updated_by_id: user_id,
+            project_id:,
+            updated_at: 1.week.ago..}
+        )
 
-    p = Sequence.arel_table
-
-    # i is a select manager
-    i = t.project(t['sequence_id'], t['updated_at']).from(t)
-      .where(t['updated_at'].gt( 1.weeks.ago ))
-      .where(t['updated_by_id'].eq(user_id))
-      .where(t['project_id'].eq(project_id))
-      .order(t['updated_at'].desc)
-
-    # i is a select manager
-    i = case used_on
-        when 'SequenceRelationship'
-          t.project(t['object_sequence_id'], t['updated_at']).from(t)
-            .where(
-              t['updated_at'].gt(1.weeks.ago)
-            )
-              .where(t['created_by_id'].eq(user_id))
-              .where(t['project_id'].eq(project_id))
-              .order(t['updated_at'])
-        else
-          t.project(t['sequence_id'], t['updated_at']).from(t)
-            .where(t['updated_at'].gt( 1.weeks.ago ))
-            .where(t['created_by_id'].eq(user_id))
-            .where(t['project_id'].eq(project_id))
-            .order(t['updated_at'])
-        end
-
-    # z is a table alias
-    z = i.as('recent_t')
-
-    j = case used_on
-        when 'SequenceRelationship'
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-            z['object_sequence_id'].eq(p['id'])
-          ))
-        else
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['sequence_id'].eq(p['id'])))
-        end
-
-    Sequence.joins(j).pluck(:sequence_id).uniq
+      ::Queries.union(Sequence, [a,b])
+    else
+      return []
+    end
   end
 
   # @params target [String] one of nil, 'SequenceRelationship', 'GeneAttribute'
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     r = used_recently(user_id, project_id, target)
+
+    new_sequences = Sequence.where(
+          created_by_id: user_id,
+          updated_at: 2.hours.ago..Time.now )
+          .order('created_at DESC')
+          .limit(5)
+    recent_sequences = Sequence.where(id: r.first(10) )
+
+    pinboard_sequences = Sequence.pinned_by(user_id).where(project_id: project_id)
+
     h = {
-      recent: [],
       quick: [],
-      pinboard: Sequence.pinned_by(user_id).where(project_id: project_id).to_a
+      recent: [],
+      pinboard: pinboard_sequences.to_a
     }
 
     if r.empty?
-      h[:quick] = Sequence.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+      h[:quick] = (pinboard_sequences.to_a + recent_sequences.first(5).to_a).uniq
+      h[:recent] = new_sequences.to_a
     else
-      h[:recent] = Sequence.where('"sequences"."id" IN (?)', r.first(10) ).to_a
-      h[:quick] = (Sequence.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
-          Sequence.where('"sequences"."id" IN (?)', r.first(10) ).to_a).uniq
+      h[:recent] = (new_sequences.to_a + recent_sequences.to_a).uniq
+      h[:quick] = (pinboard_sequences.to_a + recent_sequences.to_a).uniq
     end
 
     h

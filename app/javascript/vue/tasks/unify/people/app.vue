@@ -12,8 +12,21 @@
         v-show="settings.showSearch"
         ref="filterPanel"
         :disabled-match="!selectedPerson.id"
-        @find-people="findPeople"
-        @match-people="getMatchPeople"
+        v-model="params"
+        @find-people="
+          () =>
+            store.dispatch(
+              ActionNames.FindPeople,
+              removeEmptyParameters(params)
+            )
+        "
+        @match-people="
+          () =>
+            store.dispatch(
+              ActionNames.FindMatchPeople,
+              removeEmptyParameters(params)
+            )
+        "
       />
       <div class="full_width horizontal-left-content align-start">
         <div class="margin-medium-right margin-medium-left">
@@ -47,7 +60,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import SettingsNavbar from './components/SettingsNavbar.vue'
 import FilterPanel from './components/Filter/FilterPanel.vue'
 import FoundPeople from './components/FoundPeople'
@@ -59,86 +72,79 @@ import URLComponent from './components/URLComponent.vue'
 import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
+import { useStore } from 'vuex'
+import { computed, ref, onBeforeMount } from 'vue'
 
-export default {
-  name: 'UnifyPeople',
+defineOptions({
+  name: 'UnifyPeople'
+})
 
-  components: {
-    CompareTable,
-    FilterPanel,
-    FoundPeople,
-    MatchPeople,
-    SettingsNavbar,
-    URLComponent,
-    VSpinner
+const store = useStore()
+const params = ref({})
+
+const selectedPerson = computed({
+  get() {
+    return store.getters[GetterNames.GetSelectedPerson]
   },
 
-  computed: {
-    selectedPerson: {
-      get() {
-        return this.$store.getters[GetterNames.GetSelectedPerson]
-      },
+  set(value) {
+    store.commit(MutationNames.SetSelectedPerson, value)
+  }
+})
 
-      set(value) {
-        this.$store.commit(MutationNames.SetSelectedPerson, value)
-      }
-    },
-
-    mergeList: {
-      get() {
-        return this.$store.getters[GetterNames.GetMergePeople]
-      },
-
-      set(value) {
-        this.$store.commit(MutationNames.SetMergePeople, value)
-      }
-    },
-
-    settings() {
-      return this.$store.getters[GetterNames.GetSettings]
-    },
-
-    requestState() {
-      return this.$store.getters[GetterNames.GetRequestState]
-    },
-
-    spinnerMessage() {
-      return this.requestState.isLoading
-        ? 'Loading...'
-        : `Merging... ${this.mergeList.length} persons remaining...`
-    }
+const mergeList = computed({
+  get() {
+    return store.getters[GetterNames.GetMergePeople]
   },
 
-  created() {
-    const urlParams = new URLSearchParams(window.location.search)
-    const lastName = urlParams.get('last_name')
-    const personId = urlParams.get('person_id')
+  set(value) {
+    store.commit(MutationNames.SetMergePeople, value)
+  }
+})
 
-    if (/^\d+$/.test(personId)) {
-      this.getPerson(personId)
-    } else if (lastName) {
-      this.findPerson({ last_name: lastName })
-    }
-  },
+const settings = computed(() => store.getters[GetterNames.GetSettings])
+const requestState = computed(() => store.getters[GetterNames.GetRequestState])
 
-  methods: {
-    findPeople(params) {
-      this.$store.dispatch(ActionNames.FindPeople, params)
-    },
+const spinnerMessage = computed(() =>
+  requestState.value.isLoading
+    ? 'Loading...'
+    : `Merging... ${mergeList.value.length} persons remaining...`
+)
 
-    getMatchPeople(params) {
-      this.$store.dispatch(ActionNames.FindMatchPeople, params)
-    },
+onBeforeMount(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const personId = urlParams.get('person_id')
 
-    getPerson(id) {
-      this.$store.dispatch(ActionNames.AddSelectPerson, id)
-    },
+  if (/^\d+$/.test(personId)) {
+    getPerson(personId)
+  }
+})
 
-    resetApp() {
-      this.$refs.filterPanel.resetFilter()
-      this.$store.dispatch(ActionNames.ResetStore)
+function removeEmptyParameters(params) {
+  const cleanedParameters = { ...params }
+
+  for (const key in params) {
+    const value = params[key]
+
+    if (
+      value === undefined ||
+      value === '' ||
+      (Array.isArray(value) && !value.length)
+    ) {
+      delete cleanedParameters[key]
     }
   }
+
+  return cleanedParameters
+}
+
+function getPerson(id) {
+  store.dispatch(ActionNames.AddSelectPerson, id)
+}
+
+function resetApp() {
+  params.value = {}
+  store.dispatch(ActionNames.ResetStore)
 }
 </script>
 

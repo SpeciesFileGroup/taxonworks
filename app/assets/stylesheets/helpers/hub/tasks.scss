@@ -2,8 +2,8 @@
 
 #task_carrousel {
   display: flex;
-  flex-direction:column;
-  justify-content:flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
 
   .task-section {
     display: flex;
@@ -12,7 +12,7 @@
     justify-content: flex-start;
     width: auto;
     height: auto;
-    align-content: flex-start
+    align-content: flex-start;
   }
 
   @keyframes show {
@@ -52,7 +52,7 @@
     animation-name: show;
     animation-duration: 0.2s;
     animation-timing-function: ease;
-    animation-fill-mode: forwards;    
+    animation-fill-mode: forwards;
   }
 
   .task_card {
@@ -60,18 +60,18 @@
     display: none;
     flex-direction: row;
     position: relative;
-    margin-left: 0px; 
-    margin-top:$standard_margin; 
+    margin-left: 0px;
+    margin-top: $standard_margin;
     margin-right: $standard_margin;
     width: 420px;
     max-height: 180px;
     min-height: 160px;
-    border-top-right-radius: .9rem;
-    border-bottom-right-radius: .9rem;
-    background-color: #FFF;
+    border-top-right-radius: 0.9rem;
+    border-bottom-right-radius: 0.9rem;
+    background-color: var(--panel-bg-color);
+    color: var(--text-color);
     box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
-    transition: transform 0.3s ease,
-                box-shadow 0.3s ease; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     .task_header {
       opacity: 0.2;
       overflow: hidden;
@@ -82,12 +82,10 @@
   }
 
   .task_card:hover {
-    transition: background-color 0.5s ease,
-    box-shadow 0.5s ease;
-    box-shadow: 0px 3px 5px 0px rgba(0,0,0,.3);
-    transition: background-color 0.5s ease,
-                transform 0.3s ease,
-                box-shadow 0.3s ease;   
+    transition: background-color 0.5s ease, box-shadow 0.5s ease;
+    box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.5s ease, transform 0.3s ease,
+      box-shadow 0.3s ease;
     .filter_data {
       opacity: 1;
     }
@@ -95,8 +93,7 @@
       transition: opacity 0.5s ease;
       opacity: 1;
     }
-
-  }  
+  }
 
   .status {
     box-sizing: border-box;
@@ -112,22 +109,34 @@
   .fav-link {
     position: absolute;
     right: 14px;
-    top:$standard_margin * 0.5;
+    top: 12px;
+  }
+
+  .fav-link a {
+    padding: 8px;
+    border-radius: 100%;
+  }
+
+  .fav-link .unfavorite_link:hover {
+    animation: pulse-red 2s infinite;
+  }
+
+  .fav-link .favourite_link:hover {
+    animation: pulse-green 2s infinite;
   }
 
   .task_header {
     width: 34px;
     display: flex;
     position: absolute;
-    border-bottom: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
     padding: $standard_padding * 0.5;
     padding-left: $standard_padding;
     padding-right: $standard_padding;
 
     .status:first-letter {
       text-transform: uppercase;
-    } 
-
+    }
 
     .categories {
       margin: 8px;
@@ -140,66 +149,64 @@
     }
 
     .source {
-      background-image: image-url("book.svg");
+      background-image: image-url('book.svg');
     }
 
     .collecting_event {
-      background-image: image-url("geo_location.svg");
+      background-image: image-url('geo_location.svg');
     }
 
     .biology {
-      background-image: image-url("biology.svg");
+      background-image: image-url('biology.svg');
     }
 
     .taxon_name {
-      background-image: image-url("new.svg");
+      background-image: image-url('new.svg');
     }
 
     .collection_object {
-      background-image: image-url("bug.svg");
+      background-image: image-url('bug.svg');
     }
 
     .nomenclature {
-      background-image: image-url("new.svg");
+      background-image: image-url('new.svg');
     }
 
     .matrix {
-      background-image: image-url("matrix.svg");
+      background-image: image-url('matrix.svg');
     }
 
     .dna {
-      background-image: image-url("helix.svg");
+      background-image: image-url('helix.svg');
     }
 
     .image {
-      background-image: image-url("image.svg");
+      background-image: image-url('image.svg');
     }
-
   }
 
   .task_name {
     font-size: 18px;
     max-width: 330px;
-    padding: $standard_padding * 0.25; 
-    padding-left: $standard_padding; 
-    padding-top: $standard_padding; 
+    padding: $standard_padding * 0.25;
+    padding-left: $standard_padding;
+    padding-top: $standard_padding;
     a {
       color: $color-secondary-2-4;
     }
-
   }
 
   .task-header-left {
     display: flex;
-    flex-direction:row;
-    align-items:center;
+    flex-direction: row;
+    align-items: center;
   }
 
   .task-header-right {
     display: flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-end;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
     a {
       margin-left: 5px;
     }
@@ -210,21 +217,21 @@
     font-weight: 400;
     line-height: 20px;
     max-width: 350px;
-    color: $default_text;
+    color: var(--text-color);
     padding-left: $standard_padding * 1.4;
   }
 
   .navigation {
     display: flex;
-    background-color: #FFF;
-    box-shadow: 0px 1px 1px rgba(0,0,0,.2);
-    flex-direction:row;
-    justify-content:center;
-    order:-1;
-    align-items:center;
+    background-color: var(--panel-bg-color);
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.2);
+    flex-direction: row;
+    justify-content: center;
+    order: -1;
+    align-items: center;
     min-height: 42px;
     min-width: 450px;
-    border-radius: .9rem;
+    border-radius: 0.9rem;
     padding: 0px 8px;
   }
 
@@ -239,7 +246,7 @@
   .navigation-arrow {
     display: flex;
     padding: 5px;
-  }  
+  }
 
   .more_tasks_nav {
     display: flex;
@@ -264,7 +271,7 @@
     align-items: center;
 
     .task-nav-item {
-      background-color: $navigation_border;
+      background-color: var(--border-color);
       border-radius: 2px;
       width: 15px;
       height: 15px;
@@ -277,9 +284,9 @@
       height: 15px;
     }
   }
-  @media screen and (min-height:1000px) {
+  @media screen and (min-height: 1000px) {
     .more_tasks_nav {
       position: fixed !important;
     }
-  }  
+  }
 }

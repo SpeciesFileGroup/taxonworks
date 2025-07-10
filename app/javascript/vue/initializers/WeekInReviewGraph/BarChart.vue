@@ -95,10 +95,18 @@ function loadTask(index) {
 const options = {
   indexAxis: 'y',
   responsive: false,
+  scales: {
+    y: {
+      ticks: {
+        color: '#000000'
+      }
+    }
+  },
   plugins: {
     title: {
       display: true,
-      text: props.title
+      text: props.title,
+      color: '#000000'
     },
 
     legend: {

@@ -10,6 +10,18 @@ describe Queries::Query::Filter, type: [:model] do
   let(:query) { Queries::Query::Filter.new({}) }
   filters = ::Queries::Query::Filter.descendants
 
+  # !! Careful, this is internal use only, involved
+  # !! in things like Person filters across projects.
+  specify '#project_id = false? / #only_project?' do
+    a = ::Queries::Otu::Filter.new(project_id: false)
+    expect(a.only_project?).to be_falsey
+  end
+
+  specify '#project_id = false' do
+    a = ::Queries::Otu::Filter.new(project_id: false)
+    expect(a.project_id).to eq([])
+  end
+
   specify '#only_project?' do
     a = ::Queries::Otu::Filter.new({})
     expect(a.only_project?).to be_truthy # project_id is applied by default
@@ -28,7 +40,7 @@ describe Queries::Query::Filter, type: [:model] do
 
     specify '#apply_venn ab' do
       v = "http://127.0.0.1:3000/otus/filter.json?name=#{o2.name}"
-      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id, o3.id], venn: v)
+      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id, o3.id], venn: v, venn_mode: :ab)
       expect(a.all).to contain_exactly(o2)
     end
 
@@ -44,9 +56,27 @@ describe Queries::Query::Filter, type: [:model] do
       expect(a.all).to contain_exactly(o3)
     end
 
-    specify '#apply_venn #venn_mode b' do
-      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o2.id}&otu_id[]=#{o3.id}"
-      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id], venn: v, venn_mode: :b)
+    specify '#apply_venn #venn_mode b multiply encoded' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id%25255B%25255D=#{o2.id}&otu_id%25255B%25255D=#{o3.id}"
+      a = ::Queries::Otu::Filter.new(otu_id: [o2.id], venn: v, venn_mode: :b)
+      expect(a.all).to contain_exactly(o3)
+    end
+
+    specify '#venn_query includes b pagination by default' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o1.id}&otu_id[]=#{o2.id}&otu_id[]=#{o3.id}&paginate=true&page=2&per=1"
+
+      a = ::Queries::Otu::Filter.new(
+        otu_id: [o1.id, o2.id, o3.id], venn: v, venn_mode: :a)
+      expect(a.all).to contain_exactly(o1, o3)
+    end
+
+    specify '#venn_query #venn_ignore_pagination' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o1.id}&otu_id[]=#{o2.id}&paginate=true&page=2&per=1"
+
+      a = ::Queries::Otu::Filter.new(
+        otu_id: [o1.id, o2.id, o3.id],
+        venn: v, venn_mode: :a, venn_ignore_pagination: true
+      )
       expect(a.all).to contain_exactly(o3)
     end
   end
@@ -59,16 +89,28 @@ describe Queries::Query::Filter, type: [:model] do
     expect(q.venn_query.class).to eq(::Queries::Otu::Filter)
   end
 
-  specify '#venn_query params' do
-    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1'
+  specify '#venn_query params includes pagination params by default' do
+    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1&paginate=true'
 
-    a = ::Queries::Otu::Filter.new({})
-    a.venn = v
-    b = a.venn_query
-    expect(b.params).to eq({name: 'Ant', page: '1', per: '50'})
+    q = ::Queries::Otu::Filter.new({})
+    q.venn = v
+    b = q.venn_query
+    expect(b.params).to eq({name: 'Ant', paginate: 'true', page: '1', per: '50'})
+  end
+
+  specify '#venn_query #venn_ignore_pagination=true' do
+    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1&paginate=true'
+
+    q = ::Queries::Otu::Filter.new({
+      venn: v,
+      venn_ignore_pagination: 'true'
+    })
+    b = q.venn_query
+    expect(b.params).to eq({name: 'Ant'})
   end
 
   specify '#venn_mode 0' do
+    query.venn_mode = 'ab'
     expect(query.venn_mode).to eq(:ab)
   end
 
@@ -103,13 +145,13 @@ describe Queries::Query::Filter, type: [:model] do
   end
 
   specify '.base_filter 1' do
-     p = ActionController::Parameters.new(collection_object_query: {}, foo: :bar)
-     expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
+    p = ActionController::Parameters.new(collection_object_query: {}, foo: :bar)
+    expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
   end
 
   specify '.base_filter 1' do
-     p = ActionController::Parameters.new(collection_object_query: { otu_query: {}}, foo: :bar)
-     expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
+    p = ActionController::Parameters.new(collection_object_query: { otu_query: {}}, foo: :bar)
+    expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
   end
 
   context 'PARAMS defined' do
@@ -127,7 +169,7 @@ describe Queries::Query::Filter, type: [:model] do
   context 'SUBQUERY reference of _query_facet present in filter' do
     ::Queries::Query::Filter::SUBQUERIES.each do |k,v|
       k = ::Queries::Query::Filter::FILTER_QUERIES[(k.to_s + '_query').to_sym].constantize
-      next if k.name =~ /Image|Source|DataAttribute/ # Queries are dynamically added in these filters, and have no corresponding method name
+      next if k.name =~ /Image|Source|DataAttribute|Observation/ # Queries are dynamically added in these filters, and have no corresponding method name
       v.each do |t|
         specify "#{k.name}: #{t}" do
           m = (t.to_s + '_query_facet' ).to_sym
@@ -157,6 +199,8 @@ describe Queries::Query::Filter, type: [:model] do
     Dir.glob('app/javascript/**/filter/links/*.js').each do |file|
       n = file.split('/').last
       next unless n =~ /^[A-Z]/ # Constants start with a capital
+      # TaxonNameRelationship sends to TaxonName in 3 different ways.
+      next if ['TaxonNameRelationship.js'].include?(n)
 
       # puts n
 

@@ -43,6 +43,7 @@
     <div v-if="!citation.id">
       <TableList
         :list="list"
+        @move="removeFromList"
         @edit="citation = $event"
         @delete="removeItem"
       />
@@ -51,7 +52,6 @@
       <CitationTopicForm
         v-if="!DISABLED_FOR.includes(objectType)"
         :object-type="objectType"
-        :global-id="globalId"
         :citation="citation"
         @create="saveCitation"
       />

@@ -2,9 +2,10 @@ module Vocabulary
 
   # TODO: differentiate between no data and bad request
   # @return nil (bad request), {} (good request)
-  def self.words(model: nil, attribute: nil, min: 0, max: nil, limit: nil, begins_with: nil, contains: nil, project_id: [])
+  def self.words(model: nil, attribute: nil, min: 0, max: nil, limit: nil, begins_with: nil, contains: nil, project_id: [], **query)
 
     klass = get_model(model)
+
     return nil if klass.nil?
 
     t = klass.columns_hash[attribute]&.type
@@ -12,18 +13,23 @@ module Vocabulary
     # Happens on bad request
     return nil if t.nil? || [:xml].include?(t)
 
-    if klass.new.attributes.symbolize_keys.keys.include?(:project_id)
-      words = klass.where(project_id:)
+    if query.present?
+      query_hash = query.values.first.symbolize_keys
+      words = "Queries::#{klass}::Filter".safe_constantize.new(query_hash).all
     else
       words = klass
+    end
+
+    if klass.new.attributes.symbolize_keys.keys.include?(:project_id)
+      words = words.where(project_id:)
     end
 
     if [:string, :text].include?(t)
 
       c = "COUNT(\"#{attribute}\")" # double quote to handle things like `group`
 
-      words = words.where("\"#{attribute}\" like '#{begins_with}%'") if begins_with.presence
-      words = words.where("\"#{attribute}\" like '%#{contains}%'") if contains.presence
+      words = words.where("\"#{attribute}\" like ?", "#{begins_with}%") if begins_with.presence
+      words = words.where("\"#{attribute}\" like ?", "%#{contains}%") if contains.presence
       words = words.having("#{c} > ?", min) if min.presence
       words = words.having("#{c} < ?", max) if max.presence
       words = words.limit(limit) if limit
@@ -33,8 +39,8 @@ module Vocabulary
 
       c = "COUNT(#{attribute})"
 
-      words = words.where( "#{attribute}::text like '#{begins_with}%'") if begins_with.presence
-      words = words.where("#{attribute}::text like '%#{contains}%'") if contains.presence
+      words = words.where( "#{attribute}::text like ?", "#{begins_with}%") if begins_with.presence
+      words = words.where("#{attribute}::text like ?", "%#{contains}%") if contains.presence
       words = words.having("#{c} > ?", min) if min.presence
       words = words.having("#{c} < ?", max) if max.presence
       words = words.limit(limit) if limit
@@ -49,7 +55,7 @@ module Vocabulary
   def self.attributes(model, mode: nil)
     return [] if model.nil?
     xml_fields = %i{svg_clip} # for now just subtract known unprocessable fields across models.
-    
+
     a = ApplicationEnumeration.attributes(model.new) - xml_fields
 
     case mode&.to_sym

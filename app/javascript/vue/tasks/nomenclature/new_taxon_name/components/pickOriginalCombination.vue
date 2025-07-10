@@ -1,5 +1,5 @@
 <template>
-  <block-layout
+  <BlockLayout
     :anchor="isICN ? 'basionym' : 'original-combination'"
     :warning="softValidation.length > 0"
     :spinner="!taxon.id"
@@ -13,7 +13,7 @@
         class="original-combination-picker"
         v-if="taxon.id"
       >
-        <form class="horizontal-left-content">
+        <div class="horizontal-left-content">
           <div class="button-current separate-right">
             <v-btn
               v-if="!existOriginalCombination"
@@ -24,10 +24,9 @@
               Set as current
             </v-btn>
           </div>
-          <div>
+          <div v-if="!existOriginalCombination">
             <draggable
-              class="flex-wrap-column"
-              v-if="!existOriginalCombination"
+              class="flex-wrap-column margin-medium-bottom"
               v-model="taxonOriginal"
               item-key="id"
               :group="{
@@ -48,17 +47,25 @@
                     :value="element.value.subject_object_tag"
                     disabled
                   />
-                  <span
-                    class="handle button circle-button button-submit"
+                  <VBtn
+                    color="create"
+                    circle
+                    class="handle"
                     title="Press and hold to drag input"
-                    data-icon="w_scroll-v"
-                  />
+                  >
+                    <VIcon
+                      title="Press and hold to drag input"
+                      color="white"
+                      name="scrollV"
+                      small
+                    />
+                  </VBtn>
                 </div>
               </template>
             </draggable>
+            <hr class="divisor" />
           </div>
-        </form>
-        <hr />
+        </div>
         <original-combination
           class="separate-top separate-bottom"
           nomenclature-group="Genus"
@@ -116,7 +123,7 @@
         </div>
       </div>
     </template>
-  </block-layout>
+  </BlockLayout>
 </template>
 <script>
 import { GetterNames } from '../store/getters/getters'
@@ -125,6 +132,7 @@ import Draggable from 'vuedraggable'
 import OriginalCombination from './originalCombination.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import {
   originalCombinationType,
   combinationIcnType
@@ -135,6 +143,7 @@ export default {
     Draggable,
     OriginalCombination,
     BlockLayout,
+    VIcon,
     VBtn
   },
 

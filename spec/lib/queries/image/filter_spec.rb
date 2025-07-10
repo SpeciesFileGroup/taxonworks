@@ -11,6 +11,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   let(:o) { Otu.create(name: 'o1') }
   let(:co) { Specimen.create!  }
   let(:ce) { CollectingEvent.create!(verbatim_label: 'Test') }
+  let(:fo) { FactoryBot.create(:valid_field_occurrence, otu: o) }
 
   let(:t1) { FactoryBot.create(:root_taxon_name) }
   let(:t2) { Protonym.create(name: 'Aus', parent: t1, rank_class: Ranks.lookup(:iczn, :genus) ) }
@@ -191,6 +192,14 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
+  specify '#otu_scope :field_occurrences' do
+    fo.images << i1
+    i2 # not this one
+    q.otu_id = o.id
+    q.otu_scope = [:field_occurrences]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   specify '#otu_id one' do
     o.images << i1
     q.otu_id = o.id
@@ -213,6 +222,41 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     co.images << i1
     q.collection_object_id = [co.id]
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#collection_object_scope :observations' do
+    d = Descriptor::Working.create!(name: 'working')
+    obs = Observation::Working.create!(
+      descriptor: d, observation_object: co, description: 'mostly fuzz'
+    )
+    obs.images << i1
+    co.images << i2
+    i3 # not this one
+    q.collection_object_id = co.id
+    q.collection_object_scope = :observations
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#field_occurrence_scope :collecting_event' do
+    fo.collecting_event.images << i1
+    fo.images << i2 # not this one
+    i3 # not this one
+    q.field_occurrence_id = fo.id
+    q.field_occurrence_scope = :collecting_events
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#field_occurrence_scope [:field_occurrence, :observations]' do
+    d = Descriptor::Working.create!(name: 'working')
+    obs = Observation::Working.create!(
+      descriptor: d, observation_object: fo, description: 'mostly wuzz'
+    )
+    obs.images << i1
+    fo.images << i2
+    i3 # not this one
+    q.field_occurrence_id = fo.id
+    q.field_occurrence_scope = [:observations, :field_occurrences]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
   end
 
   specify '#collecting_event_id id' do
@@ -281,6 +325,13 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
+  specify '#depiction_object_type FieldOccurrence' do
+    fo.images << i1
+    co.images << i2 # not i2
+    q.depiction_object_type = 'FieldOccurrence'
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   specify '#taxon_name_id id' do
     o.update!(taxon_name: t3)
     o.images << i1
@@ -300,6 +351,14 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     co.images << i1
     co.otus << o
     q.taxon_name_id = [t2.id]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#taxon_name_id array, FieldOccurrence' do
+    o.update!(taxon_name: t3)
+    fo.images << i1
+    i2 # not this
+    q.taxon_name_id = [t1.id]
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
@@ -334,4 +393,265 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
+  specify 'source_id' do
+    s1 = FactoryBot.create(:valid_source, title: 'pickles')
+    s2 = FactoryBot.create(:valid_source, title: 'ginger')
+    i1.citations << Citation.new(source: s1)
+
+    q.source_id = [s1.id, s2.id]
+
+    i2 # not this one
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify 'depiction_caption exact' do
+    Depiction.create!(depiction_object: o, image: i1, caption: 'rain')
+    Depiction.create!(depiction_object: o, image: i2, caption: 'spraingle')
+
+    q.depiction_caption = 'rain'
+    q.depiction_caption_exact = true
+
+    i3 # not this one
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify 'depiction_caption substring' do
+    Depiction.create!(depiction_object: o, image: i1, caption: 'bonkers')
+    Depiction.create!(depiction_object: o, image: i2, caption: 'Kevin')
+
+    q.depiction_caption = 'onk'
+
+    i3 # not this one
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify 'depiction_caption match across whitespace' do
+    Depiction.create!(depiction_object: o, image: i1, caption: 'bonkers wint baloo')
+    Depiction.create!(depiction_object: o, image: i2, caption: 'cuckoo')
+
+    q.depiction_caption = 'onk aloo'
+
+    i3 # not this one
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  context 'attributions' do
+    let!(:attribution1) { FactoryBot.create(:valid_attribution,
+      attribution_object: i1) }
+
+    let(:attribution2) { FactoryBot.create(:valid_attribution,
+      attribution_object: i2) }
+
+    let(:attribution3) { FactoryBot.create(:valid_attribution,
+      attribution_object: i3) }
+
+    let(:p1) { FactoryBot.create(:valid_person) }
+    let(:p2) { FactoryBot.create(:valid_person) }
+
+    let(:o1) { FactoryBot.create(:valid_organization) }
+    let(:o2) { FactoryBot.create(:valid_organization) }
+
+    specify 'creator' do
+      Role.create!(person: p1, type: 'AttributionCreator',
+        role_object: attribution1)
+
+      q.creator_id = p1.id
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+
+    specify 'two creators \'and\'' do
+      Role.create!(person: p1, type: 'AttributionCreator',
+        role_object: attribution1)
+
+      Role.create!(person: p2, type: 'AttributionCreator',
+        role_object: attribution1)
+
+      q.creator_id = [p1.id, p2.id]
+      q.creator_id_all = true
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+
+    specify 'two creators \'and\' 2' do
+      Role.create!(person: p1, type: 'AttributionCreator',
+        role_object: attribution1)
+
+      q.creator_id = [p1.id, p2.id]
+      q.creator_id_all = true
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to be_empty
+    end
+
+    specify 'two creators \'or\'' do
+      Role.create!(person: p1, type: 'AttributionCreator',
+        role_object: attribution1)
+
+      q.creator_id = [p1.id, p2.id]
+      q.creator_id_all = false
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+
+    specify 'editor' do
+      Role.create!(person: p1, type: 'AttributionEditor',
+        role_object: attribution1)
+
+      q.editor_id = p1.id
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+
+    specify 'owner person or' do
+      Role.create!(person: p1, type: 'AttributionOwner',
+        role_object: attribution1)
+
+      Role.create!(organization: o1, type: 'AttributionOwner',
+        role_object: attribution1)
+
+      q.owner_id = p1.id
+      q.creator_id_all = false
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+
+    specify 'owner organization or' do
+      Role.create!(person: p1, type: 'AttributionOwner',
+        role_object: attribution1)
+
+      Role.create!(organization: o1, type: 'AttributionOwner',
+        role_object: attribution1)
+
+      q.owner_organization_id = o1.id
+      q.creator_id_all = false
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+
+    specify 'owner person AND organization' do
+      Role.create!(person: p1, type: 'AttributionOwner',
+        role_object: attribution1)
+
+      Role.create!(organization: o1, type: 'AttributionOwner',
+        role_object: attribution1)
+
+      q.owner_id = p1.id
+      q.owner_organization_id = o1.id
+      q.creator_id_all = true
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+
+    specify 'owner person AND organization 2' do
+      Role.create!(person: p1, type: 'AttributionOwner',
+        role_object: attribution1)
+
+      q.owner_id = p1.id
+      q.owner_organization_id = o1.id
+      q.owner_id_all = true
+
+      i2 # not this one
+      expect(q.all.map(&:id)).to be_empty
+    end
+
+    specify 'copyright holder person or' do
+      Role.create!(person: p1, type: 'AttributionOwner',
+        role_object: attribution1)
+
+      Role.create!(person: p1, type: 'AttributionOwner',
+        role_object: attribution2)
+
+      q.owner_id = p1.id
+      q.creator_id_all = false
+
+      i3 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
+    end
+
+    specify 'copyright holder organization or' do
+      Role.create!(organization: o1, type: 'AttributionOwner',
+        role_object: attribution1)
+
+      Role.create!(organization: o2, type: 'AttributionOwner',
+        role_object: attribution2)
+
+      q.owner_organization_id = [o1.id, o2.id]
+      q.creator_id_all = false
+
+      i3 # not this one
+      expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
+    end
+
+    specify 'license' do
+      attribution1.license = 'Attribution-ShareAlike'
+      attribution2.license = 'Attribution-NoDerivs'
+      attribution1.save!
+      attribution2.save!
+
+      q.license = 'Attribution-NoDerivs'
+
+      i3 # not this one either
+      expect(q.all.map(&:id)).to contain_exactly(i2.id)
+    end
+
+    specify 'copyright year' do
+      attribution1.copyright_year = 1930
+      attribution2.copyright_year = 1990
+      attribution1.save!
+      attribution2.save!
+
+      q.copyright_year = 1990
+
+      i3 # not this one either
+      expect(q.all.map(&:id)).to contain_exactly(i2.id)
+    end
+
+    specify 'copyright year after' do
+      attribution1.copyright_year = 1930
+      attribution2.copyright_year = 1990
+      attribution3.copyright_year = 1931
+      attribution1.save!
+      attribution2.save!
+      attribution3.save!
+
+      q.copyright_after_year = 1930
+
+      expect(q.all.map(&:id)).to contain_exactly(i2.id, i3.id)
+    end
+
+    specify 'copyright year prior to' do
+      attribution1.copyright_year = 1930
+      attribution2.copyright_year = 1990
+      attribution3.copyright_year = 1989
+      attribution1.save!
+      attribution2.save!
+      attribution3.save!
+
+      q.copyright_prior_to_year = 1990
+
+      expect(q.all.map(&:id)).to contain_exactly(i1.id, i3.id)
+    end
+
+    specify 'copyright year between' do
+      attribution1.copyright_year = 1930
+      attribution2.copyright_year = 1990
+      attribution3.copyright_year = 1931
+      attribution1.save!
+      attribution2.save!
+      attribution3.save!
+
+      q.copyright_after_year = 1930
+      q.copyright_prior_to_year = 1940
+
+      expect(q.all.map(&:id)).to contain_exactly(i3.id)
+    end
+  end
 end

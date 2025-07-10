@@ -1,78 +1,83 @@
 <template>
   <div>
-    <div class="radial-annotator">
-      <VModal
-        v-if="isVisible"
-        transparent
-        @close="closeModal()"
-      >
-        <template #header>
-          <span class="flex-separate middle">
-            <span v-html="title" />
-            <b
-              v-if="metadata"
-              class="margin-large-left"
-            >
-              {{ metadata.object_type }}
-            </b>
-          </span>
-        </template>
-        <template #body>
-          <div class="flex-separate">
-            <spinner-component v-if="!metadata" />
-            <div class="radial-annotator-menu">
-              <div>
-                <RadialMenu
-                  v-if="metadata"
-                  :options="menuOptions"
-                  @click="selectComponent"
+    <Teleport
+      v-if="isVisible"
+      :disabled="!teleport"
+      to="body"
+    >
+      <div class="radial-annotator">
+        <VModal
+          transparent
+          @close="closeModal()"
+        >
+          <template #header>
+            <span class="flex-separate middle">
+              <span v-html="title" />
+              <b
+                v-if="metadata"
+                class="margin-large-left"
+              >
+                {{ metadata.object_type }}
+              </b>
+            </span>
+          </template>
+          <template #body>
+            <div class="flex-separate">
+              <spinner-component v-if="!metadata" />
+              <div class="radial-annotator-menu">
+                <div>
+                  <RadialMenu
+                    v-if="metadata"
+                    :options="menuOptions"
+                    @click="selectComponent"
+                  />
+                </div>
+              </div>
+              <div
+                class="radial-annotator-template panel"
+                v-if="currentAnnotator"
+              >
+                <h2 class="capitalize view-title">
+                  {{ currentAnnotator.replace('_', ' ') }}
+                </h2>
+                <component
+                  class="radial-annotator-container"
+                  :is="SLICE[currentAnnotator]"
+                  :type="currentAnnotator"
+                  :url="metadata.url"
+                  :metadata="metadata"
+                  :global-id="globalId"
+                  :object-id="metadata.object_id"
+                  :object-type="metadata.object_type"
+                  :radial-emit="handleEmitRadial"
+                  @update-count="setTotal"
+                  @close="closeModal"
                 />
               </div>
             </div>
-            <div
-              class="radial-annotator-template panel"
-              v-if="currentAnnotator"
-            >
-              <h2 class="capitalize view-title">
-                {{ currentAnnotator.replace('_', ' ') }}
-              </h2>
-              <component
-                class="radial-annotator-container"
-                :is="SLICE[currentAnnotator]"
-                :type="currentAnnotator"
-                :url="metadata.url"
-                :metadata="metadata"
-                :global-id="globalId"
-                :object-id="metadata.object_id"
-                :object-type="metadata.object_type"
-                :radial-emit="handleEmitRadial"
-                @update-count="setTotal"
-                @close="closeModal"
-              />
-            </div>
-          </div>
-        </template>
-      </VModal>
-      <VBtn
-        v-if="showBottom"
-        :title="buttonTitle"
-        color="radial"
-        circle
-        :disabled="disabled"
-        @click="openRadialMenu()"
-      >
-        <VIcon
-          :title="buttonTitle"
-          name="radialObject"
-          x-small
-        />
-      </VBtn>
-      <div
-        v-if="metadataCount && showCount"
-        class="circle-count button-submit middle"
-      >
-        <span class="citation-count-text">{{ metadataCount }}</span>
+          </template>
+        </VModal>
       </div>
+    </Teleport>
+    <VBtn
+      v-if="showBottom"
+      :title="buttonTitle"
+      color="radial"
+      circle
+      :disabled="disabled"
+      @click="openRadialMenu()"
+    >
+      <VIcon
+        :title="buttonTitle"
+        name="radialObject"
+        x-small
+      />
+    </VBtn>
+    <div
+      v-if="metadataCount && showCount"
+      class="circle-count button-submit middle"
+    >
+      <span class="citation-count-text">{{ metadataCount }}</span>
     </div>
   </div>
 </template>
@@ -135,6 +140,11 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+
+  teleport: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -183,9 +193,9 @@ const menuOptions = computed(() => {
   }))
 
   return {
-    width: 400,
-    height: 400,
-    sliceSize: 120,
+    width: 440,
+    height: 440,
+    sliceSize: 140,
     centerSize: 34,
     margin: 2,
     middleButton: middleButton.value,

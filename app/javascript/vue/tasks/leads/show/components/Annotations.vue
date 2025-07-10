@@ -1,43 +1,45 @@
 <template>
-  <div v-if="depictions.length">
-    <h3 v-if="!mediumDepictions">Depictions</h3>
-    <div class="depictions_holder">
-      <ImageViewer
-        v-for="depiction in depictions"
-        :key="depiction.id"
-        :depiction="depiction"
-        :thumb-size="mediumDepictions ? 'medium' : 'thumb'"
-      >
-        <template #thumbfooter
-          v-if="mediumDepictions"
+  <div>
+    <div v-if="depictions.length">
+      <h3 v-if="!mediumDepictions">Depictions</h3>
+      <div class="depictions_holder">
+        <ImageViewer
+          v-for="depiction in depictions"
+          :key="depiction.id"
+          :depiction="depiction"
+          :thumb-size="mediumDepictions ? 'medium' : 'thumb'"
         >
-          <div :style="'width: ' + captionWidth(depiction) + 'px' ">
-            <ul class="no_bullets figure_text">
-              <li v-if="depiction.figure_label">
-                <u>
-                  {{ depiction.figure_label }}
-                </u>
-              </li>
-              <li v-if="depiction.caption">
-                {{ depiction.caption }}
-              </li>
-            </ul>
-          </div>
-        </template>
-      </ImageViewer>
+          <template #thumbfooter
+            v-if="mediumDepictions"
+          >
+            <div :style="'width: ' + captionWidth(depiction) + 'px' ">
+              <ul class="no_bullets figure_text">
+                <li v-if="depiction.figure_label">
+                  <u>
+                    {{ depiction.figure_label }}
+                  </u>
+                </li>
+                <li v-if="depiction.caption">
+                  {{ depiction.caption }}
+                </li>
+              </ul>
+            </div>
+          </template>
+        </ImageViewer>
+      </div>
     </div>
-  </div>
 
-  <div v-if="showCitations && citations.length">
-    <h3>Citations</h3>
-    <div
-      v-for="citation in citations"
-      :key="citation.id"
-    >
-      <div class="lead_citation">
-        <a :href="citation.source.object_url" target="_blank">
-          {{ citation.citation_source_body }}
-        </a>
+    <div v-if="showCitations && citations.length">
+      <h3>Citations</h3>
+      <div
+        v-for="citation in citations"
+        :key="citation.id"
+      >
+        <div class="lead_citation">
+          <a :href="citation.source.object_url" target="_blank">
+            {{ citation.citation_source_body }}
+          </a>
+        </div>
       </div>
     </div>
   </div>
