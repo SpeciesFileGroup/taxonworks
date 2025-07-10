@@ -40,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rename `Synchronize nomenclature and OTUs` to `Synchronize taxon names and OTUs`
 - Topic facet: Show all topics in a modal [#4456]
 - Updated Ruby gems
+- Field Synchronize and multi update task now sorts by ID url parameter [#4472]
 
 [#3511]: https://github.com/SpeciesFileGroup/taxonworks/issues/3511
 [#4399]: https://github.com/SpeciesFileGroup/taxonworks/issues/4399
@@ -54,6 +55,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4461]: https://github.com/SpeciesFileGroup/taxonworks/issues/4461
 [#4465]: https://github.com/SpeciesFileGroup/taxonworks/issues/4465
 [#4466]: https://github.com/SpeciesFileGroup/taxonworks/issues/4466
+[#4472]: https://github.com/SpeciesFileGroup/taxonworks/issues/4472
 
 ## [0.52.1] - 2025-06-17
 

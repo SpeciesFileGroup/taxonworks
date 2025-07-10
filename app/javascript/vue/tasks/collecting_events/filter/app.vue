@@ -6,7 +6,7 @@
       :pagination="pagination"
       v-model="parameters"
       :object-type="COLLECTING_EVENT"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :url-request="urlRequest"
       :list="list"
       :csv-options="csvOptions"
@@ -41,8 +41,8 @@
         <div class="horizontal-right-content gap-small">
           <RadialCollectingEvent
             :disabled="!list.length"
-            :ids="selectedIds"
-            :count="selectedIds.length"
+            :ids="sortedSelectedIds"
+            :count="sortedSelectedIds.length"
             @update="
               () => makeFilterRequest({ ...parameters, extend, page: 1 })
             "
@@ -158,13 +158,14 @@ const {
   append,
   isLoading,
   list,
-  pagination,
-  urlRequest,
   loadPage,
   makeFilterRequest,
-  selectedIds,
+  pagination,
+  parameters,
   resetFilter,
-  parameters
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(CollectingEvent, {
   listParser,
   initParameters: { extend }

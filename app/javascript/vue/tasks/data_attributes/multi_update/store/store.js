@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
 import { QUERY_PARAMETER } from '../../field_synchronize/constants'
 import {
   makeDataAttribute,
@@ -7,7 +8,7 @@ import {
 } from '../adapters'
 import { makePredicate } from '../adapters/makePredicate'
 import { DataAttribute } from '@/routes/endpoints'
-import { removeFromArray } from '@/helpers'
+import { removeFromArray, sortArrayByReference } from '@/helpers'
 
 export default defineStore('store', {
   state: () => ({
@@ -273,14 +274,24 @@ export default defineStore('store', {
     },
 
     loadObjects({ queryParam, queryValue }) {
-      const { service } = QUERY_PARAMETER[queryParam]
+      const { service, model } = QUERY_PARAMETER[queryParam]
+      const ids = queryValue[ID_PARAM_FOR[model]]
 
       this.isLoading = true
 
       service
         .filter({ ...queryValue, per: 5000 })
         .then(({ body }) => {
-          this.objects = body.map(makeObject)
+          const items = Array.isArray(ids)
+            ? sortArrayByReference({
+                list: body,
+                reference: ids,
+                getListValue: (item) => item.id,
+                getReferenceValue: (id) => id
+              })
+            : body
+
+          this.objects = items.map(makeObject)
         })
         .finally(() => {
           this.isLoading = false
