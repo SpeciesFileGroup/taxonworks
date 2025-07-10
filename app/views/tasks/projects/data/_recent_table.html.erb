@@ -11,8 +11,8 @@
   <tbody>
     <% @recent_objects.each do |download| %>
     <tr>
-      <td>
-        <%= download.type == 'Download::ProjectDump::Sql' ? 'SQL' : 'TSV' %>
+      <td class="uppercase">
+        <%= download.type.demodulize %>
       </td>
       <td><%= download.name.html_safe %></td>
       <td>
