@@ -134,7 +134,7 @@ function addShortcutsDescription() {
   )
   TW.workbench.keyboard.createLegend(
     `${key}+b`,
-    'Go to browse nomenclature',
+    'Go to browse taxon names',
     TASK
   )
   TW.workbench.keyboard.createLegend(

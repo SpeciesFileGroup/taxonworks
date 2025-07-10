@@ -7,9 +7,8 @@
       :pagination="pagination"
       :object-type="TAXON_NAME_RELATIONSHIP"
       :list="list"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :button-unify="false"
-      :radial-linker="true"
       :radial-navigator="false"
       v-model="parameters"
       v-model:append="append"
@@ -22,11 +21,11 @@
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <ListResults
+        <FilterList
           v-model="selectedIds"
+          :attributes="ATTRIBUTES"
           :list="list"
-          @on-sort="list = $event"
-          @remove="({ index }) => list.splice(index, 1)"
+          @on-sort="(sorted) => (list = sorted)"
         />
       </template>
     </FilterLayout>
@@ -42,28 +41,29 @@
 <script setup>
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
-import ListResults from './components/ListResults.vue'
+import FilterList from '@/components/Filter/Table/TableResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
+import { listParser } from '../utils/listParser.js'
 import { TAXON_NAME_RELATIONSHIP } from '@/constants/index.js'
 import { TaxonNameRelationship } from '@/routes/endpoints'
+import { ATTRIBUTES } from './constants/attributes'
+
+defineOptions({
+  name: 'FilterTaxonNameRelationships'
+})
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
-} = useFilter(TaxonNameRelationship)
-</script>
-
-<script>
-export default {
-  name: 'FilterTaxonNameRelationships'
-}
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
+} = useFilter(TaxonNameRelationship, { listParser })
 </script>

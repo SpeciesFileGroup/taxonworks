@@ -1,22 +1,29 @@
+import { RouteNames } from '@/routes/routes'
+
 export default {
   TaxonNames: {
     shortcut: 'b',
-    path: '/tasks/nomenclature/browse',
+    path: RouteNames.BrowseNomenclature,
     param: 'taxon_name_id'
   },
   CollectionObjects: {
     shortcut: 'c',
-    path: '/tasks/collection_objects/browse',
+    path: RouteNames.BrowseCollectionObject,
     param: 'collection_object_id'
   },
   Otus: {
     shortcut: 'o',
-    path: '/tasks/otus/browse',
+    path: RouteNames.BrowseOtu,
     param: 'otu_id'
   },
   CollectingEvents: {
-    shortcut: 's',
-    path: '/tasks/collecting_events/browse',
+    shortcut: 'e',
+    path: RouteNames.BrowseCollectingEvent,
     param: 'collecting_event_id'
+  },
+  Sources: {
+    shortcut: 's',
+    path: RouteNames.NewSource,
+    param: 'source_id'
   }
 }

@@ -36,7 +36,7 @@ module Queries
         :collecting_event_object_id,
         :collection_objects,
         :collector_id,
-        :collector_id_or,
+        :collector_id_all,
         :collecting_event_id,
         :determiner_name_regex,
         :geo_json,
@@ -111,10 +111,10 @@ module Queries
       attr_accessor :collector_id
 
       # @return [Boolean]
-      # @param collector_id_or [String]
+      # @param collector_id_all [String]
       #   `false`, nil - treat the ids in collector_id as "or"
       #   'true' - treat the ids in collector_id as "and" (only CollectingEvent with all and only all of collector_id will match)
-      attr_accessor :collector_id_or
+      attr_accessor :collector_id_all
 
       # @param collection_objects [String, nil]
       #   legal values are 'true', 'false'
@@ -159,7 +159,7 @@ module Queries
         @collection_object_id = params[:collection_object_id]
         @collection_objects = boolean_param(params, :collection_objects )
         @collector_id = params[:collector_id]
-        @collector_id_or = boolean_param(params, :collector_id_or )
+        @collector_id_all = boolean_param(params, :collector_id_all )
         @geo_json = params[:geo_json]
         @geographic_area = boolean_param(params, :geographic_area)
         @georeferences = boolean_param(params, :georeferences)
@@ -256,16 +256,16 @@ module Queries
           'Gazetteer', gazetteer_shapes
         )
 
-        if geo_mode == true # spatial
-          i = ::Queries.union(::GeographicItem, [a,b])
-          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
-
-          return from_wkt(
-            u['st_astext'], u['st_geometrytype'].delete_prefix!('ST_')
-          )
+        if geo_mode != true # exact or descendants
+          return referenced_klass_union([a,b])
         end
 
-        referenced_klass_union([a,b])
+        # Spatial.
+        i = ::Queries.union(::GeographicItem, [a,b])
+
+        ::CollectingEvent
+          .joins(:geographic_items)
+          .where(::GeographicItem.covered_by_geographic_items_sql(i))
       end
 
       def collecting_event_geo_facet_by_type(shape_string, shape_ids)
@@ -325,7 +325,7 @@ module Queries
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
-        b = b.having(a['id'].count.eq(collector_id.length)) unless collector_id_or
+        b = b.having(a['id'].count.eq(collector_id.length)) if collector_id_all
         b = b.as('col_z_')
 
         ::CollectingEvent.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))

@@ -1,5 +1,6 @@
 import { onBeforeMount, ref, computed, watch } from 'vue'
 import { Metadata, DataAttribute } from '@/routes/endpoints'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
 import { DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE } from '@/constants'
 import { QUERY_PARAMETER, PATTERN_TYPES } from '../constants'
 import {
@@ -21,6 +22,7 @@ import {
   makeDataAttributeList,
   makePreviewObject
 } from '../factory'
+import { sortArrayByReference } from '@/helpers'
 import Qs from 'qs'
 
 export function useFieldSync() {
@@ -341,8 +343,18 @@ export function useFieldSync() {
     )
 
     request.then((response) => {
+      const ids = queryValue.value[ID_PARAM_FOR[currentModel.value]]
+      const items = Array.isArray(ids)
+        ? sortArrayByReference({
+            list: response.body,
+            reference: ids,
+            getListValue: (item) => item.id,
+            getReferenceValue: (id) => id
+          })
+        : response.body
+
       pagination.value = getPagination(response)
-      list.value = response.body.map((item) => {
+      list.value = items.map((item) => {
         const { id, ...attributes } = item
 
         if (!dataAttributes.value[id]) {

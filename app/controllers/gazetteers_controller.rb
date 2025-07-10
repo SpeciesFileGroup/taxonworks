@@ -77,14 +77,19 @@ class GazetteersController < ApplicationController
   # PATCH/PUT /gazetteers/1
   # PATCH/PUT /gazetteers/1.json
   def update
-    respond_to do |format|
-      if @gazetteer.update(gazetteer_params)
-        format.html { redirect_to gazetteer_url(@gazetteer) }
-        format.json { render :show, status: :ok }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @gazetteer.errors, status: :unprocessable_entity }
-      end
+    @gazetteer.build_gi_from_shapes(
+      shape_params['shapes'], params.require('geometry_operation_is_union')
+    )
+    if @gazetteer.errors.include?(:base)
+      render json: @gazetteer.errors, status: :unprocessable_entity
+      return
+    end
+
+    begin
+      @gazetteer.update!(gazetteer_params)
+      render :show, status: :created, location: @gazetteer
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { errors: e.message }, status: :unprocessable_entity
     end
   end
 

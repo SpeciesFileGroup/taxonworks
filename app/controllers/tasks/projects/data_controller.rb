@@ -3,7 +3,12 @@ class Tasks::Projects::DataController < ApplicationController
 
   # GET task/projects/data
   def index
+    allowed_types = ['Download::ProjectDump::Tsv', 'Download::ProjectDump::Sql']
+
     @project = Project.find(sessions_current_project_id)
+    @recent_objects = Download.where(project_id: sessions_current_project_id, type: allowed_types)
+      .order(created_at: :desc)
+      .limit(10)
   end
 
   def sql_download

@@ -11,6 +11,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Radial mass annotatior: Add `is original` to citations slice
 - New FO: `Lock/Unlock all` shortcut
+- Filter taxon name relationship: Add slices to radial filter for taxon name subject/object [#4461]
+- The following facets to Filter Images: Creator, Editor, Owner, Copyright holder, Source, License, Copyright Year, Depiction caption [#3511]
+- Add with/without origin citation facet to Filter Taxon Name Relationships
+- Radial mass annotator: `is original` flag option in batch citation [#4458]
+- Filter Observations: Sounds facet
+- Add 'include_common_names' parameter to API Otu autocomplete
+- DwC import task: Detect and highlight columns that will be ignored [#4406]
+- Project data export task: Recent download table [#4470]
 
 ### Fixed
 
@@ -20,20 +28,36 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Issues pop-up screen not rendering properly [#4447]
 - Prevent cycles in SerialChronology (no accompanying data migration, remove bad data manually)
 - Biocuration lock "lost" when rapidly creating records [#4415]
+- Depiction list isn't populated in Image's depictions quick form [#4465]
+- Specimens lots failing to generate DwC indexing in DwC importer [#4466]
+- Filters: Sometimes sort column button doesn't work [#4442]
 
 ### Changed
 
+- Gazetteer shapes can now be added to/removed after save [#4399]
 - Rename `Content by nomenclature ("Brock")` to `Content by taxon names ("Brock")`
 - Rename `Download nomenclature (basic)` to `Download taxon names (basic)`
 - Rename `Nomenclature stats` to `Taxon names stats`
 - Rename `Synchronize nomenclature and OTUs` to `Synchronize taxon names and OTUs`
 - Topic facet: Show all topics in a modal [#4456]
+- Updated Ruby gems
+- Field Synchronize and multi update task now sorts by ID url parameter [#4472]
 
+[#3511]: https://github.com/SpeciesFileGroup/taxonworks/issues/3511
+[#4399]: https://github.com/SpeciesFileGroup/taxonworks/issues/4399
+[#4406]: https://github.com/SpeciesFileGroup/taxonworks/issues/4406
 [#4415]: https://github.com/SpeciesFileGroup/taxonworks/issues/4415
+[#4442]: https://github.com/SpeciesFileGroup/taxonworks/issues/4442
 [#4447]: https://github.com/SpeciesFileGroup/taxonworks/issues/4447
 [#4448]: https://github.com/SpeciesFileGroup/taxonworks/issues/4448
 [#4450]: https://github.com/SpeciesFileGroup/taxonworks/issues/4450
 [#4456]: https://github.com/SpeciesFileGroup/taxonworks/issues/4456
+[#4458]: https://github.com/SpeciesFileGroup/taxonworks/issues/4458
+[#4461]: https://github.com/SpeciesFileGroup/taxonworks/issues/4461
+[#4465]: https://github.com/SpeciesFileGroup/taxonworks/issues/4465
+[#4466]: https://github.com/SpeciesFileGroup/taxonworks/issues/4466
+[#4470]: https://github.com/SpeciesFileGroup/taxonworks/issues/4470
+[#4472]: https://github.com/SpeciesFileGroup/taxonworks/issues/4472
 
 ## [0.52.1] - 2025-06-17
 
