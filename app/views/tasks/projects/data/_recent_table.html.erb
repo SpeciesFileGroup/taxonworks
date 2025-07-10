@@ -1,0 +1,32 @@
+<table class="table-striped">
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Name</th>
+      <th>Status</th>
+      <th>Updater</th>
+      <th class="w-2"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @recent_objects.each do |download| %>
+    <tr>
+      <td>
+        <%= download.type == 'Download::ProjectDump::Sql' ? 'SQL' : 'TSV' %>
+      </td>
+      <td><%= download.name.html_safe %></td>
+      <td>
+        <% if download.ready? %>
+            Ready to download
+        <% else %>
+            Download <%= download.expired? ? "has expired and cannot be downloaded." : "creation is in progress..." %>
+        <% end %>
+      </td>
+      <td><%= object_tag(download.updater) %></td>
+      <td>
+          <%= button_to 'Download', file_download_path(download), method: :get,  disabled: !download.ready? , class: ['button', 'normal-input', 'button-default'] %>
+      </td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>
