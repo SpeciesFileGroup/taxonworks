@@ -38,6 +38,7 @@ module Queries
         :rank,
         :relation_to_relationship,
         :sort,
+        :taxon_name_relationship_target,
         :synonymify,
         :taxon_name_author_id_or,
         :taxon_name_id,
@@ -323,6 +324,17 @@ module Queries
 
       attr_accessor :geo_json
 
+      # Applies only to taxon_name_relationship_query_facet, is only present
+      # in queries sent from Filter TaxonNameRelationship.
+      # @param taxon_name_relationship_target [Boolean]
+      # @return [Boolean]
+      #   * 'subject': only return subjects of relationships from
+      #     taxon_name_relationship_query_facet
+      #   * 'object': only return objects of relationships from
+      #     taxon_name_relationship_query_facet
+      #   * nil: return both subjects and objects
+      attr_accessor :taxon_name_relationship_target
+
       # @param params [Params]
       #   as permitted via controller
       def initialize(query_params)
@@ -364,6 +376,7 @@ module Queries
         @taxon_name_classification = params[:taxon_name_classification] || []
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_relationship = params[:taxon_name_relationship] || []
+        @taxon_name_relationship_target = params[:taxon_name_relationship_target]
         @taxon_name_relationship_type_subject =
           params[:taxon_name_relationship_type_subject] || []
         @taxon_name_relationship_type_object =
@@ -924,6 +937,32 @@ module Queries
         ::TaxonName.from('(' + s + ') as taxon_names')
       end
 
+      def taxon_name_relationship_query_facet
+        return nil if taxon_name_relationship_query.nil?
+
+        a = nil
+        b = nil
+        if taxon_name_relationship_target == 'subject' ||
+           taxon_name_relationship_target.nil?
+          a = ::TaxonName
+            .with(tnr_query: taxon_name_relationship_query.all)
+            .joins(:taxon_name_relationships)
+            .where('taxon_name_relationships.id IN (SELECT id FROM tnr_query)')
+            .distinct
+        end
+
+        if taxon_name_relationship_target == 'object' ||
+           taxon_name_relationship_target.nil?
+          b = ::TaxonName
+            .with(tnr_query: taxon_name_relationship_query.all)
+            .joins(:related_taxon_name_relationships)
+            .where('taxon_name_relationships.id IN (SELECT id FROM tnr_query)')
+            .distinct
+        end
+
+        referenced_klass_union([a,b])
+      end
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         [
@@ -948,6 +987,7 @@ module Queries
           collecting_event_query_facet,
           collection_object_query_facet,
           otu_query_facet,
+          taxon_name_relationship_query_facet,
 
           ancestor_facet,
           authors_facet,

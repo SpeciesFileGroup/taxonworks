@@ -34,7 +34,7 @@ module Queries
         :dates,
         :deaccessioned,
         :descendants,
-        :determiner_id_or,
+        :determiner_id_all,
         :determiner_id,
         :determiner_name_regex,
         :determiners,
@@ -256,10 +256,10 @@ module Queries
       attr_accessor :determiner_id
 
       # @return [Boolean]
-      # @param determiner_id_or [String, nil]
+      # @param determiner_id_all [String, nil]
       #   `false`, nil - treat the ids in determiner_id as "or"
       #   'true' - treat the ids in determiner_id as "and" (only collection objects with all and only all will match)
-      attr_accessor :determiner_id_or
+      attr_accessor :determiner_id_all
 
       # @return [String, nil]
       attr_accessor :buffered_determinations
@@ -347,7 +347,7 @@ module Queries
         @deaccessioned = boolean_param(params, :deaccessioned)
         @determiners = boolean_param(params, :determiners)
         @determiner_id = params[:determiner_id]
-        @determiner_id_or = boolean_param(params, :determiner_id_or)
+        @determiner_id_all = boolean_param(params, :determiner_id_all)
         @determiner_name_regex = params[:determiner_name_regex]
         @dwc_indexed = boolean_param(params, :dwc_indexed)
         @exact_buffered_collecting_event = boolean_param(params, :exact_buffered_collecting_event)
@@ -515,7 +515,7 @@ module Queries
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
-        b = b.having(a['id'].count.eq(determiner_id.length)) unless determiner_id_or
+        b = b.having(a['id'].count.eq(determiner_id.length)) if determiner_id_all
 
         b = b.as('det_z1_')
 

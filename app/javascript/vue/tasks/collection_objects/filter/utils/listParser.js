@@ -1,7 +1,6 @@
-import { COLLECTION_OBJECT_PROPERTIES, CONTAINER_ITEM_PROPERTIES } from '@/shared/Filter/constants'
+import { COLLECTION_OBJECT_PROPERTIES } from '@/shared/Filter/constants'
 import { getDataAttributesFor } from '@/shared/Filter/utils'
 import { DataAttribute } from '@/routes/endpoints'
-import { flattenObject } from '@/helpers'
 
 function getTaxonDetermination(determinations) {
   if (determinations.length) {
@@ -19,7 +18,7 @@ function getTaxonDetermination(determinations) {
 }
 
 function makeRowBind(dwc) {
-  return dwc.rebuild_set
+  return dwc?.rebuild_set
     ? {
         _bind: {
           class: 'row-dwc-reindex-pending',
@@ -49,14 +48,14 @@ export async function listParser(list, { parameters }) {
     const {
       id,
       global_id,
-      collecting_event,
+      collecting_event = {},
       container,
       container_item,
-      current_repository,
-      dwc_occurrence,
-      identifiers,
-      repository,
-      taxon_determinations
+      current_repository = {},
+      dwc_occurrence = {},
+      identifiers = [],
+      repository = {},
+      taxon_determinations = []
     } = item
 
     return {

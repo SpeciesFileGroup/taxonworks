@@ -50,7 +50,7 @@
         </div>
         <div class="nav__buttons gap-small">
           <VIcon
-            v-if="unsave"
+            v-if="isUnsaved"
             name="attention"
             color="attention"
             title="You have unsaved changes."
@@ -77,7 +77,7 @@
             type="button"
             v-help.section.navBar.crossRef
             class="button normal-input button-default button-size"
-            :disabled="source.id"
+            :disabled="source.id && isUnsaved"
             @click="() => (isModalVisible = true)"
           >
             CrossRef
@@ -85,7 +85,7 @@
           <button
             type="button"
             class="button normal-input button-default button-size"
-            :disabled="source.id"
+            :disabled="source.id && isUnsaved"
             @click="() => (showBibtex = true)"
           >
             BibTeX
@@ -209,7 +209,9 @@ const settings = computed({
   }
 })
 
-const unsave = computed(() => settings.value.lastSave < settings.value.lastEdit)
+const isUnsaved = computed(
+  () => settings.value.lastSave < settings.value.lastEdit
+)
 
 const isModalVisible = ref(false)
 const showBibtex = ref(false)
@@ -246,7 +248,14 @@ onMounted(() => {
 })
 
 function reset() {
-  store.dispatch(ActionNames.ResetSource)
+  if (
+    !isUnsaved.value ||
+    window.confirm(
+      'You have unsaved changes. If you continue, your changes will be lost. Do you want to proceed?'
+    )
+  ) {
+    store.dispatch(ActionNames.ResetSource)
+  }
 }
 function saveSource() {
   if (source.value.type === SOURCE_BIBTEX && !source.value.bibtex_type) return

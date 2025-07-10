@@ -17,9 +17,7 @@ import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
 import { Icon } from '@/components/georeferences/icons'
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
-
-const ASSERTED_DISTRIBUTION = 'asserted_distribution'
-const GEOGRAPHIC_AREA = 'geographic_area'
+import { GEOGRAPHIC_AREA } from '@/constants'
 
 let drawnItems
 let mapObject
@@ -163,7 +161,8 @@ const tiles = {
   OSM: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution:
       '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 18
+    maxZoom: 18,
+    className: 'map-tiles'
   }),
   Google: L.tileLayer(
     'http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
@@ -176,7 +175,8 @@ const tiles = {
     'https://tile.gbif.org/3857/omt/{z}/{x}/{y}@1x.png?style=gbif-natural-en',
     {
       attribution: 'GBIF',
-      maxZoom: 18
+      maxZoom: 18,
+      className: 'map-tiles'
     }
   )
 }
@@ -380,9 +380,7 @@ const addGeoJsonLayer = (geoJsonLayers) => {
     },
     filter: (feature) => {
       if (
-        feature.properties?.geographic_area ||
         feature.properties?.aggregate ||
-        feature.properties?.shape?.type === ASSERTED_DISTRIBUTION ||
         feature.properties?.shape?.type === GEOGRAPHIC_AREA
       ) {
         geographicArea.addLayer(
@@ -517,9 +515,3 @@ defineExpose({
   getMapObject
 })
 </script>
-
-<style>
-.leaflet-interactive:hover {
-  //filter: hue-rotate(90deg);
-}
-</style>

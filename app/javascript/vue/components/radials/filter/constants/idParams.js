@@ -13,10 +13,11 @@ import {
   LOAN,
   OBSERVATION,
   OTU,
-  PEOPLE,
+  PERSON,
   SOUND,
   SOURCE,
-  TAXON_NAME
+  TAXON_NAME,
+  TAXON_NAME_RELATIONSHIP
 } from '@/constants/index.js'
 
 export const ID_PARAM_FOR = {
@@ -34,8 +35,9 @@ export const ID_PARAM_FOR = {
   [LOAN]: 'loan_id',
   [OBSERVATION]: 'observation_id',
   [OTU]: 'otu_id',
-  [PEOPLE]: 'person_id',
+  [PERSON]: 'person_id',
   [SOUND]: 'sound_id',
   [SOURCE]: 'source_id',
-  [TAXON_NAME]: 'taxon_name_id'
+  [TAXON_NAME]: 'taxon_name_id',
+  [TAXON_NAME_RELATIONSHIP]: 'taxon_name_relationship_id'
 }

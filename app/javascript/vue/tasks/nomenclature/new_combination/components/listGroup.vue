@@ -264,7 +264,7 @@ export default {
   flex-direction: column;
   .header {
     padding: 1em;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--border-color);
     h3 {
       font-weight: 300;
     }

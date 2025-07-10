@@ -44,6 +44,11 @@ const props = defineProps({
     required: true
   },
 
+  confirmationWord: {
+    type: String,
+    default: 'CHANGE'
+  },
+
   disabled: {
     type: Boolean,
     default: false
@@ -90,14 +95,16 @@ function closeModal() {
 }
 
 async function handleUpdate() {
-  const ok = await confirmationModalRef.value.show({
-    title: 'Batch update',
-    message: 'Are you sure you want to proceed?',
-    confirmationWord: 'CHANGE',
-    okButton: 'Update',
-    cancelButton: 'Cancel',
-    typeButton: 'submit'
-  })
+  const ok =
+    !props.confirmationWord ||
+    (await confirmationModalRef.value.show({
+      title: 'Batch update',
+      message: 'Are you sure you want to proceed?',
+      confirmationWord: props.confirmationWord,
+      okButton: props.buttonLabel,
+      cancelButton: 'Cancel',
+      typeButton: 'submit'
+    }))
 
   if (ok) {
     makeBatchloadRequest()

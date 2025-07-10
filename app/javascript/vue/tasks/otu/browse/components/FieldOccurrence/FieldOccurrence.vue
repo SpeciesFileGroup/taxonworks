@@ -27,6 +27,7 @@
               :key="attr"
               v-text="attr"
             />
+            <th>Depictions</th>
           </tr>
         </thead>
         <tbody>
@@ -46,6 +47,9 @@
               :key="attr"
               v-text="item[attr]"
             />
+            <td>
+              <ModalDepictions :depictions="item.depictions" />
+            </td>
           </tr>
         </tbody>
       </table>
@@ -54,14 +58,15 @@
 </template>
 
 <script setup>
-import { FieldOccurrence, Citation } from '@/routes/endpoints'
+import { FieldOccurrence, Citation, Depiction } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { getPagination } from '@/helpers'
 import { FIELD_OCCURRENCE } from '@/constants'
+import SectionPanel from '../shared/sectionPanel'
+import ModalDepictions from '../shared/ModalDepictions.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
-import SectionPanel from '../shared/sectionPanel'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VPagination from '@/components/pagination.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -107,6 +112,13 @@ async function listParser(list) {
     })
   ).body
 
+  const depictions = (
+    await Depiction.where({
+      depiction_object_id: list.map((item) => item.id),
+      depiction_object_type: FIELD_OCCURRENCE
+    })
+  ).body
+
   const getCitations = (citations, objectId) => {
     const items = citations.filter(
       (item) => item.citation_object_id === objectId
@@ -120,7 +132,8 @@ async function listParser(list) {
     globalId: item.global_id,
     ...item.dwc_occurrence,
     repository: item.repository?.object_label,
-    citation: getCitations(citations, item.id)
+    citation: getCitations(citations, item.id),
+    depictions: depictions.filter((d) => d.depiction_object_id === item.id)
   }))
 }
 

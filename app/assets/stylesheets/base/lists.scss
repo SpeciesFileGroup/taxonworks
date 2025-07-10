@@ -11,15 +11,15 @@
   li {
     background-image: none;
     background-repeat: no-repeat;
-    background-position: -14px, center;        
-    background-image: image-url("arrow-right.svg");
+    background-position: -14px, center;
+    background-image: image-url('arrow-right.svg');
     transition: background-position 0.5s ease;
     background-size: 10px;
   }
   li:hover {
     list-style: none;
     transition: background-position 0.5s ease;
-    background-position: 0px, center;        
+    background-position: 0px, center;
   }
 }
 
@@ -28,8 +28,17 @@
   padding: 0px;
   li {
     padding: 5px;
-    padding-left: $standard_padding*1.5;
+    padding-left: $standard_padding * 1.5;
     margin: 0px;
+  }
+}
+
+.dark {
+  .breadcrumb_list,
+  .list-arrow {
+    li {
+      background-image: image-url('w-arrow-right.svg');
+    }
   }
 }
 
@@ -39,14 +48,14 @@
   flex-flow: wrap;
   list-style: none;
   margin: 0px;
-  padding:0px;
+  padding: 0px;
   li {
     margin-right: 5px;
     background-repeat: no-repeat;
     background-size: 8px;
     background-position: left, center;
     padding-left: $standard_padding;
-    background-image: image-url("arrow-right.svg");
+    background-image: image-url('arrow-right.svg');
   }
   li:first-child {
     padding-left: 0px;
@@ -60,37 +69,37 @@
   padding: 0;
 }
 
-ul.tree, ul.tree ul {
+ul.tree,
+ul.tree ul {
   list-style: none;
-   margin: 0;
-   padding: 0;
- } 
- ul.tree ul {
-   //margin-left: 10px;
- }
- ul.tree li {
-   position: relative;
-   margin: 0;
-   padding-left: 16px;
-   line-height: 20px;
-   color: #369;
-   border-left:1px solid rgb(100,100,100);
-
- }
- ul.tree li:last-child {
-     border-left:none;
- }
- ul.tree li:before {
-    position:absolute;
-    top:-0.3em;
-    height: 1em;
-    width: 12px;
-    color:white;
-    border-bottom: 1px solid rgb(100,100,100);
-    content:"";
-    display:inline-block;
-    left:0px;
- }
- ul.tree li:last-child:before {
-    border-left:1px solid rgb(100,100,100);   
- }
+  margin: 0;
+  padding: 0;
+}
+ul.tree ul {
+  //margin-left: 10px;
+}
+ul.tree li {
+  position: relative;
+  margin: 0;
+  padding-left: 16px;
+  line-height: 20px;
+  color: #369;
+  border-left: 1px solid rgb(100, 100, 100);
+}
+ul.tree li:last-child {
+  border-left: none;
+}
+ul.tree li:before {
+  position: absolute;
+  top: -0.3em;
+  height: 1em;
+  width: 12px;
+  color: white;
+  border-bottom: 1px solid rgb(100, 100, 100);
+  content: '';
+  display: inline-block;
+  left: 0px;
+}
+ul.tree li:last-child:before {
+  border-left: 1px solid rgb(100, 100, 100);
+}

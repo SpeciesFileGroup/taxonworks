@@ -12,7 +12,7 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
       before { visit new_taxon_name_task_path }
 
       specify 'add a name' do
-        fill_in "Name", with: 'Qurious'
+        fill_in 'Name', with: 'Qurious'
         fill_in 'Parent', with: 'Root'
         find('li', text: 'Root nomenclatural rank').hover.click 
         find('label', text: 'ICZN').click
@@ -29,7 +29,7 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
           specify "#{OS.mac? ? 'ctrl': 'alt'}-b navigates to Browse taxon name task" do
             expect(page).to have_text('Edit taxon name')
             find('body').send_keys([OS.mac? ? :control : :alt, 'b'])
-            expect(page).to have_text('Browse nomenclature')
+            expect(page).to have_text('Browse taxon names')
           end
         end
 

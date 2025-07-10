@@ -125,6 +125,106 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
         expect(c1.collectors.second.id).to eq(second_collector.id)
         expect(c1.collectors.third.id).to eq(third_collector.id)
       end
+
+      specify 'can add georeferences' do
+        georef1 = FactoryBot.create(:valid_georeference)
+        c1.georeferences << georef1
+        georef2 = FactoryBot.create(:valid_georeference)
+        georef3 = FactoryBot.create(:valid_georeference)
+
+        params = {
+          collecting_event: {
+            georeferences_attributes: [
+              {
+                geographic_item_id: georef2.geographic_item.id,
+                type: 'Georeference::VerbatimData',
+              },
+              {
+                geographic_item_id: georef3.geographic_item.id,
+                type: 'Georeference::Leaflet',
+              }
+            ]
+          },
+          collecting_event_query: { collecting_event_id: [c1.id] }
+        }
+
+        CollectingEvent.batch_update(params).to_json
+
+        expect(c1.reload.georeferences.count).to eq(3)
+        expect(c1.georeferences.first.geographic_item.id)
+          .to eq(georef1.geographic_item.id)
+        expect(c1.georeferences.second.geographic_item.id)
+          .to eq(georef2.geographic_item.id)
+        expect(c1.georeferences.third.geographic_item.id)
+          .to eq(georef3.geographic_item.id)
+      end
+
+      specify 'add georeferences response object' do
+        georef1 = FactoryBot.create(:valid_georeference)
+        c1.georeferences << georef1
+        georef2 = FactoryBot.create(:valid_georeference)
+        georef3 = FactoryBot.create(:valid_georeference)
+
+        params = {
+          collecting_event: {
+            georeferences_attributes: [
+              {
+                geographic_item_id: georef2.geographic_item.id,
+                type: 'Georeference::VerbatimData',
+              },
+              {
+                geographic_item_id: georef3.geographic_item.id,
+                type: 'Georeference::Leaflet',
+              }
+            ]
+          },
+          collecting_event_query: { collecting_event_id: [c1.id] }
+        }
+
+        response = CollectingEvent.batch_update(params).to_json
+
+        expect(response[:total_attempted]).to eq(1)
+        expect(response[:updated]).to include(c1.id)
+        expect(response[:not_updated]).to eq([])
+      end
+
+      specify 'can add georeferences async' do
+        georef1 = FactoryBot.create(:valid_georeference)
+        c1.georeferences << georef1
+        georef2 = FactoryBot.create(:valid_georeference)
+        georef3 = FactoryBot.create(:valid_georeference)
+
+        params = {
+          async_cutoff: 0,
+          collecting_event: {
+            georeferences_attributes: [
+              {
+                geographic_item_id: georef2.geographic_item.id,
+                type: 'Georeference::VerbatimData',
+              },
+              {
+                geographic_item_id: georef3.geographic_item.id,
+                type: 'Georeference::Leaflet',
+              }
+            ]
+          },
+          collecting_event_query: { collecting_event_id: [c1.id] }
+        }
+
+        CollectingEvent.batch_update(params).to_json
+
+        expect(c1.reload.georeferences.count).to eq(1)
+
+        Delayed::Worker.new.work_off
+
+        expect(c1.reload.georeferences.count).to eq(3)
+        expect(c1.georeferences.first.geographic_item.id)
+          .to eq(georef1.geographic_item.id)
+        expect(c1.georeferences.second.geographic_item.id)
+          .to eq(georef2.geographic_item.id)
+        expect(c1.georeferences.third.geographic_item.id)
+          .to eq(georef3.geographic_item.id)
+      end
     end
   end
 

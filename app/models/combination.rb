@@ -722,7 +722,7 @@ class Combination < TaxonName
   end
 
   def sv_author_and_year_is_not_required
-    if !self.year_of_publication.nil? || !self.verbatim_author.nil?
+    if nomenclatural_code == :iczn && (!self.year_of_publication.nil? || !self.verbatim_author.nil?)
       soft_validations.add(
         :base, 'Verbatim author and year of publication are not required, they both derive from the source',
         success_message: 'Verbatim author and year were deleted',

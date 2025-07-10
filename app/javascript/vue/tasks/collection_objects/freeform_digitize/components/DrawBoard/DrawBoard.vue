@@ -29,7 +29,7 @@ onMounted(() => {
   store.createSVGBoard({
     element: elementBoard.value,
     opts: {
-      imageSrc: props.image.image_file_url,
+      imageSrc: props.image.original_png,
       stroke: '#FFA500',
       strokeWidth: STROKE_BASE * window.devicePixelRatio,
       width,

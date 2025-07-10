@@ -27,6 +27,7 @@
               :key="attr"
               v-text="attr"
             />
+            <th>Depictions</th>
           </tr>
         </thead>
         <tbody>
@@ -46,6 +47,9 @@
               :key="attr"
               v-text="item[attr]"
             />
+            <td>
+              <ModalDepictions :depictions="item.depictions" />
+            </td>
           </tr>
         </tbody>
       </table>
@@ -54,12 +58,13 @@
 </template>
 
 <script setup>
-import { CollectionObject, Citation } from '@/routes/endpoints'
+import { CollectionObject, Citation, Depiction } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { getPagination } from '@/helpers'
 import { COLLECTION_OBJECT } from '@/constants'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import ModalDepictions from './shared/ModalDepictions.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import SectionPanel from './shared/sectionPanel'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
@@ -117,12 +122,20 @@ async function listParser(list) {
     return items.map((item) => item.citation_source_body).join('; ')
   }
 
+  const depictions = (
+    await Depiction.where({
+      depiction_object_id: list.map((item) => item.id),
+      depiction_object_type: COLLECTION_OBJECT
+    })
+  ).body
+
   return list.map((item) => ({
     id: item.id,
     globalId: item.global_id,
     ...item.dwc_occurrence,
     repository: item.repository?.object_label,
-    citation: getCitations(citations, item.id)
+    citation: getCitations(citations, item.id),
+    depictions: depictions.filter((d) => d.depiction_object_id === item.id)
   }))
 }
 

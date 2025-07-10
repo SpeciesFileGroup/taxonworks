@@ -41,6 +41,7 @@
 <script setup>
 import VModal from '@/components/ui/Modal'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { randomUUID } from '@/helpers'
 import { GEOREFERENCE_GEOLOCATE } from '@/constants/index.js'
 import { ref } from 'vue'
 
@@ -51,8 +52,8 @@ const coordinates = ref(null)
 
 function createShape() {
   emit('create', {
-    tmpId: Math.random().toString(36).substr(2, 5),
-    iframe_response: coordinates.value,
+    uuid: randomUUID(),
+    iframe_response: coordinates.value.trim(),
     type: GEOREFERENCE_GEOLOCATE
   })
 

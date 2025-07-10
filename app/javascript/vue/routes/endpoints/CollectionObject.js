@@ -26,6 +26,11 @@ const permitParams = {
       type: String,
       value: String
     },
+    biocuration_classifications_attributes: {
+      id: Number,
+      biocuration_class_id: Number,
+      _destroy: Boolean
+    },
     taxon_determinations_attributes: {
       otu_id: Number,
       year_made: Number,

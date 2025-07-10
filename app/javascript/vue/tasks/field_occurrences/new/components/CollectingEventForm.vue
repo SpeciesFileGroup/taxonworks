@@ -36,7 +36,7 @@
             v-model="settings.locked.collectingEvent"
           />
         </div>
-        <hr />
+        <hr class="divisor" />
         <div class="horizontal-left-content middle gap-small">
           <VIcon
             color="attention"
@@ -96,7 +96,10 @@
           </div>
         </div>
       </fieldset>
-      <FormCollectingEvent :exclude="[ComponentMap.PrintLabel]" />
+      <FormCollectingEvent
+        :exclude="[ComponentMap.PrintLabel]"
+        :sortable="settings.sortable"
+      />
     </template>
   </BlockLayout>
 </template>

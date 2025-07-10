@@ -37,11 +37,12 @@
       </div>
       <ul class="context-menu no_bullets">
         <li class="horizontal-right-content gap-small">
-          <span
+          <VIcon
             v-if="isUnsaved"
-            class="medium-icon margin-small-right"
+            name="attention"
+            color="attention"
+            small
             title="You have unsaved changes."
-            data-icon="warning"
           />
           <VRecent @selected="({ id }) => loadForms(id)" />
           <VBtn
@@ -78,6 +79,11 @@
 </template>
 
 <script setup>
+import { computed, onBeforeMount, watch, ref } from 'vue'
+import { setParam, smartSelectorRefresh } from '@/helpers'
+import { FIELD_OCCURRENCE } from '@/constants'
+import { useHotkey } from '@/composables'
+
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
@@ -89,17 +95,14 @@ import useCEStore from '@/components/Form/FormCollectingEvent/store/collectingEv
 import useDeterminationStore from '../store/determinations.js'
 import useSettingStore from '../store/settings.js'
 import useBiocurationStore from '../store/biocurations.js'
-import useBiologicalAssociationStore from '../store/biologicalAssociations.js'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
 import useDepictionStore from '../store/depictions.js'
 import useOriginRelationshipStore from '../store/originRelationships.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VRecent from './Recent.vue'
-import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import { setParam } from '@/helpers'
-import { computed, onBeforeMount, watch, ref } from 'vue'
-import { FIELD_OCCURRENCE } from '@/constants'
 
 const foStore = useFieldOccurrenceStore()
 const settings = useSettingStore()
@@ -159,6 +162,7 @@ async function save() {
       })
       .catch(() => {})
       .finally(() => {
+        smartSelectorRefresh()
         settings.isSaving = false
       })
   } catch {
@@ -175,12 +179,7 @@ function reset() {
     ceStore.reset()
   }
 
-  if (locked.biocurations) {
-    biocurationStore.resetIds()
-  } else {
-    biocurationStore.list = []
-  }
-
+  biocurationStore.reset({ keepRecords: locked.biocurations })
   originRelationshipStore.$reset()
   depictionStore.$reset()
   determinationStore.reset({ keepRecords: locked.taxonDeterminations })
@@ -274,6 +273,13 @@ const hotkeys = ref([
     handler() {
       reset()
     }
+  },
+  {
+    keys: [platformKey(), 'l'],
+    preventDefault: true,
+    handler() {
+      settings.toggleLock()
+    }
   }
 ])
 
@@ -292,6 +298,12 @@ TW.workbench.keyboard.createLegend(
 TW.workbench.keyboard.createLegend(
   `${platformKey()}+r`,
   'Reset all',
+  'New field occurrence'
+)
+
+TW.workbench.keyboard.createLegend(
+  `${platformKey()}+l`,
+  'Lock/Unlock all',
   'New field occurrence'
 )
 </script>

@@ -139,3 +139,11 @@ export const TASK_TAXON_NAME_GENDER = {
   queryParam: true
 }
 
+export const TASK_PROJECT_VOCABULARY = {
+  label: 'Project vocabulary',
+  link: '/tasks/metadata/vocabulary/project_vocabulary',
+  post: false,
+  queryParam: true,
+  saveQuery: true
+}
+

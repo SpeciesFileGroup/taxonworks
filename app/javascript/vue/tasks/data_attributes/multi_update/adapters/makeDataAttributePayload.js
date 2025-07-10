@@ -1,4 +1,4 @@
-import { DATA_ATTRIBUTE } from '@/constants'
+import { DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE } from '@/constants'
 
 export function makeDataAttributePayload(data) {
   return {
@@ -6,7 +6,7 @@ export function makeDataAttributePayload(data) {
       attribute_subject_id: data.objectId,
       attribute_subject_type: data.objectType,
       controlled_vocabulary_term_id: data.predicateId,
-      type: DATA_ATTRIBUTE,
+      type: DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE,
       value: data.value
     }
   }

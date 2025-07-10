@@ -144,18 +144,22 @@ async function makeBatchRequest(confidence) {
 
 function makePayload(confidence) {
   return {
+    filter_query: filterQuery(),
     mode: selectedMode.value.mode,
-    confidence_level_id: confidence.id,
-    filter_query: filterQuery()
+    params: {
+      confidence_level_id: confidence.id
+    }
   }
 }
 
 function makeReplacePayload([replace, to]) {
   return {
+    filter_query: filterQuery(),
     mode: selectedMode.value.mode,
-    confidence_level_id: to.id,
-    replace_confidence_level_id: replace.id,
-    filter_query: filterQuery()
+    params: {
+      confidence_level_id: to.id,
+      replace_confidence_level_id: replace.id
+    }
   }
 }
 

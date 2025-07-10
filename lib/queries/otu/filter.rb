@@ -284,6 +284,25 @@ module Queries
         referenced_klass_union([q1, q2]).distinct # Not needed, union should be distinct
       end
 
+      def from_geographic_items(geographic_items_sql)
+        ces = ::CollectingEvent
+          .joins(:geographic_items)
+          .where(geographic_items_sql)
+
+        q1 = ::Otu
+          .joins(collection_objects: [:collecting_event])
+          .where(collecting_events: ces.all, project_id:)
+
+        ads = ::Queries::AssertedDistribution::Filter
+          .from_geographic_items(geographic_items_sql)
+
+        q2 = ::Otu
+          .joins(:asserted_distributions)
+          .where(asserted_distributions: ads.all, project_id:)
+
+        referenced_klass_union([q1,q2])
+      end
+
       def geo_json_facet
         return nil if geo_json.blank?
         return ::Otu.none if roll_call
@@ -427,16 +446,16 @@ module Queries
 
         c, _d = otu_geo_facet_by_type('Gazetteer', gazetteer_shapes)
 
-        if geo_mode == true # spatial
-          i = ::Queries.union(::GeographicItem, [a,c])
-          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
-
-          return from_wkt(
-            u['st_astext'], u['st_geometrytype'].delete_prefix!('ST_')
-          )
+        if geo_mode != true # exact or descendants
+          return referenced_klass_union([a,b,c])
         end
 
-        referenced_klass_union([a,b,c])
+        # Spatial.
+        i = ::Queries.union(::GeographicItem, [a,c])
+
+        from_geographic_items(
+          ::GeographicItem.covered_by_geographic_items_sql(i)
+        )
       end
 
       def otu_geo_facet_by_type(shape_string, shape_ids)

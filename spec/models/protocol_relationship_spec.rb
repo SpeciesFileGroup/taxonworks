@@ -18,8 +18,10 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
       filter_query: p,
       mode: :replace,
       async_cutoff: 0,
-      protocol_id: c1.id,
-      replace_protocol_id: protocol_relationship.id
+      params: {
+        protocol_id: c1.id,
+        replace_protocol_id: protocol_relationship.id
+      }
     )
 
     perform_enqueued_jobs
@@ -37,8 +39,10 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
       filter_query: { 'collection_object_query' => q.params },
       mode: :replace,
       async_cutoff: 0,
-      protocol_id: c1.id,
-      replace_protocol_id: protocol_relationship.id
+      params: {
+        protocol_id: c1.id,
+        replace_protocol_id: protocol_relationship.id
+      }
     )
 
     perform_enqueued_jobs
@@ -53,8 +57,10 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
     ProtocolRelationship.batch_by_filter_scope(
       filter_query: { 'collection_object_query' => q.params },
       mode: :replace,
-      protocol_id: c1.id,
-      replace_protocol_id: protocol_relationship.id
+      params: {
+        protocol_id: c1.id,
+        replace_protocol_id: protocol_relationship.id
+      }
     )
     expect(ProtocolRelationship.all.first.protocol_id).to eq(c1.id)
   end
@@ -66,7 +72,10 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
     ProtocolRelationship.batch_by_filter_scope(
       filter_query: { 'collection_object_query' => q.params },
       mode: :remove,
-      protocol_id: protocol_relationship.id)
+      params: {
+        protocol_id: protocol_relationship.id
+      }
+    )
     expect(ProtocolRelationship.all.count).to eq(0)
   end
 
@@ -75,7 +84,10 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
     ProtocolRelationship.batch_by_filter_scope(
       filter_query: { 'collection_object_query' => q.params },
       mode: :add,
-      protocol_id: protocol.id)
+      params: {
+        protocol_id: protocol.id
+      }
+    )
     expect(ProtocolRelationship.all.count).to eq(1)
   end
 
@@ -84,7 +96,9 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
     ProtocolRelationship.batch_by_filter_scope(
       filter_query: { 'collection_object_query' => q.params },
       mode: :add,
-      protocol_id: protocol.id,
+      params: {
+        protocol_id: protocol.id
+      },
       async_cutoff: 0)
     expect(ProtocolRelationship.all.count).to eq(0)
 

@@ -67,7 +67,7 @@
       >
         <div>
           <span><b>Lender</b></span>
-          <hr />
+          <hr class="divisor" />
           <div class="field label-above">
             <label>Lender address</label>
             <textarea
@@ -156,7 +156,7 @@
 
         <div>
           <span><b>Recipient</b></span>
-          <hr />
+          <hr class="divisor" />
           <div class="field">
             <label>People</label>
             <role-picker
@@ -212,7 +212,7 @@
             </div>
           </div>
           <p><b>Supervisor</b></p>
-          <hr />
+          <hr class="divisor" />
           <div class="field">
             <role-picker
               v-model="loan.loan_supervisor_roles"

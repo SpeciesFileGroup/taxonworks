@@ -16,7 +16,7 @@
     title="Collectors"
     klass="CollectingEvent"
     param-people="collector_id"
-    param-any="collector_id_or"
+    param-all="collector_id_all"
     :role-type="COLLECTOR_SELECTOR"
     v-model="params"
   />
@@ -75,7 +75,7 @@ import FacetPreparationTypes from './filters/FacetPreparationTypes'
 import FacetPeople from '@/components/Filter/Facets/shared/FacetPeople.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
-import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'

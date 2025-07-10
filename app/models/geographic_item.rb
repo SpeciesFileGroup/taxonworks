@@ -70,6 +70,9 @@ class GeographicItem < ApplicationRecord
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
   scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
+  # !! Think twice and _measure_ before using these, they can prevent your query
+  # from using a spatial index, making them very slow. See the && query pattern
+  # here and elsewhere for one way to alleviate.!!
   scope :points, -> { where(shape_is_type(:point)) }
   scope :multi_points, -> { where(shape_is_type(:multi_point)) }
   scope :line_strings, -> { where(shape_is_type(:line_string)) }
@@ -634,6 +637,25 @@ class GeographicItem < ApplicationRecord
       end
     end
 
+    # !! CURRENTLY ASSUMES no geographic_item_id crosses the anti-meridian. That
+    # is true for GA and Gaz shapes, but not necessarily for GEOREF shapes.
+    def covered_by_geographic_items_sql(geographic_item_scope)
+      f = ::GeographicItem.from(geographic_item_scope).select(
+        '(ST_DUMP(geography::geometry)).geom AS the_geom'
+      )
+
+      # Note we need ST_Union here instead of ST_Collect since, e.g., a
+      # geographic_item (like an AD Gaz shape) that crosses the border of Canada
+      # and the U.S. would *not* be contained by ST_Collect(Canada, U.S.).
+      geom = Arel.sql(
+        'SELECT ST_Union(f.the_geom) AS single_geometry FROM (' +
+          f.to_sql +
+        ') AS f'
+      )
+
+      "geography && (#{geom}) AND " + subset_of_sql(geom).to_sql
+    end
+
     #
     # Scopes
     #
@@ -672,7 +694,8 @@ class GeographicItem < ApplicationRecord
                           ).distinct
     end
 
-    # DEPRECATED (unused)
+    # DEPRECATED (unused) !! Fix the shape_column_sql bit with && as seen
+    # elsewhere here if this gets revived !!
     # This is a geographic intersect, not geometric
     def intersecting(shape, *geographic_item_ids)
       shape = shape.to_s.downcase
@@ -747,21 +770,24 @@ class GeographicItem < ApplicationRecord
 
       else
         a = geographic_items.flatten.collect { |geographic_item|
-          st_covers_sql(
-            shape_column_sql(shape),
-            select_geometry_sql(geographic_item.id)
-          )
+          # Eliminate as much as possible with a fast bounding box index scan
+          # before doing the slower st_covers and ST_GeometryType.
+          bounding_box_match = "geography && (SELECT geography FROM geographic_items where geographic_items.id = #{geographic_item.id})"
+
+          bounding_box_match + ' AND ' +
+            st_covers_sql(
+              shape_column_sql(shape),
+              select_geometry_sql(geographic_item.id)
+            ).to_sql
         }
 
-        q = a.first
-        if a.count > 1
-          a[1..].each { |i| q = q.or(i) }
-        end
+        q = a.join(' OR ')
 
         # This will prevent the invocation of *ALL* of the GeographicItems
         # if there are no GeographicItems in the request (see
         # CollectingEvent.name_hash(types)).
         q = 'FALSE' if q.blank?
+
         where(q) # .not_including(geographic_items)
       end
     end
@@ -801,16 +827,18 @@ class GeographicItem < ApplicationRecord
 
       else
         a = geographic_items.flatten.collect { |geographic_item|
-          st_covered_by_sql(
-            shape_column_sql(shape),
-            select_geometry_sql(geographic_item.id)
-          )
+          # Eliminate as much as possible with a fast bounding box index scan
+          # before doing the slower st_covers and ST_GeometryType.
+          bounding_box_match = "geography && (SELECT geography FROM geographic_items where geographic_items.id = #{geographic_item.id})"
+
+          bounding_box_match + ' AND ' +
+            st_covered_by_sql(
+              shape_column_sql(shape),
+              select_geometry_sql(geographic_item.id)
+            ).to_sql
         }
 
-        q = a.first
-        if a.count > 1
-          a[1..].each { |i| q = q.or(i) }
-        end
+        q = a.join(' OR ')
 
         q = 'FALSE' if q.blank?
         where(q) # .not_including(geographic_items)
@@ -1043,7 +1071,7 @@ class GeographicItem < ApplicationRecord
       return
     end
 
-    write_attribute(:geography, object)
+    self[:geography] = object
   end
 
   # @return [String] wkt

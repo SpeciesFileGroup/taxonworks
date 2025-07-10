@@ -1,24 +1,29 @@
 <template>
   <div id="vue_new_combination">
     <h1>New combination</h1>
-    <span data-icon="warning"
-      ><i>At present this task is only configured for ICZN names.</i></span
-    >
-    <spinner
+    <div class="horizontal-left-content gap-small middle margin-small-bottom">
+      <VIcon
+        name="attention"
+        color="attention"
+        small
+      />
+      <i>At present this task is only configured for ICZN names.</i>
+    </div>
+    <VSpinner
       legend="Loading new combination..."
       :full-screen="true"
       :logo-size="{ width: '100px', height: '100px' }"
       v-if="loading"
     />
     <div class="panel content new-combination-box separate-bottom">
-      <input-search
+      <InputSearch
         ref="inputSearch"
         placeholder="Type a new combination (names should already exist)."
         v-help.section.search.input
         @onTaxonName="setTaxon"
       />
     </div>
-    <new-combination
+    <NewCombination
       class="separate-top"
       ref="combination"
       @save="addToList"
@@ -40,7 +45,8 @@
 import NewCombination from './components/newCombination.vue'
 import InputSearch from './components/inputSearch.vue'
 import DisplayList from './components/displayList.vue'
-import Spinner from '@/components/ui/VSpinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { addToArray } from '@/helpers/arrays.js'
 import { Combination, TaxonName } from '@/routes/endpoints'
 import { EXTEND_PARAMS } from './constants/extend'
@@ -50,7 +56,8 @@ export default {
     DisplayList,
     NewCombination,
     InputSearch,
-    Spinner
+    VSpinner,
+    VIcon
   },
 
   data() {

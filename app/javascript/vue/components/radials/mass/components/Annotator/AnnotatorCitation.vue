@@ -2,8 +2,9 @@
   <div class="confidence_annotator">
     <VSpinner v-if="isCreating" />
     <FormCitation
-      :target="objectType"
       v-model="citation"
+      :target="objectType"
+      original
       :submit-button="{
         label: 'Create',
         color: 'create'
@@ -52,6 +53,7 @@ async function createCitation() {
       citation_object_type: props.objectType,
       source_id: citation.value.source_id,
       pages: citation.value.pages,
+      is_original: citation.value.is_original,
       citation_object_id: props.ids
     })
       .then(({ body }) => {

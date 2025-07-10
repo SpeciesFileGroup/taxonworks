@@ -10,6 +10,14 @@
 /* import 'core-js/stable'
 import 'regenerator-runtime/runtime' */
 // Styles
+
+if (
+  process.env.NODE_ENV === 'development' &&
+  typeof __VUE_DEVTOOLS_CONFIG__ !== 'undefined'
+) {
+  window.VUE_DEVTOOLS_CONFIG = __VUE_DEVTOOLS_CONFIG__
+}
+
 import 'easymde/dist/easymde.min.css'
 import '@fontsource/ibm-plex-sans'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
@@ -39,6 +47,7 @@ import '../vue/initializers/PinboardNavigator/main.js'
 import '../vue/initializers/SmartSelector/main.js'
 import '../vue/initializers/SoftValidations/main.js'
 import '../vue/initializers/SimpleMap/main.js'
+import '../vue/initializers/ToggleTheme/main.js'
 import '../vue/initializers/MapShape/main.js'
 import '../vue/initializers/GraphViz/main.js'
 import '../vue/initializers/WeekInReviewGraph/main.js'
@@ -125,3 +134,4 @@ import '../vue/tasks/sounds/filter/main.js'
 import '../vue/tasks/field_occurrences/browse/main.js'
 import '../vue/tasks/data_attributes/multi_update/main.js'
 import '../vue/tasks/field_occurrences/filter/main.js'
+import '../vue/tasks/taxon_name_relationships/filter/main.js'

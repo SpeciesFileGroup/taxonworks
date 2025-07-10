@@ -1,128 +1,123 @@
 <template>
   <div class="image-container panel content">
-    <dropzone
+    <VDropzone
       class="dropzone-card"
       @vdropzone-success="success"
-      ref="image"
+      ref="dropzone"
       url="/images"
       use-custom-dropzone-options
-      :dropzone-options="dropzone"
+      :dropzone-options="DROPZONE_CONFIG"
     />
-    <div
-      class="flex-wrap-row separate-top"
-      v-if="figuresList.length"
-    >
-      <image-viewer
-        v-for="item in figuresList"
-        :key="item.id"
-        :image="item"
-        @delete="$emit('delete', $event)"
-      />
-      <div
-        data-icon="reset"
-        class="reset-button"
-        @click="clearImages"
-      >
-        <span>Clear images</span>
+    <template v-if="images.length">
+      <div class="flex-wrap-row separate-top">
+        <ImageViewer
+          v-for="image in images"
+          :key="image.id"
+          :image="image"
+          edit
+          @delete="removeImage"
+        >
+          <template #thumbfooter>
+            <div
+              class="flex-separate gap-xsmall padding-xsmall-bottom padding-xsmall-top"
+            >
+              <RadialAnnotator
+                type="annotations"
+                :global-id="image.global_id"
+              />
+              <RadialObject :global-id="image.global_id" />
+              <RadialNavigator :global-id="image.global_id" />
+              <VBtn
+                circle
+                color="destroy"
+                @click="() => removeImage(image)"
+              >
+                <VIcon
+                  x-small
+                  name="trash"
+                />
+              </VBtn>
+            </div>
+          </template>
+        </ImageViewer>
       </div>
-    </div>
+      <div class="margin-medium-top">
+        <VBtn
+          medium
+          color="primary"
+          @click="clearImages"
+        >
+          Clear images
+        </VBtn>
+      </div>
+    </template>
   </div>
 </template>
 
-<script>
+<script setup>
 import { ActionNames } from '../../store/actions/actions.js'
-import Dropzone from '@/components/dropzone.vue'
-import ImageViewer from './imageViewer.vue'
 import { GetterNames } from '../../store/getters/getters.js'
+import { useTemplateRef } from 'vue'
+import { useStore } from 'vuex'
+import VDropzone from '@/components/dropzone.vue'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 
-export default {
-  components: {
-    ImageViewer,
-    Dropzone
+const DROPZONE_CONFIG = {
+  paramName: 'image[image_file]',
+  url: '/images',
+  autoProcessQueue: true,
+  parallelUploads: 1,
+  timeout: 600000,
+  headers: {
+    'X-CSRF-Token': document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute('content')
   },
+  dictDefaultMessage: 'Drop images here',
+  acceptedFiles: 'image/*,.heic'
+}
 
-  props: {
-    modelValue: {
-      type: Array,
-      default: () => []
-    }
-  },
+const images = defineModel({
+  type: Array,
+  required: true
+})
 
-  watch: {
-    modelValue: {
-      handler(newVal) {
-        this.figuresList = newVal
-      },
-      deep: true
-    }
-  },
+const emit = defineEmits(['created', 'onClear', 'delete'])
 
-  emits: ['update:modelValue', 'created', 'onClear', 'delete'],
+const dropzoneRef = useTemplateRef('dropzone')
+const store = useStore()
 
-  data() {
-    return {
-      creatingType: false,
-      displayBody: true,
-      figuresList: [],
-      dropzone: {
-        paramName: 'image[image_file]',
-        url: '/images',
-        autoProcessQueue: true,
-        parallelUploads: 1,
-        timeout: 600000,
-        headers: {
-          'X-CSRF-Token': document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute('content')
-        },
-        dictDefaultMessage: 'Drop images here',
-        acceptedFiles: 'image/*,.heic'
-      }
-    }
-  },
+function success(file, response) {
+  const isCreated = images.value.some((item) => item.id === response.id)
 
-  methods: {
-    success(file, response) {
-      const isCreated = this.figuresList.some((item) => item.id === response.id)
+  dropzoneRef.value.removeFile(file)
 
-      this.$refs.image.removeFile(file)
+  if (!isCreated) {
+    images.value.push(response)
+    emit('created', response)
+    store.dispatch(ActionNames.SetAllApplied, false)
+  }
+}
 
-      if (!isCreated) {
-        this.figuresList.push(response)
-        this.$emit('update:modelValue', this.figuresList)
-        this.$emit('created', response)
-        this.$store.dispatch(ActionNames.SetAllApplied, false)
-      }
-    },
+function removeImage(image) {
+  if (window.confirm('Are you sure want to proceed?')) {
+    emit('delete', image)
+  }
+}
 
-    clearImages() {
-      const message = this.$store.getters[GetterNames.IsAllApplied]
-        ? 'Are you sure you want to clear the images?'
-        : 'You have images without applying changes, are you sure you want to clean the images?'
+function clearImages() {
+  const message = store.getters[GetterNames.IsAllApplied]
+    ? 'Are you sure you want to clear the images?'
+    : 'You have images without applying changes, are you sure you want to clean the images?'
 
-      if (window.confirm(message)) {
-        this.$emit('update:modelValue', [])
-        this.$emit('onClear')
-      }
-    }
+  if (window.confirm(message)) {
+    images.value = []
+    emit('onClear')
   }
 }
 </script>
-
-<style scoped>
-.reset-button {
-  margin: 4px;
-  width: 100px;
-  height: 65px;
-  padding: 0px;
-  padding-top: 10px;
-  background-position: center;
-  background-position-y: 30px;
-  background-size: 30px;
-  text-align: center;
-}
-.reset-button:hover {
-  opacity: 0.8;
-  cursor: pointer;
-}
-</style>

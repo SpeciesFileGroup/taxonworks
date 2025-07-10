@@ -3,13 +3,13 @@
   word-wrap: break-word;
   hr {
     border: none;
-    border-bottom: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
   }
   .header-title {
     margin: $standard_padding * 0.5 0;
     font-weight: 600;
     margin-bottom: $standard_padding;
-    border-bottom: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
   }
 
   > p {
@@ -41,7 +41,7 @@
       position: absolute;
       left: 0;
 
-      border-top: 1px solid $navigation_border;
+      border-top: 1px solid var(--border-color);
       top: 10px;
       width: 10px;
       height: 0;

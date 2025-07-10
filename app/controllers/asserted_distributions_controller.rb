@@ -126,6 +126,20 @@ class AssertedDistributionsController < ApplicationController
     end
   end
 
+  def batch_template_create
+    if r = AssertedDistribution.batch_template_create(
+        preview: params[:preview],
+        template_asserted_distribution: asserted_distribution_params,
+        otu_query: params[:otu_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id
+    )
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
   def preview_simple_batch_load
     if params[:file]
       @result =  BatchLoad::Import::AssertedDistributions.new(**batch_params)

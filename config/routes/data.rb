@@ -26,14 +26,18 @@ match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults
 match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
 resources :attributions, except: [:new] do
   concerns [:data_routes]
+  collection do
+    post :batch_by_filter_scope, defaults: {format: :json}
+  end
 end
 
 resources :asserted_distributions do
   concerns [:data_routes]
   collection do
     patch :batch_update
+    post :batch_template_create, defaults: {format: :json}
     post :preview_simple_batch_load # should be get
-    post :create_simple_batch_load
+    post :create_simple_batch_load, defaults: {format: :json}
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
   end
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
@@ -404,6 +408,8 @@ resources :identifiers, except: [:show] do
   collection do
     patch :reorder, defaults: {format: :json}
     get :identifier_types, {format: :json}
+    post :namespaces, {format: :json}
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 
   member do
@@ -664,6 +670,7 @@ end
 resources :organizations do
   collection do
     get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
   concerns [:data_routes]
 end
@@ -893,6 +900,7 @@ resources :taxon_name_relationships do
   collection do
     get :type_relationships, {format: :json}
     get :taxon_name_relationship_types, {format: :json}
+    match :filter, to: 'taxon_name_relationships#index', via: [:get, :post]
   end
 end
 

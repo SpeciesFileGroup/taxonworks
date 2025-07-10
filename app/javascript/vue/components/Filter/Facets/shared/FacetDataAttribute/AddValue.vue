@@ -18,13 +18,6 @@
             Add
           </VBtn>
         </div>
-        <label>
-          <input
-            v-model="exact"
-            type="checkbox"
-          />
-          Exact
-        </label>
       </div>
     </div>
   </div>
@@ -43,13 +36,12 @@ defineProps({
 
 const emit = defineEmits('add')
 
-const exact = ref()
 const text = ref('')
 
 function addValue() {
   emit('add', {
     text: text.value,
-    exact: exact.value
+    exact: false
   })
 
   text.value = ''

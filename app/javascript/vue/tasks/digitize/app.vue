@@ -36,26 +36,29 @@
 </template>
 
 <script setup>
-import TaskHeader from './components/taskHeader/main.vue'
-import CollectionObject from './components/collectionObject/main.vue'
-import CollectingEventLayout from './components/collectingEvent/main.vue'
-import SettingsCollectionObject from './components/settings/SettingCollectionObject.vue'
-import SpinnerComponent from '@/components/ui/VSpinner.vue'
-import platformKey from '@/helpers/getPlatformKey.js'
+import { computed, ref, onMounted } from 'vue'
 import { useHotkey } from '@/composables'
-import LeftColumn from './components/LeftColumn.vue'
 import { User, Project } from '@/routes/endpoints'
 import { MutationNames } from './store/mutations/mutations.js'
 import { ActionNames } from './store/actions/actions.js'
 import { GetterNames } from './store/getters/getters.js'
 import { useStore } from 'vuex'
-import { computed, ref, onMounted } from 'vue'
+
+import TaskHeader from './components/taskHeader/main.vue'
+import CollectionObject from './components/collectionObject/main.vue'
+import CollectingEventLayout from './components/collectingEvent/main.vue'
+import SettingsCollectionObject from './components/settings/SettingCollectionObject.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
+import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import platformKey from '@/helpers/getPlatformKey.js'
+import LeftColumn from './components/LeftColumn.vue'
 
 defineOptions({
   name: 'ComprehensiveSpecimenDigitization'
 })
 
 const store = useStore()
+const collectingEventStore = useCollectingEventStore()
 
 const saving = computed(() => store.getters[GetterNames.IsSaving])
 const loading = computed(() => store.getters[GetterNames.IsLoading])
@@ -100,8 +103,7 @@ onMounted(() => {
   } else if (/^\d+$/.test(coIdParam)) {
     store.dispatch(ActionNames.LoadDigitalization, coIdParam)
   } else if (/^\d+$/.test(ceIdParam)) {
-    store.dispatch(ActionNames.GetCollectingEvent, ceIdParam)
-    store.dispatch(ActionNames.LoadGeoreferences, ceIdParam)
+    collectingEventStore.load(ceIdParam)
   }
 })
 
@@ -132,7 +134,7 @@ function addShortcutsDescription() {
   )
   TW.workbench.keyboard.createLegend(
     `${key}+b`,
-    'Go to browse nomenclature',
+    'Go to browse taxon names',
     TASK
   )
   TW.workbench.keyboard.createLegend(
@@ -148,21 +150,15 @@ function setLockAll() {
 </script>
 <style lang="scss">
 #vue-all-in-one {
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
-  }
   .main-panel {
     display: flex;
   }
+
   .left-section {
     max-width: 25%;
     min-width: 420px;
   }
+
   .ce-section {
     display: flex;
     flex-grow: 2;

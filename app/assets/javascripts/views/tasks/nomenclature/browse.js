@@ -37,7 +37,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       TW.workbench.keyboard.createShortcut(
         platformKey + '+t',
         'Edit taxon name',
-        'Browse nomenclature',
+        'Browse taxon names',
         () => {
           window.open(editTaskUrl, '_self')
         }
@@ -46,7 +46,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       TW.workbench.keyboard.createShortcut(
         platformKey + '+m',
         'New type specimen',
-        'Browse nomenclature',
+        'Browse taxon names',
         () => {
           window.open(
             `/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxonId}`,
@@ -58,7 +58,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       TW.workbench.keyboard.createShortcut(
         platformKey + '+e',
         'Comprehensive specimen digitization',
-        'Browse nomenclature',
+        'Browse taxon names',
         () => {
           window.open(
             `/tasks/accessions/comprehensive?taxon_name_id=${taxonId}`,
@@ -70,7 +70,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       TW.workbench.keyboard.createShortcut(
         platformKey + '+o',
         'Browse OTU',
-        'Browse nomenclature',
+        'Browse taxon names',
         () => {
           window.open(`/tasks/otus/browse?taxon_name_id=${taxonId}`, '_self')
         }
@@ -160,9 +160,11 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
             filterElement.getAttribute('data-filter-row')
           )
         ]
+        const icon = filterElement.querySelector('[data-icon]')
 
         filterElement.classList.remove('active')
-        filterElement.children[0].setAttribute('data-icon', 'show')
+
+        icon.setAttribute('data-icon', 'show')
 
         const rows = [...document.querySelectorAll('.history__record')]
         const event = new CustomEvent('history-focus-button', {
@@ -185,7 +187,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 
     filterButtons.forEach((element) => {
       element.addEventListener('click', () => {
-        const childElement = element.children[0]
+        const childElement = element.querySelector('[data-icon]')
         const isVisible = childElement.getAttribute('data-icon') === 'show'
         const filterSelector =
           element.getAttribute('data-filter') ||
@@ -193,6 +195,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
         const filterElements = [...document.querySelectorAll(filterSelector)]
 
         element.classList.toggle('active')
+
         childElement.setAttribute('data-icon', isVisible ? 'hide' : 'show')
 
         filterElements.forEach((node) => {

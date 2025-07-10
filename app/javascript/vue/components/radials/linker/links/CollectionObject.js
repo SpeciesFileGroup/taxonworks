@@ -6,7 +6,8 @@ import {
   TASK_FIELD_SYNCHRONIZE,
   TASK_NEW_CONTAINER,
   TASK_SIMPLEMAPPR,
-  TASK_MULTI_UPDATE
+  TASK_MULTI_UPDATE,
+  TASK_PROJECT_VOCABULARY
 } from '../constants/links'
 
 export const CollectionObject = {
@@ -28,6 +29,7 @@ export const CollectionObject = {
     TASK_FIELD_SYNCHRONIZE,
     TASK_NEW_CONTAINER,
     TASK_SIMPLEMAPPR,
-    TASK_MULTI_UPDATE
+    TASK_MULTI_UPDATE,
+    TASK_PROJECT_VOCABULARY
   ]
 }

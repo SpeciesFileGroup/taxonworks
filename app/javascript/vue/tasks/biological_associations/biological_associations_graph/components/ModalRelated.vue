@@ -55,7 +55,8 @@
       <div>
         <p>
           <i
-            >Biological relationships containing related CollectionObjects/OTUS
+            >Biological relationships containing related
+            CollectionObjects/FieldOccurrences/OTUs
           </i>
         </p>
         <VBtn
@@ -135,7 +136,7 @@ import {
   BiologicalAssociation,
   BiologicalAssociationGraph
 } from '@/routes/endpoints'
-import { OTU } from '@/constants/index.js'
+import { COLLECTION_OBJECT, FIELD_OCCURRENCE, OTU } from '@/constants/index.js'
 
 const props = defineProps({
   relations: {
@@ -164,26 +165,33 @@ const toggleSelection = computed({
   }
 })
 
-function makeObjectIdPayload() {
+function makeObjectIdPayload(relations) {
   const otuIds = []
   const coIds = []
-  const objects = props.relations
+  const foIds = []
 
-  objects.forEach(({ objectType, id }) => {
-    if (objectType === OTU) {
-      otuIds.push(id)
-    } else {
-      coIds.push(id)
+  relations.forEach(({ objectType, id }) => {
+    switch (objectType) {
+      case OTU:
+        otuIds.push(id)
+        break
+      case COLLECTION_OBJECT:
+        coIds.push(id)
+        break
+      case FIELD_OCCURRENCE:
+        foIds.push(id)
+        break
     }
   })
 
   return {
     otu_id: [...new Set(otuIds)],
-    collection_object_id: [...new Set(coIds)]
+    collection_object_id: [...new Set(coIds)],
+    field_occurrence_id: [...new Set(foIds)]
   }
 }
 
-function loadRelatedAssociations() {
+async function loadRelatedAssociations() {
   const payload = {
     extend: [
       'biological_relationship_types',
@@ -191,7 +199,7 @@ function loadRelatedAssociations() {
       'subject',
       'object'
     ],
-    ...makeObjectIdPayload()
+    ...makeObjectIdPayload(props.relations)
   }
 
   return BiologicalAssociation.filter(payload).then(({ body }) => {

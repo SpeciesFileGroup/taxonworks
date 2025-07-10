@@ -11,8 +11,8 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
   let(:ad2) { FactoryBot.create(:valid_asserted_distribution, otu: o2) }
   let(:ad_gz) { FactoryBot.create(:valid_gazetteer_asserted_distribution, otu: o1) }
 
-  let(:small_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ) }
-  let(:big_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 ) }
+  let(:small_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10), 0, 0, 5.0, 5.0 ) }
+  let(:big_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10), 0, 0, 10.0, 10.0 ) }
 
   let(:small_geo_area) do
     a = FactoryBot.create(:level1_geographic_area)
@@ -197,7 +197,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     [ad1, ad2, ad_gz]
 
     big_polygon_neighbor = RspecGeoHelpers.make_polygon(
-      RSPEC_GEO_FACTORY.point(15, 10),0,0, 10.0, 10.0
+      RSPEC_GEO_FACTORY.point(15, 10), 0, 0, 10.0, 10.0
     )
 
     big_geo_area_neighbor = FactoryBot.create(:valid_gazetteer,
@@ -207,7 +207,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     # Interior to union of big_polygon and big_polygon_neighbor, but not to either
     # on its own:
     i = RspecGeoHelpers.make_polygon(
-      RSPEC_GEO_FACTORY.point(12, 7),0,0, 5.0, 5.0
+      RSPEC_GEO_FACTORY.point(12, 7), 0, 0, 10.0, 5.0
     )
 
     a = AssertedDistribution.create!(otu: o1,

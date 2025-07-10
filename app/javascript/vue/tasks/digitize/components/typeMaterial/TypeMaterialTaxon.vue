@@ -16,7 +16,7 @@
       "
     />
     <template v-if="typeMaterial.taxon">
-      <hr />
+      <hr class="divisor" />
       <div class="flex-separate middle">
         <a
           :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${typeMaterial.taxon.id}`"

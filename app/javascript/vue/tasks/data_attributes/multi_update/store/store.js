@@ -22,6 +22,7 @@ export default defineStore('store', {
       current: 0
     },
     settings: {
+      override: false,
       append: false
     }
   }),
@@ -57,10 +58,11 @@ export default defineStore('store', {
     },
 
     pasteValue({ text, objectId, predicateId }) {
-      const lines = text.split('\n')
+      const lines = text.replace(/(\r?\n)$/, '').split(/\r?\n/)
       const pIndex = this.predicates.findIndex(
         (item) => item.id === predicateId
       )
+
       let position = this.objects.findIndex((item) => item.id === objectId)
 
       while (lines.length && position < this.objects.length) {
@@ -74,7 +76,7 @@ export default defineStore('store', {
           const value = cells.shift()
           const trimmedValue = value.trim()
 
-          if (trimmedValue.length) {
+          if (trimmedValue.length || this.settings.override) {
             const dataAttributes = this.dataAttributes.filter(
               (da) =>
                 da.objectId === obj.id &&
@@ -89,7 +91,7 @@ export default defineStore('store', {
                 if (this.settings.append) {
                   dataAttribute.value += value
                 } else {
-                  dataAttribute.value = value
+                  dataAttribute.value = trimmedValue
                 }
 
                 dataAttribute.isUnsaved = true

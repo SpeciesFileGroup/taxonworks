@@ -5,7 +5,7 @@ import { addToArray, removeFromArray, randomUUID } from '@/helpers'
 export default defineStore('collectingEventForm:georeferences', {
   state: () => ({
     georeferences: [],
-    queueGeoreferences: []
+    exifGeoreferences: []
   }),
 
   getters: {
@@ -16,17 +16,17 @@ export default defineStore('collectingEventForm:georeferences', {
 
   actions: {
     async load(ceId) {
-      try {
-        const { body } = await Georeference.where({ collecting_event_id: ceId })
+      const request = Georeference.where({ collecting_event_id: ceId })
 
+      request.then(({ body }) => {
         this.georeferences = body.map((item) => ({
           ...item,
           uuid: randomUUID(),
           isUnsaved: false
         }))
+      })
 
-        return body
-      } catch (e) {}
+      return request
     },
 
     async remove(georeference) {
@@ -37,7 +37,7 @@ export default defineStore('collectingEventForm:georeferences', {
       removeFromArray(this.georeferences, georeference, { property: 'uuid' })
     },
 
-    async processGeoreferenceQueue(ceId) {
+    async save(ceId) {
       if (!ceId) return
 
       const unsaved = this.georeferences.filter((item) => item.isUnsaved)
@@ -70,7 +70,7 @@ export default defineStore('collectingEventForm:georeferences', {
         return request
       })
 
-      return Promise.allSettled(requests)
+      return Promise.all(requests)
     }
   }
 })

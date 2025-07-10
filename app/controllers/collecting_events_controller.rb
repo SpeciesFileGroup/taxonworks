@@ -132,8 +132,10 @@ class CollectingEventsController < ApplicationController
   def batch_update
     if r = CollectingEvent.batch_update(
         preview: params[:preview],
-        collecting_event: collecting_event_params.merge(by: sessions_current_user_id),
-        collecting_event_query: params[:collecting_event_query])
+        collecting_event: collecting_event_params,
+        collecting_event_query: params[:collecting_event_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
       render json: {}, status: :unprocessable_entity
@@ -296,7 +298,8 @@ class CollectingEventsController < ApplicationController
       :end_date_year, :verbatim_habitat, :field_notes, :verbatim_datum,
       :verbatim_elevation, :meta_prioritize_geographic_area,
       georeferences_attributes: [:type, :geographic_item_id, :error_radius,
-        :error_depth, :error_geographic_item], # batch add only use right now
+        :error_depth, :error_geographic_item, :is_public, :api_request,
+        :year_georeferenced, :month_georeferenced, :day_georeferenced], # batch add only use right now
       roles_attributes: [:id, :_destroy, :type, :person_id, :position, :by,
                          person_attributes: [:last_name, :first_name, :suffix, :prefix, :by]],
     identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],

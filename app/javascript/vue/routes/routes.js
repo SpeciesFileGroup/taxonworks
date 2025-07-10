@@ -3,19 +3,20 @@ import {
   BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
+  CONTENT,
+  DESCRIPTOR,
   DWC_OCCURRENCE,
   EXTRACT,
   FIELD_OCCURRENCE,
   IMAGE,
+  LOAN,
+  OBSERVATION,
   OTU,
-  PEOPLE,
+  PERSON,
   SOUND,
   SOURCE,
   TAXON_NAME,
-  DESCRIPTOR,
-  OBSERVATION,
-  CONTENT,
-  LOAN
+  TAXON_NAME_RELATIONSHIP
 } from '@/constants/index.js'
 
 const RouteNames = {
@@ -48,6 +49,8 @@ const RouteNames = {
   FilterPeople: '/tasks/people/filter',
   FilterSounds: '/tasks/sounds/filter',
   FilterSources: '/tasks/sources/filter',
+  FilterTaxonNames: '/tasks/taxon_names/filter',
+  FilterTaxonNameRelationships: '/tasks/taxon_name_relationships/filter',
   FreeFormTask: '/tasks/collection_objects/freeform_digitize',
   GridDigitizer: '/tasks/collection_objects/grid_digitize',
   ImageMatrix: '/tasks/observation_matrices/image_matrix',
@@ -97,14 +100,16 @@ const FILTER_ROUTES = {
   [FIELD_OCCURRENCE]: RouteNames.FilterFieldOccurrence,
   [IMAGE]: RouteNames.FilterImages,
   [OTU]: RouteNames.FilterOtus,
-  [PEOPLE]: RouteNames.FilterPeople,
+  [PERSON]: RouteNames.FilterPeople,
   [SOUND]: RouteNames.FilterSounds,
   [SOURCE]: RouteNames.FilterSources,
   [TAXON_NAME]: RouteNames.FilterNomenclature,
   [DESCRIPTOR]: RouteNames.FilterDescriptors,
   [OBSERVATION]: RouteNames.FilterObservations,
   [CONTENT]: RouteNames.FilterContents,
-  [LOAN]: RouteNames.FilterLoans
+  [LOAN]: RouteNames.FilterLoans,
+  [TAXON_NAME]: RouteNames.FilterTaxonNames,
+  [TAXON_NAME_RELATIONSHIP]: RouteNames.FilterTaxonNameRelationships
 }
 
 export { RouteNames, FILTER_ROUTES }

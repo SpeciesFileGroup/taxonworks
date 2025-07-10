@@ -18,7 +18,7 @@ resource :hub, controller: 'hub', only: [] do # "only: [:index]" no longer valid
 end
 
 scope :metadata, controller: 'metadata' do
-  get :vocabulary, defaults: {format: :json}
+  post :vocabulary, defaults: {format: :json}
   get :data_models, defaults: {format: :json}
   get :attributes, defaults: {format: :json}
   get :annotators, defaults: {format: :json}
