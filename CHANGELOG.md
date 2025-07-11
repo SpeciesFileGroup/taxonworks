@@ -33,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Specimens lots failing to generate DwC indexing in DwC importer [#4466]
 - Filters: Sometimes sort column button doesn't work [#4442]
 - Filter Taxon Names to Gender Summary fails with too many ids [#4479]
+- Filter Asserted Distributions doesn't return all results for some spatial shapes [#4464]
 
 ### Changed
 
@@ -56,6 +57,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4456]: https://github.com/SpeciesFileGroup/taxonworks/issues/4456
 [#4458]: https://github.com/SpeciesFileGroup/taxonworks/issues/4458
 [#4461]: https://github.com/SpeciesFileGroup/taxonworks/issues/4461
+[#4464]: https://github.com/SpeciesFileGroup/taxonworks/issues/4464
 [#4465]: https://github.com/SpeciesFileGroup/taxonworks/issues/4465
 [#4466]: https://github.com/SpeciesFileGroup/taxonworks/issues/4466
 [#4470]: https://github.com/SpeciesFileGroup/taxonworks/issues/4470
