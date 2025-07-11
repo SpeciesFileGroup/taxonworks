@@ -38,7 +38,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { BIOLOGICAL_ASSOCIATION, COLLECTION_OBJECT, OTU } from '@/constants'
+import { BIOLOGICAL_ASSOCIATION, COLLECTION_OBJECT, FIELD_OCCURRENCE, OTU } from '@/constants'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
@@ -47,7 +47,8 @@ import VLock from '@/components/ui/VLock/index.vue'
 
 const TABS = {
   [OTU]: 'otus',
-  [COLLECTION_OBJECT]: 'collection_objects'
+  [COLLECTION_OBJECT]: 'collection_objects',
+  [FIELD_OCCURRENCE]: 'field_occurrences',
 }
 
 defineProps({

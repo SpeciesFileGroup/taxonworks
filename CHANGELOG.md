@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project data export task: Recent download table [#4470]
 - Field synchronize: Object label column [#4477]
 - Custom password option for database exports [#4476]
+- FieldOccurrence tab for subject/object on New Biological Association task
 
 ### Fixed
 
