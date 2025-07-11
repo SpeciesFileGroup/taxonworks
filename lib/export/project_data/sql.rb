@@ -1,7 +1,7 @@
 module ::Export::ProjectData::Sql
 
   # Restorable with psql -U :username -d :database -f dump.sql. Requires database to be created without tables (rails db:create)
-  def self.generate_dump(project, file)
+  def self.generate_dump(project, file, custom_password: nil)
     config = ActiveRecord::Base.connection_db_config.configuration_hash
 
     args = [
@@ -22,7 +22,7 @@ module ::Export::ProjectData::Sql
 
     file.puts schema_head
     file.write "\n-- DATA RESTORE\n\n"
-    export_users(file, project)
+    export_users(file, project, custom_password: custom_password)
     tables.each { |t| dump_table(t, file, project.id) }
     tables.each { |t| setup_pk_sequence(t, file) if get_table_cols(t).include?('"id"') }
     Export::ProjectData::HIERARCHIES.each { |p| dump_hierarchy_table(p, file, project.id) }
@@ -31,12 +31,12 @@ module ::Export::ProjectData::Sql
 
   # @return String
   #   path to zipfile
-  def self.export(project)
+  def self.export(project, custom_password: nil)
     zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_dump.sql"
 
     Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
       Tempfile.create(encoding: 'UTF-8') do |tempfile|
-        generate_dump(project, tempfile)
+        generate_dump(project, tempfile, custom_password: custom_password)
         tempfile.flush
         tempfile.rewind
 
@@ -74,9 +74,9 @@ module ::Export::ProjectData::Sql
   end
 
   # @return Download
-  def self.download_async(target_project)
+  def self.download_async(target_project, custom_password: nil)
     d = stub_download(target_project)
-    DownloadProjectSqlJob.perform_later(target_project, d)
+    DownloadProjectSqlJob.perform_later(target_project, d, custom_password: custom_password)
     d
   end
 
@@ -136,14 +136,15 @@ module ::Export::ProjectData::Sql
     io.puts
   end
 
-  def self.export_users(io, project)
+  def self.export_users(io, project, custom_password: nil)
     members = project.project_members.pluck(:user_id)
     conn = get_connection
+    password = custom_password || 'taxonworks'
 
     User.all.find_each do |user|
       attributes = {
         id: user.id,
-        password_digest: "'#{conn.escape_string(User.new(password: 'taxonworks').password_digest)}'",
+        password_digest: "'#{conn.escape_string(User.new(password: password).password_digest)}'",
         created_at: "'#{user.created_at}'",
         updated_at: "'#{user.updated_at}'",
         created_by_id: user.created_by_id || 'NULL',
