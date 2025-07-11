@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Field synchronize: Object label column [#4477]
 - Custom password option for database exports [#4476]
 - FieldOccurrence tab for subject/object on New Biological Association task
+- Rebuild set index for dwc_occurrences
 
 ### Fixed
 
