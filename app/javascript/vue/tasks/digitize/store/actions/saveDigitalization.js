@@ -5,6 +5,7 @@ import { CollectionObject } from '@/routes/endpoints'
 import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations'
+import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
 import {
   IDENTIFIER_LOCAL_RECORD_NUMBER,
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
@@ -41,6 +42,7 @@ export default async (
     const determinationStore = useTaxonDeterminationStore()
     const collectingEventStore = useCollectingEventStore()
     const biologicalAssociationStore = useBiologicalAssociationStore()
+    const biocurationStore = useBiocurationStore()
 
     state.settings.saving = true
     if (collectingEventStore.isUnsaved) {
@@ -66,7 +68,8 @@ export default async (
       recordNumber.save(payload),
       catalogNumber.save(payload),
       determinationStore.save(makeCOArgs(coCreated.id)),
-      biologicalAssociationStore.save(makeCOArgs(coCreated.id))
+      biologicalAssociationStore.save(makeCOArgs(coCreated.id)),
+      biocurationStore.save(makeCOArgs(coCreated.id))
     ]
 
     const promises = await Promise.allSettled(actions)
@@ -95,8 +98,9 @@ export default async (
 
     updateSmartSelectors()
     state.settings.saving = false
-    return true
-  } catch {
+    return Promise.all(promises)
+  } catch (e) {
     state.settings.saving = false
+    throw e
   }
 }

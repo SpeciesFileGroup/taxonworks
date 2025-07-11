@@ -1,6 +1,6 @@
 <template>
   <div class="vue-table-container">
-    <table class="vue-table">
+    <table class="vue-table table-striped">
       <thead>
         <tr>
           <th class="word-keep-all line-nowrap">Georeference ID</th>
@@ -31,28 +31,22 @@
           <td>{{ getCoordinatesByType(item) }}</td>
           <td>{{ item.has_error_polygon ? 'Yes' : 'No' }}</td>
           <td class="line-nowrap">
-            <edit-in-place
+            <EditInPlace
               v-model="item.error_radius"
-              @end="$emit('update', item)"
+              @end="emit('update', item)"
             />
           </td>
           <td>{{ item.inferred_error_radius }}</td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td>
             <div class="horizontal-left-content">
-              <date-component
+              <VDate
                 v-model:day="item.day_georeferenced"
                 v-model:month="item.month_georeferenced"
                 v-model:year="item.year_georeferenced"
                 placeholder
+                @change="emit('dateChanged', item)"
               />
-              <VBtn
-                color="primary"
-                medium
-                @click="$emit('dateChanged', item)"
-              >
-                Update
-              </VBtn>
             </div>
           </td>
           <td>
@@ -82,7 +76,7 @@
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import EditInPlace from '@/components/editInPlace'
-import DateComponent from '@/components/ui/Date/DateFields.vue'
+import VDate from '@/components/ui/Date/DateFields.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { convertToLatLongOrder } from '@/helpers/geojson'

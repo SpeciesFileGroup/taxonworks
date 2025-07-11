@@ -421,7 +421,7 @@ interactive_key_task:
   description: 'Interactive key based on an observation matrix.'
 nomenclature_stats_task:
   hub: true
-  name: 'Nomenclature stats'
+  name: 'Taxon name stats'
   related:
   categories:
     - nomenclature
@@ -454,7 +454,7 @@ filter_collection_objects_task:
   description: 'Filter collection objects by many different facets, download or visualize results.'
 synchronize_otus_to_nomenclature_task:
   hub: true
-  name: 'Synchronize nomenclature and OTUs'
+  name: 'Synchronize taxon names and OTUs'
   related:
   categories:
     - nomenclature
@@ -490,6 +490,7 @@ biological_relationship_composer_task:
   related:
   categories:
     - biology
+    - new
   status: prototype
   description: 'Define and add properties to biological relationships, e.g. things like "host/parasite".'
 grid_digitize_task:
@@ -503,7 +504,7 @@ grid_digitize_task:
   description: 'Break images of collection objects in a grid (e.g. slide folders) into individual collection objects and their depictions.'
 export_basic_nomenclature_task:
   hub: true
-  name: 'Download nomenclature (basic)'
+  name: 'Download taxon names (basic)'
   related:
   categories:
     - nomenclature
@@ -603,7 +604,7 @@ new_extract_task:
   description: 'Create new extracts, e.g. for DNA purposes.'
 content_by_nomenclature_task:
   hub: true
-  name: 'Content by nomenclature ("Brock")'
+  name: 'Content by taxon names ("Brock")'
   related:
   categories:
   status: prototype
@@ -797,6 +798,7 @@ edit_biological_associations_graph_task:
   related:
   categories:
     - biology
+    - new
   status: prototype
   description: 'Create, edit, and cite biological associations and their inter-relationships.'
 loan_dashboard_task:
@@ -816,7 +818,7 @@ geographic_area_usage_task:
   description: 'Summarize this projects geographic area usage'
 taxon_name_stats_task:
   hub: false
-  name: 'Taxon name stats'
+  name: 'Taxon names stats'
   related:
   categories:
   status: prototype
@@ -981,6 +983,7 @@ new_biological_association_task:
   related:
   categories:
     - biology
+    - new
   status: prototype
   description: 'Create, edit, and cite biological associations.'
 duplicate_otus_task:
@@ -1045,7 +1048,7 @@ filter_field_occurrences_task:
   status: prototype
   description: 'Filter field occurrences by many different facets, download or visualize results.'
 taxon_names_table_task:
-  hub: true
+  hub: false
   name: 'Taxon names table'
   description: 'A simple table view of taxon names including checklist-style columns of names at rank, author, and year.'
   status: prototype

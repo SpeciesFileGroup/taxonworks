@@ -1,5 +1,18 @@
 class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
+  SUPPORTED_DWC_TERMS = %w(
+    acceptedNameUsageID
+    namePublishedInYear
+    nomenclaturalCode
+    originalNameUsageID
+    parentNameUsageID
+    scientificName
+    scientificNameAuthorship
+    taxonID
+    taxonomicStatus
+    taxonRank
+  )
+
   KNOWN_KEYS_COMBINATIONS = [
     %i{uninomial},
     %i{uninomial rank parent},
@@ -19,6 +32,17 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
     form: 'TaxonNameRelationship::OriginalCombination::OriginalForm'
   }.freeze
+
+  def get_mapped_fields(dwc_data_attributes = {})
+    tw_data = %w(
+      TW:TaxonNameClassification:Iczn:Fossil
+      TW:TaxonNameClassification:Latinized:Gender
+      TW:TaxonNameClassification:Latinized:PartOfSpeech
+      TW:TaxonNameRelationship:incertae_sedis_in_rank
+    ).map { |f| get_field_mapping(f) }.compact
+
+    (super + tw_data).sort.uniq
+  end
 
   # rubocop:disable Metric/MethodLength
 

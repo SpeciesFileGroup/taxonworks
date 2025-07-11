@@ -55,7 +55,7 @@
                   runFix([
                     {
                       global_id: list.instance.global_id,
-                      only_methods: [error_validation_method]
+                      only_methods: [error.soft_validation_method]
                     }
                   ])
                 "

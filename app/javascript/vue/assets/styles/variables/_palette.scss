@@ -14,6 +14,7 @@
   --border-color: #d5d5d5;
   --button-disabled-bg-color: #ececec;
   --button-disabled-text-color: #999;
+  --button-default-bg-color: #dddcdc;
   --input-bg-color: #ffffff;
   --panel-bg-color: #ffffff;
   --panel-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
@@ -42,6 +43,10 @@
   --feedback-info-text-color: #4c81eb;
   --feedback-info-bg-color: #b0caff;
   --feedback-info-border-color: #6899fa;
+
+  --feedback-warning-text-color: #c3a78a;
+  --feedback-warning-bg-color: #fff5ea;
+  --feedback-warning-border-color: #e5d2be;
 }
 
 .dark {
@@ -60,6 +65,7 @@
   --border-color: #5b5b5b;
   --button-disabled-bg-color: #555555;
   --button-disabled-text-color: #aaaaaa;
+  --button-default-bg-color: #dddcdc;
   --input-bg-color: #2b2b2b;
   --panel-bg-color: #333333;
   --panel-shadow: rgba(0, 0, 0, 0.08) 4px 4px 15px 0px;
@@ -86,6 +92,10 @@
   --feedback-info-text-color: #4c81eb;
   --feedback-info-bg-color: #2e3646;
   --feedback-info-border-color: #6899fa;
+
+  --feedback-warning-text-color: #cf873b;
+  --feedback-warning-bg-color: #37332f;
+  --feedback-warning-border-color: #6b461e;
 }
 
 $tw-dark-colors: (

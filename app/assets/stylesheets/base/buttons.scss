@@ -5,7 +5,7 @@
   cursor: pointer;
   color: #444;
   border: none;
-  background-color: $navigation-background;
+  background-color: var(--button-default-bg-color);
   border-radius: 8px;
   &:disabled {
     color: var(--button-disabled-text-color);

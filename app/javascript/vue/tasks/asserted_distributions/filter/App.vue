@@ -4,7 +4,7 @@
 
     <FilterLayout
       :pagination="pagination"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :object-type="ASSERTED_DISTRIBUTION"
       :list="list"
       :url-request="urlRequest"
@@ -25,7 +25,7 @@
       <template #nav-right>
         <RadialAssertedDistribution
           :disabled="!list.length"
-          :ids="selectedIds"
+          :ids="sortedSelectedIds"
           @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
@@ -40,8 +40,11 @@
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         >
-          <template #otuGlobalId="{ value }">
-            <RadialObject :global-id="value" />
+          <template #otuGlobalId="{ value, setHighlight }">
+            <RadialObject
+              :global-id="value"
+              @click="setHighlight"
+            />
           </template>
         </FilterList>
       </template>
@@ -75,15 +78,16 @@ defineOptions({
 })
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(AssertedDistribution, { listParser, initParameters: { extend } })
 </script>

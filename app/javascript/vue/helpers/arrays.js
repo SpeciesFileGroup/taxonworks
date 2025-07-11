@@ -1,4 +1,6 @@
 import DOMPurify from 'dompurify'
+import { isPureNumber } from './numbers.js'
+import { getNestedValue } from './objects.js'
 
 function chunkArray(arr, chunkSize) {
   const results = []
@@ -16,29 +18,29 @@ function getUnique(arr, property) {
 }
 
 function sortFunction(a, b, asc) {
-  if (a == null && b == null) return 0
+  const isNullOrUndefined = (val) => val === null || val === undefined
 
-  if (asc) {
-    if (a == null) return -1
-    if (b == null) return 1
-  } else {
-    if (a == null) return 1
-    if (b == null) return -1
-  }
+  if (isNullOrUndefined(a) && isNullOrUndefined(b)) return 0
+  if (isNullOrUndefined(a)) return asc ? -1 : 1
+  if (isNullOrUndefined(b)) return asc ? 1 : -1
 
-  const numA = parseFloat(a)
-  const numB = parseFloat(b)
+  const aStr = a.toString()
+  const bStr = b.toString()
 
-  if (!isNaN(numA) && !isNaN(numB)) {
+  const bothPureNumbers = isPureNumber(aStr) && isPureNumber(bStr)
+
+  if (bothPureNumbers) {
+    const numA = parseFloat(aStr)
+    const numB = parseFloat(bStr)
     return asc ? numA - numB : numB - numA
   }
 
   return asc
-    ? a.toString().localeCompare(b.toString(), undefined, {
+    ? aStr.localeCompare(bStr, undefined, {
         numeric: true,
         sensitivity: 'base'
       })
-    : b.toString().localeCompare(a.toString(), undefined, {
+    : bStr.localeCompare(aStr, undefined, {
         numeric: true,
         sensitivity: 'base'
       })
@@ -46,22 +48,12 @@ function sortFunction(a, b, asc) {
 
 function sortArray(arr, sortProperty, ascending = true, opts = {}) {
   const list = arr.slice()
-  const prop = String(sortProperty).split('.')
-  const len = prop.length
-
+  const path = sortProperty ? String(sortProperty).split('.') : null
   const { stripHtml } = opts
 
-  return list.sort((a, b) => {
-    if (!sortProperty) return sortFunction(a, b, ascending)
-
-    for (let i = 0; i < len; i++) {
-      if (a) {
-        a = a[prop[i]]
-      }
-      if (b) {
-        b = b[prop[i]]
-      }
-    }
+  return list.sort((itemA, itemB) => {
+    let a = path ? getNestedValue(itemA, path) : itemA
+    let b = path ? getNestedValue(itemB, path) : itemB
 
     if (stripHtml) {
       a = DOMPurify.sanitize(a, { USE_PROFILES: { html: false } })
@@ -69,6 +61,30 @@ function sortArray(arr, sortProperty, ascending = true, opts = {}) {
     }
 
     return sortFunction(a, b, ascending)
+  })
+}
+
+export function sortArrayByReference({
+  list,
+  reference,
+  getListValue = (item) => item,
+  getReferenceValue = (item) => item,
+  excludeUnmatched = false
+}) {
+  const positionMap = new Map(
+    reference.map((item, index) => [getReferenceValue(item), index])
+  )
+
+  let filteredList = excludeUnmatched
+    ? list.filter((item) => positionMap.has(getListValue(item)))
+    : list
+
+  return filteredList.toSorted((a, b) => {
+    const aKey = getListValue(a)
+    const bKey = getListValue(b)
+    return (
+      (positionMap.get(aKey) ?? Infinity) - (positionMap.get(bKey) ?? Infinity)
+    )
   })
 }
 

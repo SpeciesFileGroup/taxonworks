@@ -210,10 +210,11 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
         expect(json).to eq({ 'type' => 'FeatureCollection',
                              'features' => [{ 'type' => 'Feature',
                                               'geometry' => { 'type' => 'Point',
-                                                              'coordinates' => [5, 5, 0.0] },
+                                                              'coordinates' => [5.0, 5.0, 0.0] },
                                               'properties' => { 'georeference' =>
                                                                     { 'id' => object.id,
-                                                                      'tag' => "Georeference ID = #{object.id}" } },
+                                                                      'tag' => "Georeference ID = #{object.id}" },
+                                                                'radius' => nil },
                                               'id' => feature_index.to_i }] })
       end
     end
@@ -275,7 +276,7 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
                                                                   { 'id' => ce_a.id,
                                                                     'tag' => "Collecting event #{ce_a.id}." } },
                                             'geometry' => { 'type' => 'Point',
-                                                            'coordinates' => [5, 5, 0] },
+                                                            'coordinates' => [5.0, 5.0, 0] },
                                             'id' => (feature_index.to_i + 0) },
                                           { 'type' => 'Feature',
                                             'properties' => { 'shape' => { 'type' => 'GeographicArea',
@@ -291,7 +292,8 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
                                                             'coordinates' => [5.0, -5.0, 0.0] },
                                             'properties' => { 'georeference' => { 'id' => ce_b.georeferences.first.id,
                                                                                   'tag' => 'Georeference ID = ' \
-                                                                              "#{ce_b.georeferences.first.id}" } },
+                                                                              "#{ce_b.georeferences.first.id}" },
+                                                              'radius' => nil },
                                             'id' => (feature_index.to_i + 2) },
                                           { 'type' => 'Feature',
                                             'geometry' => { 'type' => 'Point',

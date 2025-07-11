@@ -128,7 +128,7 @@ const taxonNameAndAuthor = computed(
 onBeforeMount(() => {
   TW.workbench.keyboard.createLegend(
     platformKey() + '+' + 'b',
-    'Go to browse nomenclature',
+    'Go to browse taxon names',
     'New taxon name'
   )
   TW.workbench.keyboard.createLegend(

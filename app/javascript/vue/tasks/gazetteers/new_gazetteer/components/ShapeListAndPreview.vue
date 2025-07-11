@@ -9,7 +9,7 @@
 
       <!--TODO: update VToggle so (Union == true) can be on the left.-->
       <VToggle
-        v-if="!gzSaved && showMap"
+        v-if="showMap"
         v-model="previewOperationIsUnion"
         :options="['Union', 'Intersection']"
       />
@@ -26,7 +26,6 @@
       class="geolist right-column"
       :list="rawShapes"
       @delete="(shape) => { emit('deleteShape', shape) }"
-      :editing-disabled="gzSaved"
     />
 
   </div>
@@ -44,11 +43,6 @@ const PRESAVE_OPTIONS = {
   Table: 'Shapes table',
 }
 
-const POSTSAVE_OPTIONS = {
-  Shape: 'Saved shape',
-  Table: 'Shape table'
-}
-
 const props = defineProps({
   geojsonShape: {
     type: Object,
@@ -59,55 +53,30 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-
-  gzSaved: {
-    type: Boolean,
-    default: false
-  }
 })
 
 const emit = defineEmits(['deleteShape', 'previewing', 'operationIsUnion'])
 
 const previewOperationIsUnion = defineModel({type: Boolean, default: true})
 
-const view = ref(props.gzSaved ? POSTSAVE_OPTIONS.Shape : PRESAVE_OPTIONS.Preview)
+const view = ref(PRESAVE_OPTIONS.Preview)
 
 const currentOptions = computed(() => {
-  return props.gzSaved ? Object.values(POSTSAVE_OPTIONS) : Object.values(PRESAVE_OPTIONS)
+  return Object.values(PRESAVE_OPTIONS)
 })
 
 const showMap = computed(() => {
-  return props.gzSaved
-    ? view.value == POSTSAVE_OPTIONS.Shape
-    : view.value == PRESAVE_OPTIONS.Preview
+  return view.value == PRESAVE_OPTIONS.Preview
 })
 
 watch(
   view,
   (newVal) => {
     emit('previewing',
-      newVal == PRESAVE_OPTIONS.Preview || newVal == POSTSAVE_OPTIONS.Shape
+      newVal == PRESAVE_OPTIONS.Preview
     )
   },
   { immediate: true }
-)
-
-watch(() => props.gzSaved, (newVal) => {
-  if (newVal) {
-    if (view.value == PRESAVE_OPTIONS.Preview) {
-      view.value = POSTSAVE_OPTIONS.Shape
-    } else if (view.value == PRESAVE_OPTIONS.Table) {
-      view.value = POSTSAVE_OPTIONS.Table
-    }
-  } else {
-    if (view.value == POSTSAVE_OPTIONS.Shape) {
-      view.value = PRESAVE_OPTIONS.Preview
-    } else if (view.value == POSTSAVE_OPTIONS.Table) {
-      view.value = PRESAVE_OPTIONS.Table
-    }
-  }
-},
-{ immediate: true }
 )
 
 </script>

@@ -8,7 +8,7 @@
     title="Collectors"
     klass="CollectingEvent"
     param-people="collector_id"
-    param-any="collector_id_or"
+    param-all="collector_id_all"
     :role-type="COLLECTOR_SELECTOR"
   />
   <FacetMaterial v-model="params" />
