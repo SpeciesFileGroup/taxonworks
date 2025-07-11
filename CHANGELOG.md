@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC import task: Detect and highlight columns that will be ignored [#4406]
 - Project data export task: Recent download table [#4470]
 - Field synchronize: Object label column [#4477]
+- Custom password option for database exports [#4476]
 
 ### Fixed
 
@@ -64,6 +65,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4472]: https://github.com/SpeciesFileGroup/taxonworks/issues/4472
 [#4477]: https://github.com/SpeciesFileGroup/taxonworks/issues/4477
 [#4479]: https://github.com/SpeciesFileGroup/taxonworks/issues/4479
+[#4476]: https://github.com/SpeciesFileGroup/taxonworks/pull/4476
 
 ## [0.52.1] - 2025-06-17
 
