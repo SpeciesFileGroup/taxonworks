@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Depiction list isn't populated in Image's depictions quick form [#4465]
 - Specimens lots failing to generate DwC indexing in DwC importer [#4466]
 - Filters: Sometimes sort column button doesn't work [#4442]
+- Filter Taxon Names to Gender Summary fails with too many ids [#4479]
 
 ### Changed
 
@@ -60,6 +61,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4470]: https://github.com/SpeciesFileGroup/taxonworks/issues/4470
 [#4472]: https://github.com/SpeciesFileGroup/taxonworks/issues/4472
 [#4477]: https://github.com/SpeciesFileGroup/taxonworks/issues/4477
+[#4479]: https://github.com/SpeciesFileGroup/taxonworks/issues/4479
 
 ## [0.52.1] - 2025-06-17
 

@@ -135,7 +135,7 @@ export const TASK_COLLECTING_EVENT_METADATA = {
 export const TASK_TAXON_NAME_GENDER = {
   label: 'Gender summary',
   link: '/tasks/taxon_names/gender',
-  post: false,
+  post: true,
   queryParam: true
 }
 
@@ -146,4 +146,3 @@ export const TASK_PROJECT_VOCABULARY = {
   queryParam: true,
   saveQuery: true
 }
-
