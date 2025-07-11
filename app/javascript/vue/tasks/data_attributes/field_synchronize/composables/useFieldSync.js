@@ -24,6 +24,7 @@ import {
 } from '../factory'
 import { sortArrayByReference } from '@/helpers'
 import Qs from 'qs'
+import DOMPurify from 'dompurify'
 
 export function useFieldSync() {
   const userPredicates = ref([])
@@ -355,7 +356,7 @@ export function useFieldSync() {
 
       pagination.value = getPagination(response)
       list.value = items.map((item) => {
-        const { id, ...attributes } = item
+        const { id, object_tag, ...attributes } = item
 
         if (!dataAttributes.value[id]) {
           dataAttributes.value[id] = fillDataAttributes({}, predicates.value)
@@ -365,6 +366,10 @@ export function useFieldSync() {
           id,
           uuid: randomUUID(),
           attributes,
+          labelHtml: object_tag,
+          label: DOMPurify.sanitize(object_tag, {
+            USE_PROFILES: { html: false }
+          }),
           dataAttributes: dataAttributes.value[id]
         }
       })
