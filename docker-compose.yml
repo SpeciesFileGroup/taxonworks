@@ -44,6 +44,18 @@ services:
       - ./volumes/webpack_build:/mnt/rails/public/webpack
     ports:
       - '3035:3035'
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+    environment:
+      - SHAKAPACKER_DEV_SERVER_HOST=webpack
+    volumes:
+      - .:/app
+    links:
+      - db
+      - postgres10_legacy
+    command: bundle exec rake jobs:work
 volumes:
   pg:
     external: false
