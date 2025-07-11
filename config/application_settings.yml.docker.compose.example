@@ -1,3 +1,9 @@
+development:
+  # Add any custom hostnames your development server uses
+  # allowed_hosts:
+  #   - "taxonworks.yourdomain.com"
+  #   - "another.example.com"
+
 test:
   selenium:
     headless: true
