@@ -218,8 +218,6 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['editingHasOccurred'])
-
 const store = useStore()
 
 const depictions = ref([])
@@ -286,7 +284,6 @@ function insertCouplet() {
         "Success - you're now editing the inserted couplet",
         'notice'
       )
-      emit('editingHasOccurred')
   })
 }
 
@@ -310,7 +307,6 @@ function nextCouplet() {
         loading.value = false
       })
   }
-  emit('editingHasOccurred')
 }
 
 function deleteSubTree() {
@@ -330,7 +326,6 @@ function deleteSubTree() {
         : 'Lead deleted.')
       store.loadKey(body)
       TW.workbench.alert.create(noticeText, 'notice')
-      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {
@@ -364,7 +359,6 @@ function changeLeadPosition(direction) {
 
       const direction_word = (direction == DIRECTIONS.left) ? 'left' : 'right'
       TW.workbench.alert.create('Moved lead ' + direction_word, 'notice')
-      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {

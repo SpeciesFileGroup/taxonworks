@@ -111,7 +111,6 @@
         :key="child.id"
         :position="i"
         :redirect-options="redirectOptions"
-        @editing-has-occurred="() => emit('editingHasOccurred')"
       />
     </div>
   </div>
@@ -153,8 +152,6 @@ import { computed, ref, watch } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
 import { useStore } from '../../store/useStore.js'
-
-const emit = defineEmits(['editingHasOccurred'])
 
 const store = useStore()
 
@@ -233,7 +230,6 @@ function previousCouplet() {
   }
 
   store.loadKey(store.lead.parent_id)
-  emit('editingHasOccurred')
 }
 
 function insertCouplet() {
@@ -243,7 +239,6 @@ function insertCouplet() {
         "Success - you're now editing the inserted couplet",
         'notice'
       )
-      emit('editingHasOccurred')
   })
 }
 
@@ -257,7 +252,6 @@ function insertKey(keyId) {
     .then(() => {
       store.loadKey(store.lead.id)
       TW.workbench.alert.create("Inserted key - the root lead of the inserted key is now visible here", 'notice')
-      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {
@@ -283,7 +277,6 @@ function saveChanges() {
         // Future changes when redirect changes.
         store.updateChild(body.lead, body.future)
         store.print_key = body.print_key
-        emit('editingHasOccurred')
       })
       // TODO: if multiple fail we can get overlapping popup messages, but is
       // there a way to catch here without also displaying the error message (so
@@ -300,7 +293,6 @@ function saveChanges() {
       LeadEndpoint.update(store.lead.id, payload)
         .then(() => {
           store.last_saved.origin_label = store.lead.origin_label
-          emit('editingHasOccurred')
         })
         .catch(() => {})
     )
@@ -323,7 +315,6 @@ function nextCouplet() {
   LeadEndpoint.add_children(store.lead.id, { num_to_add: 2 })
     .then(({ body }) => {
       store.loadKey(body)
-      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {
@@ -337,7 +328,6 @@ function addLead() {
     .then(({ body }) => {
       store.loadKey(body)
       TW.workbench.alert.create('Added a new lead.', 'notice')
-      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {
@@ -354,7 +344,6 @@ function destroyCouplet() {
       .then(() => {
         store.loadKey(store.lead.id)
         TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
-        emit('editingHasOccurred')
       })
       .catch(() => {})
       .finally(() => {
@@ -372,7 +361,6 @@ function deleteCouplet() {
       .then(() => {
         store.loadKey(store.lead.id)
         TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
-        emit('editingHasOccurred')
       })
       .catch(() => {})
       .finally(() => {

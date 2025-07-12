@@ -29,6 +29,7 @@ const makeInitialState = () => ({
     // otu indices (corresponding to the `parent` array) which are checked.
     children: []
   },
+  layout: null,
   // Print version of the entire key, used only in association with lead items.
   print_key: ''
 })
