@@ -169,7 +169,7 @@
           v-model:depiction="depictions"
         />
 
-        <template v-if="store.layout == 'PreviousFuture'">
+        <template v-if="store.layout == LAYOUTS.PreviousFuture">
           <h3>Future couplets</h3>
           <FutureCoupletsList
             :future="store.futures[position]"
@@ -199,6 +199,7 @@ import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
 import { useStore } from '../store/useStore.js'
 import { useUserOkayToLeave } from './composables/useUserOkayToLeave.js'
+import { LAYOUTS } from './layouts'
 import Annotations from './Annotations.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import FutureCoupletsList from '../../components/FutureCoupletsList.vue'

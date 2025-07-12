@@ -9,7 +9,7 @@
       title="Change layout"
       @click="changeLayout"
     >
-      {{ nextLayout }}
+      {{ layoutButtonText }}
     </VBtn>
   </div>
 
@@ -61,7 +61,6 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import CornerSpinner from '../components/CornerSpinner.vue'
 import Couplet from './shared/Couplet.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import PreviousFuture from './previous_future/app.vue'
 import KeyMeta from './shared/KeyMeta.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
@@ -73,24 +72,20 @@ import { useStore } from './store/useStore.js'
 import { RouteNames } from '@/routes/routes'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { usePopstateListener } from '@/composables'
-
-
-const LAYOUTS = ['PreviousFuture', 'FullKey']
-const LAYOUT_COMPONENTS = {
-  PreviousFuture: PreviousFuture,
-  FullKey: null,
-}
+import { nextLayout, LAYOUTS, LAYOUT_COMPONENTS } from './shared/layouts'
 
 const SettingsStore = {
   layout: 'newLead::layout'
 }
 
 const store = useStore()
-store.layout = LAYOUTS[0]
+store.layout = LAYOUTS.PreviousFuture
 
 const metaExpanded = ref(true)
 const depictions = ref([])
 const citations = ref([])
+
+let layoutButtonText = nextLayout()
 
 const annotationLists = {
   [DEPICTION]: depictions,
@@ -102,12 +97,6 @@ const {
   handleRadialUpdate
 } = useAnnotationHandlers(annotationLists)
 
-const nextLayout = computed(() => {
-  const layoutIndex = LAYOUTS.indexOf(store.layout)
-  const newIndex = (layoutIndex + 1) % LAYOUTS.length
-  return LAYOUTS[newIndex]
-})
-
 const metadataTitle = computed(() => {
   const defaultText = 'Key metadata'
   if (metaExpanded.value || !store.root.text) {
@@ -118,7 +107,8 @@ const metadataTitle = computed(() => {
 })
 
 function changeLayout() {
-  store.layout = nextLayout.value
+  layoutButtonText = nextLayout()
+  store.layout = layoutButtonText
   sessionStorage.setItem(SettingsStore.redirectValid, store.layout)
 }
 
