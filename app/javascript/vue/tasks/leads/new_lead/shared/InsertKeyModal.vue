@@ -53,7 +53,7 @@ import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { Lead } from '@/routes/endpoints'
 import { onBeforeMount, ref } from 'vue'
-import { useStore } from '../../store/useStore.js'
+import { useStore } from '../store/useStore.js'
 
 const emit = defineEmits(['keySelected'])
 

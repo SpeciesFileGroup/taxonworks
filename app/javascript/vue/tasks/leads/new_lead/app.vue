@@ -50,11 +50,16 @@
 
   <component :is="LAYOUT_COMPONENTS[store.layout]" />
 
+   <Couplet
+    v-if="store.lead.id"
+  />
+
 </template>
 
 <script setup>
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import CornerSpinner from '../components/CornerSpinner.vue'
+import Couplet from './shared/Couplet.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import PreviousFuture from './previous_future/app.vue'
 import KeyMeta from './shared/KeyMeta.vue'
@@ -63,7 +68,7 @@ import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import setParam from '@/helpers/setParam'
 import { computed, onBeforeMount, ref } from 'vue'
 import { CITATION, DEPICTION } from '@/constants'
-import { useAnnotationHandlers } from './previous_future/components/composables/useAnnotationHandlers.js'
+import { useAnnotationHandlers } from './shared/composables/useAnnotationHandlers.js'
 import { useStore } from './store/useStore.js'
 import { RouteNames } from '@/routes/routes'
 import { URLParamsToJSON } from '@/helpers/url/parse'

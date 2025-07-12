@@ -169,12 +169,14 @@
           v-model:depiction="depictions"
         />
 
-        <h3>Future couplets</h3>
-        <FutureCoupletsList
-          :future="store.futures[position]"
-          :route-name="RouteNames.NewLead"
-          :load-function="(id) => store.loadKey(id)"
-        />
+        <template v-if="store.layout == 'PreviousFuture'">
+          <h3>Future couplets</h3>
+          <FutureCoupletsList
+            :future="store.futures[position]"
+            :route-name="RouteNames.NewLead"
+            :load-function="(id) => store.loadKey(id)"
+          />
+        </template>
       </template>
     </BlockLayout>
 
@@ -189,17 +191,17 @@
 
 <script setup>
 import { DEPICTION, LEAD } from '@/constants/index.js'
-import { DIRECTIONS } from '../../store/constants/directions.js'
+import { DIRECTIONS } from '../store/constants/directions.js'
 import { computed, ref } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
-import { useStore } from '../../store/useStore.js'
+import { useStore } from '../store/useStore.js'
 import { useUserOkayToLeave } from './composables/useUserOkayToLeave.js'
 import Annotations from './Annotations.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import FutureCoupletsList from '../../../components/FutureCoupletsList.vue'
+import FutureCoupletsList from '../../components/FutureCoupletsList.vue'
 import LeadItems from './LeadItems.vue'
 import OtuChooser from './OtuChooser.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'

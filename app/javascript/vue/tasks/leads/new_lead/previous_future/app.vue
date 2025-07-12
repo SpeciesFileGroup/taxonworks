@@ -8,16 +8,11 @@
     <legend>Key Preview</legend>
     <div v-html="store.print_key" />
   </fieldset>
-
-  <Couplet
-    v-if="store.lead.id"
-  />
 </template>
 
 <script setup>
 import { onBeforeMount, ref } from 'vue'
 import { useStore } from '../store/useStore.js'
-import Couplet from './components/Couplet.vue'
 import PreviousLeads from './components/PreviousLeads.vue'
 
 const store = useStore()
