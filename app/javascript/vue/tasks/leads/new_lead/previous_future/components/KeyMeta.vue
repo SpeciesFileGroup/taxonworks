@@ -77,7 +77,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { computed, ref } from 'vue'
 import { LEAD } from '@/constants/index.js'
-import { useStore } from '../store/useStore.js'
+import { useStore } from '../../store/useStore.js'
 import { Lead } from '@/routes/endpoints'
 
 const store = useStore()

@@ -87,7 +87,7 @@ import RadialObject from '@/components/radials/navigation/radial.vue'
 import { Lead, LeadItem } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
-import { useStore } from '../store/useStore.js'
+import { useStore } from '../../store/useStore.js'
 
 const props = defineProps({
   leadId: {

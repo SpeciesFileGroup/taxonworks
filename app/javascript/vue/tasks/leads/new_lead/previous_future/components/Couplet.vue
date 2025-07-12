@@ -152,7 +152,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import { computed, ref, watch } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
-import { useStore } from '../store/useStore.js'
+import { useStore } from '../../store/useStore.js'
 
 const emit = defineEmits(['editingHasOccurred'])
 
