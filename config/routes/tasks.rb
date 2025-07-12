@@ -737,7 +737,7 @@ scope :tasks do
 
   scope :taxon_names do
     scope :gender, controller: 'tasks/taxon_names/gender' do
-      get '/', action: :index, as: 'taxon_name_gender_task'
+      match '/', action: :index, via: [:get, :post], as: 'taxon_name_gender_task'
     end
 
     scope :stats, controller: 'tasks/taxon_names/stats' do

@@ -64,6 +64,30 @@ function sortArray(arr, sortProperty, ascending = true, opts = {}) {
   })
 }
 
+export function sortArrayByReference({
+  list,
+  reference,
+  getListValue = (item) => item,
+  getReferenceValue = (item) => item,
+  excludeUnmatched = false
+}) {
+  const positionMap = new Map(
+    reference.map((item, index) => [getReferenceValue(item), index])
+  )
+
+  let filteredList = excludeUnmatched
+    ? list.filter((item) => positionMap.has(getListValue(item)))
+    : list
+
+  return filteredList.toSorted((a, b) => {
+    const aKey = getListValue(a)
+    const bKey = getListValue(b)
+    return (
+      (positionMap.get(aKey) ?? Infinity) - (positionMap.get(bKey) ?? Infinity)
+    )
+  })
+}
+
 function sortArrayByArray(arr, sortingArr, asc) {
   const list = arr.slice()
 

@@ -5,7 +5,7 @@
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :object-type="TAXON_NAME"
       :list="list"
       v-model="parameters"
@@ -26,13 +26,13 @@
       <template #nav-right>
         <RadialLabel
           :object-type="TAXON_NAME"
-          :ids="selectedIds"
-          :disabled="!selectedIds.length"
+          :ids="sortedSelectedIds"
+          :disabled="!sortedSelectedIds.length"
         />
         <RadialNomenclature
           :disabled="!list.length"
-          :ids="selectedIds"
-          :count="selectedIds.length"
+          :ids="sortedSelectedIds"
+          :count="sortedSelectedIds.length"
           @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
@@ -73,16 +73,17 @@ import { TAXON_NAME } from '@/constants/index.js'
 const extend = ['parent', 'valid_name']
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(TaxonName, { listParser, initParameters: { extend } })
 </script>
 

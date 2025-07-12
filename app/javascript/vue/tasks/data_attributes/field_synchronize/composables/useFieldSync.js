@@ -1,5 +1,6 @@
 import { onBeforeMount, ref, computed, watch } from 'vue'
 import { Metadata, DataAttribute } from '@/routes/endpoints'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
 import { DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE } from '@/constants'
 import { QUERY_PARAMETER, PATTERN_TYPES } from '../constants'
 import {
@@ -21,7 +22,9 @@ import {
   makeDataAttributeList,
   makePreviewObject
 } from '../factory'
+import { sortArrayByReference } from '@/helpers'
 import Qs from 'qs'
+import DOMPurify from 'dompurify'
 
 export function useFieldSync() {
   const userPredicates = ref([])
@@ -341,9 +344,19 @@ export function useFieldSync() {
     )
 
     request.then((response) => {
+      const ids = queryValue.value[ID_PARAM_FOR[currentModel.value]]
+      const items = Array.isArray(ids)
+        ? sortArrayByReference({
+            list: response.body,
+            reference: ids,
+            getListValue: (item) => item.id,
+            getReferenceValue: (id) => id
+          })
+        : response.body
+
       pagination.value = getPagination(response)
-      list.value = response.body.map((item) => {
-        const { id, ...attributes } = item
+      list.value = items.map((item) => {
+        const { id, object_tag, ...attributes } = item
 
         if (!dataAttributes.value[id]) {
           dataAttributes.value[id] = fillDataAttributes({}, predicates.value)
@@ -353,6 +366,10 @@ export function useFieldSync() {
           id,
           uuid: randomUUID(),
           attributes,
+          labelHtml: object_tag,
+          label: DOMPurify.sanitize(object_tag, {
+            USE_PROFILES: { html: false }
+          }),
           dataAttributes: dataAttributes.value[id]
         }
       })

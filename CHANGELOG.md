@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.52.2] - 2025-07-11
+
 ### Added
 
 - Radial mass annotatior: Add `is original` to citations slice
@@ -18,6 +22,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter Observations: Sounds facet
 - Add 'include_common_names' parameter to API Otu autocomplete
 - DwC import task: Detect and highlight columns that will be ignored [#4406]
+- Project data export task: Recent download table [#4470]
+- Field synchronize: Object label column [#4477]
+- Custom password option for database exports [#4476]
+- FieldOccurrence tab for subject/object on New Biological Association task
+- Rebuild set index for dwc_occurrences
 
 ### Fixed
 
@@ -30,6 +39,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Depiction list isn't populated in Image's depictions quick form [#4465]
 - Specimens lots failing to generate DwC indexing in DwC importer [#4466]
 - Filters: Sometimes sort column button doesn't work [#4442]
+- Filter Taxon Names to Gender Summary fails with too many ids [#4479]
+- Filter Asserted Distributions doesn't return all results for some spatial shapes [#4464]
 
 ### Changed
 
@@ -40,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rename `Synchronize nomenclature and OTUs` to `Synchronize taxon names and OTUs`
 - Topic facet: Show all topics in a modal [#4456]
 - Updated Ruby gems
+- Field Synchronize and multi update task now sorts by ID url parameter [#4472]
 
 [#3511]: https://github.com/SpeciesFileGroup/taxonworks/issues/3511
 [#4399]: https://github.com/SpeciesFileGroup/taxonworks/issues/4399
@@ -52,8 +64,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4456]: https://github.com/SpeciesFileGroup/taxonworks/issues/4456
 [#4458]: https://github.com/SpeciesFileGroup/taxonworks/issues/4458
 [#4461]: https://github.com/SpeciesFileGroup/taxonworks/issues/4461
+[#4464]: https://github.com/SpeciesFileGroup/taxonworks/issues/4464
 [#4465]: https://github.com/SpeciesFileGroup/taxonworks/issues/4465
 [#4466]: https://github.com/SpeciesFileGroup/taxonworks/issues/4466
+[#4470]: https://github.com/SpeciesFileGroup/taxonworks/issues/4470
+[#4472]: https://github.com/SpeciesFileGroup/taxonworks/issues/4472
+[#4477]: https://github.com/SpeciesFileGroup/taxonworks/issues/4477
+[#4479]: https://github.com/SpeciesFileGroup/taxonworks/issues/4479
+[#4476]: https://github.com/SpeciesFileGroup/taxonworks/pull/4476
 
 ## [0.52.1] - 2025-06-17
 
@@ -5494,7 +5512,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.2...development
+[0.52.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.1...v0.52.2
 [0.52.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.0...v0.52.1
 [0.52.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.50.1...v0.51.0
