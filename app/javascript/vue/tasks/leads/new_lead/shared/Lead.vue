@@ -197,7 +197,6 @@ import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
-import { useStore } from '../store/useStore.js'
 import { useUserOkayToLeave } from './composables/useUserOkayToLeave.js'
 import { LAYOUTS } from './layouts'
 import Annotations from './Annotations.vue'
@@ -209,6 +208,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import useStore from '../store/leadStore.js'
 
 const props = defineProps({
   position: {

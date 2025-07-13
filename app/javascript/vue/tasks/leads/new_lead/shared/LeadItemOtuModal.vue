@@ -26,10 +26,10 @@
 
 <script setup>
 import VModal from '@/components/ui/Modal.vue'
+import useStore from '../store/leadStore.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { LeadItem } from '@/routes/endpoints'
 import { OTU } from '@/constants'
-import { useStore } from '../store/useStore.js'
 
 const modalVisible = defineModel({
   type: Boolean,

@@ -148,10 +148,10 @@ import Lead from './Lead.vue'
 import LeadItemOtuModal from './LeadItemOtuModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import useStore from '../store/leadStore.js'
 import { computed, ref, watch } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
-import { useStore } from '../store/useStore.js'
 
 const store = useStore()
 

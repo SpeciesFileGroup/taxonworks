@@ -20,7 +20,7 @@
 
 <script setup>
 import { RouteNames } from '@/routes/routes'
-import { useStore } from '../../store/useStore.js'
+import useStore from '../../store/leadStore.js'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import PreviousLeadsList from '../../../components/PreviousLeadsList.vue'
 

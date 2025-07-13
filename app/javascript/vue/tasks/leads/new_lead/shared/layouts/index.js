@@ -1,5 +1,5 @@
 import PreviousFuture from '../../previous_future/app.vue'
-import { useStore } from '../../store/useStore'
+import useStore from '../../store/leadStore'
 
 const LAYOUTS_ARRAY = ['PreviousFuture', 'FullKey']
 

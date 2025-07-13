@@ -12,7 +12,7 @@
 
 <script setup>
 import { onBeforeMount, ref } from 'vue'
-import { useStore } from '../store/useStore.js'
+import useStore from '../store/leadStore.js'
 import PreviousLeads from './components/PreviousLeads.vue'
 
 const store = useStore()
