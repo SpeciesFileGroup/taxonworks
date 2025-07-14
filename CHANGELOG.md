@@ -7,7 +7,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- CSD: Search autocomplete doesnt't work [#4481]
+- CSD: Next by ID and Identifier don't work [#4480]
+
+[#4481]: https://github.com/SpeciesFileGroup/taxonworks/issues/4481
+[#4480]: https://github.com/SpeciesFileGroup/taxonworks/issues/4481
 
 ## [0.52.2] - 2025-07-11
 
