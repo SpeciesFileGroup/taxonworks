@@ -78,7 +78,7 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
         dwc_occurrence.status = 'Ready'
       else
         dwc_occurrence.status = 'NotReady'
-        record['error_data'] = { messages: { catalogNumber: ['Record cannot be imported until namespace is set.'] } }
+        record['error_data'] = { messages: { catalogNumber: ['Record cannot be imported until namespace is set, see "Settings".'] } }
       end
 
       record.delete(:src_data)

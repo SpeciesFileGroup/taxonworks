@@ -1,4 +1,3 @@
-//  New taxon name
 //  language: en
 
 import dwcTerms from '../../const/dwcTerms'
@@ -33,6 +32,14 @@ const helpData = {
         <li>Tab-separated values text file (TXT, TSV)</li>
         <li>Spreadsheet (XLS, XLSX and ODS supported)</li>
       </ul>
+      <p>
+        Required columns for occurrence data:
+          occurrenceID, scientificName, basisOfRecord
+      <p>
+        Required columns for checklist data:
+          taxonID, scientificName, parentNameUsageID
+      </p>
+
       `
     }
   }
