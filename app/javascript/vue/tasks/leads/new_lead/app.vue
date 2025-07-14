@@ -79,7 +79,7 @@ const SettingsStore = {
 }
 
 const store = useStore()
-store.layout = LAYOUTS.PreviousFuture
+store.layout = LAYOUTS.FullKey //LAYOUTS.PreviousFuture
 
 const metaExpanded = ref(true)
 const depictions = ref([])
@@ -112,15 +112,6 @@ function changeLayout() {
   sessionStorage.setItem(SettingsStore.redirectValid, store.layout)
 }
 
-const { lead_id } = URLParamsToJSON(location.href)
-
-if (lead_id) {
-  // Call this for history.replaceState - it replaces turbolinks state
-  // that would cause a reload every time we revisit this initial lead.
-  setParam(RouteNames.NewLead, 'lead_id', lead_id)
-  store.loadKey(lead_id)
-}
-
 usePopstateListener(() => {
   const { lead_id } = URLParamsToJSON(location.href)
   if (lead_id) {
@@ -134,6 +125,15 @@ onBeforeMount(() => {
   const value = sessionStorage.getItem(SettingsStore.layout)
   if (value !== null) {
     store.layout = value
+  }
+
+  const { lead_id } = URLParamsToJSON(location.href)
+
+  if (lead_id) {
+    // Call this for history.replaceState - it replaces turbolinks state
+    // that would cause a reload every time we revisit this initial lead.
+    setParam(RouteNames.NewLead, 'lead_id', lead_id)
+    store.loadKey(lead_id)
   }
 })
 </script>

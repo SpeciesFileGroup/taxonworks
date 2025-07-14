@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { Lead, LeadItem } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
+import { LAYOUTS } from '../shared/layouts'
 import editableChildrenFields from './constants/editableChildrenFields'
 import setParam from '@/helpers/setParam'
 
@@ -32,9 +33,12 @@ const makeInitialState = () => ({
     // otu indices (corresponding to the `parent` array) which are checked.
     children: []
   },
+  // Which layout to display.
   layout: null,
-  // Print version of the entire key, used only in association with lead items.
-  print_key: ''
+  // Used only for full_key layout.
+  key_metadata: null,
+  // Used only for full_key layout.
+  key_data: null,
 })
 
 function makeLeadObject() {
@@ -118,8 +122,12 @@ export default defineStore('leads', {
         lo = id_or_couplet
       } else if (typeof(id_or_couplet) == 'number') {
         this.setLoading(true)
+        let extend = ['future_otus']
+        if (this.layout == LAYOUTS.FullKey) {
+          extend.push('key_data')
+        }
         try {
-          lo = (await Lead.find(id_or_couplet, { extend: ['future_otus'] })).body
+          lo = (await Lead.find(id_or_couplet, { extend })).body
         }
         catch(e) {
           error_message = `Unable to load: couldn't find id ${id_or_couplet}.`
@@ -147,7 +155,8 @@ export default defineStore('leads', {
         children: editableFieldsObjectsForLeads(lo.children)
       }
       this.lead_item_otus = lo.lead_item_otus
-      this.print_key = lo.print_key
+      this.key_metadata = lo.key_metadata
+      this.key_data = lo.key_data
 
       setParam(RouteNames.NewLead, 'lead_id', lo.lead.id)
     },

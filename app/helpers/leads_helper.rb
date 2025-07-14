@@ -116,7 +116,7 @@ module LeadsHelper
 
   # A depth-first traversal that numbers each entry. Renderers
   # navigate this list in order to draw the key.
-  def key_metadata(lead, hsh: {}, depth: 1, couplet_number: {num: 0}  )
+  def key_metadata(lead, hsh: {}, depth: 1, couplet_number: { num: 0 }  )
     if lead.children.any?
       couplet_number[:num] += 1
       hsh[lead.id] = {
@@ -138,8 +138,9 @@ module LeadsHelper
   end
 
   # An index of lead.id pointing to its content
-  def key_data(lead, metadata, lead_items: false)
+  def key_data(lead, metadata, lead_items: false, back_couplets: false)
     data = {}
+    data[:back_couplets] = {} if back_couplets
     lead.self_and_descendants.find_each do |l|
       d = {
         text: l.text,
@@ -148,10 +149,14 @@ module LeadsHelper
       }
 
       if metadata.dig(l.id, :children)&.any?
+        couplet_number = metadata.dig(l.id, :couplet_number)
         d.merge!(
-          target_label: metadata.dig(l.id, :couplet_number),
+          target_label: couplet_number,
           target_type: :internal,
         )
+        if back_couplets && (b = metadata.dig(l.parent_id, :couplet_number))
+          data[:back_couplets][couplet_number] = b
+        end
       elsif l.otu
         d.merge!(
           target_label: ( l.otu ? label_for_otu(l.otu) : nil ),
@@ -166,12 +171,12 @@ module LeadsHelper
         )
       end
 
-      if lead_items && d[:target_type] != :internal
+      if lead_items && d[:target_type] != :internal && (lios = lead_item_otus_string(l))
         target_label =
           if d[:target_label]
-            d[:target_label] + lead_item_otus_string(l)
+            d[:target_label] + lios
           else
-            lead_item_otus_string(l)
+            lios
           end
 
         if target_label.present?
