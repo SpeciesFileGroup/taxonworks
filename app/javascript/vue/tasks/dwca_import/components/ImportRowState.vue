@@ -10,9 +10,10 @@
           v-html="row.status"
         />
       </template>
-      <a
+      <span
         v-else
         v-html="row.status"
+        :style="style"
         @click="openModal"
       />
       <modal-component
@@ -63,7 +64,8 @@
                 </span>
                 <ul>
                   <li
-                    v-for="error in messages"
+                    v-for="(error, index) in messages"
+                    :key="index"
                     v-html="error"
                   />
                 </ul>
@@ -72,13 +74,15 @@
           </template>
         </modal-component>
         <a
-          class="red"
-          @click="showErrors = true"
+          class="cursor-pointer"
+          :style="style"
           v-html="row.status"
+          @click="() => (showErrors = true)"
         />
       </template>
       <span
         v-else
+        :style="style"
         v-html="row.status"
       />
     </template>
@@ -88,12 +92,21 @@
 <script>
 import VIcon from '@/components/ui/VIcon/index.vue'
 import ButtonMixin from './shared/browseMixin'
+import importColors from '../const/importColors'
 
 export default {
   components: {
     VIcon
   },
 
-  mixins: [ButtonMixin]
+  mixins: [ButtonMixin],
+
+  computed: {
+    style() {
+      return {
+        color: `var(${importColors[this.row.status]})`
+      }
+    }
+  }
 }
 </script>
