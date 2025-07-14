@@ -6,6 +6,7 @@
           v-for="(item, key) in importedObjects"
           :key="key"
           :href="taskUrl(key, item)"
+          class="cell-status"
           target="_blank"
           v-html="row.status"
         />
@@ -13,7 +14,7 @@
       <span
         v-else
         v-html="row.status"
-        :style="style"
+        class="cell-status cursor-pointer"
         @click="openModal"
       />
       <modal-component
@@ -74,15 +75,14 @@
           </template>
         </modal-component>
         <a
-          class="cursor-pointer"
-          :style="style"
+          class="cell-status cursor-pointer"
           v-html="row.status"
           @click="() => (showErrors = true)"
         />
       </template>
       <span
         v-else
-        :style="style"
+        class="cell-status"
         v-html="row.status"
       />
     </template>
@@ -102,11 +102,20 @@ export default {
   mixins: [ButtonMixin],
 
   computed: {
-    style() {
-      return {
-        color: `var(${importColors[this.row.status]})`
-      }
+    importColor() {
+      return `var(${importColors[this.row.status]})`
     }
   }
 }
 </script>
+
+<style scoped>
+.cell-status {
+  color: v-bind(importColor);
+  transition: all 0.1s ease;
+}
+
+.cell-status:hover {
+  color: var(--text-color);
+}
+</style>
