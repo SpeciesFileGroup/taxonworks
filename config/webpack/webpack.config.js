@@ -3,6 +3,7 @@
 const { generateWebpackConfig, merge } = require('shakapacker')
 const vueConfig = require('./rules/vue')
 const devServerConfig = require('./rules/devServer')
+const railsErb = require('./rules/rails.js')
 const path = require('node:path')
 
 const webpackConfig = generateWebpackConfig()
@@ -22,6 +23,7 @@ const customConfig = {
 }
 
 module.exports = merge(
+  railsErb,
   vueConfig,
   devServerConfig(webpackConfig),
   customConfig,
