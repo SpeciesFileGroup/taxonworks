@@ -2,9 +2,6 @@ module Queries
   module Conveyance
     class Filter < Query::Filter
 
-      include Concerns::Polymorphic
-      polymorphic_klass(::Conveyance)
-
       PARAMS = [
         *::Conveyance.related_foreign_keys.map(&:to_sym),
         :conveyance_id,
@@ -12,10 +9,13 @@ module Queries
         :conveyance_object_type,
         :conveyance_object_id,
         :sound_id,
+        :otu_id,
         sound_id: [],
         conveyance_id: [],
         conveyance_object_id: [],
         conveyance_object_type: [],
+        otu_id: [],
+        otu_scope: [],
       ].freeze
 
       # @return Array
@@ -37,6 +37,14 @@ module Queries
       # @params sound_id array or string (integer)
       attr_accessor :sound_id
 
+      # @return [Array]
+      # @params otu_id array or string (integer)
+      attr_accessor :otu_id
+
+      # @return [Array]
+      # @params otu_scope array
+      attr_accessor :otu_scope
+
       def initialize(query_params)
         super
 
@@ -45,8 +53,8 @@ module Queries
         @conveyance_object_type = params[:conveyance_object_type]
         @conveyance_object_id = params[:conveyance_object_id]
         @sound_id = params[:sound_id]
-
-        set_polymorphic_params(params)
+        @otu_id = params[:otu_id]
+        @otu_scope = params[:otu_scope]
       end
 
       def conveyance_id
@@ -63,6 +71,14 @@ module Queries
 
       def sound_id
         [@sound_id].flatten.compact
+      end
+
+      def otu_id
+        [@otu_id].flatten.compact
+      end
+
+      def otu_scope
+        [@otu_scope].flatten.compact.map(&:to_sym)
       end
 
       def name_facet
@@ -83,6 +99,75 @@ module Queries
       def sound_id_facet
         return nil if sound_id.empty?
         table[:sound_id].in(sound_id)
+      end
+
+      def sound_query_facet
+        return nil if sound_query.nil?
+        ::Conveyance.with(sound_query: sound_query.all )
+          .joins('JOIN sound_query as sound_query1 on sound_query1.id = conveyances.image_id')
+          .distinct
+      end
+
+      def otu_facet_otus(otu_ids)
+        ::Conveyance.where(conveyances: { conveyance_object_type: 'Otu', conveyance_object_id: otu_ids })
+      end
+
+      def otu_facet
+        return nil if otu_id.empty? || !otu_scope.empty?
+        otu_facet_otus(otu_id)
+      end
+
+      def otu_facet_collection_objects(otu_ids)
+        fo = ::CollectionObject.joins(:taxon_determinations)
+          .where(taxon_determinations: { otu_id: otu_ids })
+
+
+        ::Conveyance
+          .with(co_query: fo)
+          .joins("JOIN co_query on co_query.id = conveyance_object_id and conveyance_object_type = 'CollectionObject'")
+      end
+
+      def otu_facet_field_occurrences(otu_ids)
+        fo = ::FieldOccurrence.joins(:taxon_determinations)
+          .where(taxon_determinations: { otu_id: otu_ids })
+
+        ::Conveyance
+          .with(co_query: fo)
+          .joins("JOIN co_query on co_query.id = conveyance_object_id and conveyance_object_type = 'FieldOccurrence'")
+      end
+
+      def otu_scope_facet
+        return nil if otu_id.empty? || otu_scope.empty?
+
+        otu_ids = otu_id
+        otu_ids += ::Otu.coordinate_otu_ids(otu_id) if otu_scope.include?(:coordinate_otus)
+        otu_ids.uniq!
+
+        selected = []
+
+        if otu_scope.include?(:all)
+          selected = [
+            :otu_facet_otus,
+            :otu_facet_collection_objects,
+            :otu_facet_field_occurrences,
+          ]
+        elsif otu_scope.empty?
+          selected = [:otu_facet_otus]
+        else
+          selected.push :otu_facet_otus if otu_scope.include?(:otus)
+          selected.push :otu_facet_collection_objects if otu_scope.include?(:collection_objects)
+          selected.push :otu_facet_field_occurrences if otu_scope.include?(:field_occurrences)
+        end
+
+        ::Queries.union(::Conveyance, selected.collect{|a| send(a, otu_ids) })
+      end
+
+      def merge_clauses
+        [
+          sound_query_facet,
+          otu_facet,
+          otu_scope_facet
+        ].compact
       end
 
       def and_clauses

@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Browse OTU: `collection objects` and `field occurrences` sounds
+
 ### Fixed
 
 - CSD: Search autocomplete doesnt't work [#4481]
