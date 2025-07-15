@@ -22,6 +22,7 @@ import { GEOGRAPHIC_AREA } from '@/constants'
 let drawnItems
 let mapObject
 let geographicArea
+let drawingLayer = null // layer currently being drawn/created
 
 const TILE_MAP_STORAGE_KEY = 'tw::map::tile'
 
@@ -297,6 +298,7 @@ const handleEvents = () => {
   })
 
   mapObject.on('pm:create', (e) => {
+    drawingLayer = null
     const layer = e.layer
     const geoJsonLayer = convertGeoJSONWithPointRadius(layer)
 
@@ -326,6 +328,14 @@ const handleEvents = () => {
       }
     })
     emit('geojson', geoArray)
+  })
+
+  mapObject.on('pm:drawstart', (e) => {
+    drawingLayer = e.workingLayer
+  })
+
+  mapObject.on('pm:drawend', (e) => {
+    drawingLayer = null
   })
 }
 
@@ -498,7 +508,7 @@ const onMyFeatures = (feature, layer) => {
 const zoomToFeature = (e) => {
   if (!props.zoomOnClick) return
   const layer = e.target
-  if (props.fitBounds) {
+  if (props.fitBounds && !drawingLayer) {
     if (layer instanceof L.Marker || layer instanceof L.Circle) {
       mapObject.fitBounds([layer.getLatLng()], fitBoundsOptions.value)
     } else {

@@ -16,9 +16,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CSD: Search autocomplete doesnt't work [#4481]
 - CSD: Next by ID and Identifier don't work [#4480]
 - Trying to delete the Collecting Event of a Field Occurrence now reports an error rather than causing an exception
+- Drawing a new Gazetteer shape over an existing shape while zoomed in sometimes causes a zoom out [#4483]
 
-[#4481]: https://github.com/SpeciesFileGroup/taxonworks/issues/4481
 [#4480]: https://github.com/SpeciesFileGroup/taxonworks/issues/4481
+[#4481]: https://github.com/SpeciesFileGroup/taxonworks/issues/4481
+[#4483]: https://github.com/SpeciesFileGroup/taxonworks/issues/4483
 
 ## [0.52.2] - 2025-07-11
 
