@@ -65,7 +65,6 @@
     "postcss-import": "^16.1.1",
     "postcss-loader": "^8.1.1",
     "postcss-preset-env": "^10.2.4",
-    "rails-erb-loader": "^5.5.2",
     "raw-loader": "^4.0.2",
     "resolve-url-loader": "^5.0.0",
     "sass": "^1.89.2",
