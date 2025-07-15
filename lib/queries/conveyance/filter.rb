@@ -104,7 +104,7 @@ module Queries
       def sound_query_facet
         return nil if sound_query.nil?
         ::Conveyance.with(sound_query: sound_query.all )
-          .joins('JOIN sound_query as sound_query1 on sound_query1.id = conveyances.image_id')
+          .joins('JOIN sound_query as sound_query1 on sound_query1.id = conveyances.sound_id')
           .distinct
       end
 
