@@ -1,7 +1,14 @@
-//  New taxon name
 //  language: en
 
 import dwcTerms from '../../const/dwcTerms'
+
+function makeList(arr) {
+  return `
+  <ul>
+    ${arr.map((item) => `<li>${item}</li>`).join('')}
+  </ul>
+  `
+}
 
 const createDwcTable = ({ name, qualName, description, examples }) => `
 <table class="table dwc-table-help">
@@ -33,12 +40,20 @@ const helpData = {
         <li>Tab-separated values text file (TXT, TSV)</li>
         <li>Spreadsheet (XLS, XLSX and ODS supported)</li>
       </ul>
+      <p>
+        Required columns for occurrence data:
+          ${makeList(TW.constants.DWC_OCCURRENCES_MINIMUN_FIELD_SET)}
+      </p>
+      <p>
+        Required columns for checklist data:
+          ${makeList(TW.constants.DWC_CHECKLIST_MINIMUN_FIELD_SET)}
+      </p>
       `
     }
   }
 }
 
-dwcTerms.forEach(term => {
+dwcTerms.forEach((term) => {
   helpData.section.dwcTable[term.name] = createDwcTable(term)
 })
 
