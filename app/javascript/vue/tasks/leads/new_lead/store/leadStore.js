@@ -120,7 +120,10 @@ export default defineStore('leads', {
       let error_message = undefined
       if (typeof(id_or_couplet) == 'object') {
         lo = id_or_couplet
-      } else if (typeof(id_or_couplet) == 'number') {
+      } else if (
+        typeof(id_or_couplet) == 'number' || typeof(id_or_couplet) == 'string'
+      ) {
+        id_or_couplet = parseInt(id_or_couplet)
         this.setLoading(true)
         let extend = ['future_otus']
         if (this.layout == LAYOUTS.FullKey) {
