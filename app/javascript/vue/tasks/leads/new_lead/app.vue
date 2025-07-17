@@ -4,6 +4,7 @@
     <h1>
       {{ store.root.id ? 'Editing' : 'Create a new key' }}
     </h1>
+
     <VBtn
       color="primary"
       title="Change layout"
@@ -50,7 +51,7 @@
 
   <component :is="LAYOUT_COMPONENTS[store.layout]" />
 
-   <Couplet
+  <Couplet
     v-if="store.lead.id"
   />
 
@@ -66,7 +67,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import setParam from '@/helpers/setParam'
 import useStore from './store/leadStore.js'
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import { CITATION, DEPICTION } from '@/constants'
 import { useAnnotationHandlers } from './shared/composables/useAnnotationHandlers.js'
 import { RouteNames } from '@/routes/routes'
@@ -74,18 +75,15 @@ import { URLParamsToJSON } from '@/helpers/url/parse'
 import { usePopstateListener } from '@/composables'
 import { nextLayout, LAYOUTS, LAYOUT_COMPONENTS } from './shared/layouts'
 
-const SettingsStore = {
-  layout: 'newLead::layout'
-}
+const LAYOUT_STORAGE_KEY = 'tw::leads::new::layout'
 
 const store = useStore()
-store.layout = LAYOUTS.FullKey //LAYOUTS.PreviousFuture
+store.layout = LAYOUTS.PreviousFuture
 
 const metaExpanded = ref(true)
 const depictions = ref([])
 const citations = ref([])
-
-let layoutButtonText = nextLayout()
+const layoutButtonText = ref(nextLayout().text)
 
 const annotationLists = {
   [DEPICTION]: depictions,
@@ -107,10 +105,13 @@ const metadataTitle = computed(() => {
 })
 
 function changeLayout() {
-  layoutButtonText = nextLayout()
-  store.layout = layoutButtonText
-  sessionStorage.setItem(SettingsStore.redirectValid, store.layout)
+  store.loadKey(store.lead.id, nextLayout().layout)
 }
+
+watch(() => store.layout, () => {
+  layoutButtonText.value = nextLayout().text
+  localStorage.setItem(LAYOUT_STORAGE_KEY, store.layout)
+})
 
 usePopstateListener(() => {
   const { lead_id } = URLParamsToJSON(location.href)
@@ -122,7 +123,7 @@ usePopstateListener(() => {
 })
 
 onBeforeMount(() => {
-  const value = sessionStorage.getItem(SettingsStore.layout)
+  const value = localStorage.getItem(LAYOUT_STORAGE_KEY)
   if (value !== null) {
     store.layout = value
   }

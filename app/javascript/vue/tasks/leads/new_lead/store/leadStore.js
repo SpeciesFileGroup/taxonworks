@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { Lead, LeadItem } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
-import { LAYOUTS } from '../shared/layouts'
+import { LAYOUTS, nextLayout } from '../shared/layouts'
 import editableChildrenFields from './constants/editableChildrenFields'
 import setParam from '@/helpers/setParam'
 
@@ -115,7 +115,7 @@ export default defineStore('leads', {
       this.last_saved.children.push(last_saved_data)
     },
 
-    async loadKey(id_or_couplet) {
+    async loadKey(id_or_couplet, new_layout = null) {
       let lo = undefined
       let error_message = undefined
       if (typeof(id_or_couplet) == 'object') {
@@ -126,7 +126,8 @@ export default defineStore('leads', {
         id_or_couplet = parseInt(id_or_couplet)
         this.setLoading(true)
         let extend
-        if (this.layout == LAYOUTS.FullKey) {
+        const layout_for_new_data = new_layout || this.layout
+        if (layout_for_new_data == LAYOUTS.FullKey) {
           extend = ['key_data']
         } else {
           extend = ['ancestors_data', 'future_otus']
@@ -155,15 +156,38 @@ export default defineStore('leads', {
       this.root = lo.root
       this.lead = lo.lead
       this.children = lo.children
-      this.ancestors = lo.ancestors
-      this.futures = lo.futures
       this.last_saved = {
         origin_label: lo.lead.origin_label,
         children: editableFieldsObjectsForLeads(lo.children)
       }
       this.lead_item_otus = lo.lead_item_otus
-      this.key_metadata = lo.key_metadata
-      this.key_data = lo.key_data
+
+      // Make sure new data is in place before you change the value of this.layout.
+      if (!!new_layout) {
+        if (new_layout == LAYOUTS.FullKey) {
+          this.key_metadata = lo.key_metadata
+          this.key_data = lo.key_data
+
+          this.layout = new_layout
+console.log(`hew layout: ${this.layout}`)
+
+          this.ancestors = null
+          this.futures = null
+        } else {
+          this.ancestors = lo.ancestors
+          this.futures = lo.futures
+
+          this.layout = new_layout
+console.log(`hew layout: ${this.layout}`)
+          this.key_metadata = null
+          this.key_data = null
+        }
+      } else {
+        this.ancestors = lo.ancestors
+        this.futures = lo.futures
+        this.key_metadata = lo.key_metadata
+        this.key_data = lo.key_data
+      }
 
       setParam(RouteNames.NewLead, 'lead_id', lo.lead.id)
     },
