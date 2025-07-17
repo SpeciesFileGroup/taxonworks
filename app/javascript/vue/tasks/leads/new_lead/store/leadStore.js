@@ -125,16 +125,20 @@ export default defineStore('leads', {
       ) {
         id_or_couplet = parseInt(id_or_couplet)
         this.setLoading(true)
-        let extend = ['future_otus']
+        let extend
         if (this.layout == LAYOUTS.FullKey) {
-          extend.push('key_data')
+          extend = ['key_data', 'futures_data']
+        } else {
+          extend = ['ancestors_data', 'future_otus']
         }
+
         try {
           lo = (await Lead.find(id_or_couplet, { extend })).body
         }
         catch(e) {
           error_message = `Unable to load: couldn't find id ${id_or_couplet}.`
         }
+
         this.setLoading(false)
       } else {
         error_message = 'Unable to load: unrecognized id.'
@@ -256,6 +260,33 @@ export default defineStore('leads', {
         this.last_saved.origin_label,
         this.lead.origin_label
       )
+    },
+
+    canCreateLeadItemsOnCurrentLead() {
+      if (!!this.lead.parent_id || this.lead_item_otus.parent.length > 0) {
+        return false
+      }
+
+      if (this.layout == LAYOUTS.FullKey) {
+        let canCreate = false
+        this.key_metadata[this.lead.id].children.forEach((child) => {
+          if (this.key_metadata[child] == undefined) {
+            canCreate = true
+          }
+        })
+
+        return canCreate
+      } else {
+        let canCreate = false
+        this.futures.forEach((future) => {
+          if (future.length == 0) {
+            // There exists a child that we can add lead item otus to.
+            canCreate = true
+          }
+        })
+
+        return canCreate
+      }
     },
   }
 })

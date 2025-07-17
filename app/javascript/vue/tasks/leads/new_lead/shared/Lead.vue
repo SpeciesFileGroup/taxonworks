@@ -352,7 +352,8 @@ function changeLeadPosition(direction) {
     childOrderList[props.position + 1] = props.position
   }
   const payload = {
-    reorder_list: childOrderList
+    reorder_list: childOrderList,
+    extend: store.layout == LAYOUTS.FullKey ? ['key_data'] : ['futures_data'],
   }
 
   loading.value = true

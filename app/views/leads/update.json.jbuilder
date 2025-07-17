@@ -2,10 +2,13 @@ json.lead do
   json.partial! 'attributes', lead: @lead
 end
 
-json.future @future
+if extend_response_with('future_data')
+  json.future @future
+end
 
-if @lead_item_otus[:parent].count > 0
-  json.print_key MARKDOWN_HTML.render(
-    print_key_markdown(@lead.root, lead_items: true)
-  )
+if extend_response_with('key_data')
+  root = @lead.root
+  metadata = key_metadata(root)
+  json.key_metadata metadata
+  json.key_data key_data(root, metadata, lead_items: true, back_couplets: true)
 end

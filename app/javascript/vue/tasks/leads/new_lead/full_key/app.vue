@@ -134,12 +134,14 @@ function scrollToCouplet(couplet) {
 
 .print-key {
   width: fit-content;
+  min-width: 600px;
   max-width: 80vw;
   margin: 0 auto;
   margin-top: 1.5em;
   border-top-left-radius: 0.9rem;
   border-bottom-left-radius: 0.9rem;
-  padding: 1em;
+  padding: 1.5em;
+  padding-left: 2em;
   max-height: 400px;
   overflow-y: scroll;
   margin-bottom: 1.5em;

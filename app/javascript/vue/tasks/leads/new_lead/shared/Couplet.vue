@@ -152,6 +152,7 @@ import useStore from '../store/leadStore.js'
 import { computed, ref, watch } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
+import { LAYOUTS } from './layouts'
 
 const store = useStore()
 
@@ -180,14 +181,8 @@ const allowDeleteCouplet = computed(() => {
 })
 
 const offerLeadItemCreate = computed(() => {
-  let childExistsForItems = false
-  store.futures.forEach((future) => {
-    if (future.length == 0) {
-      childExistsForItems = true
-    }
-  })
-  return !store.lead.parent_id && childExistsForItems &&
-    store.lead_item_otus.parent.length == 0
+  const a = store.canCreateLeadItemsOnCurrentLead()
+  return a
 })
 
 const redirectOptions = ref([])
@@ -269,7 +264,8 @@ function saveChanges() {
 
   const promises = childrenToUpdate.map((lead) => {
     const payload = {
-      lead
+      lead,
+      extend: store.layout == LAYOUTS.FullKey ? ['key_data'] : ['future_data']
     }
 
     return LeadEndpoint.update(lead.id, payload)
