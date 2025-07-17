@@ -360,6 +360,8 @@ function changeLeadPosition(direction) {
   LeadEndpoint.reorder_children(store.lead.id, payload)
     .then(({ body }) => {
       store.resetChildren(body.leads, body.futures, body.lead_item_otus)
+      store.key_data = body.key_data
+      store.key_metadata = body.key_metadata
 
       const direction_word = (direction == DIRECTIONS.left) ? 'left' : 'right'
       TW.workbench.alert.create('Moved lead ' + direction_word, 'notice')

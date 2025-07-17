@@ -3,7 +3,7 @@ json.lead do
 end
 
 if extend_response_with('future_data')
-  json.future @future
+  json.future @lead.future
 end
 
 if extend_response_with('key_data')

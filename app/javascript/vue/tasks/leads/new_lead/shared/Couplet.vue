@@ -4,57 +4,20 @@
     full-screen
   />
 
-  <div class="couplet_center">
-
-    <VBtn
-      v-if="store.lead.parent_id"
-      color="primary"
-      medium
-      @click="previousCouplet"
-    >
-      Go to the previous couplet
-    </VBtn>
-
-    <VBtn
-      v-else
-      color="update"
-      medium
-      @click="insertCouplet"
-    >
-      Insert a new initial couplet for the key
-    </VBtn>
-
-    <VBtn
-      color="update"
-      medium
-      @click="() => { insertKeyModalIsVisible = true }"
-      :disabled="store.children.length < 2"
-    >
-      Insert a key
-    </VBtn>
-
-    <VBtn
-      v-if="offerLeadItemCreate"
-      color="update"
-      medium
-      @click="() => { leadItemOtusModalVisible = true }"
-    >
-      Start an OTUs list
-    </VBtn>
-  </div>
-
-  <div v-if="hasChildren">
-    <div class="couplet_center">
-      <label>Couplet number from citation: </label>
-      <input
-        v-model="store.lead.origin_label"
-        type="text"
-        class="normal-input"
-        size="3"
-      />
-    </div>
-    <div class="couplet_horizontal_buttons">
-      <div>
+  <div
+    v-if="hasChildren"
+  >
+    <div class="couplet_actions">
+      <span class="margin-xlarge-right">
+        <label>Couplet number: </label>
+        <input
+          v-model="store.lead.origin_label"
+          type="text"
+          class="normal-input"
+          size="3"
+        />
+      </span>
+      <span>
         <VBtn
           color="update"
           medium
@@ -64,45 +27,67 @@
         </VBtn>
 
         <VBtn
+          v-if="store.lead.parent_id"
+          color="primary"
+          medium
+          @click="previousCouplet"
+        >
+          Go to the previous couplet
+        </VBtn>
+
+        <span
+          @click="() => { showAdditionalActions = !showAdditionalActions }"
+          class="cursor-pointer inline"
+        >
+          <div
+            :data-icon="showAdditionalActions ? 'w-arrow-down' : 'w-arrow-right'"
+            class="expand-box button-circle button-default separate-right"
+          />
+          <span class="margin-small-left">
+            {{ showAdditionalActions ? 'Fewer options' : 'More options' }}
+          </span>
+        </span>
+      </span>
+
+      <div
+        v-if="showAdditionalActions"
+        class="additional_actions"
+      >
+        <VBtn
           color="update"
           medium
           @click="addLead"
         >
           Add a lead
         </VBtn>
+
+        <VBtn
+          color="update"
+          medium
+          @click="() => { insertKeyModalIsVisible = true }"
+          :disabled="store.children.length < 2"
+        >
+          Insert a key
+        </VBtn>
+
+        <VBtn
+          v-if="offerLeadItemCreate"
+          color="update"
+          medium
+          @click="() => { leadItemOtusModalVisible = true }"
+        >
+          Start an OTUs list
+        </VBtn>
+
+        <VBtn
+          v-if="!store.lead.parent_id"
+          color="update"
+          medium
+          @click="insertCouplet"
+        >
+          Insert a new initial couplet for the key
+        </VBtn>
       </div>
-
-      <VBtn
-        v-if="allowDestroyCouplet"
-        color="destroy"
-        medium
-        @click="destroyCouplet"
-      >
-        Delete these leads
-      </VBtn>
-
-      <VBtn
-        v-else-if="allowDeleteCouplet"
-        color="destroy"
-        medium
-        @click="deleteCouplet"
-      >
-        Delete these leads and reparent the children
-      </VBtn>
-
-      <VBtn
-        v-else
-        color="destroy"
-        disabled
-        medium
-      >
-        <template v-if="!store.lead.parent_id && noGrandkids()">
-          Can't delete root couplet
-        </template>
-        <template v-else>
-          Can't delete when more than one side has children
-        </template>
-      </VBtn>
     </div>
 
     <div class="lead_children">
@@ -159,6 +144,9 @@ const store = useStore()
 const loading = ref(false)
 const insertKeyModalIsVisible = ref(false)
 const leadItemOtusModalVisible = ref(false)
+const showAdditionalActions = ref(false)
+
+const layoutIsFullKey = computed(() => store.layout == LAYOUTS.FullKey)
 
 const hasChildren = computed(() => {
   return store.children.length >= 2 &&
@@ -262,17 +250,21 @@ function saveChanges() {
     return
   }
 
+  const extend = layoutIsFullKey.value ? ['key_data'] : ['future_data']
   const promises = childrenToUpdate.map((lead) => {
     const payload = {
       lead,
-      extend: store.layout == LAYOUTS.FullKey ? ['key_data'] : ['future_data']
+      extend,
     }
-
     return LeadEndpoint.update(lead.id, payload)
       .then(({ body }) => {
-        // Future changes when redirect changes.
-        store.updateChild(body.lead, body.future)
-        store.print_key = body.print_key
+        if (layoutIsFullKey.value) {
+          store.key_data = body.key_data
+          store.key_metadata = body.key_metadata
+        } else {
+          // Future changes when redirect changes.
+          store.updateChild(body.lead, body.future)
+        }
       })
       // TODO: if multiple fail we can get overlapping popup messages, but is
       // there a way to catch here without also displaying the error message (so
@@ -280,15 +272,18 @@ function saveChanges() {
       .catch(() => {})
   })
 
-  if (leadOriginLabelChanged) {
+  if (leadOriginLabelChanged || store.layout == LAYOUTS.FullKey) {
     const payload = {
-      lead: store.lead
+      lead: store.lead,
+      extend,
     }
 
     promises.push(
       LeadEndpoint.update(store.lead.id, payload)
-        .then(() => {
+        .then(({ body }) => {
           store.last_saved.origin_label = store.lead.origin_label
+          store.key_data = body.key_data
+          store.key_metadata = body.key_metadata
         })
         .catch(() => {})
     )
@@ -385,14 +380,22 @@ function childHasChildren(child, i) {
   gap: 2em;
   margin-bottom: 1.5em;
 }
-.couplet_center {
-  margin-top: 1em;
-  margin-bottom: 1em;
+
+.couplet_actions {
+  margin-top: 2em;
+  margin-bottom: 2em;
   text-align: center;
 }
-.couplet_center button {
+
+.couplet_actions button {
   margin-right: 2em;
 }
+
+.additional_actions {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
 .couplet_horizontal_buttons {
   display: grid;
   grid-template-columns: 50% 50%;
@@ -408,6 +411,7 @@ function childHasChildren(child, i) {
     margin-left: 2em;
   }
 }
+
 .title_and_annotator {
   margin-top: 1em;
   span {
@@ -419,5 +423,14 @@ function childHasChildren(child, i) {
     display: inline-block;
     margin-left: .5em;
   }
+}
+
+.inline .expand-box {
+	width: 24px;
+	height: 24px;
+	padding: 0px;
+	background-size: 10px;
+	background-position: center;
+  vertical-align: middle;
 }
 </style>

@@ -104,13 +104,9 @@ class LeadsController < ApplicationController
   def update
     begin
       @lead.update!(lead_params)
-      # Note that future changes when redirect is updated.
-      @future = @lead.future
-      # May also need to update the printed key.
       @lead_item_otus = @lead.parent_id ?
         @lead.parent.apportioned_lead_item_otus :
         { parent: [], children: [] }
-
     rescue ActiveRecord::RecordInvalid
       render json: @lead.errors, status: :unprocessable_entity
     end
