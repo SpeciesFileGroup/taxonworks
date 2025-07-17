@@ -127,7 +127,7 @@ export default defineStore('leads', {
         this.setLoading(true)
         let extend
         if (this.layout == LAYOUTS.FullKey) {
-          extend = ['key_data', 'futures_data']
+          extend = ['key_data']
         } else {
           extend = ['ancestors_data', 'future_otus']
         }
@@ -240,10 +240,9 @@ export default defineStore('leads', {
       }
     },
 
-    updateChild(child, future) {
+    updateChild(child) {
       const position = child.position
       this.children[position] = child
-      this.futures[position] = future
 
       const last_saved_data = editableFieldsObjectForLead(this.children[position])
       this.last_saved.children[position] = last_saved_data
@@ -286,6 +285,17 @@ export default defineStore('leads', {
         })
 
         return canCreate
+      }
+    },
+
+    leadHasChildren(position) {
+      if (this.children[position].redirect_id) return false
+
+      if (this.layout == LAYOUTS.FullKey) {
+        return this.key_metadata[this.children[position].id] &&
+          this.key_metadata[this.children[position].id].children.length > 0
+      } else {
+        return this.futures[position].length > 0
       }
     },
   }

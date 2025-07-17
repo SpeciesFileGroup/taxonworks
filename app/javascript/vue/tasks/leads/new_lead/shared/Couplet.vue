@@ -41,11 +41,9 @@
         >
           <div
             :data-icon="showAdditionalActions ? 'w-arrow-down' : 'w-arrow-right'"
+            :title="showAdditionalActions ? 'Fewer options' : 'More options'"
             class="expand-box button-circle button-default separate-right"
           />
-          <span class="margin-small-left">
-            {{ showAdditionalActions ? 'Fewer options' : 'More options' }}
-          </span>
         </span>
       </span>
 
@@ -86,6 +84,38 @@
           @click="insertCouplet"
         >
           Insert a new initial couplet for the key
+        </VBtn>
+
+        <VBtn
+          v-if="allowDestroyCouplet"
+          color="destroy"
+          medium
+          @click="destroyCouplet"
+        >
+          Delete these leads
+        </VBtn>
+
+        <VBtn
+          v-else-if="allowDeleteCouplet"
+          color="destroy"
+          medium
+          @click="deleteCouplet"
+        >
+          Delete these leads and reparent the children
+        </VBtn>
+
+        <VBtn
+          v-else
+          color="destroy"
+          disabled
+          medium
+        >
+          <template v-if="!store.lead.parent_id && noGrandkids()">
+            Can't delete root couplet
+          </template>
+          <template v-else>
+            Can't delete when more than one side has children
+          </template>
         </VBtn>
       </div>
     </div>
@@ -258,12 +288,13 @@ function saveChanges() {
     }
     return LeadEndpoint.update(lead.id, payload)
       .then(({ body }) => {
+        store.updateChild(body.lead)
         if (layoutIsFullKey.value) {
           store.key_data = body.key_data
           store.key_metadata = body.key_metadata
         } else {
           // Future changes when redirect changes.
-          store.updateChild(body.lead, body.future)
+          store.futures[props.position] = body.future
         }
       })
       // TODO: if multiple fail we can get overlapping popup messages, but is

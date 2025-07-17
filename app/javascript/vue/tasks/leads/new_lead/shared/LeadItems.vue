@@ -2,7 +2,7 @@
 
   <div class="connector" />
 
-  <div class="lead-items">
+  <div class="panel lead-items">
     <div class="flex-separate full_width">
       <div>
         <VBtn
@@ -24,53 +24,51 @@
           Add an otu
         </VBtn>
       </div>
-
-      <a
-        :href="printKeyLink"
-        target="_blank"
-      >
-        print key
-      </a>
+      <span>
+        Changes below are auto-updated
+      </span>
     </div>
 
-    <div
-      v-for="(otu, i) in store.lead_item_otus.parent"
-      :index="otu.id"
-      class="lead_otu_row"
-    >
-      <span v-if="otuIndices.findIndex((c) => (c == i)) != -1">
-        <span class="in">
-          &#10003;
+    <div class="lead_otu_rows">
+      <div
+        v-for="(otu, i) in store.lead_item_otus.parent"
+        :index="otu.id"
+        class="lead_otu_row"
+      >
+        <span v-if="otuIndices.findIndex((c) => (c == i)) != -1">
+          <span class="in">
+            &#10003;
+          </span>
+          <span
+            title="Remove OTU from this lead"
+            :class="['remove', 'circle-button', 'btn-delete',
+              { 'btn-disabled': leadItemCount(i) == 1 }]"
+            @click="() => removeOtuIndex(i)"
+          />
         </span>
-        <span
-          title="Remove OTU from this lead"
-          :class="['remove', 'circle-button', 'btn-delete',
-            { 'btn-disabled': leadItemCount(i) == 1 }]"
-          @click="() => removeOtuIndex(i)"
-        />
-      </span>
-      <span v-else>
-        <span
-          class="out circle btn-radio-like-add"
-          title="Add OTU to this lead and remove from others"
-          @click="() => addOtuIndex(i)"
-        />
-        <span
-          class="out btn-checkbox-like-add"
-          title="Add OTU to this lead and don't remove from others"
-          @click="() => addAdditionalOtuIndex(i)"
-        />
-      </span>
-      <span v-html="otu.object_tag" />
+        <span v-else>
+          <span
+            class="out circle btn-radio-like-add"
+            title="Add OTU to this lead and remove from others"
+            @click="() => addOtuIndex(i)"
+          />
+          <span
+            class="out btn-checkbox-like-add"
+            title="Add OTU to this lead and don't remove from others"
+            @click="() => addAdditionalOtuIndex(i)"
+          />
+        </span>
+        <span v-html="otu.object_tag" />
 
-      <span class="horizontal-right-content gap-small radials">
-        <radial-object :global-id="otu.global_id" />
-        <span
-          class="circle-button btn-delete"
-          title="Remove OTU from all leads"
-          @click="() => leadItemOtuDeleted(otu.id)"
-        />
-      </span>
+        <span class="horizontal-right-content gap-small radials">
+          <radial-object :global-id="otu.global_id" />
+          <span
+            class="circle-button btn-delete"
+            title="Remove OTU from all leads"
+            @click="() => leadItemOtuDeleted(otu.id)"
+          />
+        </span>
+      </div>
     </div>
   </div>
 
@@ -112,10 +110,6 @@ const otuIndices = computed(() => {
   // A list of indices into the parent otu list indicating which of the parent
   // otus are checked for this child.
   return store.lead_item_otus.children[props.position].otu_indices
-})
-
-const printKeyLink = computed(() => {
-  return `${RouteNames.PrintKey}?lead_id=${store.root.id}&lead_items=true`
 })
 
 function addOtu() {
@@ -194,7 +188,7 @@ function leadItemCount(i) {
 .connector {
   width: 12px;
   height: 2em;
-  background: #fff;
+  background: var(--panel-bg-color);
   z-index: -100;
   box-shadow: rgba(36, 37, 38, 0.08) 4px 0px 15px 0px;
   margin: 0px auto;
@@ -203,9 +197,6 @@ function leadItemCount(i) {
 
 .lead-items {
   padding: 1em 2em;
-  box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
-  border-radius: 0.9rem;
-  background-color: #fff;
 }
 
 .in {
@@ -240,8 +231,14 @@ function leadItemCount(i) {
   margin-right: 6.5px;
 }
 
+.lead_otu_rows {
+  border: solid 1px var(--border-color);
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
 .lead_otu_row:nth-child(odd) {
-  background-color: rgb(240, 240, 240);
+  background-color: var(--table-row-bg-odd);
 }
 
 .radials {

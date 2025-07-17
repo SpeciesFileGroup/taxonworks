@@ -42,8 +42,6 @@ module LeadsHelper
     true
   end
 
-  # @param lead_items [Boolean] If true, print the LeadItem otus for each lead
-  #  in the key.
   def print_key(lead)
     metadata = key_metadata(lead)
 
@@ -137,7 +135,8 @@ module LeadsHelper
     hsh
   end
 
-  # An index of lead.id pointing to its content
+  # An index of lead.id pointing to its content.
+  # lead_items is for internal use only.
   def key_data(lead, metadata, lead_items: false, back_couplets: false)
     data = {}
     data[:back_couplets] = {} if back_couplets
@@ -171,22 +170,14 @@ module LeadsHelper
         )
       end
 
-      if lead_items && d[:target_type] != :internal && (lios = lead_item_otus_string(l))
-        target_label =
-          if d[:target_label]
-            d[:target_label] + lios
-          else
-            lios
-          end
-
-        if target_label.present?
-          # Overwrite
-          d.merge!(
-            target_label: target_label,
-            target_id: '',
-            target_type: 'lead_item_otus'
+      if lead_items && d[:target_type] != :internal &&
+         (lio = lead_item_otus(l)).present?
+        d.merge!(
+          target_id: '',
+          target_label: 'TBD',
+          target_type: 'lead_item_otus',
+          lead_item_otus: lio,
           )
-        end
       end
 
       if l.depictions.load.any?
@@ -198,16 +189,13 @@ module LeadsHelper
     data
   end
 
-  # Contains html.
-  def lead_item_otus_string(lead)
+  def lead_item_otus(lead)
     otu_ids = lead.lead_items.map(&:otu_id)
     if otu_ids.empty?
-      return nil
+      return []
     end
 
-    otu_labels = Otu.where(id: otu_ids).map { |o| label_for_otu(o) }.sort!
-
-    '<br />&nbsp;&nbsp;' + otu_labels.join('<br />&nbsp;&nbsp;').html_safe
+    Otu.where(id: otu_ids).map { |o| label_for_otu(o) }.sort!
   end
 
   # Used to serve Keys to the API.
@@ -232,10 +220,10 @@ module LeadsHelper
     }
   end
 
-  def print_key_markdown(lead, lead_items: false)
+  def print_key_markdown(lead)
     metadata = key_metadata(lead)
 
-    data = key_data(lead, metadata, lead_items:)
+    data = key_data(lead, metadata)
 
     t = ["# #{lead.text}\n\n"]
 

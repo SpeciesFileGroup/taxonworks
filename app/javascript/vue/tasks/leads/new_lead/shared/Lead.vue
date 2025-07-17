@@ -70,7 +70,7 @@
             :disabled="nextButtonDisabled"
             color="update"
             medium
-            @click="nextCouplet()"
+            @click="() => nextCouplet()"
           >
             {{ editNextText }}
           </VBtn>
@@ -79,7 +79,7 @@
             :disabled="!!store.last_saved.children[position].redirect_id || !leadHasChildren"
             color="create"
             medium
-            @click="insertCouplet()"
+            @click="() => insertCouplet()"
           >
             Insert a couplet below
           </VBtn>
@@ -228,8 +228,7 @@ const loading = ref(false)
 const expandOptions = ref(false)
 
 const leadHasChildren = computed(() => {
-  return (!store.children[props.position].redirect_id &&
-    store.futures[props.position].length > 0)
+  return store.leadHasChildren(props.position)
 })
 
 const nextButtonDisabled = computed(() => {
@@ -294,17 +293,25 @@ function nextCouplet() {
   if (!useUserOkayToLeave(store)) {
     return
   }
+
   if (leadHasChildren.value) {
     store.loadKey(store.children[props.position].id)
   } else if (!!store.last_saved.children[props.position].redirect_id) {
     store.loadKey(store.last_saved.children[props.position].redirect_id)
   } else {
+    const payload = {
+      num_to_add: 2,
+      extend: store.layout == LAYOUTS.FullKey ? ['key_data'] : ['futures_data'],
+    }
+
     loading.value = true
     LeadEndpoint.add_children(
-      store.children[props.position].id, { num_to_add: 2 }
+      store.children[props.position].id, payload
     )
       .then(({ body }) => {
         store.loadKey(body)
+        store.key_data = body.key_data
+        store.key_metadata = body.key_metadata
       })
       .finally(() => {
         loading.value = false

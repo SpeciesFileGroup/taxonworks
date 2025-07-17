@@ -21,7 +21,3 @@ json.lead_item_otus do
   end
 
 end
-
-if lead_item_otus[:parent].count > 0
-  json.print_key MARKDOWN_HTML.render(print_key_markdown(root, lead_items: true))
-end

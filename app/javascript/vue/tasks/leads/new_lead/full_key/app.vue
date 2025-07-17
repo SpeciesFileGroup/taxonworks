@@ -73,6 +73,13 @@
             {{ store.key_data[child]['target_label'] }}
           </a>
         </template>
+        <template v-else-if="forwardLinkType(child) == 'lead_item_otus'">
+          <ul>
+            <li v-for="lio in store.key_data[child]['lead_item_otus']">
+              {{ lio }}
+            </li>
+          </ul>
+        </template>
         <template v-else>
           TBD
         </template>
@@ -93,7 +100,7 @@ function begin(parent, child) {
   if (store.key_data[child]['position'] == 0) {
     return store.key_metadata[parent]['couplet_number']
   } else {
-    return '--'
+    return '-----'
   }
 }
 
@@ -110,6 +117,8 @@ function forwardLinkType(child) {
 
   if (store.key_data[child]['target_type'] == 'internal') {
     return 'couplet'
+  } else if (store.key_data[child]['target_type'] == 'lead_item_otus') {
+    return 'lead_item_otus'
   } else {
     return 'otu'
   }
@@ -119,8 +128,6 @@ function scrollToCouplet(couplet) {
   const elt = document.getElementById(`cplt-${couplet}`)
   if (elt) elt.scrollIntoView()
 }
-
-
 
 </script>
 
