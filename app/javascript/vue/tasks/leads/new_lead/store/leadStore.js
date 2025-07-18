@@ -169,7 +169,6 @@ export default defineStore('leads', {
           this.key_data = lo.key_data
 
           this.layout = new_layout
-console.log(`hew layout: ${this.layout}`)
 
           this.ancestors = null
           this.futures = null
@@ -178,7 +177,7 @@ console.log(`hew layout: ${this.layout}`)
           this.futures = lo.futures
 
           this.layout = new_layout
-console.log(`hew layout: ${this.layout}`)
+
           this.key_metadata = null
           this.key_data = null
         }
@@ -312,14 +311,28 @@ console.log(`hew layout: ${this.layout}`)
       }
     },
 
-    leadHasChildren(position) {
-      if (this.children[position].redirect_id) return false
+    leadHasChildren(child, i) {
+      if (child.redirect_id) return false
 
       if (this.layout == LAYOUTS.FullKey) {
-        return this.key_metadata[this.children[position].id] &&
-          this.key_metadata[this.children[position].id].children.length > 0
+        return this.key_metadata[child.id] &&
+          this.key_metadata[child.id].children?.length > 0
       } else {
-        return this.futures[position].length > 0
+        return this.futures[i].length > 0
+      }
+    },
+
+    noGrandkids() {
+      if (this.layout == LAYOUTS.FullKey) {
+        this.children.forEach((child, i) => {
+          if (this.leadHasChildren(child, i)) {
+            return false
+          }
+        })
+
+        return true
+      } else {
+        return this.futures.flat().length == 0
       }
     },
   }

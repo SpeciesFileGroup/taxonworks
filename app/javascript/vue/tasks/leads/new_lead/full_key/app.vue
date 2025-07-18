@@ -30,6 +30,7 @@
             pill
             color="primary"
             @click.prevent="() => store.loadKey(parent)"
+            class="key-button"
           >
             <span :id="`cplt-${begin(parent, child)}`">
               {{ begin(parent, child) }}
@@ -55,7 +56,7 @@
         </template>
 
         <!-- body -->
-        {{ store.key_data[child]['text'] || 'blank' }}
+        {{ store.key_data[child]['text'] || '<no text>' }}
 
         <!-- footer -->
         <template v-if="forwardLinkType(child) == 'otu'">
@@ -74,14 +75,11 @@
           </a>
         </template>
         <template v-else-if="forwardLinkType(child) == 'lead_item_otus'">
-          <ul>
+          <ul class="key-ul">
             <li v-for="lio in store.key_data[child]['lead_item_otus']">
               {{ lio }}
             </li>
           </ul>
-        </template>
-        <template v-else>
-          TBD
         </template>
       </div>
     </div>
@@ -153,5 +151,14 @@ function scrollToCouplet(couplet) {
   overflow-y: scroll;
   margin-bottom: 1.5em;
   box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
+}
+
+.key-button {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+.key-ul {
+  margin-top: 0;
 }
 </style>

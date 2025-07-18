@@ -289,9 +289,10 @@ function saveChanges() {
     return LeadEndpoint.update(lead.id, payload)
       .then(({ body }) => {
         store.updateChild(body.lead)
+        store.key_data = body.key_data
+        store.key_metadata = body.key_metadata
         if (layoutIsFullKey.value) {
-          store.key_data = body.key_data
-          store.key_metadata = body.key_metadata
+          store.futures = null
         } else {
           // Future changes when redirect changes.
           store.futures[props.position] = body.future
@@ -393,13 +394,13 @@ function deleteCouplet() {
 
 // !! Redirects **do** count as a child here (they contribute to futures).
 function noGrandkids() {
-  return store.futures.flat().length == 0
+  return store.noGrandkids()
 }
 
 // i is the position of child.
 // !! Redirects **do** count as a child here (they contribute to futures).
 function childHasChildren(child, i) {
-  return !!child?.id && store.futures[i].length > 0
+  return !!child.redirect_id || store.leadHasChildren(child, i)
 }
 </script>
 

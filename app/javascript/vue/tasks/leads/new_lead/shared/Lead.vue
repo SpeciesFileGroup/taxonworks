@@ -228,7 +228,7 @@ const loading = ref(false)
 const expandOptions = ref(false)
 
 const leadHasChildren = computed(() => {
-  return store.leadHasChildren(props.position)
+  return store.leadHasChildren(store.children[props.position], props.position)
 })
 
 const nextButtonDisabled = computed(() => {
