@@ -6,6 +6,7 @@
     </h1>
 
     <VBtn
+      :disabled="!store.lead.id"
       color="primary"
       title="Change layout"
       @click="changeLayout"
@@ -110,6 +111,9 @@ function changeLayout() {
 
 watch(() => store.layout, () => {
   layoutButtonText.value = nextLayout().text
+  if (!store.layout) {
+    store.layout = LAYOUTS.PreviousFuture
+  }
   localStorage.setItem(LAYOUT_STORAGE_KEY, store.layout)
 })
 

@@ -5,10 +5,10 @@
   >
     <legend>Key preview</legend>
     <div
-      v-for="parent in Object.keys(store.key_metadata)"
+      v-for="parent in store.key_ordered_parents"
       :key="parent"
       :style="{marginLeft: (2 * store.key_metadata[parent].depth - 2) + 'em'}"
-      >
+    >
       <div
         v-for="child in store.key_metadata[parent]['children']"
         :key="child"
@@ -60,13 +60,16 @@
 
         <!-- footer -->
         <template v-if="forwardLinkType(child) == 'otu'">
+          ...&nbsp;
           <a
             :href="`${RouteNames.BrowseOtu}?otu_id=${store.key_data[child]['target_id']}`"
+            target="_blank"
           >
             {{ store.key_data[child]['target_label'] }}
           </a>
         </template>
         <template v-else-if="forwardLinkType(child) == 'couplet'">
+          ...&nbsp;
           <a
            :href="`#cplt-${store.key_data[child]['target_label']}`"
            @click.prevent="scrollToCouplet(child)"
@@ -75,6 +78,16 @@
           </a>
         </template>
         <template v-else-if="forwardLinkType(child) == 'lead_item_otus'">
+          <template v-if="store.key_data[child]['target_id']">
+            ...&nbsp;
+            <a
+              :href="`${RouteNames.BrowseOtu}?otu_id=${store.key_data[child]['target_id']}`"
+              target="_blank"
+            >
+              {{ store.key_data[child]['target_label'] }}
+            </a>
+          </template>
+
           <ul class="key-ul">
             <li v-for="lio in store.key_data[child]['lead_item_otus']">
               {{ lio }}

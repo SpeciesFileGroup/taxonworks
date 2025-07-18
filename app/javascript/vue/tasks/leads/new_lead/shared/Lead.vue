@@ -312,6 +312,7 @@ function nextCouplet() {
         store.loadKey(body)
         store.key_data = body.key_data
         store.key_metadata = body.key_metadata
+        store.key_ordered_parents = body.key_ordered_parents
       })
       .finally(() => {
         loading.value = false
@@ -369,6 +370,7 @@ function changeLeadPosition(direction) {
       store.resetChildren(body.leads, body.futures, body.lead_item_otus)
       store.key_data = body.key_data
       store.key_metadata = body.key_metadata
+      store.key_ordered_parents = body.key_ordered_parents
 
       const direction_word = (direction == DIRECTIONS.left) ? 'left' : 'right'
       TW.workbench.alert.create('Moved lead ' + direction_word, 'notice')

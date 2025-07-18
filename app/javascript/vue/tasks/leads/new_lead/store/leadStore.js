@@ -37,6 +37,10 @@ const makeInitialState = () => ({
   layout: null,
   // Used only for full_key layout.
   key_metadata: null,
+  // Ruby creates the metadata keys in dept-first search order, but javascript
+  // orders numeric hash-keys, so we need this separate array (of the original
+  // ruby key_metadata lead id keys) to get the order right.
+  key_ordered_parents: null,
   // Used only for full_key layout.
   key_data: null,
 })
@@ -166,6 +170,7 @@ export default defineStore('leads', {
       if (!!new_layout) {
         if (new_layout == LAYOUTS.FullKey) {
           this.key_metadata = lo.key_metadata
+          this.key_ordered_parents = lo.key_ordered_parents
           this.key_data = lo.key_data
 
           this.layout = new_layout
@@ -179,12 +184,14 @@ export default defineStore('leads', {
           this.layout = new_layout
 
           this.key_metadata = null
+          this.key_ordered_parents = null
           this.key_data = null
         }
       } else {
         this.ancestors = lo.ancestors
         this.futures = lo.futures
         this.key_metadata = lo.key_metadata
+        this.key_ordered_parents = lo.key_ordered_parents
         this.key_data = lo.key_data
       }
 
@@ -192,17 +199,43 @@ export default defineStore('leads', {
     },
 
     addOtuIndex(childIndex, otuIndex, exclusive = true) {
+      const extend = this.layout == LAYOUTS.FullKey ? ['key_data'] : ['future_data']
       const payload = {
         lead_id: this.children[childIndex].id,
         otu_id: this.lead_item_otus.parent[otuIndex].id,
-        exclusive // exclusive if adding this one removes all others
+        exclusive, // exclusive if adding this one removes all others
+        extend,
       }
 
       this.setLoading(true)
       LeadItem.addOtuIndex(payload)
         .then(({ body }) => {
           this.lead_item_otus = body.lead_item_otus
-          this.print_key = body.print_key
+          this.futures = body.futures
+          this.key_metadata = body.key_metadata
+          this.key_ordered_parents = body.key_ordered_parents
+          this.key_data = body.key_data
+        })
+        .catch(() => {})
+        .finally(() => { this.setLoading(false) })
+    },
+
+    removeOtuIndex(childIndex, otuIndex) {
+      const extend = this.layout == LAYOUTS.FullKey ? ['key_data'] : ['future_data']
+      const payload = {
+        lead_id: this.children[childIndex].id,
+        otu_id: this.lead_item_otus.parent[otuIndex].id,
+        extend,
+      }
+
+      this.setLoading(true)
+      LeadItem.removeOtuIndex(payload)
+        .then(({ body }) => {
+          this.lead_item_otus = body.lead_item_otus
+          this.futures = body.futures
+          this.key_metadata = body.key_metadata
+          this.key_ordered_parents = body.key_ordered_parents
+          this.key_data = body.key_data
         })
         .catch(() => {})
         .finally(() => { this.setLoading(false) })
@@ -224,22 +257,6 @@ export default defineStore('leads', {
       this.children.splice(child_id, 1)
       this.futures.splice(child_id, 1)
       this.last_saved.children.splice(child_id, 1)
-    },
-
-    removeOtuIndex(childIndex, otuIndex) {
-      const payload = {
-        lead_id: this.children[childIndex].id,
-        otu_id: this.lead_item_otus.parent[otuIndex].id,
-      }
-
-      this.setLoading(true)
-      LeadItem.removeOtuIndex(payload)
-        .then(({ body }) => {
-          this.lead_item_otus = body.lead_item_otus
-          this.print_key = body.print_key
-        })
-        .catch(() => {})
-        .finally(() => { this.setLoading(false) })
     },
 
     resetChildren(children, futures, leadItemOtus) {
@@ -291,7 +308,7 @@ export default defineStore('leads', {
 
       if (this.layout == LAYOUTS.FullKey) {
         let canCreate = false
-        this.key_metadata[this.lead.id].children.forEach((child) => {
+        this.children.forEach((child) => {
           if (this.key_metadata[child] == undefined) {
             canCreate = true
           }

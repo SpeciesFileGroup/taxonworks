@@ -1,9 +1,6 @@
+root = @lead.root
 json.root do
-  if @ancestors.length == 0
-    json.partial! 'attributes', lead: @lead
-  else
-    json.partial! 'attributes', lead: @ancestors[0]
-  end
+  json.partial! 'attributes', lead: root
 end
 
 json.lead do
@@ -16,25 +13,27 @@ json.children do
   end
 end
 
-json.partial! 'lead_item_otus', lead_item_otus: @lead_item_otus, root: @lead.root
+json.partial! 'lead_item_otus', lead_item_otus: @lead_item_otus, root:,
+  extensions: false
 
 if extend_response_with('ancestors_data')
-  json.ancestors @ancestors
+  json.ancestors @lead.ancestors.reverse
 end
 
 if extend_response_with('future_otus')
+  futures = @children&.map(&:future) || []
   json.futures do
-    json.array! @futures do |future|
+    json.array! futures do |future|
       json.partial! 'future_with_otus', future:
     end
   end
 elsif extend_response_with('futures_data')
-  json.futures @futures
+  json.futures @children&.map(&:future) || []
 end
 
 if extend_response_with('key_data')
-  root = @lead.root
   metadata = key_metadata(root)
   json.key_metadata metadata
+  json.key_ordered_parents metadata.keys
   json.key_data key_data(root, metadata, lead_items: true, back_couplets: true)
 end

@@ -173,8 +173,6 @@ module LeadsHelper
       if lead_items && d[:target_type] != :internal &&
          (lio = lead_item_otus(l)).present?
         d.merge!(
-          target_id: '',
-          target_label: 'TBD',
           target_type: 'lead_item_otus',
           lead_item_otus: lio,
           )

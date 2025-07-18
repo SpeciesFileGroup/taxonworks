@@ -1,3 +1,5 @@
+root = @lead.root
+
 json.leads do
   json.array! @leads do |lead|
     json.partial! 'attributes', lead:
@@ -5,15 +7,16 @@ json.leads do
 end
 
 json.partial! 'lead_item_otus',
-  lead_item_otus: @lead_item_otus, root: @leads.first.root
+  lead_item_otus: @lead_item_otus, root:
 
 if extend_response_with('futures_data')
-  json.futures @futures
+  futures = @leads.map(&:future)
+  json.futures futures
 end
 
 if extend_response_with('key_data')
-  root = @lead.root
   metadata = key_metadata(root)
   json.key_metadata metadata
+  json.key_ordered_parents metadata.keys
   json.key_data key_data(root, metadata, lead_items: true, back_couplets: true)
 end

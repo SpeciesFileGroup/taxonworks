@@ -291,6 +291,7 @@ function saveChanges() {
         store.updateChild(body.lead)
         store.key_data = body.key_data
         store.key_metadata = body.key_metadata
+        store.key_ordered_parents = body.key_ordered_parents
         if (layoutIsFullKey.value) {
           store.futures = null
         } else {
@@ -316,6 +317,7 @@ function saveChanges() {
           store.last_saved.origin_label = store.lead.origin_label
           store.key_data = body.key_data
           store.key_metadata = body.key_metadata
+          store.key_ordered_parents = body.key_ordered_parents
         })
         .catch(() => {})
     )

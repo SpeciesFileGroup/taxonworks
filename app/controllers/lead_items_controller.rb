@@ -83,31 +83,31 @@ class LeadItemsController < ApplicationController
   end
 
   def add_otu_index
-    lead = Lead.find(params[:lead_id])
+    @lead = Lead.find(params[:lead_id])
     added = LeadItem.add_otu_index_for_lead(
-      lead, params[:otu_id], params[:exclusive]
+      @lead, params[:otu_id], params[:exclusive]
     )
     if !added
-      render json: lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_entity
       return
     end
 
-    @lead_item_otus = lead.parent.apportioned_lead_item_otus
+    @lead_item_otus = @lead.parent.apportioned_lead_item_otus
     render partial: 'leads/lead_item_otus',
-      locals: { lead_item_otus: @lead_item_otus, root: lead.root }
+      locals: { lead_item_otus: @lead_item_otus, lead: @lead }
   end
 
   def remove_otu_index
-    lead = Lead.find(params[:lead_id])
-    removed = LeadItem.remove_otu_index_for_lead(lead, params[:otu_id])
+    @lead = Lead.find(params[:lead_id])
+    removed = LeadItem.remove_otu_index_for_lead(@lead, params[:otu_id])
     if !removed
-      render json: lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_entity
       return
     end
 
-    @lead_item_otus = lead.parent.apportioned_lead_item_otus
+    @lead_item_otus = @lead.parent.apportioned_lead_item_otus
     render partial: 'leads/lead_item_otus',
-      locals: { lead_item_otus: @lead_item_otus, root: lead.root }
+      locals: { lead_item_otus: @lead_item_otus, lead: @lead }
   end
 
   private

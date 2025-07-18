@@ -46,8 +46,6 @@ class LeadsController < ApplicationController
       expand_lead
     else
       @children = nil
-      @futures = nil
-      @ancestors = @lead.ancestors.reverse
       @lead_item_otus = @lead.apportioned_lead_item_otus
     end
   end
@@ -232,7 +230,6 @@ class LeadsController < ApplicationController
     end
 
     @leads = @lead.reload.children
-    @futures = @leads.map(&:future)
     @lead_item_otus = @lead.apportioned_lead_item_otus
   end
 
@@ -303,8 +300,6 @@ class LeadsController < ApplicationController
 
   def expand_lead
     @children = @lead.children
-    @futures = @lead.children.map(&:future)
-    @ancestors = @lead.ancestors.reverse
     @lead_item_otus = @lead.apportioned_lead_item_otus
   end
 
