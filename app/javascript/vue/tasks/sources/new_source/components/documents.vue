@@ -163,18 +163,3 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-.radial-annotator {
-  .documentation_annotator {
-    textarea {
-      padding-top: 14px;
-      padding-bottom: 14px;
-      width: 100%;
-      height: 100px;
-    }
-    .vue-autocomplete-input {
-      width: 100%;
-    }
-  }
-}
-</style>
