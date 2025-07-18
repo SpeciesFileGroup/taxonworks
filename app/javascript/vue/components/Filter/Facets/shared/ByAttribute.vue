@@ -13,7 +13,7 @@
         >
           <option
             v-if="!selectedFields.find((item) => item.param === name)"
-            :value="{name, type: fields[name]}"
+            :value="{ name, type: fields[name] }"
           >
             {{ name }}
           </option>
@@ -28,45 +28,58 @@
     @add="addField"
   />
 
-  <div v-if="selectedFields.length">
-    <div class="facet_grid">
-      <div class="gh">Field</div>
-      <div class="gh">Value</div>
-      <div class="gh">Exact</div>
-      <div class="gh"></div>
-      <template
+  <table
+    v-if="selectedFields.length"
+    class="full_width"
+  >
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Value</th>
+        <th class="w-2">Exact</th>
+        <th class="w-2" />
+      </tr>
+    </thead>
+    <tbody>
+      <tr
         v-for="(field, index) in selectedFields"
         :key="field.param"
       >
-        <div class="gd">{{ field.param }}</div>
-        <div class="gd">{{ field.value }}</div>
-        <div class="gd gd_input">
-          <template v-if="allowExactForField(field)">
-            <input
-              v-model="field.exact"
-              type="checkbox"
-            />
-          </template>
-          <template v-else>
-            <template v-if="field.any">Any</template>
-            <template v-else-if="!field.value">Empty</template>
-            <template v-else>Substring</template>
-          </template>
-        </div>
-        <div class="gd">
-          <span class="button circle-button btn-delete button-default"
-            @click="removeField(index)"
+        <td>{{ field.param }}</td>
+        <td>{{ field.value }}</td>
+        <td>
+          <input
+            v-if="allowExactForField(field)"
+            v-model="field.exact"
+            type="checkbox"
           />
-        </div>
-      </template>
-    </div>
-  </div>
+          <template v-else-if="field.any">Any</template>
+          <template v-else-if="!field.value">Empty</template>
+          <template v-else>Substring</template>
+        </td>
+        <td>
+          <VBtn
+            color="primary"
+            circle
+            @click="() => removeField(index)"
+          >
+            <VIcon
+              name="trash"
+              x-small
+            />
+          </VBtn>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script setup>
 import { ref, watch, computed, onBeforeMount } from 'vue'
 import ajaxCall from '@/helpers/ajaxCall'
 import AttributeForm from '@/components/Filter/Facets/CollectingEvent/FacetCollectingEvent/AttributeForm.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   modelValue: {
@@ -163,18 +176,16 @@ onBeforeMount(() => {
         return
       }
 
-      const exact = !!value && !any &&
-        !params.value.wildcard_attribute?.includes(name)
+      const exact =
+        !!value && !any && !params.value.wildcard_attribute?.includes(name)
 
-      selectedFields.value.push(
-        {
-          param: name,
-          value,
-          type,
-          any,
-          exact
-        }
-      )
+      selectedFields.value.push({
+        param: name,
+        value,
+        type,
+        any,
+        exact
+      })
     })
 
     fieldNames.value = Object.keys(fields.value).sort()
@@ -182,7 +193,7 @@ onBeforeMount(() => {
 })
 
 const addField = (field) => {
-  selectedFields.value.push({...field, exact: false})
+  selectedFields.value.push({ ...field, exact: false })
   selectedField.value = undefined
 }
 
@@ -198,45 +209,13 @@ const fieldIsWildcard = (field) => {
 
 const allowExactForField = (field) => {
   const type = field.type
-  return !!field.value && !field.any && // i.e. not none, not any
-    (type === 'string' || type === 'text' ||
-     type === 'integer' || type === 'decimal')
+  return (
+    !!field.value &&
+    !field.any && // i.e. not none, not any
+    (type === 'string' ||
+      type === 'text' ||
+      type === 'integer' ||
+      type === 'decimal')
+  )
 }
 </script>
-
-<style scoped>
-.facet_grid {
-  display: grid;
-  grid-template-columns: auto auto fit-content(6em) fit-content(24px);
-	box-shadow: 0 0 2px 0 #e5e5e5;
-	border-radius: 2px;
-	background-color: #fff;
-}
-
-.gh {
-  border-bottom: 2px solid #98b798;
-  text-align: left;
-  height: 40px;
-  line-height: 40px;
-  font-size: 12px;
-  padding-left: 1em;
-  padding-right: 1em;
-}
-
-.gh:hover {
-  background: #e3e8e3;
-}
-
-.gd {
-  display: flex;
-  align-items: center;
-  word-break: break-all;
-  padding-left: .5em;
-  padding-right: .5em;
-  min-height: 40px;
-}
-
-.gd_input {
-  justify-content: center;
-}
-</style>
