@@ -49,8 +49,8 @@ export const Lead = {
     'get', `/${controller}/${id}/otus.json`
   ),
 
-  destroy_subtree: (id) => AjaxCall(
-    'post', `/${controller}/${id}/destroy_subtree.json`
+  destroy_subtree: (id, params = null) => AjaxCall(
+    'post', `/${controller}/${id}/destroy_subtree.json`, params
   ),
 
   reorder_children: (parent_id, params) => AjaxCall(

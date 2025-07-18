@@ -72,7 +72,7 @@
           ...&nbsp;
           <a
            :href="`#cplt-${store.key_data[child]['target_label']}`"
-           @click.prevent="scrollToCouplet(child)"
+           @click.prevent="scrollToCouplet(store.key_metadata[child]['couplet_number'])"
           >
             {{ store.key_data[child]['target_label'] }}
           </a>

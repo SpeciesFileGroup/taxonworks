@@ -301,7 +301,7 @@ function nextCouplet() {
   } else {
     const payload = {
       num_to_add: 2,
-      extend: store.layout == LAYOUTS.FullKey ? ['key_data'] : ['futures_data'],
+      extend: store.layout == LAYOUTS.FullKey ? ['key_data'] : ['ancestors_data', 'futures_otus'],
     }
 
     loading.value = true
@@ -310,9 +310,6 @@ function nextCouplet() {
     )
       .then(({ body }) => {
         store.loadKey(body)
-        store.key_data = body.key_data
-        store.key_metadata = body.key_metadata
-        store.key_ordered_parents = body.key_ordered_parents
       })
       .finally(() => {
         loading.value = false
@@ -329,8 +326,12 @@ function deleteSubTree() {
     return
   }
 
+  const payload = {
+    extend: store.layout == LAYOUTS.FullKey ? ['key_data'] : ['ancestors_data', 'future_otus']
+  }
+
   loading.value = true
-  LeadEndpoint.destroy_subtree(store.children[props.position].id)
+  LeadEndpoint.destroy_subtree(store.children[props.position].id, payload)
     .then(({ body }) => {
       const noticeText = (leadHasChildren.value
         ? 'Lead and descendants deleted.'
@@ -361,7 +362,7 @@ function changeLeadPosition(direction) {
   }
   const payload = {
     reorder_list: childOrderList,
-    extend: store.layout == LAYOUTS.FullKey ? ['key_data'] : ['futures_data'],
+    extend: store.layout == LAYOUTS.FullKey ? ['key_data'] : ['future_otus'],
   }
 
   loading.value = true

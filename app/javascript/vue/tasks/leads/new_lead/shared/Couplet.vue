@@ -348,8 +348,13 @@ function nextCouplet() {
 }
 
 function addLead() {
+  const payload = {
+    num_to_add: 1,
+    extend: layoutIsFullKey.value ? ['key_data'] : []
+  }
+
   loading.value = true
-  LeadEndpoint.add_children(store.lead.id, { num_to_add: 1 })
+  LeadEndpoint.add_children(store.lead.id, payload)
     .then(({ body }) => {
       store.loadKey(body)
       TW.workbench.alert.create('Added a new lead.', 'notice')
