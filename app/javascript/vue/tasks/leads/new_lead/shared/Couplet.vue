@@ -9,7 +9,19 @@
   >
     <div class="couplet_actions">
       <span class="margin-xlarge-right">
-        <label>Couplet number: </label>
+        <label
+          v-if="layoutIsFullKey && !store.lead.origin_label"
+
+        >
+          Couplet number (computed is {{ store.key_metadata[store.lead.id]['couplet_number'] }}):
+        </label>
+
+        <label
+          v-else
+        >
+          Couplet number:
+        </label>
+
         <input
           v-model="store.lead.origin_label"
           type="text"
