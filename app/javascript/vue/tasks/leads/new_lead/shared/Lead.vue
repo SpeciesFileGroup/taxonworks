@@ -49,23 +49,7 @@
               />
             </VBtn>
           </div>
-          <RadialAnnotator
-            :global-id="store.children[position].global_id"
-            @create="handleRadialCreate"
-            @delete="handleRadialDelete"
-            @update="handleRadialUpdate"
-          />
-        </div>
-      </template>
 
-      <template #body>
-        <div
-          v-if="!!store.last_saved.children[position].redirect_id"
-          class="redirect_notice"
-        >
-          <i>This side is currently redirecting, to add leads below remove the redirection.</i>
-        </div>
-        <div class="lead_navigation">
           <VBtn
             :disabled="nextButtonDisabled"
             color="update"
@@ -83,6 +67,22 @@
           >
             Insert a couplet below
           </VBtn>
+
+          <RadialAnnotator
+            :global-id="store.children[position].global_id"
+            @create="handleRadialCreate"
+            @delete="handleRadialDelete"
+            @update="handleRadialUpdate"
+          />
+        </div>
+      </template>
+
+      <template #body>
+        <div
+          v-if="!!store.last_saved.children[position].redirect_id"
+          class="redirect_notice"
+        >
+          <i>This side is currently redirecting, to add leads below remove the redirection.</i>
         </div>
 
         <div class="field label-above">
@@ -252,9 +252,9 @@ const editNextText = computed(() => {
     return 'Edit the next couplet'
   } else {
     if (store.last_saved.children[props.position].text) {
-      return 'Create and edit the next couplet'
+      return 'Create the next couplet'
     } else {
-      return 'Save text to enable creating the next couplet'
+      return 'Save text to proceed'
     }
   }
 })
@@ -387,12 +387,10 @@ function changeLeadPosition(direction) {
 <style lang="scss" scoped>
 .header-left-right {
   display: flex;
-  > :first-child {
-    flex-grow: 1;
-  }
   > :first-child button {
     margin-right: 0.5em;
   }
+  justify-content: space-between;
 }
 
 .lead {
@@ -406,12 +404,6 @@ function changeLeadPosition(direction) {
   max-width: 600px;
   display: flex;
   flex-direction: column;
-}
-
-.lead_navigation {
-  display: flex;
-  justify-content: space-evenly;
-  gap: 3px;
 }
 
 .redirect_notice {
