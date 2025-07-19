@@ -7,7 +7,7 @@
     <div
       v-for="parent in store.key_ordered_parents"
       :key="parent"
-      :style="{marginLeft: (2 * store.key_metadata[parent].depth - 2) + 'em'}"
+      :style="{marginLeft: (2 * store.key_metadata[parent].depth - 1) + 'em'}"
     >
       <div
         v-for="child in store.key_metadata[parent]['children']"
@@ -20,12 +20,45 @@
         -->
         <!-- header-->
         <template v-if="firstLine(child)">
-          <span
-            v-if="parent == store.lead.id"
-            class="current"
+          <template v-if="parent == store.lead.id">
+            <span
+              :style="{position: 'relative', left: leftCalc(parent)}"
+              class="gutter"
+            >
+              <template
+                v-if="forwardLinkType(child) == 'lead_item_otus' && store.key_data[child]['lead_item_otus'].length > 1"
+              >
+                <b>>>&nbsp;<span class="lead-item-mark">!!</span></b>
+              </template>
+              <template
+                v-else
+              >
+                <b>>></b>
+              </template>
+            </span>
+
+            <span
+              v-if="store.key_metadata[parent]['depth'] > 1"
+              class="gutter"
+            >
+              <b>>></b>
+            </span>
+          </template>
+
+          <template
+            v-else
           >
-            <b>>></b>
-          </span>
+            <template v-if="forwardLinkType(child) == 'lead_item_otus'">
+              <span
+                v-if="store.key_data[child]['lead_item_otus'].length > 1"
+                :style="{position: 'relative', left: leftCalc(parent)}"
+                class="gutter"
+              >
+                <b><span class="lead-item-mark">!!</span></b>
+              </span>
+            </template>
+          </template>
+
           <VBtn
             pill
             color="primary"
@@ -47,6 +80,16 @@
           </template>
         </template>
         <template v-else>
+          <template v-if="forwardLinkType(child) == 'lead_item_otus'">
+            <span
+              v-if="store.key_data[child]['lead_item_otus'].length > 1"
+              :style="{position: 'relative', left: leftCalc(parent)}"
+              class="gutter"
+            >
+              <b><span class="lead-item-mark">!!</span></b>
+            </span>
+          </template>
+
           <a
             :href="`${RouteNames.NewLead}?lead_id=${parent}`"
             @click.prevent="() => store.loadKey(parent)"
@@ -68,6 +111,7 @@
             {{ store.key_data[child]['target_label'] }}
           </a>
         </template>
+
         <template v-else-if="forwardLinkType(child) == 'couplet'">
           ...&nbsp;
           <a
@@ -77,7 +121,8 @@
             {{ store.key_data[child]['target_label'] }}
           </a>
         </template>
-        <template v-else-if="forwardLinkType(child) == 'lead_item_otus'">
+
+        <template v-if="forwardLinkType(child) == 'lead_item_otus'">
           <template v-if="store.key_data[child]['target_id']">
             ...&nbsp;
             <a
@@ -124,8 +169,16 @@ function backLink(parent, child) {
 }
 
 function forwardLinkType(child) {
-  if (!store.key_data[child]['target_label']) return null
+  if (!store.key_data[child]['target_label']) {
+    if (store.key_data[child]['target_type'] == 'lead_item_otus') {
+      return 'lead_item_otus'
+    } else {
+      return null
+    }
+  }
 
+  // has target_label (writing this way to avoid the string '/api/v1/otus' for
+  // otu)
   if (store.key_data[child]['target_type'] == 'internal') {
     return 'couplet'
   } else if (store.key_data[child]['target_type'] == 'lead_item_otus') {
@@ -140,14 +193,22 @@ function scrollToCouplet(couplet) {
   if (elt) elt.scrollIntoView()
 }
 
+function leftCalc(parent) {
+  return -(2 * store.key_metadata[parent].depth - 1) + 'em'
+}
+
 </script>
 
 <style scope>
-.current {
+.gutter {
   color: var(--color-warning);
   width: 1.5em;
   margin-left: -1.5em;
   display: inline-block;
+}
+
+.lead-item-mark {
+  color: var(--color-attention);
 }
 
 .print-key {
@@ -159,7 +220,7 @@ function scrollToCouplet(couplet) {
   border-top-left-radius: 0.9rem;
   border-bottom-left-radius: 0.9rem;
   padding: 1.5em;
-  padding-left: 2em;
+  padding-left: 3em;
   max-height: 400px;
   overflow-y: scroll;
   margin-bottom: 1.5em;
