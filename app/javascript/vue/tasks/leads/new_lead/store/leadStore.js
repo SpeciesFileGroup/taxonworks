@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import { Lead, LeadItem } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
-import { LAYOUTS, nextLayout } from '../shared/layouts'
+import { LAYOUTS } from '../shared/layouts'
 import editableChildrenFields from './constants/editableChildrenFields'
 import setParam from '@/helpers/setParam'
+import { EXTEND } from '../shared/constants'
 
 const makeInitialState = () => ({
   // The root node of the key.
@@ -111,14 +112,6 @@ export default defineStore('leads', {
   state: makeInitialState,
   getters: {},
   actions: {
-    addLead(child) {
-      this.children.push(child)
-      this.futures.push([])
-
-      const last_saved_data = editableFieldsObjectForLead(child)
-      this.last_saved.children.push(last_saved_data)
-    },
-
     async loadKey(id_or_couplet, new_layout = null) {
       let lo = undefined
       let error_message = undefined
@@ -128,22 +121,16 @@ export default defineStore('leads', {
         typeof(id_or_couplet) == 'number' || typeof(id_or_couplet) == 'string'
       ) {
         id_or_couplet = parseInt(id_or_couplet)
-        this.setLoading(true)
-        let extend
         const layout_for_new_data = new_layout || this.layout
-        if (layout_for_new_data == LAYOUTS.FullKey) {
-          extend = ['key_data']
-        } else {
-          extend = ['ancestors_data', 'future_otus']
-        }
+        const extend = this.extend(EXTEND.All, layout_for_new_data)
 
+        this.setLoading(true)
         try {
           lo = (await Lead.find(id_or_couplet, { extend })).body
         }
         catch(e) {
           error_message = `Unable to load: couldn't find id ${id_or_couplet}.`
         }
-
         this.setLoading(false)
       } else {
         error_message = 'Unable to load: unrecognized id.'
@@ -352,6 +339,33 @@ export default defineStore('leads', {
         return this.futures.flat().length == 0
       }
     },
+
+    extend(for_affected, for_layout = this.layout) {
+      switch(for_affected) {
+        case EXTEND.All:
+          return for_layout == LAYOUTS.FullKey ?
+            ['key_data'] : ['ancestors_data', 'future_otus']
+        case EXTEND.CoupletAndFutures:
+          return for_layout == LAYOUTS.FullKey ?
+            ['key_data'] : ['future_otus']
+        default:
+          throw new Error(`Internal error: unrecognized for_affected ${for_affected}`)
+      }
+    },
+
+    update_from_extended(for_affected, result) {
+      switch(for_affected) {
+        case EXTEND.CoupletAndFutures:
+          // Doesn't replace existing store.ancestors
+          store.key_data = result.key_data
+          store.key_metadata = result.key_metadata
+          store.key_ordered_parents = result.key_ordered_parents
+          store.futures = result.futures
+          break
+        default:
+          throw new Error(`Internal error: unrecognized update for_affected ${for_affected}`)
+      }
+    }
   }
 })
 

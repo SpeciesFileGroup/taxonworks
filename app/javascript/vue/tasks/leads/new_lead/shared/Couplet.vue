@@ -180,6 +180,7 @@ import { computed, ref, watch } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
 import { LAYOUTS } from './layouts'
+import { EXTEND } from './constants'
 
 const store = useStore()
 
@@ -292,7 +293,8 @@ function saveChanges() {
     return
   }
 
-  const extend = layoutIsFullKey.value ? ['key_data'] : ['future_data']
+  // A redirect update can change futures.
+  const extend = store.extend(EXTEND.CoupletAndFutures)
   const promises = childrenToUpdate.map((lead) => {
     const payload = {
       lead,
@@ -301,15 +303,7 @@ function saveChanges() {
     return LeadEndpoint.update(lead.id, payload)
       .then(({ body }) => {
         store.updateChild(body.lead)
-        store.key_data = body.key_data
-        store.key_metadata = body.key_metadata
-        store.key_ordered_parents = body.key_ordered_parents
-        if (layoutIsFullKey.value) {
-          store.futures = null
-        } else {
-          // Future changes when redirect changes.
-          store.futures[props.position] = body.future
-        }
+        store.update_from_extended(EXTEND.CoupletAndFutures, body)
       })
       // TODO: if multiple fail we can get overlapping popup messages, but is
       // there a way to catch here without also displaying the error message (so
@@ -327,9 +321,7 @@ function saveChanges() {
       LeadEndpoint.update(store.lead.id, payload)
         .then(({ body }) => {
           store.last_saved.origin_label = store.lead.origin_label
-          store.key_data = body.key_data
-          store.key_metadata = body.key_metadata
-          store.key_ordered_parents = body.key_ordered_parents
+          store.update_from_extended(EXTEND.CoupletAndFutures, body)
         })
         .catch(() => {})
     )
@@ -348,8 +340,12 @@ function saveChanges() {
 }
 
 function nextCouplet() {
+  const payload = {
+    num_to_add: 2,
+    extend: store.extend(EXTEND.All)
+  }
   loading.value = true
-  LeadEndpoint.add_children(store.lead.id, { num_to_add: 2 })
+  LeadEndpoint.add_children(store.lead.id, payload)
     .then(({ body }) => {
       store.loadKey(body)
     })
@@ -362,7 +358,7 @@ function nextCouplet() {
 function addLead() {
   const payload = {
     num_to_add: 1,
-    extend: layoutIsFullKey.value ? ['key_data'] : []
+    extend: store.extend(EXTEND.All)
   }
 
   loading.value = true
