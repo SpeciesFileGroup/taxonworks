@@ -187,42 +187,59 @@ module Queries
       end
 
       def from_wkt(wkt_shape)
-        a = from_wkt_geographic_area(wkt_shape)
-        b = from_wkt_gazetteer(wkt_shape)
+        a = self.class.geographic_areas_for_geographic_items(
+          ::GeographicItem.covered_by_wkt_sql(wkt_shape)
+        )
+        b = self.class.gazetteers_for_geographic_items(
+          ::GeographicItem.covered_by_wkt_sql(wkt_shape)
+        )
 
         ::Queries.union(::AssertedDistribution, [a, b])
       end
 
-      def from_wkt_geographic_area(wkt_shape)
+      def self.from_geographic_items(geographic_items_sql)
+        # TODO: can we combine GAs and GAZs *before* joining with
+        # geographic_items_sql? That would save a spatial contains query.
+        a = self.geographic_areas_for_geographic_items(geographic_items_sql)
+        b = self.gazetteers_for_geographic_items(geographic_items_sql)
 
-        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.covered_by_wkt_sql(wkt_shape))
-
-        j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
-        k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have shapes
-
-        l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
-
-        s = 'WITH query_wkt_ad AS (' + l.all.to_sql + ') ' +
-          ::AssertedDistribution
-          .joins('JOIN query_wkt_ad as query_wkt_ad1 on query_wkt_ad1.id = asserted_distributions.asserted_distribution_shape_id')
-          .where(asserted_distribution_shape_type: 'GeographicArea')
-          .to_sql
-
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+        ::Queries.union(::AssertedDistribution, [a,b])
       end
 
-      def from_wkt_gazetteer(wkt_shape)
-        i = ::GeographicItem.joins(:gazetteers).where(::GeographicItem.covered_by_wkt_sql(wkt_shape))
+      def self.geographic_areas_for_geographic_items(geographic_items_sql)
+        i = ::GeographicItem
+          .joins(:geographic_areas)
+          .where(geographic_items_sql)
 
-        j = ::Gazetteer.joins(:geographic_item).where(geographic_item: i)
+        j = ::GeographicArea.joins(:geographic_items).merge(i).pluck(:id)
 
-        s = 'WITH query_wkt_ad AS (' + j.to_sql + ') ' +
-          ::AssertedDistribution
-          .joins('JOIN query_wkt_ad as query_wkt_ad1 on query_wkt_ad1.id = asserted_distributions.asserted_distribution_shape_id')
-          .where(asserted_distribution_shape_type: 'Gazetteer')
-          .to_sql
+        # TODO: There are only 58 GAs with shape that have a descendant without
+        # shape: could this be a lookup table instead?
+        k = ::GeographicArea.descendants_of(j).pluck(:id) # Add children that might not be caught because they don't have shapes
 
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+        geographic_area_ids = (j + k).uniq
+        if geographic_area_ids.empty?
+          return ::AssertedDistribution.none
+        end
+
+        ::AssertedDistribution
+          .where(asserted_distribution_shape_id: geographic_area_ids,
+            asserted_distribution_shape_type: 'GeographicArea')
+      end
+
+      def self.gazetteers_for_geographic_items(geographic_items_sql)
+        i = ::GeographicItem.joins(:gazetteers).where(geographic_items_sql)
+
+        gazetteer_ids = ::Gazetteer
+          .joins(:geographic_item).merge(i).pluck(:id)
+
+        if gazetteer_ids.empty?
+          return ::AssertedDistribution.none
+        end
+
+        ::AssertedDistribution
+          .where(asserted_distribution_shape_id: gazetteer_ids,
+            asserted_distribution_shape_type: 'Gazetteer')
       end
 
       # Shape is a Hash in GeoJSON format
@@ -329,20 +346,15 @@ module Queries
           'Gazetteer', gazetteer_shapes
         )
 
-        if geo_mode == true # spatial
-          i = ::Queries.union(::GeographicItem, [a,b])
-          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
-
-          if u['st_astext'].nil?
-            # Normally shouldn't be the case unless we were passed some bad
-            # params.
-            return ::AssertedDistribution.none
-          else
-            return from_wkt(u['st_astext'])
-          end
+        if geo_mode != true # exact or descendants
+          return referenced_klass_union([a,b])
         end
 
-        referenced_klass_union([a,b])
+        # Spatial.
+        i = ::Queries.union(::GeographicItem, [a,b])
+        self.class.from_geographic_items(
+          ::GeographicItem.covered_by_geographic_items_sql(i)
+        )
       end
 
       def asserted_distribution_geo_facet_by_type(shape_string, shape_ids)

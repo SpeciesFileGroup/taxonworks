@@ -4,14 +4,22 @@ json.extract! observation, :id, :descriptor_id, :observation_object_id, :observa
 :presence, :description, :cached, :cached_column_label, :cached_row_label, :type,
 :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 json.partial! '/shared/data/all/metadata', object: observation
-json.label observation_cell(observation, 'tag')
+
+json.label observation_cell_tag(observation)
 
 if observation.type == 'Observation::Qualitative'
   if extend_response_with('character_state')
     json.character_state do
-      json.partial! '/shared/data/all/metadata', object: observation.character_state
+      json.label observation.character_state.label
       json.name observation.character_state.name
     end
+  end
+end
+
+if extend_response_with('descriptor')
+  json.descriptor do
+    json.name observation.descriptor.name
+    json.description observation.descriptor.description
   end
 end
 
@@ -19,8 +27,7 @@ if extend_response_with('depictions')
   if observation.depictions.any?
     json.depictions do
       json.array! observation.depictions.each do |depiction|
-        #TODO: Not an API endpoint
-        json.partial! '/depictions/attributes', depiction: depiction
+        json.partial! '/depictions/api/v1/attributes', depiction: depiction
       end
     end
   end

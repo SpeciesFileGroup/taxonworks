@@ -8,7 +8,7 @@
       :object-type="PERSON"
       :pagination="pagination"
       :button-unify="false"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       v-model:append="append"
       v-model="parameters"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
@@ -48,16 +48,17 @@ import { PERSON } from '@/constants/index.js'
 import { People } from '@/routes/endpoints'
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(People)
 </script>
 

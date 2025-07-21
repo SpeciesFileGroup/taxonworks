@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_11_140727) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_11_195046) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -473,8 +473,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_11_140727) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.string "confidence_object_type", null: false
     t.integer "confidence_object_id", null: false
+    t.string "confidence_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -954,8 +954,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_11_140727) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.string "dwc_occurrence_object_type"
     t.integer "dwc_occurrence_object_id"
+    t.string "dwc_occurrence_object_type"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -973,6 +973,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_11_140727) do
     t.index ["created_at"], name: "index_dwc_occurrences_on_created_at"
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
+    t.index ["rebuild_set", "id"], name: "idx_dwc_occurrences_rebuild_set_id"
+    t.index ["rebuild_set", "id"], name: "index_dwc_occurrences_on_rebuild_set_and_id"
     t.index ["updated_at"], name: "index_dwc_occurrences_on_updated_at"
   end
 
@@ -1346,7 +1348,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_11_140727) do
     t.datetime "updated_at", precision: nil, null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", null: false
+    t.text "lender_address", default: "Lender's address not provided.", null: false
     t.boolean "is_gift"
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
@@ -1545,10 +1547,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_11_140727) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.string "old_object_type", null: false
     t.integer "old_object_id", null: false
-    t.string "new_object_type", null: false
+    t.string "old_object_type", null: false
     t.integer "new_object_id", null: false
+    t.string "new_object_type", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1726,8 +1728,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_11_140727) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.string "protocol_relationship_object_type", null: false
     t.integer "protocol_relationship_object_id", null: false
+    t.string "protocol_relationship_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false

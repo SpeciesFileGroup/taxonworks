@@ -6,7 +6,7 @@
       :pagination="pagination"
       v-model="parameters"
       :object-type="BIOLOGICAL_ASSOCIATION"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :list="list"
       :url-request="urlRequest"
       v-model:append="append"
@@ -27,8 +27,8 @@
         <div class="horizontal-right-content gap-small">
           <RadialBiologicalAssociation
             :disabled="!list.length"
-            :ids="selectedIds"
-            :count="selectedIds.length"
+            :ids="sortedSelectedIds"
+            :count="sortedSelectedIds.length"
             @update="
               () => makeFilterRequest({ ...parameters, extend, page: 1 })
             "
@@ -96,16 +96,17 @@ const extend = [
 ]
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(BiologicalAssociation, { listParser, initParameters: { extend } })
 </script>
 

@@ -256,23 +256,16 @@ module Queries
           'Gazetteer', gazetteer_shapes
         )
 
-        if geo_mode == true # spatial
-          i = ::Queries.union(::GeographicItem, [a,b])
-          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
-
-          if u['st_astext'].nil? || u['st_geometrytype'].nil?
-            # Normally shouldn't be the case unless we were passed some bad
-            # params.
-            return ::CollectingEvent.none
-          else
-            return from_wkt(
-              u['st_astext'], u['st_geometrytype'].delete_prefix!('ST_')
-            )
-          end
-
+        if geo_mode != true # exact or descendants
+          return referenced_klass_union([a,b])
         end
 
-        referenced_klass_union([a,b])
+        # Spatial.
+        i = ::Queries.union(::GeographicItem, [a,b])
+
+        ::CollectingEvent
+          .joins(:geographic_items)
+          .where(::GeographicItem.covered_by_geographic_items_sql(i))
       end
 
       def collecting_event_geo_facet_by_type(shape_string, shape_ids)

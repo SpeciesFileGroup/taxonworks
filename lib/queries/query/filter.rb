@@ -45,6 +45,7 @@ module Queries
       collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence],
       content: [:source, :otu, :taxon_name, :image],
+      conveyance: [:sound],
       controlled_vocabulary_term: [:data_attribute],
       data_attribute: [:collection_object, :collecting_event, :field_occurrence, :taxon_name, :otu],
       dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event, :field_occurrence],
@@ -96,6 +97,7 @@ module Queries
       collection_object_query: '::Queries::CollectionObject::Filter',
       content_query: '::Queries::Content::Filter',
       controlled_vocabulary_term_query: '::Queries::ControlledVocabularyTerm::Filter',
+      conveyance_query: '::Queries::Conveyance::Filter',
       data_attribute_query: '::Queries::DataAttribute::Filter',
       depiction_query: '::Queries::Depiction::Filter',
       descriptor_query: '::Queries::Descriptor::Filter',
@@ -169,6 +171,9 @@ module Queries
 
     # @return [Query::Content::Filter, nil]
     attr_accessor :content_query
+
+    # @return [Query::Conveyance::Filter, nil]
+    attr_accessor :conveyance_query
 
     # @return [Query::DataAttribute::Filter, nil]
     attr_accessor :data_attribute_query
