@@ -145,6 +145,7 @@ function setLeadOtu() {
   store.setLoading(true)
   Lead.update(props.leadId, payload)
     .then(() => {
+      TW.workbench.alert.create('Set and saved OTU on lead.', 'notice')
       store.loadKey(store.lead.id)
     })
     .catch(() => {})
@@ -152,7 +153,7 @@ function setLeadOtu() {
 }
 
 function leadItemOtuDeleted(otuId) {
-  if (!window.confirm('Are you sure you want to delete this otu row?')) {
+  if (!window.confirm('Are you sure you want to delete this OTU row?')) {
     return
   }
 
@@ -163,7 +164,7 @@ function leadItemOtuDeleted(otuId) {
   })
     .then(() => {
       store.loadKey(store.lead.id)
-      TW.workbench.alert.create('Removed otu from lists.', 'notice')
+      TW.workbench.alert.create('Removed OTU from lists.', 'notice')
     })
     .catch(() => {})
     .finally(() => { store.setLoading(false) })

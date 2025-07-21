@@ -296,7 +296,7 @@ export default defineStore('leads', {
       if (this.layout == LAYOUTS.FullKey) {
         let canCreate = false
         this.children.forEach((child) => {
-          if (this.key_metadata[child] == undefined) {
+          if (!this.key_metadata[child.id]) {
             canCreate = true
           }
         })
@@ -357,10 +357,10 @@ export default defineStore('leads', {
       switch(for_affected) {
         case EXTEND.CoupletAndFutures:
           // Doesn't replace existing store.ancestors
-          store.key_data = result.key_data
-          store.key_metadata = result.key_metadata
-          store.key_ordered_parents = result.key_ordered_parents
-          store.futures = result.futures
+          this.key_data = result.key_data
+          this.key_metadata = result.key_metadata
+          this.key_ordered_parents = result.key_ordered_parents
+          this.futures = result.futures
           break
         default:
           throw new Error(`Internal error: unrecognized update for_affected ${for_affected}`)

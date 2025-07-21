@@ -142,7 +142,7 @@
     </div>
   </div>
 
-  <div v-else class="couplet_center">
+  <div v-else class="couplet_actions">
     <p>No remaining choices.</p>
     <VBtn
       color="update"
@@ -311,7 +311,7 @@ function saveChanges() {
       .catch(() => {})
   })
 
-  if (leadOriginLabelChanged || store.layout == LAYOUTS.FullKey) {
+  if (leadOriginLabelChanged) {
     const payload = {
       lead: store.lead,
       extend,

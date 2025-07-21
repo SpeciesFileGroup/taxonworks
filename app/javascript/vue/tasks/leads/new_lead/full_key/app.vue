@@ -32,6 +32,11 @@
                 <b>>>&nbsp;<span class="lead-item-mark">!!</span></b>
               </template>
               <template
+                v-else-if="forwardLinkType(child) == 'lead_item_otus' && store.key_data[child]['lead_item_otus'].length == 1 && !store.key_data[child]['target_id']"
+              >
+                <b>>>&nbsp;<span class="lead-item-one">!!</span></b>
+              </template>
+              <template
                 v-else
               >
                 <b>>></b>
@@ -56,6 +61,13 @@
                 class="gutter"
               >
                 <b><span class="lead-item-mark">!!</span></b>
+              </span>
+              <span
+                v-if="store.key_data[child]['lead_item_otus'].length == 1 && !store.key_data[child]['target_id']"
+                :style="{position: 'relative', left: leftCalc(parent)}"
+                class="gutter"
+              >
+                <b><span class="lead-item-one">!!</span></b>
               </span>
             </template>
           </template>
@@ -213,6 +225,10 @@ function leftCalc(parent) {
 }
 
 async function scrollToCurrentCouplet() {
+  if (!store.key_metadata[store.lead.id]) {
+    return
+  }
+
   await nextTick()
   scrollToCouplet(
     store.key_metadata[store.lead.id]['couplet_number']
@@ -246,6 +262,10 @@ onMounted(() => {
 
 .lead-item-mark {
   color: var(--color-attention);
+}
+
+.lead-item-one {
+  color: var(--color-data);
 }
 
 .print-key {
