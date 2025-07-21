@@ -11,14 +11,15 @@ function makeDetermination(d = {}) {
   return {
     id: d.id,
     otuId: d.otu_id,
-    label: d.object_tag
+    label: d.id ? d.object_tag : '<i>Without determinations</i>'
   }
 }
 
 function makeObject(o) {
   return {
-    objectId: o.id,
-    objectType: o.type,
+    globalId: o.global_id,
+    id: o.id,
+    type: o.base_class,
     collectingEventId: o.collecting_event_id,
     label: o.object_label,
     determination: makeDetermination(o.taxon_determinations?.[0])
@@ -27,7 +28,7 @@ function makeObject(o) {
 
 function buildGroups(objects) {
   const determinations = getUnique(
-    objects.map((o) => o.determination).filter((d) => d.otuId),
+    objects.map((o) => o.determination),
     'otuId'
   )
 
@@ -64,8 +65,21 @@ export default defineStore('monographFacilitator', {
       }
     },
 
+    getGeoreferencesByObjectId(state) {
+      return (id) => {
+        const object = state.objects.find((o) => o.id === id)
+        const ceId = object.collectingEventId
+
+        return ceId
+          ? state.georeferences.filter(
+              (g) => g.collecting_event_id === object.collectingEventId
+            )
+          : []
+      }
+    },
+
     getVisibleObjects(state) {
-      return state.objects.filter((o) => !state.hiddenIds.includes(o.objectId))
+      return state.objects.filter((o) => !state.hiddenIds.includes(o.id))
     },
 
     getObjectByGeoreferenceId(state) {
@@ -87,7 +101,7 @@ export default defineStore('monographFacilitator', {
             const feature = g.geo_json
 
             const isSelected = objects.some((o) =>
-              state.selectedIds.includes(o.objectId)
+              state.selectedIds.includes(o.id)
             )
 
             feature.properties.style = makeMarkerStyle({

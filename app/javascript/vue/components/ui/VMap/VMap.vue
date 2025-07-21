@@ -1,5 +1,6 @@
 <template>
   <div
+    class="vue-leaflet"
     :style="{ width: props.width, height: props.height, userSelect: 'none' }"
     ref="leafletMap"
   />
@@ -418,3 +419,10 @@ defineExpose({
   getMapObject
 })
 </script>
+
+<style scoped>
+.vue-leaflet {
+  user-select: none;
+  outline-style: none;
+}
+</style>

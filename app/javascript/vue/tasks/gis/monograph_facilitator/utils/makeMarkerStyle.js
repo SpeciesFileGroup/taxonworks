@@ -4,12 +4,12 @@ export function makeMarkerStyle({ color, isSelected }) {
     width: '8px',
     height: '8px',
     backgroundColor: color,
-    color
+    color,
+    border: '1px solid var(--text-color)'
   }
 
   if (isSelected) {
     Object.assign(style, {
-      border: '1px solid var(--text-color)',
       animation: 'pulse-marker 1s infinite ease-in-out'
     })
   }

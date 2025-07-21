@@ -23,7 +23,7 @@ function setSelectedObjects(arr) {
   const objects = features
     .map((f) => store.getObjectByGeoreferenceId(f.properties.georeference.id))
     .flat()
-  const ids = objects.map((o) => o.objectId)
+  const ids = objects.map((o) => o.id)
 
   if (isKeyPressed('Control')) {
     ids.push(...store.selectedIds)
