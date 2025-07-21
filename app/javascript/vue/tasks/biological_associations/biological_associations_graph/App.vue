@@ -35,8 +35,11 @@
                   </VBtn>
                   <RadialObject :global-id="currentGraph.globalId" />
                   <RadialAnnotator :global-id="currentGraph.globalId" />
+                  <RadialNavigator :global-id="currentGraph.globalId" />
                 </div>
-                <span>{{ currentGraph.name || currentGraph.label }}</span>
+                <span class="margin-small-left">
+                  {{ currentGraph.name || currentGraph.label }}
+                </span>
               </template>
             </div>
             <div class="horizontal-left-content gap-small">
@@ -139,6 +142,7 @@ import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ModalRelated from './components/ModalRelated.vue'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { onMounted, ref } from 'vue'

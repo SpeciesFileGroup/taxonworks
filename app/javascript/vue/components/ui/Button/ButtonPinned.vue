@@ -17,7 +17,7 @@
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import { computed, ref, onBeforeMount, onBeforeUnmount } from 'vue'
+import { computed, ref, onBeforeMount, onBeforeUnmount, watch } from 'vue'
 
 const props = defineProps({
   section: {
@@ -46,6 +46,10 @@ const buttonTitle = computed(() =>
 
 const pinnedLlabel = ref(null)
 const pinnedId = ref(null)
+
+watch(() => props.section, () => {
+  if (props.section) loadPinnedObject()
+})
 
 onBeforeMount(() => {
   loadPinnedObject()
