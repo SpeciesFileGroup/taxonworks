@@ -2,6 +2,7 @@
   <fieldset
     v-if="store.key_metadata"
     class="print-key"
+    id="full_key"
   >
     <legend>Key preview</legend>
     <div
@@ -195,7 +196,13 @@ async function scrollToCouplet(couplet) {
   if (hasMounted) {
     await nextTick()
     const elt = document.getElementById(`cplt-${couplet}`)
-    if (elt) elt.scrollIntoView()
+    if (elt) {
+      elt.scrollIntoView()
+      const thisComponent = document.getElementById('full_key')
+      thisComponent.scrollIntoView()
+      thisComponent.scrollBy(0, -10)
+      window.scrollBy(0, -10)
+    }
   } else {
     scrollToOnMounted = couplet
   }
@@ -221,10 +228,8 @@ watch(() => store.key_metadata, (new_metadata, old_metadata) => {
 onMounted(() => {
   if (!!scrollToOnMounted) {
     scrollToCouplet(scrollToOnMounted)
-  } else {
-    if (!!store.key_metadata) {
-      scrollToCurrentCouplet()
-    }
+  } else if (!!store.key_metadata) {
+    scrollToCurrentCouplet()
   }
   hasMounted = true
 })
