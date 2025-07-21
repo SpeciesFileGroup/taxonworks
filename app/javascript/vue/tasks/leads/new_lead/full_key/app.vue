@@ -70,12 +70,12 @@
             </span>
           </VBtn>
 
-          <template v-if="backLink(parent, child)">
+          <template v-if="backLink(parent)">
             <a
-              :href="`#cplt-${backLink(parent, child)}`"
-              @click.prevent="scrollToCouplet(backLink(parent, child))"
+              :href="`#cplt-${backLink(parent)}`"
+              @click.prevent="scrollToCouplet(backLink(parent))"
             >
-              {{ '&nbsp; (' + backLink(parent, child) + ').' }}
+              {{ '&nbsp; (' + backLink(parent) + ').' }}
             </a>
           </template>
         </template>
@@ -147,10 +147,13 @@
 
 <script setup>
 import { RouteNames } from '@/routes/routes'
+import { nextTick, onMounted, watch } from 'vue'
 import useStore from '../store/leadStore'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
+let hasMounted = false
+let scrollToOnMounted = null
 
 function begin(parent, child) {
   if (store.key_data[child]['position'] == 0) {
@@ -164,7 +167,7 @@ function firstLine(child) {
   return store.key_data[child]['position'] == 0
 }
 
-function backLink(parent, child) {
+function backLink(parent) {
   return store.key_data.back_couplets[store.key_metadata[parent]['couplet_number']]
 }
 
@@ -188,14 +191,43 @@ function forwardLinkType(child) {
   }
 }
 
-function scrollToCouplet(couplet) {
-  const elt = document.getElementById(`cplt-${couplet}`)
-  if (elt) elt.scrollIntoView()
+async function scrollToCouplet(couplet) {
+  if (hasMounted) {
+    await nextTick()
+    const elt = document.getElementById(`cplt-${couplet}`)
+    if (elt) elt.scrollIntoView()
+  } else {
+    scrollToOnMounted = couplet
+  }
 }
 
 function leftCalc(parent) {
   return -(2 * store.key_metadata[parent].depth - 1) + 'em'
 }
+
+async function scrollToCurrentCouplet() {
+  await nextTick()
+  scrollToCouplet(
+    store.key_metadata[store.lead.id]['couplet_number']
+  )
+}
+
+watch(() => store.key_metadata, (new_metadata, old_metadata) => {
+  if (!old_metadata && !!new_metadata) {
+    scrollToCurrentCouplet()
+  }
+})
+
+onMounted(() => {
+  if (!!scrollToOnMounted) {
+    scrollToCouplet(scrollToOnMounted)
+  } else {
+    if (!!store.key_metadata) {
+      scrollToCurrentCouplet()
+    }
+  }
+  hasMounted = true
+})
 
 </script>
 
