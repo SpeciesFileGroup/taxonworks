@@ -490,6 +490,7 @@ biological_relationship_composer_task:
   related:
   categories:
     - biology
+    - new
   status: prototype
   description: 'Define and add properties to biological relationships, e.g. things like "host/parasite".'
 grid_digitize_task:
@@ -797,6 +798,7 @@ edit_biological_associations_graph_task:
   related:
   categories:
     - biology
+    - new
   status: prototype
   description: 'Create, edit, and cite biological associations and their inter-relationships.'
 loan_dashboard_task:
@@ -981,6 +983,7 @@ new_biological_association_task:
   related:
   categories:
     - biology
+    - new
   status: prototype
   description: 'Create, edit, and cite biological associations.'
 duplicate_otus_task:
@@ -1045,7 +1048,7 @@ filter_field_occurrences_task:
   status: prototype
   description: 'Filter field occurrences by many different facets, download or visualize results.'
 taxon_names_table_task:
-  hub: true
+  hub: false
   name: 'Taxon names table'
   description: 'A simple table view of taxon names including checklist-style columns of names at rank, author, and year.'
   status: prototype

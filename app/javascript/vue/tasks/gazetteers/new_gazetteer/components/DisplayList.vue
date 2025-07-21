@@ -31,10 +31,9 @@
                 :global-id="item.global_id"
               />
               <VBtn
-                v-if="!editingDisabled"
                 color="primary"
                 circle
-                @click="() => (emit('delete', item))"
+                @click="() => deleteItem(item)"
               >
                 <VIcon
                   name="trash"
@@ -191,5 +190,19 @@ function coordinatesForGeometryCollection(geometries) {
   })
 
   return collectionStrings
+}
+
+function deleteItem(item) {
+  if (item.type == GZ_DATABASE) {
+    if (
+      window.confirm(
+        `You're trying to delete the *SAVED* shape. This can't be undone. Are you sure?`
+      )
+    ) {
+      emit('delete', item)
+    }
+  } else {
+    emit('delete', item)
+  }
 }
 </script>

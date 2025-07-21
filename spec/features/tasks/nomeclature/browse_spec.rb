@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Browse nomenclature task', type: :feature, group: :nomenclature do
+describe 'Browse taxon names task', type: :feature, group: :nomenclature do
   context 'when signed in and a project is selected' do
 
     before { sign_in_user_and_select_project}

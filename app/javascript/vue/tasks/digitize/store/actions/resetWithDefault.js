@@ -51,7 +51,7 @@ export default ({ dispatch, state }) => {
     keepRecords: locked.taxonDeterminations
   })
 
-  biocurationStore.reset({ keepRecords: locked.settings.biocuration })
+  biocurationStore.reset({ keepRecords: locked.biocuration })
 
   state.biologicalAssociations = locked.biologicalAssociations
     ? state.biologicalAssociations.map((item) => ({

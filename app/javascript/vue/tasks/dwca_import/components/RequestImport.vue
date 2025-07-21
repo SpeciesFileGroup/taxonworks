@@ -70,7 +70,7 @@ export default {
       }
     }
   },
-  destroyed() {
+  unmounted() {
     clearTimeout(this.countdownProcess)
   }
 }

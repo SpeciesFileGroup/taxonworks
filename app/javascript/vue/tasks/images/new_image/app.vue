@@ -110,13 +110,3 @@ function resetTask() {
   }
 }
 </script>
-
-<style lang="scss">
-#vue-task-images-new {
-  .panel-section {
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: 0;
-  }
-}
-</style>

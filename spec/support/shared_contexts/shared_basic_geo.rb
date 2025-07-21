@@ -65,15 +65,15 @@ shared_context 'stuff for GeographicItem tests' do
   # about their location in space; for that see distance spec shapes below
   #
   #    donut              box                    distant_point
-  #  ---------         ---------                       #
-  #  |       |         |       |
-  #  | &---- |         |   %%%%%%%%%
-  #  | &   | |         |   %   |   %
+  #  ---------         ------&--                       #
+  #  |       |         |     & |
+  #  | &---- |         |   %%&%%%%%%
+  #  | &   | |         |   % & |   %
   #  | # # | |         &&&&#&&&&   %
-  #  | &   | |         |   %   |   %  rectangle_intersecting_box
+  #  | &   | |         |   % & |   %  rectangle_intersecting_box
   #  | &&&&& |         |   % # |   %
-  #  |#      |         |   %   |   %
-  #  ---------         ----%%%%%%%%%
+  #  |#      |         |   % & |   %
+  #  ---------         ----%%&%%%%%%
   #
   #  # = point, & = line
   #
@@ -85,6 +85,8 @@ shared_context 'stuff for GeographicItem tests' do
   #
   #  Rectangle shapes: rectangle_intersecting_box,
   #    box_rectangle_intersection_point
+  #
+  #  box_rectangle_line is contained in their union but not either on its own
   #
   #  box_rectangle_union is what it says as a single polygon
   #
@@ -261,6 +263,17 @@ shared_context 'stuff for GeographicItem tests' do
     i = "POINT (#{i_x} #{i_y})"
 
     FactoryBot.create(:geographic_item, geography: i)
+  }
+
+  ### A line contained in the union of box and rectangle, but not contained in
+  # either on its own.
+  let(:box_rectangle_line) {
+    x = box_llc_x + 3 * box_w / 4
+    top_y = box_llc_y + box_h
+    bottom_y = box_llc_y
+
+    line = "LINESTRING (#{x} #{top_y} 0, #{x} #{bottom_y} 0)"
+    FactoryBot.create(:geographic_item, geography: line)
   }
 
   ### The union of the box and rectangle polygons as a single polygon
