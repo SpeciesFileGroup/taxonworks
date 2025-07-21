@@ -212,8 +212,7 @@ const allowDeleteCouplet = computed(() => {
 })
 
 const offerLeadItemCreate = computed(() => {
-  const a = store.canCreateLeadItemsOnCurrentLead()
-  return a
+  return store.canCreateLeadItemsOnCurrentLead()
 })
 
 const redirectOptions = ref([])
