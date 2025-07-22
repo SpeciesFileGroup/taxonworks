@@ -13,10 +13,29 @@
       </div>
       <br />
     </template>
-    <div class="margin-medium-bottom">
+
+    <FormCitation
+      v-model="citation"
+      :klass="BIOLOGICAL_ASSOCIATION"
+      lock-button
+      use-session
+      @lock="lock.source = $event"
+    />
+
+    <DisplayList
+      v-if="createdBiologicalAssociation"
+      edit
+      class="margin-medium-top"
+      label="citation_source_body"
+      :list="createdBiologicalAssociation.citations"
+      @edit="setCitation"
+      @delete="removeCitation"
+    />
+    <div>
+      <h3 v-html="metadata.object_tag" />
       <h3
         v-if="biologicalRelationship"
-        class="relationship-title middle gap-small"
+        class="relationship-title middle"
       >
         <span
           v-html="
@@ -35,6 +54,7 @@
         </VBtn>
 
         <VBtn
+          class="margin-small-left margin-small-right"
           color="primary"
           circle
           @click="unsetBiologicalRelationship"
@@ -77,25 +97,6 @@
         Choose related OTU/collection object
       </h3>
     </div>
-
-    <FormCitation
-      v-model="citation"
-      :klass="BIOLOGICAL_ASSOCIATION"
-      lock-button
-      use-session
-      @lock="lock.source = $event"
-    />
-
-    <DisplayList
-      v-if="createdBiologicalAssociation"
-      edit
-      class="margin-medium-top"
-      label="citation_source_body"
-      :list="createdBiologicalAssociation.citations"
-      @edit="setCitation"
-      @delete="removeCitation"
-    />
-
     <biological
       v-if="!biologicalRelationship"
       class="separate-bottom"
@@ -103,6 +104,9 @@
     />
     <related
       v-if="!biologicalRelation"
+      ref="related"
+      autofocus
+      :target="objectType"
       class="separate-bottom separate-top"
       @select="biologicalRelation = $event"
     />
@@ -144,7 +148,15 @@ import {
   BiologicalRelationship
 } from '@/routes/endpoints'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
-import { ref, computed, watch, onBeforeMount, reactive } from 'vue'
+import {
+  ref,
+  computed,
+  watch,
+  onBeforeMount,
+  reactive,
+  useTemplateRef,
+  nextTick
+} from 'vue'
 import { useSlice } from '@/components/radials/composables'
 
 const EXTEND_PARAMS = [
@@ -181,6 +193,8 @@ const props = defineProps({
 const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
 })
+
+const relatedRef = useTemplateRef('related')
 
 const validateFields = computed(
   () => biologicalRelationship.value && biologicalRelation.value
@@ -314,6 +328,10 @@ function saveAssociation() {
         'Biological association was successfully saved.',
         'notice'
       )
+
+      nextTick(() => {
+        relatedRef.value.setFocus()
+      })
     })
     .catch(() => {})
 }

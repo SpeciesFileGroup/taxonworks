@@ -7,6 +7,7 @@
       <BiologicalAssociationForm
         class="margin-medium-bottom"
         ref="formRef"
+        :target="FIELD_OCCURRENCE"
         v-model:relationship-lock="
           settings.locked.biologicalAssociation.relationship
         "
@@ -24,6 +25,7 @@
 
 <script setup>
 import { useTemplateRef } from 'vue'
+import { FIELD_OCCURRENCE } from '@/constants'
 import useSettingStore from '../store/settings.js'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import BiologicalAssociationForm from '@/components/Form/FormBiologicalAssociation/BiologicalAssociation.vue'
