@@ -20,6 +20,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Batch source interface: Sources are not added to the project after create them [#4478]
 - Filters: Light mode shows up in dark mode in by attributes facet [#4486]
 
+### Changed
+
+- Updated Ruby gems
+
 [#4478]: https://github.com/SpeciesFileGroup/taxonworks/issues/4478
 [#4480]: https://github.com/SpeciesFileGroup/taxonworks/issues/4480
 [#4481]: https://github.com/SpeciesFileGroup/taxonworks/issues/4481
