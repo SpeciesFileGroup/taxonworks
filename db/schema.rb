@@ -18,6 +18,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_11_195046) do
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
   enable_extension "postgis"
+  enable_extension "postgis_raster"
   enable_extension "tablefunc"
 
   create_table "active_storage_attachments", force: :cascade do |t|
