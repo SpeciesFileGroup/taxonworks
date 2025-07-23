@@ -126,21 +126,6 @@ class CachedMapItem < ApplicationRecord
     end
   end
 
-  def self.translate_by_alternate_shape(geographic_item_id, data_origin)
-    # GeographicItem is an alternate shape to a GeographicArea that *also* has a target gazeteer type
-    if a = GeographicItem.find(geographic_item_id)
-      .geographic_areas
-      .joins(:geographic_items)
-      .where(geographic_areas: { data_origin: })
-      .order(cached_total_area: :ASC) # smallest first
-      .first
-      &.id
-      return [a]
-    else
-      []
-    end
-  end
-
   # Given a  set of target shapes, return those that intersect with the provided shape
   #
   # @param geographic_item_id [id]
@@ -227,9 +212,6 @@ class CachedMapItem < ApplicationRecord
     # All these methods depend on "prior knowledge" (not spatial calculations)
     if geographic_area_based
       a = translate_by_data_origin(geographic_item_id, data_origin)
-      return a if a.present?
-
-      a = translate_by_alternate_shape(geographic_item_id, data_origin)
       return a if a.present?
 
       a = translate_by_cached_map_usage(geographic_item_id, cached_map_type)
