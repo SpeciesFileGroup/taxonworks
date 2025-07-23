@@ -167,15 +167,6 @@ build_biocuration_group_task:
   name:
   related:
     - build_biocuration_groups_task
-otu_distribution_data_task:
-  hub: true
-  name: 'Otu distribution'
-  description: 'Display distribution data and map for an Otu (or taxon name).'
-  categories:
-    - nomenclature
-    - collecting_event
-    - collection_object
-  status: prototype
 author_list_task:
   hub: true
   name: 'Alphabetical list of source authors'

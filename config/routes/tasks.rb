@@ -593,10 +593,6 @@ scope :tasks do
     get 'collect_item', as: 'collect_draw_item_task'
   end
 
-  scope :gis, controller: 'tasks/gis/otu_distribution_data' do
-    get 'otu_distribution_data', action: 'show', as: 'otu_distribution_data_task'
-  end
-
   scope :nomenclature do
     scope :paper_catalog, controller: 'tasks/nomenclature/paper_catalog' do
       get '/', action: :index, as: 'paper_catalog_generator_task'
