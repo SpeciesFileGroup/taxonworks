@@ -19,6 +19,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Drawing a new Gazetteer shape over an existing shape while zoomed in sometimes causes a zoom out [#4483]
 - Batch source interface: Sources are not added to the project after create them [#4478]
 - Filters: Light mode shows up in dark mode in by attributes facet [#4486]
+- New field occurrence task: A Field Occurrence has to be saved twice to save it when creating a new collection event
+- Image viewer: Large images overflow to the right of the container
 
 ### Changed
 
