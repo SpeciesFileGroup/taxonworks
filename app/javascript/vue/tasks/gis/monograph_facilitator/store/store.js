@@ -4,6 +4,8 @@ import { getUnique, randomHue } from '@/helpers'
 import { makeMarkerStyle } from '../utils'
 import { addToArray, removeFromArray } from '@/helpers'
 import { toRaw } from 'vue'
+import { QUERY_PARAMETER } from '@/tasks/data_attributes/field_synchronize/constants'
+import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
 
 const extend = ['taxon_determinations']
 
@@ -119,10 +121,13 @@ export default defineStore('monographFacilitator', {
   },
 
   actions: {
-    async load(params) {
+    async load() {
+      const { queryValue, queryParam } = useQueryParam()
+      const { service } = QUERY_PARAMETER[queryParam.value]
+
       this.isLoading = true
       try {
-        const { body } = await CollectionObject.filter({ ...params, extend })
+        const { body } = await service.filter({ ...queryValue.value, extend })
         const ceId = body.map((c) => c.collecting_event_id)
 
         if (ceId.length) {

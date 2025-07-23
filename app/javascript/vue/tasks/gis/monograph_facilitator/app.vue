@@ -12,7 +12,6 @@
 
 <script setup>
 import { onBeforeMount } from 'vue'
-import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
 import PanelObject from './Panel/PanelObject/PanelObject.vue'
 import PanelMap from './Panel/PanelMap.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -23,11 +22,10 @@ defineOptions({
   name: 'MonographFacilitator'
 })
 
-const { queryValue, queryParam } = useQueryParam()
 const store = useStore()
 
 onBeforeMount(() => {
-  store.load(queryValue.value)
+  store.load()
 })
 </script>
 
