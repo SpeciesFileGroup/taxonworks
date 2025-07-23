@@ -27,6 +27,12 @@
   }
 }
 
+.table-header-bold {
+  th {
+    font-weight: 700;
+  }
+}
+
 .tablesorter {
   width: 100%;
 
@@ -137,6 +143,10 @@ table {
       border-left: 1px solid var(--border-color);
     }
   }
+}
+
+.table-cell-border-left-thick {
+  border-left: 3px var(--border-color) solid;
 }
 
 .table-header-border {
