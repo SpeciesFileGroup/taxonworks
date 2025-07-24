@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Updated Ruby gems
+- Uploading DwC datasets with duplicate fields no longer allowed
 
 [#4478]: https://github.com/SpeciesFileGroup/taxonworks/issues/4478
 [#4480]: https://github.com/SpeciesFileGroup/taxonworks/issues/4480

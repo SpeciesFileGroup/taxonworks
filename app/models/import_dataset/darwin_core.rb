@@ -1,7 +1,7 @@
 class ImportDataset::DarwinCore < ImportDataset
   # self.abstract_class = true # TODO: Why causes app/views/shared/data/project/_show.html.erb to fail when visiting /import_datasets/list if uncommented?
 
-  validate :core_records_are_readable, on: :create
+  validate :well_formed, on: :create
 
   after_create -> (dwc) { ImportDatasetStageJob.perform_later(dwc) }
 
@@ -348,9 +348,14 @@ class ImportDataset::DarwinCore < ImportDataset
     records
   end
 
-  def core_records_are_readable
+  def well_formed
     begin
-      get_records(source.staged_path)
+      headers = get_records(source.staged_path).last[:core]
+      duplicates = headers.compact.map(&:downcase).tally.select { |_, count| count > 1 }.keys
+
+      if duplicates.any?
+        errors.add(:source, "Duplicate headers found: #{duplicates.join(', ')}")
+      end
     rescue RuntimeError
       errors.add(:source, 'A problem occurred when reading the data file. If this is a text file please make sure the selected string and field delimiters are correct.')
     end
