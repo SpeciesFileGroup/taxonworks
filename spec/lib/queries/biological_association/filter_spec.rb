@@ -372,13 +372,27 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(query.new(o).all.map(&:id)).to contain_exactly( ba1.id, ba2.id )
   end
 
-  specify '#collecting_event_id' do
+  specify '#collecting_event_id on collection_object' do
     a = BiologicalAssociation.create!(
       biological_association_subject: Specimen.create!(collecting_event: FactoryBot.create(:valid_collecting_event)),
       biological_association_object: o3,
       biological_relationship: r2)
     o = {collecting_event_id: a.biological_association_subject.collecting_event.id}
     expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
+  end
+
+  specify '#collecting_event_id on collection_object and field_occurrence' do
+    ce = FactoryBot.create(:valid_collecting_event)
+    a = BiologicalAssociation.create!(
+      biological_association_subject: o3,
+      biological_association_object: Specimen.create!(collecting_event: ce),
+      biological_relationship: r2)
+    b = BiologicalAssociation.create!(
+      biological_association_subject: FactoryBot.create(:valid_field_occurrence, collecting_event: ce),
+      biological_association_object: o3,
+      biological_relationship: r2)
+    o = {collecting_event_id: ce.id}
+    expect(query.new(o).all.map(&:id)).to contain_exactly( a.id, b.id )
   end
 
   specify '#otu_id' do
@@ -394,6 +408,16 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
       biological_relationship: r2)
 
     o = {collection_object_id: a.biological_association_subject.id}
+    expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
+  end
+
+  specify '#field_occurrence_id' do
+    a = BiologicalAssociation.create!(
+      biological_association_subject: o3,
+      biological_association_object: FactoryBot.create(:valid_field_occurrence),
+      biological_relationship: r2)
+
+    o = {field_occurrence_id: a.biological_association_subject.id}
     expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
   end
 

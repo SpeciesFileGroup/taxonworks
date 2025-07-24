@@ -17,6 +17,7 @@ module Queries
         :collection_object_id,
         :descendants,
         :exclude_taxon_name_relationship,
+        :field_occurrence_id,
         :geo_json,
         :geo_mode,
         :geo_shape_id,
@@ -45,6 +46,7 @@ module Queries
         biological_relationship_id: [],
         collecting_event_id: [],
         collection_object_id: [],
+        field_occurrence_id: [],
         geo_shape_id: [],
         geo_shape_type: [],
         object_biological_property_id: [],
@@ -87,6 +89,12 @@ module Queries
       #   All biological relationships with CollectionObject (only)
       #  matching subject OR object
       attr_accessor :collection_object_id
+
+      # @param field_occurrence_id
+      # @return [Array]
+      #   All biological relationships with FieldOccurrence (only)
+      #  matching subject OR object
+      attr_accessor :field_occurrence_id
 
       # @param subject_taxon_name_id
       #   All BiologicalAssociations matching this name or
@@ -181,6 +189,7 @@ module Queries
         @biological_relationship_id = params[:biological_relationship_id]
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
+        @field_occurrence_id = params[:field_occurrence_id]
         @descendants = boolean_param(params, :descendants)
         @exclude_taxon_name_relationship = boolean_param(params, :exclude_taxon_name_relationship)
         @geo_json = params[:geo_json]
@@ -244,6 +253,10 @@ module Queries
 
       def collection_object_id
         [@collection_object_id].flatten.compact
+      end
+
+      def field_occurrence_id
+        [@field_occurrence_id].flatten.compact
       end
 
       def biological_relationship_id
@@ -440,6 +453,23 @@ module Queries
         h
       end
 
+      def field_occurrence_params
+        h = {}
+        [
+          :collecting_event_id,
+          :field_occurrence_id,
+          :geo_json,
+          :geo_mode,
+          :geo_shape_id,
+          :geo_shape_type,
+          :wkt,
+        ].each do |p|
+          v = send(p)
+          h[p] = v if v.present?
+        end
+        h
+      end
+
       def otu_params
         h = {}
         [
@@ -462,6 +492,10 @@ module Queries
 
       def base_collection_object_query(opts)
         ::Queries::CollectionObject::Filter.new(opts)
+      end
+
+      def base_field_occurrence_query(opts)
+        ::Queries::FieldOccurrence::Filter.new(opts)
       end
 
       def subject_collection_object_query
@@ -490,6 +524,34 @@ module Queries
         end
 
         q = base_collection_object_query(p)
+      end
+
+      def subject_field_occurrence_query
+        p = {}
+        s = subject_taxon_name_ids
+
+        if s.empty?
+          return nil
+        elsif s.present?
+          p[:taxon_name_id] = s
+          p[:descendants] = descendants
+        end
+
+        q = base_field_occurrence_query(p)
+      end
+
+      def object_field_occurrence_query
+        p = {}
+        s = object_taxon_name_ids
+
+        if s.empty?
+          return nil
+        elsif s.present?
+          p[:taxon_name_id] = s
+          p[:descendants] = descendants
+        end
+
+        q = base_field_occurrence_query(p)
       end
 
       def subject_otu_query
@@ -531,8 +593,9 @@ module Queries
       def target_scope(target = 'subject')
         a = send((target + '_otu_query').to_sym)
         b = send((target + '_collection_object_query').to_sym)
+        c = send((target + '_field_occurrence_query').to_sym)
 
-        a_query, b_query = nil, nil
+        a_query, b_query, c_query = nil, nil, nil
 
         if !a.nil? && !a.only_project?
           a_query = a.all
@@ -542,9 +605,13 @@ module Queries
           b_query = b.all
         end
 
-        return nil if a_query.nil? && b_query.nil?
+        if !c.nil? && !c.only_project?
+          c_query = c.all
+        end
 
-        d, e = nil, nil
+        return nil if a_query.nil? && b_query.nil? && c_query.nil?
+
+        d, e, f = nil, nil, nil
 
         if a_query
           d = ::BiologicalAssociation
@@ -558,7 +625,13 @@ module Queries
             .joins("JOIN b ON b.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'CollectionObject'")
         end
 
-        referenced_klass_union([d,e])
+        if c_query
+          f = ::BiologicalAssociation
+            .with(c: c_query)
+            .joins("JOIN c ON c.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'FieldOccurrence'")
+        end
+
+        referenced_klass_union([d,e,f])
       end
 
       # Merges results from Otu and CollectionObject filters
@@ -566,13 +639,15 @@ module Queries
       def subject_object_facet
         o_params = otu_params
         co_params = collection_object_params
-        return nil if o_params.empty? && co_params.empty?
+        fo_params = field_occurrence_params
+        return nil if o_params.empty? && co_params.empty? && fo_params.empty?
 
         a = o_params.empty? ? nil : base_otu_query(o_params).all
         b = co_params.empty? ? nil : base_collection_object_query(co_params).all
+        c = fo_params.empty? ? nil : base_field_occurrence_query(fo_params).all
 
-        subjects = base_queries_to_subject_object(a, b, 'subject')
-        objects = base_queries_to_subject_object(a, b, 'object')
+        subjects = base_queries_to_subject_object(a, b, c, 'subject')
+        objects = base_queries_to_subject_object(a, b, c, 'object')
 
         referenced_klass_union([subjects,objects])
       end
@@ -592,7 +667,7 @@ module Queries
       end
 
       def base_queries_to_subject_object(
-        otu_query, collection_object_query, target
+        otu_query, collection_object_query, field_occurrence_query, target
       )
         o = otu_query.nil? ? ::BiologicalAssociation.none :
           ::BiologicalAssociation
@@ -604,7 +679,12 @@ module Queries
             .with(b: collection_object_query)
             .joins("JOIN b ON b.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'CollectionObject'")
 
-        referenced_klass_union([o,co])
+        fo = field_occurrence_query.nil? ? ::BiologicalAssociation.none :
+          ::BiologicalAssociation
+            .with(c: field_occurrence_query)
+            .joins("JOIN c ON c.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'FieldOccurrence'")
+
+        referenced_klass_union([o,co,fo])
       end
 
       def subject_object_global_id_facet
