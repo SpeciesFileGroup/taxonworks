@@ -51,8 +51,10 @@
         />
         <otu-picker
           v-if="otuPicker"
+          ref="otuPickerRef"
           :input-id="inputId"
           clear-after
+          :autofocus="autofocus"
           @get-item="sendObject"
         />
       </div>
@@ -304,6 +306,7 @@ const emit = defineEmits(['update:modelValue', 'onTabSelected', 'selected'])
 const actionKey = isMac() ? 'Control' : 'Alt'
 
 const autocompleteRef = ref(null)
+const otuPickerRef = ref(null)
 const tabselectorRef = ref(null)
 const rootRef = ref(null)
 
@@ -439,6 +442,7 @@ const alreadyOnLists = () => {
 }
 const setFocus = () => {
   autocompleteRef.value?.setFocus()
+  otuPickerRef.value?.setFocus()
 }
 
 const changeTab = (e) => {

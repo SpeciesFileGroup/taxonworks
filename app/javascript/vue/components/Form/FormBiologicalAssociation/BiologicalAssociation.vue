@@ -16,6 +16,7 @@
     </div>
     <BiologicalAssociationRelated
       v-if="!related"
+      :target="target"
       @select="(item) => (related = item)"
     />
     <BiologicalAssociationRelationship
@@ -58,6 +59,11 @@ defineProps({
   buttonColor: {
     type: String,
     default: 'primary'
+  },
+
+  target: {
+    type: String,
+    required: true
   }
 })
 
