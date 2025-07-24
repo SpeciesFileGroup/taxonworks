@@ -243,7 +243,9 @@ async function scrollToCurrentCouplet() {
 }
 
 function offerCreateNewCouplet(lead) {
-  return store.key_data[lead]['text'] && !store.key_metadata[lead]?.['children']
+  return store.key_data[lead]['text'] &&
+    !store.key_metadata[lead]?.['children'] &&
+    !store.key_data[lead]['target_id'] // an otu
 }
 
 function createNextCouplet(lead) {
