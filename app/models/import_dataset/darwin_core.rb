@@ -83,7 +83,7 @@ class ImportDataset::DarwinCore < ImportDataset
   # @return [Integer]
   # Returns the indexes of the mapped fields for the core records.
   def core_records_mapped_fields
-    core_records.first.get_mapped_fields(dwc_data_attributes)
+    core_records&.first&.get_mapped_fields(dwc_data_attributes) || []
   end
 
   # @return [String]

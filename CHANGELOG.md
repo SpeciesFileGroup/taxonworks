@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filters: Light mode shows up in dark mode in by attributes facet [#4486]
 - New field occurrence task: A Field Occurrence has to be saved twice to save it when creating a new collection event
 - Image viewer: Large images overflow to the right of the container
+- DwC importer occasionally crashing when mappings are computed while staging
 
 ### Changed
 
