@@ -7,12 +7,14 @@
       :options="Object.values(OPTIONS)"
       v-model="view"
     />
-    <label>
+    <label
+      title="Subclasses of selected items will be added automatically. Disabling this won’t remove any that were already added."
+    >
       <input
         type="checkbox"
-        v-model="includeSubclasses"
+        v-model="setIncludeSubclasses"
       />
-      Include subclasses
+      Add subclasses
     </label>
     <div class="margin-medium-top">
       <TreeDisplay
@@ -93,6 +95,7 @@ import RowItem from '@/tasks/nomenclature/filter/components/RowItem.vue'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { TaxonNameRelationship } from '@/routes/endpoints'
 import { computed, onMounted, ref, watch } from 'vue'
+import { getUnique } from '@/helpers'
 
 const OPTIONS = {
   common: 'common',
@@ -116,6 +119,25 @@ const includeSubclasses = ref(false)
 const nomenclatureCode = computed(() =>
   params.value.nomenclature_code?.toLowerCase()
 )
+
+const setIncludeSubclasses = computed({
+  get: () => includeSubclasses.value,
+  set: (value) => {
+    if (value) {
+      const list = []
+
+      relationshipsSelected.value.forEach((item) => {
+        const items = Object.values(mergeLists.value.all).filter((r) =>
+          r.type.includes(item.type)
+        )
+
+        list.push(...items)
+      })
+
+      relationshipsSelected.value = getUnique(list, 'type')
+    }
+  }
+})
 
 watch(params, (newVal) => {
   if (!newVal.taxon_name_relationship_type?.length) {
