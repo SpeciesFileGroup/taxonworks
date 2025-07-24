@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Browse OTU: `collection objects` and `field occurrences` sounds
+- Filter TNR: Include subclasses option for relationship type facet
 
 ### Fixed
 

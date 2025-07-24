@@ -3,18 +3,24 @@
     <h3>Relationship type</h3>
 
     <VSwitch
-      class="separate-bottom"
+      class="margin-medium-bottom"
       :options="Object.values(OPTIONS)"
       v-model="view"
     />
-
-    <div class="separate-top">
+    <label>
+      <input
+        type="checkbox"
+        v-model="includeSubclasses"
+      />
+      Include subclasses
+    </label>
+    <div class="margin-medium-top">
       <TreeDisplay
         v-if="view == OPTIONS.all"
-        @close="view = OPTIONS.common"
         :object-lists="mergeLists"
         modal-title="Relationships"
         display="name"
+        @close="view = OPTIONS.common"
         @selected="addRelationship"
       />
 
@@ -42,46 +48,38 @@
       <VAutocomplete
         v-if="view == OPTIONS.advanced"
         url=""
-        :array-list="
-          Object.keys(mergeLists.all).map((key) => mergeLists.all[key])
-        "
+        :array-list="Object.values(mergeLists.all)"
         label="name"
         clear-after
         min="3"
         time="0"
-        @get-item="addRelationship"
         placeholder="Search"
         event-send="autocompleteRelationshipSelected"
         param="term"
+        @get-item="addRelationship"
       />
     </div>
 
     <table
       v-if="relationshipsSelected.length"
-      class="vue-table"
+      class="margin-medium-top"
     >
       <thead>
         <tr>
           <th>Relationship</th>
           <th />
-          <th />
+          <th class="w-2" />
         </tr>
       </thead>
-      <transition-group
-        name="list-complete"
-        tag="tbody"
-      >
-        <template
+      <tbody>
+        <RowItem
           v-for="(relationship, index) in relationshipsSelected"
           :key="index"
-        >
-          <RowItem
-            class="list-complete-item"
-            :item="relationship"
-            @remove="() => removeItem(index)"
-          />
-        </template>
-      </transition-group>
+          class="list-complete-item"
+          :item="relationship"
+          @remove="() => removeItem(index)"
+        />
+      </tbody>
     </table>
   </FacetContainer>
 </template>
@@ -113,9 +111,10 @@ const relationshipsList = ref({})
 const relationshipsSelected = ref([])
 const mergeLists = ref({})
 const display = ref('subject_status_tag')
+const includeSubclasses = ref(false)
 
-const nomenclatureCode = computed(
-  () => params.value.nomenclature_code?.toLowerCase()
+const nomenclatureCode = computed(() =>
+  params.value.nomenclature_code?.toLowerCase()
 )
 
 watch(params, (newVal) => {
@@ -124,7 +123,8 @@ watch(params, (newVal) => {
   }
 })
 
-watch(relationshipsSelected,
+watch(
+  relationshipsSelected,
   (newVal) => {
     params.value.taxon_name_relationship_type = newVal.map((r) => r.type)
   },
@@ -154,9 +154,7 @@ onMounted(() => {
 })
 
 function merge() {
-  const relationships = JSON.parse(
-    JSON.stringify(relationshipsList.value)
-  )
+  const relationships = JSON.parse(JSON.stringify(relationshipsList.value))
   const newList = {
     all: {},
     common: {},
@@ -170,16 +168,12 @@ function merge() {
     newList.all = Object.assign(newList.all, relationships[key].all)
     newList.tree = Object.assign(newList.tree, relationships[key].tree)
     for (const keyType in relationships[key].common) {
-      relationships[key].common[
-        keyType
-      ].name =
-        `${relationships[key].common[keyType][display.value]} (${key})`
+      relationships[key].common[keyType].name = `${
+        relationships[key].common[keyType][display.value]
+      } (${key})`
       relationships[key].common[keyType].type = keyType
     }
-    newList.common = Object.assign(
-      newList.common,
-      relationships[key].common
-    )
+    newList.common = Object.assign(newList.common, relationships[key].common)
   })
   getTreeList(newList.tree, newList.all)
   addName(newList.all)
@@ -208,7 +202,15 @@ function removeItem(index) {
 }
 
 function addRelationship(item) {
-  relationshipsSelected.value.push(item)
+  if (includeSubclasses.value) {
+    const items = Object.values(mergeLists.value.all).filter((r) =>
+      r.type.includes(item.type)
+    )
+
+    relationshipsSelected.value.push(...items)
+  } else {
+    relationshipsSelected.value.push(item)
+  }
   view.value = OPTIONS.common
 }
 
@@ -218,21 +220,16 @@ function filterAlreadyPicked(type) {
 
 function addName(list) {
   for (const key in list) {
-    Object.defineProperty(
-      list[key], 'name', { writable: true, value: list[key][display.value] }
-    )
+    Object.defineProperty(list[key], 'name', {
+      writable: true,
+      value: list[key][display.value]
+    })
   }
 }
 
 function addType(list) {
   for (const key in list) {
-    Object.defineProperty(
-      list[key], 'type', { writable: true, value: key }
-    )
+    Object.defineProperty(list[key], 'type', { writable: true, value: key })
   }
 }
 </script>
-
-<style scoped>
-
-</style>
