@@ -4,6 +4,11 @@
     class="print-key"
     id="full_key"
   >
+    <VSpinner
+      v-if="loading"
+      full-screen
+    />
+
     <legend>Key preview</legend>
     <div
       v-for="parent in store.key_ordered_parents"
@@ -90,6 +95,7 @@
 
         <!-- body -->
         {{ store.key_data[child]['text'] || '<no text>' }}
+
         <span
           v-if="store.key_data[child]['lead_item_otus']?.length > 1"
         >
@@ -100,6 +106,17 @@
         >
           <b><span class="lead-item-one">!!</span></b>
         </span>
+
+        <VBtn
+          v-if="offerCreateNewCouplet(child)"
+          circle
+          color="primary"
+          title="Add a new couplet"
+          @click.prevent="() => createNextCouplet(child)"
+          class="margin-xsmall-left"
+        >
+          +
+        </VBtn>
 
         <!-- footer -->
         <template v-if="forwardLinkType(child) == 'otu'">
@@ -146,12 +163,17 @@
 </template>
 
 <script setup>
+import { EXTEND } from '../shared/constants/index.js'
+import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
-import { nextTick, onMounted, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
+import { useUserOkayToLeave } from '../shared/composables/useUserOkayToLeave.js'
 import useStore from '../store/leadStore'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const store = useStore()
+const loading = ref(false)
 let hasMounted = false
 let scrollToOnMounted = null
 
@@ -220,6 +242,34 @@ async function scrollToCurrentCouplet() {
   scrollToCouplet(
     store.key_metadata[store.lead.id]['couplet_number']
   )
+}
+
+function offerCreateNewCouplet(lead) {
+  return store.key_data[lead]['text'] && !store.key_metadata[lead]?.['children']
+}
+
+function createNextCouplet(lead) {
+  if (!useUserOkayToLeave(store)) {
+    return
+  }
+
+  const payload = {
+    num_to_add: 2,
+    extend: store.extend(EXTEND.All),
+  }
+
+  loading.value = true
+  LeadEndpoint.add_children(lead, payload)
+    .then(({ body }) => {
+      store.loadKey(body)
+      TW.workbench.alert.create(
+        "Success - you're now editing the new couplet",
+        'notice'
+      )
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 watch(() => store.key_metadata, (new_metadata, old_metadata) => {

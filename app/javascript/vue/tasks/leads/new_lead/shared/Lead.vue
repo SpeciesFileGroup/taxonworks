@@ -199,6 +199,7 @@ import { useAnnotationHandlers } from './composables/useAnnotationHandlers.js'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
 import { useUserOkayToLeave } from './composables/useUserOkayToLeave.js'
 import { LAYOUTS } from './layouts'
+import { EXTEND } from './constants/index.js'
 import Annotations from './Annotations.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import FutureCoupletsList from '../../components/FutureCoupletsList.vue'
@@ -209,7 +210,6 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useStore from '../store/leadStore.js'
-import { EXTEND } from './constants/index.js'
 
 const props = defineProps({
   position: {
