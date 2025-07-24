@@ -167,10 +167,22 @@ class CachedMapItem < ApplicationRecord
     # Refine the pass by smoothing using buffer/st_within
     return GeographicItem
       .where(id: a)
-      .where(
-        GeographicItem.st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
-      )
-      .pluck(:id)
+      .where(Arel::Nodes::Case.new
+        .when(
+          GeographicItem.st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
+        )
+        .then(Arel.sql('TRUE'))
+        .when(
+          GeographicItem.subset_of_sql(
+            GeographicItem.st_buffer_sql(
+              GeographicItem.select_geometry_sql(geographic_item_id),
+              100
+            )
+          )
+        )
+        .then(Arel.sql('True'))
+        .else(Arel.sql('False'))
+      ).pluck(:id)
   end
 
   # @return [Array]
