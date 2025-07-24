@@ -417,7 +417,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
       biological_association_object: FactoryBot.create(:valid_field_occurrence),
       biological_relationship: r2)
 
-    o = {field_occurrence_id: a.biological_association_subject.id}
+    o = {field_occurrence_id: a.biological_association_object.id}
     expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
   end
 
