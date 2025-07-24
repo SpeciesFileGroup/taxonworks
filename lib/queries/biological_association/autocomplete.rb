@@ -13,7 +13,10 @@ module Queries
         b = Queries::CollectionObject::Autocomplete
           .new(query_string, project_id: project_id).base_queries
 
-        c = Queries::BiologicalRelationship::Autocomplete
+        c = Queries::FieldOccurrence::Autocomplete
+          .new(query_string, project_id: project_id).base_queries
+
+        d = Queries::BiologicalRelationship::Autocomplete
           .new(query_string, project_id: project_id).all
 
         return [] if a.nil? && b.nil? && c.nil?
@@ -43,9 +46,23 @@ module Queries
           updated_queries << j
         end
 
+        c.each do |q|
+          j = ::BiologicalAssociation
+            .joins("JOIN field_occurrences ON biological_associations.biological_association_subject_id = field_occurrences.id AND biological_associations.biological_association_subject_type = 'FieldOccurrence'")
+            .where(field_occurrences: { id: q.limit(50).pluck(:id) })
+          updated_queries << j
+        end
+
+        c.each do |q|
+          j = ::BiologicalAssociation
+            .joins("JOIN field_occurrences ON biological_associations.biological_association_object_id = field_occurrences.id AND biological_associations.biological_association_object_type = 'FieldOccurrence'")
+            .where(field_occurrences: { id: q.limit(50).pluck(:id) })
+          updated_queries << j
+        end
+
         j = ::BiologicalAssociation
           .joins(:biological_relationship)
-          .where(biological_relationship: { id: c.limit(50).pluck(:id) })
+          .where(biological_relationship: { id: d.limit(50).pluck(:id) })
         updated_queries << j
       end
 
