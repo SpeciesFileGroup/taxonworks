@@ -119,7 +119,10 @@ onBeforeMount(() => {
   let urlParams = URLParamsToJSON(window.location.href)
 
   const { queryParam, queryValue } = useQueryParam()
-  urlParams[queryParam.value] = { ...queryValue.value }
+
+  if (queryParam.value) {
+    urlParams[queryParam.value] = { ...queryValue.value }
+  }
 
   if (Object.keys(urlParams).length) {
     processUrlParams(urlParams)
@@ -142,7 +145,7 @@ function processUrlParams(urlParams) {
     // otu_query[otu_id][]=1&otu_query[otu_id][]=2
     for (const key of keys) {
       const match = key.match(/^([\w]+)_query/)
-      if (match[1]) {
+      if (match?.[1]) {
         urlParams.model = toPascalCase(match[1])
         updated = true
         break
