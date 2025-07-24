@@ -85,12 +85,9 @@
         </template>
 
         <template v-else>
-          <a
-            :href="`${RouteNames.NewLead}?lead_id=${parent}`"
-            @click.prevent="() => store.loadKey(parent)"
-          >
+          <span class="dash">
             {{ begin(parent, child) }}
-          </a>
+          </span>
         </template>
 
         <!-- body -->
@@ -178,10 +175,11 @@ let hasMounted = false
 let scrollToOnMounted = null
 
 function begin(parent, child) {
+  const coupletNumber = store.key_metadata[parent]['couplet_number']
   if (store.key_data[child]['position'] == 0) {
-    return store.key_metadata[parent]['couplet_number']
+    return coupletNumber
   } else {
-    return '-----'
+    return '.'.repeat(8 + coupletNumber.toString().length)
   }
 }
 
@@ -328,5 +326,14 @@ onMounted(() => {
 
 .key-ul {
   margin-top: 0;
+}
+
+.dash {
+  display: inline-block;
+  border-top: 1px solid gray;
+  color: transparent;
+  position: relative;
+  top: 0.75em;
+  margin-right: 0.25em;
 }
 </style>
