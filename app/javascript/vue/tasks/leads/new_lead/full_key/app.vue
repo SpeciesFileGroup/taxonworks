@@ -26,21 +26,7 @@
               :style="{position: 'relative', left: leftCalc(parent)}"
               class="gutter"
             >
-              <template
-                v-if="forwardLinkType(child) == 'lead_item_otus' && store.key_data[child]['lead_item_otus'].length > 1"
-              >
-                <b>>>&nbsp;<span class="lead-item-mark">!!</span></b>
-              </template>
-              <template
-                v-else-if="forwardLinkType(child) == 'lead_item_otus' && store.key_data[child]['lead_item_otus'].length == 1 && !store.key_data[child]['target_id']"
-              >
-                <b>>>&nbsp;<span class="lead-item-one">!!</span></b>
-              </template>
-              <template
-                v-else
-              >
-                <b>>></b>
-              </template>
+              <b>>></b>
             </span>
 
             <span
@@ -92,17 +78,8 @@
             </a>
           </template>
         </template>
-        <template v-else>
-          <template v-if="forwardLinkType(child) == 'lead_item_otus'">
-            <span
-              v-if="store.key_data[child]['lead_item_otus'].length > 1"
-              :style="{position: 'relative', left: leftCalc(parent)}"
-              class="gutter"
-            >
-              <b><span class="lead-item-mark">!!</span></b>
-            </span>
-          </template>
 
+        <template v-else>
           <a
             :href="`${RouteNames.NewLead}?lead_id=${parent}`"
             @click.prevent="() => store.loadKey(parent)"
@@ -113,6 +90,16 @@
 
         <!-- body -->
         {{ store.key_data[child]['text'] || '<no text>' }}
+        <span
+          v-if="store.key_data[child]['lead_item_otus']?.length > 1"
+        >
+          <b><span class="lead-item-mark">!!</span></b>
+        </span>
+        <span
+          v-else-if="store.key_data[child]['lead_item_otus']?.length == 1 && !store.key_data[child]['target_id']"
+        >
+          <b><span class="lead-item-one">!!</span></b>
+        </span>
 
         <!-- footer -->
         <template v-if="forwardLinkType(child) == 'otu'">
@@ -254,14 +241,14 @@ onMounted(() => {
 
 <style scope>
 .gutter {
-  color: var(--color-warning);
+  color: var(--color-update);
   width: 1.5em;
   margin-left: -1.5em;
   display: inline-block;
 }
 
 .lead-item-mark {
-  color: var(--color-attention);
+  color: var(--color-warning);
 }
 
 .lead-item-one {
