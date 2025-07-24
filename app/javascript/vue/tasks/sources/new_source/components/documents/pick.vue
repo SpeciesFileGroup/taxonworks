@@ -1,52 +1,83 @@
 <template>
   <div>
-    <autocomplete
-      class="field"
+    <VAutocomplete
+      class="source-autocomplete field"
       url="/documents/autocomplete"
       label="label"
       min="2"
       placeholder="Select a document"
       clear-after
-      @getItem="createNew"
+      :excludedIds="documents"
       param="term"
+      @get-item="createNew"
     />
+    <ConfirmationModal ref="confirmationModal" />
   </div>
 </template>
 
-<script>
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
+<script setup>
 import { ActionNames } from '../../store/actions/actions'
-import Autocomplete from '@/components/ui/Autocomplete'
+import { GetterNames } from '../../store/getters/getters'
+import { useStore } from 'vuex'
+import { useTemplateRef, computed } from 'vue'
+import { Document } from '@/routes/endpoints'
+import VAutocomplete from '@/components/ui/Autocomplete'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
-export default {
-  components: { Autocomplete },
-
-  props: {
-    source: {
-      type: Object,
-      required: true
-    }
+const props = defineProps({
+  source: {
+    type: Object,
+    required: true
   },
 
-  computed: {
-    list: {
-      get() {
-        return this.$store.getters[GetterNames.GetDocumentations]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetDocumentations, value)
-      }
-    }
-  },
+  isPublic: {
+    type: Boolean,
+    required: true
+  }
+})
 
-  methods: {
-    createNew(document) {
-      this.$store.dispatch(ActionNames.SaveDocumentation, {
-        document_id: document.id,
-        annotated_global_entity: decodeURIComponent(this.source.global_id)
+const store = useStore()
+const confirmationModalRef = useTemplateRef('confirmationModal')
+
+const documents = computed(() =>
+  store.getters[GetterNames.GetDocumentations].map((d) => d.document_id)
+)
+
+async function createNew({ id }) {
+  const { body: document } = await Document.find(id)
+
+  if (props.isPublic && !document.is_public) {
+    const ok = await showConfirmationModal()
+
+    if (ok) {
+      await Document.update(id, {
+        document: { is_public: true }
       })
     }
   }
+
+  store.dispatch(ActionNames.SaveDocumentation, {
+    document_id: id,
+    annotated_global_entity: decodeURIComponent(props.source.global_id)
+  })
+}
+
+function showConfirmationModal() {
+  return confirmationModalRef.value.show({
+    title: 'Create documentation',
+    message:
+      "You're trying to create documentation using a previously uploaded document that isn't public. Do you want to make it public?",
+    typeButton: 'submit',
+    cancelButton: 'Keep private',
+    okButton: 'Make it public'
+  })
 }
 </script>
+
+<style scoped>
+:deep(.source-autocomplete) {
+  .vue-autocomplete-input {
+    width: 100%;
+  }
+}
+</style>

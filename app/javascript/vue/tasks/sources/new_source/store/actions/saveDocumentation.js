@@ -3,13 +3,13 @@ import { Documentation, Document } from '@/routes/endpoints'
 
 export default ({ state, commit }, documentation) => {
   if (documentation.id) {
-    const index = state.documentations.findIndex(
+    const document = state.documentations.find(
       (item) => item.document_id === documentation.id
     )
 
     Document.update(documentation.id, { document: documentation }).then(
       ({ body }) => {
-        state.documentations[index].document.is_public = body.is_public
+        document.document.is_public = body.is_public
       }
     )
   } else {

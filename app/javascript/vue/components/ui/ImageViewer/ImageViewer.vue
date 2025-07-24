@@ -3,10 +3,6 @@
     <VModal
       v-if="isModalVisible"
       class="depiction-modal-container"
-      :container-style="{
-        width: `${imageObject.width}px`,
-        minWidth: '700px'
-      }"
       @close="isModalVisible = false"
     >
       <template #header>
@@ -346,9 +342,13 @@ watch(isModalVisible, (newVal) => {
 
   .depiction-modal-container {
     .modal-container {
+      width: fit-content;
       max-width: 90vw;
       max-height: 90vh;
+      min-width: 700px;
+      max-width: 100vw;
       overflow: auto;
+      box-sizing: border-box;
     }
   }
 
