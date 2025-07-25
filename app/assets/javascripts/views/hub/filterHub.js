@@ -112,7 +112,7 @@ FilterHub.prototype.handleEvents = function (that) {
     const isActive = element.classList.contains('activated')
     const isCategoryButton = element.classList.contains('navigation-item')
 
-    if (!isCategoryButton && isActive) {
+    if (!isCategoryButton && !isActive) {
       that.resetStatusFilter()
     }
 
