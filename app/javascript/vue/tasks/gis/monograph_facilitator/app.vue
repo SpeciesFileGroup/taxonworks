@@ -5,7 +5,10 @@
     full-screen
   />
   <div class="app-container horizontal-left-content gap-medium align-start">
-    <PanelObject />
+    <div class="flex-col gap-medium left-column">
+      <PanelGroup />
+      <PanelObject />
+    </div>
     <PanelMap />
   </div>
 </template>
@@ -17,6 +20,7 @@ import PanelMap from './Panel/PanelMap.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 import useStore from './store/store.js'
+import PanelGroup from './Panel/PanelGroup.vue'
 
 defineOptions({
   name: 'MonographFacilitator'
@@ -33,5 +37,13 @@ onBeforeMount(() => {
 .app-container {
   max-height: calc(100vh - 12rem);
   height: calc(100vh - 12rem);
+}
+
+.left-column {
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 400px;
+  width: 400px;
 }
 </style>

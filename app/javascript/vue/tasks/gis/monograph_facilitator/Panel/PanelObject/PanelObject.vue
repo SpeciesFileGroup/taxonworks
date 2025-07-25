@@ -1,5 +1,6 @@
 <template>
   <div class="panel-attributes">
+    <PanelObjectHeader />
     <PanelAttributeGroup
       v-for="group in store.groups"
       :key="group.determination.id"
@@ -11,6 +12,7 @@
 <script setup>
 import useStore from '../../store/store.js'
 import PanelAttributeGroup from './PanelObjectGroup.vue'
+import PanelObjectHeader from './PanelObjectHeader.vue'
 
 const store = useStore()
 </script>
