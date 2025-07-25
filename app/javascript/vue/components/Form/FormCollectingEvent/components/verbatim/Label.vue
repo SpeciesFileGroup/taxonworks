@@ -4,6 +4,7 @@
     <textarea
       class="full_width"
       rows="5"
+      name="verbatim_label"
       v-model="collectingEvent.verbatim_label"
       @change="
         () => {
