@@ -65,12 +65,15 @@ FilterHub.prototype.handleEvents = function (that) {
     })
   })
 
-  $('.reset-all-filters').on('click', function () {
-    that.changeAllSectionsFilter(that.arrayData)
-    that.changeAllSectionsFilter(that.arrayTasks)
-  })
+  const resetButtons = document.querySelectorAll('.reset-all-filters')
+  resetButtons.forEach((btn) =>
+    btn.addEventListener('click', function () {
+      that.changeAllSectionsFilter(that.arrayData)
+      that.changeAllSectionsFilter(that.arrayTasks)
+    })
+  )
 
-  //Keyboard Shortcuts
+  // Keyboard Shortcuts
   TW.workbench.keyboard.createShortcut(
     'left',
     'Show previous card tasks',
@@ -202,10 +205,16 @@ FilterHub.prototype.resetTypeFilter = function () {
 }
 
 FilterHub.prototype.changeAllSectionsFilter = function (arrayData) {
+  const searchFilter = document.querySelector('#search-filter')
+  if (searchFilter) searchFilter.value = ''
+
   arrayData.forEach(function (element) {
-    $('#search-filter').val('')
     element.resetFilters()
     element.filterChildren()
-    $('.reset-all-filters').fadeOut(0)
+  })
+
+  const resetButtons = document.querySelectorAll('.reset-all-filters')
+  resetButtons.forEach((btn) => {
+    btn.style.display = 'none'
   })
 }
