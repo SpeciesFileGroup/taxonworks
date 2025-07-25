@@ -20,6 +20,7 @@ module Queries
         :geo_mode,
         :geo_shape_id,
         :geo_shape_type,
+        :geo_ce_geographic_area,
         :object_biological_property_id,
         :object_object_global_id,
         :object_taxon_name_id,
@@ -152,6 +153,7 @@ module Queries
       attr_accessor :geo_mode
       attr_accessor :geo_shape_id
       attr_accessor :geo_shape_type
+      attr_accessor :geo_ce_geographic_area
 
       # @return [nil, 'Otu', 'CollectionObject']
       #  limit subject to a type
@@ -180,10 +182,11 @@ module Queries
         @collection_object_id = params[:collection_object_id]
         @descendants = boolean_param(params, :descendants)
         @exclude_taxon_name_relationship = boolean_param(params, :exclude_taxon_name_relationship)
-        @geo_json = params[:geo_json]
-        @geo_mode = params[:geo_mode]
-        @geo_shape_id = params[:geo_shape_id]
         @geo_shape_type = params[:geo_shape_type]
+        @geo_shape_id = integer_param(params, :geo_shape_id)
+        @geo_mode = boolean_param(params, :geo_mode)
+        @geo_ce_geographic_area = boolean_param(params, :geo_ce_geographic_area)
+        @geo_json = params[:geo_json]
         @object_biological_property_id = params[:object_biological_property_id]
         @object_object_global_id = params[:object_object_global_id]
         @object_taxon_name_id = params[:object_taxon_name_id]
@@ -338,6 +341,7 @@ module Queries
           :geo_mode,
           :geo_shape_id,
           :geo_shape_type,
+          :geo_ce_geographic_area,
           :wkt,
         ].each
           .each do |p|
@@ -354,6 +358,7 @@ module Queries
           :geo_mode,
           :geo_shape_id,
           :geo_shape_type,
+          :geo_ce_geographic_area,
           :otu_id,
           :wkt,
         ].each do |p|

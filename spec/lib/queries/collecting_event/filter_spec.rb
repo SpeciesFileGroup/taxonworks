@@ -194,6 +194,17 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
       FactoryBot.create(:geographic_item, geography: wkt_polygon)
     }
 
+    let(:ga_polygon) {
+      GeographicArea.create!(
+        parent: FactoryBot.create(:earth_geographic_area),
+        name: 'over the sea',
+        geographic_area_type: FactoryBot.create(:valid_geographic_area_type),
+        data_origin: 'under the heath',
+        geographic_areas_geographic_items_attributes:
+          [ { geographic_item: gi_polygon } ]
+      )
+    }
+
     let(:gz_polygon) {
       FactoryBot.create(:gazetteer,
         geographic_item: gi_polygon,
@@ -228,5 +239,22 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 
+    specify '#geo_ce_geographic_area' do
+      ce2.update!(geographic_area: ga_polygon)
+
+      query.geo_ce_geographic_area = true
+      query.geo_shape_id = gz_polygon.id
+      query.geo_shape_type = 'Gazetteer'
+      query.geo_mode = true
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
+
+    specify '#geo_ce_geographic_area #geo_json' do
+      ce2.update!(geographic_area: ga_polygon)
+
+      query.geo_json = geo_json_polygon
+      query.geo_ce_geographic_area = true
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
   end
 end

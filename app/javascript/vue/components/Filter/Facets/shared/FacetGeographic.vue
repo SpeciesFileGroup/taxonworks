@@ -90,6 +90,17 @@
     <RadialFilterAttribute
       :parameters="{ shape_id: params.geo_shape_id }"
     />
+
+    <label
+      v-if="showGeographicAreaCheckbox"
+      data-help="For collecting events that have no georeferences, match against geographic area instead."
+    >
+      <input
+        type="checkbox"
+        v-model="params.geo_ce_geographic_area"
+      />
+      Include Geographic Area shapes
+    </label>
   </FacetContainer>
 </template>
 
@@ -102,7 +113,7 @@ import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { GeographicArea, Gazetteer } from '@/routes/endpoints'
-import { ref, watch, onBeforeMount } from 'vue'
+import { computed, ref, watch, onBeforeMount } from 'vue'
 
 const props = defineProps({
   inputId: {
@@ -119,7 +130,12 @@ const props = defineProps({
   noDescendants: {
     type: Boolean,
     default: false
-  }
+  },
+
+  geographicAreaCheckbox: {
+    type: Boolean,
+    default: true
+  },
 })
 
 let TABS // fib
@@ -156,6 +172,11 @@ const shapes = ref([])
 const geoMode = ref(GEOGRAPHIC_OPTIONS.Spatial)
 const mapGeoJson = ref([])
 const view = ref(TABS.Shape)
+
+const showGeographicAreaCheckbox = computed(() => {
+  return props.geographicAreaCheckbox &&
+    (geoMode.value  == GEOGRAPHIC_OPTIONS.Spatial || view.value == TABS.Map)
+})
 
 watch(geoMode, (newVal) => {
   params.value.geo_mode =
