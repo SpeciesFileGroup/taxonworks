@@ -10,6 +10,12 @@ export async function listParser(list) {
   return list.map((item) => ({
     ...item,
     identifiers: item.identifiers?.map((i) => i.cached).join('; '),
+    recipient_name: item.loan_recipient_roles
+      .map((r) => r.person.cached)
+      .join(''),
+    supervisor_name: item.loan_recipient_roles
+      .map((r) => r.person.cached)
+      .join(''),
     updated_by: members[item.updated_by_id],
     created_by: members[item.created_by_id]
   }))

@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Browse OTU: `collection objects` and `field occurrences` sounds
 - Filter TNR: Include subclasses option for relationship type facet
+- Filter Loans: Recipient and supervisor names [#4498]
 
 ### Fixed
 
@@ -34,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4481]: https://github.com/SpeciesFileGroup/taxonworks/issues/4481
 [#4483]: https://github.com/SpeciesFileGroup/taxonworks/issues/4483
 [#4486]: https://github.com/SpeciesFileGroup/taxonworks/issues/4486
+[#4498]: https://github.com/SpeciesFileGroup/taxonworks/issues/4498
 
 ## [0.52.2] - 2025-07-11
 
