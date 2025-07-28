@@ -641,7 +641,7 @@ module Queries
       return query if !state
       state = state.symbolize_keys
 
-      if state[:paginate] && state[:page] && state[:per]
+      if state[:paginate]
         if state[:ordered]
           # Order has already been set.
           query = query.page(state[:page]).per(state[:per])
