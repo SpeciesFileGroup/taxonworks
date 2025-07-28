@@ -214,10 +214,66 @@ describe Queries::Otu::Autocomplete, type: :model do
       query.terms = 'Fitch 1800'
       expect(query.autocomplete.first).to eq(otu2)
     end
+  end
 
+  context 'duplicate filtering' do
+    let!(:synonym_taxon) { Protonym.create!(
+      name: 'ashtonii',
+      rank_class: Ranks.lookup(:iczn, 'species'),
+      parent: genus,
+      verbatim_author: 'Author',
+      year_of_publication: 1900) }
+    
+    let!(:valid_taxon) { Protonym.create!(
+      name: 'ashtonii', 
+      rank_class: Ranks.lookup(:iczn, 'species'),
+      parent: genus,
+      verbatim_author: 'Author2',
+      year_of_publication: 1910) }
+      
+    let!(:otu_with_valid) { Otu.create!(taxon_name: valid_taxon) }
+    
+    before do
+      # Make synonym_taxon a synonym of valid_taxon
+      TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+        subject_taxon_name: synonym_taxon,
+        object_taxon_name: valid_taxon
+      )
+    end
 
-
-
+    specify 'does not return visual duplicates in api_autocomplete_extended' do
+      q = Queries::Otu::Autocomplete.new('ashtonii', project_id: project_id)
+      results = q.api_autocomplete_extended
+      
+      # Extract the rendered labels
+      labels = results.map do |r|
+        if r[:label_target].kind_of?(::Otu)
+          if r[:label_target].taxon_name
+            r[:label_target].taxon_name.cached || r[:label_target].taxon_name.name
+          else
+            r[:label_target].name || ''
+          end
+        else # TaxonName
+          r[:label_target].cached || r[:label_target].name
+        end
+      end
+      
+      # Check that there are no duplicate labels for the same OTU
+      otu_label_pairs = results.map do |r|
+        label = if r[:label_target].kind_of?(::Otu)
+          if r[:label_target].taxon_name
+            r[:label_target].taxon_name.cached || r[:label_target].taxon_name.name
+          else
+            r[:label_target].name || ''
+          end
+        else # TaxonName
+          r[:label_target].cached || r[:label_target].name
+        end
+        [r[:otu].id, label]
+      end
+      
+      expect(otu_label_pairs.uniq).to eq(otu_label_pairs)
+    end
   end
 
 end
