@@ -606,6 +606,53 @@ module Queries
       true
     end
 
+    def paging_state
+      if paginate
+        {
+          paginate: true,
+          per:,
+          page:,
+          # This shouldn't be here, but see order_by processing for identifiers
+          # in #all.
+          ordered: order_by.present?
+        }
+      else
+        { paginate: false }
+      end
+    end
+
+    def disable_paging
+      r = paging_state
+
+      self.paginate = false
+
+      r
+    end
+
+    # @param query [ActiveQuery]
+    def set_paging(query)
+      self.class.set_paging(query, paging_state)
+    end
+
+    # @param query [ActiveQuery]
+    # @param state [Hash] see #paging_state
+    # @return [ActiveQuery] query with paging set to state
+    def self.set_paging(query, state)
+      return query if !state
+      state = state.symbolize_keys
+
+      if state[:paginate] && state[:page] && state[:per]
+        if state[:ordered]
+          # Order has already been set.
+          query = query.page(state[:page]).per(state[:per])
+        else
+          query = query.order(:id).page(state[:page]).per(state[:per])
+        end
+      end
+
+      query
+    end
+
     # Returns id= facet, automatically
     # added to all queries.
     # Over-ridden in some base classes.
@@ -846,13 +893,7 @@ module Queries
         end
       end
 
-      if paginate
-        if order_by
-          q = q.page(page).per(per)
-        else
-          q = q.order(:id).page(page).per(per)
-        end
-      end
+      q = set_paging(q)
 
       # TODO: canonically address whether or not to use `.distinct` at this point, we should be able to, however
       # some incoming queries may have joins/group/etc. alone?! I.e. why can't we?
