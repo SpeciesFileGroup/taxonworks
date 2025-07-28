@@ -1025,19 +1025,19 @@ module Queries
       end
 
       def validify_result(q)
-        s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
-            ::TaxonName
-              .joins('JOIN tn_result_query as tn_result_query1 on tn_result_query1.cached_valid_taxon_name_id = taxon_names.id')
-              .to_sql
+        s = ::TaxonName
+          .with(tn_q1: q)
+          .joins('JOIN tn_q1 ON tn_q1.cached_valid_taxon_name_id = taxon_names.id')
+          .to_sql
 
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
       def synonimify_result(q)
-        s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
-            ::TaxonName
-              .joins('JOIN tn_result_query as tn_result_query2 on tn_result_query2.id = taxon_names.cached_valid_taxon_name_id')
-              .to_sql
+        s = ::TaxonName
+          .with(tn_q2: q)
+          .joins('JOIN tn_q2 ON tn_q2.id = taxon_names.cached_valid_taxon_name_id')
+          .to_sql
 
         a = ::TaxonName.from('(' + s + ') as taxon_names').distinct
 
@@ -1045,11 +1045,11 @@ module Queries
       end
 
       def combinationify_result(q)
-        s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
-            ::TaxonName
-              .joins('JOIN tn_result_query as tn_result_query3 on tn_result_query3.id = taxon_names.cached_valid_taxon_name_id')
-              .where("taxon_names.type = 'Combination'")
-              .to_sql
+        s = ::TaxonName
+          .with(tn_q3: q)
+          .joins('JOIN tn_q3 ON tn_q3.id = taxon_names.cached_valid_taxon_name_id')
+          .where("taxon_names.type = 'Combination'")
+          .to_sql
 
         a = ::TaxonName.from('(' + s + ') as taxon_names').distinct
 
@@ -1057,12 +1057,12 @@ module Queries
       end
 
       def ancestrify_result(q)
-        s = 'WITH tn_result_query_anc AS (' + q.to_sql + ') ' +
-            ::TaxonName
-              .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = taxon_names.id')
-              .joins('JOIN tn_result_query_anc as tn_result_query_anc1 on tn_result_query_anc1.id = tnh.descendant_id')
-              .distinct
-              .to_sql
+        s = ::TaxonName
+           .with(tn_q4: q)
+          .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = taxon_names.id')
+          .joins('JOIN tn_q4 ON tn_q4.id = tnh.descendant_id')
+          .distinct
+          .to_sql
 
         # !! Do not use .distinct here
         ::TaxonName.from('(' + s + ') as taxon_names')
@@ -1088,6 +1088,9 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       def all(nil_empty = false)
+        # Everything below subqueries on q in some way, so q can't have paging
+        # enabled.
+        paging_state = disable_paging
         q = super
 
         # Order matters, use this first to go up
@@ -1099,7 +1102,12 @@ module Queries
         q = synonimify_result(q) if synonymify
 
         # Then sort
-        q = order_clause(q) if sort
+        if sort
+          q = order_clause(q)
+          paging_state[:ordered] = true
+        end
+
+        q = self.class.set_paging(q, paging_state)
 
         q
       end
