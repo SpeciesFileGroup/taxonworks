@@ -201,7 +201,7 @@ function update() {
     : Content.create(payload)
 
   request.then(({ body }) => {
-    store.content.id = body.id
+    store.setContent(body)
   })
 }
 
