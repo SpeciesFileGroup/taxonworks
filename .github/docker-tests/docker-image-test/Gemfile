@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'webdrivers', '~> 5.0', require: false
+gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
 gem 'browsermob-proxy', '~> 0.3.1'
 gem 'rspec', '~> 3.8'
 gem 'capybara', '~> 3.29'
