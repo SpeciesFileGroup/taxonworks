@@ -1,6 +1,8 @@
 # A CachedMap is a OTU specific map derived from AssertedDistribution and Georeference data via
 # aggregation of the intermediate CachedMapItem level.
 #
+# One OTU can have many CachedMaps if they are of different types.
+#
 class CachedMap < ApplicationRecord
   include Housekeeping::Projects
   include Housekeeping::Timestamps
@@ -22,7 +24,7 @@ class CachedMap < ApplicationRecord
   # we manage to get a comprehensive number of hooks into models
   # such that state can be maintained.
   #
-  # Since all hooks are syncronized through a change in a CachedMapItem
+  # Since all hooks are synchronized through a change in a CachedMapItem
   # we can trigger syncronizations that Update CachedMaps with callback hooks here, in theory.
 
   def rebuild
@@ -54,7 +56,7 @@ class CachedMap < ApplicationRecord
   end
 
   def latest_cached_map_item
-    cached_map_items.order(:updated_at).first
+    cached_map_items.order(updated_at: :desc).first
   end
 
   def cached_map_items_reference_total
@@ -77,8 +79,8 @@ class CachedMap < ApplicationRecord
     end
   end
 
-  def self.calculate_union(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
-    i = ::GeographicItem.select("#{GeographicItem::GEOMETRY_SQL.to_sql}")
+  def self.union_sql(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
+    i = ::GeographicItem.select(GeographicItem.geography_as_geometry)
       .joins('JOIN cached_map_items cmi on cmi.geographic_item_id = geographic_items.id')
       .joins('JOIN otu_scope AS otu_scope1 on otu_scope1.id = cmi.otu_id')
       .where('cmi.untranslated IS NULL OR cmi.untranslated <> true')
@@ -106,13 +108,20 @@ class CachedMap < ApplicationRecord
               #{s}
             ) AS geom_array
           ) AS subquery;"
+    sql
+  end
 
+  def self.calculate_union(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
+    sql = union_sql(otu_scope, cached_map_type = 'CachedMapItem::WebLevel1')
     begin
       r = ActiveRecord::Base.connection.execute(sql)
-    rescue PG::InternalError
-      return nil
+    rescue ActiveRecord::StatementInvalid => e
+      if e.message.include?('GEOSUnaryUnion')
+        return nil
+      else
+        raise e
+      end
     end
-
     r[0]['geojson']
   end
 

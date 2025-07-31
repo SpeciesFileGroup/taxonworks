@@ -112,6 +112,6 @@ class ProtocolsController < ApplicationController
   end
 
   def protocol_params
-    params.require(:protocol).permit(:name, :short_name, :description)
+    params.require(:protocol).permit(:name, :short_name, :description, :is_machine_output)
   end
 end

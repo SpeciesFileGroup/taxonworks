@@ -1,7 +1,7 @@
 <template>
   <div>
     <span><b>Update determinations</b></span>
-    <hr />
+    <hr class="divisor" />
     <div class="field">
       <label>Determiner</label>
       <role-picker
@@ -31,11 +31,11 @@
       </span>
       <otu-picker
         v-else
-        :clear-after="true"
+        clear-after
         @get-item="
-          ($event) => {
-            determination.otu_id = $event.id
-            otuSelected = $event.label_html
+          (otu) => {
+            determination.otu_id = otu.id
+            otuSelected = otu.object_tag
           }
         "
       />
@@ -98,7 +98,7 @@ export default {
     return {
       otuSelected: undefined,
       determination: {
-        biological_collection_object_id: undefined,
+        taxon_determination_object_id: undefined,
         otu_id: undefined,
         year_made: undefined,
         month_made: undefined,
@@ -120,7 +120,8 @@ export default {
               ids.forEach((id) => {
                 promises.push(
                   this.createDetermination({
-                    biological_collection_object_id: id
+                    taxon_determination_object_id: id,
+                    taxon_determination_object_type: COLLECTION_OBJECT
                   })
                 )
               })
@@ -129,7 +130,8 @@ export default {
         } else if (item.loan_item_object_type === COLLECTION_OBJECT) {
           promises.push(
             this.createDetermination({
-              biological_collection_object_id: item.loan_item_object_id
+              taxon_determination_object_id: item.loan_item_object_id,
+              taxon_determination_object_type: COLLECTION_OBJECT
             })
           )
         }
@@ -155,15 +157,17 @@ export default {
 
     getCollectionOjectsFromContainer(containerId) {
       return new Promise((resolve, reject) => {
-        Container.find(containerId).then(({ body }) => {
-          const containerItems = body.container_items
+        Container.find(containerId, { extend: ['container_items'] }).then(
+          ({ body }) => {
+            const containerItems = body.container_items
 
-          resolve(
-            containerItems.map(
-              (item) => item.container_item.contained_object_id
+            resolve(
+              containerItems.map(
+                (item) => item.container_item.contained_object_id
+              )
             )
-          )
-        })
+          }
+        )
       })
     }
   }

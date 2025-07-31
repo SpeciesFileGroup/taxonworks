@@ -38,12 +38,15 @@ class SqedDepiction < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
+  # True?!
+  include Shared::IsData
+
   attr_accessor :rebuild
 
   belongs_to :depiction
   has_one :image, through: :depiction
 
-  has_one :collection_object, through: :depiction, source_type: 'CollectionObject', source: :depiction_object
+  has_one :collection_object, through: :depiction, source_type: 'CollectionObject', source: :depiction_object, inverse_of: :sqed_depictions
 
   validates_presence_of :depiction
   validates_presence_of  :metadata_map, :boundary_color
@@ -185,7 +188,7 @@ class SqedDepiction < ApplicationRecord
     end
 
     # otherwise rebuild
-    result = SqedToTaxonworks::Result.new(depiction_id: depiction.id)
+    result = Vendor::SqedToTaxonworks::Result.new(depiction_id: depiction.id)
     result.cache_all
   end
 

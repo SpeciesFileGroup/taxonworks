@@ -15,7 +15,7 @@
         <div class="horizontal-center-content">
           <RadialMenu
             :options="menuOptions"
-            @on-click="saveParametersOnStorage"
+            @mousedown="saveParametersOnStorage"
           />
         </div>
       </template>
@@ -39,6 +39,10 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import {
+  STORAGE_FILTER_QUERY_KEY,
+  STORAGE_FILTER_QUERY_STATE_PARAMETER
+} from '@/constants'
 import { QUERY_PARAM } from './constants/queryParam'
 import { ID_PARAM_FOR } from './constants/idParams'
 import RadialMenu from '@/components/radials/RadialMenu.vue'
@@ -46,10 +50,13 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import Qs from 'qs'
+import { randomUUID } from '@/helpers'
 import * as FILTER_LINKS from './links'
 
 const MAX_LINK_SIZE = 2048
-const EXCLUDE_PARAMETERS = ['per', 'extend']
+const EXCLUDE_PARAMETERS = ['page', 'per', 'extend', 'venn', 'venn_mode']
+
+const uuid = randomUUID()
 
 const props = defineProps({
   disabled: {
@@ -65,6 +72,11 @@ const props = defineProps({
   parameters: {
     type: Object,
     default: undefined
+  },
+
+  title: {
+    type: String,
+    default: 'Radial Filter'
   },
 
   ids: {
@@ -87,8 +99,8 @@ const filteredParameters = computed(() => {
 
 const title = computed(() =>
   isOnlyIds.value
-    ? 'Radial Filter (Send checked rows to filter)'
-    : 'Radial Filter (Send full request to filter)'
+    ? `${props.title} (Send checked rows to filter)`
+    : `${props.title} (Send full request to filter)`
 )
 
 const isOnlyIds = computed(() => Array.isArray(props.ids))
@@ -112,7 +124,11 @@ const hasParameters = computed(
 
 const menuOptions = computed(() => {
   const slices = filterLinks.value.map((item) => {
-    const urlParameters = { ...queryObject.value, per: props.parameters?.per }
+    const urlParameters = {
+      ...queryObject.value,
+      ...item.params,
+      per: props.parameters?.per
+    }
 
     const urlWithParameters =
       item.link +
@@ -123,7 +139,9 @@ const menuOptions = computed(() => {
     return addSlice({
       ...item,
       link:
-        urlWithParameters.length < MAX_LINK_SIZE ? urlWithParameters : item.link
+        urlWithParameters.length < MAX_LINK_SIZE
+          ? urlWithParameters
+          : item.link + `?${STORAGE_FILTER_QUERY_STATE_PARAMETER}=${uuid}`
     })
   })
 
@@ -172,10 +190,18 @@ function openRadialMenu() {
   isVisible.value = true
 }
 
-function saveParametersOnStorage() {
+function saveParametersOnStorage(e) {
+  const filterlink = filterLinks.value.find(
+    (l) => l.label === e.segmentObject.slice.label
+  )
+
+  console.log(filterlink)
   if (hasParameters.value) {
-    const params = { ...queryObject.value, per: props.parameters?.per }
-    const state = JSON.stringify(params)
+    const params = {
+      ...queryObject.value,
+      ...filterlink?.params,
+      per: props.parameters?.per
+    }
     const total = sessionStorage.getItem('totalFilterResult')
     const totalQueries =
       JSON.parse(sessionStorage.getItem('totalQueries')) || []
@@ -187,7 +213,10 @@ function saveParametersOnStorage() {
     })
 
     sessionStorage.setItem('totalQueries', JSON.stringify(totalQueries))
-    sessionStorage.setItem('filterQuery', state)
+    localStorage.setItem(
+      STORAGE_FILTER_QUERY_KEY,
+      JSON.stringify({ [uuid]: params })
+    )
   }
 }
 

@@ -5,6 +5,95 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+  specify 'dwc_occurrence_query_facet' do
+    Specimen.create!
+    Specimen.create!
+    s3 = Specimen.create!
+
+    Delayed::Worker.new.work_off
+    o = DwcOccurrence.order(id: :DESC).limit(1)
+
+    query.dwc_occurrence_query = o
+    expect(query.all).to contain_exactly(s3)
+  end
+
+
+  context 'housekeeping_extensions' do
+    let!(:s) { Specimen.create!(updated_at: old_date, created_at: old_date) }
+    let(:old_date) { 2.weeks.ago }
+
+    # An old collecting event not hit in the params below
+    let(:c) { FactoryBot.create(:valid_collecting_event, created_at: old_date, updated_at: old_date) }
+
+    let!(:p) {
+      {
+        extend_housekeeping: true,
+        user_date_start: 1.day.ago.to_date.to_s,
+        user_date_end: DateTime.tomorrow .to_s
+      }
+    }
+    let(:q) { Queries::CollectionObject::Filter.new(p) }
+
+    specify 'control' do
+      expect(q.all).to contain_exactly()
+    end
+
+    specify 'collecting_events' do
+      d = FactoryBot.create(:valid_collecting_event)
+      s.update!(collecting_event: d, updated_at: old_date) # time travel
+
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'collecting_event data attributes' do
+      s.update!(collecting_event: c, updated_at: old_date)
+      FactoryBot.create(:valid_data_attribute, attribute_subject: c)
+
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'taxon_determinations' do
+      c = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'data_attributes' do
+      c = FactoryBot.create(:valid_data_attribute, attribute_subject:  s)
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'georeferences' do
+      FactoryBot.create(:valid_georeference, collecting_event: c)
+      s.update!(collecting_event: c, updated_at: old_date)
+
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'collecting event notes' do
+      FactoryBot.create(:valid_note, note_object: c)
+      s.update!(collecting_event: c, updated_at: old_date)
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'collection_object notes' do
+      FactoryBot.create(:valid_note, note_object: s)
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'collecting_event roles' do
+      FactoryBot.create(:valid_collector, role_object: c)
+      s.update!(collecting_event: c, updated_at: old_date)
+      expect(q.all).to contain_exactly(s)
+    end
+
+    specify 'taxon_determiner roles' do
+      t = FactoryBot.create(:valid_taxon_determination, created_at: old_date, updated_at: old_date, taxon_determination_object: s) # TODO: refactor for FO
+      FactoryBot.create(:valid_determiner, role_object: t)
+
+      expect(q.all).to contain_exactly(s)
+    end
+  end
+
   context 'pagination' do
     before { 3.times { FactoryBot.create(:valid_specimen) } }
 
@@ -28,31 +117,33 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
   end
 
   specify 'nested pagination' do
-    3.times { FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) ) }
+    s1 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
+    s2 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
+    s3 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
 
     # Get the second CE
     h = { collecting_event_query: {paginate: true, per: 1, page: 2 } }
 
     p = ActionController::Parameters.new(h)
-
     q = Queries::CollectionObject::Filter.new(p)
-    expect(q.all.first).to eq(Specimen.second)
+
+    expect(q.all.unscope(:order).order(:id).first).to eq( s2 )
   end
 
   specify 'CollectingEvent params are permitted' do
-    h = {geographic_area_id: 1 }
+    h = {geo_shape_id: 1 }
     p = ActionController::Parameters.new(h)
     q = Queries::CollectionObject::Filter.new(p)
 
-    expect(q.base_collecting_event_query.geographic_area_id).to eq([1])
+    expect(q.base_collecting_event_query.geo_shape_id).to eq([1])
   end
 
   specify '#determiner_name_regex' do
     s = Specimen.create!
-    a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person, last_name: 'Smith') ] )
+    a = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, determiners: [ FactoryBot.create(:valid_person, last_name: 'Smith') ] )
 
     s1 = Specimen.create! # not this one
-    b = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s1, determiners: [ FactoryBot.create(:valid_person, last_name: 'htims') ] )
+    b = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s1, determiners: [ FactoryBot.create(:valid_person, last_name: 'htims') ] )
 
     query.determiner_name_regex = 'i.*h'
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
@@ -174,19 +265,19 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     FactoryBot.create(:valid_specimen)
     s = FactoryBot.create(:valid_specimen)
     FactoryBot.create(:valid_specimen) # dummy
-    a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person) ] )
+    a = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, determiners: [ FactoryBot.create(:valid_person) ] )
     query.determiner_id = a.determiners.pluck(:id)
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
   end
 
-  specify '#determiner_id_or (false)' do
+  specify '#determiner_id_all (true)' do
     s = FactoryBot.create(:valid_specimen)
     p1 = FactoryBot.create(:valid_person)
     p2 = FactoryBot.create(:valid_person)
 
     a = FactoryBot.create(
       :valid_taxon_determination,
-      biological_collection_object: s,
+      taxon_determination_object: s,
       determiners: [ p1, p2]
     )
 
@@ -195,23 +286,23 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     a = FactoryBot.create(
       :valid_taxon_determination,
-      biological_collection_object: s0,
+      taxon_determination_object: s0,
       determiners: [ p1 ]
     )
 
-    query.determiner_id_or = false
+    query.determiner_id_all = true
     query.determiner_id = [p1.id, p2.id]
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
   end
 
-  specify '#determiner_id_or (true)' do
+  specify '#determiner_id_all (false)' do
     s = FactoryBot.create(:valid_specimen)
     p1 = FactoryBot.create(:valid_person)
     p2 = FactoryBot.create(:valid_person)
 
     a = FactoryBot.create(
       :valid_taxon_determination,
-      biological_collection_object: s,
+      taxon_determination_object: s,
       determiners: [ p1, p2]
     )
 
@@ -220,11 +311,11 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     a = FactoryBot.create(
       :valid_taxon_determination,
-      biological_collection_object: s0,
+      taxon_determination_object: s0,
       determiners: [ p1 ]
     )
 
-    query.determiner_id_or = true
+    query.determiner_id_all = false
     query.determiner_id = [p1.id, p2.id]
     expect(query.all.pluck(:id)).to contain_exactly(s.id, s0.id)
   end
@@ -268,7 +359,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   specify '#taxon_determinations 1' do
     s = FactoryBot.create(:valid_specimen)
-    d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+    d = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
     a = Specimen.create! # this one
     query.taxon_determinations = false
     expect(query.all.pluck(:id)).to contain_exactly(a.id)
@@ -276,7 +367,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   specify '#taxon_determinations #buffered_determinations' do
     s = FactoryBot.create(:valid_specimen, buffered_determinations: 'Foo')
-    d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+    d = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
 
     a = Specimen.create!(buffered_determinations: 'Foo')  # this one
 
@@ -305,7 +396,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     let(:ce2) { CollectingEvent.create(
       verbatim_locality: 'Out there, under the stars',
-      verbatim_trip_identifier: 'Foo manchu',
+      verbatim_field_number: 'Foo manchu',
       start_date_year: 2000,
       start_date_month: 2,
       start_date_day: 18,
@@ -388,13 +479,13 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
       let!(:o4) { Otu.create!(taxon_name: genus2) }   # invalid
 
-      let!(:td1) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co1, otu: o1) } # historical
-      let!(:td2) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co1, otu: o2) } # current
+      let!(:td1) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co1, otu: o1) } # historical
+      let!(:td2) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co1, otu: o2) } # current
 
-      let!(:td3) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co2, otu: o2) } # historical
-      let!(:td4) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co2, otu: o1) } # current
+      let!(:td3) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co2, otu: o2) } # historical
+      let!(:td4) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co2, otu: o1) } # current
 
-      let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
+      let!(:td5) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co3, otu: o3) } # current
 
 
       # collection_objects/dwc_index?&per=500&page=1&determiner_id[]=61279&taxon_name_id=606330
@@ -402,10 +493,10 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         t1 = Specimen.create!
         t2 = Specimen.create!
         o = Otu.create!(taxon_name: species1)
-        a = FactoryBot.create(:valid_taxon_determination, otu: o, biological_collection_object: t1, determiners: [ FactoryBot.create(:valid_person) ] )
+        a = FactoryBot.create(:valid_taxon_determination, otu: o, taxon_determination_object: t1, determiners: [ FactoryBot.create(:valid_person) ] )
 
         query.determiner_id = a.determiners.pluck(:id)
-        # query.collector_id_or = false
+        # query.collector_id_all = true
         query.taxon_name_id = genus1.id
         query.descendants = true
 
@@ -515,9 +606,27 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.pluck(:id)).to contain_exactly(s.id)
     end
 
-    specify '#geographic_area_id' do
-      ce1.update(geographic_area: FactoryBot.create(:valid_geographic_area))
-      query.base_collecting_event_query.geographic_area_id = [ce1.geographic_area.id]
+    specify '#geo_shape_id GeographicArea' do
+      ce1.update!(geographic_area: FactoryBot.create(:valid_geographic_area))
+      query.base_collecting_event_query.geo_shape_id = [ce1.geographic_area.id]
+      query.base_collecting_event_query.geo_shape_type = ['GeographicArea']
+      expect(query.all.pluck(:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#geo_shape_id Gazetteer' do
+      gi = FactoryBot.create(:valid_geographic_item)
+      _point_georeference =
+        Georeference::VerbatimData.create!(
+          collecting_event: ce1,
+          geographic_item: gi,
+        )
+
+      gz = FactoryBot.create(:gazetteer,
+        geographic_item: gi, name: 'gz matching ce1 georef')
+
+      query.base_collecting_event_query.geo_shape_id = [gz.id]
+      query.base_collecting_event_query.geo_shape_type = ['Gazetteer']
+      query.base_collecting_event_query.geo_mode = true
       expect(query.all.pluck(:id)).to contain_exactly(co1.id)
     end
 
@@ -549,7 +658,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
     context 'biocuration' do
-      let!(:bc1) { FactoryBot.create(:valid_biocuration_classification, biological_collection_object: co1) }
+      let!(:bc1) { FactoryBot.create(:valid_biocuration_classification, biocuration_classification_object: co1) }
 
       specify '#biocuration_class_id' do
         query.biocuration_class_id = [ co1.biocuration_classes.first.id ]
@@ -604,7 +713,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     # Merge clauses
     context 'merge' do
       let(:factory_point) { RSPEC_GEO_FACTORY.point('10.0', '10.0') }
-      let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
+      let(:geographic_item) { GeographicItem.create!( geography: factory_point ) }
 
       let!(:point_georeference) {
         Georeference::VerbatimData.create!(

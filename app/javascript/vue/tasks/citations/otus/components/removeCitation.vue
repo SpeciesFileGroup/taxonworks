@@ -6,11 +6,17 @@
   />
 </template>
 
-<script>
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
+<script setup>
 import { Citation } from '@/routes/endpoints'
+import useStore from '../store/store.js'
+import { computed } from 'vue'
 
+const store = useStore()
+
+const citation = computed(() => store.selected.citation)
+
+function removeCitation() {}
+/* 
 export default {
   computed: {
     citation() {
@@ -27,5 +33,5 @@ export default {
       })
     }
   }
-}
+} */
 </script>

@@ -2,22 +2,22 @@
 
 <table class="tablesorter">
   <thead>
-  <tr>
-    <%= fancy_th_tag(name: 'Matrix') -%>
-    <%= fancy_th_tag(name: 'Descriptor') -%>
-    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
-    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
-  </tr>
+    <tr>
+      <%= fancy_th_tag(name: 'Matrix') -%>
+      <%= fancy_th_tag(name: 'Descriptor') -%>
+      <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+    </tr>
   </thead>
 
   <tbody>
-  <% @observation_matrix_columns.each do |matrix_column| %>
+    <% @observation_matrix_columns.each do |matrix_column| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
-          <td><%= observation_matrix_tag(observation_matrix_column.observation_matrix) %></td>
-          <td><%= descriptor_tag(matrix_column.descriptor) %></td>
-          <%= fancy_metadata_cells_tag(matrix_column) -%>
+        <td><%= observation_matrix_tag(matrix_column.observation_matrix) %></td>
+        <td><%= descriptor_tag(matrix_column.descriptor) %></td>
+        <%= fancy_metadata_cells_tag(matrix_column) -%>
       <% end %>
-  <% end %>
+    <% end %>
   </tbody>
 </table>
 

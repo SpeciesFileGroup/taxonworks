@@ -7,7 +7,7 @@
         :key="lic.key"
         :value="lic.key"
       >
-        <span>{{ lic.label }}</span>
+        {{ lic.label }}
       </option>
     </select>
   </div>

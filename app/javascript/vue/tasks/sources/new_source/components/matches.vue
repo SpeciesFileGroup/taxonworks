@@ -22,7 +22,7 @@ import { GetterNames } from '../store/getters/getters'
 import { Source } from '@/routes/endpoints'
 import { ActionNames } from '../store/actions/actions'
 import DisplayList from '@/components/displayList'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 
 export default {
   components: {

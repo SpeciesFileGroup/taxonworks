@@ -40,8 +40,8 @@
 </template>
 
 <script setup>
-import VSpinner from '@/components/spinner'
-import DefaultPin from '@/components/getDefaultPin'
+import VSpinner from '@/components/ui/VSpinner'
+import DefaultPin from '@/components/ui/Button/ButtonPinned'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { RouteNames } from '@/routes/routes'
 import { ObservationMatrix } from '@/routes/endpoints'

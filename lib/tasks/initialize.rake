@@ -19,10 +19,10 @@ namespace :tw do
       password_confirmation = STDIN.noecho(&:gets).strip
       puts
 
-      u = User.create!(name:                  name,
-                      email:                 email,
-                      password:              password,
-                      password_confirmation: password_confirmation,
+      u = User.create!(name:,
+                      email:,
+                      password:,
+                      password_confirmation:,
                       is_administrator:      true,
                       self_created:          true)
 
@@ -35,21 +35,21 @@ namespace :tw do
     end
 
     task check_for_clean_database: [:environment] do |t|
-      Rails.application.eager_load!
+      # Rails.application.eager_load!
       errored = false
       ApplicationRecord.descendants.each do |klass|
         puts "#{klass.name}"
         if klass.count > 0
-          puts "#{klass.name} has records".red
+          puts Rainbow("#{klass.name} has records").red
           errored = true
         end
       end
 
       if errored
-        puts 'Database has some existing data!'.red
+        puts Rainbow('Database has some existing data!').red
         raise
       else
-        puts 'Database *appears* empty.'.yellow
+        puts Rainbow('Database *appears* empty.').yellow
       end
 
     end
@@ -75,14 +75,14 @@ namespace :tw do
           puts "found #{f}"
         else
           errored = true
-          puts "missing #{file}".red
+          puts Rainbow("missing #{file}").red
         end
       end
       if errored
-        puts 'Initialization missing data!'.red
+        puts Rainbow('Initialization missing data!').red
         raise
       else
-        puts 'Found all required files.'.yellow
+        puts Rainbow('Found all required files.').yellow
       end
     end
 
@@ -93,14 +93,14 @@ namespace :tw do
        GeographicItem, GeographicAreaType, GeographicArea, GeographicAreasGeographicItem,
        Language, Repository].each do |klass|
         if klass.count > 0
-          puts "Found #{klass.name.pluralize}.".yellow
+          puts Rainbow("Found #{klass.name.pluralize}.").yellow
         else
           errors = true
-          puts "Could not find #{klass.name.pluralize}.".red
+          puts Rainbow("Could not find #{klass.name.pluralize}.").red
         end
       end
       if errors
-        puts '!! There were errors on initialization !!'.red
+        puts Rainbow('!! There were errors on initialization !!').red
         raise
       end
     end
@@ -128,18 +128,18 @@ namespace :tw do
         user_data = YAML.load_file(file)
       else
         print "not found, skipping.\n"
-        next 
+        next
       end
 
       user_data.each do |k, v|
         attributes = v.merge(email: k, self_created: true)
         u          = User.new(attributes)
         unless u.valid?
-          puts "Invalid user in users.yml: #{attributes}. #{u.errors.full_messages.join(' ')}".red
+          puts Rainbow("Invalid user in users.yml: #{attributes}. #{u.errors.full_messages.join(' ')}").red
           exit
         end
       end
-      puts 'Users in users.yml are valid.'.yellow
+      puts Rainbow('Users in users.yml are valid.').yellow
     end
 
     desc 'Load users from users.yml - rake tw:initialize:load_users data_directory=/path/to/file/'
@@ -160,7 +160,7 @@ namespace :tw do
           raise
         end
       end
-      puts "#{users.length} users loaded.".yellow
+      puts Rainbow("#{users.length} users loaded.").yellow
     end
 
     desc 'Fully initialize a production server'
@@ -177,7 +177,7 @@ namespace :tw do
                 :load_serials,
                 :validate_initialization
               ] do
-      puts 'Success! Welcome to TaxonWorks.'.yellow
+      puts Rainbow('Success! Welcome to TaxonWorks.').yellow
     end
 
 

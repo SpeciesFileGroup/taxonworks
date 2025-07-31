@@ -11,14 +11,19 @@
       />
     </td>
     <import-row-state :row="row" />
-    <cell-component
+    <template
       v-for="(data_field, index) in tableHeaders"
       :key="index"
-      :cell="row.data_fields[index]"
-      :cell-index="index"
-      :disabled="isProcessing || isImported"
-      @update="updateRecord"
-    />
+    >
+      <cell-component
+        v-if="settings.ignoredColumns || !isIgnored(index)"
+        :class="isIgnored(index) && 'cell-ignore'"
+        :cell="row.data_fields[index]"
+        :cell-index="index"
+        :disabled="isProcessing || isImported"
+        @update="updateRecord"
+      />
+    </template>
   </tr>
 </template>
 
@@ -53,6 +58,12 @@ export default {
         this.$store.commit(MutationNames.SetSelectedRowIds, value)
       }
     },
+    settings() {
+      return this.$store.getters[GetterNames.GetSettings]
+    },
+    dataset() {
+      return this.$store.getters[GetterNames.GetDataset]
+    },
     isImported() {
       return this.row.status === 'Imported'
     },
@@ -72,6 +83,10 @@ export default {
         rowId: this.row.id,
         data_fields: JSON.stringify(data)
       })
+    },
+
+    isIgnored(index) {
+      return !this.dataset.metadata?.core_records_mapped_fields?.includes(index)
     }
   }
 }

@@ -8,7 +8,7 @@ module Export::Coldp::Files::Reference
   # !! It is not integrated yet.
   # 
   def self.generate(project_id, project_members)
-    CSV.generate do |csv|
+    ::CSV.generate do |csv|
       Source.joins(:project_sources).where(project_sources: {project_id: project_id} ).each do |source|
         csv << ref_row(source, project_members)
       end
@@ -29,7 +29,7 @@ module Export::Coldp::Files::Reference
 #     source.year,
 #     source.journal,                # source.source
 #     reference_details(source),     # details (pages, volume, year)
-      source.doi,
+      nil, # TODO return to this in new model   source.doi,
       Export::Coldp.modified(source[:updated_at]),                        # modified
       Export::Coldp.modified_by(source[:updated_by_id], project_members)  # modifiedBy 
     ]

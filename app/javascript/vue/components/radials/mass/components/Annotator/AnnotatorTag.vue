@@ -8,7 +8,7 @@
         New keyword
       </a>
     </div>
-    <smart-selector
+    <SmartSelector
       class="margin-medium-bottom"
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{ 'type[]': 'Keyword' }"
@@ -21,14 +21,20 @@
       :custom-list="{ all: allList }"
       @selected="createWithId"
     />
+    <ConfirmationModal
+      ref="confirmationModalRef"
+      :container-style="{ 'min-width': 'auto', width: '300px' }"
+    />
   </div>
 </template>
 
 <script setup>
-import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { ControlledVocabularyTerm, Tag } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { ref, onBeforeMount } from 'vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import confirmationOpts from '../../constants/confirmationOpts.js'
 
 const props = defineProps({
   ids: {
@@ -44,17 +50,25 @@ const props = defineProps({
 
 const emit = defineEmits(['create'])
 
+const confirmationModalRef = ref(null)
 const allList = ref([])
 
-function createWithId({ id }) {
-  Tag.createBatch({
-    object_type: props.objectType,
-    keyword_id: id,
-    object_id: props.ids
-  }).then((response) => {
-    TW.workbench.alert.create('Tag item(s) were successfully created', 'notice')
-    emit('create', response.body)
-  })
+async function createWithId({ id }) {
+  const ok = await confirmationModalRef.value.show(confirmationOpts)
+
+  if (ok) {
+    Tag.createBatch({
+      object_type: props.objectType,
+      keyword_id: id,
+      object_id: props.ids
+    }).then((response) => {
+      TW.workbench.alert.create(
+        'Tag item(s) were successfully created',
+        'notice'
+      )
+      emit('create', response.body)
+    })
+  }
 }
 
 onBeforeMount(() => {

@@ -90,11 +90,13 @@ export default {
             controlled_vocabulary_term: this.controlVocabularyTerm
           })
 
-      saveRecord.then((response) => {
-        this.$emit('save', response.body)
-        this.showModal = false
-        this.controlVocabularyTerm = this.resetCVT()
-      })
+      saveRecord
+        .then((response) => {
+          this.$emit('save', response.body)
+          this.showModal = false
+          this.controlVocabularyTerm = this.resetCVT()
+        })
+        .catch(() => {})
     },
 
     resetCVT() {

@@ -1,72 +1,91 @@
 <template>
-  <td
-    v-if="!editing"
-    style="height: 40px"
-    @click="setEdit(true)">
-    <div class="dwc-table-cell">
-      {{ text }}
-    </div>
-  </td>
-  <td v-else>
+  <td v-if="isEditing">
     <div class="dwc-table-cell">
       <input
-        ref="inputtext"
+        ref="inputRef"
         class="full_width"
-        @blur="setEdit(false)"
-        @keypress.enter="setEdit(false)"
-        v-model="text"
-        type="text">
+        @blur="
+          () => {
+            updateText()
+            setEditMode(false)
+          }
+        "
+        @keypress.enter="removeBlur"
+        @keydown.esc="cancelEdit"
+        v-model="currentText"
+        type="text"
+      />
+    </div>
+  </td>
+  <td
+    v-else
+    style="height: 40px"
+    @click="setEditMode"
+  >
+    <div class="dwc-table-cell">
+      {{ currentText }}
     </div>
   </td>
 </template>
 
-<script>
+<script setup>
+import { ref, watch, nextTick } from 'vue'
 
-export default {
-  props: {
-    cell: {
-      type: [String],
-      default: undefined
-    },
-    cellIndex: {
-      type: Number,
-      required: true
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    }
+const props = defineProps({
+  cell: {
+    type: [String],
+    default: undefined
   },
-  data () {
-    return {
-      editing: false,
-      text: undefined,
-      tmp: undefined
-    }
+  cellIndex: {
+    type: Number,
+    required: true
   },
-  watch: {
-    cell: {
-      handler (newVal) {
-        this.text = newVal
-      },
-      immediate: true
-    },
-    editing (newVal) {
-      if (newVal) {
-        this.tmp = this.text
-        this.$nextTick(() => {
-          this.$refs.inputtext.focus()
-        })
-      } else if (this.tmp !== this.text) {
-        this.$emit('update', { [this.cellIndex]: this.text })
-      }
-    }
-  },
-  methods: {
-    setEdit (value) {
-      if(this.disabled) return
-      this.editing = value
-    }
+  disabled: {
+    type: Boolean,
+    default: false
   }
+})
+
+const emit = defineEmits(['update'])
+
+const isEditing = ref(false)
+const initialText = ref()
+const currentText = ref()
+const inputRef = ref(null)
+
+watch(
+  () => props.cell,
+  (newVal) => {
+    currentText.value = newVal
+  },
+  { immediate: true }
+)
+
+function setEditMode(value) {
+  if (props.disabled) return
+
+  isEditing.value = value
+
+  if (value) {
+    initialText.value = currentText.value
+    nextTick(() => {
+      inputRef.value.focus()
+    })
+  }
+}
+
+function updateText() {
+  if (initialText.value !== currentText.value) {
+    emit('update', { [props.cellIndex]: currentText.value })
+  }
+}
+
+function removeBlur() {
+  document.activeElement.blur()
+}
+
+function cancelEdit() {
+  isEditing.value = false
+  currentText.value = initialText.value
 }
 </script>

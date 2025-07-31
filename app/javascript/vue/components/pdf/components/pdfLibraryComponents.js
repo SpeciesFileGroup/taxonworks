@@ -3,16 +3,18 @@ import * as pdfjsLib from 'pdfjs-dist/webpack'
 export {
   PDFLinkService,
   PDFPageView,
-  DefaultAnnotationLayerFactory,
-  DefaultTextLayerFactory,
   EventBus
-} from 'pdfjs-dist/web/pdf_viewer.js'
+} from 'pdfjs-dist/web/pdf_viewer.mjs'
 
-function isPDFDocumentLoadingTask (obj) {
-  return typeof (obj) === 'object' && obj !== null && obj.__PDFDocumentLoadingTask === true
+function isPDFDocumentLoadingTask(obj) {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    obj.__PDFDocumentLoadingTask === true
+  )
 }
 
-function createLoadingTask (src, options) {
+function createLoadingTask(src, options) {
   const viewerContainerElement = document.querySelector('#viewerContainer')
   if (viewerContainerElement) {
     viewerContainerElement.innerHTML = ''
@@ -34,13 +36,14 @@ function createLoadingTask (src, options) {
 
   loadingTask.__PDFDocumentLoadingTask = true
 
-  if (options && options.onPassword) { loadingTask.onPassword = options.onPassword }
-  if (options && options.onProgress) { loadingTask.onProgress = options.onProgress }
+  if (options && options.onPassword) {
+    loadingTask.onPassword = options.onPassword
+  }
+  if (options && options.onProgress) {
+    loadingTask.onProgress = options.onProgress
+  }
 
   return loadingTask
 }
 
-export {
-  isPDFDocumentLoadingTask,
-  createLoadingTask
-}
+export { isPDFDocumentLoadingTask, createLoadingTask }

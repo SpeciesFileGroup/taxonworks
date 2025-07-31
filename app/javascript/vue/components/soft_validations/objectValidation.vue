@@ -144,7 +144,9 @@ export default {
   },
 
   beforeUnmount() {
-    this.cancelRequest()
+    if (this.cancelRequest) {
+      this.cancelRequest()
+    }
   }
 }
 </script>

@@ -6,27 +6,46 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   let(:taxon_name) { TaxonName.new }
 
   context 'using before :all' do
-    before(:all) do
-      @subspecies = FactoryBot.create(:iczn_subspecies)
-      @species = @subspecies.ancestor_at_rank('species')
-      @subgenus = @subspecies.ancestor_at_rank('subgenus')
-      @genus = @subspecies.ancestor_at_rank('genus')
-      @tribe = @subspecies.ancestor_at_rank('tribe')
-      @family = @subspecies.ancestor_at_rank('family')
-      @root = @subspecies.root
+    let(:subspecies) { FactoryBot.create(:iczn_subspecies) }
+    let(:species) { subspecies.ancestor_at_rank('species') }
+    let(:subgenus) { subspecies.ancestor_at_rank('subgenus') }
+    let(:genus) { subspecies.ancestor_at_rank('genus') }
+    let(:tribe) { subspecies.ancestor_at_rank('tribe') }
+    let(:family) { subspecies.ancestor_at_rank('family') }
+    let(:root) { subspecies.root }
+
+    specify '#related_relationships' do
+      expect(species.related_relationships).to eq([])
     end
 
-    after(:all) do
-      TaxonNameRelationship.delete_all
-      TaxonName.delete_all
+    specify '#related_relationships 2' do
+      species.related_relationships = nil
+      expect(species.related_relationships).to eq([])
+    end
 
-      Citation.delete_all
-      Source.destroy_all
-      TaxonNameHierarchy.delete_all
+    specify '#related_relationships 3' do
+      species.original_genus = genus
+      expect(species.related_relationships).to contain_exactly(species.original_genus_relationship)
+    end
+
+    specify '#related_relationships 4' do
+      species.original_genus = genus
+      species.related_relationships = nil
+      expect(species.related_relationships).to contain_exactly(species.original_genus_relationship)
+    end
+
+    specify '#related_relationships are reset to nil on reload' do
+      species.original_genus = genus
+      species.related_relationships # setter hit
+
+      species.original_genus_relationship.destroy! # relationship hit
+
+      # This reload tests the reload(*) extension.
+      expect(species.reload.related_relationships).to eq([])
     end
 
     specify '#name without space' do
-      s1 = FactoryBot.build(:relationship_species, name: 'with space', parent: @genus)
+      s1 = FactoryBot.build(:relationship_species, name: 'with space', parent: genus)
       s1.valid?
       expect(s1.errors[:name]).to_not be_empty
     end
@@ -63,12 +82,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
     end
 
-
     # TODO: this all needs to go
     context 'lint checking FactoryBot' do
       specify 'is building all related names for respective models' do
-        expect(@subspecies.ancestors.length).to be >= 10
-        (@subspecies.ancestors + [@subspecies]).each do |i|
+        expect(subspecies.ancestors.length).to be >= 10
+        (subspecies.ancestors + [subspecies]).each do |i|
           if i.name != 'Root'
             expect(i.valid?).to be_truthy, "#{i.name} is not valid [#{i.errors.messages}], and is expected to be so- was your test db reset properly?"
           end
@@ -84,11 +102,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
         end
 
-        expect(variety.root.id).to eq(@species.root.id)
+        expect(variety.root.id).to eq(species.root.id)
         expect(variety.cached_author_year).to eq('McAtee')
-        expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
+        expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i>) <i>aaa</i> subsp. <i>bbb</i> var. <i>ccc</i>')
 
-        basionym = FactoryBot.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus') # source_id: nil,
+        basionym = FactoryBot.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus')
         r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym')
         variety.reload
         expect(variety.save).to be_truthy
@@ -102,35 +120,33 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     specify '#descendants_of' do
-      expect(TaxonName.descendants_of(@genus).to_a).to contain_exactly(@subgenus, @species, @subspecies)
+      expect(TaxonName.descendants_of(genus).to_a).to contain_exactly(subgenus, species, subspecies)
     end
 
-    context '#ancestors_and_descendants_of' do
-      specify 'returns an unordered list' do
-        expect(TaxonName.ancestors_and_descendants_of(@genus).to_a.map(&:name)).to contain_exactly(
-          'Animalia', 'Arthropoda', 'Cicadellidae', 'Erythroneura', 'Erythroneura', 'Erythroneurina',
-          'Erythroneurini', 'Hemiptera', 'Insecta', 'Root', 'Typhlocybinae', 'vitata', 'vitis'
-        )
-      end
+    specify '#ancestors_and_descendants_of' do
+      expect(TaxonName.ancestors_and_descendants_of(genus).to_a.map(&:name)).to contain_exactly(
+        'Animalia', 'Arthropoda', 'Cicadellidae', 'Erythroneura', 'Erythroneura', 'Erythroneurina',
+        'Erythroneurini', 'Hemiptera', 'Insecta', 'Root', 'Typhlocybinae', 'vitata', 'vitis'
+      )
     end
 
     context 'hierarchy' do
       context 'rank related' do
         context '#ancestor_at_rank' do
           specify 'returns an ancestor at given rank' do
-            expect(@genus.ancestor_at_rank('family').name).to eq('Cicadellidae')
+            expect(genus.ancestor_at_rank('family').name).to eq('Cicadellidae')
           end
 
           specify "returns nil when given rank and name's rank are the same" do
-            expect(@genus.ancestor_at_rank('genus')).to be_nil
+            expect(genus.ancestor_at_rank('genus')).to be_nil
           end
 
           specify "returns nil when given rank is lower than name's rank" do
-            expect(@genus.ancestor_at_rank('species')).to be_nil
+            expect(genus.ancestor_at_rank('species')).to be_nil
           end
 
           specify 'returns nil when given rank is not present in the parent chain' do
-            expect(@genus.ancestor_at_rank('epifamily')).to be_nil
+            expect(genus.ancestor_at_rank('epifamily')).to be_nil
           end
         end
       end
@@ -160,22 +176,22 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       context 'name' do
         context 'validate cached values' do
           specify 'ICZN #cached_author_year' do
-            expect(@subspecies.reload.cached_author_year).to eq('McAtee, 1900')
+            expect(subspecies.reload.cached_author_year).to eq('McAtee, 1900')
           end
 
           specify 'ICZN #cached_html' do
-            expect(@subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
+            expect(subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
           end
 
-          specify 'ICZN species misspelling' do
-            sp  = FactoryBot.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
-            sp.iczn_set_as_misapplication_of = @species
+          specify 'ICZN species misapplication' do
+            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'vitata', verbatim_author: 'Smith', year_of_publication: 2000, parent: genus)
+            sp.iczn_set_as_misapplication_of = species
             expect(sp.save).to be_truthy
             expect(sp.cached_author_year).to eq('Smith, 2000 non McAtee, 1830')
           end
 
           specify 'ICZN combination' do
-            g1 = FactoryBot.create(:relationship_genus, parent: @family, name: 'Aus')
+            g1 = FactoryBot.create(:relationship_genus, parent: family, name: 'Aus')
             s = FactoryBot.create(:relationship_species, parent: g1, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
             s.save! # WHY!?
             c1 = Combination.create!(genus: g1, species: s)
@@ -183,8 +199,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify 'ICZN combination different genus' do
-            g1 = FactoryBot.create(:relationship_genus, parent: @family, name: 'Aus')
-            g2 = FactoryBot.create(:relationship_genus, parent: @family, name: 'Bus')
+            g1 = FactoryBot.create(:relationship_genus, parent: family, name: 'Aus')
+            g2 = FactoryBot.create(:relationship_genus, parent: family, name: 'Bus')
             s = FactoryBot.create(:relationship_species, parent: g1, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
             s.original_genus = g2
             s.save!
@@ -193,26 +209,47 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(c1.cached_author_year).to eq('(McAtee, 1900)')
           end
 
+          specify 'ICZN misspelling' do
+            g1 = FactoryBot.create(:relationship_genus, parent: family, name: 'Aus')
+            g2 = FactoryBot.create(:relationship_genus, parent: family, name: 'Bus')
+            s = FactoryBot.create(:relationship_species, parent: g1, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
+            s2 = FactoryBot.create(:relationship_species, parent: g1, name: 'ausus', year_of_publication: 1905, verbatim_author: 'Author')
+            s.original_genus = g1
+            s.original_species = s
+            s2.original_genus = g2
+            s2.original_species = s
+            s.save!
+            s.reload
+            s2.save!
+            s2.reload
+            expect(s2.cached_author_year).to eq('(Author, 1905)')
+            expect(s2.original_author_year).to eq('Author, 1905')
+            TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name: s2, object_taxon_name: s)
+            s2.reload
+            expect(s2.cached_author_year).to eq('(McAtee, 1900)')
+            expect(s2.original_author_year).to eq('(McAtee, 1900)')
+          end
+
           context 'ICZN family (behaviour for names above genus group)' do
 
             specify 'cached_author_year' do
-              expect(@family.cached_author_year).to eq('Say, 1800')
+              expect(family.cached_author_year).to eq('Say, 1800')
             end
 
             specify 'cached_author_year with parentheses' do
-              sp = FactoryBot.create(:relationship_species, parent: @genus, year_of_publication: 2000, verbatim_author: '(Dmitriev)')
+              sp = FactoryBot.create(:relationship_species, parent: genus, year_of_publication: 2000, verbatim_author: '(Dmitriev)')
               expect(sp.cached_author_year).to eq('(Dmitriev, 2000)')
             end
 
             specify 'original combination' do
-              sp = FactoryBot.create(:relationship_species, name: 'albonigra', verbatim_name: 'albo-nigra', parent: @genus)
-              sp.update(original_genus: @genus)
+              sp = FactoryBot.create(:relationship_species, name: 'albonigra', verbatim_name: 'albo-nigra', parent: genus)
+              sp.update(original_genus: genus)
               expect(sp.cached_html).to eq('<i>Erythroneura albonigra</i>')
             end
           end
 
           specify 'nil author and year - cached value should be empty' do
-            t = @subspecies.ancestor_at_rank('kingdom')
+            t = subspecies.ancestor_at_rank('kingdom')
             expect(t.cached_author_year).to eq(nil)
           end
 
@@ -226,14 +263,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(c.get_author_and_year).to eq('Dmitriev, 2000')
           end
 
-          specify 'no original combination relationships' do
-            ssp = FactoryBot.build(:iczn_subspecies, parent: @species)
+          specify 'no OriginalCombination relationships' do
+            ssp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'vitata', parent: species) 
             expect(ssp.get_genus_species(:original, :self).nil?).to be_truthy
             expect(ssp.get_genus_species(:original, :alternative).nil?).to be_truthy
             #            expect(ssp.get_genus_species(:current, :self).nil?).to be_falsey
             #            expect(ssp.get_genus_species(:current, :alternative).nil?).to be_falsey
             ssp.save
-            # expect(ssp.cached_original_combination.nil?).to be_truthy
+            expect(ssp.cached_original_combination.nil?).to be_truthy
             expect(ssp.cached_primary_homonym.nil?).to be_truthy
             expect(ssp.cached_primary_homonym_alternative_spelling.nil?).to be_truthy
             expect(ssp.cached_secondary_homonym).to eq('Erythroneura vitata')
@@ -243,107 +280,109 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           specify 'misspelled original combination' do
             g = FactoryBot.create(:relationship_genus, name: 'Errorneura')
 
-            g.iczn_set_as_misspelling_of = @genus
+            g.iczn_set_as_misspelling_of = genus
             expect(g.save).to be_truthy
 
-            @subspecies.original_genus = g # ! not saved originally !!
-            @subspecies.reload
+            subspecies.original_genus = g # ! not saved originally !!
+            subspecies.save!
+            subspecies.reload
 
-            expect(g.reload.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
+            g.reload
 
-            expect(@subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
-            expect(@subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] [SPECIES NOT SPECIFIED] <i>vitata</i>')
-            expect(@subspecies.get_author_and_year).to eq ('McAtee, 1900')
+            expect(g.get_full_name_html(g.get_full_name)).to eq('<i>Errorneura</i> [sic]')
+
+            expect(subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
+            expect(subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] [SPECIES NOT SPECIFIED] <i>vitata</i>')
+            expect(subspecies.get_author_and_year).to eq ('McAtee, 1900')
           end
 
           # What code is this supposed to catch?
           specify 'moving nominotypical taxon' do
-            sp = FactoryBot.create(:iczn_species, name: 'aaa', parent: @genus)
-            subsp = FactoryBot.create(:iczn_subspecies, name: 'aaa', parent: sp)
-            subsp.parent = @species
+            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aaa', parent: genus) 
+            subsp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'aaa', parent: sp)
+            subsp.parent = species
             subsp.valid?
             expect(subsp.errors.include?(:parent_id)).to be_truthy
           end
 
           context 'cached homonyms' do
-            before(:each) do
-              @g1 = FactoryBot.create(:relationship_genus, name: 'Aus', parent: @tribe, year_of_publication: 1999)
-              @g2 = FactoryBot.create(:relationship_genus, name: 'Bus', parent: @tribe, year_of_publication: 2000)
-              @s1 = FactoryBot.create(:relationship_species, name: 'vitatus', parent: @g1, year_of_publication: 1999)
-              @s2 = FactoryBot.create(:relationship_species, name: 'vitatta', parent: @g2, year_of_publication: 2000)
-              expect(@family.valid?).to be_truthy
-              expect(@tribe.valid?).to be_truthy
-              expect(@g1.valid?).to be_truthy
-              expect(@g2.valid?).to be_truthy
-              expect(@s1.valid?).to be_truthy
-              expect(@s2.valid?).to be_truthy
+            let!(:g1) { FactoryBot.create(:relationship_genus, name: 'Aus', parent: tribe, year_of_publication: 1999) }
+            let!(:g2) { FactoryBot.create(:relationship_genus, name: 'Bus', parent: tribe, year_of_publication: 2000) }
+            let!(:s1) { FactoryBot.create(:relationship_species, name: 'vitatus', parent: g1, year_of_publication: 1999) }
+            let!(:s2) { FactoryBot.create(:relationship_species, name: 'vitatta', parent: g2, year_of_publication: 2000) }
+
+            specify 'validity' do
+              expect(family.valid?).to be_truthy
+              expect(tribe.valid?).to be_truthy
+              expect(g1.valid?).to be_truthy
+              expect(g2.valid?).to be_truthy
+              expect(s1.valid?).to be_truthy
+              expect(s2.valid?).to be_truthy
             end
 
             specify 'primary homonym' do
-              expect(@family.cached_primary_homonym).to eq('Cicadellidae')
-              expect(@tribe.cached_primary_homonym).to eq('Erythroneurini')
-              expect(@tribe.cached_primary_homonym_alternative_spelling).to eq('Erythroneuridae')
-              expect(@g1.cached_primary_homonym).to eq('Aus')
-              expect(@g2.cached_primary_homonym).to eq('Bus')
-              expect(@s1.cached_primary_homonym.blank?).to be_truthy
-              expect(@s2.cached_primary_homonym.blank?).to be_truthy
+              expect(family.cached_primary_homonym).to eq('Cicadellidae')
+              expect(tribe.cached_primary_homonym).to eq('Erythroneurini')
+              expect(tribe.cached_primary_homonym_alternative_spelling).to eq('Erythroneuridae')
+              expect(g1.cached_primary_homonym).to eq('Aus')
+              expect(g2.cached_primary_homonym).to eq('Bus')
+              expect(s1.cached_primary_homonym.blank?).to be_truthy
+              expect(s2.cached_primary_homonym.blank?).to be_truthy
             end
 
             specify 'secondary homonym' do
-              expect(@family.cached_secondary_homonym.blank?).to be_truthy
-              expect(@g1.cached_secondary_homonym.blank?).to be_truthy
-              expect(@g2.cached_secondary_homonym.blank?).to be_truthy
-              expect(@s1.save).to be_truthy
-              expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
-              expect(@s2.save).to be_truthy
-              expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
+              expect(family.cached_secondary_homonym.blank?).to be_truthy
+              expect(g1.cached_secondary_homonym.blank?).to be_truthy
+              expect(g2.cached_secondary_homonym.blank?).to be_truthy
+              expect(s1.save).to be_truthy
+              expect(s1.cached_secondary_homonym).to eq('Aus vitatus')
+              expect(s2.save).to be_truthy
+              expect(s2.cached_secondary_homonym).to eq('Bus vitatta')
             end
 
             specify 'original genus' do
-              @s1.original_genus = @g1
-              @s2.original_genus = @g1
-              expect(@s1.save).to be_truthy
-              expect(@s2.save).to be_truthy
-              @s1.reload
-              @s2.reload
-              expect(@s1.cached_primary_homonym).to eq('Aus vitatus')
-              expect(@s2.cached_primary_homonym).to eq('Aus vitatta')
-              @s1.save
-              expect(@s1.cached_secondary_homonym).to eq('Aus vitatus')
-              @s2.save
-              expect(@s2.cached_secondary_homonym).to eq('Bus vitatta')
-              expect(@s1.cached_primary_homonym_alternative_spelling).to eq('Aus uitata')
-              expect(@s2.cached_primary_homonym_alternative_spelling).to eq('Aus uitata')
-              expect(@s1.cached_secondary_homonym_alternative_spelling).to eq('Aus uitata')
-              expect(@s2.cached_secondary_homonym_alternative_spelling).to eq('Bus uitata')
+              s1.original_genus = g1
+              s2.original_genus = g1
+              expect(s1.save).to be_truthy
+              expect(s2.save).to be_truthy
+              s1.reload
+              s2.reload
+              expect(s1.cached_primary_homonym).to eq('Aus vitatus')
+              expect(s2.cached_primary_homonym).to eq('Aus vitatta')
+              s1.save
+              expect(s1.cached_secondary_homonym).to eq('Aus vitatus')
+              s2.save
+              expect(s2.cached_secondary_homonym).to eq('Bus vitatta')
+              expect(s1.cached_primary_homonym_alternative_spelling).to eq('Aus uitata')
+              expect(s2.cached_primary_homonym_alternative_spelling).to eq('Aus uitata')
+              expect(s1.cached_secondary_homonym_alternative_spelling).to eq('Aus uitata')
+              expect(s2.cached_secondary_homonym_alternative_spelling).to eq('Bus uitata')
             end
           end
 
           context 'mismatching cached values' do
-            before(:all) do
-              @g = FactoryBot.create(:relationship_genus, name: 'Cus', parent: @family)
-              @s = FactoryBot.build(:relationship_species, name: 'dus', parent: @g)
-            end
+            let(:g) { FactoryBot.create(:relationship_genus, name: 'Cus', parent: family) }
+            let(:s) { FactoryBot.build(:relationship_species, name: 'dus', parent: g) }
 
             specify 'missing cached values' do
-              @s.save
-              @s.update_column(:cached_original_combination, 'aaa')
-              @s.soft_validate(only_sets: :cached_names)
-              expect(@s.soft_validations.messages_on(:base).count).to eq(1)
-              @s.fix_soft_validations
-              @s.soft_validate(only_sets: :cached_names)
-              expect(@s.soft_validations.messages_on(:base).empty?).to be_truthy
+              s.save
+              s.update_column(:cached_original_combination, 'aaa')
+              s.soft_validate(only_sets: :cached_names)
+              expect(s.soft_validations.messages_on(:base).count).to eq(1)
+              s.fix_soft_validations
+              s.soft_validate(only_sets: :cached_names)
+              expect(s.soft_validations.messages_on(:base).empty?).to be_truthy
             end
           end
 
           context 'valid_taxon_name' do
             context 'validity with/out classifications' do
-              let!(:valid_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family) }
-              let!(:other_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family) }
+              let!(:valid_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+              let!(:other_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
 
-              before {
-                TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: valid_genus, object_taxon_name: other_genus)
-              }
+                before {
+                  TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: valid_genus, object_taxon_name: other_genus)
+                }
 
               context 'without valid classification' do
                 specify '#relationship_invalid?' do
@@ -418,10 +457,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
 
             specify 'get_valid_taxon_name' do
-              g1 = FactoryBot.create(:relationship_genus, name: 'Cus', parent: @family)
-              g2 = FactoryBot.create(:relationship_genus, name: 'Cus', parent: @family)
-              g3 = FactoryBot.create(:relationship_genus, name: 'Cus', parent: @family)
-              g4 = FactoryBot.create(:relationship_genus, name: 'Cus', parent: @family)
+              g1 = FactoryBot.create(:relationship_genus, name: 'Cus', parent: family)
+              g2 = FactoryBot.create(:relationship_genus, name: 'Cus', parent: family)
+              g3 = FactoryBot.create(:relationship_genus, name: 'Cus', parent: family)
+              g4 = FactoryBot.create(:relationship_genus, name: 'Cus', parent: family)
               s1 = FactoryBot.create(:valid_source_bibtex, title: 'article 1', year: 1900)
               s2 = FactoryBot.create(:valid_source_bibtex, title: 'article 2', year: 2000)
               expect(g1.get_valid_taxon_name).to eq(g1)
@@ -448,15 +487,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
 
             specify 'list of invalid taxon names, year priority' do
-              a   = FactoryBot.create(:relationship_genus, name: 'Aus', parent: @family)
-              b   = FactoryBot.create(:relationship_genus, name: 'Bus', parent: @family)
-              c   = FactoryBot.create(:relationship_genus, name: 'Cus', parent: @family)
-              d   = FactoryBot.create(:relationship_genus, name: 'Dus', parent: @family)
-              e   = FactoryBot.create(:relationship_genus, name: 'Eus', parent: @family)
-              f   = FactoryBot.create(:relationship_genus, name: 'Fus', parent: @family)
-              g   = FactoryBot.create(:relationship_genus, name: 'Gus', parent: @family)
-              h   = FactoryBot.create(:relationship_genus, name: 'Hus', parent: @family)
-              i   = FactoryBot.create(:relationship_genus, name: 'Ius', parent: @family)
+              a   = FactoryBot.create(:relationship_genus, name: 'Aus', parent: family)
+              b   = FactoryBot.create(:relationship_genus, name: 'Bus', parent: family)
+              c   = FactoryBot.create(:relationship_genus, name: 'Cus', parent: family)
+              d   = FactoryBot.create(:relationship_genus, name: 'Dus', parent: family)
+              e   = FactoryBot.create(:relationship_genus, name: 'Eus', parent: family)
+              f   = FactoryBot.create(:relationship_genus, name: 'Fus', parent: family)
+              g   = FactoryBot.create(:relationship_genus, name: 'Gus', parent: family)
+              h   = FactoryBot.create(:relationship_genus, name: 'Hus', parent: family)
+              i   = FactoryBot.create(:relationship_genus, name: 'Ius', parent: family)
               s1  = FactoryBot.create(:valid_source_bibtex, title: 'article 1', year: 1900)
               s2  = FactoryBot.create(:valid_source_bibtex, title: 'article 2', year: 1950)
               s3  = FactoryBot.create(:valid_source_bibtex, title: 'article 3', year: 1960)
@@ -494,8 +533,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
 
             context 'invalid taxon_names with reverse relationship' do
-              let!(:a)  { FactoryBot.create(:relationship_genus, name: 'Aus', parent: @family) }
-              let!(:b)  { FactoryBot.create(:relationship_genus, name: 'Bus', parent: @family) }
+              let!(:a)  { FactoryBot.create(:relationship_genus, name: 'Aus', parent: family) }
+              let!(:b)  { FactoryBot.create(:relationship_genus, name: 'Bus', parent: family) }
               let!(:s)  { TaxonNameClassification::Iczn::Available::Valid.create(taxon_name: a) }
               let!(:r1) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b) }
               let!(:r2) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: b, object_taxon_name: a) }
@@ -517,16 +556,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
       context 'relationships' do
         specify 'invalid parent' do
-          g  = FactoryBot.create(:iczn_genus, parent: @family)
-          s  = FactoryBot.create(:iczn_species, parent: g)
+          g = Protonym.create(rank_class: Ranks.lookup(:iczn, :genus), name: 'Aus', parent: family)
+          s = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'vitata', parent: g)
 
-          r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+          r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
           c1 = FactoryBot.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
           s.soft_validate(only_sets: :parent_is_valid_name)
           g.soft_validate(only_sets: :parent_is_valid_name)
           expect(s.soft_validations.messages_on(:parent_id).count).to eq(1)
 
-          # !!
           expect(g.soft_validations.messages_on(:base).count).to eq(1)
 
           s.fix_soft_validations
@@ -535,8 +573,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
 
         specify 'conflicting synonyms: reverse relationships' do
-          a  = FactoryBot.create(:relationship_genus, name: 'Aus', parent: @family)
-          b  = FactoryBot.create(:relationship_genus, name: 'Bus', parent: @family)
+          a  = FactoryBot.create(:relationship_genus, name: 'Aus', parent: family)
+          b  = FactoryBot.create(:relationship_genus, name: 'Bus', parent: family)
           r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
           r2 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: b, object_taxon_name: a)
           a.soft_validate(only_sets: :not_synonym_of_self)
@@ -547,9 +585,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
 
         specify 'conflicting synonyms: same nomenclatural priority' do
-          a  = FactoryBot.create(:relationship_genus, name: 'Aus', parent: @family)
-          b  = FactoryBot.create(:relationship_genus, name: 'Bus', parent: @family)
-          c  = FactoryBot.create(:relationship_genus, name: 'Cus', parent: @family)
+          a  = FactoryBot.create(:relationship_genus, name: 'Aus', parent: family)
+          b  = FactoryBot.create(:relationship_genus, name: 'Bus', parent: family)
+          c  = FactoryBot.create(:relationship_genus, name: 'Cus', parent: family)
           s1 = FactoryBot.create(:valid_source_bibtex, title: 'article 1', year: 1900)
 
           r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
@@ -777,8 +815,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       context 'instance tests' do
         let(:type_of_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root1) }
         let(:original_genus) { Protonym.create(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root1) }
-        let!(:relationship1) { FactoryBot.create(:type_species_relationship, subject_taxon_name: species, object_taxon_name: type_of_genus) } #  @taxon_name
-        let!(:relationship2) { TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: original_genus, object_taxon_name: species) } #  @taxon_name
+        let!(:relationship1) { FactoryBot.create(:type_species_relationship, subject_taxon_name: species, object_taxon_name: type_of_genus) }
+        let!(:relationship2) { TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: original_genus, object_taxon_name: species) }
 
         # TaxonNameRelationships in which the taxon name is the subject
         specify '#taxon_name_relationships' do
@@ -792,7 +830,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         # TaxonNames related by all_taxon_name_relationships
         specify '#related_taxon_names' do
-          expect(species.related_taxon_names.sort).to eq([type_of_genus, original_genus].sort)
+          expect(species.related_taxon_names.pluck(:id)).to contain_exactly(type_of_genus.id, original_genus.id)
         end
 
         context '#unavilable_or_invalid' do
@@ -844,8 +882,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     context '#gbif_status_array' do
-      let(:t1) { FactoryBot.create(:iczn_species, name: 'aus', parent: root1) }
-      let(:t2) { FactoryBot.create(:iczn_species, name: 'bus', parent: root1) }
+      let(:t1) { Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aus', parent: root1) }
+      let(:t2) { Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'bus', parent: root1) }
       let!(:r2) { FactoryBot.create(:taxon_name_relationship, subject_taxon_name: t2, object_taxon_name: t1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective') }
 
       specify 'valid species' do
@@ -884,44 +922,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
     end
 
-    context 'methods from awesome_nested_set' do
-      context 'root names' do
-
-        let(:p) { Project.create(name: 'Taxon-name root test.', without_root_taxon_name: true) }
-        let(:root2) { FactoryBot.build(:root_taxon_name) }
-
-        specify 'a second root (parent is nul) in a given project is not allowed' do
-          expect(root1.parent).to be_nil
-          expect(root2.parent).to be_nil
-          expect(root1.project_id).to eq(1)
-          expect(root2.project_id).to eq(1)
-          expect(root2.valid?).to be_falsey
-          expect(root2.errors.include?(:parent_id)).to be_truthy
-        end
-
-        specify 'permit multiple roots in different projects' do
-          root2.project_id = p.id
-          expect(root2.parent).to be_nil
-          expect(root2.valid?).to be_truthy
-        end
-
-        specify 'roots can be saved without raising 1' do
-          root2.project_id = p.id
-          expect(root2.save).to be_truthy
-        end
-
-        specify 'roots can be saved without raising 2' do
-          expect(root1.save).to be_truthy
-        end
-
-        specify 'scope project_root' do
-          root1
-          expect(TaxonName.project_root(1).first).to eq(root1)
-        end
-      end
-
-      # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
-      context 'handle a simple hierarchy with awesome_nested_set' do
+    context 'methods from closure_tree' do
+      context 'handle a simple hierarchy with closure_tree' do
         let!(:new_root) { FactoryBot.create(:root_taxon_name, project: p) }
         let!(:family1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'family'), name: 'Aidae', parent: new_root, project: p) }
         let!(:genus1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Aus', parent: family1, project: p) }
@@ -949,20 +951,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           new_root.reload
           expect(new_root.leaves.to_a).to contain_exactly(species1, species2) # doesn't test order
         end
-
-        context 'housekeeping with ancestors and descendants' do
-          # xspecify 'updated_on is not touched for ancestors when a child moves' do
-          #   g1_updated = genus1.updated_at
-          #   g1_created = genus1.created_at
-          #   g2_updated = genus2.updated_at
-          #   g2_created = genus2.created_at
-          #   species1.move_to_child_of(genus2)
-          #   expect(genus1.updated_at).to eq(g1_updated)
-          #   expect(genus1.created_at).to eq(g1_created)
-          #   expect(genus2.updated_at).to eq(g2_updated)
-          #   expect(genus2.created_at).to eq(g2_created)
-          # end
-        end
       end
     end
 
@@ -984,7 +972,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     let(:genus2) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
     let(:subgenus) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus2) }
     let(:species) { Protonym.create!(name: 'cus', rank_class: Ranks.lookup(:iczn, :species), parent: genus1) }
-
 
     # Same as current classification
     let(:c1) { Combination.create!(genus: genus1, species: species) }
@@ -1077,7 +1064,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   end
 
   specify '#ancestors_through_parents (unsaved, recursion check)' do
-
     a = Protonym.new(name: 'foo')
     b = Protonym.new(name: 'bar', parent: a)
     c = Protonym.new(name: 'bar', parent: b)

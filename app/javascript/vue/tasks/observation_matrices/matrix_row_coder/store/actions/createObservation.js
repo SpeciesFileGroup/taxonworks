@@ -5,7 +5,9 @@ import { MutationNames } from '../mutations/mutations'
 export default function ({ commit, state }, args) {
   const observation = getObservationFromArgs(state, args)
 
-  if (observation?.id) { return Promise.resolve() }
+  if (observation?.id) {
+    return Promise.resolve()
+  }
 
   commit(MutationNames.SetDescriptorSaving, {
     descriptorId: args.descriptorId,
@@ -14,18 +16,36 @@ export default function ({ commit, state }, args) {
 
   const payload = makeBasePayload()
 
-  if (observation.type === ObservationTypes.FreeText) { setupFreeTextPayload(payload) }
+  if (observation.type === ObservationTypes.FreeText) {
+    setupFreeTextPayload(payload)
+  }
 
-  if (observation.type === ObservationTypes.Qualitative) { setupQualitativePayload(payload) }
+  if (observation.type === ObservationTypes.Qualitative) {
+    setupQualitativePayload(payload)
+  }
 
-  if (observation.type === ObservationTypes.Presence) { setupPresencePayload(payload) }
+  if (observation.type === ObservationTypes.Presence) {
+    setupPresencePayload(payload)
+  }
 
-  if (observation.type === ObservationTypes.Sample) { setupSamplePayload(payload) }
+  if (observation.type === ObservationTypes.Sample) {
+    setupSamplePayload(payload)
+  }
 
-  if (observation.type === ObservationTypes.Continuous) { setupContinuosPayload(payload) }
+  if (observation.type === ObservationTypes.Continuous) {
+    setupContinuosPayload(payload)
+  }
 
-  return state.request.createObservation({ observation: payload })
-    .then(responseData => {
+  if (state.options.lock.today) {
+    setToday(payload)
+  }
+
+  if (state.options.lock.now) {
+    setNow(payload)
+  }
+
+  return state.request.createObservation({ observation: payload }).then(
+    (responseData) => {
       commit(MutationNames.SetDescriptorSaving, {
         descriptorId: args.descriptorId,
         isSaving: false
@@ -37,52 +57,61 @@ export default function ({ commit, state }, args) {
 
       commit(MutationNames.SetDescriptorSavedOnce, args.descriptorId)
       if (isValidResponseData(responseData)) {
-        commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id, responseData.global_id))
+        commit(
+          MutationNames.SetObservationId,
+          makeObservationIdArgs(responseData.id, responseData.global_id)
+        )
         commit(MutationNames.SetObservation, {
           ...observation,
+          day: responseData.day_made,
+          month: responseData.month_made,
+          year: responseData.year_made,
+          time: responseData.time_made,
           id: responseData.id,
           global_id: responseData.global_id,
           isUnsaved: false
         })
       }
       return true
-    }, _ => {
+    },
+    () => {
       commit(MutationNames.SetDescriptorSaving, {
         descriptorId: args.descriptorId,
         isSaving: false
       })
-      
-      return false
-    })
 
-  function isValidResponseData (data) {
+      return false
+    }
+  )
+
+  function isValidResponseData(data) {
     return data && data.id
   }
 
-  function makeObservationIdArgs (observationId, global_id) {
+  function makeObservationIdArgs(observationId, global_id) {
     return Object.assign({}, args, { observationId, global_id })
   }
 
-  function setupFreeTextPayload (payload) {
+  function setupFreeTextPayload(payload) {
     return Object.assign(payload, { description: observation.description })
   }
 
-  function setupQualitativePayload (payload) {
+  function setupQualitativePayload(payload) {
     return Object.assign(payload, { character_state_id: args.characterStateId })
   }
 
-  function setupPresencePayload (payload) {
+  function setupPresencePayload(payload) {
     return Object.assign(payload, { presence: observation.isChecked })
   }
 
-  function setupContinuosPayload (payload) {
+  function setupContinuosPayload(payload) {
     return Object.assign(payload, {
       continuous_value: observation.continuousValue,
       continuous_unit: observation.continuousUnit
     })
   }
 
-  function setupSamplePayload (payload) {
+  function setupSamplePayload(payload) {
     return Object.assign(payload, {
       sample_n: observation.n,
       sample_min: observation.min,
@@ -95,7 +124,7 @@ export default function ({ commit, state }, args) {
     })
   }
 
-  function makeBasePayload () {
+  function makeBasePayload() {
     return {
       descriptor_id: args.descriptorId,
       observation_object_global_id: state.taxonId,
@@ -106,4 +135,26 @@ export default function ({ commit, state }, args) {
       year_made: observation.year
     }
   }
-};
+
+  function setToday(payload) {
+    const date = new Date()
+
+    return Object.assign(payload, {
+      day_made: date.getDate(),
+      month_made: date.getMonth() + 1,
+      year_made: date.getFullYear()
+    })
+  }
+
+  function setNow(payload) {
+    const date = new Date()
+
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    const seconds = String(date.getSeconds()).padStart(2, '0')
+
+    return Object.assign(payload, {
+      time_made: `${hours}:${minutes}:${seconds}`
+    })
+  }
+}

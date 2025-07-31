@@ -27,7 +27,7 @@
 <script setup>
 import { computed, onBeforeMount, ref } from 'vue'
 import { DwcOcurrence } from '@/routes/endpoints'
-import SwitchComponent from '@/components/switch.vue'
+import SwitchComponent from '@/components/ui/VSwitch.vue'
 
 const collectors = ref({})
 const TABS = {

@@ -89,7 +89,7 @@
 <script>
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from '@/components/switch'
+import SmartSelector from '@/components/ui/VSwitch'
 import TreeDisplay from '../treeDisplay'
 import Autocomplete from '@/components/ui/Autocomplete'
 import ListComponent from '../relationshipsList'
@@ -300,7 +300,7 @@ export default {
       this.relationships.push({
         type_object: this.typeSelected,
         type: this.typeSelected.type,
-        taxon_label: this.taxon.label,
+        taxon_label: this.taxon.object_tag,
         type_label: this.typeSelected[this.display],
         type_name: this.display,
         taxonId: this.taxon.id

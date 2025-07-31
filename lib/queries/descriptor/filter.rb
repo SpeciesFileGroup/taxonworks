@@ -3,6 +3,7 @@ module Queries
     class Filter < Query::Filter
 
       include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
@@ -66,6 +67,7 @@ module Queries
         @term_exact = boolean_param(params, :term_exact)
         @term_target = params[:term_target]
 
+        set_confidences_params(params)
         set_citations_params(params)
         set_notes_params(params)
         set_tags_params(params)
@@ -119,7 +121,7 @@ module Queries
 
       def descriptor_type_facet
         return nil if descriptor_type.blank?
-        table[:type].eq_any(descriptor_type)
+        table[:type].in(descriptor_type)
       end
 
       def observation_matrices_facet
@@ -133,7 +135,7 @@ module Queries
 
       def observations_facet
         return nil if observations.nil?
-        if observations 
+        if observations
           ::Descriptor.joins(:observations).distinct
         else
           ::Descriptor.where.missing(:observations)
@@ -181,4 +183,3 @@ module Queries
     end
   end
 end
-

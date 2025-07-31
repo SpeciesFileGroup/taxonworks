@@ -21,7 +21,7 @@
 
 <script>
 import { GetterNames } from '../../store/getters/getters'
-import SwitchComponent from '@/components/switch.vue'
+import SwitchComponent from '@/components/ui/VSwitch.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import AuthorPerson from './AuthorPeople.vue'
 import AuthorSource from './AuthorSource.vue'

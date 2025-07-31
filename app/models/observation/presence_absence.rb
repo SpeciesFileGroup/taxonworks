@@ -3,7 +3,7 @@
 class Observation::PresenceAbsence < Observation
   validates :presence, inclusion: {in:  [true, false]}
 
-  # !! Note that this allows one true, and one false value to be created.  The UI will have to be updated to reflect this. 
+  # !! Note that this allows one true, and one false value to be created
   validates_uniqueness_of :descriptor_id, scope: [:presence, :observation_object_id, :observation_object_type], message: 'the observation already exists'
 
   protected

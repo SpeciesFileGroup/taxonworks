@@ -34,6 +34,9 @@ config/initializers/vendor/better_errors.rb
 /tmp
 /coverage
 /.ruby-gemset
+/.ruby-lsp
+/volumes
+/storage
 
 /.bundle
 /bundle_bin
@@ -50,21 +53,17 @@ config/initializers/vendor/better_errors.rb
 /spec/test_files/
 
 REVISION
-yarn-debug.log*
-.yarn-integrity
 npm-debug.log
+/node_modules
+
+/public/packs
+/public/packs-test
 
 yarn.lock
-/public/packs
-/public/packs-test
-/node_modules
-/yarn-error.log
-
-/public/packs
-/public/packs-test
-/node_modules
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
 
 taxonworks.code-workspace
+
+development

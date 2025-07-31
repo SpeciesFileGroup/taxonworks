@@ -44,7 +44,7 @@
         :options="copyrightHolderOptions"
       />
       <div v-if="copyrightHolderType">
-        <organization-picker @getItem="addOrganization" />
+        <organization-picker @select="addOrganization" />
         <display-list
           label="object_tag"
           @delete="removeOrganization"
@@ -113,7 +113,7 @@ import {
   ROLE_COLLECTOR
 } from '@/constants/index.js'
 import RolePicker from '@/components/role_picker'
-import SwitchComponent from '@/components/switch.vue'
+import SwitchComponent from '@/components/ui/VSwitch.vue'
 import OrganizationPicker from '@/components/organizationPicker'
 import DisplayList from '@/components/displayList'
 import SmartSelector from '@/components/ui/SmartSelector'

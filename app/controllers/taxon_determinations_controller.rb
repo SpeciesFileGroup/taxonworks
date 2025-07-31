@@ -72,8 +72,13 @@ class TaxonDeterminationsController < ApplicationController
   def destroy
     @taxon_determination.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_determinations_url }
-      format.json { head :no_content }
+      if @taxon_determination.destroyed?
+        format.html { destroy_redirect @taxon_determination, notice: 'Taxon determination was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @taxon_determination, notice: 'Taxon determination was not destroyed, ' + @taxon_determination.errors.full_messages.join('; ') }
+        format.json { render json: @taxon_determination.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -95,14 +100,17 @@ class TaxonDeterminationsController < ApplicationController
   end
 
   def autocomplete
-    @taxon_determinations = taxon_determination.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @taxon_determinations = TaxonDetermination.find_for_autocomplete(params)
+      .where(project_id: sessions_current_project_id)
+      .limit(40)
+      .distinct
     data = @taxon_determinations.collect do |t|
       {id: t.id,
-       label: TaxonDeterminationsHelper.taxon_determination_tag(t),
+       label: helpers.taxon_determination_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
-       label_html: TaxonDeterminationsHelper.taxon_determination_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: helpers.taxon_determination_tag(t) 
       }
     end
 
@@ -111,9 +119,9 @@ class TaxonDeterminationsController < ApplicationController
 
   # GET /taxon_determinations/download
   def download
-    send_data Export::Download.generate_csv(TaxonDetermination.where(project_id: sessions_current_project_id)),
+    send_data Export::CSV.generate_csv(TaxonDetermination.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "taxon_determinations_#{DateTime.now}.csv"
+      filename: "taxon_determinations_#{DateTime.now}.tsv"
   end
 
   # POST /taxon_determinations/batch_create
@@ -135,7 +143,8 @@ class TaxonDeterminationsController < ApplicationController
 
   def taxon_determination_params
     params.require(:taxon_determination).permit(
-      :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made, :position,
+      :taxon_determination_object_id, :taxon_determination_object_type,
+      :otu_id, :year_made, :month_made, :day_made, :position,
       roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
       otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
     )

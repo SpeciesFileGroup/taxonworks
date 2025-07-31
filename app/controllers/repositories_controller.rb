@@ -83,7 +83,7 @@ class RepositoriesController < ApplicationController
 
   # GET /repositories/download
   def download
-    send_data Export::Download.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now}.tsv"
   end
 
   # GET /repositories/select_options
@@ -103,6 +103,6 @@ class RepositoriesController < ApplicationController
   end
 
   def repository_params
-    params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbarioum_record)
+    params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbariorum)
   end
 end

@@ -5,10 +5,182 @@ Dir.glob('lib/queries/**/filter.rb').each do |f|
 end
 
 # Meta-tests
-describe Queries::Query::Filter do
+describe Queries::Query::Filter, type: [:model] do
 
   let(:query) { Queries::Query::Filter.new({}) }
   filters = ::Queries::Query::Filter.descendants
+
+  # !! Careful, this is internal use only, involved
+  # !! in things like Person filters across projects.
+  specify '#project_id = false? / #only_project?' do
+    a = ::Queries::Otu::Filter.new(project_id: false)
+    expect(a.only_project?).to be_falsey
+  end
+
+  specify '#project_id = false' do
+    a = ::Queries::Otu::Filter.new(project_id: false)
+    expect(a.project_id).to eq([])
+  end
+
+  specify '#only_project?' do
+    a = ::Queries::Otu::Filter.new({})
+    expect(a.only_project?).to be_truthy # project_id is applied by default
+  end
+
+  specify '#only_project?' do
+    a = ::Queries::Otu::Filter.new({})
+    a.otu_id = 1
+    expect(a.only_project?).to be_falsey # project_id is applied by default
+  end
+
+  context '#apply_venn' do
+    let(:o1) { FactoryBot.create(:valid_otu) }
+    let(:o2) { FactoryBot.create(:valid_otu) }
+    let(:o3) { FactoryBot.create(:valid_otu) }
+
+    specify '#apply_venn ab' do
+      v = "http://127.0.0.1:3000/otus/filter.json?name=#{o2.name}"
+      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id, o3.id], venn: v, venn_mode: :ab)
+      expect(a.all).to contain_exactly(o2)
+    end
+
+    specify '#apply_venn #venn_mode a' do
+      v = "http://127.0.0.1:3000/otus/filter.json?name=#{o2.name}"
+      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id, o3.id], venn: v, venn_mode: :a)
+      expect(a.all).to contain_exactly(o1, o3)
+    end
+
+    specify '#apply_venn #venn_mode b' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o2.id}&otu_id[]=#{o3.id}"
+      a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id], venn: v, venn_mode: :b)
+      expect(a.all).to contain_exactly(o3)
+    end
+
+    specify '#apply_venn #venn_mode b multiply encoded' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id%25255B%25255D=#{o2.id}&otu_id%25255B%25255D=#{o3.id}"
+      a = ::Queries::Otu::Filter.new(otu_id: [o2.id], venn: v, venn_mode: :b)
+      expect(a.all).to contain_exactly(o3)
+    end
+
+    specify '#venn_query includes b pagination by default' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o1.id}&otu_id[]=#{o2.id}&otu_id[]=#{o3.id}&paginate=true&page=2&per=1"
+
+      a = ::Queries::Otu::Filter.new(
+        otu_id: [o1.id, o2.id, o3.id], venn: v, venn_mode: :a)
+      expect(a.all).to contain_exactly(o1, o3)
+    end
+
+    specify '#venn_query #venn_ignore_pagination' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o1.id}&otu_id[]=#{o2.id}&paginate=true&page=2&per=1"
+
+      a = ::Queries::Otu::Filter.new(
+        otu_id: [o1.id, o2.id, o3.id],
+        venn: v, venn_mode: :a, venn_ignore_pagination: true
+      )
+      expect(a.all).to contain_exactly(o3)
+    end
+  end
+
+  specify '#venn_query' do
+    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1'
+
+    q = ::Queries::Otu::Filter.new({})
+    q.venn = v
+    expect(q.venn_query.class).to eq(::Queries::Otu::Filter)
+  end
+
+  specify '#venn_query params includes pagination params by default' do
+    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1&paginate=true'
+
+    q = ::Queries::Otu::Filter.new({})
+    q.venn = v
+    b = q.venn_query
+    expect(b.params).to eq({name: 'Ant', paginate: 'true', page: '1', per: '50'})
+  end
+
+  specify '#venn_query #venn_ignore_pagination=true' do
+    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1&paginate=true'
+
+    q = ::Queries::Otu::Filter.new({
+      venn: v,
+      venn_ignore_pagination: 'true'
+    })
+    b = q.venn_query
+    expect(b.params).to eq({name: 'Ant'})
+  end
+
+  specify '#venn_mode 0' do
+    query.venn_mode = 'ab'
+    expect(query.venn_mode).to eq(:ab)
+  end
+
+  specify '#venn_mode 1' do
+    query.venn_mode = 'a'
+    expect(query.venn_mode).to eq(:a)
+  end
+
+  specify '#venn_mode 2' do
+    query.venn_mode = 'x'
+    expect(query.venn_mode).to eq(nil)
+  end
+
+  specify '.instantiated_base_filter 1' do
+    p = ActionController::Parameters.new(otu_query: {}, foo: :bar)
+    expect(Queries::Query::Filter.instantiated_base_filter(p).referenced_klass).to eq(::Otu)
+  end
+
+  specify '.instantiated_base_filter 1' do
+    p = ActionController::Parameters.new(otu_query: {otu_id: [1,2,3]}, foo: :bar)
+    expect(Queries::Query::Filter.instantiated_base_filter(p).otu_id).to eq([1,2,3])
+  end
+
+  specify '.instantiated_base_filter params 1 ' do
+    p = ActionController::Parameters.new(collecting_event_query: {wildcard_attribute: 'verbatim_locality'})
+    expect(Queries::Query::Filter.instantiated_base_filter(p).params).to include(:wildcard_attribute)
+  end
+
+  specify '.instantiated_base_filter params 2 ' do
+    p = ActionController::Parameters.new(collecting_event_query: {wildcard_attribute: ['verbatim_locality']})
+    expect(Queries::Query::Filter.instantiated_base_filter(p).params).to include(:wildcard_attribute)
+  end
+
+  specify '.base_filter 1' do
+    p = ActionController::Parameters.new(collection_object_query: {}, foo: :bar)
+    expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
+  end
+
+  specify '.base_filter 1' do
+    p = ActionController::Parameters.new(collection_object_query: { otu_query: {}}, foo: :bar)
+    expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
+  end
+
+  specify '#disable_paging' do
+    o1 = FactoryBot.create(:valid_otu)
+    o2 = FactoryBot.create(:valid_otu)
+
+    a = ::Queries::Otu::Filter.new(
+      otu_id: [o1.id, o2.id], paginate: true, per: 1, page: 1
+    )
+    a.disable_paging
+    expect(a.paginate).to be_falsey
+    expect(a.all.count).to eq(2)
+  end
+
+  specify '#disable_paging .set_paging' do
+    o1 = FactoryBot.create(:valid_otu)
+    o2 = FactoryBot.create(:valid_otu)
+
+    a = ::Queries::Otu::Filter.new(
+      otu_id: [o1.id, o2.id], paginate: true, per: 1, page: 2
+    )
+    state = a.disable_paging
+    q = a.all
+    q = a.class.set_paging(q, state)
+
+    expect(q.current_page).to be(2)
+    expect(q.limit_value).to be(1) # per
+    expect(q.count).to eq(1)
+  end
 
   context 'PARAMS defined' do
     filters.each do |f|
@@ -25,7 +197,7 @@ describe Queries::Query::Filter do
   context 'SUBQUERY reference of _query_facet present in filter' do
     ::Queries::Query::Filter::SUBQUERIES.each do |k,v|
       k = ::Queries::Query::Filter::FILTER_QUERIES[(k.to_s + '_query').to_sym].constantize
-      next if k.name =~ /Image|Source/ # Queries are dynamically added in these filters, and have no corresponding method name
+      next if k.name =~ /Image|Source|DataAttribute|Observation/ # Queries are dynamically added in these filters, and have no corresponding method name
       v.each do |t|
         specify "#{k.name}: #{t}" do
           m = (t.to_s + '_query_facet' ).to_sym
@@ -51,12 +223,14 @@ describe Queries::Query::Filter do
     end
   end
 
-  context '<Model>.js matches content of SUBQUERIES' do
-    Dir.glob('app/javascript//**/filter/links/*.js').each do |file|
+  context 'app/javascript/**/filter/links/<Model>.js matches content of SUBQUERIES' do
+    Dir.glob('app/javascript/**/filter/links/*.js').each do |file|
       n = file.split('/').last
       next unless n =~ /^[A-Z]/ # Constants start with a capital
+      # TaxonNameRelationship sends to TaxonName in 3 different ways.
+      next if ['TaxonNameRelationship.js'].include?(n)
 
-      puts n
+      # puts n
 
       filter_name = n.split('.').first.tableize.singularize.to_sym
 
@@ -68,9 +242,10 @@ describe Queries::Query::Filter do
       specify "#{n}" do
         a = *::Queries::Query::Filter.inverted_subqueries[filter_name]
         a.delete(:biological_associations_graph) if a # There is no BiologicalAssociationsGraph UI
-        a.delete(:dwc_occurrence) if a # ... or  DwcOccurrence
         a.delete(:data_attribute) if a # etc
         a.delete(:controlled_vocabulary_term) if a
+        a.delete(:conveyance) if a # There is no depiction filter
+        a.delete(:depiction) if a # There is no depiction filter
 
         expect( query_names ).to contain_exactly( *a )
       end

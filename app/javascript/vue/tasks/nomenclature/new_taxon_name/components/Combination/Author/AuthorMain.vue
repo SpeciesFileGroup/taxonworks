@@ -18,7 +18,7 @@ import {
   NOMENCLATURE_CODE_BOTANY,
   NOMENCLATURE_CODE_ZOOLOGY
 } from '@/constants/index.js'
-import SwitchComponent from '@/components/switch.vue'
+import SwitchComponent from '@/components/ui/VSwitch.vue'
 import AuthorPerson from './AuthorPeople.vue'
 import AuthorSource from './AuthorSource.vue'
 import AuthorVerbatim from './AuthorVerbatim.vue'

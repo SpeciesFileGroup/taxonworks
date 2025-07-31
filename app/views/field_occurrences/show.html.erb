@@ -1,0 +1,23 @@
+
+<%= content_for :add do -%>
+<% end %>
+
+<%= content_for :edit do
+  content = safe_join([content_tag(:span, '', data: { icon: 'edit' }, class: 'small-icon'), 'Edit'], '')
+
+  link_to(content, new_field_occurrence_task_path(field_occurrence_id: @field_occurrence.id), class: 'navigation-item')
+end %>
+
+<%= content_for :report do -%>
+<% end %>
+
+<%= content_for :associated do -%>
+<% end %>
+
+<%= content_for :icon_navigation do -%>
+<% end %>
+
+<%= render(partial: 'shared/data/project/show', locals: {object: @field_occurrence}) -%>
+
+
+

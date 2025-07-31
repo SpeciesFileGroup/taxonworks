@@ -1,22 +1,27 @@
-import { ImportRows } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 import { GetterNames } from '../getters/getters'
+import { ImportDataset } from '@/routes/endpoints'
 
 export default ({ state, getters, commit }, id) => {
-  return new Promise((resolve, reject) => {
-    ImportRows(state.dataset.id, { record_id: id }).then(response => {
-      response.body.results.forEach(row => {
+  return ImportDataset.importRows(state.dataset.id, { record_id: id })
+    .then((response) => {
+      const { results, ...data } = response.body
+
+      results.forEach((row) => {
         const position = getters[GetterNames.GetRowPositionById](row.id)
+
         if (position) {
-          const payload = { pageIndex: position.pageIndex, rowIndex: position.rowIndex, row: row }
+          const payload = {
+            pageIndex: position.pageIndex,
+            rowIndex: position.rowIndex,
+            row
+          }
+
           commit(MutationNames.SetRow, payload)
         }
       })
-      delete response.body.results
-      commit(MutationNames.SetDataset, response.body)
-      resolve(response)
-    }, (error) => {
-      reject(error)
+
+      commit(MutationNames.SetDataset, data)
     })
-  })
+    .catch(() => {})
 }

@@ -8,22 +8,28 @@ FactoryBot.define do
 
     # This is a stub for Project warning/specs
     factory :valid_project_role do
-      type { 'Collector' } 
+      type { 'Collector' }
       association :person, factory: :valid_person
       association :role_object, factory: :valid_collecting_event
     end
 
     # This is a stub for Project warning/specs
     factory :valid_attribution_role do
-      type { 'Creator' } 
+      type { 'Creator' }
       association :person, factory: :valid_person
       association :role_object, factory: :valid_content
     end
 
     factory :valid_collector do
-      type { 'Collector' } 
+      type { 'Collector' }
       association :person, factory: :valid_person
       association :role_object, factory: :valid_collecting_event
+    end
+
+    factory :valid_determiner do
+      type { 'Determiner' }
+      association :person, factory: :valid_person
+      association :role_object, factory: :valid_taxon_determination
     end
 
   end

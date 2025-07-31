@@ -46,7 +46,7 @@
         <VBtn
           v-if="edit"
           circle
-          color="update"
+          color="primary"
           @click="$emit('edit', Object.assign({}, item))"
         >
           <VIcon
@@ -74,7 +74,7 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
-import PdfButton from '@/components/pdfButton.vue'
+import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -241,10 +241,6 @@ export default {
 
   .list-item {
     white-space: normal;
-    a {
-      padding-left: 4px;
-      padding-right: 4px;
-    }
   }
 
   .list-complete-item {
@@ -253,7 +249,7 @@ export default {
     margin: 0px;
     padding: 1em 0;
     border: 0px;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--border-color);
   }
 
   .list-complete-enter,

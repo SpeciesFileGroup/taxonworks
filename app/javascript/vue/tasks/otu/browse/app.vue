@@ -26,11 +26,11 @@
         </ul>
         <template v-if="otu">
           <autocomplete
-            class="float_right separate-left separate-right"
+            class="float_right separate-left separate-right autocomplete-search-bar"
             url="/otus/autocomplete"
             placeholder="Search a otu"
             param="term"
-            :clear-after="true"
+            clear-after
             @getItem="loadOtu"
             label="label_html"
           />
@@ -82,20 +82,23 @@
 
 <script>
 import HeaderBar from './components/HeaderBar'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import ImageGallery from './components/gallery/Main'
 import ContentComponent from './components/Content'
+import ConveyanceComponent from './components/Conveyance/PanelConveyance.vue'
 import AssertedDistribution from './components/AssertedDistribution'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
 import NomenclatureHistory from './components/timeline/Timeline.vue'
-import CollectingEvents from './components/CollectingEvents'
+import Distribution from './components/Distribution/Distribution.vue'
+import Descendants from './components/Descendants/Descendants.vue'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
 import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
 import DescriptionComponent from './components/Description.vue'
-import Descendants from './components/descendants'
+import CoordinateOtus from './components/coordinate/CoordinateOtus.vue'
+import FieldOccurrences from './components/FieldOccurrence/FieldOccurrence.vue'
 import Autocomplete from '@/components/ui/Autocomplete'
 import SearchOtu from './components/SearchOtu'
 import Draggable from 'vuedraggable'
@@ -114,12 +117,12 @@ export default {
     ImageGallery,
     SpinnerComponent,
     ContentComponent,
+    ConveyanceComponent,
     DescriptionComponent,
     AssertedDistribution,
     BiologicalAssociations,
     AnnotationsComponent,
     NomenclatureHistory,
-    CollectingEvents,
     CollectionObjects,
     TypeSpecimens,
     CommonNames,
@@ -127,7 +130,10 @@ export default {
     Draggable,
     Descendants,
     SelectOtu,
-    TypeSection
+    TypeSection,
+    CoordinateOtus,
+    Distribution,
+    FieldOccurrences
   },
   computed: {
     preferences: {
@@ -159,7 +165,7 @@ export default {
       navigate: undefined,
       tmp: undefined,
       otuList: [],
-      componentNames: COMPONENT_NAMES()
+      componentNames: COMPONENT_NAMES
     }
   },
   watch: {
@@ -245,6 +251,14 @@ export default {
 
 <style lang="scss">
 #browse-otu {
+  .anchor {
+    scroll-margin-top: 9rem;
+  }
+  .autocomplete-search-bar {
+    input {
+      width: 500px;
+    }
+  }
   .container {
     margin: 0 auto;
     width: 1240px;

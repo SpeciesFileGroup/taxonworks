@@ -46,14 +46,14 @@ describe 'Otus', type: :feature do
         specify 'I can exercise the new link feature' do
           visit otus_path
           click_link('New')
-          fill_in 'Name', with: 'test'
+          fill_in 'otu_name', with: 'test'
           click_button 'Create Otu'
           expect(page).to have_content("Otu 'test' was successfully created.")
         end
       end
 
       context 'downloading OTU table', js: true do
-        let!(:csv) { Export::Download.generate_csv(Otu.where(project_id: @project.id)) }
+        let!(:csv) { Export::CSV.generate_csv(Otu.where(project_id: @project.id)) }
 
         specify 'otus table can be downloaded as-is' do
           visit otus_path

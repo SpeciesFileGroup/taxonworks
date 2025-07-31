@@ -62,16 +62,16 @@ module LoggedTask
     # @param [Object] object
     def warn(msg, object=nil)
       msg = "[WARN]#{time_str}: #{msg}"
-      @warns_and_errors << { msg: msg, color: Term::ANSIColor.yellow }
-      write(msg, object, Term::ANSIColor.yellow)
+      @warns_and_errors << { msg:, color: :yellow}
+      write(msg, object, :yellow)
     end
 
     # @param [String] msg
     # @param [Object] object
     def error(msg, object=nil)
       msg = "[ERROR]#{time_str}: #{msg}"
-      @warns_and_errors << { msg: msg, color: Term::ANSIColor.red }
-      write(msg, object, Term::ANSIColor.red)
+      @warns_and_errors << { msg:, color: :red }
+      write(msg, object, :red)
     end
 
     def summary
@@ -99,7 +99,9 @@ module LoggedTask
       write_file(@log_file, msg, object, true)
       @log_file.fsync
 
-      msg = color + msg + Term::ANSIColor.clear unless color.nil?
+      if !color.nil?
+        msg = Rainbow(msg).send(:color)
+      end
 
       write_file($stdout, msg, object, false)
     end

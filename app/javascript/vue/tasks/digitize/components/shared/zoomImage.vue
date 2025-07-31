@@ -3,7 +3,7 @@
     <button
       type="button"
       class="button button-default button-circle"
-      @click="show = true"
+      @click="() => (isVisible = true)"
     >
       <v-icon
         x-small
@@ -12,19 +12,31 @@
       />
     </button>
     <div
-      v-if="show"
+      v-if="isVisible"
       class="depiction-zoom-container"
       :class="{ 'depiction-zoom-container-bottom': flip }"
     >
-      <img
-        v-if="image"
+      <SvgViewer
+        v-if="svgClip"
         class="img-size"
-        :src="image.src"
+        :height="data.height"
+        :width="data.width"
+        :groups="svgClip"
+        :image="{
+          url: depiction.image.image_file_url,
+          width: depiction.image.width,
+          height: depiction.image.height
+        }"
+      />
+      <img
+        v-else
+        class="img-size"
+        :src="data.imageUrl"
       />
       <div
         data-icon="close"
         class="btn-zoom close"
-        @click="show = false"
+        @click="isVisible = false"
       />
       <div
         data-icon="swap"
@@ -35,43 +47,36 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed } from 'vue'
 import VIcon from '@/components/ui/VIcon/index'
+import SvgViewer from '@/components/Svg/SvgViewer.vue'
 
-export default {
-  components: { VIcon },
-
-  props: {
-    imageUrl: {
-      type: String,
-      required: true
-    }
+const props = defineProps({
+  data: {
+    type: [String, Object],
+    required: true
   },
 
-  data() {
-    return {
-      show: false,
-      image: undefined,
-      width: undefined,
-      height: undefined,
-      flip: false
-    }
-  },
-
-  watch: {
-    show(newVal) {
-      if (this.image) return
-      const image = new Image()
-
-      image.onload = () => {
-        this.width = image.width
-        this.height = image.height
-        this.image = image
-      }
-      image.src = this.imageUrl
-    }
+  depiction: {
+    type: Object,
+    required: true
   }
-}
+})
+
+const isVisible = ref(false)
+const flip = ref(false)
+
+const svgClip = computed(() => {
+  return props.depiction?.svg_clip && !props.depiction.svg_view_box
+    ? [
+        {
+          g: props.depiction.svg_clip,
+          attributes: { fill: '#FFA500', 'fill-opacity': 0.25 }
+        }
+      ]
+    : null
+})
 </script>
 
 <style lang="scss">

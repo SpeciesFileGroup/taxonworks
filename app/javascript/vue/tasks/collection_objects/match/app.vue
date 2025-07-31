@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Collection object match</h1>
+    <h1>Match collection objects</h1>
     <spinner-component
       v-if="isLoading"
       :full-screen="true"
@@ -50,7 +50,7 @@
 import InputComponent from './components/InputComponent'
 import LineComponent from './components/LineComponent'
 import AssignComponent from './components/AssignComponent'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import { CollectionObject } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 

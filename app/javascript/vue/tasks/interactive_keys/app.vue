@@ -57,7 +57,7 @@ import DescriptorsView from './components/DescriptorsView'
 import { ActionNames } from './store/actions/actions'
 import MenuBar from './components/MenuBar'
 import { GetterNames } from './store/getters/getters'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import { MutationNames } from './store/mutations/mutations'
 
 export default {

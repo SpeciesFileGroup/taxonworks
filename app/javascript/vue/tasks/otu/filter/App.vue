@@ -6,8 +6,10 @@
       :pagination="pagination"
       :url-request="urlRequest"
       :object-type="OTU"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
+      :extend-download="extendDownload"
       :list="list"
+      only-extend-download
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -20,16 +22,22 @@
           :parameters="parameters"
           :disabled="!list.length"
           :object-type="OTU"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #nav-right>
-        <div class="horizontal-right-content">
-          <RadialMatrix
-            :object-type="OTU"
-            :disabled="!list.length"
-            :ids="selectedIds"
-          />
-        </div>
+        <RadialOtu
+          :disabled="!list.length"
+          :ids="sortedSelectedIds"
+          :count="sortedSelectedIds.length"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+        />
+        <RadialMatrix
+          :object-type="OTU"
+          :disabled="!list.length"
+          :ids="sortedSelectedIds"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+        />
       </template>
       <template #facets>
         <FilterView v-model="parameters" />
@@ -41,6 +49,7 @@
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -59,26 +68,40 @@ import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
-import VSpinner from '@/components/spinner.vue'
+import RadialOtu from '@/components/radials/otu/radial.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { OTU } from '@/constants/index.js'
 import { Otu } from '@/routes/endpoints'
+import { computed } from 'vue'
+import csvDownload from './components/csvDownload.vue'
 
 const extend = ['taxonomy']
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Otu, { listParser, initParameters: { extend } })
+
+const extendDownload = computed(() => [
+  {
+    label: 'TSV',
+    component: csvDownload,
+    bind: {
+      params: parameters.value
+    }
+  }
+])
 </script>
 
 <script>

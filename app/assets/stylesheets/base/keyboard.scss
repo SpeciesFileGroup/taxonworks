@@ -1,5 +1,4 @@
 #keyShortcuts {
-
   .legend {
     z-index: 2101;
     display: block;
@@ -8,11 +7,11 @@
     right: -220px;
     cursor: pointer;
     font-size: $font_small;
-    background-color: $panel_background;
+    background-color: var(--bg-foreground);
     padding: $standard_padding;
     padding-right: 40px;
     border-radius: 3px;
-    box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 2px 0px var(--panel-shadow);
     transition: right 0.5s ease;
   }
 
@@ -42,13 +41,13 @@
     }
     .close {
       cursor: pointer;
-      margin-right: $standard_margin*0.5;
+      margin-right: $standard_margin * 0.5;
       opacity: 0.5;
     }
     .close:hover {
       opacity: 1;
     }
-    border-bottom: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
   }
 
   table {
@@ -66,11 +65,10 @@
       font-weight: 700;
     }
     th:hover {
-      background-color: #FFF;
+      background-color: inherit;
     }
     td {
       padding-left: $standard_padding;
-      font-size: $font_small;
       vertical-align: center;
     }
     td:first-child {
@@ -79,7 +77,6 @@
       text-align: right;
       height: auto;
     }
-
   }
 
   .keyboard-background {
@@ -104,15 +101,14 @@
   .key {
     font-size: $font_tiny;
     font-weight: 500;
-    min-width: 12px;
+    line-height: 10px;
     text-align: center;
     display: inline-block;
-    padding-left: 2px;
-    padding-right: 2px;
-    border: 1px solid $navigation_border;
+    padding: 3px 5px;
+    border: 1px solid var(--border-color);
     border-radius: 3px;
-    border-bottom: 2px solid $navigation_border;
-
+    border-bottom: 2px solid var(--border-color);
+    background-color: var(--bg-color);
   }
 }
 

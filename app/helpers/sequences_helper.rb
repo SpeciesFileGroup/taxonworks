@@ -1,7 +1,7 @@
 module SequencesHelper
   def sequence_tag(sequence)
     return nil if sequence.nil?
-    sequence.name
+    sequence.name || sequence.sequence[0..20] + ' ' + tag.span('unnamed', class: [:feedback, 'feedback-thin', 'feedback-info'])
   end
 
   def sequence_autocomplete_selected_tag(sequence)

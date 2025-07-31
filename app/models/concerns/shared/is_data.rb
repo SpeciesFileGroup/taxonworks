@@ -15,6 +15,7 @@ module Shared::IsData
     include Metamorphosize
     include HasRoles
     include Shared::Verifiers
+    include Shared::Unify
   end
 
   module ClassMethods
@@ -38,6 +39,10 @@ module Shared::IsData
 
     def is_biologically_relatable?
       self < Shared::BiologicalAssociations
+    end
+
+    def auto_uuids?
+      self < Shared::AutoUuid
     end
 
     # @return [Array of String]
@@ -94,7 +99,7 @@ module Shared::IsData
       klass = self
       attr  = Stripper.strip_identical_attributes(klass, attr)
 
-      scope = klass.where(attr)
+      scope = klass.where(attr) #.where.not(id:)
       scope
     end
 
@@ -137,6 +142,23 @@ module Shared::IsData
       h
     end
 
+    private
+
+    # @return Array of IDs for this class
+    #
+    #  Make cutoff smaller to reach higher ids.
+    #  Useful for pseudo-benchmarking.
+    #  TODO: doesn't return total. There are some
+    #  nice discussions on stack overflow.
+    def random_ids(total = 100)
+      return self.none if total.blank?
+      if column_names.include?('type')
+        self.find_by_sql( "select id, type from #{self.table_name} where type = '#{self.name}' AND  random() < 0.0001 limit #{total};").pluck(:id)
+      else
+        self.find_by_sql( "select id from #{self.table_name} where random() < 0.0001 limit #{total};").pluck(:id)
+      end
+    end
+
   end  # END CLASS METHODS
 
   # Returns whether it is permissible to try to destroy
@@ -155,8 +177,9 @@ module Shared::IsData
 
     p = u.projects.pluck(:id)
 
+    # TODO: !! replace with a simple wrapped transaction and roll it back
+
     self.class.reflect_on_all_associations(:has_many).each do |r|
-      # puts r.name
       if r.klass.column_names.include?('project_id')
         # If this has any related data in another project, we can't destroy it
         #    if !send(r.name).nil?
@@ -218,6 +241,7 @@ module Shared::IsData
     self.class < Shared::SharedAcrossProjects ? true : false
   end
 
+  # TODO: reconcile with Shared::IsData::Metamorphosize
   # @return [Object]
   #   the same object, but namespaced to the base class
   #   used many places, might be good target for optimization

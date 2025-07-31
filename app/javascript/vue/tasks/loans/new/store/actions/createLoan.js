@@ -5,10 +5,10 @@ export default ({ commit }, loan) => {
   commit(MutationNames.SetSaving, true)
   const payload = {
     ...loan,
-    roles_attributes: [
-      ...loan.loan_recipient_roles,
-      ...loan.loan_supervisor_roles
-    ]
+    roles_attributes: [].concat(
+      loan.loan_recipient_roles || [],
+      loan.loan_supervisor_roles || []
+    )
   }
 
   Loan.create({ loan: payload, extend: ['roles'] })

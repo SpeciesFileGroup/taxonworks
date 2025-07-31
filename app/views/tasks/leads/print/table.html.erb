@@ -1,0 +1,7 @@
+<br>
+
+<%= radial_navigation_tag(@lead) %><br>
+<%= link_to('Traditional version', print_key_task_path(lead_id: @lead.id)) %><br/><br/>
+<%= copy_table_to_clipboard('#key_table') %>
+<%= print_key_table(@lead) %>
+

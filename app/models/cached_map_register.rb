@@ -6,7 +6,11 @@ class CachedMapRegister < ApplicationRecord
 
   include Shared::IsData
 
-  belongs_to :cached_map_register_object, polymorphic: true
-  
+  belongs_to :cached_map_register_object, inverse_of: :cached_map_register, polymorphic: true
+
   validates_presence_of :cached_map_register_object
+
+  # Should not do this for speed reasons, just fix algorithim
+  # validates_uniqueness_of :cached_map_register_object
+
 end

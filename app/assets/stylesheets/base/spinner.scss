@@ -1,7 +1,7 @@
 .box-spinner {
-  box-shadow: 0px 1px 1px 0px rgba(0,0,0,.2);
+  box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
   background-image: none !important;
-  background-color: #fff;
+  background-color: var(--panel-bg-color);
   z-index: 999999;
   height: 100%;
 }
@@ -13,55 +13,73 @@
   position: relative;
 
   svg {
-      display: block;
-      position: relative;
-      width: 30px;
-      height: 30px;
-      margin: 0px auto;
+    display: block;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    margin: 0px auto;
   }
-      #Tail {
-        opacity: 0;
-        animation: tail 2s ease infinite;
-        fill:#41BA8D;
-      }
-      #LeftBottom {
-        fill:#00845D;
-        opacity: 0;
-        animation: spinner 1s ease alternate infinite;
-        animation-delay: 0s;
-      }
-      #LeftMid {
-        fill:#28221B;
-        opacity: 0;
-        animation: spinner 1s ease alternate infinite;
-        animation-delay: 0.2s;
-      }
-      #LeftTop {
-        fill:#342D25;
-        opacity: 0;
-        animation: spinner 1s ease alternate infinite;
-        animation-delay: 0.4s;
-      }
-      #Head {
-        fill:#342D25;
-        opacity: 0;
-        animation: spinner 1s ease alternate infinite;
-        animation-delay: 0.6s;
-      }
-    
-    @keyframes spinner {
-      0% { opacity: 0; }
-      30% { opacity: 0; }
-      90% { opacity: 1; }
-      100% { opacity: 1; }
+  #Tail {
+    opacity: 0;
+    animation: tail 2s ease infinite;
+    fill: #41ba8d;
+  }
+  #LeftBottom {
+    fill: #00845d;
+    opacity: 0;
+    animation: spinner 1s ease alternate infinite;
+    animation-delay: 0s;
+  }
+  #LeftMid {
+    fill: #28221b;
+    opacity: 0;
+    animation: spinner 1s ease alternate infinite;
+    animation-delay: 0.2s;
+  }
+  #LeftTop {
+    fill: #342d25;
+    opacity: 0;
+    animation: spinner 1s ease alternate infinite;
+    animation-delay: 0.4s;
+  }
+  #Head {
+    fill: #342d25;
+    opacity: 0;
+    animation: spinner 1s ease alternate infinite;
+    animation-delay: 0.6s;
+  }
+
+  @keyframes spinner {
+    0% {
+      opacity: 0;
     }
-    @keyframes tail {
-      0% { opacity: 0; }
-      30% { opacity: 1; }
-      50% { opacity: 1; }
-      90% { opacity: 0; }
-      100% { opacity: 0; }
-    }  
+    30% {
+      opacity: 0;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes tail {
+    0% {
+      opacity: 0;
+    }
+    30% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
 }
 /*
 .box-spinner {

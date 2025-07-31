@@ -28,7 +28,7 @@ export default ({ state, dispatch }, coId) => {
       state.biologicalAssociations = body
     })
 
-    Container.for(co.globalId)
+    Container.for({ global_id: co.globalId, extend: ['container_items'] })
       .then(({ body }) => {
         state.container = body
       })
@@ -55,15 +55,15 @@ export default ({ state, dispatch }, coId) => {
     state.navigation = body
   })
 
-  CollectionObject.depictions(coId).then(({ body }) => {
-    state.depictions = body
-  })
+  dispatch(ActionNames.LoadDepictions, { id: coId, page: 1 })
+  dispatch(ActionNames.LoadConveyances, coId)
 
-  TaxonDetermination.where({ biological_collection_object_id: [coId] }).then(
-    ({ body }) => {
-      state.determinations = sortArray(body, 'position')
-    }
-  )
+  TaxonDetermination.where({
+    taxon_determination_object_id: [coId],
+    taxon_determination_object_type: COLLECTION_OBJECT
+  }).then(({ body }) => {
+    state.determinations = sortArray(body, 'position')
+  })
 
   TypeMaterial.where({
     collection_object_id: coId,

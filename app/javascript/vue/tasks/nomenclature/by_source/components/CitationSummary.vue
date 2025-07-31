@@ -34,7 +34,7 @@
 </template>
 
 <script setup>
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import TableCitation from './Table/TableCitation.vue'
 import useCitation from '../composables/useCitation.js'
 import VPagination from '@/components/pagination.vue'

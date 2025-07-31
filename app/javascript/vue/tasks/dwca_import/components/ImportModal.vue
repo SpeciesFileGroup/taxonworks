@@ -66,7 +66,7 @@
 
 <script>
 import ModalComponent from '@/components/ui/Modal'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import ProgressBar from './ProgressBar'
 import ProgressList from './ProgressList'
 import { GetterNames } from '../store/getters/getters'

@@ -1,5 +1,6 @@
 <template>
   <div class="attribution_annotator">
+    <VSpinner v-if="isLoading" />
     <LicenseSelector
       v-model="attribution.license"
       v-model:year="attribution.copyright_year"
@@ -17,25 +18,39 @@
       v-model="roleList[roleType]"
     />
 
-    <div class="margin-medium-top">
-      <button
-        type="button"
+    <div class="margin-medium-top horizontal-left-content gap-small">
+      <VBtn
+        color="create"
+        medium
         :disabled="!validateFields"
         class="button normal-input button-submit save-annotator-button"
         @click="() => saveAttribution()"
       >
         {{ attribution.id ? 'Update' : 'Create' }}
-      </button>
+      </VBtn>
+
+      <VBtn
+        v-if="attribution.id"
+        color="destroy"
+        medium
+        :disabled="!validateFields"
+        class="button normal-input button-submit save-annotator-button"
+        @click="() => destroyAttribution()"
+      >
+        Delete
+      </VBtn>
     </div>
   </div>
 </template>
 
 <script setup>
-import VSwitch from '@/components/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import LicenseSelector from './LicenseSelector.vue'
 import PeopleSelector from './PeopleSelector.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { Attribution } from '@/routes/endpoints'
-import { computed, ref, onBeforeMount } from 'vue'
+import { computed, ref } from 'vue'
 import {
   ROLE_ATTRIBUTION_COPYRIGHT_HOLDER,
   ROLE_ATTRIBUTION_CREATOR,
@@ -63,10 +78,18 @@ const roleList = ref({
 const roleType = ref(ROLE_ATTRIBUTION_CREATOR)
 
 const ROLE_TYPE_LIST = computed(() => ({
-  [ROLE_ATTRIBUTION_CREATOR]: `Creator (${getCount(roleList.value[ROLE_ATTRIBUTION_CREATOR])})`,
-  [ROLE_ATTRIBUTION_EDITOR]: `Editor (${getCount(roleList.value[ROLE_ATTRIBUTION_EDITOR])})`,
-  [ROLE_ATTRIBUTION_OWNER]: `Owner (${getCount(roleList.value[ROLE_ATTRIBUTION_OWNER])})`,
-  [ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]: `Copyright Holder (${getCount(roleList.value[ROLE_ATTRIBUTION_COPYRIGHT_HOLDER])})`
+  [ROLE_ATTRIBUTION_CREATOR]: `Creator (${getCount(
+    roleList.value[ROLE_ATTRIBUTION_CREATOR]
+  )})`,
+  [ROLE_ATTRIBUTION_EDITOR]: `Editor (${getCount(
+    roleList.value[ROLE_ATTRIBUTION_EDITOR]
+  )})`,
+  [ROLE_ATTRIBUTION_OWNER]: `Owner (${getCount(
+    roleList.value[ROLE_ATTRIBUTION_OWNER]
+  )})`,
+  [ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]: `Copyright Holder (${getCount(
+    roleList.value[ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]
+  )})`
 }))
 
 const typeHasOrganization = computed(
@@ -86,18 +109,6 @@ const validateFields = computed(
     [].concat([], ...Object.values(roleList.value)).length
 )
 
-onBeforeMount(() => {
-  Attribution.where({
-    attribution_object_id: [props.metadata.object_id],
-    attribution_object_type: props.metadata.object_type
-  }).then(({ body }) => {
-    const [item] = body
-
-    attribution.value = makeAttribution(item)
-    roleList.value = makeRoleList(item)
-  })
-})
-
 function makeAttribution(item) {
   return {
     id: item?.id,
@@ -115,6 +126,31 @@ function makeRoleList(item) {
   }
 }
 
+function destroyAttribution() {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    Attribution.destroy(attribution.value.id).then(() => {
+      attribution.value = makeAttribution()
+      roleList.value = {
+        [ROLE_ATTRIBUTION_CREATOR]: [],
+        [ROLE_ATTRIBUTION_EDITOR]: [],
+        [ROLE_ATTRIBUTION_OWNER]: [],
+        [ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]: []
+      }
+
+      emit('updateCount', 0)
+
+      TW.workbench.alert.create(
+        'Attribution was successfully destroyed.',
+        'notice'
+      )
+    })
+  }
+}
+
 function saveAttribution() {
   const payload = {
     ...attribution.value,
@@ -127,11 +163,32 @@ function saveAttribution() {
     ? Attribution.update(payload.id, { attribution: payload })
     : Attribution.create({ attribution: payload })
 
-  response.then(({ body }) => {
-    attribution.value = makeAttribution(body)
-    roleList.value = makeRoleList(body)
-    emit('updateCount', 1)
-    TW.workbench.alert.create('Attribution was successfully created.', 'notice')
-  })
+  response
+    .then(({ body }) => {
+      attribution.value = makeAttribution(body)
+      roleList.value = makeRoleList(body)
+      emit('updateCount', 1)
+      TW.workbench.alert.create(
+        'Attribution was successfully created.',
+        'notice'
+      )
+    })
+    .catch(() => {})
 }
+
+const isLoading = ref(true)
+
+Attribution.where({
+  attribution_object_id: props.metadata.object_id,
+  attribution_object_type: props.metadata.object_type
+})
+  .then(({ body }) => {
+    const [item] = body
+
+    attribution.value = makeAttribution(item)
+    roleList.value = makeRoleList(item)
+  })
+  .finally(() => {
+    isLoading.value = false
+  })
 </script>

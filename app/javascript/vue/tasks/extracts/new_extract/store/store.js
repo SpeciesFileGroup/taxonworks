@@ -11,6 +11,7 @@ const makeInitialState = () => {
     settings: {
       isLoading: false,
       lock: {
+        confidences: false,
         made: false,
         lock: false,
         originRelationships: false,
@@ -34,11 +35,12 @@ const makeInitialState = () => {
     protocols: [],
     repository: undefined,
     softValidation: [],
-    roles: []
+    roles: [],
+    confidences: []
   }
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -47,7 +49,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore,
-  makeInitialState
-}
+export { newStore, makeInitialState }

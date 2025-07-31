@@ -1,11 +1,13 @@
 import { Identifier } from '@/routes/endpoints'
-import { makeIdentifier } from '@/adapters'
+import { MutationNames } from '../mutations/mutations'
 
-export default ({ state }, { objectType, id }) => {
+export default ({ state, commit }, { objectType, id }) => {
   Identifier.where({
     identifier_object_id: id,
     identifier_object_type: objectType
   }).then(({ body }) => {
-    state.identifiers[objectType] = body.map((item) => makeIdentifier(item))
+    body.map((item) =>
+      commit(MutationNames.AddIdentifier, { objectType, item })
+    )
   })
 }

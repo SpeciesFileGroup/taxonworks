@@ -1,6 +1,6 @@
 # Paper style comprehansive checklist
 
-class PaperCatalog < Catalog::Nomenclature
+class Catalog::Nomenclature::PaperCatalog < Catalog::Nomenclature
 
   ##### FILTER PARAMETERS #####
 

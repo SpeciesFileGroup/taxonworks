@@ -1,0 +1,12 @@
+<%= form_tag(search_field_occurrences_path, {method: :get}) do %>
+  <%= render partial: 'workbench/elements/forms/ajax_select',
+    locals: {
+      controller: 'field_occurrences',
+      object: nil,
+      method: 'id',
+      tag_id: 'field_occurrence_id_for_quick_search_form',
+      autofocus: true,
+      send_select: true,
+      size: '',
+      display: '' } %>
+<% end %>

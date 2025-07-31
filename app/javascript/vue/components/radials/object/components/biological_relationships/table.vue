@@ -33,7 +33,7 @@
               <RadialAnnotator :global-id="item.global_id" />
               <VBtn
                 circle
-                color="update"
+                color="primary"
                 @click="emit('edit', Object.assign({}, item))"
               >
                 <VIcon

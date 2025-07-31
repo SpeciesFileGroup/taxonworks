@@ -133,21 +133,17 @@
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import {
-  TAXON_RELATIONSHIP_CURRENT_COMBINATION,
-  TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM
-} from '@/constants/index.js'
+import { TAXON_RELATIONSHIP_CURRENT_COMBINATION } from '@/constants/index.js'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import getRankGroup from '../helpers/getRankGroup'
-import SwitchComponent from '@/components/switch'
+import SwitchComponent from '@/components/ui/VSwitch'
 import BlockLayout from '@/components/layout/BlockLayout'
 
 const FILTER_RELATIONSHIPS = [
   TAXON_RELATIONSHIP_CURRENT_COMBINATION,
-  TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM,
   'OriginalCombination',
   'Typification',
   'UncertainPlacement',
@@ -181,7 +177,7 @@ export default {
         (item) =>
           !FILTER_RELATIONSHIPS.some((filterType) =>
             item.type.includes(filterType)
-          )
+          ) && item.subject_taxon_name_id === this.taxon.id
       )
     },
 
@@ -284,12 +280,11 @@ export default {
       this.objectLists.tree = copyList.tree || {}
       this.objectLists.commonList = copyList.common || {}
       this.objectLists.allList = copyList.all || {}
-      this.addType(this.objectLists.allList)
-      this.objectLists.allList = Object.keys(this.objectLists.allList).map(
-        (key) => this.objectLists.allList[key]
-      )
-      this.getTreeList(this.objectLists.tree, copyList.all)
       this.addType(this.objectLists.commonList)
+      this.addType(this.objectLists.allList)
+      this.objectLists.commonList = Object.values(this.objectLists.commonList)
+      this.objectLists.allList = Object.values(this.objectLists.allList)
+      this.getTreeList(this.objectLists.tree, copyList.all)
     },
 
     activeModal(value) {
@@ -328,10 +323,13 @@ export default {
             object_taxon_name_id: this.taxonRelation.id,
             subject_taxon_name_id: this.taxon.id
           })
-          .then(() => {
-            this.taxonRelation = undefined
-            this.$store.commit(MutationNames.UpdateLastChange)
-          })
+          .then(
+            () => {
+              this.taxonRelation = undefined
+              this.$store.commit(MutationNames.UpdateLastChange)
+            },
+            (errors) => {}
+          )
       }
       this.isInsertaeSedis = false
     },

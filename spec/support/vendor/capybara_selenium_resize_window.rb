@@ -7,6 +7,5 @@
 #   end
 #
 def set_selenium_window_size(width, height)
-  Capybara.current_session.current_window.resize_to(width, height)
-  #driver.manage.window.resize_to(500, 800)
+  page.driver.browser.manage.window.resize_to(width, height)
 end

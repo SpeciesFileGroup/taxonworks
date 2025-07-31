@@ -10,9 +10,7 @@
       class="list-complete-item flex-separate middle"
     >
       <span>
-        <span v-html="item.taxon_label" />
-        <span v-html="item.type_label" />
-        <span>(?)</span>
+        <span v-html="item.taxon_label" /> <span v-html="item.type_label" /> (?)
       </span>
       <div class="list-controls">
         <button

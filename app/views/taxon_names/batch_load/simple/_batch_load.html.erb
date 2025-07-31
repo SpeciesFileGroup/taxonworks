@@ -10,7 +10,7 @@
       </p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are required and limited to rank names and author_year (see <%= link_to('sample template', asset_path('batch_load_templates/taxon_names_simple_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Column headers are required and limited to rank names and author_year (see <%= link_to('sample template', asset_path('batch_load_templates/taxon_names_simple_batch_load.tab', skip_pipeline: true), target: '_blank') -%>).</li>
         <li>If a parent taxon is not specified, Root is the default.</li>
         <li>Multiple uploads of the same data will create duplicate parallel hierarchies. [true for both Root or named parent?? what if adding name under duplicate named parent??]</li>
         <li>It is assumed all taxon names are valid; family group names without proper endings will not be created.</li>

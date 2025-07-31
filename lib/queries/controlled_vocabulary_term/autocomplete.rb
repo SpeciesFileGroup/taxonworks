@@ -3,7 +3,7 @@ module Queries
     class Autocomplete < Query::Autocomplete
 
       # @return [Array]
-      #   controlled_vocabulary_term_type 
+      #   controlled_vocabulary_term_type
       attr_accessor :controlled_vocabulary_term_type
 
       def initialize(string, **keyword_args)
@@ -46,17 +46,17 @@ module Queries
           a = a.or(b)
         end
         a
-      end 
+      end
 
       # @return [Scope]
-      def all 
-        a = [or_clauses, and_clauses].compact 
+      def all
+        a = [or_clauses, and_clauses].compact
         b = a.shift
         b = b.and(a.shift) if !a.empty?
 
         b.nil? ?
           ::ControlledVocabularyTerm.all.order(:type, :name).limit(40) :
-          ::ControlledVocabularyTerm.where(b).order(:type, :name).limit(40) 
+          ::ControlledVocabularyTerm.where(b).order(:type, :name).limit(40)
       end
 
       def keyword_named
@@ -64,11 +64,11 @@ module Queries
       end
 
       def with_type
-        table[:type].eq_any(controlled_vocabulary_term_type) if controlled_vocabulary_term_type.any?    
+        table[:type].in(controlled_vocabulary_term_type) if controlled_vocabulary_term_type.any?
       end
 
       def uri_equal_to
-        table[:uri].eq(query_string) if !query_string.blank?
+        table[:uri].eq(query_string) if query_string.present?
       end
 
       def definition_matches

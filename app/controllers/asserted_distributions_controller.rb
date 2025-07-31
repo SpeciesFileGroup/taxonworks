@@ -15,7 +15,7 @@ class AssertedDistributionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @asserted_distributions = Queries::AssertedDistribution::Filter.new(params)
+        @asserted_distributions = ::Queries::AssertedDistribution::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
@@ -27,7 +27,6 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions/1
   # GET /asserted_distributions/1.json
   def show
-    # @asserted_distribution = AssertedDistribution.find(params[:id])
   end
 
   # GET /asserted_distributions/new
@@ -90,7 +89,7 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def autocomplete
-    @asserted_distributions = Queries::AssertedDistribution::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    @asserted_distributions = ::Queries::AssertedDistribution::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
   end
 
   # TODO: deprecate
@@ -105,20 +104,39 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions/download
   def download
     send_data(
-      Export::Download.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
+      Export::CSV.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "asserted_distributions_#{DateTime.now}.csv")
+      filename: "asserted_distributions_#{DateTime.now}.tsv")
   end
 
   # GET /asserted_distributions/batch_load
   def batch_load
   end
 
-  # PATCH /asserted_distributions/batch_move.json?asserted_distribution_query=<>&geographic_area_id
-  def batch_move
-    if @result = AssertedDistribution.batch_move(params)
+  # PATCH /asserted_distributions/batch_update.json?asserted_distributions_query=<>&asserted_distribution={taxon_name_id=123}}
+  def batch_update
+    if r = AssertedDistribution.batch_update(
+        preview: params[:preview],
+        asserted_distribution: asserted_distribution_params.merge(by: sessions_current_user_id),
+        asserted_distribution_query: params[:asserted_distribution_query],
+    )
+      render json: r.to_json, status: :ok
     else
-      render json: {success: false}
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
+  def batch_template_create
+    if r = AssertedDistribution.batch_template_create(
+        preview: params[:preview],
+        template_asserted_distribution: asserted_distribution_params,
+        otu_query: params[:otu_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id
+    )
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
     end
   end
 
@@ -149,17 +167,10 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def api_index
-    @asserted_distributions = Queries::AssertedDistribution::Filter.new(params.merge!(api: true))
-      .all
-      .where(project_id: sessions_current_project_id)
-      .includes(:citations, :otu, geographic_area: [:parent, :geographic_area_type], origin_citation: [:source])
-      .order('asserted_distributions.id')
-      .page(params[:page])
-      .per(params[:per])
-
-      if @asserted_distributions.all.count > 50
-        params['extend']&.delete('geo_json')
-      end
+    @asserted_distributions =
+      AssertedDistribution.asserted_distributions_for_api_index(
+        params.merge!(api: true), sessions_current_project_id
+      )
 
     render '/asserted_distributions/api/v1/index'
   end
@@ -178,7 +189,8 @@ class AssertedDistributionsController < ApplicationController
   def asserted_distribution_params
     params.require(:asserted_distribution).permit(
       :otu_id,
-      :geographic_area_id,
+      :asserted_distribution_shape_type,
+      :asserted_distribution_shape_id,
       :is_absent,
       otu_attributes: [:id, :_destroy, :name, :taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],

@@ -35,9 +35,12 @@
         v-if="listCreated.length"
         class="margin-medium-top"
         :list="listCreated"
-        :header="['Objects', 'Remove']"
+        :header="['Objects', '']"
         :delete-warning="false"
-        :annotator="false"
+        soft-delete
+        annotator
+        navigator
+        quick-forms
         :attributes="['label']"
         @delete="
           (item) => store.commit(MutationNames.RemoveObjectForDepictions, item)
@@ -56,7 +59,12 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
-import { OTU, COLLECTING_EVENT, COLLECTION_OBJECT } from '@/constants'
+import {
+  OTU,
+  COLLECTING_EVENT,
+  COLLECTION_OBJECT,
+  FIELD_OCCURRENCE
+} from '@/constants'
 
 const store = useStore()
 
@@ -82,6 +90,11 @@ const OBJECT_TYPES = [
     model: 'collection_objects'
   },
   {
+    type: FIELD_OCCURRENCE,
+    label: 'Field occurrence',
+    model: 'field_occurrences'
+  },
+  {
     type: 'Person',
     label: 'Person',
     model: 'people'
@@ -93,6 +106,7 @@ function addToList(item) {
   store.commit(MutationNames.AddObjectForDepictions, {
     id: item.id,
     label: item.object_label,
+    global_id: item.global_id,
     base_class: selectedType.value.type
   })
 }

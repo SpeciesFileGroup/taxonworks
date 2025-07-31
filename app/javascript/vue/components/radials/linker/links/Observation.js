@@ -1,4 +1,10 @@
+import {
+  TASK_FIELD_SYNCHRONIZE,
+  TASK_MULTI_UPDATE,
+  TASK_PROJECT_VOCABULARY,
+} from '../constants/links'
+
 export const Observation = {
-  all: [],
-  ids: []
+  all: [TASK_FIELD_SYNCHRONIZE, TASK_MULTI_UPDATE],
+  ids: [TASK_FIELD_SYNCHRONIZE, TASK_MULTI_UPDATE, TASK_PROJECT_VOCABULARY]
 }

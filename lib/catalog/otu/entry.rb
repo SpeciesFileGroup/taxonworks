@@ -1,7 +1,5 @@
 # A Catalog::Entry has many entry items.  Together CatalogEntrys form a Catalog
-require 'catalog/entry'
-class Catalog::Otu < Catalog
-class Entry < ::Catalog::Entry
+class Catalog::Otu::Entry < ::Catalog::Entry
 
   def initialize(otu)
     super(otu)
@@ -51,5 +49,4 @@ class Entry < ::Catalog::Entry
     item_object.taxon_name_id == reference_object.taxon_name_id
   end
 
-end
 end

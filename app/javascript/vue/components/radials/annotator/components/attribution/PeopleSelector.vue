@@ -16,7 +16,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import RolePicker from '@/components/role_picker'
-import VSwitch from '@/components/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 
 const OPTIONS = {
   People: 'People',

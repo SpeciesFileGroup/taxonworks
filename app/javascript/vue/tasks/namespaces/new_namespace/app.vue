@@ -56,12 +56,12 @@
 import { ref, computed, onBeforeMount } from 'vue'
 import { Namespace } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
-import NamespaceForm from './components/Namespace/NamespaceForm.vue'
+import NamespaceForm from '@/components/Form/FormNamespace/FormNamespace.vue'
 import NamespaceMatch from './components/Namespace/NamespaceMatch.vue'
 import NamespaceSave from './components/Namespace/NamespaceSave.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VPin from '@/components/ui/Pinboard/VPin.vue'
+import VPin from '@/components/ui/Button/ButtonPin.vue'
 import VNavbar from '@/components/layout/NavBar.vue'
 import SetParam from '@/helpers/setParam'
 import makeNamespace from './const/namespace.js'
@@ -73,7 +73,7 @@ const getPreview = computed(() => {
   const shortName = namespace.value.short_name || '<short_name>'
 
   if (namespace.value.is_virtual) {
-    return ''
+    return '123'
   }
 
   switch (type) {

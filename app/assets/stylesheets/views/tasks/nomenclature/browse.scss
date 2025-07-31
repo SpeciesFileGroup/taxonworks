@@ -30,7 +30,7 @@
   }
   .name {
     font-size: 18px;
-    color: #000;
+    color: var(--text-color);
   }
 
   .ui-autocomplete {
@@ -62,6 +62,12 @@
   .citations {
     .annotation__note {
       display: none;
+    }
+  }
+
+  #summary-panel {
+    [data-icon] {
+      filter: invert(0);
     }
   }
 

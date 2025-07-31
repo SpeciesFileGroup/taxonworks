@@ -13,26 +13,27 @@ headers to be used in the call. Using it will override the common headers
 <template>
   <div class="vue-autocomplete">
     <input
-      :id="inputId"
-      ref="autofocus"
-      :style="inputStyle"
-      class="vue-autocomplete-input normal-input"
       type="text"
+      ref="autofocus"
+      :id="inputId"
+      :style="inputStyle"
       :placeholder="placeholder"
-      @input="checkTime(), sendType()"
+      :autofocus="autofocus"
+      :disabled="disabled"
       v-model="type"
       v-bind="inputAttributes"
+      autocomplete="off"
+      :class="[
+        'vue-autocomplete-input normal-input',
+        spinner && 'ui-autocomplete-loading',
+        !spinner && 'vue-autocomplete-input-search',
+        inputClass
+      ]"
+      @input="checkTime(), sendType()"
       @keydown.down="downKey"
       @keydown.up="upKey"
       @keydown.enter="enterKey"
       @keyup="sendKeyEvent"
-      autocomplete="off"
-      :autofocus="autofocus"
-      :disabled="disabled"
-      :class="{
-        'ui-autocomplete-loading': spinner,
-        'vue-autocomplete-input-search': !spinner
-      }"
     />
     <ul
       class="vue-autocomplete-list"
@@ -127,11 +128,16 @@ export default {
     },
 
     time: {
-      type: String,
-      default: '500'
+      type: [String, Number],
+      default: 500
     },
 
     arrayList: {
+      type: Array,
+      default: undefined
+    },
+
+    excludedIds: {
       type: Array,
       default: undefined
     },
@@ -159,6 +165,11 @@ export default {
     param: {
       type: String,
       default: 'value'
+    },
+
+    inputClass: {
+      type: Array,
+      default: () => []
     },
 
     inputStyle: {
@@ -190,19 +201,24 @@ export default {
       type: this.sendLabel,
       json: [],
       current: -1,
-      requestId: Math.random().toString(36).substr(2, 5)
+      controller: null
     }
   },
 
   mounted() {
     if (this.autofocus) {
-      this.$refs.autofocus.focus()
+      this.$nextTick(() => {
+        this.$refs.autofocus.focus()
+      })
     }
   },
 
   watch: {
-    modelValue(newVal) {
-      this.type = newVal
+    modelValue: {
+      handler(newVal) {
+        this.type = newVal || ''
+      },
+      immediate: true
     },
     type(newVal) {
       if (this.type?.length < Number(this.min)) {
@@ -335,16 +351,25 @@ export default {
         this.showList = this.json.length > 0
       } else {
         this.spinner = true
+        this.controller?.abort()
+        this.controller = new AbortController()
+
         AjaxCall('get', this.ajaxUrl(), {
-          requestId: this.requestId,
-          headers: this.headers
+          headers: this.headers,
+          signal: this.controller.signal
         })
           .then(({ body }) => {
             this.json = this.getNested(body, this.nested)
+            if (this.excludedIds) {
+              this.json = this.json.filter(
+                (item) => !this.excludedIds.includes(item.id)
+              )
+            }
             this.showList = this.json.length > 0
             this.searchEnd = true
             this.$emit('found', this.showList)
           })
+          .catch(() => {})
           .finally(() => {
             this.spinner = false
           })

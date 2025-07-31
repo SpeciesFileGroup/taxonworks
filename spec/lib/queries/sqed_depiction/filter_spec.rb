@@ -6,7 +6,8 @@ describe Queries::SqedDepiction::Filter, type: :model, group: [:images] do
 
   specify '#collecting_event' do
     a = FactoryBot.create(:valid_sqed_depiction)
-    FactoryBot.create(:valid_sqed_depiction) # not this
+    
+    FactoryBot.create(:valid_sqed_depiction, depiction: FactoryBot.build(:valid_depiction, image: FactoryBot.create(:tiny_random_image))) # not this
 
     a.depiction.depiction_object.update!(collecting_event: FactoryBot.create(:valid_collecting_event))
 

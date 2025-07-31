@@ -8,9 +8,9 @@
       :object-type="LOAN"
       :pagination="pagination"
       v-model="parameters"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -23,6 +23,7 @@
           :list="list"
           :attributes="ATTRIBUTES"
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -39,24 +40,31 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
+import { listParser } from './utils/listParser.js'
 import { ATTRIBUTES } from './constants/attributes'
 import { Loan } from '@/routes/endpoints'
 import { LOAN } from '@/constants/index.js'
 
+const extend = ['identifiers', 'roles']
+
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
-} = useFilter(Loan)
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
+} = useFilter(Loan, {
+  initParameters: { extend },
+  listParser
+})
 </script>
 
 <script>

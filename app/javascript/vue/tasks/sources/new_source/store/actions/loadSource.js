@@ -1,6 +1,7 @@
 import { ActionNames } from './actions'
 import { MutationNames } from '../mutations/mutations'
-import { Source } from '@/routes/endpoints'
+import { Source, Documentation } from '@/routes/endpoints'
+import { SOURCE } from '@/constants'
 
 import setParam from '@/helpers/setParam'
 
@@ -18,8 +19,11 @@ export default ({ state, commit, dispatch }, id) => {
       commit(MutationNames.SetSource, source)
       dispatch(ActionNames.LoadSoftValidations, body.global_id)
 
-      Source.documentation(id).then((response) => {
-        commit(MutationNames.SetDocumentation, response.body)
+      Documentation.where({
+        documentation_object_id: id,
+        documentation_object_type: SOURCE
+      }).then(({ body }) => {
+        commit(MutationNames.SetDocumentation, body)
       })
 
       setParam('/tasks/sources/new_source', 'source_id', body.id)

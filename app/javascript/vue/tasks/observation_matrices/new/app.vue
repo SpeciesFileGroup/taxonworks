@@ -34,9 +34,9 @@
             </a>
           </li>
           <li>
-            <a href="/tasks/accessions/comprehensive/index"
-              >New collection object</a
-            >
+            <a href="/tasks/accessions/comprehensive/"
+              >New collection object
+            </a>
           </li>
           <li v-if="matrix.id && settings.sortable">
             <button
@@ -91,7 +91,7 @@
     </div>
     <div class="horizontal-left-content align-start full_width">
       <div class="cleft margin-medium-right">
-        <new-matrix />
+        <MatrixForm />
         <div
           v-if="matrix.id"
           class="margin-medium-top"
@@ -112,18 +112,19 @@
 </template>
 
 <script>
-import NewMatrix from './components/newMatrix/newMatrix'
+import MatrixForm from './components/Matrix/MatrixForm.vue'
 import TablesComponent from './components/tables/view'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
-import SpinnerComponent from '@/components/spinner'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import RadialNavigation from '@/components/radials/navigation/radial'
 
 import RowsDynamic from './components/rows/dynamic'
 import ColumnsDynamic from './components/columns/dynamic'
 
+import { URLParamsToJSON } from '@/helpers'
 import { SortMatrixByNomenclature } from './request/resources'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
@@ -133,7 +134,7 @@ export default {
   name: 'NewObservationMatrix',
 
   components: {
-    NewMatrix,
+    MatrixForm,
     RowsFixed,
     RowsDynamic,
     TablesComponent,
@@ -170,7 +171,9 @@ export default {
   },
 
   created() {
-    const matrixId = location.pathname.split('/')[4]
+    const params = URLParamsToJSON(window.location.href)
+    const matrixId =
+      location.pathname.split('/')[4] || params.observation_matrix_id
 
     if (/^\d+$/.test(matrixId)) {
       this.loading = true
@@ -207,14 +210,6 @@ export default {
     height: 65px;
     margin-top: -65px;
     visibility: hidden;
-  }
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
   }
 
   .matrix-tables {

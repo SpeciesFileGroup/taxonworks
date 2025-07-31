@@ -12,26 +12,24 @@
   </ul>
 </template>
 
-<script>
-import { Source } from '@/routes/endpoints'
+<script setup>
+import { SOURCE } from '@/constants'
+import { Tag } from '@/routes/endpoints'
+import { ref } from 'vue'
 
-export default {
-  props: {
-    sourceId: {
-      type: [String, Number]
-    }
-  },
-
-  data() {
-    return {
-      tags: []
-    }
-  },
-
-  mounted() {
-    Source.tags(this.sourceId).then((response) => {
-      this.tags = response.body
-    })
+const props = defineProps({
+  sourceId: {
+    type: [String, Number],
+    required: true
   }
-}
+})
+
+const tags = ref([])
+
+Tag.where({
+  tag_object_id: props.sourceId,
+  tag_object_type: SOURCE
+}).then((response) => {
+  tags.value = response.body
+})
 </script>

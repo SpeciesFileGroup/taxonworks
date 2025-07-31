@@ -11,16 +11,20 @@
       v-else
       v-html="item"
     />
-    <v-btn
-      color="primary"
-      circle
-      @click="emit('unset')"
-    >
-      <v-icon
-        name="trash"
-        x-small
-      />
-    </v-btn>
+    <div class="horizontal-left-content middle gap-small">
+      <slot name="options-left" />
+      <VBtn
+        color="primary"
+        circle
+        @click="emit('unset')"
+      >
+        <VIcon
+          name="trash"
+          x-small
+        />
+      </VBtn>
+      <slot name="options-right" />
+    </div>
   </div>
 </template>
 <script setup>

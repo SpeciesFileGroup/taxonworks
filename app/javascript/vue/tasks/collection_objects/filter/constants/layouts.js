@@ -4,7 +4,8 @@ import {
   DWC_OCCURRENCE_PROPERTIES,
   REPOSITORY_PROPERTIES,
   TAXON_DETERMINATION_PROPERTIES,
-  IDENTIFIER_PROPERTIES
+  IDENTIFIER_PROPERTIES,
+  CONTAINER_ITEM_PROPERTIES
 } from '@/shared/Filter/constants'
 
 export const LAYOUTS = {
@@ -16,19 +17,16 @@ export const LAYOUTS = {
       collecting_event: COLLECTING_EVENT_PROPERTIES,
       taxon_determinations: TAXON_DETERMINATION_PROPERTIES,
       dwc_occurrence: DWC_OCCURRENCE_PROPERTIES,
-      identifiers: IDENTIFIER_PROPERTIES
-    },
-    includes: {
-      data_attributes: true
+      identifiers: IDENTIFIER_PROPERTIES,
+      container: CONTAINER_ITEM_PROPERTIES,
+      data_attributes: { show: true }
     }
   },
 
   DwC: {
     properties: {
-      dwc_occurrence: DWC_OCCURRENCE_PROPERTIES
-    },
-    includes: {
-      data_attributes: false
+      dwc_occurrence: DWC_OCCURRENCE_PROPERTIES,
+      data_attributes: { show: true }
     }
   },
 
@@ -39,18 +37,16 @@ export const LAYOUTS = {
       repository: REPOSITORY_PROPERTIES,
       collecting_event: COLLECTING_EVENT_PROPERTIES,
       taxon_determinations: TAXON_DETERMINATION_PROPERTIES,
-      identifiers: IDENTIFIER_PROPERTIES
-    },
-    includes: {
-      data_attributes: true
+      identifiers: IDENTIFIER_PROPERTIES,
+      container: CONTAINER_ITEM_PROPERTIES,
+      data_attributes: { show: true }
     }
   },
 
   CollectingEvent: {
     properties: {
       collecting_event: COLLECTING_EVENT_PROPERTIES
-    },
-    includes: {}
+    }
   },
 
   LocateInCollection: {
@@ -60,15 +56,19 @@ export const LAYOUTS = {
         'preparations',
         'scientificName',
         'order',
-        'family'
+        'superfamily',
+        'family',
+        'subfamily',
+        'tribe',
+        'subtribe'
       ]
-    },
-    includes: {}
+    }
   },
 
   TaxonNames: {
     properties: {
       collection_object: ['buffered_determinations'],
+      taxon_determinations: ['otu_name'],
       dwc_occurrence: [
         'scientificName',
         'scientificNameAuthorship',
@@ -76,16 +76,19 @@ export const LAYOUTS = {
         'phylum',
         'dwcClass',
         'order',
+        'superfamily',
         'family',
+        'subfamily',
+        'tribe',
+        'subtribe',
         'genus',
         'specificEpithet',
         'infraspecificEpithet',
         'previousIdentifications',
-        'higherClassification'
-      ],
-      taxon_determinations: TAXON_DETERMINATION_PROPERTIES
-    },
-    includes: {}
+        'higherClassification',
+        'typeStatus'
+      ]
+    }
   },
 
   Place: {
@@ -108,14 +111,13 @@ export const LAYOUTS = {
       ],
       collecting_event: [
         'verbatim_locality',
-        'verbatim_latititude',
+        'verbatim_latitude',
         'verbatim_longitude',
         'verbatim_geolocation_uncertainty',
         'minimum_elevation',
         'maximum_elevation'
       ]
-    },
-    includes: {}
+    }
   },
 
   Time: {
@@ -138,8 +140,7 @@ export const LAYOUTS = {
         'min_ma'
       ],
       dwc_occurrence: []
-    },
-    includes: {}
+    }
   },
 
   Georeference: {
@@ -162,8 +163,7 @@ export const LAYOUTS = {
         'verbatim_longitude',
         'verbatim_geolocation_uncertainty'
       ]
-    },
-    includes: {}
+    }
   },
 
   Verbatim: {
@@ -179,18 +179,16 @@ export const LAYOUTS = {
         'verbatim_longitude',
         'verbatim_latitude',
         'verbatim_geolocation_uncertainty',
-        'verbatim_trip_identifier',
+        'verbatim_field_number',
         'verbatim_collectors',
         'verbatim_method',
         'verbatim_elevation',
-        'verbatim_habitat',
         'verbatim_habitat',
         'verbatim_datum',
         'verbatim_date',
         'md5_of_verbatim_label'
       ]
-    },
-    includes: {}
+    }
   },
 
   Deaccessioned: {
@@ -200,8 +198,7 @@ export const LAYOUTS = {
         'deaccessioned_at',
         'deaccession_reason'
       ]
-    },
-    includes: {}
+    }
   },
 
   Paleo: {
@@ -214,15 +211,13 @@ export const LAYOUTS = {
         'max_ma',
         'min_ma'
       ]
-    },
-    includes: {}
+    }
   },
 
   Labels: {
     properties: {
       collecting_event: ['verbatim_label', 'document_label', 'print_label']
-    },
-    includes: {}
+    }
   },
 
   People: {
@@ -237,8 +232,7 @@ export const LAYOUTS = {
         'scientificNameAuthorship',
         'georeferencedBy'
       ]
-    },
-    includes: {}
+    }
   },
 
   Identifiers: {
@@ -251,16 +245,14 @@ export const LAYOUTS = {
         'fieldNumber'
       ],
       identifiers: IDENTIFIER_PROPERTIES
-    },
-    includes: {
-      identifiers: true
     }
   },
 
   DataAttributes: {
-    properties: {},
-    includes: {
-      data_attributes: true
+    properties: {
+      data_attributes: {
+        show: true
+      }
     }
   }
 }

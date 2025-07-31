@@ -1,0 +1,32 @@
+<%= form_with(model: field_occurrence) do |form| %>
+  <% if field_occurrence.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(field_occurrence.errors.count, "error") %> prohibited this field_occurrence from being saved:</h2>
+
+      <ul>
+        <% field_occurrence.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :total %>
+    <%= form.number_field :total %>
+  </div>
+
+  <div class="field">
+    <%= form.label :collecting_event_id %>
+    <%= form.text_field :collecting_event_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :is_absent %>
+    <%= form.check_box :is_absent %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

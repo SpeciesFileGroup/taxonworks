@@ -61,17 +61,17 @@ module Queries
 
       def role_type_facet
         return nil if role_type.empty?
-        table[:type].eq_any(role_type)
+        table[:type].in(role_type)
       end
 
       def role_object_type_facet
         return nil if role_object_type.empty?
-        table[:role_object_type].eq_any(role_object_type)
+        table[:role_object_type].in(role_object_type)
       end
 
       def role_object_id_facet
         return nil if role_object_id.empty?
-        table[:role_object_id].eq_any(role_object_id)
+        table[:role_object_id].in(role_object_id)
       end
 
       def and_clauses

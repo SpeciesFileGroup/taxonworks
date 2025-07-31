@@ -1,5 +1,6 @@
 class ProtocolRelationshipsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_protocol_relationship, only: [:show, :edit, :update, :destroy]
 
@@ -98,5 +99,9 @@ class ProtocolRelationshipsController < ApplicationController
 
   def protocol_relationship_params
     params.require(:protocol_relationship).permit(:protocol_id, :protocol_relationship_object_id, :protocol_relationship_object_type, :annotated_global_entity)
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(:protocol_id, :replace_protocol_id)
   end
 end

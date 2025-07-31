@@ -1,31 +1,5 @@
 module CollectionObjectsHelper
 
-  def table_example(collection_objects)
-    cols = %i{
-      class
-      order
-      family
-      genus
-      scientificName
-      sex
-    }
-
-    tag.table do
-      tag.tr { cols.collect{|h| tag.th(h.to_s) }.join.html_safe } +
-
-      collection_objects.collect{|co|
-        tag.tr do
-          (tag.td( co.dwc_class) +
-          tag.td( co.dwc_order) +
-          tag.td( co.dwc_family) +
-          tag.td( co.dwc_genus) +
-          tag.td( co.dwc_scientific_name) +
-          tag.td( co.dwc_sex)).html_safe
-        end
-      }.join.html_safe
-    end.html_safe
-  end
-
   # Return [String, nil]
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
@@ -55,8 +29,8 @@ module CollectionObjectsHelper
     link_to(collection_object_tag(collection_object).html_safe, collection_object.metamorphosize)
   end
 
-  def collection_object_radial_tag(collection_object)
-    content_tag(:span, '', data: { 'global-id' => collection_object.to_global_id.to_s, 'collection-object-radial' => 'true'})
+  def radial_quick_forms_tag(object)
+    content_tag(:span, '', data: { "global-id": object.to_global_id.to_s, 'radial-quick-forms': 'true'})
   end
 
   def label_for_collection_object(collection_object)
@@ -64,6 +38,13 @@ module CollectionObjectsHelper
     [ 'CollectionObject ' + collection_object.id.to_s,
       identifier_list_labels(collection_object)
     ].compact.join('; ')
+  end
+
+  def label_for_collection_object_container(collection_object)
+    return nil if collection_object.nil?
+    collection_object.dwc_catalog_number ||
+      collection_object.dwc_scientific_name ||
+      collection_object.id.to_s
   end
 
   def collection_object_autocomplete_tag(collection_object)
@@ -74,6 +55,21 @@ module CollectionObjectsHelper
       collection_object_identifier_tag(collection_object),
       collection_object_taxon_determination_tag(collection_object)
     ].join(' ').html_safe
+  end
+
+  # Text only, taxon name cached or OTU name for the
+  # most recent determination
+  def collection_object_scientific_name(collection_object)
+    return nil if collection_object.nil?
+    if a = collection_object.taxon_determinations.order(:position)&.first
+      if a.otu.taxon_name
+        a.otu.taxon_name.cached
+      else
+        a.otu.name
+      end
+    else
+      nil
+    end
   end
 
   def collection_objects_search_form
@@ -109,7 +105,7 @@ module CollectionObjectsHelper
 
   def collection_object_loan_tag(collection_object)
     return nil if collection_object.nil? || !collection_object.on_loan?
-    msg = ['On Loan until', collection_object.loan_return_date].compact.join(' ')
+    msg = collection_object.loan_return_date ? 'On Loan until ' + collection_object.loan_return_date.to_s : 'Gifted'
     content_tag(:span, msg, class: [
       :feedback,
       'feedback-thin',
@@ -117,21 +113,29 @@ module CollectionObjectsHelper
     ]).html_safe
   end
 
-
   # @return [Array [Identifier, String (type)], nil]
-  #    also checks virtual container for identifier by proxy
+  #   also checks virtual container for identifier by proxy
   def collection_object_visualized_identifier(collection_object)
     return nil if collection_object.nil?
-    # Get the Identifier::Local::Catalog number on collection_object, or immediate containing Container
-    i = collection_object.preferred_catalog_number # see delegation in collection_object.rb
 
-    # Get some other identifier on collection_object
-    i ||= collection_object.identifiers.order(:position)&.first
-    return  [:collection_object, identifier_tag(i)] if i
+    # We now return the first Local identifier by default here
+    # This accomodates RecordNumber vs CatalogNumber
+    i = collection_object.identifiers.order(Arel.sql("CASE \
+              WHEN identifiers.type IN ('Identifier::Local::CatalogNumber', 'Identifier::Local::RecordNumber') THEN 0  \
+              ELSE 1                                                                                        \
+            END, \
+           identifiers.position")).select(:type, :identifier, :namespace_id, :cached).first
+
+    return [:collection_object, identifier_tag(i)] if i&.is_local?
 
     # Get some other identifier on container
-    j = collection_object&.container&.identifiers&.first
+    j = collection_object.container&.identifiers&.order(:position)&.first
     return [:container, identifier_tag(j)] if j
+
+    # Use a non local/non container if provided
+    return [:collection_object, identifier_tag(i)] if i
+    return [:container, identifier_tag(j)] if j
+
     nil
   end
 
@@ -143,7 +147,7 @@ module CollectionObjectsHelper
   end
 
   # TODO: Isolate into own helper
-  # TODO: syncronize with class methods
+  # TODO: synchronize with class methods
   def dwc_occurrence_table_header_tag
     content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error])
   end
@@ -351,4 +355,53 @@ module CollectionObjectsHelper
     }
 
   end
+
+  def table_example(collection_objects)
+    cols = %i{
+      class
+      b
+      c
+    }
+
+    tag.table do
+      tag.tr { cols.collect{|h| tag.td(h.to_s) }.join.html_safe } +
+
+      collection_objects.collect{|co|
+        tag.tr +
+          tag.td( co.dwc_class) +
+          tag.td( co.dwc_order) +
+          tag.td( co.dwc_family) +
+          tag.td( co.dwc_sex)
+
+      }.join.html_safe
+    end.html_safe
+  end
+
+  def table_example(collection_objects)
+    cols = %i{
+      class
+      order
+      family
+      genus
+      scientificName
+      sex
+    }
+
+    tag.table do
+      tag.tr { cols.collect{|h| tag.th(h.to_s) }.join.html_safe } +
+
+      collection_objects.collect{|co|
+        tag.tr do
+          (tag.td( co.dwc_class) +
+          tag.td( co.dwc_order) +
+          tag.td( co.dwc_family) +
+          tag.td( co.dwc_genus) +
+          tag.td( co.dwc_scientific_name) +
+          tag.td( co.dwc_sex)).html_safe
+        end
+      }.join.html_safe
+    end.html_safe
+  end
+
+
 end

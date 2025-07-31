@@ -1,22 +1,28 @@
 <template>
-  <th class="column-filter">
+  <th :class="['column-filter position-sticky', ignored && 'cell-ignore']">
     <div class="flex-separate middle">
-      <span v-help="`section|dwcTable|${title}`">{{ title }}</span>
-      <div
-        class="margin-small-left"
-        @keyup.esc="show = false"
-      >
-        <button
-          class="button"
-          :disabled="disabled"
-          :class="{
-            'button-data': applied,
-            'button-default': !applied
-          }"
-          @click="show = !show"
-        >
-          ▼
-        </button>
+      <span v-help:path="`section.dwcTable.${this.title}`">{{ title }}</span>
+      <div class="horizontal-right-content margin-small-left middle gap-small">
+        <div @keyup.esc="show = false">
+          <button
+            class="button"
+            :disabled="disabled"
+            :class="{
+              'button-data': applied,
+              'button-default': !applied
+            }"
+            @click="show = !show"
+          >
+            ▼
+          </button>
+        </div>
+        <VIcon
+          v-if="ignored"
+          name="attention"
+          color="attention"
+          title="This column will be ignored."
+          small
+        />
       </div>
     </div>
     <div
@@ -24,7 +30,7 @@
       class="panel content filter-container"
     >
       <div class="horizontal-left-content">
-        <autocomplete
+        <VAutocomplete
           ref="autocomplete"
           :url="`/import_datasets/${importId}/dataset_records/autocomplete_data_fields.json`"
           :add-params="{
@@ -67,14 +73,15 @@
 </template>
 
 <script>
-import Autocomplete from '@/components/ui/Autocomplete'
+import VAutocomplete from '@/components/ui/Autocomplete'
 import { GetterNames } from '../store/getters/getters'
 import ColumnMixin from './shared/columnMixin.js'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   mixins: [ColumnMixin],
 
-  components: { Autocomplete },
+  components: { VAutocomplete, VIcon },
 
   props: {
     columnIndex: {
@@ -92,6 +99,10 @@ export default {
     title: {
       type: String,
       required: true
+    },
+    ignored: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -133,7 +144,7 @@ export default {
       this.$emit('replace', {
         columnIndex: this.columnIndex,
         replaceValue: this.replace,
-        currentValue: this.value
+        currentValue: this.modelValue
       })
     }
   }

@@ -1,20 +1,26 @@
 <template>
   <div class="data_attribute_annotator">
-    <h3 v-if="!data_attributes.length">
-      <i>Set new default attributes using project preferences, or use the radial annotator.</i>
-    </h3> 
+    <h3 v-if="!dataAttributes.length">
+      <i
+        >Set new default attributes using project preferences, or use the radial
+        annotator.</i
+      >
+    </h3>
     <template v-else>
       <div class="field separate-bottom separate-top">
-        <template v-for="(predicate, index) in data_attributes">
-          <div class="field">
+        <template
+          v-for="(item, index) in dataAttributes"
+          :key="item.controlled_vocabulary_term_id"
+        >
+          <div class="field label-above">
             <label>
               {{ defaultPredicates[index].name }}
             </label>
-            <br>
             <input
               class="full_width"
-              v-model="predicate.value"
-              type="text">
+              v-model="item.value"
+              type="text"
+            />
           </div>
         </template>
       </div>
@@ -23,104 +29,112 @@
         <button
           @click="createNew()"
           class="button button-submit normal-input separate-bottom"
-          type="button">Create
+          type="button"
+        >
+          Create
         </button>
       </div>
     </template>
 
-    <table-list
+    <TableList
       :list="list"
       :header="['Name', 'Value', '']"
       :attributes="['predicate_name', 'value']"
-      :edit="true"
       target-citations="data_attributes"
-      @edit="data_attribute = $event"
-      @delete="removeItem"/>
+      @edit="(item) => (dataAttribute = item)"
+      @delete="removeItem"
+    />
   </div>
 </template>
-<script>
 
-import CRUD from '../../request/crud.js'
-import AnnotatorExtend from '../../components/annotatorExtend.js'
-import TableList from '../shared/tableList'
+<script setup>
+import { computed, ref } from 'vue'
+import {
+  DataAttribute,
+  ControlledVocabularyTerm,
+  Project
+} from '@/routes/endpoints'
+import TableList from '@/components/radials/annotator/components/shared/tableList.vue'
+import { PREDICATE } from '@/constants'
+import { removeFromArray } from '@/helpers'
 
-export default {
-  mixins: [CRUD, AnnotatorExtend],
-
-  components: { TableList },
-
-  computed: {
-    defaultPredicates () {
-      return this.predicates.filter(item => this.customPredicate.find(predicateId => predicateId === item.id))
-    }
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  data () {
-    return {
-      preferences: undefined,
-      customPredicate: [],
-      predicates: [],
-      data_attributes: []
-    }
-  },
+  objectType: {
+    type: String,
+    required: true
+  }
+})
 
-  mounted () {
-    this.loadTabList()
-  },
+const emit = defineEmits(['update-count'])
 
-  methods: {
-    newData () {
-      return {
-        type: 'InternalAttribute',
-        controlled_vocabulary_term_id: undefined,
-        value: '',
-        annotated_global_entity: decodeURIComponent(this.globalId)
-      }
-    },
+const customPredicate = ref([])
+const predicates = ref([])
+const dataAttributes = ref([])
+const list = ref([])
 
-    createNew () {
-      const promises = []
-      const data = this.data_attributes.filter(item => item.value.trim().length)
+const defaultPredicates = computed(() =>
+  predicates.value.filter((item) => customPredicate.value.includes(item.id))
+)
 
-      data.forEach(item => {
-        promises.push(this.create('/data_attributes', { data_attribute: item }).then(response => {
-          this.list.push(response.body)
-        }))
-      })
+loadTabList()
 
-      Promise.all(promises).then(() => {
-        this.createFields()
-      })
-    },
-
-    predicateAlreadyCreated (predicate) {
-      return this.list.find(item => predicate.id ===item.controlled_vocabulary_term_id)
-    },
-
-    loadTabList () {
-      const promises = []
-
-      promises.push(this.getList('/controlled_vocabulary_terms.json?type[]=Predicate').then(response => {
-        this.predicates = response.body
-      }))
-
-      promises.push(this.getList('/project_preferences.json').then(response => {
-        this.customPredicate = response.body.model_predicate_sets[this.metadata.object_type] || []
-      }))
-
-      Promise.all(promises).then(() => {
-        this.createFields()
-      })
-    },
-
-    createFields () {
-      this.data_attributes = []
-      this.defaultPredicates.forEach(item => {
-        const data = this.newData()
-        data.controlled_vocabulary_term_id = item.id
-        this.data_attributes.push(data)
-      })
-    }
+function makeDataAttribute() {
+  return {
+    type: 'InternalAttribute',
+    controlled_vocabulary_term_id: undefined,
+    value: '',
+    attribute_subject_id: props.objectId,
+    attribute_subject_type: props.objectType
   }
 }
+
+function createNew() {
+  const data = dataAttributes.value.filter((item) => item.value.trim().length)
+  const promises = data.map((item) =>
+    DataAttribute.create({ data_attribute: item })
+  )
+
+  Promise.all(promises).then((responses) => {
+    list.value.push(...responses.map((r) => r.body))
+    emit('update-count', list.value.length)
+    createFields()
+  })
+}
+
+async function loadTabList() {
+  customPredicate.value =
+    (await Project.preferences()).body.model_predicate_sets[props.objectType] ||
+    []
+  predicates.value = (
+    await ControlledVocabularyTerm.all({ type: [PREDICATE] })
+  ).body
+
+  createFields()
+}
+
+function createFields() {
+  dataAttributes.value = defaultPredicates.value.map((item) => ({
+    ...makeDataAttribute(),
+    controlled_vocabulary_term_id: item.id
+  }))
+}
+
+function removeItem(item) {
+  DataAttribute.destroy(item.id)
+
+  removeFromArray(list.value, item)
+  emit('update-count', list.value.length)
+}
+
+DataAttribute.where({
+  attribute_subject_id: props.objectId,
+  attribute_subject_type: props.objectType
+}).then(({ body }) => {
+  list.value = body
+})
 </script>

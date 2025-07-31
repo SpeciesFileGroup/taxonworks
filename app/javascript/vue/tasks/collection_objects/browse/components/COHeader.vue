@@ -4,7 +4,10 @@
       v-if="collectionObject.id"
       class="flex-separate middle"
     >
-      <span v-html="collectionObject.objectTag" />
+      <div class="horizontal-left-content middle gap-small">
+        <span v-html="collectionObject.objectTag" />
+        <DwcReindexWarning />
+      </div>
       <div class="horizontal-right-content">
         <ul class="context-menu">
           <li>
@@ -14,7 +17,12 @@
             <BrowseOTU :otu="otu" />
           </li>
           <li>
-            <RadialAnnotator :global-id="collectionObject.globalId" />
+            <RadialAnnotator
+              :global-id="collectionObject.globalId"
+              @create="handleRadialCreate"
+              @delete="handleRadialDelete"
+              @update="handleRadialUpdate"
+            />
           </li>
           <li>
             <RadialObject :global-id="collectionObject.globalId" />
@@ -49,9 +57,13 @@
 </template>
 
 <script setup>
+import { addToArray, removeFromArray } from '@/helpers'
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { DEPICTION, IDENTIFIER, COLLECTION_OBJECT } from '@/constants'
+import { RouteNames } from '@/routes/routes'
 import VBtn from '@/components/ui/VBtn'
 import VIcon from '@/components/ui/VIcon'
 import NavBar from '@/components/layout/NavBar.vue'
@@ -62,7 +74,7 @@ import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialFilter from '@/components/radials/linker/radial.vue'
 import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
 import BrowseOTU from '@/components/otu/otu.vue'
-import { RouteNames } from '@/routes/routes'
+import DwcReindexWarning from './DwcReindexWarning.vue'
 
 const store = useStore()
 const collectionObject = computed(
@@ -77,5 +89,39 @@ const otu = computed(() => {
 
 const openComprehenseive = (id) => {
   window.open(`${RouteNames.DigitizeTask}?collection_object_id=${id}`, '_self')
+}
+
+function handleRadialCreate({ item }) {
+  switch (item.base_class) {
+    case DEPICTION:
+      addToArray(store.state.depictions.list, item)
+      break
+
+    case IDENTIFIER:
+      store.commit(MutationNames.AddIdentifier, {
+        objectType: COLLECTION_OBJECT,
+        item
+      })
+      break
+  }
+}
+
+function handleRadialDelete({ item }) {
+  switch (item.base_class) {
+    case DEPICTION:
+      removeFromArray(store.state.depictions.list, item)
+      break
+    case IDENTIFIER:
+      removeFromArray(store.state.identifiers[COLLECTION_OBJECT], item)
+      break
+  }
+}
+
+function handleRadialUpdate({ item }) {
+  switch (item.base_class) {
+    case DEPICTION:
+      addToArray(store.state.depictions.list, item)
+      break
+  }
 }
 </script>

@@ -18,7 +18,7 @@
       </a>
       <div class="horizontal-right-content gap-small">
         <placement-component
-          @created="$emit('placement', item)"
+          @create="emit('placement', item)"
           :combination="item"
         />
         <confidence-button :global-id="item.global_id" />
@@ -26,7 +26,7 @@
         <v-btn
           color="update"
           circle
-          @click="$emit('edit', Object.assign({}, item))"
+          @click="emit('edit', Object.assign({}, item))"
         >
           <v-icon
             x-small
@@ -38,7 +38,7 @@
         <v-btn
           color="destroy"
           circle
-          @click="$emit('delete', item)"
+          @click="emit('delete', item)"
         >
           <v-icon
             x-small
@@ -51,35 +51,24 @@
     </li>
   </transition-group>
 </template>
-<script>
+
+<script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import PlacementComponent from './placement.vue'
-import ConfidenceButton from '@/components/defaultConfidence'
+import ConfidenceButton from '@/components/ui/Button/ButtonConfidence'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
-export default {
-  components: {
-    RadialAnnotator,
-    PlacementComponent,
-    ConfidenceButton,
-    VBtn,
-    VIcon
-  },
-
-  props: {
-    list: {
-      type: Array,
-      default: () => []
-    }
-  },
-
-  emits: ['placement', 'edit', 'delete'],
-
-  methods: {
-    composeName(taxon) {
-      return `${taxon.cached_html} ${taxon.cached_author_year || ''}`
-    }
+defineProps({
+  list: {
+    type: Array,
+    default: () => []
   }
+})
+
+const emit = defineEmits(['placement', 'edit', 'delete'])
+
+function composeName(taxon) {
+  return `${taxon.cached_html} ${taxon.cached_author_year || ''}`
 }
 </script>

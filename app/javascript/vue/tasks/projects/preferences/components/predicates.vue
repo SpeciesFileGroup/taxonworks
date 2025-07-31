@@ -1,6 +1,9 @@
 <template>
   <div>
     <h2>Attributes (predicates) to include</h2>
+    <div class="margin-small-bottom">
+      * Drag the predicates to change their order in the list.
+    </div>
     <draggable
       class="no_bullets"
       tag="ul"
@@ -18,8 +21,11 @@
               v-model="selected"
               :disabled="!model"
               @change="updateList"
-            >
-            <span v-html="element.object_tag" />
+            />
+            <span
+              class="cursor-grab"
+              v-html="element.object_tag"
+            />
           </label>
         </li>
       </template>
@@ -28,7 +34,6 @@
 </template>
 
 <script setup>
-
 import Draggable from 'vuedraggable'
 import { ref, watch } from 'vue'
 
@@ -49,16 +54,15 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update',
-  'sort'
-])
+const emit = defineEmits(['update', 'sort'])
 
 const selected = ref([])
 
 watch(
   () => props.modelList,
-  newVal => { selected.value = newVal }
+  (newVal) => {
+    selected.value = newVal
+  }
 )
 
 const updateList = () => {
@@ -67,5 +71,4 @@ const updateList = () => {
     predicate_index: props.list.map(({ id }) => id)
   })
 }
-
 </script>

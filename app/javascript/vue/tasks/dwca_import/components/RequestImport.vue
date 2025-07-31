@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import { disableStatus } from '../const/datasetStatus.js'
@@ -70,7 +70,7 @@ export default {
       }
     }
   },
-  destroyed() {
+  unmounted() {
     clearTimeout(this.countdownProcess)
   }
 }

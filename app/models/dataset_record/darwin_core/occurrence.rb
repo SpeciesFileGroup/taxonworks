@@ -1,15 +1,83 @@
+# TODO: There are numerous very long methods here, we really need to break out logical chunks so that we can
+#   a) better atomize and test the expecatations
+#   b) interpret and document the behaviour of the importer
+#
+# See app/javascript/vue/tasks/dwca_import/components/settings/Occurrences/OccurrenceSettings.vue for UI defined parameters
+#
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
+  SUPPORTED_DWC_TERMS = %w{
+    basisOfRecord
+    catalogNumber
+    class
+    collectionCode
+    coordinateUncertaintyInMeters
+    country
+    countryCode
+    county
+    dateIdentified
+    day
+    decimalLatitude
+    decimalLongitude
+    endDayOfYear
+    eventDate
+    eventID
+    eventRemarks
+    eventTime
+    family
+    fieldNotes
+    fieldNumber
+    genus
+    geodeticDatum
+    georeferencedBy
+    georeferenceRemarks
+    habitat
+    higherClassification
+    identificationQualifier
+    identificationRemarks
+    identifiedBy
+    individualCount
+    institutionCode
+    kingdom
+    maximumElevationInMeters
+    minimumElevationInMeters
+    month
+    nomenclaturalCode
+    occurrenceID
+    occurrenceRemarks
+    order
+    phylum
+    preparations
+    recordedBy
+    recordNumber
+    samplingProtocol
+    scientificName
+    scientificNameAuthorship
+    sex
+    startDayOfYear
+    stateProvince
+    subfamily
+    subtribe
+    superfamily
+    taxonRank
+    tribe
+    type
+    typeStatus
+    verbatimElevation
+    verbatimEventDate
+    verbatimLocality
+    year
+  }
 
-  DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order family} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
-  PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies)
+  DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order superfamily family subfamily tribe subtribe}.freeze # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
+  PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies).freeze
 
   ACCEPTED_ATTRIBUTES = {
-    :CollectionObject => %I(
+    CollectionObject: %I(
       buffered_collecting_event buffered_determinations buffered_other_labels
       total
     ).to_set.freeze,
 
-    :CollectingEvent => %I(
+    CollectingEvent: %I(
       document_label print_label verbatim_label
       field_notes formation
       group
@@ -18,7 +86,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       start_date_day start_date_month start_date_year end_date_day end_date_month end_date_year
       time_end_hour time_end_minute time_end_second time_start_hour time_start_minute time_start_second
       verbatim_collectors verbatim_date verbatim_datum verbatim_elevation verbatim_geolocation_uncertainty verbatim_habitat
-      verbatim_latitude verbatim_locality verbatim_longitude verbatim_method verbatim_trip_identifier
+      verbatim_latitude verbatim_locality verbatim_longitude verbatim_method verbatim_field_number
     ).to_set.freeze
   }.freeze
 
@@ -38,6 +106,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       protonym
     end
 
+    # rubocop:disable Metric/MethodLength
+
+    # @param [Protonym] parent
+    # @return [Protonym, nil]
     def get_protonym(parent, name)
       name = name.except(:rank_class) if name[:rank_class].nil?
 
@@ -49,15 +121,35 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         # if multiple potential protonyms, this is a homonym situation
         if potential_protonyms.count > 1
           # verbatim author field (if present) applies to finest name only
-          if name[:verbatim_author]
-            # if only one result, everything's ok. Safe to take it as the protonym
-            if potential_protonyms.where(verbatim_author: name[:verbatim_author]).count == 1
-              potential_protonyms = potential_protonyms.where(verbatim_author: name[:verbatim_author])
+          if (cached_author = name[:verbatim_author])
+            # remove surrounding parentheses if present
+            if cached_author.start_with?('(') && cached_author.end_with?(')')
+              cached_author = cached_author.delete_prefix('(').delete_suffix(')')
+              potential_protonyms_narrowed = potential_protonyms.is_not_original_name
             else
+              potential_protonyms_narrowed = potential_protonyms.is_original_name
+            end
+
+            potential_protonyms_narrowed = potential_protonyms_narrowed.where(cached_author:)
+
+            if name[:year_of_publication]
+              potential_protonyms_narrowed = potential_protonyms_narrowed.where(year_of_publication: name[:year_of_publication])
+            end
+
+            # if only one result, everything's ok. Safe to take it as the protonym
+            if potential_protonyms_narrowed.count == 1
+              potential_protonyms = potential_protonyms_narrowed
+            elsif potential_protonyms_narrowed.count == 0
               potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
+              error_message =
+                ["Multiple matches found for name #{name[:name]}, rank #{name[:rank_class]}, parent #{parent.id} #{parent.cached_html_name_and_author_year}: #{potential_protonym_strings}",
+                 "No names matched author name #{name[:verbatim_author]}#{(', year ' + name[:year_of_publication].to_s) if name[:year_of_publication]}: "]
+              raise DatasetRecord::DarwinCore::InvalidData.new({ 'scientificName' => error_message })
+            else
+              potential_protonym_strings = potential_protonyms_narrowed.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }.join(', ')
               raise DatasetRecord::DarwinCore::InvalidData.new(
-                  { "scientificName" => ["Multiple matches found for name #{name[:name]} and verbatim author #{name[:verbatim_author]}: #{potential_protonym_strings}"] }
-                )
+                { 'scientificName' => ["Multiple matches found for name #{name[:name]} and author name #{name[:verbatim_author]}, year #{name[:year_of_publication]}: #{potential_protonym_strings}"] }
+              )
             end
           else
             # for intermediate homonyms, skip it, we don't have any info
@@ -70,27 +162,40 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         # Protonym might not exist, or might have intermediate parent not listed in file
         # if it exists, run more expensive query to see if it has an ancestor matching parent name and rank
         if p.nil? && Protonym.where(name.slice(:rank_class).merge({ field => name[:name] })).where(project_id: parent.project_id).exists?
-          potential_protonyms = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent)
+          if (cached_author = name[:verbatim_author])
+            # remove surrounding parentheses if present
+            if cached_author.start_with?('(') && cached_author.end_with?(')')
+              cached_author = cached_author.delete_prefix('(').delete_suffix(')')
+            end
+          end
+
+          potential_protonyms = Protonym.where(name.slice(:rank_class, :year_of_publication).merge({ field => name[:name], cached_author: }).compact).with_ancestor(parent)
           if potential_protonyms.count > 1
             return parent
-            # potential_protonym_strings = potential_protonyms.map { |proto| "[id: #{proto.id} #{proto.cached_html_name_and_author_year}]" }
-            # raise DatasetRecord::DarwinCore::InvalidData.new(
-            #   { "scientificName" => ["Intermediate name not present, and multiple matches found: #{potential_protonym_strings.join(', ')}"] }
-            # )
           end
           p = potential_protonyms.first
+
           # check parent.cached_valid_taxon_name_id if not valid, can have obsolete subgenus Aus (Aus) bus -> Aus bus, bus won't have ancestor (Aus)
           if p.nil? && !parent.cached_is_valid
             p = Protonym.where(name.slice(:rank_class).merge!({ field => name[:name] })).with_ancestor(parent.valid_taxon_name).first
           end
 
         end
+
+        if p&.cached_misspelling && p.has_misspelling_relationship?
+          correct_spelling = TaxonNameRelationship.where_subject_is_taxon_name(p)
+                                                  .with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY)
+                                                  .first&.object_taxon_name
+          if correct_spelling&.values_at(:name, :masculine_name, :feminine_name, :neuter_name).include?(name[:name])
+            return correct_spelling
+          end
+        end
         p
       end
     end
     class CreateIfNotExists < ImportProtonym
       def get_protonym(parent, name)
-        super || Protonym.create({parent: parent, also_create_otu: true}.merge!(name))
+        super || Protonym.create({parent:, also_create_otu: true}.merge!(name))
       end
 
       def exception_args(origins, parent, name, protonym)
@@ -112,11 +217,29 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
   end
 
+  def get_mapped_fields(dwc_data_attributes = {})
+    project_dwc_data_attributes = dwc_data_attributes.slice('CollectingEvent', 'CollectionObject')
+      .values.map(&:keys).flatten
+      .map { |f| get_field_mapping(f) }.compact
+    tw_namespaces = %w(catalogNumber eventID fieldNumber recordNumber).map { |f| get_field_mapping("TW:Namespace:#{f}") }.compact
+    tw_data = (
+      get_tw_biocuration_groups +
+      get_tw_data_attribute_fields_for('CollectionObject') +
+      get_tw_data_attribute_fields_for('CollectingEvent') +
+      get_tw_fields_for('CollectionObject') +
+      get_tw_fields_for('CollectingEvent') +
+      get_tw_tag_fields_for('CollectionObject') +
+      get_tw_tag_fields_for('CollectingEvent')
+    ).map { |f| get_field_mapping(f[:field]) }.compact
+
+    (super + project_dwc_data_attributes + tw_namespaces + tw_data).uniq.sort
+  end
+
   def import(dwc_data_attributes = {})
     super
     begin
       DatasetRecord.transaction(requires_new: true) do
-        self.metadata.delete("error_data")
+        self.metadata.delete('error_data')
 
         names, origins = parse_taxon_class
         strategy = self.import_dataset.restrict_to_existing_nomenclature? ? ImportProtonym.match_existing : ImportProtonym.create_if_not_exists
@@ -157,7 +280,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           (attributes.dig(:specimen, :biocuration_classifications) || [])
         )
 
-        specimen = Specimen.create!({
+        collection_object = (attributes.dig(:specimen, :total) == '1' ? Specimen : Lot).create!({
           no_dwc_occurrence: true
         }.merge!(attributes[:specimen]))
 
@@ -166,7 +289,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           type_material = TypeMaterial.new(
             {
               protonym: innermost_protonym,
-              collection_object: specimen,
+              collection_object: collection_object,
             }.merge!(attributes[:type_material])) # protoynm can be overwritten in type_materials hash if OC did not match scientific name / innermost_protonym
 
           if self.import_dataset.require_type_material_success? # raise error if validations fail and it cannot be imported
@@ -177,12 +300,32 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           end
         end
 
+        if record_number = get_field_value(:recordNumber)
+          record_number_namespace = get_field_value('TW:Namespace:recordNumber')
+          identifier_attributes = {
+            identifier: record_number,
+            project_id: Current.project_id
+          }
+
+          record_number_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(record_number_namespace)) # Case insensitive match
+          raise DarwinCore::InvalidData.new({ 'TW:Namespace:recordNumber' => ['Namespace not found'] }) unless record_number_namespace
+
+          identifier_attributes[:namespace] = record_number_namespace
+          identifier = Identifier::Local::RecordNumber
+            .create_with(identifier_object: collection_object, annotator_batch_mode: true)
+            .find_or_create_by!(identifier_attributes)
+
+          unless identifier.identifier_object == collection_object
+            raise DarwinCore::InvalidData.new({ 'recordNumber' => ['Is already in use'] })
+          end
+        end
+
         if attributes.dig(:catalog_number, :identifier)
           namespace = attributes.dig(:catalog_number, :namespace)
           delete_namespace_prefix!(attributes.dig(:catalog_number, :identifier), namespace)
 
           identifier = Identifier::Local::CatalogNumber
-            .create_with(identifier_object: specimen, annotator_batch_mode: true)
+            .create_with(identifier_object: collection_object, annotator_batch_mode: true)
             .find_or_create_by!(attributes[:catalog_number])
 
           # if desired, ensure that cached CO identifier will match verbatim catalogNumber
@@ -191,19 +334,21 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             identifier.cached != get_field_value(:catalogNumber)
 
             error_message = "Computed catalog number #{identifier.cached} will not match verbatim #{get_field_value(:catalogNumber)}. "\
-                            "Verify the mapped namespace and namespace delimiter are correct."
-            raise DarwinCore::InvalidData.new({"catalogNumber" => [error_message]})
+                            'Verify the mapped namespace and namespace delimiter are correct.'
+            raise DarwinCore::InvalidData.new({'catalogNumber' => [error_message]})
           end
 
           object = identifier.identifier_object
 
-          unless object == specimen
-            raise DarwinCore::InvalidData.new({ "catalogNumber" => ["Is already in use"] }) unless self.import_dataset.containerize_dup_cat_no?
+          unless object == collection_object
+            unless record_number || self.import_dataset.containerize_dup_cat_no?
+              raise DarwinCore::InvalidData.new({ 'catalogNumber' => ['Is already in use'] })
+            end
             if object.is_a?(Container)
-              object.add_container_items([specimen])
+              object.add_container_items([collection_object])
             else
               identifier.update!(
-                identifier_object: Container::Virtual.containerize([object, specimen])
+                identifier_object: Container::Virtual.containerize([object, collection_object])
               )
             end
           end
@@ -211,20 +356,29 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         Identifier::Local::Import::Dwc.create!(
           namespace: import_dataset.get_core_record_identifier_namespace,
-          identifier_object: specimen,
+          identifier_object: collection_object,
           identifier: get_field_value(:occurrenceID),
           annotator_batch_mode: true
         ) unless get_field_value(:occurrenceID).nil? || import_dataset.get_core_record_identifier_namespace.nil?
 
-        specimen.taxon_determinations.create!({
+        collection_object.taxon_determinations.create!({
           otu: innermost_otu || innermost_protonym.otus.find_by(name: nil) || innermost_protonym.otus.first # TODO: Might require select-and-confirm functionality
         }.merge(attributes[:taxon_determination]))
 
-        event_id = get_field_value(:eventID)
-        unless event_id.nil?
-          namespace = get_field_value('TW:Namespace:eventID')
 
-          identifier_type = Identifier::Global.descendants.detect { |c| c.name.downcase == namespace.downcase } if namespace
+        #   There are 3 possible CE identifiers, each needs individual mapping
+        #     eventID -> Identifier::Local::Event (with TW:Namespace:eventID)
+        #     fieldNumber -> Identifier::Local::FieldNumber (with TW:Namespace:fieldNumber)
+        #     TW::CollectingEvent::verbatim_field_number
+        #
+        event_id, field_number = get_field_value(:eventID), get_field_value(:fieldNumber)
+        collecting_event_identifiers = []
+        if event_id.present?
+          event_id_namespace = get_field_value('TW:Namespace:eventID')
+
+          # TODO: Shouldn't this be local?!
+          identifier_type = Identifier::Global.descendants.detect { |c| c.name.downcase == event_id_namespace.downcase } if event_id_namespace
+
           identifier_attributes = {
             identifier: event_id,
             identifier_object_type: 'CollectingEvent',
@@ -232,35 +386,64 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           }
 
           if identifier_type.nil?
-            identifier_type = Identifier::Local::TripCode # TODO: Or maybe Identifier::Local::Import?
+            identifier_type = Identifier::Local::Event # Note: This was TripCode.  This is a much better fit now, as EventID is a digital accession value.
 
             using_default_event_id = false
-            if namespace.nil?
-              namespace = import_dataset.get_event_id_namespace
+            if event_id_namespace.nil?
+              event_id_namespace = import_dataset.get_event_id_namespace
               using_default_event_id = true
             else
-              namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(namespace)) # Case insensitive match
-              raise DarwinCore::InvalidData.new({ "TW:Namespace:eventID" => ["Namespace not found"] }) unless namespace
+              event_id_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(event_id_namespace)) # Case insensitive match
+              raise DarwinCore::InvalidData.new({ 'TW:Namespace:eventID' => ['Namespace not found'] }) unless event_id_namespace
             end
 
-            identifier_attributes[:namespace] = namespace
+            identifier_attributes[:namespace] = event_id_namespace
 
-            delete_namespace_prefix!(event_id, namespace)
+            delete_namespace_prefix!(event_id, event_id_namespace)
 
             if !using_default_event_id && self.import_dataset.require_tripcode_match_verbatim?
-              if (cached_identifier = Identifier::Local.build_cached_prefix(namespace) + event_id) != get_field_value(:eventID)
-                error_message = "Computed TripCode #{cached_identifier} will not match verbatim #{get_field_value(:eventID)}. "\
-                            "Verify the namespace delimiter is correct." # TODO include link to namespace?
-                raise DarwinCore::InvalidData.new({"eventID" => [error_message]})
+              if (cached_identifier = Identifier::Local.build_cached_prefix(event_id_namespace) + event_id) != get_field_value(:eventID)
+                error_message = "Computed Event #{cached_identifier} will not match verbatim #{get_field_value(:eventID)}. "\
+                            'Verify the namespace delimiter is correct.' # TODO include link to namespace?
+                raise DarwinCore::InvalidData.new({'eventID' => [error_message]})
               end
             end
           end
 
-          collecting_event = identifier_type.find_by(identifier_attributes)&.identifier_object
+          event_id_identifier = identifier_type.find_by(identifier_attributes)
+          collecting_event = event_id_identifier&.identifier_object
+          collecting_event_identifiers << {type: identifier_type, attributes: identifier_attributes}
+        end
+
+        if field_number.present?
+          field_number_namespace = get_field_value('TW:Namespace:fieldNumber')
+
+          identifier_attributes = {
+            identifier: field_number,
+            identifier_object_type: 'CollectingEvent',
+            project_id: Current.project_id
+          }
+
+          field_number_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(field_number_namespace)) # Case insensitive match
+          raise DarwinCore::InvalidData.new({ 'TW:Namespace:fieldNumber' => ['Namespace not found'] }) unless field_number_namespace
+
+          identifier_attributes[:namespace] = field_number_namespace
+
+          field_number_identifier = Identifier::Local::FieldNumber.find_by(identifier_attributes)
+          collecting_event ||= field_number_identifier&.identifier_object
+          collecting_event_identifiers << {type: Identifier::Local::FieldNumber, attributes: identifier_attributes}
         end
 
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
         if collecting_event
+          if field_number_identifier && event_id_identifier &&
+            field_number_identifier.identifier_object != event_id_identifier.identifier_object
+            raise DarwinCore::InvalidData.new({ 'eventID/fieldNumber' => ['eventId and fieldNumber refer to different collecting events'] })
+          elsif (field_number_identifier && event_id) || (event_id_identifier && field_number)
+            raise DarwinCore::InvalidData.new({ 'eventID/fieldNumber' => ['does not match previous definition of collecting event'] })
+          end
+
+          # if collecting_event.identifiers.where(type: Identifer::Local::FieldNumber)
           # if tags have been specified to be added, update the collecting event
           if attributes[:collecting_event][:tags_attributes]
             # get list of preexisting tags, exclude them from update
@@ -275,19 +458,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             end
           end
 
-          specimen.update!(collecting_event: collecting_event)
+          collection_object.update!(collecting_event:)
         else
           collecting_event = CollectingEvent.create!({
-            collection_objects: [specimen],
+            collection_objects: [collection_object],
             no_dwc_occurrence: true,
             no_cached: true
           }.merge!(attributes[:collecting_event]))
 
-          identifier_type.create!({
-            identifier_object: collecting_event,
-            annotator_batch_mode: true
-          }.merge!(identifier_attributes)) unless identifier_attributes.nil?
-
+          collecting_event_identifiers.each do |identifier|
+            identifier[:type].create!({
+              identifier_object: collecting_event,
+              annotator_batch_mode: true
+            }.merge!(identifier[:attributes]))
+          end
           has_shape = self.import_dataset.metadata.dig('import_settings', 'require_geographic_area_has_shape')
           data_origin = self.import_dataset.metadata.dig('import_settings', 'geographic_area_data_origin')
           disable_recursive_search = self.import_dataset.metadata.dig('import_settings', 'require_geographic_area_exact_match')
@@ -297,8 +481,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
           if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
             Georeference::VerbatimData.create!({
-              collecting_event: collecting_event,
-              error_radius: get_field_value("coordinateUncertaintyInMeters"),
+              collecting_event:,
+              error_radius: get_field_value('coordinateUncertaintyInMeters'),
               no_cached: true
             }.merge(attributes[:georeference]))
           end
@@ -318,7 +502,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           location_levels = [county, state_province, country].compact
 
           if require_ga_found && location_levels.size > 0
-            location_hash = {county: county, state_province: state_province, country: country, country_code: country_code}
+            location_hash = {county:, state_province:, country:, country_code:}
             should_check_ga_exists = true
           end
 
@@ -334,32 +518,32 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           end
 
           if should_check_ga_exists && geographic_areas.size == 0
-            levels = location_hash.to_a.filter{|_,v| !v.nil?}.map { |k,v| "#{k.to_s}:#{v}"}
+            levels = location_hash.to_a.filter{|_,v| !v.nil?}.map { |k,v| "#{k}:#{v}"}
             error_message = "GeographicArea with location levels #{levels.join(", ")} not found."
-            raise DarwinCore::InvalidData.new({"country, stateProvince, county" => [error_message]})
+            raise DarwinCore::InvalidData.new({'country, stateProvince, county' => [error_message]})
           end
 
           collecting_event.geographic_area_id = geographic_areas[0].id if geographic_areas.size > 0
           collecting_event.save!
         end
 
-        DwcOccurrenceUpsertJob.perform_later(specimen)
+        DwcOccurrenceUpsertJob.perform_later(collection_object)
 
-        self.metadata["imported_objects"] = { collection_object: { id: specimen.id } }
-        self.status = "Imported"
+        self.metadata['imported_objects'] = { collection_object: { id: collection_object.id } }
+        self.status = 'Imported'
       end
     rescue DarwinCore::InvalidData => invalid
-      self.status = "Errored"
-      self.metadata["error_data"] = { messages: invalid.error_data }
+      self.status = 'Errored'
+      self.metadata['error_data'] = { messages: invalid.error_data }
     rescue ActiveRecord::RecordInvalid => invalid
-      self.status = "Errored"
-      self.metadata["error_data"] = {
+      self.status = 'Errored'
+      self.metadata['error_data'] = {
         messages: invalid.record.errors.messages
       }
     rescue StandardError => e
       raise if Rails.env.development?
-      self.status = "Failed"
-      self.metadata["error_data"] = {
+      self.status = 'Failed'
+      self.metadata['error_data'] = {
         exception: {
           message: e.message,
           backtrace: e.backtrace
@@ -372,23 +556,37 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     self
   end
 
+
+  def extract_event_identifier_params()
+    # TODO: Extract logic here for shorter main loop
+  end
+
+  def extract_field_number_identifier_params()
+    # TODO: Extract logic here for shorter main loop
+  end
+
+
+  #rubocop:enable Metrics/MethodLength
+
   private
 
   def term_value_changed(name, value)
     if ['institutioncode', 'collectioncode', 'catalognumber', 'basisofrecord'].include?(name.downcase) and self.status != 'Imported'
-      ready = get_field_value('catalogNumber').blank?
+      ready = get_field_value('catalogNumber').blank? || get_field_value('TW:Namespace:catalogNumber').present?
       ready ||= !!self.import_dataset.get_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
 
-      self.metadata.delete("error_data")
+      self.metadata.delete('error_data')
       if ready
         self.status = 'Ready'
       else
         self.status = 'NotReady'
-        self.metadata["error_data"] = { messages: { catalogNumber: ["Record cannot be imported until namespace is set, see \"Settings\"."] } }
+        self.metadata['error_data'] = { messages: { catalogNumber: ['Record cannot be imported until namespace is set, see "Settings".'] } }
       end
+
 
       self.import_dataset.add_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
       self.import_dataset.add_catalog_number_collection_code_namespace(get_field_value('collectionCode'))
+
 
       self.save!
     end
@@ -397,7 +595,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   def get_integer_field_value(field_name)
     value = get_field_value(field_name)
 
-    unless value.blank?
+    if value.present?
       begin
         raise unless /^\s*(?<integer>[+-]?\d+)\s*$/ =~ value
         value = integer.to_i
@@ -431,11 +629,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       elsif possible_organizations.count > 1
         matching_orgs = possible_organizations.map do |o|
           str = "[id:#{o.id} #{o.name}"
-          unless o.alternate_name.blank?
+          if o.alternate_name.present?
             str << " (AKA: #{o.alternate_name})"
           end
-          str << "]"
-        end.join(", ")
+          str << ']'
+        end.join(', ')
         # TODO how should the user disambiguate which organization they are referring to?
         raise DarwinCore::InvalidData.new({ field_name => ["Multiple organizations matched name or alternate name '#{org_name}': #{matching_orgs}"] })
       end
@@ -452,7 +650,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     Person.transaction(requires_new: true) do
       DwcAgent.parse(get_field_value(field_name)).map! { |n| DwcAgent.clean(n) }.map! do |name|
         attributes = {
-          last_name: [name[:particle], name[:family]].compact.join(" "),
+          last_name: [name[:particle], name[:family]].compact.join(' '),
           first_name: name[:given],
           suffix: name[:suffix],
           prefix: name[:title] || name[:appellation]
@@ -492,6 +690,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     result
   end
 
+
+
   # Remove the namespace short name and delimiter from start of string.
   #
   # If the namespace has a verbatim_short_name, that is removed instead of the short_name.
@@ -501,6 +701,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   def delete_namespace_prefix!(identifier_str, namespace)
     identifier_str&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name)&.delete_prefix!(namespace.delimiter || '') if namespace
   end
+
+  #rubocop:disable Metrics/MethodLength
 
   def parse_record_level_class
     res = {
@@ -534,15 +736,51 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # institutionCode: [repository.acronym] # TODO: Use mappings like with namespaces here as well? (Although probably attempt guessing)
     institution_code = get_field_value(:institutionCode)
     if institution_code
-      repository = Repository.find_by(acronym: institution_code)
+      repository = nil
+      error_messages = []
+
+      if institution_code.starts_with?('http://') || institution_code.starts_with?('https://')
+        url_repositories = Repository.where(url: institution_code)
+        if url_repositories.count == 1
+          repository = url_repositories.first
+        elsif url_repositories.count > 1
+          error_messages << "Multiple repositories with url #{institution_code} found"
+        else
+          error_messages << "No repositories with url #{institution_code} found"
+        end
+      end
+
+      unless repository
+        acronym_repositories = Repository.where(acronym: institution_code)
+        if acronym_repositories.count == 1
+          repository = acronym_repositories.first
+        elsif acronym_repositories.count > 1
+          error_messages << "Multiple repositories with acronym #{institution_code} found."
+        else
+          error_messages << "No repositories with acronym #{institution_code} found."
+        end
+      end
 
       # Some repositories may not have acronyms, in that case search by name as well
       unless repository
         repository_results = Repository.where(Repository.arel_table['name'].matches(Repository.sanitize_sql_like(institution_code)))
-        raise DarwinCore::InvalidData.new({ "institutionCode": ["Multiple repositories match the name #{institution_code}. Please use the acronym instead."] }) if repository_results.count > 1
-        repository = repository_results.first
+        if repository_results.count == 1
+          repository = repository_results.first
+        elsif repository_results.count > 1
+          error_messages << "Multiple repositories match the name #{institution_code}."
+        else
+          error_messages << "No repositories match the name #{institution_code}"
+        end
+
+        unless repository
+          if error_messages
+            error_messages.unshift("Could not disambiguate repository name '#{institution_code}'.")
+          else
+            error_messages.unshift("Unknown #{institution_code} repository. If valid please register it using '#{institution_code}' as acronym or name.")
+          end
+          raise DarwinCore::InvalidData.new({ "institutionCode": error_messages })
+        end
       end
-      raise DarwinCore::InvalidData.new({ "institutionCode": ["Unknown #{institution_code} repository. If valid please register it using '#{institution_code}' as acronym or name."] }) unless repository
       Utilities::Hashes::set_unless_nil(res[:specimen], :repository, repository)
     end
 
@@ -552,9 +790,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         #     name: "#{institution_code}-#{collection_code} [CREATED FROM DWC-A IMPORT IN #{project.name} PROJECT]",
         #     delimiter: '-'
         # }).find_or_create_by!(short_name: "#{institution_code}-#{collection_code}")) if collection_code
-    namespace_id = self.import_dataset.get_catalog_number_namespace(institution_code, get_field_value(:collectionCode))
-    if namespace_id
-      Utilities::Hashes::set_unless_nil(res[:catalog_number], :namespace, Namespace.find(namespace_id))
+    if namespace = get_field_value('TW:Namespace:catalogNumber')
+      namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(namespace)) # Case insensitive match
+      raise DarwinCore::InvalidData.new({ 'TW:Namespace:catalogNumber' => ['Namespace not found'] }) unless namespace
+    else
+      namespace_id = self.import_dataset.get_catalog_number_namespace(institution_code, get_field_value(:collectionCode))
+      namespace = Namespace.find(namespace_id) if namespace_id
+    end
+    if namespace
+      Utilities::Hashes::set_unless_nil(res[:catalog_number], :namespace, namespace)
       Utilities::Hashes::set_unless_nil(res[:catalog_number], :project, self.project)
     end
 
@@ -564,9 +808,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # basisOfRecord: [Check it is 'PreservedSpecimen', 'FossilSpecimen']
     basis = get_field_value(:basisOfRecord)
-    basis = basis.downcase.camelize if basis.include? '_' # Reformat GBIF occurrence download basis of records (e.g., PRESERVED_SPECIMEN to PreservedSpecimen)
+    basis = basis.downcase.camelize if basis&.include? '_' # Reformat GBIF occurrence download basis of records (e.g., PRESERVED_SPECIMEN to PreservedSpecimen)
     if 'FossilSpecimen'.casecmp(basis) == 0
-      fossil_biocuration = BiocurationClass.find_by(uri: DWC_FOSSIL_URI)
+      fossil_biocuration = BiocurationClass.where(project:).find_by(uri: DWC_FOSSIL_URI)
 
       raise DarwinCore::InvalidData.new(
         { 'basisOfRecord' => ["Biocuration class #{DWC_FOSSIL_URI} is not present in project"] }
@@ -588,6 +832,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     Utilities::Hashes::delete_nil_and_empty_hash_values(res)
   end
 
+  #rubocop:enable Metrics/MethodLength
+
   def parse_occurrence_class
     res = {
       catalog_number: {},
@@ -600,14 +846,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # catalogNumber: [catalog_number.identifier]
     Utilities::Hashes::set_unless_nil(res[:catalog_number], :identifier, get_field_value(:catalogNumber))
 
-    # recordNumber: [Not mapped]
+    # recordNumber: [Mapped in import method]
 
     # recordedBy: [collecting_event.collectors and collecting_event.verbatim_collectors]
     Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
     Utilities::Hashes::set_unless_nil(res[:collecting_event], :verbatim_collectors, get_field_value(:recordedBy))
 
     # individualCount: [specimen.total]
-    Utilities::Hashes::set_unless_nil(res[:specimen], :total, get_field_value(:individualCount) || 1)
+    Utilities::Hashes::set_unless_nil(res[:specimen], :total, get_field_value(:individualCount) || '1')
 
     # organismQuantity: [Not mapped. Check relation with invidivialCount]
 
@@ -616,13 +862,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # sex: [Find or create by name inside Sex biocuration Group] TODO: Think of duplicates (with and without URI)
     sex = get_field_value(:sex)
     if sex
-      raise DarwinCore::InvalidData.new({ "sex": ["Only single-word controlled vocabulary supported at this time."] }) if sex =~ /\s/
-      group   = BiocurationGroup.find_by(project_id: Current.project_id, uri: DWC_ATTRIBUTE_URIS[:sex])
+      raise DarwinCore::InvalidData.new({ "sex": ['Only single-word controlled vocabulary supported at this time.'] }) if sex =~ /\s/
+      group   = BiocurationGroup.find_by(project_id: Current.project_id, uri: DWC_ATTRIBUTE_URIS[:sex].first)
       group ||= BiocurationGroup.where(project_id: Current.project_id).where('name ILIKE ?', 'sex').first
       group ||= BiocurationGroup.create!(
         name: 'Sex',
         definition: 'The sex of the individual(s) [CREATED FROM DWC-A IMPORT]',
-        uri: DWC_ATTRIBUTE_URIS[:sex]
+        uri: DWC_ATTRIBUTE_URIS[:sex].first
       )
       # TODO: BiocurationGroup.biocuration_classes not returning AR relation
       sex_biocuration = group.biocuration_classes.detect { |c| c.name.casecmp(sex) == 0 }
@@ -683,6 +929,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     res
   end
 
+  #rubocop:disable Metrics/MethodLength
+
   def parse_event_class
     collecting_event = { }
 
@@ -690,8 +938,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # parentEventID: [Not mapped]
 
-    # fieldNumber: verbatim_trip_identifier
-    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_trip_identifier, get_field_value(:fieldNumber))
+    # fieldNumber: verbatim_field_number & Identifier::Local::FieldNumber
 
     start_date, end_date = parse_iso_date(:eventDate)
 
@@ -700,7 +947,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     day = get_integer_field_value(:day)
     startDayOfYear = get_integer_field_value(:startDayOfYear)
 
-    raise DarwinCore::InvalidData.new({ "eventDate": ["Conflicting values. Please check year, month, and day match eventDate"] }) if start_date &&
+    raise DarwinCore::InvalidData.new({ "eventDate": ['Conflicting values. Please check year, month, and day match eventDate'] }) if start_date &&
       (year && start_date.year != year || month && start_date.month != month || day && start_date.day != day)
 
     year  ||= start_date&.year
@@ -708,16 +955,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     day   ||= start_date&.day
 
     if startDayOfYear
-      raise DarwinCore::InvalidData.new({ "startDayOfYear": ["Missing year value"] }) if year.nil?
+      raise DarwinCore::InvalidData.new({ "startDayOfYear": ['Missing year value'] }) if year.nil?
 
       begin
         ordinal = Date.ordinal(year, startDayOfYear)
       rescue Date::Error
-        raise DarwinCore::InvalidData.new({ "startDayOfYear": ["Out of range. Please also check year field"] })
+        raise DarwinCore::InvalidData.new({ "startDayOfYear": ['Out of range. Please also check year field'] })
       end
 
       if month && ordinal.month != month || day && ordinal.day != day
-        raise DarwinCore::InvalidData.new({ "startDayOfYear": ["Month and/or day of the event date do not match"] })
+        raise DarwinCore::InvalidData.new({ "startDayOfYear": ['Month and/or day of the event date do not match'] })
       end
 
       month ||= ordinal.month
@@ -744,18 +991,18 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     endDayOfYear = get_integer_field_value(:endDayOfYear)
 
     if endDayOfYear
-      raise DarwinCore::InvalidData.new({ "endDayOfYear": ["Missing year value"] }) if year.nil?
+      raise DarwinCore::InvalidData.new({ "endDayOfYear": ['Missing year value'] }) if year.nil?
 
       begin
         ordinal = Date.ordinal(year, endDayOfYear)
       rescue Date::Error
-        raise DarwinCore::InvalidData.new({ "endDayOfYear": ["Out of range. Please also check year field"] })
+        raise DarwinCore::InvalidData.new({ "endDayOfYear": ['Out of range. Please also check year field'] })
       end
 
       month = ordinal.month
       day = ordinal.day
 
-      raise DarwinCore::InvalidData.new({ "eventDate": ["Conflicting values. Please check year and endDayOfYear match eventDate"] }) if end_date &&
+      raise DarwinCore::InvalidData.new({ "eventDate": ['Conflicting values. Please check year and endDayOfYear match eventDate'] }) if end_date &&
       (year && end_date.year != year || month && end_date.month != month || day && end_date.day != day)
     else
       year = end_date&.year
@@ -789,8 +1036,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     note = get_field_value(:eventRemarks)
     Utilities::Hashes::set_unless_nil(collecting_event, :notes_attributes, [{text: note, annotator_batch_mode: true}]) if note
 
-    { collecting_event: collecting_event }
+    { collecting_event: }
   end
+
+  #rubocop:enable Metrics/MethodLength
 
   def parse_location_class
     collecting_event = {}
@@ -860,7 +1109,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # coordinateUncertaintyInMeters: [verbatim_geolocation_uncertainty]
     uncertainty = get_field_value(:coordinateUncertaintyInMeters)
     unless uncertainty.nil? || uncertainty =~ /\A[+-]?\d+\z/
-      raise DarwinCore::InvalidData.new({ "coordinateUncertaintyInMeters": ["Non-integer value"] })
+      raise DarwinCore::InvalidData.new({ "coordinateUncertaintyInMeters": ['Non-integer value'] })
     end
     Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_geolocation_uncertainty, uncertainty&.send(:+, 'm'))
 
@@ -888,7 +1137,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     if georeferenced_by = get_field_value(:georeferencedBy)
       predicate_base_props = {uri: 'http://rs.tdwg.org/dwc/terms/georeferencedBy', project: self.project}
       predicate = Predicate.find_by(predicate_base_props)
-      predicate ||= Predicate.where(project: project).find_by(
+      predicate ||= Predicate.where(project:).find_by(
         Predicate.arel_table[:name].matches('georeferencedBy')
       )
       predicate ||= Predicate.create!(predicate_base_props.merge(
@@ -901,7 +1150,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       georeference[:data_attributes] = [
         InternalAttribute.new(
           type: 'InternalAttribute',
-          predicate: predicate,
+          predicate:,
           value: georeferenced_by,
           annotator_batch_mode: true
         )
@@ -921,10 +1170,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     georeference[:notes_attributes] = [{text: note, annotator_batch_mode: true}] if note
 
     {
-      collecting_event: collecting_event,
-      georeference: georeference
+      collecting_event:,
+      georeference:
     }
   end
+
+  #rubocop:disable Metric/MethodLength
 
   # @param [String] type_status
   # @param [Protonym] taxon_protonym
@@ -932,39 +1183,82 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   def parse_typestatus(type_status, taxon_protonym)
     type_material = nil
     type_status_parsed = type_status&.match(/^(?<type>\w+)$/i) || type_status&.match(/(?<type>\w+)(\s+OF\s+(?<scientificName>.*))/i)
-
     # only nil if non-alphanumeric entry, or multiple words not matching "\w+ of \w+"
-    raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] }) unless type_status_parsed
+    raise DarwinCore::InvalidData.new({ "typeStatus": ['Unprocessable typeStatus information'] }) unless type_status_parsed && type_status_parsed[:type]
+    type_type = type_status_parsed[:type].downcase
 
     code = get_field_value(:nomenclaturalCode)&.downcase&.to_sym || import_dataset.default_nomenclatural_code
-    unless TypeMaterial::legal_type_type(code, type_status_parsed[:type].downcase)
-      raise DarwinCore::InvalidData.new({ "typeStatus": ["could not extract legal type from typeStatus"] })
+    unless TypeMaterial::legal_type_type(code, type_type)
+      raise DarwinCore::InvalidData.new({ "typeStatus": ['could not extract legal type from typeStatus'] })
+    end
+
+    # Gets the correct spelling for a protonym, or returns the protonym if not a misspelling
+    # @param [Protonym] protonym the protonym to get correct spelling for
+    def get_correct_spelling(protonym)
+      if protonym.is_protonym? && protonym.has_misspelling_relationship?
+        return TaxonNameRelationship.where_subject_is_taxon_name(protonym)
+                                    .with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY)
+                                    .first&.object_taxon_name
+      end
+      protonym
     end
 
     scientific_name = get_field_value(:scientificName)&.gsub(/\s+/, ' ')
 
+    # Run the name through the biodiversity parser to remove authorship info
+    parse_results = Biodiversity::Parser.parse((type_status_parsed&.[](:scientificName)&.gsub(/\s+/, ' ') rescue nil) || '')
+
+    type_author_name, type_year = nil
+    # Only use biodiversity parsed name if it has very high confidence
+    if parse_results[:quality] == 1
+      type_scientific_name = parse_results.dig(:canonical, :simple)
+      # Save authorship info for narrowing down potential protonyms
+      type_author_name, type_year = Utilities::Strings.parse_authorship(parse_results.dig(:authorship, :normalized))
+    end
+
     # if typeStatus is single word, assume the user wants the specimen name as the type name
-    type_scientific_name = (type_status_parsed&.[](:scientificName)&.gsub(/\s+/, ' ') rescue nil) || scientific_name
+    type_scientific_name ||= scientific_name
 
     if scientific_name && type_scientific_name.present?
+      # list of messages to help user debug why matching failed
+      error_messages = []
+
       # if type_scientific_name matches the current name of the occurrence, use that
       if type_scientific_name.delete_prefix(scientific_name)&.match(/^\W*$/)
         return {
-          type_type: type_status_parsed[:type].downcase
-        }
-      end
-      if (original_combination_protonym = Protonym.find_by(cached_original_combination: type_scientific_name, project_id: self.project_id))
-        return {
-          type_type: type_status_parsed[:type].downcase,
-          protonym: original_combination_protonym
+          type_type:
         }
       end
 
-      # See if name matches a synonym of taxon name
+      name_pattern = "^#{type_scientific_name.split.map { |n| "#{n}(?: \\[sic\\])?" }.join(" ")}$"
+      original_combination_protonyms = Protonym.where('cached_original_combination ~ :pat', pat: name_pattern)
+                                               .where(project_id: self.project_id)
+
+      if original_combination_protonyms.count == 1
+        oc_protonym = original_combination_protonyms.first
+        return {
+          type_type:,
+          protonym: get_correct_spelling(oc_protonym)
+        }
+      elsif original_combination_protonyms.count > 1
+        potential_protonym_strings = original_combination_protonyms.map { |proto|
+          "[id: #{proto.id} #{proto.cached_original_combination_html}]"
+        }.join(', ')
+        error_messages << "Multiple matches found for name #{type_scientific_name}}: #{potential_protonym_strings}"
+      else
+        error_messages << 'Could not find exact original combination match for typeStatus'
+      end
+
+      # See if name matches a synonym of taxon name (ie any name linked to current taxon name)
       synonyms = taxon_protonym.synonyms
-      matching_synonyms = []
+      matching_synonyms = Set[]
       synonyms.each do |s|
-        if [s.cached, s.cached_original_combination].compact.include?(type_scientific_name)
+        possible_names = [s.cached, s.cached_original_combination].compact.to_set
+        # Try excluding subgenus
+        possible_names += possible_names.map {|n| n.sub(/\(\w+\) /, '')}
+        # Check for misspellings
+        possible_names += possible_names.map { |n| n.gsub(' [sic]', '') }
+        if possible_names.include?(type_scientific_name)
           if s.is_combination?
             matching_synonyms << s.finest_protonym
           else
@@ -973,16 +1267,21 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         end
       end
 
-      if matching_synonyms.uniq.count == 1
+      matching_synonyms = matching_synonyms.map { |s| get_correct_spelling(s) }.uniq
+
+      if matching_synonyms.count == 1
         return {
-          type_type: type_status_parsed[:type].downcase,
+          type_type:,
           protonym: matching_synonyms.first
         }
+      elsif matching_synonyms.count > 1
+        synonym_strings = matching_synonyms.map { |proto| "[id: #{proto.id} #{proto.cached_original_combination_html}]" }.join(', ')
+        error_messages << "Multiple synonym matches found for name #{type_scientific_name}}: #{synonym_strings}"
       end
 
       # Try wildcard match on subgenus if not present
       type_name_elements = type_scientific_name.split
-      if type_name_elements.length > 1 && type_name_elements[1].first != "(" && type_name_elements[1].last != ")"
+      if type_name_elements.length > 1 && type_name_elements[1].first != '(' && type_name_elements[1].last != ')'
         type_name_elements.map! { |s| Regexp.escape(s) }
         # append subgenus wildcard to genus string
         type_name_elements[0] << '( \(\w+\))?'
@@ -992,22 +1291,43 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
                                              .or(Protonym.where('cached ~ :pat', pat: name_pattern))
                                              .where(project_id: self.project_id)
 
+        if type_author_name.present?
+          cached_author = type_author_name
+          if cached_author.starts_with?('(') && cached_author.end_with?(')')
+            cached_author.delete_prefix!('(').delete_suffix!(')')
+          end
+          wildcard_original_protonym = wildcard_original_protonym.where(cached_author:)
+        end
+
+        if type_year.present?
+          wildcard_original_protonym = wildcard_original_protonym.where(year_of_publication: type_year)
+        end
+
         if wildcard_original_protonym.count == 1
           return {
-            type_type: type_status_parsed[:type].downcase,
-            protonym: wildcard_original_protonym.first
+            type_type:,
+            protonym: get_correct_spelling(wildcard_original_protonym.first)
           }
         elsif wildcard_original_protonym.count > 1
-          matching_protonyms = wildcard_original_protonym.map{|p| "[id: #{p.id} #{p.cached_html_original_name_and_author_year}]"}
-                                                         .join(", ")
-          raise DarwinCore::InvalidData.new({ "typeStatus": ["could not find exact original combination match for typeStatus, and multiple names returned in wildcard search: #{matching_protonyms}"] })
+          matching_protonyms = wildcard_original_protonym.map { |p| "[id: #{p.id} #{p.cached_html_original_name_and_author_year}]" }
+                                                         .join(', ')
+          error_messages << "Multiple names returned in wildcard search: #{matching_protonyms}"
         else
-          raise DarwinCore::InvalidData.new({ "typeStatus": ["could not find exact original combination match for typeStatus, and no names returned in wildcard search"] })
+          error_messages << 'No names returned in subgenus wildcard search'
         end
       end
+
+      # report errors
+      if error_messages
+        error_messages.unshift "Could not identify or disambiguate name #{type_scientific_name}."
+        raise DarwinCore::InvalidData.new({ "typeStatus": error_messages })
+      end
+
     end
     type_material
   end
+
+  #rubocop:enable Metric/MethodLength
 
   def parse_identification_class(taxon_protonym)
     taxon_determination = {}
@@ -1015,14 +1335,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # identificationID: [Not mapped]
 
-    # identificationQualifier: [Mapped as part of otu name in parse_taxon_class]
+    # identificationQualifier: [Mapped 1:1 with otu name parse_taxon_class]
 
     # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
     if (type_status = get_field_value(:typeStatus))
       type_material = parse_typestatus(type_status, taxon_protonym)
       if type_material.nil? && self.import_dataset.require_type_material_success?
         # generic error message, nothing more specific provided
-        raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] })
+        raise DarwinCore::InvalidData.new({ "typeStatus": ['Unprocessable typeStatus information'] })
       end
     end
 
@@ -1045,7 +1365,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # dateIdentified: {year,month,day}_made of taxon determination
     start_date, end_date = parse_iso_date(:dateIdentified)
 
-    raise DarwinCore::InvalidData.new({ "dateIdentified": ["Date range for taxon determination is not supported."] }) if end_date
+    raise DarwinCore::InvalidData.new({ "dateIdentified": ['Date range for taxon determination is not supported.'] }) if end_date
 
     if start_date
       Utilities::Hashes::set_unless_nil(taxon_determination, :year_made, start_date.year)
@@ -1062,10 +1382,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     taxon_determination[:notes_attributes] = [{text: note, annotator_batch_mode: true}] if note
 
     {
-      taxon_determination: taxon_determination,
-      type_material: type_material
+      taxon_determination:,
+      type_material:
     }
   end
+
+  # rubocop:disable Metric/MethodLength
 
   def parse_taxon_class
     names = []
@@ -1109,32 +1431,48 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # kingdom: [Kingdom protonym]
     origins[
-      {rank_class: Ranks.lookup(code, "kingdom"), name: get_field_value(:kingdom)}.tap { |h| names << h }.object_id
+      {rank_class: Ranks.lookup(code, 'kingdom'), name: get_field_value(:kingdom)}.tap { |h| names << h }.object_id
     ] = :kingdom
 
     # phylum: [Phylum protonym]
     origins[
-      {rank_class: Ranks.lookup(code, "phylum"), name: get_field_value(:phylum)}.tap { |h| names << h }.object_id
+      {rank_class: Ranks.lookup(code, 'phylum'), name: get_field_value(:phylum)}.tap { |h| names << h }.object_id
     ] = :phylum
 
     # class: [Class protonym]
     origins[
-      {rank_class: Ranks.lookup(code, "class"), name: get_field_value(:class)}.tap { |h| names << h }.object_id
+      {rank_class: Ranks.lookup(code, 'class'), name: get_field_value(:class)}.tap { |h| names << h }.object_id
     ] = :class
 
     # order: [Order protonym]
     origins[
-      {rank_class: Ranks.lookup(code, "order"), name: get_field_value(:order)}.tap { |h| names << h }.object_id
+      {rank_class: Ranks.lookup(code, 'order'), name: get_field_value(:order)}.tap { |h| names << h }.object_id
     ] = :order
+
+    # superfamily: [Superfamily protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, 'superfamily'), name: get_field_value(:superfamily)}.tap { |h| names << h }.object_id
+    ] = :superfamily
 
     # family: [Family protonym]
     origins[
-      {rank_class: Ranks.lookup(code, "family"), name: get_field_value(:family)}.tap { |h| names << h }.object_id
+      {rank_class: Ranks.lookup(code, 'family'), name: get_field_value(:family)}.tap { |h| names << h }.object_id
     ] = :family
 
+    # subfamily: [Subfamily protonym]
     origins[
-      {rank_class: Ranks.lookup(code, "subfamily"), name: get_field_value(:subfamily)}.tap { |h| names << h }.object_id
+      {rank_class: Ranks.lookup(code, 'subfamily'), name: get_field_value(:subfamily)}.tap { |h| names << h }.object_id
     ] = :subfamily
+
+    # tribe: [Tribe protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, 'tribe'), name: get_field_value(:tribe)}.tap { |h| names << h }.object_id
+    ] = :tribe
+
+    # subtribe: [Subtribe protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, 'subtribe'), name: get_field_value(:subtribe)}.tap { |h| names << h }.object_id
+    ] = :subtribe
 
     # genus: [Not mapped, extracted from scientificName instead]
 
@@ -1145,48 +1483,47 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # infraspecificEpithet: [Not mapped, extracted from scientificName instead]
 
     # scientificName: [Parsed with biodiversity and mapped into several protonyms]
-    parse_results = Biodiversity::Parser.parse(get_field_value(:scientificName) || "")
+    parse_results = Biodiversity::Parser.parse(get_field_value(:scientificName) || '')
     parse_details = parse_results[:details]
     parse_details = (parse_details&.keys - PARSE_DETAILS_KEYS).empty? ? parse_details.values.first : nil if parse_details
 
     unless (1..3).include?(parse_results[:quality]) && parse_details
       parse_details = parse_results[:details]&.values&.first
-      otu_names << get_field_value(:scientificName)
     end
 
     raise DarwinCore::InvalidData.new({
       "scientificName": parse_results[:qualityWarnings] ?
         parse_results[:qualityWarnings].map { |q| q[:warning] } :
-        ["Unable to parse scientific name. Please make sure it is correctly spelled."]
-    }) unless parse_details
+        ['Unable to parse scientific name. Please make sure it is correctly spelled.']
+    }) unless parse_details&.is_a?(Hash)
 
     unless parse_details[:uninomial]
       origins[
-        {rank_class: Ranks.lookup(code, "genus"), name: parse_details[:genus]}.tap { |h| names << h }.object_id
+        {rank_class: Ranks.lookup(code, 'genus'), name: parse_details[:genus]}.tap { |h| names << h }.object_id
       ] = :scientificName
       origins[
-        {rank_class: Ranks.lookup(code, "subgenus"), name: parse_details[:subgenus]}.tap { |h| names << h }.object_id
+        {rank_class: Ranks.lookup(code, 'subgenus'), name: parse_details[:subgenus]}.tap { |h| names << h }.object_id
       ] = :scientificName
       origins[
-        {rank_class: Ranks.lookup(code, "species"), name: parse_details[:species]}.tap { |h| names << h }.object_id
+        {rank_class: Ranks.lookup(code, 'species'), name: parse_details[:species]}.tap { |h| names << h }.object_id
       ] = :scientificName
       origins[
-        {rank_class: Ranks.lookup(code, "subspecies"), name: parse_details[:infraspecies]&.map{ |d| d.dig(:value) }&.join(' ') }.tap { |h| names << h }.object_id
+        {rank_class: Ranks.lookup(code, 'subspecies'), name: parse_details[:infraspecies]&.map{ |d| d.dig(:value) }&.join(' ') }.tap { |h| names << h }.object_id
       ] = :scientificName
     else
       if parse_details[:parent]
         origins[
-          {rank_class: Ranks.lookup(code, "genus"), name: parse_details[:parent]}.tap { |h| names << h }.object_id
+          {rank_class: Ranks.lookup(code, 'genus'), name: parse_details[:parent]}.tap { |h| names << h }.object_id
         ] = :scientificName
         origins[
           {
-            rank_class: /subgen/ =~ parse_details[:rank] ? Ranks.lookup(code, "subgenus") : nil,
+            rank_class: /subgen/ =~ parse_details[:rank] ? Ranks.lookup(code, 'subgenus') : nil,
             name: parse_details[:uninomial]
           }.tap { |h| names << h }.object_id
         ] = :scientificName
       elsif get_field_value(:genus) == parse_details[:uninomial]
         origins[
-          {rank_class: Ranks.lookup(code, "genus"), name: parse_details[:uninomial]}.tap { |h| names << h }.object_id
+          {rank_class: Ranks.lookup(code, 'genus'), name: parse_details[:uninomial]}.tap { |h| names << h }.object_id
         ] = :scientificName
       elsif names.reverse.detect { |n| n[:name] }&.dig(:name) != parse_details[:uninomial]
         origins[
@@ -1199,17 +1536,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # taxonRank: [Rank of innermost protonym]
     rank = get_field_value(:taxonRank)
-    if rank && otu_names.empty?
+    if rank && otu_names.empty? # TODO: Probably don't need otu_name check, rank matches the taxon name, NOT the OTU concept when identificationQualifier is used
       names.last[:rank_class] = Ranks.lookup(code, rank)
       raise DarwinCore::InvalidData.new({ "taxonRank": ["Unknown #{code.upcase} rank #{rank}"] }) unless names.last[:rank_class]
     end
 
     ident_qualifier = get_field_value(:identificationQualifier)
-    if ident_qualifier =~ /^cf[\.\s]/
-      otu_names << ident_qualifier
-    else
-      otu_names << "#{get_field_value(:scientificName)} #{ident_qualifier}"
-    end unless ident_qualifier.nil?
+    otu_names << ident_qualifier unless ident_qualifier.nil?
+
     names.last&.merge!({otu_attributes: {name: otu_names.join(' ')}}) unless otu_names.empty?
 
     # higherClassification: [Several protonyms with ranks determined automatically when possible. Classification lower or at genus level is ignored and extracted from scientificName instead]
@@ -1218,7 +1552,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       get_field_value(:higherClassification)&.split(separator) || []
     end.map! do |name|
       normalize_value!(name)
-      {rank_class: nil, name: name}
+      {rank_class: nil, name:}
     end
 
     curr = 0
@@ -1230,7 +1564,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         curr += idx + 1
       end
     end
-    idx = higherClassification.index { |n| n[:rank_class] == Ranks.lookup(code, "genus") }
+    idx = higherClassification.index { |n| n[:rank_class] == Ranks.lookup(code, 'genus') }
     higherClassification = higherClassification.slice(0, idx) if idx
 
     curr = 0
@@ -1248,7 +1582,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # scientificNameAuthorship: [verbatim_author of innermost protonym]
     begin
-      author_name, year = Utilities::Strings.parse_authorship(get_field_value("scientificNameAuthorship"))
+      author_name, year = Utilities::Strings.parse_authorship(get_field_value('scientificNameAuthorship'))
 
       names.last&.merge!({ verbatim_author: author_name, year_of_publication: year })
     end
@@ -1263,6 +1597,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     [names, origins]
   end
+
+  # rubocop:disable Metric/MethodLength
 
   def parse_tw_collection_object_data_attributes
     attributes = []
@@ -1309,27 +1645,27 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     return unless value
 
     keyword = Keyword.find_by(uri: tag[:selector], project: self.project)
-    keyword ||= Keyword.where(project: project).find_by(
+    keyword ||= Keyword.where(project:).find_by(
       Keyword.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(tag[:selector]))
     )
 
     if value
       raise DarwinCore::InvalidData.new({ tag[:field] => ["Tag with #{tag[:selector]} URI or name not found"] }) unless keyword
 
-      if value.downcase == "true" || value == "1"
-        tags.append({keyword: keyword, annotator_batch_mode: true})
+      if value.downcase == 'true' || value == '1'
+        tags.append({keyword:, annotator_batch_mode: true})
         return
       end
 
-      unless value.downcase == "false" || value == "0"
-        raise DarwinCore::InvalidData.new({ tag[:field] => ["Tag value must be \"true\" or \"1\" to apply, or blank, \"false\", or \"0\", to not apply"] })
+      unless value.downcase == 'false' || value == '0'
+        raise DarwinCore::InvalidData.new({ tag[:field] => ['Tag value must be "true" or "1" to apply, or blank, "false", or "0", to not apply'] })
       end
     end
   end
 
   def append_data_attribute(attributes, attribute)
     predicate = Predicate.find_by(uri: attribute[:selector], project: self.project)
-    predicate ||= Predicate.where(project: project).find_by(
+    predicate ||= Predicate.where(project:).find_by(
       Predicate.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(attribute[:selector]))
     )
 
@@ -1338,8 +1674,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       raise DarwinCore::InvalidData.new({ attribute[:field] => ["Predicate with #{attribute[:selector]} URI or name not found"] }) unless predicate
       attributes << {
         type: 'InternalAttribute',
-        predicate: predicate,
-        value: value,
+        predicate:,
+        value:,
         annotator_batch_mode: true
       }
     end
@@ -1357,7 +1693,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def parse_biocuration_group_field(group)
     biocuration_group = BiocurationGroup.find_by(uri: group[:selector], project: self.project)
-    biocuration_group ||= BiocurationGroup.where(project: project).find_by(
+    biocuration_group ||= BiocurationGroup.where(project:).find_by(
       BiocurationGroup.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(group[:selector]))
     )
 
@@ -1365,10 +1701,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     if value
       raise DarwinCore::InvalidData.new({ group[:field] => ["Biocuration group with '#{group[:selector]}' URI or name not found"] }) unless biocuration_group
 
-      biocuration_class = BiocurationClass.where(project: project).joins(:tags).merge(
+      biocuration_class = BiocurationClass.where(project:).joins(:tags).merge(
         Tag.where(keyword: biocuration_group)
       ).find_by(uri: value)
-      biocuration_class ||= BiocurationClass.where(project: project).joins(:tags).merge(
+      biocuration_class ||= BiocurationClass.where(project:).joins(:tags).merge(
         Tag.where(keyword: biocuration_group)
       ).find_by(
         BiocurationClass.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(value))
@@ -1376,7 +1712,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
       raise DarwinCore::InvalidData.new({ group[:field] => ["Biocuration class with '#{value}' URI or name not found"] }) unless biocuration_class
 
-      BiocurationClassification.new(biocuration_class: biocuration_class)
+      BiocurationClassification.new(biocuration_class:)
     end
   end
 
@@ -1421,8 +1757,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   def append_dwc_attribute(attributes, predicate, value)
     attributes << {
       type: 'InternalAttribute',
-      predicate: predicate,
-      value: value,
+      predicate:,
+      value:,
       annotator_batch_mode: true
     } if value
   end

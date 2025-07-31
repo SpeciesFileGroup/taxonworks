@@ -120,6 +120,10 @@
 #   @return [Boolean]
 #     A controlled vocabulary from Ruby::Units, like 'm' (meters).  The unit of the sample observation.
 #
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 class Observation < ApplicationRecord
   include Housekeeping
   include Shared::Citations

@@ -12,9 +12,11 @@ import getLastSave from './getLastSave'
 import getLastChange from './getLastChange'
 import getRoles from './getRoles'
 import getOriginRelationships from './getOriginRelationships'
+import getConfidences from './getConfidences'
 
 const GetterNames = {
   GetRecent: 'getRecent',
+  GetConfidences: 'getConfidences',
   GetExtract: 'getExtract',
   GetIdentifiers: 'getIdentifiers',
   GetSettings: 'getSettings',
@@ -32,6 +34,7 @@ const GetterNames = {
 
 const GetterFunctions = {
   [GetterNames.GetRecent]: getRecent,
+  [GetterNames.GetConfidences]: getConfidences,
   [GetterNames.GetExtract]: getExtract,
   [GetterNames.GetIdentifiers]: getIdentifiers,
   [GetterNames.GetSettings]: getSettings,
@@ -47,7 +50,4 @@ const GetterFunctions = {
   [GetterNames.GetOriginRelationships]: getOriginRelationships
 }
 
-export {
-  GetterNames,
-  GetterFunctions
-}
+export { GetterNames, GetterFunctions }

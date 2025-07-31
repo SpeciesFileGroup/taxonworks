@@ -1,6 +1,7 @@
 class AttributionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  
+  include DataControllerConfiguration::BatchByFilterScope
+
   before_action :set_attribution, only: [:show, :edit, :update, :destroy]
   after_action -> { set_pagination_headers(:attributions) }, only: [:index, :api_index ], if: :json_request?
 
@@ -13,7 +14,7 @@ class AttributionsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @attributions = Queries::Attribution::Filter.new(params).all.where(project_id: sessions_current_project_id).
+        @attributions = ::Queries::Attribution::Filter.new(params).all.where(project_id: sessions_current_project_id).
         page(params[:page]).per(params[:per] || 500)
       }
     end
@@ -92,9 +93,17 @@ class AttributionsController < ApplicationController
   end
 
   def attribution_params
-    params.require(:attribution).permit(
-      :copyright_year, :license, :attribution_object_type, :attribution_object_id,
-      :annotated_global_entity, :_destroy,
+    params.require(:attribution).permit(*attribution_params_list)
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(attribution: [*attribution_params_list])
+  end
+
+  def attribution_params_list
+    [
+      :copyright_year, :license, :attribution_object_type,
+      :attribution_object_id, :annotated_global_entity, :_destroy,
       roles_attributes: [
         :id,
         :_destroy,
@@ -104,6 +113,8 @@ class AttributionsController < ApplicationController
         :position,
         person_attributes: [
           :last_name, :first_name, :suffix, :prefix
-        ]])
+        ]
+      ]
+    ]
   end
 end

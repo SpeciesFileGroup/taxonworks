@@ -5,9 +5,13 @@
 #   @return [Integer]
 #   the biocuration class ID
 #
-# @!attribute biological_collection_object_id
+# @!attribute biocuration_classification_object_id
 #   @return [Integer]
-#   the biological collection object ID
+#   id of the object the classification is for
+#
+# @!attribute biocuration_classification_object_type
+#   @return [String]
+#      baseclass model name the classficiation is for
 #
 # @!attribute position
 #   @return [Integer]
@@ -19,32 +23,25 @@
 #
 class BiocurationClassification < ApplicationRecord
   include Housekeeping
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
 
-  acts_as_list scope: [:biological_collection_object_id, :project_id]
+  acts_as_list scope: [:biocuration_classification_object_id, :biocuration_classification_object_type, :project_id]
 
   belongs_to :biocuration_class, inverse_of: :biocuration_classifications
-  belongs_to :biological_collection_object, class_name: '::CollectionObject::BiologicalCollectionObject', inverse_of: :biocuration_classifications
+  belongs_to :biocuration_classification_object, polymorphic: true, inverse_of: :biocuration_classifications
 
-  validates_presence_of :biocuration_class, :biological_collection_object
-  validates_uniqueness_of :biocuration_class, scope: [:biological_collection_object]
+  validates_presence_of :biocuration_class, :biocuration_classification_object
+  validates_uniqueness_of :biocuration_class, scope: [:biocuration_classification_object]
 
-  # Janky, but here for now
-  after_save :update_dwc_occurrence
-  after_destroy :revert_dwc_occurrence
+  def dwc_occurrences
+    if biocuration_classification_object&.dwc_occurrence
+      DwcOccurrence.where(id: biocuration_classification_object.dwc_occurrence.id)
+    else
+      DwcOccurrence.none
+    end
+  end
 
   protected
-
-  def update_dwc_occurrence
-    if biocuration_class.uri == DWC_FOSSIL_URI
-      biological_collection_object.dwc_occurrence&.update_attribute(:basisOfRecord, 'FossilSpecimen')
-    end
-  end
-
-  def revert_dwc_occurrence
-    if biocuration_class.uri == DWC_FOSSIL_URI
-      biological_collection_object.dwc_occurrence&.update_attribute(:basisOfRecord, 'PreservedSpecimen')
-    end
-  end
 
 end

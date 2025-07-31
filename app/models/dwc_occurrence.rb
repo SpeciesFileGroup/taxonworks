@@ -1,6 +1,7 @@
 # A Darwin Core Record for the Occurrence core.  Field generated from Ruby dwc-meta, which references
 # the same spec that is used in the IPT, and the Dwc Assistant.  Each record
-# references a specific CollectionObject or AssertedDistribution.
+# references a specific CollectionObject, AssertedDistribution, or
+# FieldOccurrence.
 #
 # Important: This is a cache/index, data here are periodically destroyed and regenerated from multiple tables in TW.
 #
@@ -14,15 +15,10 @@
 #   2) Wipe, and rebuild on some schedule. It would in theory be possible to track and rebuild when a class of every property was created (or updated), however
 #   this is a lot of overhead to inject/code for a lot of models. It would inject latency at numerous stages that would perhaps impact UI performance.
 #
-#  Notes -
-#
-#  This experiment isn't going to work at scale, too many preceding calls for big returns
-#
-#  after_find :refresh, if: -> { persisted? && is_stale? }
-#
-#  def refresh
-#    dwc_occurrence_object.set_dwc_occurrence
-#  end
+# Several terms are introduced in code:
+#  * ghost - A DwcOccurrence record whose dwc_occurrence object has been destroyed (i.e. an error in cleanup, should ideally never happen)
+#  * stale - an _aproximation_ checking to see that the time of build of related records is _older_ than the current index
+#  * flagged (for rebuild) - a record related to the dwc_occurrence_object(s) has been updated, triggering the need for re-indexing 1 or more records
 #
 # TODO: The basisOfRecord CVTs are not super informative.
 #    We know collection object is definitely 1:1 with PreservedSpecimen, however
@@ -31,6 +27,11 @@
 #
 # Gotchas.
 #   * updated_at is set by touching the record, not via housekeeping.
+#
+# @param rebuild_set
+#   indcated the record needs to be rebuilt in this set
+#   !! Do not use for other purposes out side of rebuilds
+#
 #
 class DwcOccurrence < ApplicationRecord
   self.inheritance_column = nil
@@ -49,7 +50,7 @@ class DwcOccurrence < ApplicationRecord
     :created_by_id,
     :updated_by_id,
     :dwc_occurrence_object_type,
-    :dwc_occurence_object_id
+    :dwc_occurrence_object_id
   ].freeze
 
   HEADER_CONVERTERS = {
@@ -61,14 +62,22 @@ class DwcOccurrence < ApplicationRecord
     d ? d : field
   end
 
-  # TODO: Consider using more broadly?
-  # Strip nils when `to_json` used
-  def as_json(options = {})
-    super(options.merge(except: attributes.keys.select { |key| self[key].nil? }))
-  end
+  # Supported ranks (fields in db)
+  NOMENCLATURE_RANKS =  [
+    :kingdom,
+    :phylum,
+    :dwcClass,
+    :order,
+    :superfamily,
+    :family,
+    :subfamily,
+    :tribe,
+    :subtribe,
+    :genus,
+    :specificEpithet
+  ].freeze
 
   belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
-  has_one :collecting_event, through: :dwc_occurrence_object, inverse_of: :dwc_occurrences
 
   before_validation :generate_uuid_if_required
   before_validation :set_metadata_attributes
@@ -76,70 +85,83 @@ class DwcOccurrence < ApplicationRecord
   validates_presence_of :basisOfRecord
 
   validates :dwc_occurrence_object, presence: true
-  validates :dwc_occurrence_object_id, uniqueness: { scope: [:dwc_occurrence_object_type,:project_id] }
+  validates :dwc_occurrence_object_id, uniqueness: { scope: [:dwc_occurrence_object_type, :project_id] }
 
   attr_accessor :occurrence_identifier
+
+  # Strip nils when `to_json` used
+  def as_json(options = {})
+    super(options.merge(except: attributes.keys.select{ |key| self[key].nil? }))
+  end
+
+  # @return Hash
+  #   * Legally formatted DwC fields only, with things like `dwcClass` translated
+  #   * Only fields with values returned
+  #   * Keys are sorted
+  #
+  def dwc_json
+    a = as_json.reject!{|k,v| TW_ATTRIBUTES.include?(k.to_sym) || v.nil?}
+    HEADER_CONVERTERS.keys.each do |k|
+      a[ HEADER_CONVERTERS[k] ] = a.delete(k) if a[k]
+    end
+    a.sort.to_h
+  end
+
+  def collection_object
+    dwc_occurrence_object_type == 'CollectionObject' ? dwc_occurrence_object : nil
+  end
+
+  def asserted_distribution
+    dwc_occurrence_object_type == 'AssertedDistribution' ? dwc_occurrence_object : nil
+  end
+
+  def field_occurrence
+    dwc_occurrence_object_type == 'FieldOccurrence' ? dwc_occurrence_object : nil
+  end
+
+  def collecting_event
+    collection_object&.collecting_event || field_occurrence&.collecting_event
+  end
+
+  def otu
+    case dwc_occurrence_object_type
+    when 'AssertedDistribution'
+      dwc_occurrence_object.otu
+    when 'CollectionObject'
+      collection_object.otu
+    when 'FieldOccurrence'
+      field_occurrence.otu
+    end
+  end
 
   def self.annotates?
     false
   end
 
-  # TODO -
-  #   these can be deprecated for integration with Queries::DwcOccurrence::Filter
-
-  # that matches, consider moving to Shared
-  # @return [ActiveRecord::Relation]
-  def self.collection_objects_join
+  def self.object_join(target)
+    return DwcOccurrence.none unless ['CollectionObject', 'AssertedDistribution', 'FieldOccurrence'].include?(target)
     a = arel_table
-    b = ::CollectionObject.arel_table
-    j = a.join(b).on(a[:dwc_occurrence_object_type].eq('CollectionObject').and(a[:dwc_occurrence_object_id].eq(b[:id])))
+    b = target.safe_constantize.arel_table # hmm - :: required
+    j = a.join(b).on(a[:dwc_occurrence_object_type].eq(target).and(a[:dwc_occurrence_object_id].eq(b[:id])))
     joins(j.join_sources)
   end
-
-  # that matches, consider moving to Shared
-  # @return [ActiveRecord::Relation]
-  def self.asserted_distributions_join
-    a = arel_table
-    b = ::AssertedDistribution.arel_table
-    j = a.join(b).on(a[:dwc_occurrence_object_type].eq('AssertedDistribution').and(a[:dwc_occurrence_object_id].eq(b[:id])))
-    joins(j.join_sources)
-  end
-
-  # ---
 
   # @return [Scope]
   #   all DwcOccurrences for the Otu
   #   * Includes synonymy (coordinate OTUs).
   def self.scoped_by_otu(otu)
-    a,b = nil, nil
-
     if otu.taxon_name_id.present?
-      a = ::Queries::DwcOccurrence::Filter.new(
-        asserted_distribution_query: {
-          taxon_name_query: {
-            taxon_name_id: otu.taxon_name_id,
-            descendants: false,
-            synonymify: true } })
-
-      b = ::Queries::DwcOccurrence::Filter.new(
-        collection_object_query: {
-          taxon_name_query: {
-            taxon_name_id: otu.taxon_name_id,
-            descendants: false,
-            synonymify: true } })
+      ::Queries::DwcOccurrence::Filter.new({
+        taxon_name_id: otu.taxon_name_id,
+      }).all
     else
-      a = ::Queries::DwcOccurrence::Filter.new(
-        asserted_distribution_query: {
-          otu_id: otu.id})
-
-      b = ::Queries::DwcOccurrence::Filter.new(
-        collection_object_query: {
-          otu_query: { otu_id: otu.id}})
+      ::Queries::DwcOccurrence::Filter.new({
+        otu_id: otu.id,
+      }).all
     end
-
-    from("((#{a.all.to_sql}) UNION (#{b.all.to_sql})) as dwc_occurrences")
   end
 
+  # TODO: use filters
   # Return scopes by a collection object filter
   def self.by_collection_object_filter(filter_scope: nil, project_id: nil)
     return DwcOccurrence.none if project_id.nil? || filter_scope.nil?
@@ -150,7 +172,7 @@ class DwcOccurrence < ApplicationRecord
     # TODO: hackish
     k = ::CollectionObject.select('coscope.id').from( '(' + filter_scope.to_sql + ') as coscope ' )
 
-    a = self.collection_objects_join
+    a = self.object_join('CollectionObject')
       .where('dwc_occurrences.project_id = ?', project_id)
       .where(dwc_occurrence_object_id: k)
       .select(::DwcOccurrence.target_columns) # TODO !! Will have to change when AssertedDistribution and other types merge in
@@ -215,7 +237,14 @@ class DwcOccurrence < ApplicationRecord
       else # Not recommended at this point
         return 'Occurrence'
       end
+    when 'FieldOccurrence'
+      if dwc_occurrence_object.machine_output?
+        return 'MachineObservation'
+      else
+        return 'HumanObservation'
+      end
     end
+
     'Undefined'
   end
 
@@ -252,39 +281,65 @@ class DwcOccurrence < ApplicationRecord
   def is_stale?
     case dwc_occurrence_object_type
     when 'CollectionObject'
-
-      # Checks made on values, not time (necessary to handle lists)
-      return true if taxon_determination_is_stale?
-
-      # Order these roughgly by most probable/frequent changes, and/or fewest db calls required
-      times = [
-        dwc_occurrence_object.updated_at, # Shouldn't be neccessary since on_save rebuilds, but cheap here
-        dwc_occurrence_object.collecting_event&.updated_at,
-        dwc_occurrence_object.taxon_determinations.order(:position)&.first&.updated_at,
-        dwc_occurrence_object.biocuration_classifications.order(:updated_at).first&.updated_at,
-        dwc_occurrence_object.georeferences.order(:updated_at).first&.updated_at,
-        dwc_occurrence_object.data_attributes.order(:updated_at).first&.updated_at,
-
-        dwc_occurrence_object.collecting_event&.data_attributes&.order(:updated_at)&.first&.updated_at,
-      ]
-
-      n = read_attribute(:updated_at) # || Time.current <- if this then never stale!
+      times = is_stale_metadata.values
+      n = read_attribute(:updated_at)
 
       times.each do |v|
-        next if v.nil?
         return true if v > n
       end
 
       return false
     else # AssertedDistribution
-      dwc_occurrence_object.updated_at > updated_at
+      return  dwc_occurrence_object.updated_at > updated_at
     end
   end
 
-  # @return Boolean
-  #   acts_as_list actions don't trigger updated_at changes, handle this by comparing current values
-  def taxon_determination_is_stale?
-    dwc_occurrence_object&.taxon_determinations.order(:position).first&.otu&.taxon_name&.cached_name_and_author_year != scientificName
+  def is_stale_metadata
+    case dwc_occurrence_object_type
+    when 'CollectionObject'
+
+      o = CollectionObject.select(:id, :updated_at, :collecting_event_id).find_by(id: dwc_occurrence_object_id)
+      ce = CollectingEvent.select(:id, :updated_at).find_by(id: o.collecting_event_id)
+
+      td =  dwc_occurrence_object&.taxon_determinations.order(:position).first
+
+      tdr = if td&.otu&.taxon_name&.cached_name_and_author_year != scientificName
+              td.updated_at
+            else
+              nil
+            end
+
+      tc = if fieldNumber != o.dwc_field_number
+             collecting_event.identifiers.where(type: 'Identifier::Local::FieldNumber').first.updated_at
+           else
+             nil
+           end
+
+      return {
+        collection_object: o.updated_at, # Shouldn't be neccessary since on_save rebuilds, but cheap here
+        collecting_event: ce&.updated_at,
+        trip_code: tc,
+        taxon_determination: dwc_occurrence_object.taxon_determinations.order(:position)&.first&.updated_at,
+        taxon_determination_reorder: tdr,
+        taxon_determination_roles: dwc_occurrence_object.taxon_determinations.order(:position)&.first&.updated_at,
+        biocuration_classification: dwc_occurrence_object.biocuration_classifications.order(:updated_at).first&.updated_at,
+        georeferences: dwc_occurrence_object.georeferences.order(:updated_at).first&.updated_at,
+
+        data_attributes: dwc_occurrence_object.data_attributes.order(:updated_at).first&.updated_at,
+
+        collection_object_roles: dwc_occurrence_object.roles.order(:updated_at).first&.updated_at,
+        collecting_event_data_attributes: dwc_occurrence_object.collecting_event&.data_attributes&.order(:updated_at)&.first&.updated_at,
+        collecting_event_roles: dwc_occurrence_object.collecting_event&.roles&.order(:updated_at)&.first&.updated_at
+        # citations?
+        # tags?!
+      }.select{|k,v| !v.nil?}
+
+    else # AssertedDistribution
+      {
+        asserted_distribution: dwc_occurrence_object.updated_at,
+        # TODO: Citations
+      }
+    end
   end
 
   protected
@@ -299,7 +354,21 @@ class DwcOccurrence < ApplicationRecord
 
   def set_metadata_attributes
     write_attribute( :basisOfRecord, basis)
-    write_attribute( :occurrenceID, occurrence_identifier&.identifier)
+    write_attribute( :occurrenceID, occurrence_identifier&.identifier)  # TODO: Slightly janky to touch this here, might not be needed with new hooks
+  end
+
+  # Delete all DwcOccurrence records where object is missing.
+  def self.sweep
+    %w{CollectionObject AssertedDistribution FieldOccurrence}.each do |k|
+      stale(k).delete_all
+    end
+    true
+  end
+
+  def self.stale(kind = 'CollectionObject')
+    tbl = kind.tableize
+    DwcOccurrence.joins("LEFT JOIN #{tbl} tbl on dwc_occurrences.dwc_occurrence_object_id = tbl.id")
+      .where('tbl.id IS NULL and dwc_occurrences.dwc_occurrence_object_type = ?', kind )
   end
 
 end

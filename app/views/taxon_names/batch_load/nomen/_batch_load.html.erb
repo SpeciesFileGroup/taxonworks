@@ -8,7 +8,7 @@
       <p> Creates hierarchy of taxon names and otus. </p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are (see <%= link_to('sample template', asset_path('batch_load_templates/taxon_names/taxon_names_nomen_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Column headers are (see <%= link_to('sample template', asset_path('batch_load_templates/taxon_names/taxon_names_nomen_batch_load.tab', skip_pipeline: true), target: '_blank') -%>).</li>
         <li>Taxon name names with no parent id will be attached to the root taxon name.</li>
         <li><em>Parent taxon names must be before child taxon names.</em></li>
         <li>An OTU with name of "taxon_concept_name" column is created if the "guid" column is not blank.</li>

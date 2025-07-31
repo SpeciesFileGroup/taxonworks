@@ -2,9 +2,10 @@ import { makeNodeObject } from './makeNodeObject'
 import { getHexColorFromString } from '../utils'
 import { makeCitation } from './makeCitation'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index'
+import { randomUUID } from '@/helpers'
 
 export async function makeBiologicalAssociation(ba) {
-  const uuid = crypto.randomUUID()
+  const uuid = randomUUID()
 
   return {
     uuid,
@@ -22,6 +23,6 @@ export async function makeBiologicalAssociation(ba) {
     },
     subject: makeNodeObject(ba.subject),
     object: makeNodeObject(ba.object),
-    color: await getHexColorFromString(ba.biological_relationship.object_label)
+    color: getHexColorFromString(ba.biological_relationship.object_label)
   }
 }

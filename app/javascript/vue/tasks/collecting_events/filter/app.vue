@@ -6,9 +6,10 @@
       :pagination="pagination"
       v-model="parameters"
       :object-type="COLLECTING_EVENT"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :url-request="urlRequest"
       :list="list"
+      :csv-options="csvOptions"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -32,6 +33,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
 
@@ -39,15 +41,22 @@
         <div class="horizontal-right-content gap-small">
           <RadialCollectingEvent
             :disabled="!list.length"
-            :ids="selectedIds"
-            :count="selectedIds.length"
+            :ids="sortedSelectedIds"
+            :count="sortedSelectedIds.length"
+            @update="
+              () => makeFilterRequest({ ...parameters, extend, page: 1 })
+            "
           />
-          <RadialFilter
-            object-type="CollectingEvent"
-            :disabled="!selectedIds.length"
-            :parameters="{ collecting_event_id: selectedIds }"
+          <TableLayoutSelector
+            v-model="currentLayout"
+            v-model:includes="includes"
+            v-model:properties="properties"
+            :layouts="layouts"
+            @reset="resetPreferences"
+            @sort="updatePropertiesPositions"
+            @sort:column="forceUpdatePreference"
+            @update="saveLayoutPreferences"
           />
-          <TableLayoutSelector />
         </div>
       </template>
 
@@ -66,9 +75,11 @@
           v-model="selectedIds"
           :layout="currentLayout"
           :list="list"
+          :radial-object="false"
           @mouseover:row="setRowHover"
           @mouseout:body="() => (rowHover = null)"
           @on-sort="($event) => (list = $event)"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -82,23 +93,15 @@
 <script setup>
 import FilterComponent from './components/Filter.vue'
 import MapComponent from './components/Map.vue'
-import RadialFilter from '@/components/radials/linker/radial.vue'
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
-import VSpinner from '@/components/spinner.vue'
-import useFilter from '@/shared/Filter/composition/useFilter.js'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
 import RadialCollectingEvent from '@/components/radials/ce/radial.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import { listParser } from './utils/listParser.js'
 import { COLLECTING_EVENT } from '@/constants/index.js'
-import {
-  computed,
-  ref,
-  reactive,
-  defineOptions,
-  onMounted,
-  onBeforeMount
-} from 'vue'
+import { computed, ref, reactive, onMounted, onBeforeMount } from 'vue'
 import { sortArray } from '@/helpers/arrays'
 import { CollectingEvent } from '@/routes/endpoints'
 import { LAYOUTS } from './constants/layouts.js'
@@ -110,7 +113,16 @@ defineOptions({
 
 const extend = ['roles']
 
-const { currentLayout } = useTableLayoutConfiguration(LAYOUTS)
+const {
+  currentLayout,
+  includes,
+  layouts,
+  properties,
+  updatePropertiesPositions,
+  saveLayoutPreferences,
+  resetPreferences,
+  forceUpdatePreference
+} = useTableLayoutConfiguration({ layouts: LAYOUTS, model: COLLECTING_EVENT })
 
 const geojson = computed(() => {
   const hoverId = rowHover.value?.collecting_event?.id
@@ -146,18 +158,20 @@ const {
   append,
   isLoading,
   list,
-  pagination,
-  urlRequest,
   loadPage,
   makeFilterRequest,
-  selectedIds,
+  pagination,
+  parameters,
   resetFilter,
-  parameters
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(CollectingEvent, {
   listParser,
   initParameters: { extend }
 })
 
+const csvOptions = useCSVOptions({ layout: currentLayout, list })
 const isMouseDown = ref(false)
 const rowHover = ref()
 const georeferences = computed(() =>

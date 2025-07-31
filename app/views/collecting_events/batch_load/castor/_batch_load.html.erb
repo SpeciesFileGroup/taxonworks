@@ -8,7 +8,7 @@
       <p> Creates collecting events from a Castor to TaxonWorks exported collecting events file. Attaches at most 2 identifiers of type Identifier::Local::CollectingEvent to each collection object.</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collecting_events/collecting_events_castor_batch_load.tab'), target: '_blank') %>.</li>
+        <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collecting_events/collecting_events_castor_batch_load.tab', skip_pipeline: true), target: '_blank') %>.</li>
         <li>Multiple uploads of the same data will do something, not sure.</li>
         <li>Only creates collecting events if the column value of "locality_database" of the current row is "DRM"</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>

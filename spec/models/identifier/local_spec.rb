@@ -89,6 +89,18 @@ describe Identifier::Local, type: :model, group: :identifiers do
       expect(i1.cached).to eq('123')
     end
 
+    specify 'cached_numeric_identifier is populated' do
+      i1 = Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: specimen1, identifier: 1)
+      expect(i1.cached_numeric_identifier).to eq(1.0)
+    end
+
+    specify 'virtual namespace cached_numeric_identifier is populated' do
+      namespace.update!(is_virtual: true)
+      namespace.reload
+      i1 = Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: specimen1, identifier: 'virtual16')
+      expect(i1.cached_numeric_identifier).to eq(16.0)
+    end
+
     specify 'updating Namespace updates #cache 1' do
       i = Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: specimen1, identifier: 123)
       original = i.cached
@@ -102,6 +114,14 @@ describe Identifier::Local, type: :model, group: :identifiers do
       namespace.update!(short_name: 'cache_test_short', verbatim_short_name: 'cache_test_verbatim_short', delimiter: ':delimiter-test:', is_virtual: true)
       expect(i.reload.cached).to eq('123')
     end
+
+    specify 'updating Namespace updates #cached_numeric_identifier' do
+      i = Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: specimen1, identifier: 4)
+      original = i.cached
+      namespace.update!(short_name: 'cache_test_short', verbatim_short_name: 'cache_test_verbatim_short', delimiter: ':delimiter-test:')
+      expect(i.reload.cached_numeric_identifier).to eq(4.0)
+    end
+
 
   end
 

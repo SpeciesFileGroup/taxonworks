@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import SpinnerComponent from '@/components/spinner.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { reactive } from 'vue'
 import { Download } from '@/routes/endpoints'

@@ -27,6 +27,7 @@ module Queries
       # @return Array
       attr_accessor :identifier_id
 
+      # TODO: Renamed `cached`
       # A fully qualified identifier, matches cached
       # !! This is the only wildcarded value !!
       attr_accessor :query_string
@@ -112,14 +113,14 @@ module Queries
 
       # Ommits non community klasses of identifiers
       def community_project_id_facet
-        return nil if project_id.nil?
+        return nil if project_id.empty?
         if !ignores_project?
           # Not a community class
-          return table[:project_id].eq_any(project_id)
+          return table[:project_id].in(project_id)
         else
           # Is a community class
           # Identifiers that are not local only
-          return table[:type].matches('Identifier::Global%').or(table[:project_id].eq_any(project_id))
+          return table[:type].matches('Identifier::Global%').or(table[:project_id].in(project_id))
         end
         nil
       end
@@ -131,17 +132,17 @@ module Queries
 
       def identifier_object_id_facet
         return nil if identifier_object_id.empty?
-        table[:identifier_object_id].eq_any(identifier_object_id)
+        table[:identifier_object_id].in(identifier_object_id)
       end
 
       def identifier_object_type_facet
         return nil if identifier_object_type.empty?
-         table[:identifier_object_type].eq_any(identifier_object_type)
+        table[:identifier_object_type].in(identifier_object_type)
       end
 
       def matching_identifier_attribute(attribute)
         v = send(attribute)
-        v.blank? ? nil : table[attribute].eq_any(v)
+        v.blank? ? nil : table[attribute].in(v)
       end
 
       def matching_namespace(attribute)
@@ -173,9 +174,9 @@ module Queries
       def project_id_facet
         if ignores_project?
           nil
-       else
-         super
-       end
+        else
+          super
+        end
       end
 
       # @return [ActiveRecord::Relation]

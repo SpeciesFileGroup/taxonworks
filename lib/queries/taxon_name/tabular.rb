@@ -197,7 +197,7 @@ module Queries
 
         # TODO: rank_classes getter should merge nil when combinations,
         # i.e. we likely don't need nil
-        w = table[:rank_class].eq_any(rank_classes)
+        w = table[:rank_class].in(rank_classes)
         w = w.or(table[:rank_class].eq(nil)) if combinations
 
         q = q.project(*projected_columns)
@@ -307,7 +307,9 @@ module Queries
           end
         end
 
-        nomenclature_stats_column(query, 'combination', nil, i)
+        if combinations
+          nomenclature_stats_column(query, 'combination', nil, i)
+        end
 
         query
       end

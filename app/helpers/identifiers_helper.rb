@@ -3,17 +3,20 @@ module IdentifiersHelper
   # @return [String, nil]
   def identifier_tag(identifier)
     return nil if identifier.nil? || identifier.new_record?
+    title = identifier.type.demodulize.titleize.humanize
     if identifier.is_local?
-      if identifier.namespace.is_virtual?
+
+      if identifier.is_virtual?
         [
           tag.span(identifier.namespace.short_name, class: [:feedback, 'feedback-thin', 'feedback-light']),
-          tag.span(identifier.identifier, title: identifier.type.demodulize.titleize.humanize)
+          tag.span(identifier.identifier, title:)
         ].join('&nbsp;').html_safe
+
       else
-        tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)
+        tag.span(identifier.cached, title:)
       end
     else
-      tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)
+      tag.span(identifier.cached, title:)
     end
   end
 
@@ -65,6 +68,14 @@ module IdentifiersHelper
     ids = visible_identifiers(object).load
     return nil unless ids.any?
     content_tag(:h3, 'Identifiers') +
+      identifier_ul_list(object)
+  end
+
+  # @return [String]
+  #   assumes the display context is on the object in question
+  def identifier_ul_list(object)
+    ids = visible_identifiers(object).load
+    return nil unless ids.any?
       content_tag(:ul, class: 'annotations_identifier_list') do
         ids.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe
       end
@@ -75,7 +86,7 @@ module IdentifiersHelper
   def simple_identifier_list_tag(object)
     ids = visible_identifiers(object).load
     return nil unless ids.any?
-    ids.collect{|a| tag.span(identifier_annotation_tag(a)) }.join.html_safe
+    ids.collect{|a| tag.span(identifier_annotation_tag(a)) }.join(', ').html_safe
   end
 
   # @return [String, nil]
@@ -123,6 +134,19 @@ module IdentifiersHelper
       a += IDENTIFIERS_JSON[t][:all].collect{|b,c| [c[:label], b]}
     end
     a
+  end
+
+  def extend_identifiers(object)
+    r = {}
+    object.identifiers.collect{|i|
+      {
+        id: i.id,
+        type: i.type,
+        value: i.cached,
+        created_at: i.created_at,
+        updated_at: i.updated_at
+      }
+    }
   end
 
   private

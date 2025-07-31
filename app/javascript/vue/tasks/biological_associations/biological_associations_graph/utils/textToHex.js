@@ -1,10 +1,15 @@
-const getSHA256Hash = async (input) => {
-  const textAsBuffer = new TextEncoder().encode(input)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', textAsBuffer)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hash = hashArray.map((item) => item.toString(16).padStart(2, '0')).join('')
+function generateHash(text) {
+  let hash = 0
+  if (text.length === 0) return hash
 
-  return hash
+  for (let i = 0; i < text.length; i++) {
+    const char = text.charCodeAt(i)
+
+    hash = (hash << 5) - hash + char
+    hash |= 0
+  }
+
+  return Math.abs(hash).toString(16)
 }
 
 function colorFromHash(hash) {
@@ -16,6 +21,6 @@ function colorFromHash(hash) {
   return '#' + hash.substring(substr, substr + 6)
 }
 
-export async function getHexColorFromString(text) {
-  return colorFromHash(await getSHA256Hash(text))
+export function getHexColorFromString(text) {
+  return colorFromHash(generateHash(text))
 }

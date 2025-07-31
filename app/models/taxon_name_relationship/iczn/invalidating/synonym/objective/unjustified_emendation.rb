@@ -32,4 +32,13 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unjustified
     :iczn_unjustified_emendation
   end
 
+  protected
+
+  def sv_specific_relationship
+    s = self.subject_taxon_name
+    o = self.object_taxon_name
+    if s.name == o.name
+      soft_validations.add(:base, "Unjustified emendation and correctly spelled names are identical: '#{s.cached_html}'")
+    end
+  end
 end

@@ -95,7 +95,7 @@ class ContentsController < ApplicationController
   end
 
   def autocomplete
-    @contents = ::Content.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @contents = ::Content.find_for_autocomplete(params).where(project_id: sessions_current_project_id)
     data = @contents.collect do |t|
       {id: t.id,
        label: ApplicationController.helpers.taxon_works_content_tag(t),
@@ -112,9 +112,9 @@ class ContentsController < ApplicationController
   # GET /contents/download
   def download
     send_data(
-      Export::Download.generate_csv(::Content.where(project_id: sessions_current_project_id)),
+      Export::CSV.generate_csv(::Content.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "contents_#{DateTime.now}.csv")
+      filename: "contents_#{DateTime.now}.tsv")
   end
 
   # GET /api/v1/content

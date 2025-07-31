@@ -81,11 +81,15 @@ class TopicsController < ApplicationController
   # GET /topics/select_options?target=Citation&klass=TaxonName
   # GET /topics/select_options?target=Content
   def select_options
-    if params.require(:target) == 'Citation'
+    if params[:target].nil?
+      @topics = Topic.select_optimized(sessions_current_user_id, sessions_current_project_id, nil,  nil)
+    elsif params.require(:target) == 'Citation'
       @topics = Topic.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass), 'Citation')
-    elsif  params.require(:target) == 'Content'
+    elsif params.require(:target) == 'Content'
       @topics = Topic.select_optimized(sessions_current_user_id, sessions_current_project_id, nil, 'Content')
     end
+
+    render json: {}, status: :bad_request if @topics.blank?
   end
 
 end

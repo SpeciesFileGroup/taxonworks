@@ -15,7 +15,7 @@
 </template>
 <script setup>
 import { computed, ref, watch, onMounted } from 'vue'
-import { useScroll, useWindowSize } from '@/compositions/index.js'
+import { useScroll, useWindowSize } from '@/composables/index.js'
 
 const props = defineProps({
   componentStyle: {

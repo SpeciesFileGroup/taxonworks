@@ -7,7 +7,7 @@
       :url-request="urlRequest"
       v-model="parameters"
       :object-type="DESCRIPTOR"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :list="list"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
@@ -19,13 +19,15 @@
           :disabled="!list.length"
           :parameters="parameters"
           :object-type="DESCRIPTOR"
+          @update="() => makeFilterRequest({ ...parameters, page: 1 })"
         />
       </template>
       <template #nav-right>
         <RadialMatrix
-          :ids="selectedIds"
+          :ids="sortedSelectedIds"
           :disabled="!list.length"
           :object-type="DESCRIPTOR"
+          @update="() => makeFilterRequest({ ...parameters, page: 1 })"
         />
       </template>
       <template #facets>
@@ -37,6 +39,7 @@
           :list="list"
           :attributes="ATTRIBUTES"
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -54,7 +57,7 @@ import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { listParser } from './utils/listParser'
 import { ATTRIBUTES } from './constants/attributes'
@@ -62,16 +65,17 @@ import { Descriptor } from '@/routes/endpoints'
 import { DESCRIPTOR } from '@/constants/index.js'
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  selectedIds,
-  parameters,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Descriptor, { listParser })
 </script>
 

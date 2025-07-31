@@ -29,29 +29,28 @@
       />
     </template>
     <template #footer>
-      <div class="flex-separate separate-top">
-        <button
-          @click="createSource"
-          :disabled="!bibtexInput.length"
-          class="button normal-input button-default"
-          type="button"
-        >
-          Create
-        </button>
-      </div>
+      <VBtn
+        color="create"
+        medium
+        :disabled="!bibtexInput.length"
+        @click="createSource"
+      >
+        Create
+      </VBtn>
     </template>
   </modal-component>
 </template>
 
 <script setup>
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import ModalComponent from '@/components/ui/Modal'
 import newSource from '../const/source'
 import setParam from '@/helpers/setParam'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { Source, Serial } from '@/routes/endpoints'
-import { ref, onMounted } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
 const emit = defineEmits(['close'])
@@ -62,7 +61,9 @@ const textareaRef = ref(null)
 const store = useStore()
 
 onMounted(() => {
-  textareaRef.value.focus()
+  nextTick(() => {
+    textareaRef.value.focus()
+  })
 })
 
 function createSource() {
@@ -89,6 +90,7 @@ function createSource() {
       setParam('/tasks/sources/new_source', 'source_id', response.body.id)
       TW.workbench.alert.create('New source from BibTeX created.', 'notice')
     })
+    .catch(() => {})
     .finally(() => {
       creating.value = false
     })

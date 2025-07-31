@@ -27,9 +27,8 @@ module Api
       res = true
 
       res = intercept_user if params[:authenticate_user]
-      res = intercept_project if res && params[:authenticate_project]
+      res = intercept_project if res && params[:authenticate_project] || params[:project_token]
       res = intercept_user_or_project if res && params[:authenticate_user_or_project]
-
       res = set_project_from_params if res && params[:project_id]
 
       res

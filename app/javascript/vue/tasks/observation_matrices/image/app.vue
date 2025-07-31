@@ -14,6 +14,15 @@
     <div class="flex-separate">
       <h1>Image matrix</h1>
       <ul class="context-menu">
+        <li v-if="editMode">
+          <label class="cursor-pointer middle">
+            <input
+              v-model="isClone"
+              type="checkbox"
+            />
+            Clone mode
+          </label>
+        </li>
         <li>
           <label class="cursor-pointer middle">
             <input
@@ -87,18 +96,19 @@
     <view-component
       v-else
       :matrix-id="matrixId"
-      :otus-id="otuFilter"
     />
   </div>
 </template>
 
 <script>
 import { GetterNames } from './store/getters/getters'
+import { MutationNames } from './store/mutations/mutations.js'
 import { RouteNames } from '@/routes/routes'
 import { ActionNames } from './store/actions/actions'
+import { URLParamsToJSON } from '@/helpers'
 
 import MatrixTable from './components/MatrixTable.vue'
-import SpinnerComponent from '@/components/spinner.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import ColumnModal from './components/ColumnModal.vue'
 import ViewComponent from './components/View/Main.vue'
 import setParam from '@/helpers/setParam'
@@ -106,6 +116,8 @@ import PaginationComponent from '@/components/pagination.vue'
 import PaginationCount from '@/components/pagination/PaginationCount.vue'
 
 export default {
+  name: 'ImageMatrix',
+
   components: {
     ViewComponent,
     MatrixTable,
@@ -137,6 +149,15 @@ export default {
     pagination() {
       return this.$store.getters[GetterNames.GetPagination]
     },
+    isClone: {
+      get() {
+        return this.$store.getters[GetterNames.IsClone]
+      },
+
+      set(value) {
+        this.$store.commit(MutationNames.SetClone, value)
+      }
+    },
     RouteNames: () => RouteNames
   },
 
@@ -157,13 +178,13 @@ export default {
   },
 
   created() {
-    const urlParams = new URLSearchParams(window.location.search)
-    const obsIdParam = urlParams.get('observation_matrix_id')
-    const otuFilterParam = urlParams.get('otu_filter')
-    const rowFilterParam = urlParams.get('row_filter')
-    const page = urlParams.get('page')
+    const urlParams = URLParamsToJSON(window.location.href)
+    const obsIdParam = urlParams.observation_matrix_id
+    const otuFilterParam = urlParams.otu_filter || urlParams.otu_id?.join('|')
+    const rowFilterParam = urlParams.row_filter
+    const page = urlParams.page
 
-    this.editMode = urlParams.get('edit') === 'true'
+    this.editMode = urlParams.edit
 
     if (otuFilterParam) {
       this.otuFilter = otuFilterParam

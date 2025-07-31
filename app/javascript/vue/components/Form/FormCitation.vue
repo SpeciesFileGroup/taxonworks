@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend>Source</legend>
+  <component :is="fieldset ? 'fieldset' : 'div'">
+    <legend v-if="fieldset">Source</legend>
     <div class="horizontal-left-content align-start">
       <SmartSelector
         class="full_width"
@@ -13,20 +13,50 @@
         label="cached"
         v-model="source"
         @selected="setSource"
-      />
+      >
+        <template #tabs-right>
+          <FormCitationClone
+            v-if="!inlineClone"
+            @clone="(item) => Object.assign(citation, item)"
+          />
+          <slot name="tabs-right" />
+          <VLock
+            v-if="lockButton"
+            v-model="isLocked"
+          />
+        </template>
+      </SmartSelector>
       <slot name="smart-selector-right" />
-      <VLock
-        v-if="lockButton"
-        class="margin-small-left"
-        v-model="isLocked"
-      />
+    </div>
+    <div
+      class="horizontal-left-content margin-medium-top gap-small"
+      :class="!source && 'margin-medium-bottom'"
+    >
+      <VBtn
+        v-if="submitButton"
+        :color="submitButton.color"
+        :disabled="!citation.source_id"
+        medium
+        @click="emit('submit', citation)"
+      >
+        {{ submitButton.label }}
+      </VBtn>
+      <VBtn
+        v-if="citation.id"
+        color="primary"
+        medium
+        @click="() => (citation = makeCitation())"
+      >
+        New
+      </VBtn>
+      <slot name="footer" />
     </div>
     <SmartSelectorItem
       :item="source"
       label="cached"
       @unset="setSource({})"
     />
-    <div class="margin-medium-bottom margin-medium-top">
+    <div>
       <ul class="context-menu no_bullets">
         <li>
           <input
@@ -64,24 +94,7 @@
         </li>
       </ul>
     </div>
-    <div class="horizontal-left-content">
-      <VBtn
-        v-if="submitButton"
-        class="margin-small-right"
-        :color="submitButton.color"
-        :disabled="!citation.source_id"
-        medium
-        @click="emit('submit', citation)"
-      >
-        {{ submitButton.label }}
-      </VBtn>
-      <FormCitationClone
-        v-if="!inlineClone"
-        @clone="(item) => Object.assign(citation, item)"
-      />
-      <slot name="footer" />
-    </div>
-  </fieldset>
+  </component>
 </template>
 
 <script setup>
@@ -149,6 +162,11 @@ const props = defineProps({
     default: undefined
   },
 
+  fieldset: {
+    type: Boolean,
+    default: true
+  },
+
   original: {
     type: Boolean,
     default: true
@@ -173,7 +191,10 @@ const isAbsent = computed({
   set: (value) => emit('update:absent', value)
 })
 
-const isLocked = ref(false)
+const isLocked = defineModel('lock', {
+  type: Boolean,
+  default: false
+})
 
 const sourceId = computed(() => props.modelValue.source_id)
 const source = ref(undefined)
@@ -182,7 +203,7 @@ watch(sourceId, async (newId, oldId) => {
   if (newId) {
     if (newId !== oldId && newId !== source.value?.id) {
       source.value = (await Source.find(newId)).body
-      citation.value._label = source.value.cached
+      citation.value.label = source.value.cached
     }
   } else {
     source.value = undefined
@@ -208,7 +229,7 @@ function setSource(value) {
     sessionStorage.setItem(STORAGE.sourceId, value.id)
   }
   citation.value.source_id = value.id
-  citation.value._label = value.cached
+  citation.value.label = value.cached
 
   emit('source', value)
 }

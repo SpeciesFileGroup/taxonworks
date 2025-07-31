@@ -52,9 +52,9 @@ class RolesController < ApplicationController
 
   # # GET /roles/download
   # def download
-  #   send_data Export::Download.generate_csv(Role.where(project_id: sessions_current_project_id)),
+  #   send_data Export::CSV.generate_csv(Role.where(project_id: sessions_current_project_id)),
   #     type: 'text',
-  #     filename: "roles_#{DateTime.now}.csv"
+  #     filename: "roles_#{DateTime.now}.tsv"
   # end
 
   # # GET /api/v1/roles
@@ -82,7 +82,7 @@ class RolesController < ApplicationController
   def filter_params
     add_project_id = false
     role_types = [params[:role_type]].flatten.compact.map(&:safe_constantize)
-    if !params[:object_global_id].blank?
+    if params[:object_global_id].present?
       role_types << GlobalID::Locator.locate(params[:object_global_id]).class
     end
 

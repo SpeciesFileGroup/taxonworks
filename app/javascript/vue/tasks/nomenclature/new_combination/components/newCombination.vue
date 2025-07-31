@@ -57,7 +57,7 @@
             />
           </template>
         </div>
-        <hr />
+        <hr class="divisor" />
         <div class="content">
           <source-picker
             :citation="newCombination['origin_citation']"
@@ -113,7 +113,7 @@ import ListGroup from './listGroup.vue'
 import SaveCombination from './saveCombination.vue'
 import PreviewView from './previewView.vue'
 import SourcePicker from './sourcePicker.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import MatchGroup from './matchGroup.vue'
 import { Combination, TaxonName } from '@/routes/endpoints'
 
@@ -301,7 +301,7 @@ export default {
 .header {
   padding: 1em;
   padding-left: 1.5em;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--border-color);
   border-left: 4px solid green;
   h3 {
     font-weight: 300;

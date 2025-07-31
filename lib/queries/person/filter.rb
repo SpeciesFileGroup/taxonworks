@@ -159,6 +159,7 @@ module Queries
         @levenshtein_cuttoff = params[:levenshtein_cuttoff]
         @name = params[:name]
         @only_project_id = params[:only_project_id]
+        @person_id = params[:person_id]
         @regex = params[:regex]
         @repeated_total = params[:repeated_total]
         @role = params[:role]
@@ -264,7 +265,7 @@ module Queries
           w2 = a[:value].eq(v)
         end
 
-        q.where( w1.or(w2).to_sql )
+        q.where( w1.or(w2).to_sql ).distinct
       end
 
 
@@ -289,14 +290,14 @@ module Queries
 
       def role_facet
         return nil if role.empty?
-        ::Person.joins(:roles).where( role_table[:type].eq_any(role) ).distinct
+        ::Person.joins(:roles).where( role_table[:type].in(role) ).distinct
       end
 
       def except_role_facet
         return nil if except_role.empty?
         #  ::Person.left_outer_joins(:roles)
         #    .where( roles: {person_id: nil})
-        #    .or( ::Person.left_outer_joins(:roles).where.not( role_table[:type].eq_any(except_role)) )
+        #    .or( ::Person.left_outer_joins(:roles).where.not( role_table[:type].in(except_role)) )
         #    .distinct
 
         # ::Person.joins("LEFT JOIN roles on roles.person_id = people.id AND roles.type IN (#{except_role.collect{|r| "'#{r}'"}.join(',')})")
@@ -324,12 +325,11 @@ module Queries
         min_max = [use_min&.to_i, use_max&.to_i ].compact
 
         q = ::Person.joins(:roles)
-          .select('people.*, COUNT(roles.person_id)')
           .group('people.id, roles.person_id')
           .having("COUNT(roles.person_id) >= #{min_max[0]}")
 
         if !role.empty?
-          q = q.where(role_table[:type].eq_any(role))
+          q = q.where(role_table[:type].in(role))
         end
 
         # Untested
@@ -379,8 +379,8 @@ module Queries
       def except_project_id_facet
         return nil if except_project_id.empty?
 
-        w1 = role_table[:project_id].not_eq_any(except_project_id)
-        w2 = ::ProjectSource.arel_table[:project_id].not_eq_any(except_project_id)
+        w1 = role_table[:project_id].not_in(except_project_id)
+        w2 = ::ProjectSource.arel_table[:project_id].not_in(except_project_id)
 
         a = ::Person.joins(:roles).where(w1.to_sql)
         b = ::Person.joins(sources: [:project_sources]).where( w2.to_sql)

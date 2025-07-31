@@ -1,5 +1,5 @@
 #observation_matrices {
-  margin-top:50px;
+  margin-top: 50px;
   .otu_column {
     min-width: 400px;
   }
@@ -17,11 +17,20 @@
   width: 200px;
   bottom: 0;
   left: 0;
+  max-width: 200px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .header-slanted-cell {
   min-width: 70px;
   position: relative;
   text-align: left;
+  background-color: transparent;
+}
+
+.header-slanted-cell:hover {
+  background-color: transparent;
 }
 
 #vue-interactive-keys {
@@ -31,7 +40,7 @@
   .header-bar {
     width: 100%;
     height: 50px;
-    border-bottom: 1px solid #CCCCCC;
+    border-bottom: 1px solid #cccccc;
     background-color: white;
   }
 
@@ -41,7 +50,7 @@
     grid-template-rows: repeat(2, 1fr);
     grid-column-gap: 0px;
     grid-row-gap: 0px;
-    background-color: #CCCCCC;
+    background-color: #cccccc;
     grid-gap: 1px;
   }
   .grid-icon {
@@ -55,28 +64,28 @@
     background-color: white;
     overflow: scroll;
   }
-  
+
   .layout-mode-1 {
-    .descriptors-view { 
-      grid-area: 1 / 1 / 2 / 3; 
+    .descriptors-view {
+      grid-area: 1 / 1 / 2 / 3;
     }
-    .taxa-remaining { 
-      grid-area: 2 / 1 / 3 / 2; 
+    .taxa-remaining {
+      grid-area: 2 / 1 / 3 / 2;
     }
-    .taxa-eliminated { 
+    .taxa-eliminated {
       grid-area: 2 / 2 / 3 / 3;
     }
   }
-  
+
   .layout-mode-2 {
-    .descriptors-view  { 
-      grid-area: 1 / 1 / 3 / 2; 
+    .descriptors-view {
+      grid-area: 1 / 1 / 3 / 2;
     }
-    .taxa-remaining { 
-      grid-area: 1 / 2 / 2 / 3; 
+    .taxa-remaining {
+      grid-area: 1 / 2 / 2 / 3;
     }
-    .taxa-eliminated { 
-      grid-area: 2 / 2 / 3 / 3; 
+    .taxa-eliminated {
+      grid-area: 2 / 2 / 3 / 3;
     }
   }
 
@@ -84,12 +93,18 @@
     height: 100%;
   }
 
-  .mainfont { color: #004050;}
-  .red { color: #C00000; }
-  .redbold { color: #C00000; font-weight: bold; }
-
-  .i3 {
-    box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
+  .mainfont {
+    color: #004050;
+  }
+  .red {
+    color: #c00000;
+  }
+  .redbold {
+    color: #c00000;
+    font-weight: bold;
   }
 
+  .i3 {
+    box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+  }
 }

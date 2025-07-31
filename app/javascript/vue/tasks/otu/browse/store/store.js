@@ -12,11 +12,13 @@ function makeInitialState() {
       collectionObjects: true,
       descendants: false,
       descendantsDistribution: false,
-      distribution: true
+      distribution: true,
+      conveyances: false,
+      fieldOccurrences: true
     },
     preferences: {
-      preferenceSchema: 20210715,
-      sections: Object.keys(componentNames()),
+      preferenceSchema: 20250519,
+      sections: Object.keys(componentNames),
       filterSections: {
         and: {
           current: [
@@ -108,13 +110,15 @@ function makeInitialState() {
     assertedDistributions: [],
     biologicalAssociations: [],
     relatedBAs: [],
-    collectingEvents: [],
     collectionObjects: [],
+    fieldOccurrences: [],
     otus: [],
+    shapeTypes: [],
     georeferences: { features: [] },
     typeMaterials: [],
     depictions: [],
     commonNames: [],
+    conveyances: [],
     descendants: {
       taxon_names: [],
       collecting_events: [],

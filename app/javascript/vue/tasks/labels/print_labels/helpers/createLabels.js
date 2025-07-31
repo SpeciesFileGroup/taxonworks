@@ -57,8 +57,7 @@ function createPages(
 
     for (let i = 0; i < label.total; i++) {
       rowLines = rowLines + labelLines
-      pages =
-        pages + (label.is_generated ? label.label : createLabel(label, cssStye))
+      pages = pages + createLabel(label, cssStye)
 
       if (rowLines >= maxRows) {
         pages = pages + '</div><div class="ce_label_col">'

@@ -14,9 +14,6 @@ class Georeference::VerbatimData < Georeference
   def initialize(params = {})
     super
 
-    self.is_median_z    = false
-    self.is_undefined_z = false # and delta_z is zero, or ignored
-
     unless collecting_event.nil? || geographic_item
       # value from collecting_event is normalised to meters
       z1 = collecting_event.minimum_elevation
@@ -24,7 +21,6 @@ class Georeference::VerbatimData < Georeference
 
       if z1.blank?
         # no valid elevation provided
-        self.is_undefined_z = true
         delta_z             = 0.0
       else
         # we have at least half of the range data
@@ -35,20 +31,23 @@ class Georeference::VerbatimData < Georeference
         else
           # we have full range data, so elevation is (top - bottom) / 2
           delta_z = z1 + ((z2 - z1) * 0.5)
-          # and show calculated median
-          self.is_median_z = true
         end
       end
 
       point = collecting_event.verbatim_map_center(delta_z) # hmm
 
-      attributes = {point: point}
+      attributes = {geography: point}
       attributes[:by] = self.by if self.by
 
       if point.nil?
         test_grs = []
       else
-        test_grs = GeographicItem::Point.where("point = ST_GeographyFromText('POINT(? ? ?)')", point.x, point.y, point.z)
+        test_grs = GeographicItem
+          # && is a fast indexed-bounding-box comparison
+          .where('geography && ST_GeographyFromText(:wkt) AND ' \
+                 'geography = ST_GeographyFromText(:wkt)',
+            wkt: "POINT(#{point.x} #{point.y} #{point.z})"
+          )
       end
 
       if test_grs.empty?
@@ -67,17 +66,17 @@ class Georeference::VerbatimData < Georeference
       verbatimLatitude: collecting_event.verbatim_latitude,
       verbatimLongitude: collecting_event.verbatim_longitude,
       coordinateUncertaintyInMeters: error_radius,
-      georeferenceSources: "Physical collection object.",
+      georeferenceSources: 'Transcribed from verbatim label, field note, or published data.',
       georeferenceRemarks: "Derived from a instance of TaxonWorks' Georeference::VerbatimData.",
       geodeticDatum: nil  # TODO: check
     )
-    h[:georeferenceProtocol] = 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).' if h[:georeferenceProtocol].blank?  
+    h[:georeferenceProtocol] = 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).' if h[:georeferenceProtocol].blank?
     h
   end
 
   # @return [Boolean]
-  #    true if geographic_item.geo_object is completely contained in collecting_event.geographic_area
-  # .default_geographic_item
+  #    true if geographic_item.geo_object is within `distance` of
+  #    collecting_event.geographic_area
   def check_obj_within_distance_from_area(distance)
     # case 6
     retval = true

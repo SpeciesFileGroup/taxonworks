@@ -10,8 +10,8 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
   let(:gnfinder_monominal) { finder.find_names(monominal_string, verification: true, words_around: 3).names.first }
   let(:gnfinder_binominal) { finder.find_names(binominal_string, verification: true, words_around: 3).names.first }
 
-  let(:mn) { ::Vendor::Gnfinder::Name.new(gnfinder_monominal) }
-  let(:bn) { ::Vendor::Gnfinder::Name.new(gnfinder_binominal) }
+  let(:mn) { Vendor::Gnfinder::Name.new(gnfinder_monominal) }
+  let(:bn) { Vendor::Gnfinder::Name.new(gnfinder_binominal) }
 
   specify '#project_id' do
     expect(mn.project_id).to eq([])
@@ -26,7 +26,7 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
     end
 
     specify '#log_odds' do
-      expect(n.log_odds).to be_within(0.5).of(4.5)
+      expect(n.log_odds).to be_within(0.5).of(4.0)
     end
 
     specify '#verbatim' do
@@ -42,23 +42,23 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
     end
 
     specify '#words_before' do
-      expect(n.words_before).to contain_exactly("The")
+      expect(n.words_before).to contain_exactly('The')
     end
 
     specify '#words_after' do
-      expect(n.words_after).to contain_exactly("of", "the", "World")
+      expect(n.words_after).to contain_exactly('of', 'the', 'World')
     end
   end
 
   specify '#classification_path' do
     expect(mn.classification_path).to contain_exactly(
-      'Biota', 'Animalia', 'Arthropoda', 'Insecta', 'Orthoptera', 'Caelifera', 'Acrididea', 'Acridomorpha', 'Acridoidea', 'Acrididae'
+      'Eukaryota', 'Animalia', 'Arthropoda', 'Insecta', 'Orthoptera', 'Caelifera', 'Acrididea', 'Acridoidea', 'Acrididae'
     )
   end
 
   specify '#classification_rank' do
     expect(mn.classification_rank).to contain_exactly(
-      'unranked', 'kingdom', 'phylum', 'class', 'order', 'suborder', 'infraorder', 'nanorder', 'superfamily', 'family'
+      'domain', 'kingdom', 'phylum', 'class', 'order', 'suborder', 'infraorder', 'superfamily', 'family'
     )
   end
 

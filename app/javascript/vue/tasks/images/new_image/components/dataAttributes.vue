@@ -48,6 +48,7 @@
       :list="dataAttributes"
       :header="['Predicate', 'Value', '']"
       :delete-warning="false"
+      soft-delete
       :annotator="false"
       row-key="controlled_vocabulary_term_id"
       :attributes="['label', 'value']"

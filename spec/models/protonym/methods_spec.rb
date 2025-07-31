@@ -63,6 +63,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'predicted_child_rank' do
       before(:all) do
+        init_housekeeping
         @order = FactoryBot.build(:iczn_order, name: 'Hemiptera')
         @family = FactoryBot.build(:iczn_family, name: 'Cicadellidae', parent: @order)
         @genus = FactoryBot.build(:iczn_genus, name: 'Cicadella', parent: @family)
@@ -96,6 +97,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'coordinated names' do
       before(:all) do
+        init_housekeeping
+
         @family = FactoryBot.create(:iczn_family, name: 'Cicadellidae')
         @subfamily = FactoryBot.create(:iczn_subfamily, name: 'Cicadellinae', parent: @family)
         @tribe = FactoryBot.create(:iczn_tribe, name: 'Cicadellini', parent: @subfamily)

@@ -8,13 +8,13 @@ describe Combination, type: :model, group: :nomenclature do
   let(:subgenus ) {FactoryBot.create(:iczn_subgenus, parent: genus, year_of_publication: 1950)}
   let(:species) { FactoryBot.create(:relationship_species, parent: genus, year_of_publication: 1951)  }
   let(:species2) { FactoryBot.create(:relationship_species, name: 'comes', parent: genus, year_of_publication: 1952) }
-
+  let(:subspecies) { FactoryBot.create(:iczn_subspecies, parent: species, year_of_publication: 1951)  }
   let(:basic_combination) {Combination.new(genus: genus, species: species) }
 
   context 'associations' do
     context 'has_one' do
       context 'taxon_name_relationship' do
-        Combination::APPLICABLE_RANKS.each do |rank|
+        Combination::APPLICABLE_RANKS.keys.each do |rank|
           method = "#{rank}_taxon_name_relationship"
           specify method do
             expect(combination.send("#{method}=", TaxonNameRelationship.new)).to be_truthy
@@ -23,7 +23,7 @@ describe Combination, type: :model, group: :nomenclature do
       end
 
       context 'taxon_name' do
-        Combination::APPLICABLE_RANKS.each do |rank|
+        Combination::APPLICABLE_RANKS.keys.each do |rank|
           specify rank do
             expect(combination.send("#{rank}=", Protonym.new)).to be_truthy
           end
@@ -248,6 +248,16 @@ describe Combination, type: :model, group: :nomenclature do
           'subspecies' => species2
         )
       end
+
+      specify 'for a quadrinominal 2' do #### sorting by combination relationships not by TaxonName.rank_class
+        combination.genus = subgenus
+        combination.subgenus = genus
+        combination.subspecies = species
+        combination.species = subspecies
+        combination.save!
+        expect(combination.protonyms_by_rank.keys).to eq(['genus', 'subgenus', 'species', 'subspecies'])
+      end
+
     end
 
     context '#full_name_hash (overrides @taxon_name.full_name_hash)' do

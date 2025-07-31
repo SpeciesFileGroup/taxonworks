@@ -94,7 +94,7 @@ module BatchLoad
     def get_gene_fragement(filename)
       # _&fCOIBC_& or _&gCOIBC_&
       f_fragement = get_between_strings(filename, '_&f', '_&')
-      return f_fragement.blank? ? get_between_strings(filename, '_&g', '_&') : f_fragement
+      return f_fragement.presence || get_between_strings(filename, '_&g', '_&')
     end
 
     # @param [String] filename
@@ -108,7 +108,7 @@ module BatchLoad
 
       # Taxon determination associated with collection object
       if collection_object
-        taxon_determination = TaxonDetermination.where(biological_collection_object_id: collection_object.id).take
+        taxon_determination = TaxonDetermination.find_by(taxon_determination_object: collection_object)
 
         if taxon_determination
           otu = taxon_determination.otu

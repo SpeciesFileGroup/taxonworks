@@ -2,59 +2,105 @@ import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
 import { EVENT_SMART_SELECTOR_UPDATE } from '@/constants/index.js'
 import { CollectionObject } from '@/routes/endpoints'
+import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
+import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations'
+import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
+import {
+  IDENTIFIER_LOCAL_RECORD_NUMBER,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER,
+  COLLECTION_OBJECT,
+  CONTAINER
+} from '@/constants/index.js'
 
 const updateSmartSelectors = () => {
   const event = new CustomEvent(EVENT_SMART_SELECTOR_UPDATE)
   document.dispatchEvent(event)
 }
 
-export default ({ commit, dispatch, state }) =>
-  new Promise((resolve, reject) => {
+function makeContainerArgs(id) {
+  return {
+    objectId: id,
+    objectType: CONTAINER
+  }
+}
+
+function makeCOArgs(id) {
+  return {
+    objectId: id,
+    objectType: COLLECTION_OBJECT
+  }
+}
+
+export default async (
+  { commit, dispatch, state },
+  { resetAfter = false } = {}
+) => {
+  try {
+    const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
+    const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+    const determinationStore = useTaxonDeterminationStore()
+    const collectingEventStore = useCollectingEventStore()
+    const biologicalAssociationStore = useBiologicalAssociationStore()
+    const biocurationStore = useBiocurationStore()
+
     state.settings.saving = true
-    dispatch(ActionNames.SaveCollectingEvent)
-      .then(() => {
-        dispatch(ActionNames.SaveLabel)
-        dispatch(ActionNames.SaveCollectionObject, state.collection_object)
-          .then((coCreated) => {
-            commit(MutationNames.SetCollectionObject, coCreated)
-            commit(MutationNames.AddCollectionObject, coCreated)
+    if (collectingEventStore.isUnsaved) {
+      await collectingEventStore.save()
+    }
 
-            const actions = [
-              dispatch(ActionNames.SaveTypeMaterial),
-              dispatch(ActionNames.SaveCOCitations),
-              dispatch(ActionNames.SaveIdentifier, coCreated.id),
-              dispatch(ActionNames.SaveDeterminations),
-              dispatch(ActionNames.SaveBiologicalAssociations)
-            ]
+    const { body } = await dispatch(
+      ActionNames.SaveCollectionObject,
+      state.collection_object
+    )
 
-            Promise.allSettled(actions)
-              .then((_) => {
-                dispatch(ActionNames.LoadSoftValidations)
+    const coCreated = body
+    const payload = state.container
+      ? makeContainerArgs(state.container.id)
+      : makeCOArgs(coCreated.id)
 
-                CollectionObject.find(state.collection_object.id).then(
-                  ({ body }) => {
-                    state.collection_object.object_tag = body.object_tag
-                  }
-                )
+    commit(MutationNames.SetCollectionObject, coCreated)
+    commit(MutationNames.AddCollectionObject, coCreated)
 
-                state.settings.lastSave = Date.now()
+    const actions = [
+      dispatch(ActionNames.SaveTypeMaterial),
+      dispatch(ActionNames.SaveCOCitations),
+      recordNumber.save(payload),
+      catalogNumber.save(payload),
+      determinationStore.save(makeCOArgs(coCreated.id)),
+      biologicalAssociationStore.save(makeCOArgs(coCreated.id)),
+      biocurationStore.save(makeCOArgs(coCreated.id))
+    ]
 
-                TW.workbench.alert.create(
-                  'All records were successfully saved.',
-                  'notice'
-                )
-                resolve(true)
-              })
-              .finally(() => {
-                updateSmartSelectors()
-                state.settings.saving = false
-              })
-          })
-          .catch(() => {
-            state.settings.saving = false
-          })
+    const promises = await Promise.allSettled(actions)
+
+    const allSaved = promises.every((item) => item.status == 'fulfilled')
+
+    if (resetAfter && allSaved) {
+      dispatch(ActionNames.ResetWithDefault)
+    } else {
+      await dispatch(ActionNames.LoadSoftValidations)
+      await CollectionObject.find(state.collection_object.id, {
+        extend: ['dwc_occurrence']
+      }).then(({ body }) => {
+        state.collection_object.object_tag = body.object_tag
+        state.collection_object.dwc_occurrence = body.dwc_occurrence
       })
-      .catch((_) => {
-        state.settings.saving = false
-      })
-  })
+    }
+
+    if (allSaved) {
+      TW.workbench.alert.create(
+        'All records were successfully saved.',
+        'notice'
+      )
+      state.settings.lastSave = Date.now()
+    }
+
+    updateSmartSelectors()
+    state.settings.saving = false
+    return Promise.all(promises)
+  } catch (e) {
+    state.settings.saving = false
+    throw e
+  }
+}

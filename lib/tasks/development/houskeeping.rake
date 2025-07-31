@@ -9,7 +9,7 @@ namespace :tw do
     task  generate_housekeeping_migration: [:environment] do |t|
 
       # Ensure that we have all models loaded
-      Rails.application.eager_load!
+      # Rails.application.eager_load!
 
       puts "# known subclasses of ApplicationRecord  #{ApplicationRecord.subclasses.collect{|a| a.name}.sort.join(", ")} \n"
 
@@ -22,7 +22,7 @@ namespace :tw do
           puts "add_column :#{d.name.underscore.pluralize}, :updated_by_id, :integer, index: true"
         end
 
-        if d.ancestors.include?(Housekeeping::Projects) 
+        if d.ancestors.include?(Housekeeping::Projects)
           hit = true
           puts "add_column :#{d.name.underscore.pluralize}, :project_id, :integer, index: true"
         end
@@ -36,14 +36,14 @@ namespace :tw do
     desc 'generate not null template migration'
     task  generate_not_null_migration: [:environment] do |t|
       # Ensure that we have all models loaded
-      Rails.application.eager_load!
+      # Rails.application.eager_load!
 
       migrated, not_migrated = [], []
       ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
-        puts "# #{d.name}" 
+        puts "# #{d.name}"
         d.columns.each do |c|
          # if c.name =~ /.+_id|.*_?type|position|type|name|created_at|updated_at/
-          puts "# #{d.name}.connection.execute('alter table #{d.table_name} alter #{c.name} set not null;')" 
+          puts "# #{d.name}.connection.execute('alter table #{d.table_name} alter #{c.name} set not null;')"
          # end
         end
         puts "\n"
@@ -54,14 +54,14 @@ namespace :tw do
     desc 'generate index template migration'
     task  generate_index_migration: [:environment] do |t|
       # Ensure that we have all models loaded
-      Rails.application.eager_load!
+      # Rails.application.eager_load!
 
       migrated, not_migrated = [], []
       ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
-        puts "# #{d.name}" 
+        puts "# #{d.name}"
         d.columns.each do |c|
           if c.name =~ /.+_id|.*_?type|position|type|lft|rgt|position/ # lft/rgt are not here any more
-            puts "# add_index :#{d.table_name}, :#{c.name.to_sym}" 
+            puts "# add_index :#{d.table_name}, :#{c.name.to_sym}"
           end
         end
         puts "\n"
@@ -71,14 +71,14 @@ namespace :tw do
     desc 'generate fk template migration'
     task  generate_fk_migration: [:environment] do |t|
       # Ensure that we have all models loaded
-      Rails.application.eager_load!
+      # Rails.application.eager_load!
 
       migrated, not_migrated = [], []
       ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
-        puts "# #{d.name}" 
+        puts "# #{d.name}"
         d.columns.each do |c|
           if c.name =~ /.+_id/
-            puts "# #{d.name}.connection.execute('alter table #{d.table_name} add foreign key (#{c.name}) references CHANGE_ME (id);')" 
+            puts "# #{d.name}.connection.execute('alter table #{d.table_name} add foreign key (#{c.name}) references CHANGE_ME (id);')"
           end
         end
         puts "\n"

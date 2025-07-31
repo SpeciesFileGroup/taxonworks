@@ -47,12 +47,11 @@
               <VBtn
                 color="destroy"
                 circle
-                @click="editItem(index)"
+                @click="emit('remove', item)"
               >
                 <VIcon
                   name="trash"
                   x-small
-                  @click="removeCTV(index)"
                 />
               </VBtn>
             </div>
@@ -67,8 +66,8 @@
 <script setup>
 import { ref } from 'vue'
 import { sortArray } from '@/helpers'
-import SpinnerComponent from '@/components/spinner.vue'
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -79,7 +78,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['edit', 'sort'])
+const emit = defineEmits(['edit', 'sort', 'remove'])
 
 const isLoading = ref(false)
 const ascending = ref(false)

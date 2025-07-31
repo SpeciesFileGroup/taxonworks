@@ -1,0 +1,26 @@
+<%= render("/shared/data/all/list/list_header", objects: @leads) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Title') -%>
+    <%= fancy_th_tag(name: 'Number of couplets') -%>
+    <%= fancy_th_tag(name: 'Public') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @leads.each do |lead| %>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
+          <td><%= lead.text %></td>
+          <td><%= lead.all_children.size / 2 %></td>
+          <td><%= lead.is_public %></td>
+          <%= content_tag(:td, lead[:key_updated_by]) +
+              content_tag(:td, time_ago_in_words(lead[:key_updated_at])) +
+              fancy_options_cells_tag(lead) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>

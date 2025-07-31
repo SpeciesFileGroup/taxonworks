@@ -21,7 +21,7 @@
 
 <script setup>
 import Autocomplete from '@/components/ui/Autocomplete'
-import DefaultSource from '@/components/getDefaultPin'
+import DefaultSource from '@/components/ui/Button/ButtonPinned'
 import { ActionNames } from '../store/actions/actions'
 import { useStore } from 'vuex'
 

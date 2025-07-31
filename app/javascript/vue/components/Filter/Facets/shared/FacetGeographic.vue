@@ -1,25 +1,25 @@
 <template>
   <FacetContainer>
-    <h3>Geographic area</h3>
-    <switch-component
+    <h3>Spatial</h3>
+
+    <VSwitch
+      v-if="Object.values(TABS).length > 0"
       class="separate-bottom"
       v-model="view"
       :options="Object.values(TABS)"
     />
-    <div v-if="view === 'area'">
-      <div class="field">
-        <autocomplete
-          :input-id="inputId"
-          url="/geographic_areas/autocomplete"
-          label="label_html"
-          clear-after
-          placeholder="Search a geographic area"
-          param="term"
-          @get-item="addGeoArea($event.id)"
-        />
-      </div>
 
-      <ul class="no_bullets">
+    <div v-if="view === TABS.Shape">
+      <ShapeSelector
+        :minimal="true"
+        @selectShape="(shape) => addShape(shape)"
+        class="vue-autocomplete"
+      />
+
+      <ul
+        v-if="Object.values(GEOGRAPHIC_OPTIONS)"
+        class="no_bullets"
+      >
         <li
           v-for="(value, key) in GEOGRAPHIC_OPTIONS"
           :key="key"
@@ -28,7 +28,7 @@
             <input
               type="radio"
               :value="value"
-              v-model="geographic.geographic_area_mode"
+              v-model="geoMode"
             />
             {{ key }}
           </label>
@@ -39,21 +39,26 @@
         <ul class="no_bullets table-entrys-list">
           <li
             class="middle flex-separate list-complete-item"
-            v-for="(geoArea, index) in geographicAreas"
-            :key="geoArea.id"
+            v-for="(shape, index) in shapes"
+            :key="shape.id"
           >
-            <span
-              :class="{
-                subtle:
-                  geographic.geographic_area_mode ===
-                    GEOGRAPHIC_OPTIONS.Spatial && !geoArea.has_shape
-              }"
-              v-html="geoArea.name"
-            />
+            <span>
+              <span
+                v-html="shape.name"
+              />
+              <VIcon
+                v-if="geoMode === GEOGRAPHIC_OPTIONS.Spatial && !shape.has_shape"
+                color="attention"
+                name="attention"
+                small
+                title="This has no shape and so won't participate in spatial search"
+                class="separate-left center_text"
+              />
+            </span>
             <VBtn
               circle
               color="primary"
-              @click="removeGeoArea(index)"
+              @click="removeShape(index)"
             >
               <VIcon
                 x-small
@@ -64,120 +69,217 @@
         </ul>
       </div>
     </div>
-    <div v-else>
-      <georeference-map
-        width="100%"
-        height="300px"
-        :geojson="geojson"
-        draw-controls
-        :draw-polyline="false"
-        :draw-marker="false"
-        :drag-mode="false"
-        :cut-polygon="false"
-        :draw-circle-marker="false"
-        :tiles-selection="false"
-        :edit-mode="false"
-        :zoom="1"
-        @geojson="geojson = $event"
-        @geo-json-layer-created="addShape"
-      />
-    </div>
+
+    <VMap
+      v-else
+      width="100%"
+      height="300px"
+      :geojson="mapGeoJson"
+      draw-controls
+      :draw-polyline="false"
+      :draw-marker="false"
+      :drag-mode="false"
+      :cut-polygon="false"
+      :draw-circle-marker="false"
+      :tiles-selection="false"
+      :edit-mode="false"
+      :zoom="1"
+      @geojson="(geojson) => (mapGeoJson = geojson)"
+      @geo-json-layer-created="addShapeFromMap"
+    />
     <RadialFilterAttribute
-      :parameters="{ geographic_area_id: geographic.geographic_area_id }"
+      :parameters="{ shape_id: params.geo_shape_id }"
     />
   </FacetContainer>
 </template>
 
 <script setup>
-import SwitchComponent from '@/components/switch'
-import Autocomplete from '@/components/ui/Autocomplete'
-import GeoreferenceMap from '@/components/georeferences/map'
+import ShapeSelector from '@/components/ui/SmartSelector/ShapeSelector.vue'
+import VSwitch from '@/components/ui/VSwitch'
+import VMap from '@/components/georeferences/map'
 import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import { GeographicArea } from '@/routes/endpoints'
-import { URLParamsToJSON } from '@/helpers/url/parse.js'
-import { computed, ref, watch, onBeforeMount } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-
-const TABS = {
-  Area: 'area',
-  Map: 'map'
-}
-
-const GEOGRAPHIC_OPTIONS = {
-  Spatial: true,
-  Descendants: false,
-  Exact: undefined
-}
+import { GeographicArea, Gazetteer } from '@/routes/endpoints'
+import { ref, watch, onBeforeMount } from 'vue'
 
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    required: true
-  },
   inputId: {
     type: String,
     default: undefined
+  },
+
+  noExact: {
+    type: Boolean,
+    default: false
+  },
+
+  // Note noExact implies noDescendants
+  noDescendants: {
+    type: Boolean,
+    default: false
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+let TABS // fib
+let GEOGRAPHIC_OPTIONS // fib
 
-const geographic = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+if (props.noDescendants && props.noExact) {
+  TABS = {}
+  GEOGRAPHIC_OPTIONS = {}
+} else if (props.noDescendants) { // && Exact
+  TABS = {
+    Shape: 'shape',
+    Map: 'map'
+  }
+  GEOGRAPHIC_OPTIONS = {
+    Spatial: true,
+    Exact: undefined
+  }
+} else { // Descendants and Exact
+  TABS = {
+    Shape: 'shape',
+    Map: 'map'
+  }
+  GEOGRAPHIC_OPTIONS = {
+    Spatial: true,
+    Descendants: false,
+    Exact: undefined
+  }
+}
+
+// We set shape_id: [], shape_type: [], radius, geo_json
+const params = defineModel( {type: Object, required: true })
+
+const shapes = ref([])
+const geoMode = ref(GEOGRAPHIC_OPTIONS.Spatial)
+const mapGeoJson = ref([])
+const view = ref(TABS.Shape)
+
+watch(geoMode, (newVal) => {
+  params.value.geo_mode =
+    shapes.value.length ? newVal : undefined
 })
-const geographicAreas = ref([])
-const geojson = ref([])
-const view = ref(TABS.Area)
 
 watch(
-  geojson,
+  mapGeoJson,
   (newVal) => {
     if (newVal.length) {
       const shape = newVal[0]
 
-      geographic.value.geographic_area_id = []
+      params.value.geo_shape_type = []
+      params.value.geo_shape_id = []
 
       if (shape.properties?.radius) {
-        geographic.value.radius = shape.properties.radius
-        geographic.value.geo_json = JSON.stringify({
+        params.value.radius = shape.properties.radius
+        params.value.geo_json = JSON.stringify({
           type: 'Point',
           coordinates: shape.geometry.coordinates
         })
       } else {
-        geographic.value.geo_json = JSON.stringify({
+        params.value.geo_json = JSON.stringify({
           type: 'MultiPolygon',
           coordinates: newVal.map((feature) => feature.geometry.coordinates)
         })
-        geographic.value.radius = undefined
+        params.value.radius = undefined
       }
     } else {
-      geographic.value.geo_json = []
+      params.value.geo_json = []
     }
   },
   { deep: true }
 )
 
-const addShape = (shape) => {
-  geojson.value = [shape]
+watch(params, (newVal) => {
+  if (!newVal?.length) {
+    shapes.value = []
+  }
+})
+
+watch(
+  () => params.value.geo_json,
+  (newVal, oldVal) => {
+    if (!newVal?.length && oldVal?.length) {
+      mapGeoJson.value = []
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  [shapes, geoMode],
+  () => {
+    if (geoMode.value === GEOGRAPHIC_OPTIONS.Spatial) {
+      params.value.geo_shape_id =
+        shapes.value
+          .filter((item) => item.has_shape)
+          .map((item) => item.id)
+
+      params.value.geo_shape_type =
+        shapes.value
+          .filter((item) => item.has_shape)
+          .map((item) => item.shapeType)
+    } else {
+      params.value.geo_shape_id =
+        shapes.value
+          .map((item) => item.id)
+
+      params.value.geo_shape_type =
+        shapes.value
+          .map((item) => item.shapeType)
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => params.value.geo_shape_id,
+  (newVal, oldVal) => {
+    if (!newVal?.length && oldVal?.length) {
+      shapes.value = []
+    }
+
+    params.value.geo_mode =
+      newVal?.length ? geoMode.value : undefined
+  },
+  { deep: true }
+)
+
+function addShapeFromMap(shape) {
+  mapGeoJson.value = [shape]
 }
 
-const removeGeoArea = (index) => {
-  geographicAreas.value.splice(index, 1)
+function removeShape(index) {
+  shapes.value.splice(index, 1)
 }
 
-const addGeoArea = (id) => {
-  GeographicArea.find(id).then((response) => {
-    geographic.value.geo_json = undefined
-    geographic.value.radius = undefined
-    geographicAreas.value.push(response.body)
-  })
+function addShapeFromId(id, type) {
+  if (type == 'GeographicArea') {
+    GeographicArea.find(id)
+      .then(({ body }) => {
+        body.shapeType = 'GeographicArea'
+        addShape(body)
+      })
+      .catch(() => {})
+  } else {
+    Gazetteer.find(id)
+      .then(({ body }) => {
+        body.shapeType = 'Gazetteer'
+        addShape(body)
+      })
+      .catch(() => {})
+  }
 }
 
-const convertGeoJSONParam = (urlParams) => {
-  const geojson = JSON.parse(urlParams.geo_json)
+function addShape(shape) {
+  params.value.geo_json = undefined
+  params.value.radius = undefined
+  shapes.value.push(shape)
+}
+
+function convertGeoJSONParam(geojsonParam, radius) {
+  const geojson = JSON.parse(geojsonParam)
 
   return {
     type: 'Feature',
@@ -187,57 +289,29 @@ const convertGeoJSONParam = (urlParams) => {
       type: geojson.type === 'Point' ? 'Point' : 'Polygon'
     },
     properties: {
-      radius: urlParams?.radius
+      radius
     }
   }
 }
-
-watch(
-  () => geographic.value.geo_json,
-  (newVal, oldVal) => {
-    if (!newVal?.length && oldVal?.length) {
-      geojson.value = []
-    }
-  },
-  { deep: true }
-)
-
-watch(
-  [geographicAreas, () => geographic.value.geographic_area_mode],
-  () => {
-    geographic.value.geographic_area_id =
-      geographic.value.geographic_area_mode === GEOGRAPHIC_OPTIONS.Spatial
-        ? geographicAreas.value
-            .filter((item) => item.has_shape)
-            .map((item) => item.id)
-        : geographicAreas.value.map((item) => item.id)
-  },
-  { deep: true }
-)
-
-watch(
-  () => geographic.value.geographic_area_id,
-  (newVal, oldVal) => {
-    if (!newVal?.length && oldVal?.length) {
-      geographicAreas.value = []
-    }
-  },
-  { deep: true }
-)
 
 onBeforeMount(() => {
-  if (geographic.value.geographic_area_id) {
-    geographic.value.geographic_area_id.forEach((id) => {
-      addGeoArea(id)
-    })
-  }
-  if (geographic.value.geo_json) {
-    addShape(convertGeoJSONParam(geographic.value))
-  }
+  try { // Have had bad cascading ooms with exceptions here
+    if (params.value.geo_shape_id?.length > 0) {
+      const shapeIds = [params.value.geo_shape_id].flat()
+      const shapeTypes = [params.value.geo_shape_type].flat()
+
+      let i = 0
+      shapeIds.forEach((id) => {
+        addShapeFromId(id, shapeTypes[i])
+        i = i + 1
+      })
+      geoMode.value = params.value.geo_mode
+    } else if (params.value.geo_json) {
+      addShapeFromMap(
+        convertGeoJSONParam(params.value.geo_json, params.value.radius)
+      )
+      view.value = TABS.Map
+    }
+  } catch {}
 })
 </script>
-<style scoped>
-:deep(.vue-autocomplete-input) {
-  width: 100%;
-}
-</style>

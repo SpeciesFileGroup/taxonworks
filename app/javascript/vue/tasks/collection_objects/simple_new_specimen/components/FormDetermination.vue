@@ -5,6 +5,7 @@
       <SelectedItem
         v-if="store.otu"
         class="full_width"
+        label="object_label"
         :item="store.otu"
         @unset="store.otu = undefined"
       />

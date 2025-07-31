@@ -2,7 +2,10 @@
 
 const { generateWebpackConfig, merge } = require('shakapacker')
 const vueConfig = require('./rules/vue')
+const devServerConfig = require('./rules/devServer')
 const path = require('node:path')
+
+const webpackConfig = generateWebpackConfig()
 
 const customConfig = {
   resolve: {
@@ -10,7 +13,17 @@ const customConfig = {
     alias: {
       '@': path.resolve(__dirname, '..', '..', 'app/javascript/vue')
     }
+  },
+  output: {
+    environment: {
+      asyncFunction: true
+    }
   }
 }
 
-module.exports = merge(vueConfig, customConfig, generateWebpackConfig())
+module.exports = merge(
+  vueConfig,
+  devServerConfig(webpackConfig),
+  customConfig,
+  webpackConfig
+)

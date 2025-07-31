@@ -42,10 +42,19 @@
 #   @return [Integer]
 #      Not null if sled_image_is present.  The row (top left 0,0) derived from
 #
+# @!attribute figure_label
+#   @return [String, nil]
+#     Figure label, as in '<figure_label>. Dorsal habitus.'
+#
+# @!attribute caption
+#   @return [String, nil]
+#     Figure description, as in 'Figure 1. <caption>'
+#
 class Depiction < ApplicationRecord
   include Housekeeping
   include Shared::Tags
   include Shared::DataAttributes
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:depiction_object)
@@ -61,9 +70,22 @@ class Depiction < ApplicationRecord
 
   validates_presence_of :depiction_object
   validates_uniqueness_of :sled_image_id, scope: [:project_id, :sled_image_x_position, :sled_image_y_position], allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
+  validates_uniqueness_of :image_id, scope: [:depiction_object_type, :depiction_object_id] #, allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
 
-  after_update :remove_media_observation2, if: Proc.new {|d| d.depiction_object_type_previously_was == 'Observation' && d.depiction_object.type_was == 'Observation::Media' }
+  before_validation :normalize_image
+
+  # Deprecated for unify() functionality
+  after_update :remove_media_observation2, if: Proc.new {|d| d.depiction_object_type_previously_was == 'Observation' && d.depiction_object.respond_to?(:type_was) && d.depiction_object.type_was == 'Observation::Media' }
   after_destroy :remove_media_observation, if: Proc.new {|d| d.depiction_object_type == 'Observation' && d.depiction_object.type == 'Observation::Media' }
+
+  # TODO: almost certainly deprecate
+  after_update :destroy_image_stub_collection_object, if: Proc.new {|d| d.depiction_object_type_previously_was == 'CollectionObject' && d.depiction_object_type == 'CollectionObject' }
+
+  def normalize_image
+    if o = Image.where(project_id: Current.project_id, image_file_fingerprint: image.image_file_fingerprint).first
+      self.image = o
+    end
+  end
 
   def from_sled?
     !sled_image_id.nil?
@@ -89,8 +111,23 @@ class Depiction < ApplicationRecord
     end
   end
 
+  def dwc_occurrences
+    co = DwcOccurrence
+      .joins("JOIN depictions d on d.depiction_object_id = dwc_occurrence_object_id AND d.depiction_object_type = 'CollectionObject'")
+      .where(d: {id:}, dwc_occurrences: {dwc_occurrence_object_type: 'CollectionObject'})
+      .distinct
+
+    fo = DwcOccurrence
+      .joins("JOIN depictions d on d.depiction_object_id = dwc_occurrence_object_id AND d.depiction_object_type = 'FieldOccurrence'")
+      .where(d: {id:}, dwc_occurrences: {dwc_occurrence_object_type: 'FieldOccurrence'})
+      .distinct
+
+    ::Queries.union(DwcOccurrence, [co, fo])
+  end
+
   private
 
+  #  Deprecate for calls to unify() ?!
   def remove_media_observation2
     if v = depiction_object_id_previously_was
       o = Observation::Media.find(v)
@@ -103,6 +140,17 @@ class Depiction < ApplicationRecord
   def remove_media_observation
     if depiction_object.depictions.size == 0
       depiction_object.destroy!
+    end
+  end
+
+  def destroy_image_stub_collection_object
+    if sqed_depiction.present?
+      if v = depiction_object_id_previously_was
+        o = CollectionObject.find(v)
+        if o.is_image_stub?
+          o.destroy!
+        end
+      end
     end
   end
 

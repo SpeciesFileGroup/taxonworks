@@ -1,0 +1,18 @@
+<%= graph_javascript_tag %>
+
+<h2> User data for <%= user_tag(@user) -%> </h2>
+
+<em> Base 10 </em>
+
+<% d = user_data(@user, target: @target, weeks_ago: @weeks_ago) %>
+
+<div>
+<%= bar_chart d, horizontal: true, height: '1600px', title: @target.to_s.titleize,
+  library: {
+    plugins: {
+    legend: {
+      position: 'right'
+    }}
+  } %>
+</div>
+

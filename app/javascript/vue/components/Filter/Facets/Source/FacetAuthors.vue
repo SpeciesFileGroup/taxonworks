@@ -40,6 +40,7 @@
       :list="authors"
       label="object_tag"
       :delete-warning="false"
+      soft-delete
       @delete-index="removeAuthor"
     />
   </FacetContainer>

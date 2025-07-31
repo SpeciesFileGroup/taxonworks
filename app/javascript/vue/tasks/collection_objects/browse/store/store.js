@@ -11,12 +11,19 @@ const makeInitialState = () => {
     collectionObject: {},
     container: {},
     currentRepository: {},
-    depictions: [],
+    conveyances: [],
+    depictions: {
+      list: [],
+      pagination: {}
+    },
     determinations: [],
     dwc: {},
     geographicArea: {},
     georeferences: [],
-    identifiers: {},
+    identifiers: {
+      CollectionObject: [],
+      CollectingEvent: []
+    },
     isLoading: false,
     navigation: {},
     repository: {},
@@ -33,7 +40,4 @@ const newStore = () =>
     actions: ActionFunctions
   })
 
-export {
-  newStore,
-  makeInitialState
-}
+export { newStore, makeInitialState }

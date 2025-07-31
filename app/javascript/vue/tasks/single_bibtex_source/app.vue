@@ -79,7 +79,7 @@
 <script>
 import BibtexInput from './components/bibtex_input'
 import TableBibtex from './components/tableBibtex'
-import Spinner from '../../components/spinner.vue'
+import Spinner from '../../components/ui/VSpinner.vue'
 import TableRecent from './components/recentTable'
 import { Source } from '@/routes/endpoints'
 

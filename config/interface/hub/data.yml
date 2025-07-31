@@ -48,6 +48,14 @@ Core: # a Section
     related_models:
       - ObservationMatrix
     status: :prototype
+  FieldOccurrence:
+    status: :stable
+    related_models:
+      - TaxonName
+      - TaxonDetermination
+    categories:
+      - CollectingEvent
+      - TaxonDetermination
   Observation:
     categories:
       - matrix
@@ -55,7 +63,7 @@ Core: # a Section
     related_models:
       - Descriptor
       - ObservationMatrix
-  ControlledVocabularyTerm :
+  ControlledVocabularyTerm:
     status: :stable
     related_models:
       - Tag
@@ -87,6 +95,11 @@ Core: # a Section
       - SequenceRelationship
     categories:
       - dna
+      - matrix
+  Sound:
+    status: :prototype
+    related_model:
+    categories:
       - matrix
 Supporting:
   AssertedDistribution:
@@ -133,6 +146,14 @@ Supporting:
     status: :prototype
     related_models:
       - ControlledVocabularyTerm
+  Conveyance:
+    status: :prototype
+    related_models:
+      - Sound 
+    categories:
+      - collection_object
+      - otu
+      - observation 
   CommonName:
     status: :prototype
     categories:
@@ -168,6 +189,14 @@ Supporting:
       - biology
       - dna
       - matrix
+  Gazetteer:
+    status: :prototype
+    related_models:
+      - GeographicArea
+      - Georeference
+      - CollectingEvent
+    categories:
+      - collecting_event
   GeneAttribute:
     status: :prototype
     related_models:
@@ -194,6 +223,7 @@ Supporting:
     hide: true
     related_models:
       - GeographicArea
+      - Gazetteer
       - Georeference
       - CollectingEvent
   Image:
@@ -210,6 +240,10 @@ Supporting:
       - CollectionObject
       - CollectingEvent
       - TaxonDetermination
+  Lead:
+    status: :prototype
+    related_models:
+      - Otu
   Loan:
     status: :prototype
     categories:
@@ -304,7 +338,6 @@ Supporting:
   Repository:
     status: :prototype
     shared: true
-    application_defined: true
     related_models:
       - CollectingObject
   Serial:

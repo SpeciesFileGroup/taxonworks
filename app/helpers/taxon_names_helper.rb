@@ -141,7 +141,10 @@ module TaxonNamesHelper
       (s.join(' ') + '.').html_safe
     else
       if taxon_name.is_valid? # taxon_name.unavailable_or_invalid?
-        content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok, status: :valid })
+        content_tag(:span, safe_join([
+          content_tag(:span, '',data: {icon: :ok, status: :valid }),
+          content_tag(:span, 'This name is valid/accepted.', data: { status: :valid })
+        ], ''), class: :brief_status, data: { status: :valid })
       else
         if taxon_name.is_ambiguously_invalid?
           tag.span('This name is not valid/accepted.'.html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
@@ -190,6 +193,14 @@ module TaxonNamesHelper
     end
   end
 
+  def taxon_name_decorator_status(taxon_name)
+    return nil if taxon_name.nil?
+    taxon_name.taxon_name_classifications
+      .where(taxon_name_classifications: {type: TAXON_NAME_CLASSIFICATIONS_FOR_DECORATION})
+      .select('taxon_name_classifications.type')
+      .map{|a| a.type.demodulize.underscore.gsub(/(\d+)/,  ' \1').gsub('_', ' ').capitalize}
+  end
+
   def taxon_name_inferred_combination_tag(taxon_name)
     return nil if taxon_name.nil? || taxon_name.is_combination? || taxon_name.is_valid?
     if taxon_name.is_protonym?
@@ -201,7 +212,7 @@ module TaxonNamesHelper
 
   def taxon_name_gender_sentence_tag(taxon_name)
     return nil if taxon_name.nil?
-    "The name is #{taxon_name.gender_name}." if taxon_name.gender_name
+    "The name is #{taxon_name.cached_gender}." if taxon_name.cached_gender
   end
 
   def cached_classified_as_tag(taxon_name)
@@ -276,6 +287,8 @@ module TaxonNamesHelper
   def edit_taxon_name_link(taxon_name, target: nil)
     i = {'Combination': :combination, 'Protonym': :taxon_name}[taxon_name.type.to_sym]
     t = taxon_name.metamorphosize
+    icon = content_tag(:span, '', data: { icon: 'edit' }, class: 'small-icon')
+
     case target
     when :edit_task
       path = case i
@@ -284,15 +297,10 @@ module TaxonNamesHelper
              when :combination
                new_combination_task_path(taxon_name_id: t.id, literal: URI.encode_www_form_component(t.cached)) # only spaces should be an issue
              end
-      link_to(
-        content_tag(
-          :span, 'Edit (task)',
-          'data-icon' => 'edit',
-          class: 'small-icon'
-        ),
-        path, class: 'navigation-item', 'data-task' => 'new_taxon_name')
+
+      link_to(safe_join([icon, 'Edit (task)'], ''), path, class: 'navigation-item', 'data-task' => 'new_taxon_name')
     else
-      link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), send("edit_#{i}_path}", taxon_name.metamorphosize), 'class' => 'navigation-item')
+      link_to(safe_join([icon, 'Edit'], ''), send("edit_#{i}_path}", taxon_name.metamorphosize), 'class' => 'navigation-item')
     end
   end
 
@@ -322,7 +330,7 @@ module TaxonNamesHelper
 
   def descendant_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Down'
-    if taxon_name.descendants.any?
+    if taxon_name.descendants.unscope(:order).any?
       a = taxon_name.descendants.first.metamorphosize
       text = taxon_name_tag(a)
       link_to(content_tag(:span, text, data: {icon: 'arrow-down'}, class: 'small-icon'), taxon_name_link_path(a, path), class: 'navigation-item', data: {arrow: 'descendant'})
@@ -375,25 +383,38 @@ module TaxonNamesHelper
       names: {}
     }
 
-    ::Queries::TaxonName::Filter.new(synonymify: true, descendants: true, taxon_name_id: taxon_name.id).all
+    # !! descendants: false is [self and desecendants]
+    ::Queries::TaxonName::Filter.new(synonymify: true, descendants: false, taxon_name_id: taxon_name.id).all
       .where(type: 'Protonym')
       .select(:rank_klass).distinct.pluck(:rank_class).compact.sort{|a,b| RANKS.index(a) <=> RANKS.index(b)}.each do |r|
 
-      n = r.safe_constantize.rank_name.to_sym
-      j = i.deep_dup
+        n = r.safe_constantize.rank_name.to_sym
+        j = i.deep_dup
 
-      j[:rank] = n
-      j[:names][:valid] = ::Queries::TaxonName::Filter.new(validity: true, descendants: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count +
-                          ::Queries::TaxonName::Filter.new(validity: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
+        j[:rank] = n
 
-      j[:names][:invalid] = ::Queries::TaxonName::Filter.new(validity: false, descendants: true,  taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count +
-                            ::Queries::TaxonName::Filter.new(validity: false, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
+        valid = ::Queries::TaxonName::Filter.new(
+          validity: true, descendants: false, taxon_name_id: taxon_name.id,
+          rank: r, taxon_name_type: 'Protonym'
+        ).all
 
-      # This is the number of OTUs behind the ranks at this concept, i.e. a measure of how partitioned the data are beyond valid/invalid categories.
-      j[:taxa] = ::Queries::Otu::Filter.new(coordinatify: true, taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, rank: r} ).all.count
+        j[:names][:valid] = valid.count
+        j[:names][:valid_fossil] = valid
+          .joins(:taxon_name_classifications)
+          .where('taxon_name_classifications.type LIKE ?', '%::Fossil%' )
+          .count
+        j[:names][:valid_extant] = j[:names][:valid] - j[:names][:valid_fossil]
 
-      d.push j
-    end
+        j[:names][:invalid] = ::Queries::TaxonName::Filter.new(
+          descendants: false, synonymify: true, taxon_name_id: taxon_name.id,
+          rank: r, taxon_name_type: 'Protonym'
+        ).all.that_is_invalid.count
+
+        # This is the number of OTUs behind the ranks at this concept, i.e. a measure of how partitioned the data are beyond valid/invalid categories.
+        j[:taxa] = ::Queries::Otu::Filter.new(coordinatify: true, taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, rank: r} ).all.count
+
+        d.push j
+      end
 
     d
   end
@@ -436,23 +457,23 @@ module TaxonNamesHelper
     b = data[:data].second
 
     content_tag(:table,
-      safe_join([
-        tag.thead(
-          tag.tr(
-            safe_join [tag.th('Year'), tag.th(a[:name]), tag.th(b[:name])]
-          )
-        ),
-        safe_join((data[:metadata][:min_year]..data[:metadata][:max_year]).collect{|y|
-          tag.tr(
-            safe_join([
-              tag.td(y),
-              tag.td(a[:data][y]),
-              tag.td(b[:data][y])
-            ])
-          )
-        })
-      ]), *attributes
-    )
+                safe_join([
+                  tag.thead(
+                    tag.tr(
+                      safe_join [tag.th('Year'), tag.th(a[:name]), tag.th(b[:name])]
+                    )
+                  ),
+                  safe_join((data[:metadata][:min_year]..data[:metadata][:max_year]).collect{|y|
+                    tag.tr(
+                      safe_join([
+                        tag.td(y),
+                        tag.td(a[:data][y]),
+                        tag.td(b[:data][y])
+                      ])
+                    )
+                  })
+                ]), *attributes
+               )
   end
 
   # Perhaps a /lib/catalog method
@@ -523,6 +544,44 @@ module TaxonNamesHelper
     taxon_names_per_year(
       taxon_names_by_year_count(names)
     )
+  end
+
+  # @return [String] with HTML
+  # @params selected_names [Scope]
+  #   optionally bold these names if found in names
+  # !! Does not try to sort names, works best in combination with `ancestrify: true` in ::Queries::TaxonNames::Filter
+  # TODO: there is some missalignment on the name matching, you'll see some names that likely matched not linked.
+  def simple_hierarchy_tag(names, selected_names = nil)
+    match = []
+
+    if selected_names
+      match = selected_names.select("CASE WHEN taxon_names.type = 'Protonym' THEN taxon_names.id ELSE taxon_names.cached_valid_taxon_name_id END as id").pluck(:id)
+    end
+
+    # taxon_names.cached as alias, \
+
+    objects = names.left_joins(:valid_taxon_name)
+      .select("CASE WHEN taxon_names.type = 'Protonym' THEN taxon_names.id ELSE taxon_names.cached_valid_taxon_name_id END as id, \
+               CASE WHEN taxon_names.type = 'Protonym' THEN taxon_names.parent_id ELSE valid_taxon_names_taxon_names.parent_id END as parent_id, \
+               COALESCE(taxon_names.name, valid_taxon_names_taxon_names.name, valid_taxon_names_taxon_names.name, valid_taxon_Names_taxon_names.cached) as label")
+      .order('parent_id, label')
+      .distinct
+
+    d = Utilities::Hierarchy.new(objects:, match:).to_a
+
+    rows = []
+
+    d.each do |r|
+      s = '&nbsp;' * r[3] * 10 # space
+      a = (r[2]  ? " [#{r[2]}]" : '') # alias
+      if r[4] # matched
+        rows.push s + link_to( tag.b(r[1] + a), browse_nomenclature_task_path(taxon_name_id: r[0]))
+      else # unmatched
+        rows.push s + r[1] + a
+      end
+    end
+
+    rows.join('<br>').html_safe
   end
 
   protected

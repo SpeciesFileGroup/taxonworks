@@ -1,0 +1,37 @@
+<h1> Biological Associations - simple table </h1>
+
+<%= tag.div link_to('Back to filter', filter_biological_associations_task_path(@biological_associations_query.params)) %>
+<%= tag.div(paginate @biological_associations) %>
+<%= tag.span @biological_associations.count.to_param + ' records', class: [:feedback, 'feedback-thin', 'feedback-info'] %>
+<br>
+<%= copy_table_to_clipboard('#simple_table') %>
+<br><br>
+
+<table id="simple_table" class="tablesorter">
+  <thead>
+    <%= tag.tr(%w{subject_order subject_family subject_genus subject subject_properties biological_relationships object_properties object object_order object_family object_genus citations}.collect{|c| fancy_th_tag(name: c)}.join.html_safe) %>
+  </thead>
+  <tbody>
+    <% @biological_associations.each do |b| %>
+      <% types = biological_relationship_types(b.biological_relationship) %>
+
+      <%= tag.tr(
+        (
+          %w{order family genus}.collect{ |r| [b.biological_association_subject.taxonomy[r]].flatten.join(' ') } +
+          [ 
+            label_for(b.biological_association_subject),
+            types[:subject].join(','),
+            label_for(b.biological_relationship),
+            types[:object].join(','),
+            label_for(b.biological_association_object),
+          ] +
+          %w{order family genus}.collect{ |r| [b.biological_association_object.taxonomy[r]].flatten.join(' ') } +
+          [ b.citations.collect{|t| source_author_year_tag(t.source) }.join('; ') ]
+
+
+        ).collect{|c| tag.td(c) }.join.html_safe
+      ) %>
+  <% end %>
+  <tbody>
+</table>
+

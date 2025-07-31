@@ -27,9 +27,11 @@ const saveNamespace = () => {
     ? Namespace.update(namespace.id, { namespace })
     : Namespace.create({ namespace })
 
-  request.then(({ body }) => {
-    emit('onSave', body)
-    TW.workbench.alert.create('Namespace was successfully saved.', 'notice')
-  })
+  request
+    .then(({ body }) => {
+      emit('onSave', body)
+      TW.workbench.alert.create('Namespace was successfully saved.', 'notice')
+    })
+    .catch(() => {})
 }
 </script>

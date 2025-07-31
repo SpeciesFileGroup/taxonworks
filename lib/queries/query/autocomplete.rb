@@ -39,6 +39,7 @@ module Queries
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
+
       @project_id = project_id
       build_terms # TODO - should remove this for accessors
     end
@@ -145,7 +146,7 @@ module Queries
     #   used in or_clauses
     def with_id
       if integers.any?
-        table[:id].eq_any(integers)
+        table[:id].in(integers)
       else
         nil
       end
@@ -181,7 +182,7 @@ module Queries
     # @return [Arel::Nodes::Equality]
     def with_project_id
       if project_id.present?
-        table[:project_id].eq_any(project_id)
+        table[:project_id].in(project_id)
       else
         nil
       end
@@ -231,6 +232,7 @@ module Queries
     #   default the autocomplete result to all
     #   TODO: eliminate
     def autocomplete
+      return [] if query_string.blank?
       all.to_a
     end
 
@@ -255,6 +257,15 @@ module Queries
       a = match_wildcard_in_cached
       return nil if a.nil?
       base_query.where(a.to_sql)
+    end
+
+    # @return [ActiveRecord::Relation, nil]
+    #   cached matches full query string wildcarded
+    # TODO: Used in taxon_name, source, identifier
+    def cached_facet
+      return nil if no_terms?
+      # TODO: or is redundant with terms in many cases
+      (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
     end
 
     # @return [ActiveRecord::Relation]

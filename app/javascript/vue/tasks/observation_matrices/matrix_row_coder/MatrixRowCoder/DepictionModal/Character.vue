@@ -13,7 +13,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { CharacterState } from '@/routes/endpoints'
+import { Depiction } from '@/routes/endpoints'
+import { CHARACTER_STATE } from '@/constants'
 
 const props = defineProps({
   characterState: {
@@ -25,7 +26,10 @@ const emit = defineEmits(['select'])
 
 const depictions = ref([])
 
-CharacterState.depictions(props.characterState.id).then((response) => {
+Depiction.where({
+  depiction_object_id: props.characterState.id,
+  depiction_object_type: CHARACTER_STATE
+}).then((response) => {
   depictions.value = response.body
 })
 </script>

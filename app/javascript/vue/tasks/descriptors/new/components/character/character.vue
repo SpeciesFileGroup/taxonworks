@@ -1,7 +1,13 @@
 <template>
   <div>
     <h3>Character states</h3>
-    <div class="horizontal-left-content align-start">
+    <div class="horizontal-left-content align-start gap-small">
+      <div class="flex-col middle padding-large-top">
+        <ButtonUnify
+          :ids="selected"
+          :model="CHARACTER_STATE"
+        />
+      </div>
       <div class="field">
         <label>Label</label><br />
         <input
@@ -11,7 +17,7 @@
           v-model="characterState.label"
         />
       </div>
-      <div class="field separate-left">
+      <div class="field">
         <div class="separate-bottom">
           <label>Name</label><br />
           <input
@@ -36,7 +42,7 @@
           </div>
         </template>
       </div>
-      <div class="field separate-left">
+      <div class="field">
         <br />
         <template v-if="characterState.id">
           <button
@@ -82,7 +88,16 @@
       >
         <template #item="{ element, index }">
           <li class="flex-separate middle margin-small-bottom">
-            <span> {{ element.object_tag }} </span>
+            <div>
+              <label>
+                <input
+                  type="checkbox"
+                  :value="element.id"
+                  v-model="selected"
+                />
+                {{ element.object_tag }}
+              </label>
+            </div>
             <div class="horizontal-left-content middle gap-xsmall">
               <VBtn
                 circle
@@ -112,149 +127,124 @@
     </ul>
   </div>
 </template>
-<script>
+
+<script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
+import { CHARACTER_STATE } from '@/constants'
+import { computed, ref, watch, onMounted } from 'vue'
 
-export default {
-  components: {
-    Draggable,
-    RadialAnnotator,
-    VBtn,
-    VIcon
-  },
+const emit = defineEmits(['update:modelValue', 'save'])
 
-  props: {
-    modelValue: {
-      type: Object,
-      required: true
+const descriptor = defineModel({
+  type: Object,
+  required: true
+})
+
+const list = ref([])
+const show = ref(false)
+const selected = ref([])
+const characterState = ref(newCharacter())
+
+const validateFields = computed(
+  () =>
+    characterState.value.label &&
+    characterState.value.name &&
+    descriptor.value.name
+)
+
+watch(
+  descriptor,
+  (newVal, oldVal) => {
+    if (
+      JSON.stringify(newVal.character_states) !==
+      JSON.stringify(oldVal.character_states)
+    ) {
+      list.value = sortPosition(newVal.character_states)
     }
   },
+  { deep: true }
+)
 
-  emits: ['update:modelValue', 'save'],
-
-  computed: {
-    validateFields() {
-      return (
-        this.characterState.label &&
-        this.characterState.name &&
-        this.descriptor.name
-      )
-    },
-    descriptor: {
-      get() {
-        return this.modelValue
-      },
-      set() {
-        this.$emit('update:modelValue', this.value)
-      }
-    }
-  },
-
-  data() {
-    return {
-      show: false,
-      list: [],
-      characterState: this.newCharacter()
-    }
-  },
-
-  watch: {
-    descriptor: {
-      handler(newVal, oldVal) {
-        if (
-          JSON.stringify(newVal.character_states) !==
-          JSON.stringify(oldVal.character_states)
-        ) {
-          this.list = this.sortPosition(newVal.character_states)
-        }
-      },
-      deep: true
-    }
-  },
-
-  mounted() {
-    if (this.descriptor.hasOwnProperty('character_states')) {
-      this.list = this.sortPosition(this.descriptor.character_states)
-    }
-  },
-
-  methods: {
-    createCharacter() {
-      this.descriptor.character_states_attributes = [this.characterState]
-      this.$emit('save', this.descriptor)
-      this.resetInputs()
-    },
-
-    newCharacter() {
-      return {
-        label: undefined,
-        name: undefined,
-        description_name: undefined,
-        key_name: undefined,
-        id: undefined
-      }
-    },
-
-    resetInputs() {
-      this.characterState = this.newCharacter()
-    },
-
-    removeCharacter(index) {
-      if (
-        window.confirm(
-          "You're trying to delete this record. Are you sure want to proceed?"
-        )
-      ) {
-        this.list[index]._destroy = true
-        this.onSortable()
-      }
-    },
-
-    editCharacter(index) {
-      this.characterState.id = this.list[index].id
-      this.characterState.label = this.list[index].label
-      this.characterState.name = this.list[index].name
-      this.characterState.key_name = this.list[index].key_name
-      this.characterState.description_name = this.list[index].description_name
-    },
-
-    updateCharacter() {
-      const index = this.list.findIndex(
-        (item) => item.id === this.characterState.id
-      )
-
-      if (index > -1) {
-        this.descriptor.character_states_attributes = [this.characterState]
-        this.$emit('save', this.descriptor)
-      }
-      this.resetInputs()
-    },
-
-    onSortable() {
-      this.updateIndex()
-      this.descriptor.character_states_attributes = this.list
-      this.$emit('save', this.descriptor)
-    },
-
-    updateIndex() {
-      this.list.forEach((element, index) => {
-        this.list[index].position = index + 1
-      })
-    },
-
-    sortPosition(list) {
-      list.sort((a, b) => {
-        if (a.position > b.position) {
-          return 1
-        }
-        return -1
-      })
-      return list
-    }
+onMounted(() => {
+  if (descriptor.value.hasOwnProperty('character_states')) {
+    list.value = sortPosition(descriptor.value.character_states)
   }
+})
+
+function createCharacter() {
+  descriptor.value.character_states_attributes = [characterState.value]
+  emit('save', descriptor.value)
+  resetInputs()
+}
+
+function newCharacter() {
+  return {
+    label: undefined,
+    name: undefined,
+    description_name: undefined,
+    key_name: undefined,
+    id: undefined
+  }
+}
+
+function resetInputs() {
+  characterState.value = newCharacter()
+}
+
+function removeCharacter(index) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    list[index]._destroy = true
+    onSortable()
+  }
+}
+
+function editCharacter(index) {
+  const item = list.value[index]
+  Object.assign(characterState.value, {
+    ...item
+  })
+}
+
+function updateCharacter() {
+  const index = list.value.findIndex(
+    (item) => item.id === characterState.value.id
+  )
+
+  if (index > -1) {
+    descriptor.value.character_states_attributes = [characterState.value]
+    emit('save', descriptor.value)
+  }
+  resetInputs()
+}
+
+function onSortable() {
+  updateIndex()
+  descriptor.value.character_states_attributes = list.value
+  emit('save', descriptor.value)
+}
+
+function updateIndex() {
+  list.value.forEach((element, index) => {
+    element.position = index + 1
+  })
+}
+
+function sortPosition(list) {
+  list.sort((a, b) => {
+    if (a.position > b.position) {
+      return 1
+    }
+    return -1
+  })
+  return list
 }
 </script>
 <style scoped>

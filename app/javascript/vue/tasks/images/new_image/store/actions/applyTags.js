@@ -12,6 +12,7 @@ export default ({ state }, payload) => {
   )
 
   Promise.all(requests).then((_) => {
+    state.settings.applied.tags = true
     TW.workbench.alert.create('All tag(s) was successfully created.', 'notice')
   })
 }

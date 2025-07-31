@@ -11,6 +11,7 @@ import setPagination from './setPagination'
 import addDepiction from './addDepiction'
 import removeDepiction from './removeDepiction'
 import removeOtuDepiction from './removeOtuDepiction'
+import setClone from './setClone.js'
 
 const MutationNames = {
   AddDepiction: 'addDepiction',
@@ -25,7 +26,8 @@ const MutationNames = {
   SetDepictionMoved: 'setDepictionMoved',
   RemoveDepiction: 'removeDepiction',
   RemoveOtuDepiction: 'removeOtuDepiction',
-  SetPagination: 'setPagination'
+  SetPagination: 'setPagination',
+  SetClone: 'setClone'
 }
 
 const MutationFunctions = {
@@ -41,10 +43,8 @@ const MutationFunctions = {
   [MutationNames.SetDepictionMoved]: setDepictionMoved,
   [MutationNames.SetPagination]: setPagination,
   [MutationNames.RemoveDepiction]: removeDepiction,
-  [MutationNames.RemoveOtuDepiction]: removeOtuDepiction
+  [MutationNames.RemoveOtuDepiction]: removeOtuDepiction,
+  [MutationNames.SetClone]: setClone
 }
 
-export {
-  MutationNames,
-  MutationFunctions
-}
+export { MutationNames, MutationFunctions }

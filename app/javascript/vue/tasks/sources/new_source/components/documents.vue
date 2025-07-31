@@ -1,6 +1,6 @@
 <template>
   <div>
-    <spinner-component
+    <VSpinner
       v-if="!source.id"
       :show-spinner="false"
       legend="Save source first to upload documents"
@@ -8,10 +8,10 @@
     <div class="content">
       <div class="separate-bottom">
         <div class="switch-radio">
-          <switch-component
+          <VSwitch
             class="full_width"
-            v-model="display"
-            :options="optionList"
+            v-model="TabSelected"
+            :options="Object.keys(documentComponents)"
           />
         </div>
       </div>
@@ -28,7 +28,7 @@
       <component
         :source="source"
         :is-public="isPublic"
-        :is="componentView"
+        :is="documentComponents[TabSelected]"
       />
 
       <table class="full_width margin-medium-top">
@@ -62,25 +62,32 @@
             <td>{{ item.updated_at }}</td>
             <td>
               <div class="flex-wrap-row gap-xsmall">
-                <radial-annotator :global-id="item.global_id" />
-                <pdf-button :pdf="item.document" />
-                <v-btn
+                <RadialAnnotator :global-id="item.global_id" />
+                <PdfButton :pdf="item.document" />
+                <VBtn
                   circle
                   class="circle-button"
                   color="primary"
                   :download="item.document.object_tag"
                   :href="item.document.file_url"
                 >
-                  <v-icon
+                  <VIcon
                     color="white"
                     x-small
                     name="download"
                   />
-                </v-btn>
-                <span
-                  class="button circle-button btn-delete"
+                </VBtn>
+                <VBtn
+                  circle
+                  color="destroy"
                   @click="removeDocumentation(item)"
-                />
+                >
+                  <VIcon
+                    color="white"
+                    x-small
+                    name="download"
+                  />
+                </VBtn>
               </div>
             </td>
           </tr>
@@ -89,92 +96,54 @@
     </div>
   </div>
 </template>
-<script>
-import PdfButton from '@/components/pdfButton.vue'
-import SpinnerComponent from '@/components/spinner'
+
+<script setup>
+import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
+import VSpinner from '@/components/ui/VSpinner'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import SwitchComponent from '@/components/switch'
+import VSwitch from '@/components/ui/VSwitch'
 import PickComponent from './documents/pick'
 import DropComponent from './documents/drop.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-
+import { ref, computed } from 'vue'
+import { useStore } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 
-export default {
-  components: {
-    PdfButton,
-    PickComponent,
-    RadialAnnotator,
-    SwitchComponent,
-    DropComponent,
-    SpinnerComponent,
-    VIcon,
-    VBtn
-  },
+const documentComponents = {
+  Drop: DropComponent,
+  Pick: PickComponent
+}
 
-  data() {
-    return {
-      display: 'Drop',
-      optionList: ['Drop', 'Pick'],
-      isPublic: false
-    }
-  },
+const TabSelected = ref('Drop')
+const isPublic = ref(false)
 
-  computed: {
-    componentView() {
-      return `${this.display}Component`
-    },
+const store = useStore()
 
-    source: {
-      get() {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    },
+const source = computed({
+  get: () => store.getters[GetterNames.GetSource],
+  set: (value) => store.commit(MutationNames.SetSource, value)
+})
 
-    list() {
-      return this.$store.getters[GetterNames.GetDocumentations]
-    }
-  },
+const list = computed(() => store.getters[GetterNames.GetDocumentations])
 
-  methods: {
-    changeIsPublicState(documentation) {
-      const data = {
-        id: documentation.document_id,
-        is_public: !documentation.document.is_public
-      }
-      this.$store.dispatch(ActionNames.SaveDocumentation, data)
-    },
+function changeIsPublicState(documentation) {
+  const data = {
+    id: documentation.document_id,
+    is_public: !documentation.document.is_public
+  }
+  store.dispatch(ActionNames.SaveDocumentation, data)
+}
 
-    removeDocumentation(documentation) {
-      if (
-        window.confirm(
-          "You're trying to delete this record. Are you sure want to proceed?"
-        )
-      ) {
-        this.$store.dispatch(ActionNames.RemoveDocumentation, documentation)
-      }
-    }
+function removeDocumentation(documentation) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    store.dispatch(ActionNames.RemoveDocumentation, documentation)
   }
 }
 </script>
-<style lang="scss">
-.radial-annotator {
-  .documentation_annotator {
-    textarea {
-      padding-top: 14px;
-      padding-bottom: 14px;
-      width: 100%;
-      height: 100px;
-    }
-    .vue-autocomplete-input {
-      width: 100%;
-    }
-  }
-}
-</style>

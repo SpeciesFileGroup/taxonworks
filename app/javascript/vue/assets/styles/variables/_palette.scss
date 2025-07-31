@@ -1,24 +1,177 @@
 :root {
+  color-scheme: light;
+
+  --header-sandbox-bg-color: #4a4564;
+  --header-bg-color: #455a64;
+
   --btn-radial-background: white;
-  --btn-radial-color: #5d9ece;
+  --btn-radial-color: var(--color-primary);
+
+  --bg-color: #f7f8fc;
+  --bg-foreground: #ffffff;
+  --bg-muted: #f2f2f2;
+  --bg-action: #e3e8e3;
+  --border-color: #d5d5d5;
+  --button-disabled-bg-color: #ececec;
+  --button-disabled-text-color: #999;
+  --button-default-bg-color: #dddcdc;
+  --input-bg-color: #ffffff;
+  --panel-bg-color: #ffffff;
+  --panel-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
+  --text-color: #000000;
+
+  --modal-bg-color: rgba(0, 0, 0, 0.7);
+  --modal-mask-bg-color: rgba(0, 0, 0, 0.7);
+
+  --table-row-bg-even: #ffffff;
+  --table-row-bg-odd: #f8f8f8;
+
+  --button-shadow: 0px 1px 2px 0px var(--border-color);
+
+  --soft-validation-bg-color: #fff9f9;
+
+  --table-row-bg-hover: #e3e8e3;
+
+  --feedback-primary-text-color: #4c81eb;
+  --feedback-primary-bg-color: #b0caff;
+  --feedback-primary-border-color: #6899fa;
+
+  --feedback-secondary-text-color: #5d9ece;
+  --feedback-secondary-bg-color: #fcfcfc;
+  --feedback-secondary-border: #788990;
+
+  --feedback-info-text-color: #4c81eb;
+  --feedback-info-bg-color: #b0caff;
+  --feedback-info-border-color: #6899fa;
+
+  --feedback-warning-text-color: #c3a78a;
+  --feedback-warning-bg-color: #fff5ea;
+  --feedback-warning-border-color: #e5d2be;
 }
 
+.dark {
+  color-scheme: dark;
+
+  --header-sandbox-bg-color: #201e2e;
+  --header-bg-color: #1b2326;
+
+  --btn-radial-background: #eeeeee;
+  --btn-radial-color: var(--color-primary);
+
+  --bg-action: #000000;
+  --bg-color: #242424;
+  --bg-foreground: #333333;
+  --bg-muted: #1b1b1b;
+  --border-color: #5b5b5b;
+  --button-disabled-bg-color: #555555;
+  --button-disabled-text-color: #aaaaaa;
+  --button-default-bg-color: #dddcdc;
+  --input-bg-color: #2b2b2b;
+  --panel-bg-color: #333333;
+  --panel-shadow: rgba(0, 0, 0, 0.08) 4px 4px 15px 0px;
+  --text-color: #ffffff;
+
+  --modal-mask-bg-color: rgba(0, 0, 0, 0.7);
+
+  --button-shadow: none;
+
+  --soft-validation-bg-color: #37332f;
+
+  --table-row-bg-even: #333333;
+  --table-row-bg-odd: #444444;
+  --table-row-bg-hover: #000000;
+
+  --feedback-primary-text-color: #b6cfff;
+  --feedback-primary-bg-color: #234079;
+  --feedback-primary-border-color: #0e2c67;
+
+  --feedback-secondary-text-color: #5d9ece;
+  --feedback-secondary-bg-color: #0f0f0f;
+  --feedback-secondary-border: #788990;
+
+  --feedback-info-text-color: #4c81eb;
+  --feedback-info-bg-color: #2e3646;
+  --feedback-info-border-color: #6899fa;
+
+  --feedback-warning-text-color: #cf873b;
+  --feedback-warning-bg-color: #37332f;
+  --feedback-warning-border-color: #6b461e;
+}
+
+$tw-dark-colors: (
+  'focus': #000000,
+  'active': #000000,
+  'link': #479ef5,
+  'attention': #ffda44,
+  'background': #f7f8fc,
+  'black': #444444,
+  'create': #36974a,
+  'data': #040506,
+  'destroy': #a2131d,
+  'error': #a2131d,
+  'panel': #ffffff,
+  'primary': #006cbe,
+  'secondary': #5a1321,
+  'update': #36974a,
+  'warning': #e48e30,
+  'white': #ffffff,
+  'border': #f5f5f5
+);
+
 $tw-colors: (
+  'focus': #e3e8e3,
+  'active': #98b798,
+  'link': #5d9ece,
+  'attention': #ffda44,
   'background': #f7f8fc,
   'black': #444444,
   'create': #9ccc65,
-  'update': #9ccc65,
   'data': #006ebf,
-  'primary': #5d9ece,
   'destroy': #f44336,
+  'error': #f44336,
+  'panel': #ffffff,
+  'primary': #5d9ece,
   'secondary': #5a1321,
+  'update': #9ccc65,
   'warning': #ff8c00,
-  'attention': #ffda44,
-  'white': #ffffff
+  'white': #ffffff,
+  'border': #f5f5f5
+);
+
+$tw-map-colors: (
+  'collection-object': #ef4444,
+  'field-occurrence': #84cc16,
+  'type-material': #3388ff,
+  'asserted-distribution': #f97316,
+  'georeference': #ef4444
 );
 
 @each $key, $value in $tw-colors {
   :root {
     --color-#{$key}: #{$value};
+  }
+}
+
+@each $key, $value in $tw-dark-colors {
+  .dark {
+    --color-#{$key}: #{$value};
+  }
+}
+
+@each $key, $value in $tw-map-colors {
+  :root {
+    --color-map-#{$key}: #{$value};
+  }
+}
+
+@each $key, $value in $tw-colors {
+  .text-#{$key}-color {
+    color: #{$value};
+  }
+}
+
+@each $key, $value in $tw-map-colors {
+  .bg-#{$key} {
+    background-color: #{$value};
   }
 }

@@ -61,12 +61,12 @@ module Queries
 
       def note_object_type_facet
         return nil if note_object_type.empty?
-        table[:note_object_type].eq_any(note_object_type)
+        table[:note_object_type].in(note_object_type)
       end
 
       def note_object_id_facet
         return nil if note_object_id.empty?
-        table[:note_object_id].eq_any(note_object_id)
+        table[:note_object_id].in(note_object_id)
       end
 
       def and_clauses

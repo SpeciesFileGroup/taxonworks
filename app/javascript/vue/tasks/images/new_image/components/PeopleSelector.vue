@@ -26,7 +26,7 @@
 import { ref, computed } from 'vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import RolePicker from '@/components/role_picker'
-import VSwitch from '@/components/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 
 const OPTIONS = {
   People: 'Someone else',

@@ -81,14 +81,6 @@ const GetSmartSelector = function (type) {
   })
 }
 
-const SortRows = function (ids) {
-  return ajaxCall('patch', `/observation_matrix_rows/sort`, { ids: ids })
-}
-
-const SortColumns = function (ids) {
-  return ajaxCall('patch', `/observation_matrix_columns/sort`, { ids: ids })
-}
-
 const SortMatrixByNomenclature = (matrixId) =>
   ajaxCall('get', `/observation_matrices/${matrixId}/reorder_rows`, {
     params: { by: 'nomenclature' }
@@ -105,7 +97,5 @@ export {
   GetMatrixRowMetadata,
   BatchRemoveKeyword,
   GetSmartSelector,
-  SortColumns,
-  SortMatrixByNomenclature,
-  SortRows
+  SortMatrixByNomenclature
 }

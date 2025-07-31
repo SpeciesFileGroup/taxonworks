@@ -305,6 +305,7 @@ class Source::Bibtex < Source
 
   attr_accessor :authors_to_create
 
+  include Shared::QueryBatchUpdate
   include Shared::OriginRelationship
   include Source::Bibtex::SoftValidationExtensions::Instance
   extend Source::Bibtex::SoftValidationExtensions::Klass
@@ -393,29 +394,17 @@ class Source::Bibtex < Source
   # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
 
-  # @return [Hash, false]
-  #
   def self.batch_update(params)
-    return false if params[:serial_id].blank?
+    request = QueryBatchRequest.new(
+      klass: 'Source',
+      object_filter_params: params[:source_query],
+      object_params: params[:source],
+      async_cutoff: params[:async_cutoff] || 50,
+      cap: 50,
+      preview: params[:preview],
+    )
 
-    a = Queries::Source::Filter.new(params[:source_query]).all
-
-    return false if a.count == 0 || a.count > 50
-
-    updated = []
-    not_updated = []
-
-    begin
-      a.find_each do |o|
-        if o.update(serial_id: params[:serial_id] )
-          updated.push o
-        else
-          not_updated.push o
-        end
-      end
-    end
-
-    return { updated:, not_updated: }
+    query_batch_update(request)
   end
 
   # @param [BibTeX::Name] bibtex_author
@@ -540,7 +529,7 @@ class Source::Bibtex < Source
       self.roles.count > 0
 
     bibtex = to_bibtex
-    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(bibtex)
+    ::Vendor::BibtexRuby.namecase_bibtex_entry(bibtex)
 
     begin
       Role.transaction do
@@ -769,14 +758,6 @@ class Source::Bibtex < Source
 
     unless serial.nil?
       b[:journal] = serial.name
-      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn')
-      unless issns.empty?
-        b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
-      end
-    end
-
-    unless serial.nil?
-      b[:journal] = serial.name
       issns = serial.identifiers.where(type: 'Identifier::Global::Issn')
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
@@ -812,7 +793,7 @@ class Source::Bibtex < Source
   #   handling via `{}` in TaxonWorks
   def to_citeproc(normalize_names = true)
     b = to_bibtex
-    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
+    ::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
 
     a = b.to_citeproc
 
@@ -824,10 +805,11 @@ class Source::Bibtex < Source
       end
     end
 
+    translated_title = alternate_values.where(type: 'AlternateValue::Translation', alternate_value_object_attribute: 'title').pluck(:value).first
     a['year-suffix'] = year_suffix if year_suffix.present?
     a['original-date'] = {'date-parts' => [[ stated_year ]]} if stated_year.present? && stated_year.to_s != year.to_s
     a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
-    a['translated-title'] = alternate_values.where(type: 'AlternateValue::Translation', alternate_value_object_attribute: 'title').pluck(:value).first
+    a['translated-title'] = translated_title unless translated_title.blank?
     a['note'] = note
     a.reject! { |k| k == 'note' } if note.blank?
     a
@@ -848,7 +830,7 @@ class Source::Bibtex < Source
   # @return [BibTex::Bibliography]
   #   initialized with this Source as an entry
   def bibtex_bibliography
-    TaxonWorks::Vendor::BibtexRuby.bibliography([self])
+    Vendor::BibtexRuby.bibliography([self])
  end
 
   # @param [String] style
@@ -856,10 +838,8 @@ class Source::Bibtex < Source
   # @return [String]
   #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text', normalize_names = true)
-    s = ::TaxonWorks::Vendor::BibtexRuby.get_style(style)
+    s = ::Vendor::BibtexRuby.get_style(style)
     cp = CiteProc::Processor.new(style: s, format:)
-    b = to_bibtex
-    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
     cp.import( [to_citeproc(normalize_names)] )
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end
@@ -885,7 +865,7 @@ class Source::Bibtex < Source
         return nil
       else
         b = to_bibtex
-        ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b)
+        ::Vendor::BibtexRuby.namecase_bibtex_entry(b)
         return Utilities::Strings.authorship_sentence(b.author.tokens.collect{ |t| t.last })
       end
     else # use normalized records
@@ -912,7 +892,18 @@ class Source::Bibtex < Source
         cached_author_string: authority_name(false)
       )
 
+      t_update = true if self.cached_nomenclature_date != attributes_to_update[:cached_nomenclature_date]
       self.reload.update_columns(attributes_to_update)
+
+      if t_update
+        Citation.where(citation_object_type: 'TaxonName', source: self, is_original: true).each do |c|
+          t = c.citation_object
+          if t.type == 'Protonym'
+            t.set_cached_nomenclature_date
+            t.set_cached_author_columns
+          end
+        end
+      end
     end
   end
 
@@ -1004,7 +995,7 @@ class Source::Bibtex < Source
         (editor.to_s != get_bibtex_names('editor') && get_bibtex_names('editor').present?) ||
         cached != get_cached ||
         cached_nomenclature_date != nomenclature_date ||
-        cached_author_string.to_s != authority_name(false)
+        cached_author_string.to_s != authority_name(false).to_s
       is_cached = false
     end
 

@@ -1,4 +1,4 @@
-import EventStack from '../utils/eventStack'
+import { RadialEventStack } from '@/utils'
 import { isMac } from '@/helpers/os'
 
 export default {
@@ -18,22 +18,28 @@ export default {
     }
   },
 
+  data() {
+    return {
+      listenerId: undefined
+    }
+  },
+
   created() {
     document.addEventListener('turbolinks:load', () => {
-      EventStack.removeAllListeners()
+      RadialEventStack.removeAllListeners()
     })
   },
 
   methods: {
     setShortcutsEvent() {
-      this.listenerId = EventStack.addListener(this.shortcutsListener, {
+      this.listenerId = RadialEventStack.addListener(this.shortcutsListener, {
         atStart: true,
         stopPropagation: true
       })
     },
 
     removeListener() {
-      EventStack.removeListener(this.listenerId)
+      RadialEventStack.removeListener(this.listenerId)
     },
 
     shortcutsListener(e) {

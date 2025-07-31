@@ -18,6 +18,7 @@
     </td>
     <td>
       <select v-model="itemStatus">
+        <option :value="null">None</option>
         <option
           v-for="status in statusList"
           :key="status"
@@ -66,7 +67,7 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import statusList from '../../const/status.js'
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'

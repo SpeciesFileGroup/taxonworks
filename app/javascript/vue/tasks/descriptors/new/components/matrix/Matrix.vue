@@ -53,7 +53,7 @@ import Autocomplete from '@/components/ui/Autocomplete.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import DefaultPin from '@/components/getDefaultPin'
+import DefaultPin from '@/components/ui/Button/ButtonPinned'
 import { ObservationMatrix } from '@/routes/endpoints'
 
 export default {

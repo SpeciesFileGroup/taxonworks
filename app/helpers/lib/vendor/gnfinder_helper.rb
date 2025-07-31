@@ -1,6 +1,6 @@
 module Lib::Vendor::GnfinderHelper
 
-  # @param gnfinder_name [ Array of Vendor::Gnfinder::Name]
+  # @param gnfinder_name [ Array of Vendor::Gnfinder::Name ]
   def gnfinder_matches_links(gnfinder_names, source)
     return nil if gnfinder_names.empty?
 

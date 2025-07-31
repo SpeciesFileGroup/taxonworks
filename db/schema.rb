@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_18_143352) do
-
+ActiveRecord::Schema[7.2].define(version: 2025_07_11_195046) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -22,12 +21,40 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   enable_extension "postgis_raster"
   enable_extension "tablefunc"
 
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
   create_table "alternate_values", id: :serial, force: :cascade do |t|
     t.text "value", null: false
     t.string "type", null: false
     t.integer "language_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.string "alternate_value_object_attribute"
@@ -44,13 +71,16 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
 
   create_table "asserted_distributions", id: :serial, force: :cascade do |t|
     t.integer "otu_id", null: false
-    t.integer "geographic_area_id", null: false
+    t.integer "geographic_area_id"
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.boolean "is_absent"
+    t.integer "asserted_distribution_shape_id", null: false
+    t.string "asserted_distribution_shape_type", null: false
+    t.index ["asserted_distribution_shape_id", "asserted_distribution_shape_type"], name: "asserted_distribution_polymorphic_shape_index"
     t.index ["created_by_id"], name: "index_asserted_distributions_on_created_by_id"
     t.index ["geographic_area_id"], name: "index_asserted_distributions_on_geographic_area_id"
     t.index ["otu_id"], name: "index_asserted_distributions_on_otu_id"
@@ -66,8 +96,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.bigint "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["attribution_object_id"], name: "attr_obj_id_index"
     t.index ["attribution_object_type", "attribution_object_id"], name: "attribution_object_index"
     t.index ["attribution_object_type"], name: "attr_obj_type_index"
@@ -78,14 +108,17 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
 
   create_table "biocuration_classifications", id: :serial, force: :cascade do |t|
     t.integer "biocuration_class_id", null: false
-    t.integer "biological_collection_object_id", null: false
+    t.bigint "biological_collection_object_id"
     t.integer "position", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
+    t.bigint "biocuration_classification_object_id"
+    t.string "biocuration_classification_object_type"
     t.index ["biocuration_class_id"], name: "index_biocuration_classifications_on_biocuration_class_id"
+    t.index ["biocuration_classification_object_type", "biocuration_classification_object_id"], name: "bc_poly"
     t.index ["biological_collection_object_id"], name: "bio_c_bio_collection_object"
     t.index ["created_by_id"], name: "index_biocuration_classifications_on_created_by_id"
     t.index ["position"], name: "index_biocuration_classifications_on_position"
@@ -99,8 +132,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "biological_association_subject_type", null: false
     t.integer "biological_association_object_id", null: false
     t.string "biological_association_object_type", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -116,8 +149,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   create_table "biological_associations_biological_associations_graphs", id: :serial, force: :cascade do |t|
     t.integer "biological_associations_graph_id", null: false
     t.integer "biological_association_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -129,8 +162,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   end
 
   create_table "biological_associations_graphs", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -145,8 +178,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "type", null: false
     t.integer "biological_property_id", null: false
     t.integer "biological_relationship_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -162,8 +195,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "name", null: false
     t.boolean "is_transitive"
     t.boolean "is_reflexive"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -178,8 +211,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.bigint "geographic_item_id"
     t.bigint "translated_geographic_item_id"
     t.string "cached_map_type"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["cached_map_type"], name: "cmgit_cmt"
     t.index ["geographic_item_id", "translated_geographic_item_id", "cached_map_type"], name: "cmgit_translation", unique: true
     t.index ["geographic_item_id"], name: "cmgit_gi"
@@ -196,8 +229,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "level1_geographic_name"
     t.string "level2_geographic_name"
     t.bigint "project_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "untranslated"
     t.index ["geographic_item_id"], name: "index_cached_map_items_on_geographic_item_id"
     t.index ["otu_id", "geographic_item_id"], name: "index_cached_map_items_on_otu_id_and_geographic_item_id"
@@ -209,19 +242,19 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "cached_map_register_object_type"
     t.bigint "cached_map_register_object_id"
     t.bigint "project_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["cached_map_register_object_type", "cached_map_register_object_id"], name: "index_cached_map_registers_on_cached_map_register_object"
     t.index ["project_id"], name: "index_cached_map_registers_on_project_id"
   end
 
   create_table "cached_maps", force: :cascade do |t|
     t.bigint "otu_id", null: false
-    t.geography "geometry", limit: {:srid=>4326, :type=>"geometry", :geographic=>true}
+    t.geography "geometry", limit: {srid: 4326, type: "geometry", geographic: true}
     t.integer "reference_count"
     t.bigint "project_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "cached_map_type", null: false
     t.index ["otu_id"], name: "index_cached_maps_on_otu_id"
     t.index ["project_id"], name: "index_cached_maps_on_project_id"
@@ -235,8 +268,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "project_id"
     t.integer "updated_by_id", null: false
     t.integer "created_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "description_name"
     t.string "key_name"
     t.index ["created_by_id"], name: "index_character_states_on_created_by_id"
@@ -251,8 +284,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "topic_id", null: false
     t.integer "citation_id", null: false
     t.string "pages"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -266,8 +299,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   create_table "citations", id: :serial, force: :cascade do |t|
     t.string "citation_object_type", null: false
     t.integer "source_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -291,7 +324,7 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "verbatim_longitude"
     t.string "verbatim_latitude"
     t.string "verbatim_geolocation_uncertainty"
-    t.string "verbatim_trip_identifier"
+    t.string "verbatim_field_number"
     t.string "verbatim_collectors"
     t.string "verbatim_method"
     t.integer "geographic_area_id"
@@ -300,8 +333,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "elevation_precision"
     t.text "field_notes"
     t.string "md5_of_verbatim_label"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.text "cached"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -345,8 +378,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["created_by_id"], name: "index_collection_object_observations_on_created_by_id"
     t.index ["data"], name: "index_collection_object_observations_on_data"
     t.index ["project_id"], name: "index_collection_object_observations_on_project_id"
@@ -356,8 +389,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   create_table "collection_objects", id: :serial, force: :cascade do |t|
     t.integer "total"
     t.string "type", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "preparation_type_id"
     t.integer "repository_id"
     t.integer "created_by_id", null: false
@@ -378,6 +411,7 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.index ["collecting_event_id"], name: "index_collection_objects_on_collecting_event_id"
     t.index ["created_at"], name: "index_collection_objects_on_created_at"
     t.index ["created_by_id"], name: "index_collection_objects_on_created_by_id"
+    t.index ["current_repository_id"], name: "index_collection_objects_on_current_repository_id"
     t.index ["preparation_type_id"], name: "index_collection_objects_on_preparation_type_id"
     t.index ["project_id"], name: "index_collection_objects_on_project_id"
     t.index ["ranged_lot_category_id"], name: "index_collection_objects_on_ranged_lot_category_id"
@@ -403,8 +437,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "collection_type"
     t.index ["collection_type"], name: "index_collection_profiles_on_collection_type"
     t.index ["container_id"], name: "index_collection_profiles_on_container_id"
@@ -424,8 +458,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["created_by_id"], name: "index_common_names_on_created_by_id"
     t.index ["geographic_area_id"], name: "index_common_names_on_geographic_area_id"
     t.index ["language_id"], name: "index_common_names_on_language_id"
@@ -436,14 +470,14 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.string "confidence_object_type", null: false
     t.integer "confidence_object_id", null: false
+    t.string "confidence_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "confidence_level_id", null: false
     t.index ["project_id"], name: "index_confidences_on_project_id"
   end
@@ -457,8 +491,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   end
 
   create_table "container_items", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "contained_object_id", null: false
     t.string "contained_object_type", null: false
     t.string "disposition"
@@ -476,8 +510,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   end
 
   create_table "containers", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "type", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -499,8 +533,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.text "text", null: false
     t.integer "otu_id", null: false
     t.integer "topic_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -520,8 +554,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "type", null: false
     t.string "name", null: false
     t.text "definition", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -537,6 +571,26 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.index ["updated_by_id"], name: "index_controlled_vocabulary_terms_on_updated_by_id"
   end
 
+  create_table "conveyances", force: :cascade do |t|
+    t.bigint "sound_id", null: false
+    t.string "conveyance_object_type", null: false
+    t.bigint "conveyance_object_id", null: false
+    t.bigint "project_id", null: false
+    t.integer "position", null: false
+    t.bigint "created_by_id", null: false
+    t.bigint "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "start_time"
+    t.decimal "end_time"
+    t.index ["conveyance_object_type", "conveyance_object_id"], name: "index_conveyances_on_conveyance_object"
+    t.index ["created_by_id"], name: "index_conveyances_on_created_by_id"
+    t.index ["position"], name: "index_conveyances_on_position"
+    t.index ["project_id"], name: "index_conveyances_on_project_id"
+    t.index ["sound_id"], name: "index_conveyances_on_sound_id"
+    t.index ["updated_by_id"], name: "index_conveyances_on_updated_by_id"
+  end
+
   create_table "data_attributes", id: :serial, force: :cascade do |t|
     t.string "type", null: false
     t.integer "attribute_subject_id", null: false
@@ -547,8 +601,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["attribute_subject_id", "attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_id_and_type"
     t.index ["attribute_subject_id"], name: "index_data_attributes_on_attribute_subject_id"
     t.index ["attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_type"
@@ -575,8 +629,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "type", null: false
     t.string "status", null: false
     t.jsonb "metadata"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.bigint "project_id"
@@ -593,13 +647,13 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "attempts", default: 0, null: false
     t.text "handler", null: false
     t.text "last_error"
-    t.datetime "run_at"
-    t.datetime "locked_at"
-    t.datetime "failed_at"
+    t.datetime "run_at", precision: nil
+    t.datetime "locked_at", precision: nil
+    t.datetime "failed_at", precision: nil
     t.string "locked_by"
     t.string "queue"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
@@ -610,8 +664,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "position"
     t.text "caption"
     t.string "figure_label"
@@ -637,8 +691,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["collection_object_id"], name: "dco_collection_object"
     t.index ["collection_object_observation_id"], name: "dco_collection_object_observation"
     t.index ["project_id"], name: "index_derived_collection_objects_on_project_id"
@@ -651,8 +705,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "position"
     t.text "description"
     t.string "gene_attribute_logic"
@@ -669,14 +723,14 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.string "documentation_object_type", null: false
     t.integer "documentation_object_id", null: false
+    t.string "documentation_object_type", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "position"
     t.index ["created_by_id"], name: "index_documentation_on_created_by_id"
     t.index ["document_id"], name: "index_documentation_on_document_id"
@@ -688,13 +742,13 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.bigint "document_file_file_size", null: false
-    t.datetime "document_file_updated_at", null: false
+    t.integer "document_file_file_size", null: false
+    t.datetime "document_file_updated_at", precision: nil, null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.jsonb "page_map", default: {}
     t.integer "page_total"
     t.string "document_file_fingerprint"
@@ -710,10 +764,10 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "description"
     t.string "filename", null: false
     t.string "request"
-    t.datetime "expires", null: false
+    t.datetime "expires", precision: nil, null: false
     t.integer "times_downloaded", default: 0, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.bigint "project_id"
@@ -898,18 +952,27 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.string "dwc_occurrence_object_type"
     t.integer "dwc_occurrence_object_id"
+    t.string "dwc_occurrence_object_type"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.string "identifiedByID"
     t.string "recordedByID"
+    t.text "verbatimLabel"
+    t.string "caste"
+    t.string "superfamily"
+    t.string "subfamily"
+    t.string "tribe"
+    t.string "subtribe"
+    t.text "rebuild_set"
     t.index ["created_at"], name: "index_dwc_occurrences_on_created_at"
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
+    t.index ["rebuild_set", "id"], name: "idx_dwc_occurrences_rebuild_set_id"
+    t.index ["rebuild_set", "id"], name: "index_dwc_occurrences_on_rebuild_set_and_id"
     t.index ["updated_at"], name: "index_dwc_occurrences_on_updated_at"
   end
 
@@ -921,11 +984,66 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.bigint "repository_id"
     t.index ["project_id"], name: "index_extracts_on_project_id"
     t.index ["repository_id"], name: "index_extracts_on_repository_id"
+  end
+
+  create_table "field_occurrences", force: :cascade do |t|
+    t.integer "total", null: false
+    t.bigint "collecting_event_id", null: false
+    t.bigint "ranged_lot_category_id"
+    t.boolean "is_absent"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["collecting_event_id"], name: "index_field_occurrences_on_collecting_event_id"
+    t.index ["created_by_id"], name: "index_field_occurrences_on_created_by_id"
+    t.index ["is_absent"], name: "index_field_occurrences_on_is_absent"
+    t.index ["project_id"], name: "index_field_occurrences_on_project_id"
+    t.index ["ranged_lot_category_id"], name: "index_field_occurrences_on_ranged_lot_category_id"
+    t.index ["updated_by_id"], name: "index_field_occurrences_on_updated_by_id"
+  end
+
+  create_table "gazetteer_imports", force: :cascade do |t|
+    t.string "shapefile"
+    t.integer "num_records"
+    t.integer "num_records_imported"
+    t.string "error_messages"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.bigint "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.string "project_names"
+    t.index ["created_by_id"], name: "index_gazetteer_imports_on_created_by_id"
+    t.index ["project_id"], name: "index_gazetteer_imports_on_project_id"
+    t.index ["updated_by_id"], name: "index_gazetteer_imports_on_updated_by_id"
+  end
+
+  create_table "gazetteers", force: :cascade do |t|
+    t.integer "geographic_item_id", null: false
+    t.string "name", null: false
+    t.string "iso_3166_a2"
+    t.string "iso_3166_a3"
+    t.bigint "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.index ["created_by_id"], name: "index_gazetteers_on_created_by_id"
+    t.index ["geographic_item_id"], name: "index_gazetteers_on_geographic_item_id"
+    t.index ["iso_3166_a2"], name: "index_gazetteers_on_iso_3166_a2"
+    t.index ["iso_3166_a3"], name: "index_gazetteers_on_iso_3166_a3"
+    t.index ["name"], name: "index_gazetteers_on_name"
+    t.index ["project_id"], name: "index_gazetteers_on_project_id"
+    t.index ["updated_by_id"], name: "index_gazetteers_on_updated_by_id"
   end
 
   create_table "gene_attributes", id: :serial, force: :cascade do |t|
@@ -937,8 +1055,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["controlled_vocabulary_term_id"], name: "index_gene_attributes_on_controlled_vocabulary_term_id"
     t.index ["project_id"], name: "index_gene_attributes_on_project_id"
     t.index ["sequence_id"], name: "index_gene_attributes_on_sequence_id"
@@ -954,8 +1072,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
 
   create_table "geographic_area_types", id: :serial, force: :cascade do |t|
     t.string "name", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.index ["created_by_id"], name: "index_geographic_area_types_on_created_by_id"
@@ -970,8 +1088,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "level2_id"
     t.integer "parent_id"
     t.integer "geographic_area_type_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "iso_3166_a2"
     t.string "iso_3166_a3"
     t.string "tdwgID"
@@ -995,36 +1113,23 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "origin_gid"
     t.string "date_valid_from"
     t.string "date_valid_to"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["data_origin"], name: "index_geographic_areas_geographic_items_on_data_origin"
     t.index ["geographic_area_id"], name: "index_geographic_areas_geographic_items_on_geographic_area_id"
     t.index ["geographic_item_id"], name: "index_geographic_areas_geographic_items_on_geographic_item_id"
   end
 
   create_table "geographic_items", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.geography "point", limit: {:srid=>4326, :type=>"st_point", :has_z=>true, :geographic=>true}
-    t.geography "line_string", limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
-    t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :has_z=>true, :geographic=>true}
-    t.geography "multi_point", limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
-    t.geography "multi_line_string", limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
-    t.geography "multi_polygon", limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
-    t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry_collection", :has_z=>true, :geographic=>true}
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.string "type", null: false
+    t.string "type"
     t.decimal "cached_total_area"
-    t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
+    t.geography "geography", limit: {srid: 4326, type: "geometry", has_z: true, geographic: true}
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
-    t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
-    t.index ["line_string"], name: "line_string_gix", using: :gist
-    t.index ["multi_line_string"], name: "multi_line_string_gix", using: :gist
-    t.index ["multi_point"], name: "multi_point_gix", using: :gist
-    t.index ["multi_polygon"], name: "multi_polygon_gix", using: :gist
-    t.index ["point"], name: "point_gix", using: :gist
-    t.index ["polygon"], name: "polygon_gix", using: :gist
+    t.index ["geography"], name: "index_geographic_items_on_geography", using: :gist
     t.index ["type"], name: "index_geographic_items_on_type"
     t.index ["updated_by_id"], name: "index_geographic_items_on_updated_by_id"
   end
@@ -1037,15 +1142,13 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "error_geographic_item_id"
     t.string "type", null: false
     t.integer "position", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.boolean "is_public", default: false, null: false
     t.string "api_request"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.boolean "is_undefined_z"
-    t.boolean "is_median_z"
     t.integer "year_georeferenced"
     t.integer "month_georeferenced"
     t.integer "day_georeferenced"
@@ -1062,8 +1165,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   create_table "identifiers", id: :serial, force: :cascade do |t|
     t.string "identifier", null: false
     t.string "type", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "namespace_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1094,12 +1197,12 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "image_file_fingerprint"
     t.integer "created_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.bigint "image_file_file_size"
-    t.datetime "image_file_updated_at"
+    t.integer "image_file_file_size"
+    t.datetime "image_file_updated_at", precision: nil
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
     t.float "pixels_to_centimeter"
@@ -1114,15 +1217,15 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "status", null: false
     t.string "description", null: false
     t.jsonb "metadata"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.bigint "project_id"
     t.string "source_file_name"
     t.string "source_content_type"
     t.bigint "source_file_size"
-    t.datetime "source_updated_at"
+    t.datetime "source_updated_at", precision: nil
     t.index ["created_by_id"], name: "index_import_datasets_on_created_by_id"
     t.index ["project_id"], name: "index_import_datasets_on_project_id"
     t.index ["updated_by_id"], name: "index_import_datasets_on_updated_by_id"
@@ -1131,8 +1234,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   create_table "imports", id: :serial, force: :cascade do |t|
     t.string "name"
     t.hstore "metadata"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.json "metadata_json"
   end
 
@@ -1147,8 +1250,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "project_id"
     t.integer "created_by_id"
     t.integer "updated_by_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "type"
     t.index ["created_by_id"], name: "labels_created_by_id_index"
     t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object_type_and_label_object_id"
@@ -1162,12 +1265,46 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "alpha_2"
     t.string "english_name"
     t.string "french_name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.index ["created_by_id"], name: "index_languages_on_created_by_id"
     t.index ["updated_by_id"], name: "index_languages_on_updated_by_id"
+  end
+
+  create_table "lead_hierarchies", id: false, force: :cascade do |t|
+    t.integer "ancestor_id", null: false
+    t.integer "descendant_id", null: false
+    t.integer "generations", null: false
+    t.index ["ancestor_id", "descendant_id", "generations"], name: "lead_anc_desc_idx", unique: true
+    t.index ["descendant_id"], name: "lead_desc_idx"
+  end
+
+  create_table "leads", force: :cascade do |t|
+    t.bigint "parent_id"
+    t.bigint "otu_id"
+    t.text "text"
+    t.string "origin_label"
+    t.text "description"
+    t.bigint "redirect_id"
+    t.text "link_out"
+    t.string "link_out_text"
+    t.integer "position"
+    t.boolean "is_public"
+    t.bigint "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_leads_on_created_by_id"
+    t.index ["otu_id"], name: "index_leads_on_otu_id"
+    t.index ["parent_id"], name: "index_leads_on_parent_id"
+    t.index ["position"], name: "index_leads_on_position"
+    t.index ["project_id"], name: "index_leads_on_project_id"
+    t.index ["redirect_id"], name: "index_leads_on_redirect_id"
+    t.index ["text"], name: "index_leads_on_text"
+    t.index ["updated_by_id"], name: "index_leads_on_updated_by_id"
   end
 
   create_table "loan_items", id: :serial, force: :cascade do |t|
@@ -1177,10 +1314,10 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "loan_item_object_type"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "loan_item_object_id"
+    t.string "loan_item_object_type"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1205,11 +1342,11 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", null: false
+    t.text "lender_address", default: "Lender's address not provided.", null: false
     t.boolean "is_gift"
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
@@ -1221,8 +1358,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "institution"
     t.string "name", null: false
     t.string "short_name", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.string "verbatim_short_name"
@@ -1239,8 +1376,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "note_object_id", null: false
     t.string "note_object_type", null: false
     t.string "note_object_attribute"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -1255,10 +1392,13 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.bigint "otu_id"
+    t.boolean "is_public"
     t.index ["created_by_id"], name: "index_observation_matrices_on_created_by_id"
     t.index ["name"], name: "index_observation_matrices_on_name"
+    t.index ["otu_id"], name: "index_observation_matrices_on_otu_id"
     t.index ["project_id"], name: "index_observation_matrices_on_project_id"
     t.index ["updated_by_id"], name: "index_observation_matrices_on_updated_by_id"
   end
@@ -1271,8 +1411,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "position"
     t.index ["controlled_vocabulary_term_id"], name: "omrc_cvt_index"
     t.index ["created_by_id"], name: "index_observation_matrix_column_items_on_created_by_id"
@@ -1289,8 +1429,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "reference_count"
     t.integer "cached_observation_matrix_column_item_id"
     t.index ["created_by_id"], name: "index_observation_matrix_columns_on_created_by_id"
@@ -1307,8 +1447,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "position"
     t.bigint "taxon_name_id"
     t.integer "observation_object_id"
@@ -1328,8 +1468,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "reference_count"
     t.integer "cached_observation_matrix_row_item_id"
     t.string "name"
@@ -1364,8 +1504,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "type", null: false
     t.integer "observation_object_id"
     t.string "observation_object_type"
@@ -1397,24 +1537,24 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "parent_organization_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["created_by_id"], name: "index_organizations_on_created_by_id"
     t.index ["name"], name: "index_organizations_on_name"
     t.index ["updated_by_id"], name: "index_organizations_on_updated_by_id"
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.string "old_object_type", null: false
     t.integer "old_object_id", null: false
-    t.string "new_object_type", null: false
+    t.string "old_object_type", null: false
     t.integer "new_object_id", null: false
+    t.string "new_object_type", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["created_by_id"], name: "index_origin_relationships_on_created_by_id"
     t.index ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object_type_and_new_object_id"
     t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object_type_and_old_object_id"
@@ -1431,8 +1571,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["created_by_id"], name: "index_otu_page_layout_sections_on_created_by_id"
     t.index ["otu_page_layout_id"], name: "index_otu_page_layout_sections_on_otu_page_layout_id"
     t.index ["position"], name: "index_otu_page_layout_sections_on_position"
@@ -1447,8 +1587,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["created_by_id"], name: "index_otu_page_layouts_on_created_by_id"
     t.index ["project_id"], name: "index_otu_page_layouts_on_project_id"
     t.index ["updated_by_id"], name: "index_otu_page_layouts_on_updated_by_id"
@@ -1461,8 +1601,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.bigint "project_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_otu_relationships_on_created_by_id"
     t.index ["object_otu_id"], name: "index_otu_relationships_on_object_otu_id"
     t.index ["project_id"], name: "index_otu_relationships_on_project_id"
@@ -1471,9 +1611,9 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   end
 
   create_table "otus", id: :serial, force: :cascade do |t|
-    t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.text "name"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -1490,8 +1630,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "type", null: false
     t.string "last_name", null: false
     t.string "first_name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "suffix"
     t.string "prefix"
     t.integer "created_by_id", null: false
@@ -1510,8 +1650,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.string "pinned_object_type", null: false
     t.integer "pinned_object_id", null: false
+    t.string "pinned_object_type", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1520,8 +1660,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "inserted_count"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["created_by_id"], name: "index_pinboard_items_on_created_by_id"
     t.index ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object_type_and_pinned_object_id"
     t.index ["position"], name: "index_pinboard_items_on_position"
@@ -1532,8 +1672,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
 
   create_table "preparation_types", id: :serial, force: :cascade do |t|
     t.string "name", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.text "definition", null: false
@@ -1544,12 +1684,14 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   create_table "project_members", id: :serial, force: :cascade do |t|
     t.integer "project_id", null: false
     t.integer "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.boolean "is_project_administrator"
     t.jsonb "clipboard", default: {}
+    t.integer "time_active", default: 0
+    t.datetime "last_seen_at", precision: nil
     t.index ["created_by_id"], name: "index_project_members_on_created_by_id"
     t.index ["project_id"], name: "index_project_members_on_project_id"
     t.index ["updated_by_id"], name: "index_project_members_on_updated_by_id"
@@ -1561,8 +1703,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "source_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["created_by_id"], name: "index_project_sources_on_created_by_id"
     t.index ["project_id"], name: "index_project_sources_on_project_id"
     t.index ["source_id"], name: "index_project_sources_on_source_id"
@@ -1571,11 +1713,11 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
 
   create_table "projects", id: :serial, force: :cascade do |t|
     t.string "name", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: "{}", null: false
+    t.jsonb "preferences", default: {}, null: false
     t.string "api_access_token"
     t.string "data_curation_issue_tracker_url"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
@@ -1584,14 +1726,14 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.string "protocol_relationship_object_type", null: false
     t.integer "protocol_relationship_object_id", null: false
+    t.string "protocol_relationship_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["project_id"], name: "index_protocol_relationships_on_project_id"
     t.index ["protocol_id"], name: "index_protocol_relationships_on_protocol_id"
   end
@@ -1603,8 +1745,9 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.boolean "is_machine_output"
     t.index ["project_id"], name: "index_protocols_on_project_id"
   end
 
@@ -1615,8 +1758,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "content_id", null: false
     t.index ["content_id"], name: "index_public_contents_on_content_id"
     t.index ["created_by_id"], name: "index_public_contents_on_created_by_id"
@@ -1630,8 +1773,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "name", null: false
     t.integer "minimum_value", null: false
     t.integer "maximum_value"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -1646,8 +1789,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "acronym"
     t.string "status"
     t.string "institutional_LSID"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.boolean "is_index_herbariorum"
@@ -1661,8 +1804,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "role_object_id", null: false
     t.string "role_object_type", null: false
     t.integer "position", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -1684,8 +1827,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "object_sequence_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "project_id", null: false
     t.string "type", null: false
   end
@@ -1693,8 +1836,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   create_table "sequences", id: :serial, force: :cascade do |t|
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.text "sequence", null: false
     t.string "sequence_type", null: false
     t.integer "project_id", null: false
@@ -1708,8 +1851,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "preceding_serial_id", null: false
     t.integer "succeeding_serial_id", null: false
     t.integer "created_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
     t.string "type", null: false
     t.index ["created_by_id"], name: "index_serial_chronologies_on_created_by_id"
@@ -1722,8 +1865,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   create_table "serials", id: :serial, force: :cascade do |t|
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "place_published"
     t.integer "primary_language_id"
     t.integer "first_year_of_issue", limit: 2
@@ -1745,9 +1888,9 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "unique_key", limit: 10, null: false
     t.string "category"
     t.integer "use_count", default: 0, null: false
-    t.datetime "expires_at"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "expires_at", precision: nil
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["category"], name: "index_shortened_urls_on_category"
     t.index ["owner_id", "owner_type"], name: "index_shortened_urls_on_owner_id_and_owner_type"
     t.index ["unique_key"], name: "index_shortened_urls_on_unique_key", unique: true
@@ -1764,12 +1907,24 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.bigint "project_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_sled_images_on_created_by_id"
     t.index ["image_id"], name: "index_sled_images_on_image_id"
     t.index ["project_id"], name: "index_sled_images_on_project_id"
     t.index ["updated_by_id"], name: "index_sled_images_on_updated_by_id"
+  end
+
+  create_table "sounds", force: :cascade do |t|
+    t.text "name"
+    t.bigint "project_id", null: false
+    t.bigint "created_by_id", null: false
+    t.bigint "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_sounds_on_created_by_id"
+    t.index ["project_id"], name: "index_sounds_on_project_id"
+    t.index ["updated_by_id"], name: "index_sounds_on_updated_by_id"
   end
 
   create_table "sources", id: :serial, force: :cascade do |t|
@@ -1802,8 +1957,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "language"
     t.string "stated_year"
     t.string "verbatim"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "bibtex_type"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1844,16 +1999,16 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: "{}", null: false
-    t.jsonb "specimen_coordinates", default: "{}", null: false
+    t.jsonb "metadata_map", default: {}, null: false
+    t.jsonb "specimen_coordinates", default: {}, null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.jsonb "result_boundary_coordinates"
     t.jsonb "result_ocr"
-    t.datetime "in_progress"
+    t.datetime "in_progress", precision: nil
     t.index ["depiction_id"], name: "index_sqed_depictions_on_depiction_id"
     t.index ["project_id"], name: "index_sqed_depictions_on_project_id"
   end
@@ -1864,8 +2019,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "keyword_id", null: false
     t.index ["created_by_id"], name: "index_tagged_section_keywords_on_created_by_id"
     t.index ["keyword_id"], name: "index_tagged_section_keywords_on_keyword_id"
@@ -1880,8 +2035,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "tag_object_id", null: false
     t.string "tag_object_type", null: false
     t.string "tag_object_attribute"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -1897,11 +2052,11 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   end
 
   create_table "taxon_determinations", id: :serial, force: :cascade do |t|
-    t.integer "biological_collection_object_id", null: false
+    t.bigint "biological_collection_object_id"
     t.integer "otu_id", null: false
     t.integer "position", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -1909,19 +2064,22 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "month_made"
     t.integer "day_made"
     t.text "print_label"
+    t.bigint "taxon_determination_object_id"
+    t.string "taxon_determination_object_type"
     t.index ["biological_collection_object_id"], name: "index_taxon_determinations_on_biological_collection_object_id"
     t.index ["created_by_id"], name: "index_taxon_determinations_on_created_by_id"
     t.index ["otu_id"], name: "index_taxon_determinations_on_otu_id"
     t.index ["position"], name: "index_taxon_determinations_on_position"
     t.index ["project_id"], name: "index_taxon_determinations_on_project_id"
+    t.index ["taxon_determination_object_type", "taxon_determination_object_id"], name: "td_poly"
     t.index ["updated_by_id"], name: "index_taxon_determinations_on_updated_by_id"
   end
 
   create_table "taxon_name_classifications", id: :serial, force: :cascade do |t|
     t.integer "taxon_name_id", null: false
     t.string "type", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -1946,8 +2104,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "subject_taxon_name_id", null: false
     t.integer "object_taxon_name_id", null: false
     t.string "type", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
@@ -1960,40 +2118,44 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   end
 
   create_table "taxon_names", id: :serial, force: :cascade do |t|
-    t.string "name"
+    t.text "name"
     t.integer "parent_id"
-    t.string "cached_html"
-    t.string "cached_author_year"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.text "cached_html"
+    t.text "cached_author_year"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "year_of_publication"
-    t.string "verbatim_author"
-    t.string "rank_class"
+    t.text "verbatim_author"
+    t.text "rank_class"
     t.string "type", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.string "cached_original_combination_html"
-    t.string "cached_secondary_homonym"
-    t.string "cached_primary_homonym"
-    t.string "cached_secondary_homonym_alternative_spelling"
-    t.string "cached_primary_homonym_alternative_spelling"
+    t.text "cached_original_combination_html"
+    t.text "cached_secondary_homonym"
+    t.text "cached_primary_homonym"
+    t.text "cached_secondary_homonym_alternative_spelling"
+    t.text "cached_primary_homonym_alternative_spelling"
     t.boolean "cached_misspelling"
-    t.string "masculine_name"
-    t.string "feminine_name"
-    t.string "neuter_name"
-    t.string "cached_classified_as"
-    t.string "cached"
-    t.string "verbatim_name"
+    t.text "masculine_name"
+    t.text "feminine_name"
+    t.text "neuter_name"
+    t.text "cached_classified_as"
+    t.text "cached"
+    t.text "verbatim_name"
     t.integer "cached_valid_taxon_name_id"
     t.text "etymology"
-    t.string "cached_original_combination"
+    t.text "cached_original_combination"
     t.date "cached_nomenclature_date"
     t.boolean "cached_is_valid"
-    t.string "cached_author"
+    t.text "cached_author"
+    t.text "cached_gender"
+    t.boolean "cached_is_available"
     t.index ["cached"], name: "index_taxon_names_on_cached"
     t.index ["cached"], name: "tn_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_author_year"], name: "tn_cached_auth_year_gin_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["cached_gender"], name: "index_taxon_names_on_cached_gender"
+    t.index ["cached_is_available"], name: "index_taxon_names_on_cached_is_available"
     t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
     t.index ["cached_original_combination"], name: "tn_cached_original_gin_trgm", opclass: :gin_trgm_ops, using: :gin
@@ -2017,8 +2179,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.boolean "boolean"
     t.text "text"
     t.integer "integer"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.string "type"
     t.integer "sti_id"
     t.string "sti_type"
@@ -2034,8 +2196,8 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["collection_object_id"], name: "index_type_materials_on_collection_object_id"
     t.index ["created_by_id"], name: "index_type_materials_on_created_by_id"
     t.index ["project_id"], name: "index_type_materials_on_project_id"
@@ -2047,17 +2209,17 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "email", null: false
     t.string "password_digest", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "remember_token"
     t.integer "created_by_id"
     t.integer "updated_by_id"
     t.boolean "is_administrator"
     t.string "password_reset_token"
-    t.datetime "password_reset_token_date"
+    t.datetime "password_reset_token_date", precision: nil
     t.string "name", null: false
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
+    t.datetime "current_sign_in_at", precision: nil
+    t.datetime "last_sign_in_at", precision: nil
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
     t.text "hub_tab_order", default: [], array: true
@@ -2066,7 +2228,7 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.json "footprints", default: {}
     t.integer "sign_in_count", default: 0
     t.json "hub_favorites"
-    t.datetime "last_seen_at"
+    t.datetime "last_seen_at", precision: nil
     t.integer "time_active", default: 0
     t.json "preferences", default: {}
     t.bigint "person_id"
@@ -2090,12 +2252,14 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
     t.string "event", null: false
     t.string "whodunnit"
     t.text "object"
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.integer "transaction_id"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
     t.index ["transaction_id"], name: "index_versions_on_transaction_id"
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "alternate_values", "languages", name: "alternate_values_language_id_fkey"
   add_foreign_key "alternate_values", "projects", name: "alternate_values_project_id_fkey"
   add_foreign_key "alternate_values", "users", column: "created_by_id", name: "alternate_values_created_by_id_fkey"
@@ -2108,7 +2272,6 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   add_foreign_key "attributions", "projects"
   add_foreign_key "attributions", "users", column: "created_by_id"
   add_foreign_key "attributions", "users", column: "updated_by_id"
-  add_foreign_key "biocuration_classifications", "collection_objects", column: "biological_collection_object_id", name: "biocuration_classifications_biological_collection_object_i_fkey"
   add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
   add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "created_by_id", name: "biocuration_classifications_created_by_id_fkey"
@@ -2190,6 +2353,10 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   add_foreign_key "controlled_vocabulary_terms", "projects", name: "controlled_vocabulary_terms_project_id_fkey"
   add_foreign_key "controlled_vocabulary_terms", "users", column: "created_by_id", name: "controlled_vocabulary_terms_created_by_id_fkey"
   add_foreign_key "controlled_vocabulary_terms", "users", column: "updated_by_id", name: "controlled_vocabulary_terms_updated_by_id_fkey"
+  add_foreign_key "conveyances", "projects"
+  add_foreign_key "conveyances", "sounds"
+  add_foreign_key "conveyances", "users", column: "created_by_id"
+  add_foreign_key "conveyances", "users", column: "updated_by_id"
   add_foreign_key "data_attributes", "controlled_vocabulary_terms", name: "data_attributes_controlled_vocabulary_term_id_fkey"
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
@@ -2219,6 +2386,13 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   add_foreign_key "extracts", "repositories"
   add_foreign_key "extracts", "users", column: "created_by_id"
   add_foreign_key "extracts", "users", column: "updated_by_id"
+  add_foreign_key "field_occurrences", "collecting_events"
+  add_foreign_key "field_occurrences", "projects"
+  add_foreign_key "field_occurrences", "ranged_lot_categories"
+  add_foreign_key "field_occurrences", "users", column: "created_by_id"
+  add_foreign_key "field_occurrences", "users", column: "updated_by_id"
+  add_foreign_key "gazetteer_imports", "projects"
+  add_foreign_key "gazetteers", "projects"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
   add_foreign_key "gene_attributes", "projects"
   add_foreign_key "gene_attributes", "sequences"
@@ -2256,6 +2430,10 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   add_foreign_key "labels", "users", column: "updated_by_id", name: "labels_updated_by_id_fk"
   add_foreign_key "languages", "users", column: "created_by_id", name: "languages_created_by_id_fkey"
   add_foreign_key "languages", "users", column: "updated_by_id", name: "languages_updated_by_id_fkey"
+  add_foreign_key "leads", "leads", column: "parent_id"
+  add_foreign_key "leads", "leads", column: "redirect_id"
+  add_foreign_key "leads", "otus"
+  add_foreign_key "leads", "projects"
   add_foreign_key "loan_items", "loans", name: "loan_items_loan_id_fkey"
   add_foreign_key "loan_items", "projects", name: "loan_items_project_id_fkey"
   add_foreign_key "loan_items", "users", column: "created_by_id", name: "loan_items_created_by_id_fkey"
@@ -2268,6 +2446,7 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   add_foreign_key "notes", "projects", name: "notes_project_id_fkey"
   add_foreign_key "notes", "users", column: "created_by_id", name: "notes_created_by_id_fkey"
   add_foreign_key "notes", "users", column: "updated_by_id", name: "notes_updated_by_id_fkey"
+  add_foreign_key "observation_matrices", "otus"
   add_foreign_key "observation_matrices", "projects"
   add_foreign_key "observation_matrices", "users", column: "created_by_id"
   add_foreign_key "observation_matrices", "users", column: "updated_by_id"
@@ -2382,6 +2561,9 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   add_foreign_key "sled_images", "projects"
   add_foreign_key "sled_images", "users", column: "created_by_id"
   add_foreign_key "sled_images", "users", column: "updated_by_id"
+  add_foreign_key "sounds", "projects"
+  add_foreign_key "sounds", "users", column: "created_by_id"
+  add_foreign_key "sounds", "users", column: "updated_by_id"
   add_foreign_key "sources", "languages", name: "sources_language_id_fkey"
   add_foreign_key "sources", "serials", name: "sources_serial_id_fkey"
   add_foreign_key "sources", "users", column: "created_by_id", name: "sources_created_by_id_fkey"
@@ -2399,7 +2581,6 @@ ActiveRecord::Schema.define(version: 2023_09_18_143352) do
   add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
   add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
   add_foreign_key "tags", "users", column: "updated_by_id", name: "tags_updated_by_id_fkey"
-  add_foreign_key "taxon_determinations", "collection_objects", column: "biological_collection_object_id", name: "taxon_determinations_biological_collection_object_id_fkey"
   add_foreign_key "taxon_determinations", "otus", name: "taxon_determinations_otu_id_fkey"
   add_foreign_key "taxon_determinations", "projects", name: "taxon_determinations_project_id_fkey"
   add_foreign_key "taxon_determinations", "users", column: "created_by_id", name: "taxon_determinations_created_by_id_fkey"

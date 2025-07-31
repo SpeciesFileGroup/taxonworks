@@ -19,14 +19,6 @@ describe Identifier::Global, type: :model, group: :identifiers do
   context 'validation' do
     before { global_identifier.valid? }
 
-    specify 'only one global identifier *without* a relation is allowed per identifier type' do
-      expect(otu.identifiers.create(type: 'Identifier::Global::Uri', identifier: 'http://abc.net/foo/1')).to be_truthy
-      otu.reload
-      i = otu.identifiers.new(type: 'Identifier::Global::Uri', identifier: 'http://abc.net/foo/2')
-      expect(i.valid?).to be_falsey
-      expect(i.errors.include?(:relation)).to be_truthy
-    end
-
     specify 'more than one global identifier with a valid relation is allowed per identifier type' do
       expect(otu.identifiers << Identifier::Global::Uri.new(identifier: 'http://abc.net/bar/22')).to be_truthy
       otu.reload
@@ -93,7 +85,7 @@ describe Identifier::Global, type: :model, group: :identifiers do
 
   describe 'soft validation' do
     specify 'responding URI' do
-      global_identifier.identifier = 'http://data.nhm.ac.uk/object/a9bdc16d-c9ba-4e32-9311-d5250af2b5ac'
+      global_identifier.identifier = 'http://orthoptera.speciesfile.org/otus/817876/'
       VCR.use_cassette('responding URI') do
         global_identifier.soft_validate(only_sets: [:resolved])
       end

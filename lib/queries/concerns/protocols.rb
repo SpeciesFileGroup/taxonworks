@@ -97,7 +97,7 @@ module Queries::Concerns::Protocols
     t = ::ProtocolRelationship.arel_table
 
     w = t[:protocol_relationship_object_id].eq(table[:id]).and( t[:protocol_relationship_object_type].eq(table.name.classify))
-    w = w.and( t[:protocol_id].eq_any(protocol_id_or) ) if protocol_id_or.any?
+    w = w.and( t[:protocol_id].in(protocol_id_or) ) if protocol_id_or.any?
 
     k.where( ::ProtocolRelationship.where(w).arel.exists )
   end

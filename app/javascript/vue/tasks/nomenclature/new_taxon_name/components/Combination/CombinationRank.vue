@@ -10,7 +10,7 @@
       </label>
     </div>
     <div>
-      <draggable
+      <Draggable
         class="flex-wrap-column"
         v-model="taxonList"
         :options="options"
@@ -24,7 +24,7 @@
             class="horizontal-left-content middle"
             v-if="!element.taxon"
           >
-            <autocomplete
+            <Autocomplete
               url="/taxon_names/autocomplete"
               label="label_html"
               min="2"
@@ -34,24 +34,24 @@
                 'nomenclature_group[]': nomenclatureGroup
               }"
               :disabled="disabled"
-              @getItem="setTaxon(index, $event)"
+              @get-item="(item) => setTaxon(index, item)"
               param="term"
             />
-            <v-btn
+            <VBtn
               color="primary"
               circle
               title="Press and hold to drag input"
               class="margin-small-left"
             >
-              <v-icon
+              <VIcon
                 color="white"
                 name="scrollV"
                 small
               />
-            </v-btn>
+            </VBtn>
           </div>
           <div
-            class="original-combination-item horizontal-left-content middle"
+            class="original-combination-item horizontal-left-content middle gap-small"
             v-else
           >
             <div>
@@ -61,25 +61,24 @@
                 <span v-html="element.taxon.object_label" />
               </span>
             </div>
-            <v-btn
-              class="margin-small-left"
+            <VBtn
               color="primary"
               circle
               title="Press and hold to drag input"
             >
-              <v-icon
+              <VIcon
                 name="scrollV"
                 small
               />
-            </v-btn>
-            <radial-annotator :global-id="element.taxon.global_id" />
+            </VBtn>
+            <RadialAnnotator :global-id="element.taxon.global_id" />
             <span
               class="circle-button btn-delete"
               @click="removeTaxonFromCombination(index)"
             />
           </div>
         </template>
-      </draggable>
+      </Draggable>
     </div>
   </div>
 </template>

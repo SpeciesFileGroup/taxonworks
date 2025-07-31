@@ -1,4 +1,4 @@
-class Tasks::BrowseAnnotationsController < ApplicationController
+class Tasks::ObjectAnnotations::BrowseAnnotationsController < ApplicationController
   include TaskControllerConfiguration
 
   # GET

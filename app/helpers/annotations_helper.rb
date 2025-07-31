@@ -25,13 +25,13 @@ module AnnotationsHelper
   # @return [String]
   # Assumes the context is the object, not a multi-object summary
   def annotations_summary_tag(object)
-    v = [citation_list_tag(object),
+    v = [confidence_list_tag(object),
+         citation_list_tag(object),
          identifier_list_tag(object),
          data_attribute_list_tag(object),
          note_list_tag(object),
          tag_list_tag(object),
          alternate_values_list_tag(object),
-         confidence_list_tag(object),
          attribution_list_tag(object)
     ].compact
 
@@ -68,10 +68,14 @@ module AnnotationsHelper
     content_tag(:div, '', data: { 'global-id' => object.to_global_id.to_s, 'radial-annotator' => 'true', 'show-count' => showCount, 'pulse' => pulse })
   end
 
+  def radial_annotator_otu(object, pulse = false, showCount = false)
+    content_tag(:div, '', data: { 'taxon-name-id' => object.id.to_s, 'otu-radial-annotator' => 'true' })
+  end
+
   # @return [Array]
   #   of { ClassName => human name }
   def klass_and_labels(klass_names)
-    klass_names.collect{|n| [n, n.tableize.humanize]}.to_h
+    klass_names.index_with{|n| n.tableize.humanize}
   end
 
 end

@@ -9,6 +9,6 @@ $tw-input-sizes: (
 
 :export {
   @each $key, $value in $tw-input-sizes {
-    #{unquote($key)}: #{$value};
+    --#{$key}: #{$value};
   }
 }

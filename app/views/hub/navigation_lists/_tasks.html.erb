@@ -1,5 +1,5 @@
 <%= render "/hub/hub_category_filter" %>
-<div id="task_carrousel">
+<div id="task_carrousel" class="full_width">
   <div class="task-section">
     <% UserTasks.hub_tasks.each do |task| -%>
       <%= task_card(task) -%>

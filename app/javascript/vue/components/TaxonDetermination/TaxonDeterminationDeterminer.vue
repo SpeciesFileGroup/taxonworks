@@ -45,7 +45,7 @@ import makeTaxonDetermination from '@/factory/TaxonDetermination.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import RolePicker from '@/components/role_picker.vue'
 import VLock from '@/components/ui/VLock/index.vue'
-import VSwitch from '@/components/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 
 const props = defineProps({
   modelValue: {

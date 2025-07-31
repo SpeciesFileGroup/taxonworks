@@ -15,9 +15,11 @@ export default function ({ commit, state }, type) {
 
   validations.forEach(function (element) {
     promises.push(
-      SoftValidation.find(element.global_id).then((response) => {
-        return Object.assign(response.body, { global_id: element.global_id })
-      })
+      SoftValidation.find(element.global_id)
+        .then((response) => {
+          return Object.assign(response.body, { global_id: element.global_id })
+        })
+        .catch(() => {})
     )
   })
 

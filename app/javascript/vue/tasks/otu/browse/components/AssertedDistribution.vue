@@ -1,182 +1,113 @@
 <template>
-  <section-panel
+  <SectionPanel
     :status="status"
     :spinner="loadState.assertedDistribution"
     :title="title"
-    menu
-    @menu="setModalView(true)"
   >
     <template #title>
       <a
         v-if="currentOtu"
-        :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
+        :href="`${RouteNames.BrowseAssertedDistribution}?otu_id=${currentOtu.id}`"
         >Expand</a
       >
     </template>
-    <table class="full_width">
-      <thead>
-        <tr>
-          <th>Level 0</th>
-          <th>Level 1</th>
-          <th>Level 2</th>
-          <th>Name</th>
-          <th>type</th>
-          <th>Presence</th>
-          <th>Shape</th>
-          <th>Citations</th>
-          <th>OTU</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="assertedDistribution in filteredList"
-          :key="assertedDistribution.id"
-        >
-          <td>{{ assertedDistribution.geographic_area.level0_name }}</td>
-          <td>{{ assertedDistribution.geographic_area.level1_name }}</td>
-          <td>{{ assertedDistribution.geographic_area.level2_name }}</td>
-          <td>
-            <a
-              :href="`/asserted_distributions/${assertedDistribution.id}`"
-              title="Edit"
-            >
-              <span v-html="assertedDistribution.geographic_area.name" />
-            </a>
-          </td>
-          <td>
-            {{ assertedDistribution.geographic_area.geographic_area_type.name }}
-          </td>
-          <td>{{ assertedDistribution.is_absent ? '✕' : '✓' }}</td>
-          <td>
-            {{ assertedDistribution.geographic_area.has_shape ? '✓' : '✕' }}
-          </td>
-          <td>
-            <a
-              v-for="citation in assertedDistribution.citations"
-              :key="citation.id"
-              :href="`/tasks/nomenclature/by_source?source_id=${citation.source_id}`"
-              :title="citation.source.object_label"
-            >
-              <span v-html="citation.citation_source_body" />&nbsp;
-            </a>
-          </td>
-          <td v-html="assertedDistribution.otu.object_tag" />
-        </tr>
-      </tbody>
-    </table>
-    <modal-component
-      v-if="showModal"
-      @close="setModalView(false)"
-      :containerStyle="{ width: '900px' }"
+    <TableList
+      :list="assertedDistributions"
+      :columns="COLUMNS"
+      @sort="sortTable"
     >
-      <template #header>
-        <h3>Filter</h3>
-      </template>
-      <template #body>
-        <div class="horizontal-left-content align-start">
-          <div class="full_width margin-left-margin">
-            <h4>Level 0</h4>
-            <filter-level
-              class="overflow-y-scroll"
-              :levels="level0List"
-              v-model="level0Filter"
+      <template #citations="{ column }">
+        <div class="flex-row gap-small middle">
+          Citations
+          <VBtn
+            title="Sort alphabetically"
+            color="primary"
+            circle
+            @click.stop="() => sortTable(column)"
+          >
+            <VIcon
+              name="alphabeticalSort"
+              title="Sort alphabetically"
+              x-small
             />
-          </div>
-          <div class="full_width margin-left-margin">
-            <h4>Level 1</h4>
-            <filter-level
-              class="overflow-y-scroll"
-              :levels="level1List"
-              v-model="level1Filter"
+          </VBtn>
+          <VBtn
+            color="primary"
+            circle
+            title="Sort by year"
+            @click.stop="() => sortTable('year')"
+          >
+            <VIcon
+              name="numberSort"
+              title="Sort by year"
+              x-small
             />
-          </div>
-          <div class="full_width margin-left-margin">
-            <h4>Level 2</h4>
-            <filter-level
-              class="overflow-y-scroll"
-              :levels="level2List"
-              v-model="level2Filter"
-            />
-          </div>
+          </VBtn>
         </div>
       </template>
-    </modal-component>
-  </section-panel>
+    </TableList>
+  </SectionPanel>
 </template>
 
-<script>
+<script setup>
 import SectionPanel from './shared/sectionPanel'
-import ModalComponent from '@/components/ui/Modal'
-import extendSection from './shared/extendSections'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import TableList from './assertedDistribution/TableList.vue'
+import { sortArray } from '@/helpers'
 import { GetterNames } from '../store/getters/getters'
-import { getUnique } from '@/helpers/arrays'
-import FilterLevel from './assertedDistribution/filterLevel'
+import { MutationNames } from '../store/mutations/mutations'
+import { RouteNames } from '@/routes/routes'
+import { useStore } from 'vuex'
+import { computed, ref } from 'vue'
 
-export default {
-  mixins: [extendSection],
-  components: {
-    ModalComponent,
-    SectionPanel,
-    FilterLevel
+defineProps({
+  status: {
+    type: String,
+    default: 'unknown'
   },
-  computed: {
-    assertedDistributions() {
-      return getUnique(
-        this.$store.getters[GetterNames.GetAssertedDistributions],
-        'id'
-      )
-    },
-    currentOtu() {
-      return this.$store.getters[GetterNames.GetCurrentOtu]
-    },
-    level0List() {
-      return [
-        ...new Set(
-          this.assertedDistributions.map((ad) => ad.geographic_area.level0_name)
-        )
-      ].filter((level) => level)
-    },
-    level1List() {
-      return [
-        ...new Set(
-          this.assertedDistributions.map((ad) => ad.geographic_area.level1_name)
-        )
-      ].filter((level) => level)
-    },
-    level2List() {
-      return [
-        ...new Set(
-          this.assertedDistributions.map((ad) => ad.geographic_area.level2_name)
-        )
-      ].filter((level) => level)
-    },
-    filteredList() {
-      return this.assertedDistributions.filter(
-        (ad) =>
-          (this.level0Filter.length
-            ? this.level0Filter.includes(ad.geographic_area.level0_name)
-            : true) &&
-          (this.level1Filter.length
-            ? this.level1Filter.includes(ad.geographic_area.level1_name)
-            : true) &&
-          (this.level2Filter.length
-            ? this.level2Filter.includes(ad.geographic_area.level2_name)
-            : true)
-      )
-    }
+  title: {
+    type: String,
+    default: undefined
   },
-  data() {
-    return {
-      showModal: false,
-      level0Filter: [],
-      level1Filter: [],
-      level2Filter: []
-    }
-  },
-  methods: {
-    setModalView(value) {
-      this.showModal = value
-    }
+  otu: {
+    type: Object,
+    required: true
   }
+})
+
+const COLUMNS = [
+  'level0',
+  'level1',
+  'level2',
+  'name',
+  'type',
+  'presence',
+  'shape',
+  'citations',
+  'otu'
+]
+
+const store = useStore()
+const ascending = ref(false)
+
+const loadState = computed(() => store.getters[GetterNames.GetLoadState])
+
+const assertedDistributions = computed({
+  get: () => store.getters[GetterNames.GetAssertedDistributions],
+  set: (value) => store.commit(MutationNames.SetAssertedDistributions, value)
+})
+
+const currentOtu = computed(() => store.getters[GetterNames.GetCurrentOtu])
+
+function sortTable(sortProperty) {
+  assertedDistributions.value = sortArray(
+    assertedDistributions.value,
+    sortProperty,
+    ascending.value,
+    { stripHtml: true }
+  )
+
+  ascending.value = !ascending.value
 }
 </script>

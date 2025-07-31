@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typification
 
-   # left side
+  # left side
   def self.valid_subject_ranks
     SPECIES_RANK_NAMES
   end
@@ -40,6 +40,13 @@ class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typifi
 
   def self.assignable
     true
+  end
+
+  protected
+
+  def validate_subject_and_object_ranks
+    errors.add(:subject_taxon_name_id, 'Subject should be species-group name') if subject_taxon_name && !subject_taxon_name.is_species_rank?
+    errors.add(:object_taxon_name_id, 'Object should be genus-group name') if object_taxon_name && !object_taxon_name.is_genus_rank?
   end
 
   def sv_not_specific_relationship

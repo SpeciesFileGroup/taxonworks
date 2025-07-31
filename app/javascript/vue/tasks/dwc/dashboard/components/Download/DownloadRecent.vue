@@ -4,6 +4,7 @@
     <table>
       <thead>
         <tr>
+          <th class="w-2" />
           <th
             v-for="header in PROPERTIES"
             :key="header"
@@ -16,9 +17,16 @@
       </thead>
       <tbody>
         <tr
-          v-for="(item, index) in useState.downloadList"
+          v-for="(item, index) in store.downloadList"
           :key="item.id"
         >
+          <td>
+            <RadialNavigator
+              :global-id="item.global_id"
+              :redirect="false"
+              @delete="() => actions.removeDownloadFromList(item)"
+            />
+          </td>
           <td
             v-for="property in PROPERTIES"
             :key="property"
@@ -52,6 +60,7 @@ import { inject, onBeforeMount, watch } from 'vue'
 import { DOWNLOAD_DWC_ARCHIVE } from '@/constants/index.js'
 import { Download } from '@/routes/endpoints'
 import { humanize } from '@/helpers/strings'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const DEFAULT_WAIT_TIME = 60000
@@ -67,8 +76,8 @@ const PROPERTIES = [
   'times_downloaded'
 ]
 
-const useState = inject('state')
-const useAction = inject('actions')
+const store = inject('state')
+const actions = inject('actions')
 const timeoutDownloadIds = []
 
 const refreshDownloadList = (list) => {
@@ -85,21 +94,26 @@ const refreshDownloadList = (list) => {
 }
 
 const refreshDownloadRecord = async (record, timeRequest) => {
-  Download.find(record.id).then(({ body }) => {
-    if (body.ready) {
-      const index = useState.downloadList.findIndex(
-        (item) => item.id === record.id
-      )
-      const timeoutIndex = timeoutDownloadIds.findIndex(
-        (id) => id === record.id
-      )
+  Download.find(record.id)
+    .then(({ body }) => {
+      if (body.ready) {
+        const index = store.downloadList.findIndex(
+          (item) => item.id === record.id
+        )
+        const timeoutIndex = timeoutDownloadIds.findIndex(
+          (id) => id === record.id
+        )
 
-      useAction.setDownloadRecord({ index, record: body })
-      timeoutDownloadIds.splice(timeoutIndex, 1)
-    } else {
-      setTimeout(() => refreshDownloadRecord(record, timeRequest), timeRequest)
-    }
-  })
+        actions.setDownloadRecord({ index, record: body })
+        timeoutDownloadIds.splice(timeoutIndex, 1)
+      } else {
+        setTimeout(
+          () => refreshDownloadRecord(record, timeRequest),
+          timeRequest
+        )
+      }
+    })
+    .catch(() => {})
 }
 
 const getTimeByTotal = (recordTotal) => {
@@ -117,7 +131,7 @@ const setIsPublic = ({ id, is_public }, index) => {
   }
 
   Download.update(id, { download }).then(({ body }) => {
-    useAction.setDownloadRecord({
+    actions.setDownloadRecord({
       index,
       record: body
     })
@@ -137,7 +151,7 @@ const sortByDate = (list) =>
   })
 
 watch(
-  () => useState.downloadList,
+  () => store.downloadList,
   (list) => {
     refreshDownloadList(list)
   },
@@ -145,7 +159,7 @@ watch(
 )
 
 onBeforeMount(async () => {
-  useState.downloadList = sortByDate(
+  store.downloadList = sortByDate(
     (await Download.where({ download_type: DOWNLOAD_DWC_ARCHIVE })).body
   )
 })

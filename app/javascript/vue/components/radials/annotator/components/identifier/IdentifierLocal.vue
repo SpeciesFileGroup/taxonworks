@@ -3,20 +3,22 @@
     <div>
       <fieldset>
         <legend>Namespace</legend>
-        <smart-selector
-          class="margin-medium-top"
-          model="namespaces"
-          :klass="objectType"
-          pin-section="Namespaces"
-          pin-type="Namespace"
-          @selected="namespace = $event"
-        >
-          <SmartSelectorItem
-            :item="namespace"
-            label="name"
-            @unset="namespace = undefined"
-          />
-        </smart-selector>
+        <div class="horizontal-left-content align-start gap-small">
+          <SmartSelector
+            model="namespaces"
+            :klass="objectType"
+            pin-section="Namespaces"
+            pin-type="Namespace"
+            @selected="(item) => (namespace = item)"
+          >
+          </SmartSelector>
+          <WidgetNamespace @create="(item) => (namespace = item)" />
+        </div>
+        <SmartSelectorItem
+          :item="namespace"
+          label="name"
+          @unset="namespace = undefined"
+        />
       </fieldset>
       <div class="field separate-top">
         <input
@@ -42,6 +44,7 @@
 import { ref, computed } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 
 const props = defineProps({
   objectType: {
@@ -50,7 +53,7 @@ const props = defineProps({
   },
 
   type: {
-    type: String,
+    type: [String, null],
     required: true
   }
 })

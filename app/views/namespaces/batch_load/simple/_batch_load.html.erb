@@ -10,7 +10,7 @@
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
         <li>Name column cannot be blank and must be unique among all namespaces.</li>
         <li>Short name cannot be blank and must be unique among all namespaces.</li>
-        <li>Column headers are <%= link_to('here', asset_path('batch_load_templates/namespaces/namespaces_simple_batch_load.tab'), target: '_blank') -%>.</li>
+        <li>Column headers are <%= link_to('here', asset_path('batch_load_templates/namespaces/namespaces_simple_batch_load.tab', skip_pipeline: true), target: '_blank') -%>.</li>
         <li>Multiple uploads of the same data will fail the duplicated data.</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
         <li>Use the delimiter keyword <code>NONE</code> to indicate no delimiter. Leaving the field blank will use the default delimiter (a space).</li>
@@ -21,7 +21,7 @@
       <h3> Example file </h3>
 
       <p> A tab delimited formatted file
-          In the example whitespace is a tab. View <%= link_to('sample file template', asset_path('batch_load_templates/namespaces/namespaces_simple_batch_load.tab'), target: '_blank') -%>.</p>
+          In the example whitespace is a tab. View <%= link_to('sample file template', asset_path('batch_load_templates/namespaces/namespaces_simple_batch_load.tab', skip_pipeline: true), target: '_blank') -%>.</p>
 
       <pre class="fixed_width_font">
         institution name short_name verbatim_short_name delimiter

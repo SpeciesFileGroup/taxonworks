@@ -41,7 +41,7 @@
 
 <script>
 import SmartSelector from '@/components/ui/SmartSelector'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import { CollectionObject } from '@/routes/endpoints'
 
 export default {

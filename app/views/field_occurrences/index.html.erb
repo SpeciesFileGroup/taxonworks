@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Field Occurrences</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Total</th>
+      <th>Collecting event</th>
+      <th>Is absent</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @field_occurrences.each do |field_occurrence| %>
+      <tr>
+        <td><%= field_occurrence.total %></td>
+        <td><%= field_occurrence.collecting_event_id %></td>
+        <td><%= field_occurrence.is_absent %></td>
+        <td><%= link_to 'Show', field_occurrence %></td>
+        <td><%= link_to 'Edit', edit_field_occurrence_path(field_occurrence) %></td>
+        <td><%= link_to 'Destroy', field_occurrence, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Field Occurrence', new_field_occurrence_path %>

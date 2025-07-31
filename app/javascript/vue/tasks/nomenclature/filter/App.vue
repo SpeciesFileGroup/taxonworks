@@ -1,11 +1,11 @@
 <template>
   <div>
-    <h1>Filter nomenclature</h1>
+    <h1>Filter taxon names</h1>
 
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :object-type="TAXON_NAME"
       :list="list"
       v-model="parameters"
@@ -19,17 +19,21 @@
         <RadialNomenclature
           :disabled="!list.length"
           :parameters="parameters"
+          :count="pagination?.total || 0"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #nav-right>
         <RadialLabel
           :object-type="TAXON_NAME"
-          :ids="selectedIds"
-          :disabled="!selectedIds.length"
+          :ids="sortedSelectedIds"
+          :disabled="!sortedSelectedIds.length"
         />
         <RadialNomenclature
           :disabled="!list.length"
-          :ids="selectedIds"
+          :ids="sortedSelectedIds"
+          :count="sortedSelectedIds.length"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #facets>
@@ -41,6 +45,7 @@
           :attributes="ATTRIBUTES"
           :list="list"
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -56,7 +61,7 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import RadialLabel from '@/components/radials/label/radial.vue'
 import RadialNomenclature from '@/components/radials/nomenclature/radial.vue'
@@ -65,19 +70,20 @@ import { listParser } from './utils/listParser'
 import { TaxonName } from '@/routes/endpoints'
 import { TAXON_NAME } from '@/constants/index.js'
 
-const extend = ['parent']
+const extend = ['parent', 'valid_name']
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(TaxonName, { listParser, initParameters: { extend } })
 </script>
 

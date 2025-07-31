@@ -1,6 +1,6 @@
 <template>
   <div>
-    <VBtn
+    <VBtn  v-help.nav.previous
       medium
       color="primary"
       :disabled="!previousByCurrent"
@@ -11,7 +11,7 @@
         name="arrowLeft"
       />
     </VBtn>
-    <VBtn
+    <VBtn v-help.nav.go
       medium
       class="margin-small-left margin-small-right"
       color="primary"
@@ -20,7 +20,7 @@
     >
       Go
     </VBtn>
-    <VBtn
+    <VBtn v-help.nav.next
       medium
       color="primary"
       :disabled="!nextByCurrent"
@@ -87,17 +87,22 @@
 import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../store/actions/actions'
+import { RouteNames } from '@/routes/routes'
 import ModalComponent from '@/components/ui/Modal'
-import loadCO from '../utils/loadCO.js'
+import setParam from '@/helpers/setParam'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
 const store = useStore()
+
+const isVisible = ref(false)
+const currentNavigation = ref('id')
+
 const navigate = computed(() => store.getters[GetterNames.GetNavigation])
 const collectionObject = computed(
   () => store.getters[GetterNames.GetCollectionObject]
 )
-const currentNavigation = ref('identifier')
 
 const previousByCurrent = computed(
   () =>
@@ -106,9 +111,12 @@ const previousByCurrent = computed(
 )
 const nextByCurrent = computed(
   () =>
-    navigate.value?.previous_by &&
-    navigate.value.next_by[currentNavigation.value]
+    navigate.value?.next_by && navigate.value.next_by[currentNavigation.value]
 )
 
-const isVisible = ref(false)
+function loadCO(coId) {
+  store.dispatch(ActionNames.ResetStore)
+  store.dispatch(ActionNames.LoadCollectionObject, coId)
+  setParam(RouteNames.BrowseCollectionObject, 'collection_object_id', coId)
+}
 </script>

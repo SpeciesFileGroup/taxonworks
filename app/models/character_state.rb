@@ -39,6 +39,14 @@ class CharacterState < ApplicationRecord
 
   validate :descriptor_kind
 
+  def self.find_for_autocomplete(params)
+    where('name ILIKE ?', "%#{params[:term]}%")
+  end
+
+  def is_gap?
+    label == '-' && name.downcase == 'gap'
+  end
+
   # @return [String] name of the character_state in a particular language
   # @parm :target
   #   one of :key, :description, nil
@@ -69,6 +77,10 @@ class CharacterState < ApplicationRecord
   end
 
   protected
+
+  def dependent_destroy_error_message
+    "Cannot delete this #{self.class.name} because it has associated #{dependent_models.class.name} records." 
+  end
 
   def descriptor_kind
     errors.add(:descriptor, 'must be Descriptor::Qualitative') if descriptor && descriptor.type != 'Descriptor::Qualitative'

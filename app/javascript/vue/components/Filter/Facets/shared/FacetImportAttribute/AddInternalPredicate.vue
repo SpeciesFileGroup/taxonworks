@@ -6,7 +6,7 @@
         url="/data_attributes/import_predicate_autocomplete"
         param="term"
         placeholder="Type a predicate..."
-        v-model="internalPredicate"
+        clear-after
         @get-item="
           (item) => {
             internalPredicate = item
@@ -44,19 +44,12 @@
           <VBtn
             color="primary"
             medium
-            :disabled="!internalPredicate"
+            :disabled="!internalPredicate || !!inputValue.length"
             @click="() => addInternalAttribute({ any: true, text: '' })"
           >
             Any
           </VBtn>
         </div>
-        <label>
-          <input
-            v-model="exact"
-            type="checkbox"
-          />
-          Exact
-        </label>
       </div>
     </div>
   </div>
@@ -71,14 +64,12 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 const emit = defineEmits(['add'])
 const inputValue = ref('')
 const internalPredicate = ref('')
-const exact = ref(false)
 
 function addInternalAttribute(params) {
   const data = {
-    predicate: internalPredicate.value,
     name: internalPredicate.value,
     text: inputValue.value,
-    exact: exact.value,
+    exact: false,
     ...params
   }
 

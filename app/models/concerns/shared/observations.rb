@@ -14,10 +14,10 @@ module Shared::Observations
       end
     end
 
-    has_many :observations, as: :observation_object, dependent: :restrict_with_error # inverse_of: class_name
-    has_many :observation_matrix_rows, as: :observation_object # , inverse_of: class_name
-    has_many :observation_matrix_row_items, as: :observation_object, dependent: :destroy #, inverse_of: class_name
-    has_many :observation_matrices, inverse_of: class_name.pluralize, through: :observation_matrix_rows
+    has_many :observations, as: :observation_object, dependent: :restrict_with_error,  inverse_of: :observation_object # inverse_of: class_name
+    has_many :observation_matrix_rows, as: :observation_object , inverse_of: :observation_object
+    has_many :observation_matrix_row_items, as: :observation_object, dependent: :destroy, inverse_of: :observation_object 
+    has_many :observation_matrices, through: :observation_matrix_rows, inverse_of: class_name.pluralize.to_sym
     has_many :descriptors, through: :observations
 
     #  has_many :observation_matrix_rows, inverse_of: :observation_object, dependent: :delete_all

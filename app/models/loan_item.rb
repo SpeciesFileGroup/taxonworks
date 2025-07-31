@@ -46,7 +46,7 @@ class LoanItem < ApplicationRecord
 
   attr_accessor :date_returned_jquery
 
-  STATUS = ['Destroyed', 'Donated', 'Loaned on', 'Lost', 'Retained', 'Returned'].freeze
+  STATUS = ['Destroyed', 'Donated', 'Lost', 'Retained', 'Returned'].freeze
 
   belongs_to :loan, inverse_of: :loan_items
   belongs_to :loan_item_object, polymorphic: true
@@ -63,7 +63,7 @@ class LoanItem < ApplicationRecord
 
   validate :available_for_loan
 
-  validates_uniqueness_of :loan_id, scope: [:loan_item_object_id], if: -> { loan_item_object_type == 'CollectionObject' }
+  validates_uniqueness_of :loan_id, scope: [:loan_item_object_id, :loan_item_object_type], if: -> { loan_item_object_type == 'CollectionObject' }
 
   validates_inclusion_of :disposition, in: STATUS, if: -> {disposition.present?}
 
@@ -139,13 +139,13 @@ class LoanItem < ApplicationRecord
         item_list.flatten!
 
         first = item_list.pop
-        td.biological_collection_object = first
+        td.taxon_determination_object = first
         td.save! # create and save the first one so we can dup it in the next step
 
         item_list.each do |item|
           n = td.dup
           n.determiners << td.determiners
-          n.biological_collection_object = item
+          n.taxon_determination_object = item
           n.save
           n.move_to_top
         end
@@ -211,6 +211,7 @@ class LoanItem < ApplicationRecord
   # Return all CollectionObjects matching the query. Does not yet work with OtuQuery
   def self.batch_return(params)
     a = Queries::CollectionObject::Filter.new(params[:collection_object_query])
+    
     return false if a.all.count == 0
 
     returned = []

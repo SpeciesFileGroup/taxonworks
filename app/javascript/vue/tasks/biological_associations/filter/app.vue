@@ -6,7 +6,7 @@
       :pagination="pagination"
       v-model="parameters"
       :object-type="BIOLOGICAL_ASSOCIATION"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :list="list"
       :url-request="urlRequest"
       v-model:append="append"
@@ -15,6 +15,26 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialBiologicalAssociation
+          :disabled="!list.length"
+          :parameters="parameters"
+          :count="pagination?.total || 0"
+          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+        />
+      </template>
+      <template #nav-right>
+        <div class="horizontal-right-content gap-small">
+          <RadialBiologicalAssociation
+            :disabled="!list.length"
+            :ids="sortedSelectedIds"
+            :count="sortedSelectedIds.length"
+            @update="
+              () => makeFilterRequest({ ...parameters, extend, page: 1 })
+            "
+          />
+        </div>
+      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -25,6 +45,7 @@
           :header-groups="HEADERS"
           :list="list"
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -41,8 +62,9 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import RadialBiologicalAssociation from '@/components/radials/BiologicalAssociation/radial.vue'
 import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 import { BiologicalAssociation } from '@/routes/endpoints'
@@ -73,16 +95,17 @@ const extend = [
 ]
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(BiologicalAssociation, { listParser, initParameters: { extend } })
 </script>
 

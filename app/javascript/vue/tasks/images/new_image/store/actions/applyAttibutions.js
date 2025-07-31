@@ -1,4 +1,4 @@
-import { Attribution, Citation } from '@/routes/endpoints'
+import { Attribution } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 const roles = [
@@ -10,6 +10,7 @@ const roles = [
 
 function getRoleList(object) {
   let newRoleList = []
+
   roles.forEach((role) => {
     if (object[role]) {
       newRoleList = newRoleList.concat(object[role])
@@ -21,27 +22,6 @@ function getRoleList(object) {
 
 export default ({ state, commit }) => {
   const promises = []
-
-  async function createCitation(image) {
-    const citation = {
-      citation_object_id: image.id,
-      citation_object_type: image.base_class,
-      source_id: state.source.id,
-      pages: undefined
-    }
-
-    return Citation.create({ citation }).then((response) => {
-      commit(MutationNames.AddCitation, response.body)
-    })
-  }
-
-  function citationAlreadyExistFor(image) {
-    return state.citations.find(
-      (citation) =>
-        citation.citation_object_id === image.id &&
-        state.source.id === citation.source_id
-    )
-  }
 
   const attributionRoles = [].concat(
     state.people.authors,
@@ -80,33 +60,37 @@ export default ({ state, commit }) => {
 
       return Attribution.update(attributionCreated.id, {
         attribution: payload
-      }).then(({ body }) => {
-        commit(MutationNames.AddAttribution, body)
       })
+        .then(({ body }) => {
+          commit(MutationNames.AddAttribution, body)
+        })
+        .catch(() => {})
     }
 
-    return Attribution.create({ attribution: payload }).then(({ body }) => {
-      commit(MutationNames.AddAttribution, body)
-    })
+    return Attribution.create({ attribution: payload })
+      .then(({ body }) => {
+        commit(MutationNames.AddAttribution, body)
+      })
+      .catch(() => {})
   }
 
   state.imagesCreated.forEach((item) => {
     state.settings.saving = true
-
-    if (state.source && !citationAlreadyExistFor(item)) {
-      promises.push(createCitation(item))
-    }
 
     if (state.license || attributionRoles.length) {
       promises.push(applyAttribution(item))
     }
   })
 
-  Promise.all(promises).then(() => {
-    state.settings.saving = false
-    TW.workbench.alert.create(
-      `Attribution(s) were successfully saved.`,
-      'notice'
-    )
-  })
+  Promise.all(promises)
+    .then(() => {
+      state.settings.applied.attribution = true
+      TW.workbench.alert.create(
+        `Attribution(s) were successfully saved.`,
+        'notice'
+      )
+    })
+    .finally(() => {
+      state.settings.saving = false
+    })
 }

@@ -17,7 +17,7 @@
             <div>
               <radial-menu
                 :options="menuOptions"
-                @on-click="createLabels"
+                @click="createLabels"
               />
             </div>
           </div>
@@ -116,7 +116,7 @@ function createLabels({ name }) {
     (slice) => slice.link === name
   )
 
-  AjaxCall('post', link, { [param]: props.ids }).then((_) => {
+  AjaxCall('post', link, { [param]: props.ids }).then(() => {
     TW.workbench.alert.create('Label was successfully created.', 'notice')
     closeModal()
   })

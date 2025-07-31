@@ -1,88 +1,81 @@
 <template>
-  <div class="alternate_values_annotator">
-    <div>
-      <switch-component
-        :options="tabs"
+  <div>
+    <div class="alternate_values_annotator">
+      <VSwitch
+        :options="Object.values(TYPE_LIST)"
         use-index
         v-model="alternateType"
       />
-    </div>
-    <ul class="no_bullets content">
-      <li
-        v-for="(item, key) in values"
-        :key="item"
+      <ul class="no_bullets content">
+        <li
+          v-for="(item, key) in values"
+          :key="item"
+        >
+          <label>
+            <input
+              type="radio"
+              v-model="alternateValue.alternate_value_object_attribute"
+              :value="key"
+            />
+            "{{ key }}" -> {{ item }}
+          </label>
+        </li>
+      </ul>
+
+      <fieldset v-if="alternateValue.type === ALTERNATE_VALUE_TRANSLATION">
+        <legend>Language</legend>
+        <SmartSelector
+          v-model="language"
+          model="languages"
+          klass="AlternateValue"
+          label="english_name"
+          @selected="setLanguage"
+        />
+        <SmartSelectorItem
+          :item="language"
+          label="english_name"
+          @unset="setLanguage"
+        />
+      </fieldset>
+
+      <div class="field margin-medium-top">
+        <input
+          class="normal-input full_width"
+          type="text"
+          v-model="alternateValue.value"
+          placeholder="Value"
+        />
+      </div>
+
+      <VBtn
+        class="margin-small-right"
+        color="create"
+        medium
+        :disabled="!validateFields"
+        @click="saveAlternateValue"
       >
-        <label>
-          <input
-            type="radio"
-            v-model="alternateValue.alternate_value_object_attribute"
-            :value="key"
-          />
-          "{{ key }}" -> {{ item }}
-        </label>
-      </li>
-    </ul>
-
-    <fieldset v-if="alternateValue.type === ALTERNATE_VALUE_TRANSLATION">
-      <legend>Language</legend>
-      <smart-selector
-        v-model="language"
-        model="languages"
-        klass="AlternateValue"
-        label="english_name"
-        @selected="setLanguage"
-      />
-      <SmartSelectorItem
-        :item="language"
-        label="english_name"
-        @unset="setLanguage"
-      />
-    </fieldset>
-
-    <div class="field margin-medium-top">
-      <input
-        class="normal-input full_width"
-        type="text"
-        v-model="alternateValue.value"
-        placeholder="Value"
-      />
+        Save
+      </VBtn>
+      <VBtn
+        color="primary"
+        medium
+        @click="reset"
+      >
+        New
+      </VBtn>
     </div>
 
-    <v-btn
-      class="margin-small-right"
-      color="create"
-      medium
-      :disabled="!validateFields"
-      @click="saveAlternateValue"
-    >
-      Save
-    </v-btn>
-    <v-btn
-      color="primary"
-      medium
-      @click="reset"
-    >
-      New
-    </v-btn>
+    <DisplayList
+      label="object_tag"
+      :list="list"
+      edit
+      @edit="loadAlternateValue"
+      @delete="removeItem"
+    />
   </div>
-
-  <display-list
-    label="object_tag"
-    :list="list"
-    edit
-    @edit="loadAlternateValue"
-    @delete="removeItem"
-  />
 </template>
-<script>
-import CRUD from '../request/crud.js'
-import annotatorExtend from '../components/annotatorExtend.js'
-import SwitchComponent from '@/components/switch.vue'
-import DisplayList from '@/components/displayList.vue'
-import SmartSelector from '@/components/ui/SmartSelector.vue'
-import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import { addToArray } from '@/helpers/arrays.js'
+
+<script setup>
 import {
   ALTERNATE_VALUE_ABBREVIATION,
   ALTERNATE_VALUE_ALTERNATE_SPELLING,
@@ -90,127 +83,155 @@ import {
   ALTERNATE_VALUE_TRANSLATION
 } from '@/constants/index.js'
 import { AlternateValue, Language } from '@/routes/endpoints'
+import { computed, ref } from 'vue'
+import { useSlice } from '@/components/radials/composables'
+import VSwitch from '@/components/ui/VSwitch.vue'
+import DisplayList from '@/components/displayList.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import makeRequest from '@/helpers/ajaxCall.js'
 
-export default {
-  mixins: [CRUD, annotatorExtend],
+const TYPE_LIST = {
+  [ALTERNATE_VALUE_TRANSLATION]: 'Translation',
+  [ALTERNATE_VALUE_ABBREVIATION]: 'Abbreviation',
+  [ALTERNATE_VALUE_MISSPELLING]: 'Misspelled',
+  [ALTERNATE_VALUE_ALTERNATE_SPELLING]: 'Alternate spelling'
+}
 
-  components: {
-    SmartSelector,
-    SmartSelectorItem,
-    DisplayList,
-    SwitchComponent,
-    VBtn
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  computed: {
-    validateFields() {
-      return (
-        this.alternateValue.value &&
-        this.alternateValue.alternate_value_object_attribute
-      )
-    },
-
-    tabs() {
-      return Object.values(this.typeList)
-    },
-
-    alternateType: {
-      get() {
-        return Object.keys(this.typeList).findIndex(
-          (item) => item === this.alternateValue.type
-        )
-      },
-      set(value) {
-        this.alternateValue.type = Object.keys(this.typeList)[value]
-      }
-    }
+  objectType: {
+    type: String,
+    required: true
   },
 
-  created() {
-    this.getList(
-      `/alternate_values/${encodeURIComponent(this.globalId)}/metadata`
-    ).then((response) => {
-      this.values = response.body
-    })
+  globalId: {
+    type: String,
+    required: true
   },
 
-  data() {
-    return {
-      values: undefined,
-      typeList: {
-        [ALTERNATE_VALUE_TRANSLATION]: 'Translation',
-        [ALTERNATE_VALUE_ABBREVIATION]: 'Abbreviation',
-        [ALTERNATE_VALUE_MISSPELLING]: 'Misspelled',
-        [ALTERNATE_VALUE_ALTERNATE_SPELLING]: 'Alternate spelling'
-      },
-      ALTERNATE_VALUE_TRANSLATION,
-      language: undefined,
-      alternateValue: this.newAlternate(),
-      tabIndex: 0
-    }
-  },
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
 
-  methods: {
-    newAlternate() {
-      return {
-        value: undefined,
-        language_id: undefined,
-        type: ALTERNATE_VALUE_TRANSLATION,
-        alternate_value_object_attribute: undefined
-      }
-    },
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
+const values = ref()
+const language = ref()
+const alternateValue = ref(newAlternate())
 
-    saveAlternateValue() {
-      const alternate_value = {
-        ...this.alternateValue,
-        annotated_global_entity: decodeURIComponent(this.globalId)
-      }
+const validateFields = computed(() => {
+  return (
+    alternateValue.value.value &&
+    alternateValue.value.alternate_value_object_attribute &&
+    (alternateValue.value.type === ALTERNATE_VALUE_TRANSLATION
+      ? language.value
+      : true)
+  )
+})
 
-      const saveRequest = alternate_value.id
-        ? AlternateValue.update(alternate_value.id, { alternate_value })
-        : AlternateValue.create({ alternate_value })
+const alternateType = computed({
+  get: () =>
+    Object.keys(TYPE_LIST).findIndex(
+      (item) => item === alternateValue.value.type
+    ),
+  set(value) {
+    alternateValue.value.type = Object.keys(TYPE_LIST)[value]
+  }
+})
 
-      saveRequest.then((response) => {
-        addToArray(this.list, response.body)
-        this.reset()
-        TW.workbench.alert.create(
-          'Alternate value was successfully saved.',
-          'notice'
-        )
-      })
-    },
+makeRequest(
+  'get',
+  `/alternate_values/${encodeURIComponent(props.globalId)}/metadata`
+).then((response) => {
+  values.value = response.body
+})
 
-    reset() {
-      this.alternateValue = this.newAlternate()
-      this.language = undefined
-    },
-
-    setLanguage(language) {
-      this.alternateValue.language_id = language?.id
-      this.language = language
-    },
-
-    loadAlternateValue({
-      id,
-      value,
-      alternate_value_object_attribute,
-      language_id,
-      type
-    }) {
-      this.alternateValue = {
-        id,
-        value,
-        alternate_value_object_attribute,
-        type,
-        language_id
-      }
-
-      Language.find(language_id).then(({ body }) => {
-        this.language = body
-      })
-    }
+function newAlternate() {
+  return {
+    value: undefined,
+    language_id: undefined,
+    type: ALTERNATE_VALUE_TRANSLATION,
+    alternate_value_object_attribute: undefined
   }
 }
+
+function saveAlternateValue() {
+  const payload = {
+    alternate_value: {
+      ...alternateValue.value,
+      alternate_value_object_id: props.objectId,
+      alternate_value_object_type: props.objectType
+    }
+  }
+
+  const saveRequest = alternateValue.value.id
+    ? AlternateValue.update(alternateValue.value.id, payload)
+    : AlternateValue.create(payload)
+
+  saveRequest.then(({ body }) => {
+    addToList(body)
+    reset()
+    TW.workbench.alert.create(
+      'Alternate value was successfully saved.',
+      'notice'
+    )
+  })
+}
+
+function reset() {
+  alternateValue.value = newAlternate()
+  language.value = undefined
+}
+
+function setLanguage(new_language) {
+  alternateValue.value.language_id = new_language?.id
+  language.value = new_language
+}
+
+function loadAlternateValue({
+  id,
+  value,
+  alternate_value_object_attribute,
+  language_id,
+  type
+}) {
+  alternateValue.value = {
+    id,
+    value,
+    alternate_value_object_attribute,
+    type,
+    language_id
+  }
+
+  if (language_id) {
+    Language.find(language_id).then(({ body }) => {
+      language.value = body
+    })
+  }
+}
+
+function removeItem(item) {
+  AlternateValue.destroy(item.id).then((_) => {
+    removeFromList(item)
+  })
+}
+
+AlternateValue.where({
+  alternate_value_object_id: props.objectId,
+  alternate_value_object_type: props.objectType,
+  per: 500
+}).then(({ body }) => {
+  list.value = body
+})
 </script>
 <style scoped>
 :deep(.vue-autocomplete-input) {

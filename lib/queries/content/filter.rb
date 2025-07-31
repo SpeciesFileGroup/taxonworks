@@ -3,6 +3,7 @@ module Queries
     class Filter < Query::Filter
 
       include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
       include Queries::Concerns::Depictions
 
       PARAMS = [
@@ -40,6 +41,7 @@ module Queries
         @topic_id = params[:topic_id]
         @content_id = params[:content_id]
 
+        set_confidences_params(params) 
         set_citations_params(params)
         set_depiction_params(params)
       end
@@ -69,19 +71,19 @@ module Queries
       # @return [Arel::Node, nil]
       def otu_id_facet
         return nil if otu_id.empty?
-        table[:otu_id].eq_any(otu_id)
+        table[:otu_id].in(otu_id)
       end
 
       # @return [Arel::Node, nil]
       def content_id_facet
         return nil if content_id.empty?
-        table[:id].eq_any(content_id)
+        table[:id].in(content_id)
       end
 
       # @return [Arel::Node, nil]
       def topic_id_facet
         return nil if topic_id.empty?
-        table[:topic_id].eq_any(topic_id)
+        table[:topic_id].in(topic_id)
       end
 
       def otu_query_facet

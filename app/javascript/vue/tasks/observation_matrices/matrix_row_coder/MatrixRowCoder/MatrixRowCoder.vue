@@ -18,6 +18,15 @@
         <div class="horizontal-left-content">
           <ul class="context-menu">
             <li>
+              <VLock v-model="lock.today" />
+              Today
+            </li>
+
+            <li>
+              <VLock v-model="lock.now" />
+              Now
+            </li>
+            <li>
               <option-unscored-rows />
             </li>
             <li>
@@ -59,10 +68,11 @@
   </div>
 </template>
 
-<style lang="stylus" src="./MatrixRowCoder.styl"></style>
+<style lang="scss" src="./MatrixRowCoder.scss"></style>
 
 <script>
 import { mapState } from 'vuex'
+import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import ContinuousDescriptor from './ContinuousDescriptor/ContinuousDescriptor.vue'
@@ -71,7 +81,7 @@ import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor
 import SampleDescriptor from './SampleDescriptor/SampleDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
-import Spinner from '@/components/spinner'
+import Spinner from '@/components/ui/VSpinner'
 import CloneScoring from './Clone/Clone'
 import DestroyAllObservations from './ObservationRow/destroyObservationRow'
 import DescriptionMain from './Description/DescriptionMain.vue'
@@ -79,13 +89,7 @@ import DescriptorsList from './Descriptors/DescriptorsList.vue'
 import DiagnosisComponent from './Diagnosis/Diagnosis.vue'
 import NavbarComponent from '@/components/layout/NavBar.vue'
 import OptionUnscoredRows from './Options/OptionUnscoredRows.vue'
-
-const computed = mapState({
-  title: (state) => state.taxonTitle,
-  descriptors: (state) => state.descriptors,
-  onlyScoredRows: (state) => state.options.showOnlyUnsecoredRows,
-  observations: (state) => state.observations
-})
+import VLock from '@/components/ui/VLock/index.vue'
 
 export default {
   name: 'MatrixRowCoder',
@@ -104,7 +108,8 @@ export default {
     DestroyAllObservations,
     DescriptionMain,
     DiagnosisComponent,
-    OptionUnscoredRows
+    OptionUnscoredRows,
+    VLock
   },
 
   props: {
@@ -120,7 +125,24 @@ export default {
     }
   },
 
-  computed,
+  computed: {
+    ...mapState({
+      title: (state) => state.taxonTitle,
+      descriptors: (state) => state.descriptors,
+      onlyScoredRows: (state) => state.options.showOnlyUnsecoredRows,
+      observations: (state) => state.observations
+    }),
+
+    lock: {
+      get() {
+        return this.$store.getters[GetterNames.GetLock]
+      },
+
+      set(value) {
+        return this.$store.commit(MutationNames.SetLock, value)
+      }
+    }
+  },
 
   watch: {
     rowId() {

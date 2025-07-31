@@ -18,7 +18,7 @@ describe Settings do
     double(
       'config',
       middleware: double('middleware'),
-      action_mailer: double('action_mailer'),
+      action_mailer: OpenStruct.new(default_url_options: {protocol: 'https'}),
     )
   }
 
@@ -173,15 +173,15 @@ describe Settings do
         let(:host) { { action_mailer_url_host: 'example.com' } }
 
         it 'sets up ActionMailer default URL host with the supplied config' do
-          expect(rails_config.action_mailer).to receive('default_url_options=').with({ host: 'example.com' })
           Settings.load_from_hash(rails_config, host)
+          expect(rails_config.action_mailer.default_url_options).to eq({ protocol: 'https', host: 'example.com' })
         end
       end
 
       context 'when not present' do
         it 'does not alter ActionMailer settings' do
-          expect(rails_config.action_mailer).not_to receive('default_url_options=')
           Settings.load_from_hash(rails_config, { })
+          expect(rails_config.action_mailer.default_url_options).to eq({ protocol: 'https' })
         end
       end
 

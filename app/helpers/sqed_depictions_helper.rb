@@ -18,7 +18,7 @@ module SqedDepictionsHelper
     return content_tag(:div, 'no collecting event label data imaged', class: :warning) if section.nil?
 
     begin
-      result = SqedToTaxonworks::Result.new(
+      result = Vendor::SqedToTaxonworks::Result.new(
         depiction_id: sqed_depiction.depiction.id,
       )
 
@@ -33,7 +33,7 @@ module SqedDepictionsHelper
     d = []
     collection_object.sqed_depictions.each do |s|
       begin
-        result = SqedToTaxonworks::Result.new(
+        result = Vendor::SqedToTaxonworks::Result.new(
           depiction_id: s.depiction.id,
         )
 

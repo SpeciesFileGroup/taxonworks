@@ -13,6 +13,7 @@ import {
 import {
   unsavedEdge,
   nodeCollectionObjectStyle,
+  nodeFieldOccurrenceStyle,
   nodeOtuStyle,
   unsavedNodeStyle
 } from '../constants/graphStyle.js'
@@ -23,8 +24,14 @@ import {
   isNetwork,
   getHexColorFromString
 } from '../utils'
+import { randomUUID } from '@/helpers'
 import { addToArray } from '@/helpers/arrays'
-import { COLLECTION_OBJECT, BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
+import {
+  COLLECTION_OBJECT,
+  FIELD_OCCURRENCE,
+  BIOLOGICAL_ASSOCIATION,
+  OTU
+} from '@/constants/index.js'
 
 const EXTEND_GRAPH = [
   'biological_associations_biological_associations_graphs',
@@ -50,6 +57,16 @@ function initState() {
   }
 }
 
+function getNodeStyleByType(objectType) {
+  const styles = {
+    [COLLECTION_OBJECT]: nodeCollectionObjectStyle,
+    [FIELD_OCCURRENCE]: nodeFieldOccurrenceStyle,
+    [OTU]: nodeOtuStyle
+  }
+
+  return styles[objectType]
+}
+
 export function useGraph() {
   const state = reactive(initState())
 
@@ -64,12 +81,7 @@ export function useGraph() {
           name: obj.name
         }
 
-        Object.assign(
-          node,
-          obj.objectType === COLLECTION_OBJECT
-            ? nodeCollectionObjectStyle
-            : nodeOtuStyle
-        )
+        Object.assign(node, getNodeStyleByType(obj.objectType))
 
         if (!isSaved) {
           Object.assign(node, unsavedNodeStyle)
@@ -161,13 +173,13 @@ export function useGraph() {
 
     const biologicalAssociation = {
       id: undefined,
-      uuid: crypto.randomUUID(),
+      uuid: randomUUID(),
       subject,
       object,
       citations: [],
       objectType: BIOLOGICAL_ASSOCIATION,
       biologicalRelationship: relationship,
-      color: await getHexColorFromString(relationship.name),
+      color: getHexColorFromString(relationship.name),
       isUnsaved: true
     }
 
@@ -352,12 +364,12 @@ export function useGraph() {
   }
 
   async function save() {
-    state.isSaving = true
     let createdBiologicalAssociations
     let biologicalAssociationGraph
     let citations
 
     try {
+      state.isSaving = true
       createdBiologicalAssociations = await saveBiologicalAssociations()
 
       const savedCitations = [
@@ -374,11 +386,12 @@ export function useGraph() {
       state.isSaving = false
     } catch (e) {
       state.isSaving = false
+      throw e
     }
 
     return {
       biologicalAssociations: createdBiologicalAssociations,
-      biologicalAssociationGraph,
+      biologicalAssociationGraph: biologicalAssociationGraph?.body,
       citations
     }
   }
@@ -431,6 +444,8 @@ export function useGraph() {
         id: body.id,
         globalId: body.global_id,
         label: body.object_tag,
+        biologicalAssociationIds:
+          body.biological_associations_biological_associations_graphs,
         isUnsaved: false
       })
     })

@@ -30,14 +30,15 @@ jobs:
       RAILS_ENV: test
       CROSSREF_EMAIL: ${{ secrets.CROSSREF_EMAIL }}
 
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-24.04]
         worker: [0, 1, 2, 3]
 
     services:
       db:
-        image: postgis/postgis:12-3.4
+        image: postgis/postgis:16-3.5
         ports: ['5432:5432']
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -55,32 +56,32 @@ jobs:
         echo "year_week=$(date -u +'%Y-%U')" >> $GITHUB_OUTPUT
 
     - name: Git checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
         
     - name: Set up Ruby Bundler gems cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: vendor/bundle
-        key: ${{ runner.os }}-gems-${{ hashFiles('.ruby-version', '**/Gemfile', '**/Gemfile.lock', 'exe/install-imagemagick7.sh') }}
+        key: ${{ runner.os }}-${{ matrix.os }}-gems-${{ hashFiles('.ruby-version', '**/Gemfile', '**/Gemfile.lock', 'exe/install-imagemagick7.sh') }}
 
-    - name: Set up Node 18 LTS
-      uses: actions/setup-node@v3
+    - name: Set up Node 22 LTS
+      uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
 
     - name: Set up Node packages cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.npm
           **/node_modules
-        key: ${{ runner.os }}-node-18-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-${{ matrix.os }}-node-22-${{ hashFiles('**/package-lock.json') }}
 
     - name: Set up assets cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           tmp/cache/shakapacker
@@ -91,7 +92,7 @@ jobs:
           ${{ runner.os }}-assets-${{ steps.datetime.outputs.iso_date }}
 
     - name: Set up VCR cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: spec/fixtures/vcr_cassettes
         key: ${{ runner.os }}-vcr-rev2-${{ steps.datetime.outputs.year_week }}-${{ hashFiles('**/Gemfile.lock') }}-${{ matrix.worker }}
@@ -100,19 +101,19 @@ jobs:
       run: |
         sudo sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
         sudo apt-get update
-        sudo apt-get install -y tesseract-ocr libgeos-dev libproj-dev
+        sudo apt-get install -y tesseract-ocr libgeos-dev libproj-dev build-essential
 
     - name: Change ownership of /usr/src to runner user to allow cache to be restored
       run: sudo chown $(id -u) /usr/src
 
     - name: Set up imagemagick cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           /usr/src/libheif-*
           /usr/src/libde265-*
           /usr/src/ImageMagick-7*
-        key: ${{ runner.os }}-imagemagick-${{ hashFiles('**/Gemfile.lock', 'exe/install-imagemagick7.sh') }}
+        key: ${{ runner.os }}-${{ matrix.os }}-imagemagick-${{ hashFiles('**/Gemfile.lock', 'exe/install-imagemagick7.sh') }}
 
     - name: Change ownership of /usr/src back to root
       run: |
@@ -122,6 +123,7 @@ jobs:
     - name: Install imagemagick
       run: |
         sudo apt-get purge -y imagemagick
+        sudo sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
         sudo exe/install-imagemagick7.sh
 
     - name: Set up TaxonWorks config files

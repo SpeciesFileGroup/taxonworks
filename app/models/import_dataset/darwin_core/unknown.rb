@@ -7,7 +7,7 @@ class ImportDataset::DarwinCore::Unknown < ImportDataset::DarwinCore
   private
 
   def set_error
-    errors[:source] << error_message if error_message
+    errors.add(:source, error_message) if error_message
   end
 
 end

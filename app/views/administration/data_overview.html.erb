@@ -1,7 +1,4 @@
-<%= content_for :head do -%>
-  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js",
-    "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"  %>
-<% end %>
+<%= graph_javascript_tag %>
 
 <h1> Administration - Data overview </h1>
 
@@ -12,9 +9,8 @@
 <%= form_tag data_class_summary_path, method: :get, remote: true do |f| %>
   <div class="field">
     <h3> Plot data for </h3>
-    <%= select_tag :klass, options_for_select(ApplicationEnumeration.project_data_classes
+    <%= select_tag :klass, options_for_select(ApplicationEnumeration.data_models
         .select{|a| a.column_names.include?('created_at')}
-        .select{|a| a.column_names.include?('project_id')}
         .collect{|b| b.name}.sort, include_blank: true) %>
   </div>
 
@@ -72,22 +68,11 @@
     </tr>
   </table>
 
-
-  <%= tag.button :Graph, class: 'button, button-default' %>
+  <br>
+  <%= tag.button :Graph, class: 'button btn-primary btn btn-medium-size' %>
 <% end %>
 
 <br>
 
 <div id="class_graph" >
-  <%= tag.span 'Select graph options above.', class: ['feedback', 'feedback-notice']  %>
-</div>
-
-<div class="flexbox">
-  <div class="item item1">
-    <h2> Community data type </h2>
-    <div>
-      <%= line_chart ApplicationEnumeration.community_data_classes.map{|k|
-        { name: k.name.titleize, data: k.all.group_by_month(:created_at).count}  } %>
-    </div>
-  </div>
 </div>

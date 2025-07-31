@@ -1,36 +1,49 @@
 <template>
-  <nav-bar style="z-index: 1001">
+  <NavBar
+    style="z-index: 1001"
+    :navbar-class="`panel content ${
+      collectionObject?.dwc_occurrence?.rebuild_set
+        ? 'pending-dwc-regeneration'
+        : ''
+    }`"
+  >
     <div
       id="comprehensive-navbar"
-      v-hotkey="shortcuts"
       class="flex-separate"
     >
-      <div class="horizontal-left-content">
-        <autocomplete
-          class="separate-right"
+      <div class="horizontal-left-content gap-small">
+        <VAutocomplete
           url="/collection_objects/autocomplete"
           placeholder="Search"
           label="label_html"
           param="term"
-          :clear-after="true"
-          @getItem="loadAssessionCode($event.id)"
+          clear-after
           min="1"
+          @get-item="(item) => loadAssessionCode(item.id)"
         />
-        <soft-validation
-          v-if="collectionObject.id"
-          class="margin-small-left margin-small-right"
-        />
-        <a
-          class="separate-left"
-          v-if="collectionObject.id"
-          :href="`/tasks/collection_objects/browse?collection_object_id=${collectionObject.id}`"
-          v-html="collectionObject.object_tag"
-        />
+        <template v-if="collectionObject.id">
+          <SoftValidation v-if="collectionObject.id" />
+          <a
+            :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${collectionObject.id}`"
+            v-html="collectionObject.object_tag"
+          />
+          <div
+            v-if="collectionObject?.dwc_occurrence?.rebuild_set"
+            class="horizontal-left-content gap-small middle text-warning-color"
+          >
+            <VIcon
+              name="attention"
+              small
+              color="warning"
+            />
+            DwCOccurrence re-index is pending.
+          </div>
+        </template>
         <span v-else>New record</span>
       </div>
-      <div class="horizontal-left-content">
+      <div class="horizontal-left-content gap-small middle">
         <div
-          class="margin-medium-right horizontal-left-content"
+          class="horizontal-left-content"
           v-if="collectionObject.id"
         >
           <ul class="context-menu no_bullets">
@@ -87,25 +100,24 @@
           <template #content>
             <p>You have unsaved changes.</p>
           </template>
-          <div
-            class="medium-icon separate-right"
-            data-icon="warning"
+          <VIcon
+            name="attention"
+            color="attention"
+            title="You have unsaved changes."
+            small
           />
         </tippy>
-        <recent-component
-          class="separate-right margin-small-left"
-          @selected="loadCollectionObject($event)"
-        />
+        <RecentComponent @selected="loadCollectionObject($event)" />
         <button
           type="button"
-          class="button normal-input button-submit separate-right"
+          class="button normal-input button-submit"
           @click="saveDigitalization"
         >
           Save
         </button>
         <button
           type="button"
-          class="button normal-input button-submit separate-right"
+          class="button normal-input button-submit"
           @click="saveAndNew"
         >
           Save and new
@@ -118,149 +130,174 @@
           <span>Reset</span>
         </div>
       </div>
+      <ConfirmationModal ref="confirmationModalRef" />
     </div>
-  </nav-bar>
+  </NavBar>
 </template>
 
-<script>
+<script setup>
+import { computed, ref, watch } from 'vue'
+import { useStore } from 'vuex'
 import { Tippy } from 'vue-tippy'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'
+import { useHotkey } from '@/composables'
+import { RouteNames } from '@/routes/routes.js'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import RecentComponent from './recent.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
-import Autocomplete from '@/components/ui/Autocomplete.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import NavBar from '@/components/layout/NavBar'
 import AjaxCall from '@/helpers/ajaxCall'
 import SoftValidation from './softValidation'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
+import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
 
-export default {
-  components: {
-    Autocomplete,
-    RecentComponent,
-    Tippy,
-    NavBar,
-    SoftValidation
-  },
-  computed: {
-    identifier() {
-      return this.$store.getters[GetterNames.GetIdentifier]
-    },
-    collectionObject() {
-      return this.$store.getters[GetterNames.GetCollectionObject]
-    },
-    collectingEvent() {
-      return this.$store.getters[GetterNames.GetCollectingEvent]
-    },
-    settings: {
-      get() {
-        return this.$store.getters[GetterNames.GetSettings]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetSettings, value)
+const MAX_CO_LIMIT = 100
+
+const store = useStore()
+const collectingEventStore = useCollectingEventStore()
+const biologicalAssociationStore = useBiologicalAssociationStore()
+const biocurationStore = useBiocurationStore()
+
+const confirmationModalRef = ref(null)
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 's'],
+    handler() {
+      if (!settings.value.loading && !settings.value.saving) {
+        saveDigitalization()
       }
-    },
-    hasChanges() {
-      return this.settings.lastChange > this.settings.lastSave
-    },
-    shortcuts() {
-      const keys = {}
-
-      keys[`${platformKey()}+s`] = this.saveDigitalization
-      keys[`${platformKey()}+n`] = this.saveAndNew
-      keys[`${platformKey()}+r`] = this.resetStore
-
-      return keys
     }
   },
-  data() {
-    return {
-      navigation: {
-        next: undefined,
-        previous: undefined
-      },
-      loadingNavigation: false
+  {
+    keys: [platformKey(), 'n'],
+    handler() {
+      saveAndNew()
     }
   },
-  watch: {
-    collectionObject: {
-      handler(newVal, oldVal) {
-        this.settings.lastChange = Date.now()
-        if (newVal.id && oldVal.id != newVal.id) {
-          if (!this.loadingNavigation) {
-            this.loadingNavigation = true
-            AjaxCall(
-              'get',
-              `/metadata/object_navigation/${encodeURIComponent(
-                newVal.global_id
-              )}`
-            ).then(({ headers }) => {
-              this.navigation.next = headers['navigation-next']
-              this.navigation.nextIdentifier =
-                headers['navigation-next-by-identifier']
-              this.navigation.previous = headers['navigation-previous']
-              this.navigation.previousIdentifier =
-                headers['navigation-previous-by-identifier']
-              this.loadingNavigation = false
-            })
+  {
+    keys: [platformKey(), 'r'],
+    handler() {
+      resetStore()
+    }
+  }
+])
+
+useHotkey(shortcuts.value)
+
+const collectionObject = computed(
+  () => store.getters[GetterNames.GetCollectionObject]
+)
+
+const settings = computed({
+  get() {
+    return store.getters[GetterNames.GetSettings]
+  },
+  set(value) {
+    store.commit(MutationNames.SetSettings, value)
+  }
+})
+
+const hasChanges = computed(
+  () =>
+    settings.value.lastChange > settings.value.lastSave ||
+    collectingEventStore.isUnsaved ||
+    biologicalAssociationStore.hasUnsaved ||
+    biocurationStore.hasUnsaved
+)
+
+const underThreshold = computed(
+  () => collectingEventStore.totalUsed < MAX_CO_LIMIT
+)
+
+const loadingNavigation = ref(false)
+const navigation = ref({
+  next: undefined,
+  previous: undefined
+})
+
+watch(
+  collectionObject,
+  (newVal, oldVal) => {
+    settings.value.lastChange = Date.now()
+    if (newVal.id && oldVal.id != newVal.id) {
+      if (!loadingNavigation.value) {
+        loadingNavigation.value = true
+        AjaxCall(
+          'get',
+          `/metadata/object_navigation/${encodeURIComponent(newVal.global_id)}`
+        ).then(({ headers }) => {
+          navigation.value = {
+            next: headers['navigation-next'],
+            nextIdentifier: headers['navigation-next-by-identifier'],
+            previous: headers['navigation-previous'],
+            previousIdentifier: headers['navigation-previous-by-identifier']
           }
-        }
-      },
-      deep: true
-    },
-    collectingEvent: {
-      handler(newVal) {
-        this.settings.lastChange = Date.now()
-      },
-      deep: true
+
+          loadingNavigation.value = false
+        })
+      }
     }
   },
-  methods: {
-    saveDigitalization() {
-      this.$store.dispatch(ActionNames.SaveDigitalization)
-    },
+  { deep: true }
+)
 
-    resetStore() {
-      this.$store.commit(MutationNames.ResetStore)
-    },
+async function saveDigitalization() {
+  const ok =
+    underThreshold.value ||
+    collectingEventStore.isUnsaved ||
+    (await confirmationModalRef.value.show({
+      title: 'Save',
+      message: `The collecting event was modified and is used by over ${MAX_CO_LIMIT}. Are you sure you want to proceed?`,
+      okButton: 'Save',
+      cancelButton: 'Cancel',
+      typeButton: 'submit'
+    }))
 
-    saveAndNew() {
-      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-        setTimeout(() => {
-          this.$store.dispatch(ActionNames.ResetWithDefault)
-        }, 500)
-      })
-    },
-
-    newDigitalization() {
-      this.$store.dispatch(ActionNames.NewCollectionObject)
-      this.$store.dispatch(ActionNames.NewIdentifier)
-      this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-    },
-
-    saveCollectionObject() {
-      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-        this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-      })
-    },
-
-    loadAssessionCode(id) {
-      this.$store.dispatch(ActionNames.ResetWithDefault)
-      this.$store.dispatch(ActionNames.LoadDigitalization, id)
-    },
-
-    loadCollectionObject(co) {
-      this.resetStore()
-      this.$store.dispatch(ActionNames.LoadDigitalization, co.id)
+  if (ok) {
+    if (!settings.value.saving) {
+      store.dispatch(ActionNames.SaveDigitalization)
     }
   }
 }
+
+function resetStore() {
+  store.dispatch(ActionNames.ResetStore)
+}
+
+function saveAndNew() {
+  if (!settings.value.saving) {
+    store.dispatch(ActionNames.SaveDigitalization, {
+      resetAfter: true
+    })
+  }
+}
+
+function loadAssessionCode(id) {
+  store.dispatch(ActionNames.ResetWithDefault)
+  store.dispatch(ActionNames.LoadDigitalization, id)
+}
+
+function loadCollectionObject(co) {
+  resetStore()
+  store.dispatch(ActionNames.LoadDigitalization, co.id)
+}
 </script>
+
 <style lang="scss" scoped>
 .fixed-bar {
   position: fixed;
   top: 0px;
   width: calc(100% - 52px);
   z-index: 200;
+}
+
+:deep(.pending-dwc-regeneration) {
+  outline: 2px solid var(--color-attention);
+  outline-offset: -2px;
 }
 </style>

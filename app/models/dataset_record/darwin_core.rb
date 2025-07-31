@@ -5,7 +5,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
     attr_accessor :error_data
 
     def initialize(error_data)
-      super("Invalid data")
+      super('Invalid data')
       self.error_data = error_data
     end
   end
@@ -16,7 +16,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
     value = data_fields[index] if index
     normalize_value!(value)
 
-    value.clone unless value.blank?
+    value.clone if value.present?
   end
 
   def get_tw_data_attribute_fields_for(subject_class)
@@ -24,19 +24,19 @@ class DatasetRecord::DarwinCore < DatasetRecord
       .select { |f| f.is_a?(String) }
       .map do |field|
         /(TW:DataAttribute:#{Regexp.escape(subject_class)}:).+/i =~ field
-        {field: field, selector: field.sub($1, '')} if $1
+        {field:, selector: field.sub($1, '')} if $1
       end
-      .reject(&:nil?)
+        .reject(&:nil?)
   end
 
   def get_tw_tag_fields_for(subject_class)
     get_fields_mapping.values
-                      .select { |f| f.is_a?(String) }
-                      .map do |field|
-      /(TW:Tag:#{Regexp.escape(subject_class)}:).+/i =~ field
-      {field: field, selector: field.sub($1, '')} if $1
-    end
-                      .reject(&:nil?)
+      .select { |f| f.is_a?(String) }
+      .map do |field|
+        /(TW:Tag:#{Regexp.escape(subject_class)}:).+/i =~ field
+        {field:, selector: field.sub($1, '')} if $1
+      end
+        .reject(&:nil?)
   end
 
   def get_tw_fields_for(subject_class)
@@ -44,9 +44,9 @@ class DatasetRecord::DarwinCore < DatasetRecord
       .select { |f| f.is_a?(String) }
       .map do |field|
         /(TW:#{Regexp.escape(subject_class)}:).+/i =~ field
-        {field: field, name: field.sub($1, '').downcase.to_sym} if $1
+        {field:, name: field.sub($1, '').downcase.to_sym} if $1
       end
-      .reject(&:nil?)
+        .reject(&:nil?)
   end
 
   def get_tw_biocuration_groups
@@ -54,15 +54,19 @@ class DatasetRecord::DarwinCore < DatasetRecord
       .select { |f| f.is_a?(String) }
       .map do |field|
         /(TW:BiocurationGroup:).+/i =~ field
-        {field: field, selector: field.sub($1, '')} if $1
+        {field:, selector: field.sub($1, '')} if $1
       end
-      .reject(&:nil?)
+        .reject(&:nil?)
   end
 
   def import(dwc_data_attributes = {})
     raise DatasetRecord::DarwinCore::InvalidData.new(
       {status: ["Import attempted with '#{status}' status"]}
     ) if %w{NotReady Imported Unsupported}.include?(status)
+  end
+
+  def get_mapped_fields(dwc_data_attributes = {})
+    self.class::SUPPORTED_DWC_TERMS.map { |f| get_field_mapping(f) }.compact.sort
   end
 
   private
@@ -76,9 +80,8 @@ class DatasetRecord::DarwinCore < DatasetRecord
   def term_value_changed(name, value); end
 
   def get_fields_mapping
-    @fields_mapping ||= import_dataset.metadata["core_headers"]
-      .reject(&:nil?)
-      .each.with_index.inject({}) { |m, (h, i)| m.merge({ h.downcase => i, i => h}) }
+    @fields_mapping ||= import_dataset.metadata['core_headers']
+      .each.with_index.inject({}) { |m, (h, i)| h.blank? ? m : m.merge({ h&.downcase => i, i => h}) }
   end
 
   def get_field_mapping(field_name)
@@ -87,7 +90,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
 
   def normalize_value!(value)
     value&.gsub!(/^[[:space:]]+|[[:space:]]+$/, '') # strip method doesn't deal with https://en.wikipedia.org/wiki/Non-breaking_space
-    value&.squeeze!(" ")
+    value&.squeeze!(' ')
   end
 
 end

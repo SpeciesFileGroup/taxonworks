@@ -2,14 +2,13 @@ module Queries
   module Source
     class Filter < Query::Filter
 
-      ATTRIBUTES =  (::Source.core_attributes - %w{bibtex_type title author serial_id}).map(&:to_sym).freeze
+      ATTRIBUTES =  (::Source.core_attributes - %w{bibtex_type title author serial_id} + %w{cached cached_author_string cached_nomenclature_date}).map(&:to_sym).freeze
 
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Attributes
       include Queries::Concerns::Empty
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
-
 
       PARAMS = [
         *ATTRIBUTES,
@@ -32,6 +31,7 @@ module Queries
         :source_type,
         :title,
         :with_doi,
+        :with_pages,
         :with_title,
         :year_end,
         :year_start,
@@ -144,6 +144,12 @@ module Queries
       attr_accessor :serial
 
       # @return [Boolean, nil]
+      # true - with pages
+      # false - without pages
+      # nil - both
+      attr_accessor :with_pages
+
+      # @return [Boolean, nil]
       # true - with a title
       # false - without a title
       # nil - both
@@ -157,8 +163,6 @@ module Queries
       def initialize(query_params)
         super
 
-        @taxon_name_id = params[:taxon_name_id]
-        @descendants = boolean_param(params, :descendants)
         @author = params[:author]
         @author_id = params[:author_id]
         @author_id_or =  boolean_param(params,:author_id_or)
@@ -166,20 +170,23 @@ module Queries
         @citation_object_type = params[:citation_object_type]
         @citations = boolean_param(params,:citations) # TODO: rename coming to reflect conflict with Citations concern
         @citations_on_otus = boolean_param(params,:citations_on_otus)
+        @descendants = boolean_param(params, :descendants)
         @documents = boolean_param(params,:documents)
         @exact_author = boolean_param(params,:exact_author)
         @exact_title = boolean_param(params,:exact_title)
-        @source_id = params[:source_id]
         @in_project = boolean_param(params,:in_project)
         @nomenclature = boolean_param(params,:nomenclature)
         @query_string = params[:query_term]&.delete("\u0000") # TODO: likely remove with current permit() paradigm
         @roles = boolean_param(params,:roles)
         @serial = boolean_param(params,:serial)
         @serial_id = params[:serial_id]
+        @source_id = params[:source_id]
         @source_type = params[:source_type]
+        @taxon_name_id = params[:taxon_name_id]
         @title = params[:title]
         @topic_id = params[:topic_id]
         @with_doi = boolean_param(params, :with_doi)
+        @with_pages = boolean_param(params, :with_pages)
         @with_title = boolean_param(params, :with_title)
         @year_end = params[:year_end]
         @year_start = params[:year_start]
@@ -190,6 +197,7 @@ module Queries
         set_attributes_params(params)
         set_empty_params(params)
         set_tags_params(params)
+        set_notes_params(params)
         set_user_dates(params)
       end
 
@@ -224,7 +232,7 @@ module Queries
 
       def bibtex_type_facet
         return nil if bibtex_type.empty?
-        table[:type].eq('Source::Bibtex').and(table[:bibtex_type].eq_any(bibtex_type))
+        table[:type].eq('Source::Bibtex').and(table[:bibtex_type].in(bibtex_type))
       end
 
       def taxon_name_id
@@ -247,7 +255,7 @@ module Queries
 
         union = joins.collect{|j| '(' + ::Source.joins(:citations).joins( j.join_sources).to_sql + ')'}.join(' UNION ')
 
-        ::Source.from("( #{union} ) as sources")
+        ::Source.from("( #{union} ) as sources").distinct
       end
 
       def source_type_facet
@@ -266,7 +274,7 @@ module Queries
       end
 
       def serial_id_facet
-        serial_id.empty? ? nil : table[:serial_id].eq_any(serial_id)
+        serial_id.empty? ? nil : table[:serial_id].in(serial_id)
       end
 
       def author_id_facet
@@ -287,14 +295,14 @@ module Queries
           )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(author_id)
+        f = c[:person_id].in(author_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
         b = b.having(a['id'].count.eq(author_id.length)) unless author_id_or
         b = b.as('aut_z1_')
 
-        ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+        ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id'])))).distinct
       end
 
       def topic_id_facet
@@ -303,7 +311,7 @@ module Queries
       end
 
       def in_project_facet
-        return nil if project_id.nil? || in_project.nil?
+        return nil if project_id.empty? || in_project.nil?
 
         if in_project
           ::Source.joins(:project_sources)
@@ -319,17 +327,17 @@ module Queries
       def identifier_type_facet
         return nil if identifier_type.empty? || with_doi
         q = referenced_klass.joins(:identifiers)
-        w = identifier_table[:type].eq_any(identifier_type)
-        q.where(w)
+        w = identifier_table[:type].in(identifier_type)
+        q.where(w).distinct
       end
 
       # TODO: move to generalized code in Identifiers concern
       def with_doi_facet
         return nil if with_doi.nil?
         if with_doi
-          ::Source.joins(:identifiers).where(identifiers: {type: 'Identifier::Global::Doi'})
+          ::Source.joins(:identifiers).where(identifiers: {type: 'Identifier::Global::Doi'}).distinct
         else
-          ::Source.left_outer_joins(:identifiers).where("(identifiers.type != 'Identifier::Global::Doi') OR (identifiers.identifier_object_id is null)")
+          ::Source.left_outer_joins(:identifiers).where("(identifiers.type != 'Identifier::Global::Doi') OR (identifiers.identifier_object_id is null)").distinct
         end
       end
 
@@ -343,6 +351,16 @@ module Queries
         end
       end
 
+      def with_pages_facet
+        return nil if with_pages.nil?
+
+        if with_pages
+          table[:pages].not_eq(nil)
+        else
+          table[:pages].eq(nil)
+        end
+      end
+
       # TODO: move to a concern
       def role_facet
         return nil if roles.nil?
@@ -351,7 +369,7 @@ module Queries
           ::Source.joins(:roles).distinct
         else
           ::Source.left_outer_joins(:roles)
-            .where(roles: {id: nil})
+            .where(roles: {id: nil}).distinct
         end
       end
 
@@ -404,7 +422,7 @@ module Queries
         if citations
           ::Source.joins(:citations).distinct
         else
-          ::Source.where.missing(:citations).distinct
+          ::Source.where.missing(:citations)
         end
       end
 
@@ -428,7 +446,7 @@ module Queries
           .joins("JOIN #{n} as #{n}1 on citations.citation_object_id = #{n}1.id AND citations.citation_object_type = '#{name.treetop_camelize}'")
           .to_sql
 
-        ::Source.from('(' + s + ') as sources')
+        ::Source.from('(' + s + ') as sources').distinct
       end
 
       def merge_clauses
@@ -459,6 +477,7 @@ module Queries
           serial_facet,
           serial_id_facet,
           source_type_facet,
+          with_pages_facet,
           with_title_facet,
           year_facet,
         ]
@@ -474,7 +493,7 @@ module Queries
         c.join(o, Arel::Nodes::InnerJoin).on(
           o[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('Otu'))
         ).join(h, Arel::Nodes::InnerJoin).on(
-          o[:taxon_name_id].eq(h[:descendant_id]).and(h[:ancestor_id].eq_any(taxon_name_id))
+          o[:taxon_name_id].eq(h[:descendant_id]).and(h[:ancestor_id].in(taxon_name_id))
         )
       end
 
@@ -486,7 +505,7 @@ module Queries
         c.join(t, Arel::Nodes::InnerJoin).on(
           t[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('TaxonName'))
         ).join(h, Arel::Nodes::InnerJoin).on(
-          t[:id].eq(h[:descendant_id]).and(h[:ancestor_id].eq_any(taxon_name_id))
+          t[:id].eq(h[:descendant_id]).and(h[:ancestor_id].in(taxon_name_id))
         )
       end
 
@@ -500,7 +519,7 @@ module Queries
         c.join(t, Arel::Nodes::InnerJoin).on(
           t[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('TaxonNameClassification'))
         ).join(h, Arel::Nodes::InnerJoin).on(
-          t[:taxon_name_id].eq(h[:descendant_id]).and(h[:ancestor_id].eq_any(taxon_name_id))
+          t[:taxon_name_id].eq(h[:descendant_id]).and(h[:ancestor_id].in(taxon_name_id))
         )
       end
 
@@ -514,7 +533,7 @@ module Queries
         c.join(t, Arel::Nodes::InnerJoin).on(
           t[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('TaxonNameRelationship'))
         ).join(h, Arel::Nodes::InnerJoin).on(
-          t[join_on].eq(h[:descendant_id]).and(h[:ancestor_id].eq_any(taxon_name_id))
+          t[join_on].eq(h[:descendant_id]).and(h[:ancestor_id].in(taxon_name_id))
         )
       end
 

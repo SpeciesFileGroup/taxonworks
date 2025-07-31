@@ -8,11 +8,11 @@ describe Otu, type: :model, group: :otu do
 
   context 'taxon determinations' do
 
-    let(:co) { FactoryBot.create(:valid_collection_object) } 
+    let(:co) { FactoryBot.create(:valid_collection_object) }
 
-    let!(:td1) { FactoryBot.create(:valid_taxon_determination, otu: o1, biological_collection_object: co) } 
-    let!(:td2) { FactoryBot.create(:valid_taxon_determination, otu: o2, biological_collection_object: co) } 
-    let!(:td3) { FactoryBot.create(:valid_taxon_determination, otu: o3, biological_collection_object: co) } 
+    let!(:td1) { FactoryBot.create(:valid_taxon_determination, otu: o1, taxon_determination_object: co) }
+    let!(:td2) { FactoryBot.create(:valid_taxon_determination, otu: o2, taxon_determination_object: co) }
+    let!(:td3) { FactoryBot.create(:valid_taxon_determination, otu: o3, taxon_determination_object: co) }
 
     specify '#current_collection_objects 1' do
       expect(o1.current_collection_objects).to contain_exactly()

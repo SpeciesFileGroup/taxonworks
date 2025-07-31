@@ -11,7 +11,7 @@ module Export
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_bibtex.bib"
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
-        t = style_id ? ::TaxonWorks::Vendor::BibtexRuby.styled(sources, style_id).join("\n\n") : ::TaxonWorks::Vendor::BibtexRuby.bibliography(sources)
+        t = style_id ? ::Vendor::BibtexRuby.styled(sources, style_id).join("\n\n") : ::Vendor::BibtexRuby.bibliography(sources)
         zipfile.get_output_stream('bibliography.bib') { |f| f.write t }
       end
 

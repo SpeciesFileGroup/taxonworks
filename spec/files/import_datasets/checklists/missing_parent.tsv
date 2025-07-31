@@ -1,0 +1,6 @@
+taxonID	parentNameUsageID	acceptedNameUsageID	originalNameUsageID	scientificNameID	datasetID	taxonomicStatus	taxonRank	scientificName	scientificNameAuthorship	genericName	infragenericEpithet	specificEpithet	infraspecificEpithet	cultivarEpithet	nameAccordingTo	namePublishedIn	nomenclaturalCode	nomenclaturalStatus	taxonRemarks	references
+4339		4339	4339	4339		valid	family	Cynipidae	Latreille, 1802											
+1309629	4339	1309629	1309629	1309629		valid	genus	Callirhytis Förster, 1869	Förster, 1869	Callirhytis						Förster, Arnold. 1869. Ueber die Gallwespen. Verhandlungen der Kaiserlich-Königlichen Zoologisch-Botanischen Gesellschaft in Wien 19: 327-370.	ICZN			
+1309591	4339	1309591	1309591	1309591		valid	genus	Andricus Hartig, 1840	Hartig, 1840	Andricus						Germar, Zeitschr. Entom., 2	ICZN			
+1309631	1309629	1309631	4497263	1309631		valid	species	Callirhytis glandium (Giraud, 1859)	(Giraud, 1859)	Callirhytis		glandium					ICZN			
+4497263		1309631	4497263	4497263		synonym	species	Andricus glandium Giraud, 1859	Giraud, 1859	Andricus		glandium					ICZN			

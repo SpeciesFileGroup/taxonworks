@@ -5,6 +5,7 @@
     class="slide-panel slide-document"
     :style="styleWidth"
   >
+    <VSpinner v-if="state.loadingPdf" />
     <div class="slide-panel-header flex-separate">
       <span>PDF Document viewer</span>
       <a
@@ -99,6 +100,8 @@
 import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
 import IndexedDBStorage from '@/storage/indexddb.js'
+import VSpinner from '../ui/VSpinner.vue'
+import { ajaxCall } from '@/helpers'
 import { getCurrentProjectId } from '@/helpers/project.js'
 import { getCurrentUserId } from '@/helpers/user.js'
 import { blobToArrayBuffer } from '@/helpers/files.js'
@@ -207,8 +210,10 @@ const isOpenInStorage = async () => {
   }
 }
 
-const setWidth = (style) => {
-  state.width = style
+const setWidth = (width) => {
+  if (width < window.innerWidth) {
+    state.width = width
+  }
 }
 
 const setPage = (value) => {
@@ -225,12 +230,17 @@ const setScale = (value) => {
   state.scale = value > 0 ? value : 1
 }
 
-const getPdf = async (url) => {
+async function getPdf(url) {
   const pdfStored = await IndexedDBStorage.get('Pdf', getUserAndProjectIds())
   const isAlreadyStored = pdfStored?.url === url
-  const pdfBuffer = isAlreadyStored
-    ? pdfStored.pdfBuffer
-    : await downloadPdf(url)
+  let pdfBuffer
+
+  try {
+    pdfBuffer = isAlreadyStored ? pdfStored.pdfBuffer : await downloadPdf(url)
+  } catch (e) {
+    TW.workbench.alert.create(e, 'error')
+    return
+  }
 
   state.documentUrl = url
   state.loadingPdf = true
@@ -379,19 +389,19 @@ const loadPDF = (event) => {
   })
 }
 
-const downloadPdf = (url) =>
-  new Promise((resolve, reject) => {
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok')
-        }
-        return response.blob()
-      })
-      .then(async (blobObject) => {
-        resolve(await blobToArrayBuffer(blobObject))
-      })
-  })
+async function downloadPdf(url) {
+  try {
+    const { body } = await ajaxCall('get', url, { responseType: 'blob' })
+
+    return await blobToArrayBuffer(body)
+  } catch (error) {
+    if (error.request.status === 404) {
+      throw new Error('PDF file not found.')
+    } else {
+      throw new Error(error)
+    }
+  }
+}
 </script>
 
 <script>

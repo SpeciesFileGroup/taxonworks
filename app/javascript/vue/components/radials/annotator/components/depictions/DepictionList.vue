@@ -10,38 +10,46 @@
         <th class="w-4" />
       </tr>
     </thead>
-    <tbody>
-      <DepictionListRow
-        v-for="item in list"
-        :key="item.id"
-        :depiction="item"
-        @delete="emit('delete', item)"
-        @selected="emit('selected', item)"
-        @update:label="
-          (label) => emit('update:label', { ...item, figure_label: label })
-        "
-        @update:caption="
-          (caption) => emit('update:caption', { ...item, caption })
-        "
-      />
-    </tbody>
+    <VDraggable
+      v-model="list"
+      item-key="id"
+      tag="tbody"
+      @change="() => emit('sort')"
+    >
+      <template #item="{ element }">
+        <DepictionListRow
+          :key="element.id"
+          :depiction="element"
+          @move="(item) => emit('move', item)"
+          @delete="emit('delete', element)"
+          @selected="emit('selected', element)"
+          @update:label="
+            (label) => emit('update:label', { ...element, figure_label: label })
+          "
+          @update:caption="
+            (caption) => emit('update:caption', { ...element, caption })
+          "
+        />
+      </template>
+    </VDraggable>
   </table>
 </template>
 
 <script setup>
 import DepictionListRow from './DepictionListRow.vue'
+import VDraggable from 'vuedraggable'
 
-defineProps({
-  list: {
-    type: Array,
-    default: () => []
-  }
+const list = defineModel({
+  type: Array,
+  required: true
 })
 
 const emit = defineEmits([
   'delete',
+  'move',
   'selected',
   'update:label',
-  'update:caption'
+  'update:caption',
+  'sort'
 ])
 </script>

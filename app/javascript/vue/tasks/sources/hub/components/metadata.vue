@@ -16,8 +16,8 @@
         </div>
         <div class="panel content">
           <h3><b>Project source</b></h3>
-          <ul 
-            v-if="source"
+          <ul
+            v-if="projectSource"
             class="no_bullets">
             <li>Created this week: {{ projectSource.created_this_week }}</li>
             <li>Updated this week: {{ projectSource.updated_this_week }}</li>

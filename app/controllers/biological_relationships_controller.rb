@@ -18,8 +18,24 @@ class BiologicalRelationshipsController < ApplicationController
   end
 
   def api_index
-    @biological_relationships = BiologicalRelationship.with_project_id(sessions_current_project_id).order(:name)
-    render '/biological_relationships/api/v1/index'
+    q =  BiologicalRelationship
+      .where(project_id: sessions_current_project_id)
+      .order(:name)
+
+    respond_to do |format|
+      format.json {
+        @biological_relationships = q.page(params[:page]).per(params[:per])
+        render '/biological_relationships/api/v1/index'
+      }
+      format.csv {
+        @biological_relationships = q
+        send_data Export::CSV.generate_csv(
+          @biological_relationships,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text',
+       filename: "biological_relationships_#{DateTime.now}.tsv"
+      }
+    end
   end
 
   # GET /biological_relationships/1
@@ -97,10 +113,6 @@ class BiologicalRelationshipsController < ApplicationController
   end
 
   private
-
-  def filter_sql
-    {}
-  end
 
   def set_biological_relationship
     @biological_relationship = BiologicalRelationship.where(project_id: sessions_current_project_id).find(params[:id])

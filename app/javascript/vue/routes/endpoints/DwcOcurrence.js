@@ -14,7 +14,12 @@ export const DwcOcurrence = {
   collectorMetadata: () =>
     AjaxCall('get', `/${controller}/collector_id_metadata`),
 
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
   predicates: () => AjaxCall('get', `/${controller}/predicates.json`),
+
+  taxonworksExtensionMethods: () =>
+    AjaxCall('get', '/tasks/dwc/dashboard/taxonworks_extension_methods'),
 
   indexVersion: () => AjaxCall('get', '/tasks/dwc/dashboard/index_versions'),
 

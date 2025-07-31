@@ -3,9 +3,10 @@ import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 
-function makeInitialState () {
+function makeInitialState() {
   return {
     settings: {
+      ignoredColumns: true,
       importModalView: false,
       isLoading: false,
       isProcessing: false,
@@ -29,11 +30,12 @@ function makeInitialState () {
     table: undefined,
     pagination: undefined,
     maxRecordsPerVirtualPage: 250000,
-    currentPage: 1
+    currentPage: 1,
+    currentRowIndex: null
   }
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -42,7 +44,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore,
-  makeInitialState
-}
+export { newStore, makeInitialState }

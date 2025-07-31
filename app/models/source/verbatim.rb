@@ -47,26 +47,13 @@ class Source::Verbatim < Source
   # @return [Source, Boolean]
   def generate_bibtex
     return false if verbatim.blank?
-    result = TaxonWorks::Vendor::Serrano.new_from_citation(citation: verbatim)
+    result = Vendor::Serrano.new_from_citation(citation: verbatim)
     if result.type == 'Source::Bibtex'
       result
     else
       false
     end
   end
-
-  # @param [Source] source
-  # @return [Boolean]
-  # def similar(source)
-  #   false
-  # end
-
-  # @param [Source] source
-  # @return [Boolean]
-  # def identical(source)
-  #   false
-  # end
-
 
   # @retun [nil]
   #   verbatim sources do not have nomenclature dates, but this method is used in catalogs

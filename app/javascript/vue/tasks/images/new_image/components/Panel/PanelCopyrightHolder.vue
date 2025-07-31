@@ -30,7 +30,7 @@
 
 <script setup>
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import VSwitch from '@/components/switch'
+import VSwitch from '@/components/ui/VSwitch'
 import RolePicker from '@/components/role_picker'
 import { ROLE_ATTRIBUTION_COPYRIGHT_HOLDER } from '@/constants'
 import { GetterNames } from '../../store/getters/getters.js'

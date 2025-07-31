@@ -18,18 +18,23 @@ resource :hub, controller: 'hub', only: [:index] do
 end
 
 scope :metadata, controller: 'metadata' do
+  post :vocabulary, defaults: {format: :json}
+  get :data_models, defaults: {format: :json}
+  get :attributes, defaults: {format: :json}
   get :annotators, defaults: {format: :json}
   get :related_summary
   post :related_summary
   get 'object_radial/', action: :object_radial, defaults: {format: :json}
   get 'object_navigation/:global_id', action: :object_navigation, defaults: {format: :json}
+  get :class_navigation, defaults: {format: :json}
   get '(/:klass)', action: :index, defaults: {format: :json}
 end
 
 scope :annotations, controller: :annotations, defaults: {format: :json} do
   get ':global_id/metadata', action: :metadata
   get :types
-
+  post :move_one
+  post :move
 end
 
 scope :graph, controller: :graph do
@@ -38,9 +43,6 @@ scope :graph, controller: :graph do
 end
 
 resources :projects do
-
-
-
   collection do
     get 'list'
     get 'search'
@@ -50,7 +52,6 @@ resources :projects do
   member do
     get 'select'
     get 'settings_for'
-    get 'recently_created_stats'
   end
 end
 
@@ -58,7 +59,7 @@ scope :administration, controller: :administration do
   match '/', action: :index, as: 'administration', via: :get
   get 'user_activity'
   get 'data_overview'
-  get 'data_health'
+  get 'data_health', as: 'administration_data_health_task'
   get 'data_reindex'
   get 'data_class_summary'
   get 'cached_maps_status'
@@ -87,6 +88,11 @@ scope :s do
   get ':id' => 'shortener/shortened_urls#show'
 end
 
+scope :unify, controller: :unify do
+  match '/', action: :unify, via: :post
+  get :metadata, defaults: {format: :json}
+end
+
 resources :users, except: :new do
   resources :projects, only: [:index], defaults: {format: :json}, action: :user_projects
 
@@ -94,11 +100,11 @@ resources :users, except: :new do
     post 'batch_create'
     get :autocomplete, defaults: {format: :json}
   end
+
   member do
-    get 'recently_created_data'
-    get 'recently_created_stats'
     patch 'reset_preferences'
     patch 'reset_hub_favorites'
+    get 'data'
   end
 end
 

@@ -41,11 +41,19 @@
               }"
               param="term"
             />
-            <span
-              class="handle button circle-button button-submit"
+            <VBtn
+              color="create"
+              circle
+              class="handle"
               title="Press and hold to drag input"
-              data-icon="w_scroll-v"
-            />
+            >
+              <VIcon
+                title="Press and hold to drag input"
+                color="white"
+                name="scrollV"
+                small
+              />
+            </VBtn>
           </div>
           <div
             class="original-combination-item horizontal-left-content middle gap-small"
@@ -58,12 +66,21 @@
                 <span v-html="element.value.subject_object_tag" />
               </span>
             </div>
-            <span
-              class="handle button circle-button button-submit"
+            <VBtn
+              color="create"
+              circle
+              class="handle"
               title="Press and hold to drag input"
-              data-icon="w_scroll-v"
-            />
-            <radialAnnotator :global-id="element.value.global_id" />
+            >
+              <VIcon
+                title="Press and hold to drag input"
+                color="white"
+                name="scrollV"
+                small
+              />
+            </VBtn>
+
+            <RadialAnnotator :global-id="element.value.global_id" />
             <span
               class="circle-button btn-delete"
               @click="removeCombination(element.value, index)"
@@ -74,28 +91,23 @@
     </div>
   </div>
 </template>
+
 <script>
 import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 export default {
   components: {
     RadialAnnotator,
     Autocomplete,
-    Draggable
-  },
-
-  computed: {
-    taxon() {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-    originalCombination() {
-      return this.$store.getters[GetterNames.GetOriginalCombination]
-    }
+    Draggable,
+    VBtn,
+    VIcon
   },
 
   props: {
@@ -141,29 +153,45 @@ export default {
     return {
       expanded: true,
       rankGroup: [],
-      orderRank: [],
       copyRankGroup: undefined,
-      originalTypes: [],
       newPosition: -1
     }
   },
 
-  watch: {
+  computed: {
+    taxon() {
+      return this.$store.getters[GetterNames.GetTaxon]
+    },
+
     originalCombination() {
-      this.loadOriginalCombinationList()
+      return this.$store.getters[GetterNames.GetOriginalCombination]
+    },
+
+    orderRank() {
+      return Object.keys(this.relationships)
+    },
+
+    originalTypes() {
+      return Object.values(this.relationships)
     }
   },
 
-  created() {
-    this.init()
+  watch: {
+    originalCombination: {
+      handler() {
+        this.loadOriginalCombinationList()
+      },
+      immediate: true
+    },
+    orderRank: {
+      handler() {
+        this.loadOriginalCombinationList()
+      },
+      deep: true
+    }
   },
 
   methods: {
-    init() {
-      this.orderRank = Object.keys(this.relationships)
-      this.originalTypes = Object.values(this.relationships)
-    },
-
     loadOriginalCombinationList() {
       this.rankGroup = this.orderRank.map((rank, index) => ({
         name: rank,
@@ -307,7 +335,7 @@ export default {
   }
   .combination {
     z-index: 1;
-    background-color: #f5f5f5;
+    background-color: var(--input-bg-color);
   }
 }
 </style>

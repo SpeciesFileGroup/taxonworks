@@ -1,6 +1,6 @@
-// use requestId to cancel previous request with the same Id
 import Axios from 'axios'
 import { capitalize } from './strings'
+import { getCSRFToken } from './user'
 
 const REQUEST_TYPE = {
   Get: 'get',
@@ -9,8 +9,7 @@ const REQUEST_TYPE = {
   Put: 'put',
   Delete: 'delete'
 }
-const CancelToken = Axios.CancelToken
-const previousTokenRequests = []
+
 const axios = Axios.create({
   headers: {
     'Content-Type': 'application/json',
@@ -18,12 +17,17 @@ const axios = Axios.create({
   }
 })
 
-const ajaxCall = (type, url, data = {}, config = {}) => {
-  const cancelFunction = config.cancelRequest || data.cancelRequest
-  const requestId = config.requestId || data.requestId
-  const CSRFToken = document
-    .querySelector('meta[name="csrf-token"]')
-    .getAttribute('content')
+axios.interceptors.response.use(
+  function (response) {
+    return setDataProperty(response)
+  },
+  function (error) {
+    return Promise.reject(error)
+  }
+)
+
+async function ajaxCall(type, url, data = {}, config = {}) {
+  const CSRFToken = getCSRFToken()
   const defaultHeaders = { 'X-CSRF-Token': CSRFToken }
 
   if (type === REQUEST_TYPE.Get || type === REQUEST_TYPE.Delete) {
@@ -38,45 +42,14 @@ const ajaxCall = (type, url, data = {}, config = {}) => {
     }
   }
 
-  if (requestId) {
-    const source = CancelToken.source()
-    const previousToken = previousTokenRequests[requestId]
+  const request = axios[type](url, data, config)
 
-    Object.assign(config, { cancelToken: source.token })
-
-    if (previousToken) {
-      previousToken.cancel()
-    }
-
-    previousTokenRequests[requestId] = source
-  }
-
-  if (cancelFunction) {
-    const cancelToken = { cancelToken: new CancelToken(cancelFunction) }
-
-    if (type === REQUEST_TYPE.Get || type === REQUEST_TYPE.Delete) {
-      Object.assign(data, cancelToken)
-    } else {
-      Object.assign(config, cancelToken)
-    }
-
-    delete config.cancelRequest
-    delete data.cancelRequest
-  }
-
-  return new Promise((resolve, reject) => {
-    axios[type](url, data, config)
-      .then((response) => {
-        response = setDataProperty(response)
-        printDevelopmentResponse(response)
-
-        resolve(response)
-      })
-      .catch((error) => {
-        if (Axios.isCancel(error)) {
-          return reject(error)
-        }
-
+  request
+    .then((response) => {
+      printDevelopmentResponse(response)
+    })
+    .catch((error) => {
+      if (!Axios.isCancel(error)) {
         error.response = setDataProperty(error.response)
         printDevelopmentResponse(error.response)
 
@@ -86,10 +59,10 @@ const ajaxCall = (type, url, data = {}, config = {}) => {
           default:
             handleError(error.response.body)
         }
+      }
+    })
 
-        reject(error.response)
-      })
-  })
+  return request
 }
 
 const handleError = (error) => {
@@ -109,7 +82,7 @@ function createErrorList(error) {
     ${
       removeTitleFor.includes(key)
         ? ''
-        : `<span data-icon="warning">${key}:</span>`
+        : `<span><span data-icon="warning"></span>${key}:</span>`
     }
       <ul>
         <li>${

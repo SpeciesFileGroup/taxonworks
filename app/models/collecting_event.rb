@@ -31,7 +31,7 @@
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the provided uncertainty value.
 #
-# @!attribute verbatim_trip_identifier
+# @!attribute verbatim_field_number
 #   @return [String]
 #      the literal string/identifier used by the collector(s) to identify this particular collecting event, usually part of a series particular to one trip
 #
@@ -182,7 +182,9 @@
 #
 class CollectingEvent < ApplicationRecord
   include Housekeeping
+  include Shared::OriginRelationship
   include Shared::Citations
+  include Shared::Conveyances
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
@@ -195,23 +197,25 @@ class CollectingEvent < ApplicationRecord
   include Shared::HasPapertrail
   include SoftValidation
   include Shared::Labels
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
+
 
   include CollectingEvent::GeoLocate
   include CollectingEvent::Georeference
-
   include CollectingEvent::DwcSerialization
+
+  include Shared::QueryBatchUpdate
 
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
 
+  is_origin_for 'Sound'
+
   NEARBY_DISTANCE = 5000
+  MINIMUM_ELEVATION = -11000
+  MAXIMUM_ELEVATION = 8500
 
   attr_accessor :with_verbatim_data_georeference
-
-  # @return [Boolean]
-  #   When true, will not rebuild dwc_occurrence index.
-  #   See also Shared::IsDwcOccurrence
-  attr_accessor :no_dwc_occurrence
 
   # @return [Boolean]
   #  When true, cached values are not built
@@ -221,24 +225,24 @@ class CollectingEvent < ApplicationRecord
   #   of known country/state/county values
   attr_accessor :geographic_names
 
-  # handle_asynchronously :update_dwc_occurrences, run_at: Proc.new { 20.seconds.from_now }
-
   # See also CollectingEvent::GeoLocate
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
-  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy
-  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
+  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy, inverse_of: :role_object
+  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy, inverse_of: :role_object
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
+
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :collectors, -> { order('roles.position ASC') }, through: :collector_roles, source: :person, inverse_of: :collecting_events
 
-  has_many :dwc_occurrences, through: :collection_objects, inverse_of: :collecting_event
+  has_many :field_occurrences, inverse_of: :collecting_event, dependent: :restrict_with_error
 
   # see also app/models/collecting_event/georeference.rb for more has_many
 
-  has_many :otus, through: :collection_objects
+  has_many :collection_object_otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
+  has_many :field_occurrence_otus, -> { unscope(:order) }, through: :field_occurrences, source: 'otu'
 
   after_create do
     if with_verbatim_data_georeference
@@ -249,14 +253,15 @@ class CollectingEvent < ApplicationRecord
   before_save :set_times_to_nil_if_form_provided_blank
 
   after_save :set_cached, unless: -> { no_cached }
-  after_save :update_dwc_occurrences , unless: -> { no_dwc_occurrence }
 
-  # see also app/models/colelcting_event/georeference.rb for more accepts_nested_attributes
-  accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
+  # See also app/models/collecting_event/georeference.rb for more accepts_nested_attributes
+  accepts_nested_attributes_for :collectors, :collector_roles, :georeferences, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
     :check_date_range,
     :check_elevation_range,
+    :check_min_land_elevation,
+    :check_max_land_elevation,
     :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> { verbatim_label.blank? }
@@ -320,6 +325,23 @@ class CollectingEvent < ApplicationRecord
     name: 'Missing geographic area',
     description: 'Georaphic area is missing')
 
+  def otus
+    ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
+  end
+
+  def dwc_occurrences
+    # Through CollectionObjects
+    a = DwcOccurrence
+      .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
+      .where(co: {collecting_event_id: id})
+
+    b = DwcOccurrence
+      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
+      .where(fo: {collecting_event_id: id})
+
+    ::Queries.union(DwcOccurrence, [a,b])
+  end
+
   # @param [String]
   def verbatim_label=(value)
     write_attribute(:verbatim_label, value)
@@ -355,9 +377,10 @@ class CollectingEvent < ApplicationRecord
 
     # @param [GeographicItem] geographic_item
     # @return [Scope]
-    # TODO: use joins(:geographic_items).where(containing scope), simplied to
     def contained_within(geographic_item)
-      CollectingEvent.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id))
+      CollectingEvent.joins(:geographic_items).where(
+        GeographicItem.subset_of_union_of_sql(geographic_item.id)
+      )
     end
 
     # @param [CollectingEvent Scope] collecting_events
@@ -371,6 +394,7 @@ class CollectingEvent < ApplicationRecord
     # Other
     #
 
+    # TODO: remove for filter
     # @param [String] search_start_date string in form 'yyyy/mm/dd'
     # @param [String] search_end_date string in form 'yyyy/mm/dd'
     # @param [String] partial_overlap 'on' or 'off'
@@ -382,6 +406,7 @@ class CollectingEvent < ApplicationRecord
       where(q.between_date_range_facet.to_sql).distinct # TODO: uniq should likely not be here
     end
 
+    # TODO remove, used only in match georeferences
     # @param [ActionController::Parameters] params in the style Rails of 'params'
     # @return [Scope] of selected collecting_events
     # TODO: deprecate for lib/queries/collecting_event/filter
@@ -453,6 +478,7 @@ class CollectingEvent < ApplicationRecord
 
   # @return [Boolean]
   #   test for minimal data
+  # TODO: consider renaming, reference new Merge code
   def has_data?
     CollectingEvent.core_attributes.each do |a|
       return true if self.send(a).present?
@@ -587,7 +613,7 @@ class CollectingEvent < ApplicationRecord
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
       elev            = Utilities::Geo.distance_in_meters(verbatim_elevation).to_f
       point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
-      GeographicItem.new(point:)
+      GeographicItem.new(geography: point)
     else
       nil
     end
@@ -630,13 +656,6 @@ class CollectingEvent < ApplicationRecord
     end
   end
 
-  # @param [GeographicItem]
-  # @return [String]
-  #   see how far away we are from another gi
-  def distance_to(geographic_item_id)
-    GeographicItem.distance_between(preferred_georeference.geographic_item_id, geographic_item_id)
-  end
-
   # @param [Double] distance in meters
   # @return [Scope]
   def collecting_events_within_radius_of(distance)
@@ -649,10 +668,12 @@ class CollectingEvent < ApplicationRecord
       .where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance))
   end
 
+  # DEPRECATED (unused)
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def collecting_events_intersecting_with
-    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).distinct
+    # TODO may need to optimize through .intersecting
+    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first.id).distinct
     gr     = [] # all collecting events for a geographic_item
 
     pieces.each { |o|
@@ -813,15 +834,18 @@ class CollectingEvent < ApplicationRecord
       #
       #  Struck EGI, EGI must contain GI, therefor anything that contains EGI contains GI, threfor containing GI will always be the bigger set
       #   !! and there was no tests broken
-      # GeographicItem.are_contained_in_item('any_poly', self.geographic_items.to_a).pluck(:id).uniq
-      gi_list = GeographicItem.containing(*geographic_items.pluck(:id)).pluck(:id).uniq
+      # GeographicItem.st_covers('any_poly', self.geographic_items.to_a).pluck(:id).uniq
+      gi_list = GeographicItem
+       .superset_of_union_of(*geographic_items.pluck(:id))
+       .pluck(:id)
+       .uniq
 
     else
       # use geographic_area only if there are no GIs or EGIs
       unless self.geographic_area.nil?
         # unless self.geographic_area.geographic_items.empty?
         # we need to use the geographic_area directly
-        gi_list = GeographicItem.are_contained_in_item('any_poly', self.geographic_area.geographic_items).pluck(:id).uniq
+        gi_list = GeographicItem.st_covers('any_poly', self.geographic_area.geographic_items).pluck(:id).uniq
         # end
       end
     end
@@ -893,7 +917,6 @@ class CollectingEvent < ApplicationRecord
   # @return [GeoJSON::Feature]
   #   the first geographic item of the first georeference on this collecting event
   def to_geo_json_feature
-    # !! avoid loading the whole geographic item, just grab the bits we need:
     # self.georeferences(true)  # do this to
     to_simple_json_feature.merge({
       'properties' => {
@@ -914,13 +937,11 @@ class CollectingEvent < ApplicationRecord
     }
 
     if geographic_items.any?
-      geo_item_id      = geographic_items.select(:id).first.id
-      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
-      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
+      base['geometry'] = RGeo::GeoJSON.encode(geographic_items.first.geo_object)
     end
+
     base
   end
-
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
   # @return [RGeo::Geographic::ProjectedPointImpl, nil]
@@ -986,25 +1007,51 @@ class CollectingEvent < ApplicationRecord
   # end
 
   # @return [CollectingEvent]
-  #   the instance may not be valid!
-  def clone
+  #  the instance may not be valid!
+  def clone(annotations: false, incremented_identifier_id: nil)
     a = dup
-    a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
 
-    roles.each do |r|
-      a.collector_roles.build(person: r.person, position: r.position)
-    end
+    CollectingEvent.transaction do
+      begin
+        a.created_by_id = nil
 
-    if georeferences.load.any?
-      not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
-      georeferences.each do |g|
-        c = g.dup.attributes.select{|c| !not_georeference_attributes.include?(c) }
-        a.georeferences.build(c)
+        if a.verbatim_label.present?
+          a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
+        end
+
+        roles.each do |r|
+          a.collector_roles.build(person: r.person, position: r.position)
+        end
+
+        if georeferences.load.any?
+          # not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
+          georeferences.each do |g|
+            i = g.dup
+
+            g.georeferencer_roles.each do |r|
+              i.georeferencer_roles.build(person: r.person, position: r.position)
+            end
+
+            a.georeferences << i
+
+          end
+        end
+
+        if incremented_identifier_id
+          add_incremented_identifier(to_object: a, incremented_identifier_id:)
+        end
+
+        if annotations.present? # TODO: boolean param this
+          clone_annotations(to_object: a, except: [:identifiers])
+        end
+
+        a.save! # TODO: confirm behaviour is OK in case of comprehensive.
+
+      rescue ActiveRecord::RecordInvalid
+        raise ActiveRecord::Rollback
       end
+      a
     end
-
-    a.save
-    a
   end
 
   # @return [String, nil]
@@ -1028,28 +1075,23 @@ class CollectingEvent < ApplicationRecord
   end
 
   class << self
-  # @return [Hash]
+
+    # @return [Hash, false]
     def batch_update(params)
-      return false if params[:collecting_event].blank?
-      a = Queries::CollectingEvent::Filter.new(params[:collecting_event_query])
-      c = a.all.count
-      return false if c == 0 || c > 250
+      request = QueryBatchRequest.new(
+        klass: 'CollectingEvent',
+        object_filter_params: params[:collecting_event_query],
+        object_params: params[:collecting_event],
+        async_cutoff: params[:async_cutoff] || 26,
+        preview: params[:preview],
+        project_id: params[:project_id],
+        user_id: params[:user_id]
+      )
 
-      a.all.find_each do |e|
-        query_update(e, params[:collecting_event])
-      end
-
-      return true
+      request.cap = 5000
+      request.cap_reason = 'Max 5000 updated at a time.'
+      query_batch_update(request)
     end
-
-    def query_update(collecting_event, params)
-      begin
-        collecting_event.update!( params )
-      rescue ActiveRecord::RecordInvalid => e
-      end
-    end
-
-    handle_asynchronously :query_update, run_at: Proc.new { 1.second.from_now }, queue: :collecting_event_ui_batch_update
   end
 
   protected
@@ -1059,6 +1101,10 @@ class CollectingEvent < ApplicationRecord
     values = get_geographic_name_classification
 
     if values.empty?
+      update_columns(
+        cached_level0_geographic_name: nil,
+        cached_level1_geographic_name: nil,
+        cached_level2_geographic_name: nil)
       @geographic_names = {}
     else
       update_columns(
@@ -1100,15 +1146,6 @@ class CollectingEvent < ApplicationRecord
     update_columns(c)
   end
 
-  def update_dwc_occurrences
-    # reload is required!
-    if collection_objects.count < 501
-      collection_objects.reload.each do |o|
-        o.set_dwc_occurrence
-      end
-    end
-  end
-
   def set_times_to_nil_if_form_provided_blank
     matches = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
     write_attribute(:time_start, nil) if matches.include?(self.time_start.to_s)
@@ -1130,6 +1167,21 @@ class CollectingEvent < ApplicationRecord
 
   def check_ma_range
     errors.add(:min_ma, 'Min ma is < Max ma.') if min_ma.present? && max_ma.present? && min_ma > max_ma
+  end
+
+  def check_max_land_elevation
+    m = 'This is Earth, not Bespin, contact us sky collector.'
+    if (maximum_elevation.present? && maximum_elevation > MAXIMUM_ELEVATION)
+      errors.add(:maximum_elevation, m)
+    end
+
+    if (minimum_elevation.present? && minimum_elevation > MAXIMUM_ELEVATION)  # 2023 LLM
+      errors.add(:minimum_elevation, m)
+    end
+  end
+
+  def check_min_land_elevation
+    errors.add(:minimum_elevation, 'You know a deeper trench than we do, contact us.') if minimum_elevation.present? && minimum_elevation < MINIMUM_ELEVATION # 2023 LLM
   end
 
   def check_elevation_range

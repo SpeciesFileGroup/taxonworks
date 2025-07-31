@@ -3,9 +3,13 @@
 # If you wish to capture verbatim determinations then they should be added to CollectionObject#buffered_determinations,
 # i.e. TaxonDeterminations are fully "normalized".
 #
-# @!attribute biological_collection_object_id
+# @!attribute taxon_determination_object_id
 #   @return [Integer]
-#   BiologicalCollectionObject, the object being determined
+#     id of the object being determined
+#
+# @!attribute taxon_determination_object_type
+#   @return [Integer]
+#     type of the object being determined
 #
 # @!attribute otu_id
 #   @return [Integer]
@@ -34,7 +38,7 @@
 #   the project ID
 #
 class TaxonDetermination < ApplicationRecord
-  acts_as_list scope: [:biological_collection_object_id, :project_id], add_new_at: :top
+  acts_as_list scope: [:taxon_determination_object_id, :taxon_determination_object_type, :project_id], add_new_at: :top # top is 1
 
   include Housekeeping
   include Shared::Citations
@@ -44,26 +48,28 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Labels
   include Shared::Depictions
   include Shared::ProtocolRelationships
-  include Shared::IsData
+  include Shared::DwcOccurrenceHooks
   include SoftValidation
+  include Shared::IsData
+
   ignore_whitespace_on(:print_label)
 
   belongs_to :otu, inverse_of: :taxon_determinations
-  belongs_to :biological_collection_object, class_name: 'CollectionObject', inverse_of: :taxon_determinations
+  belongs_to :taxon_determination_object, polymorphic: true, inverse_of: :taxon_determinations
 
   has_many :determiner_roles, class_name: 'Determiner', as: :role_object, inverse_of: :role_object
   has_many :determiners, through: :determiner_roles, source: :person, inverse_of: :taxon_determinations
 
   has_many :determiners_organization, through: :determiner_roles, source: :organization, inverse_of: :taxon_determinations
 
-  validates :biological_collection_object, presence: true
+  validates :taxon_determination_object, presence: true
   validates :otu, presence: true
   validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
   validates :month_made, date_month: true
   validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
 
   # Careful, position must be reset with :update_column!
-  validates_uniqueness_of :position, scope: [:biological_collection_object_id, :project_id]
+  validates_uniqueness_of :position, scope: [:taxon_determination_object_id, :taxon_determination_object_type, :project_id]
 
   # TODO: Add uniquiness constraint that also checks roles
 
@@ -73,6 +79,16 @@ class TaxonDetermination < ApplicationRecord
 
   scope :current, -> { where(position: 1)}
   scope :historical, -> { where.not(position: 1)}
+
+  before_destroy :prevent_if_required
+
+  # TODO: refactor for lib/queries, hack to get
+  # Unify base-line functionality
+  def self.find_for_autocomplete(params)
+    joins(otu: [:taxon_name])
+      .where('taxon_names.cached ILIKE ? OR otus.name ILIKE ?',
+             "%#{params[:term]}%", "%#{params[:term]}%")
+  end
 
   # @params params [Hash]
   # @params collection_objectt_id [Array, Integer]
@@ -89,7 +105,8 @@ class TaxonDetermination < ApplicationRecord
       begin
         TaxonDetermination.create!(
           params.merge(
-            biological_collection_object_id: id
+            taxon_determination_object_id: id,
+            taxon_determination_object_type: 'CollectionObject'
           )
         )
 
@@ -113,12 +130,40 @@ class TaxonDetermination < ApplicationRecord
     Utilities::Dates.nomenclature_date(day_made, month_made, year_made)
   end
 
+  def dwc_occurrences
+
+    return DwcOccurrence.none if taxon_determination_object.blank? # if object is not yet saved don't bother doing this, in theory it will be redundant
+
+    co = DwcOccurrence
+      .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
+      .joins("JOIN taxon_determinations td on co.id = td.taxon_determination_object_id AND td.taxon_determination_object_type = 'CollectionObject'")
+      .where(td: {id:} )
+      .distinct
+
+    fo = DwcOccurrence
+      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
+      .joins("JOIN taxon_determinations td on fo.id = td.taxon_determination_object_id AND td.taxon_determination_object_type = 'FieldOccurrence'")
+      .where(td: {id:} )
+      .distinct
+
+    ::Queries.union(DwcOccurrence, [co, fo])
+  end
+
   protected
 
   # @param [Hash] attributed
   # @return [Boolean]
   def reject_otu(attributed)
     attributed['name'].blank? && attributed['taxon_name_id'].blank?
+  end
+
+  def prevent_if_required
+    unless taxon_determination_object && taxon_determination_object.respond_to?(:ignore_taxon_determination_restriction) && taxon_determination_object.ignore_taxon_determination_restriction
+      if !marked_for_destruction? && !new_record? && taxon_determination_object.requires_taxon_determination? && taxon_determination_object.taxon_determinations.count == 1
+        errors.add(:base, 'at least one taxon determination is required')
+        throw :abort
+      end
+    end
   end
 
 end

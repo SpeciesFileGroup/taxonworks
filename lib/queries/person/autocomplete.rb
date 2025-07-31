@@ -33,8 +33,8 @@ module Queries
 
       # @return [Arel::Nodes::Equatity]
       def role_match
-        a = roles_table[:type].eq_any(role_type)
-        a = a.and(roles_table[:project_id].eq_any(project_id)) if in_project
+        a = roles_table[:type].in(role_type)
+        a = a.and(roles_table[:project_id].in(project_id)) if in_project
         a
       end
 
@@ -110,7 +110,7 @@ module Queries
           [ autocomplete_alternate_values_first_name.limit(20), true ],
           [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(5), true ],
           [ autocomplete_cached_wildcard_anywhere&.limit(20), true ], # in Queries::Query::Autocomplete
-          [ autocomplete_cached, true ]
+          [ autocomplete_cached.limit(20), true ]
         ]
 
         queries.compact!

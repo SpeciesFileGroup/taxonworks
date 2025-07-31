@@ -3,8 +3,9 @@ module Housekeeping::Projects
   extend ActiveSupport::Concern
 
   included do
-    # not added to the model, just used to extend models here
-    related_instances = self.name.demodulize.underscore.pluralize.to_sym # if 'One::Two::Three' gives :threes
+    # Not added to the model, just used to extend models here
+    # !! you must singularize then pluralize to get in inflections applied
+    related_instances = self.name.demodulize.underscore.singularize.pluralize.to_sym # if 'One::Two::Three' gives :threes
     related_class     = self.name
 
     # these are added to the model
@@ -29,13 +30,13 @@ module Housekeeping::Projects
     # @param [Project] project
     # @return [Scope]
     def in_project(project)
-      where(project: project)
+      where(project:)
     end
 
     # @param [Integer] project_id
     # @return [Scope]
     def with_project_id(project_id)
-      where(project_id: project_id)
+      where(project_id:)
     end
   end
 
@@ -64,4 +65,3 @@ module Housekeeping::Projects
   end
 
 end
-

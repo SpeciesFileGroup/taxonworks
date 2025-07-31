@@ -9,10 +9,10 @@ module Shared::Loanable
     # !! These do not take into account potential Container loans
     #
 
-    has_one :loan_item, -> {where('date_returned is null')}, as: :loan_item_object
+    has_one :loan_item, -> {where('date_returned is null')}, as: :loan_item_object, inverse_of: :loan_item_object
     has_one :loan, through: 'loan_item'
 
-    has_many :loan_items, as: :loan_item_object, dependent: :destroy
+    has_many :loan_items, as: :loan_item_object, dependent: :destroy, inverse_of: :loan_item_object
     has_many :loans, through: :loan_items # See also "all loans"
   end
 

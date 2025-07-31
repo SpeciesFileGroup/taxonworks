@@ -1,0 +1,28 @@
+<%= render("/shared/data/all/list/list_header", objects: @field_occurrences) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Total') -%>
+    <%= fancy_th_tag(name: 'Taxon determination', group: 'associated') -%>
+    <%= fancy_th_tag(name: 'Biocurations', group: 'associated') -%>
+    <%= fancy_th_tag(name: 'Identifiers', group: 'associated') -%>
+    <%= fancy_th_tag(name: 'Collecting event', group: 'associated') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @field_occurrences.each do |field_occurrence| %>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
+        <%= content_tag(:td, field_occurrence.total) %>
+        <%= content_tag(:td, determination_tag(field_occurrence.current_taxon_determination)) %>
+        <%= content_tag(:td, field_occurrence.biocuration_classes.collect{|a| a.name.downcase}.join(', ').presence) %>
+        <%= content_tag(:td, identifier_ul_list(field_occurrence)) %>
+        <%= content_tag(:td, collecting_event_tag(field_occurrence.collecting_event)) %>
+        <%= fancy_metadata_cells_tag(field_occurrence) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>

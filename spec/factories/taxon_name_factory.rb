@@ -10,6 +10,7 @@ FactoryBot.define do
       type { 'Protonym' } 
       rank_class { Ranks.lookup(:iczn, 'Family') }
 
+      # TODO: after_save callbacks not hit, seems this is bad though
       before(:create) do |name|  
         name.cached_html = 'Adidae'
         name.cached = 'Adidae'

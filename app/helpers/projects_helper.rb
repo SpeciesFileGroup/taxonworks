@@ -109,6 +109,12 @@ module ProjectsHelper
     gb_per_year( Image.group_by_year(:created_at, format: '%Y').sum(:image_file_file_size) )
   end
 
+  def sound_gb_per_year
+    gb_per_year(
+      Sound.joins(sound_file_attachment: :blob).group_by_year('sounds.created_at', format: '%Y').sum('active_storage_blobs.byte_size')
+    )
+  end
+
   def gb_per_year(sums)
     min = sums.keys.sort.first || 0
     max = sums.keys.sort.last || 0
@@ -143,5 +149,12 @@ module ProjectsHelper
     cumulative_gb_per_year(Image.group_by_year(:created_at, format: '%Y').sum(:image_file_file_size))
   end
 
+  def sound_cumulative_gb_per_year
+    cumulative_gb_per_year(Sound.group_by_year('sounds.created_at', format: '%Y').joins(sound_file_attachment: :blob).sum('active_storage_blobs.byte_size'))
+  end
+
+  def week_in_review_graphs(weeks)
+    content_tag(:div, '', 'data-weeks-ago': weeks, 'data-weeks-review': true)
+  end
 
 end

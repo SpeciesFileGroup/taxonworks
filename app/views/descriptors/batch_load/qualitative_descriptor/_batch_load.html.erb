@@ -8,7 +8,7 @@
       <p> Creates new qualitative (multi-state) descriptors </p>
       <ul>
         <li>A tab-delimited, UTF-8 encoded text file is required.</li>
-        <li>There are no column headers. The first column is the descriptor name, remaining columns are character state names.  (see <%= link_to('sample template', asset_path('/batch_load_templates/descriptors/qualitative_descriptors.tab'), target: '_blank') -%>).</li>
+        <li>There are no column headers. The first column is the descriptor name, remaining columns are character state names.  (see <%= link_to('sample template', asset_path('/batch_load_templates/descriptors/qualitative_descriptors.tab', skip_pipeline: true), target: '_blank') -%>).</li>
         <li>Descriptors will fail to import if the descriptor name is already present.</li>
         <li>There is currently no size limit to the file being loaded but this may change in the future.</li>
       </ul>

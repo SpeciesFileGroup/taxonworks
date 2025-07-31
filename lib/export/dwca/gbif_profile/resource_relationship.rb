@@ -1,7 +1,7 @@
 # Resource Relationship extension class
 # Repository: http://rs.gbif.org/extension/dwc/resource_relation.xml
 
-module Dwca::GbifProfile
+module Export::Dwca::GbifProfile
 
   class ResourceRelationship
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)

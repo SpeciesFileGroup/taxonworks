@@ -7,7 +7,7 @@
       :pagination="pagination"
       :object-type="IMAGE"
       :list="list"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
@@ -22,7 +22,7 @@
         >
           <span class="margin-small-left margin-small-right">|</span>
           <div class="horizontal-left-content gap-small margin-small-left">
-            <DepictionList :image-id="selectedIds" />
+            <DepictionList :image-id="sortedSelectedIds" />
             <SelectAll
               v-model="selectedIds"
               :ids="list.map(({ id }) => id)"
@@ -38,6 +38,7 @@
           v-model="selectedIds"
           :list="list"
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -55,23 +56,24 @@ import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import SelectAll from '@/tasks/collection_objects/filter/components/selectAll.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import DepictionList from './components/DepictionList.vue'
 import { IMAGE } from '@/constants/index.js'
 import { Image } from '@/routes/endpoints'
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Image)
 </script>
 

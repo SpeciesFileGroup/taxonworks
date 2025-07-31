@@ -132,7 +132,7 @@ import { DwcOcurrence } from '@/routes/endpoints'
 import { transformObjectToParams } from '@/helpers/setParam.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   params: {

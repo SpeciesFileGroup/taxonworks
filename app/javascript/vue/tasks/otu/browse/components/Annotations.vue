@@ -42,8 +42,9 @@
 import SectionPanel from './shared/sectionPanel'
 import ListComponent from './shared/list'
 import extendSection from './shared/extendSections'
-import { Otu } from '@/routes/endpoints'
+import { Otu, Tag, Identifier, Note, DataAttribute } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
+import { OTU } from '@/constants'
 
 export default {
   mixins: [extendSection],
@@ -86,22 +87,32 @@ export default {
         const annotations = {}
 
         promises.push(
-          Otu.identifiers(id).then((response) => {
+          Identifier.where({
+            identifier_object_id: id,
+            identifier_object_type: OTU
+          }).then((response) => {
             annotations.identifiers = response.body
           })
         )
         promises.push(
-          Otu.tags(id).then((response) => {
-            annotations.tags = response.body
-          })
+          Tag.where({ tag_object_id: id, tag_object_type: OTU }).then(
+            (response) => {
+              annotations.tags = response.body
+            }
+          )
         )
         promises.push(
-          Otu.notes(id).then((response) => {
-            annotations.notes = response.body
-          })
+          Note.where({ note_object_id: id, note_object_type: OTU }).then(
+            (response) => {
+              annotations.notes = response.body
+            }
+          )
         )
         promises.push(
-          Otu.dataAttributes(id).then((response) => {
+          DataAttribute.where({
+            attribute_subject_id: id,
+            attribute_subject_type: OTU
+          }).then((response) => {
             annotations.dataAttributes = response.body
           })
         )

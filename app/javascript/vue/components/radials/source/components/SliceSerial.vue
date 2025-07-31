@@ -22,45 +22,28 @@
       />
     </fieldset>
 
-    <VBtn
-      class="margin-large-top"
-      color="create"
-      medium
-      :disabled="!serial || isCountExceeded"
-      @click="move"
+    <div
+      class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
     >
-      Update
-    </VBtn>
+      <UpdateBatch
+        ref="updateBatchRef"
+        :batch-service="Source.batchUpdate"
+        :payload="payload"
+        :disabled="!serial || isCountExceeded"
+        @update="updateMessage"
+        @close="emit('close')"
+      />
 
-    <div class="margin-large-top">
-      <template v-if="sources.updated.length">
-        <h3>Updated</h3>
-        <ul>
-          <li
-            v-for="item in sources.updated"
-            :key="item.id"
-          >
-            <a
-              :href="`${RouteNames.NewSource}?source_id=${item.id}`"
-              v-html="item.object_tag"
-            />
-          </li>
-        </ul>
-      </template>
-      <template v-if="sources.not_updated.length">
-        <h3>Not updated</h3>
-        <ul>
-          <li
-            v-for="item in sources.not_updated"
-            :key="item.id"
-          >
-            <a
-              :href="`${RouteNames.NewSource}?source_id=${item.id}`"
-              v-html="item.object_tag"
-            />
-          </li>
-        </ul>
-      </template>
+      <PreviewBatch
+        :batch-service="Source.batchUpdate"
+        :payload="payload"
+        :disabled="!serial || isCountExceeded"
+        @finalize="
+          () => {
+            updateBatchRef.openModal()
+          }
+        "
+      />
     </div>
   </div>
 </template>
@@ -68,8 +51,8 @@
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import { RouteNames } from '@/routes/routes.js'
+import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
+import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import { Source } from '@/routes/endpoints'
 import { SOURCE } from '@/constants/index.js'
 import { computed, ref } from 'vue'
@@ -88,23 +71,25 @@ const props = defineProps({
   }
 })
 
-const serial = ref()
-const sources = ref({ updated: [], not_updated: [] })
+const emit = defineEmits(['close'])
 
+const serial = ref()
+const updateBatchRef = ref(null)
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
-function move() {
-  const payload = {
+const payload = computed(() => {
+  return {
     source_query: props.parameters,
-    serial_id: serial.value.id
+    source: {
+      serial_id: serial.value?.id
+    }
   }
+})
 
-  Source.batchUpdate(payload).then(({ body }) => {
-    sources.value = body
-    TW.workbench.alert.create(
-      `${body.updated.length} sources were successfully updated.`,
-      'notice'
-    )
-  })
+function updateMessage(data) {
+  TW.workbench.alert.create(
+    `${data.updated.length} sources were successfully updated.`,
+    'notice'
+  )
 }
 </script>

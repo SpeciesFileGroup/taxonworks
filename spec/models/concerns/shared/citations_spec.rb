@@ -161,17 +161,21 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
       expect(TestCitable.youngest_by_citation).to eq(b)
     end
 
-    context 'reordering does not raise' do
-
-      # presently raises, just don't do it, see comments
-      # specify ".order_by_yougest_source_first.last" do
-      #   expect{TestCitable.order_by_youngest_source_first.last}.to_not raise_error # not_raise # (TestCitable.oldest_by_citation).to eq(b)
-      # end
-
-      specify '.order_by_oldest_source_first.last' do
-        expect{TestCitable.order_by_oldest_source_first.last}.to_not raise_error # not_raise # (TestCitable.oldest_by_citation).to eq(b)
-      end
+    specify '.youngest' do
+      expect(TestCitable.youngest(TestCitable.all)).to eq(b)
     end
+
+    #  context 'reordering does not raise' do
+    #    # presently raises, just don't do it, use oldest
+    #    # specify ".order_by_yougest_source_first.last" do
+    #    #   expect{TestCitable.order_by_youngest_source_first.last}.to_not raise_error # not_raise # (TestCitable.oldest_by_citation).to eq(b)
+    #    # end
+
+    #    # presently raises, just don't do it, use youngest
+    #    # specify '.order_by_oldest_source_first.last' do
+    #    #   expect{TestCitable.order_by_oldest_source_first.last}.to_not raise_error # not_raise # (TestCitable.oldest_by_citation).to eq(b)
+    #    # end
+    #  end
 
     context 'with multiple citations' do
       context 'one of which is nil' do
@@ -230,9 +234,12 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
         specify '.youngest_by_citation' do
           expect(TestCitable.youngest_by_citation).to eq(c)
         end
+
+        specify '.youngest' do
+          expect(TestCitable.youngest(TestCitable.all)).to eq(c)
+        end
       end
     end
-
 
     context 'with nils' do
       let!(:d) {TestCitable.create}

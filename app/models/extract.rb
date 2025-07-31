@@ -23,16 +23,20 @@ class Extract < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::OriginRelationship
   include Shared::Containable
+  include Shared::Confidences
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Observations
   include Shared::Tags
   include SoftValidation
   include Shared::IsData
+  include Shared::AutoUuid
+
   # TODO: make loanable
+  # TODO: auto-UUID
 
   is_origin_for 'Extract', 'Sequence'
-  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence'
 
   belongs_to :repository, inverse_of: :extracts
 
@@ -48,6 +52,14 @@ class Extract < ApplicationRecord
   has_many :extracts, through: :related_origin_relationships, source: :old_object, source_type: 'Extract'
 
   attr_accessor :is_made_now
+
+  # TODO: Unify in concern, with CO too
+  # Identifier delegations
+  # .catalog_number_cached
+  delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+  # .catalog_number_namespace
+  delegate :namespace, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+
   before_validation :set_made, if: -> {is_made_now}
 
   validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
@@ -61,6 +73,26 @@ class Extract < ApplicationRecord
       [otus],
       [collection_objects.collect{|o| o.current_otu} ]
     ].flatten.compact.uniq
+  end
+
+  # TODO: Unify with CollectionObject in concern
+  # @return [Identifier::Local::CatalogNumber, nil]
+  #   the first (position) catalog number for this collection object, either on specimen, or container
+  def preferred_catalog_number
+    if i = Identifier::Local::CatalogNumber.where(identifier_object: self).order(:position).first
+      i
+    else
+      if container
+        container.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).order(:position).first
+      else
+        nil
+      end
+    end
+  end
+
+  # In anticipation of DwC handling
+  def dwc_catalog_number
+    catalog_number_cached
   end
 
   protected
@@ -91,14 +123,14 @@ class Extract < ApplicationRecord
           t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
               t['updated_at'].gt(1.week.ago).and(
-                t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
+                t['biological_association_subject_type'].eq('CollectionObject')
               )
             )
               .where(t['updated_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         else
-          t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
+          t.project(t['taxon_determination_object_id'], t['taxon_determination_object_type'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.week.ago ))
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
@@ -114,7 +146,8 @@ class Extract < ApplicationRecord
             z['biological_association_subject_id'].eq(p['id'])
           ))
         else
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
+          # TODO fix biological_collection_object_id transition scoping
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['taxon_determination_object_id'].eq(p['id'])))
         end
 
     CollectionObject.joins(j).pluck(:id).uniq

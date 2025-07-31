@@ -33,28 +33,6 @@ describe 'CollectingEvents', type: :feature do
       }
 
       it_behaves_like 'a_data_model_with_standard_show'
-
-      specify 'there is a \'Add Google map georeference\' link' do
-        expect(page).to have_link('Add Google map georeference')
-      end
-    end
-  end
-
-  context 'creating a new collecting event' do
-    before do 
-      sign_in_user_and_select_project
-      visit collecting_events_path
-    end 
-
-    specify 'following the new link & create a new collecting event' do
-      click_link('New')
-      fill_in 'Verbatim label', with: 'This is a label.\nAnd a second line.'
-
-      buttons = page.all(:button, 'Create Collecting event')
-      expect(buttons.size).to eq(2)
-
-      buttons.first.click
-      expect(page).to have_content('Collecting event was successfully created.')
     end
   end
 end

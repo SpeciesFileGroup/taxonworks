@@ -1,28 +1,29 @@
 <template>
   <button
-    :style="{ borderRightColor: topic.css_color, borderRightWidth: '4px', borderRightStyle: 'solid' }"
+    :style="{
+      borderRightColor: topic.css_color,
+      borderRightWidth: '4px',
+      borderRightStyle: 'solid'
+    }"
     @click="sendTopic(topic.id)"
     type="button"
-    class="normal-input button tag_button">
+    class="normal-input button tag_button btn-data"
+  >
     {{ topic.name }}
   </button>
 </template>
 
-<script>
-export default {
-  props: {
-    topic: {
-      type: Object,
-      required: true
-    }
-  },
-
-  emits: ['select'],
-
-  methods: {
-    sendTopic () {
-      this.$emit('select', this.topic)
-    }
+<script setup>
+const props = defineProps({
+  topic: {
+    type: Object,
+    required: true
   }
+})
+
+const emit = defineEmits(['select'])
+
+function sendTopic() {
+  emit('select', props.topic)
 }
 </script>

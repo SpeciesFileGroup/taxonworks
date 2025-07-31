@@ -32,7 +32,7 @@
 #   @return [Integer]
 #   The id of the identified object, used in a polymorphic relationship.
 #
-# @!attribute identifier_object_id
+# @!attribute identifier_object_type
 #   @return [String]
 #   The type of the identified object, used in a polymorphic relationship.
 #
@@ -58,6 +58,7 @@
 class Identifier < ApplicationRecord
   acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ], add_new_at: :top
 
+  include Shared::BatchByFilterScope
   include Shared::DualAnnotator
   include Shared::PolymorphicAnnotator
 
@@ -71,7 +72,7 @@ class Identifier < ApplicationRecord
 
   belongs_to :namespace, inverse_of: :identifiers  # only applies to Identifier::Local, here for create purposes
 
-  validates_presence_of :type, :identifier
+  validates :type, :identifier, presence: true
 
   validates :identifier, presence: true
 
@@ -91,7 +92,7 @@ class Identifier < ApplicationRecord
 
   # @return [String, Identifer]
   def self.prototype_identifier(project_id, created_by_id)
-    identifiers = Identifier.where(project_id: project_id, created_by_id: created_by_id).limit(1)
+    identifiers = Identifier.where(project_id:, created_by_id:).limit(1)
     identifiers.empty? ? '12345678' : identifiers.last.identifier
   end
 
@@ -108,6 +109,105 @@ class Identifier < ApplicationRecord
     false
   end
 
+  def self.namespaces_for_types_from_query(identifier_types, query)
+    q = ::Queries::Query::Filter.instantiated_base_filter(query)
+    @namespaces = q.all
+      .joins(identifiers: :namespace)
+      .where(identifiers: {type: identifier_types})
+      .select('namespaces.short_name, namespaces.verbatim_short_name')
+      .order('namespaces.short_name')
+      .distinct
+      .pluck('namespaces.id', 'namespaces.short_name', 'namespaces.verbatim_short_name', 'is_virtual')
+      .map { |id, short_name, verbatim_short_name, is_virtual| {
+        id:, short_name:, verbatim_short_name:, is_virtual:
+      }}
+  end
+
+  def self.process_batch_by_filter_scope(
+    batch_response: nil, query: nil, hash_query: nil, mode: nil, params: nil,
+    async: nil, project_id: nil, user_id: nil,
+    called_from_async: false
+  )
+    # Don't call async from async (the point is we do the same processing in
+    # async and not in async, and this function handles both that processing and
+    # making the async call, so it's this much janky).
+    async = false if called_from_async == true
+    r = batch_response
+
+    # TODO: make sure params.identifier_types are actually allowed on klass
+    if params[:namespace_id].nil?
+      r.errors['replacement namespace id not provided'] = 1
+      return
+    elsif params[:identifier_types].empty?
+      r.errors['no identifier types provided'] = 1
+      return r
+    elsif params[:virtual_namespace_prefix] && Namespace.find(params[:namespace_id]).is_virtual
+      r.errors["Can't currently delete virtual prefix and change to virtual namespace"] = 1
+      return r
+    end
+
+    case mode.to_sym
+    when :replace
+      if params[:namespace_id].nil?
+        r.errors['no replacement namespace id provided'] = 1
+        return r.to_json
+      end
+
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query: hash_query,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        prefix = params[:virtual_namespace_prefix]
+        Identifier
+          .with(a: query.select(:id))
+          .joins('JOIN a ON identifiers.identifier_object_id = a.id AND ' \
+                 "identifiers.identifier_object_type = '#{query.klass}'")
+          .where(type: params[:identifier_types])
+          .joins(:namespace)
+          .select('identifiers.*, namespaces.is_virtual AS is_virtual')
+          #.where.not(namespace_id: params.namespace_id)
+          .distinct
+          .find_each do |o|
+            if params[:virtual_namespace_prefix]
+              if (
+                o.is_virtual &&
+                o.identifier.start_with?(prefix) &&
+                o.identifier.length > prefix.length
+              )
+                o.identifier = o.identifier.delete_prefix(prefix)
+                o.namespace_id = params[:namespace_id]
+
+                if o.save
+                  r.updated.push o.id
+                else
+                  r.not_updated.push o.id
+                end
+              else # this identifier is excluded by virtual_namespace_prefix
+                r.not_updated.push o.id
+              end
+            else # no virtual worries, just namespace_id replacement
+              o.namespace_id = params[:namespace_id]
+
+              if o.save
+                r.updated.push o.id
+              else
+                r.not_updated.push o.id
+              end
+            end
+          end
+      end
+    end
+
+    r.total_attempted = r.updated.length + r.not_updated.length
+    return r
+  end
+
   protected
 
   # See subclasses
@@ -117,8 +217,14 @@ class Identifier < ApplicationRecord
 
   def build_cached_numeric_identifier
     return nil if is_global?
-    if a = identifier.match(/\A[\d\.\,]+\z/)
-      b = a.to_s.gsub(',', '')
+    re = if is_local? && is_virtual?
+           /[\d\.\,]+\z/ # namespace prefix allowed
+         else
+           /\A[\d\.\,]+\z/ # only 'numeric' supported
+         end
+
+    if a = identifier.match(re)
+      b = a[0].to_s.gsub(',', '')
       b.to_f
     else
       nil
@@ -126,13 +232,16 @@ class Identifier < ApplicationRecord
   end
 
   def set_cached
+    # build_cached_numeric_identifier uses the value of #cached, so update it
+    # locally first.
+    self.cached = build_cached
     update_columns(
-      cached: build_cached,
+      cached:,
       cached_numeric_identifier: build_cached_numeric_identifier
     )
   end
-
-
 end
 
+#Rails.application.reloader.to_prepare do
 Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file }
+# aned

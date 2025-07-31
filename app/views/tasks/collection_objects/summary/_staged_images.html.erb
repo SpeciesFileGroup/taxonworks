@@ -4,41 +4,41 @@
 
   <tr>
     <td> Staged images </td>
-    <td> <%= staged_images = SqedDepiction.joins(:collection_object).where(collection_objects: @collection_objects).count -%> </td>
+    <td> <%= staged_images = SqedDepiction.joins(:collection_object).where(depictions: { depiction_object: @collection_objects}).count -%> </td>
   </tr>
 
   <tr>
     <td> Parsed staged images with verbatim collecting event </td>
-    <td> <%= staged_with_ce= SqedDepiction.joins(:collection_object).where(collection_objects: @collection_objects).where.not(collection_objects: {buffered_collecting_event: nil}).count -%> </td>
+    <td> <%= staged_with_ce= SqedDepiction.joins(:collection_object).where(collection_object: @collection_objects).where.not(collection_object: {buffered_collecting_event: nil}).count -%> </td>
     <td> <%= (100.0 * (staged_with_ce.to_f / staged_images.to_f)).round(2) -%> </td>
   </tr>
 
   <tr>
     <td> Parsed staged images with verbatim determination </td>
-    <td> <%= staged_with_verbatim_determination = SqedDepiction.joins(:collection_object).where(collection_objects: @collection_objects).where.not(collection_objects: {buffered_determinations: nil}).count -%> </td>
+    <td> <%= staged_with_verbatim_determination = SqedDepiction.joins(:collection_object).where(collection_object: @collection_objects).where.not(collection_object: {buffered_determinations: nil}).count -%> </td>
     <td> <%= (100.0 * (staged_with_verbatim_determination.to_f / staged_images.to_f)).round(2) -%> </td>
   </tr>
 
   <tr>
     <td> Parsed staged images with verbatim other labels </td>
-    <td> <%= staged_with_verbatim_other = SqedDepiction.joins(:collection_object).where(collection_objects: @collection_objects).where.not(collection_objects: {buffered_other_labels: nil}).count -%> </td>
+    <td> <%= staged_with_verbatim_other = SqedDepiction.joins(:collection_object).where(collection_object: @collection_objects).where.not(collection_object: {buffered_other_labels: nil}).count -%> </td>
     <td> <%= (100.0 * (staged_with_verbatim_other.to_f / staged_images.to_f)).round(2) -%> </td>
 
     <tr>
       <td> Parsed staged images with collecting event </td>
-      <td> <%= staged_with_collecting_event = SqedDepiction.joins(collection_object: [:collecting_event]).where(collection_objects: @collection_objects).where.not(collecting_events: {id: nil}).count -%> </td>
+      <td> <%= staged_with_collecting_event = SqedDepiction.joins(collection_object: [:collecting_event]).where(depictions: {depiction_object: @collection_objects}).where.not(collecting_events: {id: nil}).count -%> </td>
       <td> <%= (100.0 * (staged_with_collecting_event.to_f / staged_images.to_f)).round(2) -%> </td>
     </tr>
 
     <tr>
       <td> Parsed staged images with taxon determinations </td>
-      <td> <%= staged_with_determinations = SqedDepiction.joins(collection_object: [:taxon_determinations]).where(collection_objects: @collection_objects).where.not(taxon_determinations: {id: nil}).count -%> </td>
+      <td> <%= staged_with_determinations = SqedDepiction.joins(collection_object: [:taxon_determinations]).where(depictions: {depiction_object: @collection_objects}).where.not(taxon_determinations: {id: nil}).count -%> </td>
       <td> <%= (100.0 * (staged_with_determinations.to_f / staged_images.to_f)).round(2) -%> </td>
     </tr>
 
     <tr>
       <td> Parsed staged images with catalog numbers </td>
-      <td> <%= staged_with_catalog_numbers = SqedDepiction.joins(collection_object: [:identifiers]).where(collection_objects: @collection_objects).where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).where.not(identifiers: {id: nil}).count -%> </td>
+      <td> <%= staged_with_catalog_numbers = SqedDepiction.joins(collection_object: [:identifiers]).where(depictions: {depiction_object: @collection_objects}).where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).where.not(identifiers: {id: nil}).count -%> </td>
       <td> <%= (100.0 * (staged_with_catalog_numbers.to_f / staged_images.to_f)).round(2) -%> </td>
     </tr>
 </table>

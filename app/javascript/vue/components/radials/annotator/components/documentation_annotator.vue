@@ -1,23 +1,10 @@
 <template>
   <div class="documentation_annotator">
     <div class="separate-bottom">
-      <div class="switch-radio">
-        <template v-for="(item, index) in optionList">
-          <input
-            v-model="display"
-            :value="index"
-            :id="`alternate_values-picker-${index}`"
-            name="alternate_values-picker-options"
-            type="radio"
-            class="normal-input button-active"
-          />
-          <label
-            :for="`alternate_values-picker-${index}`"
-            class="capitalize"
-            >{{ item }}</label
-          >
-        </template>
-      </div>
+      <VSwitch
+        :options="Object.values(TABS)"
+        v-model="tabSelected"
+      />
     </div>
     <div class="margin-medium-bottom">
       <label>
@@ -30,29 +17,29 @@
     </div>
     <div
       class="field"
-      v-if="display == 0"
+      v-if="tabSelected === TABS.Drop"
     >
-      <dropzone
+      <Dropzone
         class="dropzone-card"
-        @vdropzone-sending="sending"
-        @vdropzone-success="success"
-        ref="figure"
+        ref="figureRef"
         id="figure"
         url="/documentation"
-        :use-custom-dropzone-options="true"
-        :dropzone-options="dropzone"
+        use-custom-dropzone-options
+        :dropzone-options="DROPZONE_CONFIGURATION"
+        @vdropzone-sending="sending"
+        @vdropzone-success="success"
       />
     </div>
 
-    <div v-if="display == 1">
-      <autocomplete
+    <div v-if="tabSelected === TABS.Pick">
+      <Autocomplete
         class="field"
         url="/documents/autocomplete"
         label="label"
         min="2"
         placeholder="Select a document"
-        @getItem="documentation.document_id = $event.id"
         param="term"
+        @get-item="({ id }) => (documentation.document_id = id)"
       />
       <button
         @click="createNew()"
@@ -75,7 +62,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="(item, index) in list"
+          v-for="item in list"
           :key="item.id"
         >
           <td>
@@ -88,38 +75,38 @@
             <input
               type="checkbox"
               :checked="item.document.is_public"
-              @click="changeIsPublicState(index, item)"
+              @click="() => changeIsPublicState(item)"
             />
           </td>
           <td>{{ item.updated_at }}</td>
           <td>
             <div class="horizontal-right-content gap-xsmall">
-              <radial-annotator :global-id="item.global_id" />
-              <pdf-button :pdf="item.document" />
-              <v-btn
+              <RadialAnnotator :global-id="item.global_id" />
+              <PdfButton :pdf="item.document" />
+              <VBtn
                 circle
                 class="circle-button"
                 color="primary"
                 :download="item.document.object_tag"
                 :href="item.document.file_url"
               >
-                <v-icon
+                <VIcon
                   color="white"
                   x-small
                   name="download"
                 />
-              </v-btn>
-              <v-btn
+              </VBtn>
+              <VBtn
                 circle
                 class="circle-button"
                 color="destroy"
                 @click="confirmDelete(item)"
               >
-                <v-icon
+                <VIcon
                   name="trash"
                   x-small
                 />
-              </v-btn>
+              </VBtn>
             </div>
           </td>
         </tr>
@@ -127,120 +114,135 @@
     </table>
   </div>
 </template>
-<script>
-import CRUD from '../request/crud.js'
-import annotatorExtend from '../components/annotatorExtend.js'
+<script setup>
+import { computed, ref } from 'vue'
+import { Documentation, Document } from '@/routes/endpoints'
+import { useSlice } from '@/components/radials/composables'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import Dropzone from '@/components/dropzone.vue'
-import PdfButton from '@/components/pdfButton.vue'
+import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import VIcon from '@/components/ui/VIcon/index'
 import VBtn from '@/components/ui/VBtn/index'
+import VSwitch from '@/components/ui/VSwitch.vue'
 
-export default {
-  mixins: [CRUD, annotatorExtend],
+const DROPZONE_CONFIGURATION = {
+  maxFilesize: 512,
+  timeout: 0,
+  paramName: 'documentation[document_attributes][document_file]',
+  url: '/documentation',
+  headers: {
+    'X-CSRF-Token': document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute('content')
+  },
+  dictDefaultMessage: 'Drop documents here',
+  acceptedFiles: 'application/pdf, text/plain'
+}
 
-  components: {
-    RadialAnnotator,
-    Autocomplete,
-    PdfButton,
-    Dropzone,
-    VBtn,
-    VIcon
+const TABS = {
+  Drop: 'drop',
+  Pick: 'pick'
+}
+
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  computed: {
-    validateFields() {
-      return this.documentation.document_id
-    }
+  objectType: {
+    type: String,
+    required: true
   },
 
-  data() {
-    return {
-      display: 0,
-      optionList: ['drop', 'pick', 'pinboard'],
-      list: [],
-      documentation: this.newDocumentation(),
-      isPublic: undefined,
-      dropzone: {
-        maxFilesize: 512,
-        timeout: 0,
-        paramName: 'documentation[document_attributes][document_file]',
-        url: '/documentation',
-        headers: {
-          'X-CSRF-Token': document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute('content')
-        },
-        dictDefaultMessage: 'Drop documents here',
-        acceptedFiles: 'application/pdf, text/plain'
-      }
-    }
-  },
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
 
-  created() {
-    this.$options.components['RadialAnnotator'] = RadialAnnotator
-  },
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
+const documentation = ref(newDocumentation())
+const isPublic = ref(false)
+const figureRef = ref()
+const tabSelected = ref(TABS.Drop)
 
-  methods: {
-    newDocumentation() {
-      return {
-        document_id: null,
-        annotated_global_entity: decodeURIComponent(this.globalId)
-      }
-    },
+const validateFields = computed(() => documentation.value.document_id)
 
-    createNew() {
-      this.create('/documentation', { documentation: this.documentation }).then(
-        (response) => {
-          this.list.push(response.body)
-          this.documentation = this.newDocumentation()
-        }
-      )
-    },
-
-    success(file, response) {
-      this.list.push(response)
-      this.$refs.figure.removeFile(file)
-    },
-
-    sending(file, xhr, formData) {
-      formData.append(
-        'documentation[annotated_global_entity]',
-        decodeURIComponent(this.globalId)
-      )
-      if (this.isPublic) {
-        formData.append(
-          'documentation[document_attributes][is_public]',
-          this.isPublic
-        )
-      }
-    },
-
-    changeIsPublicState(index, documentation) {
-      const data = {
-        id: documentation.document_id,
-        is_public: !documentation.document.is_public
-      }
-      this.update(`/documents/${data.id}.json`, { document: data }).then(
-        (response) => {
-          this.list[index].is_public = response.body.is_public
-        }
-      )
-    },
-
-    confirmDelete(item) {
-      if (
-        window.confirm(
-          "You're trying to delete this record. Are you sure want to proceed?"
-        )
-      ) {
-        this.removeItem(item)
-      }
-    }
+function newDocumentation() {
+  return {
+    document_id: null,
+    documentation_object_id: props.objectId,
+    documentation_object_type: props.objectType
   }
 }
+
+function createNew() {
+  Documentation.create({ documentation: documentation.value }).then(
+    ({ body }) => {
+      addToList(body)
+      documentation.value = newDocumentation()
+    }
+  )
+}
+
+function success(file, response) {
+  addToList(response)
+  figureRef.value.removeFile(file)
+}
+
+function sending(file, xhr, formData) {
+  formData.append('documentation[documentation_object_id]', props.objectId)
+  formData.append('documentation[documentation_object_type]', props.objectType)
+  if (isPublic.value) {
+    formData.append(
+      'documentation[document_attributes][is_public]',
+      isPublic.value
+    )
+  }
+}
+
+function changeIsPublicState(documentation) {
+  const payload = {
+    document: {
+      id: documentation.document_id,
+      is_public: !documentation.document.is_public
+    }
+  }
+
+  Document.update(documentation.document_id, payload).then(({ body }) => {
+    addToList({ ...documentation, is_public: body.is_public })
+  })
+}
+
+function removeItem(item) {
+  Documentation.destroy(item.id).then((_) => {
+    removeFromList(item)
+  })
+}
+
+function confirmDelete(item) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    removeItem(item)
+  }
+}
+
+Documentation.where({
+  documentation_object_id: props.objectId,
+  documentation_object_type: props.objectType,
+  per: 500
+}).then(({ body }) => {
+  list.value = body
+})
 </script>
+
 <style lang="scss">
 .radial-annotator {
   .documentation_annotator {

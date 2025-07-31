@@ -4,7 +4,7 @@ namespace :tw do
     desc 'call with "rake tw:export:table table_name=./tmp/geographic_areas"'
     task table: [:environment, :table_name] do
       result = $table_name.classify.safe_constantize.order(:id).all.to_a
-      Utilities::Csv.to_csv(result)
+      Utilities::CSV.to_csv(result)
     end
   end
 

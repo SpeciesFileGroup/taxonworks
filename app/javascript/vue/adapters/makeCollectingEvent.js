@@ -11,7 +11,7 @@ export function makeCollectingEvent (ceData = {}) {
     verbatimLongitude: ceData.verbatim_longitude,
     verbatimLatitude: ceData.verbatim_latitude,
     verbatimGeolocationUncertainty: ceData.verbatim_geolocation_uncertainty,
-    verbatimTripIdentifier: ceData.verbatim_trip_identifier,
+    verbatimFieldNumber: ceData.verbatim_field_number,
     verbatimCollectors: ceData.verbatim_collectors,
     verbatimMethod: ceData.verbatim_method,
     verbatimHabitat: ceData.verbatim_habitat,

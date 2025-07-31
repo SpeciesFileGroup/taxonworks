@@ -1,5 +1,7 @@
+import { ajaxCall } from '@/helpers'
 import baseCRUD from './base'
 
+const controller = 'protocol_relationships'
 const permitParams = {
   protocol_relationship: {
     protocol_id: Number,
@@ -10,5 +12,8 @@ const permitParams = {
 }
 
 export const ProtocolRelationship = {
-  ...baseCRUD('protocol_relationships', permitParams),
+  ...baseCRUD(controller, permitParams),
+
+  batchByFilter: (params) =>
+    ajaxCall('post', `/${controller}/batch_by_filter_scope`, params)
 }

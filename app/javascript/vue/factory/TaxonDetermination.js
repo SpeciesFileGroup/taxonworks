@@ -1,6 +1,7 @@
 export default () => ({
   id: undefined,
-  biological_collection_object_id: undefined,
+  taxon_determination_object_id: undefined,
+  taxon_determination_object_type: undefined,
   otu_id: undefined,
   year_made: undefined,
   month_made: undefined,

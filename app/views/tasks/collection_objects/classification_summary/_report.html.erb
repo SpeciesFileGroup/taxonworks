@@ -18,7 +18,7 @@
 
   <div style="clear: both;">
     <br>
-    <p> Without any preparation data: <%= v[:no_data].collect{|id, n| link_to(n, collection_objects_filter_task_path(taxon_name_id: id, descendants: true)) }.join(', ').html_safe %>.</p>
+    <p> Without any preparation data: <%= v[:no_data].collect{|id, n| link_to(n, filter_collection_objects_task_path(taxon_name_id: id, descendants: true)) }.join(', ').html_safe %>.</p>
   </div>
 
 <div style="clear: both;">

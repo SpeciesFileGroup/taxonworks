@@ -1,20 +1,33 @@
 <template>
   <div ref="rootRef">
-    <div class="separate-bottom horizontal-left-content">
-      <switch-components
-        class="full_width capitalize"
-        v-model="view"
-        ref="tabselectorRef"
-        :options="options"
-      />
-      <default-pin
-        v-if="pinSection"
-        class="margin-small-left"
-        :section="pinSection"
-        :type="pinType"
-        @get-id="getObject"
-      />
-      <slot name="tabs-right" />
+    <div class="separate-bottom horizontal-left-content gap-small">
+      <div class="horizontal-left-content">
+        <VSpinner
+          v-if="isLoading"
+          :show-legend="false"
+          spinner-position="middle"
+          :logo-size="{
+            width: '24px',
+            height: '24px'
+          }"
+        />
+        <slot name="tabs-left" />
+        <switch-components
+          class="capitalize"
+          v-model="view"
+          ref="tabselectorRef"
+          :options="options"
+        />
+      </div>
+      <div class="horizontal-left-content gap-small">
+        <default-pin
+          v-if="pinSection"
+          :section="pinSection"
+          :type="pinType"
+          @get-id="getObject"
+        />
+        <slot name="tabs-right" />
+      </div>
     </div>
     <slot name="header" />
     <template v-if="!addTabs.includes(view)">
@@ -24,7 +37,8 @@
           v-if="autocomplete && !otuPicker"
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
-          placeholder="Search..."
+          :excluded-ids="filterIds"
+          :placeholder="placeholder || 'Search...'"
           :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
           param="term"
           :add-params="autocompleteParams"
@@ -37,9 +51,11 @@
         />
         <otu-picker
           v-if="otuPicker"
+          ref="otuPickerRef"
           :input-id="inputId"
           clear-after
-          @get-item="getObject($event.id)"
+          :autofocus="autofocus"
+          @get-item="sendObject"
         />
       </div>
       <slot name="body" />
@@ -116,15 +132,16 @@
 
 <script setup>
 import { ref, computed, watch, onUnmounted } from 'vue'
-import { useOnResize } from '@/compositions/index'
+import { useOnResize } from '@/composables/index'
 import { isMac } from '@/helpers/os'
-import SwitchComponents from '@/components/switch'
+import SwitchComponents from '@/components/ui/VSwitch'
 import AjaxCall from '@/helpers/ajaxCall'
 import Autocomplete from '@/components/ui/Autocomplete'
 import OrderSmart from '@/helpers/smartSelector/orderSmartSelector'
 import SelectFirst from '@/helpers/smartSelector/selectFirstSmartOption'
-import DefaultPin from '@/components/getDefaultPin'
+import DefaultPin from '@/components/ui/Button/ButtonPinned'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   modelValue: {
@@ -150,6 +167,11 @@ const props = defineProps({
   buttonClass: {
     type: String,
     default: 'button-data'
+  },
+
+  default: {
+    type: String,
+    default: undefined
   },
 
   otuPicker: {
@@ -271,6 +293,11 @@ const props = defineProps({
   extend: {
     type: Array,
     default: () => []
+  },
+
+  placeholder: {
+    type: String,
+    required: false
   }
 })
 
@@ -279,6 +306,7 @@ const emit = defineEmits(['update:modelValue', 'onTabSelected', 'selected'])
 const actionKey = isMac() ? 'Control' : 'Alt'
 
 const autocompleteRef = ref(null)
+const otuPickerRef = ref(null)
 const tabselectorRef = ref(null)
 const rootRef = ref(null)
 
@@ -287,6 +315,8 @@ const view = ref()
 const options = ref([])
 const lastSelected = ref()
 const elementSize = useOnResize(rootRef)
+const isLoading = ref(false)
+const controller = ref(null)
 
 const listStyle = computed(() => {
   return {
@@ -344,19 +374,32 @@ const refresh = (forceUpdate = false) => {
     ...props.params
   }
 
-  AjaxCall('get', `/${props.model}/select_options`, { params })
+  autocompleteRef.value?.setText('')
+  lists.value = []
+  isLoading.value = true
+  controller.value?.abort()
+  controller.value = new AbortController()
+
+  AjaxCall('get', `/${props.model}/select_options`, {
+    params,
+    signal: controller.value.signal
+  })
     .then((response) => {
       lists.value = response.body
       addCustomElements()
       options.value = Object.keys(lists.value).concat(props.addTabs)
       options.value = OrderSmart(options.value)
 
-      view.value = SelectFirst(lists.value, options.value)
+      view.value = props.default
+        ? props.default
+        : SelectFirst(lists.value, options.value)
     })
     .catch(() => {
       options.value = []
-      lists.value = []
       view.value = undefined
+    })
+    .finally(() => {
+      isLoading.value = false
     })
 }
 
@@ -398,7 +441,8 @@ const alreadyOnLists = () => {
   )
 }
 const setFocus = () => {
-  autocompleteRef.value.setFocus()
+  autocompleteRef.value?.setFocus()
+  otuPickerRef.value?.setFocus()
 }
 
 const changeTab = (e) => {
@@ -434,6 +478,7 @@ watch(
 )
 
 onUnmounted(() => {
+  controller.value.abort()
   document.removeEventListener('smartselector:update', refresh)
 })
 
@@ -443,7 +488,8 @@ document.addEventListener('smartselector:update', refresh)
 defineExpose({
   setFocus,
   setTab,
-  addToList
+  addToList,
+  refresh
 })
 </script>
 <style scoped>

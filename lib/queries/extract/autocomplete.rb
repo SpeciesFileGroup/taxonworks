@@ -16,7 +16,7 @@ module Queries
       def taxon_name_ids
         @taxon_name_ids ||= ::Queries::TaxonName::Filter.new(
           name: query_string,
-          project_id: project_id,
+          project_id:,
           exact: false,
         ).all.pluck(:id)
         @taxon_name_ids
@@ -51,7 +51,7 @@ module Queries
       # Extracts attached to Otus with taxon name
       def autocomplete_otu_taxon_name_id_determined_as
         return nil if taxon_name_ids.empty?
-        t = ::Otu.arel_table[:taxon_name_id].eq_any(taxon_name_ids)
+        t = ::Otu.arel_table[:taxon_name_id].in(taxon_name_ids)
 
         a = ::Extract
           .joins(origin_collection_objects: [otus: [:taxon_name]] ) # Join taxon names to order by name
@@ -91,7 +91,7 @@ module Queries
         updated_queries = []
 
         queries.each do |q|
-          a = q.where(project_id: project_id) if project_id.present?
+          a = q.where(project_id:) if project_id.present?
           updated_queries.push a
         end
         updated_queries

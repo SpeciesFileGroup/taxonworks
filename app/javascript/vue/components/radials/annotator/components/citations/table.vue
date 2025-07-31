@@ -19,18 +19,16 @@
           <td>
             <span
               :class="{ originalCitation: item.is_original }"
+              class="margin-small-right"
               v-html="item.object_tag"
             />
-            <soft-validation
-              class="margin-small-left"
-              :global-id="item.global_id"
-            />
+            <SoftValidation :global-id="item.global_id" />
           </td>
           <td>
             <div class="horizontal-right-content middle gap-small">
               <a
                 class="button-default circle-button btn-citation"
-                :href="`/tasks/nomenclature/by_source?source_id=${item.source_id}`"
+                :href="`${RouteNames.NomenclatureBySource}?source_id=${item.source_id}`"
                 target="blank"
               />
               <PdfButton
@@ -38,6 +36,10 @@
                 :pdf="item.target_document"
               />
               <RadialAnnotator :global-id="item.global_id" />
+              <MoveAnnotation
+                :annotation="item"
+                @move="(e) => emit('move', e)"
+              />
               <VBtn
                 circle
                 color="update"
@@ -66,50 +68,41 @@
     </table>
   </div>
 </template>
-<script>
+
+<script setup>
+import { RouteNames } from '@/routes/routes'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import PdfButton from '@/components/pdfButton.vue'
+import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation'
+import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
-export default {
-  components: {
-    RadialAnnotator,
-    SoftValidation,
-    PdfButton,
-    VIcon,
-    VBtn
-  },
+defineProps({
+  list: {
+    type: Array,
+    default: () => []
+  }
+})
 
-  props: {
-    list: {
-      type: Array,
-      default: () => []
-    }
-  },
+const emit = defineEmits(['delete', 'edit', 'move'])
 
-  emits: ['delete', 'edit'],
-
-  created() {
-    this.$options.components['RadialAnnotator'] = RadialAnnotator
-  },
-
-  methods: {
-    deleteItem(item) {
-      if (
-        window.confirm(
-          "You're trying to delete this record. Are you sure want to proceed?"
-        )
-      ) {
-        this.$emit('delete', item)
-      }
-    }
+function deleteItem(item) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    emit('delete', item)
   }
 }
 </script>
 
 <style lang="scss" scoped>
+:deep(.otu_tag_taxon_name) {
+  white-space: wrap;
+}
+
 .vue-table-container {
   padding: 0px;
   position: relative;

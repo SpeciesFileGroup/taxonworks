@@ -1,21 +1,6 @@
 import { chunkArray } from '@/helpers/arrays'
 import { DataAttribute, Georeference } from '@/routes/endpoints'
-
-function makeDataAttributeObjectHeaders(data) {
-  return Object.assign({}, ...data.index)
-}
-
-function getDataAttributesFor(data, objectId) {
-  const list = data.data.filter(([id]) => id === objectId)
-  const headers = makeDataAttributeObjectHeaders(data)
-
-  return Object.assign(
-    {},
-    ...list.map(([id, attrId, value]) => ({
-      [headers[attrId]]: value
-    }))
-  )
-}
+import { getDataAttributesFor } from '@/shared/Filter/utils'
 
 function setCEWithGeoreferences(list, georeferences) {
   return list.map((item) => {

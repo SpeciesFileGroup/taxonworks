@@ -7,8 +7,11 @@ module Shared::Identifiers
     Identifier.related_foreign_keys.push self.name.foreign_key
 
     # Validation happens on the parent side!
-    has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy, inverse_of: :identifier_object
+    has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy, inverse_of: :identifier_object # should be delete
     accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers, allow_destroy: true
+
+    has_many :uuids, -> { where('identifiers.type like ?', 'Identifier::Global::Uuid%').order(:position) }, class_name: 'Identifier', as: :identifier_object
+    has_many :uris, -> { where(type: 'Identifier::Global::Uri').order(:position) }, class_name: 'Identifier', as: :identifier_object
 
     scope :with_identifier_type, ->(identifier_type) { joins(:identifiers).where('identifiers.type = ?', identifier_type).references(:identifiers) }
     scope :with_identifier_namespace, ->(namespace_id) { joins(:identifiers).where('identifiers.namespace_id = ?', namespace_id).references(:identifiers) }
@@ -28,6 +31,23 @@ module Shared::Identifiers
 
     # Used to memoize identifier for navigating purposes
     attr_accessor :navigating_identifier
+
+    # builds a new identifier, incremented from previous target, and assigns it to `to_object`
+    # @return the identifier
+    def add_incremented_identifier(to_object: nil, incremented_identifier_id: nil)
+      if to_object.respond_to?(:identifiers)
+        i = Identifier.find(incremented_identifier_id).dup
+        i.increment_identifier
+        i.identifier_object = to_object
+        i.save!
+      else
+        false
+      end
+    end
+
+    def local_identifiers
+      identifiers.where("type ilike 'Identifier::Local%'")
+    end
   end
 
   module ClassMethods
@@ -62,12 +82,12 @@ module Shared::Identifiers
     def with_identifier(value)
       value = [value] if value.class == String
       t = Identifier.arel_table
-      a = t[:cached].eq_any(value)
+      a = t[:cached].in(value)
       self.joins(:identifiers).where(a.to_sql).references(:identifiers)
     end
 
     # @param sorted ['ASC', 'DESC', nil]
-    # @param identifier_type [like 'Identifier::Local::TripCode', nil]
+    # @param identifier_type [like 'Identifier::Local::FieldNumber', nil]
     # @param namespace_id [Integer, nil]
     # !! Note that adding a sort also adds a where clause that constrains results to those that have numeric identifier.identifier
     def with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted = nil)
@@ -78,6 +98,14 @@ module Shared::Identifiers
       q = (!q.nil? ? q.with_identifiers_sorted(sorted) :  with_identifiers_sorted(sorted) ) if sorted.present?
       q
     end
+  end
+
+  def uri
+    uris.first&.cached
+  end
+
+  def uuid
+    uuids.first&.cached
   end
 
   def dwc_occurrence_id
@@ -118,6 +146,7 @@ module Shared::Identifiers
     else
       nil
     end
+
   end
 
   protected

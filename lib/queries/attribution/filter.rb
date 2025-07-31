@@ -8,9 +8,9 @@ module Queries
       PARAMS = [
         *::Attribution.related_foreign_keys.map(&:to_sym),
         :attriution_id,
+        :attribution_object_id,
+        :attribution_object_type,
         attribution_id: [],
-        attribution_object_id: [],
-        attribution_object_type: []
       ].freeze
 
       attr_accessor :attribution_id
@@ -43,12 +43,12 @@ module Queries
 
       # @return [Arel::Node, nil]
       def attribution_object_type_facet
-        attribution_object_type.empty? ? nil : table[:attribution_object_type].eq_any(attribution_object_type)
+        attribution_object_type.empty? ? nil : table[:attribution_object_type].in(attribution_object_type)
       end
 
       # @return [Arel::Node, nil]
       def attribution_object_id_facet
-        attribution_object_id.empty? ? nil : table[:attribution_object_id].eq_any(attribution_object_id)
+        attribution_object_id.empty? ? nil : table[:attribution_object_id].in(attribution_object_id)
       end
 
       def and_clauses

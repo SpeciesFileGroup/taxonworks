@@ -1,5 +1,5 @@
-@import '../variables/_sizes.scss';
-@import '../variables/_palette.scss';
+@use '../variables/_sizes.scss' as *;
+@use '../variables/_palette.scss' as *;
 
 .btn {
   text-align: center;
@@ -39,7 +39,7 @@
 .btn-radial {
   background-color: var(--btn-radial-background);
   color: var(--btn-radial-color);
-  border: 2px solid #5d9ece;
+  border: 2px solid var(--color-primary);
 
   &:disabled {
     border: none;
@@ -48,7 +48,7 @@
 
 @each $key, $value in $tw-colors {
   .btn-#{$key} {
-    background-color: #{$value};
+    background-color: var(--color-#{$key});
     color: white;
   }
 }

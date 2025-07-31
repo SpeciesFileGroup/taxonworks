@@ -34,17 +34,29 @@ See corresponding `/support/projects_and_users.rb` for how globals are handled, 
 * Model tests wrap the globals in `user_id` and `project_id` accessors
 * `Feature` specs *must never reference the globals*.
 
+## Guidelines
+_The following will have exceptions, however they should be the exception._
+
+* If you see `init_housekeeping` then the specs need refactoring.  Don't use this method for new specs.
+* It is more than OK to sacrifice initialization speed and DRYness for clarity, immediacy and an ability to refactor. Finding a balance is a bit of an art form, over time the ability to quickly conceptualize what is being tested becomes more important.
+  - `Clarity` - Single specify statements more or less read linearly as stories.
+  - `Immediacey` - Consider defining the whole story/context within the specify block.
+  - `Ability to Refactor` - In complex scenarios resist the desire to nest expectations, in general 1 expectation per specification. While this is more costly to initialize, it lets you test from multiple directions during complex scenarios. This often means repeated code, to get you one step further in the specification, but it lets you ensure downstream steps work while upstream don't, and vice versa.
+* Don't leave in specifications that you can assume to be true during downstream tests. For example using `expect (foo.valid?).to be_falsey` is not necessary if followed by an expectation of *why* it is falsey. Practically you might include the redundant expectation to ensure initial configuration, then remove it when the specific context is in place, before committing. 
+*  Do not use `@` variables in specs, they "leak", and lead to many downstream refactoring issues. Pull requests with them in place will almost certainly be asked to refactor.  If you see legacy `@` variables please consider refactoring them.  
+* Do not set `Current.<user_id|project_id>` in specs. See config, and init methods.
+* Your specs should not require custom database `Cleaner`. This is code smell that suggests deviations from the rspec init/config patterns that will lead to costly downstream refactorization when they are forced on us.
+
 ## Tag groups
+_E.g. `rspec -t group:nomenclature`
 
-See [here](http://elementalselenium.com/tips/60-list-tags) for something to implement.
-
-## Naming 
 Groups are named in the convention:
 * lowercase, singular 
 
+See [here](http://elementalselenium.com/tips/60-list-tags) for something to implement.
 
-### Existing 
-
+Existing groups include
+_TODO: can we dynamically generate this list, it's incomplete._
 * `nomenclature` - nomenclature logic
 * `observation_matrix` - matrix logic
-* 
+

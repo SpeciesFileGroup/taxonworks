@@ -34,7 +34,7 @@ module Queries
 
       def download_type_facet
         return nil if download_type.nil?
-        table[:type].eq_any(download_type)
+        table[:type].in(download_type)
       end
 
       def and_clauses

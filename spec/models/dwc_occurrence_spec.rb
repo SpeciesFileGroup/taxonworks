@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe DwcOccurrence, type: :model, group: [:darwin_core] do
+  include ActiveJob::TestHelper
 
   # This now creates a dwc_occurrence by default
   let(:collection_object) { FactoryBot.create(:valid_specimen, no_dwc_occurrence: false) }
@@ -23,7 +24,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
       content = ''
       Zip::File.open(zip_path) do |zip_file|
         zip_file.each do |entry|
-          if entry.name == 'data.csv' && entry.file?
+          if entry.name == 'data.tsv' && entry.file?
             content = entry.get_input_stream.read
           end
         end
@@ -51,16 +52,16 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     scope = DwcOccurrence.where(project_id:)
 
-    predicate_extension_params = {
+    predicate_extensions = {
       collection_object_predicate_id: [p1.id, p2.id],
       collecting_event_predicate_id: [p3.id] }
 
     download = Export::Dwca.download_async(
       scope,
-      predicate_extension_params:
+      predicate_extensions:
     )
 
-    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extension_params:)
+    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extensions:)
 
     tbl = extract_data_csv_table(download.file_path)
 
@@ -81,7 +82,23 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     expect(tbl[2][p3_header]).to be_nil
   end
 
-  specify '#dwc_occurrence_id post .set_dwc_occurrence' do
+  specify '.set_dwc_occurrence update is set' do
+    s = Specimen.create!
+    t = s.dwc_occurrence.updated_at
+    s.dwc_occurrence.update!(rebuild_set: '123')
+    s.set_dwc_occurrence
+    expect(s.dwc_occurrence.updated_at > t).to be_truthy
+  end
+
+  specify '.set_dwc_occurrence stale is cleared' do
+    s = Specimen.create!
+    expect(s.dwc_occurrence.rebuild_set).to eq(nil)
+    s.dwc_occurrence.update!(rebuild_set: '123')
+    s.set_dwc_occurrence
+    expect(s.dwc_occurrence.rebuild_set).to eq(nil)
+  end
+
+  specify '#dwc_occurrence_id is created on .set_dwc_occurrence' do
     s = Specimen.create!(no_dwc_occurrence: true)
     expect(s.dwc_occurrence_id).to eq(nil)
     s.set_dwc_occurrence
@@ -125,7 +142,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     # A merge with two different from: targets fails no
     #   if we come back to this see `.and()`
-    b = DwcOccurrence.collection_objects_join.merge(a)
+    b = DwcOccurrence.object_join('CollectionObject').merge(a)
 
     expect(b.all.count).to eq(1)
   end

@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import SwitchComponent from '@/components/switch'
+import SwitchComponent from '@/components/ui/VSwitch'
 
 export default {
   components: { SwitchComponent },

@@ -6,8 +6,6 @@
 # * ColDP importer has a normalizing step that recognizes some names no longer point to any OTU
 # * CoLDP can not handle assertions that a name that is currently treated as (invalid) was useds as a name (valid) for previously valid concept, i.e. CoL does not track alternative past concept heirarchies
 #
-# TODO: create map of all possible CoLDP used IRIs and ability to populate project with them automatically
-#
 module Export::Coldp::Files::Taxon
 
   IRI_MAP = {
@@ -15,12 +13,15 @@ module Export::Coldp::Files::Taxon
     temporal_range_end: 'https://api.checklistbank.org/datapackage#Taxon.temporal_range_end',   # from https://api.checklistbank.org/vocab/geotime
     temporal_range_start: 'https://api.checklistbank.org/datapackage#Taxon.temporal_range_end', # from https://api.checklistbank.org/vocab/geotime
     lifezone: 'https://api.checklistbank.org/datapackage#Taxon.lifezone',                       # from https://api.checklistbank.org/vocab/lifezone
-  }
+    remarks: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
+    namePhrase: 'https://github.com/catalogueoflife/coldp#Taxon.namePhrase',
+    link: 'https://api.checklistbank.org/vocab/term/col:link'
+  }.freeze
 
   SKIPPED_RANKS = %w{
     NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
     NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
-  }
+  }.freeze
 
   # @param predicate [:symbol]
   #   a key from IRI_MAP
@@ -43,15 +44,7 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-
-  # Name phrase is for appended phrases like senso stricto and senso lato
-  def self.name_phrase(otu, vocab_id)
-    da = DataAttribute.find_by(type: 'InternalAttribute',
-                               controlled_vocabulary_term_id: vocab_id,
-                               attribute_subject_id: otu.id)
-    da&.value
-  end
-
+  # TODO: this will be lookups on Confidence loaded into memory
   # The scrutinizer concept is unused at present
   # We're looking for the canonical implementation of it
   # before we implement/extrapolate from data here.
@@ -90,13 +83,13 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  def self.link(otu)
-    # API or public interface
+  def self.link(link_base_url, otu)
+    link_base_url&.gsub('{id}', otu.id.to_s) unless link_base_url.nil?
   end
 
-  def self.remarks(otu, taxon_remarks_vocab)
-    if otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab).any?
-      otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab).pluck(:value).join('|')
+  def self.remarks(otu, taxon_remarks_vocab_id)
+    if !taxon_remarks_vocab_id.nil? && otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab_id).any?
+      otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab_id).pluck(:value).join('|')
     else
       nil
     end
@@ -110,18 +103,48 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  def self.generate(otus, project_members, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: true)
+  def self.attributes(otus, target)
+    a = DataAttribute.with(otu_scope: otus)
+      .joins("JOIN otu_scope on data_attributes.attribute_subject_id = otu_scope.id AND data_attributes.attribute_subject_type = 'Otu'")
+      .joins(:predicate)
+      .select("data_attributes.attribute_subject_id, STRING_AGG(data_attributes.value::text, ',') AS #{target}")
+      .where(predicate: { uri: IRI_MAP[target] })
+      .group('data_attributes.attribute_subject_id')
+      .map{|a| [a.id, a.send(:target)]}.to_h
+  end
+
+  # .generate(otus, project_members, otu_id, ref_tsv, skip_name_ids)
+  def self.generate(otu, otus, project_members, reference_csv = nil, prefer_unlabelled_otus = true, skip_name_ids = [])
 
     # Until we have RC5 articulations we are simplifying handling the fact
     # that one taxon name can be used for many OTUs. Track to see that
     # an OTU with a given taxon name does not already exist
-    #   `taxon_name_id: nil`  - uniquify via Ruby hash keys
+    #   `taxon_name_id: nil`  - unify via Ruby hash keys
     observed_taxon_name_ids = { }
 
     # TODO: optional Taxon.alternativeID field allows inclusion of external identifiers: https://github.com/CatalogueOfLife/coldp#alternativeid-1 https://github.com/CatalogueOfLife/coldp#identifiers
     #   e.g., gbif:2704179,col:6W3C4,BOLD:AAJ2287,wikidata:Q157571
 
-    CSV.generate(col_sep: "\t") do |csv|
+    targets = otus
+      .left_joins(:sources)
+      .select("otus.*, STRING_AGG(sources.id::text, ',') AS aggregate_source_ids")
+      .left_joins(:taxon_name)
+      .where("taxon_names.cached NOT LIKE '%SPECIFIED%'") # TODO: likley not doing what we think it is
+      .group('otus.id')
+
+    attributes = {}
+
+    # Make one big lookup
+    IRI_MAP.each do |k,v|
+      attributes[k] = attributes(otus, k)
+    end
+
+    link_base_url = attributes[:link][otu.id]
+    root_otu_id = otu.id
+
+    parent_id_lookup = Otu.parent_otu_ids(otus, skip_ranks: SKIPPED_RANKS).map{|a| [a.id, a.valid_ancestor_otu_ids&.split(',')&.first&.to_i]}.to_h
+
+    text =  ::CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
         ID
@@ -144,30 +167,10 @@ module Export::Coldp::Files::Taxon
         modifiedBy
       }
 
-      taxon_remarks_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
-                                                 project_id: otus[0]&.project_id)&.id
-      name_phrase_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.namePhrase',
-                                                 project_id: otus[0]&.project_id)&.id
+      targets.find_each do |o|
 
-      otus.each do |o|
-        # !! When a name is a synonmy (combination), but that combination has no OTU
-        # !! then the parent of the name in the taxon table is nil
-        # !! Handle this edge case (probably resolved now)
-
-        # TODO: alter way parent is set to conform to CoLDP status
-        #   For OTUs with combinations we might have to change the parenthood?!
-
-        parent_id = nil
-        if root_otu_id != o.id
-          if pid = o.parent_otu_id(skip_ranks: SKIPPED_RANKS, prefer_unlabelled_otus: prefer_unlabelled_otus)
-            parent_id = pid
-          else
-            puts 'WARNING no parent!!'
-            # there is no OTU parent for the hierarchy, at present we just flat skip this OTU
-            # Curators can use the create OTUs for valid ids to resolve this data issue
-            next
-          end
-        end
+        parent_id = parent_id_lookup[o.id]
+        parent_id = (root_otu_id == o.id ? nil : parent_id )
 
         # TODO: This was excluding OTUs that were being excluded downstream previously
         # This should never happen now since parent ambiguity is caught above!
@@ -176,36 +179,42 @@ module Export::Coldp::Files::Taxon
         next if observed_taxon_name_ids[o.taxon_name_id]
         observed_taxon_name_ids[o.taxon_name_id] = nil
 
-        # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU
-
-        sources = o.sources
-        source = o.source
-
-        parent_id = (root_otu_id == o.id ? nil : parent_id )
+        # TODO: NOT SPECIFIED is left out no from Name, but not populating a tracking list
+        #
+        # If this is required add it to the `target` scope above
+        # some names are skipped (e.g., if they have NOT SPECIFIED names)
+        # next if skip_name_ids.include?(o.taxon_name_id)
 
         csv << [
-          o.id,                                                                # ID (Taxon)
-          parent_id,                                                           # parentID (Taxon)
-          o.taxon_name.id,                                                     # nameID (Name)
-          name_phrase(o, name_phrase_vocab_id),                                # namePhrase
-          provisional(o),                                                      # provisional
-          according_to_id(o),                                                  # accordingToID
-          scrutinizer(o),                                                      # scrutinizer
-          scrutinizer_id(o),                                                   # scrutinizerID
-          scrutinizer_date(o),                                                 # scrutizinerDate
-          reference_id(sources),                                               # referenceID
-          predicate_value(o, :extinct),                                        # extinct
-          predicate_value(o, :temporal_range_start),                           # temporalRangeStart
-          predicate_value(o, :temporal_range_end),                             # temporalRangeEnd
-          predicate_value(o, :lifezone),                                       # environment (formerly named lifezone)
-          link(o),                                                             # link
-          Export::Coldp.sanitize_remarks(remarks(o, taxon_remarks_vocab_id)),  # remarks
-          Export::Coldp.modified(o[:updated_at]),                              # modified
-          Export::Coldp.modified_by(o[:updated_by_id], project_members)        # modifiedBy
+          o.id,                                                            # ID (Taxon)
+          parent_id,                                                       # parentID (Taxon)
+          o.taxon_name_id,                                                 # nameID (Name)
+          attributes[:namePhrase][o.id],                                   # namePhrase
+          nil,                                                             # provisional provisional(o)
+          nil,                                                             # accordingToID according_to_id(o)
+          nil,                                                             # scrutinizer scrutinizer(o)
+          nil,                                                             # scrutinizerID scrutinizer_id(o)
+          nil,                                                             # scrutizinerDate scrutinizer_date(o)
+          o.aggregate_source_ids,                                          # referenceID
+          attributes[:extinct][o.id],                                      # extinct
+          attributes[:temporal_range_start][o.id],                         # temporalRangeStart
+          attributes[:temporal_range_end][o.id],                           # temporalRangeEnd
+          attributes[:lifezone][o.id],                                     # environment (formerly named lifezone)
+          link(link_base_url, o),                                          # link
+          Export::Coldp.sanitize_remarks(attributes[:remarks][o.id]),      # remarks
+          Export::Coldp.modified(o[:updated_at]),                          # modified
+          Export::Coldp.modified_by(o[:updated_by_id], project_members)    # modifiedBy
         ]
 
-        Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
       end
     end
+
+    sources = Source.with(name_scope: targets.unscope(:select).select(:id))
+      .joins(:citations)
+      .joins("JOIN name_scope ns on ns.id = citations.citation_object_id AND citations.citation_object_type = 'Otu'")
+      .distinct
+
+    Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
+    text
   end
 end

@@ -1,5 +1,5 @@
 import ActionNames from './actionNames'
-import makeTypeSpecimen from '../../helpers/makeTypeSpecimen'
+import makeTypeMaterial from '@/factory/TypeMaterial.js'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit, dispatch }) => {
@@ -10,7 +10,7 @@ export default ({ state, commit, dispatch }) => {
     isUnsaved: true
   })
 
-  state.typeMaterial = makeTypeSpecimen()
+  state.typeMaterial = makeTypeMaterial()
 
   dispatch(ActionNames.UpdateLastChange)
 }

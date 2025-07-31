@@ -3,21 +3,44 @@
     <h3>Citation topics</h3>
     <fieldset>
       <legend>Topics</legend>
-      <smart-selector
+      <SmartSelector
+        ref="smartSelector"
         :autocomplete-params="{ 'type[]': 'Topic' }"
         model="topics"
         target="Citation"
         klass="Topic"
         autocomplete-url="/controlled_vocabulary_terms/autocomplete"
         get-url="/controlled_vocabulary_terms/"
-        :custom-list="topicList"
+        :add-tabs="['all']"
         @selected="addTopic"
-      />
+      >
+        <template #all>
+          <VModal @close="smartSelectorRef.setTab('quick')">
+            <template #header>
+              <h3>Topics - all</h3>
+            </template>
+            <template #body>
+              <div class="flex-wrap-row gap-small">
+                <VBtn
+                  v-for="item in allFiltered"
+                  :key="item.id"
+                  color="primary"
+                  pill
+                  @click="addTopic(item)"
+                >
+                  {{ item.name }}
+                </VBtn>
+              </div>
+            </template>
+          </VModal>
+        </template>
+      </SmartSelector>
     </fieldset>
-    <display-list
+    <DisplayList
       :list="topics"
       label="object_tag"
       :delete-warning="false"
+      soft-delete
       @delete-index="removeTopic"
     />
   </FacetContainer>
@@ -27,29 +50,29 @@
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 import DisplayList from '@/components/displayList'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { ControlledVocabularyTerm } from '@/routes/endpoints'
-import { ref, computed, watch, onBeforeMount } from 'vue'
+import { ref, computed, watch, onBeforeMount, useTemplateRef } from 'vue'
 
-const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: () => ({})
-  }
+const params = defineModel({
+  type: Object,
+  required: true
 })
 
-const emit = defineEmits(['update:modelValue'])
-
-const params = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
-
+const smartSelectorRef = useTemplateRef('smartSelector')
 const topics = ref([])
-const topicList = ref([])
+const allTopics = ref([])
+
+const allFiltered = computed(() => {
+  const topicIds = topics.value.map(({ id }) => id)
+
+  return allTopics.value.filter((item) => !topicIds.includes(item.id))
+})
 
 watch(
-  () => props.modelValue.topic_id,
+  () => params.value.topic_id,
   (newVal, oldVal) => {
     if (!newVal?.length && oldVal?.length) {
       topics.value = []
@@ -68,8 +91,8 @@ watch(
 onBeforeMount(() => {
   const urlParams = URLParamsToJSON(location.href)
 
-  ControlledVocabularyTerm.where({ type: ['Topic'] }).then((response) => {
-    topicList.value = { all: response.body }
+  ControlledVocabularyTerm.where({ type: ['Topic'] }).then(({ body }) => {
+    allTopics.value = body
   })
 
   if (urlParams.topic_id) {

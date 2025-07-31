@@ -50,87 +50,83 @@
     </li>
   </transition-group>
 </template>
-<script>
+<script setup>
 import RadialAnnotator from '../../annotator'
 import CitationsCount from './citationsCount'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
-export default {
-  components: {
-    RadialAnnotator,
-    CitationsCount,
-    VIcon,
-    VBtn
+const props = defineProps({
+  list: {
+    type: Array,
+    default: () => []
   },
-  props: {
-    list: {
-      type: Array,
-      default: () => []
-    },
-    annotator: {
-      type: Boolean,
-      default: true
-    },
-    targetCitations: {
-      type: String,
-      required: true
-    },
-    label: {
-      type: [String, Array],
-      required: true
-    },
-    edit: {
-      type: Boolean,
-      default: false
-    },
-    remove: {
-      type: Boolean,
-      default: true
-    },
-    annotator: {
-      type: Boolean,
-      default: false
-    },
-    highlight: {
-      type: Object,
-      default: undefined
+
+  targetCitations: {
+    type: String,
+    required: true
+  },
+
+  label: {
+    type: [String, Array],
+    required: true
+  },
+
+  edit: {
+    type: Boolean,
+    default: false
+  },
+
+  remove: {
+    type: Boolean,
+    default: true
+  },
+
+  annotator: {
+    type: Boolean,
+    default: false
+  },
+
+  highlight: {
+    type: Object,
+    default: undefined
+  }
+})
+
+const emit = defineEmits(['delete', 'edit'])
+
+function displayName(item) {
+  if (typeof props.label === 'string') {
+    return item[props.label]
+  } else {
+    let tmp = item
+
+    props.label.forEach((label) => {
+      tmp = tmp[label]
+    })
+
+    return tmp
+  }
+}
+
+function checkHighlight(item) {
+  if (props.highlight) {
+    if (props.highlight.key) {
+      return item[props.highlight.key] == props.highlight.value
+    } else {
+      return item == props.highlight.value
     }
-  },
-  mounted() {
-    this.$options.components['RadialAnnotator'] = RadialAnnotator
-  },
-  methods: {
-    displayName(item) {
-      if (typeof this.label === 'string') {
-        return item[this.label]
-      } else {
-        let tmp = item
-        this.label.forEach(function (label) {
-          tmp = tmp[label]
-        })
-        return tmp
-      }
-    },
-    checkHighlight(item) {
-      if (this.highlight) {
-        if (this.highlight.key) {
-          return item[this.highlight.key] == this.highlight.value
-        } else {
-          return item == this.highlight.value
-        }
-      }
-      return false
-    },
-    deleteItem(item) {
-      if (
-        window.confirm(
-          `You're trying to delete this record. Are you sure want to proceed?`
-        )
-      ) {
-        this.$emit('delete', item)
-      }
-    }
+  }
+  return false
+}
+
+function deleteItem(item) {
+  if (
+    window.confirm(
+      `You're trying to delete this record. Are you sure want to proceed?`
+    )
+  ) {
+    emit('delete', item)
   }
 }
 </script>

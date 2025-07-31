@@ -24,6 +24,14 @@ RSpec.describe Observation::Continuous, type: :model, group: :observation_matrix
     expect(observation.errors.include?(:continuous_unit)).to be_falsey
   end
 
+  specify '#continous_unit Ratio' do
+    observation.descriptor = Descriptor::Continuous.create!(default_unit: 'ratio', name: 'Ratioed')
+    observation.continuous_unit = 'ratio'
+    observation.continuous_value = 1.9
+    observation.observation_object = FactoryBot.create(:valid_otu)
+    expect(observation.valid?).to be_truthy
+  end
+
   specify '#unit' do
     d = Descriptor::Continuous.create!(name: 'Setae', default_unit: 'count')
     o1 = Observation::Continuous.create!(observation_object: otu, descriptor: d, continuous_value: 1, continuous_unit: 'count' )

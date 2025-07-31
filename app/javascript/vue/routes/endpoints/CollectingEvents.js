@@ -14,7 +14,7 @@ const permitParams = {
     verbatim_longitude: String,
     verbatim_latitude: String,
     verbatim_geolocation_uncertainty: String,
-    verbatim_trip_identifier: String,
+    verbatim_field_number: String,
     verbatim_collectors: String,
     verbatim_method: String,
     geographic_area_id: String,
@@ -91,6 +91,13 @@ export const CollectingEvent = {
   parseVerbatimLabel: (params) =>
     AjaxCall('get', '/collecting_events/parse_verbatim_label', { params }),
 
-  updateBatch: (params) =>
-    AjaxCall('post', `/${controller}/batch_update `, params)
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${controller}/batch_update `, params),
+
+  stepwiseCollectors: (params) =>
+    AjaxCall(
+      'get',
+      '/tasks/collecting_events/stepwise/collectors/data.json',
+      { params }
+    ),
 }

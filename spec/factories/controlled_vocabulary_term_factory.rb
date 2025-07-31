@@ -1,7 +1,7 @@
 FactoryBot.define do
 
   trait :random_name do
-    # Could be Faker.characters(number: 10)
+    # Could be Faker::Name.unique.name
     name { Utilities::Strings.random_string(10) }
   end
 
@@ -12,8 +12,6 @@ FactoryBot.define do
   factory :controlled_vocabulary_term, traits: [:housekeeping] do
     factory :valid_controlled_vocabulary_term, traits: [:random_name, :random_definition] do
       type { 'Keyword' }
-      uri { '' }
-      uri_relation { '' }
     end
 
     factory :random_controlled_vocabulary_term, traits: [:random_name, :random_definition]

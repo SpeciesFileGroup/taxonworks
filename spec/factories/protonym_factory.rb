@@ -7,8 +7,8 @@
 #
 FactoryBot.define do
 
-  # See taxon_name_traits.rb for trait sets 
-  
+  # See taxon_name_traits.rb for trait sets
+
   factory :protonym, traits: [:housekeeping, :mostly_empty_protonym] do
 
     # Note this should *not* the parent_is_root trait
@@ -20,7 +20,7 @@ FactoryBot.define do
     # root
 
     factory :root_taxon_name do
-      name { 'Root' }
+      name { ::TaxonName::ROOT_NAME }
       rank_class { NomenclaturalRank }
       parent_id { nil }
     end
@@ -135,7 +135,7 @@ FactoryBot.define do
       association :source, factory: :valid_source_bibtex, year: 1830
       year_of_publication { 1830 }
       verbatim_author { 'McAtee' }
-      rank_class { Ranks.lookup(:iczn, 'SPECIES') }
+      rank_class { Ranks.lookup(:iczn, :species) }
     end
 
     factory :iczn_subspecies do

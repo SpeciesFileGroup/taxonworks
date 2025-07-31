@@ -46,10 +46,16 @@
           :key="ce.id"
         >
           <span v-html="ce.object_tag" />
-          <span
-            class="btn-delete button-circle"
+          <VBtn
+            circle
+            color="primary"
             @click="removeCe(index)"
-          />
+          >
+            <VIcon
+              name="trash"
+              x-small
+            />
+          </VBtn>
         </li>
       </ul>
     </div>
@@ -66,6 +72,8 @@ import { CollectingEvent } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector'
 import ByAttribute from '../../shared/ByAttribute.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   modelValue: {

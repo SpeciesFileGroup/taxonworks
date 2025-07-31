@@ -43,9 +43,9 @@ module CollectingEventsHelper
   def collecting_event_identifiers_tag(collecting_event)
     return nil if collecting_event.nil?
     if i = collecting_event.identifiers.load.first
-      collecting_event.identifiers.collect{|j|
+      collecting_event.identifiers.limit(10).collect{|j|
         content_tag(:span, j.cached, class: [ :feedback, 'feedback-thin', 'feedback-secondary' ])
-      }.join
+      }.join + ( collecting_event.identifiers.size > 10 ? ' ... and more!' : '')
     else
       nil
     end
@@ -77,7 +77,7 @@ module CollectingEventsHelper
     ) if collecting_event.collectors.any?
 
     a << '&nbsp;'.html_safe + content_tag(:span,  collecting_event.verbatim_collectors, class: [:feedback, 'feedback-thin','feedback-secondary']) if collecting_event.verbatim_collectors
-    a
+    a.html_safe
   end
 
   # Slow, but accurate
@@ -118,14 +118,6 @@ module CollectingEventsHelper
 
   def collecting_events_search_form
     render('/collecting_events/quick_search_form')
-  end
-
-  def next_without_georeference_for_google_maps_link(collecting_event)
-    if n = collecting_event.next_without_georeference
-      link_to('Skip to next CE without georeference', new_georeferences_google_map_path(georeference: {collecting_event_id: n.to_param}), id: :next_without_georeference)
-    else
-      nil
-    end
   end
 
   # @return [String]
@@ -176,7 +168,7 @@ module CollectingEventsHelper
     return nil if collecting_event.nil?
     o = collecting_event.previous_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
-    link_text = content_tag(:span, 'Previous by id', 'class' => 'small-icon icon-left', 'data-icon' => 'arrow-left')
+    link_text = safe_join([content_tag(:span, '', class: 'small-icon', data: { icon: 'arrow-left' }), 'Previous by id'], '')
     link_to(
       link_text, browse_collecting_events_task_path(collecting_event_id: o.id),
       data: {
@@ -192,7 +184,7 @@ module CollectingEventsHelper
     return nil if collecting_event.nil?
     o = collecting_event.next_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
-    link_text = content_tag(:span, 'Next by id', 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
+    link_text = safe_join(['Next by id', content_tag(:span, '', class: 'small-icon margin-small-left', data: { icon: 'arrow-right' })], '')
     link_to(
       link_text, browse_collecting_events_task_path(collecting_event_id: o.id),
       data: {
@@ -249,11 +241,16 @@ module CollectingEventsHelper
 
     if collecting_event.geographic_items.any?
       geo_item_id = collecting_event.geographic_items.select(:id).first.id
-      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
-      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
+      base['geometry'] = GeographicItem.find(geo_item_id).to_geo_json
     end
     base
   end
 
+  def collecting_event_georeference_points(collecting_events)
+    GeographicItem.joins(:collecting_events_through_georeferences)
+      .where(georeferences: {collecting_event: collecting_events})
+      .select(GeographicItem.lat_long_sql(:latitude), GeographicItem.lat_long_sql(:longitude) )
+      .collect{|g| [g.longitude, g.latitude]}.uniq
+  end
 
 end

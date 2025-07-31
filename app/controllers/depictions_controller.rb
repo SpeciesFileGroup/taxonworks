@@ -23,7 +23,6 @@ class DepictionsController < ApplicationController
     end
   end
 
-
   def list
     @depictions = Depiction.where(project_id: sessions_current_project_id).page(params[:page])
   end
@@ -42,7 +41,7 @@ class DepictionsController < ApplicationController
   def api_index
     @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
-      .order('depictions.id')
+      .order('depictions.depiction_object_type, depictions.depiction_object_id, depictions.position')
       .page(params[:page])
       .per(params[:per])
     render '/depictions/api/v1/index'
@@ -51,7 +50,7 @@ class DepictionsController < ApplicationController
   def api_gallery
     @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
-      .order('depictions.id')
+      .order('depictions.depiction_object_type, depictions.depiction_object_id, depictions.position')
       .page(params[:page])
       .per(params[:per])
     render '/depictions/api/v1/gallery'
@@ -124,8 +123,8 @@ class DepictionsController < ApplicationController
 
   # GET /depictions/download
   def download
-    send_data Export::Download.generate_csv(
-      Depiction.where(project_id: sessions_current_project_id)), type: 'text', filename: "depictions_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(
+      Depiction.where(project_id: sessions_current_project_id)), type: 'text', filename: "depictions_#{DateTime.now}.tsv"
   end
 
   private

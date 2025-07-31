@@ -40,8 +40,14 @@ class SourcesController < ApplicationController
   # POST /sources/1/clone.json
   def clone
     respond_to do |format|
+
+      # Don't panic, this `clone` is custom, see source.rb
       @source = @source.clone
+
       if @source.valid?
+
+        @source.project_sources << ProjectSource.new(project_id: sessions_current_project_id)
+
         format.html { redirect_to edit_source_path(@source), notice: 'Clone successful, on new record.' }
         format.json { render :show }
       else
@@ -64,11 +70,12 @@ class SourcesController < ApplicationController
   # POST /sources
   # POST /sources.json
   def create
+    params[:source].merge!( { project_sources_attributes: [{project_id: sessions_current_project_id}] } )
     @source = new_source
+
     respond_to do |format|
-      # We must check for manually added errors first, as they
-      # are lost when .valid? is called during the callback chain.
-      if !@source.errors.any? && @source.save
+
+      if @source && @source.save
         format.html { redirect_to url_for(@source.metamorphosize),
                       notice: "#{@source.type} successfully created." }
         format.json { render action: 'show', status: :created, location: @source.metamorphosize }
@@ -76,6 +83,7 @@ class SourcesController < ApplicationController
         format.html { render action: 'new' }
         format.json { render json: @source.errors, status: :unprocessable_entity }
       end
+
     end
   end
 
@@ -166,9 +174,14 @@ class SourcesController < ApplicationController
 
   # PATCH /sources/batch_update.json?source_query=<>&serial_id
   def batch_update
-    if @result = Source::Bibtex.batch_update(params)
+    if r = Source::Bibtex.batch_update(
+        preview: params[:preview], 
+        source: source_params.merge(by: sessions_current_user_id),
+        source_query: params[:source_query],
+    )
+      render json: r.to_json, status: :ok
     else
-      render json: {success: false}
+      render json: {}, status: :unprocessable_entity
     end
   end
 
@@ -197,7 +210,7 @@ class SourcesController < ApplicationController
     redirect_to batch_load_sources_path, notice: 'no file has been selected' and return if file.blank?
     sha256 = Digest::SHA256.file(file.tempfile)
     if cookies[:batch_sources_md5] == sha256.hexdigest
-      if result_hash = Source.batch_create(file.tempfile)
+      if result_hash = Source.batch_create(file.tempfile, sessions_current_project_id)
         # error in results?
         @count = result_hash[:count]
         @sources = result_hash[:records]
@@ -215,11 +228,11 @@ class SourcesController < ApplicationController
 
   # GET /sources/download
   def download
-    send_data Export::Download.generate_csv(
+    send_data Export::CSV.generate_csv(
       Source.joins(:project_sources)
       .where(project_sources: {project_id: sessions_current_project_id})
       .all),
-    type: 'text', filename: "sources_#{DateTime.now}.csv"
+    type: 'text', filename: "sources_#{DateTime.now}.tsv"
   end
 
   # GET /sources/generate.json?<filter params>
@@ -231,7 +244,29 @@ class SourcesController < ApplicationController
       (params[:is_public] == 'true' ? true : false),
       params[:style_id]
     )
-    render '/downloads/show.json'
+    render '/downloads/show'
+  end
+
+  # GET /sources/generate.json?<filter params>
+  def download_formatted
+    params.require(:style_id)
+    @sources = Queries::Source::Filter.new(params).all
+      .order(:cached)
+
+    f = render_to_string(:index, formats: [:bib])
+
+    respond_to do |format|
+      format.pdf do
+        pdf = ::Prawn::Document.new
+        pdf.text(f, inline_format: true) # Formats <i>
+
+        send_data(pdf.render, filename: "tw_bibliography_#{DateTime.now}.pdf", type: 'application/pdf')
+      end
+
+      format.json do
+        send_data(f, filename: "tw_bibliography_#{DateTime.now}.txt", type: 'text/plain')
+      end 
+    end
   end
 
   # GET /api/v1/sources
@@ -270,7 +305,6 @@ class SourcesController < ApplicationController
   end
 
   def source_params
-    params['source'][:project_sources_attributes] = [{project_id: sessions_current_project_id.to_s}]
     params.require(:source).permit(
       :serial_id, :address, :annote, :author, :booktitle, :chapter,
       :crossref, :edition, :editor, :howpublished, :institution,
@@ -280,6 +314,7 @@ class SourcesController < ApplicationController
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
       :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type, :style_id,
       :convert_to_bibtex,
+      project_sources_attributes: [:project_id],
       roles_attributes: [
         :id,
         :_destroy,
@@ -289,8 +324,7 @@ class SourcesController < ApplicationController
         person_attributes: [
           :last_name, :first_name, :suffix, :prefix
         ]
-      ],
-      project_sources_attributes: [:project_id]
+      ]
     )
   end
 end

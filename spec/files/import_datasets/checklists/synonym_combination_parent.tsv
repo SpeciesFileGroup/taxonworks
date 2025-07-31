@@ -1,0 +1,12 @@
+taxonID	parentNameUsageID	acceptedNameUsageID	scientificName	kingdom	lass	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsageID	namePublishedInYear	nomenclaturalCode	TW:TaxonNameClassification:Latinized:Gender	TW:TaxonNameClassification:Latinized:PartOfSpeech	TW:TaxonNameRelationship:incertae_sedis_in_rank	TW:TaxonNameClassification:Iczn:Fossil
+429869		429869	Crematogastrini	Animalia	Insecta	Hymenoptera	Formicidae					Tribe	Forel, 1893	valid	429869	1893	ICZN
+429795	429869	429802	Rhoptromyrmex	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Mayr, 1901	synonym	429795	1901	ICZN	masculine
+429802	429869	429802	Tetramorium	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Mayr, 1855	valid	429802	1855	ICZN	neuter
+447276	429802	447282	Tetramorium rothneyi	Animalia	Insecta	Hymenoptera	Formicidae	Tetramorium		rothneyi		Species	(Forel, 1902)	obsolete combination	510992	1902	ICZN
+447282	429802	447282	Tetramorium wroughtonii	Animalia	Insecta	Hymenoptera	Formicidae	Tetramorium		wroughtonii		Species	(Forel, 1902)	valid	510348	1902	ICZN
+508355	429795	447282	Rhoptromyrmex rothneyi	Animalia	Insecta	Hymenoptera	Formicidae	Rhoptromyrmex		rothneyi		Species	Forel, 1902	obsolete combination	510992	1902	ICZN
+509235	447282	447282	Tetramorium wroughtonii rothneyi	Animalia	Insecta	Hymenoptera	Formicidae	Tetramorium		wroughtonii	rothneyi	Subspecies	(Forel, 1902)	synonym	510992	1902	ICZN
+510348	429795	447282	Rhoptromyrmex wroughtonii	Animalia	Insecta	Hymenoptera	Formicidae	Rhoptromyrmex		wroughtonii		Species	Forel, 1902	obsolete combination	510348	1902	ICZN
+510992	510348	447282	Rhoptromyrmex wroughtonii rothneyi	Animalia	Insecta	Hymenoptera	Formicidae	Rhoptromyrmex		wroughtonii	rothneyi	Subspecies	Forel, 1902	obsolete combination	510992	1902	ICZN
+513056	447276	447282	Tetramorium rothneyi longi	Animalia	Insecta	Hymenoptera	Formicidae	Tetramorium		rothneyi	longi	Subspecies	(Chapman & Capco, 1951)	synonym	513057	1951	ICZN
+513057	508355	447282	Rhoptromyrmex rothneyi longi	Animalia	Insecta	Hymenoptera	Formicidae	Rhoptromyrmex		rothneyi	longi	Subspecies	Chapman & Capco, 1951	obsolete combination	513057	1951	ICZN

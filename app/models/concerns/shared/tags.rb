@@ -16,16 +16,17 @@ module Shared::Tags
     accepts_nested_attributes_for :tags, reject_if: :reject_tags, allow_destroy: true
 
     # TODO: This should be a Tag validation!? (this is nested keywords)
-    validate :identical_new_keywords_are_prevented
+    validate :identical_nested_attribute_tags_are_prevented
 
     protected
 
-    def identical_new_keywords_are_prevented
+    def identical_nested_attribute_tags_are_prevented
       a = []
       tags.each do |t|
-        errors.add(:base, 'identical keyword attempt') if a.include?(id: t.keyword.id, name: t.keyword.name, definition: t.keyword.definition)
+        i = t.keyword&.id || t.keyword_id
+        errors.add(:base, 'identical keyword attempt') if a.include?(id: i)
         # t.keyword.attributes cannot be used, because the updated_at is truncated after save. The date is returned in different format.
-        a.push(id: t.keyword.id, name: t.keyword.name, definition: t.keyword.definition)
+        a.push(id: i)
       end
     end
   end
@@ -49,7 +50,8 @@ module Shared::Tags
   module ClassMethods
 
     def tagged_with_uri(uri)
-      joins("JOIN tags t1 on t1.tag_object_type = '#{self.base_class.name}' AND t1.tag_object_id = #{self.base_class.name.tableize}.id JOIN controlled_vocabulary_terms k1 on k1.id = t1.keyword_id").where('k1.uri = ?', uri)
+      joins("JOIN tags t1 on t1.tag_object_type = '#{self.base_class.name}' AND t1.tag_object_id = #{self.base_class.name.tableize}.id JOIN controlled_vocabulary_terms k1 on k1.id = t1.keyword_id")
+      .where('k1.uri = ?', uri)
     end
 
     # @params [Keyword] the target keyword object

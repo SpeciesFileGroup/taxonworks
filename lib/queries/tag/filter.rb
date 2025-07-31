@@ -57,15 +57,15 @@ module Queries
       end
 
       def keyword_id_facet
-        !keyword_id.empty? ? table[:keyword_id].eq_any(keyword_id)  : nil
+        !keyword_id.empty? ? table[:keyword_id].in(keyword_id)  : nil
       end
 
       def object_id_facet
-        tag_object_id.empty? ? nil : table[:tag_object_id].eq_any(tag_object_id)
+        tag_object_id.empty? ? nil : table[:tag_object_id].in(tag_object_id)
       end
 
       def tag_object_type_facet
-        tag_object_type.empty? ? nil : table[:tag_object_type].eq_any(tag_object_type)
+        tag_object_type.empty? ? nil : table[:tag_object_type].in(tag_object_type)
       end
 
       def and_clauses

@@ -17,6 +17,7 @@ const permitParams = {
     deaccessioned_at: String,
     deaccession_reason: String,
     contained_in: String,
+    notes_attributes: [],
     collecting_event_attributes: [],
     data_attributes_attributes: {
       id: Number,
@@ -24,6 +25,35 @@ const permitParams = {
       controlled_vocabulary_term_id: Number,
       type: String,
       value: String
+    },
+    biocuration_classifications_attributes: {
+      id: Number,
+      biocuration_class_id: Number,
+      _destroy: Boolean
+    },
+    taxon_determinations_attributes: {
+      otu_id: Number,
+      year_made: Number,
+      month_made: Number,
+      day_made: Number,
+      position: Number,
+      roles_attributes: [],
+      otu_attributes: {
+        id: Number,
+        _destroy: Boolean,
+        name: String,
+        taxon_name_id: Number
+      }
+    },
+    depictions_attributes: {
+      id: Number,
+      _destroy: Boolean,
+      svg_clip: String,
+      svg_view_box: String,
+      position: Number,
+      caption: String,
+      figure_label: String,
+      image_id: Number
     },
     tags_attributes: {
       id: Number,
@@ -58,8 +88,13 @@ export const CollectionObject = {
   dwcVerbose: (id, params = { rebuild: true }) =>
     AjaxCall('get', `/${controller}/${id}/dwc_verbose`, { params }),
 
+  dwcCompact: (id, params = { rebuild: true }) =>
+    AjaxCall('get', `/${controller}/${id}/dwc_compact`, { params }),
+
   reportDwc: (params) =>
     AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),
+
+  report: (params) => AjaxCall('get', `/${controller}/report.json`, { params }),
 
   dwcIndex: (params) => AjaxCall('get', `/${controller}/dwc_index`, { params }),
 
@@ -83,5 +118,11 @@ export const CollectionObject = {
       'get',
       '/tasks/accessions/breakdown/sqed_depiction/todo_map.json',
       { params }
-    )
+    ),
+
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${controller}/batch_update.json`, params),
+
+  batchUpdateDwcOccurrence: (params) =>
+    AjaxCall('post', `/${controller}/batch_update_dwc_occurrence`, params)
 }

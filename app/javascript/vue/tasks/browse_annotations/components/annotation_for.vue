@@ -26,8 +26,8 @@
 </template>
 
 <script>
-import smartSelector from '@/components/switch.vue'
-import SpinnerComponent from '@/components/spinner.vue'
+import smartSelector from '@/components/ui/VSwitch.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import OrderSmartSelector from '@/helpers/smartSelector/orderSmartSelector'
 import SelectFirstSmartOption from '@/helpers/smartSelector/selectFirstSmartOption'
 import AjaxCall from '@/helpers/ajaxCall'

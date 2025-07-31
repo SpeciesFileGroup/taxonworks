@@ -17,7 +17,7 @@
 
   <tr>
     <td> Collection objects currently on loan* </td>
-    <td> <%= objects_loaned = @collection_objects.joins(:loan_items).where( loan_items: { date_returned: nil }).distinct.count -%> </td>
+    <td> <%= @collection_objects_query.on_loan = true; objects_loaned = @collection_objects_query.all.count -%> </td>
     <td> <%= (100.0 * (objects_loaned.to_f / collection_object_count.to_f)).round(2) -%> </td>
     <td>
     <td> <em> Only loan items that are CollectionObject, no reference to OTU or container </em> </td>

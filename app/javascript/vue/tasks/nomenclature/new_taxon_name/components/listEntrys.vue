@@ -23,6 +23,7 @@
               v-else
               v-html="item[show]"
             />
+            <span v-html="'&nbsp;'" />
           </template>
         </span>
         <div class="list-controls">

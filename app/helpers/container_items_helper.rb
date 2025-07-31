@@ -14,4 +14,21 @@ module ContainerItemsHelper
     render('/container_items/quick_search_form')
   end
 
+  # TODO: make generic
+  def container_item_container_label(container_item)
+    return nil if container_item.nil?
+    o = container_item.contained_object
+    case container_item.contained_object_type
+    when 'CollectionObject'
+      label_for_collection_object_container(o)
+    when 'Extract'
+      label_for_extract_container(o)
+    when 'Container'
+      label_for_container_container(o)
+    else
+      "NO CONTAINER LABEL FOR  A #{ container_item.container_object_type }, poke your developers!"
+    end
+  end
+
+
 end

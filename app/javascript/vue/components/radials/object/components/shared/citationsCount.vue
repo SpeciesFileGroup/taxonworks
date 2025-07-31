@@ -31,7 +31,7 @@
               <a
                 :title="slotProps.item.source.object_tag"
                 class="button-default circle-button btn-citation"
-                :href="`/tasks/nomenclature/by_source?source_id=${slotProps.item.source.id}`"
+                :href="`/tasks/nomenclature/by_source?source_id=${slotProps.item.source_id}`"
                 target="blank"
               />
             </div>
@@ -83,9 +83,9 @@ export default {
     values: {
       handler(newVal) {
         this.citations = newVal
-      }
-    },
-    deep: true
+      },
+      deep: true
+    }
   },
 
   mounted() {
@@ -165,7 +165,7 @@ export default {
   min-width: 12px;
   min-height: 12px;
   font-size: 8px;
-  box-shadow: 0px 1px 2px 0px #ebebeb;
+  box-shadow: var(--panel-shadow);
   margin: 5px;
   cursor: pointer;
 }

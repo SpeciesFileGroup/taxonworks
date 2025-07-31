@@ -1,8 +1,6 @@
 require 'fileutils'
 
 namespace :tw do
-  require_relative 'support/database'
-
   task :fail do
     raise
   end

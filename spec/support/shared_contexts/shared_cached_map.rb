@@ -1,20 +1,26 @@
-# Useage:
+# !! Current setup for WebLevel1 assumes shapes are all `multi_polygon`` !!
+# TODO: GeographicItems for Gazetteers can be any shape type - also note
+# g2 and g3 below are polygons so some specs already test polygon support.
+
+# Usage:
 #   spec/models/cached_map_spec.rb
 #   spec/models/cached_map_item_spec.rb
 shared_context 'cached map scenario' do
 
-  let(:g1) { RSPEC_GEO_FACTORY.polygon(
-    RSPEC_GEO_FACTORY.line_string(
-      [RSPEC_GEO_FACTORY.point(0, 0, 0.0),
-       RSPEC_GEO_FACTORY.point(0, 10, 0.0),
-       RSPEC_GEO_FACTORY.point(10, 10, 0.0),
-       RSPEC_GEO_FACTORY.point(10, 0, 0.0),
-       RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+  let(:g1) { RSPEC_GEO_FACTORY.multi_polygon(
+    [RSPEC_GEO_FACTORY.polygon(
+      RSPEC_GEO_FACTORY.line_string(
+        [RSPEC_GEO_FACTORY.point(0, 0, 0.0),
+         RSPEC_GEO_FACTORY.point(0, 10, 0.0),
+         RSPEC_GEO_FACTORY.point(10, 10, 0.0),
+         RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+         RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+    )]
   ) }
 
   #
-  # THese have to overlap by at least 50% total area with g1
-  # 
+  # These have to overlap by at least 50% total area with g1
+  #
   let(:g2) { RSPEC_GEO_FACTORY.polygon(
     RSPEC_GEO_FACTORY.line_string(
       [RSPEC_GEO_FACTORY.point(1, 1, 0.0),
@@ -37,9 +43,9 @@ shared_context 'cached map scenario' do
   # let(:point_in) { RSPEC_GEO_FACTORY.point(5, 5, 0.0) }
   # let(:point_out) { RSPEC_GEO_FACTORY.point(20, 20, 0.0) }
 
-  let(:gi1) { GeographicItem.create(polygon: g1)}
-  let(:gi2) { GeographicItem.create(polygon: g2)}
-  let(:gi3) { GeographicItem.create(polygon: g3)}
+  let(:gi1) { GeographicItem.create(geography: g1)}
+  let(:gi2) { GeographicItem.create(geography: g2)}
+  let(:gi3) { GeographicItem.create(geography: g3)}
 
   let(:geographic_area_type) { GeographicAreaType.create!(name: 'Country') }
 
@@ -48,7 +54,7 @@ shared_context 'cached map scenario' do
     data_origin: 'ne_countries',
     geographic_area_type:,
     parent: FactoryBot.create(:earth_geographic_area),
-    geographic_areas_geographic_items_attributes: [ { geographic_item: gi1, data_origin: 'ne_countries' } ])
+    geographic_areas_geographic_items_attributes: [ { geographic_item: gi1, data_origin: 'ne_states' } ])
   }
 
   let!(:ga_offset) { GeographicArea.create!(
@@ -66,5 +72,5 @@ shared_context 'cached map scenario' do
     parent: FactoryBot.create(:earth_geographic_area),
     geographic_areas_geographic_items_attributes: [ { geographic_item: gi3, data_origin: 'foo' } ])
   }
-  
+
 end

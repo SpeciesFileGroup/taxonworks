@@ -1,5 +1,6 @@
 <template>
   <FacetGeographic v-model="params" />
+  <FacetAssertedDistributionShapeType v-model="params" />
   <FacetWKT v-model="params" />
   <FacetTaxonName
     v-model="params"
@@ -15,6 +16,10 @@
     :target="ASSERTED_DISTRIBUTION"
     v-model="params"
   />
+  <FacetConfidence
+    v-model="params"
+    :target="ASSERTED_DISTRIBUTION"
+  />
   <FacetDataAttribute v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
@@ -29,19 +34,23 @@
     param="presence"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
-import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic'
-import FacetUsers from '@/components/Filter/Facets/shared/FacetUsers.vue'
+import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
+import FacetAssertedDistributionShapeType from '@/components/Filter/Facets/AssertedDistributions/FacetAssertedDistributionShapeType.vue'
+import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
-import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 
 const PRESENCE_OPTIONS = [
@@ -59,7 +68,7 @@ const PRESENCE_OPTIONS = [
   }
 ]
 
-const WITH_PARAMS = ['origin_citations']
+const WITH_PARAMS = ['confidences', 'origin_citations']
 
 const props = defineProps({
   modelValue: {

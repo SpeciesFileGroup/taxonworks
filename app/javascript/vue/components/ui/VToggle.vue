@@ -1,10 +1,11 @@
 <template>
-  <div title="Lock / Unlock">
+  <div :title="title">
     <label class="switch-lock">
       <input
         v-model="checked"
         type="checkbox"
-      >
+        @click="emit('click', checked)"
+      />
       <span />
     </label>
   </div>
@@ -21,29 +22,33 @@ const props = defineProps({
 
   onColor: {
     type: String,
-    default: '#9ccc65'
+    default: 'var(--color-create)'
   },
 
   offColor: {
     type: String,
-    default: '#F44336'
+    default: 'var(--color-destroy)'
+  },
+
+  title: {
+    type: String,
+    default: 'Lock / Unlock'
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'click'])
 
 const checked = computed({
-  get () {
+  get() {
     return props.modelValue
   },
-  set (value) {
+  set(value) {
     emit('update:modelValue', value)
   }
 })
 </script>
 <style lang="scss" scoped>
-
-$lightGrey: #99A3BA;
+$lightGrey: #99a3ba;
 
 .switch-lock {
   height: 26px;
@@ -60,7 +65,7 @@ $lightGrey: #99A3BA;
       color: $lightGrey;
       position: relative;
       white-space: nowrap;
-      transition: color .3s ease;
+      transition: color 0.3s ease;
       &:before,
       &:after {
         content: '';
@@ -74,16 +79,16 @@ $lightGrey: #99A3BA;
         width: 48px;
         height: 28px;
         background: v-bind('props.offColor');
-        transition: all .3s ease;
+        transition: all 0.3s ease;
       }
       &:after {
         width: 24px;
         height: 24px;
-        background: #fff;
+        background: var(--panel-bg-color);
         top: 2px;
         left: 3px;
-        box-shadow: 0 1px 3px rgba(#121621, .1);
-        transition: all .45s ease;
+        box-shadow: 0 1px 3px rgba(#121621, 0.1);
+        transition: all 0.45s ease;
       }
     }
     &:checked {
@@ -92,7 +97,7 @@ $lightGrey: #99A3BA;
           background: v-bind('props.onColor');
         }
         &:after {
-          background: #fff;
+          background: var(--panel-bg-color);
           transform: translate(18px, 0);
         }
       }

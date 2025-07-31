@@ -1,7 +1,4 @@
-<%= content_for :head do -%>
-  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js",
-    "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"  %>
-<% end %>
+<%= graph_javascript_tag %>
 
 <%= tag.h1 "Task - Project activity: #{@project.name}", id: :top -%>
 
@@ -12,7 +9,7 @@
 <%= form_tag project_activity_type_report_path, method: :get, remote: true do |f| %>
   <div class="field">
     <h3> Plot data for </h3>
-    <%= select_tag :klass, options_for_select(ApplicationEnumeration.project_data_classes.select{|a| a.column_names.include?('created_at')}.collect{|b| b.name}.sort, include_blank: true) %>
+    <%= select_tag :klass, options_for_select(ApplicationEnumeration.project_data_classes.select{|a| a.column_names.include?('created_at') && a.column_names.include?('created_by_id')}.collect{|b| b.name}.sort, include_blank: true) %>
   </div>
 
   <div class="field">

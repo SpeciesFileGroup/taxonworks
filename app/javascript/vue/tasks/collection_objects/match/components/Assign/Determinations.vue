@@ -17,6 +17,7 @@
 <script>
 import ListComponent from '@/components/displayList'
 import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
+import { COLLECTION_OBJECT } from '@/constants'
 import { TaxonDetermination } from '@/routes/endpoints'
 
 export default {
@@ -64,10 +65,14 @@ export default {
 
       if (position < this.ids.length) {
         this.taxon_determinations.forEach((determination) => {
-          determination.biological_collection_object_id = this.ids[position]
-          promises.push(
-            TaxonDetermination.create({ taxon_determination: determination })
-          )
+          const payload = {
+            taxon_determination: {
+              ...determination,
+              taxon_determination_object_id: this.ids[position],
+              taxon_determination_object_type: COLLECTION_OBJECT
+            }
+          }
+          promises.push(TaxonDetermination.create(payload))
         })
         position++
       }

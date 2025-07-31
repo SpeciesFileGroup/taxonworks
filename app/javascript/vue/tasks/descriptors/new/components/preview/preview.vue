@@ -1,8 +1,8 @@
 <template>
   <div class="panel">
-    <modal
+    <VModal
       v-if="showModal"
-      @close="showModal = false"
+      @close="() => (showModal = false)"
     >
       <template #header>
         <h3>Confirm delete</h3>
@@ -11,69 +11,56 @@
         <div>Are you sure you want to delete {{ descriptor.object_tag }} ?</div>
       </template>
       <template #footer>
-        <button
-          @click="deleteDescriptor()"
-          type="button"
-          class="normal-input button button-delete align-end"
+        <VBtn
+          medium
+          color="destroy"
+          @click="() => emit('remove', descriptor)"
         >
           Delete
-        </button>
+        </VBtn>
       </template>
-    </modal>
+    </VModal>
     <div class="content">
       <div
         v-if="descriptor.id"
         class="flex-separate middle"
       >
         <h3>{{ descriptor.object_tag }}</h3>
-        <div class="descriptor-preview-options middle gap-small">
-          <radial-annotator :global-id="descriptor.global_id" />
-          <span
-            @click="showModal = true"
-            class="circle-button btn-delete"
-          />
+        <div class="horizontal-left-content middle gap-small">
+          <RadialAnnotator :global-id="descriptor.global_id" />
+          <VBtn
+            circle
+            color="destroy"
+            @click="() => (showModal = true)"
+          >
+            <VIcon
+              name="trash"
+              color="white"
+              x-small
+            />
+          </VBtn>
         </div>
       </div>
       <p v-show="descriptor.description">{{ descriptor.description }}</p>
     </div>
   </div>
 </template>
-<script>
+
+<script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import Modal from '@/components/ui/Modal.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { ref } from 'vue'
 
-export default {
-  components: {
-    RadialAnnotator,
-    Modal
-  },
-
-  props: {
-    descriptor: {
-      type: Object,
-      required: true
-    }
-  },
-
-  emits: ['remove'],
-
-  data() {
-    return {
-      showModal: false
-    }
-  },
-
-  methods: {
-    deleteDescriptor() {
-      this.$emit('remove', this.descriptor)
-    }
+defineProps({
+  descriptor: {
+    type: Object,
+    required: true
   }
-}
-</script>
+})
 
-<style lang="scss" scoped>
-.descriptor-preview-options {
-  display: flex;
-  justify-content: space-between;
-}
-</style>
+const emit = defineEmits(['remove'])
+
+const showModal = ref(false)
+</script>

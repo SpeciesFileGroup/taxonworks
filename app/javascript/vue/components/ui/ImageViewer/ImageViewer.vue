@@ -1,23 +1,29 @@
 <template>
   <div class="depiction-thumb-container">
-    <v-modal
+    <VModal
       v-if="isModalVisible"
+      class="depiction-modal-container"
       @close="isModalVisible = false"
-      :container-style="{
-        width: `${imageObject.width}px`,
-        minWidth: '700px'
-      }"
     >
       <template #header>
         <h3>View</h3>
       </template>
       <template #body>
-        <div class="image-container">
+        <div class="image-container margin-medium-bottom">
+          <SvgViewer
+            v-if="svgClip"
+            class="img-maxsize full_width"
+            :height="depiction.image.height"
+            :groups="svgClip"
+            :image="{
+              url: originalImageUrl,
+              width: depiction.image.width,
+              height: depiction.image.height
+            }"
+          />
           <img
-            :class="[
-              'img-maxsize',
-              state.fullSizeImage ? 'img-fullsize' : 'img-normalsize'
-            ]"
+            v-else
+            class="img-maxsize"
             @click="state.fullSizeImage = !state.fullSizeImage"
             :src="urlSrc"
           />
@@ -97,7 +103,7 @@
               </div>
 
               <div
-                v-if="depiction"
+                v-if="depiction?.global_id"
                 class="horizontal-left-content margin-large-left"
               >
                 <span class="margin-small-right">Depiction</span>
@@ -118,7 +124,7 @@
             </div>
           </div>
         </template>
-        <hr />
+        <hr class="divisor" />
 
         <div class="flex-separate">
           <slot name="infoColumn" />
@@ -143,7 +149,7 @@
           <ImageViewerCitations :citations="state.citations" />
         </div>
       </template>
-    </v-modal>
+    </VModal>
     <div>
       <div
         class="cursor-pointer"
@@ -172,9 +178,11 @@ import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import ImageViewerAttributions from './ImageViewerAttributions.vue'
 import ImageViewerCitations from './ImageViewerCitations.vue'
-import { Depiction, Image } from '@/routes/endpoints'
+import SvgViewer from '@/components/Svg/SvgViewer.vue'
+import { Depiction, Citation, Attribution } from '@/routes/endpoints'
 import { imageSVGViewBox, imageScale } from '@/helpers/images'
 import { computed, reactive, ref, watch } from 'vue'
+import { IMAGE } from '@/constants'
 
 const CONVERT_IMAGE_TYPES = ['image/tiff']
 const IMG_MAX_SIZES = {
@@ -219,31 +227,39 @@ const image = computed(() =>
       props.image.alternatives.medium
 )
 
+const svgClip = computed(() => {
+  return props.depiction?.svg_clip
+    ? [
+        {
+          g: props.depiction.svg_clip,
+          attributes: { fill: '#FFA500', 'fill-opacity': 0.25 }
+        }
+      ]
+    : null
+})
+
 const imageObject = computed(() => props.depiction?.image || props.image)
+const isUnsupportedType = computed(() =>
+  CONVERT_IMAGE_TYPES.includes(imageObject.value.content_type)
+)
+const originalImageUrl = computed(() =>
+  isUnsupportedType.value
+    ? imageObject.value.original_png
+    : imageObject.value.image_file_url
+)
 
 const urlSrc = computed(() => {
   const depiction = props.depiction
   const { width, height } = image.value
 
-  if (hasSVGBox.value) {
-    return imageSVGViewBox(
-      imageObject.value.id,
-      depiction.svg_view_box,
-      width,
-      height
-    )
-  }
-
-  if (CONVERT_IMAGE_TYPES.includes(image.value.content_type)) {
-    return imageScale(
-      imageObject.value.id,
-      `0 0 ${width} ${height}`,
-      width,
-      height
-    )
-  }
-
-  return image.value.image_file_url
+  return hasSVGBox.value
+    ? imageSVGViewBox(
+        imageObject.value.id,
+        depiction.svg_view_box,
+        width,
+        height
+      )
+    : originalImageUrl.value
 })
 
 const hasSVGBox = computed(() => props.depiction?.svg_view_box != null)
@@ -263,10 +279,18 @@ const thumbUrlSrc = computed(() => {
 
 const loadAttributions = async () => {
   state.citations = (
-    await Image.citations(imageObject.value.id, { extend: ['source'] })
+    await Citation.where({
+      citation_object_id: imageObject.value.id,
+      citation_object_type: IMAGE,
+      extend: ['source']
+    })
   ).body
   state.attributions = (
-    await Image.attributions(imageObject.value.id, { extend: ['roles'] })
+    await Attribution.where({
+      attribution_object_id: imageObject.value.id,
+      attribution_object_type: IMAGE,
+      extend: ['roles']
+    })
   ).body
 }
 
@@ -316,10 +340,16 @@ watch(isModalVisible, (newVal) => {
 .depiction-thumb-container {
   margin: 4px;
 
-  .modal-container {
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow: auto;
+  .depiction-modal-container {
+    .modal-container {
+      width: fit-content;
+      max-width: 90vw;
+      max-height: 90vh;
+      min-width: 700px;
+      max-width: 100vw;
+      overflow: auto;
+      box-sizing: border-box;
+    }
   }
 
   .img-thumb {
@@ -330,14 +360,6 @@ watch(isModalVisible, (newVal) => {
     transition: all 0.5s ease;
     max-width: 100%;
     max-height: 60vh;
-  }
-
-  .img-fullsize {
-    cursor: zoom-out;
-  }
-
-  .img-normalsize {
-    cursor: zoom-in;
   }
 
   .field {

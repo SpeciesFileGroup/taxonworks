@@ -13,7 +13,12 @@
       </template>
       <template #body>
         <div class="horizontal-center-content">
-          <radial-menu :options="menuOptions" />
+          <radial-menu
+            :options="menuOptions"
+            @click="(event) => handleClick(event, { openTab: false })"
+            @contextmenu="(event) => handleClick(event, { openTab: true })"
+            @mousedown="setParametersFor"
+          />
         </div>
       </template>
     </modal>
@@ -22,7 +27,7 @@
       color="radial"
       :title="title"
       circle
-      :disabled="disabled || !filterLinks.length"
+      :disabled="disabled || !filterLinks.length || !hasParameters"
       @click="openRadialMenu()"
     >
       <VIcon
@@ -36,8 +41,10 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { copyObjectByArray } from '@/helpers/objects.js'
+import { copyObjectByArray, createAndSubmitForm } from '@/helpers'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
+import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
+import { LinkerStorage } from '@/shared/Filter/utils'
 import RadialMenu from '@/components/radials/RadialMenu.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -45,6 +52,13 @@ import Modal from '@/components/ui/Modal.vue'
 import getFilterAttributes from './composition/getFilterAttributes'
 import qs from 'qs'
 import * as LINKER_LIST from './links/index.js'
+
+const MAX_LINK_SIZE = 2000
+const EXCLUDE_PARAMETERS = ['page', 'per', 'extend']
+
+defineOptions({
+  name: 'RadialLinker'
+})
 
 const props = defineProps({
   disabled: {
@@ -71,6 +85,23 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const objParameters = ref(getFilterAttributes())
 const isOnlyIds = computed(() => Array.isArray(props.ids))
+
+const params = computed(() =>
+  filterEmptyParams(
+    isOnlyIds.value ? getParametersForId() : getParametersForAll()
+  )
+)
+
+const hasParameters = computed(() => {
+  const parameters = { ...params.value }
+
+  EXCLUDE_PARAMETERS.forEach((param) => {
+    delete parameters[param]
+  })
+
+  return Object.keys(parameters).length
+})
+
 const filterLinks = computed(() => {
   const objLinks = LINKER_LIST[props.objectType]
 
@@ -91,17 +122,19 @@ const menuOptions = computed(() => {
   const slices = []
 
   filterLinks.value.forEach((item) => {
-    const filteredParameters = filterEmptyParams(
-      isOnlyIds.value ? getParametersForId() : getParametersForAll(item.params)
-    )
+    const parameters = getLinkParameters(item)
 
     const link =
-      item.link +
-      '?' +
-      qs.stringify(filteredParameters, { arrayFormat: 'brackets' })
+      item.link + '?' + qs.stringify(parameters, { arrayFormat: 'brackets' })
 
-    if (Object.values(filteredParameters).some(Boolean)) {
-      slices.push(addSlice({ ...item, link }))
+    if (Object.values(parameters).some(Boolean)) {
+      if (item.post) {
+        slices.push(addSlice({ label: item.label }))
+      } else if (link.length > MAX_LINK_SIZE) {
+        slices.push(addSlice({ ...item, link: item.link }))
+      } else {
+        slices.push(addSlice({ ...item, link }))
+      }
     }
   })
 
@@ -120,7 +153,6 @@ const menuOptions = computed(() => {
       class: 'slice'
     },
     middleButton: {
-      // Middle button
       radius: 28,
       name: 'middle',
       svgAttributes: {
@@ -150,6 +182,7 @@ function getParametersForId() {
 function addSlice({ label, link }) {
   return {
     label,
+    name: label,
     link,
     svgAttributes: {
       class: 'slice'
@@ -159,11 +192,13 @@ function addSlice({ label, link }) {
 
 function closeModal() {
   isVisible.value = false
+  LinkerStorage.removeParameters()
   emit('close')
 }
 
 function openRadialMenu() {
   isVisible.value = true
+  LinkerStorage.removeParameters()
 }
 
 function filterEmptyParams(object) {
@@ -172,7 +207,11 @@ function filterEmptyParams(object) {
   for (const key in obj) {
     const value = obj[key]
 
-    if (value === '' || (Array.isArray(value) && !value.length)) {
+    if (
+      value === undefined ||
+      value === '' ||
+      (Array.isArray(value) && !value.length)
+    ) {
       delete obj[key]
     }
   }
@@ -180,15 +219,52 @@ function filterEmptyParams(object) {
   return obj
 }
 
+function getItemByName(name) {
+  return filterLinks.value.find(({ label }) => label === name)
+}
+
+function getLinkParameters(item) {
+  const { queryParam, parseParams } = item
+
+  const parameters = queryParam
+    ? { [QUERY_PARAM[props.objectType]]: params.value }
+    : params.value
+
+  const args = {
+    params: parameters,
+    objectType: props.objectType
+  }
+
+  return typeof parseParams === 'function' ? parseParams(args) : parameters
+}
+
+function setParametersFor({ name }) {
+  const item = getItemByName(name)
+  const parameters = getLinkParameters(item)
+  const link =
+    item.link + '?' + qs.stringify(parameters, { arrayFormat: 'brackets' })
+
+  if (link.length > MAX_LINK_SIZE && item.saveQuery) {
+    LinkerStorage.saveParameters(parameters)
+  }
+}
+
+function handleClick({ name }, { openTab = false }) {
+  const item = getItemByName(name)
+  const parameters = getLinkParameters(item)
+
+  if (item.post) {
+    createAndSubmitForm({
+      action: item.link,
+      data: parameters,
+      openTab
+    })
+  }
+}
+
 watch(isVisible, (newVal) => {
   if (newVal) {
     objParameters.value = getFilterAttributes()
   }
 })
-</script>
-
-<script>
-export default {
-  name: 'RadialLinker'
-}
 </script>

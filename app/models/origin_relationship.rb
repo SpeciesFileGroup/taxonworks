@@ -63,6 +63,8 @@ class OriginRelationship < ApplicationRecord
   validate :new_object_responds
   validate :pairing_is_allowed, unless: -> {!errors.empty?}
 
+  validate :not_a_clone
+
   private
 
   def old_object_responds
@@ -73,10 +75,26 @@ class OriginRelationship < ApplicationRecord
     errors.add(:new_object, "#{new_object.class.name} is not a legal part of an origin relationship") if !(new_object.class < Shared::OriginRelationship)
   end
 
+  def new_object_can_be_derived_from(klass)
+    new_object.respond_to?(:valid_old_object_classes) &&
+      new_object.valid_old_object_classes.include?(klass)
+  end
+
+  def old_object_can_be_origin_of(klass)
+    old_object.respond_to?(:valid_new_object_classes) &&
+      old_object.valid_new_object_classes.include?(klass)
+  end
 
   def pairing_is_allowed
-    errors.add(:old_object, "#{old_object_type} is not a valid origin relationship old object of a #{old_object.class.name}") if !new_object.valid_old_object_classes.include?(old_object.class.name)
-    errors.add(:new_object, "#{new_object_type} is not a valid origin relationship new object of a #{new_object.class.name}") if !old_object.valid_new_object_classes.include?(new_object.class.name)
+    errors.add(:old_object, "#{old_object_type} is not a valid origin relationship old object of a #{new_object.class.name}") unless new_object_can_be_derived_from(old_object.class.name)
+
+    errors.add(:new_object, "#{new_object_type} is not a valid origin relationship new object of a #{old_object.class.name}") unless old_object_can_be_origin_of(new_object.class.name)
+  end
+
+  def not_a_clone
+    if (old_object == new_object) || ((old_object_type == new_object_type) && (old_object_id == new_object_id))
+      errors.add(:old_object, 'objects can not be cloned (related to each other)')
+    end
   end
 
 end

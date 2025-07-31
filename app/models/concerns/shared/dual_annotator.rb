@@ -3,6 +3,7 @@
 module Shared::DualAnnotator
   extend ActiveSupport::Concern
 
+  # Annotations on these objects are always COMMUNITY
   ALWAYS_COMMUNITY = [ 'GeographicArea', 'Person', 'Serial', 'Source', 'Organization', 'Repository'].freeze
 
   included do

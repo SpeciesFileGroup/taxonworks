@@ -2,3 +2,6 @@ json.extract! image, :id, :height, :width, :image_file_fingerprint, :image_file_
 json.original short_url(image.image_file)
 json.thumb short_url(image.image_file.url(:thumb))
 json.medium short_url(image.image_file.url(:medium))
+json.content_type image.image_file_content_type
+json.original_png original_as_png_via_api(image)
+

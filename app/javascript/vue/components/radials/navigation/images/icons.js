@@ -6,6 +6,7 @@ import recentIcon from './recent'
 import allTasksIcon from './allTasks'
 import pin from './pin'
 import related from './related'
+import unify from './unify'
 
 const Icons = {
   Show: showIcon,
@@ -15,7 +16,8 @@ const Icons = {
   Recent: recentIcon,
   AllTasks: allTasksIcon,
   Pin: pin,
-  Related: related
+  Related: related,
+  Unify: unify
 }
 
 export default Icons

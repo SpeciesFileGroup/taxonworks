@@ -55,7 +55,7 @@ import FormFreeText from '../Form/FormFreeText.vue'
 import FormPresenceAbsent from '../Form/FormPresenceAbsent.vue'
 import FormQualitative from '../Form/FormQualitative.vue'
 import populateRows from './populateRows'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 const components = {

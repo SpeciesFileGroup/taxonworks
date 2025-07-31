@@ -1,5 +1,10 @@
 <div id="loan_recipient_form">
-  <p id="loan_recipient_form_loan_id" class="no_bullets">Loan ID(s): <%= @loan.identifiers.collect{|a| a.cached}.join('; ') -%></p>
+  <p id="loan_recipient_form_loan_id" class="no_bullets">Loan ID(s): <%= @loan.identifiers.collect{|a| a.cached}.join('; ') -%>
+      <% if @loan.is_gift %>
+        <span id="gift_status"><b>[GIFT]</b></span>
+    <% end %>
+  </p>
+
   <div id="loan_header" class="flexbox panels-container">
 
     <div id="recipient_details" class="item item1">
@@ -8,25 +13,23 @@
         <%= tag.li( @loan.recipient_email) if @loan.recipient_email -%>
         <%= tag.li( @loan.recipient_phone) if @loan.recipient_phone -%>
         <% @loan.loan_supervisors.each do |person| -%>
-            <%= tag.li person_tag(person) -%>
+          <%= tag.li person_tag(person) -%>
         <% end %>
 
         <% @loan.loan_recipients.each do |person| -%>
-            <%= tag.li person_tag(person) -%>
+          <%= tag.li person_tag(person) -%>
         <% end %>
 
-        <%= tag.li tag.span(@loan.recipient_address, class: :loan_address)  -%>
+        <%= tag.li(tag.pre(@loan.recipient_address, class: :address))  -%>
       </ul>
     </div>
     <div id="lender_details" class="item item2">
-      <ul>
-        <%= tag.li( tag.span(@loan.lender_address, class: :loan_address) ) -%>
-      </ul>
+      <%= tag.li( tag.pre(@loan.lender_address, class: :address) ) -%>
     </div>
   </div>
 
   <div id="sent_date"> Date sent: <%= @loan.date_sent -%> </div>
-  <div id="return_date"> Date return due: <%= @loan.date_return_expected -%></div>
+  <div id="return_date"> <%= loan_due_back_tag(@loan) -%></div>
 
   <div id="loan_items">
     <%= render('/loan_items/loan_table', loan_items: @loan.loan_items.order(:position)) -%>
@@ -48,15 +51,14 @@
         </tbody>
       </table>
 
-      <br><strong> Compiled by:  </strong><%= tag.span((@loan.loan_items.collect{|a| [a.updater.name, a.creator.name]}.flatten.uniq.sort.join(', ')).html_safe) -%>
+      <br><strong> Compiled by: </strong><%= tag.span((@loan.loan_items.collect{|a| [a.updater.name, a.creator.name]}.flatten.uniq.sort.join(', ')).html_safe) -%>
 
-
-      <p>I agree to the terms of this loan.</p>
-      <div class="panels-container">
-        <p class="signature_line">Signature</p>
-        <p class="signature_line">Supervisor's signature</p>
-        <p class="signature_line">Date</p>
-      </div>
+    <p>I agree to the terms of this loan.</p>
+    <div class="panels-container">
+      <p class="signature_line">Signature</p>
+      <p class="signature_line">Supervisor's signature</p>
+      <p class="signature_line">Date</p>
+    </div>
     </div>
   </div>
 </div>

@@ -1,0 +1,7 @@
+taxonID	parentNameUsageID	acceptedNameUsageID	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsageID	namePublishedInYear	nomenclaturalCode	TW:TaxonNameClassification:Latinized:Gender	TW:TaxonNameClassification:Latinized:PartOfSpeech	TW:TaxonNameRelationship:incertae_sedis_in_rank	TW:TaxonNameClassification:Iczn:Fossil
+429240		429240	Camponotini	Animalia	Insecta	Hymenoptera	Formicidae					Tribe	Forel, 1878	valid	429240	1878	ICZN
+429313	429240	429313	Polyrhachis	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Smith, 1857	valid	429313	1857	ICZN	feminine
+462158	429240	429314	Myrma	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Billberg, 1820	obsolete classification	462158	1820	ICZN	feminine
+429314	429313	429314	Polyrhachis (Myrma)	Animalia	Insecta	Hymenoptera	Formicidae	Polyrhachis				Subgenus	Billberg, 1820	valid	462158	1820	ICZN
+446004	429314	446004	Polyrhachis olena	Animalia	Insecta	Hymenoptera	Formicidae	Polyrhachis	Polyrhachis (Myrma)	olena		Species	Smith, 1861	valid	446004	1861	ICZN
+513662	429314	446004	Polyrhachis olenus	Animalia	Insecta	Hymenoptera	Formicidae	Polyrhachis	Polyrhachis (Myrma)	olenus		Species	Smith, 1861	original misspelling	446004	1861	ICZN

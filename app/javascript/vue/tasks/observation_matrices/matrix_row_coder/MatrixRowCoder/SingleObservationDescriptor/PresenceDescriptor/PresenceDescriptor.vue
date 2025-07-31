@@ -43,7 +43,7 @@
   </div>
 </template>
 
-<style src="./PresenceDescriptor.styl" lang="stylus"></style>
+<style src="./PresenceDescriptor.scss" lang="scss"></style>
 
 <script>
 import SingleObservationDescriptor from '../SingleObservationDescriptor'

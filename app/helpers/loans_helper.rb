@@ -97,9 +97,15 @@ module LoansHelper
   end
 
   def loan_due_back_tag(loan)
-    'Due back on ' +
-      ( loan.date_return_expected.present? ? loan.date_return_expected.to_s : 'NOT PROVIDED' ) +
-      '.'
+    s = 'Date return due: '
+
+    if loan.is_gift
+      s << ' GIFT, return not expected.'
+    else
+      s << (loan.date_return_expected.present? ? loan.date_return_expected.to_s : 'NOT PROVIDED')
+    end
+
+    s
   end
 
   def keywords_on_loanable_items
@@ -152,14 +158,14 @@ module LoansHelper
     q = selected_loan_items(loans)
 
     q.where(loan_item_object_type: 'Otu').joins(:loan).pluck(:date_sent, :total).each do |d, t|
-      data.first[:data][d&.year] += t if t
+      data.first[:data][d.year] += t if d&.year && t
     end
 
     q.where(loan_item_object_type: 'CollectionObject')
       .joins(:loan)
       .joins('JOIN collection_objects on collection_objects.id = loan_items.loan_item_object_id')
       .pluck(:date_sent, 'collection_objects.total' ).each do |d, t|
-        data.last[:data][d&.year] += t if t
+        data.last[:data][d.year] += t if d&.year && t
       end
 
     data

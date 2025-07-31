@@ -1,6 +1,14 @@
 # Methods that receive or generate a String. This methods in this library should be completely independant (i.e. ultimately gemifiable) from TaxonWorks.
 module Utilities::Strings
 
+  CLEANABLE = [
+    "\u0000", # nill string
+    "\u0010", # DLE - data link escape
+    "\u009A", # SCI - single character introducer
+    "\u007F", # DEL - delete
+    # "\u00A0", # no-break space !! Rails .blank? is true
+  ].freeze
+
   # @return String, nil
   #   replace <br>, <i>, <b> tags with their asciidoc equivalents
   def self.asciify(string)
@@ -45,13 +53,17 @@ module Utilities::Strings
   end
 
   # @param [String] string
+  # @return Boolean
+  def self.cleanable?(string)
+    string =~ /#{CLEANABLE.join('|')}|\s/
+  end
+
+  # @param [String] string
   # @return [String, nil]
-  #  strips pre/post fixed space and condenses internal spaces, and also  but returns nil (not empty string) if nothing is left
-  def self.nil_squish_strip(string)
+  def self.clean(string)
     a = string.dup
     if !a.nil?
-      a.delete("\u0000")
-      a.squish!
+      a.gsub!(/#{CLEANABLE.join('|')}/, '')
       a = nil if a == ''
     end
     a
@@ -231,4 +243,3 @@ module Utilities::Strings
   end
 
 end
-

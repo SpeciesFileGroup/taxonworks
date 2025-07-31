@@ -22,10 +22,14 @@ class ImagesController < ApplicationController
 
   # GET /api/v1/otus/:id/inventory/images
   #  - routed here to take advantage of Pagination
+  #  Fairly limited functionality now.
   def api_image_inventory
     @images = ::Queries::Image::Filter.new(
       params.permit(
-        :otu_id, otu_scope: [])
+        :otu_id,
+        :otu_scope,
+        otu_id: [],
+        otu_scope: [])
     ).all.page(params[:page]).per(params[:per])
     render '/images/api/v1/index'
   end
@@ -45,11 +49,14 @@ class ImagesController < ApplicationController
 
   # GET /api/v1/images/:id
   def api_show
-    @image = Image.where(project_id: sessions_current_project_id).find_by(id: params[:id])
-    @image ||= Image.where(project_id: sessions_current_project_id).find_by(image_file_fingerprint: params[:id])
+    id = params[:id]
+    if id =~ (/\A\d+\z/)
+      @image = Image.where(project_id: sessions_current_project_id).find_by(id:)
+    else
+      @image = Image.where(project_id: sessions_current_project_id).find_by(image_file_fingerprint: id)
+    end
 
     render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found and return if @image.nil?
-
     render '/images/api/v1/show'
   end
 
@@ -65,14 +72,19 @@ class ImagesController < ApplicationController
   # POST /images
   # POST /images.json
   def create
-    @image = Image.new(image_params)
+    @image = Image.deduplicate_create(image_params)
     respond_to do |format|
-      if @image.save
-        format.html { redirect_to @image, notice: 'Image was successfully created.' }
-        format.json { render :show, status: :created, location: @image }
+      if @image.persisted?
+        format.html { redirect_to @image, notice: 'Identical image exists.' }
+        format.json { render :show, status: :ok, location: @image }
       else
-        format.html { render :new }
-        format.json { render json: @image.errors, status: :unprocessable_entity }
+        if @image.save
+          format.html { redirect_to @image, notice: 'Image was successfully created.' }
+          format.json { render :show, status: :created, location: @image }
+        else
+          format.html { render :new }
+          format.json { render json: @image.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -127,9 +139,9 @@ class ImagesController < ApplicationController
   # GET /images/download
   def download
     send_data(
-      Export::Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
+      Export::CSV.generate_csv(Image.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "images_#{DateTime.now}.csv")
+      filename: "images_#{DateTime.now}.tsv")
   end
 
   # GET /images/:id/extract/:x/:y/:height/:width
@@ -144,6 +156,11 @@ class ImagesController < ApplicationController
 
   # GET 'images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
   def scale_to_box
+    send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
+  end
+
+  # GET 'images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
+  def api_scale_to_box
     send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 
@@ -195,6 +212,7 @@ class ImagesController < ApplicationController
     params.require(:image).permit(
       :image_file, :rotate,
       :pixels_to_centimeter,
+      :filename_depicts_object,
       citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
       sled_image_attributes: [:id, :_destroy, :metadata, :object_layout]
     )

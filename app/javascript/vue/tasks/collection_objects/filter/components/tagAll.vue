@@ -23,7 +23,7 @@
 import { ref, onUnmounted } from 'vue'
 import { Tag } from '@/routes/endpoints'
 import { CONTROLLED_VOCABULARY_TERM } from '@/constants/index'
-import VSpinner from '@/components/spinner'
+import VSpinner from '@/components/ui/VSpinner'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 

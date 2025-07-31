@@ -15,7 +15,6 @@
 
     <component
       :is="selectedDownloadItem.component"
-      :list="list"
       v-bind="selectedDownloadItem.bind"
       v-slot="{ action }"
     >
@@ -40,9 +39,11 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { flatten } from '@json2csv/transforms'
+import { decodeBasicEntities } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import csvButton from '@/components/csvButton.vue'
+import DOMPurify from 'dompurify'
 
 const props = defineProps({
   list: {
@@ -52,7 +53,12 @@ const props = defineProps({
 
   csvOptions: {
     type: Object,
-    default: () => ({})
+    default: () => undefined
+  },
+
+  onlyExtendDownload: {
+    type: Boolean,
+    default: false
   },
 
   extendDownload: {
@@ -61,22 +67,57 @@ const props = defineProps({
   }
 })
 
-const CSV_DOWNLOAD = {
-  label: 'CSV',
-  component: csvButton,
-  bind: {
-    options: {
-      transforms: [flatten({ object: true, array: true, separator: '_' })],
-      ...props.csvOptions
+function stringFormatter(opts = {}) {
+  const quote = typeof opts.quote === 'string' ? opts.quote : '"'
+  const escapedQuote =
+    typeof opts.escapedQuote === 'string'
+      ? opts.escapedQuote
+      : `${quote}${quote}`
+
+  if (!quote || quote === escapedQuote) {
+    return (value) => sanatizeValue(value)
+  }
+
+  return (value) => {
+    if (value.includes(quote)) {
+      value = value.replace(new RegExp(quote, 'g'), escapedQuote)
     }
+
+    return `${quote}${sanatizeValue(value)}${quote}`
   }
 }
 
-const DOWNLOAD_LIST = computed(() => [CSV_DOWNLOAD, ...props.extendDownload])
+function sanatizeValue(value) {
+  const sanitizedValue = DOMPurify.sanitize(value, {
+    USE_PROFILES: { html: false }
+  })
+
+  return decodeBasicEntities(sanitizedValue)
+}
+
+const csvDownload = computed(() => ({
+  label: 'CSV',
+  component: csvButton,
+  bind: {
+    list: props.list,
+    options: props.csvOptions || {
+      transforms: [flatten({ object: true, array: true, separator: '_' })],
+      formatters: { string: stringFormatter() }
+    }
+  }
+}))
+
+const DOWNLOAD_LIST = computed(() => {
+  const list = props.extendDownload
+
+  return props.onlyExtendDownload || list.some((item) => item.label === 'CSV')
+    ? list
+    : [csvDownload.value, ...list]
+})
 
 const selectedDownloadItem = computed(() =>
   DOWNLOAD_LIST.value.find(({ label }) => label === selectedDownloadLabel.value)
 )
 
-const selectedDownloadLabel = ref(CSV_DOWNLOAD.label)
+const selectedDownloadLabel = ref(DOWNLOAD_LIST.value[0]?.label)
 </script>

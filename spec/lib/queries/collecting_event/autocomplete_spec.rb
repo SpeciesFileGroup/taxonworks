@@ -12,7 +12,7 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
 
   let!(:ce2) { CollectingEvent.create(
     verbatim_locality: 'Out there, under the stars',
-    verbatim_trip_identifier: 'Foo manchu',
+    verbatim_field_number: 'Foo manchu',
     start_date_year: 2000,
     start_date_month: 2,
     start_date_day: 19,
@@ -25,11 +25,11 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
     verbatim_collectors: 'Jones, A.B.',
     verbatim_habitat: 'parkland',
     print_label: 'THERE: under the stars:18-2-2000',
-    collector_roles_attributes: [{person_attributes: {last_name: 'Jones'}}]  
+    collector_roles_attributes: [{person_attributes: {last_name: 'Jones'}}]
   ) }
 
   let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
-  let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
+  let!(:i1) { Identifier::Local::FieldNumber.create!(identifier_object: ce1, identifier: '123', namespace:) }
 
   let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
@@ -68,9 +68,9 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
     expect(query.autocomplete_verbatim_locality_wildcard_end).to eq(nil)
   end
 
-  specify '#autocomplete_verbatim_trip_identifier_match (:cached)' do
+  specify '#autocomplete_verbatim_field_number_match (:cached)' do
     query.terms = 'foo manchu'
-    expect(query.autocomplete_verbatim_trip_identifier_match.map(&:id)).to contain_exactly(ce2.id)
+    expect(query.autocomplete_verbatim_field_number_match.map(&:id)).to contain_exactly(ce2.id)
   end
 
   specify '#autocomplete_identifier_cached_exact' do

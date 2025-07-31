@@ -23,6 +23,7 @@ module Queries::Concerns::Identifiers
       :local_identifiers,
       :global_identifiers,
       :match_identifiers,
+      :match_identifiers_caseless,
       :match_identifiers_delimiter,
       :match_identifiers_type,
       :namespace_id,
@@ -34,13 +35,16 @@ module Queries::Concerns::Identifiers
     # Matches on cached
     attr_accessor :identifier
 
+    # @return param, nil (must be Integer or it silently fails)
     #  matches .identifier
+    # @param Integer, nil
     attr_accessor :identifier_end
 
     # Match like or exact on cached
     attr_accessor :identifier_exact
 
-    # @return [String]
+    # @return param, nil (must be Integer or it silently fails)
+    # @param Integer, nil
     #   matches .identifier
     attr_accessor :identifier_start
 
@@ -66,6 +70,13 @@ module Queries::Concerns::Identifiers
     #   nil - not applied
     attr_accessor :global_identifiers
 
+    # @param match_identifiers_caseless [Boolean]
+    # @return [Boolean, nil] default true
+    #   if true then LOWER(cached) is matched to values.downcased
+    # 
+    # !! Requires match_identifiers_delimiter to be present
+    attr_accessor :match_identifiers_caseless
+
     # @param match_identifiers [String]
     # @return [String, nil]
     #   a list of delimited identifiers
@@ -87,12 +98,24 @@ module Queries::Concerns::Identifiers
     # Limit to this namespace
     attr_accessor :namespace_id
 
+    # Globally turn off (in crude manner) use of this concern.  Set in individual filters,
+    # e.g. SqedDepictoin
+    attr_accessor :no_identifier_clauses
+
     def identifier_start
-      @identifier_start.to_s
+      if @identifier_start.blank?
+        nil
+      else
+        @identifier_start.to_s
+      end
     end
 
     def identifier_end
-      @identifier_end.to_s
+      if @identifier_end.blank?
+        nil
+      else
+        @identifier_end.to_s
+      end
     end
 
     def match_identifiers_delimiter
@@ -118,18 +141,18 @@ module Queries::Concerns::Identifiers
   end
 
   def set_identifier_params(params)
-
     @global_identifiers = boolean_param(params, :global_identifiers)
     @identifier = params[:identifier]
-    @identifier_end = params[:identifier_end]
+    @identifier_end = integer_param(params, :identifier_end)
     @identifier_exact = boolean_param(params, :identifier_exact)
-    @identifier_start = params[:identifier_start]
+    @identifier_start = integer_param(params, :identifier_start)
     @identifier_type = params[:identifier_type]
     @identifiers = boolean_param(params, :identifiers)
     @local_identifiers = boolean_param(params, :local_identifiers)
     @match_identifiers = params[:match_identifiers]
     @match_identifiers_delimiter = params[:match_identifiers_delimiter]
     @match_identifiers_type = params[:match_identifiers_type]
+    @match_identifiers_caseless = boolean_param(params, :match_identifiers_caseless)
     @namespace_id = params[:namespace_id]
   end
 
@@ -182,9 +205,13 @@ module Queries::Concerns::Identifiers
     when 'internal'
       a = referenced_klass.where(id: ids)
     when 'identifier'
-      a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids})
+      if match_identifiers_caseless != false # nil or true
+        a = referenced_klass.joins(:identifiers).where('LOWER(identifiers.cached) IN (?)', ids.map(&:downcase)).distinct
+      else
+        a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids}).distinct
+      end
     when 'dwc_occurrence_id'
-      a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids, type: 'Identifier::Global::Uuid::TaxonworksDwcOccurrence' })
+      a = referenced_klass.joins(:identifiers).where(identifiers: {cached: ids, type: 'Identifier::Global::Uuid::TaxonworksDwcOccurrence' }).distinct
     else
       return nil
     end
@@ -276,7 +303,6 @@ module Queries::Concerns::Identifiers
     a
   end
 
-
   # TODO: Simplify local/global copy-pasta
   def global_identifiers_facet
     return nil if global_identifiers.nil?
@@ -328,7 +354,7 @@ module Queries::Concerns::Identifiers
   def identifier_type_facet
     return nil if identifier_type.empty?
     q = referenced_klass.joins(:identifiers)
-    w = identifier_table[:type].eq_any(identifier_type)
+    w = identifier_table[:type].in(identifier_type)
     a = q.where(w)
 
     a = referenced_klass_union([a, identifier_type_container_match ]) if referenced_klass.is_containable?
@@ -345,8 +371,8 @@ module Queries::Concerns::Identifiers
   end
 
   def identifier_between_facet
-    return nil if @identifier_start.nil?
-    @identifier_end = @identifier_start if @identifier_end.nil?
+    return nil if identifier_start.blank?
+    @identifier_end = identifier_start if identifier_end.blank?
 
     w = between
     w = w.and(identifier_table[:namespace_id].eq(namespace_id)) if namespace_id # TODO: redundant with namespace facet likely
@@ -389,7 +415,7 @@ module Queries::Concerns::Identifiers
     identifier_table[:cached].matches_any(a)
   end
 
-  # TODO: make generic autcomplete include for all methos optimized
+  # TODO: make generic autcomplete include for all methods optimized
 
   # Autocomplete for tables *referencing* identifiers
   # See lib/queries/identifiers/autocomplete for autocomplete for identifiers
@@ -415,6 +441,60 @@ module Queries::Concerns::Identifiers
   def autocomplete_identifier_matching_cached_fragments_anywhere
     referenced_klass.joins(:identifiers).where(with_identifier_cached_like_fragments.to_sql)
   end
+
+  def match_identifier_order_by(target_query)
+    case order_by
+    when :match_identifiers
+      if match_identifiers.present?
+
+        ids = if match_identifiers_caseless != false # nil or true
+                identifiers_to_match.map(&:downcase)
+              else
+                identifiers_to_match
+              end
+
+        case match_identifiers_type # rubocop:disable Metrics/BlockNesting
+        when 'internal'
+          o = "array_position(ARRAY[#{ids.join(',')}], #{table.name}.id)"
+          target_query = target_query.order(Arel.sql(o))
+        else
+
+          if match_identifiers_caseless != false # nil or true
+            # caseless
+
+            # TODO: optimize, this was done hastily
+            o = "array_position(ARRAY[#{ids.collect{|i| "'#{i}'"}.join(',')}], LOWER(sid.cached)) s"
+
+            i = ::Identifier
+              .from('identifiers sid')
+              .where('LOWER(sid.cached) IN (?)', ids) # This is required to de-duplicate for some reason ?!
+              .select("sid.*, #{o}")
+
+            target_query = target_query.with(sid: i)
+              .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
+              .select("#{table.name}.*, sid.s")
+              .order('sid.s')
+
+          else
+
+            # TODO: optimize, this was done hastily
+            o = "array_position(ARRAY[#{ids.collect{|i| "'#{i}'"}.join(',')}], sid.cached) s"
+
+            i = ::Identifier
+              .from('identifiers sid')
+              .where(sid: {cached: ids}) # This is required to de-duplicate for some reason ?!
+              .select("sid.*, #{o}")
+
+            target_query = target_query.with(sid: i)
+              .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
+              .select("#{table.name}.*, sid.s")
+              .order('sid.s')
+          end
+        end
+      end
+    end
+    target_query
+  end 
 
   # def substring
   #   Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')

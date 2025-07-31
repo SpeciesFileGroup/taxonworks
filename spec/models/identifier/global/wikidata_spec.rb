@@ -1,7 +1,33 @@
 require 'rails_helper'
 
 describe Identifier::Global::Wikidata, type: :model, group: :identifiers do
+  include ActiveJob::TestHelper
+
   let(:id) { Identifier::Global::Wikidata.new(identifier_object: FactoryBot.create(:valid_person)) }
+
+  specify 'dwc_occurrence hooks - Collector' do
+    s = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
+    p = FactoryBot.build(:valid_person)
+    s.collecting_event.collectors << p
+
+    Identifier::Global::Wikidata.create!(identifier_object: p, identifier: 'Q123' )
+
+    perform_enqueued_jobs
+
+    expect(s.dwc_occurrence.reload.recordedByID).to eq('Q123')
+  end
+
+  specify 'dwc_occurrence hooks - Determiner' do
+    s = Specimen.create!
+    p = FactoryBot.build(:valid_person)
+    t = FactoryBot.build(:valid_taxon_determination, determiners: [p], taxon_determination_object: s)
+
+    Identifier::Global::Wikidata.create!(identifier_object: p, identifier: 'Q123' )
+
+    perform_enqueued_jobs
+
+    expect(s.dwc_occurrence.reload.identifiedByID).to eq('Q123')
+  end
 
   context 'looking for data', vcr: true do
     specify 'matches "namespace" 1' do

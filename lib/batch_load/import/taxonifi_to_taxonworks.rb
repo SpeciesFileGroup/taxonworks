@@ -33,17 +33,10 @@ module BatchLoad
     # @return [TaxonName]
     def parent_taxon_name
       return @parent_taxon_name if @parent_taxon_name
-      if !@parent_taxon_name_id.blank?
-        begin
-          @parent_taxon_name = TaxonName.find(parent_taxon_name_id)
-        rescue ActiveRecord::RecordNotFound
-          @errors = ['Provided parent taxon name id not valid.']
-        end
-      else
-        @parent_taxon_name = Project.find(@project_id).root_taxon_name
-      end
-
-      @parent_taxon_name
+        @parent_taxon_name = TaxonName.find_by(id: parent_taxon_name_id)
+        @parent_taxon_name ||= Project.find(project_id).root_taxon_name
+        @errors << 'Provided parent taxon name id not valid.' if @parent_taxon_name.blank?
+        @parent_taxon_name
     end
 
     # @return [Symbol]
@@ -67,7 +60,7 @@ module BatchLoad
       begin
         @name_collection ||= ::Taxonifi::Lumper.create_name_collection(csv: csv)
       rescue Taxonifi::Assessor::RowAssessor::RowAssessorError => e
-        @file_errors.push 'Error assessing a row of data in the inputfile.'
+        @file_errors.push "Error assessing a row of data in the inputfile: #{e}."
       end
     end
 
@@ -86,8 +79,8 @@ module BatchLoad
         i  = n.row_number + 1
         rp = nil
 
-        if @processed_rows[i]
-          rp = @processed_rows[i]
+        if processed_rows[i]
+          rp = processed_rows[i]
         else
           rp = BatchLoad::RowParse.new
           @processed_rows[i] = rp
@@ -95,16 +88,16 @@ module BatchLoad
 
         p = Protonym.new(
           name: n.name,
-          year_of_publication: n.year.to_s,
           rank_class: Ranks.lookup(nomenclature_code, n.rank),
-          by: @user,
           also_create_otu: also_create_otu,
-          project: @project,
           verbatim_author: (n.parens ? n.author_with_parens : nil),
-          taxon_name_authors_attributes: taxon_name_authors_hash(n)
+          year_of_publication: n.year.to_s,
+          by: user,
+          project_id: project_id
+          # taxon_name_authors_attributes: taxon_name_authors_hash(n)
         )
 
-        p.parent = (n.parent.nil? ? parent_taxon_name : parents[n.parent.id])
+        p.parent = (n.parent.nil? ? parent_taxon_name : parents[n.parent.id] )
 
         rp.objects[:protonyms] ||= []
         rp.objects[:protonyms].push(p)

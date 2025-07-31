@@ -3,8 +3,9 @@
   padding-left: $standard_padding;
   padding-right: $standard_padding;
   align-items: center;
-  background-color: $color-header;
+  background-color: var(--header-bg-color);
   height: 60px;
+  color: white;
 
   #taxonworks_logo {
     width: 160px;
@@ -18,13 +19,12 @@
   }
 
   #taxonworks_left {
-    flex-grow: 1;
+    line-height: $font_small;
   }
 
   #taxonworks_left > a {
     color: white;
     text-decoration: none;
-    line-height: $font_small;
   }
 
   #taxonworks_version {
@@ -34,23 +34,27 @@
     padding: 0;
   }
 
-  #session_nav {
-    flex-grow: 0;
-  }
-
   .horizontal_navbar {
     a {
       padding: 0px;
       color: #fff;
     }
-    li {
-      padding-left: $standard_padding;
-    }
+  }
+
+  .issues-link:hover {
+    color: white;
   }
 }
 
+#header_bar.header_development {
+  background-color: black;
+  background-image: linear-gradient(to right, #3a3a3a 1px, transparent 1px),
+    linear-gradient(to bottom, #3a3a3a 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
 #header_bar.sandbox {
-  background-color: #4a4564;
+  background-color: var(--header-sandbox-bg-color);
 
   #taxonworks a {
     color: $default_text;
@@ -59,7 +63,7 @@
 
 .current_hub_category a {
   border-bottom: 2px solid $color-secondary-2-4 !important;
-  color: $default_text !important;
+  color: var(--text-color) !important;
 }
 
 #main {

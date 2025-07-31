@@ -86,10 +86,10 @@ import ActionNames from '../store/actions/actionNames'
 import RadialObject from '@/components/radials/object/radial.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import CollectionObject from './collectionObject.vue'
-import DepictionsSection from './depictions.vue'
-import SwitchComponent from '@/components/switch.vue'
+import DepictionsSection from './depictions/depictions.vue'
+import SwitchComponent from '@/components/ui/VSwitch.vue'
 
 const TAB = {
   edit: 'edit',

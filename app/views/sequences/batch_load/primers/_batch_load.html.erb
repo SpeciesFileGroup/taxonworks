@@ -8,7 +8,7 @@
       <p>Creates sequences and attaches at most 2 data attributes to each sequence</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are "name", "gene_name", "type", "sequence" (see <%= link_to('sample template', asset_path('batch_load_templates/sequences/sequences_primers_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Column headers are "name", "gene_name", "type", "sequence" (see <%= link_to('sample template', asset_path('batch_load_templates/sequences/sequences_primers_batch_load.tab', skip_pipeline: true), target: '_blank') -%>).</li>
         <li>Multiple uploads of the same data will be ignored.</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
         <li>DataAttribute of predicate "GeneName" with value of "gene_name" column will be attached if not blank to each sequence.</li>

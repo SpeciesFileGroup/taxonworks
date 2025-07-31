@@ -78,7 +78,7 @@ describe Queries::Extract::Filter, type: :model, group: [:dna, :collection_objec
     t = FactoryBot.create(:valid_taxon_name)
     o = Otu.create!(taxon_name: t)
     s = Specimen.create!
-    FactoryBot.create(:valid_taxon_determination, otu: o, biological_collection_object: s)
+    FactoryBot.create(:valid_taxon_determination, otu: o, taxon_determination_object: s)
     e = FactoryBot.create(:valid_extract, collection_objects: [s])
     FactoryBot.create(:valid_extract)
 
@@ -108,7 +108,7 @@ describe Queries::Extract::Filter, type: :model, group: [:dna, :collection_objec
     o = Otu.create!(name: 'extractable')
     d = FactoryBot.create(:valid_taxon_determination, otu: o)
     e = FactoryBot.create(:valid_extract, otus: [o])
-    f = FactoryBot.create(:valid_extract, collection_objects: [d.biological_collection_object])
+    f = FactoryBot.create(:valid_extract, collection_objects: [d.taxon_determination_object])
     FactoryBot.create(:valid_extract) # not this
 
     q.otu_id = o.id
@@ -125,4 +125,3 @@ describe Queries::Extract::Filter, type: :model, group: [:dna, :collection_objec
   end
 
 end
-

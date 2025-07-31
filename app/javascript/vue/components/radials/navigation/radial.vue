@@ -1,65 +1,69 @@
 <template>
   <div v-if="!deleted">
-    <div class="radial-annotator">
-      <VModal
-        v-if="isRadialOpen"
-        transparent
-        @close="closeModal()"
-      >
-        <template #header>
-          <span class="flex-separate middle">
-            <span v-html="title" />
-            <b
-              v-if="metadata"
-              class="separate-right"
-              v-text="metadata.type"
-            />
-          </span>
-        </template>
-        <template #body>
-          <div class="horizontal-center-content">
-            <spinner v-if="isLoading" />
-            <RadialMenu
-              v-if="metadata"
-              ref="radialElement"
-              :options="menuOptions"
-              @onClick="selectedRadialOption"
-            />
-            <DestroyConfirmation
-              v-if="showDestroyModal"
-              @close="showDestroyModal = false"
-              @confirm="destroyObject"
-            />
-          </div>
-        </template>
-      </VModal>
-      <AllTasks
-        v-if="isAlltaskSelected"
-        @close="isAlltaskSelected = false"
-        :metadata="metadata"
-      />
-
-      <VBtn
-        v-if="showBottom"
-        :title="buttonTitle"
-        color="radial"
-        circle
-        :disabled="disabled"
-        @click="openRadialMenu()"
-      >
-        <VIcon
-          :title="buttonTitle"
-          name="radialNavigator"
-          x-small
+    <Teleport
+      v-if="isRadialOpen"
+      :disabled="!teleport"
+      to="body"
+    >
+      <div class="radial-annotator">
+        <VModal
+          transparent
+          @close="closeModal()"
+        >
+          <template #header>
+            <span class="flex-separate middle">
+              <span v-html="title" />
+              <b
+                v-if="metadata"
+                class="separate-right"
+                v-text="metadata.type"
+              />
+            </span>
+          </template>
+          <template #body>
+            <div class="horizontal-center-content">
+              <spinner v-if="isLoading" />
+              <RadialMenu
+                v-if="metadata"
+                ref="radialElement"
+                :options="menuOptions"
+                @click="selectedRadialOption"
+              />
+              <DestroyConfirmation
+                v-if="showDestroyModal"
+                @close="showDestroyModal = false"
+                @confirm="destroyObject"
+              />
+            </div>
+          </template>
+        </VModal>
+        <AllTasks
+          v-if="isAlltaskSelected"
+          @close="isAlltaskSelected = false"
+          :metadata="metadata"
         />
-      </VBtn>
-    </div>
+      </div>
+    </Teleport>
+    <VBtn
+      v-if="showBottom"
+      :title="buttonTitle"
+      color="radial"
+      circle
+      :disabled="disabled"
+      @click="openRadialMenu()"
+    >
+      <VIcon
+        :title="buttonTitle"
+        name="radialNavigator"
+        x-small
+      />
+    </VBtn>
   </div>
 </template>
 
 <script setup>
 import RadialMenu from '@/components/radials/RadialMenu.vue'
-import Spinner from '@/components/spinner.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
@@ -76,13 +80,20 @@ const DEFAULT_OPTIONS = {
   Destroy: 'Destroy',
   Recent: 'Recent',
   Show: 'Show',
-  Related: 'Related'
+  Related: 'Related',
+  Unify: 'Unify'
 }
 
 const CUSTOM_OPTIONS = {
   AllTasks: 'allTasks',
   CircleButton: 'circleButton'
 }
+
+const EXCLUDE_TASKS = ['unify_objects_task']
+
+defineOptions({
+  name: 'RadialNavigation'
+})
 
 const props = defineProps({
   globalId: {
@@ -110,7 +121,7 @@ const props = defineProps({
     default: () => ({})
   },
 
-  filterOptions: {
+  exclude: {
     type: [String, Array],
     default: () => []
   },
@@ -123,6 +134,11 @@ const props = defineProps({
   redirect: {
     type: Boolean,
     default: true
+  },
+
+  teleport: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -136,7 +152,12 @@ const defaultTasks = computed(() => ({
 }))
 
 const menuOptions = computed(() => {
-  const tasks = metadata.value.tasks || {}
+  const tasks = { ...metadata.value.tasks }
+
+  EXCLUDE_TASKS.forEach((task) => {
+    delete tasks[task]
+  })
+
   const taskSlices = Object.entries(tasks)
     .slice(0, props.maxTaskInPie)
     .map(([task, { name, path }]) => ({
@@ -175,7 +196,7 @@ const menuOptions = computed(() => {
     sliceSize: 190,
     innerPosition: 1.4,
     centerSize: 34,
-    margin: 0,
+    margin: 2,
     middleButton: middleButton.value,
     svgAttributes: {
       class: 'svg-radial-menu svg-radial-menu-navigator'
@@ -189,14 +210,14 @@ const menuOptions = computed(() => {
 })
 
 const defaultSlices = computed(() => {
-  const filterOptions = props.filterOptions
+  const exclude = [props.exclude].flat()
 
-  if (!metadata.value.destroy) {
-    filterOptions.push(addSlice(DEFAULT_OPTIONS.Destroy))
+  if (!metadata.value?.tasks?.unify_objects_task) {
+    exclude.push(DEFAULT_OPTIONS.Unify)
   }
 
   return defaultSlicesTypes
-    .filter((type) => !filterOptions.includes(type))
+    .filter((type) => !exclude.includes(type))
     .map((type) => addSlice(type, { link: defaultLinks()[type] }))
 })
 
@@ -211,7 +232,7 @@ const middleButton = computed(() => ({
     height: '20'
   },
   svgAttributes: {
-    fill: isPinned.value ? '#F44336' : '#9ccc65'
+    fill: isPinned.value ? 'var(--color-destroy)' : 'var(--color-create)'
   }
 }))
 
@@ -226,6 +247,7 @@ const showDestroyModal = ref(false)
 const radialElement = ref(null)
 const defaultSlicesTypes = [
   DEFAULT_OPTIONS.Related,
+  DEFAULT_OPTIONS.Unify,
   DEFAULT_OPTIONS.New,
   DEFAULT_OPTIONS.Destroy,
   DEFAULT_OPTIONS.Edit,
@@ -279,7 +301,9 @@ function selectedRadialOption({ name }) {
 }
 
 function defaultLinks() {
-  return {
+  const unifyTask = metadata.value.tasks.unify_objects_task
+
+  const links = {
     [DEFAULT_OPTIONS.Edit]:
       metadata.value?.edit || `${metadata.value?.resource_path}/edit`,
     [DEFAULT_OPTIONS.New]:
@@ -293,6 +317,14 @@ function defaultLinks() {
       props.globalId
     )}`
   }
+
+  if (unifyTask) {
+    Object.assign(links, {
+      [DEFAULT_OPTIONS.Unify]: unifyTask.path
+    })
+  }
+
+  return links
 }
 
 function closeModal() {
@@ -395,42 +427,34 @@ function destroyPin() {
 
 function destroyObject() {
   showDestroyModal.value = false
-  ajaxCall('delete', `${metadata.value.resource_path}.json`).then((_) => {
-    TW.workbench.alert.create(
-      `${metadata.value.type} was successfully destroyed.`,
-      'notice'
-    )
-    if (props.globalId === metadata.value.global_id) {
-      eventDestroy()
-      deleted.value = true
-    }
-    if (props.redirect) {
-      if (metadata.value.destroyed_redirect) {
-        window.open(metadata.value.destroyed_redirect, '_self')
-      } else if (window.location.pathname === metadata.value.resource_path) {
-        window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
-      } else {
-        window.open(
-          metadata.value.resource_path.substring(
-            0,
-            metadata.value.resource_path.lastIndexOf('/')
-          ),
-          '_self'
-        )
+  ajaxCall('delete', `${metadata.value.resource_path}.json`)
+    .then((_) => {
+      TW.workbench.alert.create(
+        `${metadata.value.type} was successfully destroyed.`,
+        'notice'
+      )
+      if (props.globalId === metadata.value.global_id) {
+        eventDestroy()
+        deleted.value = true
       }
-    }
-  })
+      if (props.redirect) {
+        if (metadata.value.destroyed_redirect) {
+          window.open(metadata.value.destroyed_redirect, '_self')
+        } else if (window.location.pathname === metadata.value.resource_path) {
+          window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
+        } else {
+          window.open(
+            metadata.value.resource_path.substring(
+              0,
+              metadata.value.resource_path.lastIndexOf('/')
+            ),
+            '_self'
+          )
+        }
+      }
+      emit('delete', metadata.value)
+      closeModal()
+    })
+    .catch(() => {})
 }
 </script>
-
-<script>
-export default {
-  name: 'RadialNavigation'
-}
-</script>
-<style>
-.svg-radial-menu-navigator path {
-  stroke: #444;
-  stroke-width: 2px;
-}
-</style>

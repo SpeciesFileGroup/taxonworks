@@ -2,6 +2,7 @@
   <div class="depiction-thumb-container">
     <modal-component
       v-if="showModal"
+      class="depiction-modal-container"
       @close="setModalView(false)"
     >
       <template #header>
@@ -84,6 +85,7 @@
         />
       </div>
       <input
+        v-if="imageIds"
         class="position-absolute"
         type="checkbox"
         v-model="imageIds"
@@ -101,7 +103,7 @@
 import { ref, computed } from 'vue'
 import { imageScale } from '@/helpers/images'
 import ModalComponent from '@/components/ui/Modal'
-import PinComponent from '@/components/ui/Pinboard/VPin.vue'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'

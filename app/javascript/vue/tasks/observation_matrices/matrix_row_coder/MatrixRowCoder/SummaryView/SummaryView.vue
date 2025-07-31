@@ -51,11 +51,11 @@
   </div>
 </template>
 
-<style src="./SummaryView.styl" lang="stylus"></style>
+<style src="./SummaryView.scss" lang="scss"></style>
 
 <script>
 import { GetterNames } from '../../store/getters/getters'
-import SpinnerComponent from '@/components/spinner.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import SaveCountdown from '../SaveCountdown/SaveCountdown.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialObject from '@/components/radials/navigation/radial'

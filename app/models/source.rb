@@ -198,6 +198,7 @@ class Source < ApplicationRecord
   include Shared::HasPapertrail
   include SoftValidation
   include Shared::IsData
+  # !! Must not have Shared::Depictions
 
   ignore_whitespace_on(:verbatim_contents)
 
@@ -215,15 +216,12 @@ class Source < ApplicationRecord
   has_many :citation_topics, through: :citations, inverse_of: :source
   has_many :topics, through: :citation_topics, inverse_of: :sources
 
-  # !! must be below has_many :citations
-  # has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
-
-  has_many :project_sources, dependent: :destroy
-  has_many :projects, through: :project_sources
+  has_many :project_sources, inverse_of: :source, dependent: :destroy
+  has_many :projects, inverse_of: :sources, through: :project_sources
 
   after_save :set_cached
 
-  validates_presence_of :type
+  validates :type, presence: true
   validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']} # TODO: not needed
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
@@ -277,7 +275,7 @@ class Source < ApplicationRecord
 
     # @param [String] file
   # @return [Array, Boolean]
-  def self.batch_create(file)
+  def self.batch_create(file, project_id = nil)
     sources = []
     valid = 0
     begin
@@ -286,6 +284,15 @@ class Source < ApplicationRecord
         bibliography = BibTeX::Bibliography.parse(file.read.force_encoding('UTF-8'), filter: :latex)
         bibliography.each do |record|
           a = Source::Bibtex.new_from_bibtex(record)
+
+          if project_id.present?
+            a.assign_attributes(
+              project_sources_attributes: [
+                { project_id: project_id }
+              ]
+            )
+          end
+
           if a.valid?
             if a.save
               valid += 1
@@ -329,13 +336,13 @@ class Source < ApplicationRecord
     if r.empty?
       h[:recent] = Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
         .order('created_at DESC')
-        .limit(5).order(:cached).to_a
+        .limit(5).to_a
       h[:quick] = Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a
     else
       h[:recent] =
         (Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
         .order('created_at DESC')
-        .limit(5).order(:cached).to_a +
+        .limit(5).to_a +
       Source.where('"sources"."id" IN (?)', r.first(6) ).to_a).uniq
       h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
                    Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq

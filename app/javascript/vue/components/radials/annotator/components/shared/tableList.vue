@@ -26,7 +26,7 @@
           />
           <td>
             <div class="horizontal-right-content gap-small">
-              <citations-count
+              <CitationsCount
                 :target="targetCitations"
                 :object="item"
               />
@@ -36,7 +36,7 @@
                 v-if="edit"
                 circle
                 color="update"
-                @click="$emit('edit', Object.assign({}, item))"
+                @click="emit('edit', Object.assign({}, item))"
               >
                 <VIcon
                   name="pencil"
@@ -99,7 +99,7 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['delete'])
+const emit = defineEmits(['delete', 'edit'])
 
 function getValue(object, attributes) {
   if (Array.isArray(attributes)) {

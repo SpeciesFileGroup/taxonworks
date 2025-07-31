@@ -5,11 +5,12 @@
     <FilterLayout
       :list="list"
       :url-request="urlRequest"
-      :object-type="PEOPLE"
+      :object-type="PERSON"
       :pagination="pagination"
-      v-model="parameters"
-      :selected-ids="selectedIds"
+      :button-unify="false"
+      :selected-ids="sortedSelectedIds"
       v-model:append="append"
+      v-model="parameters"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -23,6 +24,7 @@
           :list="list"
           :attributes="ATTRIBUTES"
           @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>
@@ -39,23 +41,24 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
-import VSpinner from '@/components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { ATTRIBUTES } from './constants/attributes.js'
-import { PEOPLE } from '@/constants/index.js'
+import { PERSON } from '@/constants/index.js'
 import { People } from '@/routes/endpoints'
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(People)
 </script>
 

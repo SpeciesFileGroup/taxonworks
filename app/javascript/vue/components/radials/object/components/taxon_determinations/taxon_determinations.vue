@@ -1,68 +1,92 @@
 <template>
   <div>
     <h3>Determinations</h3>
-    <taxon-determination-form
+    <TaxonDeterminationForm
       create-form
       @on-add="addDetermination"
     />
-    <display-list
+    <DisplayList
       :list="list"
-      @delete="removeTaxonDetermination"
       :radial-object="true"
       set-key="otu_id"
       label="object_tag"
+      @delete="removeItem"
     />
   </div>
 </template>
 
-<script>
+<script setup>
 import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import DisplayList from '@/components/displayList.vue'
-import CRUD from '../../request/crud.js'
-import AnnotatorExtend from '../annotatorExtend.js'
 import { TaxonDetermination } from '@/routes/endpoints'
+import { onBeforeMount } from 'vue'
+import { useSlice } from '@/components/radials/composables'
 
-export default {
-  mixins: [CRUD, AnnotatorExtend],
-
-  components: {
-    TaxonDeterminationForm,
-    DisplayList
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  methods: {
-    addDetermination(taxon_determination) {
-      if (
-        this.list.find(
-          (determination) =>
-            determination.otu_id === taxon_determination.otu_id &&
-            determination.year_made === taxon_determination.year_made
-        )
-      ) {
-        return
-      }
+  objectType: {
+    type: String,
+    required: true
+  },
 
-      Object.assign(taxon_determination, {
-        biological_collection_object_id: this.metadata.object_id
-      })
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
 
-      TaxonDetermination.create({ taxon_determination }).then((response) => {
-        TW.workbench.alert.create(
-          'Taxon determination was successfully created.',
-          'notice'
-        )
-        this.list.push(response.body)
-      })
-    },
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
-    removeTaxonDetermination(determination) {
-      this.removeItem(determination).then((_) => {
-        TW.workbench.alert.create(
-          'Taxon determination was successfully destroyed.',
-          'notice'
-        )
-      })
+onBeforeMount(() => {
+  TaxonDetermination.where({
+    taxon_determination_object_id: [props.objectId],
+    taxon_determination_object_type: props.objectType
+  }).then(({ body }) => {
+    list.value = body
+  })
+})
+
+function addDetermination(taxonDetermination) {
+  if (
+    list.value.find(
+      (determination) =>
+        determination.otu_id === taxonDetermination.otu_id &&
+        determination.year_made === taxonDetermination.year_made
+    )
+  ) {
+    return
+  }
+
+  const payload = {
+    taxon_determination: {
+      ...taxonDetermination,
+      taxon_determination_object_id: props.objectId,
+      taxon_determination_object_type: props.objectType
     }
   }
+
+  TaxonDetermination.create(payload).then(({ body }) => {
+    TW.workbench.alert.create(
+      'Taxon determination was successfully created.',
+      'notice'
+    )
+    addToList(body)
+  })
+}
+
+function removeItem(item) {
+  TaxonDetermination.destroy(item.id).then(() => {
+    removeFromList(item)
+    TW.workbench.alert.create(
+      'Taxon determination was successfully destroyed.',
+      'notice'
+    )
+  })
 }
 </script>

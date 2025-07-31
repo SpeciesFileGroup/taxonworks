@@ -30,7 +30,7 @@ describe ContainerItem, type: :model, group: :containers do
       }
 
       specify 'contained_object_id' do
-        expect(container_item.errors.include?(:contained_object_id)).to be_truthy
+        expect(container_item.errors.include?(:contained_object)).to be_truthy
       end
     end
 

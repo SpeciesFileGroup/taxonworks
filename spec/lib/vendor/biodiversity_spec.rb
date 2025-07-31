@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature] do
+describe ::Vendor::Biodiversity, type: :model, group: [:nomenclature] do
   context 'Result' do
 
-    let(:result) { TaxonWorks::Vendor::Biodiversity::Result.new }
+    let(:result) { Vendor::Biodiversity::Result.new }
 
     specify '#name' do
       expect( result.name = 'Aus bus').to be_truthy
@@ -18,7 +18,7 @@ describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature
     end
 
     context '#parseable' do
-      specify '#parseable 1' do
+      xspecify '#parseable 1' do # Example was unparseable up to biodiversity version 5.7.2
         result.name = 'Aus bus cf. bus Smith and Jones, 1920'
         result.parse
         expect(result.parseable).to eq(false)
@@ -136,7 +136,7 @@ describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature
           result.parse
           result.build_result
         end
-        
+
         specify '#combination_exists? 1' do
           expect(result.combination_exists?).to eq(false)
         end
@@ -233,7 +233,7 @@ describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature
             year_of_publication: '1920', 
             verbatim_author: 'Smith and Jones',
             parent: genus1, 
-              rank_class: Ranks.lookup(:iczn, :species) 
+            rank_class: Ranks.lookup(:iczn, :species) 
           ) }
 
           before do
@@ -250,6 +250,15 @@ describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature
             expect(result.grouped_protonyms(:species)).to contain_exactly(species3)
           end
         end 
+
+        context 'infrageneric' do
+          specify '#string 1' do
+            result.name = 'Aus (Bus)'
+            result.parse
+            expect(result.genus).to eq('Aus')
+            expect(result.subgenus).to eq('Bus')
+          end
+        end
 
         context 'infraspecifics' do
           specify '#string 1' do

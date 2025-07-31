@@ -21,6 +21,9 @@ export const Otu = {
   distribution: (id) =>
     AjaxCall('get', `/otus/${id}/inventory/distribution.json`),
 
+  duplicates: (params) =>
+    AjaxCall('get', `/tasks/otus/duplicates/data`, { params }),
+
   geoJsonDistribution: (id) =>
     AjaxCall('get', `/otus/${id}/inventory/distribution.geojson`),
 
@@ -28,5 +31,13 @@ export const Otu = {
 
   timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`),
 
-  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${controller}/batch_update.json`, params),
+
+  taxonomy: (otuId, params) =>
+    AjaxCall('get', `/${controller}/${otuId}/inventory/taxonomy.json`, {
+      params
+    })
 }

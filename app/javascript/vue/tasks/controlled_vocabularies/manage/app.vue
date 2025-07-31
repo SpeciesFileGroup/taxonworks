@@ -10,37 +10,45 @@
       <h1>Manage controlled vocabulary</h1>
       <ul class="context-menu">
         <li>
-          <a :href="RouteNames.ManageBiocurationTask"
-            >Manage biocuration classes and groups</a
-          >
+          <a :href="RouteNames.ManageBiocurationTask">
+            Manage biocuration classes and groups
+          </a>
+        </li>
+        <li>
+          <a :href="RouteNames.BiologicalRelationshipComposer">
+            Biological relationship composer
+          </a>
         </li>
       </ul>
     </div>
 
     <VSwitch
-      v-model="view"
-      :options="types"
+      v-model="type"
+      :options="Object.keys(CVT_TYPES)"
     />
     <div class="flex-separate middle">
       <h3>
-        {{ CVT_TYPES[view] }}
+        {{ CVT_TYPES[type] }}
         <a
-          v-if="linkFor.includes(view)"
+          v-if="linkFor.includes(type)"
           href="/tasks/controlled_vocabularies/biocuration/build_collection"
           >Manage biocuration classes and groups
         </a>
       </h3>
       <CloneControlledVocabularyTerms
-        :type="view"
+        :type="type"
         @clone="
           () => {
-            loadCVTList(view)
+            loadCVTList(type)
           }
         "
       />
     </div>
     <div class="flex-separate margin-medium-top">
-      <div class="one_quarter_width">
+      <NavBar
+        class="one_quarter_width"
+        navbar-class=""
+      >
         <div class="panel content margin-medium-bottom">
           <FormKeyword
             v-model="cvt"
@@ -58,7 +66,7 @@
             >{{ globalId }}</span
           >
         </div>
-      </div>
+      </NavBar>
       <ListComponent
         :list="list"
         @edit="setCTV"
@@ -74,62 +82,67 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onBeforeMount } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { ControlledVocabularyTerm } from '@/routes/endpoints'
-import { addToArray } from '@/helpers'
+import { addToArray, removeFromArray } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
+import { setParam } from '@/helpers'
+import { KEYWORD, BIOCURATION_CLASS, BIOCURATION_GROUP } from '@/constants'
 import CVT_TYPES from './constants/controlled_vocabulary_term_types'
 import makeControlledVocabularyTerm from '@/factory/controlledVocabularyTerm'
-import VSwitch from '@/components/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import ListComponent from './components/List.vue'
-import SpinnerComponent from '@/components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import FormKeyword from '@/components/Form/FormKeyword.vue'
 import CloneFromObject from '@/helpers/cloneFromObject'
 import CloneControlledVocabularyTerms from './components/CloneControlledVocabularyTerms.vue'
+import NavBar from '@/components/layout/NavBar.vue'
 
-const types = computed(() => Object.keys(CVT_TYPES))
 const globalId = computed(() => cvt.value?.global_id)
 const cvt = ref(makeControlledVocabularyTerm())
 const isSaving = ref(false)
 const isLoading = ref(false)
-const view = ref('Keyword')
-const linkFor = ref(['BiocurationClass', 'BiocurationGroup'])
+const type = ref(null)
+const linkFor = ref([BIOCURATION_CLASS, BIOCURATION_GROUP])
 const list = ref([])
 
-watch(
-  view,
-  (newVal) => {
-    cvt.value.type = newVal
-    isLoading.value = true
-    loadCVTList(newVal)
-  },
-  {
-    immediate: true
-  }
-)
+watch(type, (newVal) => {
+  loadCVTList(newVal)
+  setParam(RouteNames.ManageControlledVocabularyTask, 'type', type.value)
+})
 
-onBeforeMount(() => {
+onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const ctvId = urlParams.get('controlled_vocabulary_term_id')
+  const typeParam = urlParams.get('type')
 
   if (/^\d+$/.test(ctvId)) {
-    ControlledVocabularyTerm.find(ctvId).then((response) => {
-      view.value = response.body.type
-      setCTV(response.body)
+    ControlledVocabularyTerm.find(ctvId).then(({ body }) => {
+      type.value = body.type
+      setCTV(body)
     })
+  } else {
+    type.value = typeParam || KEYWORD
   }
 })
 
 function loadCVTList(type) {
-  ControlledVocabularyTerm.where({ type: [type] }).then(({ body }) => {
-    list.value = body
-    isLoading.value = false
-  })
+  isLoading.value = true
+  ControlledVocabularyTerm.where({ type: [type] })
+    .then(({ body }) => {
+      list.value = body
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
 }
 
 function createCTV() {
   const payload = {
-    controlled_vocabulary_term: cvt.value
+    controlled_vocabulary_term: {
+      ...cvt.value,
+      type: type.value
+    }
   }
   const request = cvt.value.id
     ? ControlledVocabularyTerm.update(cvt.value.id, payload)
@@ -147,16 +160,12 @@ function createCTV() {
       )
 
       addToArray(list.value, body, { prepend: true })
-      newCTV()
+      cvt.value = makeControlledVocabularyTerm()
     })
+    .catch(() => {})
     .finally(() => {
       isSaving.value = false
     })
-}
-
-function newCTV() {
-  cvt.value = makeControlledVocabularyTerm()
-  cvt.value.type = view.value
 }
 
 function setCTV(ctv) {
@@ -169,18 +178,19 @@ function copyToClipboard() {
   })
 }
 
-function removeCTV(index) {
+function removeCTV(cvt) {
   if (
     window.confirm(
       "You're trying to delete this record. Are you sure want to proceed?"
     )
   ) {
     isLoading.value = true
-    ControlledVocabularyTerm.destroy(list.value[index].id)
-      .then((_) => {
-        list.value.splice(index, 1)
+    ControlledVocabularyTerm.destroy(cvt.id)
+      .then(() => {
+        removeFromArray(list.value, cvt)
       })
-      .finally((_) => {
+      .catch(() => {})
+      .finally(() => {
         isLoading.value = false
       })
   }

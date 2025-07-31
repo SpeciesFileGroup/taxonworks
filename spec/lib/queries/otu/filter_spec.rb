@@ -3,12 +3,56 @@ require 'support/shared_contexts/shared_geo'
 
 describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, :otus, :shared_geo] do
 
-  let(:q) { Queries::Otu::Filter.new({}) }
+    let(:q) { Queries::Otu::Filter.new({}) }
 
   let(:o1) { Otu.create!(name: 'Abc 1') }
   let(:o2) { Otu.create!(name: 'Def 2') }
 
-  context 'coordinatify' do
+  specify '#dwc_occurrence_query' do
+    s = Specimen.create!
+    d = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s) # Alon doesn't create DwcOccurrence
+
+    Otu.create!(name: 'Noperope')
+
+    a = ::Queries::CollectionObject::Filter.new(collection_object_id: d.taxon_determination_object_id)
+
+    b = ::Queries::DwcOccurrence::Filter.new({})
+    b.collection_object_query = a
+
+    q = Queries::Otu::Filter.new({})
+    q.dwc_occurrence_query = b
+
+    expect(q.all).to contain_exactly(d.otu)
+  end
+
+  # confidences query concern
+  specify '#confidence_level_id' do
+    l = FactoryBot.create(:valid_confidence_level)
+    c = FactoryBot.create(:valid_confidence, confidence_level: l, confidence_object: o1)
+    q.confidence_level_id = l.id
+    expect(q.all).to contain_exactly(o1)
+  end
+
+  specify '#without_confidence_level_id' do
+    l = FactoryBot.create(:valid_confidence_level)
+    c = FactoryBot.create(:valid_confidence, confidence_level: l, confidence_object: o1)
+    q.without_confidence_level_id = l.id
+    expect(q.all).to contain_exactly(o2)
+  end
+
+  specify '#with_confidence_level true' do
+    c = FactoryBot.create(:valid_confidence, confidence_object: o1)
+    q.confidences = true
+    expect(q.all).to contain_exactly(o1)
+  end
+
+  specify '#with_confidence_level false' do
+    c = FactoryBot.create(:valid_confidence, confidence_object: o1)
+    q.confidences = false
+    expect(q.all).to contain_exactly(o2)
+  end
+
+  context '#coordinatify' do
     # TODO: unify with OTU as a include
     let!(:root) { FactoryBot.create(:root_taxon_name) }
     let!(:g) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
@@ -21,13 +65,30 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     let!(:o2) { Otu.create!(taxon_name: s2) }
     let!(:o3) { Otu.create!(name: 'none') }
 
-    specify '#coordinatify 1' do
+    # See lib/queries/query/filter.rb for application
+    specify 'order_by match_identifiers' do
+      ids = [ o3.id, o1.id, o2.id]
+
+      q.match_identifiers = ids.join(',')
+      q.order_by = 'match_identifiers'
+      q.match_identifiers_type = 'internal'
+      expect(q.all.pluck(:id)).to eq(ids)
+    end
+
+    specify 'with synonymy' do
       q.otu_id = o1.id
       q.coordinatify = true
       expect(q.all).to contain_exactly(o1, o2)
     end
 
-    specify '#coordinatify 2' do
+    specify 'synonymy from both sides' do
+      q.otu_id = o2.id
+      q.coordinatify = true
+      expect(q.all).to contain_exactly(o1, o2)
+    end
+
+    specify 'cross project' do
+      Otu.create!(name: 'not this', project: FactoryBot.create(:valid_project))
       q.otu_id = o2.id
       q.coordinatify = true
       expect(q.all).to contain_exactly(o1, o2)
@@ -35,7 +96,54 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
 
   end
 
+  context '#ancestrify' do
 
+    # TODO: unify with OTU as a include
+    let!(:root) { FactoryBot.create(:root_taxon_name) }
+    let!(:g) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+    let!(:s1) { Protonym.create!(name: 'bus', parent: g, rank_class: Ranks.lookup(:iczn, :species)) } # valid
+    let!(:s2) { Protonym.create!(name: 'cus', parent: g, rank_class: Ranks.lookup(:iczn, :species)) } # invalid
+
+    let!(:r) { TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: s2, object_taxon_name: s1) }
+
+    let!(:o1) { Otu.create!(taxon_name: s1) }
+    let!(:o2) { Otu.create!(taxon_name: s2) }
+    let!(:o3) { Otu.create!(name: 'none') }
+
+    let!(:g_no) { Protonym.create!(name: 'Nos', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+    let!(:s_no) { Protonym.create!(name: 'dus', parent: g_no, rank_class: Ranks.lookup(:iczn, :species))  }
+
+    let!(:o_no_g) { Otu.create!(taxon_name: g_no) }
+    let!(:o_no_s) { Otu.create!(taxon_name: s_no) }
+
+    specify 'basic' do
+      z = Otu.create!(taxon_name: g)
+      q.otu_id = o1.id
+      q.ancestrify = true
+      expect(q.all).to contain_exactly(o1, z)
+    end
+
+    specify 'cross project' do
+      # some things not to match
+      op = FactoryBot.create(:valid_project)
+      no2 = Protonym.create!(name: 'Nos', parent: op.root_taxon_name, rank_class: Ranks.lookup(:iczn, :genus), project: op)
+      no2_otu = Otu.create(taxon_name: no2, project: op)
+      no_otu = Otu.create(name: 'no', project: op)
+
+      q.otu_id = o1.id
+      q.ancestrify = true
+      expect(q.all).to contain_exactly(o1)
+    end
+
+    specify 'not siblings' do
+      r.destroy!
+      # no o2 is non-synonymous sibling
+
+      q.otu_id = o1.id
+      q.ancestrify = true
+      expect(q.all).to contain_exactly(o1)
+    end
+  end
 
   # TODO: This block tests Queries::Query::Filter
   context '<sub>_query initialization' do
@@ -43,17 +151,17 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     specify '#params' do
       h = {collecting_event_query: {otu_id: 1, otu_query: {otu_id: 10, taxon_name_query: {name: 'foo'}  }} }
       p = ActionController::Parameters.new( h  )
-      query = Queries::Otu::Filter.new(p) 
+      query = Queries::Otu::Filter.new(p)
       expect(query.params ).to eq( h)
     end
 
     specify 'super' do
       h = { name: 'foo' }
       p = ActionController::Parameters.new( h )
-      query = Queries::Otu::Filter.new(p) 
+      query = Queries::Otu::Filter.new(p)
       expect(query.name ).to eq( ['foo'] )
     end
-    
+
     specify '.permit' do
       expect(q.class.annotator_params).to include(:identifier)
       expect(q.class.annotator_params.last.keys).to include(:identifier_type)
@@ -86,7 +194,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       s.taxon_determinations << TaxonDetermination.new(otu: o1)
 
       p = ActionController::Parameters.new(
-       collecting_event_query: {otu_id: o1.id}  
+        collecting_event_query: {otu_id: o1.id}
       )
 
       f = Queries::Otu::Filter.new(p)
@@ -99,7 +207,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     specify 'initialize with Hash' do
       s = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event))
       s.taxon_determinations << TaxonDetermination.new(otu: o1)
-      
+
       p = { collecting_event_query: {otu_id: o1.id}  }
       f = Queries::Otu::Filter.new(p)
 
@@ -126,35 +234,35 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
 
   specify '#images' do
     o2
-    c = FactoryBot.create(:valid_depiction, depiction_object:  o1 ) 
+    c = FactoryBot.create(:valid_depiction, depiction_object:  o1 )
     q.images = true
     expect(q.all).to contain_exactly(o1)
   end
-  
+
   specify '#contents' do
     o2
-    c = FactoryBot.create(:valid_content, otu:  o1 ) 
+    c = FactoryBot.create(:valid_content, otu:  o1 )
     q.contents = true
     expect(q.all).to contain_exactly(o1)
   end
 
   specify '#biological_associations 1' do
     o2
-    ba1 = FactoryBot.create(:valid_biological_association, biological_association_subject: o1, biological_association_object: Otu.create!(name: 'f') ) 
-   
+    ba1 = FactoryBot.create(:valid_biological_association, biological_association_subject: o1, biological_association_object: Otu.create!(name: 'f') )
+
     q.biological_associations = true
     expect(q.all).to contain_exactly(o1, ba1.biological_association_object)
   end
 
   specify '#biological_associations 2' do
     o2
-    ba1 = FactoryBot.create(:valid_biological_association, biological_association_object: o1, biological_association_subject: Otu.create!(name: 'f') ) 
-   
+    ba1 = FactoryBot.create(:valid_biological_association, biological_association_object: o1, biological_association_subject: Otu.create!(name: 'f') )
+
     q.biological_associations = false
     expect(q.all).to contain_exactly(o2)
   end
 
-  context 'defined in Queries::Query' do 
+  context 'defined in Queries::Query' do
     specify '#referenced_klass' do
       expect(q.referenced_klass).to eq(::Otu)
     end
@@ -168,27 +276,60 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
   end
 
-  specify '#geographic_area_id and #geographic_area_mode, spatial (Query::AssertedDistribution integration)' do
+  specify '#geo_shape_id and #geo_mode, spatial (Query::AssertedDistribution integration)' do
     o2
     # smaller
     a = FactoryBot.create(:level1_geographic_area)
     s1 = a.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
     )
 
     # bigger
     b = FactoryBot.create(:level1_geographic_area)
     s2 = b.geographic_items << GeographicItem.create!(
-      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
     )
 
     # Use smaller
-    AssertedDistribution.create!(otu: o1, geographic_area: a, source: FactoryBot.create(:valid_source))
+    AssertedDistribution.create!(otu: o1, asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
 
     # Use bigger
-    q.geographic_area_id = b.id
-    q.geographic_area_mode = true
-  
+    q.geo_shape_id = b.id
+    q.geo_shape_type = 'GeographicArea'
+    q.geo_mode = true
+
+    expect(q.all).to contain_exactly( o1 )
+  end
+
+  specify '#geo_shape_id, spatial (Query::AssertedDistribution integration)' do
+    o2
+
+    bigger_polygon = RspecGeoHelpers.make_polygon(
+      RSPEC_GEO_FACTORY.point(10, 10), 0, 0, 10.0, 10.0
+    )
+    bigger_gz =
+      FactoryBot.create(:gazetteer,
+        geographic_item:
+          FactoryBot.create(:geographic_item, geography: bigger_polygon),
+        name: 'large'
+      )
+
+    smaller_ga = FactoryBot.create(:level1_geographic_area)
+    smaller_ga.geographic_items << GeographicItem.create!(
+      geography: RspecGeoHelpers.make_polygon(
+        RSPEC_GEO_FACTORY.point(10, 10), 0, 0, 5.0, 5.0
+      )
+    )
+
+    # Use smaller ga
+    AssertedDistribution.create!(otu: o1, asserted_distribution_shape: smaller_ga,
+      source: FactoryBot.create(:valid_source))
+
+    # Use bigger gz
+    q.geo_shape_id = bigger_gz.id
+    q.geo_shape_type = 'Gazetteer'
+    q.geo_mode = true
+
     expect(q.all).to contain_exactly( o1 )
   end
 
@@ -199,7 +340,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       taxon_determinations_attributes: [{otu: o2}]
     )
     g = Georeference::VerbatimData.create!(collecting_event: o2.collection_objects.first.collecting_event)
-    q.wkt = RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ).to_s 
+    q.wkt = RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ).to_s
     expect(q.all).to contain_exactly( o2 )
   end
 
@@ -212,7 +353,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       :valid_biological_association,
       biological_association_subject: s1,
       biological_association_object: o2)
-    b2 = FactoryBot.create(:valid_biological_association) # 
+    b2 = FactoryBot.create(:valid_biological_association) #
 
     q.biological_association_id = [b1.id]
     expect(q.all).to contain_exactly(o1, o2)
@@ -228,7 +369,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       :valid_biological_association,
       biological_association_subject: s1,
       biological_association_object: o2)
-    
+
     FactoryBot.create(:valid_biological_association)
 
     q.biological_association_id = [b1.id]
@@ -246,10 +387,10 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       biological_association_subject: s1,
       biological_association_object: o2)
 
-    FactoryBot.create(:valid_biological_association) 
+    FactoryBot.create(:valid_biological_association)
 
     q.biological_association_id = [b1.id]
-    q.historical_determinations = false 
+    q.historical_determinations = false
 
     expect(q.all).to contain_exactly(o1, o2)
   end
@@ -280,7 +421,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     s1.taxon_determinations << TaxonDetermination.new(otu: o1)
     s1.taxon_determinations << TaxonDetermination.new(otu: o2) # should be current
     s2.taxon_determinations << TaxonDetermination.new(otu: o1)
-   
+
     q.collecting_event_id = s1.collecting_event_id
     expect(q.all.map(&:id)).to contain_exactly(o2.id)
   end
@@ -292,7 +433,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     s1.taxon_determinations << TaxonDetermination.new(otu: o1)
     s1.taxon_determinations << TaxonDetermination.new(otu: o2) # should be current
     s2.taxon_determinations << TaxonDetermination.new(otu: o1)
-   
+
     q.collecting_event_id = s1.collecting_event_id
     q.historical_determinations = true
     expect(q.all.map(&:id)).to contain_exactly(o1.id)
@@ -305,7 +446,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     s1.taxon_determinations << TaxonDetermination.new(otu: o1)
     s1.taxon_determinations << TaxonDetermination.new(otu: o2) # should be current
     s2.taxon_determinations << TaxonDetermination.new(otu: o1)
-   
+
     q.collecting_event_id = s1.collecting_event_id
     q.historical_determinations = false
     expect(q.all.map(&:id)).to contain_exactly(o1.id, o2.id)
@@ -323,7 +464,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
 
   specify 'name' do
     o1; o2
-    q.name = 'A' 
+    q.name = 'A'
     expect(q.all.map(&:id)).to contain_exactly(o1.id)
   end
 
@@ -332,7 +473,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     q.name = ['A']
     expect(q.all.map(&:id)).to contain_exactly(o1.id)
   end
-    
+
   specify 'name, name_exact 1' do
     o1; o2
     q.name = ['A']
@@ -343,7 +484,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   specify 'name, name_exact 2' do
     o1; o2
     q.name = 'Abc 1'
-    q.name_exact = true 
+    q.name_exact = true
     expect(q.all.map(&:id)).to contain_exactly(o1.id)
   end
 
@@ -535,7 +676,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       let(:ad2) do
         ad = AssertedDistribution.new(
           otu: by_bill,
-          geographic_area: sub_area_b,
+          asserted_distribution_shape: sub_area_b,
           by: geo_user,
           project: geo_project)
         ad.origin_citation = cite2
@@ -565,7 +706,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
         let(:params) { {drawn_area_shape: area_a.to_simple_json_feature,
                         selection_objects: ['CollectionObject', 'AssertedDistribution']} }
         let(:ad2a) do
-          ad2.update(geographic_area:  sub_area_a)
+          ad2.update(asserted_distribution_shape:  sub_area_a)
         end
 
         specify 'nomen count' do
@@ -684,4 +825,4 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
   end
 =end
-end
+  end

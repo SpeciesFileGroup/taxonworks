@@ -1,4 +1,3 @@
-
 FactoryBot.define do
   factory :identifier_local_catalog_number, class: Identifier::Local::CatalogNumber, traits: [:housekeeping] do
     factory :valid_identifier_local_catalog_number  do

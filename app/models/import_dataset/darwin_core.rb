@@ -1,6 +1,8 @@
 class ImportDataset::DarwinCore < ImportDataset
   # self.abstract_class = true # TODO: Why causes app/views/shared/data/project/_show.html.erb to fail when visiting /import_datasets/list if uncommented?
 
+  validate :well_formed, on: :create
+
   after_create -> (dwc) { ImportDatasetStageJob.perform_later(dwc) }
 
   before_destroy :destroy_namespace
@@ -50,7 +52,9 @@ class ImportDataset::DarwinCore < ImportDataset
         if path =~ /\.(xlsx?|ods)\z/i
           headers = CSV.parse(Roo::Spreadsheet.open(path).to_csv, headers: true, header_converters: lambda {|f| f.strip}).headers
         else
-          headers = CSV.read(path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8', header_converters: lambda {|f| f.strip}).headers
+          col_sep = default_if_absent(params.dig(:import_settings, :col_sep), "\t")
+          quote_char = default_if_absent(params.dig(:import_settings, :qoute_char), '"')
+          headers = CSV.read(path, headers: true, col_sep: col_sep, quote_char: quote_char, encoding: 'bom|utf-8', header_converters: lambda {|f| f.strip}).headers
         end
 
         row_type = params.dig(:import_settings, :row_type)
@@ -74,6 +78,12 @@ class ImportDataset::DarwinCore < ImportDataset
     else
       Unknown.new(params.merge({error_message: "unknown DwC-A core type '#{core_type}'."}))
     end
+  end
+
+  # @return [Integer]
+  # Returns the indexes of the mapped fields for the core records.
+  def core_records_mapped_fields
+    core_records&.first&.get_mapped_fields(dwc_data_attributes) || []
   end
 
   # @return [String]
@@ -121,7 +131,7 @@ class ImportDataset::DarwinCore < ImportDataset
   # @param [Integer] record_id
   #   Indicates the record to be imported (default none). When used filters are ignored.
   # Returns the updated dataset records. Do not call if there are changes that have not been persisted
-  def import(max_time, max_records, retry_errored: false, filters: nil, record_id: nil)
+  def import(max_time, max_records, retry_errored: nil, filters: nil, record_id: nil)
     imported = []
 
     lock_time = Time.now
@@ -142,15 +152,6 @@ class ImportDataset::DarwinCore < ImportDataset
       records = records.all
       start_time = Time.now - lock_time
 
-      dwc_data_attributes = project.preferences['model_predicate_sets'].map do |model, predicate_ids|
-        [model, Hash[
-          *Predicate.where(id: predicate_ids)
-            .select { |p| /^http:\/\/rs\.tdwg\.org\/dwc\/terms\/.*/ =~ p.uri }
-            .map {|p| [p.uri.split('/').last, p]}
-            .flatten
-          ]
-        ]
-      end.to_h
 
       records.each do |record|
         imported << record.import(dwc_data_attributes)
@@ -159,6 +160,7 @@ class ImportDataset::DarwinCore < ImportDataset
       end
 
       if imported.any? && record_id.nil?
+        reload
         self.metadata.merge!({
           'import_start_id' => imported.last&.id + 1,
           'import_filters' => filters,
@@ -240,12 +242,12 @@ class ImportDataset::DarwinCore < ImportDataset
 
   protected
 
-  def get_records(source)
+  def get_records(path)
     records = { core: [], extensions: {} }
     headers = { core: [], extensions: {} }
 
-    if source.path =~ /\.zip\z/i
-      dwc = ::DarwinCore.new(source.path)
+    if path =~ /\.zip\z/i
+      dwc = ::DarwinCore.new(path)
 
       headers[:core] = get_dwc_headers(dwc.core)
       records[:core] = get_dwc_records(dwc.core)
@@ -255,12 +257,12 @@ class ImportDataset::DarwinCore < ImportDataset
         records[:extensions][type] = get_dwc_records(extension)
         headers[:extensions][type] = get_dwc_headers(extension)
       end
-    elsif source.path =~ /\.(txt|tsv|xlsx?|ods)\z/i
+    elsif path =~ /\.(csv|txt|tsv|xlsx?|ods)\z/i
       # only strip whitespace on the headers with lambda functions because whitespace is stripped from the data elsewhere
-      if source.path =~ /\.(txt|tsv)\z/i
-        records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8', header_converters: lambda {|f| f&.strip})
+      if path =~ /\.(csv|txt|tsv)\z/i
+        records[:core] = CSV.read(path, headers: true, col_sep: get_col_sep, quote_char: get_quote_char, encoding: 'bom|utf-8', header_converters: lambda {|f| f&.strip})
       else
-        records[:core] = CSV.parse(Roo::Spreadsheet.open(source.path).to_csv, headers: true, header_converters: lambda {|f| f&.strip})
+        records[:core] = CSV.parse(Roo::Spreadsheet.open(path).to_csv, headers: true, header_converters: lambda {|f| f&.strip})
       end
       records[:core] = records[:core].map { |r| r.to_h }
       headers[:core] = records[:core].first.to_h.keys
@@ -277,7 +279,7 @@ class ImportDataset::DarwinCore < ImportDataset
     headers[table.id[:index]] = 'id' if table.id
     table.fields.each { |f| headers[f[:index]] = get_normalized_dwc_term(f) if f[:index] }
 
-    table.read_header.first.each_with_index { |f, i| headers[i] ||= f.strip }
+    table.read_header.first&.each_with_index { |f, i| headers[i] ||= f.strip }
 
     get_dwc_default_values(table).each.with_index(headers.length) { |f, i| headers[i] = get_normalized_dwc_term(f) }
 
@@ -305,6 +307,19 @@ class ImportDataset::DarwinCore < ImportDataset
 
   private
 
+  def self.default_if_absent(value, default)
+    return default if value.nil? || value.empty?
+    value
+  end
+
+  def get_col_sep
+    DarwinCore.default_if_absent(metadata.dig('import_settings', 'col_sep'), "\t")
+  end
+
+  def get_quote_char
+    DarwinCore.default_if_absent(metadata.dig('import_settings', 'quote_char'), '"')
+  end
+
   def get_fields_mapping
     @fields_mapping ||= metadata['core_headers']
       .reject(&:nil?)
@@ -328,9 +343,54 @@ class ImportDataset::DarwinCore < ImportDataset
 
   def add_filters(records, filters)
     filters&.each do |key, value|
-      records = records.where(id: core_records_fields.at(key.to_i).with_value(value).select(:dataset_record_id))
+      records = records.where(id: core_records_fields.at(key.to_i).having_value(value).select(:dataset_record_id))
     end
     records
   end
 
+  def well_formed
+    begin
+      headers = get_records(source.staged_path).last[:core]
+      duplicates = headers.compact.map(&:downcase).tally.select { |_, count| count > 1 }.keys
+
+      if duplicates.any?
+        errors.add(:source, "Duplicate headers found: #{duplicates.join(', ')}")
+      end
+    rescue RuntimeError
+      errors.add(:source, 'A problem occurred when reading the data file. If this is a text file please make sure the selected string and field delimiters are correct.')
+    end
+    true
+  end
+
+  def check_field_set
+    if source.staged?
+      if source.staged_path =~ /\.zip\z/i
+        headers = get_dwc_headers(::DarwinCore.new(source.staged_path).core)
+      else
+        if source.staged_path =~ /\.(xlsx?|ods)\z/i
+          headers = CSV.parse(Roo::Spreadsheet.open(source.staged_path).to_csv, headers: true).headers
+        else
+          headers = CSV.read(source.staged_path, headers: true, col_sep: get_col_sep, quote_char: get_quote_char, encoding: 'bom|utf-8').headers
+        end
+      end
+
+      missing_headers = self.class::MINIMUM_FIELD_SET - headers
+
+      missing_headers.each do |header|
+        errors.add(:source, "required field #{header} missing.")
+      end
+    end
+  end
+
+  def dwc_data_attributes
+    project.preferences['model_predicate_sets'].map do |model, predicate_ids|
+      [model, Hash[
+        *Predicate.where(id: predicate_ids)
+          .select { |p| /^http:\/\/rs\.tdwg\.org\/dwc\/terms\/.*/ =~ p.uri }
+          .map {|p| [p.uri.split('/').last, p]}
+          .flatten
+        ]
+      ]
+    end.to_h
+  end
 end

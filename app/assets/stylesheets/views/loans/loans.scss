@@ -16,7 +16,7 @@
   margin: 0 auto;
   max-width: 1020px;
 
-  .loan_address { 
+  .address {
     display:inline-block;
     max-width: 5cm;
   }
@@ -58,6 +58,16 @@
     margin-bottom: 1em;
   }
 
+  pre {
+    padding-top: 4px;
+    background-color: transparent;
+    padding: 4px 0px 0px 0px;
+    margin: 0px;
+    color: $default_text;
+    font-family: IBM Plex Sans,Helvetica,Arial,Verdana,Tahoma;
+    font-size: 13px !important;
+  }
+
   #lender_details {
     text-align: right;
     li {
@@ -68,6 +78,10 @@
   #recipient_details {
     margin-bottom: 1em;
     max-width: 40%;
+    text-align: left;
+     li {
+      list-style: none;
+    }
   }
 
   #loan_items {

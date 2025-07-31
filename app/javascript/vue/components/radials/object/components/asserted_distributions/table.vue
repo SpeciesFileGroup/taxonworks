@@ -3,7 +3,7 @@
     <table class="vue-table">
       <thead>
         <tr>
-          <th>Geographic area</th>
+          <th>Name</th>
           <th>Type</th>
           <th>Parent</th>
           <th />
@@ -21,14 +21,14 @@
           <td>
             <span
               :class="{ absent: item.is_absent }"
-              v-html="item.geographic_area.name"
+              v-html="item.asserted_distribution_shape.name"
             />
           </td>
           <td>
-            <span> {{ item.geographic_area.geographic_area_type.name }} </span>
+            <span> {{ item.asserted_distribution_shape.shape_type.name }} </span>
           </td>
           <td>
-            <span> {{ item.geographic_area.parent.name }} </span>
+            <span> {{ item.asserted_distribution_shape.parent?.name }} </span>
           </td>
           <td>
             <div class="horizontal-right-content gap-xsmall">
@@ -51,7 +51,7 @@
 
               <VBtn
                 circle
-                :color="softDelete ? 'primary' : 'destroy'"
+                color="destroy"
                 @click="deleteItem(item, index)"
               >
                 <VIcon
@@ -88,7 +88,7 @@ function deleteItem(item) {
       "You're trying to delete this record. Are you sure want to proceed?"
     )
   ) {
-    this.$emit('delete', item)
+    emit('delete', item)
   }
 }
 </script>

@@ -1,12 +1,21 @@
 # A view to a set of Observations.
 #
+# @params otu_id
+#   .the "parent" concept that this key applies to, for example
+#   if this is species concepts it might be a species group, or genus.
+#   Used primarly to index keys.
+# TODO: soft validate that this OTU actually makes sense given the content of the key
+#
+#
 class ObservationMatrix < ApplicationRecord
   include Housekeeping
   include Shared::Citations
+  include Shared::Documentation
   include Shared::Identifiers
   include Shared::Tags
   include Shared::Notes
   include Shared::DataAttributes
+  include Shared::Attributions
   include Shared::AlternateValues
   include Shared::IsData # Hybrid of sorts, is a layout engine, but people cite matrices ...
 
@@ -14,6 +23,9 @@ class ObservationMatrix < ApplicationRecord
 
   validates_presence_of :name
   validates_uniqueness_of :name, scope: [:project_id]
+
+  # We can not inverse: `observation_matrices` as that comes from row content.
+  belongs_to :otu, inverse_of: :in_scope_observation_matrices
 
   has_many :observation_matrix_column_items, dependent: :delete_all, inverse_of: :observation_matrix
   has_many :observation_matrix_row_items, dependent: :delete_all, inverse_of: :observation_matrix
@@ -27,6 +39,8 @@ class ObservationMatrix < ApplicationRecord
   has_many :otus, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Otu'
   has_many :collection_objects, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'CollectionObject'
   has_many :extracts, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Extract'
+  has_many :sounds, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Sound'
+  has_many :field_occurrences, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'FieldOccurrence'
 
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, -> { order('observation_matrix_columns.position') }, through: :observation_matrix_columns, inverse_of: :observation_matrices
@@ -34,31 +48,31 @@ class ObservationMatrix < ApplicationRecord
   scope :with_otu_id_array, ->  (otu_id_array) { joins('LEFT OUTER JOIN "observation_matrix_rows" ON "observation_matrix_rows"."observation_matrix_id" = "observation_matrices"."id"').where('otu_id in (?)', otu_id_array) }
 
   def qualitative_descriptors
-    descriptors.where(type: 'Descriptor::Qualitative')
+    descriptors.where(type: 'Descriptor::Qualitative').order('observation_matrix_columns.position')
   end
 
   def presence_absence_descriptors
-    descriptors.where(type: 'Descriptor::PresenceAbsence')
+    descriptors.where(type: 'Descriptor::PresenceAbsence').order('observation_matrix_columns.position')
   end
 
   def continuous_descriptors
-    descriptors.where(type: 'Descriptor::Continuous')
+    descriptors.where(type: 'Descriptor::Continuous').order('observation_matrix_columns.position')
   end
 
   def sample_descriptors
-    descriptors.where(type: 'Descriptor::Sample')
+    descriptors.where(type: 'Descriptor::Sample').order('observation_matrix_columns.position')
   end
 
   def media_descriptors
-    descriptors.where(type: 'Descriptor::Media')
+    descriptors.where(type: 'Descriptor::Media').order('observation_matrix_columns.position')
   end
 
   def gene_descriptors
-    descriptors.where(type: 'Descriptor::Gene')
+    descriptors.where(type: 'Descriptor::Gene').order('observation_matrix_columns.position')
   end
 
   def working_descriptors
-    descriptors.where(type: 'Descriptor::Working')
+    descriptors.where(type: 'Descriptor::Working').order('observation_matrix_columns.position')
   end
 
   # As handled in export/parsing by external tools
@@ -278,35 +292,35 @@ class ObservationMatrix < ApplicationRecord
       observation_matrix_name: name
     }
 
-    otus = []
     descriptors = []
-    collection_objects = []
-    extracts = []
+    observables = []
 
     case queries[0]
-
-    when 'otu_query'
-      otus = ::Queries::Otu::Filter.new(params[:otu_query]).all
     when 'descriptor_query'
       descriptors = ::Queries::Descriptor::Filter.new(params[:descriptor_query]).all
-    when 'observation_query'
 
-      otus = ::Queries::Otu::Filter.new(observation_query: params[:observation_query]).all
+    when 'observation_query'
       descriptors = ::Queries::Descriptor::Filter.new(observation_query: params[:observation_query]).all
-      collection_objects = ::Queries::CollectionObject::Filter.new(observation_query: params[:observation_query]).all
-      extracts = ::Queries::Extract::Filter.new(observation_query: params[:observation_query]).all
-    when 'collection_object_query'
-      collection_objects = ::Queries::CollectionObject::Filter.new(params[:collection_object_query]).all
-    when 'extract_query'
-      extracts = ::Queries::Extract::Filter.new(params[:extract_query]).all
+
+      OBSERVABLE_TYPES.each do |t|
+        f = "::Queries::#{t}::Filter".safe_constantize
+        next if f.nil? || !f.method_defined?(:observation_query_facet)
+
+        observables += f.new(observation_query: params[:observation_query]).all
+      end
+
+    else # Rows (observables) only
+      query_klass = queries[0].delete_suffix('_query').camelize
+      f = "::Queries::#{query_klass}::Filter".safe_constantize
+      return result if f.nil? || !OBSERVABLE_TYPES.include?(query_klass)
+
+      observables = f.new(params[queries[0]]).all
     end
 
-    [otus, collection_objects, extracts].each do |t|
-      t.each do |i|
-        # Fail silently
-        j = ObservationMatrixRowItem::Single.create(observation_matrix: self, observation_object: i)
-        result[:rows] += 1 if j.persisted?
-      end
+    observables.each do |o|
+      # Fail silently
+      j = ObservationMatrixRowItem::Single.create(observation_matrix: self, observation_object: o)
+      result[:rows] += 1 if j.persisted?
     end
 
     descriptors.each do |d|

@@ -86,7 +86,7 @@ import DisplayList from '@/components/displayList.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import EditTaxonName from './EditTaxonName'
 import FormCitation from '@/components/Form/FormCitation.vue'
-import VConfidence from '@/components/defaultConfidence.vue'
+import VConfidence from '@/components/ui/Button/ButtonConfidence.vue'
 
 const store = useStore()
 
@@ -98,7 +98,11 @@ const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 
 const getRelationshipsCreated = computed(() =>
   store.getters[GetterNames.GetTaxonRelationshipList]
-    .filter((item) => item.type === TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM)
+    .filter(
+      (item) =>
+        item.type === TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM &&
+        item.object_taxon_name_id === taxon.value.id
+    )
     .map((item) => ({
       ...item,
       label: `<a href="${RouteNames.NewTaxonName}?taxon_name_id=${item.subject_taxon_name_id}">${item.subject_object_tag}</a>`,

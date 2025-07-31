@@ -1,7 +1,7 @@
 export default (state, typeMaterial) => {
   const { typeSpecimens } = state
-  const createdTypeMaterial = typeSpecimens.find(item =>
-    item.internalId === typeMaterial.internalId
+  const createdTypeMaterial = typeSpecimens.find(
+    (item) => item.uuid === typeMaterial.uuid
   )
 
   if (createdTypeMaterial) {

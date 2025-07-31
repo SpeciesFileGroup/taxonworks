@@ -59,8 +59,7 @@ class TaxonNameClassification < ApplicationRecord
                 name: 'Not specific status',
                 description: 'More specific statuses are preffered, for example: "Nomen nudum, no description" is better than "Nomen nudum".' )
 
-  after_save :set_cached
-  after_destroy :set_cached
+  after_commit :set_cached
 
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
@@ -182,12 +181,14 @@ class TaxonNameClassification < ApplicationRecord
   end
 
   # TODO: move these to individual classes?!
+  # Starting to move to individual classes
+  #     Gender is sone
   def set_cached_names_for_taxon_names
     begin
       TaxonName.transaction_with_retry do
         t = taxon_name
 
-        if type_name =~ /(Fossil|Hybrid|Candidatus)/
+        if type_name =~ /(Fossil|Hybrid|Candidatus)/ # Break these out, they don't all apply to the same codes
           n = t.get_full_name
           t.update_columns(
             cached: n,
@@ -216,31 +217,11 @@ class TaxonNameClassification < ApplicationRecord
                 cached_html: t1.get_full_name_html(n)
             )
           end
+
         elsif type_name =~ /Latinized::Gender/
-          t.descendants.with_same_cached_valid_id.each do |t1|
-            n = t1.get_full_name
-            t1.update_columns(
-                cached: n,
-                cached_html: t1.get_full_name_html(n)
-            )
-          end
-
-          TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
-            t1.update_cached_original_combinations
-          end
-
-          TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
-            t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
-            n = t1.get_full_name
-            t1.update_columns(
-                cached: n,
-                cached_html: t1.get_full_name_html(n)
-            )
-          end
+          # Handled in subclasses
+          raise
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
-#          TaxonName.where(cached_valid_taxon_name_id: t.cached_valid_taxon_name_id).each do |vn|
-          #            vn.update_column(:cached_valid_taxon_name_id, vn.get_valid_taxon_name.id)  # update self too!
-          #          end
           vn = t.get_valid_taxon_name
           vn.update_columns(
             cached_valid_taxon_name_id: vn.id,
@@ -259,6 +240,12 @@ class TaxonNameClassification < ApplicationRecord
         else
           t.update_columns(cached_is_valid: false)
         end
+
+        if TAXON_NAME_CLASS_NAMES_UNAVAILABLE.include?( type_name )
+          t.update_columns(
+            cached_is_available: false
+          )
+        end
       end
     rescue ActiveRecord::RecordInvalid
       false
@@ -266,14 +253,9 @@ class TaxonNameClassification < ApplicationRecord
     true
   end
 
-  #region Validation
   def validate_uniqueness_of_latinized
     true # moved to subclasses
   end
-
-  #endregion
-
-  #region Soft validation
 
   def sv_proper_classification
     if TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type)
@@ -313,8 +295,6 @@ class TaxonNameClassification < ApplicationRecord
     true # moved to subclasses
   end
 
-  #endregion
-
   def self.annotates?
     true
   end
@@ -323,11 +303,11 @@ class TaxonNameClassification < ApplicationRecord
     taxon_name
   end
 
-  private
+ private
 
   def nomenclature_code_matches
     if taxon_name && type && nomenclature_code
-      tn = taxon_name.type == 'Combination' ? taxon_name.protonyms.last : taxon_name
+      tn = taxon_name.is_combination? ? taxon_name.protonyms.last : taxon_name
       nc = tn.rank_class.nomenclatural_code
       errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != nc
     end
@@ -337,7 +317,6 @@ class TaxonNameClassification < ApplicationRecord
   def validate_taxon_name_classification
     errors.add(:type, 'Status not found') if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
   end
-
 
   # @todo move these to a shared library (see NomenclaturalRank too)
   def self.collect_to_s(*args)
@@ -360,6 +339,13 @@ class TaxonNameClassification < ApplicationRecord
     classes.collect{|k| k.to_s} + self.collect_descendants_to_s(*classes)
   end
 
+  # Force loading all descendants as soon as this class is referenced
+  Dir.glob("#{Rails.root}/app/models/taxon_name_classification/**/*.rb")
+    .sort { |a, b| a.split('/').count <=> b.split('/').count }
+    .map { |p| p.split('/app/models/').last.sub(/\.rb$/, '') }
+    .map { |p| p.split('/') }
+    .map { |c| c.map { |n| ActiveSupport::Inflector.camelize(n) } }
+    .map { |c| c.join('::') }.map(&:constantize)
 end
 
-Dir[Rails.root.to_s + '/app/models/taxon_name_classification/**/*.rb'].each { |file| require_dependency file }
+#Dir[Rails.root.to_s + '/app/models/taxon_name_classification/**/*.rb'].each { |file| require_dependency file }

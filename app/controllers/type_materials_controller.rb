@@ -94,12 +94,13 @@ class TypeMaterialsController < ApplicationController
     @type_materials = Queries::TypeMaterial::Autocomplete.new(params[:term], project_id: sessions_current_project_id).all
 
     data = @type_materials.collect do |t|
+      v = ApplicationController.helpers.type_material_tag(t)
       {id: t.id,
-       label: ApplicationController.helpers.type_material_tag(t),
+       label: v ,
        response_values: {
          params[:method] => t.id
        },
-       label_html: ApplicationController.helpers.type_material_tag(t)
+       label_html: v 
       }
     end
 
@@ -108,7 +109,7 @@ class TypeMaterialsController < ApplicationController
 
   # GET /type_materials/download
   def download
-    send_data Export::Download.generate_csv(TypeMaterial.where(project_id: sessions_current_project_id)), type: 'text', filename: "type_materials_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(TypeMaterial.where(project_id: sessions_current_project_id)), type: 'text', filename: "type_materials_#{DateTime.now}.tsv"
   end
 
   def type_types
