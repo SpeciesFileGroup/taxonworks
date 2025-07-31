@@ -213,6 +213,8 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
   context '#batch_by_filter_scope' do
     let!(:n1) { Namespace.create!(name: 'First', short_name: 'second')}
     let!(:n2) { Namespace.create!(name: 'Third', short_name: 'fourth')}
+    let!(:n3v) { Namespace.create!(name: 'Fifth', short_name: 'sixth',
+      is_virtual: true)}
 
     let!(:co1) { FactoryBot.create(:valid_specimen) }
     let!(:co2) { FactoryBot.create(:valid_specimen) }
@@ -228,6 +230,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
     let!(:ii1) { Identifier::Local::FieldNumber.create!(namespace: n1, identifier: '11', identifier_object: ce1) }
     let!(:ii2) { Identifier::Local::FieldNumber.create!(namespace: n2, identifier: '21', identifier_object: ce2) }
     let!(:ii3) { Identifier::Local::FieldNumber.create!(namespace: n1, identifier: '31', identifier_object: ce2) }
+    let!(:ii4v) { Identifier::Local::FieldNumber.create!(namespace: n3v, identifier: 'ASDF1234', identifier_object: ce2) }
 
     specify 'collection_object record_number' do
       q = ::Queries::CollectionObject::Filter.new(collection_object_id: [co1.id, co2.id, co3.id])
@@ -313,6 +316,98 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
       expect(ii1.reload.namespace_id).to eq(n1.id) # stayed the same
       expect(ii2.reload.namespace_id).to eq(n1.id) # changed to n1
       expect(ii3.reload.namespace_id).to eq(n1.id) # stayed the same
+    end
+
+    context 'virtual identifiers #virtual_namespace_prefix' do
+      specify 'removes matching virtual prefix' do
+        q = ::Queries::CollectionObject::Filter.new(collecting_event_id: [ce2.id])
+        Identifier.batch_by_filter_scope(
+          filter_query: { 'collecting_event_query' => q.params },
+          params: {
+            identifier_types: ['Identifier::Local::FieldNumber'],
+            namespace_id: n1.id,
+            virtual_namespace_prefix: 'ASDF'
+          },
+          mode: :replace,
+        )
+
+        ii4v.reload
+        expect(ii4v.namespace_id).to eq(n1.id)
+        expect(ii4v.identifier).to eq('1234')
+      end
+
+      specify "Doesn't remove matching prefix on non-virtual" do
+        i = ii4v.identifier
+        ii2.update!(identifier: i) # not virtual, on ce2
+
+        q = ::Queries::CollectionObject::Filter.new(collecting_event_id: [ce2.id])
+        Identifier.batch_by_filter_scope(
+          filter_query: { 'collecting_event_query' => q.params },
+          params: {
+            identifier_types: ['Identifier::Local::FieldNumber'],
+            namespace_id: n1.id,
+            virtual_namespace_prefix: 'ASDF'
+          },
+          mode: :replace,
+        )
+
+        ii2.reload
+        expect(ii2.namespace_id).to eq(n2.id)
+        expect(ii2.identifier).to eq(i)
+      end
+
+      specify "Doesn't affect non-matching virtual" do
+        i = ii2.identifier
+        ii2.update!(namespace_id: n3v.id) # now virtual
+
+        q = ::Queries::CollectionObject::Filter.new(collecting_event_id: [ce2.id])
+        Identifier.batch_by_filter_scope(
+          filter_query: { 'collecting_event_query' => q.params },
+          params: {
+            identifier_types: ['Identifier::Local::FieldNumber'],
+            namespace_id: n1.id,
+            virtual_namespace_prefix: 'ASDF'
+          },
+          mode: :replace,
+        )
+
+        ii2.reload
+        expect(ii2.namespace_id).to eq(n3v.id)
+        expect(ii2.identifier).to eq(i)
+      end
+
+      specify "Won't produce invalid empty identifier" do
+        q = ::Queries::CollectionObject::Filter.new(collecting_event_id: [ce2.id])
+        Identifier.batch_by_filter_scope(
+          filter_query: { 'collecting_event_query' => q.params },
+          params: {
+            identifier_types: ['Identifier::Local::FieldNumber'],
+            namespace_id: n1.id,
+            virtual_namespace_prefix: 'ASDF1234'
+          },
+          mode: :replace,
+        )
+
+        ii4v.reload
+        # Unchanged.
+        expect(ii4v.namespace_id).to eq(n3v.id)
+        expect(ii4v.identifier).to eq('ASDF1234')
+      end
+
+      specify "Can't combine #virtual_namespace_prefix with moving to a virtual namespace" do
+        q = ::Queries::CollectionObject::Filter.new(collecting_event_id: [ce2.id])
+        r = Identifier.batch_by_filter_scope(
+          filter_query: { 'collecting_event_query' => q.params },
+          params: {
+            identifier_types: ['Identifier::Local::FieldNumber'],
+            namespace_id: n3v.id, # virtual
+            virtual_namespace_prefix: 'ASDF'
+          },
+          mode: :replace,
+        )
+
+        expect(r[:errors].present?).to be true
+      end
     end
 
   end

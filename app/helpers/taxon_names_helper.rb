@@ -142,7 +142,7 @@ module TaxonNamesHelper
     else
       if taxon_name.is_valid? # taxon_name.unavailable_or_invalid?
         content_tag(:span, safe_join([
-          content_tag(:span, '',data: {icon: :ok, status: :valid }), 
+          content_tag(:span, '',data: {icon: :ok, status: :valid }),
           content_tag(:span, 'This name is valid/accepted.', data: { status: :valid })
         ], ''), class: :brief_status, data: { status: :valid })
       else
@@ -393,8 +393,22 @@ module TaxonNamesHelper
 
         j[:rank] = n
 
-        j[:names][:valid] = ::Queries::TaxonName::Filter.new(validity: true, descendants: false, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.count
-        j[:names][:invalid] = ::Queries::TaxonName::Filter.new(descendants: false, synonymify: true, taxon_name_id: taxon_name.id, rank: r, taxon_name_type: 'Protonym' ).all.that_is_invalid.count
+        valid = ::Queries::TaxonName::Filter.new(
+          validity: true, descendants: false, taxon_name_id: taxon_name.id,
+          rank: r, taxon_name_type: 'Protonym'
+        ).all
+
+        j[:names][:valid] = valid.count
+        j[:names][:valid_fossil] = valid
+          .joins(:taxon_name_classifications)
+          .where('taxon_name_classifications.type LIKE ?', '%::Fossil%' )
+          .count
+        j[:names][:valid_extant] = j[:names][:valid] - j[:names][:valid_fossil]
+
+        j[:names][:invalid] = ::Queries::TaxonName::Filter.new(
+          descendants: false, synonymify: true, taxon_name_id: taxon_name.id,
+          rank: r, taxon_name_type: 'Protonym'
+        ).all.that_is_invalid.count
 
         # This is the number of OTUs behind the ranks at this concept, i.e. a measure of how partitioned the data are beyond valid/invalid categories.
         j[:taxa] = ::Queries::Otu::Filter.new(coordinatify: true, taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, rank: r} ).all.count
