@@ -2,8 +2,19 @@
   opacity: 0.75;
 }
 
+.leaflet-pm-icon-selection {
+  border: 2px #444444 dashed;
+  border-radius: 3px;
+}
+
 .dark {
   color-scheme: dark;
+
+  .leaflet-pm-toolbar,
+  .leaflet-control-layers,
+  .leaflet-control-zoom {
+    filter: invert(1);
+  }
 
   .map-tiles {
     filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg)

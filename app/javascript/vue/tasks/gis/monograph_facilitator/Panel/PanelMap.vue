@@ -5,6 +5,8 @@
     :geojson="store.shapes"
     fit-bounds
     resize
+    draw-circle
+    draw-controls
     tooltips
     @select="setSelectedObjects"
   />
@@ -25,7 +27,7 @@ function setSelectedObjects(arr) {
     .flat()
   const ids = objects.map((o) => o.id)
 
-  if (isKeyPressed('Control')) {
+  if (isKeyPressed('Shift')) {
     ids.push(...store.selectedIds)
   }
 

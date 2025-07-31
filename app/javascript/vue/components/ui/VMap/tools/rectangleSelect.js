@@ -3,16 +3,45 @@ export function setRectangleSelectTool({ map, layerGroup, callback }) {
   let selectionRect = null
   let isSelecting = false
 
-  map.boxZoom.disable()
+  map.pm.Toolbar.createCustomControl({
+    name: 'selection',
+    block: 'custom',
+    title: 'Selection',
+    className: 'leaflet-pm-icon-selection',
+    onClick: function () {
+      if (this.toggleStatus) {
+        disableBoxSelect()
+      } else {
+        enableBoxSelect()
+      }
+    }
+  })
 
   function enableBoxSelect() {
     map.on('mousedown', onMouseDown)
     map.on('mousemove', onMouseMove)
     map.on('mouseup', onMouseUp)
+    map.on('mouseout', onMouseUp)
+
+    map.getContainer().style.cursor = 'crosshair'
+    map.dragging.disable()
+    map.boxZoom.disable()
+  }
+
+  function disableBoxSelect() {
+    map.off('mousedown', onMouseDown)
+    map.off('mousemove', onMouseMove)
+    map.off('mouseup', onMouseUp)
+    map.off('mouseout', onMouseUp)
+
+    map.getContainer().style.cursor = ''
+    map.dragging.enable()
+    map.boxZoom.enable()
   }
 
   function onMouseDown(e) {
-    if (!e.originalEvent.shiftKey) return
+    e.originalEvent.preventDefault()
+    e.originalEvent.stopPropagation()
 
     isSelecting = true
     startPoint = e.latlng
@@ -54,6 +83,4 @@ export function setRectangleSelectTool({ map, layerGroup, callback }) {
 
     callback(selected)
   }
-
-  enableBoxSelect()
 }
