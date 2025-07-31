@@ -57,7 +57,7 @@ class Download < ApplicationRecord
   validates_presence_of :type
 
   def build_async(record_scope, predicate_extension_params: {})
-    ::DwcaCreateDownloadJob.perform_later(self, core_scope: record_scope.to_sql, predicate_extension_params: predicate_extension_params)
+    ::DwcaCreateDownloadJob.perform_later(self, core_scope: record_scope.to_sql, predicate_extensions: predicate_extension_params)
   end
 
   # Gets the downloads storage path
@@ -100,7 +100,7 @@ class Download < ApplicationRecord
     FileUtils.rm_rf(path)
   end
 
-  def api_buildable?
+  def self.api_buildable?
     false
   end
 

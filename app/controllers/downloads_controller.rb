@@ -112,6 +112,11 @@ class DownloadsController < ApplicationController
 
   # /api/v1/downloads/build?type=Download::DwcArchive::Complete
   def api_build
+    if !API_BUILDABLE_TYPES.include?(params[:type])
+      render json: { error: "Type '#{params[:type]}' is not allowed" }, status: :unprocessable_entity
+      return
+    end
+
     @download = Download.create(api_build_params)
     render '/downloads/api/v1/show'
   end
