@@ -29,43 +29,48 @@ describe Export::Dwca, type: :model, group: :darwin_core do
     end
 
     let(:a) { DwcOccurrence.all }
-    let(:b) { BiologicalAssociation.all } 
+    let(:b) { BiologicalAssociation.all }
 
-    let!(:d) { 
+    let!(:d) {
       ::Export::Dwca.download_async(
         a, 'https://example.org/some_url',
         extension_scopes: { biological_associations: b.to_sql },
         predicate_extensions: {}
-      )   
-    } 
+      )
+    }
 
     specify 'queues the job' do
       download = FactoryBot.create(:valid_download)
       expect {
         DwcaCreateDownloadJob.perform_later(
-          download, 
+          download.id,
           core_scope: a.to_sql,
           extension_scopes: { biological_associations: b.to_sql }
         )
-      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download, core_scope: a.to_sql, extension_scopes: { biological_associations: b.to_sql } )
+      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download.id, core_scope: a.to_sql, extension_scopes: { biological_associations: b.to_sql } )
     end
 
    specify 'queues the job with empty extensions' do
       download = FactoryBot.create(:valid_download)
       expect {
         DwcaCreateDownloadJob.perform_later(
-          download, 
+          download.id,
           core_scope: a.to_sql,
           extension_scopes: { biological_associations: nil }
         )
-      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download, core_scope: a.to_sql, extension_scopes: { biological_associations: nil } )
+      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download.id, core_scope: a.to_sql, extension_scopes: { biological_associations: nil } )
     end
 
-    specify '#download_async creates Download' do 
+    specify '#download_async creates Download' do
       expect(Download.count).to eq(1)
     end
 
-    specify '#download_async creates Zip after worker' do 
+    specify 'deleting download before zip file is created raises in job' do
+      d.delete
+      expect{perform_enqueued_jobs}.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    specify '#download_async creates Zip after worker' do
       perform_enqueued_jobs
       expect(File.exist?(d.file_path)).to be_truthy
     end

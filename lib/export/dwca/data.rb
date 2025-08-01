@@ -750,11 +750,21 @@ module Export::Dwca
       true
     end
 
-    # @param download [Download instance]
-    # @return [Download] a download instance
+    # @param download [a Download]
     def package_download(download)
-      download.update!(source_file_path: zipfile.path)
-      download
+      p = zipfile.path
+
+      # This doesn't touch the db (source_file_path is an instance var).
+      download.update!(source_file_path: p)
+
+      # The zipfile has been moved to its download location, but the db download
+      # could have been deleted at any time during our processing (in a
+      # different thread), so see if we need to do some cleanup.
+      if !Download.find_by(id: download.id)
+        cleanup
+        download.delete_file # doesn't raise if file is already gone
+        return
+      end
     end
 
   end

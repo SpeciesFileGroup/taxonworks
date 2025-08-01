@@ -50,7 +50,7 @@ module Export
 
       # Note we pass a string with the record scope
       ::DwcaCreateDownloadJob.perform_later(
-        download,
+        download.id,
         core_scope: record_scope.to_sql,
         extension_scopes:,
         predicate_extensions:,

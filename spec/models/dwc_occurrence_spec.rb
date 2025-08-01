@@ -48,7 +48,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
       predicate_extensions:
     )
 
-    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extensions:)
+    ::DwcaCreateDownloadJob.perform_now(download.id, core_scope: scope, predicate_extensions:)
 
     tbl = Spec::Support::Utilities::Dwca.extract_data_tsv_table(download.file_path)
 
