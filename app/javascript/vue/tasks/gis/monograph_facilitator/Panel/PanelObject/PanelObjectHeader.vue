@@ -76,7 +76,6 @@ const toggleHide = computed({
 
 <style scoped>
 .header-groups {
-  position: sticky;
   width: 100%;
   border-left: 4px solid transparent;
 
