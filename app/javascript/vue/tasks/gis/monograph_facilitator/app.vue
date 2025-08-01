@@ -7,7 +7,7 @@
   <div class="app-container horizontal-left-content gap-medium align-start">
     <div class="flex-col gap-medium left-column">
       <PanelGroup />
-      <PanelObject />
+      <PanelObject class="left-column" />
     </div>
     <PanelMap />
   </div>

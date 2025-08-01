@@ -1,6 +1,6 @@
 <template>
   <table
-    :class="['group', { 'group-hidden': allHidden }]"
+    :class="['group table-striped', { 'group-hidden': allHidden }]"
     :style="`border-color: ${group.color}`"
   >
     <thead>
@@ -12,28 +12,38 @@
           />
         </th>
 
-        <th class="label-column ellipsis">
-          <span
-            class="ellipsis"
-            v-html="group.determination.label"
-          />
+        <th class="label-column">
+          <div class="horizontal-left-content gap-medium middle ellipsis">
+            <VIcon
+              class="cursor-pointer"
+              :name="group.isListVisible ? 'arrowDown' : 'arrowRight'"
+              x-small
+              @click="group.isListVisible = !group.isListVisible"
+            />
+            <span
+              class="ellipsis"
+              v-html="group.determination.label"
+            />
+          </div>
         </th>
         <th class="w-8">
-          <VIcon
-            v-if="
-              group.list.every(
-                (item) => store.getGeoreferencesByObjectId(item.id).length
-              )
-            "
-            class="cursor-pointer"
-            :name="allHidden ? 'hide' : 'show'"
-            small
-            @click="toggleGroup"
-          />
+          <div class="horizontal-right-content gap-small full_width">
+            <VIcon
+              v-if="
+                group.list.every(
+                  (item) => store.getGeoreferencesByObjectId(item.id).length
+                )
+              "
+              class="cursor-pointer"
+              :name="allHidden ? 'hide' : 'show'"
+              small
+              @click="toggleGroup"
+            />
+          </div>
         </th>
       </tr>
     </thead>
-    <tbody>
+    <tbody v-if="group.isListVisible">
       <tr
         v-for="item in group.list"
         :key="item.id"
@@ -53,19 +63,21 @@
           />
         </td>
         <td>
-          <VIcon
-            v-if="store.getGeoreferencesByObjectId(item.id).length"
-            class="cursor-pointer"
-            :name="store.hiddenIds.includes(item.id) ? 'hide' : 'show'"
-            small
-            @click="
-              () =>
-                store.setObjectVisibilityById(
-                  item.id,
-                  !store.hiddenIds.includes(item.id)
-                )
-            "
-          />
+          <div class="horizontal-right-content">
+            <VIcon
+              v-if="store.getGeoreferencesByObjectId(item.id).length"
+              class="cursor-pointer"
+              :name="store.hiddenIds.includes(item.id) ? 'hide' : 'show'"
+              small
+              @click="
+                () =>
+                  store.setObjectVisibilityById(
+                    item.id,
+                    !store.hiddenIds.includes(item.id)
+                  )
+              "
+            />
+          </div>
         </td>
       </tr>
     </tbody>
@@ -78,6 +90,7 @@ import { RouteNames } from '@/routes/routes.js'
 import { COLLECTION_OBJECT, FIELD_OCCURRENCE } from '@/constants'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import useStore from '../../store/store.js'
+
 import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
@@ -93,6 +106,7 @@ const BROWSE_LINKS = {
 }
 
 const emit = defineEmits(['toggle'])
+
 const store = useStore()
 
 const selectAll = computed({
@@ -144,8 +158,9 @@ function makeBrowseUrl(obj) {
 }
 .group {
   border-left: 4px solid;
-  width: 400px;
+  width: 100%;
   max-width: 400px;
+  min-width: 100%;
   table-layout: fixed;
 
   .checkbox-column {
@@ -159,29 +174,16 @@ function makeBrowseUrl(obj) {
     text-overflow: ellipsis;
     padding-left: 0;
     padding-right: 0;
+
+    svg {
+      min-width: max-content;
+    }
   }
 
   .group-header {
     th,
     th:hover {
       background-color: var(--bg-color);
-    }
-  }
-
-  .group-label {
-    width: 340px;
-    max-width: 340px;
-    font-size: 12px;
-  }
-
-  .group-list {
-    li {
-      width: 360px;
-      max-width: 360px;
-      padding: 0.5rem;
-      box-sizing: border-box;
-      border-bottom: 1px solid var(--border-color);
-      font-size: 12px;
     }
   }
 }

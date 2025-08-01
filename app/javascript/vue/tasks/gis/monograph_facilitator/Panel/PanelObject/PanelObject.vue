@@ -1,20 +1,34 @@
 <template>
-  <div class="panel-attributes">
-    <PanelObjectHeader />
-    <PanelAttributeGroup
-      v-for="group in store.groups"
-      :key="group.determination.id"
-      :group="group"
-    />
+  <div class="flex-col">
+    <PanelObjectHeader @toggle-list="toggleGroups" />
+    <div class="panel-attributes">
+      <PanelAttributeGroup
+        v-for="group in store.groups"
+        ref="panels"
+        :key="group.determination.id"
+        :group="group"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
+import { useTemplateRef } from 'vue'
 import useStore from '../../store/store.js'
 import PanelAttributeGroup from './PanelObjectGroup.vue'
 import PanelObjectHeader from './PanelObjectHeader.vue'
 
 const store = useStore()
+
+const panelRefs = useTemplateRef('panels')
+
+function toggleGroups(value) {
+  if (value) {
+    panelRefs.value.forEach((p) => p.showList())
+  } else {
+    panelRefs.value.forEach((p) => p.hideList())
+  }
+}
 </script>
 
 <style scoped>

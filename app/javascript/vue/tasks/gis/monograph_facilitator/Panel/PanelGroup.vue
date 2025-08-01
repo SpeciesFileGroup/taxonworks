@@ -14,7 +14,6 @@
         </option>
       </select>
       <p>Total groups: {{ store.groups.length }}</p>
-      <p>Selected objects: {{ store.selectedIds.length }}</p>
     </template>
   </BlockLayout>
 </template>

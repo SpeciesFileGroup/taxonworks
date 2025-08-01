@@ -1,21 +1,41 @@
 <template>
-  <table class="full_width">
+  <table class="header-groups">
     <thead>
       <tr>
-        <th class="w-2">
+        <th class="w-6">
           <input
             type="checkbox"
             v-model="toggleSelection"
           />
         </th>
-        <th />
+        <th class="header-label">
+          <div class="flex-row gap-medium">
+            <VIcon
+              class="cursor-pointer"
+              :name="toggleListVisible ? 'arrowDown' : 'arrowRight'"
+              x-small
+              @click="
+                () => {
+                  toggleListVisible = !toggleListVisible
+                }
+              "
+            />
+            <span>Selected objects: {{ store.selectedIds.length }}</span>
+          </div>
+        </th>
         <th class="w-2">
-          <VIcon
-            class="cursor-pointer"
-            :name="toggleHide ? 'hide' : 'show'"
-            small
-            @click="() => (toggleHide = !toggleHide)"
-          />
+          <div class="horizontal-right-content gap-medium">
+            <component
+              :is="getRadialComponent(store.objectType)"
+              :ids="store.selectedIds"
+            />
+            <VIcon
+              class="cursor-pointer"
+              :name="toggleHide ? 'hide' : 'show'"
+              small
+              @click="() => (toggleHide = !toggleHide)"
+            />
+          </div>
         </th>
       </tr>
     </thead>
@@ -24,10 +44,20 @@
 
 <script setup>
 import { computed } from 'vue'
+import { getRadialComponent } from '../../utils'
 import useStore from '../../store/store.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
 const store = useStore()
+
+const toggleListVisible = computed({
+  get: () => store.groups.every((g) => g.isListVisible),
+  set: (value) => {
+    store.groups.forEach((g) => {
+      g.isListVisible = value
+    })
+  }
+})
 
 const toggleSelection = computed({
   get: () => store.objects.every((o) => store.selectedIds.includes(o.id)),
@@ -43,3 +73,20 @@ const toggleHide = computed({
   }
 })
 </script>
+
+<style scoped>
+.header-groups {
+  position: sticky;
+  width: 100%;
+  border-left: 4px solid transparent;
+
+  th:hover {
+    background-color: inherit;
+  }
+}
+
+.header-label {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+</style>

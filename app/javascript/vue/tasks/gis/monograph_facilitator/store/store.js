@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Georeference, CollectionObject } from '@/routes/endpoints'
+import { Georeference } from '@/routes/endpoints'
 import { getUnique, randomHue } from '@/helpers'
 import { makeMarkerStyle } from '../utils'
 import { addToArray, removeFromArray } from '@/helpers'
@@ -37,13 +37,15 @@ function buildGroups(objects) {
   return determinations.map((d, index) => ({
     determination: d,
     color: randomHue(index),
-    list: objects.filter((o) => o.determination?.otuId === d.otuId)
+    list: objects.filter((o) => o.determination?.otuId === d.otuId),
+    isListVisible: false
   }))
 }
 
 export default defineStore('monographFacilitator', {
   state: () => ({
     isLoading: false,
+    objectType: null,
     georeferences: [],
     determinations: [],
     objects: [],
@@ -123,8 +125,9 @@ export default defineStore('monographFacilitator', {
   actions: {
     async load() {
       const { queryValue, queryParam } = useQueryParam()
-      const { service } = QUERY_PARAMETER[queryParam.value]
+      const { service, model } = QUERY_PARAMETER[queryParam.value]
 
+      this.objectType = model
       this.isLoading = true
       try {
         const { body } = await service.filter({ ...queryValue.value, extend })
