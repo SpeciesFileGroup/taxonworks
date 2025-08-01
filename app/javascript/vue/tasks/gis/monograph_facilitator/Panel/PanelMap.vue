@@ -22,16 +22,23 @@ const { isKeyPressed } = usePressedKey()
 
 function setSelectedObjects(arr) {
   const features = arr.map((item) => item.feature)
-  const objects = features
-    .map((f) => store.getObjectByGeoreferenceId(f.properties.georeference.id))
-    .flat()
-  const ids = objects.map((o) => o.id)
+  const geoIds = features.map((f) => f.properties.georeference.id)
+  const objects = geoIds.map((id) => store.getObjectByGeoreferenceId(id)).flat()
+
+  let newIds = objects.map((o) => o.id)
 
   if (isKeyPressed('Shift')) {
-    ids.push(...store.selectedIds)
+    if (isKeyPressed('Control')) {
+      const added = newIds.filter((id) => !store.selectedIds.includes(id))
+      const remaining = store.selectedIds.filter((id) => !newIds.includes(id))
+
+      newIds = [...remaining, ...added]
+    } else {
+      newIds = [...store.selectedIds, ...newIds]
+    }
   }
 
-  store.selectedIds = [...new Set(ids)]
+  store.selectedIds = [...new Set(newIds)]
 }
 </script>
 
