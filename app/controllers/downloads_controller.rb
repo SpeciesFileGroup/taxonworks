@@ -112,7 +112,7 @@ class DownloadsController < ApplicationController
 
   # /api/v1/downloads/build?type=Download::DwcArchive::Complete
   def api_build
-    if !API_BUILDABLE_TYPES.include?(params[:type])
+    if !API_BUILDABLE_DOWNLOAD_TYPES.include?(params[:type])
       render json: { error: "Type '#{params[:type]}' is not allowed" }, status: :unprocessable_entity
       return
     end
@@ -142,6 +142,9 @@ class DownloadsController < ApplicationController
   end
 
   def api_build_params
-    params.permit(:type, predicate_extensions: {})
+    params.permit(:type, predicate_extensions: {
+      collection_object_predicate_id: [],
+      collecting_event_predicate_id: []
+    })
   end
 end
