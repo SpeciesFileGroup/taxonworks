@@ -22,7 +22,23 @@ class Download::DwcArchive::Complete < Download::DwcArchive
 
   def build
     record_scope = ::DwcOccurrence.where(project_id: project_id)
-    build_async(record_scope)
+    build_async(
+      record_scope,
+      predicate_extension_params: normalized_predicate_extensions
+    )
+  end
+
+  private
+
+  # predicate_extensions may have been initialized from query parameters with
+  # string keys and string values.
+  def normalized_predicate_extensions
+    return {} if !predicate_extensions&.is_a?(Hash)
+
+    predicate_extensions.inject({}) do |h, (k, v)|
+      h[k.to_sym] = v.map(&:to_i)
+      h
+    end
   end
 
 end

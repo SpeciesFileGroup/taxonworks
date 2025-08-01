@@ -140,4 +140,10 @@ RSpec.describe Download, type: :model do
       'Download::DwcArchive::Complete',
     )
   end
+
+  specify 'sha2' do
+    # $ sha256sum spec/files/downloads/Sample.zip
+    # 26a2c50757bd7068e82b6698d7dfd5974ebe68e950b5454034593741c925023d  spec/files/downloads/Sample.zip
+    expect(download.sha2).to eq('26a2c50757bd7068e82b6698d7dfd5974ebe68e950b5454034593741c925023d')
+  end
 end
