@@ -62,7 +62,7 @@ const toggleListVisible = computed({
 const toggleSelection = computed({
   get: () => store.objects.every((o) => store.selectedIds.includes(o.id)),
   set: (value) => {
-    store.selectedIds = value ? store.objects.map((o) => o.id) : []
+    store.selectedIds = value ? store.objects.map((o) => o.id).reverse() : []
   }
 })
 

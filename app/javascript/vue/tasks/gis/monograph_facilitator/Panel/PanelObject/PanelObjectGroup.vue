@@ -13,17 +13,20 @@
         </th>
 
         <th class="label-column">
-          <div class="horizontal-left-content gap-medium middle ellipsis">
-            <VIcon
-              class="cursor-pointer"
-              :name="group.isListVisible ? 'arrowDown' : 'arrowRight'"
-              x-small
-              @click="group.isListVisible = !group.isListVisible"
-            />
-            <span
-              class="ellipsis"
-              v-html="group.determination.label"
-            />
+          <div class="flex-separate gap-medium middle">
+            <div class="flex-row gap-medium middle ellipsis">
+              <VIcon
+                class="cursor-pointer"
+                :name="group.isListVisible ? 'arrowDown' : 'arrowRight'"
+                x-small
+                @click="group.isListVisible = !group.isListVisible"
+              />
+              <span
+                class="ellipsis"
+                v-html="group.determination.label"
+              />
+            </div>
+            <span>({{ group.list.length }})</span>
           </div>
         </th>
         <th class="w-8">
