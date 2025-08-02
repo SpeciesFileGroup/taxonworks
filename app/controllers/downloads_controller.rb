@@ -103,6 +103,11 @@ class DownloadsController < ApplicationController
 
   # DELETE /api/v1/downloads/1.json
   def api_destroy
+    if !API_BUILDABLE_DOWNLOAD_TYPES.include?(@download.type)
+      render json: { error: "Type '#{@download.type}' cannot be destroyed via api" }, status: :unprocessable_entity
+      return
+    end
+
     if @download.destroy
       render json: {id: @download.id_was, status: :destroyed}
     else
@@ -110,7 +115,7 @@ class DownloadsController < ApplicationController
     end
   end
 
-  # /api/v1/downloads/build?type=Download::DwcArchive::Complete
+  # POST /api/v1/downloads/build?type=Download::DwcArchive::Complete
   def api_build
     if !API_BUILDABLE_DOWNLOAD_TYPES.include?(params[:type])
       render json: { error: "Type '#{params[:type]}' is not allowed" }, status: :unprocessable_entity
