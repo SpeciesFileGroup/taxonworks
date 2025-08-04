@@ -14,13 +14,21 @@ class DwcaCreateDownloadJob < ApplicationJob
       begin
         d = ::Export::Dwca::Data.new(core_scope:, predicate_extensions:, extension_scopes:, taxonworks_extensions:)
         d.package_download(download)
-        d
       ensure
         d.cleanup
       end
     rescue => ex
       ExceptionNotifier.notify_exception(ex, data: { download: download&.id&.to_s } )
       raise
+    end
+
+    # The zipfile has been moved to its download location, but the db download
+    # could have been deleted at any time during our processing (in a
+    # different thread), so see if we need to do some cleanup.
+    if !Download.find_by(id: download.id)
+      download.delete_file # doesn't raise if file is already gone
+      raise TaxonWorks::Error, "Complete download build aborted: download '#{download.id}' no longer exists."
+      return
     end
   end
 

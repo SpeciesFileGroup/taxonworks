@@ -84,9 +84,8 @@ end
 shared_examples_for 'unprocessable entity' do | factory, path, method, require_both |
   method ||= 'get'
   require_both ||= false # require both user and project
-  let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
-  let!(:project) { FactoryBot.create(:valid_project, :project_valid_token, by: user) }
-  let!(:project_member) { ProjectMember.create!(project: project, user: user, is_project_administrator: true, by: user) }
+
+  include_context 'api context'
 
   let(:model) do
     case factory
@@ -100,8 +99,6 @@ shared_examples_for 'unprocessable entity' do | factory, path, method, require_b
       end
     end
   end
-
-  let(:headers) { { "Authorization": 'Token ' + user.api_access_token } }
 
   context 'with a valid project token and a valid user token' do
     before { send(method, path, headers: headers, params: { project_token: project.api_access_token }) }

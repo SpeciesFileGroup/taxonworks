@@ -756,15 +756,6 @@ module Export::Dwca
 
       # This doesn't touch the db (source_file_path is an instance var).
       download.update!(source_file_path: p)
-
-      # The zipfile has been moved to its download location, but the db download
-      # could have been deleted at any time during our processing (in a
-      # different thread), so see if we need to do some cleanup.
-      if !Download.find_by(id: download.id)
-        cleanup
-        download.delete_file # doesn't raise if file is already gone
-        return
-      end
     end
 
   end
