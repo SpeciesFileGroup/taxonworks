@@ -52,7 +52,9 @@ export default defineStore('monographFacilitator', {
     selectedIds: [],
     settings: {},
     groups: [],
-    hiddenIds: []
+    hiddenIds: [],
+    hoverIds: [],
+    clickedLayer: null
   }),
 
   getters: {
@@ -102,18 +104,20 @@ export default defineStore('monographFacilitator', {
           const otuId = group.determination.otuId
           const features = state.getGeoreferenceByOtuId(otuId).map((g) => {
             const objects = state.getObjectByGeoreferenceId(g.id)
-            const feature = g.geo_json
+            const objectIds = objects.map((o) => o.id)
+            const feature = structuredClone(toRaw(g.geo_json))
 
             const isSelected = objects.some((o) =>
               state.selectedIds.includes(o.id)
             )
 
+            feature.properties.objectIds = objectIds
             feature.properties.style = makeMarkerStyle({
               color: group.color,
               isSelected
             })
 
-            return toRaw(feature)
+            return feature
           })
 
           return features

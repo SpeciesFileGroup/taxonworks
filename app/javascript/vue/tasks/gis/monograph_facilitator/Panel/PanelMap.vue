@@ -8,6 +8,9 @@
     draw-circle
     draw-controls
     tooltips
+    @layer:click="handleClick"
+    @layer:mouseover="handleMouseOver"
+    @layer:mouseout="handleMouseOut"
     @select="setSelectedObjects"
   />
 </template>
@@ -39,6 +42,18 @@ function setSelectedObjects(arr) {
   }
 
   store.selectedIds = [...new Set(newIds)]
+}
+
+function handleMouseOut() {
+  store.hoverIds = []
+}
+
+function handleMouseOver({ feature }) {
+  store.hoverIds = feature.properties.objectIds
+}
+
+function handleClick({ feature }) {
+  store.clickedLayer = feature
 }
 </script>
 

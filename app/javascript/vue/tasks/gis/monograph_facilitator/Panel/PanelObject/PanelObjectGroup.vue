@@ -4,7 +4,13 @@
     :style="`border-color: ${group.color}`"
   >
     <thead>
-      <tr class="group-header">
+      <tr
+        ref="header"
+        :class="[
+          'group-header',
+          group.list.some((o) => isObjectHover(o)) && 'row-hover'
+        ]"
+      >
         <th class="w-6">
           <input
             type="checkbox"
@@ -50,7 +56,8 @@
       <tr
         v-for="item in group.list"
         :key="item.id"
-        class="no_bullets group-list"
+        refs="rows"
+        :class="['no_bullets group-list', isObjectHover(item) && 'row-hover']"
       >
         <td>
           <input
@@ -88,7 +95,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, watch, useTemplateRef } from 'vue'
 import { RouteNames } from '@/routes/routes.js'
 import { COLLECTION_OBJECT, FIELD_OCCURRENCE } from '@/constants'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
@@ -111,6 +118,13 @@ const BROWSE_LINKS = {
 const emit = defineEmits(['toggle'])
 
 const store = useStore()
+
+const rowRefs = useTemplateRef('rows')
+const headerRef = useTemplateRef('header')
+
+function isObjectHover(o) {
+  return store.hoverIds.includes(o.id)
+}
 
 const selectAll = computed({
   get: () =>
@@ -153,6 +167,20 @@ function makeBrowseUrl(obj) {
 
   return `${BROWSE_LINKS[obj.type]}?${idParam}=${obj.id}`
 }
+
+watch(
+  () => store.clickedLayer,
+  (feature) => {
+    const [id] = feature.properties.objectIds
+    const index = props.group.list.findIndex((o) => o.id === id)
+
+    if (index > -1) {
+      const element = rowRefs.value?.[index] || headerRef.value
+
+      element.scrollIntoView()
+    }
+  }
+)
 </script>
 
 <style scoped>
@@ -187,6 +215,18 @@ function makeBrowseUrl(obj) {
     th,
     th:hover {
       background-color: var(--bg-color);
+    }
+  }
+
+  td,
+  th {
+    transition: all 0.25s ease;
+  }
+
+  .row-hover {
+    td,
+    th {
+      background-color: var(--table-row-bg-hover);
     }
   }
 }
