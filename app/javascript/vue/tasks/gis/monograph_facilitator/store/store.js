@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { Georeference } from '@/routes/endpoints'
-import { getUnique, randomHue } from '@/helpers'
+import { getUnique, randomHue, randomUUID } from '@/helpers'
 import { makeMarkerStyle } from '../utils'
 import { addToArray, removeFromArray } from '@/helpers'
 import { toRaw } from 'vue'
@@ -35,6 +35,7 @@ function buildGroups(objects) {
   )
 
   return determinations.map((d, index) => ({
+    uuid: randomUUID(),
     determination: d,
     color: randomHue(index),
     list: objects.filter((o) => o.determination?.otuId === d.otuId),
@@ -162,6 +163,12 @@ export default defineStore('monographFacilitator', {
       } else {
         removeFromArray(this.hiddenIds, id, { primitive: true })
       }
+    },
+
+    updateGroupByUUID(uuid, data) {
+      const group = this.groups.find((g) => g.uuid == uuid)
+
+      Object.assign(group, data)
     }
   }
 })

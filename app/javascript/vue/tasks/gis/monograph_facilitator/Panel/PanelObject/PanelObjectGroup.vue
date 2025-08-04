@@ -56,7 +56,7 @@
       <tr
         v-for="item in group.list"
         :key="item.id"
-        refs="rows"
+        ref="rows"
         :class="['no_bullets group-list', isObjectHover(item) && 'row-hover']"
       >
         <td>
@@ -95,7 +95,7 @@
 </template>
 
 <script setup>
-import { computed, watch, useTemplateRef } from 'vue'
+import { computed, watch, useTemplateRef, nextTick } from 'vue'
 import { RouteNames } from '@/routes/routes.js'
 import { COLLECTION_OBJECT, FIELD_OCCURRENCE } from '@/constants'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
@@ -175,9 +175,17 @@ watch(
     const index = props.group.list.findIndex((o) => o.id === id)
 
     if (index > -1) {
-      const element = rowRefs.value?.[index] || headerRef.value
+      if (!props.group.isListVisible) {
+        store.updateGroupByUUID(props.group.uuid, {
+          isListVisible: true
+        })
+      }
 
-      element.scrollIntoView()
+      nextTick(() => {
+        const element = rowRefs.value?.[index] || headerRef.value
+
+        element.scrollIntoView()
+      })
     }
   }
 )
