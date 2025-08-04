@@ -25,6 +25,12 @@
         </th>
         <th class="w-2">
           <div class="horizontal-right-content gap-medium">
+            <RadialFilter
+              :ids="store.selectedIds"
+              :object-type="store.objectType"
+              :disabled="!store.selectedIds.length"
+              :extended-slices="[getExtendedFilter(store.objectType)]"
+            />
             <component
               :is="getRadialComponent(store.objectType)"
               :ids="store.selectedIds"
@@ -45,8 +51,10 @@
 <script setup>
 import { computed } from 'vue'
 import { getRadialComponent } from '../../utils'
+import { getExtendedFilter } from '../../utils'
 import useStore from '../../store/store.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import RadialFilter from '@/components/radials/filter/radial.vue'
 
 const store = useStore()
 
