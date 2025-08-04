@@ -1,3 +1,4 @@
+export * from './controls'
 export * from './disableLayerOptions'
 export * from './icons'
 export * from './shapes'

@@ -9,32 +9,21 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import { Icon } from '@/components/georeferences/icons'
-import { MAP_TILES } from './constants'
+import {
+  MAP_TILES,
+  DRAW_CONTROLS_MODE,
+  DRAW_CONTROLS_DEFAULT_CONFIG
+} from './constants'
 import geojsonOptions from './utils/geojsonOptions'
 import makeGeoJSONObject from './utils/makeGeoJSONObject'
 import { setRectangleSelectTool } from './tools/rectangleSelect'
 import L from 'leaflet'
 import '@geoman-io/leaflet-geoman-free'
 
-let drawnItems
-let mapObject
-
 const TILE_MAP_STORAGE_KEY = 'tw::map::tile'
 
-const DRAW_CONTROLS_PROPS = [
-  'drawCircle',
-  'drawCircleMarker',
-  'drawMarker',
-  'drawPolyline',
-  'drawPolygon',
-  'drawRectangle',
-  'drawText',
-  'editMode',
-  'dragMode',
-  'cutPolygon',
-  'removalMode',
-  'rotateMode'
-]
+let drawnItems
+let mapObject
 
 const props = defineProps({
   zoomAnimate: {
@@ -64,32 +53,27 @@ const props = defineProps({
 
   drawCircle: {
     type: Boolean,
-    default: true
-  },
-
-  drawCircleMarker: {
-    type: Boolean,
     default: false
   },
 
   drawMarker: {
     type: Boolean,
-    default: true
+    default: false
   },
 
   drawPolyline: {
     type: Boolean,
-    default: true
+    default: false
   },
 
   drawRectangle: {
     type: Boolean,
-    default: true
+    default: false
   },
 
   drawPolygon: {
     type: Boolean,
-    default: true
+    default: false
   },
 
   drawText: {
@@ -99,22 +83,22 @@ const props = defineProps({
 
   editMode: {
     type: Boolean,
-    default: true
+    default: false
   },
 
   dragMode: {
     type: Boolean,
-    default: true
+    default: false
   },
 
   cutPolygon: {
     type: Boolean,
-    default: true
+    default: false
   },
 
   removalMode: {
     type: Boolean,
-    default: true
+    default: false
   },
 
   rotateMode: {
@@ -168,6 +152,11 @@ const props = defineProps({
   },
 
   actions: {
+    type: Boolean,
+    default: false
+  },
+
+  selection: {
     type: Boolean,
     default: false
   }
@@ -232,14 +221,16 @@ onMounted(() => {
   drawnItems = new L.FeatureGroup()
   drawnItems.addTo(mapObject)
 
+  if (props.selection) {
+    setRectangleSelectTool({
+      map: mapObject,
+      callback: select,
+      layerGroup: drawnItems
+    })
+  }
+
   addDrawControllers()
   handleEvents()
-
-  setRectangleSelectTool({
-    map: mapObject,
-    callback: select,
-    layerGroup: drawnItems
-  })
 
   mapObject.pm.setGlobalOptions({
     tooltips: props.tooltips,
@@ -284,9 +275,12 @@ onUnmounted(() => {
 })
 
 function getControls(show) {
-  let controls = { position: 'topleft' }
-  DRAW_CONTROLS_PROPS.forEach((prop) => {
-    controls[prop] = show ? props[prop] : false
+  const controls = {
+    ...DRAW_CONTROLS_DEFAULT_CONFIG
+  }
+
+  DRAW_CONTROLS_MODE.forEach((mode) => {
+    controls[mode] = show || props[mode]
   })
 
   return controls
@@ -329,9 +323,7 @@ const addDrawControllers = () => {
       .addTo(mapObject)
   }
 
-  if (props.drawControls) {
-    mapObject.pm.addControls(getControls(true))
-  }
+  mapObject.pm.addControls(getControls(props.drawControls))
 
   if (!props.actions) {
     mapObject.pm.Toolbar.getControlOrder().forEach((control) => {

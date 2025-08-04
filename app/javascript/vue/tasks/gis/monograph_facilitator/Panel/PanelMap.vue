@@ -2,12 +2,11 @@
   <VMap
     height="100%"
     width="100%"
-    :geojson="store.shapes"
     fit-bounds
     resize
-    draw-circle
-    draw-controls
+    selection
     tooltips
+    :geojson="store.shapes"
     @layer:click="handleClick"
     @layer:mouseover="handleMouseOver"
     @layer:mouseout="handleMouseOut"
