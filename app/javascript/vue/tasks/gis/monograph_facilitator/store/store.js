@@ -256,6 +256,12 @@ export default defineStore('monographFacilitator', {
       this.selectedIds = this.objectIds.filter(
         (id) => !this.selectedIds.includes(id)
       )
+    },
+
+    hideUnselected() {
+      const ids = this.objectIds.filter((id) => !this.selectedIds.includes(id))
+
+      this.hiddenIds = ids
     }
   }
 })

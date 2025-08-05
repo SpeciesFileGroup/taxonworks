@@ -18,9 +18,9 @@
       <label>
         <input
           type="checkbox"
-          v-model="hideUnselected"
+          v-model="autoHide"
         />
-        Automatically hide unselected
+        Auto-hide unselected
       </label>
     </template>
   </BlockLayout>
@@ -38,22 +38,21 @@ const groupBy = [
 ]
 
 const store = useStore()
-const hideUnselected = ref(false)
+const autoHide = ref(false)
 
 watch(
-  [() => store.selectedIds, hideUnselected],
+  () => store.selectedIds,
   () => {
-    if (hideUnselected.value) {
-      if (!store.selectedIds.length) {
-        return
-      }
-      const ids = store.objects
-        .filter((o) => !store.selectedIds.includes(o.id))
-        .map((o) => o.id)
-
-      store.hiddenIds = ids
+    if (autoHide.value) {
+      store.hideUnselected()
     }
   },
   { deep: true }
 )
+
+watch(autoHide, (newVal) => {
+  if (newVal && store.selectedIds.length) {
+    store.hideUnselected()
+  }
+})
 </script>
