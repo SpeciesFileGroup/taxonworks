@@ -14,13 +14,22 @@
         </option>
       </select>
       <p>Total groups: {{ store.groups.length }}</p>
+
+      <label>
+        <input
+          type="checkbox"
+          v-model="hideUnselected"
+        />
+        Automatically hide unselected
+      </label>
     </template>
   </BlockLayout>
 </template>
 
 <script setup>
-import BlockLayout from '@/components/layout/BlockLayout.vue'
+import { ref, watch } from 'vue'
 import useStore from '../store/store.js'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 
 const groupBy = [
   {
@@ -29,4 +38,19 @@ const groupBy = [
 ]
 
 const store = useStore()
+const hideUnselected = ref(false)
+
+watch(
+  [() => store.selectedIds, hideUnselected],
+  () => {
+    if (hideUnselected.value) {
+      const ids = store.objects
+        .filter((o) => !store.selectedIds.includes(o.id))
+        .map((o) => o.id)
+
+      store.hiddenIds = ids
+    }
+  },
+  { deep: true }
+)
 </script>

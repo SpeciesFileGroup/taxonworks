@@ -9,18 +9,26 @@
           />
         </th>
         <th class="header-label">
-          <div class="flex-row gap-medium">
-            <VIcon
-              class="cursor-pointer"
-              :name="toggleListVisible ? 'arrowDown' : 'arrowRight'"
-              x-small
-              @click="
-                () => {
-                  toggleListVisible = !toggleListVisible
-                }
-              "
-            />
-            <span>Selected objects: {{ store.selectedIds.length }}</span>
+          <div class="flex-separate middle">
+            <div class="flex-row gap-medium">
+              <VIcon
+                class="cursor-pointer"
+                :name="toggleListVisible ? 'arrowDown' : 'arrowRight'"
+                x-small
+                @click="
+                  () => {
+                    toggleListVisible = !toggleListVisible
+                  }
+                "
+              />
+              <span>Selected objects: {{ store.selectedIds.length }}</span>
+            </div>
+            <VBtn
+              color="primary"
+              @click="store.invertSelection"
+            >
+              Toggle
+            </VBtn>
           </div>
         </th>
         <th class="w-2">
@@ -55,6 +63,7 @@ import { getExtendedFilter } from '../../utils'
 import useStore from '../../store/store.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialFilter from '@/components/radials/filter/radial.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
 

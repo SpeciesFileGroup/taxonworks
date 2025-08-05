@@ -6,6 +6,7 @@ import { addToArray, removeFromArray } from '@/helpers'
 import { toRaw } from 'vue'
 import { QUERY_PARAMETER } from '@/tasks/data_attributes/field_synchronize/constants'
 import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
+import store from '@/tasks/citations/otus/store/store'
 
 const extend = ['taxon_determinations']
 
@@ -59,6 +60,10 @@ export default defineStore('monographFacilitator', {
   }),
 
   getters: {
+    objectIds(state) {
+      return state.objects.map((o) => o.id)
+    },
+
     getGeoreferenceByOtuId(state) {
       return (otuId) => {
         const objects = state.getVisibleObjects.filter(
@@ -169,6 +174,12 @@ export default defineStore('monographFacilitator', {
       const group = this.groups.find((g) => g.uuid == uuid)
 
       Object.assign(group, data)
+    },
+
+    invertSelection() {
+      this.selectedIds = this.objectIds.filter(
+        (id) => !this.selectedIds.includes(id)
+      )
     }
   }
 })
