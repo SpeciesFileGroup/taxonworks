@@ -1,7 +1,7 @@
 class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_download, only: [:show, :download_file, :destroy, :update, :file, :api_show, :edit]
+  before_action :set_download, only: [:show, :download_file, :destroy, :update, :file, :edit]
   before_action :set_download_api, only: [:api_file, :api_show, :api_destroy]
 
   after_action -> { set_pagination_headers(:downloads) }, only: [:api_index], if: :json_request?
@@ -103,7 +103,10 @@ class DownloadsController < ApplicationController
 
   # DELETE /api/v1/downloads/1.json
   def api_destroy
-    if !API_BUILDABLE_DOWNLOAD_TYPES.include?(@download.type)
+    if !sessions_current_user.is_administrator? # user is from api token
+      render json: { error: 'Only administrators can destroy downloads via the api' }, status: :unprocessable_entity
+      return
+    elsif !API_BUILDABLE_DOWNLOAD_TYPES.include?(@download.type)
       render json: { error: "Type '#{@download.type}' cannot be destroyed via api" }, status: :unprocessable_entity
       return
     end
@@ -117,7 +120,10 @@ class DownloadsController < ApplicationController
 
   # POST /api/v1/downloads/build?type=Download::DwcArchive::Complete
   def api_build
-    if !API_BUILDABLE_DOWNLOAD_TYPES.include?(params[:type])
+    if !sessions_current_user.is_administrator? # user is from api token
+      render json: { error: 'Only administrators can start builds from the api' }, status: :unprocessable_entity
+      return
+    elsif !API_BUILDABLE_DOWNLOAD_TYPES.include?(params[:type])
       render json: { error: "Type '#{params[:type]}' is not allowed" }, status: :unprocessable_entity
       return
     end
