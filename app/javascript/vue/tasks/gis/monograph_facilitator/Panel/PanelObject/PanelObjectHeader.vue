@@ -20,7 +20,7 @@
                 }
               "
             />
-            <span>Selected objects: {{ store.selectedIds.length }}</span>
+            <span>Selected: {{ store.selectedIds.length }}</span>
           </div>
         </th>
         <th class="w-2">
@@ -32,6 +32,10 @@
             >
               Invert
             </VBtn>
+            <RadialBatch
+              :ids="store.selectedIds"
+              :object-type="store.objectType"
+            />
             <RadialFilter
               :ids="store.selectedIds"
               :object-type="store.objectType"
@@ -62,6 +66,7 @@ import { getExtendedFilter } from '../../utils'
 import useStore from '../../store/store.js'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialFilter from '@/components/radials/filter/radial.vue'
+import RadialBatch from '@/components/radials/mass/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
