@@ -222,6 +222,8 @@ export default defineStore('monographFacilitator', {
       const responses = await Promise.all(promises)
       const georeferences = responses.map((r) => r.body).flat()
 
+      georeferences.forEach((g) => delete g.geo_json.properties.radius)
+
       this.georeferences = georeferences
     },
 
