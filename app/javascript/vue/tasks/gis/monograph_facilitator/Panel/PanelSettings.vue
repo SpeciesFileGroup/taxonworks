@@ -44,6 +44,9 @@ watch(
   [() => store.selectedIds, hideUnselected],
   () => {
     if (hideUnselected.value) {
+      if (!store.selectedIds.length) {
+        return
+      }
       const ids = store.objects
         .filter((o) => !store.selectedIds.includes(o.id))
         .map((o) => o.id)

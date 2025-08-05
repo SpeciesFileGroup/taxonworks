@@ -170,6 +170,12 @@ export default defineStore('monographFacilitator', {
   actions: {
     async load() {
       const { queryValue, queryParam } = useQueryParam()
+
+      if (!queryParam.value) {
+        TW.workbench.alert.create('Filter parameters are missing.', 'alert')
+        return
+      }
+
       const { service, model } = QUERY_PARAMETER[queryParam.value]
       const payload = {
         ...queryValue.value,
