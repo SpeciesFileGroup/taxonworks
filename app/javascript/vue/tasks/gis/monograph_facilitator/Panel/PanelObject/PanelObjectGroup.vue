@@ -8,7 +8,7 @@
         ref="header"
         :class="[
           'group-header',
-          group.list.some((o) => isObjectHover(o)) && 'row-hover'
+          group.list.some((o) => store.isObjectHover(o)) && 'row-hover'
         ]"
       >
         <th class="w-6">
@@ -25,7 +25,11 @@
                 class="cursor-pointer"
                 :name="group.isListVisible ? 'arrowDown' : 'arrowRight'"
                 x-small
-                @click="group.isListVisible = !group.isListVisible"
+                @click="
+                  store.updateGroupByUUID(group.uuid, {
+                    isListVisible: !group.isListVisible
+                  })
+                "
               />
               <span
                 class="ellipsis"
@@ -46,7 +50,7 @@
               class="cursor-pointer"
               :name="allHidden ? 'hide' : 'show'"
               small
-              @click="toggleGroup"
+              @click="() => store.setGroupVisibility(group.uuid, !allHidden)"
             />
           </div>
         </th>
@@ -57,7 +61,10 @@
         v-for="item in group.list"
         :key="item.id"
         ref="rows"
-        :class="['no_bullets group-list', isObjectHover(item) && 'row-hover']"
+        :class="[
+          'no_bullets group-list',
+          store.isObjectHover(item) && 'row-hover'
+        ]"
       >
         <td>
           <input
@@ -100,7 +107,6 @@ import { RouteNames } from '@/routes/routes.js'
 import { COLLECTION_OBJECT, FIELD_OCCURRENCE } from '@/constants'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import useStore from '../../store/store.js'
-
 import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
@@ -121,10 +127,6 @@ const store = useStore()
 
 const rowRefs = useTemplateRef('rows')
 const headerRef = useTemplateRef('header')
-
-function isObjectHover(o) {
-  return store.hoverIds.includes(o.id)
-}
 
 const selectAll = computed({
   get: () =>
@@ -153,14 +155,6 @@ const allHidden = computed(() =>
       !store.getGeoreferencesByObjectId(item.id).length
   )
 )
-
-function toggleGroup() {
-  const value = !allHidden.value
-
-  props.group.list.forEach((item) => {
-    store.setObjectVisibilityById(item.id, value)
-  })
-}
 
 function makeBrowseUrl(obj) {
   const idParam = ID_PARAM_FOR[obj.type]

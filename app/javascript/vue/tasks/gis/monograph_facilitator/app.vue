@@ -20,7 +20,7 @@ import PanelMap from './Panel/PanelMap.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 import useStore from './store/store.js'
-import PanelGroup from './Panel/PanelGroup.vue'
+import PanelGroup from './Panel/PanelSettings.vue'
 
 defineOptions({
   name: 'MonographFacilitator'

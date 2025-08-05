@@ -1063,7 +1063,7 @@ filter_taxon_name_relationships_task:
   status: prototype
   description: 'Filter taxon name relationships by many different facets, download or visualize results.'
 monograph_facilitator_task:
-  hub: true
+  hub: false
   name: 'Monograph facilitator'
   related:
   categories:

@@ -27,9 +27,10 @@
           <div class="horizontal-right-content gap-medium">
             <VBtn
               color="primary"
+              title="Invert the current selection"
               @click="store.invertSelection"
             >
-              Toggle
+              Invert
             </VBtn>
             <RadialFilter
               :ids="store.selectedIds"

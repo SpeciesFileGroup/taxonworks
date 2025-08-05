@@ -42,7 +42,7 @@ export default ({ L }) => ({
     const radius = feature.properties.radius
     const markerStyle = ICONS[type] || ICONS[GEOREFERENCE]
     const marker = radius
-      ? L.circle(latLng, Number(layer.properties.radius))
+      ? L.circle(latLng, Number(radius))
       : L.marker(latLng, {
           icon: L.divIcon({
             ...markerStyle,

@@ -6,9 +6,11 @@ import { addToArray, removeFromArray } from '@/helpers'
 import { toRaw } from 'vue'
 import { QUERY_PARAMETER } from '@/tasks/data_attributes/field_synchronize/constants'
 import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
+import { sortGroupsByLastSelectedIndex } from '../utils/sortGroupsByLastSelectedIndex.js'
 import { chunkArray } from '@/helpers'
 
 const extend = ['taxon_determinations']
+const MAX_RECORDS = 1000
 
 function makeDetermination(d = {}) {
   return {
@@ -64,6 +66,12 @@ export default defineStore('monographFacilitator', {
       return state.objects.map((o) => o.id)
     },
 
+    isObjectHover(state) {
+      return (o) => {
+        return state.hoverIds.includes(o.id)
+      }
+    },
+
     getGeoreferenceByOtuId(state) {
       return (otuId) => {
         const objects = state.getVisibleObjects.filter(
@@ -104,6 +112,33 @@ export default defineStore('monographFacilitator', {
       }
     },
 
+    sortedGroups(state) {
+      const allSelected = []
+      const someSelected = []
+      const noneSelected = []
+
+      state.groups.forEach((group) => {
+        const length = group.list.length
+        const count = group.list.filter((item) =>
+          state.selectedIds.includes(item.id)
+        ).length
+
+        if (count === 0) {
+          noneSelected.push(group)
+        } else if (length !== count) {
+          someSelected.push(group)
+        } else {
+          allSelected.push(group)
+        }
+      })
+
+      return [
+        ...sortGroupsByLastSelectedIndex(allSelected, state.selectedIds),
+        ...sortGroupsByLastSelectedIndex(someSelected, state.selectedIds),
+        ...sortGroupsByLastSelectedIndex(noneSelected, state.selectedIds)
+      ]
+    },
+
     shapes(state) {
       return state.groups
         .map((group) => {
@@ -138,7 +173,7 @@ export default defineStore('monographFacilitator', {
       const { service, model } = QUERY_PARAMETER[queryParam.value]
       const payload = {
         ...queryValue.value,
-        per: 5000,
+        per: MAX_RECORDS,
         extend
       }
 
@@ -146,27 +181,25 @@ export default defineStore('monographFacilitator', {
       this.isLoading = true
 
       try {
-        const { body } = await service.filter(payload)
-        const ceId = [
+        const { body, headers } = await service.filter(payload)
+        const totalRecords = Number(headers['pagination-total'])
+        const ceIds = [
           ...new Set(body.map((c) => c.collecting_event_id).filter(Boolean))
         ]
 
-        if (ceId.length) {
-          const arrIds = chunkArray(ceId, 50)
-          const promises = arrIds.map((ids) =>
-            Georeference.all({ collecting_event_id: ids })
-          )
-
-          const responses = await Promise.all(promises)
-          const georeferences = responses.map((r) => r.body).flat()
-
-          if (georeferences.length) {
-            this.georeferences = georeferences
-          }
+        if (ceIds.length) {
+          await this.loadGeoreferences(ceIds)
         }
 
         this.objects = body.map(makeObject)
         this.groups = buildGroups(this.objects)
+
+        if (totalRecords > MAX_RECORDS) {
+          TW.workbench.alert.create(
+            `Result contains ${MAX_RECORDS} records, it may be truncated.`,
+            'notice'
+          )
+        }
       } catch (e) {
         throw e
       }
@@ -174,11 +207,34 @@ export default defineStore('monographFacilitator', {
       this.isLoading = false
     },
 
+    async loadGeoreferences(ceIds) {
+      const arrIds = chunkArray(ceIds, 50)
+      const promises = arrIds.map((ids) =>
+        Georeference.all({ collecting_event_id: ids })
+      )
+
+      const responses = await Promise.all(promises)
+      const georeferences = responses.map((r) => r.body).flat()
+
+      this.georeferences = georeferences
+    },
+
     setObjectVisibilityById(id, visible) {
       if (visible) {
         addToArray(this.hiddenIds, id, { primitive: true })
       } else {
         removeFromArray(this.hiddenIds, id, { primitive: true })
+      }
+    },
+
+    setGroupVisibility(groupId, visible) {
+      const group = this.groups.find((g) => g.uuid === groupId)
+      const ids = group.list.map((o) => o.id)
+
+      if (visible) {
+        this.hiddenIds = [...new Set([this.hiddenIds, ids])].flat()
+      } else {
+        this.hiddenIds = this.hiddenIds.filter((id) => !ids.includes(id))
       }
     },
 
