@@ -9,30 +9,28 @@
           />
         </th>
         <th class="header-label">
-          <div class="flex-separate middle">
-            <div class="flex-row gap-medium">
-              <VIcon
-                class="cursor-pointer"
-                :name="toggleListVisible ? 'arrowDown' : 'arrowRight'"
-                x-small
-                @click="
-                  () => {
-                    toggleListVisible = !toggleListVisible
-                  }
-                "
-              />
-              <span>Selected objects: {{ store.selectedIds.length }}</span>
-            </div>
+          <div class="flex-row gap-medium">
+            <VIcon
+              class="cursor-pointer"
+              :name="toggleListVisible ? 'arrowDown' : 'arrowRight'"
+              x-small
+              @click="
+                () => {
+                  toggleListVisible = !toggleListVisible
+                }
+              "
+            />
+            <span>Selected objects: {{ store.selectedIds.length }}</span>
+          </div>
+        </th>
+        <th class="w-2">
+          <div class="horizontal-right-content gap-medium">
             <VBtn
               color="primary"
               @click="store.invertSelection"
             >
               Toggle
             </VBtn>
-          </div>
-        </th>
-        <th class="w-2">
-          <div class="horizontal-right-content gap-medium">
             <RadialFilter
               :ids="store.selectedIds"
               :object-type="store.objectType"

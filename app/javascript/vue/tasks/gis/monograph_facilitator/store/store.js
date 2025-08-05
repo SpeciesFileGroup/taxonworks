@@ -6,7 +6,7 @@ import { addToArray, removeFromArray } from '@/helpers'
 import { toRaw } from 'vue'
 import { QUERY_PARAMETER } from '@/tasks/data_attributes/field_synchronize/constants'
 import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
-import store from '@/tasks/citations/otus/store/store'
+import { chunkArray } from '@/helpers'
 
 const extend = ['taxon_determinations']
 
@@ -136,17 +136,29 @@ export default defineStore('monographFacilitator', {
     async load() {
       const { queryValue, queryParam } = useQueryParam()
       const { service, model } = QUERY_PARAMETER[queryParam.value]
+      const payload = {
+        ...queryValue.value,
+        per: 5000,
+        extend
+      }
 
       this.objectType = model
       this.isLoading = true
+
       try {
-        const { body } = await service.filter({ ...queryValue.value, extend })
-        const ceId = body.map((c) => c.collecting_event_id)
+        const { body } = await service.filter(payload)
+        const ceId = [
+          ...new Set(body.map((c) => c.collecting_event_id).filter(Boolean))
+        ]
 
         if (ceId.length) {
-          const { body: georeferences } = await Georeference.all({
-            collecting_event_id: ceId
-          })
+          const arrIds = chunkArray(ceId, 50)
+          const promises = arrIds.map((ids) =>
+            Georeference.all({ collecting_event_id: ids })
+          )
+
+          const responses = await Promise.all(promises)
+          const georeferences = responses.map((r) => r.body).flat()
 
           if (georeferences.length) {
             this.georeferences = georeferences
