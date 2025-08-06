@@ -79,8 +79,8 @@ class AssertedDistribution < ApplicationRecord
 
   # TODO: deprecate scopes referencing single parameter where()
   scope :with_is_absent, -> { where('is_absent = true') }
-  scope :with_geographic_area_array, -> (geographic_area_array) { where("asserted_distribution_shape_type = 'GeographicArea' AND asserted_distribution_shape_id IN (?)", geographic_area_array) }
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
+  scope :with_geographic_area_array, -> (geographic_area_array) { where("asserted_distribution_shape_type = 'GeographicArea' AND asserted_distribution_shape_id IN (?)", geographic_area_array) }
   # Includes a `geographic_item_id` column.
   scope :associated_with_geographic_items, -> {
     a = AssertedDistribution
