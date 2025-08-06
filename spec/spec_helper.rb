@@ -126,9 +126,18 @@ RSpec.configure do |config|
   end
 
   # Capybara requires truncation strategy!!
-  config.before(:each, js: true) do
-    Capybara.current_driver  = Capybara.javascript_driver
-    DatabaseCleaner.strategy = :truncation, {except: %w(spatial_ref_sys)}
+  config.before(:each, type: :feature) do
+    # :rack_test driver's Rack app under test shares database connection
+    # with the specs, so continue to use transaction strategy for speed.
+    driver_shares_db_connection_with_specs = Capybara.current_driver == :rack_test
+
+    unless driver_shares_db_connection_with_specs
+      # Driver is probably for an external browser with an app
+      # under test that does *not* share a database connection with the
+      # specs, so use truncation strategy.
+      DatabaseCleaner.strategy = :truncation, {except: %w(spatial_ref_sys)}
+    end
+    #Capybara.current_driver  = Capybara.javascript_driver
     Features::Downloads.clear_downloads # TODO, this should be downloads: true strategy to eliminate need to call everytime
     FileUtils.rm_rf(Download.storage_path)
   end
@@ -141,7 +150,11 @@ RSpec.configure do |config|
     DatabaseCleaner.start
   end
 
-  config.after(:each) do
+  config.append_after(:each) do
+    DatabaseCleaner.clean
+  end
+
+  config.after(:each, type: :feature) do
     DatabaseCleaner.clean
   end
 
@@ -151,20 +164,6 @@ RSpec.configure do |config|
   end
   config.after(:each, type: :feature) do
     ActionController::Base.allow_forgery_protection = false
-  end
-
-  # Verify DB is actually cleared. Retry if it isn't.
-  config.after(:each, type: :feature, js: true) do
-    sleep 1 # Give additional time to test server to finish up manipulating the database before attempting to clear it
-    DatabaseCleaner.clean
-    i = 0
-    # TODO: Does this actually fixing something nowadays?
-    while User.count > 0 && i <= 3
-      puts 'DATABASE NOT YET CLEARED, RETRYING...'
-      sleep 2**i
-      DatabaseCleaner.clean
-      i += 1
-    end
   end
 
   # Disable deprecation warnings (see https://github.com/teamcapybara/capybara/issues/2779)
