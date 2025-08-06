@@ -27,11 +27,12 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/new
   def new
-    @collecting_event = CollectingEvent.new
+    redirect_to new_collecting_event_task_path, notice: 'Redirected to new interface.'
   end
 
   # GET /collecting_events/1/edit
   def edit
+    redirect_to new_collecting_event_task_path(collecting_event_id: @collecting_event.id), notice: 'Editing in new interface.'
   end
 
   # POST /collecting_events

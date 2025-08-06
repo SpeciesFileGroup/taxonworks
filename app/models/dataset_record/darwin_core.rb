@@ -81,7 +81,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
 
   def get_fields_mapping
     @fields_mapping ||= import_dataset.metadata['core_headers']
-      .each.with_index.inject({}) { |m, (h, i)| h.blank? || m.key?(h&.downcase) ? m : m.merge({ h&.downcase => i, i => h}) }
+      .each.with_index.inject({}) { |m, (h, i)| h.blank? ? m : m.merge({ h&.downcase => i, i => h}) }
   end
 
   def get_field_mapping(field_name)

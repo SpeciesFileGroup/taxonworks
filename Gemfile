@@ -62,9 +62,7 @@ gem 'exception_notification', '~> 4.4'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
-gem 'closure_tree', '~> 7.0'
-
-gem 'with_advisory_lock', '< 7.0.0' # TODO: Remove once closure_tree incompatibility is fixed
+gem 'closure_tree', '~> 9.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'
 

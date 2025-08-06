@@ -9,24 +9,31 @@ TW.views = TW.views || {};
 TW.views.collection_profiles = TW.views.collection_profiles || {};
 TW.views.collection_profiles.form = TW.views.collection_profiles.form || {};
 
-Object.assign(TW.views.collection_profiles.form, { 
-
+Object.assign(TW.views.collection_profiles.form, {
   update_collection_type_attributes: function() {
-    var t = $('input[name="collection_profile[collection_type]"]:checked').val();
-    $.get( "/collection_profiles/swap_form_attribute_types/" + t, function( data ) {
-      $( "#collection_profile_typed_attributes" ).html( data );
-    });
+    const selected = document.querySelector('input[name="collection_profile[collection_type]"]:checked');
+    if (!selected) return;
+
+    const t = selected.value;
+
+    fetch("/collection_profiles/swap_form_attribute_types/" + t)
+      .then(response => response.text())
+      .then(data => {
+        const container = document.getElementById("collection_profile_typed_attributes");
+        if (container) container.innerHTML = data;
+      });
   },
 
-  initialize_selector: function(form) {
-    $('.collection_type_option').change(this.update_collection_type_attributes);
-  } 
-}
-);
+  initialize_selector: function() {
+    const options = document.querySelectorAll('.collection_type_option');
+    options.forEach(option => {
+      option.addEventListener('change', this.update_collection_type_attributes);
+    });
+  }
+});
 
-
-$(document).on('turbolinks:load', function() {
-  if ( $('#collection_profile_typed_attributes').length ) {
+document.addEventListener('turbolinks:load', function() {
+  if (document.getElementById('collection_profile_typed_attributes')) {
     TW.views.collection_profiles.form.initialize_selector();
   }
 });
