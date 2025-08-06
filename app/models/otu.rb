@@ -399,16 +399,10 @@ class Otu < ApplicationRecord
 
   # TODO: move to helper method likely
   def distribution_geoJSON
-
-    ga_ads = Gis::GeoJSON.feature_collection(
-      ::AssertedDistribution.with_geographic_areas, :asserted_distributions
-    )
-    gz_ads = Gis::GeoJSON.feature_collection(
-      ::AssertedDistribution.with_gazetteers, :asserted_distributions
-    )
+    a_ds = Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions)
     c_os = Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences)
     c_es = Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
-    Gis::GeoJSON.aggregation([ga_ads, gz_ads, c_os, c_es], :distribution)
+    Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
   end
 
   # TODO: needs spec
