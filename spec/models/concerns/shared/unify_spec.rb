@@ -85,6 +85,41 @@ describe 'Shared::Unify', type: :model do
     expect(o1.biological_associations.reload.count).to eq(0)
   end
 
+  xspecify 'unifies Otus in Matrices with overlapping observations' do
+    om = ObservationMatrix.create!(name: 'Lune')
+    ri1 = ObservationMatrixRowItem::Single.create!(observation_object: o1, observation_matrix: om)
+    ri2 = ObservationMatrixRowItem::Single.create!(observation_object: o2, observation_matrix: om)
+    r1 = om.reload.observation_matrix_rows.first
+    r2 = om.observation_matrix_rows.second
+    cit2 = Citation.create!(citation_object: r2, source:)
+    d = FactoryBot.create(:valid_descriptor)
+
+    d1 = Descriptor::Qualitative.create!(name: 'foo')
+    cs = CharacterState.create!(label: 0, name: 'foo', descriptor: d1)
+    c1 = FactoryBot.create(:valid_observation_matrix_column, observation_matrix: om, descriptor: d1 )
+    # Give both rows the same character state.
+    Observation.code_column(c1.id, { character_state: cs })
+    obs1 = o1.observations.first
+    obs2 = o2.observations.first
+
+    o1.unify(o2)
+    expect(ObservationMatrixRowItem.find_by(id: ri2.id)).to be_falsey
+    expect(ObservationMatrixRow.find_by(id: r2.id)).to be_falsey
+    expect(Observation.find_by(id: obs2.id)).to be_falsey
+    expect(Otu.find_by(id: o2.id)).to be_falsey
+
+    expect(o1.reload.observation_matrix_row_items.map(&:id)).to eq([ri1.id])
+    expect(o1.observation_matrix_rows.map(&:id)).to eq([r1.id])
+    expect(o1.observations.map(&:id)).to eq([obs1.id])
+
+    expect(om.reload.observation_matrix_row_items.map(&:id)).to eq([ri1.id])
+    expect(o1.observation_matrix_rows.map(&:id)).to eq([r1.id])
+
+    # !! Fails, cit2 still points to r2.
+    expect(r1.reload.citations.map(&:id)).to eq([cit2.id])
+  end
+
+
   specify 'unifies Repositories' do
     a = FactoryBot.create(:valid_repository)
     b = FactoryBot.create(:valid_repository)
