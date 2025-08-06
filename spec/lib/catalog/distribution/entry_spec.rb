@@ -21,4 +21,8 @@ describe Catalog::Distribution::Entry, group: [:catalogs, :distribution_catalog,
     expect(catalog_entry.asserted_distribution_items.count).to eq(1)
   end
 
+  specify '#sources' do
+    expect(catalog_entry.sources).to contain_exactly(c1.source)
+  end
+
 end
