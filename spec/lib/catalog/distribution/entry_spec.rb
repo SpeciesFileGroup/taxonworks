@@ -22,7 +22,7 @@ describe Catalog::Distribution::Entry, group: [:catalogs, :distribution_catalog,
   end
 
   specify '#sources' do
-    expect(catalog_entry.sources).to contain_exactly(c1.source)
+    expect(catalog_entry.sources.map(&:id)).to contain_exactly(ad.citations.first.source.id)
   end
 
 end
