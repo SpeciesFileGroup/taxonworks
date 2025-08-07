@@ -106,7 +106,7 @@
           >
             <VIcon
               x-small
-              name="arrowRight"
+              :name="expandOptions ? 'arrowDown' : 'arrowRight'"
             />
           </VBtn>
           <span class="margin-small-left">

@@ -54,7 +54,7 @@
         >
           <VIcon
             x-small
-            name="arrowRight"
+            :name="showAdditionalActions ? 'arrowDown' : 'arrowRight'"
           />
         </VBtn>
       </span>
