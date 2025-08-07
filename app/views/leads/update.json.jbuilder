@@ -2,15 +2,8 @@ json.lead do
   json.partial! 'attributes', lead: @lead
 end
 
-if extend_response_with('future_otus')
-  futures = @lead.children.map(&:future)
-  json.futures do
-    json.array! futures do |future|
-      json.partial! 'future_with_otus', future:
-    end
-  end
-elsif extend_response_with('futures_data')
-  json.futures @lead.children.map(&:future)
+if extend_response_with('future_otu')
+  json.future render(partial: 'future_with_otus', locals: { future: @lead.future })
 end
 
 if extend_response_with('key_data')

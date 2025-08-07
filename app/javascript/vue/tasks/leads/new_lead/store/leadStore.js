@@ -348,6 +348,12 @@ export default defineStore('leads', {
         case EXTEND.CoupletAndFutures:
           return for_layout == LAYOUTS.FullKey ?
             ['key_data'] : ['future_otus']
+        case EXTEND.CoupletAndFuture:
+          return for_layout == LAYOUTS.FullKey ?
+            ['key_data'] : ['future_otu']
+        case EXTEND.CoupletOnly:
+          return for_layout == LAYOUTS.FullKey ?
+            ['key_data'] : []
         default:
           throw new Error(`Internal error: unrecognized for_affected ${for_affected}`)
       }
@@ -362,6 +368,17 @@ export default defineStore('leads', {
           this.key_ordered_parents = result.key_ordered_parents
           this.futures = result.futures
           break
+        case EXTEND.CoupletAndFuture:
+          this.key_data = result.key_data
+          this.key_metadata = result.key_metadata
+          this.key_ordered_parents = result.key_ordered_parents
+          const position = result.lead.position
+          this.futures[position] = result.future
+          break
+        case EXTEND.CoupletOnly:
+          this.key_data = result.key_data
+          this.key_metadata = result.key_metadata
+          this.key_ordered_parents = result.key_ordered_parents
         default:
           throw new Error(`Internal error: unrecognized update for_affected ${for_affected}`)
       }

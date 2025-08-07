@@ -292,33 +292,46 @@ function saveChanges() {
     return
   }
 
+  // TODO: rework to be less tricky.
+  // * For full layout, the *last* promise returned needs to include the full
+  //   key data, since it's the only one that has all of the updates to the full
+  //   key. (Currently the solution is that *every* return includes full key.)
+  // * For PreviousFuture layout, we'll have each child update its own future
+  //   (which can change when redirect changes).
+  // That means we need to return no futures for full layout, individual
+  // futures for previous/future layout. All of that keeps us from needing to
+  // send the parent promise *after* all of the child promises have completed,
+  // which we'd like to avoid (for speed mostly).
+  const layoutIsFull = store.layout == LAYOUTS.FullKey
+  const childExtend = layoutIsFull ?
+    // returns full key data
+    store.extend(EXTEND.CoupletAndFutures) :
+    // returns just the future of the given lead
+    store.extend(EXTEND.CoupletAndFuture)
   const promises = childrenToUpdate.map((lead) => {
     const payload = {
       lead,
+      extend: childExtend
     }
     return LeadEndpoint.update(lead.id, payload)
       .then(({ body }) => {
         store.updateChild(body.lead)
+        store.update_from_extended(childExtend, body)
       })
-      // TODO: if multiple fail we can get overlapping popup messages, but is
-      // there a way to catch here without also displaying the error message (so
-      // that we can instead combine error messages in allSettled)?
       .catch(() => {})
   })
 
-  // Futures come from store.lead, and futures can change if redirect on a child
-  // changes, so we need to run this update every time a child changes.
   if (leadOriginLabelChanged || childrenToUpdate.length > 0) {
     const payload = {
       lead: store.lead,
-      extend: store.extend(EXTEND.CoupletAndFutures),
+      extend: store.extend(EXTEND.CoupletOnly)
     }
 
     promises.push(
       LeadEndpoint.update(store.lead.id, payload)
         .then(({ body }) => {
           store.last_saved.origin_label = store.lead.origin_label
-          store.update_from_extended(EXTEND.CoupletAndFutures, body)
+          store.update_from_extended(EXTEND.CoupletOnly, body)
         })
         .catch(() => {})
     )
