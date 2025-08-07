@@ -62,7 +62,7 @@ const RouteNames = {
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatchCollectionObject: '/tasks/collection_objects/match',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
-  NewBiologicalAssociationGraph:
+  NewBiologicalAssociationsGraph:
     '/tasks/biological_associations/biological_associations_graph',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
   NewContainer: '/tasks/containers/new_container',

@@ -26,6 +26,7 @@ AssertedDistribution:
   tasks:
     - asserted_distributions_basic_endemism_task
     - new_asserted_distribution_task
+    - browse_asserted_distributions_task
     - unify_objects_task
   config:
     recent: true
@@ -33,11 +34,21 @@ BiologicalAssociation:
   tasks:
     - edit_biological_associations_graph_task
     - filter_biological_associations_task
+    - browse_asserted_distributions_task
+    - new_asserted_distribution_task
     - unify_objects_task
   edit: edit_biological_associations_graph_task
   new: edit_biological_associations_graph_task
   config:
     recent: true
+BiologicalAssociationsGraph:
+  tasks:
+    - edit_biological_associations_graph_task
+    - browse_asserted_distributions_task
+    - new_asserted_distribution_task
+    - unify_objects_task
+  edit: edit_biological_associations_graph_task
+  new: edit_biological_associations_graph_task
 Combination:
   tasks:
     - browse_nomenclature_task
@@ -46,11 +57,6 @@ Combination:
   new: new_combination_task
   home: browse_nomenclature_task
   destroyed_redirect: browse_nomenclature_task
-  config:
-    recent: true
-Container:
-  tasks:
-    - new_container_task
   config:
     recent: true
 CollectionObject:
@@ -82,6 +88,19 @@ CollectingEvent:
   edit: new_collecting_event_task
   new: new_collecting_event_task
   home: new_collecting_event_task
+Container:
+  tasks:
+    - new_container_task
+  config:
+    recent: true
+Conveyance:
+  tasks:
+    - browse_asserted_distributions_task
+    - new_asserted_distribution_task
+Depiction:
+  tasks:
+    - browse_asserted_distributions_task
+    - new_asserted_distribution_task
 Descriptor:
   tasks:
     - observation_matrices_hub_task
@@ -151,6 +170,11 @@ Loan:
     - unify_objects_task
   config:
     recent: true
+Observation:
+  tasks:
+    - browse_asserted_distributions_task
+    - new_asserted_distribution_task
+    - unify_objects_task
 ObservationMatrix:
   tasks:
     - interactive_key_task

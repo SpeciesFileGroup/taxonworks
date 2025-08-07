@@ -291,7 +291,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     )
 
     # Use smaller
-    AssertedDistribution.create!(otu: o1, asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
+    AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
 
     # Use bigger
     q.geo_shape_id = b.id
@@ -322,7 +322,8 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     )
 
     # Use smaller ga
-    AssertedDistribution.create!(otu: o1, asserted_distribution_shape: smaller_ga,
+    AssertedDistribution.create!(asserted_distribution_object: o1,
+      asserted_distribution_shape: smaller_ga,
       source: FactoryBot.create(:valid_source))
 
     # Use bigger gz

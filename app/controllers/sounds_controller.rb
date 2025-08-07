@@ -97,10 +97,9 @@ class SoundsController < ApplicationController
   end
 
   def autocomplete
-    @sounds = Sound.where(project_id: sessions_current_project_id)
-      .where('name ilike ?', "%#{ params.require(:term)}%")
-      .order(:name)
-      .limit(20)
+    @sounds = Queries::Sound::Autocomplete.new(
+      params[:term], project_id: sessions_current_project_id
+    ).autocomplete
   end
 
   private

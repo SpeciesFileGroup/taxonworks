@@ -14,6 +14,7 @@
     />
     <div
       class="draggable-handle panel padding-small"
+      :class="showClose ? 'left' : 'middle'"
       ref="handler"
       :style="styleHandler"
     >
@@ -24,10 +25,21 @@
     </div>
     <div
       class="expand-button panel padding-small"
+      :class="showClose ? 'middle' : 'right'"
       @click="() => (isMapExpanded = !isMapExpanded)"
     >
       <VIcon
         :name="isMapExpanded ? 'contract' : 'expand'"
+        small
+      />
+    </div>
+    <div
+      v-if="showClose"
+      class="close-button panel padding-small right"
+      @click="() => (emit('close'))"
+    >
+      <VIcon
+        name="close"
         small
       />
     </div>
@@ -44,8 +56,15 @@ defineProps({
   geojson: {
     type: Array,
     default: () => []
-  }
+  },
+
+  showClose: {
+    type: Boolean,
+    default: false
+  },
 })
+
+const emit = defineEmits(['close'])
 
 const floatPanel = ref(null)
 const handler = ref(null)
@@ -86,15 +105,31 @@ const styleFloatmap = computed(() =>
 
 .draggable-handle {
   position: absolute;
-  top: 12px;
-  right: 12px;
   z-index: 2000;
 }
 
 .expand-button {
   position: absolute;
+  z-index: 2000;
+}
+
+.close-button {
+  position: absolute;
+  z-index: 2000;
+}
+
+.right {
+  top: 12px;
+  right: 12px;
+}
+
+.middle {
   top: 12px;
   right: 48px;
-  z-index: 2000;
+}
+
+.left {
+  top: 12px;
+  right: 84px;
 }
 </style>

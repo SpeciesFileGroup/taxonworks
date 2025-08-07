@@ -130,18 +130,18 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
   specify '#geo_shape_id #geo_mode = true (spatial) against AssertedDistribution' do
     # smaller
     a = FactoryBot.create(:level1_geographic_area)
-    s1 = a.geographic_items << GeographicItem.create!(
+    a.geographic_items << GeographicItem.create!(
       geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
     )
 
     # bigger
     b = FactoryBot.create(:level1_geographic_area)
-    s2 = b.geographic_items << GeographicItem.create!(
+    b.geographic_items << GeographicItem.create!(
       geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
     )
 
     # Use smaller
-    AssertedDistribution.create!(otu: o2, asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
+    AssertedDistribution.create!(asserted_distribution_object: o2, asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
 
     # Use bigger
     o = {
@@ -155,6 +155,95 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(q.all).to contain_exactly( ba1, ba3 )
   end
 
+  specify '#geo_shape_id #geo_mode = true (spatial) against AssertedDistribution 2' do
+    # smaller
+    a = FactoryBot.create(:level1_geographic_area)
+    s1 = a.geographic_items << GeographicItem.create!(
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+    )
+
+    # bigger
+    b = FactoryBot.create(:level1_geographic_area)
+    s2 = b.geographic_items << GeographicItem.create!(
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
+    )
+
+    source = FactoryBot.create(:valid_source)
+    # Use smaller
+    AssertedDistribution.create!(asserted_distribution_object: o2,asserted_distribution_shape: a, source:)
+
+    # Use smaller
+    AssertedDistribution.create!(asserted_distribution_object: ba2,asserted_distribution_shape: a, source:)
+
+    # Use bigger
+    o = {
+      geo_shape_id: b.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: true
+    }
+
+    q = query.new(o)
+
+    expect(q.all).to contain_exactly( ba1, ba2, ba3 )
+  end
+
+  context 'with a graph' do
+    let(:o_1) { Otu.create!(name: 'o_1') }
+    let(:o_2) { Otu.create!(name: 'o_2') }
+    let(:o_3) { Specimen.create! }
+    let(:ba_1) { BiologicalAssociation.create!(biological_association_subject: o_1, biological_association_object: o_2, biological_relationship: r1) }
+    let(:ba_2) { BiologicalAssociation.create!(biological_association_subject: o_2, biological_association_object: o_3, biological_relationship: r2) }
+    let(:ba_3) { BiologicalAssociation.create!(biological_association_subject: o_1, biological_association_object: o_3, biological_relationship: r1) }
+    let!(:bag) { FactoryBot.create(:valid_biological_associations_graph) }
+    let(:ga) {
+      a = FactoryBot.create(:level1_geographic_area)
+      a.geographic_items << GeographicItem.create!(
+        geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+      )
+      a
+    }
+
+    specify 'spatial all possible asserted_distribution sources' do
+      bag.biological_associations << ba_1
+      bag.biological_associations << ba_2
+
+      source = FactoryBot.create(:valid_source)
+      # On a BiologicalAssociationsGraph
+      AssertedDistribution.create!(asserted_distribution_object: bag,asserted_distribution_shape: ga, source:)
+      # On a BiologicalAssociation
+      AssertedDistribution.create!(asserted_distribution_object: ba_3,asserted_distribution_shape: ga, source:)
+      # On the subject/object of a BiologicalAssociation
+      AssertedDistribution.create!(asserted_distribution_object: o1,asserted_distribution_shape: ga, source:)
+
+      o = {
+        geo_shape_id: ga.id,
+        geo_shape_type: 'GeographicArea',
+        geo_mode: true
+      }
+
+      q = query.new(o)
+
+      expect(q.all.map(&:id)).to contain_exactly( ba_1.id, ba_2.id, ba_3.id, ba1.id, ba2.id )
+    end
+
+    specify 'graph asserted_distribution only' do
+      bag.biological_associations << ba_1
+      bag.biological_associations << ba_2
+
+      source = FactoryBot.create(:valid_source)
+      AssertedDistribution.create!(asserted_distribution_object: bag,asserted_distribution_shape: ga, source:)
+
+      o = {
+        geo_shape_id: ga.id,
+        geo_shape_type: 'GeographicArea',
+        geo_mode: true
+      }
+
+      q = query.new(o)
+
+      expect(q.all.map(&:id)).to contain_exactly( ba_1.id, ba_2.id )
+    end
+  end
 
   specify '#geo_shape_id #geo_mode = true (spatial) against Georeference' do
     a = FactoryBot.create(:level1_geographic_area)
@@ -194,6 +283,26 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     q = query.new(o)
 
     expect(q.all).to contain_exactly( ba2, ba3 )
+  end
+
+  specify '#geo_shape_id #geo_mode = nil (exact) against AssertedDistribution and AssertedDistribution repeated' do
+    a = FactoryBot.create(:level1_geographic_area)
+    a.geographic_items << GeographicItem.create!(
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+    )
+    source = FactoryBot.create(:valid_source)
+    AssertedDistribution.create!(asserted_distribution_object: o2,asserted_distribution_shape: a, source:)
+    AssertedDistribution.create!(asserted_distribution_object: ba3,asserted_distribution_shape: a, source:)
+
+    o = {
+      geo_shape_id: a.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: nil # exact
+    }
+    q = query.new(o)
+
+    # Matches ba3 twice.
+    expect(q.all).to contain_exactly( ba1, ba3 )
   end
 
   specify '#wkt & #taxon_name_id 2' do
@@ -247,6 +356,24 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(q.all.map(&:id)).to contain_exactly( ba2.id, ba3.id )
   end
 
+  specify '#wkt spatial against georeference and AssertedDistribution' do
+    p = RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+
+    o3.update!(collecting_event: FactoryBot.create(:valid_collecting_event, verbatim_latitude: '7.0', verbatim_longitude: '12.0'))
+    g = Georeference::VerbatimData.create!(collecting_event: o3.collecting_event)
+
+
+    a = FactoryBot.create(:level1_geographic_area)
+    a.geographic_items << GeographicItem.create!(geography: p)
+
+    AssertedDistribution.create!(asserted_distribution_object: ba1,asserted_distribution_shape: a, source: FactoryBot.create(:valid_source))
+
+    o = {wkt: p.to_s}
+    q =  query.new(o)
+
+    expect(q.all.map(&:id)).to contain_exactly( ba1.id, ba2.id, ba3.id )
+  end
+
   specify '#object_biological_property_id' do
     p = FactoryBot.create(:valid_biological_property)
     s = FactoryBot.create(:valid_biological_relationship_object_type, biological_relationship: r1, biological_property: p)
@@ -263,13 +390,27 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(query.new(o).all.map(&:id)).to contain_exactly( ba1.id, ba2.id )
   end
 
-  specify '#collecting_event_id' do
+  specify '#collecting_event_id on collection_object' do
     a = BiologicalAssociation.create!(
       biological_association_subject: Specimen.create!(collecting_event: FactoryBot.create(:valid_collecting_event)),
       biological_association_object: o3,
       biological_relationship: r2)
     o = {collecting_event_id: a.biological_association_subject.collecting_event.id}
     expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
+  end
+
+  specify '#collecting_event_id on collection_object and field_occurrence' do
+    ce = FactoryBot.create(:valid_collecting_event)
+    a = BiologicalAssociation.create!(
+      biological_association_subject: o3,
+      biological_association_object: Specimen.create!(collecting_event: ce),
+      biological_relationship: r2)
+    b = BiologicalAssociation.create!(
+      biological_association_subject: FactoryBot.create(:valid_field_occurrence, collecting_event: ce),
+      biological_association_object: o3,
+      biological_relationship: r2)
+    o = {collecting_event_id: ce.id}
+    expect(query.new(o).all.map(&:id)).to contain_exactly( a.id, b.id )
   end
 
   specify '#otu_id' do
@@ -285,6 +426,16 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
       biological_relationship: r2)
 
     o = {collection_object_id: a.biological_association_subject.id}
+    expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
+  end
+
+  specify '#field_occurrence_id' do
+    a = BiologicalAssociation.create!(
+      biological_association_subject: o3,
+      biological_association_object: FactoryBot.create(:valid_field_occurrence),
+      biological_relationship: r2)
+
+    o = {field_occurrence_id: a.biological_association_object.id}
     expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
   end
 

@@ -61,7 +61,7 @@
       class="separate-bottom"
     >
       <legend>Shape</legend>
-      <ShapeSelector
+      <ShapePicker
         :focus-on-select="lock.source"
         @select-shape="
           (shape) => {
@@ -101,7 +101,7 @@
 <script setup>
 import TableList from './table.vue'
 import DisplayList from '@/components/displayList.vue'
-import ShapeSelector from '@/components/ui/SmartSelector/ShapeSelector.vue'
+import ShapePicker from '@/components/ui/SmartSelector/ShapePicker.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VMap from '@/components/georeferences/map.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
@@ -236,7 +236,8 @@ function setDistribution(item) {
   assertedDistribution.value = {
     id: item.id,
     citations: item.citations,
-    otu_id: item.otu_id,
+    asserted_distribution_object_id: item.asserted_distribution_object_id,
+    asserted_distribution_object_type: item.asserted_distribution_object_type,
     is_absent: item.is_absent,
     asserted_distribution_shape_type: item.asserted_distribution_shape_type,
     asserted_distribution_shape_id: item.asserted_distribution_shape_id,
@@ -248,7 +249,8 @@ function setDistribution(item) {
 function newAsserted() {
   return {
     id: undefined,
-    otu_id: props.objectId,
+    asserted_distribution_object_id: props.objectId,
+    asserted_distribution_object_type: props.objectType,
     asserted_distribution_shape_type: lock.geo
       ? assertedDistribution.value.asserted_distribution_shape_type
       : undefined,
@@ -283,7 +285,8 @@ function removeItem(item) {
 }
 
 AssertedDistribution.all({
-  otu_id: props.objectId,
+  asserted_distribution_object_id: props.objectId,
+  asserted_distribution_object_type: props.objectType,
   ...EXTEND_PARAMS
 })
   .then(({ body }) => {

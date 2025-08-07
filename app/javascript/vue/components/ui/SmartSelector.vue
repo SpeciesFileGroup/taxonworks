@@ -134,13 +134,13 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useOnResize } from '@/composables/index'
 import { isMac } from '@/helpers/os'
-import SwitchComponents from '@/components/ui/VSwitch'
+import SwitchComponents from '@/components/ui/VSwitch.vue'
 import AjaxCall from '@/helpers/ajaxCall'
-import Autocomplete from '@/components/ui/Autocomplete'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import OrderSmart from '@/helpers/smartSelector/orderSmartSelector'
 import SelectFirst from '@/helpers/smartSelector/selectFirstSmartOption'
-import DefaultPin from '@/components/ui/Button/ButtonPinned'
-import OtuPicker from '@/components/otu/otu_picker/otu_picker'
+import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
+import OtuPicker from '@/components/otu/otu_picker/otu_picker.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({

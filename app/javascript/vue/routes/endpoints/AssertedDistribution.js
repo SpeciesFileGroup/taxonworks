@@ -5,7 +5,8 @@ const controller = 'asserted_distributions'
 const permitParams = {
   asserted_distribution: {
     id: Number,
-    otu_id: String,
+    asserted_distribution_object_type: String,
+    asserted_distribution_object_id: Number,
     asserted_distribution_shape_type: String,
     asserted_distribution_shape_id: Number,
     is_absent: Boolean,
@@ -52,4 +53,5 @@ export const AssertedDistribution = {
 
   batchTemplateCreate: (params) =>
     AjaxCall('post', `/${controller}/batch_template_create.json`, params),
+
 }

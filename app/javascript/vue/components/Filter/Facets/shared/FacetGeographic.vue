@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-import ShapeSelector from '@/components/ui/SmartSelector/ShapeSelector.vue'
+import ShapeSelector from '@/components/ui/SmartSelector/ShapePicker.vue'
 import VSwitch from '@/components/ui/VSwitch'
 import VMap from '@/components/georeferences/map'
 import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
