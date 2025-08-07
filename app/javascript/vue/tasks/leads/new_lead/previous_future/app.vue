@@ -1,5 +1,5 @@
 <template>
-  <PreviousLeads v-if="store.lead.id" />
+  <PreviousLeads v-if="!!store.ancestors || !!store.futures" />
 </template>
 
 <script setup>
