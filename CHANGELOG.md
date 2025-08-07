@@ -38,7 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-- Asserted Distributions could formerly only make assertions about the distribution of Otus. They can now assert distribution for Biological Associations, Biological Associations Graphs, Conveyances of Otus, Depictions of Otus, and Observations of Otus [#4025]
+- Asserted Distributions could formerly only make assertions about the distribution of Otus. They can now assert distribution for Otus, Biological Associations, Biological Associations Graphs, Conveyances of Otus, Depictions of Otus, and Observations of Otus [#4025]
 - Asserted Distributions returned by the `/api/v1/asserted_distributions/n` endpoint now include distributions based on different object types (formerly only Otu). You can check the object type of each distribution using the new type key of the distribution object record: `{type: 'Otu' or 'BiologicalAssociation', ... }`
 - Updated Ruby gems
 - Uploading DwC datasets with duplicate fields no longer allowed
