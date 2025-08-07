@@ -4,7 +4,6 @@ export function makeMarkerStyle({ color, isSelected }) {
     width: '8px',
     height: '8px',
     backgroundColor: color,
-    opacity: 0.75,
     color,
     border: '1px solid var(--text-color)'
   }

@@ -140,7 +140,8 @@ export default defineStore('monographFacilitator', {
     },
 
     shapes(state) {
-      return state.groups
+      return state.sortedGroups
+        .reverse()
         .map((group) => {
           const otuId = group.determination.otuId
           const features = state.getGeoreferenceByOtuId(otuId).map((g) => {
