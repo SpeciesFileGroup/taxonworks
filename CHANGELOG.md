@@ -9,35 +9,49 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Monograph facilitator task - distribution map with taxon determination overlays/editing [#4113]
 - Browse OTU: `collection objects` and `field occurrences` sounds
 - Filter TNR: Include subclasses option for relationship type facet [#4460]
 - Filter Loans: Recipient and supervisor names [#4498]
-- You can now remove a prefix from virtual identifiers when switching to a non-virtual identifier in Filter CO,CE mass annotate identifiers
-- Taxon Name stats api call now return fossil/extant counts
+- You can now remove a prefix from virtual identifiers when switching to a non-virtual namespace in Filter CO,CE mass annotate identifiers
+- Taxon Name stats api call now returns fossil/extant counts
+- Add filterable otus list during key creation; send Otu filter result to key creation [#4287]
+- You can now choose to work with the full key in the Edit Key task [#4381]
 
 ### Fixed
 
+- You can now spatial search on Collecting Event Geographic Areas when there aren't any Georeferences [#4073]
 - CSD: Search autocomplete doesnt't work [#4481]
 - CSD: Next by ID and Identifier don't work [#4480]
 - Trying to delete the Collecting Event of a Field Occurrence now reports an error rather than causing an exception
 - Drawing a new Gazetteer shape over an existing shape while zoomed in sometimes causes a zoom out [#4483]
 - Batch source interface: Sources are not added to the project after create them [#4478]
-- Filters: Light mode shows up in dark mode in by attributes facet [#4486]
-- New field occurrence task: A Field Occurrence has to be saved twice to save it when creating a new collection event
+- Filters: Light mode shows up in dark mode in By Attributes facet [#4486]
+- New field occurrence task: A Field Occurrence has to be saved twice to save it when creating a new Collecting Event
 - Image viewer: Large images overflow to the right of the container
 - DwC importer occasionally crashing when mappings are computed while staging
 - Help bubbles are sometimes partially opaque and not readable [#4497]
 - Filter Taxon Name \*ify (validify, etc.) facets sometimes don't return all results [#4494]
 - 404 Not found crash when session references an invalid project
 - Sound wave color in dark mode
+- Fix feature specs failing more often than normal
 
 ### Changed
 
+- Asserted Distributions could formerly only make assertions about the distribution of Otus. They can now assert distribution for Biological Associations, Biological Associations Graphs, Conveyances of Otus, Depictions of Otus, and Observations of Otus [#4025]
 - Asserted Distributions returned by the `/api/v1/asserted_distributions/n` endpoint now include distributions based on different object types (formerly only Otu). You can check the object type of each distribution using the new type key of the distribution object record: `{type: 'Otu' or 'BiologicalAssociation', ... }`
 - Updated Ruby gems
 - Uploading DwC datasets with duplicate fields no longer allowed
+- Removed Otu Distribution task
+- Updated Ruby gems
+- Updated NPM packages
 
-[#4478]: https://github.com/SpeciesFileGroup/taxonworks/issues/4460
+[#4025]: https://github.com/SpeciesFileGroup/taxonworks/issues/4025
+[#4073]: https://github.com/SpeciesFileGroup/taxonworks/issues/4073
+[#4113]: https://github.com/SpeciesFileGroup/taxonworks/issues/4113
+[#4287]: https://github.com/SpeciesFileGroup/taxonworks/issues/4287
+[#4381]: https://github.com/SpeciesFileGroup/taxonworks/issues/4381
+[#4460]: https://github.com/SpeciesFileGroup/taxonworks/issues/4460
 [#4478]: https://github.com/SpeciesFileGroup/taxonworks/issues/4478
 [#4480]: https://github.com/SpeciesFileGroup/taxonworks/issues/4480
 [#4481]: https://github.com/SpeciesFileGroup/taxonworks/issues/4481
