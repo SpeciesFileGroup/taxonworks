@@ -333,7 +333,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly( o1 )
   end
 
-  specify '#geo_ce_geographic_area' do
+  specify '#geo_collecting_event_geographic_area' do
     ga = GeographicArea.create!(
       parent: FactoryBot.create(:earth_geographic_area),
       name: 'under the heath',
@@ -349,7 +349,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     )
 
     o1 # not this one
-    q.geo_ce_geographic_area = true
+    q.geo_collecting_event_geographic_area = true
     q.geo_mode = true
     q.geo_shape_id = ga.id
     q.geo_shape_type = 'GeographicArea'

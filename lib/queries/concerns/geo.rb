@@ -30,7 +30,7 @@ module Queries::Concerns::Geo
     # georeferences should, when there are no georeferences, instead match
     # against the default geographic item of the collecting event's Geographic
     # Area (if one is set).
-    attr_accessor :geo_ce_geographic_area
+    attr_accessor :geo_collecting_event_geographic_area
 
     def geo_shape_type
       [@geo_shape_type].flatten.compact
@@ -45,7 +45,7 @@ module Queries::Concerns::Geo
     @geo_shape_type = params[:geo_shape_type]
     @geo_shape_id = integer_param(params, :geo_shape_id)
     @geo_mode = boolean_param(params, :geo_mode)
-    @geo_ce_geographic_area = boolean_param(params, :geo_ce_geographic_area)
+    @geo_collecting_event_geographic_area = boolean_param(params, :geo_collecting_event_geographic_area)
   end
 
   def param_shapes_by_type
@@ -120,7 +120,7 @@ module Queries::Concerns::Geo
       .joins(:geographic_items)
       .where(geographic_item_condition_sql)
 
-    if !geo_ce_geographic_area
+    if !geo_collecting_event_geographic_area
       a
     else
       # Through geographic area.

@@ -176,7 +176,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(q.all).to contain_exactly( ba2, ba3 )
   end
 
-  specify '#geo_shape_id #geo_mode = true (spatial) #geo_ce_geographic_area' do
+  specify '#geo_shape_id #geo_mode = true (spatial) #geo_collecting_event_geographic_area' do
     a = FactoryBot.create(:level1_geographic_area)
     s = a.geographic_items << GeographicItem.create!(
       geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
@@ -188,7 +188,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
       geo_shape_id: a.id,
       geo_shape_type: 'GeographicArea',
       geo_mode: true,
-      geo_ce_geographic_area: true
+      geo_collecting_event_geographic_area: true
     }
 
     q = query.new(o)

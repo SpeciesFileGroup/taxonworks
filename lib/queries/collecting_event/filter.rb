@@ -42,7 +42,7 @@ module Queries
         :geo_json,
         :geographic_area,
         :geo_mode,
-        :geo_ce_geographic_area,
+        :geo_collecting_event_geographic_area,
         :geo_shape_id,
         :geo_shape_type,
         :georeferences,
@@ -369,7 +369,7 @@ module Queries
             .joins(:geographic_items)
             .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius))
 
-          if geo_ce_geographic_area
+          if geo_collecting_event_geographic_area
             b = ::CollectingEvent
               .joins(geographic_area: [:geographic_items])
               .left_joins(:georeferences)
@@ -385,7 +385,7 @@ module Queries
             .joins(:geographic_items)
             .where(::GeographicItem.covered_by_wkt_sql(wkt))
 
-          if geo_ce_geographic_area
+          if geo_collecting_event_geographic_area
             b = ::CollectingEvent
               .joins(geographic_area: [:geographic_items])
               .left_joins(:georeferences)

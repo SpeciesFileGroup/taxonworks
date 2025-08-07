@@ -97,7 +97,7 @@
     >
       <input
         type="checkbox"
-        v-model="params.geo_ce_geographic_area"
+        v-model="params.geo_collecting_event_geographic_area"
       />
       Include Geographic Area shapes
     </label>
