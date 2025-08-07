@@ -31,7 +31,7 @@
                 target="biological_associations"
               />
               <RadialAnnotator :global-id="item.global_id" />
-              <RadialObject :global-id="item.globalId" />
+              <RadialObject :global-id="item.global_id" />
               <VBtn
                 circle
                 color="primary"
