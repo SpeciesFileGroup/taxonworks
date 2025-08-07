@@ -1,6 +1,6 @@
 const EXTEND = {
   All: 'All',
-  CoupletAndFutures: 'coupletAndFutures'
+  CoupletAndFutures: 'coupletAndFutures',
 }
 
 export { EXTEND }

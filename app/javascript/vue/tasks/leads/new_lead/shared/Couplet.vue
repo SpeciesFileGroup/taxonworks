@@ -292,17 +292,13 @@ function saveChanges() {
     return
   }
 
-  // A redirect update can change futures.
-  const extend = store.extend(EXTEND.CoupletAndFutures)
   const promises = childrenToUpdate.map((lead) => {
     const payload = {
       lead,
-      extend,
     }
     return LeadEndpoint.update(lead.id, payload)
       .then(({ body }) => {
         store.updateChild(body.lead)
-        store.update_from_extended(EXTEND.CoupletAndFutures, body)
       })
       // TODO: if multiple fail we can get overlapping popup messages, but is
       // there a way to catch here without also displaying the error message (so
@@ -310,10 +306,12 @@ function saveChanges() {
       .catch(() => {})
   })
 
-  if (leadOriginLabelChanged) {
+  // Futures come from store.lead, and futures can change if redirect on a child
+  // changes, so we need to run this update every time a child changes.
+  if (leadOriginLabelChanged || childrenToUpdate.length > 0) {
     const payload = {
       lead: store.lead,
-      extend,
+      extend: store.extend(EXTEND.CoupletAndFutures),
     }
 
     promises.push(
