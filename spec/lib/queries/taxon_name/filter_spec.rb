@@ -460,6 +460,52 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, combination.id)
   end
 
+  specify '#validify' do
+    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(
+      subject_taxon_name_id: original_genus.id, object_taxon_name_id: genus.id
+    )
+
+    species1 = Protonym.create!(
+      name: 'atra',
+      rank_class: Ranks.lookup(:iczn, 'species'),
+      parent: genus,
+      original_genus: original_genus,
+      verbatim_author: 'Fitch & Say',
+      year_of_publication: 1800,
+    )
+    tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name_id: species1.id, object_taxon_name_id: species.id)
+
+    query.taxon_name_id = [original_genus.id, species1.id]
+    query.validify = true
+
+    expect(query.all.map(&:id)).to contain_exactly(genus.id, species.id)
+  end
+
+  specify '#validify and #paginate returns full result set' do
+    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(
+      subject_taxon_name_id: original_genus.id, object_taxon_name_id: genus.id
+    )
+
+    species1 = Protonym.create!(
+      name: 'atra',
+      rank_class: Ranks.lookup(:iczn, 'species'),
+      parent: genus,
+      original_genus: original_genus,
+      verbatim_author: 'Fitch & Say',
+      year_of_publication: 1800,
+    )
+    tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name_id: species1.id, object_taxon_name_id: species.id)
+
+    query.taxon_name_id = [original_genus.id, species1.id]
+    query.validify = true
+    query.paginate = true
+    query.per = 1
+    query.page = 2
+
+    expect(query.all.count).to eq(1)
+    expect(query.all.except(:limit, :offset).count).to eq(2)
+  end
+
   specify '#taxon_name_id[] 2.2' do
     species1 = Protonym.create!(
       name: 'atra',

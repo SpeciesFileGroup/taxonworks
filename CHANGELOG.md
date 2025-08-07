@@ -10,6 +10,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Browse OTU: `collection objects` and `field occurrences` sounds
+- Filter TNR: Include subclasses option for relationship type facet [#4460]
+- Filter Loans: Recipient and supervisor names [#4498]
+- You can now remove a prefix from virtual identifiers when switching to a non-virtual identifier in Filter CO,CE mass annotate identifiers
+- Taxon Name stats api call now return fossil/extant counts
 
 ### Fixed
 
@@ -21,16 +25,24 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filters: Light mode shows up in dark mode in by attributes facet [#4486]
 - New field occurrence task: A Field Occurrence has to be saved twice to save it when creating a new collection event
 - Image viewer: Large images overflow to the right of the container
+- DwC importer occasionally crashing when mappings are computed while staging
+- Help bubbles are sometimes partially opaque and not readable [#4497]
+- Filter Taxon Name *ify (validify, etc.) facets sometimes don't return all results [#4494]
+- 404 Not found crash when session references an invalid project
 
 ### Changed
 
 - Updated Ruby gems
+- Uploading DwC datasets with duplicate fields no longer allowed
 
+[#4478]: https://github.com/SpeciesFileGroup/taxonworks/issues/4460
 [#4478]: https://github.com/SpeciesFileGroup/taxonworks/issues/4478
 [#4480]: https://github.com/SpeciesFileGroup/taxonworks/issues/4480
 [#4481]: https://github.com/SpeciesFileGroup/taxonworks/issues/4481
 [#4483]: https://github.com/SpeciesFileGroup/taxonworks/issues/4483
 [#4486]: https://github.com/SpeciesFileGroup/taxonworks/issues/4486
+[#4494]: https://github.com/SpeciesFileGroup/taxonworks/issues/4494
+[#4498]: https://github.com/SpeciesFileGroup/taxonworks/issues/4498
 
 ## [0.52.2] - 2025-07-11
 

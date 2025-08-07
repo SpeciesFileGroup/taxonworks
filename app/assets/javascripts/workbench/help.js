@@ -14,8 +14,7 @@ TW.workbench = TW.workbench || {}
 TW.workbench.help = TW.workbench.help || {}
 
 Object.assign(TW.workbench.help, {
-
-  init () {
+  init() {
     const helpAttributes = document.querySelectorAll('[data-help]')
 
     this.removeElements()
@@ -25,20 +24,26 @@ Object.assign(TW.workbench.help, {
       this.glowHelpButton()
     }
 
-    Mousetrap.bind('alt+shift+/', () => { this.toggleHelp() })
-    this.elementButton.addEventListener('click', () => { this.toggleHelp() })
-    this.elementBackground.addEventListener('click', () => { this.toggleHelp() })
+    Mousetrap.bind('alt+shift+/', () => {
+      this.toggleHelp()
+    })
+    this.elementButton.addEventListener('click', () => {
+      this.toggleHelp()
+    })
+    this.elementBackground.addEventListener('click', () => {
+      this.toggleHelp()
+    })
   },
 
-  getHeight (element) {
+  getHeight(element) {
     return parseFloat(getComputedStyle(element, null).height.replace('px', ''))
   },
 
-  getWidth (element) {
+  getWidth(element) {
     return parseFloat(getComputedStyle(element, null).width.replace('px', ''))
   },
 
-  getOffset (element) {
+  getOffset(element) {
     const rect = element.getBoundingClientRect()
 
     return {
@@ -47,22 +52,24 @@ Object.assign(TW.workbench.help, {
     }
   },
 
-  glowHelpButton () {
+  glowHelpButton() {
     document.querySelector('.help-button').classList.add('help-button-present')
   },
 
-  attachMouseEvent (bubbleElement) {
-    bubbleElement.addEventListener('mouseenter', event => {
+  attachMouseEvent(bubbleElement) {
+    bubbleElement.addEventListener('mouseenter', (event) => {
       const elementLegend = document.querySelector('.help-legend')
       const element = event.target
       const position = this.getOffset(element)
 
       this.elementLegend.textContent = ''
-      this.elementLegend.style.top = `${(position.top + this.getHeight(element))}px`
+      this.elementLegend.style.top = `${
+        position.top + this.getHeight(element)
+      }px`
       this.elementLegend.style.maxWidth = ''
       this.elementLegend.classList.add('help-legend__active')
 
-      this.elementLegend.innerHTML = element.parentElement.getAttribute('data-help')
+      this.elementLegend.innerHTML = element.getAttribute('data-legend')
 
       const containerLegend = this.getWidth(elementLegend)
       const distanceRight = window.innerWidth - position.left
@@ -72,8 +79,10 @@ Object.assign(TW.workbench.help, {
         this.elementLegend.classList.remove('tooltip-help-legend-left')
 
         this.elementLegend.style.left = ''
-        this.elementLegend.style.right = distanceRight - this.getWidth(element) + 'px'
-        this.elementLegend.style.maxWidth = window.innerWidth - distanceRight + 'px'
+        this.elementLegend.style.right =
+          distanceRight - this.getWidth(element) + 'px'
+        this.elementLegend.style.maxWidth =
+          window.innerWidth - distanceRight + 'px'
       } else {
         this.elementLegend.classList.remove('tooltip-help-legend-right')
         this.elementLegend.classList.add('tooltip-help-legend-left')
@@ -84,7 +93,7 @@ Object.assign(TW.workbench.help, {
       this.hideAllExcept(element.getAttribute('data-bubble-id'))
     })
 
-    bubbleElement.addEventListener('mouseleave', event => {
+    bubbleElement.addEventListener('mouseleave', (event) => {
       const element = event.target
 
       if (element.classList.contains('help-bubble-tip')) {
@@ -96,7 +105,7 @@ Object.assign(TW.workbench.help, {
     })
   },
 
-  createElements () {
+  createElements() {
     this.elementLegend = document.createElement('div')
     this.elementBackground = document.createElement('div')
     this.elementButton = document.createElement('div')
@@ -117,7 +126,7 @@ Object.assign(TW.workbench.help, {
     )
   },
 
-  removeElements () {
+  removeElements() {
     const selectors = [
       '.help-bubble-tip',
       '.help-background',
@@ -125,34 +134,53 @@ Object.assign(TW.workbench.help, {
       '.help-legend'
     ]
 
-    selectors.forEach(selector => { this.removeAllElements(selector) })
+    selectors.forEach((selector) => {
+      this.removeAllElements(selector)
+    })
   },
 
-  addBubbleTips (selector) {
-    [...document.querySelectorAll(selector)].forEach((el, i) => {
+  addBubbleTips(selector) {
+    ;[...document.querySelectorAll(selector)].forEach((el, i) => {
       const bubbleCreated = el.querySelector('.help-bubble-tip')
 
       if (!bubbleCreated) {
-        el.append(this.createBubble(i + 1))
+        const bubble = this.makeBubble({ label: i + 1, targetElement: el })
+
+        document.body.append(bubble)
       } else {
         this.attachMouseEvent(bubbleCreated)
       }
     })
   },
 
-  createBubble (index) {
-    const bubbleElement = document.createElement('div')
+  makeBubble({ label, targetElement }) {
+    const legend = targetElement.getAttribute('data-help')
+    const bubble = document.createElement('div')
 
-    bubbleElement.classList.add('help-bubble-tip')
-    bubbleElement.setAttribute('data-bubble-id', index)
-    bubbleElement.textContent = index
+    const updateBubblePosition = () => {
+      const { left, top } = this.getOffset(targetElement)
 
-    this.attachMouseEvent(bubbleElement)
+      bubble.style.position = 'absolute'
+      bubble.style.top = `${top}px`
+      bubble.style.left = `${left}px`
+    }
 
-    return bubbleElement
+    window.addEventListener('scroll', updateBubblePosition)
+    window.addEventListener('resize', updateBubblePosition)
+
+    updateBubblePosition()
+
+    bubble.setAttribute('data-legend', legend)
+    bubble.classList.add('help-bubble-tip')
+    bubble.setAttribute('data-bubble-id', label)
+    bubble.textContent = label
+
+    this.attachMouseEvent(bubble)
+
+    return bubble
   },
 
-  toggleHelp () {
+  toggleHelp() {
     if (this.isActive()) {
       this.disableHelp()
     } else {
@@ -160,13 +188,15 @@ Object.assign(TW.workbench.help, {
     }
   },
 
-  removeAllElements (selector) {
+  removeAllElements(selector) {
     const bubbleEements = document.querySelectorAll(selector)
 
-    bubbleEements.forEach(el => { el.remove() })
+    bubbleEements.forEach((el) => {
+      el.remove()
+    })
   },
 
-  activateHelp () {
+  activateHelp() {
     const helpElements = document.querySelectorAll('[data-help]')
 
     this.addBubbleTips('[data-help]')
@@ -175,44 +205,44 @@ Object.assign(TW.workbench.help, {
     this.elementButton.classList.add('help-button-active')
     this.elementLegend.textContent = ''
 
-    helpElements.forEach(element => {
+    helpElements.forEach((element) => {
       element.classList.add('help-tip')
     })
 
     this.showAll('.help-bubble-tip')
   },
 
-  disableHelp () {
+  disableHelp() {
     const helpElements = document.querySelectorAll('[data-help]')
     this.elementBackground.classList.remove('help-background__active')
     this.elementButton.classList.remove('help-button-active')
     this.elementLegend.classList.remove('.help-legend__active')
 
-    helpElements.forEach(element => {
+    helpElements.forEach((element) => {
       element.classList.remove('help-tip')
     })
 
     this.removeAllElements('.help-bubble-tip')
   },
 
-  isActive () {
+  isActive() {
     return this.elementBackground.classList.contains('help-background__active')
   },
 
-  hideAllExcept (value) {
+  hideAllExcept(value) {
     const bubbleElements = [...document.querySelectorAll('.help-bubble-tip')]
 
-    bubbleElements.forEach(element => {
+    bubbleElements.forEach((element) => {
       if (element.getAttribute('data-bubble-id') !== value) {
         element.classList.remove('help-bubble-tip__active')
       }
     })
   },
 
-  showAll (className) {
+  showAll(className) {
     const bubbleElements = [...document.querySelectorAll(className)]
 
-    bubbleElements.forEach(element => {
+    bubbleElements.forEach((element) => {
       element.classList.add('help-bubble-tip__active')
     })
   }

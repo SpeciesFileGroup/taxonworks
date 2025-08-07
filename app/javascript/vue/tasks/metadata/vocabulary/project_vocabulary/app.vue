@@ -52,7 +52,10 @@
         <template #default="{ text, weight }">
           <div
             :title="weight"
-            :class="TASK[parameters.model] && 'cursor-pointer link'"
+            :class="[
+              'text-body-color',
+              TASK[parameters.model] && 'cursor-pointer link'
+            ]"
             @click="() => openTask(text)"
           >
             {{ text }}
@@ -116,7 +119,10 @@ onBeforeMount(() => {
   let urlParams = URLParamsToJSON(window.location.href)
 
   const { queryParam, queryValue } = useQueryParam()
-  urlParams[queryParam.value] = {...queryValue.value}
+
+  if (queryParam.value) {
+    urlParams[queryParam.value] = { ...queryValue.value }
+  }
 
   if (Object.keys(urlParams).length) {
     processUrlParams(urlParams)
@@ -139,7 +145,7 @@ function processUrlParams(urlParams) {
     // otu_query[otu_id][]=1&otu_query[otu_id][]=2
     for (const key of keys) {
       const match = key.match(/^([\w]+)_query/)
-      if (match[1]) {
+      if (match?.[1]) {
         urlParams.model = toPascalCase(match[1])
         updated = true
         break
@@ -184,8 +190,9 @@ function clearUrlQueryArray() {
     if (key.endsWith('_query')) {
       delete parameters.value[key]
 
-      const queryString =
-        qs.stringify(parameters.value, { arrayFormat: 'brackets' })
+      const queryString = qs.stringify(parameters.value, {
+        arrayFormat: 'brackets'
+      })
 
       const url = new URL(window.location)
       url.search = queryString
@@ -227,7 +234,9 @@ watch(
   width: 400px;
   max-width: 400px;
 }
-
+.text-body-color {
+  color: var(--text-color);
+}
 .link {
   color: var(--color-primary);
 }

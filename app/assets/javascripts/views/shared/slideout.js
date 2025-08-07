@@ -95,70 +95,10 @@ Object.assign(TW.views.shared.slideout, {
   closeHideSlideoutPanel: function (panel) {
     this.closeSlideoutPanel(panel)
     this.openSlideoutPanel(panel)
-  },
-
-  // TODO: Remove from this line to the end of the object after merge new OTU filter task
-  closeSlideoutPanel: function (panel) {
-    if ($(panel).hasClass('slide-left')) {
-      $(panel).css('right', '')
-      if ($(panel).css('left') == '0px') {
-        $(panel).attr('data-panel-open', 'false')
-        $(panel).css('z-index', '1000')
-        $(panel).animate(
-          { left: '-' + $(panel).css('width') },
-          500,
-          function () {
-            $(panel).css('position', 'fixed')
-          }
-        )
-      }
-    } else {
-      $(panel).css('left', '')
-      if ($(panel).css('right') == '0px') {
-        $(panel).attr('data-panel-open', 'false')
-        $(panel).css('z-index', '1000')
-        $(panel).animate(
-          { right: '-' + $(panel).css('width') },
-          500,
-          function () {
-            $(panel).css('position', 'fixed')
-          }
-        )
-      }
-    }
-  },
-  openSlideoutPanel: function (panel) {
-    if ($(panel).hasClass('slide-left')) {
-      $(panel).css('right', '')
-      if ($(panel).css('left') != '0px') {
-        if ($(panel).attr('data-panel-position') == 'relative') {
-          $(panel).css('position', 'absolute')
-        }
-        $(panel).attr('data-panel-open', 'true')
-        $(panel).animate({ left: '0px' }, 500, function () {
-          $(panel).css('position', 'relative')
-        })
-        $(panel).css('z-index', '1100')
-      }
-    } else {
-      $(panel).css('left', '')
-      if ($(panel).css('right') != '0px') {
-        if ($(panel).attr('data-panel-position') == 'relative') {
-          $(panel).css('position', 'absolute')
-        }
-        $(panel).attr('data-panel-open', 'true')
-        $(panel).animate({ right: '0px' }, 500, function () {
-          if ($(panel).attr('data-panel-position') == 'relative') {
-            $(panel).css('position', 'relative')
-          }
-        })
-        $(panel).css('z-index', '1100')
-      }
-    }
   }
 })
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', function () {
   TW.views.shared.slideout.removeEvents()
   TW.views.shared.slideout.init()
 })

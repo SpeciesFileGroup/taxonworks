@@ -62,9 +62,7 @@ gem 'exception_notification', '~> 4.4'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
-gem 'closure_tree', '~> 7.0'
-
-gem 'with_advisory_lock', '< 7.0.0' # TODO: Remove once closure_tree incompatibility is fixed
+gem 'closure_tree', '~> 9.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'
 
@@ -221,6 +219,7 @@ group :test do
   gem 'webmock', '~> 3.8' # , '>= 3.6.2'
   gem 'vcr', '~> 6.0'
   gem 'database_cleaner', '~> 2.0'
+  gem 'database_cleaner-active_record', '2.2.1' # TODO: Remove when instability issues are solved
   gem 'rails-controller-testing', '~> 1.0.2'
   gem 'os', '~> 1.0', '>= 1.0.1'
 end

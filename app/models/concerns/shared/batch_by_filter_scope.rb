@@ -32,9 +32,9 @@ module Shared::BatchByFilterScope
       c = q.count
       async = c > async_cutoff ? true : false
 
-      # Careful, c is the count of model objects being processed, but there may be
-      # multiple attributes processed per model object; in that case receivers
-      # will need to update r.total_attempted as needed.
+      # Careful, c is the count of model objects being processed, but there may
+      # be multiple attributes processed per model object; in that case
+      # receivers will need to update r.total_attempted as needed.
       r.total_attempted = c
       r.async = async
 
