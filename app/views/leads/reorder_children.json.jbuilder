@@ -9,9 +9,15 @@ end
 json.partial! 'lead_item_otus',
   lead_item_otus: @lead_item_otus, root: root
 
-if extend_response_with('futures_data')
-  futures = @leads.map(&:future)
-  json.futures futures
+if extend_response_with('future_otus')
+  futures = @leads&.map(&:future) || []
+  json.futures do
+    json.array! futures do |future|
+      json.partial! 'future_with_otus', future:
+    end
+  end
+elsif extend_response_with('futures_data')
+  json.futures @leads&.map(&:future) || []
 end
 
 if extend_response_with('key_data')
