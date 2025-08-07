@@ -33,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Asserted Distributions returned by the `/api/v1/asserted_distributions/n` endpoint now include distributions based on different object types (formerly only Otu). You can check the object type of each distribution using the new type key of the distribution object record: `{type: 'Otu' or 'BiologicalAssociation', ... }`
 - Updated Ruby gems
 - Uploading DwC datasets with duplicate fields no longer allowed
 
