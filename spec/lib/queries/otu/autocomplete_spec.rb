@@ -217,62 +217,103 @@ describe Queries::Otu::Autocomplete, type: :model do
   end
 
   context 'duplicate filtering' do
-    let!(:synonym_taxon) { Protonym.create!(
-      name: 'ashtonii',
-      rank_class: Ranks.lookup(:iczn, 'species'),
-      parent: genus,
-      verbatim_author: 'Author',
-      year_of_publication: 1900) }
-    
-    let!(:valid_taxon) { Protonym.create!(
-      name: 'ashtonii', 
-      rank_class: Ranks.lookup(:iczn, 'species'),
-      parent: genus,
-      verbatim_author: 'Author2',
-      year_of_publication: 1910) }
-      
-    let!(:otu_with_valid) { Otu.create!(taxon_name: valid_taxon) }
-    
-    before do
-      # Make synonym_taxon a synonym of valid_taxon
-      TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
-        subject_taxon_name: synonym_taxon,
-        object_taxon_name: valid_taxon
-      )
+    # Helper method to extract the visual label from autocomplete results
+    def extract_label(result)
+      target = result[:label_target]
+      if target.kind_of?(::Otu)
+        target.taxon_name ? (target.taxon_name.cached || target.taxon_name.name) : (target.name || '')
+      else # TaxonName
+        target.cached || target.name
+      end
     end
 
-    specify 'does not return visual duplicates in api_autocomplete_extended' do
-      q = Queries::Otu::Autocomplete.new('ashtonii', project_id: project_id)
-      results = q.api_autocomplete_extended
+    context 'with synonym relationships' do
+      let!(:synonym_taxon) { Protonym.create!(
+        name: 'ashtonii',
+        rank_class: Ranks.lookup(:iczn, 'species'),
+        parent: genus,
+        verbatim_author: 'Author',
+        year_of_publication: 1900) }
       
-      # Extract the rendered labels
-      labels = results.map do |r|
-        if r[:label_target].kind_of?(::Otu)
-          if r[:label_target].taxon_name
-            r[:label_target].taxon_name.cached || r[:label_target].taxon_name.name
-          else
-            r[:label_target].name || ''
-          end
-        else # TaxonName
-          r[:label_target].cached || r[:label_target].name
-        end
+      let!(:valid_taxon) { Protonym.create!(
+        name: 'ashtonii', 
+        rank_class: Ranks.lookup(:iczn, 'species'),
+        parent: genus,
+        verbatim_author: 'Smith',
+        year_of_publication: 1910) }
+        
+      let!(:otu_with_valid) { Otu.create!(taxon_name: valid_taxon) }
+      
+      before do
+        # Make synonym_taxon a synonym of valid_taxon
+        TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+          subject_taxon_name: synonym_taxon,
+          object_taxon_name: valid_taxon
+        )
       end
-      
-      # Check that there are no duplicate labels for the same OTU
-      otu_label_pairs = results.map do |r|
-        label = if r[:label_target].kind_of?(::Otu)
-          if r[:label_target].taxon_name
-            r[:label_target].taxon_name.cached || r[:label_target].taxon_name.name
-          else
-            r[:label_target].name || ''
-          end
-        else # TaxonName
-          r[:label_target].cached || r[:label_target].name
-        end
-        [r[:otu].id, label]
+
+      specify 'does not return visual duplicates in api_autocomplete_extended' do
+        q = Queries::Otu::Autocomplete.new('ashtonii', project_id: project_id)
+        results = q.api_autocomplete_extended
+        
+        # Build array of [otu_id, visual_label] pairs
+        otu_label_pairs = results.map { |r| [r[:otu].id, extract_label(r)] }
+        
+        # Verify no duplicates exist
+        expect(otu_label_pairs.uniq).to eq(otu_label_pairs)
       end
+    end
+
+    context 'when common name and scientific name share substring' do
+      # This tests the original bug: searching for "ashton" would return duplicate
+      # entries when both the scientific name (ashtoni) and common name (ashton cuckoo
+      # bumble bee) contained the search term
       
-      expect(otu_label_pairs.uniq).to eq(otu_label_pairs)
+      let!(:ashton_taxon) { Protonym.create!(
+        name: 'ashtoni',
+        rank_class: Ranks.lookup(:iczn, 'species'),
+        parent: genus,
+        verbatim_author: 'Cresson',
+        year_of_publication: 1864) }
+      
+      let!(:ashton_otu) { Otu.create!(taxon_name: ashton_taxon) }
+      
+      let!(:ashton_common_name) { CommonName.create!(
+        name: 'ashton cuckoo bumble bee',
+        otu: ashton_otu,
+        geographic_area: GeographicArea.first
+      ) }
+
+      specify 'returns only one result when searching for substring in both names' do
+        # Search for "ashton" which appears in both scientific and common name
+        q = Queries::Otu::Autocomplete.new('ashton', project_id: project_id, include_common_names: true)
+        results = q.api_autocomplete_extended
+        
+        ashton_results = results.select { |r| r[:otu].id == ashton_otu.id }
+        
+        expect(ashton_results.count).to eq(1), 
+          "Expected 1 result for OTU but got #{ashton_results.count}"
+      end
+
+      specify 'maintains searchability by both scientific and common names' do
+        # Verify we can still find the OTU by searching either name type
+        
+        # Search by scientific name
+        sci_results = Queries::Otu::Autocomplete.new('ashtoni', 
+          project_id: project_id, 
+          include_common_names: true
+        ).api_autocomplete_extended
+        
+        expect(sci_results.any? { |r| r[:otu].id == ashton_otu.id }).to be true
+        
+        # Search by common name
+        common_results = Queries::Otu::Autocomplete.new('cuckoo', 
+          project_id: project_id, 
+          include_common_names: true
+        ).api_autocomplete_extended
+        
+        expect(common_results.any? { |r| r[:otu].id == ashton_otu.id }).to be true
+      end
     end
   end
 
