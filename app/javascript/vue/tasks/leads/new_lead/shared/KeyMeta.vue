@@ -74,11 +74,12 @@
 import Annotations from './Annotations.vue'
 import OtuChooser from './OtuChooser.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import useStore from '../store/leadStore.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { computed, ref } from 'vue'
 import { LEAD } from '@/constants/index.js'
-import { useStore } from '../store/useStore.js'
 import { Lead } from '@/routes/endpoints'
+import { EXTEND } from './constants'
 
 const store = useStore()
 
@@ -122,14 +123,17 @@ const updateButtonText = computed(() => {
 
 function processKeyMeta() {
   const payload = {
-    lead: store.root
+    lead: store.root,
+    extend: store.extend(EXTEND.All)
   }
 
   loading.value = true
   if (!store.root.id) {
     Lead.create(payload)
       .then(({ body }) => {
+        const layout = store.layout
         store.$reset()
+        store.layout = layout
         store.loadKey(body)
         TW.workbench.alert.create('New key created.', 'notice')
       })

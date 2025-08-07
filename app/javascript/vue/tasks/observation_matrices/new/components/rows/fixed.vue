@@ -29,7 +29,7 @@ import SmartSelector from '../shared/smartSelector.vue'
 import pinboard from './batchView.vue'
 import keywords from './keywordView.vue'
 import Search from './search.vue'
-import FromAnotherMatrix from './copyRows'
+import FromAnotherMatrix from './copyRows.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 
 const COMPONENTS = {

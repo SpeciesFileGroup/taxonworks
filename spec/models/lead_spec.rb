@@ -348,14 +348,6 @@ RSpec.describe Lead, type: :model do
       expect(r.all_children.size).to eq(0)
     end
 
-    specify 'all_children_standard_key' do
-      expect(root.all_children_standard_key.size).to eq(lead_all_size - 1)
-      expect(root.all_children_standard_key.first[:lead].text).to eq('l')
-      expect(root.all_children_standard_key.last[:lead].text).to eq('lrr')
-      expect(l.all_children_standard_key.size).to eq(5)
-      expect(r.all_children_standard_key.size).to eq(0)
-    end
-
     specify 'current positions are correct after #insert_couplet (left)' do
       l.insert_couplet
       # Position shouldn't change L or R

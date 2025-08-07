@@ -4,48 +4,32 @@
     full-screen
   />
 
-  <div class="couplet_center">
+  <div
+    v-if="hasChildren"
+  >
+    <div class="couplet_actions">
+      <span class="margin-xlarge-right">
+        <label
+          v-if="layoutIsFullKey && !store.lead.origin_label"
 
-    <VBtn
-      v-if="store.lead.parent_id"
-      color="primary"
-      medium
-      @click="previousCouplet"
-    >
-      Go to the previous couplet
-    </VBtn>
+        >
+          Couplet number (computed is {{ store.key_metadata[store.lead.id]['couplet_number'] }}):
+        </label>
 
-    <VBtn
-      v-else
-      color="update"
-      medium
-      @click="insertCouplet"
-    >
-      Insert a new initial couplet for the key
-    </VBtn>
+        <label
+          v-else
+        >
+          Couplet number:
+        </label>
 
-    <VBtn
-      color="update"
-      medium
-      @click="() => { insertKeyModalIsVisible = true }"
-      :disabled="store.children.length < 2"
-    >
-      Insert a key
-    </VBtn>
-  </div>
-
-  <div v-if="hasChildren">
-    <div class="couplet_center">
-      <label>Couplet number from citation: </label>
-      <input
-        v-model="store.lead.origin_label"
-        type="text"
-        class="normal-input"
-        size="3"
-      />
-    </div>
-    <div class="couplet_horizontal_buttons">
-      <div>
+        <input
+          v-model="store.lead.origin_label"
+          type="text"
+          class="normal-input"
+          size="3"
+        />
+      </span>
+      <span>
         <VBtn
           color="update"
           medium
@@ -55,59 +39,110 @@
         </VBtn>
 
         <VBtn
+          v-if="store.lead.parent_id"
+          color="primary"
+          medium
+          @click="previousCouplet"
+        >
+          Go to the previous couplet
+        </VBtn>
+
+        <VBtn
+          circle
+          color="primary"
+          @click="() => { showAdditionalActions = !showAdditionalActions }"
+        >
+          <VIcon
+            x-small
+            name="arrowRight"
+          />
+        </VBtn>
+      </span>
+
+      <div
+        v-if="showAdditionalActions"
+        class="additional_actions"
+      >
+        <VBtn
           color="update"
           medium
           @click="addLead"
         >
           Add a lead
         </VBtn>
+
+        <VBtn
+          color="update"
+          medium
+          @click="() => { insertKeyModalIsVisible = true }"
+          :disabled="store.children.length < 2"
+        >
+          Insert a key
+        </VBtn>
+
+        <VBtn
+          v-if="offerLeadItemCreate"
+          color="update"
+          medium
+          @click="() => { leadItemOtusModalVisible = true }"
+        >
+          Start an OTUs list
+        </VBtn>
+
+        <VBtn
+          v-if="!store.lead.parent_id"
+          color="update"
+          medium
+          @click="insertCouplet"
+        >
+          Insert a new initial couplet for the key
+        </VBtn>
+
+        <VBtn
+          v-if="allowDestroyCouplet"
+          color="destroy"
+          medium
+          @click="destroyCouplet"
+        >
+          Delete these leads
+        </VBtn>
+
+        <VBtn
+          v-else-if="allowDeleteCouplet"
+          color="destroy"
+          medium
+          @click="deleteCouplet"
+        >
+          Delete these leads and reparent the children
+        </VBtn>
+
+        <VBtn
+          v-else
+          color="destroy"
+          disabled
+          medium
+        >
+          <template v-if="!store.lead.parent_id && noGrandkids()">
+            Can't delete root couplet
+          </template>
+          <template v-else>
+            Can't delete when more than one side has children
+          </template>
+        </VBtn>
       </div>
-
-      <VBtn
-        v-if="allowDestroyCouplet"
-        color="destroy"
-        medium
-        @click="destroyCouplet"
-      >
-        Delete these leads
-      </VBtn>
-
-      <VBtn
-        v-else-if="allowDeleteCouplet"
-        color="destroy"
-        medium
-        @click="deleteCouplet"
-      >
-        Delete these leads and reparent the children
-      </VBtn>
-
-      <VBtn
-        v-else
-        color="destroy"
-        disabled
-        medium
-      >
-        <template v-if="!store.lead.parent_id && noGrandkids()">
-          Can't delete root couplet
-        </template>
-        <template v-else>
-          Can't delete when more than one side has children
-        </template>
-      </VBtn>
     </div>
 
-    <div class="left_and_right_couplet">
+    <div class="lead_children">
       <Lead
         v-for="(child, i) in store.children"
         :key="child.id"
         :position="i"
         :redirect-options="redirectOptions"
-        @editing-has-occurred="() => emit('editingHasOccurred')"
       />
     </div>
   </div>
 
-  <div v-else class="couplet_center">
+  <div v-else class="couplet_actions">
     <p>No remaining choices.</p>
     <VBtn
       color="update"
@@ -128,24 +163,34 @@
       }"
     :container-style="{ width: '600px' }"
   />
+
+  <LeadItemOtuModal
+    v-model="leadItemOtusModalVisible"
+  />
 </template>
 
 <script setup>
 import InsertKeyModal from './InsertKeyModal.vue'
 import Lead from './Lead.vue'
+import LeadItemOtuModal from './LeadItemOtuModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import useStore from '../store/leadStore.js'
 import { computed, ref, watch } from 'vue'
 import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { useInsertCouplet } from './composables/useInsertCouplet.js'
-import { useStore } from '../store/useStore.js'
-
-const emit = defineEmits(['editingHasOccurred'])
+import { LAYOUTS } from './layouts'
+import { EXTEND } from './constants'
 
 const store = useStore()
 
 const loading = ref(false)
 const insertKeyModalIsVisible = ref(false)
+const leadItemOtusModalVisible = ref(false)
+const showAdditionalActions = ref(false)
+
+const layoutIsFullKey = computed(() => store.layout == LAYOUTS.FullKey)
 
 const hasChildren = computed(() => {
   return store.children.length >= 2 &&
@@ -165,6 +210,10 @@ const allowDeleteCouplet = computed(() => {
   })
 
   return childWithChildrenCount == 1
+})
+
+const offerLeadItemCreate = computed(() => {
+  return store.canCreateLeadItemsOnCurrentLead()
 })
 
 const redirectOptions = ref([])
@@ -207,7 +256,6 @@ function previousCouplet() {
   }
 
   store.loadKey(store.lead.parent_id)
-  emit('editingHasOccurred')
 }
 
 function insertCouplet() {
@@ -217,7 +265,6 @@ function insertCouplet() {
         "Success - you're now editing the inserted couplet",
         'notice'
       )
-      emit('editingHasOccurred')
   })
 }
 
@@ -231,7 +278,6 @@ function insertKey(keyId) {
     .then(() => {
       store.loadKey(store.lead.id)
       TW.workbench.alert.create("Inserted key - the root lead of the inserted key is now visible here", 'notice')
-      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {
@@ -247,33 +293,46 @@ function saveChanges() {
     return
   }
 
+  // TODO: rework to be less tricky.
+  // * For full layout, the *last* promise returned needs to include the full
+  //   key data, since it's the only one that has all of the updates to the full
+  //   key. (Currently the solution is that *every* return includes full key.)
+  // * For PreviousFuture layout, we'll have each child update its own future
+  //   (which can change when redirect changes).
+  // That means we need to return no futures for full layout, individual
+  // futures for previous/future layout. All of that keeps us from needing to
+  // send the parent promise *after* all of the child promises have completed,
+  // which we'd like to avoid (for speed mostly).
+  const layoutIsFull = store.layout == LAYOUTS.FullKey
+  const childExtend = layoutIsFull ?
+    // returns full key data
+    store.extend(EXTEND.CoupletAndFutures) :
+    // returns just the future of the given lead
+    store.extend(EXTEND.CoupletAndFuture)
   const promises = childrenToUpdate.map((lead) => {
     const payload = {
-      lead
+      lead,
+      extend: childExtend
     }
-
     return LeadEndpoint.update(lead.id, payload)
       .then(({ body }) => {
-        // Future changes when redirect changes.
-        store.updateChild(body.lead, body.future)
-        emit('editingHasOccurred')
+        store.updateChild(body.lead)
+        store.update_from_extended(childExtend, body)
       })
-      // TODO: if multiple fail we can get overlapping popup messages, but is
-      // there a way to catch here without also displaying the error message (so
-      // that we can instead combine error messages in allSettled)?
       .catch(() => {})
   })
 
-  if (leadOriginLabelChanged) {
+  if (leadOriginLabelChanged || childrenToUpdate.length > 0) {
     const payload = {
-      lead: store.lead
+      lead: store.lead,
+      extend: store.extend(EXTEND.CoupletOnly)
     }
 
     promises.push(
       LeadEndpoint.update(store.lead.id, payload)
-        .then(() => {
+        .then(({ body }) => {
           store.last_saved.origin_label = store.lead.origin_label
-          emit('editingHasOccurred')
+          store.update_from_extended(EXTEND.CoupletOnly, body)
         })
         .catch(() => {})
     )
@@ -292,11 +351,14 @@ function saveChanges() {
 }
 
 function nextCouplet() {
+  const payload = {
+    num_to_add: 2,
+    extend: store.extend(EXTEND.All)
+  }
   loading.value = true
-  LeadEndpoint.add_children(store.lead.id, { num_to_add: 2 })
+  LeadEndpoint.add_children(store.lead.id, payload)
     .then(({ body }) => {
       store.loadKey(body)
-      emit('editingHasOccurred')
     })
     .catch(() => {})
     .finally(() => {
@@ -305,8 +367,13 @@ function nextCouplet() {
 }
 
 function addLead() {
+  const payload = {
+    num_to_add: 1,
+    extend: store.extend(EXTEND.All)
+  }
+
   loading.value = true
-  LeadEndpoint.add_children(store.lead.id, { num_to_add: 1 })
+  LeadEndpoint.add_children(store.lead.id, payload)
     .then(({ body }) => {
       store.loadKey(body)
       TW.workbench.alert.create('Added a new lead.', 'notice')
@@ -326,7 +393,6 @@ function destroyCouplet() {
       .then(() => {
         store.loadKey(store.lead.id)
         TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
-        emit('editingHasOccurred')
       })
       .catch(() => {})
       .finally(() => {
@@ -344,7 +410,6 @@ function deleteCouplet() {
       .then(() => {
         store.loadKey(store.lead.id)
         TW.workbench.alert.create('Couplet was successfully deleted.', 'notice')
-        emit('editingHasOccurred')
       })
       .catch(() => {})
       .finally(() => {
@@ -355,31 +420,40 @@ function deleteCouplet() {
 
 // !! Redirects **do** count as a child here (they contribute to futures).
 function noGrandkids() {
-  return store.futures.flat().length == 0
+  return store.noGrandkids()
 }
 
 // i is the position of child.
 // !! Redirects **do** count as a child here (they contribute to futures).
 function childHasChildren(child, i) {
-  return !!child?.id && store.futures[i].length > 0
+  return !!child.redirect_id || store.leadHasChildren(child, i)
 }
 </script>
 
 <style lang="scss" scoped>
-.left_and_right_couplet {
+.lead_children {
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
   gap: 2em;
+  margin-bottom: 1.5em;
 }
-.couplet_center {
-  margin-top: 1em;
-  margin-bottom: 1em;
+
+.couplet_actions {
+  margin-top: 2em;
+  margin-bottom: 2em;
   text-align: center;
 }
-.couplet_center button {
+
+.couplet_actions button {
   margin-right: 2em;
 }
+
+.additional_actions {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
 .couplet_horizontal_buttons {
   display: grid;
   grid-template-columns: 50% 50%;
@@ -395,6 +469,7 @@ function childHasChildren(child, i) {
     margin-left: 2em;
   }
 }
+
 .title_and_annotator {
   margin-top: 1em;
   span {
@@ -406,5 +481,14 @@ function childHasChildren(child, i) {
     display: inline-block;
     margin-left: .5em;
   }
+}
+
+.inline .expand-box {
+	width: 24px;
+	height: 24px;
+	padding: 0px;
+	background-size: 10px;
+	background-position: center;
+  vertical-align: middle;
 }
 </style>
