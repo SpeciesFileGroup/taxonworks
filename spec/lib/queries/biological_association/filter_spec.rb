@@ -176,6 +176,26 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(q.all).to contain_exactly( ba2, ba3 )
   end
 
+  specify '#geo_shape_id #geo_mode = true (spatial) #geo_collecting_event_geographic_area' do
+    a = FactoryBot.create(:level1_geographic_area)
+    s = a.geographic_items << GeographicItem.create!(
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+    )
+
+    o3.update!(collecting_event: FactoryBot.create(:valid_collecting_event, geographic_area: a))
+
+    o = {
+      geo_shape_id: a.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: true,
+      geo_collecting_event_geographic_area: true
+    }
+
+    q = query.new(o)
+
+    expect(q.all).to contain_exactly( ba2, ba3 )
+  end
+
   specify '#wkt & #taxon_name_id 2' do
     o4 = Specimen.create!
     ba4 = BiologicalAssociation.create!(biological_association_subject: o2, biological_association_object: o4, biological_relationship: r2)

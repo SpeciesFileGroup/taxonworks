@@ -333,6 +333,30 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly( o1 )
   end
 
+  specify '#geo_collecting_event_geographic_area' do
+    ga = GeographicArea.create!(
+      parent: FactoryBot.create(:earth_geographic_area),
+      name: 'under the heath',
+      geographic_area_type: FactoryBot.create(:valid_geographic_area_type),
+      data_origin: 'over the sea',
+      geographic_areas_geographic_items_attributes:
+        [ { geographic_item: FactoryBot.create(:geographic_item, geography: 'POLYGON ((5 5, 15 5, 15 15, 5 15, 5 5))') } ]
+    )
+
+    Specimen.create!(
+      collecting_event: FactoryBot.create(:valid_collecting_event, geographic_area: ga),
+      taxon_determinations_attributes: [{otu: o2}]
+    )
+
+    o1 # not this one
+    q.geo_collecting_event_geographic_area = true
+    q.geo_mode = true
+    q.geo_shape_id = ga.id
+    q.geo_shape_type = 'GeographicArea'
+
+    expect(q.all).to contain_exactly( o2 )
+  end
+
   specify '#wkt against georeference' do
     o1
     s = Specimen.create(

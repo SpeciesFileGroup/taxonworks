@@ -284,17 +284,17 @@ module Queries
         referenced_klass_union([q1, q2]).distinct # Not needed, union should be distinct
       end
 
-      def from_geographic_items(geographic_items_sql)
-        ces = ::CollectingEvent
-          .joins(:geographic_items)
-          .where(geographic_items_sql)
+      def from_geographic_items(geographic_items_where_sql)
+        ces = collecting_events_for_geographic_item_condition(
+          geographic_items_where_sql
+        )
 
         q1 = ::Otu
           .joins(collection_objects: [:collecting_event])
           .where(collecting_events: ces.all, project_id:)
 
         ads = ::Queries::AssertedDistribution::Filter
-          .from_geographic_items(geographic_items_sql)
+          .from_geographic_items(geographic_items_where_sql)
 
         q2 = ::Otu
           .joins(:asserted_distributions)

@@ -1,5 +1,8 @@
 <template>
-  <FacetGeographic v-model="params" />
+  <FacetGeographic
+    v-model="params"
+    :geographic-area-checkbox="false"
+  />
   <FacetAssertedDistributionShapeType v-model="params" />
   <FacetWKT v-model="params" />
   <FacetTaxonName
