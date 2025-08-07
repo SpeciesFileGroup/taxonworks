@@ -53,7 +53,6 @@ Combination:
   tasks:
     - browse_nomenclature_task
     - new_combination_task
-    - otu_distribution_data_task
   edit: new_combination_task
   new: new_combination_task
   home: browse_nomenclature_task
@@ -199,7 +198,6 @@ Otu:
     - content_editor_task
     - cite_otus_task
     - browse_asserted_distributions_task
-    - otu_distribution_data_task
     - unify_objects_task
   home: browse_otus_task
   config:
@@ -243,7 +241,6 @@ TaxonName:
     - comprehensive_collection_object_task
     - browse_otus_task
     - nomenclature_stats_task
-    - otu_distribution_data_task
     - asserted_distributions_basic_endemism_task
     - paper_catalog_generator_task
     - unify_objects_task

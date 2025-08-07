@@ -506,6 +506,19 @@ resources :leads do
     patch :reorder_children, defaults: {format: :json}
     post :insert_key, defaults: {format: :json}
   end
+  collection do
+    post :batch_create_lead_items, defaults: {format: :json}
+  end
+end
+
+resources :lead_items do
+  concerns [:data_routes]
+  collection do
+    post :destroy_item_in_children, defaults: {format: :json}
+    post :add_lead_items_to_child_lead, defaults: {format: :json}
+    post :add_otu_index, defaults: {format: :json}
+    post :remove_otu_index, defaults: {format: :json}
+  end
 end
 
 resources :loans do

@@ -93,6 +93,7 @@ class Otu < ApplicationRecord
   has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id, inverse_of: :object_otu
 
   has_many :leads, inverse_of: :otu, dependent: :restrict_with_error
+  has_many :lead_items, inverse_of: :otu, dependent: :destroy
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }
@@ -395,14 +396,6 @@ class Otu < ApplicationRecord
     else
       nil
     end
-  end
-
-  # TODO: move to helper method likely
-  def distribution_geoJSON
-    a_ds = Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions)
-    c_os = Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences)
-    c_es = Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
-    Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
   end
 
   # TODO: needs spec

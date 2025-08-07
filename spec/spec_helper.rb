@@ -154,10 +154,6 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 
-  config.after(:each, type: :feature) do
-    DatabaseCleaner.clean
-  end
-
   # Enable CSRF protection for feature tests by default
   config.before(:each, type: :feature) do
     ActionController::Base.allow_forgery_protection = true

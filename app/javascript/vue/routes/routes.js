@@ -82,6 +82,7 @@ const RouteNames = {
   ObservationMatricesDashboard: '/tasks/observation_matrices/dashboard',
   ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub',
   ObservationMatricesView: '/tasks/observation_matrices/view',
+  PrintKey: '/tasks/leads/print',
   PrintLabel: '/tasks/labels/print_labels',
   ProjectVocabulary: '/tasks/metadata/vocabulary/project_vocabulary',
   ShowLead: '/tasks/leads/show',

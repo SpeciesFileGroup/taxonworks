@@ -2,11 +2,33 @@
   opacity: 0.75;
 }
 
+.leaflet-pm-icon-selection {
+  border: 2px #444444 dashed;
+  border-radius: 3px;
+}
+
 .dark {
   color-scheme: dark;
+
+  .control-icon {
+    filter: invert(1);
+  }
+
+  .leaflet-control-zoom,
+  .leaflet-control-layers,
+  .leaflet-bar a {
+    background-color: #000000;
+    border-color: #444444;
+    color: #e7e7e7;
+  }
 
   .map-tiles {
     filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg)
       saturate(0.3) brightness(0.7);
+  }
+
+  .active > .leaflet-buttons-control-button {
+    box-shadow: inset 0 -1px 5px 2px #202020e0;
+    background-color: var(--bg-foreground);
   }
 }
