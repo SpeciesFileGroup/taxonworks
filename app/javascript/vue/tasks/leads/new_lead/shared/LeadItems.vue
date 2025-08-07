@@ -21,7 +21,7 @@
           @click="addOtu"
           class="lead_item_button"
         >
-          Add an otu
+          Add otus
         </VBtn>
       </div>
       <span>
@@ -74,6 +74,7 @@
 
   <LeadItemOtuModal
     v-model="modalVisible"
+    :child-index="position"
   />
 
 </template>

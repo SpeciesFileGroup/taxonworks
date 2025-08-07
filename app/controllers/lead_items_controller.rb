@@ -72,10 +72,10 @@ class LeadItemsController < ApplicationController
     end
   end
 
-  def add_lead_item_to_child_lead
+  def add_lead_items_to_child_lead
     parent = Lead.find(params[:parent_id])
-    otu_id = params[:otu_id]
-    added = LeadItem.add_item_to_child_lead(parent, otu_id)
+    otu_ids = params[:otu_ids]
+    added = LeadItem.add_items_to_child_lead(parent, otu_ids)
 
     if !added
       render json: parent.errors, status: :unprocessable_entity

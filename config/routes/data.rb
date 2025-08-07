@@ -493,7 +493,7 @@ resources :lead_items do
   concerns [:data_routes]
   collection do
     post :destroy_item_in_children, defaults: {format: :json}
-    post :add_lead_item_to_child_lead, defaults: {format: :json}
+    post :add_lead_items_to_child_lead, defaults: {format: :json}
     post :add_otu_index, defaults: {format: :json}
     post :remove_otu_index, defaults: {format: :json}
   end

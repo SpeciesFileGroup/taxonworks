@@ -186,7 +186,7 @@ export default defineStore('leads', {
     },
 
     addOtuIndex(childIndex, otuIndex, exclusive = true) {
-      const extend = this.layout == LAYOUTS.FullKey ? ['key_data'] : ['future_data']
+      const extend = this.layout == LAYOUTS.FullKey ? ['key_data'] : []
       const payload = {
         lead_id: this.children[childIndex].id,
         otu_id: this.lead_item_otus.parent[otuIndex].id,
@@ -198,7 +198,6 @@ export default defineStore('leads', {
       LeadItem.addOtuIndex(payload)
         .then(({ body }) => {
           this.lead_item_otus = body.lead_item_otus
-          this.futures = body.futures
           this.key_metadata = body.key_metadata
           this.key_ordered_parents = body.key_ordered_parents
           this.key_data = body.key_data
@@ -208,7 +207,7 @@ export default defineStore('leads', {
     },
 
     removeOtuIndex(childIndex, otuIndex) {
-      const extend = this.layout == LAYOUTS.FullKey ? ['key_data'] : ['future_data']
+      const extend = this.layout == LAYOUTS.FullKey ? ['key_data'] : []
       const payload = {
         lead_id: this.children[childIndex].id,
         otu_id: this.lead_item_otus.parent[otuIndex].id,
@@ -219,7 +218,6 @@ export default defineStore('leads', {
       LeadItem.removeOtuIndex(payload)
         .then(({ body }) => {
           this.lead_item_otus = body.lead_item_otus
-          this.futures = body.futures
           this.key_metadata = body.key_metadata
           this.key_ordered_parents = body.key_ordered_parents
           this.key_data = body.key_data
