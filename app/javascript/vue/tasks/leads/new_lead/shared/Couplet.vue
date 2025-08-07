@@ -47,16 +47,16 @@
           Go to the previous couplet
         </VBtn>
 
-        <span
+        <VBtn
+          circle
+          color="primary"
           @click="() => { showAdditionalActions = !showAdditionalActions }"
-          class="cursor-pointer inline"
         >
-          <div
-            :data-icon="showAdditionalActions ? 'w-arrow-down' : 'w-arrow-right'"
-            :title="showAdditionalActions ? 'Fewer options' : 'More options'"
-            class="expand-box button-circle button-default separate-right"
+          <VIcon
+            x-small
+            name="arrowRight"
           />
-        </span>
+        </VBtn>
       </span>
 
       <div
@@ -174,6 +174,7 @@ import InsertKeyModal from './InsertKeyModal.vue'
 import Lead from './Lead.vue'
 import LeadItemOtuModal from './LeadItemOtuModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useStore from '../store/leadStore.js'
 import { computed, ref, watch } from 'vue'

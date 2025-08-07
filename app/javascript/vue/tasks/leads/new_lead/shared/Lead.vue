@@ -100,10 +100,15 @@
           @click="() => { expandOptions = !expandOptions }"
           class="cursor-pointer inline"
         >
-          <div
-            :data-icon="expandOptions ? 'w-arrow-down' : 'w-arrow-right'"
-            class="expand-box button-circle button-default separate-right"
-          />
+          <VBtn
+            circle
+            color="primary"
+          >
+            <VIcon
+              x-small
+              name="arrowRight"
+            />
+          </VBtn>
           <span class="margin-small-left">
             {{ expandOptions ? 'Fewer options' : 'More options' }}
           </span>
