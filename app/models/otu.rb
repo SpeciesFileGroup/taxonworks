@@ -391,14 +391,6 @@ class Otu < ApplicationRecord
     end
   end
 
-  # TODO: move to helper method likely
-  def distribution_geoJSON
-    a_ds = Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions)
-    c_os = Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences)
-    c_es = Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
-    Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
-  end
-
   # TODO: needs spec
   # A convenience method to wrap coordinate_otus and descendant_of_taxon_name
   # @return Scope

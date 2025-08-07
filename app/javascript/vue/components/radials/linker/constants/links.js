@@ -106,6 +106,13 @@ export const TASK_MULTI_UPDATE = {
   saveQuery: true
 }
 
+export const TASK_MONOGRAPH_FACILITATOR = {
+  label: 'Monograph facilitator',
+  link: '/tasks/gis/monograph_facilitator',
+  queryParam: true,
+  saveQuery: true
+}
+
 export const TASK_DWC_OCCURRENCE_STATUS = {
   label: 'DwC Occurrence Status',
   link: '/tasks/dwc_occurrences/status'
