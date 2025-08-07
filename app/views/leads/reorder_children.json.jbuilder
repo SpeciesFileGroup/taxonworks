@@ -7,7 +7,7 @@ json.leads do
 end
 
 json.partial! 'lead_item_otus',
-  lead_item_otus: @lead_item_otus, root:
+  lead_item_otus: @lead_item_otus, root: root
 
 if extend_response_with('futures_data')
   futures = @leads.map(&:future)
