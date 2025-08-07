@@ -265,12 +265,31 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(q.all).to contain_exactly( ba2, ba3 )
   end
 
+  specify '#geo_shape_id #geo_mode = true (spatial) #geo_collecting_event_geographic_area' do
+    a = FactoryBot.create(:level1_geographic_area)
+    s = a.geographic_items << GeographicItem.create!(
+      geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+    )
+
+    o3.update!(collecting_event: FactoryBot.create(:valid_collecting_event, geographic_area: a))
+
+    o = {
+      geo_shape_id: a.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: true,
+      geo_collecting_event_geographic_area: true
+    }
+
+    q = query.new(o)
+
+    expect(q.all).to contain_exactly( ba2, ba3 )
+  end
+
   specify '#geo_shape_id #geo_mode = nil (exact) against AssertedDistribution and AssertedDistribution repeated' do
     a = FactoryBot.create(:level1_geographic_area)
     a.geographic_items << GeographicItem.create!(
       geography: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
     )
-
     source = FactoryBot.create(:valid_source)
     AssertedDistribution.create!(asserted_distribution_object: o2,asserted_distribution_shape: a, source:)
     AssertedDistribution.create!(asserted_distribution_object: ba3,asserted_distribution_shape: a, source:)
@@ -280,7 +299,6 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
       geo_shape_type: 'GeographicArea',
       geo_mode: nil # exact
     }
-
     q = query.new(o)
 
     # Matches ba3 twice.
