@@ -105,7 +105,7 @@ class BiologicalAssociationsGraphsController < ApplicationController
   end
 
   def api_show
-    render '/biological_associations/api/v1/show'
+    render '/biological_associations_graphs/api/v1/show'
   end
 
   def api_index
