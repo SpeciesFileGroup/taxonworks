@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer occasionally crashing when mappings are computed while staging
 - Help bubbles are sometimes partially opaque and not readable [#4497]
 - Filter Taxon Name *ify (validify, etc.) facets sometimes don't return all results [#4494]
+- 404 Not found crash when session references an invalid project
 
 ### Changed
 
