@@ -12,16 +12,20 @@ const DEFAULT_SHAPE_STYLE = {
   weight: 2,
   dashArray: '3',
   dashOffset: '3',
-  fillOpacity: 0.25
+  fillOpacity: 0.5
 }
 
 export const SHAPES_CONFIG = {
+  Absent: {
+    className: 'leaflet-hatch-pattern'
+  },
+
   [ASSERTED_DISTRIBUTION]: {
     options: {
       ...DISABLE_LAYER_OPTIONS
     },
     style: {
-      color: 'rgb(var(--color-map-asserted))',
+      color: 'var(--color-map-asserted-distribution)',
       ...DEFAULT_SHAPE_STYLE
     }
   },
@@ -31,7 +35,7 @@ export const SHAPES_CONFIG = {
       ...DISABLE_LAYER_OPTIONS
     },
     style: {
-      color: 'rgb(var(--color-map-asserted))',
+      color: 'var(--color-map-asserted-distribution)',
       ...DEFAULT_SHAPE_STYLE
     }
   },
@@ -48,29 +52,29 @@ export const SHAPES_CONFIG = {
 
   [COLLECTION_OBJECT]: {
     style: {
-      color: `rgb(var(--color-map-collection-object))`,
+      color: `var(--color-map-collection-object)`,
       weight: 1,
-      fillOpacity: 'var(--color-map-shape-opacity)'
+      fillOpacity: 0.5
     }
   },
 
   [GEOREFERENCE]: {
     style: {
-      color: `rgb(var(--color-map-collection-object))`,
+      color: `var(--color-map-collection-object)`,
       ...DEFAULT_SHAPE_STYLE
     }
   },
 
   [FIELD_OCCURRENCE]: {
     style: {
-      color: `rgb(var(--color-map-field-occurrence))`,
+      color: `var(--color-map-field-occurrence)`,
       ...DEFAULT_SHAPE_STYLE
     }
   },
 
   [TYPE_MATERIAL]: {
     style: {
-      color: `rgb(var(--color-map-type-material))`,
+      color: `var(--color-map-type-material)`,
       ...DEFAULT_SHAPE_STYLE
     }
   }
