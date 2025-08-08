@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_11_195046) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_08_191356) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -227,7 +227,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_11_195046) do
     t.bigint "geographic_item_id", null: false
     t.string "type"
     t.integer "reference_count"
-    t.boolean "is_absent"
     t.string "level0_geographic_name"
     t.string "level1_geographic_name"
     t.string "level2_geographic_name"
@@ -777,6 +776,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_11_195046) do
     t.boolean "is_public"
     t.string "type"
     t.integer "total_records"
+    t.string "sha2"
     t.index ["created_by_id"], name: "index_downloads_on_created_by_id"
     t.index ["filename"], name: "index_downloads_on_filename"
     t.index ["project_id"], name: "index_downloads_on_project_id"

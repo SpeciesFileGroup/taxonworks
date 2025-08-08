@@ -25,10 +25,6 @@
 #     if True then the the shape could not be mapped, by any translation method, to a shape allowable
 #     for this CachedMapItemType
 #
-# @!attribute is_absent
-#   @return [Boolean, nil]
-#     if True then the corresponding AssertedDistributions have is_absent true
-#
 # @!attribute level0_geographic_name
 #   @return [String, nil]
 #      the level 0 name
