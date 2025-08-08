@@ -13,9 +13,9 @@ RSpec.describe CachedMapItem, type: :model, group: [:geo, :cached_map] do
   end
 
   context 'Gazetteer-backed asserted distributions' do
+    let(:otu) { Otu.create(taxon_name: FactoryBot.create(:relationship_genus, parent: FactoryBot.create(:root_taxon_name))) }
     let(:gz) { FactoryBot.create(:valid_gazetteer, geographic_item_id: gi2.id) }
-    let(:ad) { FactoryBot.create(:valid_otu_asserted_distribution,
-      asserted_distribution_shape: gz) }
+    let(:ad) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu, asserted_distribution_shape: gz) }
 
     specify 'Translates CachedMapItem' do
       [gz, ad]
@@ -36,11 +36,36 @@ RSpec.describe CachedMapItem, type: :model, group: [:geo, :cached_map] do
       line = 'LINESTRING (2 2, 8 8)'
       gi = GeographicItem.create!(geography: line)
       gz = FactoryBot.create(:valid_gazetteer, geographic_item_id: gi.id)
-      FactoryBot.create(:valid_asserted_distribution,
-        asserted_distribution_shape: gz)
+      FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu,asserted_distribution_shape: gz)
 
       Delayed::Worker.new.work_off
       expect(CachedMapItem.first.geographic_item_id).to eq(gi1.id)
+    end
+  end
+
+  context 'cached_map disabling conditions:' do
+    specify 'no taxon_name_id' do
+      FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: Otu.new(name: 'no taxon name'))
+
+      Delayed::Worker.new.work_off
+      expect(CachedMapItem.count).to eq(0)
+    end
+
+    specify 'species group taxon_name_id' do
+      FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: Otu.new(taxon_name: FactoryBot.create(:relationship_species, parent: FactoryBot.create(:root_taxon_name))))
+
+      Delayed::Worker.new.work_off
+      expect(CachedMapItem.count).to eq(0)
+    end
+
+    specify 'combination' do
+      g = FactoryBot.create(:relationship_genus, parent: FactoryBot.create(:root_taxon_name), name: 'Aus')
+      s = FactoryBot.create(:relationship_species, parent: g, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
+      c = Combination.create!(genus: g, species: s)
+      FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: Otu.new(taxon_name: c))
+
+      Delayed::Worker.new.work_off
+      expect(CachedMapItem.count).to eq(0)
     end
   end
 

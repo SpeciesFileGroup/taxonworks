@@ -300,6 +300,10 @@ class CachedMapItem < ApplicationRecord
       otu_id = o.otus.left_joins(:taxon_determinations).where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
     end
 
+    otu = nil
+    return h if otu_id.nil? || (otu = Otu.find_by(id: otu_id)).nil?
+    return h if !otu.is_cached_mapped?
+
     # Some AssertedDistribution don't have shapes
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id

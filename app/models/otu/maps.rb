@@ -18,13 +18,7 @@ module Otu::Maps
     end
 
     # All the OTUs feeding into this map.
-    otu_scope = nil
-
-    if self.taxon_name_id.present?
-      otu_scope = Otu.select(:id).descendant_of_taxon_name(taxon_name_id)
-    else
-      otu_scope = Otu.select(:id).where(id:)
-    end
+    otu_scope = Otu.select(:id).descendant_of_taxon_name(taxon_name_id)
 
     if gj = CachedMap.calculate_union(otu_scope, cached_map_type:)
       map = CachedMap.create!(
