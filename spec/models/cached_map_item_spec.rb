@@ -44,32 +44,54 @@ RSpec.describe CachedMapItem, type: :model, group: [:geo, :cached_map] do
   end
 
   context 'cached_map disabling conditions:' do
+    let(:source) { FactoryBot.create(:valid_source) }
+    # Start with an AD that *does* produce a CMI
+    let(:ad) {
+      AssertedDistribution.new(
+        asserted_distribution_object: Otu.new(taxon_name: FactoryBot.create(:relationship_genus, parent: FactoryBot.create(:root_taxon_name))),
+        asserted_distribution_shape: FactoryBot.create(:valid_gazetteer),
+        citations_attributes: [{ source_id: source.id }]
+      )
+    }
+
+    specify 'sanity check' do
+      ad.save!
+
+      Delayed::Worker.new.work_off
+      expect(CachedMapItem.count).to eq(1)
+    end
+
     specify 'no taxon_name_id' do
-      FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: Otu.new(name: 'no taxon name'))
+      ad.asserted_distribution_object = Otu.create!(name: 'no taxon name')
+      ad.save!
 
       Delayed::Worker.new.work_off
       expect(CachedMapItem.count).to eq(0)
     end
 
     specify 'species group taxon_name_id' do
-      FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: Otu.new(taxon_name: FactoryBot.create(:relationship_species, parent: FactoryBot.create(:root_taxon_name))))
+      g = ad.asserted_distribution_object.taxon_name
+      ad.asserted_distribution_object = Otu.create!(taxon_name: FactoryBot.create(:relationship_species, parent: g))
+      ad.save!
 
       Delayed::Worker.new.work_off
       expect(CachedMapItem.count).to eq(0)
     end
 
     specify 'combination' do
-      g = FactoryBot.create(:relationship_genus, parent: FactoryBot.create(:root_taxon_name), name: 'Aus')
+      g = ad.asserted_distribution_object.taxon_name
       s = FactoryBot.create(:relationship_species, parent: g, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
       c = Combination.create!(genus: g, species: s)
-      FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: Otu.new(taxon_name: c))
+      ad.asserted_distribution_object = Otu.create!(taxon_name: c)
+      ad.save!
 
       Delayed::Worker.new.work_off
       expect(CachedMapItem.count).to eq(0)
     end
 
     specify 'Asserted distribution is_absent == true' do
-      FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: Otu.new(taxon_name: FactoryBot.create(:relationship_species, parent: FactoryBot.create(:root_taxon_name))), is_absent: true)
+      ad.is_absent = true
+      ad.save!
 
       Delayed::Worker.new.work_off
       expect(CachedMapItem.count).to eq(0)
