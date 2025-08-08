@@ -1,6 +1,20 @@
 # Methods that do nomenclatural operations on Strings. Should not require any reference to any software.
 module Utilities::Nomenclature
 
+  # expands year into author if parens
+  # @param name - the name
+  # @param author, with our without parens
+  # @param year, 4 digit year
+  def self.preview_name(name, author, year)
+    a = if author =~ /\(/ && year
+      author.split(')').first.strip + ", #{year})"
+    elsif year
+      [author, year].compact.join(', ')
+    end
+
+   [name, a].compact.join(' ')
+  end
+
   def self.reified_id(id, name)
     id.to_s + '-' + Digest::MD5.hexdigest(name)
   end

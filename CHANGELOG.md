@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Observations API response
+- Simple TaxonName batch loader rendering and author values
 
 ## [0.53.0] - 2025-08-07
 

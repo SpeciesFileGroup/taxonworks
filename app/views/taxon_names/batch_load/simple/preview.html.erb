@@ -7,28 +7,28 @@
 <% end %>
 
 <%= content_for :line_breakdown do -%>
-  <table class="top_align_text"> 
+  <table class="top_align_text">
     <tr>
       <th class="four_character_width">line</th>
       <th class="four_character_width">data count</th>
       <th> name(s) </th>
-      <th class=""> data errors* </th>
+      <th > data errors* </th>
     </tr>
 
     <% @result.sorted_processed_rows.each do |i, rp| -%>
       <tr>
-        <%= batch_line_link_td(i) -%> 
+        <%= batch_line_link_td(i) -%>
         <%= batch_all_objects_count_td(rp) -%>
         <td>
-          <%= rp.objects[:protonyms].each_with_index.collect{|n, i| "#{i + 1}: " +  n.get_full_name }.join('<br>').html_safe -%>
-        </td> 
+          <%= rp.objects[:protonyms].each_with_index.collect{|n, i| "#{i + 1}: " + ::Utilities::Nomenclature.preview_name(n.name, n.verbatim_author, n.year_of_publication) }.join('<br>').html_safe -%>
+        </td>
 
         <td>
           <%= rp.objects[:protonyms].collect{|n| n.full_error_messages_excepting(:parent, :parent_id)}.join('<br>').html_safe -%>
-        </td> 
+        </td>
 
       </tr>
-    <% end -%> 
+    <% end -%>
   </table>
 <% end %>
 
