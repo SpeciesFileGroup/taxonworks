@@ -67,6 +67,13 @@ RSpec.describe CachedMapItem, type: :model, group: [:geo, :cached_map] do
       Delayed::Worker.new.work_off
       expect(CachedMapItem.count).to eq(0)
     end
+
+    specify 'Asserted distribution is_absent == true' do
+      FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: Otu.new(taxon_name: FactoryBot.create(:relationship_species, parent: FactoryBot.create(:root_taxon_name))), is_absent: true)
+
+      Delayed::Worker.new.work_off
+      expect(CachedMapItem.count).to eq(0)
+    end
   end
 
 end

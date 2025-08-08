@@ -288,6 +288,9 @@ class CachedMapItem < ApplicationRecord
 
     case base_class_name
     when 'AssertedDistribution'
+      if o.is_absent == true
+        return h
+      end
       if o.asserted_distribution_object_type == 'Otu'
         otu_id = [o.asserted_distribution_object_id]
       else
