@@ -5,7 +5,6 @@ import {
   ASSERTED_DISTRIBUTION,
   GEOREFERENCE
 } from '@/constants'
-import makeGeoJSONObject from './makeGeoJSONObject'
 
 const TYPES = [
   TYPE_MATERIAL,
@@ -56,10 +55,9 @@ export default ({ L }) => ({
   style: (feature) => {
     const base = feature.properties.base
     const type = base ? getRelevantType(feature.properties.base) : null
-    const style = feature.properties.style || SHAPES_CONFIG[type]
+    const style = feature.properties.style || SHAPES_CONFIG[type].style
+    const isAbsent = feature.properties.is_absent
 
-    if (style) {
-      return style
-    }
+    return isAbsent ? { ...style, ...SHAPES_CONFIG.Absent } : style
   }
 })
