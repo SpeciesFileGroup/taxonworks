@@ -14,6 +14,7 @@
     target="BiologicalAssociation"
   />
   <FacetCollectionObject v-model="params" />
+  <FacetFieldOccurrence v-model="params" />
   <FacetCollectingEvent v-model="params" />
   <FacetNotes v-model="params" />
   <FacetIdentifier v-model="params" />
@@ -58,6 +59,7 @@ import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetCollectionObject from '@/components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
+import FacetFieldOccurrence from '@/components/Filter/Facets/FieldOccurrence/FacetFieldOccurrence.vue'
 import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
 import FacetBiologicalProperty from '@/components/Filter/Facets/BiologicalAssociation/FacetBiologicalProperty.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'

@@ -27,7 +27,7 @@ RSpec.describe CachedMap, type: :model, group: [:geo, :cached_map] do
 
     let(:ad) {
       AssertedDistribution.create!(
-        otu:,
+        asserted_distribution_object: otu,
         asserted_distribution_shape: ga,
         source: FactoryBot.create(:valid_source)
       )
@@ -37,7 +37,7 @@ RSpec.describe CachedMap, type: :model, group: [:geo, :cached_map] do
       # Using ga_offset here in addition to ga on ad causes the refcount on the
       # cmi from ad to be incremented.
       AssertedDistribution.create!(
-        otu:,
+        asserted_distribution_object: otu,
         asserted_distribution_shape: ga_offset,
         source: FactoryBot.create(:valid_source)
       )
@@ -57,7 +57,7 @@ RSpec.describe CachedMap, type: :model, group: [:geo, :cached_map] do
       # be created (as opposed to the ref count on the first one being
       # incremented).
       AssertedDistribution.create!(
-        otu:,
+        asserted_distribution_object: otu,
         asserted_distribution_shape: ga_new_cmi,
         source: FactoryBot.create(:valid_source)
       )

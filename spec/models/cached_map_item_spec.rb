@@ -14,7 +14,7 @@ RSpec.describe CachedMapItem, type: :model, group: [:geo, :cached_map] do
 
   context 'Gazetteer-backed asserted distributions' do
     let(:gz) { FactoryBot.create(:valid_gazetteer, geographic_item_id: gi2.id) }
-    let(:ad) { FactoryBot.create(:valid_asserted_distribution,
+    let(:ad) { FactoryBot.create(:valid_otu_asserted_distribution,
       asserted_distribution_shape: gz) }
 
     specify 'Translates CachedMapItem' do

@@ -21,7 +21,10 @@
           <td v-html="item.object.object_tag" />
           <td v-html="item.citation.citation_source_body" />
           <td>
-            <div>
+            <div class="flex-row gap-small">
+              <RadialAnnotator :global-id="item.global_id" />
+              <RadialObject :global-id="item.global_id" />
+              <RadialNavigator :global-id="item.global_id" />
               <VBtn
                 circle
                 color="primary"
@@ -42,6 +45,9 @@
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 
 defineProps({
   list: {

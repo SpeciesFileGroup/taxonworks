@@ -1,0 +1,135 @@
+<template>
+  <div
+    class="panel float-map"
+    ref="floatPanel"
+    :style="styleFloatmap"
+  >
+    <leaflet-map
+      class="map"
+      :geojson="geojson"
+      resize
+      width="100%"
+      height="100%"
+      :zoom-bounds="15"
+    />
+    <div
+      class="draggable-handle panel padding-small"
+      :class="showClose ? 'left' : 'middle'"
+      ref="handler"
+      :style="styleHandler"
+    >
+      <VIcon
+        name="cursorMove"
+        small
+      />
+    </div>
+    <div
+      class="expand-button panel padding-small"
+      :class="showClose ? 'middle' : 'right'"
+      @click="() => (isMapExpanded = !isMapExpanded)"
+    >
+      <VIcon
+        :name="isMapExpanded ? 'contract' : 'expand'"
+        small
+      />
+    </div>
+    <div
+      v-if="showClose"
+      class="close-button panel padding-small right"
+      @click="() => (emit('close'))"
+    >
+      <VIcon
+        name="close"
+        small
+      />
+    </div>
+  </div>
+</template>
+
+<script setup>
+import LeafletMap from '@/components/georeferences/map.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { ref, computed } from 'vue'
+import { useDraggable } from '@/composables'
+
+defineProps({
+  geojson: {
+    type: Array,
+    default: () => []
+  },
+
+  showClose: {
+    type: Boolean,
+    default: false
+  },
+})
+
+const emit = defineEmits(['close'])
+
+const floatPanel = ref(null)
+const handler = ref(null)
+const isMapExpanded = ref(false)
+const { style, styleHandler } = useDraggable({ target: floatPanel, handler })
+
+const styleFloatmap = computed(() =>
+  isMapExpanded.value
+    ? {
+        display: 'fixed',
+        left: 0,
+        top: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 5000
+      }
+    : {
+        left: style.value.left,
+        top: style.value.top,
+        transform: style.value.transform
+      }
+)
+</script>
+
+<style scoped lang="scss">
+.float-map {
+  position: fixed;
+  width: 600px;
+  height: 400px;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.map {
+  border-radius: 0.3rem;
+}
+
+.draggable-handle {
+  position: absolute;
+  z-index: 2000;
+}
+
+.expand-button {
+  position: absolute;
+  z-index: 2000;
+}
+
+.close-button {
+  position: absolute;
+  z-index: 2000;
+}
+
+.right {
+  top: 12px;
+  right: 12px;
+}
+
+.middle {
+  top: 12px;
+  right: 48px;
+}
+
+.left {
+  top: 12px;
+  right: 84px;
+}
+</style>

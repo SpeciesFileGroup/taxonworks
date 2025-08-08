@@ -42,6 +42,7 @@ module Queries
         :geo_json,
         :geographic_area,
         :geo_mode,
+        :geo_collecting_event_geographic_area,
         :geo_shape_id,
         :geo_shape_type,
         :georeferences,
@@ -263,9 +264,9 @@ module Queries
         # Spatial.
         i = ::Queries.union(::GeographicItem, [a,b])
 
-        ::CollectingEvent
-          .joins(:geographic_items)
-          .where(::GeographicItem.covered_by_geographic_items_sql(i))
+        collecting_events_for_geographic_item_condition(
+          ::GeographicItem.covered_by_geographic_items_sql(i)
+        )
       end
 
       def collecting_event_geo_facet_by_type(shape_string, shape_ids)
@@ -364,13 +365,37 @@ module Queries
       def spatial_query(geometry_type, wkt)
         case geometry_type
         when 'Point'
-          ::CollectingEvent
+          a = ::CollectingEvent
             .joins(:geographic_items)
             .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius))
+
+          if geo_collecting_event_geographic_area
+            b = ::CollectingEvent
+              .joins(geographic_area: [:geographic_items])
+              .left_joins(:georeferences)
+              .where(georeferences: { id: nil })
+              .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius))
+
+            return referenced_klass_union([a,b])
+          end
+
+          a
         when 'Polygon', 'MultiPolygon', 'GeometryCollection'
-          ::CollectingEvent
+          a = ::CollectingEvent
             .joins(:geographic_items)
             .where(::GeographicItem.covered_by_wkt_sql(wkt))
+
+          if geo_collecting_event_geographic_area
+            b = ::CollectingEvent
+              .joins(geographic_area: [:geographic_items])
+              .left_joins(:georeferences)
+              .where(georeferences: { id: nil })
+              .where(::GeographicItem.covered_by_wkt_sql(wkt))
+
+            return referenced_klass_union([a,b])
+          end
+
+          a
         else
           nil
         end

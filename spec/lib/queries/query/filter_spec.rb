@@ -154,6 +154,34 @@ describe Queries::Query::Filter, type: [:model] do
     expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
   end
 
+  specify '#disable_paging' do
+    o1 = FactoryBot.create(:valid_otu)
+    o2 = FactoryBot.create(:valid_otu)
+
+    a = ::Queries::Otu::Filter.new(
+      otu_id: [o1.id, o2.id], paginate: true, per: 1, page: 1
+    )
+    a.disable_paging
+    expect(a.paginate).to be_falsey
+    expect(a.all.count).to eq(2)
+  end
+
+  specify '#disable_paging .set_paging' do
+    o1 = FactoryBot.create(:valid_otu)
+    o2 = FactoryBot.create(:valid_otu)
+
+    a = ::Queries::Otu::Filter.new(
+      otu_id: [o1.id, o2.id], paginate: true, per: 1, page: 2
+    )
+    state = a.disable_paging
+    q = a.all
+    q = a.class.set_paging(q, state)
+
+    expect(q.current_page).to be(2)
+    expect(q.limit_value).to be(1) # per
+    expect(q.count).to eq(1)
+  end
+
   context 'PARAMS defined' do
     filters.each do |f|
       specify "#{f.name}" do
@@ -216,6 +244,7 @@ describe Queries::Query::Filter, type: [:model] do
         a.delete(:biological_associations_graph) if a # There is no BiologicalAssociationsGraph UI
         a.delete(:data_attribute) if a # etc
         a.delete(:controlled_vocabulary_term) if a
+        a.delete(:conveyance) if a # There is no depiction filter
         a.delete(:depiction) if a # There is no depiction filter
 
         expect( query_names ).to contain_exactly( *a )

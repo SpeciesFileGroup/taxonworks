@@ -12,6 +12,8 @@
     coverage
   />
   <FacetCollectionObject v-model="params" />
+  <FacetGeographic v-model="params" />
+  <FacetWKT v-model="params" />
   <FacetSound
     v-model="params"
     :target="OBSERVATION"
@@ -52,6 +54,8 @@ import FacetObservationType from '@/components/Filter/Facets/Observation/FacetOb
 import FacetObservationObjectType from '@/components/Filter/Facets/Observation/FacetObservationObjectType.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
+import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
+import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetSound from '@/components/Filter/Facets/Sound/FacetSound.vue'
 
 const WITH_PARAMS = [

@@ -138,6 +138,7 @@ function setDepictionLink() {
   max-height: 300px;
 
   img {
+    max-width: 100%;
     max-height: 100%;
   }
 }

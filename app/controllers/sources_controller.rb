@@ -210,7 +210,7 @@ class SourcesController < ApplicationController
     redirect_to batch_load_sources_path, notice: 'no file has been selected' and return if file.blank?
     sha256 = Digest::SHA256.file(file.tempfile)
     if cookies[:batch_sources_md5] == sha256.hexdigest
-      if result_hash = Source.batch_create(file.tempfile)
+      if result_hash = Source.batch_create(file.tempfile, sessions_current_project_id)
         # error in results?
         @count = result_hash[:count]
         @sources = result_hash[:records]
