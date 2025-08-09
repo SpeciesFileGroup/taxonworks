@@ -1664,6 +1664,24 @@ class TaxonName < ApplicationRecord
       candidatus: is_candidatus?)
   end
 
+  # @param names [Array] of taxon name strings
+  # @return [Array] of taxon names with authorship removed (if an author was
+  #   detected).
+  # Does not remove empty names from the array.
+  def self.remove_authors(names)
+    names = names.map(&:strip)
+    parsed = Biodiversity::Parser.parse_ary(names)
+    names.map.with_index do |name, i|
+      next name if name.empty?
+      r = parsed[i]
+      if r[:quality] == 1
+        r.dig(:canonical, :simple)
+      else
+        name
+      end
+    end
+  end
+
   protected
 
   def check_for_children

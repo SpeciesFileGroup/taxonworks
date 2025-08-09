@@ -1079,6 +1079,24 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     expect(tn.destroy).to be_truthy
   end
 
+  specify '.remove_authors preserves names without authors' do
+    names = [' Aus', 'Aus bus ']
+    rv = TaxonName.remove_authors(names)
+    expect(rv).to contain_exactly('Aus', 'Aus bus')
+  end
+
+  specify '.remove_authors removes authors' do
+    names = ['Aus Double', 'Aus (Trouble 1984)']
+    rv = TaxonName.remove_authors(names)
+    expect(rv).to contain_exactly('Aus', 'Aus')
+  end
+
+  specify '.remove_authors preserves "lines"' do
+    names = [' ', 'Aus Fudge', '', 'Aus cicle']
+    rv = TaxonName.remove_authors(names)
+    expect(rv).to contain_exactly('', 'Aus', '', 'Aus cicle')
+  end
+
   context 'concerns' do
     it_behaves_like 'data_attributes'
     it_behaves_like 'identifiable'

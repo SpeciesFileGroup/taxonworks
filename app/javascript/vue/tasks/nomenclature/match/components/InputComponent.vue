@@ -7,22 +7,40 @@
       rows="10"
     />
   </div>
+
+  <VBtn
+    :disabled="!text"
+    @click="removeAuthors"
+    color="primary"
+    class="margin-small-top"
+  >
+    Remove authors
+  </VBtn>
 </template>
 
-<script>
-export default {
-  emits: ['lines'],
+<script setup>
+import { ref, watch } from 'vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { TaxonName } from '@/routes/endpoints'
 
-  data () {
-    return {
-      text: undefined
-    }
-  },
+const text = ref(undefined)
 
-  watch: {
-    text (newVal) {
-      this.$emit('lines', newVal.split('\n').filter(line => line.trim().length))
-    }
+const emits = defineEmits(['lines'])
+
+watch(text, (newVal) => {
+  emits('lines', newVal.split('\n').filter(line => line.trim().length))
+})
+
+function removeAuthors() {
+  const payload = {
+    names: text.value.split('\n'),
   }
+  TaxonName.removeAuthors(payload)
+    .then(({ body }) => {
+      text.value = body.names.join('\n')
+      TW.workbench.alert.create('Removed authors.', 'notice')
+    })
+    .catch(() => {})
 }
+
 </script>
