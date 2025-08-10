@@ -2,11 +2,21 @@
 #
 class Georeference::GeoLocate < Georeference
   attr_accessor :api_response, :iframe_response
+  # Errors set during attribute assignment of the above don't contribute during
+  # save validation, so save any errors to be re-set then.
+  attr_accessor :error_polygon_error
+  validate :error_polygon_is_valid
 
   API_HOST       = 'www.geo-locate.org'.freeze
   API_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'.freeze
   EMBED_PATH     = '/web/webgeoreflight.aspx?'.freeze
   EMBED_HOST     = 'www.geo-locate.org'.freeze
+
+  def error_polygon_is_valid
+    # Errors set during attribute assignment don't count toward validations, so
+    # re-set any errors encountered then.
+    errors.add(:base, error_polygon_error) if error_polygon_error
+  end
 
   def dwc_georeference_attributes
     h = {}
@@ -137,12 +147,17 @@ class Georeference::GeoLocate < Georeference
   # @param [Integer] uncertainty_radius in meters
   def make_error_geographic_item(uncertainty_polygon, uncertainty_radius)
     self.error_radius = uncertainty_radius if !uncertainty_radius.nil?
-    unless uncertainty_polygon.nil?
-      err_array = []
+    return if uncertainty_polygon.nil?
 
-      uncertainty_polygon.each { |point| err_array.push(Gis::FACTORY.point(point[0], point[1])) }
+    err_array = []
 
+    uncertainty_polygon.each { |point| err_array.push(Gis::FACTORY.point(point[0], point[1])) }
+
+    begin
       self.error_geographic_item = GeographicItem.new(geography: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
+    rescue RGeo::Error::InvalidGeometry => e
+      self.error_polygon_error = "Error polygon error: '#{e}'"
+      return
     end
   end
 
