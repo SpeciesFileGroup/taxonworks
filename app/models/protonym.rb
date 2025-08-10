@@ -73,7 +73,7 @@ class Protonym < TaxonName
   }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
 
   has_many :combinations, through: :combination_relationships, source: :object_taxon_name
-  has_many :type_materials, class_name: 'TypeMaterial', inverse_of: :protonym
+  has_many :type_materials, class_name: 'TypeMaterial', inverse_of: :protonym, dependent: :restrict_with_error
 
   # Probably reference 'specified'
   scope :original_combination_unspecified, -> { where("taxon_names.cached_original_combination LIKE '%NOT SPECIFIED%'") }
