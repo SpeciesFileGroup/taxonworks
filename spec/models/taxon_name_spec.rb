@@ -264,7 +264,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify 'no OriginalCombination relationships' do
-            ssp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'vitata', parent: species) 
+            ssp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'vitata', parent: species)
             expect(ssp.get_genus_species(:original, :self).nil?).to be_truthy
             expect(ssp.get_genus_species(:original, :alternative).nil?).to be_truthy
             #            expect(ssp.get_genus_species(:current, :self).nil?).to be_falsey
@@ -298,7 +298,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           # What code is this supposed to catch?
           specify 'moving nominotypical taxon' do
-            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aaa', parent: genus) 
+            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aaa', parent: genus)
             subsp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'aaa', parent: sp)
             subsp.parent = species
             subsp.valid?
@@ -1070,6 +1070,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     a.parent = c
 
     expect{b.ancestors_through_parents}.to raise_error TaxonWorks::Error
+  end
+
+  specify 'no exception when destroying taxon name with taxon name classification' do
+    tn = FactoryBot.create(:valid_taxon_name)
+    tnc = TaxonNameClassification::Iczn::Unavailable::NomenNudum.create!(taxon_name: tn)
+
+    expect(tn.destroy).to be_truthy
   end
 
   context 'concerns' do
