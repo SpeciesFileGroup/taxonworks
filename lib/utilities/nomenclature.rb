@@ -63,10 +63,11 @@ module Utilities::Nomenclature
   # @return Array [name, rank]
   #   summarizes multinomials into a single
   #   target infraspecies monomial, and its rank
+  # name_hash returs rank: [qualifier,name], we are ignoring qualifier here on purpose
   def self.infraspecies(name_hash)
     ['subform', 'form', 'subvariety', 'variety', 'subspecies'].each do |r|
       if name_hash[r]
-        return [name_hash[r], r]
+        return [name_hash[r].last, r]
       end
     end
     [nil, nil]

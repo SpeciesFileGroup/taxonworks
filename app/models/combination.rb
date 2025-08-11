@@ -403,7 +403,7 @@ class Combination < TaxonName
     gender = nil
     data = {}
 
-    # protonym loop
+    # Protonym loop
     APPLICABLE_RANKS.each do |rank, type|
       if rank == 'genus'
         a = "#{rank}_gender".to_sym
@@ -412,7 +412,8 @@ class Combination < TaxonName
 
       name_target = gender.nil? ? rank.to_sym : (rank + '_' + gender).to_sym
 
-      # TODO: add  verbatim to row
+      # TODO: add verbatim to row
+      #
       name = row[name_target] || row[rank.to_sym] || row[(rank + '_' + 'verbatim')]
 
       next if name.nil?
@@ -425,6 +426,7 @@ class Combination < TaxonName
 
       data[rank] = v
     end
+
     data
   end
 
@@ -454,7 +456,7 @@ class Combination < TaxonName
       s.push "MAX(combination_taxon_names_taxon_names.cached_gender) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_gender"
     end
 
-    s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date, taxon_names.updated_by_id, taxon_names.updated_at,sources.id source_id, citations.pages'
+    s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date, taxon_names.updated_by_id, taxon_names.updated_at, sources.id source_id, citations.pages'
 
     sel = s.join(',')
 

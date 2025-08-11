@@ -90,7 +90,7 @@ module Export::Coldp::Files::Name
       .joins('JOIN n on n.id = taxon_names.id')
       .where(cached_is_valid: true)
       .eager_load(origin_citation: [:source])
-      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies')
+      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender')
   end
 
   def self.invalid_core_names(otu)
@@ -155,7 +155,6 @@ module Export::Coldp::Files::Name
         referenceID
         publishedInPage
         publishedInYear
-        original
         code
         status
         link
@@ -227,7 +226,7 @@ module Export::Coldp::Files::Name
     b = Protonym
       .original_combination_specified
       .original_combinations_flattened.with(project_scope: a)
-      .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!! 
+      .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
       .joins('JOIN project_scope ps on ps.id = taxon_names.id')
   end
 
@@ -241,7 +240,10 @@ module Export::Coldp::Files::Name
       elements = Protonym.original_combination_full_name_hash_from_flat(row)
 
       infraspecies, rank = Utilities::Nomenclature.infraspecies(elements)
+
       rank = 'forma' if rank == 'form' # CoL preferred string
+
+      # Hmmm
       rank = elements.keys.last if rank.nil? # Note that this depends on order of Hash creation
 
       # TODO: resolve/verify needed
@@ -267,8 +269,7 @@ module Export::Coldp::Files::Name
         infraspecies,                                                       # infraspecificEpithet
         row['source_id'],                                                   # referenceID
         row['pages'],                                                       # publishedInPage
-        row['cached_nomenclature_date']&.year,                              # publishedInYear
-        true,                                                               # original
+        row['cached_nomenclature_date']&.year,                              # publishedInYear - OK
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -374,7 +375,9 @@ module Export::Coldp::Files::Name
       # At this point all formatting (gender) is done
       elements = Combination.full_name_hash_from_row(row)
 
+      # NOT POSSIBLE?! Combination can't have infraspecific in UI
       infraspecies, rank = Utilities::Nomenclature.infraspecies(elements)
+
       rank = elements.keys.last if rank.nil? # Note that this depends on order of Hash creation
 
       # TODO: resolve/verify needed
@@ -407,9 +410,24 @@ module Export::Coldp::Files::Name
     end
   end
 
+  def self.align_gender(core_name, rank = :species)
+    t = core_name.send(rank)
+    return t unless core_name.name == t
+    if a = core_name.genus_gender
+      if b = core_name.send(
+          (core_name.genus_gender + '_name').to_sym
+      )
+        return b
+      else
+        return t
+      end
+    end
+  end
+
   def self.add_core_names(otu, csv, project_members, reference_csv)
     names = core_names(otu)
     names.length
+
     names.find_each do |t|
 
       # name_total += 1
@@ -454,6 +472,10 @@ module Export::Coldp::Files::Name
       basionym_id = t.id # by defintion
       uninomial = t.cached if t.rank == 'genus'
 
+      # Future- resolve in SQL perhaps, though not very expensive here
+      species = align_gender(t)
+      infraspecies = align_gender(t, :infraspecies)
+
       csv << [
         t.id,                                                               # ID
         basionym_id,                                                        # basionymID
@@ -463,8 +485,8 @@ module Export::Coldp::Files::Name
         uninomial,                                                          # uninomial   <- if genus here
         t.genus,                                                            # genus and below - IIF species or lower # TODO: confirm this is OK now
         t.subgenus,                                                         # infragenericEpithet (subgenus)
-        t.species,                                                          # specificEpithet
-        t.infraspecies,                                                     # infraspecificEpithet
+        species,                                                            # specificEpithet
+        infraspecies,                                                       # infraspecificEpithet
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
         t.year_of_publication,                                              # publishedInYear
