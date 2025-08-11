@@ -12,6 +12,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observations API response
 - Simple TaxonName batch loader rendering and author values
 
+### Changed
+
+- Browse OTU: shapes that have multiple objects are now colored with the most relevant object type. [#4508]
+
+[#4508]: https://github.com/SpeciesFileGroup/taxonworks/issues/4508
+
 ## [0.53.0] - 2025-08-07
 
 ### Added
