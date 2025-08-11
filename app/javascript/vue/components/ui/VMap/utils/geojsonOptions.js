@@ -11,7 +11,8 @@ const TYPES = [
   TYPE_MATERIAL,
   COLLECTION_OBJECT,
   ASSERTED_DISTRIBUTION,
-  GEOREFERENCE
+  GEOREFERENCE,
+  MAP_SHAPE_AGGREGATE
 ]
 
 function getRelevantType(base) {
@@ -55,11 +56,8 @@ export default ({ L }) => ({
 
   style: (feature) => {
     const base = feature.properties.base
-    const type = base
-      ? getRelevantType(feature.properties.base)
-      : MAP_SHAPE_AGGREGATE
-    const style = feature.properties.style || SHAPES_CONFIG[type].style
-
+    const type = base ? getRelevantType(base) : null
+    const style = feature.properties.style || SHAPES_CONFIG[type]?.style
     const isAbsent = feature.properties.is_absent
 
     return isAbsent ? { ...style, ...SHAPES_CONFIG.Absent } : style

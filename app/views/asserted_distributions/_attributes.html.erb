@@ -16,14 +16,7 @@
     <%= no_geographic_items? %>
   </p>
 
-  <div id="_displayed_distribution_form"
-       data-feature-collection='<%= Gis::GeoJSON.feature_collection([@asserted_distribution.geographic_item]).to_json %>'
-       data-map-center='POINT (0.0 0.0 0.0)'
-       data-map-canvas="displayed_distribution_canvas"
-  ></div>
-  <div id="displayed_distribution_canvas" style="width:512px; height: 256px;"></div>
-  <span id="map_coords"></span>
-
+  <%= simple_map([@asserted_distribution.geographic_item]) %>
 
   <p>
     <strong>Source:</strong>

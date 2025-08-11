@@ -11,12 +11,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Observations API response
 - Simple TaxonName batch loader rendering and author values
+- Missing map in asserted distribution view [#4515]
 
 ### Changed
 
 - Browse OTU: shapes that have multiple objects are now colored with the most relevant object type. [#4508]
 
 [#4508]: https://github.com/SpeciesFileGroup/taxonworks/issues/4508
+[#4515]: https://github.com/SpeciesFileGroup/taxonworks/issues/4515
 
 ## [0.53.0] - 2025-08-07
 
