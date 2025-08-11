@@ -65,7 +65,8 @@
         :focus-on-select="lock.source"
         @select-shape="
           (shape) => {
-            assertedDistribution.asserted_distribution_shape_type = shape.shapeType
+            assertedDistribution.asserted_distribution_shape_type =
+              shape.shapeType
             assertedDistribution.asserted_distribution_shape_id = shape.id
             saveAssertedDistribution()
           }
@@ -103,7 +104,7 @@ import TableList from './table.vue'
 import DisplayList from '@/components/displayList.vue'
 import ShapePicker from '@/components/ui/SmartSelector/ShapePicker.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import VMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -240,7 +241,7 @@ function setDistribution(item) {
     asserted_distribution_object_type: item.asserted_distribution_object_type,
     is_absent: item.is_absent,
     asserted_distribution_shape_type: item.asserted_distribution_shape_type,
-    asserted_distribution_shape_id: item.asserted_distribution_shape_id,
+    asserted_distribution_shape_id: item.asserted_distribution_shape_id
   }
 
   editCitation.value = undefined

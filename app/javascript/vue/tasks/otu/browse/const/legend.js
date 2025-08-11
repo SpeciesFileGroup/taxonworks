@@ -1,25 +1,34 @@
+import {
+  FIELD_OCCURRENCE,
+  TYPE_MATERIAL,
+  COLLECTION_OBJECT,
+  GEOREFERENCE,
+  ASSERTED_DISTRIBUTION,
+  MAP_SHAPE_AGGREGATE
+} from '@/constants'
+
 export const LEGEND = {
-  Aggregate: {
+  [MAP_SHAPE_AGGREGATE]: {
     label: 'Aggregate (Asserted distribution & Georeference)',
     background: 'bg-aggregate'
   },
-  AssertedDistribution: {
+  [ASSERTED_DISTRIBUTION]: {
     label: 'Asserted distribution',
     background: 'bg-asserted-distribution'
   },
-  Georeference: {
+  [GEOREFERENCE]: {
     label: 'Georeference',
     background: 'bg-georeference'
   },
-  CollectionObject: {
+  [COLLECTION_OBJECT]: {
     label: 'Collection object',
     background: 'bg-collection-object'
   },
-  TypeMaterial: {
+  [TYPE_MATERIAL]: {
     label: 'Type material',
     background: 'bg-type-material'
   },
-  FieldOccurrence: {
+  [FIELD_OCCURRENCE]: {
     label: 'Field occurrence',
     background: 'bg-field-occurrence'
   }

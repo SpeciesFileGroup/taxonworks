@@ -1,6 +1,7 @@
 import { Otu, CachedMap } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import { GetterNames } from '../getters/getters'
+import { MAP_SHAPE_AGGREGATE } from '@/constants'
 import { LEGEND } from '../../const/legend'
 import {
   removeDuplicateShapes,
@@ -42,6 +43,8 @@ export default async ({ state, commit, getters }, otuId) => {
           features: setPopupAndIconToFeatures([feature])
         })
 
+        state.shapeTypes = [MAP_SHAPE_AGGREGATE]
+
         CachedMap.find(response.body.cached_map.id).then((response) => {
           state.cachedMap = response.body
         })
@@ -62,6 +65,7 @@ export default async ({ state, commit, getters }, otuId) => {
         commit(MutationNames.SetGeoreferences, {
           features: setPopupAndIconToFeatures(features)
         })
+
         state.shapeTypes = shapeTypes
         state.loadState.distribution = false
       })
