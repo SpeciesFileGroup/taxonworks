@@ -2,7 +2,11 @@ import { Otu, CachedMap } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import { GetterNames } from '../getters/getters'
 import { LEGEND } from '../../const/legend'
-import { removeDuplicateShapes, setPopupAndIconToFeatures } from '../../utils'
+import {
+  removeDuplicateShapes,
+  setPopupAndIconToFeatures,
+  addAggregateDataToFeature
+} from '../../utils'
 
 function sortFeaturesByType(arr, reference) {
   const referenceMap = new Map()
@@ -32,9 +36,11 @@ export default async ({ state, commit, getters }, otuId) => {
       .then((response) => {
         if (response.status === 404) return
         const geojson = JSON.parse(response.body.cached_map.geo_json)
+        const feature = addAggregateDataToFeature(geojson)
 
-        geojson.properties = { aggregate: true }
-        commit(MutationNames.SetGeoreferences, { features: [geojson] })
+        commit(MutationNames.SetGeoreferences, {
+          features: setPopupAndIconToFeatures([feature])
+        })
 
         CachedMap.find(response.body.cached_map.id).then((response) => {
           state.cachedMap = response.body

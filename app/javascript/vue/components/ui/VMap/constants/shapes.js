@@ -4,7 +4,8 @@ import {
   TYPE_MATERIAL,
   ASSERTED_DISTRIBUTION,
   GEOREFERENCE,
-  GEOGRAPHIC_AREA
+  GEOGRAPHIC_AREA,
+  MAP_SHAPE_AGGREGATE
 } from '@/constants'
 import { DISABLE_LAYER_OPTIONS } from './disableLayerOptions'
 
@@ -17,7 +18,8 @@ const DEFAULT_SHAPE_STYLE = {
 
 export const SHAPES_CONFIG = {
   Absent: {
-    className: 'leaflet-hatch-pattern'
+    className: 'leaflet-hatch-pattern',
+    color: '#a1ff66'
   },
 
   [ASSERTED_DISTRIBUTION]: {
@@ -39,16 +41,16 @@ export const SHAPES_CONFIG = {
       ...DEFAULT_SHAPE_STYLE
     }
   },
-  /* 
-  [AGGREGATE]: {
+
+  [MAP_SHAPE_AGGREGATE]: {
     options: {
       ...DISABLE_LAYER_OPTIONS
     },
     style: {
-      color: 'rgb(var(--color-map-aggregate))',
+      color: 'var(--color-map-aggregate)',
       ...DEFAULT_SHAPE_STYLE
     }
-  }, */
+  },
 
   [COLLECTION_OBJECT]: {
     style: {

@@ -3,7 +3,8 @@ import {
   TYPE_MATERIAL,
   COLLECTION_OBJECT,
   ASSERTED_DISTRIBUTION,
-  GEOREFERENCE
+  GEOREFERENCE,
+  MAP_SHAPE_AGGREGATE
 } from '@/constants'
 
 const TYPES = [
@@ -54,8 +55,11 @@ export default ({ L }) => ({
 
   style: (feature) => {
     const base = feature.properties.base
-    const type = base ? getRelevantType(feature.properties.base) : null
+    const type = base
+      ? getRelevantType(feature.properties.base)
+      : MAP_SHAPE_AGGREGATE
     const style = feature.properties.style || SHAPES_CONFIG[type].style
+
     const isAbsent = feature.properties.is_absent
 
     return isAbsent ? { ...style, ...SHAPES_CONFIG.Absent } : style

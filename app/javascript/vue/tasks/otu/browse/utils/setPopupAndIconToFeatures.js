@@ -3,7 +3,8 @@ import {
   COLLECTION_OBJECT,
   GEOREFERENCE,
   FIELD_OCCURRENCE,
-  ASSERTED_DISTRIBUTION
+  ASSERTED_DISTRIBUTION,
+  MAP_SHAPE_AGGREGATE
 } from '@/constants'
 import { RouteNames } from '@/routes/routes'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
@@ -13,7 +14,8 @@ const TYPES = {
   [COLLECTION_OBJECT]: RouteNames.BrowseCollectionObject,
   [FIELD_OCCURRENCE]: RouteNames.BrowseFieldOccurrence,
   [ASSERTED_DISTRIBUTION]: null,
-  [GEOREFERENCE]: null
+  [GEOREFERENCE]: null,
+  [MAP_SHAPE_AGGREGATE]: null
 }
 
 function getRelevantType(base) {
