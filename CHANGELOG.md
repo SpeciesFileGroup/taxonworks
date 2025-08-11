@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Match taxon names: Total count for matched/unmatched tables [#4509]
+
 ### Fixed
 
 - Observations API response
@@ -16,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Browse OTU: shapes that have multiple objects are now colored with the most relevant object type. [#4508]
+- Match taxon names: new layout
 
 [#4508]: https://github.com/SpeciesFileGroup/taxonworks/issues/4508
 [#4515]: https://github.com/SpeciesFileGroup/taxonworks/issues/4515
