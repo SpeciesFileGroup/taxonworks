@@ -1,85 +1,127 @@
 <template>
   <div>
     <h1>Match taxon names</h1>
-    <spinner-component
+    <VSpinner
       v-if="isLoading"
       full-screen
     />
-    <input-component @lines="lines = $event" />
-    <div class="horizontal-left-content margin-medium-bottom margin-small-top">
-      <button
-        class="button normal-input button-default margin-small-right"
-        type="button"
-        :disabled="!lines.length"
-        @click="GetMatches"
-      >
-        Match
-      </button>
-      <label class="middle">
-        <input
-          type="checkbox"
-          v-model="exact"
-        />
-        Exact match
-      </label>
-
-      <Validity v-model="valid" />
-    </div>
-
-    <navbar-component>
-      <div class="flex-separate full_width">
-        <ul class="no_bullets context-menu">
-          <li
-            v-for="(value, key) in tableComponent"
-            :key="key"
-          >
-            <label>
-              <input
-                type="radio"
-                :value="value"
-                v-model="tableView"
+    <div class="flex-row align-start gap-medium">
+      <div class="flex-col gap-medium left-column">
+        <div class="panel">
+          <div class="flex-row flex-separate middle content gap-small">
+            <VBtn
+              color="primary"
+              medium
+              :disabled="!lines.length"
+              @click="GetMatches"
+            >
+              Match
+            </VBtn>
+            <VBtn
+              circle
+              color="primary"
+              @click="reset"
+            >
+              <VIcon
+                x-small
+                name="reset"
               />
-              {{ value }}
-            </label>
-          </li>
-        </ul>
-        <CSVButton
-          :list="matches"
-          :options="{ fields }"
+            </VBtn>
+          </div>
+        </div>
+        <input-component
+          v-model:names="names"
+          v-model="params"
+          @lines="lines = $event"
+        />
+        <FacetValidity v-model="params" />
+      </div>
+      <div class="full_width">
+        <VNavbar>
+          <div class="flex-separate full_width">
+            <ul class="no_bullets context-menu">
+              <li
+                v-for="(value, key) in tableComponent"
+                :key="key"
+              >
+                <label>
+                  <input
+                    type="radio"
+                    :value="value"
+                    v-model="tableView"
+                  />
+                  {{ sectionTitles[key] }}
+                </label>
+              </li>
+            </ul>
+            <div class="horizontal-left-content">
+              <span class="margin-small-right">Matches</span>
+              <div class="square-brackets">
+                <ul class="no_bullets context-menu">
+                  <li>
+                    <RadialFilter
+                      :disabled="!matchedIds.length"
+                      :ids="matchedIds"
+                      :object-type="TAXON_NAME"
+                      :extended-slices="EXTENDED_SLICES"
+                    />
+                  </li>
+                  <li>
+                    <CSVButton
+                      :list="matches"
+                      :options="{ fields }"
+                    />
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </VNavbar>
+
+        <TableUnmatched
+          v-if="
+            tableView === tableComponent.Unmatched ||
+            tableView === tableComponent.Both
+          "
+          :list="unmatched"
+          class="full_width margin-medium-bottom"
+        />
+        <TableMatched
+          v-if="
+            tableView === tableComponent.Matches ||
+            tableView === tableComponent.Both
+          "
+          :list="validTaxonNames"
+          class="full_width"
         />
       </div>
-    </navbar-component>
-
-    <TableUnmatched
-      v-if="
-        tableView === tableComponent.Unmatched ||
-        tableView === tableComponent.Both
-      "
-      :list="unmatched"
-      class="full_width margin-medium-bottom"
-    />
-    <TableMatched
-      v-if="
-        tableView === tableComponent.Matches ||
-        tableView === tableComponent.Both
-      "
-      :list="validTaxonNames"
-      class="full_width"
-    />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
 import { getUnique } from '@/helpers/arrays'
+import { TAXON_NAME } from '@/constants'
+import { FILTER_TAXON_NAME } from '@/components/radials/filter/constants/filterLinks'
 import TableMatched from './components/Table/TableMatched.vue'
 import TableUnmatched from './components/Table/TableUnmatched.vue'
 import InputComponent from './components/InputComponent.vue'
-import SpinnerComponent from '@/components/ui/VSpinner'
-import NavbarComponent from '@/components/layout/NavBar'
+import VSpinner from '@/components/ui/VSpinner'
+import VNavbar from '@/components/layout/NavBar'
 import CSVButton from '@/components/csvButton.vue'
-import Validity from './components/Validity.vue'
+import FacetValidity from '../filter/components/filters/FacetValidity.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import RadialFilter from '@/components/radials/filter/radial.vue'
+
+const EXTENDED_SLICES = [
+  {
+    ...FILTER_TAXON_NAME,
+    flattenQuery: true
+  }
+]
 
 const fields = [
   { label: 'Id', value: 'taxon.id' },
@@ -94,22 +136,39 @@ const tableComponent = {
   Both: 'Both'
 }
 
-const exact = ref(false)
-const matches = ref([])
-const unmatched = ref([])
 const isLoading = ref(false)
-const lines = ref([])
+const matches = ref([])
+const names = ref('')
+const params = ref({})
 const tableView = ref(tableComponent.Both)
+const unmatched = ref([])
 const validTaxonNames = ref({})
-const valid = ref(undefined)
+
+const sectionTitles = computed(() => ({
+  Matches: `Matches (${matches.value.length})`,
+  Unmatched: `Unmatched (${unmatched.value.length})`,
+  Both: `Both (${matches.value.length + unmatched.value.length})`
+}))
+
+function reset() {
+  matches.value = []
+  names.value = ''
+  params.value = {}
+  unmatched.value = []
+  validTaxonNames.value = {}
+}
+
+const matchedIds = computed(() => matches.value.map((m) => m.taxon.id))
+const lines = computed(() =>
+  names.value.split('\n').filter((line) => line.trim().length)
+)
 
 function GetMatches() {
   const lineRequests = {}
   const requests = lines.value.map((line) => {
     const request = TaxonName.where({
       name: line,
-      name_exact: exact.value,
-      validity: valid.value
+      ...params.value
     })
 
     request.then((response) => {
@@ -181,3 +240,9 @@ function GetMatches() {
     })
 }
 </script>
+
+<style scoped>
+.left-column {
+  width: 400px;
+}
+</style>

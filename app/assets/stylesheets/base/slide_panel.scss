@@ -66,12 +66,13 @@ $default-padding: 2em;
   }
 
   .slide-panel-circle-icon {
+    user-select: none;
     opacity: 0.4;
     width: 55px;
     height: 55px;
     position: absolute;
     cursor: pointer;
-    left: -27px;
+    transform: translateX(-1em);
     top: 50vh;
     border-radius: 50%;
     background-color: $category-header-color;
@@ -80,13 +81,14 @@ $default-padding: 2em;
     background-position: center;
     background-size: 25px;
     box-shadow: 0px 1px 2px 0px #444;
-    transition: background-size 0.5s ease, opacity 0.3s ease;
+    transition: all 0.3s ease;
   }
 
   .slide-panel-circle-icon:hover {
     opacity: 1;
     background-size: 30px;
-    transition: background-size 0.3s ease, opacity 0.3s ease;
+    transform: translateX(-50%);
+    transition: all 0.3s ease;
   }
 
   .slide-panel-description {
@@ -115,6 +117,10 @@ $default-padding: 2em;
 
   .slide-panel-content {
     box-shadow: 0px 1px 2px 0px var(--border-color);
+  }
+
+  .slide-panel-circle-icon {
+    transform: translateX(-50%);
   }
 }
 
