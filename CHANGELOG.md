@@ -21,8 +21,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Browse OTU: shapes that have multiple objects are now colored with the most relevant object type. [#4508]
 - Match taxon names: new layout
+- Slide panel buttons are now more hidden to avoid overlapping issues with the rest of the interface. [#4512]
 
 [#4508]: https://github.com/SpeciesFileGroup/taxonworks/issues/4508
+[#4512]: https://github.com/SpeciesFileGroup/taxonworks/issues/4512
 [#4515]: https://github.com/SpeciesFileGroup/taxonworks/issues/4515
 
 ## [0.53.0] - 2025-08-07
