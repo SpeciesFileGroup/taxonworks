@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Match taxon names: Total count for matched/unmatched tables [#4509]
+- Broadcast toggle to new asserted distribution and new biological associations [#4507]
 
 ### Fixed
 
@@ -24,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Match taxon names: new layout
 - Slide panel buttons are now more hidden to avoid overlapping issues with the rest of the interface. [#4512]
 
+[#4507]: https://github.com/SpeciesFileGroup/taxonworks/issues/4507
 [#4508]: https://github.com/SpeciesFileGroup/taxonworks/issues/4508
 [#4512]: https://github.com/SpeciesFileGroup/taxonworks/issues/4512
 [#4515]: https://github.com/SpeciesFileGroup/taxonworks/issues/4515

@@ -7,6 +7,8 @@
     <VToggle
       :value="isPublic"
       v-model="isPublic"
+      on-color="var(--color-create)"
+      off-color="var(--color-destroy)"
       title="Unpublish / Publish"
       @click="makeContentPublish"
     />

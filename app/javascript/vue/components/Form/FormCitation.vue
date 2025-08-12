@@ -228,21 +228,39 @@ function setSource(value) {
   if (props.useSession) {
     sessionStorage.setItem(STORAGE.sourceId, value.id)
   }
-  citation.value.source_id = value.id
-  citation.value.label = value.cached
+
+  setValues({
+    source_id: value.id,
+    label: value.cached
+  })
 
   emit('source', value)
 }
 
+function setValues(values) {
+  citation.value = {
+    ...citation.value,
+    ...values
+  }
+}
+
 function setPage(e) {
+  const pages = e.target.value
+
+  setValues({ pages })
+
   if (props.useSession) {
     sessionStorage.setItem(STORAGE.pages, e.target.value)
   }
 }
 
 function setIsOriginal(e) {
+  const isOriginal = e.target.value
+
+  setValues({ is_original: isOriginal })
+
   if (props.useSession) {
-    sessionStorage.setItem(STORAGE.isOriginal, e.target.value)
+    sessionStorage.setItem(STORAGE.isOriginal, isOriginal)
   }
 }
 
