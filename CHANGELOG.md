@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Match taxon names: Total count for matched/unmatched tables [#4509]
 - Match taxon names: remove authors option
 - Broadcast toggle to new asserted distribution and new biological associations [#4507]
+- Browse OTU: Maps now display clusters to group nearby points for performance and better visualization
 
 ### Fixed
 
