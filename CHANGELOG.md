@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Match taxon names: Total count for matched/unmatched tables [#4509]
+- Match taxon names: remove authors option
 - Broadcast toggle to new asserted distribution and new biological associations [#4507]
 
 ### Fixed
@@ -18,6 +19,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Simple TaxonName batch loader rendering and author values
 - Missing map in asserted distribution view [#4515]
 - ColDP column alignment, gender agreement (candidate), infraspecies rendering, "sic" rendering, combination scoping and rendering
+- Batch Asserted Distribution upload (for Otus and Geographic Areas) [#4268]
+- Vue devtools integration for 'openInEditor'
+- Cached maps no longer include is_absent AssertedDistribution data [#4506]
 
 ### Changed
 
@@ -25,8 +29,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Match taxon names: new layout
 - Slide panel buttons are now more hidden to avoid overlapping issues with the rest of the interface. [#4512]
 
+[#4268]: https://github.com/SpeciesFileGroup/taxonworks/issues/4268
+[#4506]: https://github.com/SpeciesFileGroup/taxonworks/issues/4506
 [#4507]: https://github.com/SpeciesFileGroup/taxonworks/issues/4507
 [#4508]: https://github.com/SpeciesFileGroup/taxonworks/issues/4508
+[#4509]: https://github.com/SpeciesFileGroup/taxonworks/issues/4509
 [#4512]: https://github.com/SpeciesFileGroup/taxonworks/issues/4512
 [#4515]: https://github.com/SpeciesFileGroup/taxonworks/issues/4515
 
