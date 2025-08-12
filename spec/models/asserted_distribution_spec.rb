@@ -173,6 +173,12 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         expect(asserted_distribution.citations.count).to eq(1)
       end
 
+      specify 'providing a citation with #origin_citation_attributes validates' do
+        asserted_distribution.origin_citation_attributes = {source:}
+        expect(asserted_distribution.save).to be_truthy
+        expect(asserted_distribution.citations.count).to eq(1)
+      end
+
       specify 'providing a citation with #citations.build validates' do
         asserted_distribution.citations.build(source:)
         expect(asserted_distribution.save).to be_truthy
@@ -225,8 +231,6 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
             asserted_distribution.citations << Citation.new(source:)
             asserted_distribution.save!
             expect(asserted_distribution.citations.count).to eq(1)
-            # This used to pass because citations with marked_for_destruction
-            # were permitted to be destroyed, even the last one.
             expect{asserted_distribution.update!(citations_attributes: {
               _destroy: true, id: asserted_distribution.citations.first.id
             })}.to raise_error(ActiveRecord::RecordNotDestroyed)
@@ -236,10 +240,6 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
             asserted_distribution.citations << Citation.new(source:)
             asserted_distribution.mark_citations_for_destruction
 
-            # This one used to pass the model check for a citation on new ADs
-            # (because it had a citation at that point) and then in the same
-            # breath destroy the marked citation (because it permitted destroy
-            # on new_record).
             expect{asserted_distribution.save!}
               .to raise_error(ActiveRecord::RecordInvalid)
           end
