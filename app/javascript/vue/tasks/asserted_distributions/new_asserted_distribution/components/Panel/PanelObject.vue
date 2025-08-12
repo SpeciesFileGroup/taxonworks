@@ -8,8 +8,10 @@
         <AssertedDistributionObjectPicker
           v-model="store.object"
           class="full_width"
+          @select-object="broadcastObject"
         >
           <template #tabs-right>
+            <VBroadcast v-model="isBroadcastActive" />
             <VLock
               v-model="store.lock.object"
               class="margin-small-left"
@@ -31,7 +33,8 @@
 </template>
 
 <script setup>
-import { onBeforeMount } from 'vue'
+import { useBroadcastChannel } from '@/composables'
+import { onBeforeMount, ref } from 'vue'
 import {
   BiologicalAssociation,
   BiologicalAssociationsGraph,
@@ -46,8 +49,19 @@ import AssertedDistributionObjectPicker from '@/components/ui/SmartSelector/Asse
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
+import VBroadcast from '@/components/ui/VBroadcast/VBroadcast.vue'
 
 const store = useStore()
+const isBroadcastActive = ref(false)
+
+const { post } = useBroadcastChannel({
+  name: 'otuObject',
+  onMessage({ data }) {
+    if (isBroadcastActive.value) {
+      store.object = data
+    }
+  }
+})
 
 const paramToService = {
   otu_id: Otu,
@@ -56,6 +70,12 @@ const paramToService = {
   biological_associations_graph_id: BiologicalAssociationsGraph,
   conveyance_id: Conveyance,
   depiction_id: Depiction
+}
+
+function broadcastObject(otu) {
+  if (isBroadcastActive.value) {
+    post(otu)
+  }
 }
 
 function isTypeAllowed(obj) {
