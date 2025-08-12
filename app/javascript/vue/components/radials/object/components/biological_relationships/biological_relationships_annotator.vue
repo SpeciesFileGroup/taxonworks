@@ -270,7 +270,8 @@ onBeforeMount(() => {
   BiologicalAssociation.where({
     biological_association_subject_id: props.objectId,
     biological_association_subject_type: props.objectType,
-    extend: EXTEND_PARAMS
+    extend: EXTEND_PARAMS,
+    recent: true
   }).then(({ body }) => {
     list.value = body
   })
