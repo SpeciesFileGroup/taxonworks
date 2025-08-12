@@ -181,7 +181,7 @@ module Export::Coldp::Files::Name
       .where(rank_class: HIGHER_RANK_NAMES, cached_is_valid: true)
       .unscope(:order)
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
-      .select(:id, :cached, :type, :cached_author_year, :year_of_publication, :rank_class, :updated_at, :updated_by_id)
+      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :updated_at, :updated_by_id)
     end
 
   # Valid family names are:
@@ -190,7 +190,7 @@ module Export::Coldp::Files::Name
     a = otu.taxon_name.self_and_descendants
       .where(rank_class: FAMILY_RANK_NAMES, cached_is_valid: true)
       .unscope(:order)
-      .select(:id, :cached, :type, :cached_author_year, :year_of_publication, :rank_class, :updated_at, :updated_by_id)
+      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :updated_at, :updated_by_id)
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
   end
 
@@ -203,7 +203,7 @@ module Export::Coldp::Files::Name
         rank_class: FAMILY_RANK_NAMES + HIGHER_RANK_NAMES,
         cached_is_valid: false)
       .unscope(:order)
-      .select(:id, :name, :type, :cached_author_year, :year_of_publication, :rank_class, :cached_is_valid, :cached_valid_taxon_name_id, :updated_at, :updated_by_id) # cached has sic
+      .select(:id, :name, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :cached_is_valid, :cached_valid_taxon_name_id, :updated_at, :updated_by_id) # cached has sic
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
   end
 
@@ -301,7 +301,7 @@ module Export::Coldp::Files::Name
         nil,                                                                # infraspecificEpithet
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
-        t.year_of_publication,                                              # publishedInYear
+        t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -337,7 +337,7 @@ module Export::Coldp::Files::Name
         nil,                                                                # infraspecificEpithet
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
-        t.year_of_publication,                                              # publishedInYear
+        t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -494,7 +494,7 @@ module Export::Coldp::Files::Name
         infraspecies,                                                       # infraspecificEpithet
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
-        t.year_of_publication,                                              # publishedInYear
+        t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus # TODO: untested
         nil,                                                                # link (probably TW public or API)
@@ -554,7 +554,7 @@ module Export::Coldp::Files::Name
         nil,                                                              # infraspecificEpithet
         origin_citation&.source_id,                                       # publishedInID
         origin_citation&.pages,                                           # publishedInPage
-        t.year_of_publication,                                            # publishedInYear
+        t.cached_nomenclature_date&.year,                                 # publishedInYear
         code_field(t.rank_class.name),                                    # code
         nom_status,                                                       # nomStatus
         nil,                                                              # link (probably TW public or API)
@@ -602,7 +602,7 @@ module Export::Coldp::Files::Name
         t.infraspecies,                                                     # infraspecificEpithet
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
-        t.year_of_publication,                                              # publishedInYear
+        t.cached_nomenclature_date&.year,                                              # publishedInYear
         code_field(t.rank_class.name),                                      # code
         nom_status,                                                         # nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -640,7 +640,7 @@ TODO: Benchmark performance of pre-mapping and then writing
     :infraspecificEpithet,  #        infraspecific_epithet,
     :publishedInID,         #        origin_citation&.source_id,
     :publishedInPage,       #        origin_citation&.pages,
-    :publishedInYear,       #        t.year_of_publication,
+    :publishedInYear,       #        t.cached_nomenclature_date,
     :code,                  #        code_field(t),
     :nomStatus,             #        nom_status_field(t),
     :link,                  #        nil,  (probably TW public or API)
