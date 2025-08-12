@@ -343,6 +343,14 @@ class AssertedDistribution < ApplicationRecord
        !has_valid_origin_citation && !has_valid_citation
       errors.add(:base, 'required citation is not provided')
     end
+
+    # We loaded the citations association, but if source.present? then citations
+    # may be currently empty. Reset the association so that when citations is
+    # populated in the db by source after save, the cached citations association
+    # doesn't remain empty.
+    if source.present? && citations.size == 0
+      association(:citations).reset
+    end
   end
 
   # @return [Boolean]

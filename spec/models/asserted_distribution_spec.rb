@@ -150,6 +150,18 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         asserted_distribution.asserted_distribution_object = otu
       end
 
+      specify 'citations count works after save through source' do
+        asserted_distribution.source = source
+        asserted_distribution.save!
+
+        # If we load/iterate the citations association during AD validation
+        # after assignment through source, the association is empty because the
+        # citation the source determines hasn't been created yet, and then
+        # citations stays empty until we reload/reset the association. Check
+        # that we're doing that.
+        expect(asserted_distribution.citations.first.source.id).to eq(source.id)
+      end
+
       specify 'absence of #source, #origin_citation, #citations invalidates' do
         expect(asserted_distribution.valid?).to be_falsey
         expect(asserted_distribution.errors.include?(:base)).to be_truthy

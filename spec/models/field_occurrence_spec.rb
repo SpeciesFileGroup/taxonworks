@@ -28,6 +28,18 @@ RSpec.describe FieldOccurrence, type: :model do
       field_occurrence.collecting_event = FactoryBot.create(:valid_collecting_event)
     end
 
+     specify 'taxon_determinations count works after save through otu' do
+        field_occurrence.otu = FactoryBot.create(:valid_otu)
+        field_occurrence.save!
+
+        # If we load/iterate the taxon_determinations association during FO
+        # validation after assignment through otu, the association is empty
+        # because the TD the otu determines hasn't been created yet, and then
+        # taxon_determinations stays empty until we reload/reset the
+        # association. Check that we're doing that.
+        expect(field_occurrence.taxon_determinations.first.otu.id).to eq(field_occurrence.otu.id)
+      end
+
     specify 'absence of #otu, #origin_taxon_determination, #taxon_determinations invalidates' do
       expect(field_occurrence.valid?).to be_falsey
       expect(field_occurrence.errors.include?(:base)).to be_truthy

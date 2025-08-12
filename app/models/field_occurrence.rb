@@ -106,9 +106,17 @@ class FieldOccurrence < ApplicationRecord
     has_valid_taxon_determination =
       taxon_determination && !taxon_determination.marked_for_destruction?
 
-    if new_record? &&
+    if new_record? && otu.blank? &&
        !has_valid_taxon_determination && !has_valid_taxon_determinations
       errors.add(:base, 'required taxon determination is not provided')
+    end
+
+    # We loaded the citations association, but if source.present? then citations
+    # may be currently empty. Reset the association so that when citations is
+    # populated in the db by source after save, the cached citations association
+    # doesn't remain empty.
+    if otu.present? && taxon_determinations.size == 0
+      association(:taxon_determinations).reset
     end
   end
 
