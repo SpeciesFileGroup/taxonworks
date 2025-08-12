@@ -293,8 +293,8 @@ module Export::Coldp::Files::Name
         nil,                                                                # basionymID
         t.cached,                                                           # scientificName  # should just be t.cached
         t.cached_author_year,                                               # authorship
-        t.rank,                                                              # rank
-        nil,                                                                # uninomial   <- if genus here
+        t.rank,                                                             # rank
+        t.cached,                                                           # uninomial
         nil,                                                                # genus and below - IIF species or lower
         nil,                                                                # infragenericEpithet (subgenus)
         nil,                                                                # specificEpithet
@@ -314,6 +314,7 @@ module Export::Coldp::Files::Name
     end
   end
 
+  # TODO: could select less, don't need 'cached', just name?
   def self.add_valid_higher_names(otu, csv, project_members, reference_csv)
     names = valid_higher_names(otu)
 
@@ -326,10 +327,10 @@ module Export::Coldp::Files::Name
       csv << [
         t.id,                                                               # ID
         nil,                                                                # basionymID
-        t.cached,                                                             # scientificName  # should just be t.cached
+        t.cached,                                                           # scientificName  # should just be t.name?
         t.cached_author_year,                                               # authorship
         t.rank,                                                             # rank
-        nil,                                                                # uninomial   <- if genus here
+        t.cached,                                                           # uninomial
         nil,                                                                # genus and below - IIF species or lower
         nil,                                                                # infragenericEpithet (subgenus)
         nil,                                                                # specificEpithet
@@ -352,10 +353,16 @@ module Export::Coldp::Files::Name
   # TODO: Complete combinations only
   # TODO: add .fully_specified ?
   def self.combination_names(otu)
+
+    # Combinations are not hit by self_and_descendants
+     
     a = otu.taxon_name.self_and_descendants.unscope(:order)
       .where(taxon_names: { type: 'Combination' })
       .select(:id)
 
+    all names with 
+
+byebug
     b = Combination.
       flattened.with(project_scope: a)
       .complete
@@ -385,7 +392,7 @@ module Export::Coldp::Files::Name
 
       csv << [
         row['id'],                                                          # ID
-        nil, #basionym_id,                                                  # basionymID
+        nil,                                                                # basionymID
         row['cached'],                                                      # scientificName  # should just be t.cached
         row['cached_author_year'],                                          # authorship
         rank,                                                               # rank
@@ -535,14 +542,14 @@ module Export::Coldp::Files::Name
       origin_citation = t.origin_citation
 
       nom_status = nomenclatural_status(t.id, classification_status, relationship_status)
-
+      
       csv << [
         t.id,                                                             # ID
         nil,                                                              # basionymID
-        t.name,                                                           # scientificName  # should just be t.cached
+        t.name,                                                           # scientificName
         t.cached_author_year,                                             # authorship
         t.rank,                                                           # rank
-        nil,                                                              # uninomial   <- if genus here
+        t.name,                                                           # uninomial
         nil,                                                              # genus and below - IIF species or lower
         nil,                                                              # infragenericEpithet (subgenus)
         nil,                                                              # specificEpithet
@@ -577,10 +584,10 @@ module Export::Coldp::Files::Name
 
       origin_citation = t.origin_citation
 
-      # basionym_id = nil if @skipped_name_ids.include?(basionym_id)
-      uninomial = t.cached if t.rank == 'genus'
-
       scientific_name = t.cached_misspelling ? ::Utilities::Nomenclature.unmisspell_name(t.cached) : t.cached
+      
+      # basionym_id = nil if @skipped_name_ids.include?(basionym_id)
+      uninomial = scientific_name if t.rank == 'genus'
 
       nom_status = nomenclatural_status(t.id, classification_status, relationship_status)
 
