@@ -16,11 +16,11 @@
         :fieldset="false"
         lock-button
         v-model="store.citation"
-        v-model:lock="store.lock.source"
+        v-model:lock="store.lock.citation"
         :klass="BIOLOGICAL_ASSOCIATION"
         :target="BIOLOGICAL_ASSOCIATION"
         @update:modelValue="sendBroadcast"
-        @lock="(e) => (store.lock.source = e)"
+        @lock="(e) => (store.lock.citation = e)"
       >
         <template #tabs-right>
           <VBroadcast v-model="isBroadcastActive" />

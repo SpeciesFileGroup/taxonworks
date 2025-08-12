@@ -17,6 +17,7 @@
           :klass="BIOLOGICAL_ASSOCIATION"
           :target="BIOLOGICAL_ASSOCIATION"
           :pin-section="currentTab"
+          :otu-picker="currentTab === OTU"
           :pin-type="currentTab"
           @selected="broadcastObject"
         >
