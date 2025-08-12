@@ -440,7 +440,8 @@ class Combination < TaxonName
       s.push "MAX(combination_taxon_names_taxon_names.name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank},
               MAX(combination_taxon_names_taxon_names.neuter_name) FILTER (WHERE taxon_name_relationships.type  = '#{t}') AS #{rank}_neuter,
               MAX(combination_taxon_names_taxon_names.masculine_name) FILTER (WHERE taxon_name_relationships.type =  '#{t}') AS #{rank}_masculine,
-              MAX(combination_taxon_names_taxon_names.feminine_name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_feminine"
+              MAX(combination_taxon_names_taxon_names.feminine_name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_feminine,
+              MAX(combination_taxon_names_taxon_names.cached) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_cached"
 
       if abbreviate
         s.push "MAX(combination_taxon_names_taxon_names.rank_class) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_rank_class"
