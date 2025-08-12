@@ -16,13 +16,7 @@ module.exports = (webpackConfig) => {
           res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
           res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
-          // give launch-editor-middleware an absolute url (already fixed to not
-          // be required in 2.11.1)
-          const absoluteUrlReq = {
-            ...req,
-            url: `http://localhost${req.url}`
-          }
-          return openInEditor()(absoluteUrlReq, res, next)
+          return openInEditor()(req, res, next)
         })
 
         return middlewares
