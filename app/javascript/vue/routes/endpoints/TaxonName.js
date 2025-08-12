@@ -80,5 +80,5 @@ export const TaxonName = {
     AjaxCall('patch', `/${model}/batch_update.json`, params),
 
   removeAuthors: (params) =>
-    AjaxCall('get', `/${model}/remove_authors`, { params }),
+    AjaxCall('post', `/${model}/remove_authors.json`, params),
 }

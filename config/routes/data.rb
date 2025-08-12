@@ -905,7 +905,7 @@ resources :taxon_names do
     post :create_nomen_batch_load
 
     get :parse, defaults: {format: :json}
-    get :remove_authors, defaults: {format: :json}
+    post :remove_authors, defaults: {format: :json}
     get :random
 
     get :rank_table, defaults: {format: :json}

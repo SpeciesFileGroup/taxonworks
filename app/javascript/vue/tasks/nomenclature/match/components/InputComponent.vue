@@ -69,7 +69,7 @@ function removeAuthors() {
   }
 
   TaxonName.removeAuthors(payload)
-    .then(({ body }) => {
+    .then(( { body } ) => {
       removeAuthorsWarn.value = body.names.length > REMOVE_AUTHORS_LIMIT
       text.value = body.names.slice(0, REMOVE_AUTHORS_LIMIT).join('\n')
       TW.workbench.alert.create('Removed authors.', 'notice')
