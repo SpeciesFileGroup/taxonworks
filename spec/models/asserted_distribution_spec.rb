@@ -203,6 +203,20 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       end
 
       context 'attempting to delete last citation' do
+        specify 'permitted when deleting self 1' do
+          asserted_distribution.origin_citation = Citation.new(source:)
+          asserted_distribution.save!
+          expect(asserted_distribution.destroy).to be_truthy
+          expect(AssertedDistribution.count).to be(0)
+        end
+
+        specify 'permitted when deleting self 2' do
+          asserted_distribution.citations << Citation.new(source:)
+          asserted_distribution.save!
+          expect(asserted_distribution.destroy).to be_truthy
+          expect(AssertedDistribution.count).to be(0)
+        end
+
         specify 'when citation is origin_citation' do
           asserted_distribution.source = source
           asserted_distribution.save!
@@ -221,7 +235,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
           specify 'origin citation via a nested attribute delete is NOT allowed' do
             asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
             asserted_distribution.save!
-            expect(asserted_distribution.citations.count).to eq(1)
+            expect(asserted_distribution.origin_citation).to be_truthy
             expect{asserted_distribution.update!(origin_citation_attributes: {
               _destroy: true, id: asserted_distribution.origin_citation.id
             })}.to raise_error(ArgumentError)
@@ -239,6 +253,14 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
           specify 'trying to save citation with marked_for_destruction citation' do
             asserted_distribution.citations << Citation.new(source:)
             asserted_distribution.mark_citations_for_destruction
+
+            expect{asserted_distribution.save!}
+              .to raise_error(ActiveRecord::RecordInvalid)
+          end
+
+          specify 'trying to save origin citation with marked_for_destruction citation' do
+            asserted_distribution.origin_citation = Citation.new(source:)
+            asserted_distribution.origin_citation.mark_for_destruction
 
             expect{asserted_distribution.save!}
               .to raise_error(ActiveRecord::RecordInvalid)

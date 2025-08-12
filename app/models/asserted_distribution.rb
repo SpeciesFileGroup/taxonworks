@@ -335,12 +335,12 @@ class AssertedDistribution < ApplicationRecord
 
   # @return [Boolean]
   def new_records_include_citation
-    # Closes obscure
-    # marked_for_destruction-set-by-hand-on-citation-prior-to-save loophole.
     has_valid_citation =
       citations.count(&:marked_for_destruction?) < citations.size
+    has_valid_origin_citation = origin_citation && !origin_citation.marked_for_destruction?
 
-    if new_record? && source.blank? && origin_citation.blank? && !has_valid_citation
+    if new_record? && source.blank? &&
+       !has_valid_origin_citation && !has_valid_citation
       errors.add(:base, 'required citation is not provided')
     end
   end

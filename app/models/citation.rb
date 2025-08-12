@@ -153,9 +153,9 @@ class Citation < ApplicationRecord
   # TODO: modify for asserted distributions and other origin style relationships
   def prevent_if_required
     unless citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
-      if citation_object.requires_citation? &&
-         citation_object.citations.count == 1
-         raise ActiveRecord::RecordNotDestroyed.new("Cannot destroy last citation", self)
+      if citation_object.requires_citation? && citation_object.citations.count == 1
+        errors.add(:base, 'at least one citation is required')
+        throw :abort
       end
     end
   end

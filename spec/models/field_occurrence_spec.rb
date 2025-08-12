@@ -74,21 +74,28 @@ RSpec.describe FieldOccurrence, type: :model do
     end
 
     context 'attempting to delete last taxon_determination' do
-      specify 'permitted when deleting self' do
+      specify 'permitted when deleting self 1' do
         field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
         field_occurrence.save!
         expect(field_occurrence.destroy).to be_truthy
         expect(FieldOccurrence.count).to be(0)
       end
 
-      specify 'when taxon_determination is origin_ciation' do
+      specify 'permitted when deleting self 2' do
+        field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+        field_occurrence.save!
+        expect(field_occurrence.destroy).to be_truthy
+        expect(FieldOccurrence.count).to be(0)
+      end
+
+      specify 'when taxon_determination is through otu' do
         field_occurrence.otu = otu
         field_occurrence.save!
         expect(field_occurrence.taxon_determinations.count).to eq(1)
         expect(field_occurrence.taxon_determinations.reload.first.destroy).to be_falsey
       end
 
-      specify 'when taxon_determination is not origin taxon_determination' do
+      specify 'when taxon_determination is via <<' do
         field_occurrence.taxon_determinations <<  TaxonDetermination.new(otu:)
         expect(field_occurrence.save).to be_truthy
         expect(field_occurrence.taxon_determinations.count).to eq(1)
@@ -96,6 +103,15 @@ RSpec.describe FieldOccurrence, type: :model do
       end
 
       context 'with _delete / marked_for_destruction' do
+        specify 'taxon determination (singular!) via a nested attribute delete is NOT allowed' do
+          field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
+          field_occurrence.save!
+          expect(field_occurrence.taxon_determination).to be_truthy
+          expect{field_occurrence.update!(taxon_determination_attributes: {
+            _destroy: true, id: field_occurrence.taxon_determination.id
+          })}.to raise_error(ArgumentError)
+        end
+
         specify 'via a nested attribute delete' do
           field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
           field_occurrence.save!
@@ -105,9 +121,17 @@ RSpec.describe FieldOccurrence, type: :model do
           })}.to raise_error(ActiveRecord::RecordNotDestroyed)
         end
 
-        specify 'trying to save field_occurrence with marked_for_destruction taxon_determination' do
+        specify 'trying to save field_occurrence with marked_for_destruction taxon_determinations' do
           field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
           field_occurrence.taxon_determinations.first.mark_for_destruction
+
+          expect{field_occurrence.save!}
+            .to raise_error(ActiveRecord::RecordInvalid)
+        end
+
+        specify 'trying to save field_occurrence with marked_for_destruction taxon_determination' do
+          field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
+          field_occurrence.taxon_determination.mark_for_destruction
 
           expect{field_occurrence.save!}
             .to raise_error(ActiveRecord::RecordInvalid)

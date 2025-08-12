@@ -68,6 +68,15 @@ class FieldOccurrence < ApplicationRecord
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
+  # Do NOT allow taxon_determination (singular!) destroy via nested attributes.
+  def taxon_determination_attributes=(attrs)
+    if attrs[:_destroy].in?([true, 'true']) || attrs['_destroy'].in?([true, 'true'])
+      raise ArgumentError, 'Cannot destroy taxon determination (singular!) via nested attributes!'
+    else
+      super(attrs)
+    end
+  end
+
   def requires_taxon_determination?
     true
   end
@@ -92,12 +101,13 @@ class FieldOccurrence < ApplicationRecord
 
   # @return [Boolean]
   def new_records_include_taxon_determination
-    # Closes obscure
-    # marked_for_destruction-set-by-hand-on-taxon_determination-prior-to-save
-    # loophole.
-    has_valid_taxon_determination = taxon_determinations.count(&:marked_for_destruction?) < taxon_determinations.size
+    has_valid_taxon_determinations = taxon_determinations.count(&:marked_for_destruction?) < taxon_determinations.size
 
-    if new_record? && taxon_determination.blank? && !has_valid_taxon_determination
+    has_valid_taxon_determination =
+      taxon_determination && !taxon_determination.marked_for_destruction?
+
+    if new_record? &&
+       !has_valid_taxon_determination && !has_valid_taxon_determinations
       errors.add(:base, 'required taxon determination is not provided')
     end
   end
