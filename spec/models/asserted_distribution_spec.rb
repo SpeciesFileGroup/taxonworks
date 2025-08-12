@@ -212,18 +212,13 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         end
 
         context 'with _delete / marked_for_destruction' do
-          # !! DOES NOT RAISE, apparently because the origin_citation is a
-          # has_one instead of a has_many, in which case the error we add and
-          # the abort we do in the citation only cancel the citation
-          # destruction, not raise on the AD parent (and putting an error on the
-          # parent is apparently too late at that point??) ??
-          xspecify 'origin citation via a nested attribute delete' do
+          specify 'origin citation via a nested attribute delete is NOT allowed' do
             asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
             asserted_distribution.save!
             expect(asserted_distribution.citations.count).to eq(1)
             expect{asserted_distribution.update!(origin_citation_attributes: {
               _destroy: true, id: asserted_distribution.origin_citation.id
-            })}.to raise_error(ActiveRecord::RecordNotDestroyed)
+            })}.to raise_error(ArgumentError)
           end
 
           specify 'not-origin-citation via a nested attribute delete' do
