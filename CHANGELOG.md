@@ -17,7 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observations API response
 - Simple TaxonName batch loader rendering and author values
 - Missing map in asserted distribution view [#4515]
-- ColDP column alignment, gender agreement (candidate), and infraspecies rendering
+- ColDP column alignment, gender agreement (candidate), infraspecies rendering, "sic" rendering, combination scoping and rendering
 
 ### Changed
 
