@@ -1079,22 +1079,41 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     expect(tn.destroy).to be_truthy
   end
 
-  specify '.remove_authors preserves names without authors' do
-    names = [' Aus', 'Aus bus ']
-    rv = TaxonName.remove_authors(names)
-    expect(rv).to contain_exactly('Aus', 'Aus bus')
-  end
+  context '.remove_authors' do
+    specify 'preserves names without authors' do
+      names = [' Aus', 'Aus bus ']
+      rv = TaxonName.remove_authors(names)
+      expect(rv).to contain_exactly('Aus', 'Aus bus')
+    end
 
-  specify '.remove_authors removes authors' do
-    names = ['Aus Double', 'Aus (Trouble 1984)']
-    rv = TaxonName.remove_authors(names)
-    expect(rv).to contain_exactly('Aus', 'Aus')
-  end
+    specify 'removes authors' do
+      names = ['Aus Double', 'Aus (Trouble 1984)']
+      rv = TaxonName.remove_authors(names)
+      expect(rv).to contain_exactly('Aus', 'Aus')
+    end
 
-  specify '.remove_authors preserves "lines"' do
-    names = [' ', 'Aus Fudge', '', 'Aus cicle']
-    rv = TaxonName.remove_authors(names)
-    expect(rv).to contain_exactly('', 'Aus', '', 'Aus cicle')
+    specify 'preserves "lines"' do
+      names = [' ', 'Aus Fudge', '', 'Aus cicle']
+      rv = TaxonName.remove_authors(names)
+      expect(rv).to contain_exactly('', 'Aus', '', 'Aus cicle')
+    end
+
+    context 'subgenus' do
+      specify 'uninomial' do
+        rv = TaxonName.remove_authors(['Aus (Aus) Ketchup'])
+        expect(rv).to eq (['Aus (Aus)'])
+      end
+
+      specify 'binonmial' do
+        rv = TaxonName.remove_authors(['Conocephalus (Xenocerculus) tuyu Rubio & Braun, 2024'])
+        expect(rv).to eq (['Conocephalus (Xenocerculus) tuyu'])
+      end
+
+      specify 'with subspecies' do
+        rv = TaxonName.remove_authors(['Aus (Aus) aus subsp. aus Mustard 2025'])
+        expect(rv).to eq (['Aus (Aus) aus subsp. aus'])
+      end
+    end
   end
 
   context 'concerns' do

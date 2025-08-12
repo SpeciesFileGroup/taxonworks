@@ -1670,12 +1670,14 @@ class TaxonName < ApplicationRecord
   # Does not remove empty names from the array.
   def self.remove_authors(names)
     names = names.map(&:strip)
+    # TODO: we may want to add a setting for nomenclatural code
     parsed = Biodiversity::Parser.parse_ary(names)
     names.map.with_index do |name, i|
       next name if name.empty?
       r = parsed[i]
-      if r[:quality] == 1
-        r.dig(:canonical, :simple)
+      if r[:quality] <= 2 # uninomial subgenus currently has quality 2
+        new_name = name_from_biodiversity_result(r)
+        new_name || name
       else
         name
       end
@@ -1683,6 +1685,41 @@ class TaxonName < ApplicationRecord
   end
 
   protected
+
+  # TODO: belongs somewhere else? (where?)
+  def self.name_from_biodiversity_result(r)
+    name = r.dig(:canonical, :full)
+    return nil if name.nil?
+
+    # Subgenus currently needs to be special-cased.
+
+    # subgenus with species
+    subgenus = nil
+    if r[:quality] == 1
+      subgenus = r[:words].filter_map { |w| w[:wordType] == 'INFRA_GENUS'  ? w[:verbatim] : nil }.first
+    end
+
+    # subgenus without species
+    subgenus_uninomial = r[:words].first[:wordType] == 'UNINOMIAL' &&
+      r.dig(:details, :uninomial, :rank) == 'subgen.' ?
+      r.dig(:details, :uninomial, :uninomial) : nil
+
+    if r[:quality] == 1 && !subgenus && !subgenus_uninomial
+      return name
+    end
+
+    if subgenus
+      genus = r[:words].filter_map { |w| w[:wordType] == 'GENUS'  ? w[:verbatim] : nil }.first
+
+      return name.insert(genus.length, " (#{subgenus})") if genus
+    elsif subgenus_uninomial
+      genus = r.dig(:details, :uninomial, :parent)
+
+      return "#{genus} (#{subgenus_uninomial})" if genus && name == "#{genus} subgen. #{subgenus_uninomial}"
+    end
+
+    nil
+  end
 
   def check_for_children
     if leaf?
