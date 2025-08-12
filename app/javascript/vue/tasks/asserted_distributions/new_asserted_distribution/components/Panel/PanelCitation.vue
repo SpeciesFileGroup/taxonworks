@@ -16,12 +16,13 @@
         :fieldset="false"
         lock-button
         absent-field
+        use-session
         v-model="store.citation"
         v-model:absent="store.assertedDistribution.isAbsent"
         v-model:lock="store.lock.source"
         :klass="ASSERTED_DISTRIBUTION"
         :target="ASSERTED_DISTRIBUTION"
-        @update:modelValue="sendBroadcast"
+        @update="sendBroadcast"
         @lock="(e) => (store.lock.citation = e)"
       >
         <template #tabs-right>
@@ -50,7 +51,7 @@ const { post } = useBroadcastChannel({
   name: 'citation',
   onMessage({ data }) {
     if (isBroadcastActive.value) {
-      store.citation = data
+      Object.assign(store.citation, data)
     }
   }
 })

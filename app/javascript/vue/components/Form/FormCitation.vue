@@ -99,7 +99,7 @@
 
 <script setup>
 import { Source } from '@/routes/endpoints'
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import { convertType } from '@/helpers/types'
 import makeCitation from '@/factory/Citation'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
@@ -177,13 +177,14 @@ const emit = defineEmits([
   'lock',
   'submit',
   'source',
+  'update',
   'update:modelValue',
   'update:absent'
 ])
 
-const citation = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+const citation = defineModel({
+  type: Object,
+  default: () => makeCitation()
 })
 
 const isAbsent = computed({
@@ -238,10 +239,8 @@ function setSource(value) {
 }
 
 function setValues(values) {
-  citation.value = {
-    ...citation.value,
-    ...values
-  }
+  Object.assign(citation.value, values)
+  emit('update', citation.value)
 }
 
 function setPage(e) {
@@ -270,7 +269,7 @@ function setIsAbsent(e) {
   }
 }
 
-function init() {
+onBeforeMount(() => {
   const lockStoreValue =
     props.useSession && convertType(sessionStorage.getItem(STORAGE.lock))
 
@@ -278,17 +277,21 @@ function init() {
     isLocked.value = lockStoreValue
   }
 
-  if (props.lockButton && lockStoreValue && props.useSession) {
-    citation.value.source_id = convertType(
-      sessionStorage.getItem(STORAGE.sourceId)
-    )
-    citation.value.is_original = convertType(
-      sessionStorage.getItem(STORAGE.isOriginal)
-    )
-    citation.value.pages = convertType(sessionStorage.getItem(STORAGE.pages))
+  if (
+    props.lockButton &&
+    lockStoreValue &&
+    props.useSession &&
+    !citation.value?.id
+  ) {
+    const test = {
+      source_id: convertType(sessionStorage.getItem(STORAGE.sourceId)),
+      is_original: convertType(sessionStorage.getItem(STORAGE.isOriginal)),
+      pages: convertType(sessionStorage.getItem(STORAGE.pages))
+    }
+
+    setValues(test)
+
     isAbsent.value = convertType(sessionStorage.getItem(STORAGE.isAbsent))
   }
-}
-
-onMounted(() => init())
+})
 </script>
