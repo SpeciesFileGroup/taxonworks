@@ -6,14 +6,14 @@
 #
 # Bigger picture: understand how this maps to core name usage table in CoL
 #
-# We assume that the names exporting in Names are those that must be tied to Taxa, 
+# We assume that the names exporting in Names are those that must be tied to Taxa,
 # so we re-use that scoping.
 #
 # !! TODO: While the scoping of names to be considered is likely correct,
 # invalid names are not likely pointing to valid OTUs, but rather invalid OTUs.
-# 
+#
 # !? To resolve this create a single lookup of all possibile name_ids to their valid otu_id
-# !! TODO: If a lookup is in place, then we can do this all in parallel with Name.tsv, i.e. 
+# !! TODO: If a lookup is in place, then we can do this all in parallel with Name.tsv, i.e.
 # completely removing a redundant pass
 #
 module Export::Coldp::Files::Synonym
@@ -35,15 +35,18 @@ module Export::Coldp::Files::Synonym
     ::CSV.generate(col_sep: "\t") do |csv|
       csv << %w{taxonID nameID status remarks referenceID modified modifiedBy}
 
-      add_valid_higher_names(otu, otus, csv, project_members)
-      add_valid_family_names(otu, otus, csv, project_members)
-      add_core_names(otu, otus, csv, project_members)
-      add_combinations(otu, otus, csv, project_members)
-      add_original_combinations(otu, otus, csv, project_members)
+      #  add_valid_higher_names(otu, otus, csv, project_members)
+      #  add_valid_family_names(otu, otus, csv, project_members)
+      #  add_core_names(otu, otus, csv, project_members)
+
       add_invalid_family_and_higher_names(otu, otus, csv, project_members)
       add_invalid_core_names(otu, otus, csv, project_members)
+      add_original_combinations(otu, otus, csv, project_members)
+      add_combinations(otu, otus, csv, project_members)
     end
   end
+
+=begin
 
   def self.add_valid_higher_names(otu, otus, csv, project_members)
     names = ::Export::Coldp::Files::Name.valid_higher_names(otu)
@@ -59,12 +62,12 @@ module Export::Coldp::Files::Synonym
     a.find_each do |n|
 
       csv << [
-        n.otu_id,                                                  # taxonID attached to the current valid concept
-        n.id,                                                      # nameID
-        nil,                                                       # status  TODO: def status(taxon_name_id)
-        nil,                                                       # remarks
-        nil,                                                       # referenceID  Unclear what this means in TW
-        Export::Coldp.modified(n.updated_at),                      # modified
+        n.otu_id,                                                   # taxonID attached to the current valid concept
+        n.id,                                                       # nameID
+        nil,                                                        # status  TODO: def status(taxon_name_id)
+        nil,                                                        # remarks
+        nil,                                                        # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(n.updated_at),                       # modified
         Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
       ]
     end
@@ -95,109 +98,6 @@ module Export::Coldp::Files::Synonym
     end
   end
 
-  def self.add_invalid_core_names(otu, otus, csv, project_members)
-    names = ::Export::Coldp::Files::Name.invalid_core_names(otu)
-    names.length # TODO: needed?
-
-    x = Otu.with(name_scope: names)
-      .joins('JOIN name_scope on name_scope.id = otus.taxon_name_id')
-      .select(:id)
-
-    y = Otu.with(otu_scope: x)
-      .joins('JOIN otu_scope on otu_scope.id = otus.id')
-      .select(:id, :taxon_name_id, :updated_at, :updated_by_id)
-
-    y.find_each do |n|
-      reified_id = n.taxon_name_id # Uncertain re reification ::Utilities::Nomenclature.reified_id(n.taxon_name_id, n.cached_original_combination)
-
-      csv << [
-        n.id,                                                      # taxonID attached to the current valid concept
-        reified_id,                                                # nameID
-        nil,                                                       # status  TODO: def status(taxon_name_id)
-        nil,                                                       # remarks
-        nil,                                                       # referenceID  Unclear what this means in TW
-        Export::Coldp.modified(n.updated_at),                      # modified
-        Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
-      ]
-    end
-  end
-
-  def self.add_combinations(otu, otus, csv, project_members)
-    names = ::Export::Coldp::Files::Name.combination_names(otu).unscope(:select).select(:id)
-
-    x = Otu.with(name_scope: names)
-      .joins('JOIN name_scope on name_scope.id = otus.taxon_name_id')
-      .select(:id)
-
-    y = Otu.with(otu_scope: x)
-      .joins('JOIN otu_scope on otu_scope.id = otus.id')
-      .select(:id, :taxon_name_id, :updated_at, :updated_by_id)
-
-    y.find_each do |n|
-
-      csv << [
-        n.id,                                                      # taxonID attached to the current valid concept
-        n.taxon_name_id,                                           # nameID
-        nil,                                                       # status  TODO: def status(taxon_name_id)
-        nil,                                                       # remarks
-        nil,                                                       # referenceID  Unclear what this means in TW
-        Export::Coldp.modified(n.updated_at),                      # modified
-        Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
-      ]
-    end
-  end
-
-  def self.add_invalid_family_and_higher_names(otu, otus, csv, project_members)
-    names = ::Export::Coldp::Files::Name.invalid_family_and_higher_names(otu)
-    names.length # TODO: needed?
-
-    x = Otu.with(name_scope: names)
-      .joins('JOIN name_scope on name_scope.id = otus.taxon_name_id')
-      .select(:id)
-
-    y = Otu.with(otu_scope: x)
-      .joins('JOIN otu_scope on otu_scope.id = otus.id')
-      .select(:id, :taxon_name_id, :updated_at, :updated_by_id)
-
-    y.find_each do |n|
-      reified_id = n.taxon_name_id # Uncertain re reification ::Utilities::Nomenclature.reified_id(n.taxon_name_id, n.cached_original_combination)
-
-      csv << [
-        n.id,                                                      # taxonID attached to the current valid concept
-        reified_id,                                                # nameID
-        nil,                                                       # status  TODO: def status(taxon_name_id)
-        nil,                                                       # remarks
-        nil,                                                       # referenceID  Unclear what this means in TW
-        Export::Coldp.modified(n.updated_at),                      # modified
-        Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
-      ]
-    end
-  end
-
-  def self.add_original_combinations(otu, otus, csv, project_members)
-    names = ::Export::Coldp::Files::Name.original_combination_names(otu)
-
-    a = Otu.with(name_scope: names, otu_scope: otus)
-      .joins('JOIN name_scope on name_scope.id = otus.taxon_name_id')
-      .joins('JOIN otu_scope on otu_scope.id = otus.id')
-      .select('otus.id, otus.taxon_name_id, otus.updated_at, otus.updated_by_id, name_scope.cached_original_combination').distinct
-
-    a.find_each do |n|
-      # By `original_combination_names(otu) these are all reified
-      reified_id = ::Utilities::Nomenclature.reified_id(n.taxon_name_id, n.cached_original_combination)
-
-      csv << [
-        n.id,                                                      # taxonID attached to the current valid concept
-        reified_id,                                                # nameID
-        nil,                                                       # status  TODO: def status(taxon_name_id)
-        nil,                                                       # remarks
-        nil,                                                       # referenceID  Unclear what this means in TW
-        Export::Coldp.modified(n.updated_at),                      # modified
-        Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
-      ]
-    end
-  end
-
   def self.add_core_names(otu, otus, csv, project_members)
     names = ::Export::Coldp::Files::Name.core_names(otu)
 
@@ -214,6 +114,140 @@ module Export::Coldp::Files::Synonym
       csv << [
         n.otu_id,                                                  # taxonID attached to the current valid concept
         n.id,                                                      # nameID
+        nil,                                                       # status  TODO: def status(taxon_name_id)
+        nil,                                                       # remarks
+        nil,                                                       # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(n.updated_at),                      # modified
+        Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
+=end
+
+  # 6k?
+  def self.add_invalid_core_names(otu, otus, csv, project_members)
+    names = ::Export::Coldp::Files::Name.invalid_core_names(otu)
+    names.length # TODO: needed?
+
+    x = Otu.with(name_scope: names)
+      .joins('JOIN name_scope on name_scope.cached_valid_taxon_name_id = otus.taxon_name_id')
+      .select(:id)
+
+    y = TaxonName.with(invalid_names: names)
+      .joins('JOIN invalid_names on invalid_names.cached_valid_taxon_name_id = taxon_names.id')
+      .joins('LEFT JOIN otus on otus.taxon_name_id = taxon_names.id')
+      .select('invalid_names.id, MAX(otus.id) AS otu_id, taxon_names.updated_at, taxon_names.updated_by_id') # housekeeping is meaningless here
+      .group('taxon_names.id, invalid_names.id')
+
+    y.find_each do |n|
+      csv << [
+        n.otu_id,                                                   # taxonID attached to the current valid concept
+        n.id,                                                       # nameID
+        nil,                                                        # status  TODO: def status(taxon_name_id)
+        nil,                                                        # remarks
+        nil,                                                        # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(n.updated_at),                       # modified
+        Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
+  def self.add_combinations(otu, otus, csv, project_members)
+    names = ::Export::Coldp::Files::Name.combination_names(otu).unscope(:select).select(:id, :cached_valid_taxon_name_id)
+
+    x = Otu.with(name_scope: names)
+      .joins('JOIN name_scope on name_scope.cached_valid_taxon_name_id = otus.taxon_name_id')
+      .select(:id)
+
+    y = TaxonName.with(invalid_names: names)
+      .joins('JOIN invalid_names on invalid_names.cached_valid_taxon_name_id = taxon_names.id')
+      .joins('LEFT JOIN otus on otus.taxon_name_id = taxon_names.id')
+      .select('invalid_names.id, MAX(otus.id) AS otu_id, taxon_names.updated_at, taxon_names.updated_by_id') # housekeeping is meaningless here
+      .group('taxon_names.id, invalid_names.id')
+
+    #   x = Otu.with(name_scope: names)
+    #     .joins('JOIN name_scope on name_scope.id = otus.taxon_name_id')
+    #     .select(:id)
+
+    #   y = Otu.with(otu_scope: x)
+    #     .joins('JOIN otu_scope on otu_scope.id = otus.id')
+    #     .select(:id, :taxon_name_id, :updated_at, :updated_by_id)
+
+    y.find_each do |n|
+
+      csv << [
+        n.otu_id,                                                  # taxonID attached to the current valid concept
+        n.id,                                                      # nameID
+        nil,                                                       # status  TODO: def status(taxon_name_id)
+        nil,                                                       # remarks
+        nil,                                                       # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(n.updated_at),                      # modified
+        Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
+  def self.add_invalid_family_and_higher_names(otu, otus, csv, project_members)
+    names = ::Export::Coldp::Files::Name.invalid_family_and_higher_names(otu)
+    names.length # TODO: needed?
+
+    x = Otu.with(name_scope: names)
+      .joins('JOIN name_scope on name_scope.cached_valid_taxon_name_id = otus.taxon_name_id')
+      .select(:id)
+
+    y = TaxonName.with(invalid_names: names)
+      .joins('JOIN invalid_names on invalid_names.cached_valid_taxon_name_id = taxon_names.id')
+      .joins('LEFT JOIN otus on otus.taxon_name_id = taxon_names.id')
+      .select('invalid_names.id, MAX(otus.id) AS otu_id, taxon_names.updated_at, taxon_names.updated_by_id') # housekeeping is meaningless here
+      .group('taxon_names.id, invalid_names.id')
+
+    #   x = Otu.with(name_scope: names)
+    #     .joins('JOIN name_scope on name_scope.id = otus.taxon_name_id')
+    #     .select(:id)
+
+    #   y = Otu.with(otu_scope: x)
+    #     .joins('JOIN otu_scope on otu_scope.id = otus.id')
+    #     .select(:id, :taxon_name_id, :updated_at, :updated_by_id)
+
+    y.find_each do |n|
+      csv << [
+        n.otu_id,                                                  # taxonID attached to the current valid concept
+        n.id,                                                      # nameID
+        nil,                                                       # status  TODO: def status(taxon_name_id)
+        nil,                                                       # remarks
+        nil,                                                       # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(n.updated_at),                      # modified
+        Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
+  def self.add_original_combinations(otu, otus, csv, project_members)
+    names = ::Export::Coldp::Files::Name.original_combination_names(otu)
+
+    x = Otu.with(name_scope: names)
+      .joins('JOIN name_scope on name_scope.cached_valid_taxon_name_id = otus.taxon_name_id')
+      .select(:id)
+
+    y = TaxonName.with(invalid_names: names)
+      .joins('JOIN invalid_names on invalid_names.cached_valid_taxon_name_id = taxon_names.id')
+      .joins('LEFT JOIN otus on otus.taxon_name_id = taxon_names.id')
+      .select('invalid_names.id, MAX(otus.id) AS otu_id, taxon_names.updated_at, taxon_names.updated_by_id, invalid_names.cached_original_combination') # housekeeping is meaningless here
+      .group('taxon_names.id, invalid_names.id, invalid_names.cached_original_combination')
+
+    #   a = Otu.with(name_scope: names, otu_scope: otus)
+    #     .joins('JOIN name_scope on name_scope.id = otus.taxon_name_id')
+    #     .joins('JOIN otu_scope on otu_scope.id = otus.id')
+    #     .select('otus.id, otus.taxon_name_id, otus.updated_at, otus.updated_by_id, name_scope.cached_original_combination').distinct
+
+    y.find_each do |n|
+      # By `original_combination_names(otu) these are all reified
+      reified_id = ::Utilities::Nomenclature.reified_id(n.id, n.cached_original_combination)
+
+      csv << [
+        n.otu_id,                                                  # taxonID attached to the current valid concept
+        reified_id,                                                # nameID
         nil,                                                       # status  TODO: def status(taxon_name_id)
         nil,                                                       # remarks
         nil,                                                       # referenceID  Unclear what this means in TW
