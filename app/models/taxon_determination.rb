@@ -159,7 +159,8 @@ class TaxonDetermination < ApplicationRecord
 
   def prevent_if_required
     unless taxon_determination_object && taxon_determination_object.respond_to?(:ignore_taxon_determination_restriction) && taxon_determination_object.ignore_taxon_determination_restriction
-      if !marked_for_destruction? && !new_record? && taxon_determination_object.requires_taxon_determination? && taxon_determination_object.taxon_determinations.count == 1
+      if taxon_determination_object.requires_taxon_determination? &&
+         taxon_determination_object.taxon_determinations.count == 1
         errors.add(:base, 'at least one taxon determination is required')
         throw :abort
       end

@@ -210,6 +210,45 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
           expect(asserted_distribution.citations.count).to eq(1)
           expect(asserted_distribution.citations.reload.first.destroy).to be_falsey
         end
+
+        context 'with _delete / marked_for_destruction' do
+          # !! DOES NOT RAISE, apparently because the origin_citation is a
+          # has_one instead of a has_many, in which case the error we add and
+          # the abort we do in the citation only cancel the citation
+          # destruction, not raise on the AD parent (and putting an error on the
+          # parent is apparently too late at that point??) ??
+          xspecify 'origin citation via a nested attribute delete' do
+            asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
+            asserted_distribution.save!
+            expect(asserted_distribution.citations.count).to eq(1)
+            expect{asserted_distribution.update!(origin_citation_attributes: {
+              _destroy: true, id: asserted_distribution.origin_citation.id
+            })}.to raise_error(ActiveRecord::RecordNotDestroyed)
+          end
+
+          specify 'not-origin-citation via a nested attribute delete' do
+            asserted_distribution.citations << Citation.new(source:)
+            asserted_distribution.save!
+            expect(asserted_distribution.citations.count).to eq(1)
+            # This used to pass because citations with marked_for_destruction
+            # were permitted to be destroyed, even the last one.
+            expect{asserted_distribution.update!(citations_attributes: {
+              _destroy: true, id: asserted_distribution.citations.first.id
+            })}.to raise_error(ActiveRecord::RecordNotDestroyed)
+          end
+
+          specify 'trying to save citation with marked_for_destruction citation' do
+            asserted_distribution.citations << Citation.new(source:)
+            asserted_distribution.mark_citations_for_destruction
+
+            # This one used to pass the model check for a citation on new ADs
+            # (because it had a citation at that point) and then in the same
+            # breath destroy the marked citation (because it permitted destroy
+            # on new_record).
+            expect{asserted_distribution.save!}
+              .to raise_error(ActiveRecord::RecordInvalid)
+          end
+        end
       end
     end
 
