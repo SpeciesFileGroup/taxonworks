@@ -412,7 +412,7 @@ class Combination < TaxonName
 
       name_target = gender.nil? ? rank.to_sym : (rank + '_' + gender).to_sym
 
-      # TODO: add verbatim to row
+      # !! TODO: add verbatim to row
       #
       name = row[name_target] || row[rank.to_sym] || row[(rank + '_' + 'verbatim')]
 
@@ -431,6 +431,7 @@ class Combination < TaxonName
   end
 
   # TODO: consider an 'include_cached_misspelling' Boolean to extend result to include `cached_misspelling`
+  # !! References name, not cached, so 'sic' is not possible
   def self.flattened
     s = []
     abbreviation_cutoff = 'subspecies'

@@ -353,20 +353,12 @@ module Export::Coldp::Files::Name
   # TODO: Complete combinations only
   # TODO: add .fully_specified ?
   def self.combination_names(otu)
+    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
-    # Combinations are not hit by self_and_descendants
-     
-    a = otu.taxon_name.self_and_descendants.unscope(:order)
-      .where(taxon_names: { type: 'Combination' })
-      .select(:id)
-
-    all names with 
-
-byebug
     b = Combination.
       flattened.with(project_scope: a)
       .complete
-      .joins('JOIN project_scope ps on ps.id = taxon_names.id')
+      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
   end
 
   # TODO: we probably have an issue where self is not included as a relationship and we need to inject it into the data?
@@ -387,19 +379,21 @@ byebug
 
       rank = elements.keys.last if rank.nil? # Note that this depends on order of Hash creation
 
-      # TODO: resolve/verify needed
-      uninomial = row['genus'] if rank == 'genus'
+      scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
+
+      # basionym_id = nil if @skipped_name_ids.include?(basionym_id)
+      uninomial = scientific_name if rank == 'genus'
 
       csv << [
         row['id'],                                                          # ID
         nil,                                                                # basionymID
-        row['cached'],                                                      # scientificName  # should just be t.cached
+        scientific_name,                                                    # scientificName
         row['cached_author_year'],                                          # authorship
         rank,                                                               # rank
-        uninomial,                                                          # uninomial   <- if genus here
-        elements[:genus],                                                   # genus and below - IIF species or lower # TODO: confirm this is OK now
-        elements[:subgenus],                                                # infragenericEpithet (subgenus)
-        elements[:species],                                                 # specificEpithet
+        uninomial,                                                          # uninomial   <- if genus group only (i.e. incomplete Combination)
+        row['genus'],                                                       # genus and below - IIF species or lower # TODO: confirm this is OK now
+        row['subgenus'],                                                    # infragenericEpithet (subgenus)
+        row['species'],                                                     # specificEpithet
         infraspecies,                                                       # infraspecificEpithet
         row['source_id'],                                                   # publishedInID
         row['pages'],                                                       # publishedInPage
@@ -542,7 +536,7 @@ byebug
       origin_citation = t.origin_citation
 
       nom_status = nomenclatural_status(t.id, classification_status, relationship_status)
-      
+
       csv << [
         t.id,                                                             # ID
         nil,                                                              # basionymID
@@ -585,7 +579,7 @@ byebug
       origin_citation = t.origin_citation
 
       scientific_name = t.cached_misspelling ? ::Utilities::Nomenclature.unmisspell_name(t.cached) : t.cached
-      
+
       # basionym_id = nil if @skipped_name_ids.include?(basionym_id)
       uninomial = scientific_name if t.rank == 'genus'
 
