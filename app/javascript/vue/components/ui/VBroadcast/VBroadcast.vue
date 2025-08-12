@@ -1,6 +1,7 @@
 <template>
-  <VToggle title="Broadcast">
+  <VToggle title="Broadcast: Synchronize data across tabs/windows">
     <VIcon
+      title="Broadcast: Synchronize data across tabs/windows"
       name="broadcast"
       x-small
     />
