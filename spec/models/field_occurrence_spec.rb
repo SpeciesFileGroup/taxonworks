@@ -94,6 +94,25 @@ RSpec.describe FieldOccurrence, type: :model do
         expect(field_occurrence.taxon_determinations.count).to eq(1)
         expect(field_occurrence.taxon_determinations.reload.first.destroy).to be_falsey
       end
+
+      context 'with _delete / marked_for_destruction' do
+        specify 'via a nested attribute delete' do
+          field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+          field_occurrence.save!
+          expect(field_occurrence.taxon_determinations.count).to eq(1)
+          expect{field_occurrence.update!(taxon_determinations_attributes: {
+            _destroy: true, id: field_occurrence.taxon_determinations.first.id
+          })}.to raise_error(ActiveRecord::RecordNotDestroyed)
+        end
+
+        specify 'trying to save field_occurrence with marked_for_destruction taxon_determination' do
+          field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+          field_occurrence.taxon_determinations.first.mark_for_destruction
+
+          expect{field_occurrence.save!}
+            .to raise_error(ActiveRecord::RecordInvalid)
+        end
+      end
     end
   end
 

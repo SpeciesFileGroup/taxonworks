@@ -95,7 +95,7 @@ class FieldOccurrence < ApplicationRecord
     # Closes obscure
     # marked_for_destruction-set-by-hand-on-taxon_determination-prior-to-save
     # loophole.
-    has_valid_taxon_determination = taxon_determinations.count(&:marked_for_destruction?) < taxon_determinations.count
+    has_valid_taxon_determination = taxon_determinations.count(&:marked_for_destruction?) < taxon_determinations.size
 
     if new_record? && taxon_determination.blank? && !has_valid_taxon_determination
       errors.add(:base, 'required taxon determination is not provided')
