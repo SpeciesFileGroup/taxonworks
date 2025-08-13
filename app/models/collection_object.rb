@@ -564,7 +564,7 @@ class CollectionObject < ApplicationRecord
   # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
-  def self.used_recently(user_id, project_id, used_on = '')
+  def self.used_recently(user_id, project_id, used_on = '', ba_target = 'object')
     return [] if used_on != 'TaxonDetermination' && used_on != 'BiologicalAssociation'
     t = case used_on
         when 'TaxonDetermination'
@@ -572,16 +572,23 @@ class CollectionObject < ApplicationRecord
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         end
+    if ba_target == 'subject'
+      target_type = 'biological_association_subject_type'
+      target_id = 'biological_association_subject_id'
+    else
+      target_type = 'biological_association_object_type'
+      target_id = 'biological_association_object_id'
+    end
 
     p = CollectionObject.arel_table
 
     # i is a select manager
     i = case used_on
         when 'BiologicalAssociation'
-          t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
+          t.project(t[target_id], t['updated_at']).from(t)
             .where(
               t['updated_at'].gt(1.week.ago).and(
-                t['biological_association_subject_type'].eq('CollectionObject')
+                t[target_type].eq('CollectionObject')
               )
             )
               .where(t['updated_by_id'].eq(user_id))
@@ -602,7 +609,7 @@ class CollectionObject < ApplicationRecord
     j = case used_on
         when 'BiologicalAssociation'
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-            z['biological_association_subject_id'].eq(p['id'])
+            z[target_id].eq(p['id'])
           ))
         else
           # TODO: needs to be fixed to scope the taxon_determination_object_type
@@ -614,8 +621,8 @@ class CollectionObject < ApplicationRecord
 
   # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` , nil
   # @return [Hash] otus optimized for user selection
-  def self.select_optimized(user_id, project_id, target = nil)
-    r = used_recently(user_id, project_id, target)
+  def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
+    r = used_recently(user_id, project_id, target, ba_target)
     h = {
       quick: [],
       pinboard: CollectionObject.pinned_by(user_id).where(project_id:).to_a,
