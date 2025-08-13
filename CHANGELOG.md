@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.53.1] - 2025-08-13
+
 ### Added
 
 - Match taxon names: Total count for matched/unmatched tables [#4509]
@@ -5596,7 +5600,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.1...development
+[0.53.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.0...v0.53.1
 [0.53.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.2...v0.53.0
 [0.52.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.1...v0.52.2
 [0.52.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.0...v0.52.1
