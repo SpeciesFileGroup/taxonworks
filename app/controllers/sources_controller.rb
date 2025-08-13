@@ -175,7 +175,7 @@ class SourcesController < ApplicationController
   # PATCH /sources/batch_update.json?source_query=<>&serial_id
   def batch_update
     if r = Source::Bibtex.batch_update(
-        preview: params[:preview], 
+        preview: params[:preview],
         source: source_params.merge(by: sessions_current_user_id),
         source_query: params[:source_query],
     )
@@ -186,8 +186,8 @@ class SourcesController < ApplicationController
   end
 
   def preview_bibtex_batch_load
+    redirect_to batch_load_sources_path, notice: 'No file has been selected.' and return if params[:file].blank?
     file = params.require(:file)
-    redirect_to batch_load_sources_path, notice: 'No file has been selected.' and return if file.blank?
     file_ok, mimetype = Utilities::Files.recognized_batch_file_type?(file.tempfile)
     if !file_ok
       redirect_to batch_load_sources_path,
@@ -265,7 +265,7 @@ class SourcesController < ApplicationController
 
       format.json do
         send_data(f, filename: "tw_bibliography_#{DateTime.now}.txt", type: 'text/plain')
-      end 
+      end
     end
   end
 

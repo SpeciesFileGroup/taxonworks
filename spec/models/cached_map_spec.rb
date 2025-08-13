@@ -23,7 +23,7 @@ RSpec.describe CachedMap, type: :model, group: [:geo, :cached_map] do
   end
 
   context '#synced?' do
-    let(:otu) { FactoryBot.create(:valid_otu) }
+    let(:otu) { Otu.create!(taxon_name: FactoryBot.create(:relationship_genus, parent: FactoryBot.create(:root_taxon_name))) }
 
     let(:ad) {
       AssertedDistribution.create!(

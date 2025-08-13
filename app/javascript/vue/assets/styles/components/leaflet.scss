@@ -7,6 +7,51 @@
   border-radius: 3px;
 }
 
+.leaflet-cluster-inner-circle {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+.leaflet-cluster-outter-circle {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  opacity: 0.5;
+}
+
+.leaflet-cluster-label {
+  position: absolute;
+  font-size: 12px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  z-index: 200;
+}
+
+.leaflet-hatch-pattern {
+  fill: url(#hatch-pattern);
+}
+
+.leaflet-cluster-asserted-distribution {
+  fill: var(--color-map-asserted-distribution);
+}
+
+.leaflet-cluster-collection-object {
+  fill: var(--color-map-collection-object);
+}
+
+.leaflet-cluster-field-occurrence {
+  fill: var(--color-map-field-occurrence);
+}
+
+.leaflet-cluster-type-material {
+  fill: var(--color-map-type-material);
+}
+
 .dark {
   color-scheme: dark;
 

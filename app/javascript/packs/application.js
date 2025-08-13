@@ -22,6 +22,8 @@ import 'easymde/dist/easymde.min.css'
 import '@fontsource/ibm-plex-sans'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
 import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'tippy.js/dist/tippy.css'
 
 import '../vanilla/initializers/copyTable.js'

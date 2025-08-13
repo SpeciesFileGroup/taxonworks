@@ -62,7 +62,7 @@ const extend = ['subject', 'object', 'biological_relationship', 'citations']
 export const useStore = defineStore('NewBiologicalAssociation', {
   state: () => ({
     lock: {
-      source: false,
+      citation: false,
       relationship: false,
       object: false,
       subject: false

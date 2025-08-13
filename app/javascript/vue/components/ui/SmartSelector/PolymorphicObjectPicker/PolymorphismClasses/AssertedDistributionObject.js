@@ -1,4 +1,11 @@
-import { BiologicalAssociation, BiologicalAssociationsGraph, Conveyance, Depiction, Observation, Otu } from "@/routes/endpoints"
+import {
+  BiologicalAssociation,
+  BiologicalAssociationsGraph,
+  Conveyance,
+  Depiction,
+  Observation,
+  Otu
+} from '@/routes/endpoints'
 
 const AssertedDistributionObject = [
   // Default first.
@@ -10,7 +17,10 @@ const AssertedDistributionObject = [
     snake: 'otus',
     endpoint: Otu,
     query_key: 'otu_id',
-    searchbox_text: 'Search for an OTU'
+    searchbox_text: 'Search for an OTU',
+    smartSelector: {
+      otuPicker: true
+    }
   },
 
   {
@@ -20,7 +30,7 @@ const AssertedDistributionObject = [
     display: 'Biological association',
     snake: 'biological_associations',
     endpoint: BiologicalAssociation,
-    query_key: 'biological_association_id',
+    query_key: 'biological_association_id'
   },
 
   {
@@ -30,7 +40,7 @@ const AssertedDistributionObject = [
     display: 'Biological associations graph',
     snake: 'biological_associations_graphs',
     endpoint: BiologicalAssociationsGraph,
-    query_key: 'biological_associations_graph_id',
+    query_key: 'biological_associations_graph_id'
   },
 
   {
@@ -70,16 +80,14 @@ const AssertedDistributionObject = [
     secondary: 'Otu', // Restricts Observation object type to Otu
     searchbox_text: 'Search for an observation - on OTUs only',
     polymorphic_types_allowed: { polymorphic_types_allowed: ['Otu'] }
-  },
+  }
 ]
 
 const ASSERTED_DISTRIBUTION_OBJECT_ENDPOINT_HASH =
   AssertedDistributionObject.reduce((acc, value) => {
-      acc[value.singular] = value.endpoint
-      return acc
-    },
-    {}
-  )
+    acc[value.singular] = value.endpoint
+    return acc
+  }, {})
 
 export default AssertedDistributionObject
 export { ASSERTED_DISTRIBUTION_OBJECT_ENDPOINT_HASH }

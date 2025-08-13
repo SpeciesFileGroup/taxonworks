@@ -4,7 +4,10 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
 
   include_context 'cached map scenario'
 
-  let(:ad_offset) { FactoryBot.build( :valid_otu_asserted_distribution, asserted_distribution_shape: ga_offset) }
+  let(:ad_offset) { FactoryBot.build(:valid_otu_asserted_distribution,
+    asserted_distribution_object: Otu.new(taxon_name: FactoryBot.create(:relationship_genus, parent: FactoryBot.create(:root_taxon_name))),
+    asserted_distribution_shape: ga_offset)
+  }
 
 
   # Must turn back on the after_destroy in the maps.concern to revisit these.
@@ -37,13 +40,16 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
   end
 
   specify '#touched_cached_maps' do
+    ad_offset.save!
     expect(ad_offset.send(:touched_cached_maps).pluck(:id)).to eq([ad_offset.asserted_distribution_object_id])
   end
 
   specify '#touched_cached_maps (untouched)' do
     ad_offset.save!
     p = FactoryBot.create(:valid_project)
-    potu = FactoryBot.create(:valid_otu, project: p)
+    proot = Protonym.where(name: 'Root', project: p).first
+    pspecies = FactoryBot.create(:relationship_species, parent: proot, project: p)
+    potu = FactoryBot.create(:valid_otu, project: p, taxon_name: pspecies)
     a = FactoryBot.create(:valid_otu_asserted_distribution,
       asserted_distribution_object: potu,
       asserted_distribution_shape: ga_offset)

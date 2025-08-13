@@ -14,7 +14,6 @@
         <tr
           v-for="item in list"
           :key="item.id"
-          @click="() => emit('select', item)"
         >
           <td v-html="item.subject.object_tag" />
           <td v-html="item.relationship.object_tag" />
@@ -28,6 +27,7 @@
               <VBtn
                 circle
                 color="primary"
+                @click="() => emit('select', item)"
               >
                 <VIcon
                   x-small

@@ -16,8 +16,10 @@ import {
 } from './constants'
 import geojsonOptions from './utils/geojsonOptions'
 import makeGeoJSONObject from './utils/makeGeoJSONObject'
+import { addPatternToMap } from './utils/addPatternToMap.js'
 import { setRectangleSelectTool } from './tools/rectangleSelect'
 import L from 'leaflet'
+import 'leaflet.markercluster/dist/leaflet.markercluster'
 import '@geoman-io/leaflet-geoman-free'
 
 const TILE_MAP_STORAGE_KEY = 'tw::map::tile'
@@ -151,6 +153,16 @@ const props = defineProps({
     default: undefined
   },
 
+  maxZoom: {
+    type: Number,
+    default: 18
+  },
+
+  minZoom: {
+    type: Number,
+    default: 0
+  },
+
   actions: {
     type: Boolean,
     default: false
@@ -159,6 +171,21 @@ const props = defineProps({
   selection: {
     type: Boolean,
     default: false
+  },
+
+  cluster: {
+    type: Boolean,
+    default: false
+  },
+
+  maxClusterRadius: {
+    type: Number,
+    default: 20
+  },
+
+  clusterIconCreateFunction: {
+    type: Function,
+    default: undefined
   }
 })
 
@@ -215,10 +242,15 @@ onMounted(() => {
   mapObject = L.map(leafletMap.value, {
     center: props.center,
     zoom: props.zoom,
-    worldCopyJump: true
+    worldCopyJump: true,
+    maxZoom: props.maxZoom
   })
 
-  drawnItems = new L.FeatureGroup()
+  mapObject.whenReady(() => addPatternToMap(mapObject.getContainer()))
+
+  drawnItems = props.cluster
+    ? new L.markerClusterGroup(makeClusterOptions())
+    : new L.FeatureGroup()
   drawnItems.addTo(mapObject)
 
   if (props.selection) {
@@ -405,6 +437,22 @@ function centerShapesInMap() {
 
 function getMapObject() {
   return mapObject
+}
+
+function makeClusterOptions() {
+  const opt = {
+    maxClusterRadius: props.maxClusterRadius
+  }
+
+  if (props.clusterIconCreateFunction) {
+    Object.assign(opt, {
+      iconCreateFunction: (cluster) => {
+        return props.clusterIconCreateFunction({ L, cluster })
+      }
+    })
+  }
+
+  return opt
 }
 
 defineExpose({

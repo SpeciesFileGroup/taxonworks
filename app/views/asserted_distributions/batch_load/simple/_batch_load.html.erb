@@ -6,12 +6,45 @@
       <h3> Description and requirements </h3>
 
       <p> Creates asserted distributions (distribution records for taxa, not specimens, from published accounts).
-        You must provide at least one of otu_name OR otu_id, if both provided otu_id will be used.
-        You must provide at least one of country, state, county, if more than one provided all will be used to match and
-        the finest recorded.
-        You must provide at least one of source_id, doi, citation, if more than provided priority of use is source_id,
-        doi, then citation.
-        <em> A text file with unix line endings is required.</em>
+        <ul class="no_bullets">
+          <li>
+            You must provide at least one of otu_name OR otu_id, if both provided otu_id will be used.
+          </li>
+          <li>
+            You must provide at least one of (with priority in the given order):
+            <ul>
+              <li>
+                geographic_area_id
+              </li>
+              <li>
+                geographic_area_name - you may need to select your 'Preferred gazetteer' in the dropdown as well to restrict to a unique match on name
+              </li>
+              <li>
+                country, state, county, if more than one provided all will be used to match and the finest recorded.
+              </li>
+            </ul>
+          </li>
+          <li>
+            You must provide at least one of source_id, doi, citation, if more than one provided priority of use is source_id, doi, then citation. Citation text must match the 'cached' column of an existing source at /sources/list.
+          </li>
+        </ul>
+      </p>
+      <p>
+        The upload file must:
+        <ul>
+          <li>
+            <em>be a text file using <b>tab</b> separated values</em> (not comma-separated)
+          </li>
+          <li>
+            include a header row naming the columns
+          </li>
+          <li>
+            have unix line endings
+          </li>
+          <li>
+            be utf-8 encoded
+          </li>
+        </ul>
       </p>
     </div>
 
@@ -21,8 +54,8 @@
 
         <tr class="underlined_rows">
           <td colspan="2">one of these</td>
-          <td colspan="4">this &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            OR one or more of these
+          <td colspan="5">this, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            this, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR one or more of these
           </td>
           <td colspan="3">one of these</td>
         </tr>
@@ -30,6 +63,7 @@
         <tr>
           <th>otu_name</th>
           <th>otu_id</th>
+          <th>geographic_area_id</th>
           <th>geographic_area_name</th>
           <th>country</th>
           <th>state</th>
@@ -43,7 +77,8 @@
           <td>Aus bus</td>
           <td></td>
           <td></td>
-          <td>Canada</td>
+          <td>12</td>
+          <td></td>
           <td>Saskatchewan</td>
           <td></td>
           <td>19</td>
@@ -54,7 +89,8 @@
         <tr>
           <td></td>
           <td>19</td>
-          <td>Alaska</td>
+          <td></td>
+          <td>Canada</td>
           <td></td>
           <td></td>
           <td></td>

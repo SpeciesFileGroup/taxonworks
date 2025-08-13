@@ -77,5 +77,8 @@ export const TaxonName = {
     }),
 
   batchUpdate: (params) =>
-    AjaxCall('patch', `/${model}/batch_update.json`, params)
+    AjaxCall('patch', `/${model}/batch_update.json`, params),
+
+  removeAuthors: (params) =>
+    AjaxCall('post', `/${model}/remove_authors.json`, params),
 }

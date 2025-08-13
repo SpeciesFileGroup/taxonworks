@@ -28,8 +28,13 @@
       absent-field
       lock-button
       use-session
-      @lock="lock.source = $event"
-    />
+      @lock="(e) => (lock.source = e)"
+      @update="sendBroadcast"
+    >
+      <template #tabs-right>
+        <VBroadcast v-model="isBroadcastActive" />
+      </template>
+    </FormCitation>
     <div class="margin-small-top margin-small-bottom">
       <VBtn
         v-if="assertedDistribution.id"
@@ -65,7 +70,8 @@
         :focus-on-select="lock.source"
         @select-shape="
           (shape) => {
-            assertedDistribution.asserted_distribution_shape_type = shape.shapeType
+            assertedDistribution.asserted_distribution_shape_type =
+              shape.shapeType
             assertedDistribution.asserted_distribution_shape_id = shape.id
             saveAssertedDistribution()
           }
@@ -103,16 +109,18 @@ import TableList from './table.vue'
 import DisplayList from '@/components/displayList.vue'
 import ShapePicker from '@/components/ui/SmartSelector/ShapePicker.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import VMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
+import VBroadcast from '@/components/ui/VBroadcast/VBroadcast.vue'
+import sortArray from '@/helpers/sortArray'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index'
 import { AssertedDistribution } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
 import { ref, computed, reactive } from 'vue'
-import sortArray from '@/helpers/sortArray'
+import { useBroadcastChannel } from '@/composables'
 
 const EXTEND_PARAMS = {
   embed: ['shape'],
@@ -145,6 +153,23 @@ const props = defineProps({
 const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
 })
+
+const isBroadcastActive = ref(false)
+
+const { post } = useBroadcastChannel({
+  name: 'citation',
+  onMessage({ data }) {
+    if (isBroadcastActive.value) {
+      citation.value = data
+    }
+  }
+})
+
+function sendBroadcast(data) {
+  if (isBroadcastActive.value) {
+    post(data)
+  }
+}
 
 const shapes = computed(() =>
   list.value.map((item) => {
@@ -240,7 +265,7 @@ function setDistribution(item) {
     asserted_distribution_object_type: item.asserted_distribution_object_type,
     is_absent: item.is_absent,
     asserted_distribution_shape_type: item.asserted_distribution_shape_type,
-    asserted_distribution_shape_id: item.asserted_distribution_shape_id,
+    asserted_distribution_shape_id: item.asserted_distribution_shape_id
   }
 
   editCitation.value = undefined

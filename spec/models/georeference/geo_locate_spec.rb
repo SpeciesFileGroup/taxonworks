@@ -69,6 +69,22 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
     end
   end
 
+  context 'create fails with bad iframe error polygons' do
+    let!(:ce) { FactoryBot.create(:valid_collecting_event)}
+
+    specify 'with one extra number' do
+      geo_locate.iframe_response = '41.449859 -98.220691 9100 41.53125216994986'
+      expect(geo_locate.save).to be_falsey
+      expect(geo_locate.errors[:base].first).to match('polygon')
+    end
+
+    specify 'with only one error polygon vertex' do
+      geo_locate.iframe_response = '41.449859 -98.220691 9100 41.53125216994986,-98.32855566566684'
+      expect(geo_locate.save).to be_falsey
+      expect(geo_locate.errors[:base].first).to match('polygon')
+    end
+  end
+
   context 'building a new instance from a copied iframe response' do
 
     specify 'is valid for a drawn point with no further metadata' do

@@ -3,15 +3,16 @@ import {
   TYPE_MATERIAL,
   COLLECTION_OBJECT,
   ASSERTED_DISTRIBUTION,
-  GEOREFERENCE
+  GEOREFERENCE,
+  MAP_SHAPE_AGGREGATE
 } from '@/constants'
-import makeGeoJSONObject from './makeGeoJSONObject'
 
 const TYPES = [
   TYPE_MATERIAL,
   COLLECTION_OBJECT,
   ASSERTED_DISTRIBUTION,
-  GEOREFERENCE
+  GEOREFERENCE,
+  MAP_SHAPE_AGGREGATE
 ]
 
 function getRelevantType(base) {
@@ -55,11 +56,10 @@ export default ({ L }) => ({
 
   style: (feature) => {
     const base = feature.properties.base
-    const type = base ? getRelevantType(feature.properties.base) : null
-    const style = feature.properties.style || SHAPES_CONFIG[type]
+    const type = base ? getRelevantType(base) : null
+    const style = feature.properties.style || SHAPES_CONFIG[type]?.style
+    const isAbsent = feature.properties.is_absent
 
-    if (style) {
-      return style
-    }
+    return isAbsent ? { ...style, ...SHAPES_CONFIG.Absent } : style
   }
 })

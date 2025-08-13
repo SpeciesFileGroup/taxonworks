@@ -110,7 +110,7 @@ module Export::Coldp::Files::Taxon
       .select("data_attributes.attribute_subject_id, STRING_AGG(data_attributes.value::text, ',') AS #{target}")
       .where(predicate: { uri: IRI_MAP[target] })
       .group('data_attributes.attribute_subject_id')
-      .map{|a| [a.id, a.send(:target)]}.to_h
+      .map{|a| [a.id, a.send(target)]}.to_h
   end
 
   # .generate(otus, project_members, otu_id, ref_tsv, skip_name_ids)
