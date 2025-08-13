@@ -254,7 +254,7 @@ function setPage(e) {
 }
 
 function setIsOriginal(e) {
-  const isOriginal = e.target.value
+  const isOriginal = convertType(e.target.value)
 
   setValues({ is_original: isOriginal })
 
