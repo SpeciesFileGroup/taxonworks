@@ -546,11 +546,6 @@ class Otu < ApplicationRecord
     ::Queries::DwcOccurrence::Filter.new(otu_id: id).all
   end
 
-  # Whether or not cached maps are created for this otu.
-  def is_cached_mapped?
-    taxon_name && taxon_name.is_protonym? && !taxon_name.is_species_rank?
-  end
-
   protected
 
   def check_required_fields
