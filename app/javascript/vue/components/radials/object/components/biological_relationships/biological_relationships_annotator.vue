@@ -106,7 +106,7 @@
       v-if="!biologicalRelation"
       ref="related"
       autofocus
-      :target="objectType"
+      :target="BIOLOGICAL_ASSOCIATION"
       class="separate-bottom separate-top"
       @select="biologicalRelation = $event"
     />
