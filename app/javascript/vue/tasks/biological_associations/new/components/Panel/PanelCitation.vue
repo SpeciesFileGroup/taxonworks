@@ -57,7 +57,9 @@ const { post } = useBroadcastChannel({
 
 function sendBroadcast(data) {
   if (isBroadcastActive.value) {
-    post(data)
+    const { id, uuid, global_id, ...rest } = data
+
+    post(rest)
   }
 }
 
