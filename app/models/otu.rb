@@ -283,7 +283,7 @@ class Otu < ApplicationRecord
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`
   # @return [Array]
   #   ids of the max 10 most recently used otus, as `used_on`
-  def self.used_recently(user_id, project_id, used_on = '')
+  def self.used_recently(user_id, project_id, used_on = '', ba_target = 'object')
     t = case used_on
         when 'AssertedDistribution'
           AssertedDistribution.arel_table
@@ -296,16 +296,22 @@ class Otu < ApplicationRecord
         else
           return Otu.none
         end
-
+    if ba_target == 'subject'
+      target_type = 'biological_association_subject_type'
+      target_id = 'biological_association_subject_id'
+    else
+      target_type = 'biological_association_object_type'
+      target_id = 'biological_association_object_id'
+    end
     p = Otu.arel_table
 
     # i is a select manager
     i = case used_on
         when 'BiologicalAssociation'
-          t.project(t['biological_association_object_id'], t['updated_at']).from(t)
+          t.project(t[target_id], t['updated_at']).from(t)
             .where(
               t['updated_at'].gt(1.week.ago).and(
-                t['biological_association_object_type'].eq('Otu')
+                t[target_type].eq('Otu')
               )
             )
             .where(t['updated_by_id'].eq(user_id))
@@ -331,7 +337,7 @@ class Otu < ApplicationRecord
     case used_on
     when 'BiologicalAssociation'
       Otu.joins(
-        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_association_object_id'].eq(p['id'])))
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z[target_id].eq(p['id'])))
       ).pluck(:id).uniq
     else
       Otu.joins(
@@ -342,8 +348,8 @@ class Otu < ApplicationRecord
 
   # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
   # @return [Hash] otus optimized for user selection
-  def self.select_optimized(user_id, project_id, target = nil)
-    r = used_recently(user_id, project_id, target)
+  def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
+    r = used_recently(user_id, project_id, target, ba_target)
 
     q = Otu.where(project_id:).includes(:taxon_name) # faster than eager_load(), even with n+1
 
