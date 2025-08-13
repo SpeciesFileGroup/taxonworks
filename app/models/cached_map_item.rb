@@ -301,7 +301,6 @@ class CachedMapItem < ApplicationRecord
 
     otu = nil
     return h if otu_id.nil? || (otu = Otu.find_by(id: otu_id)).nil?
-    return h if !otu.is_cached_mapped?
 
     # Some AssertedDistribution don't have shapes
     if geographic_item_id
