@@ -29,10 +29,10 @@
             </VBtn>
           </div>
         </div>
-        <input-component
+        <PanelTaxonNames
           v-model:names="names"
           v-model="params"
-          @lines="lines = $event"
+          :lines="lines"
         />
         <FacetValidity v-model="params" />
       </div>
@@ -107,7 +107,7 @@ import { TAXON_NAME } from '@/constants'
 import { FILTER_TAXON_NAME } from '@/components/radials/filter/constants/filterLinks'
 import TableMatched from './components/Table/TableMatched.vue'
 import TableUnmatched from './components/Table/TableUnmatched.vue'
-import InputComponent from './components/InputComponent.vue'
+import PanelTaxonNames from './components/PanelTaxonNames.vue'
 import VSpinner from '@/components/ui/VSpinner'
 import VNavbar from '@/components/layout/NavBar'
 import CSVButton from '@/components/csvButton.vue'
@@ -159,9 +159,14 @@ function reset() {
 }
 
 const matchedIds = computed(() => matches.value.map((m) => m.taxon.id))
-const lines = computed(() =>
-  names.value.split('\n').filter((line) => line.trim().length)
-)
+const lines = computed(() => [
+  ...new Set(
+    names.value
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean)
+  )
+])
 
 function GetMatches() {
   const lineRequests = {}
@@ -191,7 +196,7 @@ function GetMatches() {
 
       const validNames = validTaxonNameIDs.length
         ? (
-            await TaxonName.all({
+            await TaxonName.filter({
               taxon_name_id: [...new Set(validTaxonNameIDs)]
             })
           ).body

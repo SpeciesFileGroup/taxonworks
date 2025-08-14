@@ -412,7 +412,7 @@ class Combination < TaxonName
 
       name_target = gender.nil? ? rank.to_sym : (rank + '_' + gender).to_sym
 
-      # TODO: add verbatim to row
+      # !! TODO: add verbatim to row
       #
       name = row[name_target] || row[rank.to_sym] || row[(rank + '_' + 'verbatim')]
 
@@ -431,6 +431,7 @@ class Combination < TaxonName
   end
 
   # TODO: consider an 'include_cached_misspelling' Boolean to extend result to include `cached_misspelling`
+  # !! References name, not cached, so 'sic' is not possible
   def self.flattened
     s = []
     abbreviation_cutoff = 'subspecies'
@@ -439,7 +440,8 @@ class Combination < TaxonName
       s.push "MAX(combination_taxon_names_taxon_names.name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank},
               MAX(combination_taxon_names_taxon_names.neuter_name) FILTER (WHERE taxon_name_relationships.type  = '#{t}') AS #{rank}_neuter,
               MAX(combination_taxon_names_taxon_names.masculine_name) FILTER (WHERE taxon_name_relationships.type =  '#{t}') AS #{rank}_masculine,
-              MAX(combination_taxon_names_taxon_names.feminine_name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_feminine"
+              MAX(combination_taxon_names_taxon_names.feminine_name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_feminine,
+              MAX(combination_taxon_names_taxon_names.cached) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_cached"
 
       if abbreviate
         s.push "MAX(combination_taxon_names_taxon_names.rank_class) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_rank_class"

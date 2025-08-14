@@ -301,7 +301,9 @@ class CachedMapItem < ApplicationRecord
 
     otu = nil
     return h if otu_id.nil? || (otu = Otu.find_by(id: otu_id)).nil?
-    return h if !otu.is_cached_mapped?
+    # otus without taxon name have no hierarchy, so don't contribute to cached
+    # maps.
+    return h if !otu.taxon_name_id
 
     # Some AssertedDistribution don't have shapes
     if geographic_item_id

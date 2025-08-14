@@ -3,8 +3,8 @@
     <legend>Biological relationship</legend>
     <SmartSelector
       model="biological_relationships"
-      :target="FIELD_OCCURRENCE"
-      :klass="FIELD_OCCURRENCE"
+      :target="BIOLOGICAL_ASSOCIATION"
+      :klass="BIOLOGICAL_ASSOCIATION"
       pin-section="BiologicalRelationships"
       buttons
       inline
@@ -19,7 +19,11 @@
 
 <script setup>
 import { BiologicalRelationship } from '@/routes/endpoints'
-import { BIOLOGICAL_RELATIONSHIP, FIELD_OCCURRENCE } from '@/constants'
+import {
+  BIOLOGICAL_ASSOCIATION,
+  BIOLOGICAL_RELATIONSHIP,
+  FIELD_OCCURRENCE
+} from '@/constants'
 import { ref } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 

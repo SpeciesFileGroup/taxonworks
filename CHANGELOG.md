@@ -7,16 +7,30 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- Match taxon names task sometimes doesn't work with long name lists of names [#4523]
+
+[#4523]: https://github.com/SpeciesFileGroup/taxonworks/issues/4523
+
+## [0.53.1] - 2025-08-13
+
 ### Added
 
 - Match taxon names: Total count for matched/unmatched tables [#4509]
+- Match taxon names: remove authors option
+- Broadcast toggle to new asserted distribution and new biological associations [#4507]
+- Browse OTU: Maps now display clusters to group nearby points for performance and better visualization
 
 ### Fixed
 
 - Observations API response
 - Simple TaxonName batch loader rendering and author values
 - Missing map in asserted distribution view [#4515]
-- ColDP column alignment, gender agreement (candidate), and infraspecies rendering 
+- Batch Asserted Distribution upload (for Otus and Geographic Areas) [#4268]
+- Vue devtools integration for 'openInEditor'
+- Cached maps no longer include is_absent AssertedDistribution data [#4506]
+- ColDP column alignment, gender agreement (candidate), rendering of infraspecies, "sic", years, scope including Combinations for leaf names
 
 ### Changed
 
@@ -24,7 +38,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Match taxon names: new layout
 - Slide panel buttons are now more hidden to avoid overlapping issues with the rest of the interface. [#4512]
 
+[#4268]: https://github.com/SpeciesFileGroup/taxonworks/issues/4268
+[#4506]: https://github.com/SpeciesFileGroup/taxonworks/issues/4506
+[#4507]: https://github.com/SpeciesFileGroup/taxonworks/issues/4507
 [#4508]: https://github.com/SpeciesFileGroup/taxonworks/issues/4508
+[#4509]: https://github.com/SpeciesFileGroup/taxonworks/issues/4509
 [#4512]: https://github.com/SpeciesFileGroup/taxonworks/issues/4512
 [#4515]: https://github.com/SpeciesFileGroup/taxonworks/issues/4515
 
@@ -5586,7 +5604,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.1...development
+[0.53.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.0...v0.53.1
 [0.53.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.2...v0.53.0
 [0.52.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.1...v0.52.2
 [0.52.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.0...v0.52.1

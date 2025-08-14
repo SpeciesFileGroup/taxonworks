@@ -140,39 +140,72 @@ class FieldOccurrence < ApplicationRecord
     reject
   end
 
-  # @param used_on [String] required, currently only `TaxonDetermination` is
-  #   accepted
+  # @param used_on [String]
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
-  def self.used_recently(user_id, project_id, used_on = '')
-    return [] if used_on != 'TaxonDetermination'
-    a = case used_on
-      when 'TaxonDetermination'
-        TaxonDetermination
-          .select(:taxon_determination_object_id,
-            :taxon_determination_object_type, :updated_at)
-          .where('updated_at > ?', 1.week.ago )
-          .where(updated_by_id: user_id)
-          .where(project_id:)
-          .order(updated_at: :desc)
-      end
+  def self.used_recently(user_id, project_id, used_on = '', ba_target = 'object')
+    return [] if used_on != 'TaxonDetermination' && used_on != 'BiologicalAssociation'
+    t = case used_on
+        when 'TaxonDetermination'
+          TaxonDetermination.arel_table
+        when 'BiologicalAssociation'
+          BiologicalAssociation.arel_table
+        end
+    if ba_target == 'subject'
+      target_type = 'biological_association_subject_type'
+      target_id = 'biological_association_subject_id'
+    else
+      target_type = 'biological_association_object_type'
+      target_id = 'biological_association_object_id'
+    end
 
-      FieldOccurrence
-        .with(recent_t: a)
-        .joins("JOIN recent_t ON recent_t.taxon_determination_object_id = field_occurrences.id AND recent_t.taxon_determination_object_type = 'FieldOccurrence'")
-        .pluck(:id).uniq
+    p = FieldOccurrence.arel_table
+
+    # i is a select manager
+    i = case used_on
+        when 'BiologicalAssociation'
+          t.project(t[target_id], t['updated_at']).from(t)
+           .where(t[target_type].eq('FieldOccurrence'))
+           .where(t['updated_at'].gt(1.week.ago))
+           .where(t['updated_by_id'].eq(user_id))
+           .where(t['project_id'].eq(project_id))
+           .order(t['updated_at'].desc)
+        else
+          # TODO: update to reference new TaxonDetermination
+          t.project(t['taxon_determination_object_id'], t['updated_at']).from(t)
+           .where(t['taxon_determination_object_type'].eq('FieldOccurrence'))
+           .where(t['updated_at'].gt( 1.week.ago ))
+           .where(t['updated_by_id'].eq(user_id))
+           .where(t['project_id'].eq(project_id))
+           .order(t['updated_at'].desc)
+        end
+
+    # z is a table alias
+    z = i.as('recent_t')
+
+    j = case used_on
+        when 'BiologicalAssociation'
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+            z[target_id].eq(p['id'])
+          ))
+        else
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+            z['taxon_determination_object_id'].eq(p['id'])))
+        end
+
+    FieldOccurrence.joins(j).pluck(:id).uniq
   end
 
   # @params target [String] currently only 'TaxonDetermination' is accepted
   # @return [Hash] field_occurrences optimized for user selection
-  def self.select_optimized(user_id, project_id, target = nil)
+  def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
     h = {
       quick: [],
       pinboard: FieldOccurrence.pinned_by(user_id).where(project_id:).to_a,
       recent: []
     }
 
-    if target && !(r = used_recently(user_id, project_id, target)).empty?
+    if target && !(r = used_recently(user_id, project_id, target, ba_target)).empty?
       h[:recent] = FieldOccurrence.where(id: r.first(10)).to_a
       h[:quick] = (
         FieldOccurrence

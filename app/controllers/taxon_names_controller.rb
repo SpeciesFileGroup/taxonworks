@@ -223,7 +223,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def remove_authors
-    names = TaxonName.remove_authors(params['names'])
+    names = TaxonName.remove_authors(params['names'].first(5000))
     render json: { names: }
   end
 

@@ -32,6 +32,7 @@
         :placeholder="tabData['searchbox_text'] || `Search for a ${tabData['human']}`"
         :model="tabData['snake']"
         :label="label"
+        v-bind="tabData.smartSelector"
         :autocomplete-params="tabData['polymorphic_types_allowed'] || {}"
         klass="AssertedDistribution"
         target="AssertedDistribution"

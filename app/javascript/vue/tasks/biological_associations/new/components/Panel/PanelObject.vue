@@ -17,9 +17,13 @@
           :klass="BIOLOGICAL_ASSOCIATION"
           :target="BIOLOGICAL_ASSOCIATION"
           :pin-section="currentTab"
+          :otu-picker="currentTab === OTU"
           :pin-type="currentTab"
+          :params="smartSelectorParams"
+          @selected="broadcastObject"
         >
           <template #tabs-right>
+            <VBroadcast v-model="isBroadcastActive" />
             <VLock v-model="lock" />
           </template>
         </SmartSelector>
@@ -38,27 +42,49 @@
 
 <script setup>
 import { ref } from 'vue'
-import { BIOLOGICAL_ASSOCIATION, COLLECTION_OBJECT, FIELD_OCCURRENCE, OTU } from '@/constants'
+import {
+  BIOLOGICAL_ASSOCIATION,
+  COLLECTION_OBJECT,
+  FIELD_OCCURRENCE,
+  OTU
+} from '@/constants'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 import VLock from '@/components/ui/VLock/index.vue'
+import { useBroadcastChannel } from '@/composables'
+import VBroadcast from '@/components/ui/VBroadcast/VBroadcast.vue'
 
 const TABS = {
   [OTU]: 'otus',
   [COLLECTION_OBJECT]: 'collection_objects',
-  [FIELD_OCCURRENCE]: 'field_occurrences',
+  [FIELD_OCCURRENCE]: 'field_occurrences'
 }
 
 defineProps({
   title: {
     type: String,
     required: true
+  },
+
+  smartSelectorParams: {
+    type: Object,
+    default: undefined
+  }
+})
+
+const { post } = useBroadcastChannel({
+  name: 'otuObject',
+  onMessage({ data }) {
+    if (isBroadcastActive.value) {
+      selected.value = data
+    }
   }
 })
 
 const currentTab = ref(OTU)
+const isBroadcastActive = ref(false)
 
 const selected = defineModel({
   type: Object,
@@ -69,4 +95,10 @@ const lock = defineModel('lock', {
   type: Boolean,
   default: false
 })
+
+function broadcastObject(otu) {
+  if (isBroadcastActive.value) {
+    post(otu)
+  }
+}
 </script>
