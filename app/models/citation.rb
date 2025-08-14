@@ -154,8 +154,11 @@ class Citation < ApplicationRecord
   def prevent_if_required
     unless citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
       if citation_object.requires_citation? && citation_object.citations.count == 1
-        errors.add(:base, 'at least one citation is required')
-        throw :abort
+        # Must add error to citation_object *and* raise error on citation (not
+        # just throw(:abort)) in order for parent to get the error for has_one
+        # _deletes (maybe others).
+        citation_object.errors.add(:base, 'at least one citation is required')
+        raise ActiveRecord::RecordInvalid.new(citation_object)
       end
     end
   end

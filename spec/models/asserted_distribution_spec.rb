@@ -150,18 +150,6 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         asserted_distribution.asserted_distribution_object = otu
       end
 
-      specify 'citations count works after save through source' do
-        asserted_distribution.source = source
-        asserted_distribution.save!
-
-        # If we load/iterate the citations association during AD validation
-        # after assignment through source, the association is empty because the
-        # citation the source determines hasn't been created yet, and then
-        # citations stays empty until we reload/reset the association. Check
-        # that we're doing that.
-        expect(asserted_distribution.citations.first.source.id).to eq(source.id)
-      end
-
       specify 'absence of #source, #origin_citation, #citations invalidates' do
         expect(asserted_distribution.valid?).to be_falsey
         expect(asserted_distribution.errors.include?(:base)).to be_truthy
@@ -214,6 +202,35 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         expect(a.citations.count).to eq(1)
       end
 
+      context 'record associations after validation work' do
+        specify 'citations associations work after save through source' do
+          asserted_distribution.source = source
+          asserted_distribution.save!
+
+          # With our associations, saving .source automatically creates
+          # origin_citation and citations.first.
+          expect(asserted_distribution.citations.first.source.id).to be_truthy
+          expect(asserted_distribution.origin_citation.source.id).to be_truthy
+          expect(asserted_distribution.source.id).to be_truthy
+        end
+
+        specify 'citations associations work after save through origin_citation' do
+          asserted_distribution.origin_citation = Citation.new(source:)
+          asserted_distribution.save!
+
+          # With our associations, saving .origin_citation automatically creates citations.first but *not* source.
+          expect(asserted_distribution.citations.first.source.id).to be_truthy
+          expect(asserted_distribution.origin_citation.source.id).to be_truthy
+        end
+
+        specify 'citations associations work after save through citations_attributes' do
+          asserted_distribution.citations_attributes = [{source:}]
+          asserted_distribution.save!
+
+          expect(asserted_distribution.citations.first.source.id).to be_truthy
+        end
+      end
+
       context 'attempting to delete last citation' do
         specify 'permitted when deleting self 1' do
           asserted_distribution.origin_citation = Citation.new(source:)
@@ -233,24 +250,26 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
           asserted_distribution.source = source
           asserted_distribution.save!
           expect(asserted_distribution.citations.count).to eq(1)
-          expect(asserted_distribution.citations.reload.first.destroy).to be_falsey
+          expect{asserted_distribution.origin_citation.destroy}
+            .to raise_error(ActiveRecord::RecordInvalid, /citation/)
         end
 
         specify 'when citation is not origin citation' do
           asserted_distribution.citations << Citation.new(source:)
           expect(asserted_distribution.save).to be_truthy
           expect(asserted_distribution.citations.count).to eq(1)
-          expect(asserted_distribution.citations.reload.first.destroy).to be_falsey
+          expect{asserted_distribution.citations.first.destroy}
+            .to raise_error(ActiveRecord::RecordInvalid, /citation/)
         end
 
         context 'with _delete / marked_for_destruction' do
-          specify 'origin citation via a nested attribute delete is NOT allowed' do
+          specify 'origin citation via a nested attribute delete' do
             asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
             asserted_distribution.save!
             expect(asserted_distribution.origin_citation).to be_truthy
             expect{asserted_distribution.update!(origin_citation_attributes: {
               _destroy: true, id: asserted_distribution.origin_citation.id
-            })}.to raise_error(ArgumentError)
+            })}.to raise_error(ActiveRecord::RecordInvalid, /citation/)
           end
 
           specify 'not-origin-citation via a nested attribute delete' do
@@ -259,7 +278,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
             expect(asserted_distribution.citations.count).to eq(1)
             expect{asserted_distribution.update!(citations_attributes: {
               _destroy: true, id: asserted_distribution.citations.first.id
-            })}.to raise_error(ActiveRecord::RecordNotDestroyed)
+            })}.to raise_error(ActiveRecord::RecordInvalid, /citation/)
           end
 
           specify 'trying to save citation with marked_for_destruction citation' do
@@ -267,7 +286,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
             asserted_distribution.mark_citations_for_destruction
 
             expect{asserted_distribution.save!}
-              .to raise_error(ActiveRecord::RecordInvalid)
+              .to raise_error(ActiveRecord::RecordInvalid, /citation/)
           end
 
           specify 'trying to save origin citation with marked_for_destruction citation' do
@@ -275,7 +294,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
             asserted_distribution.origin_citation.mark_for_destruction
 
             expect{asserted_distribution.save!}
-              .to raise_error(ActiveRecord::RecordInvalid)
+              .to raise_error(ActiveRecord::RecordInvalid, /citation/)
           end
         end
       end

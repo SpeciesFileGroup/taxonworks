@@ -126,15 +126,6 @@ class AssertedDistribution < ApplicationRecord
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area, name: 'conflicting geographic area', description: 'conflicting geographic area')
 
-  # Do NOT allow origin_citation destroy via nested attributes.
-  def origin_citation_attributes=(attrs)
-    if attrs[:_destroy].in?([true, 'true']) || attrs['_destroy'].in?([true, 'true'])
-      raise ArgumentError, 'Cannot destroy origin citation via nested attributes!'
-    else
-      super(attrs)
-    end
-  end
-
   # getter for attr :geographic_names
   def geographic_names
     return @geographic_names if !@geographic_names.nil?
@@ -335,21 +326,37 @@ class AssertedDistribution < ApplicationRecord
 
   # @return [Boolean]
   def new_records_include_citation
+    # !! Be careful making changes here: remember that conditions on one
+    # association may/not affect other associations when the actual save
+    # happens.
+    # Maintain with FieldOccurrence#new_records_include_taxon_determination
     has_valid_citation =
       citations.count(&:marked_for_destruction?) < citations.size
-    has_valid_origin_citation = origin_citation && !origin_citation.marked_for_destruction?
+    has_valid_origin_citation =
+      origin_citation && !origin_citation.marked_for_destruction?
 
-    if new_record? && source.blank? &&
-       !has_valid_origin_citation && !has_valid_citation
+    # If we remove the origin_citation and that's the only citation, none will
+    # be left after save.
+    last_is_origin_citation_to_be_removed =
+      origin_citation && origin_citation.marked_for_destruction? && citations.size == 1
+
+    if new_record? && source.blank? && (
+      (!has_valid_origin_citation && !has_valid_citation) ||
+      last_is_origin_citation_to_be_removed
+    )
       errors.add(:base, 'required citation is not provided')
+      return
     end
 
-    # We loaded the citations association, but if source.present? then citations
-    # may be currently empty. Reset the association so that when citations is
-    # populated in the db by source after save, the cached citations association
-    # doesn't remain empty.
-    if source.present? && citations.size == 0
+    # We loaded the citations association above. If it was empty, Rails caches
+    # that value and *will not* add a citation created during save from source
+    # or origin_citation unless we reset the citations association.
+    if (source.present? || origin_citation.present?) && citations.size == 0
       association(:citations).reset
+    end
+
+    if source.present? && origin_citation.nil?
+      association(:origin_citation).reset
     end
   end
 

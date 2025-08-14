@@ -85,6 +85,36 @@ RSpec.describe FieldOccurrence, type: :model do
       expect(a.taxon_determinations.count).to eq(1)
     end
 
+    context 'record associations after validation work' do
+      specify 'taxon_determination associations work after save through otu' do
+        field_occurrence.otu = otu
+        field_occurrence.save!
+
+        # With our associations, saving .otu automatically creates
+        # taxon_determination and taxon_determinations.first.
+        expect(field_occurrence.taxon_determinations.first.otu.id).to be_truthy
+        expect(field_occurrence.taxon_determination.otu.id).to be_truthy
+        expect(field_occurrence.otu.id).to be_truthy
+      end
+
+      specify 'taxon_determination associations work after save through taxon_determination' do
+        field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
+        field_occurrence.save!
+
+        # With our associations, saving .taxon_determination automatically
+        # creates taxon_determinations.first, but *not* otu.
+        expect(field_occurrence.taxon_determinations.first.otu.id).to be_truthy
+        expect(field_occurrence.taxon_determination.otu.id).to be_truthy
+      end
+
+      specify 'taxon_determination associations work after save through taxon_determinations_attributes' do
+        field_occurrence.taxon_determinations_attributes = [{otu:}]
+        field_occurrence.save!
+
+        expect(field_occurrence.taxon_determinations.first.otu.id).to be_truthy
+      end
+    end
+
     context 'attempting to delete last taxon_determination' do
       specify 'permitted when deleting self 1' do
         field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
@@ -104,33 +134,26 @@ RSpec.describe FieldOccurrence, type: :model do
         field_occurrence.otu = otu
         field_occurrence.save!
         expect(field_occurrence.taxon_determinations.count).to eq(1)
-        expect(field_occurrence.taxon_determinations.reload.first.destroy).to be_falsey
+        expect{field_occurrence.taxon_determinations.reload.first.destroy}
+          .to raise_error(ActiveRecord::RecordInvalid, /citation/)
       end
 
       specify 'when taxon_determination is via <<' do
         field_occurrence.taxon_determinations <<  TaxonDetermination.new(otu:)
         expect(field_occurrence.save).to be_truthy
         expect(field_occurrence.taxon_determinations.count).to eq(1)
-        expect(field_occurrence.taxon_determinations.reload.first.destroy).to be_falsey
+        expect{field_occurrence.taxon_determinations.reload.first.destroy}
+          .to raise_error(ActiveRecord::RecordInvalid, /citation/)
       end
 
       context 'with _delete / marked_for_destruction' do
-        specify 'taxon determination (singular!) via a nested attribute delete is NOT allowed' do
-          field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
-          field_occurrence.save!
-          expect(field_occurrence.taxon_determination).to be_truthy
-          expect{field_occurrence.update!(taxon_determination_attributes: {
-            _destroy: true, id: field_occurrence.taxon_determination.id
-          })}.to raise_error(ArgumentError)
-        end
-
         specify 'via a nested attribute delete' do
           field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
           field_occurrence.save!
           expect(field_occurrence.taxon_determinations.count).to eq(1)
           expect{field_occurrence.update!(taxon_determinations_attributes: {
             _destroy: true, id: field_occurrence.taxon_determinations.first.id
-          })}.to raise_error(ActiveRecord::RecordNotDestroyed)
+          })}.to raise_error(ActiveRecord::RecordInvalid, /citation/)
         end
 
         specify 'trying to save field_occurrence with marked_for_destruction taxon_determinations' do
@@ -138,7 +161,7 @@ RSpec.describe FieldOccurrence, type: :model do
           field_occurrence.taxon_determinations.first.mark_for_destruction
 
           expect{field_occurrence.save!}
-            .to raise_error(ActiveRecord::RecordInvalid)
+            .to raise_error(ActiveRecord::RecordInvalid, /taxon determination/)
         end
 
         specify 'trying to save field_occurrence with marked_for_destruction taxon_determination' do
@@ -146,7 +169,7 @@ RSpec.describe FieldOccurrence, type: :model do
           field_occurrence.taxon_determination.mark_for_destruction
 
           expect{field_occurrence.save!}
-            .to raise_error(ActiveRecord::RecordInvalid)
+            .to raise_error(ActiveRecord::RecordInvalid, /taxon determination/)
         end
       end
     end

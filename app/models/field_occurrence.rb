@@ -68,15 +68,6 @@ class FieldOccurrence < ApplicationRecord
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
-  # Do NOT allow taxon_determination (singular!) destroy via nested attributes.
-  def taxon_determination_attributes=(attrs)
-    if attrs[:_destroy].in?([true, 'true']) || attrs['_destroy'].in?([true, 'true'])
-      raise ArgumentError, 'Cannot destroy taxon determination (singular!) via nested attributes!'
-    else
-      super(attrs)
-    end
-  end
-
   def requires_taxon_determination?
     true
   end
@@ -101,22 +92,38 @@ class FieldOccurrence < ApplicationRecord
 
   # @return [Boolean]
   def new_records_include_taxon_determination
+    # !! Be careful making changes here: remember that conditions on one
+    # association may/not affect other associations when the actual save
+    # happens.
+    # Maintain with AssertedDistribution#new_records_include_citation
     has_valid_taxon_determinations = taxon_determinations.count(&:marked_for_destruction?) < taxon_determinations.size
 
     has_valid_taxon_determination =
       taxon_determination && !taxon_determination.marked_for_destruction?
 
-    if new_record? && otu.blank? &&
-       !has_valid_taxon_determination && !has_valid_taxon_determinations
+    # If we remove taxon_determination (singular!) and that's the only TD, none
+    # will be left after save.
+    last_is_taxon_determination_to_be_removed =
+      taxon_determination && taxon_determination.marked_for_destruction? && taxon_determinations.size == 1
+
+    if new_record? && otu.blank? && (
+       (!has_valid_taxon_determination && !has_valid_taxon_determinations) ||
+       last_is_taxon_determination_to_be_removed
+    )
       errors.add(:base, 'required taxon determination is not provided')
+      return
     end
 
-    # We loaded the citations association, but if source.present? then citations
-    # may be currently empty. Reset the association so that when citations is
-    # populated in the db by source after save, the cached citations association
-    # doesn't remain empty.
-    if otu.present? && taxon_determinations.size == 0
+    # We loaded the taxon_determinations association above. If it was empty,
+    # Rails caches that value and *will not* add a determination created during
+    # save from otu or taxon_determination unless we reset the citations
+    # association.
+    if (otu.present? || taxon_determination.present?) && taxon_determinations.size == 0
       association(:taxon_determinations).reset
+    end
+
+    if otu.present? && taxon_determination.nil?
+      association(:taxon_determination).reset
     end
   end
 
