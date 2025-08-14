@@ -129,7 +129,7 @@ describe AssertedDistributionsController, type: :controller do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         update_params = ActionController::Parameters.new({is_absent: 'true'}).permit(:is_absent)
-        expect_any_instance_of(AssertedDistribution).to receive(:update).with(update_params)
+        expect_any_instance_of(AssertedDistribution).to receive(:update!).with(update_params)
         put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {is_absent: 'true'}}, session: valid_session
       end
 
@@ -160,7 +160,7 @@ describe AssertedDistributionsController, type: :controller do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AssertedDistribution).to receive(:save).and_return(false)
         put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {verbatim_label: 'invalid value'}}, session: valid_session
-        expect(response).to render_template('edit')
+        expect(response).to redirect_to(asserted_distribution)
       end
     end
   end
