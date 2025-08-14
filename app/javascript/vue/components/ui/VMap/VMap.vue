@@ -9,13 +9,10 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import { Icon } from '@/components/georeferences/icons'
-import {
-  MAP_TILES,
-  DRAW_CONTROLS_MODE,
-  DRAW_CONTROLS_DEFAULT_CONFIG
-} from './constants'
+import { DRAW_CONTROLS_MODE, DRAW_CONTROLS_DEFAULT_CONFIG } from './constants'
 import geojsonOptions from './utils/geojsonOptions'
 import makeGeoJSONObject from './utils/makeGeoJSONObject'
+import { getMapTiles } from './utils/getMapTiles'
 import { addPatternToMap } from './utils/addPatternToMap.js'
 import { setRectangleSelectTool } from './tools/rectangleSelect'
 import L from 'leaflet'
@@ -206,6 +203,7 @@ const emit = defineEmits([
 ])
 
 const leafletMap = ref(null)
+const tileLayers = getMapTiles()
 let observeMap
 
 const fitBoundsOptions = computed(() => ({
@@ -245,6 +243,8 @@ onMounted(() => {
     worldCopyJump: true,
     maxZoom: props.maxZoom
   })
+
+  getDefaultTile().addTo(mapObject)
 
   mapObject.whenReady(() => addPatternToMap(mapObject.getContainer()))
 
@@ -348,10 +348,9 @@ function addEventsToLayer(layer) {
 }
 
 const addDrawControllers = () => {
-  getDefaultTile().addTo(mapObject)
   if (props.tilesSelection) {
     L.control
-      .layers(MAP_TILES, {}, { position: 'topleft', collapsed: false })
+      .layers(tileLayers, {}, { position: 'topleft', collapsed: false })
       .addTo(mapObject)
   }
 
@@ -398,7 +397,7 @@ function handleEvents() {
 function getDefaultTile() {
   const defaultTile = localStorage.getItem(TILE_MAP_STORAGE_KEY)
 
-  return MAP_TILES[defaultTile] || MAP_TILES.OSM
+  return tileLayers[defaultTile] || tileLayers.OSM
 }
 
 function geoJSON(geoJsonFeatures) {
