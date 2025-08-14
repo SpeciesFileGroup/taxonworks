@@ -223,7 +223,7 @@ module OtusHelper
       }
     }
 
-    if taxon_name && taxon_name.is_protonym? && !taxon_name.is_species_rank?
+    if otu.taxon_name && otu.taxon_name.is_protonym? && !otu.taxon_name.is_species_rank?
       add_aggregate_geo_json(otu, h)
     else
       otus.each do |o|
