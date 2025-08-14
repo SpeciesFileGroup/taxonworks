@@ -110,8 +110,7 @@ class FieldOccurrence < ApplicationRecord
     reject
   end
 
-  # @param used_on [String] required, currently only `TaxonDetermination` is
-  #   accepted
+  # @param used_on [String]
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
   def self.used_recently(user_id, project_id, used_on = '', ba_target = 'object')
@@ -136,17 +135,15 @@ class FieldOccurrence < ApplicationRecord
     i = case used_on
         when 'BiologicalAssociation'
           t.project(t[target_id], t['updated_at']).from(t)
-           .where(
-             t['updated_at'].gt(1.week.ago).and(
-               t[target_type].eq('FieldOccurrence')
-             )
-           )
+           .where(t[target_type].eq('FieldOccurrence'))
+           .where(t['updated_at'].gt(1.week.ago))
            .where(t['updated_by_id'].eq(user_id))
            .where(t['project_id'].eq(project_id))
            .order(t['updated_at'].desc)
         else
           # TODO: update to reference new TaxonDetermination
-          t.project(t['taxon_determination_object_id'], t['taxon_determination_object_type'], t['updated_at']).from(t)
+          t.project(t['taxon_determination_object_id'], t['updated_at']).from(t)
+           .where(t['taxon_determination_object_type'].eq('FieldOccurrence'))
            .where(t['updated_at'].gt( 1.week.ago ))
            .where(t['updated_by_id'].eq(user_id))
            .where(t['project_id'].eq(project_id))
@@ -162,8 +159,8 @@ class FieldOccurrence < ApplicationRecord
             z[target_id].eq(p['id'])
           ))
         else
-          # TODO: needs to be fixed to scope the taxon_determination_object_type
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['taxon_determination_object_id'].eq(p['id'])))
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+            z['taxon_determination_object_id'].eq(p['id'])))
         end
 
     FieldOccurrence.joins(j).pluck(:id).uniq
