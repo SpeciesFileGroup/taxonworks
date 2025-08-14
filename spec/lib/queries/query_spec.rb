@@ -42,16 +42,16 @@ describe Queries::Query, type: :model do
     end
 
     specify '1 query, distinct results' do
-      expect(query.referenced_klass_union(Otu, [qcross]).map(&:id)).to contain_exactly(o1.id, o2.id, o3.id)
+      expect(query.referenced_klass_union([qcross]).map(&:id)).to contain_exactly(o1.id, o2.id, o3.id)
     end
 
     specify '2 queries, distinct results' do
-      expect(query.referenced_klass_union(Otu, [q1, q2]).map(&:id)).to contain_exactly(o1.id, o2.id, o3.id)
+      expect(query.referenced_klass_union([q1, q2]).map(&:id)).to contain_exactly(o1.id, o2.id, o3.id)
     end
 
     specify '2 queries, one None, distinct results' do
       expect(qcross.count).to eq(9)
-      expect(query.referenced_klass_union(Otu, [qcross, Otu.none]).map(&:id)).to contain_exactly(o1.id, o2.id, o3.id)
+      expect(query.referenced_klass_union([qcross, Otu.none]).map(&:id)).to contain_exactly(o1.id, o2.id, o3.id)
     end
   end
 end
