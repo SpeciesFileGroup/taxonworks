@@ -15,11 +15,18 @@
 
 <div class="flexbox separate-bottom flex-wrap-row">
   <div class="panel content">
-    <h2> AssertedDistribution </h2>
+    <h2> Otu AssertedDistributions </h2>
+    <% q = AssertedDistribution
+      .with_otus
+      .without_is_absent
+    %>
     <table>
       <tr><td>Total</td><td><%= tag.strong AssertedDistribution.count %></td></tr>
-      <tr><td>Unregistered</td><td><%= tag.strong AssertedDistribution.where.missing(:cached_map_register).count %></td></tr>
-      <tr><td>Registered</td><td><%= tag.strong AssertedDistribution.joins(:cached_map_register).count %></td></tr>
+      <tr><td>Total with OTUs (with is_absent = nil)</td><td><%= tag.strong q.count %></td></tr>
+      <tr><td>Registered</td><td class="padding-large-left"><%= tag.strong CachedMapRegister.where(cached_map_register_object_type: 'AssertedDistribution').count %></td></tr>
+      <tr><td>Unregistered (missing taxon_name?)</td><td class="padding-large-left"><%= tag.strong q.where.missing(:cached_map_register).count %></td></tr>
+      <tr><td>Unused (is_absent = true or no otu taxon_name_id)</td>
+          <td><%= AssertedDistribution.with_otus.where('otus.taxon_name_id IS NULL OR is_absent = TRUE').count %></td>
     </table>
   </div>
 </div>
@@ -30,8 +37,8 @@
     <table>
       <tr><td>Total</td><td><%= tag.strong Georeference.count %></td></tr>
       <tr><td>Total with OTUs</td><td><%= tag.strong Georeference.joins(:otus).distinct.count %></td></tr>
-      <tr><td>Unregistered</td><td><%= tag.strong Georeference.joins(:otus).where.missing(:cached_map_register).distinct.count %></td></tr>
-      <tr><td>Registered</td><td><%= tag.strong Georeference.joins(:cached_map_register).distinct.count %></td></tr>
+      <tr><td>Registered</td><td class="padding-large-left"><%= tag.strong Georeference.joins(:cached_map_register).distinct.count %></td></tr>
+      <tr><td>Unregistered</td><td class="padding-large-left"><%= tag.strong Georeference.joins(:otus).where.missing(:cached_map_register).distinct.count %></td></tr>
       <tr><td>Unused (no OTUs)</td><td><%= tag.strong Georeference.where.missing(:otus).distinct.count %></td></tr>
     </table>
   </div>

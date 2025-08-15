@@ -99,6 +99,20 @@ class AssertedDistribution < ApplicationRecord
 
     ::Queries.union(AssertedDistribution, [a, b])
   }
+  scope :contributing_to_cached_maps, -> {
+    # TODO: eventually include non-otu object types
+    ad_ga_with_shape = AssertedDistribution
+      .with_otus
+      .joins("JOIN geographic_areas ON asserted_distributions.asserted_distribution_shape_type = 'GeographicArea' AND asserted_distributions.asserted_distribution_shape_id = geographic_areas.id")
+      .joins('JOIN geographic_areas_geographic_items on geographic_areas.id = geographic_areas_geographic_items.geographic_area_id')
+
+    ad_gaz = AssertedDistribution
+      .with_otus
+      .where(asserted_distribution_shape_type: 'Gazetteer')
+
+    ::Queries.union(AssertedDistribution, [ad_ga_with_shape, ad_gaz])
+      .without_is_absent
+  }
   scope :with_otus, -> {
     joins("JOIN otus ON otus.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
   }

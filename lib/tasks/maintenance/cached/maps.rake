@@ -198,10 +198,8 @@ namespace :tw do
         desc 'build CachedMapItems for AssertedDistributions that do not have them'
         task parallel_create_cached_map_from_asserted_distributions: [:environment] do |t|
           q = AssertedDistribution
-            .associated_with_geographic_items
-            # don't include geographic_item_id
-            .select('asserted_distributions.*')
-            .where.missing(:cached_map_register).distinct
+            .contributing_to_cached_maps
+            .where.missing(:cached_map_register)
 
           puts "Caching #{q.count} AssertedDistribution records."
 
