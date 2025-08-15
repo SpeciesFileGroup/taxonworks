@@ -133,8 +133,10 @@ module Shared::Maps
 
         CachedMapItem.transaction do
 
-          stubs[:geographic_item_id].each do |geographic_item_id|
-            stubs[:otu_id].each do |otu_id|
+          # Sort by primary keys so that every thread processes items in the
+          # same order (reducing deadlock potential).
+          stubs[:geographic_item_id].sort.each do |geographic_item_id|
+            stubs[:otu_id].sort.each do |otu_id|
               begin
 
                 a = CachedMapItem.find_or_initialize_by(
@@ -145,6 +147,8 @@ module Shared::Maps
                 )
 
                 if a.persisted?
+                  # increment! exclusive locks this row for the entire
+                  # transaction.
                   a.increment!(:reference_count)
                 else
 
