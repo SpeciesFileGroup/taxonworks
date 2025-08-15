@@ -23,6 +23,7 @@ const TILE_MAP_STORAGE_KEY = 'tw::map::tile'
 
 let drawnItems
 let mapObject
+let isShapeToolActive
 
 const props = defineProps({
   zoomAnimate: {
@@ -187,6 +188,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
+  'draw:start',
+  'draw:end',
   'layer:click',
   'layer:dbclick',
   'layer:mouseup',
@@ -324,6 +327,10 @@ function addEventsToLayer(layer) {
     ...makeLayerPayload(layer)
   })
 
+  layer.on('pm:edit', (event) =>
+    emit('layer:edit', makeLayerPayload(event.layer))
+  )
+
   layer.on('click', (event) => emit('layer:click', makeEventPayload(event)))
 
   layer.on('dbclick', (event) => emit('layer:dbclick', makeEventPayload(event)))
@@ -392,6 +399,19 @@ function handleEvents() {
     emit('layer:remove', makeLayerPayload(e.layer))
     emit('update:geojson', drawnItems.toGeoJSON())
   })
+
+  mapObject.on('pm:globaleditmodetoggled', (e) => {
+    isShapeToolActive = e.enabled
+  })
+
+  mapObject.on('pm:globaldragmodetoggled', (e) => {
+    isShapeToolActive = e.enabled
+  })
+  mapObject.on('pm:globaldrawmodetoggled', (e) => {
+    nextTick(() => {
+      isShapeToolActive = e.enabled
+    })
+  })
 }
 
 function getDefaultTile() {
@@ -419,7 +439,7 @@ function addGeoJsonLayer(geoJsonLayers) {
     drawnItems.addLayer(layer)
   })
 
-  if (props.fitBounds) {
+  if (props.fitBounds && !isShapeToolActive) {
     centerShapesInMap()
   }
 }
