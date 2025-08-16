@@ -66,7 +66,8 @@ describe 'Shared::Unify', type: :model do
     expect(o1.related_biological_associations.reload.count).to eq(1)
   end
 
-  specify 'unifies Otus in BiologicalAssociations - merge associations' do
+  specify 'unifies Otus in BiologicalAssociations - merge object associations' do
+    [o1,o2] # so that numbers match ids
     o3 = FactoryBot.create(:valid_otu)
 
     ba1 = FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: o1)
@@ -80,9 +81,31 @@ describe 'Shared::Unify', type: :model do
     o1.unify(o3)
 
     expect(o3.destroyed?).to be_truthy
-    expect(BiologicalAssociation.all.count).to eq(1)
+    expect(BiologicalAssociation.find_by(id: ba2.id)).to be_falsey
     expect(o1.related_biological_associations.reload.count).to eq(1)
     expect(o1.biological_associations.reload.count).to eq(0)
+    expect(ba1.reload.citations.count).to eq(2)
+  end
+
+  specify 'unifies Otus in BiologicalAssociations - merge subject associations' do
+    [o1,o2] # so that numbers match ids
+    o3 = FactoryBot.create(:valid_otu)
+
+    ba1 = FactoryBot.create(:valid_biological_association, biological_association_subject: o1, biological_association_object: o2)
+    ba2 = FactoryBot.create(:valid_biological_association, biological_association_subject: o3,
+                            biological_association_object: o2, biological_relationship: ba1.biological_relationship)
+
+    s = FactoryBot.create(:valid_source)
+    c1  = FactoryBot.create(:valid_citation, citation_object: ba1)
+    c2  = FactoryBot.create(:valid_citation, citation_object: ba2)
+
+    u = o1.unify(o3)
+
+    expect(o3.destroyed?).to be_truthy
+    expect(BiologicalAssociation.find_by(id: ba2.id)).to be_falsey
+    expect(o1.biological_associations.reload.count).to eq(1)
+    expect(o1.related_biological_associations.reload.count).to eq(0)
+    expect(ba1.reload.citations.count).to eq(2)
   end
 
   specify 'unifies Repositories' do
