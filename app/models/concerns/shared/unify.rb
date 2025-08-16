@@ -314,6 +314,7 @@ module Shared::Unify
     # Here we check to see that the error is related
     # to the object being unified, if not,
     # we don't know how to handle this with confidence.
+    byebug
     if object.errors.details.keys.include?(relation.options[:inverse_of])
 
       # object can't be updated, move its annotations to self

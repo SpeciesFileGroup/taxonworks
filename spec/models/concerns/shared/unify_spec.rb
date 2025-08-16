@@ -119,6 +119,25 @@ describe 'Shared::Unify', type: :model do
     expect(r1.reload.citations.map(&:id)).to eq([cit2.id])
   end
 
+  specify 'ObservationMatrixRows with refcount > 1 aren\'t destroyed' do
+    om = ObservationMatrix.create!(name: 'Lune')
+    ri1 = ObservationMatrixRowItem::Single.create!(observation_object: o1, observation_matrix: om)
+    s1 = FactoryBot.create(:relationship_species, parent: FactoryBot.create(:root_taxon_name))
+    o1.update!(taxon_name: s1)
+    ri1d = ObservationMatrixRowItem::Dynamic::TaxonName.create!(observation_object: s1, observation_matrix: om)
+    # ri1 and ri1d both refer to r1.
+    r1 = om.reload.observation_matrix_rows.first
+
+    ri2 = ObservationMatrixRowItem::Single.create!(observation_object: o2, observation_matrix: om)
+    s2 = FactoryBot.create(:relationship_species, name: 'macandcheesei', parent: s1.parent)
+    o2.update!(taxon_name: s2)
+    ri2d = ObservationMatrixRowItem::Dynamic::TaxonName.create!(observation_object: s2, observation_matrix: om)
+    # ri2 and ri2d both refer to r2.
+    r2 = om.reload.observation_matrix_rows.second
+
+    r = o1.unify(o2, only: [:observation_matrix_rows])
+    expect(ObservationMatrixRow.find_by(id: r2.id)).to be_truthy
+  end
 
   specify 'unifies Repositories' do
     a = FactoryBot.create(:valid_repository)
