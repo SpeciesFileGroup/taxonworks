@@ -88,6 +88,8 @@ module Export::Coldp::Files::Synonym
 
     y.find_each do |n|
 
+      next if ::Export::Coldp.skipped_combinations.include?(n.id)
+
       csv << [
         n.otu_id,                                                  # taxonID attached to the current valid concept
         n.id,                                                      # nameID

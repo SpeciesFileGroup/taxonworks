@@ -22,7 +22,11 @@ describe Export::Coldp, type: :model, group: :col do
     let!(:invalid_species) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: species.parent) }
     let!(:synonym) { TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: invalid_species, object_taxon_name: species) }
 
-    # TODO: Add original combination data 
+    # TODO: Add original combination data
+
+   # TODO: Add gender missmatch spec
+     # for combination
+     # for misspelled original protonym differening from current parent
     
     let!(:common_name) { FactoryBot.create(:valid_common_name, otu: otu) }
     let!(:type_material) { FactoryBot.create(:valid_type_material, collection_object: specimen, protonym: species) }

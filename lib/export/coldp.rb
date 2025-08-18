@@ -18,6 +18,17 @@ module Export
   # * Pending handling of both BibTeX and Verbatim
   module Coldp
 
+    class << self
+      # @return [Array] used to pass along inference at the
+      # name.tsv level to the synonym.tsv level. Could be replaced
+      # when Combination can use SQL to determine the rank of the
+      # name Combination applies to.  !! Should just cache this.
+      attr_accessor :skipped_combinations
+    end
+
+    # give it a default value
+    @skipped_combinations = []
+
     # TODO: probably doing nothing
     attr_accessor :remarks
 

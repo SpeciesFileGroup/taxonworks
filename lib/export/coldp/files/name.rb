@@ -365,6 +365,7 @@ module Export::Coldp::Files::Name
   def self.add_combinations(otu, csv, project_members, reference_csv)
     names = combination_names(otu)
     names.length
+
     names.each do |row| # row is a Hash, not a ActiveRecord object
 
       # At this point all formatting (gender) is done
@@ -375,7 +376,12 @@ module Export::Coldp::Files::Name
 
       rank = elements.keys.last if rank.nil?
 
-      next if row[rank + "_cached"] == row['cached'] # In some cases where names are described originally with missmatched gender we can exclude dupes
+      # In some cases where names are described originally with missmatched gender we can exclude dupes
+      # This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
+     if row[rank + "_cached"] == row['cached']
+       ::Export::Coldp.skipped_combinations  << row['id']
+       next
+     end
 
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
 
