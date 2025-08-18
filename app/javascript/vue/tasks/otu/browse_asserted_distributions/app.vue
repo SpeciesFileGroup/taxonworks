@@ -107,7 +107,7 @@
 </template>
 
 <script setup>
-import VMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import VFilter from './components/filter.vue'
 import TableList from '@/tasks/otu/browse/components/assertedDistribution/TableList.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -147,7 +147,8 @@ const embed = ['level_names', 'shape']
 defineOptions({ name: 'BrowseAssertedDistributions' })
 
 usePolymorphicConverter(
-  'asserted_distribution_object', AssertedDistributionObject
+  'asserted_distribution_object',
+  AssertedDistributionObject
 )
 
 const {
@@ -158,7 +159,10 @@ const {
   resetFilter,
   isLoading,
   parameters
-} = useFilter(AssertedDistribution, { initParameters: { extend, embed }, listParser })
+} = useFilter(AssertedDistribution, {
+  initParameters: { extend, embed },
+  listParser
+})
 
 const ascending = ref(false)
 const activeFilter = ref(true)

@@ -4,7 +4,7 @@
     ref="floatPanel"
     :style="styleFloatmap"
   >
-    <leaflet-map
+    <VMap
       class="map"
       :geojson="geojson"
       resize
@@ -12,43 +12,47 @@
       height="100%"
       :zoom-bounds="15"
     />
-    <div
-      class="draggable-handle panel padding-small"
-      :class="showClose ? 'left' : 'middle'"
-      ref="handler"
-      :style="styleHandler"
-    >
-      <VIcon
-        name="cursorMove"
-        small
-      />
-    </div>
-    <div
-      class="expand-button panel padding-small"
-      :class="showClose ? 'middle' : 'right'"
-      @click="() => (isMapExpanded = !isMapExpanded)"
-    >
-      <VIcon
-        :name="isMapExpanded ? 'contract' : 'expand'"
-        small
-      />
-    </div>
-    <div
-      v-if="showClose"
-      class="close-button panel padding-small right"
-      @click="() => (emit('close'))"
-    >
-      <VIcon
-        name="close"
-        small
-      />
+    <div class="float-map-buttons gap-small">
+      <div
+        class="button btn-default btn btn-default-circle leaflet-map-button middle draggable-handle"
+        circle
+        ref="handler"
+        :style="styleHandler"
+      >
+        <VIcon
+          name="cursorMove"
+          small
+        />
+      </div>
+      <VBtn
+        class="leaflet-map-button"
+        circle
+        @click="() => (isMapExpanded = !isMapExpanded)"
+      >
+        <VIcon
+          :name="isMapExpanded ? 'contract' : 'expand'"
+          x-small
+        />
+      </VBtn>
+      <VBtn
+        v-if="showClose"
+        circle
+        class="close-button leaflet-map-button"
+        @click="() => emit('close')"
+      >
+        <VIcon
+          name="close"
+          x-small
+        />
+      </VBtn>
     </div>
   </div>
 </template>
 
 <script setup>
-import LeafletMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { ref, computed } from 'vue'
 import { useDraggable } from '@/composables'
 
@@ -61,7 +65,7 @@ defineProps({
   showClose: {
     type: Boolean,
     default: false
-  },
+  }
 })
 
 const emit = defineEmits(['close'])
@@ -103,33 +107,11 @@ const styleFloatmap = computed(() =>
   border-radius: 0.3rem;
 }
 
-.draggable-handle {
+.float-map-buttons {
+  display: flex;
   position: absolute;
-  z-index: 2000;
-}
-
-.expand-button {
-  position: absolute;
-  z-index: 2000;
-}
-
-.close-button {
-  position: absolute;
-  z-index: 2000;
-}
-
-.right {
   top: 12px;
   right: 12px;
-}
-
-.middle {
-  top: 12px;
-  right: 48px;
-}
-
-.left {
-  top: 12px;
-  right: 84px;
+  z-index: 2000;
 }
 </style>

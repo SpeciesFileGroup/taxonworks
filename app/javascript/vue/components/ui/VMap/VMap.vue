@@ -106,7 +106,7 @@ const props = defineProps({
     default: false
   },
 
-  tilesSelection: {
+  tilesSelector: {
     type: Boolean,
     default: true
   },
@@ -355,7 +355,7 @@ function addEventsToLayer(layer) {
 }
 
 const addDrawControllers = () => {
-  if (props.tilesSelection) {
+  if (props.tilesSelector) {
     L.control
       .layers(tileLayers, {}, { position: 'topleft', collapsed: false })
       .addTo(mapObject)
