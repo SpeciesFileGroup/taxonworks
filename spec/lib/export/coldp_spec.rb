@@ -21,6 +21,9 @@ describe Export::Coldp, type: :model, group: :col do
     let!(:citation) { Citation.create!(citation_object: otu, source: FactoryBot.create(:valid_source_bibtex), is_original: true) }
     let!(:invalid_species) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: species.parent) }
     let!(:synonym) { TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: invalid_species, object_taxon_name: species) }
+
+    # TODO: Add original combination data 
+    
     let!(:common_name) { FactoryBot.create(:valid_common_name, otu: otu) }
     let!(:type_material) { FactoryBot.create(:valid_type_material, collection_object: specimen, protonym: species) }
     let!(:asserted_distribution) { FactoryBot.create(:valid_geographic_area_asserted_distribution, asserted_distribution_object: otu) }
