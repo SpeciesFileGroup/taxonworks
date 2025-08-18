@@ -31,7 +31,7 @@ module Export::Coldp::Files::Synonym
 
   # @params otu [Otu]
   #   the top level OTU
-  def self.generate(otu, otus, project_members, reference_csv = nil, skip_name_ids = [])
+  def self.generate(otu, otus, project_members, reference_csv = nil)
     ::CSV.generate(col_sep: "\t") do |csv|
       csv << %w{taxonID nameID status remarks referenceID modified modifiedBy}
 

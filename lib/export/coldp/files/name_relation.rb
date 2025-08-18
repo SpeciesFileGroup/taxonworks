@@ -65,6 +65,8 @@ module Export::Coldp::Files::NameRelation
 
   # TODO: This is the original set, but it doesn't quite feel right.
   def self.taxon_name_relationships(otus)
+
+    # TODO: Join in proper name methods, don't rely on OTU scope
     a = TaxonNameRelationship.with(otu_scope: otus.select(:id, :taxon_name_id))
       .joins("JOIN taxon_names obj_tn on obj_tn.id = taxon_name_relationships.object_taxon_name_id")
       .joins("JOIN otu_scope on otu_scope.taxon_name_id = obj_tn.id")
@@ -90,7 +92,10 @@ module Export::Coldp::Files::NameRelation
 
       rels = taxon_name_relationships(otus)
       rels.length
+
       rels.each do |tnr|
+
+        next if ::Export::Coldp.skipped_combinations.include?(tnr.subject_taxon_name_id)
 
         unless tnr.type.constantize.nomen_uri.blank?
           csv << [

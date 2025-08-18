@@ -378,10 +378,10 @@ module Export::Coldp::Files::Name
 
       # In some cases where names are described originally with missmatched gender we can exclude dupes
       # This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
-     if row[rank + "_cached"] == row['cached']
-       ::Export::Coldp.skipped_combinations  << row['id']
-       next
-     end
+      if row[rank + "_cached"] == row['cached']
+        ::Export::Coldp.skipped_combinations << row['id']
+        next
+      end
 
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
 
