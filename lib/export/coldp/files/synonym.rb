@@ -43,6 +43,8 @@ module Export::Coldp::Files::Synonym
   end
 
   def self.add_invalid_core_names(otu, otus, csv, project_members)
+
+
     names = ::Export::Coldp::Files::Name.invalid_core_names(otu)
     names.length # TODO: needed?
 

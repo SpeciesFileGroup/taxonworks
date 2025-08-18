@@ -95,12 +95,13 @@ module Export::Coldp::Files::Name
   def self.invalid_core_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
+
     b = ::Protonym
       .with(valid_scope: a)
       .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
       .is_species_or_genus_group
       .where(cached_is_valid: false)
-      .where('taxon_names.cached = taxon_names.cached_original_combination')
+      .where('((taxon_names.cached = taxon_names.cached_original_combination) OR (taxon_names.cached_original_combination IS NULL))')
       .and(TaxonName.where.not("taxon_names.rank_class like '%::Iczn::Family%' AND taxon_names.cached_is_valid = FALSE"))
 
     select = 'taxon_names.id,'
