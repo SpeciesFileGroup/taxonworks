@@ -131,7 +131,7 @@ module Shared::Maps
 
         name_hierarchy = {}
 
-        MAX_RETRIES = 3
+        max_retries = 3
         retries = 0
         begin
           CachedMapItem.transaction do
@@ -204,7 +204,7 @@ module Shared::Maps
           end
         rescue ActiveRecord::Deadlocked => e
           retries += 1
-          if retries <= MAX_RETRIES
+          if retries <= max_retries
             sleep(0.1 * retries)
             retry
           else
