@@ -20,7 +20,11 @@ class Tasks::Dwc::DashboardController < ApplicationController
           collection_object_query: ::Queries::CollectionObject::Filter.new(
             dwc_occurrence_query: q.params
           ).params
-        ).all.to_sql : nil)
+        ).all.to_sql : nil),
+        media: (params[:media_extension] ?
+          ::Queries::CollectionObject::Filter.new(
+            dwc_occurrence_query: q.params
+          ).all.to_sql : nil)
       }
     )
     render '/downloads/show'

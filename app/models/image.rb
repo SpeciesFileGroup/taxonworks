@@ -56,6 +56,7 @@ class Image < ApplicationRecord
   include Shared::IsData
   include SoftValidation
 
+  include Image::DwcMediaExtensions
   include Image::Sled
 
   attr_accessor :rotate

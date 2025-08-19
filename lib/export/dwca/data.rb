@@ -113,7 +113,18 @@ module Export::Dwca
       elsif @biological_associations_extension.kind_of?(ActiveRecord::Relation)
         @biological_associations_extension
       else
-        raise ArgumentError, 'Scope is not a SQL string or ActiveRecord::Relation'
+        raise ArgumentError, 'Biological associations scope is not an SQL string or ActiveRecord::Relation'
+      end
+    end
+
+    def media_extension
+      return nil unless @media_extension.present?
+      if @media_extension.kind_of?(String)
+        ::CollectionObject.from('(' + @media_extension + ') AS collection_objects')
+      elsif @media_extension.kind_of?(ActiveRecord::Relation)
+        @media_extension
+      else
+        raise ArgumentError, 'Media scope is not an SQL string or ActiveRecord::Relation'
       end
     end
 
@@ -640,6 +651,23 @@ module Export::Dwca
       @biological_associations_resource_relationship
     end
 
+    def media_resource_relationship
+      return nil if media_extension.nil?
+      @media_resource_relationship = Tempfile.new('media_relationship.xml')
+
+      content = nil
+      if no_records?
+        content = "\n"
+      else
+        content = Export::CSV::Dwc::Extension::Media.csv(media_extension)
+      end
+
+      @media_resource_relationship.write(content)
+      @media_resource_relationship.flush
+      @media_resource_relationship.rewind
+      @media_resource_relationship
+    end
+
     # @return [Array]
     #   use the temporarily written, and refined, CSV file to read off the existing headers
     #   so we can use them in writing meta.yml
@@ -687,7 +715,7 @@ module Export::Dwca
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
         zip.add('data.tsv', all_data.path)
 
-        zip.add('media.csv', media.path) if media_extension
+        zip.add('media.tsv', media_resource_relationship.path) if media_extension
         zip.add('resource_relationships.tsv', biological_associations_resource_relationship.path) if biological_associations_extension
 
         zip.add('meta.xml', meta.path)
