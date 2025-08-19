@@ -7,10 +7,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Browse OTU: Radial annotator to Timeline [#4057]
+
 ### Fixed
 
 - Match taxon names task sometimes doesn't work with long name lists of names [#4523]
 
+### Changed
+
+- Allow `accepted` as `taxonomicStatus` and empty `acceptedNameUsageID` for valid names in DwC checklist importer
+
+[#4057]: https://github.com/SpeciesFileGroup/taxonworks/issues/4057
 [#4523]: https://github.com/SpeciesFileGroup/taxonworks/issues/4523
 
 ## [0.53.1] - 2025-08-13
