@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Browse OTU: Radial annotator to Timeline [#4057]
+- Radial CO: Accessions / Deaccession
 
 ### Fixed
 
