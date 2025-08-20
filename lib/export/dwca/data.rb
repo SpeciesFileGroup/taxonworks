@@ -119,13 +119,21 @@ module Export::Dwca
 
     def media_extension
       return nil unless @media_extension.present?
-      if @media_extension.kind_of?(String)
-        ::CollectionObject.from('(' + @media_extension + ') AS collection_objects')
-      elsif @media_extension.kind_of?(ActiveRecord::Relation)
-        @media_extension
-      else
-        raise ArgumentError, 'Media scope is not an SQL string or ActiveRecord::Relation'
+
+      collection_objects = ::CollectionObject.none
+      if @media_extension[:collection_objects]
+        collection_objects = ::CollectionObject.from('(' + @media_extension[:collection_objects] + ') AS collection_objects')
       end
+
+      field_occurrences = ::FieldOccurrence.none
+      if @media_extension[:field_occurrences]
+        field_occurrences = ::FieldOccurrence.from('(' + @media_extension[:field_occurrences] + ') AS field_occurrences')
+      end
+
+      {
+        collection_objects:,
+        field_occurrences:
+      }
     end
 
     def predicate_options_present?
@@ -652,14 +660,14 @@ module Export::Dwca
     end
 
     def media_resource_relationship
-      return nil if media_extension.nil?
+      return nil if media_extension.nil? || media_extension.empty?
       @media_resource_relationship = Tempfile.new('media_relationship.xml')
 
       content = nil
       if no_records?
         content = "\n"
       else
-        content = Export::CSV::Dwc::Extension::Media.csv(media_extension)
+        content = Export::CSV::Dwc::Extension::Media.csv(media_extension[:collection_objects], media_extension[:field_occurrences])
       end
 
       @media_resource_relationship.write(content)

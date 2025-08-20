@@ -1,7 +1,8 @@
-module CollectionObject::DwcExtensions::MediaExtensions
+module FieldOccurrence::DwcExtensions::MediaExtensions
   extend ActiveSupport::Concern
 
-
+  # TODO: Currently *identical* to
+  # CollectionObject::DwcExtensions::MediaExtensions - if that holds up, merge.
 
   DWC_MEDIA_EXTENSION_MAP = {
     # identifier

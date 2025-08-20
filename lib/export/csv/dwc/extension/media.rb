@@ -107,12 +107,18 @@ module Export::CSV::Dwc::Extension::Media
     'PixelYDimension'
   ].freeze
 
-  def self.csv(scope)
+  def self.csv(collection_objects_scope, field_occurrences_scope)
     tbl = []
     tbl[0] = HEADERS
 
-    scope.find_each do |co|
+    collection_objects_scope.find_each do |co|
       co.darwin_core_media_extension_rows.each do |r|
+        tbl << r
+      end
+    end
+
+    field_occurrences_scope.find_each do |fo|
+      fo.darwin_core_media_extension_rows.each do |r|
         tbl << r
       end
     end

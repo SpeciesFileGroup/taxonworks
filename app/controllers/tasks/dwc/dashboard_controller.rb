@@ -9,6 +9,18 @@ class Tasks::Dwc::DashboardController < ApplicationController
   # !! Run rails jobs:work in the terminal to complete builds
   def generate_download
     q = ::Queries::DwcOccurrence::Filter.new(params)
+    media_query = nil
+    if params[:media_extension]
+      media_query = {
+        collection_objects: ::Queries::CollectionObject::Filter.new(
+          dwc_occurrence_query: q.params
+        ).all.to_sql,
+
+        field_occurrences: ::Queries::FieldOccurrence::Filter.new(
+          dwc_occurrence_query: q.params
+        ).all.to_sql
+      }
+    end
 
     @download = ::Export::Dwca.download_async(
       q.all, request.url,
@@ -21,10 +33,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
             dwc_occurrence_query: q.params
           ).params
         ).all.to_sql : nil),
-        media: (params[:media_extension] ?
-          ::Queries::CollectionObject::Filter.new(
-            dwc_occurrence_query: q.params
-          ).all.to_sql : nil)
+        media: media_query
       }
     )
     render '/downloads/show'
