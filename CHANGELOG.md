@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse OTU: Radial annotator to Timeline [#4057]
 - Radial CO: Accessions / Deaccession
 - Filter CO: Containerized facet
+- Radial navigator: New extract task for CollectionObject [#2882]
 
 ### Fixed
 
@@ -22,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Allow `accepted` as `taxonomicStatus` and empty `acceptedNameUsageID` for valid names in DwC checklist importer
 
+[#2882]: https://github.com/SpeciesFileGroup/taxonworks/issues/2882
 [#3845]: https://github.com/SpeciesFileGroup/taxonworks/issues/3845
 [#4057]: https://github.com/SpeciesFileGroup/taxonworks/issues/4057
 [#4523]: https://github.com/SpeciesFileGroup/taxonworks/issues/4523
