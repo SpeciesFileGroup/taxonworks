@@ -3,23 +3,18 @@ module Image::DwcMediaExtensions
 
   include Shared::Dwc::MediaExtensions
 
-  included do
+  # Only implementations specific to Image. See
+  # Shared::Dwc::MediaExtensions#DWC_MEDIA_SHARED_EXTENSION_MAP as well.
+  DWC_MEDIA_IMAGE_EXTENSION_MAP = {
+    'dc:type': :dwc_media_dc_type,
+    'dcmi:type': :dwc_media_dcmi_type,
+    'dc:format': :dwc_media_dc_format,
+    # 'dcterms:format',
+    PixelXDimension: :dwc_media_pixel_x_dimension,
+    PixelYDimension: :dwc_media_pixel_y_dimension,
+  }.freeze
 
-    # Only implementations specific to Image. See
-    # Shared::Dwc::MediaExtensions#DWC_MEDIA_SHARED_EXTENSION_MAP as well.
-    DWC_MEDIA_IMAGE_EXTENSION_MAP = {
-      'dc:type': :dwc_media_dc_type,
-      'dcmi:type': :dwc_media_dcmi_type,
-      'dc:format': :dwc_media_dc_format,
-      # 'dcterms:format',
-      PixelXDimension: :dwc_media_pixel_x_dimension,
-      PixelYDimension: :dwc_media_pixel_y_dimension,
-
-    }.freeze
-
-  end
-
-  def darwin_core_media_extension_rows
+  def darwin_core_media_extension_image_row
     h = {}
     (DWC_MEDIA_IMAGE_EXTENSION_MAP.merge(Shared::Dwc::MediaExtensions::DWC_MEDIA_SHARED_EXTENSION_MAP)).each do |k, v|
       h[k] = send(v)

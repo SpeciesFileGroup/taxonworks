@@ -25,6 +25,7 @@ class Sound < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::IsData
+  include Sound::DwcMediaExtensions
 
   # See canonical list at
   ALLOWED_CONTENT_TYPES = %w{
