@@ -86,7 +86,7 @@ module FieldOccurrence::DwcExtensions::MediaExtensions
     # 'relatedResourceID',
     # 'providerID',
     # 'derivedFrom',
-    # 'associatedSpecimenReference', TODO ??
+    associatedSpecimenReference: :dwc_media_associated_specimen_reference,
     # 'associatedObservationReference', TODO ??
     # 'accessURI', TODO ?? Does user fill this in after the fact with TP links?
     #'dc:format': :dwc_media_dc_format,
@@ -105,34 +105,50 @@ module FieldOccurrence::DwcExtensions::MediaExtensions
 
   def darwin_core_media_extension_rows
     rv = []
-    rv += images.collect do |i|
+    images_array = (
+      images.map { |i| { image: i, observation: nil }} +
+      observations.map { |o| o.images.map { |i| { image: i, observation: o }} }
+    ).flatten
+    rv += images_array.collect do |i|
       image_dwc_array =
         Export::CSV::Dwc::Extension::Media::HEADERS.collect do |h|
           dwc_reader = DWC_MEDIA_EXTENSION_MAP[h.to_sym]
           dwc_reader.present? && respond_to?(dwc_reader) ?
-            send(dwc_reader, i) : nil
+            send(dwc_reader, i[:image]) : nil
         end
 
-      image_fields_hash = i.darwin_core_media_extension_image_row
-
+      image_fields_hash = i[:image].darwin_core_media_extension_image_row
       # Merge image_fields_hash data into image_dwc_array.
       image_fields_hash.each { |k, v| image_dwc_array[extension_map_index(k)] = v }
+
+      if i[:observation]
+        observation_fields_hash = i[:observation].darwin_core_media_extension_image_row
+        observation_fields_hash.each { |k, v| image_dwc_array[extension_map_index(k)] = v }
+      end
 
       image_dwc_array
     end
 
-    rv += sounds.collect do |s|
+    sounds_array = (
+      sounds.map { |s| { sound: s, observation: nil }} +
+      observations.map { |o| o.sounds.map { |s| { sound: s, observation: o }} }
+    ).flatten
+    rv += sounds_array.collect do |s|
       sound_dwc_array =
         Export::CSV::Dwc::Extension::Media::HEADERS.collect do |h|
           dwc_reader = DWC_MEDIA_EXTENSION_MAP[h.to_sym]
           dwc_reader.present? && respond_to?(dwc_reader) ?
-            send(dwc_reader, s) : nil
+            send(dwc_reader, s[:sound]) : nil
         end
 
-      sound_fields_hash = s.darwin_core_media_extension_sound_row
-
+      sound_fields_hash = s[:sound].darwin_core_media_extension_sound_row
       # Merge sound_fields_hash data into sound_dwc_array.
       sound_fields_hash.each { |k, v| sound_dwc_array[extension_map_index(k)] = v }
+
+      if s[:observation]
+        observation_fields_hash = s[:observation].darwin_core_media_extension_sound_row
+        observation_fields_hash.each { |k, v| sound_dwc_array[extension_map_index(k)] = v }
+      end
 
       sound_dwc_array
     end
@@ -199,4 +215,9 @@ module FieldOccurrence::DwcExtensions::MediaExtensions
   def dwc_media_life_stage(o)
     dwc_life_stage
   end
+
+   def dwc_media_associated_specimen_reference(o)
+    Shared::Api.api_link(self)
+  end
+
 end

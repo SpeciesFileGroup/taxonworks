@@ -132,6 +132,7 @@ class Observation < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Depictions
+  include Shared::Conveyances
   include Shared::Confidences
   include Shared::ProtocolRelationships
   include Shared::AssertedDistributions

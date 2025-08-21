@@ -29,43 +29,63 @@ describe Export::Dwca, type: :model, group: :darwin_core do
     end
 
     let(:a) { DwcOccurrence.all }
-    let(:b) { BiologicalAssociation.all } 
+    let(:b) { BiologicalAssociation.all }
+    let(:c) { CollectionObject.all }
+    let(:f) { FieldOccurrence.all}
 
-    let!(:d) { 
+    let!(:d) {
       ::Export::Dwca.download_async(
         a, 'https://example.org/some_url',
-        extension_scopes: { biological_associations: b.to_sql },
+        extension_scopes: {
+          biological_associations: b.to_sql,
+          media: {
+            collection_objects: c.to_sql,
+            field_occurrences: f.to_sql
+          }
+         },
         predicate_extensions: {}
-      )   
-    } 
+      )
+    }
 
     specify 'queues the job' do
       download = FactoryBot.create(:valid_download)
       expect {
         DwcaCreateDownloadJob.perform_later(
-          download, 
+          download,
           core_scope: a.to_sql,
-          extension_scopes: { biological_associations: b.to_sql }
+          extension_scopes: {
+            biological_associations: b.to_sql,
+            media: {
+              collection_objects: c.to_sql,
+              field_occurrences: f.to_sql
+            }
+          }
         )
-      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download, core_scope: a.to_sql, extension_scopes: { biological_associations: b.to_sql } )
+      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download, core_scope: a.to_sql, extension_scopes: {
+        biological_associations: b.to_sql,
+        media: {
+          collection_objects: c.to_sql,
+          field_occurrences: f.to_sql
+        }
+      } )
     end
 
    specify 'queues the job with empty extensions' do
       download = FactoryBot.create(:valid_download)
       expect {
         DwcaCreateDownloadJob.perform_later(
-          download, 
+          download,
           core_scope: a.to_sql,
           extension_scopes: { biological_associations: nil }
         )
       }.to have_enqueued_job(DwcaCreateDownloadJob).with(download, core_scope: a.to_sql, extension_scopes: { biological_associations: nil } )
     end
 
-    specify '#download_async creates Download' do 
+    specify '#download_async creates Download' do
       expect(Download.count).to eq(1)
     end
 
-    specify '#download_async creates Zip after worker' do 
+    specify '#download_async creates Zip after worker' do
       perform_enqueued_jobs
       expect(File.exist?(d.file_path)).to be_truthy
     end
@@ -80,6 +100,12 @@ describe Export::Dwca, type: :model, group: :darwin_core do
       perform_enqueued_jobs
       z = Zip::File.open(Download.first.file_path)
       expect(z.find_entry('resource_relationships.tsv')).to be_truthy
+    end
+
+    specify 'includes media.tsv' do
+      perform_enqueued_jobs
+      z = Zip::File.open(Download.first.file_path)
+      expect(z.find_entry('media.tsv')).to be_truthy
     end
 
   end

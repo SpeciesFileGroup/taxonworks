@@ -1,8 +1,6 @@
 module CollectionObject::DwcExtensions::MediaExtensions
   extend ActiveSupport::Concern
 
-
-
   DWC_MEDIA_EXTENSION_MAP = {
     # identifier
     #'dc:type': :dwc_media_dc_type, # TODO: is the prefix the way to do this?
@@ -128,18 +126,26 @@ module CollectionObject::DwcExtensions::MediaExtensions
       image_dwc_array
     end
 
-    rv += sounds.collect do |s|
+    sounds_array = (
+      sounds.map { |s| { sound: s, observation: nil }} +
+      observations.map { |o| o.sounds.map { |s| { sound: s, observation: o }} }
+    ).flatten
+    rv += sounds_array.collect do |s|
       sound_dwc_array =
         Export::CSV::Dwc::Extension::Media::HEADERS.collect do |h|
           dwc_reader = DWC_MEDIA_EXTENSION_MAP[h.to_sym]
           dwc_reader.present? && respond_to?(dwc_reader) ?
-            send(dwc_reader, s) : nil
+            send(dwc_reader, s[:sound]) : nil
         end
 
-      sound_fields_hash = s.darwin_core_media_extension_sound_row
-
+      sound_fields_hash = s[:sound].darwin_core_media_extension_sound_row
       # Merge sound_fields_hash data into sound_dwc_array.
       sound_fields_hash.each { |k, v| sound_dwc_array[extension_map_index(k)] = v }
+
+      if s[:observation]
+        observation_fields_hash = s[:observation].darwin_core_media_extension_sound_row
+        observation_fields_hash.each { |k, v| sound_dwc_array[extension_map_index(k)] = v }
+      end
 
       sound_dwc_array
     end

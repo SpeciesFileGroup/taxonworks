@@ -112,6 +112,81 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
       end
 
+      context 'extension_scopes: [:media]' do
+        let!(:fo) { FactoryBot.create(:valid_field_occurrence) }
+        let(:media_scope) { { collection_objects: CollectionObject.all.to_sql, field_occurrences: FieldOccurrence.all.to_sql } }
+
+        specify '#media_resource_relationship is a tempfile' do
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope  })
+          expect(d.media_resource_relationship).to be_kind_of(Tempfile)
+        end
+
+        specify '#media_resource_relationship returns lines for specimen images' do
+          FactoryBot.create(:valid_depiction, depiction_object: CollectionObject.last)
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          expect(d.media_resource_relationship.count).to eq(2)
+        end
+
+        specify '#media_resource_relationship returns lines for specimen sounds' do
+          FactoryBot.create(:valid_conveyance, conveyance_object: CollectionObject.last)
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          expect(d.media_resource_relationship.count).to eq(2)
+        end
+
+        specify '#media_resource_relationship returns lines for specimen observation images' do
+          co = CollectionObject.last
+          o = FactoryBot.create(:valid_observation, observation_object: co)
+          FactoryBot.create(:valid_depiction, depiction_object: o)
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          expect(d.media_resource_relationship.count).to eq(2)
+        end
+
+        specify '#media_resource_relationship returns lines for specimen observation sounds' do
+          co = CollectionObject.last
+          o = FactoryBot.create(:valid_observation, observation_object: co)
+          FactoryBot.create(:valid_conveyance, conveyance_object: o)
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          expect(d.media_resource_relationship.count).to eq(2)
+        end
+
+        specify '#media_resource_relationship returns lines for field occurrence images' do
+          FactoryBot.create(:valid_depiction, depiction_object: FieldOccurrence.last)
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          expect(d.media_resource_relationship.count).to eq(2)
+        end
+
+        specify '#media_resource_relationship returns lines for field occurrence sounds' do
+          FactoryBot.create(:valid_conveyance, conveyance_object: FieldOccurrence.last)
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          expect(d.media_resource_relationship.count).to eq(2)
+        end
+
+        specify '#media_resource_relationship returns lines for field occurrence observation images' do
+          fo = FieldOccurrence.last
+          o = FactoryBot.create(:valid_observation, observation_object: fo)
+          FactoryBot.create(:valid_depiction, depiction_object: o)
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          expect(d.media_resource_relationship.count).to eq(2)
+        end
+
+        specify '#media_resource_relationship returns lines for field occurrence observation sounds' do
+          fo = FieldOccurrence.last
+          o = FactoryBot.create(:valid_observation, observation_object: fo)
+          FactoryBot.create(:valid_conveyance, conveyance_object: o)
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          expect(d.media_resource_relationship.count).to eq(2)
+        end
+      end
+
       context ':predicate_extensions with orphaned collection objects' do
         let(:p1) { FactoryBot.create(:valid_predicate)}
         let(:p2) { FactoryBot.create(:valid_predicate)}
