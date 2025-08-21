@@ -104,7 +104,9 @@ module CollectionObject::DwcExtensions::MediaExtensions
 
   def darwin_core_media_extension_rows
     rv = []
-    rv += images.collect do |i|
+    # TODO: preload all of these
+    images_array = (images + observations.map { |o| o.images }).flatten
+    rv += images_array.collect do |i|
       image_dwc_array =
         Export::CSV::Dwc::Extension::Media::HEADERS.collect do |h|
           dwc_reader = DWC_MEDIA_EXTENSION_MAP[h.to_sym]

@@ -39,7 +39,7 @@ module Shared::Dwc::MediaExtensions
       .where(roles: {type: 'AttributionOwner'})
       .where(id: id)
       .select('people.cached')
-      .first&.cached
+      .map { |o| o.cached }.join(CollectionObject::DWC_DELIMITER)
   end
 
   def dwc_media_dc_creator
@@ -48,7 +48,7 @@ module Shared::Dwc::MediaExtensions
       .where(roles: {type: 'AttributionCreator'})
       .where(id: id)
       .select('people.cached')
-      .first&.cached
+      .map { |c| c.cached }.join(CollectionObject::DWC_DELIMITER)
   end
 
 end
