@@ -54,7 +54,7 @@ module CollectionObject::DwcExtensions::MediaExtensions
     #tag: :dwc_media_tag, # TODO list tags??
     # 'LocationShown', # TODO?? could be AD of depiction/conveyance of image/sound (on otu)
     # 'WorldRegion',
-    # 'CountryCode', TODO: AD on image/sound for all of these ?? Yes.
+    # 'CountryCode', TODO: AD on image/sound for all of these ??
     # 'CountryName',
     # 'ProvinceState',
     # 'City',
@@ -85,9 +85,9 @@ module CollectionObject::DwcExtensions::MediaExtensions
     # 'relatedResourceID',
     # 'providerID',
     # 'derivedFrom',
-    # 'associatedSpecimenReference', TODO ??
-    # 'associatedObservationReference', TODO ??
-    # 'accessURI', TODO ?? Does user fill this in after the fact with TP links?
+    associatedSpecimenReference: :dwc_media_associated_specimen_reference,
+    # 'associatedObservationReference',
+    # 'accessURI',
     #'dc:format': :dwc_media_dc_format,
     # 'dcterms:format',
     # 'variantLiteral',
@@ -105,19 +105,26 @@ module CollectionObject::DwcExtensions::MediaExtensions
   def darwin_core_media_extension_rows
     rv = []
     # TODO: preload all of these
-    images_array = (images + observations.map { |o| o.images }).flatten
+    images_array = (
+      images.map { |i| { image: i, observation: nil }} +
+      observations.map { |o| o.images.map { |i| { image: i, observation: o }} }
+    ).flatten
     rv += images_array.collect do |i|
       image_dwc_array =
         Export::CSV::Dwc::Extension::Media::HEADERS.collect do |h|
           dwc_reader = DWC_MEDIA_EXTENSION_MAP[h.to_sym]
           dwc_reader.present? && respond_to?(dwc_reader) ?
-            send(dwc_reader, i) : nil
+            send(dwc_reader, i[:image]) : nil
         end
 
-      image_fields_hash = i.darwin_core_media_extension_image_row
-
+      image_fields_hash = i[:image].darwin_core_media_extension_image_row
       # Merge image_fields_hash data into image_dwc_array.
       image_fields_hash.each { |k, v| image_dwc_array[extension_map_index(k)] = v }
+
+      if i[:observation]
+        observation_fields_hash = i[:observation].darwin_core_media_extension_image_row
+        observation_fields_hash.each { |k, v| image_dwc_array[extension_map_index(k)] = v }
+      end
 
       image_dwc_array
     end
@@ -199,5 +206,9 @@ module CollectionObject::DwcExtensions::MediaExtensions
 
   def dwc_media_life_stage(o)
     dwc_life_stage
+  end
+
+  def dwc_media_associated_specimen_reference(o)
+    Shared::Api.api_link(self)
   end
 end

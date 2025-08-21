@@ -135,6 +135,7 @@ class Observation < ApplicationRecord
   include Shared::Confidences
   include Shared::ProtocolRelationships
   include Shared::AssertedDistributions
+  include Observation::DwcMediaExtensions
   include Shared::IsData
   include Shared::ObservationIndex
 
