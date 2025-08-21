@@ -150,6 +150,10 @@ class TaxonNamesController < ApplicationController
     )
   end
 
+  def taxonomy
+    @taxon_name = TaxonName.find(params[:taxon_name_id])
+  end
+
   # GET /taxon_names/select_options
   def select_options
     @taxon_names = TaxonName.select_optimized(

@@ -39,17 +39,15 @@
     </div>
   </div>
 
-  <div id="show" class="panels-container">
-    <div class="item item1 nav-column">
-      <div class="panel separate-right">
+  <div id="show" class="panels-container gap-medium">
+    <div class="nav-column">
+      <div class="panel">
         <%= render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
       </div>
     </div>
 
-    <div class="item item2 separate-bottom">
-      <div class="flexbox separate-bottom">
-        <div class="panel separate-left separate-right">
-          <div>
+
+        <div class="panel full_width">
             <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle">
               <h3 class="item center_text">
                 <%= tag.span(rank_tag(@taxon_name), class: :subtle) -%>
@@ -80,10 +78,12 @@
                 <% end %>
               </div>
             </div>
-          </div>
+
         </div>
+
+
         <div id="third-column">
-          <div class="flex-wrap-row margin-small-left">
+          <div class="flex-wrap-row">
             <%= render "summary" %>
             <%= render "soft_validation" %>
             <%= annotations_summary_tag(@taxon_name) %>
@@ -93,21 +93,22 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <% if @taxon_name.depictions.any? %>
-        <div>
-          <div id="depiction-panel" class="panel content separate-left">
-            <h2> Depictions </h2>
-            <div class="horizontal-left-content flexbox">
-              <%= thumb_list_tag(@taxon_name) -%>
+          <% if @taxon_name.depictions.any? %>
+            <div>
+              <div id="depiction-panel" class="panel content">
+                <h2> Depictions </h2>
+                <div class="horizontal-left-content flexbox">
+                  <%= thumb_list_tag(@taxon_name) -%>
+                </div>
+              </div>
             </div>
-          </div>
+          <% end %>
         </div>
-      <% end %>
 
-    </div>
+
+
+
   <div id="vue-browse-nomenclature-validation-modal"></div>
   </div>
 </div>

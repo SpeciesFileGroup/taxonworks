@@ -1,0 +1,108 @@
+<template>
+  <li>
+    <VBtn
+      v-if="!taxon.leaf"
+      circle
+      small
+      color="primary"
+      :disabled="isLoading"
+      @click="toggle"
+    >
+      <span v-if="taxon.isLoaded && taxon.isExpanded">-</span>
+      <span v-else>+</span>
+    </VBtn>
+    <span
+      v-if="currentId === taxon.id"
+      class="current"
+      v-html="taxon.name"
+    />
+    <a
+      v-else
+      :href="makeBrowseUrl({ id: taxon.id, type: TAXON_NAME })"
+      v-html="taxon.name"
+    />
+    <TaxonomySynonyms
+      v-if="taxon.synonyms?.length"
+      :synonyms="taxon.synonyms"
+    />
+    <template v-if="(!taxon.isLoaded || taxon.isExpanded) && taxon.children">
+      <ul class="taxonomy-tree">
+        <TaxonomyTree
+          v-for="child in taxon.children"
+          :key="child.id"
+          :taxon="child"
+          :current-id="currentId"
+        />
+      </ul>
+    </template>
+  </li>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { TaxonName } from '@/routes/endpoints'
+import TaxonomyTree from './TaxonomyTree.vue'
+import TaxonomySynonyms from './TaxonomySynonyms.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { makeBrowseUrl } from '@/helpers'
+import { TAXON_NAME } from '@/constants'
+
+const props = defineProps({
+  taxon: {
+    type: Object,
+    required: true
+  },
+
+  currentId: {
+    type: Number,
+    required: true
+  }
+})
+
+const isLoading = ref(false)
+
+function makeTaxonNode(taxon, children = []) {
+  return {
+    id: taxon.id,
+    name: [taxon.cached_html, taxon.cached_author_year]
+      .filter(Boolean)
+      .join(' '),
+    synonyms: taxon.synonyms,
+    leaf: taxon.leaf_node,
+    isExpanded: false,
+    isValid: taxon.cached_is_valid,
+    children: children || []
+  }
+}
+
+function toggle() {
+  if (!props.taxon.isExpanded) {
+    expandNode(props.taxon.id)
+  }
+
+  props.taxon.isExpanded = !props.taxon.isExpanded
+}
+
+function expandNode(taxonId) {
+  isLoading.value = true
+  TaxonName.taxonomy(taxonId)
+    .then(({ body }) => {
+      const children = body.children.map((c) => makeTaxonNode(c))
+
+      children.forEach((item, index) => {
+        const current = props.taxon.children.find((c) => c.id === item.id)
+
+        if (current) {
+          children[index] = current
+        }
+      })
+
+      props.taxon.isExpanded = true
+      props.taxon.isLoaded = true
+      props.taxon.children = children
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+</script>
