@@ -122,12 +122,16 @@ module Export::Dwca
 
       collection_objects = ::CollectionObject.none
       if @media_extension[:collection_objects]
-        collection_objects = ::CollectionObject.from('(' + @media_extension[:collection_objects] + ') AS collection_objects')
+        collection_objects = ::CollectionObject
+          .from('(' + @media_extension[:collection_objects] + ') AS collection_objects')
+          .includes(:images, :sounds, observations: :images, taxon_determination: {otu: :taxon_name})
       end
 
       field_occurrences = ::FieldOccurrence.none
       if @media_extension[:field_occurrences]
-        field_occurrences = ::FieldOccurrence.from('(' + @media_extension[:field_occurrences] + ') AS field_occurrences')
+        field_occurrences = ::FieldOccurrence
+          .from('(' + @media_extension[:field_occurrences] + ') AS field_occurrences')
+          .includes(:images, :sounds, observations: :images, taxon_determination: {otu: :taxon_name})
       end
 
       {

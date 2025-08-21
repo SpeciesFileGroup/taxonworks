@@ -104,7 +104,6 @@ module CollectionObject::DwcExtensions::MediaExtensions
 
   def darwin_core_media_extension_rows
     rv = []
-    # TODO: preload all of these
     images_array = (
       images.map { |i| { image: i, observation: nil }} +
       observations.map { |o| o.images.map { |i| { image: i, observation: o }} }
