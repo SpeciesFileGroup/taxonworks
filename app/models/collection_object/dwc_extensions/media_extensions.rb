@@ -52,9 +52,9 @@ module CollectionObject::DwcExtensions::MediaExtensions
     #tag: :dwc_media_tag, # TODO list tags??
     # 'LocationShown', # TODO?? could be AD of depiction/conveyance of image/sound (on otu)
     # 'WorldRegion',
-    # 'CountryCode', TODO: AD on image/sound for all of these ??
-    # 'CountryName',
-    # 'ProvinceState',
+    #CountryCode: :dwc_media_country_code,
+    CountryName: :dwc_media_country_name,
+    ProvinceState: :dwc_media_province_state,
     # 'City',
     # 'Sublocation',
     # 'temporal',
@@ -180,13 +180,25 @@ module CollectionObject::DwcExtensions::MediaExtensions
     end
   end
 
+# TODO? not cached
+#  def dwc_media_country_code(o)
+#  end
+
+  def dwc_media_country_name(o)
+    dwc_country
+  end
+
+  def dwc_media_province_state(o)
+    dwc_state_province
+  end
+
   def dwc_media_scientific_name(o)
     dwc_scientific_name
   end
 
   def dwc_media_vernacular_name(o)
-    td = taxon_determination
-    otu = td&.otu
+    otu = current_otu
+
     return nil if otu.nil?
 
     # TODO: include countries?

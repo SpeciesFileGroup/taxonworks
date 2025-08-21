@@ -11,6 +11,6 @@ module Shared::Api
 
     return s + '/api/v1/' if ar.nil?
 
-    s = s + "/api/v1/#{ar.class.base_class.name.pluralize}/#{id || ar.id}"
+    s = s + "/api/v1/#{ar.class.base_class.name.downcase.pluralize}/#{id || ar.id}"
   end
 end

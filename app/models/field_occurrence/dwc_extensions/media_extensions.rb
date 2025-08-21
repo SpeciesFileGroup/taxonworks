@@ -1,8 +1,9 @@
 module FieldOccurrence::DwcExtensions::MediaExtensions
   extend ActiveSupport::Concern
 
-  # TODO: Currently *identical* to
-  # CollectionObject::DwcExtensions::MediaExtensions - if that holds up, merge.
+  # TODO: Currently nearly identical to
+  # CollectionObject::DwcExtensions::MediaExtensions - if that holds up, maybe
+  # merge.
 
   DWC_MEDIA_EXTENSION_MAP = {
     # identifier
@@ -55,9 +56,9 @@ module FieldOccurrence::DwcExtensions::MediaExtensions
     #tag: :dwc_media_tag, # TODO list tags??
     # 'LocationShown', # TODO?? could be AD of depiction/conveyance of image/sound (on otu)
     # 'WorldRegion',
-    # 'CountryCode', TODO: AD on image/sound for all of these ?? Yes.
-    # 'CountryName',
-    # 'ProvinceState',
+    #CountryCode: :dwc_media_country_code,
+    CountryName: :dwc_media_country_name,
+    ProvinceState: :dwc_media_province_state,
     # 'City',
     # 'Sublocation',
     # 'temporal',
@@ -86,7 +87,7 @@ module FieldOccurrence::DwcExtensions::MediaExtensions
     # 'relatedResourceID',
     # 'providerID',
     # 'derivedFrom',
-    associatedSpecimenReference: :dwc_media_associated_specimen_reference,
+    #associatedSpecimenReference: :dwc_media_associated_specimen_reference,
     # 'associatedObservationReference', TODO ??
     # 'accessURI', TODO ?? Does user fill this in after the fact with TP links?
     #'dc:format': :dwc_media_dc_format,
@@ -183,6 +184,18 @@ module FieldOccurrence::DwcExtensions::MediaExtensions
     end
   end
 
+# TODO? not cached
+#  def dwc_media_country_code(o)
+#  end
+
+  def dwc_media_country_name(o)
+    dwc_country
+  end
+
+  def dwc_media_province_state(o)
+    dwc_state_province
+  end
+
   def dwc_media_scientific_name(o)
     dwc_scientific_name
   end
@@ -216,8 +229,9 @@ module FieldOccurrence::DwcExtensions::MediaExtensions
     dwc_life_stage
   end
 
-   def dwc_media_associated_specimen_reference(o)
-    Shared::Api.api_link(self)
-  end
+  # Take 'specimen' literally, don't include with field_occurrence.
+  #def dwc_media_associated_specimen_reference(o)
+   # Shared::Api.api_link(self)
+  #end
 
 end
