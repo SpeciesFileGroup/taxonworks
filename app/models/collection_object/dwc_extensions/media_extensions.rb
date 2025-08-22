@@ -127,8 +127,8 @@ module CollectionObject::DwcExtensions::MediaExtensions
     end
 
     sounds_array = (
-      sounds.map { |s| { sound: s, observation: nil }} +
-      observations.map { |o| o.sounds.map { |s| { sound: s, observation: o }} }
+      sounds.map { |s| { sound: s, observation: nil }} #+
+      #observations.map { |o| o.sounds.map { |s| { sound: s, observation: o }} }
     ).flatten
     rv += sounds_array.collect do |s|
       sound_dwc_array =
@@ -142,10 +142,11 @@ module CollectionObject::DwcExtensions::MediaExtensions
       # Merge sound_fields_hash data into sound_dwc_array.
       sound_fields_hash.each { |k, v| sound_dwc_array[extension_map_index(k)] = v }
 
-      if s[:observation]
-        observation_fields_hash = s[:observation].darwin_core_media_extension_sound_row
-        observation_fields_hash.each { |k, v| sound_dwc_array[extension_map_index(k)] = v }
-      end
+      # TODO: bring this back once conveyances are back on Observations.
+      # if s[:observation]
+      #   observation_fields_hash = s[:observation].darwin_core_media_extension_sound_row
+      #   observation_fields_hash.each { |k, v| sound_dwc_array[extension_map_index(k)] = v }
+      # end
 
       sound_dwc_array
     end

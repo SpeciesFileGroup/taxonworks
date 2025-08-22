@@ -145,7 +145,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           expect(d.media_resource_relationship.count).to eq(2)
         end
 
-        specify '#media_resource_relationship returns lines for specimen observation sounds' do
+        # TODO: bring this back once conveyances are back on Observations.
+        xspecify '#media_resource_relationship returns lines for specimen observation sounds' do
           co = CollectionObject.last
           o = FactoryBot.create(:valid_observation, observation_object: co)
           FactoryBot.create(:valid_conveyance, conveyance_object: o)
@@ -177,7 +178,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           expect(d.media_resource_relationship.count).to eq(2)
         end
 
-        specify '#media_resource_relationship returns lines for field occurrence observation sounds' do
+        # TODO: bring this back once conveyances are back on Observations.
+        xspecify '#media_resource_relationship returns lines for field occurrence observation sounds' do
           fo = FieldOccurrence.last
           o = FactoryBot.create(:valid_observation, observation_object: fo)
           FactoryBot.create(:valid_conveyance, conveyance_object: o)

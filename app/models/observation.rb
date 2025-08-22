@@ -132,7 +132,11 @@ class Observation < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Depictions
-  include Shared::Conveyances
+  # Introduces a second `sounds.observations` association which interferes with
+  # the `sounds.observations` defined by the Shared::Observations concern
+  # on Sound to make Sound observable.
+  # TODO: make this work, somehow.
+  #include Shared::Conveyances
   include Shared::Confidences
   include Shared::ProtocolRelationships
   include Shared::AssertedDistributions
