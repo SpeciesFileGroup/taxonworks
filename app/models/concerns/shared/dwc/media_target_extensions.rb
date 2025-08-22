@@ -3,6 +3,10 @@
 module Shared::Dwc::MediaTargetExtensions
   extend ActiveSupport::Concern
 
+  # See https://rs.gbif.org/extension/ac/audiovisual_2024_11_07.xml and
+  # Export::CSV::Dwc::Extension::Media::HEADERS for the original list. The list
+  # here is uncommented only for those properties actually mapped by this
+  # concern; see concerns on Image, Sound, and Observation for others.
   DWC_MEDIA_EXTENSION_MAP = {
     # identifier
     #'dc:type': :dwc_media_dc_type, # TODO: is the prefix the way to do this?

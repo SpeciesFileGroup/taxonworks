@@ -8,6 +8,7 @@ module Export::CSV::Dwc::Extension::Media
   # * creator
   # * language
   # * format
+  # See https://rs.gbif.org/extension/ac/audiovisual_2024_11_07.xml
   HEADERS = [
     'identifier',
     'dc:type',
