@@ -19,7 +19,9 @@ const AssertedDistributionObject = [
     query_key: 'otu_id',
     searchbox_text: 'Search for an OTU',
     smartSelector: {
-      otuPicker: true
+      props: {
+        otuPicker: true
+      }
     }
   },
 

@@ -1,8 +1,6 @@
 <template>
   <div>
-    <VSpinner
-      v-if="loading"
-    />
+    <VSpinner v-if="loading" />
 
     <div class="horizontal-left-content separate-bottom">
       <VSwitch
@@ -14,43 +12,54 @@
 
     <div v-if="minimal">
       <VAutocomplete
-        :url="`/${tabData['snake']}/autocomplete`"
-        :placeholder="tabData['searchbox_text'] || `Search for a ${tabData['human']}`"
-        :add-params="tabData['polymorphic_types_allowed'] || {}"
+        class="separate-bottom"
+        :url="`/${tabData.snake}/autocomplete`"
+        :placeholder="tabData.searchbox_text || `Search for a ${tabData.human}`"
+        :add-params="tabData.polymorphic_types_allowed || {}"
         label="label_html"
         clear-after
         param="term"
         :autofocus="autofocus"
         @get-item="(item) => sendObjectFromId(item.id)"
-        class="separate-bottom"
       />
     </div>
 
     <div v-else>
       <SmartSelector
         v-model="selectorModelObject"
-        :placeholder="tabData['searchbox_text'] || `Search for a ${tabData['human']}`"
+        v-bind="tabData.smartSelector?.props"
+        :placeholder="tabData.searchbox_text || `Search for a ${tabData.human}`"
         :model="tabData['snake']"
         :label="label"
-        v-bind="tabData.smartSelector"
-        :autocomplete-params="tabData['polymorphic_types_allowed'] || {}"
-        klass="AssertedDistribution"
-        target="AssertedDistribution"
+        :add-tabs="Object.keys(smartSelectorTabs)"
+        :autocomplete-params="tabData.polymorphic_types_allowed || {}"
+        :klass="ASSERTED_DISTRIBUTION"
+        :target="ASSERTED_DISTRIBUTION"
         ref="smartSelector"
         inline
         buttons
         :autofocus="autofocus"
-        :pin-section="tabData['plural']"
-        :pin-type="tabData['singular']"
-        @selected="(object) => sendObject(object)"
-      />
+        :pin-section="tabData.plural"
+        :pin-type="tabData.singular"
+        @selected="sendObject"
+      >
+        <template
+          v-for="(component, tab) in smartSelectorTabs"
+          v-slot:[tab]
+        >
+          <component
+            :is="component"
+            @select="sendObject"
+          />
+        </template>
+      </SmartSelector>
     </div>
-
   </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
+import { ASSERTED_DISTRIBUTION } from '@/constants'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -85,7 +94,7 @@ const props = defineProps({
   klassKey: {
     type: String,
     default: 'objectType' // 'shapeType', etc. The polymorphic relation descriptor.
-  },
+  }
 })
 
 const inputObject = defineModel({
@@ -94,26 +103,20 @@ const inputObject = defineModel({
 })
 
 const smartSelector = ref(null)
-const tab = ref(props.objectTypes[0]['display'])
+const tab = ref(props.objectTypes[0].display)
 const loading = ref(false)
 
 const emit = defineEmits(['selectObject'])
 
-const tabData = computed(() => {
-  return props.objectTypes.find((o) => o['display'] == tab.value)
-})
-
-const tabDisplayOptions = computed(() => {
-  return props.objectTypes.map((o) => o['display'])
-})
+const tabData = computed(() => props.objectTypes.find((o) => o.display == tab.value))
+const tabDisplayOptions = computed(() => props.objectTypes.map((o) => o.display))
+const smartSelectorTabs = computed(() => tabData.value.smartSelector?.tabs || {})
 
 // inputObject gets passed on to the selector if they have the same object type;
 // object assigned from the selector *always* gets passed back to inputObject.
 const selectorModelObject = computed({
   get() {
-    return inputObject.value?.objectType == tab.value
-      ? inputObject.value
-      : {}
+    return inputObject.value?.objectType == tab.value ? inputObject.value : {}
   },
   set(value) {
     setTypeOnObject(value)
@@ -122,7 +125,8 @@ const selectorModelObject = computed({
 })
 
 function sendObjectFromId(id) {
-  tabData.value['endpoint'].find(id)
+  tabData.value['endpoint']
+    .find(id)
     .then(({ body }) => {
       setTypeOnObject(body)
       inputObject.value = body
@@ -140,7 +144,6 @@ function sendObject(object) {
 }
 
 function setTypeOnObject(o) {
-  o[props.klassKey] = tabData.value['singular']
+  o[props.klassKey] = tabData.value.singular
 }
-
 </script>
