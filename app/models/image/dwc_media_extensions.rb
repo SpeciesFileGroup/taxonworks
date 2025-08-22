@@ -10,6 +10,7 @@ module Image::DwcMediaExtensions
     'dcmi:type': :dwc_media_dcmi_type,
     'dc:format': :dwc_media_dc_format,
     # 'dcterms:format',
+    accessURI: :dwc_media_access_uri,
     PixelXDimension: :dwc_media_pixel_x_dimension,
     PixelYDimension: :dwc_media_pixel_y_dimension,
   }.freeze
@@ -32,7 +33,11 @@ module Image::DwcMediaExtensions
   end
 
   def dwc_media_dc_format
-    'image/jpeg'
+    image_file_content_type
+  end
+
+  def dwc_media_access_uri
+    Shared::Api.image_link(self)
   end
 
   def dwc_media_pixel_x_dimension

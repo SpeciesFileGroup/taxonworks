@@ -10,6 +10,7 @@ module Sound::DwcMediaExtensions
     'dcmi:type': :dwc_media_dcmi_type,
     'dc:format': :dwc_media_dc_format,
     # 'dcterms:format',
+    accessURI: :dwc_media_access_uri,
   }.freeze
 
   def darwin_core_media_extension_sound_row
@@ -30,6 +31,10 @@ module Sound::DwcMediaExtensions
   end
 
   def dwc_media_dc_format
-    "audio/#{sound_file.content_type}"
+    "#{sound_file.content_type}"
+  end
+
+  def dwc_media_access_uri
+    Shared::Api.sound_link(self)
   end
 end

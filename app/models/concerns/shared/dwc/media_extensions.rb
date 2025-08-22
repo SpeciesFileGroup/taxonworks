@@ -6,7 +6,6 @@ module Shared::Dwc::MediaExtensions
   DWC_MEDIA_SHARED_EXTENSION_MAP = {
     identifier: :dwc_media_identifier,
     providerManagedID: :dwc_media_provider_managed_id, # TODO currently .id ??
-    accessURI: :dwc_media_access_uri,
     'dc:rights': :dwc_media_dc_rights,
     'dcterms:rights': :dwc_media_dcterms_rights,
     Owner: :dwc_media_owner,
@@ -19,11 +18,6 @@ module Shared::Dwc::MediaExtensions
 
   def dwc_media_provider_managed_id
     id
-  end
-
-
-  def dwc_media_access_uri
-    Shared::Api.api_link(self)
   end
 
   def dwc_media_dc_rights
