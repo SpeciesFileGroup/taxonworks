@@ -161,8 +161,7 @@ module Shared::Dwc::MediaTargetExtensions
   end
 
   def extension_map_index(key)
-    # TODO: freeze the inverse?
-    Export::CSV::Dwc::Extension::Media::HEADERS.index(key.to_s)
+    Export::CSV::Dwc::Extension::Media::HEADERS_INDEX[key.to_s]
   end
 
   def dwc_media_description(o)

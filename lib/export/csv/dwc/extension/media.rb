@@ -108,6 +108,8 @@ module Export::CSV::Dwc::Extension::Media
     'PixelYDimension'
   ].freeze
 
+  HEADERS_INDEX = HEADERS.each_with_index.to_h.freeze
+
   def self.csv(collection_objects_scope, field_occurrences_scope)
     tbl = []
     tbl[0] = HEADERS
