@@ -32,7 +32,7 @@ module Image::DwcMediaExtensions
   end
 
   def dwc_media_dc_format
-    'jpg'
+    'image/jpeg'
   end
 
   def dwc_media_pixel_x_dimension

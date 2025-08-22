@@ -30,6 +30,6 @@ module Sound::DwcMediaExtensions
   end
 
   def dwc_media_dc_format
-    sound_file.content_type
+    "audio/#{sound_file.content_type}"
   end
 end
