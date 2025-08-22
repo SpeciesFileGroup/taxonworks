@@ -7,15 +7,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Browse OTU: Radial annotator to Timeline [#4057]
+- Radial CO: Accessions / Deaccession
+- Filter CO: Containerized facet
+- Radial navigator: New extract and Browse OTUs task for CollectionObject [#2882][#2860]
+
 ### Fixed
 
 - Match taxon names task sometimes doesn't work with long name lists of names [#4523]
+- Radial navigator: Browse taxon name link doesn't work for Combinations [#4526]
 
 ### Changed
 
 - Allow `accepted` as `taxonomicStatus` and empty `acceptedNameUsageID` for valid names in DwC checklist importer
 
+[#2860]: https://github.com/SpeciesFileGroup/taxonworks/issues/2860
+[#2882]: https://github.com/SpeciesFileGroup/taxonworks/issues/2882
+[#3845]: https://github.com/SpeciesFileGroup/taxonworks/issues/3845
+[#4057]: https://github.com/SpeciesFileGroup/taxonworks/issues/4057
 [#4523]: https://github.com/SpeciesFileGroup/taxonworks/issues/4523
+[#4526]: https://github.com/SpeciesFileGroup/taxonworks/issues/4526
 
 ## [0.53.1] - 2025-08-13
 
