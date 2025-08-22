@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial CO: Accessions / Deaccession
 - Filter CO: Containerized facet
 - Radial navigator: New extract and Browse OTUs task for CollectionObject [#2882][#2860]
+- New collecting event task: Add field occurrence panel [#4529]
 
 ### Fixed
 
