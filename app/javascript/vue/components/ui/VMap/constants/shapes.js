@@ -19,7 +19,7 @@ const DEFAULT_SHAPE_STYLE = {
 export const SHAPES_CONFIG = {
   Absent: {
     className: 'leaflet-hatch-pattern',
-    color: '#a1ff66'
+    color: 'var(--color-map-asserted-distribution-absent)'
   },
 
   [ASSERTED_DISTRIBUTION]: {
