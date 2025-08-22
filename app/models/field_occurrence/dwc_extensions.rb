@@ -3,7 +3,7 @@ module FieldOccurrence::DwcExtensions
 
   include Shared::Dwc::CollectingEventExtensions
   include Shared::Dwc::TaxonDeterminationExtensions
-  include FieldOccurrence::DwcExtensions::MediaExtensions
+  include Shared::Dwc::MediaTargetExtensions
   include Shared::IsDwcOccurrence
 
   included do

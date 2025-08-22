@@ -5,7 +5,7 @@ module CollectionObject::DwcExtensions
   include Shared::Dwc::TaxonDeterminationExtensions
   include Shared::Dwc::CollectingEventExtensions
   include CollectionObject::DwcExtensions::TaxonworksExtensions
-  include CollectionObject::DwcExtensions::MediaExtensions
+  include Shared::Dwc::MediaTargetExtensions
   include Shared::IsDwcOccurrence
 
   included do

@@ -1,4 +1,6 @@
-module CollectionObject::DwcExtensions::MediaExtensions
+# A concern on media 'targets' (i.e. things that are conveyed or depicted by
+# media) like CollectionObjects and FieldOccurrences.
+module Shared::Dwc::MediaTargetExtensions
   extend ActiveSupport::Concern
 
   DWC_MEDIA_EXTENSION_MAP = {
@@ -181,7 +183,7 @@ module CollectionObject::DwcExtensions::MediaExtensions
     end
   end
 
-# TODO? not cached
+# TODO? country code isn't cached; we could try to look it up off GAs
 #  def dwc_media_country_code(o)
 #  end
 
@@ -227,6 +229,8 @@ module CollectionObject::DwcExtensions::MediaExtensions
   end
 
   def dwc_media_associated_specimen_reference(o)
-    Shared::Api.api_link(self)
+    if self.is_a?(CollectionObject)
+      Shared::Api.api_link(self)
+    end
   end
 end

@@ -1,3 +1,4 @@
+# A concern on media items like images and sounds.
 module Shared::Dwc::MediaExtensions
   extend ActiveSupport::Concern
 
