@@ -8,9 +8,9 @@ module Image::DwcMediaExtensions
   DWC_MEDIA_IMAGE_EXTENSION_MAP = {
     'dc:type': :dwc_media_dc_type,
     'dcmi:type': :dwc_media_dcmi_type,
+    accessURI: :dwc_media_access_uri,
     'dc:format': :dwc_media_dc_format,
     # 'dcterms:format',
-    accessURI: :dwc_media_access_uri,
     PixelXDimension: :dwc_media_pixel_x_dimension,
     PixelYDimension: :dwc_media_pixel_y_dimension,
   }.freeze

@@ -698,6 +698,7 @@ module Export::Dwca
 
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.archive('xmlns' => 'http://rs.tdwg.org/dwc/text/') {
+          # Core
           xml.core(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/dwc/terms/Occurrence') {
             xml.files {
               xml.location 'data.tsv'
@@ -711,6 +712,23 @@ module Export::Dwca
               end
             end
           }
+
+          # Media
+          if media_extension.present?
+            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/ac/terms/Multimedia') {
+              xml.files {
+                xml.location 'media.tsv'
+              }
+              Export::CSV::Dwc::Extension::Media::HEADERS_NAMESPACES.each_with_index do |n, i|
+                if i == 0
+                  n == '' || (raise TaxonWorks::Error, "First media column should be '', got '#{n}'")
+                  xml.coreid(index: 0)
+                else
+                  xml.field(index: i, term: n)
+                end
+              end
+            }
+          end
         }
       end
 

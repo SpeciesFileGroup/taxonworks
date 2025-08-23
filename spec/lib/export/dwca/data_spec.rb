@@ -118,8 +118,14 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
         specify '#media_resource_relationship is a tempfile' do
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope  })
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_resource_relationship).to be_kind_of(Tempfile)
+        end
+
+        specify '#media_resource_relationship header row starts with "coreid"' do
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          expect(d.media_resource_relationship.first).to start_with('coreid')
         end
 
         specify '#media_resource_relationship returns lines for specimen images' do
@@ -175,6 +181,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           FactoryBot.create(:valid_depiction, depiction_object: o)
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          byebug
+
           expect(d.media_resource_relationship.count).to eq(2)
         end
 

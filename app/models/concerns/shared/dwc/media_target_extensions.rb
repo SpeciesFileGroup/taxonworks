@@ -8,6 +8,7 @@ module Shared::Dwc::MediaTargetExtensions
   # here is uncommented only for those properties actually mapped by this
   # concern; see concerns on Image, Sound, and Observation for others.
   DWC_MEDIA_EXTENSION_MAP = {
+    coreid: :dwc_media_coreid,
     # identifier
     #'dc:type': :dwc_media_dc_type, # TODO: is the prefix the way to do this?
     #'dcmi:type': :dwc_media_dcmi_type,
@@ -161,7 +162,11 @@ module Shared::Dwc::MediaTargetExtensions
   end
 
   def extension_map_index(key)
-    Export::CSV::Dwc::Extension::Media::HEADERS_INDEX[key.to_s]
+    Export::CSV::Dwc::Extension::Media::HEADERS_INDEX[key.to_sym]
+  end
+
+  def dwc_media_coreid(o)
+    dwc_occurrence_id
   end
 
   def dwc_media_description(o)
