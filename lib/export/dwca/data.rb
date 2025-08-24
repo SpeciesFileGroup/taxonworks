@@ -2,6 +2,14 @@ require 'zip'
 
 module Export::Dwca
 
+  # Columns we include in the Resource Relationship extension table that
+  # aren't DwC terms but have meaning for us and perhaps users of our
+  # archives.
+  LOCAL_RESOURCE_RELATIONSHIP_TERMS = {
+    'TW:Resource': 'https://sfg.taxonworks.org/dwc/terms/resourceRelationship/resource',
+    'TW:RelatedResource': 'https://sfg.taxonworks.org/dwc/terms/resourceRelationship/relatedResource',
+  }.freeze
+
   # !!
   # !! This export does not support AssertedDistribution data at the moment.  While those data are indexed,
   # !! if they are in the `core_scope` they will almost certainly cause problems or be ignored.
@@ -713,15 +721,33 @@ module Export::Dwca
             end
           }
 
-          # Media
-          if media_extension.present?
+
+          # Resource relationship (biological associations)
+          if !biological_associations_extension.nil?
+            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/dwc/terms/ResourceRelationship') {
+              xml.files {
+                xml.location 'resource_relationships.tsv'
+              }
+              Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS_NAMESPACES.each_with_index do |n, i|
+                if i == 0
+                  n == '' || (raise TaxonWorks::Error, "First resource relationship column (coreid) should have namespace '', got '#{n}'")
+                  xml.coreid(index: 0)
+                else
+                  xml.field(index: i, term: n)
+                end
+              end
+            }
+          end
+
+          # Media (images, sounds)
+          if !media_extension.nil?
             xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/ac/terms/Multimedia') {
               xml.files {
                 xml.location 'media.tsv'
               }
               Export::CSV::Dwc::Extension::Media::HEADERS_NAMESPACES.each_with_index do |n, i|
                 if i == 0
-                  n == '' || (raise TaxonWorks::Error, "First media column should be '', got '#{n}'")
+                  n == '' || (raise TaxonWorks::Error, "First media column (coreid) should have namespace '', got '#{n}'")
                   xml.coreid(index: 0)
                 else
                   xml.field(index: i, term: n)

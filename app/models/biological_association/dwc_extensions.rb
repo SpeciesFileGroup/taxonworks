@@ -5,13 +5,14 @@ module BiologicalAssociation::DwcExtensions
   included do
 
     DWC_EXTENSION_MAP = {
+      coreid: :dwc_resource_relationship_coreid, # required by dwca to link to core file, not part of extension
       resourceRelationshipID: :dwc_resource_relationship_id,
       resourceID: :dwc_resource_id,
-      resource: :dwc_resource, # !! NOT A DWC FIELD
+      'TW:Resource': :dwc_resource, # a local term, not dwc
       relationshipOfResourceID: :dwc_relationship_of_resource_id,
       relationshipOfResource: :dwc_relationship_of_resource,
       relatedResourceID: :dwc_related_resource_id,
-      relatedResource: :dwc_related_resource, # !! NOT A DWC FIELD
+      'TW:RelatedResource': :dwc_related_resource, # a local term, not dwc
       relationshipAccordingTo: :dwc_relationship_according_to, # TODO: DwC.  Needs ID version
       relationshipEstablishedDate: :dwc_relationship_established_date, # TODO: DwC needs clarification.
       relationshipRemarks: :dwc_relationship_remarks
@@ -32,6 +33,11 @@ module BiologicalAssociation::DwcExtensions
       end
     end
     r
+  end
+
+  def dwc_resource_relationship_coreid
+    # Note this is occurrence id of _subject_.
+    dwc_resource_id
   end
 
   def darwin_core_extension_json
