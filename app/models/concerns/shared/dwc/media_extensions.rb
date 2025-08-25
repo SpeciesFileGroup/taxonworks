@@ -13,7 +13,9 @@ module Shared::Dwc::MediaExtensions
   }.freeze
 
   def dwc_media_identifier
-    uuid || uri || id
+    # Images and sounds are unlikely to have a uuid or uri, so namespace with
+    # class name (this field is suposed to be unique).
+    "#{self.class.name.downcase}:#{uuid || uri || id}"
   end
 
   def dwc_media_provider_managed_id
