@@ -76,8 +76,8 @@ export const TaxonName = {
       headers: { 'Cache-Control': 'no-cache' }
     }),
 
-  taxonomy: (id) =>
-    AjaxCall('get', `/${model}/taxonomy`, { params: { taxon_name_id: id } }),
+  taxonomy: (id, params) =>
+    AjaxCall('get', `/${model}/${id}/taxonomy`, { params }),
 
   batchUpdate: (params) =>
     AjaxCall('patch', `/${model}/batch_update.json`, params),

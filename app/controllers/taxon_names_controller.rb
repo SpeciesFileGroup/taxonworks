@@ -151,7 +151,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def taxonomy
-    @taxon_name = TaxonName.find(params[:taxon_name_id])
+    @taxon_name = TaxonName.find(params[:id])
   end
 
   # GET /taxon_names/select_options

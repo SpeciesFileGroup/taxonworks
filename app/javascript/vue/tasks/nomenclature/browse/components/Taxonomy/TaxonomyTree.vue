@@ -18,21 +18,29 @@
     />
     <a
       v-else
+      :class="{ 'taxonomy-tree-invalid-name': !taxon.isValid }"
       :href="makeBrowseUrl({ id: taxon.id, type: TAXON_NAME })"
       v-html="taxon.name"
     />
+
     <TaxonomySynonyms
-      v-if="taxon.synonyms?.length"
+      v-if="taxon.synonyms?.length && !onlyValid"
+      class="taxonomy-tree-invalid-name"
       :synonyms="taxon.synonyms"
     />
     <template v-if="(!taxon.isLoaded || taxon.isExpanded) && taxon.children">
       <ul class="taxonomy-tree">
-        <TaxonomyTree
+        <template
           v-for="child in taxon.children"
           :key="child.id"
-          :taxon="child"
-          :current-id="currentId"
-        />
+        >
+          <TaxonomyTree
+            v-if="child.id === currentId || !onlyValid || child.isValid"
+            :taxon="child"
+            :current-id="currentId"
+            :only-valid="onlyValid"
+          />
+        </template>
       </ul>
     </template>
   </li>
@@ -56,6 +64,11 @@ const props = defineProps({
   currentId: {
     type: Number,
     required: true
+  },
+
+  onlyValid: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -76,7 +89,7 @@ function makeTaxonNode(taxon, children = []) {
 }
 
 function toggle() {
-  if (!props.taxon.isExpanded) {
+  if (!props.taxon.isExpanded && !props.taxon.isLoaded) {
     expandNode(props.taxon.id)
   }
 
@@ -85,7 +98,9 @@ function toggle() {
 
 function expandNode(taxonId) {
   isLoading.value = true
-  TaxonName.taxonomy(taxonId)
+  TaxonName.taxonomy(taxonId, {
+    ancestors: false
+  })
     .then(({ body }) => {
       const children = body.children.map((c) => makeTaxonNode(c))
 

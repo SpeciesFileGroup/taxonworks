@@ -910,7 +910,6 @@ resources :taxon_names do
 
     get :rank_table, defaults: {format: :json}
     get :predicted_rank, {format: :json}
-    get :taxonomy, {format: :json}
 
     patch :batch_update
 
@@ -920,6 +919,7 @@ resources :taxon_names do
 
   member do
     get :original_combination, defaults: {format: :json}
+    get :taxonomy, {format: :json}
   end
 end
 

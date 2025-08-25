@@ -1,19 +1,34 @@
 <template>
-  <ul
-    class="taxonomy-tree"
-    v-if="tree"
-  >
-    <TaxonomyTree
-      :current-id="taxonId"
-      :taxon="tree"
+  <label>
+    <input
+      type="checkbox"
+      v-model="onlyValid"
+      @change="updateStorage"
     />
-  </ul>
+    Show only valid names
+  </label>
+
+  <div class="panel-taxonomy-tree margin-medium-top">
+    <ul
+      class="taxonomy-tree"
+      v-if="tree"
+    >
+      <TaxonomyTree
+        :current-id="taxonId"
+        :taxon="tree"
+        :only-valid="onlyValid"
+      />
+    </ul>
+  </div>
 </template>
 
 <script setup>
 import { TaxonName } from '@/routes/endpoints'
 import { onBeforeMount, ref } from 'vue'
 import TaxonomyTree from './TaxonomyTree.vue'
+import { convertType } from '@/helpers'
+
+const STORAGE_ONLY_VALID_KEY = 'TW::TaxonomyTree::OnlyValid'
 
 defineOptions({
   name: 'TaxonomyTree'
@@ -27,6 +42,11 @@ const props = defineProps({
 })
 
 const tree = ref()
+const onlyValid = ref(true)
+
+function updateStorage() {
+  localStorage.setItem(STORAGE_ONLY_VALID_KEY, onlyValid.value)
+}
 
 function makeTaxonNode(taxon) {
   return {
@@ -67,6 +87,8 @@ function buildTree(ancestors, taxon) {
 }
 
 onBeforeMount(() => {
+  onlyValid.value = convertType(localStorage.getItem(STORAGE_ONLY_VALID_KEY))
+
   TaxonName.taxonomy(props.taxonId).then(({ body }) => {
     tree.value = buildTree(body.ancestors, {
       ...body.taxon_name,
@@ -78,6 +100,16 @@ onBeforeMount(() => {
 </script>
 
 <style lang="scss">
+.sticky-navbar-fixed {
+  .panel-taxonomy-tree {
+    max-height: calc(100vh - 320px);
+  }
+}
+.panel-taxonomy-tree {
+  padding-left: 0.75em;
+  max-height: calc(100vh - 500px);
+  overflow-y: auto;
+}
 .taxonomy-tree {
   white-space: nowrap;
   word-wrap: normal;
@@ -92,8 +124,10 @@ onBeforeMount(() => {
   li {
     position: relative;
     margin: 0;
-    padding: 0px 4px;
+    padding: 0px;
+    padding-left: 4px;
     border-left: 1px solid var(--border-color);
+    white-space: normal;
 
     button {
       position: absolute;
@@ -128,7 +162,6 @@ onBeforeMount(() => {
 
   .synonym-list {
     list-style: none;
-    border-left: 1px solid var(--border-color);
     padding-left: 8px;
     padding-bottom: 4px;
 
@@ -146,6 +179,10 @@ onBeforeMount(() => {
     li:last-child:before {
       border-left: none;
     }
+  }
+
+  .taxonomy-tree-invalid-name {
+    color: var(--feedback-warning-text-color);
   }
 }
 </style>
