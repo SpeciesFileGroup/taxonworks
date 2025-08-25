@@ -6,6 +6,7 @@ import { ActionFunctions } from './actions/actions'
 function makeInitialState() {
   return {
     settings: {
+      ignoredColumns: true,
       importModalView: false,
       isLoading: false,
       isProcessing: false,

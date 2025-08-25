@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import {
   STORAGE_FILTER_QUERY_KEY,
   STORAGE_FILTER_QUERY_STATE_PARAMETER
@@ -59,6 +59,11 @@ const EXCLUDE_PARAMETERS = ['page', 'per', 'extend', 'venn', 'venn_mode']
 const uuid = randomUUID()
 
 const props = defineProps({
+  extendedSlices: {
+    type: Array,
+    default: () => []
+  },
+
   disabled: {
     type: Boolean,
     default: false
@@ -72,6 +77,11 @@ const props = defineProps({
   parameters: {
     type: Object,
     default: undefined
+  },
+
+  title: {
+    type: String,
+    default: 'Radial Filter'
   },
 
   ids: {
@@ -94,32 +104,44 @@ const filteredParameters = computed(() => {
 
 const title = computed(() =>
   isOnlyIds.value
-    ? 'Radial Filter (Send checked rows to filter)'
-    : 'Radial Filter (Send full request to filter)'
+    ? `${props.title} (Send checked rows to filter)`
+    : `${props.title} (Send full request to filter)`
 )
 
 const isOnlyIds = computed(() => Array.isArray(props.ids))
 const filterLinks = computed(() => {
-  const objLinks = FILTER_LINKS[props.objectType]
+  const objLinks = [...FILTER_LINKS[props.objectType], ...props.extendedSlices]
 
   return objLinks || []
 })
 
-const queryObject = computed(() => {
-  const params = isOnlyIds.value
+const objParameters = computed(() =>
+  isOnlyIds.value
     ? { [ID_PARAM_FOR[props.objectType]]: props.ids }
     : { ...filteredParameters.value }
+)
 
-  return { [QUERY_PARAM[props.objectType]]: params }
+const queryObject = computed(() => {
+  return { [QUERY_PARAM[props.objectType]]: objParameters.value }
 })
 
 const hasParameters = computed(
   () => !!Object.keys(filteredParameters.value).length || !!props.ids?.length
 )
 
+function getParametersBySlice(slice) {
+  const params = slice.flattenQuery ? objParameters.value : queryObject.value
+
+  return {
+    ...params,
+    ...slice.params,
+    per: props.parameters?.per
+  }
+}
+
 const menuOptions = computed(() => {
   const slices = filterLinks.value.map((item) => {
-    const urlParameters = { ...queryObject.value, per: props.parameters?.per }
+    const urlParameters = getParametersBySlice(item)
 
     const urlWithParameters =
       item.link +
@@ -181,9 +203,13 @@ function openRadialMenu() {
   isVisible.value = true
 }
 
-function saveParametersOnStorage() {
+function saveParametersOnStorage(e) {
+  const filterlink = filterLinks.value.find(
+    (l) => l.label === e.segmentObject.slice.label
+  )
+
   if (hasParameters.value) {
-    const params = { ...queryObject.value, per: props.parameters?.per }
+    const params = getParametersBySlice(filterlink)
     const total = sessionStorage.getItem('totalFilterResult')
     const totalQueries =
       JSON.parse(sessionStorage.getItem('totalQueries')) || []

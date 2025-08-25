@@ -1,1 +1,5 @@
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, radial_quick_forms_tag(@conveyance) )  %>
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @conveyance}) -%>

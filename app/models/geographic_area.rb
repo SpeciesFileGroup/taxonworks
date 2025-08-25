@@ -93,7 +93,7 @@ class GeographicArea < ApplicationRecord
   accepts_nested_attributes_for :geographic_areas_geographic_items
 
   validates :geographic_area_type, presence: true
-  validates_presence_of :geographic_area_type_id
+  validates :geographic_area_type_id, presence: true
 
   validates :parent, presence: true, unless: -> { self.name == 'Earth' } # || ENV['NO_GEO_VALID']}
   validates :level0, presence: true, allow_nil: true, unless: -> { self.name == 'Earth' }
@@ -461,7 +461,7 @@ class GeographicArea < ApplicationRecord
       'properties' => {
         # cf. Gazetteer
         'shape' => {
-          'type' => 'geographic_area',
+          'type' => 'GeographicArea',
           'id' => id,
           'tag' => name
         }
@@ -570,6 +570,21 @@ class GeographicArea < ApplicationRecord
         .where(t['updated_by_id'].eq(user_id))
         .where(t['project_id'].eq(project_id))
         .order(t['updated_at'].desc)
+
+      # z is a table alias
+      z = i.as('recent_t')
+      p = GeographicArea.arel_table
+      GeographicArea.joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
+      ).pluck(:geographic_area_id).uniq
+    when 'CommonName'
+      t = CommonName.arel_table
+      # i is a select manager
+      i = t.project(t['geographic_area_id'], t['updated_at']).from(t)
+           .where(t['updated_at'].gt(1.week.ago))
+           .where(t['updated_by_id'].eq(user_id))
+           .where(t['project_id'].eq(project_id))
+           .order(t['updated_at'].desc)
 
       # z is a table alias
       z = i.as('recent_t')

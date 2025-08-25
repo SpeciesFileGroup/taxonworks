@@ -4,7 +4,8 @@
   <thead>
   <tr>
     <%= fancy_th_tag(name: 'Absent') -%>
-    <%= fancy_th_tag(name: 'Otu') -%>
+    <%= fancy_th_tag(name: 'Object') -%>
+    <%= fancy_th_tag(name: 'Object type') -%>
     <%= fancy_th_tag(name: 'Shape') -%>
     <%= fancy_th_tag(name: 'Shape type') -%>
     <%= fancy_th_tag(name: 'Source') -%>
@@ -17,7 +18,8 @@
   <% @asserted_distributions.each do |asserted_distribution| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= asserted_distribution.is_absent ? "yes" : "no" -%></td>
-          <td><%= object_tag(asserted_distribution.otu) %></td>
+          <td><%= object_tag(asserted_distribution.asserted_distribution_object) %></td>
+          <td><%= asserted_distribution.asserted_distribution_object_type %></td>
           <td><%= object_tag(asserted_distribution.asserted_distribution_shape) %></td>
           <td><%= asserted_distribution.asserted_distribution_shape_type %></td>
           <td><%= short_sources_tag(asserted_distribution.sources) %></td>

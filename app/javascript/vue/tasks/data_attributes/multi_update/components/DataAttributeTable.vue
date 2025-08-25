@@ -321,12 +321,12 @@ const selectAllProperties = computed({
   }
 
   th:last-child {
-    border-left: 1px solid #e5e5e5;
+    border-left: 1px solid var(--border-color);
   }
 }
 
 .cell-left-border {
-  border-left: 3px #eaeaea solid;
+  border-left: 3px var(--border-color) solid;
 }
 
 .highlight-unsaved {

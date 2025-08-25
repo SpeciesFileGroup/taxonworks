@@ -6,6 +6,14 @@ function capitalize(str = '') {
   return str.charAt(0).toUpperCase() + str.substring(1)
 }
 
+function decapitalize(str = '') {
+  if (typeof str !== 'string') {
+    return str
+  }
+
+  return str.charAt(0).toLowerCase() + str.substring(1)
+}
+
 function shorten(str, maxLen, separator = ' ') {
   if (str.length <= maxLen) return str
   return `${str.substr(0, str.lastIndexOf(separator, maxLen))} ...`
@@ -60,6 +68,7 @@ function isEmpty(stringVar) {
 
 export {
   capitalize,
+  decapitalize,
   shorten,
   toSnakeCase,
   replaceAt,

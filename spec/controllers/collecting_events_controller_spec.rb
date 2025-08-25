@@ -67,7 +67,7 @@ describe CollectingEventsController, type: :controller do
   describe 'GET new' do
     it 'assigns a new collecting_event as @collecting_event' do
       get :new, params: {}, session: valid_session
-      expect(assigns(:collecting_event)).to be_a_new(CollectingEvent)
+      expect(response).to redirect_to(new_collecting_event_task_path)
     end
   end
 

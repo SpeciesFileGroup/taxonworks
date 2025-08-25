@@ -65,6 +65,8 @@ class Lead < ApplicationRecord
   belongs_to :redirect, class_name: 'Lead'
 
   has_many :redirecters, class_name: 'Lead', foreign_key: :redirect_id, inverse_of: :redirect, dependent: :nullify
+  has_many :lead_items, inverse_of: :lead, dependent: :destroy
+  has_many :lead_item_otus, through: :lead_items, source: :otu
 
   before_save :set_is_public_only_on_root
 
@@ -74,13 +76,14 @@ class Lead < ApplicationRecord
   validate :node_parent_doesnt_have_redirect
   validate :root_has_no_redirect
   validate :redirect_isnt_ancestor_or_self
-  validates_uniqueness_of :text, scope: [:otu_id, :parent_id], unless: -> { otu_id.nil? }
+  validates :text, uniqueness: { scope: [:otu_id, :parent_id], unless: -> { otu_id.nil? } }
 
   def future
     redirect_id.blank? ? all_children : redirect.all_children
   end
 
   # @return [Boolean] true on success, false on error
+  # dupe does not dupe lead_items
   def dupe
     if parent_id
       errors.add(:base, 'Can only call dupe on a root lead')
@@ -190,6 +193,26 @@ class Lead < ApplicationRecord
     [c.id, d.id]
   end
 
+  def add_children(project_id, user_id)
+    if children.exists?
+      children.create! # now multi-furcating, if it wasn't already
+      return
+    end
+
+    # Create a new couplet.
+    children.create!
+    right_child = children.create!
+
+    if lead_items.exists?
+      Lead.transaction do
+        # On a new couplet all otus start on the right hand side (the left hand
+        # side typically being the shorter path through the key).
+        # No ancestor leads ever retain their lead_items.
+        LeadItem.move_items(self.lead_items, right_child)
+      end
+    end
+  end
+
   # Destroy the children of this Lead, re-appending the grandchildren to self
   # !! Do not destroy children if more than one child has its own children
   def destroy_children
@@ -203,14 +226,32 @@ class Lead < ApplicationRecord
         # Fail if more than one child has its own children
         return false if grandkids.present?
 
-        grandkids = c.children
+        grandkids = c.children.to_a
       end
     end
 
-    Lead.reparent_nodes(grandkids, self)
+    Lead.transaction do
+      if grandkids.present?
+        lead_item_ids = children.map { |c|
+          c.children.exists? ? [] : c.lead_items
+        }.flatten(1).map(&:id)
 
-    children.slice(0, original_child_count).each do |c|
-      c.destroy!
+        if lead_item_ids.present?
+          placeholder = Lead.create!(
+            text: 'PLACEHOLDER TO HOLD OTU OPTIONS FROM DELETED CHILDREN'
+          )
+          LeadItem.move_items(LeadItem.where(id: lead_item_ids), placeholder)
+          grandkids = grandkids.prepend(placeholder)
+        end
+      else
+        LeadItem.consolidate_descendant_items(self, self)
+      end
+
+      Lead.reparent_nodes(grandkids, self)
+
+      children.slice(0, original_child_count).each do |c|
+        c.destroy!
+      end
     end
 
     true
@@ -237,23 +278,10 @@ class Lead < ApplicationRecord
       a[:depth] = depth
       a[:lead] = c
       a[:leadLabel] = node.origin_label
+      # TODO: avoid the extra query (and hash value) when this isn't a
+      # lead_items key - currently no way to know except by checking every lead.
+      a[:leadItemsCount] = c.lead_items.count
       result.push(a)
-    end
-    result
-  end
-
-  # TODO: Probably a helper method
-  def all_children_standard_key(node = self, result = [], depth = 0) # couplets before depth
-    ch = node.children
-    for c in ch
-      a = {}
-      a[:depth] = depth
-      a[:lead] = c
-      result.push(a)
-    end
-
-    for c in ch
-      c.all_children_standard_key(c, result, depth + 1)
     end
     result
   end
@@ -339,6 +367,76 @@ class Lead < ApplicationRecord
         }
       end
     end
+  end
+
+  def apportioned_lead_item_otus
+    combined_otus =
+      children.map { |c| c.lead_item_otus.includes(:taxon_name) }.flatten.uniq
+    # TODO: Currently there's no (cheap) way to know if this is empty because
+    # this isn't a lead_items key or because we're on a couplet that has no
+    # lead_items (because, for example, it was an inserted couplet). It would be
+    # useful to send an indication if we're in the latter case.
+    return { parent: [], children: [] } if combined_otus.empty?
+
+    {
+      parent: combined_otus,
+      children: children.map do |c|
+        fixed = c.children.exists?
+        {
+          fixed:,
+          otu_ids: fixed ? [] : c.lead_item_otus.map(&:id)
+        }
+      end
+    }
+  end
+
+  def batch_populate_lead_items(otu_query, project_id, user_id)
+    otus = ::Queries::Otu::Filter.new(otu_query).all
+    LeadItem.batch_add_otus_for_lead(id, otus.map(&:id), project_id, user_id)
+  end
+
+  # Raises TaxonWorks::Error on error.
+  def self.destroy_lead_and_descendants(lead, project_id, user_id)
+    parent = lead.parent
+
+    begin
+      if lead.children.exists?
+        items_lead = LeadItem.consolidate_descendant_items(lead)
+        lead.prepend_sibling(items_lead) if items_lead.present?
+      elsif lead.lead_items.exists? # lead_items with no children
+        raise TaxonWorks::Error,
+          'Delete not permitted; remove all checked otus first.'
+      end
+
+      lead.transaction_nuke
+    rescue ActiveRecord::RecordInvalid
+      raise TaxonWorks::Error,
+        "Subtree destroy failed! '#{lead.errors.full_messages.join('; ')}'"
+    rescue TaxonWorks::Error
+      raise
+    end
+  end
+
+  # @return Public root leads that have a leaf descendant with `otu` as its Otu,
+  # i.e. keys that have otu on a leaf node.
+  # !! Note it doesn't count if a key only has otu on an internal node;
+  # currently that's only allowed in TW, not in TP.
+  def self.public_root_leads_for_leaf_otus(otu)
+    # Leaf leads that have otu as their Otu.
+    leaf_otu_leads = Lead
+      .with(l_h: LeadHierarchy.where('ancestor_id != descendant_id'))
+      .merge(otu.leads)
+      .joins('LEFT OUTER JOIN l_h ON leads.id = l_h.ancestor_id')
+      .where(l_h: {ancestor_id: nil})
+
+    # Root leads that are public and have one of leaf_otu_leads as their
+    # descendant.
+    Lead
+      .with(l_o_l: leaf_otu_leads)
+      .joins('JOIN lead_hierarchies l_h2 ON l_h2.ancestor_id = leads.id')
+      .where('l_h2.descendant_id IN (SELECT id FROM l_o_l)')
+      .where(parent_id: nil)
+      .where(is_public: true)
   end
 
   private

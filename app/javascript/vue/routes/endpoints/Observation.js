@@ -64,5 +64,7 @@ export const Observation = {
   destroyRow: (params) =>
     ajaxCall('delete', `/${controller}/destroy_row.json`, { params }),
 
-  filter: (params) => ajaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => ajaxCall('post', `/${controller}/filter.json`, params),
+
+  navigation: (id) => ajaxCall('get', `/${controller}/${id}/navigation`),
 }

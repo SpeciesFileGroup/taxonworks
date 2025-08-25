@@ -53,7 +53,7 @@ const coordinates = ref(null)
 function createShape() {
   emit('create', {
     uuid: randomUUID(),
-    iframe_response: coordinates.value,
+    iframe_response: coordinates.value.trim(),
     type: GEOREFERENCE_GEOLOCATE
   })
 

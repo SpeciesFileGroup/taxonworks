@@ -38,7 +38,7 @@
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
           :excluded-ids="filterIds"
-          placeholder="Search..."
+          :placeholder="placeholder || 'Search...'"
           :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
           param="term"
           :add-params="autocompleteParams"
@@ -51,8 +51,10 @@
         />
         <otu-picker
           v-if="otuPicker"
+          ref="otuPickerRef"
           :input-id="inputId"
           clear-after
+          :autofocus="autofocus"
           @get-item="sendObject"
         />
       </div>
@@ -104,12 +106,12 @@
                 >
                   <input
                     :name="name"
-                    @keyup="changeTab"
-                    @keyup.enter="sendObject(item)"
-                    @keyup.space="sendObject(item)"
                     :value="item.id"
                     :checked="selectedItem && item.id === selectedItem.id"
                     type="radio"
+                    @keyup="changeTab"
+                    @keyup.enter="sendObject(item)"
+                    @keyup.space="sendObject(item)"
                   />
                   <span
                     :title="item[label]"
@@ -132,13 +134,14 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useOnResize } from '@/composables/index'
 import { isMac } from '@/helpers/os'
-import SwitchComponents from '@/components/ui/VSwitch'
+import { useBroadcastChannel } from '@/composables'
+import SwitchComponents from '@/components/ui/VSwitch.vue'
 import AjaxCall from '@/helpers/ajaxCall'
-import Autocomplete from '@/components/ui/Autocomplete'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 import OrderSmart from '@/helpers/smartSelector/orderSmartSelector'
 import SelectFirst from '@/helpers/smartSelector/selectFirstSmartOption'
-import DefaultPin from '@/components/ui/Button/ButtonPinned'
-import OtuPicker from '@/components/otu/otu_picker/otu_picker'
+import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
+import OtuPicker from '@/components/otu/otu_picker/otu_picker.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
@@ -153,6 +156,11 @@ const props = defineProps({
   },
 
   inline: {
+    type: Boolean,
+    default: false
+  },
+
+  broadcast: {
     type: Boolean,
     default: false
   },
@@ -291,14 +299,29 @@ const props = defineProps({
   extend: {
     type: Array,
     default: () => []
+  },
+
+  placeholder: {
+    type: String,
+    required: false
   }
 })
 
 const emit = defineEmits(['update:modelValue', 'onTabSelected', 'selected'])
 
+const { post } = useBroadcastChannel({
+  name: props.model,
+  onMessage({ data }) {
+    if (props.broadcast) {
+      emit('selected', data)
+    }
+  }
+})
+
 const actionKey = isMac() ? 'Control' : 'Alt'
 
 const autocompleteRef = ref(null)
+const otuPickerRef = ref(null)
 const tabselectorRef = ref(null)
 const rootRef = ref(null)
 
@@ -344,7 +367,12 @@ const getObject = (id) => {
 const sendObject = (item) => {
   lastSelected.value = item
   selectedItem.value = item
+
   emit('selected', item)
+
+  if (props.broadcast) {
+    post(item)
+  }
 }
 
 const filterItem = (item) => {
@@ -434,6 +462,7 @@ const alreadyOnLists = () => {
 }
 const setFocus = () => {
   autocompleteRef.value?.setFocus()
+  otuPickerRef.value?.setFocus()
 }
 
 const changeTab = (e) => {

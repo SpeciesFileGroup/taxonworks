@@ -20,7 +20,7 @@
     </div>
 
     <div id="fields_for_collecting_event">
-      <%= f.label :collection_object %><br>
+      <%= f.label :collecting_event %><br>
       <%= render partial: 'workbench/elements/forms/ajax_select',
                  locals:  {controller: '/collecting_events',
                            object:     'conveyance',
@@ -55,7 +55,7 @@
       <div class="field">
         <%= i.label :sound_file %><br>
         <% if @conveyance.sound&.persisted? && @conveyance.sound.sound_file.attached? %>
-        <div> 
+        <div>
           <%= audio_tag(@conveyance.sound.sound_file, controls: true) -%>
         </div>
         <% end %>

@@ -1,5 +1,9 @@
 <template>
-  <FacetGeographic v-model="params" />
+  <FacetGeographic
+    v-model="params"
+    :geographic-area-checkbox="false"
+  />
+  <FacetAssertedDistributionObjectType v-model="params" />
   <FacetAssertedDistributionShapeType v-model="params" />
   <FacetWKT v-model="params" />
   <FacetTaxonName
@@ -42,6 +46,7 @@ import { computed } from 'vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetGeographic from '@/components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetAssertedDistributionShapeType from '@/components/Filter/Facets/AssertedDistributions/FacetAssertedDistributionShapeType.vue'
+import FacetAssertedDistributionObjectType from '@/components/Filter/Facets/AssertedDistributions/FacetAssertedDistributionObjectType.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'

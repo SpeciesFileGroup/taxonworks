@@ -1,6 +1,14 @@
-$header-color: #00796B;
-$category-header-color: #004D40;
+$header-color: #00796b;
+$category-header-color: #004d40;
 $default-padding: 2em;
+
+.dark {
+  .slide-panel {
+    .slide-panel-category-header {
+      background-image: image-url('w-arrow-down.svg');
+    }
+  }
+}
 
 .slide-panel {
   z-index: 1000;
@@ -10,13 +18,12 @@ $default-padding: 2em;
   transition: all 0.5s ease;
   width: 400px;
   height: 100vh;
-  background-color: #FFF;
+  background-color: var(--bg-foreground);
   font-weight: 300;
-  
+
   a {
     text-decoration: none;
   }
-
 
   .slide-panel-content {
     position: relative;
@@ -25,7 +32,6 @@ $default-padding: 2em;
     overflow-x: auto;
     width: 100%;
     height: calc(100vh - 60px) !important;
-    box-shadow: 0px 1px 2px 0px #888;
   }
 
   .slide-panel-header {
@@ -33,7 +39,7 @@ $default-padding: 2em;
     height: 60px;
     display: flex;
     font-size: $font_title;
-    color: #FFF;
+    color: #fff;
     align-items: center;
     padding-left: $default-padding;
     background-color: $header-color;
@@ -50,9 +56,8 @@ $default-padding: 2em;
 
   .slide-panel-category-header {
     padding: 0.8em;
-    color: #828282;
     cursor: pointer;
-    background-color: #F9F9F9;
+    background-color: var(--bg-color);
     padding-left: $default-padding;
     border-left: 5px solid $category-header-color;
     background-image: image-url('arrow-down.svg');
@@ -61,12 +66,13 @@ $default-padding: 2em;
   }
 
   .slide-panel-circle-icon {
+    user-select: none;
     opacity: 0.4;
     width: 55px;
     height: 55px;
     position: absolute;
     cursor: pointer;
-    left: -27px;
+    transform: translateX(-1em);
     top: 50vh;
     border-radius: 50%;
     background-color: $category-header-color;
@@ -75,13 +81,14 @@ $default-padding: 2em;
     background-position: center;
     background-size: 25px;
     box-shadow: 0px 1px 2px 0px #444;
-    transition: background-size 0.5s ease, opacity 0.3s ease;
+    transition: all 0.3s ease;
   }
 
   .slide-panel-circle-icon:hover {
     opacity: 1;
     background-size: 30px;
-    transition: background-size 0.3s ease, opacity 0.3s ease;
+    transform: translateX(-50%);
+    transition: all 0.3s ease;
   }
 
   .slide-panel-description {
@@ -91,7 +98,7 @@ $default-padding: 2em;
     position: absolute;
     font-size: $font_small;
     white-space: nowrap;
-    padding: $standard_padding*0.5;
+    padding: $standard_padding * 0.5;
     background-color: $color-help-description;
     color: $color-help-text;
     box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
@@ -101,20 +108,27 @@ $default-padding: 2em;
     padding-right: $standard_padding;
     border-radius: 3px;
   }
-
 }
 
 .slide-panel-show {
-  z-index:2103;
+  z-index: 2103;
   right: 0px;
   transition: right 0.5s ease;
+
+  .slide-panel-content {
+    box-shadow: 0px 1px 2px 0px var(--border-color);
+  }
+
+  .slide-panel-circle-icon {
+    transform: translateX(-50%);
+  }
 }
 
-[data-panel-open="true"] .slide-panel-circle-icon {
+[data-panel-open='true'] .slide-panel-circle-icon {
   opacity: 1;
 }
 
-[data-panel-open="false"] .slide-panel-circle-icon:hover {
+[data-panel-open='false'] .slide-panel-circle-icon:hover {
   opacity: 1;
   .slide-panel-description {
     display: block;
@@ -160,11 +174,11 @@ $default-padding: 2em;
 
 .slide-recent {
   .slide-panel-header {
-    background-color: #0097A7;
+    background-color: #0097a7;
   }
   .slide-panel-circle-icon {
     top: calc(50vh - 130px);
-    background-color: #00838F;
+    background-color: #00838f;
     background-image: image-url('recent_slide.svg');
   }
 }
@@ -176,17 +190,17 @@ $default-padding: 2em;
   }
   .slide-panel-category-item {
     position: relative;
-    border-bottom: 1px solid #FAFAFA;
+    border-bottom: 1px solid var(--border-color);
     border-left: 5px solid transparent;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: $standard_padding*0.5;
-    padding-left: $standard_padding*2;
+    padding: $standard_padding * 0.5;
+    padding-left: $standard_padding * 2;
   }
   .slide-panel-category-item:hover {
     opacity: 1;
-    background-color: $navigation_background;
+    background-color: var(--bg-color);
   }
 }
 

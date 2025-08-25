@@ -45,7 +45,7 @@ export default {
     padding: 30px;
     border: 1px solid gray;
     border-radius: 3px;
-    background-color: #ffffff;
+    background-color: var(--panel-bg-color);
   }
 
   .box-0 {

@@ -1,6 +1,6 @@
 .table-striped {
   tr {
-    border-bottom: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
   }
 
   tr:nth-of-type(even) {
@@ -22,8 +22,14 @@
 
 .table-cells-border {
   td {
-    border-bottom: 1px solid $navigation_border;
-    border-left: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
+    border-left: 1px solid var(--border-color);
+  }
+}
+
+.table-header-bold {
+  th {
+    font-weight: 700;
   }
 }
 
@@ -36,11 +42,12 @@
 }
 
 table {
-  box-shadow: 0 0 2px 0 $navigation_border;
+  box-shadow: 0 0 2px 0 var(--border-color);
   border-radius: 2px;
   width: auto;
   border-spacing: 0;
-  background-color: $panel_background;
+  color: var(--text--color);
+  background-color: var(--bg-foreground);
   border-collapse: collapse;
 
   .underlined_elements {
@@ -85,7 +92,7 @@ table {
   }
 
   th:hover {
-    background-color: $color-complement-2;
+    background-color: var(--table-row-bg-hover);
   }
 
   tr {
@@ -93,14 +100,14 @@ table {
   }
 
   th {
-    background-color: $panel_background;
+    background-color: var(--bg-foreground);
     padding-left: $standard_padding;
     padding-right: $standard_padding;
     font-weight: 500;
     height: 40px;
-    color: $default_text;
+    color: var(--text-color);
     font-size: 12px;
-    border-bottom: 2px solid $color-complement-3;
+    border-bottom: 2px solid var(--border-color);
     text-align: left;
     a {
       img {
@@ -111,39 +118,43 @@ table {
 
   .contextMenuCells {
     td {
-      border-bottom: 1px solid $navigation_border;
-      border-left: 1px solid $navigation_border;
+      border-bottom: 1px solid var(--border-color);
+      border-left: 1px solid var(--border-color);
     }
   }
   .contextMenuCells:hover {
-    background-color: $color-complement-2;
-    color: $default_text;
+    background-color: var(--table-row-bg-hover);
+    color: var(--text--color);
   }
 
   .highlight {
-    background-color: #e3e8e3 !important;
+    outline: 2px solid var(--color-primary);
   }
 }
 
 .table-cell-border {
   td {
-    border-bottom: 1px solid $navigation_border;
-    border-right: 1px solid $navigation_border;
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
   }
 
   tbody {
     td:first-child {
-      border-left: 1px solid $navigation_border;
+      border-left: 1px solid var(--border-color);
     }
   }
 }
 
+.table-cell-border-left-thick {
+  border-left: 3px var(--border-color) solid;
+}
+
 .table-header-border {
   th {
-    border-right: 1px solid $navigation_border;
+    border-right: 1px solid var(--border-color);
   }
 
   th:first-child {
-    border-left: 1px solid $navigation_border;
+    border-left: 1px solid var(--border-color);
   }
 }

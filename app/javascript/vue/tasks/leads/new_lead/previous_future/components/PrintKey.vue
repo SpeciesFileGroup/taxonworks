@@ -1,0 +1,38 @@
+<template>
+  <BlockLayout
+    class="new-lead-previous"
+    expand
+  >
+    <template #header>
+      <h3>Previous leads</h3>
+    </template>
+
+    <template #body>
+      <PreviousLeadsList
+        :past="[...store.ancestors, store.lead]"
+        :load-function="store.loadKey"
+        :route-name="RouteNames.NewLead"
+        :root-text="store.root.text"
+      />
+    </template>
+  </BlockLayout>
+
+  <PrintKey v-if="store.print_key" />
+</template>
+
+<script setup>
+import { RouteNames } from '@/routes/routes'
+import useStore from '../../store/leadStore.js'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
+import PreviousLeadsList from '../../components/PreviousLeadsList.vue'
+import PrintKey from './PrintKey.vue'
+
+const store = useStore()
+</script>
+
+<style lang="scss" scoped>
+.new-lead-previous {
+  max-width: 600px;
+  margin: 2em auto;
+}
+</style>

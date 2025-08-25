@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import SectionPanel from './shared/sectionPanel'
+import SectionPanel from './shared/sectionPanel.vue'
 import extendSection from './shared/extendSections'
 import VModal from '@/components/ui/Modal'
 import YearPicker from './timeline/TimelineYearsPick.vue'

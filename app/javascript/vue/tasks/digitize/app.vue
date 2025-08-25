@@ -134,7 +134,7 @@ function addShortcutsDescription() {
   )
   TW.workbench.keyboard.createLegend(
     `${key}+b`,
-    'Go to browse nomenclature',
+    'Go to browse taxon names',
     TASK
   )
   TW.workbench.keyboard.createLegend(
@@ -150,21 +150,15 @@ function setLockAll() {
 </script>
 <style lang="scss">
 #vue-all-in-one {
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
-  }
   .main-panel {
     display: flex;
   }
+
   .left-section {
     max-width: 25%;
     min-width: 420px;
   }
+
   .ce-section {
     display: flex;
     flex-grow: 2;

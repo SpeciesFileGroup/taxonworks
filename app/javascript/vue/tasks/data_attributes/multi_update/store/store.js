@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
 import { QUERY_PARAMETER } from '../../field_synchronize/constants'
 import {
   makeDataAttribute,
@@ -7,7 +8,7 @@ import {
 } from '../adapters'
 import { makePredicate } from '../adapters/makePredicate'
 import { DataAttribute } from '@/routes/endpoints'
-import { removeFromArray } from '@/helpers'
+import { removeFromArray, sortArrayByReference } from '@/helpers'
 
 export default defineStore('store', {
   state: () => ({
@@ -22,6 +23,7 @@ export default defineStore('store', {
       current: 0
     },
     settings: {
+      override: false,
       append: false
     }
   }),
@@ -57,10 +59,11 @@ export default defineStore('store', {
     },
 
     pasteValue({ text, objectId, predicateId }) {
-      const lines = text.split('\n')
+      const lines = text.replace(/(\r?\n)$/, '').split(/\r?\n/)
       const pIndex = this.predicates.findIndex(
         (item) => item.id === predicateId
       )
+
       let position = this.objects.findIndex((item) => item.id === objectId)
 
       while (lines.length && position < this.objects.length) {
@@ -74,7 +77,7 @@ export default defineStore('store', {
           const value = cells.shift()
           const trimmedValue = value.trim()
 
-          if (trimmedValue.length) {
+          if (trimmedValue.length || this.settings.override) {
             const dataAttributes = this.dataAttributes.filter(
               (da) =>
                 da.objectId === obj.id &&
@@ -89,7 +92,7 @@ export default defineStore('store', {
                 if (this.settings.append) {
                   dataAttribute.value += value
                 } else {
-                  dataAttribute.value = value
+                  dataAttribute.value = trimmedValue
                 }
 
                 dataAttribute.isUnsaved = true
@@ -271,14 +274,24 @@ export default defineStore('store', {
     },
 
     loadObjects({ queryParam, queryValue }) {
-      const { service } = QUERY_PARAMETER[queryParam]
+      const { service, model } = QUERY_PARAMETER[queryParam]
+      const ids = queryValue[ID_PARAM_FOR[model]]
 
       this.isLoading = true
 
       service
         .filter({ ...queryValue, per: 5000 })
         .then(({ body }) => {
-          this.objects = body.map(makeObject)
+          const items = Array.isArray(ids)
+            ? sortArrayByReference({
+                list: body,
+                reference: ids,
+                getListValue: (item) => item.id,
+                getReferenceValue: (id) => id
+              })
+            : body
+
+          this.objects = items.map(makeObject)
         })
         .finally(() => {
           this.isLoading = false

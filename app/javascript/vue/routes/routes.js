@@ -3,30 +3,32 @@ import {
   BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
+  CONTENT,
+  DESCRIPTOR,
   DWC_OCCURRENCE,
   EXTRACT,
   FIELD_OCCURRENCE,
   IMAGE,
+  LOAN,
+  OBSERVATION,
   OTU,
-  PEOPLE,
+  PERSON,
   SOUND,
   SOURCE,
   TAXON_NAME,
-  DESCRIPTOR,
-  OBSERVATION,
-  CONTENT,
-  LOAN
+  TAXON_NAME_RELATIONSHIP
 } from '@/constants/index.js'
 
 const RouteNames = {
   BiologicalRelationshipComposer: '/tasks/biological_relationships/composer',
   BrowseAssertedDistribution: '/tasks/otus/browse_asserted_distributions',
   BrowseCollectionObject: '/tasks/collection_objects/browse',
+  BrowseCollectingEvent: '/tasks/collecting_events/browse',
   BrowseFieldOccurrence: '/tasks/field_occurrences/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',
   BrowseSound: '/tasks/sounds/browse',
-  ContentEditorTask: '/tasks/content/editor',
+  ContentEditor: '/tasks/content/editor',
   DigitizeTask: '/tasks/accessions/comprehensive',
   DwcDashboard: '/tasks/dwc/dashboard',
   DwcImport: '/tasks/dwca_import/index',
@@ -48,6 +50,8 @@ const RouteNames = {
   FilterPeople: '/tasks/people/filter',
   FilterSounds: '/tasks/sounds/filter',
   FilterSources: '/tasks/sources/filter',
+  FilterTaxonNames: '/tasks/taxon_names/filter',
+  FilterTaxonNameRelationships: '/tasks/taxon_name_relationships/filter',
   FreeFormTask: '/tasks/collection_objects/freeform_digitize',
   GridDigitizer: '/tasks/collection_objects/grid_digitize',
   ImageMatrix: '/tasks/observation_matrices/image_matrix',
@@ -58,7 +62,7 @@ const RouteNames = {
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatchCollectionObject: '/tasks/collection_objects/match',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
-  NewBiologicalAssociationGraph:
+  NewBiologicalAssociationsGraph:
     '/tasks/biological_associations/biological_associations_graph',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
   NewContainer: '/tasks/containers/new_container',
@@ -78,6 +82,7 @@ const RouteNames = {
   ObservationMatricesDashboard: '/tasks/observation_matrices/dashboard',
   ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub',
   ObservationMatricesView: '/tasks/observation_matrices/view',
+  PrintKey: '/tasks/leads/print',
   PrintLabel: '/tasks/labels/print_labels',
   ProjectVocabulary: '/tasks/metadata/vocabulary/project_vocabulary',
   ShowLead: '/tasks/leads/show',
@@ -97,14 +102,16 @@ const FILTER_ROUTES = {
   [FIELD_OCCURRENCE]: RouteNames.FilterFieldOccurrence,
   [IMAGE]: RouteNames.FilterImages,
   [OTU]: RouteNames.FilterOtus,
-  [PEOPLE]: RouteNames.FilterPeople,
+  [PERSON]: RouteNames.FilterPeople,
   [SOUND]: RouteNames.FilterSounds,
   [SOURCE]: RouteNames.FilterSources,
   [TAXON_NAME]: RouteNames.FilterNomenclature,
   [DESCRIPTOR]: RouteNames.FilterDescriptors,
   [OBSERVATION]: RouteNames.FilterObservations,
   [CONTENT]: RouteNames.FilterContents,
-  [LOAN]: RouteNames.FilterLoans
+  [LOAN]: RouteNames.FilterLoans,
+  [TAXON_NAME]: RouteNames.FilterTaxonNames,
+  [TAXON_NAME_RELATIONSHIP]: RouteNames.FilterTaxonNameRelationships
 }
 
 export { RouteNames, FILTER_ROUTES }

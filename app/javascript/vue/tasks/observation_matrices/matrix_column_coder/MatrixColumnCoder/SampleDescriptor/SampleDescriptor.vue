@@ -13,7 +13,7 @@
             :observation="o"
             :row-object="rowObject"
           />
-          <hr />
+          <hr class="divisor" />
         </template>
       </div>
       <v-btn

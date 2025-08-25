@@ -28,9 +28,11 @@ Object.assign(TW.workbench.pinboard, {
         data-pin-item="${pinObject.id}"
         id="order_${pinObject.id}">
         <div class="handle flex-separate middle ui-sortable-handle">
-          <a href="${pinObject.pinned_object.object_url}">
-            ${pinObject.pinned_object.object_tag}
-          </a>
+          <div class="flex-col">
+            <a href="${pinObject.pinned_object.object_url}">
+              ${pinObject.pinned_object.object_tag}
+            </a>
+          </div>
         </div>
         <div class="pinboard-dropdown">
           <div class="pinboard-menu-bar"></div>

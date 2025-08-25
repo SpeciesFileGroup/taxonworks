@@ -55,11 +55,12 @@
         </div>
         <ul class="context-menu no_bullets">
           <li class="horizontal-right-content gap-small">
-            <span
+            <VIcon
               v-if="store.isUnsaved"
-              class="medium-icon"
+              name="attention"
+              color="attention"
+              small
               title="You have unsaved changes."
-              data-icon="warning"
             />
             <VNavigate
               :collecting-event="store.collectingEvent"
@@ -70,7 +71,7 @@
               @clone="(e) => loadCollectingEvent(e.id)"
             />
             <VBtn
-              color="primary"
+              color="create"
               medium
               class="button-size"
               @click="saveCollectingEvent"
@@ -96,7 +97,7 @@
         :sortable="sortable"
         class="full_width panel content"
       />
-      <div>
+      <div class="flex-col gap-medium">
         <div class="panel content">
           <h3>Collection object</h3>
           <div class="horizontal-left-content gap-small">
@@ -112,6 +113,20 @@
             <ParseData @parse="setParsedData" />
           </div>
         </div>
+        <div class="panel content">
+          <h3>Field occurrence</h3>
+          <div class="horizontal-left-content gap-small">
+            <VBtn
+              color="primary"
+              medium
+              :disabled="!store.collectingEvent.id"
+              @click="openNewFieldOccurrence"
+            >
+              New
+            </VBtn>
+            <ModalFieldOccurrences :ce-id="store.collectingEvent.id" />
+          </div>
+        </div>
         <RightSection @select="(e) => loadCollectingEvent(e.id)" />
       </div>
     </div>
@@ -122,6 +137,7 @@
 import { ref, watch, onMounted, useTemplateRef } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { useHotkey } from '@/composables'
+import { smartSelectorRefresh } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VAutocomplete from '@/components/ui/Autocomplete'
 import FormCollectingEvent from '@/components/Form/FormCollectingEvent/FormCollectingEvent.vue'
@@ -133,6 +149,7 @@ import RadialObject from '@/components/radials/navigation/radial'
 import platformKey from '@/helpers/getPlatformKey'
 import SetParam from '@/helpers/setParam'
 
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import RightSection from './components/RightSection'
 import NavBar from '@/components/layout/NavBar'
@@ -140,6 +157,7 @@ import ParseData from './components/parseData'
 import CloneForm from './components/CloneForm.vue'
 
 import ModalCollectionObjects from './components/ModalCollectionObjects/ModalCollectionObjects.vue'
+import ModalFieldOccurrences from './components/ModalFieldOccurrences/ModalFieldOccurrences.vue'
 import VNavigate from './components/Navigate'
 import VSpinner from '@/components/ui/VSpinner'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
@@ -192,7 +210,7 @@ const isSaving = ref(false)
 const sortable = ref(false)
 const confirmationModal = useTemplateRef('confirmationModal')
 
-store.$onAction(({ name, after }) => {
+store.$onAction(({ name, after, onError }) => {
   switch (name) {
     case 'load':
       isLoading.value = true
@@ -211,6 +229,11 @@ store.$onAction(({ name, after }) => {
         isSaving.value = false
         break
     }
+  })
+
+  onError(() => {
+    isSaving.value = false
+    isLoading.value = false
   })
 })
 
@@ -285,6 +308,12 @@ async function saveCollectingEvent() {
           'collecting_event_id',
           store.collectingEvent.id
         )
+        smartSelectorRefresh()
+
+        TW.workbench.alert.create(
+          'Collecting event was successfully saved.',
+          'notice'
+        )
       })
       .catch(() => {})
   }
@@ -293,6 +322,13 @@ async function saveCollectingEvent() {
 function openComprehensive() {
   window.open(
     `${RouteNames.DigitizeTask}?collecting_event_id=${store.collectingEvent.id}`,
+    '_self'
+  )
+}
+
+function openNewFieldOccurrence() {
+  window.open(
+    `${RouteNames.NewFieldOccurrence}?collecting_event_id=${store.collectingEvent.id}`,
     '_self'
   )
 }

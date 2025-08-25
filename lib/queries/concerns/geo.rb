@@ -4,8 +4,6 @@ require_dependency Rails.root.to_s + '/lib/queries/geographic_item/filter.rb'
 #
 # !! You must call set_geo_params in initialize()
 #
-# Concern specs are in
-#   spec/lib/queries/source/filter_spec.rb
 module Queries::Concerns::Geo
   extend ActiveSupport::Concern
 
@@ -27,6 +25,13 @@ module Queries::Concerns::Geo
     #     false - non-spatial match matching against geo_shape descendants
     attr_accessor :geo_mode
 
+    # @return [Boolean, nil]
+    # If true then spatial searches that match against geographic items of
+    # georeferences should, when there are no georeferences, instead match
+    # against the default geographic item of the collecting event's Geographic
+    # Area (if one is set).
+    attr_accessor :geo_collecting_event_geographic_area
+
     def geo_shape_type
       [@geo_shape_type].flatten.compact
     end
@@ -40,6 +45,7 @@ module Queries::Concerns::Geo
     @geo_shape_type = params[:geo_shape_type]
     @geo_shape_id = integer_param(params, :geo_shape_id)
     @geo_mode = boolean_param(params, :geo_mode)
+    @geo_collecting_event_geographic_area = boolean_param(params, :geo_collecting_event_geographic_area)
   end
 
   def param_shapes_by_type
@@ -87,9 +93,15 @@ module Queries::Concerns::Geo
     a = nil
 
     case geo_mode
-    # exact and spatial start the same
-    when nil, true
+    when nil # exact
       a = shape.where(id: ids)
+    when true #spatial
+      if shape_string == 'GeographicArea'
+        # In spatial mode GAs must have shape.
+        a = shape.joins(:geographic_items).where(id: ids)
+      else
+        a = shape.where(id: ids)
+      end
     when false # descendants
       if shape_string == 'Gazetteer'
         # For Gazetteers, descendants is the same as exact
@@ -100,5 +112,28 @@ module Queries::Concerns::Geo
     end
 
     a
+  end
+
+  def collecting_events_for_geographic_item_condition(geographic_item_condition_sql)
+    # Through georeferences.
+    a = ::CollectingEvent
+      .joins(:geographic_items)
+      .where(geographic_item_condition_sql)
+
+    if !geo_collecting_event_geographic_area
+      a
+    else
+      # Through geographic area.
+      # (Note a union b is the same with/out the georef join here since CE
+      # GAs contain all of their georefs - but speed doesn't seem to change
+      # much either way.)
+      b = ::CollectingEvent
+        .joins(geographic_area: [:geographic_items])
+        .left_joins(:georeferences)
+        .where(georeferences: { id: nil })
+        .where(geographic_item_condition_sql)
+
+      ::Queries.union(::CollectingEvent, [a,b])
+    end
   end
 end

@@ -222,6 +222,11 @@ class TaxonNamesController < ApplicationController
     ).result
   end
 
+  def remove_authors
+    names = TaxonName.remove_authors(params['names'].first(5000))
+    render json: { names: }
+  end
+
   # GET /taxon_names/1/original_combination
   def original_combination
   end

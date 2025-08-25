@@ -11,6 +11,7 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
+      include Queries::Concerns::Geo
 
       PARAMS = [
         :character_state_id,
@@ -18,22 +19,34 @@ module Queries
         :descendants,
         :descriptor_id,
         :descriptor_id,
+        :geo_json,
+        :geo_mode,
+        :geo_shape_id,
+        :geo_shape_type,
         :observation_id,
         :observation_matrix_id,
         :observation_object_global_id,
+        :observation_object_id,
         :observation_object_type,
         :observation_type,
         :otu_id,
+        :radius,
+        :sound_id,
         :taxon_name_id,
+        :wkt,
 
         charater_state_id: [],
         collection_object_id: [],
         descriptor_id: [],
+        geo_shape_id: [],
+        geo_shape_type: [],
         observation_id: [],
         observation_matrix_id: [],
         observation_object_type: [],
+        observation_object_id: [],
         observation_type: [],
         otu_id: [],
+        sound_id: [],
         taxon_name_id: [],
       ].freeze
 
@@ -52,6 +65,8 @@ module Queries
       # @return Array
       attr_accessor :descriptor_id
 
+      attr_accessor :geo_json
+
       # @return [Array]
       attr_accessor :observation_matrix_id
 
@@ -62,22 +77,44 @@ module Queries
       attr_accessor :observation_type
 
       # @return Array
+      attr_accessor :observation_object_id
+
+      # @return Array
+      attr_accessor :observation_object_type
+
+      # @return Array
       attr_accessor :otu_id
+
+      # Integer in Meters
+      #   !! defaults to 100m
+      attr_accessor :radius
+
+      # @return Array
+      attr_accessor :sound_id
 
       # @return Array
       attr_accessor :taxon_name_id
+
+      # @return String
+      attr_accessor :wkt
+
+      # Integer in Meters
+      #   !! defaults to 100m
+      attr_accessor :radius
 
       def initialize(query_params)
         super
 
         @observation_id = params[:observation_id]
         @otu_id = params[:otu_id]
+        @sound_id = params[:sound_id]
         @collection_object_id = params[:collection_object_id]
         @observation_object_global_id = params[:observation_object_global_id]
         @descriptor_id = params[:descriptor_id]
         @observation_type = params[:observation_type]
         @character_state_id = params[:character_state_id]
         @observation_matrix_id = params[:observation_matrix_id]
+        @observation_object_id = params[:observation_object_id]
         @observation_object_type = params[:observation_object_type]
 
         @taxon_name_id = params[:taxon_name_id]
@@ -90,10 +127,15 @@ module Queries
         set_depiction_params(params)
         set_tags_params(params)
         set_notes_params(params)
+        set_geo_params(params)
       end
 
       def observation_id
         [@observation_id].flatten.compact.uniq
+      end
+
+      def observation_object_id
+        [@observation_object_id].flatten.compact.uniq
       end
 
       def observation_object_type
@@ -116,6 +158,10 @@ module Queries
         [@collection_object_id].flatten.compact.uniq
       end
 
+      def sound_id
+        [@sound_id].flatten.compact.uniq
+      end
+
       def descriptor_id
         [@descriptor_id].flatten.compact.uniq
       end
@@ -126,6 +172,76 @@ module Queries
 
       def observation_type
         [@observation_type].flatten.compact.uniq
+      end
+
+      def wkt_facet
+        return nil if wkt.nil?
+        from_wkt(wkt)
+      end
+
+      def from_wkt(wkt_shape)
+        a = ::Queries::AssertedDistribution::Filter.new(
+          wkt: wkt_shape, project_id:,
+          asserted_distribution_object_type: 'Observation'
+        )
+
+        ::Observation
+          .with(ad: a.all)
+          .joins("JOIN ad ON ad.asserted_distribution_object_id = observations.id AND observations.observation_object_type = 'Otu'")
+      end
+
+      def geo_json_facet
+        return nil if geo_json.blank?
+        return ::Observation.none if roll_call
+
+        a = ::Queries::AssertedDistribution::Filter.new(
+          geo_json:, project_id:, radius:,
+          asserted_distribution_object_type: 'Observation'
+        )
+
+        ::Observation
+          .with(ad: a.all)
+          .joins("JOIN ad ON ad.asserted_distribution_object_id = observations.id AND observations.observation_object_type = 'Otu'")
+      end
+
+      def observation_geo_facet
+        return nil if geo_shape_id.empty? || geo_shape_type.empty? ||
+          # TODO: this should raise an error(?)
+          geo_shape_id.length != geo_shape_type.length
+        return ::Observation.none if roll_call
+
+        geographic_area_shapes, gazetteer_shapes = shapes_for_geo_mode
+
+        a = biological_association_geo_facet_by_type(
+          'GeographicArea', geographic_area_shapes
+        )
+
+        b = biological_association_geo_facet_by_type(
+          'Gazetteer', gazetteer_shapes
+        )
+
+        if geo_mode == true # spatial
+          i = ::Queries.union(::GeographicItem, [a,b])
+          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
+
+          return from_wkt(u['st_astext'])
+        end
+
+        referenced_klass_union([a,b])
+      end
+
+      def biological_association_geo_facet_by_type(shape_string, shape_ids)
+        case geo_mode
+        when nil, false # exact, descendants
+          ::Observation
+            .joins("JOIN asserted_distributions ON asserted_distributions.asserted_distribution_object_id = observations.id AND asserted_distributions.asserted_distribution_object_type = 'Observation' AND observations.observation_object_type = 'Otu'")
+            .where(asserted_distributions: {
+              asserted_distribution_shape: shape_ids
+           })
+        when true # spatial
+          m = shape_string.tableize
+          b = ::GeographicItem.joins(m.to_sym).where(m => shape_ids)
+        end
       end
 
       def taxon_name_id_facet
@@ -199,6 +315,16 @@ module Queries
         table[:observation_object_id].in(otu_id).and(table[:observation_object_type].eq('Otu'))
       end
 
+      def sound_id_facet
+        return nil if sound_id.empty?
+        table[:observation_object_id].in(sound_id).and(table[:observation_object_type].eq('Sound'))
+      end
+
+      def observation_object_id_facet
+        return nil if observation_object_id.empty?
+        table[:observation_object_id].in(observation_object_id)
+      end
+
       def observation_object_type_facet
         return nil if observation_object_type.empty?
         table[:observation_object_type].in(observation_object_type)
@@ -241,6 +367,14 @@ module Queries
         ::Observation.from('(' + s + ') as observations')
       end
 
+      def asserted_distribution_query_facet
+        return nil if asserted_distribution_query.nil?
+        ::Observation
+          .with(ad: asserted_distribution_query.all)
+          .joins("JOIN ad ON observations.id = ad.asserted_distribution_object_id AND ad.asserted_distribution_object_type = 'Observation' AND observations.observation_object_type = 'Otu'")
+          .distinct
+      end
+
       def observable_facet(name)
         return nil if name.nil?
 
@@ -262,9 +396,11 @@ module Queries
           collection_object_id_facet,
           descriptor_id_facet,
           observation_object_global_id_facet,
+          observation_object_id_facet,
           observation_object_type_facet,
           observation_type_facet,
           otu_id_facet,
+          sound_id_facet
         ]
       end
 
@@ -275,7 +411,11 @@ module Queries
           observation_matrix_id_facet,
 
           taxon_name_query_facet,
+          asserted_distribution_query_facet,
           taxon_name_id_facet,
+          wkt_facet,
+          geo_json_facet,
+          observation_geo_facet,
         ]
       end
 

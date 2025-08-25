@@ -237,7 +237,7 @@ class CollectingEvent < ApplicationRecord
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :collectors, -> { order('roles.position ASC') }, through: :collector_roles, source: :person, inverse_of: :collecting_events
 
-  has_many :field_occurrences, inverse_of: :collecting_event
+  has_many :field_occurrences, inverse_of: :collecting_event, dependent: :restrict_with_error
 
   # see also app/models/collecting_event/georeference.rb for more has_many
 
@@ -1078,13 +1078,14 @@ class CollectingEvent < ApplicationRecord
 
     # @return [Hash, false]
     def batch_update(params)
-
       request = QueryBatchRequest.new(
         klass: 'CollectingEvent',
         object_filter_params: params[:collecting_event_query],
         object_params: params[:collecting_event],
         async_cutoff: params[:async_cutoff] || 26,
         preview: params[:preview],
+        project_id: params[:project_id],
+        user_id: params[:user_id]
       )
 
       request.cap = 5000

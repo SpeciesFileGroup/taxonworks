@@ -17,7 +17,7 @@
           v-if="navigate"
           class="no_bullets"
         >
-          <li v-for="item in navigate.previous_otus">
+          <li v-for="item in navigate.previous">
             <a
               :href="`/tasks/otus/browse?otu_id=${item.id}`"
               v-html="item.object_tag"
@@ -38,7 +38,7 @@
             v-if="navigate"
             class="no_bullets"
           >
-            <li v-for="item in navigate.next_otus">
+            <li v-for="item in navigate.next">
               <a
                 :href="`/tasks/otus/browse?otu_id=${item.id}`"
                 v-html="item.object_tag"
@@ -104,7 +104,7 @@ import SearchOtu from './components/SearchOtu'
 import Draggable from 'vuedraggable'
 import SelectOtu from './components/selectOtu'
 import { ActionNames } from './store/actions/actions'
-import { TaxonName, Otu, User } from '@/routes/endpoints'
+import { CollectionObject, TaxonName, Otu, User } from '@/routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import COMPONENT_NAMES from './const/componentNames'
@@ -196,6 +196,8 @@ export default {
       : location.pathname.split('/')[4]
     const taxonId = urlParams.get('taxon_name_id')
 
+    const collectionObjectId = urlParams.get('collection_object_id')
+
     if (/^\d+$/.test(otuId)) {
       this.$store.dispatch(ActionNames.LoadOtus, otuId).then(() => {
         this.isLoading = false
@@ -217,6 +219,18 @@ export default {
           this.otuList = body
         } else {
           this.$store.dispatch(ActionNames.LoadOtus, body[0].id).then(() => {
+            this.isLoading = false
+          })
+        }
+      })
+    } else if (collectionObjectId) {
+      CollectionObject.find(collectionObjectId, {
+        extend: ['taxon_determinations']
+      }).then(({ body }) => {
+        const id = body.taxon_determinations?.[0]?.otu_id
+
+        if (id) {
+          this.$store.dispatch(ActionNames.LoadOtus, id).then(() => {
             this.isLoading = false
           })
         }

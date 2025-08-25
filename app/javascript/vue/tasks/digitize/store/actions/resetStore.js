@@ -1,6 +1,8 @@
 import { makeInitialState } from '../store.js'
 import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
+import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
+import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations'
 import {
   EVENT_TAXON_DETERMINATION_FORM_RESET,
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
@@ -18,6 +20,8 @@ export default ({ state }) => {
   const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
   const determinationStore = useTaxonDeterminationStore()
   const collectingEVentStore = useCollectingEventStore()
+  const biocurationStore = useBiocurationStore()
+  const biologicalAssociationStore = useBiologicalAssociationStore()
 
   history.replaceState(null, null, '/tasks/accessions/comprehensive')
   state = Object.assign(state, makeInitialState())
@@ -27,6 +31,8 @@ export default ({ state }) => {
   recordNumber.$reset()
   catalogNumber.$reset()
   determinationStore.$reset()
+  biocurationStore.reset()
+  biologicalAssociationStore.$reset()
 
   resetTaxonDeterminationForm()
 }

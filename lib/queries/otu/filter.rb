@@ -284,6 +284,25 @@ module Queries
         referenced_klass_union([q1, q2]).distinct # Not needed, union should be distinct
       end
 
+      def from_geographic_items(geographic_items_where_sql)
+        ces = collecting_events_for_geographic_item_condition(
+          geographic_items_where_sql
+        )
+
+        q1 = ::Otu
+          .joins(collection_objects: [:collecting_event])
+          .where(collecting_events: ces.all, project_id:)
+
+        ads = ::Queries::AssertedDistribution::Filter
+          .from_geographic_items(geographic_items_where_sql)
+
+        q2 = ::Otu
+          .joins(:asserted_distributions)
+          .where(asserted_distributions: ads.all, project_id:)
+
+        referenced_klass_union([q1,q2])
+      end
+
       def geo_json_facet
         return nil if geo_json.blank?
         return ::Otu.none if roll_call
@@ -427,16 +446,16 @@ module Queries
 
         c, _d = otu_geo_facet_by_type('Gazetteer', gazetteer_shapes)
 
-        if geo_mode == true # spatial
-          i = ::Queries.union(::GeographicItem, [a,c])
-          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
-
-          return from_wkt(
-            u['st_astext'], u['st_geometrytype'].delete_prefix!('ST_')
-          )
+        if geo_mode != true # exact or descendants
+          return referenced_klass_union([a,b,c])
         end
 
-        referenced_klass_union([a,b,c])
+        # Spatial.
+        i = ::Queries.union(::GeographicItem, [a,c])
+
+        from_geographic_items(
+          ::GeographicItem.covered_by_geographic_items_sql(i)
+        )
       end
 
       def otu_geo_facet_by_type(shape_string, shape_ids)
@@ -472,12 +491,9 @@ module Queries
 
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
-        s = 'WITH query_ad_otus AS (' + asserted_distribution_query.all.to_sql + ') ' +
-          ::Otu
-          .joins('JOIN query_ad_otus as query_ad_otus1 on otus.id = query_ad_otus1.otu_id')
-          .to_sql
-
-        ::Otu.from('(' + s + ') as otus').distinct
+        ::Otu
+          .with(ad: asserted_distribution_query.all)
+          .joins("JOIN ad ON ad.asserted_distribution_object_id = otus.id AND ad.asserted_distribution_object_type = 'Otu'").distinct
       end
 
       def content_query_facet

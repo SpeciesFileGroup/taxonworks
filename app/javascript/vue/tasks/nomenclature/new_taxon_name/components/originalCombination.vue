@@ -41,11 +41,19 @@
               }"
               param="term"
             />
-            <span
-              class="handle button circle-button button-submit"
+            <VBtn
+              color="create"
+              circle
+              class="handle"
               title="Press and hold to drag input"
-              data-icon="w_scroll-v"
-            />
+            >
+              <VIcon
+                title="Press and hold to drag input"
+                color="white"
+                name="scrollV"
+                small
+              />
+            </VBtn>
           </div>
           <div
             class="original-combination-item horizontal-left-content middle gap-small"
@@ -58,12 +66,21 @@
                 <span v-html="element.value.subject_object_tag" />
               </span>
             </div>
-            <span
-              class="handle button circle-button button-submit"
+            <VBtn
+              color="create"
+              circle
+              class="handle"
               title="Press and hold to drag input"
-              data-icon="w_scroll-v"
-            />
-            <radialAnnotator :global-id="element.value.global_id" />
+            >
+              <VIcon
+                title="Press and hold to drag input"
+                color="white"
+                name="scrollV"
+                small
+              />
+            </VBtn>
+
+            <RadialAnnotator :global-id="element.value.global_id" />
             <span
               class="circle-button btn-delete"
               @click="removeCombination(element.value, index)"
@@ -81,12 +98,16 @@ import { ActionNames } from '../store/actions/actions'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 export default {
   components: {
     RadialAnnotator,
     Autocomplete,
-    Draggable
+    Draggable,
+    VBtn,
+    VIcon
   },
 
   props: {
@@ -314,7 +335,7 @@ export default {
   }
   .combination {
     z-index: 1;
-    background-color: #f5f5f5;
+    background-color: var(--input-bg-color);
   }
 }
 </style>

@@ -82,7 +82,7 @@ function createErrorList(error) {
     ${
       removeTitleFor.includes(key)
         ? ''
-        : `<span data-icon="warning">${key}:</span>`
+        : `<span><span data-icon="warning"></span>${key}:</span>`
     }
       <ul>
         <li>${

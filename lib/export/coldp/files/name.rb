@@ -17,7 +17,6 @@ module Export::Coldp::Files::Name
   # and re-implement if needed
   @skipped_name_ids = []
 
-
   def self.skipped_name_ids
     @skipped_name_ids
   end
@@ -90,14 +89,19 @@ module Export::Coldp::Files::Name
       .joins('JOIN n on n.id = taxon_names.id')
       .where(cached_is_valid: true)
       .eager_load(origin_citation: [:source])
-      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies')
+      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender')
   end
 
   def self.invalid_core_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
-    b = ::Protonym.is_species_or_genus_group.where(cached_is_valid: false).with(valid_scope: a)
+
+    b = ::Protonym
+      .with(valid_scope: a)
       .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
+      .is_species_or_genus_group
+      .where(cached_is_valid: false)
+      .where('((taxon_names.cached = taxon_names.cached_original_combination) OR (taxon_names.cached_original_combination IS NULL))')
       .and(TaxonName.where.not("taxon_names.rank_class like '%::Iczn::Family%' AND taxon_names.cached_is_valid = FALSE"))
 
     select = 'taxon_names.id,'
@@ -155,7 +159,6 @@ module Export::Coldp::Files::Name
         referenceID
         publishedInPage
         publishedInYear
-        original
         code
         status
         link
@@ -183,8 +186,8 @@ module Export::Coldp::Files::Name
       .where(rank_class: HIGHER_RANK_NAMES, cached_is_valid: true)
       .unscope(:order)
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
-      .select(:id, :cached, :type, :cached_author_year, :year_of_publication, :rank_class, :updated_at, :updated_by_id)
-    end
+      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :updated_at, :updated_by_id)
+  end
 
   # Valid family names are:
   #   - valid family group names
@@ -192,11 +195,10 @@ module Export::Coldp::Files::Name
     a = otu.taxon_name.self_and_descendants
       .where(rank_class: FAMILY_RANK_NAMES, cached_is_valid: true)
       .unscope(:order)
-      .select(:id, :cached, :type, :cached_author_year, :year_of_publication, :rank_class, :updated_at, :updated_by_id)
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
+      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :updated_at, :updated_by_id)
   end
 
-  # TODO: Probably break out invalid family and test for reified there
   # Invalid family/higher names
   def self.invalid_family_and_higher_names(otu)
     a = otu.taxon_name.self_and_descendants
@@ -205,8 +207,8 @@ module Export::Coldp::Files::Name
         rank_class: FAMILY_RANK_NAMES + HIGHER_RANK_NAMES,
         cached_is_valid: false)
       .unscope(:order)
-      .select(:id, :name, :type, :cached_author_year, :year_of_publication, :rank_class, :cached_is_valid, :cached_valid_taxon_name_id, :updated_at, :updated_by_id) # cached has sic
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
+      .select(:id, :name, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :cached_is_valid, :cached_valid_taxon_name_id, :updated_at, :updated_by_id) # cached has sic
   end
 
   # Valid original combinations are:
@@ -217,17 +219,13 @@ module Export::Coldp::Files::Name
   #
   # As a test these should parse correctly in the Biodiversity wrapper as of 4/8/2025.
   #
-  # TODO: only reified!!
   def self.original_combination_names(otu)
-    a = otu.taxon_name.self_and_descendants
-      .where(taxon_names: { type: 'Protonym' })
-      .select(:id)
-      .unscope(:order)
+    a = core_names(otu)
 
     b = Protonym
       .original_combination_specified
       .original_combinations_flattened.with(project_scope: a)
-      .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!! 
+      .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
       .joins('JOIN project_scope ps on ps.id = taxon_names.id')
   end
 
@@ -236,39 +234,42 @@ module Export::Coldp::Files::Name
     names.length
 
     names.find_each do |row|
-
       # At this point all formatting (gender) is done
       elements = Protonym.original_combination_full_name_hash_from_flat(row)
 
       infraspecies, rank = Utilities::Nomenclature.infraspecies(elements)
       rank = 'forma' if rank == 'form' # CoL preferred string
+
+      # Hmm- why needed?
       rank = elements.keys.last if rank.nil? # Note that this depends on order of Hash creation
 
+      scientific_name = row['cached_misspelling'] ? ::Utilities::Nomenclature.unmisspell_name(row['cached_original_combination']) : row['cached_original_combination']
+
       # TODO: resolve/verify needed
-      uninomial = row['genus'] if rank == 'genus'
+      uninomial = scientific_name if rank == 'genus'
 
-      # !! Ideally we de-reify these names inathe query with (cached != cached_original_combination)
+      # !! Ideally we de-reify these names ina the query with (cached != cached_original_combination)
       # !! SO that we know these *must* be reified
-      id = ::Utilities::Nomenclature.reified_id(row['id'], row['cached_original_combination'])
+      # !! We are reifieing *without* "[sic]" in the string
+      id = ::Utilities::Nomenclature.reified_id(row['id'], scientific_name)
 
-      # by definition
+      # By definition
       basionym_id = row['id']
 
       csv << [
         id,                                                                 # ID
         basionym_id,                                                        # basionymID
-        row['cached_original_combination'],                                 # scientificName
+        scientific_name,                                                    # scientificName
         row['cached_author_year'].gsub(/[\(\)]/, ''),                       # authorship
         rank,                                                               # rank
         uninomial,                                                          # uninomial
-        row['genus'],                                                       # genus
-        row['subgenus'],                                                    # subgenus (no parens)
-        row['species'],                                                     # species
+        elements['genus']&.last,                                            # genus
+        elements['subgenus']&.last,                                         # subgenus (no parens)
+        elements['species']&.last,                                          # species
         infraspecies,                                                       # infraspecificEpithet
         row['source_id'],                                                   # referenceID
         row['pages'],                                                       # publishedInPage
-        row['cached_nomenclature_date']&.year,                              # publishedInYear
-        true,                                                               # original
+        row['cached_nomenclature_date']&.year,                              # publishedInYear - OK
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -292,15 +293,15 @@ module Export::Coldp::Files::Name
         nil,                                                                # basionymID
         t.cached,                                                           # scientificName  # should just be t.cached
         t.cached_author_year,                                               # authorship
-        t.rank,                                                              # rank
-        nil,                                                                # uninomial   <- if genus here
+        t.rank,                                                             # rank
+        t.cached,                                                           # uninomial
         nil,                                                                # genus and below - IIF species or lower
         nil,                                                                # infragenericEpithet (subgenus)
         nil,                                                                # specificEpithet
         nil,                                                                # infraspecificEpithet
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
-        t.year_of_publication,                                              # publishedInYear
+        t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -313,6 +314,7 @@ module Export::Coldp::Files::Name
     end
   end
 
+  # TODO: could select less, don't need 'cached', just name?
   def self.add_valid_higher_names(otu, csv, project_members, reference_csv)
     names = valid_higher_names(otu)
 
@@ -325,17 +327,17 @@ module Export::Coldp::Files::Name
       csv << [
         t.id,                                                               # ID
         nil,                                                                # basionymID
-        t.cached,                                                             # scientificName  # should just be t.cached
+        t.cached,                                                           # scientificName  # should just be t.name?
         t.cached_author_year,                                               # authorship
         t.rank,                                                             # rank
-        nil,                                                                # uninomial   <- if genus here
+        t.cached,                                                           # uninomial
         nil,                                                                # genus and below - IIF species or lower
         nil,                                                                # infragenericEpithet (subgenus)
         nil,                                                                # specificEpithet
         nil,                                                                # infraspecificEpithet
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
-        t.year_of_publication,                                              # publishedInYear
+        t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -351,45 +353,50 @@ module Export::Coldp::Files::Name
   # TODO: Complete combinations only
   # TODO: add .fully_specified ?
   def self.combination_names(otu)
-    a = otu.taxon_name.self_and_descendants.unscope(:order)
-      .where(taxon_names: { type: 'Combination' })
-      .select(:id)
+    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
     b = Combination.
       flattened.with(project_scope: a)
       .complete
-      .joins('JOIN project_scope ps on ps.id = taxon_names.id')
+      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
   end
 
   # TODO: we probably have an issue where self is not included as a relationship and we need to inject it into the data?
   def self.add_combinations(otu, csv, project_members, reference_csv)
     names = combination_names(otu)
     names.length
-    names.each do |row| # row is a Hash, not a ActiveRecord object
 
-      # TODO:
-      # basionym_id = nil # t.reified_id # See original combination
-      # basionym_id = nil if @skipped_name_ids.include?(basionym_id)
+    names.each do |row| # row is a Hash, not a ActiveRecord object
 
       # At this point all formatting (gender) is done
       elements = Combination.full_name_hash_from_row(row)
 
+      # NOT POSSIBLE?! Combination can't have infraspecific in UI
       infraspecies, rank = Utilities::Nomenclature.infraspecies(elements)
-      rank = elements.keys.last if rank.nil? # Note that this depends on order of Hash creation
 
-      # TODO: resolve/verify needed
-      uninomial = row['genus'] if rank == 'genus'
+      rank = elements.keys.last if rank.nil?
+
+      # In some cases where names are described originally with missmatched gender we can exclude dupes
+      # This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
+      if row[rank + "_cached"] == row['cached']
+        ::Export::Coldp.skipped_combinations << row['id']
+        next
+      end
+
+      scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
+
+      uninomial = scientific_name if rank == 'genus'
 
       csv << [
         row['id'],                                                          # ID
-        nil, #basionym_id,                                                  # basionymID
-        row['cached'],                                                      # scientificName  # should just be t.cached
+        nil,                                                                # basionymID
+        scientific_name,                                                    # scientificName
         row['cached_author_year'],                                          # authorship
         rank,                                                               # rank
-        uninomial,                                                          # uninomial   <- if genus here
-        elements[:genus],                                                   # genus and below - IIF species or lower # TODO: confirm this is OK now
-        elements[:subgenus],                                                # infragenericEpithet (subgenus)
-        elements[:species],                                                 # specificEpithet
+        uninomial,                                                          # uninomial   <- if genus group only (i.e. incomplete Combination)
+        elements['genus']&.last,                                            # genus
+        elements['subgenus']&.last,                                         # subgenus (no parens)
+        elements['species']&.last,                                          # species
         infraspecies,                                                       # infraspecificEpithet
         row['source_id'],                                                   # publishedInID
         row['pages'],                                                       # publishedInPage
@@ -397,62 +404,48 @@ module Export::Coldp::Files::Name
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # nomStatus (nil for Combination)
         nil,                                                                # link (probably TW public or API)
-        Export::Coldp.sanitize_remarks(row['id']),                               # remarks
+        Export::Coldp.sanitize_remarks(row['id']),                          # remarks
         Export::Coldp.modified(row['updated_at']),                          # modified
         Export::Coldp.modified_by(row[:updated_by_id], project_members)     # modifiedBy
       ]
+    end
 
-      # TODO: will have to update this to generate from id
-      # Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
+    if reference_csv
+      Source.with(names: names.where(citations: { is_original: true}))
+        .joins('JOIN names n on n.source_id = sources.id')
+        .find_each do |s|
+          Export::Coldp::Files::Reference.add_reference_rows([s].compact, reference_csv, project_members)
+        end
+    end
+  end
+
+  def self.align_gender(core_name, rank = :species)
+    t = core_name.send(rank)
+    return t unless core_name.name == t
+    if a = core_name.genus_gender
+      if b = core_name.send(
+          (core_name.genus_gender + '_name').to_sym
+      )
+        return b
+      else
+        return t
+      end
     end
   end
 
   def self.add_core_names(otu, csv, project_members, reference_csv)
     names = core_names(otu)
     names.length
+
     names.find_each do |t|
-
-      # name_total += 1
-
-      # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
-      # Proposal is to exclude names of a specific ranks see taxon.rb
-      #
-      # Need the next highest valid parent not in this list!!
-      # %w{
-      #   NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
-      #   NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
-      # }
-      #
-      # infragenericEpithet needs to handle subsection (NomenclaturalRank::Icn::GenusGroup::Subsection)
-
-      # TODO: remove this loop, using a with to top
-      # ... This eliminates Combinations that are identical to the current placement.
-      #
-
-      # TODO: family-group cached original combinations do not get exported in either Name or Synonym tables
-
-      # exclude duplicate protonyms created for family group relationships
-      #    if t.is_family_rank? # '%::Iczn::Family%' We are already excluding combinationss from above
-      #      if TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm.where(subject_taxon_name: t).any? #  t.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
-      #        valid = TaxonName.find(t.cached_valid_taxon_name_id)
-      #        if valid.name == t.name and valid.cached_author = t.cached_author and t.id != valid.id # !! valid.name should never = t.name, by definition?
-      #          next
-      #        end
-      #      end
-      #    end
-
-      #   if !t.is_combination? and t.is_family_rank? # We are already excluding combinationss from above
-      #     if TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm.where(subject_taxon_name: t).any? #  t.taxon_name_relationships.any? {|tnr| tnr.type == 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'}
-      #       valid = TaxonName.find(t.cached_valid_taxon_name_id)
-      #       if valid.name == t.name  and valid.cached_author = t.cached_author and t.id != valid.id # !! valid.name should never = t.name, by definition?
-      #         next
-      #       end
-      #     end
-      #   end
 
       origin_citation = t.origin_citation
       basionym_id = t.id # by defintion
       uninomial = t.cached if t.rank == 'genus'
+
+      # Future- resolve in SQL perhaps, though not very expensive here
+      species = align_gender(t)
+      infraspecies = align_gender(t, :infraspecies)
 
       csv << [
         t.id,                                                               # ID
@@ -463,11 +456,11 @@ module Export::Coldp::Files::Name
         uninomial,                                                          # uninomial   <- if genus here
         t.genus,                                                            # genus and below - IIF species or lower # TODO: confirm this is OK now
         t.subgenus,                                                         # infragenericEpithet (subgenus)
-        t.species,                                                          # specificEpithet
-        t.infraspecies,                                                     # infraspecificEpithet
+        species,                                                            # specificEpithet
+        infraspecies,                                                       # infraspecificEpithet
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
-        t.year_of_publication,                                              # publishedInYear
+        t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus # TODO: untested
         nil,                                                                # link (probably TW public or API)
@@ -492,14 +485,6 @@ module Export::Coldp::Files::Name
     nil
   end
 
-
-  # TODO: reconcile this:
-  #
-  # # Here we add reified ID's for higher taxa in which cached != cached_original_combination (e.g., TaxonName stores both Lamotialnina and Lamotialnini so needs a reified ID)
-  # if t.cached_original_combination.present? && t.is_family_rank? && t.has_alternate_original? # t.cached != t.cached_original_combination
-  #   add_higher_original_name(t, csv, origin_citation, name_remarks_vocab_id, project_members)
-  # end
-  #
   def self.add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
 
     names = invalid_family_and_higher_names(otu)
@@ -517,17 +502,17 @@ module Export::Coldp::Files::Name
       csv << [
         t.id,                                                             # ID
         nil,                                                              # basionymID
-        t.name,                                                           # scientificName  # should just be t.cached
+        t.name,                                                           # scientificName
         t.cached_author_year,                                             # authorship
         t.rank,                                                           # rank
-        nil,                                                              # uninomial   <- if genus here
+        t.name,                                                           # uninomial
         nil,                                                              # genus and below - IIF species or lower
         nil,                                                              # infragenericEpithet (subgenus)
         nil,                                                              # specificEpithet
         nil,                                                              # infraspecificEpithet
         origin_citation&.source_id,                                       # publishedInID
         origin_citation&.pages,                                           # publishedInPage
-        t.year_of_publication,                                            # publishedInYear
+        t.cached_nomenclature_date&.year,                                 # publishedInYear
         code_field(t.rank_class.name),                                    # code
         nom_status,                                                       # nomStatus
         nil,                                                              # link (probably TW public or API)
@@ -540,9 +525,6 @@ module Export::Coldp::Files::Name
     end
   end
 
-  # TODO: use similar strategy to implement TNR relationship statuses, at least for
-  # homonyms.
-  #
   def self.add_invalid_core_names(otu, csv, project_members, reference_csv)
     names = invalid_core_names(otu)
 
@@ -555,10 +537,9 @@ module Export::Coldp::Files::Name
 
       origin_citation = t.origin_citation
 
-      # basionym_id = nil if @skipped_name_ids.include?(basionym_id)
-      uninomial = t.cached if t.rank == 'genus'
-
       scientific_name = t.cached_misspelling ? ::Utilities::Nomenclature.unmisspell_name(t.cached) : t.cached
+
+      uninomial = scientific_name if t.rank == 'genus'
 
       nom_status = nomenclatural_status(t.id, classification_status, relationship_status)
 
@@ -575,7 +556,7 @@ module Export::Coldp::Files::Name
         t.infraspecies,                                                     # infraspecificEpithet
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
-        t.year_of_publication,                                              # publishedInYear
+        t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         nom_status,                                                         # nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -587,40 +568,5 @@ module Export::Coldp::Files::Name
       Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
     end
   end
-
-=begin
-
-TODO: Benchmark performance of pre-mapping and then writing
-
-  def add_name(
-    id: nil,
-    basionym_id: nil,
-    scientific_name: nil,
-    authorship:
-  )
-  end
-
-  NAME_FIELDS = [
-    :id,                    #   t.id,
-    :basionymID,            #   basionym_id,
-    :scientificName,        #        name_string, # should just be t.cached
-    :authorship,            #        t.cached_author_year,
-    :rank,                  #        rank,
-    :uninomial,             #        uninomial,  <- if genus here
-    :genus,                 #        generic_epithet,  and below - IIF species or lower
-    :infragenericEpithet,   #        infrageneric_epithet,   (subgenus)
-    :specificEpithet,       #        specific_epithet,
-    :infraspecificEpithet,  #        infraspecific_epithet,
-    :publishedInID,         #        origin_citation&.source_id,
-    :publishedInPage,       #        origin_citation&.pages,
-    :publishedInYear,       #        t.year_of_publication,
-    :code,                  #        code_field(t),
-    :nomStatus,             #        nom_status_field(t),
-    :link,                  #        nil,  (probably TW public or API)
-    :remarks,               #        Export::Coldp.sanitize_remarks(remarks(t, name_remarks_vocab_id)),
-    :modified,              #        Export::Coldp.modified(t[:updated_at]),
-    :modifiedBy,            #        Export::Coldp.modified_by(t[:updated_by_id], project_members)
-  ]
-=end
 
 end

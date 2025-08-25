@@ -9,7 +9,7 @@ describe DataAttribute, type: :model, group: :annotators do
     }
 
     context 'requires' do
-      specify 'attribute_subject' do 
+      specify 'attribute_subject' do
         # this eliminates all model based validation requirements
         attribute.type = 'ImportAttribute'
         attribute.value = 'asdf'
@@ -22,6 +22,18 @@ describe DataAttribute, type: :model, group: :annotators do
       end
 
       specify 'type' do
+        expect(attribute.errors.include?(:type)).to be_truthy
+      end
+
+      specify "type 'DataAttribute' not allowed" do
+        attribute.type = 'DataAttribute'
+        attribute.valid?
+        expect(attribute.errors.include?(:type)).to be_truthy
+      end
+
+      specify "type 'DataAttribute::Internal' not allowed" do
+        attribute.type = 'DataAttribute::Internal'
+        attribute.valid?
         expect(attribute.errors.include?(:type)).to be_truthy
       end
     end
@@ -102,7 +114,7 @@ describe DataAttribute, type: :model, group: :annotators do
         end
 
         specify 'using build()' do
-          s.data_attributes.build(import_predicate: 'foo', value: '6', type: 'ImportAttribute', is_community_annotation: true) 
+          s.data_attributes.build(import_predicate: 'foo', value: '6', type: 'ImportAttribute', is_community_annotation: true)
           expect(s.save!).to be_truthy
           expect(s.data_attributes.first.project_id).to eq(nil)
         end
@@ -123,7 +135,7 @@ describe DataAttribute, type: :model, group: :annotators do
         end
 
         specify 'using build()' do
-          s.data_attributes.build(predicate: p, value: '6', type: 'InternalAttribute', is_community_annotation: true) 
+          s.data_attributes.build(predicate: p, value: '6', type: 'InternalAttribute', is_community_annotation: true)
           expect(s.save!).to be_truthy
           expect(s.data_attributes.first.project_id).to eq(nil)
         end
@@ -143,7 +155,7 @@ describe DataAttribute, type: :model, group: :annotators do
               value: '6',
               type: 'InternalAttribute',
               attribute_subject: s,
-              is_community_annotation: true}])  
+              is_community_annotation: true}])
           expect(s.save!).to be_truthy
           expect(s.data_attributes.size).to eq(1)
           expect(s.data_attributes.first.project_id).to eq(nil)

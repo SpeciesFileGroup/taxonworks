@@ -34,7 +34,6 @@
       <%# tag.td(i.geographic_item.quick_geographic_name_hierarchy ) %>
       <%# tag.td( CachedMapItem.cached_map_name_hierarchy(i.geographic_item_id)) %>
       <%= tag.td(i.untranslated ? tag.em('True', class: [:feedback, 'feedback-thin', 'feedback-warning']) : nil  ) %>
-      <%= tag.td(i.is_absent) %>
     </tr>
   <% end %>
 </table>

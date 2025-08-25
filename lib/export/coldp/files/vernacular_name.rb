@@ -62,7 +62,7 @@ module Export::Coldp::Files::VernacularName
 
       cn.each do |n|
         csv << [
-          n.id,                                                          # taxon_id
+          n.otu_id,                                                      # taxon_id
           n.name,                                                        # name
           transliterations[n.id],                                        # transliteration  # TODO: query expensive
           n.alpha_3_bibliographic,                                       # language

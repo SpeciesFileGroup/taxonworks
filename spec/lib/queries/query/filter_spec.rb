@@ -61,6 +61,24 @@ describe Queries::Query::Filter, type: [:model] do
       a = ::Queries::Otu::Filter.new(otu_id: [o2.id], venn: v, venn_mode: :b)
       expect(a.all).to contain_exactly(o3)
     end
+
+    specify '#venn_query includes b pagination by default' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o1.id}&otu_id[]=#{o2.id}&otu_id[]=#{o3.id}&paginate=true&page=2&per=1"
+
+      a = ::Queries::Otu::Filter.new(
+        otu_id: [o1.id, o2.id, o3.id], venn: v, venn_mode: :a)
+      expect(a.all).to contain_exactly(o1, o3)
+    end
+
+    specify '#venn_query #venn_ignore_pagination' do
+      v = "http://127.0.0.1:3000/otus/filter.json?otu_id[]=#{o1.id}&otu_id[]=#{o2.id}&paginate=true&page=2&per=1"
+
+      a = ::Queries::Otu::Filter.new(
+        otu_id: [o1.id, o2.id, o3.id],
+        venn: v, venn_mode: :a, venn_ignore_pagination: true
+      )
+      expect(a.all).to contain_exactly(o3)
+    end
   end
 
   specify '#venn_query' do
@@ -71,13 +89,24 @@ describe Queries::Query::Filter, type: [:model] do
     expect(q.venn_query.class).to eq(::Queries::Otu::Filter)
   end
 
-  specify '#venn_query params' do
-    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1'
+  specify '#venn_query params includes pagination params by default' do
+    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1&paginate=true'
 
-    a = ::Queries::Otu::Filter.new({})
-    a.venn = v
-    b = a.venn_query
-    expect(b.params).to eq({name: 'Ant', page: '1', per: '50'})
+    q = ::Queries::Otu::Filter.new({})
+    q.venn = v
+    b = q.venn_query
+    expect(b.params).to eq({name: 'Ant', paginate: 'true', page: '1', per: '50'})
+  end
+
+  specify '#venn_query #venn_ignore_pagination=true' do
+    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1&paginate=true'
+
+    q = ::Queries::Otu::Filter.new({
+      venn: v,
+      venn_ignore_pagination: 'true'
+    })
+    b = q.venn_query
+    expect(b.params).to eq({name: 'Ant'})
   end
 
   specify '#venn_mode 0' do
@@ -125,6 +154,34 @@ describe Queries::Query::Filter, type: [:model] do
     expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
   end
 
+  specify '#disable_paging' do
+    o1 = FactoryBot.create(:valid_otu)
+    o2 = FactoryBot.create(:valid_otu)
+
+    a = ::Queries::Otu::Filter.new(
+      otu_id: [o1.id, o2.id], paginate: true, per: 1, page: 1
+    )
+    a.disable_paging
+    expect(a.paginate).to be_falsey
+    expect(a.all.count).to eq(2)
+  end
+
+  specify '#disable_paging .set_paging' do
+    o1 = FactoryBot.create(:valid_otu)
+    o2 = FactoryBot.create(:valid_otu)
+
+    a = ::Queries::Otu::Filter.new(
+      otu_id: [o1.id, o2.id], paginate: true, per: 1, page: 2
+    )
+    state = a.disable_paging
+    q = a.all
+    q = a.class.set_paging(q, state)
+
+    expect(q.current_page).to be(2)
+    expect(q.limit_value).to be(1) # per
+    expect(q.count).to eq(1)
+  end
+
   context 'PARAMS defined' do
     filters.each do |f|
       specify "#{f.name}" do
@@ -170,6 +227,8 @@ describe Queries::Query::Filter, type: [:model] do
     Dir.glob('app/javascript/**/filter/links/*.js').each do |file|
       n = file.split('/').last
       next unless n =~ /^[A-Z]/ # Constants start with a capital
+      # TaxonNameRelationship sends to TaxonName in 3 different ways.
+      next if ['TaxonNameRelationship.js'].include?(n)
 
       # puts n
 
@@ -185,6 +244,7 @@ describe Queries::Query::Filter, type: [:model] do
         a.delete(:biological_associations_graph) if a # There is no BiologicalAssociationsGraph UI
         a.delete(:data_attribute) if a # etc
         a.delete(:controlled_vocabulary_term) if a
+        a.delete(:conveyance) if a # There is no depiction filter
         a.delete(:depiction) if a # There is no depiction filter
 
         expect( query_names ).to contain_exactly( *a )

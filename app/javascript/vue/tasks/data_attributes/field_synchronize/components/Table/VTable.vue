@@ -47,6 +47,7 @@
       </tr>
       <tr>
         <th>ID</th>
+        <th class="label-column">Label</th>
         <th
           v-for="attr in attributes"
           :key="attr"
@@ -169,6 +170,11 @@
         :key="item.uuid"
       >
         <td>{{ item.id }}</td>
+        <td
+          class="label-column ellipsis"
+          :title="item.label"
+          v-html="item.labelHtml"
+        />
         <VTableCellAttribute
           v-for="key in attributes"
           :key="key"
@@ -459,12 +465,17 @@ async function updatePredicateColumn({ predicateId, title }) {
 
 <style scoped>
 .cell-left-border {
-  border-left: 3px #eaeaea solid;
+  border-left: 3px var(--border-color) solid;
 }
 
 .cell-selected-border {
   outline: 2px solid var(--color-primary) !important;
   outline-offset: -2px;
+}
+
+.label-column {
+  width: 16rem;
+  max-width: 16rem;
 }
 
 input {

@@ -85,7 +85,7 @@ describe Identifier::Global, type: :model, group: :identifiers do
 
   describe 'soft validation' do
     specify 'responding URI' do
-      global_identifier.identifier = 'http://orthoptera.speciesfile.org/otus/817876/'
+      global_identifier.identifier = 'http://sfg.taxonworks.org/api/v1/ping'
       VCR.use_cassette('responding URI') do
         global_identifier.soft_validate(only_sets: [:resolved])
       end
@@ -97,7 +97,7 @@ describe Identifier::Global, type: :model, group: :identifiers do
       VCR.use_cassette('non-responding URI') do
         global_identifier.soft_validate(only_sets: [:resolved])
       end
-      
+
       expect(global_identifier.soft_validations.messages_on(:identifier).count).to eq(1)
     end
   end

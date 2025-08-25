@@ -1,12 +1,16 @@
 <template>
   <div :title="title">
-    <label class="switch-lock">
+    <label class="toggle-switch">
       <input
         v-model="checked"
         type="checkbox"
         @click="emit('click', checked)"
       />
-      <span />
+      <span>
+        <div class="switch-icon">
+          <slot />
+        </div>
+      </span>
     </label>
   </div>
 </template>
@@ -22,17 +26,17 @@ const props = defineProps({
 
   onColor: {
     type: String,
-    default: '#9ccc65'
+    default: 'var(--color-toggle-active)'
   },
 
   offColor: {
     type: String,
-    default: '#F44336'
+    default: 'var(--bg-color)'
   },
 
   title: {
     type: String,
-    default: 'Lock / Unlock'
+    default: ''
   }
 })
 
@@ -48,10 +52,8 @@ const checked = computed({
 })
 </script>
 <style lang="scss" scoped>
-$lightGrey: #99a3ba;
-
-.switch-lock {
-  height: 26px;
+.toggle-switch {
+  height: 28px;
   display: block;
   position: relative;
   cursor: pointer;
@@ -62,7 +64,6 @@ $lightGrey: #99a3ba;
       min-height: 26px;
       line-height: 26px;
       display: block;
-      color: $lightGrey;
       position: relative;
       white-space: nowrap;
       transition: color 0.3s ease;
@@ -84,10 +85,24 @@ $lightGrey: #99a3ba;
       &:after {
         width: 24px;
         height: 24px;
-        background: #fff;
+        background: var(--panel-bg-color);
         top: 2px;
         left: 3px;
         box-shadow: 0 1px 3px rgba(#121621, 0.1);
+        transition: all 0.45s ease;
+      }
+
+      .switch-icon {
+        display: flex;
+        position: absolute;
+        top: 2px;
+        left: 3px;
+        width: 24px;
+        height: 24px;
+        opacity: 0.7;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
         transition: all 0.45s ease;
       }
     }
@@ -97,8 +112,15 @@ $lightGrey: #99a3ba;
           background: v-bind('props.onColor');
         }
         &:after {
-          background: #fff;
+          background: var(--panel-bg-color);
           transform: translate(18px, 0);
+        }
+
+        .switch-icon {
+          transform: translate(18px, 0);
+          &:after {
+            transform: rotate(0deg) translate(0px, 0);
+          }
         }
       }
     }

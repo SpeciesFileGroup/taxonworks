@@ -25,10 +25,6 @@
 #     if True then the the shape could not be mapped, by any translation method, to a shape allowable
 #     for this CachedMapItemType
 #
-# @!attribute is_absent
-#   @return [Boolean, nil]
-#     if True then the corresponding AssertedDistributions have is_absent true
-#
 # @!attribute level0_geographic_name
 #   @return [String, nil]
 #      the level 0 name
@@ -288,12 +284,26 @@ class CachedMapItem < ApplicationRecord
 
     case base_class_name
     when 'AssertedDistribution'
+      if o.is_absent == true
+        return h
+      end
+      if o.asserted_distribution_object_type == 'Otu'
+        otu_id = [o.asserted_distribution_object_id]
+      else
+        # TODO handle other types
+        return h
+      end
       geographic_item_id = o.asserted_distribution_shape.default_geographic_item_id
-      otu_id = [o.otu_id]
     when 'Georeference'
       geographic_item_id = o.geographic_item_id
       otu_id = o.otus.left_joins(:taxon_determinations).where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
     end
+
+    otu = nil
+    return h if otu_id.nil? || (otu = Otu.find_by(id: otu_id)).nil?
+    # otus without taxon name have no hierarchy, so don't contribute to cached
+    # maps.
+    return h if !otu.taxon_name_id
 
     # Some AssertedDistribution don't have shapes
     if geographic_item_id

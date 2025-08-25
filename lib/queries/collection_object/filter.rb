@@ -28,13 +28,14 @@ module Queries
         :collection_object_id,
         :collection_object_type,
         :collectors,
+        :containerized,
         :current_determinations,
         :current_repository,
         :current_repository_id,
         :dates,
         :deaccessioned,
         :descendants,
-        :determiner_id_or,
+        :determiner_id_all,
         :determiner_id,
         :determiner_name_regex,
         :determiners,
@@ -105,6 +106,13 @@ module Queries
       # [Array]
       #   only return objects with these collecting event ID
       attr_accessor :collecting_event_id
+
+      # @param [True, False, nil]
+      #   true - the collection object is in a container
+      #   false - the collection object is not in a container
+      #   nil - not applied
+
+      attr_accessor :containerized
 
       # All params managed by CollectingEvent filter are available here as well
       attr_accessor :base_collecting_event_query
@@ -256,10 +264,10 @@ module Queries
       attr_accessor :determiner_id
 
       # @return [Boolean]
-      # @param determiner_id_or [String, nil]
+      # @param determiner_id_all [String, nil]
       #   `false`, nil - treat the ids in determiner_id as "or"
       #   'true' - treat the ids in determiner_id as "and" (only collection objects with all and only all will match)
-      attr_accessor :determiner_id_or
+      attr_accessor :determiner_id_all
 
       # @return [String, nil]
       attr_accessor :buffered_determinations
@@ -339,6 +347,7 @@ module Queries
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @collection_object_type = params[:collection_object_type].presence
+        @containerized = boolean_param(params, :containerized)
         @current_determinations = boolean_param(params, :current_determinations)
         @current_repository = boolean_param(params, :current_repository)
         @current_repository_id = params[:current_repository_id].presence
@@ -347,7 +356,7 @@ module Queries
         @deaccessioned = boolean_param(params, :deaccessioned)
         @determiners = boolean_param(params, :determiners)
         @determiner_id = params[:determiner_id]
-        @determiner_id_or = boolean_param(params, :determiner_id_or)
+        @determiner_id_all = boolean_param(params, :determiner_id_all)
         @determiner_name_regex = params[:determiner_name_regex]
         @dwc_indexed = boolean_param(params, :dwc_indexed)
         @exact_buffered_collecting_event = boolean_param(params, :exact_buffered_collecting_event)
@@ -515,7 +524,7 @@ module Queries
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
-        b = b.having(a['id'].count.eq(determiner_id.length)) unless determiner_id_or
+        b = b.having(a['id'].count.eq(determiner_id.length)) if determiner_id_all
 
         b = b.as('det_z1_')
 
@@ -676,6 +685,16 @@ module Queries
       def on_loan_facet
         return nil unless on_loan
         ::CollectionObject.on_loan
+      end
+
+      def containerized_facet
+        return nil if containerized.nil?
+
+        if containerized
+          ::CollectionObject.joins(:container_item).distinct
+        else
+          ::CollectionObject.left_outer_joins(:container_item).where(container_item: { id: nil }).distinct
+        end
       end
 
       def dwc_indexed_facet
@@ -1022,6 +1041,7 @@ module Queries
           biological_relationship_id_facet,
           collecting_event_facet,
           collectors_facet,
+          containerized_facet,
           current_repository_facet,
           dates_facet,
           deaccessioned_facet,

@@ -218,7 +218,7 @@ class Catalog::Nomenclature < Catalog
       s += TypeMaterial.where(protonym_id: all_protonyms.collect{|p| p.object}).all.
         collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
 
-      s.compact.uniq.sort_by{|s| s.cached}
+      s.compact.uniq.sort_by{|s| s.cached.downcase}
     end
 
     # @return [Array of Citations]

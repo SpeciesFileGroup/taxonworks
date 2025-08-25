@@ -69,9 +69,19 @@
             color="primary"
             medium
             :disabled="!predicate || !!inputValue.length"
+            title="With any value"
             @click="() => addPredicate({ any: true, text: '', exact: false })"
           >
             Any
+          </VBtn>
+          <VBtn
+            color="primary"
+            medium
+            :disabled="!predicate || inputValue.length"
+            title="Without predicate"
+            @click="() => addPredicate({ any: false, text: '', exact: false })"
+          >
+            Without
           </VBtn>
         </div>
       </div>

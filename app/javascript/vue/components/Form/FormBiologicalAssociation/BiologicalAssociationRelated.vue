@@ -8,9 +8,11 @@
 
     <SmartSelector
       v-bind="TAB[tabSelected]"
-      :target="FIELD_OCCURRENCE"
-      buttons
-      inline
+      ref="smartSelector"
+      :target="target"
+      :params="{
+        ba_target: 'subject'
+      }"
       @selected="(item) => emit('select', item)"
     />
   </fieldset>
@@ -20,7 +22,14 @@
 import VSwitch from '@/components/ui/VSwitch.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { OTU, COLLECTION_OBJECT, FIELD_OCCURRENCE } from '@/constants'
-import { ref } from 'vue'
+import { ref, useTemplateRef } from 'vue'
+
+defineProps({
+  target: {
+    type: String,
+    required: true
+  }
+})
 
 const TAB = {
   [OTU]: {
@@ -34,5 +43,14 @@ const TAB = {
 
 const emit = defineEmits(['select'])
 
+const smartSelectorRef = useTemplateRef('smartSelector')
 const tabSelected = ref(OTU)
+
+function setFocus() {
+  smartSelectorRef.value?.setFocus()
+}
+
+defineExpose({
+  setFocus
+})
 </script>

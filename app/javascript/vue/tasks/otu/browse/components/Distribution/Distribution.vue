@@ -12,9 +12,11 @@
     <div class="relative">
       <VMap
         width="100%"
+        cluster
         :zoom="2"
         :zoom-on-click="false"
         :geojson="shapes"
+        :cluster-icon-create-function="makeClusterIconFor"
       />
       <CachedMap
         v-if="cachedMap"
@@ -27,10 +29,11 @@
 
 <script setup>
 import SectionPanel from '../shared/sectionPanel'
-import VMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import SwitchComponent from '@/components/ui/VSwitch.vue'
 import CachedMap from './CachedMap.vue'
 import DistributionLegend from './DistributionLegend.vue'
+import { makeClusterIconFor } from '@/components/ui/VMap/clusters'
 import { GetterNames } from '../../store/getters/getters'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'

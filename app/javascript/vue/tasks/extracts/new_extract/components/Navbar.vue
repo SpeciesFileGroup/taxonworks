@@ -20,7 +20,11 @@
           arrow
           content="You have unsaved changes."
         >
-          <span data-icon="warning" />
+          <VIcon
+            name="attention"
+            color="attention"
+            small
+          />
         </tippy>
 
         <button
@@ -47,11 +51,12 @@ import { GetterNames } from '../store/getters/getters'
 import { Tippy } from 'vue-tippy'
 import { useStore } from 'vuex'
 import { ref, computed } from 'vue'
+import { useHotkey } from '@/composables'
 import NavbarComponent from '@/components/layout/NavBar'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
-import { useHotkey } from '@/composables'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const emit = defineEmits(['onSave', 'onReset'])
 

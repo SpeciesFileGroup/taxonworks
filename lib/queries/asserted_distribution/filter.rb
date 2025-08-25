@@ -12,7 +12,10 @@ module Queries
 
       PARAMS = [
         :asserted_distribution_id,
+        :asserted_distribution_object_id,
+        :asserted_distribution_object_type,
         :asserted_distribution_shape_type,
+        :biological_association_id,
         :geo_shape_id,
         :geo_mode,
         :geo_shape_type,
@@ -28,7 +31,10 @@ module Queries
         :taxon_name_id,
         :wkt,
         asserted_distribution_id: [],
+        asserted_distribution_object_id: [],
+        asserted_distribution_object_type: [],
         asserted_distribution_shape_type: [],
+        biological_association_id: [],
         geo_shape_id: [],
         geo_shape_type: [],
         geographic_area_id: [],
@@ -40,6 +46,18 @@ module Queries
       # @param asserted_distribution_id [Array, Integer, String]
       # @return [Array]
       attr_accessor :asserted_distribution_id
+
+      # @param asserted_distribution_object_id [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :asserted_distribution_object_id
+
+      # @param asserted_distribution_object_type [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :asserted_distribution_object_type
+
+      # @param biological_association_id [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :biological_association_id
 
       # @param otu_id [Array, Integer, String]
       # @return [Array]
@@ -91,6 +109,12 @@ module Queries
         super
         @asserted_distribution_id =
           integer_param(params, :asserted_distribution_id)
+        @asserted_distribution_object_id =
+          integer_param(params, :asserted_distribution_object_id)
+        @asserted_distribution_object_type =
+          params[:asserted_distribution_object_type]
+        @biological_association_id =
+          integer_param(params, :biological_association_id)
         @descendants = boolean_param(params, :descendants)
         @geo_json = params[:geo_json]
         @geographic_area_id = integer_param(params,:geographic_area_id)
@@ -114,6 +138,18 @@ module Queries
 
       def asserted_distribution_id
         [@asserted_distribution_id].flatten.compact
+      end
+
+      def asserted_distribution_object_id
+        [@asserted_distribution_object_id].flatten.compact
+      end
+
+      def asserted_distribution_object_type
+        [@asserted_distribution_object_type].flatten.compact
+      end
+
+      def biological_association_id
+        [@biological_association_id].flatten.compact
       end
 
       def otu_id
@@ -151,42 +187,59 @@ module Queries
       end
 
       def from_wkt(wkt_shape)
-        a = from_wkt_geographic_area(wkt_shape)
-        b = from_wkt_gazetteer(wkt_shape)
+        a = self.class.geographic_areas_for_geographic_items(
+          ::GeographicItem.covered_by_wkt_sql(wkt_shape)
+        )
+        b = self.class.gazetteers_for_geographic_items(
+          ::GeographicItem.covered_by_wkt_sql(wkt_shape)
+        )
 
         ::Queries.union(::AssertedDistribution, [a, b])
       end
 
-      def from_wkt_geographic_area(wkt_shape)
+      def self.from_geographic_items(geographic_items_sql)
+        # TODO: can we combine GAs and GAZs *before* joining with
+        # geographic_items_sql? That would save a spatial contains query.
+        a = self.geographic_areas_for_geographic_items(geographic_items_sql)
+        b = self.gazetteers_for_geographic_items(geographic_items_sql)
 
-        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.covered_by_wkt_sql(wkt_shape))
-
-        j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
-        k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have shapes
-
-        l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
-
-        s = 'WITH query_wkt_ad AS (' + l.all.to_sql + ') ' +
-          ::AssertedDistribution
-          .joins('JOIN query_wkt_ad as query_wkt_ad1 on query_wkt_ad1.id = asserted_distributions.asserted_distribution_shape_id')
-          .where(asserted_distribution_shape_type: 'GeographicArea')
-          .to_sql
-
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+        ::Queries.union(::AssertedDistribution, [a,b])
       end
 
-      def from_wkt_gazetteer(wkt_shape)
-        i = ::GeographicItem.joins(:gazetteers).where(::GeographicItem.covered_by_wkt_sql(wkt_shape))
+      def self.geographic_areas_for_geographic_items(geographic_items_sql)
+        i = ::GeographicItem
+          .joins(:geographic_areas)
+          .where(geographic_items_sql)
 
-        j = ::Gazetteer.joins(:geographic_item).where(geographic_item: i)
+        j = ::GeographicArea.joins(:geographic_items).merge(i).pluck(:id)
 
-        s = 'WITH query_wkt_ad AS (' + j.to_sql + ') ' +
-          ::AssertedDistribution
-          .joins('JOIN query_wkt_ad as query_wkt_ad1 on query_wkt_ad1.id = asserted_distributions.asserted_distribution_shape_id')
-          .where(asserted_distribution_shape_type: 'Gazetteer')
-          .to_sql
+        # TODO: There are only 58 GAs with shape that have a descendant without
+        # shape: could this be a lookup table instead?
+        k = ::GeographicArea.descendants_of(j).pluck(:id) # Add children that might not be caught because they don't have shapes
 
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+        geographic_area_ids = (j + k).uniq
+        if geographic_area_ids.empty?
+          return ::AssertedDistribution.none
+        end
+
+        ::AssertedDistribution
+          .where(asserted_distribution_shape_id: geographic_area_ids,
+            asserted_distribution_shape_type: 'GeographicArea')
+      end
+
+      def self.gazetteers_for_geographic_items(geographic_items_sql)
+        i = ::GeographicItem.joins(:gazetteers).where(geographic_items_sql)
+
+        gazetteer_ids = ::Gazetteer
+          .joins(:geographic_item).merge(i).pluck(:id)
+
+        if gazetteer_ids.empty?
+          return ::AssertedDistribution.none
+        end
+
+        ::AssertedDistribution
+          .where(asserted_distribution_shape_id: gazetteer_ids,
+            asserted_distribution_shape_type: 'Gazetteer')
       end
 
       # Shape is a Hash in GeoJSON format
@@ -252,11 +305,29 @@ module Queries
         end
       end
 
+      def asserted_distribution_object_facet
+        return nil if asserted_distribution_object_type.length != 1 ||
+          asserted_distribution_object_id.empty?
+
+        table[:asserted_distribution_object_id]
+          .in(asserted_distribution_object_id).and(
+            table[:asserted_distribution_object_type]
+              .eq(asserted_distribution_object_type.first)
+          )
+      end
+
+      def asserted_distribution_object_type_facet
+        return nil if asserted_distribution_object_type.empty?
+
+        table[:asserted_distribution_object_type]
+          .in(asserted_distribution_object_type)
+      end
+
       def asserted_distribution_shape_type_facet
         return nil if asserted_distribution_shape_type.empty?
 
-        ::AssertedDistribution
-          .where(asserted_distribution_shape_type:)
+        table[:asserted_distribution_shape_type]
+          .in(asserted_distribution_shape_type)
       end
 
       def asserted_distribution_geo_facet
@@ -275,14 +346,15 @@ module Queries
           'Gazetteer', gazetteer_shapes
         )
 
-        if geo_mode == true # spatial
-          i = ::Queries.union(::GeographicItem, [a,b])
-          u = ::Queries::GeographicItem.st_union_text(i).to_a.first
-
-          return from_wkt(u['st_astext'])
+        if geo_mode != true # exact or descendants
+          return referenced_klass_union([a,b])
         end
 
-        referenced_klass_union([a,b])
+        # Spatial.
+        i = ::Queries.union(::GeographicItem, [a,b])
+        self.class.from_geographic_items(
+          ::GeographicItem.covered_by_geographic_items_sql(i)
+        )
       end
 
       def asserted_distribution_geo_facet_by_type(shape_string, shape_ids)
@@ -302,7 +374,17 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        table[:otu_id].in(otu_id)
+        table[:asserted_distribution_object_type].eq('Otu').and(
+          table[:asserted_distribution_object_id].in(otu_id)
+        )
+      end
+
+      def biological_association_id_facet
+        return nil if biological_association_id.empty?
+        table[:asserted_distribution_object_type].eq('BiologicalAssociation')
+          .and(table[:asserted_distribution_object_id]
+            .in(biological_association_id)
+          )
       end
 
       def geographic_item_id_facet
@@ -321,9 +403,9 @@ module Queries
           j = o.join(h, Arel::Nodes::InnerJoin).on(o[:taxon_name_id].eq(h[:descendant_id]))
           z = h[:ancestor_id].in(taxon_name_id)
 
-          ::AssertedDistribution.joins(:otu).joins(j.join_sources).where(z)
+          ::AssertedDistribution.with_otus.joins(j.join_sources).where(z)
         else
-          ::AssertedDistribution.joins(:otu).where(otus: {taxon_name_id:})
+          ::AssertedDistribution.with_otus.where(otus: {taxon_name_id:})
         end
       end
 
@@ -331,34 +413,52 @@ module Queries
         return nil if otu_query.nil?
         s = 'WITH query_otu_ad AS (' + otu_query.all.to_sql + ') ' +
           ::AssertedDistribution
-          .joins('JOIN query_otu_ad as query_otu_ad1 on query_otu_ad1.id = asserted_distributions.otu_id')
+          .joins("JOIN query_otu_ad AS query_otu_ad1 ON query_otu_ad1.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
           .to_sql
         ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+      end
+
+      def observation_query_facet
+        return nil if observation_query.nil?
+        ::AssertedDistribution
+          .with(obs: observation_query.all)
+          .joins("JOIN obs ON obs.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Observation'")
+          .distinct
       end
 
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
         s = 'WITH query_tn_ad AS (' + taxon_name_query.all.to_sql + ') ' +
           ::AssertedDistribution
-          .joins(:otu)
+          .with_otus
           .joins('JOIN query_tn_ad as query_tn_ad1 on query_tn_ad1.id = otus.taxon_name_id')
           .to_sql
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+        ::AssertedDistribution.from('(' + s + ') as asserted_distributions').distinct
       end
 
       def biological_association_query_facet
         return nil if biological_association_query.nil?
-        s = 'WITH query_ad_ba AS (' + biological_association_query.all.to_sql + ') '
-
+        # On the BA itself.
         a = ::AssertedDistribution
-          .joins("JOIN query_ad_ba as query_ad_ba1 on asserted_distributions.otu_id = query_ad_ba1.biological_association_subject_id AND query_ad_ba1.biological_association_subject_type = 'Otu'")
+          .with(ba: biological_association_query.all)
+          .joins("JOIN ba ON ba.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociation'")
 
+        # On subject/object of the BA.
         b = ::AssertedDistribution
-          .joins("JOIN query_ad_ba as query_ad_ba2 on asserted_distributions.otu_id = query_ad_ba2.biological_association_object_id AND query_ad_ba2.biological_association_object_type = 'Otu'")
+          .with(ba: biological_association_query.all)
+          .joins("JOIN ba ON asserted_distributions.asserted_distribution_object_id = ba.biological_association_subject_id AND ba.biological_association_subject_type = 'Otu'")
 
-        s << referenced_klass_union([a,b]).to_sql
+        c = ::AssertedDistribution
+          .with(ba: biological_association_query.all)
+          .joins("JOIN ba ON asserted_distributions.asserted_distribution_object_id = ba.biological_association_object_id AND ba.biological_association_object_type = 'Otu'")
 
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions').distinct
+        # On a graph containing the BA.
+        d = ::AssertedDistribution
+          .with(ba: biological_association_query.all)
+          .joins("JOIN biological_associations_graphs ON biological_associations_graphs.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociationsGraph' " \
+          "JOIN biological_associations_biological_associations_graphs ON biological_associations_biological_associations_graphs.biological_associations_graph_id = biological_associations_graphs.id JOIN ba ON ba.id = biological_associations_biological_associations_graphs.biological_association_id")
+
+          referenced_klass_union([a,b,c,d])
       end
 
       def dwc_occurrence_query_facet
@@ -375,8 +475,12 @@ module Queries
 
       def and_clauses
         [
+          biological_association_id_facet,
           otu_id_facet,
           presence_facet,
+          asserted_distribution_shape_type_facet,
+          asserted_distribution_object_type_facet,
+          asserted_distribution_object_facet,
         ]
       end
 
@@ -391,8 +495,8 @@ module Queries
           asserted_distribution_geo_facet,
           geographic_item_id_facet,
           taxon_name_id_facet,
+          observation_query_facet,
           wkt_facet,
-          asserted_distribution_shape_type_facet
         ]
       end
 

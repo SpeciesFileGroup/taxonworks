@@ -26,4 +26,44 @@ describe TaxonNamesHelper, type: :helper do
   specify '#taxon_name_rank_select_tag' do
     expect(helper.taxon_name_rank_select_tag(taxon_name: taxon_name, code: :iczn)).to have_select('taxon_name_rank_class')
   end
+
+  context 'taxon_name_inventory_stats' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:family) { Protonym.create!(name: 'Cicadellidae', rank_class: Ranks.lookup(:iczn, :family), parent: root) }
+    let!(:genus1) { Protonym.create!(name: 'Erythroneura', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+    let!(:genus2) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+    let!(:genus3) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+    let!(:genus4) { Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+    let!(:tnr) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: genus1, object_taxon_name: genus2) }
+    let!(:tnc) { TaxonNameClassification::Iczn::Fossil.create!(taxon_name: genus4) }
+    let!(:stats) { taxon_name_inventory_stats(family) }
+
+    specify 'count' do
+      expect(stats.count).to eq(2)
+    end
+
+    specify 'ranks' do
+      expect(stats.map{|x| x[:rank]}).to eq([:family, :genus])
+    end
+
+    context 'genus' do
+      let!(:g) { stats.find { |r| r[:rank] == :genus } }
+
+      specify 'names valid' do
+        expect(g[:names][:valid]).to eq(3)
+      end
+
+      specify 'names invalid' do
+        expect(g[:names][:invalid]).to eq(1)
+      end
+
+      specify 'names valid_extant' do
+        expect(g[:names][:valid_extant]).to eq(2)
+      end
+
+      specify 'names valid_fossil' do
+        expect(g[:names][:valid_fossil]).to eq(1)
+      end
+    end
+  end
 end

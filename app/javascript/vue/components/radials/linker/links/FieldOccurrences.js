@@ -1,0 +1,9 @@
+import {
+  TASK_PROJECT_VOCABULARY,
+  TASK_MONOGRAPH_FACILITATOR
+} from '../constants/links'
+
+export const FieldOccurrence = {
+  all: [TASK_MONOGRAPH_FACILITATOR],
+  ids: [TASK_PROJECT_VOCABULARY, TASK_MONOGRAPH_FACILITATOR]
+}

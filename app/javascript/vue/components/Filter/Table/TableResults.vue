@@ -432,75 +432,79 @@
               <RadialObject
                 v-if="radialObject"
                 :global-id="item.global_id"
+                teleport
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
               <RadialNavigation
                 v-if="radialNavigator"
                 :global-id="item.global_id"
                 :redirect="false"
+                teleport
                 @delete="emit('remove', { item, index })"
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
             </div>
           </td>
           <template v-if="attributes">
-            <slot
+            <td
               v-for="(_, attr) in attributes"
               :key="attr"
               :name="attr"
               :value="item[attr]"
+              :class="{ freeze: freezeColumn.includes(attr) }"
+              :style="
+                freezeColumn.includes(attr) && {
+                  left: freezeColumnLeftPosition[attr]
+                }
+              "
+              @dblclick="
+                () => {
+                  scrollToTop()
+                  filterValues[attr] = item[attr]
+                }
+              "
             >
-              <td
-                :class="{ freeze: freezeColumn.includes(attr) }"
-                v-html="item[attr]"
-                :style="
-                  freezeColumn.includes(attr) && {
-                    left: freezeColumnLeftPosition[attr]
-                  }
-                "
-                @dblclick="
-                  () => {
-                    scrollToTop()
-                    filterValues[attr] = item[attr]
-                  }
-                "
-              />
-            </slot>
+              <slot
+                :name="attr"
+                :value="item[attr]"
+                :set-highlight="() => (lastRadialOpenedRow = item.id)"
+              >
+                <div v-html="item[attr]" />
+              </slot>
+            </td>
           </template>
 
           <template
             v-for="(properties, key) in layout?.properties"
             :key="key"
           >
-            <template
-              v-if="
-                !Array.isArray(properties) && typeof properties === 'object'
-              "
-            >
-              <td
-                v-for="(value, property, dIndex) in item[key]"
-                :key="property"
-                :class="{
-                  'cell-left-border': dIndex === 0,
-                  freeze: freezeColumn.includes(`${key}.${property}`)
-                }"
-                :style="
-                  freezeColumn.includes(`${key}.${property}`) && {
-                    left: freezeColumnLeftPosition[`${key}.${property}`]
-                  }
-                "
-                @dblclick="
-                  () => {
-                    scrollToTop()
-                    filterValues[`${key}.${property}`] = Array.isArray(
-                      item[key]
-                    )
-                      ? item[key].map((obj) => obj[property])
-                      : item[key][property]
-                  }
-                "
-                v-text="value"
-              />
+            <template v-if="!Array.isArray(properties)">
+              <template v-if="properties?.show">
+                <td
+                  v-for="(value, property, dIndex) in item[key]"
+                  :key="property"
+                  :class="{
+                    'cell-left-border': dIndex === 0,
+                    freeze: freezeColumn.includes(`${key}.${property}`)
+                  }"
+                  :style="
+                    freezeColumn.includes(`${key}.${property}`) && {
+                      left: freezeColumnLeftPosition[`${key}.${property}`]
+                    }
+                  "
+                  @dblclick="
+                    () => {
+                      scrollToTop()
+                      filterValues[`${key}.${property}`] = Array.isArray(
+                        item[key]
+                      )
+                        ? item[key].map((obj) => obj[property])
+                        : item[key][property]
+                    }
+                  "
+                  v-text="value"
+                />
+              </template>
             </template>
             <template v-else>
               <td
@@ -751,7 +755,7 @@ table {
   border-collapse: separate;
 }
 .cell-left-border {
-  border-left: 3px #eaeaea solid;
+  border-left: 3px var(--border-color) solid;
 }
 
 .cell-selected-border {
@@ -790,8 +794,7 @@ table {
 }
 
 .header-empty-td {
-  background: #f8f8f8 !important;
-  border-bottom: 0;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .header-row-attributes {

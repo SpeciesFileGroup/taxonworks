@@ -1,11 +1,12 @@
 import {
   AssertedDistribution,
   BiologicalAssociation,
-  CollectionObject,
   CollectingEvent,
+  CollectionObject,
   Content,
   Descriptor,
   Extract,
+  FieldOccurrence,
   Image,
   Loan,
   Observation,
@@ -23,11 +24,12 @@ import {
   CONTENT,
   DESCRIPTOR,
   EXTRACT,
+  FIELD_OCCURRENCE,
   IMAGE,
   LOAN,
   OBSERVATION,
   OTU,
-  PEOPLE,
+  PERSON,
   SOUND,
   SOURCE,
   TAXON_NAME
@@ -78,6 +80,12 @@ export const QUERY_PARAMETER = {
     filterUrl: FILTER_ROUTES[EXTRACT]
   },
 
+  [QUERY_PARAM[FIELD_OCCURRENCE]]: {
+    model: FIELD_OCCURRENCE,
+    service: FieldOccurrence,
+    filterUrl: FILTER_ROUTES[FIELD_OCCURRENCE]
+  },
+
   [QUERY_PARAM[IMAGE]]: {
     model: IMAGE,
     service: Image,
@@ -102,10 +110,10 @@ export const QUERY_PARAMETER = {
     filterUrl: FILTER_ROUTES[OTU]
   },
 
-  [QUERY_PARAM[PEOPLE]]: {
-    model: PEOPLE,
+  [QUERY_PARAM[PERSON]]: {
+    model: PERSON,
     service: People,
-    filterUrl: FILTER_ROUTES[PEOPLE]
+    filterUrl: FILTER_ROUTES[PERSON]
   },
 
   [QUERY_PARAM[SOUND]]: {

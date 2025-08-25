@@ -31,9 +31,10 @@
                 target="biological_associations"
               />
               <RadialAnnotator :global-id="item.global_id" />
+              <RadialObject :global-id="item.global_id" />
               <VBtn
                 circle
-                color="update"
+                color="primary"
                 @click="emit('edit', Object.assign({}, item))"
               >
                 <VIcon
@@ -63,6 +64,7 @@
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 import CitationCount from '../shared/citationsCount.vue'
 
 const props = defineProps({

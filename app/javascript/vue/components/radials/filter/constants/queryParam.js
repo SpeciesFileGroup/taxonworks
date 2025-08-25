@@ -12,10 +12,11 @@ import {
   LOAN,
   OBSERVATION,
   OTU,
-  PEOPLE,
+  PERSON,
   SOUND,
   SOURCE,
-  TAXON_NAME
+  TAXON_NAME,
+  TAXON_NAME_RELATIONSHIP
 } from '@/constants/index.js'
 
 export const QUERY_PARAM = {
@@ -32,8 +33,9 @@ export const QUERY_PARAM = {
   [LOAN]: 'loan_query',
   [OBSERVATION]: 'observation_query',
   [OTU]: 'otu_query',
-  [PEOPLE]: 'people_query',
+  [PERSON]: 'person_query',
   [SOUND]: 'sound_query',
   [SOURCE]: 'source_query',
-  [TAXON_NAME]: 'taxon_name_query'
+  [TAXON_NAME]: 'taxon_name_query',
+  [TAXON_NAME_RELATIONSHIP]: 'taxon_name_relationship_query'
 }

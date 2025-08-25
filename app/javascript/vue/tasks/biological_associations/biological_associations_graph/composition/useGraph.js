@@ -1,7 +1,7 @@
 import { reactive, computed, toRefs } from 'vue'
 import {
   BiologicalAssociation,
-  BiologicalAssociationGraph,
+  BiologicalAssociationsGraph,
   Citation
 } from '@/routes/endpoints'
 import {
@@ -217,7 +217,7 @@ export function useGraph() {
 
     const params = { extend: EXTEND_GRAPH }
     const graph = makeGraph(
-      (await BiologicalAssociationGraph.find(graphId, params)).body
+      (await BiologicalAssociationsGraph.find(graphId, params)).body
     )
     const baIds = graph.biologicalAssociationIds.map(
       (ba) => ba.biological_association_id
@@ -364,12 +364,12 @@ export function useGraph() {
   }
 
   async function save() {
-    state.isSaving = true
     let createdBiologicalAssociations
     let biologicalAssociationGraph
     let citations
 
     try {
+      state.isSaving = true
       createdBiologicalAssociations = await saveBiologicalAssociations()
 
       const savedCitations = [
@@ -386,11 +386,12 @@ export function useGraph() {
       state.isSaving = false
     } catch (e) {
       state.isSaving = false
+      throw e
     }
 
     return {
       biologicalAssociations: createdBiologicalAssociations,
-      biologicalAssociationGraph: biologicalAssociationGraph.body,
+      biologicalAssociationGraph: biologicalAssociationGraph?.body,
       citations
     }
   }
@@ -435,8 +436,8 @@ export function useGraph() {
     }
 
     const request = state.graph.id
-      ? BiologicalAssociationGraph.update(state.graph.id, payload)
-      : BiologicalAssociationGraph.create(payload)
+      ? BiologicalAssociationsGraph.update(state.graph.id, payload)
+      : BiologicalAssociationsGraph.create(payload)
 
     request.then(({ body }) => {
       Object.assign(state.graph, {
