@@ -20,8 +20,8 @@ module BiologicalAssociation::DwcExtensions
   end
 
   # Don't use dwc_
-  def darwin_core_extension_row(core_link_to)
-    Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS.collect{|h| send( DWC_EXTENSION_MAP[h.to_sym] )}
+  def darwin_core_extension_row(inverted: false)
+    Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS.collect{|h| send(DWC_EXTENSION_MAP[h.to_sym], inverted)}
   end
 
   # Don't use dwc_
@@ -29,29 +29,25 @@ module BiologicalAssociation::DwcExtensions
     r = {}
      Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS.each do |h|
       if m = DWC_EXTENSION_MAP[h.to_sym]
-        r[h] = send(m)
+        r[h] = send(m, false)
       end
     end
     r
   end
 
-  def dwc_resource_relationship_coreid
-    if :subject
-      dwc_resource_id
-    else
-      dwc_related_resource_id
-    end
+  def dwc_resource_relationship_coreid(_)
+    dwc_resource_id(_)
   end
 
-  def darwin_core_extension_json
+  def darwin_core_extension_json(_)
 
   end
 
-  def dwc_resource_relationship_id
+  def dwc_resource_relationship_id(_)
     uuid || id
   end
 
-  def dwc_resource_id
+  def dwc_resource_id(_)
     case biological_association_subject.class.base_class.name
     when 'Otu'
       biological_association_subject.uuid || biological_association_subject.uri || biological_association_subject.id
@@ -60,7 +56,7 @@ module BiologicalAssociation::DwcExtensions
     end
   end
 
-  def dwc_resource
+  def dwc_resource(_)
     case biological_association_subject.class.base_class.name
     when 'Otu'
       ApplicationController.helpers.label_for_otu(biological_association_subject)
@@ -69,15 +65,22 @@ module BiologicalAssociation::DwcExtensions
     end
   end
 
-  def dwc_relationship_of_resource_id
-    biological_relationship.uris.first&.cached || biological_relationship_id
+  def dwc_relationship_of_resource_id(inverted)
+    s = biological_relationship.uris.first&.cached || biological_relationship_id
+
+    # TODO: this might mess up uri handling
+    inverted ? "#{s} inverted" : s
   end
 
-  def dwc_relationship_of_resource
-    biological_relationship.name
+  def dwc_relationship_of_resource(inverted)
+    if inverted
+      biological_relationship.inverted_name
+    else
+      biological_relationship.name
+    end
   end
 
-  def dwc_related_resource_id
+  def dwc_related_resource_id(_)
     case biological_association_object.class.base_class.name
     when 'Otu'
       biological_association_object.uuid || biological_association_object.uri || biological_association_object.id
@@ -86,7 +89,7 @@ module BiologicalAssociation::DwcExtensions
     end
   end
 
-  def dwc_related_resource
+  def dwc_related_resource(_)
     case biological_association_object.class.base_class.name
     when 'Otu'
       ApplicationController.helpers.label_for_otu(biological_association_object)
@@ -96,7 +99,7 @@ module BiologicalAssociation::DwcExtensions
   end
 
   # TODO: Should reference DOIs, Identifiers,  or identifiers in lieu of short citations
-  def dwc_relationship_according_to
+  def dwc_relationship_according_to(_)
     ApplicationController.helpers.short_sources_tag(sources)
 
     # Could be collectors (ORCID or ...)
@@ -120,7 +123,7 @@ module BiologicalAssociation::DwcExtensions
     end
   end
 
-  def dwc_relationship_established_date
+  def dwc_relationship_established_date(_)
     t = [biological_association_subject_type , biological_association_object_type]
 
     case t
@@ -140,7 +143,7 @@ module BiologicalAssociation::DwcExtensions
   end
 
   # TODO: Generic helper
-  def dwc_relationship_remarks
+  def dwc_relationship_remarks(_)
     Utilities::Strings.sanitize_for_csv( notes.collect{|n| n.text}.join(' | ')).presence
   end
 

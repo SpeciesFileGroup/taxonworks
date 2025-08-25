@@ -32,10 +32,11 @@ module Export::CSV::Dwc::Extension::BiologicalAssociations
       # The resource relation only appears on the page of the core id with which
       # it is linked, so link to both where we can.
       if biological_association_relations_to_core[:subject].include?(b.id)
-        tbl << b.darwin_core_extension_row(core_link_to: :subject)
+        tbl << b.darwin_core_extension_row(inverted: false)
       end
       if biological_association_relations_to_core[:object].include?(b.id)
-        tbl << b.darwin_core_extension_row(core_link_to: :object)
+        b.rotate = true
+        tbl << b.darwin_core_extension_row(inverted: true)
       end
     end
 
