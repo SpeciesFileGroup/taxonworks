@@ -58,7 +58,11 @@ function makeTaxonNode(taxon) {
     leaf: taxon.leaf_node,
     isExpanded: false,
     isValid: taxon.cached_is_valid,
-    children: taxon.children?.map(makeTaxonNode) || []
+    children: taxon.children?.map(makeTaxonNode) || [],
+    total: {
+      valid: taxon.valid_descendants,
+      invalid: taxon.invalid_descendants
+    }
   }
 }
 
@@ -183,6 +187,14 @@ onBeforeMount(() => {
 
   .taxonomy-tree-invalid-name {
     color: var(--feedback-warning-text-color);
+  }
+
+  .taxonomy-tree-valid-name {
+    color: var(--feedback-primary-text-color);
+  }
+
+  .taxonomy-tree-status-tag {
+    font-size: 10px;
   }
 }
 </style>

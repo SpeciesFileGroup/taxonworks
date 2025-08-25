@@ -22,6 +22,31 @@
       :href="makeBrowseUrl({ id: taxon.id, type: TAXON_NAME })"
       v-html="taxon.name"
     />
+    <span v-if="taxon.total.valid || taxon.total.invalid"> - </span>
+    <a
+      v-if="taxon.total.valid"
+      class="taxonomy-tree-status-tag taxonomy-tree-valid-name"
+      :href="
+        makeFilterLink({
+          taxonId: taxon.id,
+          validity: true
+        })
+      "
+    >
+      [{{ taxon.total.valid }}]
+    </a>
+    <a
+      v-if="taxon.total.invalid"
+      class="taxonomy-tree-status-tag taxonomy-tree-invalid-name"
+      :href="
+        makeFilterLink({
+          taxonId: taxon.id,
+          validity: false
+        })
+      "
+    >
+      [{{ taxon.total.invalid }}]
+    </a>
 
     <TaxonomySynonyms
       v-if="taxon.synonyms?.length && !onlyValid"
@@ -53,6 +78,7 @@ import TaxonomyTree from './TaxonomyTree.vue'
 import TaxonomySynonyms from './TaxonomySynonyms.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { makeBrowseUrl } from '@/helpers'
+import { RouteNames } from '@/routes/routes'
 import { TAXON_NAME } from '@/constants'
 
 const props = defineProps({
@@ -84,7 +110,11 @@ function makeTaxonNode(taxon, children = []) {
     leaf: taxon.leaf_node,
     isExpanded: false,
     isValid: taxon.cached_is_valid,
-    children: children || []
+    children: children || [],
+    total: {
+      valid: taxon.valid_descendants,
+      invalid: taxon.invalid_descendants
+    }
   }
 }
 
@@ -94,6 +124,10 @@ function toggle() {
   }
 
   props.taxon.isExpanded = !props.taxon.isExpanded
+}
+
+function makeFilterLink({ taxonId, validity }) {
+  return `${RouteNames.FilterNomenclature}?descendants=true&taxon_name_id=${taxonId}&validity=${validity}`
 }
 
 function expandNode(taxonId) {
