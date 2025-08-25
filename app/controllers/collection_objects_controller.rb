@@ -363,7 +363,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def select_options
-    @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
+    @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target], params['ba_target'])
   end
 
   def autocomplete

@@ -247,7 +247,7 @@ class OtusController < ApplicationController
 
   # GET /otus/select_options?target=TaxonDetermination
   def select_options
-    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target), params['ba_target'])
   end
 
   # PATCH /otus/batch_update.json?otus_query=<>&otu={taxon_name_id=123}}

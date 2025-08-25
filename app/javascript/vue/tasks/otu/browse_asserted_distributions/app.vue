@@ -1,5 +1,5 @@
 <template>
-  <div id="vue-task-browse-asserted-distribution-otu">
+  <div id="vue-task-browse-asserted-distribution-object">
     <VSpinner
       v-if="isLoading"
       full-screen
@@ -107,7 +107,7 @@
 </template>
 
 <script setup>
-import VMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import VFilter from './components/filter.vue'
 import TableList from '@/tasks/otu/browse/components/assertedDistribution/TableList.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -118,17 +118,20 @@ import { sortArray } from '@/helpers'
 import { computed, ref } from 'vue'
 import { useFilter } from '@/shared/Filter/composition'
 import { AssertedDistribution } from '@/routes/endpoints'
+import { usePolymorphicConverter } from '@/composables/usePolymorphismConverter'
+import AssertedDistributionObject from '@/components/ui/SmartSelector/PolymorphicObjectPicker/PolymorphismClasses/AssertedDistributionObject'
 
 const COLUMNS = [
   'level0',
   'level1',
   'level2',
   'name',
-  'type',
+  'shape type',
   'presence',
   'shape',
   'citations',
-  'otu'
+  'object',
+  'object type'
 ]
 
 const extend = [
@@ -137,11 +140,16 @@ const extend = [
   'shape_type',
   'origin_citation',
   'source',
-  'otu'
+  'asserted_distribution_object'
 ]
 const embed = ['level_names', 'shape']
 
 defineOptions({ name: 'BrowseAssertedDistributions' })
+
+usePolymorphicConverter(
+  'asserted_distribution_object',
+  AssertedDistributionObject
+)
 
 const {
   list,
@@ -151,13 +159,16 @@ const {
   resetFilter,
   isLoading,
   parameters
-} = useFilter(AssertedDistribution, { initParameters: { extend }, listParser })
-
-const geojson = computed(() => list.value.map((item) => item.feature))
+} = useFilter(AssertedDistribution, {
+  initParameters: { extend, embed },
+  listParser
+})
 
 const ascending = ref(false)
 const activeFilter = ref(true)
 const activeJSONRequest = ref(false)
+
+const geojson = computed(() => list.value.map((item) => item.feature))
 
 function sortTable(sortProperty) {
   list.value = sortArray(list.value, sortProperty, ascending.value, {
@@ -169,7 +180,7 @@ function sortTable(sortProperty) {
 </script>
 
 <style lang="scss">
-#vue-task-browse-asserted-distribution-otu {
+#vue-task-browse-asserted-distribution-object {
   .header-box {
     height: 30px;
   }

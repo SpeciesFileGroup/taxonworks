@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Biological associations graph</h1>
-    <BiologicalAssociationGraph ref="graph">
+    <BiologicalAssociationsGraph ref="graph">
       <template #header="{ isGraphUnsaved, edges, currentGraph, sourceIds }">
         <VNavbar>
           <div class="flex-separate">
@@ -33,9 +33,13 @@
                       x-small
                     />
                   </VBtn>
+                  <RadialObject :global-id="currentGraph.globalId" />
                   <RadialAnnotator :global-id="currentGraph.globalId" />
+                  <RadialNavigator :global-id="currentGraph.globalId" />
                 </div>
-                <span>{{ currentGraph.name || currentGraph.label }}</span>
+                <span class="margin-small-left">
+                  {{ currentGraph.name || currentGraph.label }}
+                </span>
               </template>
             </div>
             <div class="horizontal-left-content gap-small">
@@ -123,12 +127,12 @@
           </div>
         </VNavbar>
       </template>
-    </BiologicalAssociationGraph>
+    </BiologicalAssociationsGraph>
   </div>
 </template>
 
 <script setup>
-import BiologicalAssociationGraph from './components/BiologicalAssociationGraph.vue'
+import BiologicalAssociationsGraph from './components/BiologicalAssociationsGraph.vue'
 import VNavbar from '@/components/layout/NavBar'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -137,6 +141,8 @@ import setParam from '@/helpers/setParam.js'
 import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ModalRelated from './components/ModalRelated.vue'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { onMounted, ref } from 'vue'
@@ -239,7 +245,7 @@ onMounted(() => {
 function loadGraph(id) {
   graph.value.resetStore()
   graph.value.setGraph(id)
-  setParam(RouteNames.NewBiologicalAssociationGraph, {
+  setParam(RouteNames.NewBiologicalAssociationsGraph, {
     biological_associations_graph_id: id
   })
 }
@@ -252,7 +258,7 @@ function saveGraph() {
     )
 
     if (biologicalAssociationGraph?.id) {
-      setParam(RouteNames.NewBiologicalAssociationGraph, {
+      setParam(RouteNames.NewBiologicalAssociationsGraph, {
         biological_associations_graph_id: biologicalAssociationGraph.id
       })
     }
@@ -272,7 +278,7 @@ function addBiologicalAssociationsToGraph(ids) {
 function reset() {
   graph.value.resetStore()
   setParam(
-    RouteNames.NewBiologicalAssociationGraph,
+    RouteNames.NewBiologicalAssociationsGraph,
     'biological_associations_graph_id'
   )
 }

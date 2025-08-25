@@ -9,33 +9,116 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Browse OTU: `collection objects` and `field occurrences` sounds
-- Filter TNR: Include subclasses option for relationship type facet
-- Filter Loans: Recipient and supervisor names [#4498]
+- Browse OTU: Radial annotator to Timeline [#4057]
+- Radial CO: Accessions / Deaccession
+- Filter CO: Containerized facet
+- Radial navigator: New extract and Browse OTUs task for CollectionObject [#2882][#2860]
+- New collecting event task: Add field occurrence panel [#4529]
 
 ### Fixed
 
+- Match taxon names task sometimes doesn't work with long name lists of names [#4523]
+- Radial navigator: Browse taxon name link doesn't work for Combinations [#4526]
+- Shape picker: Missing Map tab [#4532]
+
+### Changed
+
+- Allow `accepted` as `taxonomicStatus` and empty `acceptedNameUsageID` for valid names in DwC checklist importer
+
+[#2860]: https://github.com/SpeciesFileGroup/taxonworks/issues/2860
+[#2882]: https://github.com/SpeciesFileGroup/taxonworks/issues/2882
+[#3845]: https://github.com/SpeciesFileGroup/taxonworks/issues/3845
+[#4057]: https://github.com/SpeciesFileGroup/taxonworks/issues/4057
+[#4523]: https://github.com/SpeciesFileGroup/taxonworks/issues/4523
+[#4526]: https://github.com/SpeciesFileGroup/taxonworks/issues/4526
+[#4532]: https://github.com/SpeciesFileGroup/taxonworks/issues/4532
+
+## [0.53.1] - 2025-08-13
+
+### Added
+
+- Match taxon names: Total count for matched/unmatched tables [#4509]
+- Match taxon names: remove authors option
+- Broadcast toggle to new asserted distribution and new biological associations [#4507]
+- Browse OTU: Maps now display clusters to group nearby points for performance and better visualization
+
+### Fixed
+
+- Observations API response
+- Simple TaxonName batch loader rendering and author values
+- Missing map in asserted distribution view [#4515]
+- Batch Asserted Distribution upload (for Otus and Geographic Areas) [#4268]
+- Vue devtools integration for 'openInEditor'
+- Cached maps no longer include is_absent AssertedDistribution data [#4506]
+- ColDP column alignment, gender agreement (candidate), rendering of infraspecies, "sic", years, scope including Combinations for leaf names
+
+### Changed
+
+- Browse OTU: shapes that have multiple objects are now colored with the most relevant object type. [#4508]
+- Match taxon names: new layout
+- Slide panel buttons are now more hidden to avoid overlapping issues with the rest of the interface. [#4512]
+
+[#4268]: https://github.com/SpeciesFileGroup/taxonworks/issues/4268
+[#4506]: https://github.com/SpeciesFileGroup/taxonworks/issues/4506
+[#4507]: https://github.com/SpeciesFileGroup/taxonworks/issues/4507
+[#4508]: https://github.com/SpeciesFileGroup/taxonworks/issues/4508
+[#4509]: https://github.com/SpeciesFileGroup/taxonworks/issues/4509
+[#4512]: https://github.com/SpeciesFileGroup/taxonworks/issues/4512
+[#4515]: https://github.com/SpeciesFileGroup/taxonworks/issues/4515
+
+## [0.53.0] - 2025-08-07
+
+### Added
+
+- Monograph facilitator task - distribution map with taxon determination overlays/editing [#4113]
+- Browse OTU: `collection objects` and `field occurrences` sounds
+- Filter TNR: Include subclasses option for relationship type facet [#4460]
+- Filter Loans: Recipient and supervisor names [#4498]
+- You can now remove a prefix from virtual identifiers when switching to a non-virtual namespace in Filter CO,CE mass annotate identifiers
+- Taxon Name stats api call now returns fossil/extant counts
+- Add filterable otus list during key creation; send Otu filter result to key creation [#4287]
+- You can now choose to work with the full key in the Edit Key task [#4381]
+
+### Fixed
+
+- You can now spatial search on Collecting Event Geographic Areas when there aren't any Georeferences [#4073]
 - CSD: Search autocomplete doesnt't work [#4481]
 - CSD: Next by ID and Identifier don't work [#4480]
 - Trying to delete the Collecting Event of a Field Occurrence now reports an error rather than causing an exception
 - Drawing a new Gazetteer shape over an existing shape while zoomed in sometimes causes a zoom out [#4483]
 - Batch source interface: Sources are not added to the project after create them [#4478]
-- Filters: Light mode shows up in dark mode in by attributes facet [#4486]
-- New field occurrence task: A Field Occurrence has to be saved twice to save it when creating a new collection event
+- Filters: Light mode shows up in dark mode in By Attributes facet [#4486]
+- New field occurrence task: A Field Occurrence has to be saved twice to save it when creating a new Collecting Event
 - Image viewer: Large images overflow to the right of the container
 - DwC importer occasionally crashing when mappings are computed while staging
 - Help bubbles are sometimes partially opaque and not readable [#4497]
+- Filter Taxon Name \*ify (validify, etc.) facets sometimes don't return all results [#4494]
+- 404 Not found crash when session references an invalid project
+- Sound wave color in dark mode
+- Fix feature specs failing more often than normal
 
 ### Changed
 
+- Asserted Distributions could formerly only make assertions about the distribution of Otus. They can now assert distribution for Otus, Biological Associations, Biological Associations Graphs, Conveyances of Otus, Depictions of Otus, and Observations of Otus [#4025]
+- Asserted Distributions returned by the `/api/v1/asserted_distributions/n` endpoint now include distributions based on different object types (formerly only Otu). You can check the object type of each distribution using the new type key of the distribution object record: `{type: 'Otu' or 'BiologicalAssociation', ... }`
 - Updated Ruby gems
 - Uploading DwC datasets with duplicate fields no longer allowed
+- Removed Otu Distribution task
+- Updated Ruby gems
+- Updated NPM packages
 
+[#4025]: https://github.com/SpeciesFileGroup/taxonworks/issues/4025
+[#4073]: https://github.com/SpeciesFileGroup/taxonworks/issues/4073
+[#4113]: https://github.com/SpeciesFileGroup/taxonworks/issues/4113
+[#4287]: https://github.com/SpeciesFileGroup/taxonworks/issues/4287
+[#4381]: https://github.com/SpeciesFileGroup/taxonworks/issues/4381
+[#4460]: https://github.com/SpeciesFileGroup/taxonworks/issues/4460
 [#4478]: https://github.com/SpeciesFileGroup/taxonworks/issues/4478
 [#4480]: https://github.com/SpeciesFileGroup/taxonworks/issues/4480
 [#4481]: https://github.com/SpeciesFileGroup/taxonworks/issues/4481
 [#4483]: https://github.com/SpeciesFileGroup/taxonworks/issues/4483
 [#4486]: https://github.com/SpeciesFileGroup/taxonworks/issues/4486
+[#4494]: https://github.com/SpeciesFileGroup/taxonworks/issues/4494
 [#4498]: https://github.com/SpeciesFileGroup/taxonworks/issues/4498
 
 ## [0.52.2] - 2025-07-11
@@ -5541,7 +5624,9 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.1...development
+[0.53.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.0...v0.53.1
+[0.53.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.2...v0.53.0
 [0.52.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.1...v0.52.2
 [0.52.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.0...v0.52.1
 [0.52.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.51.0...v0.52.0

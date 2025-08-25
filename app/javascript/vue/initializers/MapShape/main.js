@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import VMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 
 function init(element) {
   const geojsonObj = element.getAttribute('data-geojson-object')

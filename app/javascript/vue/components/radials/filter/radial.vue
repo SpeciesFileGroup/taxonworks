@@ -59,6 +59,11 @@ const EXCLUDE_PARAMETERS = ['page', 'per', 'extend', 'venn', 'venn_mode']
 const uuid = randomUUID()
 
 const props = defineProps({
+  extendedSlices: {
+    type: Array,
+    default: () => []
+  },
+
   disabled: {
     type: Boolean,
     default: false
@@ -105,30 +110,38 @@ const title = computed(() =>
 
 const isOnlyIds = computed(() => Array.isArray(props.ids))
 const filterLinks = computed(() => {
-  const objLinks = FILTER_LINKS[props.objectType]
+  const objLinks = [...FILTER_LINKS[props.objectType], ...props.extendedSlices]
 
   return objLinks || []
 })
 
-const queryObject = computed(() => {
-  const params = isOnlyIds.value
+const objParameters = computed(() =>
+  isOnlyIds.value
     ? { [ID_PARAM_FOR[props.objectType]]: props.ids }
     : { ...filteredParameters.value }
+)
 
-  return { [QUERY_PARAM[props.objectType]]: params }
+const queryObject = computed(() => {
+  return { [QUERY_PARAM[props.objectType]]: objParameters.value }
 })
 
 const hasParameters = computed(
   () => !!Object.keys(filteredParameters.value).length || !!props.ids?.length
 )
 
+function getParametersBySlice(slice) {
+  const params = slice.flattenQuery ? objParameters.value : queryObject.value
+
+  return {
+    ...params,
+    ...slice.params,
+    per: props.parameters?.per
+  }
+}
+
 const menuOptions = computed(() => {
   const slices = filterLinks.value.map((item) => {
-    const urlParameters = {
-      ...queryObject.value,
-      ...item.params,
-      per: props.parameters?.per
-    }
+    const urlParameters = getParametersBySlice(item)
 
     const urlWithParameters =
       item.link +
@@ -195,13 +208,8 @@ function saveParametersOnStorage(e) {
     (l) => l.label === e.segmentObject.slice.label
   )
 
-  console.log(filterlink)
   if (hasParameters.value) {
-    const params = {
-      ...queryObject.value,
-      ...filterlink?.params,
-      per: props.parameters?.per
-    }
+    const params = getParametersBySlice(filterlink)
     const total = sessionStorage.getItem('totalFilterResult')
     const totalQueries =
       JSON.parse(sessionStorage.getItem('totalQueries')) || []

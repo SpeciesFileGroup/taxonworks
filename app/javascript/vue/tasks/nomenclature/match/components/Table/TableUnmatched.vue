@@ -2,7 +2,7 @@
   <table class="table-striped">
     <thead>
       <tr>
-        <th>Unmatched ({{ list.length }})</th>
+        <th>Unmatched</th>
       </tr>
     </thead>
     <tbody>

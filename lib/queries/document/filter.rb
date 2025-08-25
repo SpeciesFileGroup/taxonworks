@@ -32,7 +32,7 @@ module Queries
 
         d ||= {
           group: '',
-          extensions: [
+          extensions_data: [
             {
               extension: '',
               content_type: '' # matches no document
@@ -41,7 +41,7 @@ module Queries
         }
 
         a = []
-        d[:extensions].each { |e|
+        d[:extensions_data].each { |e|
           a <<
             table[:document_file_content_type].eq(e[:content_type])
             .and(table[:document_file_file_name].matches('%' + e[:extension]))

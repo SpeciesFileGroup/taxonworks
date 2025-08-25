@@ -546,7 +546,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           end
         end
       end
-      
+
     rescue DarwinCore::InvalidData => invalid
       self.status = 'Errored'
       self.metadata['error_data'] = { messages: invalid.error_data }

@@ -26,6 +26,8 @@ class TaxonNameClassification < ApplicationRecord
 
   before_validation :validate_taxon_name_classification
   before_validation :validate_uniqueness_of_latinized
+  after_commit :set_cached
+
   validates_presence_of :taxon_name
   validates_presence_of :type
   validates_uniqueness_of :taxon_name_id, scope: [:type, :project_id]
@@ -58,8 +60,6 @@ class TaxonNameClassification < ApplicationRecord
                 set: :not_specific_classes,
                 name: 'Not specific status',
                 description: 'More specific statuses are preffered, for example: "Nomen nudum, no description" is better than "Nomen nudum".' )
-
-  after_commit :set_cached
 
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
@@ -184,10 +184,10 @@ class TaxonNameClassification < ApplicationRecord
   # Starting to move to individual classes
   #     Gender is sone
   def set_cached_names_for_taxon_names
+    t = taxon_name
+    return if t.destroyed?
     begin
       TaxonName.transaction_with_retry do
-        t = taxon_name
-
         if type_name =~ /(Fossil|Hybrid|Candidatus)/ # Break these out, they don't all apply to the same codes
           n = t.get_full_name
           t.update_columns(

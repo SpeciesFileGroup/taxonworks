@@ -284,17 +284,17 @@ module Queries
         referenced_klass_union([q1, q2]).distinct # Not needed, union should be distinct
       end
 
-      def from_geographic_items(geographic_items_sql)
-        ces = ::CollectingEvent
-          .joins(:geographic_items)
-          .where(geographic_items_sql)
+      def from_geographic_items(geographic_items_where_sql)
+        ces = collecting_events_for_geographic_item_condition(
+          geographic_items_where_sql
+        )
 
         q1 = ::Otu
           .joins(collection_objects: [:collecting_event])
           .where(collecting_events: ces.all, project_id:)
 
         ads = ::Queries::AssertedDistribution::Filter
-          .from_geographic_items(geographic_items_sql)
+          .from_geographic_items(geographic_items_where_sql)
 
         q2 = ::Otu
           .joins(:asserted_distributions)
@@ -491,12 +491,9 @@ module Queries
 
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
-        s = 'WITH query_ad_otus AS (' + asserted_distribution_query.all.to_sql + ') ' +
-          ::Otu
-          .joins('JOIN query_ad_otus as query_ad_otus1 on otus.id = query_ad_otus1.otu_id')
-          .to_sql
-
-        ::Otu.from('(' + s + ') as otus').distinct
+        ::Otu
+          .with(ad: asserted_distribution_query.all)
+          .joins("JOIN ad ON ad.asserted_distribution_object_id = otus.id AND ad.asserted_distribution_object_type = 'Otu'").distinct
       end
 
       def content_query_facet

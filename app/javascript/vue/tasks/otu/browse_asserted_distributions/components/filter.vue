@@ -1,7 +1,7 @@
 <template>
   <BlockLayout>
     <template #header>
-      <h3>OTU</h3>
+      <h3>Object</h3>
     </template>
 
     <template #options>
@@ -19,48 +19,70 @@
     </template>
 
     <template #body>
-      <div>
-        <span>Name</span>
-        <VAutocomplete
-          url="/otus/autocomplete"
-          placeholder="Search an OTU"
-          param="term"
-          label="label_html"
-          autofocus
-          clear-after
-          @get-item="
-            (item) => {
-              parameters.otu_id = item.id
-              emit('select', { otu_id: item.id })
-            }
-          "
-        />
-      </div>
-      <OtuLinks :otu-id="parameters.otu_id" />
+      <AssertedDistributionObjectPicker
+        minimal
+        autofocus
+        under-text
+        @select-object="(o) => objectSelected(o)"
+      />
+      <ObjectLinks
+        :object-id="parameters.asserted_distribution_object_id"
+        :object-type="parameters.asserted_distribution_object_type"
+      />
     </template>
   </BlockLayout>
 </template>
 
 <script setup>
-import OtuLinks from './navBar'
+import AssertedDistributionObjectPicker from '@/components/ui/SmartSelector/AssertedDistributionObjectPicker.vue'
+import ObjectLinks from './objectLinks.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
-
-const emit = defineEmits(['select'])
+import { watch } from 'vue'
+import { AssertedDistribution } from '@/routes/endpoints'
 
 const parameters = defineModel({
   type: Object,
   required: true
 })
 
+const emit = defineEmits(['select'])
+
+watch(parameters, () => {
+  if (parameters.value.asserted_distribution_id &&
+      !parameters.value.asserted_distribution_object_id &&
+      !parameters.value.asserted_distribution_object_type) {
+    // Coming from an AD radial navigator.
+    AssertedDistribution.find(parameters.value.asserted_distribution_id)
+      .then(({ body }) => {
+        parameters.value.asserted_distribution_object_id =
+          body.asserted_distribution_object_id
+        parameters.value.asserted_distribution_object_type =
+          body.asserted_distribution_object_type
+      })
+      .catch(() => {})
+  }
+},
+{immediate: true}
+)
+
 function resetFilter() {
   emit('reset')
 }
-</script>
-<style scoped>
-:deep(.btn-delete) {
-  background-color: var(--color-primary);
+
+function objectSelected(o) {
+  parameters.value.asserted_distribution_object_id = o.id
+  parameters.value.asserted_distribution_object_type = o.objectType
+
+  emit('select', {
+    asserted_distribution_object_id: o.id,
+    asserted_distribution_object_type: o.objectType
+  })
 }
+
+</script>
+
+<style scoped>
+
 </style>

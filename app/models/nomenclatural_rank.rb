@@ -110,13 +110,13 @@ class NomenclaturalRank
     rank_classes.sort{|a,b| RANKS.index(a) <=> RANKS.index(b)}
   end
 
-  # @param: expand 
-  #   true -include all columns discovered
+  # @param: expand
+  #   true - include all columns discovered
   # @params ranks Array
   #   always include these ranks, regardless of whether they are present in the scope
-  def self.rank_expansion_sql(ranks: [], expand: false, scope: nil, nomenclatural_code: nil)
+  def self.rank_expansion_sql(ranks: [], expand: false, scope: nil, nomenclatural_code: nil, gender: true)
 
-    # Get the classes for the ranks supplied 
+    # Get the classes for the ranks supplied
     rank_classes = ranks.collect{|a| Ranks.lookup(:iczn, a)}
 
     # Expand them to the observed ranks within the scope
@@ -127,12 +127,21 @@ class NomenclaturalRank
     rank_names = ranks.collect{|a| a.safe_constantize.rank_name}.uniq
     rank_names.delete('nomenclatural rank')
 
-    rank_names.collect{|n|
+    # TODO: EXPAND TO INCLUDE GENDER VALUE HERE { if ranks includes genera }
+
+   s = rank_names.collect{|n|
       "MAX(CASE WHEN parent.rank_class LIKE \'%::#{n.capitalize}\' THEN parent.name END) AS #{n}"
     }.join(",\n")
+
+    if gender
+      g = rank_names.select{|n| n =~ /[Gg]enus/}.collect{|m|
+        "MAX(CASE WHEN parent.rank_class LIKE \'%::#{m.capitalize}\' THEN parent.cached_gender END) AS #{m}_gender"
+      }.join(",\n")
+    end
+
+    s = s + ', ' + g if !g.blank?
+    s
   end
-
-
 
   private
 

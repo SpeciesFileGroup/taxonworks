@@ -144,7 +144,7 @@ const shapefileExtensions = computed(() => {
     (h) => h['group'] == 'shapefile'
   )
   if (shapefileGroup) {
-    return shapefileGroup['extensions'].map((v) => v['extension'])
+    return shapefileGroup['extensions_data'].map((v) => v['extension'])
   } else {
     return []
   }

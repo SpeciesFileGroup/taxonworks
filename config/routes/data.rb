@@ -51,15 +51,26 @@ end
 
 resources :biological_associations do
   concerns [:data_routes]
+  member do
+    get :navigation, defaults: {format: :json}
+  end
   collection do
     match :filter, to: 'biological_associations#index', via: [:get, :post]
-
     patch :batch_update
+    get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
 end
 
 resources :biological_associations_graphs do
   concerns [:data_routes]
+  member do
+    get :navigation, defaults: {format: :json}
+  end
+  collection do
+    get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :biological_relationships do
@@ -89,27 +100,6 @@ resources :citations do # except: [:show]
   collection do
     post :batch_create, defaults: {format: :json}
   end
-end
-
-get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
-resources :confidences do # , except: [:edit, :show]
-  concerns [:data_routes]
-  collection do
-    post :confidence_object_update
-    post :batch_by_filter_scope, defaults: {format: :json}
-  end
-end
-
-resources :confidence_levels, only: [:index] do
-  collection do
-    get 'lookup'
-    get 'autocomplete'
-    get :select_options, defaults: {format: :json}
-  end
-end
-
-resources :conveyances do
-  concerns [:data_routes]
 end
 
 resources :collection_objects do
@@ -205,6 +195,23 @@ resources :common_names do
   concerns [:data_routes]
 end
 
+get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
+resources :confidences do # , except: [:edit, :show]
+  concerns [:data_routes]
+  collection do
+    post :confidence_object_update
+    post :batch_by_filter_scope, defaults: {format: :json}
+  end
+end
+
+resources :confidence_levels, only: [:index] do
+  collection do
+    get 'lookup'
+    get 'autocomplete'
+    get :select_options, defaults: {format: :json}
+  end
+end
+
 match 'containers/for', to: 'containers#for', via: :get, defaults: {format: :json}
 resources :containers do # , only: [:create, :update, :destroy] do
   concerns [:data_routes]
@@ -239,7 +246,17 @@ resources :controlled_vocabulary_terms do
   collection do
     post :clone_from_project, default: {format: :json}
   end
+end
 
+resources :conveyances do
+  concerns [:data_routes]
+  member do
+    get :navigation, defaults: {format: :json}
+  end
+  collection do
+    get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :data_attributes, except: [:show] do
@@ -258,9 +275,14 @@ end
 
 resources :depictions do
   concerns [:data_routes]
+  member do
+    get :navigation, defaults: {format: :json}
+  end
   collection do
     patch :sort
     match :filter, to: 'depictions#index', via: [:get, :post]
+    get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -484,6 +506,19 @@ resources :leads do
     patch :reorder_children, defaults: {format: :json}
     post :insert_key, defaults: {format: :json}
   end
+  collection do
+    post :batch_create_lead_items, defaults: {format: :json}
+  end
+end
+
+resources :lead_items do
+  concerns [:data_routes]
+  collection do
+    post :destroy_item_in_children, defaults: {format: :json}
+    post :add_lead_items_to_child_lead, defaults: {format: :json}
+    post :add_otu_index, defaults: {format: :json}
+    post :remove_otu_index, defaults: {format: :json}
+  end
 end
 
 resources :loans do
@@ -517,6 +552,10 @@ resources :namespaces do
     get :select_options, defaults: {format: :json}
   end
 
+  concerns [:data_routes]
+end
+
+resources :notes, except: [:show] do
   concerns [:data_routes]
 end
 
@@ -593,18 +632,15 @@ resources :observations do
     delete :destroy_row, defaults: {format: :json}
     delete :destroy_column, defaults: {format: :json}
     post :code_column, defaults: {format: :json}
+    get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
   end
 
   member do
     get :annotations, defaults: {format: :json}
+    get :navigation, defaults: {format: :json}
   end
 end
-
-resources :notes, except: [:show] do
-  concerns [:data_routes]
-end
-
-
 
 resources :otus do
   concerns [:data_routes]
@@ -869,6 +905,7 @@ resources :taxon_names do
     post :create_nomen_batch_load
 
     get :parse, defaults: {format: :json}
+    post :remove_authors, defaults: {format: :json}
     get :random
 
     get :rank_table, defaults: {format: :json}

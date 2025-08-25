@@ -39,7 +39,7 @@ module Queries
     # !! model is not referencened in this constant.
     #
     SUBQUERIES = {
-      asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence],
+      asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence, :observation],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution], # :field_occurrence
       biological_associations_graph: [:biological_association, :source],
       collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
@@ -55,7 +55,7 @@ module Queries
       field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :image, :observation, :taxon_name], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
       image: [:content, :collection_object, :collecting_event, :field_occurrence, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
-      observation: [:collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name],
+      observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name],
       otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],

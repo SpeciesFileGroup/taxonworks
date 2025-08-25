@@ -10,6 +10,9 @@
       v-bind="TAB[tabSelected]"
       ref="smartSelector"
       :target="target"
+      :params="{
+        ba_target: 'subject'
+      }"
       @selected="(item) => emit('select', item)"
     />
   </fieldset>

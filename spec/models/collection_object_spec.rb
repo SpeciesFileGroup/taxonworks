@@ -674,7 +674,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       end
 
       specify ".used_recently('BiologicalAssociation')" do
-        expect(CollectionObject.used_recently(otu.created_by_id, otu.project_id,'BiologicalAssociation').to_a)
+        expect(CollectionObject.used_recently(otu.created_by_id, otu.project_id,'BiologicalAssociation', 'subject').to_a)
           .to include(collection_object.becomes!(Specimen).id)
       end
 

@@ -106,7 +106,7 @@ $tw-dark-colors: (
   'background': #f7f8fc,
   'black': #444444,
   'create': #36974a,
-  'data': #040506,
+  'data': #006ebf,
   'destroy': #a2131d,
   'error': #a2131d,
   'panel': #ffffff,
@@ -135,14 +135,17 @@ $tw-colors: (
   'update': #9ccc65,
   'warning': #ff8c00,
   'white': #ffffff,
-  'border': #f5f5f5
+  'border': #f5f5f5,
+  'toggle-active': #ffda44
 );
 
 $tw-map-colors: (
+  'aggregate': #037316,
   'collection-object': #ef4444,
   'field-occurrence': #84cc16,
   'type-material': #3388ff,
   'asserted-distribution': #f97316,
+  'asserted-distribution-absent': #6a51a3,
   'georeference': #ef4444
 );
 

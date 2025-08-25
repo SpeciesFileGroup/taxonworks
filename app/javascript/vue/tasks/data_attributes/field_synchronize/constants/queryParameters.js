@@ -1,11 +1,12 @@
 import {
   AssertedDistribution,
   BiologicalAssociation,
-  CollectionObject,
   CollectingEvent,
+  CollectionObject,
   Content,
   Descriptor,
   Extract,
+  FieldOccurrence,
   Image,
   Loan,
   Observation,
@@ -23,6 +24,7 @@ import {
   CONTENT,
   DESCRIPTOR,
   EXTRACT,
+  FIELD_OCCURRENCE,
   IMAGE,
   LOAN,
   OBSERVATION,
@@ -76,6 +78,12 @@ export const QUERY_PARAMETER = {
     model: EXTRACT,
     service: Extract,
     filterUrl: FILTER_ROUTES[EXTRACT]
+  },
+
+  [QUERY_PARAM[FIELD_OCCURRENCE]]: {
+    model: FIELD_OCCURRENCE,
+    service: FieldOccurrence,
+    filterUrl: FILTER_ROUTES[FIELD_OCCURRENCE]
   },
 
   [QUERY_PARAM[IMAGE]]: {
