@@ -20,7 +20,7 @@ module BiologicalAssociation::DwcExtensions
   end
 
   # Don't use dwc_
-  def darwin_core_extension_row
+  def darwin_core_extension_row(core_link_to)
     Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS.collect{|h| send( DWC_EXTENSION_MAP[h.to_sym] )}
   end
 
@@ -36,8 +36,11 @@ module BiologicalAssociation::DwcExtensions
   end
 
   def dwc_resource_relationship_coreid
-    # Note this is occurrence id of _subject_.
-    dwc_resource_id
+    if :subject
+      dwc_resource_id
+    else
+      dwc_related_resource_id
+    end
   end
 
   def darwin_core_extension_json

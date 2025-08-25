@@ -24,12 +24,19 @@ module Export::CSV::Dwc::Extension::BiologicalAssociations
 
   HEADERS_NAMESPACES = HEADERS_HASH.values.freeze
 
-  def self.csv(scope)
+  def self.csv(scope, biological_association_relations_to_core)
     tbl = []
     tbl[0] = HEADERS
 
     scope.find_each do |b|
-      tbl << b.darwin_core_extension_row
+      # The resource relation only appears on the page of the core id with which
+      # it is linked, so link to both where we can.
+      if biological_association_relations_to_core[:subject].include?(b.id)
+        tbl << b.darwin_core_extension_row(core_link_to: :subject)
+      end
+      if biological_association_relations_to_core[:object].include?(b.id)
+        tbl << b.darwin_core_extension_row(core_link_to: :object)
+      end
     end
 
     output = StringIO.new

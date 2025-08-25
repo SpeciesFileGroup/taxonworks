@@ -9,6 +9,21 @@ class Tasks::Dwc::DashboardController < ApplicationController
   # !! Run rails jobs:work in the terminal to complete builds
   def generate_download
     q = ::Queries::DwcOccurrence::Filter.new(params)
+
+    biological_associations_query = nil
+    if params[:biological_associations_extension]
+      # TODO: this should include field occurrences as well, but they won't
+      # actually be exported until core (q) includes field occurrences.
+      biological_associations_query = {
+        core_params: q.params,
+        collection_objects_query: ::Queries::BiologicalAssociation::Filter.new(
+            collection_object_query: ::Queries::CollectionObject::Filter.new(
+              dwc_occurrence_query: q.params
+            ).params
+          ).all.to_sql
+      }
+    end
+
     media_query = nil
     if params[:media_extension]
       media_query = {
@@ -27,14 +42,10 @@ class Tasks::Dwc::DashboardController < ApplicationController
       predicate_extensions: predicate_extension_params,
       taxonworks_extensions: taxonworks_extension_params,
       extension_scopes: {
-        biological_associations: (params[:biological_associations_extension] ?
-        ::Queries::BiologicalAssociation::Filter.new(
-          collection_object_query: ::Queries::CollectionObject::Filter.new(
-            dwc_occurrence_query: q.params
-          ).params
-        ).all.to_sql : nil),
+        biological_associations: biological_associations_query,
         media: media_query
-      }
+      },
+      project_id: sessions_current_project_id
     )
     render '/downloads/show'
   end

@@ -116,10 +116,12 @@ module Export::Dwca
 
     def biological_associations_extension
       return nil unless @biological_associations_extension.present?
-      if @biological_associations_extension.kind_of?(String)
-        ::BiologicalAssociation.from('(' + @biological_associations_extension + ') as biological_associations')
-      elsif @biological_associations_extension.kind_of?(ActiveRecord::Relation)
-        @biological_associations_extension
+
+      q = @biological_associations_extension[:collection_objects_query]
+      if q.kind_of?(String)
+        ::BiologicalAssociation.from('(' + q + ') as biological_associations')
+      elsif q.kind_of?(ActiveRecord::Relation)
+        q
       else
         raise ArgumentError, 'Biological associations scope is not an SQL string or ActiveRecord::Relation'
       end
@@ -653,6 +655,30 @@ module Export::Dwca
 
     # rubocop:enable Metrics/MethodLength
 
+
+    def biological_association_relations_to_core
+      core_params = {
+        dwc_occurrence_query: @biological_associations_extension[:core_params]
+      }
+
+      subject_biological_associations =
+        ::Queries::BiologicalAssociation::Filter.new(
+          collection_object_query: core_params,
+          collection_object_as_subject_or_as_object: :subject
+        ).all
+
+      object_biological_associations =
+        ::Queries::BiologicalAssociation::Filter.new(
+          collection_object_query: core_params,
+          collection_object_as_subject_or_as_object: :object
+        ).all
+
+      {
+        subject: Set.new(subject_biological_associations.pluck(:id)),
+        object: Set.new(object_biological_associations.pluck(:id))
+      }
+    end
+
     def biological_associations_resource_relationship
       return nil if biological_associations_extension.nil?
       @biological_associations_resource_relationship = Tempfile.new('biological_resource_relationship.xml')
@@ -662,7 +688,7 @@ module Export::Dwca
       if no_records?
         content = "\n"
       else
-        content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension)
+        content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension, biological_association_relations_to_core)
       end
 
       @biological_associations_resource_relationship.write(content)
@@ -720,7 +746,6 @@ module Export::Dwca
               end
             end
           }
-
 
           # Resource relationship (biological associations)
           if !biological_associations_extension.nil?

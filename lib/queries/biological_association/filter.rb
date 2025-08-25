@@ -14,6 +14,7 @@ module Queries
         :biological_associations_graph_id,
         :biological_relationship_id,
         :collecting_event_id,
+        :collection_object_as_subject_or_as_object,
         :collection_object_id,
         :descendants,
         :exclude_taxon_name_relationship,
@@ -96,6 +97,12 @@ module Queries
       #   All biological relationships with FieldOccurrence (only)
       #  matching subject OR object
       attr_accessor :field_occurrence_id
+
+      # @param collection_object_as_subject_or_as_object
+      #   Whether collection_object_query should be matched against subject or
+      # object.
+      # !! Only used in tandem with collection_object_query!
+      attr_accessor :collection_object_as_subject_or_as_object
 
       # @param subject_taxon_name_id
       #   All BiologicalAssociations matching this name or
@@ -189,6 +196,7 @@ module Queries
         @biological_associations_graph_id = params[:biological_associations_graph_id]
         @biological_relationship_id = params[:biological_relationship_id]
         @collecting_event_id = params[:collecting_event_id]
+        @collection_object_as_subject_or_as_object = params[:collection_object_as_subject_or_as_object]
         @collection_object_id = params[:collection_object_id]
         @field_occurrence_id = params[:field_occurrence_id]
         @descendants = boolean_param(params, :descendants)
@@ -781,17 +789,22 @@ module Queries
 
       def collection_object_query_facet
         return nil if collection_object_query.nil?
-        s = 'WITH query_co_ba AS (' + collection_object_query.all.to_sql + ') '
 
         a = ::BiologicalAssociation
-          .joins("JOIN query_co_ba as query_co_ba1 on biological_associations.biological_association_subject_id = query_co_ba1.id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
+          .with(query_co_ba1: collection_object_query.all)
+          .joins("JOIN query_co_ba1 ON biological_associations.biological_association_subject_id = query_co_ba1.id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
 
         b = ::BiologicalAssociation
-          .joins("JOIN query_co_ba as query_co_ba2 on biological_associations.biological_association_object_id = query_co_ba2.id AND biological_associations.biological_association_object_type = 'CollectionObject'")
+          .with(query_co_ba2: collection_object_query.all)
+          .joins("JOIN query_co_ba2 ON biological_associations.biological_association_object_id = query_co_ba2.id AND biological_associations.biological_association_object_type = 'CollectionObject'")
 
-        s << referenced_klass_union([a,b]).to_sql
-
-        ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+        if collection_object_as_subject_or_as_object&.to_sym == :subject
+          return a
+        elsif collection_object_as_subject_or_as_object&.to_sym == :object
+          return b
+        else
+          return referenced_klass_union([a,b])
+        end
       end
 
       def field_occurrence_query_facet
@@ -857,6 +870,7 @@ module Queries
                 [biological_associations_graph_geo_facet, subject_object_facet]
               )
             end
+
         return b if a.empty?
 
         i = referenced_klass_intersection(a)

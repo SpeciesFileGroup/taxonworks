@@ -826,9 +826,9 @@ module Queries
     #   false - there are no params at ALL or at least one that is not `project_id`, and project_id != false
     def only_project?
       @roll_call = true
-      a = (project_id_facet &&
+      a = project_id_facet &&
         target_and_clauses.size == 1 &&
-        all_merge_clauses.nil?) ? true : false
+        all_merge_clauses.nil?
       @roll_call = false
 
       a
