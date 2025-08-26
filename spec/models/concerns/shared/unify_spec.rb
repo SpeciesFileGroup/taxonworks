@@ -108,13 +108,17 @@ describe 'Shared::Unify', type: :model do
     expect(ba1.reload.citations.count).to eq(2)
   end
 
-  xspecify 'unifies Otus in Matrices with overlapping observations' do
+  specify 'unifies Otus in Matrices with overlapping observations' do
     om = ObservationMatrix.create!(name: 'Lune')
     ri1 = ObservationMatrixRowItem::Single.create!(observation_object: o1, observation_matrix: om)
     ri2 = ObservationMatrixRowItem::Single.create!(observation_object: o2, observation_matrix: om)
     r1 = om.reload.observation_matrix_rows.first
     r2 = om.observation_matrix_rows.second
-    cit2 = Citation.create!(citation_object: r2, source:)
+
+    # See comments below if re-implemented
+    # cit2 = Citation.create!(citation_object: r2, source:)
+    # tag = Tag.create!(tag_object: r2, keyword: FactoryBot.create(:valid_keyword))
+
     d = FactoryBot.create(:valid_descriptor)
 
     d1 = Descriptor::Qualitative.create!(name: 'foo')
@@ -138,8 +142,11 @@ describe 'Shared::Unify', type: :model do
     expect(om.reload.observation_matrix_row_items.map(&:id)).to eq([ri1.id])
     expect(o1.observation_matrix_rows.map(&:id)).to eq([r1.id])
 
-    # !! Fails, cit2 still points to r2.
-    expect(r1.reload.citations.map(&:id)).to eq([cit2.id])
+    # See comments on ObservationMatrixRowItem if re-implementing these
+    #
+    # expect(r1.reload.tags.map(&:id)).to eq([tag.id])
+    # # !! Fails, cit2 still points to r2.
+    # expect(r1.reload.citations.map(&:id)).to eq([cit2.id])
   end
 
   specify 'ObservationMatrixRows with refcount > 1 aren\'t destroyed' do

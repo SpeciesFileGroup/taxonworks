@@ -27,10 +27,20 @@
 #
 class ObservationMatrixRow < ApplicationRecord
   include Housekeeping
-  include Shared::Citations
-  include Shared::Identifiers
-  include Shared::Tags
-  include Shared::Notes
+
+  # If requested and implemented downstream then
+  # .unify() will need to be addrssed with either:
+  # 1) simply allowing the annotations to be destroyed without notice
+  # 2) adding custom handlers
+  # The core issue is that we don't have (and can't have) a relation
+  # between observation_matrix_row_item and observation_matrix_row, that
+  # relation his handled by a function/callback.
+  #
+  # include Shared::Citations
+  # include Shared::Identifiers
+  # include Shared::Tags
+  # include Shared::Notes
+
   include SoftValidation
   include Shared::IsData
 
