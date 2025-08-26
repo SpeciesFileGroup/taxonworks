@@ -11,11 +11,11 @@
 #   @return [String, nil]
 #
 # @!attribute reference_count
-#   Indicates the total number of times this row is referened via some row_item
+#   Indicates the total number of times this row is referenced via some row_item
 #   @return [Integer]
 #
 # @!attribute cached_observation_matrix_row_item_id
-#   @return [Integer] if the column item is derived from a ::Single::<FOO> subclass, the id of that instance
+#   @return [Integer] if this row is derived from a ::Single row_item subclass, the id of that instance. (Does *not* imply this row isn't also referenced by a Dynamic row item.)
 #
 # @!attribute name
 #   @return [String, nil]
