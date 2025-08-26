@@ -584,6 +584,43 @@ module TaxonNamesHelper
     rows.join('<br>').html_safe
   end
 
+  def taxonomic_tree_node(taxon_name)
+    {
+      id: taxon_name.id,
+      label: taxon_name.cached_html_name_and_author_year,
+      is_valid: taxon_name.cached_is_valid,
+      valid_descendants: taxon_name.descendants.that_is_valid.count,
+      invalid_descendants: taxon_name.descendants.that_is_invalid.count,
+      leaf_node: taxon_name.descendants.empty?
+    }
+  end
+
+  def taxonomic_tree_ancestors(taxon_name)
+    taxon_name.ancestor_protonyms.map { |ancestor| taxonomic_tree_node(ancestor) }
+  end
+
+  def taxonomic_tree_descendants(taxon_name)
+    taxon_name.children
+      .order(:name)
+      .where(type: 'Protonym')
+      .sort_by { |a| [RANKS.index(a.rank_string), a.cached, a.cached_author_year || ''] }
+      .map { |child| taxonomic_tree_node(child) }
+  end
+
+  def taxonomic_tree(taxon_name, include_ancestors = true) 
+    node = {
+      taxon_name: taxonomic_tree_node(taxon_name),
+      descendants: taxonomic_tree_descendants(taxon_name),
+      synonyms:  taxon_name_synonyms_list(taxon_name).map { |syn| taxon_name_synonym_li(syn) }
+    }
+
+    if (include_ancestors)
+      node[:ancestors] = taxonomic_tree_ancestors(taxon_name)
+    end
+
+    node
+  end
+
   protected
 
   def taxon_name_link_path(taxon_name, path)

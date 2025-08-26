@@ -51,13 +51,11 @@ function updateStorage() {
 function makeTaxonNode(taxon) {
   return {
     id: taxon.id,
-    name: [taxon.cached_html, taxon.cached_author_year]
-      .filter(Boolean)
-      .join(' '),
+    name: taxon.label,
     synonyms: taxon.synonyms,
     leaf: taxon.leaf_node,
     isExpanded: false,
-    isValid: taxon.cached_is_valid,
+    isValid: taxon.is_valid,
     children: taxon.children?.map(makeTaxonNode) || [],
     total: {
       valid: taxon.valid_descendants,
@@ -97,7 +95,7 @@ onBeforeMount(() => {
     tree.value = buildTree(body.ancestors, {
       ...body.taxon_name,
       synonyms: body.synonyms,
-      children: body.children
+      children: body.descendants
     })
   })
 })
@@ -186,11 +184,11 @@ onBeforeMount(() => {
   }
 
   .taxonomy-tree-invalid-name {
-    color: var(--feedback-warning-text-color);
+    color: var(--taxon-name-invalid-color);
   }
 
   .taxonomy-tree-valid-name {
-    color: var(--feedback-primary-text-color);
+    color: var(--taxon-name-valid-color);
   }
 
   .taxonomy-tree-status-tag {

@@ -26,6 +26,7 @@
     <a
       v-if="taxon.total.valid"
       class="taxonomy-tree-status-tag taxonomy-tree-valid-name"
+      title="Valid names"
       :href="
         makeFilterLink({
           taxonId: taxon.id,
@@ -38,6 +39,7 @@
     <a
       v-if="taxon.total.invalid"
       class="taxonomy-tree-status-tag taxonomy-tree-invalid-name"
+      title="Invalid names"
       :href="
         makeFilterLink({
           taxonId: taxon.id,
@@ -103,13 +105,11 @@ const isLoading = ref(false)
 function makeTaxonNode(taxon, children = []) {
   return {
     id: taxon.id,
-    name: [taxon.cached_html, taxon.cached_author_year]
-      .filter(Boolean)
-      .join(' '),
+    name: taxon.label,
     synonyms: taxon.synonyms,
     leaf: taxon.leaf_node,
     isExpanded: false,
-    isValid: taxon.cached_is_valid,
+    isValid: taxon.is_valid,
     children: children || [],
     total: {
       valid: taxon.valid_descendants,
@@ -136,7 +136,7 @@ function expandNode(taxonId) {
     ancestors: false
   })
     .then(({ body }) => {
-      const children = body.children.map((c) => makeTaxonNode(c))
+      const children = body.descendants.map((c) => makeTaxonNode(c))
 
       children.forEach((item, index) => {
         const current = props.taxon.children.find((c) => c.id === item.id)
