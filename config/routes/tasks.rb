@@ -315,6 +315,11 @@ scope :tasks do
       get 'sql_download', as: 'generate_sql_download_task'
 
     end
+
+    scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
+      get '/', action: :index, as: 'project_dwc_export_preferences_task'
+      post 'gbif_metadata_validate', as: 'gbif_metadata_validate_task'
+    end
   end
 
   scope :sources do
