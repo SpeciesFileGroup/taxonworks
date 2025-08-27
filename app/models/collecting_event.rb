@@ -237,7 +237,7 @@ class CollectingEvent < ApplicationRecord
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
   has_many :collectors, -> { order('roles.position ASC') }, through: :collector_roles, source: :person, inverse_of: :collecting_events
 
-  has_many :field_occurrences, inverse_of: :collecting_event
+  has_many :field_occurrences, inverse_of: :collecting_event, dependent: :restrict_with_error
 
   # see also app/models/collecting_event/georeference.rb for more has_many
 
@@ -255,7 +255,7 @@ class CollectingEvent < ApplicationRecord
   after_save :set_cached, unless: -> { no_cached }
 
   # See also app/models/collecting_event/georeference.rb for more accepts_nested_attributes
-  accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
+  accepts_nested_attributes_for :collectors, :collector_roles, :georeferences, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
     :check_date_range,
@@ -668,9 +668,11 @@ class CollectingEvent < ApplicationRecord
       .where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance))
   end
 
+  # DEPRECATED (unused)
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def collecting_events_intersecting_with
+    # TODO may need to optimize through .intersecting
     pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first.id).distinct
     gr     = [] # all collecting events for a geographic_item
 
@@ -1076,17 +1078,18 @@ class CollectingEvent < ApplicationRecord
 
     # @return [Hash, false]
     def batch_update(params)
-
       request = QueryBatchRequest.new(
         klass: 'CollectingEvent',
         object_filter_params: params[:collecting_event_query],
         object_params: params[:collecting_event],
         async_cutoff: params[:async_cutoff] || 26,
         preview: params[:preview],
+        project_id: params[:project_id],
+        user_id: params[:user_id]
       )
 
-      request.cap = 1000
-      request.cap_reason = 'Max 500 updated at a time.'
+      request.cap = 5000
+      request.cap_reason = 'Max 5000 updated at a time.'
       query_batch_update(request)
     end
   end

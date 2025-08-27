@@ -6,7 +6,10 @@
       <div>
         <button
           class="button normal-input button-default shrink-button"
-          @click="() => (leafletVisible = true)"
+          @click="() => {
+            leafletVisible = true
+            emit('modalVisible', true)
+          }"
         >
           From Leaflet
         </button>
@@ -18,12 +21,16 @@
 
       <UnionInput
         @new-shape="(data, type) => emit('newShape', data, type)"
+        @modal-visible="(visible) => emit('modalVisible', visible)"
       />
     </div>
 
     <VModal
       v-if="leafletVisible"
-      @close="() => (leafletVisible = false)"
+      @close="() => {
+        leafletVisible = false
+        emit('modalVisible', false)
+      }"
       :container-style="{
         width: '80vw'
       }"
@@ -59,7 +66,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['newShape', 'shapesUpdated'])
+const emit = defineEmits(['newShape', 'shapesUpdated', 'modalVisible'])
 
 const leafletVisible = ref(false)
 

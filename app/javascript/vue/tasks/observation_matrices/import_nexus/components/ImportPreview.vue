@@ -47,9 +47,8 @@ const props = defineProps({
 <style lang="scss" scoped>
   .preview {
     padding: 1em 1.5em;
-    border: 1px solid #e5e5e5;
-    background-color: #fcfcfc;
-    box-shadow: 0 2px 3px 0px #e5e5e5;
+    background-color: var(--panel-bg-color);
+    box-shadow: var(--panel-shadow);
     margin-right: 24px;
     margin-bottom: 2em;
   }

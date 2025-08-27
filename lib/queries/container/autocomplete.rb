@@ -4,9 +4,11 @@ module Queries
 
       def base_queries
         queries = [
+          autocomplete_exactly_named,
           autocomplete_identifier_cached_exact,
           autocomplete_identifier_identifier_exact,
           autocomplete_exact_id, 
+          autocomplete_named,
           autocomplete_identifier_cached_like,
         ]
 

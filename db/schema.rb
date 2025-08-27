@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_09_154825) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -70,7 +70,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
   end
 
   create_table "asserted_distributions", id: :serial, force: :cascade do |t|
-    t.integer "otu_id", null: false
+    t.integer "otu_id"
     t.integer "geographic_area_id"
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -80,6 +80,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
     t.boolean "is_absent"
     t.integer "asserted_distribution_shape_id", null: false
     t.string "asserted_distribution_shape_type", null: false
+    t.integer "asserted_distribution_object_id", null: false
+    t.string "asserted_distribution_object_type", null: false
+    t.index ["asserted_distribution_object_id", "asserted_distribution_object_type"], name: "asserted_distribution_polymorphic_object_index"
     t.index ["asserted_distribution_shape_id", "asserted_distribution_shape_type"], name: "asserted_distribution_polymorphic_shape_index"
     t.index ["created_by_id"], name: "index_asserted_distributions_on_created_by_id"
     t.index ["geographic_area_id"], name: "index_asserted_distributions_on_geographic_area_id"
@@ -224,7 +227,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
     t.bigint "geographic_item_id", null: false
     t.string "type"
     t.integer "reference_count"
-    t.boolean "is_absent"
     t.string "level0_geographic_name"
     t.string "level1_geographic_name"
     t.string "level2_geographic_name"
@@ -250,7 +252,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
 
   create_table "cached_maps", force: :cascade do |t|
     t.bigint "otu_id", null: false
-    t.geography "geometry", limit: {:srid=>4326, :type=>"geometry", :geographic=>true}
+    t.geography "geometry", limit: {srid: 4326, type: "geometry", geographic: true}
     t.integer "reference_count"
     t.bigint "project_id", null: false
     t.datetime "created_at", null: false
@@ -970,6 +972,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
     t.index ["created_at"], name: "index_dwc_occurrences_on_created_at"
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
+    t.index ["rebuild_set", "id"], name: "index_dwc_occurrences_on_rebuild_set_and_id"
     t.index ["updated_at"], name: "index_dwc_occurrences_on_updated_at"
   end
 
@@ -1120,28 +1123,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
   create_table "geographic_items", id: :serial, force: :cascade do |t|
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.geography "point", limit: {:srid=>4326, :type=>"st_point", :has_z=>true, :geographic=>true}
-    t.geography "line_string", limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
-    t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :has_z=>true, :geographic=>true}
-    t.geography "multi_point", limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
-    t.geography "multi_line_string", limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
-    t.geography "multi_polygon", limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
-    t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry_collection", :has_z=>true, :geographic=>true}
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.string "type"
     t.decimal "cached_total_area"
-    t.geography "geography", limit: {:srid=>4326, :type=>"geometry", :has_z=>true, :geographic=>true}
-    t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
+    t.geography "geography", limit: {srid: 4326, type: "geometry", has_z: true, geographic: true}
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
     t.index ["geography"], name: "index_geographic_items_on_geography", using: :gist
-    t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
-    t.index ["line_string"], name: "line_string_gix", using: :gist
-    t.index ["multi_line_string"], name: "multi_line_string_gix", using: :gist
-    t.index ["multi_point"], name: "multi_point_gix", using: :gist
-    t.index ["multi_polygon"], name: "multi_polygon_gix", using: :gist
-    t.index ["point"], name: "point_gix", using: :gist
-    t.index ["polygon"], name: "polygon_gix", using: :gist
     t.index ["type"], name: "index_geographic_items_on_type"
     t.index ["updated_by_id"], name: "index_geographic_items_on_updated_by_id"
   end
@@ -1161,8 +1149,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.boolean "is_undefined_z"
-    t.boolean "is_median_z"
     t.integer "year_georeferenced"
     t.integer "month_georeferenced"
     t.integer "day_georeferenced"
@@ -1293,6 +1279,22 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
     t.integer "generations", null: false
     t.index ["ancestor_id", "descendant_id", "generations"], name: "lead_anc_desc_idx", unique: true
     t.index ["descendant_id"], name: "lead_desc_idx"
+  end
+
+  create_table "lead_items", force: :cascade do |t|
+    t.integer "lead_id", null: false
+    t.integer "otu_id", null: false
+    t.bigint "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_lead_items_on_created_by_id"
+    t.index ["lead_id"], name: "index_lead_items_on_lead_id"
+    t.index ["otu_id"], name: "index_lead_items_on_otu_id"
+    t.index ["project_id"], name: "index_lead_items_on_project_id"
+    t.index ["updated_by_id"], name: "index_lead_items_on_updated_by_id"
   end
 
   create_table "leads", force: :cascade do |t|
@@ -2163,9 +2165,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
     t.date "cached_nomenclature_date"
     t.boolean "cached_is_valid"
     t.text "cached_author"
+    t.text "cached_gender"
+    t.boolean "cached_is_available"
     t.index ["cached"], name: "index_taxon_names_on_cached"
     t.index ["cached"], name: "tn_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_author_year"], name: "tn_cached_auth_year_gin_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["cached_gender"], name: "index_taxon_names_on_cached_gender"
+    t.index ["cached_is_available"], name: "index_taxon_names_on_cached_is_available"
     t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
     t.index ["cached_original_combination"], name: "tn_cached_original_gin_trgm", opclass: :gin_trgm_ops, using: :gin
@@ -2440,6 +2446,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_21_032314) do
   add_foreign_key "labels", "users", column: "updated_by_id", name: "labels_updated_by_id_fk"
   add_foreign_key "languages", "users", column: "created_by_id", name: "languages_created_by_id_fkey"
   add_foreign_key "languages", "users", column: "updated_by_id", name: "languages_updated_by_id_fkey"
+  add_foreign_key "lead_items", "projects"
   add_foreign_key "leads", "leads", column: "parent_id"
   add_foreign_key "leads", "leads", column: "redirect_id"
   add_foreign_key "leads", "otus"

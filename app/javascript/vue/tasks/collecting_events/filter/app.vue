@@ -6,7 +6,7 @@
       :pagination="pagination"
       v-model="parameters"
       :object-type="COLLECTING_EVENT"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :url-request="urlRequest"
       :list="list"
       :csv-options="csvOptions"
@@ -41,8 +41,8 @@
         <div class="horizontal-right-content gap-small">
           <RadialCollectingEvent
             :disabled="!list.length"
-            :ids="selectedIds"
-            :count="selectedIds.length"
+            :ids="sortedSelectedIds"
+            :count="sortedSelectedIds.length"
             @update="
               () => makeFilterRequest({ ...parameters, extend, page: 1 })
             "
@@ -65,7 +65,7 @@
       </template>
 
       <template #above-table>
-        <map-component
+        <FloatMap
           v-if="preferences.showMap"
           :geojson="geojson"
         />
@@ -92,7 +92,7 @@
 
 <script setup>
 import FilterComponent from './components/Filter.vue'
-import MapComponent from './components/Map.vue'
+import FloatMap from '@/components/ui/map/FloatMap.vue'
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
@@ -158,13 +158,14 @@ const {
   append,
   isLoading,
   list,
-  pagination,
-  urlRequest,
   loadPage,
   makeFilterRequest,
-  selectedIds,
+  pagination,
+  parameters,
   resetFilter,
-  parameters
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(CollectingEvent, {
   listParser,
   initParameters: { extend }

@@ -2,7 +2,7 @@
   <div>
     <Teleport
       v-if="isVisible"
-      :disabled="teleport"
+      :disabled="!teleport"
       to="body"
     >
       <div class="radial-annotator">

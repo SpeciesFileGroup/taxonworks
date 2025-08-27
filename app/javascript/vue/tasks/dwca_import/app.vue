@@ -104,6 +104,23 @@ function checkScroll() {
 }
 </script>
 <style lang="scss">
+:root {
+  --color-import-imported: blue;
+  --color-import-ready: green;
+  --color-import-not-ready: black;
+  --color-import-errored: red;
+  --color-import-failed: orange;
+  --color-import-unsupported: brown;
+}
+
+.dark {
+  --color-import-imported: #2b7fff;
+  --color-import-ready: green;
+  --color-import-not-ready: #bcbcbc;
+  --color-import-errored: #c43535;
+  --color-import-failed: orange;
+  --color-import-unsupported: #bb4d00;
+}
 #vue-task-dwca-import-new {
   .column-filter {
     .filter-container {

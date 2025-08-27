@@ -310,6 +310,38 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(a.id)
   end
 
+  context '#taxon_name_relationship_target' do
+    before(:each) do
+      TaxonNameRelationship::Typification::Genus.create!(
+        subject_taxon_name_id: species.id, object_taxon_name_id: genus.id
+      )
+    end
+
+    let!(:tnr_query) {
+      ::TaxonNameRelationship.where(type:
+        'TaxonNameRelationship::Typification::Genus'
+      )
+    }
+
+    specify 'subject' do
+      query.taxon_name_relationship_query = tnr_query
+      query.taxon_name_relationship_target = 'subject'
+      expect(query.all.map(&:id)).to contain_exactly(species.id)
+    end
+
+    specify 'object' do
+      query.taxon_name_relationship_query = tnr_query
+      query.taxon_name_relationship_target = 'object'
+      expect(query.all.map(&:id)).to contain_exactly(genus.id)
+    end
+
+    specify 'both' do
+      query.taxon_name_relationship_query = tnr_query
+      query.taxon_name_relationship_target = nil
+      expect(query.all.map(&:id)).to contain_exactly(genus.id, species.id)
+    end
+  end
+
   context '#relationToRelationship' do
     before(:each) do
       # There's already an OriginalCombination::OriginalGenus
@@ -426,6 +458,52 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.descendants = false
     query.combinationify = true
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, combination.id)
+  end
+
+  specify '#validify' do
+    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(
+      subject_taxon_name_id: original_genus.id, object_taxon_name_id: genus.id
+    )
+
+    species1 = Protonym.create!(
+      name: 'atra',
+      rank_class: Ranks.lookup(:iczn, 'species'),
+      parent: genus,
+      original_genus: original_genus,
+      verbatim_author: 'Fitch & Say',
+      year_of_publication: 1800,
+    )
+    tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name_id: species1.id, object_taxon_name_id: species.id)
+
+    query.taxon_name_id = [original_genus.id, species1.id]
+    query.validify = true
+
+    expect(query.all.map(&:id)).to contain_exactly(genus.id, species.id)
+  end
+
+  specify '#validify and #paginate returns full result set' do
+    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(
+      subject_taxon_name_id: original_genus.id, object_taxon_name_id: genus.id
+    )
+
+    species1 = Protonym.create!(
+      name: 'atra',
+      rank_class: Ranks.lookup(:iczn, 'species'),
+      parent: genus,
+      original_genus: original_genus,
+      verbatim_author: 'Fitch & Say',
+      year_of_publication: 1800,
+    )
+    tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name_id: species1.id, object_taxon_name_id: species.id)
+
+    query.taxon_name_id = [original_genus.id, species1.id]
+    query.validify = true
+    query.paginate = true
+    query.per = 1
+    query.page = 2
+
+    expect(query.all.count).to eq(1)
+    expect(query.all.except(:limit, :offset).count).to eq(2)
   end
 
   specify '#taxon_name_id[] 2.2' do

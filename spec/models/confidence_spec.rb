@@ -18,8 +18,10 @@ RSpec.describe Confidence, type: :model, group: :confidence do
       filter_query: p,
       mode: :replace,
       async_cutoff: 0,
-      confidence_level_id: c1.id,
-      replace_confidence_level_id: confidence_level.id
+      params: {
+        confidence_level_id: c1.id,
+        replace_confidence_level_id: confidence_level.id
+      }
     )
 
     # expect { ConfidenceBatchJob.perform_later }.to have_enqueued_job.on_queue(:query_batch_update)
@@ -38,8 +40,10 @@ RSpec.describe Confidence, type: :model, group: :confidence do
       filter_query: { 'collection_object_query' => q.params },
       mode: :replace,
       async_cutoff: 0,
-      confidence_level_id: c1.id,
-      replace_confidence_level_id: confidence_level.id
+      params: {
+        confidence_level_id: c1.id,
+        replace_confidence_level_id: confidence_level.id
+      }
     )
 
     # expect { ConfidenceBatchJob.perform_later }.to have_enqueued_job.on_queue(:query_batch_update)
@@ -55,8 +59,10 @@ RSpec.describe Confidence, type: :model, group: :confidence do
     Confidence.batch_by_filter_scope(
       filter_query: { 'collection_object_query' => q.params },
       mode: :replace,
-      confidence_level_id: c1.id,
-      replace_confidence_level_id: confidence_level.id
+      params: {
+        confidence_level_id: c1.id,
+        replace_confidence_level_id: confidence_level.id
+      }
     )
     expect(Confidence.all.first.confidence_level_id).to eq(c1.id)
   end
@@ -68,7 +74,10 @@ RSpec.describe Confidence, type: :model, group: :confidence do
     Confidence.batch_by_filter_scope(
       filter_query: { 'collection_object_query' => q.params },
       mode: :remove,
-      confidence_level_id: confidence_level.id)
+      params: {
+        confidence_level_id: confidence_level.id
+      }
+    )
     expect(Confidence.all.count).to eq(0)
   end
 
@@ -77,7 +86,10 @@ RSpec.describe Confidence, type: :model, group: :confidence do
     Confidence.batch_by_filter_scope(
       filter_query: { 'collection_object_query' => q.params },
       mode: :add,
-      confidence_level_id: confidence_level.id)
+      params: {
+        confidence_level_id: confidence_level.id
+      }
+    )
     expect(Confidence.all.count).to eq(1)
   end
 
@@ -86,7 +98,9 @@ RSpec.describe Confidence, type: :model, group: :confidence do
     Confidence.batch_by_filter_scope(
       filter_query: { 'collection_object_query' => q.params },
       mode: :add,
-      confidence_level_id: confidence_level.id,
+      params: {
+        confidence_level_id: confidence_level.id
+      },
       async_cutoff: 0)
     expect(Confidence.all.count).to eq(0)
 

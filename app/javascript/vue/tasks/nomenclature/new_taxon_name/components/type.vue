@@ -18,7 +18,7 @@
             <span v-html="relationshipsCreated[0].object_tag" />
             <a
               v-html="relationshipsCreated[0].subject_object_tag"
-              :href="`/tasks/nomenclature/browse?taxon_name_id=${relationshipsCreated[0].subject_taxon_name_id}`"
+              :href="`${RouteNames.BrowseNomenclature}?taxon_name_id=${relationshipsCreated[0].subject_taxon_name_id}`"
             />
           </span>
           <span
@@ -26,7 +26,7 @@
             @click="editType = undefined"
           />
         </div>
-        <quick-taxon-name
+        <QuickTaxonName
           v-if="
             !showForThisGroup(
               ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'],
@@ -35,7 +35,7 @@
             (!relationshipsCreated.length || editType)
           "
           :group="childOfParent[rankGroup.toLowerCase()]"
-          @get-item="addTaxonType"
+          @select="addTaxonType"
         />
         <template
           v-if="
@@ -91,26 +91,23 @@
           @close="view = TAB.common"
         />
 
-        <p class="inline">
-          <span
-            v-html="
-              taxonRelation.hasOwnProperty('label_html')
-                ? taxonRelation.label_html
-                : taxonRelation.object_tag
-            "
-          />
+        <div
+          class="flex-row gap-small middle margin-medium-top margin-medium-bottom"
+        >
+          <span v-html="taxonRelation.object_tag" />
           <VBtn
+            v-if="!editType"
             circle
             color="primary"
             title="Undo"
             @click="taxonRelation = undefined"
           >
             <VIcon
-              name="undo"
-              small
+              name="trash"
+              x-small
             />
           </VBtn>
-        </p>
+        </div>
 
         <ListCommon
           v-if="view === TAB.common"
@@ -271,7 +268,7 @@ function setEdit(relationship) {
   editType.value = relationship
   addTaxonType({
     id: relationship.subject_taxon_name_id,
-    label_html: relationship.object_tag
+    object_tag: relationship.object_tag
   })
 }
 
@@ -289,6 +286,11 @@ function removeType(item) {
     ...taxon.value,
     type_taxon_name_relationship: undefined
   })
+
+  if (item.id === editType.value?.id) {
+    editType.value = undefined
+    taxonRelation.value = undefined
+  }
 }
 
 function refresh() {

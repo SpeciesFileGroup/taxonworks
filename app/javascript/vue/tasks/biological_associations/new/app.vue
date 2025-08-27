@@ -40,6 +40,9 @@
     <div class="grid-panels gap-medium margin-medium-bottom">
       <PanelObject
         title="Subject"
+        :smart-selector-params="{
+          ba_target: 'subject'
+        }"
         v-model="store.subject"
         v-model:lock="store.lock.subject"
       />
@@ -49,6 +52,9 @@
       />
       <PanelObject
         title="Related"
+        :smart-selector-params="{
+          ba_target: 'object'
+        }"
         v-model="store.object"
         v-model:lock="store.lock.object"
       />

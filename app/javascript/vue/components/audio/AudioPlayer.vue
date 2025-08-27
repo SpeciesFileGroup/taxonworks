@@ -11,12 +11,12 @@ import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js'
 const props = defineProps({
   waveColor: {
     type: String,
-    default: '#4F4A85'
+    default: '#A32EB8'
   },
 
   progressColor: {
     type: String,
-    default: '#383351'
+    default: '#8124A3'
   },
 
   url: {
@@ -52,6 +52,11 @@ const props = defineProps({
   regions: {
     type: Array,
     default: () => []
+  },
+
+  error: {
+    type: String,
+    default: ''
   }
 })
 
@@ -77,6 +82,11 @@ let audioPlayer
 let regionsPlugin
 
 onMounted(() => {
+  if (props.error) {
+    audioPlayerRef.value.innerHTML = `<div style="color: red">${props.error}</div>`
+    return
+  }
+
   const plugins = []
 
   if (props.regions.length) {
@@ -131,6 +141,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  if (props.error) return
+
   audioPlayer.destroy()
 })
 

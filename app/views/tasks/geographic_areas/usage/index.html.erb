@@ -30,7 +30,7 @@ AssertedDistribution: <% a = GeographicArea.inferred_as_country.joins(:asserted_
     .joins(:geographic_items).group('geographic_areas.id').having('count(geographic_items.id) = 1').all %>  <%= a.length %>: <%= a.order(:name).pluck(:name).join(', ') %> <br/>
 
 <br>
-<hr>
+<hr class="divisor">
 <br>
 
 <h2> Details for </h2>

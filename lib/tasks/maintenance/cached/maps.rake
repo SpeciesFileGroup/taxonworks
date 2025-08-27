@@ -103,9 +103,9 @@ namespace :tw do
             h = CachedMapItem.cached_map_name_hierarchy(o.geographic_item_id)
 
             z = CachedMapItem.where(geographic_item_id: o.geographic_item_id)
-              .where.not(untranslated: true)
+              .where(untranslated: [nil, false])
 
-            puts 'Size: ' + z.size.to_s
+            #puts 'Size: ' + z.size.to_s
 
             z.update_all(
               level0_geographic_name: h[:country],
@@ -113,8 +113,8 @@ namespace :tw do
               level2_geographic_name: h[:county]
             )
 
-            puts o.geographic_item_id
-            puts h
+            #puts o.geographic_item_id
+            #puts h
           end
           puts 'Done labelling cached map items.'
         end
@@ -255,15 +255,19 @@ namespace :tw do
           ids_in__ga.sort!
           ids_in__gz.sort!
 
-          Parallel.each(ids_in__ga, progress: 'build_cached_map_item_translations', in_processes: cached_rebuild_processes ) do |id|
+          Parallel.each(ids_in__ga, progress: 'build_cached_map_item_translations GA', in_processes: cached_rebuild_processes ) do |id|
             reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
             process_asserted_distribution_translation(id, true)
           end
 
-          Parallel.each(ids_in__gz, progress: 'build_cached_map_item_translations', in_processes: cached_rebuild_processes ) do |id|
+          puts 'Geographic Area-based Asserted Distributions done.'
+
+          Parallel.each(ids_in__gz, progress: 'build_cached_map_item_translations GZ', in_processes: cached_rebuild_processes ) do |id|
             reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
             process_asserted_distribution_translation(id, false)
           end
+
+          puts 'Gazetteer-based Asserted Distributions done.'
 
           puts 'Done.'
         end
@@ -277,7 +281,7 @@ namespace :tw do
           begin
             #  print "#{id}: "
             t = CachedMapItem.translate_geographic_item_id(
-              geographic_item_id, geographic_area_based, ['ne_states']
+              geographic_item_id, geographic_area_based, false, ['ne_states']
             )
             # if t.present?
             #   print t.join(', ')

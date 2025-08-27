@@ -45,7 +45,7 @@
         </label>
       </li>
     </ul>
-    <hr />
+    <hr class="divisor" />
   </div>
 </template>
 
@@ -115,7 +115,8 @@ function loadGeopgraphicAreas(wkt) {
   }
 
   isLoading.value = true
-  props.shapeEndpoint.where(payload)
+  props.shapeEndpoint
+    .where(payload)
     .then(({ body }) => {
       shapes.value = body
       disableDraw()

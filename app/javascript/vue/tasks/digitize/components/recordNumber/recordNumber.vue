@@ -7,7 +7,12 @@
           v-if="store.identifiers > 1"
           class="separate-bottom"
         >
-          <span data-icon="warning">
+          <VIcon
+            name="attention"
+            color="attention"
+            small
+          />
+          <span>
             More than one identifier exists! Use annotator to edit others.
           </span>
         </div>
@@ -43,7 +48,7 @@
             </WidgetNamespace>
           </div>
           <template v-if="namespace">
-            <hr />
+            <hr class="divisor" />
             <SmartSelectorItem
               :item="namespace"
               label="name"
@@ -74,11 +79,13 @@
             />
             Increment
           </label>
-          <ValidateComponent
+
+          <VIcon
             v-if="store.identifier.namespaceId"
-            class="separate-left"
-            :show-message="checkValidation"
-            legend="Namespace and identifier needs to be set to be saved."
+            name="attention"
+            color="attention"
+            small
+            title="Namespace and identifier needs to be set to be saved."
           />
         </div>
         <span
@@ -113,8 +120,8 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import { IDENTIFIER_LOCAL_RECORD_NUMBER } from '@/constants/index.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
-import ValidateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 

@@ -12,7 +12,7 @@
     />
     <div
       class="header flex-separate middle"
-      :class="{ 'validation-warning': warning }"
+      :class="{ 'validation-warning': warning, [headerClass]: headerClass }"
     >
       <slot name="header">
         <h3>Default title</h3>
@@ -46,6 +46,11 @@ const props = defineProps({
   },
 
   anchor: {
+    type: String,
+    default: undefined
+  },
+
+  headerClass: {
     type: String,
     default: undefined
   },
@@ -84,7 +89,6 @@ watch(expanded, (newVal) => {
 <style lang="scss" scoped>
 .block-layout {
   border-top-left-radius: 0px;
-  transition: all 1s;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -101,7 +105,7 @@ watch(expanded, (newVal) => {
     border-left: 4px solid green;
     padding: 1em;
     padding-left: 1.5em;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--border-color);
 
     h3 {
       font-weight: 300;

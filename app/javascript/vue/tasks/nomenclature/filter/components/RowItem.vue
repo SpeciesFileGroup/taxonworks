@@ -44,7 +44,7 @@ const props = defineProps({
 
   options: {
     type: Object,
-    required: true
+    default: () => ({})
   }
 })
 

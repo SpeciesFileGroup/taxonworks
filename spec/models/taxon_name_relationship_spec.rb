@@ -282,7 +282,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       specify 'for cached_classified_as' do
         r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: family, type: 'TaxonNameRelationship::SourceClassifiedAs')
         r2.save!
-        expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
+        expect(s1.cached_classified_as).to eq('(as Erythroneuridae)')
       end
 
       specify 'for cached_author' do
@@ -298,7 +298,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       specify 'for cached_classified_as with original genus present' do
         s1.update(original_genus: g2)
         r2 = TaxonNameRelationship::SourceClassifiedAs.create!(subject_taxon_name: s1, object_taxon_name: family, type: 'TaxonNameRelationship::SourceClassifiedAs')
-        expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
+        expect(s1.cached_classified_as).to eq('(as Erythroneuridae)')
       end
 
       specify 'for cached_valid_taxon_name_id' do

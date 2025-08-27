@@ -4,16 +4,28 @@
 
     <FilterLayout
       :pagination="pagination"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :object-type="ASSERTED_DISTRIBUTION"
       :list="list"
       :url-request="urlRequest"
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @nextpage="loadPage"
-      @reset="resetFilter"
+      @filter="() => {
+        makeFilterRequest({ ...parameters, extend, page: 1 })
+        resetMap()
+      }"
+      @per="() => {
+        makeFilterRequest({ ...parameters, extend, page: 1 })
+        resetMap()
+      }"
+      @nextpage="(event) => {
+        loadPage(event)
+        resetMap()
+      }"
+      @reset="() => {
+        resetFilter()
+        resetMap()
+      }"
     >
       <template #nav-query-right>
         <RadialAssertedDistribution
@@ -25,12 +37,20 @@
       <template #nav-right>
         <RadialAssertedDistribution
           :disabled="!list.length"
-          :ids="selectedIds"
+          :ids="sortedSelectedIds"
           @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
         />
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
+      </template>
+      <template #above-table>
+        <FloatMap
+          v-if="idForMap"
+          :geojson="geojson || [{}]"
+          @close="() => resetMap()"
+          show-close
+        />
       </template>
       <template #table>
         <FilterList
@@ -39,7 +59,24 @@
           :list="list"
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
-        />
+        >
+          <template #objectGlobalId="{ value, setHighlight }">
+            <RadialObject
+              v-if="value"
+              :global-id="value"
+              @click="setHighlight"
+            />
+          </template>
+
+          <template #map="{ value }">
+            <VBtn
+              @click="() => loadMap(value)"
+              color="primary"
+            >
+              {{ idForMap == value ? 'Hide map' : 'Map' }}
+            </VBtn>
+          </template>
+        </FilterList>
       </template>
     </FilterLayout>
     <VSpinner
@@ -54,33 +91,61 @@
 <script setup>
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
+import FloatMap from '@/components/ui/map/FloatMap.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import RadialAssertedDistribution from '@/components/radials/asserted_distribution/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { AssertedDistribution } from '@/routes/endpoints'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
+import { ref } from 'vue'
 
-const extend = ['otu', 'citations', 'asserted_distribution_shape', 'taxonomy']
+const extend = ['citations', 'asserted_distribution_shape',
+  'asserted_distribution_object'
+]
+
+defineOptions({
+  name: 'FilterAssertedDistributions'
+})
+
+const idForMap = ref(null)
+const geojson = ref(null)
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(AssertedDistribution, { listParser, initParameters: { extend } })
-</script>
 
-<script>
-export default {
-  name: 'FilterAssertedDistributions'
+function loadMap(id) {
+  idForMap.value = idForMap.value == id ? null : id
+
+  if (!idForMap.value) return
+
+  AssertedDistribution.find(
+      id, { extend: ['asserted_distribution_shape'], embed: ['shape']}
+    )
+    .then(({ body }) => {
+      geojson.value = [body.asserted_distribution_shape.shape]
+    })
+    .catch(() => {})
 }
+
+function resetMap() {
+  idForMap.value = null
+  geojson.value = null
+}
+
 </script>

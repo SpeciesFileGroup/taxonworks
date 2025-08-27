@@ -81,6 +81,7 @@
             v-model="perValue"
           />
           <div class="horizontal-right-content gap-small">
+            <slot name="nav-options-left" />
             <template v-if="selectedIds">
               <ButtonUnify
                 v-if="buttonUnify"

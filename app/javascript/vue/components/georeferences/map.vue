@@ -17,11 +17,12 @@ import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
 import { Icon } from '@/components/georeferences/icons'
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
-import { ASSERTED_DISTRIBUTION, GEOGRAPHIC_AREA } from '@/constants/index.js'
+import { GEOGRAPHIC_AREA } from '@/constants'
 
 let drawnItems
 let mapObject
 let geographicArea
+let drawingLayer = null // layer currently being drawn/created
 
 const TILE_MAP_STORAGE_KEY = 'tw::map::tile'
 
@@ -55,7 +56,7 @@ const props = defineProps({
   },
   zoom: {
     type: Number,
-    default: 18
+    default: 1
   },
   drawControls: {
     type: Boolean,
@@ -152,7 +153,8 @@ const emit = defineEmits([
   'geoJsonLayersEdited',
   'geojson',
   'shapeCreated',
-  'shapesEdited'
+  'shapesEdited',
+  'click:marker'
 ])
 
 const leafletMap = ref(null)
@@ -160,7 +162,8 @@ const tiles = {
   OSM: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution:
       '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 18
+    maxZoom: 18,
+    className: 'map-tiles'
   }),
   Google: L.tileLayer(
     'http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
@@ -173,7 +176,8 @@ const tiles = {
     'https://tile.gbif.org/3857/omt/{z}/{x}/{y}@1x.png?style=gbif-natural-en',
     {
       attribution: 'GBIF',
-      maxZoom: 18
+      maxZoom: 18,
+      className: 'map-tiles'
     }
   )
 }
@@ -294,6 +298,7 @@ const handleEvents = () => {
   })
 
   mapObject.on('pm:create', (e) => {
+    drawingLayer = null
     const layer = e.layer
     const geoJsonLayer = convertGeoJSONWithPointRadius(layer)
 
@@ -323,6 +328,14 @@ const handleEvents = () => {
       }
     })
     emit('geojson', geoArray)
+  })
+
+  mapObject.on('pm:drawstart', (e) => {
+    drawingLayer = e.workingLayer
+  })
+
+  mapObject.on('pm:drawend', (e) => {
+    drawingLayer = null
   })
 }
 
@@ -377,10 +390,8 @@ const addGeoJsonLayer = (geoJsonLayers) => {
     },
     filter: (feature) => {
       if (
-        feature.properties?.geographic_area ||
         feature.properties?.aggregate ||
-        feature.properties?.type === ASSERTED_DISTRIBUTION ||
-        feature.properties?.type === GEOGRAPHIC_AREA
+        feature.properties?.shape?.type === GEOGRAPHIC_AREA
       ) {
         geographicArea.addLayer(
           L.GeoJSON.geometryToLayer(
@@ -434,6 +445,8 @@ const createMarker = (feature, latlng) => {
     Icon[feature?.properties?.marker?.icon] || Icon.Georeference
   )
   const marker = L.marker(latlng, { icon })
+
+  marker.on('click', (event) => emit('click:marker', event))
 
   return marker
 }
@@ -495,7 +508,7 @@ const onMyFeatures = (feature, layer) => {
 const zoomToFeature = (e) => {
   if (!props.zoomOnClick) return
   const layer = e.target
-  if (props.fitBounds) {
+  if (props.fitBounds && !drawingLayer) {
     if (layer instanceof L.Marker || layer instanceof L.Circle) {
       mapObject.fitBounds([layer.getLatLng()], fitBoundsOptions.value)
     } else {
@@ -512,9 +525,3 @@ defineExpose({
   getMapObject
 })
 </script>
-
-<style>
-.leaflet-interactive:hover {
-  //filter: hue-rotate(90deg);
-}
-</style>

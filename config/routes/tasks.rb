@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :taxon_name_relationships do
+    scope :filter, controller: 'tasks/taxon_name_relationships/filter' do
+      get '/', action: :index, as: 'filter_taxon_name_relationships_task'
+    end
+  end
+
   scope :gazetteers do
     scope :import_gazetteers, controller: 'tasks/gazetteers/import_gazetteers' do
       get '/', action: :index, as: 'import_gazetteers_task'
@@ -567,6 +573,10 @@ scope :tasks do
   end
 
   scope :gis do
+    scope :monograph_facilitator, controller: 'tasks/gis/monograph_facilitator' do
+      get '/', action: :index, as: 'monograph_facilitator_task'
+    end
+
     scope :simplemappr, controller: 'tasks/gis/simplemappr' do
       match '/', action: :index, via: [:get, :post]
     end
@@ -581,25 +591,6 @@ scope :tasks do
     get 'new_map_item', action: 'new', as: 'new_draw_map_item_task'
     post 'create_map_item', action: 'create', as: 'create_draw_map_item_task'
     get 'collect_item', as: 'collect_draw_item_task'
-  end
-
-  scope :gis, controller: 'tasks/gis/match_georeference' do
-    get 'match_georeference', action: 'index', as: 'match_georeference_task'
-    get 'filtered_collecting_events'
-    get 'recent_collecting_events'
-    get 'tagged_collecting_events'
-    get 'drawn_collecting_events'
-
-    get 'filtered_georeferences'
-    get 'recent_georeferences'
-    get 'tagged_georeferences'
-    get 'drawn_georeferences'
-
-    post 'batch_create_match_georeferences'
-  end
-
-  scope :gis, controller: 'tasks/gis/otu_distribution_data' do
-    get 'otu_distribution_data', action: 'show', as: 'otu_distribution_data_task'
   end
 
   scope :nomenclature do
@@ -746,7 +737,7 @@ scope :tasks do
 
   scope :taxon_names do
     scope :gender, controller: 'tasks/taxon_names/gender' do
-      get '/', action: :index, as: 'taxon_name_gender_task'
+      match '/', action: :index, via: [:get, :post], as: 'taxon_name_gender_task'
     end
 
     scope :stats, controller: 'tasks/taxon_names/stats' do
@@ -768,6 +759,10 @@ scope :tasks do
 
     scope :filter, controller: 'tasks/taxon_names/filter' do
       get '/', as: 'filter_taxon_names_task', action: :index
+    end
+
+    scope :table, controller: 'tasks/taxon_names/table' do
+      match '/', action: :index, via: [:get, :post], as: :taxon_names_table_task
     end
   end
 

@@ -3,12 +3,12 @@
 <%= tag.em 'Exports and downloads are also available in numerous other places, for example Filters, Hubs, other tasks.' %>
 <%= tag.p "Project wide downloads are generated in the background. You will be redirected to the Download that will contain the file.", class: [:feedback, 'feedback-warning'] %>
 
-<div class="flexbox separate-bottom">
+<div class="flexbox gap-medium margin-medium-bottom">
   <div class="panel content">
     <h3> Export SQL </h3>
     <p><em>Generate a downloadable copy of the database (PostgreSQL dump) with all data referenced in this project. Includes Community data like Sources, People, and Repositories.</em></p>
 
-    <p><em>All exported user passwords are set to</em> 'taxonworks', <em><strong>so DO NOT ALLOW PUBLIC ACCESS TO THE EXPORTED DATABASE</strong></em>.</p>
+    <p><em>All exported user passwords will be set to your custom password or the default</em> 'taxonworks', <em><strong>so DO NOT ALLOW PUBLIC ACCESS TO THE EXPORTED DATABASE</strong></em>.</p>
 
     <p> Restorable with <b>psql -U :username -d :database -f dump.sql</b>. Requires database to be created without tables (<b>rails db:create</b>) </p>
     <p>To import into a <code>docker compose</code> development environment:</p>
@@ -21,12 +21,20 @@
 
     <div>
       <%= form_tag(generate_sql_download_task_path, method: :get) do %>
+        <div class="field">
+          <%= label_tag :custom_password, 'Custom password (optional):' %>
+          <%= password_field_tag :custom_password, nil, 
+              placeholder: "Default: taxonworks",
+              class: 'normal-input',
+              autocomplete: 'new-password' %>
+          <p class="feedback feedback-info"><em>Leave blank to use the default password 'taxonworks'</em></p>
+        </div>
         <%= submit_tag :Generate, class: ['normal-input', :button, 'button-default'] -%>
       <% end %>
     </div>
   </div>
 
-  <div class="panel content separate-left">
+  <div class="panel content">
     <h3> Export TSV </h3>
     <p><em>Generate a <%= link_to 'Download', list_downloads_path %> of a zipped copy of all tables with a project_id in TSV format. Currently does *not* include community data (Sources, People, Repositories, etc.).</em></p>
     <div>
@@ -37,7 +45,7 @@
   </div>
 </div>
 
-<div class="flexbox separate-bottom">
+<div class="flexbox gap-medium separate-bottom">
   <div class="panel content">
     <h3> Tables </h3>
     <p><em>Download tab-delimited text 1:1 with tables.</em></p>
@@ -71,4 +79,9 @@
 
     </div>
   </div>
+  <div class="panel content">
+    <h3>Recent</h3>
+    <p>Recent downloads generated from the project database in SQL and TSV formats.</p>
+      <%= render partial: 'recent_table', locals: { downloads: @downloads } %>
+    </div>
 </div>

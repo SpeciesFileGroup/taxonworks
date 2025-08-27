@@ -66,16 +66,11 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
       elements.push subject_taxon_name.genderized_name(name_gender)
     end
 
-    elements.push('[sic]') if subject_taxon_name.cached_misspelling
+    elements.push('[sic]') if subject_taxon_name.cached_misspelling # TODO [sic] as seperated is different than FNH, and also see ()
     elements[1] = "(#{elements[1]})" if applicable_rank == :subgenus
 
     return {applicable_rank => elements}
   end
-
-  # def element_gender
-  #   object_taxon_name.original_genus.gender_name
-  #    subject_taxon_name.gender_name
-  # end
 
   protected
 

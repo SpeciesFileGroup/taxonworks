@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Collection object match</h1>
+    <h1>Match collection objects</h1>
     <spinner-component
       v-if="isLoading"
       :full-screen="true"

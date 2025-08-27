@@ -6,8 +6,9 @@ class Tasks::DataAttributes::FieldSynchronizeController < ApplicationController
   def values
     if q = Queries::Query::Filter.instantiated_base_filter(params)
       if !q.params.empty?
-        @records = q.all.select(:id, *params[:attribute]).order(params[:attribute]).page(params[:page]).per(params[:per])
-        render json: @records.to_json and return
+        @attributes =  [params[:attribute]].flatten
+        @records = q.all.order(params[:attribute]).page(params[:page]).per(params[:per])
+        return
       end
     end
     render json: {}, status: :unprocessable_entity

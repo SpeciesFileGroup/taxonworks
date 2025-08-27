@@ -10,17 +10,27 @@
 /* import 'core-js/stable'
 import 'regenerator-runtime/runtime' */
 // Styles
+
+if (
+  process.env.NODE_ENV === 'development' &&
+  typeof __VUE_DEVTOOLS_CONFIG__ !== 'undefined'
+) {
+  window.VUE_DEVTOOLS_CONFIG = __VUE_DEVTOOLS_CONFIG__
+}
+
 import 'easymde/dist/easymde.min.css'
 import '@fontsource/ibm-plex-sans'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
 import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'tippy.js/dist/tippy.css'
 
 import '../vanilla/initializers/copyTable.js'
 import '../vanilla/initializers/stickyNavbar.js'
 
 import '../vue/tasks/citations/otus/main.js'
-import '../vue/tasks/content/editor/main.js'
+import '../vue/tasks/contents/editor/main.js'
 import '../vue/tasks/nomenclature/new_taxon_name/main.js'
 import '../vue/tasks/loans/new/main.js'
 import '../vue/tasks/observation_matrices/matrix_row_coder/main.js'
@@ -39,6 +49,7 @@ import '../vue/initializers/PinboardNavigator/main.js'
 import '../vue/initializers/SmartSelector/main.js'
 import '../vue/initializers/SoftValidations/main.js'
 import '../vue/initializers/SimpleMap/main.js'
+import '../vue/initializers/ToggleTheme/main.js'
 import '../vue/initializers/MapShape/main.js'
 import '../vue/initializers/GraphViz/main.js'
 import '../vue/initializers/WeekInReviewGraph/main.js'
@@ -91,7 +102,7 @@ import '../vue/tasks/extracts/filter/main.js'
 import '../vue/tasks/otu/filter/main.js'
 import '../vue/tasks/people/filter/main.js'
 import '../vue/tasks/collection_objects/stepwise/determinations/main.js'
-import '../vue/tasks/content/publisher/main.js'
+import '../vue/tasks/contents/publisher/main.js'
 import '../vue/tasks/collection_objects/freeform_digitize/main.js'
 import '../vue/tasks/biological_associations/filter/main.js'
 import '../vue/tasks/collection_objects/simple_new_specimen/index'
@@ -125,3 +136,5 @@ import '../vue/tasks/sounds/filter/main.js'
 import '../vue/tasks/field_occurrences/browse/main.js'
 import '../vue/tasks/data_attributes/multi_update/main.js'
 import '../vue/tasks/field_occurrences/filter/main.js'
+import '../vue/tasks/taxon_name_relationships/filter/main.js'
+import '../vue/tasks/gis/monograph_facilitator/main.js'

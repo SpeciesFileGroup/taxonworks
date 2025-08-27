@@ -54,6 +54,7 @@
                 <input
                   v-model="references"
                   :value="item"
+                  class="margin-small-right"
                   type="checkbox"
                 />
                 <span v-html="nomenclature.sources.list[item].cached" />
@@ -76,6 +77,7 @@
                 <input
                   v-model="references"
                   :value="key"
+                  class="margin-small-right"
                   type="checkbox"
                 />
                 <span v-html="item.cached" />

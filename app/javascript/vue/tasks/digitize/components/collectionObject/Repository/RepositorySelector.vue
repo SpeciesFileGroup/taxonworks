@@ -19,7 +19,7 @@
       </smart-selector>
     </div>
     <template v-if="repositorySelected">
-      <hr />
+      <hr class="divisor" />
       <smart-selector-item
         :item="repositorySelected"
         @unset="setRepository(null)"

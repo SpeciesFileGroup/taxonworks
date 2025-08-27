@@ -15,8 +15,10 @@ import AssignSlice from './components/AssignSlice.vue'
 import CollectorSlice from './components/CollectorSlice.vue'
 import DateTimeSlice from '@/components/radials/ce/components/DateTimeSlice.vue'
 import VerbatimSlice from './components/VerbatimSlice.vue'
+import Georeference from './components/GeoreferenceSlice.vue'
 
 const SLICES = {
+  'Set georeference': Georeference,
   'Set geographic area': AssignSlice,
   'Append New Collectors': CollectorSlice,
   'Set Collection Date/Time': DateTimeSlice,

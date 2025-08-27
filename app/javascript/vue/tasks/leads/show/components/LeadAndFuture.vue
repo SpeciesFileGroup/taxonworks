@@ -10,16 +10,13 @@
       expand
       class="future"
     >
-      <template #header>
-        Future couplets
-      </template>
+      <template #header> Future couplets </template>
       <template #body>
         <FutureCoupletsList
           :future="future"
           :load-function="(id) => emit('loadLead', id)"
           :route-name="RouteNames.ShowLead"
         />
-
       </template>
     </BlockLayout>
   </div>
@@ -54,9 +51,9 @@ const emit = defineEmits(['loadLead'])
   // Enough for two full-width medium depictions.
   max-width: calc(600px + 4em + 16px + 4px);
   margin-bottom: 2em;
-  background: #f2f2f2;
+  background: var(--bg-muted);
   padding: 0.5em;
-  border-radius: .9rem;
+  border-radius: 0.9rem;
 }
 
 .future {

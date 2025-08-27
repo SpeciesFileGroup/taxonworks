@@ -132,7 +132,7 @@ onMounted(() => {
   )
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+b`,
-    'Go to browse nomenclature',
+    'Go to browse taxon names',
     TASK
   )
 })
@@ -236,7 +236,7 @@ function switchToTask(url) {
       border-left: 4px solid green;
       padding: 1em;
       padding-left: 1.5em;
-      border-bottom: 1px solid #f5f5f5;
+      border-bottom: 1px solid var(--border-color);
 
       h3 {
         font-weight: 300;

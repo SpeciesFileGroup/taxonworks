@@ -50,7 +50,6 @@ module Queries
 
         ::Gazetteer
           .joins(:geographic_item)
-          #.merge(::GeographicItem.polygons)
           .where(
             ::GeographicItem.st_covers_sql(
               ::GeographicItem.geography_as_geometry,

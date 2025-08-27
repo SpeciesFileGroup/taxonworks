@@ -211,6 +211,7 @@ class LoanItem < ApplicationRecord
   # Return all CollectionObjects matching the query. Does not yet work with OtuQuery
   def self.batch_return(params)
     a = Queries::CollectionObject::Filter.new(params[:collection_object_query])
+    
     return false if a.all.count == 0
 
     returned = []

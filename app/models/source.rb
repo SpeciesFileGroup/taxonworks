@@ -221,7 +221,7 @@ class Source < ApplicationRecord
 
   after_save :set_cached
 
-  validates_presence_of :type
+  validates :type, presence: true
   validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']} # TODO: not needed
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
@@ -275,7 +275,7 @@ class Source < ApplicationRecord
 
     # @param [String] file
   # @return [Array, Boolean]
-  def self.batch_create(file)
+  def self.batch_create(file, project_id = nil)
     sources = []
     valid = 0
     begin
@@ -284,6 +284,15 @@ class Source < ApplicationRecord
         bibliography = BibTeX::Bibliography.parse(file.read.force_encoding('UTF-8'), filter: :latex)
         bibliography.each do |record|
           a = Source::Bibtex.new_from_bibtex(record)
+
+          if project_id.present?
+            a.assign_attributes(
+              project_sources_attributes: [
+                { project_id: project_id }
+              ]
+            )
+          end
+
           if a.valid?
             if a.save
               valid += 1

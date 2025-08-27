@@ -264,7 +264,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify 'no OriginalCombination relationships' do
-            ssp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'vitata', parent: species) 
+            ssp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'vitata', parent: species)
             expect(ssp.get_genus_species(:original, :self).nil?).to be_truthy
             expect(ssp.get_genus_species(:original, :alternative).nil?).to be_truthy
             #            expect(ssp.get_genus_species(:current, :self).nil?).to be_falsey
@@ -284,9 +284,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(g.save).to be_truthy
 
             subspecies.original_genus = g # ! not saved originally !!
+            subspecies.save!
             subspecies.reload
 
-            expect(g.reload.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
+            g.reload
+
+            expect(g.get_full_name_html(g.get_full_name)).to eq('<i>Errorneura</i> [sic]')
 
             expect(subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
             expect(subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] [SPECIES NOT SPECIFIED] <i>vitata</i>')
@@ -295,7 +298,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           # What code is this supposed to catch?
           specify 'moving nominotypical taxon' do
-            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aaa', parent: genus) 
+            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aaa', parent: genus)
             subsp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'aaa', parent: sp)
             subsp.parent = species
             subsp.valid?
@@ -827,7 +830,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         # TaxonNames related by all_taxon_name_relationships
         specify '#related_taxon_names' do
-          expect(species.related_taxon_names.sort).to eq([type_of_genus, original_genus].sort)
+          expect(species.related_taxon_names.pluck(:id)).to contain_exactly(type_of_genus.id, original_genus.id)
         end
 
         context '#unavilable_or_invalid' do
@@ -1067,6 +1070,50 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     a.parent = c
 
     expect{b.ancestors_through_parents}.to raise_error TaxonWorks::Error
+  end
+
+  specify 'no exception when destroying taxon name with taxon name classification' do
+    tn = FactoryBot.create(:valid_taxon_name)
+    tnc = TaxonNameClassification::Iczn::Unavailable::NomenNudum.create!(taxon_name: tn)
+
+    expect(tn.destroy).to be_truthy
+  end
+
+  context '.remove_authors' do
+    specify 'preserves names without authors' do
+      names = [' Aus', 'Aus bus ']
+      rv = TaxonName.remove_authors(names)
+      expect(rv).to contain_exactly('Aus', 'Aus bus')
+    end
+
+    specify 'removes authors' do
+      names = ['Aus Double', 'Aus (Trouble 1984)']
+      rv = TaxonName.remove_authors(names)
+      expect(rv).to contain_exactly('Aus', 'Aus')
+    end
+
+    specify 'preserves "lines"' do
+      names = [' ', 'Aus Fudge', '', 'Aus cicle']
+      rv = TaxonName.remove_authors(names)
+      expect(rv).to contain_exactly('', 'Aus', '', 'Aus cicle')
+    end
+
+    context 'subgenus' do
+      specify 'uninomial' do
+        rv = TaxonName.remove_authors(['Aus (Aus) Ketchup'])
+        expect(rv).to eq (['Aus (Aus)'])
+      end
+
+      specify 'binonmial' do
+        rv = TaxonName.remove_authors(['Conocephalus (Xenocerculus) tuyu Rubio & Braun, 2024'])
+        expect(rv).to eq (['Conocephalus (Xenocerculus) tuyu'])
+      end
+
+      specify 'with subspecies' do
+        rv = TaxonName.remove_authors(['Aus (Aus) aus subsp. aus Mustard 2025'])
+        expect(rv).to eq (['Aus (Aus) aus subsp. aus'])
+      end
+    end
   end
 
   context 'concerns' do

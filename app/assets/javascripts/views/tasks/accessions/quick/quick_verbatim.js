@@ -1,7 +1,15 @@
-$(document).on("turbolinks:load", function() {
-  if($("#quick_task").length) {
-  	$('.biocuration_group_totals').each(function(element) {
-		$(this).find('.add_total_row').detach().appendTo($(this).find('.one_third_width'));
-  	});
+document.addEventListener('turbolinks:load', function () {
+  const quickTask = document.getElementById('quick_task')
+  if (quickTask) {
+    const groups = document.querySelectorAll('.biocuration_group_totals')
+
+    groups.forEach((group) => {
+      const addRow = group.querySelector('.add_total_row')
+      const target = group.querySelector('.one_third_width')
+
+      if (addRow && target) {
+        target.appendChild(addRow)
+      }
+    })
   }
-});
+})

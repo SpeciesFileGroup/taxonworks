@@ -12,7 +12,7 @@
 <script setup>
 import useGeoreferencesStore from '../../store/collectingEvent.js'
 import { computed } from 'vue'
-import VMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 
 const store = useGeoreferencesStore()
 const georeferences = computed(() => store.georeferences.map((g) => g.geo_json))

@@ -1,108 +1,88 @@
 <template>
-  <div class="panel">
-    <div class="flex-separate content middle action-line">
-      <span>Filter</span>
-      <span
-        data-icon="reset"
-        class="cursor-pointer"
+  <BlockLayout>
+    <template #header>
+      <h3>Object</h3>
+    </template>
+
+    <template #options>
+      <VBtn
+        color="primary"
+        circle
         @click="resetFilter"
-        >Reset
-      </span>
-    </div>
-    <spinner-component
-      v-if="searching"
-      full-screen
-      legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px' }"
-    />
-    <div class="content">
-      <otu-component v-model="params.base.otu_id" />
-      <nav-bar-component :otu-id="params.base.otu_id" />
-    </div>
-  </div>
+      >
+        <VIcon
+          name="reset"
+          x-small
+          title="Reset"
+        />
+      </VBtn>
+    </template>
+
+    <template #body>
+      <AssertedDistributionObjectPicker
+        minimal
+        autofocus
+        under-text
+        @select-object="(o) => objectSelected(o)"
+      />
+      <ObjectLinks
+        :object-id="parameters.asserted_distribution_object_id"
+        :object-type="parameters.asserted_distribution_object_type"
+      />
+    </template>
+  </BlockLayout>
 </template>
 
-<script>
-import OtuComponent from './filters/otu'
-import NavBarComponent from './navBar'
-import SpinnerComponent from '@/components/ui/VSpinner'
+<script setup>
+import AssertedDistributionObjectPicker from '@/components/ui/SmartSelector/AssertedDistributionObjectPicker.vue'
+import ObjectLinks from './objectLinks.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
+import { watch } from 'vue'
 import { AssertedDistribution } from '@/routes/endpoints'
 
-export default {
-  components: {
-    OtuComponent,
-    SpinnerComponent,
-    NavBarComponent
-  },
+const parameters = defineModel({
+  type: Object,
+  required: true
+})
 
-  data() {
-    return {
-      params: this.initParams(),
-      result: [],
-      searching: false
-    }
-  },
+const emit = defineEmits(['select'])
 
-  watch: {
-    params: {
-      handler(newVal) {
-        if (newVal.base.otu_id) {
-          this.search()
-        }
-      },
-      deep: true
-    }
-  },
-
-  methods: {
-    resetFilter() {
-      this.$emit('reset')
-      this.params = this.initParams()
-    },
-
-    search() {
-      const params = { ...this.params.base }
-
-      this.searching = true
-      AssertedDistribution.where(params)
-        .then((response) => {
-          this.result = response.body
-          this.$emit('result', this.result)
-          this.$emit('urlRequest', response.request.responseURL)
-          if (this.result.length === 500) {
-            TW.workbench.alert.create('Results may be truncated.', 'notice')
-          }
-        })
-        .finally(() => {
-          this.searching = false
-        })
-    },
-
-    initParams() {
-      return {
-        base: {
-          otu_id: undefined,
-          embed: ['shape'],
-          extend: ['asserted_distribution_shape']
-        }
-      }
-    },
-
-    filterEmptyParams(object) {
-      const keys = Object.keys(object)
-
-      keys.forEach((key) => {
-        if (object[key] === '') {
-          delete object[key]
-        }
+watch(parameters, () => {
+  if (parameters.value.asserted_distribution_id &&
+      !parameters.value.asserted_distribution_object_id &&
+      !parameters.value.asserted_distribution_object_type) {
+    // Coming from an AD radial navigator.
+    AssertedDistribution.find(parameters.value.asserted_distribution_id)
+      .then(({ body }) => {
+        parameters.value.asserted_distribution_object_id =
+          body.asserted_distribution_object_id
+        parameters.value.asserted_distribution_object_type =
+          body.asserted_distribution_object_type
       })
-      return object
-    }
+      .catch(() => {})
   }
+},
+{immediate: true}
+)
+
+function resetFilter() {
+  emit('reset')
 }
+
+function objectSelected(o) {
+  parameters.value.asserted_distribution_object_id = o.id
+  parameters.value.asserted_distribution_object_type = o.objectType
+
+  emit('select', {
+    asserted_distribution_object_id: o.id,
+    asserted_distribution_object_type: o.objectType
+  })
+}
+
 </script>
+
 <style scoped>
-:deep(.btn-delete) {
-  background-color: #5d9ece;
-}
+
 </style>

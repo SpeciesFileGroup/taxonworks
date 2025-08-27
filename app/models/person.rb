@@ -495,7 +495,7 @@ class Person < ApplicationRecord
   end
 
   # @params Role [String] one the available roles
-  # @return [Hash] geographic_areas optimized for user selection
+  # @return [Hash] people optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
     r = used_recently(user_id, role_type)
     h = {

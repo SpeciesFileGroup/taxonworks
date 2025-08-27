@@ -20,5 +20,10 @@ export const Identifier = {
 
   types: () => AjaxCall('get', `/${controller}/identifier_types`),
 
-  reorder: (params) => AjaxCall('patch', `/${controller}/reorder`, params)
+  reorder: (params) => AjaxCall('patch', `/${controller}/reorder`, params),
+
+  namespaces: (params) => AjaxCall('post', `/${controller}/namespaces`, params),
+
+  batchByFilter: (params) =>
+    AjaxCall('post', `/${controller}/batch_by_filter_scope`, params)
 }

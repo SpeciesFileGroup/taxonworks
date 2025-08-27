@@ -41,6 +41,7 @@
 import VModal from '@/components/ui/Modal'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { GEOREFERENCE_WKT } from '@/constants/index.js'
+import { randomUUID } from '@/helpers'
 import { ref } from 'vue'
 
 const emit = defineEmits(['create'])
@@ -50,7 +51,7 @@ const wkt = ref(null)
 
 function createShape() {
   emit('create', {
-    tmpId: Math.random().toString(36).substr(2, 5),
+    uuid: randomUUID(),
     wkt: wkt.value,
     type: GEOREFERENCE_WKT
   })

@@ -18,7 +18,10 @@
       >
         {{ lead.text }}
       </div>
-      <div v-else class="data_item">
+      <div
+        v-else
+        class="data_item"
+      >
         <i>(No text)</i>
       </div>
 
@@ -105,10 +108,9 @@ const displayLinkOut = computed(() => {
 <style lang="scss" scoped>
 .lead {
   padding: 1em 2em;
-  transition: all 1s;
-  box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
-  border-radius: .9rem;
-  background-color: #FFF;
+  box-shadow: var(--panel-shadow);
+  border-radius: 0.9rem;
+  background-color: var(--bg-foreground);
 }
 .lead_data {
   margin-top: 1em;
@@ -119,19 +121,19 @@ const displayLinkOut = computed(() => {
 }
 .lead_text {
   padding: 1em;
-  border: 1px solid #eee;
-  border-radius: .5em;
-  box-shadow: rgba(59, 59, 59, 0.08) 2px 2px 12px 0px;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5em;
+  box-shadow: var(--panel-shadow);
 }
 .navigation {
   display: flex;
   justify-content: center;
 }
 .redirect_notice {
-  margin-bottom: .5em;
+  margin-bottom: 0.5em;
 }
 .redirect_select[disabled] {
-  opacity: .5;
+  opacity: 0.5;
 }
 .lead_determination {
   text-align: end;

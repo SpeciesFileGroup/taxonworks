@@ -38,6 +38,7 @@ class Otu < ApplicationRecord
   include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::OriginRelationship
+  include Shared::AssertedDistributions
 
   include Shared::AutoUuid
   include Shared::Taxonomy
@@ -63,7 +64,6 @@ class Otu < ApplicationRecord
 
   has_many :in_scope_observation_matrices, inverse_of: :otu, class_name: 'ObservationMatrix'
 
-  has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
 
@@ -84,7 +84,6 @@ class Otu < ApplicationRecord
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :public_contents, inverse_of: :otu, dependent: :destroy
 
-  has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
   has_many :georeferences, through: :collecting_events
 
@@ -94,6 +93,7 @@ class Otu < ApplicationRecord
   has_many :related_otu_relationships, class_name: 'OtuRelationship', foreign_key: :object_otu_id, inverse_of: :object_otu
 
   has_many :leads, inverse_of: :otu, dependent: :restrict_with_error
+  has_many :lead_items, inverse_of: :otu, dependent: :destroy
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }
@@ -283,7 +283,7 @@ class Otu < ApplicationRecord
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`
   # @return [Array]
   #   ids of the max 10 most recently used otus, as `used_on`
-  def self.used_recently(user_id, project_id, used_on = '')
+  def self.used_recently(user_id, project_id, used_on = '', ba_target = 'object')
     t = case used_on
         when 'AssertedDistribution'
           AssertedDistribution.arel_table
@@ -296,21 +296,34 @@ class Otu < ApplicationRecord
         else
           return Otu.none
         end
-
+    if ba_target == 'subject'
+      target_type = 'biological_association_subject_type'
+      target_id = 'biological_association_subject_id'
+    else
+      target_type = 'biological_association_object_type'
+      target_id = 'biological_association_object_id'
+    end
     p = Otu.arel_table
 
     # i is a select manager
     i = case used_on
         when 'BiologicalAssociation'
-          t.project(t['biological_association_object_id'], t['updated_at']).from(t)
+          t.project(t[target_id], t['updated_at']).from(t)
             .where(
               t['updated_at'].gt(1.week.ago).and(
-                t['biological_association_object_type'].eq('Otu')
+                t[target_type].eq('Otu')
               )
             )
-              .where(t['updated_by_id'].eq(user_id))
-              .where(t['project_id'].eq(project_id))
-              .order(t['updated_at'].desc)
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
+        when 'AssertedDistribution'
+          t.project(t['asserted_distribution_object_id'].as('otu_id'),
+                    t['updated_at']).from(t)
+            .where(t['updated_at'].gt( 1.week.ago ))
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
         else
           t.project(t['otu_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.week.ago ))
@@ -324,7 +337,7 @@ class Otu < ApplicationRecord
     case used_on
     when 'BiologicalAssociation'
       Otu.joins(
-        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_association_object_id'].eq(p['id'])))
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z[target_id].eq(p['id'])))
       ).pluck(:id).uniq
     else
       Otu.joins(
@@ -335,8 +348,8 @@ class Otu < ApplicationRecord
 
   # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
   # @return [Hash] otus optimized for user selection
-  def self.select_optimized(user_id, project_id, target = nil)
-    r = used_recently(user_id, project_id, target)
+  def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
+    r = used_recently(user_id, project_id, target, ba_target)
 
     q = Otu.where(project_id:).includes(:taxon_name) # faster than eager_load(), even with n+1
 
@@ -391,14 +404,6 @@ class Otu < ApplicationRecord
     end
   end
 
-  # TODO: move to helper method likely
-  def distribution_geoJSON
-    a_ds = Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions)
-    c_os = Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences)
-    c_es = Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
-    Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
-  end
-
   # TODO: needs spec
   # A convenience method to wrap coordinate_otus and descendant_of_taxon_name
   # @return Scope
@@ -412,6 +417,7 @@ class Otu < ApplicationRecord
 
   # @return [Array]
   #   of ancestral otu_ids
+  # Not used?
   # !! This method does not fork, as soon as 2 ancestors are
   # !! hit the list terminates.
   def ancestor_otu_ids(prefer_unlabelled_otus: true)
@@ -441,37 +447,37 @@ class Otu < ApplicationRecord
            AND biological_associations.biological_association_object_type = 'Otu' ")
   end
 
+  # @return Otu scope
+  #   aggregates valid OTUs id ancestors for an OTU, with the first in the list
+  #   the first OTU ancestor with a valid id
+  # Used in CoL export
+  def self.parent_otu_ids(otu_scope = nil, skip_ranks: [])
+    otu_scope ||= Otu.all
+
+    s = Otu.with(otu_scope: otu_scope.select(:id))
+      .joins('JOIN otu_scope on otu_scope.id = otus.id')
+      .joins('JOIN taxon_name_hierarchies tnh on tnh.descendant_id = otus.taxon_name_id') # get all ancestors
+      .joins('LEFT JOIN taxon_names tna on tna.id = tnh.ancestor_id')
+      .joins('JOIN otus otu_valid ON otu_valid.taxon_name_id = tna.id')
+      .where("tna.cached_is_valid = '1' AND tnh.ancestor_id != tnh.descendant_id")
+      .group('otus.id')
+      .select("otus.id, STRING_AGG(otu_valid.id::text, ',' ORDER BY tnh.generations, otu_valid.name DESC) AS valid_ancestor_otu_ids") # generations, then unlabelled OTUs
+
+    s = s.where('tna.rank_class NOT IN (?)', skip_ranks) unless skip_ranks.empty?
+
+    s
+  end
+
   # @return [Otu#id, nil, false]
   #  nil - there is no OTU parent with a valid taxon name possible
   #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taxon name
   #
   #  Note this is used CoLDP export. Do not change without considerations there.
-  def parent_otu_id(skip_ranks: [], prefer_unlabelled_otus: false)
+  #  Unlabelled OTUs are always preferred by default now.
+  def parent_otu_id(skip_ranks: [])
     return nil if taxon_name_id.nil?
-
-    # TODO: Unify to a single query
-
-    candidates = TaxonName.joins(:otus, :descendant_hierarchies)
-      .that_is_valid
-      .where.not(id: taxon_name_id)
-      .where(taxon_name_hierarchies: {descendant_id: taxon_name_id})
-      .where.not(rank_class: skip_ranks)
-      .order('taxon_name_hierarchies.generations')
-      .limit(1)
-      .pluck(:id)
-
-    if candidates.size == 1
-      otus = Otu.where(taxon_name_id: candidates.first).to_a
-      otus.select! { |o| o.name.nil? } if prefer_unlabelled_otus && otus.size > 1
-
-      if otus.size > 0
-        return otus.first.id
-      else
-        return nil
-      end
-    else
-      return nil
-    end
+    z = Otu.parent_otu_ids(Otu.where(id:), skip_ranks:).map{|a| [a.id, a.valid_ancestor_otu_ids&.split(',')&.first&.to_i]}.to_h
+    z[id]
   end
 
   # TODO: Re/move

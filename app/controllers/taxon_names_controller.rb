@@ -222,6 +222,11 @@ class TaxonNamesController < ApplicationController
     ).result
   end
 
+  def remove_authors
+    names = TaxonName.remove_authors(params['names'].first(5000))
+    render json: { names: }
+  end
+
   # GET /taxon_names/1/original_combination
   def original_combination
   end
@@ -229,7 +234,7 @@ class TaxonNamesController < ApplicationController
   # PATCH /taxon_names/batch_update.json?taxon_names_query=<>&taxon_name={taxon_name_id=123}}
   def batch_update
     if r = Protonym.batch_update(
-        preview: params[:preview], 
+        preview: params[:preview],
         taxon_name: taxon_name_params.merge(by: sessions_current_user_id),
         taxon_name_query: params[:taxon_name_query].merge(by: sessions_current_user_id),
     )

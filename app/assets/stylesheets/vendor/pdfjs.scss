@@ -21,55 +21,57 @@
   height: 32px;
   right: 0;
   left: 0;
-  top: 60px; 
+  top: 60px;
   bottom: 0;
-  z-index: 9999;  
+  z-index: 9999;
   background-color: #474747;
   background-image: image-url('pdfviewer/texture.png'),
-                    linear-gradient(hsla(0,0%,32%,.99), hsla(0,0%,27%,.95));
-  box-shadow: inset 1px 0 0 hsla(0,0%,100%,.08),
-              inset 0 1px 1px hsla(0,0%,0%,.15),
-              inset 0 -1px 0 hsla(0,0%,100%,.05),
-              0 1px 0 hsla(0,0%,0%,.15),
-              0 1px 1px hsla(0,0%,0%,.1);                    
+    linear-gradient(hsla(0, 0%, 32%, 0.99), hsla(0, 0%, 27%, 0.95));
+  box-shadow: inset 1px 0 0 hsla(0, 0%, 100%, 0.08),
+    inset 0 1px 1px hsla(0, 0%, 0%, 0.15),
+    inset 0 -1px 0 hsla(0, 0%, 100%, 0.05), 0 1px 0 hsla(0, 0%, 0%, 0.15),
+    0 1px 1px hsla(0, 0%, 0%, 0.1);
 
   button {
-  border: 0 none;
-  background: none;
-  width: 32px;
-  height: 25px;
-  min-width: 16px;
-  padding: 2px 6px 0;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  color: hsla(0,0%,100%,.8);
-  font-size: 12px;
-  line-height: 14px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  background-position: center;
-  /* Opera does not support user-select, use <... unselectable="on"> instead */
-  cursor: pointer;
-  -webkit-transition-property: background-color, border-color, box-shadow;
-  -webkit-transition-duration: 150ms;
-  -webkit-transition-timing-function: ease;
-  transition-property: background-color, border-color, box-shadow;
-  transition-duration: 150ms;
-  transition-timing-function: ease;  
+    border: 0 none;
+    background: none;
+    width: 32px;
+    height: 25px;
+    min-width: 16px;
+    padding: 2px 6px 0;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    color: hsla(0, 0%, 100%, 0.8);
+    font-size: 12px;
+    line-height: 14px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    background-position: center;
+    /* Opera does not support user-select, use <... unselectable="on"> instead */
+    cursor: pointer;
+    -webkit-transition-property: background-color, border-color, box-shadow;
+    -webkit-transition-duration: 150ms;
+    -webkit-transition-timing-function: ease;
+    transition-property: background-color, border-color, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
   }
 
-button:hover,
-button:focus {
-  background-color: hsla(0,0%,0%,.12);
-  background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
-  background-clip: padding-box;
-  border: 1px solid hsla(0,0%,0%,.35);
-  border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);
-  box-shadow: 0 1px 0 hsla(0,0%,100%,.05) inset,
-              0 0 1px hsla(0,0%,100%,.15) inset,
-              0 1px 0 hsla(0,0%,100%,.05);
-}  
+  button:hover,
+  button:focus {
+    background-color: hsla(0, 0%, 0%, 0.12);
+    background-image: linear-gradient(
+      hsla(0, 0%, 100%, 0.05),
+      hsla(0, 0%, 100%, 0)
+    );
+    background-clip: padding-box;
+    border: 1px solid hsla(0, 0%, 0%, 0.35);
+    border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38)
+      hsla(0, 0%, 0%, 0.42);
+    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset,
+      0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+  }
 
   #zoominbutton {
     background-image: image-url('pdfviewer/zoomin.png');
@@ -87,14 +89,12 @@ button:focus {
     background-image: image-url('pdfviewer/pagedown.png');
     background-repeat: no-repeat;
   }
-
 }
 
-
 #pdfViewerContainer {
-    background-image: image-url('pdfviewer/texture.png');
-    background-color: #FAFAFA;
-    text-align: center;
+  background-image: image-url('pdfviewer/texture.png');
+  background-color: var(--panel-bg-color);
+  text-align: center;
 }
 #viewer {
   position: relative;
@@ -117,7 +117,7 @@ button:focus {
   bottom: 0;
   overflow: hidden;
   opacity: 0.2;
-  line-height: 1.0;
+  line-height: 1;
 }
 
 .toolbarLabel {
@@ -126,7 +126,7 @@ button:focus {
   margin: 4px 2px 4px 0;
   border: 1px solid transparent;
   border-radius: 2px;
-  color: hsl(0,0%,85%);
+  color: hsl(0, 0%, 85%);
   font-size: 12px;
   line-height: 14px;
   text-align: left;
@@ -171,8 +171,12 @@ button:focus {
   background-color: rgb(0, 100, 0);
 }
 
-.textLayer ::selection { background: rgb(0,0,255); }
-.textLayer ::-moz-selection { background: rgb(0,0,255); }
+.textLayer ::selection {
+  background: rgb(0, 0, 255);
+}
+.textLayer ::-moz-selection {
+  background: rgb(0, 0, 255);
+}
 
 .textLayer .endOfContent {
   display: block;
@@ -197,14 +201,18 @@ button:focus {
   margin: 4px 0 4px 0;
   border: 1px solid transparent;
   border-radius: 2px;
-  background-color: hsla(0,0%,100%,.09);
-  background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
+  background-color: hsla(0, 0%, 100%, 0.09);
+  background-image: linear-gradient(
+    hsla(0, 0%, 100%, 0.05),
+    hsla(0, 0%, 100%, 0)
+  );
   background-clip: padding-box;
-  border: 1px solid hsla(0,0%,0%,.35);
-  border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);
-  box-shadow: 0 1px 0 hsla(0,0%,0%,.05) inset,
-              0 1px 0 hsla(0,0%,100%,.05);
-  color: hsl(0,0%,95%);
+  border: 1px solid hsla(0, 0%, 0%, 0.35);
+  border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38)
+    hsla(0, 0%, 0%, 0.42);
+  box-shadow: 0 1px 0 hsla(0, 0%, 0%, 0.05) inset,
+    0 1px 0 hsla(0, 0%, 100%, 0.05);
+  color: hsl(0, 0%, 95%);
   font-size: 12px;
   line-height: 14px;
   outline-style: none;
@@ -213,7 +221,7 @@ button:focus {
   transition-timing-function: ease;
 }
 
-.toolbarField[type=checkbox] {
+.toolbarField[type='checkbox'] {
   display: inline-block;
   margin: 8px 0px;
 }
@@ -233,18 +241,19 @@ button:focus {
 
 .toolbarField.pageNumber::-webkit-inner-spin-button,
 .toolbarField.pageNumber::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .toolbarField:hover {
-  background-color: hsla(0,0%,100%,.11);
-  border-color: hsla(0,0%,0%,.4) hsla(0,0%,0%,.43) hsla(0,0%,0%,.45);
+  background-color: hsla(0, 0%, 100%, 0.11);
+  border-color: hsla(0, 0%, 0%, 0.4) hsla(0, 0%, 0%, 0.43) hsla(0, 0%, 0%, 0.45);
 }
 
 .toolbarField:focus {
-  background-color: hsla(0,0%,100%,.15);
-  border-color: hsla(204,100%,65%,.8) hsla(204,100%,65%,.85) hsla(204,100%,65%,.9);
+  background-color: hsla(0, 0%, 100%, 0.15);
+  border-color: hsla(204, 100%, 65%, 0.8) hsla(204, 100%, 65%, 0.85)
+    hsla(204, 100%, 65%, 0.9);
 }
 
 .annotationLayer section {
@@ -260,8 +269,9 @@ button:focus {
   height: 100%;
 }
 
-.annotationLayer .linkAnnotation > a /* -ms-a */  {
-  background: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7") 0 0 repeat;
+.annotationLayer .linkAnnotation > a /* -ms-a */ {
+  background: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')
+    0 0 repeat;
 }
 
 .annotationLayer .linkAnnotation > a:hover {
@@ -340,7 +350,7 @@ button:focus {
   position: absolute;
   z-index: 200;
   max-width: 20em;
-  background-color: #FFFF99;
+  background-color: #ffff99;
   box-shadow: 0px 2px 5px #333;
   border-radius: 2px;
   padding: 0.6em;

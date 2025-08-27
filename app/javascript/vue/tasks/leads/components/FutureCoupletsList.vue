@@ -11,6 +11,7 @@
         :couplet-label="o.leadLabel"
         :lead="o.lead"
         :otu-tag="o.otuLabel"
+        :lead-items-count="o.leadItemsCount"
       />
     </div>
   </div>

@@ -16,10 +16,17 @@ class Catalog::Distribution::EntryItem < ::Catalog::EntryItem
 
   # @return [Boolean]
   def linked_to_valid_taxon_name?
-    object.taxon_name&.is_valid?
+    if object&.respond_to?(:taxon_name)
+      object&.taxon_name&.is_valid?
+    else
+      nil
+    end
   end
 
   def data_attributes
+    # TODO item objects may have once had a taxon_name association, but
+    # currently none of them do (perhaps lost to new polymorphisms over time),
+    # so the extra data here will always be nil.
     base_data_attributes.merge(
       'history-otu-taxon-name-id' => taxon_name_global_id,
       'history-is-valid' => linked_to_valid_taxon_name?
@@ -27,7 +34,11 @@ class Catalog::Distribution::EntryItem < ::Catalog::EntryItem
   end
 
   def taxon_name_global_id
-    object&.taxon_name&.to_global_id&.to_s
+    if object&.respond_to?(:taxon_name)
+      object&.taxon_name&.to_global_id&.to_s
+    else
+      nil
+    end
   end
 
   def geographic_name_classification

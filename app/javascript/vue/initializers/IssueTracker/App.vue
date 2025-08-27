@@ -1,33 +1,35 @@
 <template>
-  <VModal
-    v-if="isModalVisible"
-    @close="() => (isModalVisible = false)"
-    :container-style="{
-      width: '700px'
-    }"
-  >
-    <template #header>
-      <h3>Report a problem</h3>
-    </template>
-    <template #body>
-      <h4>My issue is with:</h4>
-      <ul>
-        <li
-          v-for="item in URLs"
-          :key="item.label"
-        >
-          <a
-            :href="item.url"
-            target="_blank"
-            :title="item.description"
+  <Teleport to="body">
+    <VModal
+      v-if="isModalVisible"
+      @close="() => (isModalVisible = false)"
+      :container-style="{
+        width: '700px'
+      }"
+    >
+      <template #header>
+        <h3>Report a problem</h3>
+      </template>
+      <template #body>
+        <h4>My issue is with:</h4>
+        <ul>
+          <li
+            v-for="item in URLs"
+            :key="item.label"
           >
-            {{ item.label }}
-          </a>
-          {{ item.description }}
-        </li>
-      </ul>
-    </template>
-  </VModal>
+            <a
+              :href="item.url"
+              target="_blank"
+              :title="item.description"
+            >
+              {{ item.label }}
+            </a>
+            {{ item.description }}
+          </li>
+        </ul>
+      </template>
+    </VModal>
+  </Teleport>
 </template>
 
 <script setup>

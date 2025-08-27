@@ -1,7 +1,7 @@
 class ImportDataset::DarwinCore < ImportDataset
   # self.abstract_class = true # TODO: Why causes app/views/shared/data/project/_show.html.erb to fail when visiting /import_datasets/list if uncommented?
 
-  validate :core_records_are_readable, on: :create
+  validate :well_formed, on: :create
 
   after_create -> (dwc) { ImportDatasetStageJob.perform_later(dwc) }
 
@@ -80,6 +80,12 @@ class ImportDataset::DarwinCore < ImportDataset
     end
   end
 
+  # @return [Integer]
+  # Returns the indexes of the mapped fields for the core records.
+  def core_records_mapped_fields
+    core_records&.first&.get_mapped_fields(dwc_data_attributes) || []
+  end
+
   # @return [String]
   # Sets up import dataset for import and returns UUID. If already started same UUID is returned (unless last activity was more than 10 minutes ago).
   # Do not call if there are changes that have not been persisted
@@ -146,15 +152,6 @@ class ImportDataset::DarwinCore < ImportDataset
       records = records.all
       start_time = Time.now - lock_time
 
-      dwc_data_attributes = project.preferences['model_predicate_sets'].map do |model, predicate_ids|
-        [model, Hash[
-          *Predicate.where(id: predicate_ids)
-            .select { |p| /^http:\/\/rs\.tdwg\.org\/dwc\/terms\/.*/ =~ p.uri }
-            .map {|p| [p.uri.split('/').last, p]}
-            .flatten
-          ]
-        ]
-      end.to_h
 
       records.each do |record|
         imported << record.import(dwc_data_attributes)
@@ -316,11 +313,11 @@ class ImportDataset::DarwinCore < ImportDataset
   end
 
   def get_col_sep
-    DarwinCore.default_if_absent(metadata.dig("import_settings", "col_sep"), "\t")
+    DarwinCore.default_if_absent(metadata.dig('import_settings', 'col_sep'), "\t")
   end
 
   def get_quote_char
-    DarwinCore.default_if_absent(metadata.dig("import_settings", "quote_char"), "\"")
+    DarwinCore.default_if_absent(metadata.dig('import_settings', 'quote_char'), '"')
   end
 
   def get_fields_mapping
@@ -351,11 +348,16 @@ class ImportDataset::DarwinCore < ImportDataset
     records
   end
 
-  def core_records_are_readable
+  def well_formed
     begin
-      get_records(source.staged_path)
+      headers = get_records(source.staged_path).last[:core]
+      duplicates = headers.compact.map(&:downcase).tally.select { |_, count| count > 1 }.keys
+
+      if duplicates.any?
+        errors.add(:source, "Duplicate headers found: #{duplicates.join(', ')}")
+      end
     rescue RuntimeError
-      errors.add(:source, "A problem occurred when reading the data file. If this is a text file please make sure the selected string and field delimiters are correct.")
+      errors.add(:source, 'A problem occurred when reading the data file. If this is a text file please make sure the selected string and field delimiters are correct.')
     end
     true
   end
@@ -378,5 +380,17 @@ class ImportDataset::DarwinCore < ImportDataset
         errors.add(:source, "required field #{header} missing.")
       end
     end
+  end
+
+  def dwc_data_attributes
+    project.preferences['model_predicate_sets'].map do |model, predicate_ids|
+      [model, Hash[
+        *Predicate.where(id: predicate_ids)
+          .select { |p| /^http:\/\/rs\.tdwg\.org\/dwc\/terms\/.*/ =~ p.uri }
+          .map {|p| [p.uri.split('/').last, p]}
+          .flatten
+        ]
+      ]
+    end.to_h
   end
 end

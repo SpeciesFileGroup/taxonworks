@@ -146,6 +146,24 @@
       <%= column_chart(document_cumulative_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
     </div>
   </div>
+
+  <div class="panel content item">
+    <h2> GB/Year Sounds </h2>
+    <div style="width: 420px;">
+      <%= column_chart(sound_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
+    </div>
+  </div>
+
+  <div class="panel content item">
+    <h2> Cumulative GB/Year Sounds </h2>
+    <div style="width: 420px;">
+      <%= column_chart(sound_cumulative_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
+    </div>
+  </div>
+
+
+
+
 </div>
 
 <br>

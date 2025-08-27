@@ -270,7 +270,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
   end
 
-  specify '#determiner_id_or (false)' do
+  specify '#determiner_id_all (true)' do
     s = FactoryBot.create(:valid_specimen)
     p1 = FactoryBot.create(:valid_person)
     p2 = FactoryBot.create(:valid_person)
@@ -290,12 +290,12 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       determiners: [ p1 ]
     )
 
-    query.determiner_id_or = false
+    query.determiner_id_all = true
     query.determiner_id = [p1.id, p2.id]
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
   end
 
-  specify '#determiner_id_or (true)' do
+  specify '#determiner_id_all (false)' do
     s = FactoryBot.create(:valid_specimen)
     p1 = FactoryBot.create(:valid_person)
     p2 = FactoryBot.create(:valid_person)
@@ -315,7 +315,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       determiners: [ p1 ]
     )
 
-    query.determiner_id_or = true
+    query.determiner_id_all = false
     query.determiner_id = [p1.id, p2.id]
     expect(query.all.pluck(:id)).to contain_exactly(s.id, s0.id)
   end
@@ -496,7 +496,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         a = FactoryBot.create(:valid_taxon_determination, otu: o, taxon_determination_object: t1, determiners: [ FactoryBot.create(:valid_person) ] )
 
         query.determiner_id = a.determiners.pluck(:id)
-        # query.collector_id_or = false
+        # query.collector_id_all = true
         query.taxon_name_id = genus1.id
         query.descendants = true
 

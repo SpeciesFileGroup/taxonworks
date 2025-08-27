@@ -42,7 +42,7 @@
         title="Determiner"
         klass="CollectionObject"
         param-people="determiner_id"
-        param-any="determiner_id_or"
+        param-all="determiner_id_all"
         :role-type="DETERMINER_SELECTOR"
         toggle
         @toggle="

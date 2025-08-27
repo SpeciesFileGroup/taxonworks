@@ -8,7 +8,7 @@
 
 <%= copy_table_to_clipboard('#gender_table') %>
 
-<table id="gender_table" >
+<table id="gender_table" class="tablesorter" >
   <thead>
     <tr>
       <th>name</th>
@@ -26,7 +26,7 @@
     <% @taxon_names.each do |n| %>
       <tr>
         <td><%= n.name %></td>
-        <td><%= n.gender_name %></td>
+        <td><%= n.cached_gender %></td>
         <td><%= n.cached_author %></td>
         <td><%= n.cached_nomenclature_date&.year %></td>
         <td><%= n.valid_taxon_name.name %></td>

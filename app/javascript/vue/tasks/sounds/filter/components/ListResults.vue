@@ -42,10 +42,16 @@
           <td v-html="item.object_tag" />
           <td>
             <audio
+              v-if="!item.metadata.error"
               :src="item.sound_file"
               controls
               preload="metadata"
             />
+            <div v-else>
+              <div style="color: red">
+                {{ item.metadata.error }}
+              </div>
+            </div>
           </td>
         </tr>
       </tbody>

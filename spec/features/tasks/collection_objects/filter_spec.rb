@@ -1,17 +1,17 @@
 require 'rails_helper'
 # require 'support/shared_contexts/shared_geo'
 
-# TODO: rewrite for new filter
-describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects, :shared_geo] do
+describe 'Filter collection objects', type: :feature, group: [:geo, :collection_objects, :shared_geo], js: true do
 
-  context 'with properly built collection of objects', js: true do
-    let(:page_title) { 'Filter collection objects' }
-    let(:index_path) { filter_collection_objects_task_path }
+  context 'when signed in and a project is selected' do
+    before { sign_in_user_and_select_project }
 
-    it_behaves_like 'a_login_required_and_project_selected_controller'
-
-    context 'signed in as a user' do
-      before { sign_in_user_and_select_project }
+    context 'when I visit the task page' do
+      before { visit filter_collection_objects_task_path }
+     
+      specify 'find task title' do
+        expect(page).to have_text('Filter collection objects')
+      end
     end
   end
 end

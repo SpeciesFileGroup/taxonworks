@@ -643,7 +643,8 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         )
       end
 
-      specify 'does not work with arbitrary geometry collection' do
+      # This seems to work in recent pg?
+      xspecify 'does not work with arbitrary geometry collection' do
         pending 'ST_Covers fails when input GeometryCollection has a line intersecting a polygon\'s interior'
         # The same test as the previous only the geometry collection in the
         # first argument also contains a line intersecting the interior of
@@ -823,6 +824,41 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             GeographicItem.covered_by_wkt_sql(p_counter_clockwise)
           )).to contain_exactly(simple_polygon)
         end
+      end
+    end
+
+    context '::covered_by_geographic_items_sql' do
+      specify 'shape covers itself' do
+        expect(GeographicItem.where(
+          GeographicItem.covered_by_geographic_items_sql(
+            GeographicItem.where(id: donut.id)
+        ))).to include(donut)
+      end
+
+      specify 'finds all subshapes' do
+        expect(GeographicItem.where(
+          GeographicItem.covered_by_geographic_items_sql(
+            GeographicItem.where(id: donut.id)
+        ))).to contain_exactly(
+          donut, donut_interior_bottom_left_multi_line,
+          donut_left_interior_edge, donut_bottom_interior_edge,
+          donut_left_interior_edge_point
+        )
+      end
+
+      specify 'contains shapes across input boundaries' do
+        expect(GeographicItem.where(
+          GeographicItem.covered_by_geographic_items_sql(
+            GeographicItem.where(id: [box.id, rectangle_intersecting_box.id])
+        ))).to include(box_rectangle_line)
+      end
+
+      specify 'works with multiple inputs' do
+        donut_centroid # not this one
+        expect(GeographicItem.where(
+          GeographicItem.covered_by_geographic_items_sql(
+            GeographicItem.where(id: [donut.id, box.id])
+        ))).to contain_exactly(donut, box)
       end
     end
 

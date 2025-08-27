@@ -37,10 +37,13 @@ const permitParams = {
   }
 }
 
+const controller = 'depictions'
 export const Depiction = {
   ...baseCRUD('depictions', permitParams),
 
-  sort: (data) => AjaxCall('patch', '/depictions/sort', data),
+  sort: (data) => AjaxCall('patch', `/${controller}/sort`, data),
 
-  filter: (params) => AjaxCall('post', '/depictions/filter', params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter`, params),
+
+  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 }

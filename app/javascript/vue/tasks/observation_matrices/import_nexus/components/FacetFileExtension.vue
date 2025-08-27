@@ -13,7 +13,7 @@
             :checked="h['group'] == ''"
             name="extensions"
           />
-          {{ h['extensions'].map((hh => hh.extension)).join(', ') }}
+          {{ h['extensions_data'].map((hh => hh.extension)).join(', ') }}
         </label>
       </div>
     </div>
@@ -27,7 +27,7 @@ const props = defineProps({
   // An example extension group:
   // {
   //   group: 'nexus',
-  //   extensions: [
+  //   extensions_data: [
   //     {
   //       extension: '.nex',
   //       content_type: 'text/plain'

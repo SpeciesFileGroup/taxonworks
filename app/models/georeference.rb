@@ -54,14 +54,6 @@
 #   @return [Integer]
 #   the project ID
 #
-# @!attribute is_undefined_z
-#   @return [Boolean]
-#   True if this georeference cannot be located vertically, otherwise false.
-#
-# @!attribute is_median_z
-#   @return [Boolean]
-#   True if this georeference represents an average vertical distance, otherwise false.
-#
 # @!attribute year_georeferenced
 #   @return [Integer, nil]
 #     4 digit year the georeference was *first* created/captured
@@ -135,10 +127,11 @@ class Georeference < ApplicationRecord
   attr_accessor :no_cached
 
   before_validation :round_error_radius
-
+  before_validation :set_geographic_item, unless: -> { self.geographic_item_id.blank? }
   after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
-
   after_destroy :set_cached_collecting_event
+
+
 
   def otus
     ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
@@ -222,9 +215,7 @@ class Georeference < ApplicationRecord
           error_geographic_item_id: gr.error_geographic_item_id,
           type: gr.type,
           is_public: gr.is_public,
-          api_request: gr.api_request,
-          is_undefined_z: gr.is_undefined_z,
-          is_median_z: gr.is_median_z)
+          api_request: gr.api_request)
         if new_gr.valid? # generally, this catches the case of multiple identical georeferences per collecting_event.
           new_gr.save!
           result.push new_gr
@@ -343,7 +334,8 @@ class Georeference < ApplicationRecord
         'georeference' => {
           'id' => id,
           'tag' => "Georeference ID = #{id}"
-        }
+        },
+        'radius' => error_radius
       }
     )
   end
@@ -612,9 +604,13 @@ class Georeference < ApplicationRecord
 
   private
 
+  def set_geographic_item
+    self.geographic_item = GeographicItem.find(geographic_item_id)
+  end
+
   def round_error_radius
     if error_radius.present?
-      write_attribute(:error_radius, error_radius.round)
+      self[:error_radius] = error_radius.round
     end
   end
 

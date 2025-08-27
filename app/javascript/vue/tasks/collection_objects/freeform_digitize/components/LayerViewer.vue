@@ -9,7 +9,7 @@
       :height="height"
       :groups="layers"
       :image="{
-        url: imageStore.image.image_file_url,
+        url: imageStore.image.original_png,
         width: imageStore.image.width,
         height: imageStore.image.height
       }"

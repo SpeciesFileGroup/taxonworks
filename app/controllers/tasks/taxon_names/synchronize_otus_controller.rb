@@ -3,7 +3,7 @@ class Tasks::TaxonNames::SynchronizeOtusController < ApplicationController
 
   # GET/POST (hack preview)
   def index
-    @taxon_name = TaxonName.where(project_id: sessions_current_project_id).find(params[:taxon_name][:id]) if params[:taxon_name][:id]
+    @taxon_name = TaxonName.where(project_id: sessions_current_project_id).find(params[:taxon_name][:id]) if params.dig(:taxon_name, :id)
     @taxon_name ||= sessions_current_project.root_taxon_name
   end
 

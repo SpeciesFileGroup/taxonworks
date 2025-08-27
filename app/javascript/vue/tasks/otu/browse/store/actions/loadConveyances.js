@@ -1,12 +1,11 @@
-import { OTU } from '@/constants'
 import { MutationNames } from '../mutations/mutations'
-import { Conveyance } from '@/routes/endpoints'
+import { Conveyance, Sound } from '@/routes/endpoints'
 
 export default ({ commit, state }, id) => {
   state.loadState.conveyances = true
   Conveyance.where({
-    conveyance_object_id: id,
-    conveyance_object_type: OTU,
+    otu_id: [id],
+    otu_scope: ['all'],
     per: 500
   })
     .then(({ body }) => {

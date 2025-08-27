@@ -41,7 +41,10 @@ module Queries::Concerns::Conveyances
 
   def sound_id_facet
     return nil if sound_id.empty?
-    referenced_klass.joins(:conveyances).where(conveyances: {sound_id:})
+    referenced_klass
+      .joins(:conveyances)
+      .where(conveyances: {sound_id:})
+      .distinct
   end
 
   # !! Duplicate with sounds
@@ -64,10 +67,23 @@ module Queries::Concerns::Conveyances
     end
   end
 
+  def sound_query_facet
+    return nil if sound_query.nil?
+    s = 'WITH query_sounds AS (' + sound_query.all.to_sql + ')'
+
+    s << ' ' + referenced_klass
+    .joins(:conveyances)
+    .joins('JOIN query_sounds as query_sounds1 on conveyances.sound_id = query_sounds1.id')
+    .to_sql
+
+    referenced_klass.from('(' + s + ') as ' + referenced_klass.name.tableize).distinct
+  end
+
   def self.merge_clauses
     [
       :conveyances_facet,
       :sound_id_facet,
+      :sound_query_facet,
       :sounds_facet
     ]
   end

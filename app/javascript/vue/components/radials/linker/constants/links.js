@@ -106,6 +106,13 @@ export const TASK_MULTI_UPDATE = {
   saveQuery: true
 }
 
+export const TASK_MONOGRAPH_FACILITATOR = {
+  label: 'Monograph facilitator',
+  link: '/tasks/gis/monograph_facilitator',
+  queryParam: true,
+  saveQuery: true
+}
+
 export const TASK_DWC_OCCURRENCE_STATUS = {
   label: 'DwC Occurrence Status',
   link: '/tasks/dwc_occurrences/status'
@@ -135,7 +142,14 @@ export const TASK_COLLECTING_EVENT_METADATA = {
 export const TASK_TAXON_NAME_GENDER = {
   label: 'Gender summary',
   link: '/tasks/taxon_names/gender',
-  post: false,
+  post: true,
   queryParam: true
 }
 
+export const TASK_PROJECT_VOCABULARY = {
+  label: 'Project vocabulary',
+  link: '/tasks/metadata/vocabulary/project_vocabulary',
+  post: false,
+  queryParam: true,
+  saveQuery: true
+}

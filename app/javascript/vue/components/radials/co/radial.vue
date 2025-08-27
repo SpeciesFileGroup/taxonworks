@@ -18,9 +18,11 @@ import SliceCollectingEvent from './components/SliceCollectingEvent.vue'
 import SlicePreparationType from './components/SlicePreparationType.vue'
 import SliceContainerItems from './components/SliceContainerItems.vue'
 import DwcSlice from './components/DwCSlice.vue'
+import SliceAccessions from './components/SliceAccessions.vue'
 
 const SLICES = {
   'Add biocurations': SliceBiocurations,
+  'Accessions / Deaccession': SliceAccessions,
   'Collecting event': SliceCollectingEvent,
   'Container items': SliceContainerItems,
   'Taxon determinations': SliceTaxonDetermination,

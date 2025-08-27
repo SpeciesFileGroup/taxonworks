@@ -118,7 +118,7 @@ export default {
   padding: 1em;
   padding-left: 1.5em;
   border-left: none;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--border-color);
 
   h3 {
     font-weight: 300;

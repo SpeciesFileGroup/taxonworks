@@ -23,6 +23,7 @@
 #
 class Confidence < ApplicationRecord
   include Housekeeping
+  include Shared::BatchByFilterScope
   include Shared::Citations
   include Shared::IsData
   include Shared::PolymorphicAnnotator
@@ -34,7 +35,7 @@ class Confidence < ApplicationRecord
   belongs_to :controlled_vocabulary_term, foreign_key: :confidence_level_id, inverse_of: :confidences
 
   validates :confidence_level, presence: true
-  validates_uniqueness_of :confidence_level_id, scope: [:confidence_object_id, :confidence_object_type]
+  validates :confidence_level_id, uniqueness: { scope: [:confidence_object_id, :confidence_object_type] }
 
   accepts_nested_attributes_for :confidence_level, allow_destroy: true
 
@@ -44,61 +45,42 @@ class Confidence < ApplicationRecord
     Confidence.where(project_id: project_id, confidence_object: o, confidence_level_id: confidence_level_id).first
   end
 
-  def self.batch_by_filter_scope(filter_query: nil, confidence_level_id: nil, replace_confidence_level_id: nil, mode: :add, async_cutoff: 300, project_id: nil, user_id: nil)
-    r = ::BatchResponse.new(
-      preview: false,
-      method: 'Confidence batch_by_filter_scope',
-    )
-
-    if filter_query.nil?
-      r.errors['scoping filter not provided'] = 1
-      return r
-    end
-
-    b = ::Queries::Query::Filter.instantiated_base_filter(filter_query)
-    q = b.all(true)
-
-    fq = ::Queries::Query::Filter.base_query_to_h(filter_query)
-
-    r.klass =  b.referenced_klass.name
-
-    if b.only_project?
-      r.total_attempted = 0
-      r.errors['can not update records without at least one filter parameter'] = 1
-      return r
-    else
-      c = q.count
-      async = c > async_cutoff ? true : false
-
-      r.total_attempted = c
-      r.async = async
-    end
+  def self.process_batch_by_filter_scope(batch_response: nil, query: nil,
+    hash_query: nil, mode: nil, params: nil, async: nil,
+    project_id: nil, user_id: nil,
+    called_from_async: false
+  )
+    # Don't call async from async (the point is we do the same processing in
+    # async and not in async, and this function handles both that processing and
+    # making the async call, so it's this much janky).
+    async = false if called_from_async == true
+    r = batch_response
 
     case mode.to_sym
     when :replace
       # TODO: Return response
-      if replace_confidence_level_id.nil?
+      if params[:replace_confidence_level_id].nil?
         r.errors['no replacement confidence level provided'] = 1
-        return r.to_json
+        return r
       end
 
-      if async
-        ConfidenceBatchJob.perform_later(
-          filter_query: fq,
-          confidence_level_id:,
-          replace_confidence_level_id:,
-          mode: :replace,
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
           project_id:,
-          user_id:,
+          user_id:
         )
       else
         Confidence
           .where(
-            confidence_object_id: q.pluck(:id),
-            confidence_object_type: b.referenced_klass.base_class.name,
-            confidence_level_id: replace_confidence_level_id
+            confidence_object_id: query.pluck(:id),
+            confidence_object_type: query.klass.name,
+            confidence_level_id: params[:replace_confidence_level_id]
           ).find_each do |o|
-            o.update(confidence_level_id:)
+            o.update(confidence_level_id: params[:confidence_level_id])
             if o.valid?
               r.updated.push o.id
             else
@@ -106,27 +88,32 @@ class Confidence < ApplicationRecord
             end
           end
       end
+
     when :remove
       # Just delete, async or not
       Confidence
         .where(
-          confidence_object_id: q.pluck(:id),
-          confidence_object_type: b.referenced_klass.name,
-          confidence_level_id:
+          confidence_object_id: query.pluck(:id),
+          confidence_object_type: query.klass.name,
+          confidence_level_id: params[:confidence_level_id]
         ).delete_all
+
     when :add
-      if async
-        ConfidenceBatchJob.perform_later(
-          filter_query: fq,
-          confidence_level_id:,
-          replace_confidence_level_id:,
-          mode: :add,
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
           project_id:,
           user_id:,
         )
       else
-        q.find_each do |o|
-          o = Confidence.create(confidence_object: o, confidence_level_id:)
+        query.find_each do |o|
+          o = Confidence.create(
+            confidence_object: o,
+            confidence_level_id: params[:confidence_level_id]
+          )
 
           if o.valid?
             r.updated.push o.id
@@ -138,9 +125,7 @@ class Confidence < ApplicationRecord
 
     end
 
-    return r.to_json
+    return r
   end
-
-
 
 end

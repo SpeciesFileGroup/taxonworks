@@ -21,7 +21,7 @@ module Queries
     # include Queries::Concerns::Identifiers # Presently in Queries for other use in autocompletes
 
     #
-    # !! SUBQUERIES is cross-referenced in app/views/javascript/vue/components/radials/filter/links/*.js models.
+    # !! SUBQUERIES is cross-referenced in app/javascript/vue/components/radials/filter/links/*.js models.
     # !! When you add a reference here, ensure corresponding js model is aligned. There are tests that will catch if they are not.
     #
     # For example:
@@ -39,36 +39,36 @@ module Queries
     # !! model is not referencened in this constant.
     #
     SUBQUERIES = {
-      asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence],
+      asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence, :observation],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution], # :field_occurrence
       biological_associations_graph: [:biological_association, :source],
       collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence],
       content: [:source, :otu, :taxon_name, :image],
+      conveyance: [:sound],
       controlled_vocabulary_term: [:data_attribute],
       data_attribute: [:collection_object, :collecting_event, :field_occurrence, :taxon_name, :otu],
       dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event, :field_occurrence],
       depiction: [:image],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation],
-      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :taxon_name], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
-      image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
+      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :image, :observation, :taxon_name], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
+      image: [:content, :collection_object, :collecting_event, :field_occurrence, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
-      observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],
+      observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name],
       otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],
-      sound: [],
-      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
+      sound: [:observation],
+      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source, :taxon_name_relationship],
+      taxon_name_relationship: [:taxon_name],
     }.freeze
 
     def self.query_name
       base_name + '_query'
     end
 
-    def query_name
-      self.class.query_name
-    end
+    delegate :query_name, to: :class
 
     # @return [Hash]
     #  only referenced in specs
@@ -97,6 +97,7 @@ module Queries
       collection_object_query: '::Queries::CollectionObject::Filter',
       content_query: '::Queries::Content::Filter',
       controlled_vocabulary_term_query: '::Queries::ControlledVocabularyTerm::Filter',
+      conveyance_query: '::Queries::Conveyance::Filter',
       data_attribute_query: '::Queries::DataAttribute::Filter',
       depiction_query: '::Queries::Depiction::Filter',
       descriptor_query: '::Queries::Descriptor::Filter',
@@ -112,6 +113,7 @@ module Queries
       sound_query: '::Queries::Sound::Filter',
       source_query: '::Queries::Source::Filter',
       taxon_name_query: '::Queries::TaxonName::Filter',
+      taxon_name_relationship_query: '::Queries::TaxonNameRelationship::Filter',
     }.freeze
 
     # @return [Array]
@@ -170,6 +172,9 @@ module Queries
     # @return [Query::Content::Filter, nil]
     attr_accessor :content_query
 
+    # @return [Query::Conveyance::Filter, nil]
+    attr_accessor :conveyance_query
+
     # @return [Query::DataAttribute::Filter, nil]
     attr_accessor :data_attribute_query
 
@@ -193,6 +198,9 @@ module Queries
 
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :taxon_name_query
+
+    # @return [Query::TaxonNameRelationship::Filter, nil]
+    attr_accessor :taxon_name_relationship_query
 
     # @return [Query::Otu::Filter, nil]
     attr_accessor :otu_query
@@ -232,10 +240,16 @@ module Queries
     attr_accessor :venn
 
     # @return Symbol one of :a, :ab, :b
-    #  defaults to :ab
     #    :a :ab  :b
     #  ( A ( B ) C )
     attr_accessor :venn_mode
+
+    # @return Boolean
+    # When true, all paging parameters will be removed from the B query and it
+    # will return its full result set for venn processing.
+    # When false, the B venn query will use only the single page indicated by
+    # whatever paging parameters are set on the query.
+    attr_accessor :venn_ignore_pagination
 
     # @return symbol
     #   must match a existing parameter name (used to check if values provided)
@@ -257,6 +271,16 @@ module Queries
     # !! This is used strictly during the permission process of ActionController::Parameters !!
     attr_reader :params
 
+    # @return Boolean
+    # If true then *_facet methods need only return
+    # scope.none to indicate that the facet is active
+    # given the current parameters. Facet return scopes
+    # are never actually queried in this case.
+    # If you're a facet that does work to create your scope
+    # then you should check this attribute and *not* do
+    # that work when it's true. Otherwise you can safely
+    # ignore this.
+    attr_accessor :roll_call
 
     # @params query_params [ActionController::Parameters]
     def initialize(query_params)
@@ -271,6 +295,7 @@ module Queries
 
       @venn = query_params[:venn]
       @venn_mode = query_params[:venn_mode]
+      @venn_ignore_pagination = boolean_param(query_params, :venn_ignore_pagination)
 
       # !! This is the *only* place Current.project_id should be seen !! It's still not the best
       # way to implement this, but we use it to optimize the scope of sub/nested-queries efficiently.
@@ -290,6 +315,8 @@ module Queries
       @page = query_params[:page]
 
       @order_by = query_params[:order_by]
+
+      @roll_call = false
 
       # After this point, if you started with ActionController::Parameters,
       # then all values have been explicitly permitted.
@@ -399,6 +426,7 @@ module Queries
         f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes
         f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
         f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
+        f.push ::Queries::Concerns::Verifiers if self < ::Queries::Concerns::Verifiers
       end
 
       f
@@ -572,10 +600,57 @@ module Queries
         q = FILTER_QUERIES[query_name].safe_constantize.new(query_params)
 
         # assign to @<model>_query
-        v = send("#{query_name}=".to_sym, q)
+        send("#{query_name}=".to_sym, q)
       end
 
       true
+    end
+
+    def paging_state
+      if paginate
+        {
+          paginate: true,
+          per:,
+          page:,
+          # This shouldn't be here, but see order_by processing for identifiers
+          # in #all.
+          ordered: order_by.present?
+        }
+      else
+        { paginate: false }
+      end
+    end
+
+    def disable_paging
+      r = paging_state
+
+      self.paginate = false
+
+      r
+    end
+
+    # @param query [ActiveQuery]
+    def set_paging(query)
+      self.class.set_paging(query, paging_state)
+    end
+
+    # @param query [ActiveQuery]
+    # @param state [Hash] see #paging_state
+    # @return [ActiveQuery] query with paging set to state
+    def self.set_paging(query, state)
+      return query if !state
+      state = state.symbolize_keys
+
+      if state[:paginate]
+        if state[:ordered]
+          # Order has already been set.
+          query = query.page(state[:page]).per(state[:per])
+        else
+          query = query.order(:id).page(state[:page]).per(state[:per])
+        end
+      end
+
+      query
     end
 
     # Returns id= facet, automatically
@@ -739,6 +814,7 @@ module Queries
       end
 
       p = ::Rack::Utils.parse_nested_query(u) # nested supports brackets
+      p = p.except('per', 'page', 'paginate') if venn_ignore_pagination
 
       a = ActionController::Parameters.new(p)
 
@@ -749,7 +825,13 @@ module Queries
     #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on initialize
     #   false - there are no params at ALL or at least one that is not `project_id`, and project_id != false
     def only_project?
-      (project_id_facet && target_and_clauses.size == 1 && all_merge_clauses.nil?) ? true : false
+      @roll_call = true
+      a = (project_id_facet &&
+        target_and_clauses.size == 1 &&
+        all_merge_clauses.nil?) ? true : false
+      @roll_call = false
+
+      a
     end
 
     # @param nil_empty [Boolean]
@@ -811,13 +893,7 @@ module Queries
         end
       end
 
-      if paginate
-        if order_by
-          q = q.page(page).per(per)
-        else
-          q = q.order(:id).page(page).per(per)
-        end
-      end
+      q = set_paging(q)
 
       # TODO: canonically address whether or not to use `.distinct` at this point, we should be able to, however
       # some incoming queries may have joins/group/etc. alone?! I.e. why can't we?

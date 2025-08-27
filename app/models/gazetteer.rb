@@ -62,7 +62,7 @@ class Gazetteer < ApplicationRecord
       'properties' => {
         # cf. GeographicArea
         'shape' => {
-          'type' => 'gazetteer',
+          'type' => 'Gazetteer',
           'id' => id,
           'tag' => name
         }
@@ -444,7 +444,8 @@ class Gazetteer < ApplicationRecord
 
     progress_tracker.update!(
       num_records: file.num_records,
-      project_names: Project.where(id: projects).pluck(:name).join(', '),
+      project_names:
+        Project.where(id: projects).order(:name).pluck(:name).join(', '),
       started_at: DateTime.now
     )
 

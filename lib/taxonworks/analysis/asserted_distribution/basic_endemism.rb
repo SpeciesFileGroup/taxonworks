@@ -15,25 +15,32 @@ module TaxonWorks
           data = {}
 
           otus =  Otu.descendant_of_taxon_name(taxon_name.id)
-          return {} if otus.count > 2000
+          if otus.count > 2000
+            return {
+              basic_endemism_error: 'Taxon name has too many descendants'
+            }
+          end
 
           q = ::Queries::AssertedDistribution::Filter.new(
             taxon_name_id: taxon_name.id,
             descendants: true,
-            asserted_distribution_shape_type:,
-            asserted_distribution_shape_id:
+            geo_shape_type: asserted_distribution_shape_type,
+            geo_shape_id: asserted_distribution_shape_id,
+            geo_mode: nil # exact
           )
 
-          return {} if q.all.select(:otu_id).distinct.count > 2000
+          return {} if
+            q.all.select(:asserted_distribution_object_id).distinct.count > 2000
 
           q.all.find_each do |a|
 
             e = ::AssertedDistribution
-              .where(project: taxon_name.project, otu_id: a.otu_id)
+              .where(project: taxon_name.project)
+              .where(asserted_distribution_object_id: a.otu_id)
               .where(asserted_distribution_shape_type:)
               .where.not(asserted_distribution_shape_id:).count
 
-            n = a.otu.taxon_name&.valid_taxon_name
+            n = a.asserted_distribution_object.taxon_name&.valid_taxon_name
 
             if e == 0 && !data[n]
               data[n] = false

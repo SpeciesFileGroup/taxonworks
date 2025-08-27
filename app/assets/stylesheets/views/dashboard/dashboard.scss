@@ -25,4 +25,17 @@
       font-size: $font_subtitle;
     }
   }
+
+  .title {
+    color: var(--text-color);
+    justify-content: left;
+  }
+}
+
+.dark {
+  #dashboard {
+    [data-icon] {
+      filter: invert(1);
+    }
+  }
 }

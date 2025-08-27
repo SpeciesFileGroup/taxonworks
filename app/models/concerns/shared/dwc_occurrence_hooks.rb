@@ -27,7 +27,14 @@ module Shared::DwcOccurrenceHooks
 
       begin
         # If the scope is returning every object at this point (arbitrary cutoff), then the scope is badly coded.
-        raise TaxonWorks::Error if t > 20_000 && (t == DwcOccurrence.where(project_id:).count)
+        if t > 20_000 && (
+            (respond_to?(:project_id) &&
+              (t == DwcOccurrence.where(project_id:).count)
+            ) ||
+            (!respond_to?(:project_id) && (t == DwcOccurrence.count))
+          )
+          raise TaxonWorks::Error
+        end
 
         dwc_occurrences.in_batches do |b|
           b.update_all(rebuild_set:) # Mark the set of records requiring rebuild

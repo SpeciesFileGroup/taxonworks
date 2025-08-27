@@ -50,25 +50,3 @@ const emit = defineEmits(['rowClick'])
 const getFilterAttribute = (atrr) =>
   props.filterAttributes && `${DATA_ATTRIBUTE_FILTER_PROPERTY}-${atrr}`
 </script>
-
-<style lang="scss">
-.table-attributes {
-  box-shadow: none;
-
-  tr {
-    border-bottom: 1px solid #eaeaea;
-  }
-
-  th {
-    border-bottom: 2px solid #eaeaea;
-  }
-  .cell-value {
-    font-weight: 500;
-    word-break: break-all;
-  }
-
-  .cell-head {
-    text-transform: uppercase;
-  }
-}
-</style>

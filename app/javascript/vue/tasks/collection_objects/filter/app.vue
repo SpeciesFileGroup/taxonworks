@@ -5,7 +5,7 @@
     <FilterLayout
       :url-request="urlRequest"
       :pagination="pagination"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :object-type="COLLECTION_OBJECT"
       :list="list"
       :extend-download="extendDownload"
@@ -40,8 +40,8 @@
         <div class="horizontal-right-content gap-small">
           <RadialCollectionObject
             :disabled="!list.length"
-            :ids="selectedIds"
-            :count="selectedIds.length"
+            :ids="sortedSelectedIds"
+            :count="sortedSelectedIds.length"
             @update="
               () =>
                 makeFilterRequest({ ...parameters, extend, exclude, page: 1 })
@@ -49,16 +49,16 @@
           />
           <RadialLoan
             :disabled="!list.length"
-            :ids="selectedIds"
+            :ids="sortedSelectedIds"
           />
           <RadialMatrix
-            :ids="selectedIds"
+            :ids="sortedSelectedIds"
             :disabled="!list.length"
             :object-type="COLLECTION_OBJECT"
           />
           <DeleteCollectionObjects
-            :ids="selectedIds"
-            :disabled="!selectedIds.length"
+            :ids="sortedSelectedIds"
+            :disabled="!sortedSelectedIds.length"
             @delete="removeCOFromList"
           />
           <span class="separate-left separate-right">|</span>
@@ -141,16 +141,17 @@ const {
 } = useTableLayoutConfiguration({ layouts: LAYOUTS, model: COLLECTION_OBJECT })
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(CollectionObject, {
   initParameters: { extend, exclude },
   listParser

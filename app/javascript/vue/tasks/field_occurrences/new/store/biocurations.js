@@ -66,10 +66,14 @@ export default defineStore('biocurations', {
 
   actions: {
     async add(biocuration) {
+      const b = this.list.find(
+        (bio) => bio.biocurationClassId === biocuration.id
+      )
+
       addToArray(
         this.list,
-        makeBiocurationObject({ biocuration_class_id: biocuration.id }),
-        { property: 'uuid' }
+        makeBiocurationObject({ ...b, biocuration_class_id: biocuration.id }),
+        { property: 'biocurationClassId' }
       )
     },
 
@@ -77,6 +81,16 @@ export default defineStore('biocurations', {
       this.list.forEach((item) => {
         item.id = null
       })
+    },
+
+    reset({ keepRecords } = {}) {
+      if (keepRecords) {
+        this.list.forEach((item) => {
+          item.id = null
+        })
+      } else {
+        this.list = []
+      }
     },
 
     remove(biocurationClass) {
@@ -105,7 +119,7 @@ export default defineStore('biocurations', {
       })
     },
 
-    save({ objectId, objectType }) {
+    async save({ objectId, objectType }) {
       const createList = this.unsavedBiocurations.filter((item) => !item.id)
       const destroyList = this.unsavedBiocurations.filter(
         (item) => item._destroy

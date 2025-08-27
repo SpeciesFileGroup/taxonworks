@@ -18,10 +18,16 @@
             v-html="conveyance.object_tag"
           />
           <audio
+            v-if="!conveyance.sound.metadata.error"
             controls
             preload="metadata"
             :src="conveyance.sound.sound_file"
           />
+          <div v-else>
+            <div style="color: red">
+              {{ conveyance.sound.metadata.error }}
+            </div>
+          </div>
         </td>
         <td>
           <RadialAnnotator :global-id="conveyance.sound.global_id" />

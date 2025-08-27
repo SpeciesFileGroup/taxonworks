@@ -54,11 +54,11 @@ module Queries
 
     # @param queries Array of [nil, merge clauses]
     def referenced_klass_union(queries)
-      q = queries.compact
-      referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' UNION ')}) as #{table.name}")
+      ::Queries.union(referenced_klass, queries)
     end
 
     # @param queries Array of [nil, merge clauses]
+    # TODO: merge this with self.intersect and call that instead.
     def referenced_klass_intersection(queries)
       q = queries.compact
 
@@ -77,6 +77,7 @@ module Queries
     #
     # This is an exists equivalent to saying all referenced_klass except those
     #  in the related query
+    # TODO merge this with self.except and call that.
     def referenced_klass_except(query)
       t = "q_#{table.name}"
       s = "with #{t} AS (" + query.to_sql + ') ' +

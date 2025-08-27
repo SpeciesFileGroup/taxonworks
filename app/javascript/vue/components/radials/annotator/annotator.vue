@@ -458,6 +458,16 @@ function resetAnnotator() {
 }
 </script>
 <style lang="scss">
+.dark {
+  .svg-radial-menu {
+    .slice {
+      image {
+        filter: invert(1);
+      }
+    }
+  }
+}
+
 .svg-radial-menu {
   text-anchor: middle;
 
@@ -467,7 +477,13 @@ function resetAnnotator() {
   }
 
   path.slice {
-    fill: #ffffff;
+    fill: var(--bg-foreground);
+  }
+
+  .slice {
+    tspan {
+      fill: var(--text-color);
+    }
   }
 
   path.active {
@@ -486,7 +502,6 @@ function resetAnnotator() {
 .radial-annotator {
   position: relative;
   width: initial;
-  color: initial;
 
   .modal-close {
     top: 30px;
@@ -504,11 +519,11 @@ function resetAnnotator() {
   }
 
   .radial-annotator-template {
-    background: #ffffff;
+    background: var(--bg-foreground);
     padding: 1em;
     width: 100%;
     max-width: 100%;
-    height: 80vh;
+    height: 70vh;
     overflow-y: auto;
   }
 

@@ -108,6 +108,10 @@ class FieldOccurrencesController < ApplicationController
     end
   end
 
+  def select_options
+    @field_occurrences = FieldOccurrence.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target], params['ba_target'])
+  end
+
   private
 
   def set_field_occurrence

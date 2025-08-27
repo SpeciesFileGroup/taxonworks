@@ -15,9 +15,10 @@ export const LAYOUTS = {
   },
 
   DataAttributes: {
-    properties: {},
-    includes: {
-      data_attributes: true
+    properties: {
+      data_attributes: {
+        show: true
+      }
     }
   },
 

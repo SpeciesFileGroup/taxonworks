@@ -60,7 +60,7 @@ class Image < ApplicationRecord
 
   attr_accessor :rotate
 
-  # ANY non-blank? value here will attempt to also create a depiction 
+  # ANY non-blank? value here will attempt to also create a depiction
   # for the Image, linking it to a CollectionObject
   attr_accessor :filename_depicts_object
 
@@ -79,7 +79,6 @@ class Image < ApplicationRecord
 
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
   has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
-  has_many :taxon_names, through: :otus
 
   after_validation :stub_depiction, if: Proc.new {|n| !n.filename_depicts_object.blank?}
   before_save :extract_tw_attributes
@@ -103,6 +102,12 @@ class Image < ApplicationRecord
   accepts_nested_attributes_for :sled_image, allow_destroy: true
 
   accepts_nested_attributes_for :depictions, allow_destroy: false
+
+  scope :with_taxon_names, -> {
+    joins(:depictions)
+    .joins("JOIN otus ON depictions.depiction_object_type = 'Otu' AND depictions.depiction_object_id = otus.id")
+    .joins("JOIN taxon_names ON taxon_names.id = otus.taxon_name_id")
+  }
 
   # This is bad and you should feel bad if your digitization workflow uses it.
   def stub_depiction
@@ -167,7 +172,7 @@ class Image < ApplicationRecord
     ret_val = {} # return value
 
     unless self.new_record? # only process if record exists
-      tmp     = `identify -format "%[EXIF:*]" #{self.image_file.url}` # returns a string (exif:tag=value\n)
+      tmp     = `identify -format "%[EXIF:*]\n" #{self.image_file.path}` # returns a string (exif:tag=value\n)
       # following removes the exif, spits and recombines string as a hash
       ret_val = tmp.split("\n").collect { |b| b.gsub('exif:', '').split('=') }
         .inject({}) { |hsh, c| hsh.merge(c[0] => c[1]) }

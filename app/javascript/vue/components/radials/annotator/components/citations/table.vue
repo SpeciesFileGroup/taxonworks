@@ -99,6 +99,10 @@ function deleteItem(item) {
 </script>
 
 <style lang="scss" scoped>
+:deep(.otu_tag_taxon_name) {
+  white-space: wrap;
+}
+
 .vue-table-container {
   padding: 0px;
   position: relative;

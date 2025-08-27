@@ -4,7 +4,7 @@ Rails.application.reloader.to_prepare do
 
   # Crossreference with http://api.col.plus/vocab/nomcode
 
-  # !! All constants are now composed of Strings only.  They must not reference a class. !!
+  # !! All constants are now composed of Strings/Integers only.  They must not reference a class. !!
   #
   # Contains NOMEN classes of rank/hierarchy in various format.
   #
@@ -150,16 +150,18 @@ Rails.application.reloader.to_prepare do
 
   # TODO: make this concept pretty
   # See Protonymy#original_combination_elements for use in sorting
-  ORIGINAL_COMBINATION_RANKS ||= %w{
-  TaxonNameRelationship::OriginalCombination::OriginalGenus
-  TaxonNameRelationship::OriginalCombination::OriginalSubgenus
-  TaxonNameRelationship::OriginalCombination::OriginalSpecies
-  TaxonNameRelationship::OriginalCombination::OriginalSubspecies
-  TaxonNameRelationship::OriginalCombination::OriginalVariety
-  TaxonNameRelationship::OriginalCombination::OriginalSubvariety
-  TaxonNameRelationship::OriginalCombination::OriginalForm
-  TaxonNameRelationship::OriginalCombination::OriginalSubform
+  ORIGINAL_COMBINATION_RANKS ||= {
+    genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+    subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
+    species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
+    subspecies: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
+    variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
+    subvariety: 'TaxonNameRelationship::OriginalCombination::OriginalSubvariety',
+    form: 'TaxonNameRelationship::OriginalCombination::OriginalForm',
+    subform: 'TaxonNameRelationship::OriginalCombination::OriginalSubform'
   }.freeze
+
+
 
   d = {}
 

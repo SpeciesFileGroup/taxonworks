@@ -1,14 +1,22 @@
 module Queries
   module TaxonNameRelationship
     class Filter < Query::Filter
+      include Queries::Helpers
+
+      include Queries::Concerns::Citations
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Verifiers
 
       PARAMS = [
+        :ancestors,
+        :descendants,
         :object_taxon_name_id,
         :subject_taxon_name_id,
         :taxon_name_id,
         :taxon_name_relationship_set,
         :taxon_name_relationship_type,
         :taxon_name_relationship_id,
+        :taxon_name_subject_object,
         object_taxon_name_id: [],
         subject_taxon_name_id: [],
         taxon_name_id: [],
@@ -17,20 +25,22 @@ module Queries
         taxon_name_relationship_type: [],
       ].freeze
 
+      # @param ancestors [Boolean, nil]
+      #   Operate on ancestors of taxon_name_ids if true
+      attr_accessor :ancestors
+
+      # @param ancestors [Boolean, nil]
+      #   Operate on descendants of taxon_name_ids if true
+      attr_accessor :descendants
+
       # @param taxon_name_relationship_id [String, Array, nil]
       attr_accessor :taxon_name_relationship_id
 
       # @param taxon_name_id [String, Array, nil]
-      #   Match all relationships where either subject OR object is taxon_name_id(s)
+      #   On its own matches all relationships where either subject OR object is
+      #   taxon_name_id(s), but also combines with taxon_name_subject_object,
+      #   ancestors, and descendants.
       attr_accessor :taxon_name_id
-
-      # @param as_object [Boolean, nil]
-      #   if taxon_name_id and true then treat as subject
-      attr_accessor :as_object
-
-      # @param as_subject [Boolean, nil]
-      #   if taxon_name_id and true then treat as subject
-      attr_accessor :as_subject
 
       # @param taxon_name_relationship_type [String, Array, nil]
       #   the full class name like 'TaxonNameRelationship::..etc.', or an Array of them
@@ -55,19 +65,29 @@ module Queries
       # See corresponding constants in config/intialize/constants/taxon_name_relationships.rb
       attr_accessor :taxon_name_relationship_set
 
+      # @param taxon_name_subject_object [String, nil]
+      #   When 'subject', match taxon_name_id to subjects of relationships,
+      #   when 'object', match taxon_name_id to objects of relationships,
+      #   when nil, match to either subject or object.
+      attr_accessor :taxon_name_subject_object
+
       # @param params [Params]
       def initialize(query_params)
         super
 
-        @as_object = boolean_param(params, :as_object)
-        @as_subject = boolean_param(params, :as_subject)
+        @ancestors = boolean_param(params, :ancestors)
+        @descendants = boolean_param(params, :descendants)
         @object_taxon_name_id = params[:object_taxon_name_id]
         @subject_taxon_name_id = params[:subject_taxon_name_id]
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_relationship_set = params[:taxon_name_relationship_set]
         @taxon_name_relationship_type = params[:taxon_name_relationship_type]
-
         @taxon_name_relationship_id = params[:taxon_name_relationship_id]
+        @taxon_name_subject_object = params[:taxon_name_subject_object]
+
+        set_citations_params(params)
+        set_notes_params(params)
+        set_verifiers_params(params)
       end
 
       def taxon_name_relationship_id
@@ -119,11 +139,42 @@ module Queries
       end
 
       def taxon_name_id_facet
-        return nil if taxon_name_id.empty?
-        table[:subject_taxon_name_id].in(taxon_name_id)
-          .or(
-            table[:object_taxon_name_id].in(taxon_name_id)
-          )
+        return nil if
+          taxon_name_id.empty? || !ancestors.nil? || !descendants.nil?
+
+        relationships_for_taxon_names_condition(taxon_name_id)
+      end
+
+      def ancestor_facet
+        return nil if taxon_name_id.empty? || !ancestors
+
+        names = ::Queries::TaxonName::Filter.new(taxon_name_id:, ancestors:).all
+        relationships_for_taxon_names_condition(names)
+      end
+
+      def descendant_facet
+        return nil if taxon_name_id.empty? || descendants.nil?
+
+        names = ::Queries::TaxonName::Filter.new(taxon_name_id:, descendants:).all
+        relationships_for_taxon_names_condition(names)
+      end
+
+      # @param taxon_names [Array or scope of TaxonName ids]
+      def relationships_for_taxon_names_condition(taxon_names)
+        if taxon_names.is_a?(ActiveRecord::Relation)
+          taxon_names = taxon_names.reselect(:id).arel
+        end
+
+        if taxon_name_subject_object == 'subject'
+          table[:subject_taxon_name_id].in(taxon_names)
+        elsif taxon_name_subject_object == 'object'
+          table[:object_taxon_name_id].in(taxon_names)
+        else
+          table[:subject_taxon_name_id].in(taxon_names)
+            .or(
+              table[:object_taxon_name_id].in(taxon_names)
+            )
+        end
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -138,13 +189,37 @@ module Queries
         table[:object_taxon_name_id].in(object_taxon_name_id)
       end
 
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+
+        a = ::TaxonNameRelationship
+          .with(tn_query: taxon_name_query.all)
+          .joins(:subject_taxon_name)
+          .where('taxon_name_relationships.subject_taxon_name_id IN (SELECT id FROM tn_query)')
+
+        b = ::TaxonNameRelationship
+          .with(tn_query: taxon_name_query.all)
+          .joins(:object_taxon_name)
+          .where('taxon_name_relationships.object_taxon_name_id IN (SELECT id FROM tn_query)')
+
+        referenced_klass_union([a,b])
+      end
+
       def and_clauses
         [
+          ancestor_facet,
+          descendant_facet,
           taxon_name_relationship_type_facet,
           taxon_name_relationship_set_facet,
           taxon_name_id_facet,
           as_subject_facet,
           as_object_facet,
+        ]
+      end
+
+      def merge_clauses
+        [
+          taxon_name_query_facet,
         ]
       end
     end

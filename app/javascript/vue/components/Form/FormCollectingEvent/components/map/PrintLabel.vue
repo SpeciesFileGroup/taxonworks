@@ -10,10 +10,10 @@
           Generate
         </button>
         <button
-          @click="copyLabel"
           class="button normal-input button-default"
           type="button"
           :disabled="!isEmpty"
+          @click="copyLabel"
         >
           Copy verbatim label
         </button>
@@ -22,10 +22,11 @@
         >Que to print
         <input
           class="que-input"
-          :disabled="!(store.label.text && store.label.text.length)"
+          type="number"
           size="5"
           v-model="store.label.total"
-          type="number"
+          :disabled="!(store.label.text && store.label.text.length)"
+          @change="() => (store.label.isUnsaved = true)"
         />
       </label>
       <a
@@ -39,12 +40,14 @@
       v-model="store.label.text"
       cols="45"
       rows="12"
+      @change="() => (store.label.isUnsaved = true)"
     />
     <label>Document label</label>
     <textarea
       v-model="collectingEvent.document_label"
       cols="45"
       rows="6"
+      @change="() => (store.label.isUnsaved = true)"
     />
   </div>
 </template>
@@ -54,7 +57,9 @@ import { parsedProperties } from '../../helpers/parsedProperties.js'
 import { verbatimProperties } from '../../helpers/verbatimProperties.js'
 import { sortArrayByArray } from '@/helpers/arrays.js'
 import { computed } from 'vue'
-import useStore from '../../store/collectingEvent.js'
+import useIdentifierStore from '../../store/identifier.js'
+import useStore from '../../store/label.js'
+import useGeoreferenceStore from '../../store/georeferences.js'
 
 const props = defineProps({
   componentsOrder: {
@@ -65,10 +70,14 @@ const props = defineProps({
 
 const collectingEvent = defineModel()
 const store = useStore()
+const identifierStore = useIdentifierStore()
+const georeferenceStore = useGeoreferenceStore()
+
 const isEmpty = computed(() => store.label.text.length === 0)
 
 function copyLabel() {
   store.label.text = collectingEvent.value.verbatim_label
+  store.label.isUnsaved = true
 }
 
 function generateVerbatimLabel() {
@@ -94,12 +103,17 @@ function generateParsedLabel() {
       return {
         [key]: func({
           ce: collectingEvent.value,
-          tripCode: store.tripCode,
-          georeferences: [].concat(
-            store.georeferences,
-            store.queueGeoreferences
-          ),
-          unit: collectingEvent.unit || ''
+          tripCode: {
+            cached: [
+              identifierStore.namespace?.short_name ||
+                identifierStore.namespace?.name,
+              identifierStore.identifier.identifier
+            ]
+              .filter(Boolean)
+              .join(' ')
+          },
+          georeferences: georeferenceStore.georeferences,
+          unit: collectingEvent.value.unit || ''
         })
       }
     })
@@ -123,8 +137,10 @@ function generateLabel() {
     .filter(Boolean)
 
   store.label.text = [...new Set(sortedLabels)].join('\n')
+  store.label.isUnsaved = true
 }
 </script>
+
 <style scoped>
 textarea {
   width: 100%;

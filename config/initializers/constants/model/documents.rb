@@ -6,7 +6,7 @@ Rails.application.config.after_initialize do
     {
       group: '',
       content_type: '',
-      extensions: [
+      extensions_data: [
         {
           extension: 'Any extension',
           content_type: ''
@@ -16,7 +16,7 @@ Rails.application.config.after_initialize do
 
     {
       group: 'pdf',
-      extensions: [
+      extensions_data: [
         {
           extension: '.pdf',
           content_type: 'application/pdf',
@@ -26,7 +26,7 @@ Rails.application.config.after_initialize do
 
     {
       group: 'nexus',
-      extensions: [
+      extensions_data: [
         {
           extension: '.nex',
           content_type: 'text/plain'
@@ -40,7 +40,7 @@ Rails.application.config.after_initialize do
 
     {
       group: 'shapefile',
-      extensions: [
+      extensions_data: [
         {
           extension: '.shp',
           content_type: 'application/x-shapefile'
@@ -66,7 +66,7 @@ Rails.application.config.after_initialize do
 
     {
       group: 'shp',
-      extensions: [
+      extensions_data: [
         {
           extension: '.shp',
           content_type: 'application/x-shapefile'
@@ -76,7 +76,7 @@ Rails.application.config.after_initialize do
 
     {
       group: 'shx',
-      extensions: [
+      extensions_data: [
         {
           extension: '.shx',
           content_type: 'application/x-shapefile'
@@ -86,7 +86,7 @@ Rails.application.config.after_initialize do
 
     {
       group: 'dbf',
-      extensions: [
+      extensions_data: [
         {
           extension: '.dbf',
           content_type: 'application/x-dbf'
@@ -96,7 +96,7 @@ Rails.application.config.after_initialize do
 
     {
       group: 'prj',
-      extensions: [
+      extensions_data: [
         {
           extension: '.prj',
           content_type: 'text/plain'
@@ -106,7 +106,7 @@ Rails.application.config.after_initialize do
 
     {
       group: 'cpg',
-      extensions: [
+      extensions_data: [
         {
           extension: '.cpg',
           content_type: 'text/plain'

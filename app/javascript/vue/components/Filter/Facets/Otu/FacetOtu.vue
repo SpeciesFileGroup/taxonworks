@@ -28,7 +28,6 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { Otu } from '@/routes/endpoints'
 import { addToArray, removeFromArray } from '@/helpers/arrays'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'

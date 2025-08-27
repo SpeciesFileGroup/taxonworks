@@ -45,7 +45,7 @@ import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 
-const MAX_LIMIT = 50
+const MAX_LIMIT = 5000
 
 const props = defineProps({
   parameters: {

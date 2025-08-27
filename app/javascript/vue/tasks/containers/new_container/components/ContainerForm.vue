@@ -20,11 +20,6 @@
         :types="types"
         v-model="container"
       />
-      <ContainerParent
-        v-if="validParents"
-        :types="validParents"
-        v-model="container.parentId"
-      />
       <ContainerSize
         v-model="container.size"
         :disabled="!!dimensions"
@@ -38,7 +33,6 @@
 import { ref, computed } from 'vue'
 import { Container } from '@/routes/endpoints'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import ContainerParent from './ContainerParent.vue'
 import ContainerType from './ContainerType.vue'
 import ContainerSize from './ContainerSize.vue'
 import CloneButton from './CloneButton.vue'
@@ -49,12 +43,6 @@ const container = defineModel({
 })
 
 const types = ref([])
-
-const validParents = computed(() => {
-  const type = types.value.find((item) => item.type === container.value.type)
-
-  return type?.valid_parents
-})
 
 const dimensions = computed(() => {
   const type = types.value.find((item) => item.type === container.value.type)

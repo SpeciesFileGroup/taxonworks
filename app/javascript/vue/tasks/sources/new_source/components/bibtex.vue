@@ -29,16 +29,14 @@
       />
     </template>
     <template #footer>
-      <div class="flex-separate separate-top">
-        <button
-          @click="createSource"
-          :disabled="!bibtexInput.length"
-          class="button normal-input button-default"
-          type="button"
-        >
-          Create
-        </button>
-      </div>
+      <VBtn
+        color="create"
+        medium
+        :disabled="!bibtexInput.length"
+        @click="createSource"
+      >
+        Create
+      </VBtn>
     </template>
   </modal-component>
 </template>
@@ -48,6 +46,7 @@ import SpinnerComponent from '@/components/ui/VSpinner'
 import ModalComponent from '@/components/ui/Modal'
 import newSource from '../const/source'
 import setParam from '@/helpers/setParam'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { Source, Serial } from '@/routes/endpoints'

@@ -11,8 +11,10 @@
           type="number"
           :disabled="disabled"
           v-between-numbers="[1, 100]"
-          v-model="size[axis]"
-          @change="() => emit('change', true)"
+          @change="(event) => {
+            size[axis] = Number(event.target.value)
+            emit('change', true)
+          }"
         />
       </div>
     </div>

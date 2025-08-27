@@ -228,6 +228,19 @@ module Queries
         end
       end
 
+      def observation_query_facet
+        return nil if observation_query.nil?
+
+        s = ::Sound
+          .with(obs_query: observation_query.all)
+          .joins(:observations)
+          .joins('JOIN obs_query on observations.id = obs_query.id')
+          .to_sql
+
+        ::Sound.from('(' + s + ') as sound').distinct
+      end
+
+
       def query_facets_facet(name = nil)
         return nil if name.nil?
 
@@ -253,11 +266,12 @@ module Queries
       end
 
       def merge_clauses
-        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:sound)}.keys.map(&:to_s) - ['source']
+        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:sound)}.keys.map(&:to_s) - ['source', 'observation']
         [
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Sound referencing SUBQUERIES
           conveyance_object_type_facet,
           conveyances_facet,
+          observation_query_facet,
           otu_id_facet,
           otu_scope_facet,
           collecting_event_facet,

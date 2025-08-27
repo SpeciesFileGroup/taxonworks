@@ -19,7 +19,19 @@
       <template #facets>
         <FilterView v-model="parameters" />
       </template>
+      <template #nav-query-right>
+        <RadialMatrix
+          :parameters="parameters"
+          :disabled="!list.length"
+          :object-type="FIELD_OCCURRENCE"
+        />
+      </template>
       <template #nav-right>
+        <RadialMatrix
+          :ids="selectedIds"
+          :disabled="!list.length"
+          :object-type="FIELD_OCCURRENCE"
+        />
         <span class="separate-left separate-right">|</span>
         <TableLayoutSelector
           v-model="currentLayout"
@@ -56,6 +68,7 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'

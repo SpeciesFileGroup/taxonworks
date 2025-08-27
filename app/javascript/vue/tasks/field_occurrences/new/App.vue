@@ -1,17 +1,32 @@
 <template>
-  <h1>New field occurrence</h1>
+  <div class="flex-separate middle">
+    <h1>New field occurrence</h1>
+    <label>
+      <input
+        type="checkbox"
+        v-model="settings.sortable"
+      />
+      Reorder fields
+    </label>
+  </div>
   <div>
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+    />
     <HeaderBar />
     <div class="horizontal-left-content align-start gap-medium">
-      <div class="flex-wrap-column gap-medium left-column">
-        <FieldOccurrenceForm />
-        <TaxonDeterminationForm />
-        <BiologicalAssociation />
-        <BiocurationForm />
-        <OriginRelationship />
-        <VDepiction />
-        <CitationForm />
-      </div>
+      <VDraggable
+        class="flex-wrap-column gap-medium left-column"
+        v-model="layout"
+        :item-key="(element) => element"
+        :disabled="!settings.sortable"
+        @end="updatePreferences"
+      >
+        <template #item="{ element }">
+          <component :is="VueComponents[element]" />
+        </template>
+      </VDraggable>
 
       <CollectingEventForm class="right-column" />
     </div>
@@ -19,19 +34,52 @@
 </template>
 
 <script setup>
-import TaxonDeterminationForm from './components/TaxonDeterminationForm.vue'
-import FieldOccurrenceForm from './components/FieldOccurenceForm/FieldOccurrenceForm.vue'
+import { ref } from 'vue'
+import { User } from '@/routes/endpoints'
+import VDraggable from 'vuedraggable'
 import HeaderBar from './components/HeaderBar.vue'
 import CollectingEventForm from './components/CollectingEventForm.vue'
-import CitationForm from './components/CitationForm.vue'
-import BiocurationForm from './components/BiocurationForm.vue'
-import BiologicalAssociation from './components/BiologicalAssociation.vue'
-import VDepiction from './components/Depiction/Depiction.vue'
-import OriginRelationship from './components/OriginRelationship.vue'
+import useSettingStore from './store/settings'
+import VueComponents from './constants/components'
+import VSpinner from '@/components/ui/VSpinner.vue'
+const KEY_STORAGE = 'FieldOccurrence::Form::ComponentsOrder'
+
+const layout = ref(Object.keys(VueComponents))
 
 defineOptions({
   name: 'NewFieldOccurrence'
 })
+
+const settings = useSettingStore()
+const isLoading = ref(true)
+
+const preferences = ref({})
+
+function updatePreferences() {
+  User.update(preferences.value.id, {
+    user: { layout: { [KEY_STORAGE]: layout.value } }
+  }).then(({ body }) => {
+    preferences.value.layout = body.preferences
+    layout.value = body.preferences.layout[KEY_STORAGE]
+  })
+}
+
+User.preferences()
+  .then((response) => {
+    preferences.value = response.body
+
+    const layoutStored = preferences.value.layout[KEY_STORAGE]
+
+    if (
+      layoutStored?.length === layout.value.length &&
+      layout.value.every((c) => layoutStored.includes(c))
+    ) {
+      layout.value = layoutStored
+    }
+  })
+  .finally(() => {
+    isLoading.value = false
+  })
 </script>
 
 <style scoped>

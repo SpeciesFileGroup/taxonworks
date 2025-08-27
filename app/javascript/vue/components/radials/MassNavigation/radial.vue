@@ -132,7 +132,7 @@ const menuOptions = computed(() => {
     sliceSize: 190,
     innerPosition: 1.4,
     centerSize: 34,
-    margin: 0,
+    margin: 2,
     svgAttributes: {
       class: 'svg-radial-menu svg-radial-menu-navigator'
     },
@@ -192,9 +192,3 @@ function loadMetadata(model) {
     })
 }
 </script>
-<style>
-.svg-radial-menu-navigator path {
-  stroke: #444;
-  stroke-width: 2px;
-}
-</style>

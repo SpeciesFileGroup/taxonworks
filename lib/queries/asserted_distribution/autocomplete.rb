@@ -14,6 +14,10 @@ module Queries
         ::TaxonName.arel_table
       end
 
+      def biological_associations_graph_table
+        ::BiologicalAssociationsGraph.arel_table
+      end
+
       def geographic_area_table
         ::GeographicArea.arel_table
       end
@@ -27,11 +31,75 @@ module Queries
       end
 
       def autocomplete_matching_otu_name
-        base_query.joins(:otu).where( otu_table[:name].matches(query_string + '%')   ).limit(20)
+        base_query.with_otus.where( otu_table[:name].matches(query_string + '%')   ).limit(20)
       end
 
       def autocomplete_matching_taxon_name
-        base_query.joins(:taxon_name).where( taxon_name_table[:cached].matches(query_string + '%')   ).limit(20)
+        base_query.with_taxon_names.where( taxon_name_table[:cached].matches(query_string + '%')   ).limit(20)
+      end
+
+      def autocomplete_biological_association
+        # This is not great (lots of queries), but the combinatorics are also
+        # not great for doing each option joined with AD directly.
+        a = Queries::BiologicalAssociation::Autocomplete
+          .new(query_string, project_id: project_id).updated_queries
+
+        queries = a.map do |q|
+          ::AssertedDistribution
+            .where(asserted_distribution_object_type: 'BiologicalAssociation')
+            .where(asserted_distribution_object_id: q.pluck(:id))
+        end
+
+        referenced_klass_union(queries)
+      end
+
+      def autocomplete_biological_associations_graph
+        # TODO: should search on BAs of graphs as well.
+        base_query
+          .with_biological_associations_graphs
+          .where( biological_associations_graph_table[:name].matches(query_string + '%')   ).limit(20)
+      end
+
+      def autocomplete_conveyance_otu_name
+        base_query
+          .with_otu_conveyances
+          .joins('JOIN otus ON otus.id = conveyances.conveyance_object_id')
+          .where( otu_table[:name].matches(query_string + '%')   ).limit(20)
+      end
+
+      def autocomplete_conveyance_taxon_name
+        base_query
+          .with_otu_conveyances
+          .joins('JOIN otus ON otus.id = conveyances.conveyance_object_id JOIN taxon_names ON taxon_names.id = otus.taxon_name_id')
+          .where( taxon_name_table[:cached].matches(query_string + '%')   ).limit(20)
+      end
+
+      def autocomplete_depiction_otu_name
+        base_query
+          .with_otu_depictions
+          .joins('JOIN otus ON otus.id = depictions.depiction_object_id')
+          .where( otu_table[:name].matches(query_string + '%')   ).limit(20)
+      end
+
+      def autocomplete_depiction_taxon_name
+        base_query
+          .with_otu_depictions
+          .joins('JOIN otus ON otus.id = depictions.depiction_object_id JOIN taxon_names ON taxon_names.id = otus.taxon_name_id')
+          .where( taxon_name_table[:cached].matches(query_string + '%')   ).limit(20)
+      end
+
+      def autocomplete_observation_otu_name
+        base_query
+          .with_otu_observations
+          .joins('JOIN otus ON otus.id = observations.observation_object_id')
+          .where( otu_table[:name].matches(query_string + '%')   ).limit(20)
+      end
+
+      def autocomplete_observation_taxon_name
+        base_query
+          .with_otu_observations
+          .joins('JOIN otus ON otus.id = observations.observation_object_id JOIN taxon_names ON taxon_names.id = otus.taxon_name_id')
+          .where( taxon_name_table[:cached].matches(query_string + '%')   ).limit(20)
       end
 
       def autocomplete_matching_geographic_area
@@ -53,8 +121,16 @@ module Queries
           autocomplete_matching_source,
           autocomplete_matching_otu_name,
           autocomplete_matching_taxon_name,
+          autocomplete_biological_association,
+          autocomplete_observation_otu_name,
+          autocomplete_observation_taxon_name,
+          autocomplete_conveyance_otu_name,
+          autocomplete_conveyance_taxon_name,
+          autocomplete_depiction_otu_name,
+          autocomplete_depiction_taxon_name,
           autocomplete_matching_geographic_area,
-          autocomplete_matching_gazetteer
+          autocomplete_matching_gazetteer,
+          autocomplete_biological_associations_graph,
         ]
 
         queries = queries.compact

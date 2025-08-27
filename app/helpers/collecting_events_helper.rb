@@ -168,7 +168,7 @@ module CollectingEventsHelper
     return nil if collecting_event.nil?
     o = collecting_event.previous_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
-    link_text = content_tag(:span, 'Previous by id', 'class' => 'small-icon icon-left', 'data-icon' => 'arrow-left')
+    link_text = safe_join([content_tag(:span, '', class: 'small-icon', data: { icon: 'arrow-left' }), 'Previous by id'], '')
     link_to(
       link_text, browse_collecting_events_task_path(collecting_event_id: o.id),
       data: {
@@ -184,7 +184,7 @@ module CollectingEventsHelper
     return nil if collecting_event.nil?
     o = collecting_event.next_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
-    link_text = content_tag(:span, 'Next by id', 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
+    link_text = safe_join(['Next by id', content_tag(:span, '', class: 'small-icon margin-small-left', data: { icon: 'arrow-right' })], '')
     link_to(
       link_text, browse_collecting_events_task_path(collecting_event_id: o.id),
       data: {

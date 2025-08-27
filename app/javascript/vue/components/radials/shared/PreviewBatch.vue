@@ -22,27 +22,18 @@
       />
     </template>
     <template #footer>
-      <div class="flex-separate middle">
-        <VBtn
-          color="create"
-          medium
-          @click="
-            () => {
-              emit('finalize')
-              closeModal()
-            }
-          "
-        >
-          Finalize
-        </VBtn>
-        <VBtn
-          color="primary"
-          medium
-          @click="closeModal"
-        >
-          Close
-        </VBtn>
-      </div>
+      <VBtn
+        color="create"
+        medium
+        @click="
+          () => {
+            emit('finalize')
+            closeModal()
+          }
+        "
+      >
+        Finalize
+      </VBtn>
     </template>
   </VModal>
 </template>
@@ -84,7 +75,9 @@ function makeBatchloadRequest() {
     .then(({ body }) => {
       data.value = body
     })
-    .catch(() => {})
+    .catch(() => {
+      isModalVisible.value = false
+    })
     .finally(() => {
       isLoading.value = false
     })

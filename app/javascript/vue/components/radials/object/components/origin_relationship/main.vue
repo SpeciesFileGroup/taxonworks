@@ -20,14 +20,16 @@
             <span v-else>[Select a origin]</span>
           </div>
         </span>
-        <button
-          class="center-icon small-icon button circle-button button-default"
-          data-icon="w-swap"
-          type="button"
+        <VBtn
+          color="primary"
+          circle
           @click="flip = !flip"
         >
-          Flip
-        </button>
+          <VIcon
+            name="swap"
+            x-small
+          />
+        </VBtn>
       </div>
       <div class="margin-medium-left">
         <div class="margin-xlarge-left">
@@ -102,6 +104,8 @@ import { ref, computed } from 'vue'
 import { COLLECTION_OBJECT } from '@/constants'
 import SmartSelector from '@/components/ui/SmartSelector'
 import Draggable from 'vuedraggable'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const controllerRoute = {
   AssertedDistribution: 'asserted_distributions',

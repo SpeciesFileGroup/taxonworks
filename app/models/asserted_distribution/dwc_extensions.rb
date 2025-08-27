@@ -50,15 +50,15 @@ module AssertedDistribution::DwcExtensions
   end
 
   def dwc_scientific_name
-    otu.taxon_name&.valid_taxon_name&.cached_name_and_author_year
+    otu&.taxon_name&.valid_taxon_name&.cached_name_and_author_year
   end
 
   def dwc_taxon_name_authorship
-    otu.taxon_name&.valid_taxon_name&.cached_author_year
+    otu&.taxon_name&.valid_taxon_name&.cached_author_year
   end
 
   def dwc_taxon_rank
-    otu.taxon_name&.valid_taxon_name&.rank
+    otu&.taxon_name&.valid_taxon_name&.rank
   end
 
   # TODO: If this is altered there are implications for sources section in PaperCatalog.

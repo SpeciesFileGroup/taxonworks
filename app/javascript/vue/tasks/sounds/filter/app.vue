@@ -7,7 +7,7 @@
       :pagination="pagination"
       :object-type="SOUND"
       :list="list"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
@@ -15,11 +15,19 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialMatrix
+          :parameters="parameters"
+          :disabled="!list.length"
+          :object-type="SOUND"
+        />
+      </template>
       <template #nav-right>
-        <div
-          v-if="list.length"
-          class="horizontal-right-content"
-        ></div>
+        <RadialMatrix
+          :ids="sortedSelectedIds"
+          :disabled="!list.length"
+          :object-type="SOUND"
+        />
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
@@ -48,20 +56,22 @@ import FilterComponent from './components/filter.vue'
 import ListResults from './components/ListResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import { SOUND } from '@/constants/index.js'
 import { Sound } from '@/routes/endpoints'
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Sound)
 </script>
 

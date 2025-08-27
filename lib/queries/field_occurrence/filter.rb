@@ -25,13 +25,10 @@ module Queries
         # :current_determinations,
         :dates,
         :descendants,
-        # :determiner_id_or,
+        # :determiner_id_all,
         # :determiner_name_regex,
         # :determiners,
         # :dwc_indexed,
-        :geo_mode,
-        :geo_shape_id,
-        :geo_shape_type,
         :georeferences,
         # :import_dataset_id,
         :otu_id,
@@ -46,8 +43,6 @@ module Queries
         collecting_event_id: [],
         field_occurrence_id: [],
         determiner_id: [],
-        geo_shape_id: [],
-        geo_shape_type: [],
         # import_dataset_id: [],
         # is_type: [],
         otu_id: [],
@@ -155,10 +150,10 @@ module Queries
       attr_accessor :determiner_id
 
       # @return [Boolean]
-      # @param determiner_id_or [String, nil]
+      # @param determiner_id_all [String, nil]
       #   `false`, nil - treat the ids in determiner_id as "or"
       #   'true' - treat the ids in determiner_id as "and" (only collection objects with all and only all will match)
-      attr_accessor :determiner_id_or
+      attr_accessor :determiner_id_all
 
       # @return String
       # A PostgreSQL valid regular expression. Note that
@@ -196,7 +191,7 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @determiners = boolean_param(params, :determiners)
         @determiner_id = params[:determiner_id]
-        @determiner_id_or = boolean_param(params, :determiner_id_or)
+        @determiner_id_all = boolean_param(params, :determiner_id_all)
         @determiner_name_regex = params[:determiner_name_regex]
         @dwc_indexed = boolean_param(params, :dwc_indexed)
         @import_dataset_id = params[:import_dataset_id]
@@ -303,7 +298,7 @@ module Queries
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
-        b = b.having(a['id'].count.eq(determiner_id.length)) unless determiner_id_or
+        b = b.having(a['id'].count.eq(determiner_id.length)) if determiner_id_all
 
         b = b.as('det_z1_')
 
@@ -445,12 +440,7 @@ module Queries
       end
 
       def base_collecting_event_query_facet
-        # Turn project_id off and check for a truly empty query
-        base_collecting_event_query.project_id = nil
-        return nil if base_collecting_event_query.all(true).nil?
-
-        # Turn project_id back on
-        base_collecting_event_query.project_id = project_id
+        return nil if base_collecting_event_query.only_project?
 
         s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
           ::FieldOccurrence
@@ -541,6 +531,30 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
+      def image_query_facet
+        return nil if image_query.nil?
+
+        s = ::FieldOccurrence
+          .with(query_image: image_query.all)
+          .joins(:depictions)
+          .joins('JOIN query_image ON query_image.id = depictions.image_id')
+          .to_sql
+
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
+
+      def observation_query_facet
+        return nil if observation_query.nil?
+
+        s = ::FieldOccurrence
+          .with(obs_query_fo: observation_query.all)
+          .joins(:observations)
+          .joins('JOIN obs_query_fo on observations.id = obs_query_fo.id')
+          .to_sql
+
+        ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
+      end
+
       def and_clauses
         [
           collecting_event_id_facet,
@@ -556,6 +570,8 @@ module Queries
           biological_association_query_facet,
           collecting_event_query_facet,
           dwc_occurrence_query_facet,
+          image_query_facet,
+          observation_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
           biocuration_facet,

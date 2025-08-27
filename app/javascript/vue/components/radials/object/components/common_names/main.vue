@@ -13,8 +13,8 @@
       <legend>Geographic area</legend>
       <SmartSelector
         model="geographic_areas"
-        klass="CollectingEvent"
-        target="CollectingEvent"
+        klass="CommonName"
+        target="CommonName"
         pin-section="GeographicAreas"
         label="name"
         :add-tabs="['map']"
@@ -40,7 +40,7 @@
       <legend>Language</legend>
       <SmartSelector
         model="languages"
-        klass="AlternateValue"
+        klass="CommonName"
         pin-section="Languages"
         pin-type="Language"
         label="english_name"

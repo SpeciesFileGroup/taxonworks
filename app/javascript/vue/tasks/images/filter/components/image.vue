@@ -2,10 +2,7 @@
   <div class="depiction-thumb-container">
     <modal-component
       v-if="showModal"
-      :container-style="{
-        width: `${image.width}px`,
-        minWidth: '700px'
-      }"
+      class="depiction-modal-container"
       @close="setModalView(false)"
     >
       <template #header>

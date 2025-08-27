@@ -15,6 +15,7 @@
             fftSamples: 2048
           }"
           media-controls
+          :error="sound.metadata.error"
           @load="() => (isLoading = true)"
           @ready="() => (isLoading = false)"
         />

@@ -49,7 +49,7 @@ $lightGrey: #99a3ba;
       min-height: 28px;
       line-height: 28px;
       display: block;
-      color: $lightGrey;
+      color: var(--text-color);
       position: relative;
       vertical-align: middle;
       white-space: nowrap;
@@ -66,13 +66,13 @@ $lightGrey: #99a3ba;
         left: 0;
         width: 48px;
         height: 28px;
-        background: #e4ecfa;
+        background: var(--bg-color);
         transition: all 0.3s ease;
       }
       &:after {
         width: 24px;
         height: 24px;
-        background: #fff;
+        background: var(--panel-bg-color);
         top: 2px;
         left: 3px;
         box-shadow: 0 1px 3px rgba(#121621, 0.1);
@@ -81,7 +81,8 @@ $lightGrey: #99a3ba;
       em {
         width: 8px;
         height: 7px;
-        background: $lightGrey;
+        background: var(--text-color);
+        opacity: 0.7;
         position: absolute;
         left: 11px;
         bottom: 8px;
@@ -94,7 +95,7 @@ $lightGrey: #99a3ba;
           width: 2px;
           height: 2px;
           border-radius: 1px;
-          background: #fff;
+          background: var(--panel-bg-color);
           position: absolute;
           display: block;
           left: 50%;
@@ -106,9 +107,9 @@ $lightGrey: #99a3ba;
           display: block;
           border-top-left-radius: 4px;
           border-top-right-radius: 4px;
-          border: 1px solid $lightGrey;
+          border: 1px solid var(--text-color);
           border-bottom: 0;
-          width: 6px;
+          width: 5px;
           height: 4px;
           left: 1px;
           bottom: 6px;
@@ -155,13 +156,13 @@ $lightGrey: #99a3ba;
           background: rgba($primary, 1);
         }
         &:after {
-          background: #fff;
+          background: var(--panel-bg-color);
           transform: translate(18px, 0);
         }
         em {
           transform: translate(18px, 0);
           &:after {
-            transform: rotate(0deg) translate(-1px, 0);
+            transform: rotate(0deg) translate(0px, 0);
           }
         }
         strong {

@@ -56,7 +56,7 @@ import { addToArray } from '@/helpers'
 import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import TaxonDeterminationList from '@/components/TaxonDetermination/TaxonDeterminationList.vue'
 
-const MAX_LIMIT = 50
+const MAX_LIMIT = 5000
 
 const props = defineProps({
   parameters: {

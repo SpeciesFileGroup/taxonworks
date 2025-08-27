@@ -24,10 +24,16 @@ module Queries
   end
 
   def self.union(target, queries)
+    return target.all if queries.empty? # or should it be None?
+
     table = target.name.tableize
     q = queries.compact # .collect{|y| y.unscope(:select).select(:id) }
 
-    target.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' UNION ')}) as #{table}")
+    if q.count == 1
+      q.first.distinct
+    else
+      target.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' UNION ')}) as #{table}")
+    end
   end
 
   def self.except(target, query)

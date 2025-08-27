@@ -38,7 +38,7 @@ module SoftValidation
     #   legal keys are :failure_message and :success_message
     def add(attribute, message, options = {})
       # this is impossible to test.
-      method = caller[0][/`(block\ in\ )*([^']*)'/, 2].to_sym # janky, the caller of this method, that is the method referenced in `soft_validate()`, used to get the fix for this Instance added
+      method = caller_locations(1,1)[0].base_label.to_sym
 
       raise SoftValidationError, "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + @instance.class.column_names).include?(attribute.to_s)
       raise SoftValidationError, 'no :attribute or message provided to soft validation' if attribute.nil? || message.nil? || message.length == 0
@@ -102,9 +102,7 @@ module SoftValidation
       on(attribute).collect{|v| v.message}
     end
 
-    def size
-      soft_validations.size
-    end
+    delegate :size, to: :soft_validations
   end
 
 end

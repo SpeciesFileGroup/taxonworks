@@ -135,18 +135,22 @@ async function makeBatchRequest(confidence) {
 
 function makePayload(protocol) {
   return {
+    filter_query: filterQuery(),
     mode: selectedMode.value.mode,
-    protocol_id: protocol.id,
-    filter_query: filterQuery()
+    params: {
+      protocol_id: protocol.id
+    }
   }
 }
 
 function makeReplacePayload([replace, to]) {
   return {
+    filter_query: filterQuery(),
     mode: selectedMode.value.mode,
-    protocol_id: to.id,
-    replace_protocol_id: replace.id,
-    filter_query: filterQuery()
+    params: {
+      protocol_id: to.id,
+      replace_protocol_id: replace.id
+    }
   }
 }
 

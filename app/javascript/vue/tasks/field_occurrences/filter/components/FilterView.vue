@@ -38,7 +38,7 @@ import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetBiocurations from '@/components/Filter/Facets/CollectionObject/FacetBiocurations.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
-import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 
@@ -54,8 +54,8 @@ const WITH_PARAMS = [
   'notes',
   'origin_citation',
   'protocols',
-  'tags',
-//  'taxon_determinations'
+  'tags'
+  //  'taxon_determinations'
 ]
 
 const params = defineModel({

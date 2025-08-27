@@ -61,8 +61,7 @@ module Queries
         with_project_id.and(or_and).to_sql
       end
 
-      # @return [Array]
-      def autocomplete
+      def updated_queries
         queries = [
           autocomplete_exact_id,
           autocomplete_identifier_identifier_exact,
@@ -70,15 +69,24 @@ module Queries
           autocomplete_depicting_otu_by_otu_name,
           autocomplete_depicting_otu_by_taxon_name
         ]
+
         queries.compact!
 
+        return [] if queries.empty?
+
         updated_queries = []
-        queries.each_with_index do |q,i|
-          a = q
-          a = q.where(project_id: project_id) if project_id.present?
-          #  a = a.where(and_clauses.to_sql) unless and_clauses.blank?
-          updated_queries[i] = a
+
+        queries.each do |q|
+          a = q.where(project_id:) if project_id.present?
+          updated_queries.push a
         end
+
+        updated_queries
+      end
+
+      # @return [Array]
+      def autocomplete
+        queries = updated_queries
 
         result = []
         updated_queries.each do |q|
@@ -104,12 +112,11 @@ module Queries
       def autocomplete_depicting_otu_by_taxon_name
         o = ::TaxonName.arel_table[:cached].matches_any(terms)
 
-        ::Image.
-          includes(:taxon_names).
-          joins(:taxon_names).
-          where(o.to_sql).
-          references(:depictions, :taxon_names).
-          order('taxon_names.cached ASC').limit(20)
+        ::Image
+          .with_taxon_names
+          .where(o.to_sql)
+          .order('taxon_names.cached ASC')
+          .limit(20)
       end
 
     end

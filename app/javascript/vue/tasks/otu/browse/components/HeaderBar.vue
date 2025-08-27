@@ -176,7 +176,7 @@ onBeforeMount(() => {
   )
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+b`,
-    'Go to browse nomenclature',
+    'Go to browse taxon names',
     'Browse OTU'
   )
 })

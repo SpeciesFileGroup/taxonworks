@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 2.0', require: 'rack/cors'
 
-ruby '>= 3.2', '< 3.4.0'
+ruby '>= 3.2', '< 3.5.0'
 
 gem 'bundler', '~> 2.5'
 
@@ -62,7 +62,7 @@ gem 'exception_notification', '~> 4.4'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
-gem 'closure_tree', '~> 7.0'
+gem 'closure_tree', '~> 9.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'
 
@@ -72,7 +72,7 @@ gem 'delayed_job_active_record', '~> 4.1.3'
 
 gem 'validates_timeliness', '~> 7.0.0.beta2' # , '>= 4.1.1'
 
-gem 'rack', '~> 3.1.8'
+gem 'rack', '~> 3.1.16'
 
 gem 'paper_trail', '~> 15.0'
 
@@ -137,7 +137,7 @@ gem 'sqed', '~>0.8.3'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul', require: 'dwc_archive' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', '~> 6.0'
-gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
+gem 'ruby-units', '~> 4.1.0', require: 'ruby_units/namespaced'
 
 gem 'colrapi', '~>0.1.1'
 
@@ -172,11 +172,12 @@ gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
   # gem 'term-ansicolor', '~> 1.6' # DEPRECATED
+  gem 'pp_sql'
   gem 'faker', '~> 3.2'
   gem 'rspec-rails', '~> 6.1'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'factory_bot_rails', '~> 6.2'
+  gem 'factory_bot_rails', '~> 6.5'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
   gem 'puma', '~> 6.3'
 end
@@ -218,6 +219,7 @@ group :test do
   gem 'webmock', '~> 3.8' # , '>= 3.6.2'
   gem 'vcr', '~> 6.0'
   gem 'database_cleaner', '~> 2.0'
+  gem 'database_cleaner-active_record', '2.2.1' # TODO: Remove when instability issues are solved
   gem 'rails-controller-testing', '~> 1.0.2'
   gem 'os', '~> 1.0', '>= 1.0.1'
 end

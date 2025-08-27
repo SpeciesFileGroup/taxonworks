@@ -39,13 +39,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
 import { RouteNames } from '@/routes/routes'
 import { usePopstateListener } from '@/composables'
+import { useHotkey } from '@/composables'
+import { getPlatformKey } from '@/helpers'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import COHeader from './components/COHeader.vue'
 import TableGrid from '@/components/layout/Table/TableGrid.vue'
@@ -83,6 +85,27 @@ usePopstateListener(() => {
     loadCO(coId, false)
   }
 })
+
+const shortcuts = ref([
+  {
+    keys: [getPlatformKey(), 't'],
+    handler() {
+      const id = store.getters[GetterNames.GetCollectionObject].id
+
+      if (id) {
+        window.open(`${RouteNames.DigitizeTask}?collection_object_id=${id}`)
+      }
+    }
+  }
+])
+
+useHotkey(shortcuts.value)
+
+TW.workbench.keyboard.createLegend(
+  getPlatformKey() + '+t',
+  'Open comprehensive specimen digitization',
+  'Browse collection object'
+)
 </script>
 
 <style lang="scss">

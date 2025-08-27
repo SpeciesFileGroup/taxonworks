@@ -142,7 +142,6 @@ module BatchLoad::ColumnResolver
           r.assign(GeographicArea.where(name: search_list, data_origin: data_origin).limit(10).to_a)
         end
 
-
         # @tuckerjd - tweak as necessary
         r.error_messages << "Multiple matches to '#{search_list}' (data_origin: #{data_origin}) were found." if r.multiple_matches?
 

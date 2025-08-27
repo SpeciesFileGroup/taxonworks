@@ -9,15 +9,19 @@ export default ({ commit }, globalId) => {
 
   request
     .then(({ body }) => {
-      commit(MutationNames.SetContainer, body)
-      body.container_items.forEach((item) => {
-        commit(MutationNames.AddContainerItem, item)
+      const coIds = body.container_items.map((item) => item.contained_object_id)
 
-        CollectionObject.find(item.contained_object_id, {
-          extend: ['dwc_occurrence']
-        }).then(({ body }) => {
-          commit(MutationNames.AddCollectionObject, body)
-        })
+      commit(MutationNames.SetContainer, body)
+
+      body.container_items.forEach((item) =>
+        commit(MutationNames.AddContainerItem, item)
+      )
+
+      CollectionObject.where({
+        collection_object_id: coIds,
+        extend: ['dwc_occurrence']
+      }).then(({ body }) => {
+        commit(MutationNames.SetCollectionObjects, body)
       })
     })
     .catch(() => {})

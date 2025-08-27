@@ -1,29 +1,49 @@
 <template>
   <div class="full_width">
-    <Dropzone
-      class="dropzone-card"
-      @vdropzone-sending="sending"
-      @vdropzone-file-added="addedfile"
-      @vdropzone-success="success"
-      @vdropzone-error="error"
-      ref="depictionRef"
-      :id="`depiction-${dropzoneId}`"
-      url="/depictions"
-      :use-custom-dropzone-options="true"
-      :dropzone-options="dropzone"
-    />
-    <div
-      class="flex-wrap-row"
-      v-if="figuresList.length"
+    <fieldset>
+      <legend>Depictions</legend>
+      <SmartSelector
+        model="images"
+        default="new"
+        :autocomplete="false"
+        :search="false"
+        :target="COLLECTING_EVENT"
+        :add-tabs="['new']"
+        pin-section="Images"
+        :pin-type="IMAGE"
+        @selected="addDepiction"
+      >
+        <template #new>
+          <Dropzone
+            class="dropzone-card"
+            ref="depictionRef"
+            url="/depictions"
+            use-custom-dropzone-options
+            :dropzone-options="DROPZONE_CONFIG"
+            @vdropzone-sending="sending"
+            @vdropzone-file-added="addedfile"
+            @vdropzone-success="success"
+            @vdropzone-error="error"
+          />
+        </template>
+      </SmartSelector>
+      <hr class="divisor margin-medium-top margin-medium-bottom" />
+      <div
+        class="flex-wrap-row"
+        v-if="storeDepiction.depictions.length"
+      >
+        <DepictionImage
+          v-for="item in storeDepiction.depictions"
+          :key="item.id"
+          :depiction="item"
+          @delete="removeDepiction"
+        />
+      </div>
+    </fieldset>
+    <table
+      v-if="store.exifGeoreferences.length"
+      class="full_width"
     >
-      <DepictionImage
-        v-for="item in figuresList"
-        @delete="removeDepiction"
-        :key="item.id"
-        :depiction="item"
-      />
-    </div>
-    <table class="full_width">
       <thead>
         <tr>
           <th>
@@ -37,10 +57,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in coordinatesEXIF">
+        <tr v-for="item in store.exifGeoreferences">
           <td>
             <input
-              v-model="queueGeoreferences"
+              v-model="store.georeferences"
               :value="item"
               type="checkbox"
             />
@@ -55,17 +75,36 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { Depiction } from '@/routes/endpoints'
-import { GEOREFERENCE_EXIF, COLLECTING_EVENT } from '@/constants/index.js'
+import {
+  GEOREFERENCE_EXIF,
+  COLLECTING_EVENT,
+  IMAGE
+} from '@/constants/index.js'
+import EXIF from 'exifr'
 import Dropzone from '@/components/dropzone.vue'
 import ParseDMS from '@/helpers/parseDMS.js'
 import addGeoreference from '../../helpers/addGeoreference.js'
 import createGeoJSONFeature from '../../helpers/createGeoJSONFeature.js'
 import DepictionImage from './depictionImage'
-import EXIF from 'exif-js'
 import useStore from '../../store/georeferences.js'
+import useDepictionStore from '../../store/depictions.js'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+
+const DROPZONE_CONFIG = {
+  paramName: 'depiction[image_attributes][image_file]',
+  url: '/depictions',
+  autoProcessQueue: false,
+  headers: {
+    'X-CSRF-Token': document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute('content')
+  },
+  dictDefaultMessage: 'Drop image or click to browse',
+  acceptedFiles: 'image/*,.heic'
+}
 
 const store = useStore()
+const storeDepiction = useDepictionStore()
 const collectingEvent = defineModel({
   type: Object,
   required: true
@@ -79,21 +118,19 @@ const setAutogeo = computed({
   },
   set(value) {
     if (value) {
-      coordinatesEXIF.value.forEach((item) => {
-        const found = store.queueGeoreferences.find(
-          (geo) => geo.tmpId === item.tmpId
-        )
+      store.exifGeoreferences.forEach((item) => {
+        const found = store.georeferences.find((geo) => geo.uuid === item.uuid)
         if (!found) {
-          store.queueGeoreferences.push(item)
+          store.georeferences.push(item)
         }
       })
     } else {
-      coordinatesEXIF.value.forEach((item) => {
-        const index = store.queueGeoreferences.findIndex(
-          (geo) => geo.tmpId === item.tmpId
+      store.exifGeoreferences.forEach((item) => {
+        const index = store.georeferences.findIndex(
+          (geo) => geo.uuid === item.uuid
         )
         if (index > -1) {
-          store.queueGeoreferences.splice(index, 1)
+          store.georeferences.splice(index, 1)
         }
       })
     }
@@ -103,69 +140,57 @@ const setAutogeo = computed({
 
 const autogeo = ref(true)
 const depictionRef = ref(null)
-const figuresList = ref([])
-const dropzoneId = Math.random().toString(36).substr(2, 5)
-const dropzone = {
-  paramName: 'depiction[image_attributes][image_file]',
-  url: '/depictions',
-  autoProcessQueue: false,
-  headers: {
-    'X-CSRF-Token': document
-      .querySelector('meta[name="csrf-token"]')
-      .getAttribute('content')
-  },
-  dictDefaultMessage: 'Drop image or click to browse',
-  acceptedFiles: 'image/*,.heic'
+
+async function addDepiction(image) {
+  if (!storeDepiction.getDepictionByImageId(image.id)) {
+    storeDepiction.addImage(image)
+
+    const response = await fetch(image.original_png)
+    const blob = await response.blob()
+
+    const objectUrl = URL.createObjectURL(blob)
+    const img = new Image()
+    img.src = objectUrl
+
+    img.onload = () => {
+      getEXIFFromFile(img).then((metadata) => {
+        processEXIF(metadata)
+      })
+    }
+  }
 }
-const coordinatesEXIF = ref([])
+
+storeDepiction.$onAction(({ name, after }) => {
+  after(() => {
+    if (name === 'reset') {
+      depictionRef.value?.removeAllFiles()
+    }
+  })
+})
 
 watch(
   () => collectingEvent.value.id,
   (newVal, oldVal) => {
     if (newVal && newVal !== oldVal) {
-      depictionRef.value.setOption('autoProcessQueue', true)
-      depictionRef.value.processQueue()
-      coordinatesEXIF.value = []
-      Depiction.where({
-        depiction_object_id: newVal,
-        depiction_object_type: COLLECTING_EVENT
+      depictionRef.value?.setOption('autoProcessQueue', true)
+      depictionRef.value?.processQueue()
+      store.exifGeoreferences = []
+      storeDepiction.load({
+        objectId: newVal,
+        objectType: COLLECTING_EVENT
       })
-        .then((response) => {
-          figuresList.value = response.body
-        })
-        .catch(() => {})
     } else {
       if (!newVal) {
-        figuresList.value = []
-        coordinatesEXIF.value = []
-        depictionRef.value.setOption('autoProcessQueue', false)
+        storeDepiction.$reset()
+        store.exifGeoreferences = []
+        depictionRef.value?.setOption('autoProcessQueue', false)
       }
     }
   }
 )
 
-watch(
-  store.queueGeoreferences,
-  (newVal, oldVal) => {
-    if (collectingEvent.value.id) {
-      const removed = oldVal.filter(
-        (val) => newVal.findIndex((v) => v.tmpId === val.tmpId) === -1
-      )
-      removed.forEach((item) => {
-        const index = coordinatesEXIF.value.findIndex(
-          (v) => v.tmpId === item.tmpId
-        )
-        if (index > -1) {
-          coordinatesEXIF.value.splice(index, 1)
-        }
-      })
-    }
-  },
-  { deep: true }
-)
-
 function success(file, response) {
-  figuresList.value.push(response)
+  storeDepiction.depictions.push(response)
   depictionRef.value.removeFile(file)
   emit('create', response)
 }
@@ -175,41 +200,9 @@ function sending(file, xhr, formData) {
   formData.append('depiction[depiction_object_type]', 'CollectingEvent')
 }
 
-function addedfile(file) {
-  EXIF.getData(file, () => {
-    const allMetaData = EXIF.getAllTags(file)
-
-    if (allMetaData?.GPSLatitude) {
-      const coordinates = {
-        latitude: ParseDMS(
-          parseEXIFCoordinate(allMetaData.GPSLatitude) +
-            allMetaData.GPSLatitudeRef
-        ),
-        longitude: ParseDMS(
-          parseEXIFCoordinate(allMetaData.GPSLongitude) +
-            allMetaData.GPSLongitudeRef
-        )
-      }
-      const geojson = addGeoreference(
-        createGeoJSONFeature(coordinates.longitude, coordinates.latitude),
-        GEOREFERENCE_EXIF
-      )
-
-      coordinatesEXIF.value.push(geojson)
-      if (autogeo.value) {
-        store.queueGeoreferences.push(geojson)
-      }
-
-      setExifCoordinates(coordinates)
-    }
-    if (allMetaData?.DateTimeOriginal) {
-      let [date, time] = allMetaData.DateTimeOriginal.split(' ')
-
-      date = date.split(':')
-      time = time.split(':')
-      setExitDate(date)
-      setExifTime(time)
-    }
+async function addedfile(file) {
+  getEXIFFromFile(file).then((metadata) => {
+    processEXIF(metadata)
   })
 
   if (collectingEvent.value.id) {
@@ -218,16 +211,69 @@ function addedfile(file) {
   }
 }
 
-function removeDepiction(depiction) {
-  if (window.confirm('Are you sure want to proceed?')) {
-    Depiction.destroy(depiction.id).then((_) => {
-      TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
-      figuresList.value.splice(
-        figuresList.value.findIndex((figure) => figure.id === depiction.id),
-        1
+function getEXIFFromFile(image) {
+  return new Promise(async (resolve, reject) => {
+    const metadata = await EXIF.parse(image)
+
+    resolve(metadata)
+  })
+}
+
+function isGeoreferenceAlreadyInList(geo) {
+  const parsedGeo = parseGeoJson(geo)
+
+  return store.exifGeoreferences.some((item) => {
+    const parsedItem = parseGeoJson(item)
+
+    return (
+      parsedItem.latitude === parsedGeo.latitude &&
+      parsedItem.longitude === parsedGeo.longitude
+    )
+  })
+}
+
+function processEXIF(allMetaData) {
+  if (allMetaData?.GPSLatitude) {
+    const coordinates = {
+      latitude: ParseDMS(
+        parseEXIFCoordinate(allMetaData.GPSLatitude) +
+          allMetaData.GPSLatitudeRef
+      ),
+      longitude: ParseDMS(
+        parseEXIFCoordinate(allMetaData.GPSLongitude) +
+          allMetaData.GPSLongitudeRef
       )
-      emit('delete', depiction)
-    })
+    }
+
+    const geojson = addGeoreference(
+      createGeoJSONFeature(coordinates.longitude, coordinates.latitude),
+      GEOREFERENCE_EXIF
+    )
+
+    if (isGeoreferenceAlreadyInList(geojson)) return
+
+    store.exifGeoreferences.push(geojson)
+    if (autogeo.value) {
+      store.georeferences.push(geojson)
+    }
+
+    setExifCoordinates(coordinates)
+  }
+  if (allMetaData?.DateTimeOriginal) {
+    const d = allMetaData.DateTimeOriginal
+    const pad = (n) => n.toString().padStart(2, '0')
+
+    const date = [d.getFullYear(), pad(d.getMonth() + 1), pad(d.getDate())]
+    const time = [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())]
+
+    setExitDate(date)
+    setExifTime(time)
+  }
+}
+
+function removeDepiction(depiction) {
+  if (!depiction.id || window.confirm('Are you sure want to proceed?')) {
+    storeDepiction.remove(depiction)
   }
 }
 function error(event) {

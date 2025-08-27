@@ -62,7 +62,6 @@ $color-help-text: #f5f5f5;
 
 $color-button-default: #f5f5f5;
 $color-create-button: #9ccc65;
-$color-action-button: #9ccc65;
 $color-request-button: $color-secondary-2-4;
 $color-button-disabled: #ececec;
 $color-remove-button: #f44336;
@@ -78,7 +77,6 @@ $note_yellow: $color-secondary-1-2;
 // TODO - all these should deprecated into a unified palette
 $body_background: rgb(247, 248, 252);
 $default_text: #000; // black, not gray
-$navigation_border: #e5e5e5;
 $navigation_background: #f5f5f5;
 $soft_background: #fafafa;
 $disable_background: #fafafa;
@@ -122,12 +120,12 @@ $color-header: #455a64;
 }
 
 .list_line_even {
-  background: #fff;
+  background: var(--table-row-bg-even);
 }
 
 /* valid for tables only */
 .list_line_odd {
-  background: #f8f8f8;
+  background: var(--table-row-bg-odd);
 }
 
 /* valid for tables only */

@@ -1,8 +1,20 @@
 import { Otu, CachedMap } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import { GetterNames } from '../getters/getters'
+import {
+  MAP_SHAPE_AGGREGATE,
+  MAP_SHAPE_ASSERTED_DISTRIBUTION_ABSENT
+} from '@/constants'
 import { LEGEND } from '../../const/legend'
-import { removeDuplicateShapes, setPopupAndIconToFeatures } from '../../utils'
+import {
+  removeDuplicateShapes,
+  setPopupAndIconToFeatures,
+  addAggregateDataToFeature
+} from '../../utils'
+
+function hasAbsent(arr) {
+  return arr.some((feature) => feature.properties.is_absent)
+}
 
 function sortFeaturesByType(arr, reference) {
   const referenceMap = new Map()
@@ -32,9 +44,13 @@ export default async ({ state, commit, getters }, otuId) => {
       .then((response) => {
         if (response.status === 404) return
         const geojson = JSON.parse(response.body.cached_map.geo_json)
+        const feature = addAggregateDataToFeature(geojson)
 
-        geojson.properties = { aggregate: true }
-        commit(MutationNames.SetGeoreferences, { features: [geojson] })
+        commit(MutationNames.SetGeoreferences, {
+          features: setPopupAndIconToFeatures([feature])
+        })
+
+        state.shapeTypes = [MAP_SHAPE_AGGREGATE]
 
         CachedMap.find(response.body.cached_map.id).then((response) => {
           state.cachedMap = response.body
@@ -53,9 +69,14 @@ export default async ({ state, commit, getters }, otuId) => {
           sortFeaturesByType(body.features, Object.keys(LEGEND))
         )
 
+        if (hasAbsent(features)) {
+          shapeTypes.unshift(MAP_SHAPE_ASSERTED_DISTRIBUTION_ABSENT)
+        }
+
         commit(MutationNames.SetGeoreferences, {
           features: setPopupAndIconToFeatures(features)
         })
+
         state.shapeTypes = shapeTypes
         state.loadState.distribution = false
       })

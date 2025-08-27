@@ -8,7 +8,7 @@
       :object-type="LOAN"
       :pagination="pagination"
       v-model="parameters"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @nextpage="loadPage"
@@ -50,16 +50,17 @@ import { LOAN } from '@/constants/index.js'
 const extend = ['identifiers', 'roles']
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Loan, {
   initParameters: { extend },
   listParser
