@@ -8,8 +8,11 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
-import { Icon } from '@/components/georeferences/icons'
-import { DRAW_CONTROLS_MODE, DRAW_CONTROLS_DEFAULT_CONFIG } from './constants'
+import {
+  DRAW_CONTROLS_MODE,
+  DRAW_CONTROLS_DEFAULT_CONFIG,
+  ICONS
+} from './constants'
 import geojsonOptions from './utils/geojsonOptions'
 import makeGeoJSONObject from './utils/makeGeoJSONObject'
 import { getMapTiles } from './utils/getMapTiles'
@@ -270,7 +273,7 @@ onMounted(() => {
   mapObject.pm.setGlobalOptions({
     tooltips: props.tooltips,
     layerGroup: drawnItems,
-    markerStyle: { icon: L.divIcon(Icon.Georeference) }
+    markerStyle: { icon: L.divIcon(ICONS.Georeference) }
   })
 
   if (props.geojson.length) {

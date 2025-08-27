@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Allow `accepted` as `taxonomicStatus` and empty `acceptedNameUsageID` for valid names in DwC checklist importer
+- Update maps in all tasks
 
 [#2860]: https://github.com/SpeciesFileGroup/taxonworks/issues/2860
 [#2882]: https://github.com/SpeciesFileGroup/taxonworks/issues/2882
