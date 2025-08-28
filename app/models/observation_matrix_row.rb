@@ -11,11 +11,11 @@
 #   @return [String, nil]
 #
 # @!attribute reference_count
-#   Indicates the total number of times this row is referened via some row_item
+#   Indicates the total number of times this row is referenced via some row_item
 #   @return [Integer]
 #
 # @!attribute cached_observation_matrix_row_item_id
-#   @return [Integer] if the column item is derived from a ::Single::<FOO> subclass, the id of that instance
+#   @return [Integer] if this row is derived from a ::Single row_item subclass, the id of that instance. (Does *not* imply this row isn't also referenced by a Dynamic row item.)
 #
 # @!attribute name
 #   @return [String, nil]
@@ -27,10 +27,20 @@
 #
 class ObservationMatrixRow < ApplicationRecord
   include Housekeeping
-  include Shared::Citations
-  include Shared::Identifiers
-  include Shared::Tags
-  include Shared::Notes
+
+  # If requested and implemented downstream then
+  # .unify() will need to be addrssed with either:
+  # 1) simply allowing the annotations to be destroyed without notice
+  # 2) adding custom handlers
+  # The core issue is that we don't have (and can't have) a relation
+  # between observation_matrix_row_item and observation_matrix_row, that
+  # relation his handled by a function/callback.
+  #
+  # include Shared::Citations
+  # include Shared::Identifiers
+  # include Shared::Tags
+  # include Shared::Notes
+
   include SoftValidation
   include Shared::IsData
 

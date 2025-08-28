@@ -26,7 +26,7 @@ module Shared::Unify
     :pinboard_items,       # Technically not needed here
     :cached_map_register,  # Destroyed on merge of things like Georeferences and AssertedDistributions
     :cached_map_items,
-    :cached_maps,          # Destroy alternate
+    :cached_maps           # Destroy alternate,
   ]
 
   # Per class, Iterating through all of these
