@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Nexus import fails on filename/extension error [#4531]
 - Internal error when loading matrix column coder
 - Fix Otus merge for BAs with otus on subject side [#4139]
+- Filter stage images: Pagination is missing [#4540]
 
 ### Changed
 
@@ -40,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4526]: https://github.com/SpeciesFileGroup/taxonworks/issues/4526
 [#4531]: https://github.com/SpeciesFileGroup/taxonworks/issues/4531
 [#4532]: https://github.com/SpeciesFileGroup/taxonworks/issues/4532
+[#4540]: https://github.com/SpeciesFileGroup/taxonworks/issues/4540
 
 ## [0.53.1] - 2025-08-13
 
