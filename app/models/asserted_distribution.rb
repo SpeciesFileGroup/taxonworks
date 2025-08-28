@@ -72,7 +72,7 @@ class AssertedDistribution < ApplicationRecord
     self.no_dwc_occurrence = asserted_distribution_object_type != 'Otu'
   end
 
-  validate :new_records_include_citation
+  validate :records_include_citation
   validate :object_shape_absence_triple_is_unique
 
   validate :asserted_distribution_object_has_allowed_type
@@ -125,17 +125,6 @@ class AssertedDistribution < ApplicationRecord
   }
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area, name: 'conflicting geographic area', description: 'conflicting geographic area')
-
-  # Do NOT allow origin_citation destroy via nested attributes.
-  def origin_citation_attributes=(attrs)
-    attrs = attrs[0] if attrs.is_a?(Array) # only one origin citation
-    if attrs[:_destroy].in?([true, 'true']) || attrs['_destroy'].in?([true, 'true'])
-      raise ArgumentError, 'Cannot destroy origin citation via nested attributes!'
-    else
-      super(attrs)
-    end
-  end
-
 
   # getter for attr :geographic_names
   def geographic_names
@@ -335,12 +324,11 @@ class AssertedDistribution < ApplicationRecord
     self.is_absent = nil if self.is_absent != true
   end
 
-  # @return [Boolean]
-  def new_records_include_citation
+  def records_include_citation
     # !! Be careful making changes here: remember that conditions on one
     # association may/not affect other associations when the actual save
     # happens.
-    # Maintain with FieldOccurrence#new_records_include_taxon_determination
+    # Maintain with FieldOccurrence#records_include_taxon_determination
     has_valid_citation =
       citations.count(&:marked_for_destruction?) < citations.size
     has_valid_origin_citation =
@@ -351,7 +339,7 @@ class AssertedDistribution < ApplicationRecord
     last_is_origin_citation_to_be_removed =
       origin_citation && origin_citation.marked_for_destruction? && citations.size == 1
 
-    if new_record? && source.blank? && (
+    if source.blank? && (
       (!has_valid_origin_citation && !has_valid_citation) ||
       last_is_origin_citation_to_be_removed
     )

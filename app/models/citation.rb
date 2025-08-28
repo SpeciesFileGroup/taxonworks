@@ -152,11 +152,14 @@ class Citation < ApplicationRecord
 
   # TODO: modify for asserted distributions and other origin style relationships
   def prevent_if_required
-    unless citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
-      if citation_object.requires_citation? && citation_object.citations.count == 1
-        errors.add(:base, 'at least one citation is required')
-        throw(:abort)
-      end
+    return if citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
+
+    # Note this doesn't catch nested _destroys (or at least doesn't surface them
+    # on the parent); for rails reasons we do that on the parent instead, where
+    # everything 'just works'.
+    if citation_object.requires_citation? && citation_object.citations.count == 1
+      errors.add(:base, 'at least one citation is required')
+      throw(:abort)
     end
   end
 
