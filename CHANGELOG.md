@@ -20,6 +20,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Match taxon names task sometimes doesn't work with long name lists of names [#4523]
 - Radial navigator: Browse taxon name link doesn't work for Combinations [#4526]
 - Shape picker: Missing Map tab [#4532]
+- Some cases of unify failing on otus from different rows of the same matrix [#4140]
+- Nexus import fails on filename/extension error [#4531]
+- Internal error when loading matrix column coder
+- Fix Otus merge for BAs with otus on subject side [#4139]
 
 ### Changed
 
@@ -30,8 +34,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2882]: https://github.com/SpeciesFileGroup/taxonworks/issues/2882
 [#3845]: https://github.com/SpeciesFileGroup/taxonworks/issues/3845
 [#4057]: https://github.com/SpeciesFileGroup/taxonworks/issues/4057
+[#4139]: https://github.com/SpeciesFileGroup/taxonworks/issues/4139
+[#4140]: https://github.com/SpeciesFileGroup/taxonworks/issues/4140
 [#4523]: https://github.com/SpeciesFileGroup/taxonworks/issues/4523
 [#4526]: https://github.com/SpeciesFileGroup/taxonworks/issues/4526
+[#4531]: https://github.com/SpeciesFileGroup/taxonworks/issues/4531
 [#4532]: https://github.com/SpeciesFileGroup/taxonworks/issues/4532
 
 ## [0.53.1] - 2025-08-13
