@@ -191,8 +191,6 @@ const isLoading = ref(false)
 const citation = ref(makeEmptyCitation())
 
 function setCitation(c) {
-  console.log(c)
-
   citation.value = {
     id: c.id,
     pages: c.pages,
