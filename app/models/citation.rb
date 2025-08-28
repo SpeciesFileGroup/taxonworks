@@ -156,7 +156,8 @@ class Citation < ApplicationRecord
       if citation_object.requires_citation? && citation_object.citations.count == 1
         # Must add error to citation_object *and* raise error on citation (not
         # just throw(:abort)) in order for parent to get the error for has_one
-        # _deletes (maybe others).
+        # _deletes (maybe others). Also affects whether error on destroy raises
+        # or not - this seems to raise always, otherwise it's only sometimes.
         citation_object.errors.add(:base, 'at least one citation is required')
         raise ActiveRecord::RecordInvalid.new(citation_object)
       end

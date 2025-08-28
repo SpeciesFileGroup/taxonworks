@@ -51,20 +51,12 @@ class FieldOccurrencesController < ApplicationController
   # PATCH/PUT /field_occurrences/1 or /field_occurrences/1.json
   def update
     respond_to do |format|
-      begin
-        @field_occurrence.update!(field_occurrence_params)
+      if @field_occurrence.update(field_occurrence_params)
         format.html { redirect_to field_occurrence_url(@field_occurrence), notice: 'Field occurrence was successfully updated.' }
         format.json { render :show, status: :ok, location: @field_occurrence }
-      rescue ActiveRecord::RecordInvalid
+      else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @field_occurrence.errors, status: :unprocessable_entity }
-      rescue ActiveRecord::RecordNotDestroyed => e
-        format.html { render :edit }
-        format.json {
-          e = "#{e} - at least one taxon determination is required" if e.to_s.match('etermination')
-          @field_occurrence.errors.add(:base, e)
-          render json: @field_occurrence.errors, status: :unprocessable_entity
-        }
       end
     end
   end

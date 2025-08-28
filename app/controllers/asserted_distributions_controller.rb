@@ -58,20 +58,12 @@ class AssertedDistributionsController < ApplicationController
   # PATCH/PUT /asserted_distributions/1.json
   def update
     respond_to do |format|
-      begin
-        @asserted_distribution.update!(asserted_distribution_params)
+      if @asserted_distribution.update(asserted_distribution_params)
         format.html { redirect_to @asserted_distribution, notice: 'Asserted distribution was successfully updated.' }
         format.json { render :show, status: :ok, location: @asserted_distribution }
-      rescue ActiveRecord::RecordInvalid
+      else
         format.html { render :edit }
         format.json { render json: @asserted_distribution.errors, status: :unprocessable_entity }
-      rescue ActiveRecord::RecordNotDestroyed => e
-        format.html { render :edit }
-        format.json {
-          e = "#{e} - at least one citation is required" if e.to_s.match('Citation')
-          @asserted_distribution.errors.add(:base, e)
-          render json: @asserted_distribution.errors, status: :unprocessable_entity
-        }
       end
     end
   end

@@ -126,6 +126,17 @@ class AssertedDistribution < ApplicationRecord
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area, name: 'conflicting geographic area', description: 'conflicting geographic area')
 
+  # Do NOT allow origin_citation destroy via nested attributes.
+  def origin_citation_attributes=(attrs)
+    attrs = attrs[0] if attrs.is_a?(Array) # only one origin citation
+    if attrs[:_destroy].in?([true, 'true']) || attrs['_destroy'].in?([true, 'true'])
+      raise ArgumentError, 'Cannot destroy origin citation via nested attributes!'
+    else
+      super(attrs)
+    end
+  end
+
+
   # getter for attr :geographic_names
   def geographic_names
     return @geographic_names if !@geographic_names.nil?
