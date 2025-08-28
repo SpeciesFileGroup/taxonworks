@@ -246,6 +246,13 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
           expect(AssertedDistribution.count).to be(0)
         end
 
+        specify 'permitted when deleting self 3' do
+          asserted_distribution.source = source
+          asserted_distribution.save!
+          expect(asserted_distribution.destroy!).to be_truthy
+          expect(AssertedDistribution.count).to be(0)
+        end
+
         specify 'when citation is origin_citation; destroy' do
           asserted_distribution.source = source
           asserted_distribution.save!
@@ -253,6 +260,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
           ocit = asserted_distribution.origin_citation
           ocit.destroy
           expect(ocit.errors[:base].first).to match('citation is required')
+          expect(asserted_distribution.reload.citations.count).to eq(1)
         end
 
         specify 'when citation is origin_citation; destroy!' do
@@ -262,35 +270,39 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
           ocit = asserted_distribution.origin_citation
           expect{ocit.destroy!}.to raise_error(ActiveRecord::RecordNotDestroyed)
           expect(ocit.errors[:base].first).to match('citation is required')
+          expect(asserted_distribution.reload.citations.count).to eq(1)
         end
 
-        specify 'when citation is not origin citation' do
+        specify 'when citation is not origin citation; destroy' do
           asserted_distribution.citations << Citation.new(source:)
           expect(asserted_distribution.save).to be_truthy
           expect(asserted_distribution.citations.count).to eq(1)
           cit = asserted_distribution.citations.first
           cit.destroy
           expect(cit.errors[:base].first).to match('citation is required')
+          expect(asserted_distribution.reload.citations.count).to eq(1)
         end
 
-        specify 'when citation is not origin citation' do
+        specify 'when citation is not origin citation; destroy!' do
           asserted_distribution.citations << Citation.new(source:)
           expect(asserted_distribution.save).to be_truthy
           expect(asserted_distribution.citations.count).to eq(1)
           cit = asserted_distribution.citations.first
           expect{cit.destroy!}.to raise_error(ActiveRecord::RecordNotDestroyed)
           expect(cit.errors[:base].first).to match('citation is required')
+          expect(asserted_distribution.reload.citations.count).to eq(1)
         end
 
         context 'with _delete / marked_for_destruction' do
           context 'with !' do
-            specify 'origin citation via a nested attribute delete is NOT allowed' do
+            specify 'origin citation via a nested attribute delete' do
               asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
               asserted_distribution.save!
               expect(asserted_distribution.citations.count).to eq(1)
               expect{asserted_distribution.update!(origin_citation_attributes: {
                 _destroy: true, id: asserted_distribution.origin_citation.id
             })}.to raise_error(ActiveRecord::RecordInvalid, /citation is not provided/)
+              expect(asserted_distribution.reload.citations.count).to eq(1)
             end
 
             specify 'not-origin-citation via a nested attribute delete' do
@@ -300,6 +312,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
               expect{asserted_distribution.update!(citations_attributes: {
                 _destroy: true, id: asserted_distribution.citations.first.id
               })}.to raise_error(ActiveRecord::RecordInvalid, /citation is not provided/)
+              expect(asserted_distribution.reload.citations.count).to eq(1)
             end
 
             specify 'trying to save citation with marked_for_destruction citation' do
@@ -320,7 +333,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
           end
 
           context 'without !' do
-            specify 'origin citation via a nested attribute delete is NOT allowed' do
+            specify 'origin citation via a nested attribute delete' do
               asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
               asserted_distribution.save!
               expect(asserted_distribution.citations.count).to eq(1)
@@ -328,6 +341,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
                 _destroy: true, id: asserted_distribution.origin_citation.id
               })
               expect(asserted_distribution.errors[:base].first).to match('citation is not provided')
+              expect(asserted_distribution.reload.citations.count).to eq(1)
             end
 
             specify 'not-origin-citation via a nested attribute delete' do
@@ -338,6 +352,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
                 _destroy: true, id: asserted_distribution.citations.first.id
               })
               expect(asserted_distribution.errors[:base].first).to match('citation is not provided')
+              expect(asserted_distribution.reload.citations.count).to eq(1)
             end
 
             specify 'trying to save citation with marked_for_destruction citation' do

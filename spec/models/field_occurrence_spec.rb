@@ -137,6 +137,7 @@ RSpec.describe FieldOccurrence, type: :model do
         td = field_occurrence.taxon_determinations.reload.first
         td.destroy
         expect(td.errors[:base].first).to match('taxon determination is required')
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
       end
 
       specify 'when taxon_determination is through otu; destroy!' do
@@ -146,6 +147,7 @@ RSpec.describe FieldOccurrence, type: :model do
         td = field_occurrence.taxon_determinations.reload.first
         expect{ td.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
         expect(td.errors[:base].first).to match('taxon determination is required')
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
       end
 
       specify 'when taxon_determination is via <<; destroy' do
@@ -155,6 +157,7 @@ RSpec.describe FieldOccurrence, type: :model do
         td = field_occurrence.taxon_determinations.reload.first
         td.destroy
         expect(td.errors[:base].first).to match('taxon determination is required')
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
       end
 
       specify 'when taxon_determination is via <<; destroy!' do
@@ -164,6 +167,7 @@ RSpec.describe FieldOccurrence, type: :model do
         td = field_occurrence.taxon_determinations.reload.first
         expect{ td.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
         expect(td.errors[:base].first).to match('taxon determination is required')
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
       end
 
       context 'with _delete / marked_for_destruction' do
@@ -175,6 +179,7 @@ RSpec.describe FieldOccurrence, type: :model do
             expect{field_occurrence.update!(taxon_determinations_attributes: {
               _destroy: true, id: field_occurrence.taxon_determinations.first.id
             })}.to raise_error(ActiveRecord::RecordInvalid, /taxon determination/)
+            expect(field_occurrence.taxon_determinations.count).to eq(1)
           end
 
           specify 'trying to save field_occurrence with marked_for_destruction taxon_determinations' do
@@ -203,6 +208,7 @@ RSpec.describe FieldOccurrence, type: :model do
               _destroy: true, id: field_occurrence.taxon_determinations.first.id
             })
             expect(field_occurrence.errors[:base].first).to match('taxon determination is not provided')
+            expect(field_occurrence.taxon_determinations.count).to eq(1)
           end
 
           specify 'trying to save field_occurrence with marked_for_destruction taxon_determinations' do
