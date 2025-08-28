@@ -36,7 +36,7 @@ RSpec.describe FieldOccurrence, type: :model do
         # validation after assignment through otu, the association is empty
         # because the TD the otu determines hasn't been created yet, and then
         # taxon_determinations stays empty until we reload/reset the
-        # association. Check that we're doing that.
+        # association. Check that we're handling that.
         expect(field_occurrence.taxon_determinations.first.otu.id).to eq(field_occurrence.otu.id)
       end
 
@@ -202,7 +202,7 @@ RSpec.describe FieldOccurrence, type: :model do
             field_occurrence.update(taxon_determinations_attributes: {
               _destroy: true, id: field_occurrence.taxon_determinations.first.id
             })
-            expect(field_occurrence.errors).to match('citation is not provided')
+            expect(field_occurrence.errors[:base].first).to match('taxon determination is not provided')
           end
 
           specify 'trying to save field_occurrence with marked_for_destruction taxon_determinations' do

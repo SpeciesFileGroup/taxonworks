@@ -60,7 +60,7 @@ class FieldOccurrence < ApplicationRecord
 
   validates_presence_of :collecting_event
 
-  validate :new_records_include_taxon_determination
+  validate :records_include_taxon_determination
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
   validate :total_zero_when_absent
@@ -84,6 +84,13 @@ end
 
   private
 
+  def must_have_at_least_one_taxon_determination
+    remaining = taxon_determinations.reject(&:marked_for_destruction?)
+    if remaining.empty?
+      errors.add(:base, 'at least one taxon determination is required')
+    end
+  end
+
   def total_zero_when_absent
     errors.add(:total, 'Must be zero when absent.') if (total != 0) && is_absent
   end
@@ -100,8 +107,7 @@ end
     errors.add(:base, 'Either total or a ranged lot category must be provided') if ranged_lot_category_id.blank? && total.blank?
   end
 
-  # @return [Boolean]
-  def new_records_include_taxon_determination
+  def records_include_taxon_determination
     # !! Be careful making changes here: remember that conditions on one
     # association may/not affect other associations when the actual save
     # happens.
@@ -116,7 +122,7 @@ end
     last_is_taxon_determination_to_be_removed =
       taxon_determination && taxon_determination.marked_for_destruction? && taxon_determinations.size == 1
 
-    if new_record? && otu.blank? && (
+    if otu.blank? && (
        (!has_valid_taxon_determination && !has_valid_taxon_determinations) ||
        last_is_taxon_determination_to_be_removed
     )
