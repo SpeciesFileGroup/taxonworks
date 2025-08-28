@@ -147,29 +147,59 @@ RSpec.describe FieldOccurrence, type: :model do
       end
 
       context 'with _delete / marked_for_destruction' do
-        specify 'via a nested attribute delete' do
-          field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
-          field_occurrence.save!
-          expect(field_occurrence.taxon_determinations.count).to eq(1)
-          expect{field_occurrence.update!(taxon_determinations_attributes: {
-            _destroy: true, id: field_occurrence.taxon_determinations.first.id
-          })}.to raise_error(ActiveRecord::RecordInvalid, /citation/)
+        context 'with !' do
+          specify 'via a nested attribute delete' do
+            field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+            field_occurrence.save!
+            expect(field_occurrence.taxon_determinations.count).to eq(1)
+            expect{field_occurrence.update!(taxon_determinations_attributes: {
+              _destroy: true, id: field_occurrence.taxon_determinations.first.id
+            })}.to raise_error(ActiveRecord::RecordInvalid, /citation/)
+          end
+
+          specify 'trying to save field_occurrence with marked_for_destruction taxon_determinations' do
+            field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+            field_occurrence.taxon_determinations.first.mark_for_destruction
+
+            expect{field_occurrence.save!}
+              .to raise_error(ActiveRecord::RecordInvalid, /taxon determination/)
+          end
+
+          specify 'trying to save field_occurrence with marked_for_destruction taxon_determination' do
+            field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
+            field_occurrence.taxon_determination.mark_for_destruction
+
+            expect{field_occurrence.save!}
+              .to raise_error(ActiveRecord::RecordInvalid, /taxon determination/)
+          end
         end
 
-        specify 'trying to save field_occurrence with marked_for_destruction taxon_determinations' do
-          field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
-          field_occurrence.taxon_determinations.first.mark_for_destruction
+        context 'without !' do
+          specify 'via a nested attribute delete' do
+            field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+            field_occurrence.save!
+            expect(field_occurrence.taxon_determinations.count).to eq(1)
+            field_occurrence.update(taxon_determinations_attributes: {
+              _destroy: true, id: field_occurrence.taxon_determinations.first.id
+            })
+            expect(field_occurrence.errors).to match('citation is not provided')
+          end
 
-          expect{field_occurrence.save!}
-            .to raise_error(ActiveRecord::RecordInvalid, /taxon determination/)
-        end
+          specify 'trying to save field_occurrence with marked_for_destruction taxon_determinations' do
+            field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+            field_occurrence.taxon_determinations.first.mark_for_destruction
 
-        specify 'trying to save field_occurrence with marked_for_destruction taxon_determination' do
-          field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
-          field_occurrence.taxon_determination.mark_for_destruction
+            field_occurrence.save
+            expect(field_occurrence.errors[:base].first).to match('taxon determination is not provided')
+          end
 
-          expect{field_occurrence.save!}
-            .to raise_error(ActiveRecord::RecordInvalid, /taxon determination/)
+          specify 'trying to save field_occurrence with marked_for_destruction taxon_determination' do
+            field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
+            field_occurrence.taxon_determination.mark_for_destruction
+
+            field_occurrence.save
+            expect(field_occurrence.errors[:base].first).to match('taxon determination is not provided')
+          end
         end
       end
     end

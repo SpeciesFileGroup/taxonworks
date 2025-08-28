@@ -161,12 +161,10 @@ class TaxonDetermination < ApplicationRecord
     unless taxon_determination_object && taxon_determination_object.respond_to?(:ignore_taxon_determination_restriction) && taxon_determination_object.ignore_taxon_determination_restriction
       if taxon_determination_object.requires_taxon_determination? &&
          taxon_determination_object.taxon_determinations.count == 1
-        # Must add error to taxon_determination_object *and* raise error on
-        # taxon_determination (not just throw(:abort)) in order for parent to
-        # get the error for has_one _deletes (maybe others). Also affects
-        # whether error on destroy raises or not - this seems to raise always,
-        # otherwise it's only sometimes.
-        taxon_determination_object.errors.add(:base, 'at least one citation is required')
+        # TODO: here we sometimes get a raise, sometimes just an error
+        # on parent (on non-bang parent updates).
+        taxon_determination_object.errors.add(:base, 'at least one taxon determination is required')
+        #throw(:abort)
         raise ActiveRecord::RecordInvalid.new(taxon_determination_object)
       end
     end
