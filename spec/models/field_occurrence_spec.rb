@@ -130,20 +130,40 @@ RSpec.describe FieldOccurrence, type: :model do
         expect(FieldOccurrence.count).to be(0)
       end
 
-      specify 'when taxon_determination is through otu' do
+      specify 'when taxon_determination is through otu; destroy' do
         field_occurrence.otu = otu
         field_occurrence.save!
         expect(field_occurrence.taxon_determinations.count).to eq(1)
-        expect{field_occurrence.taxon_determinations.reload.first.destroy}
-          .to raise_error(ActiveRecord::RecordInvalid, /citation/)
+        td = field_occurrence.taxon_determinations.reload.first
+        td.destroy
+        expect(td.errors[:base].first).to match('taxon determination is required')
       end
 
-      specify 'when taxon_determination is via <<' do
+      specify 'when taxon_determination is through otu; destroy!' do
+        field_occurrence.otu = otu
+        field_occurrence.save!
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
+        td = field_occurrence.taxon_determinations.reload.first
+        expect{ td.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+        expect(td.errors[:base].first).to match('taxon determination is required')
+      end
+
+      specify 'when taxon_determination is via <<; destroy' do
         field_occurrence.taxon_determinations <<  TaxonDetermination.new(otu:)
         expect(field_occurrence.save).to be_truthy
         expect(field_occurrence.taxon_determinations.count).to eq(1)
-        expect{field_occurrence.taxon_determinations.reload.first.destroy}
-          .to raise_error(ActiveRecord::RecordInvalid, /citation/)
+        td = field_occurrence.taxon_determinations.reload.first
+        td.destroy
+        expect(td.errors[:base].first).to match('taxon determination is required')
+      end
+
+      specify 'when taxon_determination is via <<; destroy!' do
+        field_occurrence.taxon_determinations <<  TaxonDetermination.new(otu:)
+        expect(field_occurrence.save).to be_truthy
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
+        td = field_occurrence.taxon_determinations.reload.first
+        expect{ td.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+        expect(td.errors[:base].first).to match('taxon determination is required')
       end
 
       context 'with _delete / marked_for_destruction' do
@@ -154,7 +174,7 @@ RSpec.describe FieldOccurrence, type: :model do
             expect(field_occurrence.taxon_determinations.count).to eq(1)
             expect{field_occurrence.update!(taxon_determinations_attributes: {
               _destroy: true, id: field_occurrence.taxon_determinations.first.id
-            })}.to raise_error(ActiveRecord::RecordInvalid, /citation/)
+            })}.to raise_error(ActiveRecord::RecordInvalid, /taxon determination/)
           end
 
           specify 'trying to save field_occurrence with marked_for_destruction taxon_determinations' do
