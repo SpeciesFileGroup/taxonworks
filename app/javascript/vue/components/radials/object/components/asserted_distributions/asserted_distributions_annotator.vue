@@ -247,12 +247,14 @@ function removeCitation(item) {
     ...EXTEND_PARAMS
   }
 
-  AssertedDistribution.update(assertedDistribution.value.id, payload).then(
-    ({ body }) => {
-      addToList(body)
-      resetForm()
-    }
-  )
+  AssertedDistribution.update(assertedDistribution.value.id, payload)
+    .then(
+      ({ body }) => {
+        addToList(body)
+        resetForm()
+      }
+    )
+    .catch(() => {})
 }
 
 function setDistribution(item) {
