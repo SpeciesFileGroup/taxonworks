@@ -158,6 +158,9 @@ class TaxonDetermination < ApplicationRecord
   end
 
   def prevent_if_required
+    # Note this ignores nested _destroys; for rails reasons we do that on
+    # the parent instead, where everything 'just works'.
+    return if marked_for_destruction?
     return if taxon_determination_object && taxon_determination_object.respond_to?(:ignore_taxon_determination_restriction) && taxon_determination_object.ignore_taxon_determination_restriction
 
     # Note this doesn't catch nested _destroys (or at least doesn't surface them
