@@ -295,11 +295,21 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
         context 'with _delete / marked_for_destruction' do
           context 'with !' do
-            specify 'origin citation via a nested attribute delete' do
+            specify 'origin citation via a nested origin attribute delete' do
               asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
               asserted_distribution.save!
               expect(asserted_distribution.citations.count).to eq(1)
               expect{asserted_distribution.update!(origin_citation_attributes: {
+                _destroy: true, id: asserted_distribution.origin_citation.id
+            })}.to raise_error(ActiveRecord::RecordInvalid, /citation is not provided/)
+              expect(asserted_distribution.reload.citations.count).to eq(1)
+            end
+
+            specify 'origin citation via a nested citations attribute delete' do
+              asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
+              asserted_distribution.save!
+              expect(asserted_distribution.citations.count).to eq(1)
+              expect{asserted_distribution.update!(citations_attributes: {
                 _destroy: true, id: asserted_distribution.origin_citation.id
             })}.to raise_error(ActiveRecord::RecordInvalid, /citation is not provided/)
               expect(asserted_distribution.reload.citations.count).to eq(1)
@@ -333,12 +343,23 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
           end
 
           context 'without !' do
-            specify 'origin citation via a nested attribute delete' do
+            specify 'origin citation via a origin attribute delete' do
               asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
               asserted_distribution.save!
               expect(asserted_distribution.citations.count).to eq(1)
               asserted_distribution.update(origin_citation_attributes: {
                 _destroy: true, id: asserted_distribution.origin_citation.id
+              })
+              expect(asserted_distribution.errors[:base].first).to match('citation is not provided')
+              expect(asserted_distribution.reload.citations.count).to eq(1)
+            end
+
+            specify 'origin citation via a citations attribute delete' do
+              asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
+              asserted_distribution.save!
+              expect(asserted_distribution.citations.count).to eq(1)
+              asserted_distribution.update(citations_attributes: {
+                _destroy: true, id: asserted_distribution.citations.first.id
               })
               expect(asserted_distribution.errors[:base].first).to match('citation is not provided')
               expect(asserted_distribution.reload.citations.count).to eq(1)

@@ -163,9 +163,6 @@ class TaxonDetermination < ApplicationRecord
     return if marked_for_destruction?
     return if taxon_determination_object && taxon_determination_object.respond_to?(:ignore_taxon_determination_restriction) && taxon_determination_object.ignore_taxon_determination_restriction
 
-    # Note this doesn't catch nested _destroys (or at least doesn't surface them
-    # on the parent); for rails reasons we do that on the parent instead, where
-    # everything 'just works'.
     if taxon_determination_object.requires_taxon_determination? &&
         taxon_determination_object.taxon_determinations.count == 1
       errors.add(:base, 'at least one taxon determination is required')

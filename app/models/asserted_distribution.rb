@@ -329,20 +329,40 @@ class AssertedDistribution < ApplicationRecord
     # association may/not affect other associations when the actual save
     # happens.
     # Maintain with FieldOccurrence#records_include_taxon_determination
-    has_valid_citation =
-      citations.count(&:marked_for_destruction?) < citations.size
+
+    # Watch out, origin_citation and citations *do not* necessarily share the
+    # same marked_for_destruction? info, even when origin_citation is a member
+    # of citations.
+    origin_citation_is_marked_for_destruction_on_citations =
+      origin_citation.present? && citations.present? &&
+      citations.count == 1 && !citations.first.id.nil? &&
+      origin_citation.id == citations.first.id &&
+      citations.first.marked_for_destruction?
+
+    the_one_citation_is_marked_for_destruction_on_origin_citation =
+      origin_citation.present? && citations.present? &&
+      citations.count == 1 && !citations.first.id.nil? &&
+      origin_citation&.id == citations.first.id &&
+      origin_citation.marked_for_destruction?
+
+    has_valid_source =
+      source.present? &&
+      !source.marked_for_destruction? && (
+        !origin_citation.present? ||
+        (!origin_citation.marked_for_destruction? &&
+         !origin_citation_is_marked_for_destruction_on_citations)
+      )
+
     has_valid_origin_citation =
-      origin_citation && !origin_citation.marked_for_destruction?
+      origin_citation.present? &&
+      !origin_citation.marked_for_destruction? &&
+      !origin_citation_is_marked_for_destruction_on_citations
 
-    # If we remove the origin_citation and that's the only citation, none will
-    # be left after save.
-    last_is_origin_citation_to_be_removed =
-      origin_citation && origin_citation.marked_for_destruction? && citations.size == 1
+    has_valid_citation =
+      citations.count(&:marked_for_destruction?) < citations.size &&
+       !the_one_citation_is_marked_for_destruction_on_origin_citation
 
-    if source.blank? && (
-      (!has_valid_origin_citation && !has_valid_citation) ||
-      last_is_origin_citation_to_be_removed
-    )
+    if !has_valid_source && !has_valid_origin_citation && !has_valid_citation
       errors.add(:base, 'required citation is not provided')
       return
     end

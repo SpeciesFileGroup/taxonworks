@@ -95,20 +95,41 @@ class FieldOccurrence < ApplicationRecord
     # association may/not affect other associations when the actual save
     # happens.
     # Maintain with AssertedDistribution#new_records_include_citation
-    has_valid_taxon_determinations = taxon_determinations.count(&:marked_for_destruction?) < taxon_determinations.size
+
+    # Watch out, taxon_determination and taxon_determination *do not*
+    # necessarily share the same marked_for_destruction? info, even when
+    # taxon_determination is a member of taxon_determinations.
+
+    taxon_determination_is_marked_for_destruction_on_taxon_determinations =
+      taxon_determination.present? && taxon_determinations.present? &&
+      taxon_determinations.count == 1 && !taxon_determinations.first.id.nil? &&
+      taxon_determination.id == taxon_determinations.first.id &&
+      taxon_determinations.first.marked_for_destruction?
+
+    the_one_taxon_determinations_is_marked_for_destruction_on_taxon_determination =
+      taxon_determination.present? && taxon_determinations.present? &&
+      taxon_determinations.count == 1 && !taxon_determinations.first.id.nil? &&
+      taxon_determination.id == taxon_determinations.first.id &&
+      taxon_determination.marked_for_destruction?
+
+    has_valid_otu =
+      otu.present? &&
+      !otu.marked_for_destruction? && (
+        !taxon_determination.present? ||
+        (!taxon_determination.marked_for_destruction? &&
+        !taxon_determination_is_marked_for_destruction_on_taxon_determinations)
+      )
 
     has_valid_taxon_determination =
-      taxon_determination && !taxon_determination.marked_for_destruction?
+      taxon_determination.present? &&
+      !taxon_determination.marked_for_destruction? &&
+      !taxon_determination_is_marked_for_destruction_on_taxon_determinations
 
-    # If we remove taxon_determination (singular!) and that's the only TD, none
-    # will be left after save.
-    last_is_taxon_determination_to_be_removed =
-      taxon_determination && taxon_determination.marked_for_destruction? && taxon_determinations.size == 1
+    has_valid_taxon_determinations =
+     taxon_determinations.count(&:marked_for_destruction?) < taxon_determinations.size &&
+     !the_one_taxon_determinations_is_marked_for_destruction_on_taxon_determination
 
-    if otu.blank? && (
-       (!has_valid_taxon_determination && !has_valid_taxon_determinations) ||
-       last_is_taxon_determination_to_be_removed
-    )
+    if !has_valid_otu && !has_valid_taxon_determination && !has_valid_taxon_determinations
       errors.add(:base, 'required taxon determination is not provided')
       return
     end
