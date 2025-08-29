@@ -97,7 +97,7 @@
         :sortable="sortable"
         class="full_width panel content"
       />
-      <div>
+      <div class="flex-col gap-medium">
         <div class="panel content">
           <h3>Collection object</h3>
           <div class="horizontal-left-content gap-small">
@@ -111,6 +111,20 @@
             </VBtn>
             <ModalCollectionObjects :ce-id="store.collectingEvent.id" />
             <ParseData @parse="setParsedData" />
+          </div>
+        </div>
+        <div class="panel content">
+          <h3>Field occurrence</h3>
+          <div class="horizontal-left-content gap-small">
+            <VBtn
+              color="primary"
+              medium
+              :disabled="!store.collectingEvent.id"
+              @click="openNewFieldOccurrence"
+            >
+              New
+            </VBtn>
+            <ModalFieldOccurrences :ce-id="store.collectingEvent.id" />
           </div>
         </div>
         <RightSection @select="(e) => loadCollectingEvent(e.id)" />
@@ -143,6 +157,7 @@ import ParseData from './components/parseData'
 import CloneForm from './components/CloneForm.vue'
 
 import ModalCollectionObjects from './components/ModalCollectionObjects/ModalCollectionObjects.vue'
+import ModalFieldOccurrences from './components/ModalFieldOccurrences/ModalFieldOccurrences.vue'
 import VNavigate from './components/Navigate'
 import VSpinner from '@/components/ui/VSpinner'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
@@ -307,6 +322,13 @@ async function saveCollectingEvent() {
 function openComprehensive() {
   window.open(
     `${RouteNames.DigitizeTask}?collecting_event_id=${store.collectingEvent.id}`,
+    '_self'
+  )
+}
+
+function openNewFieldOccurrence() {
+  window.open(
+    `${RouteNames.NewFieldOccurrence}?collecting_event_id=${store.collectingEvent.id}`,
     '_self'
   )
 }

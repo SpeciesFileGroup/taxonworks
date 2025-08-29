@@ -190,14 +190,14 @@ const editCitation = ref()
 const isLoading = ref(false)
 const citation = ref(makeEmptyCitation())
 
-function setCitation(citation) {
+function setCitation(c) {
   citation.value = {
-    id: citation.id,
-    pages: citation.pages,
-    source_id: citation.source_id,
-    is_original: citation.is_original
+    id: c.id,
+    pages: c.pages,
+    source_id: c.source_id,
+    is_original: c.is_original
   }
-  editCitation.value = citation
+  editCitation.value = c
 }
 
 function saveAssertedDistribution() {
@@ -247,12 +247,14 @@ function removeCitation(item) {
     ...EXTEND_PARAMS
   }
 
-  AssertedDistribution.update(assertedDistribution.value.id, payload).then(
-    ({ body }) => {
-      addToList(body)
-      resetForm()
-    }
-  )
+  AssertedDistribution.update(assertedDistribution.value.id, payload)
+    .then(
+      ({ body }) => {
+        addToList(body)
+        resetForm()
+      }
+    )
+    .catch(() => {})
 }
 
 function setDistribution(item) {

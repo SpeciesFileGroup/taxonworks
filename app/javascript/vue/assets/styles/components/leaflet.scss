@@ -2,6 +2,11 @@
   opacity: 0.75;
 }
 
+.leaflet-map-button {
+  background-color: #fff;
+  color: #333;
+}
+
 .leaflet-pm-icon-selection {
   border: 2px #444444 dashed;
   border-radius: 3px;
@@ -61,6 +66,7 @@
 
   .leaflet-control-zoom,
   .leaflet-control-layers,
+  .leaflet-map-button,
   .leaflet-bar a {
     background-color: #000000;
     border-color: #444444;

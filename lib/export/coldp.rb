@@ -18,6 +18,17 @@ module Export
   # * Pending handling of both BibTeX and Verbatim
   module Coldp
 
+    class << self
+      # @return [Array] used to pass along inference at the
+      # name.tsv level to the synonym.tsv level. Could be replaced
+      # when Combination can use SQL to determine the rank of the
+      # name Combination applies to.  !! Should just cache this.
+      attr_accessor :skipped_combinations
+    end
+
+    # give it a default value
+    @skipped_combinations = []
+
     # TODO: probably doing nothing
     attr_accessor :remarks
 
@@ -171,27 +182,28 @@ module Export
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
 
-      (FILETYPES - %w{Name Taxon References Synonym TypeMaterial}).each do |ft|
-        m = "Export::Coldp::Files::#{ft}".safe_constantize
-        zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
-      end
+        zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
 
-      zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
+        zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
 
-      zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+        zipfile.get_output_stream('Taxon.tsv') do |f|
+          f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus)
+        end
 
-      # TODO: Probably not used
-      skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids  ||  []
+        zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
 
-      zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv, skip_name_ids) }
+        (FILETYPES - %w{Name Taxon References Synonym TypeMaterial}).each do |ft|
+          m = "Export::Coldp::Files::#{ft}".safe_constantize
+          zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
+        end
 
-      zipfile.get_output_stream('Taxon.tsv') do |f|
-        f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus, skip_name_ids)
-      end
+        # TODO: Probably not used
+        # skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids  ||  []
 
-      # TODO: this doesn't really help, and adds time to the process.
-      # Sort the refs by full citation string
-      sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
+
+        # TODO: this doesn't really help, and adds time to the process.
+        # Sort the refs by full citation string
+        sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
 
         d = ::CSV.generate(col_sep: "\t") do |tsv|
           tsv << %w{ID citation	doi modified modifiedBy} # author year source details

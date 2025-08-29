@@ -27,7 +27,7 @@ export default ({ L }) => ({
   onEachFeature: (feature, layer) => {
     const shapeType = feature.properties.shape?.type
     const layerConfiguration =
-      feature.properties.options || SHAPES_CONFIG[shapeType]
+      feature.properties.options || SHAPES_CONFIG[shapeType]?.options
 
     if (feature.properties?.popup) {
       layer.bindPopup(feature.properties.popup)
@@ -57,8 +57,11 @@ export default ({ L }) => ({
   style: (feature) => {
     const base = feature.properties.base
     const type = base ? getRelevantType(base) : feature.properties?.shape?.type
-    const style = feature.properties.style || SHAPES_CONFIG[type]?.style
     const isAbsent = feature.properties.is_absent
+    const style =
+      feature.properties.style ||
+      SHAPES_CONFIG[type]?.style ||
+      SHAPES_CONFIG.Default
 
     return isAbsent ? { ...style, ...SHAPES_CONFIG.Absent } : style
   }

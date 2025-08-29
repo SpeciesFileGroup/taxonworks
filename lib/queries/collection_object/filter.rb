@@ -28,6 +28,7 @@ module Queries
         :collection_object_id,
         :collection_object_type,
         :collectors,
+        :containerized,
         :current_determinations,
         :current_repository,
         :current_repository_id,
@@ -105,6 +106,13 @@ module Queries
       # [Array]
       #   only return objects with these collecting event ID
       attr_accessor :collecting_event_id
+
+      # @param [True, False, nil]
+      #   true - the collection object is in a container
+      #   false - the collection object is not in a container
+      #   nil - not applied
+
+      attr_accessor :containerized
 
       # All params managed by CollectingEvent filter are available here as well
       attr_accessor :base_collecting_event_query
@@ -339,6 +347,7 @@ module Queries
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @collection_object_type = params[:collection_object_type].presence
+        @containerized = boolean_param(params, :containerized)
         @current_determinations = boolean_param(params, :current_determinations)
         @current_repository = boolean_param(params, :current_repository)
         @current_repository_id = params[:current_repository_id].presence
@@ -676,6 +685,16 @@ module Queries
       def on_loan_facet
         return nil unless on_loan
         ::CollectionObject.on_loan
+      end
+
+      def containerized_facet
+        return nil if containerized.nil?
+
+        if containerized
+          ::CollectionObject.joins(:container_item).distinct
+        else
+          ::CollectionObject.left_outer_joins(:container_item).where(container_item: { id: nil }).distinct
+        end
       end
 
       def dwc_indexed_facet
@@ -1022,6 +1041,7 @@ module Queries
           biological_relationship_id_facet,
           collecting_event_facet,
           collectors_facet,
+          containerized_facet,
           current_repository_facet,
           dates_facet,
           deaccessioned_facet,

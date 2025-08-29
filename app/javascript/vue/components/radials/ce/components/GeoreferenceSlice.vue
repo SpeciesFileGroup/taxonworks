@@ -83,7 +83,7 @@ import { CollectingEvent, Georeference } from '@/routes/endpoints'
 import { ref, computed } from 'vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
-import VMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
@@ -114,9 +114,18 @@ const payload = computed(() => ({
   collecting_event_query: props.parameters,
   collecting_event: {
     georeferences_attributes: selectedGeoreferences.value.map(
-      ({ geographic_item_id, type , error_radius, error_depth,
-         error_geographic_item_id, is_public, api_request, year_georeferenced,
-         month_georeferenced, day_georeferenced }) => ({
+      ({
+        geographic_item_id,
+        type,
+        error_radius,
+        error_depth,
+        error_geographic_item_id,
+        is_public,
+        api_request,
+        year_georeferenced,
+        month_georeferenced,
+        day_georeferenced
+      }) => ({
         geographic_item_id,
         type,
         error_radius,

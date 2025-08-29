@@ -104,7 +104,7 @@ const extensionGroups = ref([])
 
 const nexusExtensions = computed(() => {
   const nexusGroup = extensionGroups.value.find((h) => h['group'] == 'nexus')
-  return nexusGroup ? nexusGroup['extensions'] : []
+  return nexusGroup ? nexusGroup['extensions_data'].map((d) => d.extension) : []
 })
 
 const dropzoneConfig = computed(() => {
