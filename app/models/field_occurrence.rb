@@ -68,28 +68,11 @@ class FieldOccurrence < ApplicationRecord
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
-  validate :propagate_child_errors
-
-def propagate_child_errors
-  taxon_determinations.each do |td|
-    td.errors.full_messages.each do |msg|
-      errors.add(:base, msg)
-    end
-  end
-end
-
   def requires_taxon_determination?
     true
   end
 
   private
-
-  def must_have_at_least_one_taxon_determination
-    remaining = taxon_determinations.reject(&:marked_for_destruction?)
-    if remaining.empty?
-      errors.add(:base, 'at least one taxon determination is required')
-    end
-  end
 
   def total_zero_when_absent
     errors.add(:total, 'Must be zero when absent.') if (total != 0) && is_absent
