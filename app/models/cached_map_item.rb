@@ -174,7 +174,7 @@ class CachedMapItem < ApplicationRecord
         .then(Arel.sql('TRUE'))
         # The intention here is to keep ne_states shapes that failed the buffer
         # check because the buffer reduced them to nothing, IF they're subsets
-        # of geographic_item_id. (This should prevent unexpected holes.)
+        # of geographic_item_id. This should prevent unexpected holes.
         .when(
           GeographicItem.subset_of_sql(
             GeographicItem.st_buffer_sql(
