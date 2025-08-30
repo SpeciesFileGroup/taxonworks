@@ -45,8 +45,8 @@
   <% end %>
 
   <div>
-    <%= form.label :additional_metadata, "Additional metadata:", class: "d-inline-block margin-small-bottom" %> <br>
-    <%= text_area_tag :additional_metadata, @additional_metadata, rows: 40, cols: 80 %>
+    <%= form.label :additional_metadata, "Additional metadata (<dateStamp> will be auto-added):", class: "d-inline-block margin-small-bottom" %> <br>
+    <%= text_area_tag :additional_metadata, @additional_metadata, rows: 20, cols: 80 %>
   </div>
 
   <div class="margin-large-top margin-large-bottom">
