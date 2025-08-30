@@ -222,6 +222,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filters: Data attributes display in filter results even if they are not selected in custom layout [#4424]
 - Field synchronize task doesn't work when you open it from Filter people [#4425]
 - Collecting event form: CE generate label not working when there aren't collectors [#4434]
+- Asserted Distributions can have their last citation removed and Field Occurrences can have their last taxon determination removed [#4514]
 
 [#4433]: https://github.com/SpeciesFileGroup/taxonworks/issues/4433
 [#4413]: https://github.com/SpeciesFileGroup/taxonworks/issues/4413
@@ -234,6 +235,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4436]: https://github.com/SpeciesFileGroup/taxonworks/issues/4436
 [#4439]: https://github.com/SpeciesFileGroup/taxonworks/issues/4439
 [#4441]: https://github.com/SpeciesFileGroup/taxonworks/issues/4441
+[#4514]: https://github.com/SpeciesFileGroup/taxonworks/issues/4514
 
 ## [0.52.0] - 2025-06-09
 
