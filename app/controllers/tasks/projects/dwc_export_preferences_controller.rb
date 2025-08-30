@@ -4,20 +4,28 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
   def index
     @project = Project.find(sessions_current_project_id)
     @preferences = @project.preferences
+
+    if request.post?
+      @dataset_errors, @additional_metadata_errors =
+        xml_errors(params[:dataset], params[:additional_metadata])
+
+      if @dataset_errors.count + @additional_metadata_errors.count == 0
+
+      else
+        @dataset = params[:dataset]
+        @additional_metadata = params[:additional_metadata]
+        render :index, status: :unprocessable_entity
+      end
+    end
   end
 
-  def gbif_metadata_validate
-    dataset_xml = Nokogiri::XML::Document.parse(params[:dataset])
+  private
 
-    additional_metadata_xml = Nokogiri::XML::Document.parse(params[:additional_metadata])
+  def xml_errors(dataset, additional_metadata)
+    dataset_xml = Nokogiri::XML::Document.parse(dataset)
 
-    @errors = dataset_xml.errors.map { |e| "dataset: #{e}"} +
-      additional_metadata_xml.errors.map { |e| "additional_metadata: #{e}"}
+    additional_metadata_xml = Nokogiri::XML::Document.parse(additional_metadata)
 
-    if @errors.present?
-      @dataset = params[:dataset]
-      @additional_metadata = params[:additional_metadata]
-      render :index, status: :unprocessable_entity
-    end
+    [dataset_xml.errors, additional_metadata_xml.errors]
   end
 end

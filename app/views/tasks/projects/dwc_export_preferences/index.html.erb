@@ -1,27 +1,52 @@
 <h2>Darwin core export eml.xml data</h2>
 
-<%= form_with url: gbif_metadata_validate_task_path, method: :post, local: true do |form| %>
-  <% if @errors.any? %>
-    <div class="errors">
-      <h2><%= pluralize(@errors.count, "error") %> in xml:</h2>
+<%= form_with url: project_dwc_validate_export_preferences_path, method: :post, local: true do |form| %>
+  <% if @dataset_errors.present? %>
+    <fieldset
+      class="margin-large-bottom padding-large-right"
+      style="max-width: 600px"
+    >
+      <legend class="feedback-danger">Errors in dataset xml</legend>
       <ul>
-        <% @errors.each do |msg| %>
+        <% @dataset_errors.each do |msg| %>
           <li><%= msg %></li>
         <% end %>
       </ul>
+      </fieldset>
+  <% elsif !@dataset_errors.nil? %>
+    <div class="feedback-success margin-large-bottom d-inline-block padding-xsmall">
+      Dataset xml is valid
     </div>
   <% end %>
 
   <div>
     <%= form.label :dataset, "Dataset:", class: "d-inline-block margin-small-bottom" %><br>
-    <%= text_area_tag :dataset, @dataset, rows: 20, cols: 80 %>
+    <%= text_area_tag :dataset, @dataset, rows: 40, cols: 80 %>
   </div>
 
-  <br>
+  <br><br><br>
+
+  <% if @additional_metadata_errors.present? %>
+    <fieldset
+      class="margin-large-bottom padding-large-right"
+      style="max-width: 600px"
+    >
+      <legend class="feedback-danger">Errors in additional metadata xml</legend>
+      <ul>
+        <% @additional_metadata_errors.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </fieldset>
+  <% elsif !@additional_metadata_errors.nil? %>
+    <div class="feedback-success margin-large-bottom d-inline-block padding-small">
+      Additional metadata xml is valid
+    </div>
+  <% end %>
 
   <div>
     <%= form.label :additional_metadata, "Additional metadata:", class: "d-inline-block margin-small-bottom" %> <br>
-    <%= text_area_tag :additional_metadata, @additional_metadata, rows: 20, cols: 80 %>
+    <%= text_area_tag :additional_metadata, @additional_metadata, rows: 40, cols: 80 %>
   </div>
 
   <div class="margin-large-top margin-large-bottom">
