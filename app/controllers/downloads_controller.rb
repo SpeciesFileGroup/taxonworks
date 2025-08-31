@@ -101,23 +101,6 @@ class DownloadsController < ApplicationController
     render '/downloads/api/v1/show'
   end
 
-  # DELETE /api/v1/downloads/1.json
-  def api_destroy
-    if !sessions_current_user.is_administrator? # user is from api token
-      render json: { error: 'Only administrators can destroy downloads via the api' }, status: :unprocessable_entity
-      return
-    elsif !API_BUILDABLE_DOWNLOAD_TYPES.include?(@download.type)
-      render json: { error: "Type '#{@download.type}' cannot be destroyed via api" }, status: :unprocessable_entity
-      return
-    end
-
-    if @download.destroy
-      render json: {id: @download.id_was, status: :destroyed}
-    else
-      render json: {}, status: :unprocessable_entity
-    end
-  end
-
   # POST /api/v1/downloads/build?type=Download::DwcArchive::Complete
   def api_build
     if !sessions_current_user.is_administrator? # user is from api token
@@ -129,11 +112,6 @@ class DownloadsController < ApplicationController
     end
 
     @download = Download.create(api_build_params)
-    render '/downloads/api/v1/show'
-  end
-
-  def api_terminate
-    @download.terminate # TODO, add method, or change to :destroy
     render '/downloads/api/v1/show'
   end
 

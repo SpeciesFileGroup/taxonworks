@@ -22,42 +22,5 @@ describe 'Api::V1::Downloads', type: :request do
         expect(response.status).to eq(422)
       end
     end
-
-    context 'delete complete' do
-      let(:d) { Download::DwcArchive::Complete.create!(project:, by: user) }
-
-      specify 'can delete complete downloads' do
-        delete "/api/v1/downloads/#{d.id}", headers: headers, params: { project_token: project.api_access_token }
-
-        expect(response.successful?).to be_truthy
-      end
-
-      specify "can't delete arbitrary downloads" do
-        d = Download::DwcArchive.create!(name: 'a', filename: 'a', expires: Time.now, project:, by: user)
-        delete "/api/v1/downloads/#{d.id}", headers: headers, params: { project_token: project.api_access_token }
-
-        expect(response.status).to eq(404)
-      end
-
-      specify "can't delete complete downloads without user token" do
-        delete "/api/v1/downloads/#{d.id}", params: { project_token: project.api_access_token }
-
-        expect(response).to be_unauthorized
-      end
-
-      specify "can't delete complete downloads without project token" do
-        delete "/api/v1/downloads/#{d.id}", headers: headers
-
-        expect(response).to be_unauthorized
-      end
-
-      specify 'must be admin user to delete a download' do
-        user2 = FactoryBot.create(:valid_user, :user_valid_token) # not admin
-        headers = { "Authorization": 'Token ' + user2.api_access_token }
-
-        delete "/api/v1/downloads/#{d.id}", headers: headers, params: { project_token: project.api_access_token }
-        expect(response.status).to eq(422)
-      end
-    end
   end
 end

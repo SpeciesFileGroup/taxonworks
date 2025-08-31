@@ -41,7 +41,6 @@ namespace :api, defaults: {format: :json} do
       get '/both_authenticated', to: 'base#index'
 
       post '/downloads/build', to: '/downloads#api_build', as: :download_build
-      delete '/downloads/:id', to: '/downloads#api_destroy', as: :download_destroy # validate type, etc.
     end
 
     # There should be no post or delete in this section
