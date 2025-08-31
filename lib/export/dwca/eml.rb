@@ -1,3 +1,9 @@
+# Terminology: there are some eml fields, like pubDate, that get populated at
+# dwca creation time.
+# * eml with those fields populated is 'actualized', otherwise it's
+#   'unactualized'
+# * Do *not* mark such fields with 'STUB'; that way we can tell which
+#   non-auto-populated fields the user hasn't provided a value for.
 module Export::Dwca::Eml
 
   # Nodes/values whose data must be filled in or deleted before public use.
@@ -24,7 +30,11 @@ module Export::Dwca::Eml
     end
   end
 
-  def self.actualized_eml
+  def self.unactualized_eml_text_for(dataset, additional_metadata)
+    self.eml_stubbed(dataset, additional_metadata).to_s
+  end
+
+  def self.actualized_stub_eml
     doc = self.eml_stubbed
     uuid = SecureRandom.uuid
 
@@ -75,15 +85,20 @@ module Export::Dwca::Eml
     end
   end
 
-  def self.eml_stubbed
+  # !! dataset and additional_metadata should be valid xml, otherwise the result
+  # may not be what you expect.
+  def self.eml_stubbed(dataset = nil, additional_metadata = nil)
+    dataset_stub ||= self.dataset_stub
+    additional_metadata ||= self.additional_metadata_stub
     builder = self.eml_template
 
-    dataset_fragment =
-      Nokogiri::XML::DocumentFragment.parse(self.dataset_stub)
-    additional_metadata_fragment =
-      Nokogiri::XML::DocumentFragment.parse(self.additional_metadata_stub)
-
     doc = builder.doc
+
+    # DocumentFragment basically never leaves xml errors, it just 'fixes' things.
+    dataset_fragment =
+      Nokogiri::XML::DocumentFragment.parse(dataset_stub, doc)
+    additional_metadata_fragment =
+      Nokogiri::XML::DocumentFragment.parse(additional_metadata_stub, doc)
 
     doc.at_xpath('//dataset') << dataset_fragment
     doc.at_xpath('//additionalMetadata') << additional_metadata_fragment
@@ -93,6 +108,10 @@ module Export::Dwca::Eml
 
   def self.validate_fragments(dataset, additional_metadata)
     # TODO: check that no STUB strings remain
+    # Embed the fragments in eml_template so that:
+    # * they get namespace definitions
+    # * Nokogiri catches syntax errors (DocumentFragment generally just fixes
+    #   things)
     eml_template_one_line = self.eml_template.to_xml(
       save_with: Nokogiri::XML::Node::SaveOptions::AS_XML | # single line
         Nokogiri::XML::Node::SaveOptions::NO_DECLARATION # skip <xml></xml>
@@ -115,9 +134,15 @@ module Export::Dwca::Eml
     [dataset_xml.errors, additional_metadata_xml.errors]
   end
 
+  def self.still_stubbed?(dataset, additional_metadata)
+    dataset.include?('STUB') || additional_metadata.include?('STUB')
+  end
+
   def self.dataset_stub
+    # Do NOT mark fields populated at DWCA create time as STUB; mark all other
+    # fields the user needs to fill in with 'STUB'.
     <<~TEXT
-      <alternateIdentifier>STUB</alternateIdentifier>
+      <alternateIdentifier></alternateIdentifier>
       <title xmlns:lang="en">STUB YOUR TITLE HERE</title>
       <creator>
         <individualName>
@@ -125,24 +150,24 @@ module Export::Dwca::Eml
           <surName>STUB</surName>
         </individualName>
         <organizationName>STUB</organizationName>
-        <electronicMailAddress>EMAIL@EXAMPLE.COM</electronicMailAddress>
+        <electronicMailAddress>STUB_EMAIL@EXAMPLE.COM</electronicMailAddress>
       </creator>
       <metadataProvider>
         <organizationName>STUB</organizationName>
-        <electronicMailAddress>EMAIL@EXAMPLE.COM</electronicMailAddress>
+        <electronicMailAddress>STUB_EMAIL@EXAMPLE.COM</electronicMailAddress>
         <onlineUrl>STUB</onlineUrl>
       </metadataProvider>
       <associatedParty>
         <organizationName>STUB</organizationName>
         <address>
-          <deliveryPoint>SEE address above for other fields</deliveryPoint>
+          <deliveryPoint>STUB - SEE address above for other fields</deliveryPoint>
         </address>
         <role>distributor</role>
       </associatedParty>
       <pubDate>STUB</pubDate>
       <language>eng</language>
       <abstract>
-        <para>Abstract text here.</para>
+        <para>STUB. Abstract text here.</para>
       </abstract>
       <intellectualRights>
         <para>STUB. License here.</para>
@@ -156,23 +181,25 @@ module Export::Dwca::Eml
           <postalCode>STUB</postalCode>
           <country>STUB</country>
         </address>
-        <electronicMailAddress>EMAIL@EXAMPLE.COM</electronicMailAddress>
+        <electronicMailAddress>STUB_EMAIL@EXAMPLE.COM</electronicMailAddress>
         <onlineUrl>STUB</onlineUrl>
       </contact>
 TEXT
   end
 
   def self.additional_metadata_stub
+    # Do NOT mark fields populated at DWCA create time as STUB; mark all other
+    # fields the user needs to fill in with 'STUB'.
     <<~TEXT
       <metadata>
         <gbif>
-          <dateStamp>STUB</dateStamp>
+          <dateStamp></dateStamp>
           <hierarchyLevel>dataset</hierarchyLevel>
           <citation identifier="Identifier STUB">STUB DATASET</citation>
-          <resourceLogoUrl>SOME RESOURCE LOGO URL</resourceLogoUrl>
-          <formationPeriod>SOME FORMATION PERIOD</formationPeriod>
-          <livingTimePeriod>SOME LIVING TIME PERIOD</livingTimePeriod>
-          <dc:replaces>PRIOR IDENTIFIER</dc:replaces>
+          <resourceLogoUrl>STUB. SOME RESOURCE LOGO URL</resourceLogoUrl>
+          <formationPeriod>STUB. SOME FORMATION PERIOD</formationPeriod>
+          <livingTimePeriod>STUB. SOME LIVING TIME PERIOD</livingTimePeriod>
+          <dc:replaces>STUB. PRIOR IDENTIFIER</dc:replaces>
         </gbif>
       </metadata>
 TEXT

@@ -118,6 +118,14 @@ class Project < ApplicationRecord
      CachedMap
   }.freeze
 
+  EML_PREFERENCES_PATH = [
+    'metadata',
+    'dwc',
+    'gbif',
+    'eml',
+    'institutional_collection'
+  ].freeze
+
   has_many :project_members, dependent: :restrict_with_error
 
   has_many :users, through: :project_members
@@ -163,8 +171,6 @@ class Project < ApplicationRecord
         klass = o.safe_constantize
 
       end
-
-
 
       true
     rescue => e
@@ -215,6 +221,35 @@ class Project < ApplicationRecord
 
   def self.find_for_autocomplete(params)
     where('name LIKE ?', "#{params[:term]}%")
+  end
+
+  def eml_preferences
+    prefs = preferences.dig(*EML_PREFERENCES_PATH)
+    if prefs
+      [prefs['dataset'], prefs['additional_metadata']]
+    else
+      [nil, nil]
+    end
+  end
+
+  def save_eml_preferences(dataset, additional_metadata)
+    prefs = preferences.dig(*EML_PREFERENCES_PATH)
+    if prefs
+      prefs['dataset'] = dataset
+      prefs['additional_metadata'] = additional_metadata
+    else
+      prefs = preferences
+      EML_PREFERENCES_PATH.each do |p|
+        if prefs[p].nil?
+          prefs[p] = {}
+        end
+        prefs = prefs[p]
+      end
+      prefs['dataset'] = dataset
+      prefs['additional_metadata'] = additional_metadata
+    end
+
+    save
   end
 
   protected

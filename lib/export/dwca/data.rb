@@ -535,7 +535,7 @@ module Export::Dwca
       return @eml if @eml
       @eml = Tempfile.new('eml.xml')
 
-      eml_xml = Export::Dwca::Eml.actualized_eml
+      eml_xml = Export::Dwca::Eml.actualized_stub_eml
 
       @eml.write(eml_xml)
       @eml.flush
