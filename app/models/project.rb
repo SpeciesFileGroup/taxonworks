@@ -118,12 +118,12 @@ class Project < ApplicationRecord
      CachedMap
   }.freeze
 
+  PROJECT_DOWNLOAD_PREFERENCES_PATH = [
+    'metadata', 'dwc', 'gbif'
+  ].freeze
+
   EML_PREFERENCES_PATH = [
-    'metadata',
-    'dwc',
-    'gbif',
-    'eml',
-    'institutional_collection'
+    *PROJECT_DOWNLOAD_PREFERENCES_PATH, 'eml', 'institutional_collection'
   ].freeze
 
   has_many :project_members, dependent: :restrict_with_error
@@ -233,21 +233,26 @@ class Project < ApplicationRecord
   end
 
   def save_eml_preferences(dataset, additional_metadata)
-    prefs = preferences.dig(*EML_PREFERENCES_PATH)
+    prefs = preferences_for(EML_PREFERENCES_PATH)
+
+    prefs['dataset'] = dataset
+    prefs['additional_metadata'] = additional_metadata
+
+    save
+  end
+
+  def dwc_download_is_public?
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
     if prefs
-      prefs['dataset'] = dataset
-      prefs['additional_metadata'] = additional_metadata
+      prefs['is_public'] == true || prefs['is_public'] == 'true'
     else
-      prefs = preferences
-      EML_PREFERENCES_PATH.each do |p|
-        if prefs[p].nil?
-          prefs[p] = {}
-        end
-        prefs = prefs[p]
-      end
-      prefs['dataset'] = dataset
-      prefs['additional_metadata'] = additional_metadata
+      false
     end
+  end
+
+  def set_dwc_download_is_public(is_public)
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    prefs['is_public'] = is_public == true || is_public == 'true'
 
     save
   end
@@ -267,6 +272,22 @@ class Project < ApplicationRecord
 
   def destroy_api_access_token
     self.api_access_token = nil
+  end
+
+  # @param path [Array] like EML_PREFERENCES_PATH.
+  def preferences_for(path)
+    prefs = preferences.dig(*path)
+    if !prefs
+      prefs = preferences
+      path.each do |p|
+        if prefs[p].nil?
+          prefs[p] = {}
+        end
+        prefs = prefs[p]
+      end
+    end
+
+    prefs
   end
 
 end

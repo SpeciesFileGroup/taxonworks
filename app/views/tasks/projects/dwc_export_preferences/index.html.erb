@@ -1,19 +1,21 @@
-<h2>Darwin core export settings</h2>
+<h1>Darwin core export settings</h2>
 
-<%= form_with url: project_dwc_is_public_path, method: :post do |form|, local: true %>
+<h2>Public sharing</h2>
+<%= form_with url: project_dwc_is_public_path, method: :post, local: true do |form| %>
   <div>
-    <%= form.label :is_public, "Make this project's darwin core archive, determined by the settings on this page, <b>PUBLICLY</b> accessible from the api."%>
-    <%= form.checkbox :is_public, @is_public %>
+    <%= form.check_box :is_public, { checked: @is_public }, true, false %>
+    <%= form.label :is_public, "Make this project's darwin core archive, determined by the settings on this page, PUBLICLY accessible from the api." %>
+
   </div>
 
   <div class="margin-large-top margin-large-bottom">
     <%= form.submit "Submit", class: 'button-submit' %>
   </div>
 
-  <p>Note: no project download will be created until the eml preferences below have been saved. The first time the public download is requested by api it will fail but the download will be triggered to build. After the build completes
-
+  <p>Note: A publicly accessible api download can't be created until the eml preferences below have been saved. The first time the public download is requested by api it will fail but the download will be triggered to build. After the first build completes there will always be a download available.
 <% end %>
 
+<h2>EML settings for project occurrence downloads</h2>
 <%= form_with url: project_dwc_validate_export_preferences_path, method: :post, local: true do |form| %>
   <% if @dataset_errors.present? %>
     <fieldset
@@ -64,6 +66,6 @@
   </div>
 
   <div class="margin-large-top margin-large-bottom">
-    <%= form.submit "Validate and save preferences", class: 'button-submit' %>
+    <%= form.submit "Validate and save eml preferences", class: 'button-submit' %>
   </div>
 <% end %>

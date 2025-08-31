@@ -3,7 +3,6 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
 
   def index
     @project = Project.find(sessions_current_project_id)
-    @preferences = @project.preferences
     dataset = params[:dataset]
     additional_metadata = params[:additional_metadata]
 
@@ -27,27 +26,27 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
         return error
       end
     elsif request.get?
-      @dataset, @additional_metadata = @project.eml_preferences
-      @dataset =
-        @dataset || Export::Dwca::Eml.dataset_stub
-      @additional_metadata =
-        @additional_metadata || Export::Dwca::Eml.additional_metadata_stub
+      set_data
     end
+  end
+
+  def is_public
+    @project = Project.find(sessions_current_project_id)
+    @project.set_dwc_download_is_public(params[:is_public])
+
+    flash[:notice] = '"Is public" updated'
+    redirect_to action: :index
   end
 
   private
 
-  def xml_errors(dataset, additional_metadata)
-    # TODO: currently fails on namespaced prefixes like 'dc:replaces'
-    dataset_xml = Nokogiri::XML::Document.parse(
-      eml_template_one_line.sub('@dataset', dataset)
-    )
-
-    additional_metadata_xml = Nokogiri::XML::DocumentFragment.parse(
-      eml_template_one_line.sub('@additional_metadata', additional_metadata)
-    )
-
-    [dataset_xml.errors, additional_metadata_xml.errors]
+  def set_data
+    @is_public = @project.dwc_download_is_public?
+    @dataset, @additional_metadata = @project.eml_preferences
+    @dataset =
+      @dataset || Export::Dwca::Eml.dataset_stub
+    @additional_metadata =
+      @additional_metadata || Export::Dwca::Eml.additional_metadata_stub
   end
 
   def error(message = nil)
@@ -55,6 +54,7 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
 
     @dataset = params[:dataset]
     @additional_metadata = params[:additional_metadata]
+    @is_public = params[:is_public]
     render :index, status: :unprocessable_entity
   end
 
