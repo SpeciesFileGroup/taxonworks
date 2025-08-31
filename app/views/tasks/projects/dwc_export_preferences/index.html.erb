@@ -21,7 +21,7 @@
 
   <div>
     <%= form.label :dataset, "Dataset:", class: "d-inline-block margin-small-bottom" %><br>
-    <%= text_area_tag :dataset, @dataset, rows: 40, cols: 80 %>
+    <%= text_area_tag :dataset, @dataset, rows: 44, cols: 80 %>
   </div>
 
   <br><br><br>
@@ -46,10 +46,10 @@
 
   <div>
     <%= form.label :additional_metadata, "Additional metadata (<dateStamp> will be auto-added):", class: "d-inline-block margin-small-bottom" %> <br>
-    <%= text_area_tag :additional_metadata, @additional_metadata, rows: 20, cols: 80 %>
+    <%= text_area_tag :additional_metadata, @additional_metadata, rows: 10, cols: 80 %>
   </div>
 
   <div class="margin-large-top margin-large-bottom">
-    <%= form.submit "Submit" %>
+    <%= form.submit "Validate and save preferences", class:  %>
   </div>
 <% end %>

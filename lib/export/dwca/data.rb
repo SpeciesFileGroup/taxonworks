@@ -523,8 +523,6 @@ module Export::Dwca
       @all_data
     end
 
-    # rubocop:disable Metrics/MethodLength
-
     # This is a stub, and only half-heartedly done. You should be using IPT for the time being.
     # @return [Tempfile]
     #   metadata about this dataset
@@ -537,90 +535,12 @@ module Export::Dwca
       return @eml if @eml
       @eml = Tempfile.new('eml.xml')
 
-      # This may need to be logged somewhere
-      identifier = SecureRandom.uuid
+      eml_xml = Export::Dwca::Eml.actualized_eml
 
-      # This should be build elsewhere, and ultimately derived from a TaxonWorks::Dataset model
-      # !! Order matters in these sections vs. validation !!
-      builder = Nokogiri::XML::Builder.new(encoding: 'utf-8', namespace_inheritance: false) do |xml|
-        xml['eml'].eml(
-          'xmlns:eml' => 'eml://ecoinformatics.org/eml-2.1.1',
-          'xmlns:dc' => 'http://purl.org/dc/terms/',
-          'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-          'xsi:schemaLocation' => 'eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml-gbif-profile.xsd',
-          'packageId' => identifier,
-          'system' => 'https://taxonworks.org',
-          'scope' => 'system',
-          'xml:lang' => 'en'
-        ) {
-          xml.dataset {
-            xml.alternateIdentifier identifier
-            xml.title('STUB YOUR TITLE HERE')['xmlns:lang'] = 'en'
-            xml.creator {
-              xml.individualName {
-                xml.givenName 'STUB'
-                xml.surName 'STUB'
-              }
-              xml.organizationName 'STUB'
-              xml.electronicMailAddress 'EMAIL@EXAMPLE.COM'
-            }
-            xml.metadataProvider {
-              xml.organizationName 'STUB'
-              xml.electronicMailAddress 'EMAIL@EXAMPLE.COM'
-              xml.onlineUrl 'STUB'
-            }
-            xml.associatedParty {
-              xml.organizationName 'STUB'
-              xml.address {
-                xml.deliveryPoint 'SEE address above for other fields'
-              }
-              xml.role 'distributor'
-            }
-            xml.pubDate Time.new.strftime('%Y-%m-%d')
-            xml.language 'eng'
-            xml.abstract {
-              xml.para 'Abstract text here.'
-            }
-            xml.intellectualRights {
-              xml.para 'STUB. License here.'
-            }
-            # ...
-            xml.contact {
-              xml.organizationName 'STUB'
-              xml.address {
-                xml.deliveryPoint 'STUB'
-                xml.city 'STUB'
-                xml.administrativeArea 'STUB'
-                xml.postalCode 'STUB'
-                xml.country 'STUB'
-              }
-              xml.electronicMailAddress 'EMAIL@EXAMPLE.COM'
-              xml.onlineUrl 'STUB'
-            }
-            # ...
-          } # end dataset
-          xml.additionalMetadata {
-            xml.metadata {
-              xml.gbif {
-                xml.dateStamp DateTime.parse(Time.now.to_s).to_s
-                xml.hierarchyLevel 'dataset'
-                xml.citation('STUB DATASET')[:identifier] = 'Identifier STUB'
-                xml.resourceLogoUrl 'SOME RESOURCE LOGO URL'
-                xml.formationPeriod 'SOME FORMATION PERIOD'
-                xml.livingTimePeriod 'SOME LIVING TIME PERIOD'
-                xml[:dc].replaces 'PRIOR IDENTIFIER'
-              }
-            }
-          }
-        }
-      end
-
-      @eml.write(builder.to_xml)
+      @eml.write(eml_xml)
       @eml.flush
       @eml
     end
-
-    # rubocop:enable Metrics/MethodLength
 
     def biological_associations_resource_relationship
       return nil if biological_associations_extension.nil?
