@@ -16,7 +16,7 @@
 <% end %>
 
 <h2>EML settings for project occurrence downloads</h2>
-<%= form_with url: project_dwc_validate_export_preferences_path, method: :post, local: true do |form| %>
+<%= form_with url: project_dwc_validate_eml_path, method: :post, local: true do |form| %>
   <% if @dataset_errors.present? %>
     <fieldset
       class="margin-large-bottom padding-large-right"

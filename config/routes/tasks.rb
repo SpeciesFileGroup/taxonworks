@@ -318,7 +318,7 @@ scope :tasks do
 
     scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
       get '/', action: :index, as: 'project_dwc_export_preferences_task'
-      post '/', action: :index, as: 'project_dwc_validate_export_preferences'
+      post '/', action: :validate_eml, as: 'project_dwc_validate_eml'
       post 'is_public', as: 'project_dwc_is_public'
     end
   end
