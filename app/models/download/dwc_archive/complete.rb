@@ -1,15 +1,11 @@
 # Only one per project.  Includes the complete current contents of DwCOccurrences.
 class Download::DwcArchive::Complete < Download::DwcArchive
-
-  # Can be built with/out data attributes
-  attr_accessor :predicate_extensions
-
   # Default values
   attribute :name, default: -> { "dwc-a_complete_#{DateTime.now}.zip" }
   attribute :description, default: 'A Darwin Core archive of the complete TaxonWorks DwcOccurrence table'
   attribute :filename, default: -> { "dwc-a_complete_#{DateTime.now}.zip" }
   attribute :expires, default: -> { 1.month.from_now }
-  attribute :request, default: -> { '/api/v1/downloads/build?type=Download::DwcArchive::Complete' }
+  attribute :request, default: -> { '/api/v1/downloads/api_dwc_archive_complete' }
   attribute :is_public, default: -> { 1 }
 
   after_save :build, unless: :ready? # prevent infinite loop callbacks
@@ -22,9 +18,11 @@ class Download::DwcArchive::Complete < Download::DwcArchive
 
   def build
     record_scope = ::DwcOccurrence.where(project_id: project_id)
-    build_async(
-      record_scope,
-      predicate_extension_params: normalized_predicate_extensions
+    eml_dataset, eml_additional_metadata = project.eml_preferences
+    ::DwcaCreateDownloadJob.perform_later(
+      id,
+      core_scope: record_scope.to_sql,
+      eml_data: { dataset: eml_dataset, additional_metadata: eml_additional_metadata }
     )
   end
 

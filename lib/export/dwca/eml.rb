@@ -30,15 +30,19 @@ module Export::Dwca::Eml
     end
   end
 
-  def self.unactualized_eml_text_for(dataset, additional_metadata)
-    self.eml_stubbed(dataset, additional_metadata).to_s
+  def self.actualized_eml_for(dataset, additional_metadata)
+    doc = self.eml_for(dataset, additional_metadata)
+    self.actualized_eml(doc)
   end
 
   def self.actualized_stub_eml
-    doc = self.eml_stubbed
+    self.actualized_eml(self.eml_stubbed)
+  end
+
+  def self.actualized_eml(doc)
     uuid = SecureRandom.uuid
 
-    eml_node = builder.doc.at_xpath(
+    eml_node = doc.at_xpath(
       '//eml:eml', 'eml' => 'eml://ecoinformatics.org/eml-2.1.1'
     )
     EML_PARAMETERS.each do |p|
@@ -78,27 +82,31 @@ module Export::Dwca::Eml
 
   def self.actualize_additional_metadata_stub(parameter, uuid)
     case parameter
-    when dateStamp
+    when 'dateStamp'
       DateTime.parse(Time.now.to_s).to_s
     else
       raise TaxonWorks::Error, "Unrecognized additionalMetadata stub node '#{parameter}'!"
     end
   end
 
+  def self.eml_stubbed
+    self.eml_for(self.dataset_stub, self.additional_metadata_stub)
+  end
+
   # !! dataset and additional_metadata should be valid xml, otherwise the result
   # may not be what you expect.
-  def self.eml_stubbed(dataset = nil, additional_metadata = nil)
-    dataset_stub ||= self.dataset_stub
-    additional_metadata ||= self.additional_metadata_stub
+  def self.eml_for(dataset, additional_metadata)
+    dataset ||= ''
+    additional_metadata ||= ''
     builder = self.eml_template
 
     doc = builder.doc
 
     # DocumentFragment basically never leaves xml errors, it just 'fixes' things.
     dataset_fragment =
-      Nokogiri::XML::DocumentFragment.parse(dataset_stub, doc)
+      Nokogiri::XML::DocumentFragment.parse(dataset)
     additional_metadata_fragment =
-      Nokogiri::XML::DocumentFragment.parse(additional_metadata_stub, doc)
+      Nokogiri::XML::DocumentFragment.parse(additional_metadata)
 
     doc.at_xpath('//dataset') << dataset_fragment
     doc.at_xpath('//additionalMetadata') << additional_metadata_fragment

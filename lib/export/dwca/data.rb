@@ -25,6 +25,10 @@ module Export::Dwca
 
     attr_accessor :data
 
+    # @return [Hash] containing dataset and additional_metadata, as xml strings,
+    # for use in construction of the eml file.
+    attr_accessor :eml_data
+
     attr_accessor :eml
 
     attr_accessor :meta
@@ -71,15 +75,16 @@ module Export::Dwca
     attr_accessor :dwc_id_order
 
     # @param [Array<Symbol>] taxonworks_extensions List of methods to perform on each CO
-    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: [])
+    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, eml_data: {}, taxonworks_extensions: [])
       raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
 
       @core_scope = core_scope
 
       @biological_associations_extension = extension_scopes[:biological_associations] #! String
       @media_extension = extension_scopes[:media] #  = get_scope(core_scope)
-
       @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extensions)
+
+      @eml_data = eml_data
 
       @taxonworks_extension_methods = taxonworks_extensions
     end
@@ -535,7 +540,13 @@ module Export::Dwca
       return @eml if @eml
       @eml = Tempfile.new('eml.xml')
 
-      eml_xml = Export::Dwca::Eml.actualized_stub_eml
+      if eml_data[:dataset].present? || eml_data[:additional_metadata].present?
+        eml_xml = ::Export::Dwca::Eml.actualized_eml_for(
+          eml_data[:dataset], eml_data[:additional_metadata]
+        )
+      else
+        eml_xml = ::Export::Dwca::Eml.actualized_stub_eml
+      end
 
       @eml.write(eml_xml)
       @eml.flush

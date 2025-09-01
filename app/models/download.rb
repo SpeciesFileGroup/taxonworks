@@ -56,10 +56,6 @@ class Download < ApplicationRecord
   validates_presence_of :expires
   validates_presence_of :type
 
-  def build_async(record_scope, predicate_extension_params: {})
-    ::DwcaCreateDownloadJob.perform_later(id, core_scope: record_scope.to_sql, predicate_extensions: predicate_extension_params)
-  end
-
   # Gets the downloads storage path
   def self.storage_path
     STORAGE_PATH

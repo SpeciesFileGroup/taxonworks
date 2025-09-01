@@ -101,18 +101,34 @@ class DownloadsController < ApplicationController
     render '/downloads/api/v1/show'
   end
 
-  # POST /api/v1/downloads/build?type=Download::DwcArchive::Complete
-  def api_build
-    if !sessions_current_user.is_administrator? # user is from api token
-      render json: { error: 'Only administrators can start builds from the api' }, status: :unprocessable_entity
-      return
-    elsif !API_BUILDABLE_DOWNLOAD_TYPES.include?(params[:type])
-      render json: { error: "Type '#{params[:type]}' is not allowed" }, status: :unprocessable_entity
+  # POST /api/v1/downloads/api_dwc_archive_complete?project_token=<>
+  def api_dwc_archive_complete
+    project = Project.find(sessions_current_project_id)
+
+    if !project.dwc_download_is_public?
+      render json: { success: false }
       return
     end
 
-    @download = Download.create(api_build_params)
-    render '/downloads/api/v1/show'
+    complete_download_type = 'Download::DwcArchive::Complete'
+    download = Download.where(type: complete_download_type).first
+    if download
+      if download.ready?
+        download.increment!(:times_downloaded)
+        send_file download.file_path
+      else # download exists but isn't ready yet
+        render json: { success: false }
+      end
+
+      # TODO: regenerate existing download if it's 'old'
+      return
+    end
+
+    # Complete project download doesn't exist yet, spin one up.
+    # *All* options for complete downloads are determined from project
+    # preferences, not from public request via api.
+    @download = Download::DwcArchive::Complete.create!
+    render json: { success: false }
   end
 
   private
@@ -130,10 +146,4 @@ class DownloadsController < ApplicationController
     params.require(:download).permit(:is_public, :name, :expires )
   end
 
-  def api_build_params
-    params.permit(:type, predicate_extensions: {
-      collection_object_predicate_id: [],
-      collecting_event_predicate_id: []
-    })
-  end
 end
