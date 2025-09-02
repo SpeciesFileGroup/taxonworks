@@ -744,6 +744,24 @@ resources :preparation_types do
   concerns [:data_routes]
 end
 
+resources :projects, only: [] do
+  member do
+    scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
+      # Scope these under the export preferences task controller for access
+      # control and functional grouping.
+      get :preferences, defaults: {format: :json}
+      post :save_eml, defaults: {format: :json}
+      post :set_is_public, defaults: {format: :json}
+    end
+  end
+
+  collection do
+    scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
+      get :validate_eml, defaults: {format: :json}
+    end
+  end
+end
+
 resources :project_sources, only: [:index, :create, :destroy] do
   collection do
     get 'download'

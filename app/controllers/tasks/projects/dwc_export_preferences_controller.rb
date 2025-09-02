@@ -1,64 +1,60 @@
 class Tasks::Projects::DwcExportPreferencesController < ApplicationController
   include TaskControllerConfiguration
+  before_action :require_administrator_sign_in
+
+  before_action :set_project
 
   def index
-    @project = Project.find(sessions_current_project_id)
-    set_data
+    # vue app
   end
 
-  def is_public
-    @project = Project.find(sessions_current_project_id)
-    @project.set_dwc_download_is_public(params[:is_public])
+  def set_is_public
+    @project.set_complete_dwc_download_is_public(params[:is_public])
 
-    flash[:notice] = '"Is public" updated'
-    redirect_to action: :index
+    head :no_content
   end
 
   def validate_eml
-    @project = Project.find(sessions_current_project_id)
     dataset = params[:dataset]
     additional_metadata = params[:additional_metadata]
 
-    if Export::Dwca::Eml.still_stubbed?(dataset, additional_metadata)
-      #return error('Replace or delete all STUBbed fields to proceed')
-    end
+    # if ::Export::Dwca::Eml.still_stubbed?(dataset, additional_metadata)
+    #   render json: {
+    #     base: ['Replace or delete all STUBbed fields to proceed']
+    #   }, status: :unprocessable_entity
+    #   return
+    # end
 
-    @dataset_errors, @additional_metadata_errors =
-      Export::Dwca::Eml.validate_fragments(dataset, additional_metadata)
+    dataset_errors, additional_metadata_errors =
+      ::Export::Dwca::Eml.validate_fragments(dataset, additional_metadata)
 
-    if @dataset_errors.count + @additional_metadata_errors.count == 0
-      if @project.save_eml_preferences(dataset, additional_metadata)
-        flash[:notice] = 'Preferences saved'
-        set_data
-        redirect_to action: :index
-      else # preferences save errors
-        # It's probably a bug if this happens, we should maybe raise here.
-        return error("Project save failed! #{@project.errors.full_messages.join(', ')}")
-      end
-    else # xml errors
-      return error
+    render json: {
+      dataset_errors:,
+      additional_metadata_errors:
+    }
+  end
+
+  def save_eml
+    dataset = params[:dataset]
+    additional_metadata = params[:additional_metadata]
+    if @project.save_complete_dwc_eml_preferences(dataset, additional_metadata)
+      head :no_content
+    else # preferences save errors
+      # It's probably a bug if this happens.
+      render json: {
+        base: ['Project save failed!']
+      }
+      return
     end
+  end
+
+  def preferences
+    render json: @project.dwc_complete_download_preferences
   end
 
   private
 
-  def set_data
-    @is_public = @project.dwc_download_is_public?
-    @dataset, @additional_metadata = @project.eml_preferences
-    @dataset =
-      @dataset || Export::Dwca::Eml.dataset_stub
-    @additional_metadata =
-      @additional_metadata || Export::Dwca::Eml.additional_metadata_stub
+  def set_project
+    @project = Project.find(sessions_current_project_id)
+    @recent_object = @project
   end
-
-  def error(message = nil)
-    flash[:notice] = message if message.present?
-
-    @dataset = params[:dataset]
-    @additional_metadata = params[:additional_metadata]
-    @is_public = @project.dwc_download_is_public?
-    redirect_to action: :index, status: :unprocessable_entity
-  end
-
-
-end

@@ -223,7 +223,23 @@ class Project < ApplicationRecord
     where('name LIKE ?', "#{params[:term]}%")
   end
 
-  def eml_preferences
+  def dwc_complete_download_preferences
+    dataset, additional_metadata = complete_dwc_eml_preferences
+    {
+      is_public: complete_dwc_download_is_public?,
+      eml_preferences: {
+        dataset:,
+        additional_metadata:
+      },
+      auto_filled: {
+        eml: ::Export::Dwca::Eml::EML_PARAMETERS,
+        dataset: ::Export::Dwca::Eml::DATASET_PARAMETERS,
+        additional_metadata: ::Export::Dwca::Eml::ADDITIONAL_METADATA_PARAMETERS
+      }
+    }
+  end
+
+  def complete_dwc_eml_preferences
     prefs = preferences.dig(*EML_PREFERENCES_PATH)
     if prefs
       [prefs['dataset'], prefs['additional_metadata']]
@@ -232,7 +248,7 @@ class Project < ApplicationRecord
     end
   end
 
-  def save_eml_preferences(dataset, additional_metadata)
+  def save_complete_dwc_eml_preferences(dataset, additional_metadata)
     prefs = preferences_for(EML_PREFERENCES_PATH)
 
     prefs['dataset'] = dataset
@@ -241,7 +257,7 @@ class Project < ApplicationRecord
     save
   end
 
-  def dwc_download_is_public?
+  def complete_dwc_download_is_public?
     prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
     if prefs
       prefs['is_public'] == true || prefs['is_public'] == 'true'
@@ -250,7 +266,7 @@ class Project < ApplicationRecord
     end
   end
 
-  def set_dwc_download_is_public(is_public)
+  def set_complete_dwc_download_is_public(is_public)
     prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
     prefs['is_public'] = is_public == true || is_public == 'true'
 
