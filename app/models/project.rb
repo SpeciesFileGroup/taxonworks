@@ -119,11 +119,11 @@ class Project < ApplicationRecord
   }.freeze
 
   PROJECT_DOWNLOAD_PREFERENCES_PATH = [
-    'metadata', 'dwc', 'gbif'
+    'metadata', 'dwc', 'gbif', 'institutional_collection'
   ].freeze
 
   EML_PREFERENCES_PATH = [
-    *PROJECT_DOWNLOAD_PREFERENCES_PATH, 'eml', 'institutional_collection'
+    *PROJECT_DOWNLOAD_PREFERENCES_PATH, 'eml'
   ].freeze
 
   has_many :project_members, dependent: :restrict_with_error
@@ -227,6 +227,7 @@ class Project < ApplicationRecord
     dataset, additional_metadata = complete_dwc_eml_preferences
     {
       is_public: complete_dwc_download_is_public?,
+      extensions: complete_dwc_download_extensions,
       eml_preferences: {
         dataset:,
         additional_metadata:
@@ -244,11 +245,14 @@ class Project < ApplicationRecord
     if prefs
       [prefs['dataset'], prefs['additional_metadata']]
     else
-      [nil, nil]
+      [
+        ::Export::Dwca::Eml.dataset_stub,
+        ::Export::Dwca::Eml.additional_metadata_stub
+      ]
     end
   end
 
-  def save_complete_dwc_eml_preferences(dataset, additional_metadata)
+  def set_complete_dwc_eml_preferences(dataset, additional_metadata)
     prefs = preferences_for(EML_PREFERENCES_PATH)
 
     prefs['dataset'] = dataset
@@ -269,6 +273,22 @@ class Project < ApplicationRecord
   def set_complete_dwc_download_is_public(is_public)
     prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
     prefs['is_public'] = is_public == true || is_public == 'true'
+
+    save
+  end
+
+  def complete_dwc_download_extensions
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    if prefs
+      prefs['extensions']
+    else
+      []
+    end
+  end
+
+  def set_complete_dwc_download_extensions(extensions)
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    prefs['extensions'] = extensions
 
     save
   end

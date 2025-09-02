@@ -752,6 +752,7 @@ resources :projects, only: [] do
       get :preferences, defaults: {format: :json}
       post :save_eml, defaults: {format: :json}
       post :set_is_public, defaults: {format: :json}
+      post :set_extensions, defaults: {format: :json}
     end
   end
 

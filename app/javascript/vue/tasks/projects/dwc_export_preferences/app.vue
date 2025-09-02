@@ -10,99 +10,132 @@
   </h1>
 
   <h2>Public sharing</h2>
-  <div>
-    <label data-help="Make this project's darwin core archive, determined by the settings on this page, PUBLICLY accessible from the api">
-      <input
-        type="checkbox"
-        v-model="isPublic"
+  <div class="margin-medium-left">
+    <div>
+      <label data-help="Make this project's darwin core archive, determined by the settings on this page, PUBLICLY accessible from the api">
+        <input
+          type="checkbox"
+          v-model="isPublic"
+        />
+        Is Public
+      </label>
+    </div>
+
+    <VBtn
+      @click="setIsPublic"
+      color="create"
+      class="margin-medium-top"
+    >
+      Save "Is Public"
+    </VBtn>
+  </div>
+
+  <h2>Extensions</h2>
+  <div class="margin-medium-left">
+    <template
+      v-for="(v, k) in EXTENSIONS"
+      :key="k"
+    >
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            v-model="extensions"
+            :value="k"
+            name="extensions"
+          >
+            {{ v }}
+          </input>
+        </label>
+      </div>
+    </template>
+
+    <VBtn
+      @click="setExtensions"
+      color="create"
+      class="margin-medium-top"
+    >
+      Save extensions
+    </VBtn>
+  </div>
+
+  <h2>EML</h2>
+  <div class="margin-medium-left">
+    <template v-if="datasetErrors?.length > 0">
+      <fieldset
+        class="padding-large-right"
+        style="max-width: 600px"
+      >
+        <legend class="feedback-danger">Errors in dataset xml</legend>
+        <ul
+          v-for="msg in datasetErrors"
+          :key="msg"
+        >
+          <li>{{ msg }}</li>
+        </ul>
+      </fieldset>
+    </template>
+
+    <template v-else-if="datasetErrors?.length == 0">
+      <div class="feedback-success d-inline-block padding-xsmall">
+        Dataset xml is valid
+      </div>
+    </template>
+
+    <div>
+      <p>
+        Dataset ({{ autoFilledFields?.dataset?.join(', ')}} will be auto-set on DwCA
+        creation):
+      </p>
+      <textarea
+        v-model="dataset"
+        rows="44"
+        cols="80"
       />
-      Is Public
-    </label>
-  </div>
-
-  <VBtn
-    @click="setIsPublic"
-    color="create"
-    class="margin-medium-top"
-  >
-    Save "Is Public"
-  </VBtn>
-
-  <h2>EML settings for project occurrence downloads</h2>
-  <template v-if="datasetErrors?.length > 0">
-    <fieldset
-      class="padding-large-right"
-      style="max-width: 600px"
-    >
-      <legend class="feedback-danger">Errors in dataset xml</legend>
-      <ul
-        v-for="msg in datasetErrors"
-        :index="msg"
-      >
-        <li>{{ msg }}</li>
-      </ul>
-    </fieldset>
-  </template>
-
-  <template v-else-if="datasetErrors?.length == 0">
-    <div class="feedback-success d-inline-block padding-xsmall">
-      Dataset xml is valid
     </div>
-  </template>
 
-  <div>
-    <p>
-      Dataset ({{ autoFilledFields?.dataset?.join(', ')}} will be auto-set on DwCA
-      creation):
-    </p>
-    <textarea
-      v-model="dataset"
-      rows="44"
-      cols="80"
-    />
-  </div>
+    <br>
 
-  <br>
-
-  <template v-if="additionalMetadataErrors?.length > 0">
-    <fieldset
-      class="padding-large-right"
-      style="max-width: 600px"
-    >
-      <legend class="feedback-danger">Errors in additional metadata xml</legend>
-      <ul
-        v-for="msg in additionalMetadataErrors"
-        :index="msg"
+    <template v-if="additionalMetadataErrors?.length > 0">
+      <fieldset
+        class="padding-large-right"
+        style="max-width: 600px"
       >
-        <li>{{ msg }}</li>
-      </ul>
-    </fieldset>
-  </template>
-  <template v-else-if="additionalMetadataErrors?.length == 0">
-    <div class="feedback-success d-inline-block padding-small">
-      Additional metadata xml is valid
+        <legend class="feedback-danger">Errors in additional metadata xml</legend>
+        <ul
+          v-for="msg in additionalMetadataErrors"
+          :key="msg"
+        >
+          <li>{{ msg }}</li>
+        </ul>
+      </fieldset>
+    </template>
+    <template v-else-if="additionalMetadataErrors?.length == 0">
+      <div class="feedback-success d-inline-block padding-small">
+        Additional metadata xml is valid
+      </div>
+    </template>
+
+    <div>
+      <p>
+        Additional metadata ({{autoFilledFields?.additional_metadata?.join(', ') }}
+        will be auto-set on DwCA creation):
+      </p>
+      <textarea
+        v-model="additionalMetadata"
+        rows="13"
+        cols="80"
+      />
     </div>
-  </template>
 
-  <div>
-    <p>
-      Additional metadata ({{autoFilledFields?.additional_metadata?.join(', ') }}
-      will be auto-set on DwCA creation):
-    </p>
-    <textarea
-      v-model="additionalMetadata"
-      rows="13"
-      cols="80"
-    />
+    <VBtn
+      @click="validateAndSaveEML"
+      color="create"
+      class="margin-medium-top margin-large-bottom"
+    >
+      Validate and save EML
+    </VBtn>
   </div>
-
-  <VBtn
-    @click="validateAndSaveEML"
-    color="create"
-    class="margin-medium-top margin-large-bottom"
-  >
-    Validate and save EML preferences
-  </VBtn>
 </template>
 
 <script setup>
@@ -112,6 +145,11 @@ import { onBeforeMount, ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
+const EXTENSIONS = {
+  resource_relationships: 'Resource relationships (biological associations)',
+  media: 'Media'
+}
+
 const projectId = Number(getCurrentProjectId())
 const isPublic = ref(false)
 const dataset = ref('')
@@ -120,6 +158,7 @@ const datasetErrors = ref(null)
 const additionalMetadata = ref('')
 const additionalMetadataErrors = ref(null)
 const autoFilledFields = ref({})
+const extensions = ref([])
 const isLoading = ref(false)
 
 onBeforeMount(() => {
@@ -127,6 +166,7 @@ onBeforeMount(() => {
   DwcExportPreference.preferences(projectId)
     .then(({ body }) => {
       isPublic.value = body.is_public
+      extensions.value = body.extensions
       dataset.value = body.eml_preferences.dataset
       additionalMetadata.value = body.eml_preferences.additional_metadata
       autoFilledFields.value = body.auto_filled
@@ -139,7 +179,17 @@ function setIsPublic() {
   isLoading.value = true
   DwcExportPreference.setIsPublic(projectId, { is_public: isPublic.value })
     .then(() => {
-      TW.workbench.alert.create('Updated "Is Public".', 'notice')
+      TW.workbench.alert.create('Saved "Is Public".', 'notice')
+    })
+    .catch(() => {})
+    .finally(() => (isLoading.value = false))
+}
+
+function setExtensions() {
+  isLoading.value = true
+  DwcExportPreference.setExtensions(projectId, { extensions: extensions.value })
+    .then(() => {
+      TW.workbench.alert.create('Saved extensions.', 'notice')
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))

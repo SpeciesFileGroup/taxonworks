@@ -7,6 +7,9 @@ export const DwcExportPreference = {
   setIsPublic: (id, params) =>
     AjaxCall('post', `/projects/${id}/dwc_export_preferences/set_is_public.json`, params),
 
+  setExtensions: (id, params) =>
+    AjaxCall('post', `/projects/${id}/dwc_export_preferences/set_extensions.json`, params),
+
   validateEML: (params) =>
     AjaxCall('get', `/projects/dwc_export_preferences/validate_eml.json`, { params }),
 

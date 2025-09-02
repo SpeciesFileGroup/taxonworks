@@ -14,6 +14,12 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
     head :no_content
   end
 
+  def set_extensions
+    @project.set_complete_dwc_download_extensions(params[:extensions])
+
+    head :no_content
+  end
+
   def validate_eml
     dataset = params[:dataset]
     additional_metadata = params[:additional_metadata]
@@ -37,7 +43,7 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
   def save_eml
     dataset = params[:dataset]
     additional_metadata = params[:additional_metadata]
-    if @project.save_complete_dwc_eml_preferences(dataset, additional_metadata)
+    if @project.set_complete_dwc_eml_preferences(dataset, additional_metadata)
       head :no_content
     else # preferences save errors
       # It's probably a bug if this happens.
@@ -58,3 +64,4 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
     @project = Project.find(sessions_current_project_id)
     @recent_object = @project
   end
+end
