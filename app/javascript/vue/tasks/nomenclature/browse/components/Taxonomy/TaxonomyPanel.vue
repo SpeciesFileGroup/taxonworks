@@ -27,7 +27,7 @@ import { TaxonName } from '@/routes/endpoints'
 import { onBeforeMount, ref } from 'vue'
 import { convertType } from '@/helpers'
 import TaxonomyTree from './TaxonomyTree.vue'
-import makeTaxonNode from '../../utils/makeTaxonNode'
+import { makeTaxonNode } from '../../utils/makeTaxonNode'
 
 const STORAGE_ONLY_VALID_KEY = 'TW::TaxonomyTree::OnlyValid'
 
@@ -80,7 +80,7 @@ onBeforeMount(() => {
     tree.value = buildTree(body.ancestors, {
       ...body.taxon_name,
       synonyms: body.synonyms,
-      children: body.descendants?.map(makeTaxonNode) || []
+      children: body.descendants
     })
   })
 })

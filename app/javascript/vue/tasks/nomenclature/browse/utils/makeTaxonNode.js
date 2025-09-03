@@ -1,4 +1,4 @@
-export default (taxon, children = []) => {
+export function makeTaxonNode(taxon) {
   return {
     id: taxon.id,
     name: taxon.label,
@@ -6,7 +6,7 @@ export default (taxon, children = []) => {
     leaf: taxon.leaf_node,
     isExpanded: false,
     isValid: taxon.is_valid,
-    children: children || [],
+    children: taxon.children?.map((c) => makeTaxonNode(c)) || [],
     total: {
       valid: taxon.valid_descendants,
       invalid: taxon.invalid_descendants
