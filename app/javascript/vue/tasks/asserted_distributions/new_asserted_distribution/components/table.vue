@@ -24,22 +24,26 @@
             :href="browseObjectLink(item)"
             v-html="item.asserted_distribution_object.object_tag"
           />
-          <span
-            v-else
-          >
+          <span v-else>
             {{ item.asserted_distribution_object_type }}
           </span>
         </td>
         <td>
           {{ item.asserted_distribution_object_type }}
         </td>
-        <td v-html="shapeLink(
-            item.asserted_distribution_shape,
-            item.asserted_distribution_shape_type
-          )"
+        <td
+          v-html="
+            shapeLink(
+              item.asserted_distribution_shape,
+              item.asserted_distribution_shape_type
+            )
+          "
         />
         <td v-if="item.citations.length > 1">
-          <CitationCount :citations="item.citations" />
+          <CitationCount
+            :citations="item.citations"
+            @delete="(c) => store.removeAssertedDistributionCitation(c)"
+          />
         </td>
         <td v-else>
           <div class="middle">
@@ -191,7 +195,6 @@ function shapeLink(shape, type) {
     return `<a href="/gazetteers/${shape.id}">${shape.name}</a>`
   }
 }
-
 </script>
 <style scoped>
 table,
