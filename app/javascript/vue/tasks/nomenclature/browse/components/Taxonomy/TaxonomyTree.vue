@@ -79,6 +79,7 @@ import { TaxonName } from '@/routes/endpoints'
 import TaxonomyTree from './TaxonomyTree.vue'
 import TaxonomySynonyms from './TaxonomySynonyms.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import makeTaxonNode from '../../utils/makeTaxonNode'
 import { makeBrowseUrl } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import { TAXON_NAME } from '@/constants'
@@ -101,22 +102,6 @@ const props = defineProps({
 })
 
 const isLoading = ref(false)
-
-function makeTaxonNode(taxon, children = []) {
-  return {
-    id: taxon.id,
-    name: taxon.label,
-    synonyms: taxon.synonyms,
-    leaf: taxon.leaf_node,
-    isExpanded: false,
-    isValid: taxon.is_valid,
-    children: children || [],
-    total: {
-      valid: taxon.valid_descendants,
-      invalid: taxon.invalid_descendants
-    }
-  }
-}
 
 function toggle() {
   if (!props.taxon.isExpanded && !props.taxon.isLoaded) {

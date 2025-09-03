@@ -25,8 +25,9 @@
 <script setup>
 import { TaxonName } from '@/routes/endpoints'
 import { onBeforeMount, ref } from 'vue'
-import TaxonomyTree from './TaxonomyTree.vue'
 import { convertType } from '@/helpers'
+import TaxonomyTree from './TaxonomyTree.vue'
+import makeTaxonNode from '../../utils/makeTaxonNode'
 
 const STORAGE_ONLY_VALID_KEY = 'TW::TaxonomyTree::OnlyValid'
 
@@ -46,22 +47,6 @@ const onlyValid = ref(true)
 
 function updateStorage() {
   localStorage.setItem(STORAGE_ONLY_VALID_KEY, onlyValid.value)
-}
-
-function makeTaxonNode(taxon) {
-  return {
-    id: taxon.id,
-    name: taxon.label,
-    synonyms: taxon.synonyms,
-    leaf: taxon.leaf_node,
-    isExpanded: false,
-    isValid: taxon.is_valid,
-    children: taxon.children?.map(makeTaxonNode) || [],
-    total: {
-      valid: taxon.valid_descendants,
-      invalid: taxon.invalid_descendants
-    }
-  }
 }
 
 function buildTree(ancestors, taxon) {
@@ -95,7 +80,7 @@ onBeforeMount(() => {
     tree.value = buildTree(body.ancestors, {
       ...body.taxon_name,
       synonyms: body.synonyms,
-      children: body.descendants
+      children: body.descendants?.map(makeTaxonNode) || []
     })
   })
 })
