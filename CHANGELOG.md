@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Internal error when loading matrix column coder
 - Fix Otus merge for BAs with otus on subject side [#4139]
 - Filter stage images: Pagination is missing [#4540]
+- Browse OTUs: Parents list is missing when a taxon has many OTUs
 
 ### Changed
 
