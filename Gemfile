@@ -62,7 +62,7 @@ gem 'exception_notification', '~> 4.4'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
-gem 'closure_tree', '~> 7.0'
+gem 'closure_tree', '<= 8.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'
 
