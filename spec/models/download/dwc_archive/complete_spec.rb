@@ -26,7 +26,7 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
       expect(Download::DwcArchive::Complete.new.save!).to be_truthy
     end
 
-    specify 'only one allowed' do
+    specify 'only one download allowed' do
       Download::DwcArchive::Complete.create!
       expect{Download::DwcArchive::Complete.create!}
         .to raise_error(ActiveRecord::RecordInvalid, /Only one/)
@@ -49,7 +49,25 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
       expect(Time.parse(eml.at_xpath('//dateStamp').text) - Time.current).to be < 60
     end
 
-    context 'with data' do
+    specify 'doesn\'t work with empty dataset xml' do
+      Project.first.set_complete_dwc_eml_preferences(
+        '', '<metadata>\n  <gbif>\n    <dateStamp></dateStamp>\n    <emojiForTheSoul>:D</emojiForTheSoul>  </gbif>\n</metadata>'
+      )
+      expect{Download::DwcArchive::Complete.create!}
+        .to raise_error(ActiveRecord::RecordInvalid, /dataset/)
+    end
+
+    specify 'works with empty additional_metadata xml' do
+      Project.first.set_complete_dwc_eml_preferences(
+        '<alternateIdentifier>ABC123</alternateIdentifier>\n<title xmlns:lang="en">Polka funk</title>', nil
+      )
+      Download::DwcArchive::Complete.create!
+      perform_enqueued_jobs
+      eml = Spec::Support::Utilities::Dwca.extract_eml_file(Download.first.file_path)
+      expect(eml.at_xpath('//title').text).to eq('Polka funk')
+    end
+
+    context 'with predicates data' do
       let(:project) { Project.first }
       let!(:ce) { FactoryBot.create(:valid_collecting_event) }
       let!(:co) { Specimen.create!(collecting_event: ce) }

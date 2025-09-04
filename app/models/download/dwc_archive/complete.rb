@@ -60,11 +60,18 @@ class Download::DwcArchive::Complete < Download::DwcArchive
 
   def has_eml_without_stubs
     eml_dataset, eml_additional_metadata = project.complete_dwc_eml_preferences
+    # dataset has required fields for eml GBIF validation, additional metadata
+    # does not.
+    # TODO: require the required dataset EML fields that GBIF requires.
+    if eml_dataset.nil? || eml_dataset.empty?
+      errors.add(:base, 'Non-empty dataset xml is required')
+    end
+
     if eml_dataset.include?('STUB')
       errors.add(:base, "EML dataset cannot contain 'STUB'")
     end
 
-    if eml_additional_metadata.include?('STUB')
+    if eml_additional_metadata&.include?('STUB')
       errors.add(:base, "EML additional metadata cannot contain 'STUB'")
     end
   end
