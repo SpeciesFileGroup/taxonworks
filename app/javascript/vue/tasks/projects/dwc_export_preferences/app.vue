@@ -5,6 +5,38 @@
     :logo-size="{ width: '100px', height: '100px' }"
   />
 
+  <fieldset
+    id="max-age"
+    class="padding-large"
+    data-help="If the existing complete download is older than max age days, the download will fail but creation of a new download will be triggered to make a new download available."
+  >
+    <legend>Admin only</legend>
+    <template v-if="adminUser">
+      <div>
+        <label>
+          <input
+            type="text"
+            v-model="maxAge"
+            class="text-number-input"
+          />
+          Maximum Age in days
+        </label>
+      </div>
+
+      <VBtn
+        @click="setMaxAge"
+        color="create"
+        class="margin-medium-top"
+      >
+        Save Max Age
+      </VBtn>
+    </template>
+
+    <div v-else>
+      Maximum download age: {{ maxAge }} days
+    </div>
+  </fieldset>
+
   <h1 data-help="A publicly accessible complete api download can't be created until the eml preferences below have been saved and the 'Is Public' box has been checked and saved. The first time the public download is requested by api it will fail but the download will be triggered to build. Once the first build completes there will always be a download available (until no longer public or deleted).">
     Darwin core export settings for project downloads
   </h1>
@@ -195,6 +227,8 @@ const EXTENSIONS = {
 }
 
 const projectId = Number(getCurrentProjectId())
+const adminUser = ref(false) // Checked again on submission.
+const maxAge = ref(null)
 const isPublic = ref(false)
 const dataset = ref('')
 // null means not validated, array value means validated, possibly with 0 errors.
@@ -223,6 +257,8 @@ onBeforeMount(() => {
   isLoading.value = true
   DwcExportPreference.preferences(projectId)
     .then(({ body }) => {
+      adminUser.value = body.user_is_admin || false
+      maxAge.value = body.max_age
       isPublic.value = body.is_public || false
       extensions.value = body.extensions || []
       predicateParams.collecting_event_predicate_id =
@@ -238,6 +274,16 @@ onBeforeMount(() => {
     .catch(() => {})
     .finally(() => (isLoading.value = false))
 })
+
+function setMaxAge() {
+  isLoading.value = true
+  DwcExportPreference.setMaxAge(projectId, { max_age: maxAge.value })
+    .then(() => {
+      TW.workbench.alert.create('Saved maximum age.', 'notice')
+    })
+    .catch(() => {})
+    .finally(() => (isLoading.value = false))
+}
 
 function setIsPublic() {
   isLoading.value = true
@@ -311,5 +357,16 @@ function validateAndSaveEML() {
 
 #stub-warning {
   vertical-align: bottom;
+}
+
+#max-age {
+  position: absolute;
+  top: 10em;
+  right: 2em;
+}
+
+.text-number-input {
+  width: 5em;
+  margin-right: 0.5em;
 }
 </style>

@@ -114,13 +114,24 @@ class DownloadsController < ApplicationController
     download = Download.where(type: complete_download_type).first
     if download
       if download.ready?
-        download.increment!(:times_downloaded)
-        send_file download.file_path
-      else # download exists but isn't ready yet
-        render json: { success: false }
+        max_age = project.complete_dwc_download_max_age
+        download_age = Time.current - download.created_at
+        if download_age.to_f / 1.day > max_age
+          # Delete the old download and create a new one. We may want to adjust
+          # this later, but if it's just (mostly) GBIF doing regularly scheduled
+          # downloads and us scheduling the creates, this should be fine.
+          download.destroy
+          Download::DwcArchive::Complete.create!
+          render json: { status: 'A new download is being created'}
+          return
+        else # Success!
+          download.increment!(:times_downloaded)
+          send_file download.file_path
+        end
+      else
+        render json: { status: 'The existing download is not ready yet' }
       end
 
-      # TODO: regenerate existing download if it's 'old'
       return
     end
 
@@ -128,8 +139,8 @@ class DownloadsController < ApplicationController
     # *All* options for complete downloads are determined from project
     # preferences, not from public request via api.
     # !! Publicly explodes if EML prefs contain 'STUB' text.
-    @download = Download::DwcArchive::Complete.create!
-    render json: { success: false }
+    Download::DwcArchive::Complete.create!
+    render json: { status: 'A download is being created' }
   end
 
   private

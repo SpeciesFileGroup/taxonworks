@@ -8,6 +8,25 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
     # vue app
   end
 
+  def set_max_age
+    project = Project.find(sessions_current_project_id)
+    if !sessions_current_user.is_project_administrator?(project)
+      render json: {
+        base: ['Only project administrators can set maximum age']
+      }
+      return
+    else
+      if @project.set_complete_dwc_download_max_age(params[:max_age])
+        head :no_content
+      else
+        render json: {
+          base: 'Failed to interpret max age!'
+        }, status: :unprocessable_entity
+      end
+    end
+  end
+
+
   def set_is_public
     @project.set_complete_dwc_download_is_public(params[:is_public])
 
@@ -55,13 +74,13 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
       # It's probably a bug if this happens.
       render json: {
         base: ['Project save failed!']
-      }
+      }, status: :unprocessable_entity
       return
     end
   end
 
   def preferences
-    render json: @project.dwc_complete_download_preferences
+    render json: @project.dwc_complete_download_preferences(sessions_current_user)
   end
 
   private

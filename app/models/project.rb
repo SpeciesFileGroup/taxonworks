@@ -223,9 +223,11 @@ class Project < ApplicationRecord
     where('name LIKE ?', "#{params[:term]}%")
   end
 
-  def dwc_complete_download_preferences
+  def dwc_complete_download_preferences(user)
     dataset, additional_metadata = complete_dwc_eml_preferences
     {
+      user_is_admin: user.is_project_administrator?(self),
+      max_age: complete_dwc_download_max_age,
       is_public: complete_dwc_download_is_public?,
       extensions: complete_dwc_download_extensions,
       predicates: complete_dwc_download_predicates,
@@ -260,6 +262,28 @@ class Project < ApplicationRecord
     prefs['additional_metadata'] = additional_metadata
 
     save!
+  end
+
+  def set_complete_dwc_download_max_age(max_age)
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    is_decimal = true if Float(max_age) rescue false
+    if !is_decimal
+      return false
+    end
+
+    prefs['max_age'] = Float(max_age)
+    save!
+
+    true
+  end
+
+  def complete_dwc_download_max_age
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    if prefs
+      prefs['max_age']
+    else
+      nil
+    end
   end
 
   def complete_dwc_download_is_public?

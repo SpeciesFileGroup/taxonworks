@@ -751,6 +751,7 @@ resources :projects, only: [] do
       # control and functional grouping.
       get :preferences, defaults: {format: :json}
       post :save_eml, defaults: {format: :json}
+      post :set_max_age, defaults: {format: :json}
       post :set_is_public, defaults: {format: :json}
       post :set_extensions, defaults: {format: :json}
       post :set_predicates, defaults: {format: :json}

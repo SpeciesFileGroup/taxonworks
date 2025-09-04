@@ -4,6 +4,9 @@ export const DwcExportPreference = {
   preferences: (id) =>
     AjaxCall('get', `/projects/${id}/dwc_export_preferences/preferences.json`),
 
+  setMaxAge: (id, params) =>
+    AjaxCall('post', `/projects/${id}/dwc_export_preferences/set_max_age.json`, params),
+
   setIsPublic: (id, params) =>
     AjaxCall('post', `/projects/${id}/dwc_export_preferences/set_is_public.json`, params),
 
