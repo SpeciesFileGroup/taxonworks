@@ -46,9 +46,9 @@ class Download::DwcArchive::Complete < Download::DwcArchive
   # predicate_extensions may have been initialized from query parameters with
   # string keys and string values.
   def normalized_predicate_extensions(predicates)
-    return {} if !predicate_extensions&.is_a?(Hash)
+    return {} if !predicates&.is_a?(Hash)
 
-    predicate_extensions.inject({}) do |h, (k, v)|
+    predicates.inject({}) do |h, (k, v)|
       h[k.to_sym] = v.map(&:to_i)
       h
     end

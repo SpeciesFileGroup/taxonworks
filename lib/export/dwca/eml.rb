@@ -50,11 +50,17 @@ module Export::Dwca::Eml
     end
 
     DATASET_PARAMETERS.each do |p|
-      doc.at_xpath("//#{p}").content = self.actualize_dataset_stub(p, uuid)
+      fragment = doc.at_xpath("//#{p}")
+      if fragment # user may have deleted this parameter
+        fragment.content = self.actualize_dataset_stub(p, uuid)
+      end
     end
 
     ADDITIONAL_METADATA_PARAMETERS.each do |p|
-      doc.at_xpath("//#{p}").content = self.actualize_additional_metadata_stub(p, uuid)
+      fragment = doc.at_xpath("//#{p}")
+      if fragment # user may have deleted this parameter
+        fragment.content = self.actualize_additional_metadata_stub(p, uuid)
+      end
     end
 
     doc.to_xml
