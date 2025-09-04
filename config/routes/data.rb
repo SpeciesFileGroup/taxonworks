@@ -753,6 +753,7 @@ resources :projects, only: [] do
       post :save_eml, defaults: {format: :json}
       post :set_is_public, defaults: {format: :json}
       post :set_extensions, defaults: {format: :json}
+      post :set_predicates, defaults: {format: :json}
     end
   end
 

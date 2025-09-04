@@ -131,9 +131,27 @@
     <VBtn
       @click="validateAndSaveEML"
       color="create"
-      class="margin-medium-top margin-large-bottom"
+      class="margin-medium-top"
     >
       Validate and save EML
+    </VBtn>
+  </div>
+
+  <h2>Predicates</h2>
+  <div class="margin-medium-left">
+    <PredicateFilter
+      v-model:collecting-event-predicate-id="predicateParams.collecting_event_predicate_id"
+      v-model:collection-object-predicate-id="predicateParams.collection_object_predicate_id"
+      v-model:taxonworks-extension-methods="selectedExtensionMethods.taxonworks_extension_methods"
+      class="predicate-filter"
+    />
+
+    <VBtn
+      @click="setPredicates"
+      color="create"
+      class="margin-medium-top margin-large-bottom"
+    >
+      Save predicates
     </VBtn>
   </div>
 </template>
@@ -141,7 +159,8 @@
 <script setup>
 import { getCurrentProjectId } from '@/helpers/project.js'
 import { DwcExportPreference } from '@/routes/endpoints'
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, reactive, ref } from 'vue'
+import PredicateFilter from '@/components/Export/PredicateFilter.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
@@ -159,16 +178,29 @@ const additionalMetadata = ref('')
 const additionalMetadataErrors = ref(null)
 const autoFilledFields = ref({})
 const extensions = ref([])
+const predicateParams = reactive({
+  collecting_event_predicate_id: [],
+  collection_object_predicate_id: []
+})
+const selectedExtensionMethods = reactive({
+  taxonworks_extension_methods: []
+})
 const isLoading = ref(false)
 
 onBeforeMount(() => {
   isLoading.value = true
   DwcExportPreference.preferences(projectId)
     .then(({ body }) => {
-      isPublic.value = body.is_public
-      extensions.value = body.extensions
-      dataset.value = body.eml_preferences.dataset
-      additionalMetadata.value = body.eml_preferences.additional_metadata
+      isPublic.value = body.is_public || false
+      extensions.value = body.extensions || []
+      predicateParams.collecting_event_predicate_id =
+        body.predicates?.collecting_event_predicate_id || []
+      predicateParams.collection_object_predicate_id =
+        body.predicates?.collection_object_predicate_id || []
+      selectedExtensionMethods.taxonworks_extension_methods =
+        body.predicates?.taxonworks_extension_methods || []
+      dataset.value = body.eml_preferences?.dataset
+      additionalMetadata.value = body.eml_preferences?.additional_metadata
       autoFilledFields.value = body.auto_filled
     })
     .catch(() => {})
@@ -190,6 +222,26 @@ function setExtensions() {
   DwcExportPreference.setExtensions(projectId, { extensions: extensions.value })
     .then(() => {
       TW.workbench.alert.create('Saved extensions.', 'notice')
+    })
+    .catch(() => {})
+    .finally(() => (isLoading.value = false))
+}
+
+function setPredicates() {
+  const payload = {
+    predicates: {
+      collecting_event_predicate_id:
+        predicateParams.collecting_event_predicate_id,
+      collection_object_predicate_id:
+        predicateParams.collection_object_predicate_id,
+      taxonworks_extension_methods:
+        selectedExtensionMethods.taxonworks_extension_methods
+    }
+  }
+  isLoading.value = true
+  DwcExportPreference.setPredicates(projectId, payload)
+    .then(() => {
+       TW.workbench.alert.create('Saved predicates.', 'notice')
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))
@@ -218,6 +270,10 @@ function validateAndSaveEML() {
     .finally(() => (isLoading.value = false))
 }
 
-
-
 </script>
+
+<style lang="scss" >
+.predicate-filter {
+  width: 700px;
+}
+</style>

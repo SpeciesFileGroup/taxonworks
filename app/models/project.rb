@@ -228,6 +228,7 @@ class Project < ApplicationRecord
     {
       is_public: complete_dwc_download_is_public?,
       extensions: complete_dwc_download_extensions,
+      predicates: complete_dwc_download_predicates,
       eml_preferences: {
         dataset:,
         additional_metadata:
@@ -258,7 +259,7 @@ class Project < ApplicationRecord
     prefs['dataset'] = dataset
     prefs['additional_metadata'] = additional_metadata
 
-    save
+    save!
   end
 
   def complete_dwc_download_is_public?
@@ -274,7 +275,7 @@ class Project < ApplicationRecord
     prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
     prefs['is_public'] = is_public == true || is_public == 'true'
 
-    save
+    save!
   end
 
   def complete_dwc_download_extensions
@@ -290,7 +291,23 @@ class Project < ApplicationRecord
     prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
     prefs['extensions'] = extensions
 
-    save
+    save!
+  end
+
+  def complete_dwc_download_predicates
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    if prefs
+      prefs['predicates']
+    else
+      []
+    end
+  end
+
+  def set_complete_dwc_download_predicates(predicates)
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    prefs['predicates'] = predicates
+
+    save!
   end
 
   protected
