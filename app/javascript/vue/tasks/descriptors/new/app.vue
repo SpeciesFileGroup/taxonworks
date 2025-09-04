@@ -13,12 +13,15 @@
           <a :href="observationMatrixHubPath">Observation matrix hub</a>
         </li>
         <li>
-          <span
+          <VBtn
+            medium
+            color="primary"
             @click="resetDescriptor"
-            data-icon="reset"
-            class="middle cursor-pointer"
-            >Reset</span
+            >New</VBtn
           >
+        </li>
+        <li>
+          <VRecent @select="setDescriptor" />
         </li>
       </ul>
     </div>
@@ -29,7 +32,7 @@
             :descriptor-id="descriptor.id"
             v-model="descriptor.type"
           />
-          <block-layout
+          <BlockLayout
             v-if="descriptor.type"
             class="margin-medium-top"
           >
@@ -90,7 +93,7 @@
                 </v-btn>
               </template>
             </template>
-          </block-layout>
+          </BlockLayout>
           <matrix-component
             class="margin-medium-top"
             v-model="matrix"
@@ -123,6 +126,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import makeDescriptor from '@/factory/Descriptor.js'
 import MatrixComponent from './components/matrix/Matrix.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
+import VRecent from './components/Recent.vue'
 import { setParam } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import { Descriptor, ObservationMatrixColumnItem } from '@/routes/endpoints'
@@ -145,7 +149,8 @@ export default {
     Autocomplete,
     VBtn,
     BlockLayout,
-    MatrixComponent
+    MatrixComponent,
+    VRecent
   },
 
   computed: {
@@ -280,12 +285,16 @@ export default {
       })
     },
 
+    setDescriptor(d) {
+      this.descriptor = d
+      setParam(RouteNames.NewDescriptor, 'descriptor_id', d.id)
+    },
+
     loadDescriptor(descriptorId) {
       this.loading = true
       Descriptor.find(descriptorId)
         .then(({ body }) => {
-          this.descriptor = body
-          setParam(RouteNames.NewDescriptor, 'descriptor_id', body.id)
+          this.setDescriptor(body)
         })
         .finally(() => {
           this.loading = false
