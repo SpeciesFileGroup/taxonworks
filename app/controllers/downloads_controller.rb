@@ -127,6 +127,7 @@ class DownloadsController < ApplicationController
     # Complete project download doesn't exist yet, spin one up.
     # *All* options for complete downloads are determined from project
     # preferences, not from public request via api.
+    # !! Publicly explodes if EML prefs contain 'STUB' text.
     @download = Download::DwcArchive::Complete.create!
     render json: { success: false }
   end

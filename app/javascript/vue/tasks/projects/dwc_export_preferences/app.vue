@@ -22,12 +22,21 @@
     </div>
 
     <VBtn
+      :disabled="!isPublic && emlHasStubText"
       @click="setIsPublic"
       color="create"
       class="margin-medium-top"
     >
       Save "Is Public"
     </VBtn>
+
+    <div
+      v-if="!isPublic && emlHasStubText"
+      class="feedback-warning d-inline-block padding-xsmall margin-medium-left"
+      id="stub-warning"
+    >
+      Remove all EML 'STUB' text to enable save
+    </div>
   </div>
 
   <h2>Extensions</h2>
@@ -206,6 +215,9 @@ const isLoading = ref(false)
 const datasetHasStubText = computed(() => (dataset.value.includes('STUB')))
 const additionalMetadataHasStubText =
   computed(() => (additionalMetadata.value.includes('STUB')))
+const emlHasStubText = computed(() => (
+  datasetHasStubText.value || additionalMetadataHasStubText.value
+))
 
 onBeforeMount(() => {
   isLoading.value = true
@@ -295,5 +307,9 @@ function validateAndSaveEML() {
 <style lang="scss" >
 .predicate-filter {
   width: 700px;
+}
+
+#stub-warning {
+  vertical-align: bottom;
 }
 </style>

@@ -12,25 +12,40 @@ class Download::DwcArchive::Complete < Download::DwcArchive
 
   validates_uniqueness_of :type, scope: [:project_id], message: 'Only one Download::DwcArchive::Complete is allowed. Destroy the old version first.'
 
+  validate :has_eml_without_stubs
+
   def self.api_buildable?
     true
   end
 
   def build
     record_scope = ::DwcOccurrence.where(project_id: project_id)
-    eml_dataset, eml_additional_metadata = project.eml_preferences
+    eml_dataset, eml_additional_metadata = project.complete_dwc_eml_preferences
+    predicates = project.complete_dwc_download_predicates
     ::DwcaCreateDownloadJob.perform_later(
       id,
       core_scope: record_scope.to_sql,
-      eml_data: { dataset: eml_dataset, additional_metadata: eml_additional_metadata }
+      eml_data: { dataset: eml_dataset, additional_metadata: eml_additional_metadata },
+      predicate_extensions: normalized_predicate_extensions(predicates)
     )
   end
 
   private
 
+  def has_eml_without_stubs
+    eml_dataset, eml_additional_metadata = project.complete_dwc_eml_preferences
+    if eml_dataset.include?('STUB')
+      errors.add(:base, "EML dataset cannot contain 'STUB'")
+    end
+
+    if eml_additional_metadata.include?('STUB')
+      errors.add(:base, "EML additional metadata cannot contain 'STUB'")
+    end
+  end
+
   # predicate_extensions may have been initialized from query parameters with
   # string keys and string values.
-  def normalized_predicate_extensions
+  def normalized_predicate_extensions(predicates)
     return {} if !predicate_extensions&.is_a?(Hash)
 
     predicate_extensions.inject({}) do |h, (k, v)|
