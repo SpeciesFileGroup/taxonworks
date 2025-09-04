@@ -46,6 +46,7 @@
     <div>
       <label data-help="Make this project's darwin core archive, determined by the settings on this page, PUBLICLY accessible from the api">
         <input
+          :disabled="isPublicIsDisabled"
           type="checkbox"
           v-model="isPublic"
         />
@@ -54,7 +55,7 @@
     </div>
 
     <VBtn
-      :disabled="!isPublic && emlHasStubText"
+      :disabled="isPublicIsDisabled"
       @click="setIsPublic"
       color="create"
       class="margin-medium-top"
@@ -63,7 +64,7 @@
     </VBtn>
 
     <div
-      v-if="!isPublic && emlHasStubText"
+      v-if="isPublicIsDisabled"
       class="feedback-warning d-inline-block padding-xsmall margin-medium-left"
       id="stub-warning"
     >
@@ -253,6 +254,8 @@ const emlHasStubText = computed(() => (
   datasetHasStubText.value || additionalMetadataHasStubText.value
 ))
 
+const isPublicIsDisabled = computed(() => (!isPublic.value && emlHasStubText.value))
+
 onBeforeMount(() => {
   isLoading.value = true
   DwcExportPreference.preferences(projectId)
@@ -326,6 +329,10 @@ function setPredicates() {
 }
 
 function validateAndSaveEML() {
+  if (emlHasStubText.value && isPublic.value) {
+     TW.workbench.alert.create('Public EML can\'t be saved with "STUB" text', 'notice')
+     return
+  }
   const payload = {
     dataset: dataset.value,
     additional_metadata: additionalMetadata.value
@@ -342,7 +349,17 @@ function validateAndSaveEML() {
               TW.workbench.alert.create('Saved EML.', 'notice')
             })
             .catch(() => {})
+      } else {
+        let errors = ''
+        if (datasetErrors.value.length > 0 && additionalMetadataErrors.value.length > 0) {
+          errors = 'No EML was saved, errors in both dataset and additional metadata.'
+        } else if (datasetErrors.value.length > 0) {
+          errors = 'dataset has xml errors, was NOT saved; additional metadata WAS saved.'
+        } else {
+          errors = 'additional metadata has xml errors, was NOT saved; dataset WAS saved.'
         }
+        TW.workbench.alert.create(errors, 'notice')
+      }
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))

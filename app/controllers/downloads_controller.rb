@@ -105,13 +105,15 @@ class DownloadsController < ApplicationController
   def api_dwc_archive_complete
     project = Project.find(sessions_current_project_id)
 
-    if !project.dwc_download_is_public?
+    if !project.complete_dwc_download_is_public?
       render json: { success: false }
       return
     end
 
     complete_download_type = 'Download::DwcArchive::Complete'
-    download = Download.where(type: complete_download_type).first
+    download = Download.where(
+      type: complete_download_type, project_id: sessions_current_project_id
+    ).first
     if download
       if download.ready?
         max_age = project.complete_dwc_download_max_age
