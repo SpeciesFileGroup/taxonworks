@@ -61,32 +61,40 @@
 
   <h2>EML</h2>
   <div class="margin-medium-left">
-    <template v-if="datasetErrors?.length > 0">
-      <fieldset
-        class="padding-large-right"
-        style="max-width: 600px"
+    <fieldset
+      v-if="datasetErrors?.length > 0"
+      class="padding-large-right"
+      style="max-width: 600px"
+    >
+      <legend class="feedback-danger">Errors in dataset xml</legend>
+      <ul
+        v-for="msg in datasetErrors"
+        :key="msg"
       >
-        <legend class="feedback-danger">Errors in dataset xml</legend>
-        <ul
-          v-for="msg in datasetErrors"
-          :key="msg"
-        >
-          <li>{{ msg }}</li>
-        </ul>
-      </fieldset>
-    </template>
+        <li>{{ msg }}</li>
+      </ul>
+    </fieldset>
 
-    <template v-else-if="datasetErrors?.length == 0">
-      <div class="feedback-success d-inline-block padding-xsmall">
-        Dataset xml is valid
-      </div>
-    </template>
+    <div
+      v-else-if="datasetErrors?.length == 0"
+      class="feedback-success d-inline-block padding-xsmall"
+    >
+      Dataset xml is valid
+    </div>
 
     <div>
       <p>
         Dataset ({{ autoFilledFields?.dataset?.join(', ')}} will be auto-set on DwCA
         creation):
       </p>
+
+      <template v-if="datasetHasStubText">
+        <div class="feedback-warning d-inline-block padding-xsmall">
+          Contains 'STUB' text
+        </div>
+        <br>
+      </template>
+
       <textarea
         v-model="dataset"
         rows="44"
@@ -121,6 +129,14 @@
         Additional metadata ({{autoFilledFields?.additional_metadata?.join(', ') }}
         will be auto-set on DwCA creation):
       </p>
+
+      <template v-if="additionalMetadataHasStubText">
+        <div class="feedback-warning d-inline-block padding-xsmall">
+          Contains 'STUB' text
+        </div>
+        <br>
+      </template>
+
       <textarea
         v-model="additionalMetadata"
         rows="13"
@@ -159,7 +175,7 @@
 <script setup>
 import { getCurrentProjectId } from '@/helpers/project.js'
 import { DwcExportPreference } from '@/routes/endpoints'
-import { onBeforeMount, reactive, ref } from 'vue'
+import { computed, onBeforeMount, reactive, ref } from 'vue'
 import PredicateFilter from '@/components/Export/PredicateFilter.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -186,6 +202,10 @@ const selectedExtensionMethods = reactive({
   taxonworks_extension_methods: []
 })
 const isLoading = ref(false)
+
+const datasetHasStubText = computed(() => (dataset.value.includes('STUB')))
+const additionalMetadataHasStubText =
+  computed(() => (additionalMetadata.value.includes('STUB')))
 
 onBeforeMount(() => {
   isLoading.value = true
