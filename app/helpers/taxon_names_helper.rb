@@ -589,9 +589,9 @@ module TaxonNamesHelper
       id: taxon_name.id,
       label: taxon_name.cached_html_name_and_author_year,
       is_valid: taxon_name.cached_is_valid,
-      valid_descendants: taxon_name.descendants.that_is_valid.count,
-      invalid_descendants: taxon_name.descendants.that_is_invalid.count,
-      leaf_node: taxon_name.descendants.empty?
+      valid_descendants: taxon_name.descendants.unscope(:order).that_is_valid.count,
+      invalid_descendants: taxon_name.descendants.unscope(:order).that_is_invalid.count,
+      leaf_node: taxon_name.descendants.unscope(:order).empty?
     }
   end
 
