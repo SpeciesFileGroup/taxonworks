@@ -116,6 +116,18 @@ export function useIdentifierStore(type) {
         return request
       },
 
+      remove() {
+        if (
+          window.confirm(
+            `You're trying to delete this identifier. Are you sure want to proceed?`
+          )
+        ) {
+          Identifier.destroy(this.identifier.id)
+
+          this.$reset()
+        }
+      },
+
       reset({ keepNamespace, increment }) {
         const { namespaceId, identifier } = this.identifier
 

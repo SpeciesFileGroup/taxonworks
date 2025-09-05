@@ -53,6 +53,7 @@ class Image < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::Citations
   include Shared::Attributions
+  include Image::DwcMediaExtensions
   include Shared::IsData
   include SoftValidation
 

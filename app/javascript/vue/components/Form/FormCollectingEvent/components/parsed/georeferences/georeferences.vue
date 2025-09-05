@@ -67,17 +67,19 @@
               :height="height"
               :width="width"
               :geojson="mapGeoreferences"
-              :zoom="zoom"
+              :zoom="2"
               fit-bounds
               resize
-              :draw-controls="true"
-              :draw-polyline="false"
-              :cut-polygon="false"
-              :removal-mode="false"
+              draw-polygon
+              draw-rectangle
+              draw-circle
+              draw-marker
+              drag-mode
+              edit-mode
               tooltips
               actions
-              @geoJsonLayersEdited="updateGeoreference($event)"
-              @geoJsonLayerCreated="addGeoreference($event)"
+              @layer:edit="({ feature }) => updateGeoreference(feature)"
+              @layer:create="({ feature }) => addGeoreference(feature)"
             />
           </div>
           <div class="margin-medium-top">
@@ -118,7 +120,7 @@
 </template>
 
 <script setup>
-import VMap from '@/components/georeferences/map'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import DisplayList from './list'
 import convertDMS from '@/helpers/parseDMS.js'
 import VManually from '@/components/georeferences/manuallyComponent'
@@ -157,11 +159,6 @@ const props = defineProps({
   geolocationUncertainty: {
     type: [String, Number],
     default: undefined
-  },
-
-  zoom: {
-    type: Number,
-    default: 1
   }
 })
 
@@ -234,11 +231,15 @@ const mapGeoreferences = computed(() => {
         (item.id || !EXCLUDE.includes(item.type)) &&
         (item?.geographic_item_attributes?.shape || item?.geo_json)
     )
-    .map((item) =>
-      item.geo_json
-        ? item.geo_json
-        : JSON.parse(item?.geographic_item_attributes?.shape)
-    )
+    .map((item) => {
+      const geojson = item.geographic_item_attributes
+        ? JSON.parse(item?.geographic_item_attributes?.shape)
+        : item.geo_json
+
+      geojson.properties.uuid = item.uuid
+
+      return geojson
+    })
 
   return geographicArea?.has_shape
     ? [geographicArea.shape, ...georeferences]
@@ -267,13 +268,15 @@ function addGeoreference(shape, type = GEOREFERENCE_LEAFLET) {
   })
 }
 
-function updateGeoreference(shape, type = GEOREFERENCE_LEAFLET) {
-  addToQueue({
-    id: shape.properties.georeference.id,
-    error_radius: shape.properties?.radius,
-    geographic_item_attributes: { shape: JSON.stringify(shape) },
-    collecting_event_id: collectingEvent.value.id,
-    type
+function updateGeoreference(feature, type = GEOREFERENCE_LEAFLET) {
+  const georeference = store.georeferences.find(
+    (item) => item.uuid === feature.properties.uuid
+  )
+
+  Object.assign(georeference, {
+    error_radius: feature.properties?.radius,
+    geographic_item_attributes: { shape: JSON.stringify(feature) },
+    isUnsaved: true
   })
 }
 

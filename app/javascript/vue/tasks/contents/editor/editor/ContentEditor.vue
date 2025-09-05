@@ -5,16 +5,14 @@
   >
     <div class="flexbox">
       <div class="left">
-        <div class="flex-separate">
-          <div class="title">
-            <span>
-              <span v-if="store.topic">{{ store.topic.name }}</span> -
-              <span
-                v-if="store.otu"
-                v-html="store.otu.object_tag"
-              />
-            </span>
-          </div>
+        <div class="flex-separate margin-medium-bottom">
+          <span>
+            <span v-if="store.topic">{{ store.topic.name }}</span> -
+            <span
+              v-if="store.otu"
+              v-html="store.otu.object_tag"
+            />
+          </span>
           <div class="horizontal-left-content middle gap-small">
             <template v-if="store.content.id">
               <PublishContent :content-id="store.content.id" />

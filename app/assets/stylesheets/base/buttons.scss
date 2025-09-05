@@ -6,7 +6,7 @@
   color: #444;
   border: none;
   background-color: var(--button-default-bg-color);
-  border-radius: 8px;
+  border-radius: var(--border-radius-small);
   &:disabled {
     color: var(--button-disabled-text-color);
     background-color: var(--button-disabled-bg-color) !important;

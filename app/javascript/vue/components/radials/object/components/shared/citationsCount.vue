@@ -103,14 +103,16 @@ export default {
 
   methods: {
     removeCitation(cite) {
-      this.destroy(`/citations/${cite.id}.json`).then((response) => {
-        this.citations.splice(
-          this.citations.findIndex((item) => {
-            return item.id == cite.id
-          }),
-          1
-        )
-      })
+      this.destroy(`/citations/${cite.id}.json`)
+        .then((response) => {
+          this.citations.splice(
+            this.citations.findIndex((item) => {
+              return item.id == cite.id
+            }),
+            1
+          )
+        })
+        .catch(() => {})
     },
 
     loadCitations() {

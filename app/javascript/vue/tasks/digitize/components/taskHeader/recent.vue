@@ -1,12 +1,12 @@
 <template>
   <div>
-    <button
-      type="button"
-      class="button normal-input button-default"
+    <VBtn
+      medium
+      color="primary"
       @click="isModalVisible = true"
     >
       Recent
-    </button>
+    </VBtn>
     <VModal
       v-if="isModalVisible"
       :container-style="{ width: '90vw' }"

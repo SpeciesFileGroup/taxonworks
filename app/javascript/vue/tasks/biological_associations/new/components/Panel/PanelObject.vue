@@ -19,6 +19,7 @@
           :pin-section="currentTab"
           :otu-picker="currentTab === OTU"
           :pin-type="currentTab"
+          :params="smartSelectorParams"
           @selected="broadcastObject"
         >
           <template #tabs-right>
@@ -65,6 +66,11 @@ defineProps({
   title: {
     type: String,
     required: true
+  },
+
+  smartSelectorParams: {
+    type: Object,
+    default: undefined
   }
 })
 

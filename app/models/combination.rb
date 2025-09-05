@@ -458,13 +458,13 @@ class Combination < TaxonName
       s.push "MAX(combination_taxon_names_taxon_names.cached_gender) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_gender"
     end
 
-    s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date, taxon_names.updated_by_id, taxon_names.updated_at, sources.id source_id, citations.pages'
+    s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date, taxon_names.updated_by_id, taxon_names.updated_at, sources.id source_id, citations.pages, citations.is_original'
 
     sel = s.join(',')
 
     Combination.joins(:combination_taxon_names, :source)
       .select(sel)
-      .group('taxon_names.id, sources.id, citations.pages')
+      .group('taxon_names.id, sources.id, citations.pages, citations.is_original')
   end
 
   # An experimental approach to return all required information to format the

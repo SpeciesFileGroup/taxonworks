@@ -47,6 +47,9 @@
   --feedback-warning-text-color: #c3a78a;
   --feedback-warning-bg-color: #fff5ea;
   --feedback-warning-border-color: #e5d2be;
+
+  --taxon-name-valid-color: #0c2351;
+  --taxon-name-invalid-color: #b0783c;
 }
 
 .dark {
@@ -96,6 +99,9 @@
   --feedback-warning-text-color: #cf873b;
   --feedback-warning-bg-color: #37332f;
   --feedback-warning-border-color: #6b461e;
+
+  --taxon-name-valid-color: #b6cfff;
+  --taxon-name-invalid-color: #cf873b;
 }
 
 $tw-dark-colors: (
@@ -145,6 +151,7 @@ $tw-map-colors: (
   'field-occurrence': #84cc16,
   'type-material': #3388ff,
   'asserted-distribution': #f97316,
+  'asserted-distribution-absent': #6a51a3,
   'georeference': #ef4444
 );
 

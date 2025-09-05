@@ -244,18 +244,20 @@ class BiologicalAssociation < ApplicationRecord
 
   private
 
-  # We need to add the error to the polymorphic object class for Unify puproses, not the subject_id.
-  # We can't (apparently) validate uniqueness of a polymorphic with other polymorphic scope.
   def association_is_unique
     if a = BiologicalAssociation.where.not(id:).where(
         biological_association_subject:,
         biological_association_object:,
         biological_relationship:
     ).first
-      if a.biological_association_subject == self
-        errors.add(:biological_association_subject, "has already been taken")
+      # For unify purposes, self has changed either subject or object, a is the
+      # identical BA we will perhaps unify with.
+      if will_save_change_to_biological_association_subject_id?
+        errors.add(:biological_association_subject, 'has already been taken')
+      elsif will_save_change_to_biological_association_object_id?
+        errors.add(:biological_association_object, 'has already been taken')
       else
-        errors.add(:biological_association_object, "has already been taken")
+        errors.add(:biological_association, 'already exists')
       end
     end
   end

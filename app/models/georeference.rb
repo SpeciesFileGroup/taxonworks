@@ -73,11 +73,9 @@ class Georeference < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
-  include Shared::Maps # TODO: included twice
+  include Shared::Maps
   include Shared::DwcOccurrenceHooks
   include Shared::IsData
-
-  include Shared::Maps
 
   attr_accessor :iframe_response # used to handle the geolocate from Tulane response
 
@@ -93,6 +91,8 @@ class Georeference < ApplicationRecord
   has_many :collection_object_otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
   has_many :field_occurrence_otus, -> { unscope(:order) }, through: :field_occurrences, source: 'otu'
 
+  # TODO: this should probably go away, it's misleading now with multiple
+  # throughs possible.
   has_many :otus, through: :collection_objects, source: 'otus'
 
   has_many :georeferencer_roles, class_name: 'Georeferencer', as: :role_object, dependent: :destroy, inverse_of: :role_object

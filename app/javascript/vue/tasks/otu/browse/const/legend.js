@@ -4,10 +4,15 @@ import {
   COLLECTION_OBJECT,
   GEOREFERENCE,
   ASSERTED_DISTRIBUTION,
-  MAP_SHAPE_AGGREGATE
+  MAP_SHAPE_AGGREGATE,
+  MAP_SHAPE_ASSERTED_DISTRIBUTION_ABSENT
 } from '@/constants'
 
 export const LEGEND = {
+  [MAP_SHAPE_ASSERTED_DISTRIBUTION_ABSENT]: {
+    label: 'Asserted absent',
+    background: 'bg-asserted-distribution-absent'
+  },
   [MAP_SHAPE_AGGREGATE]: {
     label: 'Aggregate (Asserted distribution & Georeference)',
     background: 'bg-aggregate'

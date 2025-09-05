@@ -173,6 +173,12 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         expect(asserted_distribution.citations.count).to eq(1)
       end
 
+      specify 'providing a citation with #origin_citation_attributes validates' do
+        asserted_distribution.origin_citation_attributes = {source:}
+        expect(asserted_distribution.save).to be_truthy
+        expect(asserted_distribution.citations.count).to eq(1)
+      end
+
       specify 'providing a citation with #citations.build validates' do
         asserted_distribution.citations.build(source:)
         expect(asserted_distribution.save).to be_truthy
@@ -196,19 +202,196 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         expect(a.citations.count).to eq(1)
       end
 
+      context 'record associations after validation work' do
+        specify 'citations associations work after save through source' do
+          asserted_distribution.source = source
+          asserted_distribution.save!
+
+          # With our associations, saving .source automatically creates
+          # origin_citation and citations.first.
+          expect(asserted_distribution.citations.first.source.id).to be_truthy
+          expect(asserted_distribution.origin_citation.source.id).to be_truthy
+          expect(asserted_distribution.source.id).to be_truthy
+        end
+
+        specify 'citations associations work after save through origin_citation' do
+          asserted_distribution.origin_citation = Citation.new(source:)
+          asserted_distribution.save!
+
+          # With our associations, saving .origin_citation automatically creates citations.first but *not* source.
+          expect(asserted_distribution.citations.first.source.id).to be_truthy
+          expect(asserted_distribution.origin_citation.source.id).to be_truthy
+        end
+
+        specify 'citations associations work after save through citations_attributes' do
+          asserted_distribution.citations_attributes = [{source:}]
+          asserted_distribution.save!
+
+          expect(asserted_distribution.citations.first.source.id).to be_truthy
+        end
+      end
+
       context 'attempting to delete last citation' do
-        specify 'when citation is origin_citation' do
+        specify 'permitted when deleting self 1' do
+          asserted_distribution.origin_citation = Citation.new(source:)
+          asserted_distribution.save!
+          expect(asserted_distribution.destroy).to be_truthy
+          expect(AssertedDistribution.count).to be(0)
+        end
+
+        specify 'permitted when deleting self 2' do
+          asserted_distribution.citations << Citation.new(source:)
+          asserted_distribution.save!
+          expect(asserted_distribution.destroy).to be_truthy
+          expect(AssertedDistribution.count).to be(0)
+        end
+
+        specify 'permitted when deleting self 3' do
+          asserted_distribution.source = source
+          asserted_distribution.save!
+          expect(asserted_distribution.destroy!).to be_truthy
+          expect(AssertedDistribution.count).to be(0)
+        end
+
+        specify 'when citation is origin_citation; destroy' do
           asserted_distribution.source = source
           asserted_distribution.save!
           expect(asserted_distribution.citations.count).to eq(1)
-          expect(asserted_distribution.citations.reload.first.destroy).to be_falsey
+          ocit = asserted_distribution.origin_citation
+          ocit.destroy
+          expect(ocit.errors[:base].first).to match('citation is required')
+          expect(asserted_distribution.reload.citations.count).to eq(1)
         end
 
-        specify 'when citation is not origin citation' do
+        specify 'when citation is origin_citation; destroy!' do
+          asserted_distribution.source = source
+          asserted_distribution.save!
+          expect(asserted_distribution.citations.count).to eq(1)
+          ocit = asserted_distribution.origin_citation
+          expect{ocit.destroy!}.to raise_error(ActiveRecord::RecordNotDestroyed)
+          expect(ocit.errors[:base].first).to match('citation is required')
+          expect(asserted_distribution.reload.citations.count).to eq(1)
+        end
+
+        specify 'when citation is not origin citation; destroy' do
           asserted_distribution.citations << Citation.new(source:)
           expect(asserted_distribution.save).to be_truthy
           expect(asserted_distribution.citations.count).to eq(1)
-          expect(asserted_distribution.citations.reload.first.destroy).to be_falsey
+          cit = asserted_distribution.citations.first
+          cit.destroy
+          expect(cit.errors[:base].first).to match('citation is required')
+          expect(asserted_distribution.reload.citations.count).to eq(1)
+        end
+
+        specify 'when citation is not origin citation; destroy!' do
+          asserted_distribution.citations << Citation.new(source:)
+          expect(asserted_distribution.save).to be_truthy
+          expect(asserted_distribution.citations.count).to eq(1)
+          cit = asserted_distribution.citations.first
+          expect{cit.destroy!}.to raise_error(ActiveRecord::RecordNotDestroyed)
+          expect(cit.errors[:base].first).to match('citation is required')
+          expect(asserted_distribution.reload.citations.count).to eq(1)
+        end
+
+        context 'with _delete / marked_for_destruction' do
+          context 'with !' do
+            specify 'origin citation via a nested origin attribute delete' do
+              asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
+              asserted_distribution.save!
+              expect(asserted_distribution.citations.count).to eq(1)
+              expect{asserted_distribution.update!(origin_citation_attributes: {
+                _destroy: true, id: asserted_distribution.origin_citation.id
+            })}.to raise_error(ActiveRecord::RecordInvalid, /citation is not provided/)
+              expect(asserted_distribution.reload.citations.count).to eq(1)
+            end
+
+            specify 'origin citation via a nested citations attribute delete' do
+              asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
+              asserted_distribution.save!
+              expect(asserted_distribution.citations.count).to eq(1)
+              expect{asserted_distribution.update!(citations_attributes: {
+                _destroy: true, id: asserted_distribution.origin_citation.id
+            })}.to raise_error(ActiveRecord::RecordInvalid, /citation is not provided/)
+              expect(asserted_distribution.reload.citations.count).to eq(1)
+            end
+
+            specify 'not-origin-citation via a nested attribute delete' do
+              asserted_distribution.citations << Citation.new(source:)
+              asserted_distribution.save!
+              expect(asserted_distribution.citations.count).to eq(1)
+              expect{asserted_distribution.update!(citations_attributes: {
+                _destroy: true, id: asserted_distribution.citations.first.id
+              })}.to raise_error(ActiveRecord::RecordInvalid, /citation is not provided/)
+              expect(asserted_distribution.reload.citations.count).to eq(1)
+            end
+
+            specify 'trying to save citation with marked_for_destruction citation' do
+              asserted_distribution.citations << Citation.new(source:)
+              asserted_distribution.mark_citations_for_destruction
+
+              expect{asserted_distribution.save!}
+                .to raise_error(ActiveRecord::RecordInvalid, /citation is not provided/)
+            end
+
+            specify 'trying to save origin citation with marked_for_destruction citation' do
+              asserted_distribution.origin_citation = Citation.new(source:)
+              asserted_distribution.origin_citation.mark_for_destruction
+
+              expect{asserted_distribution.save!}
+                .to raise_error(ActiveRecord::RecordInvalid, /citation is not provided/)
+            end
+          end
+
+          context 'without !' do
+            specify 'origin citation via a origin attribute delete' do
+              asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
+              asserted_distribution.save!
+              expect(asserted_distribution.citations.count).to eq(1)
+              asserted_distribution.update(origin_citation_attributes: {
+                _destroy: true, id: asserted_distribution.origin_citation.id
+              })
+              expect(asserted_distribution.errors[:base].first).to match('citation is not provided')
+              expect(asserted_distribution.reload.citations.count).to eq(1)
+            end
+
+            specify 'origin citation via a citations attribute delete' do
+              asserted_distribution.origin_citation = Citation.new(source:, is_original: true)
+              asserted_distribution.save!
+              expect(asserted_distribution.citations.count).to eq(1)
+              asserted_distribution.update(citations_attributes: {
+                _destroy: true, id: asserted_distribution.citations.first.id
+              })
+              expect(asserted_distribution.errors[:base].first).to match('citation is not provided')
+              expect(asserted_distribution.reload.citations.count).to eq(1)
+            end
+
+            specify 'not-origin-citation via a nested attribute delete' do
+              asserted_distribution.citations << Citation.new(source:)
+              asserted_distribution.save!
+              expect(asserted_distribution.citations.count).to eq(1)
+              asserted_distribution.update(citations_attributes: {
+                _destroy: true, id: asserted_distribution.citations.first.id
+              })
+              expect(asserted_distribution.errors[:base].first).to match('citation is not provided')
+              expect(asserted_distribution.reload.citations.count).to eq(1)
+            end
+
+            specify 'trying to save citation with marked_for_destruction citation' do
+              asserted_distribution.citations << Citation.new(source:)
+              asserted_distribution.mark_citations_for_destruction
+
+              asserted_distribution.save
+              expect(asserted_distribution.errors[:base].first).to match('citation is not provided')
+            end
+
+            specify 'trying to save origin citation with marked_for_destruction citation' do
+              asserted_distribution.origin_citation = Citation.new(source:)
+              asserted_distribution.origin_citation.mark_for_destruction
+
+              asserted_distribution.save
+              expect(asserted_distribution.errors[:base].first).to match('citation is not provided')
+            end
+          end
         end
       end
     end

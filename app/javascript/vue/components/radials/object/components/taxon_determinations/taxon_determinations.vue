@@ -71,22 +71,26 @@ function addDetermination(taxonDetermination) {
     }
   }
 
-  TaxonDetermination.create(payload).then(({ body }) => {
-    TW.workbench.alert.create(
-      'Taxon determination was successfully created.',
-      'notice'
-    )
-    addToList(body)
-  })
+  TaxonDetermination.create(payload)
+    .then(({ body }) => {
+      TW.workbench.alert.create(
+        'Taxon determination was successfully created.',
+        'notice'
+      )
+      addToList(body)
+    })
+    .catch(() => {})
 }
 
 function removeItem(item) {
-  TaxonDetermination.destroy(item.id).then(() => {
-    removeFromList(item)
-    TW.workbench.alert.create(
-      'Taxon determination was successfully destroyed.',
-      'notice'
-    )
-  })
+  TaxonDetermination.destroy(item.id)
+    .then(() => {
+      removeFromList(item)
+      TW.workbench.alert.create(
+        'Taxon determination was successfully destroyed.',
+        'notice'
+      )
+    })
+    .catch(() => {})
 }
 </script>

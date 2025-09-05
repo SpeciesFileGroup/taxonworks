@@ -3,6 +3,7 @@ module FieldOccurrence::DwcExtensions
 
   include Shared::Dwc::CollectingEventExtensions
   include Shared::Dwc::TaxonDeterminationExtensions
+  include Shared::Dwc::MediaTargetExtensions
   include Shared::IsDwcOccurrence
 
   included do
@@ -133,24 +134,12 @@ module FieldOccurrence::DwcExtensions
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
   def dwc_associated_media
-    images.collect{|i| api_image_link(i) }.join(FieldOccurrence::DWC_DELIMITER).presence
+    images.collect{|i| Shared::Api.api_link(i, i.image_file_fingerprint) }.join(FieldOccurrence::DWC_DELIMITER).presence
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedtaxa
   def dwc_associated_taxa
     dwc_internal_attribute_for(:collection_object, :associatedTaxa)
-  end
-
-  # TODO: likeley a helper
-  def api_image_link(image)
-    s = ENV['SERVER_NAME']
-    if s.nil?
-      s ||= 'http://127.0.0.1:3000'
-    else
-      s = 'https://' + s
-    end
-
-    s = s + '/api/v1/images/' + image.image_file_fingerprint # An experiment, use md5 as a proxy for id (also unique id)
   end
 
   def dwc_other_catalog_numbers

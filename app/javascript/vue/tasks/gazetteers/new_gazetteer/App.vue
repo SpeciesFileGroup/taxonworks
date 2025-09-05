@@ -384,6 +384,7 @@ onMounted(() => {
   grid-template-columns: 250px 1fr;
   grid-column-gap: 1em;
   grid-row-gap: 0.5em;
+  min-height: calc(100vh - 270px);
 }
 
 .right-column {
