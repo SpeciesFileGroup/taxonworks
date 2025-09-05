@@ -17,12 +17,12 @@ RSpec.describe Observation::Qualitative, type: :model, group: :observation_matri
 
       specify 'is prevented 1' do
         o = Observation.create(observation_object: otu, descriptor: descriptor, character_state: cs, type: 'Observation::Qualitative')
-        expect(o.errors.include?(:character_state_id)).to be_truthy
+        expect(o.errors.include?(:observation_object)).to be_truthy
       end
 
       specify 'is prevented 2' do
         o = Observation.create(observation_object: otu, descriptor: descriptor, character_state_id: cs.id, type: 'Observation::Qualitative')
-        expect(o.errors.include?(:character_state_id)).to be_truthy
+        expect(o.errors.include?(:observation_object)).to be_truthy
       end
 
       specify 'is prevented 3' do

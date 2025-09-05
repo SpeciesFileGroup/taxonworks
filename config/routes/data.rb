@@ -923,6 +923,7 @@ resources :taxon_names do
 
   member do
     get :original_combination, defaults: {format: :json}
+    get :taxonomy, {format: :json}
   end
 end
 

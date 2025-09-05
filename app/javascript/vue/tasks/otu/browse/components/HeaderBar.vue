@@ -12,7 +12,7 @@
         >
           <a
             v-if="item.length === 1"
-            :href="`/tasks/otus/browse/${item[0].id}`"
+            :href="`${RouteNames.BrowseOtu}?otu_id=${item[0].id}`"
           >
             {{ key }}
           </a>
@@ -27,9 +27,11 @@
                 v-for="parent in item"
                 :key="parent.id"
               >
-                <a :href="`/tasks/otus/browse/${parent.id}`">{{
-                  parent.object_label
-                }}</a>
+                <a
+                  :href="`${RouteNames.BrowseOtu}?otu_id=${parent.id}`"
+                  v-html="parent.object_tag"
+                >
+                </a>
               </li>
             </ul>
           </div>

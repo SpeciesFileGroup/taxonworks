@@ -16,7 +16,10 @@
       @selected="addKeyword"
     >
       <template #all>
-        <VModal @close="smartSelectorRef.setTab('quick')">
+        <VModal
+          :container-style="{ width: '500px' }"
+          @close="smartSelectorRef.setTab('quick')"
+        >
           <template #header>
             <h3>Tags - all</h3>
           </template>
@@ -27,10 +30,9 @@
               class="margin-small-bottom margin-small-right"
               color="primary"
               pill
+              v-html="item.object_tag"
               @click="addKeyword(item)"
-            >
-              {{ item.name }}
-            </VBtn>
+            />
           </template>
         </VModal>
       </template>

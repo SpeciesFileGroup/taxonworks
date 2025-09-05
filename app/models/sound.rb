@@ -24,6 +24,7 @@ class Sound < ApplicationRecord
   include Shared::Identifiers
   include Shared::Notes
   include Shared::Tags
+  include Sound::DwcMediaExtensions
   include Shared::IsData
 
   # See canonical list at

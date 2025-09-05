@@ -108,20 +108,20 @@
           />
         </tippy>
         <RecentComponent @selected="loadCollectionObject($event)" />
-        <button
-          type="button"
-          class="button normal-input button-submit"
+        <VBtn
+          medium
+          color="create"
           @click="saveDigitalization"
         >
           Save
-        </button>
-        <button
-          type="button"
-          class="button normal-input button-submit"
+        </VBtn>
+        <VBtn
+          medium
+          color="create"
           @click="saveAndNew"
         >
           Save and new
-        </button>
+        </VBtn>
         <div
           class="cursor-pointer"
           @click="resetStore"
@@ -144,6 +144,7 @@ import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { useHotkey } from '@/composables'
 import { RouteNames } from '@/routes/routes.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import RecentComponent from './recent.vue'
 import platformKey from '@/helpers/getPlatformKey.js'

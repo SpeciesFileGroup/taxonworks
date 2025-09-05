@@ -60,7 +60,7 @@ class FieldOccurrence < ApplicationRecord
 
   validates_presence_of :collecting_event
 
-  validate :new_records_include_taxon_determination
+  validate :records_include_taxon_determination
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
   validate :total_zero_when_absent
@@ -90,10 +90,60 @@ class FieldOccurrence < ApplicationRecord
     errors.add(:base, 'Either total or a ranged lot category must be provided') if ranged_lot_category_id.blank? && total.blank?
   end
 
-  # @return [Boolean]
-  def new_records_include_taxon_determination
-    if new_record? && taxon_determination.blank? && !taxon_determinations.any?
+  def records_include_taxon_determination
+    # !! Be careful making changes here: remember that conditions on one
+    # association may/not affect other associations when the actual save
+    # happens.
+    # Maintain with AssertedDistribution#new_records_include_citation
+
+    # Watch out, taxon_determination and taxon_determination *do not*
+    # necessarily share the same marked_for_destruction? info, even when
+    # taxon_determination is a member of taxon_determinations.
+
+    taxon_determination_is_marked_for_destruction_on_taxon_determinations =
+      taxon_determination.present? && taxon_determinations.present? &&
+      taxon_determinations.count == 1 && !taxon_determinations.first.id.nil? &&
+      taxon_determination.id == taxon_determinations.first.id &&
+      taxon_determinations.first.marked_for_destruction?
+
+    the_one_taxon_determinations_is_marked_for_destruction_on_taxon_determination =
+      taxon_determination.present? && taxon_determinations.present? &&
+      taxon_determinations.count == 1 && !taxon_determinations.first.id.nil? &&
+      taxon_determination.id == taxon_determinations.first.id &&
+      taxon_determination.marked_for_destruction?
+
+    has_valid_otu =
+      otu.present? &&
+      !otu.marked_for_destruction? && (
+        !taxon_determination.present? ||
+        (!taxon_determination.marked_for_destruction? &&
+        !taxon_determination_is_marked_for_destruction_on_taxon_determinations)
+      )
+
+    has_valid_taxon_determination =
+      taxon_determination.present? &&
+      !taxon_determination.marked_for_destruction? &&
+      !taxon_determination_is_marked_for_destruction_on_taxon_determinations
+
+    has_valid_taxon_determinations =
+     taxon_determinations.count(&:marked_for_destruction?) < taxon_determinations.size &&
+     !the_one_taxon_determinations_is_marked_for_destruction_on_taxon_determination
+
+    if !has_valid_otu && !has_valid_taxon_determination && !has_valid_taxon_determinations
       errors.add(:base, 'required taxon determination is not provided')
+      return
+    end
+
+    # We loaded the taxon_determinations association above. If it was empty,
+    # Rails caches that value and *will not* add a determination created during
+    # save from otu or taxon_determination unless we reset the citations
+    # association.
+    if (otu.present? || taxon_determination.present?) && taxon_determinations.size == 0
+      association(:taxon_determinations).reset
+    end
+
+    if otu.present? && taxon_determination.nil?
+      association(:taxon_determination).reset
     end
   end
 
