@@ -125,6 +125,9 @@ class Download < ApplicationRecord
     if @source_file_path
       FileUtils.cp(@source_file_path, file_path)
       set_sha2
+      true
+    else
+      false
     end
   end
 end

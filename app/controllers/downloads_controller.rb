@@ -119,17 +119,13 @@ class DownloadsController < ApplicationController
         max_age = project.complete_dwc_download_max_age # in days
         download_age = Time.current - download.created_at
         if max_age && download_age.to_f / 1.day > max_age
-          # Delete the old download and create a new one. We may want to adjust
-          # this later, but if it's just (mostly) GBIF doing regularly scheduled
-          # downloads and us scheduling the creates, this should be fine.
-          download.destroy!
-          Download::DwcArchive::Complete.create!
-          render json: { status: 'A new download is being created'}, status: :unprocessable_entity
-          return
-        else # Success!
-          download.increment!(:times_downloaded)
-          send_file download.file_path
+          # Create a fresh download that will replace the existing one when
+          # ready.
+          Download::DwcArchive::PupalComplete.create!
         end
+
+        download.increment!(:times_downloaded)
+        send_file download.file_path
       else
         render json: { status: 'The existing download is not ready yet' }, status: :unprocessable_entity
       end

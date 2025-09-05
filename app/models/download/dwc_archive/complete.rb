@@ -11,7 +11,12 @@ class Download::DwcArchive::Complete < Download::DwcArchive
   before_save :sync_expires_with_preferences
   after_save :build, unless: :ready? # prevent infinite loop callbacks
 
-  validates_uniqueness_of :type, scope: [:project_id], message: 'Only one Download::DwcArchive::Complete is allowed. Destroy the old version first.'
+  validates :type, uniqueness: {
+    scope: [:project_id],
+    message: ->(record, data) {
+      "Only one #{record.type} is allowed. Destroy the old version first."
+    }
+  }
 
   validate :has_eml_without_stubs
 
