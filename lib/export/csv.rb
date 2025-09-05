@@ -107,6 +107,13 @@ module ::Export::CSV
     unsorted + sorted
   end
 
+# # @return [Download, false]
+# #
+# # Given a set of API param, create a download of a cnkkk
+# def self.delegate_build(params = {})
+
+# end
+
   # @return Tempfile
   # @param query any ActiveRecord::Relation
   def self.copy_table(query)

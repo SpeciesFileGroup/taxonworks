@@ -45,6 +45,7 @@ class Download < ApplicationRecord
   include Housekeeping
   include Shared::IsData
 
+  # TODO: consider removing
   default_scope { where('expires >= ?', Time.now) }
 
   after_save :save_file
@@ -95,18 +96,39 @@ class Download < ApplicationRecord
     FileUtils.rm_rf(path)
   end
 
+  def self.api_buildable?
+    false
+  end
+
   private
 
   STORAGE_PATH = Rails.root.join(Rails.env.test? ? 'tmp' : '', "downloads#{ENV['TEST_ENV_NUMBER']}").freeze
+
+  def set_sha2
+    if @source_file_path
+      self.update_column(:sha2, Digest::SHA256.file(@source_file_path).to_s)
+    end
+  end
 
   def dir_path
     str = id.to_s.rjust(9, '0')
     STORAGE_PATH.join(str[-str.length..-7], str[-6..-4], str[-3..-1])
   end
 
+  # This is the only method to move a temporary file
+  # to its location on the file server.
+  #
+  # ActiveJob generating files trigger this method
+  # by .updating the filename attribute.
   def save_file
     FileUtils.mkdir_p(dir_path)
-    FileUtils.cp(@source_file_path, file_path) if @source_file_path
+    if @source_file_path
+      FileUtils.cp(@source_file_path, file_path)
+      set_sha2
+      true
+    else
+      false
+    end
   end
 end
 
@@ -114,6 +136,7 @@ require_dependency 'download/basic_nomenclature'
 require_dependency 'download/bibtex'
 require_dependency 'download/coldp'
 require_dependency 'download/dwc_archive'
+require_dependency 'download/dwc_archive/complete'
 require_dependency 'download/project_dump/sql'
 require_dependency 'download/project_dump/tsv'
 require_dependency 'download/text'

@@ -125,7 +125,7 @@ class LeadsController < ApplicationController
     begin
       @lead.transaction_nuke
       respond_to do |format|
-        flash[:notice] = 'Key was succesfully destroyed.'
+        flash[:notice] = 'Key was successfully destroyed.'
         format.html { destroy_redirect @lead }
         format.json { head :no_content }
       end

@@ -142,7 +142,14 @@ class ProjectsController < ApplicationController
 
   def project_params
     params.require(:project).permit(
-      :name, :set_new_api_access_token, :clear_api_access_token, :data_curation_issue_tracker_url, Project.key_value_preferences, Project.array_preferences, Project.hash_preferences)
+      :name,
+      :set_new_api_access_token,
+      :clear_api_access_token,
+      Project.key_value_preferences,
+      Project.array_preferences,
+      Project.hash_preferences,
+      project_members_attributes: [:user_id, :destroy]
+    )
   end
 
   def go_to

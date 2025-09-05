@@ -34,6 +34,11 @@ module ProjectsHelper
     projects.collect { |p| content_tag(:li, project_link(p)) }.join.html_safe
   end
 
+  def project_login_link(project)
+    return nil unless (!is_project_member_by_id?(sessions_current_user_id, sessions_current_project_id) && (sessions_current_project_id != project.id))
+    link_to('Login to ' + project.name, select_project_path(project), class: ['button-default'])
+  end
+
   # Came from application_controller
 
   def invalid_object(object)
