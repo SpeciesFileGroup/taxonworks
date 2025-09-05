@@ -730,7 +730,8 @@ GEM
       rmagick (~> 6.0)
       rtesseract (~> 3.1)
     stringio (3.1.7)
-    taxonifi (0.6.0)
+    taxonifi (0.6.1)
+      csv (~> 3.3.5)
       require_all (~> 3.0)
     terrapin (1.1.1)
       climate_control
@@ -937,7 +938,7 @@ DEPENDENCIES
   sprockets-es6 (~> 0.9.2)
   sprockets-rails (~> 3.4.0)
   sqed (~> 0.8.3)
-  taxonifi (~> 0.6.0)
+  taxonifi (~> 0.6.1)
   terser (~> 1.2)
   thor (~> 1.2)
   thruster
