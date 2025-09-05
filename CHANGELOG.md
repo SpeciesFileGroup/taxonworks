@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Expand the view of any/all parts of the taxonomic hierarchy in the Navigate panel as needed [#3585]
 - Match taxon names task sometimes doesn't work with long name lists of names [#4523]
 - Radial navigator: Browse taxon name link doesn't work for Combinations [#4526]
 - Shape picker: Missing Map tab [#4532]
@@ -39,12 +40,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Allow `accepted` as `taxonomicStatus` and empty `acceptedNameUsageID` for valid names in DwC checklist importer
 - Update maps in all tasks
-- Updated Ruby gems
 - CSD: Identifiers can be deleted from the form once they are saved
+- Updated Ruby gems
+- Updated NPM packages
 
 [#1488]: https://github.com/SpeciesFileGroup/taxonworks/issues/1488
 [#2860]: https://github.com/SpeciesFileGroup/taxonworks/issues/2860
 [#2882]: https://github.com/SpeciesFileGroup/taxonworks/issues/2882
+[#3585]: https://github.com/SpeciesFileGroup/taxonworks/issues/3585
 [#3845]: https://github.com/SpeciesFileGroup/taxonworks/issues/3845
 [#4057]: https://github.com/SpeciesFileGroup/taxonworks/issues/4057
 [#4139]: https://github.com/SpeciesFileGroup/taxonworks/issues/4139
