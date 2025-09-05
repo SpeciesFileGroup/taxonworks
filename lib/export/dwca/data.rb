@@ -84,8 +84,8 @@ module Export::Dwca
 
       @core_scope = core_scope
 
-      @biological_associations_extension = extension_scopes[:biological_associations] #! String
-      @media_extension = extension_scopes[:media] #  = get_scope(core_scope)
+      @biological_associations_extension = extension_scopes[:biological_associations] #! Hash with keys core_params, collection_objects_query
+      @media_extension = extension_scopes[:media] #! Hash with keys collection_objects, field_occurrences
 
       @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extensions)
 

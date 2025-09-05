@@ -5,7 +5,6 @@ require 'export/dwca'
 describe Export::Dwca, type: :model, group: :darwin_core do
   include ActiveJob::TestHelper
 
-
   # specify "stores a compressed file in rails' temp directory" do
   #   path = Export::Dwca.get_archive
   #   expect(File.exist?(path)).to be_truthy
@@ -37,13 +36,17 @@ describe Export::Dwca, type: :model, group: :darwin_core do
       ::Export::Dwca.download_async(
         a, 'https://example.org/some_url',
         extension_scopes: {
-          biological_associations: b.to_sql,
+          biological_associations: {
+            core_params: {},
+            collection_objects_query: b.to_sql
+          },
           media: {
             collection_objects: c.to_sql,
             field_occurrences: f.to_sql
           }
          },
-        predicate_extensions: {}
+        predicate_extensions: {},
+        project_id: Project.first.id
       )
     }
 
