@@ -131,71 +131,87 @@ module Shared::Maps
 
         name_hierarchy = {}
 
-        CachedMapItem.transaction do
+        max_retries = 3
+        retries = 0
+        begin
+          CachedMapItem.transaction do
+            # Sort by primary keys so that every thread processes items in the
+            # same order (reducing deadlock potential).
+            stubs[:geographic_item_id].sort.each do |geographic_item_id|
+              stubs[:otu_id].sort.each do |otu_id|
+                begin
 
-          stubs[:geographic_item_id].each do |geographic_item_id|
-            stubs[:otu_id].each do |otu_id|
-              begin
+                  a = CachedMapItem.find_or_initialize_by(
+                    type: map_type,
+                    otu_id:,
+                    geographic_item_id:,
+                    project_id: stubs[:origin_object].project_id,
+                  )
 
-                a = CachedMapItem.find_or_initialize_by(
-                  type: map_type,
-                  otu_id:,
-                  geographic_item_id:,
-                  project_id: stubs[:origin_object].project_id,
-                )
+                  if a.persisted?
+                    # increment! exclusive locks this row for the entire
+                    # transaction.
+                    a.increment!(:reference_count)
+                  else
 
-                if a.persisted?
-                  a.increment!(:reference_count)
-                else
+                    # When running in batch mode we assume we will use the label rake task to update
+                    # en-masse after processing, and we assume we have pre-build translations
+                    unless batch
+                      name_hierarchy[geographic_item_id] ||= CachedMapItem.cached_map_name_hierarchy(geographic_item_id)
 
-                  # When running in batch mode we assume we will use the label rake task to update
-                  # en-masse after processing, and we assume we have pre-build translations
-                  unless batch
-                    name_hierarchy[geographic_item_id] ||= CachedMapItem.cached_map_name_hierarchy(geographic_item_id)
-
-                    a.level0_geographic_name = name_hierarchy[geographic_item_id][:country]
-                    a.level1_geographic_name = name_hierarchy[geographic_item_id][:state]
-                    a.level2_geographic_name = name_hierarchy[geographic_item_id][:county]
-                  end
-
-                  a.untranslated = stubs[:untranslated]
-
-                  a.reference_count = 1
-                  a.save!
-
-                  # Assume in batch we're going to pre-translate records
-                  unless batch
-                    # There is little or no point to logging translations
-                    # for Georeferences, i.e. it is overhead with no benefit.
-                    # !! If we do log then we should SHA the wkt as a check and store that in the translation table
-                    unless self.kind_of?(Georeference)
-                      CachedMapItemTranslation.find_or_create_by!(
-                        cached_map_type: map_type,
-                        geographic_item_id: stubs[:origin_geographic_item_id],
-                        translated_geographic_item_id: geographic_item_id
-                      )
+                      a.level0_geographic_name = name_hierarchy[geographic_item_id][:country]
+                      a.level1_geographic_name = name_hierarchy[geographic_item_id][:state]
+                      a.level2_geographic_name = name_hierarchy[geographic_item_id][:county]
                     end
+
+                    a.untranslated = stubs[:untranslated]
+
+                    a.reference_count = 1
+                    a.save!
+
+                    # Assume in batch we're going to pre-translate records
+                    unless batch
+                      # There is little or no point to logging translations
+                      # for Georeferences, i.e. it is overhead with no benefit.
+                      # !! If we do log then we should SHA the wkt as a check and store that in the translation table
+                      unless self.kind_of?(Georeference)
+                        CachedMapItemTranslation.find_or_create_by!(
+                          cached_map_type: map_type,
+                          geographic_item_id: stubs[:origin_geographic_item_id],
+                          translated_geographic_item_id: geographic_item_id
+                        )
+                      end
+                    end
+
                   end
 
+                rescue ActiveRecord::RecordInvalid => e
+                  logger.debug e
+                rescue PG::UniqueViolation
+                  logger.debug 'pg unique violation'
                 end
-
-              rescue ActiveRecord::RecordInvalid => e
-                logger.debug e
-              rescue PG::UniqueViolation
-                logger.debug 'pg unique violation'
               end
             end
-          end
 
-          begin
-            CachedMapRegister.create!(
-              cached_map_register_object: self,
-              project_id:
-            )
-          rescue ActiveRecord::RecordInvalid => e
-            logger.debug e
+            begin
+              CachedMapRegister.create!(
+                cached_map_register_object: self,
+                project_id:
+              )
+            rescue ActiveRecord::RecordInvalid => e
+              logger.debug e
+            end
+          end
+        rescue ActiveRecord::Deadlocked => e
+          retries += 1
+          if retries <= max_retries
+            sleep(0.1 * retries)
+            retry
+          else
+            raise e
           end
         end
+
       end
       true
     end
