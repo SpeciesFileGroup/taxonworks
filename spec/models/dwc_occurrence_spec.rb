@@ -58,10 +58,11 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     download = Export::Dwca.download_async(
       scope,
-      predicate_extensions:
+      predicate_extensions:,
+      project_id: Current.project_id
     )
 
-    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extensions:)
+    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extensions:, project_id: Current.project_id)
 
     tbl = extract_data_csv_table(download.file_path)
 

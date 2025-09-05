@@ -35,7 +35,9 @@ module Export
     #    valid values are collecting_event_predicate_id: [], collection_object_predicate_id
     # @return [Download]
     #   the download object containing the archive
-    def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: {})
+    def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: {}, project_id: nil)
+      raise TaxonWorks::Error, 'project_id is required in Export::Dwca::download_async!' if project_id.nil?
+
       name = "dwc-a_#{DateTime.now}.zip"
 
       download = ::Download::DwcArchive.create!(
@@ -54,6 +56,7 @@ module Export
         extension_scopes:,
         predicate_extensions:,
         taxonworks_extensions:,
+        project_id:
       )
 
       download
