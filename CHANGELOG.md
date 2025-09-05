@@ -7,6 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+## [0.53.2] - 2025-09-05
+
 ### Added
 
 - `/api/v1/sources/bibliography` end point, a simplified response
@@ -56,6 +58,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4526]: https://github.com/SpeciesFileGroup/taxonworks/issues/4526
 [#4531]: https://github.com/SpeciesFileGroup/taxonworks/issues/4531
 [#4532]: https://github.com/SpeciesFileGroup/taxonworks/issues/4532
+[#4529]: https://github.com/SpeciesFileGroup/taxonworks/issues/4529
 [#4540]: https://github.com/SpeciesFileGroup/taxonworks/issues/4540
 [#4541]: https://github.com/SpeciesFileGroup/taxonworks/issues/4541
 
@@ -5652,7 +5655,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.2...development
+[0.53.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.1...v0.53.2
 [0.53.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.0...v0.53.1
 [0.53.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.2...v0.53.0
 [0.52.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.1...v0.52.2
