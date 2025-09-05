@@ -13,22 +13,39 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial CO: Accessions / Deaccession
 - Filter CO: Containerized facet
 - Radial navigator: New extract and Browse OTUs task for CollectionObject [#2882][#2860]
+- New collecting event task: Add field occurrence panel [#4529]
+- New descriptor task: Add recent list
 
 ### Fixed
 
 - Match taxon names task sometimes doesn't work with long name lists of names [#4523]
 - Radial navigator: Browse taxon name link doesn't work for Combinations [#4526]
+- Shape picker: Missing Map tab [#4532]
+- Some cases of unify failing on otus from different rows of the same matrix [#4140]
+- Nexus import fails on filename/extension error [#4531]
+- Internal error when loading matrix column coder
+- Fix Otus merge for BAs with otus on subject side [#4139]
+- Filter stage images: Pagination is missing [#4540]
+- Browse OTUs: Parents list is missing when a taxon has many OTUs
 
 ### Changed
 
 - Allow `accepted` as `taxonomicStatus` and empty `acceptedNameUsageID` for valid names in DwC checklist importer
+- Update maps in all tasks
+- Updated Ruby gems
+- CSD: Identifiers can be deleted from the form once they are saved
 
 [#2860]: https://github.com/SpeciesFileGroup/taxonworks/issues/2860
 [#2882]: https://github.com/SpeciesFileGroup/taxonworks/issues/2882
 [#3845]: https://github.com/SpeciesFileGroup/taxonworks/issues/3845
 [#4057]: https://github.com/SpeciesFileGroup/taxonworks/issues/4057
+[#4139]: https://github.com/SpeciesFileGroup/taxonworks/issues/4139
+[#4140]: https://github.com/SpeciesFileGroup/taxonworks/issues/4140
 [#4523]: https://github.com/SpeciesFileGroup/taxonworks/issues/4523
 [#4526]: https://github.com/SpeciesFileGroup/taxonworks/issues/4526
+[#4531]: https://github.com/SpeciesFileGroup/taxonworks/issues/4531
+[#4532]: https://github.com/SpeciesFileGroup/taxonworks/issues/4532
+[#4540]: https://github.com/SpeciesFileGroup/taxonworks/issues/4540
 
 ## [0.53.1] - 2025-08-13
 
@@ -209,6 +226,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filters: Data attributes display in filter results even if they are not selected in custom layout [#4424]
 - Field synchronize task doesn't work when you open it from Filter people [#4425]
 - Collecting event form: CE generate label not working when there aren't collectors [#4434]
+- Asserted Distributions can have their last citation removed and Field Occurrences can have their last taxon determination removed [#4514]
 
 [#4433]: https://github.com/SpeciesFileGroup/taxonworks/issues/4433
 [#4413]: https://github.com/SpeciesFileGroup/taxonworks/issues/4413
@@ -221,6 +239,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4436]: https://github.com/SpeciesFileGroup/taxonworks/issues/4436
 [#4439]: https://github.com/SpeciesFileGroup/taxonworks/issues/4439
 [#4441]: https://github.com/SpeciesFileGroup/taxonworks/issues/4441
+[#4514]: https://github.com/SpeciesFileGroup/taxonworks/issues/4514
 
 ## [0.52.0] - 2025-06-09
 

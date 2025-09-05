@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { AssertedDistribution, Confidence } from '@/routes/endpoints'
+import { AssertedDistribution, Citation, Confidence } from '@/routes/endpoints'
 import { smartSelectorRefresh } from '@/helpers/smartSelector/index.js'
 import { addToArray, removeFromArray } from '@/helpers'
 import { makeAssertedDistributionPayload } from '../adapters'
@@ -14,8 +14,12 @@ function makeAssertedDistribution(data = {}) {
   }
 }
 
-const extend = ['citations', 'asserted_distribution_shape',
-  'asserted_distribution_object', 'source']
+const extend = [
+  'citations',
+  'asserted_distribution_shape',
+  'asserted_distribution_object',
+  'source'
+]
 
 export const useStore = defineStore('NewAssertedDistribution', {
   state: () => ({
@@ -101,8 +105,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
               assertedDistribution.asserted_distribution_object_type,
             geo_shape_type:
               assertedDistribution.asserted_distribution_shape_type,
-            geo_shape_id:
-              assertedDistribution.asserted_distribution_shape_id,
+            geo_shape_id: assertedDistribution.asserted_distribution_shape_id,
             extend
             // geo_mode: nil // i.e. Exact
           })
@@ -129,6 +132,17 @@ export const useStore = defineStore('NewAssertedDistribution', {
           'notice'
         )
       })
+    },
+
+    removeAssertedDistributionCitation(citation) {
+      const objectId = citation.citation_object_id
+      const ad = this.assertedDistributions.find((ad) => ad.id == objectId)
+
+      Citation.destroy(citation.id)
+        .then(() => {
+          removeFromArray(ad.citations, citation)
+        })
+        .catch(() => {})
     },
 
     saveConfidences(record) {

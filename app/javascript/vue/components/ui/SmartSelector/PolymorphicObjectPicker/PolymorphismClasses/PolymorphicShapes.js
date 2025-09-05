@@ -1,4 +1,5 @@
-import { Gazetteer, GeographicArea } from "@/routes/endpoints"
+import { Gazetteer, GeographicArea } from '@/routes/endpoints'
+import MapShapePicker from '../../MapShapePicker.vue'
 
 export default [
   // Default first.
@@ -10,6 +11,11 @@ export default [
     snake: 'geographic_areas',
     endpoint: GeographicArea,
     query_key: 'geographic_area_id',
+    smartSelector: {
+      tabs: {
+        map: MapShapePicker
+      }
+    }
   },
 
   {
@@ -19,7 +25,6 @@ export default [
     display: 'Gazetteer',
     snake: 'gazetteers',
     endpoint: Gazetteer,
-    query_key: 'gazetteer_id',
-  },
-
+    query_key: 'gazetteer_id'
+  }
 ]
