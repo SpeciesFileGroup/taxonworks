@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- `/api/v1/sources/bibliography` end point, a simplified response
 - Administration user activity cumulative projects/year plot
 - Browse OTU: Radial annotator to Timeline [#4057]
 - Radial CO: Accessions / Deaccession
