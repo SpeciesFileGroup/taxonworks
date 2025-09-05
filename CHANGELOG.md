@@ -43,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CSD: Identifiers can be deleted from the form once they are saved
 - Updated Ruby gems
 - Updated NPM packages
+- Browse taxon name: New taxonomic tree [#4534]
 
 [#1488]: https://github.com/SpeciesFileGroup/taxonworks/issues/1488
 [#2860]: https://github.com/SpeciesFileGroup/taxonworks/issues/2860
@@ -56,6 +57,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4526]: https://github.com/SpeciesFileGroup/taxonworks/issues/4526
 [#4531]: https://github.com/SpeciesFileGroup/taxonworks/issues/4531
 [#4532]: https://github.com/SpeciesFileGroup/taxonworks/issues/4532
+[#4534]: https://github.com/SpeciesFileGroup/taxonworks/issues/4534
 [#4540]: https://github.com/SpeciesFileGroup/taxonworks/issues/4540
 [#4541]: https://github.com/SpeciesFileGroup/taxonworks/issues/4541
 
