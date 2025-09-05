@@ -85,7 +85,7 @@
                   <VIcon
                     color="white"
                     x-small
-                    name="download"
+                    name="trash"
                   />
                 </VBtn>
               </div>

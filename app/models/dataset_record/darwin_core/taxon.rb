@@ -355,7 +355,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             # if taxonomicStatus is a homonym, invalid, unavailable, excluded, create the status
             # if it's incertae sedis, create the relationship
             # TODO why have an OR with nil? shouldn't the first condition check that?
-          elsif get_field_value(:taxonomicStatus) != 'valid' || get_field_value(:taxonomicStatus).nil?
+          elsif /\A(valid|accepted|\s*)\Z/i !~ get_field_value(:taxonomicStatus).to_s
             status_types = {
               invalid: 'TaxonNameClassification::Iczn::Available::Invalid',
               unavailable: 'TaxonNameClassification::Iczn::Unavailable',

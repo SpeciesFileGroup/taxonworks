@@ -8,19 +8,9 @@
       height="300px"
       width="100%"
       :zoom="2"
-      :fit-bounds="true"
-      draw-controls
-      :draw-circle="false"
-      :draw-polyline="false"
-      :draw-polygon="false"
-      :draw-line="false"
-      :draw-rectangle="false"
-      :draw-circle-marker="false"
-      :removal-mode="false"
-      :cut-polygon="false"
-      :edit-mode="false"
-      :drag-mode="false"
-      @geo-json-layer-created="addShape"
+      fit-bounds
+      draw-marker
+      @layer:create="addShape"
       @mouseenter="() => enableDraw()"
       @mouseleave="() => disableDraw()"
     />
@@ -52,9 +42,9 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { GeographicArea } from '@/routes/endpoints'
-import VSpinner from '@/components/ui/VSpinner.vue'
-import VMap from '@/components/georeferences/map.vue'
 import { randomUUID } from '@/helpers'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 
 const props = defineProps({
   // shapes must have `shape`, `data_origin`, and `name` attributes
@@ -94,8 +84,8 @@ const shapes = ref([])
 const isLoading = ref(false)
 const geoHover = ref(null)
 
-function addShape(shape) {
-  const wkt = `POINT (${shape.geometry.coordinates.join(' ')})`
+function addShape({ feature }) {
+  const wkt = `POINT (${feature.geometry.coordinates.join(' ')})`
 
   loadGeopgraphicAreas(wkt)
 }

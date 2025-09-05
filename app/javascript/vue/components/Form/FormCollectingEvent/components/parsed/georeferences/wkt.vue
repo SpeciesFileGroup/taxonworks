@@ -12,7 +12,7 @@
       @close="setModalView(false)"
     >
       <template #header>
-        <h3>Create WKT georeference</h3>
+        <h3>Create WKT shape</h3>
       </template>
       <template #body>
         <div class="field label-above">

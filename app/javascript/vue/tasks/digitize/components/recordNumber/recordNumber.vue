@@ -49,11 +49,34 @@
           </div>
           <template v-if="namespace">
             <hr class="divisor" />
-            <SmartSelectorItem
-              :item="namespace"
-              label="name"
-              @unset="() => (store.identifier.namespaceId = null)"
-            />
+            <div class="middle margin-medium-top flex-separate">
+              <p
+                class="separate-right"
+                v-html="namespace.name"
+              />
+              <VBtn
+                v-if="store.identifier.id"
+                color="destroy"
+                circle
+                @click="store.remove"
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
+              <VBtn
+                v-else
+                color="primary"
+                circle
+                @click="() => (store.identifier.namespaceId = id)"
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
+            </div>
           </template>
         </fieldset>
       </div>
@@ -119,8 +142,8 @@ import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { IDENTIFIER_LOCAL_RECORD_NUMBER } from '@/constants/index.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
-import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import validateIdentifier from '../../validations/namespace.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'

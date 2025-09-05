@@ -66,8 +66,8 @@
     width: 420px;
     max-height: 180px;
     min-height: 160px;
-    border-top-right-radius: 0.9rem;
-    border-bottom-right-radius: 0.9rem;
+    border-top-right-radius: var(--border-radius-large);
+    border-bottom-right-radius: var(--border-radius-large);
     background-color: var(--panel-bg-color);
     color: var(--text-color);
     box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
@@ -224,15 +224,14 @@
   .navigation {
     display: flex;
     background-color: var(--panel-bg-color);
-    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.2);
     flex-direction: row;
     justify-content: center;
     order: -1;
     align-items: center;
     min-height: 42px;
     min-width: 450px;
-    border-radius: 0.9rem;
-    padding: 0px 8px;
+    border-radius: var(--border-radius-medium);
+    padding: 4px 8px;
   }
 
   .navigation a {

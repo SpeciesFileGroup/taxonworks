@@ -62,9 +62,12 @@ export default function (service, { listParser, initParameters = {} } = {}) {
           state.list = result
         }
 
-        const idSet = new Set(state.list.map((item) => item.id))
+        if (Array.isArray(state.list)) {
+          const idSet = new Set(state.list.map((item) => item.id))
 
-        state.selectedIds = state.selectedIds.filter((id) => idSet.has(id))
+          state.selectedIds = state.selectedIds.filter((id) => idSet.has(id))
+        }
+
         state.pagination = getPagination(response)
         state.urlRequest = response.request.url
         setRequestUrl(response.request.responseURL, payload)

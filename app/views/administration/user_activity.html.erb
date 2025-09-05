@@ -83,8 +83,9 @@
   </div>
 </div>
 
-<div class="flexbox separate-bottom flex-wrap-row">
-  <div class="panel content">
+
+<div class="flexbox separate-bottom  flex-wrap-row gap-medium" >
+  <div class="panel content item">
     <h2> New project past </h2>
     <table>
       <tr><td>24 hours</td><td><%= tag.strong Project.where('created_at > ?', 24.hours.ago).count %></td></tr>
@@ -96,9 +97,18 @@
       <tr><td>All time</td><td><%= tag.strong Project.where('created_at > ?', 1000.years.ago).count %></td></tr>
     </table>
   </div>
+
+  <div class="panel content item">
+    <h2> Cumulative projects/year </h2>
+    <div style="width: 420px;">
+      <%= column_chart(cumulative_projects_created_per_year, xtitle: 'Year', ytitle: 'Count', discrete: true, height: '400px', download: true) %>
+    </div>
+  </div>
+
 </div>
 
 <div class="flexbox separate-bottom flex-wrap-row">
+
   <div class="panel content separate-bottom">
     <h2> Users per project</h2>
     <%= column_chart Project.joins(:users).group(:id).count.to_a.collect{|a,b| [Project.find(a).name, b] }.sort_by(&:second).reverse!, xtitle: 'Project', ytitle: 'Number of users', discrete: true, height: '400px' %>
@@ -160,9 +170,6 @@
       <%= column_chart(sound_cumulative_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
     </div>
   </div>
-
-
-
 
 </div>
 

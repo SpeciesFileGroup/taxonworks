@@ -217,9 +217,11 @@ function saveCitation(item) {
 }
 
 function removeItem(item) {
-  Citation.destroy(item.id).then((_) => {
-    removeFromList(item)
-  })
+  Citation.destroy(item.id)
+    .then((_) => {
+      removeFromList(item)
+    })
+    .catch(() => {})
 }
 
 Citation.all({

@@ -148,6 +148,25 @@ module ProjectsHelper
     cumulative_gb_per_year(Sound.group_by_year('sounds.created_at', format: '%Y').joins(sound_file_attachment: :blob).sum('active_storage_blobs.byte_size'))
   end
 
+  # Cumulative Projects Created per Year
+  # From chatGPT 5.0 default
+  def cumulative_projects_created_per_year
+    years = Project.reorder(nil).pluck(:created_at).compact.map { |t| t.in_time_zone(Time.zone).year }
+    return [['Year', 'Projects']] if years.empty?
+
+    per_year  = years.tally # TIL!
+    min_year  = years.min
+    max_year  = Time.zone.today.year
+
+    cumulative = 0
+    rows = (min_year..max_year).map do |y|
+      cumulative += (per_year[y] || 0)
+      [y, cumulative]
+    end
+
+    [['Year', 'Projects']] + rows
+  end
+
   def week_in_review_graphs(weeks)
     content_tag(:div, '', 'data-weeks-ago': weeks, 'data-weeks-review': true)
   end

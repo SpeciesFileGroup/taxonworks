@@ -51,9 +51,15 @@ export default defineStore('collectingEventForm:identifiers', {
     },
 
     remove() {
-      Identifier.destroy(this.identifier.id)
+      if (
+        window.confirm(
+          `You're trying to delete this identifier. Are you sure want to proceed?`
+        )
+      ) {
+        Identifier.destroy(this.identifier.id)
 
-      this.$reset()
+        this.$reset()
+      }
     },
 
     async load({ objectId, objectType }) {

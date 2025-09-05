@@ -25,7 +25,9 @@
             />
           </td>
           <td>
-            <span> {{ item.asserted_distribution_shape.shape_type.name }} </span>
+            <span>
+              {{ item.asserted_distribution_shape.shape_type.name }}
+            </span>
           </td>
           <td>
             <span> {{ item.asserted_distribution_shape.parent?.name }} </span>
@@ -40,7 +42,7 @@
               <RadialAnnotator :global-id="item.global_id" />
               <VBtn
                 circle
-                color="update"
+                color="primary"
                 @click="emit('edit', Object.assign({}, item))"
               >
                 <VIcon

@@ -62,6 +62,8 @@ module BatchLoad
       rescue Taxonifi::Assessor::RowAssessor::RowAssessorError => e
         @file_errors.push "Error assessing a row of data in the inputfile: #{e}."
       end
+      rescue Taxonifi::Lumper::LumperError => e
+        @file_errors.push e.to_s
     end
 
     # @return [Integer]

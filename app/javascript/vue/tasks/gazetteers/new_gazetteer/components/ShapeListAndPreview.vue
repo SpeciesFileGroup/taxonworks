@@ -1,33 +1,38 @@
 <template>
   <div>
+    <div class="flex-col full_width full_height">
+      <div class="horizontal">
+        <VSwitch
+          :options="currentOptions"
+          v-model="view"
+        />
 
-    <div class="horizontal">
-      <VSwitch
-        :options="currentOptions"
-        v-model="view"
+        <!--TODO: update VToggle so (Union == true) can be on the left.-->
+        <VToggle
+          v-if="showMap"
+          v-model="previewOperationIsUnion"
+          :options="['Union', 'Intersection']"
+        />
+      </div>
+
+      <Leaflet
+        v-if="showMap"
+        height="100%"
+        :shapes="[geojsonShape]"
+        editing-disabled
       />
 
-      <!--TODO: update VToggle so (Union == true) can be on the left.-->
-      <VToggle
-        v-if="showMap"
-        v-model="previewOperationIsUnion"
-        :options="['Union', 'Intersection']"
+      <DisplayList
+        v-else
+        class="geolist right-column"
+        :list="rawShapes"
+        @delete="
+          (shape) => {
+            emit('deleteShape', shape)
+          }
+        "
       />
     </div>
-
-    <Leaflet
-      v-if="showMap"
-      :shapes="[geojsonShape]"
-      :editing-disabled="true"
-    />
-
-    <DisplayList
-      v-else
-      class="geolist right-column"
-      :list="rawShapes"
-      @delete="(shape) => { emit('deleteShape', shape) }"
-    />
-
   </div>
 </template>
 
@@ -40,24 +45,24 @@ import { computed, ref, watch } from 'vue'
 
 const PRESAVE_OPTIONS = {
   Preview: 'Shape preview',
-  Table: 'Shapes table',
+  Table: 'Shapes table'
 }
 
 const props = defineProps({
   geojsonShape: {
     type: Object,
-    default: () =>  ({})
+    default: () => ({})
   },
 
   rawShapes: {
     type: Array,
     default: () => []
-  },
+  }
 })
 
 const emit = defineEmits(['deleteShape', 'previewing', 'operationIsUnion'])
 
-const previewOperationIsUnion = defineModel({type: Boolean, default: true})
+const previewOperationIsUnion = defineModel({ type: Boolean, default: true })
 
 const view = ref(PRESAVE_OPTIONS.Preview)
 
@@ -72,13 +77,10 @@ const showMap = computed(() => {
 watch(
   view,
   (newVal) => {
-    emit('previewing',
-      newVal == PRESAVE_OPTIONS.Preview
-    )
+    emit('previewing', newVal == PRESAVE_OPTIONS.Preview)
   },
   { immediate: true }
 )
-
 </script>
 
 <style scoped>

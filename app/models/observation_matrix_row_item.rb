@@ -1,4 +1,4 @@
-# Each ObservationMatrixRowItem is set of Otus or Collection Objects (1 or more)
+# Each ObservationMatrixRowItem determines a set of ObservationMatrixRows (1 if type is Single, 0 or more if type is Dynamic). Thus ObservationMatrixRowItems generate ObservationMatrixRows (not the other way around).
 #
 # @!attribute observation_matrix_id
 #   @return [Integer] id of the matrix
@@ -9,8 +9,17 @@
 # @!attribute observation_object_type
 #   @return type of the object being observed
 #
+# @!attribute type
+#   @return rails STI type
+#
+# @!attribute controlled_vocabulary_term_id
+#   @return tag id if this row item is a ObservationMatrixRowItem::Dynamic::Tag
+#
+# @!attribute taxon_name_id
+#   @return taxon name id if this row item is a ObservationMatrixRowItem::Dynamic::TaxonName
+#
 # @!attribute position
-#   @return [Integer] a sort order
+#   @return [Integer] a sort order; determines   the order in which the ObservationMatrixRows of ObservationMatrixRowItems are listed in the matrix
 
 class ObservationMatrixRowItem < ApplicationRecord
   include Housekeeping

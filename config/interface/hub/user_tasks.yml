@@ -1046,7 +1046,7 @@ taxon_names_table_task:
   categories:
     - nomenclature
 taxon_name_gender_task:
-  hub: true
+  hub: false
   name: 'Nomenclatural gender summary'
   related:
   categories:

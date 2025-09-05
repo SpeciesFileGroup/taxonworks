@@ -72,7 +72,7 @@ class AssertedDistribution < ApplicationRecord
     self.no_dwc_occurrence = asserted_distribution_object_type != 'Otu'
   end
 
-  validate :new_records_include_citation
+  validate :records_include_citation
   validate :object_shape_absence_triple_is_unique
 
   validate :asserted_distribution_object_has_allowed_type
@@ -324,10 +324,58 @@ class AssertedDistribution < ApplicationRecord
     self.is_absent = nil if self.is_absent != true
   end
 
-  # @return [Boolean]
-  def new_records_include_citation
-    if new_record? && source.blank? && origin_citation.blank? && !citations.any?
+  def records_include_citation
+    # !! Be careful making changes here: remember that conditions on one
+    # association may/not affect other associations when the actual save
+    # happens.
+    # Maintain with FieldOccurrence#records_include_taxon_determination
+
+    # Watch out, origin_citation and citations *do not* necessarily share the
+    # same marked_for_destruction? info, even when origin_citation is a member
+    # of citations.
+    origin_citation_is_marked_for_destruction_on_citations =
+      origin_citation.present? && citations.present? &&
+      citations.count == 1 && !citations.first.id.nil? &&
+      origin_citation.id == citations.first.id &&
+      citations.first.marked_for_destruction?
+
+    the_one_citation_is_marked_for_destruction_on_origin_citation =
+      origin_citation.present? && citations.present? &&
+      citations.count == 1 && !citations.first.id.nil? &&
+      origin_citation&.id == citations.first.id &&
+      origin_citation.marked_for_destruction?
+
+    has_valid_source =
+      source.present? &&
+      !source.marked_for_destruction? && (
+        !origin_citation.present? ||
+        (!origin_citation.marked_for_destruction? &&
+         !origin_citation_is_marked_for_destruction_on_citations)
+      )
+
+    has_valid_origin_citation =
+      origin_citation.present? &&
+      !origin_citation.marked_for_destruction? &&
+      !origin_citation_is_marked_for_destruction_on_citations
+
+    has_valid_citation =
+      citations.count(&:marked_for_destruction?) < citations.size &&
+       !the_one_citation_is_marked_for_destruction_on_origin_citation
+
+    if !has_valid_source && !has_valid_origin_citation && !has_valid_citation
       errors.add(:base, 'required citation is not provided')
+      return
+    end
+
+    # We loaded the citations association above. If it was empty, Rails caches
+    # that value and *will not* add a citation created during save from source
+    # or origin_citation unless we reset the citations association.
+    if (source.present? || origin_citation.present?) && citations.size == 0
+      association(:citations).reset
+    end
+
+    if source.present? && origin_citation.nil?
+      association(:origin_citation).reset
     end
   end
 

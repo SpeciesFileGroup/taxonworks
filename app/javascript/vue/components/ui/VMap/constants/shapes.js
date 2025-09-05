@@ -7,16 +7,13 @@ import {
   GEOGRAPHIC_AREA,
   MAP_SHAPE_AGGREGATE
 } from '@/constants'
-import { DISABLE_LAYER_OPTIONS } from './disableLayerOptions'
-
-const DEFAULT_SHAPE_STYLE = {
-  weight: 2,
-  dashArray: '3',
-  dashOffset: '3',
-  fillOpacity: 0.5
-}
+import { DISABLE_LAYER_OPTIONS, DEFAULT_SHAPE_STYLE } from './index'
 
 export const SHAPES_CONFIG = {
+  Default: {
+    ...DEFAULT_SHAPE_STYLE
+  },
+
   Absent: {
     className: 'leaflet-hatch-pattern',
     color: 'var(--color-map-asserted-distribution-absent)'

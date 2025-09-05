@@ -14,6 +14,7 @@ namespace :api, defaults: {format: :json} do
 
     # not authenticated
     defaults authenticate_project: false, authenticate_user: false do
+      get '/sources/bibliography', to: '/sources#api_bibliography'
       get '/sources', to: '/sources#api_index'
       get '/sources/autocomplete', to: '/sources#autocomplete'
       get '/sources/:id', to: '/sources#api_show'
