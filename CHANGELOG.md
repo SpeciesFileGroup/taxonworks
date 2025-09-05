@@ -14,9 +14,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse OTU: Radial annotator to Timeline [#4057]
 - Radial CO: Accessions / Deaccession
 - Filter CO: Containerized facet
-- Radial navigator: New extract and Browse OTUs task for CollectionObject [#2882][#2860]
+- Radial navigator: New extract and Browse OTUs task for CollectionObject [#2882] [#2860]
 - New collecting event task: Add field occurrence panel [#4529]
 - New descriptor task: Add recent list
+- Support for DwCA Media extension [#1488]
 
 ### Fixed
 
@@ -26,9 +27,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some cases of unify failing on otus from different rows of the same matrix [#4140]
 - Nexus import fails on filename/extension error [#4531]
 - Internal error when loading matrix column coder
-- Fix Otus merge for BAs with otus on subject side [#4139]
+- Fix unify Otus when otus are associated with BAs having otus on subject side [#4139]
 - Filter stage images: Pagination is missing [#4540]
 - Browse OTUs: Parents list is missing when a taxon has many OTUs
+- DwCA Resource Relationships extension updates
+- Simple taxon name import raises an uncaught error when there are misformed author strings [#4541]
+- Occasional 'holes' for relatively small states in cached maps
+- Deadlocks on georeferences in cached maps rake task
 
 ### Changed
 
@@ -37,6 +42,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems
 - CSD: Identifiers can be deleted from the form once they are saved
 
+[#1488]: https://github.com/SpeciesFileGroup/taxonworks/issues/1488
 [#2860]: https://github.com/SpeciesFileGroup/taxonworks/issues/2860
 [#2882]: https://github.com/SpeciesFileGroup/taxonworks/issues/2882
 [#3845]: https://github.com/SpeciesFileGroup/taxonworks/issues/3845
@@ -48,6 +54,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4531]: https://github.com/SpeciesFileGroup/taxonworks/issues/4531
 [#4532]: https://github.com/SpeciesFileGroup/taxonworks/issues/4532
 [#4540]: https://github.com/SpeciesFileGroup/taxonworks/issues/4540
+[#4541]: https://github.com/SpeciesFileGroup/taxonworks/issues/4541
 
 ## [0.53.1] - 2025-08-13
 
