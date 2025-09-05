@@ -8,6 +8,7 @@ class Download::DwcArchive::Complete < Download::DwcArchive
   attribute :request, default: -> { '/api/v1/downloads/api_dwc_archive_complete' }
   attribute :is_public, default: -> { 1 }
 
+  before_save :sync_expires_with_preferences
   after_save :build, unless: :ready? # prevent infinite loop callbacks
 
   validates_uniqueness_of :type, scope: [:project_id], message: 'Only one Download::DwcArchive::Complete is allowed. Destroy the old version first.'
@@ -17,6 +18,8 @@ class Download::DwcArchive::Complete < Download::DwcArchive
   def self.api_buildable?
     true
   end
+
+  private
 
   def build
     project_params = { project_id: }
@@ -41,6 +44,7 @@ class Download::DwcArchive::Complete < Download::DwcArchive
           dwc_occurrence_query: project_params
         ).all.to_sql
       } : nil
+
     ::DwcaCreateDownloadJob.perform_later(
       id,
       core_scope: record_scope.to_sql,
@@ -56,12 +60,11 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     )
   end
 
-  private
-
   def has_eml_without_stubs
     eml_dataset, eml_additional_metadata = project.complete_dwc_eml_preferences
     # dataset has required fields for eml GBIF validation, additional metadata
     # does not.
+
     # TODO: require the required dataset EML fields that GBIF requires.
     if eml_dataset.nil? || eml_dataset.empty?
       errors.add(:base, 'Non-empty dataset xml is required')
@@ -87,4 +90,10 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     end
   end
 
+  def sync_expires_with_preferences
+    max_age = project.complete_dwc_download_max_age
+    return if max_age.nil?
+
+    self.expires = Time.zone.now + max_age.days + 1.day
+  end
 end
