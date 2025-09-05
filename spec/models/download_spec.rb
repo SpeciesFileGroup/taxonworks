@@ -137,7 +137,7 @@ RSpec.describe Download, type: :model do
     # Yes this list needs to be updated by hand (so that we don't copy-paste a
     # new Download class and make it publicly downloadable by mistake).
     expect(API_BUILDABLE_DOWNLOAD_TYPES).to contain_exactly(
-      'Download::DwcArchive::Complete',
+      'Download::DwcArchive::Complete', 'Download::DwcArchive::PupalComplete'
     )
   end
 
