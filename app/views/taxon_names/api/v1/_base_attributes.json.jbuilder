@@ -2,12 +2,39 @@ json.extract! taxon_name, :id, :name, :parent_id,
   :cached, :cached_html, :feminine_name, :masculine_name,
   :nomenclatural_code,
   :neuter_name,
+  :name,
   :etymology, :year_of_publication, :verbatim_author, :rank, :rank_string,
   :type, :created_by_id, :updated_by_id, :project_id,
-  :cached_valid_taxon_name_id, :cached_original_combination, :cached_original_combination_html, :cached_author_year,
+  :cached_valid_taxon_name_id, :cached_original_combination, :cached_original_combination_html, :cached_author, :cached_author_year,
   :cached_secondary_homonym, :cached_primary_homonym, :cached_is_valid,
   :created_at, :updated_at, :verbatim_name
 
-json.year taxon_name.year_integer
-json.name_string label_for_taxon_name(taxon_name)
+json.parent_name taxon_name.parent.name
 json.original_combination full_original_taxon_name_label(taxon_name)
+json.name_string label_for_taxon_name(taxon_name)
+json.author taxon_name.author_string
+json.year taxon_name.year_integer
+
+json.original_source do
+	json.id taxon_name.origin_citation.source_id
+	json.page taxon_name.origin_citation.pages
+	json.original_source_cached taxon_name.source.cached
+end
+
+json.object_relationships TaxonNameRelationship.where("object_taxon_name_id = '#{taxon_name.id}' or subject_taxon_name_id = '#{taxon_name.id}'") do |r|
+	json.id r.id
+	json.subject_id r.subject_taxon_name_id
+	json.subject_name TaxonName.find(r.subject_taxon_name_id).cached
+	json.object_id r.object_taxon_name_id
+	json.object_name TaxonName.find(r.object_taxon_name_id).cached
+	json.type r.type
+	
+	json.source Citation.where(citation_object_id: r.id).take
+	
+end
+
+
+
+
+#http://127.0.0.1:3000/api/v1/taxon_names/818346/
+#http://127.0.0.1:3000/api/v1/taxon_names/818346/inventory/summary?extend[]=taxon_name_relationships
