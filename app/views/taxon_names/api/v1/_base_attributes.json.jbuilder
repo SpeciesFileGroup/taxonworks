@@ -21,7 +21,7 @@ json.original_source do
 	json.original_source_cached taxon_name.source.cached
 end
 
-json.object_relationships TaxonNameRelationship.where("object_taxon_name_id = '#{taxon_name.id}' or subject_taxon_name_id = '#{taxon_name.id}'") do |r|
+json.subject_relationships TaxonNameRelationship.where(subject_taxon_name_id: taxon_name.id) do |r|
 	json.id r.id
 	json.subject_id r.subject_taxon_name_id
 	json.subject_name TaxonName.find(r.subject_taxon_name_id).cached
@@ -29,12 +29,31 @@ json.object_relationships TaxonNameRelationship.where("object_taxon_name_id = '#
 	json.object_name TaxonName.find(r.object_taxon_name_id).cached
 	json.type r.type
 	
-	json.source Citation.where(citation_object_id: r.id).take
+	cit = TaxonName.find(r.object_taxon_name_id)
+	json.relationship_source do
+		json.id cit.origin_citation.source_id
+		json.page cit.origin_citation.pages
+		json.original_source_cached cit.source.cached
+	end
+end
+
+json.object_relationships TaxonNameRelationship.where(object_taxon_name_id: taxon_name.id) do |r|
+	json.id r.id
+	json.subject_id r.subject_taxon_name_id
+	json.subject_name TaxonName.find(r.subject_taxon_name_id).cached
+	json.object_id r.object_taxon_name_id
+	json.object_name TaxonName.find(r.object_taxon_name_id).cached
+	json.type r.type
+	json.source r.source
+	
+	json.citation_source Citation.where(citation_object_id: r.id).take
 	
 end
 
 
 
-
-#http://127.0.0.1:3000/api/v1/taxon_names/818346/
+#http://127.0.0.1:3000/api/v1/taxon_names/818346/          #Elytrurus bicolor
+#http://127.0.0.1:3000/api/v1/taxon_names/833139/
+#http://127.0.0.1:3000/api/v1/taxon_names/1181570		#Paraptochus oregonus COMBINATION
+#http://127.0.0.1:3000/api/v1/taxon_names/827503		#Paraptochus oregonus PROTONYM
 #http://127.0.0.1:3000/api/v1/taxon_names/818346/inventory/summary?extend[]=taxon_name_relationships
