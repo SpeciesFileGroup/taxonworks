@@ -9,40 +9,36 @@ json.extract! taxon_name, :id, :name, :parent_id,
   :cached_secondary_homonym, :cached_primary_homonym, :cached_is_valid,
   :created_at, :updated_at, :verbatim_name
 
-json.parent_name taxon_name.parent.name
+json.parent_name taxon_name.parent
 json.original_combination full_original_taxon_name_label(taxon_name)
 json.name_string label_for_taxon_name(taxon_name)
 json.author taxon_name.author_string
 json.year taxon_name.year_integer
 
 json.original_source do
-	json.id taxon_name.origin_citation.source_id
-	json.page taxon_name.origin_citation.pages
-	json.original_source_cached taxon_name.source.cached
+	json.id taxon_name.origin_citation
 end
 
 json.subject_relationships TaxonNameRelationship.where(subject_taxon_name_id: taxon_name.id) do |r|
 	json.id r.id
 	json.subject_id r.subject_taxon_name_id
-	json.subject_name TaxonName.find(r.subject_taxon_name_id).cached
+	json.subject_taxon TaxonName.find(r.subject_taxon_name_id)
 	json.object_id r.object_taxon_name_id
-	json.object_name TaxonName.find(r.object_taxon_name_id).cached
+	json.object_taxon TaxonName.find(r.object_taxon_name_id)
 	json.type r.type
 	
 	cit = TaxonName.find(r.object_taxon_name_id)
 	json.relationship_source do
-		json.id cit.origin_citation.source_id
-		json.page cit.origin_citation.pages
-		json.original_source_cached cit.source.cached
+		json.id cit.origin_citation
 	end
 end
 
 json.object_relationships TaxonNameRelationship.where(object_taxon_name_id: taxon_name.id) do |r|
 	json.id r.id
 	json.subject_id r.subject_taxon_name_id
-	json.subject_name TaxonName.find(r.subject_taxon_name_id).cached
+	json.subject_taxon TaxonName.find(r.subject_taxon_name_id)
 	json.object_id r.object_taxon_name_id
-	json.object_name TaxonName.find(r.object_taxon_name_id).cached
+	json.object_taxon TaxonName.find(r.object_taxon_name_id)
 	json.type r.type
 	json.source r.source
 	
