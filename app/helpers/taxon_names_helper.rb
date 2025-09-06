@@ -584,7 +584,6 @@ module TaxonNamesHelper
     rows.join('<br>').html_safe
   end
 
-<<<<<<< HEAD
   # TODO: move to queries/filter paradigm, this is all stubs
   # @params params
   #   required:
@@ -721,7 +720,7 @@ module TaxonNamesHelper
         r[:request][:level] = 3
 
         a = Vendor::Colrapi::Alignment.new(name: t, project_id:)
-         
+
         p = a.autoselect_payload_json
 
         if p.present?
@@ -742,7 +741,8 @@ module TaxonNamesHelper
     end
 
     r
-=======
+  end
+
   def taxonomic_tree_node(taxon_name)
     {
       id: taxon_name.id,
@@ -766,7 +766,7 @@ module TaxonNamesHelper
       .map { |child| taxonomic_tree_node(child) }
   end
 
-  def taxonomic_tree(taxon_name, include_ancestors = true) 
+  def taxonomic_tree(taxon_name, include_ancestors = true)
     node = {
       taxon_name: taxonomic_tree_node(taxon_name),
       descendants: taxonomic_tree_descendants(taxon_name),
@@ -778,7 +778,6 @@ module TaxonNamesHelper
     end
 
     node
->>>>>>> development
   end
 
   protected
