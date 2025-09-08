@@ -57,7 +57,7 @@ function updateStorage() {
 
 function buildTree(ancestors, taxon) {
   if (!ancestors || ancestors.length === 0) {
-    return makeTaxonNode(taxon)
+    return { ...makeTaxonNode(taxon), isExpanded: true, isLoaded: true }
   }
 
   let root = makeTaxonNode(ancestors[0])
@@ -125,7 +125,8 @@ onBeforeMount(() => {
     position: relative;
     margin: 0;
     padding: 0px;
-    padding-left: 4px;
+    padding-left: 6px;
+    padding-top: 1px;
     border-left: 1px solid var(--taxonomic-tree-border);
     white-space: normal;
 
@@ -154,10 +155,11 @@ onBeforeMount(() => {
     height: 1em;
     width: 8px;
     color: white;
+    padding-top: 1px;
     border-bottom: 1px solid var(--taxonomic-tree-border);
     content: '';
     display: inline-block;
-    left: -4px;
+    left: -5px;
   }
 
   li:last-child:before {
@@ -169,7 +171,7 @@ onBeforeMount(() => {
     padding-left: 8px;
     padding-bottom: 4px;
     margin-top: -7px;
-    padding-top: 7px;
+    padding-top: 8px;
     border-left: 1px solid var(--taxonomic-tree-border);
 
     li {
