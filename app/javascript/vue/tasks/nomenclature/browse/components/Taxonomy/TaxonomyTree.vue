@@ -1,7 +1,8 @@
 <template>
-  <li>
+  <li :style="{ '--taxonomic-tree-border': colors[depth % colors.length] }">
     <VBtn
       v-if="!taxon.leaf"
+      :style="{ backgroundColor: colors[depth % colors.length] }"
       circle
       small
       color="primary"
@@ -52,6 +53,12 @@
 
     <TaxonomySynonyms
       v-if="taxon.synonyms?.length && !onlyValid"
+      :style="{
+        '--taxonomic-tree-border':
+          taxon.synonyms?.length && taxon.children?.length
+            ? colors[(depth + 1) % colors.length]
+            : 'none'
+      }"
       class="taxonomy-tree-invalid-name"
       :synonyms="taxon.synonyms"
     />
@@ -64,6 +71,7 @@
           <TaxonomyTree
             v-if="child.id === currentId || !onlyValid || child.isValid"
             :taxon="child"
+            :depth="depth + 1"
             :current-id="currentId"
             :only-valid="onlyValid"
           />
@@ -76,13 +84,13 @@
 <script setup>
 import { ref } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
-import TaxonomyTree from './TaxonomyTree.vue'
-import TaxonomySynonyms from './TaxonomySynonyms.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
 import { makeTaxonNode } from '../../utils/makeTaxonNode'
 import { makeBrowseUrl } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import { TAXON_NAME } from '@/constants'
+import TaxonomyTree from './TaxonomyTree.vue'
+import TaxonomySynonyms from './TaxonomySynonyms.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   taxon: {
@@ -98,8 +106,27 @@ const props = defineProps({
   onlyValid: {
     type: Boolean,
     default: false
+  },
+
+  depth: {
+    type: Number,
+    default: 0
   }
 })
+const colors = [
+  '#e63946', // rojo
+  '#f77f00', // naranja
+  '#fcbf49', // amarillo
+  '#2a9d8f', // verde azulado
+  '#52b788', // verde
+  '#4361ee', // azul
+  '#4895ef', // celeste
+  '#560bad', // violeta oscuro
+  '#7209b7', // violeta
+  '#b5179e', // magenta
+  '#ff006e', // fucsia
+  '#ff4d6d' // rosado fuerte
+]
 
 const isLoading = ref(false)
 

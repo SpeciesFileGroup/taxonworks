@@ -9,6 +9,10 @@
   </label>
 
   <div class="panel-taxonomy-tree margin-medium-top">
+    <VSpinner
+      v-if="isLoading"
+      legend="Loading taxonimic tree..."
+    />
     <ul
       class="taxonomy-tree"
       v-if="tree"
@@ -26,8 +30,9 @@
 import { TaxonName } from '@/routes/endpoints'
 import { onBeforeMount, ref } from 'vue'
 import { convertType } from '@/helpers'
-import TaxonomyTree from './TaxonomyTree.vue'
 import { makeTaxonNode } from '../../utils/makeTaxonNode'
+import TaxonomyTree from './TaxonomyTree.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const STORAGE_ONLY_VALID_KEY = 'TW::TaxonomyTree::OnlyValid'
 
@@ -43,6 +48,7 @@ const props = defineProps({
 })
 
 const tree = ref()
+const isLoading = ref(true)
 const onlyValid = ref(true)
 
 function updateStorage() {
@@ -76,28 +82,35 @@ function buildTree(ancestors, taxon) {
 onBeforeMount(() => {
   onlyValid.value = convertType(localStorage.getItem(STORAGE_ONLY_VALID_KEY))
 
-  TaxonName.taxonomy(props.taxonId).then(({ body }) => {
-    tree.value = buildTree(body.ancestors, {
-      ...body.taxon_name,
-      synonyms: body.synonyms,
-      children: body.descendants
+  TaxonName.taxonomy(props.taxonId)
+    .then(({ body }) => {
+      tree.value = buildTree(body.ancestors, {
+        ...body.taxon_name,
+        children: body.descendants
+      })
     })
-  })
+    .finally(() => {
+      isLoading.value = false
+    })
 })
 </script>
 
 <style lang="scss">
 .sticky-navbar-fixed {
   .panel-taxonomy-tree {
+    height: 100%;
+    height: calc(100vh - 320px);
     max-height: calc(100vh - 320px);
   }
 }
 .panel-taxonomy-tree {
   padding-left: 0.75em;
-  max-height: calc(100vh - 500px);
+  height: calc(100vh - 500px);
+  max-height: calc(100vh - 400px);
   overflow-y: auto;
 }
 .taxonomy-tree {
+  --taxonomic-tree-border: var(--border-color);
   white-space: nowrap;
   word-wrap: normal;
   list-style: none;
@@ -113,7 +126,7 @@ onBeforeMount(() => {
     margin: 0;
     padding: 0px;
     padding-left: 4px;
-    border-left: 1px solid var(--border-color);
+    border-left: 1px solid var(--taxonomic-tree-border);
     white-space: normal;
 
     button {
@@ -129,6 +142,10 @@ onBeforeMount(() => {
 
   li:last-child {
     border-left: none;
+
+    .synonym-list {
+      border-left: 1px solid var(--taxonomic-tree-border);
+    }
   }
 
   li:before {
@@ -137,20 +154,23 @@ onBeforeMount(() => {
     height: 1em;
     width: 8px;
     color: white;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--taxonomic-tree-border);
     content: '';
     display: inline-block;
     left: -4px;
   }
 
   li:last-child:before {
-    border-left: 1px solid var(--border-color);
+    border-left: 1px solid var(--taxonomic-tree-border);
   }
 
   .synonym-list {
     list-style: none;
     padding-left: 8px;
     padding-bottom: 4px;
+    margin-top: -7px;
+    padding-top: 7px;
+    border-left: 1px solid var(--taxonomic-tree-border);
 
     li {
       border-left: none;
