@@ -38,6 +38,14 @@
       <div class="horizontal-left-content">
         <div class="middle margin-small-right">
           <button
+            v-if="showSendToKeyButton"
+            type="button"
+            @click="sendToLead"
+            class="button normal-input button-default margin-small-left"
+          >
+            Send to key
+          </button>
+          <button
             type="button"
             @click="setLayout(settings.gridLayout)"
             class="button normal-input button-default margin-small-left"
@@ -110,6 +118,16 @@ export default {
 
     existKeywords() {
       return !!this.observationMatrix?.descriptor_available_keywords?.length
+    },
+
+    showSendToKeyButton() {
+      if (!!this.$store.getters[GetterNames.GetLeadId] &&
+          !!this.$store.getters[GetterNames.GetFilter] &&
+          this.$store.getters[GetterNames.GetObservationMatrix]?.observation_matrix_id) {
+        return true
+      } else {
+        return false
+      }
     },
 
     settings: {
