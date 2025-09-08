@@ -35,19 +35,19 @@ module BiologicalAssociation::DwcExtensions
     r
   end
 
-  def dwc_resource_relationship_coreid(_)
-    dwc_resource_id(_)
+  def dwc_resource_relationship_coreid(inverted = false)
+    dwc_resource_id(inverted)
   end
 
-  def darwin_core_extension_json(_)
+  def darwin_core_extension_json(inverted = false)
 
   end
 
-  def dwc_resource_relationship_id(_)
+  def dwc_resource_relationship_id(inverted = false)
     uuid || id
   end
 
-  def dwc_resource_id(_)
+  def dwc_resource_id(inverted = false)
     case biological_association_subject.class.base_class.name
     when 'Otu'
       biological_association_subject.uuid || biological_association_subject.uri || biological_association_subject.id
@@ -56,7 +56,7 @@ module BiologicalAssociation::DwcExtensions
     end
   end
 
-  def dwc_resource(_)
+  def dwc_resource(inverted = false)
     case biological_association_subject.class.base_class.name
     when 'Otu'
       ApplicationController.helpers.label_for_otu(biological_association_subject)
@@ -65,14 +65,14 @@ module BiologicalAssociation::DwcExtensions
     end
   end
 
-  def dwc_relationship_of_resource_id(inverted)
+  def dwc_relationship_of_resource_id(inverted = false)
     s = biological_relationship.uris.first&.cached || biological_relationship_id
 
     # TODO: this might mess up uri handling
     inverted ? "#{s} inverted" : s
   end
 
-  def dwc_relationship_of_resource(inverted)
+  def dwc_relationship_of_resource(inverted = false)
     if inverted
       biological_relationship.inverted_name
     else
@@ -80,7 +80,7 @@ module BiologicalAssociation::DwcExtensions
     end
   end
 
-  def dwc_related_resource_id(_)
+  def dwc_related_resource_id(inverted = false)
     case biological_association_object.class.base_class.name
     when 'Otu'
       biological_association_object.uuid || biological_association_object.uri || biological_association_object.id
@@ -89,7 +89,7 @@ module BiologicalAssociation::DwcExtensions
     end
   end
 
-  def dwc_related_resource(_)
+  def dwc_related_resource(inverted = false)
     case biological_association_object.class.base_class.name
     when 'Otu'
       ApplicationController.helpers.label_for_otu(biological_association_object)
@@ -99,7 +99,7 @@ module BiologicalAssociation::DwcExtensions
   end
 
   # TODO: Should reference DOIs, Identifiers,  or identifiers in lieu of short citations
-  def dwc_relationship_according_to(_)
+  def dwc_relationship_according_to(inverted = false)
     ApplicationController.helpers.short_sources_tag(sources)
 
     # Could be collectors (ORCID or ...)
@@ -123,7 +123,7 @@ module BiologicalAssociation::DwcExtensions
     end
   end
 
-  def dwc_relationship_established_date(_)
+  def dwc_relationship_established_date(inverted = false)
     t = [biological_association_subject_type , biological_association_object_type]
 
     case t
@@ -143,7 +143,7 @@ module BiologicalAssociation::DwcExtensions
   end
 
   # TODO: Generic helper
-  def dwc_relationship_remarks(_)
+  def dwc_relationship_remarks(inverted = false)
     Utilities::Strings.sanitize_for_csv( notes.collect{|n| n.text}.join(' | ')).presence
   end
 
