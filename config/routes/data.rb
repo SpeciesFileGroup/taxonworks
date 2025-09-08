@@ -505,6 +505,7 @@ resources :leads do
     post :destroy_subtree, defaults: {format: :json}
     patch :reorder_children, defaults: {format: :json}
     post :insert_key, defaults: {format: :json}
+    post :set_observation_matrix, defaults: {format: :json}
   end
   collection do
     post :batch_create_lead_items, defaults: {format: :json}

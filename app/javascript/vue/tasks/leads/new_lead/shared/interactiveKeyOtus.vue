@@ -158,7 +158,10 @@ function loadRows(page = undefined) {
 }
 
 function addRows() {
-  emit('selected', rowsSelected.value.map((item) => item.observation_object.id))
+  emit('selected', {
+    observationMatrixId: matrixSelected.value.id,
+    otuIds: rowsSelected.value.map((item) => item.observation_object.id)
+  })
 }
 
 function alreadyExist(item) {

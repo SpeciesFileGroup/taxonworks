@@ -59,6 +59,7 @@ function makeLeadObject() {
     parent_id: undefined,
     redirect_id: undefined,
     text: undefined,
+    observation_matrix_id: undefined,
     future: []
   }
 }

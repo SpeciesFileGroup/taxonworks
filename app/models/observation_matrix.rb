@@ -41,6 +41,7 @@ class ObservationMatrix < ApplicationRecord
   has_many :extracts, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Extract'
   has_many :sounds, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Sound'
   has_many :field_occurrences, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'FieldOccurrence'
+  has_many :leads, inverse_of: :observation_matrix, dependent: :nullify
 
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, -> { order('observation_matrix_columns.position') }, through: :observation_matrix_columns, inverse_of: :observation_matrices

@@ -3,7 +3,9 @@ class LeadsController < ApplicationController
   before_action :set_lead, only: %i[
     edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
-    duplicate otus destroy_subtree reorder_children insert_key]
+    duplicate otus destroy_subtree reorder_children insert_key
+    set_observation_matrix
+  ]
 
   # GET /leads
   # GET /leads.json
@@ -278,6 +280,16 @@ class LeadsController < ApplicationController
     @lead.add_children(sessions_current_project_id, sessions_current_user_id)
 
     render json: @lead
+  end
+
+  def set_observation_matrix
+    if params[:observation_matrix_id].nil?
+      @lead.errors.add(:observation_matrix_id, 'is required.')
+      render json: @lead.errors, status: :unprocessable_entity
+    end
+
+    @lead.update!(observation_matrix_id: params[:observation_matrix_id])
+    head :no_content
   end
 
   private
