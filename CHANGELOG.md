@@ -7,6 +7,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+### Fixed
+- Error on Globi preview of biological associations and on api/v1/biological_associations.globi
+
+### Changed
+
 ## [0.53.2] - 2025-09-05
 
 ### Added
