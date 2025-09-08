@@ -159,7 +159,7 @@ onBeforeMount(() => {
     border-bottom: 1px solid var(--taxonomic-tree-border);
     content: '';
     display: inline-block;
-    left: -5px;
+    left: -6px;
   }
 
   li:last-child:before {
