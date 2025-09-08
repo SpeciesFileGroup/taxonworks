@@ -114,18 +114,18 @@ const props = defineProps({
   }
 })
 const colors = [
-  '#e63946', // rojo
-  '#f77f00', // naranja
-  '#fcbf49', // amarillo
-  '#2a9d8f', // verde azulado
-  '#52b788', // verde
-  '#4361ee', // azul
-  '#4895ef', // celeste
-  '#560bad', // violeta oscuro
-  '#7209b7', // violeta
-  '#b5179e', // magenta
-  '#ff006e', // fucsia
-  '#ff4d6d' // rosado fuerte
+  '#e63946',
+  '#f77f00',
+  '#fcbf49',
+  '#2a9d8f',
+  '#52b788',
+  '#4361ee',
+  '#4895ef',
+  '#560bad',
+  '#7209b7',
+  '#b5179e',
+  '#ff006e',
+  '#ff4d6d'
 ]
 
 const isLoading = ref(false)
