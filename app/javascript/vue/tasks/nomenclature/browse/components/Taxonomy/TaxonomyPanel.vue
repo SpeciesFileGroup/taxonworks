@@ -1,12 +1,10 @@
 <template>
-  <label>
-    <input
-      type="checkbox"
-      v-model="onlyValid"
-      @change="updateStorage"
+  <Teleport to="#navigate-options">
+    <TaxonomyOptions
+      v-model:only-valid="onlyValid"
+      v-model:rainbow="rainbow"
     />
-    Show only valid names
-  </label>
+  </Teleport>
 
   <div class="panel-taxonomy-tree margin-medium-top">
     <VSpinner
@@ -20,6 +18,7 @@
       <TaxonomyTree
         :current-id="taxonId"
         :taxon="tree"
+        :rainbow="rainbow"
         :only-valid="onlyValid"
       />
     </ul>
@@ -29,12 +28,10 @@
 <script setup>
 import { TaxonName } from '@/routes/endpoints'
 import { onBeforeMount, ref } from 'vue'
-import { convertType } from '@/helpers'
+import TaxonomyOptions from './TaxonomyOptions.vue'
 import { makeTaxonNode } from '../../utils/makeTaxonNode'
 import TaxonomyTree from './TaxonomyTree.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-
-const STORAGE_ONLY_VALID_KEY = 'TW::TaxonomyTree::OnlyValid'
 
 defineOptions({
   name: 'TaxonomyTree'
@@ -48,12 +45,9 @@ const props = defineProps({
 })
 
 const tree = ref()
+const rainbow = ref(true)
 const isLoading = ref(true)
 const onlyValid = ref(true)
-
-function updateStorage() {
-  localStorage.setItem(STORAGE_ONLY_VALID_KEY, onlyValid.value)
-}
 
 function buildTree(ancestors, taxon) {
   if (!ancestors || ancestors.length === 0) {
@@ -80,8 +74,6 @@ function buildTree(ancestors, taxon) {
 }
 
 onBeforeMount(() => {
-  onlyValid.value = convertType(localStorage.getItem(STORAGE_ONLY_VALID_KEY))
-
   TaxonName.taxonomy(props.taxonId)
     .then(({ body }) => {
       tree.value = buildTree(body.ancestors, {

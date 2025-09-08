@@ -1,8 +1,8 @@
 <template>
-  <li :style="{ '--taxonomic-tree-border': colors[depth % colors.length] }">
+  <li :style="rainbowStyle">
     <VBtn
       v-if="!taxon.leaf"
-      :style="{ backgroundColor: colors[depth % colors.length] }"
+      :style="[rainbow && { backgroundColor: 'var(--taxonomic-tree-border)' }]"
       circle
       small
       color="primary"
@@ -53,12 +53,7 @@
 
     <TaxonomySynonyms
       v-if="taxon.synonyms?.length && !onlyValid"
-      :style="{
-        '--taxonomic-tree-border':
-          taxon.synonyms?.length && taxon.children?.length
-            ? colors[(depth + 1) % colors.length]
-            : 'none'
-      }"
+      :style="synonymsStyle"
       class="taxonomy-tree-invalid-name"
       :synonyms="taxon.synonyms"
     />
@@ -73,6 +68,7 @@
             :taxon="child"
             :depth="depth + 1"
             :current-id="currentId"
+            :rainbow="rainbow"
             :only-valid="onlyValid"
           />
         </template>
@@ -82,7 +78,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
 import { makeTaxonNode } from '../../utils/makeTaxonNode'
 import { makeBrowseUrl } from '@/helpers'
@@ -111,6 +107,11 @@ const props = defineProps({
   depth: {
     type: Number,
     default: 0
+  },
+
+  rainbow: {
+    type: Boolean,
+    default: false
   }
 })
 const colors = [
@@ -129,6 +130,26 @@ const colors = [
 ]
 
 const isLoading = ref(false)
+
+const rainbowStyle = computed(() => {
+  if (!props.rainbow) return {}
+
+  return {
+    '--taxonomic-tree-border': colors[props.depth % colors.length]
+  }
+})
+
+const synonymsStyle = computed(() => {
+  if (
+    !props.rainbow ||
+    !(props.taxon.synonyms?.length && props.taxon.children?.length)
+  )
+    return {}
+
+  return {
+    '--taxonomic-tree-border': colors[(props.depth + 1) % colors.length]
+  }
+})
 
 function toggle() {
   if (!props.taxon.isExpanded && !props.taxon.isLoaded) {
