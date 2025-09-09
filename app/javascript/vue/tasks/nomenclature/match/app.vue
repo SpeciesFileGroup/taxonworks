@@ -34,7 +34,7 @@
           v-model="params"
           :lines="lines"
         />
-        <FacetValidity v-model="params" />
+        <PanelStatus v-model="params" />
       </div>
       <div class="full_width">
         <VNavbar>
@@ -111,7 +111,7 @@ import PanelTaxonNames from './components/PanelTaxonNames.vue'
 import VSpinner from '@/components/ui/VSpinner'
 import VNavbar from '@/components/layout/NavBar'
 import CSVButton from '@/components/csvButton.vue'
-import FacetValidity from '../filter/components/filters/FacetValidity.vue'
+import PanelStatus from './components/PanelStatus.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialFilter from '@/components/radials/filter/radial.vue'
