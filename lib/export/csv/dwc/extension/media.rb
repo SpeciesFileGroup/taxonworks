@@ -13,7 +13,7 @@ module Export::CSV::Dwc::Extension::Media
     coreid: '', # required by dwca to link to core file, not part of media
     identifier: 'http://purl.org/dc/terms/identifier',
     'dc:type': 'http://purl.org/dc/elements/1.1/type',
-    'dcmi:type': 'http://purl.org/dc/terms/type',
+    #'dcmi:type': 'http://purl.org/dc/terms/type', # GBIF didn't recognize this for some reason
     subtypeLiteral: 'http://rs.tdwg.org/ac/terms/subtypeLiteral',
     subtype: 'http://rs.tdwg.org/ac/terms/subtype',
     title: 'http://purl.org/dc/terms/title',

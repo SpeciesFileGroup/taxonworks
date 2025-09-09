@@ -7,7 +7,7 @@ module Image::DwcMediaExtensions
   # Shared::Dwc::MediaExtensions#DWC_MEDIA_SHARED_EXTENSION_MAP as well.
   DWC_MEDIA_IMAGE_EXTENSION_MAP = {
     'dc:type': :dwc_media_dc_type,
-    'dcmi:type': :dwc_media_dcmi_type,
+    #'dcmi:type': :dwc_media_dcmi_type,
     accessURI: :dwc_media_access_uri,
     'dc:format': :dwc_media_dc_format,
     # 'dcterms:format',

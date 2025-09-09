@@ -20,6 +20,8 @@ module BiologicalAssociation::DwcExtensions
   end
 
   # Don't use dwc_
+  # !! inverted means subject and object have already been switched, but
+  # *relationship* must use `inverted_name` instead of `name`.
   def darwin_core_extension_row(inverted: false)
     Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS.collect{|h| send(DWC_EXTENSION_MAP[h.to_sym], inverted)}
   end
@@ -36,7 +38,10 @@ module BiologicalAssociation::DwcExtensions
   end
 
   def dwc_resource_relationship_coreid(inverted = false)
-    dwc_resource_id(inverted)
+    core_object_klass = biological_association_subject.class.base_class.name
+    if core_object_klass == 'CollectionObject'
+      return biological_association_subject.dwc_occurrence.id
+    end
   end
 
   def darwin_core_extension_json(inverted = false)
