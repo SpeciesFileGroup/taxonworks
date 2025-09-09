@@ -589,6 +589,7 @@ module TaxonNamesHelper
       id: taxon_name.id,
       label: taxon_name.cached_html_name_and_author_year,
       is_valid: taxon_name.cached_is_valid,
+      cached_valid_taxon_name_id: taxon_name.cached_valid_taxon_name_id,
       synonyms: taxon_name_synonyms_list(taxon_name).map { |syn| taxon_name_synonym_li(syn) },
       valid_descendants: taxon_name.descendants.unscope(:order).that_is_valid.count,
       invalid_descendants: taxon_name.descendants.unscope(:order).that_is_invalid.count,

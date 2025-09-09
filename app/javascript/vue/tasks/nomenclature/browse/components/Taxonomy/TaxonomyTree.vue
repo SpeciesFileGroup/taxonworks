@@ -64,7 +64,10 @@
           :key="child.id"
         >
           <TaxonomyTree
-            v-if="child.id === currentId || !onlyValid || child.isValid"
+            v-if="
+              !isChildSynonym(child) &&
+              (child.id === currentId || !onlyValid || child.isValid)
+            "
             :taxon="child"
             :depth="depth + 1"
             :current-id="currentId"
@@ -161,6 +164,12 @@ function toggle() {
 
 function makeFilterLink({ taxonId, validity }) {
   return `${RouteNames.FilterNomenclature}?descendants=true&taxon_name_id=${taxonId}&validity=${validity}`
+}
+
+function isChildSynonym(t) {
+  const ids = props.taxon.children.map((c) => c.id).filter((id) => id !== t.id)
+
+  return ids.includes(t.validId)
 }
 
 function expandNode(taxonId) {
