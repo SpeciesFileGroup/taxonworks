@@ -134,5 +134,28 @@ module ApplicationEnumeration
     raise TaxonWorks::Error, "Unknown relationship type for #{relation.name}."
   end
 
+  def self.citable_relations(klass, relationship_type = :all)
+    types = relationship_type == :all ?
+      [:has_many, :has_one, :belongs_to] : [relationship_type]
+
+    h = {}
+
+    types.each do |t|
+      h[t] = klass.reflect_on_all_associations(t).filter_map do |r|
+        if r.klass.ancestors.include?(Shared::Citations)
+          if t == :has_many
+            r.plural_name.to_sym
+          else
+            r.name.to_sym
+          end
+        else
+          nil
+        end
+      end
+    end
+
+    h
+  end
+
 
 end
