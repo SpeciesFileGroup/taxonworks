@@ -66,4 +66,25 @@ describe TaxonNamesHelper, type: :helper do
       end
     end
   end
+
+  context "invalid is counted at valid's rank" do
+    let!(:root) { FactoryBot.create(:root_taxon_name) }
+    let!(:family) { Protonym.create!(name: 'Cicadellidae', rank_class: Ranks.lookup(:iczn, :family), parent: root) }
+    let!(:genus1) { Protonym.create!(name: 'Erythroneura', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+    let!(:genus2) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+    let!(:subgenus1) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus1) }
+
+    let!(:tnr) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: subgenus1, object_taxon_name: genus2) }
+
+    let!(:stats) { taxon_name_inventory_stats(family) }
+    let(:g) { stats.find { |r| r[:rank] == :genus } }
+    let(:sg) { stats.find { |r| r[:rank] == :subgenus } }
+
+    specify 'invalid of different rank than valid is counted only at valid rank' do
+      expect(g[:names][:valid]).to eq(2)
+      expect(g[:names][:invalid]).to eq(1)
+      expect(sg[:names][:valid]).to eq(0)
+      expect(sg[:names][:invalid]).to eq(0)
+    end
+  end
 end
