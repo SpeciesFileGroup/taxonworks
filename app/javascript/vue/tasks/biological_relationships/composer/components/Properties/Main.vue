@@ -23,10 +23,16 @@
           <tr>
             <td>
               <div class="middle">
-                <span
+                <VBtn
+                  color="primary"
+                  circle
                   @click="editProperty(element)"
-                  class="button button-circle btn-edit"
-                />
+                >
+                  <VIcon
+                    name="pencil"
+                    x-small
+                  />
+                </VBtn>
                 <span
                   class="margin-small-left cursor-grab"
                   v-html="element.object_tag"
@@ -43,6 +49,8 @@
 <script setup>
 import Draggable from 'vuedraggable'
 import NewProperty from './NewProperty'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { ControlledVocabularyTerm } from '@/routes/endpoints'
 import { ref, useTemplateRef, onMounted } from 'vue'
 import { addToArray } from '@/helpers'
