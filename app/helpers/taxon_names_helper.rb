@@ -386,7 +386,9 @@ module TaxonNamesHelper
     # !! descendants: false is [self and desecendants]
     ::Queries::TaxonName::Filter.new(synonymify: true, descendants: false, taxon_name_id: taxon_name.id).all
       .where(type: 'Protonym')
-      .select(:rank_klass).distinct.pluck(:rank_class).compact.sort{|a,b| RANKS.index(a) <=> RANKS.index(b)}.each do |r|
+      .select(:rank_klass)
+      .distinct
+      .pluck(:rank_class).compact.sort{|a,b| RANKS.index(a) <=> RANKS.index(b)}.each do |r|
 
         n = r.safe_constantize.rank_name.to_sym
         j = i.deep_dup
@@ -401,7 +403,7 @@ module TaxonNamesHelper
         j[:names][:valid] = valid.count
         j[:names][:valid_fossil] = valid
           .joins(:taxon_name_classifications)
-          .where('taxon_name_classifications.type LIKE ?', '%::Fossil%' )
+          .where(taxon_name_classifications: { type: TAXON_NAME_CLASSIFICATIONS_FOR_FOSSILS })
           .count
         j[:names][:valid_extant] = j[:names][:valid] - j[:names][:valid_fossil]
 
@@ -609,7 +611,7 @@ module TaxonNamesHelper
       .map { |child| taxonomic_tree_node(child) }
   end
 
-  def taxonomic_tree(taxon_name, include_ancestors = true) 
+  def taxonomic_tree(taxon_name, include_ancestors = true)
     node = {
       taxon_name: taxonomic_tree_node(taxon_name),
       descendants: taxonomic_tree_descendants(taxon_name)
