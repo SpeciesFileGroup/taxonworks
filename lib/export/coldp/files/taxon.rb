@@ -178,6 +178,8 @@ module Export::Coldp::Files::Taxon
         next if observed_taxon_name_ids[o.taxon_name_id]
         observed_taxon_name_ids[o.taxon_name_id] = nil
 
+        ::Export::Coldp.taxon_ids << o.id
+
         # TODO: NOT SPECIFIED is left out no from Name, but not populating a tracking list
         #
         # If this is required add it to the `target` scope above

@@ -95,6 +95,8 @@ module Export::Coldp::Files::NameRelation
 
       rels.each do |tnr|
 
+        next unless ::Export::Coldp.name_ids.include?(tnr.subject_taxon_name_id)
+        next unless ::Export::Coldp.name_ids.include?(tnr.object_taxon_name_id)
         next if ::Export::Coldp.skipped_combinations.include?(tnr.subject_taxon_name_id)
 
         unless tnr.type.constantize.nomen_uri.blank?

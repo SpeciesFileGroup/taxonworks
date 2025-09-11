@@ -252,6 +252,7 @@ module Export::Coldp::Files::Name
       # !! SO that we know these *must* be reified
       # !! We are reifieing *without* "[sic]" in the string
       id = ::Utilities::Nomenclature.reified_id(row['id'], scientific_name)
+      ::Export::Coldp.name_ids << id
 
       # By definition
       basionym_id = row['id']
@@ -287,6 +288,7 @@ module Export::Coldp::Files::Name
     names.length
 
     names.find_each do |t|
+      ::Export::Coldp.name_ids << t.id
       origin_citation = t.origin_citation
       csv << [
         t.id,                                                               # ID
@@ -320,6 +322,8 @@ module Export::Coldp::Files::Name
 
     names.length
     names.find_each do |t|
+
+      ::Export::Coldp.name_ids << t.id
 
       # TODO: isolate/refine
       origin_citation = t.origin_citation
@@ -367,6 +371,8 @@ module Export::Coldp::Files::Name
     names.length
 
     names.each do |row| # row is a Hash, not a ActiveRecord object
+
+      ::Export::Coldp.name_ids << row['id']
 
       # At this point all formatting (gender) is done
       elements = Combination.full_name_hash_from_row(row)
@@ -439,6 +445,8 @@ module Export::Coldp::Files::Name
 
     names.find_each do |t|
 
+      ::Export::Coldp.name_ids << t.id
+
       origin_citation = t.origin_citation
       basionym_id = t.id # by defintion
       uninomial = t.cached if t.rank == 'genus'
@@ -495,6 +503,7 @@ module Export::Coldp::Files::Name
     names.length # !! TODO: without this the result is truncated, why!?
 
     names.find_each do |t|
+      ::Export::Coldp.name_ids << t.id
       origin_citation = t.origin_citation
 
       nom_status = nomenclatural_status(t.id, classification_status, relationship_status)
@@ -534,6 +543,8 @@ module Export::Coldp::Files::Name
     names.length # !! TODO: without this the result is truncated, why!?
 
     names.find_each do |t|
+
+      ::Export::Coldp.name_ids << t.id
 
       origin_citation = t.origin_citation
 

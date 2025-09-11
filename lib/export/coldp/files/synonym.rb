@@ -59,6 +59,9 @@ module Export::Coldp::Files::Synonym
       .group('taxon_names.id, invalid_names.id')
 
     y.find_each do |n|
+
+      next unless ::Export::Coldp.taxon_ids.include? n.otu_id
+      next unless ::Export::Coldp.name_ids.include? n.id
       csv << [
         n.otu_id,                                                   # taxonID attached to the current valid concept
         n.id,                                                       # nameID
