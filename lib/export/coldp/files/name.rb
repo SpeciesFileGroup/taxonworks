@@ -159,6 +159,8 @@ module Export::Coldp::Files::Name
         referenceID
         publishedInPage
         publishedInYear
+        gender
+        etymology
         code
         status
         link
@@ -186,7 +188,7 @@ module Export::Coldp::Files::Name
       .where(rank_class: HIGHER_RANK_NAMES, cached_is_valid: true)
       .unscope(:order)
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
-      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :updated_at, :updated_by_id)
+      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :etymology, :updated_at, :updated_by_id)
   end
 
   # Valid family names are:
@@ -196,7 +198,7 @@ module Export::Coldp::Files::Name
       .where(rank_class: FAMILY_RANK_NAMES, cached_is_valid: true)
       .unscope(:order)
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
-      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :updated_at, :updated_by_id)
+      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :etymology, :updated_at, :updated_by_id)
   end
 
   # Invalid family/higher names
@@ -208,7 +210,7 @@ module Export::Coldp::Files::Name
         cached_is_valid: false)
       .unscope(:order)
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
-      .select(:id, :name, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :cached_is_valid, :cached_valid_taxon_name_id, :updated_at, :updated_by_id) # cached has sic
+      .select(:id, :name, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :etymology, :cached_is_valid, :cached_valid_taxon_name_id, :updated_at, :updated_by_id) # cached has sic
   end
 
   # Valid original combinations are:
@@ -271,6 +273,8 @@ module Export::Coldp::Files::Name
         row['source_id'],                                                   # referenceID
         row['pages'],                                                       # publishedInPage
         row['cached_nomenclature_date']&.year,                              # publishedInYear - OK
+        row['cached_gender'],                                               # gender
+        row['etymology'],                                                   # etymology
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -304,6 +308,8 @@ module Export::Coldp::Files::Name
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
         t.cached_nomenclature_date&.year,                                   # publishedInYear
+        nil,                                                                # gender
+        t.etymology,                                                        # etymology
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -342,6 +348,8 @@ module Export::Coldp::Files::Name
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
         t.cached_nomenclature_date&.year,                                   # publishedInYear
+        nil,                                                                # gender
+        t.etymology,                                                        # etymology
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -359,10 +367,11 @@ module Export::Coldp::Files::Name
   def self.combination_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
-    b = Combination.
+    Combination.
       flattened.with(project_scope: a)
       .complete
       .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
+      .select('taxon_names.*, taxon_names.cached_gender, taxon_names.etymology') # Explicitly select needed columns
   end
 
   # TODO: we probably have an issue where self is not included as a relationship and we need to inject it into the data?
@@ -407,6 +416,8 @@ module Export::Coldp::Files::Name
         row['source_id'],                                                   # publishedInID
         row['pages'],                                                       # publishedInPage
         row['cached_nomenclature_date']&.year,                              # publishedInYear
+        row['cached_gender'],                                               # gender
+        row['etymology'],                                                   # etymology
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # nomStatus (nil for Combination)
         nil,                                                                # link (probably TW public or API)
@@ -469,6 +480,8 @@ module Export::Coldp::Files::Name
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
         t.cached_nomenclature_date&.year,                                   # publishedInYear
+        t.cached_gender,                                                    # gender
+        t.etymology,                                                        # etymology
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus # TODO: untested
         nil,                                                                # link (probably TW public or API)
@@ -522,6 +535,8 @@ module Export::Coldp::Files::Name
         origin_citation&.source_id,                                       # publishedInID
         origin_citation&.pages,                                           # publishedInPage
         t.cached_nomenclature_date&.year,                                 # publishedInYear
+        nil,                                                              # gender
+        t.etymology,                                                      # etymology
         code_field(t.rank_class.name),                                    # code
         nom_status,                                                       # nomStatus
         nil,                                                              # link (probably TW public or API)
@@ -568,6 +583,8 @@ module Export::Coldp::Files::Name
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
         t.cached_nomenclature_date&.year,                                   # publishedInYear
+        t.cached_gender,                                                    # gender
+        t.etymology,                                                        # etymology
         code_field(t.rank_class.name),                                      # code
         nom_status,                                                         # nomStatus
         nil,                                                                # link (probably TW public or API)

@@ -111,7 +111,7 @@ module Protonym::Format
       end
 
       s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_original_combination, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date,
-        taxon_names.rank_class, taxon_names.cached_misspelling, taxon_names.cached_is_valid, taxon_names.cached_valid_taxon_name_id, taxon_names.updated_by_id, taxon_names.updated_at, sources.id source_id, citations.pages'
+        taxon_names.rank_class, taxon_names.cached_misspelling, taxon_names.cached_gender, taxon_names.etymology, taxon_names.cached_is_valid, taxon_names.cached_valid_taxon_name_id, taxon_names.updated_by_id, taxon_names.updated_at, sources.id source_id, citations.pages'
 
       sel = s.join(',')
 
