@@ -447,6 +447,8 @@ module Export::Coldp::Files::Name
       else
         return t
       end
+    else
+      return t
     end
   end
 
