@@ -106,6 +106,7 @@ class LeadItem < ApplicationRecord
   end
 
   def self.add_items_to_child_lead(parent_lead, otu_ids)
+    return false if otu_ids.nil? || otu_ids.empty?
     child_to_add_to = nil
     parent_lead.children.to_a.reverse.each do |c|
       if c.children.exists?
@@ -116,7 +117,7 @@ class LeadItem < ApplicationRecord
       end
     end
 
-   if child_to_add_to == nil
+   if child_to_add_to.nil?
       parent_lead.errors.add(:base, 'No available child to add otu to!')
       return false
     end

@@ -4,7 +4,8 @@
 
   <div class="panel lead-items">
     <div class="flex-separate full_width">
-      <div>
+      <div class="button_row">
+        <div>
         <VBtn
           :disabled="otuIndices.length != 1"
           medium
@@ -14,6 +15,7 @@
         >
           Set as lead OTU
         </VBtn>
+
         <VBtn
           v-if="showAddOtu"
           medium
@@ -21,12 +23,24 @@
           @click="addOtu"
           class="lead_item_button"
         >
-          Add otus
+          Add OTUs
         </VBtn>
+
+        <VBtn
+          v-if="showSendToInteractiveKey"
+          medium
+          color="primary"
+          @click="sendToInteractiveKey"
+          class="lead_item_long_button"
+        >
+          Send OTUs to interactive key
+        </VBtn>
+        </div>
+
+        <div class="button-row-text">
+          Changes below are auto-updated
+        </div>
       </div>
-      <span>
-        Changes below are auto-updated
-      </span>
     </div>
 
     <div class="lead_otu_rows">
@@ -86,6 +100,7 @@ import RadialObject from '@/components/radials/navigation/radial.vue'
 import useStore from '../store/leadStore.js'
 import { Lead, LeadItem } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
+import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
   leadId: {
@@ -110,6 +125,19 @@ const otuIndices = computed(() => {
   // A list of indices into the parent otu list indicating which of the parent
   // otus are checked for this child.
   return store.lead_item_otus.children[props.position].otu_indices
+})
+
+const showSendToInteractiveKey = computed(() => {
+  if (
+    !!store.root.observation_matrix_id &&
+    store.children.length == 2 && props.position == 1 &&
+    // All lead items are on this lead:
+    store.lead_item_otus.children[0].otu_indices.length == 0
+  ) {
+    return true
+  } else {
+    return false
+  }
 })
 
 function addOtu() {
@@ -183,6 +211,14 @@ function leadItemCount(i) {
   return selectedCount
 }
 
+function sendToInteractiveKey() {
+  const otuIds = store.lead_item_otus.children[1].otu_indices.map(
+    (i) => store.lead_item_otus.parent[i].id
+  ).join('|')
+
+  window.open(`${RouteNames.InteractiveKeys}?observation_matrix_id=${store.root.observation_matrix_id}&otu_filter=${otuIds}&lead_id=${store.lead.id}`)
+}
+
 </script>
 
 <style scoped>
@@ -252,8 +288,21 @@ function leadItemCount(i) {
 
 .lead_item_button {
   width: 10em;
-  margin-bottom: 1em;
   margin-right: 0.5em;
 }
+
+.button_row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+  margin-bottom: 1em;
+}
+
+.button_row_text {
+  flex-grow: 2;
+}
+
 
 </style>

@@ -108,6 +108,7 @@ export default {
     const urlParams = new URLSearchParams(window.location.search)
     const matrixId = urlParams.get('observation_matrix_id')
     const otuIds = urlParams.get('otu_filter')
+    const leadId = urlParams.get('lead_id')
 
     if (otuIds) {
       this.matrixFilter.otu_filter = otuIds
@@ -119,6 +120,9 @@ export default {
           this.settings.refreshOnlyTaxa =
             this.observationMatrix.remaining.length >= this.countToRefreshMode
         })
+    }
+    if (leadId) {
+      this.$store.commit(MutationNames.SetLeadId, leadId)
     }
   },
   methods: {

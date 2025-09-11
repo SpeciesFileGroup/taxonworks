@@ -5,6 +5,7 @@ import getSettings from './getSettings'
 import getFilter from './getFilter'
 import getParamsFilter from './getParamsFilter'
 import getRowFilter from './getRowFilter'
+import getLeadId from './getLeadId'
 
 const GetterNames = {
   GetDescriptorsFilter: 'getDescriptorsFilter',
@@ -13,7 +14,8 @@ const GetterNames = {
   GetSettings: 'getSettings',
   GetFilter: 'getFilter',
   GetParamsFilter: 'getParamsFilter',
-  GetRowFilter: 'getRowFilter'
+  GetRowFilter: 'getRowFilter',
+  GetLeadId: 'getLeadId'
 }
 
 const GetterFunctions = {
@@ -23,7 +25,8 @@ const GetterFunctions = {
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetFilter]: getFilter,
   [GetterNames.GetParamsFilter]: getParamsFilter,
-  [GetterNames.GetRowFilter]: getRowFilter
+  [GetterNames.GetRowFilter]: getRowFilter,
+  [GetterNames.GetLeadId]: getLeadId
 }
 
 export {
