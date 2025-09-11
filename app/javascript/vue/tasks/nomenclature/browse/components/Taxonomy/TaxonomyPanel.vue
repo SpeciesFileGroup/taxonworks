@@ -50,7 +50,7 @@ const tree = ref()
 const count = ref(true)
 const rainbow = ref(true)
 const isLoading = ref(true)
-const onlyValid = ref(true)
+const onlyValid = ref(false)
 
 function buildTree(ancestors, taxon) {
   if (!ancestors || ancestors.length === 0) {
