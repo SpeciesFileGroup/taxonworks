@@ -184,13 +184,16 @@ module Export::Coldp::Files::Taxon
         #
         # If this is required add it to the `target` scope above
         # some names are skipped (e.g., if they have NOT SPECIFIED names)
+        
+        # if the scientificName starts with [ then it should be set to provisional
+        provisional = o.taxon_name.cached&.start_with?('[') || nil  
 
         csv << [
           o.id,                                                            # ID (Taxon)
           parent_id,                                                       # parentID (Taxon)
           o.taxon_name_id,                                                 # nameID (Name)
           attributes[:namePhrase][o.id],                                   # namePhrase
-          nil,                                                             # provisional provisional(o)
+          provisional,                                                     # provisional provisional(o)
           nil,                                                             # accordingToID according_to_id(o)
           nil,                                                             # scrutinizer scrutinizer(o)
           nil,                                                             # scrutinizerID scrutinizer_id(o)
