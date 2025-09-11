@@ -9,6 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Radial filter: Source => TNR and vice versa
+
 ### Fixed
 
 - Error on Globi preview of biological associations and on api/v1/biological_associations.globi
@@ -28,7 +30,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New collecting event task: Add field occurrence panel [#4529]
 - New descriptor task: Add recent list
 - Support for DwCA Media extension [#1488]
-- Radial filter: Source => TNR and vice versa
 
 ### Fixed
 
