@@ -584,39 +584,44 @@ module TaxonNamesHelper
     rows.join('<br>').html_safe
   end
 
-  def taxonomic_tree_node(taxon_name)
-    {
+  def taxonomic_tree_node(taxon_name, include_count)
+    node = {
       id: taxon_name.id,
       label: taxon_name.cached_html_name_and_author_year,
       is_valid: taxon_name.cached_is_valid,
       cached_valid_taxon_name_id: taxon_name.cached_valid_taxon_name_id,
       synonyms: taxon_name_synonyms_list(taxon_name).map { |syn| taxon_name_synonym_li(syn) },
-      valid_descendants: taxon_name.descendants.unscope(:order).that_is_valid.count,
-      invalid_descendants: taxon_name.descendants.unscope(:order).that_is_invalid.count,
       leaf_node: taxon_name.descendants.unscope(:order).empty?
     }
+
+    if include_count
+      node[:valid_descendants] = taxon_name.descendants.unscope(:order).that_is_valid.count
+      node[:invalid_descendants] = taxon_name.descendants.unscope(:order).that_is_invalid.count
+    end
+
+    node
   end
 
-  def taxonomic_tree_ancestors(taxon_name)
-    taxon_name.ancestor_protonyms.map { |ancestor| taxonomic_tree_node(ancestor) }
+  def taxonomic_tree_ancestors(taxon_name, include_count)
+    taxon_name.ancestor_protonyms.map { |ancestor| taxonomic_tree_node(ancestor, include_count) }
   end
 
-  def taxonomic_tree_descendants(taxon_name)
+  def taxonomic_tree_descendants(taxon_name, include_count)
     taxon_name.children
       .order(:name)
       .where(type: 'Protonym')
       .sort_by { |a| [RANKS.index(a.rank_string), a.cached, a.cached_author_year || ''] }
-      .map { |child| taxonomic_tree_node(child) }
+      .map { |child| taxonomic_tree_node(child, include_count) }
   end
 
-  def taxonomic_tree(taxon_name, include_ancestors = true) 
+  def taxonomic_tree(taxon_name, include_ancestors = true, include_count = true) 
     node = {
-      taxon_name: taxonomic_tree_node(taxon_name),
-      descendants: taxonomic_tree_descendants(taxon_name)
+      taxon_name: taxonomic_tree_node(taxon_name, include_count),
+      descendants: taxonomic_tree_descendants(taxon_name, include_count)
     }
 
     if (include_ancestors)
-      node[:ancestors] = taxonomic_tree_ancestors(taxon_name)
+      node[:ancestors] = taxonomic_tree_ancestors(taxon_name, include_count)
     end
 
     node
