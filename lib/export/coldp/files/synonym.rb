@@ -96,12 +96,12 @@ module Export::Coldp::Files::Synonym
       next unless ::Export::Coldp.name_ids.include? n.id
 
       csv << [
-        n.otu_id,                                                  # taxonID attached to the current valid concept
-        n.id,                                                      # nameID
-        nil,                                                       # status  TODO: def status(taxon_name_id)
-        nil,                                                       # remarks
-        nil,                                                       # referenceID  Unclear what this means in TW
-        Export::Coldp.modified(n.updated_at),                      # modified
+        n.otu_id,                                                   # taxonID attached to the current valid concept
+        n.id,                                                       # nameID
+        nil,                                                        # status  TODO: def status(taxon_name_id)
+        nil,                                                        # remarks
+        nil,                                                        # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(n.updated_at),                       # modified
         Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
       ]
     end
@@ -130,13 +130,17 @@ module Export::Coldp::Files::Synonym
     #     .select(:id, :taxon_name_id, :updated_at, :updated_by_id)
 
     y.find_each do |n|
+
+      next unless ::Export::Coldp.taxon_ids.include? n.otu_id
+      next unless ::Export::Coldp.name_ids.include? n.id
+
       csv << [
-        n.otu_id,                                                  # taxonID attached to the current valid concept
-        n.id,                                                      # nameID
-        nil,                                                       # status  TODO: def status(taxon_name_id)
-        nil,                                                       # remarks
-        nil,                                                       # referenceID  Unclear what this means in TW
-        Export::Coldp.modified(n.updated_at),                      # modified
+        n.otu_id,                                                   # taxonID attached to the current valid concept
+        n.id,                                                       # nameID
+        nil,                                                        # status  TODO: def status(taxon_name_id)
+        nil,                                                        # remarks
+        nil,                                                        # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(n.updated_at),                       # modified
         Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
       ]
     end
@@ -164,13 +168,16 @@ module Export::Coldp::Files::Synonym
       # By `original_combination_names(otu) these are all reified
       reified_id = ::Utilities::Nomenclature.reified_id(n.id, n.cached_original_combination)
 
+      next unless ::Export::Coldp.taxon_ids.include? n.otu_id
+      next unless ::Export::Coldp.name_ids.include? reified_id
+
       csv << [
-        n.otu_id,                                                  # taxonID attached to the current valid concept
-        reified_id,                                                # nameID
-        nil,                                                       # status  TODO: def status(taxon_name_id)
-        nil,                                                       # remarks
-        nil,                                                       # referenceID  Unclear what this means in TW
-        Export::Coldp.modified(n.updated_at),                      # modified
+        n.otu_id,                                                   # taxonID attached to the current valid concept
+        reified_id,                                                 # nameID
+        nil,                                                        # status  TODO: def status(taxon_name_id)
+        nil,                                                        # remarks
+        nil,                                                        # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(n.updated_at),                       # modified
         Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
       ]
     end
