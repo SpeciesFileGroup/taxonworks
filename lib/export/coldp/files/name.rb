@@ -393,7 +393,8 @@ module Export::Coldp::Files::Name
 
       # In some cases where names are described originally with missmatched gender we can exclude dupes
       # This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
-      if row[rank + "_cached"] == row['cached']
+      # TODO: we are excluding too many combinations here (e.g., in Opiliones: Phalangium brevicorne)
+      if row[rank + '_cached'] == row['cached']
         ::Export::Coldp.skipped_combinations << row['id']
         next
       end
