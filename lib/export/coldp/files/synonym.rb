@@ -92,6 +92,8 @@ module Export::Coldp::Files::Synonym
     y.find_each do |n|
 
       next if ::Export::Coldp.skipped_combinations.include?(n.id)
+      next unless ::Export::Coldp.taxon_ids.include? n.otu_id
+      next unless ::Export::Coldp.name_ids.include? n.id
 
       csv << [
         n.otu_id,                                                  # taxonID attached to the current valid concept
