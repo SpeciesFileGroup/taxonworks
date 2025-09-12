@@ -447,8 +447,10 @@ module TaxonNamesHelper
         tn.cached_is_valid'.squish
       )
 
-    otus_scope = ::Otu.where("taxon_name_id IN (SELECT id FROM (#{valid_rank.to_sql}))")#.distinct
+    otus_scope = ::Otu.where(taxon_name_id: valid_rank.except(:select).select('tn.id'))
 
+    # This is a little janky, but it's what allows us to avoid an extra query
+    # (and it gives project_id context).
     otus_coordinatified = ::Queries::Otu::Filter.new({}).coordinatify_result(otus_scope)
 
     rows = TaxonName
