@@ -104,13 +104,14 @@ module Export::Coldp::Files::Taxon
   end
 
   def self.attributes(otus, target)
-    a = DataAttribute.with(otu_scope: otus)
+    target_string = target.to_s
+    DataAttribute.with(otu_scope: otus)
       .joins("JOIN otu_scope on data_attributes.attribute_subject_id = otu_scope.id AND data_attributes.attribute_subject_type = 'Otu'")
       .joins(:predicate)
-      .select("data_attributes.attribute_subject_id, STRING_AGG(data_attributes.value::text, ',') AS #{target}")
+      .select("data_attributes.attribute_subject_id AS id, STRING_AGG(data_attributes.value::text, ',') AS #{target_string}")
       .where(predicate: { uri: IRI_MAP[target] })
       .group('data_attributes.attribute_subject_id')
-      .map{|a| [a.id, a.send(target)]}.to_h
+      .map{|a| [a.id, a.send(target_string)]}.to_h
   end
 
   def self.generate(otu, otus, project_members, reference_csv = nil, prefer_unlabelled_otus = true)
