@@ -59,6 +59,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -75,8 +76,18 @@ import FacetDateRange from '@/components/Filter/Facets/shared/FacetDateRange.vue
 import FacetLoanItemStatus from './Facet/FacetLoanItemStatus.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetPerson from './Facet/FacetPerson.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
-const WITH_PARAMS = ['documentation', 'identifiers']
+const WITH_PARAMS = [
+  'documentation',
+  'gift',
+  'identifiers',
+  'with_date_closed',
+  'with_date_received',
+  'with_date_requested',
+  'with_date_return_expected',
+  'with_date_sent'
+]
 
 const OVERDUE_OPTIONS = [
   {

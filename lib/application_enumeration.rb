@@ -14,9 +14,10 @@ module ApplicationEnumeration
 
   # @param target [Instance of an ApplicationRecord model]
   # @return [Array of Symbol]
-  #   a list attributes except "_id", "_at" postfixed
+  #   a list attributes except "id", 'md5_", and postfixed  "_id", "_at"
+  #   This is an arbitrary convention, wrap this to further refine.
   def self.attributes(target)
-     target.attributes.select{|k,v| !(k =~ /_id\z|\Aid\z|_at\z/)}.symbolize_keys.keys.sort
+     target.attributes.select{|k,v| !(k =~ /\Amd5_|_id\z|\Aid\z|_at\z/)}.symbolize_keys.keys.sort
   end
 
   # @return [Array]
@@ -67,6 +68,12 @@ module ApplicationEnumeration
     superclass_models.select{|a| a < Shared::IsData}
   end
 
+  # @return [Array]
+  #   all superclass data models
+  def self.community_models
+    superclass_models.select{|a| a < Shared::SharedAcrossProjects}
+  end
+
   # !! See the built in self.descendants for actual inheritance tracking, this is path based.
   # @param [Object] klass
   # @return  [Array of Classes]
@@ -98,5 +105,34 @@ module ApplicationEnumeration
     a = klass.reflect_on_all_associations(relationship_type).sort{ |a, b| a.name <=> b.name }
     a
   end
+
+  def self.relation_targets_community?(relation)
+    case relationship_type(relation)
+    when :has_many
+      relation.class_name.safe_constantize.is_community?
+    when :has_one
+      raise TaxonWorks::Error, "Has one support not implemented in unify, throw eggs at the devs."
+    when :belongs_to
+      if k = relation.options[:class_name]
+        k.safe_constantize.is_community?
+      else
+        raise TaxonWorks::Error, "Missing attribute class_name on #{relation.name}."
+      end
+    end
+  end
+
+  # collection?, has_mone?  belongs_to?
+  def self.relationship_type(relation)
+    if relation.collection? # class.name.match('HasMany')
+      return :has_many
+    elsif relation.has_one? # class.name.match('HasOne')
+      return :has_one
+    elsif relation.belongs_to? # class.name.match('BelongsTo')
+      return :belongs_to
+    end
+
+    raise TaxonWorks::Error, "Unknown relationship type for #{relation.name}."
+  end
+
 
 end

@@ -1,12 +1,12 @@
 ::RubyUnits::Unit.define("count") do |count|
-  count.definition   = ::RubyUnits::Unit.new("1")        # anything that results in a Unit object
-  count.aliases      = %w{count total}      # array of synonyms for the unit
-  count.display_name = "Count"              # How unit is displayed when output
+  count.definition   = ::RubyUnits::Unit.new("1") # anything that results in a Unit object
+  count.aliases      = %w{count total}            # array of synonyms for the unit
+  count.display_name = "Count"                    # How unit is displayed when output
 end
 
 ::RubyUnits::Unit.define("ratio") do |count|
   count.definition   = ::RubyUnits::Unit.new("1")
-  count.aliases      = %w{ratio}
+  count.aliases      = %w{ratio Ratio}
   count.display_name = "Ratio"
 end
 

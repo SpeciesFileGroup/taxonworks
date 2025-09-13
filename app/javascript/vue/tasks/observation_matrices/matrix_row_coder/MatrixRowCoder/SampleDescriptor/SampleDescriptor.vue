@@ -13,7 +13,7 @@
             :observation="o"
             :descriptor="descriptor"
           />
-          <hr />
+          <hr class="divisor" />
         </template>
       </div>
       <v-btn
@@ -27,7 +27,7 @@
   </div>
 </template>
 
-<style src="./SampleDescriptor.styl" lang="stylus"></style>
+<style src="./SampleDescriptor.scss" lang="scss"></style>
 
 <script>
 import { GetterNames } from '../../store/getters/getters'

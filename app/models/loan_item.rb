@@ -46,7 +46,7 @@ class LoanItem < ApplicationRecord
 
   attr_accessor :date_returned_jquery
 
-  STATUS = ['Destroyed', 'Donated', 'Loaned on', 'Lost', 'Retained', 'Returned'].freeze
+  STATUS = ['Destroyed', 'Donated', 'Lost', 'Retained', 'Returned'].freeze
 
   belongs_to :loan, inverse_of: :loan_items
   belongs_to :loan_item_object, polymorphic: true
@@ -211,6 +211,7 @@ class LoanItem < ApplicationRecord
   # Return all CollectionObjects matching the query. Does not yet work with OtuQuery
   def self.batch_return(params)
     a = Queries::CollectionObject::Filter.new(params[:collection_object_query])
+    
     return false if a.all.count == 0
 
     returned = []

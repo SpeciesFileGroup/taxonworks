@@ -16,7 +16,7 @@
     title="Collectors"
     klass="CollectingEvent"
     param-people="collector_id"
-    param-any="collector_id_or"
+    param-all="collector_id_all"
     :role-type="COLLECTOR_SELECTOR"
     v-model="params"
   />
@@ -34,7 +34,11 @@
   />
   <FacetTags
     v-model="params"
-    target="CollectionObject"
+    :target="COLLECTION_OBJECT"
+  />
+  <FacetConfidence
+    v-model="params"
+    :target="COLLECTION_OBJECT"
   />
   <FacetNotes v-model="params" />
   <FacetBuffered v-model="params" />
@@ -47,6 +51,7 @@
     :param="param"
     v-model="params"
   />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -70,19 +75,24 @@ import FacetPreparationTypes from './filters/FacetPreparationTypes'
 import FacetPeople from '@/components/Filter/Facets/shared/FacetPeople.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
-import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetWKT from '@/components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FilterType from '@/components/Filter/Facets/CollectionObject/FacetType.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 
 const WITH_PARAMS = [
   'biological_associations',
   'citations',
   'collecting_event',
   'collectors',
+  'confidences',
+  'containerized',
   'current_repository',
+  'conveyances',
   'data_attributes',
   'data_depictions',
   'dates',

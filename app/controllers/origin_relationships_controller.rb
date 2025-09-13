@@ -1,6 +1,6 @@
 class OriginRelationshipsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
- 
+
   before_action :set_origin_relationship, only: [:show, :edit, :update, :destroy]
 
   # GET /origin_relationships
@@ -88,7 +88,9 @@ class OriginRelationshipsController < ApplicationController
 
   # TODO: remove
   def autocomplete
-    @origin_relationships = origin_relationship.where(project_id: sessions_current_project_id).where('origin_relationship ILIKE ?', "#{params[:term]}%")
+    @origin_relationships = origin_relationship
+      .where(project_id: sessions_current_project_id)
+      .where('origin_relationship ILIKE ?', "#{params[:term]}%")
 
     data = @origin_relationships.collect do |t|
       {id: t.id,
@@ -97,7 +99,7 @@ class OriginRelationshipsController < ApplicationController
        response_values: {
          params[:method] => t.id
        },
-       label_html:      t.origin_relationship
+       label_html: t.origin_relationship
       }
     end
 

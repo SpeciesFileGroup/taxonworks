@@ -95,7 +95,7 @@ class ContentsController < ApplicationController
   end
 
   def autocomplete
-    @contents = ::Content.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @contents = ::Content.find_for_autocomplete(params).where(project_id: sessions_current_project_id)
     data = @contents.collect do |t|
       {id: t.id,
        label: ApplicationController.helpers.taxon_works_content_tag(t),

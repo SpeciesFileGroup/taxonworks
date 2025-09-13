@@ -57,7 +57,7 @@ function redirect(event) {
 .vue-autocomplete {
   width: 300px;
 }
-.vue-autocomplete-list {
-  min-width: 500px;
+:deep(.vue-autocomplete-list) {
+  min-width: 800px;
 }
 </style>

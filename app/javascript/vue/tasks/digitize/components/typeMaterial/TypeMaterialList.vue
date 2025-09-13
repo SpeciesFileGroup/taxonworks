@@ -12,7 +12,7 @@
     <tbody>
       <tr
         v-for="item in typeSpecimens"
-        :key="item.internalId"
+        :key="item.uuid"
       >
         <td class="full_width">
           <a

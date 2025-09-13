@@ -7,7 +7,7 @@ namespace :tw do
 
       [Serial, SerialChronology, Identifier, DataAttribute, AlternateValue].each do |klass|
         if klass.count > 0 
-          puts "There are existing #{klass.name.humanize}, doing nothing.".red
+          puts Rainbow("There are existing #{klass.name.humanize}, doing nothing.").red
           raise 
         end
       end
@@ -25,7 +25,7 @@ namespace :tw do
       system(config[:env], 'pg_restore', '-Fc', '-c', *config[:args], path)
       raise "pg_restore failed with exit code #{$?.to_i}" unless $? == 0
       
-      puts 'Completed serial data load from .dumps'.yellow
+      puts Rainbow('Completed serial data load from .dumps').yellow
     end
   end
 end

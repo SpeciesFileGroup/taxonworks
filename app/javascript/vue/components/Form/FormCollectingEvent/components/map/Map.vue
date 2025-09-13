@@ -20,22 +20,12 @@
         (collectingEvent.verbatim_latitude ||
           collectingEvent.verbatim_longitude)
       "
-      class="panel aligner middle"
-      style="
-        height: 300px;
-        align-items: center;
-        width: 100%;
-        text-align: center;
-      "
+      class="panel flex-col justify-center middle text-center full_width"
+      style="height: 300px"
     >
       <h3>
-        <span class="soft_validation">
-          <span data-icon="warning" />
-          <span
-            >Verbatim latitude/longitude unparsable or incomplete, location
-            preview unavailable.</span
-          >
-        </span>
+        Verbatim latitude/longitude unparsable or incomplete, location preview
+        unavailable.
       </h3>
     </div>
 
@@ -44,13 +34,8 @@
         !collectingEvent.verbatim_latitude &&
         !collectingEvent.verbatim_longitude
       "
-      class="panel aligner"
-      style="
-        height: 300px;
-        align-items: center;
-        width: 100%;
-        text-align: center;
-      "
+      class="panel flex-col justify-center middle text-center full_width"
+      style="height: 300px"
     >
       <h3>Provide verbatim latitude/longitude to preview location on map.</h3>
     </div>
@@ -59,7 +44,7 @@
 
 <script setup>
 import convertDMS from '@/helpers/parseDMS.js'
-import VMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import helpData from '../../help/en.js'
 import { vHelp } from '@/directives'
 import { computed } from 'vue'
@@ -90,10 +75,3 @@ const verbatimGeoJSON = computed(() => {
     : []
 })
 </script>
-<style scoped>
-.aligner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>

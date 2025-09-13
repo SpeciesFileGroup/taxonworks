@@ -45,7 +45,9 @@ class ControlledVocabularyTerm < ApplicationRecord
   validates_uniqueness_of :uri, scope: [:project_id, :uri_relation], allow_blank: true
   validates_presence_of :uri, unless: -> {uri_relation.blank?}, message: 'must be provided if uri_relation is provided'
 
-  validate :uri_relation_is_a_skos_relation, unless: -> {uri_relation.blank?}
+  # TODO: DRY with Identifier::Global::Uri
+  validate :form_of_uri
+  validate :uri_relation_is_a_skos_relation
 
   has_many :observation_matrix_row_items, as: :observation_object, inverse_of: :observation_object,  class_name: 'ObservationMatrixRowItem::Dynamic::Tag', dependent: :destroy
   has_many :observation_matrix_column_items, inverse_of: :controlled_vocabulary_term, class_name: 'ObservationMatrixColumnItem::Dynamic::Tag', dependent: :destroy
@@ -56,11 +58,6 @@ class ControlledVocabularyTerm < ApplicationRecord
   scope :of_type, -> (type) { where(type: type.to_s.capitalize) } # TODO, capitalize is not the right method for things like `:foo_bar`
 
   protected
-
-  # @return [Object]
-  def uri_relation_is_a_skos_relation
-    errors.add(:uri_relation, 'is not a valid uri relation') if !SKOS_RELATIONS.keys.include?(uri_relation)
-  end
 
   def self.clone_from_project(from_id: nil, to_id: nil, klass: nil)
     return false if from_id.blank? or to_id.blank? or klass.blank?
@@ -77,11 +74,53 @@ class ControlledVocabularyTerm < ApplicationRecord
     true
   end
 
+  # def form_of_uri
+  #   if uri.present?
+  #     uris = URI.extract(uri)
+
+  #     if uris.count == 0
+  #       errors.add(:uri, 'More than a single URI present')
+  #     else
+  #       unless (uri.lenght == uris[0].length) && (uris.count == 1)
+  #     end
+  #   end
+  # end
+
+  def form_of_uri
+    if uri.present?
+
+      uris = URI.extract(uri)
+
+      if uris.count == 0
+        errors.add(:uri, 'URI provided by unparsable.')
+      elsif uris.count > 1
+        errors.add(:uri, 'More than a single URI present.')
+      else
+        begin
+          u = URI(uri)
+          scheme = u.scheme.upcase
+          unless URI.scheme_list.keys.include?(scheme)
+            errors.add(:uri, "#{scheme} is not in the URI schemes list.")
+          end
+        rescue
+          errors.add(:uri, "Badly formed URI #{uri} detected.")
+        end
+      end
+    end
+  end
+
+  # @return [Object]
+  def uri_relation_is_a_skos_relation
+    if uri.present? && uri_relation.present?
+      errors.add(:uri_relation, 'is not a valid uri relation') if !SKOS_RELATIONS.keys.include?(uri_relation)
+    end
+  end
+
 end
 
-require_dependency 'biocuration_class'
-require_dependency 'biological_property'
-require_dependency 'keyword'
-require_dependency 'predicate'
-require_dependency 'topic'
-require_dependency 'confidence_level'
+# require_dependency 'biocuration_class'
+# require_dependency 'biological_property'
+# require_dependency 'keyword'
+# require_dependency 'predicate'
+# require_dependency 'topic'
+# require_dependency 'confidence_level'

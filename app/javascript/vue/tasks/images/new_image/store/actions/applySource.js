@@ -9,6 +9,7 @@ export default ({ state, commit }) => {
       citation_object_id: image.id,
       citation_object_type: image.base_class,
       source_id: state.source.id,
+      is_original: state.isOriginal,
       pages: undefined
     }
 

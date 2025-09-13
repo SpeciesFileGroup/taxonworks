@@ -5,10 +5,11 @@
     <FilterLayout
       :url-request="urlRequest"
       :pagination="pagination"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :object-type="COLLECTION_OBJECT"
       :list="list"
       :extend-download="extendDownload"
+      :csv-options="csvOptions"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
@@ -39,8 +40,8 @@
         <div class="horizontal-right-content gap-small">
           <RadialCollectionObject
             :disabled="!list.length"
-            :ids="selectedIds"
-            :count="selectedIds.length"
+            :ids="sortedSelectedIds"
+            :count="sortedSelectedIds.length"
             @update="
               () =>
                 makeFilterRequest({ ...parameters, extend, exclude, page: 1 })
@@ -48,16 +49,16 @@
           />
           <RadialLoan
             :disabled="!list.length"
-            :ids="selectedIds"
+            :ids="sortedSelectedIds"
           />
           <RadialMatrix
-            :ids="selectedIds"
+            :ids="sortedSelectedIds"
             :disabled="!list.length"
             :object-type="COLLECTION_OBJECT"
           />
           <DeleteCollectionObjects
-            :ids="selectedIds"
-            :disabled="!selectedIds.length"
+            :ids="sortedSelectedIds"
+            :disabled="!sortedSelectedIds.length"
             @delete="removeCOFromList"
           />
           <span class="separate-left separate-right">|</span>
@@ -68,6 +69,7 @@
             :layouts="layouts"
             @reset="resetPreferences"
             @sort="updatePropertiesPositions"
+            @sort:column="forceUpdatePreference"
             @update="saveLayoutPreferences"
           />
         </div>
@@ -97,7 +99,6 @@
 
 <script setup>
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
-import useFilter from '@/shared/Filter/composition/useFilter.js'
 import FilterComponent from './components/filter.vue'
 import TableResults from '@/components/Filter/Table/TableResults.vue'
 import DwcDownload from './components/dwcDownload.vue'
@@ -113,6 +114,7 @@ import { COLLECTION_OBJECT } from '@/constants/index.js'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
 import { LAYOUTS } from './constants/layouts.js'
 import { listParser } from './utils/listParser.js'
+import { useCSVOptions, useFilter } from '@/shared/Filter/composition'
 
 const extend = [
   'dwc_occurrence',
@@ -120,7 +122,9 @@ const extend = [
   'current_repository',
   'collecting_event',
   'taxon_determinations',
-  'identifiers'
+  'identifiers',
+  'container_item',
+  'container'
 ]
 
 const exclude = ['object_labels']
@@ -132,24 +136,28 @@ const {
   properties,
   updatePropertiesPositions,
   saveLayoutPreferences,
-  resetPreferences
+  resetPreferences,
+  forceUpdatePreference
 } = useTableLayoutConfiguration({ layouts: LAYOUTS, model: COLLECTION_OBJECT })
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(CollectionObject, {
   initParameters: { extend, exclude },
   listParser
 })
+
+const csvOptions = useCSVOptions({ layout: currentLayout, list })
 
 const extendDownload = computed(() => [
   {
@@ -165,6 +173,7 @@ const extendDownload = computed(() => [
 ])
 
 function removeCOFromList(ids) {
+  L
   list.value = list.value.filter((item) => !ids.includes(item.id))
   selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }
@@ -175,3 +184,10 @@ export default {
   name: 'FilterCollectionObjects'
 }
 </script>
+
+<style scoped>
+:deep(.row-dwc-reindex-pending) {
+  outline: 2px solid var(--color-attention);
+  outline-offset: -2px;
+}
+</style>

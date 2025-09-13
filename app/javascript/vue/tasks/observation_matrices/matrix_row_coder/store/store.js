@@ -4,7 +4,7 @@ import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 import IMatrixRowCoderRequest from '../request/IMatrixRowCoderRequest'
 
-export function makeInitialState (requestModule) {
+export function makeInitialState(requestModule) {
   return {
     request: requestModule,
     taxonTitle: '',
@@ -15,15 +15,22 @@ export function makeInitialState (requestModule) {
     observations: [],
     units: {},
     options: {
-      showOnlyUnsecoredRows: false
+      showOnlyUnsecoredRows: false,
+      lock: {
+        today: false,
+        now: false
+      }
     }
   }
 }
 
-const UnacceptableRequestModuleError = 'Store must be given an IMatrixRowCoderRequest'
+const UnacceptableRequestModuleError =
+  'Store must be given an IMatrixRowCoderRequest'
 
-export function newStore (requestModule) {
-  if (requestModule instanceof IMatrixRowCoderRequest === false) { throw UnacceptableRequestModuleError }
+export function newStore(requestModule) {
+  if (requestModule instanceof IMatrixRowCoderRequest === false) {
+    throw UnacceptableRequestModuleError
+  }
 
   return createStore({
     state: makeInitialState(requestModule),

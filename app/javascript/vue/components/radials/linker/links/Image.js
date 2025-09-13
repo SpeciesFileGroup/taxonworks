@@ -1,6 +1,16 @@
-import { TASK_FILTER_IMAGES } from '../constants/links'
+import {
+  TASK_FILTER_IMAGES,
+  TASK_FIELD_SYNCHRONIZE,
+  TASK_MULTI_UPDATE,
+  TASK_PROJECT_VOCABULARY
+} from '../constants/links'
 
 export const Image = {
-  all: [],
-  ids: [TASK_FILTER_IMAGES]
+  all: [TASK_FIELD_SYNCHRONIZE, TASK_MULTI_UPDATE],
+  ids: [
+    TASK_FILTER_IMAGES,
+    TASK_FIELD_SYNCHRONIZE,
+    TASK_MULTI_UPDATE,
+    TASK_PROJECT_VOCABULARY
+  ]
 }

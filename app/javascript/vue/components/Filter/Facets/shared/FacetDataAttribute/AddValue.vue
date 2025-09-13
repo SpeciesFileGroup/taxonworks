@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label>Value</label>
+    <label>{{ label }}</label>
     <div class="field">
       <textarea
         v-model="text"
@@ -18,13 +18,6 @@
             Add
           </VBtn>
         </div>
-        <label>
-          <input
-            v-model="exact"
-            type="checkbox"
-          />
-          Exact
-        </label>
       </div>
     </div>
   </div>
@@ -34,15 +27,21 @@
 import { ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
+defineProps({
+  label: {
+    type: String,
+    default: 'Value'
+  }
+})
+
 const emit = defineEmits('add')
 
-const exact = ref()
 const text = ref('')
 
 function addValue() {
   emit('add', {
     text: text.value,
-    exact: exact.value
+    exact: false
   })
 
   text.value = ''

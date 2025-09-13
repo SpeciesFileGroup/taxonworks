@@ -1,13 +1,14 @@
 <template>
   <VBtn
     color="primary"
-    medium
     circle
+    :title="title"
     @click="copyToClipboard()"
   >
     <VIcon
       name="clip"
-      small
+      x-small
+      :title="title"
     />
   </VBtn>
 </template>
@@ -19,11 +20,17 @@ const props = defineProps({
   text: {
     type: String,
     default: ''
+  },
+
+  title: {
+    type: String,
+    default: ''
   }
 })
 
 function copyToClipboard() {
-  navigator.clipboard.writeText(props.text).then(() => {})
-  TW.workbench.alert.create('Copied to clipboard', 'notice')
+  navigator.clipboard.writeText(props.text).then(() => {
+    TW.workbench.alert.create('Copied to clipboard', 'notice')
+  })
 }
 </script>

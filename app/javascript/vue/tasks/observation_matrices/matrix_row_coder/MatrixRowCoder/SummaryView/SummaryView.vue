@@ -51,7 +51,7 @@
   </div>
 </template>
 
-<style src="./SummaryView.styl" lang="stylus"></style>
+<style src="./SummaryView.scss" lang="scss"></style>
 
 <script>
 import { GetterNames } from '../../store/getters/getters'

@@ -7,7 +7,17 @@
     />
     <div class="flex-separate middle">
       <h1>Free form digitize</h1>
-      <RecentButton />
+      <div class="horizontal-left-content gap-small">
+        <VBtn
+          v-if="imageStore.image"
+          color="primary"
+          medium
+          @click="openTask"
+        >
+          Change image
+        </VBtn>
+        <RecentButton />
+      </div>
     </div>
 
     <template v-if="imageStore.image">
@@ -69,6 +79,8 @@ import DrawBoard from './components/DrawBoard/DrawBoard.vue'
 import DrawControls from './components/DrawBoard/DrawControls.vue'
 import SaveButtons from './components/SaveButtons.vue'
 import RecentButton from './components/Recent.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { RouteNames } from '@/routes/routes'
 
 const TABS = [AssignComponent, ReviewComponent]
 
@@ -101,6 +113,10 @@ async function loadImage(imageId) {
     await store.loadReport(imageId)
   } catch (e) {}
   isLoading.value = false
+}
+
+function openTask() {
+  window.open(RouteNames.FreeFormTask)
 }
 </script>
 

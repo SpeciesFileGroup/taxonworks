@@ -13,13 +13,14 @@
       <div id="loan-update-items">
         <div>
           <span><b>Loan item information</b></span>
-          <hr />
+          <hr class="divisor" />
           <div class="field label-above">
             <label>Status</label>
             <select
               v-model="status"
               class="normal-input information-input"
             >
+              <option :value="null">None</option>
               <option
                 v-for="item in statusList"
                 :key="item"
@@ -29,7 +30,7 @@
               </option>
             </select>
             <button
-              :disabled="!status || !list.length"
+              :disabled="!list.length || status === undefined"
               @click="updateStatus()"
               class="button button-submit normal-input margin-small-left"
             >

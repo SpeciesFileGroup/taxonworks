@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { Identifier, Namespace } from '@/routes/endpoints'
-import { IDENTIFIER_LOCAL_TRIP_CODE } from '@/constants'
+import { IDENTIFIER_LOCAL_FIELD_NUMBER } from '@/constants'
 
-export default defineStore('tripCode', {
+export default defineStore('collectingEventForm:identifiers', {
   state: () => ({
     namespace: undefined,
     identifier: {
@@ -31,7 +31,7 @@ export default defineStore('tripCode', {
           namespace_id: this.namespace.id,
           identifier_object_id: objectId,
           identifier_object_type: objectType,
-          type: IDENTIFIER_LOCAL_TRIP_CODE
+          type: IDENTIFIER_LOCAL_FIELD_NUMBER
         }
       }
 
@@ -51,19 +51,25 @@ export default defineStore('tripCode', {
     },
 
     remove() {
-      Identifier.destroy(this.identifier.id)
+      if (
+        window.confirm(
+          `You're trying to delete this identifier. Are you sure want to proceed?`
+        )
+      ) {
+        Identifier.destroy(this.identifier.id)
 
-      this.$reset()
+        this.$reset()
+      }
     },
 
     async load({ objectId, objectType }) {
-      try {
-        const { body } = Identifier.where({
-          identifier_object_id: objectId,
-          identifier_object_type: objectType,
-          type: IDENTIFIER_LOCAL_TRIP_CODE
-        })
+      const request = Identifier.where({
+        identifier_object_id: objectId,
+        identifier_object_type: objectType,
+        type: IDENTIFIER_LOCAL_FIELD_NUMBER
+      })
 
+      request.then(({ body }) => {
         const [identifier] = body
 
         if (identifier) {
@@ -77,9 +83,9 @@ export default defineStore('tripCode', {
             this.namespace = body
           })
         }
+      })
 
-        return body
-      } catch (e) {}
+      return request
     }
   }
 })

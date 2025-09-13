@@ -7,7 +7,7 @@
       :pagination="pagination"
       :object-type="IMAGE"
       :list="list"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
@@ -22,7 +22,7 @@
         >
           <span class="margin-small-left margin-small-right">|</span>
           <div class="horizontal-left-content gap-small margin-small-left">
-            <DepictionList :image-id="selectedIds" />
+            <DepictionList :image-id="sortedSelectedIds" />
             <SelectAll
               v-model="selectedIds"
               :ids="list.map(({ id }) => id)"
@@ -63,16 +63,17 @@ import { IMAGE } from '@/constants/index.js'
 import { Image } from '@/routes/endpoints'
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Image)
 </script>
 

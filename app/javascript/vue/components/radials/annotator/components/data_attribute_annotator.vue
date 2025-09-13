@@ -10,7 +10,6 @@
       :klass="objectType"
       :custom-list="{ all }"
       :lock-view="false"
-      :filter-ids="list.map((item) => item.controlled_vocabulary_term_id)"
       @selected="
         ($event) => {
           predicate = $event
@@ -18,7 +17,10 @@
       "
       v-model="predicate"
     />
-    <hr v-if="predicate" />
+    <hr
+      v-if="predicate"
+      class="divisor"
+    />
     <SmartSelectorItem
       :item="predicate"
       @unset="() => (predicate = undefined)"
@@ -75,7 +77,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
-import { IMPORT_ATTRIBUTE, PREDICATE } from '@/constants'
+import {
+  DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE,
+  IMPORT_ATTRIBUTE,
+  PREDICATE
+} from '@/constants'
 import { useSlice } from '@/components/radials/composables'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import TableList from './shared/tableList'
@@ -132,7 +138,7 @@ function saveDataAttribute() {
   const payload = {
     data_attribute: {
       id: currentId,
-      type: 'InternalAttribute',
+      type: DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE,
       value: text.value,
       controlled_vocabulary_term_id: predicate.value.id,
       annotated_global_entity: decodeURIComponent(props.globalId)
@@ -150,7 +156,7 @@ function saveDataAttribute() {
 }
 
 function removeItem(item) {
-  DataAttribute.destroy(item).then((_) => {
+  DataAttribute.destroy(item.id).then((_) => {
     removeFromList(item)
   })
 }

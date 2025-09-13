@@ -26,11 +26,16 @@
   <FacetTaxonNameType v-model="params" />
   <FacetRelationships v-model="params" />
   <FacetStatus v-model="params" />
+  <FacetRelationToRelationship v-model="params" />
   <FacetInRelationship v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
   <FacetTags
-    target="TaxonName"
+    :target="TAXON_NAME"
     v-model="params"
+  />
+  <FacetConfidence
+    v-model="params"
+    :target="TAXON_NAME"
   />
   <FacetUsers v-model="params" />
   <FacetUpdatedSince v-model="params" />
@@ -51,6 +56,7 @@
   <FacetCombinationify v-model="params" />
   <FacetSynonymify v-model="params" />
   <FacetAncestrify v-model="params" />
+  <FacetDiffModel v-model="params" />
 </template>
 
 <script setup>
@@ -71,12 +77,16 @@ import FacetCombinationify from './filters/FacetCombinationify.vue'
 import FacetSynonymify from './filters/FacetSynonymify.vue'
 import FacetAncestrify from '@/components/Filter/Facets/shared/FacetAncestrify.vue'
 import FacetAuthors from './filters/FacetAuthors.vue'
-import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetDateYear from '@/components/Filter/Facets/Source/FacetDate.vue'
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
+import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
+import FacetRelationToRelationship from './filters/FacetRelationToRelationship.vue'
 import { computed } from 'vue'
+import { TAXON_NAME } from '@/constants'
 
 const WITH_TITLES = {
   type_metadata: {
@@ -96,19 +106,24 @@ const WITH_PARAMS = [
   'citation_documents',
   'citations',
   'combinations',
+  'confidences',
   'data_attributes',
   'data_depictions',
   'depictions',
+  'leaves', // 'Descendants'
   'etymology',
-  'leaves',
+  'global_identifiers',
+  'not_specified', // 'Incomplete combination relationships'
+  'latinized',
+  'local_identifiers',
   'nomenclature_date',
-  'not_specified',
   'notes',
   'origin_citation',
   'original_combination',
   'otus',
   'tags',
-  'type_metadata'
+  'type_metadata', // 'Type information'
+  'verbatim_name'
 ]
 
 const props = defineProps({

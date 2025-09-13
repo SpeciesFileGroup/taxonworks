@@ -51,6 +51,10 @@
         New
       </button>
     </div>
+    <ConfirmationModal
+      ref="confirmationModalRef"
+      :container-style="{ 'min-width': 'auto', width: '300px' }"
+    />
   </div>
 </template>
 
@@ -59,6 +63,8 @@ import { computed, ref } from 'vue'
 import { DataAttribute } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import confirmationOpts from '../../../constants/confirmationOpts.js'
 
 const props = defineProps({
   ids: {
@@ -84,6 +90,7 @@ const props = defineProps({
 
 const emit = defineEmits(['create'])
 
+const confirmationModalRef = ref(null)
 const predicate = ref()
 const inputValue = ref('')
 
@@ -96,23 +103,27 @@ function resetForm() {
   predicate.value = undefined
 }
 
-function createDataAttributes() {
-  DataAttribute.createBatch({
-    attribute_subject_id: props.ids,
-    attribute_subject_type: props.objectType,
-    type: 'InternalAttribute',
-    controlled_vocabulary_term_id: predicate.value.id,
-    value: inputValue.value
-  })
-    .then((response) => {
-      TW.workbench.alert.create(
-        'Data attribute(s) were successfully created',
-        'notice'
-      )
-      resetForm()
-      emit('create', response.body)
+async function createDataAttributes() {
+  const ok = await confirmationModalRef.value.show(confirmationOpts)
+
+  if (ok) {
+    DataAttribute.createBatch({
+      attribute_subject_id: props.ids,
+      attribute_subject_type: props.objectType,
+      type: 'InternalAttribute',
+      controlled_vocabulary_term_id: predicate.value.id,
+      value: inputValue.value
     })
-    .catch(() => {})
+      .then((response) => {
+        TW.workbench.alert.create(
+          'Data attribute(s) were successfully created',
+          'notice'
+        )
+        resetForm()
+        emit('create', response.body)
+      })
+      .catch(() => {})
+  }
 }
 </script>
 

@@ -1,5 +1,9 @@
 <template>
   <div class="data_attribute_annotator">
+    <VSpinner
+      v-if="isUpdating"
+      full-screen
+    />
     <SmartSelector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{ 'type[]': 'Predicate' }"
@@ -41,7 +45,7 @@
         class="button button-submit normal-input separate-bottom"
         @click="updateDataAttributes"
       >
-        Create
+        Update or Create
       </button>
       <button
         @click="
@@ -53,17 +57,24 @@
         class="button button-default normal-input separate-bottom"
         type="button"
       >
-        New
+        Reset
       </button>
     </div>
+    <ConfirmationModal
+      ref="confirmationModalRef"
+      :container-style="{ 'min-width': 'auto', width: '300px' }"
+    />
   </div>
 </template>
 
 <script setup>
-import SmartSelector from '@/components/ui/SmartSelector'
-import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import { computed, ref } from 'vue'
 import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
+import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import confirmationOpts from '../../../constants/confirmationOpts.js'
 
 const props = defineProps({
   parameters: {
@@ -84,6 +95,8 @@ const props = defineProps({
 
 const emit = defineEmits(['create'])
 
+const confirmationModalRef = ref(null)
+const isUpdating = ref(false)
 const predicate = ref()
 const fromValue = ref('')
 const toValue = ref('')
@@ -96,24 +109,32 @@ function resetForm() {
   predicate.value = undefined
 }
 
-function updateDataAttributes() {
-  const payload = {
-    ...props.parameters,
-    predicate_id: predicate.value.id,
-    from_value: fromValue.value,
-    to_value: toValue.value
-  }
+async function updateDataAttributes() {
+  const ok = await confirmationModalRef.value.show(confirmationOpts)
 
-  DataAttribute.updateBatch(payload)
-    .then(({ body }) => {
-      TW.workbench.alert.create(
-        'Data attribute(s) were successfully updated',
-        'notice'
-      )
-      resetForm()
-      emit('create', body)
-    })
-    .catch(() => {})
+  if (ok) {
+    const payload = {
+      ...props.parameters,
+      predicate_id: predicate.value.id,
+      value_from: fromValue.value,
+      value_to: toValue.value
+    }
+
+    isUpdating.value = true
+    DataAttribute.updateBatch(payload)
+      .then(({ body }) => {
+        TW.workbench.alert.create(
+          'Data attribute(s) were successfully updated',
+          'notice'
+        )
+        resetForm()
+        emit('create', body)
+      })
+      .catch(() => {})
+      .finally(() => {
+        isUpdating.value = false
+      })
+  }
 }
 
 const all = ref([])

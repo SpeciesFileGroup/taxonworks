@@ -197,6 +197,7 @@ describe User, type: :model do
   context 'user activity summaries' do
     before {
       user.save!
+      ProjectMember.create(project_id: Current.project_id, user: user, is_project_administrator: true)
       4.times { (FactoryBot.create(:valid_otu, creator: user, updater: user)) }
       @last_otu = FactoryBot.create(:valid_otu, creator: user, updater: user)
     }

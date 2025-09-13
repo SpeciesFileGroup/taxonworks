@@ -5,7 +5,9 @@ class CollectionObjectsController < ApplicationController
     :show, :edit, :update, :destroy, :navigation, :containerize,
     :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications,
     :timeline,
-    :api_show, :api_dwc]
+    :api_show, :api_dwc,
+    :dwc, :dwc_verbose, :dwc_compact]
+
   after_action -> { set_pagination_headers(:collection_objects) }, only: [:index, :api_index], if: :json_request?
 
   # GET /collecting_events
@@ -96,13 +98,14 @@ class CollectionObjectsController < ApplicationController
     render '/dwc_occurrences/dwc_index'
   end
 
+  # TODO: Not used in Vue
   # GET /collection_objects/123/dwc
+  #  !! Returns a keyless Array of data compatible with combining multiple rows
   def dwc
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
       if params[:rebuild] == 'true'
-        # get does not rebuild, but does set if it doesn't exist
         o.set_dwc_occurrence
       else
         o.get_dwc_occurrence
@@ -115,19 +118,29 @@ class CollectionObjectsController < ApplicationController
   end
 
   # GET /collection_objects/123/dwc_verbose
+  #
+  # !! Always calculates values, never reads from
+  # !! Allways returns all values
+  #
   def dwc_verbose
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
 
       if params[:rebuild] == 'true'
-        # get does not rebuild
         o.set_dwc_occurrence
       else
         o.get_dwc_occurrence
       end
     end
     render json: o.dwc_occurrence_attributes
+  end
+
+  # GET /collection_objects/123/dwc_compact
+  # !! Never recalculates !!
+  def dwc_compact
+    # Batch imports delay the indexing, so we need to be able to respond empty as well
+    render json:  @collection_object.dwc_occurrence&.dwc_json || {}
   end
 
   # Intent is DWC fields + quick summary fields for reports
@@ -350,7 +363,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def select_options
-    @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
+    @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target], params['ba_target'])
   end
 
   def autocomplete
@@ -515,4 +528,5 @@ class CollectionObjectsController < ApplicationController
 
 end
 
+# TODO: remove and test
 require_dependency Rails.root.to_s + '/lib/batch_load/import/collection_objects/castor_interpreter.rb'

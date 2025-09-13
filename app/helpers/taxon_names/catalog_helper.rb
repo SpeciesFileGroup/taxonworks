@@ -27,6 +27,7 @@ module TaxonNames
         'history-valid-name' => (n.is_valid_name? && n.is_first), # marks the single current valid name for this record
         'history-is-subsequent' => !n.is_first # is_subsequent?
       }
+      data['history-protonym-id'] = n.protonym_ids.join(',')
       data
     end
 

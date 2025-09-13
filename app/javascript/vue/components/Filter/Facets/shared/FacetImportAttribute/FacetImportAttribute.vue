@@ -1,40 +1,28 @@
 <template>
   <FacetContainer>
     <h3>Import attributes</h3>
-    <AddInternalPredicate @add="(p) => predicates.push(p)" />
-    <TablePredicate
-      v-if="predicates.length"
-      :predicates="predicates"
-      @update="
-        ({ index, predicate }) => {
-          predicates[index] = predicate
-        }
-      "
-      @remove="
-        (index) => {
-          predicates.splice(index, 1)
-        }
-      "
-    />
+    <AddInternalPredicate @add="(p) => addPredicate(p)" />
+
     <hr class="divisor full_width" />
     <AddValue
+      label="Value (any predicate)"
       @add="
         (value) => {
-          values.push(value)
+          addValue(value)
         }
       "
     />
-    <TableValue
-      v-if="values.length"
-      :values="values"
+    <TablePredicate
+      v-if="attributes.length"
+      :predicates="attributes"
       @update="
-        ({ index, value }) => {
-          values[index] = value
+        ({ index, predicate }) => {
+          attributes[index] = predicate
         }
       "
       @remove="
         (index) => {
-          values.splice(index, 1)
+          attributes.splice(index, 1)
         }
       "
     />
@@ -42,70 +30,47 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onBeforeMount } from 'vue'
+import { ref, watch, onBeforeMount } from 'vue'
+import { randomUUID } from '@/helpers'
 import TablePredicate from '../FacetDataAttribute/TablePredicate.vue'
-import TableValue from '../FacetDataAttribute/TableValue.vue'
 import AddInternalPredicate from './AddInternalPredicate.vue'
 import AddValue from '../FacetDataAttribute/AddValue.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
-const props = defineProps({
-  modelValue: {
-    type: Object,
-    required: true
-  }
-})
+const attributes = ref([])
 
-const emit = defineEmits(['update:modelValue'])
-const predicates = ref([])
-const values = ref([])
-
-const params = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+const params = defineModel({
+  type: Object,
+  required: true
 })
 
 watch(
-  predicates,
+  attributes,
   (newVal) => {
-    params.value.data_attribute_import_predicate = newVal
-      .filter((p) => p.any)
-      .map((p) => p.predicate)
-    params.value.data_attribute_import_exact_pair = newVal
-      .filter((p) => !p.any && p.exact && p.text.length)
-      .map((p) => `${p.predicate}:${p.text}`)
-    params.value.data_attribute_import_wildcard_pair = newVal
-      .filter((p) => !p.any && !p.exact && p.text.length)
-      .map((p) => `${p.predicate}:${p.text}`)
-  },
-  { deep: true }
-)
+    const pair = newVal.filter((a) => a.isPair)
+    const values = newVal.filter((a) => !a.isPair)
 
-watch(
-  values,
-  (newVal) => {
-    params.value.data_attribute_import_exact_value = newVal
-      .filter((item) => item.exact)
-      .map((item) => item.text)
-    params.value.data_attribute_import_wildcard_value = newVal
-      .filter((item) => !item.exact)
-      .map((item) => item.text)
-  },
-  { deep: true }
-)
+    if (pair.length) {
+      params.value.data_attribute_import_predicate = pair
+        .filter((p) => p.any)
+        .map((p) => p.name)
+      params.value.data_attribute_import_exact_pair = pair
+        .filter((p) => !p.any && p.exact && p.text.length)
+        .map((p) => `${p.name}:${p.text}`)
+      params.value.data_attribute_import_wildcard_pair = pair
+        .filter((p) => !p.any && !p.exact && p.text.length)
+        .map((p) => `${p.name}:${p.text}`)
+    }
 
-watch(
-  [
-    () => props.modelValue.data_attribute_import_exact_pair,
-    () => props.modelValue.data_attribute_import_wildcard_pair,
-    () => props.modelValue.data_attribute_import_predicate
-  ],
-  (newVals, oldVals) => {
-    if (
-      newVals.every((value) => !value?.length) &&
-      oldVals.some((value) => value?.length)
-    ) {
-      predicates.value = []
+    if (values.length) {
+      {
+        params.value.data_attribute_import_exact_value = values
+          .filter((item) => item.exact)
+          .map((item) => item.text)
+        params.value.data_attribute_import_wildcard_value = values
+          .filter((item) => !item.exact)
+          .map((item) => item.text)
+      }
     }
   },
   { deep: true }
@@ -113,23 +78,49 @@ watch(
 
 watch(
   [
-    () => props.modelValue.data_attribute_import_exact_value,
-    () => props.modelValue.data_attribute_import_wildcard_value
+    () => params.value.data_attribute_import_exact_pair,
+    () => params.value.data_attribute_import_wildcard_pair,
+    () => params.value.data_attribute_import_predicate
   ],
   (newVals, oldVals) => {
     if (
       newVals.every((value) => !value?.length) &&
       oldVals.some((value) => value?.length)
     ) {
-      values.value = []
+      attributes.value = attributes.value.filter((item) => !item.isPair)
     }
   },
   { deep: true }
 )
+
+watch(
+  [
+    () => params.value.data_attribute_import_exact_value,
+    () => params.value.data_attribute_import_wildcard_value
+  ],
+  (newVals, oldVals) => {
+    if (
+      newVals.every((value) => !value?.length) &&
+      oldVals.some((value) => value?.length)
+    ) {
+      attributes.value = attributes.value.filter((item) => item.isPair)
+    }
+  },
+  { deep: true }
+)
+
+function parsedPredicateParam(param) {
+  return param.map((value) => {
+    const index = value.indexOf(':')
+
+    return [value.slice(0, index), value.slice(index + 1)]
+  })
+}
 
 function addPredicate(p) {
-  predicates.value.push({
-    predicate: p.predicate,
+  attributes.value.push({
+    uuid: randomUUID(),
+    isPair: true,
     name: p.name,
     exact: p.exact,
     any: p.any,
@@ -137,11 +128,12 @@ function addPredicate(p) {
   })
 }
 
-function parsedPredicateParam(param) {
-  return param.map((value) => {
-    const index = value.indexOf(':')
-
-    return [value.slice(0, index), value.slice(index + 1)]
+function addValue({ text, exact }) {
+  attributes.value.push({
+    uuid: randomUUID(),
+    isPair: false,
+    text,
+    exact
   })
 }
 
@@ -155,25 +147,28 @@ onBeforeMount(async () => {
   const predicateWithAnyValues =
     params.value.data_attribute_import_predicate || []
 
-  values.value = [
-    ...(params.value.data_attribute_import_exact_value || []).map((text) => ({
+  const exactValues = params.value.data_attribute_import_exact_value || []
+  const wildcardValues = params.value.data_attribute_import_wildcard_value || []
+
+  exactValues.forEach((text) =>
+    addValue({
       text,
       exact: true
-    })),
-    ...(params.value.data_attribute_import_wildcard_value || []).map(
-      (text) => ({
-        text,
-        exact: false
-      })
-    )
-  ]
+    })
+  )
+  wildcardValues.forEach((text) =>
+    addValue({
+      text,
+      exact: false
+    })
+  )
 
   predicateWithAnyValues.forEach((predicate) => {
     addPredicate({ predicate, name: predicate, text: '', any: true })
   })
 
   predicateWithValues.forEach(([predicate, text]) => {
-    addPredicate({ predicate, name: predicate, text })
+    addPredicate({ predicate, name: predicate, text, exact: false })
   })
 
   predicateWithValuesExact.forEach(([predicate, text]) => {

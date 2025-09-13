@@ -1,25 +1,21 @@
 <template>
-  <h3>Verbatim</h3>
-  <div class="field">
-    <textarea v-model="verbatim" />
-  </div>
+  <textarea v-model="verbatim" />
 </template>
 
 <script>
-
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
   computed: {
-    source () {
+    source() {
       return this.$store.getters[GetterNames.GetSource]
     },
     verbatim: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetVerbatim]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetVerbatim, value)
       }
     }
@@ -28,8 +24,8 @@ export default {
 </script>
 
 <style scoped>
-  textarea {
-    width: 100%;
-    height: 100px;
-  }
+textarea {
+  width: 100%;
+  height: 100px;
+}
 </style>

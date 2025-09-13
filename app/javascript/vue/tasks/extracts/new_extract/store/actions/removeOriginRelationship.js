@@ -7,6 +7,8 @@ export default ({ state }, relationship) => {
       removeFromArray(state.originRelationships, relationship)
     })
   } else {
-    removeFromArray(state.originRelationships, relationship, 'uuid')
+    removeFromArray(state.originRelationships, relationship, {
+      property: 'uuid'
+    })
   }
 }

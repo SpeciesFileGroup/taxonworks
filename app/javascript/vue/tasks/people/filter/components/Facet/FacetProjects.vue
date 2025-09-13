@@ -41,7 +41,7 @@ import { ref, computed, watch, onBeforeMount } from 'vue'
 import { User } from '@/routes/endpoints'
 import { getCurrentUserId } from '@/helpers/user.js'
 import { getCurrentProjectId } from '@/helpers/project.js'
-import VToggle from '@/tasks/observation_matrices/new/components/newMatrix/switch.vue'
+import VToggle from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({

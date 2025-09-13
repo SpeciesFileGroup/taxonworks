@@ -55,14 +55,10 @@ Object.assign(TW.workbench.alert, {
   },
 
   play: function (type) {
-    try {
       if (!document.hidden) {
         const sound = new Audio(this.audioFile[type] || this.audioFile.default);
-        sound.play();
+        sound.play().catch((e) => { console.log(e) });
       }
-    } catch(e) {
-      console.log(e)
-    }
   }
 });
 

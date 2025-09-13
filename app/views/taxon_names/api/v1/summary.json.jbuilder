@@ -15,6 +15,8 @@ json.pages @taxon_name.origin_citation&.pages
 json.original_citation @taxon_name.source&.cached
 json.global_id @taxon_name.to_global_id.to_s
 
+json.descorator_status taxon_name_decorator_status(@taxon_name)
+
 json.parent do
   json.full_name label_for_taxon_name(@taxon_name.parent)
   json.author @taxon_name.parent&.author_string

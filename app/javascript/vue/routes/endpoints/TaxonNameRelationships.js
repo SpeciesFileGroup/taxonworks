@@ -16,8 +16,12 @@ const permitParams = {
   }
 }
 
+const controller = 'taxon_name_relationships'
 export const TaxonNameRelationship = {
   ...baseCRUD('taxon_name_relationships', permitParams),
+
   types: () =>
-    AjaxCall('get', '/taxon_name_relationships/taxon_name_relationship_types')
+    AjaxCall('get', '/taxon_name_relationships/taxon_name_relationship_types'),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

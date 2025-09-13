@@ -10,7 +10,7 @@ function getLabelFromPath(json, path) {
   const properties = path.split('.')
 
   properties.forEach((property) => {
-    json = json[property]
+    json = json?.[property]
   })
 
   return json
@@ -18,7 +18,7 @@ function getLabelFromPath(json, path) {
 
 function getLabelFromModifiers(json, modifiers) {
   for (const key in modifiers) {
-    json = json[key]
+    json = json?.[key]
   }
 
   return json

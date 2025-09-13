@@ -18,7 +18,7 @@
 
 @keyframes alert-show {
   0% {
-    opacity: 0.50;
+    opacity: 0.5;
     transform: translateY(100%) translateX(-50%);
   }
   10% {
@@ -28,7 +28,7 @@
   76% {
     transform: scale(1) translateX(-50%);
   }
-  77%{
+  77% {
     transform: scale(1.5) translateX(-33.5%);
   }
   80% {
@@ -40,10 +40,10 @@
   }
   95% {
     transform: translateY(0%) translateX(-50%);
-    opacity: 1; 
+    opacity: 1;
   }
   100% {
-    opacity: 0.50;
+    opacity: 0.5;
     transform: translateY(100%) translateX(-50%);
   }
 }
@@ -57,32 +57,73 @@
   }
 }
 
-
 @keyframes pulse-blue {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7)
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(33, 150, 243, 0)
+    box-shadow: 0 0 0 10px rgba(33, 150, 243, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0)
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0);
   }
 }
 
-.pulse-blue {
-  box-shadow: 0 0 0 0 #2196F3;
+@keyframes pulse-red {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(244, 67, 54, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+  }
+}
+
+@keyframes pulse-green {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(156, 204, 101, 0.9);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(156, 204, 101, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(156, 204, 101, 0);
+  }
+}
+
+.pulse-blue,
+.pulse-primary {
+  box-shadow: 0 0 0 0 var(--primary);
   animation: pulse-blue 2s infinite;
 }
 
+.pulse-destroy {
+  box-shadow: 0 0 0 0 var(--destroy);
+  animation: pulse-red 2s infinite;
+}
+
+.pulse-update,
+.pulse-create {
+  box-shadow: 0 0 0 0 var(--create);
+  animation: pulse-green 2s infinite;
+}
+
 .bounce-enter-active {
-  animation: bounce-in .5s;
+  animation: bounce-in 0.5s;
 }
 .bounce-leave-active {
-  animation: bounce-in .5s reverse;
+  animation: bounce-in 0.5s reverse;
 }
 @keyframes bounce-in {
   0% {

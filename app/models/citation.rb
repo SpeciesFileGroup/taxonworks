@@ -49,8 +49,9 @@ class Citation < ApplicationRecord
   has_many :documents, through: :source
 
   validates_presence_of :source
+
   validates_uniqueness_of :source_id, scope: [:citation_object_id, :citation_object_type, :pages]
-  validates_uniqueness_of :is_original, scope: [:citation_object_type, :citation_object_id], message: 'origin can only be assigned once', allow_nil: true, if: :is_original?
+  validates_uniqueness_of :is_original, scope: [:citation_object_type, :citation_object_id], message: 'can only be assigned once per object.', allow_nil: true, if: -> { is_original? }
 
   accepts_nested_attributes_for :citation_topics, allow_destroy: true, reject_if: :reject_citation_topics
   accepts_nested_attributes_for :topics, allow_destroy: true, reject_if: :reject_topic
@@ -149,13 +150,15 @@ class Citation < ApplicationRecord
     true
   end
 
-  # TODO: modify for asserted distributions and other origin style relationships
   def prevent_if_required
-    unless citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
-      if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations.count == 1
-        errors.add(:base, 'at least one citation is required')
-        throw :abort
-      end
+    # Note this ignores nested _destroys; for rails reasons we do that on
+    # the parent instead, where everything 'just works'.
+    return if marked_for_destruction?
+    return if citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
+
+    if citation_object.requires_citation? && citation_object.citations.count == 1
+      errors.add(:base, 'at least one citation is required')
+      throw(:abort)
     end
   end
 
@@ -167,9 +170,11 @@ class Citation < ApplicationRecord
             t = citation_object.subject_taxon_name
             vn = t.get_valid_taxon_name
 
+            n = t.get_full_name
+
             t.update_columns(
-              cached: t.get_full_name,
-              cached_html: t.get_full_name_html,
+              cached: n,
+              cached_html: t.get_full_name_html(n),
               cached_valid_taxon_name_id: vn.id)
 
             # @proceps: This and below is not updating cached names.  Is this required because timing (new dates) may change synonymy?

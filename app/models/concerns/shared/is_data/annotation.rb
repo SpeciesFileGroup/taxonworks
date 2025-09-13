@@ -8,7 +8,7 @@ module Shared::IsData::Annotation
   # middle is left, top/bottom right
 
   # see config/initializes/constanst/model/annotations for types
-
+  #
   included do
 
     # @return [Boolean]
@@ -16,6 +16,51 @@ module Shared::IsData::Annotation
     def annotates?
       respond_to?(:annotated_object)
     end
+
+    # TODO: consider implications of allowing cloning from any objet
+    # to any object
+    # This should be wrapped in a larger transction
+    def clone_annotations(to_object: nil, except: [], only: [])
+      return false if to_object.nil?
+      a = !only.empty? ? only : (::ANNOTATION_TYPES - except)
+      a.each do |t|
+        if respond_to?(t)
+          send(t).each do |o|
+            o.dup
+            to_object.send(t) << o
+          end
+        end
+      end
+      to_object
+    end
+  end
+
+  # TODO: consider implications of allowing cloning from any object
+  # to any object
+  def move_annotations(to_object: nil, except: [], only: [])
+    return false if to_object.nil?
+
+    e = except.map(&:to_sym)
+    o = only.map(&:to_sym)
+
+    errors = []
+
+    a = !only.empty? ? o : (::ANNOTATION_TYPES - e)
+    a.each do |t|
+      if respond_to?(t)
+        send(t).each do |i|
+          i.annotated_object = to_object
+
+          begin
+            i.save!
+          rescue ActiveRecord::RecordInvalid => e
+            errors.push e
+          end
+
+        end
+      end
+    end
+    errors
   end
 
 
@@ -75,6 +120,7 @@ module Shared::IsData::Annotation
     ANNOTATION_TYPES.each do |t|
       next unless available_annotation_types.include?(t)
       case t
+
       when :documentation
 
         if project_id
@@ -111,6 +157,7 @@ module Shared::IsData::Annotation
     result['notes'] = notes if has_notes? && notes.load.any?
     result['tags'] = tags if has_tags? && tags.load.any?
     result['depictions'] = depictions.order('depictions.position') if has_depictions? && depictions.load.any?
+    result['conveyances'] = conveyances.order('conveyances.position') if has_conveyances? && conveyances.load.any?
     result['confidences'] = confidences if has_confidences? && confidences.load.any?
     result['protocol relationships'] = protocols if has_protocol_relationships? && protocolled?
     result['alternate values'] = alternate_values if has_alternate_values? && alternate_values.load.any?

@@ -9,7 +9,7 @@
         }
       "
     />
-    <div class="flex-wrap-row">
+    <div class="flex-wrap-row gap-medium">
       <ImportCard
         v-for="item in imports"
         :key="item.id"
@@ -72,10 +72,3 @@ function removeDataset(dataset) {
 
 loadPage()
 </script>
-
-<style scoped>
-.import-card {
-  min-width: 300px;
-  max-width: 300px;
-}
-</style>

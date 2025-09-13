@@ -1,7 +1,7 @@
 <template>
   <div>
     <label>Namespace</label>
-    <div class="horizontal-left-content middle field">
+    <div class="horizontal-left-content middle field gap-small">
       <SelectedItem
         v-if="store.namespace"
         class="full_width"
@@ -22,15 +22,17 @@
         :input-attributes="{
           'data-locked': store.settings.lock.namespace
         }"
-        @get-item="store.namespace = $event"
+        @get-item="(item) => (store.namespace = item)"
       />
-      <VLock
-        class="margin-small-left"
-        v-model="store.settings.lock.namespace"
+      <VLock v-model="store.settings.lock.namespace" />
+      <WidgetNamespace
+        @create="
+          (item) => (store.namespace = { id: item.id, label: item.name })
+        "
       />
     </div>
 
-    <div class="">
+    <div>
       <label>Identifier</label>
       <div class="horizontal-left-content">
         <input
@@ -73,6 +75,7 @@ import { useStore } from '../store/useStore'
 import SelectedItem from './SelectedItem.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import VLock from '@/components/ui/VLock/index.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 
 const autocompleteComponent = ref(null)
 const store = useStore()

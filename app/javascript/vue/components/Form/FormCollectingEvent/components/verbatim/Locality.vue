@@ -4,9 +4,14 @@
     <textarea
       class="full_width"
       type="text"
+      name="verbatim-locality"
       rows="5"
       v-model="collectingEvent.verbatim_locality"
-      @change="() => { collectingEvent.isUnsaved = true }"
+      @change="
+        () => {
+          collectingEvent.isUnsaved = true
+        }
+      "
     />
   </div>
 </template>

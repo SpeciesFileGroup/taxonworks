@@ -5,8 +5,10 @@ const controller = 'asserted_distributions'
 const permitParams = {
   asserted_distribution: {
     id: Number,
-    otu_id: String,
-    geographic_area_id: Number,
+    asserted_distribution_object_type: String,
+    asserted_distribution_object_id: Number,
+    asserted_distribution_shape_type: String,
+    asserted_distribution_shape_id: Number,
     is_absent: Boolean,
     otu_attributes: {
       id: Number,
@@ -47,5 +49,9 @@ export const AssertedDistribution = {
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 
   batchUpdate: (params) =>
-    AjaxCall('patch', `/${controller}/batch_update.json`, params)
+    AjaxCall('patch', `/${controller}/batch_update.json`, params),
+
+  batchTemplateCreate: (params) =>
+    AjaxCall('post', `/${controller}/batch_template_create.json`, params),
+
 }

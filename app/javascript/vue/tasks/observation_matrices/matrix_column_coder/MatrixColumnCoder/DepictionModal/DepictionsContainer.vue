@@ -35,6 +35,7 @@
         v-if="
           descriptor.description && depictions.find((d) => d.caption != null)
         "
+        class="divisor"
       />
       <div v-if="descriptor.characterStates">
         <template

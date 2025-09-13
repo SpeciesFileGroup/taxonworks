@@ -219,35 +219,23 @@ export default {
 
 <style lang="scss">
 .basic-information {
-  .vue-autocomplete-input {
-    width: 300px;
-  }
-  transition: all 1s;
-  .validation-warning {
-    border-left: 4px solid #ff8c00 !important;
-  }
-  .create-button {
-    min-width: 100px;
-  }
-
   height: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  .header {
-    border-left: 4px solid green;
-    h3 {
-      font-weight: 300;
-    }
-    padding: 1em;
-    padding-left: 1.5em;
-    border-bottom: 1px solid #f5f5f5;
+
+  .vue-autocomplete-input {
+    width: 300px;
   }
-  .body {
-    padding: 2em;
-    padding-top: 1em;
-    padding-bottom: 1em;
+
+  .validation-warning {
+    border-left: 4px solid var(--color-warning) !important;
   }
+
+  .create-button {
+    min-width: 100px;
+  }
+
   .taxonName-input,
   #error_explanation {
     width: 300px;

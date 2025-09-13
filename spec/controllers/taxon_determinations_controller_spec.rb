@@ -150,19 +150,21 @@ describe TaxonDeterminationsController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested taxon_determination' do
-      taxon_determination = TaxonDetermination.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: taxon_determination.to_param}, session: valid_session
-      }.to change(TaxonDetermination, :count).by(-1)
-    end
+#  describe 'DELETE destroy' do
+#    it 'destroys the requested taxon_determination' do
+#      taxon_determination = TaxonDetermination.create! valid_attributes
+#      expect {
+#        delete :destroy, params: {id: taxon_determination.to_param}, session: valid_session
+#      }.to change(TaxonDetermination, :count).by(-1)
+#    end
+#
+#    it 'redirects to the taxon_determinations list' do
+#      taxon_determination = TaxonDetermination.create! valid_attributes
+#      delete :destroy, params: {id: taxon_determination.to_param}, session: valid_session
+#      expect(response).to redirect_to(taxon_determinations_url)
+#    end
+#  end
 
-    it 'redirects to the taxon_determinations list' do
-      taxon_determination = TaxonDetermination.create! valid_attributes
-      delete :destroy, params: {id: taxon_determination.to_param}, session: valid_session
-      expect(response).to redirect_to(taxon_determinations_url)
-    end
-  end
+  include_examples 'DELETE #destroy', TaxonDetermination
 
 end

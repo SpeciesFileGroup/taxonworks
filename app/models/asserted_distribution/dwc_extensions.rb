@@ -2,13 +2,14 @@ module AssertedDistribution::DwcExtensions
 
   extend ActiveSupport::Concern
 
+  include Shared::IsDwcOccurrence
+
   DWC_OCCURRENCE_MAP = {
     associatedReferences: :dwc_associated_references,
     country: :dwc_country,
     county: :dwc_county,
     occurrenceStatus: :dwc_occurrence_status,
     stateProvince: :dwc_state_province,
-
 
     kingdom: :dwc_kingdom,
     family: :dwc_family,
@@ -49,15 +50,15 @@ module AssertedDistribution::DwcExtensions
   end
 
   def dwc_scientific_name
-    otu.taxon_name&.valid_taxon_name&.cached_name_and_author_year
+    otu&.taxon_name&.valid_taxon_name&.cached_name_and_author_year
   end
 
   def dwc_taxon_name_authorship
-    otu.taxon_name&.valid_taxon_name&.cached_author_year
+    otu&.taxon_name&.valid_taxon_name&.cached_author_year
   end
 
   def dwc_taxon_rank
-    otu.taxon_name&.valid_taxon_name&.rank
+    otu&.taxon_name&.valid_taxon_name&.rank
   end
 
   # TODO: If this is altered there are implications for sources section in PaperCatalog.
@@ -66,7 +67,7 @@ module AssertedDistribution::DwcExtensions
   end
 
   def dwc_occurrence_status
-    is_absent ? 'absent' : 'present'
+    is_absent == true ? 'absent' : 'present'
   end
 
   def dwc_country
@@ -108,6 +109,5 @@ module AssertedDistribution::DwcExtensions
   #
   #   h
   # end
-
 
 end

@@ -69,7 +69,7 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     a = subject_taxon_name
     b = object_taxon_name
     if a.is_species_rank? && a.cached_secondary_homonym_alternative_spelling.nil? && a.cached_valid_taxon_name_id == b.cached_valid_taxon_name_id
-      return true if a.name == b.name
+      return true if a.name == b.name || a.name == b.masculine_name || a.name == b.feminine_name || a.name == b.neuter_name
     elsif a.is_species_rank?
       return true if a.cached_secondary_homonym_alternative_spelling && (a.cached_secondary_homonym_alternative_spelling == b.cached_secondary_homonym_alternative_spelling)
     elsif a.is_genus_rank?

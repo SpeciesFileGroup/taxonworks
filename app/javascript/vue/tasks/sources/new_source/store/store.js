@@ -4,7 +4,7 @@ import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 import newSource from '../const/source'
 
-function makeInitialState () {
+function makeInitialState() {
   return {
     settings: {
       saving: false,
@@ -23,13 +23,12 @@ function makeInitialState () {
     },
     preferences: {},
     documentations: [],
-    documents: [],
     source: newSource(),
     softValidation: undefined
   }
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -38,7 +37,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore,
-  makeInitialState
-}
+export { newStore, makeInitialState }

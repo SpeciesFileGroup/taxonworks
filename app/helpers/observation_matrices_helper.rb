@@ -82,7 +82,7 @@ module ObservationMatricesHelper
       s = observation_export_value(o)
       s = LABEL_REPLACEMENT[s].nil? ? s : LABEL_REPLACEMENT[s]
 
-      if s.length > 1 && (style == :nexus && style == :tnt) && o.type == 'Observation::Qualitative'
+      if s.length > 1 && (style == :nexus || style == :tnt) && o.type == 'Observation::Qualitative'
         "#{s} [WARNING STATE '#{s}' is TOO LARGE FOR PAUP (0-9, A-Z only).]"
       else
         s
@@ -147,4 +147,24 @@ module ObservationMatricesHelper
     rows.join("\n")
   end
 
+  # @return [String]
+  #   the list of symbols actually used as character state labels, like
+  #   0 1 2 3 4 5 6 7 8 9 A
+  def nexus_symbol_list(descriptors)
+    max = 1
+    descriptors.each do |d|
+      case d.type
+      when 'Descriptor::Qualitative'
+        # Assumes non-gap character state labels are sequential starting at 0.
+        size = d.has_gap_state? ?
+          d.character_states.size - 1 : d.character_states.size
+        max = size if size > max
+      when 'Descriptor::PresenceAbsence'
+        max = 2 if max < 2
+      end
+    end
+
+    (0..max - 1).to_a
+      .map{|i| i > 9 ? LABEL_REPLACEMENT[i.to_s] : i.to_s}.compact.join(' ')
+  end
 end

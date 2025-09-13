@@ -13,10 +13,7 @@
       @selected="store.addTag"
     >
       <template #tabs-right>
-        <VLock
-          class="margin-small-left"
-          v-model="lock.tags"
-        />
+        <VLock v-model="lock.tags" />
       </template>
     </SmartSelector>
 

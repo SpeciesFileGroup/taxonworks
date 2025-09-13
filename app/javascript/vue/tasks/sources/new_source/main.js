@@ -2,13 +2,11 @@ import { createApp } from 'vue'
 import { newStore } from './store/store.js'
 import App from './app.vue'
 import HelpSystem from '@/plugins/help/help'
-import hotkey from '@/plugins/v-hotkey'
 import en from './lang/help/en'
 
 function init() {
   const app = createApp(App)
 
-  app.directive('hotkey', hotkey)
   app.use(HelpSystem, {
     languages: {
       en: en

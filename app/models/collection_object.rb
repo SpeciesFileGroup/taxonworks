@@ -67,6 +67,7 @@ class CollectionObject < ApplicationRecord
 
   include Shared::Citations
   include Shared::Containable
+  include Shared::Conveyances
   include Shared::DataAttributes
   include Shared::Loanable
   include Shared::Identifiers
@@ -85,7 +86,7 @@ class CollectionObject < ApplicationRecord
   include Shared::BiologicalExtensions
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence
-  include Shared::IsDwcOccurrence
+
   include CollectionObject::DwcExtensions
 
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
@@ -103,6 +104,11 @@ class CollectionObject < ApplicationRecord
   # .catalog_number_namespace
   delegate :namespace, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
 
+  # .record_number_cached
+  delegate :cached, to: :preferred_record_number, prefix: :record_number, allow_nil: true
+  # .record_number_namespace
+  delegate :namespace, to: :preferred_record_number, prefix: :record_number, allow_nil: true
+
   # CollectingEvent delegations
   delegate :map_center, to: :collecting_event, prefix: :collecting_event, allow_nil: true
   delegate :collectors, to: :collecting_event, prefix: :collecting_event, allow_nil: true
@@ -110,6 +116,7 @@ class CollectionObject < ApplicationRecord
   # Repository delegations
   delegate :acronym, to: :repository, prefix: :repository, allow_nil: true
   delegate :url, to: :repository, prefix: :repository, allow_nil: true
+  delegate :institutional_LSID, to: :repository, prefix: :repository, allow_nil: true
 
   # Preparation delegations
   delegate :name, to: :preparation_type, prefix: :preparation_type, allow_nil: true
@@ -135,6 +142,8 @@ class CollectionObject < ApplicationRecord
   has_many :geographic_items, through: :georeferences
 
   has_many :collectors, through: :collecting_event
+
+  has_many :type_materials, inverse_of: :collection_object, dependent: :restrict_with_error
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
@@ -332,7 +341,7 @@ class CollectionObject < ApplicationRecord
     if steps
       gi = GeographicItem.find(geographic_item_id)
       # find the geographic_items inside gi
-      step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
+      step_1 = GeographicItem.st_covered_by('any', gi) # .pluck(:id)
       # find the georeferences from the geographic_items
       step_2 = step_1.map(&:georeferences).uniq.flatten
       # find the collecting events connected to the georeferences
@@ -342,7 +351,7 @@ class CollectionObject < ApplicationRecord
       retval = CollectionObject.where(id: step_4.sort)
     else
       retval = CollectionObject.joins(:geographic_items)
-        .where(GeographicItem.contained_by_where_sql(geographic_item.id))
+        .where(GeographicItem.subset_of_union_of_sql(geographic_item.id))
         .limit(limit)
         .includes(:data_attributes, :collecting_event)
     end
@@ -552,10 +561,10 @@ class CollectionObject < ApplicationRecord
     joins(:collecting_event).where(q.between_date_range_facet.to_sql)
   end
 
-  # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
+  # @param used_on [String]
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
-  def self.used_recently(user_id, project_id, used_on = '')
+  def self.used_recently(user_id, project_id, used_on = '', ba_target = 'object')
     return [] if used_on != 'TaxonDetermination' && used_on != 'BiologicalAssociation'
     t = case used_on
         when 'TaxonDetermination'
@@ -563,24 +572,29 @@ class CollectionObject < ApplicationRecord
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         end
+    if ba_target == 'subject'
+      target_type = 'biological_association_subject_type'
+      target_id = 'biological_association_subject_id'
+    else
+      target_type = 'biological_association_object_type'
+      target_id = 'biological_association_object_id'
+    end
 
     p = CollectionObject.arel_table
 
     # i is a select manager
     i = case used_on
         when 'BiologicalAssociation'
-          t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
-            .where(
-              t['updated_at'].gt(1.week.ago).and(
-                t['biological_association_subject_type'].eq('CollectionObject')
-              )
-            )
-              .where(t['updated_by_id'].eq(user_id))
-              .where(t['project_id'].eq(project_id))
-              .order(t['updated_at'].desc)
+          t.project(t[target_id], t['updated_at']).from(t)
+            .where(t[target_type].eq('CollectionObject'))
+            .where(t['updated_at'].gt(1.week.ago))
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
         else
           # TODO: update to reference new TaxonDetermination
           t.project(t['taxon_determination_object_id'], t['taxon_determination_object_type'], t['updated_at']).from(t)
+            .where(t['taxon_determination_object_type'].eq('CollectionObject'))
             .where(t['updated_at'].gt( 1.week.ago ))
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
@@ -593,10 +607,9 @@ class CollectionObject < ApplicationRecord
     j = case used_on
         when 'BiologicalAssociation'
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-            z['biological_association_subject_id'].eq(p['id'])
+            z[target_id].eq(p['id'])
           ))
         else
-          # TODO: needs to be fixed to scope the taxon_determination_object_type
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['taxon_determination_object_id'].eq(p['id'])))
         end
 
@@ -605,8 +618,8 @@ class CollectionObject < ApplicationRecord
 
   # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` , nil
   # @return [Hash] otus optimized for user selection
-  def self.select_optimized(user_id, project_id, target = nil)
-    r = used_recently(user_id, project_id, target)
+  def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
+    r = used_recently(user_id, project_id, target, ba_target)
     h = {
       quick: [],
       pinboard: CollectionObject.pinned_by(user_id).where(project_id:).to_a,
@@ -626,6 +639,7 @@ class CollectionObject < ApplicationRecord
     h
   end
 
+  # TODO: Unify with Extract in concern
   # @return [Identifier::Local::CatalogNumber, nil]
   #   the first (position) catalog number for this collection object, either on specimen, or container
   def preferred_catalog_number
@@ -638,6 +652,13 @@ class CollectionObject < ApplicationRecord
         nil
       end
     end
+  end
+
+  # @return [Identifier::Local::RecordNumber, nil]
+  #   the first (position) record_Number, on a specimen
+  #   !1 Doesn't presently support containers
+  def preferred_record_number
+    Identifier::Local::RecordNumber.where(identifier_object: self).order(:position).first
   end
 
   def geographic_name_classification

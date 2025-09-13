@@ -9,7 +9,7 @@
       Nuke
     </button>
     <modal-component
-      v-show="showModal"
+      v-if="showModal"
       @close="showModal = false"
     >
       <template #header>
@@ -83,10 +83,6 @@ export default {
         }
       }
     }
-  },
-
-  mounted() {
-    this.$refs.inputtext.focus()
   },
 
   methods: {

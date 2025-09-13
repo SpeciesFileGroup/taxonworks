@@ -1,6 +1,6 @@
 import { TypeMaterial } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
-import makeTypeSpecimen from '../../helpers/makeTypeSpecimen'
+import makeTypeMaterial from '@/factory/TypeMaterial.js'
 
 export default ({ commit }, id) =>
   new Promise((resolve, reject) => {
@@ -9,7 +9,7 @@ export default ({ commit }, id) =>
       extend: ['roles', 'origin_citation']
     }).then(
       ({ body }) => {
-        const typeMaterials = body.map((item) => makeTypeSpecimen(item))
+        const typeMaterials = body.map((item) => makeTypeMaterial(item))
 
         commit(MutationNames.SetTypeMaterials, typeMaterials)
         resolve(typeMaterials)

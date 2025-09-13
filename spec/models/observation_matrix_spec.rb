@@ -66,6 +66,27 @@ RSpec.describe ObservationMatrix, type: :model, group: :observation_matrix do
     expect(r[:rows]).to eq(3)
   end
 
+  specify '#batch_add observation' do
+    sound = FactoryBot.create(:valid_sound)
+    fo = FactoryBot.create(:valid_field_occurrence)
+    obs1 = Observation::Working.create!(
+      descriptor:, observation_object: sound, description: 'mostly static'
+    )
+    obs2 = Observation::Working.create!(
+      descriptor:, observation_object: fo, description: 'mostly branches'
+    )
+
+    p = ActionController::Parameters.new(
+      { project_id:,
+        observation_matrix_id: FactoryBot.create(:valid_observation_matrix).id,
+        observation_query: {observation_id: [obs1.id, obs2.id] }
+      })
+
+    r = ObservationMatrix.batch_add(p)
+    expect(r[:rows]).to eq(2)
+    expect(r[:columns]).to eq(1)
+  end
+
   context 'associations' do
     context 'has_many' do
       specify '#observation_matrix_column_items' do

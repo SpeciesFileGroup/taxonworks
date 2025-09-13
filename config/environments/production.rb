@@ -2,6 +2,8 @@ require 'settings'
 TaxonWorks::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  config.active_storage.service = :local
+
   # Code is not reloaded between requests.
   config.cache_classes = true
 
@@ -29,7 +31,7 @@ TaxonWorks::Application.configure do
   config.serve_static_files = false # true # was false until oct/2014
 
   # Compress JavaScripts and CSS.
-  config.assets.js_compressor = Uglifier.new(harmony: true)
+  config.assets.js_compressor = :terser
   # config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
@@ -40,9 +42,6 @@ TaxonWorks::Application.configure do
 
   # Version of your assets, change this if you want to expire all your assets.
   config.assets.version = '1.0'
-
-  # Needed to make shakapacker not use yarn
-  config.shakapacker.check_yarn_integrity = false
 
   # Specifies the header that your server uses for sending files.
   # config.action_dispatch.x_sendfile_header = "X-Sendfile" # for apache
@@ -86,6 +85,8 @@ TaxonWorks::Application.configure do
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
+
+  config.action_mailer.default_url_options = { protocol: 'https' }
 
   # Load local settings
   Settings.load_from_settings_file(config, :production)

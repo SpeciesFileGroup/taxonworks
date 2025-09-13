@@ -19,5 +19,7 @@ export default ({ state, commit }) => {
   commit(MutationNames.SetSource, source)
   commit(MutationNames.SetDocumentation, [])
 
+  commit(MutationNames.SetLastSave, Date.now() + 100)
+
   history.pushState(null, null, `/tasks/sources/new_source`)
 }

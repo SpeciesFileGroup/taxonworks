@@ -86,7 +86,7 @@ const VERBATIM_FIELDS = {
   verbatim_datum: 'input',
   verbatim_collectors: 'textarea',
   verbatim_method: 'input',
-  verbatim_trip_identifier: 'input'
+  verbatim_field_number: 'input'
 }
 
 const props = defineProps({

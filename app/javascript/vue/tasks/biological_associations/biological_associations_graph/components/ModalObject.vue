@@ -21,7 +21,8 @@ import VModal from '@/components/ui/Modal.vue'
 import {
   BIOLOGICAL_ASSOCIATION,
   OTU,
-  COLLECTION_OBJECT
+  COLLECTION_OBJECT,
+  FIELD_OCCURRENCE
 } from '@/constants/index.js'
 import { makeNodeObject } from '../adapters'
 
@@ -39,6 +40,10 @@ const MODEL_TYPE = {
   [COLLECTION_OBJECT]: {
     model: 'collection_objects',
     section: 'CollectionObjects'
+  },
+  [FIELD_OCCURRENCE]: {
+    model: 'field_occurrences',
+    section: 'FieldOccurrences'
   }
 }
 

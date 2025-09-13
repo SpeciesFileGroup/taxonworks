@@ -4,7 +4,7 @@
       <h3>Source</h3>
     </template>
     <template #body>
-      <smart-selector
+      <SmartSelector
         class="separate-bottom"
         model="sources"
         klass="Depiction"
@@ -12,6 +12,13 @@
         v-model="source"
         @selected="($event) => (source = $event)"
       />
+      <label>
+        <input
+          type="checkbox"
+          v-model="isOriginal"
+        />
+        Is original
+      </label>
       <SmartSelectorItem
         :item="source"
         label="cached"
@@ -36,6 +43,13 @@ const source = computed({
   get: () => store.getters[GetterNames.GetSource],
   set(value) {
     store.commit(MutationNames.SetSource, value)
+  }
+})
+
+const isOriginal = computed({
+  get: () => store.getters[GetterNames.GetIsOriginal],
+  set(value) {
+    store.commit(MutationNames.SetIsOriginal, value)
   }
 })
 </script>

@@ -99,7 +99,8 @@ export default defineComponent({
 
   render() {
     return h('canvas', {
-      ref: 'chartRef'
+      ref: 'chartRef',
+      class: 'chartjs-container'
     })
   }
 })

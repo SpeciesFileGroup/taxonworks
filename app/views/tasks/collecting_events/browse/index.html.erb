@@ -1,34 +1,37 @@
 <h1 class="task_header"> Browse collecting events</h1>
 
 <div id="browse-collecting-event" class="browse-view" data-collection-object-id="<%= @collecting_event.id %>">
-  <div id="browse-collection-object" class="panel content">
-    <div class="flex-separate middle">
+  <div>
+    <div id="browse-collection-object" class="panel content sticky-navbar">
+      <div class="flex-separate middle">
 
-      <div class="middle">
-        <div class="separate-right">
-          <%= form_tag(browse_collecting_events_task_path, method: :get) do %>
-            <%= render  'workbench/elements/forms/ajax_select',
-              controller: '/collecting_events',
-              object: '',
-              method: 'collecting_event_id',
-              send_select: true,
-              tag_id: 'collecting_event_id_for_browse_collecting_event'
-            %>
-        <% end %>
+        <div class="middle">
+          <div class="separate-right">
+            <%= form_tag(browse_collecting_events_task_path, method: :get) do %>
+              <%= render  'workbench/elements/forms/ajax_select',
+                controller: '/collecting_events',
+                object: '',
+                method: 'collecting_event_id',
+                send_select: true,
+                tag_id: 'collecting_event_id_for_browse_collecting_event',
+                autofocus: true
+              %>
+          <% end %>
+          </div>
+
         </div>
 
+        <span class="right_float flex-separate">
+          <ul class="context-menu">
+            <li><%= radial_annotator(@collecting_event) %></li>
+            <li><%= confidence_default_icon(@collecting_event) %></li>
+            <li><%= tag_default_icon(@collecting_event) %></li>
+            <li><%= pin_item_to_pinboard_link(@collecting_event, sessions_current_user) %></li>
+            <li><%= link_to('', new_collecting_event_task_path(collecting_event_id: @collecting_event.id), class: "circle-button btn-edit") -%></li>
+            <li><%= radial_navigation_tag(@collecting_event) %></li>
+          </ul>
+        </span>
       </div>
-
-      <span class="right_float flex-separate">
-        <ul class="context-menu">
-          <li><%= radial_annotator(@collecting_event) %></li>
-          <li><%= confidence_default_icon(@collecting_event) %></li>
-          <li><%= tag_default_icon(@collecting_event) %></li>
-          <li><%= pin_item_to_pinboard_link(@collecting_event, sessions_current_user) %></li>
-          <li><%= link_to('', new_collecting_event_task_path(collecting_event_id: @collecting_event.id), class: "circle-button btn-edit") -%></li>
-          <li><%= radial_navigation_tag(@collecting_event) %></li>
-        </ul>
-      </span>
     </div>
   </div>
 
@@ -52,8 +55,8 @@
       </div>
     </div>
 
-    <div class="item item2 separate-bottom">
-      <div class="flexbox separate-bottom">
+    <div class="item item2 gap-medium">
+      <div class="flexbox ">
         <div class="panel separate-left separate-right">
           <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle">
             <%= content_tag(:p, collecting_event_tag(@collecting_event), class: 'item center_text name', style: 'line-height: 23px;') -%>
@@ -113,16 +116,27 @@
         </div>
       </div>
 
-      <% if @collecting_event.depictions.any? %>
-        <div>
-          <div id="depiction-panel" class="panel content separate-left">
-            <h2> Depictions </h2>
-            <div class="horizontal-left-content flexbox">
-              <%= thumb_list_tag(@collecting_event) -%>
-            </div>
+    <% if @collecting_event.depictions.any? %>
+      <div>
+        <div id="depiction-panel" class="panel content separate-left">
+          <h2> Depictions </h2>
+          <div class="horizontal-left-content flexbox">
+            <%= thumb_list_tag(@collecting_event) -%>
           </div>
         </div>
-      <% end %>
+      </div>
+    <% end %>
+
+    <% if @collecting_event.conveyances.any? %>
+      <div>
+        <div id="conveyance-panel" class="panel content separate-left">
+          <h2>Conveyances</h2>
+          <div class="flex-col gap-medium">
+            <%= conveyances_list_tag(@collecting_event) -%>
+          </div>
+        </div>
+      </div>
+    <% end %>
 
       <div>
         <%= dwc_table(@collecting_event.collection_objects.limit(500)) -%>

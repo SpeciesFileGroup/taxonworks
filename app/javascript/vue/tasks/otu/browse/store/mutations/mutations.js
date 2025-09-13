@@ -1,6 +1,6 @@
 import setBiologicalAssociations from './setBiologicalAssociations'
-import setCollectingEvents from './setCollectingEvents'
 import setCollectionObjects from './setCollectionObjects'
+import setConveyances from './setConveyances'
 import setGeoreferences from './setGeoreferences'
 import setPreferences from './setPreferences'
 import setAssertedDistributions from './setAssertedDistributions'
@@ -14,18 +14,20 @@ import setStore from './setStore'
 import setDepictions from './setDepictions'
 import setCommonNames from './setCommonNames'
 import setObservationsDepictions from './setObservationsDepictions'
+import setFieldOccurrences from './setFieldOccurrences'
 
 const MutationNames = {
   SetBiologicalAssociations: 'setBiologicalAssociations',
-  SetCollectingEvents: 'setCollectingEvents',
   SetCollectionObjects: 'setCollectionObjects',
   SetCommonNames: 'setCommonNames',
+  SetConveyances: 'setConveyances',
   SetDepictions: 'setDepictions',
   SetGeoreferences: 'setGeoreferences',
   SetPreferences: 'setPreferences',
   SetAssertedDistributions: 'setAssertedDistributions',
   SetCurrentOtu: 'setCurrentOtu',
   SetDescendants: 'setDescendants',
+  SetFieldOccurrences: 'setFieldOccurrences',
   SetLoadState: 'setLoadState',
   SetTaxonName: 'setTaxonName',
   SetTaxonNames: 'setTaxonNames',
@@ -36,15 +38,16 @@ const MutationNames = {
 
 const MutationFunctions = {
   [MutationNames.SetBiologicalAssociations]: setBiologicalAssociations,
-  [MutationNames.SetCollectingEvents]: setCollectingEvents,
   [MutationNames.SetCollectionObjects]: setCollectionObjects,
   [MutationNames.SetCommonNames]: setCommonNames,
+  [MutationNames.SetConveyances]: setConveyances,
   [MutationNames.SetDepictions]: setDepictions,
   [MutationNames.SetGeoreferences]: setGeoreferences,
   [MutationNames.SetPreferences]: setPreferences,
   [MutationNames.SetAssertedDistributions]: setAssertedDistributions,
   [MutationNames.SetCurrentOtu]: setCurrentOtu,
   [MutationNames.SetDescendants]: setDescendants,
+  [MutationNames.SetFieldOccurrences]: setFieldOccurrences,
   [MutationNames.SetLoadState]: setLoadState,
   [MutationNames.SetTaxonName]: setTaxonName,
   [MutationNames.SetTaxonNames]: setTaxonNames,
@@ -53,7 +56,4 @@ const MutationFunctions = {
   [MutationNames.SetStore]: setStore
 }
 
-export {
-  MutationNames,
-  MutationFunctions
-}
+export { MutationNames, MutationFunctions }

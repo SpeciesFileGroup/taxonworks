@@ -10,7 +10,7 @@ export function makeCollectingEventPayload (ceData) {
     verbatim_longitude: ceData.verbatimLongitude,
     verbatim_latitude: ceData.verbatimLatitude,
     verbatim_geolocation_uncertainty: ceData.verbatimGeolocationUncertainty,
-    verbatim_trip_identifier: ceData.verbatimTripIdentifier,
+    verbatim_field_number: ceData.verbatimFieldNumber,
     verbatim_collectors: ceData.verbatimCollectors,
     verbatim_method: ceData.verbatimMethod,
     verbatim_habitat: ceData.verbatimHabitat,

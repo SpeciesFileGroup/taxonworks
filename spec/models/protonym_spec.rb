@@ -8,6 +8,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     TaxonNameClassification.delete_all
     TaxonName.delete_all
     TaxonNameHierarchy.delete_all
+
+    init_housekeeping
+
     @order = FactoryBot.create(:iczn_order)
   end
 
@@ -70,8 +73,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'parent rank is higher' do
-        protonym.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')
-        protonym.parent = @species
+        protonym.update(rank_class: Ranks.lookup(:iczn, :genus), name: 'Aus')
+        a = Protonym.create!(name: 'zus', rank_class: Ranks.lookup(:iczn, :species), parent: root)
+        protonym.parent = a
         protonym.valid?
         expect(protonym.errors.include?(:parent_id)).to be_truthy
       end
@@ -361,6 +365,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
   end
 
+  # TODO: Move to Utilities::Nomenclature specs
   context 'predict three name forms' do
     use_cases = {
         'albus'      => 'albus|alba|album',
@@ -414,7 +419,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       @entry += 1
       specify "case #{@entry}: '#{name}' should yield #{result}" do
         t = FactoryBot.build(:relationship_species, name: name, parent: nil)
-        forms = t.predict_three_forms
+        forms = Utilities::Nomenclature.predict_three_forms(t.name)
         u = forms[:masculine_name].to_s + '|' +
             forms[:feminine_name].to_s + '|' +
             forms[:neuter_name].to_s

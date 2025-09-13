@@ -85,6 +85,7 @@
 </template>
 
 <script>
+import { IDENTIFIER_UNKNOWN } from '@/constants'
 import { Identifier } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -95,7 +96,6 @@ import SelectType from './Identifiers/SelectType'
 import NamespaceComponent from './Identifiers/Namespace'
 import IdentifierComponent from './Identifiers/Identifier'
 import DisplayList from '@/components/displayList'
-import LockComponent from '@/components/ui/VLock/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 
 export default {
@@ -106,7 +106,6 @@ export default {
     SelectType,
     NamespaceComponent,
     IdentifierComponent,
-    LockComponent,
     Tippy,
     BlockLayout
   },
@@ -148,6 +147,14 @@ export default {
       }
 
       return this.typeListSelected ? !this.identifier : true
+    }
+  },
+
+  watch: {
+    typeListSelected(newVal) {
+      if (newVal === 'unknown') {
+        this.typeSelected = IDENTIFIER_UNKNOWN
+      }
     }
   },
 

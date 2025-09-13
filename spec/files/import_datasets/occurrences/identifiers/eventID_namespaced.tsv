@@ -1,0 +1,3 @@
+occurrenceID	basisOfRecord	scientificName	taxonRank	eventID	TW:Namespace:EventID	TW:CollectingEvent:verbatim_locality
+occurrence-1	PreservedSpecimen	Orotettix andeanus	species	5	DEF	somewhere
+occurrence-2	PreservedSpecimen	Orotettix andeanus	species	5	DEF	else (ignored!)

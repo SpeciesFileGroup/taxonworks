@@ -1,8 +1,10 @@
 class BiologicalAssociationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_biological_association, only: [:show, :edit, :update, :destroy, :api_show, :api_globi, :api_resource_relationship]
-  after_action -> { set_pagination_headers(:biological_associations) }, only: [:index, :api_index, :api_index_simple], if: :json_request?
+  before_action :set_biological_association, only: [:show, :edit, :update,
+    :destroy, :api_show, :api_globi, :api_resource_relationship, :navigation]
+  after_action -> { set_pagination_headers(:biological_associations) },
+    only: [:index, :api_index, :api_index_simple], if: :json_request?
 
   # GET /biological_associations
   # GET /biological_associations.json
@@ -149,6 +151,24 @@ class BiologicalAssociationsController < ApplicationController
     end
   end
 
+  def api_index_extended
+    @biological_associations = ::Queries::BiologicalAssociation::Filter.new(params.merge!(api: true))
+      .all
+      .where(project_id: sessions_current_project_id)
+      .order('biological_associations.id')
+      .page(params[:page])
+      .per(params[:per])
+
+    respond_to do |format|
+      format.json  { render '/biological_associations/api/v1/extended' and return }
+      format.csv {
+        send_data Export::CSV::BiologicalAssociations::Extended.csv(@biological_associations),
+        type: 'text',
+        filename: "biological_associations_extended_#{DateTime.now}.tsv"
+      }
+    end
+  end
+
   # PATCH /biological_associations/batch_update.json?biological_association_query=<>&biological_association={}
   def batch_update
     if r = BiologicalAssociation.batch_update(
@@ -159,6 +179,31 @@ class BiologicalAssociationsController < ApplicationController
     else
       render json: {}, status: :unprocessable_entity
     end
+  end
+
+  def autocomplete
+    @biological_associations =
+      ::Queries::BiologicalAssociation::Autocomplete.new(
+        params.require(:term),
+        project_id: sessions_current_project_id,
+      ).autocomplete
+  end
+
+  def search
+    if params[:id].blank?
+      redirect_to(biological_association_path,
+                  alert: 'You must select an item from the list with a click or tab press before clicking show.')
+    else
+      redirect_to biological_association_path(params[:id])
+    end
+  end
+
+  # GET /biological_associations/1/navigation.json
+  def navigation
+  end
+
+  def select_options
+    @biological_associations = BiologicalAssociation.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   private

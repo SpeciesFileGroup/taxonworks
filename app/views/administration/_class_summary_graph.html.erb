@@ -1,5 +1,28 @@
-<%= tag.h2 @klass.table_name.humanize -%>
-<p><em> Plots axes are number of records by <%= @target.humanize.downcase %></em> between <%= (@start_date.to_s + ' and ' + @end_date.to_s) %>.</p>
-<div>
-  <%= column_chart @data, height: '400px', discrete: true, download: true %>
+
+
+<% if !@klass.column_names.include?('project_id') && params[:project_id].present? %>
+  <div> <%= tag.span('Community data model and project selected, data are not specific to this project!', class: ['feedback', 'feedback-warning']) %> </div><br>
+<% end %>
+
+<div class="flexbox flex-wrap-row gap-medium" >
+  <div class="panel content item">
+    <div style="width: 420px;">
+      <%= column_chart @aggregate_data, discrete: true,  title: "#{@klass.name.underscore.humanize} records #{@target} per #{@time_span}", xtitle: @time_span.capitalize, ytitle: 'Records', height: '400px', download: true %>
+    </div>
+  </div>
+
+  <div class="panel content item">
+    <div style="width: 420px;">
+      <%= column_chart @year_over_year, discrete: true,  title: "Sum #{@klass.name.underscore.humanize} records #{@target} per #{@time_span}", xtitle: @time_span.capitalize, ytitle: 'Records', height: '400px', download: true %>
+    </div>
+  </div>
+
 </div>
+
+<% if @klass.column_names.include?('project_id') %>
+  <%= tag.h2 @klass.table_name.humanize -%>
+  <p><em> Plots axes are number of records by <%= @target.humanize.downcase %></em> between <%= (@start_date.to_s + ' and ' + @end_date.to_s) %>.</p>
+  <div>
+    <%= column_chart @data, height: '400px', discrete: true, download: true %>
+  </div>
+<% end %>

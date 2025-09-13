@@ -1,7 +1,7 @@
 import { reactive, computed, toRefs } from 'vue'
 import {
   BiologicalAssociation,
-  BiologicalAssociationGraph,
+  BiologicalAssociationsGraph,
   Citation
 } from '@/routes/endpoints'
 import {
@@ -13,6 +13,7 @@ import {
 import {
   unsavedEdge,
   nodeCollectionObjectStyle,
+  nodeFieldOccurrenceStyle,
   nodeOtuStyle,
   unsavedNodeStyle
 } from '../constants/graphStyle.js'
@@ -25,7 +26,12 @@ import {
 } from '../utils'
 import { randomUUID } from '@/helpers'
 import { addToArray } from '@/helpers/arrays'
-import { COLLECTION_OBJECT, BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
+import {
+  COLLECTION_OBJECT,
+  FIELD_OCCURRENCE,
+  BIOLOGICAL_ASSOCIATION,
+  OTU
+} from '@/constants/index.js'
 
 const EXTEND_GRAPH = [
   'biological_associations_biological_associations_graphs',
@@ -51,6 +57,16 @@ function initState() {
   }
 }
 
+function getNodeStyleByType(objectType) {
+  const styles = {
+    [COLLECTION_OBJECT]: nodeCollectionObjectStyle,
+    [FIELD_OCCURRENCE]: nodeFieldOccurrenceStyle,
+    [OTU]: nodeOtuStyle
+  }
+
+  return styles[objectType]
+}
+
 export function useGraph() {
   const state = reactive(initState())
 
@@ -65,12 +81,7 @@ export function useGraph() {
           name: obj.name
         }
 
-        Object.assign(
-          node,
-          obj.objectType === COLLECTION_OBJECT
-            ? nodeCollectionObjectStyle
-            : nodeOtuStyle
-        )
+        Object.assign(node, getNodeStyleByType(obj.objectType))
 
         if (!isSaved) {
           Object.assign(node, unsavedNodeStyle)
@@ -206,7 +217,7 @@ export function useGraph() {
 
     const params = { extend: EXTEND_GRAPH }
     const graph = makeGraph(
-      (await BiologicalAssociationGraph.find(graphId, params)).body
+      (await BiologicalAssociationsGraph.find(graphId, params)).body
     )
     const baIds = graph.biologicalAssociationIds.map(
       (ba) => ba.biological_association_id
@@ -353,12 +364,12 @@ export function useGraph() {
   }
 
   async function save() {
-    state.isSaving = true
     let createdBiologicalAssociations
     let biologicalAssociationGraph
     let citations
 
     try {
+      state.isSaving = true
       createdBiologicalAssociations = await saveBiologicalAssociations()
 
       const savedCitations = [
@@ -375,11 +386,12 @@ export function useGraph() {
       state.isSaving = false
     } catch (e) {
       state.isSaving = false
+      throw e
     }
 
     return {
       biologicalAssociations: createdBiologicalAssociations,
-      biologicalAssociationGraph,
+      biologicalAssociationGraph: biologicalAssociationGraph?.body,
       citations
     }
   }
@@ -424,8 +436,8 @@ export function useGraph() {
     }
 
     const request = state.graph.id
-      ? BiologicalAssociationGraph.update(state.graph.id, payload)
-      : BiologicalAssociationGraph.create(payload)
+      ? BiologicalAssociationsGraph.update(state.graph.id, payload)
+      : BiologicalAssociationsGraph.create(payload)
 
     request.then(({ body }) => {
       Object.assign(state.graph, {

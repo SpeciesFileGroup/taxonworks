@@ -114,7 +114,6 @@ class User < ApplicationRecord
 
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Housekeeping::AssociationHelpers
 
   include Shared::RandomTokenFields[:password_reset]
 
@@ -226,20 +225,20 @@ class User < ApplicationRecord
     user_ids = []
     users.flatten.each { |user|
       case user.class.name
-        when 'String'
-          # search by name or email
-          ut = User.arel_table
-          c1 = ut[:name].eq(user)
-                 .or(ut[:name].matches("%#{user}"))
-                 .or(ut[:name].matches("%#{user}%"))
-                 .or(ut[:email].eq(user))
-                 .or(ut[:email].matches("%#{user}"))
-                 .or(ut[:email].matches("%#{user}%")).to_sql
-          user_ids.push(User.where(c1).pluck(:id))
-        when 'User'
-          user_ids.push(user.id)
-        when 'Integer'
-          user_ids.push(user)
+      when 'String'
+        # search by name or email
+        ut = User.arel_table
+        c1 = ut[:name].eq(user)
+          .or(ut[:name].matches("%#{user}"))
+          .or(ut[:name].matches("%#{user}%"))
+          .or(ut[:email].eq(user))
+          .or(ut[:email].matches("%#{user}"))
+          .or(ut[:email].matches("%#{user}%")).to_sql
+        user_ids.push(User.where(c1).pluck(:id))
+      when 'User'
+        user_ids.push(user.id)
+      when 'Integer'
+        user_ids.push(user)
       end
     }
     user_ids.flatten.uniq
@@ -341,15 +340,38 @@ class User < ApplicationRecord
   #   If user has been active within the last 5 minutes, and at least 5
   #   seconds past their last activity, update their time_active.
   #   The latter prevents multiple writes on many async calls.
+  #
   def update_last_seen_at
     if !last_seen_at.nil?
       t = Time.now - last_seen_at
       if t > 5
-        a = t < 301 ? time_active + t : (time_active || 0)
-        update_columns(last_seen_at: Time.now, time_active: a) if t > 5
+        a = (t < 301.0) ? (time_active + t) : (time_active || 0)
+        update_columns(last_seen_at: Time.now, time_active: a)
       end
     else
       update_columns(last_seen_at: Time.now)
+    end
+
+    update_project_member_last_seen_at
+
+    true
+  end
+
+  # TODO: we still global track at User, this is hit only when that
+  # ticker ticks
+  #  perhaps seperate for performace
+  def update_project_member_last_seen_at
+    if Current.project_id && (pm = project_members.find_by(project_id: Current.project_id))
+
+      if !pm.last_seen_at.nil?
+        t = Time.now - pm.last_seen_at
+        if t > 5
+          a = (t < 301.0) ? (pm.time_active || 0) + t : (pm.time_active || 0)
+          pm.update_columns(last_seen_at: Time.now, time_active: a)
+        end
+      else
+        pm.update_columns(last_seen_at: Time.now)
+      end
     end
   end
 
@@ -359,24 +381,24 @@ class User < ApplicationRecord
   # @return [Boolean] always true
   def add_recently_visited_to_footprint(recent_route, recent_object = nil)
     case recent_route
-      when /\A\/\Z/ # the root path '/'
-      when /\A\/hub/ # any path which starts with '/hub'
-      when /\/autocomplete\?/ # any path used for AJAX autocomplete
-      else
+    when /\A\/\Z/ # the root path '/'
+    when /\A\/hub/ # any path which starts with '/hub'
+    when /\/autocomplete\?/ # any path used for AJAX autocomplete
+    else
 
-        fp = footprints.dup
-        fp['recently_visited'] ||= []
+      fp = footprints.dup
+      fp['recently_visited'] ||= []
 
-        attrs = {recent_route => {}}
-        if !recent_object.nil?
-          attrs[recent_route].merge!(object_type: recent_object.class.to_s, object_id: recent_object.id)
-        end
+      attrs = {recent_route => {}}
+      if !recent_object.nil?
+        attrs[recent_route].merge!(object_type: recent_object.class.to_s, object_id: recent_object.id)
+      end
 
-        fp['recently_visited'].unshift(attrs)
-        fp['recently_visited'] = fp['recently_visited'].uniq { |a| a.keys }[0..19]
+      fp['recently_visited'].unshift(attrs)
+      fp['recently_visited'] = fp['recently_visited'].uniq { |a| a.keys }[0..19]
 
-        self.footprints_will_change! # if this isn't thrown weird caching happens !
-        self.update_column(:footprints, fp)
+      self.footprints_will_change! # if this isn't thrown weird caching happens !
+      self.update_column(:footprints, fp)
     end
 
     true

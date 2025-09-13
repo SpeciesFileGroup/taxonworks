@@ -14,18 +14,18 @@
         </label>
       </li>
     </ul>
-    <div class="align-start margin-medium-top">
-      <smart-selector
+    <div
+      class="horizontal-left-content align-start margin-medium-top gap-small"
+    >
+      <SmartSelector
         model="namespaces"
         klass="CollectionObject"
         pin-section="Namespaces"
         pin-type="Namespace"
         @selected="setValue"
       />
-      <lock-component
-        class="margin-small-left"
-        v-model="lock.identifier"
-      />
+      <lock-component v-model="lock.identifier" />
+      <WidgetNamespace @create="setValue" />
     </div>
     <p
       v-if="identifier.namespace_id"
@@ -46,7 +46,7 @@
         <input
           class="full_width"
           v-model="identifier.identifier"
-          type="number"
+          type="string"
         />
       </div>
       <div class="margin-small-top margin-small-left full_width">
@@ -55,7 +55,7 @@
           class="full_width"
           :value="incremented"
           disabled="true"
-          type="number"
+          type="string"
         />
       </div>
     </div>
@@ -64,14 +64,17 @@
 
 <script>
 import SmartSelector from '@/components/ui/SmartSelector'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import SharedComponent from '../shared/lock.js'
+import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier.js'
 
 export default {
   mixins: [SharedComponent],
   components: {
-    SmartSelector
+    SmartSelector,
+    WidgetNamespace
   },
   computed: {
     identifier: {
@@ -100,7 +103,10 @@ export default {
           inc++
         }
       })
-      return Number(this.identifier.identifier) + inc + (inc == 0 ? 0 : -1)
+      return incrementIdentifier(
+        this.identifier.identifier,
+        inc + (inc == 0 ? 0 : -1)
+      )
     }
   },
   data() {

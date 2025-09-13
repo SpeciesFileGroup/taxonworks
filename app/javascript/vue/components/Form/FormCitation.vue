@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend>Source</legend>
+  <component :is="fieldset ? 'fieldset' : 'div'">
+    <legend v-if="fieldset">Source</legend>
     <div class="horizontal-left-content align-start">
       <SmartSelector
         class="full_width"
@@ -13,13 +13,20 @@
         label="cached"
         v-model="source"
         @selected="setSource"
-      />
+      >
+        <template #tabs-right>
+          <FormCitationClone
+            v-if="!inlineClone"
+            @clone="(item) => Object.assign(citation, item)"
+          />
+          <slot name="tabs-right" />
+          <VLock
+            v-if="lockButton"
+            v-model="isLocked"
+          />
+        </template>
+      </SmartSelector>
       <slot name="smart-selector-right" />
-      <VLock
-        v-if="lockButton"
-        class="margin-small-left"
-        v-model="isLocked"
-      />
     </div>
     <div
       class="horizontal-left-content margin-medium-top gap-small"
@@ -42,10 +49,6 @@
       >
         New
       </VBtn>
-      <FormCitationClone
-        v-if="!inlineClone"
-        @clone="(item) => Object.assign(citation, item)"
-      />
       <slot name="footer" />
     </div>
     <SmartSelectorItem
@@ -91,12 +94,12 @@
         </li>
       </ul>
     </div>
-  </fieldset>
+  </component>
 </template>
 
 <script setup>
 import { Source } from '@/routes/endpoints'
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import { convertType } from '@/helpers/types'
 import makeCitation from '@/factory/Citation'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
@@ -159,6 +162,11 @@ const props = defineProps({
     default: undefined
   },
 
+  fieldset: {
+    type: Boolean,
+    default: true
+  },
+
   original: {
     type: Boolean,
     default: true
@@ -169,13 +177,14 @@ const emit = defineEmits([
   'lock',
   'submit',
   'source',
+  'update',
   'update:modelValue',
   'update:absent'
 ])
 
-const citation = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+const citation = defineModel({
+  type: Object,
+  default: () => makeCitation()
 })
 
 const isAbsent = computed({
@@ -183,7 +192,10 @@ const isAbsent = computed({
   set: (value) => emit('update:absent', value)
 })
 
-const isLocked = ref(false)
+const isLocked = defineModel('lock', {
+  type: Boolean,
+  default: false
+})
 
 const sourceId = computed(() => props.modelValue.source_id)
 const source = ref(undefined)
@@ -217,21 +229,37 @@ function setSource(value) {
   if (props.useSession) {
     sessionStorage.setItem(STORAGE.sourceId, value.id)
   }
-  citation.value.source_id = value.id
-  citation.value.label = value.cached
+
+  setValues({
+    source_id: value.id,
+    label: value.cached
+  })
 
   emit('source', value)
 }
 
+function setValues(values) {
+  Object.assign(citation.value, values)
+  emit('update', citation.value)
+}
+
 function setPage(e) {
+  const pages = e.target.value
+
+  setValues({ pages })
+
   if (props.useSession) {
     sessionStorage.setItem(STORAGE.pages, e.target.value)
   }
 }
 
 function setIsOriginal(e) {
+  const isOriginal = convertType(e.target.value)
+
+  setValues({ is_original: isOriginal })
+
   if (props.useSession) {
-    sessionStorage.setItem(STORAGE.isOriginal, e.target.value)
+    sessionStorage.setItem(STORAGE.isOriginal, isOriginal)
   }
 }
 
@@ -241,7 +269,7 @@ function setIsAbsent(e) {
   }
 }
 
-function init() {
+onBeforeMount(() => {
   const lockStoreValue =
     props.useSession && convertType(sessionStorage.getItem(STORAGE.lock))
 
@@ -249,17 +277,21 @@ function init() {
     isLocked.value = lockStoreValue
   }
 
-  if (props.lockButton && lockStoreValue && props.useSession) {
-    citation.value.source_id = convertType(
-      sessionStorage.getItem(STORAGE.sourceId)
-    )
-    citation.value.is_original = convertType(
-      sessionStorage.getItem(STORAGE.isOriginal)
-    )
-    citation.value.pages = convertType(sessionStorage.getItem(STORAGE.pages))
+  if (
+    props.lockButton &&
+    lockStoreValue &&
+    props.useSession &&
+    !citation.value?.id
+  ) {
+    const test = {
+      source_id: convertType(sessionStorage.getItem(STORAGE.sourceId)),
+      is_original: convertType(sessionStorage.getItem(STORAGE.isOriginal)),
+      pages: convertType(sessionStorage.getItem(STORAGE.pages))
+    }
+
+    setValues(test)
+
     isAbsent.value = convertType(sessionStorage.getItem(STORAGE.isAbsent))
   }
-}
-
-onMounted(() => init())
+})
 </script>

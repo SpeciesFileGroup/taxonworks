@@ -88,7 +88,7 @@
 
       <DepictionList
         class="margin-medium-top"
-        :list="list"
+        v-model="list"
         @delete="removeDepiction"
         @update:caption="saveDepiction"
         @update:label="saveDepiction"
@@ -102,7 +102,7 @@
 import { ref, computed, onBeforeMount } from 'vue'
 import { Depiction } from '@/routes/endpoints'
 import { DEPICTION } from '@/constants'
-import { removeFromArray, addToArray } from '@/helpers'
+import { useSlice } from '@/components/radials/composables'
 import DepictionList from '@/components/radials/annotator/components/depictions/DepictionList.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
@@ -150,15 +150,21 @@ const props = defineProps({
   objectType: {
     type: String,
     required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
   }
 })
 
-const emit = defineEmits(['updateCount'])
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
 const selectedType = ref(null)
 const selectedObject = ref(undefined)
 const depiction = ref(makeDepiction())
-const list = ref([])
 
 const objectLabelProperty = computed(() =>
   selectedType?.value === 'Person' ? 'cached' : 'object_tag'
@@ -193,9 +199,8 @@ function saveDepiction(depiction) {
     : Depiction.create({ depiction })
 
   response.then(({ body }) => {
-    addToArray(list.value, body)
+    addToList(body)
     resetForm()
-    emit('updateCount', list.value.length)
     TW.workbench.alert.create('Depiction was successfully saved.', 'notice')
   })
 }
@@ -214,8 +219,7 @@ function resetForm() {
 
 function removeDepiction(item) {
   Depiction.destroy(item.id).then((_) => {
-    removeFromArray(list.value, item)
-    emit('updateCount', list.value.length)
+    removeFromList(item)
     TW.workbench.alert.create('Depiction was successfully removed.', 'notice')
   })
 }

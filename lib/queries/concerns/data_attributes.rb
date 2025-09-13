@@ -293,7 +293,7 @@ module Queries::Concerns::DataAttributes
       w = w.or(c)
     end
 
-    referenced_klass.joins(:internal_attributes).where(w)
+    referenced_klass.joins(:import_attributes).where(w)
   end
 
   def data_attribute_exact_pair_facet

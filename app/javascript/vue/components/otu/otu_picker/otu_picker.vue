@@ -2,10 +2,12 @@
   <div class="vue-otu-picker gap-small">
     <VAutocomplete
       :input-id="inputId"
+      ref="autocomplete"
       url="/otus/autocomplete"
       label="label_html"
       min="2"
       display="label"
+      :autofocus="autofocus"
       :clear-after="clearAfter"
       :input-attributes="inputAttributes"
       placeholder="Select an OTU"
@@ -97,12 +99,16 @@
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import MatchTaxonName from './matchTaxonNames'
 import { Otu } from '@/routes/endpoints'
-import { ref, watch } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 
 defineProps({
   inputId: {
     type: String,
     default: undefined
+  },
+  autofocus: {
+    type: Boolean,
+    default: false
   },
   clearAfter: {
     type: Boolean,
@@ -115,8 +121,9 @@ defineProps({
 })
 
 const emit = defineEmits(['get-item', 'get-input'])
-const foundSomething = ref(true)
 
+const autocompleteRef = useTemplateRef('autocomplete')
+const foundSomething = ref(true)
 const otuName = ref()
 const taxon = ref()
 const type = ref()
@@ -157,11 +164,20 @@ function resetPicker() {
   create.value = false
 }
 
+function setFocus() {
+  autocompleteRef.value?.setFocus()
+}
+
 function callbackInput(event) {
   type.value = event
   emit('get-input', event)
 }
+
+defineExpose({
+  setFocus
+})
 </script>
+
 <style lang="scss">
 .vue-otu-picker {
   position: relative;

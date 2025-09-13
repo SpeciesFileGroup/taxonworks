@@ -7,3 +7,9 @@ if extend_response_with('roles')
     end
   end
 end
+
+if extend_response_with('identifiers')
+  json.identifiers do
+    json.merge! extend_identifiers(person)
+  end
+end

@@ -8,5 +8,5 @@ module ::Export::ProjectData
     ['taxon_name_hierarchies', 'taxon_names']
   ].freeze
 
-  SPECIAL_TABLES = %w{spatial_ref_sys project users versions delayed_jobs imports}.freeze
+  SPECIAL_TABLES = %w{delayed_jobs imports shortened_urls spatial_ref_sys versions version_associations users}.freeze
 end

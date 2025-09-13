@@ -13,7 +13,7 @@ class TaxonNameClassification::Latinized::PartOfSpeech::Participle < TaxonNameCl
     true
   end
 
-  def set_cached 
+  def set_cached
     set_gender_in_taxon_name
     super
   end

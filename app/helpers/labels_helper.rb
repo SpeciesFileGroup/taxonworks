@@ -126,6 +126,7 @@ module LabelsHelper
   end
 
   def label_code_128_tag(label)
+    begin
     c = Barby::Code128.new(label.text)
 
     content_tag(
@@ -139,6 +140,14 @@ module LabelsHelper
       content_tag(:span, label.text, class: 'code128_text'),
       class: :code128
     )
+
+    rescue ArgumentError => e
+      if e.message == "Data not valid"
+        return tag.span('Label is set to Code128 but can not be encoded as such.')
+      else
+        raise e
+      end
+    end
   end
 
 end

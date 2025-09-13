@@ -1,7 +1,10 @@
+import { randomUUID } from '@/helpers'
+
 export default (type) => ({
   id: undefined,
-  uuid: crypto.randomUUID(),
+  uuid: randomUUID(),
   source_id: undefined,
+  is_original: undefined,
   pages: undefined,
   citation_object_type: type,
   citation_object_id: undefined,

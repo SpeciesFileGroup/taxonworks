@@ -159,6 +159,7 @@ module Queries
         @levenshtein_cuttoff = params[:levenshtein_cuttoff]
         @name = params[:name]
         @only_project_id = params[:only_project_id]
+        @person_id = params[:person_id]
         @regex = params[:regex]
         @repeated_total = params[:repeated_total]
         @role = params[:role]
@@ -324,7 +325,6 @@ module Queries
         min_max = [use_min&.to_i, use_max&.to_i ].compact
 
         q = ::Person.joins(:roles)
-          .select('people.*, COUNT(roles.person_id)')
           .group('people.id, roles.person_id')
           .having("COUNT(roles.person_id) >= #{min_max[0]}")
 

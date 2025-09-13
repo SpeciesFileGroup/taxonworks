@@ -1,8 +1,7 @@
 .filter {
   position: relative;
   .active {
-    background-color: $color-complement-2 !important;
-    box-shadow: inset 0px 1px 2px 0px $color-complement-3 !important;
+    background-color: var(--color-active) !important;
     opacity: 1 !important;
   }
 
@@ -11,7 +10,7 @@
     left: calc(50% - 24px);
     bottom: -24px;
     background-image: image-url('b_show.svg');
-    background-color: $color-secondary-2-4;
+    background-color: var(--color-primary);
     background-size: 14px;
     background-position: center;
     background-repeat: no-repeat;
@@ -23,7 +22,6 @@
     transform: rotate(0deg);
     transition: transform 0.5s ease;
   }
-
 }
 
 [data-filter-slide] {
@@ -31,10 +29,10 @@
   box-shadow: 0px 2px 3px 0px $navigation-background;
 }
 
-[data-filter-slide="down"] {
+[data-filter-slide='down'] {
   display: block;
 }
 
-[data-filter-slide="close"] {
+[data-filter-slide='close'] {
   display: none;
 }

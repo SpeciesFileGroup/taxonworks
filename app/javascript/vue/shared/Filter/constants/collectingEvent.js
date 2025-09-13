@@ -8,7 +8,7 @@ export const COLLECTING_EVENT_PROPERTIES = [
   'verbatim_longitude',
   'verbatim_latitude',
   'verbatim_geolocation_uncertainty',
-  'verbatim_trip_identifier',
+  'verbatim_field_number',
   'verbatim_collectors',
   'verbatim_method',
   'geographic_area_id',

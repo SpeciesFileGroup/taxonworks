@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import { Georeference } from '@/routes/endpoints'
-import { addToArray, removeFromArray } from '@/helpers'
+import { addToArray, removeFromArray, randomUUID } from '@/helpers'
 
-export default defineStore('georeferences', {
+export default defineStore('collectingEventForm:georeferences', {
   state: () => ({
-    georeferences: []
+    georeferences: [],
+    exifGeoreferences: []
   }),
 
   getters: {
@@ -15,17 +16,17 @@ export default defineStore('georeferences', {
 
   actions: {
     async load(ceId) {
-      try {
-        const { body } = await Georeference.where({ collecting_event_id: ceId })
+      const request = Georeference.where({ collecting_event_id: ceId })
 
+      request.then(({ body }) => {
         this.georeferences = body.map((item) => ({
           ...item,
-          uuid: crypto.randomUUID(),
+          uuid: randomUUID(),
           isUnsaved: false
         }))
+      })
 
-        return body
-      } catch (e) {}
+      return request
     },
 
     async remove(georeference) {
@@ -33,10 +34,10 @@ export default defineStore('georeferences', {
         Georeference.destroy(georeference.id)
       }
 
-      removeFromArray(this.georeferences, georeference, 'uuid')
+      removeFromArray(this.georeferences, georeference, { property: 'uuid' })
     },
 
-    async processGeoreferenceQueue(ceId) {
+    async save(ceId) {
       if (!ceId) return
 
       const unsaved = this.georeferences.filter((item) => item.isUnsaved)
@@ -69,7 +70,7 @@ export default defineStore('georeferences', {
         return request
       })
 
-      return Promise.allSettled(requests)
+      return Promise.all(requests)
     }
   }
 })

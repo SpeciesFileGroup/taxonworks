@@ -9,9 +9,9 @@ class DownloadProjectSqlJob < ApplicationJob
     2
   end
 
-  def perform(target_project, download)
+  def perform(target_project, download, custom_password: nil)
     begin
-      download.source_file_path = ::Export::ProjectData::Sql.export(target_project)
+      download.source_file_path = ::Export::ProjectData::Sql.export(target_project, custom_password: custom_password)
       download.save!
       download
     rescue => ex

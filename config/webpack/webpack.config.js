@@ -2,7 +2,10 @@
 
 const { generateWebpackConfig, merge } = require('shakapacker')
 const vueConfig = require('./rules/vue')
+const devServerConfig = require('./rules/devServer')
 const path = require('node:path')
+
+const webpackConfig = generateWebpackConfig()
 
 const customConfig = {
   resolve: {
@@ -18,4 +21,9 @@ const customConfig = {
   }
 }
 
-module.exports = merge(vueConfig, customConfig, generateWebpackConfig())
+module.exports = merge(
+  vueConfig,
+  devServerConfig(webpackConfig),
+  customConfig,
+  webpackConfig
+)

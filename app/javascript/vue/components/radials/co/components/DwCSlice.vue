@@ -15,6 +15,7 @@
         :batch-service="CollectionObject.batchUpdateDwcOccurrence"
         :payload="props.parameters"
         :disabled="isCountExceeded"
+        confirmation-word=""
         @update="updateMessage"
         @close="emit('close')"
       />

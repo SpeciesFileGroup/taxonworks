@@ -12,7 +12,7 @@
     />
     <div
       class="header flex-separate middle"
-      :class="{ 'validation-warning': warning }"
+      :class="{ 'validation-warning': warning, [headerClass]: headerClass }"
     >
       <slot name="header">
         <h3>Default title</h3>
@@ -50,6 +50,11 @@ const props = defineProps({
     default: undefined
   },
 
+  headerClass: {
+    type: String,
+    default: undefined
+  },
+
   warning: {
     type: Boolean,
     default: false
@@ -77,41 +82,42 @@ watch(
   }
 )
 
-watch(
-  expanded,
-  (newVal) => { emit('expandedChanged', newVal) }
-)
-
+watch(expanded, (newVal) => {
+  emit('expandedChanged', newVal)
+})
 </script>
 <style lang="scss" scoped>
 .block-layout {
   border-top-left-radius: 0px;
-  transition: all 1s;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+
   .validation-warning {
     border-left: 4px solid #ff8c00 !important;
   }
+
   .create-button {
     min-width: 100px;
   }
 
-  height: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
   .header {
     border-left: 4px solid green;
+    padding: 1em;
+    padding-left: 1.5em;
+    border-bottom: 1px solid var(--border-color);
+
     h3 {
       font-weight: 300;
     }
-    padding: 1em;
-    padding-left: 1.5em;
-    border-bottom: 1px solid #f5f5f5;
   }
+
   .body {
     padding: 2em;
     padding-top: 1em;
     padding-bottom: 1em;
   }
+
   .taxonName-input,
   #error_explanation {
     width: 300px;

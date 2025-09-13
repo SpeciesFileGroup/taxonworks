@@ -33,17 +33,19 @@ class BiologicalAssociation < ApplicationRecord
   include Shared::Tags
   include Shared::Identifiers
   include Shared::DataAttributes
-  include Shared::Confidences
   include Shared::Notes
   include Shared::Confidences
   include Shared::Depictions
   include Shared::AutoUuid
+  include Shared::AssertedDistributions
   include Shared::IsData
 
   include BiologicalAssociation::GlobiExtensions
   include BiologicalAssociation::DwcExtensions
 
   include Shared::QueryBatchUpdate
+
+  GRAPH_ENTRY_POINTS = [:asserted_distributions].freeze
 
   belongs_to :biological_relationship, inverse_of: :biological_associations
 
@@ -53,16 +55,17 @@ class BiologicalAssociation < ApplicationRecord
   has_many :subject_biological_properties, through: :subject_biological_relationship_types, source: :biological_property
   has_many :object_biological_properties, through: :object_biological_relationship_types, source: :biological_property
 
-  belongs_to :biological_association_subject, polymorphic: true
-  belongs_to :biological_association_object, polymorphic: true
+  belongs_to :biological_association_subject, polymorphic: true, inverse_of: :biological_associations
+  belongs_to :biological_association_object, polymorphic: true, inverse_of: :related_biological_associations
+
   has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_association, dependent: :destroy
   has_many :biological_associations_graphs, through: :biological_associations_biological_associations_graphs, inverse_of: :biological_associations
 
-  validates :biological_relationship, presence: true
-  validates :biological_association_subject, presence: true
-  validates :biological_association_object, presence: true
+  validates_presence_of :biological_relationship
+  validates_presence_of :biological_association_subject
+  validates_presence_of :biological_association_object
 
-  validates_uniqueness_of :biological_association_subject_id, scope: [:biological_association_subject_type, :biological_association_object_id, :biological_association_object_type, :biological_relationship_id]
+  validate :association_is_unique
 
   validate :biological_association_subject_type_is_allowed
   validate :biological_association_object_type_is_allowed
@@ -125,13 +128,13 @@ class BiologicalAssociation < ApplicationRecord
         cap = 5000
         request.cap_reason = 'Maximum allowed.'
       when 2
-        cap = 2000 
+        cap = 2000
         request.cap_reason = 'Maximum allowed when 2 biological relationships present.'
       else
         cap = 25
         request.cap_reason = 'Maximum allowed when 3 or more biological relationships present.'
       end
-      
+
       request.cap = cap
       request
     end
@@ -150,14 +153,6 @@ class BiologicalAssociation < ApplicationRecord
     end
 
   end
-
-  # @return [ActiveRecord::Relation]
-  #def self.collection_objects_subject_join
-  #  a = arel_table
-  #  b = ::CollectionObject.arel_table
-  #  j = a.join(b).on(a[:biological_association_subject_type].eq('CollectionObject').and(a[:biological_association_subject_id].eq(b[:id])))
-  #  joins(j.join_sources)
-  #end
 
   def dwc_extension_select
     BiologicalAssociation
@@ -193,15 +188,86 @@ class BiologicalAssociation < ApplicationRecord
     joins(j.join_sources)
   end
 
+  # @return [Scope]
+  #    the max 10 most recently used
+  def self.used_recently(user_id, project_id, used_on)
+    t = case used_on
+        when 'AssertedDistribution'
+          AssertedDistribution.arel_table
+        else
+          return BiologicalAssociation.none
+        end
+
+    # i is a select manager
+    i = case used_on
+        when 'AssertedDistribution'
+          t.project(t['asserted_distribution_object_id'], t['updated_at']).from(t)
+            .where(
+              t['updated_at'].gt(1.week.ago).and(
+                t['asserted_distribution_object_type'].eq('BiologicalAssociation')
+              )
+            )
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
+        end
+
+    z = i.as('recent_t')
+    p = BiologicalAssociation.arel_table
+
+    case used_on
+    when 'AssertedDistribution'
+      BiologicalAssociation.joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['asserted_distribution_object_id'].eq(p['id'])))
+      ).pluck(:id).uniq
+    end
+  end
+
+  def self.select_optimized(user_id, project_id, klass)
+    r = used_recently(user_id, project_id, klass)
+    h = {
+      quick: [],
+      pinboard: BiologicalAssociation.pinned_by(user_id).where(project_id: project_id).to_a,
+      recent: []
+    }
+
+    if r.empty?
+      h[:quick] = BiologicalAssociation.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+    else
+      h[:recent] = BiologicalAssociation.where('"biological_associations"."id" IN (?)', r.first(10) ).order(updated_at: :desc).to_a
+      h[:quick] = (BiologicalAssociation.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+                   BiologicalAssociation.where('"biological_associations"."id" IN (?)', r.first(4) ).order(updated_at: :desc).to_a).uniq
+    end
+
+    h
+  end
+
+  private
+
+  def association_is_unique
+    if a = BiologicalAssociation.where.not(id:).where(
+        biological_association_subject:,
+        biological_association_object:,
+        biological_relationship:
+    ).first
+      # For unify purposes, self has changed either subject or object, a is the
+      # identical BA we will perhaps unify with.
+      if will_save_change_to_biological_association_subject_id?
+        errors.add(:biological_association_subject, 'has already been taken')
+      elsif will_save_change_to_biological_association_object_id?
+        errors.add(:biological_association_object, 'has already been taken')
+      else
+        errors.add(:biological_association, 'already exists')
+      end
+    end
+  end
+
+
+  def biological_association_subject_type_is_allowed
+    errors.add(:biological_association_subject_type, 'is not permitted') unless biological_association_subject && biological_association_subject.class.is_biologically_relatable?
+  end
+
+  def biological_association_object_type_is_allowed
+    errors.add(:biological_association_object_type, 'is not permitted') unless biological_association_object && biological_association_object.class.is_biologically_relatable?
+  end
 end
-
-private
-
-def biological_association_subject_type_is_allowed
-  errors.add(:biological_association_subject_type, 'is not permitted') unless biological_association_subject && biological_association_subject.class.is_biologically_relatable?
-end
-
-def biological_association_object_type_is_allowed
-  errors.add(:biological_association_object_type, 'is not permitted') unless biological_association_object && biological_association_object.class.is_biologically_relatable?
-end
-

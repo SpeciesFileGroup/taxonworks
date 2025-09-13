@@ -44,7 +44,7 @@
         :options="copyrightHolderOptions"
       />
       <div v-if="copyrightHolderType">
-        <organization-picker @getItem="addOrganization" />
+        <organization-picker @select="addOrganization" />
         <display-list
           label="object_tag"
           @delete="removeOrganization"

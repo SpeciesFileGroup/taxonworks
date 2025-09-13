@@ -12,7 +12,7 @@ module ::Export::CSV
   # @param [Array] header_converters
   # @param [Boolean] trim_rows
   # @param [Boolean] trim_columns
-  # @return [CSV]
+  # @return [String] in CSV format
   def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false, column_order: [])
 
     column_names = scope.columns_hash.keys
@@ -105,6 +105,24 @@ module ::Export::CSV
     end
 
     unsorted + sorted
+  end
+
+  # @return Tempfile
+  # @param query any ActiveRecord::Relation
+  def self.copy_table(query)
+    conn = ::Export.get_connection
+
+    t = Tempfile.new
+    q = "COPY ( #{query.to_sql} ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\t', HEADER, ENCODING 'UTF8')"
+
+    conn.copy_data(q) do
+      while row = conn.get_copy_data
+        t.write(row.force_encoding('UTF-8'))
+      end
+    end
+
+    t.rewind
+    t
   end
 
 end

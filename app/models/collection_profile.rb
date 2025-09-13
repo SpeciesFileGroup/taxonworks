@@ -70,7 +70,7 @@ class CollectionProfile < ApplicationRecord
   include Shared::IsData
 
   belongs_to :container, inverse_of: :collection_profiles
-  belongs_to :otu
+  belongs_to :otu, inverse_of: :collection_profiles
 
   # Once created the intent is that CollectionProfiles are #dup(ed), not
   # edited.  If there was a data error pass true here

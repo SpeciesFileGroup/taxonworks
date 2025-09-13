@@ -72,8 +72,13 @@ class TaxonDeterminationsController < ApplicationController
   def destroy
     @taxon_determination.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_determinations_url }
-      format.json { head :no_content }
+      if @taxon_determination.destroyed?
+        format.html { destroy_redirect @taxon_determination, notice: 'Taxon determination was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @taxon_determination, notice: 'Taxon determination was not destroyed, ' + @taxon_determination.errors.full_messages.join('; ') }
+        format.json { render json: @taxon_determination.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -95,14 +100,17 @@ class TaxonDeterminationsController < ApplicationController
   end
 
   def autocomplete
-    @taxon_determinations = taxon_determination.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @taxon_determinations = TaxonDetermination.find_for_autocomplete(params)
+      .where(project_id: sessions_current_project_id)
+      .limit(40)
+      .distinct
     data = @taxon_determinations.collect do |t|
       {id: t.id,
-       label: TaxonDeterminationsHelper.taxon_determination_tag(t),
+       label: helpers.taxon_determination_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
-       label_html: TaxonDeterminationsHelper.taxon_determination_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: helpers.taxon_determination_tag(t) 
       }
     end
 

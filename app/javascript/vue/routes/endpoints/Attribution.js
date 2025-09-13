@@ -33,5 +33,8 @@ export const Attribution = {
 
   licenses: () => AjaxCall('get', `/${controller}/licenses`),
 
-  roleTypes: () => AjaxCall('get', `/${controller}/role_types.json`)
+  roleTypes: () => AjaxCall('get', `/${controller}/role_types.json`),
+
+  batchByFilter: (params) =>
+    AjaxCall('post', `/${controller}/batch_by_filter_scope`, params)
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="horizontal-left-content organization-picker">
-    <autocomplete
+    <VAutocomplete
       class="margin-small-right"
       ref="autocomplete"
       url="/organizations/autocomplete"
@@ -10,25 +10,25 @@
       clear-after
       @found="nothing = !$event"
       @get-input="(item) => (organization.name = item)"
-      @get-item="(item) => setOrganization({ id: item.id, name: item.label })"
+      @get-item="loadOrganization"
     />
     <button
       v-if="nothing"
       type="button"
-      @click="showModal = true"
+      @click="isModalVisible = true"
       class="button normal-input button-default"
     >
       New
     </button>
-    <default-pin
+    <DefaultPin
       class="button-circle"
       type="Organization"
       section="Organizations"
-      @get-item="(item) => setOrganization({ id: item.id, name: item.label })"
+      @get-item="loadOrganization"
     />
-    <modal-component
-      v-if="showModal"
-      @close="showModal = false"
+    <VModal
+      v-if="isModalVisible"
+      @close="isModalVisible = false"
     >
       <template #header>
         <h3>Create organization</h3>
@@ -115,7 +115,7 @@
           <div>
             <div class="field">
               <label>Area served</label>
-              <autocomplete
+              <VAutocomplete
                 url="/geographic_areas/autocomplete"
                 placeholder="Search a geographic area"
                 param="term"
@@ -126,7 +126,7 @@
             </div>
             <div class="field">
               <label>Same as</label>
-              <autocomplete
+              <VAutocomplete
                 url="/organizations/autocomplete"
                 placeholder="Search an organization"
                 param="term"
@@ -137,7 +137,7 @@
             </div>
             <div class="field">
               <label>Department</label>
-              <autocomplete
+              <VAutocomplete
                 url="/organizations/autocomplete"
                 placeholder="Search an organization"
                 param="term"
@@ -148,7 +148,7 @@
             </div>
             <div class="field">
               <label>Parent organization</label>
-              <autocomplete
+              <VAutocomplete
                 url="/organizations/autocomplete"
                 placeholder="Search an organization"
                 param="term"
@@ -169,76 +169,66 @@
           Create organization
         </button>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
-<script>
-import Autocomplete from '@/components/ui/Autocomplete'
-import ModalComponent from '@/components/ui/Modal'
+<script setup>
+import VAutocomplete from '@/components/ui/Autocomplete'
+import VModal from '@/components/ui/Modal'
 import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
 import { Organization } from '@/routes/endpoints'
+import { ref, useTemplateRef, watch } from 'vue'
 
-export default {
-  components: {
-    Autocomplete,
-    DefaultPin,
-    ModalComponent
-  },
+const emit = defineEmits(['select'])
 
-  emits: ['getItem'],
+const isModalVisible = ref(false)
+const nothing = ref(false)
+const organization = ref(makeOrganization())
+const autocompleteRef = useTemplateRef('autocomplete')
 
-  data() {
-    return {
-      showModal: false,
-      nothing: false,
-      organization: this.newOrganization()
-    }
-  },
-
-  watch: {
-    showModal(newVal) {
-      if (!newVal) {
-        this.organization = this.newOrganization()
-      }
-    }
-  },
-
-  methods: {
-    newOrganization() {
-      return {
-        name: undefined,
-        alternate_name: undefined,
-        description: undefined,
-        disambiguating_description: undefined,
-        same_as_id: undefined,
-        address: undefined,
-        email: undefined,
-        telephone: undefined,
-        duns: undefined,
-        global_location_number: undefined,
-        legal_name: undefined,
-        area_served_id: undefined,
-        department_id: undefined,
-        parent_organization_id: undefined
-      }
-    },
-
-    createOrganization() {
-      Organization.create({ organization: this.organization }).then(
-        (response) => {
-          this.setOrganization(response.body)
-          this.showModal = false
-          this.nothing = false
-          this.$refs.autocomplete.cleanInput()
-        }
-      )
-    },
-
-    setOrganization(organization) {
-      this.$emit('getItem', organization)
-    }
+watch(isModalVisible, (newVal) => {
+  if (!newVal) {
+    organization.value = makeOrganization()
   }
+})
+
+function makeOrganization() {
+  return {
+    name: undefined,
+    alternate_name: undefined,
+    description: undefined,
+    disambiguating_description: undefined,
+    same_as_id: undefined,
+    address: undefined,
+    email: undefined,
+    telephone: undefined,
+    duns: undefined,
+    global_location_number: undefined,
+    legal_name: undefined,
+    area_served_id: undefined,
+    department_id: undefined,
+    parent_organization_id: undefined
+  }
+}
+
+function createOrganization() {
+  Organization.create({ organization: organization.value }).then(({ body }) => {
+    setOrganization(body)
+    isModalVisible.value = false
+    nothing.value = false
+    autocompleteRef.value.cleanInput()
+  })
+}
+
+function loadOrganization(item) {
+  Organization.find(item.id).then(({ body }) => {
+    emit('select', body)
+  })
+}
+
+function setOrganization(organization) {
+  emit('select', organization)
 }
 </script>
 

@@ -28,8 +28,13 @@
       absent-field
       lock-button
       use-session
-      @lock="lock.source = $event"
-    />
+      @lock="(e) => (lock.source = e)"
+      @update="sendBroadcast"
+    >
+      <template #tabs-right>
+        <VBroadcast v-model="isBroadcastActive" />
+      </template>
+    </FormCitation>
     <div class="margin-small-top margin-small-bottom">
       <VBtn
         v-if="assertedDistribution.id"
@@ -49,17 +54,31 @@
       @edit="setCitation"
       @delete="removeCitation"
     />
-    <GeographicArea
+
+    <div
+      v-if="!citation.source_id || assertedDistribution.id"
+      class="panel content horizontal-center-content padding-large"
+    >
+      <h3>Select a source first</h3>
+    </div>
+    <fieldset
+      v-else
       class="separate-bottom"
-      :source-lock="lock.source"
-      :disabled="!citation.source_id || assertedDistribution.id"
-      @select="
-        ($event) => {
-          assertedDistribution.geographic_area_id = $event
-          saveAssertedDistribution()
-        }
-      "
-    />
+    >
+      <legend>Shape</legend>
+      <ShapePicker
+        :focus-on-select="lock.source"
+        @select-shape="
+          (shape) => {
+            assertedDistribution.asserted_distribution_shape_type =
+              shape.shapeType
+            assertedDistribution.asserted_distribution_shape_id = shape.id
+            saveAssertedDistribution()
+          }
+        "
+      />
+    </fieldset>
+
     <div class="horizontal-left-content">
       <VSpinner
         v-if="isLoading"
@@ -88,23 +107,26 @@
 <script setup>
 import TableList from './table.vue'
 import DisplayList from '@/components/displayList.vue'
-import GeographicArea from './geographicArea.vue'
+import ShapePicker from '@/components/ui/SmartSelector/ShapePicker.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import VMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
+import VBroadcast from '@/components/ui/VBroadcast/VBroadcast.vue'
+import sortArray from '@/helpers/sortArray'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index'
 import { AssertedDistribution } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
 import { ref, computed, reactive } from 'vue'
+import { useBroadcastChannel } from '@/composables'
 
 const EXTEND_PARAMS = {
   embed: ['shape'],
   extend: [
-    'geographic_area',
-    'geographic_area_type',
+    'asserted_distribution_shape',
+    'shape_type',
     'parent',
     'citations',
     'source'
@@ -132,9 +154,26 @@ const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
 })
 
+const isBroadcastActive = ref(false)
+
+const { post } = useBroadcastChannel({
+  name: 'citation',
+  onMessage({ data }) {
+    if (isBroadcastActive.value) {
+      citation.value = data
+    }
+  }
+})
+
+function sendBroadcast(data) {
+  if (isBroadcastActive.value) {
+    post(data)
+  }
+}
+
 const shapes = computed(() =>
   list.value.map((item) => {
-    const shape = item.geographic_area.shape
+    const shape = item.asserted_distribution_shape.shape
     shape.properties.is_absent = item.is_absent
     return shape
   })
@@ -151,21 +190,23 @@ const editCitation = ref()
 const isLoading = ref(false)
 const citation = ref(makeEmptyCitation())
 
-function setCitation(citation) {
+function setCitation(c) {
   citation.value = {
-    id: citation.id,
-    pages: citation.pages,
-    source_id: citation.source_id,
-    is_original: citation.is_original
+    id: c.id,
+    pages: c.pages,
+    source_id: c.source_id,
+    is_original: c.is_original
   }
-  editCitation.value = citation
+  editCitation.value = c
 }
 
 function saveAssertedDistribution() {
   const createdObject = list.value.find(
     (item) =>
-      item.geographic_area.id ===
-        assertedDistribution.value.geographic_area_id &&
+      item.asserted_distribution_shape_id ===
+        assertedDistribution.value.asserted_distribution_shape_id &&
+      item.asserted_distribution_shape_type ===
+        assertedDistribution.value.asserted_distribution_shape_type &&
       !!assertedDistribution.value.is_absent === !!item.is_absent
   )
   const params = {
@@ -206,12 +247,14 @@ function removeCitation(item) {
     ...EXTEND_PARAMS
   }
 
-  AssertedDistribution.update(assertedDistribution.value.id, payload).then(
-    ({ body }) => {
-      addToList(body)
-      resetForm()
-    }
-  )
+  AssertedDistribution.update(assertedDistribution.value.id, payload)
+    .then(
+      ({ body }) => {
+        addToList(body)
+        resetForm()
+      }
+    )
+    .catch(() => {})
 }
 
 function setDistribution(item) {
@@ -220,9 +263,11 @@ function setDistribution(item) {
   assertedDistribution.value = {
     id: item.id,
     citations: item.citations,
-    otu_id: item.otu_id,
+    asserted_distribution_object_id: item.asserted_distribution_object_id,
+    asserted_distribution_object_type: item.asserted_distribution_object_type,
     is_absent: item.is_absent,
-    geographic_area_id: item.geographic_area_id
+    asserted_distribution_shape_type: item.asserted_distribution_shape_type,
+    asserted_distribution_shape_id: item.asserted_distribution_shape_id
   }
 
   editCitation.value = undefined
@@ -231,9 +276,13 @@ function setDistribution(item) {
 function newAsserted() {
   return {
     id: undefined,
-    otu_id: props.objectId,
-    geographic_area_id: lock.geo
-      ? assertedDistribution.value.geographic_area_id
+    asserted_distribution_object_id: props.objectId,
+    asserted_distribution_object_type: props.objectType,
+    asserted_distribution_shape_type: lock.geo
+      ? assertedDistribution.value.asserted_distribution_shape_type
+      : undefined,
+    asserted_distribution_shape_id: lock.geo
+      ? assertedDistribution.value.asserted_distribution_shape_id
       : undefined,
     citations: [],
     is_absent: null
@@ -255,18 +304,23 @@ function resetForm() {
 }
 
 function removeItem(item) {
-  AssertedDistribution.destroy(item.id).then(() => {
-    removeFromList(item)
-  })
+  AssertedDistribution.destroy(item.id)
+    .then(() => {
+      removeFromList(item)
+    })
+    .catch(() => {})
 }
 
 AssertedDistribution.all({
-  otu_id: props.objectId,
+  asserted_distribution_object_id: props.objectId,
+  asserted_distribution_object_type: props.objectType,
   ...EXTEND_PARAMS
-}).then(({ body }) => {
-  isLoading.value = false
-  list.value = body
 })
+  .then(({ body }) => {
+    isLoading.value = false
+    list.value = sortArray('asserted_distribution_shape.name', body)
+  })
+  .catch(() => {})
 </script>
 <style lang="scss">
 .radial-annotator {

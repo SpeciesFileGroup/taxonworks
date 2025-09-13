@@ -27,11 +27,11 @@ RSpec.describe ObservationMatricesController, type: :controller do
   # Matrix. As you add validations to Matrix, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryBot.build(:valid_observation_matrix).attributes)  
+    strip_housekeeping_attributes(FactoryBot.build(:valid_observation_matrix).attributes)
   }
 
   let(:invalid_attributes) {
-    {name: nil} 
+    {name: nil}
   }
 
   # This should return the minimal set of values that should be in the session
@@ -159,4 +159,168 @@ RSpec.describe ObservationMatricesController, type: :controller do
     end
   end
 
+  describe 'POST #import_from_nexus' do
+    let(:matrix_name) { 'my_matrix' }
+
+    let(:valid_nexus_doc) {
+      Document.create!(
+        document_file: Rack::Test::UploadedFile.new(
+          (Rails.root + 'spec/files/nexus/small_with_species.nex'),
+          'text/plain'
+        ))
+    }
+
+    describe 'adding an ActiveJob' do
+      specify '#import_from_nexus adds an ActiveJob to the queue' do
+        params = {
+          nexus_document_id: valid_nexus_doc.id
+        }
+
+        expect {
+          post :import_from_nexus, params:, session: valid_session
+        }.to have_enqueued_job(ImportNexusJob)
+      end
+    end
+
+    specify 'a matrix is created' do
+      params = {
+        nexus_document_id: valid_nexus_doc.id
+      }
+      post :import_from_nexus, params:, session: valid_session
+
+      expect(ObservationMatrix.all.count).to eq(1)
+    end
+
+    specify 'the created matrix is documented with its nexus document' do
+      params = {
+        nexus_document_id: valid_nexus_doc.id
+      }
+      post :import_from_nexus, params:, session: valid_session
+
+      m = ObservationMatrix.first
+      expect(Documentation.first.documentation_object).to eq(m)
+      expect(Documentation.first.document_id).to eq(valid_nexus_doc.id)
+    end
+
+    # Other options are tested in the helper specs - this option is processed
+    # in the controller so that we can respond to the user right away instead
+    # of via an error in the background job.
+    specify 'matrix_name option assigns the created matrix a name' do
+      params = {
+        nexus_document_id: valid_nexus_doc.id,
+        options: {
+          matrix_name:
+        }
+      }
+      post :import_from_nexus, params:, session: valid_session
+
+      expect(ObservationMatrix.first.name).to eq(matrix_name)
+    end
+
+    specify '#import_from_nexus can be called twice in a row by a user' do
+      params = {
+        nexus_document_id: valid_nexus_doc.id
+      }
+
+      # The issue is that generated names are only unique down to the minute,
+      # so it's possible if the two calls below are actually made in different
+      # minutes that we're not testing the matrix name collision path. We'll
+      # live with that.
+      post :import_from_nexus, params:, session: valid_session
+      expect(response).to have_http_status(:success)
+      post :import_from_nexus, params:, session: valid_session
+      expect(response).to have_http_status(:success)
+    end
+
+    # Make sure these errors happen in the controller instead of in a
+    # background job.
+    describe 'error conditions' do
+      specify 'specified matrix_name already in use is an error' do
+        FactoryBot.create(:valid_observation_matrix, name: matrix_name)
+
+        params = {
+          nexus_document_id: valid_nexus_doc.id,
+          options: {
+            matrix_name:
+          }
+        }
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include('matrix name is already in use')
+      end
+
+      specify 'document not found error' do
+        params = {
+          nexus_document_id: 1234
+        }
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include("Couldn't find Document")
+      end
+
+      specify 'nexus document parse error' do
+        invalid_nexus_doc = Document.create!(
+          document_file: Rack::Test::UploadedFile.new(
+            (Rails.root + 'spec/files/nexus/malformed.nex'),
+            'text/plain'
+          ))
+
+        params = {
+          nexus_document_id: invalid_nexus_doc.id
+        }
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include('File is missing at least some required headers')
+      end
+
+      specify 'non-text document error' do
+        pdf_doc = FactoryBot.create(:valid_document)
+
+        params = {
+          nexus_document_id: pdf_doc.id
+        }
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include("are you sure it's a nexus document?")
+      end
+
+      specify 'error on converting nexus_parser data to TW data' do
+        invalid_tw_nexus_doc = Document.create!(
+          document_file: Rack::Test::UploadedFile.new(
+            (Rails.root + 'spec/files/nexus/repeated_character_state_name.nex'),
+            'text/plain'
+          ))
+
+        params = {
+          nexus_document_id: invalid_tw_nexus_doc.id
+        }
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include('Error converting nexus to TaxonWorks')
+      end
+
+      specify 'error on cite_matrix option with no citation chosen' do
+        params = {
+          nexus_document_id: valid_nexus_doc.id,
+          options: { cite_matrix: true }
+        }
+
+        post :import_from_nexus, params:, session: valid_session
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors).to include('no source selected')
+      end
+    end
+  end
 end

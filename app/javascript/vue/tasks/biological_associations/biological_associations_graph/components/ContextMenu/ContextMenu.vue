@@ -56,11 +56,11 @@ defineExpose({
   display: flex;
   flex-direction: column;
   width: 260px;
-  background-color: white;
+  background-color: var(--panel-bg-color);
   position: fixed;
   font-size: 12px;
-  border: 1px solid #aaa;
-  box-shadow: 2px 2px 2px #aaa;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--panel-shadow);
   overflow: hidden;
 }
 
@@ -73,17 +73,17 @@ defineExpose({
 .graph-context-menu-list-item {
   cursor: pointer;
   padding: 1em;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .graph-context-menu-list-header {
   padding: 1em;
-  background-color: #f0f0f0;
-  border-bottom: 2px solid #eaeaea;
+  background-color: var(--bg-color);
+  border-bottom: 2px solid var(--border-color);
 }
 
 .graph-context-menu-list-item:hover {
-  background-color: #fafafa;
+  background-color: var(--bg-color);
 }
 
 .graph-context-menu-list-item:last-child {

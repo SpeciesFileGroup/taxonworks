@@ -29,3 +29,11 @@ if extend_response_with('roles')
     end
   end
 end
+
+if extend_response_with('identifiers')
+  json.identifiers do
+    json.array! loan.identifiers.each do |i|
+      json.cached i.cached
+    end
+  end
+end

@@ -1,6 +1,5 @@
 import getBibtexType from './getBibtexType'
 import getDocumentations from './getDocumentations'
-import getDocuments from './getDocuments'
 import getLanguageId from './getLanguageId'
 import getLastSave from './getLastSave'
 import getPreferences from './getPreferences'
@@ -16,7 +15,6 @@ import getVerbatim from './getVerbatim'
 const GetterNames = {
   GetBibtexType: 'getBibtexType',
   GetDocumentations: 'getDocumentations',
-  GetDocuments: 'getDocuments',
   GetLanguageId: 'getLanguageId',
   GetLastSave: 'getLastSave',
   GetPreferences: 'getPreferences',
@@ -33,7 +31,6 @@ const GetterNames = {
 const GetterFunctions = {
   [GetterNames.GetBibtexType]: getBibtexType,
   [GetterNames.GetDocumentations]: getDocumentations,
-  [GetterNames.GetDocuments]: getDocuments,
   [GetterNames.GetLanguageId]: getLanguageId,
   [GetterNames.GetLastSave]: getLastSave,
   [GetterNames.GetPreferences]: getPreferences,
@@ -47,7 +44,4 @@ const GetterFunctions = {
   [GetterNames.GetVerbatim]: getVerbatim
 }
 
-export {
-  GetterNames,
-  GetterFunctions
-}
+export { GetterNames, GetterFunctions }

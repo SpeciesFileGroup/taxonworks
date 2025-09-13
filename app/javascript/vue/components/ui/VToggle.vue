@@ -1,11 +1,16 @@
 <template>
-  <div title="Lock / Unlock">
-    <label class="switch-lock">
+  <div :title="title">
+    <label class="toggle-switch">
       <input
         v-model="checked"
         type="checkbox"
-      >
-      <span />
+        @click="emit('click', checked)"
+      />
+      <span>
+        <div class="switch-icon">
+          <slot />
+        </div>
+      </span>
     </label>
   </div>
 </template>
@@ -21,32 +26,34 @@ const props = defineProps({
 
   onColor: {
     type: String,
-    default: '#9ccc65'
+    default: 'var(--color-toggle-active)'
   },
 
   offColor: {
     type: String,
-    default: '#F44336'
+    default: 'var(--bg-color)'
+  },
+
+  title: {
+    type: String,
+    default: ''
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'click'])
 
 const checked = computed({
-  get () {
+  get() {
     return props.modelValue
   },
-  set (value) {
+  set(value) {
     emit('update:modelValue', value)
   }
 })
 </script>
 <style lang="scss" scoped>
-
-$lightGrey: #99A3BA;
-
-.switch-lock {
-  height: 26px;
+.toggle-switch {
+  height: 28px;
   display: block;
   position: relative;
   cursor: pointer;
@@ -57,10 +64,9 @@ $lightGrey: #99A3BA;
       min-height: 26px;
       line-height: 26px;
       display: block;
-      color: $lightGrey;
       position: relative;
       white-space: nowrap;
-      transition: color .3s ease;
+      transition: color 0.3s ease;
       &:before,
       &:after {
         content: '';
@@ -74,16 +80,30 @@ $lightGrey: #99A3BA;
         width: 48px;
         height: 28px;
         background: v-bind('props.offColor');
-        transition: all .3s ease;
+        transition: all 0.3s ease;
       }
       &:after {
         width: 24px;
         height: 24px;
-        background: #fff;
+        background: var(--panel-bg-color);
         top: 2px;
         left: 3px;
-        box-shadow: 0 1px 3px rgba(#121621, .1);
-        transition: all .45s ease;
+        box-shadow: 0 1px 3px rgba(#121621, 0.1);
+        transition: all 0.45s ease;
+      }
+
+      .switch-icon {
+        display: flex;
+        position: absolute;
+        top: 2px;
+        left: 3px;
+        width: 24px;
+        height: 24px;
+        opacity: 0.7;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+        transition: all 0.45s ease;
       }
     }
     &:checked {
@@ -92,8 +112,15 @@ $lightGrey: #99A3BA;
           background: v-bind('props.onColor');
         }
         &:after {
-          background: #fff;
+          background: var(--panel-bg-color);
           transform: translate(18px, 0);
+        }
+
+        .switch-icon {
+          transform: translate(18px, 0);
+          &:after {
+            transform: rotate(0deg) translate(0px, 0);
+          }
         }
       }
     }

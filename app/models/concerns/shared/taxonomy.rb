@@ -1,3 +1,9 @@
+
+# Conceptually there are 2 aspects of building @taxonomy
+# 1) The higher, monomial names
+# 2) The elements of the scientificNamm.
+#
+#
 module Shared::Taxonomy
   extend ActiveSupport::Concern
 
@@ -19,9 +25,14 @@ module Shared::Taxonomy
     #     ]
     # }
     #
-    # !! Calling taxonom.keys gives ranks back from root to target.
+    # !! Calling taxonomy.keys gives ranks back from root to target.
     # !! Note Root is included, this may be deprecated ultimate
     # !!  as it is rarely used
+    #
+    # Currently based on full_name_hash format
+    #   TODO: simplify from fnh
+    #     * See Nodes experiment with text_tree
+    # @taxonomy.<rank> should return the name at that rank if any
     #
     attr_accessor :taxonomy
 
@@ -50,24 +61,41 @@ module Shared::Taxonomy
     protected
 
     # !! @return Taxonomy
-    # !!
-    # !! Since Ruby 2.5 Hash keys return in the order
-    # !!  they were added, this is assumed for this method
-    # !!  so if it is change this must be taken into account.
-    # !!
+    # !! Always return a valid taxon name
     # TODO: analyze and optimize for n+1
     def set_taxonomy
       c = case self.class.base_class.name
-          when 'CollectionObject'
-            a = current_taxon_name
+          when 'CollectionObject', 'FieldOccurrence'
+            a = target_taxon_name # current_valid_taxon_name # !! See DwcExtensions, probably better placed here
 
             # If we have no name, see if there is a Type reference and use it as proxy
             # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
-            a ||= type_materials.primary.first&.protonym
+            if self.class.base_class.name == 'CollectionObject'
+              a ||= type_materials.primary.first&.protonym
+            end
           when 'Otu'
-            taxon_name&.valid_taxon_name
+            if taxon_name
+              if taxon_name.cached_is_valid
+                taxon_name
+              else
+                taxon_name.valid_taxon_name
+              end
+            end
+
           when 'AssertedDistribution'
-            otu.taxon_name&.valid_taxon_name
+
+            # TODO: this is faster, but needs spec confirmation
+            # Benchmark.measure { 2000.times do;  AssertedDistribution.find_by_id(ids.sample).taxonomy; end;  }
+            #
+            # TaxonName.joins('JOIN taxon_names tn on tn.id = taxon_names.cached_valid_taxon_name_id')
+            #   .joins('JOIN otus o on o.taxon_name_id = tn.id')
+            #   .where(o: { id: otu_id })
+            #   .first
+
+            otu&.taxon_name&.valid_taxon_name
+
+          when 'TaxonName' # not used (probably has to be subclassed)
+            self
           end
 
       if c
@@ -100,4 +128,5 @@ module Shared::Taxonomy
       end
     end
   end
+
 end

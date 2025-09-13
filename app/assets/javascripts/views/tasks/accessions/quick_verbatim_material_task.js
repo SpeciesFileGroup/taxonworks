@@ -1,29 +1,39 @@
 // quick_verbatim_material_task.js
 
-function update_attribute_names(link) {
-  var new_id = new Date().getTime();
-  var regex = new RegExp("_update_", "g");
-  $('input[name*="_update_"]').each(function(i) {
-    var a = $(this).attr('name').replace(regex, new_id);
-    var b = $(this).attr('id').replace(regex, new_id);
-    $(this).attr('name', a);  
-    $(this).attr('id', b);
-  });
+function update_attribute_names() {
+  const new_id = Date.now()
+  const regex = /_update_/g
+  const inputs = document.querySelectorAll('input[name*="_update_"]')
+
+  inputs.forEach((input) => {
+    const newName = input.name.replace(regex, new_id)
+    const newId = input.id.replace(regex, new_id)
+    input.name = newName
+    input.id = newId
+  })
 }
 
-function bind_remove_row_link(link) {
-  $('a[class*="_update_"]').each(function(i) {
-   $(this).on("click",function (event) {
-    $(this).parents('.biocuration_totals_row').hide();
-    event.preventDefault(); 
-  });
-   $(this).attr('class', 'remove_row');
- });     
+function bind_remove_row_link() {
+  const links = document.querySelectorAll('a[class*="_update_"]')
+
+  links.forEach((el) => {
+    el.addEventListener('click', function (event) {
+      const row = el.closest('.biocuration_totals_row')
+      if (row) row.style.display = 'none'
+      event.preventDefault()
+    })
+
+    el.className = 'remove_row'
+  })
 }
 
-$(document).on("tubolinks:load", function() {
-  $(".add_total_row").on("click", function(event) {
-    update_attribute_names(this);
-    bind_remove_row_link(this);
-  });
-});
+document.addEventListener('turbolinks:load', function () {
+  const addButtons = document.querySelectorAll('.add_total_row')
+
+  addButtons.forEach((btn) => {
+    btn.addEventListener('click', function (event) {
+      update_attribute_names(btn)
+      bind_remove_row_link(btn)
+    })
+  })
+})

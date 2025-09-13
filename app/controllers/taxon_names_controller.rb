@@ -2,7 +2,7 @@ class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show, :api_summary, :api_catalog]
-  after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
+  after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index, :origin_citation], if: :json_request?
 
   # GET /taxon_names
   # GET /taxon_names.json
@@ -171,8 +171,9 @@ class TaxonNamesController < ApplicationController
   end
 
   def create_simple_batch_load
+
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :simple_taxon_names_md5)
-      @result =  BatchLoad::Import::TaxonifiToTaxonworks.new(**batch_params)
+      @result = BatchLoad::Import::TaxonifiToTaxonworks.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} taxon names were created."
         render 'taxon_names/batch_load/simple/create' and return
@@ -182,6 +183,7 @@ class TaxonNamesController < ApplicationController
     else
       flash[:alert] = 'File to batch upload must be supplied.'
     end
+
     render :batch_load
   end
 
@@ -220,6 +222,11 @@ class TaxonNamesController < ApplicationController
     ).result
   end
 
+  def remove_authors
+    names = TaxonName.remove_authors(params['names'].first(5000))
+    render json: { names: }
+  end
+
   # GET /taxon_names/1/original_combination
   def original_combination
   end
@@ -227,7 +234,7 @@ class TaxonNamesController < ApplicationController
   # PATCH /taxon_names/batch_update.json?taxon_names_query=<>&taxon_name={taxon_name_id=123}}
   def batch_update
     if r = Protonym.batch_update(
-        preview: params[:preview], 
+        preview: params[:preview],
         taxon_name: taxon_name_params.merge(by: sessions_current_user_id),
         taxon_name_query: params[:taxon_name_query].merge(by: sessions_current_user_id),
     )
@@ -245,9 +252,9 @@ class TaxonNamesController < ApplicationController
 
     respond_to do |format|
       format.json {
-       @taxon_names = q.page(params[:page]).per(params[:per])
-       render '/taxon_names/api/v1/index'
-     }
+        @taxon_names = q.page(params[:page]).per(params[:per])
+        render '/taxon_names/api/v1/index'
+      }
       format.csv {
         @taxon_names = q
         send_data Export::CSV.generate_csv(
@@ -283,6 +290,45 @@ class TaxonNamesController < ApplicationController
       code: :iczn # !! TODO: generalize
     ).result
     render '/taxon_names/api/v1/parse'
+  end
+
+  # GET /api/v1/taxon_names
+  def origin_citation
+    q = ::Queries::TaxonName::Filter.new(params).all
+      .where(project_id: sessions_current_project_id)
+      .order('taxon_names.id')
+
+    respond_to do |format|
+      format.json {
+        @taxon_names = q.page(params[:page]).per(params[:per])
+        render '/taxon_names/origin_citation'
+      }
+      format.csv {
+        @taxon_names = q
+        send_data Export::CSV::TaxonNameOrigin.csv(
+          @taxon_names,
+        ).read, type: 'text', filename: "taxon_name_origin_citation_#{DateTime.now}.tsv"
+      }
+    end
+  end
+
+  def api_origin_citation
+    q = ::Queries::TaxonName::Filter.new(params).all
+      .where(project_id: sessions_current_project_id)
+      .order('taxon_names.id')
+
+    respond_to do |format|
+      format.json {
+        @taxon_names = q.page(params[:page]).per(params[:per])
+        render '/taxon_names/origin_citation'
+      }
+      format.csv {
+        @taxon_names = q
+        send_data Export::CSV::TaxonNameOrigin.csv(
+          @taxon_names,
+        ).read, type: 'text', filename: "taxon_name_origin_citation_#{DateTime.now}.tsv"
+      }
+    end
   end
 
   private

@@ -173,11 +173,8 @@ describe Project, type: :model do
     before(:each) {
       project.update!(name: 'Destroy sanity')
 
-      project.asserted_distributions << AssertedDistribution.new(
-        otu:             FactoryBot.create(:valid_otu),
-        geographic_area: FactoryBot.create(:valid_geographic_area),
-        source:          FactoryBot.create(:valid_source)
-      )
+      project.asserted_distributions <<
+        FactoryBot.create(:valid_asserted_distribution)
       project.save!
     }
 

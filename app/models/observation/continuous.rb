@@ -12,7 +12,7 @@ class Observation::Continuous < Observation
   # @return [Unit]
   #  and instance of ruby-unit
   def unit
-    ::RubyUnits::Unit.new(continuous_value.to_s + ' ' + continuous_unit)
+    ::RubyUnits::Unit.new([continuous_value.to_s, continuous_unit].compact.join(' '))
   end
 
   # Use Ruby Units to add

@@ -7,8 +7,14 @@ $tw-input-sizes: (
   'xLarge': '40px'
 );
 
+:root {
+  --border-radius-small: 0.375rem;
+  --border-radius-medium: 0.5rem;
+  --border-radius-large: 0.75rem;
+}
+
 :export {
   @each $key, $value in $tw-input-sizes {
-    #{unquote($key)}: #{$value};
+    --#{$key}: #{$value};
   }
 }

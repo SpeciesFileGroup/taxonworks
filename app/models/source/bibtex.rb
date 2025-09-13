@@ -805,10 +805,11 @@ class Source::Bibtex < Source
       end
     end
 
+    translated_title = alternate_values.where(type: 'AlternateValue::Translation', alternate_value_object_attribute: 'title').pluck(:value).first
     a['year-suffix'] = year_suffix if year_suffix.present?
     a['original-date'] = {'date-parts' => [[ stated_year ]]} if stated_year.present? && stated_year.to_s != year.to_s
     a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
-    a['translated-title'] = alternate_values.where(type: 'AlternateValue::Translation', alternate_value_object_attribute: 'title').pluck(:value).first
+    a['translated-title'] = translated_title unless translated_title.blank?
     a['note'] = note
     a.reject! { |k| k == 'note' } if note.blank?
     a
@@ -891,7 +892,18 @@ class Source::Bibtex < Source
         cached_author_string: authority_name(false)
       )
 
+      t_update = true if self.cached_nomenclature_date != attributes_to_update[:cached_nomenclature_date]
       self.reload.update_columns(attributes_to_update)
+
+      if t_update
+        Citation.where(citation_object_type: 'TaxonName', source: self, is_original: true).each do |c|
+          t = c.citation_object
+          if t.type == 'Protonym'
+            t.set_cached_nomenclature_date
+            t.set_cached_author_columns
+          end
+        end
+      end
     end
   end
 
@@ -983,7 +995,7 @@ class Source::Bibtex < Source
         (editor.to_s != get_bibtex_names('editor') && get_bibtex_names('editor').present?) ||
         cached != get_cached ||
         cached_nomenclature_date != nomenclature_date ||
-        cached_author_string.to_s != authority_name(false)
+        cached_author_string.to_s != authority_name(false).to_s
       is_cached = false
     end
 

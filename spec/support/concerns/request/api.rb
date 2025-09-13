@@ -23,6 +23,7 @@ end
 shared_examples_for 'secured by user and project token' do | factory, path |
   let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
   let!(:project) { FactoryBot.create(:valid_project, :project_valid_token, by: user) }
+  let!(:project_member) { ProjectMember.create!(project: project, user: user, is_project_administrator: true, by: user) }
 
   let(:model) do
     case factory

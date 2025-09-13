@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="overflow-x-auto">
     <FormCitation
       v-model="citation"
       class="separate-top"
@@ -11,11 +11,8 @@
       @source="addLabel"
       @submit="addCitation"
     >
-      <template #smart-selector-right>
-        <v-lock
-          class="margin-small-left"
-          v-model="lock.coCitations"
-        />
+      <template #tabs-right>
+        <VLock v-model="lock.coCitations" />
       </template>
     </FormCitation>
     <display-list

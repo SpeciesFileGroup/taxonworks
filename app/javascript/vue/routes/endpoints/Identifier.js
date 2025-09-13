@@ -1,6 +1,8 @@
 import baseCRUD from './base'
 import AjaxCall from '@/helpers/ajaxCall'
 
+const controller = 'identifiers'
+
 const permitParams = {
   identifier: {
     id: Number,
@@ -14,7 +16,14 @@ const permitParams = {
 }
 
 export const Identifier = {
-  ...baseCRUD('identifiers', permitParams),
+  ...baseCRUD(controller, permitParams),
 
-  types: () => AjaxCall('get', '/identifiers/identifier_types')
+  types: () => AjaxCall('get', `/${controller}/identifier_types`),
+
+  reorder: (params) => AjaxCall('patch', `/${controller}/reorder`, params),
+
+  namespaces: (params) => AjaxCall('post', `/${controller}/namespaces`, params),
+
+  batchByFilter: (params) =>
+    AjaxCall('post', `/${controller}/batch_by_filter_scope`, params)
 }

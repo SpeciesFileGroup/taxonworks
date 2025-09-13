@@ -38,7 +38,7 @@
 #   the project ID
 #
 class TaxonDetermination < ApplicationRecord
-  acts_as_list scope: [:taxon_determination_object_id, :taxon_determination_object_type, :project_id], add_new_at: :top
+  acts_as_list scope: [:taxon_determination_object_id, :taxon_determination_object_type, :project_id], add_new_at: :top # top is 1
 
   include Housekeeping
   include Shared::Citations
@@ -48,8 +48,10 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Labels
   include Shared::Depictions
   include Shared::ProtocolRelationships
-  include Shared::IsData
+  include Shared::DwcOccurrenceHooks
   include SoftValidation
+  include Shared::IsData
+
   ignore_whitespace_on(:print_label)
 
   belongs_to :otu, inverse_of: :taxon_determinations
@@ -79,6 +81,14 @@ class TaxonDetermination < ApplicationRecord
   scope :historical, -> { where.not(position: 1)}
 
   before_destroy :prevent_if_required
+
+  # TODO: refactor for lib/queries, hack to get
+  # Unify base-line functionality
+  def self.find_for_autocomplete(params)
+    joins(otu: [:taxon_name])
+      .where('taxon_names.cached ILIKE ? OR otus.name ILIKE ?',
+             "%#{params[:term]}%", "%#{params[:term]}%")
+  end
 
   # @params params [Hash]
   # @params collection_objectt_id [Array, Integer]
@@ -120,6 +130,25 @@ class TaxonDetermination < ApplicationRecord
     Utilities::Dates.nomenclature_date(day_made, month_made, year_made)
   end
 
+  def dwc_occurrences
+
+    return DwcOccurrence.none if taxon_determination_object.blank? # if object is not yet saved don't bother doing this, in theory it will be redundant
+
+    co = DwcOccurrence
+      .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
+      .joins("JOIN taxon_determinations td on co.id = td.taxon_determination_object_id AND td.taxon_determination_object_type = 'CollectionObject'")
+      .where(td: {id:} )
+      .distinct
+
+    fo = DwcOccurrence
+      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
+      .joins("JOIN taxon_determinations td on fo.id = td.taxon_determination_object_id AND td.taxon_determination_object_type = 'FieldOccurrence'")
+      .where(td: {id:} )
+      .distinct
+
+    ::Queries.union(DwcOccurrence, [co, fo])
+  end
+
   protected
 
   # @param [Hash] attributed
@@ -129,11 +158,15 @@ class TaxonDetermination < ApplicationRecord
   end
 
   def prevent_if_required
-    unless taxon_determination_object && taxon_determination_object.respond_to?(:ignore_taxon_determination_restriction) && taxon_determination_object.ignore_taxon_determination_restriction
-      if !marked_for_destruction? && !new_record? && taxon_determination_object.requires_taxon_determination? && taxon_determination_object.taxon_determinations.count == 1
-        errors.add(:base, 'at least one taxon determination is required')
-        throw :abort
-      end
+    # Note this ignores nested _destroys; for rails reasons we do that on
+    # the parent instead, where everything 'just works'.
+    return if marked_for_destruction?
+    return if taxon_determination_object && taxon_determination_object.respond_to?(:ignore_taxon_determination_restriction) && taxon_determination_object.ignore_taxon_determination_restriction
+
+    if taxon_determination_object.requires_taxon_determination? &&
+        taxon_determination_object.taxon_determinations.count == 1
+      errors.add(:base, 'at least one taxon determination is required')
+      throw(:abort)
     end
   end
 

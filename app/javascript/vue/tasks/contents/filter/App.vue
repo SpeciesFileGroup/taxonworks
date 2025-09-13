@@ -6,8 +6,9 @@
       :url-request="urlRequest"
       :pagination="pagination"
       :object-type="CONTENT"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :list="list"
+      :radial-navigator="false"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -51,16 +52,17 @@ import { CONTENT } from '@/constants/index.js'
 const extend = ['otu', 'topic']
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Content, { listParser, initParameters: { extend } })
 </script>
 

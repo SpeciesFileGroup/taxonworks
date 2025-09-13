@@ -8,7 +8,7 @@
       >
         <template #header>
           <h3 class="flex-separate">
-            <span>Radial mass annotator</span>
+            <span>Radial batch annotator</span>
             <span class="separate-right">
               {{ objectType }}
             </span>
@@ -21,7 +21,7 @@
               <div>
                 <RadialMenu
                   :options="menuOptions"
-                  @on-click="selectSlice"
+                  @click="selectSlice"
                 />
               </div>
             </div>
@@ -50,15 +50,19 @@
       </VModal>
       <VBtn
         class="circle-button"
-        title="Radial mass annoator"
         circle
         color="radial"
-        :disabled="disabled || (!ids.length && !Object.keys(params).length)"
+        :title="title"
+        :disabled="
+          disabled ||
+          !menuOptions.slices.length ||
+          (!ids.length && !Object.keys(params).length)
+        "
         @click="openRadialBatch"
       >
         <VIcon
           name="radialMassAnnotator"
-          title="Radial mass annoator"
+          :title="title"
           x-small
         />
       </VBtn>
@@ -76,9 +80,13 @@ import { useRadialBatch } from '@/components/radials/shared/useRadialBatch'
 import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
 import { ANNOTATORS } from './constants/annotators.js'
 import { Metadata } from '@/routes/endpoints'
-import { ref, onBeforeMount } from 'vue'
+import { computed, ref, onBeforeMount } from 'vue'
 
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
+
+defineOptions({
+  name: 'RadialBatchAnnotator'
+})
 
 const props = defineProps({
   disabled: {
@@ -107,7 +115,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close'])
+const annotatorComponents = ANNOTATORS[props.objectType] || ANNOTATORS.DEFAULT
 
 const {
   closeRadialBatch,
@@ -121,31 +129,18 @@ const {
 } = useRadialBatch({
   excludeParameters: EXCLUDE_PARAMETERS,
   props,
-  slices: props.nestedQuery ? ANNOTATORS.all : ANNOTATORS.ids
+  slices: props.nestedQuery ? annotatorComponents.all : annotatorComponents.ids
 })
 
-const isModalVisible = ref(false)
-const currentAnnotator = ref()
+const title = menuOptions.value.slices.length
+  ? 'Radial batch annotator'
+  : 'Radial batch annotator (No annotators available)'
+
 const annotatorTypes = ref({})
-
-function selectComponent({ name }) {
-  currentAnnotator.value = name
-}
-
-function closeModal() {
-  isModalVisible.value = false
-  emit('close')
-}
 
 onBeforeMount(() => {
   Metadata.annotators().then(({ body }) => {
     annotatorTypes.value = body
   })
 })
-</script>
-
-<script>
-export default {
-  name: 'RadialMassAnnotator'
-}
 </script>

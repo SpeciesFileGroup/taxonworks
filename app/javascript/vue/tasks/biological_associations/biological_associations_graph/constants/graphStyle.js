@@ -24,8 +24,14 @@ export const nodeCollectionObjectStyle = {
   type: 'rect'
 }
 
+export const nodeFieldOccurrenceStyle = {
+  ...DEFAULT_NODE_STYLE,
+  color: '#32a852',
+  type: 'rect'
+}
+
 export const nodeOtuStyle = {
   ...DEFAULT_NODE_STYLE,
   type: 'circle',
-  color: '#4CAF50'
+  color: '#96a832'
 }

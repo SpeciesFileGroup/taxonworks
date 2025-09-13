@@ -21,7 +21,6 @@
 class Project < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Housekeeping::AssociationHelpers
   include Project::Preferences
 
   attr_accessor :without_root_taxon_name
@@ -40,20 +39,21 @@ class Project < ApplicationRecord
      Citation
      Note
      CharacterState
-     Protocol
      AlternateValue
      DataAttribute
      TaggedSectionKeyword
      Tag
      Confidence
      Role
-     SledImage
      Label
      Attribution
      DwcOccurrence
      ProtocolRelationship
+     Protocol
      SqedDepiction
      Depiction
+     Conveyance
+     SledImage
      Documentation
      Document
      CollectionObjectObservation
@@ -71,9 +71,12 @@ class Project < ApplicationRecord
      Container
      PublicContent
      Content
+     Gazetteer
+     GazetteerImport
      Georeference
      Identifier
      Lead
+     LeadItem
      LoanItem
      Loan
      OtuPageLayoutSection
@@ -81,12 +84,11 @@ class Project < ApplicationRecord
      ProjectSource
      TaxonDetermination
      TypeMaterial
-     RangedLotCategory
      Image
+     Sound
      CommonName
      TaxonNameClassification
      TaxonNameRelationship
-     ControlledVocabularyTerm
      OriginRelationship
      Sequence
      SequenceRelationship
@@ -99,9 +101,10 @@ class Project < ApplicationRecord
      ObservationMatrix
      FieldOccurrence
      CollectionObject
+     RangedLotCategory
      CollectingEvent
-     Otu
      OtuRelationship
+     Otu
      TaxonName
      Descriptor
      ProjectMember
@@ -109,6 +112,7 @@ class Project < ApplicationRecord
      DatasetRecordField
      DatasetRecord
      ImportDataset
+     ControlledVocabularyTerm
      CachedMapItem
      CachedMapRegister
      CachedMap

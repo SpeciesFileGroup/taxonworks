@@ -1,34 +1,34 @@
 // see application for notices related styling
 
 .feedback {
-  color: $default_text;
+  color: var(--text-color);
   position: relative;
-  padding: .75rem 1.25rem;
+  padding: 0.75rem 1.25rem;
   margin-bottom: 1rem;
-  border-radius: .25rem;
-  border: 1px solid;
-  line-height: 2
+  border-radius: 0.25rem;
+  border: 1px solid var(--text-color);
+  line-height: 2;
 }
 
 .feedback-thin {
-  padding: .1875rem 0.3125rem;
-  margin-bottom: .25rem;
-  border-radius: .0625rem;
+  padding: 0.1875rem 0.3125rem;
+  margin-bottom: 0.25rem;
+  border-radius: 0.0625rem;
 }
 // See concept from bootstrap alerts
 
 // blue
 .feedback-primary {
-  color:  $color-blue-4;
-  background-color: $color-blue-0;
-  border-color: $color-blue-3;
+  color: var(--feedback-primary-text-color);
+  background-color: var(--feedback-primary-bg-color);
+  border-color: var(--feedback-primary-border-color);
 }
 
 // gray
 .feedback-secondary {
-  color: $color-secondary-2-4;
-  background-color: $color-secondary-2-1;
-  border-color: $color-secondary-2-3;
+  color: var(--feedback-secondary-text-color);
+  background-color: var(--feedback-secondary-bg-color);
+  border-color: var(--feedback-secondary-border-color);
 }
 
 // green
@@ -47,16 +47,16 @@
 
 // yellow
 .feedback-warning {
-  color: $color-secondary-1-4;
-  background-color: $color-secondary-1-0;
-  border-color: $color-secondary-1-3;
+  color: var(--feedback-warning-text-color);
+  background-color: var(--feedback-warning-bg-color);
+  border-color: var(--feedback-warning-border-color);
 }
 
 // brighter blue !! Same as feedback-primary, why?
 .feedback-info {
-  color: $color-blue-4;
-  background-color: $color-blue-0;
-  border-color: $color-blue-3;
+  color: var(--feedback-info-text-color);
+  background-color: var(--feedback-info-bg-color);
+  border-color: var(--feedback-info-border-color);
 }
 
 // gray on white
@@ -79,7 +79,8 @@
   background-color: $color-complement-4;
 }
 
-.warning { // danger
+.warning {
+  // danger
   background-color: $color-primary-4;
 }
 
@@ -107,6 +108,10 @@
   color: $color-secondary-2-2;
 }
 
+.bg-combination {
+  background-color: var(--bg-muted);
+}
+
 .mx-spinner {
   position: absolute;
   background-image: image-url('spinner.gif');
@@ -121,4 +126,16 @@
   @extend .string_emphasis;
   @extend .small_space;
   background-color: $color-secondary-1-2;
+}
+
+.sticky-navbar {
+  box-sizing: border-box;
+  min-height: auto;
+}
+
+.sticky-navbar-fixed {
+  position: fixed;
+  box-sizing: border-box;
+  top: 0;
+  z-index: 1001;
 }

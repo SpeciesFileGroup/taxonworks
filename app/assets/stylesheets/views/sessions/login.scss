@@ -1,5 +1,11 @@
 /* Login Screen */
-
+.dark {
+  #login-container {
+    .logo-text {
+      filter: invert(1);
+    }
+  }
+}
 #login-container {
   position: absolute;
   top: 50%;
@@ -14,7 +20,7 @@
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
-    margin-bottom: $standard_margin*4;
+    margin-bottom: $standard_margin * 4;
   }
 
   h3 {
@@ -23,9 +29,9 @@
   }
 
   .box-login {
-    background-color: #FFF;
-    padding: $standard_padding *2;
-    padding-top: $standard_padding*0.5;
+    background-color: var(--bg-foreground);
+    padding: $standard_padding * 2;
+    padding-top: $standard_padding * 0.5;
     box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
   }
   .item {
@@ -43,7 +49,7 @@
     font-size: $font_normal;
   }
 
-  input[type="submit"] {
+  input[type='submit'] {
     margin-top: 20px;
     border-radius: 3px;
   }
