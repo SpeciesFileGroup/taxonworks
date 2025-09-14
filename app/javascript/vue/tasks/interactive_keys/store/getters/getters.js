@@ -6,6 +6,8 @@ import getFilter from './getFilter'
 import getParamsFilter from './getParamsFilter'
 import getRowFilter from './getRowFilter'
 import getLeadId from './getLeadId'
+import getSelectedDescriptorStates from './getSelectedDescriptorStates'
+import getObservationObjectIdsByType from './getObservationObjectIdsByType'
 
 const GetterNames = {
   GetDescriptorsFilter: 'getDescriptorsFilter',
@@ -15,7 +17,9 @@ const GetterNames = {
   GetFilter: 'getFilter',
   GetParamsFilter: 'getParamsFilter',
   GetRowFilter: 'getRowFilter',
-  GetLeadId: 'getLeadId'
+  GetLeadId: 'getLeadId',
+  GetSelectedDescriptorStates: 'getSelectedDescriptorStates',
+  GetObservationObjectIdsByType: 'getObservationObjectIdsByType'
 }
 
 const GetterFunctions = {
@@ -26,7 +30,9 @@ const GetterFunctions = {
   [GetterNames.GetFilter]: getFilter,
   [GetterNames.GetParamsFilter]: getParamsFilter,
   [GetterNames.GetRowFilter]: getRowFilter,
-  [GetterNames.GetLeadId]: getLeadId
+  [GetterNames.GetLeadId]: getLeadId,
+  [GetterNames.GetSelectedDescriptorStates]: getSelectedDescriptorStates,
+  [GetterNames.GetObservationObjectIdsByType]: getObservationObjectIdsByType
 }
 
 export {

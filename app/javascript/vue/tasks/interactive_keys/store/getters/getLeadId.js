@@ -1,1 +1,1 @@
-export default state => state.lead_id
+export default (state) => state.lead_id

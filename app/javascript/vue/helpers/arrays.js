@@ -127,11 +127,17 @@ function removeFromArray(arr, obj, opts = {}) {
   }
 }
 
+function intersectArrays(...arrays) {
+  if (arrays.length === 0) return [];
+  return [...new Set(arrays.reduce((acc, arr) => acc.filter(x => new Set(arr).has(x))))]
+}
+
 export {
   chunkArray,
   getUnique,
   sortArray,
   sortArrayByArray,
   addToArray,
-  removeFromArray
+  removeFromArray,
+  intersectArrays
 }

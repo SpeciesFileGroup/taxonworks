@@ -40,7 +40,7 @@
           <button
             v-if="showSendToKeyButton"
             type="button"
-            @click="sendToLead"
+            @click="sendToKey"
             class="button normal-input button-default margin-small-left"
           >
             Send to key
@@ -90,9 +90,11 @@ import EliminateUnknowns from './Filters/EliminateUnknowns'
 import RefreshComponent from './Filters/Refresh'
 import KeywordsComponent from './Filters/Keywords'
 import scrollToTop from '../utils/scrollToTop.js'
+import { RouteNames } from '@/routes/routes'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
+import sides from '../const/filterings'
 
 export default {
   components: {
@@ -193,7 +195,20 @@ export default {
         this.observationMatrix.observation_matrix_id
       )
       scrollToTop()
+    },
+
+    sendToKey() {
+      const leadId = this.$store.getters[GetterNames.GetLeadId]
+
+      const selectedDescriptorStates = this.$store.getters[GetterNames.GetSelectedDescriptorStates]
+      const data = encodeURIComponent(JSON.stringify(selectedDescriptorStates))
+
+      const otuIds = this.$store.getters[GetterNames.GetObservationObjectIdsByType]([sides.Remaining, sides.Both], 'Otu')
+      const otuIdsData = encodeURIComponent(JSON.stringify(otuIds))
+
+      window.location.href = `${RouteNames.NewLead}?lead_id=${leadId}&descriptor_data=${data}&otu_ids=${otuIdsData}`
     }
+
   }
 }
 </script>
