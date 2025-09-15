@@ -19,11 +19,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `class` being named `dwcClass` and `rebuild_set` leaked in DwC OTU inventory API endpoint
 - Lead text sometimes doesn't update in the UI after save in 'full key' display mode
 - Taxon name statistics now load much faster for higher taxa. Valid taxa counts are unchanged but invalid and otu-taxa counts have decreased slightly in some instances due to being counted differently.
+- Fix DwCA media and resource relationship extensions to refer to core occurrences properly (this previously prevented extension data from displaying on GBIF occurrence pages)
 
 ### Changed
 
 - Mass annotate namespaces in Filter Collection Objects/Filter Collecting Events now requires selecting the namespace(s) to replace
 - Changed file extension from `.csv` to `.tsv` in DwC OTU inventory API endpoint to facilitate readers to detect field separator correctly.
+- Make distribution on /api/v1/taxon_names/:id/inventory/catalog an extends option
 
 ## [0.53.2] - 2025-09-05
 
