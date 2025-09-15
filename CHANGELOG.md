@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Error on Globi preview of biological associations and on api/v1/biological_associations.globi
 
 ### Changed
+- Mass annotate namespaces in Filter Collection Objects/Filter Collecting Events now requires selecting the namespace(s) to replace
 
 ## [0.53.2] - 2025-09-05
 
