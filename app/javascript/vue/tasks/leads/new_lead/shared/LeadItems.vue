@@ -216,7 +216,7 @@ function sendToInteractiveKey() {
     (i) => store.lead_item_otus.parent[i].id
   ).join('|')
 
-  window.open(`${RouteNames.InteractiveKeys}?observation_matrix_id=${store.root.observation_matrix_id}&otu_filter=${otuIds}&lead_id=${store.lead.id}`)
+  window.location.href = `${RouteNames.InteractiveKeys}?observation_matrix_id=${store.root.observation_matrix_id}&otu_filter=${otuIds}&lead_id=${store.lead.id}`
 }
 
 </script>

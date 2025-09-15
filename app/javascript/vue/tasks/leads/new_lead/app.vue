@@ -75,6 +75,7 @@ import { RouteNames } from '@/routes/routes'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { usePopstateListener } from '@/composables'
 import { nextLayout, LAYOUTS, LAYOUT_COMPONENTS } from './shared/layouts'
+import { LeadItem } from '@/routes/endpoints'
 
 const LAYOUT_STORAGE_KEY = 'tw::leads::new::layout'
 
@@ -132,14 +133,32 @@ onBeforeMount(() => {
     store.layout = value
   }
 
-  const { lead_id } = URLParamsToJSON(location.href)
+  const { lead_id, otu_ids, descriptor_data } = URLParamsToJSON(location.href)
 
   if (lead_id) {
     // Call this for history.replaceState - it replaces turbolinks state
     // that would cause a reload every time we revisit this initial lead.
     setParam(RouteNames.NewLead, 'lead_id', lead_id)
+  }
+  if (otu_ids || descriptor_data) { // Message received, now delete it
+    // replace state
+    setParam(RouteNames.NewLead, 'otu_ids', undefined, false, true)
+    setParam(RouteNames.NewLead, 'descriptor_data', undefined, false, true)
+  }
+
+
+  if (lead_id && otu_ids && descriptor_data) {
+    const leadItemsData = JSON.parse(decodeURIComponent(otu_ids))
+    store.process_lead_items_data(leadItemsData, lead_id)
+      .then(() => {
+        const descriptorData = JSON.parse(decodeURIComponent(descriptor_data))
+        store.loadKey(lead_id)
+        .then(() => store.process_descriptor_data(descriptorData))
+      })
+  } else if (lead_id) {
     store.loadKey(lead_id)
   }
+
 })
 </script>
 

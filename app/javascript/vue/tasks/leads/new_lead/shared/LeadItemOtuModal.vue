@@ -78,9 +78,10 @@ const store = useStore()
 
 function otusSelected(rows) {
   store.setLoading(true)
-  const p1 = LeadItem.addLeadItemsToChildLead({
+  const p1 = LeadItem.addLeadItemsToLead({
     otu_ids: rows.otuIds,
-    parent_id: store.lead.id
+    lead_id: store.lead.id,
+    lead_is_parent: true
   })
     .then(() => {
       store.loadKey(store.lead.id)

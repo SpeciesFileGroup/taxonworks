@@ -17,7 +17,26 @@ export default (state) => {
           type: 'Sample',
           state: d.name,
           value: state.observationMatrix.selected_descriptors_hash[d.id][0],
-          unused: d.states.filter((s) => s.status != 'used').map((s) => s.name)
+          unused: []
+        })
+        break
+
+      case 'Descriptor::PresenceAbsence':
+        const value = state.observationMatrix.selected_descriptors_hash[d.id][0]
+        selected.push({
+          type: 'PresenceAbsence',
+          state: d.name,
+          value:  value ? 'present' : 'absent',
+          unused: [value ? 'absent' : 'present']
+        })
+        break
+
+      case 'Descriptor::Continuous':
+        selected.push({
+          type: 'Continuous',
+          state: d.name,
+          value: state.observationMatrix.selected_descriptors_hash[d.id][0],
+          unused: []
         })
         break
 
