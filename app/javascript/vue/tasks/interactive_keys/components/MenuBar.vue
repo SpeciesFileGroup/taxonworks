@@ -43,7 +43,7 @@
             @click="sendToKey"
             class="button normal-input button-default margin-small-left"
           >
-            Send to key
+            Return to key
           </button>
           <button
             type="button"
