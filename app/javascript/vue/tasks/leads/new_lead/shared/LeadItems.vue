@@ -150,7 +150,7 @@ const showSendToInteractiveKey = computed(() => {
 })
 
 function addOtu() {
-  modalVisible.value = true
+  otusModalVisible.value = true
 }
 
 function addOtuIndex(otuIndex) {
