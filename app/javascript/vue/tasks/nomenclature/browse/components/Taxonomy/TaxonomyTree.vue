@@ -69,6 +69,7 @@
               (child.id === currentId || !onlyValid || child.isValid)
             "
             :taxon="child"
+            :count="count"
             :depth="depth + 1"
             :current-id="currentId"
             :rainbow="rainbow"
@@ -110,6 +111,11 @@ const props = defineProps({
   depth: {
     type: Number,
     default: 0
+  },
+
+  count: {
+    type: Boolean,
+    required: true
   },
 
   rainbow: {
@@ -175,7 +181,8 @@ function isChildSynonym(t) {
 function expandNode(taxonId) {
   isLoading.value = true
   TaxonName.taxonomy(taxonId, {
-    ancestors: false
+    ancestors: false,
+    count: props.count
   })
     .then(({ body }) => {
       const children = body.descendants.map((c) => makeTaxonNode(c))

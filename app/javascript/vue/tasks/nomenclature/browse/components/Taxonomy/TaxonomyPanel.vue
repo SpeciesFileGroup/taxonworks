@@ -3,6 +3,7 @@
     <TaxonomyOptions
       v-model:only-valid="onlyValid"
       v-model:rainbow="rainbow"
+      v-model:count="count"
     />
   </Teleport>
 
@@ -17,6 +18,7 @@
     >
       <TaxonomyTree
         :current-id="taxonId"
+        :count="count"
         :taxon="tree"
         :rainbow="rainbow"
         :only-valid="onlyValid"
@@ -27,9 +29,9 @@
 
 <script setup>
 import { TaxonName } from '@/routes/endpoints'
-import { onBeforeMount, ref } from 'vue'
-import TaxonomyOptions from './TaxonomyOptions.vue'
+import { onMounted, ref } from 'vue'
 import { makeTaxonNode } from '../../utils/makeTaxonNode'
+import TaxonomyOptions from './TaxonomyOptions.vue'
 import TaxonomyTree from './TaxonomyTree.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
@@ -45,9 +47,10 @@ const props = defineProps({
 })
 
 const tree = ref()
+const count = ref(true)
 const rainbow = ref(true)
 const isLoading = ref(true)
-const onlyValid = ref(true)
+const onlyValid = ref(false)
 
 function buildTree(ancestors, taxon) {
   if (!ancestors || ancestors.length === 0) {
@@ -73,8 +76,8 @@ function buildTree(ancestors, taxon) {
   return root
 }
 
-onBeforeMount(() => {
-  TaxonName.taxonomy(props.taxonId)
+onMounted(() => {
+  TaxonName.taxonomy(props.taxonId, { count: count.value })
     .then(({ body }) => {
       tree.value = buildTree(body.ancestors, {
         ...body.taxon_name,

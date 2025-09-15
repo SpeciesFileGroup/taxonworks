@@ -9,7 +9,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Radial filter: Source => TNR and vice versa
+- Taxonomic tree: Options to show/hide descendants count and Level-based coloring.
+
 ### Fixed
+
 - Error on Globi preview of biological associations and on api/v1/biological_associations.globi
 
 ### Changed
