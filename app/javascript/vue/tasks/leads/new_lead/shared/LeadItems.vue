@@ -30,7 +30,7 @@
           v-if="showSendToInteractiveKey"
           medium
           color="primary"
-          @click="sendToInteractiveKey"
+          @click="() => { matricesModalVisible = true }"
           class="lead_item_long_button"
         >
           Send OTUs to interactive key
@@ -87,8 +87,14 @@
   </div>
 
   <LeadItemOtuModal
-    v-model="modalVisible"
+    v-model="otusModalVisible"
     :child-index="position"
+  />
+
+  <InteractiveKeyPickerModal
+    v-model:visible="matricesModalVisible"
+    v-model:chosen-matrix-id="chosenMatrixId"
+    @click="sendToInteractiveKey"
   />
 
 </template>
@@ -101,6 +107,7 @@ import useStore from '../store/leadStore.js'
 import { Lead, LeadItem } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
+import InteractiveKeyPickerModal from './InteractiveKeyPickerModal.vue'
 
 const props = defineProps({
   leadId: {
@@ -119,7 +126,9 @@ const props = defineProps({
 
 const store = useStore()
 
-const modalVisible = ref(false)
+const otusModalVisible = ref(false)
+const matricesModalVisible = ref(false)
+const chosenMatrixId = ref(null)
 
 const otuIndices = computed(() => {
   // A list of indices into the parent otu list indicating which of the parent
@@ -216,7 +225,7 @@ function sendToInteractiveKey() {
     (i) => store.lead_item_otus.parent[i].id
   ).join('|')
 
-  window.location.href = `${RouteNames.InteractiveKeys}?observation_matrix_id=${store.root.observation_matrix_id}&otu_filter=${otuIds}&lead_id=${store.lead.id}`
+  window.location.href = `${RouteNames.InteractiveKeys}?observation_matrix_id=${chosenMatrixId.value}&otu_filter=${otuIds}&lead_id=${store.lead.id}`
 }
 
 </script>
