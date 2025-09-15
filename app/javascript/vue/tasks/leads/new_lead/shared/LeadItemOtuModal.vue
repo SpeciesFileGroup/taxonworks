@@ -35,7 +35,7 @@
       <InteractiveKeyOtus
         v-if="selectMode == 'From an interactive key'"
         :existing-otus="existingOtuIds"
-        @selected="(rows) => otusSelected(rows)"
+        @selected="(rows) => otusSelected(rows.otuIds)"
       />
     </template>
   </VModal>
@@ -78,10 +78,11 @@ const store = useStore()
 
 function otusSelected(rows) {
   store.setLoading(true)
+  let addedObservationMatrixId = false
   const p1 = LeadItem.addLeadItemsToLead({
-    otu_ids: rows.otuIds,
-    lead_id: store.lead.id,
-    lead_is_parent: true
+    otu_ids: rows,
+    parent_id: store.lead.id,
+    add_to_first_child: false
   })
     .then(() => {
       store.loadKey(store.lead.id)
@@ -92,12 +93,19 @@ function otusSelected(rows) {
     { observation_matrix_id: rows.observationMatrixId })
     .then(() => {
       store.root.observation_matrix_id = rows.observationMatrixId
+      if (rows.observationMatrixId) {
+        addedObservationMatrixId = true
+      }
     })
     .catch(() => {})
 
   Promise.all([p1, p2])
     .then(() => {
-      TW.workbench.alert.create('Added otus to the lead list; saved link to observation matrix', 'notice')
+      if (addedObservationMatrixId) {
+        TW.workbench.alert.create('Added otus to the lead list; saved link to observation matrix', 'notice')
+      } else {
+        TW.workbench.alert.create('Added otus to the lead list')
+      }
     })
     .finally(() => { store.setLoading(false) })
 }

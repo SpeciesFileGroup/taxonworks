@@ -138,7 +138,6 @@ const otuIndices = computed(() => {
 
 const showSendToInteractiveKey = computed(() => {
   if (
-    !!store.root.observation_matrix_id &&
     store.children.length == 2 && props.position == 1 &&
     // All lead items are on this lead:
     store.lead_item_otus.children[0].otu_indices.length == 0
