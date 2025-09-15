@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Error on Globi preview of biological associations and on api/v1/biological_associations.globi
+- `class` being named `dwcClass` and `rebuild_set` leaked in DwC OTU inventory API endpoint
 
 ### Changed
 
