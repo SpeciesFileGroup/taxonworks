@@ -343,7 +343,7 @@ module Protonym::SoftValidationExtensions
       sv_duplicate_nomen_nudum: {
         set: :duplicate_nomen_nudum,
         name: 'Duplicate nomen nudum',
-        description: "Nomen nudum could be a duplicate or described later with an available name",
+        description: 'Nomen nudum could be a duplicate or described later with an available name',
         resolution:  [:new_taxon_name_task]
       },
 
@@ -485,7 +485,7 @@ module Protonym::SoftValidationExtensions
         else
           l = []
           z.each do |key, value|
-            l << (value == 1 ? " as '#{key.constantize.label}' #{value.to_s} time" : " as '#{key.constantize.label}' #{value.to_s} times")
+            l << (value == 1 ? " as '#{key.constantize.label}' #{value} time" : " as '#{key.constantize.label}' #{value} times")
           end
           soft_validations.add(:base, "Part of speech is not specified. The name was previously used#{other_project}" + l.join('; '))
         end
@@ -504,7 +504,7 @@ module Protonym::SoftValidationExtensions
         s = part_of_speech_name
         if !s.nil? && is_available?
           if %w{adjective participle}.include?(s)
-            if !feminine_name.blank? && !masculine_name.blank? && !neuter_name.blank? && name != masculine_name && name != feminine_name && name != neuter_name
+            if feminine_name.present? && masculine_name.present? && neuter_name.present? && name != masculine_name && name != feminine_name && name != neuter_name
               soft_validations.add(:base, 'Species name does not match with either of three alternative forms')
             else
               forms = Utilities::Nomenclature.predict_three_forms(name)
@@ -538,12 +538,12 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_species_gender_agreement_not_required
-      if is_species_rank? && ((!feminine_name.blank? || !masculine_name.blank? || !neuter_name.blank?)) && is_available?
+      if is_species_rank? && ((feminine_name.present? || masculine_name.present? || neuter_name.present?)) && is_available?
         s = part_of_speech_name
         if !s.nil? && !%w{adjective participle}.include?(s)
-          soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name which is not adjective or participle.') unless feminine_name.blank?
-          soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless masculine_name.blank?
-          soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless neuter_name.blank?
+          soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name which is not adjective or participle.') if feminine_name.present?
+          soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  if masculine_name.present?
+          soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  if neuter_name.present?
         end
       end
     end
@@ -605,15 +605,15 @@ module Protonym::SoftValidationExtensions
           end
         end
         if fixed
-        begin
-          Protonym.transaction do
-            self.source.save
-            self.origin_citation.update_column(:pages, pg)
+          begin
+            Protonym.transaction do
+              self.source.save
+              self.origin_citation.update_column(:pages, pg)
+            end
+            return true
+          rescue
+            return false
           end
-          return true
-        rescue
-          return false
-        end
       end
     end
 
@@ -951,9 +951,9 @@ module Protonym::SoftValidationExtensions
 
     def sv_fix_coordinated_names_etymology
       fixed = false
-      return false unless self.etymology.blank?
+      return false if self.etymology.present?
       list_of_coordinated_names.each do |t|
-        if !t.etymology.blank?
+        if t.etymology.present?
           self.etymology = t.etymology
           fixed = true
         end
@@ -1521,7 +1521,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_extant_children
-      unless parent_id.blank?
+      if parent_id.present?
         if is_fossil?
           taxa = Protonym.where(parent_id: self.id)
           z = 0
@@ -1679,9 +1679,9 @@ module Protonym::SoftValidationExtensions
 
     def sv_presence_of_combination
       if is_genus_or_species_rank? && is_valid? && self.id == self.lowest_rank_coordinated_taxon.id && !cached_original_combination.nil? && cached != cached_original_combination
-        unless Combination.where("cached = ? AND cached_valid_taxon_name_id = ?", cached, cached_valid_taxon_name_id).any?
+        unless Combination.where('cached = ? AND cached_valid_taxon_name_id = ?', cached, cached_valid_taxon_name_id).any?
           soft_validations.add(
-            :base, "Protonym #{self.cached_html} missing corresponding subsequent combination. Current classification of the taxon is different from original combination. (Fix will try to create a new combination if possible)",
+            :base, "Protonym #{self.cached_original_combination_html} missing corresponding subsequent combination. Current classification of the taxon is different from original combination. (Fix will try to create a new combination if possible)",
             success_message: "Combination #{self.cached_html} was successfully create",
             failure_message:  'Failed to create a new combination')
         end
