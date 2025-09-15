@@ -76,8 +76,8 @@ class LeadItemsController < ApplicationController
     parent = Lead.find(params[:parent_id])
     otu_ids = params[:otu_ids]
     exclusive = params[:exclusive_otu_ids] || []
-    add_to_first_child = params[:add_to_first_child] || false
-    added = LeadItem.add_items_to_lead(parent, otu_ids, exclusive, add_to_first_child)
+    add_new_to_first_child = params[:add_new_to_first_child] || false
+    added = LeadItem.add_items_to_lead(parent, otu_ids, exclusive, add_new_to_first_child)
 
     if !added
       render json: parent.errors, status: :unprocessable_entity

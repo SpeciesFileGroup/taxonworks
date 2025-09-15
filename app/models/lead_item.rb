@@ -105,15 +105,15 @@ class LeadItem < ApplicationRecord
     true
   end
 
-  # @param parent [Lead] With add_to_first_child, determines which lead to add
+  # @param parent [Lead] With add_new_to_first_child, determines which lead to add
   #   items to
   # @param otu_ids [Array] Which otus to add
   # @param exclusive_otu_ids [Array] Remove these otus from all siblings of the
   #   lead added to
-  # @param add_to_first_child [Boolean] if true then add lead otus to parent's
-  #   first child, otherwise (default) add to the last available (rightmost)
-  #   child.
-  def self.add_items_to_lead(parent, otu_ids, exclusive_otu_ids, add_to_first_child = false)
+  # @param add_new_to_first_child [Boolean] if true then add lead otus *that
+  #   already exist on parent* to parent's first child, otherwise (default) add
+  #   all supplied otus to the last available (rightmost) child.
+  def self.add_items_to_lead(parent, otu_ids, exclusive_otu_ids, add_new_to_first_child = false)
     if otu_ids.nil? || otu_ids.empty?
       parent.errors.add(:base, 'No otus to add!')
       return false
@@ -123,7 +123,7 @@ class LeadItem < ApplicationRecord
     end
 
     lead_to_add_to = nil
-    if add_to_first_child
+    if add_new_to_first_child
       lead_to_add_to = parent.children.first
     else
       parent.children.to_a.reverse.each do |c|
@@ -141,6 +141,12 @@ class LeadItem < ApplicationRecord
       return false
     end
 
+    # TODO: this is really special-case code for adding items from a matrix,
+    # clean things up.
+    if add_new_to_first_child
+      # Limit to lead items that exist on the right lead.
+      otu_ids = otu_ids & parent.children[1].lead_items.pluck(:otu_id)
+    end
     existing = lead_to_add_to.lead_items.pluck(:otu_id)
     new_otu_ids = otu_ids - existing
     lead_item_table = LeadItem.arel_table

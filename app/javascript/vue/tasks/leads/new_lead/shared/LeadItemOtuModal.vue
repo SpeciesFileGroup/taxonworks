@@ -35,7 +35,7 @@
       <InteractiveKeyOtus
         v-if="selectMode == 'From an interactive key'"
         :existing-otus="existingOtuIds"
-        @selected="(rows) => otusSelected(rows.otuIds)"
+        @selected="(rows) => otusSelected(rows.otuIds, rows.observationMatrixId)"
       />
     </template>
   </VModal>
@@ -76,32 +76,29 @@ const existingOtuIds = computed(() => {
 
 const store = useStore()
 
-function otusSelected(rows) {
+function otusSelected(rows, observationMatrixId = null) {
   store.setLoading(true)
-  let addedObservationMatrixId = false
   const p1 = LeadItem.addLeadItemsToLead({
     otu_ids: rows,
     parent_id: store.lead.id,
-    add_to_first_child: false
+    add_new_to_first_child: false
   })
     .then(() => {
       store.loadKey(store.lead.id)
     })
     .catch(() => {})
 
-  const p2 = Lead.setObservationMatrix(store.root.id,
-    { observation_matrix_id: rows.observationMatrixId })
+
+  const p2 = observationMatrixId ? Lead.setObservationMatrix(store.root.id,
+    { observation_matrix_id: observationMatrixId })
     .then(() => {
-      store.root.observation_matrix_id = rows.observationMatrixId
-      if (rows.observationMatrixId) {
-        addedObservationMatrixId = true
-      }
+      store.root.observation_matrix_id = observationMatrixId
     })
-    .catch(() => {})
+    .catch(() => {}) : null
 
   Promise.all([p1, p2])
     .then(() => {
-      if (addedObservationMatrixId) {
+      if (observationMatrixId) {
         TW.workbench.alert.create('Added otus to the lead list; saved link to observation matrix', 'notice')
       } else {
         TW.workbench.alert.create('Added otus to the lead list')
