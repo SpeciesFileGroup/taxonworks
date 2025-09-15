@@ -17,7 +17,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Error on Globi preview of biological associations and on api/v1/biological_associations.globi
 
 ### Changed
+
 - Mass annotate namespaces in Filter Collection Objects/Filter Collecting Events now requires selecting the namespace(s) to replace
+- Changed file extension from `.csv` to `.tsv` in DwC OTU inventory API endpoint to facilitate readers to detect field separator correctly.
 
 ## [0.53.2] - 2025-09-05
 

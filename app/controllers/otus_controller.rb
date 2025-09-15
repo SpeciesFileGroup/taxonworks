@@ -368,7 +368,7 @@ class OtusController < ApplicationController
           DwcOccurrence.scoped_by_otu(@otu),
           exclude_columns: ['id', 'created_by_id', 'updated_by_id', 'project_id', 'updated_at']),
         type: 'text',
-        filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.csv"
+        filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.tsv"
       end
 
       format.json do
