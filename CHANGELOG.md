@@ -11,11 +11,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Radial filter: Source => TNR and vice versa
 - Taxonomic tree: Options to show/hide descendants count and Level-based coloring.
+- Interactive key descriptor selections can be used to help create a dichotomous key
 
 ### Fixed
 
 - Error on Globi preview of biological associations and on api/v1/biological_associations.globi
 - `class` being named `dwcClass` and `rebuild_set` leaked in DwC OTU inventory API endpoint
+- Lead text sometimes doesn't update in the UI after save in 'full key' display mode
+- Taxon name statistics now load much faster for higher taxa. Valid taxa counts are unchanged but invalid and otu-taxa counts have decreased slightly in some instances due to being counted differently.
 
 ### Changed
 
