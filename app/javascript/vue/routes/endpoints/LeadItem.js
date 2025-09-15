@@ -16,8 +16,8 @@ export const LeadItem = {
     'post', `/${controller}/destroy_item_in_children.json`, payload
   ),
 
-  addLeadItemsToChildLead: (payload) => AjaxCall(
-    'post', `/${controller}/add_lead_items_to_child_lead.json`, payload
+  addLeadItemsToLead: (payload) => AjaxCall(
+    'post', `/${controller}/add_lead_items_to_lead.json`, payload
   ),
 
   addOtuIndex: (payload) => AjaxCall(

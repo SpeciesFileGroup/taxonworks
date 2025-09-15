@@ -2,9 +2,10 @@ import { defineStore } from 'pinia'
 import { Lead, LeadItem } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { LAYOUTS } from '../shared/layouts'
+import { EXTEND } from '../shared/constants'
+import { subtractArrays } from '@/helpers'
 import editableChildrenFields from './constants/editableChildrenFields'
 import setParam from '@/helpers/setParam'
-import { EXTEND } from '../shared/constants'
 
 const makeInitialState = () => ({
   // The root node of the key.
@@ -59,6 +60,7 @@ function makeLeadObject() {
     parent_id: undefined,
     redirect_id: undefined,
     text: undefined,
+    observation_matrix_id: undefined,
     future: []
   }
 }
@@ -380,6 +382,33 @@ export default defineStore('leads', {
         default:
           throw new Error(`Internal error: unrecognized update for_affected ${for_affected}`)
       }
+    },
+
+    process_descriptor_data(data) {
+      const left = data.map((d) => `${d.state}: ${d.value}`).join('; ')
+      const right = data.map((d) => `${d.state}: ${d.unused}`).join('; ')
+      if (!!left && this.children[0]) {
+        this.children[0].text = !!this.children[0].text
+        ? this.children[0].text + "\n" + left
+        : left
+      }
+      if (!!right && this.children[1]) {
+        this.children[1].text = !!this.children[1].text
+        ? this.children[1].text + "\n" + right
+        : right
+      }
+    },
+
+    async process_lead_items_data(otu_ids, lead_id) {
+
+      const payload = {
+        otu_ids: otu_ids.remaining || [],
+        exclusive_otu_ids: subtractArrays((otu_ids.remaining || []), (otu_ids.both || [])),
+        parent_id: lead_id,
+        add_new_to_first_child: true
+      }
+      await LeadItem.addLeadItemsToLead(payload)
+        .catch(() => {})
     }
   }
 })

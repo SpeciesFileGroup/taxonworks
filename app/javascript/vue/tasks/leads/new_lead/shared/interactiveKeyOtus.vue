@@ -1,105 +1,105 @@
 <template>
-      <VSpinner
-        v-if="isLoading"
-        legend="Loading..."
-      />
-      <select
-        class="full_width margin-medium-bottom"
-        v-model="matrixSelected"
+  <VSpinner
+    v-if="isLoading"
+    legend="Loading..."
+  />
+  <select
+    class="full_width margin-medium-bottom"
+    v-model="matrixSelected"
+  >
+    <option :value="undefined">Select a observation matrix</option>
+    <option
+      v-for="item in observationMatrices"
+      :key="item.id"
+      :value="item"
+    >
+      {{ item.name }}
+    </option>
+  </select>
+  <div
+    v-if="matrixSelected"
+    class="flex-separate margin-small-bottom"
+  >
+    <VBtn
+      color="create"
+      :disabled="!rowsSelected.length"
+      @click="addRows"
+    >
+      Add otus
+    </VBtn>
+    <div
+      class="horizontal-right-content middle gap-small"
+      v-if="matrixSelected"
+    >
+      <VBtn
+        color="primary"
+        @click="selectAll"
       >
-        <option :value="undefined">Select a observation matrix</option>
-        <option
-          v-for="item in observationMatrices"
-          :key="item.id"
+        Select all
+      </VBtn>
+      <VBtn
+        color="primary"
+        @click="unselectAll"
+      >
+        Unselect all
+      </VBtn>
+    </div>
+  </div>
+  <ul class="no_bullets">
+    <li
+      v-for="item in rows"
+      :key="item.observation_object.id"
+    >
+      <label>
+        <input
+          type="checkbox"
           :value="item"
+          v-model="rowsSelected"
+          :disabled="alreadyExist(item)"
+        />
+        <span
+          class="disabled"
+          v-if="alreadyExist(item)"
         >
-          {{ item.name }}
-        </option>
-      </select>
-      <div
-        v-if="matrixSelected"
-        class="flex-separate margin-small-bottom"
-      >
-        <VBtn
-          color="create"
-          :disabled="!rowsSelected.length"
-          @click="addRows"
+          <span v-html="item.observation_object.object_tag" /> ({{
+            item.observation_object.base_class
+          }}) <span>(Already added)</span></span
         >
-          Add otus
-        </VBtn>
-        <div
-          class="horizontal-right-content middle gap-small"
-          v-if="matrixSelected"
-        >
-          <VBtn
-            color="primary"
-            @click="selectAll"
-          >
-            Select all
-          </VBtn>
-          <VBtn
-            color="primary"
-            @click="unselectAll"
-          >
-            Unselect all
-          </VBtn>
-        </div>
-      </div>
-      <ul class="no_bullets">
-        <li
-          v-for="item in rows"
-          :key="item.observation_object.id"
-        >
-          <label>
-            <input
-              type="checkbox"
-              :value="item"
-              v-model="rowsSelected"
-              :disabled="alreadyExist(item)"
-            />
-            <span
-              class="disabled"
-              v-if="alreadyExist(item)"
-            >
-              <span v-html="item.observation_object.object_tag" /> ({{
-                item.observation_object.base_class
-              }}) <span>(Already added)</span></span
-            >
-            <span v-else>
-              <span v-html="item.observation_object.object_tag" /> ({{
-                item.observation_object.base_class
-              }})
-            </span>
-          </label>
-        </li>
-      </ul>
+        <span v-else>
+          <span v-html="item.observation_object.object_tag" /> ({{
+            item.observation_object.base_class
+          }})
+        </span>
+      </label>
+    </li>
+  </ul>
 
-      <div class="flex-separate middle gap-small">
-        <VBtn
-          color="create"
-          :disabled="!rowsSelected.length"
-          @click="addRows"
-        >
-          Add rows
-        </VBtn>
-        <div
-          class="horizontal-right-content middle gap-small"
-          v-if="matrixSelected"
-        >
-          <VBtn
-            color="primary"
-            @click="selectAll"
-          >
-            Select all
-          </VBtn>
-          <VBtn
-            color="primary"
-            @click="unselectAll"
-          >
-            Unselect all
-          </VBtn>
-        </div>
-      </div>
+  <div class="flex-separate middle gap-small">
+    <VBtn
+      color="create"
+      :disabled="!rowsSelected.length"
+      @click="addRows"
+    >
+      Add rows
+    </VBtn>
+    <div
+      class="horizontal-right-content middle gap-small"
+      v-if="matrixSelected"
+    >
+      <VBtn
+        color="primary"
+        @click="selectAll"
+      >
+        Select all
+      </VBtn>
+      <VBtn
+        color="primary"
+        @click="unselectAll"
+      >
+        Unselect all
+      </VBtn>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -158,7 +158,10 @@ function loadRows(page = undefined) {
 }
 
 function addRows() {
-  emit('selected', rowsSelected.value.map((item) => item.observation_object.id))
+  emit('selected', {
+    observationMatrixId: matrixSelected.value.id,
+    otuIds: rowsSelected.value.map((item) => item.observation_object.id)
+  })
 }
 
 function alreadyExist(item) {

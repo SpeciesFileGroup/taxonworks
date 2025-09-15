@@ -35,7 +35,7 @@
       <InteractiveKeyOtus
         v-if="selectMode == 'From an interactive key'"
         :existing-otus="existingOtuIds"
-        @selected="(otu_ids) => otusSelected(otu_ids)"
+        @selected="(rows) => otusSelected(rows.otuIds, rows.observationMatrixId)"
       />
     </template>
   </VModal>
@@ -48,7 +48,7 @@ import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 import InteractiveKeyOtus from './interactiveKeyOtus.vue'
 import KeyOtus from './KeyOtus.vue'
-import { LeadItem } from '@/routes/endpoints'
+import { Lead, LeadItem } from '@/routes/endpoints'
 import { OTU } from '@/constants'
 import { computed, ref } from 'vue'
 
@@ -76,17 +76,34 @@ const existingOtuIds = computed(() => {
 
 const store = useStore()
 
-function otusSelected(otuIds) {
+function otusSelected(rows, observationMatrixId = null) {
   store.setLoading(true)
-  LeadItem.addLeadItemsToChildLead({
-    otu_ids: otuIds,
-    parent_id: store.lead.id
+  const p1 = LeadItem.addLeadItemsToLead({
+    otu_ids: rows,
+    parent_id: store.lead.id,
+    add_new_to_first_child: false
   })
     .then(() => {
       store.loadKey(store.lead.id)
-      TW.workbench.alert.create('Added otus to the lead list.', 'notice')
     })
     .catch(() => {})
+
+
+  const p2 = observationMatrixId ? Lead.setObservationMatrix(store.root.id,
+    { observation_matrix_id: observationMatrixId })
+    .then(() => {
+      store.root.observation_matrix_id = observationMatrixId
+    })
+    .catch(() => {}) : null
+
+  Promise.all([p1, p2])
+    .then(() => {
+      if (observationMatrixId) {
+        TW.workbench.alert.create('Added otus to the lead list; saved link to observation matrix', 'notice')
+      } else {
+        TW.workbench.alert.create('Added otus to the lead list')
+      }
+    })
     .finally(() => { store.setLoading(false) })
 }
 </script>
