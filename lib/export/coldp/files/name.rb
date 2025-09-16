@@ -177,6 +177,8 @@ module Export::Coldp::Files::Name
       add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
       add_invalid_core_names(otu, csv, project_members, reference_csv)
     end
+
+    output[:csv]
   end
 
   # Higher names are:
@@ -502,10 +504,10 @@ module Export::Coldp::Files::Name
   def self.nomenclatural_status(taxon_name_id, classification_status = [], relationship_status = [])
     # Always prefer  a classification, regardless of age
     a = classification_status.bsearch{|i| i['taxon_name_id'] >= taxon_name_id}
-    return a['type'].safe_constantize::NOMEN_URI if !a.blank? && a['taxon_name_id'] == taxon_name_id # binary is first >=
+    return a['type'].safe_constantize::NOMEN_URI if a.present? && a['taxon_name_id'] == taxon_name_id # binary is first >=
     b = relationship_status.bsearch{|i| i['subject_taxon_name_id'] >= taxon_name_id}
     return nil if b.blank? || b['subject_taxon_name_id'] != taxon_name_id
-    return b['type'].safe_constantize::NOMEN_URI unless b.blank?
+    return b['type'].safe_constantize::NOMEN_URI if b.present?
     nil
   end
 
