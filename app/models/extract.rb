@@ -36,7 +36,7 @@ class Extract < ApplicationRecord
   # TODO: auto-UUID
 
   is_origin_for 'Extract', 'Sequence'
-  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence', 'AnatomicalPart'
 
   belongs_to :repository, inverse_of: :extracts
 

@@ -53,7 +53,7 @@ class Otu < ApplicationRecord
 
   include Shared::QueryBatchUpdate
 
-  is_origin_for 'Sequence', 'Extract', 'Sound'
+  is_origin_for 'Sequence', 'Extract', 'Sound', 'AnatomicalPart'
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices].freeze
 

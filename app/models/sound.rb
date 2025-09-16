@@ -40,7 +40,7 @@ class Sound < ApplicationRecord
     audio/mpeg
   }
 
-  originates_from 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence', 'CollectingEvent'
+  originates_from 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence', 'CollectingEvent', 'AnatomicalPart'
 
   has_one_attached :sound_file
   has_many :conveyances, inverse_of: :sound, dependent: :restrict_with_error
