@@ -1,0 +1,70 @@
+class AnatomicalPartsController < ApplicationController
+  before_action :set_anatomical_part, only: %i[ show edit update destroy ]
+
+  # GET /anatomical_parts or /anatomical_parts.json
+  def index
+    @anatomical_parts = AnatomicalPart.all
+  end
+
+  # GET /anatomical_parts/1 or /anatomical_parts/1.json
+  def show
+  end
+
+  # GET /anatomical_parts/new
+  def new
+    @anatomical_part = AnatomicalPart.new
+  end
+
+  # GET /anatomical_parts/1/edit
+  def edit
+  end
+
+  # POST /anatomical_parts or /anatomical_parts.json
+  def create
+    @anatomical_part = AnatomicalPart.new(anatomical_part_params)
+
+    respond_to do |format|
+      if @anatomical_part.save
+        format.html { redirect_to @anatomical_part, notice: "Anatomical part was successfully created." }
+        format.json { render :show, status: :created, location: @anatomical_part }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: @anatomical_part.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # PATCH/PUT /anatomical_parts/1 or /anatomical_parts/1.json
+  def update
+    respond_to do |format|
+      if @anatomical_part.update(anatomical_part_params)
+        format.html { redirect_to @anatomical_part, notice: "Anatomical part was successfully updated.", status: :see_other }
+        format.json { render :show, status: :ok, location: @anatomical_part }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: @anatomical_part.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # DELETE /anatomical_parts/1 or /anatomical_parts/1.json
+  def destroy
+    @anatomical_part.destroy!
+
+    respond_to do |format|
+      format.html { redirect_to anatomical_parts_path, notice: "Anatomical part was successfully destroyed.", status: :see_other }
+      format.json { head :no_content }
+    end
+  end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_anatomical_part
+      @anatomical_part = AnatomicalPart.find(params[:id])
+    end
+
+    # Only allow a list of trusted parameters through.
+    def anatomical_part_params
+      params.require(:anatomical_part).permit(:name, :uri, :uri_label, :is_material)
+    end
+end

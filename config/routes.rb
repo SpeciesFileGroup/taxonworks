@@ -5,6 +5,7 @@
 
 # Routes are moved to config/routes.
 TaxonWorks::Application.routes.draw do
+  resources :anatomical_parts
   draw :base
   draw :data
   draw :tasks

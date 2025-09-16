@@ -1,0 +1,16 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Anatomical parts" %>
+
+<h1>Anatomical parts</h1>
+
+<div id="anatomical_parts">
+  <% @anatomical_parts.each do |anatomical_part| %>
+    <%= render anatomical_part %>
+    <p>
+      <%= link_to "Show this anatomical part", anatomical_part %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New anatomical part", new_anatomical_part_path %>
