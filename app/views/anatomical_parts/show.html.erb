@@ -1,10 +1,1 @@
-<p style="color: green"><%= notice %></p>
-
-<%= render @anatomical_part %>
-
-<div>
-  <%= link_to "Edit this anatomical part", edit_anatomical_part_path(@anatomical_part) %> |
-  <%= link_to "Back to anatomical parts", anatomical_parts_path %>
-
-  <%= button_to "Destroy this anatomical part", @anatomical_part, method: :delete %>
-</div>
+<%= render(partial: 'shared/data/project/show', locals: {object: @anatomical_part}) -%>

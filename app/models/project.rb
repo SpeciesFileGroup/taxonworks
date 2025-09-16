@@ -59,6 +59,7 @@ class Project < ApplicationRecord
      CollectionObjectObservation
      DerivedCollectionObject
      PinboardItem
+     AnatomicalPart
      AssertedDistribution
      BiocurationClassification
      BiologicalRelationshipType

@@ -22,6 +22,10 @@ resources :alternate_values, except: [:show, :new] do
 end
 match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json}
 
+resources :anatomical_parts do
+  concerns [:data_routes]
+end
+
 match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults: {format: :json}
 match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
 resources :attributions, except: [:new] do
