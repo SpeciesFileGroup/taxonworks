@@ -80,6 +80,22 @@ class AnatomicalPartsController < ApplicationController
       .per(params[:per])
   end
 
+  def autocomplete
+    @anatomical_parts = ::Queries::AnatomicalPart::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id,
+    ).autocomplete
+  end
+
+  def search
+    if params[:id].blank?
+      redirect_to(anatomical_part_path,
+                  alert: 'You must select an item from the list with a click or tab press before clicking show.')
+    else
+      redirect_to anatomical_part_path(params[:id])
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_anatomical_part

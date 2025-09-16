@@ -29,13 +29,27 @@
 #   Whether or not the anatomical part is based on a physical object - *a* head
 #   vs. *some* head.
 #
+# @!cached
+#   @return [String]
+#
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
-
+#
 class AnatomicalPart < ApplicationRecord
   include Housekeeping
   # ... others
   include Shared::IsData
+
+  attr_accessor :no_cached
+
+  after_save :set_cached, unless: -> { self.no_cached }
+
+  private
+
+  def set_cached
+    # TODO
+    update_column(:cached, name)
+  end
 
 end
