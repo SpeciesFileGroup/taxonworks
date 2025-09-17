@@ -2,14 +2,16 @@
   <table class="full_width table-striped table-cell-border">
     <thead>
       <tr>
-        <th>Subject</th>
+        <th class="w-2" />
+        <th class="table-cell-border-left-thick">Subject</th>
         <th :colspan="5" />
         <th class="table-cell-border-left-thick" />
         <th class="table-cell-border-left-thick">Object</th>
         <th :colspan="6" />
       </tr>
       <tr class="table-header-border table-header-bold">
-        <th>Related</th>
+        <th class="w-2" />
+        <th class="table-cell-border-left-thick">Related</th>
         <th>Order</th>
         <th>Family</th>
         <th>Genus</th>
