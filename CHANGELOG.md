@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxonomic tree: Options to show/hide descendants count and Level-based coloring.
 - Interactive key descriptor selections can be used to help create a dichotomous key
 - Browse OTU: Radial annotator to biological associations panel
+- Filter biological associations: Data attributes facet
 
 ### Fixed
 
