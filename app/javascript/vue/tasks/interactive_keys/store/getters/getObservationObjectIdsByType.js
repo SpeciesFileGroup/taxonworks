@@ -11,12 +11,16 @@ export default (state) => {
     const eliminated = !selectionArray.includes(sides.Eliminated) ? undefined :
       m.eliminated.filter((o) => o.object.observation_object_type == observationObjectType).map((o) => o.object.observation_object_id)
 
+    const eliminatedForKey = !selectionArray.includes(sides.EliminatedForKey) ? undefined :
+      m.eliminated.filter((o) => o.object.observation_object_type == observationObjectType).map((o) => o.object.observation_object_id)
+
     const both = !selectionArray.includes(sides.Both) ? undefined :
       intersectArrays(remaining, eliminated)
 
     return {
       remaining,
       eliminated,
+      eliminatedForKey,
       both
     }
   }

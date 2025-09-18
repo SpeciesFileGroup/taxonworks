@@ -401,9 +401,10 @@ export default defineStore('leads', {
 
     async process_lead_items_data(otu_ids, lead_id) {
 
+      const keyRemaining = subtractArrays((otu_ids.remaining || []), (otu_ids.eliminated_for_key || []))
       const payload = {
-        otu_ids: otu_ids.remaining || [],
-        exclusive_otu_ids: subtractArrays((otu_ids.remaining || []), (otu_ids.both || [])),
+        otu_ids: keyRemaining,
+        exclusive_otu_ids: subtractArrays(keyRemaining, (otu_ids.both || [])),
         parent_id: lead_id,
         add_new_to_first_child: true
       }
