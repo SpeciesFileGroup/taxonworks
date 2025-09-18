@@ -12,6 +12,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial filter: Source => TNR and vice versa
 - Taxonomic tree: Options to show/hide descendants count and Level-based coloring.
 - Interactive key descriptor selections can be used to help create a dichotomous key
+- Browse OTU: Radial annotator to biological associations panel
+- Filter biological associations: Data attributes facet
 
 ### Fixed
 
@@ -25,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Mass annotate namespaces in Filter Collection Objects/Filter Collecting Events now requires selecting the namespace(s) to replace
 - Changed file extension from `.csv` to `.tsv` in DwC OTU inventory API endpoint to facilitate readers to detect field separator correctly.
+- Updated interactive key endpoint to hand work with dichotomous keys
 - Make distribution on /api/v1/taxon_names/:id/inventory/catalog an extends option
 
 ## [0.53.2] - 2025-09-05

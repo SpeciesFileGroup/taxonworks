@@ -7,6 +7,7 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::Confidences
       include Queries::Concerns::Depictions
+      include Queries::Concerns::DataAttributes
       include Queries::Concerns::Geo
 
       PARAMS = [
@@ -229,6 +230,7 @@ module Queries
         set_tags_params(params)
         set_citations_params(params)
         set_depiction_params(params)
+        set_data_attributes_params(params)
         set_geo_params(params)
       end
 
@@ -957,69 +959,69 @@ module Queries
        # Unused
       # rubocop:disable Metrics/MethodLength
       # This is "or"
-      def subject_object_scope(subject_query, object_query, target = 'Otu')
-        a = subject_query
-        b = object_query
+    def subject_object_scope(subject_query, object_query, target = 'Otu')
+      a = subject_query
+      b = object_query
 
-        a_sql, b_sql = nil, nil
+      a_sql, b_sql = nil, nil
 
-        if !a.nil? && !a.only_project?
-          a_sql = a.all.to_sql
-        end
-
-        if !b.nil? && !b.only_project?
-          b_sql = b.all.to_sql
-        end
-
-        return nil if a_sql.nil? and b_sql.nil?
-
-        # Setup for "WITH" use
-        t = []
-        t.push 'a_objects AS (' + a_sql + ')' if a_sql
-        t.push 'b_objects AS (' + b_sql + ')' if b_sql && (b_sql != a_sql)
-
-        s = 'WITH ' + t.join(', ')
-
-        # subject/object queries reference different params
-        if a_sql && b_sql && (a_sql != b_sql)
-          s << ' ' + ::BiologicalAssociation
-            .joins("LEFT JOIN a_objects as a_objects1 on a_objects1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = '" + target + "'")
-            .joins("LEFT JOIN b_objects as b_objects1 on b_objects1.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = '" + target + "'")
-            .where('a_objects1.id is not null').or('b_objects1.id is not null')
-            .to_sql
-
-          # subject/object queries reference same params
-        elsif a_sql && b_sql
-          s << ' ' + ::BiologicalAssociation
-            .joins("LEFT JOIN a_objects as a_objects1 on a_objects1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = '" + target + "'")
-            .joins("LEFT JOIN a_objects as a_objects2 on a_objects2.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = '" + target + "'")
-            .where('a_objects1.id is not null').or('a_objects2.id is not null')
-            .to_sql
-
-          # subject only
-        elsif a_sql
-          s << ' ' + ::BiologicalAssociation
-            .joins("JOIN a_objects as a_objects1 on a_objects1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = '" + target + "'")
-            .to_sql
-
-          # object_only
-        else
-          s << ' ' + ::BiologicalAssociation
-            .joins("JOIN b_objects as b_objects1 on b_objects1.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = '" + target + "'")
-            .to_sql
-        end
-
-        return ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+      if !a.nil? && !a.only_project?
+        a_sql = a.all.to_sql
       end
+
+      if !b.nil? && !b.only_project?
+        b_sql = b.all.to_sql
+      end
+
+      return nil if a_sql.nil? and b_sql.nil?
+
+      # Setup for "WITH" use
+      t = []
+      t.push 'a_objects AS (' + a_sql + ')' if a_sql
+      t.push 'b_objects AS (' + b_sql + ')' if b_sql && (b_sql != a_sql)
+
+      s = 'WITH ' + t.join(', ')
+
+      # subject/object queries reference different params
+      if a_sql && b_sql && (a_sql != b_sql)
+        s << ' ' + ::BiologicalAssociation
+          .joins("LEFT JOIN a_objects as a_objects1 on a_objects1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = '" + target + "'")
+          .joins("LEFT JOIN b_objects as b_objects1 on b_objects1.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = '" + target + "'")
+          .where('a_objects1.id is not null').or('b_objects1.id is not null')
+          .to_sql
+
+        # subject/object queries reference same params
+      elsif a_sql && b_sql
+        s << ' ' + ::BiologicalAssociation
+          .joins("LEFT JOIN a_objects as a_objects1 on a_objects1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = '" + target + "'")
+          .joins("LEFT JOIN a_objects as a_objects2 on a_objects2.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = '" + target + "'")
+          .where('a_objects1.id is not null').or('a_objects2.id is not null')
+          .to_sql
+
+        # subject only
+      elsif a_sql
+        s << ' ' + ::BiologicalAssociation
+          .joins("JOIN a_objects as a_objects1 on a_objects1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = '" + target + "'")
+          .to_sql
+
+        # object_only
+      else
+        s << ' ' + ::BiologicalAssociation
+          .joins("JOIN b_objects as b_objects1 on b_objects1.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = '" + target + "'")
+          .to_sql
+      end
+
+      return ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+    end
 
       # Unused
-      def otu_facet
-        subject_object_scope(subject_otu_query, object_otu_query, 'Otu' )
-      end
+    def otu_facet
+      subject_object_scope(subject_otu_query, object_otu_query, 'Otu' )
+    end
 
       # Unused
-      def collection_object_facet
-        subject_object_scope(subject_collection_object_query, object_collection_object_query, 'CollectionObject' )
-      end
+    def collection_object_facet
+      subject_object_scope(subject_collection_object_query, object_collection_object_query, 'CollectionObject' )
+    end
   end
 end

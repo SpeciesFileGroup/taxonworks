@@ -7,7 +7,7 @@
     class="full_width margin-medium-bottom"
     v-model="matrixSelected"
   >
-    <option :value="undefined">Select a observation matrix</option>
+    <option :value="undefined">Select an observation matrix</option>
     <option
       v-for="item in observationMatrices"
       :key="item.id"
@@ -74,32 +74,32 @@
     </li>
   </ul>
 
-  <div class="flex-separate middle gap-small">
-    <VBtn
-      color="create"
-      :disabled="!rowsSelected.length"
-      @click="addRows"
-    >
-      Add rows
-    </VBtn>
-    <div
-      class="horizontal-right-content middle gap-small"
-      v-if="matrixSelected"
-    >
-      <VBtn
-        color="primary"
-        @click="selectAll"
-      >
-        Select all
-      </VBtn>
-      <VBtn
-        color="primary"
-        @click="unselectAll"
-      >
-        Unselect all
-      </VBtn>
-    </div>
-  </div>
+      <div class="flex-separate middle gap-small">
+        <VBtn
+          color="create"
+          :disabled="!rowsSelected.length"
+          @click="addRows"
+        >
+          Add rows
+        </VBtn>
+        <div
+          class="horizontal-right-content middle gap-small"
+          v-if="matrixSelected"
+        >
+          <VBtn
+            color="primary"
+            @click="selectAll"
+          >
+            Select all
+          </VBtn>
+          <VBtn
+            color="primary"
+            @click="unselectAll"
+          >
+            Unselect all
+          </VBtn>
+        </div>
+      </div>
 </template>
 
 <script setup>
@@ -158,10 +158,7 @@ function loadRows(page = undefined) {
 }
 
 function addRows() {
-  emit('selected', {
-    observationMatrixId: matrixSelected.value.id,
-    otuIds: rowsSelected.value.map((item) => item.observation_object.id)
-  })
+  emit('selected', rowsSelected.value.map((item) => item.observation_object.id))
 }
 
 function alreadyExist(item) {
