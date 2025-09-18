@@ -133,10 +133,11 @@ class Tools::InteractiveKey
   # The list may include collection_objects OR otus OR valid taxon_names
   attr_accessor :eliminated
 
-  # @!eliminated
+  # @!eliminated_for_key
   #   @return [Array]
-  # Returns the list of objects not eliminated by previously used descriptors. But has alternative values for use in dichotomous key.
-  # The list may include collection_objects OR otus OR valid taxon_names
+  # Returns the list of objects eliminated by previously used descriptors in the
+  # context of use for a dichotomous key - replaces eliminated in that context.
+  # The list should only ever contain OTUs when used for dichotomous keys.
   attr_accessor :eliminated_for_key
 
   # @!selected_descriptors_hash

@@ -224,7 +224,9 @@ function sendToInteractiveKey() {
     (i) => store.lead_item_otus.parent[i].id
   ).join('|')
 
-  window.location.href = `${RouteNames.InteractiveKeys}?observation_matrix_id=${chosenMatrixId.value}&otu_filter=${otuIds}&lead_id=${store.lead.id}`
+  sessionStorage.setItem('key_to_interactive_key_otu_ids', otuIds)
+
+  window.location.href = `${RouteNames.InteractiveKeys}?observation_matrix_id=${chosenMatrixId.value}&lead_id=${store.lead.id}`
 }
 
 </script>
