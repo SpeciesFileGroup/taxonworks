@@ -401,7 +401,7 @@ export default defineStore('leads', {
 
     async process_lead_items_data(otu_ids, lead_id) {
       const remaining = otu_ids.remaining || []
-      const eliminated_for_key = otu_ids.eliminated_for_key || []
+      const eliminated_for_key = otu_ids.eliminatedForKey || []
       const both = intersectArrays(remaining, eliminated_for_key)
       const exclusive_otu_ids = subtractArrays(remaining, both)
 
