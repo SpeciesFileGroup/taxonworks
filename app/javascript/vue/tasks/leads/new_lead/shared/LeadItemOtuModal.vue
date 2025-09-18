@@ -12,11 +12,11 @@
     <template #body>
       <VSwitch
         v-model="selectMode"
-        :options="['Select OTU', 'From a key', 'From an interactive key']"
+        :options="OTU_SOURCE_OPTIONS"
         class="margin-medium-bottom"
       />
       <SmartSelector
-        v-if="selectMode == 'Select OTU'"
+        v-if="selectMode == OTU_SOURCE_OPTIONS.otu"
         model="otus"
         klass="otus"
         :target="OTU"
@@ -27,13 +27,13 @@
       />
 
       <KeyOtus
-        v-if="selectMode == 'From a key'"
+        v-if="selectMode == OTU_SOURCE_OPTIONS.key"
         :existing-otus="existingOtuIds"
         @selected="(otu_ids) => otusSelected(otu_ids)"
       />
 
       <InteractiveKeyOtus
-        v-if="selectMode == 'From an interactive key'"
+        v-if="selectMode == OTU_SOURCE_OPTIONS.matrix"
         :existing-otus="existingOtuIds"
         @selected="(rows) => otusSelected(rows.otuIds, rows.observationMatrixId)"
       />
@@ -51,6 +51,12 @@ import KeyOtus from './KeyOtus.vue'
 import { Lead, LeadItem } from '@/routes/endpoints'
 import { OTU } from '@/constants'
 import { computed, ref } from 'vue'
+
+const OTU_SOURCE_OPTIONS = {
+  otu: 'Select OTU',
+  key: 'From a key',
+  matrix: 'From an observation matrix'
+}
 
 const props = defineProps({
   childIndex: {
