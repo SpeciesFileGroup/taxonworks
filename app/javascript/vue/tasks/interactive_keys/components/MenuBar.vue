@@ -5,7 +5,7 @@
         url="/observation_matrices/autocomplete"
         param="term"
         label="label_html"
-        placeholder="Search a observation matrix"
+        placeholder="Search an observation matrix"
         clear-after
         @getItem="loadMatrix($event.id)"
       />

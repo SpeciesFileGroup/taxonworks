@@ -21,7 +21,7 @@
           class="full_width margin-medium-bottom"
           v-model="matrixSelected"
         >
-          <option :value="undefined">Select a observation matrix</option>
+          <option :value="undefined">Select an observation matrix</option>
           <option
             v-for="item in observationMatrices"
             :key="item.id"

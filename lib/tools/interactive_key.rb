@@ -133,6 +133,12 @@ class Tools::InteractiveKey
   # The list may include collection_objects OR otus OR valid taxon_names
   attr_accessor :eliminated
 
+  # @!eliminated
+  #   @return [Array]
+  # Returns the list of objects not eliminated by previously used descriptors. But has alternative values for use in dichotomous key.
+  # The list may include collection_objects OR otus OR valid taxon_names
+  attr_accessor :eliminated_for_key
+
   # @!selected_descriptors_hash
   #   @return [Hash]
   # selected_descriptors String is converted into Hash
@@ -192,6 +198,7 @@ class Tools::InteractiveKey
 
     @remaining = remaining_taxa
     @eliminated = eliminated_taxa
+    @eliminated_for_key = eliminated_taxa_for_key
     @list_of_descriptors = useful_descriptors
     ### delete temporary data
     @row_hash = nil #
@@ -211,8 +218,8 @@ class Tools::InteractiveKey
   def descriptor_available_languages
     descriptor_ids = descriptors.pluck(:id)
     languages = Language.joins(:alternate_value_translations)
-      .where(alternate_values: {alternate_value_object_type: 'Descriptor', type: 'AlternateValue::Translation'})
-      .where('alternate_values.alternate_value_object_id IN (?)', descriptor_ids ).order('languages.english_name').distinct.to_a
+                        .where(alternate_values: {alternate_value_object_type: 'Descriptor', type: 'AlternateValue::Translation'})
+                        .where('alternate_values.alternate_value_object_id IN (?)', descriptor_ids ).order('languages.english_name').distinct.to_a
     unless languages.empty?
       languages = Language.where(english_name: 'English').to_a + languages
     end
@@ -229,8 +236,8 @@ class Tools::InteractiveKey
   def descriptor_available_keywords
     descriptor_ids = descriptors.pluck(:id)
     tags = Keyword.joins(:tags)
-      .where(tags: {tag_object_type: 'Descriptor'})
-      .where('tags.tag_object_id IN (?)', descriptor_ids ).order('name').distinct.to_a
+                  .where(tags: {tag_object_type: 'Descriptor'})
+                  .where('tags.tag_object_id IN (?)', descriptor_ids ).order('name').distinct.to_a
   end
 
   def descriptors_with_keywords
@@ -274,6 +281,7 @@ class Tools::InteractiveKey
       end
       h[otu_collection_object][:otu_id] = r.observation_object_type == 'CollectionObject' ? r.current_otu.id : r.observation_object_id
       h[otu_collection_object][:errors] = 0
+      h[otu_collection_object][:errors_for_key] = 0
       h[otu_collection_object][:error_descriptors] = []
       h[otu_collection_object][:status] = 'remaining' ### if number of errors > @error_tolerance, replaced to 'eliminated'
     end
@@ -347,13 +355,14 @@ class Tools::InteractiveKey
 
     row_hash.each do |r_key, r_value|
       selected_descriptors_hash.each do |d_key, d_value|
-        otu_collection_object = r_value[:object].observation_object_type + r_value[:object].observation_object_id.to_s # otu_id.to_s + '|' + r_value[:object].collection_object_id.to_s
+        otu_collection_object = r_value[:object].observation_object_type + r_value[:object].observation_object_id.to_s
         next if descriptors_hash[d_key].blank?
         d_name = descriptors_hash[d_key][:descriptor].target_name(:key, language) + ': '
         if eliminate_unknown && descriptors_hash[d_key][:observation_hash][otu_collection_object].nil?
           r_value[:errors] += 1
           r_value[:error_descriptors] += [d_name + 'unknown']
         elsif descriptors_hash[d_key][:observation_hash][otu_collection_object].nil?
+          r_value[:errors_for_key] += 1
           #character not scored but no error
         else
           case descriptors_hash[d_key][:descriptor].type
@@ -363,11 +372,17 @@ class Tools::InteractiveKey
               str = d_name + descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| "%g" % o.continuous_value}.join(' OR ')
               r_value[:error_descriptors] += [str]
             end
+            if !(descriptors_hash[d_key][:observation_hash][otu_collection_object] - d_value).empty?
+              r_value[:errors_for_key] += 1
+            end
           when 'Descriptor::PresenceAbsence'
             if (descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
               r_value[:errors] += 1
               str = d_name + descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| o.presence}.join(' OR ')
               r_value[:error_descriptors] += [str]
+            end
+            if !(descriptors_hash[d_key][:observation_hash][otu_collection_object] - d_value).empty?
+              r_value[:errors_for_key] += 1
             end
           when 'Descriptor::Qualitative'
             if (descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
@@ -375,8 +390,12 @@ class Tools::InteractiveKey
               str = d_name + descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| o.character_state.target_name(:key, language)}.join(' OR ')
               r_value[:error_descriptors] += [str]
             end
+            if !(descriptors_hash[d_key][:observation_hash][otu_collection_object] - d_value).empty?
+              r_value[:errors_for_key] += 1
+            end
           when 'Descriptor::Sample'
             p = false
+            p2 = true
             a = d_value.first.split('-')
             d_min = a[0].to_f
             d_max = a[1].nil? ? d_min : a[1].to_f
@@ -384,11 +403,15 @@ class Tools::InteractiveKey
               s_min = o.sample_min.to_f
               s_max = o.sample_max.nil? ? s_min : o.sample_max.to_f
               p = true if (d_min >= s_min && d_min <= s_max) || (d_max >= s_min && d_max <= s_max) || (d_min <= s_min && d_max >= s_max)
+              p1 = false if (d_min > s_min || d_max < s_max)
             end
             if p == false
               r_value[:errors] += 1
               str = d_name + descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| o.sample_min.to_s + '–' + o.sample_max.to_s}.join(' OR ')
               r_value[:error_descriptors] += [str]
+            end
+            if p == true && p2 == false
+              r_value[:errors_for_key] += 1
             end
           end
         end
@@ -397,7 +420,7 @@ class Tools::InteractiveKey
       obj = r_value[:object_at_rank].class.to_s + '|' + r_value[:object_at_rank].id.to_s
 
       if (row_id_filter_array && !row_id_filter_array.include?(r_value[:object].id)) ||
-          (otu_id_filter_array && !otu_id_filter_array.include?(r_value[:otu_id]))
+        (otu_id_filter_array && !otu_id_filter_array.include?(r_value[:otu_id]))
         r_value[:status] = 'eliminated'
         r_value[:errors] = 'F'
         r_value[:error_descriptors] = ['Filtered out']
@@ -410,6 +433,7 @@ class Tools::InteractiveKey
           {object: r_value[:object_at_rank],
            row_id: r_value[:object].id,
            errors: r_value[:errors],
+           errors_for_key: r_value[:errors_for_key],
            error_descriptors: r_value[:error_descriptors]
           }
       end
@@ -426,6 +450,23 @@ class Tools::InteractiveKey
           {object: r_value[:object_at_rank],
            row_id: r_value[:object].id,
            errors: r_value[:errors],
+           error_descriptors: r_value[:error_descriptors]
+          } if h[obj].nil?
+      end
+    end
+    return h.values
+  end
+
+  def eliminated_taxa_for_key
+    h = {}
+    row_hash.each do |r_key, r_value|
+      obj = r_value[:object_at_rank].class.to_s + '|' + r_value[:object_at_rank].id.to_s
+      if r_value[:errors_for_key] > 0 && r_value[:errors].to_s != 'F' && !remaining.include?(r_value[:object_at_rank].class.to_s + '|' + r_value[:object_at_rank].id.to_s)
+        h[obj] =
+          {object: r_value[:object_at_rank],
+           row_id: r_value[:object].id,
+           errors: r_value[:errors],
+           errors_for_key: r_value[:errors_for_key],
            error_descriptors: r_value[:error_descriptors]
           } if h[obj].nil?
       end

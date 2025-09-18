@@ -34,7 +34,7 @@
             url="/observation_matrices/autocomplete"
             param="term"
             label="label"
-            placeholder="Search a observation matrix..."
+            placeholder="Search an observation matrix..."
             @getItem="loadMatrix($event.id)"
           />
           <default-pin
