@@ -203,7 +203,10 @@ export default {
       const selectedDescriptorStates = this.$store.getters[GetterNames.GetSelectedDescriptorStates]
       sessionStorage.setItem('interactive_key_to_key_descriptor_data', JSON.stringify(selectedDescriptorStates))
 
-      const otuIds = this.$store.getters[GetterNames.GetObservationObjectIdsByType]([sides.Remaining, sides.Both], 'Otu')
+      let otuIds = {}
+      if (selectedDescriptorStates.length > 0) {
+        otuIds = this.$store.getters[GetterNames.GetObservationObjectIdsByType]([sides.Remaining, sides.Both], 'Otu')
+      }
       sessionStorage.setItem('interactive_key_to_key_otu_ids', JSON.stringify(otuIds))
 
       window.location.href = `${RouteNames.NewLead}?lead_id=${leadId}`
