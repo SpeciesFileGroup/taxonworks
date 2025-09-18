@@ -205,7 +205,7 @@ export default {
 
       let otuIds = {}
       if (selectedDescriptorStates.length > 0) {
-        otuIds = this.$store.getters[GetterNames.GetObservationObjectIdsByType]([sides.Remaining, sides.EliminatedForKey, sides.Both], 'Otu')
+        otuIds = this.$store.getters[GetterNames.GetObservationObjectIdsByType]([sides.Remaining, sides.EliminatedForKey], 'Otu')
       }
       sessionStorage.setItem('interactive_key_to_key_otu_ids', JSON.stringify(otuIds))
 
