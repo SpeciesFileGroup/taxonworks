@@ -47,6 +47,78 @@
           Go to the previous couplet
         </VBtn>
 
+        <span
+          v-if="showAdditionalActions"
+          class="additional_actions"
+        >
+          <VBtn
+            color="update"
+            medium
+            @click="addLead"
+          >
+            Add a lead
+          </VBtn>
+
+          <VBtn
+            color="update"
+            medium
+            @click="() => { insertKeyModalIsVisible = true }"
+            :disabled="store.children.length < 2"
+          >
+            Insert a key
+          </VBtn>
+
+          <VBtn
+            v-if="offerLeadItemCreate"
+            color="update"
+            medium
+            @click="() => { leadItemOtusModalVisible = true }"
+          >
+            Start an OTUs list
+          </VBtn>
+
+          <VBtn
+            v-if="!store.lead.parent_id"
+            color="update"
+            medium
+            @click="insertCouplet"
+          >
+            Insert a new initial couplet for the key
+          </VBtn>
+
+          <VBtn
+            v-if="allowDestroyCouplet"
+            color="destroy"
+            medium
+            @click="destroyCouplet"
+          >
+            Delete these leads
+          </VBtn>
+
+          <VBtn
+            v-else-if="allowDeleteCouplet"
+            color="destroy"
+            medium
+            @click="deleteCouplet"
+          >
+            Delete these leads and reparent the children
+          </VBtn>
+
+          <VBtn
+            v-else
+            color="destroy"
+            disabled
+            medium
+          >
+            <template v-if="!store.lead.parent_id && noGrandkids()">
+              Can't delete root couplet
+            </template>
+            <template v-else>
+              Can't delete when more than one side has children
+            </template>
+          </VBtn>
+        </span>
+
         <VBtn
           circle
           color="primary"
@@ -58,78 +130,6 @@
           />
         </VBtn>
       </span>
-
-      <div
-        v-if="showAdditionalActions"
-        class="additional_actions"
-      >
-        <VBtn
-          color="update"
-          medium
-          @click="addLead"
-        >
-          Add a lead
-        </VBtn>
-
-        <VBtn
-          color="update"
-          medium
-          @click="() => { insertKeyModalIsVisible = true }"
-          :disabled="store.children.length < 2"
-        >
-          Insert a key
-        </VBtn>
-
-        <VBtn
-          v-if="offerLeadItemCreate"
-          color="update"
-          medium
-          @click="() => { leadItemOtusModalVisible = true }"
-        >
-          Start an OTUs list
-        </VBtn>
-
-        <VBtn
-          v-if="!store.lead.parent_id"
-          color="update"
-          medium
-          @click="insertCouplet"
-        >
-          Insert a new initial couplet for the key
-        </VBtn>
-
-        <VBtn
-          v-if="allowDestroyCouplet"
-          color="destroy"
-          medium
-          @click="destroyCouplet"
-        >
-          Delete these leads
-        </VBtn>
-
-        <VBtn
-          v-else-if="allowDeleteCouplet"
-          color="destroy"
-          medium
-          @click="deleteCouplet"
-        >
-          Delete these leads and reparent the children
-        </VBtn>
-
-        <VBtn
-          v-else
-          color="destroy"
-          disabled
-          medium
-        >
-          <template v-if="!store.lead.parent_id && noGrandkids()">
-            Can't delete root couplet
-          </template>
-          <template v-else>
-            Can't delete when more than one side has children
-          </template>
-        </VBtn>
-      </div>
     </div>
 
     <div class="lead_children">
