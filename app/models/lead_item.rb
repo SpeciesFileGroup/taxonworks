@@ -154,12 +154,13 @@ class LeadItem < ApplicationRecord
     LeadItem.transaction do
       begin
         to_be_destroyed = otu_ids.filter_map do |otu_id|
-          exclusive_otu_ids.include?(otu_id) ?
-            lead_item_table[:lead_id].in(lead_to_add_to.sibling_ids).and(lead_item_table[:otu_id].eq(otu_id)) :
-            false
+          exclusive_otu_ids.include?(otu_id) ? otu_id : false
         end
         if to_be_destroyed.count > 0
-          LeadItem.where(to_be_destroyed.inject(:or)).destroy_all
+          LeadItem
+            .where(lead_id: lead_to_add_to.sibling_ids)
+            .where(otu_id: to_be_destroyed)
+            .destroy_all
         end
 
         a = new_otu_ids.map { |id| { lead_id: lead_to_add_to.id, otu_id: id } }

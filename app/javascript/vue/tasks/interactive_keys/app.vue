@@ -59,6 +59,7 @@ import MenuBar from './components/MenuBar.vue'
 import { GetterNames } from './store/getters/getters'
 import SpinnerComponent from '@/components/ui/VSpinner'
 import { MutationNames } from './store/mutations/mutations'
+import { useParamsSessionPop } from '@/composables/useParamsSessionPop'
 
 export default {
   components: {
@@ -97,10 +98,12 @@ export default {
   },
 
   created() {
-    const urlParams = new URLSearchParams(window.location.search)
-    const matrixId = urlParams.get('observation_matrix_id')
-    const otuIds = urlParams.get('otu_filter')
-    const leadId = urlParams.get('lead_id')
+    const { matrixId, leadId, otuIds } =
+      useParamsSessionPop({
+        observation_matrix_id: 'matrixId',
+        lead_id: 'leadId',
+        otu_ids: 'otuIds'
+      }, 'key_to_interactive_key')
 
     if (otuIds) {
       this.$store.commit(MutationNames.SetParamsFilter,

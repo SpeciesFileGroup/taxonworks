@@ -673,6 +673,7 @@ scope :tasks do
 
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      post ':observation_matrix_id/key', action: :key, defaults: {format: :json}
       get '/', action: :index, as: 'interactive_key_task'
     end
 
