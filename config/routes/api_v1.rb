@@ -42,7 +42,13 @@ namespace :api, defaults: {format: :json} do
       get '/both_authenticated', to: 'base#index'
     end
 
+    # There should be no post or delete in this section
     defaults authenticate_user_or_project: true do
+      get '/downloads/dwc_archive_complete', to: '/downloads#api_dwc_archive_complete', as: :download_dwca_complete
+      get '/downloads/:id', to: '/downloads#api_show', as: :download_show
+      get '/downloads/:id/file', to: '/downloads#api_file', as: :download_file
+      get '/downloads', to: '/downloads#api_index'
+
       get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
       get '/otus/:id/inventory/content', to: '/otus#api_content', as: :api_content

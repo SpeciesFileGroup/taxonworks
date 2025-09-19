@@ -33,6 +33,10 @@ module Export::Dwca
 
     attr_accessor :data
 
+    # @return [Hash] containing dataset and additional_metadata, as xml strings,
+    # for use in construction of the eml file.
+    attr_accessor :eml_data
+
     attr_accessor :eml
 
     attr_accessor :meta
@@ -79,7 +83,7 @@ module Export::Dwca
     attr_accessor :dwc_id_order
 
     # @param [Array<Symbol>] taxonworks_extensions List of methods to perform on each CO
-    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: [])
+    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, eml_data: {}, taxonworks_extensions: [])
       raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
 
       @core_scope = core_scope
@@ -88,6 +92,8 @@ module Export::Dwca
       @media_extension = extension_scopes[:media] #! Hash with keys collection_objects, field_occurrences
 
       @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extensions)
+
+      @eml_data = eml_data
 
       @taxonworks_extension_methods = taxonworks_extensions
     end
@@ -556,8 +562,6 @@ module Export::Dwca
       @all_data
     end
 
-    # rubocop:disable Metrics/MethodLength
-
     # This is a stub, and only half-heartedly done. You should be using IPT for the time being.
     # @return [Tempfile]
     #   metadata about this dataset
@@ -570,91 +574,20 @@ module Export::Dwca
       return @eml if @eml
       @eml = Tempfile.new('eml.xml')
 
-      # This may need to be logged somewhere
-      identifier = SecureRandom.uuid
-
-      # This should be build elsewhere, and ultimately derived from a TaxonWorks::Dataset model
-      # !! Order matters in these sections vs. validation !!
-      builder = Nokogiri::XML::Builder.new(encoding: 'utf-8', namespace_inheritance: false) do |xml|
-        xml['eml'].eml(
-          'xmlns:eml' => 'eml://ecoinformatics.org/eml-2.1.1',
-          'xmlns:dc' => 'http://purl.org/dc/terms/',
-          'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-          'xsi:schemaLocation' => 'eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml-gbif-profile.xsd',
-          'packageId' => identifier,
-          'system' => 'https://taxonworks.org',
-          'scope' => 'system',
-          'xml:lang' => 'en'
-        ) {
-          xml.dataset {
-            xml.alternateIdentifier identifier
-            xml.title('STUB YOUR TITLE HERE')['xmlns:lang'] = 'en'
-            xml.creator {
-              xml.individualName {
-                xml.givenName 'STUB'
-                xml.surName 'STUB'
-              }
-              xml.organizationName 'STUB'
-              xml.electronicMailAddress 'EMAIL@EXAMPLE.COM'
-            }
-            xml.metadataProvider {
-              xml.organizationName 'STUB'
-              xml.electronicMailAddress 'EMAIL@EXAMPLE.COM'
-              xml.onlineUrl 'STUB'
-            }
-            xml.associatedParty {
-              xml.organizationName 'STUB'
-              xml.address {
-                xml.deliveryPoint 'SEE address above for other fields'
-              }
-              xml.role 'distributor'
-            }
-            xml.pubDate Time.new.strftime('%Y-%m-%d')
-            xml.language 'eng'
-            xml.abstract {
-              xml.para 'Abstract text here.'
-            }
-            xml.intellectualRights {
-              xml.para 'STUB. License here.'
-            }
-            # ...
-            xml.contact {
-              xml.organizationName 'STUB'
-              xml.address {
-                xml.deliveryPoint 'STUB'
-                xml.city 'STUB'
-                xml.administrativeArea 'STUB'
-                xml.postalCode 'STUB'
-                xml.country 'STUB'
-              }
-              xml.electronicMailAddress 'EMAIL@EXAMPLE.COM'
-              xml.onlineUrl 'STUB'
-            }
-            # ...
-          } # end dataset
-          xml.additionalMetadata {
-            xml.metadata {
-              xml.gbif {
-                xml.dateStamp DateTime.parse(Time.now.to_s).to_s
-                xml.hierarchyLevel 'dataset'
-                xml.citation('STUB DATASET')[:identifier] = 'Identifier STUB'
-                xml.resourceLogoUrl 'SOME RESOURCE LOGO URL'
-                xml.formationPeriod 'SOME FORMATION PERIOD'
-                xml.livingTimePeriod 'SOME LIVING TIME PERIOD'
-                xml[:dc].replaces 'PRIOR IDENTIFIER'
-              }
-            }
-          }
-        }
+      if eml_data[:dataset].present? || eml_data[:additional_metadata].present?
+        eml_xml = ::Export::Dwca::Eml.actualized_eml_for(
+          eml_data[:dataset], eml_data[:additional_metadata]
+        )
+      else
+        eml_xml = ::Export::Dwca::Eml.actualized_stub_eml
       end
 
-      @eml.write(builder.to_xml)
+      @eml.write(eml_xml)
       @eml.flush
       @eml
     end
 
     # rubocop:enable Metrics/MethodLength
-
 
     def biological_association_relations_to_core
       core_params = {
@@ -859,11 +792,12 @@ module Export::Dwca
       true
     end
 
-    # @param download [Download instance]
-    # @return [Download] a download instance
+    # @param download [a Download]
     def package_download(download)
-      download.update!(source_file_path: zipfile.path)
-      download
+      p = zipfile.path
+
+      # This doesn't touch the db (source_file_path is an instance var).
+      download.update!(source_file_path: p)
     end
 
   end

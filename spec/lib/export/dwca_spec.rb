@@ -54,7 +54,7 @@ describe Export::Dwca, type: :model, group: :darwin_core do
       download = FactoryBot.create(:valid_download)
       expect {
         DwcaCreateDownloadJob.perform_later(
-          download,
+          download.id,
           core_scope: a.to_sql,
           extension_scopes: {
             biological_associations: b.to_sql,
@@ -64,7 +64,7 @@ describe Export::Dwca, type: :model, group: :darwin_core do
             }
           }
         )
-      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download, core_scope: a.to_sql, extension_scopes: {
+      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download.id, core_scope: a.to_sql, extension_scopes: {
         biological_associations: b.to_sql,
         media: {
           collection_objects: c.to_sql,
@@ -77,15 +77,20 @@ describe Export::Dwca, type: :model, group: :darwin_core do
       download = FactoryBot.create(:valid_download)
       expect {
         DwcaCreateDownloadJob.perform_later(
-          download,
+          download.id,
           core_scope: a.to_sql,
           extension_scopes: { biological_associations: nil }
         )
-      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download, core_scope: a.to_sql, extension_scopes: { biological_associations: nil } )
+      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download.id, core_scope: a.to_sql, extension_scopes: { biological_associations: nil } )
     end
 
     specify '#download_async creates Download' do
       expect(Download.count).to eq(1)
+    end
+
+    specify 'deleting download before zip file is created raises in job' do
+      d.delete
+      expect{perform_enqueued_jobs}.to raise_error(ActiveRecord::RecordNotFound)
     end
 
     specify '#download_async creates Zip after worker' do

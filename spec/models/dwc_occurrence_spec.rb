@@ -20,19 +20,6 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   specify 'extending predicates' do
     include ActiveJob::TestHelper
 
-    def extract_data_csv_table(zip_path)
-      content = ''
-      Zip::File.open(zip_path) do |zip_file|
-        zip_file.each do |entry|
-          if entry.name == 'data.tsv' && entry.file?
-            content = entry.get_input_stream.read
-          end
-        end
-      end
-
-      CSV.parse(content, col_sep: "\t", headers: true)
-    end
-
     s1 = Specimen.create!(collecting_event:)
     s2 = Specimen.create!(collecting_event:)
     s3 = Specimen.create!
@@ -62,9 +49,9 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
       project_id: Current.project_id
     )
 
-    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extensions:, project_id: Current.project_id)
+    ::DwcaCreateDownloadJob.perform_now(download.id, core_scope: scope, predicate_extensions:, project_id: Current.project_id)
 
-    tbl = extract_data_csv_table(download.file_path)
+    tbl = Spec::Support::Utilities::Dwca.extract_data_tsv_table(download.file_path)
 
     expect(tbl.headers).to include(p1_header)
     expect(tbl.headers).not_to include(p2_header)   # header shouldn't be included if no predicate values are present

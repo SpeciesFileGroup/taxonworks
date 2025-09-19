@@ -1069,3 +1069,10 @@ monograph_facilitator_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+project_dwc_export_preferences_task:
+  hub: false
+  name: 'Project preferences for DwCA project downloads'
+  related:
+  categories:
+  status: prototype
+  description: Set preferences for Darwin Core Archive complete project downloads
