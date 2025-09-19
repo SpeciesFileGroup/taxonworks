@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Interactive key descriptor selections can be used to help create a dichotomous key
 - Browse OTU: Radial annotator to biological associations panel
 - Filter biological associations: Data attributes facet
+- Quick forms: Publish/unpublish toggle button to Content slice
 
 ### Fixed
 
