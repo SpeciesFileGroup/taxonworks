@@ -60,7 +60,7 @@
           type="text"
           v-model="maxAge"
           class="text-number-input margin-xsmall-top"
-          data-help="If the existing complete download is older than max age days, the download will fail but creation of a new download will be triggered to make a new download available."
+          data-help="If the existing complete download is older than max age days, the existing 'old' download will be returned and creation of a new download will be triggered; when that new download is complete it will replace the existing one."
         />
         Maximum Age in days
       </label>
