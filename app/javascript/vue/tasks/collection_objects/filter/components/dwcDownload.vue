@@ -30,7 +30,6 @@
             <label>
               <input
                 type="checkbox"
-                :disabled="item.disabled"
                 v-model="includeParameters[item.parameter]"
               />
               {{ item.label }}
@@ -78,7 +77,6 @@ const checkboxParameters = [
   {
     label: 'Include media extension',
     parameter: 'media_extension',
-    disabled: true
   }
 ]
 

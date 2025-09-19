@@ -58,10 +58,10 @@ module Queries
       observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name],
       otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
       person: [],
-      source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],
+      source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name, :taxon_name_relationship],
       sound: [:observation],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source, :taxon_name_relationship],
-      taxon_name_relationship: [:taxon_name],
+      taxon_name_relationship: [:taxon_name, :source],
     }.freeze
 
     def self.query_name
@@ -826,9 +826,9 @@ module Queries
     #   false - there are no params at ALL or at least one that is not `project_id`, and project_id != false
     def only_project?
       @roll_call = true
-      a = (project_id_facet &&
+      a = project_id_facet &&
         target_and_clauses.size == 1 &&
-        all_merge_clauses.nil?) ? true : false
+        all_merge_clauses.nil?
       @roll_call = false
 
       a

@@ -2,6 +2,14 @@ require 'zip'
 
 module Export::Dwca
 
+  # Columns we include in the Resource Relationship extension table that
+  # aren't DwC terms but have meaning for us and perhaps users of our
+  # archives.
+  LOCAL_RESOURCE_RELATIONSHIP_TERMS = {
+    'TW:Resource': 'https://sfg.taxonworks.org/dwc/terms/resourceRelationship/resource',
+    'TW:RelatedResource': 'https://sfg.taxonworks.org/dwc/terms/resourceRelationship/relatedResource',
+  }.freeze
+
   # !!
   # !! This export does not support AssertedDistribution data at the moment.  While those data are indexed,
   # !! if they are in the `core_scope` they will almost certainly cause problems or be ignored.
@@ -80,8 +88,9 @@ module Export::Dwca
 
       @core_scope = core_scope
 
-      @biological_associations_extension = extension_scopes[:biological_associations] #! String
-      @media_extension = extension_scopes[:media] #  = get_scope(core_scope)
+      @biological_associations_extension = extension_scopes[:biological_associations] #! Hash with keys core_params, collection_objects_query
+      @media_extension = extension_scopes[:media] #! Hash with keys collection_objects, field_occurrences
+
       @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extensions)
 
       @eml_data = eml_data
@@ -113,13 +122,38 @@ module Export::Dwca
 
     def biological_associations_extension
       return nil unless @biological_associations_extension.present?
-      if @biological_associations_extension.kind_of?(String)
-        ::BiologicalAssociation.from('(' + @biological_associations_extension + ') as biological_associations')
-      elsif @biological_associations_extension.kind_of?(ActiveRecord::Relation)
-        @biological_associations_extension
+
+      q = @biological_associations_extension[:collection_objects_query]
+      if q.kind_of?(String)
+        ::BiologicalAssociation.from('(' + q + ') as biological_associations')
+      elsif q.kind_of?(ActiveRecord::Relation)
+        q
       else
-        raise ArgumentError, 'Scope is not a SQL string or ActiveRecord::Relation'
+        raise ArgumentError, 'Biological associations scope is not an SQL string or ActiveRecord::Relation'
       end
+    end
+
+    def media_extension
+      return nil unless @media_extension.present?
+
+      collection_objects = ::CollectionObject.none
+      if @media_extension[:collection_objects]
+        collection_objects = ::CollectionObject
+          .from('(' + @media_extension[:collection_objects] + ') AS collection_objects')
+          .includes(:images, :sounds, observations: :images, taxon_determination: {otu: :taxon_name})
+      end
+
+      field_occurrences = ::FieldOccurrence.none
+      if @media_extension[:field_occurrences]
+        field_occurrences = ::FieldOccurrence
+          .from('(' + @media_extension[:field_occurrences] + ') AS field_occurrences')
+          .includes(:images, :sounds, observations: :images, taxon_determination: {otu: :taxon_name})
+      end
+
+      {
+        collection_objects:,
+        field_occurrences:
+      }
     end
 
     def predicate_options_present?
@@ -553,6 +587,31 @@ module Export::Dwca
       @eml
     end
 
+    # rubocop:enable Metrics/MethodLength
+
+    def biological_association_relations_to_core
+      core_params = {
+        dwc_occurrence_query: @biological_associations_extension[:core_params]
+      }
+
+      subject_biological_associations =
+        ::Queries::BiologicalAssociation::Filter.new(
+          collection_object_query: core_params,
+          collection_object_as_subject_or_as_object: :subject
+        ).all
+
+      object_biological_associations =
+        ::Queries::BiologicalAssociation::Filter.new(
+          collection_object_query: core_params,
+          collection_object_as_subject_or_as_object: :object
+        ).all
+
+      {
+        subject: Set.new(subject_biological_associations.pluck(:id)),
+        object: Set.new(object_biological_associations.pluck(:id))
+      }
+    end
+
     def biological_associations_resource_relationship
       return nil if biological_associations_extension.nil?
       @biological_associations_resource_relationship = Tempfile.new('biological_resource_relationship.xml')
@@ -562,13 +621,30 @@ module Export::Dwca
       if no_records?
         content = "\n"
       else
-        content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension)
+        content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension, biological_association_relations_to_core)
       end
 
       @biological_associations_resource_relationship.write(content)
       @biological_associations_resource_relationship.flush
       @biological_associations_resource_relationship.rewind
       @biological_associations_resource_relationship
+    end
+
+    def media_resource_relationship
+      return nil if media_extension.nil? || media_extension.empty?
+      @media_resource_relationship = Tempfile.new('media_relationship.xml')
+
+      content = nil
+      if no_records?
+        content = "\n"
+      else
+        content = Export::CSV::Dwc::Extension::Media.csv(media_extension[:collection_objects], media_extension[:field_occurrences])
+      end
+
+      @media_resource_relationship.write(content)
+      @media_resource_relationship.flush
+      @media_resource_relationship.rewind
+      @media_resource_relationship
     end
 
     # @return [Array]
@@ -589,6 +665,7 @@ module Export::Dwca
 
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.archive('xmlns' => 'http://rs.tdwg.org/dwc/text/') {
+          # Core
           xml.core(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/dwc/terms/Occurrence') {
             xml.files {
               xml.location 'data.tsv'
@@ -602,6 +679,40 @@ module Export::Dwca
               end
             end
           }
+
+          # Resource relationship (biological associations)
+          if !biological_associations_extension.nil?
+            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/dwc/terms/ResourceRelationship') {
+              xml.files {
+                xml.location 'resource_relationships.tsv'
+              }
+              Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS_NAMESPACES.each_with_index do |n, i|
+                if i == 0
+                  n == '' || (raise TaxonWorks::Error, "First resource relationship column (coreid) should have namespace '', got '#{n}'")
+                  xml.coreid(index: 0)
+                else
+                  xml.field(index: i, term: n)
+                end
+              end
+            }
+          end
+
+          # Media (images, sounds)
+          if !media_extension.nil?
+            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/ac/terms/Multimedia') {
+              xml.files {
+                xml.location 'media.tsv'
+              }
+              Export::CSV::Dwc::Extension::Media::HEADERS_NAMESPACES.each_with_index do |n, i|
+                if i == 0
+                  n == '' || (raise TaxonWorks::Error, "First media column (coreid) should have namespace '', got '#{n}'")
+                  xml.coreid(index: 0)
+                else
+                  xml.field(index: i, term: n)
+                end
+              end
+            }
+          end
         }
       end
 
@@ -618,7 +729,7 @@ module Export::Dwca
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
         zip.add('data.tsv', all_data.path)
 
-        zip.add('media.csv', media.path) if media_extension
+        zip.add('media.tsv', media_resource_relationship.path) if media_extension
         zip.add('resource_relationships.tsv', biological_associations_resource_relationship.path) if biological_associations_extension
 
         zip.add('meta.xml', meta.path)

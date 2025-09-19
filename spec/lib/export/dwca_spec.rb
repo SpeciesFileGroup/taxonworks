@@ -5,7 +5,6 @@ require 'export/dwca'
 describe Export::Dwca, type: :model, group: :darwin_core do
   include ActiveJob::TestHelper
 
-
   # specify "stores a compressed file in rails' temp directory" do
   #   path = Export::Dwca.get_archive
   #   expect(File.exist?(path)).to be_truthy
@@ -30,12 +29,24 @@ describe Export::Dwca, type: :model, group: :darwin_core do
 
     let(:a) { DwcOccurrence.all }
     let(:b) { BiologicalAssociation.all }
+    let(:c) { CollectionObject.all }
+    let(:f) { FieldOccurrence.all}
 
     let!(:d) {
       ::Export::Dwca.download_async(
         a, 'https://example.org/some_url',
-        extension_scopes: { biological_associations: b.to_sql },
-        predicate_extensions: {}
+        extension_scopes: {
+          biological_associations: {
+            core_params: {},
+            collection_objects_query: b.to_sql
+          },
+          media: {
+            collection_objects: c.to_sql,
+            field_occurrences: f.to_sql
+          }
+         },
+        predicate_extensions: {},
+        project_id: Project.first.id
       )
     }
 
@@ -45,9 +56,21 @@ describe Export::Dwca, type: :model, group: :darwin_core do
         DwcaCreateDownloadJob.perform_later(
           download.id,
           core_scope: a.to_sql,
-          extension_scopes: { biological_associations: b.to_sql }
+          extension_scopes: {
+            biological_associations: b.to_sql,
+            media: {
+              collection_objects: c.to_sql,
+              field_occurrences: f.to_sql
+            }
+          }
         )
-      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download.id, core_scope: a.to_sql, extension_scopes: { biological_associations: b.to_sql } )
+      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download.id, core_scope: a.to_sql, extension_scopes: {
+        biological_associations: b.to_sql,
+        media: {
+          collection_objects: c.to_sql,
+          field_occurrences: f.to_sql
+        }
+      } )
     end
 
    specify 'queues the job with empty extensions' do
@@ -85,6 +108,12 @@ describe Export::Dwca, type: :model, group: :darwin_core do
       perform_enqueued_jobs
       z = Zip::File.open(Download.first.file_path)
       expect(z.find_entry('resource_relationships.tsv')).to be_truthy
+    end
+
+    specify 'includes media.tsv' do
+      perform_enqueued_jobs
+      z = Zip::File.open(Download.first.file_path)
+      expect(z.find_entry('media.tsv')).to be_truthy
     end
 
   end

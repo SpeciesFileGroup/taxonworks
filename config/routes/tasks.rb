@@ -148,6 +148,11 @@ scope :tasks do
     scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
       get '/', as: 'new_field_occurrence_task', action: :index
     end
+
+    scope :dwc_media_extension_preview, controller: 'tasks/field_occurrences/dwc_media_extension_preview' do
+      get '/', action: :index, as: 'field_occurrences_dwc_media_extension_preview_task'
+      post '/', action: :index
+    end
   end
 
   scope :namespaces do
@@ -449,6 +454,11 @@ scope :tasks do
     scope :browse, controller: 'tasks/collection_objects/browse' do
       get '/', as: 'browse_collection_objects_task', action: :index
     end
+
+    scope :dwc_media_extension_preview, controller: 'tasks/collection_objects/dwc_media_extension_preview' do
+      get '/', action: :index, as: 'collection_objects_dwc_media_extension_preview_task'
+      post '/', action: :index
+    end
   end
 
   scope :accessions do
@@ -668,6 +678,7 @@ scope :tasks do
 
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      post ':observation_matrix_id/key', action: :key, defaults: {format: :json}
       get '/', action: :index, as: 'interactive_key_task'
     end
 

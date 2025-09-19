@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_09_154825) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_07_234656) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -18,6 +18,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_09_154825) do
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
   enable_extension "postgis"
+  enable_extension "postgis_raster"
   enable_extension "tablefunc"
 
   create_table "active_storage_attachments", force: :cascade do |t|

@@ -6,9 +6,14 @@ class DwcaCreateDownloadJob < ApplicationJob
   #   String of SQL generated from the scope
   #   SQL must  return a list of DwcOccurrence records
   # take a download, and a list of scopes, and save the result to the download, that's all
-  def perform(download_id, core_scope: nil, extension_scopes: {biological_associations: nil, media: nil}, predicate_extensions: {}, eml_data: {dataset: nil, additional_metadata: nil}, taxonworks_extensions: [])
+  def perform(download_id, core_scope: nil, extension_scopes: {biological_associations: nil, media: nil}, predicate_extensions: {}, eml_data: {dataset: nil, additional_metadata: nil}, taxonworks_extensions: [],
+  project_id: nil)
     # Raise and fail without notifying if our download was deleted before we run.
     download = Download.find(download_id)
+    # Filter queries will fail in unexpected ways without project_id set as
+    # expected!
+    raise TaxonWorks::Error, "Project_id not set! #{core_scope}" if project_id.nil?
+    Current.project_id = project_id
 
     begin
       begin

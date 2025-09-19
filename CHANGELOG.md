@@ -9,30 +9,70 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Browse OTU: Radial annotator to Timeline [#4057]
-- Radial CO: Accessions / Deaccession
-- Filter CO: Containerized facet
-- Radial navigator: New extract and Browse OTUs task for CollectionObject [#2882][#2860]
-- New collecting event task: Add field occurrence panel [#4529]
+- Radial filter: Source => TNR and vice versa
+- Taxonomic tree: Options to show/hide descendants count and Level-based coloring.
+- Interactive key descriptor selections can be used to help create a dichotomous key
+- Browse OTU: Radial annotator to biological associations panel
+- Filter biological associations: Data attributes facet
 
 ### Fixed
 
+- Error on Globi preview of biological associations and on api/v1/biological_associations.globi
+- `class` being named `dwcClass` and `rebuild_set` leaked in DwC OTU inventory API endpoint
+- Lead text sometimes doesn't update in the UI after save in 'full key' display mode
+- Taxon name statistics now load much faster for higher taxa. Valid taxa counts are unchanged but invalid and otu-taxa counts have decreased slightly in some instances due to being counted differently.
+- Fix DwCA media and resource relationship extensions to refer to core occurrences properly (this previously prevented extension data from displaying on GBIF occurrence pages)
+
+### Changed
+
+- Mass annotate namespaces in Filter Collection Objects/Filter Collecting Events now requires selecting the namespace(s) to replace
+- Changed file extension from `.csv` to `.tsv` in DwC OTU inventory API endpoint to facilitate readers to detect field separator correctly.
+- Updated interactive key endpoint to hand work with dichotomous keys
+- Make distribution on /api/v1/taxon_names/:id/inventory/catalog an extends option
+
+## [0.53.2] - 2025-09-05
+
+### Added
+
+- `/api/v1/sources/bibliography` end point, a simplified response
+- Administration user activity cumulative projects/year plot
+- Browse OTU: Radial annotator to Timeline [#4057]
+- Radial CO: Accessions / Deaccession
+- Filter CO: Containerized facet
+- Radial navigator: New extract and Browse OTUs task for CollectionObject [#2882] [#2860]
+- New collecting event task: Add field occurrence panel [#4529]
+- New descriptor task: Add recent list
+- Support for DwCA Media extension [#1488]
+
+### Fixed
+
+- Expand the view of any/all parts of the taxonomic hierarchy in the Navigate panel as needed [#3585]
 - Match taxon names task sometimes doesn't work with long name lists of names [#4523]
 - Radial navigator: Browse taxon name link doesn't work for Combinations [#4526]
 - Shape picker: Missing Map tab [#4532]
 - Some cases of unify failing on otus from different rows of the same matrix [#4140]
 - Nexus import fails on filename/extension error [#4531]
 - Internal error when loading matrix column coder
-- Fix Otus merge for BAs with otus on subject side [#4139]
+- Fix unify Otus when otus are associated with BAs having otus on subject side [#4139]
 - Filter stage images: Pagination is missing [#4540]
+- Browse OTUs: Parents list is missing when a taxon has many OTUs
+- DwCA Resource Relationships extension updates
+- Simple taxon name import raises an uncaught error when there are misformed author strings [#4541]
+- Occasional 'holes' for relatively small states in cached maps
+- Deadlocks on georeferences in cached maps rake task
 
 ### Changed
 
 - Allow `accepted` as `taxonomicStatus` and empty `acceptedNameUsageID` for valid names in DwC checklist importer
 - Update maps in all tasks
+- CSD: Identifiers can be deleted from the form once they are saved
+- Updated Ruby gems
+- Updated NPM packages
 
+[#1488]: https://github.com/SpeciesFileGroup/taxonworks/issues/1488
 [#2860]: https://github.com/SpeciesFileGroup/taxonworks/issues/2860
 [#2882]: https://github.com/SpeciesFileGroup/taxonworks/issues/2882
+[#3585]: https://github.com/SpeciesFileGroup/taxonworks/issues/3585
 [#3845]: https://github.com/SpeciesFileGroup/taxonworks/issues/3845
 [#4057]: https://github.com/SpeciesFileGroup/taxonworks/issues/4057
 [#4139]: https://github.com/SpeciesFileGroup/taxonworks/issues/4139
@@ -41,7 +81,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4526]: https://github.com/SpeciesFileGroup/taxonworks/issues/4526
 [#4531]: https://github.com/SpeciesFileGroup/taxonworks/issues/4531
 [#4532]: https://github.com/SpeciesFileGroup/taxonworks/issues/4532
+[#4529]: https://github.com/SpeciesFileGroup/taxonworks/issues/4529
 [#4540]: https://github.com/SpeciesFileGroup/taxonworks/issues/4540
+[#4541]: https://github.com/SpeciesFileGroup/taxonworks/issues/4541
 
 ## [0.53.1] - 2025-08-13
 
@@ -5636,7 +5678,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.2...development
+[0.53.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.1...v0.53.2
 [0.53.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.0...v0.53.1
 [0.53.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.2...v0.53.0
 [0.52.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.1...v0.52.2

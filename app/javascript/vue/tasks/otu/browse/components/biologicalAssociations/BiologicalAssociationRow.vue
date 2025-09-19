@@ -1,6 +1,11 @@
 <template>
   <tr>
     <td>
+      <div class="flex-row gap-small">
+        <RadialAnnotator :global-id="row.globalId" />
+      </div>
+    </td>
+    <td class="table-cell-border-left-thick">
       <BiologicalAssociationRelated
         :item-id="row.subjectId"
         :item-type="row.subjectType"
@@ -69,6 +74,7 @@
 </template>
 
 <script setup>
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import BiologicalAssociationRelated from './BiologicalAssociationRelated.vue'
 import { makeBrowseUrl } from '@/helpers'
 

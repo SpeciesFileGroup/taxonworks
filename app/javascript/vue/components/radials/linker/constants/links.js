@@ -24,6 +24,11 @@ export const TASK_COLLECTION_OBJECT_SUMMARY = {
   link: '/tasks/collection_objects/summary'
 }
 
+export const TASK_COLLECTION_OBJECT_MEDIA_EXTENSION = {
+  label: 'DwC media extension preview',
+  link: '/tasks/collection_objects/dwc_media_extension_preview'
+}
+
 export const TASK_SOURCE_CITATION_TOTALS = {
   label: 'Citation totals',
   link: '/tasks/sources/source_citation_totals/'
@@ -152,4 +157,9 @@ export const TASK_PROJECT_VOCABULARY = {
   post: false,
   queryParam: true,
   saveQuery: true
+}
+
+export const TASK_FIELD_OCCURRENCE_MEDIA_EXTENSION = {
+  label: 'DwC media extension preview',
+  link: '/tasks/field_occurrences/dwc_media_extension_preview'
 }

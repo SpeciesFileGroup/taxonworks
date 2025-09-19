@@ -1,0 +1,17 @@
+<div class="nav-line flex-row flex-separate middle" data-help="Within the hierarchy the first number is the number of valid children, the second the number of invalid children.">
+  <div class="title">Navigate</div>
+  <div 
+    id="navigate-options"
+    class="padding-medium-right">
+  </div>
+</div>
+
+<div class="navigation-controls">
+  <%= previous_sibling_browse_taxon_name_link(@taxon_name, target) %>
+  <a href="/taxon_names/random" class="navigation-item" data-turbolinks="false">Random</a>
+  <%= next_sibling_browse_taxon_name_link(@taxon_name, target) %>
+</div>
+
+<div id="show_taxon_name_hierarchy" class="content">
+  <div data-taxonomy-panel="<%= taxon_name.id -%>"></div>
+</div>
