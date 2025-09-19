@@ -48,10 +48,12 @@
 #   @return [Integer]
 #   the project ID
 #
+# ! This feels a little like structure/rendering not data, it may belong in a seperate table ultimately !!
 # @!attribute observation_matrix_id
 #   @return [Integer]
 #   id of the observation matrix from which lead item otus have been selected to
 #   build a key on, if any
+#   
 class Lead < ApplicationRecord
   include Housekeeping
   include Shared::Citations

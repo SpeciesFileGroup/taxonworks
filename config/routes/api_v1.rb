@@ -64,7 +64,9 @@ namespace :api, defaults: {format: :json} do
       get '/downloads', to: '/downloads#api_index'
       get '/downloads/:id/file', to: '/downloads#api_file', as: :api_download_file
 
+      get '/dwc_occurrences/area_autocomplete', to: '/dwc_occurrences#api_area_autocomplete'
       get '/dwc_occurrences', to: '/dwc_occurrences#api_index'
+
 
       get '/taxon_names/origin_citation', to: '/taxon_names#api_origin_citation'
       get '/taxon_names', to: '/taxon_names#api_index'
