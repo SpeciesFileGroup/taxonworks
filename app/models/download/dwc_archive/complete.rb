@@ -32,7 +32,6 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     eml_dataset, eml_additional_metadata = project.complete_dwc_eml_preferences
     predicates = project.complete_dwc_download_predicates || []
     extensions = project.complete_dwc_download_extensions || []
-    # TODO adjust these on merge with media extensions pr and TEST media
     biological_associations_scope = extensions.include?('resource_relationships') ?
       ::Queries::BiologicalAssociation::Filter.new(
         collection_object_query: ::Queries::CollectionObject::Filter.new(
@@ -61,7 +60,8 @@ class Download::DwcArchive::Complete < Download::DwcArchive
         biological_associations: biological_associations_scope,
         media: media_scope
       },
-      predicate_extensions: normalized_predicate_extensions(predicates)
+      predicate_extensions: normalized_predicate_extensions(predicates),
+      project_id:
     )
   end
 
