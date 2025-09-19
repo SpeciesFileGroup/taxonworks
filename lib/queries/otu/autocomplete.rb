@@ -173,8 +173,21 @@ module Queries
         scale = (max - min) / ids.count.to_f
 
         # TODO: optimize *
-        otus = base_query.select("otus.*, label_target_taxon_name_id, ((#{min} + row_number() OVER ())::float * #{scale}) as priority") # small incrementing numbers for priority
-          .joins("INNER JOIN ( SELECT unnest(ARRAY[#{ids.map(&:first).join(',')}]) AS id, unnest(ARRAY[#{ids.map(&:last).join(',')}]) AS label_target_taxon_name_id, row_number() OVER () AS row_num ) AS id_order ON otus.taxon_name_id = id_order.id")
+        otus = base_query
+          .select(<<~SQL.squish)
+            otus.*,
+            label_target_taxon_name_id,
+            ((#{min} + row_number() OVER ())::float * #{scale}) as priority
+          SQL
+          .joins(<<~SQL.squish)
+            INNER JOIN (
+              SELECT
+                unnest(ARRAY[#{ids.map(&:first).join(',')}]) AS id,
+                unnest(ARRAY[#{ids.map(&:last).join(',')}]) AS label_target_taxon_name_id,
+                row_number() OVER () AS row_num
+            ) AS id_order
+            ON otus.taxon_name_id = id_order.id
+          SQL
           .order('id_order.row_num')
 
         otus = scope_autocomplete(otus).includes(:taxon_name)
