@@ -43,6 +43,13 @@
     >
       Remove all EML 'STUB' text to enable save
     </div>
+
+    <div class="margin-large-top">
+      <a :href="`/api/v1/downloads/dwc_archive_complete?project_token=${projectToken}`"
+      >
+        Public download link
+      </a>
+    </div>
   </div>
 
   <h2>Max Age</h2>
