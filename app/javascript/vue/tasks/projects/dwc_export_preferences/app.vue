@@ -188,20 +188,20 @@
 
   <h2>Predicates</h2>
   <div class="margin-medium-left">
+    <VBtn
+      @click="setPredicates"
+      color="create"
+      class="margin-large-bottom"
+    >
+      Save predicates
+    </VBtn>
+
     <PredicateFilter
       v-model:collecting-event-predicate-id="predicateParams.collecting_event_predicate_id"
       v-model:collection-object-predicate-id="predicateParams.collection_object_predicate_id"
       v-model:taxonworks-extension-methods="selectedExtensionMethods.taxonworks_extension_methods"
       class="predicate-filter"
     />
-
-    <VBtn
-      @click="setPredicates"
-      color="create"
-      class="margin-medium-top margin-large-bottom"
-    >
-      Save predicates
-    </VBtn>
   </div>
 </template>
 
