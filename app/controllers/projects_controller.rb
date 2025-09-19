@@ -133,6 +133,11 @@ class ProjectsController < ApplicationController
     render json: @project.data_breakdown_for_chartkick_recent
   end
 
+  def api_access_token
+    # Project token is always public.
+    render json: { api_access_token: sessions_current_project&.api_access_token }
+  end
+
   private
 
   def set_project

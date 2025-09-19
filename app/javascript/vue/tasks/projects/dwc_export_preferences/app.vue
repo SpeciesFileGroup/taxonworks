@@ -32,9 +32,14 @@
     </VBtn>
 
     <div
-      v-if="isPublicIsDisabled"
-      class="feedback-warning d-inline-block padding-xsmall margin-medium-left"
-      id="stub-warning"
+      v-if="isPublicIsDisabledByNoToken"
+      class="feedback-warning d-inline-block padding-xsmall margin-medium-left is-public-disabled-warning"
+    >
+      A project token for this project must be set to make downloads public
+    </div>
+    <div
+      v-if="isPublicIsDisabledByStub"
+      class="feedback-warning d-inline-block padding-xsmall margin-medium-left is-public-disabled-warning"
     >
       Remove all EML 'STUB' text to enable save
     </div>
@@ -209,6 +214,7 @@
 import { getCurrentProjectId } from '@/helpers/project.js'
 import { DwcExportPreference } from '@/routes/endpoints'
 import { computed, onBeforeMount, reactive, ref } from 'vue'
+import { Project } from '@/routes/endpoints'
 import PredicateFilter from '@/components/Export/PredicateFilter.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -236,6 +242,7 @@ const predicateParams = reactive({
 const selectedExtensionMethods = reactive({
   taxonworks_extension_methods: []
 })
+const projectToken = ref(null)
 const isLoading = ref(false)
 
 const datasetHasStubText = computed(() => (dataset.value.includes('STUB')))
@@ -245,10 +252,17 @@ const emlHasStubText = computed(() => (
   datasetHasStubText.value || additionalMetadataHasStubText.value
 ))
 
-const isPublicIsDisabled = computed(() => (!isPublic.value && emlHasStubText.value))
+const isPublicIsDisabledByStub = computed(() => (!isPublic.value && emlHasStubText.value))
+const isPublicIsDisabledByNoToken = computed(() => !projectToken.value)
+const isPublicIsDisabled = computed(() => isPublicIsDisabledByStub.value || isPublicIsDisabledByNoToken.value)
 
 onBeforeMount(() => {
   isLoading.value = true
+
+  Project.apiAccessToken(projectId)
+    .then(({ body }) => projectToken.value = body.api_access_token)
+    .catch(() => {})
+
   DwcExportPreference.preferences(projectId)
     .then(({ body }) => {
       adminUser.value = body.user_is_admin || false
@@ -363,7 +377,7 @@ function validateAndSaveEML() {
   width: 700px;
 }
 
-#stub-warning {
+.is-public-disabled-warning {
   vertical-align: bottom;
 }
 

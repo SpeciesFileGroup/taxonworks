@@ -17,5 +17,8 @@ export const Project = {
     AjaxCall('get', `/${controller}/complete_download_is_public.json`),
 
   completeDownloadPreferences: () =>
-    AjaxCall('get', `/${controller}/complete_download_preferences.json`)
+    AjaxCall('get', `/${controller}/complete_download_preferences.json`),
+
+  apiAccessToken: (id) =>
+    AjaxCall('get', `/${controller}/${id}/api_access_token.json`)
 }

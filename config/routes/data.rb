@@ -747,6 +747,7 @@ end
 
 resources :projects, only: [] do
   member do
+    get :api_access_token, defaults: {format: :json}
     scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
       # Scope these under the export preferences task controller for access
       # control and functional grouping.
