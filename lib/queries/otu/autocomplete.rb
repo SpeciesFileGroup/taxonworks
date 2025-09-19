@@ -128,6 +128,7 @@ module Queries
           .order('id_order.row_num')
       end
 
+      # DEPRECATED
       # Maintains valid_taxon_name_id needed for API.
       #
       # Considerations:
@@ -177,7 +178,7 @@ module Queries
           .select(<<~SQL.squish)
             otus.*,
             label_target_taxon_name_id,
-            ((#{min} + row_number() OVER ())::float * #{scale}) as priority
+            ((#{min} + row_number() OVER ())::float * #{scale}) AS priority
           SQL
           .joins(<<~SQL.squish)
             INNER JOIN (
@@ -190,10 +191,16 @@ module Queries
           SQL
           .order('id_order.row_num')
 
-        otus = scope_autocomplete(otus).includes(:taxon_name)
+        otus = scope_autocomplete(otus)
 
-        otus = include_common_names ? otus.includes(:common_names) : otus
-        otus = include_taxon_name ? otus.includes(:taxon_name) : otus
+        # We could currently get away with using .includes here, but if we were
+        # to ever filter or group `otus` on a non-otu table like id_order then
+        # .includes would do a join on the associated table below and we could
+        # get duplicate otu.id result rows that would be de-duplicated by rails,
+        # losing vital (non-dup) id_order info. So just always do preload here
+        # instead.
+        otus = include_taxon_name ? otus.preload(:taxon_name) : otus
+        otus = include_common_names ? otus.preload(:common_names) : otus
 
         otus
       end
@@ -311,7 +318,7 @@ module Queries
       def scope_autocomplete(query)
         query = query.joins(:taxon_name) if with_taxon_name
         query = query.where.missing(:taxon_name) if with_taxon_name == false
-        query = query.joins(:taxon_name).where(otus: {name: nil}) if having_taxon_name_only
+        query = query.where(otus: {name: nil}) if having_taxon_name_only
         query
       end
 
