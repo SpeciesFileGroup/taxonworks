@@ -6,7 +6,9 @@
     <ul class="no_bullets list list-arrow">
       <%= tag.li( link_to('Edit', edit_project_path(@project)) ) %>
       <%= tag.li( link_to('Attribute preferences', project_preferences_task_path, data: { turbolinks: false } ) ) %>
-      <%= tag.li( link_to('Darwin core export preferences', project_dwc_export_preferences_task_path) )%>
+      <% if sessions_current_user.is_project_administrator?(sessions_current_project) %>
+        <%= tag.li( link_to('Darwin core export preferences', project_dwc_export_preferences_task_path) )%>
+      <% end %>
     </ul>
 
     <h2> Project attributes </h2>

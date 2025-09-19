@@ -1,6 +1,6 @@
 class Tasks::Projects::DwcExportPreferencesController < ApplicationController
   include TaskControllerConfiguration
-  before_action :require_administrator_sign_in
+  before_action :require_project_administrator_sign_in
 
   before_action :set_project
 
@@ -10,22 +10,14 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
 
   def set_max_age
     project = Project.find(sessions_current_project_id)
-    if !sessions_current_user.is_project_administrator?(project)
-      render json: {
-        base: ['Only project administrators can set maximum age']
-      }
-      return
+    if @project.set_complete_dwc_download_max_age(params[:max_age])
+      head :no_content
     else
-      if @project.set_complete_dwc_download_max_age(params[:max_age])
-        head :no_content
-      else
-        render json: {
-          base: 'Failed to interpret max age!'
-        }, status: :unprocessable_entity
-      end
+      render json: {
+        base: 'Failed to interpret max age!'
+      }, status: :unprocessable_entity
     end
   end
-
 
   def set_is_public
     @project.set_complete_dwc_download_is_public(params[:is_public])

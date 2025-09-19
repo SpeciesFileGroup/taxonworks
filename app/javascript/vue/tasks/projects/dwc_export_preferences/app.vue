@@ -5,38 +5,6 @@
     :logo-size="{ width: '100px', height: '100px' }"
   />
 
-  <fieldset
-    id="max-age"
-    class="padding-large"
-    data-help="If the existing complete download is older than max age days, the download will fail but creation of a new download will be triggered to make a new download available."
-  >
-    <legend>Admin only</legend>
-    <template v-if="adminUser">
-      <div>
-        <label>
-          <input
-            type="text"
-            v-model="maxAge"
-            class="text-number-input"
-          />
-          Maximum Age in days
-        </label>
-      </div>
-
-      <VBtn
-        @click="setMaxAge"
-        color="create"
-        class="margin-medium-top"
-      >
-        Save Max Age
-      </VBtn>
-    </template>
-
-    <div v-else>
-      Maximum download age: {{ maxAge }} days
-    </div>
-  </fieldset>
-
   <h1 data-help="A publicly accessible complete api download can't be created until the eml preferences below have been saved and the 'Is Public' box has been checked and saved. The first time the public download is requested by api it will fail but the download will be triggered to build. Once the first build completes there will always be a download available (until no longer public or deleted).">
     Darwin core export settings for project downloads
   </h1>
@@ -70,6 +38,29 @@
     >
       Remove all EML 'STUB' text to enable save
     </div>
+  </div>
+
+  <h2>Max Age</h2>
+  <div class="margin-medium-left">
+    <div>
+      <label>
+        <input
+          type="text"
+          v-model="maxAge"
+          class="text-number-input margin-xsmall-top"
+          data-help="If the existing complete download is older than max age days, the download will fail but creation of a new download will be triggered to make a new download available."
+        />
+        Maximum Age in days
+      </label>
+    </div>
+
+    <VBtn
+      @click="setMaxAge"
+      color="create"
+      class="margin-medium-top"
+    >
+      Save Max Age
+    </VBtn>
   </div>
 
   <h2>Extensions</h2>
