@@ -60,6 +60,8 @@ class AnatomicalPart < ApplicationRecord
   is_origin_for 'AnatomicalPart', 'Extract', 'Sequence', 'Sound'
   originates_from 'Otu', 'Specimen', 'Lot', 'AnatomicalPart', 'FieldOccurrence'
 
+  GRAPH_ENTRY_POINTS = [:origin_relationships]
+
   attr_accessor :no_cached
 
   after_save :set_cached, unless: -> { self.no_cached }

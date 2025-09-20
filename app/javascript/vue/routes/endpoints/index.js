@@ -1,4 +1,5 @@
 export { AlternateValue } from './AlternateValue'
+export { AnatomicalPart } from './AnatomicalPart'
 export { Annotation } from './Annotation'
 export { AssertedDistribution } from './AssertedDistribution'
 export { Attribution } from './Attribution'

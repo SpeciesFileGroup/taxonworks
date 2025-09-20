@@ -38,35 +38,54 @@
     </div>
 
     <div>
-      {{ originEndpoint }}:
-      <select v-model="type">
-        <option :value="null">Select type</option>
-        <option
-          v-for="(_, key) in typeList"
-          :key="key"
-          :value="key"
-        >
-          {{ key }}
-        </option>
-      </select>
-    </div>
-    <smart-selector
-      v-if="type"
-      :model="modelSelected"
-      :target="metadata.object_type"
-      @selected="setObject"
-    />
+      <div>
+        {{ originEndpoint }}:
+        <select v-model="type">
+          <option :value="null">Select type</option>
+          <option
+            v-for="(key) in Object.keys(typeList).sort()"
+            :key="key"
+            :value="key"
+          >
+            {{ key }}
+          </option>
+        </select>
+      </div>
 
-    <div  class="margin-large-top">
-      <button
-        type="button"
-        class="button normal-input button-submit"
+      <div
+        v-if="type"
+        class="margin-large-top"
+      >
+        <div v-if="offerCreate">
+          <VBtn
+            v-if="!showingCreate"
+            color="primary"
+            @click="() => (showingCreate = true)"
+          >
+            New
+          </VBtn>
+
+          or
+        </div>
+
+        <smart-selector
+          :model="modelSelected"
+          :target="metadata.object_type"
+          @selected="(obj) => setObject(obj)"
+        />
+      </div>
+    </div>
+
+    <div class="margin-large-top">
+      <VBtn
+        color="create"
         :disabled="!objective"
         @click="createOrigin"
       >
         Create
-      </button>
+      </VBtn>
     </div>
+
     <table>
       <thead>
         <tr>
@@ -97,6 +116,25 @@
         </template>
       </draggable>
     </table>
+
+    <VModal
+      v-if="showingCreate"
+      @close="showingCreate = false"
+    >
+      <template #header>
+        Create new {{ type }}
+      </template>
+
+      <template #body>
+        <component
+          :is="SLICES_WITH_CREATE.origin_relationships[type]"
+          @create="(obj) => {
+            setObject(obj)
+            showingCreate = false
+          }"
+        />
+      </template>
+    </VModal>
   </div>
 </template>
 
@@ -105,10 +143,12 @@ import { OriginRelationship } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
 import { ref, computed } from 'vue'
 import { COLLECTION_OBJECT } from '@/constants'
+import { SLICES_WITH_CREATE } from '../../constants/slices'
 import SmartSelector from '@/components/ui/SmartSelector'
 import Draggable from 'vuedraggable'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VModal from '@/components/ui/Modal'
 
 const controllerRoute = {
   AssertedDistribution: 'asserted_distributions',
@@ -159,6 +199,9 @@ const { list, addToList, removeFromList } = useSlice({
 const flip = ref(false)
 const type = ref(null)
 const objective = ref(null)
+const showingCreate = ref(false)
+
+const offerCreate = computed(() => Object.keys(SLICES_WITH_CREATE.origin_relationships).includes(type.value))
 
 const originEndpoint = computed(() => flip.value ? 'Origin' : 'Endpoint')
 const originOf = computed(() => {
@@ -176,6 +219,7 @@ function setObject(item) {
     modelSelected.value === controllerRoute.Specimen
       ? Object.assign(item, { base_class: COLLECTION_OBJECT })
       : item
+  debugger
 }
 
 function createOrigin() {

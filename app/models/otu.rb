@@ -55,7 +55,7 @@ class Otu < ApplicationRecord
 
   is_origin_for 'Sequence', 'Extract', 'Sound', 'AnatomicalPart'
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices].freeze
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices, :origin_relationships].freeze
 
   belongs_to :taxon_name, inverse_of: :otus
 
