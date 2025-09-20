@@ -1,25 +1,29 @@
 <template>
   <div>
-    <div class="margin-medium-bottom">
-      <div>
-        <span
-          v-if="originOf"
-          v-html="originOf"
-        />
-        <span v-else>Select a origin</span>
-      </div>
+    <div class="direction margin-medium-bottom">
+      <div class="direction-wording">
+        <div>
+          <span
+            v-if="originOf"
+            v-html="originOf"
+          />
+          <span v-else>[Select an origin]</span>
+        </div>
 
-      <div class="margin-medium-left inline">
-        <span
-          >is the origin of<br />
-          <div class="margin-medium-left">
-            <span
-              v-if="originFor"
-              v-html="originFor"
-            />
-            <span v-else>[Select a origin]</span>
-          </div>
-        </span>
+        <div class="margin-medium-left inline">
+          <span
+            >is the origin of<br />
+            <div class="margin-medium-left">
+              <span
+                v-if="originFor"
+                v-html="originFor"
+              />
+              <span v-else>[Select an endpoint]</span>
+            </div>
+          </span>
+        </div>
+      </div>
+      <div>
         <VBtn
           color="primary"
           circle
@@ -31,21 +35,20 @@
           />
         </VBtn>
       </div>
-      <div class="margin-medium-left">
-        <div class="margin-xlarge-left">
-          a
-          <select v-model="type">
-            <option :value="null">Select type</option>
-            <option
-              v-for="(_, key) in typeList"
-              :key="key"
-              :value="key"
-            >
-              {{ key }}
-            </option>
-          </select>
-        </div>
-      </div>
+    </div>
+
+    <div>
+      {{ originEndpoint }}:
+      <select v-model="type">
+        <option :value="null">Select type</option>
+        <option
+          v-for="(_, key) in typeList"
+          :key="key"
+          :value="key"
+        >
+          {{ key }}
+        </option>
+      </select>
     </div>
     <smart-selector
       v-if="type"
@@ -54,7 +57,7 @@
       @selected="setObject"
     />
 
-    <div>
+    <div  class="margin-large-top">
       <button
         type="button"
         class="button normal-input button-submit"
@@ -144,7 +147,10 @@ const props = defineProps({
   }
 })
 
-const typeList = props.metadata.endpoints.origin_relationships.origin_for
+
+const originForList = props.metadata.endpoints.origin_relationships.origin_for
+const originatesFromList = props.metadata.endpoints.origin_relationships.originates_from
+const typeList = computed(() => flip.value ? originatesFromList : originForList)
 
 const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
@@ -154,6 +160,7 @@ const flip = ref(false)
 const type = ref(null)
 const objective = ref(null)
 
+const originEndpoint = computed(() => flip.value ? 'Origin' : 'Endpoint')
 const originOf = computed(() => {
   return !flip.value ? props.metadata.object_tag : objective.value?.object_tag
 })
@@ -227,3 +234,18 @@ OriginRelationship.where({ old_object_global_id: props.globalId }).then(
   }
 )
 </script>
+
+<style lang="css" scoped>
+.direction {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+}
+
+.direction-wording {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  border-right: 2px solid var(--border-color);
+  border-radius: var(--border-radius-small);
+}
+</style>
