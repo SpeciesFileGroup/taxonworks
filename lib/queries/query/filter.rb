@@ -90,6 +90,7 @@ module Queries
     # to have a list somewhere else anyways to further restrict allowed classes.
     #
     FILTER_QUERIES = {
+      anatomical_part_query: '::Queries::AnatomicalPart::Fitler',
       asserted_distribution_query: '::Queries::AssertedDistribution::Filter',
       biological_association_query: '::Queries::BiologicalAssociation::Filter',
       biological_associations_graph_query: '::Queries::BiologicalAssociationsGraph::Filter',
@@ -151,7 +152,10 @@ module Queries
 
     # TODO: macro these dynamically
 
-    # @return [Query::AssertedDistributionn::Filter, nil]
+    # @return [Query::AnatomicalPart::Filter, nil]
+    attr_accessor :anatomical_part_query
+
+    # @return [Query::AssertedDistribution::Filter, nil]
     attr_accessor :asserted_distribution_query
 
     # @return [Query::BiologicalAssociation::Filter, nil]
