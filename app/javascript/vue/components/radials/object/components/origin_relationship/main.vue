@@ -219,7 +219,6 @@ function setObject(item) {
     modelSelected.value === controllerRoute.Specimen
       ? Object.assign(item, { base_class: COLLECTION_OBJECT })
       : item
-  debugger
 }
 
 function createOrigin() {

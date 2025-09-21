@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :anatomical_parts do
+    scope :filter, controller: 'tasks/anatomical_parts/filter' do
+      get '/', action: :index, as: 'filter_anatomical_parts_task'
+    end
+  end
+
   scope :taxon_name_relationships do
     scope :filter, controller: 'tasks/taxon_name_relationships/filter' do
       get '/', action: :index, as: 'filter_taxon_name_relationships_task'

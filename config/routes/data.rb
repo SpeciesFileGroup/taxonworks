@@ -24,6 +24,9 @@ match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', 
 
 resources :anatomical_parts do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'anatomical_parts#index', via: [:get, :post]
+  end
 end
 
 match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults: {format: :json}

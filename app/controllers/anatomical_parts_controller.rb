@@ -2,6 +2,7 @@ class AnatomicalPartsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_anatomical_part, only: %i[ show edit update destroy ]
+  after_action -> { set_pagination_headers(:anatomical_parts) }, only: [:index, :api_index], if: :json_request?
 
   # GET /anatomical_parts or /anatomical_parts.json
   def index
@@ -14,10 +15,10 @@ class AnatomicalPartsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json do
-        @anatomical_parts = AnatomicalPart
-          .where(project_id: sessions_current_project_id)
+        @anatomical_parts = ::Queries::AnatomicalPart::Filter.new(params).all
           .page(params[:page])
           .per(params[:per])
+          .order('anatomical_parts.name')
       end
     end
   end

@@ -1,5 +1,10 @@
 <template>
-  <FacetSoundName v-model="params" />
+  <FacetSoundName
+    v-model="params"
+    title="Name"
+    param-text="name"
+    param-exact="name_exact"
+  />
   <FacetOtu
     v-model="params"
     :target="SOUND"
@@ -32,7 +37,7 @@ import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/Face
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
-import FacetSoundName from '@/components/Filter/Facets/Sound/FacetSoundName.vue'
+import FacetSoundName from '@/components/Filter/Facets/shared/FacetText.vue'
 import FacetConveyanceObjectType from '@/components/Filter/Facets/Conveyance/FacetConveyanceObjectType.vue'
 import FacetCollectingEvent from '@/tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
 

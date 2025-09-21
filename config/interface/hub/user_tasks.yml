@@ -1069,3 +1069,12 @@ monograph_facilitator_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+filter_anatomical_parts_task:
+  hub: true
+  name: 'Filter anatomical parts'
+  related:
+  categories:
+    - filters
+    - biology
+  status: prototype
+  description: 'Filter anatomical parts by many different facets, download or visualize results.'
