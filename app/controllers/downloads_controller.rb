@@ -110,26 +110,13 @@ class DownloadsController < ApplicationController
       return
     end
 
-    complete_download_type = 'Download::DwcArchive::Complete'
-    download = Download.where(
-      type: complete_download_type, project_id: sessions_current_project_id
-    ).first
-    if download
-      if download.ready?
-        max_age = project.complete_dwc_download_max_age # in days
-        download_age = Time.current - download.created_at
-        if max_age && download_age.to_f / 1.day > max_age
-          # Create a fresh download that will replace the existing one when
-          # ready.
-          Download::DwcArchive::PupalComplete.create!
-        end
-
-        download.increment!(:times_downloaded)
+    begin
+      if download = Download::DwcArchive::Complete.process_complete_download_request(project)
         send_file download.file_path
-      else
-        render json: { status: 'The existing download is not ready yet' }, status: :unprocessable_entity
+        return
       end
-
+    rescue TaxonWorks::Error => e
+      render json: { status: e.to_s }, status: :unprocessable_entity
       return
     end
 

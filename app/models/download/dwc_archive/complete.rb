@@ -24,6 +24,31 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     true
   end
 
+  # @return [String] the download file_path of a complete download to be served
+  # Raises TaxonWorks::Error on error.
+  def self.process_complete_download_request(project)
+    download = Download.where(
+      type: 'Download::DwcArchive::Complete', project_id: project.id
+    ).first
+
+    return nil if download.nil?
+
+    if download.ready?
+      max_age = project.complete_dwc_download_max_age # in days
+      download_age = Time.current - download.created_at
+      if max_age && download_age.to_f / 1.day > max_age
+        # Create a fresh download that will replace the existing one when
+        # ready.
+        Download::DwcArchive::PupalComplete.create # don't raise if one already exists
+      end
+
+      download.increment!(:times_downloaded)
+      return download
+    else
+      raise TaxonWorks::Error, 'The existing download is not ready yet'
+    end
+  end
+
   private
 
   def build
