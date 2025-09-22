@@ -138,6 +138,65 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
         expect(tbl.first[ce_predicate_header]).to eq('Callisto')
       end
     end
+
+    context 'with media data' do
+      let(:project) { Project.first }
+      let!(:co) { Specimen.create! }
+      let!(:d) { Depiction.create!(depiction_object: co, image: FactoryBot.create(:valid_image)) }
+      let!(:c) { Conveyance.create!(conveyance_object: co, sound: FactoryBot.create(:valid_sound)) }
+
+      before(:each) {
+        project.set_complete_dwc_download_extensions(['media'])
+      }
+
+      specify 'creates media file rows' do
+        perform_enqueued_jobs # create dwc_occurrences
+
+        Download::DwcArchive::Complete.create!
+
+        perform_enqueued_jobs
+
+        tbl = Spec::Support::Utilities::Dwca.extract_media_tsv_table(Download.first.file_path)
+        expect(tbl.size).to eq(2) # doesn't include header row
+      end
+    end
+
+    context 'with resource relationships data' do
+      let(:project) { Project.first }
+      let!(:co1) { Specimen.create! }
+      let!(:co2) { Specimen.create! }
+      let!(:otu) { FactoryBot.create(:valid_otu) } # not represented by a dwc_occurrence data row
+
+      before(:each) {
+        project.set_complete_dwc_download_extensions(['resource_relationships'])
+      }
+
+      specify 'creates 1 resource relationship row for BA linked to core on one side' do
+        project.set_complete_dwc_download_extensions(['resource_relationships'])
+
+        FactoryBot.create(:valid_biological_association, biological_association_subject: co1, biological_association_object: otu)
+
+        Download::DwcArchive::Complete.create!
+
+        perform_enqueued_jobs
+
+        tbl = Spec::Support::Utilities::Dwca.extract_resource_relationships_tsv_table(Download.first.file_path)
+        expect(tbl.size).to eq(1) # doesn't include header row
+      end
+
+      specify 'creates 2 resource relationship rows for BA linked to core on both sides' do
+        project.set_complete_dwc_download_extensions(['resource_relationships'])
+
+        FactoryBot.create(:valid_biological_association, biological_association_subject: co1, biological_association_object: co2)
+
+        Download::DwcArchive::Complete.create!
+
+        perform_enqueued_jobs
+
+        tbl = Spec::Support::Utilities::Dwca.extract_resource_relationships_tsv_table(Download.first.file_path)
+        expect(tbl.size).to eq(2) # doesn't include header row
+      end
+    end
   end
 end
 

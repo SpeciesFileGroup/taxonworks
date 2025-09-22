@@ -311,6 +311,8 @@ class Project < ApplicationRecord
     end
   end
 
+  # @param extensions [Array[String]] list of extensions that should be included
+  # in complete downloads: ['media', 'resource_relationships', ...]
   def set_complete_dwc_download_extensions(extensions)
     prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
     prefs['extensions'] = extensions

@@ -24,7 +24,7 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     true
   end
 
-  # @return [String] the download file_path of a complete download to be served
+  # @return [Download] the complete download to be served
   # Raises TaxonWorks::Error on error.
   def self.process_complete_download_request(project)
     download = Download.where(
