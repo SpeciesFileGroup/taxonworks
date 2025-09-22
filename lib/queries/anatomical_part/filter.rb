@@ -90,6 +90,38 @@ module Queries
           .distinct # remove if model adds validations to make this unnecessary
       end
 
+      def collection_object_query_facet
+        return nil if collection_object_query.nil?
+
+        ::AnatomicalPart
+          .joins(:related_origin_relationships)
+          .where("origin_relationships.old_object_id IN (#{collection_object_query.all.select(:id).to_sql })")
+      end
+
+      def field_occurrence_query_facet
+        return nil if field_occurrence_query.nil?
+
+        ::AnatomicalPart
+          .joins(:related_origin_relationships)
+          .where("origin_relationships.old_object_id IN (#{collection_object_query.all.select(:id).to_sql })")
+      end
+
+      def otu_query_facet
+        return nil if otu_query.nil?
+
+        ::AnatomicalPart
+          .joins(:related_origin_relationships)
+          .where("origin_relationships.old_object_id IN (#{otu_query.all.select(:id).to_sql })")
+      end
+
+      def observation_query_facet
+        return nil if observation_query.nil?
+
+        ::AnatomicalPart
+          .joins(:related_origin_relationships)
+          .where("origin_relationships.old_object_id IN (#{observation_query.all.select(:id).to_sql })")
+      end
+
       def and_clauses
         [
           is_material_facet,
@@ -100,6 +132,11 @@ module Queries
 
       def merge_clauses
         [
+          collection_object_query_facet,
+          field_occurrence_query_facet,
+          otu_query_facet,
+          observation_query_facet,
+
           origin_object_type_facet
         ]
       end

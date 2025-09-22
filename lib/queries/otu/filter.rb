@@ -613,6 +613,13 @@ module Queries
         ::Otu.from('(' + s + ') as otus').distinct
       end
 
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+
+        ::Otu
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+      end
       # !! This is a soft-link (i.e. no otu_id FK directly), so latency between indexing has a very small proability
       # !! of impacting the results.
       def dwc_occurrence_query_facet

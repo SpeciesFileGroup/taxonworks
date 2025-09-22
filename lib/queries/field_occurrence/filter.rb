@@ -555,6 +555,14 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+
+        ::FieldOccurrence
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+      end
+
       def and_clauses
         [
           collecting_event_id_facet,
