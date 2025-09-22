@@ -9,7 +9,7 @@ module Shared::Dwc::MediaTargetExtensions
   # concern; see concerns on Image, Sound, and Observation for others.
   DWC_MEDIA_EXTENSION_MAP = {
     coreid: :dwc_media_coreid,
-    # identifier
+    # identifier - !? should be the file SHA
     #'dc:type': :dwc_media_dc_type, # TODO: is the prefix the way to do this?
     #'dcmi:type': :dwc_media_dcmi_type,
     # 'subtypeLiteral',
@@ -29,27 +29,27 @@ module Shared::Dwc::MediaTargetExtensions
     # #'reviewerComments',
     # 'available',
     # 'hasServiceAccessPoint',
-    #'dc:rights': :dwc_media_dc_rights,
-    #'dcterms:rights': :dwc_media_dcterms_rights,
-    #Owner: :dwc_media_owner,
-    # 'UsageTerms',
+    # !! 'dc:rights': :dwc_media_dc_rights,
+    # 'dcterms:rights': :dwc_media_dcterms_rights,
+    # !! Owner: :dwc_media_owner,
+    # !? 'UsageTerms',
     # 'WebStatement',
     # 'licenseLogoURL',
-    # 'Credit',
+    # !! 'Credit',
     # 'attributionLogoURL',
     # 'attributionLinkURL',
     # #'fundingAttribution',
     # 'dc:source',
     # 'dcterms:source',
-    #'dc:creator': :dwc_media_dc_creator,
-    # 'dcterms:creator',
+    # !! 'dc:creator': :dwc_media_dc_creator,
+    # !! 'dcterms:creator',
     # 'providerLiteral', TODO??
-    # 'provider', TODO??
+    # 'provider', TODO?? (really vague concept)
     # 'metadataCreatorLiteral',
     # 'metadataCreator',
     # 'metadataProviderLiteral',
     # 'metadataProvider',
-    description: :dwc_media_description, # currently from depiction/conveyance, but maybe should be image/sound notes??
+    description: :dwc_media_description, # currently from depiction/conveyance <-- this is right
     caption: :dwc_media_caption,
     # 'language',
     # 'language',
@@ -60,26 +60,26 @@ module Shared::Dwc::MediaTargetExtensions
     # 'LocationShown', # TODO?? could be AD of depiction/conveyance of image/sound (on otu)
     # 'WorldRegion',
     #CountryCode: :dwc_media_country_code,
-    CountryName: :dwc_media_country_name,
-    ProvinceState: :dwc_media_province_state,
+    CountryName: :dwc_media_country_name, # !! Not needed, inferred from core
+    ProvinceState: :dwc_media_province_state, # !! Not needed, inferred from core
     # 'City',
     # 'Sublocation',
     # 'temporal',
     # 'CreateDate',
     # 'timeOfDay',
     #taxonCoverage: :dwc_media_taxon_coverage,
-    scientificName: :dwc_media_scientific_name,
+    scientificName: :dwc_media_scientific_name, # !! Not needed, inferred from core
     # 'identificationQualifier',
-    vernacularName: :dwc_media_vernacular_name,
+    vernacularName: :dwc_media_vernacular_name, # !! Not needed, inferred from core
     # 'nameAccordingTo',
     # 'scientificNameID',
     # 'otherScientificName',
-    identifiedBy: :dwc_media_identified_by,
-    dateIdentified: :dwc_media_date_identified,
+    identifiedBy: :dwc_media_identified_by, # !! Not needed, inferred from core
+    dateIdentified: :dwc_media_date_identified, # !! Not needed, inferred from core
     # 'taxonCount',
     # #'subjectPart',
-    sex: :dwc_media_sex,
-    lifeStage: :dwc_media_life_stage,
+    sex: :dwc_media_sex,  # !! not needed, inferred from core
+    lifeStage: :dwc_media_life_stage, # !! not needed, inferred from core
     # 'subjectOrientation',
     # 'preparations',
     # 'LocationCreated',
@@ -92,19 +92,19 @@ module Shared::Dwc::MediaTargetExtensions
     # 'derivedFrom',
     associatedSpecimenReference: :dwc_media_associated_specimen_reference,
     # 'associatedObservationReference',
-    # 'accessURI',
-    #'dc:format': :dwc_media_dc_format,
+    # !! 'accessURI',
+    # !! 'dc:format': :dwc_media_dc_format,
     # 'dcterms:format',
     # 'variantLiteral',
     # 'variant',
     # 'variantDescription',
-    # 'furtherInformationURL',
+    #  !! 'furtherInformationURL', (should be short URL for images (hitting api/v1/images/123))
     #'licensingException',
     #'serviceExpectation',
     #'hashFunction',
     #'hashValue',
-    #PixelXDimension: dwc_pixel_x_dimension,
-    #PixelYDimension: dwc_pixel_y_dimension
+    # !! PixelXDimension: dwc_pixel_x_dimension,
+    # !! PixelYDimension: dwc_pixel_y_dimension
   }.freeze
 
   def darwin_core_media_extension_rows
