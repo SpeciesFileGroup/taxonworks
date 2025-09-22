@@ -50,7 +50,6 @@ class Download::DwcArchive::Complete < Download::DwcArchive
   end
 
   private
-
   def build
     project_params = { project_id: }
     record_scope = ::DwcOccurrence.where(project_params)
@@ -58,11 +57,14 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     predicates = project.complete_dwc_download_predicates || []
     extensions = project.complete_dwc_download_extensions || []
     biological_associations_scope = extensions.include?('resource_relationships') ?
-      ::Queries::BiologicalAssociation::Filter.new(
-        collection_object_query: ::Queries::CollectionObject::Filter.new(
-          dwc_occurrence_query: project_params
-        ).params
-      ).all.to_sql : nil
+      {
+        core_params: project_params, # all dwc_occurrences for this project
+        collection_objects_query: ::Queries::BiologicalAssociation::Filter.new(
+          collection_object_query: ::Queries::CollectionObject::Filter.new(
+            dwc_occurrence_query: project_params
+          ).params
+        ).all.to_sql
+      } : nil
     media_scope = extensions.include?('media') ?
       {
         collection_objects: ::Queries::CollectionObject::Filter.new(

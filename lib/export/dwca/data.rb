@@ -47,12 +47,10 @@ module Export::Dwca
     #  Required.  Of DwcOccurrence
     attr_accessor :core_scope
 
-    # @return [Scope, nil]
-    #   Returning BiologicalAssociation
+    # @return [Hash] of collection_objects: query_string, field_occurrences: query_string
     attr_accessor :biological_associations_extension
 
-    # @return [Scope, nil]
-    #   @return Image(?)
+    # @return [Hash] of collection_objects: query_string, field_occurrences: query_string
     attr_accessor :media_extension
 
     attr_accessor :total #TODO update
