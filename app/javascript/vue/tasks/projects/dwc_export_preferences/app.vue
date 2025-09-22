@@ -9,211 +9,217 @@
     Darwin core export settings for project downloads
   </h1>
 
-  <h2>Public sharing</h2>
-  <div class="margin-medium-left">
-    <div>
-      <label data-help="Make this project's darwin core archive, determined by the settings on this page, PUBLICLY accessible from the api">
-        <input
+  <div class="two-column">
+    <div class="panel padding-large margin-large-bottom padding-xsmall-top">
+      <h2>Public sharing</h2>
+      <div class="margin-medium-left">
+        <div>
+          <label data-help="Make this project's darwin core archive, determined by the settings on this page, PUBLICLY accessible from the api">
+            <input
+              :disabled="isPublicIsDisabled"
+              type="checkbox"
+              v-model="isPublic"
+            />
+            Is Public
+          </label>
+        </div>
+
+        <VBtn
           :disabled="isPublicIsDisabled"
-          type="checkbox"
-          v-model="isPublic"
-        />
-        Is Public
-      </label>
-    </div>
-
-    <VBtn
-      :disabled="isPublicIsDisabled"
-      @click="setIsPublic"
-      color="create"
-      class="margin-medium-top"
-    >
-      Save "Is Public"
-    </VBtn>
-
-    <div
-      v-if="isPublicIsDisabledByNoToken"
-      class="feedback-warning d-inline-block padding-xsmall margin-medium-left is-public-disabled-warning"
-    >
-      A project token for this project must be set to make downloads public
-    </div>
-    <div
-      v-if="isPublicIsDisabledByStub"
-      class="feedback-warning d-inline-block padding-xsmall margin-medium-left is-public-disabled-warning"
-    >
-      Remove all EML 'STUB' text to enable save
-    </div>
-
-    <div class="margin-large-top">
-      <a :href="`/api/v1/downloads/dwc_archive_complete?project_token=${projectToken}`"
-      >
-        Public download link
-      </a>
-    </div>
-  </div>
-
-  <h2>Max Age</h2>
-  <div class="margin-medium-left">
-    <div>
-      <label>
-        <input
-          type="text"
-          v-model="maxAge"
-          class="text-number-input margin-xsmall-top"
-          data-help="If the existing complete download is older than max age days, the existing 'old' download will be returned and creation of a new download will be triggered; when that new download is complete it will replace the existing one."
-        />
-        Maximum Age in days
-      </label>
-    </div>
-
-    <VBtn
-      @click="setMaxAge"
-      color="create"
-      class="margin-medium-top"
-    >
-      Save Max Age
-    </VBtn>
-  </div>
-
-  <h2>Extensions</h2>
-  <div class="margin-medium-left">
-    <template
-      v-for="(v, k) in EXTENSIONS"
-      :key="k"
-    >
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            v-model="extensions"
-            :value="k"
-            name="extensions"
-          >
-            {{ v }}
-          </input>
-        </label>
-      </div>
-    </template>
-
-    <VBtn
-      @click="setExtensions"
-      color="create"
-      class="margin-medium-top"
-    >
-      Save extensions
-    </VBtn>
-  </div>
-
-  <h2>EML</h2>
-  <div class="margin-medium-left">
-    <fieldset
-      v-if="datasetErrors?.length > 0"
-      class="padding-large-right"
-      style="max-width: 600px"
-    >
-      <legend class="feedback-danger">Errors in dataset xml</legend>
-      <ul
-        v-for="msg in datasetErrors"
-        :key="msg"
-      >
-        <li>{{ msg }}</li>
-      </ul>
-    </fieldset>
-
-    <div
-      v-else-if="datasetErrors?.length == 0"
-      class="feedback-success d-inline-block padding-xsmall"
-    >
-      Dataset xml is valid
-    </div>
-
-    <div>
-      <p>
-        Dataset ({{ autoFilledFields?.dataset?.join(', ')}} will be auto-set on DwCA
-        creation):
-      </p>
-
-      <template v-if="datasetHasStubText">
-        <div class="feedback-warning d-inline-block padding-xsmall">
-          Contains 'STUB' text
-        </div>
-        <br>
-      </template>
-
-      <textarea
-        v-model="dataset"
-        rows="44"
-        cols="80"
-      />
-    </div>
-
-    <br>
-
-    <template v-if="additionalMetadataErrors?.length > 0">
-      <fieldset
-        class="padding-large-right"
-        style="max-width: 600px"
-      >
-        <legend class="feedback-danger">Errors in additional metadata xml</legend>
-        <ul
-          v-for="msg in additionalMetadataErrors"
-          :key="msg"
+          @click="setIsPublic"
+          color="create"
+          class="margin-medium-top"
         >
-          <li>{{ msg }}</li>
-        </ul>
-      </fieldset>
-    </template>
-    <template v-else-if="additionalMetadataErrors?.length == 0">
-      <div class="feedback-success d-inline-block padding-small">
-        Additional metadata xml is valid
-      </div>
-    </template>
+          Save "Is Public"
+        </VBtn>
 
-    <div>
-      <p>
-        Additional metadata ({{autoFilledFields?.additional_metadata?.join(', ') }}
-        will be auto-set on DwCA creation):
-      </p>
-
-      <template v-if="additionalMetadataHasStubText">
-        <div class="feedback-warning d-inline-block padding-xsmall">
-          Contains 'STUB' text
+        <div
+          v-if="isPublicIsDisabledByNoToken"
+          class="feedback-warning d-inline-block padding-xsmall margin-medium-left is-public-disabled-warning"
+        >
+          A project token for this project must be set to make downloads public
         </div>
-        <br>
-      </template>
+        <div
+          v-if="isPublicIsDisabledByStub"
+          class="feedback-warning d-inline-block padding-xsmall margin-medium-left is-public-disabled-warning"
+        >
+          Remove all EML 'STUB' text to enable save
+        </div>
 
-      <textarea
-        v-model="additionalMetadata"
-        rows="13"
-        cols="80"
-      />
+        <div class="margin-large-top">
+          <a :href="`/api/v1/downloads/dwc_archive_complete?project_token=${projectToken}`"
+          >
+            Public download link
+          </a>
+        </div>
+      </div>
+
+      <h2>Max Age</h2>
+      <div class="margin-medium-left">
+        <div>
+          <label>
+            <input
+              type="text"
+              v-model="maxAge"
+              class="text-number-input margin-xsmall-top"
+              data-help="If the existing complete download is older than max age days, the existing 'old' download will be returned and creation of a new download will be triggered; when that new download is complete it will replace the existing one."
+            />
+            Maximum Age in days
+          </label>
+        </div>
+
+        <VBtn
+          @click="setMaxAge"
+          color="create"
+          class="margin-medium-top"
+        >
+          Save Max Age
+        </VBtn>
+      </div>
+
+      <h2>Extensions</h2>
+      <div class="margin-medium-left">
+        <template
+          v-for="(v, k) in EXTENSIONS"
+          :key="k"
+        >
+          <div>
+            <label>
+              <input
+                type="checkbox"
+                v-model="extensions"
+                :value="k"
+                name="extensions"
+              >
+                {{ v }}
+              </input>
+            </label>
+          </div>
+        </template>
+
+        <VBtn
+          @click="setExtensions"
+          color="create"
+          class="margin-medium-top"
+        >
+          Save extensions
+        </VBtn>
+      </div>
+
+      <h2>Predicates</h2>
+      <div class="margin-medium-left">
+        <VBtn
+          @click="setPredicates"
+          color="create"
+          class="margin-large-bottom"
+        >
+          Save predicates
+        </VBtn>
+
+        <PredicateFilter
+          v-model:collecting-event-predicate-id="predicateParams.collecting_event_predicate_id"
+          v-model:collection-object-predicate-id="predicateParams.collection_object_predicate_id"
+          v-model:taxonworks-extension-methods="selectedExtensionMethods.taxonworks_extension_methods"
+          class="predicate-filter"
+        />
+      </div>
     </div>
 
-    <VBtn
-      @click="validateAndSaveEML"
-      color="create"
-      class="margin-medium-top"
-    >
-      Validate and save EML
-    </VBtn>
-  </div>
+    <div class="panel padding-large margin-large-bottom padding-xsmall-top">
+      <h2>EML</h2>
+      <div class="margin-medium-left">
+        <fieldset
+          v-if="datasetErrors?.length > 0"
+          class="padding-large-right"
+          style="max-width: 600px"
+        >
+          <legend class="feedback-danger">Errors in dataset xml</legend>
+          <ul
+            v-for="msg in datasetErrors"
+            :key="msg"
+          >
+            <li>{{ msg }}</li>
+          </ul>
+        </fieldset>
 
-  <h2>Predicates</h2>
-  <div class="margin-medium-left">
-    <VBtn
-      @click="setPredicates"
-      color="create"
-      class="margin-large-bottom"
-    >
-      Save predicates
-    </VBtn>
+        <div
+          v-else-if="datasetErrors?.length == 0"
+          class="feedback-success d-inline-block padding-xsmall"
+        >
+          Dataset xml is valid
+        </div>
 
-    <PredicateFilter
-      v-model:collecting-event-predicate-id="predicateParams.collecting_event_predicate_id"
-      v-model:collection-object-predicate-id="predicateParams.collection_object_predicate_id"
-      v-model:taxonworks-extension-methods="selectedExtensionMethods.taxonworks_extension_methods"
-      class="predicate-filter"
-    />
+        <div>
+          <p>
+            Dataset ({{ autoFilledFields?.dataset?.join(', ')}} will be auto-set on DwCA
+            creation):
+          </p>
+
+          <template v-if="datasetHasStubText">
+            <div class="feedback-warning d-inline-block padding-xsmall">
+              Contains 'STUB' text
+            </div>
+            <br>
+          </template>
+
+          <textarea
+            v-model="dataset"
+            rows="44"
+            cols="80"
+          />
+        </div>
+
+        <br>
+
+        <template v-if="additionalMetadataErrors?.length > 0">
+          <fieldset
+            class="padding-large-right"
+            style="max-width: 600px"
+          >
+            <legend class="feedback-danger">Errors in additional metadata xml</legend>
+            <ul
+              v-for="msg in additionalMetadataErrors"
+              :key="msg"
+            >
+              <li>{{ msg }}</li>
+            </ul>
+          </fieldset>
+        </template>
+        <template v-else-if="additionalMetadataErrors?.length == 0">
+          <div class="feedback-success d-inline-block padding-small">
+            Additional metadata xml is valid
+          </div>
+        </template>
+
+        <div>
+          <p>
+            Additional metadata ({{autoFilledFields?.additional_metadata?.join(', ') }}
+            will be auto-set on DwCA creation):
+          </p>
+
+          <template v-if="additionalMetadataHasStubText">
+            <div class="feedback-warning d-inline-block padding-xsmall">
+              Contains 'STUB' text
+            </div>
+            <br>
+          </template>
+
+          <textarea
+            v-model="additionalMetadata"
+            rows="13"
+            cols="80"
+          />
+        </div>
+
+        <VBtn
+          @click="validateAndSaveEML"
+          color="create"
+          class="margin-medium-top margin-xlarge-bottom"
+        >
+          Validate and save EML
+        </VBtn>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -397,5 +403,10 @@ function validateAndSaveEML() {
 .text-number-input {
   width: 5em;
   margin-right: 0.5em;
+}
+
+.two-column {
+  display: flex;
+  gap: 3em;
 }
 </style>
