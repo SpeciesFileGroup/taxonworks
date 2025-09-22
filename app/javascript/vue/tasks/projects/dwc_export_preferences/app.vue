@@ -47,7 +47,9 @@
         </div>
 
         <div class="margin-large-top">
-          <a :href="`/api/v1/downloads/dwc_archive_complete?project_token=${projectToken}`"
+          <a
+            :href="`/api/v1/downloads/dwc_archive_complete?project_token=${projectToken}`"
+            @click.prevent="openLink"
           >
             Public download link
           </a>
@@ -124,6 +126,7 @@
         />
       </div>
     </div>
+
 
     <div class="panel padding-large margin-large-bottom padding-xsmall-top">
       <h2>EML</h2>
@@ -226,7 +229,7 @@
 <script setup>
 import { getCurrentProjectId } from '@/helpers/project.js'
 import { DwcExportPreference } from '@/routes/endpoints'
-import { computed, onBeforeMount, reactive, ref } from 'vue'
+import { computed, onBeforeMount, reactive, ref, toRaw } from 'vue'
 import { Project } from '@/routes/endpoints'
 import PredicateFilter from '@/components/Export/PredicateFilter.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -256,6 +259,7 @@ const selectedExtensionMethods = reactive({
   taxonworks_extension_methods: []
 })
 const projectToken = ref(null)
+let lastSavedData = {}
 const isLoading = ref(false)
 
 const datasetHasStubText = computed(() => (dataset.value.includes('STUB')))
@@ -291,15 +295,49 @@ onBeforeMount(() => {
       dataset.value = body.eml_preferences?.dataset
       additionalMetadata.value = body.eml_preferences?.additional_metadata
       autoFilledFields.value = body.auto_filled
+
+      setLastSaved()
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))
 })
 
+function setLastSaved() {
+  lastSavedData = {
+    maxAge: maxAge.value,
+    isPublic: isPublic.value,
+    extensions: extensions.value,
+    predicateParams: JSON.parse(JSON.stringify(toRaw(predicateParams))),
+    selectedExtensionMethods: JSON.parse(JSON.stringify(toRaw(selectedExtensionMethods))),
+    dataset: dataset.value,
+    additionalMetadata: additionalMetadata.value
+  }
+}
+
+function noUnsavedChanges() {
+  return emptyEqual(lastSavedData.maxAge, maxAge.value) &&
+    emptyEqual(lastSavedData.isPublic, isPublic.value) &&
+    arrayEqual(lastSavedData.extensions, extensions.value) &&
+    arrayEqual(lastSavedData.predicateParams.collecting_event_predicate_id, lastSavedData.predicateParams.collecting_event_predicate_id) &&
+    arrayEqual(lastSavedData.predicateParams.collection_object_predicate_id, lastSavedData.predicateParams.collection_object_predicate_id) &&
+    arrayEqual(lastSavedData.selectedExtensionMethods.taxonworks_extension_methods, selectedExtensionMethods.taxonworks_extension_methods) &&
+    emptyEqual(lastSavedData.dataset, dataset.value) &&
+    emptyEqual(lastSavedData.additionalMetadata, additionalMetadata.value)
+}
+
+function emptyEqual(v1, v2) {
+  return v1 == v2 || (v1 == '' && v2 == null) || (v1 == null && v2 == '')
+}
+
+function arrayEqual(a1, a2) {
+  return a1.sort().join() == a2.sort().join()
+}
+
 function setMaxAge() {
   isLoading.value = true
   DwcExportPreference.setMaxAge(projectId, { max_age: maxAge.value })
     .then(() => {
+      setLastSaved()
       TW.workbench.alert.create('Saved maximum age.', 'notice')
     })
     .catch(() => {})
@@ -310,6 +348,7 @@ function setIsPublic() {
   isLoading.value = true
   DwcExportPreference.setIsPublic(projectId, { is_public: isPublic.value })
     .then(() => {
+      setLastSaved()
       TW.workbench.alert.create('Saved "Is Public".', 'notice')
     })
     .catch(() => {})
@@ -320,6 +359,7 @@ function setExtensions() {
   isLoading.value = true
   DwcExportPreference.setExtensions(projectId, { extensions: extensions.value })
     .then(() => {
+      setLastSaved()
       TW.workbench.alert.create('Saved extensions.', 'notice')
     })
     .catch(() => {})
@@ -340,6 +380,7 @@ function setPredicates() {
   isLoading.value = true
   DwcExportPreference.setPredicates(projectId, payload)
     .then(() => {
+      setLastSaved()
        TW.workbench.alert.create('Saved predicates.', 'notice')
     })
     .catch(() => {})
@@ -364,6 +405,7 @@ function validateAndSaveEML() {
         additionalMetadataErrors.value.length == 0) {
           DwcExportPreference.saveEML(projectId, payload)
             .then(() => {
+              setLastSaved()
               TW.workbench.alert.create('Saved EML.', 'notice')
             })
             .catch(() => {})
@@ -381,6 +423,12 @@ function validateAndSaveEML() {
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))
+}
+
+function openLink(event) {
+  if (noUnsavedChanges() || window.confirm('You have unsaved changes, are you sure you want to continue?')) {
+    window.location.href = event.currentTarget.href
+  }
 }
 
 </script>
