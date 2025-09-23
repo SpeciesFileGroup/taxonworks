@@ -34,7 +34,7 @@ module Shared::Dwc::MediaExtensions
         .joins(:attribution)
         .where(id: id)
         .pluck('attributions.license')
-        .first&.license
+        .first
     ]&.[](:link)
   end
 
