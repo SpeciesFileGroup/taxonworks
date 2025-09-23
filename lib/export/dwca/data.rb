@@ -625,9 +625,9 @@ module Export::Dwca
       }
     end
 
-    def biological_associations_resource_relationship
+    def biological_associations_resource_relationship_tmp
       return nil if biological_associations_extension.nil?
-      @biological_associations_resource_relationship = Tempfile.new('biological_resource_relationship.xml')
+      @biological_associations_resource_relationship_tmp = Tempfile.new('biological_resource_relationship.xml')
 
       content = nil
 
@@ -637,15 +637,15 @@ module Export::Dwca
         content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension, biological_association_relations_to_core)
       end
 
-      @biological_associations_resource_relationship.write(content)
-      @biological_associations_resource_relationship.flush
-      @biological_associations_resource_relationship.rewind
-      @biological_associations_resource_relationship
+      @biological_associations_resource_relationship_tmp.write(content)
+      @biological_associations_resource_relationship_tmp.flush
+      @biological_associations_resource_relationship_tmp.rewind
+      @biological_associations_resource_relationship_tmp
     end
 
-    def media_resource_relationship
+    def media_tmp
       return nil if media_extension.nil? || media_extension.empty?
-      @media_resource_relationship = Tempfile.new('media_relationship.xml')
+      @media_tmp = Tempfile.new('media.xml')
 
       content = nil
       if no_records?
@@ -654,10 +654,10 @@ module Export::Dwca
         content = Export::CSV::Dwc::Extension::Media.csv(media_extension[:collection_objects], media_extension[:field_occurrences])
       end
 
-      @media_resource_relationship.write(content)
-      @media_resource_relationship.flush
-      @media_resource_relationship.rewind
-      @media_resource_relationship
+      @media_tmp.write(content)
+      @media_tmp.flush
+      @media_tmp.rewind
+      @media_tmp
     end
 
     # @return [Array]
@@ -742,8 +742,8 @@ module Export::Dwca
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
         zip.add('data.tsv', all_data.path)
 
-        zip.add('media.tsv', media_resource_relationship.path) if media_extension
-        zip.add('resource_relationships.tsv', biological_associations_resource_relationship.path) if biological_associations_extension
+        zip.add('media.tsv', media_tmp.path) if media_extension
+        zip.add('resource_relationships.tsv', biological_associations_resource_relationship_tmp.path) if biological_associations_extension
 
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
@@ -783,8 +783,13 @@ module Export::Dwca
       data.unlink
 
       if biological_associations_extension
-        biological_associations_resource_relationship.close
-        biological_associations_resource_relationship.unlink
+        biological_associations_resource_relationship_tmp.close
+        biological_associations_resource_relationship_tmp.unlink
+      end
+
+      if media_extension
+        media_tmp.close
+        media_tmp.unlink
       end
 
       if predicate_options_present?
