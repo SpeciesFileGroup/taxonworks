@@ -1,6 +1,11 @@
 module Shared::Api
   extend ActiveSupport::Concern
 
+  # TODO: can we do away with these? Standard helpers would be preferred.
+  # !! These can be useful in a background or other context where you don't have
+  # the normal request context and all that comes with it, but standard helpers
+  # should be preffered in general. !!
+
   def self.host
     s = ENV['SERVER_NAME']
     if s.nil?
@@ -23,6 +28,16 @@ module Shared::Api
 
     token = Project.find(image.project_id).api_access_token
     long = "#{s}/api/v1/images/file/sha/#{ image.image_file_fingerprint }?project_token=#{token}"
+
+    shorten_url(long)
+  end
+
+  def self.image_metadata_link(image)
+    s = host
+    return s if image.nil?
+
+    token = Project.find(image.project_id).api_access_token
+    long = "#{s}/api/v1/images/#{ image.id }?project_token=#{token}"
 
     shorten_url(long)
   end

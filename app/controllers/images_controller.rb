@@ -66,7 +66,6 @@ class ImagesController < ApplicationController
       .find_by(image_file_fingerprint: params[:sha])
 
     if @image.present?
-      # Must remove the cache buster and use an absolute path.
       file_path = @image.image_file.path
       send_file(
         file_path,
@@ -74,6 +73,20 @@ class ImagesController < ApplicationController
         disposition: 'inline',
         filename: @image.image_file_file_name
       )
+    else
+      render plain: 'Image not found.', status: :not_found
+    end
+  end
+
+  def api_image_show_sha
+    @image = Image
+      .where(project_id: sessions_current_project_id)
+      .find_by(image_file_fingerprint: params[:sha])
+
+    if @image.present?
+      s = Shared::Api.host
+      token = Project.find(sessions_current_project_id).api_access_token
+      render "#{s}/api/v1/images/#{@image.id}?project_token=#{token}"
     else
       render plain: 'Image not found.', status: :not_found
     end

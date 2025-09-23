@@ -11,7 +11,8 @@ module Shared::Dwc::MediaExtensions
     Owner: :dwc_media_owner,
     Credit: :dwc_media_credit,
     'dc:creator': :dwc_media_dc_creator,
-    'dcterms:creator': :dwc_media_dcterms_creator
+    'dcterms:creator': :dwc_media_dcterms_creator,
+    furtherInformationURL: :dwc_media_further_information_url
   }.freeze
 
   def dwc_media_identifier
@@ -77,6 +78,10 @@ module Shared::Dwc::MediaExtensions
       .where("identifiers.type = 'Identifier::Global::Orcid' OR identifiers.type = 'Identifier::Global::Wikidata'")
       .pluck('identifiers.cached')
       .join(CollectionObject::DWC_DELIMITER)
+  end
+
+  def dwc_media_further_information_url
+    Shared::Api.image_metadata_link(self)
   end
 
 end

@@ -98,7 +98,7 @@ module Shared::Dwc::MediaTargetExtensions
     # 'variantLiteral',
     # 'variant',
     # 'variantDescription',
-    #  !! 'furtherInformationURL', (should be short URL for images (hitting api/v1/images/123))
+    # !! furtherInformationURL: :dwc_media_further_information_url,
     #'licensingException',
     #'serviceExpectation',
     #'hashFunction',
