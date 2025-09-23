@@ -60,26 +60,26 @@ module Shared::Dwc::MediaTargetExtensions
     # 'LocationShown', # TODO?? could be AD of depiction/conveyance of image/sound (on otu)
     # 'WorldRegion',
     #CountryCode: :dwc_media_country_code,
-    CountryName: :dwc_media_country_name, # !! Not needed, inferred from core
-    ProvinceState: :dwc_media_province_state, # !! Not needed, inferred from core
+    #CountryName: :dwc_media_country_name, # !! Not needed, inferred from core
+    #ProvinceState: :dwc_media_province_state, # !! Not needed, inferred from core
     # 'City',
     # 'Sublocation',
     # 'temporal',
     # 'CreateDate',
     # 'timeOfDay',
     #taxonCoverage: :dwc_media_taxon_coverage,
-    scientificName: :dwc_media_scientific_name, # !! Not needed, inferred from core
+    #scientificName: :dwc_media_scientific_name, # !! Not needed, inferred from core
     # 'identificationQualifier',
-    vernacularName: :dwc_media_vernacular_name, # !! Not needed, inferred from core
+    #vernacularName: :dwc_media_vernacular_name, # !! Not needed, inferred from core
     # 'nameAccordingTo',
     # 'scientificNameID',
     # 'otherScientificName',
-    identifiedBy: :dwc_media_identified_by, # !! Not needed, inferred from core
-    dateIdentified: :dwc_media_date_identified, # !! Not needed, inferred from core
+    #identifiedBy: :dwc_media_identified_by, # !! Not needed, inferred from core
+    #dateIdentified: :dwc_media_date_identified, # !! Not needed, inferred from core
     # 'taxonCount',
     # #'subjectPart',
-    sex: :dwc_media_sex,  # !! not needed, inferred from core
-    lifeStage: :dwc_media_life_stage, # !! not needed, inferred from core
+    #sex: :dwc_media_sex,  # !! not needed, inferred from core
+    #lifeStage: :dwc_media_life_stage, # !! not needed, inferred from core
     # 'subjectOrientation',
     # 'preparations',
     # 'LocationCreated',
@@ -195,46 +195,46 @@ module Shared::Dwc::MediaTargetExtensions
 #  def dwc_media_country_code(o)
 #  end
 
-  def dwc_media_country_name(o)
-    dwc_country
-  end
+  # def dwc_media_country_name(o)
+  #   dwc_country
+  # end
 
-  def dwc_media_province_state(o)
-    dwc_state_province
-  end
+  # def dwc_media_province_state(o)
+  #   dwc_state_province
+  # end
 
-  def dwc_media_scientific_name(o)
-    dwc_scientific_name
-  end
+  # def dwc_media_scientific_name(o)
+  #   dwc_scientific_name
+  # end
 
-  def dwc_media_vernacular_name(o)
-    otu = current_otu
+  # def dwc_media_vernacular_name(o)
+  #   otu = current_otu
 
-    return nil if otu.nil?
+  #   return nil if otu.nil?
 
-    # TODO: include countries?
-    CommonName
-      .joins(:otu)
-      .where(otu: {id: otu.id})
-      .map(&:name)
-      .join(CollectionObject::DWC_DELIMITER)
-  end
+  #   # TODO: include countries?
+  #   CommonName
+  #     .joins(:otu)
+  #     .where(otu: {id: otu.id})
+  #     .map(&:name)
+  #     .join(CollectionObject::DWC_DELIMITER)
+  # end
 
-  def dwc_media_identified_by(o)
-    dwc_identified_by
-  end
+  # def dwc_media_identified_by(o)
+  #   dwc_identified_by
+  # end
 
-  def dwc_media_date_identified(o)
-    dwc_date_identified
-  end
+  # def dwc_media_date_identified(o)
+  #   dwc_date_identified
+  # end
 
-  def dwc_media_sex(o)
-    dwc_sex
-  end
+  # def dwc_media_sex(o)
+  #   dwc_sex
+  # end
 
-  def dwc_media_life_stage(o)
-    dwc_life_stage
-  end
+  # def dwc_media_life_stage(o)
+  #   dwc_life_stage
+  # end
 
   def dwc_media_associated_specimen_reference(o)
     if self.is_a?(CollectionObject)
