@@ -103,18 +103,18 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           }
         }
 
-        specify '#biological_associations_resource_relationship is a tempfile' do
+        specify '#biological_associations_resource_relationship_tmp is a tempfile' do
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { biological_associations:  biological_association_scope  })
-          expect(d.biological_associations_resource_relationship).to be_kind_of(Tempfile)
+          expect(d.biological_associations_resource_relationship_tmp).to be_kind_of(Tempfile)
         end
 
-        specify '#biological_associations_resource_relationship returns lines for specimens' do
+        specify '#biological_associations_resource_relationship_tmp returns lines for specimens' do
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { biological_associations:  biological_association_scope  })
           # 1 header line, two ba lines, one for each direction of the
           # relationship.
-          expect(d.biological_associations_resource_relationship.count).to eq(3)
+          expect(d.biological_associations_resource_relationship_tmp.count).to eq(3)
         end
       end
 
@@ -122,83 +122,83 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         let!(:fo) { FactoryBot.create(:valid_field_occurrence) }
         let(:media_scope) { { collection_objects: CollectionObject.all.to_sql, field_occurrences: FieldOccurrence.all.to_sql } }
 
-        specify '#media_resource_relationship is a tempfile' do
+        specify '#media_tmp is a tempfile' do
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
-          expect(d.media_resource_relationship).to be_kind_of(Tempfile)
+          expect(d.media_tmp).to be_kind_of(Tempfile)
         end
 
-        specify '#media_resource_relationship header row starts with "coreid"' do
+        specify '#media_tmp header row starts with "coreid"' do
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
-          expect(d.media_resource_relationship.first).to start_with('coreid')
+          expect(d.media_tmp.first).to start_with('coreid')
         end
 
-        specify '#media_resource_relationship returns lines for specimen images' do
+        specify '#media_tmp returns lines for specimen images' do
           FactoryBot.create(:valid_depiction, depiction_object: CollectionObject.last)
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
-          expect(d.media_resource_relationship.count).to eq(2)
+          expect(d.media_tmp.count).to eq(2)
         end
 
-        specify '#media_resource_relationship returns lines for specimen sounds' do
+        specify '#media_tmp returns lines for specimen sounds' do
           FactoryBot.create(:valid_conveyance, conveyance_object: CollectionObject.last)
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
-          expect(d.media_resource_relationship.count).to eq(2)
+          expect(d.media_tmp.count).to eq(2)
         end
 
-        specify '#media_resource_relationship returns lines for specimen observation images' do
+        specify '#media_tmp returns lines for specimen observation images' do
           co = CollectionObject.last
           o = FactoryBot.create(:valid_observation, observation_object: co)
           FactoryBot.create(:valid_depiction, depiction_object: o)
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
-          expect(d.media_resource_relationship.count).to eq(2)
+          expect(d.media_tmp.count).to eq(2)
         end
 
         # TODO: bring this back once conveyances are back on Observations.
-        xspecify '#media_resource_relationship returns lines for specimen observation sounds' do
+        xspecify '#media_tmp returns lines for specimen observation sounds' do
           co = CollectionObject.last
           o = FactoryBot.create(:valid_observation, observation_object: co)
           FactoryBot.create(:valid_conveyance, conveyance_object: o)
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
-          expect(d.media_resource_relationship.count).to eq(2)
+          expect(d.media_tmp.count).to eq(2)
         end
 
-        specify '#media_resource_relationship returns lines for field occurrence images' do
+        specify '#media_tmp returns lines for field occurrence images' do
           FactoryBot.create(:valid_depiction, depiction_object: FieldOccurrence.last)
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
-          expect(d.media_resource_relationship.count).to eq(2)
+          expect(d.media_tmp.count).to eq(2)
         end
 
-        specify '#media_resource_relationship returns lines for field occurrence sounds' do
+        specify '#media_tmp returns lines for field occurrence sounds' do
           FactoryBot.create(:valid_conveyance, conveyance_object: FieldOccurrence.last)
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
-          expect(d.media_resource_relationship.count).to eq(2)
+          expect(d.media_tmp.count).to eq(2)
         end
 
-        specify '#media_resource_relationship returns lines for field occurrence observation images' do
+        specify '#media_tmp returns lines for field occurrence observation images' do
           fo = FieldOccurrence.last
           o = FactoryBot.create(:valid_observation, observation_object: fo)
           FactoryBot.create(:valid_depiction, depiction_object: o)
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
 
-          expect(d.media_resource_relationship.count).to eq(2)
+          expect(d.media_tmp.count).to eq(2)
         end
 
         # TODO: bring this back once conveyances are back on Observations.
-        xspecify '#media_resource_relationship returns lines for field occurrence observation sounds' do
+        xspecify '#media_tmp returns lines for field occurrence observation sounds' do
           fo = FieldOccurrence.last
           o = FactoryBot.create(:valid_observation, observation_object: fo)
           FactoryBot.create(:valid_conveyance, conveyance_object: o)
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
-          expect(d.media_resource_relationship.count).to eq(2)
+          expect(d.media_tmp.count).to eq(2)
         end
       end
 
