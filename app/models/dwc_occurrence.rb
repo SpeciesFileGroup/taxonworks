@@ -199,7 +199,7 @@ class DwcOccurrence < ApplicationRecord
   # !! TODO: When we come to adding AssertedDistributions, FieldOccurrnces, etc. we will have to
   # make this more flexible
   def self.target_columns
-    [:id, # must be in position 0
+    [# :id, # !! Don't send this internal ephemeral id to GBIF
      :occurrenceID,
      :basisOfRecord,
      :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via `.excluded_columns` below

@@ -174,6 +174,8 @@ module Export::Dwca
         # TODO: check to see if we nee dthis
         exclude_columns: ::DwcOccurrence.excluded_columns,
         column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS, # TODO: add other maps here
+        # This is the only reason occurrenceID will be the first column:
+        first_column: :occurrenceID,
         trim_columns: true, # going to have to be optional
         trim_rows: false,
         header_converters: [:dwc_headers]

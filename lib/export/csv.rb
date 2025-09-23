@@ -12,11 +12,12 @@ module ::Export::CSV
   # @param [Array] header_converters
   # @param [Boolean] trim_rows
   # @param [Boolean] trim_columns
+  # @param [String] first_column: put this column first in the returned CSV
   # @return [String] in CSV format
-  def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false, column_order: [])
+  def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false, column_order: [], first_column: nil)
 
     column_names = scope.columns_hash.keys
-    column_names = sort_column_headers(column_names, column_order.map(&:to_s)) if column_order.any?
+    column_names = sort_column_headers(column_names, column_order.map(&:to_s), first_column: first_column.to_s) if column_order.any?
 
     h = ::CSV.new(column_names.join(','), header_converters:, headers: true)
     h.read
@@ -92,8 +93,10 @@ module ::Export::CSV
   end
 
   # Sort order for columns
-  #   columns not in column order at added at the the *front* of the file
-  def self.sort_column_headers(column_names = [], column_order = [])
+  #   columns not in column_order are added at the the *front* of the file in
+  #   the order they were given. first_column is put in the first column
+  #   regardless of any other data (assuming it's in column_names).
+  def self.sort_column_headers(column_names = [], column_order = [], first_column: nil)
     sorted = []
     unsorted = []
     column_names.each do |n|
@@ -104,7 +107,10 @@ module ::Export::CSV
       end
     end
 
-    unsorted + sorted
+    columns = unsorted + sorted
+    columns.prepend(first_column) if columns.delete(first_column)
+
+    columns
   end
 
 # # @return [Download, false]
