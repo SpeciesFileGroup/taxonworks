@@ -8,29 +8,40 @@ module ::Export::CSV
   #   http://collectiveidea.com/blog/archives/2015/03/05/optimizing-rails-for-memory-usage-part-3-pluck-and-database-laziness
   # @param [Scope] scope
   # @param [Array] exclude_columns
-  #     strings
   # @param [Array] header_converters
   # @param [Boolean] trim_rows
   # @param [Boolean] trim_columns
-  # @param [String] first_column: put this column first in the returned CSV
+  # @param [Hash] copy_column, copy the values (not the header) in column
+  #   copy_column[:from] to the values in copy_column[:to]
   # @return [String] in CSV format
-  def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false, column_order: [], first_column: nil)
+  def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false, column_order: [], copy_column: nil)
 
     column_names = scope.columns_hash.keys
-    column_names = sort_column_headers(column_names, column_order.map(&:to_s), first_column: first_column.to_s) if column_order.any?
+    column_names = sort_column_headers(column_names, column_order.map(&:to_s)) if column_order.any?
 
     h = ::CSV.new(column_names.join(','), header_converters:, headers: true)
     h.read
 
     headers = ::CSV::Row.new(h.headers, h.headers, true).headers
 
+    # Copy column values from one column to another:
+    column_to_copy = scope.pluck(copy_column[:from]) if copy_column.present?
+    copy_to_index = headers.index(copy_column[:to]) if copy_column.present?
+    if column_to_copy.nil? || copy_to_index.nil?
+      column_to_copy = nil
+      copy_to_index = nil
+    end
+
     tbl = headers.map { |h| [h] }
 
     # Pluck rows is from postgresql_cursor gem
     #puts Rainbow('preparing data: ' + (Benchmark.measure do
-    scope.pluck_rows(*column_names).each do |o|
-      o.each_with_index do |value, index|
-        tbl[index] << Utilities::Strings.sanitize_for_csv(value)
+    scope.pluck_rows(*column_names).each_with_index do |r, row_index|
+      r.each_with_index do |value, column_index|
+        if column_to_copy && column_index == copy_to_index
+          value = column_to_copy[row_index]
+        end
+        tbl[column_index] << Utilities::Strings.sanitize_for_csv(value)
       end
       # If keys are not deterministic: .attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
     end
@@ -94,9 +105,8 @@ module ::Export::CSV
 
   # Sort order for columns
   #   columns not in column_order are added at the the *front* of the file in
-  #   the order they were given. first_column is put in the first column
-  #   regardless of any other data (assuming it's in column_names).
-  def self.sort_column_headers(column_names = [], column_order = [], first_column: nil)
+  #   the order they were given.
+  def self.sort_column_headers(column_names = [], column_order = [])
     sorted = []
     unsorted = []
     column_names.each do |n|
@@ -107,10 +117,7 @@ module ::Export::CSV
       end
     end
 
-    columns = unsorted + sorted
-    columns.prepend(first_column) if columns.delete(first_column)
-
-    columns
+    unsorted + sorted
   end
 
 # # @return [Download, false]
@@ -137,5 +144,4 @@ module ::Export::CSV
     t.rewind
     t
   end
-
 end

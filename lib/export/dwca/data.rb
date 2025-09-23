@@ -174,11 +174,10 @@ module Export::Dwca
         # TODO: check to see if we nee dthis
         exclude_columns: ::DwcOccurrence.excluded_columns,
         column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS, # TODO: add other maps here
-        # This is the only reason occurrenceID will be the first column:
-        first_column: :occurrenceID,
         trim_columns: true, # going to have to be optional
         trim_rows: false,
-        header_converters: [:dwc_headers]
+        header_converters: [:dwc_headers],
+        copy_column: { from: 'occurrenceID', to: 'id' }
       )
     end
 
@@ -650,11 +649,11 @@ module Export::Dwca
     # @return [Array]
     #   use the temporarily written, and refined, CSV file to read off the existing headers
     #   so we can use them in writing meta.yml
-    # id, and non-standard DwC colums are handled elsewhere
+    # non-standard DwC colums are handled elsewhere
     def meta_fields
       return [] if no_records?
       h = File.open(all_data, &:gets)&.strip&.split("\t")
-      h&.shift
+      h&.shift # shift because the first column, id, will be specified by hand
       h || []
     end
 
@@ -670,7 +669,7 @@ module Export::Dwca
             xml.files {
               xml.location 'data.tsv'
             }
-            xml.id(index: 0)
+            xml.id(index: 0) # Must be named id (?)
             meta_fields.each_with_index do |h,i|
               if h =~ /TW:/ # All TW headers have ':'
                 xml.field(index: i+1, term: h)

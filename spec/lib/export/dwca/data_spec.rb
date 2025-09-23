@@ -44,7 +44,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
       let(:csv) { CSV.parse(data.csv, headers: true, col_sep: "\t") }
 
-      # id, and non-standard DwC columns are handled elsewhere
+      # non-standard DwC columns are handled elsewhere
       let(:headers) { [ 'basisOfRecord', 'individualCount', 'occurrenceID', 'occurrenceStatus' ] }
 
       specify '#collection_object_ids' do
