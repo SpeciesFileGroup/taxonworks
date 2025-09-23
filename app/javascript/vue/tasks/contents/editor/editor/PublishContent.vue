@@ -1,18 +1,13 @@
 <template>
-  <div
+  <VToggle
     v-if="!isLoading"
-    class="horizontal-left-content middle gap-small"
-  >
-    Publish content
-    <VToggle
-      :value="isPublic"
-      v-model="isPublic"
-      on-color="var(--color-create)"
-      off-color="var(--color-destroy)"
-      title="Unpublish / Publish"
-      @click="makeContentPublish"
-    />
-  </div>
+    :value="isPublic"
+    v-model="isPublic"
+    on-color="var(--color-create)"
+    off-color="var(--color-destroy)"
+    title="Unpublish / Publish"
+    @click="makeContentPublish"
+  />
 </template>
 
 <script setup>

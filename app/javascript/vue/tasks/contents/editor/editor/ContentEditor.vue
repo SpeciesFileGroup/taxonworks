@@ -15,7 +15,10 @@
           </span>
           <div class="horizontal-left-content middle gap-small">
             <template v-if="store.content.id">
-              <PublishContent :content-id="store.content.id" />
+              <div class="flex-row gap-small middle">
+                <span>Publish content</span>
+                <PublishContent :content-id="store.content.id" />
+              </div>
               <RadialAnnotator
                 type="annotations"
                 :global-id="store.content.global_id"

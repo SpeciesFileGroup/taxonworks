@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Interactive key descriptor selections can be used to help create a dichotomous key
 - Browse OTU: Radial annotator to biological associations panel
 - Filter biological associations: Data attributes facet
+- Quick forms: Publish/unpublish toggle button to Content slice
 
 ### Fixed
 
@@ -23,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lead text sometimes doesn't update in the UI after save in 'full key' display mode
 - Taxon name statistics now load much faster for higher taxa. Valid taxa counts are unchanged but invalid and otu-taxa counts have decreased slightly in some instances due to being counted differently.
 - Fix DwCA media and resource relationship extensions to refer to core occurrences properly (this previously prevented extension data from displaying on GBIF occurrence pages)
+- api/v1/otus/autocomplete (used by search on TaxonPages) sometimes didn't return all results [#4553]
 
 ### Changed
 
@@ -30,6 +32,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changed file extension from `.csv` to `.tsv` in DwC OTU inventory API endpoint to facilitate readers to detect field separator correctly.
 - Updated interactive key endpoint to hand work with dichotomous keys
 - Make distribution on /api/v1/taxon_names/:id/inventory/catalog an extends option
+
+[#4553]: https://github.com/SpeciesFileGroup/taxonworks/issues/4553
 
 ## [0.53.2] - 2025-09-05
 
