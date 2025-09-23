@@ -166,7 +166,7 @@ module Shared::Dwc::MediaTargetExtensions
   end
 
   def dwc_media_coreid(o)
-    dwc_occurrence.id
+    dwc_occurrence.occurrenceID
   end
 
   def dwc_media_description(o)
