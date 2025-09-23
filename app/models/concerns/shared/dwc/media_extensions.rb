@@ -9,6 +9,7 @@ module Shared::Dwc::MediaExtensions
     'dc:rights': :dwc_media_dc_rights,
     'dcterms:rights': :dwc_media_dcterms_rights,
     Owner: :dwc_media_owner,
+    Credit: :dwc_media_credit,
     'dc:creator': :dwc_media_dc_creator,
     'dcterms:creator': :dwc_media_dcterms_creator
   }.freeze
@@ -44,6 +45,19 @@ module Shared::Dwc::MediaExtensions
       .where(id: id)
       .pluck('people.cached')
       .join(CollectionObject::DWC_DELIMITER)
+  end
+
+  def dwc_media_credit
+    media = self.class
+      .joins(attribution: :roles)
+      .where(roles: {type: 'AttributionCopyrightHolder'})
+      .where(id: id)
+      .includes(:attribution)
+      .first
+
+    return nil if media.nil?
+
+    ApplicationController.helpers.attribution_copyright_label(media.attribution)
   end
 
   def dwc_media_dc_creator

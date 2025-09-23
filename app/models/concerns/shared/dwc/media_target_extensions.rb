@@ -35,7 +35,7 @@ module Shared::Dwc::MediaTargetExtensions
     # !? 'UsageTerms',
     # 'WebStatement',
     # 'licenseLogoURL',
-    # !! 'Credit',
+    # !! Credit: :dwc_media_credit,
     # 'attributionLogoURL',
     # 'attributionLinkURL',
     # #'fundingAttribution',
