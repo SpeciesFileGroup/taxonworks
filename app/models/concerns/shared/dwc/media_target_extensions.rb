@@ -92,7 +92,7 @@ module Shared::Dwc::MediaTargetExtensions
     # 'derivedFrom',
     associatedSpecimenReference: :dwc_media_associated_specimen_reference,
     # 'associatedObservationReference',
-    # !! 'accessURI',
+    # !! accessURI: dwc_media_access_uri,
     # !! 'dc:format': :dwc_media_dc_format,
     # 'dcterms:format',
     # 'variantLiteral',

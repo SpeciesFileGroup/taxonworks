@@ -10,6 +10,7 @@ module Shared::Dwc::MediaExtensions
     'dcterms:rights': :dwc_media_dcterms_rights,
     Owner: :dwc_media_owner,
     'dc:creator': :dwc_media_dc_creator,
+    'dcterms:creator': :dwc_media_dcterms_creator
   }.freeze
 
   def dwc_media_identifier
@@ -31,7 +32,7 @@ module Shared::Dwc::MediaExtensions
       self.class
         .joins(:attribution)
         .where(id: id)
-        .select('attributions.license')
+        .pluck('attributions.license')
         .first&.license
     ]&.[](:link)
   end
@@ -41,8 +42,8 @@ module Shared::Dwc::MediaExtensions
       .joins(attribution: {roles: :person})
       .where(roles: {type: 'AttributionOwner'})
       .where(id: id)
-      .select('people.cached')
-      .map { |o| o.cached }.join(CollectionObject::DWC_DELIMITER)
+      .pluck('people.cached')
+      .join(CollectionObject::DWC_DELIMITER)
   end
 
   def dwc_media_dc_creator
@@ -50,8 +51,18 @@ module Shared::Dwc::MediaExtensions
       .joins(attribution: {roles: :person})
       .where(roles: {type: 'AttributionCreator'})
       .where(id: id)
-      .select('people.cached')
-      .map { |c| c.cached }.join(CollectionObject::DWC_DELIMITER)
+      .pluck('people.cached')
+      .join(CollectionObject::DWC_DELIMITER)
+  end
+
+  def dwc_media_dcterms_creator
+    self.class
+      .joins(attribution: {roles: {person: :identifiers}})
+      .where(roles: {type: 'AttributionCreator'})
+      .where(id: id)
+      .where("identifiers.type = 'Identifier::Global::Orcid' OR identifiers.type = 'Identifier::Global::Wikidata'")
+      .pluck('identifiers.cached')
+      .join(CollectionObject::DWC_DELIMITER)
   end
 
 end
