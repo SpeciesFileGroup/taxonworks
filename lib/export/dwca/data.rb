@@ -255,6 +255,7 @@ module Export::Dwca
       # hash of column_name => csv header name
       ce_fields = {}
       co_fields = {}
+      dwco_fields = {}
 
       # Select valid methods, generate frozen name string ahead of time
       # add TW prefix to names
@@ -266,12 +267,14 @@ module Export::Dwca
           methods[method] = csv_header_name
         elsif (column_name = ::CollectionObject::EXTENSION_CE_FIELDS[sym])
           ce_fields[column_name] = csv_header_name
-        elsif (column_name =::CollectionObject::EXTENSION_CO_FIELDS[sym])
+        elsif (column_name = ::CollectionObject::EXTENSION_CO_FIELDS[sym])
           co_fields[column_name] = csv_header_name
+        elsif (column_name = ::CollectionObject::EXTENSION_DWC_OCCURRENCE_FIELDS[sym])
+          dwco_fields[column_name] = csv_header_name
         end
       end
 
-      used_extensions = methods.values + ce_fields.values + co_fields.values
+      used_extensions = methods.values + ce_fields.values + co_fields.values + dwco_fields.values
 
       # if no predicate data found, return empty file
       if used_extensions.empty?
@@ -308,6 +311,17 @@ module Export::Dwca
         .flat_map{ |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
 
       Rails.logger.debug 'dwca_export: post ce extension read'
+
+      dwco_columns = dwco_fields.keys
+      dwco_csv_names = dwco_columns.map { |sym| dwco_fields[sym] }
+      dwco_column_count = dwco_columns.size
+
+      extension_data += core_scope
+        .where(dwc_occurrence_object_type: 'CollectionObject')
+        .pluck(:dwc_occurrence_object_id, *dwco_columns)
+        .flat_map{ |dwc_occurrence_object_id, *values| ([dwc_occurrence_object_id] * dwco_column_count).zip(dwco_csv_names, values) }
+
+      Rails.logger.debug 'dwca_export: post dwco extension read'
 
       # Create hash with key: co_id, value: [[extension_name, extension_value], ...]
       # pre-fill with empty values so we have the same number of rows as the main csv, even if some rows don't have
