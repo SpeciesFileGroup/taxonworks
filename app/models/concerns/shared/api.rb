@@ -21,7 +21,8 @@ module Shared::Api
     s = host
     return s if image.nil?
 
-    long = "#{s}/#{image.image_file.url(:original)}"
+    token = Project.find(image.project_id).api_access_token
+    long = "#{s}/api/v1/images/file/sha/#{ image.image_file_fingerprint }?project_token=#{token}"
 
     shorten_url(long)
   end

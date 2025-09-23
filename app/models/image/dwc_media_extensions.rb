@@ -37,6 +37,8 @@ module Image::DwcMediaExtensions
   end
 
   def dwc_media_access_uri
+    # TODO: can we make Image::Helpers.short_image_url work in this background
+    # context instead?
     Shared::Api.image_link(self)
   end
 
