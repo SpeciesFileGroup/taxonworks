@@ -7,7 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+### Fixed
+
+- 'Use a key' shows a blank page [#4557]
+
+### Changed
+
+[#4557]: https://github.com/SpeciesFileGroup/taxonworks/issues/4557
 
 ## [0.54.0] - 2025-09-24
 
