@@ -293,6 +293,11 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
+      get '/', action: :index, as: 'project_dwc_export_preferences_task'
+      # See other routes in data.rb.
+    end
+
     scope :week_in_review, controller: 'tasks/projects/week_in_review' do
       get '/', action: :index, as: 'week_in_review_task'
       get :data, as: 'week_in_review_data', defaults: {format: :json}

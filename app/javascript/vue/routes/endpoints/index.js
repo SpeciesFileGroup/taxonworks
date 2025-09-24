@@ -80,3 +80,5 @@ export { ImportDataset } from './ImportDataset'
 export { CachedMap } from './CachedMap'
 export { FieldOccurrence } from './FieldOccurrence'
 export { PublicContent } from './PublicContent'
+export { DwcExportPreference } from './DwcExportPreference'
+

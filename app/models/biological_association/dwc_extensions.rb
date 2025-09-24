@@ -38,10 +38,9 @@ module BiologicalAssociation::DwcExtensions
   end
 
   def dwc_resource_relationship_coreid(inverted = false)
-    core_object_klass = biological_association_subject.class.base_class.name
-    if core_object_klass == 'CollectionObject'
-      return biological_association_subject.dwc_occurrence.id
-    end
+    # Note that this could be subject or object of the original association (see
+    # note above on `inverted`), which is what we want.
+    dwc_resource_id(inverted)
   end
 
   def darwin_core_extension_json(inverted = false)

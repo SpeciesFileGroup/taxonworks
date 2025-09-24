@@ -42,7 +42,13 @@ namespace :api, defaults: {format: :json} do
       get '/both_authenticated', to: 'base#index'
     end
 
+    # There should be no post or delete in this section
     defaults authenticate_user_or_project: true do
+      get '/downloads/dwc_archive_complete', to: '/downloads#api_dwc_archive_complete', as: :download_dwca_complete
+      get '/downloads/:id', to: '/downloads#api_show', as: :download_show
+      get '/downloads/:id/file', to: '/downloads#api_file', as: :download_file
+      get '/downloads', to: '/downloads#api_index'
+
       get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
       get '/otus/:id/inventory/content', to: '/otus#api_content', as: :api_content
@@ -151,10 +157,12 @@ namespace :api, defaults: {format: :json} do
       get '/observation_matrices/:id', to: '/observation_matrices#api_show'
 
       get '/images', to: '/images#api_index'
-      get '/images/:id', to: '/images#api_show'
+      get '/images/:id', to: '/images#api_show', as: :images_id
       get '/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', to: '/images#api_scale_to_box'
       # was : get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :images_inventory
       get '/images/:otu_id/inventory', to: '/images#api_image_inventory', as: :images_inventory
+      get '/images/sha/:sha', to: '/images#api_image_show_sha', as: :images_sha
+      get '/images/file/sha/:sha', to: '/images#api_image_file_sha', as: :images_file_sha
 
       get '/tags', to: '/tags#api_index'
       get '/tags/:id', to: '/tags#api_show'
