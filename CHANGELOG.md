@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter biological associations: Data attributes facet
 - Quick forms: Publish/unpublish toggle button to Content slice
 - Api endpoint for 'complete' DwCA project downloads at `/api/v1/downloads/dwc_archive_complete?project_token=<>` [#2830]
+- Project admin preferences panel for settings related to complete downloads
 
 ### Fixed
 
