@@ -56,6 +56,47 @@
         </div>
       </div>
 
+      <h2 data-help="When GBIF, for example, requests that a download be created, we must have a TaxonWorks user listed as the creator: this is that user. If a user manually triggers download creation while logged in, that user will be used as creator instead.">
+        Default complete download creator
+      </h2>
+      <div class="margin-medium-left">
+        <div class="user-select">
+          <Autocomplete
+            url="/users/autocomplete"
+            label="label_html"
+            min="2"
+            placeholder="Select a user"
+            param="term"
+            clear-after
+            class="margin-large-bottom"
+            @getItem="(user) => (defaultUser = user)"
+          />
+
+          <span v-html="defaultUser?.label_html" />
+          <VBtn
+            v-if="defaultUser"
+            class="margin-small-left"
+            circle
+            color="primary"
+            @click="() => (defaultUser = null)"
+          >
+            <VIcon
+              name="undo"
+              small
+            />
+          </VBtn>
+        </div>
+
+        <VBtn
+          :disabled="!defaultUser"
+          @click="setDefaultUser"
+          color="create"
+          class="margin-large-top"
+        >
+          Save default download creator
+        </VBtn>
+      </div>
+
       <h2>Max Age</h2>
       <div class="margin-medium-left">
         <div>
@@ -64,7 +105,7 @@
               type="text"
               v-model="maxAge"
               class="text-number-input margin-xsmall-top"
-              data-help="If the existing complete download is older than max age days, the existing 'old' download will be returned and creation of a new download will be triggered; when that new download is complete it will replace the existing one."
+              data-help="If the existing complete download is older than max age days, the existing 'old' download will be returned and creation of a new download will be triggered; when that new download is complete it will replace the existing one. Max age is a decimal value."
             />
             Maximum Age in days
           </label>
@@ -230,10 +271,12 @@
 import { getCurrentProjectId } from '@/helpers/project.js'
 import { DwcExportPreference } from '@/routes/endpoints'
 import { computed, onBeforeMount, reactive, ref, toRaw } from 'vue'
-import { Project } from '@/routes/endpoints'
+import { Project, User } from '@/routes/endpoints'
 import PredicateFilter from '@/components/Export/PredicateFilter.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 
 const EXTENSIONS = {
   resource_relationships: 'Resource relationships (biological associations)',
@@ -260,6 +303,7 @@ const selectedExtensionMethods = reactive({
 })
 const projectToken = ref(null)
 let lastSavedData = {}
+const defaultUser = ref(null)
 const isLoading = ref(false)
 
 const datasetHasStubText = computed(() => (dataset.value.includes('STUB')))
@@ -283,6 +327,7 @@ onBeforeMount(() => {
   DwcExportPreference.preferences(projectId)
     .then(({ body }) => {
       adminUser.value = body.user_is_admin || false
+      defaultUser.value = { id: body.default_user_id }
       maxAge.value = body.max_age
       isPublic.value = body.is_public || false
       extensions.value = body.extensions || []
@@ -296,6 +341,16 @@ onBeforeMount(() => {
       additionalMetadata.value = body.eml_preferences?.additional_metadata
       autoFilledFields.value = body.auto_filled
 
+      // Load email instead of saving it in prefs.
+      if (body.default_user_id) {
+        User.find(body.default_user_id, { extend: ['user_email_tag']})
+          .then(({ body }) => {
+            defaultUser.value = body
+            setLastSaved()
+          })
+          .catch(() => {})
+      }
+
       setLastSaved()
     })
     .catch(() => {})
@@ -304,6 +359,7 @@ onBeforeMount(() => {
 
 function setLastSaved() {
   lastSavedData = {
+    defaultUserId: defaultUser.value.id,
     maxAge: maxAge.value,
     isPublic: isPublic.value,
     extensions: extensions.value,
@@ -315,7 +371,8 @@ function setLastSaved() {
 }
 
 function noUnsavedChanges() {
-  return emptyEqual(lastSavedData.maxAge, maxAge.value) &&
+  return lastSavedData.defaultUserId == defaultUser.value?.id &&
+    emptyEqual(lastSavedData.maxAge, maxAge.value) &&
     emptyEqual(lastSavedData.isPublic, isPublic.value) &&
     arrayEqual(lastSavedData.extensions, extensions.value) &&
     arrayEqual(lastSavedData.predicateParams.collecting_event_predicate_id, lastSavedData.predicateParams.collecting_event_predicate_id) &&
@@ -343,6 +400,18 @@ function setMaxAge() {
     .catch(() => {})
     .finally(() => (isLoading.value = false))
 }
+
+function setDefaultUser() {
+  isLoading.value = true
+  DwcExportPreference.setDefaultUser(projectId, { default_user_id: defaultUser.value.id })
+    .then(() => {
+      setLastSaved()
+      TW.workbench.alert.create('Saved default user.', 'notice')
+    })
+    .catch(() => {})
+    .finally(() => (isLoading.value = false))
+}
+
 
 function setIsPublic() {
   isLoading.value = true
@@ -456,5 +525,9 @@ function openLink(event) {
 .two-column {
   display: flex;
   gap: 3em;
+}
+
+.user-select {
+  width: 400px;
 }
 </style>

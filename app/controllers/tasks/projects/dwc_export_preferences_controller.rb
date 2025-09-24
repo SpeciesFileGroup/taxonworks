@@ -25,6 +25,12 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
     head :no_content
   end
 
+  def set_default_user
+    @project.set_complete_dwc_download_default_user_id(params[:default_user_id])
+
+    head :no_content
+  end
+
   def set_extensions
     @project.set_complete_dwc_download_extensions(params[:extensions])
 

@@ -757,6 +757,7 @@ resources :projects, only: [] do
       post :set_is_public, defaults: {format: :json}
       post :set_extensions, defaults: {format: :json}
       post :set_predicates, defaults: {format: :json}
+      post :set_default_user, defaults: {format: :json}
     end
   end
 

@@ -227,6 +227,7 @@ class Project < ApplicationRecord
     dataset, additional_metadata = complete_dwc_eml_preferences
     {
       user_is_admin: user.is_project_administrator?(self),
+      default_user_id: complete_dwc_download_default_user_id,
       max_age: complete_dwc_download_max_age,
       is_public: complete_dwc_download_is_public?,
       extensions: complete_dwc_download_extensions,
@@ -300,6 +301,22 @@ class Project < ApplicationRecord
     prefs['is_public'] = is_public == true || is_public == 'true'
 
     save!
+  end
+
+  def set_complete_dwc_download_default_user_id(default_user_id)
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    prefs['default_user_id'] = default_user_id
+
+    save!
+  end
+
+  def complete_dwc_download_default_user_id
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    if prefs
+      prefs['default_user_id']
+    else
+      nil
+    end
   end
 
   def complete_dwc_download_extensions

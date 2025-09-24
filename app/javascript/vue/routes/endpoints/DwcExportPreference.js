@@ -20,7 +20,10 @@ export const DwcExportPreference = {
     AjaxCall('get', `/projects/dwc_export_preferences/validate_eml.json`, { params }),
 
   saveEML: (id, params) =>
-    AjaxCall('post', `/projects/${id}/dwc_export_preferences/save_eml.json`, params)
+    AjaxCall('post', `/projects/${id}/dwc_export_preferences/save_eml.json`, params),
+
+  setDefaultUser: (id, params) =>
+    AjaxCall('post', `/projects/${id}/dwc_export_preferences/set_default_user.json`, params)
 
 
 }
