@@ -45,6 +45,12 @@
         >
           Remove all EML 'STUB' text to enable save
         </div>
+        <div
+          v-if="isPublicIsDisabledByNoDefaultUser"
+          class="feedback-warning d-inline-block padding-xsmall margin-medium-left is-public-disabled-warning"
+        >
+          A default create/save user for complete downloads must be set
+        </div>
 
         <div class="margin-large-top">
           <a
@@ -315,7 +321,8 @@ const emlHasStubText = computed(() => (
 
 const isPublicIsDisabledByStub = computed(() => (!isPublic.value && emlHasStubText.value))
 const isPublicIsDisabledByNoToken = computed(() => !projectToken.value)
-const isPublicIsDisabled = computed(() => isPublicIsDisabledByStub.value || isPublicIsDisabledByNoToken.value)
+const isPublicIsDisabledByNoDefaultUser = computed(() => !defaultUser.value)
+const isPublicIsDisabled = computed(() => isPublicIsDisabledByStub.value || isPublicIsDisabledByNoToken.value || isPublicIsDisabledByNoDefaultUser.value)
 
 onBeforeMount(() => {
   isLoading.value = true
