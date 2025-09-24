@@ -41,7 +41,7 @@ class Download::DwcArchive::Complete < Download::DwcArchive
       if max_age && download_age.to_f / 1.day > max_age
         # Create a fresh download that will replace the existing one when
         # ready.
-        Download::DwcArchive::PupalComplete.create(by:) # don't raise if one already exists
+        Download::DwcArchive::PupalComplete.create(by: by_id) # don't raise if one already exists
       end
 
       download.increment!(:times_downloaded)

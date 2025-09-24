@@ -24,6 +24,25 @@
           </label>
         </div>
 
+        <div
+          v-if="isPublicIsDisabledByNoToken"
+          class="feedback-warning padding-xsmall margin-medium-left is-public-disabled-warning"
+        >
+          A project token for this project must be set to make downloads public
+        </div>
+        <div
+          v-if="isPublicIsDisabledByStub"
+          class="feedback-warning padding-xsmall margin-medium-left is-public-disabled-warning"
+        >
+          Remove all EML 'STUB' text to enable save
+        </div>
+        <div
+          v-if="isPublicIsDisabledByNoDefaultUser"
+          class="feedback-warning padding-xsmall margin-medium-left is-public-disabled-warning"
+        >
+          A default create/save user for complete downloads must be set
+        </div>
+
         <VBtn
           :disabled="isPublicIsDisabled"
           @click="setIsPublic"
@@ -32,25 +51,6 @@
         >
           Save "Is Public"
         </VBtn>
-
-        <div
-          v-if="isPublicIsDisabledByNoToken"
-          class="feedback-warning d-inline-block padding-xsmall margin-medium-left is-public-disabled-warning"
-        >
-          A project token for this project must be set to make downloads public
-        </div>
-        <div
-          v-if="isPublicIsDisabledByStub"
-          class="feedback-warning d-inline-block padding-xsmall margin-medium-left is-public-disabled-warning"
-        >
-          Remove all EML 'STUB' text to enable save
-        </div>
-        <div
-          v-if="isPublicIsDisabledByNoDefaultUser"
-          class="feedback-warning d-inline-block padding-xsmall margin-medium-left is-public-disabled-warning"
-        >
-          A default create/save user for complete downloads must be set
-        </div>
 
         <div class="margin-large-top">
           <a
@@ -308,7 +308,7 @@ const selectedExtensionMethods = reactive({
   taxonworks_extension_methods: []
 })
 const projectToken = ref(null)
-let lastSavedData = {}
+const lastSavedData = ref({})
 const defaultUser = ref(null)
 const isLoading = ref(false)
 
@@ -321,7 +321,7 @@ const emlHasStubText = computed(() => (
 
 const isPublicIsDisabledByStub = computed(() => (!isPublic.value && emlHasStubText.value))
 const isPublicIsDisabledByNoToken = computed(() => !projectToken.value)
-const isPublicIsDisabledByNoDefaultUser = computed(() => !defaultUser.value)
+const isPublicIsDisabledByNoDefaultUser = computed(() => !lastSavedData.value?.defaultUserId)
 const isPublicIsDisabled = computed(() => isPublicIsDisabledByStub.value || isPublicIsDisabledByNoToken.value || isPublicIsDisabledByNoDefaultUser.value)
 
 onBeforeMount(() => {
@@ -334,7 +334,7 @@ onBeforeMount(() => {
   DwcExportPreference.preferences(projectId)
     .then(({ body }) => {
       adminUser.value = body.user_is_admin || false
-      defaultUser.value = { id: body.default_user_id }
+      defaultUser.value = !!body.default_user_id ? { id: body.default_user_id } : null
       maxAge.value = body.max_age
       isPublic.value = body.is_public || false
       extensions.value = body.extensions || []
@@ -365,7 +365,7 @@ onBeforeMount(() => {
 })
 
 function setLastSaved() {
-  lastSavedData = {
+  lastSavedData.value = {
     defaultUserId: defaultUser.value?.id,
     maxAge: maxAge.value,
     isPublic: isPublic.value,
@@ -378,15 +378,15 @@ function setLastSaved() {
 }
 
 function noUnsavedChanges() {
-  return lastSavedData.defaultUserId == defaultUser.value?.id &&
-    emptyEqual(lastSavedData.maxAge, maxAge.value) &&
-    emptyEqual(lastSavedData.isPublic, isPublic.value) &&
-    arrayEqual(lastSavedData.extensions, extensions.value) &&
-    arrayEqual(lastSavedData.predicateParams.collecting_event_predicate_id, lastSavedData.predicateParams.collecting_event_predicate_id) &&
-    arrayEqual(lastSavedData.predicateParams.collection_object_predicate_id, lastSavedData.predicateParams.collection_object_predicate_id) &&
-    arrayEqual(lastSavedData.selectedExtensionMethods.taxonworks_extension_methods, selectedExtensionMethods.taxonworks_extension_methods) &&
-    emptyEqual(lastSavedData.dataset, dataset.value) &&
-    emptyEqual(lastSavedData.additionalMetadata, additionalMetadata.value)
+  return lastSavedData.value.defaultUserId == defaultUser.value?.id &&
+    emptyEqual(lastSavedData.value.maxAge, maxAge.value) &&
+    emptyEqual(lastSavedData.value.isPublic, isPublic.value) &&
+    arrayEqual(lastSavedData.value.extensions, extensions.value) &&
+    arrayEqual(lastSavedData.value.predicateParams.collecting_event_predicate_id, lastSavedData.value.predicateParams.collecting_event_predicate_id) &&
+    arrayEqual(lastSavedData.value.predicateParams.collection_object_predicate_id, lastSavedData.value.predicateParams.collection_object_predicate_id) &&
+    arrayEqual(lastSavedData.value.selectedExtensionMethods.taxonworks_extension_methods, selectedExtensionMethods.taxonworks_extension_methods) &&
+    emptyEqual(lastSavedData.value.dataset, dataset.value) &&
+    emptyEqual(lastSavedData.value.additionalMetadata, additionalMetadata.value)
 }
 
 function emptyEqual(v1, v2) {
@@ -516,6 +516,9 @@ function openLink(event) {
 
 .is-public-disabled-warning {
   vertical-align: bottom;
+  width: fit-content;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
 
 #max-age {
