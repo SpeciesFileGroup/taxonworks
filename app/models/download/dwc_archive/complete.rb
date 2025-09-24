@@ -27,6 +27,7 @@ class Download::DwcArchive::Complete < Download::DwcArchive
   # @return [Download] the complete download to be served
   # Raises TaxonWorks::Error on error.
   def self.process_complete_download_request(project)
+    # !! Note Current.user_id may not be set here !!
     download = Download.where(
       type: 'Download::DwcArchive::Complete', project_id: project.id
     ).first
@@ -36,13 +37,14 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     if download.ready?
       max_age = project.complete_dwc_download_max_age # in days
       download_age = Time.current - download.created_at
+      by_id = Current.user_id || project.complete_dwc_download_default_user_id
       if max_age && download_age.to_f / 1.day > max_age
         # Create a fresh download that will replace the existing one when
         # ready.
-        Download::DwcArchive::PupalComplete.create # don't raise if one already exists
+        Download::DwcArchive::PupalComplete.create(by:) # don't raise if one already exists
       end
 
-      download.increment!(:times_downloaded)
+      download.increment!(:times_downloaded, updated_by_id: by_id)
       return download
     else
       raise TaxonWorks::Error, 'The existing download is not ready yet'

@@ -124,7 +124,10 @@ class DownloadsController < ApplicationController
     # *All* options for complete downloads are determined from project
     # preferences, not from public request via api.
     # !! Publicly explodes if EML prefs contain 'STUB' text.
-    Download::DwcArchive::Complete.create!
+    # If no user token or user session then create as the complete download
+    # user.
+    by_id = Current.user_id || project.complete_dwc_download_default_user_id
+    Download::DwcArchive::Complete.create!(by: by_id)
     render json: { status: 'A download is being created' }, status: :unprocessable_entity
   end
 
