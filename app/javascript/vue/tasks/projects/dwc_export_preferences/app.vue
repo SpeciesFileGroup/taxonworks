@@ -366,7 +366,7 @@ onBeforeMount(() => {
 
 function setLastSaved() {
   lastSavedData = {
-    defaultUserId: defaultUser.value.id,
+    defaultUserId: defaultUser.value?.id,
     maxAge: maxAge.value,
     isPublic: isPublic.value,
     extensions: extensions.value,

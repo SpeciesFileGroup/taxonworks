@@ -44,7 +44,7 @@ class Download::DwcArchive::Complete < Download::DwcArchive
         Download::DwcArchive::PupalComplete.create(by:) # don't raise if one already exists
       end
 
-      download.increment!(:times_downloaded, updated_by_id: by_id)
+      download.increment!(:times_downloaded)
       return download
     else
       raise TaxonWorks::Error, 'The existing download is not ready yet'
