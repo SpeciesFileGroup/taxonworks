@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.54.0] - 2025-09-24
+
 ### Added
 
 - `/api/v1/dwc_occurrences/area_autocomplete?term=Can&target=country|stateProvince|county`
@@ -5689,7 +5693,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.0...development
+[0.54.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.2...v0.54.0
 [0.53.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.1...v0.53.2
 [0.53.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.0...v0.53.1
 [0.53.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.2...v0.53.0
