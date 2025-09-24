@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse OTU: Radial annotator to biological associations panel
 - Filter biological associations: Data attributes facet
 - Quick forms: Publish/unpublish toggle button to Content slice
+- Api endpoint for 'complete' DwCA project downloads at `/api/v1/downloads/dwc_archive_complete?project_token=<>` [#2830]
 
 ### Fixed
 
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Make distribution on /api/v1/taxon_names/:id/inventory/catalog an extends option
 - Target updated PG client
 
+[#2830]: https://github.com/SpeciesFileGroup/taxonworks/issues/2830
 [#4527]: https://github.com/SpeciesFileGroup/taxonworks/issues/4527
 [#4553]: https://github.com/SpeciesFileGroup/taxonworks/issues/4553
 
