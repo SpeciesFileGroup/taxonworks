@@ -43,7 +43,10 @@ describe 'Browse taxon names task', type: :feature, group: :nomenclature do
 
         specify 'selecting the valid filter should not show invalid names' do
           visit browse_nomenclature_task_path(taxon_name_id: root.id)
-          @hierarchy.check('Show only valid names')
+          @navigate_options = page.find_by_id('navigate-options')
+          @navigate_options.find('button').click
+          @navigate_options.check('Show only valid names')
+          
           expect(@hierarchy).to have_link('Aus')
           expect(@hierarchy).to_not have_link('Bus')
         end

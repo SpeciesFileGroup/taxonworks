@@ -110,7 +110,7 @@ export default defineStore('biologicalAssociations', {
           Object.assign(ba, {
             isUnsaved: false,
             id: body.id,
-            globalId: item.global_id
+            globalId: body.global_id
           })
         })
 

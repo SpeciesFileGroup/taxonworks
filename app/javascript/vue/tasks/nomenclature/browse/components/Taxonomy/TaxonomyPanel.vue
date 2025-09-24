@@ -1,21 +1,26 @@
 <template>
-  <label>
-    <input
-      type="checkbox"
-      v-model="onlyValid"
-      @change="updateStorage"
+  <Teleport to="#navigate-options">
+    <TaxonomyOptions
+      v-model:only-valid="onlyValid"
+      v-model:rainbow="rainbow"
+      v-model:count="count"
     />
-    Show only valid names
-  </label>
+  </Teleport>
 
   <div class="panel-taxonomy-tree margin-medium-top">
+    <VSpinner
+      v-if="isLoading"
+      legend="Loading taxonimic tree..."
+    />
     <ul
       class="taxonomy-tree"
       v-if="tree"
     >
       <TaxonomyTree
         :current-id="taxonId"
+        :count="count"
         :taxon="tree"
+        :rainbow="rainbow"
         :only-valid="onlyValid"
       />
     </ul>
@@ -24,12 +29,11 @@
 
 <script setup>
 import { TaxonName } from '@/routes/endpoints'
-import { onBeforeMount, ref } from 'vue'
-import { convertType } from '@/helpers'
-import TaxonomyTree from './TaxonomyTree.vue'
+import { onMounted, ref } from 'vue'
 import { makeTaxonNode } from '../../utils/makeTaxonNode'
-
-const STORAGE_ONLY_VALID_KEY = 'TW::TaxonomyTree::OnlyValid'
+import TaxonomyOptions from './TaxonomyOptions.vue'
+import TaxonomyTree from './TaxonomyTree.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 defineOptions({
   name: 'TaxonomyTree'
@@ -43,15 +47,14 @@ const props = defineProps({
 })
 
 const tree = ref()
-const onlyValid = ref(true)
-
-function updateStorage() {
-  localStorage.setItem(STORAGE_ONLY_VALID_KEY, onlyValid.value)
-}
+const count = ref(true)
+const rainbow = ref(true)
+const isLoading = ref(true)
+const onlyValid = ref(false)
 
 function buildTree(ancestors, taxon) {
   if (!ancestors || ancestors.length === 0) {
-    return makeTaxonNode(taxon)
+    return { ...makeTaxonNode(taxon), isExpanded: true, isLoaded: true }
   }
 
   let root = makeTaxonNode(ancestors[0])
@@ -73,31 +76,36 @@ function buildTree(ancestors, taxon) {
   return root
 }
 
-onBeforeMount(() => {
-  onlyValid.value = convertType(localStorage.getItem(STORAGE_ONLY_VALID_KEY))
-
-  TaxonName.taxonomy(props.taxonId).then(({ body }) => {
-    tree.value = buildTree(body.ancestors, {
-      ...body.taxon_name,
-      synonyms: body.synonyms,
-      children: body.descendants
+onMounted(() => {
+  TaxonName.taxonomy(props.taxonId, { count: count.value })
+    .then(({ body }) => {
+      tree.value = buildTree(body.ancestors, {
+        ...body.taxon_name,
+        children: body.descendants
+      })
     })
-  })
+    .finally(() => {
+      isLoading.value = false
+    })
 })
 </script>
 
 <style lang="scss">
 .sticky-navbar-fixed {
   .panel-taxonomy-tree {
+    height: 100%;
+    height: calc(100vh - 320px);
     max-height: calc(100vh - 320px);
   }
 }
 .panel-taxonomy-tree {
   padding-left: 0.75em;
-  max-height: calc(100vh - 500px);
+  height: calc(100vh - 500px);
+  max-height: calc(100vh - 400px);
   overflow-y: auto;
 }
 .taxonomy-tree {
+  --taxonomic-tree-border: var(--border-color);
   white-space: nowrap;
   word-wrap: normal;
   list-style: none;
@@ -112,8 +120,9 @@ onBeforeMount(() => {
     position: relative;
     margin: 0;
     padding: 0px;
-    padding-left: 4px;
-    border-left: 1px solid var(--border-color);
+    padding-left: 6px;
+    padding-top: 1px;
+    border-left: 1px solid var(--taxonomic-tree-border);
     white-space: normal;
 
     button {
@@ -129,6 +138,10 @@ onBeforeMount(() => {
 
   li:last-child {
     border-left: none;
+
+    .synonym-list {
+      border-left: 1px solid var(--taxonomic-tree-border);
+    }
   }
 
   li:before {
@@ -137,20 +150,24 @@ onBeforeMount(() => {
     height: 1em;
     width: 8px;
     color: white;
-    border-bottom: 1px solid var(--border-color);
+    padding-top: 1px;
+    border-bottom: 1px solid var(--taxonomic-tree-border);
     content: '';
     display: inline-block;
-    left: -4px;
+    left: -6px;
   }
 
   li:last-child:before {
-    border-left: 1px solid var(--border-color);
+    border-left: 1px solid var(--taxonomic-tree-border);
   }
 
   .synonym-list {
     list-style: none;
     padding-left: 8px;
     padding-bottom: 4px;
+    margin-top: -7px;
+    padding-top: 8px;
+    border-left: 1px solid var(--taxonomic-tree-border);
 
     li {
       border-left: none;

@@ -26,7 +26,7 @@ RSpec.describe ObservationMatrixColumnItem::Single::Descriptor, type: :model, gr
       end
     end
 
-    context 'with a observation_matrix_column_item saved' do
+    context 'with an observation_matrix_column_item saved' do
       before do
         observation_matrix_column_item.descriptor = descriptor
         observation_matrix_column_item.observation_matrix = observation_matrix

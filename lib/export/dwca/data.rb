@@ -33,6 +33,10 @@ module Export::Dwca
 
     attr_accessor :data
 
+    # @return [Hash] containing dataset and additional_metadata, as xml strings,
+    # for use in construction of the eml file.
+    attr_accessor :eml_data
+
     attr_accessor :eml
 
     attr_accessor :meta
@@ -43,12 +47,10 @@ module Export::Dwca
     #  Required.  Of DwcOccurrence
     attr_accessor :core_scope
 
-    # @return [Scope, nil]
-    #   Returning BiologicalAssociation
+    # @return [Hash] of collection_objects: query_string, field_occurrences: query_string
     attr_accessor :biological_associations_extension
 
-    # @return [Scope, nil]
-    #   @return Image(?)
+    # @return [Hash] of collection_objects: query_string, field_occurrences: query_string
     attr_accessor :media_extension
 
     attr_accessor :total #TODO update
@@ -79,7 +81,7 @@ module Export::Dwca
     attr_accessor :dwc_id_order
 
     # @param [Array<Symbol>] taxonworks_extensions List of methods to perform on each CO
-    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: [])
+    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, eml_data: {}, taxonworks_extensions: [])
       raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
 
       @core_scope = core_scope
@@ -88,6 +90,8 @@ module Export::Dwca
       @media_extension = extension_scopes[:media] #! Hash with keys collection_objects, field_occurrences
 
       @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extensions)
+
+      @eml_data = eml_data
 
       @taxonworks_extension_methods = taxonworks_extensions
     end
@@ -172,7 +176,8 @@ module Export::Dwca
         column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS, # TODO: add other maps here
         trim_columns: true, # going to have to be optional
         trim_rows: false,
-        header_converters: [:dwc_headers]
+        header_converters: [:dwc_headers],
+        copy_column: { from: 'occurrenceID', to: 'id' }
       )
     end
 
@@ -250,6 +255,7 @@ module Export::Dwca
       # hash of column_name => csv header name
       ce_fields = {}
       co_fields = {}
+      dwco_fields = {}
 
       # Select valid methods, generate frozen name string ahead of time
       # add TW prefix to names
@@ -261,12 +267,14 @@ module Export::Dwca
           methods[method] = csv_header_name
         elsif (column_name = ::CollectionObject::EXTENSION_CE_FIELDS[sym])
           ce_fields[column_name] = csv_header_name
-        elsif (column_name =::CollectionObject::EXTENSION_CO_FIELDS[sym])
+        elsif (column_name = ::CollectionObject::EXTENSION_CO_FIELDS[sym])
           co_fields[column_name] = csv_header_name
+        elsif (column_name = ::CollectionObject::EXTENSION_DWC_OCCURRENCE_FIELDS[sym])
+          dwco_fields[column_name] = csv_header_name
         end
       end
 
-      used_extensions = methods.values + ce_fields.values + co_fields.values
+      used_extensions = methods.values + ce_fields.values + co_fields.values + dwco_fields.values
 
       # if no predicate data found, return empty file
       if used_extensions.empty?
@@ -303,6 +311,17 @@ module Export::Dwca
         .flat_map{ |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
 
       Rails.logger.debug 'dwca_export: post ce extension read'
+
+      dwco_columns = dwco_fields.keys
+      dwco_csv_names = dwco_columns.map { |sym| dwco_fields[sym] }
+      dwco_column_count = dwco_columns.size
+
+      extension_data += core_scope
+        .where(dwc_occurrence_object_type: 'CollectionObject')
+        .pluck(:dwc_occurrence_object_id, *dwco_columns)
+        .flat_map{ |dwc_occurrence_object_id, *values| ([dwc_occurrence_object_id] * dwco_column_count).zip(dwco_csv_names, values) }
+
+      Rails.logger.debug 'dwca_export: post dwco extension read'
 
       # Create hash with key: co_id, value: [[extension_name, extension_value], ...]
       # pre-fill with empty values so we have the same number of rows as the main csv, even if some rows don't have
@@ -556,8 +575,6 @@ module Export::Dwca
       @all_data
     end
 
-    # rubocop:disable Metrics/MethodLength
-
     # This is a stub, and only half-heartedly done. You should be using IPT for the time being.
     # @return [Tempfile]
     #   metadata about this dataset
@@ -570,91 +587,20 @@ module Export::Dwca
       return @eml if @eml
       @eml = Tempfile.new('eml.xml')
 
-      # This may need to be logged somewhere
-      identifier = SecureRandom.uuid
-
-      # This should be build elsewhere, and ultimately derived from a TaxonWorks::Dataset model
-      # !! Order matters in these sections vs. validation !!
-      builder = Nokogiri::XML::Builder.new(encoding: 'utf-8', namespace_inheritance: false) do |xml|
-        xml['eml'].eml(
-          'xmlns:eml' => 'eml://ecoinformatics.org/eml-2.1.1',
-          'xmlns:dc' => 'http://purl.org/dc/terms/',
-          'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-          'xsi:schemaLocation' => 'eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml-gbif-profile.xsd',
-          'packageId' => identifier,
-          'system' => 'https://taxonworks.org',
-          'scope' => 'system',
-          'xml:lang' => 'en'
-        ) {
-          xml.dataset {
-            xml.alternateIdentifier identifier
-            xml.title('STUB YOUR TITLE HERE')['xmlns:lang'] = 'en'
-            xml.creator {
-              xml.individualName {
-                xml.givenName 'STUB'
-                xml.surName 'STUB'
-              }
-              xml.organizationName 'STUB'
-              xml.electronicMailAddress 'EMAIL@EXAMPLE.COM'
-            }
-            xml.metadataProvider {
-              xml.organizationName 'STUB'
-              xml.electronicMailAddress 'EMAIL@EXAMPLE.COM'
-              xml.onlineUrl 'STUB'
-            }
-            xml.associatedParty {
-              xml.organizationName 'STUB'
-              xml.address {
-                xml.deliveryPoint 'SEE address above for other fields'
-              }
-              xml.role 'distributor'
-            }
-            xml.pubDate Time.new.strftime('%Y-%m-%d')
-            xml.language 'eng'
-            xml.abstract {
-              xml.para 'Abstract text here.'
-            }
-            xml.intellectualRights {
-              xml.para 'STUB. License here.'
-            }
-            # ...
-            xml.contact {
-              xml.organizationName 'STUB'
-              xml.address {
-                xml.deliveryPoint 'STUB'
-                xml.city 'STUB'
-                xml.administrativeArea 'STUB'
-                xml.postalCode 'STUB'
-                xml.country 'STUB'
-              }
-              xml.electronicMailAddress 'EMAIL@EXAMPLE.COM'
-              xml.onlineUrl 'STUB'
-            }
-            # ...
-          } # end dataset
-          xml.additionalMetadata {
-            xml.metadata {
-              xml.gbif {
-                xml.dateStamp DateTime.parse(Time.now.to_s).to_s
-                xml.hierarchyLevel 'dataset'
-                xml.citation('STUB DATASET')[:identifier] = 'Identifier STUB'
-                xml.resourceLogoUrl 'SOME RESOURCE LOGO URL'
-                xml.formationPeriod 'SOME FORMATION PERIOD'
-                xml.livingTimePeriod 'SOME LIVING TIME PERIOD'
-                xml[:dc].replaces 'PRIOR IDENTIFIER'
-              }
-            }
-          }
-        }
+      if eml_data[:dataset].present? || eml_data[:additional_metadata].present?
+        eml_xml = ::Export::Dwca::Eml.actualized_eml_for(
+          eml_data[:dataset], eml_data[:additional_metadata]
+        )
+      else
+        eml_xml = ::Export::Dwca::Eml.actualized_stub_eml
       end
 
-      @eml.write(builder.to_xml)
+      @eml.write(eml_xml)
       @eml.flush
       @eml
     end
 
     # rubocop:enable Metrics/MethodLength
-
 
     def biological_association_relations_to_core
       core_params = {
@@ -679,9 +625,9 @@ module Export::Dwca
       }
     end
 
-    def biological_associations_resource_relationship
+    def biological_associations_resource_relationship_tmp
       return nil if biological_associations_extension.nil?
-      @biological_associations_resource_relationship = Tempfile.new('biological_resource_relationship.xml')
+      @biological_associations_resource_relationship_tmp = Tempfile.new('biological_resource_relationship.xml')
 
       content = nil
 
@@ -691,15 +637,15 @@ module Export::Dwca
         content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension, biological_association_relations_to_core)
       end
 
-      @biological_associations_resource_relationship.write(content)
-      @biological_associations_resource_relationship.flush
-      @biological_associations_resource_relationship.rewind
-      @biological_associations_resource_relationship
+      @biological_associations_resource_relationship_tmp.write(content)
+      @biological_associations_resource_relationship_tmp.flush
+      @biological_associations_resource_relationship_tmp.rewind
+      @biological_associations_resource_relationship_tmp
     end
 
-    def media_resource_relationship
+    def media_tmp
       return nil if media_extension.nil? || media_extension.empty?
-      @media_resource_relationship = Tempfile.new('media_relationship.xml')
+      @media_tmp = Tempfile.new('media.xml')
 
       content = nil
       if no_records?
@@ -708,20 +654,20 @@ module Export::Dwca
         content = Export::CSV::Dwc::Extension::Media.csv(media_extension[:collection_objects], media_extension[:field_occurrences])
       end
 
-      @media_resource_relationship.write(content)
-      @media_resource_relationship.flush
-      @media_resource_relationship.rewind
-      @media_resource_relationship
+      @media_tmp.write(content)
+      @media_tmp.flush
+      @media_tmp.rewind
+      @media_tmp
     end
 
     # @return [Array]
     #   use the temporarily written, and refined, CSV file to read off the existing headers
     #   so we can use them in writing meta.yml
-    # id, and non-standard DwC colums are handled elsewhere
+    # non-standard DwC colums are handled elsewhere
     def meta_fields
       return [] if no_records?
       h = File.open(all_data, &:gets)&.strip&.split("\t")
-      h&.shift
+      h&.shift # shift because the first column, id, will be specified by hand
       h || []
     end
 
@@ -737,7 +683,7 @@ module Export::Dwca
             xml.files {
               xml.location 'data.tsv'
             }
-            xml.id(index: 0)
+            xml.id(index: 0) # Must be named id (?)
             meta_fields.each_with_index do |h,i|
               if h =~ /TW:/ # All TW headers have ':'
                 xml.field(index: i+1, term: h)
@@ -796,8 +742,8 @@ module Export::Dwca
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
         zip.add('data.tsv', all_data.path)
 
-        zip.add('media.tsv', media_resource_relationship.path) if media_extension
-        zip.add('resource_relationships.tsv', biological_associations_resource_relationship.path) if biological_associations_extension
+        zip.add('media.tsv', media_tmp.path) if media_extension
+        zip.add('resource_relationships.tsv', biological_associations_resource_relationship_tmp.path) if biological_associations_extension
 
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
@@ -837,8 +783,13 @@ module Export::Dwca
       data.unlink
 
       if biological_associations_extension
-        biological_associations_resource_relationship.close
-        biological_associations_resource_relationship.unlink
+        biological_associations_resource_relationship_tmp.close
+        biological_associations_resource_relationship_tmp.unlink
+      end
+
+      if media_extension
+        media_tmp.close
+        media_tmp.unlink
       end
 
       if predicate_options_present?
@@ -859,11 +810,12 @@ module Export::Dwca
       true
     end
 
-    # @param download [Download instance]
-    # @return [Download] a download instance
+    # @param download [a Download]
     def package_download(download)
-      download.update!(source_file_path: zipfile.path)
-      download
+      p = zipfile.path
+
+      # This doesn't touch the db (source_file_path is an instance var).
+      download.update!(source_file_path: p)
     end
 
   end

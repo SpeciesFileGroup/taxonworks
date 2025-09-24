@@ -1,8 +1,10 @@
 import TaxonomyPanel from '@/tasks/nomenclature/browse/components/Taxonomy/TaxonomyPanel.vue'
 import { createApp } from 'vue'
 
+let app
+
 function init(element, taxonId) {
-  const app = createApp(TaxonomyPanel, {
+  app = createApp(TaxonomyPanel, {
     taxonId
   })
 
@@ -17,4 +19,8 @@ document.addEventListener('turbolinks:load', () => {
 
     init(taxonomyPanel, id)
   }
+})
+
+document.addEventListener('turbolinks:before-render', () => {
+  if (app) app.unmount()
 })

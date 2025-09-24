@@ -505,6 +505,7 @@ resources :leads do
     post :destroy_subtree, defaults: {format: :json}
     patch :reorder_children, defaults: {format: :json}
     post :insert_key, defaults: {format: :json}
+    post :set_observation_matrix, defaults: {format: :json}
   end
   collection do
     post :batch_create_lead_items, defaults: {format: :json}
@@ -515,7 +516,7 @@ resources :lead_items do
   concerns [:data_routes]
   collection do
     post :destroy_item_in_children, defaults: {format: :json}
-    post :add_lead_items_to_child_lead, defaults: {format: :json}
+    post :add_lead_items_to_lead, defaults: {format: :json}
     post :add_otu_index, defaults: {format: :json}
     post :remove_otu_index, defaults: {format: :json}
   end
@@ -742,6 +743,29 @@ end
 
 resources :preparation_types do
   concerns [:data_routes]
+end
+
+resources :projects, only: [] do
+  member do
+    get :api_access_token, defaults: {format: :json}
+    scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
+      # Scope these under the export preferences task controller for access
+      # control and functional grouping.
+      get :preferences, defaults: {format: :json}
+      post :save_eml, defaults: {format: :json}
+      post :set_max_age, defaults: {format: :json}
+      post :set_is_public, defaults: {format: :json}
+      post :set_extensions, defaults: {format: :json}
+      post :set_predicates, defaults: {format: :json}
+      post :set_default_user, defaults: {format: :json}
+    end
+  end
+
+  collection do
+    scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
+      get :validate_eml, defaults: {format: :json}
+    end
+  end
 end
 
 resources :project_sources, only: [:index, :create, :destroy] do

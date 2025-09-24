@@ -1,7 +1,8 @@
 <template>
-  <li>
+  <li :style="rainbowStyle">
     <VBtn
       v-if="!taxon.leaf"
+      :style="[rainbow && { backgroundColor: 'var(--taxonomic-tree-border)' }]"
       circle
       small
       color="primary"
@@ -52,6 +53,7 @@
 
     <TaxonomySynonyms
       v-if="taxon.synonyms?.length && !onlyValid"
+      :style="synonymsStyle"
       class="taxonomy-tree-invalid-name"
       :synonyms="taxon.synonyms"
     />
@@ -62,9 +64,15 @@
           :key="child.id"
         >
           <TaxonomyTree
-            v-if="child.id === currentId || !onlyValid || child.isValid"
+            v-if="
+              !isChildSynonym(child) &&
+              (child.id === currentId || !onlyValid || child.isValid)
+            "
             :taxon="child"
+            :count="count"
+            :depth="depth + 1"
             :current-id="currentId"
+            :rainbow="rainbow"
             :only-valid="onlyValid"
           />
         </template>
@@ -74,15 +82,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
-import TaxonomyTree from './TaxonomyTree.vue'
-import TaxonomySynonyms from './TaxonomySynonyms.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
 import { makeTaxonNode } from '../../utils/makeTaxonNode'
 import { makeBrowseUrl } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import { TAXON_NAME } from '@/constants'
+import TaxonomyTree from './TaxonomyTree.vue'
+import TaxonomySynonyms from './TaxonomySynonyms.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   taxon: {
@@ -98,10 +106,59 @@ const props = defineProps({
   onlyValid: {
     type: Boolean,
     default: false
+  },
+
+  depth: {
+    type: Number,
+    default: 0
+  },
+
+  count: {
+    type: Boolean,
+    required: true
+  },
+
+  rainbow: {
+    type: Boolean,
+    default: false
+  }
+})
+const colors = [
+  '#e63946',
+  '#f77f00',
+  '#fcbf49',
+  '#2a9d8f',
+  '#52b788',
+  '#4361ee',
+  '#4895ef',
+  '#560bad',
+  '#7209b7',
+  '#b5179e',
+  '#ff006e',
+  '#ff4d6d'
+]
+
+const isLoading = ref(false)
+
+const rainbowStyle = computed(() => {
+  if (!props.rainbow) return {}
+
+  return {
+    '--taxonomic-tree-border': colors[props.depth % colors.length]
   }
 })
 
-const isLoading = ref(false)
+const synonymsStyle = computed(() => {
+  if (
+    !props.rainbow ||
+    !(props.taxon.synonyms?.length && props.taxon.children?.length)
+  )
+    return {}
+
+  return {
+    '--taxonomic-tree-border': colors[(props.depth + 1) % colors.length]
+  }
+})
 
 function toggle() {
   if (!props.taxon.isExpanded && !props.taxon.isLoaded) {
@@ -115,10 +172,17 @@ function makeFilterLink({ taxonId, validity }) {
   return `${RouteNames.FilterNomenclature}?descendants=true&taxon_name_id=${taxonId}&validity=${validity}`
 }
 
+function isChildSynonym(t) {
+  const ids = props.taxon.children.map((c) => c.id).filter((id) => id !== t.id)
+
+  return ids.includes(t.validId)
+}
+
 function expandNode(taxonId) {
   isLoading.value = true
   TaxonName.taxonomy(taxonId, {
-    ancestors: false
+    ancestors: false,
+    count: props.count
   })
     .then(({ body }) => {
       const children = body.descendants.map((c) => makeTaxonNode(c))

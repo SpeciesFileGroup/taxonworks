@@ -7,7 +7,7 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::TaxonName, type: :model, group
     before { observation_matrix_row_item.valid? }
 
 
-    context 'with a observation_matrix_row_item saved' do
+    context 'with an observation_matrix_row_item saved' do
       let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
 
       let!(:root) { FactoryBot.create(:root_taxon_name) }

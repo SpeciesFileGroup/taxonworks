@@ -36,7 +36,7 @@
               small
               color="warning"
             />
-            DwCOccurrence re-index is pending.
+            DwcOccurrence re-index is pending.
           </div>
         </template>
         <span v-else>New record</span>

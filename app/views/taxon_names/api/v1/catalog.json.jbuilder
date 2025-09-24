@@ -26,8 +26,10 @@ end
 
 json.stats taxon_name_inventory_stats(@taxon_name)
 
-# !! Comes from Catalog/Data.  Likely should make this calculable on demand.
-json.distribution @data[:distribution]
+# Comes from Catalog/Data, currently unused.
+if extend_response_with('distribution')
+  json.distribution @data[:distribution]
+end
 
 json.repositories do
   json.array! @data[:repositories]

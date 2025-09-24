@@ -8,12 +8,13 @@ module ::Export::CSV
   #   http://collectiveidea.com/blog/archives/2015/03/05/optimizing-rails-for-memory-usage-part-3-pluck-and-database-laziness
   # @param [Scope] scope
   # @param [Array] exclude_columns
-  #     strings
   # @param [Array] header_converters
   # @param [Boolean] trim_rows
   # @param [Boolean] trim_columns
+  # @param [Hash] copy_column, copy the values (not the header) in column
+  #   copy_column[:from] to the values in copy_column[:to]
   # @return [String] in CSV format
-  def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false, column_order: [])
+  def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false, column_order: [], copy_column: nil)
 
     column_names = scope.columns_hash.keys
     column_names = sort_column_headers(column_names, column_order.map(&:to_s)) if column_order.any?
@@ -23,13 +24,24 @@ module ::Export::CSV
 
     headers = ::CSV::Row.new(h.headers, h.headers, true).headers
 
+    # Copy column values from one column to another:
+    column_to_copy = scope.pluck(copy_column[:from]) if copy_column.present?
+    copy_to_index = headers.index(copy_column[:to]) if copy_column.present?
+    if column_to_copy.nil? || copy_to_index.nil?
+      column_to_copy = nil
+      copy_to_index = nil
+    end
+
     tbl = headers.map { |h| [h] }
 
     # Pluck rows is from postgresql_cursor gem
     #puts Rainbow('preparing data: ' + (Benchmark.measure do
-    scope.pluck_rows(*column_names).each do |o|
-      o.each_with_index do |value, index|
-        tbl[index] << Utilities::Strings.sanitize_for_csv(value)
+    scope.pluck_rows(*column_names).each_with_index do |r, row_index|
+      r.each_with_index do |value, column_index|
+        if column_to_copy && column_index == copy_to_index
+          value = column_to_copy[row_index]
+        end
+        tbl[column_index] << Utilities::Strings.sanitize_for_csv(value)
       end
       # If keys are not deterministic: .attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
     end
@@ -92,7 +104,8 @@ module ::Export::CSV
   end
 
   # Sort order for columns
-  #   columns not in column order at added at the the *front* of the file
+  #   columns not in column_order are added at the the *front* of the file in
+  #   the order they were given.
   def self.sort_column_headers(column_names = [], column_order = [])
     sorted = []
     unsorted = []
@@ -106,6 +119,13 @@ module ::Export::CSV
 
     unsorted + sorted
   end
+
+# # @return [Download, false]
+# #
+# # Given a set of API param, create a download of a cnkkk
+# def self.delegate_build(params = {})
+
+# end
 
   # @return Tempfile
   # @param query any ActiveRecord::Relation
@@ -124,5 +144,4 @@ module ::Export::CSV
     t.rewind
     t
   end
-
 end
