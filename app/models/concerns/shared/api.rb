@@ -19,7 +19,7 @@ module Shared::Api
     s = host
     return s + '/api/v1/' if ar.nil?
 
-    "#{s}/api/v1/#{ar.class.base_class.name.downcase.pluralize}/#{id || ar.id}"
+    "#{s}/api/v1/#{ar.class.base_class.name.tableize}/#{id || ar.id}"
   end
 
   def self.image_link(image)
