@@ -284,17 +284,17 @@ module Queries
         referenced_klass_union([q1, q2]).distinct # Not needed, union should be distinct
       end
 
-      def from_geographic_items(geographic_items_sql)
-        ces = ::CollectingEvent
-          .joins(:geographic_items)
-          .where(geographic_items_sql)
+      def from_geographic_items(geographic_items_where_sql)
+        ces = collecting_events_for_geographic_item_condition(
+          geographic_items_where_sql
+        )
 
         q1 = ::Otu
           .joins(collection_objects: [:collecting_event])
           .where(collecting_events: ces.all, project_id:)
 
         ads = ::Queries::AssertedDistribution::Filter
-          .from_geographic_items(geographic_items_sql)
+          .from_geographic_items(geographic_items_where_sql)
 
         q2 = ::Otu
           .joins(:asserted_distributions)
@@ -491,12 +491,9 @@ module Queries
 
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
-        s = 'WITH query_ad_otus AS (' + asserted_distribution_query.all.to_sql + ') ' +
-          ::Otu
-          .joins('JOIN query_ad_otus as query_ad_otus1 on otus.id = query_ad_otus1.otu_id')
-          .to_sql
-
-        ::Otu.from('(' + s + ') as otus').distinct
+        ::Otu
+          .with(ad: asserted_distribution_query.all)
+          .joins("JOIN ad ON ad.asserted_distribution_object_id = otus.id AND ad.asserted_distribution_object_type = 'Otu'").distinct
       end
 
       def content_query_facet
@@ -652,7 +649,7 @@ module Queries
         i = q.joins(:taxon_name).where('taxon_names.id != taxon_names.cached_valid_taxon_name_id').where(project_id:)
         v = q.joins(:taxon_name).where('taxon_names.id = taxon_names.cached_valid_taxon_name_id').where(project_id:)
 
-        # Find valid for invalid
+        # Find all valids related to a q-invalid
         s = 'WITH invalid_otu_result AS (' + i.to_sql + ') ' +
           ::Otu
           .joins('JOIN taxon_names tn1 on otus.taxon_name_id = tn1.cached_valid_taxon_name_id')
@@ -661,7 +658,7 @@ module Queries
 
         a = ::Otu.from('(' + s + ') as otus')
 
-        # Find invalid for valid
+        # Find all invalids related to a q-valid
         t = 'WITH valid_otu_result AS (' + v.to_sql + ') ' +
           ::Otu
           .joins('JOIN taxon_names tn2 on otus.taxon_name_id = tn2.id')
@@ -670,7 +667,7 @@ module Queries
 
         b = ::Otu.from('(' + t + ') as otus')
 
-        referenced_klass_union([a, b, q]).distinct # Unions shouldn't need distinct
+        referenced_klass_union([a, b, q])
       end
 
       def ancestrify_result(q)

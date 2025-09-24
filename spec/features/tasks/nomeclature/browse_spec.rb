@@ -35,16 +35,18 @@ describe 'Browse taxon names task', type: :feature, group: :nomenclature do
         end
 
         
-        specify 'displaying invalid should only show invalid names' do
+        specify 'displaying valid and invalid names' do
           visit browse_nomenclature_task_path(taxon_name_id: root.id)
-          @hierarchy.find('label[for=display_herarchy_invalid]').click
           expect(@hierarchy).to have_link('Bus', href: browse_nomenclature_task_path(taxon_name_id: genus_synonym.id))
-          expect(@hierarchy).to_not have_link('Aus', href: browse_nomenclature_task_path(taxon_name_id: genus.id))
+          expect(@hierarchy).to have_link('Aus', href: browse_nomenclature_task_path(taxon_name_id: genus.id))
         end
 
         specify 'selecting the valid filter should not show invalid names' do
           visit browse_nomenclature_task_path(taxon_name_id: root.id)
-          @hierarchy.find('label[for=display_herarchy_valid]').click
+          @navigate_options = page.find_by_id('navigate-options')
+          @navigate_options.find('button').click
+          @navigate_options.check('Show only valid names')
+          
           expect(@hierarchy).to have_link('Aus')
           expect(@hierarchy).to_not have_link('Bus')
         end

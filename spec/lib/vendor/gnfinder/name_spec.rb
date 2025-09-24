@@ -51,15 +51,15 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
   end
 
   specify '#classification_path' do
-    expect(mn.classification_path).to contain_exactly(
-      'Eukaryota', 'Animalia', 'Arthropoda', 'Insecta', 'Orthoptera', 'Caelifera', 'Acrididea', 'Acridoidea', 'Acrididae'
-    )
+    expect(mn.classification_path).to eq([
+      'Eukaryota', 'Animalia', 'Arthropoda', 'Hexapoda', 'Insecta', 'Orthoptera', 'Caelifera', 'Acrididea', 'Acridoidea', 'Acrididae'
+    ])
   end
 
   specify '#classification_rank' do
-    expect(mn.classification_rank).to contain_exactly(
-      'domain', 'kingdom', 'phylum', 'class', 'order', 'suborder', 'infraorder', 'superfamily', 'family'
-    )
+    expect(mn.classification_rank).to eq([
+      'domain', 'kingdom', 'phylum', 'subphylum', 'class', 'order', 'suborder', 'infraorder', 'superfamily', 'family'
+    ])
   end
 
   specify '#data_source_title_short' do

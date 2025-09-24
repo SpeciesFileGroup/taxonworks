@@ -1,12 +1,12 @@
 <%= form_tag url, multipart: true do -%>
   <%= file_field_tag :file -%>
 
-  <div class="field">
+  <div class="field margin-small-top">
     <%= label_tag :data_origin, 'Preferred gazetteer', title: 'When a name matches multiple gazetteer records, choose the record from this gazetteer if possible.' -%>
     <br>
-    <%= geographic_area_data_origin_select_tag -%> 
+    <%= geographic_area_data_origin_select_tag -%>
   </div>
 
     <%= content_for :warn_level -%>
-    <%= submit_tag submit -%>
+    <%= submit_tag submit, class: (submit == :create ? 'button-submit' :  'button-default') -%>
 <% end %>

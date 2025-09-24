@@ -185,8 +185,8 @@ describe Otu, type: :model, group: :otu do
       let(:a_d1) { FactoryBot.create(:valid_asserted_distribution) }
       let(:a_d2) { FactoryBot.create(:valid_asserted_distribution) }
       let(:a_d3) { FactoryBot.create(:valid_asserted_distribution) }
-      let(:otu1) { a_d1.otu }
-      let(:otu2) { a_d2.otu }
+      let(:otu1) { a_d1.asserted_distribution_object }
+      let(:otu2) { a_d2.asserted_distribution_object }
       let(:c_e1) { FactoryBot.create(:valid_collecting_event) }
       let(:c_e2) { FactoryBot.create(:valid_collecting_event) }
       let(:c_e3) { FactoryBot.create(:valid_collecting_event) }
@@ -200,7 +200,7 @@ describe Otu, type: :model, group: :otu do
       let(:t_d3) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, taxon_determination_object: c_o3}) }
 
       before(:each) {
-        a_d3.otu = otu1
+        a_d3.asserted_distribution_object = otu1
         [a_d1, a_d2, a_d3,
          otu1, otu2,
          c_e1, c_e2, c_e3,
@@ -268,7 +268,7 @@ describe Otu, type: :model, group: :otu do
     let!(:content) { FactoryBot.create(:valid_content, otu:) }
     let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: otu) }
 
-    let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu:) }
+    let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu) }
 
     specify ".used_recently('Content')" do
       expect(Otu.used_recently(otu.created_by_id, otu.project_id,'Content').to_a).to include(otu.id)

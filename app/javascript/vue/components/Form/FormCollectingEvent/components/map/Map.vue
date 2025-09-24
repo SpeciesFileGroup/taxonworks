@@ -44,7 +44,7 @@
 
 <script setup>
 import convertDMS from '@/helpers/parseDMS.js'
-import VMap from '@/components/georeferences/map.vue'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import helpData from '../../help/en.js'
 import { vHelp } from '@/directives'
 import { computed } from 'vue'

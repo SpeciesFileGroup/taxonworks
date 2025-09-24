@@ -183,7 +183,8 @@ class IdentifiersController < ApplicationController
   end
 
   def batch_by_filter_scope_params
-    params.require(:params).permit(:namespace_id, identifier_types: [])
+    params.require(:params).permit(:namespace_id, :virtual_namespace_prefix,
+      namespaces_to_replace: [], identifier_types: [])
   end
 
 end

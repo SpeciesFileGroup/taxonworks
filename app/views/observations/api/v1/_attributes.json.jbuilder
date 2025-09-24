@@ -3,8 +3,9 @@ json.extract! observation, :id, :descriptor_id, :observation_object_id, :observa
 :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample_standard_error, :sample_standard_deviation,
 :presence, :description, :cached, :cached_column_label, :cached_row_label, :type,
 :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+json.partial! '/shared/data/all/metadata', object: observation
 
-json.label observation_cell_tag(observation)
+json.label observation_cell(observation, 'label')
 
 if observation.type == 'Observation::Qualitative'
   if extend_response_with('character_state')

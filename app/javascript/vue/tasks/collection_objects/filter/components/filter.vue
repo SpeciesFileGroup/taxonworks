@@ -90,6 +90,7 @@ const WITH_PARAMS = [
   'collecting_event',
   'collectors',
   'confidences',
+  'containerized',
   'current_repository',
   'conveyances',
   'data_attributes',

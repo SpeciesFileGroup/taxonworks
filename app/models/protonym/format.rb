@@ -110,7 +110,7 @@ module Protonym::Format
         abbreviate = true if rank == abbreviation_cutoff
       end
 
-      s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_original_combination, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date, 
+      s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_original_combination, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date,
         taxon_names.rank_class, taxon_names.cached_misspelling, taxon_names.cached_is_valid, taxon_names.cached_valid_taxon_name_id, taxon_names.updated_by_id, taxon_names.updated_at, sources.id source_id, citations.pages'
 
       sel = s.join(',')
@@ -127,13 +127,13 @@ module Protonym::Format
     #
     # Intent is to chain with scopes within COLDP export.
     #
-    # If this becomes more broadly useful consider optional `sic` includion
+    # If this becomes more broadly useful consider optional `sic` inclusion
     #
     def original_combination_full_name_hash_from_flat(row)
       gender = nil
       data = {}
 
-      # ranks are symbols here, elsewhere strings.  
+      # ranks are symbols here, elsewhere strings.
       # protonym loop
       ORIGINAL_COMBINATION_RANKS.each do |rank, type|
         if rank == :genus

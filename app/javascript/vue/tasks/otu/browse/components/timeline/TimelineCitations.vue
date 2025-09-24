@@ -1,31 +1,38 @@
 <template>
   <h3>Citations ({{ citations.length }})</h3>
-  <ul
+  <div
     v-if="citations.length"
-    class="taxonomic_history"
+    class="margin-medium-top margin-medium-bottom"
   >
-    <template
-      v-for="(item, index) in citations"
-      :key="index"
-    >
-      <li
-        v-if="item.label_html"
-        class="history__record"
+    <ul class="taxonomic_history no_bullets">
+      <template
+        v-for="(item, index) in citations"
+        :key="index"
       >
-        <span v-html="item.label_html" />
-      </li>
-    </template>
-  </ul>
+        <li
+          v-if="item.label_html"
+          class="history__record horizontal-left-content middle gap-small"
+        >
+          <RadialAnnotator :global-id="getGlobalId(item)" />
+          <span v-html="item.label_html" />
+        </li>
+      </template>
+    </ul>
+  </div>
 </template>
 
-<script>
-export default {
-  props: {
-    citations: {
-      type: Array,
-      required: true
-    }
+<script setup>
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+
+const props = defineProps({
+  citations: {
+    type: Array,
+    required: true
   }
+})
+
+function getGlobalId(citation) {
+  return citation.data_attributes['history-object-id']
 }
 </script>
 <style scoped>

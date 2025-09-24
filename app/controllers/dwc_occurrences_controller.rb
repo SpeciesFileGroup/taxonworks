@@ -34,6 +34,26 @@ class DwcOccurrencesController < ApplicationController
     end
   end
 
+  # GET /api/v1/dwc_occurrences/area_autocomplete?term=Can&target=country
+  def api_area_autocomplete
+
+    target = params[:target] || 'country'
+
+    if !['country', 'stateProvince', 'county'].include?(target) || params[:term].blank?
+      render json: {}, status: :unprocessable_entity and return
+    end
+
+    names = DwcOccurrence.select(target.to_sym)
+      .where(Arel.sql("\"dwc_occurrences\".\"#{target}\" ILIKE '%#{params[:term]}%'"))
+      .order(target.to_sym)
+      .distinct
+      .limit(20)
+      .pluck(target.to_sym)
+      .sort_by{|a| a.length}
+
+    render json: names 
+  end
+
   def metadata
     @dwc_occurrences = DwcOccurrence.where(project_id: sessions_current_project_id)
   end

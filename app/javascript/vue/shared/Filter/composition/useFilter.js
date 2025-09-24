@@ -1,9 +1,10 @@
-import { reactive, toRefs, onBeforeMount } from 'vue'
+import { computed, reactive, toRefs, onBeforeMount } from 'vue'
 import {
   STORAGE_FILTER_QUERY_STATE_PARAMETER,
   STORAGE_FILTER_QUERY_KEY
 } from '@/constants'
 import { getParametersFromSession } from '../utils'
+import { sortArrayByReference } from '@/helpers'
 import getPagination from '@/helpers/getPagination'
 import qs from 'qs'
 
@@ -23,6 +24,15 @@ export default function (service, { listParser, initParameters = {} } = {}) {
     initParameters,
     urlRequest: ''
   })
+
+  const sortedSelectedIds = computed(() =>
+    sortArrayByReference({
+      list: state.selectedIds,
+      reference: state.list,
+      getListValue: (id) => id,
+      getReferenceValue: (item) => item.id
+    })
+  )
 
   const makeFilterRequest = (params = state.parameters) => {
     const payload = removeEmptyParameters({
@@ -52,9 +62,12 @@ export default function (service, { listParser, initParameters = {} } = {}) {
           state.list = result
         }
 
-        const idSet = new Set(state.list.map((item) => item.id))
+        if (Array.isArray(state.list)) {
+          const idSet = new Set(state.list.map((item) => item.id))
 
-        state.selectedIds = state.selectedIds.filter((id) => idSet.has(id))
+          state.selectedIds = state.selectedIds.filter((id) => idSet.has(id))
+        }
+
         state.pagination = getPagination(response)
         state.urlRequest = response.request.url
         setRequestUrl(response.request.responseURL, payload)
@@ -145,6 +158,7 @@ export default function (service, { listParser, initParameters = {} } = {}) {
     ...toRefs(state),
     makeFilterRequest,
     loadPage,
-    resetFilter
+    resetFilter,
+    sortedSelectedIds
   }
 }

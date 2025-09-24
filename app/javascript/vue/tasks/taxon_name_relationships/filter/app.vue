@@ -7,9 +7,8 @@
       :pagination="pagination"
       :object-type="TAXON_NAME_RELATIONSHIP"
       :list="list"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :button-unify="false"
-      :radial-linker="true"
       :radial-navigator="false"
       v-model="parameters"
       v-model:append="append"
@@ -48,7 +47,6 @@ import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { listParser } from '../utils/listParser.js'
 import { TAXON_NAME_RELATIONSHIP } from '@/constants/index.js'
 import { TaxonNameRelationship } from '@/routes/endpoints'
-import { computed } from 'vue'
 import { ATTRIBUTES } from './constants/attributes'
 
 defineOptions({
@@ -56,15 +54,16 @@ defineOptions({
 })
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(TaxonNameRelationship, { listParser })
 </script>

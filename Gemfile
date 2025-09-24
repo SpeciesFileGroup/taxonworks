@@ -62,7 +62,7 @@ gem 'exception_notification', github: 'smartinez87/exception_notification', ref:
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
-gem 'closure_tree', '~> 7.0'
+gem 'closure_tree', '~> 9.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'
 
@@ -100,7 +100,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '8.3.0'
+gem 'shakapacker', '8.4.0'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'
@@ -132,7 +132,7 @@ gem 'ruby-graphviz', '~> 1.2.5', require: false
 gem 'wahwah', '~> 1.6.6'
 
 # "Bio" and SFG gems
-gem 'taxonifi', '~> 0.6.0'
+gem 'taxonifi', '~> 0.6.1'
 gem 'sqed', '~>0.8.3'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul', require: 'dwc_archive' # '~> 1.1', '>= 1.1.2'
@@ -219,6 +219,7 @@ group :test do
   gem 'webmock', '~> 3.8' # , '>= 3.6.2'
   gem 'vcr', '~> 6.0'
   gem 'database_cleaner', '~> 2.0'
+  gem 'database_cleaner-active_record', '2.2.1' # TODO: Remove when instability issues are solved
   gem 'rails-controller-testing', '~> 1.0.2'
   gem 'os', '~> 1.0', '>= 1.0.1'
 end

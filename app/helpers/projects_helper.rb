@@ -34,6 +34,11 @@ module ProjectsHelper
     projects.collect { |p| content_tag(:li, project_link(p)) }.join.html_safe
   end
 
+  def project_login_link(project)
+    return nil unless (!is_project_member_by_id?(sessions_current_user_id, sessions_current_project_id) && (sessions_current_project_id != project.id))
+    link_to('Login to ' + project.name, select_project_path(project), class: ['button-default'])
+  end
+
   # Came from application_controller
 
   def invalid_object(object)
@@ -146,6 +151,25 @@ module ProjectsHelper
 
   def sound_cumulative_gb_per_year
     cumulative_gb_per_year(Sound.group_by_year('sounds.created_at', format: '%Y').joins(sound_file_attachment: :blob).sum('active_storage_blobs.byte_size'))
+  end
+
+  # Cumulative Projects Created per Year
+  # From chatGPT 5.0 default
+  def cumulative_projects_created_per_year
+    years = Project.reorder(nil).pluck(:created_at).compact.map { |t| t.in_time_zone(Time.zone).year }
+    return [['Year', 'Projects']] if years.empty?
+
+    per_year  = years.tally # TIL!
+    min_year  = years.min
+    max_year  = Time.zone.today.year
+
+    cumulative = 0
+    rows = (min_year..max_year).map do |y|
+      cumulative += (per_year[y] || 0)
+      [y, cumulative]
+    end
+
+    [['Year', 'Projects']] + rows
   end
 
   def week_in_review_graphs(weeks)

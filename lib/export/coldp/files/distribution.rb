@@ -12,14 +12,15 @@ module Export::Coldp::Files::Distribution
   #   Arbitrarily using MAX to grab one source is janky, but if CoL doesn't have
   #   extended model perhaps it doesn't matter.
   def self.asserted_distributions(otus)
+    # TODO: Include Gaz ADs.
     AssertedDistribution.with(otu_scope: otus.unscope(:order).select(:id))
-      .joins('JOIN otu_scope on otu_scope.id = asserted_distributions.otu_id')
-      .joins(:geographic_area)
+      .joins("JOIN otu_scope on otu_scope.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
+      .joins("JOIN geographic_areas on asserted_distributions.asserted_distribution_shape_id = geographic_areas.id AND asserted_distributions.asserted_distribution_shape_type = 'GeographicArea'")
       .joins(:sources)
       .where(is_absent: [false, nil])
-      .select('geographic_areas.id, otu_id, name, iso_3166_a3, iso_3166_a2, "tdwgID", data_origin, asserted_distributions.updated_at, asserted_distributions.updated_by_id,
+      .select('asserted_distribution_shape_id, asserted_distribution_object_id, name, iso_3166_a3, iso_3166_a2, "tdwgID", data_origin, asserted_distributions.updated_at, asserted_distributions.updated_by_id,
               MAX(sources.cached) AS cached, MAX(sources.id) AS source_id')
-      .group('geographic_areas.id, otu_id, name, iso_3166_a3, iso_3166_a2, "tdwgID", data_origin, asserted_distributions.updated_at, asserted_distributions.updated_by_id' )
+      .group('asserted_distribution_shape_id, asserted_distribution_object_id, name, iso_3166_a3, iso_3166_a2, "tdwgID", data_origin, asserted_distributions.updated_at, asserted_distributions.updated_by_id' )
   end
 
   def self.content_distributions(otus, project_id: nil)
@@ -27,7 +28,7 @@ module Export::Coldp::Files::Distribution
     cvt_name  = 'Distribution text'
 
     topic_id = ControlledVocabularyTerm.find_by(
-      project_id:, 
+      project_id:,
       name: cvt_name)
 
     return [] if topic_id.blank?
@@ -100,7 +101,7 @@ module Export::Coldp::Files::Distribution
       end
 
       csv << [
-        ad.otu_id,
+        ad.asserted_distribution_object_id,
         area_id,
         area,
         gazetteer,
@@ -112,7 +113,7 @@ module Export::Coldp::Files::Distribution
       ]
     end
 
-    
+
     ads # return scope for reference handling
   end
 

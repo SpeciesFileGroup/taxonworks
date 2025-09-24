@@ -148,6 +148,11 @@ scope :tasks do
     scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
       get '/', as: 'new_field_occurrence_task', action: :index
     end
+
+    scope :dwc_media_extension_preview, controller: 'tasks/field_occurrences/dwc_media_extension_preview' do
+      get '/', action: :index, as: 'field_occurrences_dwc_media_extension_preview_task'
+      post '/', action: :index
+    end
   end
 
   scope :namespaces do
@@ -288,6 +293,11 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
+      get '/', action: :index, as: 'project_dwc_export_preferences_task'
+      # See other routes in data.rb.
+    end
+
     scope :week_in_review, controller: 'tasks/projects/week_in_review' do
       get '/', action: :index, as: 'week_in_review_task'
       get :data, as: 'week_in_review_data', defaults: {format: :json}
@@ -444,6 +454,11 @@ scope :tasks do
     scope :browse, controller: 'tasks/collection_objects/browse' do
       get '/', as: 'browse_collection_objects_task', action: :index
     end
+
+    scope :dwc_media_extension_preview, controller: 'tasks/collection_objects/dwc_media_extension_preview' do
+      get '/', action: :index, as: 'collection_objects_dwc_media_extension_preview_task'
+      post '/', action: :index
+    end
   end
 
   scope :accessions do
@@ -573,6 +588,10 @@ scope :tasks do
   end
 
   scope :gis do
+    scope :monograph_facilitator, controller: 'tasks/gis/monograph_facilitator' do
+      get '/', action: :index, as: 'monograph_facilitator_task'
+    end
+
     scope :simplemappr, controller: 'tasks/gis/simplemappr' do
       match '/', action: :index, via: [:get, :post]
     end
@@ -587,10 +606,6 @@ scope :tasks do
     get 'new_map_item', action: 'new', as: 'new_draw_map_item_task'
     post 'create_map_item', action: 'create', as: 'create_draw_map_item_task'
     get 'collect_item', as: 'collect_draw_item_task'
-  end
-
-  scope :gis, controller: 'tasks/gis/otu_distribution_data' do
-    get 'otu_distribution_data', action: 'show', as: 'otu_distribution_data_task'
   end
 
   scope :nomenclature do
@@ -663,6 +678,7 @@ scope :tasks do
 
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      post ':observation_matrix_id/key', action: :key, defaults: {format: :json}
       get '/', action: :index, as: 'interactive_key_task'
     end
 
@@ -737,7 +753,7 @@ scope :tasks do
 
   scope :taxon_names do
     scope :gender, controller: 'tasks/taxon_names/gender' do
-      get '/', action: :index, as: 'taxon_name_gender_task'
+      match '/', action: :index, via: [:get, :post], as: 'taxon_name_gender_task'
     end
 
     scope :stats, controller: 'tasks/taxon_names/stats' do

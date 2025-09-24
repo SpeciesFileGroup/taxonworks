@@ -48,6 +48,12 @@
 #   @return [Integer]
 #   the project ID
 #
+# ! This feels a little like structure/rendering not data, it may belong in a seperate table ultimately !!
+# @!attribute observation_matrix_id
+#   @return [Integer]
+#   id of the observation matrix from which lead item otus have been selected to
+#   build a key on, if any
+#   
 class Lead < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -63,10 +69,14 @@ class Lead < ApplicationRecord
   belongs_to :otu, inverse_of: :leads
   has_one :taxon_name, through: :otu
   belongs_to :redirect, class_name: 'Lead'
+  belongs_to :observation_matrix, inverse_of: :leads
 
   has_many :redirecters, class_name: 'Lead', foreign_key: :redirect_id, inverse_of: :redirect, dependent: :nullify
+  has_many :lead_items, inverse_of: :lead, dependent: :destroy
+  has_many :lead_item_otus, through: :lead_items, source: :otu
 
   before_save :set_is_public_only_on_root
+  before_save :set_observation_matrix_id_only_on_root
 
   validate :root_has_title
   validate :link_out_has_protocol
@@ -81,6 +91,7 @@ class Lead < ApplicationRecord
   end
 
   # @return [Boolean] true on success, false on error
+  # dupe does not dupe lead_items
   def dupe
     if parent_id
       errors.add(:base, 'Can only call dupe on a root lead')
@@ -190,6 +201,26 @@ class Lead < ApplicationRecord
     [c.id, d.id]
   end
 
+  def add_children(project_id, user_id)
+    if children.exists?
+      children.create! # now multi-furcating, if it wasn't already
+      return
+    end
+
+    # Create a new couplet.
+    children.create!
+    right_child = children.create!
+
+    if lead_items.exists?
+      Lead.transaction do
+        # On a new couplet all otus start on the right hand side (the left hand
+        # side typically being the shorter path through the key).
+        # No ancestor leads ever retain their lead_items.
+        LeadItem.move_items(self.lead_items, right_child)
+      end
+    end
+  end
+
   # Destroy the children of this Lead, re-appending the grandchildren to self
   # !! Do not destroy children if more than one child has its own children
   def destroy_children
@@ -203,14 +234,32 @@ class Lead < ApplicationRecord
         # Fail if more than one child has its own children
         return false if grandkids.present?
 
-        grandkids = c.children
+        grandkids = c.children.to_a
       end
     end
 
-    Lead.reparent_nodes(grandkids, self)
+    Lead.transaction do
+      if grandkids.present?
+        lead_item_ids = children.map { |c|
+          c.children.exists? ? [] : c.lead_items
+        }.flatten(1).map(&:id)
 
-    children.slice(0, original_child_count).each do |c|
-      c.destroy!
+        if lead_item_ids.present?
+          placeholder = Lead.create!(
+            text: 'PLACEHOLDER TO HOLD OTU OPTIONS FROM DELETED CHILDREN'
+          )
+          LeadItem.move_items(LeadItem.where(id: lead_item_ids), placeholder)
+          grandkids = grandkids.prepend(placeholder)
+        end
+      else
+        LeadItem.consolidate_descendant_items(self, self)
+      end
+
+      Lead.reparent_nodes(grandkids, self)
+
+      children.slice(0, original_child_count).each do |c|
+        c.destroy!
+      end
     end
 
     true
@@ -237,23 +286,10 @@ class Lead < ApplicationRecord
       a[:depth] = depth
       a[:lead] = c
       a[:leadLabel] = node.origin_label
+      # TODO: avoid the extra query (and hash value) when this isn't a
+      # lead_items key - currently no way to know except by checking every lead.
+      a[:leadItemsCount] = c.lead_items.count
       result.push(a)
-    end
-    result
-  end
-
-  # TODO: Probably a helper method
-  def all_children_standard_key(node = self, result = [], depth = 0) # couplets before depth
-    ch = node.children
-    for c in ch
-      a = {}
-      a[:depth] = depth
-      a[:lead] = c
-      result.push(a)
-    end
-
-    for c in ch
-      c.all_children_standard_key(c, result, depth + 1)
     end
     result
   end
@@ -338,6 +374,54 @@ class Lead < ApplicationRecord
           text: o.text.nil? ? '' : o.text.truncate(40)
         }
       end
+    end
+  end
+
+  def apportioned_lead_item_otus
+    combined_otus =
+      children.map { |c| c.lead_item_otus.includes(:taxon_name) }.flatten.uniq
+    # TODO: Currently there's no (cheap) way to know if this is empty because
+    # this isn't a lead_items key or because we're on a couplet that has no
+    # lead_items (because, for example, it was an inserted couplet). It would be
+    # useful to send an indication if we're in the latter case.
+    return { parent: [], children: [] } if combined_otus.empty?
+
+    {
+      parent: combined_otus,
+      children: children.map do |c|
+        fixed = c.children.exists?
+        {
+          fixed:,
+          otu_ids: fixed ? [] : c.lead_item_otus.map(&:id)
+        }
+      end
+    }
+  end
+
+  def batch_populate_lead_items(otu_query, project_id, user_id)
+    otus = ::Queries::Otu::Filter.new(otu_query).all
+    LeadItem.batch_add_otus_for_lead(id, otus.map(&:id), project_id, user_id)
+  end
+
+  # Raises TaxonWorks::Error on error.
+  def self.destroy_lead_and_descendants(lead, project_id, user_id)
+    parent = lead.parent
+
+    begin
+      if lead.children.exists?
+        items_lead = LeadItem.consolidate_descendant_items(lead)
+        lead.prepend_sibling(items_lead) if items_lead.present?
+      elsif lead.lead_items.exists? # lead_items with no children
+        raise TaxonWorks::Error,
+          'Delete not permitted; remove all checked otus first.'
+      end
+
+      lead.transaction_nuke
+    rescue ActiveRecord::RecordInvalid
+      raise TaxonWorks::Error,
+        "Subtree destroy failed! '#{lead.errors.full_messages.join('; ')}'"
+    rescue TaxonWorks::Error
+      raise
     end
   end
 
@@ -428,6 +512,12 @@ class Lead < ApplicationRecord
       self.is_public ||= false
     else
       self.is_public = nil
+    end
+  end
+
+  def set_observation_matrix_id_only_on_root
+    if parent_id.present?
+      self.observation_matrix_id = nil
     end
   end
 

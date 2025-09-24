@@ -28,6 +28,18 @@ RSpec.describe FieldOccurrence, type: :model do
       field_occurrence.collecting_event = FactoryBot.create(:valid_collecting_event)
     end
 
+     specify 'taxon_determinations count works after save through otu' do
+        field_occurrence.otu = FactoryBot.create(:valid_otu)
+        field_occurrence.save!
+
+        # If we load/iterate the taxon_determinations association during FO
+        # validation after assignment through otu, the association is empty
+        # because the TD the otu determines hasn't been created yet, and then
+        # taxon_determinations stays empty until we reload/reset the
+        # association. Check that we're handling that.
+        expect(field_occurrence.taxon_determinations.first.otu.id).to eq(field_occurrence.otu.id)
+      end
+
     specify 'absence of #otu, #origin_taxon_determination, #taxon_determinations invalidates' do
       expect(field_occurrence.valid?).to be_falsey
       expect(field_occurrence.errors.include?(:base)).to be_truthy
@@ -73,26 +85,148 @@ RSpec.describe FieldOccurrence, type: :model do
       expect(a.taxon_determinations.count).to eq(1)
     end
 
+    context 'record associations after validation work' do
+      specify 'taxon_determination associations work after save through otu' do
+        field_occurrence.otu = otu
+        field_occurrence.save!
+
+        # With our associations, saving .otu automatically creates
+        # taxon_determination and taxon_determinations.first.
+        expect(field_occurrence.taxon_determinations.first.otu.id).to be_truthy
+        expect(field_occurrence.taxon_determination.otu.id).to be_truthy
+        expect(field_occurrence.otu.id).to be_truthy
+      end
+
+      specify 'taxon_determination associations work after save through taxon_determination' do
+        field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
+        field_occurrence.save!
+
+        # With our associations, saving .taxon_determination automatically
+        # creates taxon_determinations.first, but *not* otu.
+        expect(field_occurrence.taxon_determinations.first.otu.id).to be_truthy
+        expect(field_occurrence.taxon_determination.otu.id).to be_truthy
+      end
+
+      specify 'taxon_determination associations work after save through taxon_determinations_attributes' do
+        field_occurrence.taxon_determinations_attributes = [{otu:}]
+        field_occurrence.save!
+
+        expect(field_occurrence.taxon_determinations.first.otu.id).to be_truthy
+      end
+    end
+
     context 'attempting to delete last taxon_determination' do
-      specify 'permitted when deleting self' do
+      specify 'permitted when deleting self 1' do
         field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
         field_occurrence.save!
         expect(field_occurrence.destroy).to be_truthy
         expect(FieldOccurrence.count).to be(0)
       end
 
-      specify 'when taxon_determination is origin_ciation' do
+      specify 'permitted when deleting self 2' do
+        field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+        field_occurrence.save!
+        expect(field_occurrence.destroy).to be_truthy
+        expect(FieldOccurrence.count).to be(0)
+      end
+
+      specify 'when taxon_determination is through otu; destroy' do
         field_occurrence.otu = otu
         field_occurrence.save!
         expect(field_occurrence.taxon_determinations.count).to eq(1)
-        expect(field_occurrence.taxon_determinations.reload.first.destroy).to be_falsey
+        td = field_occurrence.taxon_determinations.reload.first
+        td.destroy
+        expect(td.errors[:base].first).to match('taxon determination is required')
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
       end
 
-      specify 'when taxon_determination is not origin taxon_determination' do
+      specify 'when taxon_determination is through otu; destroy!' do
+        field_occurrence.otu = otu
+        field_occurrence.save!
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
+        td = field_occurrence.taxon_determinations.reload.first
+        expect{ td.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+        expect(td.errors[:base].first).to match('taxon determination is required')
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
+      end
+
+      specify 'when taxon_determination is via <<; destroy' do
         field_occurrence.taxon_determinations <<  TaxonDetermination.new(otu:)
         expect(field_occurrence.save).to be_truthy
         expect(field_occurrence.taxon_determinations.count).to eq(1)
-        expect(field_occurrence.taxon_determinations.reload.first.destroy).to be_falsey
+        td = field_occurrence.taxon_determinations.reload.first
+        td.destroy
+        expect(td.errors[:base].first).to match('taxon determination is required')
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
+      end
+
+      specify 'when taxon_determination is via <<; destroy!' do
+        field_occurrence.taxon_determinations <<  TaxonDetermination.new(otu:)
+        expect(field_occurrence.save).to be_truthy
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
+        td = field_occurrence.taxon_determinations.reload.first
+        expect{ td.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+        expect(td.errors[:base].first).to match('taxon determination is required')
+        expect(field_occurrence.taxon_determinations.count).to eq(1)
+      end
+
+      context 'with _delete / marked_for_destruction' do
+        context 'with !' do
+          specify 'via a nested attribute delete' do
+            field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+            field_occurrence.save!
+            expect(field_occurrence.taxon_determinations.count).to eq(1)
+            expect{field_occurrence.update!(taxon_determinations_attributes: {
+              _destroy: true, id: field_occurrence.taxon_determinations.first.id
+            })}.to raise_error(ActiveRecord::RecordInvalid, /taxon determination/)
+            expect(field_occurrence.taxon_determinations.count).to eq(1)
+          end
+
+          specify 'trying to save field_occurrence with marked_for_destruction taxon_determinations' do
+            field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+            field_occurrence.taxon_determinations.first.mark_for_destruction
+
+            expect{field_occurrence.save!}
+              .to raise_error(ActiveRecord::RecordInvalid, /taxon determination/)
+          end
+
+          specify 'trying to save field_occurrence with marked_for_destruction taxon_determination' do
+            field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
+            field_occurrence.taxon_determination.mark_for_destruction
+
+            expect{field_occurrence.save!}
+              .to raise_error(ActiveRecord::RecordInvalid, /taxon determination/)
+          end
+        end
+
+        context 'without !' do
+          specify 'via a nested attribute delete' do
+            field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+            field_occurrence.save!
+            expect(field_occurrence.taxon_determinations.count).to eq(1)
+            field_occurrence.update(taxon_determinations_attributes: {
+              _destroy: true, id: field_occurrence.taxon_determinations.first.id
+            })
+            expect(field_occurrence.errors[:base].first).to match('taxon determination is not provided')
+            expect(field_occurrence.taxon_determinations.count).to eq(1)
+          end
+
+          specify 'trying to save field_occurrence with marked_for_destruction taxon_determinations' do
+            field_occurrence.taxon_determinations << TaxonDetermination.new(otu:)
+            field_occurrence.taxon_determinations.first.mark_for_destruction
+
+            field_occurrence.save
+            expect(field_occurrence.errors[:base].first).to match('taxon determination is not provided')
+          end
+
+          specify 'trying to save field_occurrence with marked_for_destruction taxon_determination' do
+            field_occurrence.taxon_determination = TaxonDetermination.new(otu:)
+            field_occurrence.taxon_determination.mark_for_destruction
+
+            field_occurrence.save
+            expect(field_occurrence.errors[:base].first).to match('taxon determination is not provided')
+          end
+        end
       end
     end
   end

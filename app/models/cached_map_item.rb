@@ -25,10 +25,6 @@
 #     if True then the the shape could not be mapped, by any translation method, to a shape allowable
 #     for this CachedMapItemType
 #
-# @!attribute is_absent
-#   @return [Boolean, nil]
-#     if True then the corresponding AssertedDistributions have is_absent true
-#
 # @!attribute level0_geographic_name
 #   @return [String, nil]
 #      the level 0 name
@@ -130,21 +126,6 @@ class CachedMapItem < ApplicationRecord
     end
   end
 
-  def self.translate_by_alternate_shape(geographic_item_id, data_origin)
-    # GeographicItem is an alternate shape to a GeographicArea that *also* has a target gazeteer type
-    if a = GeographicItem.find(geographic_item_id)
-      .geographic_areas
-      .joins(:geographic_items)
-      .where(geographic_areas: { data_origin: })
-      .order(cached_total_area: :ASC) # smallest first
-      .first
-      &.id
-      return [a]
-    else
-      []
-    end
-  end
-
   # Given a  set of target shapes, return those that intersect with the provided shape
   #
   # @param geographic_item_id [id]
@@ -186,10 +167,25 @@ class CachedMapItem < ApplicationRecord
     # Refine the pass by smoothing using buffer/st_within
     return GeographicItem
       .where(id: a)
-      .where(
-        GeographicItem.st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
-      )
-      .pluck(:id)
+      .where(Arel::Nodes::Case.new
+        .when(
+          GeographicItem.st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
+        )
+        .then(Arel.sql('TRUE'))
+        # The intention here is to keep ne_states shapes that failed the buffer
+        # check because the buffer reduced them to nothing, IF they're subsets
+        # of geographic_item_id. This should prevent unexpected holes.
+        .when(
+          GeographicItem.subset_of_sql(
+            GeographicItem.st_buffer_sql(
+              GeographicItem.select_geometry_sql(geographic_item_id),
+              100
+            )
+          )
+        )
+        .then(Arel.sql('True'))
+        .else(Arel.sql('False'))
+      ).pluck(:id)
   end
 
   # @return [Array]
@@ -231,9 +227,6 @@ class CachedMapItem < ApplicationRecord
     # All these methods depend on "prior knowledge" (not spatial calculations)
     if geographic_area_based
       a = translate_by_data_origin(geographic_item_id, data_origin)
-      return a if a.present?
-
-      a = translate_by_alternate_shape(geographic_item_id, data_origin)
       return a if a.present?
 
       a = translate_by_cached_map_usage(geographic_item_id, cached_map_type)
@@ -288,12 +281,26 @@ class CachedMapItem < ApplicationRecord
 
     case base_class_name
     when 'AssertedDistribution'
+      if o.is_absent == true
+        return h
+      end
+      if o.asserted_distribution_object_type == 'Otu'
+        otu_id = [o.asserted_distribution_object_id]
+      else
+        # TODO handle other types
+        return h
+      end
       geographic_item_id = o.asserted_distribution_shape.default_geographic_item_id
-      otu_id = [o.otu_id]
     when 'Georeference'
       geographic_item_id = o.geographic_item_id
       otu_id = o.otus.left_joins(:taxon_determinations).where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
     end
+
+    otu = nil
+    return h if otu_id.nil? || (otu = Otu.find_by(id: otu_id)).nil?
+    # otus without taxon name have no hierarchy, so don't contribute to cached
+    # maps.
+    return h if !otu.taxon_name_id
 
     # Some AssertedDistribution don't have shapes
     if geographic_item_id

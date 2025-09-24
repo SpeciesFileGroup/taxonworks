@@ -64,6 +64,30 @@ function sortArray(arr, sortProperty, ascending = true, opts = {}) {
   })
 }
 
+export function sortArrayByReference({
+  list,
+  reference,
+  getListValue = (item) => item,
+  getReferenceValue = (item) => item,
+  excludeUnmatched = false
+}) {
+  const positionMap = new Map(
+    reference.map((item, index) => [getReferenceValue(item), index])
+  )
+
+  let filteredList = excludeUnmatched
+    ? list.filter((item) => positionMap.has(getListValue(item)))
+    : list
+
+  return filteredList.toSorted((a, b) => {
+    const aKey = getListValue(a)
+    const bKey = getListValue(b)
+    return (
+      (positionMap.get(aKey) ?? Infinity) - (positionMap.get(bKey) ?? Infinity)
+    )
+  })
+}
+
 function sortArrayByArray(arr, sortingArr, asc) {
   const list = arr.slice()
 
@@ -103,11 +127,25 @@ function removeFromArray(arr, obj, opts = {}) {
   }
 }
 
+function intersectArrays(...arrays) {
+  // chatgpt 5.0
+  if (arrays.length === 0) return []
+  return [...new Set(arrays.reduce((acc, arr) => acc.filter(x => new Set(arr).has(x))))]
+}
+
+// a - b, removes elements of b from a globally
+function subtractArrays(a, b) {
+  const bSet = new Set(b)
+  return a.filter((e) => !bSet.has(e))
+}
+
 export {
   chunkArray,
   getUnique,
   sortArray,
   sortArrayByArray,
   addToArray,
-  removeFromArray
+  removeFromArray,
+  intersectArrays,
+  subtractArrays
 }

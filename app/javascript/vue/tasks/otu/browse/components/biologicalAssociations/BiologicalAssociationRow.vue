@@ -1,6 +1,11 @@
 <template>
   <tr>
     <td>
+      <div class="flex-row gap-small">
+        <RadialAnnotator :global-id="row.globalId" />
+      </div>
+    </td>
+    <td class="table-cell-border-left-thick">
       <BiologicalAssociationRelated
         :item-id="row.subjectId"
         :item-type="row.subjectType"
@@ -10,7 +15,12 @@
     <td v-html="row.subjectOrder" />
     <td v-html="row.subjectFamily" />
     <td v-html="row.subjectGenus" />
-    <td v-html="row.subjectTag" />
+    <td>
+      <a
+        :href="makeBrowseUrl({ id: row.subjectId, type: row.subjectType })"
+        v-html="row.subjectTag"
+      />
+    </td>
     <td>
       <a
         :href="`/biological_associations/${row.id}`"
@@ -19,8 +29,11 @@
       />
     </td>
 
-    <td v-html="row.biologicalRelationship"></td>
-    <td>
+    <td
+      class="table-cell-border-left-thick"
+      v-html="row.biologicalRelationship"
+    />
+    <td class="table-cell-border-left-thick">
       <a
         :href="`/biological_associations/${row.id}`"
         :title="`Edit`"
@@ -38,7 +51,12 @@
     <td v-html="row.objectOrder" />
     <td v-html="row.objectFamily" />
     <td v-html="row.objectGenus" />
-    <td v-html="row.objectTag" />
+    <td>
+      <a
+        :href="makeBrowseUrl({ id: row.objectId, type: row.objectType })"
+        v-html="row.objectTag"
+      />
+    </td>
     <td>
       <template
         v-for="(citation, index) in row.citations"
@@ -56,8 +74,9 @@
 </template>
 
 <script setup>
-import { useStore } from 'vuex'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import BiologicalAssociationRelated from './BiologicalAssociationRelated.vue'
+import { makeBrowseUrl } from '@/helpers'
 
 defineProps({
   row: {
@@ -65,6 +84,4 @@ defineProps({
     required: true
   }
 })
-
-const store = useStore()
 </script>

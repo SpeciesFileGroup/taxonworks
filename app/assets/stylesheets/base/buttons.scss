@@ -6,7 +6,7 @@
   color: #444;
   border: none;
   background-color: var(--button-default-bg-color);
-  border-radius: 8px;
+  border-radius: var(--border-radius-small);
   &:disabled {
     color: var(--button-disabled-text-color);
     background-color: var(--button-disabled-bg-color) !important;
@@ -257,6 +257,14 @@
 .btn-create-sister {
   background-size: 14px, 16px;
   background-image: image-url('create_sister_icon.svg');
+}
+
+.btn-radio-like-add {
+  background-image: image-url('radio_like_add.svg');
+}
+
+.btn-checkbox-like-add {
+  background-image: image-url('checkbox_like_add.svg');
 }
 
 .circle-button-big {

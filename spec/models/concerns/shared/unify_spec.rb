@@ -66,7 +66,8 @@ describe 'Shared::Unify', type: :model do
     expect(o1.related_biological_associations.reload.count).to eq(1)
   end
 
-  specify 'unifies Otus in BiologicalAssociations - merge associations' do
+  specify 'unifies Otus in BiologicalAssociations - merge object associations' do
+    [o1,o2] # so that numbers match ids
     o3 = FactoryBot.create(:valid_otu)
 
     ba1 = FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: o1)
@@ -80,9 +81,92 @@ describe 'Shared::Unify', type: :model do
     o1.unify(o3)
 
     expect(o3.destroyed?).to be_truthy
-    expect(BiologicalAssociation.all.count).to eq(1)
+    expect(BiologicalAssociation.find_by(id: ba2.id)).to be_falsey
     expect(o1.related_biological_associations.reload.count).to eq(1)
     expect(o1.biological_associations.reload.count).to eq(0)
+    expect(ba1.reload.citations.count).to eq(2)
+  end
+
+  specify 'unifies Otus in BiologicalAssociations - merge subject associations' do
+    [o1,o2] # so that numbers match ids
+    o3 = FactoryBot.create(:valid_otu)
+
+    ba1 = FactoryBot.create(:valid_biological_association, biological_association_subject: o1, biological_association_object: o2)
+    ba2 = FactoryBot.create(:valid_biological_association, biological_association_subject: o3,
+                            biological_association_object: o2, biological_relationship: ba1.biological_relationship)
+
+    s = FactoryBot.create(:valid_source)
+    c1  = FactoryBot.create(:valid_citation, citation_object: ba1)
+    c2  = FactoryBot.create(:valid_citation, citation_object: ba2)
+
+    u = o1.unify(o3)
+
+    expect(o3.destroyed?).to be_truthy
+    expect(BiologicalAssociation.find_by(id: ba2.id)).to be_falsey
+    expect(o1.biological_associations.reload.count).to eq(1)
+    expect(o1.related_biological_associations.reload.count).to eq(0)
+    expect(ba1.reload.citations.count).to eq(2)
+  end
+
+  specify 'unifies Otus in Matrices with overlapping observations' do
+    om = ObservationMatrix.create!(name: 'Lune')
+    ri1 = ObservationMatrixRowItem::Single.create!(observation_object: o1, observation_matrix: om)
+    ri2 = ObservationMatrixRowItem::Single.create!(observation_object: o2, observation_matrix: om)
+    r1 = om.reload.observation_matrix_rows.first
+    r2 = om.observation_matrix_rows.second
+
+    # See comments below if re-implemented
+    # cit2 = Citation.create!(citation_object: r2, source:)
+    # tag = Tag.create!(tag_object: r2, keyword: FactoryBot.create(:valid_keyword))
+
+    d = FactoryBot.create(:valid_descriptor)
+
+    d1 = Descriptor::Qualitative.create!(name: 'foo')
+    cs = CharacterState.create!(label: 0, name: 'foo', descriptor: d1)
+    c1 = FactoryBot.create(:valid_observation_matrix_column, observation_matrix: om, descriptor: d1 )
+    # Give both rows the same character state.
+    Observation.code_column(c1.id, { character_state: cs })
+    obs1 = o1.observations.first
+    obs2 = o2.observations.first
+
+    o1.unify(o2)
+    expect(ObservationMatrixRowItem.find_by(id: ri2.id)).to be_falsey
+    expect(ObservationMatrixRow.find_by(id: r2.id)).to be_falsey
+    expect(Observation.find_by(id: obs2.id)).to be_falsey
+    expect(Otu.find_by(id: o2.id)).to be_falsey
+
+    expect(o1.reload.observation_matrix_row_items.map(&:id)).to eq([ri1.id])
+    expect(o1.observation_matrix_rows.map(&:id)).to eq([r1.id])
+    expect(o1.observations.map(&:id)).to eq([obs1.id])
+
+    expect(om.reload.observation_matrix_row_items.map(&:id)).to eq([ri1.id])
+    expect(o1.observation_matrix_rows.map(&:id)).to eq([r1.id])
+
+    # See comments on ObservationMatrixRowItem if re-implementing these
+    #
+    # expect(r1.reload.tags.map(&:id)).to eq([tag.id])
+    # # !! Fails, cit2 still points to r2.
+    # expect(r1.reload.citations.map(&:id)).to eq([cit2.id])
+  end
+
+  specify 'ObservationMatrixRows with refcount > 1 aren\'t destroyed' do
+    om = ObservationMatrix.create!(name: 'Lune')
+    ri1 = ObservationMatrixRowItem::Single.create!(observation_object: o1, observation_matrix: om)
+    s1 = FactoryBot.create(:relationship_species, parent: FactoryBot.create(:root_taxon_name))
+    o1.update!(taxon_name: s1)
+    ri1d = ObservationMatrixRowItem::Dynamic::TaxonName.create!(observation_object: s1, observation_matrix: om)
+    # ri1 and ri1d both refer to r1.
+    r1 = om.reload.observation_matrix_rows.first
+
+    ri2 = ObservationMatrixRowItem::Single.create!(observation_object: o2, observation_matrix: om)
+    s2 = FactoryBot.create(:relationship_species, name: 'macandcheesei', parent: s1.parent)
+    o2.update!(taxon_name: s2)
+    ri2d = ObservationMatrixRowItem::Dynamic::TaxonName.create!(observation_object: s2, observation_matrix: om)
+    # ri2 and ri2d both refer to r2.
+    r2 = om.reload.observation_matrix_rows.second
+
+    r = o1.unify(o2, only: [:observation_matrix_rows])
+    expect(ObservationMatrixRow.find_by(id: r2.id)).to be_truthy
   end
 
   specify 'unifies Repositories' do
@@ -487,9 +571,9 @@ describe 'Shared::Unify', type: :model do
 
   specify 'unify preserves once-removed citations differing only by page / AssertedDstribution test ' do
     # Create a GA and a non-target record
-    ad0 = FactoryBot.create(:valid_asserted_distribution, otu: o1, source:)
+    ad0 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1, source:)
     ad1 = AssertedDistribution.create!(
-      otu: o2,
+      asserted_distribution_object: o2,
       source:,
       asserted_distribution_shape: ad0.asserted_distribution_shape
     )
@@ -545,10 +629,10 @@ describe 'Shared::Unify', type: :model do
   end
 
   specify '#identical' do
-    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape)
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape)
 
-    ad2.otu = o1
+    ad2.asserted_distribution_object = o1
 
     expect(ad2.identical.first).to eq(ad1)
   end
@@ -572,8 +656,8 @@ describe 'Shared::Unify', type: :model do
   #               and we delete A
   #
   specify 'unify one degree of seperation' do
-    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
 
     n = FactoryBot.create(:valid_note, note_object: ad1)
 
@@ -585,8 +669,8 @@ describe 'Shared::Unify', type: :model do
   end
 
   specify 'unify one degree of seperation - records deduplication result in preview' do
-    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
 
     n = FactoryBot.create(:valid_note, note_object: ad1)
 
@@ -596,8 +680,8 @@ describe 'Shared::Unify', type: :model do
   end
 
   specify 'unify one degree of seperation - records deduplication result' do
-    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape) # differ only by OTU
 
     n = FactoryBot.create(:valid_note, note_object: ad1)
 
@@ -618,8 +702,8 @@ describe 'Shared::Unify', type: :model do
   specify 'would-be duplicate citations do not halt unify' do
     s = FactoryBot.create(:valid_source)
 
-    ad1 = FactoryBot.create(:valid_asserted_distribution, otu: o1, source: s)
-    ad2 = FactoryBot.create(:valid_asserted_distribution, otu: o2, asserted_distribution_shape: ad1.asserted_distribution_shape, source: s)
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1, source: s)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape, source: s)
 
     expect(Citation.all.size).to eq(2)
 

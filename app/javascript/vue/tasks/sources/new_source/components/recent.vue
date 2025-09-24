@@ -39,8 +39,6 @@ import { Source } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
-const emit = defineEmits(['close'])
-
 const store = useStore()
 const sources = ref([])
 const isSearching = ref(false)
@@ -59,7 +57,7 @@ function getSources() {
 
 function setSource(source) {
   store.dispatch(ActionNames.LoadSource, source.id)
-  emit('close', true)
+  isModalVisible.value = false
 }
 
 watch(isModalVisible, (isVisible) => {

@@ -114,10 +114,13 @@ class Identifier < ApplicationRecord
     @namespaces = q.all
       .joins(identifiers: :namespace)
       .where(identifiers: {type: identifier_types})
-      .select('namespaces.short_name')
+      .select('namespaces.short_name, namespaces.verbatim_short_name')
       .order('namespaces.short_name')
       .distinct
-      .pluck('namespaces.short_name')
+      .pluck('namespaces.id', 'namespaces.short_name', 'namespaces.verbatim_short_name', 'is_virtual')
+      .map { |id, short_name, verbatim_short_name, is_virtual| {
+        id:, short_name:, verbatim_short_name:, is_virtual:
+      }}
   end
 
   def self.process_batch_by_filter_scope(
@@ -138,6 +141,12 @@ class Identifier < ApplicationRecord
     elsif params[:identifier_types].empty?
       r.errors['no identifier types provided'] = 1
       return r
+    elsif params[:virtual_namespace_prefix] && Namespace.find(params[:namespace_id]).is_virtual
+      r.errors["Can't currently delete virtual prefix and change to virtual namespace"] = 1
+      return r
+    elsif params[:namespaces_to_replace].empty?
+      r.errors['no namespaces to replace'] = 1
+      return r
     end
 
     case mode.to_sym
@@ -157,19 +166,43 @@ class Identifier < ApplicationRecord
           user_id:
         )
       else
+        prefix = params[:virtual_namespace_prefix]
         Identifier
           .with(a: query.select(:id))
           .joins('JOIN a ON identifiers.identifier_object_id = a.id AND ' \
                  "identifiers.identifier_object_type = '#{query.klass}'")
           .where(type: params[:identifier_types])
+          .joins(:namespace)
+          .where(namespaces: { id: params[:namespaces_to_replace] })
+          .select('identifiers.*, namespaces.is_virtual AS is_virtual')
           #.where.not(namespace_id: params.namespace_id)
           .distinct
           .find_each do |o|
-            o.update(namespace_id: params[:namespace_id])
-            if o.valid?
-              r.updated.push o.id
-            else
-              r.not_updated.push o.id
+            if params[:virtual_namespace_prefix]
+              if (
+                o.is_virtual &&
+                o.identifier.start_with?(prefix) &&
+                o.identifier.length > prefix.length
+              )
+                o.identifier = o.identifier.delete_prefix(prefix)
+                o.namespace_id = params[:namespace_id]
+
+                if o.save
+                  r.updated.push o.id
+                else
+                  r.not_updated.push o.id
+                end
+              else # this identifier is excluded by virtual_namespace_prefix
+                r.not_updated.push o.id
+              end
+            else # no virtual worries, just namespace_id replacement
+              o.namespace_id = params[:namespace_id]
+
+              if o.save
+                r.updated.push o.id
+              else
+                r.not_updated.push o.id
+              end
             end
           end
       end

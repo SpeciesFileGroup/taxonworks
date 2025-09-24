@@ -22,11 +22,9 @@
 <script setup>
 import { watch } from 'vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import PolymorphicShapes from '@/components/ui/SmartSelector/PolymorphicObjectPicker/PolymorphismClasses/PolymorphicShapes'
 
-const SHAPE_TYPES = [
-  'GeographicArea',
-  'Gazetteer'
-]
+const SHAPE_TYPES = PolymorphicShapes.map((o) => o['singular'])
 
 const params = defineModel({type: Object, required: true})
 

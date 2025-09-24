@@ -1,9 +1,11 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_lead, only: %i[
-    edit add_children update destroy show show_all show_all_print
+    edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
-    duplicate otus destroy_subtree reorder_children insert_key]
+    duplicate otus destroy_subtree reorder_children insert_key
+    set_observation_matrix
+  ]
 
   # GET /leads
   # GET /leads.json
@@ -46,17 +48,8 @@ class LeadsController < ApplicationController
       expand_lead
     else
       @children = nil
-      @futures = nil
-      @ancestors = @lead.ancestors.reverse
+      @lead_item_otus = @lead.apportioned_lead_item_otus
     end
-  end
-
-  def show_all
-    @key = @lead.all_children
-  end
-
-  def show_all_print
-    @key = @lead.all_children_standard_key
   end
 
   # GET /leads/new
@@ -95,9 +88,8 @@ class LeadsController < ApplicationController
       return
     end
 
-    num_to_add.times do
-      @lead.children.create!
-    end
+    # currently infers num_to_add
+    @lead.add_children(sessions_current_project_id, sessions_current_user_id)
     expand_lead
     render action: :show, status: :created, location: @lead
   end
@@ -112,8 +104,9 @@ class LeadsController < ApplicationController
   def update
     begin
       @lead.update!(lead_params)
-      # Note that future changes when redirect is updated.
-      @future = @lead.future
+      @lead_item_otus = @lead.parent_id ?
+        @lead.parent.apportioned_lead_item_otus :
+        { parent: [], children: [] }
     rescue ActiveRecord::RecordInvalid
       render json: @lead.errors, status: :unprocessable_entity
     end
@@ -134,7 +127,7 @@ class LeadsController < ApplicationController
     begin
       @lead.transaction_nuke
       respond_to do |format|
-        flash[:notice] = 'Key was succesfully destroyed.'
+        flash[:notice] = 'Key was successfully destroyed.'
         format.html { destroy_redirect @lead }
         format.json { head :no_content }
       end
@@ -151,34 +144,35 @@ class LeadsController < ApplicationController
   # can be called on any lead, not just root.
   # POST /leads/1/destroy_subtree.json
   def destroy_subtree
+    parent = @lead.parent
     begin
-      @lead.transaction_nuke
-    rescue ActiveRecord::RecordInvalid
-      render json: @lead.errors, status: :unprocessable_entity
+      Lead.destroy_lead_and_descendants(
+        @lead, sessions_current_project_id, sessions_current_user_id
+      )
+    rescue TaxonWorks::Error => e
+      parent.errors.add(:error, e)
+      render json: parent.errors, status: :unprocessable_entity
+      return
     end
 
-    head :no_content
+    @lead = parent.reload
+    expand_lead
+    render :show, status: :ok, location: @lead
   end
 
   # For destroying all children at a particular level of the key where none of
   # the children have their own children.
   def destroy_children
-    respond_to do |format|
-      if @lead.parent_id.present?
-        if @lead.destroy_children
-          format.json { head :no_content }
-        else
-          @lead.errors.add(:delete, 'failed!')
-          format.json {
-            render json: @lead.errors, status: :unprocessable_entity
-          }
-        end
+    if @lead.parent_id.present?
+      if @lead.destroy_children
+        head :no_content
       else
-        @lead.errors.add(:destroy, "failed - can't delete the only couplet.")
-        format.json {
-          render json: @lead.errors, status: :unprocessable_entity
-        }
+        @lead.errors.add(:delete, 'failed!')
+        render json: @lead.errors, status: :unprocessable_entity
       end
+    else
+      @lead.errors.add(:destroy, "failed - can't delete the only couplet.")
+      render json: @lead.errors, status: :unprocessable_entity
     end
   end
 
@@ -238,7 +232,7 @@ class LeadsController < ApplicationController
     end
 
     @leads = @lead.reload.children
-    @futures = @leads.map(&:future)
+    @lead_item_otus = @lead.apportioned_lead_item_otus
   end
 
   # GET /leads/1/otus.json
@@ -276,6 +270,28 @@ class LeadsController < ApplicationController
     render '/leads/api/v1/key'
   end
 
+  # Creates a new key populated with otus from params[:otu_query].
+  def batch_create_lead_items
+    @lead = Lead.create!(params.require(:lead).permit(:text))
+    @lead.batch_populate_lead_items(params[:otu_query],
+      sessions_current_project_id, sessions_current_user_id
+    )
+
+    @lead.add_children(sessions_current_project_id, sessions_current_user_id)
+
+    render json: @lead
+  end
+
+  def set_observation_matrix
+    if params[:observation_matrix_id].nil?
+      @lead.errors.add(:observation_matrix_id, 'is required.')
+      render json: @lead.errors, status: :unprocessable_entity
+    end
+
+    @lead.update!(observation_matrix_id: params[:observation_matrix_id])
+    head :no_content
+  end
+
   private
 
   def set_lead
@@ -296,8 +312,7 @@ class LeadsController < ApplicationController
 
   def expand_lead
     @children = @lead.children
-    @futures = @lead.children.map(&:future)
-    @ancestors = @lead.ancestors.reverse
+    @lead_item_otus = @lead.apportioned_lead_item_otus
   end
 
   def new_couplet

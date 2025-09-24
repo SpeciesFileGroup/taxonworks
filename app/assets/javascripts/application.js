@@ -18,7 +18,7 @@
 //
 //= require chartkick
 //= require jquery
-//= require jquery.turbolinks 
+//= require jquery.turbolinks
 //= require jquery_ujs
 //= require jquery-ui
 //= require autocomplete-rails
@@ -28,7 +28,7 @@
 //= require_tree ./vendor/lib
 //= require_tree ./vendor/lib/jquery
 //= require_tree ./views
+//= require_tree ./constants
 //= require_tree ./utilities
 //= require_tree ./workbench
 //= require turbolinks
-

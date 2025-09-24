@@ -60,7 +60,7 @@ class FieldOccurrence < ApplicationRecord
 
   validates_presence_of :collecting_event
 
-  validate :new_records_include_taxon_determination
+  validate :records_include_taxon_determination
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
   validate :total_zero_when_absent
@@ -90,10 +90,60 @@ class FieldOccurrence < ApplicationRecord
     errors.add(:base, 'Either total or a ranged lot category must be provided') if ranged_lot_category_id.blank? && total.blank?
   end
 
-  # @return [Boolean]
-  def new_records_include_taxon_determination
-    if new_record? && taxon_determination.blank? && !taxon_determinations.any?
+  def records_include_taxon_determination
+    # !! Be careful making changes here: remember that conditions on one
+    # association may/not affect other associations when the actual save
+    # happens.
+    # Maintain with AssertedDistribution#new_records_include_citation
+
+    # Watch out, taxon_determination and taxon_determination *do not*
+    # necessarily share the same marked_for_destruction? info, even when
+    # taxon_determination is a member of taxon_determinations.
+
+    taxon_determination_is_marked_for_destruction_on_taxon_determinations =
+      taxon_determination.present? && taxon_determinations.present? &&
+      taxon_determinations.count == 1 && !taxon_determinations.first.id.nil? &&
+      taxon_determination.id == taxon_determinations.first.id &&
+      taxon_determinations.first.marked_for_destruction?
+
+    the_one_taxon_determinations_is_marked_for_destruction_on_taxon_determination =
+      taxon_determination.present? && taxon_determinations.present? &&
+      taxon_determinations.count == 1 && !taxon_determinations.first.id.nil? &&
+      taxon_determination.id == taxon_determinations.first.id &&
+      taxon_determination.marked_for_destruction?
+
+    has_valid_otu =
+      otu.present? &&
+      !otu.marked_for_destruction? && (
+        !taxon_determination.present? ||
+        (!taxon_determination.marked_for_destruction? &&
+        !taxon_determination_is_marked_for_destruction_on_taxon_determinations)
+      )
+
+    has_valid_taxon_determination =
+      taxon_determination.present? &&
+      !taxon_determination.marked_for_destruction? &&
+      !taxon_determination_is_marked_for_destruction_on_taxon_determinations
+
+    has_valid_taxon_determinations =
+     taxon_determinations.count(&:marked_for_destruction?) < taxon_determinations.size &&
+     !the_one_taxon_determinations_is_marked_for_destruction_on_taxon_determination
+
+    if !has_valid_otu && !has_valid_taxon_determination && !has_valid_taxon_determinations
       errors.add(:base, 'required taxon determination is not provided')
+      return
+    end
+
+    # We loaded the taxon_determinations association above. If it was empty,
+    # Rails caches that value and *will not* add a determination created during
+    # save from otu or taxon_determination unless we reset the citations
+    # association.
+    if (otu.present? || taxon_determination.present?) && taxon_determinations.size == 0
+      association(:taxon_determinations).reset
+    end
+
+    if otu.present? && taxon_determination.nil?
+      association(:taxon_determination).reset
     end
   end
 
@@ -110,39 +160,72 @@ class FieldOccurrence < ApplicationRecord
     reject
   end
 
-  # @param used_on [String] required, currently only `TaxonDetermination` is
-  #   accepted
+  # @param used_on [String]
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
-  def self.used_recently(user_id, project_id, used_on = '')
-    return [] if used_on != 'TaxonDetermination'
-    a = case used_on
-      when 'TaxonDetermination'
-        TaxonDetermination
-          .select(:taxon_determination_object_id,
-            :taxon_determination_object_type, :updated_at)
-          .where('updated_at > ?', 1.week.ago )
-          .where(updated_by_id: user_id)
-          .where(project_id:)
-          .order(updated_at: :desc)
-      end
+  def self.used_recently(user_id, project_id, used_on = '', ba_target = 'object')
+    return [] if used_on != 'TaxonDetermination' && used_on != 'BiologicalAssociation'
+    t = case used_on
+        when 'TaxonDetermination'
+          TaxonDetermination.arel_table
+        when 'BiologicalAssociation'
+          BiologicalAssociation.arel_table
+        end
+    if ba_target == 'subject'
+      target_type = 'biological_association_subject_type'
+      target_id = 'biological_association_subject_id'
+    else
+      target_type = 'biological_association_object_type'
+      target_id = 'biological_association_object_id'
+    end
 
-      FieldOccurrence
-        .with(recent_t: a)
-        .joins("JOIN recent_t ON recent_t.taxon_determination_object_id = field_occurrences.id AND recent_t.taxon_determination_object_type = 'FieldOccurrence'")
-        .pluck(:id).uniq
+    p = FieldOccurrence.arel_table
+
+    # i is a select manager
+    i = case used_on
+        when 'BiologicalAssociation'
+          t.project(t[target_id], t['updated_at']).from(t)
+           .where(t[target_type].eq('FieldOccurrence'))
+           .where(t['updated_at'].gt(1.week.ago))
+           .where(t['updated_by_id'].eq(user_id))
+           .where(t['project_id'].eq(project_id))
+           .order(t['updated_at'].desc)
+        else
+          # TODO: update to reference new TaxonDetermination
+          t.project(t['taxon_determination_object_id'], t['updated_at']).from(t)
+           .where(t['taxon_determination_object_type'].eq('FieldOccurrence'))
+           .where(t['updated_at'].gt( 1.week.ago ))
+           .where(t['updated_by_id'].eq(user_id))
+           .where(t['project_id'].eq(project_id))
+           .order(t['updated_at'].desc)
+        end
+
+    # z is a table alias
+    z = i.as('recent_t')
+
+    j = case used_on
+        when 'BiologicalAssociation'
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+            z[target_id].eq(p['id'])
+          ))
+        else
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+            z['taxon_determination_object_id'].eq(p['id'])))
+        end
+
+    FieldOccurrence.joins(j).pluck(:id).uniq
   end
 
   # @params target [String] currently only 'TaxonDetermination' is accepted
   # @return [Hash] field_occurrences optimized for user selection
-  def self.select_optimized(user_id, project_id, target = nil)
+  def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
     h = {
       quick: [],
       pinboard: FieldOccurrence.pinned_by(user_id).where(project_id:).to_a,
       recent: []
     }
 
-    if target && !(r = used_recently(user_id, project_id, target)).empty?
+    if target && !(r = used_recently(user_id, project_id, target, ba_target)).empty?
       h[:recent] = FieldOccurrence.where(id: r.first(10)).to_a
       h[:quick] = (
         FieldOccurrence

@@ -10,7 +10,7 @@
   flex-direction: column;
   justify-content: flex-start;
   box-shadow: var(--panel-shadow);
-  border-radius: 0.9rem;
+  border-radius: var(--border-radius-large);
   background-color: var(--panel-bg-color);
   a {
     text-decoration: none;

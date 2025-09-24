@@ -134,11 +134,12 @@ const validateSave = computed(() => {
 async function save() {
   try {
     settings.isSaving = true
-    const ce = ceStore.isUnsaved
-      ? (await ceStore.save()).body
-      : ceStore.collectingEvent
 
-    foStore.fieldOccurrence.collecting_event_id = ce.id
+    if (ceStore.isUnsaved) {
+      await ceStore.save()
+    }
+
+    foStore.fieldOccurrence.collecting_event_id = ceStore.collectingEvent.id
 
     const { body } = await foStore.save()
     const args = {
@@ -161,8 +162,9 @@ async function save() {
         )
       })
       .catch(() => {})
-      .finally(() => {
+      .finally(async () => {
         smartSelectorRefresh()
+        await foStore.load(body.id)
         settings.isSaving = false
       })
   } catch {

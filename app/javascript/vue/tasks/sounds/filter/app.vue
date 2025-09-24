@@ -7,7 +7,7 @@
       :pagination="pagination"
       :object-type="SOUND"
       :list="list"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
@@ -24,7 +24,7 @@
       </template>
       <template #nav-right>
         <RadialMatrix
-          :ids="selectedIds"
+          :ids="sortedSelectedIds"
           :disabled="!list.length"
           :object-type="SOUND"
         />
@@ -61,16 +61,17 @@ import { SOUND } from '@/constants/index.js'
 import { Sound } from '@/routes/endpoints'
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Sound)
 </script>
 

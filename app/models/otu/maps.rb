@@ -18,13 +18,7 @@ module Otu::Maps
     end
 
     # All the OTUs feeding into this map.
-    otu_scope = nil
-
-    if self.taxon_name_id.present?
-      otu_scope = Otu.select(:id).descendant_of_taxon_name(taxon_name_id)
-    else
-      otu_scope = Otu.select(:id).where(id:)
-    end
+    otu_scope = Otu.select(:id).descendant_of_taxon_name(taxon_name_id)
 
     if gj = CachedMap.calculate_union(otu_scope, cached_map_type:)
       map = CachedMap.create!(
@@ -58,7 +52,8 @@ module Otu::Maps
   # @return GeoJSON
   #   A hash (JSON) formated version of the geo-json
   def cached_map_geo_json(cached_map_type = 'CachedMapItem::WebLevel1')
-    JSON.parse( cached_map_string(cached_map_type) )
+    s = cached_map_string(cached_map_type)
+    s.present? ? JSON.parse( s ) : nil
   end
 
   # @return String
@@ -67,7 +62,8 @@ module Otu::Maps
     mid = cached_map_id # don't load the whole object
 
     # Takes a long time.
-    mid ||= cached_map.id # need to create the object first
+    mid ||= cached_map&.id # need to create the object first
+    return nil if mid.nil?
 
     CachedMap.select('ST_AsGeoJSON(geometry) geo_json').where(id: mid).first.geo_json
   end

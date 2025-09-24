@@ -15,7 +15,9 @@
         :identifier-types="identifierTypes"
         :filter-query="filterQuery()"
         :object-type="objectType"
-        v-model="namespace"
+        v-model:namespace="namespace"
+        v-model:virtual-namespace-prefix="virtualNamespacePrefix"
+        v-model:namespaces-to-replace="namespacesToReplace"
         class="namespace-select"
       />
 
@@ -120,9 +122,12 @@ const identifierTypes = ref(
     : []
   )
 const namespace = ref(null)
+const virtualNamespacePrefix = ref(null)
+const namespacesToReplace = ref([])
 
 const updateEnabled = computed(() => {
-  return identifierTypes.value.length && !!(namespace.value)
+  return identifierTypes.value.length && !!(namespace.value) &&
+    namespacesToReplace.value.length > 0
 })
 
 async function makeBatchRequest() {
@@ -144,6 +149,8 @@ async function makeBatchRequest() {
     params: {
       identifier_types: identifierTypes.value,
       namespace_id: namespace.value.id,
+      virtual_namespace_prefix: virtualNamespacePrefix.value,
+      namespaces_to_replace: namespacesToReplace.value
     }
   }
 

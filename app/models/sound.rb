@@ -1,6 +1,15 @@
 require 'wahwah'
 
-# A Sound is digital representation of some noise.  They are linked ivia Conveyances as Images aer linked via Depictions.
+# A Sound is a digital representation of some noise. They are linked via
+# Conveyances as Images are linked via Depictions.
+#
+# @!attribute name
+#   @return [String]
+#   A label for the sound.
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
 #
 class Sound < ApplicationRecord
   include Housekeeping
@@ -15,11 +24,12 @@ class Sound < ApplicationRecord
   include Shared::Identifiers
   include Shared::Notes
   include Shared::Tags
-  include Shared::IsData 
+  include Sound::DwcMediaExtensions
+  include Shared::IsData
 
   # See canonical list at
   ALLOWED_CONTENT_TYPES = %w{
-    audio/wma 
+    audio/wma
     audio/flac
     audio/mp3
     audio/ogg
@@ -35,17 +45,24 @@ class Sound < ApplicationRecord
   has_one_attached :sound_file
   has_many :conveyances, inverse_of: :sound, dependent: :restrict_with_error
 
+  has_many :otus, through: :conveyances, source: :conveyance_object, source_type: 'Otu'
+
   after_destroy :purge_sound_file
 
   validate :file_type
 
   accepts_nested_attributes_for :conveyances, allow_destroy: false
 
+  scope :with_taxon_names, -> {
+    joins(:otus)
+    .joins("JOIN taxon_names ON taxon_names.id = otus.taxon_name_id")
+  }
+
   private
 
   def file_type
     if !ALLOWED_CONTENT_TYPES.include?(sound_file.content_type)
-      errors.add(:sound_file, "#{sound_file.content_type} is not allowed") 
+      errors.add(:sound_file, "#{sound_file.content_type} is not allowed")
     end
   end
 

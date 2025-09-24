@@ -62,6 +62,8 @@ module BatchLoad
       rescue Taxonifi::Assessor::RowAssessor::RowAssessorError => e
         @file_errors.push "Error assessing a row of data in the inputfile: #{e}."
       end
+      rescue Taxonifi::Lumper::LumperError => e
+        @file_errors.push e.to_s
     end
 
     # @return [Integer]
@@ -90,7 +92,7 @@ module BatchLoad
           name: n.name,
           rank_class: Ranks.lookup(nomenclature_code, n.rank),
           also_create_otu: also_create_otu,
-          verbatim_author: (n.parens ? n.author_with_parens : nil),
+          verbatim_author: n.author_with_parens, # taxonifi logic handles all cases
           year_of_publication: n.year.to_s,
           by: user,
           project_id: project_id

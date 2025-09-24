@@ -41,7 +41,8 @@ class AssertedDistributionsController < ApplicationController
   # POST /asserted_distributions
   # POST /asserted_distributions.json
   def create
-    @asserted_distribution = AssertedDistribution.new(asserted_distribution_params)
+    @asserted_distribution =
+      AssertedDistribution.new(asserted_distribution_params)
     respond_to do |format|
       if @asserted_distribution.save
         format.html { redirect_to @asserted_distribution, notice: 'Asserted distribution was successfully created.' }
@@ -85,7 +86,10 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def list
-    @asserted_distributions = AssertedDistribution.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @asserted_distributions = AssertedDistribution
+      .with_project_id(sessions_current_project_id)
+      .order(:id)
+      .page(params[:page]) #.per(10) #.per(3)
   end
 
   def autocomplete
@@ -130,7 +134,8 @@ class AssertedDistributionsController < ApplicationController
     if r = AssertedDistribution.batch_template_create(
         preview: params[:preview],
         template_asserted_distribution: asserted_distribution_params,
-        otu_query: params[:otu_query],
+        object_query: params[:object_query],
+        object_type: params[:object_type],
         user_id: sessions_current_user_id,
         project_id: sessions_current_project_id
     )
@@ -153,10 +158,10 @@ class AssertedDistributionsController < ApplicationController
 
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_asserted_distributions_md5)
-      @result =  BatchLoad::Import::AssertedDistributions.new(**batch_params)
+      @result = BatchLoad::Import::AssertedDistributions.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} asserted distributions were created."
-        render 'asserted_distributions/batch_load/simple/create' and return
+        render 'asserted_distributions/batch_load/simple/create', formats: [:html] and return
       else
         flash[:alert] = 'Batch import failed.'
       end
@@ -188,7 +193,8 @@ class AssertedDistributionsController < ApplicationController
 
   def asserted_distribution_params
     params.require(:asserted_distribution).permit(
-      :otu_id,
+      :asserted_distribution_object_type,
+      :asserted_distribution_object_id,
       :asserted_distribution_shape_type,
       :asserted_distribution_shape_id,
       :is_absent,

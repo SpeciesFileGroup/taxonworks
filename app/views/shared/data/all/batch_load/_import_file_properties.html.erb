@@ -21,6 +21,6 @@
   for import level "strict".</p>
   </li>
 
-  <%= @result.file_errors.collect { |e| content_tag(:li, content_tag(:span, e, class: 'feedback feedback-warning')) }.join.html_safe -%>
-  <%= @result.errors.collect { |e| content_tag(:li, content_tag(:span, e, class: 'feedback feedback-warning')) }.join.html_safe -%>
+  <%= @result.file_errors.collect { |e| content_tag(:li, content_tag(:span, e, class: 'feedback feedback-warning'), class: 'margin-large-bottom') }.join.html_safe -%>
+  <%= @result.errors.collect { |e| content_tag(:li, content_tag(:span, e, class: 'feedback feedback-warning margin-large'), class: 'margin-large-bottom') }.join.html_safe -%>
 </ul>

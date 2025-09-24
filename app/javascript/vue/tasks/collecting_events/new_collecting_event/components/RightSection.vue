@@ -5,7 +5,6 @@
   >
     <div ref="section">
       <MatchesComponent
-        class="margin-medium-top"
         :collecting-event="store.collectingEvent"
         @select="(e) => emit('select', e)"
       />
@@ -14,7 +13,7 @@
 </template>
 
 <script setup>
-import { onMounted, watch, onBeforeUnmount, useTemplateRef } from 'vue'
+import { onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
 import MatchesComponent from './Matches'
 import useStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 
@@ -49,7 +48,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', scrollBox))
   min-width: 400px;
 }
 .float-box {
-  top: 55px;
+  top: calc(54px + 1em);
   width: 400px;
   min-width: 400px;
   position: fixed;

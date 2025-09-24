@@ -2,14 +2,15 @@
   <table>
     <thead>
       <tr>
-        <th>Otu</th>
+        <th>Object</th>
+        <th>Object type</th>
         <th>Shape</th>
         <th>Citation</th>
         <th>Trash</th>
         <th>Radial annotator</th>
-        <th>Source/Otu clone</th>
+        <th>Source/Object clone</th>
         <th>Source/Geo clone</th>
-        <th>OTU/Geo load</th>
+        <th>Object/Geo load</th>
       </tr>
     </thead>
     <tbody>
@@ -19,17 +20,30 @@
       >
         <td>
           <a
-            :href="browseOtu(item.otu_id)"
-            v-html="item.otu.object_tag"
+            v-if="browseObjectLink(item)"
+            :href="browseObjectLink(item)"
+            v-html="item.asserted_distribution_object.object_tag"
           />
+          <span v-else>
+            {{ item.asserted_distribution_object_type }}
+          </span>
         </td>
-        <td v-html="shapeLink(
-            item.asserted_distribution_shape,
-            item.asserted_distribution_shape_type
-          )"
+        <td>
+          {{ item.asserted_distribution_object_type }}
+        </td>
+        <td
+          v-html="
+            shapeLink(
+              item.asserted_distribution_shape,
+              item.asserted_distribution_shape_type
+            )
+          "
         />
         <td v-if="item.citations.length > 1">
-          <CitationCount :citations="item.citations" />
+          <CitationCount
+            :citations="item.citations"
+            @delete="(c) => store.removeAssertedDistributionCitation(c)"
+          />
         </td>
         <td v-else>
           <div class="middle">
@@ -63,7 +77,7 @@
         <td>
           <VBtn
             color="primary"
-            @click="() => setSourceOtu(item)"
+            @click="() => setSourceObject(item)"
           >
             Clone
           </VBtn>
@@ -79,7 +93,7 @@
         <td>
           <VBtn
             color="primary"
-            @click="() => setGeoOtu(item)"
+            @click="() => setGeoObject(item)"
           >
             Load
           </VBtn>
@@ -98,6 +112,8 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import { RouteNames } from '@/routes/routes'
 import { useStore } from '../store/store'
 import { Source } from '@/routes/endpoints'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
+import { toSnakeCase } from '@/helpers'
 
 const store = useStore()
 
@@ -115,14 +131,24 @@ function removeItem(item) {
   }
 }
 
-function browseOtu(id) {
-  return `${RouteNames.BrowseOtu}?otu_id=${id}`
+function browseObjectLink(item) {
+  const model = item.asserted_distribution_object_type
+  const browseTask = `Browse${model}`
+  const browseLink = RouteNames[browseTask]
+  if (browseLink) {
+    return `${browseLink}?${ID_PARAM_FOR[model]}=${item.asserted_distribution_object_id}`
+  } else {
+    return `/${toSnakeCase(model)}s/${item.asserted_distribution_object_id}`
+  }
 }
 
-function setSourceOtu(item) {
+function setSourceObject(item) {
   store.reset()
   setCitation(item.citations[0])
-  store.otu = item.otu
+  store.object = {
+    objectType: item.asserted_distribution_object_type,
+    ...item.asserted_distribution_object
+  }
 }
 
 function setSourceGeo(item) {
@@ -135,7 +161,7 @@ function setSourceGeo(item) {
   store.isAbsent = item.is_absent
 }
 
-function setGeoOtu(item) {
+function setGeoObject(item) {
   store.reset()
   store.autosave = false
   store.assertedDistribution.id = item.id
@@ -143,7 +169,10 @@ function setGeoOtu(item) {
     shapeType: item.asserted_distribution_shape_type,
     ...item.asserted_distribution_shape
   }
-  store.otu = item.otu
+  store.object = {
+    objectType: item.asserted_distribution_object_type,
+    ...item.asserted_distribution_object
+  }
   store.isAbsent = item.is_absent
 }
 
@@ -166,7 +195,6 @@ function shapeLink(shape, type) {
     return `<a href="/gazetteers/${shape.id}">${shape.name}</a>`
   }
 }
-
 </script>
 <style scoped>
 table,

@@ -577,6 +577,21 @@ class GeographicArea < ApplicationRecord
       GeographicArea.joins(
         Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
       ).pluck(:geographic_area_id).uniq
+    when 'CommonName'
+      t = CommonName.arel_table
+      # i is a select manager
+      i = t.project(t['geographic_area_id'], t['updated_at']).from(t)
+           .where(t['updated_at'].gt(1.week.ago))
+           .where(t['updated_by_id'].eq(user_id))
+           .where(t['project_id'].eq(project_id))
+           .order(t['updated_at'].desc)
+
+      # z is a table alias
+      z = i.as('recent_t')
+      p = GeographicArea.arel_table
+      GeographicArea.joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
+      ).pluck(:geographic_area_id).uniq
     when 'AssertedDistribution'
       t = Citation.arel_table
       # i is a select manager

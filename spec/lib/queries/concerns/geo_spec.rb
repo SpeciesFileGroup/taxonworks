@@ -46,11 +46,11 @@ describe Queries::Concerns::Geo, type: :model, group: [:geo, :filter] do
     name: 'large')
   }
 
-  let(:ad_medium_ga) { FactoryBot.create(:valid_asserted_distribution, otu:,
+  let(:ad_medium_ga) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object:,
     asserted_distribution_shape: medium_ga) }
-  let(:ad_large_ga) { FactoryBot.create(:valid_asserted_distribution, otu:,
+  let(:ad_large_ga) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object:,
     asserted_distribution_shape: large_ga) }
-  let(:ad_medium_gz) { FactoryBot.create(:valid_asserted_distribution, otu:,
+  let(:ad_medium_gz) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object:,
     asserted_distribution_shape: medium_gz) }
 
   let!(:q) { ::Queries::AssertedDistribution::Filter }

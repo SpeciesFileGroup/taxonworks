@@ -1,13 +1,38 @@
 module BiologicalAssociationsHelper
+  include RecordNavigationHelper
 
   def biological_association_tag(biological_association)
     return nil if biological_association.nil?
+
     object_tag(biological_association.biological_association_subject) + ' ' + content_tag(:span, biological_relationship_tag(biological_association.biological_relationship), class: :notice) + ' ' +
       object_tag(biological_association.biological_association_object)
   end
 
+  def label_for_biological_association(biological_association)
+    return nil if biological_association.nil?
+
+    label_for(biological_association.biological_association_subject) +
+    ' ' +
+    label_for_biological_relationship(
+      biological_association.biological_relationship
+    ) +
+    ' ' +
+    label_for(biological_association.biological_association_object)
+  end
+
+  def biological_association_autocomplete_tag(biological_association)
+    return nil if biological_association.nil?
+
+    biological_association_tag(biological_association)
+  end
+
+  def biological_associations_search_form
+    render('/biological_associations/quick_search_form')
+  end
+
   def biological_association_link(biological_association)
     return nil if biological_association.nil?
+
     link_to(object_tag(biological_association.biological_association_subject).html_safe, biological_association.biological_association_subject.metamorphosize) + ' ' +
       link_to(content_tag(:span, biological_relationship_tag(biological_association.biological_relationship), class: :notice).html_safe, biological_association) + ' ' +
       link_to(object_tag(biological_association.biological_association_object).html_safe, biological_association.biological_association_object.metamorphosize)

@@ -6,6 +6,8 @@
       <VToggle
         v-model="publishedValue"
         :value="content.published"
+        on-color="var(--color-create)"
+        off-color="var(--color-destroy)"
         title="Unpublish / Publish"
       />
     </td>

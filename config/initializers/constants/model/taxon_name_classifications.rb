@@ -129,6 +129,11 @@ TAXON_NAME_CLASSIFICATIONS_FOR_DECORATION ||= [
   TaxonNameClassification::Icvcn::Valid::Unaccepted
 ].flatten.map(&:to_s).freeze
 
+TAXON_NAME_CLASSIFICATIONS_FOR_FOSSILS ||= [
+  TaxonNameClassification::Icn::Fossil,
+  TaxonNameClassification::Iczn::Fossil,
+  TaxonNameClassification::Iczn::Fossil::Ichnotaxon,
+].flatten.map(&:to_s).freeze
 
 # JSON supporting
 module TaxonNameClassificationsHelper

@@ -11,7 +11,7 @@ const extend = [
   'shape_type',
   'origin_citation',
   'source',
-  'otu'
+  'asserted_distribution_object'
 ]
 
 export default ({ commit }, otusId) =>

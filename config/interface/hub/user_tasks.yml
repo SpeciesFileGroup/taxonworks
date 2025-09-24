@@ -167,15 +167,6 @@ build_biocuration_group_task:
   name:
   related:
     - build_biocuration_groups_task
-otu_distribution_data_task:
-  hub: true
-  name: 'Otu distribution'
-  description: 'Display distribution data and map for an Otu (or taxon name).'
-  categories:
-    - nomenclature
-    - collecting_event
-    - collection_object
-  status: prototype
 author_list_task:
   hub: true
   name: 'Alphabetical list of source authors'
@@ -362,7 +353,7 @@ new_asserted_distribution_task:
   categories:
     - new
   status: prototype
-  description: 'Create new asserted distributions (Otu, source, and shape combinations). Has locking and cloning mechanisms.'
+  description: 'Create new asserted distributions (Object, source, and shape combinations). Has locking and cloning mechanisms.'
 index_topics_hub_task:
   hub: true
   name: 'Topics hub'
@@ -442,7 +433,7 @@ browse_asserted_distributions_task:
   categories:
     - browse
   status: prototype
-  description: 'Browse through asserted distributions summarized by OTU.  Map, table, and CSV downloads.'
+  description: 'Browse through asserted distributions summarized by object.  Map, table, and CSV downloads.'
 filter_collection_objects_task:
   hub: true
   name: 'Filter collection objects'
@@ -490,6 +481,7 @@ biological_relationship_composer_task:
   related:
   categories:
     - biology
+    - new
   status: prototype
   description: 'Define and add properties to biological relationships, e.g. things like "host/parasite".'
 grid_digitize_task:
@@ -797,6 +789,7 @@ edit_biological_associations_graph_task:
   related:
   categories:
     - biology
+    - new
   status: prototype
   description: 'Create, edit, and cite biological associations and their inter-relationships.'
 loan_dashboard_task:
@@ -981,6 +974,7 @@ new_biological_association_task:
   related:
   categories:
     - biology
+    - new
   status: prototype
   description: 'Create, edit, and cite biological associations.'
 duplicate_otus_task:
@@ -1045,14 +1039,14 @@ filter_field_occurrences_task:
   status: prototype
   description: 'Filter field occurrences by many different facets, download or visualize results.'
 taxon_names_table_task:
-  hub: true
+  hub: false
   name: 'Taxon names table'
   description: 'A simple table view of taxon names including checklist-style columns of names at rank, author, and year.'
   status: prototype
   categories:
     - nomenclature
 taxon_name_gender_task:
-  hub: true
+  hub: false
   name: 'Nomenclatural gender summary'
   related:
   categories:
@@ -1068,3 +1062,17 @@ filter_taxon_name_relationships_task:
     - nomenclature
   status: prototype
   description: 'Filter taxon name relationships by many different facets, download or visualize results.'
+monograph_facilitator_task:
+  hub: false
+  name: 'Monograph facilitator'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
+project_dwc_export_preferences_task:
+  hub: false
+  name: 'Project preferences for DwCA project downloads'
+  related:
+  categories:
+  status: prototype
+  description: Set preferences for Darwin Core Archive complete project downloads
