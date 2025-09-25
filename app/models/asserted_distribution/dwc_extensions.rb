@@ -11,8 +11,19 @@ module AssertedDistribution::DwcExtensions
     occurrenceStatus: :dwc_occurrence_status,
     stateProvince: :dwc_state_province,
 
+    nomenclaturalCode: :dwc_nomenclatural_code,
     kingdom: :dwc_kingdom,
+
+    phylum: :dwc_phylum,
+    dwcClass: :dwc_class,
+    order: :dwc_order,
+    higherClassification: :dwc_higher_classification,
+
+    superfamily: :dwc_superfamily,
     family: :dwc_family,
+    subfamily: :dwc_subfamily,
+    tribe: :dwc_tribe,
+    subtribe: :dwc_subtribe,
     genus: :dwc_genus,
     specificEpithet: :dwc_specific_epithet,
     infraspecificEpithet: :dwc_infraspecific_epithet,
