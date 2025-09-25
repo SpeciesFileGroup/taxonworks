@@ -34,17 +34,29 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
     next_sqed_depiction = @sqed_depiction
 
     if @sqed_depiction.depiction.depiction_object.update(collection_object_params)
-      flash[:notice] = 'Successfully updated'
+      notice = 'Successfully updated.'
 
       next_sqed_depiction =
         case params[:commit]
         when 'Save and next w/out data [n]'
-          @sqed_depiction.next_without_data(true) # true handles stale settings
+          d = @sqed_depiction.next_without_data(true) # true handles stale settings
+          if d.nil? || d.id == @sqed_depiction.id
+            d = @sqed_depiction
+            notice = notice + ' No next depiction without data.'
+          end
+          d
         when 'Save and next'
-          @sqed_depiction.nearby_sqed_depictions(0, 1, true)[:after].first # true handles stale settings
+          d = @sqed_depiction.nearby_sqed_depictions(0, 1, true)[:after].first # true handles stale settings
+          if d.nil? || d.id == @sqed_depiction.id
+            d = @sqed_depiction
+            notice = notice + ' No next depiction.'
+          end
+          d
         else
           @sqed_depiction
         end
+
+      flash[:notice] = notice
     else
       flash[:alert] = 'Failed to update! ' + @sqed_depiction.depiction.depiction_object.errors.full_messages.join('; ').html_safe
     end
