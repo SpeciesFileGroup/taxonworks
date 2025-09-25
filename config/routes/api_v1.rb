@@ -73,6 +73,8 @@ namespace :api, defaults: {format: :json} do
       get '/dwc_occurrences/area_autocomplete', to: '/dwc_occurrences#api_area_autocomplete'
       get '/dwc_occurrences', to: '/dwc_occurrences#api_index'
 
+      get '/taxon_determinations', to: '/taxon_determinations#api_index'
+      get '/taxon_determinations/:id', to: '/taxon_determinations#api_show'
 
       get '/taxon_names/origin_citation', to: '/taxon_names#api_origin_citation'
       get '/taxon_names', to: '/taxon_names#api_index'
