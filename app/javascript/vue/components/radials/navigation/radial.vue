@@ -138,7 +138,7 @@ const props = defineProps({
 
   teleport: {
     type: Boolean,
-    default: false
+    default: true
   }
 })
 
