@@ -80,7 +80,7 @@ usePopstateListener(() => {
 function loadLead(id) {
   lead_id.value = id
   loading.value = true
-  Lead.find(id, { extend: ['otu', 'future_otus'] })
+  Lead.find(id, { extend: ['otu', 'future_otus', 'ancestors_data'] })
     .then(({ body }) => {
       root.value = body.root
       lead.value = body.lead

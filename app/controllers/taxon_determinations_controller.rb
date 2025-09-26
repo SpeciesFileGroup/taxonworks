@@ -1,7 +1,8 @@
 class TaxonDeterminationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_determination, only: [:show, :edit, :update, :destroy]
+  before_action :set_taxon_determination, only: [:show, :edit, :update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:taxon_determinations) }, only: [:index, :api_index], if: :json_request?
 
   # GET /taxon_determinations
   # GET /taxon_determinations.json
@@ -17,6 +18,25 @@ class TaxonDeterminationsController < ApplicationController
         .per(params[:per])
       }
     end
+  end
+
+  # GET /api/v1/taxon_determinations
+  def api_index
+    q = ::Queries::TaxonDetermination::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('taxon_determinations.id')
+
+    respond_to do |format|
+      format.json {
+        @taxon_determinations = q.page(params[:page]).per(params[:per])
+        render '/taxon_determinations/api/v1/index'
+      }
+    end
+  end
+
+  # GET /api/v1/taxon_determinations/:id
+  def api_show
+    render '/taxon_determinations/api/v1/show'
   end
 
   def list
