@@ -206,6 +206,14 @@ class BiologicalAssociationsController < ApplicationController
     @biological_associations = BiologicalAssociation.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
+  def subject_object_types
+    hash = BIOLOGICALLY_RELATABLE_TYPES.reduce({}) do |h, val|
+       h[val] = val.tableize
+       h
+    end
+    render json: hash
+  end
+
   private
 
   def set_biological_association

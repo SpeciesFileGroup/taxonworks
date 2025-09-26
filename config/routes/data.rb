@@ -66,6 +66,7 @@ resources :biological_associations do
     patch :batch_update
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
+    get :subject_object_types, defaults: {format: :json}
   end
 end
 
