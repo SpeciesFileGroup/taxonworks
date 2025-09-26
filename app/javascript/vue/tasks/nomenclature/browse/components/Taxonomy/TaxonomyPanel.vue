@@ -94,14 +94,18 @@ onMounted(() => {
 .sticky-navbar-fixed {
   .panel-taxonomy-tree {
     height: 100%;
-    height: calc(100vh - 320px);
-    max-height: calc(100vh - 320px);
+    height: 100%;
   }
 }
+
+#show_taxon_name_hierarchy {
+  overflow-y: auto;
+}
+
 .panel-taxonomy-tree {
   padding-left: 0.75em;
-  height: calc(100vh - 500px);
-  max-height: calc(100vh - 400px);
+  height: 100%;
+  min-height: calc(100vh - 400px);
   overflow-y: auto;
 }
 .taxonomy-tree {

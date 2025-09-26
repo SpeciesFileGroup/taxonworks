@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - 'Use a key' shows a blank page [#4557]
+- Browse nomenclature: The navigation panel does not update its size correctly
 
 ### Changed
 
