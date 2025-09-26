@@ -9,12 +9,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Filter Sources: CSV List includes serials name and more logical prioritization of fields [#3154]
+
 ### Fixed
 
 - 'Use a key' shows a blank page [#4557]
 
 ### Changed
 
+[#3154]: https://github.com/SpeciesFileGroup/taxonworks/issues/3154
 [#4557]: https://github.com/SpeciesFileGroup/taxonworks/issues/4557
 
 ## [0.54.0] - 2025-09-24
