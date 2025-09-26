@@ -19,7 +19,10 @@ module Queries
         d = Queries::BiologicalRelationship::Autocomplete
           .new(query_string, project_id: project_id).all
 
-        return [] if a.nil? && b.nil? && c.nil?
+        e = Queries::AnatomicalPart::Autocomplete
+          .new(query_string, project_id: project_id).updated_queries
+
+        return [] if a.nil? && b.nil? && c.nil? && d.nil? && e.nil?
 
         updated_queries = []
         j = base_query
@@ -64,6 +67,22 @@ module Queries
           .joins(:biological_relationship)
           .where(biological_relationship: { id: d.limit(50).pluck(:id) })
         updated_queries << j
+
+        e.each do |q|
+          j = ::BiologicalAssociation
+            .joins("JOIN anatomical_parts ON biological_associations.biological_association_subject_id = anatomical_parts.id AND biological_associations.biological_association_subject_type = 'AnatomicalPart'")
+            .where(anatomical_parts: { id: q.limit(50).pluck(:id) })
+          updated_queries << j
+        end
+
+        e.each do |q|
+          j = ::BiologicalAssociation
+            .joins("JOIN anatomical_parts ON biological_associations.biological_association_object_id = anatomical_parts.id AND biological_associations.biological_association_object_type = 'AnatomicalPart'")
+            .where(anatomical_parts: { id: q.limit(50).pluck(:id) })
+          updated_queries << j
+        end
+
+        byebug
       end
 
       # @return [Array]
