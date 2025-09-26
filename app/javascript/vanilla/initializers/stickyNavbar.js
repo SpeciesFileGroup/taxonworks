@@ -23,11 +23,17 @@ function setSticky(element) {
 
   element.classList.add(...getClasses(element))
   element.style.setProperty('top', `${positionY}px`)
+  element.parentElement.style.minHeight = `${element.clientHeight}px`
+  element.style.maxHeight = `calc(100vh - ${element.offsetTop}px)`
 }
 
 function removeSticky(element) {
   element.classList.remove(...getClasses(element))
   element.style.removeProperty('top')
+  element.parentElement.style.removeProperty('min-height')
+  element.style.maxHeight = `calc(100vh - ${
+    element.offsetTop - window.scrollY
+  }px)`
 }
 
 export function setStickyNavbar(element) {
@@ -42,17 +48,19 @@ export function setStickyNavbar(element) {
       removeSticky(element)
     }
 
-    parentElement.style.minHeight = `${element.clientHeight}px`
     element.style.width = `${parentElement.clientWidth}px`
   }
 
   const resizeNavbar = () => {
     element.style.width = `${element.parentElement.clientWidth}px`
     element.style.boxSizing = 'border-box'
+    handleScroll()
   }
 
   window.addEventListener('resize', resizeNavbar)
   window.addEventListener('scroll', handleScroll)
+
+  resizeNavbar()
 
   document.addEventListener('turbolinks:before-render', () => {
     window.removeEventListener('resize', resizeNavbar)

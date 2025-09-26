@@ -7,7 +7,7 @@
     />
   </Teleport>
 
-  <div class="panel-taxonomy-tree margin-medium-top">
+  <div class="panel-taxonomy-tree">
     <VSpinner
       v-if="isLoading"
       legend="Loading taxonimic tree..."
@@ -131,7 +131,7 @@ onMounted(() => {
 
     button {
       position: absolute;
-      top: 1px;
+      top: 3px;
       left: -8px;
     }
 
