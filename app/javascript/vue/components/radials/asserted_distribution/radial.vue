@@ -15,8 +15,8 @@ import MoveSlice from './components/MoveSlice.vue'
 import DwCSlice from './components/DwCSlice.vue'
 
 const SLICES = {
-  Move: MoveSlice,
-  'Regenerate DwC': DwCSlice
+  Move: MoveSlice
+  //'Regenerate DwC': DwCSlice
 }
 
 defineOptions({
