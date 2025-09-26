@@ -174,12 +174,15 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           unless taxon_name.persisted?
             taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
-            taxon_name.data_attributes.build(import_predicate: 'DwC-A import metadata', type: 'ImportAttribute', value: {
-              scientificName: get_field_value('scientificName'),
-              scientificNameAuthorship: get_field_value('scientificNameAuthorship'),
-              taxonRank: get_field_value('taxonRank'),
-              metadata:
-            })
+            taxon_name.data_attributes.build(
+              import_predicate: 'DwC-A import metadata',
+              type: 'ImportAttribute',
+              value: {
+                scientificName: get_field_value('scientificName'),
+                scientificNameAuthorship: get_field_value('scientificNameAuthorship'),
+                taxonRank: get_field_value('taxonRank'),
+                metadata: }.to_json # Will not serialize properly just passing the Hash!
+            )
 
             taxon_name.save!
           end
