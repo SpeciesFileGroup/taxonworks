@@ -16,6 +16,7 @@
   <FacetCollectionObject v-model="params" />
   <FacetFieldOccurrence v-model="params" />
   <FacetCollectingEvent v-model="params" />
+  <FacetAnatomicalPart v-model="params" />
   <FacetNotes v-model="params" />
   <FacetIdentifier v-model="params" />
   <FacetTags
@@ -72,6 +73,7 @@ import {
   BIOLOGICAL_ASSOCIATION
 } from '@/constants/index.js'
 import { computed } from 'vue'
+import FacetAnatomicalPart from '@/components/Filter/Facets/AnatomicalParts/FacetAnatomicalPart.vue'
 
 const WITH_PARAMS = [
   'citations',

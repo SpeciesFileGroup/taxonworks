@@ -700,6 +700,7 @@ module Queries
 
       def merge_clauses
         [
+          anatomical_part_query_facet,
           asserted_distribution_query_facet,
           asserted_distributions_facet,
           biological_association_query_facet,

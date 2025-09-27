@@ -418,6 +418,7 @@ module Queries
           descriptor_query_facet,
           observation_matrix_id_facet,
 
+          anatomical_part_query_facet,
           taxon_name_query_facet,
           asserted_distribution_query_facet,
           taxon_name_id_facet,

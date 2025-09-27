@@ -1,4 +1,5 @@
 import {
+  ANATOMICAL_PART,
   ASSERTED_DISTRIBUTION,
   BIOLOGICAL_ASSOCIATION,
   CHARACTER_STATE,
@@ -21,6 +22,7 @@ import {
 } from '@/constants/index.js'
 
 export const ID_PARAM_FOR = {
+  [ANATOMICAL_PART]: 'anatomical_part_id',
   [ASSERTED_DISTRIBUTION]: 'asserted_distribution_id',
   [BIOLOGICAL_ASSOCIATION]: 'biological_association_id',
   [CHARACTER_STATE]: 'character_state_id',

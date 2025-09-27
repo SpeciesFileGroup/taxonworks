@@ -38,6 +38,8 @@ class Extract < ApplicationRecord
   is_origin_for 'Extract', 'Sequence'
   originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence', 'AnatomicalPart'
 
+  GRAPH_ENTRY_POINTS = [:origin_relationships]
+
   belongs_to :repository, inverse_of: :extracts
 
   has_many :extractor_roles, -> { order('roles.position ASC') }, class_name: 'Extractor', as: :role_object, dependent: :destroy, validate: true, inverse_of: :role_object

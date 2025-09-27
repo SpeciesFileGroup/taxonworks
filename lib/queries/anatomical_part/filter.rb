@@ -122,6 +122,23 @@ module Queries
           .where("origin_relationships.old_object_id IN (#{observation_query.all.select(:id).to_sql })")
       end
 
+      def extract_query_facet
+        return nil if extract_query.nil?
+
+        ::AnatomicalPart
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{extract_query.all.select(:id).to_sql })")
+      end
+
+      def sound_query_facet
+        return nil if sound_query.nil?
+
+        ::AnatomicalPart
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{sound_query.all.select(:id).to_sql })")
+      end
+
+
       def and_clauses
         [
           is_material_facet,
@@ -133,9 +150,11 @@ module Queries
       def merge_clauses
         [
           collection_object_query_facet,
+          extract_query_facet,
           field_occurrence_query_facet,
           otu_query_facet,
           observation_query_facet,
+          sound_query_facet,
 
           origin_object_type_facet
         ]
