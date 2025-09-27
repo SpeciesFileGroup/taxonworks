@@ -23,7 +23,7 @@
           </span>
         </div>
       </div>
-      <div>
+      <div class="margin-small-right">
         <VBtn
           color="primary"
           circle
@@ -76,7 +76,7 @@
       </div>
     </div>
 
-    <div class="margin-large-top">
+    <div class="margin-large-top margin-large-bottom">
       <VBtn
         color="create"
         :disabled="!objective"
@@ -86,36 +86,50 @@
       </VBtn>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Old object</th>
-          <th>New object</th>
-
-          <th />
-        </tr>
-      </thead>
-      <draggable
-        class="table-entrys-list"
-        tag="tbody"
-        item-key="id"
-        v-model="list"
-        @end="onSortable"
+    <div
+      v-if="Object.keys(originForList).length > 0"
+      class="margin-large-bottom"
+    >
+      <VSpinner
+        v-if="loadingNewObjects"
+      />
+      <h3><span v-html="props.metadata.object_tag" />&nbsp;is the origin of:</h3>
+      <RelationshipsTable
+        v-if="newObjectsList.length > 0"
+        v-model="newObjectsList"
+        t="new"
+        @remove="(element) => removeOrigin(element)"
+        @sort="(sortable) => onSortable(sortable)"
+        class="margin-medium-top"
+      />
+      <p
+        v-else
+        class="margin-xlarge-left"
       >
-        <template #item="{ element }">
-          <tr>
-            <td v-html="element.old_object_object_tag" />
-            <td v-html="element.new_object_object_tag" />
-            <td>
-              <span
-                class="circle-button btn-delete"
-                @click="removeOrigin(element)"
-              />
-            </td>
-          </tr>
-        </template>
-      </draggable>
-    </table>
+        <i>No relationships.</i>
+      </p>
+    </div>
+
+    <div v-if="Object.keys(originatesFromList).length > 0">
+      <VSpinner
+        v-if="loadingOldObjects"
+      />
+      <h3><span class="blank" />&nbsp;is the origin of&nbsp;<span v-html="props.metadata.object_tag" />:</h3>
+      <RelationshipsTable
+        v-if="oldObjectsList.length > 0"
+        v-model="oldObjectsList"
+        t="old"
+        @remove="(element) => removeOrigin(element)"
+        @sort="(sortable) => onSortable(sortable)"
+        class="margin-medium-top"
+      />
+      <p
+        v-else
+        class="margin-xlarge-left"
+      >
+        <i>No relationships.</i>
+      </p>
+    </div>
 
     <VModal
       v-if="showingCreate"
@@ -141,14 +155,15 @@
 <script setup>
 import { OriginRelationship } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { COLLECTION_OBJECT } from '@/constants'
 import { SLICES_WITH_CREATE } from '../../constants/slices'
 import SmartSelector from '@/components/ui/SmartSelector'
-import Draggable from 'vuedraggable'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VModal from '@/components/ui/Modal'
+import RelationshipsTable from './components/relationshipsTable.vue'
 
 const controllerRoute = {
   AssertedDistribution: 'asserted_distributions',
@@ -187,7 +202,6 @@ const props = defineProps({
   }
 })
 
-
 const originForList = props.metadata.endpoints.origin_relationships.origin_for
 const originatesFromList = props.metadata.endpoints.origin_relationships.originates_from
 const typeList = computed(() => flip.value ? originatesFromList : originForList)
@@ -200,6 +214,8 @@ const flip = ref(false)
 const type = ref(null)
 const objective = ref(null)
 const showingCreate = ref(false)
+const loadingNewObjects = ref(false)
+const loadingOldObjects = ref(false)
 
 const offerCreate = computed(() => Object.keys(SLICES_WITH_CREATE.origin_relationships).includes(type.value))
 
@@ -213,6 +229,14 @@ const originFor = computed(() => {
 })
 
 const modelSelected = computed(() => controllerRoute[type.value])
+
+const oldObjectsList = computed(() => {
+  return list.value.filter((o) => o.new_object_global_id == props.globalId)
+})
+
+const newObjectsList = computed(() => {
+  return list.value.filter((o) => o.old_object_global_id == props.globalId)
+})
 
 function setObject(item) {
   objective.value =
@@ -267,15 +291,32 @@ function onSortable({ newIndex }) {
   OriginRelationship.update(originRelationship.id, {
     origin_relationship: originRelationship
   }).then(({ body }) => {
+    debugger
     addToList(body)
   })
 }
 
-OriginRelationship.where({ old_object_global_id: props.globalId }).then(
-  ({ body }) => {
-    list.value = body
-  }
-)
+onMounted(() => {
+  loadingNewObjects.value = true
+  OriginRelationship.where({ old_object_global_id: props.globalId, extend: ['global_ids'] })
+    .then(
+      ({ body }) => {
+        list.value = [...list.value, ...body]
+      }
+    )
+    .catch(() => {})
+    .finally(() => loadingNewObjects.value = false)
+
+  loadingOldObjects.value = true
+  OriginRelationship.where({ new_object_global_id: props.globalId, extend: ['global_ids'] })
+    .then(
+      ({ body }) => {
+        list.value = [...list.value, ...body]
+      }
+    )
+    .catch(() => {})
+    .finally(() => loadingOldObjects.value = false)
+})
 </script>
 
 <style lang="css" scoped>
@@ -290,5 +331,10 @@ OriginRelationship.where({ old_object_global_id: props.globalId }).then(
   padding-right: 0.5em;
   border-right: 2px solid var(--border-color);
   border-radius: var(--border-radius-small);
+}
+
+.blank {
+  width: 5em;
+  border-bottom: 2px solid var(--text-color);
 }
 </style>
