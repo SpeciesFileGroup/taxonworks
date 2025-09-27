@@ -1,36 +1,38 @@
 <template>
-  <table>
+  <table v-if="t == 'new'">
     <draggable
       class="table-entrys-list"
       tag="tbody"
       item-key="id"
       v-model="list"
-      @end="(sortable) => emit('sort', sortable)"
+      @end="(event) => emit('sort', event)"
     >
       <template #item="{ element }">
         <tr>
-          <td v-html="element[`${t}_object_object_tag`]" />
-          <td>{{ element[`${t}_object_type`] }}</td>
-          <td>
-            <div class="horizontal-right-content gap-small radials">
-              <RadialAnnotator
-                :global-id="element[`${t}_object_global_id`]"
-              />
-              <span
-                class="circle-button btn-delete"
-                @click="(element) => emit('remove', element)"
-              />
-            </div>
-          </td>
+          <RelationshipsTableRow
+            :t="t"
+            :element="element"
+            @remove="() => emit('remove', element)"
+          />
         </tr>
       </template>
     </draggable>
+  </table>
+
+  <table v-else>
+    <tr v-for="element in list">
+      <RelationshipsTableRow
+        :t="t"
+        :element="element"
+        @remove="() => emit('remove', element)"
+      />
+    </tr>
   </table>
 </template>
 
 <script setup>
 import Draggable from 'vuedraggable'
-import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RelationshipsTableRow from './relationshipsTableRow.vue'
 
 const props = defineProps({
   t: {

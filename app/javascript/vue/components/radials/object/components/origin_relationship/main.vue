@@ -98,8 +98,8 @@
         v-if="newObjectsList.length > 0"
         v-model="newObjectsList"
         t="new"
-        @remove="(element) => removeOrigin(element)"
-        @sort="(sortable) => onSortable(sortable)"
+        @remove="(element) => removeOrigin(element, 'new')"
+        @sort="(event) => onSortable(event)"
         class="margin-medium-top"
       />
       <p
@@ -119,8 +119,7 @@
         v-if="oldObjectsList.length > 0"
         v-model="oldObjectsList"
         t="old"
-        @remove="(element) => removeOrigin(element)"
-        @sort="(sortable) => onSortable(sortable)"
+        @remove="(element) => removeOrigin(element, 'old')"
         class="margin-medium-top"
       />
       <p
@@ -155,7 +154,7 @@
 <script setup>
 import { OriginRelationship } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { COLLECTION_OBJECT } from '@/constants'
 import { SLICES_WITH_CREATE } from '../../constants/slices'
 import SmartSelector from '@/components/ui/SmartSelector'
@@ -164,6 +163,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VModal from '@/components/ui/Modal'
 import RelationshipsTable from './components/relationshipsTable.vue'
+import { addToArray, removeFromArray } from '@/helpers'
 
 const controllerRoute = {
   AssertedDistribution: 'asserted_distributions',
@@ -216,6 +216,8 @@ const objective = ref(null)
 const showingCreate = ref(false)
 const loadingNewObjects = ref(false)
 const loadingOldObjects = ref(false)
+const oldObjectsList = ref([])
+const newObjectsList = ref([])
 
 const offerCreate = computed(() => Object.keys(SLICES_WITH_CREATE.origin_relationships).includes(type.value))
 
@@ -230,12 +232,8 @@ const originFor = computed(() => {
 
 const modelSelected = computed(() => controllerRoute[type.value])
 
-const oldObjectsList = computed(() => {
-  return list.value.filter((o) => o.new_object_global_id == props.globalId)
-})
-
-const newObjectsList = computed(() => {
-  return list.value.filter((o) => o.old_object_global_id == props.globalId)
+watch([oldObjectsList, newObjectsList], ([newA, newB]) => {
+  list.value = [...newA, ...newB]
 })
 
 function setObject(item) {
@@ -267,31 +265,34 @@ function createOrigin() {
         'Origin relationship was successfully created.',
         'notice'
       )
-      addToList(body)
+      addToList(body) // just to trigger useSlice emits (a little hacky)
+      addToArray(flip.value ? oldObjectsList.value : newObjectsList.value, body)
     })
     .catch(() => {})
 }
 
-function removeOrigin(item) {
+function removeOrigin(item, t) {
   OriginRelationship.destroy(item.id).then(() => {
     TW.workbench.alert.create(
       'Origin relationship was successfully destroyed.',
       'notice'
     )
-    removeFromList(item)
+    removeFromList(item) // just to trigger useSlice emits (a little hacky)
+    removeFromArray(t == 'new' ? newObjectsList.value : oldObjectsList.value, item)
   })
 }
 
 function onSortable({ newIndex }) {
   const originRelationship = {
-    id: list.value[newIndex].id,
+    id: newObjectsList.value[newIndex].id,
     position: newIndex
   }
 
+  // TODO: this doesn't do what you expect when moving 0 to 1 (old 1 just
+  // moves to 2).
   OriginRelationship.update(originRelationship.id, {
     origin_relationship: originRelationship
   }).then(({ body }) => {
-    debugger
     addToList(body)
   })
 }
@@ -301,7 +302,7 @@ onMounted(() => {
   OriginRelationship.where({ old_object_global_id: props.globalId, extend: ['global_ids'] })
     .then(
       ({ body }) => {
-        list.value = [...list.value, ...body]
+        newObjectsList.value = body
       }
     )
     .catch(() => {})
@@ -311,7 +312,7 @@ onMounted(() => {
   OriginRelationship.where({ new_object_global_id: props.globalId, extend: ['global_ids'] })
     .then(
       ({ body }) => {
-        list.value = [...list.value, ...body]
+        oldObjectsList.value = body
       }
     )
     .catch(() => {})
