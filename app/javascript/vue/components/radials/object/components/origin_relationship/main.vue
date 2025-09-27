@@ -86,21 +86,22 @@
       </VBtn>
     </div>
 
-    <div
+    <fieldset
       v-if="Object.keys(originForList).length > 0"
       class="margin-large-bottom"
     >
+      <legend>Endpoints</legend>
       <VSpinner
         v-if="loadingNewObjects"
       />
-      <h3><span v-html="props.metadata.object_tag" />&nbsp;is the origin of:</h3>
+      <h3 class="no-flex"><span v-html="props.metadata.object_tag" />&nbsp;is the origin of:</h3>
       <RelationshipsTable
         v-if="newObjectsList.length > 0"
         v-model="newObjectsList"
         t="new"
         @remove="(element) => removeOrigin(element, 'new')"
         @sort="(event) => onSortable(event)"
-        class="margin-medium-top"
+        class="margin-medium-top full_width"
       />
       <p
         v-else
@@ -108,19 +109,20 @@
       >
         <i>No relationships.</i>
       </p>
-    </div>
+    </fieldset>
 
-    <div v-if="Object.keys(originatesFromList).length > 0">
+    <fieldset v-if="Object.keys(originatesFromList).length > 0">
+      <legend>Origins</legend>
       <VSpinner
         v-if="loadingOldObjects"
       />
-      <h3><span class="blank" />&nbsp;is the origin of&nbsp;<span v-html="props.metadata.object_tag" />:</h3>
+      <h3 class="no-flex"><span class="blank d-inline-block" />&nbsp;is the origin of&nbsp;<span v-html="props.metadata.object_tag" />:</h3>
       <RelationshipsTable
         v-if="oldObjectsList.length > 0"
         v-model="oldObjectsList"
         t="old"
         @remove="(element) => removeOrigin(element, 'old')"
-        class="margin-medium-top"
+        class="margin-medium-top full_width"
       />
       <p
         v-else
@@ -128,7 +130,7 @@
       >
         <i>No relationships.</i>
       </p>
-    </div>
+    </fieldset>
 
     <VModal
       v-if="showingCreate"
@@ -337,5 +339,9 @@ onMounted(() => {
 .blank {
   width: 5em;
   border-bottom: 2px solid var(--text-color);
+}
+
+.panel h3.no-flex {
+  display: block;
 }
 </style>
