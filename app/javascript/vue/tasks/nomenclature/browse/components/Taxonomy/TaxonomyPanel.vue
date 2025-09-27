@@ -10,7 +10,7 @@
   <div class="panel-taxonomy-tree">
     <VSpinner
       v-if="isLoading"
-      legend="Loading taxonimic tree..."
+      legend="Loading taxonomic tree..."
     />
     <ul
       class="taxonomy-tree"
