@@ -75,10 +75,13 @@ const validAnatomicalPart = computed(() => {
 })
 
 function save() {
+  const payload = {
+    anatomical_part: anatomicalPart.value
+  }
+
   const response = anatomicalPart.id
-    ? AnatomicalPart.update(anatomicalPart.id,
-      { anatomical_part: anatomicalPart.value })
-    : AnatomicalPart.create({ anatomical_part: anatomicalPart.value })
+    ? AnatomicalPart.update(anatomicalPart.id, payload)
+    : AnatomicalPart.create(payload)
 
   response
     .then(({ body }) => {

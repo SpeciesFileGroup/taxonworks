@@ -1,4 +1,5 @@
 import {
+  ANATOMICAL_PART,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
   FIELD_OCCURRENCE,
@@ -17,6 +18,12 @@ const BROWSE_LINKS = {
 }
 
 export function makeBrowseUrl({ id, type }) {
+  // Filter Biological Association calls makeBrowseUrl, so this is needed.
+  if (type == ANATOMICAL_PART) {
+    // TODO: this should really point to the taxonomic_origin_object instead.
+    return `/anatomical_parts/${id}`
+  }
+
   const idParam = ID_PARAM_FOR[type]
 
   return `${BROWSE_LINKS[type]}?${idParam}=${id}`

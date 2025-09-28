@@ -64,42 +64,7 @@ module Shared::Taxonomy
     # !! Always return a valid taxon name
     # TODO: analyze and optimize for n+1
     def set_taxonomy
-      c = case self.class.base_class.name
-          when 'CollectionObject', 'FieldOccurrence'
-            a = target_taxon_name # current_valid_taxon_name # !! See DwcExtensions, probably better placed here
-
-            # If we have no name, see if there is a Type reference and use it as proxy
-            # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
-            if self.class.base_class.name == 'CollectionObject'
-              a ||= type_materials.primary.first&.protonym
-            end
-          when 'Otu'
-            if taxon_name
-              if taxon_name.cached_is_valid
-                taxon_name
-              else
-                taxon_name.valid_taxon_name
-              end
-            end
-
-          when 'AssertedDistribution'
-
-            # TODO: this is faster, but needs spec confirmation
-            # Benchmark.measure { 2000.times do;  AssertedDistribution.find_by_id(ids.sample).taxonomy; end;  }
-            #
-            # TaxonName.joins('JOIN taxon_names tn on tn.id = taxon_names.cached_valid_taxon_name_id')
-            #   .joins('JOIN otus o on o.taxon_name_id = tn.id')
-            #   .where(o: { id: otu_id })
-            #   .first
-
-            otu&.taxon_name&.valid_taxon_name
-
-          when 'AnatomicalPart'
-            self.taxonomic_origin_object
-
-          when 'TaxonName' # not used (probably has to be subclassed)
-            self
-          end
+      c = taxonomy_for_object(self)
 
       if c
         @taxonomy = c.full_name_hash
@@ -129,6 +94,45 @@ module Shared::Taxonomy
       else
         @taxonomy ||= {}
       end
+    end
+  end
+
+  def taxonomy_for_object(o)
+    case o.class.base_class.name
+    when 'CollectionObject', 'FieldOccurrence'
+      a = o.target_taxon_name # current_valid_taxon_name # !! See DwcExtensions, probably better placed here
+
+      # If we have no name, see if there is a Type reference and use it as proxy
+      # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
+      if o.class.base_class.name == 'CollectionObject'
+        a ||= o.type_materials.primary.first&.protonym
+      end
+    when 'Otu'
+      if o.taxon_name
+        if o.taxon_name.cached_is_valid
+          o.taxon_name
+        else
+          o.taxon_name.valid_taxon_name
+        end
+      end
+
+    when 'AssertedDistribution'
+
+      # TODO: this is faster, but needs spec confirmation
+      # Benchmark.measure { 2000.times do;  AssertedDistribution.find_by_id(ids.sample).taxonomy; end;  }
+      #
+      # TaxonName.joins('JOIN taxon_names tn on tn.id = taxon_names.cached_valid_taxon_name_id')
+      #   .joins('JOIN otus o on o.taxon_name_id = tn.id')
+      #   .where(o: { id: otu_id })
+      #   .first
+
+      o.otu&.taxon_name&.valid_taxon_name
+
+    when 'AnatomicalPart'
+      taxonomy_for_object(o.taxonomic_origin_object)
+
+    when 'TaxonName' # not used (probably has to be subclassed)
+      o
     end
   end
 

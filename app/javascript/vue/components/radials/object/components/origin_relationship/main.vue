@@ -267,7 +267,8 @@ function createOrigin() {
   }
 
   OriginRelationship.create({
-    origin_relationship: originRelationship
+    origin_relationship: originRelationship,
+    extend: ['global_ids']
   })
     .then(({ body }) => {
       TW.workbench.alert.create(
