@@ -38,6 +38,7 @@ class Otu < ApplicationRecord
   include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::OriginRelationship
+  include Shared::AnatomicalParts
   include Shared::AssertedDistributions
 
   include Shared::AutoUuid

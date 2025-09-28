@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_27_233043) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -80,11 +80,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
     t.integer "updated_by_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "taxonomic_origin_object_id", null: false
+    t.string "taxonomic_origin_object_type", null: false
     t.index ["cached"], name: "index_anatomical_parts_on_cached"
     t.index ["created_by_id"], name: "index_anatomical_parts_on_created_by_id"
     t.index ["is_material"], name: "index_anatomical_parts_on_is_material"
     t.index ["name"], name: "index_anatomical_parts_on_name"
     t.index ["project_id"], name: "index_anatomical_parts_on_project_id"
+    t.index ["taxonomic_origin_object_id", "taxonomic_origin_object_type"], name: "anatomical_part_polymorphic_taxonomic_origin_index"
     t.index ["updated_by_id"], name: "index_anatomical_parts_on_updated_by_id"
     t.index ["uri"], name: "index_anatomical_parts_on_uri"
     t.index ["uri_label"], name: "index_anatomical_parts_on_uri_label"
@@ -797,6 +800,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
     t.boolean "is_public"
     t.string "type"
     t.integer "total_records"
+    t.string "sha2"
     t.index ["created_by_id"], name: "index_downloads_on_created_by_id"
     t.index ["filename"], name: "index_downloads_on_filename"
     t.index ["project_id"], name: "index_downloads_on_project_id"
@@ -2317,7 +2321,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   add_foreign_key "attributions", "projects"
   add_foreign_key "attributions", "users", column: "created_by_id"
   add_foreign_key "attributions", "users", column: "updated_by_id"
-  add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
   add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "created_by_id", name: "biocuration_classifications_created_by_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "updated_by_id", name: "biocuration_classifications_updated_by_id_fkey"
@@ -2545,7 +2548,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   add_foreign_key "otu_relationships", "users", column: "created_by_id"
   add_foreign_key "otu_relationships", "users", column: "updated_by_id"
   add_foreign_key "otus", "projects", name: "otus_project_id_fkey"
-  add_foreign_key "otus", "taxon_names", name: "otus_taxon_name_id_fkey"
   add_foreign_key "otus", "users", column: "created_by_id", name: "otus_created_by_id_fkey"
   add_foreign_key "otus", "users", column: "updated_by_id", name: "otus_updated_by_id_fkey"
   add_foreign_key "people", "users", column: "created_by_id", name: "people_created_by_id_fkey"
@@ -2624,7 +2626,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   add_foreign_key "tagged_section_keywords", "projects", name: "tagged_section_keywords_project_id_fkey"
   add_foreign_key "tagged_section_keywords", "users", column: "created_by_id", name: "tagged_section_keywords_created_by_id_fkey"
   add_foreign_key "tagged_section_keywords", "users", column: "updated_by_id", name: "tagged_section_keywords_updated_by_id_fkey"
-  add_foreign_key "tags", "controlled_vocabulary_terms", column: "keyword_id", name: "tags_keyword_id_fkey"
   add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
   add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
   add_foreign_key "tags", "users", column: "updated_by_id", name: "tags_updated_by_id_fkey"
@@ -2633,7 +2634,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   add_foreign_key "taxon_determinations", "users", column: "created_by_id", name: "taxon_determinations_created_by_id_fkey"
   add_foreign_key "taxon_determinations", "users", column: "updated_by_id", name: "taxon_determinations_updated_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "projects", name: "taxon_name_classifications_project_id_fkey"
-  add_foreign_key "taxon_name_classifications", "taxon_names", name: "taxon_name_classifications_taxon_name_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "created_by_id", name: "taxon_name_classifications_created_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "updated_by_id", name: "taxon_name_classifications_updated_by_id_fkey"
   add_foreign_key "taxon_name_relationships", "projects", name: "taxon_name_relationships_project_id_fkey"

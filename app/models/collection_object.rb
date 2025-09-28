@@ -75,6 +75,7 @@ class CollectionObject < ApplicationRecord
   include Shared::Tags
   include Shared::Depictions
   include Shared::OriginRelationship
+  include Shared::AnatomicalParts
   include Shared::Confidences
   include Shared::ProtocolRelationships
   include Shared::HasPapertrail

@@ -32,6 +32,16 @@
 # @!cached
 #   @return [String]
 #
+# @!taxonomic_origin_object_id
+#   @return [Integer]
+#   Polymorhpic object id of the root of the directed tree this anatomical part
+#   belongs to. Provides the relation of this part to taxonomy.
+#
+# @!taxonomic_origin_object_type
+#   @return [String]
+#   Polymorphic bject type of the root of the directed tree this anatomical part
+#   belongs to. Provides the relation of this part to taxonomy.
+#
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
@@ -48,6 +58,7 @@ class AnatomicalPart < ApplicationRecord
   include Shared::Identifiers
   include Shared::Loanable
   include Shared::BiologicalAssociations
+  include Shared::Taxonomy
   include Shared::Notes
   include Shared::Observations
   include Shared::Containable
@@ -56,6 +67,8 @@ class AnatomicalPart < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
   include SoftValidation
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates('taxonomic_origin_object')
 
   is_origin_for 'AnatomicalPart', 'Extract', 'Sequence', 'Sound'
   originates_from 'Otu', 'Specimen', 'Lot', 'AnatomicalPart', 'FieldOccurrence'
@@ -63,6 +76,8 @@ class AnatomicalPart < ApplicationRecord
   GRAPH_ENTRY_POINTS = [:origin_relationships]
 
   attr_accessor :no_cached
+
+  belongs_to :taxonomic_origin_object, polymorphic: true, inverse_of: :anatomical_parts
 
   after_save :set_cached, unless: -> { self.no_cached }
 
