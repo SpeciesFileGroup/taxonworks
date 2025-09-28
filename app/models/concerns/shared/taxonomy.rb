@@ -94,6 +94,9 @@ module Shared::Taxonomy
 
             otu&.taxon_name&.valid_taxon_name
 
+          when 'AnatomicalPart'
+            self.taxonomic_origin_object
+
           when 'TaxonName' # not used (probably has to be subclassed)
             self
           end

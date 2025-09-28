@@ -9,7 +9,9 @@ const permitParams = {
     uri: Text,
     uri_label: Text,
     is_material: Boolean,
-    global_id: String
+    global_id: String,
+    taxonomic_origin_object_id: Number,
+    taxonomic_origin_object_type: String
   }
 }
 

@@ -143,6 +143,8 @@
       <template #body>
         <component
           :is="SLICES_WITH_CREATE.origin_relationships[type]"
+          :origin-object-id="objectId"
+          :origin-object-type="objectType"
           @create="(obj) => {
             setObject(obj)
             showingCreate = false
@@ -221,7 +223,10 @@ const loadingOldObjects = ref(false)
 const oldObjectsList = ref([])
 const newObjectsList = ref([])
 
-const offerCreate = computed(() => Object.keys(SLICES_WITH_CREATE.origin_relationships).includes(type.value))
+// Only offer to create a new anatomical_part if we know what its origin would
+// be (necessary for validations - anatomical_part chains are *always* built
+// from the top down).
+const offerCreate = computed(() => Object.keys(SLICES_WITH_CREATE.origin_relationships).includes(type.value) && flip.value == false)
 
 const originEndpoint = computed(() => flip.value ? 'Origin' : 'Endpoint')
 const originOf = computed(() => {
@@ -235,6 +240,8 @@ const originFor = computed(() => {
 const modelSelected = computed(() => controllerRoute[type.value])
 
 watch([oldObjectsList, newObjectsList], ([newA, newB]) => {
+  // This is not quite the way useSlice intends its list to be defined - compare
+  // the resulting 'a little hacky' comments.
   list.value = [...newA, ...newB]
 })
 

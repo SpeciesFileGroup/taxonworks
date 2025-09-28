@@ -50,7 +50,22 @@ import { computed, ref } from 'vue'
 import { AnatomicalPart } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
-const anatomicalPart = ref({})
+const props = defineProps({
+  originObjectId: {
+    type: Number,
+    required: true
+  },
+
+  originObjectType: {
+    type: String,
+    required: true
+  }
+})
+
+const anatomicalPart = ref({
+  taxonomic_origin_object_id: props.originObjectId,
+  taxonomic_origin_object_type: props.originObjectType
+})
 
 const emit = defineEmits(['create'])
 
