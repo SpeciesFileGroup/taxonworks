@@ -3,6 +3,11 @@ require 'rails_helper'
 RSpec.describe AnatomicalPart, type: :model do
   context 'validations' do
     let!(:origin) { FactoryBot.create(:valid_collection_object) }
+
+    before(:each) {
+      origin.taxon_determinations << FactoryBot.create(:valid_taxon_determination)
+    }
+
     specify 'name is valid' do
       a = AnatomicalPart.new(name: 'a', taxonomic_origin_object: origin)
       expect(a.valid?).to be_truthy
@@ -34,6 +39,15 @@ RSpec.describe AnatomicalPart, type: :model do
       expect(a.valid?).to be_falsey
     end
 
+    specify 'invalid taxonomic_origin_object is caught' do
+      expect {AnatomicalPart.new(taxonomic_origin_object: FactoryBot.create(:valid_depiction), name: 'not again')}.to raise_error(ActiveRecord::InverseOfAssociationNotFoundError)
+    end
+
+    specify 'taxonomic_origin_object must have a taxon_determination' do
+      origin = FactoryBot.create(:valid_collection_object)
+      a = AnatomicalPart.new(taxonomic_origin_object: origin, name: 'no td')
+      expect(a.valid?).to be_falsey
+    end
   end
 
 

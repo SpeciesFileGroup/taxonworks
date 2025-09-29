@@ -82,6 +82,8 @@ class AnatomicalPart < ApplicationRecord
   after_save :set_cached, unless: -> { self.no_cached }
 
   validate :name_or_uri_not_both
+  validate :taxonomic_origin_object_is_valid_type
+  validate :taxonomic_origin_object_relates_to_otu
 
   private
 
@@ -96,6 +98,23 @@ class AnatomicalPart < ApplicationRecord
     return if name.present? && !has_labelled_uri
 
     errors.add(:base, 'Exactly one of 1) name, or 2) uri *and* uri_label, must be present')
+  end
+
+  def taxonomic_origin_object_is_valid_type
+    return if taxonomic_origin_object.nil?
+    valid = ['Otu', 'CollectionObject', 'FieldOccurrence']
+    t = taxonomic_origin_object.class.base_class.name
+    return if valid.include?(t)
+
+    errors.add(:base, "Class of taxonomic_origin_object must be in [#{valid.join(', ')}], not #{t}")
+  end
+
+  def taxonomic_origin_object_relates_to_otu
+    return if taxonomic_origin_object.nil?
+    t = taxonomic_origin_object.class.base_class.name
+    return if t == 'Otu' || taxonomic_origin_object.taxon_determinations.exists?
+
+    errors.add(:base, 'taxonomic_origin_object is required to have a taxon determination')
   end
 
 end
