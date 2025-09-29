@@ -10,6 +10,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Filter Sources: CSV List includes serials name and more logical prioritization of fields [#3154]
+- Filter Sources: Editors facet
+- Radial navigator: links to filter source/taxon names for People [#3132]
 
 ### Fixed
 
@@ -18,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+[#3132]: https://github.com/SpeciesFileGroup/taxonworks/issues/3132
 [#3154]: https://github.com/SpeciesFileGroup/taxonworks/issues/3154
 [#4557]: https://github.com/SpeciesFileGroup/taxonworks/issues/4557
 
