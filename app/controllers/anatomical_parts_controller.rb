@@ -97,6 +97,10 @@ class AnatomicalPartsController < ApplicationController
     end
   end
 
+  def select_options
+    @anatomical_parts = AnatomicalPart.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_anatomical_part

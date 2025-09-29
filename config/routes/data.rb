@@ -26,6 +26,7 @@ resources :anatomical_parts do
   concerns [:data_routes]
   collection do
     match :filter, to: 'anatomical_parts#index', via: [:get, :post]
+    get :select_options, defaults: {format: :json}
   end
 end
 

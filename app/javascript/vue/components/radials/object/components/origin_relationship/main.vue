@@ -60,6 +60,7 @@
           <VBtn
             v-if="!showingCreate"
             color="primary"
+            class="margin-small-right margin-medium-bottom"
             @click="() => (showingCreate = true)"
           >
             New

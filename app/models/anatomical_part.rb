@@ -71,7 +71,7 @@ class AnatomicalPart < ApplicationRecord
   polymorphic_annotates('taxonomic_origin_object')
 
   is_origin_for 'AnatomicalPart', 'Extract', 'Sequence', 'Sound'
-  originates_from 'Otu', 'Specimen', 'Lot', 'AnatomicalPart', 'FieldOccurrence'
+  originates_from 'Otu', 'CollectionObject', 'AnatomicalPart', 'FieldOccurrence'
 
   GRAPH_ENTRY_POINTS = [:origin_relationships]
 
@@ -84,6 +84,59 @@ class AnatomicalPart < ApplicationRecord
   validate :name_or_uri_not_both
   validate :taxonomic_origin_object_is_valid_type
   validate :taxonomic_origin_object_relates_to_otu
+
+  # @return [Scope]
+  #    the max 10 most recently used anatomical_parts
+  def self.used_recently(user_id, project_id, used_on = '')
+    old_types = valid_old_object_classes
+    new_types = valid_new_object_classes
+    return [] if !old_types.include?(used_on) && !new_types.include?(used_on)
+
+    t = used_on.constantize.arel_table
+    i = t[:updated_at].gt(1.week.ago)
+      .and(t[:updated_by_id].eq(user_id))
+      .and(t[:project_id].eq(project_id))
+
+    p = AnatomicalPart.arel_table
+    o = OriginRelationship.arel_table
+
+    related = used_on.tableize
+    related_klass = used_on
+    if old_types.include?(used_on) && new_types.include?(used_on)
+      a = AnatomicalPart.joins(:related_origin_relationships).joins("JOIN #{related} AS t1 ON t1.id = origin_relationships.old_object_id AND origin_relationships.old_object_type = '#{related_klass}'").where(i)
+
+      b = AnatomicalPart.joins(:origin_relationships).joins("JOIN #{related} AS t2 ON t2.id = origin_relationships.new_object_id AND origin_relationships.new_object_type = '#{related_klass}'").where(i)
+
+      ::Queries.union(AnatomicalPart, [a,b]).pluck(:id).uniq
+    elsif old_types.include?(used_on)
+      AnatomicalPart.joins(:related_origin_relationships).joins("JOIN #{related} ON #{related}.id = origin_relationships.old_object_id AND origin_relationships.old_object_type = '#{related_klass}'").where(i).pluck(:id).uniq
+    else
+      AnatomicalPart.joins(:origin_relationships).joins("JOIN #{related} ON #{related}.id = origin_relationships.new_object_id AND origin_relationships.new_object_type = '#{related_klass}'").where(i).pluck(:id).uniq
+    end
+  end
+
+  # @return [Hash] anatomical_parts optimized for user selection
+  def self.select_optimized(user_id, project_id, target = nil)
+    r = used_recently(user_id, project_id, target)
+    h = {
+      quick: [],
+      pinboard: AnatomicalPart.pinned_by(user_id).where(project_id:).to_a,
+      recent: []
+    }
+
+    if target && !r.empty?
+      n = target.tableize.to_sym
+      h[:recent] = AnatomicalPart.where('"anatomical_parts"."id" IN (?)', r.first(10) ).to_a
+      h[:quick] = (AnatomicalPart.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a  +
+        AnatomicalPart.where('"anatomical_parts"."id" IN (?)', r.first(4) ).to_a).uniq
+    else
+      h[:recent] = AnatomicalPart.where(project_id:, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
+      h[:quick] = AnatomicalPart.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a
+    end
+
+    h
+  end
+
 
   private
 
