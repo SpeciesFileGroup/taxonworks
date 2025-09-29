@@ -170,6 +170,7 @@ import RelationshipsTable from './components/relationshipsTable.vue'
 import { addToArray, removeFromArray } from '@/helpers'
 
 const controllerRoute = {
+  AnatomicalPart: 'anatomical_parts',
   AssertedDistribution: 'asserted_distributions',
   Extract: 'extracts',
   Lot: 'collection_objects',

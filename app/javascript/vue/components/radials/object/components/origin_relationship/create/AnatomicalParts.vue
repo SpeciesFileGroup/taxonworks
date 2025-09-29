@@ -1,5 +1,9 @@
 <template>
-  <div class="depiction_annotator">
+  <div>
+    <VSpinner
+      v-if="loading"
+    />
+
     <div class="flex-wrap-column gap-medium">
       <input
         class="normal-input"
@@ -46,9 +50,10 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { AnatomicalPart } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   originObjectId: {
@@ -62,10 +67,8 @@ const props = defineProps({
   }
 })
 
-const anatomicalPart = ref({
-  taxonomic_origin_object_id: props.originObjectId,
-  taxonomic_origin_object_type: props.originObjectType
-})
+const anatomicalPart = ref({})
+const isLoading = ref(false)
 
 const emit = defineEmits(['create'])
 
@@ -83,6 +86,7 @@ function save() {
     ? AnatomicalPart.update(anatomicalPart.id, payload)
     : AnatomicalPart.create(payload)
 
+  isLoading.value = true
   response
     .then(({ body }) => {
       resetForm()
@@ -90,9 +94,33 @@ function save() {
       TW.workbench.alert.create('Anatomical part was successfully saved.', 'notice')
     })
     .catch(() => {})
+    .finally(() => (isLoading.value = false))
 }
 
 function resetForm() {
   anatomicalPart.value = {}
 }
+
+onMounted(() => {
+  if (props.originObjectType != 'AnatomicalPart') {
+    anatomicalPart.value = {
+      taxonomic_origin_object_id: props.originObjectId,
+      taxonomic_origin_object_type: props.originObjectType
+    }
+  } else {
+    // taxonomic_origin_object of the new anatomical part should be the same as
+    // the origin if the origin is an anatomical part.
+    isLoading.value = true
+    AnatomicalPart.find(props.originObjectId)
+      .then(({ body }) => {
+        anatomicalPart.value = {
+          taxonomic_origin_object_id: body.taxonomic_origin_object_id,
+          taxonomic_origin_object_type: body.taxonomic_origin_object_type
+        }
+      })
+      .catch(() => {})
+      .finally(() => (isLoading.value = false))
+
+  }
+})
 </script>

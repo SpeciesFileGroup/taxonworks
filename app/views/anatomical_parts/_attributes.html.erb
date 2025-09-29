@@ -18,3 +18,8 @@
   <%= @anatomical_part.is_material %>
 </p>
 
+<p>
+  <strong>Taxonomic origin:</strong>
+  <%= @anatomical_part.taxonomic_origin_object_type %>
+  <%= object_link(@anatomical_part.taxonomic_origin_object.metamorphosize) %>
+</p>
