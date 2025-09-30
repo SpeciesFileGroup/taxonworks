@@ -1,7 +1,7 @@
 module Features
   module FormHelpers
 
-    # a specific helper for the mx-autocomplete ajax-based input only!
+    # a specific helper for the tw-autocomplete ajax-based input only!
     #
     # Selects options from field
     #    fill_in('Name', with: 'Fooidae', select: 2")
