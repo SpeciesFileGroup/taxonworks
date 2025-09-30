@@ -398,14 +398,14 @@ module TaxonNamesHelper
     ).all
 
     valid_by_rank = valid
-      .group("rank_class")
+      .group('rank_class')
       .count
 
     # Query 3. VALID FOSSILS
     valid_fossil_names_by_rank = valid
       .joins(:taxon_name_classifications)
       .where(taxon_name_classifications: { type: TAXON_NAME_CLASSIFICATIONS_FOR_FOSSILS })
-      .group("rank_class")
+      .group('rank_class')
       .count
 
    # Query 4. INVALID
@@ -692,6 +692,151 @@ module TaxonNamesHelper
     end
 
     node
+  end
+
+
+  # Summarize People instances through taxon_name_author roles per year
+  # @param [ActiveRecord::Relation] taxon_names - filtered taxon names
+  # @return [Hash] - hash of authors with year data, keyed by person_id
+  def summarize_authors_by_year(taxon_names)
+    author_summary = {}
+
+    taxon_names.left_joins(:taxon_name_authors).find_each do |taxon_name|
+      year = taxon_name.cached_nomenclature_date&.year || 'Unknown'
+      is_valid = taxon_name.cached_is_valid
+
+      taxon_name.taxon_name_authors.each do |person|
+        next unless person
+
+        author_key = person.id
+        author_summary[author_key] ||= { name: person.cached, years: {} }
+        author_summary[author_key][:years][year] ||= { valid: 0, invalid: 0, total: 0 }
+
+        if is_valid
+          author_summary[author_key][:years][year][:valid] += 1
+        else
+          author_summary[author_key][:years][year][:invalid] += 1
+        end
+        author_summary[author_key][:years][year][:total] += 1
+      end
+    end
+
+    author_summary
+  end
+
+  # Format author data for Chartkick column chart
+  # @param [Hash] author_data - hash of authors with year data, keyed by person_id
+  # @return [Hash] - formatted data for chartkick
+  def author_chart_data(author_data)
+    authors_per_year = {}
+
+    # Count unique authors per year
+    author_data.each do |person_id, author_info|
+      author_info[:years].each_key do |year|
+        authors_per_year[year] = (authors_per_year[year] || 0) + 1
+      end
+    end
+
+    # Return single series of unique author counts
+    {
+      data: [
+        { name: 'Unique Authors', data: authors_per_year }
+      ]
+    }
+  end
+
+  # Format individual author data for Chartkick column chart
+  # Scopes to min/max year observed per author
+  # @param [Hash] author_years - hash of year data for a single author
+  # @return [Array] - formatted data for chartkick
+  def author_individual_chart_data(author_years)
+    return { data: [], width: '0px' } if author_years.empty?
+
+    valid_data = {}
+    invalid_data = {}
+
+    years = author_years.keys.reject { |y| y == 'Unknown' }.sort
+    min_year = years.min
+    max_year = years.max
+
+    if min_year && max_year
+      (min_year..max_year).each do |year|
+        if author_years[year]
+          valid_data[year] = author_years[year][:valid] || 0
+          invalid_data[year] = author_years[year][:invalid] || 0
+        else
+          valid_data[year] = 0
+          invalid_data[year] = 0
+        end
+      end
+    end
+
+    if author_years['Unknown']
+      valid_data['Unknown'] = author_years['Unknown'][:valid] || 0
+      invalid_data['Unknown'] = author_years['Unknown'][:invalid] || 0
+    end
+
+    year_span = (max_year.to_i - min_year.to_i)
+    chart_width = [120 + year_span * 20, 800].min
+
+    {
+      data: [
+        { name: 'Valid', data: valid_data },
+        { name: 'Invalid', data: invalid_data }
+      ],
+      width: "#{chart_width}px"
+    }
+  end
+
+  # Calculate co-authorship relationships for Sankey diagram
+  # @param [ActiveRecord::Relation] taxon_names - filtered taxon names
+  # @return [Hash] - nodes and links for Sankey diagram
+  def author_coauthorship_data(taxon_names)
+    coauthorship_counts = {}
+    author_names = {}
+
+    # Find all taxon names with multiple authors
+    taxon_names.left_joins(:taxon_name_authors).find_each do |taxon_name|
+      authors = taxon_name.taxon_name_authors.to_a
+      next if authors.length < 2
+
+      # Store author names
+      authors.each { |author| author_names[author.id] = author.cached }
+
+      # Count co-authorships (combinations of authors on same taxon name)
+      authors.combination(2).each do |author1, author2|
+        # Create consistent ordering for the pair
+        source_id, target_id = [author1.id, author2.id].sort
+        key = "#{source_id}-#{target_id}"
+        coauthorship_counts[key] ||= { source_id: source_id, target_id: target_id, count: 0 }
+        coauthorship_counts[key][:count] += 1
+      end
+    end
+
+    # Only include authors that have links
+    linked_author_ids = coauthorship_counts.values.flat_map { |link| [link[:source_id], link[:target_id]] }.uniq
+    nodes_data = author_names.select { |id, name| linked_author_ids.include?(id) }
+
+    # Create node array with indices for d3-sankey
+    nodes = nodes_data.map.with_index { |(id, name), index| { id: index, name: name, person_id: id } }
+
+    # Create id to index mapping
+    id_to_index = {}
+    nodes.each { |node| id_to_index[node[:person_id]] = node[:id] }
+
+    # Convert links to use node indices
+    links = coauthorship_counts.values.map do |link|
+      {
+        source: id_to_index[link[:source_id]],
+        target: id_to_index[link[:target_id]],
+        value: link[:count]
+      }
+    end
+
+    {
+      nodes: nodes,
+      links: links
+    }
   end
 
   protected
