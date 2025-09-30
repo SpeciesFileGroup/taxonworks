@@ -18,5 +18,9 @@ const permitParams = {
 export const AnatomicalPart = {
   ...baseCRUD(controller, permitParams),
 
-  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  graph: (params) => {
+    return AjaxCall('get', `/${controller}/graph.json`, { params })
+  }
 }

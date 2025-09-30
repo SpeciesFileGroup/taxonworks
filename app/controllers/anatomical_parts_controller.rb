@@ -101,6 +101,11 @@ class AnatomicalPartsController < ApplicationController
     @anatomical_parts = AnatomicalPart.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
+  def graph
+    @nodes, @origin_relationships =
+      AnatomicalPart.graph(params.require(:id), params.require(:type))
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_anatomical_part

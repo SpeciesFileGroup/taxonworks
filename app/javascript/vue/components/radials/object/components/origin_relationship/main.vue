@@ -69,7 +69,7 @@
           or
         </div>
 
-        <smart-selector
+        <SmartSelector
           :model="modelSelected"
           :target="metadata.object_type"
           @selected="(obj) => setObject(obj)"

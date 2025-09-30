@@ -1078,3 +1078,11 @@ filter_anatomical_parts_task:
     - biology
   status: prototype
   description: 'Filter anatomical parts by many different facets, download or visualize results.'
+anatomical_parts_graph_task:
+  hub: true
+  name: 'Anatomical parts graph'
+  related:
+  categories:
+    - biology
+  status: prototype
+  description: 'Display graphs of relations between anatomical parts.'

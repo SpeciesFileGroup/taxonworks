@@ -137,6 +137,16 @@ class AnatomicalPart < ApplicationRecord
     h
   end
 
+  def self.graph(id, type)
+    case type
+    when *AnatomicalPart.valid_old_object_classes.reject { |c| c == 'AnatomicalPart' }
+      construct_graph_from_top_node(id, type)
+    when *AnatomicalPart.valid_new_object_classes.reject { |c| c == 'AnatomicalPart' }
+      construct_graph_from_low_node(id, type)
+    when 'AnatomicalPart'
+      construct_graph_from_mid_node(id)
+    end
+  end
 
   private
 
@@ -170,4 +180,94 @@ class AnatomicalPart < ApplicationRecord
     errors.add(:base, 'taxonomic_origin_object is required to have a taxon determination')
   end
 
+  # Construct an AnatomicalPart graph starting from an AnatomicalPart. Going up
+  # the graph is a chain ending in the source of the AnatomicalPart, going down
+  # we include everything, even after we no longer see AnatomicalParts.
+  def self.construct_graph_from_mid_node(anatomical_part_id, forward_only: false)
+    nodes = []
+    origin_relationships = []
+
+    origin = AnatomicalPart.find(anatomical_part_id)
+    current = [origin]
+
+    # Go down the graph: going down we show everything, since it all has origin
+    # some anatomical part.
+    while(current.present?)
+      nxt = []
+      current.each do |o|
+        nodes << o
+        # No restriction on old_object_type.
+        r = OriginRelationship.where(old_object_id: o.id)
+        origin_relationships = origin_relationships + r
+        nxt = nxt + o.new_objects
+      end
+
+      current = nxt
+      puts nxt
+    end
+
+    # Go up the graph (chain).
+    if !forward_only
+      current = origin
+      while (current.present?)
+        r = OriginRelationship.where(new_object_id: current.id, new_object_type: 'AnatomicalPart').first
+        if r.present?
+          origin_relationships << r
+          nodes << current.old_objects.first
+        end
+
+        current = current.old_objects.first
+      end
+    end
+
+    return nodes, origin_relationships
+  end
+
+  # Construct anatomical part graph starting at a top node, like
+  # CollectionObject, FieldOccurrence, OTU. This returns *all* AnatomicalPart
+  # children of the top node.
+  def self.construct_graph_from_top_node(node_id, node_type)
+    origin = node_type.constantize.find(node_id)
+    r = OriginRelationship
+      .where(
+        old_object_id: node_id,
+        old_object_type: node_type,
+        new_object_type: 'AnatomicalPart'
+      )
+
+    origin_relationships = r
+    nodes = [origin]
+    r.each do |r|
+      anatomical_part = r.new_object
+      new_nodes, new_origin_relationships = construct_graph_from_mid_node(
+        anatomical_part.id, forward_only: true
+      )
+      nodes = nodes + new_nodes
+      origin_relationships = origin_relationships + new_origin_relationships
+    end
+
+  return nodes, origin_relationships
+  end
+
+  # Construct an AnatomicalPart graph starting from the direct
+  # non-anatomical-part child of an anatomical part, like an Extract or a Sound.
+  # @param node_type is *not* AnatomicalPart, but we assume its origin *is*.
+  def self.construct_graph_from_low_node(node_id, node_type)
+    origin = node_type.constantize.find(node_id)
+    r = OriginRelationship
+      .where(
+        new_object_id: node_id,
+        new_object_type: node_type,
+        old_object_type: 'AnatomicalPart'
+      )
+
+    anatomical_part = r.first.old_object # reverse paths are always a chain (for anatomical parts)
+
+    # This can return more children of anatomical_part than just node.
+    nodes, origin_relationships = construct_graph_from_mid_node(
+      anatomical_part.id
+    )
+
+    return nodes, origin_relationships
+  end
 end

@@ -38,6 +38,8 @@ class Sequence < ApplicationRecord
   is_origin_for 'Sequence'
   originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Sequence', 'AnatomicalPart'
 
+  GRAPH_ENTRY_POINTS = [:origin_relationships].freeze
+
   ALTERNATE_VALUES_FOR = [:name].freeze
 
   # Pass a Gene::Descriptor instance to clone that description to this sequence
