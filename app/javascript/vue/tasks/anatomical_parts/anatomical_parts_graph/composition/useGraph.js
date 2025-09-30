@@ -12,12 +12,9 @@ import {
   nodeSoundStyle
 } from '../constants/graphStyle.js'
 import {
-  parseNodeId,
   makeNodeId,
-  isEqualNodeObject,
 } from '../utils/index.js'
 import { randomUUID } from '@/helpers'
-import { addToArray } from '@/helpers/arrays'
 import {
   ANATOMICAL_PART,
   COLLECTION_OBJECT,
@@ -28,7 +25,7 @@ import {
   SOUND
 } from '@/constants/index.js'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
-import makeRowObject from '@/tasks/observation_matrices/matrix_column_coder/helpers/makeRowObject.js'
+import { getHexColorFromString } from '@/tasks/biological_associations/biological_associations_graph/utils/textToHex.js'
 
 function initState() {
   return {
@@ -82,12 +79,14 @@ export function useGraph() {
 
   const edges = computed(() => {
     const edges = state.edgeObjects.map((r) => {
+      const oldNode = relationshipOldNode(r)
+      const newNode = relationshipNewNode(r)
       const edgeObject = {
         id: r.id,
-        source: makeNodeId(relationshipOldNode(r)),
-        target: makeNodeId(relationshipNewNode(r)),
+        source: makeNodeId(oldNode),
+        target: makeNodeId(newNode),
         label: 'my label',
-        //color: ba.color
+        color: getHexColorFromString(oldNode.object_type + newNode.object_type)
       }
 
       return [r.uuid, edgeObject]
@@ -144,13 +143,11 @@ export function useGraph() {
   }
 
   function relationshipOldNode(r) {
-    const n = state.nodeObjects.find((o) => (o.id == r.old_object_id && o.object_type == r.old_object_type))
-    return n
+    return state.nodeObjects.find((o) => (o.id == r.old_object_id && o.object_type == r.old_object_type))
   }
 
   function relationshipNewNode(r) {
-    const n = state.nodeObjects.find((o) => (o.id == r.new_object_id && o.object_type == r.new_object_type))
-    return n
+    return state.nodeObjects.find((o) => (o.id == r.new_object_id && o.object_type == r.new_object_type))
   }
 
   function addUUID(a) {
