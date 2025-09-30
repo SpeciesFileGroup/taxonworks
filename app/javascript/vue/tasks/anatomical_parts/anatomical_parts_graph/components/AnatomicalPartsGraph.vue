@@ -25,18 +25,36 @@
       :configs="configs"
       :edges="edges"
       :nodes="nodes"
+      :event-handlers="eventHandlers"
       v-model:selected-nodes="selectedNodes"
       v-model:selected-edges="selectedEdges"
       v-model:layouts="layouts"
     />
+
+    <ContextMenu ref="nodeContextMenu">
+      <ContextMenuNode
+        :node="nodes[currentNodeId]"
+        :node-id="currentNodeId"
+      />
+    </ContextMenu>
+
+    <ContextMenu ref="edgeContextMenu">
+      <ContextMenuEdge
+        :edges="edges"
+        :selected-edges="selectedEdges"
+      />
+    </ContextMenu>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { configs } from '../constants/networkConfig.js'
 import { useGraph } from '../composition/useGraph.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import ContextMenu from '@/components/graph/ContextMenu.vue'
+import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
+import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
 
 const {
   currentGraph,
@@ -52,12 +70,42 @@ const {
 } = useGraph()
 
 const networkGraph = ref()
+const edgeContextMenu = ref()
+const nodeContextMenu = ref()
+const currentNodeId = ref()
+const currentEvent = ref()
+
+const eventHandlers = {
+  'node:contextmenu': showNodeContextMenu,
+  'edge:contextmenu': showEdgeContextMenu
+}
 
 function createGraph(idsHash) {
   loadGraph(idsHash).then((_) => {
     networkGraph.value.fitToContents()
   })
 }
+
+function showNodeContextMenu({ node, event }) {
+  handleEvent(event)
+  currentNodeId.value = node
+  nodeContextMenu.value.openContextMenu(currentEvent.value)
+}
+
+function showEdgeContextMenu({ event, edge }) {
+  handleEvent(event)
+  if (!selectedEdges.value.includes(edge)) {
+    selectedEdges.value.push(edge)
+  }
+  edgeContextMenu.value.openContextMenu(currentEvent.value)
+}
+
+function handleEvent(event) {
+  event.stopPropagation()
+  event.preventDefault()
+  currentEvent.value = event
+}
+
 
 async function downloadAsSvg() {
   if (!networkGraph.value) return

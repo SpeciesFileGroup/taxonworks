@@ -31,6 +31,8 @@ function initState() {
   return {
     nodeObjects: [],
     edgeObjects: [],
+    selectedNodes: [],
+    selectedEdges: [],
     layouts: {
       nodes: {}
     },
