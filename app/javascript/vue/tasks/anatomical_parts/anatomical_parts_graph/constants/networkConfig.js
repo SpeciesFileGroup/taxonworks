@@ -2,7 +2,7 @@ import { defineConfigs } from 'v-network-graph'
 
 export const configs = defineConfigs({
   view: {
-    boxSelectionEnabled: true
+    boxSelectionEnabled: false
   },
   node: {
     label: {
@@ -18,10 +18,10 @@ export const configs = defineConfigs({
     hover: {
       color: (node) => node.hoverColor
     },
-    selectable: 2
+    selectable: false
   },
   edge: {
-    selectable: true,
+    selectable: false,
     label: {
       color: 'var(--text-color)'
     },

@@ -1,91 +1,92 @@
 <template>
   <div>
-    <h1>Anatomical parts graph</h1>
-    <AnatomicalPartsGraph ref="graph">
-      <template #header="{ isGraphUnsaved, edges, currentGraph}">
-        <VNavbar>
-          <div class="flex-separate">
-            <div class="horizontal-left-content middle">
-              <VAutocomplete
-                url="/anatomical_parts/autocomplete"
-                param="term"
-                label="label_html"
-                autofocus
-                clear-after
-                placeholder="Search for a part or an origin"
-                @get-item="
-                  ({ id }) => {
-                    loadGraph(id)
-                  }
-                "
-              />
-              <template v-if="currentGraph.id">
-                <div
-                  class="horizontal-left-content margin-small-left gap-small"
-                >
-                  <VBtn
-                    color="primary"
-                    circle
-                    @click="() => graph.openGraphModal()"
-                  >
-                    <VIcon
-                      name="pencil"
-                      x-small
-                    />
-                  </VBtn>
-                  <RadialObject :global-id="currentGraph.globalId" />
-                  <RadialAnnotator :global-id="currentGraph.globalId" />
-                  <RadialNavigator :global-id="currentGraph.globalId" />
-                </div>
-                <span class="margin-small-left">
-                  {{ currentGraph.name || currentGraph.label }}
-                </span>
-              </template>
-            </div>
-            <div class="horizontal-left-content gap-small">
-              <VBtn
-                v-if="graph"
-                color="primary"
-                circle
-                medium
-                @click="() => graph.downloadAsSvg()"
-              >
-                <VIcon
-                  name="download"
-                  x-small
-                />
-              </VBtn>
+    <div class="flex-separate gap-medium">
+      <h1>Anatomical parts graph</h1>
+      <div class="flex-separate">
+        <div class="horizontal-left-content gap-small">
+          <VBtn
+            v-if="graph"
+            color="primary"
+            circle
+            medium
+            @click="() => graph.downloadAsSvg()"
+          >
+            <VIcon
+              name="download"
+              x-small
+            />
+          </VBtn>
 
-              <VBtn
-                color="primary"
-                circle
-                medium
-                @click="reset"
-              >
-                <VIcon
-                  name="reset"
-                  x-small
-                />
-              </VBtn>
-            </div>
-          </div>
-        </VNavbar>
-      </template>
-    </AnatomicalPartsGraph>
+          <VBtn
+            color="primary"
+            circle
+            medium
+            @click="reset"
+          >
+            <VIcon
+              name="reset"
+              x-small
+            />
+          </VBtn>
+        </div>
+      </div>
+    </div>
+    <div class="horizontal-left-content align-start gap-medium">
+      <div class="search-column">
+        <div class="panel content margin-large-bottom">
+          <h3>Anatomical part</h3>
+          <SmartSelector
+            ref="anatomicalPartSelector"
+            model="anatomical_parts"
+            auto-focus
+            @selected="({ id }) => createGraph({anatomical_part_id: id})"
+          />
+        </div>
+
+        <div class="panel content margin-large-bottom">
+          <h3>Origins</h3>
+          <VSwitch
+            class="separate-bottom"
+            v-model="originsSwitch"
+            use-index
+            :options="ORIGIN_SWITCH_OPTIONS"
+          />
+          <SmartSelector
+            :model="originsSwitch"
+            @selected="({ id }) => createGraph({
+              [ID_PARAM_FOR[ORIGIN_SWITCH_OPTIONS[originsSwitch]]]: id
+            })"
+          />
+        </div>
+
+        <div class="panel content margin-large-bottom">
+          <h3>Endpoints</h3>
+          <VSwitch
+            class="separate-bottom"
+            v-model="endpointsSwitch"
+            use-index
+            :options="ENDPOINT_SWITCH_OPTIONS"
+          />
+          <SmartSelector
+            :model="endpointsSwitch"
+            @selected="({ id }) => createGraph({
+              [ID_PARAM_FOR[ENDPOINT_SWITCH_OPTIONS[endpointsSwitch]]]: id
+            })"
+          />
+        </div>
+      </div>
+
+      <AnatomicalPartsGraph ref="graph" />
+    </div>
   </div>
 </template>
 
 <script setup>
 import AnatomicalPartsGraph from './components/AnatomicalPartsGraph.vue'
-import VNavbar from '@/components/layout/NavBar'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import setParam from '@/helpers/setParam.js'
 import platformKey from '@/helpers/getPlatformKey'
-import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import RadialObject from '@/components/radials/object/radial.vue'
-import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { onMounted, ref } from 'vue'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
@@ -100,8 +101,25 @@ import {
 } from '@/constants'
 import { RouteNames } from '@/routes/routes.js'
 import { useHotkey } from '@/composables'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
+
+const ORIGIN_SWITCH_OPTIONS = {
+  collection_objects: COLLECTION_OBJECT,
+  field_occurrences: FIELD_OCCURRENCE,
+  otus: OTU
+}
+
+const ENDPOINT_SWITCH_OPTIONS = {
+  extracts: EXTRACT,
+  sequences: SEQUENCE,
+  sounds: SOUND
+}
 
 const graph = ref()
+const anatomicalPartSelector = ref()
+const originsSwitch = ref()
+const endpointsSwitch = ref()
 
 useHotkey([
   {
@@ -125,21 +143,10 @@ onMounted(() => {
     ID_PARAM_FOR[SOUND]
   ]
   const params = URLParamsToJSON(location.href)
-  const ids = idKeys.map((id_key) => params[id_key])
-
-  // for (let i = 0; i < ids.length; i++) {
-  //   if (ids[i]) {
-  //     // Null all parameters after the first one that's set.
-  //     for (let j = i; j <= ids.length; j++) {
-  //       // TODO
-  //       //setParam(RouteNames.AnatomicalPartsGraph, idKeys[j])
-  //       ids[j] = undefined
-  //     }
-  //   }
-  // }
-  createGraph(
-    Object.fromEntries(idKeys.map((k, i) => [k, ids[i]]))
-  )
+  const firstMatch = idKeys.find((k) => !!params[k])
+  if (firstMatch) {
+    createGraph({ [firstMatch]: params[firstMatch] })
+  }
 
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+r`,
@@ -149,6 +156,10 @@ onMounted(() => {
 })
 
 function createGraph(idsHash) {
+  if (!Object.values(idsHash).some((v) => !!v)) {
+    return
+  }
+
   graph.value.resetStore()
   graph.value.createGraph(idsHash)
 }
@@ -156,6 +167,11 @@ function createGraph(idsHash) {
 function reset() {
   graph.value.resetStore()
 
+  anatomicalPartSelector.value.refresh(true)
+  originsSwitch.value = null
+  endpointsSwitch.value = null
+
+  // TODO: do this better?
   setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[ANATOMICAL_PART])
   setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[COLLECTION_OBJECT])
   setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[FIELD_OCCURRENCE])
@@ -166,5 +182,9 @@ function reset() {
 <style scoped>
 .graph-section {
   position: relative;
+}
+
+.search-column {
+  width: 400px;
 }
 </style>

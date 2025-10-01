@@ -1,10 +1,4 @@
 <template>
-  <slot
-    name="header"
-    :selected-nodes="selectedNodes"
-    :edges="edges"
-    :current-graph="currentGraph"
-  />
   <div
     class="panel relative"
     v-help.canvas
@@ -142,7 +136,7 @@ defineExpose({
 }
 
 .graph {
-  width: calc(100vw - 2em);
+  width: calc(100vw - 450px);
   height: calc(100vh - 250px);
 }
 </style>

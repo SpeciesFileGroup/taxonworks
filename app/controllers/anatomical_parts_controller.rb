@@ -98,7 +98,7 @@ class AnatomicalPartsController < ApplicationController
   end
 
   def select_options
-    @anatomical_parts = AnatomicalPart.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+    @anatomical_parts = AnatomicalPart.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
   def graph
