@@ -5,7 +5,7 @@
     <div class="field">
       <ul class="no_bullets">
         <li
-          v-for="(group, key) in types"
+          v-for="(_, key) in types"
           :key="key"
         >
           <label class="uppercase">
@@ -27,12 +27,12 @@
       <h4>Types</h4>
       <ul class="no_bullets">
         <li
-          v-for="(item, type) in types[nomenclatureCode]"
+          v-for="(_, type) in types[nomenclatureCode]"
           :key="type"
         >
-          <label class="capitalize">
+          <label class="capitalize cursor-pointer">
             <input
-              v-model="params.is_type"
+              v-model="selectedTypes"
               :value="type"
               name="type-type"
               type="checkbox"
@@ -67,7 +67,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onBeforeMount } from 'vue'
+import { computed, ref, watch, onBeforeMount, nextTick } from 'vue'
 import { TaxonName, TypeMaterial } from '@/routes/endpoints'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
@@ -90,9 +90,23 @@ const emit = defineEmits(['update:modelValue'])
 const nomenclatureCode = ref()
 const types = ref({})
 const taxonName = ref(null)
+const selectedTypes = ref([])
 
 watch(nomenclatureCode, () => {
-  params.value.is_type = []
+  selectedTypes.value = []
+})
+
+watch(
+  () => params.value.is_type,
+  (newVal) => {
+    if (!newVal) {
+      selectedTypes.value = []
+    }
+  }
+)
+
+watch(selectedTypes, (newVal) => {
+  params.value.is_type = newVal
 })
 
 watch(
@@ -110,6 +124,19 @@ onBeforeMount(() => {
 
   TypeMaterial.types().then(({ body }) => {
     types.value = body
+
+    if (Array.isArray(isType)) {
+      const [code] = Object.entries(body).find(([_, typeObj]) => {
+        const types = Object.keys(typeObj)
+
+        return isType.every((type) => types.includes(type))
+      })
+
+      nomenclatureCode.value = code
+      nextTick(() => {
+        selectedTypes.value = [...isType]
+      })
+    }
   })
 
   if (taxonId) {
