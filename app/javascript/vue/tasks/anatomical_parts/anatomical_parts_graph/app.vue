@@ -9,11 +9,13 @@
             color="primary"
             circle
             medium
+            title="Download graph as SVG"
             @click="() => graph.downloadAsSvg()"
           >
             <VIcon
               name="download"
               x-small
+              title="Download graph as SVG"
             />
           </VBtn>
 
@@ -21,11 +23,13 @@
             color="primary"
             circle
             medium
+            title="Reset"
             @click="reset"
           >
             <VIcon
               name="reset"
               x-small
+              title="Reset"
             />
           </VBtn>
         </div>
@@ -42,7 +46,10 @@
             pin-section="AnatomicalParts"
             pin-type="AnatomicalPart"
             auto-focus
-            @selected="({ id }) => createGraph({anatomical_part_id: id})"
+            @selected="({ id }) => {
+              resetFrom(RESET_SOURCE.ANATOMICAL_PART)
+              createGraph({anatomical_part_id: id})
+            }"
           />
           <SmartSelectorItem
             :item="selectedAnatomicalPart"
@@ -68,9 +75,12 @@
             :model="originsSwitch"
             :pin-section="ORIGIN_SWITCH_OPTIONS[originsSwitch] + 's'"
             :pin-type="ORIGIN_SWITCH_OPTIONS[originsSwitch]"
-            @selected="({ id }) => createGraph({
-              [ID_PARAM_FOR[ORIGIN_SWITCH_OPTIONS[originsSwitch]]]: id
-            })"
+            @selected="({ id }) => {
+              resetFrom(RESET_SOURCE.ORIGIN)
+              createGraph({
+                [ID_PARAM_FOR[ORIGIN_SWITCH_OPTIONS[originsSwitch]]]: id
+              })
+            }"
           />
           <SmartSelectorItem
             :item="selectedOrigin"
@@ -96,9 +106,12 @@
             :model="endpointsSwitch"
             :pin-section="ORIGIN_SWITCH_OPTIONS[originsSwitch] + 's'"
             :pin-type="ORIGIN_SWITCH_OPTIONS[originsSwitch]"
-            @selected="({ id }) => createGraph({
-              [ID_PARAM_FOR[ENDPOINT_SWITCH_OPTIONS[endpointsSwitch]]]: id
-            })"
+            @selected="({ id }) => {
+              resetFrom(RESET_SOURCE.ENDPOINT)
+              createGraph({
+                [ID_PARAM_FOR[ENDPOINT_SWITCH_OPTIONS[endpointsSwitch]]]: id
+              })
+            }"
           />
           <SmartSelectorItem
             :item="selectedEndpoint"
@@ -152,6 +165,12 @@ const ENDPOINT_SWITCH_OPTIONS = {
   sounds: SOUND
 }
 
+const RESET_SOURCE = {
+  ANATOMICAL_PART: 'anatomical part',
+  ORIGIN: 'origin',
+  ENDPOINT: 'endpoint'
+}
+
 const graph = ref()
 const anatomicalPartSelector = ref()
 const originsSwitch = ref()
@@ -203,22 +222,37 @@ function createGraph(idsHash) {
   graph.value.createGraph(idsHash)
 }
 
-function reset() {
+function resetFrom(source) {
   graph.value.resetStore()
 
-  anatomicalPartSelector.value.refresh(true)
-  originsSwitch.value = null
-  endpointsSwitch.value = null
+  if (source == RESET_SOURCE.ANATOMICAL_PART) {
+    selectedOrigin.value = null
+    selectedEndpoint.value = null
+  } else if (source == RESET_SOURCE.ORIGIN) {
+    selectedAnatomicalPart.value = null
+    selectedEndpoint.value = null
+  } else if (source == RESET_SOURCE.ENDPOINT) {
+    selectedAnatomicalPart.value = null
+    selectedOrigin.value = null
+  } else {
+    anatomicalPartSelector.value.refresh(true)
+    originsSwitch.value = null
+    endpointsSwitch.value = null
 
-  selectedAnatomicalPart.value = null
-  selectedOrigin.value = null
-  selectedEndpoint.value = null
+    selectedAnatomicalPart.value = null
+    selectedOrigin.value = null
+    selectedEndpoint.value = null
+  }
 
   // TODO: do this better?
   setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[ANATOMICAL_PART])
   setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[COLLECTION_OBJECT])
   setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[FIELD_OCCURRENCE])
   setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[OTU])
+}
+
+function reset() {
+  resetFrom(null)
 }
 </script>
 

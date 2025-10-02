@@ -73,6 +73,7 @@ export function useGraph() {
         }
 
         Object.assign(node, getNodeStyleByType(obj.object_type))
+        node.object_global_id = obj.object_global_id
 
         return [nodeId, node]
       })
@@ -88,7 +89,8 @@ export function useGraph() {
         source: makeNodeId(oldNode),
         target: makeNodeId(newNode),
         label: 'my label',
-        color: getHexColorFromString(oldNode.object_type + newNode.object_type)
+        color: getHexColorFromString(oldNode.object_type + newNode.object_type),
+        object_global_id: r.object_global_id
       }
 
       return [r.uuid, edgeObject]
@@ -104,17 +106,10 @@ export function useGraph() {
     Object.assign(state, initState())
   }
 
-  function getObjectByUuid(uuid) {
-    return [state.graph, ...state.biologicalAssociations].find(
-      (item) => item.uuid === uuid
-    )
-  }
-
   async function loadGraph(idsHash) {
     state.isLoading = true
 
     let graph = makeGraph()
-    // TODO: handle empty idsHash
     const graphParts = await AnatomicalPart.graph(winnowIdsHash(idsHash))
 
     resetStore()
@@ -160,7 +155,6 @@ export function useGraph() {
     currentGraph,
     currentNodes,
     edges,
-    getObjectByUuid,
     loadGraph,
     nodes,
     resetStore,
