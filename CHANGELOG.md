@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter Sources: CSV List includes serials name and more logical prioritization of fields [#3154]
 - Filter Sources: Editors facet
 - Radial navigator: links to filter source/taxon names for People [#3132]
+- Additional sensitive data excluded from logs
 
 ### Fixed
 
