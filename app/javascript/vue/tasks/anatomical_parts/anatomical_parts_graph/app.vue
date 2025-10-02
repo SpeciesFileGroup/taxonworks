@@ -47,8 +47,9 @@
             pin-type="AnatomicalPart"
             auto-focus
             @selected="({ id }) => {
-              resetFrom(RESET_SOURCE.ANATOMICAL_PART)
-              createGraph({anatomical_part_id: id})
+              const newParam = { anatomical_part_id: id }
+              resetFrom(RESET_SOURCE.ANATOMICAL_PART, newParam)
+              createGraph(newParam)
             }"
           />
           <SmartSelectorItem
@@ -76,10 +77,11 @@
             :pin-section="ORIGIN_SWITCH_OPTIONS[originsSwitch] + 's'"
             :pin-type="ORIGIN_SWITCH_OPTIONS[originsSwitch]"
             @selected="({ id }) => {
-              resetFrom(RESET_SOURCE.ORIGIN)
-              createGraph({
+              const newParam = {
                 [ID_PARAM_FOR[ORIGIN_SWITCH_OPTIONS[originsSwitch]]]: id
-              })
+              }
+              resetFrom(RESET_SOURCE.ORIGIN, newParam)
+              createGraph(newParam)
             }"
           />
           <SmartSelectorItem
@@ -107,10 +109,11 @@
             :pin-section="ORIGIN_SWITCH_OPTIONS[originsSwitch] + 's'"
             :pin-type="ORIGIN_SWITCH_OPTIONS[originsSwitch]"
             @selected="({ id }) => {
-              resetFrom(RESET_SOURCE.ENDPOINT)
-              createGraph({
+              const newParam = {
                 [ID_PARAM_FOR[ENDPOINT_SWITCH_OPTIONS[endpointsSwitch]]]: id
-              })
+              }
+              resetFrom(RESET_SOURCE.ENDPOINT, newParam)
+              createGraph(newParam)
             }"
           />
           <SmartSelectorItem
@@ -133,7 +136,6 @@
 import AnatomicalPartsGraph from './components/AnatomicalPartsGraph.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import setParam from '@/helpers/setParam.js'
 import platformKey from '@/helpers/getPlatformKey'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { onMounted, ref } from 'vue'
@@ -147,11 +149,12 @@ import {
   SEQUENCE,
   SOUND
 } from '@/constants'
-import { RouteNames } from '@/routes/routes.js'
 import { useHotkey } from '@/composables'
+import { usePopstateListener } from '@/composables'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
+import qs from 'qs'
 
 const ORIGIN_SWITCH_OPTIONS = {
   collection_objects: COLLECTION_OBJECT,
@@ -190,21 +193,7 @@ useHotkey([
 ])
 
 onMounted(() => {
-  // Order matters.
-  const idKeys = [
-    ID_PARAM_FOR[ANATOMICAL_PART],
-    ID_PARAM_FOR[COLLECTION_OBJECT],
-    ID_PARAM_FOR[FIELD_OCCURRENCE],
-    ID_PARAM_FOR[OTU],
-    ID_PARAM_FOR[EXTRACT],
-    ID_PARAM_FOR[SEQUENCE],
-    ID_PARAM_FOR[SOUND]
-  ]
-  const params = URLParamsToJSON(location.href)
-  const firstMatch = idKeys.find((k) => !!params[k])
-  if (firstMatch) {
-    createGraph({ [firstMatch]: params[firstMatch] })
-  }
+  processParams()
 
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+r`,
@@ -222,7 +211,34 @@ function createGraph(idsHash) {
   graph.value.createGraph(idsHash)
 }
 
-function resetFrom(source) {
+function processParams() {
+  // Order matters.
+  const idKeys = [
+    ID_PARAM_FOR[ANATOMICAL_PART],
+    ID_PARAM_FOR[COLLECTION_OBJECT],
+    ID_PARAM_FOR[FIELD_OCCURRENCE],
+    ID_PARAM_FOR[OTU],
+    ID_PARAM_FOR[EXTRACT],
+    ID_PARAM_FOR[SEQUENCE],
+    ID_PARAM_FOR[SOUND]
+  ]
+  const params = URLParamsToJSON(location.href)
+  const firstMatch = idKeys.find((k) => !!params[k])
+  if (firstMatch) {
+    createGraph({ [firstMatch]: params[firstMatch] })
+    return true
+  }
+
+  return false
+}
+
+usePopstateListener(() => {
+  if (!processParams()) {
+    resetFrom(null)
+  }
+})
+
+function resetFrom(source, newParam = null) {
   graph.value.resetStore()
 
   if (source == RESET_SOURCE.ANATOMICAL_PART) {
@@ -244,11 +260,10 @@ function resetFrom(source) {
     selectedEndpoint.value = null
   }
 
-  // TODO: do this better?
-  setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[ANATOMICAL_PART])
-  setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[COLLECTION_OBJECT])
-  setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[FIELD_OCCURRENCE])
-  setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[OTU])
+  if (!!newParam) {
+    const urlParams = qs.stringify(newParam, { arrayFormat: 'brackets' })
+    history.pushState(null, null, `${window.location.pathname}?${urlParams}`)
+  }
 }
 
 function reset() {
