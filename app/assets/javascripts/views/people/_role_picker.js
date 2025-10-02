@@ -69,6 +69,7 @@ Object.assign(TW.views.people.role_picker, {
           ui.item.label
         )
         TW.views.people.role_picker.clear_role_picker(form)
+        this.close()
         return false
       }
     })
@@ -147,11 +148,13 @@ Object.assign(TW.views.people.role_picker, {
     li.dataset.roleIndex = random_index
     li.innerHTML = `
       ${label}&nbsp;
-      <a href="#" class="remove_role">remove</a>
+      <a href="#" class="remove_role" data-icon="trash" data-turbolinks="false"></a>
       <input type="hidden" name="${base_class}[roles_attributes][${random_index}][type]" value="${form.dataset.roleType}">
       <input type="hidden" name="${base_class}[roles_attributes][${random_index}][person_id]" value="${person_id}">
     `
     role_list.appendChild(li)
+
+    this.bind_remove_links([li.querySelector('.remove_role')])
   },
 
   insert_new_person: function (form) {
@@ -177,7 +180,7 @@ Object.assign(TW.views.people.role_picker, {
       <input type="hidden" name="${person_base}[first_name]" value="${firstName}">
       <input type="hidden" name="${person_base}[suffix]" value="${suffix}">
       <input type="hidden" name="${person_base}[prefix]" value="${prefix}">
-      <a href="#" class="remove_role">remove</a>
+      <a href="#" class="remove_role" data-icon="trash" data-turbolinks="false"></a>
     `
     role_list.appendChild(li)
   },
