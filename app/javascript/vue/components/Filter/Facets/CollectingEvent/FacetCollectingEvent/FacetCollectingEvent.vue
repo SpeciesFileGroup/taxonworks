@@ -69,7 +69,7 @@
 <script setup>
 import { ref, computed, watch, onBeforeMount } from 'vue'
 import { CollectingEvent } from '@/routes/endpoints'
-import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 import ByAttribute from '../../shared/ByAttribute.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'

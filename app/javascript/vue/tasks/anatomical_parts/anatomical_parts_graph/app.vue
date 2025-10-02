@@ -37,9 +37,20 @@
           <h3>Anatomical part</h3>
           <SmartSelector
             ref="anatomicalPartSelector"
+            v-model="selectedAnatomicalPart"
             model="anatomical_parts"
+            pin-section="AnatomicalParts"
+            pin-type="AnatomicalPart"
             auto-focus
             @selected="({ id }) => createGraph({anatomical_part_id: id})"
+          />
+          <SmartSelectorItem
+            :item="selectedAnatomicalPart"
+            label="object_label"
+            @unset="() => {
+              selectedAnatomicalPart = null
+              reset()
+            }"
           />
         </div>
 
@@ -52,10 +63,22 @@
             :options="ORIGIN_SWITCH_OPTIONS"
           />
           <SmartSelector
+            v-if="originsSwitch"
+            v-model="selectedOrigin"
             :model="originsSwitch"
+            :pin-section="ORIGIN_SWITCH_OPTIONS[originsSwitch] + 's'"
+            :pin-type="ORIGIN_SWITCH_OPTIONS[originsSwitch]"
             @selected="({ id }) => createGraph({
               [ID_PARAM_FOR[ORIGIN_SWITCH_OPTIONS[originsSwitch]]]: id
             })"
+          />
+          <SmartSelectorItem
+            :item="selectedOrigin"
+            label="object_label"
+            @unset="() => {
+              selectedOrigin = null
+              reset()
+            }"
           />
         </div>
 
@@ -68,10 +91,22 @@
             :options="ENDPOINT_SWITCH_OPTIONS"
           />
           <SmartSelector
+            v-if="endpointsSwitch"
+            v-model="selectedEndpoint"
             :model="endpointsSwitch"
+            :pin-section="ORIGIN_SWITCH_OPTIONS[originsSwitch] + 's'"
+            :pin-type="ORIGIN_SWITCH_OPTIONS[originsSwitch]"
             @selected="({ id }) => createGraph({
               [ID_PARAM_FOR[ENDPOINT_SWITCH_OPTIONS[endpointsSwitch]]]: id
             })"
+          />
+          <SmartSelectorItem
+            :item="selectedEndpoint"
+            label="object_label"
+            @unset="() => {
+              selectedEndpoint = null
+              reset()
+            }"
           />
         </div>
       </div>
@@ -102,6 +137,7 @@ import {
 import { RouteNames } from '@/routes/routes.js'
 import { useHotkey } from '@/composables'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 
 const ORIGIN_SWITCH_OPTIONS = {
@@ -120,6 +156,9 @@ const graph = ref()
 const anatomicalPartSelector = ref()
 const originsSwitch = ref()
 const endpointsSwitch = ref()
+const selectedAnatomicalPart = ref()
+const selectedOrigin = ref()
+const selectedEndpoint = ref()
 
 useHotkey([
   {
@@ -170,6 +209,10 @@ function reset() {
   anatomicalPartSelector.value.refresh(true)
   originsSwitch.value = null
   endpointsSwitch.value = null
+
+  selectedAnatomicalPart.value = null
+  selectedOrigin.value = null
+  selectedEndpoint.value = null
 
   // TODO: do this better?
   setParam(RouteNames.AnatomicalPartsGraph, ID_PARAM_FOR[ANATOMICAL_PART])
