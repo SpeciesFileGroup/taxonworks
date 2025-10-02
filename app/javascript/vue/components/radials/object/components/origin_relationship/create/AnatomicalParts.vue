@@ -1,7 +1,7 @@
 <template>
   <div>
     <VSpinner
-      v-if="loading"
+      v-if="isLoading"
     />
 
     <div class="flex-wrap-column gap-medium">

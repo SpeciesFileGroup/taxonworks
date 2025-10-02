@@ -127,7 +127,10 @@
         </div>
       </div>
 
-      <AnatomicalPartsGraph ref="graph" />
+      <AnatomicalPartsGraph
+        ref="graph"
+        @update-graph="updateGraph"
+      />
     </div>
   </div>
 </template>
@@ -211,7 +214,24 @@ function createGraph(idsHash) {
   graph.value.createGraph(idsHash)
 }
 
+function updateGraph() {
+  const { parameter, id } = queryParam()
+  if (id) {
+    graph.value.createGraph({ [parameter]: id })
+  }
+}
+
 function processParams() {
+  const { parameter, id } = queryParam()
+  if (id) {
+    graph.value.createGraph({ [parameter]: id })
+    return true
+  }
+
+  return false
+}
+
+function queryParam() {
   // Order matters.
   const idKeys = [
     ID_PARAM_FOR[ANATOMICAL_PART],
@@ -225,11 +245,16 @@ function processParams() {
   const params = URLParamsToJSON(location.href)
   const firstMatch = idKeys.find((k) => !!params[k])
   if (firstMatch) {
-    createGraph({ [firstMatch]: params[firstMatch] })
-    return true
+    return {
+      parameter: firstMatch,
+      id: params[firstMatch]
+    }
+  } else {
+    return {
+      parameter: null,
+      id: null
+    }
   }
-
-  return false
 }
 
 usePopstateListener(() => {

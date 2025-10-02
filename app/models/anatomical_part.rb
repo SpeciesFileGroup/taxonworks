@@ -71,7 +71,7 @@ class AnatomicalPart < ApplicationRecord
   polymorphic_annotates('taxonomic_origin_object')
 
   is_origin_for 'AnatomicalPart', 'Extract', 'Sequence', 'Sound'
-  originates_from 'Otu', 'CollectionObject', 'AnatomicalPart', 'FieldOccurrence'
+  originates_from 'Otu', 'Specimen', 'Lot', 'CollectionObject', 'AnatomicalPart', 'FieldOccurrence'
 
   GRAPH_ENTRY_POINTS = [:origin_relationships]
 
@@ -261,12 +261,16 @@ class AnatomicalPart < ApplicationRecord
         old_object_type: 'AnatomicalPart'
       )
 
-    anatomical_part = r.first.old_object # reverse paths are always a chain (for anatomical parts)
+    anatomical_part = r.first&.old_object # reverse paths are always a chain (for anatomical parts)
 
-    # This can return more children of anatomical_part than just node.
-    nodes, origin_relationships = construct_graph_from_mid_node(
-      anatomical_part.id
-    )
+    nodes = [origin]
+    origin_relationships = []
+    if anatomical_part
+      # This can return more children of anatomical_part than just node.
+      nodes, origin_relationships = construct_graph_from_mid_node(
+        anatomical_part.id
+      )
+    end
 
     return nodes, origin_relationships
   end

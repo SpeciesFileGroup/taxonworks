@@ -6,6 +6,7 @@
     <VSpinner
       v-if="isLoading"
       legend="Loading anatomical parts graph..."
+      full-screen
     />
     <div
       v-if="!Object.keys(nodes).length"
@@ -29,6 +30,8 @@
       <ContextMenuNode
         :node="nodes[currentNodeId]"
         :node-id="currentNodeId"
+        :show-quick-forms="showNodeQuickForms"
+        @update-graph="() => emit('updateGraph')"
       />
     </ContextMenu>
 
@@ -50,6 +53,13 @@ import ContextMenu from '@/components/graph/ContextMenu.vue'
 import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
 
+const props = defineProps({
+  showNodeQuickForms: {
+    type: Boolean,
+    default: true
+  }
+})
+
 const {
   currentNodes,
   edges,
@@ -67,6 +77,8 @@ const edgeContextMenu = ref()
 const nodeContextMenu = ref()
 const currentNodeId = ref()
 const currentEvent = ref()
+
+const emit = defineEmits(['updateGraph'])
 
 const eventHandlers = {
   'node:contextmenu': showNodeContextMenu,
@@ -98,7 +110,6 @@ function handleEvent(event) {
   event.preventDefault()
   currentEvent.value = event
 }
-
 
 async function downloadAsSvg() {
   if (!networkGraph.value) return
