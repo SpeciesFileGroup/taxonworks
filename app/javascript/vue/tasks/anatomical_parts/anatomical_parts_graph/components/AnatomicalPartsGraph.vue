@@ -35,7 +35,7 @@
     <ContextMenu ref="edgeContextMenu">
       <ContextMenuEdge
         :edges="edges"
-        :selected-edges="selectedEdges"
+        :selected-edge-ids="selectedEdges"
       />
     </ContextMenu>
   </div>
@@ -51,7 +51,6 @@ import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
 
 const {
-  currentGraph,
   currentNodes,
   edges,
   isLoading,

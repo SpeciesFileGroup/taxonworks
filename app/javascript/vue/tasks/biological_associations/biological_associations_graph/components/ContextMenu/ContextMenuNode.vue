@@ -57,8 +57,7 @@
 <script setup>
 import { computed } from 'vue'
 import { parseNodeId } from '../../utils'
-import { OTU, COLLECTION_OBJECT, FIELD_OCCURRENCE, ANATOMICAL_PART } from '@/constants'
-import { RouteNames } from '@/routes/routes'
+import { makeBrowseUrl } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -101,20 +100,8 @@ const emit = defineEmits([
   'open:related'
 ])
 
-const browseTask = {
-  [OTU]: (id) => `${RouteNames.BrowseOtu}?otu_id=${id}`,
-  [COLLECTION_OBJECT]: (id) =>
-    `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
-  [FIELD_OCCURRENCE]: (id) =>
-    `${RouteNames.BrowseFieldOccurrence}?field_occurrence_id=${id}`,
-  [ANATOMICAL_PART]: (id) =>
-    `${RouteNames.BrowseFieldOccurrence}?field_occurrence_id=${id}`
-}
-
 const objectBrowseLink = computed(() => {
   const { id, objectType } = parseNodeId(props.nodeId)
-  const makeTaskUrl = browseTask[objectType]
-
-  return makeTaskUrl ? makeTaskUrl(id) : null
+  return makeBrowseUrl({ id, type: objectType })
 })
 </script>
