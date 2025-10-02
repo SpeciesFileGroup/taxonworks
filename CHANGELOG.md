@@ -12,13 +12,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter Sources: CSV List includes serials name and more logical prioritization of fields [#3154]
 - Filter Sources: Editors facet
 - Radial navigator: links to filter source/taxon names for People [#3132]
+- Additional sensitive data excluded from logs
 
 ### Fixed
 
 - 'Use a key' shows a blank page [#4557]
 - Browse nomenclature: The navigation panel does not update its size correctly
+- Filter CO: Types facet doesn't work after reset the interface
 
 ### Changed
+
+- `New container` task interface to default for edit and new
 
 [#3132]: https://github.com/SpeciesFileGroup/taxonworks/issues/3132
 [#3154]: https://github.com/SpeciesFileGroup/taxonworks/issues/3154
