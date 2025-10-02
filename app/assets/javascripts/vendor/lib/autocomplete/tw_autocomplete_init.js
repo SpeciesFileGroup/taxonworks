@@ -58,12 +58,9 @@ function tw_autocomplete_init(inputEl, options = {}) {
           form.appendChild(hidden)
         })
       }
-      if (inputEl.dataset.sendSelect) {
+      if (inputEl.dataset.sendSelect === 'true') {
         form.submit()
       }
-    },
-    focus(ui) {
-      const selected = ui.item
     }
   })
 
@@ -74,9 +71,10 @@ function tw_autocomplete_init(inputEl, options = {}) {
     const term = this.input.value
 
     this._items.forEach((item, idx) => {
-      const el = document.createElement('div')
+      const el = document.createElement('li')
       el.className = 'autocomplete-item'
       el.setAttribute('data-index', idx)
+      el.setAttribute('data-model-id', item.id)
       el.innerHTML = this._highlightLabel(item.label, term)
       this._menu.appendChild(el)
     })

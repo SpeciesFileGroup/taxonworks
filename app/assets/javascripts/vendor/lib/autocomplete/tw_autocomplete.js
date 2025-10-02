@@ -83,7 +83,7 @@ class TWAutocomplete {
   _createMenu() {
     this._ensureAppendToPositioned()
 
-    const menu = document.createElement('div')
+    const menu = document.createElement('ul')
 
     menu.className = `autocomplete-menu ${
       this.options.classes.menu || ''
@@ -274,12 +274,13 @@ class TWAutocomplete {
 
     const term = this.input.value
     this._items.forEach((item, idx) => {
-      const d = document.createElement('div')
+      const d = document.createElement('li')
       d.className = `autocomplete-item ${
         this.options.classes.item || ''
       }`.trim()
       d.setAttribute('role', 'option')
       d.setAttribute('data-index', String(idx))
+      d.setAttribute('data-model-id', String(item.id))
       d.setAttribute('tabindex', '-1')
       d.innerHTML = item.label_html || this._highlightLabel(item.label, term)
       this._menu.appendChild(d)
