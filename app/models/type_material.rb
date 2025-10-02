@@ -47,6 +47,10 @@ class TypeMaterial < ApplicationRecord
     'paralectotypes' => Lot
   }.freeze
 
+  ICZN_PRIMARY_TYPES = [
+    'holotype', 'neotype', 'lectotype', 'syntype'
+  ].freeze
+
   ICN_TYPES = {
       'holotype' => Specimen,
       'paratype' => Specimen,
@@ -60,6 +64,8 @@ class TypeMaterial < ApplicationRecord
       'isotypes' => Lot,
       'isosyntypes' => Lot
   }.freeze
+
+  ICN_PRIMARY_TYPES = ['holotype', 'neotype', 'lectotype', 'syntype', 'epitype'].freeze
 
   belongs_to :collection_object, class_name: 'CollectionObject', inverse_of: :type_materials
   belongs_to :protonym, inverse_of: :type_materials
@@ -105,7 +111,7 @@ class TypeMaterial < ApplicationRecord
     return DwcOccurrence.none unless collection_object.present?
     DwcOccurrence.where(
       dwc_occurrence_object_type: 'CollectionObject',
-      dwc_occurrence_object_id: collection_object_id 
+      dwc_occurrence_object_id: collection_object_id
     ).distinct
   end
 
