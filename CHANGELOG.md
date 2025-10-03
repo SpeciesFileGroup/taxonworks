@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter Sources: Editors facet
 - Radial navigator: links to filter source/taxon names for People [#3132]
 - Additional sensitive data excluded from logs
+- Search for people by orcid id or wikidata Q id using only their number
 
 ### Fixed
 
