@@ -309,11 +309,7 @@ module OtusHelper
     o = otu
 
     # internal target
-    t = {
-      'id' => o.id,
-      'type' => 'Otu',
-      'label' => label_for_otu(otu)
-    }
+    t = geojson_target_for_otu(otu)
 
     o.current_field_occurrences.each do |f|
       if g = field_occurrence_to_geo_json_feature(f)
