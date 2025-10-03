@@ -46,4 +46,9 @@ class ImportAttribute < DataAttribute
   def predicate_name
     import_predicate
   end
+
+  def value_to_h
+    JSON.parse(value)
+  end
+
 end
