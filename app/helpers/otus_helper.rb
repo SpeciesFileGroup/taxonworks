@@ -211,17 +211,7 @@ module OtusHelper
              Otu.coordinate_otus(otu.id)
            end
 
-    h = {
-      'type' => 'FeatureCollection',
-      'features' => [],
-      'properties' => {
-        'target' => { # Top level target
-          'id' => otu.id,
-          'label' => label_for_otu(otu),
-          'type' => 'Otu'
-        }
-      }
-    }
+    h = geojson_for_otu(otu)
 
     if otu.taxon_name && otu.taxon_name.is_protonym? && !otu.taxon_name.is_species_rank?
       add_aggregate_geo_json(otu, h)
@@ -234,19 +224,31 @@ module OtusHelper
     h
   end
 
+  def geojson_for_otu(otu)
+    {
+      'type' => 'FeatureCollection',
+      'features' => [],
+      'properties' => {
+        'target' => geojson_target_for_otu(otu)
+      }
+    }
+  end
+
+  def geojson_target_for_otu(otu)
+    {
+      'id' => otu.id,
+      'label' => label_for_otu(otu),
+      'type' => 'Otu'
+    }
+  end
+
   def add_aggregate_geo_json(otu, target)
     h = target
 
     if g = aggregate_geo_json(otu, h)
-      t = {
-        'id' => otu.id,
-        'type' => 'Otu',
-        'label' => label_for_otu(otu)
-      }
-
       g['properties'] = {'aggregate': true}
+      g['properties']['target'] = geojson_target_for_otu(otu)
 
-      g['properties']['target'] = t
       h['features'].push g
     end
 
@@ -280,10 +282,7 @@ module OtusHelper
           # 'type' => gj['type'],  # 'Feature',
 
           'properties' => {
-            'base' => {
-              'type' => 'Otu',
-              'id' => otu.id,
-              'label' => label_for_otu(otu) },
+            'base' => geojson_target_for_otu(otu),
             #     'shape' => {
             #       'type' => cached_map_type,
             #       'id' => 99999 }, # was nil
