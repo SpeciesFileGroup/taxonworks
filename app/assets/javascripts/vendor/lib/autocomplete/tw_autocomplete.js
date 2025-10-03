@@ -297,20 +297,9 @@ class TWAutocomplete {
     this._menu.style.minWidth = inputWidth + 'px'
     this._menu.style.maxWidth = viewportWidth + 'px'
 
-    const menuHeight = this._menu.offsetHeight
-
-    const spaceBelowViewport = window.innerHeight - rect.bottom
-    const spaceAboveViewport = rect.top
-    if (
-      menuHeight > spaceBelowViewport &&
-      spaceAboveViewport > spaceBelowViewport
-    ) {
-      top = rect.top - appendRect.top + scrollTop - menuHeight
-    } else {
-      top = rect.bottom - appendRect.top + scrollTop
-    }
-
     const maxLeftRel = Math.max(0, appendRect.width - this._menu.offsetWidth)
+
+    top = rect.bottom - appendRect.top + scrollTop
     left = Math.max(0, Math.min(left, maxLeftRel))
 
     this._menu.style.left = Math.round(left) + 'px'
