@@ -20,6 +20,7 @@
       :configs="configs"
       :edges="edges"
       :nodes="nodes"
+      :layouts="layouts"
       :event-handlers="eventHandlers"
       v-model:selected-nodes="selectedNodes"
       v-model:selected-edges="selectedEdges"
@@ -47,6 +48,7 @@
 <script setup>
 import { ref } from 'vue'
 import { configs } from '../constants/networkConfig.js'
+import { graphLayout } from '../utils/graphLayout.js'
 import { useGraph } from '../composition/useGraph.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import ContextMenu from '@/components/graph/ContextMenu.vue'
@@ -87,7 +89,23 @@ const eventHandlers = {
 
 function createGraph(idsHash) {
   loadGraph(idsHash).then((_) => {
-    networkGraph.value.fitToContents()
+    //networkGraph.value.fitToContents()
+    updateLayout('TB')
+  })
+}
+
+function updateLayout(direction) {
+  networkGraph.value?.transitionWhile(() => {
+    const data = graphLayout({
+      nodes: nodes.value,
+      edges: edges.value,
+      nodeSize: 40
+    })
+
+    if (!data) return
+
+    layouts.value = data.layouts
+    networkGraph.value.setViewBox(data.viewBox)
   })
 }
 
