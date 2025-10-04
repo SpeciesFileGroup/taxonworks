@@ -38,13 +38,12 @@ class AnatomicalPartsController < ApplicationController
 
   # POST /anatomical_parts or /anatomical_parts.json
   def create
-    begin
-      @anatomical_part, @origin_relationship =
-        AnatomicalPart.createOriginatedAnatomicalPart(anatomical_part_params)
-
+    @anatomical_part = AnatomicalPart.new(anatomical_part_params)
+    if @anatomical_part.save
+      @origin_relationship = @anatomical_part.inbound_origin_relationship
       render :show, status: :created
-    rescue TaxonWorks::Error => e
-      render json: {success: false, errors: e }, status: :unprocessable_entity
+    else
+      render json: { errors: @anatomical_part.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -112,6 +111,6 @@ class AnatomicalPartsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def anatomical_part_params
       params.require(:anatomical_part).permit(:name, :uri, :uri_label,
-        :is_material, :origin_object_id, :origin_object_type)
+        :is_material, inbound_origin_relationship_attributes: [:old_object_id, :old_object_type])
     end
 end

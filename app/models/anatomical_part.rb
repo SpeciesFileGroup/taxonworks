@@ -70,46 +70,23 @@ class AnatomicalPart < ApplicationRecord
 
   belongs_to :origin_otu, class_name: 'Otu', foreign_key: :cached_otu_id, inverse_of: :anatomical_parts
 
+  # Needed so we can build the origin chain at the same time we're using it to
+  # verify that a new AnitomicalPart has an OTU ancestor.
+  # Probably not needed outside of creation.
+  has_one :inbound_origin_relationship,
+    -> { where(new_object_type: 'AnatomicalPart') },
+    as: :new_object,
+    class_name: 'OriginRelationship',
+    inverse_of: :new_object,
+    dependent: :destroy
+
+  accepts_nested_attributes_for :inbound_origin_relationship
+
   after_save :set_cached, unless: -> { self.no_cached }
 
+  validates :inbound_origin_relationship, presence: true, on: :create
   validate :name_or_uri_not_both
   validate :top_origin_is_valid_origin
-
-  # !! This is the *ONLY* way a new anatomical part can be created.
-  # Raises TaxonWorks::Error on error.
-  def self.createOriginatedAnatomicalPart(params)
-    if !params[:origin_object] && (!params[:origin_object_id] || !params[:origin_object_type])
-      raise TaxonWorks::Error, 'Origin object is required!'
-      return
-    end
-
-    origin_object = params[:origin_object] ||
-      params[:origin_object_type].safe_constantize&.find_by(id: params[:origin_object_id])
-    raise TaxonWorks::Error, 'Invalid origin object!' && return if origin_object.nil?
-
-    params = params
-      .except('origin_object_id', 'origin_object_type')
-      .merge({ origin_object: })
-    part = AnatomicalPart.new(params)
-    relationship = nil
-    begin
-      AnatomicalPart.transaction do
-        raise TaxonWorks::Error, part.errors.full_messages.join(', ') if !part.save
-
-        # origin_object has been validated as valid for the origin of the new
-        # anatomical part; now create the relationship.
-        relationship = OriginRelationship.new(
-          old_object: origin_object, new_object: part
-        )
-
-        raise TaxonWorks::Error, relationship.errors.full_messages.join(', ') if !relationship.save
-      end
-    rescue ActiveRecord::RecordInvalid => e
-      raise TaxonWorks::Error, e.to_s
-    end
-
-    return part, relationship
-  end
 
   # @return [Scope]
   #    the max 10 most recently used anatomical_parts
@@ -197,13 +174,15 @@ class AnatomicalPart < ApplicationRecord
   def taxonomic_origin_object
     return @top_origin_object if @top_origin_object.present?
 
-    origin = origin_object || self
+    origin = inbound_origin_relationship
+    return nil if origin.nil? # invalid object
+
     next_parent = nil
-    while (next_parent = OriginRelationship.where(new_object_id: origin.id, new_object_type: origin.class.name).first)
+    while (next_parent = OriginRelationship.where(new_object_id: origin.old_object_id, new_object_type: origin.old_object_type).first)
       origin = next_parent
     end
 
-    @top_origin_object = origin
+    @top_origin_object = origin.old_object
     @top_origin_object
   end
 
@@ -284,8 +263,8 @@ class AnatomicalPart < ApplicationRecord
 
     origin_relationships = r
     nodes = [origin]
-    r.each do |r|
-      anatomical_part = r.new_object
+    r.each do |rln|
+      anatomical_part = rln.new_object
       new_nodes, new_origin_relationships = construct_graph_from_mid_node(
         anatomical_part.id, forward_only: true
       )

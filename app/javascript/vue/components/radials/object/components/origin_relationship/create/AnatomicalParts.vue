@@ -81,8 +81,10 @@ function save() {
   const payload = {
     anatomical_part: {
       ...anatomicalPart.value,
-      origin_object_id: props.objectId,
-      origin_object_type: props.objectType
+      inbound_origin_relationship_attributes: {
+        old_object_id: props.objectId,
+        old_object_type: props.objectType
+      }
     }
   }
 
