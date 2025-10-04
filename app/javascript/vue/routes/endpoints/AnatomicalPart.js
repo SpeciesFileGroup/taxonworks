@@ -10,8 +10,8 @@ const permitParams = {
     uri_label: Text,
     is_material: Boolean,
     global_id: String,
-    taxonomic_origin_object_id: Number,
-    taxonomic_origin_object_type: String
+    origin_object_id: Number,
+    origin_object_type: String
   }
 }
 

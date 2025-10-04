@@ -38,53 +38,49 @@
     </div>
 
     <div>
-      <div>
-        {{ originEndpoint }}:
-        <select v-model="type">
-          <option :value="null">Select type</option>
-          <option
-            v-for="(key) in Object.keys(typeList).sort()"
-            :key="key"
-            :value="key"
-          >
-            {{ key }}
-          </option>
-        </select>
-      </div>
-
-      <div
-        v-if="type"
-        class="margin-large-top"
-      >
-        <div v-if="offerCreate">
-          <VBtn
-            v-if="!showingCreate"
-            color="primary"
-            class="margin-small-right margin-medium-bottom"
-            @click="() => (showingCreate = true)"
-          >
-            New
-          </VBtn>
-
-          or
-        </div>
-
-        <SmartSelector
-          :model="modelSelected"
-          :target="metadata.object_type"
-          @selected="(obj) => setObject(obj)"
-        />
-      </div>
+      {{ originEndpoint }}:
+      <select v-model="type">
+        <option :value="null">Select type</option>
+        <option
+          v-for="(key) in Object.keys(typeList).sort()"
+          :key="key"
+          :value="key"
+        >
+          {{ key }}
+        </option>
+      </select>
     </div>
 
-    <div class="margin-large-top margin-large-bottom">
+    <div
+      v-if="type && offerCreate"
+      class="margin-large-top"
+    >
       <VBtn
-        color="create"
-        :disabled="!objective"
-        @click="createOrigin"
+        v-if="!showingCreate"
+        color="primary"
+        class="margin-small-right margin-medium-bottom"
+        @click="() => (showingCreate = true)"
       >
-        Create
+        Create new {{ type }} and relationship
       </VBtn>
+    </div>
+
+    <div v-if="!offerCreate">
+      <SmartSelector
+        v-if="type"
+        :model="modelSelected"
+        :target="metadata.object_type"
+        @selected="(obj) => setObject(obj)"
+      />
+      <div class="margin-large-top margin-large-bottom">
+        <VBtn
+          color="create"
+          :disabled="!objective"
+          @click="createOrigin"
+        >
+          Create
+        </VBtn>
+      </div>
     </div>
 
     <fieldset
@@ -138,16 +134,22 @@
       @close="showingCreate = false"
     >
       <template #header>
-        Create new {{ type }}
+        <span v-if="flip">
+          Create new {{ type }} origin of <span v-html="originFor" />
+        </span>
+        <span v-else>
+          Create new {{ type }} endpoint of <span v-html="originOf" />
+        </span>
       </template>
 
       <template #body>
         <component
-          :is="SLICES_WITH_CREATE.origin_relationships[type]"
-          :origin-object-id="objectId"
-          :origin-object-type="objectType"
-          @create="(obj) => {
-            setObject(obj)
+          :is="SLICES_WITH_CREATE.origin_relationships[type].component"
+          :object-id="objectId"
+          :object-type="objectType"
+          :flip="flip"
+          @originRelationshipCreated="(relationship) => {
+            addRelationship(relationship)
             showingCreate = false
           }"
         />
@@ -225,10 +227,17 @@ const loadingOldObjects = ref(false)
 const oldObjectsList = ref([])
 const newObjectsList = ref([])
 
-// Only offer to create a new anatomical_part if we know what its origin would
-// be (necessary for validations - anatomical_part chains are *always* built
-// from the top down).
-const offerCreate = computed(() => Object.keys(SLICES_WITH_CREATE.origin_relationships).includes(type.value) && flip.value == false)
+const offerCreate = computed(() => {
+  if (!Object.keys(SLICES_WITH_CREATE.origin_relationships).includes(type.value)) {
+    return false
+  }
+  const flipsAllowed = SLICES_WITH_CREATE.origin_relationships[type.value].flip
+  if (flipsAllowed === null || flipsAllowed === flip.value) {
+    return true
+  }
+
+  return false
+})
 
 const originEndpoint = computed(() => flip.value ? 'Origin' : 'Endpoint')
 const originOf = computed(() => {
@@ -246,6 +255,8 @@ watch([oldObjectsList, newObjectsList], ([newA, newB]) => {
   // the resulting 'a little hacky' comments.
   list.value = [...newA, ...newB]
 })
+
+watch(flip, () => (type.value = null))
 
 function setObject(item) {
   objective.value =
@@ -277,10 +288,19 @@ function createOrigin() {
         'Origin relationship was successfully created.',
         'notice'
       )
-      addToList(body) // just to trigger useSlice emits (a little hacky)
-      addToArray(flip.value ? oldObjectsList.value : newObjectsList.value, body)
+      relationshipCreated(body)
     })
     .catch(() => {})
+}
+
+function addRelationship(relationship) {
+  addToList(relationship) // just to trigger useSlice emits
+  addToArray(flip.value ? oldObjectsList.value : newObjectsList.value, relationship)
+}
+
+function removeRelationship(relationship, newOrOld) {
+  removeFromList(relationship) // just to trigger useSlice emits
+  removeFromArray(newOrOld == 'new' ? newObjectsList.value : oldObjectsList.value, relationship)
 }
 
 function removeOrigin(item, t) {
@@ -289,8 +309,7 @@ function removeOrigin(item, t) {
       'Origin relationship was successfully destroyed.',
       'notice'
     )
-    removeFromList(item) // just to trigger useSlice emits (a little hacky)
-    removeFromArray(t == 'new' ? newObjectsList.value : oldObjectsList.value, item)
+    removeRelationship(item, t)
   })
 }
 

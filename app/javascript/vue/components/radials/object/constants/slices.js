@@ -28,8 +28,13 @@ export const SLICE = {
 }
 
 export const SLICES_WITH_CREATE = {
-  // Create components must emit 'create'
-  origin_relationships: {
-    AnatomicalPart: AnatomicalParts
+  origin_relationships: { // Created components must emit 'originRelationshipCreated' with value an origin relationship
+    // The value of 'flip' is true if component should only be displayed when
+    // flip is true, false if component should only be displayed when flip is
+    // false, and null if component should be displayed in either case.
+    AnatomicalPart: {
+      component: AnatomicalParts,
+      flip: false,
+    }
   }
 }

@@ -29,18 +29,10 @@
 #   Whether or not the anatomical part is based on a physical object - *a* head
 #   vs. *some* head.
 #
-# @!cached
-#   @return [String]
-#
-# @!taxonomic_origin_object_id
+# @!cached_otu_id
 #   @return [Integer]
-#   Polymorhpic object id of the root of the directed tree this anatomical part
-#   belongs to. Provides the relation of this part to taxonomy.
-#
-# @!taxonomic_origin_object_type
-#   @return [String]
-#   Polymorphic bject type of the root of the directed tree this anatomical part
-#   belongs to. Provides the relation of this part to taxonomy.
+#   Each anatomical part is required to have an originRelationship-ancestor that
+#   is either an Otu or has a determination with an Otu. This is that Otu.
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -67,23 +59,57 @@ class AnatomicalPart < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
   include SoftValidation
-  include Shared::PolymorphicAnnotator
-  polymorphic_annotates('taxonomic_origin_object')
 
   is_origin_for 'AnatomicalPart', 'Extract', 'Sequence', 'Sound'
   originates_from 'Otu', 'Specimen', 'Lot', 'CollectionObject', 'AnatomicalPart', 'FieldOccurrence'
 
   GRAPH_ENTRY_POINTS = [:origin_relationships]
 
+  attr_accessor :origin_object # origin of this part, only used on create
   attr_accessor :no_cached
 
-  belongs_to :taxonomic_origin_object, polymorphic: true, inverse_of: :anatomical_parts
+  belongs_to :origin_otu, class_name: 'Otu', foreign_key: :cached_otu_id, inverse_of: :anatomical_parts
 
   after_save :set_cached, unless: -> { self.no_cached }
 
   validate :name_or_uri_not_both
-  validate :taxonomic_origin_object_is_valid_type
-  validate :taxonomic_origin_object_relates_to_otu
+  validate :top_origin_is_valid_origin
+
+  # !! This is the *ONLY* way a new anatomical part can be created.
+  # Raises TaxonWorks::Error on error.
+  def self.createOriginatedAnatomicalPart(params)
+    if !params[:origin_object] && (!params[:origin_object_id] || !params[:origin_object_type])
+      raise TaxonWorks::Error, 'Origin object is required!'
+      return
+    end
+
+    origin_object = params[:origin_object] ||
+      params[:origin_object_type].safe_constantize&.find_by(id: params[:origin_object_id])
+    raise TaxonWorks::Error, 'Invalid origin object!' && return if origin_object.nil?
+
+    params = params
+      .except('origin_object_id', 'origin_object_type')
+      .merge({ origin_object: })
+    part = AnatomicalPart.new(params)
+    relationship = nil
+    begin
+      AnatomicalPart.transaction do
+        raise TaxonWorks::Error, part.errors.full_messages.join(', ') if !part.save
+
+        # origin_object has been validated as valid for the origin of the new
+        # anatomical part; now create the relationship.
+        relationship = OriginRelationship.new(
+          old_object: origin_object, new_object: part
+        )
+
+        raise TaxonWorks::Error, relationship.errors.full_messages.join(', ') if !relationship.save
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      raise TaxonWorks::Error, e.to_s
+    end
+
+    return part, relationship
+  end
 
   # @return [Scope]
   #    the max 10 most recently used anatomical_parts
@@ -153,6 +179,32 @@ class AnatomicalPart < ApplicationRecord
   def set_cached
     # TODO
     update_column(:cached, name)
+
+    # cached_otu_id is determined by external objects, so is never changed by an
+    # update, only a create.
+    return if cached_otu_id
+
+    top_origin = taxonomic_origin_object
+
+    if top_origin.class.name == 'Otu'
+      update_column(:cached_otu_id, top_origin.id)
+    else
+      update_column(:cached_otu_id, top_origin.otu.id)
+    end
+  end
+
+  # The top object in the OriginRelationship chain.
+  def taxonomic_origin_object
+    return @top_origin_object if @top_origin_object.present?
+
+    origin = origin_object || self
+    next_parent = nil
+    while (next_parent = OriginRelationship.where(new_object_id: origin.id, new_object_type: origin.class.name).first)
+      origin = next_parent
+    end
+
+    @top_origin_object = origin
+    @top_origin_object
   end
 
   def name_or_uri_not_both
@@ -163,21 +215,16 @@ class AnatomicalPart < ApplicationRecord
     errors.add(:base, 'Exactly one of 1) name, or 2) uri *and* uri_label, must be present')
   end
 
-  def taxonomic_origin_object_is_valid_type
-    return if taxonomic_origin_object.nil?
-    valid = ['Otu', 'CollectionObject', 'FieldOccurrence']
-    t = taxonomic_origin_object.class.base_class.name
-    return if valid.include?(t)
+  def top_origin_is_valid_origin
+    origin = taxonomic_origin_object
 
-    errors.add(:base, "Class of taxonomic_origin_object must be in [#{valid.join(', ')}], not #{t}")
-  end
+    errors.add(:base, 'Anatomical parts must be endpoints of an OriginRelationship!') && return if origin.nil?
 
-  def taxonomic_origin_object_relates_to_otu
-    return if taxonomic_origin_object.nil?
-    t = taxonomic_origin_object.class.base_class.name
-    return if t == 'Otu' || taxonomic_origin_object.taxon_determinations.exists?
+    valid = valid_old_object_classes - ['AnatomicalPart']
+    t = origin.class.base_class.name
+    errors.add(:base, "Class of original origin must be in [#{valid.join(', ')}], not #{t}") && return if !valid.include?(t)
 
-    errors.add(:base, 'taxonomic_origin_object is required to have a taxon determination')
+    errors.add(:base, "Original origin must have a taxon determination!") && return if !origin.taxon_determinations.exists?
   end
 
   # Construct an AnatomicalPart graph starting from an AnatomicalPart. Going up

@@ -38,7 +38,6 @@ class Otu < ApplicationRecord
   include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::OriginRelationship
-  include Shared::AnatomicalParts
   include Shared::AssertedDistributions
 
   include Shared::AutoUuid
@@ -95,6 +94,8 @@ class Otu < ApplicationRecord
 
   has_many :leads, inverse_of: :otu, dependent: :restrict_with_error
   has_many :lead_items, inverse_of: :otu, dependent: :destroy
+
+  has_many :anatomical_parts, foreign_key: :cached_otu_id, inverse_of: :origin_otu, dependent: :restrict_with_error
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }

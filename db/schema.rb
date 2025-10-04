@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_27_233043) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_03_204208) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -80,14 +80,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_27_233043) do
     t.integer "updated_by_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "taxonomic_origin_object_id", null: false
-    t.string "taxonomic_origin_object_type", null: false
+    t.bigint "cached_otu_id"
     t.index ["cached"], name: "index_anatomical_parts_on_cached"
+    t.index ["cached_otu_id"], name: "index_anatomical_parts_on_cached_otu_id"
     t.index ["created_by_id"], name: "index_anatomical_parts_on_created_by_id"
     t.index ["is_material"], name: "index_anatomical_parts_on_is_material"
     t.index ["name"], name: "index_anatomical_parts_on_name"
     t.index ["project_id"], name: "index_anatomical_parts_on_project_id"
-    t.index ["taxonomic_origin_object_id", "taxonomic_origin_object_type"], name: "anatomical_part_polymorphic_taxonomic_origin_index"
     t.index ["updated_by_id"], name: "index_anatomical_parts_on_updated_by_id"
     t.index ["uri"], name: "index_anatomical_parts_on_uri"
     t.index ["uri_label"], name: "index_anatomical_parts_on_uri_label"
@@ -2310,6 +2309,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_27_233043) do
   add_foreign_key "alternate_values", "projects", name: "alternate_values_project_id_fkey"
   add_foreign_key "alternate_values", "users", column: "created_by_id", name: "alternate_values_created_by_id_fkey"
   add_foreign_key "alternate_values", "users", column: "updated_by_id", name: "alternate_values_updated_by_id_fkey"
+  add_foreign_key "anatomical_parts", "otus", column: "cached_otu_id"
   add_foreign_key "anatomical_parts", "projects"
   add_foreign_key "anatomical_parts", "users", column: "created_by_id"
   add_foreign_key "anatomical_parts", "users", column: "updated_by_id"

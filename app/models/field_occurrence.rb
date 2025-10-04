@@ -27,7 +27,6 @@ class FieldOccurrence < ApplicationRecord
   include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::Identifiers
-  include Shared::AnatomicalParts
   include Shared::Notes
   include Shared::Observations
   include Shared::OriginRelationship

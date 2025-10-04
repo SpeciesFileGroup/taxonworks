@@ -129,7 +129,7 @@ module Shared::Taxonomy
       o.otu&.taxon_name&.valid_taxon_name
 
     when 'AnatomicalPart'
-      taxonomy_for_object(o.taxonomic_origin_object)
+      o.origin_otu.taxon_name
 
     when 'TaxonName' # not used (probably has to be subclassed)
       o

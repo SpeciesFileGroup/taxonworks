@@ -56,12 +56,12 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
-  originObjectId: {
+  objectId: {
     type: Number,
     required: true
   },
 
-  originObjectType: {
+  objectType: {
     type: String,
     required: true
   }
@@ -70,7 +70,7 @@ const props = defineProps({
 const anatomicalPart = ref({})
 const isLoading = ref(false)
 
-const emit = defineEmits(['create'])
+const emit = defineEmits(['originRelationshipCreated'])
 
 const validAnatomicalPart = computed(() => {
   return anatomicalPart.value.name ||
@@ -79,7 +79,11 @@ const validAnatomicalPart = computed(() => {
 
 function save() {
   const payload = {
-    anatomical_part: anatomicalPart.value
+    anatomical_part: {
+      ...anatomicalPart.value,
+      origin_object_id: props.objectId,
+      origin_object_type: props.objectType
+    }
   }
 
   const response = anatomicalPart.id
@@ -90,8 +94,12 @@ function save() {
   response
     .then(({ body }) => {
       resetForm()
-      emit('create', body)
-      TW.workbench.alert.create('Anatomical part was successfully saved.', 'notice')
+      if (anatomicalPart.id) {
+        TW.workbench.alert.create('Anatomical part was successfully saved.', 'notice')
+      } else {
+        emit('originRelationshipCreated', body.origin_relationship)
+        TW.workbench.alert.create('Anatomical part and Origin relationship were successfully created.', 'notice')
+      }
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))
@@ -104,18 +112,16 @@ function resetForm() {
 onMounted(() => {
   if (props.originObjectType != 'AnatomicalPart') {
     anatomicalPart.value = {
-      taxonomic_origin_object_id: props.originObjectId,
-      taxonomic_origin_object_type: props.originObjectType
+     cached_otu_id: props.cachedOtuId
     }
   } else {
-    // taxonomic_origin_object of the new anatomical part should be the same as
-    // the origin if the origin is an anatomical part.
+    // cachedOtuId of the new anatomical part should be the same as the origin
+    // if the origin is an anatomical part.
     isLoading.value = true
     AnatomicalPart.find(props.originObjectId)
       .then(({ body }) => {
         anatomicalPart.value = {
-          taxonomic_origin_object_id: body.taxonomic_origin_object_id,
-          taxonomic_origin_object_type: body.taxonomic_origin_object_type
+          cached_otu_id: body.cached_otu_id
         }
       })
       .catch(() => {})
