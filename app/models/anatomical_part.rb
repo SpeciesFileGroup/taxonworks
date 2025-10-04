@@ -69,6 +69,7 @@ class AnatomicalPart < ApplicationRecord
   attr_accessor :no_cached
 
   belongs_to :origin_otu, class_name: 'Otu', foreign_key: :cached_otu_id, inverse_of: :anatomical_parts
+  belongs_to :preparation_type, inverse_of: :anatomical_parts
 
   # Needed so we can build the origin chain at the same time we're using it to
   # verify that a new AnitomicalPart has an OTU ancestor.
