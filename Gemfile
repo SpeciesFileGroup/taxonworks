@@ -4,7 +4,7 @@ gem 'rack-cors', '~> 2.0', require: 'rack/cors'
 
 ruby '>= 3.2', '< 3.5.0'
 
-gem 'bundler', '~> 2.5'
+gem 'bundler', '~> 2.7'
 
 gem 'rake', '~> 13.0'
 gem 'rails', '~> 7.2'

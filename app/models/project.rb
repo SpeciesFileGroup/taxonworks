@@ -353,6 +353,46 @@ class Project < ApplicationRecord
     save!
   end
 
+  # Merge another project into this project
+  #
+  # Merges all data from project_to_remove into this project, handling validation
+  # conflicts, maintaining data integrity, and preserving complex relationships.
+  #
+  # After successful merge, project_to_remove will be empty (except its Root TaxonName).
+  #
+  # @param project_to_remove [Project] The project to merge from (will be emptied of data)
+  # @param root_taxon_name_id [Integer, nil] Optional ID of TaxonName in this project
+  #   to use as parent for merged TaxonName hierarchy. If nil, uses this project's root.
+  # @param preview [Boolean] If true, performs dry-run and rolls back all changes (default: true)
+  # @param skip_cached_rebuild [Boolean] If true, skips rebuilding cached fields (default: false)
+  #
+  # @return [Hash] Detailed results including statistics, errors, and per-model details
+  #
+  # @example Basic merge with preview
+  #   result = target_project.merge_project(source_project, preview: true)
+  #   puts result[:statistics][:total_records]
+  #
+  # @example Actual merge with custom TaxonName root
+  #   genus = target_project.taxon_names.find_by(name: 'Aus')
+  #   result = target_project.merge_project(source_project,
+  #     root_taxon_name_id: genus.id,
+  #     preview: false
+  #   )
+  #
+  def merge_project(project_to_remove, root_taxon_name_id: nil, preview: true, skip_cached_rebuild: false)
+    service = ProjectUnification::Service.new(
+      project_to_remove,
+      self,
+      {
+        root_taxon_name_id: root_taxon_name_id,
+        preview: preview,
+        skip_cached_rebuild: skip_cached_rebuild
+      }
+    )
+
+    service.unify
+  end
+
   protected
 
   def create_root_taxon_name
