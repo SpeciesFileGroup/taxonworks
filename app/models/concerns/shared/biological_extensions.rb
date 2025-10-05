@@ -32,11 +32,12 @@ module Shared::BiologicalExtensions
     accepts_nested_attributes_for :otus, allow_destroy: true, reject_if: :reject_otus
     accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
 
+    # DEPRECATED - TODO: replace with current_taxon_name and current_otu (below).
+    # Note that this should not be a has_one because order is over-ridden on .first
+    # and can be lost when merged into other queries.
     has_one :taxon_determination, -> { order(:position).limit(1) }, as: :taxon_determination_object, class_name: 'TaxonDetermination', inverse_of: :taxon_determination_object
     has_one :otu, through: :taxon_determination, inverse_of: :taxon_determinations
 
-    # Note that this should not be a has_one because order is over-ridden on .first
-    # and can be lost when merged into other queries.
     def current_taxon_determination
       taxon_determinations.eager_load(:notes, :determiners).order(:position).first
     end
