@@ -152,6 +152,22 @@ class AnatomicalPart < ApplicationRecord
     end
   end
 
+  # The top object in the OriginRelationship chain.
+  def taxonomic_origin_object
+    return @top_origin_object if @top_origin_object.present?
+
+    origin = inbound_origin_relationship
+    return nil if origin.nil? # invalid object
+
+    next_parent = nil
+    while (next_parent = OriginRelationship.where(new_object_id: origin.old_object_id, new_object_type: origin.old_object_type).first)
+      origin = next_parent
+    end
+
+    @top_origin_object = origin.old_object
+    @top_origin_object
+  end
+
   private
 
   def set_cached
@@ -167,24 +183,8 @@ class AnatomicalPart < ApplicationRecord
     if top_origin.class.name == 'Otu'
       update_column(:cached_otu_id, top_origin.id)
     else
-      update_column(:cached_otu_id, top_origin.otu.id)
+      update_column(:cached_otu_id, top_origin.current_otu.id)
     end
-  end
-
-  # The top object in the OriginRelationship chain.
-  def taxonomic_origin_object
-    return @top_origin_object if @top_origin_object.present?
-
-    origin = inbound_origin_relationship
-    return nil if origin.nil? # invalid object
-
-    next_parent = nil
-    while (next_parent = OriginRelationship.where(new_object_id: origin.old_object_id, new_object_type: origin.old_object_type).first)
-      origin = next_parent
-    end
-
-    @top_origin_object = origin.old_object
-    @top_origin_object
   end
 
   def name_or_uri_not_both

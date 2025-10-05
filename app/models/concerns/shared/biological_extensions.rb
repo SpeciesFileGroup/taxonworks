@@ -94,4 +94,61 @@ module Shared::BiologicalExtensions
     a.blank? && b.blank?
   end
 
+  # Propagate a change in the accepted OTU (top/position 1 TaxonDetermination)
+  # down to descendant AnatomicalParts.
+  def propagate_current_otu_change!(from_id:, to_id:)
+    return true if from_id == to_id # includes nil == nil
+    return true if !AnatomicalPart.valid_old_object_classes.include?(self.class.name)
+
+    anatomical_part_ids = descendant_anatomical_part_ids
+    return true if anatomical_part_ids.empty?
+
+    scope = AnatomicalPart
+      .where(project_id: project_id, id: anatomical_part_ids)
+      .where(cached_otu_id: from_id)
+
+    scope.update_all(cached_otu_id: to_id)
+    true
+  rescue => e
+    Rails.logger.warn("#{self.class}##{id} propagation failed: #{e.class}: #{e.message}")
+    false
+  end
+
+  private
+
+  # @return [Array<Integer>]
+  def descendant_anatomical_part_ids
+    project = project_id
+    seen_ids = Set.new
+    result = []
+    frontier = [id]
+    old_type = self.class.base_class.name
+
+    while frontier.any?
+      old_frontier = frontier
+      frontier = []
+      old_old_type = old_type
+      old_type = 'AnatomicalPart'
+
+      old_frontier.each do |old_id|
+        rels = OriginRelationship
+          .where(
+            project_id: project,
+            old_object_type: old_old_type,
+            old_object_id: old_id,
+            new_object_type: 'AnatomicalPart')
+          .pluck(:new_object_id)
+
+        rels.each do |anatomical_part_id|
+          next if seen_ids.include?(anatomical_part_id)
+          seen_ids << anatomical_part_id
+          result << anatomical_part_id
+          frontier << anatomical_part_id
+        end
+      end
+    end
+
+    result
+  end
+
 end

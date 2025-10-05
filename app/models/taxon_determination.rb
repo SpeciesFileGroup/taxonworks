@@ -48,6 +48,7 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Labels
   include Shared::Depictions
   include Shared::ProtocolRelationships
+  include Shared::TaxonDeterminationsOtuWatcher
   include Shared::DwcOccurrenceHooks
   include SoftValidation
   include Shared::IsData
