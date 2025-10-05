@@ -1,20 +1,20 @@
 require 'rails_helper'
 
 RSpec.describe AnatomicalPart, type: :model do
+  let!(:otu) { FactoryBot.create(:valid_otu) }
+  let!(:origin) { FactoryBot.create(:valid_collection_object) }
+  let!(:inbound_origin_relationship_attributes) {
+    {
+      old_object_id: origin.id,
+      old_object_type: origin.class.base_class.name
+    }
+  }
+
+  before(:each) {
+    origin.taxon_determinations << FactoryBot.create(:valid_taxon_determination, otu_id: otu.id)
+  }
+
   context 'validations' do
-    let!(:otu) { FactoryBot.create(:valid_otu) }
-    let!(:origin) { FactoryBot.create(:valid_collection_object) }
-    let!(:inbound_origin_relationship_attributes) {
-      {
-        old_object_id: origin.id,
-        old_object_type: origin.class.base_class.name
-      }
-    }
-
-    before(:each) {
-      origin.taxon_determinations << FactoryBot.create(:valid_taxon_determination, otu_id: otu.id)
-    }
-
     specify 'inbound_origin_relationship is required for valid AnitomicalPart' do
       a = AnatomicalPart.new({name: 'a'})
       expect(a.valid?).to be_falsey
@@ -77,5 +77,149 @@ RSpec.describe AnatomicalPart, type: :model do
     end
   end
 
+  context 'ancestor chains' do
+    # TODO: this needs to be fixed.
+    xspecify 'exactly one previous origin for each anatomical part' do
+      a = AnatomicalPart.create!(name: 'popular', inbound_origin_relationship_attributes:)
+
+      expect{
+        AnatomicalPart.create!(
+          name: 'groupie',
+          inbound_origin_relationship_attributes: {
+            old_object_id: a.inbound_origin_relationship.old_object_id,
+            old_object_type: a.inbound_origin_relationship.old_object_type
+          }
+        )
+      }.to raise_error()
+    end
+
+    context 'taxonomic_origin_object' do
+      specify 'length 1 chain' do
+        root = FactoryBot.create(:valid_field_occurrence)
+
+        c1 = AnatomicalPart.create!(
+          name: 'c1',
+          inbound_origin_relationship_attributes: {
+            old_object_id: root.id,
+            old_object_type: 'FieldOccurrence'
+          }
+        )
+
+        expect(c1.taxonomic_origin_object).to eq(root)
+      end
+
+      specify 'length 2 chain' do
+        root = otu
+
+        c1 = AnatomicalPart.create!(
+          name: 'c1',
+          inbound_origin_relationship_attributes: {
+            old_object_id: root.id,
+            old_object_type: 'Otu'
+          }
+        )
+
+        c2 = AnatomicalPart.create!(
+          name: 'c2',
+          inbound_origin_relationship_attributes: {
+            old_object_id: c1.id,
+            old_object_type: 'AnatomicalPart'
+          }
+        )
+
+        expect(c2.taxonomic_origin_object).to eq(root)
+      end
+    end
+
+    context 'cached_otu_id' do
+      specify 'Otu' do
+        root = otu
+
+        c1 = AnatomicalPart.create!(
+          name: 'c1',
+          inbound_origin_relationship_attributes: {
+            old_object_id: root.id,
+            old_object_type: 'Otu'
+          }
+        )
+
+        expect(c1.cached_otu_id).to eq(otu.id)
+      end
+
+      specify 'Specimen' do
+        root = origin
+
+        c1 = AnatomicalPart.create!(
+          name: 'c1',
+          inbound_origin_relationship_attributes:
+        )
+
+        expect(c1.cached_otu_id).to eq(origin.otu.id)
+      end
+    end
+  end
+
+  specify 'can create complex graphs' do
+    root = origin
+
+    # length 1 chain
+    c11 = AnatomicalPart.create!(
+      name: 'c11',
+      inbound_origin_relationship_attributes: {
+        old_object_id: root.id,
+        old_object_type: 'Specimen'
+      }
+    )
+
+    # length 2 chain
+    c21 = AnatomicalPart.create!(
+      name: 'c21',
+      inbound_origin_relationship_attributes: {
+        old_object_id: root.id,
+        old_object_type: 'Specimen'
+      }
+    )
+
+    c22 = AnatomicalPart.create!(
+      name: 'c22',
+      inbound_origin_relationship_attributes: {
+        old_object_id: c21.id,
+        old_object_type: 'AnatomicalPart'
+      }
+    )
+
+    # bifurcating chain
+    c31 = AnatomicalPart.create!(
+      name: 'c31',
+      inbound_origin_relationship_attributes: {
+        old_object_id: root.id,
+        old_object_type: 'Specimen'
+      }
+    )
+
+    c32 = AnatomicalPart.create!(
+      name: 'c32',
+      inbound_origin_relationship_attributes: {
+        old_object_id: c31.id,
+        old_object_type: 'AnatomicalPart'
+      }
+    )
+
+    c331 = AnatomicalPart.create!(
+      name: 'c331',
+      inbound_origin_relationship_attributes: {
+        old_object_id: c32.id,
+        old_object_type: 'AnatomicalPart'
+      }
+    )
+
+    c332 = AnatomicalPart.create!(
+      name: 'c332',
+      inbound_origin_relationship_attributes: {
+        old_object_id: c32.id,
+        old_object_type: 'AnatomicalPart'
+      }
+    )
+  end
 
 end
