@@ -7,7 +7,7 @@ class OtusController < ApplicationController
     :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
     :api_nomenclature_citations, :api_distribution, :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
 
-  after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
+  after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index, :api_alphabetical_index], if: :json_request?
 
   # GET /otus
   # GET /otus.json
@@ -285,6 +285,17 @@ class OtusController < ApplicationController
     end
   end
 
+  def api_alphabetical_index
+    @otus = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .page(params[:page])
+      .per(params[:per])
+      .eager_load(:taxon_name)
+      .order(:cached, 'otus.name')
+
+    render '/otus/api/v1/index'
+  end
+
   def api_determined_to_rank
     render json: helpers.dwc_determined_to_rank(@otu, sessions_current_project_id)
   end
@@ -341,9 +352,9 @@ class OtusController < ApplicationController
       .joins('LEFT OUTER JOIN observation_matrix_column_items ON descriptors.id = observation_matrix_column_items.descriptor_id')
       .eager_load(image: [:attribution])
     if params[:sort_order]
-      @depictions = @depictions.order( Arel.sql( conditional_sort('depictions.depiction_object_type', params[:sort_order]) + ", observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position" ))
+      @depictions = @depictions.order( Arel.sql( conditional_sort('depictions.depiction_object_type', params[:sort_order]) + ', observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position' ))
     else
-      @depictions = @depictions.order("depictions.depiction_object_type, observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position")
+      @depictions = @depictions.order('depictions.depiction_object_type, observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position')
     end
     @depictions = @depictions.page(params[:page]).per(params[:per])
 
