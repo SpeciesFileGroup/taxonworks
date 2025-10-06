@@ -19,6 +19,7 @@
   <FacetAnatomicalPart v-model="params" />
   <FacetNotes v-model="params" />
   <FacetIdentifier v-model="params" />
+  <FacetDataAttribute v-model="params" />
   <FacetTags
     v-model="params"
     :target="BIOLOGICAL_ASSOCIATION"
@@ -67,6 +68,7 @@ import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import {
   OTU,
   COLLECTION_OBJECT,

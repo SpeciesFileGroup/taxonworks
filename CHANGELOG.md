@@ -9,9 +9,42 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Filter Sources: CSV List includes serials name and more logical prioritization of fields [#3154]
+- Filter Sources: Editors facet
+- Radial navigator: links to filter source/taxon names for People [#3132]
+- Additional sensitive data excluded from logs
+- Search for people by orcid id or wikidata Q id using only their number
+- Browse OTU: Tag column in biological associations table
+- `/otus/inventory/alphabetical`: Returns OTUs in alphabetical order
+
+### Fixed
+
+- 'Use a key' shows a blank page [#4557]
+- Browse nomenclature: The navigation panel does not update its size correctly
+- Filter CO: Types facet doesn't work after reset the interface
+
+### Changed
+
+- `New container` task interface to default for edit and new
+
+[#3132]: https://github.com/SpeciesFileGroup/taxonworks/issues/3132
+[#3154]: https://github.com/SpeciesFileGroup/taxonworks/issues/3154
+[#4557]: https://github.com/SpeciesFileGroup/taxonworks/issues/4557
+
+## [0.54.0] - 2025-09-24
+
+### Added
+
+- `/api/v1/dwc_occurrences/area_autocomplete?term=Can&target=country|stateProvince|county`
+- Indecies on geo-related DwcOccurrence fields
 - Radial filter: Source => TNR and vice versa
 - Taxonomic tree: Options to show/hide descendants count and Level-based coloring.
-- Interactive key descriptor selections can be used to help create a dichotomous key
+- Interactive key descriptor selections can be used to help create a dichotomous key [#4527]
+- Browse OTU: Radial annotator to biological associations panel
+- Filter biological associations: Data attributes facet
+- Quick forms: Publish/unpublish toggle button to Content slice
+- Api endpoint for 'complete' DwCA project downloads at `/api/v1/downloads/dwc_archive_complete?project_token=<>` [#2830]
+- Project admin preferences panel for settings related to complete downloads
 
 ### Fixed
 
@@ -20,12 +53,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lead text sometimes doesn't update in the UI after save in 'full key' display mode
 - Taxon name statistics now load much faster for higher taxa. Valid taxa counts are unchanged but invalid and otu-taxa counts have decreased slightly in some instances due to being counted differently.
 - Fix DwCA media and resource relationship extensions to refer to core occurrences properly (this previously prevented extension data from displaying on GBIF occurrence pages)
+- `api/v1/otus/autocomplete` (used by search on TaxonPages) sometimes didn't return all results [#4553]
 
 ### Changed
 
 - Mass annotate namespaces in Filter Collection Objects/Filter Collecting Events now requires selecting the namespace(s) to replace
 - Changed file extension from `.csv` to `.tsv` in DwC OTU inventory API endpoint to facilitate readers to detect field separator correctly.
+- Updated interactive key endpoint to hand work with dichotomous keys
 - Make distribution on /api/v1/taxon_names/:id/inventory/catalog an extends option
+- Target updated PG client
+
+[#2830]: https://github.com/SpeciesFileGroup/taxonworks/issues/2830
+[#4527]: https://github.com/SpeciesFileGroup/taxonworks/issues/4527
+[#4553]: https://github.com/SpeciesFileGroup/taxonworks/issues/4553
 
 ## [0.53.2] - 2025-09-05
 
@@ -5675,7 +5715,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.0...development
+[0.54.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.2...v0.54.0
 [0.53.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.1...v0.53.2
 [0.53.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.0...v0.53.1
 [0.53.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.52.2...v0.53.0

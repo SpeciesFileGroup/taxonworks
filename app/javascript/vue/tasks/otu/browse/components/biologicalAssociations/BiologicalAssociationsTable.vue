@@ -2,14 +2,20 @@
   <table class="full_width table-striped table-cell-border">
     <thead>
       <tr>
-        <th>Subject</th>
+        <th class="w-2" />
+        <th class="table-cell-border-left-thick">Subject</th>
         <th :colspan="5" />
         <th class="table-cell-border-left-thick" />
         <th class="table-cell-border-left-thick">Object</th>
-        <th :colspan="6" />
+        <th :colspan="5" />
+        <th
+          :colspan="2"
+          class="table-cell-border-left-thick"
+        />
       </tr>
       <tr class="table-header-border table-header-bold">
-        <th>Related</th>
+        <th class="w-2" />
+        <th class="table-cell-border-left-thick">Related</th>
         <th>Order</th>
         <th>Family</th>
         <th>Genus</th>
@@ -24,7 +30,8 @@
         <th>Family</th>
         <th>Genus</th>
         <th>Label</th>
-        <th>Citations</th>
+        <th class="table-cell-border-left-thick">Citations</th>
+        <th>Tags</th>
       </tr>
     </thead>
     <tbody>

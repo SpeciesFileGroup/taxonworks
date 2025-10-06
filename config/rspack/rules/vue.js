@@ -1,5 +1,5 @@
 const { VueLoaderPlugin } = require('vue-loader')
-const { DefinePlugin } = require('webpack')
+const { DefinePlugin } = require('@rspack/core')
 
 module.exports = {
   module: {

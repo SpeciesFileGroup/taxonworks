@@ -3,7 +3,7 @@ import { Lead, LeadItem } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { LAYOUTS } from '../shared/layouts'
 import { EXTEND } from '../shared/constants'
-import { subtractArrays } from '@/helpers'
+import { intersectArrays, subtractArrays } from '@/helpers'
 import editableChildrenFields from './constants/editableChildrenFields'
 import setParam from '@/helpers/setParam'
 
@@ -400,10 +400,14 @@ export default defineStore('leads', {
     },
 
     async process_lead_items_data(otu_ids, lead_id) {
+      const remaining = otu_ids.remaining || []
+      const eliminated_for_key = otu_ids.eliminatedForKey || []
+      const both = intersectArrays(remaining, eliminated_for_key)
+      const exclusive_otu_ids = subtractArrays(remaining, both)
 
       const payload = {
-        otu_ids: otu_ids.remaining || [],
-        exclusive_otu_ids: subtractArrays((otu_ids.remaining || []), (otu_ids.both || [])),
+        otu_ids: remaining,
+        exclusive_otu_ids,
         parent_id: lead_id,
         add_new_to_first_child: true
       }

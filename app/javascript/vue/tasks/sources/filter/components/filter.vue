@@ -8,6 +8,7 @@
   <FacetTitle v-model="params" />
   <FacetSourceType v-model="params" />
   <FacetAuthors v-model="params" />
+  <FacetEditors v-model="params" />
   <FacetDate v-model="params" />
   <FacetSerials v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
@@ -69,6 +70,7 @@ import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportA
 import CitationOnOtus from '@/components/Filter/Facets/Source/CitationOnOtus.vue'
 import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetEditors from '@/components/Filter/Facets/Source/FacetEditors.vue'
 
 const WITH_TITLES = {
   with_title: 'BibTeX title',

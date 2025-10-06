@@ -199,7 +199,10 @@ class DwcOccurrence < ApplicationRecord
   # !! TODO: When we come to adding AssertedDistributions, FieldOccurrnces, etc. we will have to
   # make this more flexible
   def self.target_columns
-    [:id, # must be in position 0
+    # The final DwCA file *will* have an id column, as required for matching
+    # with extensions, but values will be copies of occurrenceID - we don't want
+    # to send the ephemeral dwc_occurrence.id values to GBIF.
+    [:id,
      :occurrenceID,
      :basisOfRecord,
      :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via `.excluded_columns` below
@@ -210,6 +213,7 @@ class DwcOccurrence < ApplicationRecord
   # @return [Array]
   #   of symbols
   def self.excluded_columns
+    # id is *not* excluded.
     ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - (self.target_columns - [:dwc_occurrence_object_id, :dwc_occurrence_object_type])
   end
 

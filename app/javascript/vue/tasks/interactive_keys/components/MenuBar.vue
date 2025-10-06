@@ -5,7 +5,7 @@
         url="/observation_matrices/autocomplete"
         param="term"
         label="label_html"
-        placeholder="Search a observation matrix"
+        placeholder="Search an observation matrix"
         clear-after
         @getItem="loadMatrix($event.id)"
       />
@@ -201,12 +201,15 @@ export default {
       const leadId = this.$store.getters[GetterNames.GetLeadId]
 
       const selectedDescriptorStates = this.$store.getters[GetterNames.GetSelectedDescriptorStates]
-      const data = encodeURIComponent(JSON.stringify(selectedDescriptorStates))
+      sessionStorage.setItem('interactive_key_to_key_descriptor_data', JSON.stringify(selectedDescriptorStates))
 
-      const otuIds = this.$store.getters[GetterNames.GetObservationObjectIdsByType]([sides.Remaining, sides.Both], 'Otu')
-      const otuIdsData = encodeURIComponent(JSON.stringify(otuIds))
+      let otuIds = {}
+      if (selectedDescriptorStates.length > 0) {
+        otuIds = this.$store.getters[GetterNames.GetObservationObjectIdsByType]([sides.Remaining, sides.EliminatedForKey], 'Otu')
+      }
+      sessionStorage.setItem('interactive_key_to_key_otu_ids', JSON.stringify(otuIds))
 
-      window.location.href = `${RouteNames.NewLead}?lead_id=${leadId}&descriptor_data=${data}&otu_ids=${otuIdsData}`
+      window.location.href = `${RouteNames.NewLead}?lead_id=${leadId}`
     }
 
   }

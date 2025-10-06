@@ -54,4 +54,6 @@ export const AssertedDistribution = {
   batchTemplateCreate: (params) =>
     AjaxCall('post', `/${controller}/batch_template_create.json`, params),
 
+  batchUpdateDwcOccurrence: (params) =>
+    AjaxCall('post', `/${controller}/batch_update_dwc_occurrence`, params)
 }

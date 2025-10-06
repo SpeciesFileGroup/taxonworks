@@ -39,139 +39,12 @@
         <div class="margin-small-top">
           <h3>Filter by predicates</h3>
         </div>
-        <div>
-          <v-btn
-            class="margin-small-right"
-            color="primary"
-            medium
-            @click="
-              () => {
-                predicateParams.collection_object_predicate_id =
-                  collectionObjects.map((co) => co.id)
-                predicateParams.collecting_event_predicate_id =
-                  collectingEvents.map((ce) => ce.id)
-                selectedExtensionMethods.taxonworks_extension_methods = [
-                  ...extensionMethodNames
-                ]
-              }
-            "
-          >
-            Select all
-          </v-btn>
-          <v-btn
-            color="primary"
-            medium
-            @click="
-              () => {
-                predicateParams.collection_object_predicate_id = []
-                predicateParams.collecting_event_predicate_id = []
-                selectedExtensionMethods.taxonworks_extension_methods = []
-              }
-            "
-          >
-            Unselect all
-          </v-btn>
-        </div>
-        <div class="margin-small-bottom dwc-download-predicates">
-          <div>
-            <table v-if="collectingEvents.length">
-              <thead>
-                <tr>
-                  <th>
-                    <input
-                      v-model="checkAllCe"
-                      type="checkbox"
-                    />
-                  </th>
-                  <th class="full_width">Collecting events</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="item in collectingEvents"
-                  :key="item.id"
-                >
-                  <td>
-                    <input
-                      type="checkbox"
-                      :value="item.id"
-                      v-model="predicateParams.collecting_event_predicate_id"
-                    />
-                  </td>
-                  <td>
-                    <span v-html="item.object_tag" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <table v-if="collectionObjects.length">
-              <thead>
-                <tr>
-                  <th>
-                    <input
-                      v-model="checkAllCo"
-                      type="checkbox"
-                    />
-                  </th>
-                  <th class="full_width">Collection objects</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="item in collectionObjects"
-                  :key="item.id"
-                >
-                  <td>
-                    <input
-                      type="checkbox"
-                      :value="item.id"
-                      v-model="predicateParams.collection_object_predicate_id"
-                    />
-                  </td>
-                  <td>
-                    <span v-html="item.object_tag" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <table v-if="extensionMethodNames.length">
-              <thead>
-                <tr>
-                  <th>
-                    <input
-                      v-model="checkAllExtensionMethods"
-                      type="checkbox"
-                    />
-                  </th>
-                  <th class="full_width">Internal values</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="item in extensionMethodNames"
-                  :key="item.id"
-                >
-                  <td>
-                    <input
-                      type="checkbox"
-                      :value="item"
-                      v-model="
-                        selectedExtensionMethods.taxonworks_extension_methods
-                      "
-                    />
-                  </td>
-                  <td>
-                    <span v-html="item" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <PredicateFilter
+          v-model:collecting-event-predicate-id="predicateParams.collecting_event_predicate_id"
+          v-model:collection-object-predicate-id="predicateParams.collection_object_predicate_id"
+          v-model:taxonworks-extension-methods="selectedExtensionMethods.taxonworks_extension_methods"
+        />
+
         <div class="margin-medium-top">
           <VBtn
             color="create"
@@ -187,13 +60,14 @@
   </div>
 </template>
 <script setup>
-import { computed, reactive, ref, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { RouteNames } from '@/routes/routes.js'
 import { DwcOcurrence } from '@/routes/endpoints'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import PredicateFilter from '@/components/Export/PredicateFilter.vue'
 
 const checkboxParameters = [
   {
@@ -233,15 +107,11 @@ const emit = defineEmits(['create'])
 const confirmationModalRef = ref()
 const showModal = ref(false)
 const isLoading = ref(false)
-const predicatesLoaded = ref(false)
-const collectingEvents = ref([])
-const collectionObjects = ref([])
 const includeParameters = ref({})
 const predicateParams = reactive({
   collecting_event_predicate_id: [],
   collection_object_predicate_id: []
 })
-const extensionMethodNames = ref([])
 const selectedExtensionMethods = reactive({
   taxonworks_extension_methods: []
 })
@@ -257,39 +127,6 @@ const getFilterParams = (params) => {
 
   return data
 }
-
-const checkAllCe = computed({
-  get: () =>
-    predicateParams.collecting_event_predicate_id.length ===
-    collectingEvents.value.length,
-  set: (isChecked) => {
-    predicateParams.collecting_event_predicate_id = isChecked
-      ? collectingEvents.value.map((co) => co.id)
-      : []
-  }
-})
-
-const checkAllCo = computed({
-  get: () =>
-    predicateParams.collection_object_predicate_id.length ===
-    collectionObjects.value.length,
-  set: (isChecked) => {
-    predicateParams.collection_object_predicate_id = isChecked
-      ? collectionObjects.value.map((co) => co.id)
-      : []
-  }
-})
-
-const checkAllExtensionMethods = computed({
-  get: () =>
-    selectedExtensionMethods.taxonworks_extension_methods.length ===
-    extensionMethodNames.value.length,
-  set: (isChecked) => {
-    selectedExtensionMethods.taxonworks_extension_methods = isChecked
-      ? extensionMethodNames.value
-      : []
-  }
-})
 
 function download() {
   const downloadParams = props.selectedIds.length
@@ -333,31 +170,6 @@ async function openGenerateDownloadModal() {
   setModalView(false)
 }
 
-watch(showModal, async (newVal) => {
-  if (newVal) {
-    predicateParams.collection_object_predicate_id = []
-    predicateParams.collecting_event_predicate_id = []
-    selectedExtensionMethods.taxonworks_extension_methods = []
-
-    if (!predicatesLoaded.value && !isLoading.value) {
-      try {
-        isLoading.value = true
-
-        const [predicates, extensions] = await Promise.all([
-          DwcOcurrence.predicates(),
-          DwcOcurrence.taxonworksExtensionMethods()
-        ])
-
-        collectingEvents.value = predicates.body.collecting_event
-        collectionObjects.value = predicates.body.collection_object
-        extensionMethodNames.value = extensions.body
-        predicatesLoaded.value = true
-      } catch (e) {}
-
-      isLoading.value = false
-    }
-  }
-})
 </script>
 <style>
 .dwc-download-predicates {
