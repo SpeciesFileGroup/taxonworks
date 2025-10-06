@@ -17,6 +17,11 @@
     v-model="params"
   />
 
+  <FacetPreparationType
+    v-model="params"
+    target="AnatomicalPart"
+  />
+
   <FacetUsers
    v-model="params"
   />
@@ -27,6 +32,15 @@
     param="is_material"
     v-model="params"
   />
+
+  <FacetWith
+    v-for="param in WITH_PARAMS"
+    :key="param"
+    :title="param"
+    :param="param"
+    v-model="params"
+  />
+
   <FacetDiffModel v-model="params" />
 </template>
 
@@ -36,6 +50,7 @@ import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetText from '@/components/Filter/Facets/shared/FacetText.vue'
 import FacetOriginType from '@/components/Filter/Facets/AnatomicalParts/FacetOriginType.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
+import FacetPreparationType from '@/components/Filter/Facets/PreparationType/FacetPreparationType.vue'
 
 const IS_MATERIAL_OPTIONS = [
   {
@@ -51,6 +66,8 @@ const IS_MATERIAL_OPTIONS = [
     value: false
   }
 ]
+
+const WITH_PARAMS = [ 'preparation_type' ]
 
 const params = defineModel({
   type: Object,

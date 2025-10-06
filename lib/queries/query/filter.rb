@@ -432,6 +432,7 @@ module Queries
         f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
         f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
         f.push ::Queries::Concerns::Verifiers if self < ::Queries::Concerns::Verifiers
+        f.push ::Queries::Concerns::PreparationTypes if self < ::Queries::Concerns::PreparationTypes
       end
 
       f

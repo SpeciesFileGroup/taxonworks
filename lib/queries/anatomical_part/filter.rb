@@ -3,6 +3,7 @@ module Queries
     class Filter < Query::Filter
       include Queries::Concerns::Tags
       include Queries::Concerns::Citations
+      include Queries::Concerns::PreparationTypes
 
       PARAMS = [
         :anatomical_part_id,
@@ -46,6 +47,7 @@ module Queries
         @uri = params[:uri]
         set_citations_params(params)
         set_tags_params(params)
+        set_preparation_types_params(params)
       end
 
       def anatomical_part_id

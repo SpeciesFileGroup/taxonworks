@@ -111,6 +111,7 @@ class AnatomicalPartsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def anatomical_part_params
       params.require(:anatomical_part).permit(:name, :uri, :uri_label,
-        :is_material, inbound_origin_relationship_attributes: [:old_object_id, :old_object_type])
+        :is_material, :preparation_type,
+        inbound_origin_relationship_attributes: [:old_object_id, :old_object_type])
     end
 end

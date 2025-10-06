@@ -29,6 +29,10 @@
 #   Whether or not the anatomical part is based on a physical object - *a* head
 #   vs. *some* head.
 #
+# @!attribute preparation_type_id
+#   @return [Integer]
+#   Preparation type of this part.
+#
 # @!cached_otu_id
 #   @return [Integer]
 #   Each anatomical part is required to have an originRelationship-ancestor that
