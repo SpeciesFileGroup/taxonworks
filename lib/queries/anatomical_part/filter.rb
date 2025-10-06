@@ -11,10 +11,12 @@ module Queries
         :name,
         :name_exact,
         :origin_object_type,
+        :otu_id,
         :uri,
 
         anatomical_part_id: [],
         origin_object_type: [],
+        otu_id: []
       ].freeze
 
       # @return [Array]
@@ -32,6 +34,10 @@ module Queries
       # @return [Array]
       attr_accessor :origin_object_type
 
+      # @return [Array]
+      # OTU id of the ancestor origin OTU or CO/FO taxon determination.
+      attr_accessor :otu_id
+
       # @return String
       attr_accessor :uri
 
@@ -44,6 +50,7 @@ module Queries
         @name = params[:name]
         @name_exact = boolean_param(params, :name_exact)
         @origin_object_type = params[:origin_object_type]
+        @otu_id = params[:otu_id]
         @uri = params[:uri]
         set_citations_params(params)
         set_tags_params(params)
@@ -56,6 +63,10 @@ module Queries
 
       def origin_object_type
         [@origin_object_type].flatten.compact
+      end
+
+      def otu_id
+        [@otu_id].flatten.compact
       end
 
       def name_facet
@@ -90,6 +101,12 @@ module Queries
           .joins(:related_origin_relationships)
           .where(related_origin_relationships: { old_object_type: origin_object_type })
           .distinct # remove if model adds validations to make this unnecessary
+      end
+
+      def otu_id_facet
+        return nil if otu_id.empty?
+
+        table[:cached_otu_id].in(otu_id)
       end
 
       def collection_object_query_facet
@@ -145,7 +162,8 @@ module Queries
         [
           is_material_facet,
           name_facet,
-          uri_facet
+          uri_facet,
+          otu_id_facet
         ]
       end
 

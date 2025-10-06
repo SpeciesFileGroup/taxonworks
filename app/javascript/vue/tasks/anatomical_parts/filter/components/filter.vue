@@ -17,6 +17,11 @@
     v-model="params"
   />
 
+  <FacetOtu
+    v-model="params"
+    target="AnatomicalPart"
+  />
+
   <FacetPreparationType
     v-model="params"
     target="AnatomicalPart"
@@ -51,6 +56,7 @@ import FacetText from '@/components/Filter/Facets/shared/FacetText.vue'
 import FacetOriginType from '@/components/Filter/Facets/AnatomicalParts/FacetOriginType.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetPreparationType from '@/components/Filter/Facets/PreparationType/FacetPreparationType.vue'
+import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 
 const IS_MATERIAL_OPTIONS = [
   {
