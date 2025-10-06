@@ -1,7 +1,10 @@
 <template>
   <div>
-    <h2>Preparation</h2>
-    <div class="horizontal-left-content align-start">
+    <h3>Preparation</h3>
+    <div
+      v-if="preparationTypes.length > 0"
+      class="horizontal-left-content align-start"
+    >
       <ul
         v-for="(itemsGroup, index) in chunkList"
         :key="index"
@@ -22,6 +25,10 @@
           </label>
         </li>
       </ul>
+    </div>
+
+    <div v-else>
+      <i>No preparation types are defined.</i>
     </div>
   </div>
 </template>

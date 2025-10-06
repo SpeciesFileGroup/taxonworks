@@ -134,12 +134,12 @@
       @close="showingCreate = false"
     >
       <template #header>
-        <span v-if="flip">
+        <h2 v-if="flip">
           Create new {{ type }} origin of <span v-html="originFor" />
-        </span>
-        <span v-else>
+        </h2>
+        <h2 v-else>
           Create new {{ type }} endpoint of <span v-html="originOf" />
-        </span>
+        </h2>
       </template>
 
       <template #body>

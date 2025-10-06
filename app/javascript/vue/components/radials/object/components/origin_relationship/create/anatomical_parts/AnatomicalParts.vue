@@ -7,28 +7,40 @@
     <div>
       <fieldset>
         <legend>Name/URI</legend>
-        <input
-          class="normal-input"
-          type="text"
-          v-model="anatomicalPart.name"
-          placeholder="Name"
-        />
+        <div class="margin-large-bottom">
+          <input
+            class="normal-input"
+            type="text"
+            v-model="anatomicalPart.name"
+            placeholder="Name"
+          />
+        </div>
 
         or
 
-        <input
-          class="normal-input"
-          type="text"
-          v-model="anatomicalPart.uri"
-          placeholder="URI"
-        />
-        <input
-          class="normal-input"
-          type="text"
-          v-model="anatomicalPart.uri_label"
-          placeholder="URI label"
-        />
+        <div class="margin-large-top">
+          <input
+            class="normal-input"
+            type="text"
+            v-model="anatomicalPart.uri_label"
+            placeholder="URI label"
+          />
+          <input
+            class="normal-input input-width-large margin-medium-left"
+            type="text"
+            v-model="anatomicalPart.uri"
+            placeholder="URI"
+          />
+        </div>
       </fieldset>
+
+      <input
+        class="margin-large-top margin-large-bottom"
+        type="checkbox"
+        v-model="anatomicalPart.is_material"
+      >
+        Is material
+      </input>
 
       <PreparationType
         v-model="anatomicalPart"
@@ -120,18 +132,25 @@ function resetForm() {
 }
 
 onMounted(() => {
-  if (props.originObjectType != 'AnatomicalPart') {
+  if (props.objectType != 'AnatomicalPart') {
+    let is_material = true
+    if (props.objectType == 'Otu' || props.objectType == 'FieldOccurrence') {
+      is_material = false
+    }
+
     anatomicalPart.value = {
-     cached_otu_id: props.cachedOtuId
+     cached_otu_id: props.cachedOtuId,
+     is_material
     }
   } else {
     // cachedOtuId of the new anatomical part should be the same as the origin
     // if the origin is an anatomical part.
     isLoading.value = true
-    AnatomicalPart.find(props.originObjectId)
+    AnatomicalPart.find(props.objectId)
       .then(({ body }) => {
         anatomicalPart.value = {
-          cached_otu_id: body.cached_otu_id
+          cached_otu_id: body.cached_otu_id,
+          is_material: body.is_material
         }
       })
       .catch(() => {})
@@ -140,3 +159,9 @@ onMounted(() => {
   }
 })
 </script>
+
+<style scoped>
+.input-width-large {
+  width: 600px;
+}
+</style>
