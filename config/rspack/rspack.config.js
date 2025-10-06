@@ -1,11 +1,9 @@
-// See the shakacode/shakapacker README and docs directory for advice on customizing your webpackConfig.
-
-const { generateWebpackConfig, merge } = require('shakapacker')
+const { generateRspackConfig, merge } = require('shakapacker/rspack')
 const vueConfig = require('./rules/vue')
 const devServerConfig = require('./rules/devServer')
 const path = require('node:path')
 
-const webpackConfig = generateWebpackConfig()
+const rspackConfig = generateRspackConfig()
 
 const customConfig = {
   resolve: {
@@ -23,7 +21,7 @@ const customConfig = {
 
 module.exports = merge(
   vueConfig,
-  devServerConfig(webpackConfig),
+  devServerConfig(rspackConfig),
   customConfig,
-  webpackConfig
+  rspackConfig
 )
