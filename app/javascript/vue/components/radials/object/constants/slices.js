@@ -10,7 +10,7 @@ import collectingEvent from '../components/collecting_event/main.vue'
 import originRelationships from '../components/origin_relationship/main.vue'
 import depictions from '../components/depictions/Depictions.vue'
 import extracts from '../components/extract/Main.vue'
-import AnatomicalParts from '../components/origin_relationship/create/AnatomicalParts.vue'
+import AnatomicalParts from '../components/origin_relationship/create/anatomical_parts/AnatomicalParts.vue'
 
 export const SLICE = {
   data_attributes: dataAttributes,

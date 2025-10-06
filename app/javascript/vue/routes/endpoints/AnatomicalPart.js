@@ -10,6 +10,7 @@ const permitParams = {
     uri_label: Text,
     is_material: Boolean,
     global_id: String,
+    preparation_type_id: Number,
     inbound_origin_relationship_attributes: {
       old_object_id: Number,
       old_object_type: String

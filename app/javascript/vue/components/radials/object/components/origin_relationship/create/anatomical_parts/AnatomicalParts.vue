@@ -4,27 +4,34 @@
       v-if="isLoading"
     />
 
-    <div class="flex-wrap-column gap-medium">
-      <input
-        class="normal-input"
-        type="text"
-        v-model="anatomicalPart.name"
-        placeholder="Name"
-      />
+    <div>
+      <fieldset>
+        <legend>Name/URI</legend>
+        <input
+          class="normal-input"
+          type="text"
+          v-model="anatomicalPart.name"
+          placeholder="Name"
+        />
 
-      or
+        or
 
-      <input
-        class="normal-input"
-        type="text"
-        v-model="anatomicalPart.uri"
-        placeholder="URI"
-      />
-      <input
-        class="normal-input"
-        type="text"
-        v-model="anatomicalPart.uri_label"
-        placeholder="URI label"
+        <input
+          class="normal-input"
+          type="text"
+          v-model="anatomicalPart.uri"
+          placeholder="URI"
+        />
+        <input
+          class="normal-input"
+          type="text"
+          v-model="anatomicalPart.uri_label"
+          placeholder="URI label"
+        />
+      </fieldset>
+
+      <PreparationType
+        v-model="anatomicalPart"
       />
 
       <div class="horizontal-left-content gap-small">
@@ -54,6 +61,7 @@ import { computed, onMounted, ref } from 'vue'
 import { AnatomicalPart } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import PreparationType from './components/PreparationType.vue'
 
 const props = defineProps({
   objectId: {
