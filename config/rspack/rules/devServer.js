@@ -1,4 +1,4 @@
-const { DefinePlugin } = require('webpack')
+const { DefinePlugin } = require('@rspack/core')
 const openInEditor = require('launch-editor-middleware')
 
 module.exports = (webpackConfig) => {
