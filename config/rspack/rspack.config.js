@@ -20,8 +20,8 @@ const customConfig = {
 }
 
 module.exports = merge(
+  rspackConfig,
   vueConfig,
   devServerConfig(rspackConfig),
-  customConfig,
-  rspackConfig
+  customConfig
 )
