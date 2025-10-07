@@ -27,6 +27,9 @@ module.exports = (webpackConfig) => {
         __VUE_DEVTOOLS_CONFIG__: JSON.stringify({
           openInEditorHost: `${server}://${host}:${port}/`
         })
+      }),
+      new DefinePlugin({
+        __RSPACK_WS_URL__: JSON.stringify(`${server}://${host}:${port}/ws`)
       })
     ]
   }

@@ -50,6 +50,7 @@ development:
     client:
       # Should we show a full-screen overlay in the browser when there are compiler errors or warnings?
       overlay: true
+      progress: true
       # May also be a string
       # webSocketURL:
       #  hostname: "0.0.0.0"

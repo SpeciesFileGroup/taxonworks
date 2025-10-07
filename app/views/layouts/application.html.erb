@@ -17,7 +17,7 @@
     <% if sessions_signed_in? %>
       <%= javascript_include_tag "application", "data-turbolinks-track" => 'reload' %>
       <%= javascript_include_tag "separated_application", "data-turbolinks-track" => 'reload' %>
-      <%= javascript_pack_tag "application" %>
+      <%= javascript_pack_tag "rspack", "application" %>
       <%= stylesheet_pack_tag "application" %>
     <% else %>
       <%= stylesheet_pack_tag "login" %>
