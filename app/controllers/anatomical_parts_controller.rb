@@ -106,6 +106,18 @@ class AnatomicalPartsController < ApplicationController
     render json: ::Hookkaido.ontologies
   end
 
+  def children_of
+    @origin_relationships = OriginRelationship
+      .where(
+        old_object_id: params[:parent_id],
+        old_object_type: params[:parent_type],
+        new_object_type: 'AnatomicalPart'
+      )
+      .includes(:new_object)
+
+      render json: @origin_relationships.map { |r| r.new_object }
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_anatomical_part

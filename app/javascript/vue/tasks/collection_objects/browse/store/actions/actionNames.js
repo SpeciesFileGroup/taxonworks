@@ -1,4 +1,5 @@
 const ActionNames = {
+  LoadAnatomicalParts: 'loadAnatomicalParts',
   LoadBiocurations: 'loadBiocurations',
   LoadCollectionObject: 'loadCollectionObject',
   LoadConveyances: 'loadConveyances',

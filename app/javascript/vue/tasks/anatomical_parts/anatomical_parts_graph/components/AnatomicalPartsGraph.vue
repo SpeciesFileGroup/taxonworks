@@ -16,7 +16,7 @@
     </div>
     <VNetworkGraph
       ref="networkGraph"
-      class="graph"
+      :style="{ width: graphWidth, height: graphHeight }"
       :configs="configs"
       :edges="edges"
       :nodes="nodes"
@@ -54,11 +54,22 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import ContextMenu from '@/components/graph/ContextMenu.vue'
 import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
+import { VNetworkGraph } from 'v-network-graph'
 
 const props = defineProps({
   showNodeQuickForms: {
     type: Boolean,
     default: true
+  },
+
+  graphWidth: {
+    type: String,
+    default: null
+  },
+
+  graphHeight: {
+    type: String,
+    default: null
   }
 })
 
@@ -163,8 +174,4 @@ defineExpose({
   height: 100%;
 }
 
-.graph {
-  width: calc(100vw - 450px);
-  height: calc(100vh - 250px);
-}
 </style>

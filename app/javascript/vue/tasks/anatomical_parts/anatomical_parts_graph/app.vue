@@ -129,6 +129,8 @@
 
       <AnatomicalPartsGraph
         ref="graph"
+        graph-width="calc(100vw - 450px)"
+        graph-height="calc(100vh - 250px)"
         @update-graph="updateGraph"
       />
     </div>
