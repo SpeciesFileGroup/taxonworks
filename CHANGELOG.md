@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - `New container` task interface to default for edit and new
+- Updated Ruby gems
 
 [#3132]: https://github.com/SpeciesFileGroup/taxonworks/issues/3132
 [#3154]: https://github.com/SpeciesFileGroup/taxonworks/issues/3154
