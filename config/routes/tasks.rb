@@ -1,5 +1,10 @@
 scope :tasks do
   scope :anatomical_parts do
+    scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
+      get '/', action: :index, as: 'select_ontologies_task'
+      # See other routes in data.rb.
+    end
+
     scope :anatomical_parts_graph, controller: 'tasks/anatomical_parts/anatomical_parts_graph' do
       get '/', action: :index, as: 'anatomical_parts_graph_task'
     end

@@ -28,6 +28,13 @@ resources :anatomical_parts do
     match :filter, to: 'anatomical_parts#index', via: [:get, :post]
     get :select_options, defaults: {format: :json}
     get :graph, defaults: {format: :json}
+    get :ontologies, defaults: {format: :json}
+    scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
+      # Scope these under the select_ontologies task controller for access
+      # control and functional grouping.
+      post :save_ontology_ids_to_project, defaults: {format: :json}
+      get :ontology_id_preferences, defaults: {format: :json}
+    end
   end
 end
 

@@ -1101,3 +1101,10 @@ project_dwc_export_preferences_task:
   categories:
   status: prototype
   description: Set preferences for Darwin Core Archive complete project downloads
+select_ontologies_task:
+  hub: false
+  name: 'Select anatomical part ontologies'
+  related:
+  categories:
+  status: prototype
+  description: 'Select OSL ontologies that can be used to find term uris for anatomical parts'

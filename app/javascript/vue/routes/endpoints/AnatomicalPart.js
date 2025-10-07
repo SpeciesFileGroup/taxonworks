@@ -23,7 +23,11 @@ export const AnatomicalPart = {
 
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 
-  graph: (params) => {
-    return AjaxCall('get', `/${controller}/graph.json`, { params })
-  }
+  graph: (params) => AjaxCall('get', `/${controller}/graph.json`, { params }),
+
+  ontologies: () => AjaxCall('get', `/${controller}/ontologies.json`),
+
+  saveOntologyIdsToProject: (params) => AjaxCall('post', `/${controller}/select_ontologies/save_ontology_ids_to_project.json`, params),
+
+  ontologyIdPreferences: (params) => AjaxCall('get', `/${controller}/select_ontologies/ontology_id_preferences.json`, { params })
 }

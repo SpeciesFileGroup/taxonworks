@@ -39,6 +39,14 @@ GIT
       actionpack (>= 3.2)
       railties (>= 3.2)
 
+PATH
+  remote: ../hookkaido
+  specs:
+    hookkaido (0.1.0)
+      faraday (>= 1.10, < 3)
+      faraday-follow_redirects (>= 0.3)
+      multi_json (>= 1.15)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -863,6 +871,7 @@ DEPENDENCIES
   groupdate (~> 6.4)
   guard-rspec (~> 4.7.3)
   hiredis (~> 0.6.1)
+  hookkaido!
   indefinite_article (~> 0.2.4)
   jbuilder (~> 2.7)
   jquery-rails (~> 4.4)

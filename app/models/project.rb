@@ -127,6 +127,10 @@ class Project < ApplicationRecord
     *PROJECT_DOWNLOAD_PREFERENCES_PATH, 'eml'
   ].freeze
 
+  ANATOMICAL_PARTS_ONTOLOGIES_PATH = [
+    'anatomical_parts', 'ontologies'
+  ].freeze
+
   has_many :project_members, dependent: :restrict_with_error
 
   has_many :users, through: :project_members
@@ -352,6 +356,22 @@ class Project < ApplicationRecord
     prefs['predicates'] = predicates
 
     save!
+  end
+
+  def set_anatomical_parts_ontology_ids(oids)
+    prefs = preferences_for(ANATOMICAL_PARTS_ONTOLOGIES_PATH)
+    prefs['oids'] = oids
+
+    save!
+  end
+
+  def anatomical_parts_ontology_id_preferences
+    prefs = preferences_for(ANATOMICAL_PARTS_ONTOLOGIES_PATH)
+    if prefs
+      prefs['oids']
+    else
+      []
+    end
   end
 
   protected

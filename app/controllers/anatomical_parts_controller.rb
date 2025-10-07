@@ -102,6 +102,10 @@ class AnatomicalPartsController < ApplicationController
       AnatomicalPart.graph(params.require(:id), params.require(:type))
   end
 
+  def ontologies
+    render json: ::Hookkaido.ontologies
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_anatomical_part
