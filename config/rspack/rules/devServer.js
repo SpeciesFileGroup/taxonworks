@@ -9,6 +9,9 @@ module.exports = (webpackConfig) => {
   return {
     devtool: 'source-map',
     devServer: {
+      devMiddleware: {
+        writeToDisk: true
+      },
       setupMiddlewares: (middlewares, devServer) => {
         if (!devServer) throw new Error('webpack-dev-server is not defined')
 

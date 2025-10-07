@@ -6,6 +6,18 @@ const path = require('node:path')
 const rspackConfig = generateRspackConfig()
 
 const customConfig = {
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          reuseExistingChunk: true
+        }
+      }
+    }
+  },
   resolve: {
     extensions: ['.vue', '.css', '.scss', '.js'],
     alias: {
