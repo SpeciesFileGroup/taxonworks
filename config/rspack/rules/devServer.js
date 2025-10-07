@@ -7,6 +7,7 @@ module.exports = (webpackConfig) => {
   const { server, host, port } = webpackConfig.devServer
 
   return {
+    devtool: 'source-map',
     devServer: {
       setupMiddlewares: (middlewares, devServer) => {
         if (!devServer) throw new Error('webpack-dev-server is not defined')
