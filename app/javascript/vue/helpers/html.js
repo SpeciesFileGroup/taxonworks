@@ -7,3 +7,9 @@ export function decodeBasicEntities(str) {
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, ' ')
 }
+
+export function escapeHtml(str) {
+  return DOMPurify.sanitize(str, {
+    USE_PROFILES: { html: false }
+  })
+}
