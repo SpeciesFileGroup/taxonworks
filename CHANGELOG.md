@@ -27,10 +27,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - `New container` task interface to default for edit and new
 - Updated Ruby gems
+- Filters: refresh current page after closing Radial Batch [#4571]
 
 [#3132]: https://github.com/SpeciesFileGroup/taxonworks/issues/3132
 [#3154]: https://github.com/SpeciesFileGroup/taxonworks/issues/3154
 [#4557]: https://github.com/SpeciesFileGroup/taxonworks/issues/4557
+[#4571]: https://github.com/SpeciesFileGroup/taxonworks/issues/4571
 
 ## [0.54.0] - 2025-09-24
 
