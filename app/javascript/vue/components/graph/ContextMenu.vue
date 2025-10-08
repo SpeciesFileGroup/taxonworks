@@ -12,6 +12,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { hasModalInEventPath } from '@vanilla/utils'
 
 const position = ref({})
 const isVisible = ref(false)
@@ -27,8 +28,14 @@ function openContextMenu({ x, y }) {
   position.value = { x, y }
 }
 
-function handleEvent(event) {
-  if (!event.target || !element.value?.contains(event.target)) {
+function handleEvent(e) {
+  if (!isVisible.value) return
+
+  // If the click occurred anywhere "in" a modal (including SVG inside it),
+  // ignore it so the context menu stays open.
+  if (hasModalInEventPath(e)) return
+
+  if (!element.value?.contains(e.target)) {
     isVisible.value = false
   }
 }
