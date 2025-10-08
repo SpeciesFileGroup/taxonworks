@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Search for people by orcid id or wikidata Q id using only their number
 - Browse OTU: Tag column in biological associations table
 - `/otus/inventory/alphabetical`: Returns OTUs in alphabetical order
+- Filters: Notes facets
 
 ### Fixed
 

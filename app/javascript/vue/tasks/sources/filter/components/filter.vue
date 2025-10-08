@@ -32,6 +32,7 @@
   />
   <FacetDataAttribute v-model="params" />
   <FacetImportAttribute v-model="params" />
+  <FacetNotes v-model="params" />
   <FacetUsers v-model="params" />
   <FacetSomeValue
     model="sources"
@@ -71,6 +72,7 @@ import CitationOnOtus from '@/components/Filter/Facets/Source/CitationOnOtus.vue
 import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetEditors from '@/components/Filter/Facets/Source/FacetEditors.vue'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 
 const WITH_TITLES = {
   with_title: 'BibTeX title',

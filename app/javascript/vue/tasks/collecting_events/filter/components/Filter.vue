@@ -30,6 +30,7 @@
   <FacetCollectingEventAttributes v-model="params" />
   <FacetDataAttribute v-model="params" />
   <FacetImportAttribute v-model="params" />
+  <FacetNotes v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
     :key="param"
@@ -57,6 +58,7 @@ import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import { computed } from 'vue'
 import { COLLECTOR_SELECTOR, COLLECTING_EVENT } from '@/constants/index.js'
 

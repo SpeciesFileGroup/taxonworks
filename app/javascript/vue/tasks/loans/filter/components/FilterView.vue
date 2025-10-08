@@ -79,6 +79,7 @@ import FacetPerson from './Facet/FacetPerson.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = [
+  'notes',
   'documentation',
   'gift',
   'identifiers',
