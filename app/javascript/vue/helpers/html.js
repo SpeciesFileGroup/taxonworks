@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify'
+
 export function decodeBasicEntities(str) {
   return str
     .replace(/&amp;/g, '&')
