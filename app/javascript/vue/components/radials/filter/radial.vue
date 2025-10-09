@@ -25,7 +25,7 @@
       color="radial"
       :title="title"
       circle
-      :disabled="disabled || (!Object.keys(filteredParameters).length && !ids)"
+      :disabled="isDisabled"
       @click="openRadialMenu()"
     >
       <VIcon
@@ -92,6 +92,21 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
+const isDisabled = computed(
+  () =>
+    props.disabled ||
+    !filterLinks.value.length ||
+    (!Object.keys(filteredParameters.value).length && !props.ids)
+)
+
+const title = computed(() =>
+  isOnlyIds.value
+    ? `${props.title} (Send checked rows to filter)`
+    : `${props.title} (Send full request to filter)`
+)
+
+const isOnlyIds = computed(() => Array.isArray(props.ids))
+
 const filteredParameters = computed(() => {
   const params = { ...props.parameters }
 
@@ -102,17 +117,10 @@ const filteredParameters = computed(() => {
   return filterEmptyParams(params)
 })
 
-const title = computed(() =>
-  isOnlyIds.value
-    ? `${props.title} (Send checked rows to filter)`
-    : `${props.title} (Send full request to filter)`
-)
-
-const isOnlyIds = computed(() => Array.isArray(props.ids))
 const filterLinks = computed(() => {
-  const objLinks = [...FILTER_LINKS[props.objectType], ...props.extendedSlices]
+  const slices = FILTER_LINKS[props.objectType] || []
 
-  return objLinks || []
+  return [...slices, ...props.extendedSlices]
 })
 
 const objParameters = computed(() =>

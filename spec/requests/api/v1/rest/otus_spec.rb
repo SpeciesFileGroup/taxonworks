@@ -10,6 +10,6 @@ describe 'Api::V1::Otus', type: :request do
     # let(:headers) { { "Authorization": 'Token token=' + user.api_access_token, project_id: otu.project_id } }
     # let(:path) { '/api/v1/otus/' }
 
-    it_behaves_like 'secured by user and project token', :valid_otu, '/api/v1/otus/'
+    it_behaves_like 'secured by user/project token', :valid_otu, '/api/v1/otus/'
   end
 end

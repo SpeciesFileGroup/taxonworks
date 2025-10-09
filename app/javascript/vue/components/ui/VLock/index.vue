@@ -144,7 +144,7 @@ $lightGrey: #99a3ba;
           position: absolute;
           left: 0;
           top: 0;
-          color: $primary;
+          color: var(--color-toggle-active);
           transition: all 0.3s ease;
           transform: translate(2px, 0);
         }
@@ -153,7 +153,7 @@ $lightGrey: #99a3ba;
     &:checked {
       & + span {
         &:before {
-          background: rgba($primary, 1);
+          background: var(--color-toggle-active);
         }
         &:after {
           background: var(--panel-bg-color);

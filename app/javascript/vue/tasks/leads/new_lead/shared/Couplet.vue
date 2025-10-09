@@ -47,6 +47,78 @@
           Go to the previous couplet
         </VBtn>
 
+        <span
+          v-if="showAdditionalActions"
+          class="additional_actions"
+        >
+          <VBtn
+            color="update"
+            medium
+            @click="addLead"
+          >
+            Add a lead
+          </VBtn>
+
+          <VBtn
+            color="update"
+            medium
+            @click="() => { insertKeyModalIsVisible = true }"
+            :disabled="store.children.length < 2"
+          >
+            Insert a key
+          </VBtn>
+
+          <VBtn
+            v-if="offerLeadItemCreate"
+            color="update"
+            medium
+            @click="() => { leadItemOtusModalVisible = true }"
+          >
+            Start an OTUs list
+          </VBtn>
+
+          <VBtn
+            v-if="!store.lead.parent_id"
+            color="update"
+            medium
+            @click="insertCouplet"
+          >
+            Insert a new initial couplet for the key
+          </VBtn>
+
+          <VBtn
+            v-if="allowDestroyCouplet"
+            color="destroy"
+            medium
+            @click="destroyCouplet"
+          >
+            Delete these leads
+          </VBtn>
+
+          <VBtn
+            v-else-if="allowDeleteCouplet"
+            color="destroy"
+            medium
+            @click="deleteCouplet"
+          >
+            Delete these leads and reparent the children
+          </VBtn>
+
+          <VBtn
+            v-else
+            color="destroy"
+            disabled
+            medium
+          >
+            <template v-if="!store.lead.parent_id && noGrandkids()">
+              Can't delete root couplet
+            </template>
+            <template v-else>
+              Can't delete when more than one side has children
+            </template>
+          </VBtn>
+        </span>
+
         <VBtn
           circle
           color="primary"
@@ -58,78 +130,6 @@
           />
         </VBtn>
       </span>
-
-      <div
-        v-if="showAdditionalActions"
-        class="additional_actions"
-      >
-        <VBtn
-          color="update"
-          medium
-          @click="addLead"
-        >
-          Add a lead
-        </VBtn>
-
-        <VBtn
-          color="update"
-          medium
-          @click="() => { insertKeyModalIsVisible = true }"
-          :disabled="store.children.length < 2"
-        >
-          Insert a key
-        </VBtn>
-
-        <VBtn
-          v-if="offerLeadItemCreate"
-          color="update"
-          medium
-          @click="() => { leadItemOtusModalVisible = true }"
-        >
-          Start an OTUs list
-        </VBtn>
-
-        <VBtn
-          v-if="!store.lead.parent_id"
-          color="update"
-          medium
-          @click="insertCouplet"
-        >
-          Insert a new initial couplet for the key
-        </VBtn>
-
-        <VBtn
-          v-if="allowDestroyCouplet"
-          color="destroy"
-          medium
-          @click="destroyCouplet"
-        >
-          Delete these leads
-        </VBtn>
-
-        <VBtn
-          v-else-if="allowDeleteCouplet"
-          color="destroy"
-          medium
-          @click="deleteCouplet"
-        >
-          Delete these leads and reparent the children
-        </VBtn>
-
-        <VBtn
-          v-else
-          color="destroy"
-          disabled
-          medium
-        >
-          <template v-if="!store.lead.parent_id && noGrandkids()">
-            Can't delete root couplet
-          </template>
-          <template v-else>
-            Can't delete when more than one side has children
-          </template>
-        </VBtn>
-      </div>
     </div>
 
     <div class="lead_children">
@@ -297,6 +297,8 @@ function saveChanges() {
   // * For full layout, the *last* promise returned needs to include the full
   //   key data, since it's the only one that has all of the updates to the full
   //   key. (Currently the solution is that *every* return includes full key.)
+  //     Update: That didn't work, returns *without* all results can arrive
+  //     after returns sent later *with* all results (bad).
   // * For PreviousFuture layout, we'll have each child update its own future
   //   (which can change when redirect changes).
   // That means we need to return no futures for full layout, individual
@@ -312,6 +314,8 @@ function saveChanges() {
   const promises = childrenToUpdate.map((lead) => {
     const payload = {
       lead,
+      // TODO: For fullLayout, children no longer need to return key_data (it's
+      // sent with parent, which returns after child updates).
       extend: childExtend
     }
     return LeadEndpoint.update(lead.id, payload)
@@ -322,7 +326,7 @@ function saveChanges() {
       .catch(() => {})
   })
 
-  if (leadOriginLabelChanged || childrenToUpdate.length > 0) {
+  if (!layoutIsFull && (leadOriginLabelChanged || childrenToUpdate.length > 0)) {
     const payload = {
       lead: store.lead,
       extend: store.extend(EXTEND.CoupletOnly)
@@ -342,7 +346,22 @@ function saveChanges() {
   Promise.allSettled(promises)
     .then((results) => {
       if (results.every((r) => r.status == 'fulfilled')) {
-        TW.workbench.alert.create('Update was successful.', 'notice')
+        if (layoutIsFull && (leadOriginLabelChanged || childrenToUpdate.length > 0)) {
+          const payload = {
+            lead: store.lead,
+            extend: store.extend(EXTEND.CoupletOnly)
+          }
+
+          LeadEndpoint.update(store.lead.id, payload)
+            .then(({ body }) => {
+              store.last_saved.origin_label = store.lead.origin_label
+              store.update_from_extended(EXTEND.CoupletOnly, body)
+              TW.workbench.alert.create('Update was successful.', 'notice')
+            })
+            .catch(() => {})
+        } else {
+          TW.workbench.alert.create('Update was successful.', 'notice')
+        }
       }
     })
     .finally(() => {

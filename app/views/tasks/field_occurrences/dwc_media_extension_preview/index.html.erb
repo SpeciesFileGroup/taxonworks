@@ -1,0 +1,42 @@
+<h1> Field Occurrences - Darwin Core Media Extension Preview </h1>
+
+<%= tag.div link_to('Back to filter', filter_field_occurrences_task_path(@field_occurrences_query.params)) %>
+<%= tag.div(paginate @field_occurrences) %>
+<%= tag.span @field_occurrences.count.to_param + ' records', class: [:feedback, 'feedback-thin', 'feedback-info'] %>
+<br>
+<%= copy_table_to_clipboard('#preview_table') %>
+<br><br>
+
+<table id="preview_table" class="tablesorter">
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>has media?</th>
+      <%=
+        Export::CSV::Dwc::Extension::Media::HEADERS.collect{|c| fancy_th_tag(name: c)}.join.html_safe
+      %>
+  </thead>
+
+  <tbody>
+    <% @field_occurrences.each do |fo| %>
+      <% rows = fo.darwin_core_media_extension_rows %>
+      <% if rows.count > 0 %>
+        <% rows.each do |a| %>
+          <tr>
+            <%= tag.td(fo.id) %>
+            <%= tag.td('yes'.html_safe) %>
+            <%= a.collect { |c| tag.td(c) }.join.html_safe %>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <%= tag.td(fo.id) %>
+          <td>no</td>
+          <% Export::CSV::Dwc::Extension::Media::HEADERS.each do %>
+            <td></td>
+          <% end %>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>

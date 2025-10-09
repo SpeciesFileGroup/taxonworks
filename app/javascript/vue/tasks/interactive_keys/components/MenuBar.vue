@@ -5,7 +5,7 @@
         url="/observation_matrices/autocomplete"
         param="term"
         label="label_html"
-        placeholder="Search a observation matrix"
+        placeholder="Search an observation matrix"
         clear-after
         @getItem="loadMatrix($event.id)"
       />
@@ -37,6 +37,14 @@
       </ul>
       <div class="horizontal-left-content">
         <div class="middle margin-small-right">
+          <button
+            v-if="showSendToKeyButton"
+            type="button"
+            @click="sendToKey"
+            class="button normal-input button-default margin-small-left"
+          >
+            Return to key
+          </button>
           <button
             type="button"
             @click="setLayout(settings.gridLayout)"
@@ -82,9 +90,11 @@ import EliminateUnknowns from './Filters/EliminateUnknowns'
 import RefreshComponent from './Filters/Refresh'
 import KeywordsComponent from './Filters/Keywords'
 import scrollToTop from '../utils/scrollToTop.js'
+import { RouteNames } from '@/routes/routes'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
+import sides from '../const/filterings'
 
 export default {
   components: {
@@ -110,6 +120,16 @@ export default {
 
     existKeywords() {
       return !!this.observationMatrix?.descriptor_available_keywords?.length
+    },
+
+    showSendToKeyButton() {
+      if (!!this.$store.getters[GetterNames.GetLeadId] &&
+          !!this.$store.getters[GetterNames.GetFilter] &&
+          this.$store.getters[GetterNames.GetObservationMatrix]?.observation_matrix_id) {
+        return true
+      } else {
+        return false
+      }
     },
 
     settings: {
@@ -175,7 +195,23 @@ export default {
         this.observationMatrix.observation_matrix_id
       )
       scrollToTop()
+    },
+
+    sendToKey() {
+      const leadId = this.$store.getters[GetterNames.GetLeadId]
+
+      const selectedDescriptorStates = this.$store.getters[GetterNames.GetSelectedDescriptorStates]
+      sessionStorage.setItem('interactive_key_to_key_descriptor_data', JSON.stringify(selectedDescriptorStates))
+
+      let otuIds = {}
+      if (selectedDescriptorStates.length > 0) {
+        otuIds = this.$store.getters[GetterNames.GetObservationObjectIdsByType]([sides.Remaining, sides.EliminatedForKey], 'Otu')
+      }
+      sessionStorage.setItem('interactive_key_to_key_otu_ids', JSON.stringify(otuIds))
+
+      window.location.href = `${RouteNames.NewLead}?lead_id=${leadId}`
     }
+
   }
 }
 </script>

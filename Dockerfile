@@ -24,9 +24,7 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     mkdir /app/tmp && \
     mkdir /app/log && \
     mkdir /app/public/packs && \
-    mkdir /app/public/images/tmp && \
     mkdir /app/downloads && \
-    chmod +x /app/public/images/tmp && \
     rm -f /etc/service/nginx/down
 
 ## Setup Redis.
@@ -39,7 +37,6 @@ RUN mkdir /etc/service/delayed_job
 RUN cp /app/exe/delayed_job /etc/service/delayed_job/run
 
 RUN chown 9999:9999 /app/public
-RUN chown 9999:9999 /app/public/images/tmp
 RUN chown 9999:9999 /app/public/packs
 RUN chown 9999:9999 /app/log/
 RUN chown 9999:9999 /app/downloads

@@ -64,16 +64,12 @@
     :role-type="[ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]"
     v-model="params"
   />
-  <FacetYears
-    v-model="params"
-  />
+  <FacetYears v-model="params" />
   <FacetSource
     klass="Image"
     v-model="params"
   />
-  <FacetLicenses
-    v-model="params"
-  />
+  <FacetLicenses v-model="params" />
   <FacetText
     param-text="depiction_caption"
     param-exact="depiction_caption_exact"
@@ -83,6 +79,7 @@
     target="Image"
     v-model="params"
   />
+  <FacetNotes v-model="params" />
   <FacetUsers v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
@@ -96,7 +93,12 @@
 
 <script setup>
 import { computed } from 'vue'
-import { ROLE_ATTRIBUTION_COPYRIGHT_HOLDER, ROLE_ATTRIBUTION_CREATOR, ROLE_ATTRIBUTION_EDITOR, ROLE_ATTRIBUTION_OWNER } from '@/constants'
+import {
+  ROLE_ATTRIBUTION_COPYRIGHT_HOLDER,
+  ROLE_ATTRIBUTION_CREATOR,
+  ROLE_ATTRIBUTION_EDITOR,
+  ROLE_ATTRIBUTION_OWNER
+} from '@/constants'
 import FacetCollectionObject from '@/components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetBiocurations from '@/components/Filter/Facets/CollectionObject/FacetBiocurations.vue'
@@ -116,6 +118,7 @@ import FacetSource from '@/components/Filter/Facets/shared/FacetSource.vue'
 import FacetLicenses from '@/components/Filter/Facets/shared/FacetLicenses.vue'
 import FacetYears from '@/components/Filter/Facets/shared/FacetYears.vue'
 import FacetText from '@/components/Filter/Facets/shared/FacetText.vue'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 
 const props = defineProps({
   modelValue: {
@@ -127,6 +130,7 @@ const props = defineProps({
 const WITH_PARAMS = [
   'citations',
   'depictions',
+  'notes',
   'freeform_svg',
   'origin_citation',
   'sled_image',

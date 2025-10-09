@@ -13,6 +13,14 @@ module UsersHelper
     end
   end
 
+  def user_autocomplete_tag(user)
+    user.name + ' ' + content_tag(:span, user.email, class: [:feedback, 'feedback-thin', 'feedback-primary']).html_safe
+  end
+
+  def user_email_tag(user)
+    user_autocomplete_tag(user)
+  end
+
   def user_last_seen_tag(user)
     if !user.last_seen_at.blank?
       time_ago_in_words(user.last_seen_at) + '  ago'
@@ -69,7 +77,7 @@ module UsersHelper
           [ r.name.to_s.humanize.gsub( (target == :created ? 'Created ' : 'Updated ' ).titleize, ''),
             t
           ])
-      end 
+      end
     end
     data
   end

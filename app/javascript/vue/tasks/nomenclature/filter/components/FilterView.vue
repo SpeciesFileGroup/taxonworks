@@ -41,15 +41,13 @@
   <FacetUpdatedSince v-model="params" />
   <FacetDataAttribute v-model="params" />
   <FacetImportAttribute v-model="params" />
+  <FacetNotes v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
     :key="param"
     :param="param"
-    :title="
-      (WITH_TITLES[param] && WITH_TITLES[param].title) ||
-      param.replaceAll('_', ' ')
-    "
-    :inverted="WITH_TITLES[param] && WITH_TITLES[param].inverted"
+    :title="WITH_TITLES[param]?.title || param.replaceAll('_', ' ')"
+    :inverted="WITH_TITLES[param]?.inverted"
     v-model="params"
   />
   <FacetValidify v-model="params" />
@@ -85,6 +83,7 @@ import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportA
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 import FacetRelationToRelationship from './filters/FacetRelationToRelationship.vue'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import { computed } from 'vue'
 import { TAXON_NAME } from '@/constants'
 

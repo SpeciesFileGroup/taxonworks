@@ -35,9 +35,12 @@ module Export
     #    valid values are collecting_event_predicate_id: [], collection_object_predicate_id
     # @return [Download]
     #   the download object containing the archive
-    def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: {})
+    def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: {}, project_id: nil)
+      raise TaxonWorks::Error, 'project_id is required in Export::Dwca::download_async!' if project_id.nil?
+
       name = "dwc-a_#{DateTime.now}.zip"
 
+      # TODO: move fixed attributes to model
       download = ::Download::DwcArchive.create!(
         name: "DwC Archive generated at #{Time.now.utc}.",
         description: 'A Darwin Core archive.',
@@ -49,11 +52,12 @@ module Export
 
       # Note we pass a string with the record scope
       ::DwcaCreateDownloadJob.perform_later(
-        download,
+        download.id,
         core_scope: record_scope.to_sql,
         extension_scopes:,
         predicate_extensions:,
         taxonworks_extensions:,
+        project_id:
       )
 
       download

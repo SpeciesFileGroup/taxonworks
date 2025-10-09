@@ -3,6 +3,7 @@ module Queries
     class Filter < Query::Filter
       include Queries::Concerns::Tags
       include Queries::Concerns::Citations
+      include Queries::Concerns::Notes
 
       PARAMS = [
         :conveyance_object_type,
@@ -82,6 +83,7 @@ module Queries
         @with_name = boolean_param(params, :with_name)
 
         set_citations_params(params)
+        set_notes_params(params)
         set_tags_params(params)
       end
 

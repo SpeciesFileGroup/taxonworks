@@ -40,8 +40,6 @@ onBeforeUnmount(() => document.removeEventListener(EVENT_NAME, setFocusState))
 
 function setFocusState(e) {
   isFocus.value = e.detail.focus
-
-  console.log(e)
 }
 
 function toggleFocus() {

@@ -117,10 +117,10 @@ class SqedDepiction < ApplicationRecord
     if progress
       SqedDepiction.clear_stale_progress(self)
       object = SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', depiction_object.id).where('sqed_depictions.id > ?', id).order(:id).first
-      object.nil? ? SqedDepiction.where(in_progress: false, project_id:).order(:id).first : object
+      object || SqedDepiction.where(in_progress: nil, project_id:).order(:id).first
     else
       object = SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', depiction_object.id).where('sqed_depictions.id > ?', id).order(:id).first
-      object.nil? ? SqedDepiction.where(project_id:).order(:id).first : object
+      object || SqedDepiction.where(project_id:).order(:id).first
     end
   end
 

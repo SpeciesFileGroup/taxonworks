@@ -11,8 +11,19 @@ module AssertedDistribution::DwcExtensions
     occurrenceStatus: :dwc_occurrence_status,
     stateProvince: :dwc_state_province,
 
+    nomenclaturalCode: :dwc_nomenclatural_code,
     kingdom: :dwc_kingdom,
+
+    phylum: :dwc_phylum,
+    dwcClass: :dwc_class,
+    order: :dwc_order,
+    higherClassification: :dwc_higher_classification,
+
+    superfamily: :dwc_superfamily,
     family: :dwc_family,
+    subfamily: :dwc_subfamily,
+    tribe: :dwc_tribe,
+    subtribe: :dwc_subtribe,
     genus: :dwc_genus,
     specificEpithet: :dwc_specific_epithet,
     infraspecificEpithet: :dwc_infraspecific_epithet,
@@ -23,13 +34,53 @@ module AssertedDistribution::DwcExtensions
 
   attr_accessor :geographic_names
 
+  def dwc_higher_classification
+    v = taxonomy.values.collect{|a| a.kind_of?(Array) ? a.second : a}
+    v.shift
+    v.pop
+    v.compact
+    v.join(AssertedDistribution::DWC_DELIMITER).presence
+  end
+
   def dwc_kingdom
     taxonomy['kingdom']
+  end
+
+  def dwc_phylum
+    taxonomy['phylum']
+  end
+
+  def dwc_class
+    taxonomy['class']
+  end
+
+  def dwc_order
+    taxonomy['order']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/superfamily
+  def dwc_superfamily
+    taxonomy['superfamily']
   end
 
   # http://rs.tdwg.org/dwc/terms/family
   def dwc_family
     taxonomy['family']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/subfamily
+  def dwc_subfamily
+    taxonomy['subfamily']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/tribe
+  def dwc_tribe
+    taxonomy['tribe']
+  end
+
+  # http://rs.tdwg.org/dwc/terms/subtribe
+  def dwc_subtribe
+    taxonomy['subtribe']
   end
 
   # http://rs.tdwg.org/dwc/terms/genus
@@ -81,6 +132,11 @@ module AssertedDistribution::DwcExtensions
   def dwc_county
     geographic_names[:county]
   end
+
+  def dwc_nomenclatural_code
+    otu.try(:taxon_name).try(:nomenclatural_code)
+  end
+
 
   # At present we are not exporting the spatial footprint
   # See also app/models/geographic_area/dwc_serialization.rb

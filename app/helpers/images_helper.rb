@@ -37,7 +37,7 @@ module ImagesHelper
     end
 
     if api
-      short_url( api_v1_image_file_path( image) )
+      short_url( api_v1_images_file_sha_url( sha: image.image_file_fingerprint ) )
     else
       short_url( image.image_file.url(:original) )
     end
@@ -116,7 +116,7 @@ module ImagesHelper
         depictions: []
       }
 
-      if i.source 
+      if i.source
         p[:source] = {
           label: i.source.cached
         }

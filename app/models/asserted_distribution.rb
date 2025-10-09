@@ -81,7 +81,8 @@ class AssertedDistribution < ApplicationRecord
   scope :with_is_absent, -> { where('is_absent = true') }
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
   scope :with_geographic_area_array, -> (geographic_area_array) { where("asserted_distribution_shape_type = 'GeographicArea' AND asserted_distribution_shape_id IN (?)", geographic_area_array) }
-  # Includes a `geographic_item_id` column.
+  # Includes a `geographic_item_id` column, so !! may return more results than
+  # there are ADs !!.
   scope :associated_with_geographic_items, -> {
     a = AssertedDistribution
       .where(asserted_distribution_shape_type: 'GeographicArea')
@@ -97,6 +98,20 @@ class AssertedDistribution < ApplicationRecord
       .select('asserted_distributions.*, geographic_items.id geographic_item_id')
 
     ::Queries.union(AssertedDistribution, [a, b])
+  }
+  scope :contributing_to_cached_maps, -> {
+    # TODO: eventually include non-otu object types
+    ad_ga_with_shape = AssertedDistribution
+      .with_otus
+      .joins("JOIN geographic_areas ON asserted_distributions.asserted_distribution_shape_type = 'GeographicArea' AND asserted_distributions.asserted_distribution_shape_id = geographic_areas.id")
+      .joins('JOIN geographic_areas_geographic_items on geographic_areas.id = geographic_areas_geographic_items.geographic_area_id')
+
+    ad_gaz = AssertedDistribution
+      .with_otus
+      .where(asserted_distribution_shape_type: 'Gazetteer')
+
+    ::Queries.union(AssertedDistribution, [ad_ga_with_shape, ad_gaz])
+      .without_is_absent
   }
   scope :with_otus, -> {
     joins("JOIN otus ON otus.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'")

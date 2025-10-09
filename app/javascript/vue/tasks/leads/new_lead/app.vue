@@ -72,9 +72,9 @@ import { computed, onBeforeMount, ref, watch } from 'vue'
 import { CITATION, DEPICTION } from '@/constants'
 import { useAnnotationHandlers } from './shared/composables/useAnnotationHandlers.js'
 import { RouteNames } from '@/routes/routes'
-import { URLParamsToJSON } from '@/helpers/url/parse'
 import { usePopstateListener } from '@/composables'
 import { nextLayout, LAYOUTS, LAYOUT_COMPONENTS } from './shared/layouts'
+import { useParamsSessionPop } from '@/composables/useParamsSessionPop'
 
 const LAYOUT_STORAGE_KEY = 'tw::leads::new::layout'
 
@@ -132,14 +132,27 @@ onBeforeMount(() => {
     store.layout = value
   }
 
-  const { lead_id } = URLParamsToJSON(location.href)
+  let { leadId, leadItemsData, descriptorData } =
+    useParamsSessionPop({lead_id: 'leadId', otu_ids: 'leadItemsData', descriptor_data: 'descriptorData'}, 'interactive_key_to_key')
 
-  if (lead_id) {
+  if (leadId) {
     // Call this for history.replaceState - it replaces turbolinks state
     // that would cause a reload every time we revisit this initial lead.
-    setParam(RouteNames.NewLead, 'lead_id', lead_id)
-    store.loadKey(lead_id)
+    setParam(RouteNames.NewLead, 'lead_id', leadId)
   }
+
+  if (leadId && leadItemsData && descriptorData) {
+    leadItemsData = JSON.parse(leadItemsData)
+    descriptorData = JSON.parse(descriptorData)
+    store.process_lead_items_data(leadItemsData, leadId)
+      .then(() => {
+        store.loadKey(leadId)
+          .then(() => store.process_descriptor_data(descriptorData))
+      })
+  } else if (leadId) {
+    store.loadKey(leadId)
+  }
+
 })
 </script>
 

@@ -16,9 +16,14 @@
     margin-bottom: 1em;
   }
 
+  .browse-nomenclature-navbar {
+    z-index: 2000;
+  }
+
   .nav-column {
     width: 400px;
-    min-width: 270px;
+    min-width: 400px;
+    bottom: 0px;
   }
 
   .citations {

@@ -48,6 +48,12 @@
 #   @return [Integer]
 #   the project ID
 #
+# ! This feels a little like structure/rendering not data, it may belong in a seperate table ultimately !!
+# @!attribute observation_matrix_id
+#   @return [Integer]
+#   id of the observation matrix from which lead item otus have been selected to
+#   build a key on, if any
+#   
 class Lead < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -63,12 +69,14 @@ class Lead < ApplicationRecord
   belongs_to :otu, inverse_of: :leads
   has_one :taxon_name, through: :otu
   belongs_to :redirect, class_name: 'Lead'
+  belongs_to :observation_matrix, inverse_of: :leads
 
   has_many :redirecters, class_name: 'Lead', foreign_key: :redirect_id, inverse_of: :redirect, dependent: :nullify
   has_many :lead_items, inverse_of: :lead, dependent: :destroy
   has_many :lead_item_otus, through: :lead_items, source: :otu
 
   before_save :set_is_public_only_on_root
+  before_save :set_observation_matrix_id_only_on_root
 
   validate :root_has_title
   validate :link_out_has_protocol
@@ -504,6 +512,12 @@ class Lead < ApplicationRecord
       self.is_public ||= false
     else
       self.is_public = nil
+    end
+  end
+
+  def set_observation_matrix_id_only_on_root
+    if parent_id.present?
+      self.observation_matrix_id = nil
     end
   end
 

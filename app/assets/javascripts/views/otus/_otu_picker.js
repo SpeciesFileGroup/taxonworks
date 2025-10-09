@@ -1,106 +1,173 @@
 /*
  Used to select, or create a new OTU, inline.
  */
-OTU_PICKER_WIDGET = {
-
+const OTU_PICKER_WIDGET = {
   current_otu_id: null,
   current_otu_label: null,
   object_name: null,
 
   initialize_otu_picker: function (form) {
-    OTU_PICKER_WIDGET.object_name = form.data('object-name');
-    OTU_PICKER_WIDGET.initialize_autocomplete(form);
-    OTU_PICKER_WIDGET.bind_new_otu_link(form);
-    OTU_PICKER_WIDGET.bind_add_ok(form);
-    OTU_PICKER_WIDGET.bind_undo_new_otu(form);
-    OTU_PICKER_WIDGET.cache_existing_otu(form);
+    OTU_PICKER_WIDGET.object_name = form.dataset.objectName
+    OTU_PICKER_WIDGET.initialize_autocomplete(form)
+    OTU_PICKER_WIDGET.bind_new_otu_link(form)
+    OTU_PICKER_WIDGET.bind_add_ok(form)
+    OTU_PICKER_WIDGET.bind_undo_new_otu(form)
+    OTU_PICKER_WIDGET.cache_existing_otu(form)
   },
 
   initialize_autocomplete: function (form) {
-    var autocomplete_input = form.find(".otu_picker_autocomplete");
+    const input = form.querySelector('.otu_picker_autocomplete')
+    if (!input) return
 
-    autocomplete_input.autocomplete({
-      source: '/otus/autocomplete',
-      select: function (event, ui) {
-        OTU_PICKER_WIDGET.select_otu(form, ui.item.id);
-        $(this).val(ui.item.label);
-        return false;
+    const ac = new TWAutocomplete(input, {
+      source: function (term, respond) {
+        fetch('/otus/autocomplete?term=' + encodeURIComponent(term))
+          .then((r) => r.json())
+          .then((data) => {
+            respond(data)
+
+            if (data.length === 0) {
+              const addNew = document.querySelector('#otu_picker_add_new')
+              if (addNew) addNew.style.display = 'block'
+
+              const nameField = document.querySelector('#XXX_otu_name_field')
+              const acInput = document.querySelector(
+                '#XXX_otu_picker_autocomplete'
+              )
+              if (nameField && acInput) {
+                nameField.value = acInput.value
+              }
+            }
+          })
+          .catch(() => respond([]))
       },
-      response: function (event, ui) {
-        if (ui.content.length === 0) {
-          $("#otu_picker_add_new").fadeIn(250);
-          $("#XXX_otu_name_field").val($('#XXX_otu_picker_autocomplete').val());
-        }
+      minLength: 1,
+      select: function (ui) {
+        OTU_PICKER_WIDGET.select_otu(form, ui.item.id)
+        input.value = ui.item.label
+        return false
       }
+    })
 
-    }).autocomplete("instance")._renderItem = function (ul, item) {
-      return $("<li class='autocomplete' id='ui-otu-id-"+ item.id + "' >")
-          .append("<a>" + item.label + '</a>')
-          .appendTo(ul);
-    };
+    // custom render
+    const originalRenderMenu = ac._renderMenu.bind(ac)
+    ac._renderMenu = function () {
+      this._menu.innerHTML = ''
+
+      this._items.forEach((item, idx) => {
+        const li = document.createElement('li')
+        li.className = 'autocomplete'
+        li.id = `ui-otu-id-${item.id}`
+        li.dataset.index = idx
+        li.setAttribute('role', 'option')
+        li.innerHTML = `<a>${item.label}</a>`
+        this._menu.appendChild(li)
+      })
+
+      originalRenderMenu()
+    }
   },
 
-  // user picks a new OTU
   select_otu: function (form, otu_id) {
-    $("#selected_otu_id").val(otu_id);
-    OTU_PICKER_WIDGET.cache_existing_otu(form);
+    const selected = document.querySelector('#selected_otu_id')
+    if (selected) selected.value = otu_id
+    OTU_PICKER_WIDGET.cache_existing_otu(form)
   },
 
-  // user wants to create new OTU
   bind_new_otu_link: function (form) {
-    form.find("#otu_picker_add_new").click(function () {
-      $('#new_otu').fadeIn(250);
-      $("#otu_picker_add_new").hide();
-      $("#XXX_otu_picker_autocomplete").attr('hidden', true);
+    const btn = form.querySelector('#otu_picker_add_new')
+    if (!btn) return
+
+    btn.addEventListener('click', () => {
+      const newOtu = document.querySelector('#new_otu')
+      if (newOtu) newOtu.style.display = 'block'
+
+      btn.style.display = 'none'
+
+      const acInput = document.querySelector('#XXX_otu_picker_autocomplete')
+      if (acInput) acInput.hidden = true
     })
   },
 
   bind_add_ok: function (form) {
-    form.find("#otu_picker_add_ok").click(function () {
-      OTU_PICKER_WIDGET.show_original_search(form);
-      $("#XXX_otu_picker_autocomplete").val(OTU_PICKER_WIDGET.get_autocomplete_name(form));
+    const btn = form.querySelector('#otu_picker_add_ok')
+    if (!btn) return
 
-      // remove reference to previously selected otu 
-      $("#selected_otu_id").val('');
+    btn.addEventListener('click', () => {
+      OTU_PICKER_WIDGET.show_original_search(form)
+
+      const acInput = document.querySelector('#XXX_otu_picker_autocomplete')
+      if (acInput) {
+        acInput.value = OTU_PICKER_WIDGET.get_autocomplete_name(form)
+      }
+
+      const selected = document.querySelector('#selected_otu_id')
+      if (selected) selected.value = ''
     })
   },
 
   bind_undo_new_otu: function (form) {
-    form.find("#otu_picker_new_undo").click(function () {
+    const btn = form.querySelector('#otu_picker_new_undo')
+    if (!btn) return
 
-      $("#XXX_otu_name_field").val('');
-      $("#taxon_name_id_for_inline_otu_picker").val('');
+    btn.addEventListener('click', () => {
+      const nameField = document.querySelector('#XXX_otu_name_field')
+      if (nameField) nameField.value = ''
 
-      $("input[name='" + OTU_PICKER_WIDGET.object_name + "[otu_attributes][taxon_name_id]']").remove();
+      const taxonField = document.querySelector(
+        '#taxon_name_id_for_inline_otu_picker'
+      )
+      if (taxonField) taxonField.value = ''
 
+      const hiddenInput = document.querySelector(
+        `input[name='${OTU_PICKER_WIDGET.object_name}[otu_attributes][taxon_name_id]']`
+      )
+      if (hiddenInput) hiddenInput.remove()
 
+      OTU_PICKER_WIDGET.show_original_search(form)
 
-      OTU_PICKER_WIDGET.show_original_search(form);
+      const acInput = document.querySelector('#XXX_otu_picker_autocomplete')
+      if (acInput) {
+        acInput.value = OTU_PICKER_WIDGET.current_otu_label
+      }
 
-      $("#XXX_otu_picker_autocomplete").val(OTU_PICKER_WIDGET.current_otu_label);
-      OTU_PICKER_WIDGET.select_otu(form, OTU_PICKER_WIDGET.current_otu_id);
+      OTU_PICKER_WIDGET.select_otu(form, OTU_PICKER_WIDGET.current_otu_id)
     })
   },
 
   show_original_search: function (form) {
-    form.find('#new_otu').hide(250);
-    form.find("#XXX_otu_picker_autocomplete").removeAttr('hidden');
+    const newOtu = form.querySelector('#new_otu')
+    if (newOtu) newOtu.style.display = 'none'
+
+    const acInput = form.querySelector('#XXX_otu_picker_autocomplete')
+    if (acInput) acInput.hidden = false
   },
 
   cache_existing_otu: function (form) {
-    OTU_PICKER_WIDGET.current_otu_id = form.find("#selected_otu_id").val();
-    OTU_PICKER_WIDGET.current_otu_label = form.find("#XXX_otu_picker_autocomplete").val();
+    const selected = form.querySelector('#selected_otu_id')
+    const acInput = form.querySelector('#XXX_otu_picker_autocomplete')
+
+    OTU_PICKER_WIDGET.current_otu_id = selected ? selected.value : null
+    OTU_PICKER_WIDGET.current_otu_label = acInput ? acInput.value : null
   },
 
   get_autocomplete_name: function (form) {
-    return (form.find("#XXX_otu_name_field").val() + ' [' + form.find("#taxon_name_id_for_inline_otu_picker").val() + '] (a new OTU)');
+    const nameField = form.querySelector('#XXX_otu_name_field')
+    const taxonField = form.querySelector(
+      '#taxon_name_id_for_inline_otu_picker'
+    )
+
+    return (
+      (nameField ? nameField.value : '') +
+      ' [' +
+      (taxonField ? taxonField.value : '') +
+      '] (a new OTU)'
+    )
   }
-}; // end widget 
+}
 
-
-$(document).on("turbolinks:load", function() {
-  $('.otu_picker').each(function () {
-    OTU_PICKER_WIDGET.initialize_otu_picker($(this));
-  });
-});
-
+document.addEventListener('turbolinks:load', () => {
+  document.querySelectorAll('.otu_picker').forEach((form) => {
+    OTU_PICKER_WIDGET.initialize_otu_picker(form)
+  })
+})

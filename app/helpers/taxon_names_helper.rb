@@ -374,47 +374,114 @@ module TaxonNamesHelper
   end
 
   def taxon_name_inventory_stats(taxon_name)
-
+    # Code mostly by chatgpt 5 (with comment/naming revsisions)
     d = []
 
-    i = {
-      rank: nil,
-      taxa: {},
-      names: {}
-    }
-
-    # !! descendants: false is [self and desecendants]
-    ::Queries::TaxonName::Filter.new(synonymify: true, descendants: false, taxon_name_id: taxon_name.id).all
+    # Query 1. Get all ranks for ordering
+    ranks = ::Queries::TaxonName::Filter
+      .new(synonymify: true, descendants: false, taxon_name_id: taxon_name.id)
+      .all
       .where(type: 'Protonym')
-      .select(:rank_klass).distinct.pluck(:rank_class).compact.sort{|a,b| RANKS.index(a) <=> RANKS.index(b)}.each do |r|
+      .distinct
+      .pluck(:rank_class)
+      .compact
+      .sort_by { |r| RANKS.index(r) || RANKS.length }
 
-        n = r.safe_constantize.rank_name.to_sym
-        j = i.deep_dup
+    return [] if ranks.empty?
 
-        j[:rank] = n
+    # Query 2. VALID
+    valid = ::Queries::TaxonName::Filter.new(
+      validity: true,
+      descendants: false,
+      taxon_name_id: taxon_name.id,
+      taxon_name_type: 'Protonym'
+    ).all
 
-        valid = ::Queries::TaxonName::Filter.new(
-          validity: true, descendants: false, taxon_name_id: taxon_name.id,
-          rank: r, taxon_name_type: 'Protonym'
-        ).all
+    valid_by_rank = valid
+      .group('rank_class')
+      .count
 
-        j[:names][:valid] = valid.count
-        j[:names][:valid_fossil] = valid
-          .joins(:taxon_name_classifications)
-          .where('taxon_name_classifications.type LIKE ?', '%::Fossil%' )
-          .count
-        j[:names][:valid_extant] = j[:names][:valid] - j[:names][:valid_fossil]
+    # Query 3. VALID FOSSILS
+    valid_fossil_names_by_rank = valid
+      .joins(:taxon_name_classifications)
+      .where(taxon_name_classifications: { type: TAXON_NAME_CLASSIFICATIONS_FOR_FOSSILS })
+      .group('rank_class')
+      .count
 
-        j[:names][:invalid] = ::Queries::TaxonName::Filter.new(
-          descendants: false, synonymify: true, taxon_name_id: taxon_name.id,
-          rank: r, taxon_name_type: 'Protonym'
-        ).all.that_is_invalid.count
+   # Query 4. INVALID
+   invalid_scope = ::Queries::TaxonName::Filter.new(
+      descendants: false,
+      synonymify: true,
+      taxon_name_id: taxon_name.id,
+      taxon_name_type: 'Protonym'
+    ).all.that_is_invalid
 
-        # This is the number of OTUs behind the ranks at this concept, i.e. a measure of how partitioned the data are beyond valid/invalid categories.
-        j[:taxa] = ::Queries::Otu::Filter.new(coordinatify: true, taxon_name_query: {descendants: false, taxon_name_id: taxon_name.id, rank: r} ).all.count
+    # Count invalid names at the rank of their valid name.
+    invalid_by_rank = TaxonName
+      .from("(#{invalid_scope.to_sql}) invalid")
+      .joins('JOIN taxon_names valid ON valid.id = invalid.cached_valid_taxon_name_id')
+      .group('valid.rank_class')
+      .count
 
-        d.push j
-      end
+    # Query 5: Coordinatified OTU counts
+    # In brief: Let S be the subtree of taxon_name.
+    # 1) To each name in S, assign the rank of its valid name (may be itself).
+    # 2) Coordinatify all otus corresponding to S (expand in both directions
+    #    from S via valid-name-of/invalid-name-of name in S).
+    # 3) Join 2) to 1) via the expansion described in 2).
+    # 4) Group that join by the valid rank assigned to elements of S in 1).
+    # 5) Count by that valid rank.
+    base_scope = ::Queries::TaxonName::Filter.new(
+      descendants: false,
+      taxon_name_id: taxon_name.id,
+      taxon_name_type: 'Protonym'
+    ).all
+
+    # Count invalid names with their valid name's rank.
+    valid_rank = TaxonName
+      .from(base_scope, :tn)
+      .joins('LEFT JOIN taxon_names valid ON valid.id = tn.cached_valid_taxon_name_id')
+      .select(
+        'tn.id,
+        COALESCE(valid.rank_class, tn.rank_class) AS valid_rank,
+        tn.cached_is_valid'.squish
+      )
+
+    otus_scope = ::Otu.where(taxon_name_id: valid_rank.except(:select).select('tn.id'))
+
+    # This is a little janky, but it's what allows us to avoid an extra query
+    # (and it gives project_id context).
+    otus_coordinatified = ::Queries::Otu::Filter.new({}).coordinatify_result(otus_scope)
+
+    rows = TaxonName
+      .with(valid_rank:)
+      .from(otus_coordinatified, :o)
+      .joins('JOIN taxon_names tn ON tn.id = o.taxon_name_id')
+      .joins('JOIN valid_rank vr ON tn.id = vr.id OR tn.cached_valid_taxon_name_id = vr.id')
+      .group('vr.valid_rank')
+      .pluck('vr.valid_rank', Arel.sql('COUNT(DISTINCT o.id)'))
+
+    otu_by_rank = rows.each_with_object({}) { |(rank, cnt), h| h[rank] = cnt.to_i }
+
+    # Stitch results per rank
+    ranks.each do |rank_class|
+      n = rank_class.safe_constantize.rank_name.to_sym
+      valid = valid_by_rank[rank_class] || 0
+      valid_fossil = valid_fossil_names_by_rank[rank_class] || 0
+      invalid = invalid_by_rank[rank_class] || 0
+      taxa = otu_by_rank[rank_class] || 0
+
+      d << {
+        rank: n,
+        taxa: taxa,
+        names: {
+          valid: valid,
+          valid_fossil: valid_fossil,
+          valid_extant: valid - valid_fossil,
+          invalid: invalid
+        }
+      }
+    end
 
     d
   end
@@ -582,6 +649,194 @@ module TaxonNamesHelper
     end
 
     rows.join('<br>').html_safe
+  end
+
+  def taxonomic_tree_node(taxon_name, include_count)
+    node = {
+      id: taxon_name.id,
+      label: taxon_name.cached_html_name_and_author_year,
+      is_valid: taxon_name.cached_is_valid,
+      cached_valid_taxon_name_id: taxon_name.cached_valid_taxon_name_id,
+      synonyms: taxon_name_synonyms_list(taxon_name).map { |syn| taxon_name_synonym_li(syn) },
+      leaf_node: taxon_name.descendants.unscope(:order).empty?
+    }
+
+    if include_count
+      node[:valid_descendants] = taxon_name.descendants.unscope(:order).that_is_valid.count
+      node[:invalid_descendants] = taxon_name.descendants.unscope(:order).that_is_invalid.count
+    end
+
+    node
+  end
+
+  def taxonomic_tree_ancestors(taxon_name, include_count)
+    taxon_name.ancestor_protonyms.map { |ancestor| taxonomic_tree_node(ancestor, include_count) }
+  end
+
+  def taxonomic_tree_descendants(taxon_name, include_count)
+    taxon_name.children
+      .order(:name)
+      .where(type: 'Protonym')
+      .sort_by { |a| [RANKS.index(a.rank_string), a.cached, a.cached_author_year || ''] }
+      .map { |child| taxonomic_tree_node(child, include_count) }
+  end
+
+  def taxonomic_tree(taxon_name, include_ancestors = true, include_count = true)
+    node = {
+      taxon_name: taxonomic_tree_node(taxon_name, include_count),
+      descendants: taxonomic_tree_descendants(taxon_name, include_count)
+    }
+
+    if (include_ancestors)
+      node[:ancestors] = taxonomic_tree_ancestors(taxon_name, include_count)
+    end
+
+    node
+  end
+
+
+  # Summarize People instances through taxon_name_author roles per year
+  # @param [ActiveRecord::Relation] taxon_names - filtered taxon names
+  # @return [Hash] - hash of authors with year data, keyed by person_id
+  def summarize_authors_by_year(taxon_names)
+    author_summary = {}
+
+    taxon_names.left_joins(:taxon_name_authors).find_each do |taxon_name|
+      year = taxon_name.cached_nomenclature_date&.year || 'Unknown'
+      is_valid = taxon_name.cached_is_valid
+
+      taxon_name.taxon_name_authors.each do |person|
+        next unless person
+
+        author_key = person.id
+        author_summary[author_key] ||= { name: person.cached, years: {} }
+        author_summary[author_key][:years][year] ||= { valid: 0, invalid: 0, total: 0 }
+
+        if is_valid
+          author_summary[author_key][:years][year][:valid] += 1
+        else
+          author_summary[author_key][:years][year][:invalid] += 1
+        end
+        author_summary[author_key][:years][year][:total] += 1
+      end
+    end
+
+    author_summary
+  end
+
+  # Format author data for Chartkick column chart
+  # @param [Hash] author_data - hash of authors with year data, keyed by person_id
+  # @return [Hash] - formatted data for chartkick
+  def author_chart_data(author_data)
+    authors_per_year = {}
+
+    # Count unique authors per year
+    author_data.each do |person_id, author_info|
+      author_info[:years].each_key do |year|
+        authors_per_year[year] = (authors_per_year[year] || 0) + 1
+      end
+    end
+
+    # Return single series of unique author counts
+    {
+      data: [
+        { name: 'Unique Authors', data: authors_per_year }
+      ]
+    }
+  end
+
+  # Format individual author data for Chartkick column chart
+  # Scopes to min/max year observed per author
+  # @param [Hash] author_years - hash of year data for a single author
+  # @return [Array] - formatted data for chartkick
+  def author_individual_chart_data(author_years)
+    return { data: [], width: '0px' } if author_years.empty?
+
+    valid_data = {}
+    invalid_data = {}
+
+    years = author_years.keys.reject { |y| y == 'Unknown' }.sort
+    min_year = years.min
+    max_year = years.max
+
+    if min_year && max_year
+      (min_year..max_year).each do |year|
+        if author_years[year]
+          valid_data[year] = author_years[year][:valid] || 0
+          invalid_data[year] = author_years[year][:invalid] || 0
+        else
+          valid_data[year] = 0
+          invalid_data[year] = 0
+        end
+      end
+    end
+
+    if author_years['Unknown']
+      valid_data['Unknown'] = author_years['Unknown'][:valid] || 0
+      invalid_data['Unknown'] = author_years['Unknown'][:invalid] || 0
+    end
+
+    year_span = (max_year.to_i - min_year.to_i)
+    chart_width = [120 + year_span * 20, 800].min
+
+    {
+      data: [
+        { name: 'Valid', data: valid_data },
+        { name: 'Invalid', data: invalid_data }
+      ],
+      width: "#{chart_width}px"
+    }
+  end
+
+  # Calculate co-authorship relationships for Sankey diagram
+  # @param [ActiveRecord::Relation] taxon_names - filtered taxon names
+  # @return [Hash] - nodes and links for Sankey diagram
+  def author_coauthorship_data(taxon_names)
+    coauthorship_counts = {}
+    author_names = {}
+
+    # Find all taxon names with multiple authors
+    taxon_names.left_joins(:taxon_name_authors).find_each do |taxon_name|
+      authors = taxon_name.taxon_name_authors.to_a
+      next if authors.length < 2
+
+      # Store author names
+      authors.each { |author| author_names[author.id] = author.cached }
+
+      # Count co-authorships (combinations of authors on same taxon name)
+      authors.combination(2).each do |author1, author2|
+        # Create consistent ordering for the pair
+        source_id, target_id = [author1.id, author2.id].sort
+        key = "#{source_id}-#{target_id}"
+        coauthorship_counts[key] ||= { source_id: source_id, target_id: target_id, count: 0 }
+        coauthorship_counts[key][:count] += 1
+      end
+    end
+
+    # Only include authors that have links
+    linked_author_ids = coauthorship_counts.values.flat_map { |link| [link[:source_id], link[:target_id]] }.uniq
+    nodes_data = author_names.select { |id, name| linked_author_ids.include?(id) }
+
+    # Create node array with indices for d3-sankey
+    nodes = nodes_data.map.with_index { |(id, name), index| { id: index, name: name, person_id: id } }
+
+    # Create id to index mapping
+    id_to_index = {}
+    nodes.each { |node| id_to_index[node[:person_id]] = node[:id] }
+
+    # Convert links to use node indices
+    links = coauthorship_counts.values.map do |link|
+      {
+        source: id_to_index[link[:source_id]],
+        target: id_to_index[link[:target_id]],
+        value: link[:count]
+      }
+    end
+
+    {
+      nodes: nodes,
+      links: links
+    }
   end
 
   protected

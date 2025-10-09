@@ -7,6 +7,17 @@ if extend_response_with('biological_relationship')
   end
 end
 
+if extend_response_with('biological_relationship_types')
+  json.biological_relationship_types do
+    json.array! biological_association.biological_relationship.biological_relationship_types do |biological_relationship_type|
+      json.extract! biological_relationship_type, :id, :type, :target
+      json.biological_property do
+        json.extract! biological_relationship_type.biological_property, :id, :name
+      end
+    end
+  end
+end
+
 if extend_response_with('subject')
   json.subject do
     json.id biological_association.biological_association_subject.id

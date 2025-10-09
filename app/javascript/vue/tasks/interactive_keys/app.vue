@@ -51,14 +51,15 @@
 <script>
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial'
-import RemainingComponent from './components/Remaining'
-import EliminatedComponent from './components/Eliminated'
-import DescriptorsView from './components/DescriptorsView'
+import RemainingComponent from './components/Remaining.vue'
+import EliminatedComponent from './components/Eliminated.vue'
+import DescriptorsView from './components/DescriptorsView.vue'
 import { ActionNames } from './store/actions/actions'
-import MenuBar from './components/MenuBar'
+import MenuBar from './components/MenuBar.vue'
 import { GetterNames } from './store/getters/getters'
 import SpinnerComponent from '@/components/ui/VSpinner'
 import { MutationNames } from './store/mutations/mutations'
+import { useParamsSessionPop } from '@/composables/useParamsSessionPop'
 
 export default {
   components: {
@@ -87,14 +88,6 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
-    },
-    matrixFilter: {
-      get() {
-        return this.$store.getters[GetterNames.GetFilter]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetParamsFilter, value)
-      }
     }
   },
 
@@ -105,12 +98,20 @@ export default {
   },
 
   created() {
-    const urlParams = new URLSearchParams(window.location.search)
-    const matrixId = urlParams.get('observation_matrix_id')
-    const otuIds = urlParams.get('otu_filter')
+    const { matrixId, leadId, otuIds } =
+      useParamsSessionPop({
+        observation_matrix_id: 'matrixId',
+        lead_id: 'leadId',
+        otu_ids: 'otuIds'
+      }, 'key_to_interactive_key')
 
     if (otuIds) {
-      this.matrixFilter.otu_filter = otuIds
+      this.$store.commit(MutationNames.SetParamsFilter,
+        {
+          ...this.$store.getters[GetterNames.GetFilter],
+          otu_filter: otuIds
+        }
+      )
     }
     if (/^\d+$/.test(matrixId)) {
       this.$store
@@ -119,6 +120,9 @@ export default {
           this.settings.refreshOnlyTaxa =
             this.observationMatrix.remaining.length >= this.countToRefreshMode
         })
+    }
+    if (leadId) {
+      this.$store.commit(MutationNames.SetLeadId, leadId)
     }
   },
   methods: {

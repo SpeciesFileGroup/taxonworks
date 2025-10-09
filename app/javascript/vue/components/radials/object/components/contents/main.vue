@@ -82,12 +82,9 @@
         New
       </VBtn>
     </div>
-    <TableList
-      :header="['Text', 'Topic', '']"
-      :attributes="['text_for_list', ['topic', 'name']]"
-      :list="shortList"
-      edit
-      class="list"
+
+    <TableContents
+      :contents="list"
       @delete="removeItem"
       @edit="setContent"
     />
@@ -96,13 +93,12 @@
 
 <script setup>
 import TopicItem from '../citations/topicItem.vue'
-import TableList from '@/components/table_list.vue'
 import MarkdownEditor from '@/components/markdown-editor.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { shorten } from '@/helpers/strings.js'
+import TableContents from './TableContents.vue'
 import { ControlledVocabularyTerm, Content } from '@/routes/endpoints'
 import { computed, ref, onBeforeMount } from 'vue'
 import { useSlice } from '@/components/radials/composables'
@@ -147,12 +143,6 @@ const topicsAvailable = computed(() =>
 )
 
 const validate = computed(() => content.value.text.length > 1 && topic.value)
-const shortList = computed(() =>
-  list.value.map((content) => ({
-    ...content,
-    text_for_list: shorten(content.text, 150)
-  }))
-)
 
 onBeforeMount(async () => {
   ControlledVocabularyTerm.where({ type: [TOPIC] }).then(({ body }) => {

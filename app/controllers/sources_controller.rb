@@ -2,7 +2,7 @@ class SourcesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_source, only: [:show, :edit, :update, :destroy, :clone, :api_show]
-  after_action -> { set_pagination_headers(:sources) }, only: [:index, :api_index ], if: :json_request?
+  after_action -> { set_pagination_headers(:sources) }, only: [:index, :api_index, :api_bibliography], if: :json_request?
 
   # GET /sources
   # GET /sources.json
@@ -272,9 +272,18 @@ class SourcesController < ApplicationController
   # GET /api/v1/sources
   def api_index
     @sources = Queries::Source::Filter.new(params.merge!(api: true)).all
-      .order('sources.id')
+      .order('sources.cached')
       .page(params[:page]).per(params[:per])
     render '/sources/api/v1/index'
+  end
+
+  # GET /api/v1/sources/bibliography
+  def api_bibliography
+    @sources = Queries::Source::Filter.new(params.merge!(api: true)).all
+      .order('sources.cached')
+      .select(:id, :cached)
+      .page(params[:page]).per(params[:per])
+    render json: @sources
   end
 
   # GET /api/v1/sources/:id

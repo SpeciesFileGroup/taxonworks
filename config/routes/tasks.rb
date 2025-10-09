@@ -148,6 +148,11 @@ scope :tasks do
     scope :new_field_occurrences, controller: 'tasks/field_occurrences/new_field_occurrences' do
       get '/', as: 'new_field_occurrence_task', action: :index
     end
+
+    scope :dwc_media_extension_preview, controller: 'tasks/field_occurrences/dwc_media_extension_preview' do
+      get '/', action: :index, as: 'field_occurrences_dwc_media_extension_preview_task'
+      post '/', action: :index
+    end
   end
 
   scope :namespaces do
@@ -288,6 +293,11 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
+      get '/', action: :index, as: 'project_dwc_export_preferences_task'
+      # See other routes in data.rb.
+    end
+
     scope :week_in_review, controller: 'tasks/projects/week_in_review' do
       get '/', action: :index, as: 'week_in_review_task'
       get :data, as: 'week_in_review_data', defaults: {format: :json}
@@ -443,6 +453,11 @@ scope :tasks do
 
     scope :browse, controller: 'tasks/collection_objects/browse' do
       get '/', as: 'browse_collection_objects_task', action: :index
+    end
+
+    scope :dwc_media_extension_preview, controller: 'tasks/collection_objects/dwc_media_extension_preview' do
+      get '/', action: :index, as: 'collection_objects_dwc_media_extension_preview_task'
+      post '/', action: :index
     end
   end
 
@@ -663,6 +678,7 @@ scope :tasks do
 
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      post ':observation_matrix_id/key', action: :key, defaults: {format: :json}
       get '/', action: :index, as: 'interactive_key_task'
     end
 
@@ -736,6 +752,10 @@ scope :tasks do
   end
 
   scope :taxon_names do
+    scope :author_summary, controller: 'tasks/taxon_names/author_summary' do
+      match '/', action: :index, via: [:get, :post], as: 'taxon_name_author_summary_task'
+    end
+
     scope :gender, controller: 'tasks/taxon_names/gender' do
       match '/', action: :index, via: [:get, :post], as: 'taxon_name_gender_task'
     end

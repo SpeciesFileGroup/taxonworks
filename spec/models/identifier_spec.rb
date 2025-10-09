@@ -209,12 +209,12 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
     it_behaves_like 'is_data'
   end
 
-
   context '#batch_by_filter_scope' do
     let!(:n1) { Namespace.create!(name: 'First', short_name: 'second')}
     let!(:n2) { Namespace.create!(name: 'Third', short_name: 'fourth')}
     let!(:n3v) { Namespace.create!(name: 'Fifth', short_name: 'sixth',
       is_virtual: true)}
+    let!(:n4) { Namespace.create!(name: 'Fourth', short_name: 'eighth')}
 
     let!(:co1) { FactoryBot.create(:valid_specimen) }
     let!(:co2) { FactoryBot.create(:valid_specimen) }
@@ -238,7 +238,8 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
         filter_query: { 'collection_object_query' => q.params },
         params: {
           identifier_types: ['Identifier::Local::RecordNumber'],
-          namespace_id: n2.id
+          namespace_id: n2.id,
+          namespaces_to_replace: [n1, n2, n3v]
         },
         mode: :replace,
       )
@@ -254,7 +255,8 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
         filter_query: { 'collection_object_query' => q.params },
         params: {
           identifier_types: ['Identifier::Local::CatalogNumber'],
-          namespace_id: n2.id
+          namespace_id: n2.id,
+          namespaces_to_replace: [n1, n2, n3v]
         },
         mode: :replace,
         async_cutoff: 0
@@ -273,7 +275,8 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
         filter_query: { 'collection_object_query' => q.params },
         params: {
           identifier_types: ['Identifier::Local::RecordNumber', 'Identifier::Local::CatalogNumber'],
-          namespace_id: n2.id
+          namespace_id: n2.id,
+          namespaces_to_replace: [n1, n2, n3v]
         },
         mode: :replace,
       )
@@ -289,7 +292,8 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
         filter_query: { 'collecting_event_query' => q.params },
         params: {
           identifier_types: ['Identifier::Local::FieldNumber'],
-          namespace_id: n2.id
+          namespace_id: n2.id,
+          namespaces_to_replace: [n1, n2, n3v]
         },
         mode: :replace,
       )
@@ -299,13 +303,33 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
       expect(ii3.reload.namespace_id).to eq(n2.id) # 2nd id on ce2 changed to n2
     end
 
+    specify 'collecting_event field_number' do
+      q = ::Queries::CollectionObject::Filter.new(collecting_event_id: [ce1.id, ce2.id])
+      Identifier.batch_by_filter_scope(
+        filter_query: { 'collecting_event_query' => q.params },
+        params: {
+          identifier_types: ['Identifier::Local::FieldNumber'],
+          namespace_id: n4.id,
+          namespaces_to_replace: [n1]
+        },
+        mode: :replace,
+      )
+
+      expect(ii1.reload.namespace_id).to eq(n4.id) # changed to n4
+      # Stays the same, even though it's on a collecting event that matches
+      # filter_query.
+      expect(ii2.reload.namespace_id).to eq(n2.id)
+      expect(ii3.reload.namespace_id).to eq(n4.id) # 2nd id on ce2 changed to n4
+    end
+
     specify 'collecting_event field_number async' do
       q = ::Queries::CollectionObject::Filter.new(collecting_event_id: [ce1.id, ce2.id])
       Identifier.batch_by_filter_scope(
         filter_query: { 'collecting_event_query' => q.params },
         params: {
           identifier_types: ['Identifier::Local::FieldNumber'],
-          namespace_id: n1.id
+          namespace_id: n1.id,
+          namespaces_to_replace: [n1, n2, n3v]
         },
         mode: :replace,
         async_cutoff: 0
@@ -326,6 +350,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           params: {
             identifier_types: ['Identifier::Local::FieldNumber'],
             namespace_id: n1.id,
+            namespaces_to_replace: [n1, n2, n3v],
             virtual_namespace_prefix: 'ASDF'
           },
           mode: :replace,
@@ -346,6 +371,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           params: {
             identifier_types: ['Identifier::Local::FieldNumber'],
             namespace_id: n1.id,
+            namespaces_to_replace: [n1, n2, n3v],
             virtual_namespace_prefix: 'ASDF'
           },
           mode: :replace,
@@ -366,6 +392,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           params: {
             identifier_types: ['Identifier::Local::FieldNumber'],
             namespace_id: n1.id,
+            namespaces_to_replace: [n1, n2, n3v],
             virtual_namespace_prefix: 'ASDF'
           },
           mode: :replace,
@@ -383,6 +410,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           params: {
             identifier_types: ['Identifier::Local::FieldNumber'],
             namespace_id: n1.id,
+            namespaces_to_replace: [n1, n2, n3v],
             virtual_namespace_prefix: 'ASDF1234'
           },
           mode: :replace,
@@ -401,6 +429,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           params: {
             identifier_types: ['Identifier::Local::FieldNumber'],
             namespace_id: n3v.id, # virtual
+            namespaces_to_replace: [n1, n2, n3v],
             virtual_namespace_prefix: 'ASDF'
           },
           mode: :replace,

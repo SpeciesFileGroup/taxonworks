@@ -1,0 +1,98 @@
+<%= graph_javascript_tag %>
+<% content_for :head do %>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+<% end %>
+
+<%= tag.h1 'Task - Author summary', id: :top -%>
+<%= link_to('Back to filter', filter_taxon_names_task_path(@taxon_names_query.params)) %>
+
+<%= tag.p @taxon_names.count.to_s + ' name/author pairs.', class: [:feedback, 'feedback-info', 'feedback-thin'] %>
+<%= tag.p 'Summarizing People instances through taxon_name_author roles per year for the result set.', class: [:feedback, 'feedback-notice', 'feedback-thin'] %>
+
+<% unless @author_data.empty? %>
+  <div style="width: 95%">
+    <% chart_data = author_chart_data(@author_data) %>
+    <%= column_chart chart_data[:data], height: '600px', stacked: true, download: true, ytitle: 'Number of Authors', xtitle: 'Year', title: "Unique Authors per Year" %>
+  </div>
+
+  <hr class="divisor">
+
+  <% unless @coauthorship_data[:links].empty? %>
+    <h2>Co-authorship Network</h2>
+    <p class="feedback feedback-thin feedback-notice">
+    Showing collaborative relationships between authors. Flow width reflects number of jointly authored names.
+    </p>
+
+    <div id="sankey-diagram" style="width: 100%; border: 1px solid #ccc;">
+      <%= render 'author_sankey', base_params: @taxon_names_query.params %>
+    </div>
+
+    <hr class="divisor">
+  <% else %>
+    <h2>Co-authorship Network</h2>
+    <p class="feedback feedback-thin feedback-warning">No co-authorship relationships found in the current dataset.</p>
+    <hr class="divisor">
+  <% end %>
+
+  <h2>Per-Author Summary</h2>
+
+  <% author_totals = @author_data.map do |person_id, author_info|
+        total_names = author_info[:years].values.sum { |counts| counts[:total] }
+        [person_id, author_info[:name], total_names]
+      end
+  sorted_authors_by_total = author_totals.sort_by { |person_id, name, total| total }.reverse %>
+
+    <div style="display: flex; flex-wrap: wrap;">
+      <% sorted_authors_by_total.each do |person_id, author_name, total| %>
+        <div id="<%= author_name.parameterize %>" class="panel content separate-left separate-bottom" >
+          <% author_info = @author_data[person_id] %>
+          <% author_years = author_info[:years] %>
+          <% total_valid = author_years.values.sum { |counts| counts[:valid] } %>
+          <% total_invalid = author_years.values.sum { |counts| counts[:invalid] } %>
+          <% total_names = total_valid + total_invalid %>
+          <% filter_params = @taxon_names_query.params.merge(taxon_name_author_id: [person_id]) %>
+
+          <h3><%= link_to author_name, filter_taxon_names_task_path(filter_params), target: '_blank' %></h3>
+          <p> Total: <%= total_names %> names (<%= total_valid %> valid, <%= total_invalid %> invalid) </p>
+
+          <% individual_chart_data = author_individual_chart_data(author_years) %>
+          <%= column_chart individual_chart_data[:data], stacked: true, download: true, ytitle: 'Number of Names', xtitle: 'Year', height: '300px', library: { onClick: "function(event, activeElements) { if (activeElements.length > 0) { window.open('#{filter_taxon_names_task_path(filter_params)}', '_blank'); } }".html_safe } %>
+        </div>
+      <% end %>
+    </div>
+
+  <hr class="divisor">
+
+  <h2>
+    Author Summary Data
+    <%= copy_table_to_clipboard('#author_summary_table') %>
+  </h2>
+
+  <table id="author_summary_table" class="tablesorter">
+    <thead>
+      <tr>
+        <th>Author</th>
+        <th>Year</th>
+        <th>Valid Names</th>
+        <th>Invalid Names</th>
+        <th>Total Names</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @author_data.each do |person_id, author_info| %>
+        <% author_info[:years].each do |year, counts| %>
+          <tr>
+            <td><%= author_info[:name] %></td>
+            <td><%= year %></td>
+            <td><%= counts[:valid] %></td>
+            <td><%= counts[:invalid] %></td>
+            <td><%= counts[:total] %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No author data found for the selected taxon names.</p>
+<% end %>

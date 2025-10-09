@@ -618,7 +618,6 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       a = i.image
       b = j.image
 
-
       p = 'http://127.0.0.1:3000/api/v1/images'
 
       s.images.reload

@@ -32,7 +32,7 @@ function areEqual (URLParams, objectParams, value) {
     : URLParams.get(objectParams) == value
 }
 
-export default (url, param, value = undefined, removeTextObject = false) => {
+export default (url, param, value = undefined, removeTextObject = false, replaceState = false) => {
   let urlParams = new URLSearchParams(window.location.search)
   const sameValue = areEqual(urlParams, param, value)
 
@@ -61,7 +61,7 @@ export default (url, param, value = undefined, removeTextObject = false) => {
     ? `${url}?${urlParams.toString()}`
     : url
 
-  if (sameValue) {
+  if (sameValue || replaceState) {
     history.replaceState(null, null, urlString)
   } else {
     history.pushState(null, null, urlString)

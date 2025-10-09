@@ -105,28 +105,78 @@ class LeadItem < ApplicationRecord
     true
   end
 
-  def self.add_items_to_child_lead(parent_lead, otu_ids)
-    child_to_add_to = nil
-    parent_lead.children.to_a.reverse.each do |c|
-      if c.children.exists?
-        next
-      else
-        # We add to the rightmost available child.
-        child_to_add_to ||= c
-      end
-    end
-
-   if child_to_add_to == nil
-      parent_lead.errors.add(:base, 'No available child to add otu to!')
+  # @param parent [Lead] With add_new_to_first_child, determines which lead to add
+  #   items to
+  # @param otu_ids [Array] Which otus to add
+  # @param exclusive_otu_ids [Array] Remove these otus from all siblings of the
+  #   lead added to
+  # @param add_new_to_first_child [Boolean] if true then add lead otus *that
+  #   already exist on parent* to parent's first child, otherwise (default) add
+  #   all supplied otus to the last available (rightmost) child.
+  def self.add_items_to_lead(parent, otu_ids, exclusive_otu_ids, add_new_to_first_child = false)
+    if otu_ids.nil? || otu_ids.empty?
+      parent.errors.add(:base, 'No otus to add!')
+      return false
+    elsif parent.children.empty?
+      parent.errors.add(:base, 'No lead children to add to!')
       return false
     end
 
-    existing = child_to_add_to.lead_items.to_a.map(&:otu_id)
-    otu_ids = otu_ids - existing
+    lead_to_add_to = nil
+    if add_new_to_first_child
+      lead_to_add_to = parent.children.first
+    else
+      parent.children.to_a.reverse.each do |c|
+        if c.children.exists?
+          next
+        else
+          # We add to the rightmost available child.
+          lead_to_add_to ||= c
+        end
+      end
+    end
 
-    a = otu_ids.map { |id| { lead_id: child_to_add_to.id, otu_id: id } }
-    # TODO: return failures and already existing?
-    LeadItem.create(a)
+    if lead_to_add_to.nil?
+      parent.errors.add(:base, 'No available lead to add otus to!')
+      return false
+    end
+
+    # TODO: this is really special-case code for adding items from a matrix,
+    # clean things up.
+    if add_new_to_first_child
+      # Limit to lead items that exist on the right lead.
+      otu_ids = otu_ids & parent.children[1].lead_items.pluck(:otu_id)
+    end
+    existing = lead_to_add_to.lead_items.pluck(:otu_id)
+    new_otu_ids = otu_ids - existing
+    lead_item_table = LeadItem.arel_table
+
+    LeadItem.transaction do
+      begin
+        to_be_destroyed = otu_ids.filter_map do |otu_id|
+          exclusive_otu_ids.include?(otu_id) ? otu_id : false
+        end
+        if to_be_destroyed.count > 0
+          LeadItem
+            .where(lead_id: lead_to_add_to.sibling_ids)
+            .where(otu_id: to_be_destroyed)
+            .destroy_all
+        end
+
+        a = new_otu_ids.map { |id| { lead_id: lead_to_add_to.id, otu_id: id } }
+        LeadItem.create!(a)
+        return true
+      rescue ActiveRecord::RecordNotDestroyed => e
+        lead.errors.add(:base, e.to_s)
+        byebug
+        return false
+      rescue ActiveRecord::RecordInvalid => e
+        lead.errors.add(:base, e.to_s)
+        byebug
+        return false
+      end
+    end
+
     true
   end
 

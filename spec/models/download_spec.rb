@@ -133,4 +133,17 @@ RSpec.describe Download, type: :model do
     end
   end
 
+  specify 'API_BUILDABLE_DOWNLOAD_TYPES' do
+    # Yes this list needs to be updated by hand (so that we don't copy-paste a
+    # new Download class and make it publicly downloadable by mistake).
+    expect(API_BUILDABLE_DOWNLOAD_TYPES).to contain_exactly(
+      'Download::DwcArchive::Complete', 'Download::DwcArchive::PupalComplete'
+    )
+  end
+
+  specify 'sha2' do
+    # $ sha256sum spec/files/downloads/Sample.zip
+    # 26a2c50757bd7068e82b6698d7dfd5974ebe68e950b5454034593741c925023d  spec/files/downloads/Sample.zip
+    expect(download.sha2).to eq('26a2c50757bd7068e82b6698d7dfd5974ebe68e950b5454034593741c925023d')
+  end
 end

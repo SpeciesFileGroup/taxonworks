@@ -29,7 +29,7 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
     expect(ObservationMatrixColumn.count).to eq(1)
   end
 
-  context 'with a observation_matrix_column_item saved' do
+  context 'with an observation_matrix_column_item saved' do
     let!(:descriptor1) { FactoryBot.create(:valid_descriptor) }
     let!(:descriptor2) { FactoryBot.create(:valid_descriptor) }
     let!(:descriptor3) { FactoryBot.create(:valid_descriptor) }

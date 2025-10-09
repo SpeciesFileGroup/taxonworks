@@ -127,11 +127,25 @@ function removeFromArray(arr, obj, opts = {}) {
   }
 }
 
+function intersectArrays(...arrays) {
+  // chatgpt 5.0
+  if (arrays.length === 0) return []
+  return [...new Set(arrays.reduce((acc, arr) => acc.filter(x => new Set(arr).has(x))))]
+}
+
+// a - b, removes elements of b from a globally
+function subtractArrays(a, b) {
+  const bSet = new Set(b)
+  return a.filter((e) => !bSet.has(e))
+}
+
 export {
   chunkArray,
   getUnique,
   sortArray,
   sortArrayByArray,
   addToArray,
-  removeFromArray
+  removeFromArray,
+  intersectArrays,
+  subtractArrays
 }

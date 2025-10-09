@@ -379,6 +379,21 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature, :soft_valid
       r1.soft_validate(only_sets: :not_specific_relationship)
       expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
     end
+
+    specify 'fix not specific relationships from invalid to unavailable' do
+      s1 = FactoryBot.create(:relationship_species, parent: genus)
+      s2 = FactoryBot.create(:relationship_species, parent: genus)
+      r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating')
+      c1 = TaxonNameClassification::Iczn::Unavailable::NomenNudum.create(taxon_name: s2)
+      s2.reload
+      r1.soft_validate(only_sets: :not_specific_relationship)
+      expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+      r1.fix_soft_validations
+      r1 = TaxonNameRelationship.find(r1.id)
+      r1.soft_validate(only_sets: :not_specific_relationship)
+      expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
+    end
+
   end
 
   #    specify 'parent is a synonym' do #### We allow synonyms of synonyms in a new model. This test is not needed any more.

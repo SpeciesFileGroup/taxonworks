@@ -649,7 +649,7 @@ module Queries
         i = q.joins(:taxon_name).where('taxon_names.id != taxon_names.cached_valid_taxon_name_id').where(project_id:)
         v = q.joins(:taxon_name).where('taxon_names.id = taxon_names.cached_valid_taxon_name_id').where(project_id:)
 
-        # Find valid for invalid
+        # Find all valids related to a q-invalid
         s = 'WITH invalid_otu_result AS (' + i.to_sql + ') ' +
           ::Otu
           .joins('JOIN taxon_names tn1 on otus.taxon_name_id = tn1.cached_valid_taxon_name_id')
@@ -658,7 +658,7 @@ module Queries
 
         a = ::Otu.from('(' + s + ') as otus')
 
-        # Find invalid for valid
+        # Find all invalids related to a q-valid
         t = 'WITH valid_otu_result AS (' + v.to_sql + ') ' +
           ::Otu
           .joins('JOIN taxon_names tn2 on otus.taxon_name_id = tn2.id')
@@ -667,7 +667,7 @@ module Queries
 
         b = ::Otu.from('(' + t + ') as otus')
 
-        referenced_klass_union([a, b, q]).distinct # Unions shouldn't need distinct
+        referenced_klass_union([a, b, q])
       end
 
       def ancestrify_result(q)

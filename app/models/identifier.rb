@@ -144,6 +144,9 @@ class Identifier < ApplicationRecord
     elsif params[:virtual_namespace_prefix] && Namespace.find(params[:namespace_id]).is_virtual
       r.errors["Can't currently delete virtual prefix and change to virtual namespace"] = 1
       return r
+    elsif params[:namespaces_to_replace].empty?
+      r.errors['no namespaces to replace'] = 1
+      return r
     end
 
     case mode.to_sym
@@ -170,6 +173,7 @@ class Identifier < ApplicationRecord
                  "identifiers.identifier_object_type = '#{query.klass}'")
           .where(type: params[:identifier_types])
           .joins(:namespace)
+          .where(namespaces: { id: params[:namespaces_to_replace] })
           .select('identifiers.*, namespaces.is_virtual AS is_virtual')
           #.where.not(namespace_id: params.namespace_id)
           .distinct

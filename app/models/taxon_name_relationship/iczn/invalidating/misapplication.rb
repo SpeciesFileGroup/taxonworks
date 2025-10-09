@@ -5,6 +5,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Misapplication < TaxonNameRelat
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
+                                      TaxonNameRelationship::Iczn::Invalidating::Unavailable,
                                       TaxonNameRelationship::Iczn::Invalidating::Homonym)
   end
 

@@ -3,6 +3,7 @@ import NomenclatureSearch from '@/tasks/nomenclature/browse/components/search.vu
 import SoftValidation from '@/tasks/nomenclature/browse/components/validations.vue'
 import ValidationModal from '@/tasks/nomenclature/browse/components/ValidationModal.vue'
 import ButtonFocus from '@/tasks/nomenclature/browse/components/ButtonFocus.vue'
+import './taxonomy.js'
 
 function initFocusButtons() {
   const elements = [

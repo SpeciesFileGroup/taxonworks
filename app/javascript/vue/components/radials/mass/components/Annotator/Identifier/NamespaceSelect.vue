@@ -8,14 +8,20 @@
     <div class="namespaces">
       <div class="flex-col">
         <fieldset class="namespace-list">
-          <legend>Namespaces from filter</legend>
+          <legend>Namespaces from filter (check to replace)</legend>
           <div>
             <ul class="no_bullets">
               <li
                 v-for="namespace in namespacesFromQuery"
                 :key="namespace.short_name"
               >
-                {{ namespaceDisplay(namespace) }}
+                <input
+                  type="checkbox"
+                  v-model="namespacesToReplace"
+                  :value="namespace.id"
+                >
+                  {{ namespaceDisplay(namespace) }}
+                </input>
               </li>
             </ul>
           </div>
@@ -89,6 +95,11 @@ const namespace = defineModel('namespace', {
 const virtualNamespacePrefix = defineModel('virtualNamespacePrefix', {
   type: String,
   default: ''
+})
+
+const namespacesToReplace = defineModel('namespacesToReplace', {
+  type: Array,
+  default: () => []
 })
 
 const namespacesFromQuery = ref([])

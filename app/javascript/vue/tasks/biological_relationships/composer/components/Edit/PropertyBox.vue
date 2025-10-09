@@ -14,11 +14,19 @@
           v-if="!element._destroy"
           class="horizontal-left-content"
         >
-          <span
-            class="cursor-pointer button circle-button btn-delete"
+          <VBtn
+            circle
+            color="primary"
             @click="removeProperty(index)"
-          />
+          >
+            <VIcon
+              name="trash"
+              x-small
+            />
+          </VBtn>
+
           <span
+            class="cursor-grab"
             v-html="
               element.biological_property?.object_tag || element.object_tag
             "
@@ -32,6 +40,8 @@
 <script setup>
 import { computed } from 'vue'
 import Draggable from 'vuedraggable'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   modelValue: {

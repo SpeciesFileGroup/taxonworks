@@ -1,0 +1,36 @@
+.autocomplete-menu {
+  all: unset;
+  position: absolute;
+  display: block;
+  min-width: 160px;
+  background: var(--bg-foreground);
+  border-radius: var(--border-radius-small);
+  box-shadow: var(--panel-shadow);
+  font-size: 14px;
+  color: var(--text-color);
+  text-align: left;
+  line-height: 1.4;
+  margin: 0;
+  z-index: 10000;
+  width: auto;
+  font-size: 12px;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.autocomplete-item {
+  all: unset;
+  display: block;
+  padding: 6px 12px;
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item[aria-selected='true'] {
+  background: var(--table-row-bg-hover);
+}

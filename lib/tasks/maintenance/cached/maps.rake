@@ -173,6 +173,7 @@ namespace :tw do
 
         desc 'build CachedMapItems for Georeferences that do not have them, idempotent'
         task parallel_create_cached_map_from_georeferences: [:environment] do |t|
+          # TODO: this doesn't currently account for FOs
           q = Georeference.joins(:otus).where.missing(:cached_map_register).distinct
 
           puts "Caching #{q.count} georeferences records."
@@ -197,8 +198,9 @@ namespace :tw do
 
         desc 'build CachedMapItems for AssertedDistributions that do not have them'
         task parallel_create_cached_map_from_asserted_distributions: [:environment] do |t|
-          q = AssertedDistribution.associated_with_geographic_items
-            .where.missing(:cached_map_register).distinct
+          q = AssertedDistribution
+            .contributing_to_cached_maps
+            .where.missing(:cached_map_register)
 
           puts "Caching #{q.count} AssertedDistribution records."
 

@@ -60,6 +60,38 @@ class ImagesController < ApplicationController
     render '/images/api/v1/show'
   end
 
+  def api_image_file_sha
+    @image = Image
+      .where(project_id: sessions_current_project_id)
+      .find_by(image_file_fingerprint: params[:sha])
+
+    if @image.present?
+      file_path = @image.image_file.path
+      send_file(
+        file_path,
+        type: @image.image_file_content_type,
+        disposition: 'inline',
+        filename: @image.image_file_file_name
+      )
+    else
+      render plain: 'Image not found.', status: :not_found
+    end
+  end
+
+  def api_image_show_sha
+    @image = Image
+      .where(project_id: sessions_current_project_id)
+      .find_by(image_file_fingerprint: params[:sha])
+
+    if @image.present?
+      s = Shared::Api.host
+      token = Project.find(sessions_current_project_id).api_access_token
+      render "#{s}/api/v1/images/#{@image.id}?project_token=#{token}"
+    else
+      render plain: 'Image not found.', status: :not_found
+    end
+  end
+
   # GET /images/new
   def new
     @image = Image.new
@@ -166,7 +198,7 @@ class ImagesController < ApplicationController
 
   # GET /images/:id/ocr/:x/:y/:height/:width
   def ocr
-    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root.join("public/images/tmp")}", encoding: 'utf-8')
+    tempfile = Tempfile.new(['ocr', '.jpg'], tmp_image_directory, encoding: 'utf-8')
     tempfile.write(Image.cropped_blob(params).force_encoding('utf-8'))
     tempfile.rewind
 
@@ -216,5 +248,12 @@ class ImagesController < ApplicationController
       citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
       sled_image_attributes: [:id, :_destroy, :metadata, :object_layout]
     )
+  end
+
+  def tmp_image_directory()
+    tmp_dir = Rails.root.join('tmp', 'images')
+    FileUtils.mkdir_p(tmp_dir)
+
+    tmp_dir
   end
 end

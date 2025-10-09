@@ -8,6 +8,14 @@ if extend_response_with('roles')
   json.partial! '/sources/roles_attributes', source: source
 end
 
+if extend_response_with('serial') && source.serial.present?
+  json.serial do
+    json.partial! '/serials/attributes', serial: source.serial, extensions: false
+  end
+end
+
+
+
 if extend_response_with('documents')
   json.documents do |d|
     d.array! source.documents.where(documents: {project_id: sessions_current_project_id}), partial: '/documents/attributes', as: :document

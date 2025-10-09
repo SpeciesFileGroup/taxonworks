@@ -3,6 +3,7 @@ module Queries
     class Filter < Query::Filter
       include Queries::Concerns::Tags
       include Queries::Concerns::Citations
+      include Queries::Concerns::Notes
 
       PARAMS = [
         :biocuration_class_id,
@@ -303,6 +304,7 @@ module Queries
         @type_material_depictions = boolean_param(params, :type_material_depictions)
 
         set_citations_params(params)
+        set_notes_params(params)
         set_tags_params(params)
       end
 
