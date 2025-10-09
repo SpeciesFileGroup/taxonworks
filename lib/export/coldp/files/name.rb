@@ -224,6 +224,10 @@ module Export::Coldp::Files::Name
   #
   # As a test these should parse correctly in the Biodiversity wrapper as of 4/8/2025.
   #
+  # TODO: Original combination of *invalid* names not working
+  #   * valid_....
+  #   * clone everything - invalid_original_combination_names
+  #   * Make very clean invalid original combination test with no geneder misalignment <-
   def self.original_combination_names(otu)
     a = core_names(otu)
 
@@ -232,6 +236,10 @@ module Export::Coldp::Files::Name
       .original_combinations_flattened.with(project_scope: a)
       .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
       .joins('JOIN project_scope ps on ps.id = taxon_names.id')
+
+    # We are missing invalid_core_names where cached != cached_original_combiation ( ) - missgendered original species
+    # AND we are missing invalid_cores_original_combiantions
+    
   end
 
   def self.add_original_combinations(otu, csv, project_members, reference_csv)
@@ -395,7 +403,9 @@ module Export::Coldp::Files::Name
       rank = elements.keys.last if rank.nil?
 
       # In some cases where names are described originally with missmatched gender we can exclude dupes
-      # This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
+      #
+      # This exception needs to be in SQL to simplify, a MAX/INDEX of possible ranks with values
+      #
       # TODO: we are excluding too many combinations here (e.g., in Opiliones: Phalangium brevicorne)
       if row[rank + '_cached'] == row['cached']
         ::Export::Coldp.skipped_combinations << row['id']
@@ -558,10 +568,12 @@ module Export::Coldp::Files::Name
   def self.add_invalid_core_names(otu, csv, project_members, reference_csv)
     names = invalid_core_names(otu)
 
+
     classification_status = taxon_name_classification_status(names)
     relationship_status = taxon_name_relationship_status(names)
 
     names.length # !! TODO: without this the result is truncated, why!?
+
 
     names.find_each do |t|
       ::Export::Coldp.name_ids << t.id

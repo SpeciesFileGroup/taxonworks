@@ -2,179 +2,183 @@ require 'rails_helper'
 
 describe Export::Coldp::Files::Name, type: :model, group: :col do
 
-  # In
-  let(:root_taxon_name) { FactoryBot.create(:root_taxon_name) }
-  let!(:family) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :family), name: 'Goodidae', parent: root_taxon_name) }
-  let!(:original_genus) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :genus), name: 'Ous', parent: family) }
-  let!(:genus) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :genus), name: 'Aus', parent: family) }
-  let!(:genus2) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :genus), name: 'Bus', parent: family) }
-  let!(:species) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :species), name: 'cus', parent: genus, original_genus:, verbatim_author: 'Smith', year_of_publication: 2000) }
-  let!(:synonymous_species) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :species), name: 'cus', parent: genus, verbatim_author: 'Jones', year_of_publication: 2002) }
+  context 'basic setup' do
+    # In
+    let(:root_taxon_name) { FactoryBot.create(:root_taxon_name) }
+    let!(:family) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :family), name: 'Goodidae', parent: root_taxon_name) }
+    let!(:original_genus) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :genus), name: 'Ous', parent: family) }
+    let!(:genus) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :genus), name: 'Aus', parent: family) }
+    let!(:genus2) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :genus), name: 'Bus', parent: family) }
+    let!(:species) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :species), name: 'cus', parent: genus, original_genus:, verbatim_author: 'Smith', year_of_publication: 2000) }
+    let!(:synonymous_species) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :species), name: 'cus', parent: genus, verbatim_author: 'Jones', year_of_publication: 2002) }
 
-  # Second scope
-  let!(:combination) { Combination.create!(species: synonymous_species, genus: genus2 ) }
+    # Second scope
+    let!(:combination) { Combination.create!(species: synonymous_species, genus: genus2 ) }
 
-  # Out
-  let!(:bad_nominotypical_family) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :subfamily), name: 'Goodinae', parent: root_taxon_name) }
+    # Out
+    let!(:bad_nominotypical_family) { Protonym.create!(rank_class: Ranks.lookup(:iczn, :subfamily), name: 'Goodinae', parent: root_taxon_name) }
 
-  let!(:synonymy) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: synonymous_species, object_taxon_name: species) }
-  let!(:family_synonymy) { TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm.create!(subject_taxon_name: bad_nominotypical_family, object_taxon_name: family) }
+    let!(:synonymy) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: synonymous_species, object_taxon_name: species) }
+    let!(:family_synonymy) { TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm.create!(subject_taxon_name: bad_nominotypical_family, object_taxon_name: family) }
 
-  let!(:otu) { Otu.create!(taxon_name: root_taxon_name) }
+    let!(:otu) { Otu.create!(taxon_name: root_taxon_name) }
 
-  specify 'invalid test' do
-    expect(bad_nominotypical_family.cached_is_valid).to eq(false)
-  end
+    specify 'invalid test' do
+      expect(bad_nominotypical_family.cached_is_valid).to eq(false)
+    end
 
-  specify '#core_names' do
-    q = Export::Coldp::Files::Name.core_names(otu)
-    expect(q.all.length).to eq(4) # Subfamily if invalid properly will be excluded # Why size doesn't work
-  end
+    specify '#core_names' do
+      q = Export::Coldp::Files::Name.core_names(otu)
+      expect(q.all.length).to eq(4) # Subfamily if invalid properly will be excluded # Why size doesn't work
+    end
 
-  specify '#core names excludes invalid nominotypical families' do
-    q = Export::Coldp::Files::Name.core_names(otu)
-    expect(q.all).to_not include(bad_nominotypical_family)
-  end
+    specify '#core names excludes invalid nominotypical families' do
+      q = Export::Coldp::Files::Name.core_names(otu)
+      expect(q.all).to_not include(bad_nominotypical_family)
+    end
 
-  specify '#core names do not include invalid names' do
-    q = Export::Coldp::Files::Name.core_names(otu)
-    expect(q.all).to_not include(synonymous_species)
-  end
+    specify '#core names do not include invalid names' do
+      q = Export::Coldp::Files::Name.core_names(otu)
+      expect(q.all).to_not include(synonymous_species)
+    end
 
-  specify '#core names do not include Combination names' do
-    q = Export::Coldp::Files::Name.core_names(otu)
-    expect(q.all).to_not include(combination)
+    specify '#core names do not include Combination names' do
+      q = Export::Coldp::Files::Name.core_names(otu)
+      expect(q.all).to_not include(combination)
+    end
   end
 
   # testing inferred combinations
-  
-end
 
-describe Export::Coldp::Files::Name, type: :model, group: :col do
-  let(:root_taxon_name) { FactoryBot.create(:root_taxon_name) }
+  context 'inferred combinations' do
 
-  let!(:family) {
-    Protonym.create!(
-      rank_class: Ranks.lookup(:iczn, :family),
-      name: 'Goodidae',
-      parent: root_taxon_name
-    )
-  }
+    let(:root_taxon_name) { FactoryBot.create(:root_taxon_name) }
 
-  let!(:genus3) {
-    Protonym.create!(
-      rank_class: Ranks.lookup(:iczn, :genus),
-      name: 'Phalangium',
-      parent: family,
-      cached_gender: 'neuter'
-    )
-  }
+    let!(:family) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :family),
+        name: 'Goodidae',
+        parent: root_taxon_name
+      )
+    }
 
-  let!(:tnc_genus3) {
-    TaxonNameClassification.create!(
-      taxon_name: genus3,
-      type: 'TaxonNameClassification::Latinized::Gender::Neuter'
-    )
-  }
+    let!(:genus3) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :genus),
+        name: 'Phalangium',
+        parent: family,
+      )
+    }
 
-  let!(:species3) {
-    Protonym.create!(
-      rank_class: Ranks.lookup(:iczn, :species),
-      name: 'opilio',
-      parent: genus3,
-      verbatim_author: 'Linnaeus',
-      year_of_publication: 1758
-    )
-  }
+    let!(:tnc_genus3) {
+      TaxonNameClassification::Latinized::Gender::Neuter.create!( taxon_name: genus3 )
+    }
 
-  let!(:tnc_species3) {
-    TaxonNameClassification.create!(
-      taxon_name: species3,
-      type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition'
-    )
-  }
+    let!(:species3) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :species),
+        name: 'opilio',
+        parent: genus3,
+        verbatim_author: 'Linnaeus',
+        year_of_publication: 1758
+      )
+    }
 
-  let!(:otu1) { Otu.create!(taxon_name: family) }
-  let!(:otu2) { Otu.create!(taxon_name: genus3) }
-  let!(:otu3) { Otu.create!(taxon_name: species3) }
+    let!(:tnc_species3) {
+      TaxonNameClassification.create!(
+        taxon_name: species3,
+        type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition'
+      )
+    }
 
-  let!(:genus4) {
-    Protonym.create!(
-      rank_class: Ranks.lookup(:iczn, :genus),
-      name: 'Cerastoma',
-      parent: family,
-      cached_gender: 'neuter'
-    )
-  }
+    let!(:otu1) { Otu.create!(taxon_name: family) }
+    let!(:otu2) { Otu.create!(taxon_name: genus3) }
+    let!(:otu3) { Otu.create!(taxon_name: species3) }
+    let!(:otu4) { Otu.create!(taxon_name: species4) }
 
-  let!(:tnc_genus4) {
-    TaxonNameClassification.create!(
-      taxon_name: genus4,
-      type: 'TaxonNameClassification::Latinized::Gender::Neuter'
-    )
-  }
+    let!(:genus4) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :genus),
+        name: 'Cerastoma',
+        parent: family
+      )
+    }
 
-  let!(:species4) {
-    Protonym.create!(
-      rank_class: Ranks.lookup(:iczn, :species),
-      name: 'brevicornis',
-      parent: genus4,
-      verbatim_author: 'Koch',
-      year_of_publication: 1839
-    )
-  }
+    let!(:tnc_genus4) {
+      TaxonNameClassification::Latinized::Gender::Neuter.create!( taxon_name: genus4 )
+    }
 
-  let!(:original_genus) {
-    TaxonNameRelationship.create!(
-      type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
-      object_taxon_name: species4,
-      subject_taxon_name: genus4
-    )
-  }
+    let!(:species4) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :species),
+        name: 'brevicornis',
+       
+        masculine_name: 'brevicornis', 
+        feminine_name: 'brevicornis',
+        neuter_name: 'brevicorne',
 
-  let!(:original_species) {
-    TaxonNameRelationship.create!(
-      type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
-      object_taxon_name: species4,
-      subject_taxon_name: species4
-    )
-  }
+        parent: genus4,
+        verbatim_author: 'Koch',
+        year_of_publication: 1839
+      )
+    }
 
-  let!(:tnc_species4) {
-    TaxonNameClassification.create!(
-      taxon_name: species4,
-      type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective'
-    )
-  }
+    let!(:original_genus) {
+      TaxonNameRelationship.create!(
+        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+        object_taxon_name: species4,
+        subject_taxon_name: genus4
+      )
+    }
 
-  let!(:synonymy) {
-    TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
-      subject_taxon_name: species4,
-      object_taxon_name: species3
-    )
-  }
+    let!(:original_species) {
+      TaxonNameRelationship.create!(
+        type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
+        object_taxon_name: species4,
+        subject_taxon_name: species4
+      )
+    }
 
-  let!(:combination) {
-    Combination.create!(
-      genus: genus3,
-      species: species4
-    )
-  }
+    let!(:tnc_species4) {
+      TaxonNameClassification::Latinized::PartOfSpeech::Adjective.create!(taxon_name: species4)
+    }
 
-  let!(:otu) { Otu.create!(taxon_name: root_taxon_name) }
+    let!(:synonymy) {
+      TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+        subject_taxon_name: species4,
+        object_taxon_name: species3
+      )
+    }
 
-  specify 'Cerastoma brevicornis Koch, 1839 is present' do
-    names = Export::Coldp::Files::Name.core_names(otu).map(&:cached)
-    expect(names).to include('Cerastoma brevicornis')
-  end
+    let!(:combination) {
+      Combination.create!(
+        genus: genus3,
+        species: species4
+      )
+    }
 
-  specify 'Phalangium brevicorne (Koch, 1839) is present' do
-    names = Export::Coldp::Files::Name.core_names(otu).map(&:cached)
-    expect(names).to include('Phalangium brevicorne')
-  end
+    let!(:otu) { Otu.create!(taxon_name: root_taxon_name) }
 
-  specify 'Phalangium opilio Linnaeus, 1758 is present' do
-    names = Export::Coldp::Files::Name.core_names(otu).map(&:cached)
-    expect(names).to include('Phalangium opilio')
+    # TODO: 
+    #   * Ensure we have a original_combination_names test for an original combination of an invalid name
+    #   * Check the status of a couple more missing original names- are they all the originals?
+
+    specify 'Cerastoma brevicornis Koch, 1839 is present' do
+      names = Export::Coldp::Files::Name.original_combination_names(otu).map(&:cached)
+      expect(names).to include('Cerastoma brevicornis')
+    end
+
+    specify 'Phalangium brevicorne (Koch, 1839) is present' do
+      names = Export::Coldp::Files::Name.core_names(otu).map(&:cached)
+      expect(names).to include('Phalangium brevicorne')
+    end
+
+    specify 'Phalangium opilio Linnaeus, 1758 is present' do
+      names = Export::Coldp::Files::Name.core_names(otu).map(&:cached)
+      expect(names).to include('Phalangium opilio')
+    end
+
+    # TODO: Original combination is present
+
   end
 end
