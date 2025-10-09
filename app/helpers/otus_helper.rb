@@ -333,10 +333,9 @@ module OtusHelper
     end
 
     o.type_materials.includes(:protonym).each do |e|
-      if (
-        type_material_is_primary_type(e) &&
-        g = type_material_to_geo_json_feature(e)
-      )
+      next unless type_material_is_primary_type(e) && o.taxon_name.cached_is_valid
+
+      if (g = type_material_to_geo_json_feature(e))
         g['properties']['target'] = t
         h['features'].push g
       end

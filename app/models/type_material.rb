@@ -47,10 +47,6 @@ class TypeMaterial < ApplicationRecord
     'paralectotypes' => Lot
   }.freeze
 
-  ICZN_PRIMARY_TYPES = [
-    'holotype', 'neotype', 'lectotype', 'syntype'
-  ].freeze
-
   ICN_TYPES = {
       'holotype' => Specimen,
       'paratype' => Specimen,
@@ -64,8 +60,6 @@ class TypeMaterial < ApplicationRecord
       'isotypes' => Lot,
       'isosyntypes' => Lot
   }.freeze
-
-  ICN_PRIMARY_TYPES = ['holotype', 'neotype', 'lectotype', 'syntype', 'epitype'].freeze
 
   belongs_to :collection_object, class_name: 'CollectionObject', inverse_of: :type_materials
   belongs_to :protonym, inverse_of: :type_materials

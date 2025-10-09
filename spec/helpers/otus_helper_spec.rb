@@ -85,6 +85,16 @@ describe OtusHelper, type: :helper do
         expect(labels.first).to start_with('holotype')
       end
 
+      specify 'does not include type material on an invalid name as a TypeMaterial feature' do
+        junior_protonym = protonym
+        senior_protonym = FactoryBot.create(:relationship_species)
+        TaxonNameRelationship.create!(subject_taxon_name: junior_protonym,
+          object_taxon_name: senior_protonym,
+          type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+        labels = type_material_labels_for(otu)
+        expect(labels.count).to eq(0)
+      end
+
       specify 'emits CollectionObject features for collection objects with determinations' do
         h = helper.geojson_for_otu(otu)
         features = helper.add_distribution_geo_json(otu, h).fetch('features')
