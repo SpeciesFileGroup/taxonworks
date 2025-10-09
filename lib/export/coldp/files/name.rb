@@ -92,9 +92,10 @@ module Export::Coldp::Files::Name
       .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender')
   end
 
+  # TODO: Add Homonym support for out of scope names
+  #   Probably as a new method all together
   def self.invalid_core_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
-
 
     b = ::Protonym
       .with(valid_scope: a)
@@ -563,7 +564,6 @@ module Export::Coldp::Files::Name
     names.length # !! TODO: without this the result is truncated, why!?
 
     names.find_each do |t|
-
       ::Export::Coldp.name_ids << t.id
 
       origin_citation = t.origin_citation

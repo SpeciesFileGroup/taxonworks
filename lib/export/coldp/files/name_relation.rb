@@ -11,6 +11,10 @@ module Export::Coldp::Files::NameRelation
   # These concepts do not really fit with the CoL Name/NameRelation data model or are represented in a different way
   # TODO: SupressedSynony misspelled in TW models, which probably should be SupressedSynonym
   BLOCKED = %w{
+    TaxonNameRelationship::Icnp
+    TaxonNameRelationship::Icvcn
+    TaxonNameRelationship::Iczn
+    TaxonNameRelationship::Icn
     TaxonNameRelationship::Typification
     TaxonNameRelationship::CurrentCombination
     TaxonNameRelationship::Combination
@@ -65,7 +69,6 @@ module Export::Coldp::Files::NameRelation
 
   # TODO: This is the original set, but it doesn't quite feel right.
   def self.taxon_name_relationships(otus)
-
     # TODO: Join in proper name methods, don't rely on OTU scope
     a = TaxonNameRelationship.with(otu_scope: otus.select(:id, :taxon_name_id))
       .joins("JOIN taxon_names obj_tn on obj_tn.id = taxon_name_relationships.object_taxon_name_id")
