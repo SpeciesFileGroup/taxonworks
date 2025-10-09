@@ -14,22 +14,29 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial navigator: links to filter source/taxon names for People [#3132]
 - Additional sensitive data excluded from logs
 - Search for people by orcid id or wikidata Q id using only their number
+- Browse OTU: Tag column in biological associations table
+- `/otus/inventory/alphabetical`: Returns OTUs in alphabetical order
+- Filters: Notes facets
 
 ### Fixed
 
 - 'Use a key' shows a blank page [#4557]
 - Browse nomenclature: The navigation panel does not update its size correctly
 - Filter CO: Types facet doesn't work after reset the interface
+- Browse OTU: In some cases, asserted distribution citations are rendered incorrectly
 
 ### Changed
 
 - `New container` task interface to default for edit and new
 - Only primary type type materials are displayed as 'Type material' in distribution maps [#4567]
+- Updated Ruby gems
+- Filters: refresh current page after closing Radial Batch [#4571]
 
 [#3132]: https://github.com/SpeciesFileGroup/taxonworks/issues/3132
 [#3154]: https://github.com/SpeciesFileGroup/taxonworks/issues/3154
 [#4557]: https://github.com/SpeciesFileGroup/taxonworks/issues/4557
 [#4567]: https://github.com/SpeciesFileGroup/taxonworks/issues/4567
+[#4571]: https://github.com/SpeciesFileGroup/taxonworks/issues/4571
 
 ## [0.54.0] - 2025-09-24
 

@@ -22,9 +22,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="
-            () => makeFilterRequest({ ...parameters, extend, exclude, page: 1 })
-          "
+          @update="() => makeFilterRequest({ ...parameters, extend, exclude })"
         />
         <RadialLoan
           :disabled="!list.length"
@@ -43,8 +41,7 @@
             :ids="sortedSelectedIds"
             :count="sortedSelectedIds.length"
             @update="
-              () =>
-                makeFilterRequest({ ...parameters, extend, exclude, page: 1 })
+              () => makeFilterRequest({ ...parameters, extend, exclude })
             "
           />
           <RadialLoan

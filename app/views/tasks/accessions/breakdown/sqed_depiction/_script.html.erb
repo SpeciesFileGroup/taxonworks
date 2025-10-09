@@ -41,10 +41,11 @@
     };
 
     var p = Raphael("paper", paperWidth, paperHeight);
-    var sizes = "<%= @result.large_dimensions_for(@result.primary_image) -%>".split(',')
+    var sizes = "<%= @result.primary_image ? @result.large_dimensions_for(@result.primary_image) : @result.large_dimensions_for(@result.secondary_sections.first) -%>".split(',')
+
     var resizeValues = resizeImage(Number(sizes[2]), Number(sizes[3]))
 
-    initRescale("<%= @result.image_path_for_large_image(@result.primary_image) -%>", [0, 0, resizeValues[0], resizeValues[1]])
+    initRescale("<%= @result.primary_image ? @result.image_path_for_large_image(@result.primary_image) : @result.image_path_for_large_image(@result.secondary_sections.first) -%>", [0, 0, resizeValues[0], resizeValues[1]])
 
     $('.clickable').on('click', function (click) {
         initRescale (click.currentTarget.src, [0, 0, click.currentTarget.naturalWidth, click.currentTarget.naturalHeight], true);
