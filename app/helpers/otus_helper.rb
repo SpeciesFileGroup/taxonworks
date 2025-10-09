@@ -211,6 +211,26 @@ module OtusHelper
              Otu.coordinate_otus(otu.id)
            end
 
+    # Batch-load everything the downstream helpers touch.
+    otus = otus.includes(
+      :taxon_name,
+      current_field_occurrences: [
+        :identifiers,
+        { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+      ],
+      current_collection_objects: [
+        :identifiers,
+        { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+      ],
+      asserted_distributions: { asserted_distribution_shape: :geographic_items },
+      type_materials: [
+        { collection_object: [
+            :identifiers,
+            { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+          ] }
+      ]
+    )
+
     h = {
       'type' => 'FeatureCollection',
       'features' => [],

@@ -85,7 +85,7 @@ class Identifier < ApplicationRecord
     position ASC
   SQL
 
-  scope :visible, -> (project_id) { where("identifiers.project_id = ? OR identifiers.type ILIKE 'Identifier::Global%'", project_id) }
+  scope :visible, -> (project_id) { where(visible_predicate(project_id)) }
 
   scope :local, -> {where("identifiers.type ILIKE 'Identifier::Local%'") }
   scope :global, -> {where("identifiers.type ILIKE 'Identifier::Global%'") }
@@ -107,6 +107,17 @@ class Identifier < ApplicationRecord
 
   def is_global?
     false
+  end
+
+  # !! Keep in sync with visible_to_project?
+  def self.visible_predicate(project_id)
+    arel_table[:project_id].eq(project_id)
+      .or(arel_table[:type].matches('Identifier::Global%'))
+  end
+
+  # !! Keep in sync with visible_predicate
+  def visible_to_project?(project_id)
+    type.to_s.start_with?('Identifier::Global') || project_id == self.project_id
   end
 
   def self.namespaces_for_types_from_query(identifier_types, query)
