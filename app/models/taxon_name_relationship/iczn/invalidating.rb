@@ -88,7 +88,7 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
 
   def sv_fix_not_specific_relationship
     new_relationship_name = self.type_name
-    if TaxonNameClassification::Iczn::Unavailable.where(taxon_name: self.subject_taxon_name).any?
+    unless self.subject_taxon_name.is_available?
       new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Unavailable'
     end
     if new_relationship_name && self.type_name != new_relationship_name
