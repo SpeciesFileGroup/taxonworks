@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse nomenclature: The navigation panel does not update its size correctly
 - Filter CO: Types facet doesn't work after reset the interface
 - Browse OTU: In some cases, asserted distribution citations are rendered incorrectly
+- Filters: `Select all` checkbox doesn't respect the column filter [#4572]
 
 ### Changed
 
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3154]: https://github.com/SpeciesFileGroup/taxonworks/issues/3154
 [#4557]: https://github.com/SpeciesFileGroup/taxonworks/issues/4557
 [#4571]: https://github.com/SpeciesFileGroup/taxonworks/issues/4571
+[#4572]: https://github.com/SpeciesFileGroup/taxonworks/issues/4572
 
 ## [0.54.0] - 2025-09-24
 
