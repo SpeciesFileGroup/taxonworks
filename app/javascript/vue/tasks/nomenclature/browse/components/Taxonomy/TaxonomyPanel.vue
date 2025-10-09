@@ -7,10 +7,10 @@
     />
   </Teleport>
 
-  <div class="panel-taxonomy-tree margin-medium-top">
+  <div class="panel-taxonomy-tree">
     <VSpinner
       v-if="isLoading"
-      legend="Loading taxonimic tree..."
+      legend="Loading taxonomic tree..."
     />
     <ul
       class="taxonomy-tree"
@@ -94,14 +94,18 @@ onMounted(() => {
 .sticky-navbar-fixed {
   .panel-taxonomy-tree {
     height: 100%;
-    height: calc(100vh - 320px);
-    max-height: calc(100vh - 320px);
+    height: 100%;
   }
 }
+
+#show_taxon_name_hierarchy {
+  overflow-y: auto;
+}
+
 .panel-taxonomy-tree {
   padding-left: 0.75em;
-  height: calc(100vh - 500px);
-  max-height: calc(100vh - 400px);
+  height: 100%;
+  min-height: calc(100vh - 400px);
   overflow-y: auto;
 }
 .taxonomy-tree {
@@ -127,7 +131,7 @@ onMounted(() => {
 
     button {
       position: absolute;
-      top: 1px;
+      top: 3px;
       left: -8px;
     }
 

@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 
-export function useCSVOptions({ layout, list }) {
+export function useCSVOptions({ layout, list, transforms, formatters }) {
   const csvFields = computed(() => {
     if (!layout.value) return {}
 
@@ -37,7 +37,11 @@ export function useCSVOptions({ layout, list }) {
 
     const fields = getObjectPaths(properties)
 
-    return { fields }
+    return {
+      fields,
+      formatters,
+      transforms
+    }
   })
 
   return csvFields

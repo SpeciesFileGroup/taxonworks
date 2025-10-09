@@ -37,11 +37,12 @@ class ContainersController < ApplicationController
 
   # GET /containers/new
   def new
-    @container = Container.new
+    redirect_to new_container_task_path, notice: 'Redirected to new interface.'
   end
 
   # GET /containers/1/edit
   def edit
+    redirect_to new_container_task_path(container_id: @container.id), notice: 'Redirected to new interface.'
   end
 
   def list

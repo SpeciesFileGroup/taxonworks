@@ -1,12 +1,15 @@
 const { VueLoaderPlugin } = require('vue-loader')
-const { DefinePlugin } = require('webpack')
+const { DefinePlugin } = require('@rspack/core')
 
 module.exports = {
   module: {
     rules: [
       {
         test: /\.vue$/,
-        loader: 'vue-loader'
+        loader: 'vue-loader',
+        options: {
+          experimentalInlineMatchResource: true
+        }
       }
     ]
   },

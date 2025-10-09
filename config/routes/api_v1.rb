@@ -51,6 +51,7 @@ namespace :api, defaults: {format: :json} do
 
       get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
+      get '/otus/inventory/alphabetical', to: '/otus#api_alphabetical_index', as: :api_alphabetical_index
       get '/otus/:id/inventory/content', to: '/otus#api_content', as: :api_content
       get '/otus/:id/inventory/distribution', to: '/otus#api_distribution', as: :api_distribution
       get '/otus/:id/inventory/keys', to: '/otus#api_key_inventory', as: :key_inventory
@@ -73,6 +74,8 @@ namespace :api, defaults: {format: :json} do
       get '/dwc_occurrences/area_autocomplete', to: '/dwc_occurrences#api_area_autocomplete'
       get '/dwc_occurrences', to: '/dwc_occurrences#api_index'
 
+      get '/taxon_determinations', to: '/taxon_determinations#api_index'
+      get '/taxon_determinations/:id', to: '/taxon_determinations#api_show'
 
       get '/taxon_names/origin_citation', to: '/taxon_names#api_origin_citation'
       get '/taxon_names', to: '/taxon_names#api_index'
