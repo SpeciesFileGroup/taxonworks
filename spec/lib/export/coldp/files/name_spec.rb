@@ -48,9 +48,9 @@ describe Export::Coldp::Files::Name, type: :model, group: :col do
     end
   end
 
-  # testing inferred combinations
 
-  context 'inferred combinations' do
+   context 'test invalid original combination with matching gender' do
+
 
     let(:root_taxon_name) { FactoryBot.create(:root_taxon_name) }
 
@@ -62,7 +62,7 @@ describe Export::Coldp::Files::Name, type: :model, group: :col do
       )
     }
 
-    let!(:genus3) {
+    let!(:genus_phalangium) {
       Protonym.create!(
         rank_class: Ranks.lookup(:iczn, :genus),
         name: 'Phalangium',
@@ -70,33 +70,31 @@ describe Export::Coldp::Files::Name, type: :model, group: :col do
       )
     }
 
-    let!(:tnc_genus3) {
-      TaxonNameClassification::Latinized::Gender::Neuter.create!( taxon_name: genus3 )
+    let!(:tnc_genus_phalangium) {
+      TaxonNameClassification::Latinized::Gender::Neuter.create!( taxon_name: genus_phalangium )
     }
 
-    let!(:species3) {
+    let!(:accepted_species_opilio) {
       Protonym.create!(
         rank_class: Ranks.lookup(:iczn, :species),
         name: 'opilio',
-        parent: genus3,
+        parent: genus_phalangium,
         verbatim_author: 'Linnaeus',
         year_of_publication: 1758
       )
     }
-
-    let!(:tnc_species3) {
-      TaxonNameClassification.create!(
-        taxon_name: species3,
-        type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition'
+    
+    let!(:tnc_accepted_species_opilio) {
+      TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition.create!(
+        taxon_name: accepted_species_opilio
       )
     }
 
     let!(:otu1) { Otu.create!(taxon_name: family) }
-    let!(:otu2) { Otu.create!(taxon_name: genus3) }
-    let!(:otu3) { Otu.create!(taxon_name: species3) }
-    let!(:otu4) { Otu.create!(taxon_name: species4) }
+    let!(:otu2) { Otu.create!(taxon_name: genus_phalangium) }
+    let!(:otu3) { Otu.create!(taxon_name: accepted_species_opilio) }
 
-    let!(:genus4) {
+    let!(:genus_cerastoma) {
       Protonym.create!(
         rank_class: Ranks.lookup(:iczn, :genus),
         name: 'Cerastoma',
@@ -104,56 +102,58 @@ describe Export::Coldp::Files::Name, type: :model, group: :col do
       )
     }
 
-    let!(:tnc_genus4) {
-      TaxonNameClassification::Latinized::Gender::Neuter.create!( taxon_name: genus4 )
+    let!(:tnr_genus_cerastoma) {
+      TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective.create!( subject_taxon_name: genus_cerastoma, object_taxon_name: genus_phalangium )
     }
 
-    let!(:species4) {
+    let!(:tnc_genus_cerastoma) {
+      TaxonNameClassification::Latinized::Gender::Neuter.create!( taxon_name: genus_cerastoma )
+    }
+
+    let!(:synonym_species_dentatum) {
       Protonym.create!(
         rank_class: Ranks.lookup(:iczn, :species),
-        name: 'brevicornis',
-       
-        masculine_name: 'brevicornis', 
-        feminine_name: 'brevicornis',
-        neuter_name: 'brevicorne',
+        name: 'dentatum',
 
-        parent: genus4,
+        masculine_name: 'dentatus',
+        feminine_name: 'dentata',
+        neuter_name: 'dentatum',
+
+        parent: genus_phalangium,
         verbatim_author: 'Koch',
-        year_of_publication: 1839
+        year_of_publication: 1871
       )
     }
 
     let!(:original_genus) {
-      TaxonNameRelationship.create!(
-        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
-        object_taxon_name: species4,
-        subject_taxon_name: genus4
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(
+        object_taxon_name: synonym_species_dentatum,
+        subject_taxon_name: genus_cerastoma
       )
     }
 
     let!(:original_species) {
-      TaxonNameRelationship.create!(
-        type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
-        object_taxon_name: species4,
-        subject_taxon_name: species4
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(
+        object_taxon_name: synonym_species_dentatum,
+        subject_taxon_name: synonym_species_dentatum
       )
     }
 
-    let!(:tnc_species4) {
-      TaxonNameClassification::Latinized::PartOfSpeech::Adjective.create!(taxon_name: species4)
+    let!(:tnc_synonym_species_dentatum) {
+      TaxonNameClassification::Latinized::PartOfSpeech::Adjective.create!(taxon_name: synonym_species_dentatum)
     }
 
     let!(:synonymy) {
-      TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
-        subject_taxon_name: species4,
-        object_taxon_name: species3
+      TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective.create!(
+        subject_taxon_name: synonym_species_dentatum,
+        object_taxon_name: accepted_species_opilio
       )
     }
 
     let!(:combination) {
       Combination.create!(
-        genus: genus3,
-        species: species4
+        genus: genus_phalangium,
+        species: synonym_species_dentatum
       )
     }
 
@@ -163,17 +163,152 @@ describe Export::Coldp::Files::Name, type: :model, group: :col do
     #   * Ensure we have a original_combination_names test for an original combination of an invalid name
     #   * Check the status of a couple more missing original names- are they all the originals?
 
-    specify 'Cerastoma brevicornis Koch, 1839 is present' do
+    specify 'Original combinaton Cerastoma dentatum Koch, 1871 is present' do
+      names = Export::Coldp::Files::Name.original_combination_names(otu).map(&:cached)
+      expect(names).to include('Cerastoma dentatum')
+    end
+
+    specify 'Synonym Phalangium dentatum (Koch, 1871) is present' do
+      names = Export::Coldp::Files::Name.invalid_core_names(otu).map(&:cached)
+      expect(names).to include('Phalangium dentatum')
+    end
+
+    specify 'Accepted Phalangium opilio Linnaeus, 1758 is present' do
+      names = Export::Coldp::Files::Name.core_names(otu).map(&:cached)
+      expect(names).to include('Phalangium opilio')
+    end
+
+    # TODO: Original combination is present
+
+  end
+
+  context 'edge case with invalid original combination with gender mismatches' do
+
+    let(:root_taxon_name) { FactoryBot.create(:root_taxon_name) }
+
+    let!(:family) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :family),
+        name: 'Goodidae',
+        parent: root_taxon_name
+      )
+    }
+
+    let!(:genus_phalangium) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :genus),
+        name: 'Phalangium',
+        parent: family,
+      )
+    }
+
+    let!(:tnc_genus_phalangium) {
+      TaxonNameClassification::Latinized::Gender::Neuter.create!( taxon_name: genus_phalangium )
+    }
+
+    let!(:accepted_species_opilio) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :species),
+        name: 'opilio',
+        parent: genus_phalangium,
+        verbatim_author: 'Linnaeus',
+        year_of_publication: 1758
+      )
+    }
+
+    let!(:tnc_accepted_species_opilio) {
+      TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition.create!(
+        taxon_name: accepted_species_opilio
+      )
+    }
+
+    let!(:otu1) { Otu.create!(taxon_name: family) }
+    let!(:otu2) { Otu.create!(taxon_name: genus_phalangium) }
+    let!(:otu3) { Otu.create!(taxon_name: accepted_species_opilio) }
+
+    let!(:genus_cerastoma) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :genus),
+        name: 'Cerastoma',
+        parent: family
+      )
+    }
+
+    let!(:tnr_genus_cerastoma) {
+      TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective.create!(
+        subject_taxon_name: genus_cerastoma,
+        object_taxon_name: genus_phalangium
+      )
+    }
+
+    let!(:tnc_genus_cerastoma) {
+      TaxonNameClassification::Latinized::Gender::Neuter.create!( taxon_name: genus_cerastoma )
+    }
+
+    let!(:synonym_species_brevicorn) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :species),
+        name: 'brevicornis',
+       
+        masculine_name: 'brevicornis', 
+        feminine_name: 'brevicornis',
+        neuter_name: 'brevicorne',
+
+        parent: genus_phalangium,
+        verbatim_author: 'Koch',
+        year_of_publication: 1839
+      )
+    }
+
+    let!(:original_genus) {
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(
+        object_taxon_name: synonym_species_brevicorn,
+        subject_taxon_name: genus_cerastoma
+      )
+    }
+
+    let!(:original_species) {
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(
+        object_taxon_name: synonym_species_brevicorn,
+        subject_taxon_name: synonym_species_brevicorn
+      )
+    }
+
+    let!(:tnc_synonym_species_brevicorn) {
+      TaxonNameClassification::Latinized::PartOfSpeech::Adjective.create!(taxon_name: synonym_species_brevicorn)
+    }
+
+    let!(:synonymy) {
+      TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective.create!(
+        subject_taxon_name: synonym_species_brevicorn,
+        object_taxon_name: accepted_species_opilio
+      )
+    }
+
+    let!(:combination) {
+      Combination.create!(
+        genus: genus_phalangium,
+        species: synonym_species_brevicorn
+      )
+    }
+
+    let!(:otu) { Otu.create!(taxon_name: root_taxon_name) }
+
+    # TODO: 
+    #   * Ensure we have a original_combination_names test for an original combination of an invalid name
+    #   * Check the status of a couple more missing original names- are they all the originals?
+
+    specify 'Original combination Cerastoma brevicornis Koch, 1839 is present' do
       names = Export::Coldp::Files::Name.original_combination_names(otu).map(&:cached)
       expect(names).to include('Cerastoma brevicornis')
     end
 
-    specify 'Phalangium brevicorne (Koch, 1839) is present' do
-      names = Export::Coldp::Files::Name.core_names(otu).map(&:cached)
+    specify 'Synonym Phalangium brevicorne (Koch, 1839) is present' do
+      names = Export::Coldp::Files::Name.invalid_core_names(otu).map(&:cached)
       expect(names).to include('Phalangium brevicorne')
     end
 
-    specify 'Phalangium opilio Linnaeus, 1758 is present' do
+    specify 'Accepted Phalangium opilio Linnaeus, 1758 is present' do
       names = Export::Coldp::Files::Name.core_names(otu).map(&:cached)
       expect(names).to include('Phalangium opilio')
     end
