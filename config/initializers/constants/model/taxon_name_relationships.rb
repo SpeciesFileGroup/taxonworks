@@ -99,6 +99,7 @@
         TaxonNameRelationship::Icnp::Unaccepting::Usage,
         TaxonNameRelationship::Icvcn::Unaccepting) +
        %w{ TaxonNameRelationship::Iczn::Invalidating
+       TaxonNameRelationship::Iczn::Invalidating::Unavailable
        TaxonNameRelationship::Icn::Unaccepting
        TaxonNameRelationship::Icn::Unaccepting::OriginallyInvalid
        TaxonNameRelationship::Icnp::Unaccepting
