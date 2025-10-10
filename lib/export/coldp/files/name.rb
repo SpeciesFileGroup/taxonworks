@@ -175,6 +175,7 @@ module Export::Coldp::Files::Name
       add_core_names(otu, csv, project_members, reference_csv)
       add_combinations(otu, csv, project_members, reference_csv)
       add_original_combinations(otu, csv, project_members, reference_csv)
+      add_invalid_original_combinations(otu, csv, project_members, reference_csv)
       add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
       add_invalid_core_names(otu, csv, project_members, reference_csv)
     end
@@ -244,6 +245,78 @@ module Export::Coldp::Files::Name
 
   def self.add_original_combinations(otu, csv, project_members, reference_csv)
     names = original_combination_names(otu)
+    names.length
+
+    names.find_each do |row|
+      # At this point all formatting (gender) is done
+      elements = Protonym.original_combination_full_name_hash_from_flat(row)
+
+      infraspecies, rank = Utilities::Nomenclature.infraspecies(elements)
+      rank = 'forma' if rank == 'form' # CoL preferred string
+
+      # Hmm- why needed?
+      rank = elements.keys.last if rank.nil? # Note that this depends on order of Hash creation
+
+      scientific_name = row['cached_misspelling'] ? ::Utilities::Nomenclature.unmisspell_name(row['cached_original_combination']) : row['cached_original_combination']
+
+      # TODO: resolve/verify needed
+      uninomial = scientific_name if rank == 'genus'
+
+      # !! Ideally we de-reify these names ina the query with (cached != cached_original_combination)
+      # !! SO that we know these *must* be reified
+      # !! We are reifieing *without* "[sic]" in the string
+      id = ::Utilities::Nomenclature.reified_id(row['id'], scientific_name)
+      ::Export::Coldp.name_ids << id
+
+      # By definition
+      basionym_id = row['id']
+
+      csv << [
+        id,                                                                 # ID
+        basionym_id,                                                        # basionymID
+        scientific_name,                                                    # scientificName
+        row['cached_author_year'].gsub(/[\(\)]/, ''),                       # authorship
+        rank,                                                               # rank
+        uninomial,                                                          # uninomial
+        elements['genus']&.last,                                            # genus
+        elements['subgenus']&.last,                                         # subgenus (no parens)
+        elements['species']&.last,                                          # species
+        infraspecies,                                                       # infraspecificEpithet
+        row['source_id'],                                                   # referenceID
+        row['pages'],                                                       # publishedInPage
+        row['cached_nomenclature_date']&.year,                              # publishedInYear - OK
+        row['cached_gender'],                                               # gender
+        row['etymology'],                                                   # etymology
+        code_field(row['reference_rank_class']),                            # code
+        nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
+        nil,                                                                # link (probably TW public or API)
+        nil,                                                                # remarks (we have no way to capture this in TW)
+        Export::Coldp.modified(row[:updated_at]),                           # modified
+        Export::Coldp.modified_by(row[:updated_by_id], project_members)     # modifiedBy
+      ]
+
+      # !! We do not need to add a reference here because it is the same as the corresponding Protonym id
+    end
+  end
+
+  # Invalid original combinations are:
+  #   - species or genus group names
+  #   - original combinations of invalid names
+  #   - names where cached != original_combination, i.e. it needs re-ification
+  def self.invalid_original_combination_names(otu)
+    a_ids = invalid_core_names(otu).pluck(:id)
+
+    # TODO: I couldn't get original_combinations_flattened to work here--it returns 0 rows
+    b = Protonym
+      .original_combination_specified
+      .where('taxon_names.cached != taxon_names.cached_original_combination')
+      .where(id: a_ids)
+    b
+    
+  end
+
+  def self.add_invalid_original_combinations(otu, csv, project_members, reference_csv)
+    names = invalid_original_combination_names(otu)
     names.length
 
     names.find_each do |row|

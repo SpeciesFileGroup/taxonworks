@@ -38,6 +38,7 @@ module Export::Coldp::Files::Synonym
       add_invalid_family_and_higher_names(otu, otus, csv, project_members)
       add_invalid_core_names(otu, otus, csv, project_members)
       add_original_combinations(otu, otus, csv, project_members)
+      add_invalid_original_combinations(otu, csv, project_members, reference_csv)
       add_combinations(otu, otus, csv, project_members)
     end
   end
@@ -70,6 +71,36 @@ module Export::Coldp::Files::Synonym
         nil,                                                        # referenceID  Unclear what this means in TW
         Export::Coldp.modified(n.updated_at),                       # modified
         Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
+  def self.add_invalid_original_combinations(otu, csv, project_members, reference_csv)
+    names = ::Export::Coldp::Files::Name.invalid_original_combination_names(otu)
+    names.length
+
+    x = Otu.with(name_scope: names)
+      .joins('JOIN name_scope on name_scope.cached_valid_taxon_name_id = otus.taxon_name_id')
+      .select(:id)
+
+    y = TaxonName.with(invalid_names: names)
+      .joins('JOIN invalid_names on invalid_names.cached_valid_taxon_name_id = taxon_names.id')
+      .joins('LEFT JOIN otus on otus.taxon_name_id = taxon_names.id')
+      .select('invalid_names.id, MAX(otus.id) AS otu_id, taxon_names.updated_at, taxon_names.updated_by_id, invalid_names.cached_original_combination') # housekeeping is meaningless here
+      .group('taxon_names.id, invalid_names.id, invalid_names.cached_original_combination')
+
+    y.find_each do |row|
+
+      reified_id = ::Utilities::Nomenclature.reified_id(row.id, row.cached_original_combination)
+
+      csv << [
+        row.otu_id,                                                   # taxonID attached to the current valid concept
+        reified_id,                                                   # nameID
+        nil,                                                          # status  TODO: def status(taxon_name_id)
+        nil,                                                          # remarks
+        nil,                                                          # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(row.updated_at),                       # modified
+        Export::Coldp.modified_by(row.updated_by_id, project_members) # modifiedBy
       ]
     end
   end
