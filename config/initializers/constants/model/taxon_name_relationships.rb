@@ -139,6 +139,9 @@
       TaxonNameRelationship::Icnp::Unaccepting::Misapplication
       TaxonNameRelationship::Iczn::Invalidating::Misapplication}.freeze
 
+      TAXON_NAME_RELATIONSHIP_UNAVAILABLE ||= TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION+ %w{
+      TaxonNameRelationship::Iczn::Invalidating::Unavailable}.freeze
+
       # TODO: check .assignable property prior to building
 
       object_select, subject_select = [], []
