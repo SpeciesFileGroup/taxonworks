@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Searching for very large numbers in autocomplete sometimes caused errors. [#4321]
+
+[#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321
 
 ## [0.54.1] - 2025-10-09
 
@@ -20,7 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Additional sensitive data excluded from logs
 - Search for people by orcid id or wikidata Q id using only their number
 - Browse OTU: Tag column in biological associations table
-- `api/v1//otus/inventory/alphabetical`: Returns OTUs in alphabetical order
+- `api/v1/otus/inventory/alphabetical`: Returns OTUs in alphabetical order
 - Filters: Notes facets
 - Editors facet to filter sources
 - More AssertedDistribution data now exported to Darwin Core
@@ -39,7 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Update shakapacker, replace babel by swc. Move from webpack to rspack. If running your own server we recommend deleting your node_modules directory before updating packages and gems.
-- Added new subclass 'Unavailable, linked to:' to the existing 'Unavailable or Invalid' taxon name relationship 
+- Added new subclass 'Unavailable, linked to:' to the existing 'Unavailable or Invalid' taxon name relationship
 - 'Default' and 'new' for containers now use the New Container task
 - Distribution maps only display valid primary types as 'Type material' (all other type material is now displayed as collection objects) [#4567]
 - Updated Ruby gems
