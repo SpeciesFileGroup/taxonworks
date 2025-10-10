@@ -11,6 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Searching for very large numbers in autocomplete sometimes caused errors. [#4321]
 
+### Changed
+
+- Updated Ruby gems
+
 [#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321
 
 ## [0.54.1] - 2025-10-09
