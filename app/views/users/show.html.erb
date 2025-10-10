@@ -9,7 +9,17 @@
         </div>
 
         <div class="attributes">
-          <%= button_to 'Edit', edit_user_path(@user), method: :get, class: 'button btn-primary btn btn-medium-size' %><br>
+          <%= button_to 'Edit', edit_user_path(@user), method: :get, class: 'button btn-primary btn btn-medium-size' %>
+
+          <% if Rails.env.development? || Settings.sandbox_mode? %>
+            <%= button_to("Create a quick project",
+                  quick_create_projects_path,
+                  method: :post, class: 'button btn-primary btn btn-medium-size margin-large-top',
+                  data: { turbolinks: false })
+            -%>
+          <% end %>
+          <br>
+
           <%= render 'attributes' %>
         </div>
 
