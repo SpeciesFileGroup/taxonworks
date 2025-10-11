@@ -30,6 +30,7 @@
         ref="graph"
         graph-width="89vw"
         graph-height="90vh"
+        :show-node-quick-forms="false"
       />
     </template>
   </VModal>
@@ -61,7 +62,7 @@ const anatomicalParts = computed(
 watch(modalIsVisible, () => {
   if (modalIsVisible.value) {
     nextTick(() => {
-      graph.value.createGraph({collection_object_id: 77059})
+      graph.value.createGraph({ collection_object_id: store.getters[GetterNames.GetCollectionObject].id })
     })
   }
 })

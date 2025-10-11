@@ -12,7 +12,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { hasModalInEventPath } from '@vanilla/utils'
+import { clickIsInRadialModal } from '@/utils/clickIsInRadialModal'
 
 const position = ref({})
 const isVisible = ref(false)
@@ -33,7 +33,7 @@ function handleEvent(e) {
 
   // If the click occurred anywhere "in" a modal (including SVG inside it),
   // ignore it so the context menu stays open.
-  if (hasModalInEventPath(e)) return
+  if (clickIsInRadialModal(e)) return
 
   if (!element.value?.contains(e.target)) {
     isVisible.value = false

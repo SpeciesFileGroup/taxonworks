@@ -21,8 +21,7 @@ const customConfig = {
   resolve: {
     extensions: ['.vue', '.css', '.scss', '.js'],
     alias: {
-      '@': path.resolve(__dirname, '..', '..', 'app/javascript/vue'),
-      '@vanilla': path.resolve(__dirname, '..', '..', 'app/javascript/vanilla')
+      '@': path.resolve(__dirname, '..', '..', 'app/javascript/vue')
     }
   },
   output: {
