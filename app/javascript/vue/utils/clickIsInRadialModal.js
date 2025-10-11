@@ -2,16 +2,26 @@ export function clickIsInRadialModal(e) {
   const containerSelector = '.modal-container'
   const radialSvgSelector = 'svg.svg-radial-menu'
 
-  let t = e.target
-  if (t && t.nodeType === Node.TEXT_NODE) {
-    t = t.parentNode
+  let node = e.target
+  if (node && node.nodeType === Node.TEXT_NODE) {
+    node = node.parentNode
   }
 
-  if (!(t instanceof Element)) return false
+  if (!(node instanceof Element)) return false
 
-  const container = t.closest(containerSelector)
-  if (!container) return false
+  // Look for any ancestor modal that contains a radial
+  let cursor = node
+  while (cursor) {
+    const container = cursor.closest(containerSelector)
+    if (!container) {
+      return false
+    }
+    if (container.querySelector(radialSvgSelector)) {
+      return true
+    }
 
-  const radial = container.querySelector(radialSvgSelector)
-  return radial instanceof SVGElement
+    cursor = container.parentElement
+  }
+
+  return false
 }
