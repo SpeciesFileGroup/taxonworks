@@ -76,7 +76,16 @@ class ProjectsController < ApplicationController
   # DELETE /projects/1
   # DELETE /projects/1.json
   def destroy
-    redirect_to projects_url, notice: 'Nice try, not this time.'
+    if @project.is_destroyable?
+      begin
+        @project.nuke
+      rescue => e
+        redirect_to projects_url, notice: "Project destroy failed! #{e}"
+      end
+      redirect_to projects_url, notice: 'Project successfully deleted.'
+    else
+      redirect_to projects_url, notice: 'Nice try, not this time.'
+    end
   end
 
   def preferences

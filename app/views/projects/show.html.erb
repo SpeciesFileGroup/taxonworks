@@ -11,6 +11,15 @@
       <% end %>
     </ul>
 
+    <% if @project.is_destroyable? %>
+      <h2> Destroy project </h2>
+      <%= button_to "Delete this project",
+        project_path(@project),
+        method: :delete,
+        data: { turbo_confirm: "This will PERMANENTLY delete the project. Continue?" },
+        class: "button button-danger" %>
+    <% end %>
+
     <h2> Project attributes </h2>
     <div class="attributes">
       <%= render partial: 'attributes' -%>

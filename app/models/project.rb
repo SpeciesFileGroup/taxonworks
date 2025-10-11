@@ -22,10 +22,13 @@ class Project < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Project::Preferences
+  include Shared::ImmutableBoolean
 
   attr_accessor :without_root_taxon_name
   attr_accessor :clear_api_access_token
   attr_accessor :set_new_api_access_token
+
+  immutable_boolean :is_destroyable
 
   # ORDER MATTERS
   # Used in `nuke` order (not available in production UI), but
@@ -136,6 +139,8 @@ class Project < ApplicationRecord
   before_save :generate_api_access_token, if: :set_new_api_access_token
   before_save :destroy_api_access_token, if: -> { self.clear_api_access_token}
   after_create :create_root_taxon_name, unless: -> {self.without_root_taxon_name == true}
+
+  before_destroy :ensure_destroyable
 
   validates_presence_of :name
   validates_uniqueness_of :name
@@ -384,6 +389,14 @@ class Project < ApplicationRecord
     end
 
     prefs
+  end
+
+  def ensure_destroyable
+    unless is_destroyable?
+      errors.add(:base, "This project is not destroyable")
+      throw :abort
+    end
+    true
   end
 
 end

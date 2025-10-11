@@ -975,7 +975,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
     t.index ["created_at"], name: "index_dwc_occurrences_on_created_at"
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
-    t.index ["rebuild_set", "id"], name: "idx_dwc_occurrences_rebuild_set_id"
     t.index ["rebuild_set", "id"], name: "index_dwc_occurrences_on_rebuild_set_and_id"
     t.index ["stateProvince"], name: "index_dwc_occurrences_on_stateProvince"
     t.index ["updated_at"], name: "index_dwc_occurrences_on_updated_at"
@@ -1743,7 +1742,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
     t.jsonb "preferences", default: {}, null: false
     t.string "api_access_token"
     t.string "data_curation_issue_tracker_url"
+    t.boolean "is_destroyable", default: false, null: false
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
+    t.index ["is_destroyable"], name: "index_projects_on_is_destroyable"
     t.index ["updated_by_id"], name: "index_projects_on_updated_by_id"
   end
 
