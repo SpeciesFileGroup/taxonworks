@@ -52,6 +52,10 @@ class AnatomicalPart < ApplicationRecord
   include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::Identifiers
+  # Override the :uri defined by Identifiers.
+  def uri
+    self[:uri]
+  end
   include Shared::Loanable
   include Shared::BiologicalAssociations
   include Shared::Taxonomy
