@@ -18,20 +18,43 @@
 
         or
 
-        <Autocomplete
-          url="/anatomical_parts/ontology_autocomplete"
-          label="ontology_label"
-          min="3"
-          clear-after
-          placeholder="Search for an ontology term"
-          param="term"
-          class="margin-large-top"
-          @get-item="
-            (value) => {
-              anatomicalPart.uri_label = value.label
-              anatomicalPart.uri = value.iri
-          }"
-        />
+        <fieldset class="margin-large-top">
+          <legend>Search ontologies for terms</legend>
+          <span>Ontology search sources:</span>
+          <div>
+            <div
+              v-for="pref in ontologyPreferences"
+              :key="pref.oid"
+            >
+              <input
+                type="checkbox"
+                :value="pref.oid"
+                v-model="selectedOntologies"
+                class="margin-medium-left"
+              >
+                <span :title="pref.oid">
+                  {{ pref.title }}
+                </span>
+              </input>
+            </div>
+          </div>
+          <Autocomplete
+            url="/anatomical_parts/ontology_autocomplete"
+            :add-params="{ ontologies: selectedOntologies }"
+            label="ontology_label"
+            min="3"
+            clear-after
+            placeholder="Search for an ontology term, e.g. femur"
+            param="term"
+            class="margin-large-top"
+            @get-item="
+              (value) => {
+                anatomicalPart.uri_label = value.label
+                anatomicalPart.uri = value.iri
+            }"
+          />
+        </fieldset>
+
 
         <div class="margin-large-top flex-row gap-medium">
           <input
@@ -106,6 +129,8 @@ const props = defineProps({
 })
 
 const anatomicalPart = ref({})
+const ontologyPreferences = ref([{oid: 'uberon', title: 'Uber-anatomy ontology'}])
+const selectedOntologies = ref([])
 const isLoading = ref(false)
 
 const emit = defineEmits(['originRelationshipCreated'])
@@ -175,6 +200,13 @@ onMounted(() => {
       .finally(() => (isLoading.value = false))
 
   }
+
+  AnatomicalPart.ontologyPreferences()
+    .then(({ body }) => {
+      ontologyPreferences.value = body
+      selectedOntologies.value = ontologyPreferences.value.map((pref) => pref.oid)
+    })
+    .catch(() => {})
 })
 </script>
 
