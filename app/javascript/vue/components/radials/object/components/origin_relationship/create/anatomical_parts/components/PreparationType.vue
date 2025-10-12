@@ -1,5 +1,6 @@
 <template>
   <div>
+    <VSpinner v-if="isLoading" />
     <h3>Preparation</h3>
     <div
       v-if="preparationTypes.length > 0"
@@ -34,6 +35,7 @@
 </template>
 
 <script setup>
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { PreparationType } from '@/routes/endpoints'
 import { computed, onMounted, ref } from 'vue'
 
@@ -43,12 +45,14 @@ const anatomicalPart = defineModel({
 })
 
 const preparationTypes = ref([])
+const isLoading = ref(false)
 
 const chunkList = computed(() => {
   return preparationTypes.value.chunk(Math.ceil(preparationTypes.value.length / 5))
 })
 
 onMounted(() => {
+  isLoading.value = true
   PreparationType.all()
     .then(({ body }) => {
       preparationTypes.value = body
@@ -58,6 +62,7 @@ onMounted(() => {
       })
     })
     .catch(() => {})
+    .finally(() => (isLoading.value = false))
 })
 </script>
 

@@ -120,7 +120,8 @@ class AnatomicalPartsController < ApplicationController
 
   def ontology_autocomplete
     ontologies = params[:ontologies] || ['uberon']
-    @parts_list = ::Hookkaido.search(params[:term], ontologies:)
+    @term = params[:term]
+    @parts_list = ::Hookkaido.search(@term, ontologies:)
     @parts_list = @parts_list[:results]
   end
 
