@@ -35,8 +35,8 @@ resources :anatomical_parts do
     scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
       # Scope these under the select_ontologies task controller for access
       # control and functional grouping.
-      post :save_ontology_ids_to_project, defaults: {format: :json}
-      get :ontology_id_preferences, defaults: {format: :json}
+      post :save_ontologies_to_project, defaults: {format: :json}
+      get :ontology_preferences, defaults: {format: :json}
     end
   end
 end

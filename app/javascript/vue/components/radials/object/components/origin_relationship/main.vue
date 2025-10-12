@@ -131,6 +131,12 @@
 
     <VModal
       v-if="showingCreate"
+      :container-style="{
+        width: '80vw',
+        maxWidth: '1024px',
+        maxHeight: '85vh',
+        overflowY: 'auto'
+      }"
       @close="showingCreate = false"
     >
       <template #header>

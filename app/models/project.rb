@@ -327,7 +327,7 @@ class Project < ApplicationRecord
   def complete_dwc_download_extensions
     prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
     if prefs
-      prefs['extensions']
+      prefs['extensions'] || []
     else
       []
     end
@@ -345,7 +345,7 @@ class Project < ApplicationRecord
   def complete_dwc_download_predicates
     prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
     if prefs
-      prefs['predicates']
+      prefs['predicates'] || []
     else
       []
     end
@@ -358,17 +358,17 @@ class Project < ApplicationRecord
     save!
   end
 
-  def set_anatomical_parts_ontology_ids(oids)
+  def set_anatomical_parts_ontologies(ontologies)
     prefs = preferences_for(ANATOMICAL_PARTS_ONTOLOGIES_PATH)
-    prefs['oids'] = oids
+    prefs['ontologies'] = ontologies
 
     save!
   end
 
-  def anatomical_parts_ontology_id_preferences
+  def anatomical_parts_ontology_preferences
     prefs = preferences_for(ANATOMICAL_PARTS_ONTOLOGIES_PATH)
     if prefs
-      prefs['oids']
+      prefs['ontologies'] || []
     else
       []
     end

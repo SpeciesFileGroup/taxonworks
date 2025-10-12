@@ -27,9 +27,9 @@ export const AnatomicalPart = {
 
   ontologies: () => AjaxCall('get', `/${controller}/ontologies.json`),
 
-  saveOntologyIdsToProject: (params) => AjaxCall('post', `/${controller}/select_ontologies/save_ontology_ids_to_project.json`, params),
+  saveOntologiesToProject: (params) => AjaxCall('post', `/${controller}/select_ontologies/save_ontologies_to_project.json`, params),
 
-  ontologyIdPreferences: (params) => AjaxCall('get', `/${controller}/select_ontologies/ontology_id_preferences.json`, { params }),
+  ontologyPreferences: (params) => AjaxCall('get', `/${controller}/select_ontologies/ontology_preferences.json`, { params }),
 
   childrenOf: (params) => AjaxCall('get', `/${controller}/children_of.json`, { params })
 }

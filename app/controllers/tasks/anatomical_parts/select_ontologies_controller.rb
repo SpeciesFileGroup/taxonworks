@@ -8,14 +8,14 @@ class Tasks::AnatomicalParts::SelectOntologiesController < ApplicationController
     # vue app
   end
 
-  def save_ontology_ids_to_project
-    @project.set_anatomical_parts_ontology_ids(params[:ontology_oids])
+  def save_ontologies_to_project
+    @project.set_anatomical_parts_ontologies(params[:ontologies])
 
     head :no_content
   end
 
-  def ontology_id_preferences
-    render json: @project.anatomical_parts_ontology_id_preferences
+  def ontology_preferences
+    render json: @project.anatomical_parts_ontology_preferences
   end
 
   private

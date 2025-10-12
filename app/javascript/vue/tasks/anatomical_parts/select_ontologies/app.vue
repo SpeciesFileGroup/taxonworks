@@ -64,18 +64,21 @@
           <th>
             <input
               v-model="idText"
+              placeholder="Filter ID"
               @input="filterTable"
             />
           </th>
           <th>
             <input
               v-model="titleText"
+              placeholder="Filter title"
               @input="filterTable"
             />
           </th>
           <th>
             <input
               v-model="descriptionText"
+              placeholder="Filter description"
               @input="filterTable"
             />
           </th>
@@ -150,14 +153,13 @@ function removeOntology(o) {
 function saveToProject() {
   const payload = {
     project_id: projectId,
-    ontology_oids: selectedOntologies.value.map((o) => o.oid)
-  }
+    ontologies: selectedOntologies.value.map((o) => ({
+      oid: o.oid,
+      title: o.title
+    })
+  )}
 
-  AnatomicalPart.saveOntologyIdsToProject(payload)
-}
-
-function filterById() {
-  filterTable()
+  AnatomicalPart.saveOntologiesToProject(payload)
 }
 
 function filterTable() {
@@ -206,16 +208,16 @@ onMounted(() => {
     AnatomicalPart.ontologies()
       .catch(() => {}),
 
-    AnatomicalPart.ontologyIdPreferences({ project_id: projectId })
+    AnatomicalPart.ontologyPreferences({ project_id: projectId })
       .catch(() => {})
   ])
   .then((values) => {
     ontologies.value = values[0].body
     filteredOntologies.value = ontologies.value
 
-    values[1].body.forEach((poid) => {
+    values[1].body.forEach((ontology) => {
       let i
-      if ((i = ontologies.value.findIndex((o => o.oid == poid))) != -1) {
+      if ((i = ontologies.value.findIndex((o => o.oid == ontology.oid))) != -1) {
         selectedOntologies.value.push(ontologies.value[i])
       }
     })
