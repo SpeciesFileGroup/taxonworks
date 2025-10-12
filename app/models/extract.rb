@@ -48,6 +48,7 @@ class Extract < ApplicationRecord
   # Upstream - aliases of `origin_otus` and `origin_collection_objects` TODO remove
   has_many :otus, through: :related_origin_relationships, source: :old_object, source_type: 'Otu'
   has_many :collection_objects, through: :related_origin_relationships, source: :old_object, source_type: 'CollectionObject'
+  has_many :anatomical_parts, through: :related_origin_relationships, source: :old_object, source_type: 'AnatomicalPart'
 
   # Downstresm - aliases of `derived_*`, TODO: remove
   has_many :sequences, through: :origin_relationships, source: :new_object, source_type: 'Sequence'
@@ -73,7 +74,8 @@ class Extract < ApplicationRecord
   def referenced_otus
     [
       [otus],
-      [collection_objects.collect{|o| o.current_otu} ]
+      [collection_objects.collect{ |o| o.current_otu } ],
+      [anatomical_parts.collect{ |ap| ap.origin_otu }]
     ].flatten.compact.uniq
   end
 
