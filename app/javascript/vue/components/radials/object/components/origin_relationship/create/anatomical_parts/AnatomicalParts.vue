@@ -18,17 +18,34 @@
 
         or
 
-        <div class="margin-large-top">
+        <Autocomplete
+          url="/anatomical_parts/ontology_autocomplete"
+          label="ontology_label"
+          min="3"
+          clear-after
+          placeholder="Search for an ontology term"
+          param="term"
+          class="margin-large-top"
+          @get-item="
+            (value) => {
+              anatomicalPart.uri_label = value.label
+              anatomicalPart.uri = value.iri
+          }"
+        />
+
+        <div class="margin-large-top flex-row gap-medium">
           <input
-            class="normal-input"
+            class="normal-input input-width-smaller"
             type="text"
             v-model="anatomicalPart.uri_label"
+            :title="anatomicalPart.uri_label"
             placeholder="URI label"
           />
           <input
-            class="normal-input input-width-large margin-medium-left"
+            class="normal-input input-width-larger"
             type="text"
             v-model="anatomicalPart.uri"
+            :title="anatomicalPart.uri"
             placeholder="URI"
           />
         </div>
@@ -74,6 +91,7 @@ import { AnatomicalPart } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import PreparationType from './components/PreparationType.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
 
 const props = defineProps({
   objectId: {
@@ -161,7 +179,17 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.input-width-large {
-  width: 600px;
+.input-width-larger {
+  flex-grow: 2;
 }
+
+.input-width-smaller {
+  flex-grow: 1;
+}
+
+.uri-inputs {
+  display: flex;
+  gap: 1em;
+}
+
 </style>

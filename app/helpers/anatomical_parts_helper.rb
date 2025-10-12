@@ -17,6 +17,14 @@ module AnatomicalPartsHelper
     render('/anatomical_parts/quick_search_form')
   end
 
+  def anatomical_part_ontology_label(ols_result)
+    r = ols_result
+
+    description = r[:description].present? ? ": #{r[:description]}" : ''
+
+    "#{r[:label]} (#{r[:ontology_prefix]})#{description}"
+  end
+
   def anatomical_part_graph_label_for_related_object(obj)
     case obj.class.base_class.name
     when 'AnatomicalPart'

@@ -31,5 +31,5 @@ export const AnatomicalPart = {
 
   ontologyIdPreferences: (params) => AjaxCall('get', `/${controller}/select_ontologies/ontology_id_preferences.json`, { params }),
 
-  childrenOf: (params) => AjaxCall('get', `/${controller}/children_of`, { params })
+  childrenOf: (params) => AjaxCall('get', `/${controller}/children_of.json`, { params })
 }

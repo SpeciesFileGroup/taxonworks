@@ -118,6 +118,12 @@ class AnatomicalPartsController < ApplicationController
       render json: @origin_relationships.map { |r| r.new_object }
   end
 
+  def ontology_autocomplete
+    ontologies = params[:ontologies] || ['uberon']
+    @parts_list = ::Hookkaido.search(params[:term], ontologies:)
+    @parts_list = @parts_list[:results]
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_anatomical_part

@@ -179,8 +179,7 @@ class AnatomicalPart < ApplicationRecord
   private
 
   def set_cached
-    # TODO
-    update_column(:cached, name)
+    update_column(:cached, name || uri_label)
 
     # cached_otu_id is determined by external objects, so is never changed by an
     # update, only a create.
@@ -244,7 +243,7 @@ class AnatomicalPart < ApplicationRecord
     # Go up the graph (chain).
     if !forward_only
       current = origin
-      while (current.present?)
+      while (current.present? && current.class.name == 'AnatomicalPart')
         r = OriginRelationship.where(new_object_id: current.id, new_object_type: 'AnatomicalPart').first
         if r.present?
           origin_relationships << r

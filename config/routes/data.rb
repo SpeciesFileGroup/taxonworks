@@ -30,6 +30,8 @@ resources :anatomical_parts do
     get :graph, defaults: {format: :json}
     get :ontologies, defaults: {format: :json}
     get :children_of, defaults: {format: :json}
+    get :ontology_autocomplete, defaults: {format: :json}
+
     scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
       # Scope these under the select_ontologies task controller for access
       # control and functional grouping.
