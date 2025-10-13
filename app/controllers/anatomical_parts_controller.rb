@@ -29,7 +29,7 @@ class AnatomicalPartsController < ApplicationController
 
   # GET /anatomical_parts/new
   def new
-    @anatomical_part = AnatomicalPart.new
+    redirect_to anatomical_parts_graph_task_path
   end
 
   # GET /anatomical_parts/1/edit

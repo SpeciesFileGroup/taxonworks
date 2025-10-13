@@ -1088,12 +1088,12 @@ filter_anatomical_parts_task:
   description: 'Filter anatomical parts by many different facets, download or visualize results.'
 anatomical_parts_graph_task:
   hub: true
-  name: 'Anatomical parts graph'
+  name: 'New anatomical part'
   related:
   categories:
     - biology
   status: prototype
-  description: 'Display graphs of relations between anatomical parts.'
+  description: 'Display graphs of relations between anatomical parts; create and edit anatomical parts.'
 project_dwc_export_preferences_task:
   hub: false
   name: "Project preferences for DwCA project downloads"

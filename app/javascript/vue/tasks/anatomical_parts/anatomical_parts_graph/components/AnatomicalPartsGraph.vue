@@ -12,7 +12,7 @@
       v-if="!Object.keys(nodes).length"
       id="background"
     >
-      <h2 class="subtle">Search for an anatomical part, the origin of an anatomical part, or the endpoint of an anatomical part</h2>
+      <h2 class="subtle">To create a new anatomical part, first load the origin of the part. Right click on nodes for a context menu.</h2>
     </div>
     <VNetworkGraph
       ref="networkGraph"
@@ -31,7 +31,7 @@
       <ContextMenuNode
         :node="nodes[currentNodeId]"
         :node-id="currentNodeId"
-        :show-quick-forms="showNodeQuickForms"
+        :in-edit-mode="showNodeQuickForms"
         @update-graph="() => emit('updateGraph')"
       />
     </ContextMenu>

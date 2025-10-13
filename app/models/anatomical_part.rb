@@ -151,9 +151,9 @@ class AnatomicalPart < ApplicationRecord
 
   def self.graph(id, type)
     case type
-    when *AnatomicalPart.valid_old_object_classes.reject { |c| c == 'AnatomicalPart' }
+    when *(AnatomicalPart.valid_old_object_classes - ['AnatomicalPart'])
       construct_graph_from_top_node(id, type)
-    when *AnatomicalPart.valid_new_object_classes.reject { |c| c == 'AnatomicalPart' }
+    when *(AnatomicalPart.valid_new_object_classes - ['AnatomicalPart'])
       construct_graph_from_low_node(id, type)
     when 'AnatomicalPart'
       construct_graph_from_mid_node(id)
@@ -231,13 +231,12 @@ class AnatomicalPart < ApplicationRecord
       current.each do |o|
         nodes << o
         # No restriction on old_object_type.
-        r = OriginRelationship.where(old_object_id: o.id)
-        origin_relationships = origin_relationships + r
-        nxt = nxt + o.new_objects
+        r = OriginRelationship.where(old_object_id: o.id, old_object_type: o.class.name)
+        origin_relationships += r
+        nxt += o.new_objects
       end
 
       current = nxt
-      puts nxt
     end
 
     # Go up the graph (chain).
@@ -276,8 +275,8 @@ class AnatomicalPart < ApplicationRecord
       new_nodes, new_origin_relationships = construct_graph_from_mid_node(
         anatomical_part.id, forward_only: true
       )
-      nodes = nodes + new_nodes
-      origin_relationships = origin_relationships + new_origin_relationships
+      nodes += new_nodes
+      origin_relationships += new_origin_relationships
     end
 
   return nodes, origin_relationships

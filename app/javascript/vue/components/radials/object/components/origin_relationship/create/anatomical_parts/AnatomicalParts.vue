@@ -101,7 +101,7 @@
           medium
           @click="() => (anatomicalPart = {})"
         >
-          New
+          Reset
         </VBtn>
       </div>
     </div>
@@ -191,14 +191,13 @@ onMounted(() => {
     isLoading.value = true
     AnatomicalPart.find(props.objectId)
       .then(({ body }) => {
-        anatomicalPart.value = {
-          cached_otu_id: body.cached_otu_id,
-          is_material: body.is_material
+        anatomicalPart.value =  {
+          cached_otu_id: body.anatomical_part.cached_otu_id,
+          is_material: body.anatomical_part.is_material
         }
       })
       .catch(() => {})
       .finally(() => (isLoading.value = false))
-
   }
 
   AnatomicalPart.ontologyPreferences()
