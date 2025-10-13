@@ -11,6 +11,16 @@
       <% end %>
     </ul>
 
+    <% if Settings.sandbox_or_development_mode? && @project.is_destroyable? %>
+      <h2> Delete project </h2>
+      DELETE CANNOT BE UNDONE!
+      <%= button_to "Delete this project",
+        project_path(@project),
+        method: :delete,
+        onclick: "return confirm('This will PERMANENTLY delete the project and ALL project data. Continue?')",
+        class: "button btn btn-medium-size button-delete margin-medium-top" %>
+    <% end %>
+
     <h2> Project attributes </h2>
     <div class="attributes">
       <%= render partial: 'attributes' -%>

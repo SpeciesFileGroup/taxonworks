@@ -76,7 +76,18 @@ class ProjectsController < ApplicationController
   # DELETE /projects/1
   # DELETE /projects/1.json
   def destroy
-    redirect_to projects_url, notice: 'Nice try, not this time.'
+    if Settings.sandbox_or_development_mode? && @project.is_destroyable?
+      begin
+        @project.nuke
+
+        sessions_clear_selected_project
+        redirect_to projects_url, notice: 'Project successfully deleted.'
+      rescue => e
+        redirect_to projects_url, notice: "Project destroy failed! #{e}"
+      end
+    else
+      redirect_to projects_url, notice: 'Nice try, not this time.'
+    end
   end
 
   def preferences
@@ -146,19 +157,26 @@ class ProjectsController < ApplicationController
   end
 
   def project_params
-    params.require(:project).permit(
+    permitted = [
       :name,
       :set_new_api_access_token,
       :clear_api_access_token,
       Project.key_value_preferences,
       Project.array_preferences,
       Project.hash_preferences,
-      project_members_attributes: [:user_id, :destroy]
-    )
+      { project_members_attributes: [user_id: :destroy] }
+    ]
+
+    permitted << :is_destroyable if allow_destroyable_param?
+
+    params.require(:project).permit(*permitted)
   end
 
   def go_to
     @project.workbench_starting_path
   end
 
+  def allow_destroyable_param?
+    action_name == 'create' && Settings.sandbox_or_development_mode?
+  end
 end

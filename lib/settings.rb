@@ -116,6 +116,10 @@ module Settings
     @@sandbox_commit_date
   end
 
+  def self.sandbox_or_development_mode?
+    sandbox_mode? || Rails.env.development?
+  end
+
   # @return [Hash]
   def self.selenium_settings
     @@selenium_settings
