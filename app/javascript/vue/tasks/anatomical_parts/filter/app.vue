@@ -20,6 +20,14 @@
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
+      <template #above-table>
+        <floatGraph
+          v-if="idForGraph"
+          :load-params="{ anatomical_part_id: idForGraph }"
+          show-close
+          @close="() => (idForGraph = null)"
+        />
+      </template>
       <template #table>
         <FilterList
           v-model="selectedIds"
@@ -27,7 +35,16 @@
           :list="list"
           :radial-object="true"
           @on-sort="(sorted) => (list = sorted)"
-        />
+        >
+          <template #graph="{ value }">
+            <VBtn
+              @click="() => loadGraph(value)"
+              color="primary"
+            >
+              {{ idForGraph == value ? 'Hide graph' : 'Graph' }}
+            </VBtn>
+          </template>
+        </FilterList>
       </template>
     </FilterLayout>
     <VSpinner
@@ -43,16 +60,21 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { listParser } from './utils/listParser.js'
 import { ANATOMICAL_PART } from '@/constants/index.js'
 import { AnatomicalPart } from '@/routes/endpoints'
 import { ATTRIBUTES } from './constants/attributes'
+import { ref } from 'vue'
+import floatGraph from './components/floatGraph.vue'
 
 defineOptions({
   name: 'FilterAnatomicalParts'
 })
+
+const idForGraph = ref(null)
 
 const {
   append,
@@ -67,4 +89,8 @@ const {
   sortedSelectedIds,
   urlRequest
 } = useFilter(AnatomicalPart, { listParser })
+
+function loadGraph(id) {
+  idForGraph.value = idForGraph.value == id ? null : id
+}
 </script>

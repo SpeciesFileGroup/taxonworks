@@ -5,6 +5,7 @@ export function listParser(list) {
     name: item.name,
     uri: item.uri,
     uri_label: item.uri_label,
-    is_material: item.is_material
+    is_material: item.is_material,
+    graph: item.id
   }))
 }

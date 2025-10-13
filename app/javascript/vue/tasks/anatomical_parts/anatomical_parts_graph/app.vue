@@ -187,6 +187,13 @@ const selectedAnatomicalPart = ref()
 const selectedOrigin = ref()
 const selectedEndpoint = ref()
 
+const props = defineProps({
+  loadParams: { // like {anatomical_part_id: n}
+    type: Object,
+    default: () => ({})
+  }
+})
+
 useHotkey([
   {
     keys: [platformKey(), 'r'],
@@ -224,6 +231,10 @@ function updateGraph() {
 }
 
 function processParams() {
+  if (Object.keys(props.loadParams).length > 0) {
+    return props.loadParams
+  }
+
   const { parameter, id } = queryParam()
   if (id) {
     graph.value.createGraph({ [parameter]: id })

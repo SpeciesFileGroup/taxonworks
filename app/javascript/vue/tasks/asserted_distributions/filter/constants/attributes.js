@@ -5,5 +5,5 @@ export const ATTRIBUTES = {
   asserted_distribution_shape: 'Shape',
   data_origin: 'Data origin',
   citations: 'Citations',
-  map: 'Map',
+  map: 'Map'
 }

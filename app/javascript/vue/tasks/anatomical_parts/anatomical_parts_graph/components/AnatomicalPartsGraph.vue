@@ -1,6 +1,7 @@
 <template>
   <div
     class="panel relative"
+    :class="containerClasses"
     v-help.canvas
   >
     <VSpinner
@@ -70,6 +71,11 @@ const props = defineProps({
   graphHeight: {
     type: String,
     default: null
+  },
+
+  containerClasses: {
+    type: Object,
+    default: () => ({})
   }
 })
 
