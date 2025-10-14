@@ -318,7 +318,7 @@ module OtusHelper
       end
     end
 
-    o.current_collection_objects.each do |c|
+    o.current_collection_objects.includes(collecting_event: [georeferences: [:geographic_item]]).each do |c|
       if g = collection_object_to_geo_json_feature(c)
         g['properties']['target'] = t
         h['features'].push g
