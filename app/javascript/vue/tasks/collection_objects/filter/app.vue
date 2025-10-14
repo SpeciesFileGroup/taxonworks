@@ -181,10 +181,3 @@ export default {
   name: 'FilterCollectionObjects'
 }
 </script>
-
-<style scoped>
-:deep(.row-dwc-reindex-pending) {
-  outline: 2px solid var(--color-attention);
-  outline-offset: -2px;
-}
-</style>

@@ -9,32 +9,64 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
+
+### Fixed
+
+- Searching for very large numbers in autocomplete sometimes caused errors. [#4321]
+- Radial annotator: Tag count doesn’t update after creating or deleting a tag using the middle menu button
+
+### Changed
+
+- Updated Ruby gems
+
+[#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321
+
+## [0.54.1] - 2025-10-09
+
+### Added
+
+- Author summary task
 - Filter Sources: CSV List includes serials name and more logical prioritization of fields [#3154]
 - Filter Sources: Editors facet
 - Radial navigator: links to filter source/taxon names for People [#3132]
 - Additional sensitive data excluded from logs
 - Search for people by orcid id or wikidata Q id using only their number
 - Browse OTU: Tag column in biological associations table
-- `/otus/inventory/alphabetical`: Returns OTUs in alphabetical order
+- `api/v1/otus/inventory/alphabetical`: Returns OTUs in alphabetical order
 - Filters: Notes facets
+- Editors facet to filter sources
+- More AssertedDistribution data now exported to Darwin Core
+- Added api endpoints `api/v1/taxon_determinations` and `api/v1/taxon_determinations/n`
+- Support for Postgres17
 
 ### Fixed
 
 - 'Use a key' shows a blank page [#4557]
 - Browse nomenclature: The navigation panel does not update its size correctly
-- Filter CO: Types facet doesn't work after reset the interface
+- Filter CO: Types facet doesn't work after reseting the interface
 - Browse OTU: In some cases, asserted distribution citations are rendered incorrectly
+- Filters: `Select all` checkbox doesn't respect the column filter [#4572]
+- Error on Sqed browsing when sqed layout was None [#4550]
 
 ### Changed
 
-- `New container` task interface to default for edit and new
+- Update shakapacker, replace babel by swc. Move from webpack to rspack. If running your own server we recommend deleting your node_modules directory before updating packages and gems.
+- Added new subclass 'Unavailable, linked to:' to the existing 'Unavailable or Invalid' taxon name relationship
+- 'Default' and 'new' for containers now use the New Container task
+- Distribution maps only display valid primary types as 'Type material' (all other type material is now displayed as collection objects) [#4567]
 - Updated Ruby gems
+- Updated NPM packages
 - Filters: refresh current page after closing Radial Batch [#4571]
+- Configured radials now support teleport by default
 
 [#3132]: https://github.com/SpeciesFileGroup/taxonworks/issues/3132
 [#3154]: https://github.com/SpeciesFileGroup/taxonworks/issues/3154
+[#4550]: https://github.com/SpeciesFileGroup/taxonworks/issues/4550
 [#4557]: https://github.com/SpeciesFileGroup/taxonworks/issues/4557
+[#4567]: https://github.com/SpeciesFileGroup/taxonworks/issues/4567
 [#4571]: https://github.com/SpeciesFileGroup/taxonworks/issues/4571
+[#4572]: https://github.com/SpeciesFileGroup/taxonworks/issues/4572
 
 ## [0.54.0] - 2025-09-24
 
@@ -5720,7 +5752,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.1...development
+[0.54.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.0...v0.54.1
 [0.54.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.2...v0.54.0
 [0.53.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.1...v0.53.2
 [0.53.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.0...v0.53.1

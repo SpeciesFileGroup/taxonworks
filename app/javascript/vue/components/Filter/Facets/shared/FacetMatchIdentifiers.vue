@@ -10,7 +10,7 @@
         v-model="matchIdentifiers"
         class="full_width"
         placeholder="Paste or type identifiers..."
-        rows="5"
+        :rows="rows"
       />
     </div>
     <div class="field">
@@ -35,12 +35,23 @@
       />
     </div>
 
-    <div class="field horizontal-left-content middle">
-      <label>Type: </label>
-      <VToggle
-        v-model="toggleType"
-        :options="['Identifier', 'Internal']"
-      />
+    <div class="field">
+      <b>Type</b>
+      <ul class="no_bullets">
+        <li
+          v-for="(value, key) in TYPE_PARAMETERS"
+          :key="key"
+        >
+          <label>
+            <input
+              type="radio"
+              :value="value"
+              v-model="type"
+            />
+            {{ key }}
+          </label>
+        </li>
+      </ul>
     </div>
     <div class="field">
       <label>
@@ -99,12 +110,23 @@
           />
         </div>
 
-        <div class="field horizontal-left-content middle">
-          <label>Type: </label>
-          <VToggle
-            v-model="toggleType"
-            :options="['Identifier', 'Internal']"
-          />
+        <div class="field">
+          <b>Type</b>
+          <ul class="no_bullets">
+            <li
+              v-for="(value, key) in TYPE_PARAMETERS"
+              :key="key"
+            >
+              <label>
+                <input
+                  type="radio"
+                  :value="value"
+                  v-model="type"
+                />
+                {{ key }}
+              </label>
+            </li>
+          </ul>
         </div>
         <div class="field">
           <label>
@@ -121,11 +143,10 @@
 </template>
 
 <script setup>
-import { computed, ref, onBeforeMount } from 'vue'
+import { computed, ref, onBeforeMount, watch } from 'vue'
 import { useHotkey } from '@/composables'
 import { vTabkey } from '@/directives'
 import { getPlatformKey } from '@/helpers'
-import VToggle from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import VModal from '@/components/ui/Modal.vue'
 
@@ -144,6 +165,11 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({})
+  },
+
+  rows: {
+    type: Number,
+    default: 5
   }
 })
 
@@ -226,14 +252,11 @@ const delimiterIdentifier = computed({
   }
 })
 
-const toggleType = computed({
-  get: () => type.value === TYPE_PARAMETERS.Identifier,
-  set: (value) => {
-    type.value = value ? TYPE_PARAMETERS.Identifier : TYPE_PARAMETERS.Internal
-
-    if (matchIdentifiers.value) {
-      params.value.match_identifiers_type = type.value
-    }
+watch(type, (newVal) => {
+  if (matchIdentifiers.value) {
+    params.value.match_identifiers_type = newVal
+  } else {
+    params.value.match_identifiers_type = undefined
   }
 })
 
