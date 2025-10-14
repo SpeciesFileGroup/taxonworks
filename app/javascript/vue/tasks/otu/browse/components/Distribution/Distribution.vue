@@ -35,7 +35,7 @@ import CachedMap from './CachedMap.vue'
 import DistributionLegend from './DistributionLegend.vue'
 import { makeClusterIconFor } from '@/components/ui/VMap/clusters'
 import { GetterNames } from '../../store/getters/getters'
-import { computed, ref, shallowRef, watch } from 'vue'
+import { computed, ref, shallowRef, watch, markRaw } from 'vue'
 import { useStore } from 'vuex'
 import {
   GEOREFERENCE,
@@ -98,7 +98,7 @@ watch(
   () => store.getters[GetterNames.GetGeoreferences],
   (newVal) => {
     const { features: raw = [] } = newVal
-    features.value = raw.map((item) => ({ ...item }))
+    features.value = markRaw(raw.map(markRaw))
   }
 )
 </script>
