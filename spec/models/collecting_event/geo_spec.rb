@@ -32,7 +32,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
     collecting_event.save!
     a = Georeference::Wkt.create!(wkt: 'POINT (10 10)', collecting_event: collecting_event)
     b = FactoryBot.create(:valid_georeference_verbatim_data, collecting_event: collecting_event)
-    expect(collecting_event.preferred_georeference.reload).to eq(b)
+    expect(collecting_event.reload.preferred_georeference).to eq(b)
   end
 
   context 'with political areas and collecting events generated' do
