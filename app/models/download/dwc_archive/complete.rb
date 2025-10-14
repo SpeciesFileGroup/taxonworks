@@ -133,4 +133,9 @@ class Download::DwcArchive::Complete < Download::DwcArchive
 
     self.expires = Time.zone.now + max_age.days + 1.day
   end
+
+  def self.project_api_access_token_destroyed
+    # May not be necessary if the download doesn't include media extension, but we're doing it anyway.
+    Download::DwcArchive::Complete.destroy_all
+  end
 end

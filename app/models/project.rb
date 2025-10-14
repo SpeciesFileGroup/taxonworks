@@ -385,6 +385,14 @@ class Project < ApplicationRecord
 
   def destroy_api_access_token
     self.api_access_token = nil
+    self.class.api_access_token_destroyed
+  end
+
+  def self.api_access_token_destroyed
+    # TODO: call watchers instead(?)
+    Download.descendants.each do |subclass|
+      subclass.project_api_access_token_destroyed if subclass.respond_to?(:project_api_access_token_destroyed)
+    end
   end
 
   # @param path [Array] like EML_PREFERENCES_PATH.
