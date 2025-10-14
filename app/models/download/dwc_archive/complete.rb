@@ -56,8 +56,10 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     project_params = { project_id: }
     record_scope = ::DwcOccurrence.where(project_params)
     eml_dataset, eml_additional_metadata = project.complete_dwc_eml_preferences
-    predicates = project.complete_dwc_download_predicates || []
+    predicates = project.complete_dwc_download_predicates || {}
     extensions = project.complete_dwc_download_extensions || []
+    taxonworks_extensions = project.complete_dwc_download_internal_values || []
+
     biological_associations_scope = extensions.include?('resource_relationships') ?
       {
         core_params: project_params, # all dwc_occurrences for this project
@@ -90,6 +92,7 @@ class Download::DwcArchive::Complete < Download::DwcArchive
         media: media_scope
       },
       predicate_extensions: normalized_predicate_extensions(predicates),
+      taxonworks_extensions:,
       project_id:
     )
   end

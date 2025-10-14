@@ -158,7 +158,7 @@
       <h2>Predicates</h2>
       <div class="margin-medium-left">
         <VBtn
-          @click="setPredicates"
+          @click="setPredicatesAndInternalValues"
           color="create"
           class="margin-large-bottom"
         >
@@ -339,11 +339,11 @@ onBeforeMount(() => {
       isPublic.value = body.is_public || false
       extensions.value = body.extensions || []
       predicateParams.collecting_event_predicate_id =
-        body.predicates?.collecting_event_predicate_id || []
+        body.predicates_and_internal_values?.collecting_event_predicate_id || []
       predicateParams.collection_object_predicate_id =
-        body.predicates?.collection_object_predicate_id || []
+        body.predicates_and_internal_values?.collection_object_predicate_id || []
       selectedExtensionMethods.taxonworks_extension_methods =
-        body.predicates?.taxonworks_extension_methods || []
+        body.predicates_and_internal_values?.taxonworks_extension_methods || []
       dataset.value = body.eml_preferences?.dataset
       additionalMetadata.value = body.eml_preferences?.additional_metadata
       autoFilledFields.value = body.auto_filled
@@ -442,9 +442,9 @@ function setExtensions() {
     .finally(() => (isLoading.value = false))
 }
 
-function setPredicates() {
+function setPredicatesAndInternalValues() {
   const payload = {
-    predicates: {
+    predicates_and_internal_values: {
       collecting_event_predicate_id:
         predicateParams.collecting_event_predicate_id,
       collection_object_predicate_id:
@@ -454,10 +454,10 @@ function setPredicates() {
     }
   }
   isLoading.value = true
-  DwcExportPreference.setPredicates(projectId, payload)
+  DwcExportPreference.setPredicatesAndInternalValues(projectId, payload)
     .then(() => {
       setLastSaved()
-       TW.workbench.alert.create('Saved predicates.', 'notice')
+       TW.workbench.alert.create('Saved predicates and internal values.', 'notice')
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))

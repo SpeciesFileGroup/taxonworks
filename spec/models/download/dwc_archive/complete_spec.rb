@@ -104,7 +104,7 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
 
       specify 'download includes data attribute columns' do
         [co_da, ce_da]
-        project.set_complete_dwc_download_predicates({
+        project.set_complete_dwc_download_predicates_and_internal_values({
           collection_object_predicate_id: [p1.id],
           collecting_event_predicate_id: [p2.id]
         })
@@ -121,7 +121,7 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
 
       specify 'download includes data attribute values' do
         [co_da, ce_da]
-        project.set_complete_dwc_download_predicates({
+        project.set_complete_dwc_download_predicates_and_internal_values({
           collection_object_predicate_id: [p1.id],
           collecting_event_predicate_id: [p2.id]
         })

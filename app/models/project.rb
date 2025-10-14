@@ -231,7 +231,7 @@ class Project < ApplicationRecord
       max_age: complete_dwc_download_max_age,
       is_public: complete_dwc_download_is_public?,
       extensions: complete_dwc_download_extensions,
-      predicates: complete_dwc_download_predicates,
+      predicates_and_internal_values: complete_dwc_download_predicates_and_internal_values,
       eml_preferences: {
         dataset:,
         additional_metadata:
@@ -337,20 +337,37 @@ class Project < ApplicationRecord
     save!
   end
 
-  def complete_dwc_download_predicates
+  def complete_dwc_download_predicates_and_internal_values
     prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
     if prefs
-      prefs['predicates']
+      prefs['predicates'] || {}
     else
-      []
+      {}
     end
   end
 
-  def set_complete_dwc_download_predicates(predicates)
+  def set_complete_dwc_download_predicates_and_internal_values(predicates_and_internal_values)
     prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
-    prefs['predicates'] = predicates
+    # (Historical oversight that this pref wasn't named
+    # 'predicates_and_internal_values')
+    prefs['predicates'] = predicates_and_internal_values
 
     save!
+  end
+
+  def complete_dwc_download_predicates
+    prefs = complete_dwc_download_predicates_and_internal_values.dup
+    return {} unless prefs.present?
+
+    prefs.delete('taxonworks_extension_methods')
+    prefs
+  end
+
+  def complete_dwc_download_internal_values
+    prefs = complete_dwc_download_predicates_and_internal_values
+    return [] unless prefs.present?
+
+    prefs['taxonworks_extension_methods'] || []
   end
 
   protected

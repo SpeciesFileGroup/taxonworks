@@ -756,7 +756,7 @@ resources :projects, only: [] do
       post :set_max_age, defaults: {format: :json}
       post :set_is_public, defaults: {format: :json}
       post :set_extensions, defaults: {format: :json}
-      post :set_predicates, defaults: {format: :json}
+      post :set_predicates_and_internal_values, defaults: {format: :json}
       post :set_default_user, defaults: {format: :json}
     end
   end
