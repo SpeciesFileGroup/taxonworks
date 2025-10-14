@@ -16,7 +16,7 @@ module CollectingEvent::Georeference
     accepts_nested_attributes_for :gpx_georeferences
 
     def preferred_georeference
-      georeferences.sort_by(&:position).first
+      georeferences.sort_by { |g| [g.position.nil? ? 1 : 0, g.position.to_i] }.first
     end
 
     def preferred_georeference_geographic_item_id
