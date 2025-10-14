@@ -440,17 +440,26 @@ function createTag() {
     annotated_global_entity: props.globalId
   }
 
-  Tag.create({ tag }).then((response) => {
-    defaultTag.value = response.body
-    TW.workbench.alert.create('Tag item was successfully created.', 'notice')
-  })
+  Tag.create({ tag })
+    .then((response) => {
+      defaultTag.value = response.body
+      metadata.value.endpoints.tags.total++
+      TW.workbench.alert.create('Tag item was successfully created.', 'notice')
+    })
+    .catch(() => {})
 }
 
 function deleteTag() {
-  Tag.destroy(defaultTag.value.id).then(() => {
-    defaultTag.value = undefined
-    TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
-  })
+  Tag.destroy(defaultTag.value.id)
+    .then(() => {
+      defaultTag.value = undefined
+      metadata.value.endpoints.tags.total--
+      TW.workbench.alert.create(
+        'Tag item was successfully destroyed.',
+        'notice'
+      )
+    })
+    .catch(() => {})
 }
 
 function resetAnnotator() {

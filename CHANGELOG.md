@@ -8,11 +8,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+
 New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
 
 ### Fixed
 
 - Searching for very large numbers in autocomplete sometimes caused errors. [#4321]
+- Radial annotator: Tag count doesn’t update after creating or deleting a tag using the middle menu button
 
 ### Changed
 
