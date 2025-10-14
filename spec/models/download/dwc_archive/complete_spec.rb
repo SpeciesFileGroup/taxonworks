@@ -146,18 +146,27 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
       let!(:c) { Conveyance.create!(conveyance_object: co, sound: FactoryBot.create(:valid_sound)) }
 
       before(:each) {
+        project.update!(set_new_api_access_token: true)
         project.set_complete_dwc_download_extensions(['media'])
       }
 
       specify 'creates media file rows' do
         perform_enqueued_jobs # create dwc_occurrences
-
         Download::DwcArchive::Complete.create!
 
         perform_enqueued_jobs
 
         tbl = Spec::Support::Utilities::Dwca.extract_media_tsv_table(Download.first.file_path)
         expect(tbl.size).to eq(2) # doesn't include header row
+      end
+
+      specify 'fails on images if project_token is gone' do
+        perform_enqueued_jobs # create dwc_occurrences
+        Download::DwcArchive::Complete.create!
+
+        project.update!(clear_api_access_token: true)
+
+        expect{perform_enqueued_jobs}.to raise_error(TaxonWorks::Error, /project token/)
       end
     end
 

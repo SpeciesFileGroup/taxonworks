@@ -386,8 +386,8 @@ function noUnsavedChanges() {
     emptyEqual(lastSavedData.value.maxAge, maxAge.value) &&
     emptyEqual(lastSavedData.value.isPublic, isPublic.value) &&
     arrayEqual(lastSavedData.value.extensions, extensions.value) &&
-    arrayEqual(lastSavedData.value.predicateParams.collecting_event_predicate_id, lastSavedData.value.predicateParams.collecting_event_predicate_id) &&
-    arrayEqual(lastSavedData.value.predicateParams.collection_object_predicate_id, lastSavedData.value.predicateParams.collection_object_predicate_id) &&
+    arrayEqual(lastSavedData.value.predicateParams.collecting_event_predicate_id, predicateParams.collecting_event_predicate_id) &&
+    arrayEqual(lastSavedData.value.predicateParams.collection_object_predicate_id, predicateParams.collection_object_predicate_id) &&
     arrayEqual(lastSavedData.value.selectedExtensionMethods.taxonworks_extension_methods, selectedExtensionMethods.taxonworks_extension_methods) &&
     emptyEqual(lastSavedData.value.dataset, dataset.value) &&
     emptyEqual(lastSavedData.value.additionalMetadata, additionalMetadata.value)
