@@ -36,29 +36,44 @@
       </VBtn>
     </div>
 
-  <VModal
-    v-if="showingCreate"
-    :container-style="{
-      width: '80vw',
-      maxWidth: '1024px',
-      maxHeight: '85vh',
-      overflowY: 'auto'
-    }"
-    @close="showingCreate = false"
-  >
-    <template #header>
-      <h2>Create new anatomical part endpoint of <span v-html="node.name" /></h2>
-    </template>
+    <div class="graph-context-menu-list-item">
+      <VBtn
+        v-if="inEditMode && nodeType == ANATOMICAL_PART"
+        color="primary"
+        @click.stop="() => (showingEdit = true)"
+      >
+        Edit anatomical part
+      </VBtn>
+    </div>
 
-    <template #body>
-      <AnatomicalParts
-        :object-id="parseNodeId(nodeId).id"
-        :object-type="nodeType"
-        @originRelationshipCreated="(relationship) => (emit('updateGraph'))"
-        @click.stop
-      />
-    </template>
-  </VModal>
+    <VModal
+      v-if="showingCreate || showingEdit"
+      :container-style="{
+        width: '80vw',
+        maxWidth: '1024px',
+        maxHeight: '85vh',
+        overflowY: 'auto'
+      }"
+      @close="() => {
+        showingCreate = false
+        showingEdit = false
+      }"
+    >
+      <template #header>
+        <h2>Create new anatomical part endpoint of <span v-html="node.name" /></h2>
+      </template>
+
+      <template #body>
+        <AnatomicalParts
+          :object-id="parseNodeId(nodeId).id"
+          :object-type="nodeType"
+          :modal-create="showingCreate"
+          :modal-edit="showingEdit"
+          @originRelationshipCreated="() => (emit('updateGraph'))"
+          @click.stop
+        />
+      </template>
+    </VModal>
 
   </div>
 </template>
@@ -99,6 +114,7 @@ const props = defineProps({
 })
 
 const showingCreate = ref(false)
+const showingEdit = ref(false)
 
 const emit = defineEmits(['updateGraph'])
 

@@ -1108,3 +1108,10 @@ select_ontologies_task:
   categories:
   status: prototype
   description: 'Select OSL ontologies that can be used to find term uris for anatomical parts'
+edit_anatomical_part_task:
+  hub: false
+  name: 'Edit anatomical part'
+  related:
+  categories:
+  status: prototype
+  description: 'Edit anatomical part'

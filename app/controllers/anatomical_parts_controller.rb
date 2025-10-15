@@ -34,6 +34,7 @@ class AnatomicalPartsController < ApplicationController
 
   # GET /anatomical_parts/1/edit
   def edit
+    redirect_to edit_anatomical_part_task_path anatomical_part_id: @anatomical_part.id
   end
 
   # POST /anatomical_parts or /anatomical_parts.json
@@ -47,16 +48,12 @@ class AnatomicalPartsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /anatomical_parts/1 or /anatomical_parts/1.json
+  # PATCH/PUT /anatomical_parts/1.json
   def update
-    respond_to do |format|
-      if @anatomical_part.update(anatomical_part_params)
-        format.html { redirect_to @anatomical_part, notice: "Anatomical part was successfully updated.", status: :see_other }
-        format.json { render :show, status: :ok, location: @anatomical_part }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @anatomical_part.errors, status: :unprocessable_entity }
-      end
+    if @anatomical_part.update(anatomical_part_params)
+      render :show, status: :ok, location: @anatomical_part
+    else
+      render json: @anatomical_part.errors, status: :unprocessable_entity
     end
   end
 
@@ -126,15 +123,16 @@ class AnatomicalPartsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_anatomical_part
-      @anatomical_part = AnatomicalPart.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def anatomical_part_params
-      params.require(:anatomical_part).permit(:name, :uri, :uri_label,
-        :is_material, :preparation_type_id, :preparation_type,
-        inbound_origin_relationship_attributes: [:old_object_id, :old_object_type])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_anatomical_part
+    @anatomical_part = AnatomicalPart.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def anatomical_part_params
+    params.require(:anatomical_part).permit(:name, :uri, :uri_label,
+      :is_material, :preparation_type_id, :preparation_type,
+      inbound_origin_relationship_attributes: [:old_object_id, :old_object_type])
+  end
 end

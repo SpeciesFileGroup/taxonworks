@@ -6,7 +6,7 @@
 
     <div>
       <fieldset>
-        <legend>Name/URI</legend>
+        <legend>Name or URI</legend>
         <div class="margin-large-bottom">
           <input
             class="normal-input"
@@ -20,7 +20,7 @@
 
         <fieldset class="margin-large-top">
           <legend>Search ontologies for terms</legend>
-          <span>Ontology search sources:</span>
+          <div class="margin-medium-bottom margin-small-top">Ontology search sources:</div>
           <div>
             <div
               v-for="pref in ontologyPreferences"
@@ -32,7 +32,7 @@
                 v-model="selectedOntologies"
                 class="margin-medium-left"
               >
-                <span :title="pref.oid">
+                <span :title="pref.oid" class="padding-xsmall-left">
                   {{ pref.title }}
                 </span>
               </input>
@@ -86,7 +86,7 @@
         v-model="anatomicalPart"
       />
 
-      <div class="horizontal-left-content gap-small">
+      <div class="horizontal-left-content gap-small margin-large-top margin-large-bottom">
         <VBtn
           :disabled="!validAnatomicalPart"
           color="create"
@@ -97,6 +97,7 @@
         </VBtn>
 
         <VBtn
+          v-if="!anatomicalPart.id"
           color="primary"
           medium
           @click="() => (anatomicalPart = {})"
@@ -115,25 +116,36 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import PreparationType from './components/PreparationType.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
+import { URLParamsToJSON } from '@/helpers'
 
 const props = defineProps({
   objectId: {
     type: Number,
-    required: true
+    required: false
   },
 
   objectType: {
     type: String,
-    required: true
+    required: false
+  },
+
+  modalEdit: {
+    type: Boolean,
+    required: false
+  },
+
+  modalCreate: {
+    type: Boolean,
+    required: false
   }
 })
 
 const anatomicalPart = ref({})
-const ontologyPreferences = ref([{oid: 'uberon', title: 'Uber-anatomy ontology'}])
+const ontologyPreferences = ref([])
 const selectedOntologies = ref([])
 const isLoading = ref(false)
 
-const emit = defineEmits(['originRelationshipCreated'])
+const emit = defineEmits(['originRelationshipCreated', 'anatomicalPartLoaded'])
 
 const validAnatomicalPart = computed(() => {
   return anatomicalPart.value.name ||
@@ -141,7 +153,9 @@ const validAnatomicalPart = computed(() => {
 })
 
 function save() {
-  const payload = {
+  const payload = anatomicalPart.value.id ?
+  { anatomical_part: anatomicalPart.value } :
+  {
     anatomical_part: {
       ...anatomicalPart.value,
       inbound_origin_relationship_attributes: {
@@ -151,17 +165,17 @@ function save() {
     }
   }
 
-  const response = anatomicalPart.id
-    ? AnatomicalPart.update(anatomicalPart.id, payload)
+  const response = anatomicalPart.value.id
+    ? AnatomicalPart.update(anatomicalPart.value.id, payload)
     : AnatomicalPart.create(payload)
 
   isLoading.value = true
   response
     .then(({ body }) => {
-      resetForm()
-      if (anatomicalPart.id) {
+      if (anatomicalPart.value.id) {
         TW.workbench.alert.create('Anatomical part was successfully saved.', 'notice')
       } else {
+        resetForm()
         emit('originRelationshipCreated', body.origin_relationship)
         TW.workbench.alert.create('Anatomical part and Origin relationship were successfully created.', 'notice')
       }
@@ -175,34 +189,55 @@ function resetForm() {
 }
 
 onMounted(() => {
-  if (props.objectType != 'AnatomicalPart') {
-    let is_material = true
-    if (props.objectType == 'Otu' || props.objectType == 'FieldOccurrence') {
-      is_material = false
-    }
-
-    anatomicalPart.value = {
-     cached_otu_id: props.cachedOtuId,
-     is_material
-    }
-  } else {
-    // cachedOtuId of the new anatomical part should be the same as the origin
-    // if the origin is an anatomical part.
+  const anatomicalPartId = URLParamsToJSON(location.href).anatomical_part_id
+  if (anatomicalPartId && !props.modalEdit && !props.modalCreate) { // Edit task
     isLoading.value = true
-    AnatomicalPart.find(props.objectId)
+    AnatomicalPart.find(anatomicalPartId)
       .then(({ body }) => {
-        anatomicalPart.value =  {
-          cached_otu_id: body.anatomical_part.cached_otu_id,
-          is_material: body.anatomical_part.is_material
-        }
+        anatomicalPart.value = body.anatomical_part
+        emit('anatomicalPartLoaded', anatomicalPart.value)
       })
       .catch(() => {})
       .finally(() => (isLoading.value = false))
+
+  } else {
+    if (props.objectType != 'AnatomicalPart') { // Create new part
+      let is_material = true
+      if (props.objectType == 'Otu' || props.objectType == 'FieldOccurrence') {
+        is_material = false
+      }
+
+      anatomicalPart.value = {
+      cached_otu_id: props.cachedOtuId,
+      is_material
+      }
+    } else {
+      isLoading.value = true
+      AnatomicalPart.find(props.objectId)
+        .then(({ body }) => {
+          if (props.modalEdit) {
+            anatomicalPart.value = body.anatomical_part
+          } else { // # Create new part
+            // cachedOtuId of the new anatomical part should be the same as the
+            // origin if the origin is an anatomical part.
+            anatomicalPart.value = {
+              cached_otu_id: body.anatomical_part.cached_otu_id,
+              is_material: body.anatomical_part.is_material
+            }
+          }
+        })
+        .catch(() => {})
+        .finally(() => (isLoading.value = false))
+    }
   }
 
   AnatomicalPart.ontologyPreferences()
     .then(({ body }) => {
-      ontologyPreferences.value = body
+      if (body.length > 0) {
+        ontologyPreferences.value = body
+      } else {
+        ontologyPreferences.value = [{oid: 'uberon', title: 'Uber-anatomy ontology'}]
+      }
       selectedOntologies.value = ontologyPreferences.value.map((pref) => pref.oid)
     })
     .catch(() => {})
