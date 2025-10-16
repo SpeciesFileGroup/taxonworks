@@ -57,14 +57,14 @@ export function useUserPreferences() {
   }
 
   const setPreference = async (key, value, opts = { persist: true }) => {
+    if (!preferences.value?.layout) {
+      preferences.value.layout = {}
+    }
+
     if (!preferences.value) {
       preferences.value = {
         layout: {}
       }
-    }
-
-    if (!preferences.value.layout) {
-      preferences.value.layout = {}
     }
 
     preferences.value.layout[key] = value
