@@ -1217,10 +1217,12 @@ class GeographicItem < ApplicationRecord
   def align_winding
     if orientations.flatten.include?(false)
       if (geography_is_polygon? || geography_is_multi_polygon?)
-        ApplicationRecord.connection.execute(
+        res = ApplicationRecord.connection.execute(
           "UPDATE geographic_items SET geography = ST_ForcePolygonCCW(geography::geometry)
-            WHERE id = #{self.id};"
+           WHERE id = #{self.id}
+           RETURNING geography;"
           )
+        self[:geography] = res.first['geography']
       end
     end
   end
