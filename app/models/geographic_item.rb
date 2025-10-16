@@ -1020,11 +1020,7 @@ class GeographicItem < ApplicationRecord
 
   # @return [Hash] in GeoJSON format
   def to_geo_json
-    JSON.parse(
-      select_from_self(
-        self.class.st_as_geo_json_sql(self.class.arel_table[:geography])
-      )['st_asgeojson']
-    )
+    RGeo::GeoJSON.encode(geography)
   end
 
   # @return [Hash]
