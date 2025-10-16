@@ -138,6 +138,33 @@ class ProjectsController < ApplicationController
     render json: { api_access_token: sessions_current_project&.api_access_token }
   end
 
+  # POST /projects/quick_create
+  def quick_create
+    if !(Rails.env.development? || Settings.sandbox_mode?)
+      redirect_to projects_path, alert: 'Quick project is only available in development and sandboxes!'
+    end
+
+    # Best-effort: name that sorts first alphabetically and is unique
+    stamp = Time.now.utc.strftime('%Y-%m-%d:%H_%M_%S')
+    name = "0 - #{sessions_current_user.name}'s quick project #{stamp}"
+
+    @project = Project.new(name: name)
+    #@project.set_new_api_access_token = true
+
+    Project.transaction do
+      @project.save!
+      ProjectMember.create!(
+        project_id: @project.id,
+        user_id: sessions_current_user.id,
+        is_project_administrator: true
+      )
+    end
+
+    redirect_to select_project_path(@project), notice: 'Quick project created and selected.'
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to projects_path, alert: "Could not create quick project: #{e.record.errors.full_messages.to_sentence}"
+  end
+
   private
 
   def set_project

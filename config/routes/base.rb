@@ -47,6 +47,7 @@ resources :projects do
     get 'list'
     get 'search'
     get 'autocomplete'
+    post 'quick_create'
   end
 
   member do
