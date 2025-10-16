@@ -54,7 +54,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         p = 'POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0), ' \
           '(3 3, 6 3, 6 6, 3 6, 3 3))'
 
-          FactoryBot.create(:geographic_item, geography: p)
+          FactoryBot.build(:geographic_item, geography: p)
       end
 
       let(:ccw_cw_m_p) do
@@ -62,7 +62,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         m_p = 'MULTIPOLYGON (((0 0, 10 0, 10 10, 0 10, 0 0)),' \
                             '((20 0, 20 10, 30 10, 30 0, 20 0)))'
 
-        FactoryBot.create(:geographic_item, geography: m_p)
+        FactoryBot.build(:geographic_item, geography: m_p)
       end
 
       specify 'polygon winding is ccw after save' do
@@ -615,7 +615,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       specify 'shapes contained by two shapes are only returned once' do
         expect(GeographicItem.st_covered_by('point',
           box, rectangle_intersecting_box).to_a)
-        .to eq([box_centroid, box_rectangle_intersection_point])
+        .to contain_exactly(box_centroid, box_rectangle_intersection_point)
       end
 
       specify 'points in separate polygons' do

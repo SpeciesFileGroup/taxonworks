@@ -91,7 +91,7 @@ class GeographicItem < ApplicationRecord
   before_save :normalize_point_longitude
 
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
-  after_save :align_winding
+  before_save :align_winding
 
   class << self
 
@@ -1215,16 +1215,17 @@ class GeographicItem < ApplicationRecord
   end
 
   def align_winding
-    if orientations.flatten.include?(false)
-      if (geography_is_polygon? || geography_is_multi_polygon?)
-        res = ApplicationRecord.connection.execute(
-          "UPDATE geographic_items SET geography = ST_ForcePolygonCCW(geography::geometry)
-           WHERE id = #{self.id}
-           RETURNING geography;"
-          )
-        self[:geography] = res.first['geography']
-      end
-    end
+    return unless geography.present?
+    return unless geography_is_polygon? || geography_is_multi_polygon?
+
+    wkb_bytes = RGeo::WKRep::WKBGenerator.new(hex: false, emit_ewkb_srid: false).generate(geography)
+    row = ApplicationRecord.connection.exec_query(
+      'SELECT ST_ForcePolygonCCW(ST_GeomFromWKB($1, 4326)) AS ccw',
+      'GeographicItem#align_winding',
+      [ActiveRecord::Relation::QueryAttribute.new('wkb', wkb_bytes, ActiveRecord::Type::Binary.new)]
+    ).first
+
+    self[:geography] = Gis::FACTORY.parse_wkb(row['ccw'])
   end
 
   # Crude debuging helper, write the shapes
