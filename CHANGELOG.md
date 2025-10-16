@@ -19,6 +19,7 @@ New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
 ### Changed
 
 - Updated Ruby gems
+- Save taxonomic tree settings in user preferences [#4577]
 
 [#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321
 
