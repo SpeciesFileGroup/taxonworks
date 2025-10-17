@@ -10,35 +10,43 @@
       :url-request="urlRequest"
       v-model="parameters"
       v-model:append="append"
-      @filter="() => {
-        makeFilterRequest({ ...parameters, extend, page: 1 })
-        resetMap()
-      }"
-      @per="() => {
-        makeFilterRequest({ ...parameters, extend, page: 1 })
-        resetMap()
-      }"
-      @nextpage="(event) => {
-        loadPage(event)
-        resetMap()
-      }"
-      @reset="() => {
-        resetFilter()
-        resetMap()
-      }"
+      @filter="
+        () => {
+          makeFilterRequest({ ...parameters, extend, page: 1 })
+          resetMap()
+        }
+      "
+      @per="
+        () => {
+          makeFilterRequest({ ...parameters, extend, page: 1 })
+          resetMap()
+        }
+      "
+      @nextpage="
+        (event) => {
+          loadPage(event)
+          resetMap()
+        }
+      "
+      @reset="
+        () => {
+          resetFilter()
+          resetMap()
+        }
+      "
     >
       <template #nav-query-right>
         <RadialAssertedDistribution
           :disabled="!list.length"
           :parameters="parameters"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #nav-right>
         <RadialAssertedDistribution
           :disabled="!list.length"
           :ids="sortedSelectedIds"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #facets>
@@ -104,7 +112,9 @@ import { AssertedDistribution } from '@/routes/endpoints'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 import { ref } from 'vue'
 
-const extend = ['citations', 'asserted_distribution_shape',
+const extend = [
+  'citations',
+  'asserted_distribution_shape',
   'asserted_distribution_object'
 ]
 
@@ -134,9 +144,10 @@ function loadMap(id) {
 
   if (!idForMap.value) return
 
-  AssertedDistribution.find(
-      id, { extend: ['asserted_distribution_shape'], embed: ['shape']}
-    )
+  AssertedDistribution.find(id, {
+    extend: ['asserted_distribution_shape'],
+    embed: ['shape']
+  })
     .then(({ body }) => {
       geojson.value = [body.asserted_distribution_shape.shape]
     })
@@ -147,5 +158,4 @@ function resetMap() {
   idForMap.value = null
   geojson.value = null
 }
-
 </script>

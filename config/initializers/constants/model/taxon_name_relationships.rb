@@ -99,6 +99,7 @@
         TaxonNameRelationship::Icnp::Unaccepting::Usage,
         TaxonNameRelationship::Icvcn::Unaccepting) +
        %w{ TaxonNameRelationship::Iczn::Invalidating
+       TaxonNameRelationship::Iczn::Invalidating::Unavailable
        TaxonNameRelationship::Icn::Unaccepting
        TaxonNameRelationship::Icn::Unaccepting::OriginallyInvalid
        TaxonNameRelationship::Icnp::Unaccepting
@@ -137,6 +138,9 @@
       TaxonNameRelationship::Icn::Unaccepting::Misapplication
       TaxonNameRelationship::Icnp::Unaccepting::Misapplication
       TaxonNameRelationship::Iczn::Invalidating::Misapplication}.freeze
+
+      TAXON_NAME_RELATIONSHIP_UNAVAILABLE ||= TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION+ %w{
+      TaxonNameRelationship::Iczn::Invalidating::Unavailable}.freeze
 
       # TODO: check .assignable property prior to building
 

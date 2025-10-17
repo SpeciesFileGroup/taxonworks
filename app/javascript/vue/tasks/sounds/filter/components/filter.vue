@@ -18,6 +18,7 @@
     :target="SOUND"
     v-model="params"
   />
+  <FacetNotes v-model="params" />
   <FacetUsers v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
@@ -40,6 +41,7 @@ import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetSoundName from '@/components/Filter/Facets/shared/FacetText.vue'
 import FacetConveyanceObjectType from '@/components/Filter/Facets/Conveyance/FacetConveyanceObjectType.vue'
 import FacetCollectingEvent from '@/tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 
 const props = defineProps({
   modelValue: {
@@ -48,7 +50,7 @@ const props = defineProps({
   }
 })
 
-const WITH_PARAMS = ['citations', 'conveyances', 'with_name']
+const WITH_PARAMS = ['citations', 'notes', 'conveyances', 'with_name']
 
 const emit = defineEmits(['update:modelValue'])
 

@@ -21,7 +21,7 @@
         <input
           type="checkbox"
           v-model="onlyValid"
-          @change="updateStorage"
+          @change="(e) => updateStorage('onlyValid', e.target.checked)"
         />
         Show only valid names
       </label>
@@ -29,7 +29,7 @@
         <input
           type="checkbox"
           v-model="count"
-          @change="updateStorage"
+          @change="(e) => updateStorage('count', e.target.checked)"
         />
         Show in/valid count *
       </label>
@@ -37,7 +37,7 @@
         <input
           type="checkbox"
           v-model="rainbow"
-          @change="updateStorage"
+          @change="(e) => updateStorage('rainbow', e.target.checked)"
         />
         Level-based coloring
       </label>
@@ -52,8 +52,10 @@
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import { convertType } from '@/helpers'
-import { onBeforeMount, ref } from 'vue'
+import { useUserPreferences } from '@/composables'
+import { ref, watch } from 'vue'
+
+const STORAGE_LAYOUT_KEY = 'tasks::BrowseNomenclature::Layout'
 
 const count = defineModel('count', {
   type: Boolean,
@@ -71,32 +73,29 @@ const rainbow = defineModel('rainbow', {
 })
 
 const isModalVisible = ref(false)
+const { preferences, setPreference } = useUserPreferences()
 
-const STORAGE_COUNT_KEY = 'TW::TaxonomyTree::Count'
-const STORAGE_ONLY_VALID_KEY = 'TW::TaxonomyTree::OnlyValid'
-const STORAGE_RAINBOW_KEY = 'TW::TaxonomyTree::RainbowMode'
-
-function updateStorage() {
-  localStorage.setItem(STORAGE_COUNT_KEY, count.value)
-  localStorage.setItem(STORAGE_ONLY_VALID_KEY, onlyValid.value)
-  localStorage.setItem(STORAGE_RAINBOW_KEY, rainbow.value)
+function updateStorage(key, value) {
+  setPreference(STORAGE_LAYOUT_KEY, {
+    count: count.value,
+    onlyValid: onlyValid.value,
+    rainbow: rainbow.value,
+    [key]: value
+  })
 }
 
-onBeforeMount(() => {
-  const c = convertType(localStorage.getItem(STORAGE_COUNT_KEY))
-  const r = convertType(localStorage.getItem(STORAGE_RAINBOW_KEY))
-  const v = convertType(localStorage.getItem(STORAGE_ONLY_VALID_KEY))
-
-  if (v !== null) {
-    onlyValid.value = v
+watch(
+  () => preferences.value?.layout?.[STORAGE_LAYOUT_KEY],
+  (newVal) => {
+    if (newVal) {
+      onlyValid.value = newVal?.onlyValid
+      count.value = newVal?.count
+      rainbow.value = newVal?.rainbow
+    }
+  },
+  {
+    immediate: true,
+    deep: true
   }
-
-  if (c !== null) {
-    count.value = c
-  }
-
-  if (r !== null) {
-    rainbow.value = r
-  }
-})
+)
 </script>

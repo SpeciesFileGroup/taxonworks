@@ -207,7 +207,7 @@ export default {
           layout: 'stage',
           boundary_finder: {},
           metadata_map: {
-            0: 'none'
+            0: 'stage'
           }
         }
       })

@@ -81,85 +81,66 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import ModalComponent from '@/components/ui/Modal'
 import SwitchComponent from '@/components/ui/VSwitch'
 import { CollectingEvent, CollectionObject } from '@/routes/endpoints'
+import { computed, ref, watch } from 'vue'
 
 const TABS_TYPE = {
   DETAILS: 'details',
   DWC: 'DWC'
 }
 
-export default {
-  components: {
-    ModalComponent,
-    SwitchComponent
-  },
-
-  props: {
-    compare: {
-      type: Array,
-      default: () => []
-    }
-  },
-
-  computed: {
-    renderType() {
-      return this.view === TABS_TYPE.DWC ? this.dwcTable : this.compare
-    }
-  },
-
-  data() {
-    return {
-      showModal: false,
-      compareCE: [],
-      ceAttributes: [],
-      tabs: Object.values(TABS_TYPE),
-      view: TABS_TYPE.DETAILS,
-      dwcTable: {}
-    }
-  },
-
-  watch: {
-    showModal(newVal) {
-      if (newVal) {
-        this.LoadDWC()
-        this.getCEs()
-      }
-    }
-  },
-
-  methods: {
-    getCEs() {
-      const requests = this.compare.map((co) =>
-        co.collecting_event_id
-          ? CollectingEvent.find(co.collecting_event_id)
-          : Promise.resolve({ body: {} })
-      )
-
-      Promise.all(requests).then((responses) => {
-        const collectingEvents = responses.map((r) => r.body)
-        console.log(collectingEvents)
-
-        this.compareCE = collectingEvents
-        this.ceAttributes = Object.keys(
-          collectingEvents.find((ce) => ce.id) || {}
-        )
-      })
-    },
-
-    LoadDWC() {
-      const requests = this.compare.map((co) =>
-        CollectionObject.dwcVerbose(co.id, { rebuild: true })
-      )
-
-      Promise.all(requests).then((responses) => {
-        this.dwcTable = responses.map((r) => r.body)
-      })
-    }
+const props = defineProps({
+  compare: {
+    type: Array,
+    default: () => []
   }
+})
+
+const renderType = computed(() =>
+  view.value === TABS_TYPE.DWC ? dwcTable.value : props.compare
+)
+
+const showModal = ref(false)
+const compareCE = ref([])
+const ceAttributes = ref([])
+const tabs = Object.values(TABS_TYPE)
+const view = ref(TABS_TYPE.DETAILS)
+const dwcTable = ref({})
+
+function getCEs() {
+  const requests = props.compare.map((co) =>
+    co.collecting_event_id
+      ? CollectingEvent.find(co.collecting_event_id)
+      : Promise.resolve({ body: {} })
+  )
+
+  Promise.all(requests).then((responses) => {
+    const collectingEvents = responses.map((r) => r.body)
+
+    compareCE.value = collectingEvents
+    ceAttributes.value = Object.keys(collectingEvents.find((ce) => ce.id) || {})
+  })
 }
+
+function loadDWC() {
+  const requests = props.compare.map((co) =>
+    CollectionObject.dwcVerbose(co.id, { rebuild: true })
+  )
+
+  Promise.all(requests).then((responses) => {
+    dwcTable.value = responses.map((r) => r.body)
+  })
+}
+
+watch(showModal, (newVal) => {
+  if (newVal) {
+    loadDWC()
+    getCEs()
+  }
+})
 </script>
 <style scoped>
 :deep(.modal-container) {

@@ -439,8 +439,9 @@ function addGeoJsonLayer(geoJsonLayers) {
 
   geojsonLayer.eachLayer((layer) => {
     addEventsToLayer(layer)
-    drawnItems.addLayer(layer)
   })
+
+  geojsonLayer.addTo(drawnItems)
 
   if (props.fitBounds && !isShapeToolActive) {
     centerShapesInMap()

@@ -29,8 +29,9 @@
 
 <script setup>
 import { TaxonName } from '@/routes/endpoints'
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import { makeTaxonNode } from '../../utils/makeTaxonNode'
+import { useUserPreferences } from '@/composables'
 import TaxonomyOptions from './TaxonomyOptions.vue'
 import TaxonomyTree from './TaxonomyTree.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -51,6 +52,8 @@ const count = ref(true)
 const rainbow = ref(true)
 const isLoading = ref(true)
 const onlyValid = ref(false)
+
+const { error, loaded } = useUserPreferences()
 
 function buildTree(ancestors, taxon) {
   if (!ancestors || ancestors.length === 0) {
@@ -76,18 +79,27 @@ function buildTree(ancestors, taxon) {
   return root
 }
 
-onMounted(() => {
-  TaxonName.taxonomy(props.taxonId, { count: count.value })
-    .then(({ body }) => {
-      tree.value = buildTree(body.ancestors, {
-        ...body.taxon_name,
-        children: body.descendants
-      })
+watch(
+  [error, loaded],
+  () => {
+    if (!error.value && !loaded.value) {
+      return
+    }
+    nextTick(() => {
+      TaxonName.taxonomy(props.taxonId, { count: count.value })
+        .then(({ body }) => {
+          tree.value = buildTree(body.ancestors, {
+            ...body.taxon_name,
+            children: body.descendants
+          })
+        })
+        .finally(() => {
+          isLoading.value = false
+        })
     })
-    .finally(() => {
-      isLoading.value = false
-    })
-})
+  },
+  { immediate: true }
+)
 </script>
 
 <style lang="scss">
