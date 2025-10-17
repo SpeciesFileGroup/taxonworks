@@ -83,6 +83,8 @@ class CollectionObject < ApplicationRecord
   include Shared::QueryBatchUpdate
   include SoftValidation
 
+  # At present must be before BiologicalExtensions
+  include Shared::TaxonDeterminationRequired # only when anatomical_parts exist
   include Shared::BiologicalExtensions
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence
@@ -171,6 +173,12 @@ class CollectionObject < ApplicationRecord
 
   has_many :extracts, through: :origin_relationships, source: :new_object, source_type: 'Extract'
   has_many :sequences, through: :extracts
+
+  def requires_taxon_determination?
+    OriginRelationship
+      .where(old_object: self, new_object_type: 'AnatomicalPart')
+      .exists?
+  end
 
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
