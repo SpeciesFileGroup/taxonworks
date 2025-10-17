@@ -1088,7 +1088,7 @@ filter_anatomical_parts_task:
   description: 'Filter anatomical parts by many different facets, download or visualize results.'
 anatomical_parts_graph_task:
   hub: true
-  name: 'New anatomical part'
+  name: 'New/graph anatomical part'
   related:
   categories:
     - biology
