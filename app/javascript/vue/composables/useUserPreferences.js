@@ -1,8 +1,8 @@
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed } from 'vue'
 import { User } from '@/routes/endpoints'
 import { useBroadcastChannel } from './useBroadcastChannel'
 
-const preferences = ref(null)
+const preferences = ref({})
 const isLoading = ref(false)
 const error = ref(null)
 const loaded = ref(false)
@@ -57,21 +57,23 @@ export function useUserPreferences() {
   }
 
   const setPreference = async (key, value, opts = { persist: true }) => {
-    if (!preferences.value?.layout) {
-      preferences.value.layout = {}
-    }
-
     if (!preferences.value) {
       preferences.value = {
-        layout: {}
+        layout: {
+          [key]: value
+        }
       }
+    } else if (!preferences.value?.layout) {
+      preferences.value.layout = {
+        [key]: value
+      }
+    } else {
+      preferences.value.layout[key] = value
     }
-
-    preferences.value.layout[key] = value
 
     syncStorage()
 
-    if (opts.persist) {
+    if (opts.persist && preferences.value.id) {
       try {
         await User.update(preferences.value.id, {
           user: {
