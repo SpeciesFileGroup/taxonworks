@@ -11,6 +11,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
 
+- New field occurrences task: Layout settings [#4131]
+
 ### Fixed
 
 - Searching for very large numbers in autocomplete sometimes caused errors. [#4321]
@@ -22,6 +24,7 @@ New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
 - Save taxonomic tree settings in user preferences [#4577]
 
 [#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321
+[#4131]: https://github.com/SpeciesFileGroup/taxonworks/issues/4131
 
 ## [0.54.1] - 2025-10-09
 
