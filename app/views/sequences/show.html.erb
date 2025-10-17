@@ -1,5 +1,5 @@
 <%= content_for :icon_navigation do -%>
-  <%= content_tag(:li, otus_radial(@sequence) )   %>
+  <%= content_tag(:li, radial_quick_forms_tag(@sequence))   %>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @sequence}) -%>

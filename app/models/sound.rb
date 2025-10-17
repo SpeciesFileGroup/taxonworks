@@ -42,6 +42,8 @@ class Sound < ApplicationRecord
 
   originates_from 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence', 'CollectingEvent', 'AnatomicalPart'
 
+  GRAPH_ENTRY_POINTS = [:origin_relationships].freeze
+
   has_one_attached :sound_file
   has_many :conveyances, inverse_of: :sound, dependent: :restrict_with_error
 

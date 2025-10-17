@@ -70,6 +70,7 @@
         v-if="type"
         :model="modelSelected"
         :target="metadata.object_type"
+        class="margin-large-top"
         @selected="(obj) => setObject(obj)"
       />
       <div class="margin-large-top margin-large-bottom">
@@ -215,9 +216,8 @@ const props = defineProps({
     required: true
   }
 })
-
-const originForList = props.metadata.endpoints.origin_relationships.origin_for
-const originatesFromList = props.metadata.endpoints.origin_relationships.originates_from
+const originForList = props.metadata.endpoints.origin_relationships.origin_for || []
+const originatesFromList = props.metadata.endpoints.origin_relationships.originates_from || []
 const typeList = computed(() => flip.value ? originatesFromList : originForList)
 
 const { list, addToList, removeFromList } = useSlice({
@@ -290,11 +290,11 @@ function createOrigin() {
     extend: ['global_ids']
   })
     .then(({ body }) => {
+      addRelationship(body)
       TW.workbench.alert.create(
         'Origin relationship was successfully created.',
         'notice'
       )
-      relationshipCreated(body)
     })
     .catch(() => {})
 }
