@@ -4,7 +4,7 @@
     ref="element"
     class="graph-context-menu panel"
     :style="stylePosition"
-    @click="() => (isVisible = false)"
+    @click="closeContextMenu"
   >
     <slot />
   </div>
@@ -28,6 +28,10 @@ function openContextMenu({ x, y }) {
   position.value = { x, y }
 }
 
+function closeContextMenu() {
+  isVisible.value = false
+}
+
 function handleEvent(e) {
   if (!isVisible.value) return
 
@@ -36,7 +40,7 @@ function handleEvent(e) {
   if (clickIsInRadialModal(e)) return
 
   if (!element.value?.contains(e.target)) {
-    isVisible.value = false
+    closeContextMenu()
   }
 }
 
@@ -54,7 +58,8 @@ onUnmounted(() => {
 })
 
 defineExpose({
-  openContextMenu
+  openContextMenu,
+  closeContextMenu
 })
 </script>
 

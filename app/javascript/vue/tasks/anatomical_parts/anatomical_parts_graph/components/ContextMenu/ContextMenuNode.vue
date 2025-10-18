@@ -69,7 +69,10 @@
           :object-type="nodeType"
           :modal-create="showingCreate"
           :modal-edit="showingEdit"
-          @originRelationshipCreated="() => (emit('updateGraph'))"
+          @originRelationshipCreated="() => {
+            emit('updateGraph')
+            context.closeContextMenu()
+          }"
           @click.stop
         />
       </template>
@@ -110,6 +113,11 @@ const props = defineProps({
   inEditMode: {
     type: Boolean,
     default: true
+  },
+
+  context: {
+    type: Object,
+    required: true
   }
 })
 

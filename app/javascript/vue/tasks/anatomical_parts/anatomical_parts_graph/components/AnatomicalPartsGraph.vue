@@ -33,6 +33,7 @@
         :node="nodes[currentNodeId]"
         :node-id="currentNodeId"
         :in-edit-mode="showNodeQuickForms"
+        :context="nodeContextMenu"
         @update-graph="() => emit('updateGraph')"
       />
     </ContextMenu>
