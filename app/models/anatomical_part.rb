@@ -156,7 +156,12 @@ class AnatomicalPart < ApplicationRecord
     when *(AnatomicalPart.valid_new_object_classes - ['AnatomicalPart'])
       construct_graph_from_low_node(id, type)
     when 'AnatomicalPart'
-      construct_graph_from_mid_node(id)
+      part = AnatomicalPart.find(id)
+      origin = part.taxonomic_origin_object
+      # This constructs the full graph starting from origin - if we decide we
+      # only want the chain containing the original input then call
+      # graph_from_mid_node instead.
+      construct_graph_from_top_node(origin.id, origin.class.base_class.name)
     end
   end
 
