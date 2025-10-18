@@ -1,7 +1,7 @@
 <template>
   <div>
     <p>Select</p>
-    <ul class="context-menu no_bullets">
+    <ul class="wrap_options no_bullets">
       <li
         v-for="item in Object.keys(autocompleteType)"
         :key="item"
@@ -89,3 +89,19 @@ export default {
   }
 }
 </script>
+
+<style lang="css" scoped>
+.wrap_options {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  align-items: center;
+}
+
+.wrap_options li {
+  padding-left: 1em;
+  padding-right: 1em;
+  margin-bottom: 1em;
+	border-right: 1px solid var(--border-color);
+}
+</style>

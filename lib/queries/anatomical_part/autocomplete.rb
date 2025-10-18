@@ -6,14 +6,28 @@ module Queries
         super
       end
 
-      def autocomplete_text_contains_match
+      def autocomplete_uri_label_contains_match
         return nil if query_string.length < 2
-        base_query.where('anatomical_parts.name ilike ?', '%' + query_string + '%').limit(20)
+        base_query.where('anatomical_parts.uri_label ILIKE ?', '%' + query_string + '%').limit(20)
+      end
+
+      def autocomplete_uri_exact
+        return nil if query_string.length < 10
+        base_query.where(uri: query_string).limit(20)
+      end
+
+      def autocomplete_uri_ends_with
+        return nil if query_string.length < 3
+        base_query.where('anatomical_parts.uri ILIKE ?', '%' + query_string).limit(20)
       end
 
       def updated_queries
         queries = [
-          autocomplete_text_contains_match,
+          autocomplete_exact_id,
+          autocomplete_named,
+          autocomplete_uri_label_contains_match,
+          autocomplete_uri_exact,
+          autocomplete_uri_ends_with
         ]
 
         queries.compact!
