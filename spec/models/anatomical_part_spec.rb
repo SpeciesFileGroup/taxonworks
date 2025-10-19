@@ -28,9 +28,30 @@ RSpec.describe AnatomicalPart, type: :model do
 
     specify 'uri and uri_label is valid' do
       expect(
-        AnatomicalPart.create!(name: 'a', inbound_origin_relationship_attributes:,
+        AnatomicalPart.create!(inbound_origin_relationship_attributes:,
         uri: 'http://val.id', uri_label: 'as a purl')
       ).to be_truthy
+    end
+
+    specify 'name and uri is not valid' do
+      expect{
+        AnatomicalPart.create!(name: 'a', inbound_origin_relationship_attributes:,
+        uri: 'http://val.id')
+      }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    specify 'name and uri_label is not valid' do
+      expect{
+        AnatomicalPart.create!(name: 'a', inbound_origin_relationship_attributes:,
+        uri_label: 'as a purl')
+      }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    specify 'name and uri and uri_label is not valid' do
+      expect{
+        AnatomicalPart.create!(name: 'a', inbound_origin_relationship_attributes:,
+        uri: 'http://val.id', uri_label: 'as a purl')
+      }.to raise_error(ActiveRecord::RecordInvalid)
     end
 
     specify 'uri alone is not valid' do
@@ -64,20 +85,53 @@ RSpec.describe AnatomicalPart, type: :model do
       }.to raise_error(ActiveRecord::RecordInvalid)
     end
 
-    specify 'taxonomic_origin_object must have a taxon_determination' do
+    specify 'non-otu taxonomic_origin_object must have a taxon_determination' do
       origin = Specimen.create!
       expect {
         AnatomicalPart.create!(
-          inbound_origin_relationship_attributes: {
-            old_object_id: origin.id,
-            old_object_type: origin.class.base_class.name
-          },
-        name: 'no td')
+          inbound_origin_relationship_attributes: { old_object: origin },
+          name: 'no td'
+        )
       }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    specify 'otu taxonomic origin_object is accepted' do
+      origin = Otu.create!(name: 'a')
+      expect(
+        AnatomicalPart.create!(
+          inbound_origin_relationship_attributes: { old_object: origin },
+          name: 'no td'
+        )
+      ).to be_truthy
     end
   end
 
   context 'ancestor chains' do
+    context 'must not be broken' do
+      specify 'origin_relationship with anatomical_part child cannot be deleted' do
+        ap1 = AnatomicalPart.create!({name: 'middle', inbound_origin_relationship_attributes:})
+        ap2 = AnatomicalPart.create!(name: 'descendant',
+          inbound_origin_relationship_attributes: {
+            old_object: ap1
+          })
+        expect{ ap1.related_origin_relationships.first.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+      end
+
+      specify 'origin_relationship with not anatomical_part child *can* be deleted' do
+        ap1 = AnatomicalPart.create!({name: 'top', inbound_origin_relationship_attributes:})
+        or_rel = OriginRelationship.create!(old_object: ap1, new_object: FactoryBot.create(:valid_extract))
+        expect{ or_rel.destroy! }.not_to raise_error
+      end
+
+      specify 'anatomical_part with anatomical_part descendant cannot be deleted' do
+        ap1 = AnatomicalPart.create!({name: 'middle', inbound_origin_relationship_attributes:})
+        ap2 = AnatomicalPart.create!(name: 'descendant',
+          inbound_origin_relationship_attributes: {
+            old_object: ap1
+          })
+        expect{ ap1.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+      end
+    end
     # TODO: this needs to be fixed.
     xspecify 'exactly one previous origin for each anatomical part' do
       a = AnatomicalPart.create!(name: 'popular', inbound_origin_relationship_attributes:)

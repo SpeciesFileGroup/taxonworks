@@ -90,11 +90,21 @@ class AnatomicalPart < ApplicationRecord
 
   accepts_nested_attributes_for :inbound_origin_relationship
 
+  # Must run before associated origin_relationships are destroyed.
+  before_destroy :abort_if_has_descendant_anatomical_part, prepend: true
   after_save :set_cached, unless: -> { self.no_cached }
 
   validates :inbound_origin_relationship, presence: true, on: :create
   validate :name_or_uri_not_both
   validate :top_origin_is_valid_origin
+
+  # Callback on OriginRelationship#destroy
+  def allow_origin_relationship_destroy?(origin_relationship)
+    return false if origin_relationship.new_object == self
+
+    true
+  end
+
 
   # @return [Scope]
   #    the max 10 most recently used anatomical_parts
@@ -201,7 +211,7 @@ class AnatomicalPart < ApplicationRecord
   def name_or_uri_not_both
     has_labelled_uri = uri.present? && uri_label.present?
     return if has_labelled_uri && !name.present?
-    return if name.present? && !has_labelled_uri
+    return if name.present? && !uri.present? && !uri_label.present?
 
     errors.add(:base, 'Exactly one of 1) name, or 2) uri *and* uri_label, must be present')
   end
@@ -214,6 +224,8 @@ class AnatomicalPart < ApplicationRecord
     valid = valid_old_object_classes - ['AnatomicalPart']
     t = origin.class.base_class.name
     errors.add(:base, "Class of original origin must be in [#{valid.join(', ')}], not #{t}") && return if !valid.include?(t)
+
+    return if origin.class.name == 'Otu'
 
     errors.add(:base, "Original origin must have a taxon determination!") && return if !origin.taxon_determinations.exists?
   end
@@ -310,5 +322,12 @@ class AnatomicalPart < ApplicationRecord
     end
 
     return nodes, origin_relationships
+  end
+
+  def abort_if_has_descendant_anatomical_part
+    if OriginRelationship.where(old_object: self, new_object_type: 'AnatomicalPart').exists?
+      errors.add(:base, "This part can't be deleted because it has an AnatomicalPart descendant.")
+      throw(:abort)
+    end
   end
 end
