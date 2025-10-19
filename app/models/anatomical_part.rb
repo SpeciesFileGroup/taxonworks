@@ -86,8 +86,7 @@ class AnatomicalPart < ApplicationRecord
     -> { where(new_object_type: 'AnatomicalPart') },
     as: :new_object,
     class_name: 'OriginRelationship',
-    inverse_of: :new_object,
-    dependent: :destroy
+    inverse_of: :new_object
 
   accepts_nested_attributes_for :inbound_origin_relationship
 
