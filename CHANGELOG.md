@@ -9,9 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
-
+- New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
 - New field occurrences task: Layout settings [#4131]
+- Project - customize attributes: Add spinner [#2217]
 
 ### Fixed
 
@@ -24,6 +24,7 @@ New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
 - Updated Ruby gems
 - Save taxonomic tree settings in user preferences [#4577]
 
+[#2217]: https://github.com/SpeciesFileGroup/taxonworks/issues/2217
 [#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321
 [#4131]: https://github.com/SpeciesFileGroup/taxonworks/issues/4131
 [#4583]: https://github.com/SpeciesFileGroup/taxonworks/issues/4583
