@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
 - New field occurrences task: Layout settings [#4131]
 - Project - customize attributes: Add spinner [#2217]
+- Radial Batch: Added Auto-refresh checkbox to enable or disable automatic filter refresh after adding or updating records [#4590]
 
 ### Fixed
 
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321
 [#4131]: https://github.com/SpeciesFileGroup/taxonworks/issues/4131
 [#4583]: https://github.com/SpeciesFileGroup/taxonworks/issues/4583
+[#4590]: https://github.com/SpeciesFileGroup/taxonworks/issues/4590
 
 ## [0.54.1] - 2025-10-09
 
