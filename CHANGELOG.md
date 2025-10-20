@@ -17,6 +17,7 @@ New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
 
 - Searching for very large numbers in autocomplete sometimes caused errors. [#4321]
 - Radial annotator: Tag count doesn’t update after creating or deleting a tag using the middle menu button
+- Collecting Event Clone button assigns existing annotations to the new object instead of creating new ones [#4583]
 
 ### Changed
 
@@ -25,6 +26,7 @@ New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
 
 [#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321
 [#4131]: https://github.com/SpeciesFileGroup/taxonworks/issues/4131
+[#4583]: https://github.com/SpeciesFileGroup/taxonworks/issues/4583
 
 ## [0.54.1] - 2025-10-09
 
