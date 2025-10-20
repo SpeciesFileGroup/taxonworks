@@ -145,7 +145,10 @@ const ontologyPreferences = ref([])
 const selectedOntologies = ref([])
 const isLoading = ref(false)
 
-const emit = defineEmits(['originRelationshipCreated', 'anatomicalPartLoaded'])
+const emit = defineEmits([
+  'originRelationshipCreated', 'originRelationshipUpdated',
+  'anatomicalPartLoaded'
+])
 
 const validAnatomicalPart = computed(() => {
   return anatomicalPart.value.name ||
@@ -173,6 +176,7 @@ function save() {
   response
     .then(({ body }) => {
       if (anatomicalPart.value.id) {
+        emit('originRelationshipUpdated', body.origin_relationship)
         TW.workbench.alert.create('Anatomical part was successfully saved.', 'notice')
       } else {
         resetForm()

@@ -76,6 +76,7 @@
           :modal-create="showingCreate"
           :modal-edit="showingEdit"
           @originRelationshipCreated="updateGraph"
+          @originRelationshipUpdated="updateGraph"
           @click.stop
         />
       </template>
