@@ -13,6 +13,13 @@
     param-exact="uri_exact"
   />
 
+  <FacetText
+    v-model="params"
+    title="URI label"
+    param-text="uri_label"
+    param-exact="uri_label_exact"
+  />
+
   <FacetOriginType
     v-model="params"
   />
@@ -20,6 +27,7 @@
   <FacetOtu
     v-model="params"
     target="AnatomicalPart"
+    title="Origin OTU"
   />
 
   <FacetPreparationType

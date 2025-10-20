@@ -74,6 +74,7 @@
             v-if="originsSwitch"
             v-model="selectedOrigin"
             :model="originsSwitch"
+            target="AnatomicalPart"
             :pin-section="ORIGIN_SWITCH_OPTIONS[originsSwitch] + 's'"
             :pin-type="ORIGIN_SWITCH_OPTIONS[originsSwitch]"
             @selected="({ id }) => {

@@ -13,6 +13,9 @@ module Queries
         :origin_object_type,
         :otu_id,
         :uri,
+        :uri_exact,
+        :uri_label,
+        :uri_label_exact,
 
         anatomical_part_id: [],
         origin_object_type: [],
@@ -41,6 +44,15 @@ module Queries
       # @return String
       attr_accessor :uri
 
+      # @return String
+      attr_accessor :uri_exact
+
+      # @return String
+      attr_accessor :uri_label
+
+      # @return String
+      attr_accessor :uri_label_exact
+
       # @param params [Hash]
       def initialize(query_params)
         super
@@ -52,6 +64,10 @@ module Queries
         @origin_object_type = params[:origin_object_type]
         @otu_id = params[:otu_id]
         @uri = params[:uri]
+        @uri_exact = boolean_param(params, :uri_exact)
+        @uri_label = params[:uri_label]
+        @uri_label_exact = boolean_param(params, :uri_label_exact)
+
         set_citations_params(params)
         set_tags_params(params)
         set_preparation_types_params(params)
@@ -81,7 +97,21 @@ module Queries
       def uri_facet
         return nil if uri.blank?
 
-        table[:uri].eq(uri)
+        if uri_exact
+          table[:uri].eq(uri.strip)
+        else
+          table[:uri].matches('%' + uri.strip.gsub(/\s/, '%') + '%')
+        end
+      end
+
+      def uri_label_facet
+        return nil if uri_label.blank?
+
+        if uri_label_exact
+          table[:uri_label].eq(uri_label.strip)
+        else
+          table[:uri_label].matches('%' + uri_label.strip.gsub(/\s/, '%') + '%')
+        end
       end
 
       def is_material_facet
@@ -103,7 +133,7 @@ module Queries
           .distinct # remove if model adds validations to make this unnecessary
       end
 
-      def otu_id_facet
+      def original_otu_id_facet
         return nil if otu_id.empty?
 
         table[:cached_otu_id].in(otu_id)
@@ -163,7 +193,8 @@ module Queries
           is_material_facet,
           name_facet,
           uri_facet,
-          otu_id_facet
+          uri_label_facet,
+          original_otu_id_facet
         ]
       end
 
