@@ -100,6 +100,15 @@ class AnatomicalPart < ApplicationRecord
   validate :name_or_uri_not_both
   validate :top_origin_is_valid_origin
 
+  # Callback on OriginRelationship#create
+  def allow_origin_relationship_create?(origin_relationship)
+    # Disallow if we already have a parent.
+    return false if origin_relationship.new_object == self &&
+      OriginRelationship.where(new_object: self).exists?
+
+    true
+  end
+
   # Callback on OriginRelationship#destroy
   def allow_origin_relationship_destroy?(origin_relationship)
     # Allow if we originated the destroy because we're being destroyed (relies
@@ -114,7 +123,6 @@ class AnatomicalPart < ApplicationRecord
 
     true
   end
-
 
   # @return [Scope]
   #    the max 10 most recently used anatomical_parts

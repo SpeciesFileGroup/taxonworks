@@ -15,7 +15,7 @@ RSpec.describe AnatomicalPart, type: :model do
   }
 
   context 'validations' do
-    specify 'inbound_origin_relationship is required for valid AnitomicalPart' do
+    specify 'inbound_origin_relationship is required for valid AnatomicalPart' do
       a = AnatomicalPart.new({name: 'a'})
       expect(a.valid?).to be_falsey
     end
@@ -147,23 +147,27 @@ RSpec.describe AnatomicalPart, type: :model do
       end
     end
 
-    # TODO: this needs to be fixed.
-    xspecify 'exactly one previous origin for each anatomical part' do
+    specify 'exactly one previous origin for each anatomical part' do
       a = AnatomicalPart.create!(name: 'popular', inbound_origin_relationship_attributes:)
 
+      fo = FactoryBot.create(:valid_field_occurrence)
+
       expect{
-        AnatomicalPart.create!(
-          name: 'groupie',
-          inbound_origin_relationship_attributes: {
-            old_object_id: a.inbound_origin_relationship.old_object_id,
-            old_object_type: a.inbound_origin_relationship.old_object_type
-          }
+        OriginRelationship.create!(
+          old_object: fo,
+          new_object: a
         )
-      }.to raise_error()
+      }.to raise_error(ActiveRecord::RecordInvalid)
     end
 
     context 'taxonomic_origin_object' do
-      specify 'length 1 chain' do
+      specify 'can be CollectionObject' do
+        ap = AnatomicalPart.create!({name: 'a', inbound_origin_relationship_attributes:})
+
+        expect(ap.taxonomic_origin_object).to eq(origin)
+      end
+
+      specify 'can be FieldOccurrence' do
         root = FactoryBot.create(:valid_field_occurrence)
 
         c1 = AnatomicalPart.create!(
@@ -171,6 +175,20 @@ RSpec.describe AnatomicalPart, type: :model do
           inbound_origin_relationship_attributes: {
             old_object_id: root.id,
             old_object_type: 'FieldOccurrence'
+          }
+        )
+
+        expect(c1.taxonomic_origin_object).to eq(root)
+      end
+
+      specify 'can be OTU' do
+        root = FactoryBot.create(:valid_otu)
+
+        c1 = AnatomicalPart.create!(
+          name: 'c1',
+          inbound_origin_relationship_attributes: {
+            old_object_id: root.id,
+            old_object_type: 'Otu'
           }
         )
 
