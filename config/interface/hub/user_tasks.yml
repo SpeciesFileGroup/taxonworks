@@ -1092,6 +1092,8 @@ anatomical_parts_graph_task:
   related:
   categories:
     - biology
+    - filters
+    - new
   status: prototype
   description: 'Display graphs of relations between anatomical parts; create and edit anatomical parts.'
 project_dwc_export_preferences_task:

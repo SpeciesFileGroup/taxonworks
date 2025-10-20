@@ -25,6 +25,7 @@
         @click.stop
       />
       <RadialNavigator
+        v-if="inEditMode"
         :global-id="node.object_global_id"
         :redirect="false"
         @delete="updateGraph"

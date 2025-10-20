@@ -187,6 +187,20 @@ module Queries
           .where("origin_relationships.new_object_id IN (#{sound_query.all.select(:id).to_sql })")
       end
 
+      def biological_association_query_facet
+        return nil if biological_association_query.nil?
+
+        a = ::AnatomicalPart
+          .with(ba_query1: biological_association_query.all)
+          .joins("JOIN ba_query1 ON ba_query1.biological_association_subject_id = anatomical_parts.id AND ba_query1.biological_association_subject_type = 'AnatomicalPart'")
+
+        b = ::AnatomicalPart
+          .with(ba_query2: biological_association_query.all)
+          .joins("JOIN ba_query2 ON ba_query2.biological_association_object_id = anatomical_parts.id AND ba_query2.biological_association_object_type = 'AnatomicalPart'")
+
+        referenced_klass_union([a,b])
+      end
+
 
       def and_clauses
         [
@@ -206,6 +220,7 @@ module Queries
           otu_query_facet,
           observation_query_facet,
           sound_query_facet,
+          biological_association_query_facet,
 
           origin_object_type_facet
         ]

@@ -27,7 +27,7 @@ const ORIGIN_TYPES = [
   'AnatomicalPart',
   'CollectionObject',
   'FieldOccurrence',
-  'OTU'
+  'Otu'
 ]
 
 const props = defineProps({

@@ -39,9 +39,9 @@ module Queries
     # !! model is not referencened in this constant.
     #
     SUBQUERIES = {
-      anatomical_part: [:collection_object, :field_occurrence, :otu, :observation, :extract, :sound],
+      anatomical_part: [:collection_object, :field_occurrence, :otu, :observation, :extract, :sound, :biological_association],
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence, :observation],
-      biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution], # :field_occurrence
+      biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution, :anatomical_part],
       biological_associations_graph: [:biological_association, :source],
       collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence, :anatomical_part],
