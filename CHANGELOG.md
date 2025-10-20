@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Searching for very large numbers in autocomplete sometimes caused errors. [#4321]
 - Radial annotator: Tag count doesn’t update after creating or deleting a tag using the middle menu button
 - Collecting Event Clone button assigns existing annotations to the new object instead of creating new ones [#4583]
+- Filter sources: `In project` facet does not return correct results when selecting the "No" option.
 
 ### Changed
 
