@@ -306,6 +306,7 @@ function resetFrom(source, newParam = null) {
 
 function reset() {
   resetFrom(null)
+  history.pushState(null, null, window.location.pathname)
 }
 </script>
 

@@ -20,5 +20,10 @@
 
 <p>
   <strong>Origin OTU:</strong>
-  <%= object_link(@anatomical_part.origin_otu) %>
+  <%= otu_link(@anatomical_part.origin_otu) %>
+</p>
+
+<p>
+  <strong>Prepartion type:</strong>
+  <%= @anatomical_part.preparation_type&.name %>
 </p>
