@@ -84,9 +84,7 @@ class ImagesController < ApplicationController
       .find_by(image_file_fingerprint: params[:sha])
 
     if @image.present?
-      s = Shared::Api.host
-      token = Project.find(sessions_current_project_id).api_access_token
-      render "#{s}/api/v1/images/#{@image.id}?project_token=#{token}"
+      render '/images/api/v1/show'
     else
       render plain: 'Image not found.', status: :not_found
     end
