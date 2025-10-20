@@ -92,6 +92,8 @@ class AnatomicalPart < ApplicationRecord
 
   # Must run before associated origin_relationships are destroyed.
   before_destroy :abort_if_has_descendant_anatomical_part, prepend: true
+  around_destroy :setOriginRelationshipDestroyContext, prepend: true
+
   after_save :set_cached, unless: -> { self.no_cached }
 
   validates :inbound_origin_relationship, presence: true, on: :create
@@ -100,6 +102,14 @@ class AnatomicalPart < ApplicationRecord
 
   # Callback on OriginRelationship#destroy
   def allow_origin_relationship_destroy?(origin_relationship)
+    # Allow if we originated the destroy because we're being destroyed (relies
+    # on abort_if_has_descendant_anatomical_part to catch cases where that
+    # shouldn't be allowed).
+    return true if OriginRelationshipDestroyContext.objects_in_destroy&.include?({
+      id:, type: 'AnatomicalPart'
+    })
+
+    # Disallow if origin_relationship is part of our required ancestry chain.
     return false if origin_relationship.new_object == self
 
     true
@@ -325,9 +335,23 @@ class AnatomicalPart < ApplicationRecord
   end
 
   def abort_if_has_descendant_anatomical_part
-    if OriginRelationship.where(old_object: self, new_object_type: 'AnatomicalPart').exists?
-      errors.add(:base, "This part can't be deleted because it has an AnatomicalPart descendant.")
+    if OriginRelationship.where(old_object: self).exists?
+      errors.add(:base, "This part can't be deleted because it's not the end of an AnatomicalPart chain.")
       throw(:abort)
     end
+  end
+
+  def setOriginRelationshipDestroyContext
+    OriginRelationshipDestroyContext.objects_in_destroy ||= Set.new
+    OriginRelationshipDestroyContext.objects_in_destroy << {
+      id:, type: 'AnatomicalPart'
+    }
+
+    yield
+
+  ensure
+    OriginRelationshipDestroyContext.objects_in_destroy.delete({
+      id:, type: 'AnatomicalPart'
+    })
   end
 end

@@ -18,10 +18,16 @@
       <RadialObject
         v-if="inEditMode && ORIGINS.includes(nodeType)"
         :global-id="node.object_global_id"
-        @create="() => emit('updateGraph')"
-        @delete="() => emit('updateGraph')"
-        @update="() => emit('updateGraph')"
-        @change="() => emit('updateGraph')"
+        @create="updateGraph"
+        @delete="updateGraph"
+        @update="updateGraph"
+        @change="updateGraph"
+        @click.stop
+      />
+      <RadialNavigator
+        :global-id="node.object_global_id"
+        :redirect="false"
+        @delete="updateGraph"
         @click.stop
       />
     </div>
@@ -69,10 +75,7 @@
           :object-type="nodeType"
           :modal-create="showingCreate"
           :modal-edit="showingEdit"
-          @originRelationshipCreated="() => {
-            emit('updateGraph')
-            context.closeContextMenu()
-          }"
+          @originRelationshipCreated="updateGraph"
           @click.stop
         />
       </template>
@@ -87,6 +90,7 @@ import { computed, ref } from 'vue'
 import { parseNodeId } from '../../utils'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal'
 import {
@@ -135,5 +139,10 @@ const nodeType = computed(() => {
   const { id, objectType } = parseNodeId(props.nodeId)
   return objectType
 })
+
+function updateGraph() {
+  emit('updateGraph')
+  props.context.closeContextMenu()
+}
 
 </script>

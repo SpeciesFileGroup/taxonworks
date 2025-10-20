@@ -62,8 +62,25 @@ class AnatomicalPartsController < ApplicationController
     @anatomical_part.destroy!
 
     respond_to do |format|
-      format.html { redirect_to anatomical_parts_path, notice: "Anatomical part was successfully destroyed.", status: :see_other }
-      format.json { head :no_content }
+      format.html {
+        redirect_to anatomical_parts_path,
+          notice: 'Anatomical part was successfully destroyed.',
+          status: :see_other
+      }
+      format.json {
+        head :no_content
+      }
+    end
+  rescue ActiveRecord::RecordNotDestroyed => e
+    respond_to do |format|
+      format.html {
+        flash[:alert] = @anatomical_part.errors.full_messages.to_sentence
+        redirect_back(fallback_location: anatomical_parts_path)
+      }
+      format.json {
+        render json: { errors: @anatomical_part.errors.full_messages },
+          status: :unprocessable_entity
+      }
     end
   end
 

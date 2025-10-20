@@ -82,7 +82,7 @@ RSpec.describe AnatomicalPart, type: :model do
             old_object_type: 'Depiction'
           },
           name: 'not again')
-      }.to raise_error(ActiveRecord::RecordInvalid)
+      }.to raise_error(ActiveRecord::InverseOfAssociationNotFoundError)
     end
 
     specify 'non-otu taxonomic_origin_object must have a taxon_determination' do
@@ -123,7 +123,7 @@ RSpec.describe AnatomicalPart, type: :model do
         expect{ or_rel.destroy! }.not_to raise_error
       end
 
-      specify 'anatomical_part with anatomical_part descendant cannot be deleted' do
+      specify 'anatomical_part with descendant (anatomical_part) cannot be deleted' do
         ap1 = AnatomicalPart.create!({name: 'middle', inbound_origin_relationship_attributes:})
         ap2 = AnatomicalPart.create!(name: 'descendant',
           inbound_origin_relationship_attributes: {
@@ -131,7 +131,22 @@ RSpec.describe AnatomicalPart, type: :model do
           })
         expect{ ap1.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
       end
+
+      specify 'anatomical_part with descendant (extract) cannot be deleted' do
+        ap1 = AnatomicalPart.create!({name: 'middle', inbound_origin_relationship_attributes:})
+        OriginRelationship.create!(
+          old_object: ap1,
+          new_object: FactoryBot.create(:valid_extract)
+        )
+        expect{ ap1.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+      end
+
+      specify 'allows deletion of terminal anatomical_part' do
+        ap1 = AnatomicalPart.create!({name: 'top', inbound_origin_relationship_attributes:})
+        expect{ ap1.destroy! }.not_to raise_exception
+      end
     end
+
     # TODO: this needs to be fixed.
     xspecify 'exactly one previous origin for each anatomical part' do
       a = AnatomicalPart.create!(name: 'popular', inbound_origin_relationship_attributes:)
