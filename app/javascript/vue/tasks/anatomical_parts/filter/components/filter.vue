@@ -30,9 +30,8 @@
     title="Origin OTU"
   />
 
-  <FacetPreparationType
+  <FacetPreparationTypes
     v-model="params"
-    target="AnatomicalPart"
   />
 
   <FacetUsers
@@ -63,7 +62,7 @@ import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetText from '@/components/Filter/Facets/shared/FacetText.vue'
 import FacetOriginType from '@/components/Filter/Facets/AnatomicalParts/FacetOriginType.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
-import FacetPreparationType from '@/components/Filter/Facets/PreparationType/FacetPreparationType.vue'
+import FacetPreparationTypes from '@/components/Filter/Facets/PreparationType/FacetPreparationTypes.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 
 const IS_MATERIAL_OPTIONS = [
