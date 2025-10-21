@@ -3,14 +3,14 @@
 # with inference happening if/when linkages to an Ontology exist. I.e. we are
 # storing only very light-weight data.
 # Use cases:
-#     Collector goes to field, takes a punch of a fish fin, and returns it ->
-#     AnatomicalPart has_origin FieldOccurrence A wing is dissected from a
-#     specimen -> AnatomicalPart has_origin Specimen A feather is removed from a
-#     bird, and a punch from the feather -> AnatomicalPart has_origin
-#     AnatomicalPart has_origin FieldOccurrence A louse is collected from the
-#     Ear of a bat, the louse is collected, the Bat is not - AnatomicalPart
-#     (ear) has_origin FieldOCcurrence (bat) -> BiologicalAssociation <-
-#     CollectionObject (louse)
+#   * Collector goes to field, takes a punch of a fish fin, and returns it ->
+#     AnatomicalPart has_origin FieldOccurrence
+#   * A wing is dissected from a specimen -> AnatomicalPart has_origin Specimen
+#   * A feather is removed from a bird, and a punch from the feather ->
+#     AnatomicalPart has_origin AnatomicalPart has_origin FieldOccurrence
+#   * A louse is collected from the Ear of a bat, the louse is collected, the
+#     Bat is not - AnatomicalPart (ear) has_origin FieldOCcurrence (bat) ->
+#     BiologicalAssociation <- CollectionObject (louse)
 #
 # @!attribute name
 #   @return [String]
@@ -52,7 +52,7 @@ class AnatomicalPart < ApplicationRecord
   include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::Identifiers
-  # Override the :uri defined by Identifiers.
+  # Override the :uri defined by Identifiers. Bad.
   def uri
     self[:uri]
   end
@@ -66,7 +66,7 @@ class AnatomicalPart < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::Tags
   include Shared::IsData
-  include SoftValidation
+  include Shared::PurlDeprecation
 
   is_origin_for 'AnatomicalPart', 'Extract', 'Sequence', 'Sound'
   originates_from 'Otu', 'Specimen', 'Lot', 'CollectionObject', 'AnatomicalPart', 'FieldOccurrence'

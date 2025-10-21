@@ -18,7 +18,7 @@ class AnatomicalPartsController < ApplicationController
         @anatomical_parts = ::Queries::AnatomicalPart::Filter.new(params).all
           .page(params[:page])
           .per(params[:per])
-          .order('anatomical_parts.name')
+          .order('anatomical_parts.cached')
       end
     end
   end
@@ -129,7 +129,7 @@ class AnatomicalPartsController < ApplicationController
       )
       .includes(:new_object)
 
-      render json: @origin_relationships.map { |r| r.new_object }
+      render json: @origin_relationships.map(&:new_object)
   end
 
   def ontology_autocomplete
@@ -141,7 +141,6 @@ class AnatomicalPartsController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_anatomical_part
     @anatomical_part = AnatomicalPart.find(params[:id])
   end
