@@ -408,11 +408,6 @@ const refresh = (forceUpdate = false) => {
       lists.value = response.body
       addCustomElements()
       options.value = Object.keys(lists.value).concat(props.addTabs)
-
-      console.log(lists.value)
-      console.log(view.value)
-      console.log(lists.value[view.value]?.length)
-
       options.value = OrderSmart(options.value)
 
       if (props.default) {
