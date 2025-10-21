@@ -9,19 +9,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
+- New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
+- New field occurrences task: Layout settings [#4131]
+- Project - customize attributes: Add spinner [#2217]
+- Radial Batch: Added Auto-refresh checkbox to enable or disable automatic filter refresh after adding or updating records [#4590]
 
 ### Fixed
 
 - Searching for very large numbers in autocomplete sometimes caused errors. [#4321]
 - Radial annotator: Tag count doesn’t update after creating or deleting a tag using the middle menu button
+- Collecting Event Clone button assigns existing annotations to the new object instead of creating new ones [#4583]
+- Filter sources: `In project` facet does not return correct results when selecting the "No" option.
 
 ### Changed
 
 - Updated Ruby gems
 - Save taxonomic tree settings in user preferences [#4577]
 
+[#2217]: https://github.com/SpeciesFileGroup/taxonworks/issues/2217
 [#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321
+[#4131]: https://github.com/SpeciesFileGroup/taxonworks/issues/4131
+[#4583]: https://github.com/SpeciesFileGroup/taxonworks/issues/4583
+[#4590]: https://github.com/SpeciesFileGroup/taxonworks/issues/4590
 
 ## [0.54.1] - 2025-10-09
 

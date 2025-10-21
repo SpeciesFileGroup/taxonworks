@@ -1,5 +1,6 @@
 <template>
   <div>
+    <VSpinner v-if="isLoading" />
     <h1>Project - Customize attributes.</h1>
     <a
       class="cursor-pointer"
@@ -8,12 +9,12 @@
       Back
     </a>
     <div class="horizontal-left-content align-start">
-      <model-component
+      <VModel
         class="separate-right"
         v-model="model"
       />
       <div class="flex-direction-column">
-        <predicates-component
+        <VPredicates
           class="margin-medium-left margin-medium-bottom"
           :model-list="modelList"
           :list="predicates"
@@ -28,8 +29,9 @@
 
 <script setup>
 import PredicateForm from './components/newPredicate'
-import ModelComponent from './components/model'
-import PredicatesComponent from './components/predicates'
+import VModel from './components/model'
+import VPredicates from './components/predicates'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { ControlledVocabularyTerm, Project } from '@/routes/endpoints'
 import { addToArray } from '@/helpers/arrays'
 import { computed, ref } from 'vue'
@@ -40,6 +42,7 @@ const modelList = computed(
 const model = ref(undefined)
 const preferences = ref({})
 const predicates = ref([])
+const isLoading = ref(true)
 
 const updatePredicatePreferences = (newPreferences) => {
   if (!model.value) return
@@ -66,13 +69,17 @@ function goBack() {
 Project.preferences().then(({ body }) => {
   preferences.value = body
 
-  ControlledVocabularyTerm.where({ type: ['Predicate'] }).then(({ body }) => {
-    const sortedIds =
-      preferences.value.model_predicate_sets.predicate_index || []
+  ControlledVocabularyTerm.where({ type: ['Predicate'] })
+    .then(({ body }) => {
+      const sortedIds =
+        preferences.value.model_predicate_sets.predicate_index || []
 
-    predicates.value = sortedIds
-      ? body.sort((a, b) => sortedIds.indexOf(a.id) - sortedIds.indexOf(b.id))
-      : body
-  })
+      predicates.value = sortedIds
+        ? body.sort((a, b) => sortedIds.indexOf(a.id) - sortedIds.indexOf(b.id))
+        : body
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
 })
 </script>

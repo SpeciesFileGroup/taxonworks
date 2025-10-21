@@ -1,13 +1,23 @@
 <template>
   <div class="flex-separate middle">
     <h1>New field occurrence</h1>
-    <label>
-      <input
-        type="checkbox"
-        v-model="settings.sortable"
-      />
-      Reorder fields
-    </label>
+    <ul class="context-menu">
+      <li>
+        <LayoutConfiguration
+          :hidden="hiddenComponents"
+          @update="(list) => setPreference(KEY_STORAGE_HIDDEN, list)"
+        />
+      </li>
+      <li>
+        <label>
+          <input
+            type="checkbox"
+            v-model="settings.sortable"
+          />
+          Reorder fields
+        </label>
+      </li>
+    </ul>
   </div>
   <div>
     <VSpinner
@@ -24,7 +34,10 @@
         @end="updatePreferences"
       >
         <template #item="{ element }">
-          <component :is="VueComponents[element]" />
+          <component
+            v-if="!hiddenComponents?.includes(element)"
+            :is="VueComponents[element]?.component"
+          />
         </template>
       </VDraggable>
 
@@ -34,17 +47,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { User } from '@/routes/endpoints'
+import { computed, ref } from 'vue'
+import { useUserPreferences } from '@/composables'
 import VDraggable from 'vuedraggable'
 import HeaderBar from './components/HeaderBar.vue'
 import CollectingEventForm from './components/CollectingEventForm.vue'
 import useSettingStore from './store/settings'
 import VueComponents from './constants/components'
 import VSpinner from '@/components/ui/VSpinner.vue'
-const KEY_STORAGE = 'FieldOccurrence::Form::ComponentsOrder'
+import LayoutConfiguration from './components/LayoutConfiguration.vue'
+
+const KEY_STORAGE = 'task::FieldOccurrence::Form::ComponentsOrder'
+const KEY_STORAGE_HIDDEN = 'task::FieldOccurrence::Form::ComponentsHidden'
 
 const layout = ref(Object.keys(VueComponents))
+const { preferences, loadPreferences, setPreference } = useUserPreferences()
 
 defineOptions({
   name: 'NewFieldOccurrence'
@@ -52,22 +69,16 @@ defineOptions({
 
 const settings = useSettingStore()
 const isLoading = ref(true)
-
-const preferences = ref({})
+const hiddenComponents = computed(
+  () => preferences.value.layout?.[KEY_STORAGE_HIDDEN] || []
+)
 
 function updatePreferences() {
-  User.update(preferences.value.id, {
-    user: { layout: { [KEY_STORAGE]: layout.value } }
-  }).then(({ body }) => {
-    preferences.value.layout = body.preferences
-    layout.value = body.preferences.layout[KEY_STORAGE]
-  })
+  setPreference(KEY_STORAGE, layout.value)
 }
 
-User.preferences()
-  .then((response) => {
-    preferences.value = response.body
-
+loadPreferences()
+  .then(() => {
     const layoutStored = preferences.value.layout[KEY_STORAGE]
 
     if (
