@@ -16,20 +16,20 @@ RSpec.describe AnatomicalPart, type: :model do
 
   context 'validations' do
     specify 'inbound_origin_relationship is required for valid AnatomicalPart' do
-      a = AnatomicalPart.new({name: 'a'})
+      a = AnatomicalPart.new(name: 'a', is_material: true)
       expect(a.valid?).to be_falsey
     end
 
     specify 'name is valid' do
       expect(
-        AnatomicalPart.create!({name: 'a', inbound_origin_relationship_attributes:})
+        AnatomicalPart.create!(name: 'a', inbound_origin_relationship_attributes:, is_material: true)
       ).to be_truthy
     end
 
     specify 'uri and uri_label is valid' do
       expect(
         AnatomicalPart.create!(inbound_origin_relationship_attributes:,
-        uri: 'http://val.id', uri_label: 'as a purl')
+        uri: 'http://val.id', uri_label: 'as a purl', is_material: true)
       ).to be_truthy
     end
 
@@ -109,31 +109,33 @@ RSpec.describe AnatomicalPart, type: :model do
   context 'ancestor chains' do
     context 'must not be broken' do
       specify 'origin_relationship with anatomical_part child cannot be deleted' do
-        ap1 = AnatomicalPart.create!({name: 'middle', inbound_origin_relationship_attributes:})
+        ap1 = AnatomicalPart.create!(name: 'middle', inbound_origin_relationship_attributes:, is_material: true)
         ap2 = AnatomicalPart.create!(name: 'descendant',
           inbound_origin_relationship_attributes: {
             old_object: ap1
-          })
+          },
+          is_material: true)
         expect{ ap1.related_origin_relationships.first.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
       end
 
       specify 'origin_relationship with not anatomical_part child *can* be deleted' do
-        ap1 = AnatomicalPart.create!({name: 'top', inbound_origin_relationship_attributes:})
+        ap1 = AnatomicalPart.create!(name: 'top', inbound_origin_relationship_attributes:, is_material: true)
         or_rel = OriginRelationship.create!(old_object: ap1, new_object: FactoryBot.create(:valid_extract))
         expect{ or_rel.destroy! }.not_to raise_error
       end
 
       specify 'anatomical_part with descendant (anatomical_part) cannot be deleted' do
-        ap1 = AnatomicalPart.create!({name: 'middle', inbound_origin_relationship_attributes:})
+        ap1 = AnatomicalPart.create!(name: 'middle', inbound_origin_relationship_attributes:, is_material: true)
         ap2 = AnatomicalPart.create!(name: 'descendant',
           inbound_origin_relationship_attributes: {
             old_object: ap1
-          })
+          },
+          is_material: true)
         expect{ ap1.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
       end
 
       specify 'anatomical_part with descendant (extract) cannot be deleted' do
-        ap1 = AnatomicalPart.create!({name: 'middle', inbound_origin_relationship_attributes:})
+        ap1 = AnatomicalPart.create!(name: 'middle', inbound_origin_relationship_attributes:, is_material: true)
         OriginRelationship.create!(
           old_object: ap1,
           new_object: FactoryBot.create(:valid_extract)
@@ -142,13 +144,13 @@ RSpec.describe AnatomicalPart, type: :model do
       end
 
       specify 'allows deletion of terminal anatomical_part' do
-        ap1 = AnatomicalPart.create!({name: 'top', inbound_origin_relationship_attributes:})
+        ap1 = AnatomicalPart.create!(name: 'top', inbound_origin_relationship_attributes:, is_material: true)
         expect{ ap1.destroy! }.not_to raise_exception
       end
     end
 
     specify 'exactly one previous origin for each anatomical part' do
-      a = AnatomicalPart.create!(name: 'popular', inbound_origin_relationship_attributes:)
+      a = AnatomicalPart.create!(name: 'popular', inbound_origin_relationship_attributes:, is_material: true)
 
       fo = FactoryBot.create(:valid_field_occurrence)
 
@@ -162,7 +164,7 @@ RSpec.describe AnatomicalPart, type: :model do
 
     context 'taxonomic_origin_object' do
       specify 'can be CollectionObject' do
-        ap = AnatomicalPart.create!({name: 'a', inbound_origin_relationship_attributes:})
+        ap = AnatomicalPart.create!(name: 'a', inbound_origin_relationship_attributes:, is_material: true)
 
         expect(ap.taxonomic_origin_object).to eq(origin)
       end
@@ -238,7 +240,8 @@ RSpec.describe AnatomicalPart, type: :model do
 
         c1 = AnatomicalPart.create!(
           name: 'c1',
-          inbound_origin_relationship_attributes:
+          inbound_origin_relationship_attributes:,
+          is_material: true
         )
 
         expect(c1.cached_otu_id).to eq(origin.otu.id)
@@ -255,7 +258,8 @@ RSpec.describe AnatomicalPart, type: :model do
       inbound_origin_relationship_attributes: {
         old_object_id: root.id,
         old_object_type: 'Specimen'
-      }
+      },
+      is_material: true
     )
 
     # length 2 chain
@@ -264,7 +268,8 @@ RSpec.describe AnatomicalPart, type: :model do
       inbound_origin_relationship_attributes: {
         old_object_id: root.id,
         old_object_type: 'Specimen'
-      }
+      },
+      is_material: true
     )
 
     c22 = AnatomicalPart.create!(
@@ -272,7 +277,8 @@ RSpec.describe AnatomicalPart, type: :model do
       inbound_origin_relationship_attributes: {
         old_object_id: c21.id,
         old_object_type: 'AnatomicalPart'
-      }
+      },
+      is_material: true
     )
 
     # bifurcating chain
@@ -281,7 +287,8 @@ RSpec.describe AnatomicalPart, type: :model do
       inbound_origin_relationship_attributes: {
         old_object_id: root.id,
         old_object_type: 'Specimen'
-      }
+      },
+      is_material: true
     )
 
     c32 = AnatomicalPart.create!(
@@ -289,7 +296,8 @@ RSpec.describe AnatomicalPart, type: :model do
       inbound_origin_relationship_attributes: {
         old_object_id: c31.id,
         old_object_type: 'AnatomicalPart'
-      }
+      },
+      is_material: true
     )
 
     c331 = AnatomicalPart.create!(
@@ -297,7 +305,8 @@ RSpec.describe AnatomicalPart, type: :model do
       inbound_origin_relationship_attributes: {
         old_object_id: c32.id,
         old_object_type: 'AnatomicalPart'
-      }
+      },
+      is_material: true
     )
 
     c332 = AnatomicalPart.create!(
@@ -305,7 +314,8 @@ RSpec.describe AnatomicalPart, type: :model do
       inbound_origin_relationship_attributes: {
         old_object_id: c32.id,
         old_object_type: 'AnatomicalPart'
-      }
+      },
+      is_material: true
     )
   end
 

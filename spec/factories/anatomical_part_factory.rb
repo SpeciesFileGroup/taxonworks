@@ -33,6 +33,7 @@ FactoryBot.define do
         # If the ancestor is a CO or FO, ensure it has an accepted TD.
         # If an explicit OTU was provided, make it the accepted determination.
         unless top.is_a?(Otu)
+          anatomical_part.is_material = true
           if evaluator.taxon_determination_otu
             taxon_determination = FactoryBot.create(
               :valid_taxon_determination,

@@ -254,6 +254,7 @@ class AnatomicalPart < ApplicationRecord
 
   def is_material_matches_origin
     origin = taxonomic_origin_object
+    return if origin.nil? # invalid
 
     if origin.class.base_class.name == 'CollectionObject' && is_material != true
       errors.add(:base, 'CollectionObject parts must have is_material true!')
@@ -265,6 +266,7 @@ class AnatomicalPart < ApplicationRecord
   end
 
   def is_material_matches_parent_anatomical_part
+    return if inbound_origin_relationship.nil? # invalid
     parent = inbound_origin_relationship.old_object
     return if parent.class.name != 'AnatomicalPart'
 
