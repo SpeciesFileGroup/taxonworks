@@ -173,7 +173,7 @@ class ContainerItem < ApplicationRecord
   end
 
   def object_is_containable
-    if !CONTAINABLE_TYPES.include?(contained_object_type)
+    if !::Shared::Containable.containable_types.include?(contained_object_type)
       errors.add(:contained_object, 'is not a containable type')
       return
     end
