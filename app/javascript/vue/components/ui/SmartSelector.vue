@@ -408,11 +408,18 @@ const refresh = (forceUpdate = false) => {
       lists.value = response.body
       addCustomElements()
       options.value = Object.keys(lists.value).concat(props.addTabs)
+
+      console.log(lists.value)
+      console.log(view.value)
+      console.log(lists.value[view.value]?.length)
+
       options.value = OrderSmart(options.value)
 
-      view.value = props.default
-        ? props.default
-        : SelectFirst(lists.value, options.value)
+      if (props.default) {
+        view.value = props.default
+      } else if (!lists.value[view.value]?.length) {
+        view.value = SelectFirst(lists.value, options.value)
+      }
     })
     .catch(() => {
       options.value = []
