@@ -65,8 +65,8 @@ class AnatomicalPart < ApplicationRecord
   include Shared::OriginRelationship
   include Shared::ProtocolRelationships
   include Shared::Tags
-  include Shared::IsData
   include Shared::PurlDeprecation
+  include Shared::IsData
 
   is_origin_for 'AnatomicalPart', 'Extract', 'Sequence', 'Sound'
   originates_from 'Otu', 'Specimen', 'Lot', 'CollectionObject', 'AnatomicalPart', 'FieldOccurrence'
@@ -95,10 +95,14 @@ class AnatomicalPart < ApplicationRecord
   around_destroy :setOriginRelationshipDestroyContext, prepend: true
 
   after_save :set_cached, unless: -> { self.no_cached }
+  # Runs in the update transaction, so any errors will abort the udpate.
+  after_update :propagate_change_to_is_material!, if: :saved_change_to_is_material?
 
   validates :inbound_origin_relationship, presence: true, on: :create
   validate :name_or_uri_not_both
   validate :top_origin_is_valid_origin
+  validate :is_material_matches_origin
+  validate :is_material_matches_parent_anatomical_part
 
   # Callback on OriginRelationship#create
   def allow_origin_relationship_create?(origin_relationship)
@@ -248,6 +252,45 @@ class AnatomicalPart < ApplicationRecord
     errors.add(:base, "Original origin must have a taxon determination!") && return if !origin.taxon_determinations.exists?
   end
 
+  def is_material_matches_origin
+    origin = taxonomic_origin_object
+
+    if origin.class.base_class.name == 'CollectionObject' && is_material != true
+      errors.add(:base, 'CollectionObject parts must have is_material true!')
+      return
+    elsif origin.class.base_class.name == 'Otu' && is_material == true
+      errors.add(:base, 'OTU parts must have is_material false!')
+      return
+    end
+  end
+
+  def is_material_matches_parent_anatomical_part
+    parent = inbound_origin_relationship.old_object
+    return if parent.class.name != 'AnatomicalPart'
+
+    if parent.is_material != is_material
+      errors.add(:base, 'is_material must match parent value!')
+    end
+  end
+
+  def propagate_change_to_is_material!
+    # is_material can only be changed on the top AnatomicalPart, so change the
+    # value on all AnatomicalPart descendants.
+    new_is_material = is_material
+    current = [self]
+
+    while(current.present?)
+      nxt = []
+      current.each do |o|
+        o.update_column(:is_material, new_is_material)
+        nxt += o.new_objects
+      end
+
+      current = nxt.filter { |x| x.class.name == 'AnatomicalPart' }
+    end
+
+  end
+
   # Construct an AnatomicalPart graph starting from an AnatomicalPart. Going up
   # the graph is a chain ending in the source of the AnatomicalPart, going down
   # we include everything, even after we no longer see AnatomicalParts.
@@ -265,7 +308,7 @@ class AnatomicalPart < ApplicationRecord
       current.each do |o|
         nodes << o
         # No restriction on old_object_type.
-        r = OriginRelationship.where(old_object_id: o.id, old_object_type: o.class.name)
+        r = OriginRelationship.where(old_object: o)
         origin_relationships += r
         nxt += o.new_objects
       end
