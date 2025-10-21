@@ -43,7 +43,7 @@ class FieldOccurrence < ApplicationRecord
   include Shared::Taxonomy
   include FieldOccurrence::DwcExtensions
 
-  is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound'
+  is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound', 'AnatomicalPart'
   originates_from 'FieldOccurrence'
 
   GRAPH_ENTRY_POINTS = [:biological_associations, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships]

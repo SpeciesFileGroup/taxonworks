@@ -44,4 +44,6 @@ export const BiologicalAssociation = {
     AjaxCall('patch', `/${controller}/batch_update`, params),
 
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
+
+  subject_object_types: () => AjaxCall('get', `/${controller}/subject_object_types.json`)
 }

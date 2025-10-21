@@ -82,6 +82,12 @@ class PreparationTypesController < ApplicationController
     end
   end
 
+  def autocomplete
+    @preparation_types = ::Queries::PreparationType::Autocomplete.new(
+      params.require(:term)
+    ).autocomplete
+  end
+
   # GET /preparation_types/download
   def download
     send_data(Export::CSV.generate_csv(PreparationType.all),

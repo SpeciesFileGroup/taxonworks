@@ -1,7 +1,7 @@
 class Tasks::Projects::DwcExportPreferencesController < ApplicationController
   include TaskControllerConfiguration
-  before_action :require_project_administrator_sign_in
 
+  before_action :require_project_administrator_sign_in
   before_action :set_project
 
   def index

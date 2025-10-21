@@ -22,7 +22,8 @@ import {
   BIOLOGICAL_ASSOCIATION,
   OTU,
   COLLECTION_OBJECT,
-  FIELD_OCCURRENCE
+  FIELD_OCCURRENCE,
+  ANATOMICAL_PART
 } from '@/constants/index.js'
 import { makeNodeObject } from '../adapters'
 
@@ -44,6 +45,10 @@ const MODEL_TYPE = {
   [FIELD_OCCURRENCE]: {
     model: 'field_occurrences',
     section: 'FieldOccurrences'
+  },
+  [ANATOMICAL_PART]: {
+    model: 'anatomical_parts',
+    section: 'AnatomicalParts'
   }
 }
 

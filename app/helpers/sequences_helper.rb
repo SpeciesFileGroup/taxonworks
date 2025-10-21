@@ -4,10 +4,15 @@ module SequencesHelper
     sequence.name || sequence.sequence[0..20] + ' ' + tag.span('unnamed', class: [:feedback, 'feedback-thin', 'feedback-info'])
   end
 
+  def label_for_sequence(sequence)
+    return nil if sequence.nil?
+    sequence.name || sequence.sequence[0..20] + '[unnamed]'
+  end
+
   def sequence_autocomplete_selected_tag(sequence)
     sequence_tag(sequence)
   end
-  
+
   def sequences_search_form
     render('/sequences/quick_search_form')
   end

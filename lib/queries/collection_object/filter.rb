@@ -921,6 +921,14 @@ module Queries
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+
+        ::CollectionObject
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+      end
+
       def dwc_occurrence_query_facet
         return nil if dwc_occurrence_query.nil?
 
@@ -1023,16 +1031,16 @@ module Queries
 
       def merge_clauses
         [
-
           import_dataset_id_facet,
-          observation_query_facet,
           biological_association_id_facet,
+          anatomical_part_query_facet,
           base_collecting_event_query_facet,
           biological_association_query_facet,
           dwc_occurrence_query_facet,
           collecting_event_query_facet,
           extract_query_facet,
           loan_query_facet,
+          observation_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
 

@@ -39,11 +39,12 @@ module Queries
     # !! model is not referencened in this constant.
     #
     SUBQUERIES = {
+      anatomical_part: [:collection_object, :field_occurrence, :otu, :observation, :extract, :sound, :biological_association],
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence, :observation],
-      biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution], # :field_occurrence
+      biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution, :anatomical_part],
       biological_associations_graph: [:biological_association, :source],
       collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
-      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence],
+      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence, :anatomical_part],
       content: [:source, :otu, :taxon_name, :image],
       conveyance: [:sound],
       controlled_vocabulary_term: [:data_attribute],
@@ -51,15 +52,15 @@ module Queries
       dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event, :field_occurrence],
       depiction: [:image],
       descriptor: [:source, :observation, :otu],
-      extract: [:source, :otu, :collection_object, :observation],
-      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :image, :observation, :taxon_name], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
+      extract: [:source, :otu, :collection_object, :observation, :anatomical_part],
+      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :image, :observation, :taxon_name, :anatomical_part], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
       image: [:content, :collection_object, :collecting_event, :field_occurrence, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
-      observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name],
-      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
+      observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name, :anatomical_part],
+      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name, :anatomical_part ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name, :taxon_name_relationship],
-      sound: [:observation],
+      sound: [:observation, :anatomical_part],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source, :taxon_name_relationship],
       taxon_name_relationship: [:taxon_name, :source],
     }.freeze
@@ -90,6 +91,7 @@ module Queries
     # to have a list somewhere else anyways to further restrict allowed classes.
     #
     FILTER_QUERIES = {
+      anatomical_part_query: '::Queries::AnatomicalPart::Filter',
       asserted_distribution_query: '::Queries::AssertedDistribution::Filter',
       biological_association_query: '::Queries::BiologicalAssociation::Filter',
       biological_associations_graph_query: '::Queries::BiologicalAssociationsGraph::Filter',
@@ -151,7 +153,10 @@ module Queries
 
     # TODO: macro these dynamically
 
-    # @return [Query::AssertedDistributionn::Filter, nil]
+    # @return [Query::AnatomicalPart::Filter, nil]
+    attr_accessor :anatomical_part_query
+
+    # @return [Query::AssertedDistribution::Filter, nil]
     attr_accessor :asserted_distribution_query
 
     # @return [Query::BiologicalAssociation::Filter, nil]
@@ -427,6 +432,7 @@ module Queries
         f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
         f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
         f.push ::Queries::Concerns::Verifiers if self < ::Queries::Concerns::Verifiers
+        f.push ::Queries::Concerns::PreparationTypes if self < ::Queries::Concerns::PreparationTypes
       end
 
       f

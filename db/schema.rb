@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_04_182216) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -67,6 +67,31 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
     t.index ["project_id"], name: "index_alternate_values_on_project_id"
     t.index ["type"], name: "index_alternate_values_on_type"
     t.index ["updated_by_id"], name: "index_alternate_values_on_updated_by_id"
+  end
+
+  create_table "anatomical_parts", force: :cascade do |t|
+    t.text "name"
+    t.text "uri"
+    t.text "uri_label"
+    t.boolean "is_material"
+    t.text "cached"
+    t.bigint "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "cached_otu_id"
+    t.bigint "preparation_type_id"
+    t.index ["cached"], name: "index_anatomical_parts_on_cached"
+    t.index ["cached_otu_id"], name: "index_anatomical_parts_on_cached_otu_id"
+    t.index ["created_by_id"], name: "index_anatomical_parts_on_created_by_id"
+    t.index ["is_material"], name: "index_anatomical_parts_on_is_material"
+    t.index ["name"], name: "index_anatomical_parts_on_name"
+    t.index ["preparation_type_id"], name: "index_anatomical_parts_on_preparation_type_id"
+    t.index ["project_id"], name: "index_anatomical_parts_on_project_id"
+    t.index ["updated_by_id"], name: "index_anatomical_parts_on_updated_by_id"
+    t.index ["uri"], name: "index_anatomical_parts_on_uri"
+    t.index ["uri_label"], name: "index_anatomical_parts_on_uri_label"
   end
 
   create_table "asserted_distributions", id: :serial, force: :cascade do |t|
@@ -2286,6 +2311,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   add_foreign_key "alternate_values", "projects", name: "alternate_values_project_id_fkey"
   add_foreign_key "alternate_values", "users", column: "created_by_id", name: "alternate_values_created_by_id_fkey"
   add_foreign_key "alternate_values", "users", column: "updated_by_id", name: "alternate_values_updated_by_id_fkey"
+  add_foreign_key "anatomical_parts", "otus", column: "cached_otu_id"
+  add_foreign_key "anatomical_parts", "preparation_types"
+  add_foreign_key "anatomical_parts", "projects"
+  add_foreign_key "anatomical_parts", "users", column: "created_by_id"
+  add_foreign_key "anatomical_parts", "users", column: "updated_by_id"
   add_foreign_key "asserted_distributions", "geographic_areas", name: "asserted_distributions_geographic_area_id_fkey"
   add_foreign_key "asserted_distributions", "otus", name: "asserted_distributions_otu_id_fkey"
   add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"

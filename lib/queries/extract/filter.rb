@@ -261,6 +261,14 @@ module Queries
         ::Extract.from('(' + s + ') as extracts').distinct
       end
 
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+
+        ::Extract
+          .joins(:related_origin_relationships)
+          .where("origin_relationships.old_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+      end
+
       # @return [Array]
       def and_clauses
         [
@@ -273,6 +281,7 @@ module Queries
 
       def merge_clauses
         [
+          anatomical_part_query_facet,
           observation_query_facet,
           collection_object_query_facet,
           otu_query_facet,

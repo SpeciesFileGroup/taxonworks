@@ -242,6 +242,13 @@ module Queries
         ::Sound.from('(' + s + ') as sound').distinct
       end
 
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+
+        ::Sound
+          .joins(:related_origin_relationships)
+          .where("origin_relationships.old_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+      end
 
       def query_facets_facet(name = nil)
         return nil if name.nil?
@@ -271,6 +278,7 @@ module Queries
         s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:sound)}.keys.map(&:to_s) - ['source', 'observation']
         [
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Sound referencing SUBQUERIES
+          anatomical_part_query_facet,
           conveyance_object_type_facet,
           conveyances_facet,
           observation_query_facet,

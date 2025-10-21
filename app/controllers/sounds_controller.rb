@@ -88,7 +88,7 @@ class SoundsController < ApplicationController
     @sounds = Sound.select_optimized(
       sessions_current_user_id,
       sessions_current_project_id,
-     params.require(:target))
+     params[:target])
   end
 
 

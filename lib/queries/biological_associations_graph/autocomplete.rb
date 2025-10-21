@@ -1,5 +1,5 @@
 module Queries
-  module BiologicalAssociationsGraph 
+  module BiologicalAssociationsGraph
     class Autocomplete < Query::Autocomplete
 
       def initialize(string, project_id: nil)
@@ -12,6 +12,8 @@ module Queries
 
       def base_queries
         queries = [
+          # TODO: should probably return BA autocomplete results as well(?)
+          # Issue is that there we search nodes, on larger graphs we do not (and probably won't?).
           autocomplete_exactly_named,
           autocomplete_named,
           autocomplete_exact_id,

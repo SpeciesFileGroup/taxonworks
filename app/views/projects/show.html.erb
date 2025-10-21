@@ -8,6 +8,8 @@
       <%= tag.li( link_to('Attribute preferences', project_preferences_task_path, data: { turbolinks: false } ) ) %>
       <% if sessions_current_user.is_project_administrator?(sessions_current_project) %>
         <%= tag.li( link_to('Darwin core export preferences', project_dwc_export_preferences_task_path) )%>
+
+        <%= tag.li( link_to('Anatomical part ontology preferences', select_ontologies_task_path) )%>
       <% end %>
     </ul>
 

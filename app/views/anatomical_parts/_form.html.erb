@@ -1,0 +1,28 @@
+<%= render 'shared/errors', object: @anatomical_part %>
+
+<%= form_with(model: anatomical_part) do |form| %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :uri %>
+    <%= form.text_field :uri %>
+  </div>
+
+  <div class="field">
+    <%= form.label :uri_label %>
+    <%= form.text_field :uri_label %>
+  </div>
+
+  <div class="field">
+    <%= form.label :is_material %>
+    <%= form.check_box :is_material %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
