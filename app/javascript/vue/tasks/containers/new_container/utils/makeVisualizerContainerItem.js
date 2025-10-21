@@ -16,7 +16,7 @@ export function makeVisualizerContainerItem(
   { truncateMaxLength, hoverRow, container }
 ) {
   const isHover = hoverRow && comparePosition(item.position, hoverRow.position)
-  const label = truncateMaxLength
+  const label = truncateMaxLength && item.label
     ? shorten(item.label, truncateMaxLength)
     : item.label
   const style = makeStyle({ item, isHover })

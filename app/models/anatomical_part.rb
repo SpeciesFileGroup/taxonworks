@@ -212,6 +212,10 @@ class AnatomicalPart < ApplicationRecord
     @top_origin_object
   end
 
+  def containable?
+    is_material
+  end
+
   private
 
   def set_cached

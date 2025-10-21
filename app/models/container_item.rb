@@ -1,7 +1,7 @@
 # ContainerItem tells you where this item is contained in. Containers contain ContainerItems, not the objects themselves.
-# 
+#
 # A container item is something that has been "localized to" a container.
-# 
+#
 # We can't say that it is "in" the container, because not all containers (e.g. a pin with three specimens) contain the object.
 #
 # By "localized to" we mean that if you can find the container, then its contents should also be locatable.
@@ -70,6 +70,7 @@ class ContainerItem < ApplicationRecord
   validate :contained_object_is_container_when_parent_id_is_blank
   validate :contained_object_is_unique
   validate :object_fits_in_container
+  validate :object_is_containable
   validate :position_is_not_replicated
   validate :parent_is_provided_if_object_is_not_container
 
@@ -106,7 +107,7 @@ class ContainerItem < ApplicationRecord
     cit = c.container_items.count
 
     r = ::BatchResponse.new(
-      total_attempted: q.all.count, 
+      total_attempted: q.all.count,
       async: false,
       preview: false,
     )
@@ -145,7 +146,7 @@ class ContainerItem < ApplicationRecord
     c = Container.find(container_id)
 
     # Already in some container
-    if parent && parent.persisted? 
+    if parent && parent.persisted?
       self.parent.update_columns(contained_object_type: 'Container', contained_object_id: c.id)
       # Not in container
     else
@@ -154,7 +155,7 @@ class ContainerItem < ApplicationRecord
         self.parent = d
         # In a new container
       else
-        self.parent = ContainerItem.create!(contained_object: c) 
+        self.parent = ContainerItem.create!(contained_object: c)
       end
     end
 
@@ -168,6 +169,19 @@ class ContainerItem < ApplicationRecord
         c = send("disposition_#{coord}")
         errors.add("disposition_#{coord}".to_sym, 'is larger than the container size') if c && parent.contained_object.send("size_#{coord}") < c
       end
+    end
+  end
+
+  def object_is_containable
+    if !CONTAINABLE_TYPES.include?(contained_object_type)
+      errors.add(:contained_object, 'is not a containable type')
+      return
+    end
+
+    c = contained_object_type.constantize.find_by(id: contained_object_id)
+    if c.nil? || !c.containable?
+      errors.add(:contained_object, 'is not containable')
+      return
     end
   end
 
@@ -198,7 +212,7 @@ class ContainerItem < ApplicationRecord
   end
 
   def parent_is_provided_if_object_is_not_container
-    if !(contained_object_type =~ /Container/) && !parent 
+    if !(contained_object_type =~ /Container/) && !parent
       errors.add(:parent, "must be set if contained object is not a container")
     end
   end
