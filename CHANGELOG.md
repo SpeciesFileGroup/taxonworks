@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New field occurrences task: Layout settings [#4131]
 - Project - customize attributes: Add spinner [#2217]
 - Radial Batch: Added Auto-refresh checkbox to enable or disable automatic filter refresh after adding or updating records [#4590]
+- Browse OTU: Radial navigator in BA table
 
 ### Fixed
 
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Updated Ruby gems
 - Save taxonomic tree settings in user preferences [#4577]
+- Radial Navigator: BA edit/new slices now points to the `New Biological Association` task (previously new BA graph task)
 
 [#2217]: https://github.com/SpeciesFileGroup/taxonworks/issues/2217
 [#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321

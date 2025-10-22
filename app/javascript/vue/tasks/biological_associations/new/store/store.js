@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { smartSelectorRefresh } from '@/helpers/smartSelector/index.js'
-import { addToArray, removeFromArray } from '@/helpers'
+import { addToArray, removeFromArray, setParam } from '@/helpers'
+import { RouteNames } from '@/routes/routes'
 import makeCitation from '@/factory/Citation'
 
 function makeBiologicalAssociation(data = {}) {
@@ -84,12 +85,18 @@ export const useStore = defineStore('NewBiologicalAssociation', {
   },
 
   actions: {
-    setBiologicalAssociation(ad) {
-      this.biologicalAssociation = makeBiologicalAssociation(ad)
-      this.object = ad.object
-      this.subject = ad.subject
-      this.relationship = ad.relationship
-      this.citation = ad.citation
+    setBiologicalAssociation(ba) {
+      this.biologicalAssociation = makeBiologicalAssociation(ba)
+      this.object = ba.object
+      this.subject = ba.subject
+      this.relationship = ba.relationship
+      this.citation = ba.citation
+
+      setParam(
+        RouteNames.NewBiologicalAssociations,
+        'biological_association_id',
+        ba.id
+      )
     },
 
     toggleLock() {
@@ -98,6 +105,21 @@ export const useStore = defineStore('NewBiologicalAssociation', {
       for (const key in this.lock) {
         this.lock[key] = lockAll
       }
+    },
+
+    loadBiologicalAsscoation(id) {
+      this.isLoading = true
+
+      BiologicalAssociation.find(id, { extend })
+        .then(({ body }) => {
+          const ba = makeBiologicalAssociationItem(body)
+
+          this.setBiologicalAssociation(ba)
+        })
+        .catch(() => {})
+        .finally(() => {
+          this.isLoading = false
+        })
     },
 
     async loadRecentBiologicalAssociations() {
@@ -179,6 +201,11 @@ export const useStore = defineStore('NewBiologicalAssociation', {
       if (!this.lock.relationship) {
         this.relationship = null
       }
+
+      setParam(
+        RouteNames.NewBiologicalAssociations,
+        'biological_association_id'
+      )
     }
   }
 })
