@@ -161,12 +161,18 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
       end
 
       specify 'fails on images if project_token is gone' do
+        # See also project_spec.rb
         perform_enqueued_jobs # create dwc_occurrences
         Download::DwcArchive::Complete.create!
 
         project.update!(clear_api_access_token: true)
 
-        expect{perform_enqueued_jobs}.to raise_error(TaxonWorks::Error, /project token/)
+        expect(Download::DwcArchive::Complete.count).to eq(0)
+        # TODO: there should/could be another spec here that tests what happens
+        # when the project token is cleared *while* image records are being
+        # generated - it may be a race between download deletion and the
+        # following error, I'm not sure:
+        #expect{perform_enqueued_jobs}.to raise_error(TaxonWorks::Error, /project token/)
       end
     end
 
