@@ -376,6 +376,11 @@ class Image < ApplicationRecord
     self.to_blob!(cropped(params))
   end
 
+  def original_as_png
+    img = Magick::Image.read(self.image_file.path(:original)).first
+    self.class.to_blob!(img, 'png')
+  end
+
   # @param used_on [String] required, a depictable base class name like  `Otu`, `Content`, or `CollectionObject`
   # @return [Scope]
   #   the max 10 most recently used images, as `used_on`
@@ -450,9 +455,9 @@ class Image < ApplicationRecord
   # @return [String] a JPG representation of the image
   #   !! Always converts to .jpg, this may need abstraction later
   #   Returns an empty string if no image
-  def self.to_blob!(img)
+  def self.to_blob!(img, format = 'jpg')
     return '' if img.nil?
-    img.format = 'jpg'
+    img.format = format
     blob = img.to_blob
     img.destroy!
     blob
