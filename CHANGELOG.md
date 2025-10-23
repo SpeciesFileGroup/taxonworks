@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial annotator: Tag count doesn’t update after creating or deleting a tag using the middle menu button
 - Collecting Event Clone button assigns existing annotations to the new object instead of creating new ones [#4583]
 - Filter sources: `In project` facet does not return correct results when selecting the "No" option.
+- Unify now reports an error when it fails because of too many relations
 
 ### Changed
 
