@@ -81,7 +81,7 @@ module Shared::Dwc::MediaExtensions
   end
 
   def dwc_media_further_information_url
-    Shared::Api.image_metadata_link(self)
+    Shared::Api.image_metadata_link(self, raise_on_no_token: true)
   end
 
 end

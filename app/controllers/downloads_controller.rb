@@ -105,7 +105,7 @@ class DownloadsController < ApplicationController
   def api_dwc_archive_complete
     project = Project.find(sessions_current_project_id)
 
-    if !project.complete_dwc_download_is_public?
+    if !project.complete_dwc_download_is_public? || !project.api_access_token
       render json: { success: false }, status: :forbidden
       return
     end

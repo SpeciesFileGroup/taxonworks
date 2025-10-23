@@ -2,7 +2,7 @@ class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index, :api_image_inventory], if: :json_request?
 
-  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate, :regenerate_derivative]
+  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate, :regenerate_derivative, :as_png, :api_as_png]
 
   # GET /images
   # GET /images.json
@@ -84,9 +84,7 @@ class ImagesController < ApplicationController
       .find_by(image_file_fingerprint: params[:sha])
 
     if @image.present?
-      s = Shared::Api.host
-      token = Project.find(sessions_current_project_id).api_access_token
-      render "#{s}/api/v1/images/#{@image.id}?project_token=#{token}"
+      render '/images/api/v1/show'
     else
       render plain: 'Image not found.', status: :not_found
     end
@@ -188,12 +186,22 @@ class ImagesController < ApplicationController
 
   # GET 'images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
   def scale_to_box
-    send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
+    send_data Image.scaled_to_box_blob(params), type: 'image/png', disposition: 'inline'
   end
 
-  # GET 'images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
+  # GET 'api/v1/images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
   def api_scale_to_box
-    send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
+    send_data Image.scaled_to_box_blob(params), type: 'image/png', disposition: 'inline'
+  end
+
+  # GET 'images/:id/as_png'
+  def as_png
+    send_data @image.original_as_png, type: 'image/png', disposition: 'inline'
+  end
+
+  # GET 'api/v1/images/:id/as_png'
+  def api_as_png
+    send_data @image.original_as_png, type: 'image/png', disposition: 'inline'
   end
 
   # GET /images/:id/ocr/:x/:y/:height/:width
