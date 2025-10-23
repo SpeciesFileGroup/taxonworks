@@ -99,7 +99,7 @@ export default defineStore('freeform', {
         total: this.collectionObject.total,
         tags_attributes: tagStore.tags.map((tag) => ({ keyword_id: tag.id })),
         repository_id: this.repository?.id,
-        preparation_type_id: this.preparationTypeId,
+        preparation_type_id: this.collectionObject.preparationTypeId,
         collecting_event_id: this.collectingEvent?.id,
         taxon_determinations_attributes: this.taxonDeterminations.map(
           makeTaxonDeterminationPayload
