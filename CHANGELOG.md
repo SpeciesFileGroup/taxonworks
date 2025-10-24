@@ -14,6 +14,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project - customize attributes: Add spinner [#2217]
 - Radial Batch: Added Auto-refresh checkbox to enable or disable automatic filter refresh after adding or updating records [#4590]
 - Browse OTU: Radial navigator in BA table
+- `api/v1/images/:1/as_png` and `images/:1/as_png` to download an image as a png
+- Added new TaxonNameRelationship 'Unavailable' as a subclass of 'Unavailable or Invalid'
 
 ### Fixed
 
@@ -23,16 +25,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter sources: `In project` facet does not return correct results when selecting the "No" option.
 - Unify now reports an error when it fails because of too many relations
 - DwC Archive download uniqueness check not scoped to unexpired downloads
+- Internal/TW values don't appear with complete downloads [#4581]
+- Fix exception on `api/v1/images/sha/`
 
 ### Changed
-
+- Added warning that deleting a project's project_token can potentially break links from outside providers back to TaxonWorks for things like images
 - Updated Ruby gems
+- Updated NPM packages
 - Save taxonomic tree settings in user preferences [#4577]
 - Radial Navigator: BA edit/new slices now points to the `New Biological Association` task (previously new BA graph task)
+- Delete complete downloads if project's project_token is deleted
+- `api/v1/image/:1/scaled_to_box` now returns a png instead of a jpg
 
 [#2217]: https://github.com/SpeciesFileGroup/taxonworks/issues/2217
 [#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321
 [#4131]: https://github.com/SpeciesFileGroup/taxonworks/issues/4131
+[#4581]: https://github.com/SpeciesFileGroup/taxonworks/issues/4581
 [#4583]: https://github.com/SpeciesFileGroup/taxonworks/issues/4583
 [#4590]: https://github.com/SpeciesFileGroup/taxonworks/issues/4590
 
