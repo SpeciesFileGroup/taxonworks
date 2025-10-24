@@ -13,6 +13,7 @@ class Download::DwcArchive::Complete < Download::DwcArchive
 
   validates :type, uniqueness: {
     scope: [:project_id],
+    conditions: -> { unexpired },
     message: ->(record, data) {
       "Only one #{record.type} is allowed. Destroy the old version first."
     }
