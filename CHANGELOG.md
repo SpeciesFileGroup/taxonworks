@@ -12,6 +12,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Exception on destroying a genus with gender
+- New CE form: Identifier form does not display a warning when the Namespace is missing [#4599]
+
+[#4599]: https://github.com/SpeciesFileGroup/taxonworks/issues/4599
 
 ## [0.54.2] - 2025-10-23
 
@@ -37,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fix exception on `api/v1/images/sha/`
 
 ### Changed
+
 - Added warning that deleting a project's project_token can potentially break links from outside providers back to TaxonWorks for things like images
 - Updated Ruby gems
 - Updated NPM packages
