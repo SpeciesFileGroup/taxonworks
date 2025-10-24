@@ -4,7 +4,8 @@ import {
   TASK_MULTI_UPDATE,
   TASK_TAXON_NAME_AUTHOR_SUMMARY,
   TASK_TAXON_NAME_GENDER,
-} from "../constants/links";
+  TASK_TAXON_NAME_RECLASSIFIER
+} from '../constants/links'
 
 export const TaxonName = {
   all: [
@@ -13,6 +14,7 @@ export const TaxonName = {
     TASK_MULTI_UPDATE,
     TASK_TAXON_NAME_AUTHOR_SUMMARY,
     TASK_TAXON_NAME_GENDER,
+    TASK_TAXON_NAME_RECLASSIFIER
   ],
   ids: [
     TASK_TAXON_NAME_STATS,
@@ -20,5 +22,6 @@ export const TaxonName = {
     TASK_MULTI_UPDATE,
     TASK_TAXON_NAME_AUTHOR_SUMMARY,
     TASK_TAXON_NAME_GENDER,
-  ],
-};
+    TASK_TAXON_NAME_RECLASSIFIER
+  ]
+}
