@@ -3,5 +3,5 @@ json.original short_url(image.image_file)
 json.thumb short_url(image.image_file.url(:thumb))
 json.medium short_url(image.image_file.url(:medium))
 json.content_type image.image_file_content_type
-json.original_png original_as_png_via_api(image)
-
+json.original_png original_as_scaled_png_via_api(image)
+json.as_png original_as_png_via_api(image)

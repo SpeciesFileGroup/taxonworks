@@ -71,6 +71,15 @@ module Queries
       Utilities::Strings.integers(query_string)
     end
 
+    # @return [Array<Integer>]
+    #   Array of integers parsed from `query_string` that fit within the
+    #   4-byte SQL integer range (1 to 2_147_483_647)
+    def safe_integers
+      integers
+        .map(&:to_i)
+        .select { |i| i.between?(1, 2_147_483_647) }
+    end
+
     # @return [Boolean]
     def only_integers?
       Utilities::Strings.only_integers?(query_string)
@@ -145,8 +154,8 @@ module Queries
     # @return [Arel::Nodes, nil]
     #   used in or_clauses
     def with_id
-      if integers.any?
-        table[:id].in(integers)
+      if safe_integers.any?
+        table[:id].in(safe_integers)
       else
         nil
       end

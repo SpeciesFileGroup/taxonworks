@@ -122,6 +122,10 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         let!(:fo) { FactoryBot.create(:valid_field_occurrence) }
         let(:media_scope) { { collection_objects: CollectionObject.all.to_sql, field_occurrences: FieldOccurrence.all.to_sql } }
 
+        before(:all) {
+          Project.first.update!(set_new_api_access_token: true)
+        }
+
         specify '#media_tmp is a tempfile' do
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })

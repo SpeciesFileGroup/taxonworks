@@ -123,6 +123,7 @@ const csvOptions = {
       label: 'serial',
       value: 'serial_name'
     },
+    'author',
     'year',
     'title',
     'volume',

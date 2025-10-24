@@ -301,10 +301,14 @@ class Protonym < TaxonName
     taxon_name_relationships.where(type: TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
   end
 
+  def has_unavailable_relationship?
+    taxon_name_relationships.where(type: TAXON_NAME_RELATIONSHIP_UNAVAILABLE).any?
+  end
+
   # @return Boolean
   #   See cached_is_available attribute in TaxonName
   def get_is_available
-    !has_misspelling_or_misapplication_relationship? && !classification_unavailable?
+    !has_unavailable_relationship? && !classification_unavailable?
   end
 
   # @return [Protonym]

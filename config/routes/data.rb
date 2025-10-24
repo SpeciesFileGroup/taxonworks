@@ -445,6 +445,7 @@ resources :images do
     get 'extract(/:x/:y/:width/:height)', action: :extract
     get 'scale(/:x/:y/:width/:height/:new_width/:new_height)', action: :scale
     get 'scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', action: :scale_to_box
+    get 'as_png', action: 'as_png'
     get 'ocr(/:x/:y/:width/:height)', action: :ocr
     patch 'rotate', action: 'rotate'
     patch 'regenerate_derivative', action: 'regenerate_derivative'
@@ -756,7 +757,7 @@ resources :projects, only: [] do
       post :set_max_age, defaults: {format: :json}
       post :set_is_public, defaults: {format: :json}
       post :set_extensions, defaults: {format: :json}
-      post :set_predicates, defaults: {format: :json}
+      post :set_predicates_and_internal_values, defaults: {format: :json}
       post :set_default_user, defaults: {format: :json}
     end
   end

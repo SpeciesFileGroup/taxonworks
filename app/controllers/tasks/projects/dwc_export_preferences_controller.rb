@@ -37,8 +37,8 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
     head :no_content
   end
 
-  def set_predicates
-    @project.set_complete_dwc_download_predicates(params[:predicates])
+  def set_predicates_and_internal_values
+    @project.set_complete_dwc_download_predicates_and_internal_values(params[:predicates_and_internal_values])
 
     head :no_content
   end

@@ -35,7 +35,7 @@ import CachedMap from './CachedMap.vue'
 import DistributionLegend from './DistributionLegend.vue'
 import { makeClusterIconFor } from '@/components/ui/VMap/clusters'
 import { GetterNames } from '../../store/getters/getters'
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef, watch, markRaw } from 'vue'
 import { useStore } from 'vuex'
 import {
   GEOREFERENCE,
@@ -65,14 +65,7 @@ defineProps({
   }
 })
 
-const georeferences = computed(
-  () => store.getters[GetterNames.GetGeoreferences]
-)
-const features = computed(() => {
-  const { features = [] } = georeferences.value
-
-  return features.map((item) => addPopup(item))
-})
+const features = shallowRef([])
 
 const isSpeciesGroup = computed(() => store.getters[GetterNames.IsSpeciesGroup])
 
@@ -101,27 +94,11 @@ const shapes = computed(() => {
 
 const view = ref(TABS.Both)
 
-function addPopup(georeference) {
-  const popup = composePopup(georeference)
-
-  if (popup) {
-    georeference.properties.popup = popup
+watch(
+  () => store.getters[GetterNames.GetGeoreferences],
+  (newVal) => {
+    const { features: raw = [] } = newVal
+    features.value = markRaw(raw.map(markRaw))
   }
-
-  return georeference
-}
-
-function composePopup(geo) {
-  const { id, type, label } = geo.properties.base || {}
-
-  if (!id) {
-    return
-  }
-
-  if (type === COLLECTION_OBJECT) {
-    return `<a href="/tasks/collection_objects/browse?collection_object_id=${id}">${label}</a>`
-  } else {
-    return `<span>${label}</span>`
-  }
-}
+)
 </script>
