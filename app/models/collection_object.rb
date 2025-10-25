@@ -198,6 +198,8 @@ class CollectionObject < ApplicationRecord
       object_filter_params: params[:collection_object_query],
       object_params: params[:collection_object],
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     request.cap = 1000

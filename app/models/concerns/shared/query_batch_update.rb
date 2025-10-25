@@ -13,12 +13,8 @@ module Shared::QueryBatchUpdate
   def query_update(
     params, response = nil, async_project_id = nil, async_user_id = nil
   )
-    if async_project_id && Current.project_id.nil?
-      Current.project_id = async_project_id
-    end
-    if async_user_id && Current.user_id.nil?
-      Current.user_id = async_user_id
-    end
+    Current.project_id ||= async_project_id
+    Current.user_id ||= async_user_id
 
     begin
       update!( params )
