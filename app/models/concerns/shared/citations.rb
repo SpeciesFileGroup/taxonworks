@@ -23,7 +23,7 @@ module Shared::Citations
     has_many :sources, -> { distinct }, through: :citations, inverse_of: :citations
     has_many :subsequent_sources, -> { distinct },  through: :subsequent_citations, source: :source
 
-    has_one :origin_citation, -> {where(is_original: true)}, as: :citation_object, class_name: 'Citation', inverse_of: :citation_object
+    has_one :origin_citation, -> {where(is_original: true)}, as: :citation_object, class_name: 'Citation', inverse_of: :citation_object, dependent: :destroy
 
     has_one :source, through: :origin_citation, inverse_of: :origin_citations
 
