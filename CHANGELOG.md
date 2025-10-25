@@ -12,6 +12,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Exception on destroying a genus with gender
+- Exception on resetting user hub prefs when none already exist
+- Exception when removing oneself from a project
+- Exception when using Project Activity task for DwcOccurrence
+- Exception when unify fails with InvalidForeignKey error
 - New CE form: Identifier form does not display a warning when the Namespace is missing [#4599]
 
 [#4599]: https://github.com/SpeciesFileGroup/taxonworks/issues/4599
