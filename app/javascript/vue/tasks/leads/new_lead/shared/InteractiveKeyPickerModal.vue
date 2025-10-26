@@ -26,6 +26,8 @@
       >
         Send to '{{ defaultInteractiveKey }}'
       </VBtn>
+
+      <div class="display-flex gap-small">
       <select
         class="full_width margin-medium-bottom"
         v-model="chosenMatrixId"
@@ -39,6 +41,13 @@
           {{ item.name }}
         </option>
       </select>
+
+      <ButtonPinned
+        type="ObservationMatrix"
+        section="ObservationMatrices"
+        @get-item="({ id }) => (chosenMatrixId = id)"
+      />
+      </div>
 
       <VBtn
         :disabled="!chosenMatrixId"
@@ -56,6 +65,7 @@
 </template>
 
 <script setup>
+import ButtonPinned from '@/components/ui/Button/ButtonPinned.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner'
 import VModal from '@/components/ui/Modal.vue'
