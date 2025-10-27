@@ -150,6 +150,10 @@ GEM
       debug_inspector (>= 1.2.0)
     biodiversity (6.0.1)
       ffi (~> 1.15)
+    bok_choy (0.0.4)
+      faraday (~> 2.2)
+      faraday-follow_redirects (>= 0.1, < 0.4)
+      multi_json (~> 1.15)
     bootsnap (1.18.6)
       msgpack (~> 1.2)
     brakeman (6.2.2)
@@ -834,6 +838,7 @@ DEPENDENCIES
   bibtex-ruby (~> 6.0)
   binding_of_caller
   biodiversity (~> 6.0)
+  bok_choy (~> 0.0.3)
   bootsnap
   brakeman (~> 6.1, >= 5.4)
   bundler (~> 2.5)

@@ -1,0 +1,44 @@
+
+# Background 
+
+We need to play off 3 resources against each other to curate data such that all benefit.  The core resources are 1) GLobal names tools, 2) BHL reference metadata and 3) TaxonWorks, specifically the API and/or console code.
+
+# Goals
+Use metadata from any 2 sources to predict and extend the attributes of either of those sources.  We're reconciling data against each other, and predicting improvements, or matching elements. Ultimately we'll present these to a human user for confirmation, refinement, or selection such that curatorial decisions improve data.
+
+# Resources
+
+* The TaxonWorks root API for data is at https://sfg.taxonworks.org/api/v1
+* The TaxonWorks root API for documentations is at https://api.taxonwork.org/
+* The GlobalNames BHLNames api documentation is at https://bhlnames.globalnames.org/apidoc/index.html
+* The Ruby BHL gem wrapping BHLNames is at https://github.com/SpeciesFileGroup/bok_choy
+* The Ruby COL gem, useful for more identifiers on names is at https://github.com/SpeciesFileGroup/colrapi
+* The TaxonWorks code base is at https://github.com/SpeciesFileGroup/taxonworks
+* The Global names organization at GH is at https://github.com/gnames/
+
+# Plan
+We want to boostrap the infrastructure with a basic use case.
+
+* User is navigating BHL and finds a page that contains information.  
+* We use the URL, and a taxon name parameter against several APIs, collectively wrapped in meta-service
+* The meta-service queries TaxonWorks API, GlobalNames BHLNames API, and others it might need to resolve the problem
+* It seeks to predict the citation/source/refernce that the URI refers to.  
+  * It should return or infer the exact page number as physically indicated for the URI
+  * It shoudl confirm the presence of the name string on that page
+
+# Implementation 
+* As a proof of concept we'll use Ruby to act as the meta-service
+ * Use Thor to handle command line parameters
+ * Take a name param, and a url param as input
+ * Use the referenced APIs as data sources
+* Return a list of 5 sources in a ranked order, with the most probable source that the URL comes from at the top
+* Return a list of IDs for the TaxonName from at least the TaxonWorks API, and any other IDs you can discover from other APIs (e.g. global names)
+* Suggest a diff between the metadata directly tied to the BHL "source" page and the TaxonWorks Source metadata
+
+# Desired outcome
+* A simple, executable Ruby script that ties these together
+* When there is no direct path to linking API endpoints, then you should suggest API endpoints that would resolve the problem.  When you do this you must NOT add new functionality that is being encoded in this service, i.e. the new endpoints should be RESTful in nature with respect to complexity
+ 
+
+
+
