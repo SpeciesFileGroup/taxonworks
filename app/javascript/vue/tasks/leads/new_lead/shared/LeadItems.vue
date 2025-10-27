@@ -47,41 +47,53 @@
       <div
         v-for="(otu, i) in store.lead_item_otus.parent"
         :index="otu.id"
-        class="lead_otu_row"
+        class="lead_otu_row flex-row"
       >
-        <span v-if="otuIndices.findIndex((c) => (c == i)) != -1">
-          <span class="in">
-            &#10003;
-          </span>
-          <span
+        <div
+          v-if="otuIndices.findIndex((c) => (c == i)) != -1"
+          class="inline"
+        >
+          <div class="in" />
+          <div
             title="Remove OTU from this lead"
             :class="['remove', 'circle-button', 'btn-delete',
               { 'btn-disabled': leadItemCount(i) == 1 }]"
             @click="() => removeOtuIndex(i)"
           />
-        </span>
-        <span v-else>
+        </div>
+        <div
+          v-else
+          class="inline"
+        >
           <span
-            class="out circle btn-radio-like-add"
+            class="out margin-xsmall-left"
             title="Add OTU to this lead and remove from others"
             @click="() => addOtuIndex(i)"
-          />
+          >
+            +
+          </span>
           <span
-            class="out btn-checkbox-like-add"
+            class="out"
             title="Add OTU to this lead and don't remove from others"
             @click="() => addAdditionalOtuIndex(i)"
-          />
-        </span>
-        <span v-html="otu.object_tag" />
+          >
+            ++
+          </span>
+        </div>
+        <div
+          v-html="otu.object_tag"
+          class="flex-grow-2"
+          :class="{ highlight: otuIndices.findIndex((c) => (c == i)) != -1 }"
+        />
 
-        <span class="horizontal-right-content gap-small radials">
+        <div class="flex-row">
           <radial-object :global-id="otu.global_id" />
           <span
             class="circle-button btn-delete"
             title="Remove OTU from all leads"
             @click="() => leadItemOtuDeleted(otu.id)"
           />
-        </span>
+        </div>
       </div>
     </div>
   </div>
@@ -247,35 +259,27 @@ function sendToInteractiveKey() {
 }
 
 .in {
-  display: inline-block;
-  width: 24px;
+  width: 30px;
   height: 24px;
-  margin-right: 6.5px;
-  color: green;
-  vertical-align: middle;
-  text-align: center;
 }
 
 .out {
   display: inline-block;
   width: 24px;
   height: 24px;
+  line-height: 24px;
   margin-right: 6.5px;
   cursor: pointer;
-  vertical-align: middle;
+  vertical-align: bottom;
   text-align: center;
   background-color: var(--color-create);
   color: white;
 }
 
-.circle {
-  border-radius: 50%;
-}
-
 .remove {
-  display: inline-block;
   vertical-align: middle;
-  margin-right: 6.5px;
+  margin-left: 3.25px;
+  margin-right: 3.25px;
 }
 
 .lead_otu_rows {
@@ -286,10 +290,6 @@ function sendToInteractiveKey() {
 
 .lead_otu_row:nth-child(odd) {
   background-color: var(--table-row-bg-odd);
-}
-
-.radials {
-  float: right;
 }
 
 .spacer {
@@ -314,5 +314,9 @@ function sendToInteractiveKey() {
   flex-grow: 2;
 }
 
+.highlight {
+  background-color: var(--feedback-info-text-color);
+  border: 1px solid var(--feedback-info-border-color);
+}
 
 </style>
