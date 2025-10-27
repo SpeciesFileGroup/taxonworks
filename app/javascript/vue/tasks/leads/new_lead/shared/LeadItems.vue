@@ -6,35 +6,25 @@
     <div class="flex-separate full_width">
       <div class="button_row">
         <div>
-        <VBtn
-          :disabled="otuIndices.length != 1"
-          medium
-          color="create"
-          @click="setLeadOtu"
-          class="lead_item_button"
-        >
-          Set as lead OTU
-        </VBtn>
+          <VBtn
+            v-if="showAddOtu"
+            medium
+            color="create"
+            @click="addOtu"
+            class="lead_item_button"
+          >
+            Add OTUs
+          </VBtn>
 
-        <VBtn
-          v-if="showAddOtu"
-          medium
-          color="create"
-          @click="addOtu"
-          class="lead_item_button"
-        >
-          Add OTUs
-        </VBtn>
-
-        <VBtn
-          v-if="showSendToInteractiveKey"
-          medium
-          color="primary"
-          @click="() => { matricesModalVisible = true }"
-          class="lead_item_long_button"
-        >
-          Send OTUs to interactive key
-        </VBtn>
+          <VBtn
+            v-if="showSendToInteractiveKey"
+            medium
+            color="primary"
+            @click="() => { matricesModalVisible = true }"
+            class="lead_item_long_button"
+          >
+            Send OTUs to interactive key
+          </VBtn>
         </div>
 
         <div class="button-row-text">
@@ -178,27 +168,6 @@ function removeOtuIndex(otuIndex) {
   }
 
   store.removeOtuIndex(props.position, otuIndex)
-}
-
-function setLeadOtu() {
-  const checkedOtu =
-    store.lead_item_otus.parent[
-      store.lead_item_otus.children[props.position].otu_indices[0]
-    ]
-  const payload = {
-    lead: {
-      otu_id: checkedOtu.id
-    }
-  }
-
-  store.setLoading(true)
-  Lead.update(props.leadId, payload)
-    .then(() => {
-      TW.workbench.alert.create('Set and saved OTU on lead.', 'notice')
-      store.loadKey(store.lead.id)
-    })
-    .catch(() => {})
-    .finally(() => { store.setLoading(false) })
 }
 
 function leadItemOtuDeleted(otuId) {

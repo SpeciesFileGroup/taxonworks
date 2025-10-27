@@ -24,6 +24,8 @@ class LeadItemsController < ApplicationController
   def create
     @lead_item = LeadItem.new(lead_item_params)
 
+    @lead_item.lead.sync_otu_to_lead_items_list
+
     respond_to do |format|
       if @lead_item.save
         format.html { redirect_to @lead_item, notice: 'Lead item was successfully created.' }
@@ -51,6 +53,7 @@ class LeadItemsController < ApplicationController
   # DELETE /lead_items/1 or /lead_items/1.json
   def destroy
     @lead_item.destroy!
+    @lead_item.lead.sync_otu_to_lead_items_list
 
     respond_to do |format|
       format.html { redirect_to lead_items_path, status: :see_other, notice: 'Lead item was successfully destroyed.' }
@@ -59,16 +62,22 @@ class LeadItemsController < ApplicationController
   end
 
   def destroy_item_in_children
-    lead_ids = Lead.find(params[:parent_id]).children.map(&:id)
-    # Only one child should ever have the lead_item we're looking for, the
-    # following is just the most economical way of finding and destroying it.
+    children = Lead.find(params[:parent_id]).children
+    lead_ids = children.map(&:id)
+    # There may only be one lead with the item we're deleting; this is just the
+    # most economical way of finding and destroying it in general.
     begin
       LeadItem
         .where(lead_id: lead_ids, otu_id: params[:otu_id])
         .destroy_all
+
     rescue ActiveRecord::RecordNotDestroyed => e
       errors.add(:base, "Destroy lead item failed! '#{e}'")
       return false
+    end
+
+    children.each do |c|
+      c.sync_otu_to_lead_items_list
     end
   end
 
@@ -94,6 +103,10 @@ class LeadItemsController < ApplicationController
       return
     end
 
+    @lead.parent.children. each { |c|
+      c.sync_otu_to_lead_items_list
+    }
+
     @lead_item_otus = @lead.parent.apportioned_lead_item_otus
     render partial: 'leads/lead_item_otus',
       locals: { lead_item_otus: @lead_item_otus, lead: @lead }
@@ -107,18 +120,19 @@ class LeadItemsController < ApplicationController
       return
     end
 
+    @lead.reload.sync_otu_to_lead_items_list
+
     @lead_item_otus = @lead.parent.apportioned_lead_item_otus
     render partial: 'leads/lead_item_otus',
       locals: { lead_item_otus: @lead_item_otus, lead: @lead }
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+
   def set_lead_item
     @lead_item = LeadItem.find(params[:id])
   end
 
-    # Only allow a list of trusted parameters through.
   def lead_item_params
     params.require(:lead_item).permit(:lead_id, :otu_id, :project_id, :created_by_id, :updated_by_id, :position)
   end

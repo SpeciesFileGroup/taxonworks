@@ -94,7 +94,10 @@
           />
         </div>
 
-        <OtuChooser :lead="store.children[position]"/>
+        <OtuChooser
+          v-if="!showLeadItems"
+          :lead="store.children[position]"
+        />
 
         <div
           @click="() => { expandOptions = !expandOptions }"
