@@ -203,6 +203,8 @@ export default defineStore('leads', {
           this.key_metadata = body.key_metadata
           this.key_ordered_parents = body.key_ordered_parents
           this.key_data = body.key_data
+          // Lead otu(s) may have changed, so reload.
+          this.loadKey(this.lead.id)
         })
         .catch(() => {})
         .finally(() => { this.setLoading(false) })
@@ -223,6 +225,8 @@ export default defineStore('leads', {
           this.key_metadata = body.key_metadata
           this.key_ordered_parents = body.key_ordered_parents
           this.key_data = body.key_data
+          // Lead otu(s) may have changed, so reload.
+          this.loadKey(this.lead.id)
         })
         .catch(() => {})
         .finally(() => { this.setLoading(false) })

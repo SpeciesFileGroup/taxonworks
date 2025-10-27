@@ -121,6 +121,10 @@
           v-if="expandOptions"
           class="separate-top"
         >
+          <OtuChooser
+            v-if="showLeadItems"
+            :lead="store.children[position]"
+          />
           <div class="field label-above">
             <label>External link</label>
             <fieldset>
