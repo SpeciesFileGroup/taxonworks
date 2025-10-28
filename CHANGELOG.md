@@ -18,7 +18,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Exception when unify fails with InvalidForeignKey error
 - New CE form: Identifier form does not display a warning when the Namespace is missing [#4599]
 - DwC occurrence importer not able to import on taxon names without pre-existing OTU
+- Search on both year and stated_year in Source autocomplete [#4536]
 
+[#4536]: https://github.com/SpeciesFileGroup/taxonworks/issues/4536
 [#4599]: https://github.com/SpeciesFileGroup/taxonworks/issues/4599
 
 ## [0.54.2] - 2025-10-23
