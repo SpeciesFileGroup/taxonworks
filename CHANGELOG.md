@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Exception when using Project Activity task for DwcOccurrence
 - Exception when unify fails with InvalidForeignKey error
 - New CE form: Identifier form does not display a warning when the Namespace is missing [#4599]
+- DwC occurrence importer not able to import on taxon names without pre-existing OTU
 
 [#4599]: https://github.com/SpeciesFileGroup/taxonworks/issues/4599
 
