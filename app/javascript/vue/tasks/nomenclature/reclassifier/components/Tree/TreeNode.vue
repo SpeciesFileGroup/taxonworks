@@ -1,5 +1,5 @@
 <template>
-  <li>
+  <li class="cursor-grab">
     <VBtn
       v-if="!taxon.leaf"
       circle
@@ -11,8 +11,9 @@
       <span v-if="taxon.isLoaded && taxon.isExpanded">-</span>
       <span v-else>+</span>
     </VBtn>
+
     <span
-      :class="{ 'taxonomy-tree-invalid-name': !taxon.isValid }"
+      class="list-reclassifer-taxon-item"
       v-html="taxon.name"
     />
 
@@ -23,12 +24,18 @@
         :group="group"
         v-model="taxon.children"
         tag="ul"
+        :sort="false"
+        :data-parent-id="taxon.id"
+        :data-tree="group.name"
         @add="handleAdd"
+        @choose="handleChoose"
       >
-        <template #item="{ element, index }">
+        <template #item="{ element }">
           <TaxonomyTree
             :taxon="element"
             :group="group"
+            :data-parent-id="taxon.id"
+            :data-taxon-id="element.id"
             :only-valid="onlyValid"
           />
         </template>
@@ -38,11 +45,12 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
 import TaxonomyTree from './TreeNode.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VDraggable from 'vuedraggable'
+import useStore from '../../store/store.js'
 
 const props = defineProps({
   taxon: {
@@ -62,6 +70,7 @@ const props = defineProps({
 })
 
 const isLoading = ref(false)
+const store = useStore()
 
 function toggle() {
   if (!props.taxon.isLoaded) {
@@ -109,11 +118,18 @@ function expandNode(taxonId) {
     })
 }
 
-function handleAdd(event) {
-  const movedTaxon = props.taxon.children[event.newIndex]
+function handleChoose(e) {
+  store.setCurrentDraggedItem({ item: props.taxon, index: e.oldIndex })
+}
+
+function handleAdd(e) {
+  const { newIndex } = e
+  const movedTaxon = props.taxon.children[newIndex]
   const payload = {
     taxon_name: { parent_id: props.taxon.id }
   }
+
+  console.log('add', e)
 
   TaxonName.update(movedTaxon.id, payload)
     .then(({ body }) => {
@@ -126,6 +142,32 @@ function handleAdd(event) {
 
       TW.workbench.alert.create(`${newName} was reclassified to successfully`)
     })
-    .catch(() => {})
+    .catch(() => {
+      props.taxon.children.splice(newIndex, 1)
+      store.currentDragged.item.children.splice(
+        store.currentDragged.index,
+        0,
+        movedTaxon
+      )
+    })
 }
 </script>
+
+<style scoped>
+.list-reclassifer-taxon-item {
+  border: 2px dashed transparent;
+}
+
+.list-reclassifer-taxon-item:hover {
+  border-color: var(--color-primary);
+}
+
+.sortable-ghost {
+  .list-reclassifer-taxon-item:hover {
+    border: 2px dashed transparent;
+  }
+  .list-reclassifer-taxon-item {
+    border: 2px dashed var(--color-update);
+  }
+}
+</style>

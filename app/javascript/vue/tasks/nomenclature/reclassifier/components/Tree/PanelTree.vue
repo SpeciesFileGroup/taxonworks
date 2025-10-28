@@ -35,3 +35,9 @@ const tree = defineModel({
   required: true
 })
 </script>
+
+<style scoped>
+.panel-taxonomy-tree {
+  height: calc(100vh - 300px);
+}
+</style>
