@@ -6,6 +6,7 @@ require 'json'
 require 'uri'
 require 'cgi'
 require 'bok_choy'
+require 'byebug'
 
 # BHL Meta Service - Reconciles data between TaxonWorks, GlobalNames BHLNames, and BHL
 #
@@ -135,21 +136,23 @@ class BHLMetaService < Thor
     if name
       #puts "  [DEBUG] BokChoy.name_refs(name: '#{name}')"
       name_results = BokChoy.name_refs(name:)
-      if name_results && name_results['names']
-        results.concat(name_results['names'])
+      if name_results && name_results['references']
+        results.concat(name_results['references'])
       end
+      #puts "name_result: #{name_results}"
     end
+    puts "results: #{results}"
 
     # If we have a page ID, also query by page
-    if page_id
-      #puts "  [DEBUG] BokChoy.references('#{page_id}')"
-      page_results = BokChoy.references(page_id)
-      if page_results && page_results['names']
-        results.concat(page_results['names'])
-      elsif page_results && page_results['pageId']
-        results << page_results
-      end
-    end
+    # if page_id
+    #   #puts "  [DEBUG] BokChoy.references('#{page_id}')"
+    #   page_results = BokChoy.references(page_id)
+    #   if page_results && page_results['names']
+    #     results.concat(page_results['names'])
+    #   elsif page_results && page_results['pageId']
+    #     results << page_results
+    #   end
+    # end
 
     puts "  Found #{results.size} results from BHLNames"
     results
@@ -266,19 +269,12 @@ class BHLMetaService < Thor
     # GlobalNames IDs from BHL
     if bhl_data && bhl_data.is_a?(Array)
       bhl_data.each do |item|
-        if item['gnUuid']
-          ids[:global_names] << {
-            uuid: item['gnUuid'],
-            name: item['name']
-          }
-        end
-
-        if item['pageId']
+        if item['name']
           ids[:bhl] << {
-            page_id: item['pageId'],  # Relative page
-            item_id: item['itemId'],
-            titleName: item['titleName'],
-            mainTaxon: item['mainTaxon']
+            name: item['name']['name'],
+            match_name: item['name']['matchName'],
+            page_id: item['reference']['pageId'],  # Relative page
+            page_num: item['reference']['pageNum'],
           }
         end
       end
@@ -323,7 +319,7 @@ class BHLMetaService < Thor
     if ids[:bhl].any?
       puts "\nBHL IDs:"
       ids[:bhl].uniq { |i| i[:page_id] }.each do |item|
-        puts "  - Relative Page: #{item[:page_id]}, Item ID: #{item[:item_id]}, Name: #{item[:titleName]}, mainTaxon: #{item[:mainTaxon]}"
+        puts "  - Relative Page: #{item[:page_id]}, Page num: #{item[:page_num]}, Name: #{item[:name]}, matchName: #{item[:match_name]}"
       end
     end
 
@@ -342,21 +338,23 @@ class BHLMetaService < Thor
     sources = []
 
     # Process BHL data
-    #puts "bhl_data: #{bhl_data}"
+#    puts "bhl_data: #{bhl_data}"
     if bhl_data && bhl_data.is_a?(Array)
       bhl_data.each do |item|
-        next unless item['titleName']
 
         score = calculate_confidence_score(name, page_id, item)
 
+        puts "item: #{item}"
         source = {
           type: 'BHL',
-          title: item['titleName'] || 'Unknown Title',
+          title: item['reference']['titleName'] || 'Unknown Title',
           page: item['pageNumber'] || item['pageId'],
-          name_found: item['name'],
+          name_found: item['name']['name'],
+          match_name: item['name']['matchName'],
           item_id: item['itemId'],
-          page_id: item['pageId'],
-          year: item['year'],
+          page_id: item['reference']['pageId'],
+          page_num: item['reference']['pageNum'],
+          year: item['reference']['yearStart'], # TODO: yearEnd as well
           score: score,
           metadata: item
         }
@@ -397,18 +395,18 @@ class BHLMetaService < Thor
   # Calculate confidence score for BHL results
   def calculate_confidence_score(name, page_id, item)
     score = 0.0
-
     # Exact name match
-    if item['name']&.downcase == name.downcase
+    puts "names: #{name}, #{item['name']}"
+    if item['name']['name']&.downcase == name.downcase
       score += 50.0
-    elsif item['name']&.downcase&.include?(name.downcase)
+    elsif item['name']['name']&.downcase&.include?(name.downcase)
       score += 30.0
-    elsif name.downcase.include?(item['name']&.downcase || '')
+    elsif item['name']['name'] && name.downcase.include?(item['name']['name'].downcase)
       score += 20.0
     end
 
     # Page ID match
-    if page_id && item['pageId'].to_s == page_id.to_s
+    if page_id && item['reference']['pageId'].to_s == page_id.to_s
       score += 40.0
     end
 
@@ -452,6 +450,7 @@ class BHLMetaService < Thor
       puts "   Year: #{source[:year]}" if source[:year]
       puts "   Name Found: #{source[:name_found]}"
       puts "   Page ID: #{source[:page_id]}" if source[:page_id]
+      puts "   Page Num: #{source[:page_num]}" if source[:page_num]
       puts "   Item ID: #{source[:item_id]}" if source[:item_id]
       puts "   TaxonWorks ID: #{source[:tw_id]}" if source[:tw_id]
       puts "   TaxonWorks Project: #{source[:tw_project]}" if source[:tw_project]
