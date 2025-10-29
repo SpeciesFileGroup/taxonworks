@@ -3,19 +3,21 @@
   <div class="horizontal-left-content gap-medium align-start">
     <PanelTree
       class="full_width"
+      v-model="store.treeLeft"
+      :target="store.treeRight"
       :group="{
         name: 'tree-1',
         put: handlePut
       }"
-      v-model="store.tree"
     />
     <PanelTree
       class="full_width"
+      v-model="store.treeRight"
+      :target="store.treeLeft"
       :group="{
         name: 'tree-2',
         put: handlePut
       }"
-      v-model="store.tree"
     />
   </div>
 </template>
@@ -25,6 +27,7 @@ import { onBeforeMount } from 'vue'
 import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
 import useStore from './store/store.js'
 import PanelTree from './components/Tree/PanelTree.vue'
+import { findNodeById } from './utils'
 
 defineOptions({
   name: 'TaxonNameReclassifierApp'
@@ -32,17 +35,6 @@ defineOptions({
 
 const { queryParam, queryValue } = useQueryParam()
 const store = useStore()
-
-function findNodeById(treeArray, id) {
-  for (const node of treeArray) {
-    if (node.id == id) return node
-    if (node.children && node.children.length) {
-      const found = findNodeById(node.children, id)
-      if (found) return found
-    }
-  }
-  return null
-}
 
 function isDescendant(node, targetNodeId) {
   if (!node.children || node.children.length === 0) return false
@@ -62,8 +54,12 @@ function handlePut(to, from, dragEl) {
   const fromTree = from.el.dataset.tree
   const dragId = dragEl.dataset.taxonId
 
-  const draggedNode = findNodeById(store.tree, dragId)
-  const targetNode = findNodeById(store.tree, toParentId)
+  const draggedNode =
+    findNodeById(store.treeLeft, dragId) ||
+    findNodeById(store.treeRight, dragId)
+  const targetNode =
+    findNodeById(store.treeLeft, toParentId) ||
+    findNodeById(store.treeRight, toParentId)
 
   return (
     toTree !== fromTree &&

@@ -51,6 +51,8 @@ export default defineStore('reclassifier', {
   state: () => ({
     currentDragged: {},
     tree: {},
+    treeRight: [],
+    treeLeft: [],
     taxonNames: []
   }),
 
@@ -58,8 +60,11 @@ export default defineStore('reclassifier', {
     loadTree(params) {
       TaxonName.filter({ ...params, ancestrify: true, per: 2000 }).then(
         ({ body }) => {
+          const tree = buildTree(body)
           this.taxonNames = body
-          this.tree = buildTree(body)
+
+          this.treeLeft = tree
+          this.treeRight = structuredClone(tree)
         }
       )
     },

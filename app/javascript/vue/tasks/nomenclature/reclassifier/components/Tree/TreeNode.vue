@@ -31,12 +31,14 @@
         @choose="handleChoose"
       >
         <template #item="{ element }">
-          <TaxonomyTree
+          <TreeNode
             :taxon="element"
             :group="group"
             :data-parent-id="taxon.id"
             :data-taxon-id="element.id"
             :only-valid="onlyValid"
+            :tree="tree"
+            :target="target"
           />
         </template>
       </VDraggable>
@@ -45,9 +47,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, toRaw, nextTick } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
-import TaxonomyTree from './TreeNode.vue'
+import { findNodeById, removeNode } from '../../utils'
+import TreeNode from './TreeNode.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VDraggable from 'vuedraggable'
 import useStore from '../../store/store.js'
@@ -66,6 +69,16 @@ const props = defineProps({
   onlyValid: {
     type: Boolean,
     default: false
+  },
+
+  tree: {
+    type: Object,
+    required: true
+  },
+
+  target: {
+    type: Array,
+    required: true
   }
 })
 
@@ -119,7 +132,22 @@ function expandNode(taxonId) {
 }
 
 function handleChoose(e) {
-  store.setCurrentDraggedItem({ item: props.taxon, index: e.oldIndex })
+  store.setCurrentDraggedItem({
+    parent: props.taxon,
+    item: props.taxon.children[e.oldIndex],
+    index: e.oldIndex
+  })
+}
+
+function reasignNode(parentId, index) {
+  const targetParent = findNodeById(props.target, parentId)
+
+  if (targetParent) {
+    targetParent.children.splice(index, 0, {
+      ...structuredClone(toRaw(store.currentDragged.item)),
+      parentId: parentId
+    })
+  }
 }
 
 function handleAdd(e) {
@@ -129,22 +157,27 @@ function handleAdd(e) {
     taxon_name: { parent_id: props.taxon.id }
   }
 
-  console.log('add', e)
-
   TaxonName.update(movedTaxon.id, payload)
     .then(({ body }) => {
       const newName = [body.cached_html, body.cached_author_year].join(' ')
+
+      removeNode(props.tree, {
+        id: movedTaxon.id,
+        parentId: movedTaxon.parentId
+      })
 
       Object.assign(movedTaxon, {
         parentId: body.parent_id,
         name: newName
       })
 
+      reasignNode(movedTaxon.parentId, newIndex)
+
       TW.workbench.alert.create(`${newName} was reclassified to successfully`)
     })
     .catch(() => {
       props.taxon.children.splice(newIndex, 1)
-      store.currentDragged.item.children.splice(
+      store.currentDragged.parent.children.splice(
         store.currentDragged.index,
         0,
         movedTaxon

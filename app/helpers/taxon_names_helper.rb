@@ -654,6 +654,7 @@ module TaxonNamesHelper
   def taxonomic_tree_node(taxon_name, include_count)
     node = {
       id: taxon_name.id,
+      parent_id: taxon_name.parent_id,
       label: taxon_name.cached_html_name_and_author_year,
       is_valid: taxon_name.cached_is_valid,
       cached_valid_taxon_name_id: taxon_name.cached_valid_taxon_name_id,

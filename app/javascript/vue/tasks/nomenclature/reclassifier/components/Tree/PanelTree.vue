@@ -11,6 +11,8 @@
             :group="group"
             :key="taxon.id"
             :taxon="taxon"
+            :tree="tree"
+            :target="target"
           />
         </ul>
       </div>
@@ -26,6 +28,11 @@ import TreeNode from './TreeNode.vue'
 const props = defineProps({
   group: {
     type: Object,
+    required: true
+  },
+
+  target: {
+    type: Array,
     required: true
   }
 })
