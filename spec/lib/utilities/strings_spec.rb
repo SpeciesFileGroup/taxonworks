@@ -91,6 +91,10 @@ describe Utilities::Strings do
     expect(l.increment_contained_integer('a09')).to eq('a10')
   end
 
+  specify '.increment_contained_integer 7' do
+    expect(l.increment_contained_integer('asdf')).to eq(false)
+  end
+
   specify '.escape_single_quote 1' do
     expect(l.escape_single_quote("'")).to eq("''")
   end

@@ -52,18 +52,19 @@ class CollectingEventsController < ApplicationController
 
   # POST /collecting_events/1/clone.json
   def clone
-    @collecting_event = @collecting_event.clone(
-      annotations: params[:annotations],
-      incremented_identifier_id: params[:incremented_identifier_id]
-    )
-
-    respond_to do |format|
-      if @collecting_event.persisted?
+    begin
+      @collecting_event = @collecting_event.clone(
+        annotations: params[:annotations],
+        incremented_identifier_id: params[:incremented_identifier_id]
+      )
+      respond_to do |format|
         format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Clone successful, editing new record.' }
         format.json { render :show }
-      else
-        format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
-        format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
+      end
+    rescue TaxonWorks::Error => e
+      respond_to do |format|
+        format.html { redirect_to new_collecting_event_task_path, notice: e.message }
+        format.json { render json: e.message, status: :unprocessable_entity }
       end
     end
   end
