@@ -4,17 +4,39 @@
       <h3>Taxonomic tree</h3>
     </template>
     <template #body>
-      <div class="panel-taxonomy-tree">
-        <ul class="taxonomy-tree">
-          <TreeNode
-            v-for="taxon in tree"
-            :group="group"
-            :key="taxon.id"
-            :taxon="taxon"
-            :tree="tree"
-            :target="target"
-          />
-        </ul>
+      <div class="panel-container">
+        <Autocomplete
+          url="/taxon_names/autocomplete"
+          placeholder="Search a taxon name..."
+          label="label_html"
+          clear-after
+          param="term"
+          @select="({ id }) => emit('load', id)"
+        />
+        <div
+          v-if="tree.length"
+          class="panel-taxonomy-tree"
+        >
+          <ul class="taxonomy-tree">
+            <TreeNode
+              v-for="taxon in tree"
+              :group="group"
+              :key="taxon.id"
+              :taxon="taxon"
+              :tree="tree"
+              :target="target"
+            />
+          </ul>
+        </div>
+        <div
+          v-else
+          class="taxonomic-tree-empty-message"
+        >
+          <h2>
+            Search a taxon name, or open from “Filter taxon names” to load the
+            tree.
+          </h2>
+        </div>
       </div>
     </template>
   </BlockLayout>
@@ -37,6 +59,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['load'])
+
 const tree = defineModel({
   type: Array,
   required: true
@@ -44,7 +68,15 @@ const tree = defineModel({
 </script>
 
 <style scoped>
-.panel-taxonomy-tree {
+.panel-container {
   height: calc(100vh - 300px);
+}
+
+.taxonomic-tree-empty-message {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 </style>

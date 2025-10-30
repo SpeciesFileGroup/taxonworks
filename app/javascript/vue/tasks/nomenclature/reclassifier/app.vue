@@ -9,6 +9,7 @@
         name: 'tree-1',
         put: handlePut
       }"
+      @load="(id) => store.loadTree({ taxon_name_id: [id] }, 'left')"
     />
     <PanelTree
       class="full_width"
@@ -18,6 +19,7 @@
         name: 'tree-2',
         put: handlePut
       }"
+      @load="(id) => store.loadTree({ taxon_name_id: [id] }, 'right')"
     />
   </div>
 </template>

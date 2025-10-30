@@ -1,2 +1,5 @@
+export * from './buildTree'
 export * from './findNodeById'
+export * from './makeTaxonNameNode'
+export * from './makeTaxonNameNodeWithStats'
 export * from './removeNode'
