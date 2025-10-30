@@ -19,9 +19,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New CE form: Identifier form does not display a warning when the Namespace is missing [#4599]
 - DwC occurrence importer not able to import on taxon names without pre-existing OTU
 - Search on both year and stated_year in Source autocomplete [#4536]
+- Project EML for complete project downloads fails to save if EML is too long [#4602]
 
 [#4536]: https://github.com/SpeciesFileGroup/taxonworks/issues/4536
 [#4599]: https://github.com/SpeciesFileGroup/taxonworks/issues/4599
+[#4602]: https://github.com/SpeciesFileGroup/taxonworks/issues/4602
 
 ## [0.54.2] - 2025-10-23
 
