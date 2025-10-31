@@ -5,7 +5,8 @@
     :logo-size="{ width: '100px', height: '100px' }"
   />
 
-  <h1 data-help="A publicly accessible complete api download can't be created until the eml preferences below have been saved and the 'Is Public' box has been checked and saved. The first time the public download is requested by api it will fail but the download will be triggered to build. Once the first build completes there will always be a download available (until no longer public or deleted).">
+  <h1 data-help="This page is used to configure and enable a publicly available link to a 'complete' (i.e. all records) Darwin Core Archive download of your project. It is independent of any DwCA exports you might create using the DwC Dashboard or DwC creation via Filters.
+  A publicly accessible complete API download can't be created until the EML preferences below have been saved and the 'Is Public' box has been checked and saved. The first time the public download is requested by the API link it will fail but the download will be triggered to build. Once the first build completes there will always be a download available (until no longer public or deleted). Once your download is public you can click the 'Public download link' API link to trigger download creation/retrieval.">
     Darwin core export settings for project downloads
   </h1>
 
@@ -15,7 +16,7 @@
         <h2>Public sharing</h2>
         <div class="margin-medium-left">
           <div>
-            <label data-help="Make this project's darwin core archive, determined by the settings on this page, PUBLICLY accessible from the api">
+            <label data-help="Make this project's darwin core archive, determined by the settings on this page, PUBLICLY accessible from the 'Public download link' given on this page.">
               <input
                 :disabled="isPublicIsDisabled"
                 type="checkbox"
@@ -63,7 +64,7 @@
           </div>
         </div>
 
-        <h2 data-help="When GBIF, for example, requests that a download be created, we must have a TaxonWorks user listed as the creator: this is that user. If a user manually triggers download creation while logged in, that user will be used as creator for that particular download instead.">
+        <h2 data-help="When GBIF, for example, requests that a download be created, we must have a TaxonWorks user listed as the creator of that download: this is that user.">
           Default complete download creator
         </h2>
         <div class="margin-medium-left">
@@ -112,7 +113,7 @@
                 type="text"
                 v-model="maxAge"
                 class="text-number-input margin-xsmall-top"
-                data-help="If the existing complete download is older than max age days, the existing 'old' download will be returned and creation of a new download will be triggered; when that new download is complete it will replace the existing one. Max age is a decimal value."
+                data-help="If someone requests a complete download using the 'Public download link' on this page, and that download is older than Max Age, then the old download will be returned but a new one will be created to replace it. In other words Max Age determines when a download request triggers creation of a new complete download to replace the existing complete download. Max age is a decimal value."
               />
               Maximum Age in days
             </label>
