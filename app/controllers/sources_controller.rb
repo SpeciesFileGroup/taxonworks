@@ -291,6 +291,33 @@ class SourcesController < ApplicationController
     render '/sources/api/v1/show'
   end
 
+  def bhl_related_sources
+    # TODO: this should probably prioritize existing matching citations on the
+    # TN under question (which should be a param), and then go to sources if no
+    # citations match.
+    @bhl_source, @taxonworks_sources = Source.bhl_related_sources(params[:bhl_url])
+  end
+
+  def create_bhl_citation_from_bhl_source
+    taxon_name = params[:taxon_name]
+    bhl_url = params[:bhl_url]
+    bhl_source = params[:bhl_source]
+
+    # TODO: catch errors
+
+    if bhl_source[:id].nil?
+      bhl_source = Source.create!(bhl_source)
+    end
+
+    Citation.create!(
+      source: bhl_source,
+      citation_object: taxon_name
+    )
+
+    #CitationDocumentation.create!(...)
+
+  end
+
   private
 
   def new_source

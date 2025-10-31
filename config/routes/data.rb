@@ -874,6 +874,7 @@ resources :sources do
     get :generate, defaults: {format: :json}
     patch :batch_update
     get :download_formatted, defaults: {format: :json}
+    get :bhl_related_sources, defaults: {format: :json}
   end
 
   member do
