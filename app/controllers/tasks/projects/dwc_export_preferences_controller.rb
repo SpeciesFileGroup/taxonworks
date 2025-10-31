@@ -47,6 +47,14 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
     dataset = params[:dataset]
     additional_metadata = params[:additional_metadata]
 
+    # dataset is required, additional_metadata is not
+    if dataset.blank?
+      render json: {
+        errors: 'Dataset EML is required.'
+      }, status: :unprocessable_entity
+      return
+    end
+
     if sessions_current_project.complete_dwc_download_is_public? &&
       ::Export::Dwca::Eml.still_stubbed?(dataset, additional_metadata)
 
@@ -55,13 +63,6 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
       }, status: :unprocessable_entity
       return
     end
-
-    # if ::Export::Dwca::Eml.still_stubbed?(dataset, additional_metadata)
-    #   render json: {
-    #     base: ['Replace or delete all STUBbed fields to proceed']
-    #   }, status: :unprocessable_entity
-    #   return
-    # end
 
     dataset_errors, additional_metadata_errors =
       ::Export::Dwca::Eml.validate_fragments(dataset, additional_metadata)
