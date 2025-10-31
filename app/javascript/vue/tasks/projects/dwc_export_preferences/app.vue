@@ -469,7 +469,7 @@ function setPredicatesAndInternalValues() {
 
 function validateAndSaveEML() {
   if (emlHasStubText.value && isPublic.value) {
-     TW.workbench.alert.create('Public EML can\'t be saved with "STUB" text', 'notice')
+     TW.workbench.alert.create('Public EML can\'t be saved with "STUB" text', 'error')
      return
   }
   const payload = {

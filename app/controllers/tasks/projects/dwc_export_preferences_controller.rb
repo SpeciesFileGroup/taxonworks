@@ -47,6 +47,15 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
     dataset = params[:dataset]
     additional_metadata = params[:additional_metadata]
 
+    if sessions_current_project.complete_dwc_download_is_public? &&
+      ::Export::Dwca::Eml.still_stubbed?(dataset, additional_metadata)
+
+      render json: {
+        errors: ["Can't save EML with 'STUB' while download is public - either remove STUBs to save or make download private."]
+      }, status: :unprocessable_entity
+      return
+    end
+
     # if ::Export::Dwca::Eml.still_stubbed?(dataset, additional_metadata)
     #   render json: {
     #     base: ['Replace or delete all STUBbed fields to proceed']
