@@ -7,7 +7,9 @@ export default defineStore('reclassifier', {
     currentDragged: {},
     treeRight: [],
     treeLeft: [],
-    isLoading: false
+    isLoading: false,
+    selected: {},
+    isDragging: false
   }),
 
   actions: {
@@ -35,8 +37,8 @@ export default defineStore('reclassifier', {
         })
     },
 
-    setCurrentDraggedItem(taxon) {
-      this.currentDragged = taxon
+    setCurrentDraggedTaxon(value) {
+      this.currentDragged = value
     }
   }
 })

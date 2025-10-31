@@ -13,13 +13,31 @@
     </VBtn>
 
     <span
-      class="list-reclassifer-taxon-item"
+      :class="['list-reclassifer-taxon-item', isSelected && 'selected']"
       v-html="taxon.name"
+      @click="() => addToSelected(taxon)"
     />
+
+    <ul
+      class="taxonomy-tree"
+      v-if="store.isDragging && isMouseover"
+    >
+      <li
+        v-for="item in store.selected[store.currentDragged.parent.id] || {}"
+        :key="item.id"
+        class="ghost-list"
+      >
+        <span
+          class="list-reclassifer-taxon-item selected"
+          v-html="item.name"
+        />
+      </li>
+    </ul>
 
     <template v-if="(!taxon.isLoaded || taxon.isExpanded) && taxon.children">
       <VDraggable
         class="taxonomy-tree"
+        ref="rootEl"
         item-key="id"
         :group="group"
         v-model="taxon.children"
@@ -29,6 +47,13 @@
         :data-tree="group.name"
         @add="handleAdd"
         @choose="handleChoose"
+        @start="() => (store.isDragging = true)"
+        @end="
+          () => {
+            store.isDragging = false
+            onDragEndCleanup()
+          }
+        "
       >
         <template #item="{ element }">
           <TreeNode
@@ -47,13 +72,16 @@
 </template>
 
 <script setup>
-import { ref, toRaw, nextTick } from 'vue'
+import { computed, ref, toRaw, onMounted, onBeforeUnmount } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
 import { findNodeById, removeNode } from '../../utils'
 import TreeNode from './TreeNode.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VDraggable from 'vuedraggable'
 import useStore from '../../store/store.js'
+import { usePressedKey } from '@/composables/usePressedKey'
+
+const GHOST_SELECTOR = '.sortable-ghost'
 
 const props = defineProps({
   taxon: {
@@ -84,6 +112,67 @@ const props = defineProps({
 
 const isLoading = ref(false)
 const store = useStore()
+const isMouseover = ref(false)
+const { isKeyPressed } = usePressedKey()
+
+const rootEl = ref(null)
+
+let observer = null
+
+function updateIsMouseoverFromGhost() {
+  const ghost = document.querySelector(GHOST_SELECTOR)
+  if (!ghost) {
+    if (isMouseover.value) isMouseover.value = false
+    return
+  }
+
+  const ghostList = ghost.closest('.taxonomy-tree')
+
+  isMouseover.value = ghostList === rootEl.value.$el
+}
+
+function setupObserverForRoot(el) {
+  if (!el) return
+
+  observer = new MutationObserver(() => {
+    updateIsMouseoverFromGhost()
+  })
+
+  observer.observe(document.body, { childList: true, subtree: true })
+}
+
+onMounted(() => setupObserverForRoot(rootEl.value.$el))
+onBeforeUnmount(() => {
+  observer?.disconnect()
+})
+
+function onDragEndCleanup() {
+  isMouseover.value = false
+}
+
+function addToSelected(item) {
+  if (isKeyPressed('Control')) {
+    const selectedItems = store.selected[props.taxon.parentId]
+
+    if (selectedItems) {
+      const index = selectedItems.findIndex((t) => t.id === item.id)
+
+      if (index > -1) {
+        selectedItems.splice(index, 1)
+      } else {
+        selectedItems.push(item)
+      }
+    } else {
+      store.selected[props.taxon.parentId] = [item]
+    }
+  }
+}
+
+const isSelected = computed(() =>
+  store.selected[props.taxon.parentId]?.some(
+    (item) => item.id === props.taxon.id
+  )
+)
 
 function toggle() {
   if (!props.taxon.isLoaded) {
@@ -132,9 +221,9 @@ function expandNode(taxonId) {
 }
 
 function handleChoose(e) {
-  store.setCurrentDraggedItem({
+  store.setCurrentDraggedTaxon({
     parent: props.taxon,
-    item: props.taxon.children[e.oldIndex],
+    taxon: props.taxon.children[e.oldIndex],
     index: e.oldIndex
   })
 }
@@ -144,7 +233,7 @@ function reasignNode(parentId, index) {
 
   if (targetParent) {
     targetParent.children.splice(index, 0, {
-      ...structuredClone(toRaw(store.currentDragged.item)),
+      ...structuredClone(toRaw(store.currentDragged.taxon)),
       parentId: parentId
     })
   }
@@ -191,7 +280,8 @@ function handleAdd(e) {
   border: 2px dashed transparent;
 }
 
-.list-reclassifer-taxon-item:hover {
+.list-reclassifer-taxon-item:hover,
+.selected {
   border-color: var(--color-primary);
 }
 
@@ -201,6 +291,12 @@ function handleAdd(e) {
   }
   .list-reclassifer-taxon-item {
     border: 2px dashed var(--color-update);
+  }
+}
+
+.ghost-list {
+  .selected {
+    border-color: var(--color-update);
   }
 }
 </style>

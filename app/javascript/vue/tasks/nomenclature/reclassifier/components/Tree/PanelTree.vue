@@ -72,6 +72,10 @@ const tree = defineModel({
   height: calc(100vh - 300px);
 }
 
+.panel-taxonomy-tree {
+  height: calc(100vh - 340px);
+}
+
 .taxonomic-tree-empty-message {
   height: 100%;
   display: flex;
