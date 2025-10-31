@@ -92,9 +92,21 @@ module IdentifiersHelper
   # @return [String, nil]
   #   a list of identifiers *without* HTML
   def identifier_list_labels(object)
-    ids = visible_identifiers(object).pluck(:cached)
-    return nil unless ids.any?
-    ids.join(', ')
+    if object.association(:identifiers).loaded?
+      return nil unless object&.has_identifiers?
+
+      project_id = defined?(controller) && controller ? sessions_current_project_id : nil
+      ids = object.identifiers.select do |i|
+        i.visible_to_project?(project_id)
+      end
+
+      return nil if ids.empty?
+      ids.map(&:cached).join(', ')
+    else
+      ids = visible_identifiers(object).pluck(:cached)
+      return nil if ids.empty?
+      ids.join(', ')
+    end
   end
 
   # @return [String, nil]
