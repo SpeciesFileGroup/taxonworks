@@ -222,10 +222,10 @@
             <br>
           </template>
 
-          <textarea
+          <XmlEditor
             v-model="dataset"
-            rows="44"
-            cols="80"
+            :rows="44"
+            match-tags
           />
         </div>
 
@@ -264,10 +264,10 @@
             <br>
           </template>
 
-          <textarea
+          <XmlEditor
             v-model="additionalMetadata"
-            rows="13"
-            cols="80"
+            :rows="13"
+            match-tags
           />
         </div>
 
@@ -294,6 +294,7 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import EmlFileLoader from './components/EmlFileLoader.vue'
+import XmlEditor from './components/XmlEditor.vue'
 
 const EXTENSIONS = {
   resource_relationships: 'Resource relationships (biological associations)',
@@ -505,7 +506,7 @@ function validateAndSaveEML() {
         } else {
           errors = 'additional metadata has xml errors, was NOT saved; dataset WAS saved.'
         }
-        TW.workbench.alert.create(errors, 'notice')
+        TW.workbench.alert.create(errors, 'error')
       }
     })
     .catch(() => {})

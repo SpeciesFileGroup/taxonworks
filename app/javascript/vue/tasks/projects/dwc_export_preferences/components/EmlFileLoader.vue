@@ -76,8 +76,6 @@ function handleFileSelected(event) {
         additionalMetadata: additionalMetadataContent
       })
 
-      TW.workbench.alert.create('EML file loaded successfully', 'notice')
-
       resetFileInput()
     } catch (err) {
       TW.workbench.alert.create(err.message || 'Failed to parse EML file', 'error')
