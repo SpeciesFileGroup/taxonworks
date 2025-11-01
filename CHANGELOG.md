@@ -9,6 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Project Vocabulary link to Filter Taxon Names
+- CodeMirror functionality to EML editing
+- Option to load EML from an existing file
+
 ### Fixed
 
 - Exception on destroying a genus with gender
@@ -20,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC occurrence importer not able to import on taxon names without pre-existing OTU
 - Search on both year and stated_year in Source autocomplete [#4536]
 - Project EML for complete project downloads fails to save if EML is too long [#4602]
+- Closed a loophole allowing EML to be saved with STUBs
 
 [#4536]: https://github.com/SpeciesFileGroup/taxonworks/issues/4536
 [#4599]: https://github.com/SpeciesFileGroup/taxonworks/issues/4599
