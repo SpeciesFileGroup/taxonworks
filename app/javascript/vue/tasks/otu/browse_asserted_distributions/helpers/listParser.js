@@ -1,4 +1,5 @@
 import { RouteNames } from '@/routes/routes'
+import { escapeHtml } from '@/helpers'
 
 function getYear(text) {
   const match = text.match(/\b(19|20)\d{2}\b/)
@@ -23,7 +24,7 @@ export default (list) => {
       .map(
         (c) => `
     <a href="${RouteNames.NomenclatureBySource}?source_id=${c.source_id}"
-       title="${c.source.object_label}"
+       title="${escapeHtml(c.source.object_label)}"
     >
          ${c.citation_source_body}
       </a>

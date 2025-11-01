@@ -51,6 +51,7 @@ namespace :api, defaults: {format: :json} do
 
       get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
+      get '/otus/inventory/alphabetical', to: '/otus#api_alphabetical_index', as: :api_alphabetical_index
       get '/otus/:id/inventory/content', to: '/otus#api_content', as: :api_content
       get '/otus/:id/inventory/distribution', to: '/otus#api_distribution', as: :api_distribution
       get '/otus/:id/inventory/keys', to: '/otus#api_key_inventory', as: :key_inventory
@@ -161,6 +162,7 @@ namespace :api, defaults: {format: :json} do
       get '/images', to: '/images#api_index'
       get '/images/:id', to: '/images#api_show', as: :images_id
       get '/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', to: '/images#api_scale_to_box'
+      get '/images/:id/as_png', to: '/images#api_as_png'
       # was : get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :images_inventory
       get '/images/:otu_id/inventory', to: '/images#api_image_inventory', as: :images_inventory
       get '/images/sha/:sha', to: '/images#api_image_show_sha', as: :images_sha

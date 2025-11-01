@@ -10,6 +10,7 @@
       :selected-ids="sortedSelectedIds"
       :list="list"
       :extend-download="extendDownload"
+      :csv-options="csvOptions"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -21,7 +22,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #nav-right>
@@ -29,7 +30,7 @@
           :disabled="!list.length"
           :ids="sortedSelectedIds"
           :count="sortedSelectedIds.length"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #facets>
@@ -95,7 +96,11 @@ import { SOURCE } from '@/constants/index.js'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { computed } from 'vue'
 
-const extend = ['documents']
+const extend = ['documents', 'serial']
+
+defineOptions({
+  name: 'FilterSources'
+})
 
 const {
   append,
@@ -110,6 +115,22 @@ const {
   sortedSelectedIds,
   urlRequest
 } = useFilter(Source, { initParameters: { extend } })
+
+const csvOptions = {
+  fields: [
+    'id',
+    {
+      label: 'serial',
+      value: 'serial_name'
+    },
+    'author',
+    'year',
+    'title',
+    'volume',
+    'number',
+    'cached'
+  ]
+}
 
 const extendDownload = computed(() => [
   {
@@ -131,10 +152,4 @@ const extendDownload = computed(() => [
     }
   }
 ])
-</script>
-
-<script>
-export default {
-  name: 'FilterSources'
-}
 </script>

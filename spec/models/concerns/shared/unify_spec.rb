@@ -263,6 +263,22 @@ describe 'Shared::Unify', type: :model do
     expect(a.confidences.size).to eq(1)
   end
 
+  specify 'returns failure when too many relations' do
+    a = FactoryBot.create(:valid_specimen)
+    b = FactoryBot.create(:valid_specimen)
+
+    c = FactoryBot.create(
+      :valid_confidence, confidence_object: b
+    )
+    d = FactoryBot.create(
+      :valid_confidence, confidence_object: b
+    )
+
+    r = a.unify(b, cutoff: 1)
+    expect(r[:result][:unified]).to be_falsey
+    expect(r[:result][:message]).to include('cutoff')
+  end
+
   specify 'handles BiocurationClassifications when identical' do
     a = FactoryBot.create(:valid_specimen)
     b = FactoryBot.create(:valid_specimen)
@@ -713,6 +729,24 @@ describe 'Shared::Unify', type: :model do
     expect(Citation.all.size).to eq(1)
   end
 
+  specify 'InvalidForeignKey error' do
+    keep = FactoryBot.create(:valid_topic)
+    remove = FactoryBot.create(:valid_topic)
+
+    # Simulate a DB-level FK violation on destroy of the "remove" record.
+    allow(remove).to receive(:destroy!).and_raise(
+      ActiveRecord::InvalidForeignKey.new('PG::ForeignKeyViolation: update or delete on table ...')
+    )
+
+    result = keep.unify(remove)
+
+    expect(result[:result][:unified]).to be(false)
+
+    error = result[:details][:Object][:errors].first
+    expect(error[:id]).to eq(remove.id)
+    expect(error[:exception]).to eq('ActiveRecord::InvalidForeignKey')
+    expect(error[:message]).to match(/ForeignKey|foreign key|PG::/i)
+  end
 end
 
 class TestUnify < ApplicationRecord

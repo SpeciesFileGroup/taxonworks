@@ -437,6 +437,28 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
 
         expect(r[:errors].present?).to be true
       end
+
+      specify 'Does not update when non-virtual destination of virtual identifier already exists' do
+        n3 = Namespace.create!(name: 'QWERTY', short_name: 'QWERTYSHORT')
+        # This identifier should prevent ii4v from being converted to
+        # non-virtual with namespace n3.
+        ii4 = Identifier::Local::FieldNumber.create!(namespace: n3, identifier: '1234', identifier_object: ce2)
+
+        q = ::Queries::CollectionObject::Filter.new(collecting_event_id: [ce2.id])
+        r = Identifier.batch_by_filter_scope(
+          filter_query: { 'collecting_event_query' => q.params },
+          params: {
+            identifier_types: ['Identifier::Local::FieldNumber'],
+            namespace_id: n3.id,
+            namespaces_to_replace: [n3v],
+            virtual_namespace_prefix: 'ASDF'
+          },
+          mode: :replace
+        )
+
+        expect(r[:not_updated]).to contain_exactly(ii4v.id)
+        expect(ii4v.reload.is_virtual?).to be_truthy
+      end
     end
 
   end

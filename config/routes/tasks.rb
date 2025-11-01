@@ -752,6 +752,10 @@ scope :tasks do
   end
 
   scope :taxon_names do
+    scope :author_summary, controller: 'tasks/taxon_names/author_summary' do
+      match '/', action: :index, via: [:get, :post], as: 'taxon_name_author_summary_task'
+    end
+
     scope :gender, controller: 'tasks/taxon_names/gender' do
       match '/', action: :index, via: [:get, :post], as: 'taxon_name_gender_task'
     end

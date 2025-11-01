@@ -68,7 +68,7 @@ module Queries
       #   author matches partial string
       def autocomplete_wildcard_pieces_and_year
         a = match_ordered_wildcard_pieces_in_cached
-        b = match_year
+        b = match_year_or_stated_year
         return nil if a.nil? || b.nil?
         c = a.and(b)
         base_query.where(c.to_sql).limit(5)
@@ -76,7 +76,7 @@ module Queries
 
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_year_letter
-        a = match_year
+        a = match_year_or_stated_year
         b = match_year_suffix
         return nil if a.nil? || b.nil?
         c = a.and(b)
@@ -87,7 +87,7 @@ module Queries
       def autocomplete_exact_author_year_letter
         a = match_exact_author
         d = match_year_suffix
-        c = match_year
+        c = match_year_or_stated_year
         return nil if [a,d,c].include?(nil)
         z = a.and(d).and(c)
         base_query.where(z.to_sql)
@@ -97,7 +97,7 @@ module Queries
       def autocomplete_exact_author_year
         return nil if query_string.split(' ').count > 2
         a = match_exact_author
-        d = match_year
+        d = match_year_or_stated_year
         return nil if a.nil? || d.nil?
         z = a.and(d)
         base_query.where(z.to_sql)
@@ -107,7 +107,7 @@ module Queries
       def autocomplete_start_author_year
         return nil if query_string.split(' ').count > 2
         a = match_start_author
-        d = match_year
+        d = match_year_or_stated_year
         return nil if a.nil? || d.nil?
         z = a.and(d)
         base_query.where(z.to_sql)
@@ -116,7 +116,7 @@ module Queries
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_wildcard_author_exact_year
         return nil if query_string.split(' ').count > 2
-        a = match_year
+        a = match_year_or_stated_year
         d = match_wildcard_author
         return nil if a.nil? || d.nil?
         z = a.and(d)
@@ -132,7 +132,7 @@ module Queries
 
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_wildcard_anywhere_exact_year
-        a = match_year
+        a = match_year_or_stated_year
         b = match_wildcard_in_cached
         return nil if a.nil? || b.nil?
         c = a.and(b)
@@ -165,11 +165,15 @@ module Queries
         table[:year_suffix].eq(year_letter)
       end
 
-      # @return [Arel::Nodes::Equatity]
-      def match_year
+      # @return [Arel::Nodes::Grouping, nil]
+      def match_year_or_stated_year
         a = years.first
         return nil if a.nil?
-        table[:year].eq(a)
+
+        year_match = table[:year].eq(a)
+        stated_year_match = table[:stated_year].eq(a.to_s)
+
+        year_match.or(stated_year_match)
       end
 
       # @return [String]

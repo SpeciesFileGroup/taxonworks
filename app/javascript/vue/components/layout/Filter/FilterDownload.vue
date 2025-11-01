@@ -100,9 +100,10 @@ const csvDownload = computed(() => ({
   component: csvButton,
   bind: {
     list: props.list,
-    options: props.csvOptions || {
+    options: {
       transforms: [flatten({ object: true, array: true, separator: '_' })],
-      formatters: { string: stringFormatter() }
+      formatters: { string: stringFormatter() },
+      ...props.csvOptions
     }
   }
 }))

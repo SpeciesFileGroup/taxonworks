@@ -62,6 +62,7 @@
 </template>
 
 <script setup>
+import DEFINED_TASKS from './constants/definedTasks.js'
 import RadialMenu from '@/components/radials/RadialMenu.vue'
 import Spinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -138,7 +139,7 @@ const props = defineProps({
 
   teleport: {
     type: Boolean,
-    default: false
+    default: true
   }
 })
 
@@ -152,7 +153,8 @@ const defaultTasks = computed(() => ({
 }))
 
 const menuOptions = computed(() => {
-  const tasks = { ...metadata.value.tasks }
+  const definedTasks = DEFINED_TASKS[metadata.value.type]
+  const tasks = { ...metadata.value.tasks, ...definedTasks }
 
   EXCLUDE_TASKS.forEach((task) => {
     delete tasks[task]
@@ -160,10 +162,10 @@ const menuOptions = computed(() => {
 
   const taskSlices = Object.entries(tasks)
     .slice(0, props.maxTaskInPie)
-    .map(([task, { name, path }]) => ({
+    .map(([task, { name, path, idParam }]) => ({
       name: task,
       label: name,
-      link: path,
+      link: idParam ? `${path}?${idParam}=${metadata.value.id}` : path,
       icon: Icons[task]
         ? {
             url: Icons[task],

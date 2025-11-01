@@ -9,13 +9,112 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Project Vocabulary link to Filter Taxon Names
+- CodeMirror functionality to EML editing
+- Option to load EML from an existing file
+
 ### Fixed
 
-- 'Use a key' shows a blank page [#4557]
+- Exception on destroying a genus with gender
+- Exception on resetting user hub prefs when none already exist
+- Exception when removing oneself from a project
+- Exception when using Project Activity task for DwcOccurrence
+- Exception when unify fails with InvalidForeignKey error
+- New CE form: Identifier form does not display a warning when the Namespace is missing [#4599]
+- DwC occurrence importer not able to import on taxon names without pre-existing OTU
+- Search on both year and stated_year in Source autocomplete [#4536]
+- Project EML for complete project downloads fails to save if EML is too long [#4602]
+- Closed a loophole allowing EML to be saved with STUBs
+
+[#4536]: https://github.com/SpeciesFileGroup/taxonworks/issues/4536
+[#4599]: https://github.com/SpeciesFileGroup/taxonworks/issues/4599
+[#4602]: https://github.com/SpeciesFileGroup/taxonworks/issues/4602
+
+## [0.54.2] - 2025-10-23
+
+### Added
+
+- New TaxonName Relationship: nomen oblitum rejected between 1961 and 1972
+- New field occurrences task: Layout settings [#4131]
+- Project - customize attributes: Add spinner [#2217]
+- Radial Batch: Added Auto-refresh checkbox to enable or disable automatic filter refresh after adding or updating records [#4590]
+- Browse OTU: Radial navigator in BA table
+- `api/v1/images/:1/as_png` and `images/:1/as_png` to download an image as a png
+- Added new TaxonNameRelationship 'Unavailable' as a subclass of 'Unavailable or Invalid'
+
+### Fixed
+
+- Searching for very large numbers in autocomplete sometimes caused errors. [#4321]
+- Radial annotator: Tag count doesn’t update after creating or deleting a tag using the middle menu button
+- Collecting Event Clone button assigns existing annotations to the new object instead of creating new ones [#4583]
+- Filter sources: `In project` facet does not return correct results when selecting the "No" option.
+- Unify now reports an error when it fails because of too many relations
+- DwC Archive download uniqueness check not scoped to unexpired downloads
+- Internal/TW values don't appear with complete downloads [#4581]
+- Fix exception on `api/v1/images/sha/`
 
 ### Changed
 
+- Added warning that deleting a project's project_token can potentially break links from outside providers back to TaxonWorks for things like images
+- Updated Ruby gems
+- Updated NPM packages
+- Save taxonomic tree settings in user preferences [#4577]
+- Radial Navigator: BA edit/new slices now points to the `New Biological Association` task (previously new BA graph task)
+- Delete complete downloads if project's project_token is deleted
+- `api/v1/image/:1/scaled_to_box` now returns a png instead of a jpg
+
+[#2217]: https://github.com/SpeciesFileGroup/taxonworks/issues/2217
+[#4321]: https://github.com/SpeciesFileGroup/taxonworks/issues/4321
+[#4131]: https://github.com/SpeciesFileGroup/taxonworks/issues/4131
+[#4581]: https://github.com/SpeciesFileGroup/taxonworks/issues/4581
+[#4583]: https://github.com/SpeciesFileGroup/taxonworks/issues/4583
+[#4590]: https://github.com/SpeciesFileGroup/taxonworks/issues/4590
+
+## [0.54.1] - 2025-10-09
+
+### Added
+
+- Author summary task
+- Filter Sources: CSV List includes serials name and more logical prioritization of fields [#3154]
+- Filter Sources: Editors facet
+- Radial navigator: links to filter source/taxon names for People [#3132]
+- Additional sensitive data excluded from logs
+- Search for people by orcid id or wikidata Q id using only their number
+- Browse OTU: Tag column in biological associations table
+- `api/v1/otus/inventory/alphabetical`: Returns OTUs in alphabetical order
+- Filters: Notes facets
+- Editors facet to filter sources
+- More AssertedDistribution data now exported to Darwin Core
+- Added api endpoints `api/v1/taxon_determinations` and `api/v1/taxon_determinations/n`
+- Support for Postgres17
+
+### Fixed
+
+- 'Use a key' shows a blank page [#4557]
+- Browse nomenclature: The navigation panel does not update its size correctly
+- Filter CO: Types facet doesn't work after reseting the interface
+- Browse OTU: In some cases, asserted distribution citations are rendered incorrectly
+- Filters: `Select all` checkbox doesn't respect the column filter [#4572]
+- Error on Sqed browsing when sqed layout was None [#4550]
+
+### Changed
+
+- Update shakapacker, replace babel by swc. Move from webpack to rspack. If running your own server we recommend deleting your node_modules directory before updating packages and gems.
+- Added new subclass 'Unavailable, linked to:' to the existing 'Unavailable or Invalid' taxon name relationship
+- 'Default' and 'new' for containers now use the New Container task
+- Distribution maps only display valid primary types as 'Type material' (all other type material is now displayed as collection objects) [#4567]
+- Updated Ruby gems
+- Updated NPM packages
+- Filters: refresh current page after closing Radial Batch [#4571]
+- Configured radials now support teleport by default
+
+[#3132]: https://github.com/SpeciesFileGroup/taxonworks/issues/3132
+[#3154]: https://github.com/SpeciesFileGroup/taxonworks/issues/3154
+[#4550]: https://github.com/SpeciesFileGroup/taxonworks/issues/4550
 [#4557]: https://github.com/SpeciesFileGroup/taxonworks/issues/4557
+[#4567]: https://github.com/SpeciesFileGroup/taxonworks/issues/4567
+[#4571]: https://github.com/SpeciesFileGroup/taxonworks/issues/4571
+[#4572]: https://github.com/SpeciesFileGroup/taxonworks/issues/4572
 
 ## [0.54.0] - 2025-09-24
 
@@ -5701,7 +5800,9 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.2...development
+[0.54.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.1...v0.54.2
+[0.54.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.0...v0.54.1
 [0.54.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.2...v0.54.0
 [0.53.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.1...v0.53.2
 [0.53.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.0...v0.53.1

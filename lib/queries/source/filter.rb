@@ -17,11 +17,14 @@ module Queries
         :descendants,
         :author,
         :author_id_or,
+        :editor,
+        :editor_id_or,
         :bibtex_type,
         :citations,
         :citations_on_otus,
         :documents,
         :exact_author,
+        :exact_editor,
         :exact_title,
         :in_project,
         :nomenclature,
@@ -36,6 +39,7 @@ module Queries
         :year_end,
         :year_start,
         author_id: [],
+        editor_id: [],
         bibtex_type: [],
         citation_object_type: [],
         empty: [],
@@ -58,6 +62,9 @@ module Queries
       # @return author [String, nil]
       attr_accessor :author
 
+      # @return editor [String, nil]
+      attr_accessor :editor
+
       # TODO: Change to source_id
       # @return ids [Array of Integer, nil]
       attr_accessor :source_id
@@ -66,13 +73,25 @@ module Queries
       # @params exact_author ['true', 'false', nil]
       attr_accessor :exact_author
 
+      # @return [Boolean, nil]
+      # @params exact_editor ['true', 'false', nil]
+      attr_accessor :exact_editor
+
       # @params author [Array of Integer, Person#id]
       attr_accessor :author_id
+
+      # @params editor_id [Array of Integer, Person#id]
+      attr_accessor :editor_id
 
       # @params author [Boolean, nil]
       #   `false`, nil - treat the ids in author_id as "or"
       #   'true' - treat the ids in author_id as "and" (only Sources with all and only all will match)
       attr_accessor :author_id_or
+
+      # @params editor_id [Boolean, nil]
+      #   `false`, nil - treat the ids in editor_id as "or"
+      #   'true' - treat the ids in editor_id as "and" (only Sources with all and only all will match)
+      attr_accessor :editor_id_or
 
       # @params author [Array of Integer, Topic#id]
       attr_accessor :topic_id
@@ -165,7 +184,10 @@ module Queries
 
         @author = params[:author]
         @author_id = params[:author_id]
+        @editor = params[:editor]
+        @editor_id = params[:editor_id]
         @author_id_or =  boolean_param(params,:author_id_or)
+        @editor_id_or =  boolean_param(params,:editor_id_or)
         @bibtex_type = params[:bibtex_type]
         @citation_object_type = params[:citation_object_type]
         @citations = boolean_param(params,:citations) # TODO: rename coming to reflect conflict with Citations concern
@@ -173,6 +195,7 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @documents = boolean_param(params,:documents)
         @exact_author = boolean_param(params,:exact_author)
+        @exact_editor = boolean_param(params,:exact_editor)
         @exact_title = boolean_param(params,:exact_title)
         @in_project = boolean_param(params,:in_project)
         @nomenclature = boolean_param(params,:nomenclature)
@@ -219,6 +242,10 @@ module Queries
 
       def author_id
         [@author_id].flatten.compact.uniq
+      end
+
+      def editor_id
+        [@editor_id].flatten.compact.uniq
       end
 
       # @return [Arel::Table]
@@ -305,6 +332,34 @@ module Queries
         ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id'])))).distinct
       end
 
+      def editor_id_facet
+        return nil if editor_id.empty?
+        o = table
+        r = ::Role.arel_table
+
+        a = o.alias('a_')
+        b = o.project(a[Arel.star]).from(a)
+
+        c = r.alias('r1')
+
+        b = b.join(c, Arel::Nodes::OuterJoin)
+          .on(
+            a[:id].eq(c[:role_object_id])
+          .and(c[:role_object_type].eq('Source'))
+          .and(c[:type].eq('SourceEditor'))
+          )
+
+        e = c[:id].not_eq(nil)
+        f = c[:person_id].in(editor_id)
+
+        b = b.where(e.and(f))
+        b = b.group(a['id'])
+        b = b.having(a['id'].count.eq(editor_id.length)) unless editor_id_or
+        b = b.as('aut_z1_')
+
+        ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id'])))).distinct
+      end
+
       def topic_id_facet
         return nil if topic_id.empty?
         ::Source.joins(:citation_topics).where(citation_topics: { topic_id:}).distinct
@@ -317,9 +372,7 @@ module Queries
           ::Source.joins(:project_sources)
             .where(project_sources: {project_id:})
         else
-          ::Source.left_outer_joins(:project_sources)
-            .where('project_sources.project_id != ? OR project_sources.id IS NULL', project_id) # TODO: probably project_id
-            .distinct
+          ::Source.where.not(id: ::ProjectSource.select(:source_id).where(project_id:)).distinct
         end
       end
 
@@ -454,6 +507,7 @@ module Queries
         [
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Source referencing SUBQUERIES
           author_id_facet,
+          editor_id_facet,
           citation_object_type_facet,
           citations_facet,
           document_facet,
@@ -471,6 +525,7 @@ module Queries
       def and_clauses
         [
           attribute_exact_facet(:author),
+          attribute_exact_facet(:editor),
           attribute_exact_facet(:title),
           bibtex_type_facet,
           cached_facet,

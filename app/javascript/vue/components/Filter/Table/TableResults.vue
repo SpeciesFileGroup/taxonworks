@@ -136,7 +136,7 @@
               </VBtn>
               <VBtn
                 v-if="filterValues[attr]"
-                color="primary"
+                color="toggle-active"
                 circle
                 @click.stop="
                   () => {
@@ -206,7 +206,7 @@
                   </VBtn>
                   <VBtn
                     v-if="filterValues[`${key}.${property}`]"
-                    color="primary"
+                    color="toggle-active"
                     circle
                     @click.stop="
                       () => {
@@ -459,8 +459,9 @@
               "
               @dblclick="
                 () => {
-                  scrollToTop()
                   filterValues[attr] = item[attr]
+                  scrollToTop()
+                  updateSelectedIdsByFilter()
                 }
               "
             >
@@ -500,6 +501,8 @@
                       )
                         ? item[key].map((obj) => obj[property])
                         : item[key][property]
+
+                      updateSelectedIdsByFilter()
                     }
                   "
                   v-text="value"
@@ -528,6 +531,8 @@
                     )
                       ? item[key].map((obj) => obj[property])
                       : item[key][property]
+
+                    updateSelectedIdsByFilter()
                   }
                 "
               />
@@ -614,11 +619,15 @@ const ascending = ref(false)
 const lastRadialOpenedRow = ref(null)
 const isLayoutConfig = computed(() => !!Object.keys(props.layout || {}).length)
 
+const filteredIds = computed(() =>
+  props.list.filter(rowHasCurrentValues).map((item) => item.id)
+)
+
 const selectIds = computed({
   get: () =>
-    props.list.length === props.modelValue.length && props.list.length > 0,
-  set: (value) =>
-    emit('update:modelValue', value ? props.list.map((item) => item.id) : [])
+    filteredIds.value.length === props.modelValue.length &&
+    filteredIds.value.length > 0,
+  set: (value) => emit('update:modelValue', value ? [...filteredIds.value] : [])
 })
 
 const ids = computed({
@@ -710,6 +719,10 @@ function generateFreezeColumnLeftPosition() {
   freezeColumnLeftPosition.value = sizes
 }
 
+function updateSelectedIdsByFilter() {
+  ids.value = ids.value.filter((id) => filteredIds.value.includes(id))
+}
+
 watch(
   () => props.list,
   (newVal, oldVal) => {
@@ -758,13 +771,9 @@ table {
   border-left: 3px var(--border-color) solid;
 }
 
+.row-dwc-reindex-pending,
 .cell-selected-border {
-  outline: 2px solid var(--color-primary) !important;
   outline-offset: -2px;
-
-  .freeze {
-    border-bottom: 1px solid var(--color-primary) !important;
-  }
 
   .freeze::before {
     content: '';
@@ -773,7 +782,6 @@ table {
     top: 0;
     width: 100%;
     height: 2px;
-    background-color: var(--color-primary);
   }
 
   .freeze::after {
@@ -783,6 +791,31 @@ table {
     bottom: 0;
     width: 100%;
     height: 1.5px;
+  }
+}
+
+.row-dwc-reindex-pending {
+  outline: 2px solid var(--color-attention);
+
+  .freeze {
+    border-bottom: 1px solid var(--color-attention);
+  }
+
+  .freeze::before,
+  .freeze::after {
+    background-color: var(--color-attention);
+  }
+}
+
+.cell-selected-border {
+  outline: 2px solid var(--color-primary) !important;
+
+  .freeze {
+    border-bottom: 1px solid var(--color-primary) !important;
+  }
+
+  .freeze::before,
+  .freeze::after {
     background-color: var(--color-primary);
   }
 }

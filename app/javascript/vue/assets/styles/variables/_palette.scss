@@ -50,6 +50,12 @@
 
   --taxon-name-valid-color: #0c2351;
   --taxon-name-invalid-color: #b0783c;
+
+  --code-tag-color: #116611;
+  --code-attribute-color: #0077aa;
+  --code-string-color: #000000;
+  --code-error-color: #cc0000;
+  --code-selection-color: #d7e4f7;
 }
 
 .dark {
@@ -100,6 +106,12 @@
   --feedback-warning-bg-color: #37332f;
   --feedback-warning-border-color: #6b461e;
 
+  --code-tag-color: #90ee90;
+  --code-attribute-color: #87ceeb;
+  --code-string-color: #ffffff;
+  --code-error-color: #ff6b6b;
+  --code-selection-color: #264f78;
+
   --taxon-name-valid-color: #b6cfff;
   --taxon-name-invalid-color: #cf873b;
 }
@@ -121,7 +133,8 @@ $tw-dark-colors: (
   'update': #36974a,
   'warning': #e48e30,
   'white': #ffffff,
-  'border': #f5f5f5
+  'border': #f5f5f5,
+  'toggle-active': #beae00
 );
 
 $tw-colors: (
@@ -142,7 +155,7 @@ $tw-colors: (
   'warning': #ff8c00,
   'white': #ffffff,
   'border': #f5f5f5,
-  'toggle-active': #ffda44
+  'toggle-active': #cebd5d
 );
 
 $tw-map-colors: (

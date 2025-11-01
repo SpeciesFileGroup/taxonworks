@@ -99,6 +99,7 @@
         TaxonNameRelationship::Icnp::Unaccepting::Usage,
         TaxonNameRelationship::Icvcn::Unaccepting) +
        %w{ TaxonNameRelationship::Iczn::Invalidating
+       TaxonNameRelationship::Iczn::Invalidating::Unavailable
        TaxonNameRelationship::Icn::Unaccepting
        TaxonNameRelationship::Icn::Unaccepting::OriginallyInvalid
        TaxonNameRelationship::Icnp::Unaccepting
@@ -138,6 +139,9 @@
       TaxonNameRelationship::Icnp::Unaccepting::Misapplication
       TaxonNameRelationship::Iczn::Invalidating::Misapplication}.freeze
 
+      TAXON_NAME_RELATIONSHIP_UNAVAILABLE ||= TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION+ %w{
+      TaxonNameRelationship::Iczn::Invalidating::Unavailable}.freeze
+
       # TODO: check .assignable property prior to building
 
       object_select, subject_select = [], []
@@ -171,7 +175,7 @@
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
             TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
             TaxonNameRelationship::Iczn::Invalidating::Homonym,
-            TaxonNameRelationship::Iczn::Invalidating
+            TaxonNameRelationship::Iczn::Invalidating::Unavailable
           ])
         },
 

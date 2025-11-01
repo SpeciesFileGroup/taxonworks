@@ -31,7 +31,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage) +
         self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating,
-            TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total)
+                          TaxonNameRelationship::Iczn::Invalidating::Unavailable,
+                          TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total)
 
   end
 

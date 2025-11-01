@@ -2,7 +2,7 @@ class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index, :api_image_inventory], if: :json_request?
 
-  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate, :regenerate_derivative]
+  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate, :regenerate_derivative, :as_png, :api_as_png]
 
   # GET /images
   # GET /images.json
@@ -84,9 +84,7 @@ class ImagesController < ApplicationController
       .find_by(image_file_fingerprint: params[:sha])
 
     if @image.present?
-      s = Shared::Api.host
-      token = Project.find(sessions_current_project_id).api_access_token
-      render "#{s}/api/v1/images/#{@image.id}?project_token=#{token}"
+      render '/images/api/v1/show'
     else
       render plain: 'Image not found.', status: :not_found
     end
@@ -191,14 +189,24 @@ class ImagesController < ApplicationController
     send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 
-  # GET 'images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
+  # GET 'api/v1/images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
   def api_scale_to_box
     send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 
+  # GET 'images/:id/as_png'
+  def as_png
+    send_data @image.original_as_png, type: 'image/png', disposition: 'inline'
+  end
+
+  # GET 'api/v1/images/:id/as_png'
+  def api_as_png
+    send_data @image.original_as_png, type: 'image/png', disposition: 'inline'
+  end
+
   # GET /images/:id/ocr/:x/:y/:height/:width
   def ocr
-    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root.join("public/images/tmp")}", encoding: 'utf-8')
+    tempfile = Tempfile.new(['ocr', '.jpg'], tmp_image_directory, encoding: 'utf-8')
     tempfile.write(Image.cropped_blob(params).force_encoding('utf-8'))
     tempfile.rewind
 
@@ -248,5 +256,12 @@ class ImagesController < ApplicationController
       citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
       sled_image_attributes: [:id, :_destroy, :metadata, :object_layout]
     )
+  end
+
+  def tmp_image_directory()
+    tmp_dir = Rails.root.join('tmp', 'images')
+    FileUtils.mkdir_p(tmp_dir)
+
+    tmp_dir
   end
 end

@@ -285,7 +285,9 @@ class User < ApplicationRecord
   # @return [Boolean] true if user is_project_administrator for the project passed
   def is_project_administrator?(project = nil)
     return false if project.nil?
-    project.project_members.where(user_id: id).first.is_project_administrator
+    project_member = project.project_members.where(user_id: id).first
+    return false if project_member.nil?
+    project_member.is_project_administrator
   end
 
   # @param [Project, Integer]

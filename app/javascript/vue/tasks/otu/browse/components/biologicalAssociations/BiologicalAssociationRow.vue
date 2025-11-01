@@ -3,6 +3,7 @@
     <td>
       <div class="flex-row gap-small">
         <RadialAnnotator :global-id="row.globalId" />
+        <RadialNavigator :global-id="row.globalId" />
       </div>
     </td>
     <td class="table-cell-border-left-thick">
@@ -57,7 +58,7 @@
         v-html="row.objectTag"
       />
     </td>
-    <td>
+    <td class="table-cell-border-left-thick">
       <template
         v-for="(citation, index) in row.citations"
         :key="citation.id"
@@ -70,11 +71,19 @@
         <span v-if="index < row.citations.length - 1">; </span>
       </template>
     </td>
+    <td>
+      <span
+        v-for="tag in row.tags"
+        :key="tag.id"
+        v-html="tag.label"
+      />
+    </td>
   </tr>
 </template>
 
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import BiologicalAssociationRelated from './BiologicalAssociationRelated.vue'
 import { makeBrowseUrl } from '@/helpers'
 

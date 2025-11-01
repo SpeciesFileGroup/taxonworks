@@ -73,7 +73,7 @@ class DownloadsController < ApplicationController
   def file
     if @download.ready?
       @download.increment!(:times_downloaded)
-      response.headers["Content-Length"] = File.size(@download.file_path).to_s
+      response.headers['Content-Length'] = File.size(@download.file_path).to_s
       send_file @download.file_path
     else
       redirect_to download_url
@@ -105,7 +105,7 @@ class DownloadsController < ApplicationController
   def api_dwc_archive_complete
     project = Project.find(sessions_current_project_id)
 
-    if !project.complete_dwc_download_is_public?
+    if !project.complete_dwc_download_is_public? || !project.api_access_token
       render json: { success: false }, status: :forbidden
       return
     end
@@ -127,7 +127,7 @@ class DownloadsController < ApplicationController
     # If no user token or user session then create as the complete download
     # user.
     by_id = Current.user_id || project.complete_dwc_download_default_user_id
-    Download::DwcArchive::Complete.create!(by: by_id)
+    Download::DwcArchive::Complete.create!(by: by_id, project:)
     render json: { status: 'A download is being created' }, status: :unprocessable_entity
   end
 

@@ -562,7 +562,7 @@ new_collecting_event_task:
   description: 'Create a new collecting event.  Quickly add collection objects to the collecting event.  Generate labels and specimen barcodes. Navigate between collecting events with similar properties.'
 filter_images_task:
   hub: true
-  name: 'Filter images task'
+  name: 'Filter images'
   related:
   categories:
     - image
@@ -1045,6 +1045,14 @@ taxon_names_table_task:
   status: prototype
   categories:
     - nomenclature
+taxon_name_author_summary_task:
+  hub: false
+  name: 'Author summary report'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Summarizes People instances through taxon_name_author roles per year with visualizations.'
 taxon_name_gender_task:
   hub: false
   name: 'Nomenclatural gender summary'

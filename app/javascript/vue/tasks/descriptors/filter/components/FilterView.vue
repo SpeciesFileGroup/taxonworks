@@ -39,6 +39,7 @@ import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.v
 
 const WITH_PARAMS = [
   'confidences',
+  'notes',
   'observation_depictions',
   'observation_matrices',
   'observations'
