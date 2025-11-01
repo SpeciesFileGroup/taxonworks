@@ -395,6 +395,35 @@ class Source < ApplicationRecord
     s
   end
 
+  def self.bhl_related_sources(bhl_url)
+    h = self.extract_bhl_identifiers(bhl_url)
+
+    bhl_source = nil
+    if h[:page_id]
+      bhl_source = Vendor::BokChoy.references(h[:page_id])
+    else
+      bhl_source = Vendor::BokChoy.items_page_nums(
+        # Yes, page_num is 1-based, not 0-based (it's also required)
+        item_id: h[:item_id], page_num: h[:page_num] || "1"
+      )
+    end
+
+    return [nil, []] unless bhl_source
+
+    [bhl_source, bhl_source.matching_sources]
+  end
+
+  def matching_sources
+    # TODO: fuzzy-fye in various ways?
+    h = {}
+    Source.core_attributes.each do |a|
+      v = send(a)
+      h[a] = v if v.present?
+    end
+
+    Source.where(h)
+  end
+
   protected
 
   # Defined in subclasses
@@ -453,5 +482,34 @@ class Source < ApplicationRecord
       str = title.squish.gsub(/\<i>[^<>]*?<\/i>/, '')
       soft_validations.add(:title, 'The title contains unmatched html tags') if str.include?('<i>') || str.include?('</i>')
     end
-end
+  end
+
+  def self.extract_bhl_identifiers(url)
+    r = { item_id: nil, page_id: nil, page_num: nil }
+    return r unless url
+
+    # https://www.biodiversitylibrary.org/page/56873704#page/49/mode/1up or
+    # https://www.biodiversitylibrary.org/item/10277#page/597/mode/1up
+    # either can be with/out the #page extension.
+    # page_id is a bhl-global page identifier (unique identifier for every page
+    # in bhl).
+    # item_id is the id of an 'item' in bhl, like a journal issue, a book, etc.
+    # #page specifies the page within the corresponding item of either (in the
+    # page_id case it specifies the page number within the item that contains
+    # page_id).
+
+    if url =~ /\/page\/(\d+)/
+      r[:page_id] = $1
+    elsif url =~ /\/item\/(\d+)/
+      r[:item_id] = $1
+    else
+      return r # invalid url
+    end
+
+    if url =~ /#page\/(\d+)/
+      r[:page_num] = $1
+    end
+
+    r
+  end
 end

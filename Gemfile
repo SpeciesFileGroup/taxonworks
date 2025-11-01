@@ -140,6 +140,7 @@ gem 'biodiversity', '~> 6.0'
 gem 'ruby-units', '~> 4.1.0', require: 'ruby_units/namespaced'
 
 gem 'colrapi', '~>0.1.1'
+gem 'bok_choy', '~> 0.0.3'
 
 # Nexus
 gem 'nexus_parser', '~> 1.2.2'
@@ -228,5 +229,3 @@ group :production do
   gem 'execjs', '~> 2.8.1'
   gem 'passenger', '~> 6.0.2'
 end
-
-
