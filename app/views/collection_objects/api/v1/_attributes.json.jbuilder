@@ -30,3 +30,9 @@ if extend_response_with('type_material')
     json.partial! '/shared/data/all/metadata', object: tm
   end
 end
+
+if extend_response_with('notes')
+  json.notes collection_object.notes.each do |n|
+    json.text n.text
+  end
+end

@@ -9,3 +9,9 @@ end
 json.object_biological_relationship_types(biological_relationship.object_biological_relationship_types) do |p|
   json.partial! '/biological_relationship_types/api/v1/attributes', biological_relationship_type: p
 end
+
+if extend_response_with('notes')
+  json.notes biological_relationship.notes.each do |n|
+    json.text n.text
+  end
+end

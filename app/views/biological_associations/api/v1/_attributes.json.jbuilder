@@ -42,4 +42,9 @@ if extend_response_with('object')
   end
 end
 
+if extend_response_with('notes')
+  json.notes biological_association.notes.each do |n|
+    json.text n.text
+  end
+end
 
