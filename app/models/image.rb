@@ -361,7 +361,7 @@ class Image < ApplicationRecord
   # @param [ActionController::Parameters] params
   # @return [String]
   def self.scaled_to_box_blob(params)
-    self.to_blob!(scaled_to_box(params), 'png')
+    self.to_blob!(scaled_to_box(params))
   end
 
   # @param [ActionController::Parameters] params
