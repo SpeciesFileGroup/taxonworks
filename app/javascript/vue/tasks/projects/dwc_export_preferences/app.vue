@@ -183,6 +183,11 @@
     <div class="panel padding-large margin-large-bottom padding-xsmall-top">
       <h2>EML</h2>
       <div class="margin-medium-left">
+        <EmlFileLoader
+          @eml-loaded="handleEmlLoaded"
+          class="margin-large-bottom"
+        />
+
         <fieldset
           v-if="datasetErrors?.length > 0"
           class="padding-large-right"
@@ -288,6 +293,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
+import EmlFileLoader from './components/EmlFileLoader.vue'
 
 const EXTENSIONS = {
   resource_relationships: 'Resource relationships (biological associations)',
@@ -510,6 +516,16 @@ function openLink(event) {
   if (noUnsavedChanges() || window.confirm('You have unsaved changes, are you sure you want to continue?')) {
     window.location.href = event.currentTarget.href
   }
+}
+
+function handleEmlLoaded(emlData) {
+  dataset.value = emlData.dataset
+  additionalMetadata.value = emlData.additionalMetadata
+
+  datasetErrors.value = null
+  additionalMetadataErrors.value = null
+
+  TW.workbench.alert.create('EML file loaded. Remember to validate and save.', 'notice')
 }
 
 </script>
