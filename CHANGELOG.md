@@ -26,6 +26,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project EML for complete project downloads fails to save if EML is too long [#4602]
 - Closed a loophole allowing EML to be saved with STUBs
 
+### Changed
+
+- Updated Ruby gems
+
 [#4536]: https://github.com/SpeciesFileGroup/taxonworks/issues/4536
 [#4599]: https://github.com/SpeciesFileGroup/taxonworks/issues/4599
 [#4602]: https://github.com/SpeciesFileGroup/taxonworks/issues/4602
