@@ -595,7 +595,11 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       # Cause the async delayed job to run immediately here.
       allow_any_instance_of(ActiveSupport::Duration).to receive(:from_now).and_return(Time.now)
 
-      AssertedDistribution.batch_update(params.merge({ async_cutoff: 1 }))
+      AssertedDistribution.batch_update(params.merge({
+        async_cutoff: 1,
+        user_id: Current.user_id,
+        project_id: Current.project_id
+      }))
 
       expect(ad1.reload.asserted_distribution_shape_id).to eq(ga1.id)
 

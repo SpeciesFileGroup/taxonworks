@@ -133,6 +133,31 @@ describe BiologicalAssociation, type: :model do
     expect(a.biological_association_object).to eq(d)
   end
 
+  specify '.batch_update() (async)' do
+    a = FactoryBot.create(:valid_biological_association)
+    b = FactoryBot.create(:valid_biological_association)
+    r = FactoryBot.create(:valid_biological_relationship)
+
+    q = ::Queries::BiologicalAssociation::Filter.new({biological_association_id: [a.id, b.id]})
+
+    params = {
+      async_cutoff: 1,
+      biological_association: {biological_relationship_id: r.id},
+      user_id: Current.user_id,
+      project_id: Current.project_id
+    }.merge(biological_association_query: q.params)
+
+    response = BiologicalAssociation.batch_update(params).to_json
+
+    sleep(2) # jobs trigger in 1 second
+    Delayed::Worker.new.work_off
+
+    expect(response[:total_attempted]).to eq(2)
+    expect(response[:async]).to eq(true)
+    expect(a.reload.biological_relationship).to eq(r)
+    expect(b.reload.biological_relationship).to eq(r)
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'is_data'
