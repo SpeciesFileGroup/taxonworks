@@ -362,7 +362,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         ) unless get_field_value(:occurrenceID).nil? || import_dataset.get_core_record_identifier_namespace.nil?
 
         collection_object.taxon_determinations.create!({
-          otu: innermost_otu || innermost_protonym.otus.find_by(name: nil) || innermost_protonym.otus.first # TODO: Might require select-and-confirm functionality
+          otu: innermost_otu || innermost_protonym.otus.then { |o| o.find_by(name: nil) || o.first || o.create! }
         }.merge(attributes[:taxon_determination]))
 
 

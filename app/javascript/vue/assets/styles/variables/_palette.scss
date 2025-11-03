@@ -50,6 +50,12 @@
 
   --taxon-name-valid-color: #0c2351;
   --taxon-name-invalid-color: #b0783c;
+
+  --code-tag-color: #116611;
+  --code-attribute-color: #0077aa;
+  --code-string-color: #000000;
+  --code-error-color: #cc0000;
+  --code-selection-color: #d7e4f7;
 }
 
 .dark {
@@ -99,6 +105,12 @@
   --feedback-warning-text-color: #cf873b;
   --feedback-warning-bg-color: #37332f;
   --feedback-warning-border-color: #6b461e;
+
+  --code-tag-color: #90ee90;
+  --code-attribute-color: #87ceeb;
+  --code-string-color: #ffffff;
+  --code-error-color: #ff6b6b;
+  --code-selection-color: #264f78;
 
   --taxon-name-valid-color: #b6cfff;
   --taxon-name-invalid-color: #cf873b;

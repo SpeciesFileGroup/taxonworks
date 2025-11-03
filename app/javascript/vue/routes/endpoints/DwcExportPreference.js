@@ -17,7 +17,7 @@ export const DwcExportPreference = {
     AjaxCall('post', `/projects/${id}/dwc_export_preferences/set_predicates_and_internal_values.json`, params),
 
   validateEML: (params) =>
-    AjaxCall('get', `/projects/dwc_export_preferences/validate_eml.json`, { params }),
+    AjaxCall('post', `/projects/dwc_export_preferences/validate_eml.json`,  params),
 
   saveEML: (id, params) =>
     AjaxCall('post', `/projects/${id}/dwc_export_preferences/save_eml.json`, params),
