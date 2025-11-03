@@ -23,7 +23,7 @@
       v-if="store.isDragging && isMouseover"
     >
       <li
-        v-for="item in store.selected[store.currentDragged.parent.id] || {}"
+        v-for="item in selectedItems"
         :key="item.id"
         class="ghost-list"
       >
@@ -68,18 +68,25 @@
         </template>
       </VDraggable>
     </template>
+    <VSpinner
+      v-if="isUpdating"
+      full-screen
+      legend="Moving taxon..."
+    />
   </li>
 </template>
 
 <script setup>
-import { computed, ref, toRaw, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
-import { findNodeById, removeNode } from '../../utils'
+import { findNodeById, removeNode, makeTaxonNode } from '../../utils'
+import { usePressedKey } from '@/composables/usePressedKey'
 import TreeNode from './TreeNode.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VDraggable from 'vuedraggable'
 import useStore from '../../store/store.js'
-import { usePressedKey } from '@/composables/usePressedKey'
+import { removeFromArray } from '@/helpers'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const GHOST_SELECTOR = '.sortable-ghost'
 
@@ -110,10 +117,20 @@ const props = defineProps({
   }
 })
 
+const isUpdating = ref(false)
 const isLoading = ref(false)
 const store = useStore()
 const isMouseover = ref(false)
+
 const { isKeyPressed } = usePressedKey()
+
+const selectedItems = computed(() =>
+  store.selected[store.currentDragged?.parent?.id]
+    ? store.selected[store.currentDragged.parent.id].filter(
+        (item) => item.id !== store.currentDragged.taxon.id
+      )
+    : []
+)
 
 const rootEl = ref(null)
 
@@ -182,18 +199,6 @@ function toggle() {
   props.taxon.isExpanded = !props.taxon.isExpanded
 }
 
-function makeTaxonNode(taxon) {
-  return {
-    id: taxon.id,
-    name: taxon.label,
-    parentId: taxon.parent_id,
-    isValid: taxon.is_valid,
-    leaf: taxon.leaf_node,
-    synonyms: taxon.synonyms || [],
-    children: []
-  }
-}
-
 function expandNode(taxonId) {
   isLoading.value = true
   TaxonName.taxonomy(taxonId, {
@@ -233,44 +238,73 @@ function reasignNode(parentId, index) {
 
   if (targetParent) {
     targetParent.children.splice(index, 0, {
-      ...structuredClone(toRaw(store.currentDragged.taxon)),
+      ...store.currentDragged.taxon,
       parentId: parentId
     })
   }
 }
 
-function handleAdd(e) {
-  const { newIndex } = e
-  const movedTaxon = props.taxon.children[newIndex]
+function moveTaxon({ taxon, parentId, newIndex }) {
   const payload = {
-    taxon_name: { parent_id: props.taxon.id }
+    taxon_name: { parent_id: parentId }
   }
 
-  TaxonName.update(movedTaxon.id, payload)
+  const request = TaxonName.update(taxon.id, payload)
+  const children = store.currentDragged.parent.children
+
+  request
     .then(({ body }) => {
       const newName = [body.cached_html, body.cached_author_year].join(' ')
 
       removeNode(props.tree, {
-        id: movedTaxon.id,
-        parentId: movedTaxon.parentId
+        id: taxon.id,
+        parentId: taxon.parentId
       })
 
-      Object.assign(movedTaxon, {
+      Object.assign(taxon, {
         parentId: body.parent_id,
         name: newName
       })
 
-      reasignNode(movedTaxon.parentId, newIndex)
+      reasignNode(taxon.parentId, newIndex)
+
+      if (props.taxon.children.every((c) => c.id !== taxon.id)) {
+        props.taxon.children.splice(newIndex, 0, taxon)
+
+        removeFromArray(children, taxon)
+      }
 
       TW.workbench.alert.create(`${newName} was reclassified to successfully`)
     })
     .catch(() => {
       props.taxon.children.splice(newIndex, 1)
-      store.currentDragged.parent.children.splice(
-        store.currentDragged.index,
-        0,
-        movedTaxon
-      )
+
+      if (children.every((c) => c.id !== taxon.id)) {
+        children.splice(store.currentDragged.index, 0, taxon)
+      }
+    })
+
+  return request
+}
+
+function handleAdd(e) {
+  const { newIndex } = e
+  const movedTaxon = props.taxon.children[newIndex]
+  const items = [movedTaxon, ...selectedItems.value]
+
+  isUpdating.value = true
+
+  const promises = items.map((taxon) =>
+    moveTaxon({ taxon, parentId: props.taxon.id, newIndex })
+  )
+
+  Promise.all(promises)
+    .then(() => {
+      store.selected[store.currentDragged.parent.id] = []
+    })
+    .catch(() => {})
+    .finally(() => {
+      isUpdating.value = false
     })
 }
 </script>
