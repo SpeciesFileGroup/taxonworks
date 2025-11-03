@@ -11,6 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - extend[]=notes to all api endpoints for which it makes sense
 
+### Fixed
+
+- Show OTUs whose Taxon Name has primary type `syntypes` (plural) as type 'primary type' on distribution maps (`syntype` already was)
+
 ## [0.54.3] - 2025-11-02
 
 ### Added
