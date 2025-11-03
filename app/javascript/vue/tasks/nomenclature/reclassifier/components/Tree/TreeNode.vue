@@ -15,7 +15,7 @@
     <span
       :class="['list-reclassifer-taxon-item', isSelected && 'selected']"
       v-html="taxon.name"
-      @click="() => addToSelected(taxon)"
+      @click.prevent="() => addToSelected(taxon)"
     />
 
     <ul
