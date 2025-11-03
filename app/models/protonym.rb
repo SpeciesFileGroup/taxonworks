@@ -983,7 +983,6 @@ class Protonym < TaxonName
       rank_string =~ /Species/ &&
       (cached_secondary_homonym != get_genus_species(:current, :self) ||
        cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)))
-
     is_cached = false
   end
 

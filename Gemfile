@@ -4,7 +4,6 @@ gem 'rack-cors', '~> 2.0', require: 'rack/cors'
 
 ruby '>= 3.2', '< 3.5.0'
 
-gem 'bundler', '~> 2.5'
 
 gem 'rake', '~> 13.0'
 gem 'rails', '~> 7.2'
@@ -228,5 +227,4 @@ group :production do
   gem 'execjs', '~> 2.8.1'
   gem 'passenger', '~> 6.0.2'
 end
-
 
