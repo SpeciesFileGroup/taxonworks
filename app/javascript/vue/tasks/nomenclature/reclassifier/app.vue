@@ -1,6 +1,18 @@
 <template>
-  <h1>Taxon name reclassifier</h1>
-  <div class="horizontal-left-content gap-medium align-start">
+  <div class="flex flex-separate middle">
+    <h1>Taxon name reclassifier</h1>
+    <ul class="context-menu">
+      <li>
+        <a :href="RouteNames.FilterNomenclature">Filter taxon name</a>
+      </li>
+    </ul>
+  </div>
+  <div
+    class="horizontal-left-content gap-medium align-start"
+    v-help="
+      'You can drag and drop nodes between the two taxonomy trees to reorganize them. To select multiple nodes, hold the <b>Ctrl</b> key and click on each node you want to include.'
+    "
+  >
     <PanelTree
       class="full_width"
       v-model="store.treeLeft"
@@ -30,6 +42,8 @@ import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composa
 import useStore from './store/store.js'
 import PanelTree from './components/Tree/PanelTree.vue'
 import { findNodeById } from './utils'
+import { RouteNames } from '@/routes/routes.js'
+import { vHelp } from '@/directives/help.js'
 
 defineOptions({
   name: 'TaxonNameReclassifierApp'
