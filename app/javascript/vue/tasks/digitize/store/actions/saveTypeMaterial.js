@@ -20,12 +20,14 @@ export default ({ commit, state }) => {
 
     promises.push(saveRequest)
 
-    saveRequest.then(({ body }) => {
-      commit(
-        MutationNames.AddTypeMaterial,
-        makeTypeMaterial({ ...typeSpecimen, ...body })
-      )
-    })
+    saveRequest
+      .then(({ body }) => {
+        commit(
+          MutationNames.AddTypeMaterial,
+          makeTypeMaterial({ ...typeSpecimen, ...body })
+        )
+      })
+      .catch(() => {})
   })
   return Promise.all(promises)
 }
