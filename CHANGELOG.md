@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- extend[]=notes to all api endpoints for which it makes sense
 
 ## [0.54.3] - 2025-11-02
 
