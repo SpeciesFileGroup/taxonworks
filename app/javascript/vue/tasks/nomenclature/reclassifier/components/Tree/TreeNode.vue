@@ -22,48 +22,80 @@
     <span
       :class="['list-reclassifer-taxon-item', isSelected && 'selected']"
       v-html="taxon.name"
+      @dblclick="openBrowse"
+      @contextmenu="
+        (e) => {
+          e.preventDefault()
+          contextMenuRef.openContextMenu(e)
+        }
+      "
       @click.prevent="() => addToSelected(taxon)"
+      @mousedown="
+        (event) => {
+          if (event.button === 1) {
+            openBrowse('_blank')
+          }
+        }
+      "
     />
 
-    <template v-if="(!taxon.isLoaded || taxon.isExpanded) && taxon.children">
-      <VDraggable
-        class="taxonomy-tree"
-        ref="rootEl"
-        item-key="id"
-        :group="group"
-        v-model="taxon.children"
-        tag="ul"
-        :sort="false"
-        :data-parent-id="taxon.id"
-        :data-tree="group.name"
-        handle=".list-reclassifer-taxon-item"
-        :swapThreshold="0.65"
-        invertSwap
-        forceFallback
-        fallbackOnBody
-        @add="handleAdd"
-        @choose="handleChoose"
-        @start="() => (store.isDragging = true)"
-        @end="
-          () => {
-            store.isDragging = false
-            onDragEndCleanup()
-          }
-        "
-      >
-        <template #item="{ element }">
-          <TreeNode
-            :taxon="element"
-            :group="group"
-            :data-parent-id="taxon.id"
-            :data-taxon-id="element.id"
-            :only-valid="onlyValid"
-            :tree="tree"
-            :target="target"
-          />
-        </template>
-      </VDraggable>
-    </template>
+    <ContextMenu
+      ref="contextMenu"
+      class="flex-col gap-small padding-small-bottom"
+    >
+      <div
+        class="context-menu-header padding-small"
+        v-html="taxon.name"
+      />
+
+      <a
+        v-for="task in TASKS"
+        :key="task.url"
+        class="padding-medium-left"
+        :href="`${task.url}?taxon_name_id=${props.taxon.id}`"
+        v-text="task.label"
+      />
+    </ContextMenu>
+
+    <VDraggable
+      v-show="(!taxon.isLoaded || taxon.isExpanded) && taxon.children"
+      class="taxonomy-tree"
+      ref="rootEl"
+      item-key="id"
+      :group="group"
+      v-model="taxon.children"
+      tag="ul"
+      :sort="false"
+      :data-parent-id="taxon.id"
+      :data-tree="group.name"
+      handle=".list-reclassifer-taxon-item"
+      :swapThreshold="0.65"
+      invertSwap
+      forceFallback
+      fallbackOnBody
+      @add="handleAdd"
+      @choose="handleChoose"
+      @start="() => (store.isDragging = true)"
+      @end="
+        () => {
+          store.isDragging = false
+          onDragEndCleanup()
+        }
+      "
+    >
+      <template #item="{ element }">
+        <TreeNode
+          :taxon="element"
+          :group="group"
+          :data-parent-id="taxon.id"
+          :data-taxon-id="element.id"
+          :only-valid="onlyValid"
+          :tree="tree"
+          :target="target"
+        />
+      </template>
+    </VDraggable>
+
     <ul
       class="taxonomy-tree"
       v-if="
@@ -92,16 +124,20 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
 import { findNodeById, removeNode, makeTaxonNode } from '../../utils'
 import { usePressedKey } from '@/composables/usePressedKey'
+import { makeBrowseUrl } from '@/helpers'
+import { TAXON_NAME } from '@/constants'
+import { removeFromArray } from '@/helpers'
 import TreeNode from './TreeNode.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VDraggable from 'vuedraggable'
 import useStore from '../../store/store.js'
-import { removeFromArray } from '@/helpers'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import ContextMenu from '@/components/ui/Context/ContextMenu.vue'
+import { RouteNames } from '@/routes/routes'
 
 const GHOST_SELECTOR = '.sortable-ghost'
 
@@ -132,10 +168,22 @@ const props = defineProps({
   }
 })
 
+const TASKS = [
+  {
+    label: 'Browse taxon name',
+    url: RouteNames.BrowseNomenclature
+  },
+  {
+    label: 'New taxon name',
+    url: RouteNames.NewTaxonName
+  }
+]
+
 const isUpdating = ref(false)
 const isLoading = ref(false)
 const store = useStore()
 const isMouseover = ref(false)
+const contextMenuRef = useTemplateRef('contextMenu')
 
 const { isKeyPressed } = usePressedKey()
 
@@ -171,6 +219,10 @@ function setupObserverForRoot(el) {
   })
 
   observer.observe(document.body, { childList: true, subtree: true })
+}
+
+function openBrowse(target = '_self') {
+  window.open(makeBrowseUrl({ id: props.taxon.id, type: TAXON_NAME }), target)
 }
 
 onMounted(() => setupObserverForRoot(rootEl.value.$el))
@@ -380,9 +432,17 @@ function handleAdd(e) {
   border-left: 2px dashed var(--color-update) !important;
 }
 
-.taxonomy-tree {
+:deep(.taxonomy-tree) {
   ul {
     padding: 4px 0;
+  }
+}
+
+.vue-context-menu {
+  z-index: 2;
+  .context-menu-header {
+    background-color: var(--bg-color);
+    border-bottom: 1px solid var(--border-color);
   }
 }
 </style>
