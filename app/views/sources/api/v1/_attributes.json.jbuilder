@@ -1,5 +1,4 @@
-# TODO: These need custom API versions
-json.partial! '/sources/base_attributes', source: source
+json.partial! '/sources/api/v1/base_attributes', source: source
 json.partial! '/shared/data/all/metadata', object: source, extensions: false
 
 json.source_in_project source_in_project?(source)

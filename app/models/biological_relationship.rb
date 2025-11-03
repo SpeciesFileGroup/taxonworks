@@ -16,6 +16,10 @@
 #   @return [Boolean]
 #     whether the relationship is reflexive, i.e. if A is_a B and is_a is_reflexive then B is_a A
 #
+# @!attribute definition
+#   @return [String]
+#     Purl url or textual description of the meaning of the relationship
+#
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
@@ -47,7 +51,7 @@ class BiologicalRelationship < ApplicationRecord
   #    the max 10 most recently used biological relationships
   def self.used_recently(user_id, project_id)
     t = BiologicalAssociation.arel_table
-    k = BiologicalRelationship.arel_table 
+    k = BiologicalRelationship.arel_table
 
     # i is a select manager
     i = t.project(t['biological_relationship_id'], t['created_at']).from(t)
