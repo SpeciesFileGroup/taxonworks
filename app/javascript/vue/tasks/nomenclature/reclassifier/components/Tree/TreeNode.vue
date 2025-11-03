@@ -20,7 +20,11 @@
 
     <ul
       class="taxonomy-tree"
-      v-if="store.isDragging && isMouseover"
+      v-if="
+        store.isDragging &&
+        isMouseover &&
+        selectedItems.every((t) => t.parentId !== props.taxon.id)
+      "
     >
       <li
         v-for="item in selectedItems"
