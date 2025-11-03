@@ -1,5 +1,12 @@
 <template>
-  <li class="cursor-grab">
+  <li
+    :class="[
+      'cursor-grab',
+      isMouseover &&
+        taxon.id !== store.currentDragged.taxon.parentId &&
+        'taxonomy-tree-ghost-hover'
+    ]"
+  >
     <VBtn
       v-if="!taxon.leaf"
       circle
@@ -18,26 +25,6 @@
       @click.prevent="() => addToSelected(taxon)"
     />
 
-    <ul
-      class="taxonomy-tree"
-      v-if="
-        store.isDragging &&
-        isMouseover &&
-        selectedItems.every((t) => t.parentId !== props.taxon.id)
-      "
-    >
-      <li
-        v-for="item in selectedItems"
-        :key="item.id"
-        class="ghost-list"
-      >
-        <span
-          class="list-reclassifer-taxon-item selected"
-          v-html="item.name"
-        />
-      </li>
-    </ul>
-
     <template v-if="(!taxon.isLoaded || taxon.isExpanded) && taxon.children">
       <VDraggable
         class="taxonomy-tree"
@@ -49,6 +36,11 @@
         :sort="false"
         :data-parent-id="taxon.id"
         :data-tree="group.name"
+        handle=".list-reclassifer-taxon-item"
+        :swapThreshold="0.65"
+        invertSwap
+        forceFallback
+        fallbackOnBody
         @add="handleAdd"
         @choose="handleChoose"
         @start="() => (store.isDragging = true)"
@@ -72,6 +64,25 @@
         </template>
       </VDraggable>
     </template>
+    <ul
+      class="taxonomy-tree"
+      v-if="
+        store.isDragging &&
+        isMouseover &&
+        selectedItems.every((t) => t.parentId !== props.taxon.id)
+      "
+    >
+      <li
+        v-for="item in selectedItems"
+        :key="item.id"
+        class="ghost-list"
+      >
+        <span
+          class="list-reclassifer-taxon-item selected"
+          v-html="item.name"
+        />
+      </li>
+    </ul>
     <VSpinner
       v-if="isUpdating"
       full-screen
@@ -140,7 +151,7 @@ const rootEl = ref(null)
 
 let observer = null
 
-function updateIsMouseoverFromGhost() {
+function updateIsMouseoverFromGhost(el) {
   const ghost = document.querySelector(GHOST_SELECTOR)
   if (!ghost) {
     if (isMouseover.value) isMouseover.value = false
@@ -149,14 +160,14 @@ function updateIsMouseoverFromGhost() {
 
   const ghostList = ghost.closest('.taxonomy-tree')
 
-  isMouseover.value = ghostList === rootEl.value.$el
+  isMouseover.value = ghostList === el
 }
 
 function setupObserverForRoot(el) {
   if (!el) return
 
   observer = new MutationObserver(() => {
-    updateIsMouseoverFromGhost()
+    updateIsMouseoverFromGhost(el)
   })
 
   observer.observe(document.body, { childList: true, subtree: true })
@@ -201,6 +212,20 @@ function toggle() {
   }
 
   props.taxon.isExpanded = !props.taxon.isExpanded
+}
+
+function isDroppedInside(evt) {
+  const mouseX = evt.originalEvent.clientX
+  const mouseY = evt.originalEvent.clientY
+
+  const rect = evt.to.getBoundingClientRect()
+  const droppedInside =
+    mouseX >= rect.left &&
+    mouseX <= rect.right &&
+    mouseY >= rect.top &&
+    mouseY <= rect.bottom
+
+  return droppedInside
 }
 
 function expandNode(taxonId) {
@@ -296,6 +321,18 @@ function handleAdd(e) {
   const movedTaxon = props.taxon.children[newIndex]
   const items = [movedTaxon, ...selectedItems.value]
 
+  if (!isDroppedInside(e)) {
+    props.taxon.children.splice(newIndex, 1)
+
+    store.currentDragged.parent.children.splice(
+      store.currentDragged.index,
+      0,
+      store.currentDragged.taxon
+    )
+
+    return
+  }
+
   isUpdating.value = true
 
   const promises = items.map((taxon) =>
@@ -335,6 +372,17 @@ function handleAdd(e) {
 .ghost-list {
   .selected {
     border-color: var(--color-update);
+  }
+}
+
+.taxonomy-tree-ghost-hover {
+  border: 2px dashed var(--color-update);
+  border-left: 2px dashed var(--color-update) !important;
+}
+
+.taxonomy-tree {
+  ul {
+    padding: 4px 0;
   }
 }
 </style>
