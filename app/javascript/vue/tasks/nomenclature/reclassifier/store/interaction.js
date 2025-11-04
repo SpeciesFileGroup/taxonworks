@@ -24,6 +24,14 @@ export default defineStore('reclassifier-interaction', {
       this.currentDragged = value
     },
 
+    setSelectedGroup(value, group) {
+      this.selected[group] = value
+    },
+
+    resetSelected() {
+      this.selected = {}
+    },
+
     addSelected(item, group) {
       const selectedItems = this.selected[group]
 

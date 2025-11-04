@@ -30,6 +30,13 @@
         }
       "
       @click.prevent="() => addToSelected(taxon)"
+      @mouseup="
+        () => {
+          if (!interactionStore.isDragging && !isKeyPressed('Control')) {
+            interactionStore.resetSelected()
+          }
+        }
+      "
       @mousedown="
         (event) => {
           if (event.button === 1) {
@@ -59,7 +66,11 @@
 
     <VDraggable
       v-show="(!taxon.isLoaded || taxon.isExpanded) && taxon.children"
-      class="taxonomy-tree"
+      :class="[
+        'taxonomy-tree',
+        interactionStore.currentDragged?.parent?.id === taxon.id &&
+          'current-group'
+      ]"
       ref="rootEl"
       item-key="id"
       :group="group"
@@ -235,6 +246,8 @@ function onDragEndCleanup() {
 function addToSelected(item) {
   if (isKeyPressed('Control')) {
     interactionStore.addSelected(item, props.taxon.parentId)
+  } else {
+    //interactionStore.setSelectedGroup([item], props.taxon.parentId)
   }
 }
 
@@ -379,7 +392,7 @@ function handleAdd(e) {
 
   Promise.all(promises)
     .then(() => {
-      interactionStore.selected[interactionStore.currentDragged.parent.id] = []
+      interactionStore.resetSelected()
     })
     .catch(() => {})
     .finally(() => {
@@ -389,28 +402,34 @@ function handleAdd(e) {
 </script>
 
 <style scoped>
-.list-reclassifer-taxon-item {
-  border: 2px dashed transparent;
-}
-
 .list-reclassifer-taxon-item:hover,
 .selected {
-  border-color: var(--color-primary);
+  background-color: var(--color-data);
+  color: #ffffff;
+}
+
+.list-reclassifer-taxon-item {
+  border-radius: 0.5rem;
+  padding: 2px 4px;
 }
 
 .sortable-ghost {
-  .list-reclassifer-taxon-item:hover {
-    border: 2px dashed transparent;
-  }
   .list-reclassifer-taxon-item {
-    border: 2px dashed var(--color-update);
+    color: #ffffff;
+    background-color: var(--color-update);
   }
 }
 
 .ghost-list {
   .selected {
-    border-color: var(--color-update);
+    color: #ffffff;
+    background-color: var(--color-update);
   }
+}
+
+.current-group > .sortable-ghost > .list-reclassifer-taxon-item {
+  color: #ffffff;
+  background-color: var(--color-primary);
 }
 
 .taxonomy-tree-ghost-hover {
