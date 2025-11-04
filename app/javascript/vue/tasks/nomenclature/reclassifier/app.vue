@@ -14,6 +14,7 @@
     "
   >
     <PanelTree
+      ref="panelLeft"
       class="full_width"
       v-model="storeLeft.tree"
       :target="storeRight.tree"
@@ -21,6 +22,7 @@
         name: 'tree-1',
         put: handlePut
       }"
+      @focus="(taxon) => storeLeft.setTree([taxon])"
       @sync="() => (storeLeft.tree = cloneTree(storeRight.tree))"
       @load="
         (id) =>
@@ -29,8 +31,19 @@
             { storeA: storeLeft, storeB: storeRight }
           )
       "
+      @align="
+        (taxon) => {
+          cloneAndAlign({
+            compRef: panelRightRef,
+            taxon,
+            storeA: storeLeft,
+            storeB: storeRight
+          })
+        }
+      "
     />
     <PanelTree
+      ref="panelRight"
       class="full_width"
       v-model="storeRight.tree"
       :target="storeLeft.tree"
@@ -38,6 +51,7 @@
         name: 'tree-2',
         put: handlePut
       }"
+      @focus="(taxon) => storeRight.setTree([taxon])"
       @sync="() => (storeRight.tree = cloneTree(storeLeft.tree))"
       @load="
         (id) =>
@@ -46,12 +60,22 @@
             { storeA: storeRight, storeB: storeLeft }
           )
       "
+      @align="
+        (taxon) => {
+          cloneAndAlign({
+            compRef: panelLeftRef,
+            taxon,
+            storeA: storeRight,
+            storeB: storeLeft
+          })
+        }
+      "
     />
   </div>
 </template>
 
 <script setup>
-import { onBeforeMount, toRaw } from 'vue'
+import { nextTick, onBeforeMount, toRaw, useTemplateRef } from 'vue'
 import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
 import { findNodeById } from './utils'
 import { RouteNames } from '@/routes/routes.js'
@@ -66,6 +90,8 @@ defineOptions({
 const { queryParam, queryValue } = useQueryParam()
 const storeLeft = useStore('treeLeft')()
 const storeRight = useStore('treeRight')()
+const panelLeftRef = useTemplateRef('panelLeft')
+const panelRightRef = useTemplateRef('panelRight')
 
 function isDescendant(node, targetNodeId) {
   if (!node.children || node.children.length === 0) return false
@@ -110,6 +136,32 @@ async function loadTree(parameters, { storeA, storeB }) {
   } catch {}
 }
 
+function scrollToNode(element) {
+  element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  element.classList.add('highlight-effect')
+  element.addEventListener(
+    'animationend',
+    () => {
+      element.classList.remove('highlight-effect')
+    },
+    { once: true }
+  )
+}
+
+async function cloneAndAlign({ compRef, taxon, storeA, storeB }) {
+  storeB.setTree(cloneTree(storeA.tree))
+
+  nextTick(() => {
+    const element = compRef.$el.querySelector(
+      `[data-taxon-id="${taxon.id}"] .list-reclassifer-taxon-item`
+    )
+
+    if (element) {
+      scrollToNode(element)
+    }
+  })
+}
+
 function cloneTree(tree) {
   return structuredClone(JSON.parse(JSON.stringify(tree)))
 }
@@ -132,6 +184,22 @@ onBeforeMount(async () => {
 
     li {
       padding-left: 6px;
+    }
+  }
+
+  .highlight-effect {
+    animation: highlight 1.5s ease;
+  }
+
+  @keyframes highlight {
+    0% {
+      background-color: transparent;
+    }
+    50% {
+      background-color: var(--color-warning);
+    }
+    100% {
+      background-color: transparent;
     }
   }
 }

@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 
 const position = ref({})
 const isVisible = ref(false)
@@ -22,8 +22,25 @@ const stylePosition = computed(() => ({
   top: position.value.y + 'px'
 }))
 
-function openContextMenu({ x, y }) {
+async function openContextMenu({ x, y }) {
   isVisible.value = true
+  await nextTick()
+
+  const menu = element.value
+  if (!menu) return
+
+  const menuRect = menu.getBoundingClientRect()
+  const viewportWidth = window.innerWidth
+  const viewportHeight = window.innerHeight
+
+  if (x + menuRect.width > viewportWidth) {
+    x = viewportWidth - menuRect.width
+  }
+
+  if (y + menuRect.height > viewportHeight) {
+    y = viewportHeight - menuRect.height
+  }
+
   position.value = { x, y }
 }
 

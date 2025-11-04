@@ -43,7 +43,7 @@
 
     <ContextMenu
       ref="contextMenu"
-      class="flex-col gap-small padding-small-bottom"
+      class="flex-col"
     >
       <div
         class="context-menu-header padding-small"
@@ -53,10 +53,23 @@
       <a
         v-for="task in TASKS"
         :key="task.url"
-        class="padding-medium-left"
-        :href="`${task.url}?taxon_name_id=${props.taxon.id}`"
+        class="vue-context-menu-item"
+        :href="`${task.url}?taxon_name_id=${taxon.id}`"
         v-text="task.label"
       />
+
+      <div
+        class="vue-context-menu-item"
+        @click="() => emit('focus', taxon)"
+      >
+        Focus
+      </div>
+      <div
+        class="vue-context-menu-item"
+        @click="() => emit('align', taxon)"
+      >
+        Clone tree and align
+      </div>
     </ContextMenu>
 
     <VDraggable
@@ -98,6 +111,8 @@
           :only-valid="onlyValid"
           :tree="tree"
           :target="target"
+          @align="(e) => emit('align', e)"
+          @focus="(e) => emit('focus', e)"
         />
       </template>
     </VDraggable>
@@ -173,6 +188,8 @@ const props = defineProps({
     required: true
   }
 })
+
+const emit = defineEmits(['focus', 'align'])
 
 const TASKS = [
   {
@@ -453,6 +470,11 @@ function handleAdd(e) {
   .context-menu-header {
     background-color: var(--bg-color);
     border-bottom: 1px solid var(--border-color);
+  }
+  .vue-context-menu-item {
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1em;
   }
 }
 </style>

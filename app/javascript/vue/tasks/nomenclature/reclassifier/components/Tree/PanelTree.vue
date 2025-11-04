@@ -48,6 +48,9 @@
               :taxon="taxon"
               :tree="tree"
               :target="target"
+              :data-tree="group.name"
+              @align="(e) => emit('align', e)"
+              @focus="(e) => emit('focus', e)"
             />
           </ul>
         </div>
@@ -86,7 +89,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['load', 'sync'])
+const emit = defineEmits(['align', 'load', 'sync', 'focus'])
 
 const tree = defineModel({
   type: Array,
