@@ -99,6 +99,8 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
       params: {
         protocol_id: protocol.id
       },
+      project_id: Project.first.id,
+      user_id: User.first.id,
       async_cutoff: 0)
     expect(ProtocolRelationship.all.count).to eq(0)
 

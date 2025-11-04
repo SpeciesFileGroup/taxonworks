@@ -21,7 +21,9 @@ RSpec.describe Confidence, type: :model, group: :confidence do
       params: {
         confidence_level_id: c1.id,
         replace_confidence_level_id: confidence_level.id
-      }
+      },
+      project_id: Project.first.id,
+      user_id: User.first.id
     )
 
     # expect { ConfidenceBatchJob.perform_later }.to have_enqueued_job.on_queue(:query_batch_update)
@@ -43,7 +45,9 @@ RSpec.describe Confidence, type: :model, group: :confidence do
       params: {
         confidence_level_id: c1.id,
         replace_confidence_level_id: confidence_level.id
-      }
+      },
+      project_id: Project.first.id,
+      user_id: User.first.id
     )
 
     # expect { ConfidenceBatchJob.perform_later }.to have_enqueued_job.on_queue(:query_batch_update)
@@ -101,6 +105,8 @@ RSpec.describe Confidence, type: :model, group: :confidence do
       params: {
         confidence_level_id: confidence_level.id
       },
+      project_id: Project.first.id,
+      user_id: User.first.id,
       async_cutoff: 0)
     expect(Confidence.all.count).to eq(0)
 
