@@ -3,7 +3,7 @@
     :class="[
       'cursor-grab',
       isMouseover &&
-        taxon.id !== store.currentDragged.taxon.parentId &&
+        taxon.id !== interactionStore.currentDragged.taxon.parentId &&
         'taxonomy-tree-ghost-hover'
     ]"
   >
@@ -75,10 +75,10 @@
       fallbackOnBody
       @add="handleAdd"
       @choose="handleChoose"
-      @start="() => (store.isDragging = true)"
+      @start="() => (interactionStore.isDragging = true)"
       @end="
         () => {
-          store.isDragging = false
+          interactionStore.isDragging = false
           onDragEndCleanup()
         }
       "
@@ -99,7 +99,7 @@
     <ul
       class="taxonomy-tree"
       v-if="
-        store.isDragging &&
+        interactionStore.isDragging &&
         isMouseover &&
         selectedItems.every((t) => t.parentId !== props.taxon.id)
       "
@@ -131,13 +131,13 @@ import { usePressedKey } from '@/composables/usePressedKey'
 import { makeBrowseUrl } from '@/helpers'
 import { TAXON_NAME } from '@/constants'
 import { removeFromArray } from '@/helpers'
+import { RouteNames } from '@/routes/routes'
 import TreeNode from './TreeNode.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VDraggable from 'vuedraggable'
-import useStore from '../../store/store.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import ContextMenu from '@/components/ui/Context/ContextMenu.vue'
-import { RouteNames } from '@/routes/routes'
+import useInteractionStore from '../../store/interaction.js'
 
 const GHOST_SELECTOR = '.sortable-ghost'
 
@@ -181,18 +181,16 @@ const TASKS = [
 
 const isUpdating = ref(false)
 const isLoading = ref(false)
-const store = useStore()
+const interactionStore = useInteractionStore()
 const isMouseover = ref(false)
 const contextMenuRef = useTemplateRef('contextMenu')
 
 const { isKeyPressed } = usePressedKey()
 
 const selectedItems = computed(() =>
-  store.selected[store.currentDragged?.parent?.id]
-    ? store.selected[store.currentDragged.parent.id].filter(
-        (item) => item.id !== store.currentDragged.taxon.id
-      )
-    : []
+  interactionStore.getSelectedItemsByGroup(
+    interactionStore.currentDragged?.parent?.id
+  )
 )
 
 const rootEl = ref(null)
@@ -236,24 +234,12 @@ function onDragEndCleanup() {
 
 function addToSelected(item) {
   if (isKeyPressed('Control')) {
-    const selectedItems = store.selected[props.taxon.parentId]
-
-    if (selectedItems) {
-      const index = selectedItems.findIndex((t) => t.id === item.id)
-
-      if (index > -1) {
-        selectedItems.splice(index, 1)
-      } else {
-        selectedItems.push(item)
-      }
-    } else {
-      store.selected[props.taxon.parentId] = [item]
-    }
+    interactionStore.addSelected(item, props.taxon.parentId)
   }
 }
 
 const isSelected = computed(() =>
-  store.selected[props.taxon.parentId]?.some(
+  interactionStore.selected[props.taxon.parentId]?.some(
     (item) => item.id === props.taxon.id
   )
 )
@@ -307,7 +293,7 @@ function expandNode(taxonId) {
 }
 
 function handleChoose(e) {
-  store.setCurrentDraggedTaxon({
+  interactionStore.setCurrentDraggedTaxon({
     parent: props.taxon,
     taxon: props.taxon.children[e.oldIndex],
     index: e.oldIndex
@@ -319,7 +305,7 @@ function reasignNode(parentId, index) {
 
   if (targetParent) {
     targetParent.children.splice(index, 0, {
-      ...store.currentDragged.taxon,
+      ...interactionStore.currentDragged.taxon,
       parentId: parentId
     })
   }
@@ -331,7 +317,7 @@ function moveTaxon({ taxon, parentId, newIndex }) {
   }
 
   const request = TaxonName.update(taxon.id, payload)
-  const children = store.currentDragged.parent.children
+  const children = interactionStore.currentDragged.parent.children
 
   request
     .then(({ body }) => {
@@ -361,7 +347,7 @@ function moveTaxon({ taxon, parentId, newIndex }) {
       props.taxon.children.splice(newIndex, 1)
 
       if (children.every((c) => c.id !== taxon.id)) {
-        children.splice(store.currentDragged.index, 0, taxon)
+        children.splice(interactionStore.currentDragged.index, 0, taxon)
       }
     })
 
@@ -376,10 +362,10 @@ function handleAdd(e) {
   if (!isDroppedInside(e)) {
     props.taxon.children.splice(newIndex, 1)
 
-    store.currentDragged.parent.children.splice(
-      store.currentDragged.index,
+    interactionStore.currentDragged.parent.children.splice(
+      interactionStore.currentDragged.index,
       0,
-      store.currentDragged.taxon
+      interactionStore.currentDragged.taxon
     )
 
     return
@@ -393,7 +379,7 @@ function handleAdd(e) {
 
   Promise.all(promises)
     .then(() => {
-      store.selected[store.currentDragged.parent.id] = []
+      interactionStore.selected[interactionStore.currentDragged.parent.id] = []
     })
     .catch(() => {})
     .finally(() => {

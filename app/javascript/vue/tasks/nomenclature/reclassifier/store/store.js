@@ -2,43 +2,39 @@ import { defineStore } from 'pinia'
 import { TaxonName } from '@/routes/endpoints'
 import { buildTree } from '../utils'
 
-export default defineStore('reclassifier', {
-  state: () => ({
-    currentDragged: {},
-    treeRight: [],
-    treeLeft: [],
-    isLoading: false,
-    selected: {},
-    isDragging: false
-  }),
+export default function (treeName) {
+  return defineStore(`reclassifier-${treeName}`, {
+    state: () => ({
+      tree: [],
+      treeLeft: [],
+      isLoading: false
+    }),
 
-  actions: {
-    loadTree(params, side) {
-      this.isLoading = true
+    actions: {
+      async loadTree(params) {
+        try {
+          this.isLoading = true
 
-      TaxonName.filter({ ...params, ancestrify: true, per: 2000 })
-        .then(({ body }) => {
+          const { body } = await TaxonName.filter({
+            ...params,
+            ancestrify: true,
+            per: 2000
+          })
+
           const tree = buildTree(body)
 
-          switch (side) {
-            case 'left':
-              this.treeLeft = tree
-              break
-            case 'right':
-              this.treeRight = tree
-              break
-            default:
-              this.treeLeft = tree
-              this.treeRight = structuredClone(tree)
-          }
-        })
-        .finally(() => {
-          this.isLoading = false
-        })
-    },
+          this.setTree(tree)
 
-    setCurrentDraggedTaxon(value) {
-      this.currentDragged = value
+          return tree
+        } catch {
+        } finally {
+          this.isLoading = false
+        }
+      },
+
+      setTree(tree) {
+        this.tree = tree
+      }
     }
-  }
-})
+  })
+}

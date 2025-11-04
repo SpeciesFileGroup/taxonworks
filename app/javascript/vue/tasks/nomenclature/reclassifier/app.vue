@@ -15,42 +15,57 @@
   >
     <PanelTree
       class="full_width"
-      v-model="store.treeLeft"
-      :target="store.treeRight"
+      v-model="storeLeft.tree"
+      :target="storeRight.tree"
       :group="{
         name: 'tree-1',
         put: handlePut
       }"
-      @load="(id) => store.loadTree({ taxon_name_id: [id] }, 'left')"
+      @sync="() => (storeLeft.tree = cloneTree(storeRight.tree))"
+      @load="
+        (id) =>
+          loadTree(
+            { taxon_name_id: [id] },
+            { storeA: storeLeft, storeB: storeRight }
+          )
+      "
     />
     <PanelTree
       class="full_width"
-      v-model="store.treeRight"
-      :target="store.treeLeft"
+      v-model="storeRight.tree"
+      :target="storeLeft.tree"
       :group="{
         name: 'tree-2',
         put: handlePut
       }"
-      @load="(id) => store.loadTree({ taxon_name_id: [id] }, 'right')"
+      @sync="() => (storeRight.tree = cloneTree(storeLeft.tree))"
+      @load="
+        (id) =>
+          loadTree(
+            { taxon_name_id: [id] },
+            { storeA: storeRight, storeB: storeLeft }
+          )
+      "
     />
   </div>
 </template>
 
 <script setup>
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, toRaw } from 'vue'
 import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
-import useStore from './store/store.js'
-import PanelTree from './components/Tree/PanelTree.vue'
 import { findNodeById } from './utils'
 import { RouteNames } from '@/routes/routes.js'
 import { vHelp } from '@/directives/help.js'
+import useStore from './store/store.js'
+import PanelTree from './components/Tree/PanelTree.vue'
 
 defineOptions({
   name: 'TaxonNameReclassifierApp'
 })
 
 const { queryParam, queryValue } = useQueryParam()
-const store = useStore()
+const storeLeft = useStore('treeLeft')()
+const storeRight = useStore('treeRight')()
 
 function isDescendant(node, targetNodeId) {
   if (!node.children || node.children.length === 0) return false
@@ -71,11 +86,11 @@ function handlePut(to, from, dragEl) {
   const dragId = dragEl.dataset.taxonId
 
   const draggedNode =
-    findNodeById(store.treeLeft, dragId) ||
-    findNodeById(store.treeRight, dragId)
+    findNodeById(storeLeft.tree, dragId) ||
+    findNodeById(storeRight.tree, dragId)
   const targetNode =
-    findNodeById(store.treeLeft, toParentId) ||
-    findNodeById(store.treeRight, toParentId)
+    findNodeById(storeLeft.tree, toParentId) ||
+    findNodeById(storeRight.tree, toParentId)
 
   return (
     toTree !== fromTree &&
@@ -85,10 +100,26 @@ function handlePut(to, from, dragEl) {
   )
 }
 
-onBeforeMount(() => {
-  if (queryParam.value === 'taxon_name_query') {
-    store.loadTree(queryValue.value)
-  }
+async function loadTree(parameters, { storeA, storeB }) {
+  try {
+    const tree = await storeA.loadTree(parameters)
+
+    if (!storeB.tree.length) {
+      storeB.setTree(cloneTree(tree))
+    }
+  } catch {}
+}
+
+function cloneTree(tree) {
+  return structuredClone(JSON.parse(JSON.stringify(tree)))
+}
+
+onBeforeMount(async () => {
+  try {
+    if (queryParam.value === 'taxon_name_query') {
+      loadTree(queryValue.value, { storeA: storeLeft, storeB: storeRight })
+    }
+  } catch {}
 })
 </script>
 
