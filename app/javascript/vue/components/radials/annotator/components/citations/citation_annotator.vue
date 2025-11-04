@@ -44,7 +44,7 @@
       <TableList
         :list="list"
         @move="removeFromList"
-        @edit="citation = $event"
+        @edit="(c) => (citation = { ...c })"
         @delete="removeItem"
       />
     </div>
@@ -98,7 +98,7 @@
       v-if="isModalVisible"
       :citation="citation"
       :original-citation="originalCitation"
-      @save="(item) => add(item)"
+      @save="(item) => addToList(item)"
       @create="setCitation"
       @close="isModalVisible = false"
     />
@@ -145,8 +145,8 @@ const isModalVisible = ref(false)
 
 const originalCitation = computed(() => list.value.find((c) => c.is_original))
 
-function setCitation(citation) {
-  citation.value = citation
+function setCitation(item) {
+  citation.value = { ...item }
 }
 
 function newCitation() {
@@ -193,11 +193,7 @@ function saveCitation(item) {
     extend: EXTEND_PARAMS
   }
 
-  if (
-    item.is_original &&
-    originalCitation.value &&
-    originalCitation.value.id !== item.id
-  ) {
+  if (item.is_original && originalCitation.value?.id !== item.id) {
     isModalVisible.value = true
 
     return
@@ -210,7 +206,7 @@ function saveCitation(item) {
   request
     .then(({ body }) => {
       addToList(body)
-      citation.value = body
+      setCitation(body)
       TW.workbench.alert.create('Citation was successfully saved.', 'notice')
     })
     .catch(() => {})

@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Show OTUs whose Taxon Name has primary type `syntypes` (plural) as type 'primary type' on distribution maps (`syntype` already was)
+- Radial annotator: Sometimes, the modal to update the original citation doesn't display
 
 ## [0.54.3] - 2025-11-02
 
