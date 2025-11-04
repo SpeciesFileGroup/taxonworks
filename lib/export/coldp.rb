@@ -240,7 +240,10 @@ module Export
       )
     end
 
-    def self.download_async(otu, request = nil, prefer_unlabelled_otus: true)
+    def self.download_async(
+      otu, request = nil, prefer_unlabelled_otus: true,
+      user_id: nil, project_id: nil
+    )
       download = ::Download::Coldp.create!(
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
@@ -249,7 +252,7 @@ module Export
         expires: 5.days.from_now
       )
 
-      ColdpCreateDownloadJob.perform_later(otu, download, prefer_unlabelled_otus:)
+      ColdpCreateDownloadJob.perform_later(otu, download, prefer_unlabelled_otus:, user_id:, project_id:)
 
       download
     end

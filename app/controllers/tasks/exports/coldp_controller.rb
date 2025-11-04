@@ -9,7 +9,12 @@ class Tasks::Exports::ColdpController < ApplicationController
     @otu = Otu.where(project_id: sessions_current_project_id).find(params.require(:otu_id))
     if @otu.taxon_name
       # In development you must have the background job proccessor working: `rails jobs:work`
-      download = ::Export::Coldp.download_async(@otu, request.url, prefer_unlabelled_otus: !!params[:prefer_unlabelled_otus])
+      download = ::Export::Coldp.download_async(
+        @otu, request.url,
+        prefer_unlabelled_otus: !!params[:prefer_unlabelled_otus],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id
+      )
       redirect_to file_download_path(download)
     else
       redirect_to export_coldp_task_path, notice: 'Please select an OTU that is linked to the nomenclature (has a taxon name).'
