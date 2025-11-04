@@ -9,12 +9,7 @@ class ColdpCreateDownloadJob < ApplicationJob
     2
   end
 
-  def perform(
-    otu, download, prefer_unlabelled_otus: false, user_id: nil, project_id: nil
-  )
-    Current.user_id = user_id
-    Current.project_id = project_id
-
+  def perform(otu, download, prefer_unlabelled_otus: false)
     begin
       download.source_file_path = ::Export::Coldp.export(otu.id, prefer_unlabelled_otus: prefer_unlabelled_otus)
       download.save

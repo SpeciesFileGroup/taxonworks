@@ -20,13 +20,13 @@ describe Export::Coldp, type: :model, group: :col do
     #     For combination
     #     For misspelled original protonym differening from current parent
     # Add original combination data
-    #
+    # 
     let!(:species) { FactoryBot.create(:iczn_species) }
     let(:otu) { Otu.create(taxon_name: species) }
     let(:specimen) { Specimen.create! }
     let!(:citation) { Citation.create!(citation_object: otu, source: FactoryBot.create(:valid_source_bibtex), is_original: true) }
     let!(:invalid_species) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: species.parent) }
-    let!(:synonym) { TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: invalid_species, object_taxon_name: species) }
+    let!(:synonym) { TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: invalid_species, object_taxon_name: species) }    
     let!(:common_name) { FactoryBot.create(:valid_common_name, otu: otu) }
     let!(:type_material) { FactoryBot.create(:valid_type_material, collection_object: specimen, protonym: species) }
     let!(:asserted_distribution) { FactoryBot.create(:valid_geographic_area_asserted_distribution, asserted_distribution_object: otu) }
@@ -38,8 +38,7 @@ describe Export::Coldp, type: :model, group: :col do
     let!(:d) {
       ::Export::Coldp.download_async(
         otu, 'https://example.org/some_url',
-        prefer_unlabelled_otus: true,
-        user_id: User.first.id, project_id: Project.first.id
+        prefer_unlabelled_otus: true
       )
     }
 
