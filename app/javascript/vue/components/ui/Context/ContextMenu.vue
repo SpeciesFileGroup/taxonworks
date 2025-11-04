@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
 const position = ref({})
 const isVisible = ref(false)
@@ -38,10 +38,17 @@ onMounted(() => {
     passive: true,
     capture: true
   })
+  document.addEventListener('contextmenu', handleEvent, {
+    passive: true,
+    capture: true
+  })
 })
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleEvent, {
+    capture: true
+  })
+  document.removeEventListener('contextmenu', handleEvent, {
     capture: true
   })
 })
