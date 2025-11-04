@@ -49,7 +49,8 @@ describe Source::Bibtex, type: :model, group: :sources do
     params = {
       async_cutoff: 1,
       source: { serial_id: s2.id },
-      user_id: Current.user_id
+      user_id: Current.user_id,
+      project_id: Current.project_id
     }.merge(source_query: {source_id: [sb1.id, sb2.id]})
 
     response = Source::Bibtex.batch_update(params).to_json

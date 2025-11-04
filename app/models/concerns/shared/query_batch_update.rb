@@ -41,6 +41,8 @@ module Shared::QueryBatchUpdate
       a = request.filter
 
       if request.run_async?
+        # Fail loudly now, otherwise we'll fail silently in the background.
+        raise TaxonWorks::Error, "user_id or project_id not set in query_batch_update! '#{request}'" if request.user_id.nil? || request.project_id.nil?
         a.all.find_each do |o|
           o
             .delay(run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update)
