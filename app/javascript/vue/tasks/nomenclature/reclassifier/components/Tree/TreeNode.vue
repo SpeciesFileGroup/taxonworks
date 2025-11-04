@@ -23,12 +23,7 @@
       :class="['list-reclassifer-taxon-item', isSelected && 'selected']"
       v-html="taxon.name"
       @dblclick="openBrowse"
-      @contextmenu="
-        (e) => {
-          e.preventDefault()
-          contextMenuRef.openContextMenu(e)
-        }
-      "
+      @contextmenu="handleContextMenu"
       @click.prevent="() => addToSelected(taxon)"
       @mouseup="
         () => {
@@ -365,6 +360,16 @@ function moveTaxon({ taxon, parentId, newIndex }) {
     })
 
   return request
+}
+
+function handleContextMenu(e) {
+  e.preventDefault()
+
+  if (e.ctrlKey) {
+    addToSelected(props.taxon)
+  } else {
+    contextMenuRef.value.openContextMenu(e)
+  }
 }
 
 function handleAdd(e) {
