@@ -3,6 +3,7 @@
     <VSpinner
       v-if="isUpdating"
       full-screen
+      legend="Saving..."
     />
     <SmartSelector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
