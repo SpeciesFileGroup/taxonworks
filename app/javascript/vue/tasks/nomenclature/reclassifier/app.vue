@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { nextTick, onBeforeMount, toRaw, useTemplateRef } from 'vue'
+import { nextTick, onBeforeMount, useTemplateRef } from 'vue'
 import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
 import { findNodeById } from './utils'
 import { RouteNames } from '@/routes/routes.js'
@@ -167,6 +167,11 @@ function cloneTree(tree) {
 }
 
 onBeforeMount(async () => {
+  TW.workbench.keyboard.createLegend(
+    `Ctrl+Left click`,
+    'Select multiple nodes',
+    'Taxon name reclassifier'
+  )
   try {
     if (queryParam.value === 'taxon_name_query') {
       loadTree(queryValue.value, { storeA: storeLeft, storeB: storeRight })

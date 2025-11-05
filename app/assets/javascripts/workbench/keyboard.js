@@ -70,7 +70,7 @@ Object.assign(TW.workbench.keyboard, {
     divContainer.id = 'keyShortcuts'
     divContainer.innerHTML = `
     <a class="legend">Keyboard shortcuts available</a>
-      <div class="panel">
+      <div class="panel keyboard-table-shortcuts">
         <div class="header">
           <span class="title">Keyboard shortcuts</span>
           <div data-icon="close" class="close small-icon"></div>
