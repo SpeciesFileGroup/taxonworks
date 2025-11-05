@@ -139,7 +139,7 @@
     <VSpinner
       v-if="isUpdating"
       full-screen
-      legend="Moving taxon..."
+      legend="Moving taxon... This may take longer if it has many children."
     />
   </li>
 </template>
