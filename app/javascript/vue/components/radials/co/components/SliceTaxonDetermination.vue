@@ -32,6 +32,7 @@
         :batch-service="CollectionObject.batchUpdate"
         :payload="payload"
         :disabled="!taxonDeterminations.length || isCountExceeded"
+        confirmation-word="UPDATE"
         @update="updateMessage"
         @close="emit('close')"
       />
@@ -99,8 +100,8 @@ function editTaxonDetermination(item) {
 }
 
 function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} collection objects queued for updating.`
+  const message = data.async
+    ? `${data.total_attempted.length} collection objects queued for updating.`
     : `${data.updated.length} collection objects were successfully updated.`
 
   TW.workbench.alert.create(message, 'notice')
