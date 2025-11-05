@@ -75,7 +75,6 @@ import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 const MAX_LIMIT = 250
 
 const VERBATIM_FIELDS = {
-  verbatim_label: 'textarea',
   verbatim_locality: 'textarea',
   verbatim_latitude: 'input',
   verbatim_longitude: 'input',
