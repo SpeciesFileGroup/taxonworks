@@ -12,7 +12,10 @@
         class="margin-medium-bottom"
         @on-add="
           (determination) =>
-            addToArray(taxonDeterminations, determination, { property: 'uuid' })
+            addToArray(taxonDeterminations, determination, {
+              property: 'uuid',
+              prepend: true
+            })
         "
       />
       <TaxonDeterminationList
