@@ -192,6 +192,8 @@ class AssertedDistribution < ApplicationRecord
       object_filter_params: params[:asserted_distribution_query],
       object_params: params[:asserted_distribution],
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     a = request.filter

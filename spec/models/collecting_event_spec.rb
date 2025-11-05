@@ -208,7 +208,9 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
               }
             ]
           },
-          collecting_event_query: { collecting_event_id: [c1.id] }
+          collecting_event_query: { collecting_event_id: [c1.id] },
+          project_id: Project.first.id,
+          user_id: User.first.id
         }
 
         CollectingEvent.batch_update(params).to_json

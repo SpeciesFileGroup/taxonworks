@@ -416,7 +416,10 @@ class CollectionObjectsController < ApplicationController
     if c = CollectionObject.batch_update(
         preview: params[:preview],
         collection_object: collection_object_params.merge(by: sessions_current_user_id),
-        collection_object_query: params[:collection_object_query])
+        collection_object_query: params[:collection_object_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id
+      )
       render json: c.to_json, status: :ok
     else
       render json: {}, status: :unprocessable_entity

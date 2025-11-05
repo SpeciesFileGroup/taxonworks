@@ -174,7 +174,9 @@ class BiologicalAssociationsController < ApplicationController
     if r = BiologicalAssociation.batch_update(
         preview: params[:preview],
         biological_association: biological_association_params.merge(by: sessions_current_user_id),
-        biological_association_query: params[:biological_association_query] )
+        biological_association_query: params[:biological_association_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
       render json: {}, status: :unprocessable_entity

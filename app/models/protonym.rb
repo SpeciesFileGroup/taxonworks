@@ -871,6 +871,8 @@ class Protonym < TaxonName
       object_filter_params: params[:taxon_name_query],
       object_params: params[:taxon_name],
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     query_batch_update(request)
