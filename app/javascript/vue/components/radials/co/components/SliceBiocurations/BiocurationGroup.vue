@@ -29,6 +29,7 @@
 <script setup>
 import { CollectionObject } from '@/routes/endpoints'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
+import updateMessage from '../../utils/updateMessage.js'
 
 const props = defineProps({
   group: {
