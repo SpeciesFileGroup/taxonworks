@@ -17,6 +17,7 @@
             ]
           }
         }"
+        confirmationButton="Update"
         :button-label="item.name"
         @update="updateMessage"
         @close="emit('close')"
