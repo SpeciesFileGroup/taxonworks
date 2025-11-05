@@ -20,12 +20,14 @@ export default ({ commit, state }) => {
 
     promises.push(saveRequest)
 
-    saveRequest.then(({ body }) => {
-      commit(
-        MutationNames.AddTypeMaterial,
-        makeTypeMaterial({ ...typeSpecimen, ...body })
-      )
-    })
+    saveRequest
+      .then(({ body }) => {
+        commit(
+          MutationNames.AddTypeMaterial,
+          makeTypeMaterial({ ...typeSpecimen, ...body })
+        )
+      })
+      .catch(() => {})
   })
   return Promise.all(promises)
 }
@@ -38,14 +40,16 @@ function makeTypeSpecimenPayback(state, typeSpecimen) {
     collection_object_id: state.collection_object.id
   }
 
-  if (typeSpecimen.originCitation) {
-    Object.assign(payload, {
-      origin_citation_attributes: {
-        id: typeSpecimen.originCitation.id,
-        source_id: typeSpecimen.originCitation.source_id,
-        pages: typeSpecimen.originCitation.pages
-      }
-    })
+  const { originCitation } = typeSpecimen
+  const { id, source_id, ...rest } = originCitation
+  const citation = { ...rest, source_id, id }
+
+  if (!source_id && id) {
+    citation._destroy = true
+  }
+
+  if (source_id || citation._destroy) {
+    payload.origin_citation_attributes = citation
   }
 
   return payload

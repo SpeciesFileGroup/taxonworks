@@ -82,46 +82,62 @@ Source.find(props.originalCitation.source_id).then(({ body }) => {
   originalSource.value = body
 })
 
-function createNonOriginal() {
-  const payload = {
-    citation: {
-      ...props.citation,
-      is_original: false
-    },
-    extend: EXTEND_PARAMS
-  }
-
-  Citation.create(payload).then(({ body }) => {
-    emit('save', body)
-    emit('close')
+function saveNonOriginal() {
+  saveCitation({
+    ...props.citation,
+    is_original: false
   })
+    .then(({ body }) => {
+      TW.workbench.alert.create('Citation was successfully saved.', 'notice')
+      emit('save', body)
+      emit('close')
+    })
+    .catch(() => {})
 }
 
-function changeOriginal() {
+function saveCitation(citation) {
+  const citationId = citation.id
   const payload = {
-    citation: {
-      id: props.originalCitation.id,
-      is_original: false
-    },
+    citation,
     extend: EXTEND_PARAMS
   }
 
-  Citation.update(props.originalCitation.id, payload).then(({ body }) => {
-    emit('save', body)
+  const request = citationId
+    ? Citation.update(citationId, payload)
+    : Citation.create(payload)
 
-    Citation.create({
-      citation: { ...props.citation, is_original: true }
-    }).then(({ body }) => {
+  request
+    .then(({ body }) => {
       emit('save', body)
+    })
+    .catch(() => {})
+
+  return request
+}
+
+async function changeOriginal() {
+  try {
+    await saveCitation({
+      id: props.originalCitation.id,
+      is_original: false
+    })
+
+    const request = saveCitation({
+      ...props.citation,
+      is_original: true
+    })
+
+    request.then(({ body }) => {
+      TW.workbench.alert.create('Citation was successfully saved.', 'notice')
       emit('create', body)
       emit('close')
     })
-  })
+  } catch {}
 }
 
 function handleCitation() {
   if (keepOriginal.value) {
-    createNonOriginal()
+    saveNonOriginal()
   } else {
     changeOriginal()
   }
