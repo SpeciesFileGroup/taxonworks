@@ -188,7 +188,7 @@ onBeforeMount(async () => {
   }
 
   .highlight-effect {
-    animation: highlight 1.5s ease;
+    animation: highlight 2.5s ease;
   }
 
   @keyframes highlight {
