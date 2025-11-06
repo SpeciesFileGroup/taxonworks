@@ -64,7 +64,7 @@ const props = defineProps({
   },
 
   originalCitation: {
-    type: Object,
+    type: [Object, undefined],
     required: true
   }
 })

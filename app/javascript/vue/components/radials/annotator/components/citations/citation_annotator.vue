@@ -193,7 +193,11 @@ function saveCitation(item) {
     extend: EXTEND_PARAMS
   }
 
-  if (item.is_original && originalCitation.value?.id !== item.id) {
+  if (
+    item.is_original &&
+    originalCitation.value &&
+    originalCitation.value.id !== item.id
+  ) {
     isModalVisible.value = true
 
     return
