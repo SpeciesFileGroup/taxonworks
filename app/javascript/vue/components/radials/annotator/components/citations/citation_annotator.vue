@@ -196,7 +196,7 @@ function saveCitation(item) {
   if (
     item.is_original &&
     originalCitation.value &&
-    originalCitation.value.id !== item.id
+    originalCitation.value?.id !== item.id
   ) {
     isModalVisible.value = true
 
