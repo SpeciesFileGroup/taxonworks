@@ -217,9 +217,13 @@ class CollectionObject < ApplicationRecord
     c = q.all.count
 
     if c == 0 || c > 10000
+      # TODO: cap_reason is currently unused, setting errors as well for now
       r.cap_reason = 'Too many (or no) collection objects (max 10k)'
+      r.errors['Too many (or no) collection objects (max 10k)'] = 1
       return r
     end
+
+    r.total_attempted = c
 
     if c < 51
       q.each do |co|
