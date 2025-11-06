@@ -74,8 +74,7 @@
         <AnatomicalParts
           :object-id="parseNodeId(nodeId).id"
           :object-type="nodeType"
-          :modal-create="showingCreate"
-          :modal-edit="showingEdit"
+          :mode="showingCreate ? CREATE_VERB : (showingEdit ? EDIT_VERB : null)"
           @originRelationshipCreated="updateGraph"
           @originRelationshipUpdated="updateGraph"
           @click.stop
@@ -98,6 +97,8 @@ import VModal from '@/components/ui/Modal'
 import {
   ANATOMICAL_PART,
   COLLECTION_OBJECT,
+  CREATE_VERB,
+  EDIT_VERB,
   FIELD_OCCURRENCE,
   OTU
 } from '@/constants'

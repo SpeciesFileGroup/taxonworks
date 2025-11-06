@@ -117,6 +117,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import PreparationType from './components/PreparationType.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import { URLParamsToJSON } from '@/helpers'
+import { CREATE_VERB, EDIT_VERB } from '@/constants'
 
 const props = defineProps({
   objectId: {
@@ -129,14 +130,12 @@ const props = defineProps({
     required: false
   },
 
-  modalEdit: {
-    type: Boolean,
-    required: false
-  },
-
-  modalCreate: {
-    type: Boolean,
-    required: false
+  mode: {
+    type: String,
+    default: undefined,
+    validator: (value) => {
+      return [undefined, CREATE_VERB, EDIT_VERB].includes(value)
+    }
   }
 })
 
@@ -194,11 +193,11 @@ function resetForm() {
 
 onMounted(() => {
   const anatomicalPartId = URLParamsToJSON(location.href).anatomical_part_id
-  if (anatomicalPartId && !props.modalEdit && !props.modalCreate) { // Edit task
+  if (anatomicalPartId && !props.mode) { // Edit task
     isLoading.value = true
     AnatomicalPart.find(anatomicalPartId)
       .then(({ body }) => {
-        anatomicalPart.value = body.anatomical_part
+        anatomicalPart.value = body
         emit('anatomicalPartLoaded', anatomicalPart.value)
       })
       .catch(() => {})
@@ -212,21 +211,21 @@ onMounted(() => {
       }
 
       anatomicalPart.value = {
-      cached_otu_id: props.cachedOtuId,
-      is_material
+        cached_otu_id: props.cachedOtuId,
+        is_material
       }
     } else {
       isLoading.value = true
       AnatomicalPart.find(props.objectId)
         .then(({ body }) => {
-          if (props.modalEdit) {
-            anatomicalPart.value = body.anatomical_part
+          if (props.mode == EDIT_VERB) {
+            anatomicalPart.value = body
           } else { // # Create new part
             // cachedOtuId of the new anatomical part should be the same as the
             // origin if the origin is an anatomical part.
             anatomicalPart.value = {
-              cached_otu_id: body.anatomical_part.cached_otu_id,
-              is_material: body.anatomical_part.is_material
+              cached_otu_id: body.cached_otu_id,
+              is_material: body.is_material
             }
           }
         })

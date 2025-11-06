@@ -1,6 +1,4 @@
-json.anatomical_part do
-  json.partial! "attributes", anatomical_part: @anatomical_part
-end
+json.partial! "attributes", anatomical_part: @anatomical_part
 
 if @origin_relationship
   json.origin_relationship do

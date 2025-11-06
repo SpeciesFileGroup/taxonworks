@@ -21,6 +21,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import { ref } from 'vue'
+import { EDIT_VERB } from '@/constants'
 
 const anatomicalPart = ref(undefined)
 

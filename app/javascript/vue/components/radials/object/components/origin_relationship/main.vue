@@ -155,6 +155,7 @@
           :object-id="objectId"
           :object-type="objectType"
           :flip="flip"
+          :mode="CREATE_VERB"
           @originRelationshipCreated="(relationship) => {
             addRelationship(relationship)
             showingCreate = false
@@ -178,6 +179,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VModal from '@/components/ui/Modal'
 import RelationshipsTable from './components/relationshipsTable.vue'
 import { addToArray, removeFromArray } from '@/helpers'
+import { CREATE_VERB } from '@/constants'
 
 const controllerRoute = {
   AnatomicalPart: 'anatomical_parts',
