@@ -402,6 +402,8 @@ class Source::Bibtex < Source
       async_cutoff: params[:async_cutoff] || 50,
       cap: 50,
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     query_batch_update(request)

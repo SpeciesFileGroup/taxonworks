@@ -429,7 +429,7 @@ GEM
       uri
     os (1.1.4)
     ostruct (0.6.3)
-    package_json (0.1.0)
+    package_json (0.2.0)
     paper_trail (15.2.0)
       activerecord (>= 6.1)
       request_store (~> 1.4)
@@ -771,7 +771,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
-    uri (1.1.0)
+    uri (1.1.1)
     useragent (0.16.11)
     validates_timeliness (7.0.0)
       activemodel (>= 7.0.0, < 8)

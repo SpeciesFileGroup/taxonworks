@@ -824,6 +824,9 @@ module Queries
     # @return Boolean
     #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on initialize
     #   false - there are no params at ALL or at least one that is not `project_id`, and project_id != false
+    # !! WARNING: this will "fail" (i.e. return false) in background jobs where
+    #    Current.project_id isn't set. !!
+    # You may want only_project_or_less? instead.
     def only_project?
       @roll_call = true
       a = project_id_facet &&
@@ -832,6 +835,12 @@ module Queries
       @roll_call = false
 
       a
+    end
+
+    # See also only_project?
+    def only_project_or_less?
+      only_project? ||
+      (target_and_clauses.size == 0 && all_merge_clauses.nil?)
     end
 
     # @param nil_empty [Boolean]

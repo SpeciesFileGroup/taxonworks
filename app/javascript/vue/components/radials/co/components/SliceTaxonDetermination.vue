@@ -12,7 +12,10 @@
         class="margin-medium-bottom"
         @on-add="
           (determination) =>
-            addToArray(taxonDeterminations, determination, { property: 'uuid' })
+            addToArray(taxonDeterminations, determination, {
+              property: 'uuid',
+              prepend: true
+            })
         "
       />
       <TaxonDeterminationList
@@ -29,6 +32,7 @@
         :batch-service="CollectionObject.batchUpdate"
         :payload="payload"
         :disabled="!taxonDeterminations.length || isCountExceeded"
+        confirmation-word="UPDATE"
         @update="updateMessage"
         @close="emit('close')"
       />
@@ -55,6 +59,7 @@ import { CollectionObject } from '@/routes/endpoints'
 import { addToArray } from '@/helpers'
 import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import TaxonDeterminationList from '@/components/TaxonDetermination/TaxonDeterminationList.vue'
+import updateMessage from '../utils/updateMessage.js'
 
 const MAX_LIMIT = 5000
 
@@ -93,13 +98,5 @@ const payload = computed(() => ({
 
 function editTaxonDetermination(item) {
   taxonDeterminationFormRef.value.setDetermination({ ...item })
-}
-
-function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} collection objects queued for updating.`
-    : `${data.updated.length} collection objects were successfully updated.`
-
-  TW.workbench.alert.create(message, 'notice')
 }
 </script>

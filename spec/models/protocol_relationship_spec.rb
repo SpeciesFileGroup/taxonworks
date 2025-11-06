@@ -21,7 +21,9 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
       params: {
         protocol_id: c1.id,
         replace_protocol_id: protocol_relationship.id
-      }
+      },
+      user_id: User.first.id,
+      project_id: Project.first.id
     )
 
     perform_enqueued_jobs
@@ -42,7 +44,9 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
       params: {
         protocol_id: c1.id,
         replace_protocol_id: protocol_relationship.id
-      }
+      },
+      user_id: Current.user_id,
+      project_id: Current.project_id
     )
 
     perform_enqueued_jobs
@@ -99,6 +103,8 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
       params: {
         protocol_id: protocol.id
       },
+      project_id: Project.first.id,
+      user_id: User.first.id,
       async_cutoff: 0)
     expect(ProtocolRelationship.all.count).to eq(0)
 

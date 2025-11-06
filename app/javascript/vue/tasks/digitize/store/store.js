@@ -9,7 +9,7 @@ import { ActionFunctions } from './actions/actions'
 import { ComponentLeftColumn } from '../const/components'
 import makeCollectionObject from '@/factory/CollectionObject.js'
 import makeIdentifier from '@/factory/Identifier.js'
-import makeTypeMaterial from '@/factory/TypeMaterial.js'
+import makeTypeMaterial from '../helpers/makeTypeMaterial.js'
 import { reactive } from 'vue'
 
 function makeInitialState() {

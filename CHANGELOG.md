@@ -9,6 +9,27 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.55.0] - 2025-11-05
+
+### Added
+
+- Reclassifier task: drag-drop to change the parents of TaxonNames
+- extend[]=notes to all api endpoints for which it makes sense
+
+### Fixed
+
+- Background/asynchronous jobs for radial batch annotator and radial object from all filters were not creating/updating (non-asynchronous jobs were unaffected) [#4592]
+- Show OTUs whose Taxon Name has primary type `syntypes` (plural) as type 'primary type' on distribution maps (`syntype` already was)
+- Radial annotator: Sometimes, the modal to update the original citation doesn't display
+- Increase the expiration data of complete downloads so that a GBIF call after max-age is guaranteed to occur before the existing download expires, causing regeneration of a fresh complete download for the next GBIF call
+
+### Changed
+
+- Updated Ruby gems
+- Updated NPM packages
+
+[#4592]: https://github.com/SpeciesFileGroup/taxonworks/issues/4592
+
 ## [0.54.3] - 2025-11-02
 
 ### Added
@@ -5808,7 +5829,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...development
+[0.55.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.3...v0.55.0
 [0.54.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.2...v0.54.3
 [0.54.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.1...v0.54.2
 [0.54.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.0...v0.54.1

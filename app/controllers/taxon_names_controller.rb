@@ -241,7 +241,8 @@ class TaxonNamesController < ApplicationController
         preview: params[:preview],
         taxon_name: taxon_name_params.merge(by: sessions_current_user_id),
         taxon_name_query: params[:taxon_name_query].merge(by: sessions_current_user_id),
-    )
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
       render json: {}, status: :unprocessable_entity

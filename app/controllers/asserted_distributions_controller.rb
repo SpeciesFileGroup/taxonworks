@@ -123,7 +123,8 @@ class AssertedDistributionsController < ApplicationController
         preview: params[:preview],
         asserted_distribution: asserted_distribution_params.merge(by: sessions_current_user_id),
         asserted_distribution_query: params[:asserted_distribution_query],
-    )
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
       render json: {}, status: :unprocessable_entity

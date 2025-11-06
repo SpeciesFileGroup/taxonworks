@@ -178,7 +178,9 @@ class SourcesController < ApplicationController
         preview: params[:preview],
         source: source_params.merge(by: sessions_current_user_id),
         source_query: params[:source_query],
-    )
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id
+      )
       render json: r.to_json, status: :ok
     else
       render json: {}, status: :unprocessable_entity
