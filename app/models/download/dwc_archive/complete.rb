@@ -13,6 +13,7 @@ class Download::DwcArchive::Complete < Download::DwcArchive
 
   validates :type, uniqueness: {
     scope: [:project_id],
+    conditions: -> { unexpired },
     message: ->(record, data) {
       "Only one #{record.type} is allowed. Destroy the old version first."
     }
@@ -56,8 +57,10 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     project_params = { project_id: }
     record_scope = ::DwcOccurrence.where(project_params)
     eml_dataset, eml_additional_metadata = project.complete_dwc_eml_preferences
-    predicates = project.complete_dwc_download_predicates || []
+    predicates = project.complete_dwc_download_predicates || {}
     extensions = project.complete_dwc_download_extensions || []
+    taxonworks_extensions = project.complete_dwc_download_internal_values || []
+
     biological_associations_scope = extensions.include?('resource_relationships') ?
       {
         core_params: project_params, # all dwc_occurrences for this project
@@ -90,6 +93,7 @@ class Download::DwcArchive::Complete < Download::DwcArchive
         media: media_scope
       },
       predicate_extensions: normalized_predicate_extensions(predicates),
+      taxonworks_extensions:,
       project_id:
     )
   end
@@ -128,6 +132,13 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     max_age = project.complete_dwc_download_max_age
     return if max_age.nil?
 
-    self.expires = Time.zone.now + max_age.days + 1.day
+    # Guarantees that a GBIF call (every 7 days) will occur after max_age and
+    # before the existing download expires.
+    self.expires = Time.zone.now + max_age.days + 7.day + 1.day
+  end
+
+  def self.project_api_access_token_destroyed
+    # May not be necessary if the download doesn't include media extension, but we're doing it anyway.
+    Download::DwcArchive::Complete.destroy_all
   end
 end

@@ -14,7 +14,15 @@
             v-if="currentBiologicalAssociation"
             v-html="currentBiologicalAssociation.object_tag"
           />
-          <span v-else>New record</span>
+          <VAutocomplete
+            v-else
+            url="/biological_associations/autocomplete"
+            param="term"
+            label="label_html"
+            clear-after
+            placeholder="Search a biological association..."
+            @select="({ id }) => store.loadBiologicalAsscoation(id)"
+          />
         </div>
         <div class="horizontal-center-content middle gap-small">
           <VBtn
@@ -79,6 +87,8 @@ import PanelRelationship from './components/Panel/PanelRelationship.vue'
 import PanelObject from './components/Panel/PanelObject.vue'
 import PanelCitation from './components/Panel/PanelCitation.vue'
 import TableResults from './components/TableResults.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import { URLParamsToJSON } from '@/helpers/index.js'
 
 defineOptions({
   name: 'NewBiologicalAssociation'
@@ -110,6 +120,12 @@ const currentBiologicalAssociation = computed(() =>
 )
 
 onBeforeMount(() => {
+  const { biological_association_id } = URLParamsToJSON(location.href)
+
+  if (biological_association_id) {
+    store.loadBiologicalAsscoation(biological_association_id)
+  }
+
   store.loadRecentBiologicalAssociations()
 
   TW.workbench.keyboard.createLegend(

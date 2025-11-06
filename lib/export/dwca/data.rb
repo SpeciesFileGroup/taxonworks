@@ -259,7 +259,7 @@ module Export::Dwca
 
       # Select valid methods, generate frozen name string ahead of time
       # add TW prefix to names
-      taxonworks_extension_methods.each do |sym|
+      taxonworks_extension_methods.map(&:to_sym).each do |sym|
 
         csv_header_name = ('TW:Internal:' + sym.name).freeze
 

@@ -175,7 +175,7 @@
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
             TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
             TaxonNameRelationship::Iczn::Invalidating::Homonym,
-            TaxonNameRelationship::Iczn::Invalidating
+            TaxonNameRelationship::Iczn::Invalidating::Unavailable
           ])
         },
 

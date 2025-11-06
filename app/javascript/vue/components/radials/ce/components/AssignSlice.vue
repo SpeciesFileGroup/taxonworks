@@ -87,6 +87,7 @@ import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
+import updateMessage from '../utils/updateMessage.js'
 
 const MAX_LIMIT = 1000
 
@@ -120,12 +121,4 @@ const payload = computed(() => ({
     meta_prioritize_geographic_area: prioritizeGeographicArea.value
   }
 }))
-
-function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} collecting events queued for updating.`
-    : `${data.updated.length} collecting events were successfully updated.`
-
-  TW.workbench.alert.create(message, 'notice')
-}
 </script>

@@ -57,6 +57,11 @@ const props = defineProps({
   buttonLabel: {
     type: String,
     default: 'Update'
+  },
+
+  confirmationButton: {
+    type: String,
+    default: ''
   }
 })
 
@@ -101,7 +106,7 @@ async function handleUpdate() {
       title: 'Batch update',
       message: 'Are you sure you want to proceed?',
       confirmationWord: props.confirmationWord,
-      okButton: props.buttonLabel,
+      okButton: props.confirmationButton || props.buttonLabel,
       cancelButton: 'Cancel',
       typeButton: 'submit'
     }))

@@ -1117,3 +1117,10 @@ edit_anatomical_part_task:
   categories:
   status: prototype
   description: 'Edit anatomical part'
+taxon_name_reclassifier_task:
+  hub: true
+  name: 'Taxon name reclassifier'
+  related:
+  categories:
+  status: prototype
+  description: 'Drag-drop to change the parents of TaxonNames.'

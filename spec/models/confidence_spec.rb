@@ -21,7 +21,9 @@ RSpec.describe Confidence, type: :model, group: :confidence do
       params: {
         confidence_level_id: c1.id,
         replace_confidence_level_id: confidence_level.id
-      }
+      },
+      project_id: Project.first.id,
+      user_id: User.first.id
     )
 
     # expect { ConfidenceBatchJob.perform_later }.to have_enqueued_job.on_queue(:query_batch_update)
@@ -43,7 +45,9 @@ RSpec.describe Confidence, type: :model, group: :confidence do
       params: {
         confidence_level_id: c1.id,
         replace_confidence_level_id: confidence_level.id
-      }
+      },
+      project_id: Project.first.id,
+      user_id: User.first.id
     )
 
     # expect { ConfidenceBatchJob.perform_later }.to have_enqueued_job.on_queue(:query_batch_update)
@@ -101,12 +105,48 @@ RSpec.describe Confidence, type: :model, group: :confidence do
       params: {
         confidence_level_id: confidence_level.id
       },
+      project_id: Project.first.id,
+      user_id: User.first.id,
       async_cutoff: 0)
     expect(Confidence.all.count).to eq(0)
 
     perform_enqueued_jobs
 
     expect(Confidence.all.count).to eq(1)
+  end
+
+  specify '#batch_by_filter_scope :add, async raises error when user_id is missing' do
+    q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
+
+    expect {
+      Confidence.batch_by_filter_scope(
+        filter_query: { 'collection_object_query' => q.params },
+        mode: :add,
+        params: {
+          confidence_level_id: confidence_level.id
+        },
+        project_id: Project.first.id,
+        user_id: nil,
+        async_cutoff: 0
+      )
+    }.to raise_error(TaxonWorks::Error, /user_id.*not set in batch_by_filter_scope/)
+  end
+
+  specify '#batch_by_filter_scope :add, async raises error when project_id is missing' do
+    q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
+
+    expect {
+      Confidence.batch_by_filter_scope(
+        filter_query: { 'collection_object_query' => q.params },
+        mode: :add,
+        params: {
+          confidence_level_id: confidence_level.id
+        },
+        project_id: nil,
+        user_id: User.first.id,
+        async_cutoff: 0
+      )
+    }.to raise_error(TaxonWorks::Error, /project_id.*not set in batch_by_filter_scope/)
   end
 
   context 'validation' do

@@ -162,6 +162,7 @@ module Shared::Unify
       end
 
       if cutoff_hit = s[:result][:total_related] > cutoff
+        s[:result][:unified] = false
         s[:result][:message] = "Related cutoff threshold (> #{cutoff}) hit, unify is not yet allowed on these objects."
       else
 
@@ -173,15 +174,19 @@ module Shared::Unify
           end
 
         rescue ActiveRecord::InvalidForeignKey => e
+          # InvalidForeignKey comes from the DB adapter, so e has no `.record`.
           s[:result][:unified] = false
           s[:details].merge!(
             Object: {
               errors: [
-                { id: e.record.id, message: e.record.errors.full_messages.join('; ') }
+                {
+                  id: o.id,
+                  exception: e.class.name,
+                  message: e.message
+                }
               ]
             }
           )
-
           raise ActiveRecord::Rollback
         rescue ActiveRecord::RecordNotDestroyed => e
           s[:result][:unified] = false

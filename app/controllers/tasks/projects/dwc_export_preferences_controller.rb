@@ -37,8 +37,8 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
     head :no_content
   end
 
-  def set_predicates
-    @project.set_complete_dwc_download_predicates(params[:predicates])
+  def set_predicates_and_internal_values
+    @project.set_complete_dwc_download_predicates_and_internal_values(params[:predicates_and_internal_values])
 
     head :no_content
   end
@@ -47,12 +47,22 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
     dataset = params[:dataset]
     additional_metadata = params[:additional_metadata]
 
-    # if ::Export::Dwca::Eml.still_stubbed?(dataset, additional_metadata)
-    #   render json: {
-    #     base: ['Replace or delete all STUBbed fields to proceed']
-    #   }, status: :unprocessable_entity
-    #   return
-    # end
+    # dataset is required, additional_metadata is not
+    if dataset.blank?
+      render json: {
+        errors: 'Dataset EML is required.'
+      }, status: :unprocessable_entity
+      return
+    end
+
+    if sessions_current_project.complete_dwc_download_is_public? &&
+      ::Export::Dwca::Eml.still_stubbed?(dataset, additional_metadata)
+
+      render json: {
+        errors: ["Can't save EML with 'STUB' while download is public - either remove STUBs to save or make download private."]
+      }, status: :unprocessable_entity
+      return
+    end
 
     dataset_errors, additional_metadata_errors =
       ::Export::Dwca::Eml.validate_fragments(dataset, additional_metadata)

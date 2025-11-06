@@ -1,10 +1,10 @@
-json.partial! '/taxon_names/base_attributes', taxon_name: combination
+json.partial! '/taxon_names/api/v1/base_attributes', taxon_name: combination
 
 if extend_response_with('protonyms')
   json.protonyms do
     combination.combination_relationships.each do |r|
       json.set! r.rank_name do
-        json.partial! '/taxon_names/attributes', taxon_name: r.subject_taxon_name 
+        json.partial! '/taxon_names/api/v1/attributes', taxon_name: r.subject_taxon_name 
       end
     end
   end

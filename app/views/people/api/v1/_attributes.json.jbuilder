@@ -13,3 +13,9 @@ if extend_response_with('identifiers')
     json.merge! extend_identifiers(person)
   end
 end
+
+if extend_response_with('notes')
+  json.notes person.notes.each do |n|
+    json.text n.text
+  end
+end

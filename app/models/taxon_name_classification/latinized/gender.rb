@@ -16,6 +16,8 @@ class TaxonNameClassification::Latinized::Gender < TaxonNameClassification::Lati
 
   def set_cached_names_for_taxon_names
     t = taxon_name
+    return if t.destroyed?
+
     t.update_columns(cached_gender: classification_label.downcase)
 
     t.descendants.unscope(:order).with_same_cached_valid_id.each do |t1|

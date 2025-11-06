@@ -1,5 +1,10 @@
 <template>
   <div class="data_attribute_annotator">
+    <VSpinner
+      v-if="isSaving"
+      full-screen
+      legend="Saving..."
+    />
     <SmartSelector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{ 'type[]': 'Predicate' }"
@@ -65,6 +70,7 @@ import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import confirmationOpts from '../../../constants/confirmationOpts.js'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   ids: {
@@ -93,6 +99,7 @@ const emit = defineEmits(['create'])
 const confirmationModalRef = ref(null)
 const predicate = ref()
 const inputValue = ref('')
+const isSaving = ref(false)
 
 const validateFields = computed(
   () => predicate.value && inputValue.value.length
@@ -107,6 +114,7 @@ async function createDataAttributes() {
   const ok = await confirmationModalRef.value.show(confirmationOpts)
 
   if (ok) {
+    isSaving.value = true
     DataAttribute.createBatch({
       attribute_subject_id: props.ids,
       attribute_subject_type: props.objectType,
@@ -123,6 +131,9 @@ async function createDataAttributes() {
         emit('create', response.body)
       })
       .catch(() => {})
+      .finally(() => {
+        isSaving.value = false
+      })
   }
 }
 </script>

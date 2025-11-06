@@ -37,3 +37,9 @@ if extend_response_with('roles')
     end
   end
 end
+
+if extend_response_with('notes')
+  json.notes collecting_event.notes.each do |n|
+    json.text n.text
+  end
+end

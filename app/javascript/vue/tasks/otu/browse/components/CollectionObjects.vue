@@ -18,7 +18,7 @@
         :pagination="pagination"
         @next-page="(e) => loadCollectionObjects(e.page)"
       />
-      <table class="full_width">
+      <table class="full_width table-striped">
         <thead>
           <tr>
             <th class="w-2" />
@@ -115,11 +115,11 @@ async function listParser(list) {
   ).body
 
   const getCitations = (citations, objectId) => {
-    const items = citations.filter(
-      (item) => item.citation_object_id === objectId
-    )
-
-    return items.map((item) => item.citation_source_body).join('; ')
+    return citations
+      .filter((item) => item.citation_object_id === objectId)
+      .sort((a, b) => (b.is_original === true) - (a.is_original === true))
+      .map((item) => item.citation_source_body)
+      .join('; ')
   }
 
   const depictions = (
