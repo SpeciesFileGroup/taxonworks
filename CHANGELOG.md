@@ -9,12 +9,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Reclassifier task: drag-drop to change the parents of TaxonNames
 - extend[]=notes to all api endpoints for which it makes sense
 
 ### Fixed
 
+- Background/asynchronous jobs for radial batch annotator and radial object from all filters were not creating/updating (non-asynchronous jobs were unaffected) [#4592]
 - Show OTUs whose Taxon Name has primary type `syntypes` (plural) as type 'primary type' on distribution maps (`syntype` already was)
 - Radial annotator: Sometimes, the modal to update the original citation doesn't display
+
+### Changed
+
+- Updated Ruby gems
+- Updated NPM packages
+
+[#4592]: https://github.com/SpeciesFileGroup/taxonworks/issues/4592
 
 ## [0.54.3] - 2025-11-02
 
