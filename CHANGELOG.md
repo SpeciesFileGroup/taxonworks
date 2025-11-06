@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Background/asynchronous jobs for radial batch annotator and radial object from all filters were not creating/updating (non-asynchronous jobs were unaffected) [#4592]
 - Show OTUs whose Taxon Name has primary type `syntypes` (plural) as type 'primary type' on distribution maps (`syntype` already was)
 - Radial annotator: Sometimes, the modal to update the original citation doesn't display
+- Increase the expiration data of complete downloads so that a GBIF call after max-age is guaranteed to occur before the existing download expires, causing regeneration of a fresh complete download for the next GBIF call
 
 ### Changed
 
