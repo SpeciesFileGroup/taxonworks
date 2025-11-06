@@ -7,7 +7,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Collecting event form: Field notes
+
+### Fixed
+
+- Radial annotator: Citations forms throws an error when you try to replace an original citation
 
 ## [0.55.0] - 2025-11-05
 
