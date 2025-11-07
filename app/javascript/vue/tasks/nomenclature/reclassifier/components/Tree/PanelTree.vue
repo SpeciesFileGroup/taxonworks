@@ -54,15 +54,6 @@
             />
           </ul>
         </div>
-        <div
-          v-else
-          class="taxonomic-tree-empty-message"
-        >
-          <h2>
-            Search a taxon name, or open from “Filter taxon names” to load the
-            tree.
-          </h2>
-        </div>
       </div>
     </template>
   </BlockLayout>

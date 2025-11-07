@@ -22,7 +22,6 @@
     <span
       :class="['list-reclassifer-taxon-item', isSelected && 'selected']"
       v-html="taxon.name"
-      @dblclick="openBrowse"
       @contextmenu="handleContextMenu"
       @click.prevent="() => addToSelected(taxon)"
       @mouseup="
@@ -258,8 +257,6 @@ function onDragEndCleanup() {
 function addToSelected(item) {
   if (isKeyPressed('Control')) {
     interactionStore.addSelected(item, props.taxon.parentId)
-  } else {
-    //interactionStore.setSelectedGroup([item], props.taxon.parentId)
   }
 }
 

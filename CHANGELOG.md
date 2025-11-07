@@ -10,10 +10,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Collecting event form: Field notes
+- Taxon name reclassifier: Unify and refresh buttons [#4609]
+- Radial navigator: Taxon name reclassifier [#4609]
 
 ### Fixed
 
 - Radial annotator: Citations forms throws an error when you try to replace an original citation
+
+[#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
 
 ## [0.55.0] - 2025-11-05
 
