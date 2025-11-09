@@ -37,32 +37,7 @@
     </div>
     <div class="horizontal-left-content align-start gap-medium">
       <div class="search-column">
-        <div class="panel content margin-large-bottom">
-          <h3>Anatomical part</h3>
-          <SmartSelector
-            ref="anatomicalPartSelector"
-            v-model="selectedAnatomicalPart"
-            model="anatomical_parts"
-            pin-section="AnatomicalParts"
-            pin-type="AnatomicalPart"
-            auto-focus
-            @selected="({ id }) => {
-              const newParam = { anatomical_part_id: id }
-              resetFrom(RESET_SOURCE.ANATOMICAL_PART, newParam)
-              createGraph(newParam)
-            }"
-          />
-          <SmartSelectorItem
-            :item="selectedAnatomicalPart"
-            label="object_label"
-            @unset="() => {
-              selectedAnatomicalPart = null
-              reset()
-            }"
-          />
-        </div>
-
-        <div class="panel content margin-large-bottom">
+         <div class="panel content margin-large-bottom">
           <h3>Origins</h3>
           <VSwitch
             class="separate-bottom"
@@ -90,6 +65,31 @@
             label="object_label"
             @unset="() => {
               selectedOrigin = null
+              reset()
+            }"
+          />
+        </div>
+
+        <div class="panel content margin-large-bottom">
+          <h3>Anatomical part</h3>
+          <SmartSelector
+            ref="anatomicalPartSelector"
+            v-model="selectedAnatomicalPart"
+            model="anatomical_parts"
+            pin-section="AnatomicalParts"
+            pin-type="AnatomicalPart"
+            auto-focus
+            @selected="({ id }) => {
+              const newParam = { anatomical_part_id: id }
+              resetFrom(RESET_SOURCE.ANATOMICAL_PART, newParam)
+              createGraph(newParam)
+            }"
+          />
+          <SmartSelectorItem
+            :item="selectedAnatomicalPart"
+            label="object_label"
+            @unset="() => {
+              selectedAnatomicalPart = null
               reset()
             }"
           />
