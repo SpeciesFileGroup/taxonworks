@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Show OTUs whose Taxon Name has primary type `syntypes` (plural) as type 'primary type' on distribution maps (`syntype` already was)
 - Radial annotator: Sometimes, the modal to update the original citation doesn't display
 - Increase the expiration data of complete downloads so that a GBIF call after max-age is guaranteed to occur before the existing download expires, causing regeneration of a fresh complete download for the next GBIF call
+- Clicking on cached Taxon Name values in the Project Vocabulary task displays all Taxon Names instead of just those matching the cached value [#4610]
 
 ### Changed
 
@@ -39,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated NPM packages
 
 [#4592]: https://github.com/SpeciesFileGroup/taxonworks/issues/4592
+[#4610]: https://github.com/SpeciesFileGroup/taxonworks/issues/4610
 
 ## [0.54.3] - 2025-11-02
 
