@@ -78,7 +78,7 @@
             model="anatomical_parts"
             pin-section="AnatomicalParts"
             pin-type="AnatomicalPart"
-            auto-focus
+            autofocus
             @selected="({ id }) => {
               const newParam = { anatomical_part_id: id }
               resetFrom(RESET_SOURCE.ANATOMICAL_PART, newParam)
