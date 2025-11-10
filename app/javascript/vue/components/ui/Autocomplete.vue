@@ -452,7 +452,6 @@ export default {
 
         const rect = input.getBoundingClientRect()
         const viewportHeight = window.innerHeight
-
         const viewportWidth = window.innerWidth
 
         const spaceBelow = viewportHeight - rect.bottom
@@ -465,25 +464,22 @@ export default {
           500
         )
 
+        dropdown.style.maxHeight = maxHeight + 'px'
         dropdown.style.minWidth = rect.width + 'px'
         dropdown.style.maxWidth = maxWidth + 'px'
 
-        const contentWidth = this.$refs.items.reduce((acc, li) => {
-          const w = li.scrollWidth
-          if (w > acc) {
-            acc = w
-          }
-
-          return acc
-        })
-
+        const contentWidth = this.$refs.items.reduce(
+          (acc, li) => Math.max(acc, li.scrollWidth),
+          0
+        )
         const finalWidth = Math.min(contentWidth + 16, maxWidth)
+        const dropdownHeight = dropdown.offsetHeight || maxHeight
 
         const top = showAbove
-          ? rect.top + window.scrollY - maxHeight - 6
+          ? rect.top + window.scrollY - dropdownHeight - 6
           : rect.bottom + window.scrollY + 2
 
-        let left = rect.left + window.scrollX
+        const left = rect.left + window.scrollX
 
         this.dropdownStyle = {
           top: `${Math.max(top, 0)}px`,
