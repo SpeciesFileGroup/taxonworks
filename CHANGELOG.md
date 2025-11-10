@@ -13,6 +13,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxon name reclassifier: Unify and refresh buttons [#4609]
 - Radial navigator: Taxon name reclassifier [#4609]
 
+### Changed
+
+- Autocomplete list dynamically adjust to fit content on screen
+
 ### Fixed
 
 - Radial annotator: Citations forms throws an error when you try to replace an original citation

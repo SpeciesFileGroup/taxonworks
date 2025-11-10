@@ -22,42 +22,42 @@
 
 .vue-autocomplete {
   position: relative;
-  ul {
-    width: 100%;
-    max-height: 500px;
-    overflow-y: scroll;
-    z-index: 2001;
-    display: none;
-    background-color: var(--panel-bg-color);
-    margin: 0px;
-    padding: 0px;
-    list-style: none;
-    position: absolute;
-    min-width: 300px;
-    max-width: 100%;
-    border: 1px solid var(--border-color);
-    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
-    border-top: none;
-    border-bottom: 4px solid var(--border-color);
-  }
+}
+
+.vue-autocomplete-list {
+  display: block;
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 999998;
+  background-color: var(--panel-bg-color);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-bottom: 4px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  position: absolute;
+
+  width: auto;
+  min-width: 100%;
+  max-width: calc(100vw - 32px);
+  overflow-x: hidden;
+  white-space: nowrap;
+
   li {
     cursor: pointer;
-    padding: $standard_padding * 0.5;
+    padding: calc(var(--standard-padding, 8px) * 0.5);
     border-top: 1px solid var(--border-color);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding: 6px 12px;
   }
+
   .active {
     background-color: var(--border-color);
   }
-}
-
-.vue-autocomplete input:focus ~ ul {
-  display: block;
-}
-
-.vue-autocomplete ul:hover {
-  display: block;
-}
-
-.vue-autocomplete-empty-list {
-  min-width: auto !important;
 }
