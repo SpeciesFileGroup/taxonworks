@@ -1,5 +1,5 @@
 <template>
-  <modal-component @close="$emit('close')">
+  <modal-component @close="emit('close')">
     <template #header>
       <h3>Select original citation</h3>
     </template>
@@ -65,7 +65,7 @@ const props = defineProps({
 
   originalCitation: {
     type: Object,
-    required: true
+    default: undefined
   }
 })
 
@@ -122,16 +122,14 @@ async function changeOriginal() {
       is_original: false
     })
 
-    const request = saveCitation({
+    const { body } = await saveCitation({
       ...props.citation,
       is_original: true
     })
 
-    request.then(({ body }) => {
-      TW.workbench.alert.create('Citation was successfully saved.', 'notice')
-      emit('create', body)
-      emit('close')
-    })
+    TW.workbench.alert.create('Citation was successfully saved.', 'notice')
+    emit('create', body)
+    emit('close')
   } catch {}
 }
 

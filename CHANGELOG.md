@@ -9,6 +9,24 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Collecting event form: Field notes
+- Taxon name reclassifier: Unify and refresh buttons [#4609]
+- Radial navigator: Taxon name reclassifier [#4609]
+
+### Changed
+
+- Autocomplete list dynamically adjust to fit content on screen
+
+### Fixed
+
+- Radial annotator: Citations forms throws an error when you try to replace an original citation
+
+[#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
+
+## [0.55.0] - 2025-11-05
+
+### Added
+
 - Reclassifier task: drag-drop to change the parents of TaxonNames
 - extend[]=notes to all api endpoints for which it makes sense
 
@@ -18,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Show OTUs whose Taxon Name has primary type `syntypes` (plural) as type 'primary type' on distribution maps (`syntype` already was)
 - Radial annotator: Sometimes, the modal to update the original citation doesn't display
 - Increase the expiration data of complete downloads so that a GBIF call after max-age is guaranteed to occur before the existing download expires, causing regeneration of a fresh complete download for the next GBIF call
+- Clicking on cached Taxon Name values in the Project Vocabulary task displays all Taxon Names instead of just those matching the cached value [#4610]
 
 ### Changed
 
@@ -25,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated NPM packages
 
 [#4592]: https://github.com/SpeciesFileGroup/taxonworks/issues/4592
+[#4610]: https://github.com/SpeciesFileGroup/taxonworks/issues/4610
 
 ## [0.54.3] - 2025-11-02
 
@@ -5825,7 +5845,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...development
+[0.55.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.3...v0.55.0
 [0.54.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.2...v0.54.3
 [0.54.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.1...v0.54.2
 [0.54.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.0...v0.54.1

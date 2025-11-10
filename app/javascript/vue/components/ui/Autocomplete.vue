@@ -34,40 +34,50 @@ headers to be used in the call. Using it will override the common headers
       @keydown.up="upKey"
       @keydown.enter="enterKey"
       @keyup="sendKeyEvent"
+      @focus="() => (showList = true)"
+      @blur="onBlur"
     />
-    <ul
-      class="vue-autocomplete-list"
-      v-show="showList"
-      v-if="type && json.length"
-    >
-      <li
-        v-for="(item, index) in limitList(json)"
-        class="vue-autocomplete-item"
-        :class="activeClass(index)"
-        @mouseover="itemActive(index)"
-        @click.prevent="itemClicked(index)"
+    <teleport to="body">
+      <ul
+        class="vue-autocomplete-list"
+        v-show="showList"
+        ref="dropdown"
+        :style="dropdownStyle"
+        @mousedown="onDropdownMousedown"
+        v-if="type && json.length"
       >
-        <span
-          v-if="typeof label !== 'function'"
-          v-html="getNested(item, label)"
-        />
-        <span
-          v-else
-          v-html="label(item)"
-        />
-      </li>
-      <li v-if="json.length == 20">Results may be truncated</li>
-    </ul>
-    <ul
-      v-if="type && searchEnd && !json.length"
-      class="vue-autocomplete-empty-list"
-    >
-      <li>--None--</li>
-    </ul>
+        <li
+          v-for="(item, index) in limitList(json)"
+          class="vue-autocomplete-item"
+          :class="activeClass(index)"
+          ref="items"
+          :title="escapeHtml(getNested(item, label))"
+          @mouseover="itemActive(index)"
+          @click.prevent="itemClicked(index)"
+        >
+          <span
+            v-if="typeof label !== 'function'"
+            v-html="getNested(item, label)"
+          />
+          <span
+            v-else
+            v-html="label(item)"
+          />
+        </li>
+        <li v-if="json.length == 20">Results may be truncated</li>
+      </ul>
+      <ul
+        v-if="type && searchEnd && !json.length"
+        class="vue-autocomplete-empty-list"
+      >
+        <li>--None--</li>
+      </ul>
+    </teleport>
   </div>
 </template>
 
 <script>
+import { escapeHtml } from '@/helpers'
 import AjaxCall from '@/helpers/ajaxCall'
 import Qs from 'qs'
 
@@ -201,7 +211,10 @@ export default {
       type: this.sendLabel,
       json: [],
       current: -1,
-      controller: null
+      controller: null,
+      dropdownStyle: {},
+      isFocus: false,
+      items: []
     }
   },
 
@@ -211,6 +224,14 @@ export default {
         this.$refs.autofocus.focus()
       })
     }
+
+    window.addEventListener('resize', this.updateDropdownPosition)
+    window.addEventListener('scroll', this.updateDropdownPosition, true)
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('resize', this.updateDropdownPosition)
+    window.removeEventListener('scroll', this.updateDropdownPosition, true)
   },
 
   watch: {
@@ -232,17 +253,45 @@ export default {
   },
 
   methods: {
+    escapeHtml,
+
     downKey() {
-      if (this.showList && this.current < this.json.length) this.current++
+      if (this.showList && this.current < this.json.length) {
+        this.current++
+      }
+
+      this.scrollToActiveItem()
     },
 
     upKey() {
-      if (this.showList && this.current > 0) this.current--
+      if (this.showList && this.current > 0) {
+        this.current--
+      }
+
+      this.scrollToActiveItem()
     },
 
     enterKey() {
       if (this.showList && this.current > -1 && this.current < this.json.length)
         this.itemClicked(this.current)
+    },
+
+    scrollToActiveItem() {
+      this.$nextTick(() => {
+        const dropdown = this.$refs.dropdown
+        const items = this.$refs.items
+        const activeEl = items?.[this.current]
+        if (dropdown && activeEl) {
+          const dropdownRect = dropdown.getBoundingClientRect()
+          const itemRect = activeEl.getBoundingClientRect()
+
+          if (itemRect.bottom > dropdownRect.bottom) {
+            dropdown.scrollTop += itemRect.bottom - dropdownRect.bottom
+          } else if (itemRect.top < dropdownRect.top) {
+            dropdown.scrollTop -= dropdownRect.top - itemRect.top
+          }
+        }
+      })
     },
 
     sendItem(item) {
@@ -293,6 +342,19 @@ export default {
       }
     },
 
+    onBlur() {
+      if (this.preventBlur) {
+        this.preventBlur = false
+        return
+      }
+      this.showList = false
+      this.current = -1
+    },
+
+    onDropdownMousedown() {
+      this.preventBlur = true
+    },
+
     itemClicked(index) {
       if (this.display.length) {
         this.type = this.clearAfter ? '' : this.json[index][this.display]
@@ -305,6 +367,10 @@ export default {
       if (this.autofocus) {
         this.$refs.autofocus.focus()
       }
+
+      this.$nextTick(() => {
+        if (this.autofocus) this.$refs.autofocus.focus()
+      })
       this.sendItem(this.json[index])
       this.showList = false
     },
@@ -349,6 +415,7 @@ export default {
         )
         this.searchEnd = true
         this.showList = this.json.length > 0
+        this.$nextTick(this.updateDropdownPosition)
       } else {
         this.spinner = true
         this.controller?.abort()
@@ -368,12 +435,60 @@ export default {
             this.showList = this.json.length > 0
             this.searchEnd = true
             this.$emit('found', this.showList)
+            this.$nextTick(this.updateDropdownPosition)
           })
           .catch(() => {})
           .finally(() => {
             this.spinner = false
           })
       }
+    },
+
+    updateDropdownPosition() {
+      this.$nextTick(() => {
+        const input = this.$refs.autofocus
+        const dropdown = this.$refs.dropdown
+        if (!input || !dropdown) return
+
+        const rect = input.getBoundingClientRect()
+        const viewportHeight = window.innerHeight
+        const viewportWidth = window.innerWidth
+
+        const spaceBelow = viewportHeight - rect.bottom
+        const spaceAbove = rect.top
+
+        const showAbove = spaceBelow < 150 && spaceAbove > spaceBelow
+        const maxWidth = viewportWidth - rect.left - 32
+        const maxHeight = Math.min(
+          showAbove ? spaceAbove - 12 : spaceBelow - 12,
+          500
+        )
+
+        dropdown.style.maxHeight = maxHeight + 'px'
+        dropdown.style.minWidth = rect.width + 'px'
+        dropdown.style.maxWidth = maxWidth + 'px'
+
+        const contentWidth = this.$refs.items.reduce(
+          (acc, li) => Math.max(acc, li.scrollWidth),
+          0
+        )
+        const finalWidth = Math.min(contentWidth + 16, maxWidth)
+        const dropdownHeight = dropdown.offsetHeight || maxHeight
+
+        const top = showAbove
+          ? rect.top + window.scrollY - dropdownHeight - 6
+          : rect.bottom + window.scrollY + 2
+
+        const left = rect.left + window.scrollX
+
+        this.dropdownStyle = {
+          top: `${Math.max(top, 0)}px`,
+          left: `${Math.max(left, 0)}px`,
+          width: finalWidth + 'px',
+          minWidth: rect.width + 'px',
+          maxWidth: maxWidth + 'px'
+        }
+      })
     },
 
     activeClass(index) {

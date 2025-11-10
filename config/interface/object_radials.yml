@@ -253,6 +253,7 @@ TaxonName:
     - asserted_distributions_basic_endemism_task
     - paper_catalog_generator_task
     - unify_objects_task
+    - taxon_name_reclassifier_task
   edit: new_taxon_name_task
   new: new_taxon_name_task
   home: browse_nomenclature_task
