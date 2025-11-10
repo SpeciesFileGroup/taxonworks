@@ -161,6 +161,7 @@ import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 import qs from 'qs'
+import { AnatomicalPart, CollectionObject, Extract, FieldOccurrence, Otu, Sequence, Sound } from '@/routes/endpoints'
 
 const ORIGIN_SWITCH_OPTIONS = {
   collection_objects: COLLECTION_OBJECT,
@@ -205,16 +206,6 @@ useHotkey([
   }
 ])
 
-onMounted(() => {
-  processParams()
-
-  TW.workbench.keyboard.createLegend(
-    `${platformKey()}+r`,
-    'Reset',
-    'Anatomical parts graph'
-  )
-})
-
 function createGraph(idsHash) {
   if (!Object.values(idsHash).some((v) => !!v)) {
     return
@@ -239,6 +230,7 @@ function processParams() {
   const { parameter, id } = queryParam()
   if (id) {
     graph.value.createGraph({ [parameter]: id })
+    setSelectorParams(parameter, id)
     return true
   }
 
@@ -268,6 +260,72 @@ function queryParam() {
       parameter: null,
       id: null
     }
+  }
+}
+
+function setSelectorParams(parameter, id) {
+  switch (parameter) {
+    case ID_PARAM_FOR[COLLECTION_OBJECT]:
+      CollectionObject.find(id)
+        .then(({ body }) => {
+          selectedOrigin.value = body
+          originsSwitch.value = ORIGIN_SWITCH_OPTIONS.collection_objects
+        })
+        .catch(() => {})
+    break
+
+    case ID_PARAM_FOR[FIELD_OCCURRENCE]:
+      FieldOccurrence.find(id)
+        .then(({ body }) => {
+          selectedOrigin.value = body
+          originsSwitch.value = ORIGIN_SWITCH_OPTIONS.field_occurrences
+        })
+        .catch(() => {})
+    break
+
+    case ID_PARAM_FOR[OTU]:
+      Otu.find(id)
+        .then(({ body }) => {
+          selectedOrigin.value = body
+          originsSwitch.value = ORIGIN_SWITCH_OPTIONS.otus
+        })
+        .catch(() => {})
+    break
+
+    case ID_PARAM_FOR[ANATOMICAL_PART]:
+      AnatomicalPart.find(id)
+        .then(({ body }) => {
+          selectedAnatomicalPart.value = body
+        })
+        .catch(() => {})
+    break
+
+    case ID_PARAM_FOR[OTU]:
+      Extract.find(id)
+        .then(({ body }) => {
+          selectedEndpoint.value = body
+          endpointsSwitch.value = ENDPOINT_SWITCH_OPTIONS.extracts
+        })
+        .catch(() => {})
+    break
+
+    case ID_PARAM_FOR[SEQUENCE]:
+      Sequence.find(id)
+        .then(({ body }) => {
+          selectedEndpoint.value = body
+          endpointsSwitch.value = ENDPOINT_SWITCH_OPTIONS.sequences
+        })
+        .catch(() => {})
+    break
+
+    case ID_PARAM_FOR[SOUND]:
+      Sound.find(id)
+        .then(({ body }) => {
+          selectedEndpoint.value = body
+          endpointsSwitch.value = ENDPOINT_SWITCH_OPTIONS.sounds
+        })
+        .catch(() => {})
+    break
   }
 }
 
@@ -309,6 +367,17 @@ function reset() {
   resetFrom(null)
   history.pushState(null, null, window.location.pathname)
 }
+
+onMounted(() => {
+  processParams()
+
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+r`,
+    'Reset',
+    'Anatomical parts graph'
+  )
+})
+
 </script>
 
 <style scoped>
