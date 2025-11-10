@@ -17,6 +17,20 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #nav-query-right>
+        <RadialMatrix
+          :parameters="parameters"
+          :disabled="!list.length"
+          :object-type="ANATOMICAL_PART"
+        />
+      </template>
+      <template #nav-right>
+        <RadialMatrix
+          :ids="sortedSelectedIds"
+          :disabled="!list.length"
+          :object-type="ANATOMICAL_PART"
+        />
+      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -69,6 +83,7 @@ import { AnatomicalPart } from '@/routes/endpoints'
 import { ATTRIBUTES } from './constants/attributes'
 import { ref } from 'vue'
 import floatGraph from './components/floatGraph.vue'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
 
 defineOptions({
   name: 'FilterAnatomicalParts'
