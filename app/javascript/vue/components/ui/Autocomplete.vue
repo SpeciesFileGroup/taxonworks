@@ -226,12 +226,12 @@ export default {
     }
 
     window.addEventListener('resize', this.updateDropdownPosition)
-    window.addEventListener('scroll', this.updateDropdownPosition, true)
+    //window.addEventListener('scroll', this.updateDropdownPosition, true)
   },
 
   beforeUnmount() {
     window.removeEventListener('resize', this.updateDropdownPosition)
-    window.removeEventListener('scroll', this.updateDropdownPosition, true)
+    //window.removeEventListener('scroll', this.updateDropdownPosition, true)
   },
 
   watch: {
@@ -503,3 +503,65 @@ export default {
   }
 }
 </script>
+
+<style>
+.vue-autocomplete-input {
+  z-index: 2000;
+  font-size: 12px;
+  padding: 0px;
+  position: static;
+  padding-left: 0.9em;
+  border-radius: 2px;
+  border: 1px solid var(--border-color);
+  min-height: 28px;
+  background-color: var(--input-bg-color);
+  box-sizing: border-box;
+  padding-right: 24px;
+  background-size: 18px;
+  background-position: right 4px center;
+  background-repeat: no-repeat;
+  width: 100%;
+}
+
+.vue-autocomplete {
+  position: relative;
+}
+
+.vue-autocomplete-list {
+  display: block;
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 999998;
+  background-color: var(--panel-bg-color);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-bottom: 4px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  position: absolute;
+
+  width: auto;
+  min-width: 100%;
+  max-width: calc(100vw - 32px);
+  overflow-x: hidden;
+  white-space: nowrap;
+
+  li {
+    cursor: pointer;
+    padding: calc(var(--standard-padding, 8px) * 0.5);
+    border-top: 1px solid var(--border-color);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding: 6px 12px;
+  }
+
+  .active {
+    background-color: var(--border-color);
+  }
+}
+</style>
