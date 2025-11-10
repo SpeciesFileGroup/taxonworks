@@ -25,7 +25,6 @@ headers to be used in the call. Using it will override the common headers
       autocomplete="off"
       :class="[
         'vue-autocomplete-input normal-input',
-        spinner && 'ui-autocomplete-loading',
         !spinner && 'vue-autocomplete-input-search',
         inputClass
       ]"
@@ -37,40 +36,43 @@ headers to be used in the call. Using it will override the common headers
       @focus="() => (showList = true)"
       @blur="onBlur"
     />
+    <AutocompleteSpinner v-if="spinner" />
     <teleport to="body">
       <ul
+        v-if="type && searchEnd"
         class="vue-autocomplete-list"
         v-show="showList"
         ref="dropdown"
         :style="dropdownStyle"
         @mousedown="onDropdownMousedown"
-        v-if="type && json.length"
       >
+        <template v-if="json.length">
+          <li
+            v-for="(item, index) in limitList(json)"
+            class="vue-autocomplete-item"
+            :class="activeClass(index)"
+            ref="items"
+            :title="escapeHtml(getNested(item, label))"
+            @mouseover="itemActive(index)"
+            @click.prevent="itemClicked(index)"
+          >
+            <span
+              v-if="typeof label !== 'function'"
+              v-html="getNested(item, label)"
+            />
+            <span
+              v-else
+              v-html="label(item)"
+            />
+          </li>
+          <li v-if="json.length == 20">Results may be truncated</li>
+        </template>
         <li
-          v-for="(item, index) in limitList(json)"
-          class="vue-autocomplete-item"
-          :class="activeClass(index)"
-          ref="items"
-          :title="escapeHtml(getNested(item, label))"
-          @mouseover="itemActive(index)"
-          @click.prevent="itemClicked(index)"
+          v-else
+          class="vue-autocomplete-empty-list"
         >
-          <span
-            v-if="typeof label !== 'function'"
-            v-html="getNested(item, label)"
-          />
-          <span
-            v-else
-            v-html="label(item)"
-          />
+          --None--
         </li>
-        <li v-if="json.length == 20">Results may be truncated</li>
-      </ul>
-      <ul
-        v-if="type && searchEnd && !json.length"
-        class="vue-autocomplete-empty-list"
-      >
-        <li>--None--</li>
       </ul>
     </teleport>
   </div>
@@ -79,9 +81,14 @@ headers to be used in the call. Using it will override the common headers
 <script>
 import { escapeHtml } from '@/helpers'
 import AjaxCall from '@/helpers/ajaxCall'
+import AutocompleteSpinner from './Autocomplete/AutocompleteSpinner.vue'
 import Qs from 'qs'
 
 export default {
+  components: {
+    AutocompleteSpinner
+  },
+
   props: {
     modelValue: {
       type: [String, Number]
@@ -226,12 +233,12 @@ export default {
     }
 
     window.addEventListener('resize', this.updateDropdownPosition)
-    //window.addEventListener('scroll', this.updateDropdownPosition, true)
+    window.addEventListener('scroll', this.updateDropdownPosition, true)
   },
 
   beforeUnmount() {
     window.removeEventListener('resize', this.updateDropdownPosition)
-    //window.removeEventListener('scroll', this.updateDropdownPosition, true)
+    window.removeEventListener('scroll', this.updateDropdownPosition, true)
   },
 
   watch: {
@@ -414,7 +421,7 @@ export default {
           item[this.label].toLowerCase().includes(this.type.toLowerCase())
         )
         this.searchEnd = true
-        this.showList = this.json.length > 0
+        this.showList = true
         this.$nextTick(this.updateDropdownPosition)
       } else {
         this.spinner = true
@@ -432,7 +439,7 @@ export default {
                 (item) => !this.excludedIds.includes(item.id)
               )
             }
-            this.showList = this.json.length > 0
+            this.showList = true
             this.searchEnd = true
             this.$emit('found', this.showList)
             this.$nextTick(this.updateDropdownPosition)
@@ -448,6 +455,8 @@ export default {
       this.$nextTick(() => {
         const input = this.$refs.autofocus
         const dropdown = this.$refs.dropdown
+        const items = this.$refs.items
+
         if (!input || !dropdown) return
 
         const rect = input.getBoundingClientRect()
@@ -468,10 +477,9 @@ export default {
         dropdown.style.minWidth = rect.width + 'px'
         dropdown.style.maxWidth = maxWidth + 'px'
 
-        const contentWidth = this.$refs.items.reduce(
-          (acc, li) => Math.max(acc, li.scrollWidth),
-          0
-        )
+        const contentWidth = items
+          ? items.reduce((acc, li) => Math.max(acc, li.scrollWidth), 0)
+          : 0
         const finalWidth = Math.min(contentWidth + 16, maxWidth)
         const dropdownHeight = dropdown.offsetHeight || maxHeight
 
