@@ -35,9 +35,12 @@ function closeContextMenu() {
 function handleEvent(e) {
   if (!isVisible.value) return
 
-  // If the click occurred anywhere "in" a modal (including SVG inside it),
-  // ignore it so the context menu stays open.
-  if (clickIsInRadialModal(e)) return
+  // If the click occurred anywhere "in" a modal (including SVG inside it), or
+  // within an autocomplete result list, ignore it so the context menu stays
+  // open.
+  if (clickIsInRadialModal(e) || e.target.closest('.vue-autocomplete-list')) {
+    return
+  }
 
   if (!element.value?.contains(e.target)) {
     closeContextMenu()
