@@ -172,7 +172,7 @@ function filterTable() {
   if (!!idText) {
     idMatches = []
     ontologies.value.forEach((o) => {
-      if (o.oid.toLowerCase().includes(idText.value)) {
+      if (o.oid.toLowerCase().includes(idText.value.toLowerCase())) {
         idMatches.push(o)
       }
     })
@@ -182,7 +182,7 @@ function filterTable() {
   if (!!titleText) {
     titleMatches = []
     ontologies.value.forEach((o) => {
-      if (o.title.toLowerCase().includes(titleText.value)) {
+      if (o.title.toLowerCase().includes(titleText.value.toLowerCase())) {
         titleMatches.push(o)
       }
     })
@@ -192,7 +192,7 @@ function filterTable() {
   if (!!descriptionText) {
     descriptionMatches = []
     ontologies.value.forEach((o) => {
-      if (o.description.toLowerCase().includes(descriptionText.value)) {
+      if (o.description.toLowerCase().includes(descriptionText.value.toLowerCase())) {
         descriptionMatches.push(o)
       }
     })
