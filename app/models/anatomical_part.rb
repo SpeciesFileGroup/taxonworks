@@ -180,6 +180,8 @@ class AnatomicalPart < ApplicationRecord
     h
   end
 
+  # @return [Array[Array, Array]] where the first component is nodes, the second
+  # component is edges, i.e. originRelationships.
   def self.graph(id, type)
     case type
     when *(AnatomicalPart.valid_old_object_classes - ['AnatomicalPart'])
@@ -187,7 +189,9 @@ class AnatomicalPart < ApplicationRecord
     when *(AnatomicalPart.valid_new_object_classes - ['AnatomicalPart'])
       construct_graph_from_low_node(id, type)
     when 'AnatomicalPart'
-      part = AnatomicalPart.find(id)
+      part = AnatomicalPart.find_by(id:)
+      return [[], []] if part.nil?
+
       origin = part.taxonomic_origin_object
       # This constructs the full graph starting from origin - if we decide we
       # only want the chain containing the original input then call
