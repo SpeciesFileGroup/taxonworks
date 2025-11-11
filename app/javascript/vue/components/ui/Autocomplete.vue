@@ -471,6 +471,7 @@ export default {
           500
         )
 
+        dropdown.style.removeProperty('width')
         dropdown.style.maxHeight = maxHeight + 'px'
         dropdown.style.minWidth = rect.width + 'px'
         dropdown.style.maxWidth = maxWidth + 'px'
