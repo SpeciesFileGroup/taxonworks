@@ -34,14 +34,14 @@ module Queries
 
         return [] if queries.empty?
 
-        updated_queries = []
+        project_queries = []
 
         queries.each do |q|
           a = q.where(project_id:) if project_id.present?
-          updated_queries.push a
+          project_queries.push a
         end
 
-        updated_queries
+        project_queries
       end
 
       # @return [Array]
