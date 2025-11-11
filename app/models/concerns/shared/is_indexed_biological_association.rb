@@ -18,7 +18,7 @@ module Shared::IsIndexedBiologicalAssociation
     scope :ba_not_indexed, -> { where.missing(:biological_association_index) }
   end
 
-  # @return [BiologicalAssociationsIndex]
+  # @return [BiologicalAssociationIndex]
   #   !! always touches the database
   def set_biological_association_index
     retried = false
@@ -88,7 +88,7 @@ module Shared::IsIndexedBiologicalAssociation
     }
   end
 
-  # @return [BiologicalAssociationsIndex]
+  # @return [BiologicalAssociationIndex]
   #   does not rebuild if already built
   def get_biological_association_index
     if biological_association_index_persisted?

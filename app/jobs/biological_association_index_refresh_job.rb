@@ -1,4 +1,4 @@
-class BiologicalAssociationsIndexRefreshJob < ApplicationJob
+class BiologicalAssociationIndexRefreshJob < ApplicationJob
   queue_as :query_batch_update
 
   def max_run_time
@@ -14,7 +14,7 @@ class BiologicalAssociationsIndexRefreshJob < ApplicationJob
   def perform(rebuild_set: nil, user_id: nil)
     raise TaxonWorks::Error, 'no set id to refresh job' if rebuild_set.blank?
 
-    q = BiologicalAssociationsIndex.where(rebuild_set:)
+    q = BiologicalAssociationIndex.where(rebuild_set:)
 
     Current.user_id = user_id
 

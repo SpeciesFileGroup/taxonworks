@@ -3,10 +3,10 @@
 # Models including this concern must implement:
 #
 #   def biological_association_indices
-#     BiologicalAssociationsIndex.<select>
+#     BiologicalAssociationIndex.<select>
 #   end
 #
-module Shared::BiologicalAssociationsIndexHooks
+module Shared::BiologicalAssociationIndexHooks
   extend ActiveSupport::Concern
 
   included do
@@ -29,9 +29,9 @@ module Shared::BiologicalAssociationsIndexHooks
         # If the scope is returning every object at this point (arbitrary cutoff), then the scope is badly coded.
         if t > 20_000 && (
             (respond_to?(:project_id) &&
-              (t == BiologicalAssociationsIndex.where(project_id:).count)
+              (t == BiologicalAssociationIndex.where(project_id:).count)
             ) ||
-            (!respond_to?(:project_id) && (t == BiologicalAssociationsIndex.count))
+            (!respond_to?(:project_id) && (t == BiologicalAssociationIndex.count))
           )
           raise TaxonWorks::Error
         end
@@ -49,7 +49,7 @@ module Shared::BiologicalAssociationsIndexHooks
                      6
                    end
 
-        ::BiologicalAssociationsIndexRefreshJob.set(priority:).perform_later(
+        ::BiologicalAssociationIndexRefreshJob.set(priority:).perform_later(
           rebuild_set:,
           user_id: Current.user_id,
         )

@@ -35,6 +35,7 @@ class Otu < ApplicationRecord
   include Shared::Confidences
   include Shared::Observations
   include Shared::BiologicalAssociations
+  include Shared::BiologicalAssociationIndexHooks
   include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::OriginRelationship
@@ -552,6 +553,13 @@ class Otu < ApplicationRecord
 
   def dwc_occurrences
     ::Queries::DwcOccurrence::Filter.new(otu_id: id).all
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records where this Otu is subject or object
+  def biological_association_indices
+    BiologicalAssociationIndex.where('subject_id = ? AND subject_type = ?', id, self.class.base_class.name)
+      .or(BiologicalAssociationIndex.where('object_id = ? AND object_type = ?', id, self.class.base_class.name))
   end
 
   protected

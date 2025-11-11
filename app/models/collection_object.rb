@@ -84,6 +84,7 @@ class CollectionObject < ApplicationRecord
   include SoftValidation
 
   include Shared::BiologicalExtensions
+  include Shared::BiologicalAssociationIndexHooks
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence
 
@@ -789,6 +790,13 @@ class CollectionObject < ApplicationRecord
     end
     # !! does not account for georeferences_attributes!
     reject
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records where this CollectionObject is subject or object
+  def biological_association_indices
+    BiologicalAssociationIndex.where('subject_id = ? AND subject_type = ?', id, self.class.base_class.name)
+      .or(BiologicalAssociationIndex.where('object_id = ? AND object_type = ?', id, self.class.base_class.name))
   end
 
 end
