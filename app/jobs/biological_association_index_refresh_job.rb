@@ -25,7 +25,7 @@ class BiologicalAssociationIndexRefreshJob < ApplicationJob
       rescue => ex
         ExceptionNotifier.notify_exception(
           ex,
-          data: { project_id:, user_id:, rebuild_set: }
+          data: { project_id: Current.project_id, user_id:, rebuild_set: }
         )
         raise
       end

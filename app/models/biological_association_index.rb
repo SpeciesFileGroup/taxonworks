@@ -2,6 +2,7 @@
 # filtering.
 class BiologicalAssociationIndex < ApplicationRecord
   include Housekeeping
+  include Shared::IsData
 
   belongs_to :biological_association, inverse_of: :biological_association_index
   belongs_to :biological_relationship, inverse_of: :biological_association_indices
@@ -9,5 +10,4 @@ class BiologicalAssociationIndex < ApplicationRecord
 
   validates_presence_of :biological_association
   validates_presence_of :biological_relationship
-  validates_presence_of :project
 end
