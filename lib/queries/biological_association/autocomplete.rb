@@ -81,8 +81,6 @@ module Queries
             .where(anatomical_parts: { id: q.limit(50).pluck(:id) })
           updated_queries << j
         end
-
-        byebug
       end
 
       # @return [Array]
