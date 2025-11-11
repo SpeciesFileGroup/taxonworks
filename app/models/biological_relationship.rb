@@ -44,6 +44,7 @@ class BiologicalRelationship < ApplicationRecord
   has_many :object_biological_properties, through: :object_biological_relationship_types, source: :biological_property
 
   has_many :biological_associations, inverse_of: :biological_relationship
+  has_many :biological_association_indices, inverse_of: :biological_relationship
 
   accepts_nested_attributes_for :biological_relationship_types, allow_destroy: true
 
