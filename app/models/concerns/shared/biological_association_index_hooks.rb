@@ -51,7 +51,7 @@ module Shared::BiologicalAssociationIndexHooks
 
         ::BiologicalAssociationIndexRefreshJob.set(priority:).perform_later(
           rebuild_set:,
-          user_id: Current.user_id,
+          user_id: Current.user_id
         )
 
       rescue => e

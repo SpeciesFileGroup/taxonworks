@@ -16,8 +16,6 @@ class BiologicalAssociationIndexRefreshJob < ApplicationJob
 
     q = BiologicalAssociationIndex.where(rebuild_set:)
 
-    Current.user_id = user_id
-
     q.all.find_each do |o|
 
       begin
@@ -25,7 +23,11 @@ class BiologicalAssociationIndexRefreshJob < ApplicationJob
       rescue => ex
         ExceptionNotifier.notify_exception(
           ex,
-          data: { project_id: Current.project_id, user_id:, rebuild_set: }
+          data: {
+            biological_association_id: o.biological_association_id,
+            project_id: o.project_id,
+            user_id:,
+            rebuild_set: }
         )
         raise
       end

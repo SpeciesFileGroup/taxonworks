@@ -16,8 +16,6 @@ class DwcOccurrenceRefreshJob < ApplicationJob
 
     q = DwcOccurrence.where(rebuild_set:)
 
-    Current.user_id = user_id
-
     q.all.find_each do |o|
 
       begin
@@ -25,7 +23,7 @@ class DwcOccurrenceRefreshJob < ApplicationJob
       rescue => ex
         ExceptionNotifier.notify_exception(
           ex,
-          data: { project_id:, user_id:}
+          data: { user_id:}
         )
         raise
       end

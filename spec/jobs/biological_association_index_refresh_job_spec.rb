@@ -74,6 +74,16 @@ RSpec.describe BiologicalAssociationIndexRefreshJob, type: :model do
         BiologicalAssociationIndexRefreshJob.perform_now(rebuild_set: rebuild_set, user_id: job_user.id)
       }.not_to raise_error
     end
+
+    specify 'clears rebuild_set after processing' do
+      ba1.biological_association_index.update_column(:rebuild_set, rebuild_set)
+      ba2.biological_association_index.update_column(:rebuild_set, rebuild_set)
+
+      BiologicalAssociationIndexRefreshJob.perform_now(rebuild_set: rebuild_set, user_id: job_user.id)
+
+      expect(ba1.biological_association_index.reload.rebuild_set).to be_nil
+      expect(ba2.biological_association_index.reload.rebuild_set).to be_nil
+    end
   end
 
   context 'error handling' do

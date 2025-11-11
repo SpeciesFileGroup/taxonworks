@@ -26,6 +26,7 @@ module Shared::IsIndexedBiologicalAssociation
       if biological_association_index_persisted?
         biological_association_index.update_columns(
           biological_association_index_attributes.merge(
+            rebuild_set: nil,
             updated_at: Time.zone.now)
         )
       else
@@ -50,6 +51,7 @@ module Shared::IsIndexedBiologicalAssociation
   def biological_association_index_attributes
     {
       biological_association_id: id,
+      biological_association_uuid: uuid,
       biological_relationship_id: biological_relationship_id,
       project_id: project_id,
       created_by_id: created_by_id,
@@ -83,7 +85,7 @@ module Shared::IsIndexedBiologicalAssociation
       # Citations and metadata
       citations: biological_association_citations,
       citation_year: biological_association_citation_year,
-      established_date: dwc_relationship_established_date(false),
+      established_date: biological_association_established_date,
       remarks: biological_association_remarks
     }
   end
@@ -152,6 +154,26 @@ module Shared::IsIndexedBiologicalAssociation
 
   def biological_association_remarks
     Utilities::Strings.sanitize_for_csv(notes.collect { |n| n.text }.join(Shared::IsDwcOccurrence::DWC_DELIMITER)).presence
+  end
+
+  def biological_association_established_date
+    t = [biological_association_subject_type, biological_association_object_type]
+
+    case t
+    when %w{Otu Otu}
+      ApplicationController.helpers.short_sources_year_tag(sources)
+    when %w{CollectionObject Otu}, %w{FieldOccurrence Otu}
+      biological_association_subject.dwc_event_date || ApplicationController.helpers.short_sources_year_tag(sources)
+    when %w{Otu CollectionObject}, %w{Otu FieldOccurrence}
+      biological_association_object.dwc_event_date || ApplicationController.helpers.short_sources_year_tag(sources)
+    when %w{CollectionObject CollectionObject}, %w{FieldOccurrence FieldOccurrence}, %w{CollectionObject FieldOccurrence}, %w{FieldOccurrence CollectionObject}
+      # Lots of assumptions behind this.  What if specimens were marked as
+      # collected in 2 different events, that would be odd but perhaps not
+      # impossible.
+      biological_association_subject.dwc_event_date || biological_association_object.dwc_event_date
+    else
+      'BAD DATA: TYPE ERROR'
+    end
   end
 
 end
