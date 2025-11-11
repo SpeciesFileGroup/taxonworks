@@ -233,12 +233,10 @@ export default {
     }
 
     window.addEventListener('resize', this.updateDropdownPosition)
-    window.addEventListener('scroll', this.updateDropdownPosition, true)
   },
 
   beforeUnmount() {
     window.removeEventListener('resize', this.updateDropdownPosition)
-    window.removeEventListener('scroll', this.updateDropdownPosition, true)
   },
 
   watch: {
@@ -473,6 +471,7 @@ export default {
           500
         )
 
+        dropdown.style.removeProperty('width')
         dropdown.style.maxHeight = maxHeight + 'px'
         dropdown.style.minWidth = rect.width + 'px'
         dropdown.style.maxWidth = maxWidth + 'px'
@@ -480,7 +479,7 @@ export default {
         const contentWidth = items
           ? items.reduce((acc, li) => Math.max(acc, li.scrollWidth), 0)
           : 0
-        const finalWidth = Math.min(contentWidth + 16, maxWidth)
+        const finalWidth = Math.min(contentWidth, maxWidth)
         const dropdownHeight = dropdown.offsetHeight || maxHeight
 
         const top = showAbove
