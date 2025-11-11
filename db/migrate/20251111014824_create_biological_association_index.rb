@@ -41,6 +41,9 @@ class CreateBiologicalAssociationIndex < ActiveRecord::Migration[7.2]
       t.string :established_date
       t.text :remarks
 
+      # Rebuild tracking
+      t.string :rebuild_set
+
       t.timestamps
     end
 
@@ -64,5 +67,8 @@ class CreateBiologicalAssociationIndex < ActiveRecord::Migration[7.2]
     add_index :biological_association_indices, :object_family
     add_index :biological_association_indices, :object_genus
     add_index :biological_association_indices, :object_properties
+
+    # Rebuild tracking
+    add_index :biological_association_indices, :rebuild_set
   end
 end
