@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Radial annotator: Citations forms throws an error when you try to replace an original citation
+- Image matrix endpoint is not sending the correct image path
 
 [#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
 
