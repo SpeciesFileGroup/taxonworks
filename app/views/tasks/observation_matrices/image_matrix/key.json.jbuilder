@@ -21,11 +21,18 @@ json.image_hash do
   @key.image_hash.each do |id, data|
     json.set! id do
       json.image do
-        json.partial! 'images/attributes', image: data[:image]
+        i = data[:image]
+
+        json.extract! i, :id, :image_file_file_name, :image_file_file_size, :image_file_content_type, :user_file_name, :height, :width
+        json.global_id i.to_global_id.to_s
+        json.original_url i.image_file.url
+        json.medium_url i.image_file.url(:medium)
+        json.thumb_url i.image_file.url(:thumb)
       end
 
       json.citations data[:citations] do |citation|
-        json.partial! 'citations/attributes', citation: citation
+        json.extract! citation, :id, :citation_object_id, :citation_object_type, :cached, :cached_author_string, :source_id, :pages, :is_original, :year, :created_by_id, :updated_by_id, :project_id
+        json.global_id citation.to_global_id.to_s
       end
     end
   end
