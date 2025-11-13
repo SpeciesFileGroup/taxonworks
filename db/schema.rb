@@ -160,6 +160,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_11_152257) do
     t.bigint "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
+    t.integer "biological_association_uuid"
     t.integer "subject_id", null: false
     t.string "subject_type", null: false
     t.string "subject_uuid"

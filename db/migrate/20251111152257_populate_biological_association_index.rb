@@ -3,13 +3,25 @@ class PopulateBiologicalAssociationIndex < ActiveRecord::Migration[7.2]
     say_with_time "Populating biological_association_index for existing records" do
       count = 0
 
-      BiologicalAssociation.where.missing(:biological_association_index).find_each do |ba|
-        ba.no_biological_association_index = true
-        ba.set_biological_association_index
-        count += 1
+      BiologicalAssociation
+        .where.missing(:biological_association_index)
+        .includes(
+          :biological_association_subject,
+          :biological_association_object,
+          :subject_biological_properties,
+          :object_biological_properties,
+          :sources,
+          :notes,
+          :identifiers,
+          { biological_relationship: :uris }
+        )
+        .find_each do |ba|
+          ba.no_biological_association_index = true
+          ba.set_biological_association_index
+          count += 1
 
-        print '.' if count % 100 == 0
-      end
+          print '.' if count % 100 == 0
+        end
 
       puts "\nPopulated #{count} index records"
       count
