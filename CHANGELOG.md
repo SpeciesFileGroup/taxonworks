@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Collecting event form: Field notes
 - Taxon name reclassifier: Unify and refresh buttons [#4609]
 - Radial navigator: Taxon name reclassifier [#4609]
+- New source: display error messages when a document upload fails
 
 ### Changed
 
