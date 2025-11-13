@@ -299,7 +299,7 @@ class SourcesController < ApplicationController
     if params[:bibtex_input].blank?
       Source.new(source_params)
     else
-      Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])
+      Source::Bibtex.new_from_bibtex_text(params[:bibtex_input], sessions_current_project_id)
     end
   end
 

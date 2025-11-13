@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Autocomplete list dynamically adjust to fit content on screen
+- New source: add BibTeX source to project automatically
 
 ### Fixed
 
