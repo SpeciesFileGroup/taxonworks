@@ -30,7 +30,6 @@ class BiologicalAssociationIndexRefreshJob < ApplicationJob
       )
 
     q.find_each do |o|
-
       begin
         o.biological_association.set_biological_association_index
       rescue => ex

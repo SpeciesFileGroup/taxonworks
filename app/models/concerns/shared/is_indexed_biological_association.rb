@@ -14,8 +14,8 @@ module Shared::IsIndexedBiologicalAssociation
 
     after_save :set_biological_association_index, unless: -> { no_biological_association_index }
 
-    scope :ba_indexed, -> { joins(:biological_association_index) }
-    scope :ba_not_indexed, -> { where.missing(:biological_association_index) }
+    scope :biological_association_indexed, -> { joins(:biological_association_index) }
+    scope :biological_association_not_indexed, -> { where.missing(:biological_association_index) }
   end
 
   # @return [BiologicalAssociationIndex]
@@ -144,16 +144,37 @@ module Shared::IsIndexedBiologicalAssociation
     biological_relationship.uris.first&.cached
   end
 
-  def biological_association_citations
-    ApplicationController.helpers.short_sources_tag(sources)
-  end
-
   def biological_association_citation_year
     ApplicationController.helpers.short_sources_year_tag(sources)
   end
 
+  # TODO: Generic helper
   def biological_association_remarks
     Utilities::Strings.sanitize_for_csv(notes.collect { |n| n.text }.join(Shared::IsDwcOccurrence::DWC_DELIMITER)).presence
+  end
+
+   # TODO: Should reference DOIs, Identifiers,  or identifiers in lieu of short
+   # citations.
+  def biological_association_citations
+    # Could be collectors (ORCID or ...)
+    # Could be citation providers
+    t = [biological_association_subject_type , biological_association_object_type]
+
+    case t
+    when %w{Otu Otu}
+      ApplicationController.helpers.short_sources_tag(sources)
+    when %w{CollectionObject Otu}, %w{FieldOccurrence Otu} # Assume exists on label
+      biological_association_subject.dwc_recorded_by || ApplicationController.helpers.short_sources_tag(sources)
+    when %w{Otu CollectionObject}, %w{Otu FieldOccurrence} # Assume exists on label
+      biological_association_object.dwc_recorded_by || ApplicationController.helpers.short_sources_tag(sources)
+    when %w{CollectionObject CollectionObject}, %w{FieldOccurrence FieldOccurrence}, %w{CollectionObject FieldOccurrence}, %w{FieldOccurrence CollectionObject}
+      # Lots of assumptions behind this.  What if specimens were marked as
+      # collected in 2 different events, that would be odd but perhaps not
+      # impossible.
+      biological_association_subject.dwc_recorded_by || biological_association_object.dwc_recorded_by
+    else
+      'BAD DATA: TYPE ERROR'
+    end
   end
 
   def biological_association_established_date

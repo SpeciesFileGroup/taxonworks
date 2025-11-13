@@ -47,7 +47,7 @@ describe 'BiologicalAssociationIndexHooks', type: :model do
     end
 
     specify 'biological_association_indices returns correct records' do
-      indices = otu.send(:biological_association_indices)
+      indices = otu.biological_association_indices
 
       expect(indices).to contain_exactly(ba_as_subject.biological_association_index, ba_as_object.biological_association_index)
     end

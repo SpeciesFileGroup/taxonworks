@@ -54,22 +54,22 @@ describe 'IsIndexedBiologicalAssociation', type: :model do
   end
 
   context 'scopes' do
-    specify '.ba_indexed returns associations with index' do
+    specify '.biological_association_indexed returns associations with index' do
       ba_with_index = FactoryBot.create(:valid_biological_association)
       ba_without_index = FactoryBot.create(:valid_biological_association)
       ba_without_index.biological_association_index.destroy
 
-      expect(BiologicalAssociation.ba_indexed).to include(ba_with_index)
-      expect(BiologicalAssociation.ba_indexed).not_to include(ba_without_index)
+      expect(BiologicalAssociation.biological_association_indexed).to include(ba_with_index)
+      expect(BiologicalAssociation.biological_association_indexed).not_to include(ba_without_index)
     end
 
-    specify '.ba_not_indexed returns associations without index' do
+    specify '.biological_association_not_indexed returns associations without index' do
       ba_with_index = FactoryBot.create(:valid_biological_association)
       ba_without_index = FactoryBot.create(:valid_biological_association)
       ba_without_index.biological_association_index.destroy
 
-      expect(BiologicalAssociation.ba_not_indexed).to include(ba_without_index)
-      expect(BiologicalAssociation.ba_not_indexed).not_to include(ba_with_index)
+      expect(BiologicalAssociation.biological_association_not_indexed).to include(ba_without_index)
+      expect(BiologicalAssociation.biological_association_not_indexed).not_to include(ba_with_index)
     end
   end
 

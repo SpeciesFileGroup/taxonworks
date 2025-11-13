@@ -20,9 +20,6 @@ module BiologicalAssociation::DwcExtensions
   end
 
   # Don't use dwc_
-  # !! inverted means subject and object have already been switched, but
-  # *relationship* must use `inverted_name` instead of `name`.
-  # !! Expects biological_association_index to be preloaded (via includes)
   def darwin_core_extension_row(inverted: false)
     Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS.collect{|h| send(DWC_EXTENSION_MAP[h.to_sym], inverted)}
   end
@@ -39,8 +36,8 @@ module BiologicalAssociation::DwcExtensions
   end
 
   def dwc_resource_relationship_coreid(inverted = false)
-    # Note that this could be subject or object of the original association (see
-    # note above on `inverted`), which is what we want.
+    # Note that this could be either subject or object of the original
+    # association, which is a good thing.
     dwc_resource_id(inverted)
   end
 
@@ -67,7 +64,6 @@ module BiologicalAssociation::DwcExtensions
     index = biological_association_index
     s = index.biological_relationship_uri || index.biological_relationship_id
 
-    # TODO: this might mess up uri handling
     inverted ? "#{s} inverted" : s
   end
 
@@ -90,7 +86,6 @@ module BiologicalAssociation::DwcExtensions
     inverted ? index.subject_label : index.object_label
   end
 
-  # TODO: Should reference DOIs, Identifiers,  or identifiers in lieu of short citations
   def dwc_relationship_according_to(inverted = false)
     index = biological_association_index
     index.citations
@@ -101,7 +96,6 @@ module BiologicalAssociation::DwcExtensions
     index.established_date
   end
 
-  # TODO: Generic helper
   def dwc_relationship_remarks(inverted = false)
     index = biological_association_index
     index.remarks
