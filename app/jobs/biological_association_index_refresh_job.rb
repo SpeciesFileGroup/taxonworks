@@ -14,9 +14,22 @@ class BiologicalAssociationIndexRefreshJob < ApplicationJob
   def perform(rebuild_set: nil, user_id: nil)
     raise TaxonWorks::Error, 'no set id to refresh job' if rebuild_set.blank?
 
-    q = BiologicalAssociationIndex.where(rebuild_set:)
+    q = BiologicalAssociationIndex
+      .where(rebuild_set:)
+      .includes(
+        biological_association: [
+          :biological_association_subject,
+          :biological_association_object,
+          :subject_biological_properties,
+          :object_biological_properties,
+          :sources,
+          :notes,
+          :identifiers,
+          { biological_relationship: :uris }
+        ]
+      )
 
-    q.all.find_each do |o|
+    q.find_each do |o|
 
       begin
         o.biological_association.set_biological_association_index
