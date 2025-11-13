@@ -14,9 +14,22 @@ class DwcOccurrenceRefreshJob < ApplicationJob
   def perform(rebuild_set: nil, user_id: nil)
     raise TaxonWorks::Error, 'no set id to refresh job' if rebuild_set.blank?
 
-    q = DwcOccurrence.where(rebuild_set:)
+    q = DwcOccurrence
+      .where(rebuild_set:)
+      .includes(
+        dwc_occurrence_object: [
+          :images,
+          :identifiers,
+          :type_materials,
+          :preparation_type,
+          :taxon_determinations,
+          :current_taxon_determination,
+          :biocuration_classifications,
+          { collecting_event: [:georeferences, :collectors, :geographic_area] }
+        ]
+      )
 
-    q.all.find_each do |o|
+    q.find_each do |o|
 
       begin
         o.dwc_occurrence_object.send(:set_dwc_occurrence)
