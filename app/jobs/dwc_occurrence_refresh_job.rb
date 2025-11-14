@@ -25,7 +25,7 @@ class DwcOccurrenceRefreshJob < ApplicationJob
           :taxon_determinations,
           :current_taxon_determination,
           :biocuration_classifications,
-          { collecting_event: [:georeferences, :collectors, :geographic_area] }
+          { collecting_event: [:georeferences, { collector_roles: :person }, :geographic_area] }
         ]
       )
 
