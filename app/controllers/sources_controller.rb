@@ -74,16 +74,22 @@ class SourcesController < ApplicationController
     @source = new_source
 
     respond_to do |format|
+      begin
+        if @source && @source.save
+          format.html { redirect_to url_for(@source.metamorphosize),
+                        notice: "#{@source.type} successfully created." }
+          format.json { render action: 'show', status: :created, location: @source.metamorphosize }
+        else
+          format.html { render action: 'new' }
+          format.json { render json: @source.errors, status: :unprocessable_entity }
+        end
+      rescue ActiveRecord::InvalidForeignKey => e
+        serial = Serial.find_by(id: params.dig(:source, :serial_id))
+        errors = serial.nil? ? ["Serial '#{params.dig(:source, :serial_id)}' not found."] : [e.to_s]
 
-      if @source && @source.save
-        format.html { redirect_to url_for(@source.metamorphosize),
-                      notice: "#{@source.type} successfully created." }
-        format.json { render action: 'show', status: :created, location: @source.metamorphosize }
-      else
         format.html { render action: 'new' }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: }, status: :unprocessable_entity }
       end
-
     end
   end
 

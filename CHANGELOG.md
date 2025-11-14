@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Biological Relationship search
 - Exception on Filter Source with verbatim sources
 - Exception on empty searches
+- Exception in New Source when serial no longer exists
 
 [#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
 
