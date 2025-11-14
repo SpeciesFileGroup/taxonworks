@@ -410,7 +410,9 @@ export default {
     },
 
     update() {
-      if (this.type.length < Number(this.min)) return
+      if ((this.type.length < Number(this.min)) || (this.type.trim() === '')) {
+        return
+      }
 
       this.clearResults()
 
