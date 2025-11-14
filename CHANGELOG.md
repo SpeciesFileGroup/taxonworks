@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Autocomplete list dynamically adjust to fit content on screen
 - New source: add BibTeX source to project automatically
+- Removed the Origin Relationship search boxes
 
 ### Fixed
 
