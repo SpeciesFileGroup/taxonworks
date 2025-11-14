@@ -123,6 +123,41 @@ class User < ApplicationRecord
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   HUB_FAVORITES = {'data' => [], 'tasks' => []}.freeze
 
+  # IMPORTANT: Double-encoding behavior with `store` and `json` column type
+  #
+  # The preferences column is a PostgreSQL `json` type (see db/schema.rb), but
+  # we also use `store` with `coder: JSON` here (below). This creates a
+  # double-encoding/decoding flow:
+  #
+  # When WRITING to the database:
+  #   1. User model has a preferences Hash: { disable_chime: false }
+  #   2. ActiveRecord::Type::Serialized (from `store`) encodes it:
+  #      '{"disable_chime":false}'
+  #   3. PostgreSQL json type stores this JSON string AS a json value:
+  #      '"{"disable_chime":false}"' (Note: The database stores a JSON string
+  #      containing another JSON string)
+  #
+  # When READING from the database:
+  #   1. PostgreSQL returns the json column value: '{"disable_chime":false}' (a
+  #      Ruby String)
+  #   2. ActiveRecord::Type::Serialized (from `store`) decodes it: {
+  #      disable_chime: false }
+  #   3. User model receives the preferences Hash
+  #
+  # This means:
+  #   - In PostgreSQL, preferences are stored as:
+  #     '"{\\"disable_chime\\":false}"' (a JSON string value, not a JSON object)
+  #   - Project exports must use JSON.generate(JSON.generate(user.preferences))
+  #     to match this double-encoding behavior (see
+  #     lib/export/project_data/sql.rb)
+  #   - Raw SQL queries will return a JSON string, not a parsed object
+  #
+  # Historical note: This pattern works but is unconventional. Typically with a
+  # `json` column, you would NOT use `coder: JSON` since PostgreSQL's adapter
+  # already handles JSON encoding. Changing this would require a migration and
+  # careful data conversion.
+  store :preferences, accessors: [:disable_chime], coder: JSON
+
   attr_accessor :set_new_api_access_token
   attr_accessor :self_created
 

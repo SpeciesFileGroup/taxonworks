@@ -149,7 +149,9 @@ module ::Export::ProjectData::Sql
         created_by_id: user.created_by_id || 'NULL',
         updated_by_id: user.updated_by_id || 'NULL',
         is_administrator: user.is_administrator || 'NULL',
-        hub_tab_order: "'{#{conn.escape_string(user.hub_tab_order.join(','))}}'"
+        hub_tab_order: "'{#{conn.escape_string(user.hub_tab_order.join(','))}}'",
+        # Must double encode - see comment in User on `store :preferences`
+        preferences: "'#{conn.escape_string(JSON.generate(JSON.generate(user.preferences)))}'"
       }.merge!(
         if members.include?(user.id)
           {
