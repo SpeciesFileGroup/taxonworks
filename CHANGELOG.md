@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Radial annotator: Citations forms throws an error when you try to replace an original citation
 - Image matrix endpoint is not sending the correct image path
+- Biological Relationship search
 
 [#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
 
