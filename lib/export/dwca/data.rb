@@ -610,10 +610,6 @@ module Export::Dwca
       # Create pivoted temp table with one row per CO, one column per predicate
       create_pivoted_predicate_table
 
-      # Write CSV headers
-      headers = ::CSV::Row.new(used_predicates, used_predicates, true)
-      tbl = ::CSV::Table.new([headers])
-
       Rails.logger.debug 'dwca_export: predicate_data reading from temp table'
 
       conn = ActiveRecord::Base.connection
@@ -630,21 +626,26 @@ module Export::Dwca
         ORDER BY temp_co_order.ord
       SQL
 
+      content = nil
+      # Build TSV directly without CSV objects
+    lines = []
+
+      # Header row
+      lines << used_predicates.join("\t")
+
+      # Data rows
       conn.execute(sql).each do |row|
-        # row is a hash with predicate names as keys
         # Extract values in the order of used_predicates
         values = used_predicates.map do |pred|
           val = row[pred]
-          val ? Utilities::Strings.sanitize_for_csv(val) : nil
+          val ? Utilities::Strings.sanitize_for_csv(val) : ''
         end
-
-        csv_row = CSV::Row.new(used_predicates, values)
-        tbl << csv_row
+        lines << values.join("\t")
       end
 
-      Rails.logger.debug 'dwca_export: predicate_data rows processed'
+      content = lines.join("\n") + "\n"
 
-      content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
+      Rails.logger.debug 'dwca_export: predicate_data rows processed'
 
       @predicate_data = Tempfile.new('predicate_data.tsv')
       @predicate_data.write(content)
