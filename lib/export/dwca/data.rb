@@ -626,24 +626,24 @@ module Export::Dwca
         ORDER BY temp_co_order.ord
       SQL
 
-      content = nil
-      # Build TSV directly without CSV objects
-    lines = []
+      # Use PostgreSQL's COPY TO to generate TSV directly
+      # This bypasses Ruby iteration entirely
+      copy_sql = <<-SQL
+        COPY (
+          SELECT #{column_list}
+          FROM temp_co_order
+          LEFT JOIN temp_predicate_pivot ON temp_predicate_pivot.co_id = temp_co_order.co_id
+          ORDER BY temp_co_order.ord
+        ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', HEADER, NULL '')
+      SQL
 
-      # Header row
-      lines << used_predicates.join("\t")
-
-      # Data rows
-      conn.execute(sql).each do |row|
-        # Extract values in the order of used_predicates
-        values = used_predicates.map do |pred|
-          val = row[pred]
-          val ? Utilities::Strings.sanitize_for_csv(val) : ''
+      # Collect output from PostgreSQL
+      content = String.new(encoding: Encoding::UTF_8)
+      conn.raw_connection.copy_data(copy_sql) do
+        while row = conn.raw_connection.get_copy_data
+          content << row.force_encoding(Encoding::UTF_8)
         end
-        lines << values.join("\t")
       end
-
-      content = lines.join("\n") + "\n"
 
       Rails.logger.debug 'dwca_export: predicate_data rows processed'
 
