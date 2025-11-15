@@ -926,37 +926,60 @@ module Export::Dwca
 
       Rails.logger.debug 'dwca_export: cleanup start'
 
-      zipfile.close
-      zipfile.unlink
-      meta.close
-      meta.unlink
-      eml.close
-      eml.unlink
-      data.close
-      data.unlink
-
-      if biological_associations_extension
-        biological_associations_resource_relationship_tmp.close
-        biological_associations_resource_relationship_tmp.unlink
-      end
-
-      if media_extension
-        media_tmp.close
-        media_tmp.unlink
-      end
-
+      # Explicitly drop temp tables to avoid automatic cleanup delay
       if predicate_options_present?
-        predicate_data.close
-        predicate_data.unlink
+        conn = ActiveRecord::Base.connection
+        conn.execute("DROP TABLE IF EXISTS temp_predicate_pivot") rescue nil
+        conn.execute("DROP TABLE IF EXISTS temp_co_order") rescue nil
+        Rails.logger.debug 'dwca_export: temp tables dropped'
       end
 
-      if taxonworks_options_present?
-        taxonworks_extension_data.close
-        taxonworks_extension_data.unlink
+      # Only cleanup files that were actually created (materialized)
+      # This prevents lazy-loading during cleanup
+      if defined?(@zipfile) && @zipfile
+        @zipfile.close
+        @zipfile.unlink
       end
 
-      all_data.close
-      all_data.unlink
+      if defined?(@meta) && @meta
+        @meta.close
+        @meta.unlink
+      end
+
+      if defined?(@eml) && @eml
+        @eml.close
+        @eml.unlink
+      end
+
+      if defined?(@data) && @data
+        @data.close
+        @data.unlink
+      end
+
+      if biological_associations_extension && defined?(@biological_associations_resource_relationship_tmp) && @biological_associations_resource_relationship_tmp
+        @biological_associations_resource_relationship_tmp.close
+        @biological_associations_resource_relationship_tmp.unlink
+      end
+
+      if media_extension && defined?(@media_tmp) && @media_tmp
+        @media_tmp.close
+        @media_tmp.unlink
+      end
+
+      if predicate_options_present? && defined?(@predicate_data) && @predicate_data
+        @predicate_data.close
+        @predicate_data.unlink
+      end
+
+      if taxonworks_options_present? && defined?(@taxonworks_extension_data) && @taxonworks_extension_data
+        @taxonworks_extension_data.close
+        @taxonworks_extension_data.unlink
+      end
+
+      if defined?(@all_data) && @all_data
+        @all_data.close
+        @all_data.unlink
+      end
 
       Rails.logger.debug 'dwca_export: cleanup end'
 
