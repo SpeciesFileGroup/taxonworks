@@ -462,23 +462,47 @@ module Export::Dwca
       ::CollectionObject.from('(' + s + ') as collection_objects')
     end
 
-    def used_collection_object_predicates
-      collection_object_attributes_query.select("CONCAT('TW:DataAttribute:CollectionObject:', controlled_vocabulary_terms.name) predicate_name")
-        .distinct
-        .collect{|r| r['predicate_name']}
+
+    # Finds which predicate columns in the temp table actually have non-NULL values
+    # This is called after create_pivoted_predicate_table to filter out empty columns
+    # Much faster than scanning data_attributes table
+    def predicates_with_data
+      return [] if all_possible_predicates.empty?
+
+      conn = ActiveRecord::Base.connection
+
+      # For each predicate column, check if it has any non-NULL values
+      # COUNT(column) only counts non-NULL values, so if it's > 0, we have data
+      checks = all_possible_predicates.map.with_index do |pred, idx|
+        quoted = conn.quote_column_name(pred)
+        # COUNT only counts non-NULL, so > 0 means there's at least one value
+        # Need to alias each CASE or they'll all have the same key "case"
+        "CASE WHEN COUNT(#{quoted}) > 0 THEN #{conn.quote(pred)} ELSE NULL END AS check_#{idx}"
+      end
+
+      sql = "SELECT #{checks.join(', ')} FROM temp_predicate_pivot"
+
+      result = conn.execute(sql).first
+      result.values.compact
     end
 
-    def used_collecting_event_predicates
-      collecting_event_attributes_query.joins(:predicate).select("CONCAT('TW:DataAttribute:CollectingEvent:', controlled_vocabulary_terms.name) predicate_name")
-        .distinct
-        .collect{|r| r['predicate_name']}
-    end
+    # All possible predicates based on configuration (not filtered by actual usage)
+    def all_possible_predicates
+      @all_possible_predicates ||= begin
+        co_preds = collection_object_predicate_ids.empty? ? [] :
+          ControlledVocabularyTerm
+            .where(id: collection_object_predicate_ids)
+            .pluck(:name)
+            .map { |name| "TW:DataAttribute:CollectionObject:#{name}" }
 
-    # @return [Array]
-    #   of distinct Predicate names in the format
-    #      `TW:DataAttribute:<CollectingEvent|CollectionObject>:<name>`
-    def used_predicates
-      used_collection_object_predicates + used_collecting_event_predicates
+        ce_preds = collecting_event_predicate_ids.empty? ? [] :
+          ControlledVocabularyTerm
+            .where(id: collecting_event_predicate_ids)
+            .pluck(:name)
+            .map { |name| "TW:DataAttribute:CollectingEvent:#{name}" }
+
+        co_preds + ce_preds
+      end
     end
 
     # @return [Hash]
@@ -590,7 +614,7 @@ module Export::Dwca
         SELECT
           dwc_occurrences.dwc_occurrence_object_id as co_id,
           ROW_NUMBER() OVER (ORDER BY dwc_occurrences.id) as ord
-        FROM (#{core_scope.to_sql}) dwc_occurrences
+        FROM (#{core_scope.unscope(:order).to_sql}) dwc_occurrences
         WHERE dwc_occurrences.dwc_occurrence_object_type = 'CollectionObject'
       SQL
 
@@ -602,8 +626,11 @@ module Export::Dwca
     def predicate_data
       return @predicate_data if @predicate_data
 
+      # Get all possible predicates from configuration
+      all_possible_predicates
+
       # if no predicate data found, return empty file
-      if used_predicates.empty?
+      if all_possible_predicates.empty?
         @predicate_data = Tempfile.new('predicate_data.tsv')
         return @predicate_data
       end
@@ -611,12 +638,21 @@ module Export::Dwca
       # Create pivoted temp table with one row per CO, one column per predicate
       create_pivoted_predicate_table
 
+      # Now query the temp table to find which columns actually have data
+      used_preds = predicates_with_data
+
+      # If no predicates have data, return empty file
+      if used_preds.empty?
+        @predicate_data = Tempfile.new('predicate_data.tsv')
+        return @predicate_data
+      end
+
       Rails.logger.debug 'dwca_export: predicate_data reading from temp table'
 
       conn = ActiveRecord::Base.connection
 
-      # Build column list in the same order as used_predicates
-      column_list = used_predicates.map { |pred| conn.quote_column_name(pred) }.join(', ')
+      # Build column list for only the predicates that have data
+      column_list = used_preds.map { |pred| conn.quote_column_name(pred) }.join(', ')
 
       # Join with ordering table and let PostgreSQL handle the sorting
       # This avoids loading all IDs into Ruby memory

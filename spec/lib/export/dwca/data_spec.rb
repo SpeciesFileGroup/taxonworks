@@ -497,42 +497,34 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           a.cleanup
         end
 
-        specify '#used_predicates 1' do
+        specify 'predicate_data excludes empty columns when some configured predicates are unused' do
           f = Specimen.first
 
           c = FactoryBot.create(:valid_collecting_event)
-          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
-
           f.update!(collecting_event: c)
 
+          # Only create data for p1 and p3, not p2
           d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
           d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3 )
 
+          # Configure all 3 predicates but only 2 have data
           a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
 
-          expect(a.used_predicates).to contain_exactly("TW:DataAttribute:CollectingEvent:#{p1.name}", "TW:DataAttribute:CollectingEvent:#{p3.name}")
+          predicate_file = a.predicate_data
+          predicate_file.rewind
+          content = predicate_file.read
 
-          a.cleanup
-        end
+          # Parse the TSV header
+          headers = content.lines.first.strip.split("\t")
 
-        specify '#used_predicates 2' do
-          f = Specimen.first
-
-          c = FactoryBot.create(:valid_collecting_event)
-          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
-
-          f.update!(collecting_event: c)
-
-          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
-          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3 )
-          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p2 ) # Not requested
-
-          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
-
-          expect(a.used_predicates).to contain_exactly(
+          # Should only have columns for predicates with data (p1 and p3), not p2
+          expect(headers).to contain_exactly(
             "TW:DataAttribute:CollectingEvent:#{p1.name}",
             "TW:DataAttribute:CollectingEvent:#{p3.name}"
           )
+
+          # Should NOT include p2 since it has no data
+          expect(headers).not_to include("TW:DataAttribute:CollectingEvent:#{p2.name}")
 
           a.cleanup
         end
