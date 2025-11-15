@@ -523,17 +523,18 @@ module Export::Dwca
       co_pred_names = collection_object_predicate_names
       ce_pred_names = collecting_event_predicate_names
 
-      # Build CASE statements for each CO predicate
+      # Build aggregate statements for each CO predicate
+      # Use MAX with FILTER which is more efficient than MAX(CASE...)
       co_case_statements = co_pred_names.map do |cvt_id, pred_name|
         # Quote the column name to handle special characters
         quoted_name = conn.quote_column_name(pred_name)
-        "MAX(CASE WHEN co_da.controlled_vocabulary_term_id = #{cvt_id} THEN co_da.value END) AS #{quoted_name}"
+        "MAX(co_da.value) FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
       end
 
-      # Build CASE statements for each CE predicate
+      # Build aggregate statements for each CE predicate
       ce_case_statements = ce_pred_names.map do |cvt_id, pred_name|
         quoted_name = conn.quote_column_name(pred_name)
-        "MAX(CASE WHEN ce_da.controlled_vocabulary_term_id = #{cvt_id} THEN ce_da.value END) AS #{quoted_name}"
+        "MAX(ce_da.value) FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
       end
 
       all_case_statements = (co_case_statements + ce_case_statements).join(",\n      ")
