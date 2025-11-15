@@ -481,6 +481,123 @@ module Export::Dwca
       used_collection_object_predicates + used_collecting_event_predicates
     end
 
+    # @return [Hash]
+    #   Maps cvt_id => full predicate name for collection object predicates
+    #   e.g., {123 => "TW:DataAttribute:CollectionObject:foo"}
+    def collection_object_predicate_names
+      return {} if collection_object_predicate_ids.empty?
+
+      q = "SELECT id, CONCAT('TW:DataAttribute:CollectionObject:', name) AS predicate_name
+           FROM controlled_vocabulary_terms
+           WHERE id IN (#{collection_object_predicate_ids.join(',')})"
+
+      ActiveRecord::Base.connection.execute(q).each_with_object({}) do |row, hash|
+        hash[row['id'].to_i] = row['predicate_name']
+      end
+    end
+
+    # @return [Hash]
+    #   Maps cvt_id => full predicate name for collecting event predicates
+    #   e.g., {456 => "TW:DataAttribute:CollectingEvent:bar"}
+    def collecting_event_predicate_names
+      return {} if collecting_event_predicate_ids.empty?
+
+      q = "SELECT id, CONCAT('TW:DataAttribute:CollectingEvent:', name) AS predicate_name
+           FROM controlled_vocabulary_terms
+           WHERE id IN (#{collecting_event_predicate_ids.join(',')})"
+
+      ActiveRecord::Base.connection.execute(q).each_with_object({}) do |row, hash|
+        hash[row['id'].to_i] = row['predicate_name']
+      end
+    end
+
+    # Creates a temporary table with one row per collection object
+    # and one column per predicate (pivoted from tall to wide format)
+    def create_pivoted_predicate_table
+      conn = ActiveRecord::Base.connection
+
+      # Drop if exists (in case method called multiple times)
+      conn.execute("DROP TABLE IF EXISTS temp_predicate_pivot")
+      conn.execute("DROP TABLE IF EXISTS temp_co_order")
+
+      co_pred_names = collection_object_predicate_names
+      ce_pred_names = collecting_event_predicate_names
+
+      # Build CASE statements for each CO predicate
+      co_case_statements = co_pred_names.map do |cvt_id, pred_name|
+        # Quote the column name to handle special characters
+        quoted_name = conn.quote_column_name(pred_name)
+        "MAX(CASE WHEN co_da.controlled_vocabulary_term_id = #{cvt_id} THEN co_da.value END) AS #{quoted_name}"
+      end
+
+      # Build CASE statements for each CE predicate
+      ce_case_statements = ce_pred_names.map do |cvt_id, pred_name|
+        quoted_name = conn.quote_column_name(pred_name)
+        "MAX(CASE WHEN ce_da.controlled_vocabulary_term_id = #{cvt_id} THEN ce_da.value END) AS #{quoted_name}"
+      end
+
+      all_case_statements = (co_case_statements + ce_case_statements).join(",\n      ")
+
+      # If no predicates, create table with just co_id
+      if all_case_statements.empty?
+        all_case_statements = "NULL AS placeholder"
+      end
+
+      # Build the query
+      # Use collection_objects CTE to ensure all COs are included (even those without DAs)
+      sql = <<-SQL
+        CREATE TEMP TABLE temp_predicate_pivot AS
+        SELECT
+          co.id as co_id
+          #{all_case_statements.empty? ? '' : ',' + all_case_statements}
+        FROM (#{collection_objects.unscope(:order).select(:id, :collecting_event_id).to_sql}) co
+      SQL
+
+      # Add CO data attributes join if needed
+      if co_pred_names.any?
+        sql += <<-SQL
+          LEFT JOIN data_attributes co_da ON co_da.attribute_subject_id = co.id
+            AND co_da.attribute_subject_type = 'CollectionObject'
+            AND co_da.type = 'InternalAttribute'
+            AND co_da.controlled_vocabulary_term_id IN (#{co_pred_names.keys.join(',')})
+        SQL
+      end
+
+      # Add CE data attributes join if needed
+      if ce_pred_names.any?
+        sql += <<-SQL
+          LEFT JOIN collecting_events ce ON ce.id = co.collecting_event_id
+          LEFT JOIN data_attributes ce_da ON ce_da.attribute_subject_id = ce.id
+            AND ce_da.attribute_subject_type = 'CollectingEvent'
+            AND ce_da.type = 'InternalAttribute'
+            AND ce_da.controlled_vocabulary_term_id IN (#{ce_pred_names.keys.join(',')})
+        SQL
+      end
+
+      sql += <<-SQL
+        GROUP BY co.id
+      SQL
+
+      conn.execute(sql)
+
+      Rails.logger.debug 'dwca_export: pivoted predicate temp table created'
+
+      # Create ordering table based on dwc_occurrences.id order
+      # This ensures we can join and order correctly without loading all IDs into Ruby
+      order_sql = <<-SQL
+        CREATE TEMP TABLE temp_co_order AS
+        SELECT
+          dwc_occurrences.dwc_occurrence_object_id as co_id,
+          ROW_NUMBER() OVER (ORDER BY dwc_occurrences.id) as ord
+        FROM (#{core_scope.to_sql}) dwc_occurrences
+        WHERE dwc_occurrences.dwc_occurrence_object_type = 'CollectionObject'
+      SQL
+
+      conn.execute(order_sql)
+
+      Rails.logger.debug 'dwca_export: co order temp table created'
+    end
+
     def predicate_data
       return @predicate_data if @predicate_data
 
@@ -490,44 +607,42 @@ module Export::Dwca
         return @predicate_data
       end
 
-      # Create hash with key: co_id, value [[predicate_name, predicate_value], ...]
-      # pre-fill with empty values so we have the same number of rows as the main csv, even if some rows don't have
-      # data attributes
-      empty_hash = collection_object_ids.index_with { |_| []}
+      # Create pivoted temp table with one row per CO, one column per predicate
+      create_pivoted_predicate_table
 
-      # logger.debug 'Pre-shift'
-
-      data = (collection_object_attributes + collecting_event_attributes).group_by(&:shift) # very cool
-
-      data = empty_hash.merge(data)
-
-      # write rows to csv
+      # Write CSV headers
       headers = ::CSV::Row.new(used_predicates, used_predicates, true)
-
       tbl = ::CSV::Table.new([headers])
 
-      Rails.logger.debug 'dwca_export: predicate_data in memory'
+      Rails.logger.debug 'dwca_export: predicate_data reading from temp table'
 
-      # TODO: order dependant pattern is fast but very brittle
-      data.sort_by {|k, _| dwc_id_order[k] }.each do |row|
+      conn = ActiveRecord::Base.connection
 
-        # remove collection object id, select "value" from hash conversion
-        row = row[1]
+      # Build column list in the same order as used_predicates
+      column_list = used_predicates.map { |pred| conn.quote_column_name(pred) }.join(', ')
 
-        # Create empty row, this way we can insert columns by their headers, not by order
-        csv_row = CSV::Row.new(used_predicates, [])
+      # Join with ordering table and let PostgreSQL handle the sorting
+      # This avoids loading all IDs into Ruby memory
+      sql = <<-SQL
+        SELECT #{column_list}
+        FROM temp_co_order
+        LEFT JOIN temp_predicate_pivot ON temp_predicate_pivot.co_id = temp_co_order.co_id
+        ORDER BY temp_co_order.ord
+      SQL
 
-        # Add each [header, value] pair to the row
-        row.each do |column_pair|
-          unless column_pair.empty?
-            csv_row[column_pair[0]] = Utilities::Strings.sanitize_for_csv(column_pair[1])
-          end
+      conn.execute(sql).each do |row|
+        # row is a hash with predicate names as keys
+        # Extract values in the order of used_predicates
+        values = used_predicates.map do |pred|
+          val = row[pred]
+          val ? Utilities::Strings.sanitize_for_csv(val) : nil
         end
 
+        csv_row = CSV::Row.new(used_predicates, values)
         tbl << csv_row
       end
 
-      Rails.logger.debug 'dwca_export: predicate_data sorted'
+      Rails.logger.debug 'dwca_export: predicate_data rows processed'
 
       content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
 

@@ -324,6 +324,52 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           a.cleanup
         end
 
+        specify 'predicate data rows match dwc_occurrence order not collection_object.id order' do
+          # This tests that when collection_object.id order differs from dwc_occurrence.id order,
+          # the predicate_data follows dwc_occurrence order (matching the core data file)
+
+          s1 = Specimen.order(:id).first
+          s2 = Specimen.order(:id).second
+          s3 = Specimen.order(:id).third
+
+          # Force dwc_occurrence order to differ from collection_object order
+          # by destroying and recreating the first specimen's dwc_occurrence
+          s1.dwc_occurrence.destroy!
+          s1.get_dwc_occurrence  # Recreates with new (higher) id
+
+          # Create data attributes with distinct values
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s1, predicate: p1, value: 'specimen_1_value')
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s2, predicate: p1, value: 'specimen_2_value')
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s3, predicate: p1, value: 'specimen_3_value')
+
+          # Now dwc_occurrence order should be: s2, s3, s1 (s1's dwc was recreated last)
+          # But collection_object order is still: s1, s2, s3
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: [p1.id]})
+
+          predicate_csv = a.predicate_data.read
+          rows = CSV.parse(predicate_csv, headers: true, col_sep: "\t")
+
+          # Get all values from the predicate column
+          predicate_column_index = rows.headers.index("TW:DataAttribute:CollectionObject:#{p1.name}")
+          values_in_order = rows.map { |row| row[predicate_column_index] }
+
+          # Rows should be in dwc_occurrence.id order, not collection_object.id order
+          # Since s1's dwc was recreated, it should appear last in the export
+          # There are 5 specimens total, we only set values on 3 of them
+          expect(values_in_order).to include('specimen_2_value', 'specimen_3_value', 'specimen_1_value')
+
+          # More specifically: order should be s2, s3, s1 (based on dwc_occurrence.id order)
+          s2_index = values_in_order.index('specimen_2_value')
+          s3_index = values_in_order.index('specimen_3_value')
+          s1_index = values_in_order.index('specimen_1_value')
+
+          expect(s2_index).to be < s3_index
+          expect(s3_index).to be < s1_index
+
+          a.cleanup
+        end
+
         specify '#collection_object_attributes_query' do
           # All three share CE
           f = Specimen.first
