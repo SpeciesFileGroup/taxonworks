@@ -25,10 +25,18 @@ module Export::CSV::Dwc::Extension::BiologicalAssociations
   HEADERS_NAMESPACES = HEADERS_HASH.values.freeze
 
   def self.csv(scope, biological_association_relations_to_core)
+    scope_with_includes = scope.includes(
+      :biological_association_subject,  # Otu or CollectionObject (polymorphic)
+      :biological_association_object,   # Otu or CollectionObject (polymorphic)
+      { biological_relationship: :uris },  # Relationship with URIs
+      :sources,                          # For citations
+      :notes                             # For remarks
+    )
+
     tbl = []
     tbl[0] = HEADERS
 
-    scope.find_each do |b|
+    scope_with_includes.find_each do |b|
       # The resource relation only appears on the page of the core id with which
       # it is linked, so link to both where we can.
       if biological_association_relations_to_core[:subject].include?(b.id)
