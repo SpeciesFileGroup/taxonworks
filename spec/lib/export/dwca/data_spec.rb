@@ -861,6 +861,35 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         expect(csv.count).to eq(5)
       end
 
+      specify '#csv sanitizes newlines and tabs in locality field' do
+        # Create specimen with locality containing newlines and tabs
+        locality_with_special_chars = "Site A\nElevation: 1000m\tCoordinates: 45.5, -122.6"
+        ce = FactoryBot.create(:valid_collecting_event,
+          verbatim_locality: locality_with_special_chars)
+        specimen = FactoryBot.create(:valid_specimen, collecting_event: ce)
+        dwc = specimen.get_dwc_occurrence
+
+        # Update the verbatimLocality directly in the database to have newlines/tabs
+        conn = ActiveRecord::Base.connection
+        conn.execute("UPDATE dwc_occurrences SET \"verbatimLocality\" = #{conn.quote(locality_with_special_chars)} WHERE id = #{dwc.id}")
+
+        # Verify it was set
+        dwc.reload
+        expect(dwc.read_attribute(:verbatimLocality)).to eq(locality_with_special_chars)
+
+        # Export just this specimen
+        single_scope = DwcOccurrence.where(id: dwc.id)
+        single_export = Export::Dwca::Data.new(core_scope: single_scope)
+
+        # Parse the CSV output
+        csv_output = CSV.parse(single_export.csv, headers: true, col_sep: "\t")
+
+        # Should replace newlines and tabs with spaces (matching old behavior)
+        expect(csv_output.first['verbatimLocality']).to eq("Site A Elevation: 1000m Coordinates: 45.5, -122.6")
+
+        single_export.cleanup
+      end
+
       specify 'TW housekeeping columns are not present' do
         expect(csv.headers).not_to include('project_id', 'created_by_id', 'updated_by_id')
       end

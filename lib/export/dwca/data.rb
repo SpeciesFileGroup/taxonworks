@@ -169,16 +169,106 @@ module Export::Dwca
     # @return [CSV]
     #   the data as a CSV object
     def csv
-      ::Export::CSV.generate_csv(
-        core_scope.computed_columns,
-        # TODO: check to see if we nee dthis
-        exclude_columns: ::DwcOccurrence.excluded_columns,
-        column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS, # TODO: add other maps here
-        trim_columns: true, # going to have to be optional
-        trim_rows: false,
-        header_converters: [:dwc_headers],
-        copy_column: { from: 'occurrenceID', to: 'id' }
-      )
+      return @csv_content if @csv_content
+
+      conn = ActiveRecord::Base.connection
+
+      # Get all target columns (what we want to export)
+      target_cols = ::DwcOccurrence.target_columns
+      excluded = ::DwcOccurrence.excluded_columns
+
+      # Remove excluded columns
+      cols_to_export = target_cols - excluded
+
+      # Determine which columns actually have data (trim_columns: true behavior)
+      cols_with_data = columns_with_data(cols_to_export)
+
+      # Apply column ordering if specified
+      column_order = (::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS).map(&:to_s)
+      ordered_cols = order_columns(cols_with_data, column_order)
+
+      # Build SELECT list with proper column names and aliases
+      # Sanitize string columns by replacing newlines and tabs with spaces (matching Utilities::Strings.sanitize_for_csv behavior)
+      select_list = ordered_cols.map do |col|
+        if col == 'id'
+          # id is copied from occurrenceID (string), with sanitization
+          "REGEXP_REPLACE(\"occurrenceID\", E'[\\n\\t]', ' ', 'g') AS \"id\""
+        elsif col == 'dwcClass'
+          # Header converter: dwcClass -> class, with sanitization
+          "REGEXP_REPLACE(\"dwcClass\", E'[\\n\\t]', ' ', 'g') AS \"class\""
+        elsif col == 'individualCount'
+          # Integer column - no sanitization needed
+          conn.quote_column_name(col)
+        else
+          # Sanitize all other columns (they're all varchar/text)
+          "REGEXP_REPLACE(#{conn.quote_column_name(col)}, E'[\\n\\t]', ' ', 'g') AS #{conn.quote_column_name(col)}"
+        end
+      end.join(', ')
+
+      # Build COPY TO query
+      copy_sql = <<-SQL
+        COPY (
+          SELECT #{select_list}
+          FROM (#{core_scope.to_sql}) AS dwc_data
+        ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', HEADER, NULL '')
+      SQL
+
+      # Execute COPY TO and collect output
+      content = String.new(encoding: Encoding::UTF_8)
+      conn.raw_connection.copy_data(copy_sql) do
+        while row = conn.raw_connection.get_copy_data
+          content << row.force_encoding(Encoding::UTF_8)
+        end
+      end
+
+      Rails.logger.debug 'dwca_export: csv data generated'
+
+      @csv_content = content
+    end
+
+    # Find which columns in the dwc_occurrence table have non-NULL, non-empty values
+    # This implements the trim_columns: true behavior
+    # Note: We check for non-empty AFTER sanitization (REGEXP_REPLACE)
+    def columns_with_data(columns)
+      return [] if columns.empty?
+
+      conn = ActiveRecord::Base.connection
+
+      # For each column, check if it has any non-NULL, non-empty values after sanitization
+      # id and individualCount are non-string columns
+      checks = columns.map.with_index do |col, idx|
+        quoted = conn.quote_column_name(col)
+        col_str = col.to_s
+        if col_str == 'individualCount' || col_str == 'id'
+          # Non-string columns - just check if not NULL
+          "CASE WHEN COUNT(#{quoted}) > 0 THEN #{conn.quote(col_str)} ELSE NULL END AS check_#{idx}"
+        else
+          # String columns - check if any non-empty values after sanitization
+          sanitized = "REGEXP_REPLACE(#{quoted}, E'[\\n\\t]', ' ', 'g')"
+          "CASE WHEN COUNT(CASE WHEN #{sanitized} IS NOT NULL AND #{sanitized} != '' THEN 1 END) > 0 THEN #{conn.quote(col)} ELSE NULL END AS check_#{idx}"
+        end
+      end
+
+      sql = "SELECT #{checks.join(', ')} FROM (#{core_scope.to_sql}) AS data"
+      result = conn.execute(sql).first
+      result.values.compact
+    end
+
+    # Order columns according to column_order, with unordered columns first
+    # This matches the behavior of Export::CSV.sort_column_headers
+    def order_columns(columns, column_order)
+      sorted = []
+      unsorted = []
+
+      columns.each do |col|
+        if pos = column_order.index(col)
+          sorted[pos] = col
+        else
+          unsorted.push col
+        end
+      end
+
+      unsorted + sorted.compact
     end
 
     # @return [Boolean]
