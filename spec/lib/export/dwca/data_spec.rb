@@ -204,6 +204,118 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_tmp.count).to eq(2)
         end
+
+        specify '#media_tmp sanitizes newlines and tabs in caption and description' do
+          co = CollectionObject.last
+          caption_with_special = "Caption\nwith newline\tand tab"
+          figure_label_with_special = "Label\twith\ntab and newline"
+
+          depiction = FactoryBot.create(:valid_depiction,
+            depiction_object: co,
+            caption: caption_with_special,
+            figure_label: figure_label_with_special
+          )
+
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+
+          media_file = d.media_tmp
+          media_file.rewind
+          content = media_file.read
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Should replace newlines and tabs with spaces
+          expect(rows.first['caption']).to eq('Caption with newline and tab')
+          expect(rows.first['description']).to eq('Label with tab and newline')
+
+          d.cleanup
+        end
+
+        specify '#media_tmp includes attribution data (owner, creator, copyright)' do
+          co = CollectionObject.last
+          depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
+          image = depiction.image
+
+          # Create attribution with copyright year, owner, and creator
+          attribution = FactoryBot.create(:valid_attribution,
+            attribution_object: image,
+            copyright_year: 2024
+          )
+
+          # Create roles for owner and creator
+          person1 = FactoryBot.create(:valid_person, last_name: 'Doe', first_name: 'John')
+          person2 = FactoryBot.create(:valid_person, last_name: 'Smith', first_name: 'Jane')
+
+          AttributionOwner.create!(role_object: attribution, person: person1, project_id: attribution.project_id)
+          AttributionCreator.create!(role_object: attribution, person: person2, project_id: attribution.project_id)
+
+          s = DwcOccurrence.where(dwc_occurrence_object_id: co.id, dwc_occurrence_object_type: 'CollectionObject')
+          co_sql = CollectionObject.where(id: co.id).to_sql
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: { collection_objects: co_sql, field_occurrences: nil } })
+
+          media_file = d.media_tmp
+          media_file.rewind
+          content = media_file.read
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Find the row for our specific image
+          our_row = rows.find { |r| r['providerManagedID'] == image.id.to_s }
+          expect(our_row).not_to be_nil
+
+          # Check that attribution data is present
+          # The cached format is "Last, First" or just "Last"
+          expect(our_row['Owner']).to match(/Doe/)
+          expect(our_row['dc:creator']).to match(/Smith/)
+
+          d.cleanup
+        end
+
+        specify '#media_tmp uses UUID identifier if present' do
+          co = CollectionObject.last
+          depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
+          image = depiction.image
+
+          # Create a UUID identifier for the image
+          uuid_value = SecureRandom.uuid
+          identifier = FactoryBot.create(:identifier_global_uuid,
+            identifier_object: image,
+            identifier: uuid_value
+          )
+
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+
+          media_file = d.media_tmp
+          media_file.rewind
+          content = media_file.read
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Should use UUID instead of image:id
+          expect(rows.first['identifier']).to eq("image:#{uuid_value}")
+
+          d.cleanup
+        end
+
+        specify '#media_tmp includes image dimensions and format' do
+          co = CollectionObject.last
+          depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
+
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+
+          media_file = d.media_tmp
+          media_file.rewind
+          content = media_file.read
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Check image metadata fields
+          expect(rows.first['dc:type']).to eq('Image')
+          expect(rows.first['PixelXDimension']).not_to be_nil
+          expect(rows.first['PixelYDimension']).not_to be_nil
+          expect(rows.first['dc:format']).to match(/image\/(jpeg|png|gif)/)
+
+          d.cleanup
+        end
       end
 
       context ':predicate_extensions with orphaned collection objects' do
