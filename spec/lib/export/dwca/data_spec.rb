@@ -528,6 +528,41 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           a.cleanup
         end
+
+        specify 'predicate_data sanitizes newlines and tabs in values' do
+          f = Specimen.first
+
+          c = FactoryBot.create(:valid_collecting_event)
+          f.update!(collecting_event: c)
+
+          # Create data with newlines and tabs - test that they get sanitized
+          # Insert directly into database to ensure we have the raw values
+          value_with_newline = "Line 1\nLine 2\nLine 3"
+          value_with_tab = "Column1\tColumn2\tColumn3"
+          value_with_both = "Text with\ttab and\nnewline"
+
+          conn = ActiveRecord::Base.connection
+          conn.execute("INSERT INTO data_attributes (type, attribute_subject_id, attribute_subject_type, controlled_vocabulary_term_id, value, project_id, created_by_id, updated_by_id, created_at, updated_at) VALUES ('InternalAttribute', #{c.id}, 'CollectingEvent', #{p1.id}, #{conn.quote(value_with_newline)}, #{c.project_id}, #{c.created_by_id}, #{c.updated_by_id}, NOW(), NOW())")
+          conn.execute("INSERT INTO data_attributes (type, attribute_subject_id, attribute_subject_type, controlled_vocabulary_term_id, value, project_id, created_by_id, updated_by_id, created_at, updated_at) VALUES ('InternalAttribute', #{c.id}, 'CollectingEvent', #{p2.id}, #{conn.quote(value_with_tab)}, #{c.project_id}, #{c.created_by_id}, #{c.updated_by_id}, NOW(), NOW())")
+          conn.execute("INSERT INTO data_attributes (type, attribute_subject_id, attribute_subject_type, controlled_vocabulary_term_id, value, project_id, created_by_id, updated_by_id, created_at, updated_at) VALUES ('InternalAttribute', #{c.id}, 'CollectingEvent', #{p3.id}, #{conn.quote(value_with_both)}, #{c.project_id}, #{c.created_by_id}, #{c.updated_by_id}, NOW(), NOW())")
+
+          a = Export::Dwca::Data.new(core_scope: scope,
+            predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
+
+          predicate_file = a.predicate_data
+          predicate_file.rewind
+          content = predicate_file.read
+
+          # Parse as TSV with CSV parser (handles quoted fields)
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Should replace newlines and tabs with spaces (matching old behavior)
+          expect(rows.first["TW:DataAttribute:CollectingEvent:#{p1.name}"]).to eq("Line 1 Line 2 Line 3")
+          expect(rows.first["TW:DataAttribute:CollectingEvent:#{p2.name}"]).to eq("Column1 Column2 Column3")
+          expect(rows.first["TW:DataAttribute:CollectingEvent:#{p3.name}"]).to eq("Text with tab and newline")
+
+          a.cleanup
+        end
       end
 
       specify '#dwc_id_order' do

@@ -549,16 +549,18 @@ module Export::Dwca
 
       # Build aggregate statements for each CO predicate
       # Use MAX with FILTER which is more efficient than MAX(CASE...)
+      # Sanitize values by replacing newlines and tabs with spaces (matching Utilities::Strings.sanitize_for_csv behavior)
       co_case_statements = co_pred_names.map do |cvt_id, pred_name|
         # Quote the column name to handle special characters
         quoted_name = conn.quote_column_name(pred_name)
-        "MAX(co_da.value) FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
+        "MAX(REGEXP_REPLACE(co_da.value, E'[\\n\\t]', ' ', 'g')) FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
       end
 
       # Build aggregate statements for each CE predicate
+      # Sanitize values by replacing newlines and tabs with spaces
       ce_case_statements = ce_pred_names.map do |cvt_id, pred_name|
         quoted_name = conn.quote_column_name(pred_name)
-        "MAX(ce_da.value) FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
+        "MAX(REGEXP_REPLACE(ce_da.value, E'[\\n\\t]', ' ', 'g')) FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
       end
 
       all_case_statements = (co_case_statements + ce_case_statements).join(",\n      ")
