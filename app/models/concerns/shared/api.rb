@@ -22,11 +22,11 @@ module Shared::Api
     "#{s}/api/v1/#{ar.class.base_class.name.tableize}/#{id || ar.id}"
   end
 
-  def self.image_link(image, raise_on_no_token: true)
+  def self.image_link(image, raise_on_no_token: true, token: nil)
     s = host
     return s if image.nil?
 
-    token = Project.find(image.project_id).api_access_token
+    token ||= Project.find(image.project_id).api_access_token
     if token.nil? && raise_on_no_token
       raise TaxonWorks::Error, 'No project token available for image link!'
     end
@@ -35,11 +35,11 @@ module Shared::Api
     shorten_url(long)
   end
 
-  def self.image_metadata_link(image, raise_on_no_token: true)
+  def self.image_metadata_link(image, raise_on_no_token: true, token: nil)
     s = host
     return s if image.nil?
 
-    token = Project.find(image.project_id).api_access_token
+    token ||= Project.find(image.project_id).api_access_token
     if token.nil? && raise_on_no_token
       raise TaxonWorks::Error, 'No project token available for image metadata link!'
     end
