@@ -319,23 +319,38 @@ module Export::Dwca
     # end
     #
     # !! This will have to be reverted to above when > 1 EXTENSION field is present
-    def extension_computed_fields_data(methods)
-      return [] if methods.empty?
+    # Stream computed fields directly; yields [id, header, value] per record.
+    # When `ids:` is provided, limits computation to that subset.
+    def extension_computed_fields_data(methods, ids: nil)
+      return if methods.empty?
 
-      a = "TW:Internal:otu_name".freeze
-
-      # n = "COALESCE( otus.name, TRIM(CONCAT(cached, ' ', cached_author_year))) as otu_name"
-
-      v = collection_objects.left_joins(otu: [:taxon_name])
-        .select("collection_objects.id, otus.name as otu_name")
-        .where(taxon_determinations: {position: '1'})
-        .find_each(batch_size: 10000)
-        .collect{|r| [r.id, a, r['otu_name'].presence] }
-      v
+      # Single-field optimized path (currently only :otu_name)
+      if methods.size == 1 && methods.keys.first == :otu_name
+        header = methods.values.first # e.g., "TW:Internal:otu_name"
+        scope = ids ? collection_objects.where(collection_objects: { id: ids }) : collection_objects
+        scope.left_joins(otu: [:taxon_name])
+            .select('collection_objects.id, otus.name AS otu_name')
+            .where(taxon_determinations: { position: '1' })
+            .find_each(batch_size: 10_000) do |r|
+          v = r['otu_name'].presence
+          yield(r.id, header, v) if block_given? && !v.nil?
+        end
+      else
+        scope = ids ? collection_objects.where(collection_objects: { id: ids }) : collection_objects
+        scope.find_each(batch_size: 10_000) do |obj|
+          methods.each_pair do |meth, header|
+            v = obj.public_send(meth)
+            yield(obj.id, header, v) if block_given? && !v.nil?
+          end
+        end
+      end
+      nil
     end
 
-    # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength
 
+    # Writes the TaxonWorks extension file by streaming directly to a Tempfile
+    # in the same order as the core file. Uses batched plucks to keep memory flat.
     def taxonworks_extension_data
       return @taxonworks_extension_data if @taxonworks_extension_data
 
@@ -350,8 +365,7 @@ module Export::Dwca
       # Select valid methods, generate frozen name string ahead of time
       # add TW prefix to names
       taxonworks_extension_methods.map(&:to_sym).each do |sym|
-
-        csv_header_name = ('TW:Internal:' + sym.name).freeze
+        csv_header_name = ('TW:Internal:' + sym.to_s).freeze
 
         if (method = ::CollectionObject::EXTENSION_COMPUTED_FIELDS[sym])
           methods[method] = csv_header_name
@@ -372,90 +386,105 @@ module Export::Dwca
         return @taxonworks_extension_data
       end
 
-      extension_data = []
+      # Precompute column arrays (preserve requested order)
+      co_columns    = co_fields.keys
+      co_headers    = co_columns.map { |sym| co_fields[sym] }
 
-      extension_data += extension_computed_fields_data(methods)
+      ce_columns    = ce_fields.keys
+      ce_headers    = ce_columns.map { |sym| ce_fields[sym] }
+      # map virtual :id to :collecting_event_id
+      if (idx = ce_columns.index(:id))
+        ce_columns[idx] = :collecting_event_id
+      end
 
-      # extract to ensure consistent order
-      co_columns = co_fields.keys
-      co_csv_names = co_columns.map { |sym| co_fields[sym] }
-      co_column_count = co_columns.size
+      dwco_columns  = dwco_fields.keys
+      dwco_headers  = dwco_columns.map { |sym| dwco_fields[sym] }
 
-      # TODO: we're replicating this to get ids as well in `collection_object_ids` so somewhat redundant
-      # get all CO fields in one query, then split into triplets of [id, CSV column name, value]
-      extension_data += collection_objects.pluck('collection_objects.id', *co_columns)
-        .flat_map{ |id, *values| ([id] * co_column_count).zip(co_csv_names, values) }
+      # Stream to tempfile in the exact core order (no sort needed)
+      @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
+      csv = CSV.new(@taxonworks_extension_data, col_sep: "\t")
+      csv << used_extensions
 
-      Rails.logger.debug 'dwca_export: post co extension read'
+      # Process in consistent core order, batched to limit memory usage
+      ids = collection_object_ids
 
-      ce_columns = ce_fields.keys
-      ce_csv_names = ce_columns.map { |sym| ce_fields[sym] }
-      ce_column_count = ce_columns.size
+      # Nothing to do if there are no CO ids (edge case where core has only non-CO rows)
+      if ids.empty?
+        csv.flush
+        @taxonworks_extension_data.flush
+        @taxonworks_extension_data.rewind
+        Rails.logger.debug 'dwca_export: taxonworks_extension_data prepared (no CO ids)'
+        return @taxonworks_extension_data
+      end
 
-      # kludge to select correct column below
-      ce_columns[ce_columns.index(:id)] = :collecting_event_id if ce_columns.index(:id)
+      batch_size = 10_000
+      ids.each_slice(batch_size) do |batch_ids|
+        batch_map = Hash.new { |h, id| h[id] = {} }
 
-      # no point using left outer join, no event means all data is nil
-      extension_data += collection_objects.joins(:collecting_event)
-        .pluck('collection_objects.id', *ce_columns)
-        .flat_map{ |id, *values| ([id] * ce_column_count).zip(ce_csv_names, values) }
-
-      Rails.logger.debug 'dwca_export: post ce extension read'
-
-      dwco_columns = dwco_fields.keys
-      dwco_csv_names = dwco_columns.map { |sym| dwco_fields[sym] }
-      dwco_column_count = dwco_columns.size
-
-      extension_data += core_scope
-        .where(dwc_occurrence_object_type: 'CollectionObject')
-        .pluck(:dwc_occurrence_object_id, *dwco_columns)
-        .flat_map{ |dwc_occurrence_object_id, *values| ([dwc_occurrence_object_id] * dwco_column_count).zip(dwco_csv_names, values) }
-
-      Rails.logger.debug 'dwca_export: post dwco extension read'
-
-      # Create hash with key: co_id, value: [[extension_name, extension_value], ...]
-      # pre-fill with empty values so we have the same number of rows as the main csv, even if some rows don't have
-      # data attributes
-      empty_hash = collection_object_ids.index_with { |_| []}
-
-      data = extension_data.group_by(&:shift)
-
-      data = empty_hash.merge(data)
-
-      # write rows to csv
-      headers = CSV::Row.new(used_extensions, used_extensions, true)
-
-      tbl = CSV::Table.new([headers])
-
-      # TODO: this is a heavy-handed hack to re-sync data
-      # data.delete_if{|k,_| dwc_id_order[k].nil? }
-
-      Rails.logger.debug 'dwca_export: extension in memory, pre-sort'
-
-      data.sort_by {|k, _| dwc_id_order[k]}.each do |row|
-
-        # remove collection object id, select "value" from hash conversion
-        row = row[1]
-
-        # Create empty row, this way we can insert columns by their headers, not by order
-        csv_row = CSV::Row.new(used_extensions, [])
-
-        # Add each [header, value] pair to the row
-        row.each do |column_pair|
-          unless column_pair.empty?
-            csv_row[column_pair[0]] = Utilities::Strings.sanitize_for_csv(column_pair[1])
+        # Computed fields (streamed)
+        if methods.any?
+          extension_computed_fields_data(methods, ids: batch_ids) do |id, header, value|
+            batch_map[id][header] = value
           end
         end
 
-        tbl << csv_row
+        # CO fields
+        if co_columns.any?
+          rel = collection_objects.where(collection_objects: { id: batch_ids })
+          rel.pluck('collection_objects.id', *co_columns).each do |id, *values|
+            i = 0
+            while i < co_headers.length
+              batch_map[id][co_headers[i]] = values[i]
+              i += 1
+            end
+          end
+        end
+
+        Rails.logger.debug 'dwca_export: post co extension read (batch)'
+
+        # CE fields
+        if ce_columns.any?
+          rel = collection_objects.where(collection_objects: { id: batch_ids })
+                                  .joins(:collecting_event) # no left join; no CE -> nil across the board
+          rel.pluck('collection_objects.id', *ce_columns).each do |id, *values|
+            i = 0
+            while i < ce_headers.length
+              batch_map[id][ce_headers[i]] = values[i]
+              i += 1
+            end
+          end
+        end
+
+        Rails.logger.debug 'dwca_export: post ce extension read (batch)'
+
+        # DWCO fields (on dwc_occurrences table)
+        if dwco_columns.any?
+          core_scope.where(dwc_occurrence_object_type: 'CollectionObject')
+                    .where(dwc_occurrence_object_id: batch_ids)
+                    .pluck(:dwc_occurrence_object_id, *dwco_columns).each do |co_id, *values|
+            i = 0
+            while i < dwco_headers.length
+              batch_map[co_id][dwco_headers[i]] = values[i]
+              i += 1
+            end
+          end
+        end
+
+        Rails.logger.debug 'dwca_export: post dwco extension read (batch)'
+
+        # Emit rows for this batch in the exact core order
+        batch_ids.each do |id|
+          rh = batch_map[id]
+          csv << used_extensions.map do |hdr|
+            v = rh[hdr]
+            next nil if v.nil?
+            v = v.to_s unless v.is_a?(String)
+            Utilities::Strings.sanitize_for_csv(v)
+          end
+        end
       end
 
-      Rails.logger.debug 'dwca_export: extension in memory, post-sort'
-
-      content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
-
-      @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
-      @taxonworks_extension_data.write(content)
+      csv.flush
       @taxonworks_extension_data.flush
       @taxonworks_extension_data.rewind
 
