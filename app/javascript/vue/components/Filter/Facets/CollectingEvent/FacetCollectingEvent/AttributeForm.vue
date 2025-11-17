@@ -16,14 +16,15 @@
         <VBtn
           color="primary"
           medium
-          @click="() => addField({any: false})"
+          @click="() => addField({ any: false })"
         >
           Add
         </VBtn>
         <VBtn
           color="primary"
           medium
-          @click="() => addField({any: true})"
+          :disabled="!!attributeValue"
+          @click="() => addField({ any: true })"
         >
           Any
         </VBtn>
@@ -54,7 +55,7 @@ const emit = defineEmits(['add'])
 
 const attributeValue = ref(undefined)
 
-const addField = (fieldOptions) => {
+function addField(fieldOptions) {
   emit('add', {
     param: props.field.name,
     type: props.field.type,
