@@ -100,6 +100,7 @@ import { vHelp } from '@/directives/help.js'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
 import { TAXON_NAME } from '@/constants'
 import { URLParamsToJSON } from '@/helpers'
+import { TaxonName } from '@/routes/endpoints'
 import useStore from './store/store.js'
 import PanelTree from './components/Tree/PanelTree.vue'
 import UnifyWindow from './components/UnifyWindow.vue'
@@ -117,6 +118,7 @@ const storeRight = useStore('treeRight')()
 const panelLeftRef = useTemplateRef('panelLeft')
 const panelRightRef = useTemplateRef('panelRight')
 const isLoading = ref(false)
+const ranksOrder = ref([])
 
 function isDescendant(node, targetNodeId) {
   if (!node.children || node.children.length === 0) return false
@@ -147,6 +149,8 @@ function handlePut(to, from, dragEl) {
     toTree !== fromTree &&
     toParentId !== fromParent &&
     dragId !== toParentId &&
+    draggedNode.rank !== targetNode.rank &&
+    !isHigherRank(draggedNode.rank, targetNode.rank) &&
     !isDescendant(draggedNode, targetNode.id)
   )
 }
@@ -218,6 +222,33 @@ function loadFromParameters() {
   } catch {}
 }
 
+function isHigherRank(rankA, rankB) {
+  const indexA = ranksOrder.value.indexOf(rankA)
+  const indexB = ranksOrder.value.indexOf(rankB)
+
+  if (indexA === -1 || indexB === -1) return false
+
+  return indexA < indexB
+}
+
+function loadRanks() {
+  TaxonName.ranks()
+    .then(({ body }) => {
+      const ranks = Object.values(Object.values(body))
+        .map((group) => {
+          return Object.values(group)
+            .flat()
+            .map((rank) => rank.rank_class)
+        })
+        .flat()
+
+      ranksOrder.value = ranks
+    })
+    .catch(() => {
+      ranksOrder.value = []
+    })
+}
+
 onBeforeMount(async () => {
   TW.workbench.keyboard.createLegend(
     `Ctrl+Left click`,
@@ -225,6 +256,7 @@ onBeforeMount(async () => {
     'Taxon name reclassifier'
   )
 
+  loadRanks()
   loadFromParameters()
 })
 </script>
