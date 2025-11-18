@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxon name reclassifier: Unify and refresh buttons [#4609]
 - Radial navigator: Taxon name reclassifier [#4609]
 - New source: display error messages when a document upload fails
+- Added superorder rank for botanical nomenclature [#4619]
 
 ### Changed
 
