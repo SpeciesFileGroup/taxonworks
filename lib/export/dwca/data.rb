@@ -186,6 +186,9 @@ module Export::Dwca
       column_order = (::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS).map(&:to_s)
       ordered_cols = order_columns(cols_with_data, column_order)
 
+      # Get column type information from the database
+      column_types = ::DwcOccurrence.columns_hash
+
       # Build SELECT list with proper column names and aliases
       # Sanitize string columns by replacing newlines and tabs with spaces (matching Utilities::Strings.sanitize_for_csv behavior)
       select_list = ordered_cols.map do |col|
@@ -195,12 +198,18 @@ module Export::Dwca
         elsif col == 'dwcClass'
           # Header converter: dwcClass -> class, with sanitization
           "REGEXP_REPLACE(\"dwcClass\", E'[\\n\\t]', ' ', 'g') AS \"class\""
-        elsif col == 'individualCount'
-          # Integer column - no sanitization needed
-          conn.quote_column_name(col)
         else
-          # Sanitize all other columns (they're all varchar/text)
-          "REGEXP_REPLACE(#{conn.quote_column_name(col)}, E'[\\n\\t]', ' ', 'g') AS #{conn.quote_column_name(col)}"
+          # Use introspection to determine if this is a string/text column
+          column_info = column_types[col]
+          is_string_column = column_info && [:string, :text].include?(column_info.type)
+
+          if is_string_column
+            # String columns - sanitize by replacing newlines and tabs
+            "REGEXP_REPLACE(#{conn.quote_column_name(col)}, E'[\\n\\t]', ' ', 'g') AS #{conn.quote_column_name(col)}"
+          else
+            # Non-string columns (integer, decimal, date, etc.) - no sanitization needed
+            conn.quote_column_name(col)
+          end
         end
       end.join(', ')
 
@@ -232,18 +241,25 @@ module Export::Dwca
 
       conn = ActiveRecord::Base.connection
 
+      # Get column type information from the database
+      column_types = ::DwcOccurrence.columns_hash
+
       # For each column, check if it has any non-NULL, non-empty values after sanitization
-      # id and individualCount are non-string columns
       checks = columns.map.with_index do |col, idx|
         quoted = conn.quote_column_name(col)
         col_str = col.to_s
-        if col_str == 'individualCount' || col_str == 'id'
-          # Non-string columns - just check if not NULL
-          "CASE WHEN COUNT(#{quoted}) > 0 THEN #{conn.quote(col_str)} ELSE NULL END AS check_#{idx}"
-        else
+        column_info = column_types[col_str]
+
+        # Determine if this is a string/text column
+        is_string_column = column_info && [:string, :text].include?(column_info.type)
+
+        if is_string_column
           # String columns - check if any non-empty values after sanitization
           sanitized = "REGEXP_REPLACE(#{quoted}, E'[\\n\\t]', ' ', 'g')"
           "CASE WHEN COUNT(CASE WHEN #{sanitized} IS NOT NULL AND #{sanitized} != '' THEN 1 END) > 0 THEN #{conn.quote(col)} ELSE NULL END AS check_#{idx}"
+        else
+          # Non-string columns - just check if not NULL
+          "CASE WHEN COUNT(#{quoted}) > 0 THEN #{conn.quote(col_str)} ELSE NULL END AS check_#{idx}"
         end
       end
 
