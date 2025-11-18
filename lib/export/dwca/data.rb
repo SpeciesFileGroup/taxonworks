@@ -166,11 +166,10 @@ module Export::Dwca
       @total ||= core_scope.unscope(:order).size
     end
 
-    # @return [CSV]
-    #   the data as a CSV object
-    def csv
-      return @csv_content if @csv_content
-
+    # Streams CSV data from PostgreSQL directly to output_file
+    # @param output_file [File, Tempfile] File to write to directly
+    # @return [nil] Writes directly to output_file instead of returning string
+    def csv(output_file:)
       conn = ActiveRecord::Base.connection
 
       # Get all target columns (what we want to export)
@@ -213,17 +212,16 @@ module Export::Dwca
         ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', HEADER, NULL '')
       SQL
 
-      # Execute COPY TO and collect output
-      content = String.new(encoding: Encoding::UTF_8)
+      # Stream directly from PostgreSQL to file
       conn.raw_connection.copy_data(copy_sql) do
         while row = conn.raw_connection.get_copy_data
-          content << row.force_encoding(Encoding::UTF_8)
+          output_file.write(row.force_encoding(Encoding::UTF_8))
         end
       end
 
       Rails.logger.debug 'dwca_export: csv data generated'
 
-      @csv_content = content
+      nil
     end
 
     # Find which columns in the dwc_occurrence table have non-NULL, non-empty values
@@ -281,14 +279,15 @@ module Export::Dwca
     #   the csv data as a tempfile
     def data
       return @data if @data
-      if no_records?
-        content = "\n"
-      else
-        content = csv
-      end
 
       @data = Tempfile.new('data.tsv')
-      @data.write(content)
+
+      if no_records?
+        @data.write("\n")
+      else
+        csv(output_file: @data)
+      end
+
       @data.flush
       @data.rewind
 
