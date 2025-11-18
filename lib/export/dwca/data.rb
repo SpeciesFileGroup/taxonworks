@@ -903,15 +903,16 @@ module Export::Dwca
       return nil if biological_associations_extension.nil?
       @biological_associations_resource_relationship_tmp = Tempfile.new('biological_resource_relationship.xml')
 
-      content = nil
-
       if no_records?
-        content = "\n"
+        @biological_associations_resource_relationship_tmp.write("\n")
       else
-        content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension, biological_association_relations_to_core)
+        Export::CSV::Dwc::Extension::BiologicalAssociations.csv(
+          biological_associations_extension,
+          biological_association_relations_to_core,
+          output_file: @biological_associations_resource_relationship_tmp
+        )
       end
 
-      @biological_associations_resource_relationship_tmp.write(content)
       @biological_associations_resource_relationship_tmp.flush
       @biological_associations_resource_relationship_tmp.rewind
       @biological_associations_resource_relationship_tmp

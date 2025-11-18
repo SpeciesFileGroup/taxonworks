@@ -24,7 +24,9 @@ module Export::CSV::Dwc::Extension::BiologicalAssociations
 
   HEADERS_NAMESPACES = HEADERS_HASH.values.freeze
 
-  def self.csv(scope, biological_association_relations_to_core)
+  # @param output_file [File, Tempfile] File to write to directly
+  # @return [nil] Writes directly to output_file instead of returning string
+  def self.csv(scope, biological_association_relations_to_core, output_file:)
     scope_with_includes = scope.includes(
       :biological_association_subject,  # Otu or CollectionObject (polymorphic)
       :biological_association_object,   # Otu or CollectionObject (polymorphic)
@@ -33,27 +35,22 @@ module Export::CSV::Dwc::Extension::BiologicalAssociations
       :notes                             # For remarks
     )
 
-    tbl = []
-    tbl[0] = HEADERS
+    # Write header immediately
+    output_file.puts ::CSV.generate_line(HEADERS, col_sep: "\t", encoding: Encoding::UTF_8)
 
     scope_with_includes.find_each do |b|
       # The resource relation only appears on the page of the core id with which
       # it is linked, so link to both where we can.
       if biological_association_relations_to_core[:subject].include?(b.id)
-        tbl << b.darwin_core_extension_row(inverted: false)
+        output_file.puts ::CSV.generate_line(b.darwin_core_extension_row(inverted: false), col_sep: "\t", encoding: Encoding::UTF_8)
       end
       if biological_association_relations_to_core[:object].include?(b.id)
         b.rotate = true
-        tbl << b.darwin_core_extension_row(inverted: true)
+        output_file.puts ::CSV.generate_line(b.darwin_core_extension_row(inverted: true), col_sep: "\t", encoding: Encoding::UTF_8)
       end
     end
 
-    output = StringIO.new
-    tbl.each do |row|
-      output.puts ::CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
-    end
-
-    output.string
+    nil
   end
 
 
