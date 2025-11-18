@@ -615,6 +615,39 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       expect(r.updated.count).to eq(2)
       expect(r.not_updated.count).to eq(0)
     end
+
+    specify 'can set no_dwc_occurrence: true on otu' do
+      ad = AssertedDistribution.create!(asserted_distribution_object: otu,
+        asserted_distribution_shape: geographic_area,
+        source:,
+        no_dwc_occurrence: true
+      )
+
+      expect(ad.no_dwc_occurrence).to be_truthy
+      expect(ad.dwc_occurrence).to be_falsey
+    end
+
+    specify 'default is no_dwc_occurrence: false on otu' do
+      ad = AssertedDistribution.create!(asserted_distribution_object: otu,
+        asserted_distribution_shape: geographic_area,
+        source:
+      )
+
+      expect(ad.no_dwc_occurrence).to be_falsey
+      expect(ad.dwc_occurrence).to be_truthy
+    end
+
+    specify 'no_dwc_occurrence is always true on non-otu' do
+      ba = FactoryBot.create(:valid_biological_association)
+      ad = AssertedDistribution.create!(asserted_distribution_object: ba,
+        asserted_distribution_shape: geographic_area,
+        source:,
+        no_dwc_occurrence: false
+      )
+
+      expect(ad.no_dwc_occurrence).to be_truthy
+      expect(ad.dwc_occurrence).to be_falsey
+    end
   end
 
 end
