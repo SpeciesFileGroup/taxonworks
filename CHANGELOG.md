@@ -31,9 +31,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Exception in New Source when serial no longer exists
 - Respect no_dwc_occurrence setting for AssertedDistribution creation
 - Don't display 'null' in Change Namespace dialog for mass Identifier annotator in Filter Collection Object/Filter Collecting Event [#4618]
+- 'Collection objects with determinations' appears twice in Collection summary task/Taxonomic scope [#4620]
 
 [#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
 [#4618]: https://github.com/SpeciesFileGroup/taxonworks/issues/4618
+[#4620]: https://github.com/SpeciesFileGroup/taxonworks/issues/4620
 
 ## [0.55.0] - 2025-11-05
 
