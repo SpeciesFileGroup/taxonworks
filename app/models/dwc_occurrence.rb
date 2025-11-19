@@ -200,11 +200,13 @@ class DwcOccurrence < ApplicationRecord
   # make this more flexible
   def self.target_columns
     # The final DwCA file *will* have an id column, as required for matching
-    # with extensions, but values will be copies of occurrenceID - we don't want
-    # to send the ephemeral dwc_occurrence.id values to GBIF.
+    # with extensions, but its values will be copies of occurrenceID - we don't
+    # want to send the ephemeral dwc_occurrence.id values to GBIF.
+    # Order doesn't matter for archives, but users are used to this order so try
+    # to preserve it (I guess).
     [:id,
-     :occurrenceID,
      :basisOfRecord,
+     :occurrenceID,
      :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via `.excluded_columns` below
      :dwc_occurrence_object_type, # !! ^
     ] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
