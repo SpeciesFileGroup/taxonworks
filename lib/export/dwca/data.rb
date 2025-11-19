@@ -1129,6 +1129,33 @@ module Export::Dwca
       all_project_ids += ::Sound.where(id: sound_ids).distinct.pluck(:project_id) if sound_ids.any?
       project_tokens = Project.where(id: all_project_ids.uniq).pluck(:id, :api_access_token).to_h
 
+      # Pre-fetch all depiction -> collection_object mappings (avoid N+1 queries)
+      Rails.logger.debug 'dwca_export: pre-fetching depiction data'
+      image_to_co = {}
+      if image_ids.any?
+        conn.execute(<<-SQL).each do |row|
+          SELECT image_id, depiction_object_id
+          FROM depictions
+          WHERE image_id IN (#{image_ids.join(',')})
+            AND depiction_object_type = 'CollectionObject'
+        SQL
+          image_to_co[row['image_id'].to_i] = row['depiction_object_id'].to_i
+        end
+      end
+
+      # Pre-fetch all conveyance -> collection_object mappings (avoid N+1 queries)
+      sound_to_co = {}
+      if sound_ids.any?
+        conn.execute(<<-SQL).each do |row|
+          SELECT sound_id, conveyance_object_id
+          FROM conveyances
+          WHERE sound_id IN (#{sound_ids.join(',')})
+            AND conveyance_object_type = 'CollectionObject'
+        SQL
+          sound_to_co[row['sound_id'].to_i] = row['conveyance_object_id'].to_i
+        end
+      end
+
       # Batch process image API link generation (chunking to avoid memory issues)
       image_ids.each_slice(1000) do |batch_ids|
         links_data = []
@@ -1148,15 +1175,8 @@ module Export::Dwca
             access_uri = Shared::Api.image_link(img, raise_on_no_token: true, token: token)
             further_info_url = Shared::Api.image_metadata_link(img, raise_on_no_token: true, token: token)
 
-            # Get associated specimen reference from depiction -> collection_object
-            co_id = conn.execute(<<-SQL).values.first&.first
-              SELECT depiction_object_id
-              FROM depictions
-              WHERE image_id = #{img_id}
-                AND depiction_object_type = 'CollectionObject'
-              LIMIT 1
-            SQL
-
+            # Get associated specimen reference from pre-fetched hash (avoid N+1)
+            co_id = image_to_co[img_id]
             assoc_spec_ref = co_id ? Shared::Api.api_link(::CollectionObject.new(id: co_id), co_id) : nil
 
             links_data << {
@@ -1198,15 +1218,8 @@ module Export::Dwca
 
             access_uri = Shared::Api.sound_link(snd, token: token)
 
-            # Get associated specimen reference from conveyance -> collection_object
-            co_id = conn.execute(<<-SQL).values.first&.first
-              SELECT conveyance_object_id
-              FROM conveyances
-              WHERE sound_id = #{snd_id}
-                AND conveyance_object_type = 'CollectionObject'
-              LIMIT 1
-            SQL
-
+            # Get associated specimen reference from pre-fetched hash (avoid N+1)
+            co_id = sound_to_co[snd_id]
             assoc_spec_ref = co_id ? Shared::Api.api_link(::CollectionObject.new(id: co_id), co_id) : nil
 
             links_data << {
