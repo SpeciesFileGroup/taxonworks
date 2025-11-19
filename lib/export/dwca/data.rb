@@ -805,7 +805,7 @@ module Export::Dwca
 
       @all_data = Tempfile.new('data.tsv')
 
-      join_data = [data]
+      join_data = [data] # to become data.tsv
 
       if predicate_options_present?
         join_data.push(predicate_data)
@@ -916,16 +916,103 @@ module Export::Dwca
       @media_tmp
     end
 
-    # Optimized media extension export using PostgreSQL COPY TO
-    # Streams directly to output_file to avoid loading entire dataset into memory
-    # ~10x faster than the original Ruby iteration approach
-    def media_extension_optimized(output_file)
+    # SQL fragment: Creative Commons license mapping
+    def creative_commons_license_case_sql
+      <<-SQL
+        CASE attributions.license
+          WHEN 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication' THEN 'https://creativecommons.org/publicdomain/zero/1.0'
+          WHEN 'Attribution' THEN 'https://creativecommons.org/licenses/by/4.0'
+          WHEN 'Attribution-ShareAlike' THEN 'https://creativecommons.org/licenses/by-sa/4.0'
+          WHEN 'Attribution-NoDerivs' THEN 'https://creativecommons.org/licenses/by-nd/4.0'
+          WHEN 'Attribution-NonCommercial' THEN 'https://creativecommons.org/licenses/by-nc/4.0'
+          WHEN 'Attribution-NonCommercial-ShareAlike' THEN 'https://creativecommons.org/licenses/by-nc-sa/4.0'
+          WHEN 'Attribution-NonCommercial-NoDerivs' THEN 'https://creativecommons.org/licenses/by-nc-nd/4.0'
+          ELSE NULL
+        END
+      SQL
+    end
+
+    # SQL fragment: Copyright label "© {year} {authors}"
+    def copyright_label_sql
+      <<-SQL
+        CASE
+          WHEN attributions.copyright_year IS NOT NULL OR copyright_holders.names IS NOT NULL THEN
+            '©' ||
+            CASE
+              WHEN attributions.copyright_year IS NOT NULL AND copyright_holders.names IS NOT NULL
+                THEN attributions.copyright_year::text || ' ' || copyright_holders.names
+              WHEN attributions.copyright_year IS NOT NULL
+                THEN attributions.copyright_year::text
+              ELSE copyright_holders.names
+            END
+          ELSE NULL
+        END
+      SQL
+    end
+
+    # SQL fragment: Aggregate owners from Attribution roles
+    def attribution_owners_lateral_sql
+      <<-SQL
+        LEFT JOIN LATERAL (
+          SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
+          FROM roles
+          JOIN people ON people.id = roles.person_id
+          WHERE roles.role_object_id = attributions.id
+            AND roles.role_object_type = 'Attribution'
+            AND roles.type = 'AttributionOwner'
+        ) owners ON true
+      SQL
+    end
+
+    # SQL fragment: Aggregate creators from Attribution roles
+    def attribution_creators_lateral_sql
+      <<-SQL
+        LEFT JOIN LATERAL (
+          SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
+          FROM roles
+          JOIN people ON people.id = roles.person_id
+          WHERE roles.role_object_id = attributions.id
+            AND roles.role_object_type = 'Attribution'
+            AND roles.type = 'AttributionCreator'
+        ) creators ON true
+      SQL
+    end
+
+    # SQL fragment: Aggregate creator identifiers (ORCID/Wikidata)
+    def attribution_creator_ids_lateral_sql
+      <<-SQL
+        LEFT JOIN LATERAL (
+          SELECT STRING_AGG(identifiers.cached, ' & ' ORDER BY roles.position) AS identifiers
+          FROM roles
+          JOIN people ON people.id = roles.person_id
+          JOIN identifiers ON identifiers.identifier_object_id = people.id
+                          AND identifiers.identifier_object_type = 'Person'
+          WHERE roles.role_object_id = attributions.id
+            AND roles.role_object_type = 'Attribution'
+            AND roles.type = 'AttributionCreator'
+            AND (identifiers.type = 'Identifier::Global::Orcid' OR identifiers.type = 'Identifier::Global::Wikidata')
+        ) creator_ids ON true
+      SQL
+    end
+
+    # SQL fragment: Aggregate copyright holders from Attribution roles
+    def attribution_copyright_holders_lateral_sql
+      <<-SQL
+        LEFT JOIN LATERAL (
+          SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
+          FROM roles
+          JOIN people ON people.id = roles.person_id
+          WHERE roles.role_object_id = attributions.id
+            AND roles.role_object_type = 'Attribution'
+            AND roles.type = 'AttributionCopyrightHolder'
+        ) copyright_holders ON true
+      SQL
+    end
+
+    # Collect all image and sound IDs that need to be exported
+    # @return [Hash] { image_ids: Array<Integer>, sound_ids: Array<Integer> }
+    def collect_media_ids
       conn = ActiveRecord::Base.connection
-
-      Rails.logger.debug 'dwca_export: media_extension_optimized start'
-
-      # Step 1: Get all image IDs and sound IDs that need to be exported
-      # Includes: direct images/sounds + images/sounds via observations
       image_ids = []
       sound_ids = []
 
@@ -998,17 +1085,18 @@ module Export::Dwca
       image_ids.uniq!
       sound_ids.uniq!
 
-      total_media = image_ids.count + sound_ids.count
-
-      if total_media == 0
-        output_file.write(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
-        return
-      end
-
       Rails.logger.debug "dwca_export: found #{image_ids.count} images and #{sound_ids.count} sounds to export"
 
-      # Step 2: Pre-compute API links using Ruby (required for URL shortener)
-      # This is the only part that must use Ruby - creates separate temp tables for images and sounds
+      { image_ids: image_ids, sound_ids: sound_ids }
+    end
+
+    # Create temporary tables with pre-computed API links for images and sounds
+    # This must use Ruby because API link generation uses the URL shortener
+    # @param image_ids [Array<Integer>]
+    # @param sound_ids [Array<Integer>]
+    def create_media_api_link_tables(image_ids, sound_ids)
+      conn = ActiveRecord::Base.connection
+
       Rails.logger.debug 'dwca_export: creating temp tables for API links'
 
       # Drop if exists from previous run
@@ -1042,7 +1130,6 @@ module Export::Dwca
       project_tokens = Project.where(id: all_project_ids.uniq).pluck(:id, :api_access_token).to_h
 
       # Batch process image API link generation (chunking to avoid memory issues)
-      # Use pluck instead of find_each to avoid ActiveRecord object overhead
       image_ids.each_slice(1000) do |batch_ids|
         links_data = []
 
@@ -1094,7 +1181,6 @@ module Export::Dwca
       end
 
       # Batch process sound API link generation
-      # Use pluck instead of find_each to avoid ActiveRecord object overhead
       sound_ids.each_slice(1000) do |batch_ids|
         links_data = []
 
@@ -1144,280 +1230,215 @@ module Export::Dwca
       end
 
       Rails.logger.debug 'dwca_export: temp tables created with API links'
+    end
 
-      # Step 3: Build the main SQL query with all JOINs
-      # This aggregates all the attribution data using STRING_AGG
+    # Exports image media records to the output file using PostgreSQL COPY TO
+    # Streams data directly to avoid loading entire dataset into memory
+    def export_images_to_file(image_ids, output_file)
+      return if image_ids.empty?
 
-      # Map CREATIVE_COMMONS_LICENSES to CASE statement
-      license_case = <<-SQL
-        CASE attributions.license
-          WHEN 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication' THEN 'https://creativecommons.org/publicdomain/zero/1.0'
-          WHEN 'Attribution' THEN 'https://creativecommons.org/licenses/by/4.0'
-          WHEN 'Attribution-ShareAlike' THEN 'https://creativecommons.org/licenses/by-sa/4.0'
-          WHEN 'Attribution-NoDerivs' THEN 'https://creativecommons.org/licenses/by-nd/4.0'
-          WHEN 'Attribution-NonCommercial' THEN 'https://creativecommons.org/licenses/by-nc/4.0'
-          WHEN 'Attribution-NonCommercial-ShareAlike' THEN 'https://creativecommons.org/licenses/by-nc-sa/4.0'
-          WHEN 'Attribution-NonCommercial-NoDerivs' THEN 'https://creativecommons.org/licenses/by-nc-nd/4.0'
-          ELSE NULL
-        END
+      conn = ActiveRecord::Base.connection
+      license_case = creative_commons_license_case_sql
+      copyright_label = copyright_label_sql
+
+      image_copy_sql = <<-SQL
+        COPY (
+          SELECT
+            REGEXP_REPLACE(dwc.\"occurrenceID\", E'[\\n\\t]', ' ', 'g') AS coreid,
+            REGEXP_REPLACE(
+              CASE
+                WHEN uuid_id.identifier IS NOT NULL THEN 'image:' || uuid_id.identifier
+                WHEN uri_id.identifier IS NOT NULL THEN 'image:' || uri_id.identifier
+                ELSE 'image:' || img.id::text
+              END,
+              E'[\\n\\t]', ' ', 'g'
+            ) AS identifier,
+            'Image' AS \"dc:type\",
+            img.id AS \"providerManagedID\",
+            #{license_case} AS \"dc:rights\",
+            #{license_case} AS \"dcterms:rights\",
+            REGEXP_REPLACE(owners.names, E'[\\n\\t]', ' ', 'g') AS \"Owner\",
+            NULL AS \"UsageTerms\",
+            REGEXP_REPLACE(#{copyright_label}, E'[\\n\\t]', ' ', 'g') AS \"Credit\",
+            REGEXP_REPLACE(creators.names, E'[\\n\\t]', ' ', 'g') AS \"dc:creator\",
+            REGEXP_REPLACE(creator_ids.identifiers, E'[\\n\\t]', ' ', 'g') AS \"dcterms:creator\",
+            REGEXP_REPLACE(dep.figure_label, E'[\\n\\t]', ' ', 'g') AS description,
+            REGEXP_REPLACE(dep.caption, E'[\\n\\t]', ' ', 'g') AS caption,
+            REGEXP_REPLACE(links.associated_specimen_reference, E'[\\n\\t]', ' ', 'g') AS \"associatedSpecimenReference\",
+            NULL AS \"associatedObservationReference\",
+            REGEXP_REPLACE(links.access_uri, E'[\\n\\t]', ' ', 'g') AS \"accessURI\",
+            REGEXP_REPLACE(img.image_file_content_type, E'[\\n\\t]', ' ', 'g') AS \"dc:format\",
+            REGEXP_REPLACE(links.further_information_url, E'[\\n\\t]', ' ', 'g') AS \"furtherInformationURL\",
+            img.width AS \"PixelXDimension\",
+            img.height AS \"PixelYDimension\"
+          FROM images img
+
+          -- Join to get coreid (occurrenceID) via depiction -> collection_object/field_occurrence -> dwc_occurrence
+          LEFT JOIN depictions dep ON dep.image_id = img.id
+          LEFT JOIN collection_objects co ON co.id = dep.depiction_object_id AND dep.depiction_object_type = 'CollectionObject'
+          LEFT JOIN field_occurrences fo ON fo.id = dep.depiction_object_id AND dep.depiction_object_type = 'FieldOccurrence'
+          LEFT JOIN observations obs ON obs.id = dep.depiction_object_id AND dep.depiction_object_type = 'Observation'
+          LEFT JOIN collection_objects co_obs ON co_obs.id = obs.observation_object_id AND obs.observation_object_type = 'CollectionObject'
+          LEFT JOIN field_occurrences fo_obs ON fo_obs.id = obs.observation_object_id AND obs.observation_object_type = 'FieldOccurrence'
+          LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject')
+                                        OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence')
+                                        OR (dwc.dwc_occurrence_object_id = co_obs.id AND dwc.dwc_occurrence_object_type = 'CollectionObject')
+                                        OR (dwc.dwc_occurrence_object_id = fo_obs.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence')
+
+          -- Join temp table for API links
+          LEFT JOIN temp_media_image_links links ON links.image_id = img.id
+
+          -- Join attribution data
+          LEFT JOIN attributions ON attributions.attribution_object_id = img.id
+                                 AND attributions.attribution_object_type = 'Image'
+
+          -- Join identifiers for UUID and URI
+          LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = img.id
+                                        AND uuid_id.identifier_object_type = 'Image'
+                                        AND uuid_id.type = 'Identifier::Global::Uuid'
+          LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = img.id
+                                       AND uri_id.identifier_object_type = 'Image'
+                                       AND uri_id.type = 'Identifier::Global::Uri'
+
+          -- Aggregate attribution data using LATERAL joins
+          #{attribution_owners_lateral_sql}
+          #{attribution_creators_lateral_sql}
+          #{attribution_creator_ids_lateral_sql}
+          #{attribution_copyright_holders_lateral_sql}
+
+          WHERE img.id IN (#{image_ids.join(',')})
+          ORDER BY img.id
+        ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', NULL '')
       SQL
 
-      # Build copyright label: "© {year} {authors}"
-      copyright_label_sql = <<-SQL
-        CASE
-          WHEN attributions.copyright_year IS NOT NULL OR copyright_holders.names IS NOT NULL THEN
-            '©' ||
-            CASE
-              WHEN attributions.copyright_year IS NOT NULL AND copyright_holders.names IS NOT NULL
-                THEN attributions.copyright_year::text || ' ' || copyright_holders.names
-              WHEN attributions.copyright_year IS NOT NULL
-                THEN attributions.copyright_year::text
-              ELSE copyright_holders.names
-            END
-          ELSE NULL
-        END
+      conn.raw_connection.copy_data(image_copy_sql) do
+        while row = conn.raw_connection.get_copy_data
+          output_file.write(row.force_encoding(Encoding::UTF_8))
+        end
+      end
+    end
+
+    # Exports sound media records to the output file using PostgreSQL COPY TO
+    # Streams data directly to avoid loading entire dataset into memory
+    def export_sounds_to_file(sound_ids, output_file)
+      return if sound_ids.empty?
+
+      conn = ActiveRecord::Base.connection
+      license_case = creative_commons_license_case_sql
+      copyright_label = copyright_label_sql
+
+      sound_copy_sql = <<-SQL
+        COPY (
+          SELECT
+            REGEXP_REPLACE(dwc.\"occurrenceID\", E'[\\n\\t]', ' ', 'g') AS coreid,
+            REGEXP_REPLACE(
+              CASE
+                WHEN uuid_id.identifier IS NOT NULL THEN 'sound:' || uuid_id.identifier
+                WHEN uri_id.identifier IS NOT NULL THEN 'sound:' || uri_id.identifier
+                ELSE 'sound:' || snd.id::text
+              END,
+              E'[\\n\\t]', ' ', 'g'
+            ) AS identifier,
+            'Sound' AS \"dc:type\",
+            snd.id AS \"providerManagedID\",
+            #{license_case} AS \"dc:rights\",
+            #{license_case} AS \"dcterms:rights\",
+            REGEXP_REPLACE(owners.names, E'[\\n\\t]', ' ', 'g') AS \"Owner\",
+            NULL AS \"UsageTerms\",
+            REGEXP_REPLACE(#{copyright_label}, E'[\\n\\t]', ' ', 'g') AS \"Credit\",
+            REGEXP_REPLACE(creators.names, E'[\\n\\t]', ' ', 'g') AS \"dc:creator\",
+            REGEXP_REPLACE(creator_ids.identifiers, E'[\\n\\t]', ' ', 'g') AS \"dcterms:creator\",
+            REGEXP_REPLACE(snd.name, E'[\\n\\t]', ' ', 'g') AS description,
+            NULL AS caption,
+            REGEXP_REPLACE(links.associated_specimen_reference, E'[\\n\\t]', ' ', 'g') AS \"associatedSpecimenReference\",
+            NULL AS \"associatedObservationReference\",
+            REGEXP_REPLACE(links.access_uri, E'[\\n\\t]', ' ', 'g') AS \"accessURI\",
+            REGEXP_REPLACE(asb.content_type, E'[\\n\\t]', ' ', 'g') AS \"dc:format\",
+            NULL AS \"furtherInformationURL\",
+            NULL AS \"PixelXDimension\",
+            NULL AS \"PixelYDimension\"
+          FROM sounds snd
+          LEFT JOIN active_storage_attachments asa ON asa.record_id = snd.id
+                                                   AND asa.record_type = 'Sound'
+                                                   AND asa.name = 'sound_file'
+          LEFT JOIN active_storage_blobs asb ON asb.id = asa.blob_id
+
+          -- Join to get coreid (occurrenceID) via conveyance -> collection_object/field_occurrence -> dwc_occurrence
+          LEFT JOIN conveyances conv ON conv.sound_id = snd.id
+          LEFT JOIN collection_objects co ON co.id = conv.conveyance_object_id AND conv.conveyance_object_type = 'CollectionObject'
+          LEFT JOIN field_occurrences fo ON fo.id = conv.conveyance_object_id AND conv.conveyance_object_type = 'FieldOccurrence'
+          LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject')
+                                        OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence')
+
+          -- Join temp table for API links
+          LEFT JOIN temp_media_sound_links links ON links.sound_id = snd.id
+
+          -- Join attribution data
+          LEFT JOIN attributions ON attributions.attribution_object_id = snd.id
+                                 AND attributions.attribution_object_type = 'Sound'
+
+          -- Join identifiers for UUID and URI
+          LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = snd.id
+                                        AND uuid_id.identifier_object_type = 'Sound'
+                                        AND uuid_id.type = 'Identifier::Global::Uuid'
+          LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = snd.id
+                                       AND uri_id.identifier_object_type = 'Sound'
+                                       AND uri_id.type = 'Identifier::Global::Uri'
+
+          -- Aggregate attribution data using LATERAL joins
+          #{attribution_owners_lateral_sql}
+          #{attribution_creators_lateral_sql}
+          #{attribution_creator_ids_lateral_sql}
+          #{attribution_copyright_holders_lateral_sql}
+
+          WHERE snd.id IN (#{sound_ids.join(',')})
+          ORDER BY snd.id
+        ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', NULL '')
       SQL
 
-      # Step 4: Stream COPY TO output directly to output file
-      Rails.logger.debug 'dwca_export: executing COPY TO for media data'
-
-      # Write header row
-      output_file.write(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
-
-      # Process images if we have any
-      if image_ids.any?
-          image_copy_sql = <<-SQL
-          COPY (
-            SELECT
-              REGEXP_REPLACE(dwc.\"occurrenceID\", E'[\\n\\t]', ' ', 'g') AS coreid,
-              REGEXP_REPLACE(
-                CASE
-                  WHEN uuid_id.identifier IS NOT NULL THEN 'image:' || uuid_id.identifier
-                  WHEN uri_id.identifier IS NOT NULL THEN 'image:' || uri_id.identifier
-                  ELSE 'image:' || img.id::text
-                END,
-                E'[\\n\\t]', ' ', 'g'
-              ) AS identifier,
-              'Image' AS \"dc:type\",
-              img.id AS \"providerManagedID\",
-              #{license_case} AS \"dc:rights\",
-              #{license_case} AS \"dcterms:rights\",
-              REGEXP_REPLACE(owners.names, E'[\\n\\t]', ' ', 'g') AS \"Owner\",
-              NULL AS \"UsageTerms\",
-              REGEXP_REPLACE(#{copyright_label_sql}, E'[\\n\\t]', ' ', 'g') AS \"Credit\",
-              REGEXP_REPLACE(creators.names, E'[\\n\\t]', ' ', 'g') AS \"dc:creator\",
-              REGEXP_REPLACE(creator_ids.identifiers, E'[\\n\\t]', ' ', 'g') AS \"dcterms:creator\",
-              REGEXP_REPLACE(dep.figure_label, E'[\\n\\t]', ' ', 'g') AS description,
-              REGEXP_REPLACE(dep.caption, E'[\\n\\t]', ' ', 'g') AS caption,
-              REGEXP_REPLACE(links.associated_specimen_reference, E'[\\n\\t]', ' ', 'g') AS \"associatedSpecimenReference\",
-              NULL AS \"associatedObservationReference\",
-              REGEXP_REPLACE(links.access_uri, E'[\\n\\t]', ' ', 'g') AS \"accessURI\",
-              REGEXP_REPLACE(img.image_file_content_type, E'[\\n\\t]', ' ', 'g') AS \"dc:format\",
-              REGEXP_REPLACE(links.further_information_url, E'[\\n\\t]', ' ', 'g') AS \"furtherInformationURL\",
-              img.width AS \"PixelXDimension\",
-              img.height AS \"PixelYDimension\"
-            FROM images img
-
-            -- Join to get coreid (occurrenceID) via depiction -> collection_object/field_occurrence -> dwc_occurrence
-            LEFT JOIN depictions dep ON dep.image_id = img.id
-            LEFT JOIN collection_objects co ON co.id = dep.depiction_object_id AND dep.depiction_object_type = 'CollectionObject'
-            LEFT JOIN field_occurrences fo ON fo.id = dep.depiction_object_id AND dep.depiction_object_type = 'FieldOccurrence'
-            LEFT JOIN observations obs ON obs.id = dep.depiction_object_id AND dep.depiction_object_type = 'Observation'
-            LEFT JOIN collection_objects co_obs ON co_obs.id = obs.observation_object_id AND obs.observation_object_type = 'CollectionObject'
-            LEFT JOIN field_occurrences fo_obs ON fo_obs.id = obs.observation_object_id AND obs.observation_object_type = 'FieldOccurrence'
-            LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject')
-                                          OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence')
-                                          OR (dwc.dwc_occurrence_object_id = co_obs.id AND dwc.dwc_occurrence_object_type = 'CollectionObject')
-                                          OR (dwc.dwc_occurrence_object_id = fo_obs.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence')
-
-            -- Join temp table for API links
-            LEFT JOIN temp_media_image_links links ON links.image_id = img.id
-
-            -- Join attribution data
-            LEFT JOIN attributions ON attributions.attribution_object_id = img.id
-                                   AND attributions.attribution_object_type = 'Image'
-
-            -- Join identifiers for UUID and URI
-            LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = img.id
-                                          AND uuid_id.identifier_object_type = 'Image'
-                                          AND uuid_id.type = 'Identifier::Global::Uuid'
-            LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = img.id
-                                         AND uri_id.identifier_object_type = 'Image'
-                                         AND uri_id.type = 'Identifier::Global::Uri'
-
-            -- Aggregate owners (AttributionOwner roles)
-            LEFT JOIN LATERAL (
-              SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
-              FROM roles
-              JOIN people ON people.id = roles.person_id
-              WHERE roles.role_object_id = attributions.id
-                AND roles.role_object_type = 'Attribution'
-                AND roles.type = 'AttributionOwner'
-            ) owners ON true
-
-            -- Aggregate creators (AttributionCreator roles)
-            LEFT JOIN LATERAL (
-              SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
-              FROM roles
-              JOIN people ON people.id = roles.person_id
-              WHERE roles.role_object_id = attributions.id
-                AND roles.role_object_type = 'Attribution'
-                AND roles.type = 'AttributionCreator'
-            ) creators ON true
-
-            -- Aggregate creator identifiers (ORCID/Wikidata)
-            LEFT JOIN LATERAL (
-              SELECT STRING_AGG(identifiers.cached, ' & ' ORDER BY roles.position) AS identifiers
-              FROM roles
-              JOIN people ON people.id = roles.person_id
-              JOIN identifiers ON identifiers.identifier_object_id = people.id
-                              AND identifiers.identifier_object_type = 'Person'
-              WHERE roles.role_object_id = attributions.id
-                AND roles.role_object_type = 'Attribution'
-                AND roles.type = 'AttributionCreator'
-                AND (identifiers.type = 'Identifier::Global::Orcid' OR identifiers.type = 'Identifier::Global::Wikidata')
-            ) creator_ids ON true
-
-            -- Aggregate copyright holders for Credit field
-            LEFT JOIN LATERAL (
-              SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
-              FROM roles
-              JOIN people ON people.id = roles.person_id
-              WHERE roles.role_object_id = attributions.id
-                AND roles.role_object_type = 'Attribution'
-                AND roles.type = 'AttributionCopyrightHolder'
-            ) copyright_holders ON true
-
-            WHERE img.id IN (#{image_ids.join(',')})
-            ORDER BY img.id
-          ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', NULL '')
-        SQL
-
-        conn.raw_connection.copy_data(image_copy_sql) do
-          while row = conn.raw_connection.get_copy_data
-            output_file.write(row.force_encoding(Encoding::UTF_8))
-          end
+      conn.raw_connection.copy_data(sound_copy_sql) do
+        while row = conn.raw_connection.get_copy_data
+          output_file.write(row.force_encoding(Encoding::UTF_8))
         end
       end
+    end
 
-      # Process sounds if we have any
-      if sound_ids.any?
-        sound_copy_sql = <<-SQL
-          COPY (
-            SELECT
-              REGEXP_REPLACE(dwc.\"occurrenceID\", E'[\\n\\t]', ' ', 'g') AS coreid,
-              REGEXP_REPLACE(
-                CASE
-                  WHEN uuid_id.identifier IS NOT NULL THEN 'sound:' || uuid_id.identifier
-                  WHEN uri_id.identifier IS NOT NULL THEN 'sound:' || uri_id.identifier
-                  ELSE 'sound:' || snd.id::text
-                END,
-                E'[\\n\\t]', ' ', 'g'
-              ) AS identifier,
-              'Sound' AS \"dc:type\",
-              snd.id AS \"providerManagedID\",
-              #{license_case} AS \"dc:rights\",
-              #{license_case} AS \"dcterms:rights\",
-              REGEXP_REPLACE(owners.names, E'[\\n\\t]', ' ', 'g') AS \"Owner\",
-              NULL AS \"UsageTerms\",
-              REGEXP_REPLACE(#{copyright_label_sql}, E'[\\n\\t]', ' ', 'g') AS \"Credit\",
-              REGEXP_REPLACE(creators.names, E'[\\n\\t]', ' ', 'g') AS \"dc:creator\",
-              REGEXP_REPLACE(creator_ids.identifiers, E'[\\n\\t]', ' ', 'g') AS \"dcterms:creator\",
-              REGEXP_REPLACE(snd.name, E'[\\n\\t]', ' ', 'g') AS description,
-              NULL AS caption,
-              REGEXP_REPLACE(links.associated_specimen_reference, E'[\\n\\t]', ' ', 'g') AS \"associatedSpecimenReference\",
-              NULL AS \"associatedObservationReference\",
-              REGEXP_REPLACE(links.access_uri, E'[\\n\\t]', ' ', 'g') AS \"accessURI\",
-              REGEXP_REPLACE(asb.content_type, E'[\\n\\t]', ' ', 'g') AS \"dc:format\",
-              NULL AS \"furtherInformationURL\",
-              NULL AS \"PixelXDimension\",
-              NULL AS \"PixelYDimension\"
-            FROM sounds snd
-            LEFT JOIN active_storage_attachments asa ON asa.record_id = snd.id
-                                                     AND asa.record_type = 'Sound'
-                                                     AND asa.name = 'sound_file'
-            LEFT JOIN active_storage_blobs asb ON asb.id = asa.blob_id
-
-            -- Join to get coreid (occurrenceID) via conveyance -> collection_object/field_occurrence -> dwc_occurrence
-            LEFT JOIN conveyances conv ON conv.sound_id = snd.id
-            LEFT JOIN collection_objects co ON co.id = conv.conveyance_object_id AND conv.conveyance_object_type = 'CollectionObject'
-            LEFT JOIN field_occurrences fo ON fo.id = conv.conveyance_object_id AND conv.conveyance_object_type = 'FieldOccurrence'
-            LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject')
-                                          OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence')
-
-            -- Join temp table for API links
-            LEFT JOIN temp_media_sound_links links ON links.sound_id = snd.id
-
-            -- Join attribution data
-            LEFT JOIN attributions ON attributions.attribution_object_id = snd.id
-                                   AND attributions.attribution_object_type = 'Sound'
-
-            -- Join identifiers for UUID and URI
-            LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = snd.id
-                                          AND uuid_id.identifier_object_type = 'Sound'
-                                          AND uuid_id.type = 'Identifier::Global::Uuid'
-            LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = snd.id
-                                         AND uri_id.identifier_object_type = 'Sound'
-                                         AND uri_id.type = 'Identifier::Global::Uri'
-
-            -- Aggregate owners (AttributionOwner roles)
-            LEFT JOIN LATERAL (
-              SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
-              FROM roles
-              JOIN people ON people.id = roles.person_id
-              WHERE roles.role_object_id = attributions.id
-                AND roles.role_object_type = 'Attribution'
-                AND roles.type = 'AttributionOwner'
-            ) owners ON true
-
-            -- Aggregate creators (AttributionCreator roles)
-            LEFT JOIN LATERAL (
-              SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
-              FROM roles
-              JOIN people ON people.id = roles.person_id
-              WHERE roles.role_object_id = attributions.id
-                AND roles.role_object_type = 'Attribution'
-                AND roles.type = 'AttributionCreator'
-            ) creators ON true
-
-            -- Aggregate creator identifiers (ORCID/Wikidata)
-            LEFT JOIN LATERAL (
-              SELECT STRING_AGG(identifiers.cached, ' & ' ORDER BY roles.position) AS identifiers
-              FROM roles
-              JOIN people ON people.id = roles.person_id
-              JOIN identifiers ON identifiers.identifier_object_id = people.id
-                              AND identifiers.identifier_object_type = 'Person'
-              WHERE roles.role_object_id = attributions.id
-                AND roles.role_object_type = 'Attribution'
-                AND roles.type = 'AttributionCreator'
-                AND (identifiers.type = 'Identifier::Global::Orcid' OR identifiers.type = 'Identifier::Global::Wikidata')
-            ) creator_ids ON true
-
-            -- Aggregate copyright holders for Credit field
-            LEFT JOIN LATERAL (
-              SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
-              FROM roles
-              JOIN people ON people.id = roles.person_id
-              WHERE roles.role_object_id = attributions.id
-                AND roles.role_object_type = 'Attribution'
-                AND roles.type = 'AttributionCopyrightHolder'
-            ) copyright_holders ON true
-
-            WHERE snd.id IN (#{sound_ids.join(',')})
-            ORDER BY snd.id
-          ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', NULL '')
-        SQL
-
-        conn.raw_connection.copy_data(sound_copy_sql) do
-          while row = conn.raw_connection.get_copy_data
-            output_file.write(row.force_encoding(Encoding::UTF_8))
-          end
-        end
-      end
-
-      # Step 5: Cleanup temp tables
+    # Cleans up temporary tables created for media export
+    def cleanup_media_temp_tables
+      conn = ActiveRecord::Base.connection
       conn.execute("DROP TABLE IF EXISTS temp_media_image_links")
       conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
+    end
+
+    # Optimized media extension export using PostgreSQL COPY TO
+    # Streams directly to output_file to avoid loading entire dataset into memory
+    # ~10x faster than the original Ruby iteration approach
+    def media_extension_optimized(output_file)
+      Rails.logger.debug 'dwca_export: media_extension_optimized start'
+
+      # Step 1: Collect all media IDs from collection objects and field occurrences
+      media_ids = collect_media_ids
+      image_ids = media_ids[:image_ids]
+      sound_ids = media_ids[:sound_ids]
+
+      # Early return if no media to export
+      if image_ids.empty? && sound_ids.empty?
+        output_file.write(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
+        return
+      end
+
+      # Step 2: Pre-compute API links using Ruby (required for URL shortener)
+      create_media_api_link_tables(image_ids, sound_ids)
+
+      # Step 3: Write header and stream media data to output file
+      Rails.logger.debug 'dwca_export: executing COPY TO for media data'
+      output_file.write(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
+
+      export_images_to_file(image_ids, output_file)
+      export_sounds_to_file(sound_ids, output_file)
+
+      # Step 4: Cleanup temp tables
+      cleanup_media_temp_tables
 
       Rails.logger.debug 'dwca_export: media data generated'
     end
