@@ -606,12 +606,14 @@ module Export::Dwca
         co_preds = collection_object_predicate_ids.empty? ? [] :
           ControlledVocabularyTerm
             .where(id: collection_object_predicate_ids)
+            .order(:name)
             .pluck(:name)
             .map { |name| "TW:DataAttribute:CollectionObject:#{name}" }
 
         ce_preds = collecting_event_predicate_ids.empty? ? [] :
           ControlledVocabularyTerm
             .where(id: collecting_event_predicate_ids)
+            .order(:name)
             .pluck(:name)
             .map { |name| "TW:DataAttribute:CollectingEvent:#{name}" }
 
