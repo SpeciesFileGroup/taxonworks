@@ -781,18 +781,14 @@ module Export::Dwca
         ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', HEADER, NULL '')
       SQL
 
-      # Collect output from PostgreSQL
-      content = String.new(encoding: Encoding::UTF_8)
+      # Stream output directly from PostgreSQL to file
+      @predicate_data = Tempfile.new('predicate_data.tsv')
       conn.raw_connection.copy_data(copy_sql) do
         while row = conn.raw_connection.get_copy_data
-          content << row.force_encoding(Encoding::UTF_8)
+          @predicate_data.write(row.force_encoding(Encoding::UTF_8))
         end
       end
 
-      Rails.logger.debug 'dwca_export: predicate_data rows processed'
-
-      @predicate_data = Tempfile.new('predicate_data.tsv')
-      @predicate_data.write(content)
       @predicate_data.flush
       @predicate_data.rewind
 
