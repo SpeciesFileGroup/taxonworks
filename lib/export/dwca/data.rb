@@ -1122,11 +1122,50 @@ module Export::Dwca
         )
       SQL
 
+      # Create temp tables with image/sound IDs to avoid massive IN clauses (128k+ IDs)
+      # These temp tables will be reused for multiple queries
+      Rails.logger.debug 'dwca_export: creating temp tables for media IDs'
+
+      if image_ids.any?
+        conn.execute("DROP TABLE IF EXISTS temp_media_image_ids")
+        conn.execute("CREATE TEMP TABLE temp_media_image_ids (image_id integer PRIMARY KEY)")
+
+        # Insert IDs in batches to avoid huge INSERT statement
+        image_ids.each_slice(1000) do |batch|
+          values = batch.map { |id| "(#{id})" }.join(',')
+          conn.execute("INSERT INTO temp_media_image_ids VALUES #{values}")
+        end
+      end
+
+      if sound_ids.any?
+        conn.execute("DROP TABLE IF EXISTS temp_media_sound_ids")
+        conn.execute("CREATE TEMP TABLE temp_media_sound_ids (sound_id integer PRIMARY KEY)")
+
+        # Insert IDs in batches
+        sound_ids.each_slice(1000) do |batch|
+          values = batch.map { |id| "(#{id})" }.join(',')
+          conn.execute("INSERT INTO temp_media_sound_ids VALUES #{values}")
+        end
+      end
+
       # Pre-cache project tokens to avoid repeated queries (2-3x speedup)
+      # Use temp tables instead of huge IN clauses
       Rails.logger.debug 'dwca_export: caching project tokens'
       all_project_ids = []
-      all_project_ids += ::Image.where(id: image_ids).distinct.pluck(:project_id) if image_ids.any?
-      all_project_ids += ::Sound.where(id: sound_ids).distinct.pluck(:project_id) if sound_ids.any?
+      if image_ids.any?
+        all_project_ids += conn.execute(<<-SQL).values.flatten
+          SELECT DISTINCT i.project_id
+          FROM images i
+          INNER JOIN temp_media_image_ids tmp ON tmp.image_id = i.id
+        SQL
+      end
+      if sound_ids.any?
+        all_project_ids += conn.execute(<<-SQL).values.flatten
+          SELECT DISTINCT s.project_id
+          FROM sounds s
+          INNER JOIN temp_media_sound_ids tmp ON tmp.sound_id = s.id
+        SQL
+      end
       project_tokens = Project.where(id: all_project_ids.uniq).pluck(:id, :api_access_token).to_h
 
       # Pre-fetch all depiction -> collection_object mappings (avoid N+1 queries)
@@ -1134,10 +1173,10 @@ module Export::Dwca
       image_to_co = {}
       if image_ids.any?
         conn.execute(<<-SQL).each do |row|
-          SELECT image_id, depiction_object_id
-          FROM depictions
-          WHERE image_id IN (#{image_ids.join(',')})
-            AND depiction_object_type = 'CollectionObject'
+          SELECT d.image_id, d.depiction_object_id
+          FROM depictions d
+          INNER JOIN temp_media_image_ids tmp ON tmp.image_id = d.image_id
+          WHERE d.depiction_object_type = 'CollectionObject'
         SQL
           image_to_co[row['image_id'].to_i] = row['depiction_object_id'].to_i
         end
@@ -1147,10 +1186,10 @@ module Export::Dwca
       sound_to_co = {}
       if sound_ids.any?
         conn.execute(<<-SQL).each do |row|
-          SELECT sound_id, conveyance_object_id
-          FROM conveyances
-          WHERE sound_id IN (#{sound_ids.join(',')})
-            AND conveyance_object_type = 'CollectionObject'
+          SELECT c.sound_id, c.conveyance_object_id
+          FROM conveyances c
+          INNER JOIN temp_media_sound_ids tmp ON tmp.sound_id = c.sound_id
+          WHERE c.conveyance_object_type = 'CollectionObject'
         SQL
           sound_to_co[row['sound_id'].to_i] = row['conveyance_object_id'].to_i
         end
