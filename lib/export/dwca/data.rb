@@ -47,7 +47,8 @@ module Export::Dwca
     #  Required.  Of DwcOccurrence
     attr_accessor :core_scope
 
-    # @return [Hash] of collection_objects: query_string, field_occurrences: query_string
+    # @return [Hash] Hash with keys core_params (i.e. just the params for
+    # core_scope), collection_objects_query
     attr_accessor :biological_associations_extension
 
     # @return [Hash] of collection_objects: query_string, field_occurrences: query_string
@@ -86,7 +87,7 @@ module Export::Dwca
 
       @core_scope = core_scope
 
-      @biological_associations_extension = extension_scopes[:biological_associations] #! Hash with keys core_params, collection_objects_query
+      @biological_associations_extension = extension_scopes[:biological_associations] #! Hash with keys core_params (i.e. core_scope params), collection_objects_query
       @media_extension = extension_scopes[:media] #! Hash with keys collection_objects, field_occurrences
 
       @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extensions)
@@ -168,25 +169,19 @@ module Export::Dwca
 
     # Streams CSV data from PostgreSQL directly to output_file
     # @param output_file [File, Tempfile] File to write to directly
-    # @return [nil] Writes directly to output_file instead of returning string
     def csv(output_file:)
       conn = ActiveRecord::Base.connection
 
-      # Get all target columns (what we want to export)
       target_cols = ::DwcOccurrence.target_columns
       excluded = ::DwcOccurrence.excluded_columns
 
-      # Remove excluded columns
       cols_to_export = target_cols - excluded
 
-      # Determine which columns actually have data (trim_columns: true behavior)
       cols_with_data = columns_with_data(cols_to_export)
 
-      # Apply column ordering if specified
       column_order = (::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS).map(&:to_s)
       ordered_cols = order_columns(cols_with_data, column_order)
 
-      # Get column type information from the database
       column_types = ::DwcOccurrence.columns_hash
 
       # Build SELECT list with proper column names and aliases
@@ -199,7 +194,6 @@ module Export::Dwca
           # Header converter: dwcClass -> class, with sanitization
           "REGEXP_REPLACE(\"dwcClass\", E'[\\n\\t]', ' ', 'g') AS \"class\""
         else
-          # Use introspection to determine if this is a string/text column
           column_info = column_types[col]
           is_string_column = column_info && [:string, :text].include?(column_info.type)
 
@@ -229,8 +223,6 @@ module Export::Dwca
       end
 
       Rails.logger.debug 'dwca_export: csv data generated'
-
-      nil
     end
 
     # Find which columns in the dwc_occurrence table have non-NULL, non-empty values
@@ -338,8 +330,8 @@ module Export::Dwca
     # When `ids:` is provided, limits computation to that subset.
     def extension_computed_fields_data(methods, ids: nil)
       return if methods.empty?
-
-      # Single-field optimized path (currently only :otu_name)
+      # Single-field optimized path - currently [:otu_name] is the only possible
+      # (non-empty) value of `methods`.
       if methods.size == 1 && methods.keys.first == :otu_name
         header = methods.values.first # e.g., "TW:Internal:otu_name"
         scope = ids ? collection_objects.where(collection_objects: { id: ids }) : collection_objects
@@ -377,8 +369,6 @@ module Export::Dwca
       co_fields = {}
       dwco_fields = {}
 
-      # Select valid methods, generate frozen name string ahead of time
-      # add TW prefix to names
       taxonworks_extension_methods.map(&:to_sym).each do |sym|
         csv_header_name = ('TW:Internal:' + sym.to_s).freeze
 
@@ -395,7 +385,6 @@ module Export::Dwca
 
       used_extensions = methods.values + ce_fields.values + co_fields.values + dwco_fields.values
 
-      # if no predicate data found, return empty file
       if used_extensions.empty?
         @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
         return @taxonworks_extension_data
@@ -403,17 +392,17 @@ module Export::Dwca
 
       # Precompute column arrays (preserve requested order)
       co_columns    = co_fields.keys
-      co_headers    = co_columns.map { |sym| co_fields[sym] }
+      co_headers    = co_fields.values
 
       ce_columns    = ce_fields.keys
-      ce_headers    = ce_columns.map { |sym| ce_fields[sym] }
+      ce_headers    = ce_fields.values
       # map virtual :id to :collecting_event_id
       if (idx = ce_columns.index(:id))
         ce_columns[idx] = :collecting_event_id
       end
 
       dwco_columns  = dwco_fields.keys
-      dwco_headers  = dwco_columns.map { |sym| dwco_fields[sym] }
+      dwco_headers  = dwco_fields.values
 
       # Stream to tempfile in the exact core order (no sort needed)
       @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
@@ -511,23 +500,18 @@ module Export::Dwca
     # rubocop:enable Metrics/MethodLength
 
     def collecting_events
-      s = 'WITH co_scoped AS (' + collection_objects.unscope(:order).select(:id, :collecting_event_id).to_sql + ') ' + ::CollectingEvent
-        .joins('JOIN co_scoped as co_scoped1 on co_scoped1.collecting_event_id = collecting_events.id')
+      ::CollectingEvent
+        .with(co_scoped: collection_objects.unscope(:order).select(:id, :collecting_event_id))
+        .joins('JOIN co_scoped ON co_scoped.collecting_event_id = collecting_events.id')
         .distinct
-        .to_sql
-
-      ::CollectingEvent.from('(' + s + ') as collecting_events')
     end
 
     def collection_object_attributes_query
-      s = 'WITH touched_collection_objects AS (' + collection_objects.unscope(:order).select(:id).to_sql + ') ' + ::InternalAttribute
-        .joins("JOIN touched_collection_objects as tco1 on data_attributes.attribute_subject_id = tco1.id AND data_attributes.attribute_subject_type = 'CollectionObject'")
-        .to_sql
-
       ::InternalAttribute
+        .with(touched_collection_objects: collection_objects.unscope(:order).select(:id))
+        .joins("JOIN touched_collection_objects ON data_attributes.attribute_subject_id = touched_collection_objects.id AND data_attributes.attribute_subject_type = 'CollectionObject'")
         .joins(:predicate)
         .where(controlled_vocabulary_term_id: collection_object_predicate_ids)
-        .from('(' + s + ') as data_attributes')
     end
 
     def collection_object_attributes
@@ -553,12 +537,10 @@ module Export::Dwca
     # @return Relation
     #   the unique attributes derived from CollectingEvents
     def collecting_event_attributes_query
-      s = 'WITH touched_collecting_events AS (' + collecting_events.to_sql + ') ' + ::InternalAttribute
-        .joins("JOIN touched_collecting_events as tce1 on data_attributes.attribute_subject_id = tce1.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
+      ::InternalAttribute
+        .with(touched_collecting_events: collecting_events)
+        .joins("JOIN touched_collecting_events ON data_attributes.attribute_subject_id = touched_collecting_events.id AND data_attributes.attribute_subject_type = 'CollectingEvent'")
         .where(controlled_vocabulary_term_id: collecting_event_predicate_ids)
-        .to_sql
-
-      ::InternalAttribute.from('(' + s + ') as data_attributes')
     end
 
     #   @return Array
@@ -588,18 +570,16 @@ module Export::Dwca
     end
 
     def collection_objects
-      s = 'WITH dwc_scoped AS (' + core_scope.unscope(:order).select('dwc_occurrences.dwc_occurrence_object_id, dwc_occurrences.dwc_occurrence_object_type').to_sql + ') ' + ::CollectionObject
-        .joins("JOIN dwc_scoped as dwc_scoped1 on dwc_scoped1.dwc_occurrence_object_id = collection_objects.id and dwc_scoped1.dwc_occurrence_object_type = 'CollectionObject'")
+      ::CollectionObject
+        .with(dwc_scoped: core_scope.unscope(:order).select(:dwc_occurrence_object_id, :dwc_occurrence_object_type))
+        .joins("JOIN dwc_scoped ON dwc_scoped.dwc_occurrence_object_id = collection_objects.id AND dwc_scoped.dwc_occurrence_object_type = 'CollectionObject'")
         .select(:id, :collecting_event_id, :type)
-        .to_sql
-
-      ::CollectionObject.from('(' + s + ') as collection_objects')
     end
 
 
-    # Finds which predicate columns in the temp table actually have non-NULL values
-    # This is called after create_pivoted_predicate_table to filter out empty columns
-    # Much faster than scanning data_attributes table
+    # Finds which predicate columns in the temp table actually have non-NULL
+    # values. This is called after create_pivoted_predicate_table to filter out
+    # empty columns - much faster than scanning data_attributes table.
     def predicates_with_data
       return [] if all_possible_predicates.empty?
 
@@ -681,17 +661,18 @@ module Export::Dwca
       co_pred_names = collection_object_predicate_names
       ce_pred_names = collecting_event_predicate_names
 
-      # Build aggregate statements for each CO predicate
-      # Use MAX with FILTER which is more efficient than MAX(CASE...)
-      # Sanitize values by replacing newlines and tabs with spaces (matching Utilities::Strings.sanitize_for_csv behavior)
+      # Build aggregate statements for each CO predicate.
+      # Use MAX with FILTER which is more efficient than MAX(CASE...).
+      # Sanitize values by replacing newlines and tabs with spaces (matching
+      # Utilities::Strings.sanitize_for_csv behavior).
       co_case_statements = co_pred_names.map do |cvt_id, pred_name|
-        # Quote the column name to handle special characters
+        # Quote the column name to handle special characters.
         quoted_name = conn.quote_column_name(pred_name)
         "MAX(REGEXP_REPLACE(co_da.value, E'[\\n\\t]', ' ', 'g')) FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
       end
 
-      # Build aggregate statements for each CE predicate
-      # Sanitize values by replacing newlines and tabs with spaces
+      # Build aggregate statements for each CE predicate.
+      # Sanitize values by replacing newlines and tabs with spaces.
       ce_case_statements = ce_pred_names.map do |cvt_id, pred_name|
         quoted_name = conn.quote_column_name(pred_name)
         "MAX(REGEXP_REPLACE(ce_da.value, E'[\\n\\t]', ' ', 'g')) FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
@@ -743,8 +724,8 @@ module Export::Dwca
 
       Rails.logger.debug 'dwca_export: pivoted predicate temp table created'
 
-      # Create ordering table based on dwc_occurrences.id order
-      # This ensures we can join and order correctly without loading all IDs into Ruby
+      # Create ordering table based on dwc_occurrences.id order. This ensures we
+      # can join and order correctly without loading all IDs into Ruby.
       order_sql = <<-SQL
         CREATE TEMP TABLE temp_co_order AS
         SELECT
@@ -765,7 +746,6 @@ module Export::Dwca
       # Get all possible predicates from configuration
       all_possible_predicates
 
-      # if no predicate data found, return empty file
       if all_possible_predicates.empty?
         @predicate_data = Tempfile.new('predicate_data.tsv')
         return @predicate_data
@@ -777,7 +757,6 @@ module Export::Dwca
       # Now query the temp table to find which columns actually have data
       used_preds = predicates_with_data
 
-      # If no predicates have data, return empty file
       if used_preds.empty?
         @predicate_data = Tempfile.new('predicate_data.tsv')
         return @predicate_data
@@ -790,17 +769,9 @@ module Export::Dwca
       # Build column list for only the predicates that have data
       column_list = used_preds.map { |pred| conn.quote_column_name(pred) }.join(', ')
 
-      # Join with ordering table and let PostgreSQL handle the sorting
-      # This avoids loading all IDs into Ruby memory
-      sql = <<-SQL
-        SELECT #{column_list}
-        FROM temp_co_order
-        LEFT JOIN temp_predicate_pivot ON temp_predicate_pivot.co_id = temp_co_order.co_id
-        ORDER BY temp_co_order.ord
-      SQL
-
-      # Use PostgreSQL's COPY TO to generate TSV directly
-      # This bypasses Ruby iteration entirely
+      # Use PostgreSQL's COPY TO to generate TSV directly.
+      # Join with ordering table and let PostgreSQL handle the sorting - this
+      # avoids loading all IDs into Ruby memory.
       copy_sql = <<-SQL
         COPY (
           SELECT #{column_list}

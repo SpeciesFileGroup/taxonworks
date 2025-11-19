@@ -28,8 +28,10 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       expect(Export::Dwca::Data.new(core_scope: scope)).to be_truthy
     end
 
-    specify '#csv returns csv String' do
-      expect(data.csv).to be_kind_of( String )
+    specify '#data returns tempfile with CSV data' do
+      tempfile = data.data
+      expect(tempfile).to be_kind_of(Tempfile)
+      expect(tempfile.size).to be > 0
     end
 
     context 'with some occurrence records created' do
@@ -42,7 +44,11 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
       after { data.cleanup }
 
-      let(:csv) { CSV.parse(data.csv, headers: true, col_sep: "\t") }
+      let(:csv) {
+        tempfile = data.data
+        tempfile.rewind
+        CSV.parse(tempfile.read, headers: true, col_sep: "\t")
+      }
 
       # non-standard DwC columns are handled elsewhere
       let(:headers) { [ 'basisOfRecord', 'individualCount', 'occurrenceID', 'occurrenceStatus' ] }
@@ -862,9 +868,11 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             qq = FactoryBot.create(:valid_asserted_distribution,
               asserted_distribution_object: o1)
 
-            expect(d.extension_computed_fields_data({otu_name: 'TW:Internal:otu_name' })).to eq(
-              [[s3.id, 'TW:Internal:otu_name', "aus"]]
-            )
+            result = []
+            d.extension_computed_fields_data({otu_name: 'TW:Internal:otu_name' }) do |id, header, value|
+              result << [id, header, value]
+            end
+            expect(result).to eq([[s3.id, 'TW:Internal:otu_name', "aus"]])
 
             d.cleanup
           end
@@ -994,7 +1002,9 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         single_export = Export::Dwca::Data.new(core_scope: single_scope)
 
         # Parse the CSV output
-        csv_output = CSV.parse(single_export.csv, headers: true, col_sep: "\t")
+        tempfile = single_export.data
+        tempfile.rewind
+        csv_output = CSV.parse(tempfile.read, headers: true, col_sep: "\t")
 
         # Should replace newlines and tabs with spaces (matching old behavior)
         expect(csv_output.first['verbatimLocality']).to eq("Site A Elevation: 1000m Coordinates: 45.5, -122.6")
