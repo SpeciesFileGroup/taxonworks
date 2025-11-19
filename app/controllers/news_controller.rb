@@ -71,6 +71,11 @@ class NewsController < ApplicationController
     end
   end
 
+
+  def list
+    @news = News.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
+  end
+
   private
   def set_news
     @news = News.find(params[:id])
