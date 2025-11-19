@@ -1,0 +1,2 @@
+json.extract! news, :id, :type, :title, :body, :display_start, :display_end, :project_id, :created_by_id, :updated_by_id, :created_at, :updated_at
+json.url news_url(news, format: :json)

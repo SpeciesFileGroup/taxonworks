@@ -557,6 +557,10 @@ resources :namespaces do
   concerns [:data_routes]
 end
 
+resources :news do
+  concerns [:data_routes]
+end
+
 resources :notes, except: [:show] do
   concerns [:data_routes]
 end

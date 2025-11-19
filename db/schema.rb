@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_19_200327) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1393,6 +1393,20 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
     t.index ["updated_by_id"], name: "index_namespaces_on_updated_by_id"
   end
 
+  create_table "news", force: :cascade do |t|
+    t.text "type"
+    t.text "title"
+    t.text "body"
+    t.datetime "display_start"
+    t.datetime "display_end"
+    t.bigint "project_id"
+    t.integer "created_by_id"
+    t.integer "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_news_on_project_id"
+  end
+
   create_table "notes", id: :serial, force: :cascade do |t|
     t.text "text", null: false
     t.integer "note_object_id", null: false
@@ -2294,6 +2308,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   add_foreign_key "attributions", "projects"
   add_foreign_key "attributions", "users", column: "created_by_id"
   add_foreign_key "attributions", "users", column: "updated_by_id"
+  add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
   add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "created_by_id", name: "biocuration_classifications_created_by_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "updated_by_id", name: "biocuration_classifications_updated_by_id_fkey"
@@ -2466,6 +2481,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   add_foreign_key "loans", "users", column: "updated_by_id", name: "loans_updated_by_id_fkey"
   add_foreign_key "namespaces", "users", column: "created_by_id", name: "namespaces_created_by_id_fkey"
   add_foreign_key "namespaces", "users", column: "updated_by_id", name: "namespaces_updated_by_id_fkey"
+  add_foreign_key "news", "projects"
+  add_foreign_key "news", "users", column: "created_by_id"
+  add_foreign_key "news", "users", column: "updated_by_id"
   add_foreign_key "notes", "projects", name: "notes_project_id_fkey"
   add_foreign_key "notes", "users", column: "created_by_id", name: "notes_created_by_id_fkey"
   add_foreign_key "notes", "users", column: "updated_by_id", name: "notes_updated_by_id_fkey"
@@ -2521,6 +2539,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   add_foreign_key "otu_relationships", "users", column: "created_by_id"
   add_foreign_key "otu_relationships", "users", column: "updated_by_id"
   add_foreign_key "otus", "projects", name: "otus_project_id_fkey"
+  add_foreign_key "otus", "taxon_names", name: "otus_taxon_name_id_fkey"
   add_foreign_key "otus", "users", column: "created_by_id", name: "otus_created_by_id_fkey"
   add_foreign_key "otus", "users", column: "updated_by_id", name: "otus_updated_by_id_fkey"
   add_foreign_key "people", "users", column: "created_by_id", name: "people_created_by_id_fkey"
@@ -2599,6 +2618,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   add_foreign_key "tagged_section_keywords", "projects", name: "tagged_section_keywords_project_id_fkey"
   add_foreign_key "tagged_section_keywords", "users", column: "created_by_id", name: "tagged_section_keywords_created_by_id_fkey"
   add_foreign_key "tagged_section_keywords", "users", column: "updated_by_id", name: "tagged_section_keywords_updated_by_id_fkey"
+  add_foreign_key "tags", "controlled_vocabulary_terms", column: "keyword_id", name: "tags_keyword_id_fkey"
   add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
   add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
   add_foreign_key "tags", "users", column: "updated_by_id", name: "tags_updated_by_id_fkey"
@@ -2607,6 +2627,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   add_foreign_key "taxon_determinations", "users", column: "created_by_id", name: "taxon_determinations_created_by_id_fkey"
   add_foreign_key "taxon_determinations", "users", column: "updated_by_id", name: "taxon_determinations_updated_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "projects", name: "taxon_name_classifications_project_id_fkey"
+  add_foreign_key "taxon_name_classifications", "taxon_names", name: "taxon_name_classifications_taxon_name_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "created_by_id", name: "taxon_name_classifications_created_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "updated_by_id", name: "taxon_name_classifications_updated_by_id_fkey"
   add_foreign_key "taxon_name_relationships", "projects", name: "taxon_name_relationships_project_id_fkey"

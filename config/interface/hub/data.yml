@@ -331,6 +331,8 @@ Supporting:
   Namespace:
     status: :prototype
     shared: true
+  News: 
+    status: :prototype
   RangedLotCategory:
     status: :prototype
     categories:
