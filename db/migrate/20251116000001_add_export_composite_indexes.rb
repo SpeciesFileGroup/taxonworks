@@ -25,17 +25,11 @@ class AddExportCompositeIndexes < ActiveRecord::Migration[7.1]
               name: :index_data_attributes_on_predicate_and_project,
               algorithm: :concurrently,
               if_not_exists: true
-
-    # Media: guard in case it's missing in older installs
-    add_index :images, :project_id,
-              algorithm: :concurrently,
-              if_not_exists: true
   end
 
   def down
     remove_index :depictions, name: :index_depictions_on_object_id_and_type if index_exists?(:depictions, name: :index_depictions_on_object_id_and_type)
     remove_index :data_attributes, name: :index_data_attributes_on_subject_and_type if index_exists?(:data_attributes, name: :index_data_attributes_on_subject_and_type)
     remove_index :data_attributes, name: :index_data_attributes_on_predicate_and_project if index_exists?(:data_attributes, name: :index_data_attributes_on_predicate_and_project)
-    remove_index :images, :project_id if index_exists?(:images, :project_id)
   end
 end

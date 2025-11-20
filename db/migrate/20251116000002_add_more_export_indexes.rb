@@ -26,11 +26,6 @@ class AddMoreExportIndexes < ActiveRecord::Migration[7.1]
 
     add_index :dwc_occurrences, [:project_id, :id],
       name: :index_dwco_on_project_id, algorithm: :concurrently, if_not_exists: true
-
-    # Optional covering index to speed “pick one” DA lookups (used by Diff 10)
-    add_index :data_attributes,
-      [:attribute_subject_type, :attribute_subject_id, :type, :controlled_vocabulary_term_id, :id],
-      name: :index_da_subject_type_cvt_id, algorithm: :concurrently, if_not_exists: true
   end
 
   def down
@@ -42,6 +37,5 @@ class AddMoreExportIndexes < ActiveRecord::Migration[7.1]
     remove_index :biological_associations, name: :index_ba_on_subject if index_exists?(:biological_associations, name: :index_ba_on_subject)
     remove_index :biological_associations, name: :index_ba_on_object if index_exists?(:biological_associations, name: :index_ba_on_object)
     remove_index :dwc_occurrences, name: :index_dwco_on_project_id if index_exists?(:dwc_occurrences, name: :index_dwco_on_project_id)
-    remove_index :data_attributes, name: :index_da_subject_type_cvt_id if index_exists?(:data_attributes, name: :index_da_subject_type_cvt_id)
   end
 end
