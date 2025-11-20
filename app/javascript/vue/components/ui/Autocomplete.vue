@@ -25,7 +25,6 @@ headers to be used in the call. Using it will override the common headers
       autocomplete="off"
       :class="[
         'vue-autocomplete-input normal-input',
-        spinner && 'ui-autocomplete-loading',
         !spinner && 'vue-autocomplete-input-search',
         inputClass
       ]"
@@ -34,44 +33,62 @@ headers to be used in the call. Using it will override the common headers
       @keydown.up="upKey"
       @keydown.enter="enterKey"
       @keyup="sendKeyEvent"
+      @focus="() => (showList = true)"
+      @blur="onBlur"
     />
-    <ul
-      class="vue-autocomplete-list"
-      v-show="showList"
-      v-if="type && json.length"
-    >
-      <li
-        v-for="(item, index) in limitList(json)"
-        class="vue-autocomplete-item"
-        :class="activeClass(index)"
-        @mouseover="itemActive(index)"
-        @click.prevent="itemClicked(index)"
+    <AutocompleteSpinner v-if="spinner" />
+    <teleport to="body">
+      <ul
+        v-if="type && searchEnd"
+        class="vue-autocomplete-list"
+        v-show="showList"
+        ref="dropdown"
+        :style="dropdownStyle"
+        @mousedown="onDropdownMousedown"
       >
-        <span
-          v-if="typeof label !== 'function'"
-          v-html="getNested(item, label)"
-        />
-        <span
+        <template v-if="json.length">
+          <li
+            v-for="(item, index) in limitList(json)"
+            class="vue-autocomplete-item"
+            :class="activeClass(index)"
+            ref="items"
+            :title="escapeHtml(getNested(item, label))"
+            @mouseover="itemActive(index)"
+            @click.prevent="itemClicked(index)"
+          >
+            <span
+              v-if="typeof label !== 'function'"
+              v-html="getNested(item, label)"
+            />
+            <span
+              v-else
+              v-html="label(item)"
+            />
+          </li>
+          <li v-if="json.length == 20">Results may be truncated</li>
+        </template>
+        <li
           v-else
-          v-html="label(item)"
-        />
-      </li>
-      <li v-if="json.length == 20">Results may be truncated</li>
-    </ul>
-    <ul
-      v-if="type && searchEnd && !json.length"
-      class="vue-autocomplete-empty-list"
-    >
-      <li>--None--</li>
-    </ul>
+          class="vue-autocomplete-empty-list"
+        >
+          --None--
+        </li>
+      </ul>
+    </teleport>
   </div>
 </template>
 
 <script>
+import { escapeHtml } from '@/helpers'
 import AjaxCall from '@/helpers/ajaxCall'
+import AutocompleteSpinner from './Autocomplete/AutocompleteSpinner.vue'
 import Qs from 'qs'
 
 export default {
+  components: {
+    AutocompleteSpinner
+  },
+
   props: {
     modelValue: {
       type: [String, Number]
@@ -201,7 +218,10 @@ export default {
       type: this.sendLabel,
       json: [],
       current: -1,
-      controller: null
+      controller: null,
+      dropdownStyle: {},
+      isFocus: false,
+      items: []
     }
   },
 
@@ -211,6 +231,12 @@ export default {
         this.$refs.autofocus.focus()
       })
     }
+
+    window.addEventListener('resize', this.updateDropdownPosition)
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('resize', this.updateDropdownPosition)
   },
 
   watch: {
@@ -232,17 +258,45 @@ export default {
   },
 
   methods: {
+    escapeHtml,
+
     downKey() {
-      if (this.showList && this.current < this.json.length) this.current++
+      if (this.showList && this.current < this.json.length) {
+        this.current++
+      }
+
+      this.scrollToActiveItem()
     },
 
     upKey() {
-      if (this.showList && this.current > 0) this.current--
+      if (this.showList && this.current > 0) {
+        this.current--
+      }
+
+      this.scrollToActiveItem()
     },
 
     enterKey() {
       if (this.showList && this.current > -1 && this.current < this.json.length)
         this.itemClicked(this.current)
+    },
+
+    scrollToActiveItem() {
+      this.$nextTick(() => {
+        const dropdown = this.$refs.dropdown
+        const items = this.$refs.items
+        const activeEl = items?.[this.current]
+        if (dropdown && activeEl) {
+          const dropdownRect = dropdown.getBoundingClientRect()
+          const itemRect = activeEl.getBoundingClientRect()
+
+          if (itemRect.bottom > dropdownRect.bottom) {
+            dropdown.scrollTop += itemRect.bottom - dropdownRect.bottom
+          } else if (itemRect.top < dropdownRect.top) {
+            dropdown.scrollTop -= dropdownRect.top - itemRect.top
+          }
+        }
+      })
     },
 
     sendItem(item) {
@@ -293,6 +347,19 @@ export default {
       }
     },
 
+    onBlur() {
+      if (this.preventBlur) {
+        this.preventBlur = false
+        return
+      }
+      this.showList = false
+      this.current = -1
+    },
+
+    onDropdownMousedown() {
+      this.preventBlur = true
+    },
+
     itemClicked(index) {
       if (this.display.length) {
         this.type = this.clearAfter ? '' : this.json[index][this.display]
@@ -305,6 +372,10 @@ export default {
       if (this.autofocus) {
         this.$refs.autofocus.focus()
       }
+
+      this.$nextTick(() => {
+        if (this.autofocus) this.$refs.autofocus.focus()
+      })
       this.sendItem(this.json[index])
       this.showList = false
     },
@@ -339,7 +410,9 @@ export default {
     },
 
     update() {
-      if (this.type.length < Number(this.min)) return
+      if ((this.type.length < Number(this.min)) || (this.type.trim() === '')) {
+        return
+      }
 
       this.clearResults()
 
@@ -348,7 +421,8 @@ export default {
           item[this.label].toLowerCase().includes(this.type.toLowerCase())
         )
         this.searchEnd = true
-        this.showList = this.json.length > 0
+        this.showList = true
+        this.$nextTick(this.updateDropdownPosition)
       } else {
         this.spinner = true
         this.controller?.abort()
@@ -365,15 +439,65 @@ export default {
                 (item) => !this.excludedIds.includes(item.id)
               )
             }
-            this.showList = this.json.length > 0
+            this.showList = true
             this.searchEnd = true
             this.$emit('found', this.showList)
+            this.$nextTick(this.updateDropdownPosition)
           })
           .catch(() => {})
           .finally(() => {
             this.spinner = false
           })
       }
+    },
+
+    updateDropdownPosition() {
+      this.$nextTick(() => {
+        const input = this.$refs.autofocus
+        const dropdown = this.$refs.dropdown
+        const items = this.$refs.items
+
+        if (!input || !dropdown) return
+
+        const rect = input.getBoundingClientRect()
+        const viewportHeight = window.innerHeight
+        const viewportWidth = window.innerWidth
+
+        const spaceBelow = viewportHeight - rect.bottom
+        const spaceAbove = rect.top
+
+        const showAbove = spaceBelow < 150 && spaceAbove > spaceBelow
+        const maxWidth = viewportWidth - rect.left - 32
+        const maxHeight = Math.min(
+          showAbove ? spaceAbove - 12 : spaceBelow - 12,
+          500
+        )
+
+        dropdown.style.removeProperty('width')
+        dropdown.style.maxHeight = maxHeight + 'px'
+        dropdown.style.minWidth = rect.width + 'px'
+        dropdown.style.maxWidth = maxWidth + 'px'
+
+        const contentWidth = items
+          ? items.reduce((acc, li) => Math.max(acc, li.scrollWidth), 0)
+          : 0
+        const finalWidth = Math.min(contentWidth, maxWidth)
+        const dropdownHeight = dropdown.offsetHeight || maxHeight
+
+        const top = showAbove
+          ? rect.top + window.scrollY - dropdownHeight - 6
+          : rect.bottom + window.scrollY + 2
+
+        const left = rect.left + window.scrollX
+
+        this.dropdownStyle = {
+          top: `${Math.max(top, 0)}px`,
+          left: `${Math.max(left, 0)}px`,
+          width: finalWidth + 'px',
+          minWidth: rect.width + 'px',
+          maxWidth: maxWidth + 'px'
+        }
+      })
     },
 
     activeClass(index) {
@@ -388,3 +512,65 @@ export default {
   }
 }
 </script>
+
+<style>
+.vue-autocomplete-input {
+  z-index: 2000;
+  font-size: 12px;
+  padding: 0px;
+  position: static;
+  padding-left: 0.9em;
+  border-radius: 2px;
+  border: 1px solid var(--border-color);
+  min-height: 28px;
+  background-color: var(--input-bg-color);
+  box-sizing: border-box;
+  padding-right: 24px;
+  background-size: 18px;
+  background-position: right 4px center;
+  background-repeat: no-repeat;
+  width: 100%;
+}
+
+.vue-autocomplete {
+  position: relative;
+}
+
+.vue-autocomplete-list {
+  display: block;
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 999998;
+  background-color: var(--panel-bg-color);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-bottom: 4px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  position: absolute;
+
+  width: auto;
+  min-width: 100%;
+  max-width: calc(100vw - 32px);
+  overflow-x: hidden;
+  white-space: nowrap;
+
+  li {
+    cursor: pointer;
+    padding: calc(var(--standard-padding, 8px) * 0.5);
+    border-top: 1px solid var(--border-color);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding: 6px 12px;
+  }
+
+  .active {
+    background-color: var(--border-color);
+  }
+}
+</style>

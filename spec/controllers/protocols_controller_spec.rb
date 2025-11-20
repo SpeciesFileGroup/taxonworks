@@ -108,9 +108,7 @@ RSpec.describe ProtocolsController, type: :controller do
       let(:valid_protocol_name) {'ValidProtocolName'}
 
       let(:new_attributes) {
-        attributes = valid_attributes
-        attributes[:name] = valid_protocol_name
-        attributes
+        valid_attributes.merge({ name: valid_protocol_name })
       }
 
       it 'updates the requested protocol' do
@@ -118,8 +116,7 @@ RSpec.describe ProtocolsController, type: :controller do
         put :update, params: {id: protocol.to_param, protocol: new_attributes}, session: valid_session
         protocol.reload
 
-        expect(protocol.name == valid_protocol_name).to be true
-        #skip("Add assertions for updated state")
+        expect(protocol.name).to eq(valid_protocol_name)
       end
 
       it 'assigns the requested protocol as @protocol' do

@@ -1,30 +1,37 @@
 import { Container, CollectionObject } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
+import { CONTAINER_VIAL, CONTAINER_VIRTUAL, CONTAINER_PIN } from '@/constants'
 
-export default ({ commit }, globalId) => {
-  const request = Container.for({
-    global_id: globalId,
-    extend: ['container_items']
-  })
+const ALLOWED_CONTAINERS = [CONTAINER_VIAL, CONTAINER_VIRTUAL, CONTAINER_PIN]
 
-  request
-    .then(({ body }) => {
-      const coIds = body.container_items.map((item) => item.contained_object_id)
-
-      commit(MutationNames.SetContainer, body)
-
-      body.container_items.forEach((item) =>
-        commit(MutationNames.AddContainerItem, item)
-      )
-
-      CollectionObject.where({
-        collection_object_id: coIds,
-        extend: ['dwc_occurrence']
-      }).then(({ body }) => {
-        commit(MutationNames.SetCollectionObjects, body)
-      })
+export default async ({ commit }, globalId) => {
+  try {
+    const { body } = await Container.for({
+      global_id: globalId,
+      extend: ['container_items']
     })
-    .catch(() => {})
 
-  return request
+    if (!ALLOWED_CONTAINERS.includes(body.type)) {
+      throw new Error('Not allowed container type')
+    }
+
+    const coIds = body.container_items.map((item) => item.contained_object_id)
+
+    commit(MutationNames.SetContainer, body)
+
+    body.container_items.forEach((item) =>
+      commit(MutationNames.AddContainerItem, item)
+    )
+
+    const { body: coBody } = await CollectionObject.where({
+      collection_object_id: coIds,
+      extend: ['dwc_occurrence']
+    })
+
+    commit(MutationNames.SetCollectionObjects, coBody)
+
+    return body
+  } catch (error) {
+    throw error
+  }
 }

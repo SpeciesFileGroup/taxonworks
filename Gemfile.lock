@@ -269,6 +269,8 @@ GEM
     ffi (1.17.2-arm-linux-gnu)
     ffi (1.17.2-arm-linux-musl)
     ffi (1.17.2-arm64-darwin)
+    ffi (1.17.2-x86-linux-gnu)
+    ffi (1.17.2-x86-linux-musl)
     ffi (1.17.2-x86_64-darwin)
     ffi (1.17.2-x86_64-linux-gnu)
     ffi (1.17.2-x86_64-linux-musl)
@@ -378,6 +380,7 @@ GEM
       mime-types-data (~> 3.2025, >= 3.2025.0507)
     mime-types-data (3.2025.0924)
     mini_mime (1.1.5)
+    mini_portile2 (2.8.9)
     minitest (5.26.0)
     modularity (3.0.1)
     msgpack (1.8.0)
@@ -400,6 +403,9 @@ GEM
     netrc (0.11.0)
     nexus_parser (1.2.3)
     nio4r (2.7.5)
+    nokogiri (1.18.10)
+      mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
     nokogiri (1.18.10-aarch64-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.18.10-aarch64-linux-musl)
@@ -426,7 +432,7 @@ GEM
       uri
     os (1.1.4)
     ostruct (0.6.3)
-    package_json (0.1.0)
+    package_json (0.2.0)
     paper_trail (16.0.0)
       activerecord (>= 6.1)
       request_store (~> 1.4)
@@ -480,7 +486,7 @@ GEM
     puma (6.6.1)
       nio4r (~> 2.0)
     racc (1.8.1)
-    rack (3.1.18)
+    rack (3.1.19)
     rack-cors (2.0.2)
       rack (>= 2.0.0)
     rack-proxy (0.7.7)
@@ -693,7 +699,7 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       thor (~> 1.2, >= 1.2.1)
     set (1.1.2)
-    shakapacker (9.2.0)
+    shakapacker (9.3.2)
       activesupport (>= 5.2)
       package_json
       rack-proxy (>= 0.6.1)
@@ -767,7 +773,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
-    uri (1.1.0)
+    uri (1.1.1)
     useragent (0.16.11)
     validates_timeliness (8.0.0)
       activemodel (>= 8.0.0, < 9)
@@ -811,11 +817,14 @@ PLATFORMS
   aarch64-linux
   aarch64-linux-gnu
   aarch64-linux-musl
+  arm-linux
   arm-linux-gnu
   arm-linux-musl
   arm64-darwin
+  x86-linux
+  x86-linux-gnu
+  x86-linux-musl
   x86_64-darwin
-  x86_64-linux
   x86_64-linux-gnu
   x86_64-linux-musl
 
@@ -834,7 +843,6 @@ DEPENDENCIES
   biodiversity (~> 6.0)
   bootsnap
   brakeman (~> 6.1, >= 5.4)
-  bundler (~> 2.5)
   byebug (~> 11.1)
   capybara (~> 3.18)
   chartkick (~> 5.0)
@@ -931,7 +939,7 @@ DEPENDENCIES
   seedbank (~> 0.5.0)
   selenium-webdriver (~> 4.6, >= 4.6.1)
   serrano (~> 1.4)
-  shakapacker (= 9.2.0)
+  shakapacker (= 9.3.2)
   shortener (~> 1.0)
   simplecov
   spring-commands-rspec (~> 1.0.4)
@@ -957,7 +965,7 @@ DEPENDENCIES
   zip_tricks (~> 5.6)
 
 RUBY VERSION
-   ruby 3.4.4p34
+   ruby 3.3.4p94
 
 BUNDLED WITH
    2.7.2

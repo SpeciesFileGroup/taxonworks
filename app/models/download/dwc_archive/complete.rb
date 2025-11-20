@@ -132,7 +132,9 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     max_age = project.complete_dwc_download_max_age
     return if max_age.nil?
 
-    self.expires = Time.zone.now + max_age.days + 1.day
+    # Guarantees that a GBIF call (every 7 days) will occur after max_age and
+    # before the existing download expires.
+    self.expires = Time.zone.now + max_age.days + 7.day + 1.day
   end
 
   def self.project_api_access_token_destroyed

@@ -20,3 +20,9 @@ end
 if extend_response_with('source')
   json.partial! '/sources/api/v1/brief', source: citation.source
 end
+
+if extend_response_with('notes')
+  json.notes citation.notes.each do |n|
+    json.text n.text
+  end
+end

@@ -1084,3 +1084,10 @@ project_dwc_export_preferences_task:
   categories:
   status: prototype
   description: Set preferences for Darwin Core Archive complete project downloads
+taxon_name_reclassifier_task:
+  hub: true
+  name: 'Taxon name reclassifier'
+  related:
+  categories:
+  status: prototype
+  description: 'Drag-drop to change the parents of TaxonNames.'

@@ -1,9 +1,9 @@
-json.partial!('/biological_associations/base_attributes', biological_association:)
+json.partial!('/biological_associations/api/v1/base_attributes', biological_association:)
 json.partial! '/shared/data/all/metadata', object: biological_association
 
 if extend_response_with('biological_relationship')
   json.biological_relationship do
-    json.partial! '/biological_relationships/attributes', biological_relationship: biological_association.biological_relationship
+    json.partial! '/biological_relationships/api/v1/attributes', biological_relationship: biological_association.biological_relationship
   end
 end
 
@@ -42,4 +42,9 @@ if extend_response_with('object')
   end
 end
 
+if extend_response_with('notes')
+  json.notes biological_association.notes.each do |n|
+    json.text n.text
+  end
+end
 

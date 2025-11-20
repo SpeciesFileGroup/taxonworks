@@ -9,6 +9,62 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Collecting event form: Field notes
+- Taxon name reclassifier: Unify and refresh buttons [#4609]
+- Radial navigator: Taxon name reclassifier [#4609]
+- New source: display error messages when a document upload fails
+- Added superorder rank for botanical nomenclature [#4619]
+
+### Changed
+
+- Autocomplete list dynamically adjust to fit content on screen
+- New source: add BibTeX source to project automatically
+- Removed the Origin Relationship search boxes
+- Taxon name reclassifier: disable the drop zone when rank of dragged taxon is higher than the target.
+
+### Fixed
+
+- Radial annotator: Citations forms throws an error when you try to replace an original citation
+- Image matrix endpoint is not sending the correct image path
+- Biological Relationship search
+- Exception on Filter Source with verbatim sources
+- Exception on empty searches
+- Exception in New Source when serial no longer exists
+- Respect no_dwc_occurrence setting for AssertedDistribution creation
+- Don't display 'null' in Change Namespace dialog for mass Identifier annotator in Filter Collection Object/Filter Collecting Event [#4618]
+- 'Collection objects with determinations' appears twice in Collection summary task/Taxonomic scope [#4620]
+
+[#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
+[#4618]: https://github.com/SpeciesFileGroup/taxonworks/issues/4618
+[#4620]: https://github.com/SpeciesFileGroup/taxonworks/issues/4620
+
+## [0.55.0] - 2025-11-05
+
+### Added
+
+- Reclassifier task: drag-drop to change the parents of TaxonNames
+- extend[]=notes to all api endpoints for which it makes sense
+
+### Fixed
+
+- Background/asynchronous jobs for radial batch annotator and radial object from all filters were not creating/updating (non-asynchronous jobs were unaffected) [#4592]
+- Show OTUs whose Taxon Name has primary type `syntypes` (plural) as type 'primary type' on distribution maps (`syntype` already was)
+- Radial annotator: Sometimes, the modal to update the original citation doesn't display
+- Increase the expiration data of complete downloads so that a GBIF call after max-age is guaranteed to occur before the existing download expires, causing regeneration of a fresh complete download for the next GBIF call
+- Clicking on cached Taxon Name values in the Project Vocabulary task displays all Taxon Names instead of just those matching the cached value [#4610]
+
+### Changed
+
+- Updated Ruby gems
+- Updated NPM packages
+
+[#4592]: https://github.com/SpeciesFileGroup/taxonworks/issues/4592
+[#4610]: https://github.com/SpeciesFileGroup/taxonworks/issues/4610
+
+## [0.54.3] - 2025-11-02
+
+### Added
+
 - Project Vocabulary link to Filter Taxon Names
 - CodeMirror functionality to EML editing
 - Option to load EML from an existing file
@@ -25,6 +81,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Search on both year and stated_year in Source autocomplete [#4536]
 - Project EML for complete project downloads fails to save if EML is too long [#4602]
 - Closed a loophole allowing EML to be saved with STUBs
+
+### Changed
+
+- Updated Ruby gems
 
 [#4536]: https://github.com/SpeciesFileGroup/taxonworks/issues/4536
 [#4599]: https://github.com/SpeciesFileGroup/taxonworks/issues/4599
@@ -5800,7 +5860,9 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...development
+[0.55.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.3...v0.55.0
+[0.54.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.2...v0.54.3
 [0.54.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.1...v0.54.2
 [0.54.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.0...v0.54.1
 [0.54.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.53.2...v0.54.0

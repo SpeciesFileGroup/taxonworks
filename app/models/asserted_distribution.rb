@@ -69,7 +69,7 @@ class AssertedDistribution < ApplicationRecord
   before_validation :unify_is_absent
   before_save do
     # TODO: handle non-otu types.
-    self.no_dwc_occurrence = asserted_distribution_object_type != 'Otu'
+    self.no_dwc_occurrence = true if asserted_distribution_object_type != 'Otu'
   end
 
   validate :records_include_citation
@@ -192,6 +192,8 @@ class AssertedDistribution < ApplicationRecord
       object_filter_params: params[:asserted_distribution_query],
       object_params: params[:asserted_distribution],
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     a = request.filter
