@@ -1405,7 +1405,10 @@ module Export::Dwca
           #{attribution_creator_ids_lateral_sql}
           #{attribution_copyright_holders_lateral_sql}
 
-          WHERE img.id IN (#{image_ids.join(',')})
+          -- Filter to only images in the collected set (using temp table to avoid huge IN clause)
+          INNER JOIN temp_media_image_links img_filter ON img_filter.image_id = img.id
+
+          WHERE dwc.\"occurrenceID\" IS NOT NULL  -- Only include media with valid occurrence links
           ORDER BY img.id
         ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', NULL '')
       SQL
@@ -1496,7 +1499,10 @@ module Export::Dwca
           #{attribution_creator_ids_lateral_sql}
           #{attribution_copyright_holders_lateral_sql}
 
-          WHERE snd.id IN (#{sound_ids.join(',')})
+          -- Filter to only sounds in the collected set (using temp table to avoid huge IN clause)
+          INNER JOIN temp_media_sound_links snd_filter ON snd_filter.sound_id = snd.id
+
+          WHERE dwc.\"occurrenceID\" IS NOT NULL  -- Only include media with valid occurrence links
           ORDER BY snd.id
         ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', NULL '')
       SQL
