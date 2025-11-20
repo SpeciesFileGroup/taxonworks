@@ -22,28 +22,28 @@
     <NavBar class="source-navbar">
       <div class="flex-separate full_width">
         <div class="middle gap-small">
-          <template v-if="source.id">
+          <template v-if="store.source.id">
             <span
               class="word_break"
-              v-html="source.cached"
+              v-html="store.source.cached"
             />
 
             <div
               class="horizontal-right-content gap-small"
-              v-if="source.id"
+              v-if="store.source.id"
             >
-              <CitationTotal :source-id="source.id" />
+              <CitationTotal :source-id="store.source.id" />
               <VPin
                 class="circle-button"
                 type="Source"
-                :object-id="source.id"
+                :object-id="store.source.id"
               />
               <AddSource
-                :project-source-id="source.project_source_id"
-                :id="source.id"
+                :project-source-id="store.source.project_source_id"
+                :id="store.source.id"
               />
-              <RadialAnnotator :global-id="source.global_id" />
-              <RadialObject :global-id="source.global_id" />
+              <RadialAnnotator :global-id="store.source.global_id" />
+              <RadialObject :global-id="store.source.global_id" />
             </div>
           </template>
           <span v-else>New record</span>
@@ -58,7 +58,7 @@
           <button
             class="button normal-input button-submit button-size"
             type="button"
-            :disabled="source.type === SOURCE_BIBTEX && !source.bibtex_type"
+            :disabled="isSaveDisabled"
             @click="saveSource"
           >
             Save
@@ -66,7 +66,7 @@
           <CloneSource />
           |
           <button
-            v-if="source.type === SOURCE_VERBATIM && source.id"
+            v-if="store.source.type === SOURCE_VERBATIM && store.source.id"
             class="button normal-input button-submit button-size"
             type="button"
             @click="convert"
@@ -77,16 +77,14 @@
             type="button"
             v-help.section.navBar.crossRef
             class="button normal-input button-default button-size"
-            :disabled="source.id && isUnsaved"
-            @click="() => (isModalVisible = true)"
+            @click="showCrossRefForm"
           >
             CrossRef
           </button>
           <button
             type="button"
             class="button normal-input button-default button-size"
-            :disabled="source.id && isUnsaved"
-            @click="() => (showBibtex = true)"
+            @click="showBibTexForm"
           >
             BibTeX
           </button>
@@ -111,22 +109,22 @@
         <template #body>
           <div class="full_width">
             <SourceType
-              v-if="source.type !== SOURCE_BIBTEX"
+              v-if="store.source.type !== SOURCE_BIBTEX"
               class="margin-medium-bottom"
             />
-            <component :is="componentSection[source.type]" />
+            <component :is="componentSection[store.source.type]" />
           </div>
         </template>
       </BlockLayout>
       <RightSection class="margin-medium-left" />
     </div>
     <CrossRef
-      v-if="isModalVisible"
-      @close="() => (isModalVisible = false)"
+      v-if="isCrossRefModalVisible"
+      @close="() => (isCrossRefModalVisible = false)"
     />
     <BibtexButton
-      v-if="showBibtex"
-      @close="() => (showBibtex = false)"
+      v-if="isBibtexModalVisible"
+      @close="() => (isBibtexModalVisible = false)"
     />
     <VSpinner
       v-if="settings.isConverting"
@@ -138,13 +136,10 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted } from 'vue'
-import { useStore } from 'vuex'
-import { User } from '@/routes/endpoints'
-import { GetterNames } from './store/getters/getters'
+import { computed, ref, onMounted } from 'vue'
 import { ActionNames } from './store/actions/actions'
-import { MutationNames } from './store/mutations/mutations'
 import { SOURCE_BIBTEX, SOURCE_HUMAN, SOURCE_VERBATIM } from '@/constants'
+import { useSettingStore, useSourceStore } from './store'
 
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
@@ -180,7 +175,8 @@ defineOptions({
   name: 'NewSource'
 })
 
-const store = useStore()
+const store = useSourceStore()
+const settings = useSettingStore()
 
 const shortcuts = ref([
   {
@@ -199,32 +195,13 @@ const shortcuts = ref([
 
 useHotkey(shortcuts.value)
 
-const source = computed(() => store.getters[GetterNames.GetSource])
-const settings = computed({
-  get() {
-    return store.getters[GetterNames.GetSettings]
-  },
-  set(value) {
-    store.commit(MutationNames.SetSettings, value)
-  }
-})
-
-const isUnsaved = computed(
-  () => settings.value.lastSave < settings.value.lastEdit
+const isUnsaved = computed(() => store.source.isUnsaved)
+const isSaveDisabled = computed(
+  () => store.source.type === SOURCE_BIBTEX && !store.source.bibtex_type
 )
 
-const isModalVisible = ref(false)
-const showBibtex = ref(false)
-
-watch(
-  source,
-  (newVal, oldVal) => {
-    if (newVal.id === oldVal.id) {
-      settings.value.lastEdit = Date.now()
-    }
-  },
-  { deep: true }
-)
+const isCrossRefModalVisible = ref(false)
+const isBibtexModalVisible = ref(false)
 
 onMounted(() => {
   TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
@@ -239,33 +216,50 @@ onMounted(() => {
   const sourceId = urlParams.get('source_id')
 
   if (/^\d+$/.test(sourceId)) {
-    store.dispatch(ActionNames.LoadSource, sourceId)
+    store.loadSource(sourceId)
   }
-
-  User.preferences().then(({ body }) => {
-    store.commit(MutationNames.SetPreferences, body)
-  })
 })
 
-function reset() {
-  if (
+function isSafeToDiscardChanges() {
+  return (
     !isUnsaved.value ||
-    window.confirm(
-      'You have unsaved changes. If you continue, your changes will be lost. Do you want to proceed?'
-    )
-  ) {
-    store.dispatch(ActionNames.ResetSource)
+    (isUnsaved.value &&
+      window.confirm(
+        'You have unsaved changes. If you continue, your changes will be lost. Do you want to proceed?'
+      ))
+  )
+}
+
+function reset() {
+  if (isSafeToDiscardChanges()) {
+    store.$reset()
   }
 }
+
 function saveSource() {
-  if (source.value.type === SOURCE_BIBTEX && !source.value.bibtex_type) return
-  store.dispatch(ActionNames.SaveSource)
+  if (isSaveDisabled) return
+  store.save()
 }
 
 function convert() {
   store.dispatch(ActionNames.ConvertToBibtex)
 }
+
+function showBibTexForm() {
+  if (isSafeToDiscardChanges()) {
+    store.dispatch(ActionNames.ResetSource)
+    isBibtexModalVisible.value = true
+  }
+}
+
+function showCrossRefForm() {
+  if (isSafeToDiscardChanges()) {
+    store.dispatch(ActionNames.ResetSource)
+    isCrossRefModalVisible.value = true
+  }
+}
 </script>
+
 <style scoped>
 .button-size {
   width: 100px;

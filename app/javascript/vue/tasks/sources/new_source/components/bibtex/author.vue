@@ -18,19 +18,21 @@
         <template #header>
           <RolePicker
             ref="rolePicker"
-            v-model="roleAttributes"
+            v-model="source.roles_attributes"
             :autofocus="false"
             :hidden-list="true"
             :filter-by-role="true"
             :role-type="ROLE_SOURCE_AUTHOR"
+            @update:model-value="() => (source.isUnsaved = true)"
           />
         </template>
         <RolePicker
-          v-model="roleAttributes"
+          v-model="source.roles_attributes"
           :create-form="false"
           :autofocus="false"
           :filter-by-role="true"
           :role-type="ROLE_SOURCE_AUTHOR"
+          @update:model-value="() => (source.isUnsaved = true)"
         />
       </SmartSelector>
     </fieldset>
@@ -39,28 +41,19 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
 import { ROLE_SOURCE_AUTHOR, SOURCE } from '@/constants'
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import RolePicker from '@/components/role_picker.vue'
 
-const store = useStore()
+const source = defineModel({
+  type: Object,
+  required: true
+})
 
 const rolePicker = ref(null)
 
-const roleAttributes = computed({
-  get() {
-    return store.getters[GetterNames.GetRoleAttributes]
-  },
-  set(value) {
-    store.commit(MutationNames.SetRoles, value)
-  }
-})
-
 const peopleIds = computed(() =>
-  roleAttributes.value
+  source.value.roles_attributes
     .filter(
       (item) =>
         (item.person_id || item.person) &&
@@ -72,5 +65,6 @@ const peopleIds = computed(() =>
 
 function addRole(person) {
   rolePicker.value.addPerson(person)
+  source.value.isUnsaved = true
 }
 </script>

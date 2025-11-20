@@ -10,8 +10,6 @@ function makeInitialState() {
       saving: false,
       isConverting: false,
       loading: false,
-      lastSave: 0,
-      lastEdit: 0,
       lock: {
         type: false,
         language_id: false,

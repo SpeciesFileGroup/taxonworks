@@ -4,8 +4,6 @@ import newSource from '../../const/source'
 export default ({ state, commit }) => {
   const source = newSource()
   const locked = state.settings.lock
-  state.settings.lastEdit = 0
-  state.settings.lastSave = 0
 
   Object.keys(locked).forEach((key) => {
     source[key] = locked[key] ? state.source[key] : undefined
@@ -18,8 +16,6 @@ export default ({ state, commit }) => {
   commit(MutationNames.SetSoftValidation, undefined)
   commit(MutationNames.SetSource, source)
   commit(MutationNames.SetDocumentation, [])
-
-  commit(MutationNames.SetLastSave, Date.now() + 100)
 
   history.pushState(null, null, `/tasks/sources/new_source`)
 }

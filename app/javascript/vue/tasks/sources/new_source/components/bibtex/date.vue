@@ -1,85 +1,104 @@
 <template>
-  <div class="horizontal-left-content">
-    <div class="field separate-right">
-      <label>Day</label><br>
+  <div class="flex-row gap-small">
+    <div class="w-min">
+      <label class="label-above">Day</label>
       <input
         type="number"
-        v-model="source.day">
+        v-model="source.day"
+        @change="() => (source.isUnsaved = true)"
+      />
     </div>
-    <div class="field separate-right">
-      <label v-help.section.BibTeX.month>Month</label><br>
+
+    <div class="w-min">
+      <label
+        class="label-above"
+        v-help.section.BibTeX.month
+        >Month
+      </label>
       <select
         class="normal-input"
-        v-model="source.month">
-        <option 
-          :value="null"/>
+        v-model="source.month"
+        @change="() => (source.isUnsaved = true)"
+      >
+        <option :value="null" />
         <option
-          v-for="(month, index) in months"
-          :value="month.substring(0,3).toLowerCase()"
-          :key="month">
+          v-for="month in months"
+          :value="month.substring(0, 3).toLowerCase()"
+          :key="month"
+        >
           {{ month }}
         </option>
       </select>
     </div>
-    <div class="field separate-right">
-      <label v-help.section.BibTeX.year>Year</label><br>
+
+    <div class="w-min">
+      <label
+        class="label-above"
+        v-help.section.BibTeX.year
+        >Year
+      </label>
       <input
         type="number"
-        v-model="source.year">
+        v-model="source.year"
+        @change="() => (source.isUnsaved = true)"
+      />
     </div>
-    <div class="field separate-right">
-      <label v-help.section.BibTeX.yearSuffix>Year suffix</label><br>
+
+    <div>
+      <label
+        class="label-above"
+        v-help.section.BibTeX.yearSuffix
+        >Year suffix</label
+      >
       <input
         type="text"
-        v-model="source.year_suffix">
+        v-model="source.year_suffix"
+        @change="() => (source.isUnsaved = true)"
+      />
     </div>
-    <div class="field">
-      <label v-help.section.BibTeX.yearStated>Stated year</label><br>
+
+    <div class="w-min">
+      <label
+        class="label-above"
+        v-help.section.BibTeX.yearStated
+      >
+        Stated year
+      </label>
       <input
         type="number"
-        v-model="source.stated_year">
+        v-model="source.stated_year"
+        @change="() => (source.isUnsaved = true)"
+      />
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
+const source = defineModel({
+  type: Object,
+  required: true
+})
 
-export default {
-  computed: {
-    source: {
-      get () {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    },
-  },
-  data () {
-    return {
-      months: [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
-      ]
-    }
-  }
-}
+const months = ref([
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December'
+])
 </script>
+
 <style scoped>
-  input[type="number"] {
-    width: 70px;
-  }
+input[type='number'] {
+  width: 70px;
+}
 </style>

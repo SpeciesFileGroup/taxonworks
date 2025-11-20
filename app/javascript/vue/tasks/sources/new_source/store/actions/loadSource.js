@@ -16,7 +16,7 @@ export default ({ state, commit, dispatch }, id) => {
       const people = [].concat(authors, editors).filter((item) => item)
 
       source.roles_attributes = people
-      commit(MutationNames.SetSource, source)
+      commit(MutationNames.SetSource, { ...source, isUnsaved: false })
       dispatch(ActionNames.LoadSoftValidations, body.global_id)
 
       Documentation.where({
@@ -27,8 +27,6 @@ export default ({ state, commit, dispatch }, id) => {
       })
 
       setParam('/tasks/sources/new_source', 'source_id', body.id)
-      state.settings.lastSave = 0
-      state.settings.lastEdit = 0
     },
     (_) => {
       TW.workbench.alert.create('No source was found with that ID.', 'alert')

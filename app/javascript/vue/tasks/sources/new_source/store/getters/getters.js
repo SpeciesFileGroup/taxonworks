@@ -1,7 +1,6 @@
 import getBibtexType from './getBibtexType'
 import getDocumentations from './getDocumentations'
 import getLanguageId from './getLanguageId'
-import getLastSave from './getLastSave'
 import getPreferences from './getPreferences'
 import getRoleAttributes from './getRoleAttributes'
 import getRoles from './getRoles'
@@ -16,7 +15,6 @@ const GetterNames = {
   GetBibtexType: 'getBibtexType',
   GetDocumentations: 'getDocumentations',
   GetLanguageId: 'getLanguageId',
-  GetLastSave: 'getLastSave',
   GetPreferences: 'getPreferences',
   GetRoleAttributes: 'getRoleAttributes',
   GetRoles: 'getRoles',
@@ -32,7 +30,6 @@ const GetterFunctions = {
   [GetterNames.GetBibtexType]: getBibtexType,
   [GetterNames.GetDocumentations]: getDocumentations,
   [GetterNames.GetLanguageId]: getLanguageId,
-  [GetterNames.GetLastSave]: getLastSave,
   [GetterNames.GetPreferences]: getPreferences,
   [GetterNames.GetRoleAttributes]: getRoleAttributes,
   [GetterNames.GetRoles]: getRoles,

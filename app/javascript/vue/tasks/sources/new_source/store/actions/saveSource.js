@@ -30,10 +30,9 @@ export default ({ state, commit, dispatch }) => {
     const people = [].concat(authors, editors).filter((item) => item)
     source.roles_attributes = people
 
-    commit(MutationNames.SetSource, source)
+    commit(MutationNames.SetSource, { ...source, isUnsaved: false })
     setParam('/tasks/sources/new_source', 'source_id', source.id)
 
     state.settings.saving = false
-    commit(MutationNames.SetLastSave, Date.now() + 100)
   }
 }

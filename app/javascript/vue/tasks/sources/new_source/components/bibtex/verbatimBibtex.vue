@@ -1,42 +1,30 @@
 <template>
   <div>
     <h3>Verbatim from BibTeX</h3>
-    <div class="field">
-      <label>Author(s)</label><br>
+    <div
+      v-for="{ attr, label } in VERBATIM_BIBTEX_FIELDS"
+      :key="attr"
+      class="field"
+    >
+      <label>{{ label }}</label>
       <input
         type="text"
-        v-model="source.author"/>
-    </div>
-    <div class="field">
-      <label>Editor(s)</label><br>
-      <input
-        type="text"
-        v-model="source.editor"/>
-    </div>
-    <div class="field">
-      <label>Journal</label><br>
-      <input
-        type="text"
-        v-model="source.journal"/>
+        v-model="source[attr]"
+        @change="() => (source.isUnsaved = true)"
+      />
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+const source = defineModel({
+  type: Object,
+  required: true
+})
 
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-
-export default {
-  computed: {
-    source: {
-      get () {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    }
-  }
-}
+const VERBATIM_BIBTEX_FIELDS = [
+  { attr: 'author', label: 'Author(s)' },
+  { attr: 'editor', label: 'Editor(s)' },
+  { attr: 'journal', label: 'Journal' }
+]
 </script>
