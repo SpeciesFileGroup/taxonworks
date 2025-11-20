@@ -52,7 +52,7 @@ module Shared::Api
     s = host
     return s if sound.nil?
 
-    long = "#{s}/#{Rails.application.routes.url_helpers.rails_blob_path(Sound.last.sound_file, only_path: true)}"
+    long = "#{s}/#{Rails.application.routes.url_helpers.rails_blob_path(sound.sound_file, only_path: true)}"
 
     shorten_url(long)
   end

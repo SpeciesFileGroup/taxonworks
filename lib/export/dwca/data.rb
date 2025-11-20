@@ -1257,27 +1257,25 @@ module Export::Dwca
       sound_ids.each_slice(1000) do |batch_ids|
         links_data = []
 
-        # Pluck only needed fields - avoids loading full AR objects (2-3x faster)
-        ::Sound.where(id: batch_ids).pluck(:id, :project_id).each do |snd_id, project_id|
+        # NOTE: Must load full AR objects because sound_link needs sound_file attachment
+        # Eager load to avoid N+1 queries
+        ::Sound.where(id: batch_ids).includes(:sound_file_attachment).each do |snd|
           begin
-            token = project_tokens[project_id]
+            token = project_tokens[snd.project_id]
             if token.nil?
-              Rails.logger.warn "dwca_export: skipping sound #{snd_id} - no project token"
+              Rails.logger.warn "dwca_export: skipping sound #{snd.id} - no project token"
               next
             end
 
-            # Create lightweight struct to pass to API method
-            snd = Struct.new(:id, :project_id).new(snd_id, project_id)
-
-            access_uri = Shared::Api.sound_link(snd, token: token)
+            access_uri = Shared::Api.sound_link(snd)
 
             # NOTE: Removed associated_specimen_reference - now computed in SQL per row
             links_data << {
-              sound_id: snd_id,
+              sound_id: snd.id,
               access_uri: access_uri
             }
           rescue => e
-            Rails.logger.warn "dwca_export: skipping sound #{snd_id} - #{e.message}"
+            Rails.logger.warn "dwca_export: skipping sound #{snd.id} - #{e.message}"
           end
         end
 
