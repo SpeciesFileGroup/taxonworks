@@ -986,7 +986,7 @@ module Export::Dwca
     def attribution_creator_ids_lateral_sql
       <<-SQL
         LEFT JOIN LATERAL (
-          SELECT STRING_AGG(identifiers.cached, ' & ' ORDER BY roles.position) AS identifiers
+          SELECT STRING_AGG(identifiers.cached, ' | ' ORDER BY roles.position) AS identifiers
           FROM roles
           JOIN people ON people.id = roles.person_id
           JOIN identifiers ON identifiers.identifier_object_id = people.id
