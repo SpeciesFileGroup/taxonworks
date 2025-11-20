@@ -1143,21 +1143,21 @@ module Export::Dwca
       conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
 
       # Create temp table for image links
+      # NOTE: removed associated_specimen_reference - now computed in SQL
       conn.execute(<<-SQL)
         CREATE TEMP TABLE temp_media_image_links (
           image_id integer PRIMARY KEY,
           access_uri text,
-          further_information_url text,
-          associated_specimen_reference text
+          further_information_url text
         )
       SQL
 
       # Create temp table for sound links
+      # NOTE: removed associated_specimen_reference - now computed in SQL
       conn.execute(<<-SQL)
         CREATE TEMP TABLE temp_media_sound_links (
           sound_id integer PRIMARY KEY,
-          access_uri text,
-          associated_specimen_reference text
+          access_uri text
         )
       SQL
 
@@ -1207,32 +1207,11 @@ module Export::Dwca
       end
       project_tokens = Project.where(id: all_project_ids.uniq).pluck(:id, :api_access_token).to_h
 
-      # Pre-fetch all depiction -> collection_object mappings (avoid N+1 queries)
-      Rails.logger.debug 'dwca_export: pre-fetching depiction data'
-      image_to_co = {}
-      if image_ids.any?
-        conn.execute(<<-SQL).each do |row|
-          SELECT d.image_id, d.depiction_object_id
-          FROM depictions d
-          INNER JOIN temp_media_image_ids tmp ON tmp.image_id = d.image_id
-          WHERE d.depiction_object_type = 'CollectionObject'
-        SQL
-          image_to_co[row['image_id'].to_i] = row['depiction_object_id'].to_i
-        end
-      end
+      # NOTE: Removed image_to_co hash - associatedSpecimenReference now computed in SQL
+      # This avoids the bug where images with multiple depictions would only get one reference
 
-      # Pre-fetch all conveyance -> collection_object mappings (avoid N+1 queries)
-      sound_to_co = {}
-      if sound_ids.any?
-        conn.execute(<<-SQL).each do |row|
-          SELECT c.sound_id, c.conveyance_object_id
-          FROM conveyances c
-          INNER JOIN temp_media_sound_ids tmp ON tmp.sound_id = c.sound_id
-          WHERE c.conveyance_object_type = 'CollectionObject'
-        SQL
-          sound_to_co[row['sound_id'].to_i] = row['conveyance_object_id'].to_i
-        end
-      end
+      # NOTE: Removed sound_to_co hash - associatedSpecimenReference now computed in SQL
+      # This avoids the bug where sounds with multiple conveyances would only get one reference
 
       # Batch process image API link generation (chunking to avoid memory issues)
       image_ids.each_slice(1000) do |batch_ids|
@@ -1253,15 +1232,11 @@ module Export::Dwca
             access_uri = Shared::Api.image_link(img, raise_on_no_token: true, token: token)
             further_info_url = Shared::Api.image_metadata_link(img, raise_on_no_token: true, token: token)
 
-            # Get associated specimen reference from pre-fetched hash (avoid N+1)
-            co_id = image_to_co[img_id]
-            assoc_spec_ref = co_id ? Shared::Api.api_link(::CollectionObject.new(id: co_id), co_id) : nil
-
+            # NOTE: Removed associated_specimen_reference - now computed in SQL per row
             links_data << {
               image_id: img_id,
               access_uri: access_uri,
-              further_information_url: further_info_url,
-              associated_specimen_reference: assoc_spec_ref
+              further_information_url: further_info_url
             }
           rescue TaxonWorks::Error => e
             Rails.logger.warn "dwca_export: skipping image #{img_id} - #{e.message}"
@@ -1271,10 +1246,10 @@ module Export::Dwca
         # Bulk insert image links data
         unless links_data.empty?
           values = links_data.map do |row|
-            "(#{row[:image_id]}, #{conn.quote(row[:access_uri])}, #{conn.quote(row[:further_information_url])}, #{conn.quote(row[:associated_specimen_reference])})"
+            "(#{row[:image_id]}, #{conn.quote(row[:access_uri])}, #{conn.quote(row[:further_information_url])})"
           end.join(', ')
 
-          conn.execute("INSERT INTO temp_media_image_links (image_id, access_uri, further_information_url, associated_specimen_reference) VALUES #{values}")
+          conn.execute("INSERT INTO temp_media_image_links (image_id, access_uri, further_information_url) VALUES #{values}")
         end
       end
 
@@ -1296,14 +1271,10 @@ module Export::Dwca
 
             access_uri = Shared::Api.sound_link(snd, token: token)
 
-            # Get associated specimen reference from pre-fetched hash (avoid N+1)
-            co_id = sound_to_co[snd_id]
-            assoc_spec_ref = co_id ? Shared::Api.api_link(::CollectionObject.new(id: co_id), co_id) : nil
-
+            # NOTE: Removed associated_specimen_reference - now computed in SQL per row
             links_data << {
               sound_id: snd_id,
-              access_uri: access_uri,
-              associated_specimen_reference: assoc_spec_ref
+              access_uri: access_uri
             }
           rescue => e
             Rails.logger.warn "dwca_export: skipping sound #{snd_id} - #{e.message}"
@@ -1313,10 +1284,10 @@ module Export::Dwca
         # Bulk insert sound links data
         unless links_data.empty?
           values = links_data.map do |row|
-            "(#{row[:sound_id]}, #{conn.quote(row[:access_uri])}, #{conn.quote(row[:associated_specimen_reference])})"
+            "(#{row[:sound_id]}, #{conn.quote(row[:access_uri])})"
           end.join(', ')
 
-          conn.execute("INSERT INTO temp_media_sound_links (sound_id, access_uri, associated_specimen_reference) VALUES #{values}")
+          conn.execute("INSERT INTO temp_media_sound_links (sound_id, access_uri) VALUES #{values}")
         end
       end
 
@@ -1355,7 +1326,14 @@ module Export::Dwca
             REGEXP_REPLACE(creator_ids.identifiers, E'[\\n\\t]', ' ', 'g') AS \"dcterms:creator\",
             REGEXP_REPLACE(dep.figure_label, E'[\\n\\t]', ' ', 'g') AS description,
             REGEXP_REPLACE(dep.caption, E'[\\n\\t]', ' ', 'g') AS caption,
-            REGEXP_REPLACE(links.associated_specimen_reference, E'[\\n\\t]', ' ', 'g') AS \"associatedSpecimenReference\",
+            -- Compute associatedSpecimenReference directly from collection object ID for this row
+            CASE
+              WHEN co.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/collection_objects/' || co.id
+              WHEN fo.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/field_occurrences/' || fo.id
+              WHEN co_obs.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/collection_objects/' || co_obs.id
+              WHEN fo_obs.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/field_occurrences/' || fo_obs.id
+              ELSE NULL
+            END AS \"associatedSpecimenReference\",
             NULL AS \"associatedObservationReference\",
             REGEXP_REPLACE(links.access_uri, E'[\\n\\t]', ' ', 'g') AS \"accessURI\",
             REGEXP_REPLACE(img.image_file_content_type, E'[\\n\\t]', ' ', 'g') AS \"dc:format\",
@@ -1452,7 +1430,12 @@ module Export::Dwca
             REGEXP_REPLACE(creator_ids.identifiers, E'[\\n\\t]', ' ', 'g') AS \"dcterms:creator\",
             REGEXP_REPLACE(snd.name, E'[\\n\\t]', ' ', 'g') AS description,
             NULL AS caption,
-            REGEXP_REPLACE(links.associated_specimen_reference, E'[\\n\\t]', ' ', 'g') AS \"associatedSpecimenReference\",
+            -- Compute associatedSpecimenReference directly from collection object ID for this row
+            CASE
+              WHEN co.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/collection_objects/' || co.id
+              WHEN fo.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/field_occurrences/' || fo.id
+              ELSE NULL
+            END AS \"associatedSpecimenReference\",
             NULL AS \"associatedObservationReference\",
             REGEXP_REPLACE(links.access_uri, E'[\\n\\t]', ' ', 'g') AS \"accessURI\",
             REGEXP_REPLACE(asb.content_type, E'[\\n\\t]', ' ', 'g') AS \"dc:format\",
