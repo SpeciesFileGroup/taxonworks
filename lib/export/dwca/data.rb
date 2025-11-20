@@ -956,9 +956,10 @@ module Export::Dwca
     def attribution_owners_lateral_sql
       <<-SQL
         LEFT JOIN LATERAL (
-          SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
+          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), ' & ' ORDER BY roles.position) AS names
           FROM roles
-          JOIN people ON people.id = roles.person_id
+          LEFT JOIN people ON people.id = roles.person_id
+          LEFT JOIN organizations ON organizations.id = roles.organization_id
           WHERE roles.role_object_id = attributions.id
             AND roles.role_object_type = 'Attribution'
             AND roles.type = 'AttributionOwner'
@@ -970,9 +971,10 @@ module Export::Dwca
     def attribution_creators_lateral_sql
       <<-SQL
         LEFT JOIN LATERAL (
-          SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
+          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), ' & ' ORDER BY roles.position) AS names
           FROM roles
-          JOIN people ON people.id = roles.person_id
+          LEFT JOIN people ON people.id = roles.person_id
+          LEFT JOIN organizations ON organizations.id = roles.organization_id
           WHERE roles.role_object_id = attributions.id
             AND roles.role_object_type = 'Attribution'
             AND roles.type = 'AttributionCreator'
@@ -1001,9 +1003,10 @@ module Export::Dwca
     def attribution_copyright_holders_lateral_sql
       <<-SQL
         LEFT JOIN LATERAL (
-          SELECT STRING_AGG(people.cached, ' & ' ORDER BY roles.position) AS names
+          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), ' & ' ORDER BY roles.position) AS names
           FROM roles
-          JOIN people ON people.id = roles.person_id
+          LEFT JOIN people ON people.id = roles.person_id
+          LEFT JOIN organizations ON organizations.id = roles.organization_id
           WHERE roles.role_object_id = attributions.id
             AND roles.role_object_type = 'Attribution'
             AND roles.type = 'AttributionCopyrightHolder'

@@ -276,6 +276,45 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           d.cleanup
         end
 
+        specify '#media_tmp includes organization attribution data' do
+          co = CollectionObject.last
+          depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
+          image = depiction.image
+
+          # Create attribution with copyright year and organization-based roles
+          attribution = FactoryBot.create(:valid_attribution,
+            attribution_object: image,
+            copyright_year: 2025
+          )
+
+          # Create organizations for owner and copyright holder
+          # Note: AttributionCreator only allows people, not organizations
+          org_owner = FactoryBot.create(:valid_organization, name: 'Test Museum')
+          org_copyright = FactoryBot.create(:valid_organization, name: 'Illinois Natural History Survey')
+
+          AttributionOwner.create!(role_object: attribution, organization: org_owner, project_id: attribution.project_id)
+          AttributionCopyrightHolder.create!(role_object: attribution, organization: org_copyright, project_id: attribution.project_id)
+
+          s = DwcOccurrence.where(dwc_occurrence_object_id: co.id, dwc_occurrence_object_type: 'CollectionObject')
+          co_sql = CollectionObject.where(id: co.id).to_sql
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: { collection_objects: co_sql, field_occurrences: nil } })
+
+          media_file = d.media_tmp
+          media_file.rewind
+          content = media_file.read
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Find the row for our specific image
+          our_row = rows.find { |r| r['providerManagedID'] == image.id.to_s }
+          expect(our_row).not_to be_nil
+
+          # Check that organization names appear in attribution fields
+          expect(our_row['Owner']).to eq('Test Museum')
+          expect(our_row['Credit']).to eq('©2025 Illinois Natural History Survey')
+
+          d.cleanup
+        end
+
         specify '#media_tmp uses UUID identifier if present' do
           co = CollectionObject.last
           depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
