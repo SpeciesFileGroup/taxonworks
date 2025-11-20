@@ -1160,7 +1160,8 @@ module Export::Dwca
       conn.execute(<<-SQL)
         CREATE TEMP TABLE temp_media_sound_links (
           sound_id integer PRIMARY KEY,
-          access_uri text
+          access_uri text,
+          further_information_url text
         )
       SQL
 
@@ -1271,11 +1272,13 @@ module Export::Dwca
             end
 
             access_uri = Shared::Api.sound_link(snd)
+            further_info_url = Shared::Api.sound_metadata_link(snd, raise_on_no_token: true, token: token)
 
             # NOTE: Removed associated_specimen_reference - now computed in SQL per row
             links_data << {
               sound_id: snd.id,
-              access_uri: access_uri
+              access_uri: access_uri,
+              further_information_url: further_info_url
             }
           rescue => e
             Rails.logger.warn "dwca_export: skipping sound #{snd.id} - #{e.message}"
@@ -1285,10 +1288,10 @@ module Export::Dwca
         # Bulk insert sound links data
         unless links_data.empty?
           values = links_data.map do |row|
-            "(#{row[:sound_id]}, #{conn.quote(row[:access_uri])})"
+            "(#{row[:sound_id]}, #{conn.quote(row[:access_uri])}, #{conn.quote(row[:further_information_url])})"
           end.join(', ')
 
-          conn.execute("INSERT INTO temp_media_sound_links (sound_id, access_uri) VALUES #{values}")
+          conn.execute("INSERT INTO temp_media_sound_links (sound_id, access_uri, further_information_url) VALUES #{values}")
         end
       end
 
@@ -1440,7 +1443,7 @@ module Export::Dwca
             NULL AS \"associatedObservationReference\",
             REGEXP_REPLACE(links.access_uri, E'[\\n\\t]', ' ', 'g') AS \"accessURI\",
             REGEXP_REPLACE(asb.content_type, E'[\\n\\t]', ' ', 'g') AS \"dc:format\",
-            NULL AS \"furtherInformationURL\",
+            REGEXP_REPLACE(links.further_information_url, E'[\\n\\t]', ' ', 'g') AS \"furtherInformationURL\",
             NULL AS \"PixelXDimension\",
             NULL AS \"PixelYDimension\"
           FROM sounds snd
