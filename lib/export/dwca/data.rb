@@ -1012,6 +1012,43 @@ module Export::Dwca
     end
 
     # Collect all image and sound IDs that need to be exported
+    # Create a temporary table containing all scoped collection_object and field_occurrence IDs
+    # This is used to filter media records to only include those associated with exported occurrences
+    def create_scoped_occurrence_temp_table
+      conn = ActiveRecord::Base.connection
+
+      conn.execute("DROP TABLE IF EXISTS temp_scoped_occurrences")
+
+      sql = <<-SQL
+        CREATE TEMP TABLE temp_scoped_occurrences (
+          occurrence_type text,
+          occurrence_id integer,
+          PRIMARY KEY (occurrence_type, occurrence_id)
+        )
+      SQL
+      conn.execute(sql)
+
+      # Insert scoped collection objects
+      if @media_extension[:collection_objects]
+        conn.execute(<<-SQL)
+          INSERT INTO temp_scoped_occurrences (occurrence_type, occurrence_id)
+          SELECT 'CollectionObject', id
+          FROM (#{@media_extension[:collection_objects]}) AS co
+        SQL
+      end
+
+      # Insert scoped field occurrences
+      if @media_extension[:field_occurrences]
+        conn.execute(<<-SQL)
+          INSERT INTO temp_scoped_occurrences (occurrence_type, occurrence_id)
+          SELECT 'FieldOccurrence', id
+          FROM (#{@media_extension[:field_occurrences]}) AS fo
+        SQL
+      end
+
+      Rails.logger.debug 'dwca_export: scoped occurrence temp table created'
+    end
+
     # @return [Hash] { image_ids: Array<Integer>, sound_ids: Array<Integer> }
     def collect_media_ids
       conn = ActiveRecord::Base.connection
@@ -1328,16 +1365,24 @@ module Export::Dwca
           FROM images img
 
           -- Join to get coreid (occurrenceID) via depiction -> collection_object/field_occurrence -> dwc_occurrence
+          -- IMPORTANT: Only include media for occurrences that are actually in the export scope
           LEFT JOIN depictions dep ON dep.image_id = img.id
           LEFT JOIN collection_objects co ON co.id = dep.depiction_object_id AND dep.depiction_object_type = 'CollectionObject'
           LEFT JOIN field_occurrences fo ON fo.id = dep.depiction_object_id AND dep.depiction_object_type = 'FieldOccurrence'
           LEFT JOIN observations obs ON obs.id = dep.depiction_object_id AND dep.depiction_object_type = 'Observation'
           LEFT JOIN collection_objects co_obs ON co_obs.id = obs.observation_object_id AND obs.observation_object_type = 'CollectionObject'
           LEFT JOIN field_occurrences fo_obs ON fo_obs.id = obs.observation_object_id AND obs.observation_object_type = 'FieldOccurrence'
-          LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject')
-                                        OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence')
-                                        OR (dwc.dwc_occurrence_object_id = co_obs.id AND dwc.dwc_occurrence_object_type = 'CollectionObject')
-                                        OR (dwc.dwc_occurrence_object_id = fo_obs.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence')
+
+          -- Filter to only scoped occurrences
+          LEFT JOIN temp_scoped_occurrences scope_co ON scope_co.occurrence_id = co.id AND scope_co.occurrence_type = 'CollectionObject'
+          LEFT JOIN temp_scoped_occurrences scope_fo ON scope_fo.occurrence_id = fo.id AND scope_fo.occurrence_type = 'FieldOccurrence'
+          LEFT JOIN temp_scoped_occurrences scope_co_obs ON scope_co_obs.occurrence_id = co_obs.id AND scope_co_obs.occurrence_type = 'CollectionObject'
+          LEFT JOIN temp_scoped_occurrences scope_fo_obs ON scope_fo_obs.occurrence_id = fo_obs.id AND scope_fo_obs.occurrence_type = 'FieldOccurrence'
+
+          LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject' AND scope_co.occurrence_id IS NOT NULL)
+                                        OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo.occurrence_id IS NOT NULL)
+                                        OR (dwc.dwc_occurrence_object_id = co_obs.id AND dwc.dwc_occurrence_object_type = 'CollectionObject' AND scope_co_obs.occurrence_id IS NOT NULL)
+                                        OR (dwc.dwc_occurrence_object_id = fo_obs.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo_obs.occurrence_id IS NOT NULL)
 
           -- Join temp table for API links
           LEFT JOIN temp_media_image_links links ON links.image_id = img.id
@@ -1418,11 +1463,17 @@ module Export::Dwca
           LEFT JOIN active_storage_blobs asb ON asb.id = asa.blob_id
 
           -- Join to get coreid (occurrenceID) via conveyance -> collection_object/field_occurrence -> dwc_occurrence
+          -- IMPORTANT: Only include media for occurrences that are actually in the export scope
           LEFT JOIN conveyances conv ON conv.sound_id = snd.id
           LEFT JOIN collection_objects co ON co.id = conv.conveyance_object_id AND conv.conveyance_object_type = 'CollectionObject'
           LEFT JOIN field_occurrences fo ON fo.id = conv.conveyance_object_id AND conv.conveyance_object_type = 'FieldOccurrence'
-          LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject')
-                                        OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence')
+
+          -- Filter to only scoped occurrences
+          LEFT JOIN temp_scoped_occurrences scope_co ON scope_co.occurrence_id = co.id AND scope_co.occurrence_type = 'CollectionObject'
+          LEFT JOIN temp_scoped_occurrences scope_fo ON scope_fo.occurrence_id = fo.id AND scope_fo.occurrence_type = 'FieldOccurrence'
+
+          LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject' AND scope_co.occurrence_id IS NOT NULL)
+                                        OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo.occurrence_id IS NOT NULL)
 
           -- Join temp table for API links
           LEFT JOIN temp_media_sound_links links ON links.sound_id = snd.id
@@ -1460,6 +1511,7 @@ module Export::Dwca
     # Cleans up temporary tables created for media export
     def cleanup_media_temp_tables
       conn = ActiveRecord::Base.connection
+      conn.execute("DROP TABLE IF EXISTS temp_scoped_occurrences")
       conn.execute("DROP TABLE IF EXISTS temp_media_image_links")
       conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
     end
@@ -1481,17 +1533,20 @@ module Export::Dwca
         return
       end
 
-      # Step 2: Pre-compute API links using Ruby (required for URL shortener)
+      # Step 2: Create temp table with scoped occurrence IDs to prevent orphaned media records
+      create_scoped_occurrence_temp_table
+
+      # Step 3: Pre-compute API links using Ruby (required for URL shortener)
       create_media_api_link_tables(image_ids, sound_ids)
 
-      # Step 3: Write header and stream media data to output file
+      # Step 4: Write header and stream media data to output file
       Rails.logger.debug 'dwca_export: executing COPY TO for media data'
       output_file.write(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
 
       export_images_to_file(image_ids, output_file)
       export_sounds_to_file(sound_ids, output_file)
 
-      # Step 4: Cleanup temp tables
+      # Step 5: Cleanup temp tables
       cleanup_media_temp_tables
 
       Rails.logger.debug 'dwca_export: media data generated'
