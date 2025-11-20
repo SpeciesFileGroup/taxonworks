@@ -1,1 +1,1 @@
-json.partial! "news/news", news: @news
+json.partial! "news/attributes", news: @news

@@ -13,7 +13,7 @@
 
   <div>
     <%= form.label :type, style: "display: block" %>
-    <%= form.select :type, options_for_select(News::PROJECT_TYPES.invert.transform_keys{|k| k.to_s.humanize}, @news.type) %>
+    <%= form.select :type, options_for_select(createable_news_types(sessions_current_user), @news.type) %>
   </div>
 
   <div>
