@@ -11,6 +11,7 @@ module Sound::DwcMediaExtensions
     'dc:format': :dwc_media_dc_format,
     # 'dcterms:format',
     accessURI: :dwc_media_access_uri,
+    furtherInformationURL: :dwc_media_further_information_url
   }.freeze
 
   def darwin_core_media_extension_sound_row
@@ -36,5 +37,9 @@ module Sound::DwcMediaExtensions
 
   def dwc_media_access_uri
     Shared::Api.sound_link(self)
+  end
+
+   def dwc_media_further_information_url
+    Shared::Api.sound_metadata_link(self, raise_on_no_token: true)
   end
 end

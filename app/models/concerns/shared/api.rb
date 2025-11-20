@@ -57,6 +57,21 @@ module Shared::Api
     shorten_url(long)
   end
 
+  def self.sound_metadata_link(sound, raise_on_no_token: true)
+    s = host
+    return s if sound.nil?
+
+    token = Project.find(sound.project_id).api_access_token
+    if token.nil? && raise_on_no_token
+      raise TaxonWorks::Error, 'No project token available for sound link!'
+    end
+
+    long = "#{s}/api/v1/sounds/#{ sound.id }?project_token=#{token}"
+
+    shorten_url(long)
+  end
+
+
   def self.shorten_url(long_url)
     s = host
     return s if long_url.nil?
