@@ -28,8 +28,10 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       expect(Export::Dwca::Data.new(core_scope: scope)).to be_truthy
     end
 
-    specify '#csv returns csv String' do
-      expect(data.csv).to be_kind_of( String )
+    specify '#data returns tempfile with CSV data' do
+      tempfile = data.data
+      expect(tempfile).to be_kind_of(Tempfile)
+      expect(tempfile.size).to be > 0
     end
 
     context 'with some occurrence records created' do
@@ -42,7 +44,11 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
       after { data.cleanup }
 
-      let(:csv) { CSV.parse(data.csv, headers: true, col_sep: "\t") }
+      let(:csv) {
+        tempfile = data.data
+        tempfile.rewind
+        CSV.parse(tempfile.read, headers: true, col_sep: "\t")
+      }
 
       # non-standard DwC columns are handled elsewhere
       let(:headers) { [ 'basisOfRecord', 'individualCount', 'occurrenceID', 'occurrenceStatus' ] }
@@ -204,6 +210,157 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_tmp.count).to eq(2)
         end
+
+        specify '#media_tmp sanitizes newlines and tabs in caption and description' do
+          co = CollectionObject.last
+          caption_with_special = "Caption\nwith newline\tand tab"
+          figure_label_with_special = "Label\twith\ntab and newline"
+
+          depiction = FactoryBot.create(:valid_depiction,
+            depiction_object: co,
+            caption: caption_with_special,
+            figure_label: figure_label_with_special
+          )
+
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+
+          media_file = d.media_tmp
+          media_file.rewind
+          content = media_file.read
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Should replace newlines and tabs with spaces
+          expect(rows.first['caption']).to eq('Caption with newline and tab')
+          expect(rows.first['description']).to eq('Label with tab and newline')
+
+          d.cleanup
+        end
+
+        specify '#media_tmp includes attribution data (owner, creator, copyright)' do
+          co = CollectionObject.last
+          depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
+          image = depiction.image
+
+          # Create attribution with copyright year, owner, and creator
+          attribution = FactoryBot.create(:valid_attribution,
+            attribution_object: image,
+            copyright_year: 2024
+          )
+
+          # Create roles for owner and creator
+          person1 = FactoryBot.create(:valid_person, last_name: 'Doe', first_name: 'John')
+          person2 = FactoryBot.create(:valid_person, last_name: 'Smith', first_name: 'Jane')
+
+          AttributionOwner.create!(role_object: attribution, person: person1, project_id: attribution.project_id)
+          AttributionCreator.create!(role_object: attribution, person: person2, project_id: attribution.project_id)
+
+          s = DwcOccurrence.where(dwc_occurrence_object_id: co.id, dwc_occurrence_object_type: 'CollectionObject')
+          co_sql = CollectionObject.where(id: co.id).to_sql
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: { collection_objects: co_sql, field_occurrences: nil } })
+
+          media_file = d.media_tmp
+          media_file.rewind
+          content = media_file.read
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Find the row for our specific image
+          our_row = rows.find { |r| r['providerManagedID'] == image.id.to_s }
+          expect(our_row).not_to be_nil
+
+          # Check that attribution data is present
+          # The cached format is "Last, First" or just "Last"
+          expect(our_row['Owner']).to match(/Doe/)
+          expect(our_row['dc:creator']).to match(/Smith/)
+
+          d.cleanup
+        end
+
+        specify '#media_tmp includes organization attribution data' do
+          co = CollectionObject.last
+          depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
+          image = depiction.image
+
+          # Create attribution with copyright year and organization-based roles
+          attribution = FactoryBot.create(:valid_attribution,
+            attribution_object: image,
+            copyright_year: 2025
+          )
+
+          # Create organizations for owner and copyright holder
+          # Note: AttributionCreator only allows people, not organizations
+          org_owner = FactoryBot.create(:valid_organization, name: 'Test Museum')
+          org_copyright = FactoryBot.create(:valid_organization, name: 'Illinois Natural History Survey')
+
+          AttributionOwner.create!(role_object: attribution, organization: org_owner, project_id: attribution.project_id)
+          AttributionCopyrightHolder.create!(role_object: attribution, organization: org_copyright, project_id: attribution.project_id)
+
+          s = DwcOccurrence.where(dwc_occurrence_object_id: co.id, dwc_occurrence_object_type: 'CollectionObject')
+          co_sql = CollectionObject.where(id: co.id).to_sql
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: { collection_objects: co_sql, field_occurrences: nil } })
+
+          media_file = d.media_tmp
+          media_file.rewind
+          content = media_file.read
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Find the row for our specific image
+          our_row = rows.find { |r| r['providerManagedID'] == image.id.to_s }
+          expect(our_row).not_to be_nil
+
+          # Check that organization names appear in attribution fields
+          expect(our_row['Owner']).to eq('Test Museum')
+          expect(our_row['Credit']).to eq('©2025 Illinois Natural History Survey')
+
+          d.cleanup
+        end
+
+        specify '#media_tmp uses UUID identifier if present' do
+          co = CollectionObject.last
+          depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
+          image = depiction.image
+
+          # Create a UUID identifier for the image
+          uuid_value = SecureRandom.uuid
+          identifier = FactoryBot.create(:identifier_global_uuid,
+            identifier_object: image,
+            identifier: uuid_value
+          )
+
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+
+          media_file = d.media_tmp
+          media_file.rewind
+          content = media_file.read
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Should use UUID instead of image:id
+          expect(rows.first['identifier']).to eq("image:#{uuid_value}")
+
+          d.cleanup
+        end
+
+        specify '#media_tmp includes image dimensions and format' do
+          co = CollectionObject.last
+          depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
+
+          s = scope.where('id > 1')
+          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+
+          media_file = d.media_tmp
+          media_file.rewind
+          content = media_file.read
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Check image metadata fields
+          expect(rows.first['dc:type']).to eq('Image')
+          expect(rows.first['PixelXDimension']).not_to be_nil
+          expect(rows.first['PixelYDimension']).not_to be_nil
+          expect(rows.first['dc:format']).to match(/image\/(jpeg|png|gif)/)
+
+          d.cleanup
+        end
       end
 
       context ':predicate_extensions with orphaned collection objects' do
@@ -320,6 +477,52 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           expect(z.to_a[3].first).to include(d3.value)
 
           expect(z.to_a[5].first).to include(d2.value)
+
+          a.cleanup
+        end
+
+        specify 'predicate data rows match dwc_occurrence order not collection_object.id order' do
+          # This tests that when collection_object.id order differs from dwc_occurrence.id order,
+          # the predicate_data follows dwc_occurrence order (matching the core data file)
+
+          s1 = Specimen.order(:id).first
+          s2 = Specimen.order(:id).second
+          s3 = Specimen.order(:id).third
+
+          # Force dwc_occurrence order to differ from collection_object order
+          # by destroying and recreating the first specimen's dwc_occurrence
+          s1.dwc_occurrence.destroy!
+          s1.get_dwc_occurrence  # Recreates with new (higher) id
+
+          # Create data attributes with distinct values
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s1, predicate: p1, value: 'specimen_1_value')
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s2, predicate: p1, value: 'specimen_2_value')
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s3, predicate: p1, value: 'specimen_3_value')
+
+          # Now dwc_occurrence order should be: s2, s3, s1 (s1's dwc was recreated last)
+          # But collection_object order is still: s1, s2, s3
+
+          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: [p1.id]})
+
+          predicate_csv = a.predicate_data.read
+          rows = CSV.parse(predicate_csv, headers: true, col_sep: "\t")
+
+          # Get all values from the predicate column
+          predicate_column_index = rows.headers.index("TW:DataAttribute:CollectionObject:#{p1.name}")
+          values_in_order = rows.map { |row| row[predicate_column_index] }
+
+          # Rows should be in dwc_occurrence.id order, not collection_object.id order
+          # Since s1's dwc was recreated, it should appear last in the export
+          # There are 5 specimens total, we only set values on 3 of them
+          expect(values_in_order).to include('specimen_2_value', 'specimen_3_value', 'specimen_1_value')
+
+          # More specifically: order should be s2, s3, s1 (based on dwc_occurrence.id order)
+          s2_index = values_in_order.index('specimen_2_value')
+          s3_index = values_in_order.index('specimen_3_value')
+          s1_index = values_in_order.index('specimen_1_value')
+
+          expect(s2_index).to be < s3_index
+          expect(s3_index).to be < s1_index
 
           a.cleanup
         end
@@ -451,42 +654,69 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           a.cleanup
         end
 
-        specify '#used_predicates 1' do
+        specify 'predicate_data excludes empty columns when some configured predicates are unused' do
           f = Specimen.first
 
           c = FactoryBot.create(:valid_collecting_event)
-          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
-
           f.update!(collecting_event: c)
 
+          # Only create data for p1 and p3, not p2
           d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
           d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3 )
 
+          # Configure all 3 predicates but only 2 have data
           a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
 
-          expect(a.used_predicates).to contain_exactly("TW:DataAttribute:CollectingEvent:#{p1.name}", "TW:DataAttribute:CollectingEvent:#{p3.name}")
+          predicate_file = a.predicate_data
+          predicate_file.rewind
+          content = predicate_file.read
+
+          # Parse the TSV header
+          headers = content.lines.first.strip.split("\t")
+
+          # Should only have columns for predicates with data (p1 and p3), not p2
+          expect(headers).to contain_exactly(
+            "TW:DataAttribute:CollectingEvent:#{p1.name}",
+            "TW:DataAttribute:CollectingEvent:#{p3.name}"
+          )
+
+          # Should NOT include p2 since it has no data
+          expect(headers).not_to include("TW:DataAttribute:CollectingEvent:#{p2.name}")
 
           a.cleanup
         end
 
-        specify '#used_predicates 2' do
+        specify 'predicate_data sanitizes newlines and tabs in values' do
           f = Specimen.first
 
           c = FactoryBot.create(:valid_collecting_event)
-          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
-
           f.update!(collecting_event: c)
 
-          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
-          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3 )
-          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p2 ) # Not requested
+          # Create data with newlines and tabs - test that they get sanitized
+          # Insert directly into database to ensure we have the raw values
+          value_with_newline = "Line 1\nLine 2\nLine 3"
+          value_with_tab = "Column1\tColumn2\tColumn3"
+          value_with_both = "Text with\ttab and\nnewline"
 
-          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
+          conn = ActiveRecord::Base.connection
+          conn.execute("INSERT INTO data_attributes (type, attribute_subject_id, attribute_subject_type, controlled_vocabulary_term_id, value, project_id, created_by_id, updated_by_id, created_at, updated_at) VALUES ('InternalAttribute', #{c.id}, 'CollectingEvent', #{p1.id}, #{conn.quote(value_with_newline)}, #{c.project_id}, #{c.created_by_id}, #{c.updated_by_id}, NOW(), NOW())")
+          conn.execute("INSERT INTO data_attributes (type, attribute_subject_id, attribute_subject_type, controlled_vocabulary_term_id, value, project_id, created_by_id, updated_by_id, created_at, updated_at) VALUES ('InternalAttribute', #{c.id}, 'CollectingEvent', #{p2.id}, #{conn.quote(value_with_tab)}, #{c.project_id}, #{c.created_by_id}, #{c.updated_by_id}, NOW(), NOW())")
+          conn.execute("INSERT INTO data_attributes (type, attribute_subject_id, attribute_subject_type, controlled_vocabulary_term_id, value, project_id, created_by_id, updated_by_id, created_at, updated_at) VALUES ('InternalAttribute', #{c.id}, 'CollectingEvent', #{p3.id}, #{conn.quote(value_with_both)}, #{c.project_id}, #{c.created_by_id}, #{c.updated_by_id}, NOW(), NOW())")
 
-          expect(a.used_predicates).to contain_exactly(
-            "TW:DataAttribute:CollectingEvent:#{p1.name}",
-            "TW:DataAttribute:CollectingEvent:#{p3.name}"
-          )
+          a = Export::Dwca::Data.new(core_scope: scope,
+            predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
+
+          predicate_file = a.predicate_data
+          predicate_file.rewind
+          content = predicate_file.read
+
+          # Parse as TSV with CSV parser (handles quoted fields)
+          rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+          # Should replace newlines and tabs with spaces (matching old behavior)
+          expect(rows.first["TW:DataAttribute:CollectingEvent:#{p1.name}"]).to eq("Line 1 Line 2 Line 3")
+          expect(rows.first["TW:DataAttribute:CollectingEvent:#{p2.name}"]).to eq("Column1 Column2 Column3")
+          expect(rows.first["TW:DataAttribute:CollectingEvent:#{p3.name}"]).to eq("Text with tab and newline")
 
           a.cleanup
         end
@@ -677,9 +907,11 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             qq = FactoryBot.create(:valid_asserted_distribution,
               asserted_distribution_object: o1)
 
-            expect(d.extension_computed_fields_data({otu_name: 'TW:Internal:otu_name' })).to eq(
-              [[s3.id, 'TW:Internal:otu_name', "aus"]]
-            )
+            result = []
+            d.extension_computed_fields_data({otu_name: 'TW:Internal:otu_name' }) do |id, header, value|
+              result << [id, header, value]
+            end
+            expect(result).to eq([[s3.id, 'TW:Internal:otu_name', "aus"]])
 
             d.cleanup
           end
@@ -786,6 +1018,37 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
       specify '#csv returns lines for specimens' do
         expect(csv.count).to eq(5)
+      end
+
+      specify '#csv sanitizes newlines and tabs in locality field' do
+        # Create specimen with locality containing newlines and tabs
+        locality_with_special_chars = "Site A\nElevation: 1000m\tCoordinates: 45.5, -122.6"
+        ce = FactoryBot.create(:valid_collecting_event,
+          verbatim_locality: locality_with_special_chars)
+        specimen = FactoryBot.create(:valid_specimen, collecting_event: ce)
+        dwc = specimen.get_dwc_occurrence
+
+        # Update the verbatimLocality directly in the database to have newlines/tabs
+        conn = ActiveRecord::Base.connection
+        conn.execute("UPDATE dwc_occurrences SET \"verbatimLocality\" = #{conn.quote(locality_with_special_chars)} WHERE id = #{dwc.id}")
+
+        # Verify it was set
+        dwc.reload
+        expect(dwc.read_attribute(:verbatimLocality)).to eq(locality_with_special_chars)
+
+        # Export just this specimen
+        single_scope = DwcOccurrence.where(id: dwc.id)
+        single_export = Export::Dwca::Data.new(core_scope: single_scope)
+
+        # Parse the CSV output
+        tempfile = single_export.data
+        tempfile.rewind
+        csv_output = CSV.parse(tempfile.read, headers: true, col_sep: "\t")
+
+        # Should replace newlines and tabs with spaces (matching old behavior)
+        expect(csv_output.first['verbatimLocality']).to eq("Site A Elevation: 1000m Coordinates: 45.5, -122.6")
+
+        single_export.cleanup
       end
 
       specify 'TW housekeeping columns are not present' do

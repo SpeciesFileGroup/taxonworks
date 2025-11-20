@@ -22,11 +22,11 @@ module Shared::Api
     "#{s}/api/v1/#{ar.class.base_class.name.tableize}/#{id || ar.id}"
   end
 
-  def self.image_link(image, raise_on_no_token: true)
+  def self.image_link(image, raise_on_no_token: true, token: nil)
     s = host
     return s if image.nil?
 
-    token = Project.find(image.project_id).api_access_token
+    token ||= Project.find(image.project_id).api_access_token
     if token.nil? && raise_on_no_token
       raise TaxonWorks::Error, 'No project token available for image link!'
     end
@@ -35,11 +35,11 @@ module Shared::Api
     shorten_url(long)
   end
 
-  def self.image_metadata_link(image, raise_on_no_token: true)
+  def self.image_metadata_link(image, raise_on_no_token: true, token: nil)
     s = host
     return s if image.nil?
 
-    token = Project.find(image.project_id).api_access_token
+    token ||= Project.find(image.project_id).api_access_token
     if token.nil? && raise_on_no_token
       raise TaxonWorks::Error, 'No project token available for image metadata link!'
     end
@@ -52,10 +52,25 @@ module Shared::Api
     s = host
     return s if sound.nil?
 
-    long = "#{s}/#{Rails.application.routes.url_helpers.rails_blob_path(Sound.last.sound_file, only_path: true)}"
+    long = "#{s}/#{Rails.application.routes.url_helpers.rails_blob_path(sound.sound_file, only_path: true)}"
 
     shorten_url(long)
   end
+
+  def self.sound_metadata_link(sound, raise_on_no_token: true, token: nil)
+    s = host
+    return s if sound.nil?
+
+    token ||= Project.find(sound.project_id).api_access_token
+    if token.nil? && raise_on_no_token
+      raise TaxonWorks::Error, 'No project token available for sound link!'
+    end
+
+    long = "#{s}/api/v1/sounds/#{ sound.id }?project_token=#{token}"
+
+    shorten_url(long)
+  end
+
 
   def self.shorten_url(long_url)
     s = host
