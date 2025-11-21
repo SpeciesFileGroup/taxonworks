@@ -147,9 +147,12 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all).to contain_exactly(a)
   end
 
-  specify '#otu_id' do
-    o = ad1.otu_id
-    q = query.new({otu_id: o})
+  specify '#asserted_distribution_object an otu' do
+    o = ad1.asserted_distribution_object_id
+    q = query.new({
+      asserted_distribution_object_id: o,
+      asserted_distribution_object_type: 'Otu'
+    })
     expect(q.all.map(&:id)).to contain_exactly(ad1.id)
   end
 
