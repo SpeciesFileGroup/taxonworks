@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -70,8 +70,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   end
 
   create_table "asserted_distributions", id: :serial, force: :cascade do |t|
-    t.integer "otu_id"
-    t.integer "geographic_area_id"
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -85,8 +83,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
     t.index ["asserted_distribution_object_id", "asserted_distribution_object_type"], name: "asserted_distribution_polymorphic_object_index"
     t.index ["asserted_distribution_shape_id", "asserted_distribution_shape_type"], name: "asserted_distribution_polymorphic_shape_index"
     t.index ["created_by_id"], name: "index_asserted_distributions_on_created_by_id"
-    t.index ["geographic_area_id"], name: "index_asserted_distributions_on_geographic_area_id"
-    t.index ["otu_id"], name: "index_asserted_distributions_on_otu_id"
     t.index ["project_id"], name: "index_asserted_distributions_on_project_id"
     t.index ["updated_by_id"], name: "index_asserted_distributions_on_updated_by_id"
   end
@@ -2286,8 +2282,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_19_135801) do
   add_foreign_key "alternate_values", "projects", name: "alternate_values_project_id_fkey"
   add_foreign_key "alternate_values", "users", column: "created_by_id", name: "alternate_values_created_by_id_fkey"
   add_foreign_key "alternate_values", "users", column: "updated_by_id", name: "alternate_values_updated_by_id_fkey"
-  add_foreign_key "asserted_distributions", "geographic_areas", name: "asserted_distributions_geographic_area_id_fkey"
-  add_foreign_key "asserted_distributions", "otus", name: "asserted_distributions_otu_id_fkey"
   add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
