@@ -429,7 +429,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       _ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_shape: ga.parent, is_absent: true)
       ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, asserted_distribution_object: _ad1.asserted_distribution_object, asserted_distribution_shape: ga)
       ad2.soft_validate(only_methods: :sv_conflicting_geographic_area)
-      expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
+      expect(ad2.soft_validations.messages_on(:asserted_distribution_shape_id).count).to eq(1)
     end
 
     specify 'is_absent - True' do
@@ -437,7 +437,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       _ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_shape: ga)
       ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, asserted_distribution_object: _ad1.asserted_distribution_object, asserted_distribution_shape: ga, is_absent: true)
       ad2.soft_validate(only_methods: [:sv_conflicting_geographic_area])
-      expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
+      expect(ad2.soft_validations.messages_on(:asserted_distribution_shape_id).count).to eq(1)
     end
   end
 

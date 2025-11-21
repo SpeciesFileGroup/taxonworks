@@ -408,13 +408,13 @@ class AssertedDistribution < ApplicationRecord
         .without_is_absent
         .with_geographic_area_array(areas)
         .where(asserted_distribution_object:)
-      soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
+      soft_validations.add(:asserted_distribution_shape_id, "Taxon is reported as present in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
     else
       presence = AssertedDistribution
         .with_is_absent
         .where(asserted_distribution_object:)
         .with_geographic_area_array(areas)
-      soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
+      soft_validations.add(:asserted_distribution_shape_id, "Taxon is reported as missing in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
     end
   end
 
