@@ -14,21 +14,22 @@
   </div>
 
   <div class="flex-col middle">
-
-      <div class="horizontal-left-content align-end gap-small">
-        <%= development_header_tag -%>
-        <%= taxonworks_version_tag -%>
-        <%= sandbox_details_tag -%>
-      </div>
-
+    <div class="horizontal-left-content align-end gap-small">
+      <%= development_header_tag -%>
+      <%= taxonworks_version_tag -%>
+      <%= sandbox_details_tag -%>
+    </div>
     <%= sandbox_warning_tag -%>
   </div>
 
-  <div class="horizontal-right-content middle gap-medium" id="session_nav">
+  <div class="horizontal-right-content middle gap-large" id="session_nav">
 
     <div>
       <%= content_tag(:span, sessions_current_user.name, class: 'subtle')-%>
     </div>
+
+    <div id="vue-bell-notifications"></div>
+    
     <div class="dropdown">
       <div id="header-dropdown-btn" class="dropdown-button">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none"  stroke-width="1.5" stroke="currentColor">
