@@ -291,6 +291,26 @@ module Workbench::NavigationHelper
     content_tag(:title, ['TaxonWorks', splash].compact.join(' - ') )
   end
 
+
+  def header_path_tag
+    key = UserTasks::INDEXED_TASKS.keys.find do |k|
+      t = UserTasks::INDEXED_TASKS[k]
+      send(t.path) == request.path rescue false
+    end
+    task_name = UserTasks::INDEXED_TASKS[key]&.name
+    namespace      = controller.controller_path.split('/')&.first&.humanize
+    controller_label = controller.controller_name.humanize
+
+    label =
+      if namespace == controller_label
+        "/ #{namespace}"
+      else
+        "/ #{namespace} / #{task_name || controller_label}"
+      end
+
+    content_tag(:span, label)
+  end
+
   def radial_navigation_tag(object, teleport = nil)
     content_tag(:span, '', data: { 'global-id': object.to_global_id.to_s, 'radial-navigation': 'true', 'teleport': teleport})
   end
