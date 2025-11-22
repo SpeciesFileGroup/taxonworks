@@ -1,21 +1,26 @@
 #header_bar {
   margin: 0 auto;
-  padding-left: $standard_padding;
-  padding-right: $standard_padding;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+
   background-color: var(--header-bg-color);
   height: 60px;
   color: white;
 
   #taxonworks_logo {
-    width: 160px;
-    height: 20px;
-    background-image: image-url('taxonworks-white.svg');
-    background-size: contain;
+    width: 60px;
+    height: 60px;
+    background-image: image-url('taxonworks-white-circle.svg');
+    background-size: 40px;
+    background-position: center;
     background-repeat: no-repeat;
-    background-position: left center;
     padding: 0px;
     text-decoration: none;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-size: 46px;
+    }
   }
 
   #taxonworks_left {
@@ -41,8 +46,59 @@
     }
   }
 
-  .issues-link:hover {
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropdown-button {
     color: white;
+    border: none;
+    cursor: pointer;
+
+    svg {
+      width: 24px;
+      height: 20px;
+    }
+  }
+
+  .hub_project_name {
+    color: white;
+    font-size: $font_title;
+  }
+
+  .dropdown-content {
+    display: none;
+    top: 38px;
+    position: absolute;
+    background: var(--bg-foreground);
+    right: 0;
+    min-width: 150px;
+    box-shadow: var(--panel-shadow);
+    border-radius: 4px;
+    margin-top: 5px;
+    z-index: 10;
+  }
+
+  .dropdown-content a {
+    display: block;
+    color: var(--text-color);
+    text-decoration: none;
+  }
+
+  .dropdown-content li {
+    display: block;
+    padding: 10px 20px;
+    color: var(--text-color);
+    text-decoration: none;
+  }
+
+  .dropdown-content a:hover {
+    background: var(--bg-foreground);
+  }
+
+  .show {
+    display: block;
   }
 }
 
