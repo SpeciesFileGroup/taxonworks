@@ -156,24 +156,6 @@ module Queries::Concerns::DataAttributes
     def data_attribute_import_predicate
       [@data_attribute_import_predicate].flatten.compact
     end
-
-    def split_pairs(pairs)
-      h = {}
-      pairs.each do |p|
-        k, v = p.split(':', 2)
-        h[k] = v
-      end
-      h
-    end
-
-    def split_repeated_pairs(pairs)
-      a = []
-      pairs.each do |p|
-        a << p.split(':', 2)
-      end
-      a
-    end
-
   end
 
   def set_data_attributes_params(params)
