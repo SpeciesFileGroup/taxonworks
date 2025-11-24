@@ -1,0 +1,28 @@
+.system-news-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  font-size: 14px;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+}
+
+.news-bar-warning {
+  background: #ffe6e6;
+  color: #a30000;
+}
+
+.news-bar-notice {
+  background: #e6f0ff;
+  color: #003d99;
+}
+
+.news-bar-info {
+  background: #f7f7f7;
+  color: #444;
+}
+
+.news-bar-close-button {
+  cursor: pointer;
+}

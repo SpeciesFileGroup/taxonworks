@@ -66,8 +66,8 @@ class NewsController < ApplicationController
 
     respond_to do |format|
       if @news.save
-        format.html { redirect_to @news.becomes(@news.class.base_class), notice: "News was successfully created." }
-        format.json { render :show, status: :created, location: @news }
+        format.html { redirect_to @news.becomes(@news.class.base_class), notice: 'News was successfully created.' }
+        format.json { render :show, status: :created, location: @news.metamorphosize }
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @news.errors, status: :unprocessable_entity }
@@ -79,7 +79,7 @@ class NewsController < ApplicationController
   def update
     respond_to do |format|
       if @news.update(news_params)
-        format.html { redirect_to @news.metamorphosize, notice: "News was successfully updated.", status: :see_other }
+        format.html { redirect_to @news.metamorphosize, notice: 'News was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @news.metamorphosize }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -93,7 +93,7 @@ class NewsController < ApplicationController
     @news.destroy!
 
     respond_to do |format|
-      format.html { redirect_to news_index_path, notice: "News was successfully destroyed.", status: :see_other }
+      format.html { redirect_to news_index_path, notice: 'News was successfully destroyed.', status: :see_other }
       format.json { head :no_content }
     end
   end
