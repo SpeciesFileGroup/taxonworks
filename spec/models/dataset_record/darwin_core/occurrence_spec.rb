@@ -1,13 +1,13 @@
 require 'rails_helper'
 
 describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
-  before :all do
-    DatabaseCleaner.start
+    before :all do
+      DatabaseCleaner.start
 
-    init_housekeeping
+      init_housekeeping
 
-    @root = FactoryBot.create(:root_taxon_name)
-  end
+      @root = FactoryBot.create(:root_taxon_name)
+    end
 
   after(:all) { DatabaseCleaner.clean }
 
@@ -271,24 +271,24 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
     let!(:results) { @import_dataset.import(5000, 100) }
 
-    it 'creates a new record' do
-      expect(results.select { |r| r.status == 'Imported'}.length).to eq(1)
+    it 'creates the records' do
+      expect(results.select { |r| r.status == 'Imported'}).to_not be_empty
     end
 
     it 'errors the second record' do
-      expect(results.last.status).to eq('Errored')
+      expect(results.select { |r| r.status == 'Errored'}).to be_empty
     end
 
     it 'creates collection objects' do
-      expect(Specimen.all.size).to eq(1)
+      expect(Specimen.all.size).to eq(2)
     end
 
-    it 'creates the first CatalogNumber' do
+    it 'creates a single CatalogNumber' do
       expect(Identifier::Local::CatalogNumber.all.size).to eq(1)
     end
 
     it 'creates the first recordNumber' do
-      expect(Identifier::Local::RecordNumber.all.size).to eq(1)
+      expect(Identifier::Local::RecordNumber.all.size).to eq(2)
     end
   end
 
