@@ -71,7 +71,7 @@ class AnatomicalPart < ApplicationRecord
   is_origin_for 'AnatomicalPart', 'Extract', 'Sequence', 'Sound'
   originates_from 'Otu', 'Specimen', 'Lot', 'CollectionObject', 'AnatomicalPart', 'FieldOccurrence'
 
-  GRAPH_ENTRY_POINTS = [:origin_relationships]
+  GRAPH_ENTRY_POINTS = [:biological_associations, :origin_relationships]
 
   attr_accessor :origin_object # origin of this part, only used on create
   attr_accessor :no_cached

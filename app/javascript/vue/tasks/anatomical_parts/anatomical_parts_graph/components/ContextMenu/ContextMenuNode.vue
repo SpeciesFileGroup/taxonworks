@@ -86,7 +86,10 @@
         <h2>Create new anatomical part endpoint of <span v-html="node.name" /></h2>
       </template>
 
-      <template #body>
+      <template
+        v-if="nodeId"
+        #body
+      >
         <AnatomicalParts
           :object-id="parseNodeId(nodeId).id"
           :object-type="nodeType"
@@ -167,7 +170,6 @@ const nodeId = computed(() => {
 
 function updateGraph() {
   emit('updateGraph')
-  props.context.closeContextMenu()
 }
 
 function loadFilter() {
