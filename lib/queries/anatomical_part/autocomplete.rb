@@ -21,10 +21,28 @@ module Queries
         base_query.where('anatomical_parts.uri ILIKE ?', '%' + query_string).limit(20)
       end
 
+       def autocomplete_otu_name
+        base_query
+          .joins(:origin_otu)
+          .preload(:origin_otu)
+          .where('otus.name ILIKE ?', "#{query_string}%")
+          .limit(20)
+      end
+
+      def autocomplete_taxon_name
+        base_query
+          .joins(origin_otu: :taxon_name)
+          .preload(origin_otu: :taxon_name)
+          .where('taxon_names.cached ILIKE ?', "#{query_string}%")
+          .limit(20)
+      end
+
       def updated_queries
         queries = [
           autocomplete_exact_id,
           autocomplete_named,
+          autocomplete_otu_name,
+          autocomplete_taxon_name,
           autocomplete_uri_label_contains_match,
           autocomplete_uri_exact,
           autocomplete_uri_ends_with
