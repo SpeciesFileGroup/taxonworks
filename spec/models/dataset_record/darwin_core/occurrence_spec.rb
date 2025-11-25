@@ -275,7 +275,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(results.select { |r| r.status == 'Imported'}).to_not be_empty
     end
 
-    it 'errors the second record' do
+    it 'no record errors' do
       expect(results.select { |r| r.status == 'Errored'}).to be_empty
     end
 
