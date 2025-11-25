@@ -33,9 +33,11 @@
       />
     </div>
 
-    <div class="graph-context-menu-list-item">
+    <div
+      v-if="inEditMode && ORIGINS.includes(nodeType)"
+      class="graph-context-menu-list-item"
+    >
       <VBtn
-        v-if="inEditMode && ORIGINS.includes(nodeType)"
         color="primary"
         @click.stop="() => (showingCreate = true)"
       >
@@ -43,13 +45,27 @@
       </VBtn>
     </div>
 
-    <div class="graph-context-menu-list-item">
+    <div
+      class="graph-context-menu-list-item"
+      v-if="inEditMode && nodeType == ANATOMICAL_PART"
+    >
       <VBtn
-        v-if="inEditMode && nodeType == ANATOMICAL_PART"
         color="primary"
         @click.stop="() => (showingEdit = true)"
       >
         Edit anatomical part
+      </VBtn>
+    </div>
+
+    <div
+      v-if="inEditMode && nodeType == ANATOMICAL_PART"
+      class="graph-context-menu-list-item"
+    >
+      <VBtn
+        color="primary"
+        @click="loadFilter"
+      >
+        Send to Filter Anatomical Parts
       </VBtn>
     </div>
 
@@ -89,6 +105,7 @@
 import { makeBrowseUrl } from '@/helpers'
 import { computed, ref } from 'vue'
 import { parseNodeId } from '../../utils'
+import { RouteNames } from '@/routes/routes'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
@@ -143,9 +160,18 @@ const nodeType = computed(() => {
   return objectType
 })
 
+const nodeId = computed(() => {
+  const { id, objectType } = parseNodeId(props.nodeId)
+  return id
+})
+
 function updateGraph() {
   emit('updateGraph')
   props.context.closeContextMenu()
+}
+
+function loadFilter() {
+  window.open(`${RouteNames.FilterAnatomicalPart}?anatomical_part_id=${nodeId.value}`)
 }
 
 </script>
