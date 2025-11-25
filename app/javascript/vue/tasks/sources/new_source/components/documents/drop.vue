@@ -9,6 +9,7 @@
       :dropzone-options="DROPZONE_CONFIG"
       @vdropzone-sending="sending"
       @vdropzone-success="success"
+      @vdropzone-error="error"
     />
   </div>
 </template>
@@ -51,6 +52,14 @@ const DROPZONE_CONFIG = {
 function success(file, response) {
   store.commit(MutationNames.AddDocumentation, response)
   TW.workbench.alert.create('Documentation was successfully created.', 'notice')
+  dropzoneRef.value.removeFile(file)
+}
+
+function error(file, message) {
+  TW.workbench.alert.create(
+    `Error uploading document: ${Object.values(message).join(';')}`,
+    'error'
+  )
   dropzoneRef.value.removeFile(file)
 }
 

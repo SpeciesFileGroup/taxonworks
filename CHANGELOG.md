@@ -12,16 +12,36 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Collecting event form: Field notes
 - Taxon name reclassifier: Unify and refresh buttons [#4609]
 - Radial navigator: Taxon name reclassifier [#4609]
+- New source: display error messages when a document upload fails
+- Added superorder rank for botanical nomenclature [#4619]
 
 ### Changed
 
 - Autocomplete list dynamically adjust to fit content on screen
+- New source: add BibTeX source to project automatically
+- Removed the Origin Relationship search boxes
+- Taxon name reclassifier: disable the drop zone when rank of dragged taxon is higher than the target.
+- CSD: Allow create duplicate RecordNumber identifiers [#4096]
 
 ### Fixed
 
 - Radial annotator: Citations forms throws an error when you try to replace an original citation
+- Image matrix endpoint is not sending the correct image path
+- Biological Relationship search
+- Exception on Filter Source with verbatim sources
+- Exception on empty searches
+- Exception in New Source when serial no longer exists
+- Respect no_dwc_occurrence setting for AssertedDistribution creation
+- Don't display 'null' in Change Namespace dialog for mass Identifier annotator in Filter Collection Object/Filter Collecting Event [#4618]
+- 'Collection objects with determinations' appears twice in Collection summary task/Taxonomic scope [#4620]
+- Unify OTU sometimes blocked by old unused AssertedDistribution columns which have now been removed [#4556]
+- DwC Importer preventing duplicate RecordNumber identifiers from being created [#4096]
 
+[#4556]: https://github.com/SpeciesFileGroup/taxonworks/issues/4556
 [#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
+[#4618]: https://github.com/SpeciesFileGroup/taxonworks/issues/4618
+[#4620]: https://github.com/SpeciesFileGroup/taxonworks/issues/4620
+[#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096
 
 ## [0.55.0] - 2025-11-05
 

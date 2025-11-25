@@ -16,7 +16,19 @@ json.identified_to_rank @key.identified_to_rank
 json.pagination @key, :pagination_page, :pagination_per_page, :pagination_total, :pagination_total_pages, :pagination_next_page, :pagination_previous_page
 
 json.list_of_descriptors @key.list_of_descriptors.sort_by {|k, v| v[:index]}.map { |k, v| v }
-json.image_hash @key.image_hash
+json.image_hash do 
+  @key.image_hash.each do |id, data|
+    json.set! id do
+      json.image do
+        json.partial! 'images/api/v1/attributes', image: data[:image]
+      end
+
+      json.citations data[:citations] do |citation|
+        json.partial! 'citations/api/v1/attributes', citation: citation
+      end
+    end
+  end
+end
 
 json.depiction_matrix (@key.depiction_matrix) do |d, v|
   json.object do
