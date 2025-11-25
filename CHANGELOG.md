@@ -35,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Don't display 'null' in Change Namespace dialog for mass Identifier annotator in Filter Collection Object/Filter Collecting Event [#4618]
 - 'Collection objects with determinations' appears twice in Collection summary task/Taxonomic scope [#4620]
 - Unify OTU sometimes blocked by old unused AssertedDistribution columns which have now been removed [#4556]
+- DwC Importer preventing duplicate RecordNumber identifiers from being created [#4096]
 
 [#4556]: https://github.com/SpeciesFileGroup/taxonworks/issues/4556
 [#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
