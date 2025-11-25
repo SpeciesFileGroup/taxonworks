@@ -2,7 +2,7 @@ module AnatomicalPartsHelper
   def anatomical_part_tag(anatomical_part)
     return nil if anatomical_part.nil?
 
-    anatomical_part.cached
+    "#{anatomical_part.cached}: #{otu_tag(anatomical_part.origin_otu)}"
   end
 
   def anatomical_part_autocomplete_tag(anatomical_part)
@@ -10,7 +10,9 @@ module AnatomicalPartsHelper
   end
 
   def label_for_anatomical_part(anatomical_part)
-    anatomical_part_tag(anatomical_part)
+    return nil if anatomical_part.nil?
+
+    "#{anatomical_part.cached}: #{label_for_otu(anatomical_part.origin_otu)}"
   end
 
   def label_for_anatomical_part_container(anatomical_part)
