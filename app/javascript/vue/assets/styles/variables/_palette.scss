@@ -57,6 +57,22 @@
   --code-string-color: #000000;
   --code-error-color: #cc0000;
   --code-selection-color: #d7e4f7;
+
+  --news-warning-color: #a30000;
+  --news-warning-bg: #ffe6e6;
+
+  --news-notice-color: #003d99;
+  --news-notice-bg: #e6f0ff;
+
+  --news-instruction-color: #003d99;
+  --news-instruction-bg: #e6f0ff;
+
+  --news-blogpost-color: var(--color-primary);
+  --news-blogpost-bg: #f7f7f7;
+
+  .news-bar-close-button {
+    cursor: pointer;
+  }
 }
 
 .dark {

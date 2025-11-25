@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :news do
+    scope :new, controller: 'tasks/news/new' do
+      get '/', action: :index, as: 'news_new_task'
+    end
+  end
+
   scope :taxon_name_relationships do
     scope :filter, controller: 'tasks/taxon_name_relationships/filter' do
       get '/', action: :index, as: 'filter_taxon_name_relationships_task'

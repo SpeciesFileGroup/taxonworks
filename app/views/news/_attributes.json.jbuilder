@@ -2,4 +2,6 @@ json.extract! news, :id, :type, :title, :body, :display_start, :display_end, :pr
 
 json.current news.is_current?
 
+json.body_html MARKDOWN_HTML.render(news.body).html_safe
+
 json.url news_url(news, format: :json)

@@ -6,7 +6,7 @@
     />
     <BlockLayout>
       <template #header>
-        <h3>Administration News</h3>
+        <h3>Create news</h3>
       </template>
       <template #body>
         <VForm v-model="news" />
@@ -113,6 +113,10 @@ function reset() {
 
 News.administration().then(({ body }) => {
   list.value = body.map(makeNews)
+})
+
+News.where({}).then(({ body }) => {
+  list.value.push(...body.map(makeNews))
 })
 </script>
 

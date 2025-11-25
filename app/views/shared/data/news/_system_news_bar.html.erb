@@ -2,7 +2,7 @@
   <div>
     <strong><%= news.title %></strong>
     <% if news.body.present? %> — 
-      <%= news.body.html_safe %> 
+      <%= MARKDOWN_HTML.render(news.body).html_safe %> 
     <% end %>
   </div>
 

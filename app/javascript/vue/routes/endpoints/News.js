@@ -17,5 +17,7 @@ const permitParams = {
 export const News = {
   ...baseCRUD(controller, permitParams),
 
-  administration: () => AjaxCall('get', `/${controller}/administration`)
+  administration: () => AjaxCall('get', `/${controller}/administration`),
+
+  types: () => AjaxCall('get', `/${controller}/types`)
 }

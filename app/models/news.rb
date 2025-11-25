@@ -19,11 +19,11 @@ class News < ApplicationRecord
     'News::Project::BlogPost': :blog_post,
     'News::Project::Instruction': :instruction,
     'News::Project::Notice': :notice,
-  }
+  }.freeze
 
   validates :title, presence: true
   validates :body, presence: true
-  validates :type, format: { with: /\ANews::Project::/, message: "is not a project News type" }, if: -> { project_id.present? }
+  validates :type, format: { with: /\ANews::Project::/, message: 'is not a project News type' }, if: -> { project_id.present? }
   validate :display_end_after_display_start
 
   scope :administration, -> {where("type like 'News::Administration::%'")}
@@ -32,7 +32,7 @@ class News < ApplicationRecord
   scope :current, -> {
     now = Time.current
     where(
-      "(display_start IS NULL OR display_start <= ?) AND (display_end IS NULL OR display_end >= ?)",
+      '(display_start IS NULL OR display_start <= ?) AND (display_end IS NULL OR display_end >= ?)',
       now, now
     )
   }

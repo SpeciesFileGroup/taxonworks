@@ -4,7 +4,7 @@
       <label>Type</label>
       <select v-model="data.type">
         <option
-          v-for="(type, label) in TYPES"
+          v-for="(label, type) in types"
           :key="type"
           :value="type"
         >
@@ -71,11 +71,8 @@
 import DateNow from '@/components/ui/Date/DateNow.vue'
 import MarkdownEditor from '@/components/markdown-editor.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import {
-  NEWS_ADMINISTRATION_BLOGPOST,
-  NEWS_ADMINISTRATION_WARNING,
-  NEWS_ADMINISTRATION_NOTICE
-} from '@/constants/news'
+import { News } from '@/routes/endpoints'
+import { ref } from 'vue'
 
 const MARKDOWN_CONFIG = {
   status: false,
@@ -89,15 +86,23 @@ const DEFAULT_BTN_VALUES = {
   '1m': '+1 month'
 }
 
-const TYPES = {
-  BlogPost: NEWS_ADMINISTRATION_BLOGPOST,
-  Warning: NEWS_ADMINISTRATION_WARNING,
-  Notice: NEWS_ADMINISTRATION_NOTICE
-}
+const types = ref({})
 
 const data = defineModel({
   type: Object,
   required: true
+})
+
+News.types().then(({ body }) => {
+  const arrTypes = Object.values(body).flat()
+
+  types.value = Object.fromEntries(
+    arrTypes.map((item) => {
+      const [_, namespace, type] = item.split('::')
+
+      return [item, `${namespace}/${type}`]
+    })
+  )
 })
 
 function formatDate(date) {

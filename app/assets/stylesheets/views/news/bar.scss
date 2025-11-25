@@ -4,23 +4,27 @@
   justify-content: center;
   padding: 8px 20px;
   font-size: 14px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--border-color);
   text-align: center;
 }
 
+.system-news-bar * {
+  display: inline-block;
+}
+
 .news-bar-warning {
-  background: #ffe6e6;
-  color: #a30000;
+  background: var(--news-warning-bg);
+  color: var(--news-warning-color);
 }
 
 .news-bar-notice {
-  background: #e6f0ff;
-  color: #003d99;
+  background: var(--news-notice-bg);
+  color: var(--news-notice-color);
 }
 
 .news-bar-info {
-  background: #f7f7f7;
-  color: #444;
+  background: var(--news-blogpost-bg);
+  color: var(--news-blogpost-color);
 }
 
 .news-bar-close-button {
