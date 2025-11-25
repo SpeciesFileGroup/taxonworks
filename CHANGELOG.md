@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New source: add BibTeX source to project automatically
 - Removed the Origin Relationship search boxes
 - Taxon name reclassifier: disable the drop zone when rank of dragged taxon is higher than the target.
+- CSD: Allow create duplicate RecordNumber identifiers [#4096]
 
 ### Fixed
 
@@ -39,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
 [#4618]: https://github.com/SpeciesFileGroup/taxonworks/issues/4618
 [#4620]: https://github.com/SpeciesFileGroup/taxonworks/issues/4620
+[#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096
 
 ## [0.55.0] - 2025-11-05
 
