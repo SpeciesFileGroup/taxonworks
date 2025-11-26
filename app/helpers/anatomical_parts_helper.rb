@@ -15,8 +15,15 @@ module AnatomicalPartsHelper
     "#{anatomical_part.cached}: #{label_for_otu(anatomical_part.origin_otu)}"
   end
 
+  def short_label_for_anatomical_part(anatomical_part)
+    return nil if anatomical_part.nil?
+
+    anatomical_part.cached
+  end
+
   def label_for_anatomical_part_container(anatomical_part)
     return nil if anatomical_part.nil?
+
     anatomical_part.cached
   end
 
@@ -35,7 +42,7 @@ module AnatomicalPartsHelper
   def anatomical_part_graph_label_for_related_object(obj)
     case obj.class.base_class.name
     when 'AnatomicalPart'
-      'AnatomicalPart: ' + (label_for_anatomical_part(obj) || '(no label)')
+      'AnatomicalPart: ' + (short_label_for_anatomical_part(obj) || '(no label)')
     when 'CollectionObject'
       label_for_collection_object(obj)
     when 'Extract'
