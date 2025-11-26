@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial navigator: Taxon name reclassifier [#4609]
 - New source: display error messages when a document upload fails
 - Added superorder rank for botanical nomenclature [#4619]
+- Added soft validation for unjustified emendation
 
 ### Changed
 
