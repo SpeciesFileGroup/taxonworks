@@ -163,7 +163,7 @@ const nodeType = computed(() => {
   return objectType
 })
 
-const nodeId = computed(() => {
+const nodeIdId = computed(() => {
   const { id, objectType } = parseNodeId(props.nodeId)
   return id
 })
@@ -173,7 +173,7 @@ function updateGraph() {
 }
 
 function loadFilter() {
-  window.open(`${RouteNames.FilterAnatomicalPart}?anatomical_part_id=${nodeId.value}`)
+  window.open(`${RouteNames.FilterAnatomicalPart}?anatomical_part_id=${nodeIdId.value}`)
 }
 
 </script>
