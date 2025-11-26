@@ -269,7 +269,7 @@ module Queries::Concerns::DataAttributes
       w = w.or(c)
     end
 
-    referenced_klass.joins(:internal_attributes).where(w)
+    referenced_klass.joins(:internal_attributes).where(w).distinct
   end
 
   def data_attribute_import_wildcard_pair_facet
@@ -297,7 +297,7 @@ module Queries::Concerns::DataAttributes
       w = w.or(c)
     end
 
-    referenced_klass.joins(:internal_attributes).where(w)
+    referenced_klass.joins(:internal_attributes).where(w).distinct
   end
 
   def data_attribute_import_exact_pair_facet
