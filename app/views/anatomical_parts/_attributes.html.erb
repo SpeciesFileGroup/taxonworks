@@ -5,7 +5,7 @@
 
 <p>
   <strong>Uri:</strong>
-  <%= @anatomical_part.uri %>
+  <%= link_to(@anatomical_part.uri, @anatomical_part.uri, data: {icon: 'link'}, class: 'margin-xsmall-left') %>
 </p>
 
 <p>
