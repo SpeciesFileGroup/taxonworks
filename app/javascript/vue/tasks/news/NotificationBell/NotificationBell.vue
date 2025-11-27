@@ -4,7 +4,7 @@
     ref="notificationBell"
   >
     <div
-      class="cursor-pointer"
+      class="cursor-pointer h-5"
       @click="() => (isNotificationListVisible = !isNotificationListVisible)"
     >
       <svg

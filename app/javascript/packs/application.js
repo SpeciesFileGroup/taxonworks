@@ -29,6 +29,7 @@ import 'tippy.js/dist/tippy.css'
 import '../vanilla/initializers/copyTable.js'
 import '../vanilla/initializers/stickyNavbar.js'
 import '../vanilla/views/news/systemHeaderBar.js'
+import '../vanilla/views/users/show.js'
 
 import '../vue/tasks/citations/otus/main.js'
 import '../vue/tasks/contents/editor/main.js'

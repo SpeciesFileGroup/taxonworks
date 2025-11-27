@@ -13,6 +13,15 @@ module UsersHelper
     end
   end
 
+  def user_initials(user)
+    return '' if user.nil? || user.name.blank?
+
+    user.name
+        .split(/\s+/)
+        .map { |p| p[0].upcase }
+        .join
+  end
+
   def user_autocomplete_tag(user)
     user.name + ' ' + content_tag(:span, user.email, class: [:feedback, 'feedback-thin', 'feedback-primary']).html_safe
   end
@@ -22,11 +31,20 @@ module UsersHelper
   end
 
   def user_last_seen_tag(user)
-    if !user.last_seen_at.blank?
+    if user.last_seen_at.present?
       time_ago_in_words(user.last_seen_at) + '  ago'
     else
       content_tag(:em, 'never')
     end
+  end
+
+  def user_time_active(user)
+    total = user.time_active.to_i
+    hours   = total / 3600
+    minutes = (total % 3600) / 60
+    seconds = total % 60
+
+    '%02d:%02d:%02d' % [hours, minutes, seconds]
   end
 
   # @param [Symbol, String] user_element

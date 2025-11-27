@@ -79,7 +79,7 @@ const toggleTheme = () => {
   border: none;
   padding: 0;
   svg {
-    stroke: var(--text-color);
+    stroke: white;
   }
 }
 </style>

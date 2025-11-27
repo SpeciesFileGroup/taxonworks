@@ -24,15 +24,18 @@ module ProjectsHelper
 
   def project_link(project)
     return nil if project.nil?
-    l = link_to(project.name, select_project_path(project))
-    project.id == sessions_current_project_id ?
-    content_tag(:mark, l) :
-    l
+    link_to(project.name, select_project_path(project))
   end
 
   def projects_list(projects)
-    projects.collect { |p| content_tag(:li, project_link(p)) }.join.html_safe
+    projects.collect do |p|
+      classes = ['project-item']
+      classes << 'active' if p.id == sessions_current_project_id
+
+      content_tag(:li, project_link(p), class: classes)
+    end.join.html_safe
   end
+
 
   def project_login_link(project)
     return nil unless (!is_project_member_by_id?(sessions_current_user_id, sessions_current_project_id) && (sessions_current_project_id != project.id))

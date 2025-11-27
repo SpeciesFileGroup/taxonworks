@@ -3,23 +3,18 @@
     <div class="horizontal-left-content gap-small ellipsis">
       <%= link_to(content_tag(:div, '', id: :taxonworks_logo, title: 'Dashboard'), hub_path) -%> 
 
-      <% if request.path == '/' -%>
+      <% if request.path == root_path -%>
         <%= content_tag(:h3, "Dashboard for " + user_tag(sessions_current_user), class: :hub_project_name, data: {current_project_id: sessions_current_project_id}) -%>
       <% else %>
         <h3><%= link_to(sessions_current_project.name, hub_path, class: :hub_project_name, data: { current_project_id: sessions_current_project_id }, title: :Hub) if sessions_current_project -%></h3>
-        <span><%= header_path_tag -%></span>
+        <h3><%= header_path_tag -%></h3>
       <% end %>
 
     </div>
   </div>
 
   <div class="flex-col middle">
-    <div class="horizontal-left-content align-end gap-small">
-      <%= development_header_tag -%>
-      <%= taxonworks_version_tag -%>
-      <%= sandbox_details_tag -%>
-    </div>
-    <%= sandbox_warning_tag -%>
+
   </div>
 
   <div class="horizontal-right-content middle gap-large" id="session_nav">
@@ -29,7 +24,7 @@
     </div>
 
     <div id="vue-bell-notifications"></div>
-    
+    <div id="toggle-theme" class="w-5 h-5 flexbox"></div>    
     <div class="dropdown">
       <div id="header-dropdown-btn" class="dropdown-button">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none"  stroke-width="1.5" stroke="currentColor">
@@ -39,9 +34,6 @@
       <div id="header-dropdown-menu" class="dropdown-content">
         <ul class='no_bullets'>
           <%= session_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%>
-          <li>
-            <div id="toggle-theme" class="w-5 h-5 flexbox"></div>
-          </li>
         </ul>
       </div>
     </div>

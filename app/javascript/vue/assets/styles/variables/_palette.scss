@@ -10,8 +10,9 @@
 
   --bg-color: #f7f8fc;
   --bg-foreground: #ffffff;
-  --bg-muted: #f2f2f2;
+  --bg-muted: #f8fafc;
   --bg-action: #e3e8e3;
+  --bg-hover: #f1f5f9;
   --border-color: #d5d5d5;
   --button-disabled-bg-color: #ececec;
   --button-disabled-text-color: #999;
@@ -19,7 +20,9 @@
   --input-bg-color: #ffffff;
   --panel-bg-color: #ffffff;
   --panel-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
+  --panel-border-color: #e2e8f0;
   --text-color: #000000;
+  --text-muted-color: #6b7280;
 
   --modal-bg-color: rgba(0, 0, 0, 0.7);
   --modal-mask-bg-color: rgba(0, 0, 0, 0.7);
@@ -31,7 +34,7 @@
 
   --soft-validation-bg-color: #fff9f9;
 
-  --table-row-bg-hover: #e3e8e3;
+  --table-row-bg-hover: #f1f5f9;
 
   --feedback-primary-text-color: #4c81eb;
   --feedback-primary-bg-color: #b0caff;
@@ -70,6 +73,21 @@
   --news-blogpost-color: var(--color-primary);
   --news-blogpost-bg: #f7f7f7;
 
+  --badge-warning-color: #ef4444;
+  --badge-warning-bg: #ef444426;
+
+  --color-soft-success-bg: rgba(16, 185, 129, 0.08);
+
+  --color-soft-warning-bg: rgba(249, 115, 22, 0.1);
+  --color-soft-warning-border: rgba(249, 115, 22, 0.2);
+
+  --badge-green-bg: rgba(16, 185, 129, 0.15);
+  --badge-green-color: #10b981;
+  --color-green-soft-shadow: rgba(16, 185, 129, 0.5);
+
+  --badge-blue-bg: rgba(59, 130, 246, 0.15);
+  --badge-blue-color: #3b82f6;
+
   .news-bar-close-button {
     cursor: pointer;
   }
@@ -85,6 +103,7 @@
   --btn-radial-color: var(--color-primary);
 
   --bg-action: #000000;
+  --bg-hover: #000000;
   --bg-color: #242424;
   --bg-foreground: #333333;
   --bg-muted: #1b1b1b;
@@ -95,7 +114,9 @@
   --input-bg-color: #2b2b2b;
   --panel-bg-color: #333333;
   --panel-shadow: rgba(0, 0, 0, 0.25) 4px 4px 15px 0px;
+  --panel-border-color: #28292c;
   --text-color: #ffffff;
+  --text-muted-color: #c6c6c6;
 
   --modal-mask-bg-color: rgba(0, 0, 0, 0.7);
 
@@ -146,9 +167,9 @@ $tw-dark-colors: (
   'error': #a2131d,
   'panel': #ffffff,
   'primary': #006cbe,
-  'secondary': #5a1321,
+  'secondary': #0e0a0b,
   'update': #36974a,
-  'warning': #e48e30,
+  'warning': #f97316,
   'white': #ffffff,
   'border': #f5f5f5,
   'toggle-active': #beae00
@@ -156,7 +177,7 @@ $tw-dark-colors: (
 
 $tw-colors: (
   'focus': #e3e8e3,
-  'active': #98b798,
+  'active': #f1f5f9,
   'link': #5d9ece,
   'attention': #ffda44,
   'background': #f7f8fc,
@@ -169,7 +190,7 @@ $tw-colors: (
   'primary': #5d9ece,
   'secondary': #5a1321,
   'update': #9ccc65,
-  'warning': #ff8c00,
+  'warning': #f97316,
   'white': #ffffff,
   'border': #f5f5f5,
   'toggle-active': #cebd5d
