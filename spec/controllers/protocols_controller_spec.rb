@@ -108,7 +108,7 @@ RSpec.describe ProtocolsController, type: :controller do
       let(:valid_protocol_name) {'ValidProtocolName'}
 
       let(:new_attributes) {
-        valid_attributes.merge({ name: valid_protocol_name })
+        valid_attributes.merge({ 'name' => valid_protocol_name }) # NOTE: FactoryBot attributes are strings, not symbols.
       }
 
       it 'updates the requested protocol' do
