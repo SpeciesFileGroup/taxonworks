@@ -241,8 +241,18 @@ module Queries
         compact = []
 
         r.each do |h|
-          g = h[:label_target].id.to_s + h[:label_target].class.name
-          m = [ h[:otu].id, g ]
+          # Generate the actual rendered label to detect visual duplicates
+          if h[:label_target].kind_of?(::Otu)
+            label_text = h[:label_target].name || ''
+            if h[:label_target].taxon_name
+              label_text = h[:label_target].taxon_name.cached || h[:label_target].taxon_name.name
+            end
+          else # TaxonName
+            label_text = h[:label_target].cached || h[:label_target].name
+          end
+          
+          # Create a key based on OTU ID and the visual label
+          m = [ h[:otu].id, label_text ]
           next if seen.include?( m )
           seen << m
           compact.push h
