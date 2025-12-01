@@ -29,7 +29,7 @@
   
   <body <%= turbolinks_off_tag -%> >
     <header> 
-      <%= render partial: "shared/data/news/system_news_bar", collection: system_news_bars, as: :news %>
+      <%= render partial: "news/system_news_bar", collection: system_news_bars, as: :news %>
       <%= render(partial: 'sessions/summary') if sessions_signed_in? %>
     </header>
 

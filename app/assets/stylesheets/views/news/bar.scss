@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 20px;
+  padding: 1rem 2rem;
   font-size: 14px;
   border-bottom: 1px solid var(--border-color);
   text-align: center;
@@ -13,13 +13,13 @@
 }
 
 .news-bar-warning {
-  background: var(--news-warning-bg);
-  color: var(--news-warning-color);
+  background: var(--badge-red-bg);
+  color: var(--badge-red-color);
 }
 
 .news-bar-notice {
-  background: var(--news-notice-bg);
-  color: var(--news-notice-color);
+  background: var(--badge-yellow-bg);
+  color: var(--badge-yellow-color);
 }
 
 .news-bar-info {

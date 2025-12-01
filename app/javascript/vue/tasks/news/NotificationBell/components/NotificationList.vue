@@ -4,7 +4,7 @@
 
     <div class="notification-bell-list-container-title">
       <h3>Notifications</h3>
-      <span class="link">Show all</span>
+      <a :href="RouteNames.BrowseNews">Show all </a>
     </div>
 
     <div
@@ -29,6 +29,7 @@
 <script setup>
 import VSpinner from '@/components/ui/VSpinner.vue'
 import NotificationListItem from './NotificationListItem.vue'
+import { RouteNames } from '@/routes/routes'
 
 defineProps({
   list: {

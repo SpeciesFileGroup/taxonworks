@@ -1,5 +1,9 @@
 scope :tasks do
   scope :news do
+    scope :browse, controller: 'tasks/news/browse' do
+      get '/', action: :index, as: 'browse_news_task'
+    end
+
     scope :new, controller: 'tasks/news/new' do
       get '/', action: :index, as: 'news_new_task'
     end

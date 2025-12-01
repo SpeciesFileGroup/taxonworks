@@ -70,8 +70,8 @@
   --news-instruction-color: #003d99;
   --news-instruction-bg: #e6f0ff;
 
-  --news-blogpost-color: var(--color-primary);
-  --news-blogpost-bg: #f7f7f7;
+  --news-blogpost-color: #3b82f6;
+  --news-blogpost-bg: rgba(59, 130, 246, 0.15);
 
   --badge-warning-color: #ef4444;
   --badge-warning-bg: #ef444426;
@@ -87,6 +87,18 @@
 
   --badge-blue-bg: rgba(59, 130, 246, 0.15);
   --badge-blue-color: #3b82f6;
+
+  --badge-yellow-bg: rgba(245, 158, 11, 0.15);
+  --badge-yellow-color: #f59e0b;
+
+  --badge-red-bg: rgba(239, 68, 68, 0.15);
+  --badge-red-color: #ef4444;
+
+  --badge-default-bg: rgba(107, 114, 128, 0.15);
+  --badge-default-color: #6b7280;
+
+  --badge-purple-bg: rgba(139, 92, 246, 0.15);
+  --badge-purple-color: #8b5cf6;
 
   .news-bar-close-button {
     cursor: pointer;

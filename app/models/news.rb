@@ -9,6 +9,8 @@ class News < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::Permissions
 
+  ignore_whitespace_on(:body)
+
   ADMINISTRATION_TYPES = {
     'News::Administration::BlogPost': :administration_blog_post,
     'News::Administration::Warning': :administration_warning,

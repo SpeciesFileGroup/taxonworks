@@ -1,32 +1,34 @@
 <template>
-  <div class="notification-bell-list-item">
-    <div>
-      <div
-        :class="[
-          'notification-list-item-type',
-          getNewsStyle(notification.type)
-        ]"
-      >
-        <component
-          :is="ICON[type]"
-          class="w-4 h-4"
+  <a :href="makeBrowseLink(notification)">
+    <div class="notification-bell-list-item">
+      <div>
+        <div
+          :class="[
+            'notification-list-item-type',
+            getNewsStyle(notification.type)
+          ]"
+        >
+          <component
+            :is="ICON[type]"
+            class="w-4 h-4"
+          />
+        </div>
+      </div>
+      <div class="flex flex-col gap-xsmall">
+        <div
+          class="notification-bell-list-item-title"
+          v-text="notification.title"
         />
+        <div
+          class="notification-bell-list-item-body ellipsis"
+          v-html="notification.body_html"
+        />
+        <div class="notification-bell-list-item-time">
+          {{ timeAgo(notification.created_at) }}
+        </div>
       </div>
     </div>
-    <div class="flex flex-col gap-xsmall">
-      <div
-        class="notification-bell-list-item-title"
-        v-text="notification.title"
-      />
-      <div
-        class="notification-bell-list-item-body ellipsis"
-        v-html="notification.body_html"
-      />
-      <div class="notification-bell-list-item-time">
-        {{ timeAgo(notification.created_at) }}
-      </div>
-    </div>
-  </div>
+  </a>
 </template>
 
 <script setup>
@@ -36,6 +38,7 @@ import IconManual from '@/components/Icon/IconManual.vue'
 import IconMegaphone from '@/components/Icon/IconMegaphone.vue'
 import IconPost from '@/components/Icon/IconPost.vue'
 import getNewsStyle from '../utils/getNewsStyle'
+import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
   notification: {
@@ -51,6 +54,10 @@ const ICON = {
 }
 
 const type = computed(() => props.notification.type.split('::').at(-1))
+
+function makeBrowseLink({ id }) {
+  return `${RouteNames.BrowseNews}?news_id=${id}`
+}
 </script>
 
 <style scoped>
@@ -64,6 +71,22 @@ const type = computed(() => props.notification.type.split('::').at(-1))
   padding: 1rem 1.5rem;
   gap: 1rem;
   cursor: pointer;
+  color: var(--text-color);
+}
+
+.notification-bell-list-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.notification-list-item-type {
+  box-sizing: border-box;
+  border-radius: 100%;
+  padding: 0.5rem;
+  width: 32px;
+  height: 32px;
+  max-height: 32px;
+  max-width: 32px;
+  color: white;
 }
 
 .notification-bell-list-item-title {
@@ -77,7 +100,8 @@ const type = computed(() => props.notification.type.split('::').at(-1))
 
 .notification-list-item-project-blogpost,
 .notification-list-item-admin-blogpost {
-  background-color: var(--news-blogpost-color);
+  background-color: var(--badge-blue-bg);
+  color: var(--badge-blue-color);
 }
 
 .notification-list-item-admin-warning {
@@ -86,22 +110,13 @@ const type = computed(() => props.notification.type.split('::').at(-1))
 
 .notification-list-item-project-notice,
 .notification-list-item-admin-notice {
-  background-color: rgb(216, 135, 36);
+  background-color: var(--badge-yellow-bg);
+  color: var(--badge-yellow-color);
 }
 
 .notification-list-item-project-instruction {
-  background-color: var(--news-instruction-color);
-}
-
-.notification-list-item-type {
-  box-sizing: border-box;
-  border-radius: 100%;
-  padding: 0.5rem;
-  width: 32px;
-  height: 32px;
-  max-height: 32px;
-  max-width: 32px;
-  color: white;
+  background-color: var(--badge-purple-bg);
+  color: var(--badge-purple-color);
 }
 
 .notification-bell-list-item-body {

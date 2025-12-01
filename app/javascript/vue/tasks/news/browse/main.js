@@ -8,7 +8,7 @@ function initApp(element) {
 }
 
 document.addEventListener('turbolinks:load', () => {
-  const el = document.querySelector('#vue-news-new')
+  const el = document.querySelector('#vue-browse-news-task')
 
   if (el) {
     initApp(el)

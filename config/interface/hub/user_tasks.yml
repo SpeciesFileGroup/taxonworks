@@ -1098,3 +1098,10 @@ news_new_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+browse_news_task:
+  hub: true
+  name: 'Browse news'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
