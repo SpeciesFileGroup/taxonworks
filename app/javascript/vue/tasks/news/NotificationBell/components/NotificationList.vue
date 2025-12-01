@@ -14,6 +14,7 @@
       <NotificationListItem
         v-for="item in list"
         :key="item.id"
+        :discovered="discovered.some((id) => item.id)"
         :notification="item"
       />
     </div>
@@ -33,6 +34,11 @@ import { RouteNames } from '@/routes/routes'
 
 defineProps({
   list: {
+    type: Array,
+    required: true
+  },
+
+  discovered: {
     type: Array,
     required: true
   },

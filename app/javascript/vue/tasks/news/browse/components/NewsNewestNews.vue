@@ -56,12 +56,11 @@ const props = defineProps({
 
 .news-card-title {
   font-size: 2rem;
-  font-family: serif;
   font-weight: bold;
 }
 
 .news-card-body {
-  font-size: 1.1rem;
+  font-size: 1rem;
   max-height: 300px;
   min-height: 200px;
   overflow: hidden;

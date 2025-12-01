@@ -39,7 +39,7 @@ const emit = defineEmits(['close'])
   padding: 3rem 0rem;
 }
 .news-viewer-title {
-  font-family: serif;
+  font-weight: bold;
   font-size: 2rem;
   margin-bottom: 1.5rem;
 }

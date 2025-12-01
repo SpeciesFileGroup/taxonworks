@@ -45,7 +45,6 @@ const props = defineProps({
 .news-card-title {
   font-size: 1.5rem;
   font-weight: bold;
-  font-family: serif;
 }
 
 .news-card-time-ago {

@@ -23,29 +23,36 @@
       </svg>
 
       <div
-        v-if="notifications.length"
+        v-if="totalNewNotifications.length"
         class="notification-total"
-        v-text="notifications.length"
+        v-text="totalNewNotifications.length"
       />
     </div>
     <NotificationList
       v-if="isNotificationListVisible"
       :loading="isLoading"
       :list="notifications"
+      :discovered="discoveredNews"
     />
   </div>
 </template>
 
 <script setup>
-import { onBeforeMount, ref, useTemplateRef } from 'vue'
+import { computed, onBeforeMount, ref, useTemplateRef, watch } from 'vue'
 import { News } from '@/routes/endpoints'
 import { useClickOutside } from '@/composables'
 import NotificationList from './components/NotificationList.vue'
 
+defineOptions({
+  name: 'NotificationBell'
+})
+
 const notificationRef = useTemplateRef('notificationBell')
 const notifications = ref([])
+const discoveredNews = ref(
+  JSON.parse(localStorage.getItem('discoveredNews') || '[]')
+)
 const isLoading = ref(false)
-
 const isNotificationListVisible = ref(false)
 
 useClickOutside(
@@ -53,9 +60,22 @@ useClickOutside(
   () => (isNotificationListVisible.value = false)
 )
 
+const totalNewNotifications = computed(() =>
+  notifications.value.filter(({ id }) => !discoveredNews.value.includes(id))
+)
+
+watch(isNotificationListVisible, (newVal) => {
+  const newsId = notifications.value.map((item) => item.id)
+
+  if (!newVal) {
+    discoveredNews.value = newsId
+    localStorage.setItem('discoveredNews', JSON.stringify(newsId))
+  }
+})
+
 onBeforeMount(() => {
   isLoading.value = true
-  News.where({})
+  News.where({ per: 10 })
     .then(({ body }) => {
       notifications.value = body.reverse()
     })

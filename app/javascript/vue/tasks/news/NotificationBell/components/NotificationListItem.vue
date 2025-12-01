@@ -12,6 +12,7 @@
             :is="ICON[type]"
             class="w-4 h-4"
           />
+          <NotificationPulse v-if="!discovered" />
         </div>
       </div>
       <div class="flex flex-col gap-xsmall">
@@ -39,10 +40,16 @@ import IconMegaphone from '@/components/Icon/IconMegaphone.vue'
 import IconPost from '@/components/Icon/IconPost.vue'
 import getNewsStyle from '../utils/getNewsStyle'
 import { RouteNames } from '@/routes/routes'
+import NotificationPulse from './NotificationPulse.vue'
 
 const props = defineProps({
   notification: {
     type: Object,
+    required: true
+  },
+
+  discovered: {
+    type: Boolean,
     required: true
   }
 })
@@ -79,6 +86,7 @@ function makeBrowseLink({ id }) {
 }
 
 .notification-list-item-type {
+  position: relative;
   box-sizing: border-box;
   border-radius: 100%;
   padding: 0.5rem;
