@@ -60,7 +60,6 @@ const props = defineProps({
 }
 
 .news-card-body {
-  font-size: 1rem;
   max-height: 300px;
   min-height: 200px;
   overflow: hidden;
