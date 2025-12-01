@@ -22,7 +22,6 @@ const colorClass = computed(() => `v-badge--${props.color}`)
   border-radius: 4px;
   font-size: 0.75rem;
   width: min-content;
-  text-transform: uppercase;
 }
 
 .v-badge--default {

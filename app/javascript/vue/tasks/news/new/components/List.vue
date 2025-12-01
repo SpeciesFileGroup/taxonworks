@@ -17,9 +17,22 @@
       >
         <td v-html="item.title" />
         <td v-html="item.body" />
-        <td v-text="item.type" />
-        <td v-text="item.start" />
-        <td v-text="item.end" />
+        <td>
+          <VBadge
+            class="capitalize"
+            :color="newsColors[item.type.split('::')[2]]"
+          >
+            {{ getTypeLabel(item) }}
+          </VBadge>
+        </td>
+        <td
+          class="line-nowrap"
+          v-text="item.start"
+        />
+        <td
+          class="line-nowrap"
+          v-text="item.end"
+        />
         <td>
           <div class="flex-row gap-small">
             <VBtn
@@ -52,6 +65,8 @@
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import VBadge from '@/components/ui/VBadge/VBadge.vue'
+import newsColors from '@/tasks/news/browse/constants/newsColors.js'
 
 defineProps({
   list: {
@@ -70,5 +85,11 @@ function selectItem(item) {
   ) {
     emit('remove', item)
   }
+}
+
+function getTypeLabel(item) {
+  const [_, namespace, type] = item.type.split('::')
+
+  return `${namespace}/${type}`
 }
 </script>

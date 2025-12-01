@@ -1,7 +1,7 @@
 <template>
-  <div class="">
+  <div>
     <div class="news-column">{{ title }}</div>
-    <div class="flex-col gap-medium">
+    <div class="flex-col">
       <NewsCard
         v-for="item in news"
         :key="item.id"

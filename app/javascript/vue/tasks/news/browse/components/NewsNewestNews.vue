@@ -1,7 +1,10 @@
 <template>
   <article class="news-card">
     <div class="news-card-type middle margin-small-bottom">
-      <VBadge :color="newsColors[news.type]">
+      <VBadge
+        class="uppercase"
+        :color="newsColors[news.type]"
+      >
         {{ news.type }}
       </VBadge>
       <div>{{ timeAgo(news.createdAt) }}</div>

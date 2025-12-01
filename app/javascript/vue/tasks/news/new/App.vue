@@ -55,14 +55,22 @@ const list = ref([])
 const news = ref(makeNews())
 const isSaving = ref(false)
 
+function formatDateTime(isoString) {
+  if (!isoString) return isoString
+
+  const d = new Date(isoString)
+  const [date, time] = d.toISOString().split('T')
+  return `${date} ${time.slice(0, 5)}`
+}
+
 function makeNews(data = {}) {
   return {
     id: data.id,
     title: data.title,
     body: data.body,
     type: data.type,
-    start: data.display_start,
-    end: data.display_end
+    start: formatDateTime(data.display_start),
+    end: formatDateTime(data.display_end)
   }
 }
 
@@ -90,7 +98,7 @@ async function save() {
       ? await News.update(newsId, payload)
       : await News.create(payload)
 
-    addToArray(list.value, body)
+    addToArray(list.value, makeNews(body))
     TW.workbench.alert.create('News was successfully saved.', 'notice')
   } catch {
   } finally {

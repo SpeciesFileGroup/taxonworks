@@ -3,7 +3,7 @@
     <div class="news-card-time-ago">{{ timeAgo(news.createdAt) }}</div>
     <div>
       <VBadge
-        class="margin-small-bottom"
+        class="margin-small-bottom uppercase"
         :color="newsColors[news.type]"
       >
         {{ news.type }}
@@ -37,7 +37,7 @@ const props = defineProps({
   flex-direction: row;
   border-bottom: 1px solid var(--panel-border-color);
   cursor: pointer;
-  padding: 1rem 0rem;
+  padding: 1.5rem 0rem;
   gap: 4rem;
   transition: all 0.3s ease;
 }
@@ -55,7 +55,7 @@ const props = defineProps({
 }
 
 .news-card-body {
-  //max-width: 300px;
+  max-width: 1100px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;

@@ -1,7 +1,7 @@
 <template>
   <div class="news-viewer">
     <VBadge
-      class="margin-small-bottom"
+      class="margin-small-bottom uppercase"
       :color="newsColors[news.type]"
       >{{ news.type }}</VBadge
     >
