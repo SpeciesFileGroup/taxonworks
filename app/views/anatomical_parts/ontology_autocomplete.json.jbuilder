@@ -23,14 +23,14 @@
       elsif !a_include && b_include
         1
       else
-        a_prefix = a[:ontology_prefix].downcase
-        b_prefix = b[:ontology_prefix].downcase
-        if a_prefix < b_prefix
-          -1
-        elsif a_prefix > b_prefix
-          1
-        else
+        a_prefix = a[:ontology_prefix]&.downcase
+        b_prefix = b[:ontology_prefix]&.downcase
+        if a_prefix.nil? || b_prefix.nil? || (a_prefix == b_prefix)
           a[:label] <=> b[:label]
+        elsif a_prefix < b_prefix
+          -1
+        else # a_prefix > b_prefix
+          1
         end
       end
     end

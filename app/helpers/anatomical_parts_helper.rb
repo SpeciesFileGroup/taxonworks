@@ -35,8 +35,10 @@ module AnatomicalPartsHelper
     r = ols_result
 
     description = r[:description].present? ? ": #{r[:description]}" : ''
-
-    "#{r[:label]} (#{r[:ontology_prefix]})#{description}"
+    # We expect this to always be present and it usually is, but sometimes it
+    # isn't.
+    ontology_prefix = r[:ontology_prefix] ? "(#{r[:ontology_prefix]})" : ''
+    "#{r[:label]} #{ontology_prefix}#{description}"
   end
 
   def anatomical_part_graph_label_for_related_object(obj)
