@@ -14,6 +14,11 @@ const permitParams = {
   }
 }
 
+const controller = 'labels'
 export const Label = {
-  ...baseCRUD('labels', permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  batchCreate: (params) =>
+    ajaxCall('post', `/${controller}/batch_create`, params)
+
 }

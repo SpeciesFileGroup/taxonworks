@@ -78,6 +78,20 @@ class LabelsController < ApplicationController
     end
   end
 
+  def batch_create
+    begin
+      Label.batch_create(
+        params[:collecting_event_query],
+        params[:total]
+      )
+    rescue TaxonWorks::Error => e
+      render json: { errors: e.message },  status: :unprocessable_entity
+      return
+    end
+
+    head :no_content
+  end
+
   private
 
   def set_label

@@ -55,6 +55,35 @@ class Label < ApplicationRecord
     false
   end
 
+  def self.batch_create(collecting_event_query_params, total)
+    q = Queries::CollectingEvent::Filter.new(collecting_event_query_params).all
+
+    max = 1_000
+    if q.count > max
+      raise TaxonWorks::Error, "At most #{max} labels can be created at once"
+    end
+
+    total = [total, 1].max
+    begin
+      i = 0
+      # Can't think of why this should ever fail, so we'll just
+      # fail-on-first-error.
+      q.each do |ce|
+        next if ce.verbatim_label.blank?
+
+        Label.create!(
+          text: ce.verbatim_label,
+          total:,
+          label_object_id: ce.id,
+          label_object_type: ce.class.name,
+        )
+        i += 1
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      raise TaxonWorks::Error, "Batch create failed after #{i}/#{q.count} creates! '#{e.errors.full_messages.join('; ')}'"
+    end
+  end
+
   protected
 
   def set_text
