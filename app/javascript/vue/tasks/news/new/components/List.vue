@@ -16,7 +16,12 @@
         :key="item.id"
       >
         <td v-html="item.title" />
-        <td v-html="item.body" />
+        <td>
+          <div
+            class="news-body"
+            v-html="item.bodyHtml"
+          />
+        </td>
         <td>
           <VBadge
             class="capitalize"
@@ -88,8 +93,21 @@ function selectItem(item) {
 }
 
 function getTypeLabel(item) {
-  const [_, namespace, type] = item.type.split('::')
-
-  return `${namespace}/${type}`
+  return item.type.split('::').pop()
 }
 </script>
+
+<style scoped>
+.news-body {
+  max-width: 500px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  opacity: 0.75;
+}
+
+.news-body * {
+  display: inline;
+  white-space: nowrap !important;
+}
+</style>
