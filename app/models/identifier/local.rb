@@ -68,7 +68,10 @@ class Identifier::Local < Identifier
     # Increment can fail if the identifier has no numeric component
     if (incremented_value = ::Utilities::Strings.increment_contained_integer(identifier))
       self[:identifier] = incremented_value
+      return true
     end
+
+    false
   end
 
   protected
