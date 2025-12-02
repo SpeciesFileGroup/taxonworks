@@ -16,7 +16,7 @@
         @click.stop
       />
       <RadialObject
-        v-if="inEditMode && ORIGINS.includes(nodeType)"
+        v-if="inEditMode && (ORIGINS.includes(nodeType) || nodeType == EXTRACT)"
         :global-id="node.object_global_id"
         @create="updateGraph"
         @delete="updateGraph"
@@ -119,6 +119,7 @@ import {
   COLLECTION_OBJECT,
   CREATE_VERB,
   EDIT_VERB,
+  EXTRACT,
   FIELD_OCCURRENCE,
   OTU
 } from '@/constants'
