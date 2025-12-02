@@ -55,8 +55,13 @@ class Label < ApplicationRecord
     false
   end
 
-  def self.batch_create(collecting_event_query_params, total)
+  def self.batch_create(collecting_event_query_params, label_attribute, total)
     q = Queries::CollectingEvent::Filter.new(collecting_event_query_params).all
+
+    label_attribute = (label_attribute || '').to_sym
+    if ![:verbatim_label, :document_label, :print_label].include?(label_attribute)
+      raise TaxonWorks::Error, "Invalid label choice: '#{label_attribute}'"
+    end
 
     max = 1_000
     if q.count > max
@@ -69,10 +74,11 @@ class Label < ApplicationRecord
       # Can't think of why this should ever fail, so we'll just
       # fail-on-first-error.
       q.each do |ce|
-        next if ce.verbatim_label.blank?
+        label_text = ce[label_attribute]
+        next if label_text.blank?
 
         Label.create!(
-          text: ce.verbatim_label,
+          text: label_text,
           total:,
           label_object_id: ce.id,
           label_object_type: ce.class.name,

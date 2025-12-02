@@ -82,6 +82,7 @@ class LabelsController < ApplicationController
     begin
       Label.batch_create(
         params[:collecting_event_query],
+        params[:label_attribute],
         params[:total]
       )
     rescue TaxonWorks::Error => e
