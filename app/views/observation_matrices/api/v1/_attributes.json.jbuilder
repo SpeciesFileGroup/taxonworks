@@ -14,10 +14,16 @@ end
 
 if extend_response_with('columns')
   json.columns(observation_matrix.observation_matrix_columns.order(:position)) do |c|
-    json.partial! '/shared/data/all/metadata', object: c, extensions: false 
+    json.partial! '/shared/data/all/metadata', object: c, extensions: false
 
     json.descriptor do
-      json.partial! '/shared/data/all/metadata', object: c.descriptor, extensions: false 
+      json.partial! '/shared/data/all/metadata', object: c.descriptor, extensions: false
     end
+  end
+end
+
+if extend_response_with('notes')
+  json.notes observation_matrix.notes.each do |n|
+    json.text n.text
   end
 end

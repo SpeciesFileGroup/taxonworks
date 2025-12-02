@@ -19,6 +19,7 @@ export default ({ state, commit, dispatch }) => {
       smartSelectorRefresh()
       TW.workbench.alert.create('Source was successfully saved.', 'notice')
     })
+    .catch(() => {})
     .finally(() => {
       state.settings.saving = false
     })

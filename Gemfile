@@ -4,7 +4,6 @@ gem 'rack-cors', '~> 2.0', require: 'rack/cors'
 
 ruby '>= 3.2', '< 3.5.0'
 
-gem 'bundler', '~> 2.5'
 
 gem 'rake', '~> 13.0'
 gem 'rails', '~> 7.2'
@@ -100,7 +99,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '9.2.0'
+gem 'shakapacker', '9.3.2'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'
@@ -228,5 +227,4 @@ group :production do
   gem 'execjs', '~> 2.8.1'
   gem 'passenger', '~> 6.0.2'
 end
-
 

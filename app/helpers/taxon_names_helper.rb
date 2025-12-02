@@ -654,9 +654,11 @@ module TaxonNamesHelper
   def taxonomic_tree_node(taxon_name, include_count)
     node = {
       id: taxon_name.id,
+      parent_id: taxon_name.parent_id,
       label: taxon_name.cached_html_name_and_author_year,
       is_valid: taxon_name.cached_is_valid,
       cached_valid_taxon_name_id: taxon_name.cached_valid_taxon_name_id,
+      rank_string: taxon_name.rank_string,
       synonyms: taxon_name_synonyms_list(taxon_name).map { |syn| taxon_name_synonym_li(syn) },
       leaf_node: taxon_name.descendants.unscope(:order).empty?
     }

@@ -106,7 +106,11 @@ module Shared::Maps
     def touched_cached_maps
       case self.class.base_class.name
       when 'AssertedDistribution'
-        return ::Queries::Otu::Filter.new(otu_id:, coordinatify: true, ancestrify: true, project_id: ).all
+        if asserted_distribution_object_type == 'Otu'
+          return ::Queries::Otu::Filter.new(otu_id: asserted_distribution_object_id, coordinatify: true, ancestrify: true, project_id: ).all
+        else
+          return Otu.none
+        end
       when 'Georeference'
         otu_ids = collecting_event.otus.distinct.pluck(:id)
         return ::Queries::Otu::Filter.new(otu_id: otu_ids, coordinatify: true, ancestrify: true, project_id: ).all

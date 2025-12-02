@@ -13,3 +13,9 @@ if common_name.geographic_area
     json.name common_name.geographic_area.name
   end
 end
+
+if extend_response_with('notes')
+  json.notes common_name.notes.each do |n|
+    json.text n.text
+  end
+end

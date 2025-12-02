@@ -871,6 +871,8 @@ class Protonym < TaxonName
       object_filter_params: params[:taxon_name_query],
       object_params: params[:taxon_name],
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     query_batch_update(request)
@@ -983,7 +985,6 @@ class Protonym < TaxonName
       rank_string =~ /Species/ &&
       (cached_secondary_homonym != get_genus_species(:current, :self) ||
        cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)))
-
     is_cached = false
   end
 

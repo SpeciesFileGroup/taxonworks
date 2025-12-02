@@ -245,6 +245,8 @@ class Otu < ApplicationRecord
       object_filter_params: params[:otu_query],
       object_params: params[:otu],
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     a = request.filter

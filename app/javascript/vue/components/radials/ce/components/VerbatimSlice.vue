@@ -71,11 +71,11 @@ import { ref, computed } from 'vue'
 import { addToArray, humanize } from '@/helpers'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
+import updateMessage from '../utils/updateMessage.js'
 
 const MAX_LIMIT = 250
 
 const VERBATIM_FIELDS = {
-  verbatim_label: 'textarea',
   verbatim_locality: 'textarea',
   verbatim_latitude: 'input',
   verbatim_longitude: 'input',
@@ -119,14 +119,6 @@ const payload = computed(() => ({
     )
   }
 }))
-
-function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} collecting events queued for updating.`
-    : `${data.updated.length} collection events were successfully updated.`
-
-  TW.workbench.alert.create(message, 'notice')
-}
 
 function makeLabel(property) {
   return humanize(property.slice(8))

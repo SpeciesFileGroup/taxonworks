@@ -15,6 +15,10 @@ class BatchByFilterScopeJob < ApplicationJob
     project_id: nil, user_id: nil
   )
     begin
+      # Set a 'session' context in this background job:
+      Current.user_id = user_id
+      Current.project_id = project_id
+
       b = ::Queries::Query::Filter.instantiated_base_filter(hash_query)
       q = b.all(true)
 

@@ -133,6 +133,8 @@ RSpec.describe Attribution, type: :model do
           license: 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'
         }
       },
+      project_id: Project.first.id,
+      user_id: User.first.id,
       async_cutoff: 0
     )
     expect(Attribution.all.count).to eq(0)

@@ -10,27 +10,27 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
   let(:query) { Queries::Source::Autocomplete.new('') }
 
   specify '#autocomplete_start_of_author 1' do
-    query.terms = 'Smith' 
+    query.terms = 'Smith'
     expect(query.autocomplete_start_of_author.map(&:id)).to contain_exactly(s2.id, s3.id)
   end
 
   specify '#autocomplete_exact_author 1' do
-    query.terms = 'Smith' 
+    query.terms = 'Smith'
     expect(query.autocomplete_exact_author.map(&:id)).to contain_exactly(s2.id, s3.id)
   end
 
   specify '#autocomplete_any_author 1' do
-    query.terms = 'Smith' 
+    query.terms = 'Smith'
     expect(query.autocomplete_any_author.map(&:id)).to contain_exactly(s2.id, s3.id, s4.id)
   end
 
   specify '#autocomplete_any_author 2' do
-    query.terms = 'Smit' 
+    query.terms = 'Smit'
     expect(query.autocomplete_any_author.map(&:id)).to contain_exactly()
   end
 
   specify '#autocomplete_partial_author 1' do
-    query.terms = 'Smit' 
+    query.terms = 'Smit'
     expect(query.autocomplete_partial_author.map(&:id)).to contain_exactly(s2.id, s3.id, s4.id)
   end
 
@@ -124,5 +124,41 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
   #  query.terms = 'Smith 1921z'
   #  expect(query.autocomplete.map(&:id).first).to eq(s3.id)
   #end
+
+  context 'searching by author and stated_year' do
+    let!(:source_with_stated_year) {
+      FactoryBot.create(:valid_source_bibtex,
+        author: 'Johnson',
+        stated_year: '2020',
+        year: 2021,
+        title: 'A study with stated year'
+      )
+    }
+
+    let!(:source_with_year) {
+      FactoryBot.create(:valid_source_bibtex,
+        author: 'Johnson',
+        year: 2020,
+        stated_year: nil,
+        title: 'A study with year'
+      )
+    }
+
+    specify 'finds source when queried year is in stated_year field' do
+      query.terms = 'Johnson 2020'
+      expect(query.autocomplete).to include(source_with_stated_year)
+    end
+
+    specify 'finds source when queried year is in year field' do
+      query.terms = 'Johnson 2021'
+      expect(query.autocomplete).to include(source_with_stated_year)
+    end
+
+    specify 'finds both sources when searching by author and year' do
+      query.terms = 'Johnson 2020'
+      result_ids = query.autocomplete.map(&:id)
+      expect(result_ids).to include(source_with_stated_year.id, source_with_year.id)
+    end
+  end
 
 end

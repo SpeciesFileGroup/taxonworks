@@ -395,7 +395,7 @@ module Queries
         })
 
         bag_scope = bag_query.all
-        return nil if bag_query.only_project?() || bag_scope.nil?
+        return nil if bag_query.only_project_or_less?() || bag_scope.nil?
 
         ::BiologicalAssociation
           .joins(:biological_associations_graphs)

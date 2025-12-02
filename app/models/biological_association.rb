@@ -145,7 +145,9 @@ class BiologicalAssociation < ApplicationRecord
         object_filter_params: params[:biological_association_query],
         object_params: params[:biological_association],
         async_cutoff: (params[:async_cutoff] || 26),
-        preview: params[:preview]
+        preview: params[:preview],
+        user_id: params[:user_id],
+        project_id: params[:project_id]
       )
 
       set_batch_cap(request)

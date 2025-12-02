@@ -190,8 +190,8 @@ class Tools::ImageMatrix
     @observation_matrix_citation = @observation_matrix&.source
     @language_id = language_id
     @keyword_ids = keyword_ids
-    @per = per.blank? ? 250 : per
-    @page = page.blank? ? 1 : page
+    @per = (per.presence || 250)
+    @page = (page.presence || 1)
     @descriptor_available_keywords = descriptor_available_keywords
     @row_filter = row_filter
     @otu_filter = otu_filter
@@ -264,7 +264,7 @@ class Tools::ImageMatrix
 
   # @return Enumberable
   def descriptors_with_keywords
-    if observation_matrix_id.to_i == 0 && !otu_filter.blank?
+    if observation_matrix_id.to_i == 0 && otu_filter.present?
       d = observation_depictions_from_otu_filter.pluck(:descriptor_id).uniq
       ds = Descriptor::Media.where(id: d).not_weight_zero
     elsif keyword_ids
@@ -303,7 +303,7 @@ class Tools::ImageMatrix
   def row_hash_initiate
     h = {}
     rows = nil # Of either Otu or ObservationMatrixRow of type Otu !! TODO:
-    if observation_matrix_id.to_i == 0 && !otu_filter.blank?
+    if observation_matrix_id.to_i == 0 && otu_filter.present?
 
       o = observation_depictions_from_otu_filter.where("observations.observation_object_type = 'Otu'").pluck(:observation_object_id).uniq
 
@@ -372,7 +372,7 @@ class Tools::ImageMatrix
     # Depictions is depictions with other attributes added
     depictions = nil
 
-    if observation_matrix_id.to_i == 0 && !otu_filter.blank?
+    if observation_matrix_id.to_i == 0 && otu_filter.present?
       depictions = observation_depictions_from_otu_filter
     else
       return h if observation_matrix.nil?
@@ -415,10 +415,10 @@ class Tools::ImageMatrix
   # @return [Depiction scope]
   def observation_depictions_from_otu_filter
     Depiction.select('depictions.*, observations.descriptor_id, observations.observation_object_id, observations.observation_object_type, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
-      .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id")
-      .joins("INNER JOIN images ON depictions.image_id = images.id")
+      .joins('INNER JOIN observations ON observations.id = depictions.depiction_object_id')
+      .joins('INNER JOIN images ON depictions.image_id = images.id')
       .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
-      .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
+      .joins('LEFT OUTER JOIN sources ON citations.source_id = sources.id')
       .where("observations.type = 'Observation::Media' AND observations.observation_object_id IN (?)", otu_id_filter_array)
       .where('observations.project_id = (?)', project_id)
       .order('depictions.position')
@@ -462,45 +462,21 @@ class Tools::ImageMatrix
     #    else
     #      img_ids = observation_matrix.observation_depictions.pluck(:image_id).uniq
     #    end
-    h = {}
+    images = Image.where(id: list_of_image_ids).index_by(&:id)
 
-    imgs = Image.where('id IN (?)', list_of_image_ids )
-    imgs.each do |d|
-      i = {}
-      i[:global_id] = d.to_global_id.to_s
-      i[:image_file_file_name] = d.image_file_file_name
-      i[:image_file_file_size] = d.image_file_file_size
-      i[:image_file_content_type] = d.image_file_content_type
-      i[:user_file_name] = d.user_file_name
-      i[:height] = d.height
-      i[:width] = d.width
-      i[:original_url] = d.image_file.url
-      i[:medium_url] = d.image_file.url(:medium)
-      i[:thumb_url] = d.image_file.url(:thumb)
-      i[:citations] = []
-      h[d.id] = i
-    end
-
-    #cit = Citation.where(citation_object_type: 'Image').where('citation_object_id IN (?)', img_ids )
-    cit = Citation.select('citations.*, sources.cached, sources.cached_author_string, sources.year')
+    citations = Citation
+      .select('citations.*, sources.cached, sources.cached_author_string, sources.year')
       .joins(:source)
-      .where(citation_object_type: 'Image')
-      .where('citation_object_id IN (?)', list_of_image_ids )
+      .where(citation_object_type: 'Image', citation_object_id: list_of_image_ids)
 
-    cit.each do |c|
-      i = {}
-      i[:id] = c.id
-      i[:source_id] = c.source_id
-      i[:pages] = c.pages
-      i[:is_original] = c.is_original
-      i[:cached] = c.cached
-      i[:cached_author_string] = c.cached_author_string
-      i[:year] = c.year
-      i[:global_id] = c.to_global_id.to_s
-      #i[:citation_object_id] = c.citation_object_id
-      #i[:citation_object_type] = c.citation_object_type
-      h[c.citation_object_id][:citations].push(i)
+    h = images.transform_values { |img| { image: img, citations: [] } }
+
+    citations.each do |c|
+      if h[c.citation_object_id]
+        h[c.citation_object_id][:citations] << c
+      end
     end
+  
     h
   end
 

@@ -105,7 +105,16 @@ class InternalAttribute < DataAttribute
 
     s = b.all.count
 
-    return false if b.params.empty? || s > 1000 || s == 0
+    error = nil
+    max = 1_000
+    if b.params.empty?
+      error = 'One or more facets must be selected.'
+    elsif s > max
+      error = "Too many records, max is #{max}"
+    elsif s == 0
+      error = 'No records to operate on.'
+    end
+    return error if error.present?
 
     transaction do
       update_value(b, params[:predicate_id], params[:value_from], params[:value_to])

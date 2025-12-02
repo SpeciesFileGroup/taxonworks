@@ -76,7 +76,7 @@
   </tr>
 
   <tr>
-    <td> Collection objects with determinations </td>
+    <td> Collection objects without determinations </td>
     <td> <%= objects_without_determinations = ::Queries::CollectionObject::Filter.new(@collection_objects_query.params.merge(taxon_determinations: false)).all.count -%> </td>
     <td> <%= (100.0 * (objects_without_determinations.to_f / @collection_objects.count.to_f)).round(2) -%> </td>
     <td> <%= link_to('Link', filter_collection_objects_task_url(
@@ -95,7 +95,7 @@
 <% if m.count < 10000 %>
   <% n = ::Queries::TaxonName::Filter.new(collection_object_query: @collection_objects_query.params, ancestrify: true).all %>
 
-  <ul> 
+  <ul>
     <li> <b> Bold means a record is linked directly to that taxon. </b> </li>
     <li> <%= m.count %> taxon names referenced </li>
   </ul>

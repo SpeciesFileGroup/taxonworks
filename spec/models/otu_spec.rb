@@ -322,10 +322,13 @@ describe Otu, type: :model, group: :otu do
       q = ::Queries::Otu::Filter.new({otu_id: [o0.id, o1.id]})
 
       params = {
+        async_cutoff: 1,
         otu: { taxon_name_id: t.id },
+        user_id: Current.user_id,
+        project_id: Current.project_id
       }.merge(otu_query: q.params)
 
-      response = Otu.batch_update(params.merge(async_cutoff: 1)).to_json
+      response = Otu.batch_update(params).to_json
 
       sleep(2) # jobs trigger in 2 seconds
       Delayed::Worker.new.work_off

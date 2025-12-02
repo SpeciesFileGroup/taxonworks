@@ -764,7 +764,7 @@ resources :projects, only: [] do
 
   collection do
     scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
-      get :validate_eml, defaults: {format: :json}
+      post :validate_eml, defaults: {format: :json}
     end
   end
 end
