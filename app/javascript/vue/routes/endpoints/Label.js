@@ -1,4 +1,5 @@
 import baseCRUD from './base'
+import { ajaxCall } from '@/helpers'
 
 const permitParams = {
   label: {
@@ -20,5 +21,4 @@ export const Label = {
 
   batchCreate: (params) =>
     ajaxCall('post', `/${controller}/batch_create`, params)
-
 }
