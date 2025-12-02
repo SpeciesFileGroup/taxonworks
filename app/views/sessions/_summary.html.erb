@@ -23,7 +23,10 @@
       <%= content_tag(:span, sessions_current_user.name, class: 'subtle')-%>
     </div>
 
+    <% if sessions_project_selected? %>
     <div id="vue-bell-notifications"></div>
+    <% end %>
+    
     <div id="toggle-theme" class="w-5 h-5 flexbox"></div>    
     <div class="dropdown">
       <div id="header-dropdown-btn" class="dropdown-button">

@@ -41,17 +41,21 @@
 import { computed, onBeforeMount, ref, useTemplateRef, watch } from 'vue'
 import { News } from '@/routes/endpoints'
 import { useClickOutside } from '@/composables'
+import { getCurrentProjectId, getCurrentUserId } from '@/helpers'
 import NotificationList from './components/NotificationList.vue'
 
 defineOptions({
   name: 'NotificationBell'
 })
 
+const projectId = getCurrentProjectId()
+const userId = getCurrentUserId()
+
+const storageKey = `discoveredNews-u${userId}-p${projectId}`
+
 const notificationRef = useTemplateRef('notificationBell')
 const notifications = ref([])
-const discoveredNews = ref(
-  JSON.parse(localStorage.getItem('discoveredNews') || '[]')
-)
+const discoveredNews = ref(JSON.parse(localStorage.getItem(storageKey) || '[]'))
 const isLoading = ref(false)
 const isNotificationListVisible = ref(false)
 
@@ -69,7 +73,7 @@ watch(isNotificationListVisible, (newVal) => {
 
   if (!newVal) {
     discoveredNews.value = newsId
-    localStorage.setItem('discoveredNews', JSON.stringify(newsId))
+    localStorage.setItem(storageKey, JSON.stringify(newsId))
   }
 })
 
