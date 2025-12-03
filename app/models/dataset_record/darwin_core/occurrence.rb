@@ -302,22 +302,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         if record_number = get_field_value(:recordNumber)
           record_number_namespace = get_field_value('TW:Namespace:recordNumber')
-          identifier_attributes = {
-            identifier: record_number,
-            project_id: Current.project_id
-          }
 
           record_number_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(record_number_namespace)) # Case insensitive match
           raise DarwinCore::InvalidData.new({ 'TW:Namespace:recordNumber' => ['Namespace not found'] }) unless record_number_namespace
 
-          identifier_attributes[:namespace] = record_number_namespace
-          identifier = Identifier::Local::RecordNumber
-            .create_with(identifier_object: collection_object, annotator_batch_mode: true)
-            .find_or_create_by!(identifier_attributes)
-
-          unless identifier.identifier_object == collection_object
-            raise DarwinCore::InvalidData.new({ 'recordNumber' => ['Is already in use'] })
-          end
+          identifier = Identifier::Local::RecordNumber.create!(
+            identifier: record_number,
+            identifier_object: collection_object,
+            namespace: record_number_namespace,
+            annotator_batch_mode: true
+          )
         end
 
         if attributes.dig(:catalog_number, :identifier)

@@ -3,12 +3,9 @@
     <legend>Shapefile documents</legend>
     <VSpinner v-if="isLoading" />
     <p>
-      <b
-        >Documents that must be in TaxonWorks: .shp, .shx, .dbf, .prj -
-        <i>You need only specify the .shp file here.</i></b
-      >
+        Use the <code>New</code> tab to add the following required shapefile documents to TaxonWorks: .shp, .shx, .dbf, .prj.
       A .cpg document is optional but if your shapefile has one you should
-      upload it to TaxonWorks before importing (it need not be selected here).
+      upload it to TaxonWorks.
     </p>
 
     <ShapefileUploadHelper
@@ -121,7 +118,7 @@ const DROPZONE_CONFIG_BASE = {
       .getAttribute('content')
   },
   dictDefaultMessage:
-    'Drop a shapefile file here (.shp, .shx, .dbf, .prj, .cpg)'
+    'Drop shapefile files here (.shp, .shx, .dbf, .prj, .cpg)'
 }
 
 const emit = defineEmits('selected')
