@@ -35,6 +35,7 @@
         :in-edit-mode="showNodeQuickForms"
         :context="nodeContextMenu"
         @update-graph="() => emit('updateGraph')"
+        @close="() => (nodeContextMenu.closeContextMenu())"
       />
     </ContextMenu>
 

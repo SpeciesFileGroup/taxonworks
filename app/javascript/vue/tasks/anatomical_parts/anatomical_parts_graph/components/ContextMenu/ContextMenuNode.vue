@@ -80,6 +80,7 @@
       @close="() => {
         showingCreate = false
         showingEdit = false
+        emit('close')
       }"
     >
       <template #header>
@@ -152,7 +153,7 @@ const props = defineProps({
 const showingCreate = ref(false)
 const showingEdit = ref(false)
 
-const emit = defineEmits(['updateGraph'])
+const emit = defineEmits(['updateGraph', 'close'])
 
 const objectBrowseLink = computed(() => {
   const { id, objectType } = parseNodeId(props.nodeId)
