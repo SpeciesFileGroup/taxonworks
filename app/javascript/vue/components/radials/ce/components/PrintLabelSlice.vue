@@ -44,7 +44,7 @@
         :batch-service="Label.batchCreate"
         :payload="payload"
         :disabled="isCreateAvailable"
-        @update="updateMessage"
+        @update="(data) => toastCreation(data)"
         @close="emit('close')"
       />
 
@@ -68,7 +68,6 @@ import { ref, computed } from 'vue'
 import { humanize } from '@/helpers'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
-import updateMessage from '../utils/updateMessage.js'
 
 const MAX_LIMIT = 1000
 
@@ -103,4 +102,12 @@ const payload = computed(() => ({
   label_attribute: selectedLabelAttribute.value,
   total: total.value
 }))
+
+function toastCreation(data) {
+  const message = data.async
+    ? `${data.total_attempted} labels queued for creation.`
+    : `${data.updated.length} labels were successfully created.`
+
+  TW.workbench.alert.create(message, 'notice')
+}
 </script>
