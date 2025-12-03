@@ -37,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - 'Collection objects with determinations' appears twice in Collection summary task/Taxonomic scope [#4620]
 - Unify OTU sometimes blocked by old unused AssertedDistribution columns which have now been removed [#4556]
 - DwC Importer preventing duplicate RecordNumber identifiers from being created [#4096]
+- Collecting Event clone with increment-identifier fails when identifier has no numeric part
 
 [#4556]: https://github.com/SpeciesFileGroup/taxonworks/issues/4556
 [#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
