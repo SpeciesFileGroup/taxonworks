@@ -15,6 +15,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New source: display error messages when a document upload fails
 - Added superorder rank for botanical nomenclature [#4619]
 - Added soft validation for unjustified emendation
+- Support repeated attributes with different values (to be ORed) in Collecting Event filter's Collecting Event attribute facet [#4622]
+- Batch create Labels from Collecting Event filter [#3814]
 
 ### Changed
 
@@ -38,11 +40,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Unify OTU sometimes blocked by old unused AssertedDistribution columns which have now been removed [#4556]
 - DwC Importer preventing duplicate RecordNumber identifiers from being created [#4096]
 - Collecting Event clone with increment-identifier fails when identifier has no numeric part
+- Filtering on Data Attributes where the same attribute is repeated with a different value (matches to be ORed)
+- Filtering on Data Attributes in Filter Asserted Distributions
 
+[#3814]: https://github.com/SpeciesFileGroup/taxonworks/issues/3814
 [#4556]: https://github.com/SpeciesFileGroup/taxonworks/issues/4556
 [#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
 [#4618]: https://github.com/SpeciesFileGroup/taxonworks/issues/4618
 [#4620]: https://github.com/SpeciesFileGroup/taxonworks/issues/4620
+[#4622]: https://github.com/SpeciesFileGroup/taxonworks/issues/4622
 [#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096
 
 ## [0.55.0] - 2025-11-05
