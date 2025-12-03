@@ -55,7 +55,9 @@ class Label < ApplicationRecord
     false
   end
 
-  def self.batch_create(collecting_event_query_params, label_attribute, total)
+  def self.batch_create(
+    collecting_event_query_params, label_attribute, total, preview
+  )
     q = Queries::CollectingEvent::Filter.new(collecting_event_query_params).all
 
     label_attribute = (label_attribute || '').to_sym
@@ -69,25 +71,43 @@ class Label < ApplicationRecord
     end
 
     total = [total, 1].max
-    begin
-      i = 0
-      # Can't think of why this should ever fail, so we'll just
-      # fail-on-first-error.
-      q.each do |ce|
-        label_text = ce[label_attribute]
-        next if label_text.blank?
 
-        Label.create!(
-          text: label_text,
-          total:,
-          label_object_id: ce.id,
-          label_object_type: ce.class.name,
-        )
-        i += 1
+    r = BatchResponse.new({
+      preview:,
+      async: false,
+      total_attempted: q.count
+    })
+    self.transaction do
+      begin
+        q.pluck(:id, label_attribute).each do |ce_id, label_text|
+          if label_text.blank?
+            r.not_updated.push ce_id
+            next
+          end
+
+          begin
+            Label.create!(
+              text: label_text,
+              total:,
+              label_object_id: ce_id,
+              label_object_type: 'CollectingEvent',
+            )
+            r.updated.push ce_id
+          rescue ActiveRecord::RecordInvalid => e
+            # Probably never occurs for Label given our pre-checks
+            r.not_updated.push e.record.id
+
+            r.errors[e.message] = 0 unless r.errors[e.message]
+            r.errors[e.message] += 1
+          end
+        end
+
       end
-    rescue ActiveRecord::RecordInvalid => e
-      raise TaxonWorks::Error, "Batch create failed after #{i}/#{q.count} creates! '#{e.errors.full_messages.join('; ')}'"
-    end
+
+      raise ActiveRecord::Rollback if r.preview
+    end # end transaction
+
+    r
   end
 
   protected

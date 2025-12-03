@@ -29,28 +29,42 @@ RSpec.describe Label, type: :model do
     let!(:ce5) { FactoryBot.create(:collecting_event, verbatim_label: nil, document_label: 'Only document', print_label: nil) }
 
     let(:total) { 3 }
+    let(:preview) { false }
     let(:query_params) {
       { collecting_event_id: [ce1.id, ce2.id, ce3.id, ce4.id, ce5.id] }
     }
 
     specify 'creates labels from verbatim_label, skipping blank labels' do
-      Label.batch_create(query_params, :verbatim_label, total)
+      result = Label.batch_create(query_params, :verbatim_label, total, preview)
       expect(Label.all.pluck(:text)).to contain_exactly('Verbatim with  spaces', "Verbatim with\nnewline", 'Only verbatim')
+      expect(result.updated.count).to eq(3)
+      expect(result.not_updated.count).to eq(2)
     end
 
     specify 'sets total correctly on all labels' do
-      Label.batch_create(query_params, :verbatim_label, total)
+      result = Label.batch_create(query_params, :verbatim_label, total, preview)
       expect(Label.all.pluck(:total).uniq).to eq([total])
     end
 
     specify 'creates labels only from document_label field' do
-      Label.batch_create(query_params, 'document_label', total)
+      result = Label.batch_create(query_params, 'document_label', total, preview)
       expect(Label.all.pluck(:text)).to contain_exactly('Document label 1', 'Document label 2', 'Only document')
+      expect(result.updated.count).to eq(3)
+      expect(result.not_updated.count).to eq(2)
     end
 
     specify 'creates labels only from print_label field' do
-      Label.batch_create(query_params, :print_label, total)
+      result = Label.batch_create(query_params, :print_label, total, preview)
       expect(Label.all.pluck(:text)).to contain_exactly('Print label 1', 'Print label 2')
+      expect(result.updated.count).to eq(2)
+      expect(result.not_updated.count).to eq(3)
+    end
+
+    specify 'preview mode returns results without creating labels' do
+      result = Label.batch_create(query_params, :verbatim_label, total, true)
+      expect(Label.all.count).to eq(0)
+      expect(result.updated.count).to eq(3)
+      expect(result.not_updated.count).to eq(2)
     end
   end
 
