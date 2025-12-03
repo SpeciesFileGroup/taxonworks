@@ -67,9 +67,9 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
         specify 'there are types not accepted as object' do
           expect{
-            asserted_distribution.asserted_distribution_object =
-              CollectionObject.new
-          }.to raise_error(ActiveRecord::InverseOfAssociationNotFoundError)
+            FactoryBot.create(:valid_asserted_distribution,
+              asserted_distribution_object: FactoryBot.create(:valid_specimen))
+          }.to raise_error(ActiveRecord::RecordInvalid)
         end
 
         specify 'conveyance on otu is accepted as object' do

@@ -502,6 +502,7 @@ resources :labels do
     scope :factory do
       post :unit_tray_header1, controller: 'labels/factory', defaults: {format: :json}
     end
+    post :batch_create, defaults: {format: :json}
   end
   # is data?
 end

@@ -46,11 +46,11 @@ class AssertedDistribution < ApplicationRecord
 
   include Shared::Maps
   include Shared::QueryBatchUpdate
-  include Shared::PolymorphicAnnotator
-  polymorphic_annotates('asserted_distribution_shape')
-  polymorphic_annotates('asserted_distribution_object')
 
   originates_from 'Specimen', 'Lot', 'FieldOccurrence'
+
+  belongs_to :asserted_distribution_object, polymorphic: true
+  belongs_to :asserted_distribution_shape, polymorphic: true
 
   # @return [Hash]
   #   of known country/state/county values
@@ -72,6 +72,8 @@ class AssertedDistribution < ApplicationRecord
     self.no_dwc_occurrence = true if asserted_distribution_object_type != 'Otu'
   end
 
+  validates_presence_of :asserted_distribution_object
+  validates_presence_of :asserted_distribution_shape
   validate :records_include_citation
   validate :object_shape_absence_triple_is_unique
 

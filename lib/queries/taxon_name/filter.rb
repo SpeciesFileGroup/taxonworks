@@ -421,21 +421,12 @@ module Queries
         [@collection_object_id].flatten.compact
       end
 
-      def year
-        return nil if @year.blank?
-        @year.to_s
-      end
-
       def name
         [@name].flatten.compact
       end
 
       def cached
         [@cached].flatten.compact
-      end
-
-      def collection_object_id
-        [@collection_object_id].flatten.compact
       end
 
       def collecting_event_id
@@ -580,12 +571,6 @@ module Queries
       def otu_id_facet
         return nil if otu_id.empty?
         ::TaxonName.joins(:otus).where(otus: { id: otu_id })
-      end
-
-      def otus_facet
-        return nil if otus.nil?
-        subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
-        ::TaxonName.where(otus ? subquery : subquery.not)
       end
 
       # This is not true! It includes records that are year only.
