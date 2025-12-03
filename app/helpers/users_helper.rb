@@ -19,7 +19,17 @@ module UsersHelper
     user.name
         .split(/\s+/)
         .map { |p| p[0].upcase }
+        .first(3)
         .join
+  end
+
+  def user_avatar(user, size = :default)
+    inactive = user.is_flagged_for_password_reset
+    classes = ['avatar', "avatar--#{size}"]
+    classes << 'inactive' if inactive
+    title = state_title = inactive ? 'Inactive (Flagged for password reset)' : 'Active'
+
+    content_tag(:div, user_initials(user), class: classes, title: title)
   end
 
   def user_autocomplete_tag(user)

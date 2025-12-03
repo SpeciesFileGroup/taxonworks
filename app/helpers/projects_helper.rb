@@ -179,4 +179,15 @@ module ProjectsHelper
     content_tag(:div, '', 'data-weeks-ago': weeks, 'data-weeks-review': true)
   end
 
+
+  def project_initials(project)
+    return '' if project.nil? || project.name.blank?
+
+    project.name
+        .split(/\s+/)
+        .map { |p| p[0].upcase }
+        .first(3)
+        .join
+  end
+
 end

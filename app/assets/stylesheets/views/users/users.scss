@@ -1,4 +1,5 @@
-#user-profile {
+#user-profile,
+#project-profile {
   h1,
   h2,
   h3,
@@ -10,7 +11,7 @@
 
   .container {
     max-width: 1280px;
-    padding: 1rem 0;
+    padding: 2rem 0;
     margin: 0 auto;
   }
 
@@ -38,6 +39,16 @@
     font-size: 1.75rem;
     font-weight: 600;
     color: white;
+
+    &.inactive {
+      background: gray;
+    }
+
+    &--small {
+      width: 32px;
+      height: 32px;
+      font-size: 10px;
+    }
   }
 
   .user-details h1 {
@@ -63,15 +74,15 @@
     font-size: 0.95rem;
   }
 
-  .edit-btn {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    display: flex;
+  .btn {
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    transition: background-color 0.2s;
+    font-size: 0.75rem;
+    gap: 8px;
+    padding: 0.5rem 1rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
   }
 
   .edit-btn:hover {
@@ -143,6 +154,11 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+
+    svg {
+      width: 1.125rem;
+      height: 1.125rem;
+    }
   }
 
   .profile-card-content {
@@ -169,7 +185,7 @@
   }
 
   .info-value {
-    font-size: 0.95rem;
+    font-size: 0.875rem;
   }
 
   .info-value.link {
@@ -271,7 +287,7 @@
     background-color: var(--bg-color);
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 1rem;
     color: var(--text-color);
     font-family: monospace;
     font-size: 0.875rem;
@@ -281,7 +297,9 @@
     background-color: var(--color-primary);
     border: 1px solid var(--color-primary);
     color: white;
-    padding: 0.75rem;
+    padding: 8px;
+    width: 36px;
+    height: 36px;
     border-radius: 0.5rem;
     cursor: pointer;
     transition: all 0.2s;
@@ -294,8 +312,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-top: 1rem;
-    padding: 0.75rem;
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.75rem;
     background-color: var(--color-soft-warning-bg);
     border: 1px solid var(--color-soft-warning-border);
     border-radius: 0.5rem;
@@ -360,6 +378,11 @@
     min-height: 300px;
     overflow-y: auto;
     white-space: pre;
+  }
+
+  .code-block * {
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 
   .admin-card {

@@ -9,6 +9,10 @@
   padding-right: 0.9em;
 }
 
+.btn:hover {
+  color: white;
+}
+
 .btn-link {
   @extend .btn;
   display: table-cell;

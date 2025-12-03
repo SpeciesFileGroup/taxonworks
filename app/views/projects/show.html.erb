@@ -1,120 +1,251 @@
-<h1><%= @project.name -%></h1>
-<%= project_login_link(@project) -%>
-<div class="simple_flexbox">
-  <div>
-    <h2> Edit </h2>
-    <ul class="no_bullets list list-arrow">
-      <%= tag.li( link_to('Edit', edit_project_path(@project)) ) %>
-      <%= tag.li( link_to('Attribute preferences', project_preferences_task_path, data: { turbolinks: false } ) ) %>
-      <% if sessions_current_user.is_project_administrator?(sessions_current_project) %>
-        <%= tag.li( link_to('Darwin core export preferences', project_dwc_export_preferences_task_path) )%>
+<div id="project-profile">
+  <div class="project-header">
+    <div class="project-info">
+      <%= link_to select_project_path(@project) do -%>
+        <div class="project-avatar"><%= project_initials(@project) -%></div>
       <% end %>
-    </ul>
-
-    <h2> Project attributes </h2>
-    <div class="attributes">
-      <%= render partial: 'attributes' -%>
-    </div>
-  </div>
-
-  <div>
-    <h2> Members </h2>
-    <ul class="no_bullets list list-arrow">
-      <%= tag.li( add_project_member_link(@project))  -%>
-      <%= tag.li( link_to('Add many project members', many_new_project_members_path(project_member: {project_id: @project}) )) -%>
-      <%= tag.li( link_to('Add new user', signup_path)) -%>
-    </ul>
-
-    <% if @project.users.any? -%>
-      <% if sessions_current_user.is_superuser? %>
-        <%= tag.p copy_table_to_clipboard('#users', 6, "Copy emails to clipboard") %>
-      <% end %>
-
-      <table id="users" class="tablesorter">
-        <thead>
-          <tr>
-            <th>Name </th>
-            <th>Last seen in project </th>
-            <th>Time in project </th>
-            <th>Member since </th>
-            <th>Project<br> administrator</th>
-            <th></th>
-            <% if sessions_current_user.is_superuser? %>
-              <th> Email </th>
-            <% end %>
-          </tr>
-        </thead>
-
-        <tbody>
-          <% @project.project_members.eager_load(:user).order('users.name').each do |pm| -%>
-            <tr>
-              <td>
-                <% if is_administrator? %>
-                  <%= link_to(pm.user.name, user_path(pm.user)) -%>
-                <% else %>
-                  <%= pm.user.name -%>
-                <% end %>
-              </td>
-              <td> <%= user_last_seen_in_project_tag(pm) -%> </td>
-              <td> <%= user_time_active_in_project_tag(pm) -%> </td>
-              <td> <%= time_ago_in_words(pm.created_at) -%> ago </td>
-
-              <td>
-                <%= form_for(pm) do |f| -%>
-                  <div class="actions">
-                    <%= f.check_box(:is_project_administrator) -%>
-                    <%= f.submit 'Update' %>
-                  </div>
-                <% end %>
-              </td>
-
-              <td>
-                <%= form_for(pm, method: :delete) do |f| -%>
-                  <%= f.hidden_field :_destroy, value: :true -%>
-                  <%= f.submit 'Remove', method: :delete, class: ['button-delete'] %>
-                <% end %>
-              </td>
-
-              <% if sessions_current_user.is_superuser? %>
-                <td> <%= pm.user.email %></td>
-              <% end %>
-
-            </tr>
+      <div class="project-details">
+        <h1 class="project-title"><%= @project.name -%></h1>
+        <% if @project.data_curation_issue_tracker_url.present? %>
+          <%= link_to @project.data_curation_issue_tracker_url, class: "attribute-link" do %>
+            <%= @project.data_curation_issue_tracker_url %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15,3 21,3 21,9"/>
+              <line x1="10" x2="21" y1="14" y2="3"/>
+            </svg>
           <% end %>
-        </tbody>
-      </table>
-    <% else  %>
-      <em> No members added yet! </em>
-    <% end %>
-  </div>
-
-  <div>
-    <% if sessions_current_project_id == @project.id %>
-    <div>
-      <h2> Data </h2>
-      <ul class="no_bullets list list-arrow">
-        <%= content_tag(:li, link_to('Download project task', project_data_task_path, data: { turbolinks: false } ) ) %>
-      </ul>
-    </div>
-    <% end %>
-
-    <div>
-      <h2> Metadata </h2>
-      <ul class="no_bullets list list-arrow">
-        <%= content_tag(:li, link_to('Stats', project_activity_task_path, data: { turbolinks: false })) -%>
-      </ul>
-    </div>
-
-    <div>
-      <h2> API Helpers </h2>
-      <ul class="no_bullets">
-        <% if is_project_member_by_id?(sessions_current_user_id, sessions_current_project_id) %>
-          <%= tag.li("?project_token=#{@project.api_access_token}&token=#{sessions_current_user.api_access_token}") -%>
         <% else %>
-          <%= tag.li("?project_token=#{@project.api_access_token}") -%>
+          <em> Data Curation Issue Tracker is not defined </em>
         <% end %>
-      </ul>
+
+      </div>
     </div>
+
+    <%= link_to edit_project_path(@project), class: "button btn btn-primary" do -%>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+        <path d="m15 5 4 4"/>
+      </svg>
+      Edit
+    <% end %>
   </div>
 
+  <div class="content-grid">
+    <div class="left-column">
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+            <polyline points="14,2 14,8 20,8"/>
+          </svg>
+          <h2 class="profile-card-title">Housekeeping</h2>
+        </div>
+        <div class="profile-card-content">
+          <div class="info-grid">
+          
+            <div class="info-item">
+              <p class="info-label">Created By</p>
+              <p class="info-value">
+              <% if is_administrator? %>
+                <%= link_to(object_tag(@project.creator), user_path(@project.creator)) -%>
+              <% else %>
+                <%= object_tag(@project.creator) -%> 
+              <% end %>
+              </p>
+            </div>
+
+            <div class="info-item">
+              <p class="info-label">Updated By</p>
+              <p class="info-value">
+              <% if is_administrator? %>
+                <%= link_to(object_tag(@project.updater), user_path(@project.updater)) -%>
+              <% else %>
+                <%= object_tag(@project.creator) -%> 
+              <% end %>
+              </p>
+            </div>
+
+      
+
+            <div class="info-item">
+              <p class="info-label">Created At</p>
+              <p class="info-value"><%= @project.created_at -%></p>
+            </div>
+            <div class="info-item">
+              <p class="info-label">Updated At</p>
+              <p class="info-value"><%= @project.updated_at -%></p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          <h2 class="profile-card-title">API Access Token</h2>
+        </div>
+        <div class="profile-card-content">
+          <% if @project.api_access_token.blank? -%>
+          <em class="notice"> None.  Project data is not accessible via API. </em>
+          <% else %>
+          <div class="token-container">
+            <div class="token-input">
+              <code class="token-value" id="tokenValue">
+                <%= @project.api_access_token %>
+              </code>
+            </div>
+            <button class="token-btn" title="Copy">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+              </svg>
+            </button>
+          </div>
+          <% end%>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7,10 12,15 17,10"/>
+            <line x1="12" x2="12" y1="15" y2="3"/>
+          </svg>
+          <h2 class="profile-card-title">Data</h2>
+        </div>
+        <div class="profile-card-content flex-col gap-small">
+          <%= link_to('Download project task', project_data_task_path, data: { turbolinks: false }) %>            
+          <%= link_to('Stats', project_activity_task_path, data: { turbolinks: false }) -%>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <h2 class="profile-card-title">Configuration</h2>
+        </div>
+        <div class="profile-card-content card-content-links">
+          <%= link_to('Customize attributes', project_preferences_task_path, data: { turbolinks: false } )  %>
+          <% if sessions_current_user.is_project_administrator?(sessions_current_project) %>
+            <%= link_to('Darwin core export', project_dwc_export_preferences_task_path) %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="profile-card">
+        <div class="profile-card-header card-header-members">
+          <div class="card-header-left">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <h2 class="profile-card-title">Members (<%= @project.project_members.count -%>)</h2>
+          </div>
+          <div class="card-header-actions">
+            <input type="text" class="normal-input" placeholder="Search members...">
+            <button class="button btn btn-primary" onclick="copyAllEmails()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+              Copy emails
+            </button>
+            <button class="button btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <line x1="19" x2="19" y1="8" y2="14"/>
+                <line x1="22" x2="16" y1="11" y2="11"/>
+              </svg>
+              Add member
+            </button>
+          </div>
+        </div>
+        <div class="card-content card-content-table">
+          <div class="overflow-x-auto">
+            <table class="members-table tablesorter" id="membersTable">
+              <thead>
+                <tr>
+                  <th class="w-2">
+                  <th>Name</th>
+                  <th>Last Seen</th>
+                  <th>Time in Project</th>
+                  <th>Member Since</th>
+                  <th class="th-center">Admin</th>
+                  <% if sessions_current_user.is_superuser? %>
+                  <th>Email</th>
+                  <% end %>
+                  <th class="th-center"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @project.project_members.eager_load(:user).order('users.name').each do |pm| -%>
+                <tr>
+                  <td><%= user_avatar(pm.user, :small) -%></td>
+                  <td>
+                    <% if is_administrator? %>
+                      <%= link_to(pm.user.name, user_path(pm.user), class: 'member-name') -%>
+                    <% else %>
+                      <%= content_tag(:span, pm.user.name, class: 'member-name') -%>
+                    <% end %>
+                  </td>
+                  <td> <%= user_last_seen_in_project_tag(pm) -%> </td>
+                  <td> <%= user_time_active_in_project_tag(pm) -%> </td>
+                  <td> <%= format_date_ymd(pm.created_at) -%></td>
+                  <% if sessions_current_user.is_superuser? %>
+                    
+                    <td>
+                    <%= form_for pm, method: :patch do |f| %>
+                      <div class="actions">
+                        <%= f.check_box :is_project_administrator, onchange: "this.form.submit();" %>
+                      </div>
+                    <% end %>
+                    </td>
+
+                    <td> <%= pm.user.email %></td>
+                  <% end %>
+
+                  <td class="td-center"> 
+                    <%= form_for(pm, method: :delete) do |f| -%>
+                      <%= f.hidden_field :_destroy, value: :true -%>
+                      <%= f.button '', class: ['button', 'remove', 'circle-button', 'button-delete', 'btn-delete'] %>
+                    <% end %>
+                  </td>
+                </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="card-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+          </svg>
+
+          <h2 class="profile-card-title">Preferences</h2>
+        </div>
+        <div class="profile-card-content">
+          <div class="code-block">
+<code><%= JSON.pretty_generate(@project.preferences).html_safe %></code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
