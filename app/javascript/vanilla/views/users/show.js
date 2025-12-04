@@ -13,7 +13,6 @@ function handleClipboardButton() {
 }
 
 function handleEmailCopy(e) {
-  console.log(e.target)
   navigator.clipboard.writeText(e.target.textContent)
   TW.workbench.alert.create('Email copied to clipboard', 'notice')
 }

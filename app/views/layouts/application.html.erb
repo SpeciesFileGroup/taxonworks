@@ -29,7 +29,9 @@
   
   <body <%= turbolinks_off_tag -%> >
     <header> 
-      <%= render partial: "news/system_news_bar", collection: system_news_bars, as: :news %>
+      <% if sessions_signed_in? %>
+        <%= render partial: "news/system_news_bar", collection: system_news_bars, as: :news %>
+      <% end %>
       <%= render(partial: 'sessions/summary') if sessions_signed_in? %>
     </header>
 

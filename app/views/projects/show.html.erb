@@ -155,26 +155,27 @@
             <h2 class="profile-card-title">Members (<%= @project.project_members.count -%>)</h2>
           </div>
           <div class="card-header-actions">
-            <input type="text" class="normal-input" placeholder="Search members...">
+            <input type="text" id="input-search" class="normal-input" autofocus="true" placeholder="Search members...">
 
-            <% if sessions_current_user.is_superuser? %>
-            <button class="button btn btn-primary" data-clipboard-table-selector="#members-table" data-offset="6" data-end="6">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="20" height="16" x="2" y="4" rx="2"/>
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-              </svg>
-              Copy emails
-            </button>
+            <% if is_superuser? %>
+              <button class="button btn btn-primary" data-clipboard-table-selector="#members-table" data-offset="6" data-end="6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2"/>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+                Copy emails
+              </button>
+
+              <%= link_to new_project_member_path(project_member: { project_id: @project.id }), class: 'button btn btn-primary' do -%>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <line x1="19" x2="19" y1="8" y2="14"/>
+                  <line x1="22" x2="16" y1="11" y2="11"/>
+                </svg>
+                Add member           
+              <% end %>
             <% end %>
-            <button class="button btn btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <line x1="19" x2="19" y1="8" y2="14"/>
-                <line x1="22" x2="16" y1="11" y2="11"/>
-              </svg>
-              Add member
-            </button>
           </div>
         </div>
 
@@ -189,8 +190,8 @@
                     <th>Last Seen</th>
                     <th>Time in Project</th>
                     <th>Member Since</th>
-                    <th class="th-center">Admin</th>
                     <% if sessions_current_user.is_superuser? %>
+                    <th class="th-center">Admin</th>
                     <th>Email</th>
                     <% end %>
                     <th class="th-center"></th>
