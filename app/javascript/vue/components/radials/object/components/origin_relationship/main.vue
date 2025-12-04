@@ -312,13 +312,15 @@ function removeRelationship(relationship, newOrOld) {
 }
 
 function removeOrigin(item, t) {
-  OriginRelationship.destroy(item.id).then(() => {
-    TW.workbench.alert.create(
-      'Origin relationship was successfully destroyed.',
-      'notice'
-    )
-    removeRelationship(item, t)
-  })
+  OriginRelationship
+    .destroy(item.id).then(() => {
+      TW.workbench.alert.create(
+        'Origin relationship was successfully destroyed.',
+        'notice'
+      )
+      removeRelationship(item, t)
+    })
+    .catch(() => {})
 }
 
 function onSortable({ newIndex }) {
