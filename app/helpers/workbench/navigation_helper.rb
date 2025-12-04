@@ -280,8 +280,8 @@ module Workbench::NavigationHelper
   def a_to_z_links(targets = [])
     letters = targets.empty? ? ('A'..'Z') : ('A'..'Z').to_a & targets
     content_tag(:div, class: 'navigation-bar-left', id: 'alphabet_nav') do
-      content_tag(:ul, class: 'left_justified_navbar context-menu') do
-        letters.collect{|l| content_tag(:li, link_to("#{l}", "\##{l}")) }.join.html_safe
+      content_tag(:ul, class: 'left_justified_navbar') do
+        letters.collect{|l| content_tag(:li, link_to("#{l}", "\##{l}"), data: { turbolinks: :false }) }.join.html_safe
       end
     end
   end
