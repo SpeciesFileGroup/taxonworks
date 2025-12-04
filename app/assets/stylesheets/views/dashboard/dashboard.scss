@@ -58,7 +58,7 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0rem;
   }
 
   .project-item {
@@ -73,7 +73,7 @@
     transition: all 0.2s;
 
     a {
-      padding: 1rem 1rem;
+      padding: 0.25rem 1rem;
       width: 100%;
       font-size: 0.875rem;
     }
