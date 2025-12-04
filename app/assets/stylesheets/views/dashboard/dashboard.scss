@@ -86,6 +86,7 @@
   .project-item.active {
     border-color: var(--color-primary);
     background-color: var(--bg-hover);
+    font-weight: bold;
   }
 
   .project-name {

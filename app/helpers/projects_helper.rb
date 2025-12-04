@@ -28,13 +28,17 @@ module ProjectsHelper
   end
 
   def projects_list(projects)
-    projects.collect do |p|
+    active_id = sessions_current_project_id
+    sorted = projects.sort_by { |p| p.id == active_id ? 0 : 1 }
+
+    sorted.collect do |p|
       classes = ['project-item']
-      classes << 'active' if p.id == sessions_current_project_id
+      classes << 'active' if p.id == active_id
 
       content_tag(:li, project_link(p), class: classes)
     end.join.html_safe
   end
+
 
 
   def project_login_link(project)
