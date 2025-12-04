@@ -6,7 +6,7 @@
   <NewsViewer
     v-if="currentNew"
     :news="currentNew"
-    @click="() => (currentNew = undefined)"
+    @close="() => (currentNew = undefined)"
   />
   <template v-else>
     <NewsCategories
