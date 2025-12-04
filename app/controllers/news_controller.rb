@@ -7,8 +7,6 @@
 #
 class NewsController < ApplicationController
   before_action :require_sign_in_and_project_selection
-
-
   before_action :set_news, only: %i[ show edit update destroy ]
 
   after_action -> { set_pagination_headers(:news) }, only: [:index, :api_index], if: :json_request?
@@ -120,6 +118,6 @@ class NewsController < ApplicationController
   end
 
   def news_params
-    params.require(:news).permit(:type, :title, :body, :display_start, :display_end) # TODO: admin news considerations
+    params.require(:news).permit(:type, :title, :body, :display_start, :display_end, :is_public)
   end
 end
