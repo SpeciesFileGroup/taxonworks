@@ -53,6 +53,10 @@ information. (called from where_sql at
       if filters.blank?
         filter_keys = Utilities::Geo::REGEXP_COORD.keys.compact
       else
+        # Validate all filters are known
+        invalid_filters = filters.reject { |f| Utilities::Geo::REGEXP_COORD.key?(f) }
+        raise ArgumentError, "Invalid coordinate filters: #{invalid_filters.join(', ')}" if invalid_filters.any?
+
         filter_keys = filters
       end
 

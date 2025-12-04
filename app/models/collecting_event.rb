@@ -717,6 +717,8 @@ class CollectingEvent < ApplicationRecord
   # @return [Scope]
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
     return CollectingEvent.none if compared_string.nil?
+    column = column.to_s
+    raise ArgumentError, "Invalid column name: #{column}" unless CollectingEvent.column_names.include?(column)
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
     CollectingEvent.where('id <> ?', id.to_s).
       order(Arel.sql(order_str)).
