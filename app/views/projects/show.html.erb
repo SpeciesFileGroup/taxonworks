@@ -156,13 +156,16 @@
           </div>
           <div class="card-header-actions">
             <input type="text" class="normal-input" placeholder="Search members...">
-            <button class="button btn btn-primary" onclick="copyAllEmails()">
+
+            <% if sessions_current_user.is_superuser? %>
+            <button class="button btn btn-primary" data-clipboard-table-selector="#members-table" data-offset="6" data-end="6">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="20" height="16" x="2" y="4" rx="2"/>
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
               </svg>
               Copy emails
             </button>
+            <% end %>
             <button class="button btn btn-primary">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
@@ -174,62 +177,65 @@
             </button>
           </div>
         </div>
-        <div class="card-content card-content-table">
-          <div class="overflow-x-auto">
-            <table class="members-table tablesorter" id="membersTable">
-              <thead>
-                <tr>
-                  <th class="w-2">
-                  <th>Name</th>
-                  <th>Last Seen</th>
-                  <th>Time in Project</th>
-                  <th>Member Since</th>
-                  <th class="th-center">Admin</th>
-                  <% if sessions_current_user.is_superuser? %>
-                  <th>Email</th>
-                  <% end %>
-                  <th class="th-center"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <% @project.project_members.eager_load(:user).order('users.name').each do |pm| -%>
-                <tr>
-                  <td><%= user_avatar(pm.user, :small) -%></td>
-                  <td>
-                    <% if is_administrator? %>
-                      <%= link_to(pm.user.name, user_path(pm.user), class: 'member-name') -%>
-                    <% else %>
-                      <%= content_tag(:span, pm.user.name, class: 'member-name') -%>
+
+        <% if @project.users.any? -%>
+          <div class="card-content card-content-table">
+            <div class="overflow-x-auto">
+              <table class="members-table tablesorter" id="members-table">
+                <thead>
+                  <tr>
+                    <th class="w-2">
+                    <th>Name</th>
+                    <th>Last Seen</th>
+                    <th>Time in Project</th>
+                    <th>Member Since</th>
+                    <th class="th-center">Admin</th>
+                    <% if sessions_current_user.is_superuser? %>
+                    <th>Email</th>
                     <% end %>
-                  </td>
-                  <td> <%= user_last_seen_in_project_tag(pm) -%> </td>
-                  <td> <%= user_time_active_in_project_tag(pm) -%> </td>
-                  <td> <%= format_date_ymd(pm.created_at) -%></td>
-                  <% if sessions_current_user.is_superuser? %>
-                    
+                    <th class="th-center"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @project.project_members.eager_load(:user).order('users.name').each do |pm| -%>
+                  <tr>
+                    <td><%= user_avatar(pm.user, :small) -%></td>
                     <td>
-                    <%= form_for pm, method: :patch do |f| %>
-                      <div class="actions">
-                        <%= f.check_box :is_project_administrator, onchange: "this.form.submit();" %>
-                      </div>
-                    <% end %>
+                      <% if is_administrator? %>
+                        <%= link_to(pm.user.name, user_path(pm.user), class: 'member-name') -%>
+                      <% else %>
+                        <%= content_tag(:span, pm.user.name, class: 'member-name') -%>
+                      <% end %>
                     </td>
+                    <td> <%= user_last_seen_in_project_tag(pm) -%> </td>
+                    <td> <%= user_time_active_in_project_tag(pm) -%> </td>
+                    <td> <%= format_date_ymd(pm.created_at) -%></td>
+                    <% if sessions_current_user.is_superuser? %>
 
-                    <td> <%= pm.user.email %></td>
-                  <% end %>
+                      <td>
+                      <%= form_for pm, method: :patch do |f| %>
+                        <div class="actions">
+                          <%= f.check_box :is_project_administrator, onchange: "this.form.submit();" %>
+                        </div>
+                      <% end %>
+                      </td>
 
-                  <td class="td-center"> 
-                    <%= form_for(pm, method: :delete) do |f| -%>
-                      <%= f.hidden_field :_destroy, value: :true -%>
-                      <%= f.button '', class: ['button', 'remove', 'circle-button', 'button-delete', 'btn-delete'] %>
+                      <td><%= pm.user.email %></td>
                     <% end %>
-                  </td>
-                </tr>
-                <% end %>
-              </tbody>
-            </table>
+
+                    <td class="td-center"> 
+                      <%= form_for(pm, method: :delete) do |f| -%>
+                        <%= f.hidden_field :_destroy, value: :true -%>
+                        <%= f.button '', class: ['button', 'remove', 'circle-button', 'button-delete', 'btn-delete'] %>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        <% end %>
       </div>
 
       <div class="profile-card">
