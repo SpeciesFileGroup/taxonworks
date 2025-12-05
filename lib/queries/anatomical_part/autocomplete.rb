@@ -33,7 +33,7 @@ module Queries
         base_query
           .joins(origin_otu: :taxon_name)
           .preload(origin_otu: :taxon_name)
-          .where('taxon_names.cached ILIKE ?', "#{query_string}%")
+          .where('taxon_names.cached ILIKE ?', "%#{query_string}%")
           .limit(20)
       end
 
