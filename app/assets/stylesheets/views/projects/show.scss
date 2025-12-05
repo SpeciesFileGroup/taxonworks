@@ -1,5 +1,6 @@
 #project-profile,
-#project-members-new {
+#project-members-new,
+#project-new {
   max-width: 1480px;
   min-width: 1280px;
   margin: 2rem auto;
@@ -47,7 +48,7 @@
     align-items: center;
     font-size: 0.75rem;
     gap: 8px;
-    padding: 8px 16px;
+    padding: 0.5rem 1rem;
     border: none;
     cursor: pointer;
     transition: background-color 0.2s, opacity 0.2s;
