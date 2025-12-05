@@ -1,4 +1,3 @@
-#
 # This controller scopes to News::Project classes for show and index.
 #
 # See the related Administration controller for Administration news scoping of show and index.
@@ -13,11 +12,11 @@ class NewsController < ApplicationController
 
   # GET /news or /news.json
   def index
+
     respond_to do |format|
+      # We use the "Newspaper" for displaying news
       format.html do
-        # TODO: unexpired?
-        @recent_objects = News::Project.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
-        render '/shared/data/all/index'
+        redirect_to :browse_news_task  and return
       end
       format.json {
         @news = News::Project.where(project_id: sessions_current_project_id)

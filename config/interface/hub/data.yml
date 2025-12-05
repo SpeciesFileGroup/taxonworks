@@ -149,11 +149,11 @@ Supporting:
   Conveyance:
     status: :prototype
     related_models:
-      - Sound 
+      - Sound
     categories:
       - collection_object
       - otu
-      - observation 
+      - observation
   CommonName:
     status: :prototype
     categories:
@@ -331,8 +331,6 @@ Supporting:
   Namespace:
     status: :prototype
     shared: true
-  News: 
-    status: :prototype
   RangedLotCategory:
     status: :prototype
     categories:
@@ -409,3 +407,6 @@ Annotations:
     status: :prototype
     related_models:
       - ControlledVocabularyTerm
+Communication:
+  News:
+    status: :prototype
