@@ -42,7 +42,7 @@ const value = defineModel({
 }
 
 .active {
-  background-color: var(--bg-hover);
+  background-color: var(--badge-blue-bg);
   font-weight: bold;
 }
 </style>
