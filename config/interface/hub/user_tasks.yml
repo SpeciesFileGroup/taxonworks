@@ -1097,11 +1097,11 @@ news_new_task:
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Create and edit blog posts, notices, etc.'
 browse_news_task:
   hub: true
-  name: 'Browse news'
+  name: 'Browse News'
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: "A Newspaper summarizing this project's current news."
