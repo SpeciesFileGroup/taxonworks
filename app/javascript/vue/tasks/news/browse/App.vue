@@ -9,10 +9,19 @@
     @close="() => (currentNew = undefined)"
   />
   <template v-else>
-    <NewsCategories
-      :types="types"
-      v-model="currentType"
-    />
+    <div class="newspapper-header">
+      <VTabs
+        class="capitalize"
+        :tabs="newspapperTypes"
+        v-model="newspapperType"
+      />
+      <NewsCategories
+        v-if="newspapperType"
+        :types="types[newspapperType]"
+        v-model="currentType"
+      />
+      <a :href="RouteNames.NewNews">New</a>
+    </div>
     <NewsContainer
       :news="news"
       :type="currentType"
@@ -30,12 +39,21 @@ import NewsContainer from './components/NewsContainer.vue'
 import NewsCategories from './components/NewsCategories.vue'
 import NewsViewer from './components/Viewer/NewsViewer.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VTabs from './components/Tabs.vue'
 
+defineOptions({
+  name: 'BrowseNews'
+})
+
+const NEWSPAPPER_ADMINISTRATION = 'administration'
+
+const newspapperType = ref('')
+const newspapperTypes = ref([])
 const types = ref([])
 const currentType = ref('All')
 const news = ref([])
 const currentNew = ref()
-const isLoading = ref(true)
+const isLoading = ref()
 
 provide('currentNew', currentNew)
 
@@ -76,18 +94,44 @@ onBeforeMount(() => {
 
 News.types()
   .then(({ body }) => {
-    const arrTypes = Object.values(body.project)
+    const keys = Object.keys(body)
+    const items = keys.reduce((acc, curr) => {
+      const values = Object.values(body[curr])
+      acc[curr] = ['All', ...values.map((type) => type.split('::')[2])]
 
-    types.value = ['All', ...arrTypes.map((type) => type.split('::')[2])]
+      return acc
+    }, {})
+    newspapperTypes.value = keys
+    newspapperType.value = keys[0]
+    types.value = items
   })
   .catch(() => {})
 
-News.all()
-  .then(({ body }) => {
-    news.value = body.reverse().map(makeNews)
-  })
-  .catch(() => {})
-  .finally(() => {
-    isLoading.value = false
-  })
+watch(newspapperType, (newVal) => {
+  const request =
+    newVal === NEWSPAPPER_ADMINISTRATION ? News.administration() : News.all()
+
+  isLoading.value = true
+
+  request
+    .then(({ body }) => {
+      news.value = body.reverse().map(makeNews)
+    })
+    .catch(() => {})
+    .finally(() => {
+      isLoading.value = false
+    })
+})
 </script>
+
+<style scoped>
+.newspapper-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  max-width: 1280px;
+  align-items: center;
+  margin: 0 auto;
+  padding-top: 2rem;
+}
+</style>
