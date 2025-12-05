@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added soft validation for unjustified emendation
 - Support repeated attributes with different values (to be ORed) in Collecting Event filter's Collecting Event attribute facet [#4622]
 - Batch create Labels from Collecting Event filter [#3814]
+- New status/control area on Complete DwCA Settings page
 
 ### Changed
 

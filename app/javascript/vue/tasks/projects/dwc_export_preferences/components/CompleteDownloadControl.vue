@@ -131,7 +131,7 @@ const statusMessage = computed(() => {
     } else if (completeDownload.value.expired) {
       return 'Download has expired'
     } else {
-      return 'Download exists but file not ready'
+      return 'Download is being created...'
     }
   }
   return 'No download exists'
@@ -311,30 +311,33 @@ function getMaxAgeDate() {
 }
 
 .status-ready {
-  color: var(--success-color, green);
   font-weight: 600;
 }
 
 .status-creating {
-  color: var(--warning-color, orange);
+  color: var(--color-warning);
   font-weight: 600;
 }
 
-.status-expired,
 .status-not-ready {
-  color: var(--error-color, red);
+  color: var(--color-warning);
+  font-weight: 600;
+}
+
+.status-expired {
+  color: var(--color-error);
   font-weight: 600;
 }
 
 .status-none {
-  color: var(--text-muted, gray);
   font-weight: 600;
+  opacity: 0.5;
 }
 
 .help-text {
-  color: var(--text-muted, gray);
   font-size: 0.9em;
   margin-left: 0.5em;
+  opacity: 0.7;
 }
 
 .api-link-row {
