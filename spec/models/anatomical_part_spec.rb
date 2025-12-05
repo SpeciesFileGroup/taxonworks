@@ -319,4 +319,153 @@ RSpec.describe AnatomicalPart, type: :model do
     )
   end
 
+  context 'is_material' do
+    specify 'CollectionObject origin requires is_material: true' do
+      ap = AnatomicalPart.create!(
+        name: 'wing',
+        inbound_origin_relationship_attributes:,
+        is_material: true
+      )
+
+      expect(ap.is_material).to be true
+    end
+
+    specify 'CollectionObject origin with is_material: false is invalid' do
+      expect {
+        AnatomicalPart.create!(
+          name: 'wing',
+          inbound_origin_relationship_attributes:,
+          is_material: false
+        )
+      }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    specify 'CollectionObject origin with is_material: nil is invalid' do
+      expect {
+        AnatomicalPart.create!(
+          name: 'wing',
+          inbound_origin_relationship_attributes:,
+          is_material: nil
+        )
+      }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    specify 'Otu origin default to is_material: nil (false)' do
+      otu = FactoryBot.create(:valid_otu)
+
+      ap = AnatomicalPart.create!(
+        name: 'conceptual head',
+        inbound_origin_relationship_attributes: {
+          old_object_id: otu.id,
+          old_object_type: 'Otu'
+        }
+      )
+
+      expect(ap.is_material).to be_falsey
+    end
+
+    specify 'Otu origin with is_material: true is invalid' do
+      otu = FactoryBot.create(:valid_otu)
+
+      expect {
+        AnatomicalPart.create!(
+          name: 'conceptual head',
+          inbound_origin_relationship_attributes: {
+            old_object_id: otu.id,
+            old_object_type: 'Otu'
+          },
+          is_material: true
+        )
+      }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    specify 'FieldOccurrence origin defaults to is_material: false' do
+      fo = FactoryBot.create(:valid_field_occurrence)
+
+      ap = AnatomicalPart.create!(
+        name: 'ear',
+        inbound_origin_relationship_attributes: {
+          old_object_id: fo.id,
+          old_object_type: 'FieldOccurrence'
+        }
+      )
+
+      expect(ap.is_material).to be_falsey
+    end
+
+    specify 'FieldOccurrence origin can have is_material: true' do
+      fo = FactoryBot.create(:valid_field_occurrence)
+
+      ap = AnatomicalPart.create!(
+        name: 'feather',
+        inbound_origin_relationship_attributes: {
+          old_object_id: fo.id,
+          old_object_type: 'FieldOccurrence'
+        },
+        is_material: true
+      )
+
+      expect(ap.is_material).to be true
+    end
+  end
+
+  context 'auto_uuid' do
+    specify 'UUID is auto-created for CollectionObject origin (is_material: true)' do
+      ap = AnatomicalPart.create!(
+        name: 'wing',
+        inbound_origin_relationship_attributes:,
+        is_material: true
+      )
+
+      expect(ap.uuid_identifier).to be_present
+      expect(ap.uuid_identifier).to be_a(Identifier::Global::Uuid::Auto)
+      expect(ap.uuid_identifier.is_generated).to be true
+    end
+
+    specify 'UUID is not auto-created for Otu origin (is_material: false)' do
+      otu = FactoryBot.create(:valid_otu)
+
+      ap = AnatomicalPart.create!(
+        name: 'conceptual head',
+        inbound_origin_relationship_attributes: {
+          old_object_id: otu.id,
+          old_object_type: 'Otu'
+        }
+      )
+
+      expect(ap.uuid_identifier).to be_nil
+    end
+
+    specify 'UUID is not auto-created for FieldOccurrence origin with is_material: false' do
+      fo = FactoryBot.create(:valid_field_occurrence)
+
+      ap = AnatomicalPart.create!(
+        name: 'ear',
+        inbound_origin_relationship_attributes: {
+          old_object_id: fo.id,
+          old_object_type: 'FieldOccurrence'
+        }
+      )
+
+      expect(ap.uuid_identifier).to be_nil
+    end
+
+    specify 'UUID is auto-created for FieldOccurrence origin with is_material: true' do
+      fo = FactoryBot.create(:valid_field_occurrence)
+
+      ap = AnatomicalPart.create!(
+        name: 'feather',
+        inbound_origin_relationship_attributes: {
+          old_object_id: fo.id,
+          old_object_type: 'FieldOccurrence'
+        },
+        is_material: true
+      )
+
+      expect(ap.uuid_identifier).to be_present
+      expect(ap.uuid_identifier).to be_a(Identifier::Global::Uuid::Auto)
+      expect(ap.uuid_identifier.is_generated).to be true
+    end
+  end
+
 end

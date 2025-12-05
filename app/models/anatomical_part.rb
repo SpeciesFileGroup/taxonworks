@@ -52,6 +52,7 @@ class AnatomicalPart < ApplicationRecord
   include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::Identifiers
+  include Shared::AutoUuid
   # Override the :uri defined by Identifiers. Bad.
   def uri
     self[:uri]
@@ -103,6 +104,10 @@ class AnatomicalPart < ApplicationRecord
   validate :top_origin_is_valid_origin
   validate :is_material_matches_origin
   validate :is_material_matches_parent_anatomical_part
+
+  def uuid_required
+    is_material
+  end
 
   # Callback on OriginRelationship#create
   def allow_origin_relationship_create?(origin_relationship)
