@@ -5,6 +5,7 @@
         <th>Title</th>
         <th>Body</th>
         <th>Type</th>
+        <th v-if="project">Public</th>
         <th>Start</th>
         <th>End</th>
         <th class="w-2" />
@@ -12,7 +13,7 @@
     </thead>
     <tbody>
       <tr
-        v-for="item in list"
+        v-for="(item, index) in list"
         :key="item.id"
       >
         <td v-html="item.title" />
@@ -30,14 +31,22 @@
             {{ getTypeLabel(item) }}
           </VBadge>
         </td>
-        <td
-          class="line-nowrap"
-          v-text="item.start"
-        />
-        <td
-          class="line-nowrap"
-          v-text="item.end"
-        />
+        <td v-if="project">
+          <input
+            type="checkbox"
+            :checked="item.isPublic"
+            @change="
+              (e) =>
+                emit('update:public', { isPublic: e.target.checked, index })
+            "
+          />
+        </td>
+        <td class="line-nowrap">
+          {{ formatDate(item.start) }}
+        </td>
+        <td class="line-nowrap">
+          {{ formatDate(item.end) }}
+        </td>
         <td>
           <div class="flex-row gap-small">
             <VBtn
@@ -77,10 +86,15 @@ defineProps({
   list: {
     type: Array,
     required: true
+  },
+
+  project: {
+    type: Boolean,
+    default: false
   }
 })
 
-const emit = defineEmits(['remove'])
+const emit = defineEmits(['remove', 'update:public'])
 
 function selectItem(item) {
   if (
@@ -94,6 +108,10 @@ function selectItem(item) {
 
 function getTypeLabel(item) {
   return item.type.split('::').pop()
+}
+
+function formatDate(date) {
+  return date ? date.replace('T', ' ') : date
 }
 </script>
 

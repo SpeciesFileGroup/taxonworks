@@ -1,16 +1,25 @@
 <template>
   <div>
-    <div class="field label-above">
-      <label>Type</label>
-      <select v-model="data.type">
-        <option
-          v-for="(label, type) in types"
-          :key="type"
-          :value="type"
-        >
-          {{ label }}
-        </option>
-      </select>
+    <div class="flex-row flex-separate gap-medium">
+      <div class="field label-above">
+        <label>Type</label>
+        <select v-model="data.type">
+          <option
+            v-for="(label, type) in types"
+            :key="type"
+            :value="type"
+          >
+            {{ label }}
+          </option>
+        </select>
+      </div>
+      <div class="flex-row middle gap-small">
+        <div>Public access</div>
+        <VToggle
+          v-model="data.isPublic"
+          on-color="var(--color-update)"
+        />
+      </div>
     </div>
     <div class="field label-above">
       <label>Title</label>
@@ -68,11 +77,12 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { News } from '@/routes/endpoints'
 import DateNow from '@/components/ui/Date/DateNow.vue'
 import MarkdownEditor from '@/components/markdown-editor.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { News } from '@/routes/endpoints'
-import { ref } from 'vue'
+import VToggle from '@/components/ui/VToggle.vue'
 
 const MARKDOWN_CONFIG = {
   status: false,

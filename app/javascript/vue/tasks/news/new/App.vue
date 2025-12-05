@@ -12,6 +12,7 @@
         <div class="flex-row gap-small">
           <VRecent
             v-if="projectId"
+            project
             title="Recent project news"
             :service="News.where"
             @edit="setNews"
@@ -129,6 +130,7 @@ onBeforeMount(loadFromUrlParam)
 <style scoped>
 .app-container {
   width: 1240px;
-  margin: 1rem auto;
+  margin: 0rem auto;
+  margin-top: 2rem;
 }
 </style>

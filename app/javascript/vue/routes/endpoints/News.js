@@ -9,6 +9,7 @@ const permitParams = {
     type: String,
     title: String,
     body: String,
+    is_public: Boolean,
     display_start: String,
     display_end: String
   }

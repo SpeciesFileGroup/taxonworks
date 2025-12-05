@@ -17,7 +17,16 @@
           <div> All selected members will be set as project administrators.</div>
         </div>
       </div>
-      <%= f.check_box :is_project_administrator %>
+
+      <div>
+        <label class="v-toggle-switch">
+          <%= f.check_box :is_project_administrator %>
+          <span>
+            <div class="switch-icon"></div>
+          </span>
+        </label>
+      </div>
+
     </div>
   </div>
 
