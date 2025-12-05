@@ -21,9 +21,3 @@ const currentType = defineModel({
   default: 'All'
 })
 </script>
-
-<style scoped>
-.news-categories {
-  padding-top: 2rem;
-}
-</style>
