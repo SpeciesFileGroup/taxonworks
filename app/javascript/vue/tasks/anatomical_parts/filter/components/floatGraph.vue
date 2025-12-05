@@ -52,7 +52,7 @@
 <script setup>
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useDraggable } from '@/composables'
 import AnatomicalPartsGraph from '../../anatomical_parts_graph/components/AnatomicalPartsGraph.vue'
 
@@ -101,6 +101,15 @@ onMounted(() => {
     graph.value.createGraph(props.loadParams)
   }
 })
+
+watch(
+  () => props.loadParams.anatomical_part_id,
+  (newId) => {
+    if (newId) {
+      graph.value.createGraph(props.loadParams)
+    }
+  }
+)
 </script>
 
 <style scoped lang="scss">
