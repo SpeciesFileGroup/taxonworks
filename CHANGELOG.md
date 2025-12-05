@@ -43,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filtering on Data Attributes where the same attribute is repeated with a different value (matches to be ORed)
 - Filtering on Data Attributes in Filter Asserted Distributions
 - Prioritize abbreviated genus and species name in TaxonName autocomplete
+- Make sure file is provided when doing bibtex batch loads
 
 [#3814]: https://github.com/SpeciesFileGroup/taxonworks/issues/3814
 [#4556]: https://github.com/SpeciesFileGroup/taxonworks/issues/4556
