@@ -10,7 +10,16 @@
     Darwin core export settings for project downloads
   </h1>
 
-  <div class="two-column">
+  <div class="content-wrapper">
+    <Transition name="expand">
+      <CompleteDownloadControl
+        :is-public="lastSavedData.isPublic || false"
+        :project-token="projectToken || ''"
+        :max-age="maxAge || null"
+      />
+    </Transition>
+
+    <div class="two-column">
     <div class="flex-col">
       <div class="panel padding-large margin-large-bottom padding-xsmall-top">
         <h2>Public sharing</h2>
@@ -53,15 +62,6 @@
           >
             Save "Is Public"
           </VBtn>
-
-          <div class="margin-large-top">
-            <a
-              :href="`/api/v1/downloads/dwc_archive_complete?project_token=${projectToken}`"
-              @click.prevent="openLink"
-            >
-              Public download link
-            </a>
-          </div>
         </div>
 
         <h2 data-help="When GBIF, for example, requests that a download be created, we must have a TaxonWorks user listed as the creator of that download: this is that user.">
@@ -105,18 +105,21 @@
           </VBtn>
         </div>
 
-        <h2>Max Age</h2>
+        <h2>Download age after which an API call triggers creation of a new download</h2>
         <div class="margin-medium-left">
           <div>
             <label>
               <input
                 type="text"
-                v-model="maxAge"
+                v-model.number="maxAge"
                 class="text-number-input margin-xsmall-top"
                 data-help="If someone requests a complete download using the 'Public download link' on this page, and that download is older than Max Age, then the old download will be returned but a new one will be created to replace it. In other words Max Age determines when a download request triggers creation of a new complete download to replace the existing complete download. Max age is a decimal value."
               />
-              Maximum Age in days
+              Age in days
             </label>
+          </div>
+          <div class="help-text margin-small-top">
+            Suggested: 6 days for GBIF usage (GBIF downloads once per week)
           </div>
 
           <VBtn
@@ -281,6 +284,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script setup>
@@ -295,6 +299,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import EmlFileLoader from './components/EmlFileLoader.vue'
 import XmlEditor from './components/XmlEditor.vue'
+import CompleteDownloadControl from './components/CompleteDownloadControl.vue'
 
 const EXTENSIONS = {
   resource_relationships: 'Resource relationships (biological associations)',
@@ -390,6 +395,10 @@ function setLastSaved() {
 }
 
 function noUnsavedChanges() {
+  // Return true if data hasn't been loaded yet
+  if (!lastSavedData.value || !lastSavedData.value.predicateParams || !lastSavedData.value.selectedExtensionMethods) {
+    return true
+  }
   return lastSavedData.value.defaultUserId == defaultUser.value?.id &&
     emptyEqual(lastSavedData.value.maxAge, maxAge.value) &&
     emptyEqual(lastSavedData.value.isPublic, isPublic.value) &&
@@ -406,6 +415,7 @@ function emptyEqual(v1, v2) {
 }
 
 function arrayEqual(a1, a2) {
+  if (!a1 || !a2) return a1 === a2
   return a1.sort().join() == a2.sort().join()
 }
 
@@ -554,6 +564,10 @@ function handleEmlLoaded(emlData) {
   margin-right: 0.5em;
 }
 
+.content-wrapper {
+  display: inline-block;
+}
+
 .two-column {
   display: flex;
   gap: 3em;
@@ -561,5 +575,25 @@ function handleEmlLoaded(emlData) {
 
 .user-select {
   width: 400px;
+}
+
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+  margin-bottom: 0;
+}
+
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  max-height: 500px;
+  margin-bottom: 2em;
 }
 </style>
