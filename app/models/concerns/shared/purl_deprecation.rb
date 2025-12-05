@@ -59,13 +59,13 @@ module Shared::PurlDeprecation
       )
     end
   rescue => e
-    # Don’t hard-fail SV on network hiccups
-    soft_validations.add(:uri, "PURL check could not be completed (#{e.class}).")
+    # Don't hard-fail SV on network hiccups
+    soft_validations.add(:uri, "PURL check could not be completed (#{e.class}: #{e.message}).")
   end
 
   private
 
-  def head_follow(url, limit: 4)
+  def head_follow(url, limit: 10)
     raise 'too many redirects' if limit <= 0
 
     uri = URI.parse(url)
