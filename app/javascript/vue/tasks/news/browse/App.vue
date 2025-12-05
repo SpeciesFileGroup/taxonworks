@@ -53,7 +53,7 @@ const types = ref([])
 const currentType = ref('All')
 const news = ref([])
 const currentNew = ref()
-const isLoading = ref(true)
+const isLoading = ref()
 
 provide('currentNew', currentNew)
 
@@ -110,6 +110,8 @@ News.types()
 watch(newspapperType, (newVal) => {
   const request =
     newVal === NEWSPAPPER_ADMINISTRATION ? News.administration() : News.all()
+
+  isLoading.value = true
 
   request
     .then(({ body }) => {
