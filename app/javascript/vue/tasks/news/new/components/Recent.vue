@@ -21,6 +21,8 @@
       <template #body>
         <VList
           :list="list"
+          project
+          @update:public="updateAccess"
           @edit="selectItem"
           @remove="removeNews"
         />
@@ -30,6 +32,7 @@
 </template>
 
 <script setup>
+import { News } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
 import { removeFromArray } from '@/helpers'
 import { makeNews } from '../adapters'
@@ -52,6 +55,11 @@ const props = defineProps({
   title: {
     type: String,
     required: true
+  },
+
+  project: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -73,6 +81,22 @@ function removeNews(item) {
 function selectItem(item) {
   emit('edit', item)
   isModalVisible.value = false
+}
+
+function updateAccess({ isPublic, index }) {
+  const item = list.value[index]
+  const payload = {
+    news: {
+      is_public: isPublic
+    }
+  }
+
+  News.update(item.id, payload)
+    .then(({ body }) => {
+      item.isPublic = body.is_public
+      TW.workbench.alert.create('News was successfully updated.')
+    })
+    .catch(() => {})
 }
 
 watch(isModalVisible, (newVal) => {

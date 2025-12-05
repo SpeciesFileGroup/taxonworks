@@ -41,3 +41,13 @@ export function timeAgo(dateInput) {
 
   return 'just now'
 }
+
+export function localToUTC(dateString) {
+  const localDate = new Date(dateString)
+  return new Date(localDate.toISOString())
+}
+
+export function utcToLocal(utcString) {
+  const utcDate = new Date(utcString)
+  return new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000)
+}

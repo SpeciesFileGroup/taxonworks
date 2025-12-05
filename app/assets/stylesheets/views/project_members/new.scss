@@ -22,4 +22,9 @@
     padding: 1rem;
     border-bottom: 1px solid var(--border-color);
   }
+
+  .v-toggle-switch {
+    --v-toggle-on-color: var(--color-update);
+    --v-toggle-off-color: var(--badge-blue-bg);
+  }
 }
