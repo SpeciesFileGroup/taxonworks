@@ -118,7 +118,7 @@ module Queries::Concerns::DataAttributes
       if @data_attribute_exact_pair.kind_of?(Hash)
         @data_attribute_exact_pair
       else
-        split_pairs([@data_attribute_exact_pair].flatten.compact)
+        split_repeated_pairs([@data_attribute_exact_pair].flatten.compact)
       end
     end
 
@@ -127,7 +127,7 @@ module Queries::Concerns::DataAttributes
       if @data_attribute_wildcard_pair.kind_of?(Hash)
         @data_attribute_wildcard_pair
       else
-        split_pairs([@data_attribute_wildcard_pair].flatten.compact)
+        split_repeated_pairs([@data_attribute_wildcard_pair].flatten.compact)
       end
     end
 
@@ -156,16 +156,6 @@ module Queries::Concerns::DataAttributes
     def data_attribute_import_predicate
       [@data_attribute_import_predicate].flatten.compact
     end
-
-    def split_pairs(pairs)
-      h = {}
-      pairs.each do |p|
-        k, v = p.split(':', 2)
-        h[k] = v
-      end
-      h
-    end
-
   end
 
   def set_data_attributes_params(params)
@@ -279,7 +269,7 @@ module Queries::Concerns::DataAttributes
       w = w.or(c)
     end
 
-    referenced_klass.joins(:internal_attributes).where(w)
+    referenced_klass.joins(:internal_attributes).where(w).distinct
   end
 
   def data_attribute_import_wildcard_pair_facet
@@ -307,7 +297,7 @@ module Queries::Concerns::DataAttributes
       w = w.or(c)
     end
 
-    referenced_klass.joins(:internal_attributes).where(w)
+    referenced_klass.joins(:internal_attributes).where(w).distinct
   end
 
   def data_attribute_import_exact_pair_facet

@@ -197,7 +197,8 @@ function GetMatches() {
       const validNames = validTaxonNameIDs.length
         ? (
             await TaxonName.filter({
-              taxon_name_id: [...new Set(validTaxonNameIDs)]
+              taxon_name_id: [...new Set(validTaxonNameIDs)],
+              per: 20000
             })
           ).body
         : []

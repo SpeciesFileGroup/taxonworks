@@ -1038,7 +1038,10 @@ class CollectingEvent < ApplicationRecord
         end
 
         if incremented_identifier_id
-          add_incremented_identifier(to_object: a, incremented_identifier_id:)
+          if !add_incremented_identifier(to_object: a,
+                                         incremented_identifier_id:)
+            raise TaxonWorks::Error, 'Clone failed: Unable to increment identifier, maybe no part of it is numeric?'
+          end
         end
 
         if annotations.present? # TODO: boolean param this
@@ -1047,11 +1050,12 @@ class CollectingEvent < ApplicationRecord
 
         a.save! # TODO: confirm behaviour is OK in case of comprehensive.
 
-      rescue ActiveRecord::RecordInvalid
-        raise ActiveRecord::Rollback
+      rescue ActiveRecord::RecordInvalid => e
+        raise TaxonWorks::Error, "Clone failed: '#{e.message}'", cause: e
       end
-      a
-    end
+    end # end transaction
+
+    a
   end
 
   # @return [String, nil]
