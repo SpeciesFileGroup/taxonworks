@@ -48,6 +48,7 @@ class Project < ApplicationRecord
      Label
      Attribution
      DwcOccurrence
+     BiologicalAssociationIndex
      ProtocolRelationship
      Protocol
      SqedDepiction

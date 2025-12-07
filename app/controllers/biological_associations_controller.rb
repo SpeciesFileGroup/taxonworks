@@ -4,7 +4,7 @@ class BiologicalAssociationsController < ApplicationController
   before_action :set_biological_association, only: [:show, :edit, :update,
     :destroy, :api_show, :api_globi, :api_resource_relationship, :navigation]
   after_action -> { set_pagination_headers(:biological_associations) },
-    only: [:index, :api_index, :api_index_simple], if: :json_request?
+    only: [:index, :api_index, :api_index_simple, :api_index_basic], if: :json_request?
 
   # GET /biological_associations
   # GET /biological_associations.json
@@ -167,6 +167,19 @@ class BiologicalAssociationsController < ApplicationController
         filename: "biological_associations_extended_#{DateTime.now}.tsv"
       }
     end
+  end
+
+  def api_index_basic
+    @biological_associations = ::Queries::BiologicalAssociation::Filter.new(params.merge!(api: true))
+      .all
+      .where(project_id: sessions_current_project_id)
+      .select('biological_associations.id')
+      .includes(:biological_association_index)
+      .order('biological_associations.id')
+      .page(params[:page])
+      .per(params[:per])
+
+    render '/biological_associations/api/v1/basic'
   end
 
   # PATCH /biological_associations/batch_update.json?biological_association_query=<>&biological_association={}

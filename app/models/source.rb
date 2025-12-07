@@ -196,6 +196,7 @@ class Source < ApplicationRecord
   include Shared::SharedAcrossProjects
   include Shared::Tags
   include Shared::HasPapertrail
+  include Shared::BiologicalAssociationIndexHooks
   include SoftValidation
   include Shared::IsData
   # !! Must not have Shared::Depictions
@@ -453,5 +454,14 @@ class Source < ApplicationRecord
       str = title.squish.gsub(/\<i>[^<>]*?<\/i>/, '')
       soft_validations.add(:title, 'The title contains unmatched html tags') if str.include?('<i>') || str.include?('</i>')
     end
-end
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records for associations that cite this source
+  def biological_association_indices
+    BiologicalAssociationIndex
+      .joins('INNER JOIN biological_associations ba ON biological_association_indices.biological_association_id = ba.id')
+      .joins("INNER JOIN citations c ON c.citation_object_id = ba.id AND c.citation_object_type = 'BiologicalAssociation'")
+      .where('c.source_id = ?', id)
+  end
 end
