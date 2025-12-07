@@ -122,6 +122,14 @@
         >
           Save and new
         </VBtn>
+        <VBtn
+          v-if="collectionObject.id"
+          medium
+          color="primary"
+          @click="convertToFieldOccurrence"
+        >
+          To field occurrence
+        </VBtn>
         <div
           class="cursor-pointer"
           @click="resetStore"
@@ -156,6 +164,8 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
 import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
+import { FieldOccurrence } from '@/routes/endpoints'
+import { openUrl } from '@/helpers/url'
 
 const MAX_CO_LIMIT = 100
 
@@ -286,6 +296,35 @@ function loadAssessionCode(id) {
 function loadCollectionObject(co) {
   resetStore()
   store.dispatch(ActionNames.LoadDigitalization, co.id)
+}
+
+async function convertToFieldOccurrence() {
+  const ok = await confirmationModalRef.value.show({
+    title: 'Convert to Field Occurrence',
+    message: 'This will convert the collection object to a field occurrence. The original collection object will be deleted. This action cannot be undone. Continue?',
+    okButton: 'Convert',
+    cancelButton: 'Cancel',
+    typeButton: 'submit'
+  })
+
+  if (ok) {
+    try {
+      const { body } = await FieldOccurrence.fromCollectionObject({
+        collection_object_id: collectionObject.value.id
+      })
+
+      TW.workbench.alert.create(
+        'Collection object successfully converted to field occurrence.',
+        'notice'
+      )
+
+      // Navigate to the new field occurrence
+      openUrl(`/tasks/field_occurrences/new?field_occurrence_id=${body.field_occurrence_id}`)
+    } catch (error) {
+      const errorMessage = error?.response?.body?.error || 'Failed to convert to field occurrence'
+      TW.workbench.alert.create(errorMessage, 'error')
+    }
+  }
 }
 </script>
 
