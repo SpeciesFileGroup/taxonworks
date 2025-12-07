@@ -338,12 +338,18 @@ RSpec.describe FieldOccurrence, type: :model do
       end
 
       specify 'handles ranged lot category' do
-        skip 'FieldOccurrence schema has total NOT NULL but validation expects nil when ranged_lot_category is set'
+        category = FactoryBot.create(:valid_ranged_lot_category)
+        co = RangedLot.create!(
+          ranged_lot_category: category,
+          collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
 
-        # NOTE: This is a known limitation. The FO table has a NOT NULL constraint on total,
-        # but the model validation check_that_both_of_category_and_total_are_not_present
-        # expects total to be blank (nil) when ranged_lot_category is set.
-        # This prevents transmuting RangedLots to FieldOccurrences.
+        result = FieldOccurrence.transmute_collection_object(co.id)
+
+        fo = FieldOccurrence.find(result)
+        expect(fo.ranged_lot_category).to eq(category)
+        expect(fo.total).to eq(0)  # Must be 0 (not nil) due to NOT NULL constraint
       end
     end
 

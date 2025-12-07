@@ -169,10 +169,16 @@ class FieldOccurrence < ApplicationRecord
   end
 
   def total_positive_when_present
+    # Allow total: 0 when ranged_lot_category is set (required by NOT NULL constraint)
+    return if ranged_lot_category_id.present? && total == 0
+
     errors.add(:total, 'Must be positive when not absent.') if !is_absent && total.present? && total <= 0
   end
 
   def check_that_both_of_category_and_total_are_not_present
+    # Allow total: 0 when ranged_lot_category is set (required by NOT NULL constraint)
+    return if ranged_lot_category_id.present? && total == 0
+
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if ranged_lot_category_id.present? && total.present?
   end
 
