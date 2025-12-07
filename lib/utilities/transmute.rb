@@ -58,8 +58,23 @@ module Utilities::Transmute
 
   def self.move_has_many(source, target, reflection)
     source.send(reflection.name).each do |associated|
-      # Reassign to target (appends to target's collection)
-      target.send(reflection.name) << associated
+      # Skip DWC Occurrence identifiers - target will get its own
+      next if associated.is_a?(Identifier::Global::Uuid::TaxonworksDwcOccurrence)
+
+      # For polymorphic associations, we need to update both the _id and _type fields
+      if reflection.options[:as]
+        # This is a polymorphic association
+        foreign_type = reflection.type
+        # Use update_columns to bypass callbacks
+        # This preserves data like UUID values that would otherwise be regenerated
+        associated.update_columns(
+          reflection.foreign_key => target.id,
+          foreign_type => target.class.base_class.name
+        )
+      else
+        # Regular association - just reassign
+        target.send(reflection.name) << associated
+      end
     end
   end
 end

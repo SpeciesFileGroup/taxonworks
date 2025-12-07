@@ -63,16 +63,56 @@ describe Utilities::Transmute, type: :model do
         expect(field_occurrence.reload.tags.count).to eq(1)
       end
 
-      specify 'moves identifiers' do
+      specify 'moves global identifiers (UUID) and preserves UUID value' do
         collection_object = FactoryBot.create(:valid_collection_object)
         field_occurrence = FactoryBot.create(:valid_field_occurrence)
 
-        identifier = FactoryBot.create(:valid_identifier, identifier_object: collection_object)
+        # Use a global UUID identifier which works with FieldOccurrence
+        # (unlike catalog numbers which are CO-specific)
+        identifier = Identifier::Global::Uuid.new(identifier_object: collection_object)
+        identifier.is_generated = true
+        identifier.save!
+        uuid_value = identifier.identifier  # Capture UUID value before move
 
         Utilities::Transmute.move_associations(collection_object, field_occurrence)
 
+        # The UUID identifier should be moved to FO
         expect(identifier.reload.identifier_object).to eq(field_occurrence)
-        expect(field_occurrence.reload.identifiers.count).to eq(1)
+
+        # IMPORTANT: UUID value must be preserved during transmutation
+        # Using update_columns (not update!) prevents UUID regeneration
+        expect(identifier.identifier).to eq(uuid_value)
+
+        # FO should have the moved identifier
+        expect(field_occurrence.reload.identifiers).to include(identifier)
+      end
+
+      specify 'does not move DWC Occurrence identifiers' do
+        collection_object = FactoryBot.create(:valid_collection_object)
+        field_occurrence = FactoryBot.create(:valid_field_occurrence)
+
+        # Get the CO's DWC occurrence identifier before move
+        co_dwc_id = collection_object.identifiers.reload.find do |i|
+          i.is_a?(Identifier::Global::Uuid::TaxonworksDwcOccurrence)
+        end
+        co_dwc_value = co_dwc_id&.identifier
+
+        # Get the FO's DWC occurrence identifier before move
+        fo_dwc_id = field_occurrence.identifiers.reload.find do |i|
+          i.is_a?(Identifier::Global::Uuid::TaxonworksDwcOccurrence)
+        end
+        fo_dwc_value = fo_dwc_id&.identifier
+
+        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+
+        # After move, FO should still have only its original DWC identifier
+        fo_dwc_after = field_occurrence.reload.identifiers.find do |i|
+          i.is_a?(Identifier::Global::Uuid::TaxonworksDwcOccurrence)
+        end
+
+        expect(fo_dwc_after).not_to be_nil
+        expect(fo_dwc_after.identifier).to eq(fo_dwc_value)  # Same value as before
+        expect(fo_dwc_after.identifier).not_to eq(co_dwc_value) if co_dwc_value  # Different from CO's
       end
 
       specify 'moves data_attributes' do

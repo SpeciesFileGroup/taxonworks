@@ -102,8 +102,30 @@ class FieldOccurrence < ApplicationRecord
     return 'Collection object must have a collecting event' if co.collecting_event_id.nil?
     return 'Collection object must have at least one taxon determination' if co.taxon_determinations.empty?
 
+    # Validate total/ranged_lot_category (matching FO validation logic)
+    if co.total.nil? && co.ranged_lot_category_id.nil?
+      return 'Collection object must have either total or ranged lot category'
+    end
+
+    if co.total.present? && co.total <= 0
+      return 'Collection object total must be positive'
+    end
+
+    # Check for incompatible identifiers (catalog numbers, field numbers, record numbers, trip codes)
+    incompatible_identifiers = co.identifiers.select do |identifier|
+      identifier.is_a?(Identifier::Local::CatalogNumber) ||
+      identifier.is_a?(Identifier::Local::FieldNumber) ||
+      identifier.is_a?(Identifier::Local::RecordNumber) ||
+      identifier.is_a?(Identifier::Local::TripCode)
+    end
+
+    if incompatible_identifiers.any?
+      types = incompatible_identifiers.map { |i| i.class.name.demodulize }.uniq.join(', ')
+      return "Collection object has identifiers that cannot be moved to field occurrence (#{types}). Please remove these identifiers first."
+    end
+
     fo = FieldOccurrence.new(
-      total: co.total,
+      total: co.total || 0,  # DB requires NOT NULL, use 0 for ranged lots
       collecting_event_id: co.collecting_event_id,
       ranged_lot_category_id: co.ranged_lot_category_id,
       project_id: co.project_id
@@ -111,13 +133,19 @@ class FieldOccurrence < ApplicationRecord
 
     begin
       FieldOccurrence.transaction do
-        # Move taxon determinations first (required for FO validation)
-        co.taxon_determinations.each do |td|
-          fo.taxon_determinations << td
-        end
+        # Move first taxon determination to satisfy FO validation
+        first_td = co.taxon_determinations.first
+        fo.taxon_determinations << first_td
 
         # Save the new FieldOccurrence
         fo.save!
+
+        # Move remaining taxon determinations using update_column to avoid acts_as_list conflicts
+        co.taxon_determinations.reload.each_with_index do |td, index|
+          td.update_column(:taxon_determination_object_id, fo.id)
+          td.update_column(:taxon_determination_object_type, 'FieldOccurrence')
+          td.update_column(:position, index + 2)  # Start at position 2 (first TD is at 1)
+        end
 
         # Move all shared associations (notes, tags, identifiers, etc.)
         Utilities::Transmute.move_associations(co, fo)
