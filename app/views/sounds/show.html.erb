@@ -1,2 +1,5 @@
-<%= render(partial: 'shared/data/project/show', locals: {object: @sound}) -%>
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, radial_quick_forms_tag(@sound))   %>
+<% end %>
 
+<%= render(partial: 'shared/data/project/show', locals: {object: @sound}) -%>

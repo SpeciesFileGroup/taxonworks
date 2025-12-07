@@ -53,9 +53,9 @@ class Otu < ApplicationRecord
 
   include Shared::QueryBatchUpdate
 
-  is_origin_for 'Sequence', 'Extract', 'Sound'
+  is_origin_for 'Sequence', 'Extract', 'Sound', 'AnatomicalPart'
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices].freeze
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices, :origin_relationships].freeze
 
   belongs_to :taxon_name, inverse_of: :otus
 
@@ -94,6 +94,8 @@ class Otu < ApplicationRecord
 
   has_many :leads, inverse_of: :otu, dependent: :restrict_with_error
   has_many :lead_items, inverse_of: :otu, dependent: :destroy
+
+  has_many :anatomical_parts, foreign_key: :cached_otu_id, inverse_of: :origin_otu, dependent: :restrict_with_error
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }

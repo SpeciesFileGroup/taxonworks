@@ -4,7 +4,7 @@
     ref="element"
     class="graph-context-menu panel"
     :style="stylePosition"
-    @click="() => (isVisible = false)"
+    @click="closeContextMenu"
   >
     <slot />
   </div>
@@ -12,6 +12,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { clickIsInRadialModal } from '@/utils/clickIsInRadialModal'
 
 const position = ref({})
 const isVisible = ref(false)
@@ -27,9 +28,22 @@ function openContextMenu({ x, y }) {
   position.value = { x, y }
 }
 
-function handleEvent(event) {
-  if (!event.target || !element.value?.contains(event.target)) {
-    isVisible.value = false
+function closeContextMenu() {
+  isVisible.value = false
+}
+
+function handleEvent(e) {
+  if (!isVisible.value) return
+
+  // If the click occurred anywhere "in" a modal (including SVG inside it), or
+  // within an autocomplete result list, ignore it so the context menu stays
+  // open.
+  if (clickIsInRadialModal(e) || e.target.closest('.vue-autocomplete-list')) {
+    return
+  }
+
+  if (!element.value?.contains(e.target)) {
+    closeContextMenu()
   }
 }
 
@@ -47,7 +61,8 @@ onUnmounted(() => {
 })
 
 defineExpose({
-  openContextMenu
+  openContextMenu,
+  closeContextMenu
 })
 </script>
 

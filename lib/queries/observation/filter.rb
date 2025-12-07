@@ -375,6 +375,14 @@ module Queries
           .distinct
       end
 
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+
+        ::Observation
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+      end
+
       def observable_facet(name)
         return nil if name.nil?
 
@@ -410,6 +418,7 @@ module Queries
           descriptor_query_facet,
           observation_matrix_id_facet,
 
+          anatomical_part_query_facet,
           taxon_name_query_facet,
           asserted_distribution_query_facet,
           taxon_name_id_facet,

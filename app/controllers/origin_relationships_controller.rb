@@ -72,9 +72,15 @@ class OriginRelationshipsController < ApplicationController
   # DELETE /origin_relationships/1.json
   def destroy
     @origin_relationship.destroy
+
     respond_to do |format|
-      format.html { redirect_to origin_relationships_url, notice: 'Origin relationship was successfully destroyed.' }
-      format.json { head :no_content }
+      if @origin_relationship.destroyed?
+        format.html { redirect_to origin_relationships_url, notice: 'Origin relationship was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @origin_relationship, notice: 'Origin relationship was not destroyed, ' + @origin_relationship.errors.full_messages.join('; ') }
+        format.json { render json: @origin_relationship.errors, status: :unprocessable_entity }
+      end
     end
   end
 
