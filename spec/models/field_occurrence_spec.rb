@@ -231,4 +231,167 @@ RSpec.describe FieldOccurrence, type: :model do
     end
   end
 
+  describe '.transmute_collection_object' do
+    let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
+    let(:otu) { FactoryBot.create(:valid_otu) }
+
+    context 'with valid collection object' do
+      specify 'creates field occurrence with basic attributes' do
+        co = FactoryBot.create(:valid_collection_object,
+          total: 5,
+          collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+
+        expect(result).to be_a(Integer)
+        fo = FieldOccurrence.find(result)
+        expect(fo.total).to eq(5)
+        expect(fo.collecting_event).to eq(collecting_event)
+      end
+
+      specify 'moves taxon determinations' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        td1 = TaxonDetermination.create!(otu: otu, taxon_determination_object: co)
+        td2 = TaxonDetermination.create!(otu: FactoryBot.create(:valid_otu), taxon_determination_object: co)
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+
+        fo = FieldOccurrence.find(result)
+        expect(fo.taxon_determinations.count).to eq(2)
+        expect(fo.taxon_determinations).to include(td1, td2)
+        expect { co.reload }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+
+      specify 'moves shared associations (notes, tags, identifiers)' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+
+        note = FactoryBot.create(:valid_note, note_object: co)
+        tag = FactoryBot.create(:valid_tag, tag_object: co)
+        identifier = FactoryBot.create(:valid_identifier, identifier_object: co)
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+
+        fo = FieldOccurrence.find(result)
+        expect(fo.notes).to include(note)
+        expect(fo.tags).to include(tag)
+        expect(fo.identifiers).to include(identifier)
+      end
+
+      specify 'moves citations' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+
+        citation = FactoryBot.create(:valid_citation,
+          citation_object: co,
+          source: FactoryBot.create(:valid_source))
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+
+        fo = FieldOccurrence.find(result)
+        expect(fo.citations).to include(citation)
+      end
+
+      specify 'moves depictions' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+
+        depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+
+        fo = FieldOccurrence.find(result)
+        expect(fo.depictions).to include(depiction)
+        expect(fo.images.count).to eq(1)
+      end
+
+      specify 'moves data attributes' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+
+        data_attribute = FactoryBot.create(:valid_data_attribute, attribute_subject: co)
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+
+        fo = FieldOccurrence.find(result)
+        expect(fo.data_attributes).to include(data_attribute)
+      end
+
+      specify 'destroys original collection object' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+        co_id = co.id
+
+        FieldOccurrence.transmute_collection_object(co_id)
+
+        expect { CollectionObject.find(co_id) }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+
+      specify 'handles ranged lot category' do
+        category = FactoryBot.create(:valid_ranged_lot_category)
+        co = RangedLot.create!(
+          ranged_lot_category: category,
+          collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+
+        fo = FieldOccurrence.find(result)
+        expect(fo.ranged_lot_category).to eq(category)
+        expect(fo.total).to be_nil
+      end
+    end
+
+    context 'validation failures' do
+      specify 'fails when collection object not found' do
+        result = FieldOccurrence.transmute_collection_object(999999)
+        expect(result).to eq('Collection object not found')
+      end
+
+      specify 'fails when collecting event is missing' do
+        co = FactoryBot.create(:valid_collection_object)
+        co.update_column(:collecting_event_id, nil)
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+        expect(result).to eq('Collection object must have a collecting event')
+      end
+
+      specify 'fails when taxon determinations are missing' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+        expect(result).to eq('Collection object must have at least one taxon determination')
+      end
+    end
+
+    context 'transaction rollback' do
+      specify 'rolls back on failure' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+        co_id = co.id
+
+        # Force a validation error by stubbing save! to fail
+        allow_any_instance_of(FieldOccurrence).to receive(:save!).and_raise(
+          ActiveRecord::RecordInvalid.new(FieldOccurrence.new)
+        )
+
+        result = FieldOccurrence.transmute_collection_object(co_id)
+
+        # Should return error message
+        expect(result).to be_a(String)
+        # Original collection object should still exist
+        expect { CollectionObject.find(co_id) }.not_to raise_error
+      end
+    end
+  end
+
 end
