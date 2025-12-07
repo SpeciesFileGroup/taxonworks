@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added soft validation for unjustified emendation
 - Support repeated attributes with different values (to be ORed) in Collecting Event filter's Collecting Event attribute facet [#4622]
 - Batch create Labels from Collecting Event filter [#3814]
+- New status/control area on Complete DwCA Settings page
 
 ### Changed
 
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filtering on Data Attributes where the same attribute is repeated with a different value (matches to be ORed)
 - Filtering on Data Attributes in Filter Asserted Distributions
 - Prioritize abbreviated genus and species name in TaxonName autocomplete
+- Make sure file is provided when doing bibtex batch loads
 
 [#3814]: https://github.com/SpeciesFileGroup/taxonworks/issues/3814
 [#4556]: https://github.com/SpeciesFileGroup/taxonworks/issues/4556
