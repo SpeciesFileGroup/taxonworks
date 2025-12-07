@@ -112,6 +112,17 @@ class FieldOccurrencesController < ApplicationController
     @field_occurrences = FieldOccurrence.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target], params['ba_target'])
   end
 
+  # POST /field_occurrences/from_collection_object
+  def from_collection_object
+    result = FieldOccurrence.transmute_collection_object(params[:collection_object_id])
+
+    if result.is_a?(Integer)
+      render json: { field_occurrence_id: result }, status: :created
+    else
+      render json: { error: result }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_field_occurrence

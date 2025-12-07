@@ -80,6 +80,60 @@ class FieldOccurrence < ApplicationRecord
       .or(BiologicalAssociationIndex.where('object_id = ? AND object_type = ?', id, self.class.base_class.name))
   end
 
+  # Convert a CollectionObject into a FieldOccurrence
+  #
+  # @param collection_object_id [Integer] the ID of the CollectionObject to transmute
+  # @return [Integer, String] returns the new FieldOccurrence ID on success, or an error message on failure
+  #
+  # Requirements:
+  # - CollectionObject must have a collecting_event
+  # - CollectionObject must have at least one taxon_determination
+  #
+  # Process:
+  # 1. Creates a new FieldOccurrence with the CO's basic attributes
+  # 2. Moves taxon_determinations to the FO
+  # 3. Moves all shared associations (notes, tags, identifiers, etc.) to the FO
+  # 4. Destroys the original CO
+  #
+  def self.transmute_collection_object(collection_object_id)
+    co = CollectionObject.find_by(id: collection_object_id)
+
+    return 'Collection object not found' if co.nil?
+    return 'Collection object must have a collecting event' if co.collecting_event_id.nil?
+    return 'Collection object must have at least one taxon determination' if co.taxon_determinations.empty?
+
+    fo = FieldOccurrence.new(
+      total: co.total,
+      collecting_event_id: co.collecting_event_id,
+      ranged_lot_category_id: co.ranged_lot_category_id,
+      project_id: co.project_id
+    )
+
+    begin
+      FieldOccurrence.transaction do
+        # Move taxon determinations first (required for FO validation)
+        co.taxon_determinations.each do |td|
+          fo.taxon_determinations << td
+        end
+
+        # Save the new FieldOccurrence
+        fo.save!
+
+        # Move all shared associations (notes, tags, identifiers, etc.)
+        Utilities::Transmute.move_associations(co, fo)
+
+        # Destroy the original CollectionObject
+        co.reload.destroy!
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      return e.message
+    rescue ActiveRecord::RecordNotDestroyed => e
+      return co.errors.full_messages.join(', ')
+    end
+
+    fo.id
+  end
+
   private
 
   def total_zero_when_absent
