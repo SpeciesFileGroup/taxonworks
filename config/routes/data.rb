@@ -22,6 +22,25 @@ resources :alternate_values, except: [:show, :new] do
 end
 match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json}
 
+resources :anatomical_parts do
+  concerns [:data_routes]
+  collection do
+    match :filter, to: 'anatomical_parts#index', via: [:get, :post]
+    get :select_options, defaults: {format: :json}
+    get :graph, defaults: {format: :json}
+    get :ontologies, defaults: {format: :json}
+    get :children_of, defaults: {format: :json}
+    get :ontology_autocomplete, defaults: {format: :json}
+
+    scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
+      # Scope these under the select_ontologies task controller for access
+      # control and functional grouping.
+      post :save_ontologies_to_project, defaults: {format: :json}
+      get :ontology_preferences, defaults: {format: :json}
+    end
+  end
+end
+
 match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults: {format: :json}
 match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
 resources :attributions, except: [:new] do
@@ -59,6 +78,7 @@ resources :biological_associations do
     patch :batch_update
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
+    get :subject_object_types, defaults: {format: :json}
   end
 end
 
@@ -482,6 +502,7 @@ resources :labels do
     scope :factory do
       post :unit_tray_header1, controller: 'labels/factory', defaults: {format: :json}
     end
+    post :batch_create, defaults: {format: :json}
   end
   # is data?
 end

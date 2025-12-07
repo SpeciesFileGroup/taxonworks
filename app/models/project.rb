@@ -60,6 +60,7 @@ class Project < ApplicationRecord
      CollectionObjectObservation
      DerivedCollectionObject
      PinboardItem
+     AnatomicalPart
      AssertedDistribution
      BiocurationClassification
      BiologicalRelationshipType
@@ -125,6 +126,10 @@ class Project < ApplicationRecord
 
   EML_PREFERENCES_PATH = [
     *PROJECT_DOWNLOAD_PREFERENCES_PATH, 'eml'
+  ].freeze
+
+  ANATOMICAL_PARTS_ONTOLOGIES_PATH = [
+    'anatomical_parts', 'ontologies'
   ].freeze
 
   has_many :project_members, dependent: :restrict_with_error
@@ -323,7 +328,7 @@ class Project < ApplicationRecord
   def complete_dwc_download_extensions
     prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
     if prefs
-      prefs['extensions']
+      prefs['extensions'] || []
     else
       []
     end
@@ -369,6 +374,22 @@ class Project < ApplicationRecord
     return [] unless prefs.present?
 
     prefs['taxonworks_extension_methods'] || []
+  end
+
+  def set_anatomical_parts_ontologies(ontologies)
+    prefs = preferences_for(ANATOMICAL_PARTS_ONTOLOGIES_PATH)
+    prefs['ontologies'] = ontologies
+
+    save!
+  end
+
+  def anatomical_parts_ontology_preferences
+    prefs = preferences_for(ANATOMICAL_PARTS_ONTOLOGIES_PATH)
+    if prefs
+      prefs['ontologies'] || []
+    else
+      []
+    end
   end
 
   protected

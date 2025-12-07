@@ -1266,7 +1266,7 @@ class TaxonName < ApplicationRecord
 
   # @proceps I feel this needs to go away.  If you want to define misspelling you can not use a verbatim_name. In general
   # verbatim_name should not have downstream factual consequences.
-  #
+
   # TODO:  Missing specs
   def get_cached_misspelling
     misspelling = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY).first

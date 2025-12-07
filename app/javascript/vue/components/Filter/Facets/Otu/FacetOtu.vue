@@ -1,6 +1,6 @@
 <template>
   <FacetContainer>
-    <h3>Otu</h3>
+    <h3>{{ title }}</h3>
     <div class="field">
       <SmartSelector
         model="otus"
@@ -55,6 +55,11 @@ const props = defineProps({
   coordinate: {
     type: Boolean,
     default: false
+  },
+
+  title: {
+    type: String,
+    default: 'Otu'
   }
 })
 

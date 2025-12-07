@@ -16,13 +16,15 @@ import CollectorSlice from './components/CollectorSlice.vue'
 import DateTimeSlice from '@/components/radials/ce/components/DateTimeSlice.vue'
 import VerbatimSlice from './components/VerbatimSlice.vue'
 import Georeference from './components/GeoreferenceSlice.vue'
+import PrintLabelSlice from './components/PrintLabelSlice.vue'
 
 const SLICES = {
   'Set georeference': Georeference,
   'Set geographic area': AssignSlice,
   'Append New Collectors': CollectorSlice,
   'Set Collection Date/Time': DateTimeSlice,
-  'Set verbatim fields': VerbatimSlice
+  'Set verbatim fields': VerbatimSlice,
+  'Print label': PrintLabelSlice
 }
 
 defineOptions({

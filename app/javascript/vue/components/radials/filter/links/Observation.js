@@ -1,4 +1,5 @@
 import {
+    FILTER_ANATOMICAL_PART,
     FILTER_COLLECTION_OBJECT,
     FILTER_DESCRIPTOR,
     FILTER_EXTRACT,
@@ -11,6 +12,8 @@ import {
 } from '../constants/filterLinks'
 
 export const Observation = [
+    FILTER_ANATOMICAL_PART,
+    FILTER_ASSERTED_DISTRIBUTION,
     FILTER_COLLECTION_OBJECT,
     FILTER_DESCRIPTOR,
     FILTER_EXTRACT,
@@ -19,5 +22,4 @@ export const Observation = [
     FILTER_OTU,
     FILTER_SOUND,
     FILTER_SOURCE,
-    FILTER_ASSERTED_DISTRIBUTION,
 ]

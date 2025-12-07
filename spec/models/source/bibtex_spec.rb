@@ -180,6 +180,50 @@ describe Source::Bibtex, type: :model, group: :sources do
     expect(src.serial_id).to eq(s.id)
   end
 
+  specify '.new_from_bibtex without create project source' do
+    citation_string =  %q{@Article{Park2021a,
+        author = {Kyu-Tek Park AND J. B. Heppner},
+        title = {Notes on Vietnam moths, 21. Athymoris in Vietnam, with two new species (Lepidoptera: Lecithoceridae: Torodorinae)},
+        journal = {Lepidoptera Novae},
+        year = {2021},
+        volume = {13},
+        number = {1-2},
+        pages = {23--26},
+        issn = {1941-1014},
+        abstract = {– Two new species of the genus Athymoris Meyrick, 1935, are described from Vietnam: Athymoris gilvimaculata Park & Heppner, sp. nov.,
+        and A. clinozonalis Park & Heppner, sp. nov.},
+        file = {:VN-Athymoris.pdf:PDF},
+        }}
+
+    src = Source::Bibtex.new_from_bibtex_text(citation_string)
+    src.save!
+
+    project_source = ProjectSource.find_by(source_id: src.id, project_id: Current.project_id)
+    expect(project_source).to be_nil
+  end
+
+  specify '.new_from_bibtex create project source' do
+    citation_string =  %q{@Article{Park2021a,
+        author = {Kyu-Tek Park AND J. B. Heppner},
+        title = {Notes on Vietnam moths, 21. Athymoris in Vietnam, with two new species (Lepidoptera: Lecithoceridae: Torodorinae)},
+        journal = {Lepidoptera Novae},
+        year = {2021},
+        volume = {13},
+        number = {1-2},
+        pages = {23--26},
+        issn = {1941-1014},
+        abstract = {– Two new species of the genus Athymoris Meyrick, 1935, are described from Vietnam: Athymoris gilvimaculata Park & Heppner, sp. nov.,
+        and A. clinozonalis Park & Heppner, sp. nov.},
+        file = {:VN-Athymoris.pdf:PDF},
+        }}
+
+    src = Source::Bibtex.new_from_bibtex_text(citation_string, Current.project_id)
+    src.save!
+
+    project_source = ProjectSource.find_by(source_id: src.id, project_id: Current.project_id)
+    expect(project_source).to be_a(ProjectSource)
+  end
+
   specify '#year_with_suffix' do
     subject.year = '1922'
     subject.year_suffix = 'c'

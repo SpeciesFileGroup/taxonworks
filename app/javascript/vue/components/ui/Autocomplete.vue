@@ -410,7 +410,9 @@ export default {
     },
 
     update() {
-      if (this.type.length < Number(this.min)) return
+      if (this.type.length < Number(this.min) || this.type.trim() === '') {
+        return
+      }
 
       this.clearResults()
 
@@ -439,7 +441,7 @@ export default {
             }
             this.showList = true
             this.searchEnd = true
-            this.$emit('found', this.showList)
+            this.$emit('found', body.length)
             this.$nextTick(this.updateDropdownPosition)
           })
           .catch(() => {})
@@ -506,6 +508,10 @@ export default {
 
     setFocus() {
       this.$refs.autofocus.focus()
+    },
+
+    hiddenList() {
+      this.showList = false
     }
   }
 }
