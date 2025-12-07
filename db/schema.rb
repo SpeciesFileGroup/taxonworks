@@ -69,6 +69,31 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
     t.index ["updated_by_id"], name: "index_alternate_values_on_updated_by_id"
   end
 
+  create_table "anatomical_parts", force: :cascade do |t|
+    t.text "name"
+    t.text "uri"
+    t.text "uri_label"
+    t.boolean "is_material"
+    t.text "cached"
+    t.bigint "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "cached_otu_id"
+    t.bigint "preparation_type_id"
+    t.index ["cached"], name: "index_anatomical_parts_on_cached"
+    t.index ["cached_otu_id"], name: "index_anatomical_parts_on_cached_otu_id"
+    t.index ["created_by_id"], name: "index_anatomical_parts_on_created_by_id"
+    t.index ["is_material"], name: "index_anatomical_parts_on_is_material"
+    t.index ["name"], name: "index_anatomical_parts_on_name"
+    t.index ["preparation_type_id"], name: "index_anatomical_parts_on_preparation_type_id"
+    t.index ["project_id"], name: "index_anatomical_parts_on_project_id"
+    t.index ["updated_by_id"], name: "index_anatomical_parts_on_updated_by_id"
+    t.index ["uri"], name: "index_anatomical_parts_on_uri"
+    t.index ["uri_label"], name: "index_anatomical_parts_on_uri_label"
+  end
+
   create_table "asserted_distributions", id: :serial, force: :cascade do |t|
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -125,6 +150,58 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
     t.index ["updated_by_id"], name: "index_biocuration_classifications_on_updated_by_id"
   end
 
+  create_table "biological_association_indices", force: :cascade do |t|
+    t.bigint "biological_association_id", null: false
+    t.bigint "biological_relationship_id", null: false
+    t.bigint "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "biological_association_uuid"
+    t.integer "subject_id", null: false
+    t.string "subject_type", null: false
+    t.string "subject_uuid"
+    t.string "subject_label"
+    t.string "subject_order"
+    t.string "subject_family"
+    t.string "subject_genus"
+    t.string "subject_properties"
+    t.string "biological_relationship_uri"
+    t.string "relationship_name"
+    t.string "relationship_inverted_name"
+    t.integer "object_id", null: false
+    t.string "object_type", null: false
+    t.string "object_uuid"
+    t.string "object_label"
+    t.string "object_order"
+    t.string "object_family"
+    t.string "object_genus"
+    t.string "object_properties"
+    t.text "citations"
+    t.string "citation_year"
+    t.string "established_date"
+    t.text "remarks"
+    t.string "rebuild_set"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["biological_association_id"], name: "idx_on_biological_association_id_58cd768e96"
+    t.index ["biological_relationship_id"], name: "idx_on_biological_relationship_id_a634a0b467"
+    t.index ["biological_relationship_uri"], name: "idx_on_biological_relationship_uri_58607d5e1e"
+    t.index ["object_family"], name: "index_biological_association_indices_on_object_family"
+    t.index ["object_genus"], name: "index_biological_association_indices_on_object_genus"
+    t.index ["object_id", "object_type"], name: "idx_on_object_id_object_type_0eedf4ae5a"
+    t.index ["object_order"], name: "index_biological_association_indices_on_object_order"
+    t.index ["object_properties"], name: "index_biological_association_indices_on_object_properties"
+    t.index ["project_id"], name: "index_biological_association_indices_on_project_id"
+    t.index ["rebuild_set"], name: "index_biological_association_indices_on_rebuild_set"
+    t.index ["relationship_inverted_name"], name: "idx_on_relationship_inverted_name_8e42f527b3"
+    t.index ["relationship_name"], name: "index_biological_association_indices_on_relationship_name"
+    t.index ["subject_family"], name: "index_biological_association_indices_on_subject_family"
+    t.index ["subject_genus"], name: "index_biological_association_indices_on_subject_genus"
+    t.index ["subject_id", "subject_type"], name: "idx_on_subject_id_subject_type_6dfd7ad8ad"
+    t.index ["subject_order"], name: "index_biological_association_indices_on_subject_order"
+    t.index ["subject_properties"], name: "index_biological_association_indices_on_subject_properties"
+  end
+
   create_table "biological_associations", id: :serial, force: :cascade do |t|
     t.integer "biological_relationship_id", null: false
     t.integer "biological_association_subject_id", null: false
@@ -171,6 +248,57 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
     t.index ["created_by_id"], name: "index_biological_associations_graphs_on_created_by_id"
     t.index ["project_id"], name: "index_biological_associations_graphs_on_project_id"
     t.index ["updated_by_id"], name: "index_biological_associations_graphs_on_updated_by_id"
+  end
+
+  create_table "biological_associations_indices", force: :cascade do |t|
+    t.bigint "biological_association_id", null: false
+    t.bigint "biological_relationship_id", null: false
+    t.bigint "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "subject_id", null: false
+    t.string "subject_type", null: false
+    t.string "subject_uuid"
+    t.string "subject_label"
+    t.string "subject_order"
+    t.string "subject_family"
+    t.string "subject_genus"
+    t.string "subject_properties"
+    t.string "biological_relationship_uri"
+    t.string "relationship_name"
+    t.string "relationship_inverted_name"
+    t.integer "object_id", null: false
+    t.string "object_type", null: false
+    t.string "object_uuid"
+    t.string "object_label"
+    t.string "object_order"
+    t.string "object_family"
+    t.string "object_genus"
+    t.string "object_properties"
+    t.text "citations"
+    t.string "citation_year"
+    t.string "established_date"
+    t.text "remarks"
+    t.string "rebuild_set"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["biological_association_id"], name: "idx_on_biological_association_id_d644205200"
+    t.index ["biological_relationship_id"], name: "idx_on_biological_relationship_id_b8fb63acc3"
+    t.index ["biological_relationship_uri"], name: "idx_on_biological_relationship_uri_030af2b432"
+    t.index ["object_family"], name: "index_biological_associations_indices_on_object_family"
+    t.index ["object_genus"], name: "index_biological_associations_indices_on_object_genus"
+    t.index ["object_id", "object_type"], name: "idx_on_object_id_object_type_5901016659"
+    t.index ["object_order"], name: "index_biological_associations_indices_on_object_order"
+    t.index ["object_properties"], name: "index_biological_associations_indices_on_object_properties"
+    t.index ["project_id"], name: "index_biological_associations_indices_on_project_id"
+    t.index ["rebuild_set"], name: "index_biological_associations_indices_on_rebuild_set"
+    t.index ["relationship_inverted_name"], name: "idx_on_relationship_inverted_name_0bafca8774"
+    t.index ["relationship_name"], name: "index_biological_associations_indices_on_relationship_name"
+    t.index ["subject_family"], name: "index_biological_associations_indices_on_subject_family"
+    t.index ["subject_genus"], name: "index_biological_associations_indices_on_subject_genus"
+    t.index ["subject_id", "subject_type"], name: "idx_on_subject_id_subject_type_5bbb0e5da3"
+    t.index ["subject_order"], name: "index_biological_associations_indices_on_subject_order"
+    t.index ["subject_properties"], name: "index_biological_associations_indices_on_subject_properties"
   end
 
   create_table "biological_relationship_types", id: :serial, force: :cascade do |t|
@@ -248,7 +376,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
 
   create_table "cached_maps", force: :cascade do |t|
     t.bigint "otu_id", null: false
-    t.geography "geometry", limit: {:srid=>4326, :type=>"geometry", :geographic=>true}
+    t.geography "geometry", limit: {srid: 4326, type: "geometry", geographic: true}
     t.integer "reference_count"
     t.bigint "project_id", null: false
     t.datetime "created_at", null: false
@@ -1127,7 +1255,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
     t.integer "updated_by_id", null: false
     t.string "type"
     t.decimal "cached_total_area"
-    t.geography "geography", limit: {:srid=>4326, :type=>"geometry", :has_z=>true, :geographic=>true}
+    t.geography "geography", limit: {srid: 4326, type: "geometry", has_z: true, geographic: true}
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
     t.index ["geography"], name: "index_geographic_items_on_geography", using: :gist
     t.index ["type"], name: "index_geographic_items_on_type"
@@ -1387,20 +1515,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
     t.index ["created_by_id"], name: "index_namespaces_on_created_by_id"
     t.index ["updated_at"], name: "index_namespaces_on_updated_at"
     t.index ["updated_by_id"], name: "index_namespaces_on_updated_by_id"
-  end
-
-  create_table "news", force: :cascade do |t|
-    t.text "type"
-    t.text "title"
-    t.text "body"
-    t.datetime "display_start"
-    t.datetime "display_end"
-    t.bigint "project_id"
-    t.integer "created_by_id"
-    t.integer "updated_by_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["project_id"], name: "index_news_on_project_id"
   end
 
   create_table "notes", id: :serial, force: :cascade do |t|
@@ -2296,6 +2410,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
   add_foreign_key "alternate_values", "projects", name: "alternate_values_project_id_fkey"
   add_foreign_key "alternate_values", "users", column: "created_by_id", name: "alternate_values_created_by_id_fkey"
   add_foreign_key "alternate_values", "users", column: "updated_by_id", name: "alternate_values_updated_by_id_fkey"
+  add_foreign_key "anatomical_parts", "otus", column: "cached_otu_id"
+  add_foreign_key "anatomical_parts", "preparation_types"
+  add_foreign_key "anatomical_parts", "projects"
+  add_foreign_key "anatomical_parts", "users", column: "created_by_id"
+  add_foreign_key "anatomical_parts", "users", column: "updated_by_id"
   add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
@@ -2306,6 +2425,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
   add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "created_by_id", name: "biocuration_classifications_created_by_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "updated_by_id", name: "biocuration_classifications_updated_by_id_fkey"
+  add_foreign_key "biological_association_indices", "biological_associations"
+  add_foreign_key "biological_association_indices", "biological_relationships"
+  add_foreign_key "biological_association_indices", "projects"
   add_foreign_key "biological_associations", "biological_relationships", name: "biological_associations_biological_relationship_id_fkey"
   add_foreign_key "biological_associations", "projects", name: "biological_associations_project_id_fkey"
   add_foreign_key "biological_associations", "users", column: "created_by_id", name: "biological_associations_created_by_id_fkey"
@@ -2318,6 +2440,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
   add_foreign_key "biological_associations_graphs", "projects", name: "biological_associations_graphs_project_id_fkey"
   add_foreign_key "biological_associations_graphs", "users", column: "created_by_id", name: "biological_associations_graphs_created_by_id_fkey"
   add_foreign_key "biological_associations_graphs", "users", column: "updated_by_id", name: "biological_associations_graphs_updated_by_id_fkey"
+  add_foreign_key "biological_associations_indices", "biological_associations"
+  add_foreign_key "biological_associations_indices", "biological_relationships"
+  add_foreign_key "biological_associations_indices", "projects"
   add_foreign_key "biological_relationship_types", "biological_relationships", name: "biological_relationship_types_biological_relationship_id_fkey"
   add_foreign_key "biological_relationship_types", "controlled_vocabulary_terms", column: "biological_property_id", name: "biological_relationship_types_biological_property_id_fkey"
   add_foreign_key "biological_relationship_types", "projects", name: "biological_relationship_types_project_id_fkey"
@@ -2475,9 +2600,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
   add_foreign_key "loans", "users", column: "updated_by_id", name: "loans_updated_by_id_fkey"
   add_foreign_key "namespaces", "users", column: "created_by_id", name: "namespaces_created_by_id_fkey"
   add_foreign_key "namespaces", "users", column: "updated_by_id", name: "namespaces_updated_by_id_fkey"
-  add_foreign_key "news", "projects"
-  add_foreign_key "news", "users", column: "created_by_id"
-  add_foreign_key "news", "users", column: "updated_by_id"
   add_foreign_key "notes", "projects", name: "notes_project_id_fkey"
   add_foreign_key "notes", "users", column: "created_by_id", name: "notes_created_by_id_fkey"
   add_foreign_key "notes", "users", column: "updated_by_id", name: "notes_updated_by_id_fkey"

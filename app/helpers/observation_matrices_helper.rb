@@ -47,7 +47,7 @@ module ObservationMatricesHelper
   end
 
   def keywords_on_addable_row_items
-    Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: ['Otu', 'CollectionObject']}).distinct.all
+    Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: OBSERVABLE_TYPES}).distinct.all
   end
 
   def keywords_on_addable_column_items

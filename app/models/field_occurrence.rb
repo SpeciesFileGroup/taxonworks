@@ -39,11 +39,12 @@ class FieldOccurrence < ApplicationRecord
   # At present must be before BiologicalExtensions
   include Shared::TaxonDeterminationRequired
   include Shared::BiologicalExtensions
+  include Shared::BiologicalAssociationIndexHooks
 
   include Shared::Taxonomy
   include FieldOccurrence::DwcExtensions
 
-  is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound'
+  is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound', 'AnatomicalPart'
   originates_from 'FieldOccurrence'
 
   GRAPH_ENTRY_POINTS = [:biological_associations, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships]
@@ -70,6 +71,13 @@ class FieldOccurrence < ApplicationRecord
 
   def requires_taxon_determination?
     true
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records where this FieldOccurrence is subject or object
+  def biological_association_indices
+    BiologicalAssociationIndex.where('subject_id = ? AND subject_type = ?', id, self.class.base_class.name)
+      .or(BiologicalAssociationIndex.where('object_id = ? AND object_type = ?', id, self.class.base_class.name))
   end
 
   private

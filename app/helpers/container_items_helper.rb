@@ -25,6 +25,8 @@ module ContainerItemsHelper
       label_for_extract_container(o)
     when 'Container'
       label_for_container_container(o)
+    when 'AnatomicalPart'
+      label_for_anatomical_part_container(o)
     else
       "NO CONTAINER LABEL FOR  A #{ container_item.container_object_type }, poke your developers!"
     end

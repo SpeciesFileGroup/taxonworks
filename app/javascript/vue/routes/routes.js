@@ -1,4 +1,5 @@
 import {
+  ANATOMICAL_PART,
   ASSERTED_DISTRIBUTION,
   BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
@@ -33,6 +34,7 @@ const RouteNames = {
   DwcDashboard: '/tasks/dwc/dashboard',
   DwcImport: '/tasks/dwca_import/index',
   FieldSynchronize: '/tasks/data_attributes/field_synchronize',
+  FilterAnatomicalPart: '/tasks/anatomical_parts/filter',
   FilterAssertedDistribition: '/tasks/asserted_distributions/filter',
   FilterBiologicalAssociations: '/tasks/biological_associations/filter',
   FilterCollectingEvents: '/tasks/collecting_events/filter',
@@ -94,6 +96,7 @@ const RouteNames = {
 }
 
 const FILTER_ROUTES = {
+  [ANATOMICAL_PART]: RouteNames.FilterAnatomicalPart,
   [ASSERTED_DISTRIBUTION]: RouteNames.FilterAssertedDistribition,
   [BIOLOGICAL_ASSOCIATION]: RouteNames.FilterBiologicalAssociations,
   [COLLECTING_EVENT]: RouteNames.FilterCollectingEvents,
