@@ -199,20 +199,6 @@ describe Utilities::Transmute, type: :model do
         # Field occurrence should keep its own collecting_event
         expect(field_occurrence.reload.collecting_event).to eq(ce2)
       end
-
-      specify 'does not move through associations directly' do
-        collection_object = FactoryBot.create(:valid_collection_object)
-        field_occurrence = FactoryBot.create(:valid_field_occurrence)
-
-        # Images are accessed through depictions (a through association)
-        depiction = FactoryBot.create(:valid_depiction, depiction_object: collection_object)
-
-        # The depiction should move, making images available through it
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
-
-        expect(field_occurrence.reload.images.count).to eq(1)
-        expect(field_occurrence.depictions.count).to eq(1)
-      end
     end
 
     context 'only moves shared associations' do

@@ -287,7 +287,6 @@ function loadCollectionObject(co) {
   resetStore()
   store.dispatch(ActionNames.LoadDigitalization, co.id)
 }
-
 </script>
 
 <style lang="scss" scoped>

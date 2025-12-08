@@ -84,17 +84,6 @@ class FieldOccurrence < ApplicationRecord
   #
   # @param collection_object_id [Integer] the ID of the CollectionObject to transmute
   # @return [Integer, String] returns the new FieldOccurrence ID on success, or an error message on failure
-  #
-  # Requirements:
-  # - CollectionObject must have a collecting_event
-  # - CollectionObject must have at least one taxon_determination
-  #
-  # Process:
-  # 1. Creates a new FieldOccurrence with the CO's basic attributes
-  # 2. Moves taxon_determinations to the FO
-  # 3. Moves all shared associations (notes, tags, identifiers, etc.) to the FO
-  # 4. Destroys the original CO
-  #
   def self.transmute_collection_object(collection_object_id)
     co = CollectionObject.find_by(id: collection_object_id)
 
@@ -102,7 +91,6 @@ class FieldOccurrence < ApplicationRecord
     return 'Collection object must have a collecting event' if co.collecting_event_id.nil?
     return 'Collection object must have at least one taxon determination' if co.taxon_determinations.empty?
 
-    # Validate total/ranged_lot_category (matching FO validation logic)
     if co.total.nil? && co.ranged_lot_category_id.nil?
       return 'Collection object must have either total or ranged lot category'
     end
@@ -111,7 +99,6 @@ class FieldOccurrence < ApplicationRecord
       return 'Collection object total must be positive'
     end
 
-    # Check for incompatible identifiers (catalog numbers, field numbers, record numbers, trip codes)
     incompatible_identifiers = co.identifiers.select do |identifier|
       identifier.is_a?(Identifier::Local::CatalogNumber) ||
       identifier.is_a?(Identifier::Local::FieldNumber) ||
@@ -124,7 +111,6 @@ class FieldOccurrence < ApplicationRecord
       return "Collection object has identifiers that cannot be moved to field occurrence (#{types}). Please remove these identifiers first."
     end
 
-    # Check for CO-specific associations that cannot be moved to FO
     return 'Collection object has loan items. Please remove or return loans before converting.' if co.loan_items.any?
     return 'Collection object has a repository assignment. Please remove repository before converting.' if co.repository_id.present?
     return 'Collection object has a current repository assignment. Please remove current repository before converting.' if co.current_repository_id.present?
@@ -143,24 +129,22 @@ class FieldOccurrence < ApplicationRecord
 
     begin
       FieldOccurrence.transaction do
-        # Move first taxon determination to satisfy FO validation
+        # Move first taxon determination to satisfy FieldOccurrence validation
         first_td = co.taxon_determinations.first
         fo.taxon_determinations << first_td
 
-        # Save the new FieldOccurrence
         fo.save!
 
         # Move remaining taxon determinations using update_column to avoid acts_as_list conflicts
         co.taxon_determinations.reload.each_with_index do |td, index|
           td.update_column(:taxon_determination_object_id, fo.id)
           td.update_column(:taxon_determination_object_type, 'FieldOccurrence')
-          td.update_column(:position, index + 2)  # Start at position 2 (first TD is at 1)
+          td.update_column(:position, index + 2)  # Start at position 2 (first determination is at 1)
         end
 
         # Move all shared associations (notes, tags, identifiers, etc.)
         Utilities::Transmute.move_associations(co, fo)
 
-        # Destroy the original CollectionObject
         co.reload.destroy!
       end
     rescue ActiveRecord::RecordInvalid => e

@@ -153,6 +153,7 @@ import { useHotkey } from '@/composables'
 const store = useStore()
 const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
 const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+const confirmationModalRef = ref(null)
 
 const shortcuts = ref([
   {
@@ -282,10 +283,7 @@ function handleRadialCreate({ slice, item }) {
   }
 }
 
-const confirmationModalRef = ref(null)
-
 async function convertToFieldOccurrence() {
-  // Check for buffered_ attributes that would be lost
   const bufferedFields = []
   if (collectionObject.value.buffered_collecting_event) bufferedFields.push('buffered_collecting_event')
   if (collectionObject.value.buffered_determinations) bufferedFields.push('buffered_determinations')
@@ -314,7 +312,7 @@ async function convertToFieldOccurrence() {
       })
 
       // Navigate to the new field occurrence
-      window.location = `${RouteNames.NewFieldOccurrence}?field_occurrence_id=${body.field_occurrence_id}`
+      window.location.href = `${RouteNames.NewFieldOccurrence}?field_occurrence_id=${body.field_occurrence_id}`
     } catch (error) {
       const errorMessage = error?.response?.body?.error || 'Failed to convert to field occurrence'
       TW.workbench.alert.create(errorMessage, 'error')
