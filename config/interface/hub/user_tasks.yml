@@ -1124,7 +1124,7 @@ taxon_name_reclassifier_task:
   categories:
   status: prototype
   description: 'Drag-drop to change the parents of TaxonNames.'
-news_new_task:
+new_news_task:
   hub: true
   name: 'New news'
   related:

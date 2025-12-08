@@ -88,13 +88,14 @@
       display: block;
       color: var(--text-color);
       padding: 0.5rem 1rem;
-      width: 100%;
       font-size: 0.875rem;
       text-decoration: none;
       box-sizing: border-box;
       border-radius: var(--border-radius-medium);
     }
-    a:hover {
+
+    a:hover,
+    .dropdown-content-item:hover {
       background-color: var(--bg-hover);
     }
 
@@ -104,8 +105,16 @@
       text-decoration: none;
     }
 
-    .dropdrown-content-theme-selector {
+    .dropdown-content-divisor {
+      height: 1px;
+      margin: 0.25rem 0;
       border-top: 1px solid var(--border-color);
+    }
+
+    .dropdown-username-section {
+      color: var(--text-color);
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
     }
 
     .dropdown-content-username {

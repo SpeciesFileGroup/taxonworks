@@ -178,9 +178,9 @@ module Workbench::SessionsHelper
   def session_header_links
     [
       link_to('Dashboard', root_path),
+      content_tag(:div, '', id: 'vue-pinboard-navigator'),
       project_settings_link,
-      administration_link,
-      issue_tracker_tag,
+      issue_tracker_tag
     ]
   end
 

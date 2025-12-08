@@ -38,21 +38,28 @@
       <div class="dropdown-content header-dropdown-menu">
         <ul class='no_bullets'>
           <%= session_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%>
-          <li class="dropdown-content-item padding-remove-bottom">
-            <div id="toggle-theme" class="dropdrown-content-theme-selector capitalize"></div>
+
+          <% if sessions_current_user.is_administrator? %>
+            <li class="dropdown-content-divisor"></li>
+            <li>
+                <%= link_to('Administration', administration_path, class: 'padding-medium-top padding-small-bottom') -%>
+            </li>  
+          <% end %>
+
+          <li class="dropdown-content-divisor"></li>
+          <li class="dropdown-content-item padding-remove-bottom padding-remove-top">
+            <div id="toggle-theme" class="dropdrown-content-divisor capitalize"></div>
           </li>
         </ul>
       </div>
     </div>
-    
-
 
     <div class="dropdown header-dropdown-menu">
       <div class="dropdown-button header-dropdown-btn">
         <%= user_avatar(sessions_current_user, :small) -%>
       </div>
       <div class="dropdown-content header-dropdown-menu">
-        <div class="padding-small-bottom dropdown-content-item ">
+        <div class="padding-small-bottom dropdown-username-section">
           <div class="dropdown-content-username">
           <%= sessions_current_user.name %>
           </div>
