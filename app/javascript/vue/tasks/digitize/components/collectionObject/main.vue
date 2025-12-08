@@ -1,4 +1,9 @@
 <template>
+  <VSpinner
+    v-if="isLoading"
+    full-screen
+    legend="Converting to field occurrence..."
+  />
   <div class="flexbox align-start">
     <BlockLayout :warning="!collectionObject.id">
       <template #header>
@@ -154,6 +159,7 @@ const store = useStore()
 const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
 const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
 const confirmationModalRef = ref(null)
+const isLoading = ref(false)
 
 const shortcuts = ref([
   {
@@ -306,6 +312,7 @@ async function convertToFieldOccurrence() {
   })
 
   if (ok) {
+    isLoading.value = true
     try {
       const { body } = await FieldOccurrence.fromCollectionObject({
         collection_object_id: collectionObject.value.id
@@ -314,6 +321,7 @@ async function convertToFieldOccurrence() {
       // Navigate to the new field occurrence
       window.location.href = `${RouteNames.NewFieldOccurrence}?field_occurrence_id=${body.field_occurrence_id}`
     } catch (error) {
+      isLoading.value = false
       const errorMessage = error?.response?.body?.error || 'Failed to convert to field occurrence'
       TW.workbench.alert.create(errorMessage, 'error')
     }

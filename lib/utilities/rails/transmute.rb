@@ -1,4 +1,4 @@
-module Utilities::Transmute
+module Utilities::Rails::Transmute
   # Move shared associations from one ActiveRecord instance (`source`) to
   # another (`target`).
   #

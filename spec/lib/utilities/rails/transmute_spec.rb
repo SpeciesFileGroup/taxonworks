@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Utilities::Transmute, type: :model do
+describe Utilities::Rails::Transmute, type: :model do
   describe '.move_associations' do
     context 'has_one associations' do
       specify 'moves origin_citation' do
@@ -9,7 +9,7 @@ describe Utilities::Transmute, type: :model do
         field_occurrence = FactoryBot.create(:valid_field_occurrence)
         origin_citation = collection_object.origin_citation
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         expect(field_occurrence.reload.origin_citation).to eq(origin_citation)
         expect(origin_citation.reload.citation_object).to eq(field_occurrence)
@@ -24,7 +24,7 @@ describe Utilities::Transmute, type: :model do
         note1 = FactoryBot.create(:valid_note, note_object: collection_object)
         note2 = FactoryBot.create(:valid_note, text: 'Second note', note_object: collection_object)
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         expect(note1.reload.note_object).to eq(field_occurrence)
         expect(note2.reload.note_object).to eq(field_occurrence)
@@ -43,7 +43,7 @@ describe Utilities::Transmute, type: :model do
           citation_object: collection_object,
           source: FactoryBot.create(:valid_source))
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         expect(citation1.reload.citation_object).to eq(field_occurrence)
         expect(citation2.reload.citation_object).to eq(field_occurrence)
@@ -57,7 +57,7 @@ describe Utilities::Transmute, type: :model do
 
         tag = FactoryBot.create(:valid_tag, tag_object: collection_object)
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         expect(tag.reload.tag_object).to eq(field_occurrence)
         expect(field_occurrence.reload.tags.count).to eq(1)
@@ -74,7 +74,7 @@ describe Utilities::Transmute, type: :model do
         identifier.save!
         uuid_value = identifier.identifier  # Capture UUID value before move
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         # The UUID identifier should be moved to FO
         expect(identifier.reload.identifier_object).to eq(field_occurrence)
@@ -103,7 +103,7 @@ describe Utilities::Transmute, type: :model do
         end
         fo_dwc_value = fo_dwc_id&.identifier
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         # After move, FO should still have only its original DWC identifier
         fo_dwc_after = field_occurrence.reload.identifiers.find do |i|
@@ -124,7 +124,7 @@ describe Utilities::Transmute, type: :model do
         co_dwc = collection_object.dwc_occurrence
         fo_dwc = field_occurrence.dwc_occurrence
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         # Each should still have their own dwc_occurrence
         expect(collection_object.reload.dwc_occurrence).to eq(co_dwc)
@@ -139,7 +139,7 @@ describe Utilities::Transmute, type: :model do
 
         data_attribute = FactoryBot.create(:valid_data_attribute, attribute_subject: collection_object)
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         expect(data_attribute.reload.attribute_subject).to eq(field_occurrence)
         expect(field_occurrence.reload.data_attributes.count).to eq(1)
@@ -152,7 +152,7 @@ describe Utilities::Transmute, type: :model do
         depiction1 = FactoryBot.create(:valid_depiction, depiction_object: collection_object)
         depiction2 = FactoryBot.create(:valid_depiction, depiction_object: collection_object)
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         expect(depiction1.reload.depiction_object).to eq(field_occurrence)
         expect(depiction2.reload.depiction_object).to eq(field_occurrence)
@@ -166,7 +166,7 @@ describe Utilities::Transmute, type: :model do
 
         confidence = FactoryBot.create(:valid_confidence, confidence_object: collection_object)
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         expect(confidence.reload.confidence_object).to eq(field_occurrence)
         expect(field_occurrence.reload.confidences.count).to eq(1)
@@ -179,7 +179,7 @@ describe Utilities::Transmute, type: :model do
         protocol_relationship = FactoryBot.create(:valid_protocol_relationship,
           protocol_relationship_object: collection_object)
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         expect(protocol_relationship.reload.protocol_relationship_object).to eq(field_occurrence)
         expect(field_occurrence.reload.protocol_relationships.count).to eq(1)
@@ -194,7 +194,7 @@ describe Utilities::Transmute, type: :model do
         field_occurrence = FactoryBot.create(:valid_field_occurrence)
         field_occurrence.update!(collecting_event: ce2)
 
-        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+        Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
 
         # Field occurrence should keep its own collecting_event
         expect(field_occurrence.reload.collecting_event).to eq(ce2)
@@ -211,7 +211,7 @@ describe Utilities::Transmute, type: :model do
 
         # This should not raise an error even though FO doesn't have containers
         expect {
-          Utilities::Transmute.move_associations(collection_object, field_occurrence)
+          Utilities::Rails::Transmute.move_associations(collection_object, field_occurrence)
         }.not_to raise_error
       end
     end

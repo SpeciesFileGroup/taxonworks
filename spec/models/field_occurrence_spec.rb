@@ -283,7 +283,7 @@ RSpec.describe FieldOccurrence, type: :model do
         expect { co.reload }.to raise_error(ActiveRecord::RecordNotFound)
       end
 
-      specify 'moves shared associations via Utilities::Transmute' do
+      specify 'moves shared associations via Utilities::Rails::Transmute' do
         co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
         co.taxon_determinations << TaxonDetermination.new(otu: otu)
         co.save!

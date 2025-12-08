@@ -143,7 +143,7 @@ class FieldOccurrence < ApplicationRecord
         end
 
         # Move all shared associations (notes, tags, identifiers, etc.)
-        Utilities::Transmute.move_associations(co, fo)
+        Utilities::Rails::Transmute.move_associations(co, fo)
 
         co.reload.destroy!
       end
