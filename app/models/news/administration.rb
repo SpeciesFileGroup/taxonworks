@@ -5,6 +5,9 @@ class News::Administration < News
   validates :project_id, absence: true
   validate :user_must_be_administrator, prepend: false
 
+  validates :is_public, inclusion: 
+    { in:  [nil, false], message: "Administration news can not be public" }
+
   private
 
   def user_must_be_administrator

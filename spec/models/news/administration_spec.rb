@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe News::Administration, type: :model do
+  
+  let(:news) { News::Administration.new }
+  
   let(:admin_user) { FactoryBot.create(:administrator) }
   let(:regular_user) { FactoryBot.create(:valid_user) }
 
@@ -16,9 +19,13 @@ RSpec.describe News::Administration, type: :model do
       expect(news.errors[:project_id]).to include("must be blank")
     end
 
+    specify 'can not be public' do
+      news.is_public = true
+      news.valid?
+      expect(news.errors[:is_public]).to include('Administration news can not be public')
+    end
+
     context 'creator_must_be_administrator' do
-
-
       specify 'allows creation by administrator' do
         news = News::Administration::Notice.new(
           title: 'Admin News',
