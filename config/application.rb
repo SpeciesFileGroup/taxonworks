@@ -20,14 +20,17 @@ module TaxonWorks
     config.active_record.belongs_to_required_by_default = false
 
     # Rails 8.1 timezone preservation behavior
-    # Old behavior: .to_time converts to system local timezone
+    # Historical behavior (pre-Rails 5.0, deprecated):
+    #   false - converts to system local timezone
+    # Rails 5.0-7.x default behavior (deprecated in Rails 8.1):
+    #   true/:offset - preserves UTC offset but not timezone name
     #   Time.zone = 'America/New_York'
     #   time = Time.zone.parse("2024-01-01 12:00:00")  # => 2024-01-01 12:00:00 EST
-    #   time.to_time.zone  # => "CST" (if system is set to Central)
-    # New behavior in 8.1: .to_time preserves receiver's timezone
+    #   time.to_time.zone  # => nil
+    # Rails 8.1 mandatory behavior: :zone - preserves full timezone object
     #   Time.zone = 'America/New_York'
     #   time = Time.zone.parse("2024-01-01 12:00:00")  # => 2024-01-01 12:00:00 EST
-    #   time.to_time.zone  # => "EST" (preserves original timezone)
+    #   time.to_time.zone  # => #<ActiveSupport::TimeZone @name="Eastern Time (US & Canada)">
     config.active_support.to_time_preserves_timezone = :zone
 
     # TODO: remove after testing
