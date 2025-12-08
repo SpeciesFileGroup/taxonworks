@@ -5,7 +5,7 @@ scope :tasks do
     end
 
     scope :new, controller: 'tasks/news/new' do
-      get '/', action: :index, as: 'news_new_task'
+      get '/', action: :index, as: 'new_news_task'
     end
   end
 
