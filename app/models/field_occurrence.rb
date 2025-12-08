@@ -91,14 +91,6 @@ class FieldOccurrence < ApplicationRecord
     return 'Collection object must have a collecting event' if co.collecting_event_id.nil?
     return 'Collection object must have at least one taxon determination' if co.taxon_determinations.empty?
 
-    if co.total.nil? && co.ranged_lot_category_id.nil?
-      return 'Collection object must have either total or ranged lot category'
-    end
-
-    if co.total.present? && co.total <= 0
-      return 'Collection object total must be positive'
-    end
-
     incompatible_identifiers = co.identifiers.select do |identifier|
       identifier.is_a?(Identifier::Local::CatalogNumber) ||
       identifier.is_a?(Identifier::Local::FieldNumber) ||
