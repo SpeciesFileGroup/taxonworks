@@ -65,8 +65,10 @@ function makeNews(data) {
   return {
     id: data.id,
     body: data.body_html,
+    admin: data.type.includes('Administration'),
     type: data.type.split('::')[2],
     title: data.title,
+    creator: data.creator,
     createdAt: data.created_at
   }
 }
