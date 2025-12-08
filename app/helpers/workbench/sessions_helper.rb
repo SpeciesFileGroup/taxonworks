@@ -180,11 +180,16 @@ module Workbench::SessionsHelper
       link_to('Dashboard', root_path),
       project_settings_link,
       administration_link,
+      issue_tracker_tag,
+    ]
+  end
+
+  def session_user_header_links
+    [
       link_to('Account', sessions_current_user, data: {
         current_user_id: sessions_current_user.id.to_s,
         current_user_is_administrator: sessions_current_user.is_administrator,
       }),
-      issue_tracker_tag,
       link_to('Sign out', signout_path, method: :delete, id: 'sign_out')
     ]
   end

@@ -226,7 +226,7 @@
                     <td class="td-center"> 
                       <%= form_for(pm, method: :delete) do |f| -%>
                         <%= f.hidden_field :_destroy, value: :true -%>
-                        <%= f.button '', class: ['button', 'remove', 'circle-button', 'button-delete', 'btn-delete'] %>
+                        <%= f.button '', class: ['button', 'remove', 'circle-button', 'button-delete', 'btn-delete'], data: { confirm: "Are you sure you want to remove this user from the project?" }  %>
                       <% end %>
                     </td>
                   </tr>

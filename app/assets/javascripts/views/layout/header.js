@@ -4,9 +4,11 @@ TW.layout.header = TW.layout.header || {}
 
 Object.assign(TW.layout.header, {})
 
-document.addEventListener('turbolinks:load', function () {
-  const dropdownBtn = document.getElementById('header-dropdown-btn')
-  const dropdownMenu = document.getElementById('header-dropdown-menu')
+function initialize(container) {
+  const dropdownBtn = container.querySelector('.header-dropdown-btn')
+  const dropdownMenu = container.querySelector('.header-dropdown-menu')
+
+  console.log(dropdownBtn, dropdownMenu)
 
   if (dropdownBtn && dropdownMenu) {
     dropdownBtn.addEventListener('click', function (event) {
@@ -35,5 +37,13 @@ document.addEventListener('turbolinks:load', function () {
       passive: true,
       capture: true
     })
+  }
+}
+
+document.addEventListener('turbolinks:load', function () {
+  const menus = [...document.querySelectorAll('.header-dropdown-menu')]
+
+  if (menus.length) {
+    menus.forEach(initialize)
   }
 })
