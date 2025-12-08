@@ -27,7 +27,7 @@
       </template>
       <template #body>
         <VForm v-model="news" />
-        <div class="flex-row gap-small">
+        <div class="flex-row gap-small margin-medium-top">
           <VBtn
             color="create"
             medium
@@ -42,6 +42,14 @@
             @click="reset"
           >
             New
+          </VBtn>
+          <VBtn
+            v-if="news.id"
+            color="primary"
+            medium
+            @click="openBrowseNews"
+          >
+            Show
           </VBtn>
         </div>
       </template>
@@ -104,6 +112,12 @@ function setNews(value) {
 
 function reset() {
   news.value = makeNews()
+}
+
+function openBrowseNews() {
+  const url = `${RouteNames.BrowseNews}?news_id=${news.value.id}`
+
+  window.open(url, '_self')
 }
 
 watch(
