@@ -24,25 +24,42 @@ module Utilities::Rails::Transmute
   #   co = CollectionObject.find(123)
   #   fo = FieldOccurrence.new(collecting_event: co.collecting_event)
   #   fo.save!
-  #   Utilities::Transmute.move_associations(co, fo)
+  #   Utilities::Rails::Transmute.move_associations(co, fo)
+  #   co.destroy!
   #
+  # @raise [TaxonWorks::Error] if the transmutation fails for any reason
   def self.move_associations(source, target)
-    source.class.reflections.each_value do |reflection|
-      # Skip belongs_to - those should already be set on target
-      next if reflection.macro == :belongs_to
-
-      # Skip through associations - they're convenience relations
-      next if reflection.options[:through]
-
-      # Only process if target class has the same association
-      next unless target.class.reflections.key?(reflection.name.to_s)
-
-      case reflection.macro
-      when :has_one
-        move_has_one(source, target, reflection)
-      when :has_many
-        move_has_many(source, target, reflection)
+    # Validate project_id match
+    if source.respond_to?(:project_id) && target.respond_to?(:project_id)
+      if source.project_id != target.project_id
+        raise TaxonWorks::Error, "Cannot transmute objects from different projects (source: #{source.project_id}, target: #{target.project_id})"
       end
+    end
+
+    source.class.transaction do
+      source.class.reflections.each_value do |reflection|
+        # Skip belongs_to - those should already be set on target
+        next if reflection.macro == :belongs_to
+
+        # Skip through associations - they're convenience relations
+        next if reflection.options[:through]
+
+        # Only process if target class has the same association
+        next unless target.class.reflections.key?(reflection.name.to_s)
+
+        case reflection.macro
+        when :has_one
+          move_has_one(source, target, reflection)
+        when :has_many
+          move_has_many(source, target, reflection)
+        end
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      raise TaxonWorks::Error, "Failed to move associations: #{e.message}"
+    rescue ActiveRecord::InvalidForeignKey => e
+      raise TaxonWorks::Error, "Failed to move associations: #{e.message}"
+    rescue ActiveRecord::RecordNotSaved => e
+      raise TaxonWorks::Error, "Failed to move associations: #{e.message}"
     end
   end
 
@@ -67,12 +84,17 @@ module Utilities::Rails::Transmute
       # For polymorphic associations, we need to update both the _id and _type fields
       if reflection.options[:as]
         # This is a polymorphic association
-        foreign_type = reflection.type
-        # Use update_columns to bypass callbacks
-        # This preserves data like UUID values that would otherwise be regenerated
-        associated.update_columns(
-          reflection.foreign_key => target.id,
-          foreign_type => target.class.base_class.name
+
+        # Hackish: For Global::Uuid, set is_generated to nil to prevent UUID
+        # regeneration during update
+        if associated.class.ancestors.include?(Identifier::Global::Uuid)
+          associated.is_generated = nil
+        end
+
+        # Some updates are expected to raise here, like CatalogNumber being
+        # moved to FieldOccurrence, etc.
+        associated.update!(
+          reflection.options[:as] => target
         )
       else
         # Regular association - just reassign

@@ -5,7 +5,7 @@ describe Utilities::Rails::Transmute, type: :model do
     context 'has_one associations' do
       specify 'moves origin_citation' do
         collection_object = FactoryBot.create(:valid_collection_object,
-          origin_citation_attributes: { source: FactoryBot.create(:valid_source) })
+          source: FactoryBot.create(:valid_source))
         field_occurrence = FactoryBot.create(:valid_field_occurrence)
         origin_citation = collection_object.origin_citation
 

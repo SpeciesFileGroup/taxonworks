@@ -358,7 +358,25 @@ RSpec.describe FieldOccurrence, type: :model do
         )
 
         result = FieldOccurrence.transmute_collection_object(co.id)
-        expect(result).to match(/identifiers that cannot be moved.*CatalogNumber/)
+        expect(result).to match(/Failed to move associations/)
+        expect(CollectionObject.exists?(co.id)).to be_truthy # Transaction rolled back
+      end
+
+      specify 'fails when CO has incompatible identifiers (record number)' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+
+        # Create a record number (not allowed on FieldOccurrence)
+        Identifier::Local::RecordNumber.create!(
+          identifier_object: co,
+          namespace: FactoryBot.create(:valid_namespace),
+          identifier: 'RN456'
+        )
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+        expect(result).to match(/Failed to move associations/)
+        expect(CollectionObject.exists?(co.id)).to be_truthy # Transaction rolled back
       end
 
       specify 'fails when CO has loan items' do

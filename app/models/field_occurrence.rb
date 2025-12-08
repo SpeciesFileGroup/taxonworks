@@ -88,20 +88,6 @@ class FieldOccurrence < ApplicationRecord
     co = CollectionObject.find_by(id: collection_object_id)
 
     return 'Collection object not found' if co.nil?
-    return 'Collection object must have a collecting event' if co.collecting_event_id.nil?
-    return 'Collection object must have at least one taxon determination' if co.taxon_determinations.empty?
-
-    incompatible_identifiers = co.identifiers.select do |identifier|
-      identifier.is_a?(Identifier::Local::CatalogNumber) ||
-      identifier.is_a?(Identifier::Local::FieldNumber) ||
-      identifier.is_a?(Identifier::Local::RecordNumber) ||
-      identifier.is_a?(Identifier::Local::TripCode)
-    end
-
-    if incompatible_identifiers.any?
-      types = incompatible_identifiers.map { |i| i.class.name.demodulize }.uniq.join(', ')
-      return "Collection object has identifiers that cannot be moved to field occurrence (#{types}). Please remove these identifiers first."
-    end
 
     return 'Collection object has loan items. Please remove or return loans before converting.' if co.loan_items.any?
     return 'Collection object has a repository assignment. Please remove repository before converting.' if co.repository_id.present?
@@ -121,24 +107,20 @@ class FieldOccurrence < ApplicationRecord
 
     begin
       FieldOccurrence.transaction do
-        # Move first taxon determination to satisfy FieldOccurrence validation
-        first_td = co.taxon_determinations.first
-        fo.taxon_determinations << first_td
+        co.taxon_determinations.reload.each do |td|
+          fo.taxon_determinations << td
+        end
+        co.reload
 
         fo.save!
-
-        # Move remaining taxon determinations using update_column to avoid acts_as_list conflicts
-        co.taxon_determinations.reload.each_with_index do |td, index|
-          td.update_column(:taxon_determination_object_id, fo.id)
-          td.update_column(:taxon_determination_object_type, 'FieldOccurrence')
-          td.update_column(:position, index + 2)  # Start at position 2 (first determination is at 1)
-        end
 
         # Move all shared associations (notes, tags, identifiers, etc.)
         Utilities::Rails::Transmute.move_associations(co, fo)
 
         co.reload.destroy!
       end
+    rescue TaxonWorks::Error => e
+      return e.message
     rescue ActiveRecord::RecordInvalid => e
       return e.message
     rescue ActiveRecord::RecordNotDestroyed => e
