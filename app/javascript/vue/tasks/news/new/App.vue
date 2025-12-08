@@ -93,11 +93,11 @@ async function save() {
 
     isSaving.value = true
 
-    if (newsId) {
-      await News.update(newsId, payload)
-    } else {
-      await News.create(payload)
-    }
+    const { body } = newsId
+      ? await News.update(newsId, payload)
+      : await News.create(payload)
+
+    news.value.id = body.id
 
     TW.workbench.alert.create('News was successfully saved.', 'notice')
   } catch {

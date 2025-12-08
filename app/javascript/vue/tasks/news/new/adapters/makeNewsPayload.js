@@ -1,5 +1,9 @@
 import { localToUTC } from '@/helpers'
 
+function setDate(date) {
+  return date ? utcToLocal(date) : date
+}
+
 export function makeNewsPayload(data) {
   return {
     id: data.id,
@@ -7,7 +11,7 @@ export function makeNewsPayload(data) {
     body: data.body,
     type: data.type,
     is_public: data.isPublic,
-    display_start: localToUTC(data.start),
-    display_end: localToUTC(data.end)
+    display_start: setDate(data.start),
+    display_end: setDate(data.end)
   }
 }
