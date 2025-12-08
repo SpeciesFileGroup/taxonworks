@@ -285,9 +285,23 @@ function handleRadialCreate({ slice, item }) {
 const confirmationModalRef = ref(null)
 
 async function convertToFieldOccurrence() {
+  // Check for buffered_ attributes that would be lost
+  const bufferedFields = []
+  if (collectionObject.value.buffered_collecting_event) bufferedFields.push('buffered_collecting_event')
+  if (collectionObject.value.buffered_determinations) bufferedFields.push('buffered_determinations')
+  if (collectionObject.value.buffered_other_labels) bufferedFields.push('buffered_other_labels')
+
+  let message = 'This will convert the collection object to a field occurrence. The original collection object will be deleted. This action cannot be undone.'
+
+  if (bufferedFields.length > 0) {
+    message += `<br><br><strong>WARNING:</strong> This collection object has buffered data that will be lost: ${bufferedFields.join(', ')}.`
+  }
+
+  message += '<br><br>Continue?'
+
   const ok = await confirmationModalRef.value.show({
     title: 'Convert to Field Occurrence',
-    message: 'This will convert the collection object to a field occurrence. The original collection object will be deleted. This action cannot be undone. Continue?',
+    message,
     okButton: 'Convert',
     cancelButton: 'Cancel',
     typeButton: 'submit'
