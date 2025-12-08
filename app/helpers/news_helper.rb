@@ -53,10 +53,10 @@ module NewsHelper
 
   def project_news_badges(project)
     project_news_count(project).map do |klass_sym, count|
-      text_type = klass_sym.to_s.camelize
+      type = klass_sym.to_s.camelize
       css_type = klass_sym.to_s.delete('_')
 
-      content_tag(:span, "#{text_type} (#{count})", class: "v-badge news-#{css_type}-color")
+      link_to("#{type} (#{count})", browse_news_task_path({ category: type, newspapper: 'project' }), class: "v-badge news-#{css_type}-color")
     end.join.html_safe
   end
 

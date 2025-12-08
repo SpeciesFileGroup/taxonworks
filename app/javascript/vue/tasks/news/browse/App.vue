@@ -4,9 +4,9 @@
     full-screen
   />
   <NewsViewer
-    v-if="currentNew"
-    :news="currentNew"
-    @close="() => (currentNew = undefined)"
+    v-if="currentNews"
+    :news="currentNews"
+    @close="() => (currentNews = undefined)"
   />
   <template v-else>
     <div class="newspapper-header">
@@ -52,13 +52,17 @@ const newspapperTypes = ref([])
 const types = ref([])
 const currentType = ref('All')
 const news = ref([])
-const currentNew = ref()
+const currentNews = ref()
 const isLoading = ref()
 
-provide('currentNew', currentNew)
+provide('currentNew', currentNews)
 
-watch(currentNew, (newVal = {}) => {
-  setParam(RouteNames.BrowseNews, 'news_id', newVal.id)
+watch([currentNews, currentType, newspapperType], () => {
+  setParam(RouteNames.BrowseNews, {
+    news_id: currentNews.value?.id,
+    category: currentType.value,
+    newspapper: newspapperType.value
+  })
 })
 
 function makeNews(data) {
@@ -73,26 +77,32 @@ function makeNews(data) {
   }
 }
 
-usePopstateListener(() => {
-  const { news_id: newsId } = URLParamsToJSON(location.href)
+function loadFromUrlParam() {
+  const {
+    news_id: newsId,
+    category,
+    newspapper
+  } = URLParamsToJSON(location.href)
+
+  if (newspapper) {
+    newspapperType.value = newspapper
+  }
+
+  if (category) {
+    currentType.value = category
+  }
 
   if (newsId) {
     News.find(newsId).then(({ body }) => {
-      currentNew.value = makeNews(body)
+      currentNews.value = makeNews(body)
     })
+  } else {
+    currentNews.value = undefined
   }
-})
+}
 
-onBeforeMount(() => {
-  const params = URLParamsToJSON(window.location.href)
-  const newsId = params.news_id
-
-  if (newsId) {
-    News.find(newsId).then(({ body }) => {
-      currentNew.value = makeNews(body)
-    })
-  }
-})
+onBeforeMount(loadFromUrlParam)
+usePopstateListener(loadFromUrlParam)
 
 News.types()
   .then(({ body }) => {
