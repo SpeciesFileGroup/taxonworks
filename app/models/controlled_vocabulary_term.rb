@@ -27,6 +27,7 @@
 class ControlledVocabularyTerm < ApplicationRecord
   # ControlledVocabularyTerms are NOT Taggable (with 'Tag')
   include Housekeeping
+  include Shared::Uri
   include Shared::AlternateValues
   include Shared::HasPapertrail
   include Shared::IsData
@@ -46,7 +47,6 @@ class ControlledVocabularyTerm < ApplicationRecord
   validates_presence_of :uri, unless: -> {uri_relation.blank?}, message: 'must be provided if uri_relation is provided'
 
   # TODO: DRY with Identifier::Global::Uri
-  validate :form_of_uri
   validate :uri_relation_is_a_skos_relation
 
   has_many :observation_matrix_row_items, as: :observation_object, inverse_of: :observation_object,  class_name: 'ObservationMatrixRowItem::Dynamic::Tag', dependent: :destroy
@@ -72,41 +72,6 @@ class ControlledVocabularyTerm < ApplicationRecord
       end
     end
     true
-  end
-
-  # def form_of_uri
-  #   if uri.present?
-  #     uris = URI.extract(uri)
-
-  #     if uris.count == 0
-  #       errors.add(:uri, 'More than a single URI present')
-  #     else
-  #       unless (uri.lenght == uris[0].length) && (uris.count == 1)
-  #     end
-  #   end
-  # end
-
-  def form_of_uri
-    if uri.present?
-
-      uris = URI.extract(uri)
-
-      if uris.count == 0
-        errors.add(:uri, 'URI provided by unparsable.')
-      elsif uris.count > 1
-        errors.add(:uri, 'More than a single URI present.')
-      else
-        begin
-          u = URI(uri)
-          scheme = u.scheme.upcase
-          unless URI.scheme_list.keys.include?(scheme)
-            errors.add(:uri, "#{scheme} is not in the URI schemes list.")
-          end
-        rescue
-          errors.add(:uri, "Badly formed URI #{uri} detected.")
-        end
-      end
-    end
   end
 
   # @return [Object]

@@ -136,6 +136,7 @@
           <%= link_to('Customize attributes', project_preferences_task_path, data: { turbolinks: false } )  %>
           <% if sessions_current_user.is_project_administrator?(sessions_current_project) %>
             <%= link_to('Darwin core export', project_dwc_export_preferences_task_path) %>
+            <%= link_to('Anatomical part ontology', select_ontologies_task_path)%>
           <% end %>
         </div>
       </div>

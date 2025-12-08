@@ -38,6 +38,7 @@ class BiologicalAssociation < ApplicationRecord
   include Shared::Depictions
   include Shared::AutoUuid
   include Shared::AssertedDistributions
+  include Shared::IsIndexedBiologicalAssociation
   include Shared::IsData
 
   include BiologicalAssociation::GlobiExtensions

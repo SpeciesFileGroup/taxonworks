@@ -29,7 +29,13 @@ module ProjectsHelper
 
   def projects_list(projects)
     active_id = sessions_current_project_id
-    sorted = projects.sort_by { |p| p.id == active_id ? 0 : 1 }
+
+    sorted = projects.sort_by do |p|
+      [
+        p.id == active_id ? 0 : 1,
+        p.name.downcase
+      ]
+    end
 
     sorted.collect do |p|
       classes = ['project-item']
@@ -38,6 +44,7 @@ module ProjectsHelper
       content_tag(:li, project_link(p), class: classes)
     end.join.html_safe
   end
+
 
 
 

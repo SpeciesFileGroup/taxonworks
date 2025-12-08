@@ -22,6 +22,7 @@
           :parameters="parameters"
           :disabled="!list.length"
           :object-type="OTU"
+          use-new-key-slice
           @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
@@ -36,6 +37,7 @@
           :object-type="OTU"
           :disabled="!list.length"
           :ids="sortedSelectedIds"
+          use-new-key-slice
           @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>

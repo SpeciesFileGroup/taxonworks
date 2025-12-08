@@ -15,6 +15,7 @@ end %>
 <% end %>
 
 <%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, radial_quick_forms_tag(@field_occurrence))   %>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @field_occurrence}) -%>

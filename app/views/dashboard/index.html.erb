@@ -52,12 +52,6 @@
           <ul class="link-list no_bullets">
             <% if sessions_current_project_id -%>
               <li><%= link_to('Order hub tabs', order_tabs_hub_path, class: 'link-item' ) -%></li>
-              <li><%= link_to('Account', sessions_current_user, data: {
-                        current_user_id: sessions_current_user.id.to_s,
-                        current_user_is_administrator: sessions_current_user.is_administrator,
-                      }, class: 'link-item')
-                  -%>
-               </li>
             <% else %>
               <li><em>Preferences available when project is set.</em></li>
             <% end %>

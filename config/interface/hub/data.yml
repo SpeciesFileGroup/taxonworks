@@ -102,6 +102,18 @@ Core: # a Section
     categories:
       - matrix
 Supporting:
+  AnatomicalPart:
+    status: :prototype
+    related_models:
+      - CollectionObject
+      - FieldOccurrence
+      - Otu
+    categories:
+      - biology
+      - collection_object
+      - dna
+      - matrix
+      - otu
   AssertedDistribution:
     status: :prototype
     categories:

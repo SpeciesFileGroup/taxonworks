@@ -1,0 +1,5 @@
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, otus_radial(@anatomical_part) )   %>
+<% end %>
+
+<%= render(partial: 'shared/data/project/show', locals: {object: @anatomical_part}) -%>

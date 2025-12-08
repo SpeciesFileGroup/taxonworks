@@ -121,6 +121,7 @@ namespace :api, defaults: {format: :json} do
       get '/biological_associations/:id/globi', to: '/biological_associations#api_globi'
       get '/biological_associations/extended', to: '/biological_associations#api_index_extended'
       get '/biological_associations/simple', to: '/biological_associations#api_index_simple'
+      get '/biological_associations/basic', to: '/biological_associations#api_index_basic'
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
 
