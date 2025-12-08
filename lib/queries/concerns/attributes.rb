@@ -12,9 +12,13 @@ module Queries::Concerns::Attributes
 
   def self.params
     [
+      :attribute_exact_pair,
+      :attribute_wildcard_pair,
       :wildcard_attribute,
       :any_value_attribute,
       :no_value_attribute,
+      attribute_exact_pair: [],
+      attribute_wildcard_pair: [],
       wildcard_attribute: [],
       any_value_attribute: [],
       no_value_attribute: [],
@@ -28,6 +32,16 @@ module Queries::Concerns::Attributes
     end
 
     # @return [Array]
+    #   values are [attribute, value] pairs that should match exactly - repeated
+    #   attributes are ORed.
+    attr_accessor :attribute_exact_pair
+
+    # @return [Array]
+    #   values are [attribute, value] pairs that should wildcard match -
+    #   repeated attributes are ORed.
+    attr_accessor :attribute_wildcard_pair
+
+    # @return [Array]
     #  ATTRIBUTES listed here will all not-null records
     attr_accessor :any_value_attribute
 
@@ -36,8 +50,21 @@ module Queries::Concerns::Attributes
     attr_accessor :no_value_attribute
 
     # @return [Array (Symbols)]
-    #   values are ATTRIBUTES that should be wildcarded
+    #   values are ATTRIBUTES that should be wildcarded - attributes are not
+    #   repeated.
     attr_accessor :wildcard_attribute
+
+    def attribute_exact_pair
+      return {} if @attribute_exact_pair.blank?
+
+      split_repeated_pairs([@attribute_exact_pair].flatten.compact)
+    end
+
+    def attribute_wildcard_pair
+      return {} if @attribute_wildcard_pair.blank?
+
+      split_repeated_pairs([@attribute_wildcard_pair].flatten.compact)
+    end
 
     def wildcard_attribute
       [@wildcard_attribute].flatten.compact.uniq.map(&:to_sym)
@@ -52,7 +79,10 @@ module Queries::Concerns::Attributes
     end
   end
 
+
   def set_attributes_params(params)
+    @attribute_exact_pair = params[:attribute_exact_pair]
+    @attribute_wildcard_pair = params[:attribute_wildcard_pair]
     @wildcard_attribute = params[:wildcard_attribute]
     @any_value_attribute = params[:any_value_attribute]
     @no_value_attribute = params[:no_value_attribute]
@@ -63,7 +93,45 @@ module Queries::Concerns::Attributes
   end
 
   def self.and_clauses
-    [ :attribute_clauses ]
+    [
+      :attribute_clauses,
+      :attribute_or_clauses
+    ]
+  end
+
+  def attribute_or_clauses
+    return nil if attribute_wildcard_pair.empty? && attribute_exact_pair.empty?
+
+    w = nil
+    if attribute_wildcard_pair.present?
+      arr = []
+      attribute_wildcard_pair.each do |p|
+        attr, v = [p[0], p[1]]
+        arr.push Arel::Nodes::NamedFunction.new('CAST', [table[attr].as('TEXT')]).matches('%' + v.to_s + '%')
+      end
+
+      w = arr.shift
+      arr.each do |b|
+        w = w.or(b)
+      end
+    end
+
+    e = nil
+    if attribute_exact_pair.present?
+      arr = []
+      attribute_exact_pair.each do |p|
+        attr, v = [p[0], p[1]]
+        arr.push table[attr].eq(v)
+      end
+
+      e = arr.shift
+      arr.each do |b|
+        e = e.or(b)
+      end
+    end
+
+    return w.and(e) if w.present? && e.present?
+    w || e
   end
 
   def attribute_clauses
@@ -89,6 +157,7 @@ module Queries::Concerns::Attributes
     c.each do |b|
       a = a.and(b)
     end
+
     a
   end
 

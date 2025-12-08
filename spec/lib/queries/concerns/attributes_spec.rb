@@ -16,7 +16,7 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
     verbatim_field_number: 'Foo manchu',
     start_date_year: 2000,
     start_date_month: 2,
-    start_date_day: 18,
+    start_date_day: 7,
     print_label: 'THERE: under the stars:18-2-2000') }
 
   # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
@@ -53,6 +53,48 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
     specify '#verbatim_locality (string field test) 2' do
       query.verbatim_locality = 'Out there, '
       expect(query.all.map(&:id)).to contain_exactly()
+    end
+  end
+
+  context 'wildcard_pairs' do
+    before(:each) do
+      FactoryBot.create(:valid_collecting_event) # not this
+    end
+
+    specify '1 attr, 1 wildcard value' do
+      query.attribute_wildcard_pair = 'verbatim_locality:Out there'
+
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
+
+     specify '1 attr, 2 wildcard values (or)' do
+      query.attribute_wildcard_pair =
+        ['verbatim_locality:there', 'verbatim_locality:stars']
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
+
+    specify '1 attr, 3 values (2 or wildcard, 1 and exact)' do
+      query.attribute_wildcard_pair =
+        ['verbatim_locality:there', 'verbatim_locality:stars']
+      query.attribute_exact_pair =
+        'verbatim_locality:Out there, under the stars'
+      expect(query.all.map(&:id)).to contain_exactly(ce2.id)
+    end
+
+    specify '1 attr, 2 exact or' do
+      query.attribute_exact_pair =
+        ['start_date_day:7', 'start_date_day:18']
+
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
+
+    specify '2 attr, 2 wildcard or, 1 exact' do
+      query.attribute_wildcard_pair =
+        ['start_date_day:7', 'start_date_day:18']
+      query.attribute_exact_pair =
+        'verbatim_locality:Out there, under the stars'
+
+      expect(query.all.map(&:id)).to contain_exactly(ce2.id)
     end
   end
 
