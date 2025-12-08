@@ -124,6 +124,16 @@ class FieldOccurrence < ApplicationRecord
       return "Collection object has identifiers that cannot be moved to field occurrence (#{types}). Please remove these identifiers first."
     end
 
+    # Check for CO-specific associations that cannot be moved to FO
+    return 'Collection object has loan items. Please remove or return loans before converting.' if co.loan_items.any?
+    return 'Collection object has a repository assignment. Please remove repository before converting.' if co.repository_id.present?
+    return 'Collection object has a current repository assignment. Please remove current repository before converting.' if co.current_repository_id.present?
+    return 'Collection object has a preparation type. Please remove preparation type before converting.' if co.preparation_type_id.present?
+    return 'Collection object has type materials. Please remove type materials before converting.' if co.type_materials.any?
+    return 'Collection object has sqed depictions. Please remove sqed depictions before converting.' if co.sqed_depictions.any?
+    return 'Collection object has extracts. Please remove extracts before converting.' if co.extracts.any?
+    return 'Collection object has sequences. Please remove sequences before converting.' if co.sequences.any?
+
     fo = FieldOccurrence.new(
       total: co.total || 0,  # DB requires NOT NULL, use 0 for ranged lots
       collecting_event_id: co.collecting_event_id,

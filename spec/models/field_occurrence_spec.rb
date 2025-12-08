@@ -360,6 +360,38 @@ RSpec.describe FieldOccurrence, type: :model do
         result = FieldOccurrence.transmute_collection_object(co.id)
         expect(result).to match(/identifiers that cannot be moved.*CatalogNumber/)
       end
+
+      specify 'fails when CO has loan items' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+
+        FactoryBot.create(:valid_loan_item, loan_item_object: co)
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+        expect(result).to eq('Collection object has loan items. Please remove or return loans before converting.')
+      end
+
+      specify 'fails when CO has repository' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.repository = FactoryBot.create(:valid_repository)
+        co.save!
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+        expect(result).to eq('Collection object has a repository assignment. Please remove repository before converting.')
+      end
+
+      specify 'fails when CO has type materials' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+
+        FactoryBot.create(:valid_type_material, collection_object: co)
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+        expect(result).to eq('Collection object has type materials. Please remove type materials before converting.')
+      end
     end
 
     context 'transaction rollback' do
