@@ -9,6 +9,14 @@
           v-if="collectionObject.id"
           class="horizontal-left-content gap-small"
         >
+          <VBtn
+            color="destroy"
+            medium
+            title="Convert this collection object to a field occurrence"
+            @click="convertToFieldOccurrence"
+          >
+            To field occurrence
+          </VBtn>
           <RadialAnnotator
             :global-id="collectionObject.global_id"
             @delete="handleRadialDestroy"
@@ -91,6 +99,7 @@
         </div>
       </template>
     </BlockLayout>
+    <ConfirmationModal ref="confirmationModalRef" />
   </div>
 </template>
 
@@ -98,7 +107,8 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
-import { Depiction } from '@/routes/endpoints'
+import { Depiction, FieldOccurrence } from '@/routes/endpoints'
+import { RouteNames } from '@/routes/routes.js'
 import {
   COLLECTION_OBJECT,
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
@@ -133,6 +143,8 @@ import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import PredicatesComponent from './predicates.vue'
 import ButtonTag from '@/components/ui/Button/ButtonTag.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import SoftValidations from '@/components/soft_validations/panel.vue'
 import RecordNumber from '../recordNumber/recordNumber.vue'
@@ -266,6 +278,32 @@ function handleRadialCreate({ slice, item }) {
       catalogNumber.setIdentifier(item)
     } else if (item.type === IDENTIFIER_LOCAL_RECORD_NUMBER) {
       recordNumber.setIdentifier(item)
+    }
+  }
+}
+
+const confirmationModalRef = ref(null)
+
+async function convertToFieldOccurrence() {
+  const ok = await confirmationModalRef.value.show({
+    title: 'Convert to Field Occurrence',
+    message: 'This will convert the collection object to a field occurrence. The original collection object will be deleted. This action cannot be undone. Continue?',
+    okButton: 'Convert',
+    cancelButton: 'Cancel',
+    typeButton: 'submit'
+  })
+
+  if (ok) {
+    try {
+      const { body } = await FieldOccurrence.fromCollectionObject({
+        collection_object_id: collectionObject.value.id
+      })
+
+      // Navigate to the new field occurrence
+      window.location = `${RouteNames.NewFieldOccurrence}?field_occurrence_id=${body.field_occurrence_id}`
+    } catch (error) {
+      const errorMessage = error?.response?.body?.error || 'Failed to convert to field occurrence'
+      TW.workbench.alert.create(errorMessage, 'error')
     }
   }
 }

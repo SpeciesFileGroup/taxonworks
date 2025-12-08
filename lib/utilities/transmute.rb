@@ -52,6 +52,9 @@ module Utilities::Transmute
     associated = source.send(reflection.name)
     return unless associated
 
+    # Skip dwc_occurrence - target will get its own
+    return if reflection.name.to_s == 'dwc_occurrence'
+
     # Update the foreign key to point to target
     associated.update!(reflection.foreign_key => target.id)
   end

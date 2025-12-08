@@ -115,6 +115,24 @@ describe Utilities::Transmute, type: :model do
         expect(fo_dwc_after.identifier).not_to eq(co_dwc_value) if co_dwc_value  # Different from CO's
       end
 
+      specify 'does not move dwc_occurrence (has_one)' do
+        # Create objects with dwc_occurrence enabled
+        collection_object = FactoryBot.create(:valid_collection_object, no_dwc_occurrence: false)
+        field_occurrence = FactoryBot.create(:valid_field_occurrence, no_dwc_occurrence: false)
+
+        # Get the has_one dwc_occurrence records before move
+        co_dwc = collection_object.dwc_occurrence
+        fo_dwc = field_occurrence.dwc_occurrence
+
+        Utilities::Transmute.move_associations(collection_object, field_occurrence)
+
+        # Each should still have their own dwc_occurrence
+        expect(collection_object.reload.dwc_occurrence).to eq(co_dwc)
+        expect(field_occurrence.reload.dwc_occurrence).to eq(fo_dwc)
+        expect(co_dwc.reload.dwc_occurrence_object).to eq(collection_object)
+        expect(fo_dwc.reload.dwc_occurrence_object).to eq(field_occurrence)
+      end
+
       specify 'moves data_attributes' do
         collection_object = FactoryBot.create(:valid_collection_object)
         field_occurrence = FactoryBot.create(:valid_field_occurrence)

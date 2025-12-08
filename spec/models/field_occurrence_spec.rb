@@ -22,6 +22,25 @@ RSpec.describe FieldOccurrence, type: :model do
     expect(field_occurrence.errors.messages).to include(:total)
   end
 
+  specify 'rejects non-zero total with ranged_lot_category' do
+    category = FactoryBot.create(:valid_ranged_lot_category)
+    field_occurrence.ranged_lot_category = category
+    field_occurrence.total = 5
+    field_occurrence.collecting_event = ce
+    field_occurrence.otu = otu
+    field_occurrence.valid?
+    expect(field_occurrence.errors.messages).to include(:ranged_lot_category_id)
+  end
+
+  specify 'allows total: 0 with ranged_lot_category' do
+    category = FactoryBot.create(:valid_ranged_lot_category)
+    field_occurrence.ranged_lot_category = category
+    field_occurrence.total = 0
+    field_occurrence.collecting_event = ce
+    field_occurrence.otu = otu
+    expect(field_occurrence.valid?).to be_truthy
+  end
+
   context 'a taxon_determination is required' do
     before do
       field_occurrence.total = 1
@@ -260,70 +279,22 @@ RSpec.describe FieldOccurrence, type: :model do
 
         fo = FieldOccurrence.find(result)
         expect(fo.taxon_determinations.count).to eq(2)
-        expect(fo.taxon_determinations).to include(td1, td2)
+        expect(fo.taxon_determinations).to contain_exactly(td1, td2)
         expect { co.reload }.to raise_error(ActiveRecord::RecordNotFound)
       end
 
-      specify 'moves shared associations (notes, tags, identifiers)' do
+      specify 'moves shared associations via Utilities::Transmute' do
         co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
         co.taxon_determinations << TaxonDetermination.new(otu: otu)
         co.save!
 
+        # Create one sample association to verify integration
         note = FactoryBot.create(:valid_note, note_object: co)
-        tag = FactoryBot.create(:valid_tag, tag_object: co)
-        # Use UUID identifier (catalog numbers can't be moved to FO)
-        identifier = Identifier::Global::Uuid.new(identifier_object: co)
-        identifier.is_generated = true
-        identifier.save!
 
         result = FieldOccurrence.transmute_collection_object(co.id)
 
         fo = FieldOccurrence.find(result)
         expect(fo.notes).to include(note)
-        expect(fo.tags).to include(tag)
-        expect(fo.identifiers).to include(identifier)
-      end
-
-      specify 'moves citations' do
-        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
-        co.taxon_determinations << TaxonDetermination.new(otu: otu)
-        co.save!
-
-        citation = FactoryBot.create(:valid_citation,
-          citation_object: co,
-          source: FactoryBot.create(:valid_source))
-
-        result = FieldOccurrence.transmute_collection_object(co.id)
-
-        fo = FieldOccurrence.find(result)
-        expect(fo.citations).to include(citation)
-      end
-
-      specify 'moves depictions' do
-        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
-        co.taxon_determinations << TaxonDetermination.new(otu: otu)
-        co.save!
-
-        depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
-
-        result = FieldOccurrence.transmute_collection_object(co.id)
-
-        fo = FieldOccurrence.find(result)
-        expect(fo.depictions).to include(depiction)
-        expect(fo.images.count).to eq(1)
-      end
-
-      specify 'moves data attributes' do
-        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
-        co.taxon_determinations << TaxonDetermination.new(otu: otu)
-        co.save!
-
-        data_attribute = FactoryBot.create(:valid_data_attribute, attribute_subject: co)
-
-        result = FieldOccurrence.transmute_collection_object(co.id)
-
-        fo = FieldOccurrence.find(result)
-        expect(fo.data_attributes).to include(data_attribute)
       end
 
       specify 'destroys original collection object' do
