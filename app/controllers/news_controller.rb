@@ -101,13 +101,10 @@ class NewsController < ApplicationController
 
   def types
     types = {
-      project: News::PROJECT_TYPES.keys
+      project: News::PROJECT_TYPES.keys,
+      administration: News::ADMINISTRATION_TYPES.keys
     }
-
-    if is_administrator?
-      types[:administration] = News::ADMINISTRATION_TYPES.keys
-    end
-
+   
     render json: types
   end
 

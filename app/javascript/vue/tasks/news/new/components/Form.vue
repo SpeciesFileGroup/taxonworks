@@ -13,7 +13,10 @@
           </option>
         </select>
       </div>
-      <div class="flex-row middle gap-small">
+      <div
+        v-if="data.type?.includes('Project')"
+        class="flex-row middle gap-small"
+      >
         <div>Public access</div>
         <VToggle
           v-model="data.isPublic"
@@ -79,6 +82,7 @@
 <script setup>
 import { ref } from 'vue'
 import { News } from '@/routes/endpoints'
+import { isCurrentUserAdministrator } from '@/helpers'
 import DateNow from '@/components/ui/Date/DateNow.vue'
 import MarkdownEditor from '@/components/markdown-editor.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -97,6 +101,7 @@ const DEFAULT_BTN_VALUES = {
 }
 
 const types = ref({})
+const isAdmin = isCurrentUserAdministrator()
 
 const data = defineModel({
   type: Object,
@@ -104,7 +109,9 @@ const data = defineModel({
 })
 
 News.types().then(({ body }) => {
-  const arrTypes = Object.values(body).flat()
+  const arrTypes = isAdmin
+    ? Object.values(body).flat()
+    : Object.values(body.project)
 
   types.value = Object.fromEntries(
     arrTypes.map((item) => {

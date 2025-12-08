@@ -1,4 +1,4 @@
-<div class="system-news-bar gap-small <%= css_class_for_news(news) %>">
+<div class="system-news-bar gap-small <%= navbar_css_class_for_news(news) %>">
   <div>
   <strong><%= link_to(news.title, browse_news_task_path(news_id: news.id)) -%></strong>
   </div>

@@ -16,7 +16,7 @@ const props = defineProps({
 const colorClass = computed(() => `v-badge--${props.color}`)
 </script>
 
-<style scoped>
+<style>
 .v-badge {
   padding: 0.25rem 0.5rem;
   border-radius: 4px;

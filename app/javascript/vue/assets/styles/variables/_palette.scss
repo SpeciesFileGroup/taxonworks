@@ -100,6 +100,15 @@
   --badge-purple-bg: rgba(139, 92, 246, 0.15);
   --badge-purple-color: #8b5cf6;
 
+  --news-blogpost-bg: var(--badge-blue-bg);
+  --news-blogpost-color: var(--badge-blue-color);
+  --news-notice-bg: var(--badge-yellow-bg);
+  --news-notice-color: var(--badge-yellow-color);
+  --news-instruction-bg: var(--badge-purple-bg);
+  --news-instruction-color: var(--badge-purple-color);
+  --news-warning-bg: var(--badge-red-bg);
+  --news-warning-color: var(--badge-red-color);
+
   .news-bar-close-button {
     cursor: pointer;
   }

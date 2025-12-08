@@ -18,6 +18,14 @@
     gap: 16px;
   }
 
+  .v-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    width: min-content;
+    white-space: nowrap;
+  }
+
   .project-avatar {
     width: 80px;
     height: 80px;
@@ -187,6 +195,26 @@
 
   .email-cell {
     font-size: 12px;
+  }
+
+  .news-blogpost-color {
+    background-color: var(--news-blogpost-bg);
+    color: var(--news-blogpost-color);
+  }
+
+  .news-notice-color {
+    background-color: var(--news-notice-bg);
+    color: var(--news-notice-color);
+  }
+
+  .news-instruction-color {
+    background-color: var(--news-instruction-bg);
+    color: var(--news-instruction-color);
+  }
+
+  .news-warning-color {
+    background-color: var(--news-warning-bg);
+    color: var(--news-warning-color);
   }
 
   @media (max-width: 768px) {
