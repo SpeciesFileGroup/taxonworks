@@ -33,6 +33,7 @@ import '../vanilla/views/users/show.js'
 import '../vanilla/views/projects/show.js'
 import '../vanilla/views/projects/new.js'
 import '../vanilla/views/project_members/new.js'
+import '../vanilla/views/navbar/header.js'
 
 import '../vue/tasks/citations/otus/main.js'
 import '../vue/tasks/contents/editor/main.js'

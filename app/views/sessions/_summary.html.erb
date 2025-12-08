@@ -1,7 +1,7 @@
 <div id="header_bar" class="flex-separate padding-medium-right middle <%= navbar_css -%> <%= sandbox_css -%>"> 
   <div class="horizontal-left-content">
     <div class="horizontal-left-content gap-small ellipsis">
-      <%= link_to(content_tag(:div, '', id: :taxonworks_logo, title: 'Dashboard'), hub_path) -%> 
+      <%= content_tag(:div, '', id: :taxonworks_logo, title: 'Click: Go to Hub — Double-click: Go to Dashboard', class: 'cursor-pointer') -%> 
 
       <% if request.path == root_path -%>
         <%= content_tag(:h3, "Dashboard for " + user_tag(sessions_current_user), class: :hub_project_name, data: {current_project_id: sessions_current_project_id}) -%>
