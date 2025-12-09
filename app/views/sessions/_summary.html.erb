@@ -1,25 +1,73 @@
-<div id="header_bar" class="flex-separate middle <%= navbar_css -%> <%= sandbox_css -%>"> 
+<div id="header_bar" class="flex-separate padding-medium-right middle <%= navbar_css -%> <%= sandbox_css -%>"> 
   <div class="horizontal-left-content">
-    <div class=" horizontal-left-content padding-small-top padding-small-bottom">
-      <%= link_to(content_tag(:div, '', id: :taxonworks_logo), root_path) -%> 
-      <div class="horizontal-vertical-content margin-small-left">
-        <div class="horizontal-left-content align-end gap-small">
-          <%= development_header_tag -%>
-          <%= taxonworks_version_tag -%>
-          <%= sandbox_details_tag -%>
-          <%= issue_tracker_tag %>
-        </div>
-        <%= sandbox_warning_tag -%>
-      </div>
+    <div class="horizontal-left-content gap-small ellipsis">
+      <%= content_tag(:div, '', id: :taxonworks_logo, title: 'Click: Go to Hub — Double-click: Go to Dashboard', class: 'cursor-pointer') -%> 
+
+      <% if request.path == root_path -%>
+        <%= content_tag(:h3, "Dashboard for " + user_tag(sessions_current_user), class: :hub_project_name, data: {current_project_id: sessions_current_project_id}) -%>
+      <% else %>
+        <h3><%= link_to(sessions_current_project.name, hub_path, class: :hub_project_name, data: { current_project_id: sessions_current_project_id }, title: :Hub) if sessions_current_project -%></h3>
+        <h3><%= header_path_tag -%></h3>
+      <% end %>
+
     </div>
   </div>
 
+  <div class="flex-col middle">
+
+  </div>
+
   <div class="horizontal-right-content middle gap-medium" id="session_nav">
-    <ul class='horizontal_navbar gap-medium'> 
-      <%= session_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%> 
-      <li><%= content_tag(:span, sessions_current_user.name, class: 'subtle')-%></li>
-    </ul>
-    <span class="text-white">|</span>
-    <div id="toggle-theme" class="w-6 h-6 flexbox"></div>
+
+    <div>
+      
+      
+    </div>
+
+    <% if sessions_project_selected? %>
+    <div id="vue-bell-notifications"></div>
+    <% end %>
+
+    
+    <div class="dropdown header-dropdown-menu">
+      <div class="dropdown-button header-dropdown-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"  stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
+      </div>
+      <div class="dropdown-content header-dropdown-menu">
+        <ul class='no_bullets'>
+          <%= session_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%>
+
+          <% if sessions_current_user.is_administrator? %>
+            <li class="dropdown-content-divisor"></li>
+            <li>
+                <%= link_to('Administration', administration_path, class: 'padding-medium-top padding-small-bottom') -%>
+            </li>  
+          <% end %>
+
+          <li class="dropdown-content-divisor"></li>
+          <li class="dropdown-content-item padding-remove-bottom padding-remove-top">
+            <div id="toggle-theme" class="dropdrown-content-divisor capitalize"></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="dropdown header-dropdown-menu">
+      <div 
+        id="navbar_user_avatar"
+        class="dropdown-button header-dropdown-btn" >
+        <%= user_avatar(sessions_current_user, :small) -%>
+      </div>
+      <div class="dropdown-content header-dropdown-menu">
+        <div class="padding-small-bottom dropdown-username-section">
+          <div class="dropdown-content-username"><%= sessions_current_user.name %></div>
+        </div>
+        <ul class='no_bullets'>
+          <%= session_user_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>

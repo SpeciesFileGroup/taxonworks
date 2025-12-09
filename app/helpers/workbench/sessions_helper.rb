@@ -177,8 +177,15 @@ module Workbench::SessionsHelper
   # TODO: make this a non-controller method
   def session_header_links
     [
+      link_to('Dashboard', root_path),
+      content_tag(:div, '', id: 'vue-pinboard-navigator'),
       project_settings_link,
-      administration_link,
+      issue_tracker_tag
+    ]
+  end
+
+  def session_user_header_links
+    [
       link_to('Account', sessions_current_user, data: {
         current_user_id: sessions_current_user.id.to_s,
         current_user_is_administrator: sessions_current_user.is_administrator,

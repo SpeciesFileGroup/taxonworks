@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_04_222441) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1515,6 +1515,22 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
     t.index ["created_by_id"], name: "index_namespaces_on_created_by_id"
     t.index ["updated_at"], name: "index_namespaces_on_updated_at"
     t.index ["updated_by_id"], name: "index_namespaces_on_updated_by_id"
+  end
+
+  create_table "news", force: :cascade do |t|
+    t.text "type"
+    t.text "title"
+    t.text "body"
+    t.datetime "display_start"
+    t.datetime "display_end"
+    t.bigint "project_id"
+    t.integer "created_by_id"
+    t.integer "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "is_public"
+    t.index ["is_public"], name: "index_news_on_is_public"
+    t.index ["project_id"], name: "index_news_on_project_id"
   end
 
   create_table "notes", id: :serial, force: :cascade do |t|

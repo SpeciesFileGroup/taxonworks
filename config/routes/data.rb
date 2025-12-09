@@ -578,6 +578,12 @@ resources :namespaces do
   concerns [:data_routes]
 end
 
+resources :news do
+  collection do
+    get :types
+  end
+end
+
 resources :notes, except: [:show] do
   concerns [:data_routes]
 end

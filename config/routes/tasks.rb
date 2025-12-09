@@ -1,4 +1,14 @@
 scope :tasks do
+  scope :news do
+    scope :browse, controller: 'tasks/news/browse' do
+      get '/', action: :index, as: 'browse_news_task'
+    end
+
+    scope :new, controller: 'tasks/news/new' do
+      get '/', action: :index, as: 'new_news_task'
+    end
+  end
+  
   scope :anatomical_parts do
     scope :edit_anatomical_part, controller: 'tasks/anatomical_parts/edit_anatomical_part' do
       get '/', action: :index, as: 'edit_anatomical_part_task'
