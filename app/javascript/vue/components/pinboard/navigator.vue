@@ -6,11 +6,12 @@
     >
       Pinboard navigator
     </div>
-
-    <ModalNavigator
-      v-if="isModalVisible"
-      @close="() => (isModalVisible = false)"
-    />
+    <teleport to="body">
+      <ModalNavigator
+        v-if="isModalVisible"
+        @close="() => (isModalVisible = false)"
+      />
+    </teleport>
   </div>
 </template>
 
@@ -28,7 +29,7 @@ const hotkeys = ref([
   {
     keys: [platformKey(), 'g'],
     preventDefault: true,
-    handler() {
+    handler: () => {
       openModal()
     }
   }
