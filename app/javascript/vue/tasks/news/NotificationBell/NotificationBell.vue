@@ -81,7 +81,7 @@ onBeforeMount(() => {
   isLoading.value = true
   News.where({ per: 10 })
     .then(({ body }) => {
-      notifications.value = body.reverse()
+      notifications.value = body
     })
     .finally(() => {
       isLoading.value = false
