@@ -13,8 +13,16 @@
     </div>
   </div>
 
-  <div class="flex-col middle">
-
+  <div class="flex-col middle text-center">
+    <% if Settings.sandbox_mode? %>
+    <div class="info-item">      
+      <div>
+        <%= sandbox_details_tag -%>
+        <br>
+        <%= sandbox_warning_tag -%>
+      </div> 
+    </div>
+    <% end %>
   </div>
 
   <div class="horizontal-right-content middle gap-medium" id="session_nav">
