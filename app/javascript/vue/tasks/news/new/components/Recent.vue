@@ -42,11 +42,6 @@ import VList from './List.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
-  list: {
-    type: Array,
-    required: true
-  },
-
   service: {
     type: Function,
     required: true

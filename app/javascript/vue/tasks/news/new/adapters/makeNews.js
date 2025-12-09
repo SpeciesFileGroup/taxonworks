@@ -20,7 +20,7 @@ export function makeNews(data = {}) {
   return {
     id: data.id,
     title: data.title,
-    body: data.body,
+    body: data.body || '',
     isPublic: data.is_public,
     bodyHtml: data.body_html,
     type: data.type,
