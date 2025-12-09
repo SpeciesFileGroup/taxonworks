@@ -55,14 +55,14 @@
     </div>
 
     <div class="dropdown header-dropdown-menu">
-      <div class="dropdown-button header-dropdown-btn">
+      <div 
+        id="navbar_user_avatar"
+        class="dropdown-button header-dropdown-btn" >
         <%= user_avatar(sessions_current_user, :small) -%>
       </div>
       <div class="dropdown-content header-dropdown-menu">
         <div class="padding-small-bottom dropdown-username-section">
-          <div class="dropdown-content-username">
-          <%= sessions_current_user.name %>
-          </div>
+          <div class="dropdown-content-username"><%= sessions_current_user.name %></div>
         </div>
         <ul class='no_bullets'>
           <%= session_user_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%>

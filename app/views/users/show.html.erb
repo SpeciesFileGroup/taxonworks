@@ -5,8 +5,7 @@
         <%= user_avatar(@user) -%>
         <div class="user-details">
           <h1>
-            <%= @user.name -%>
-
+            <span id="user_name"><%= @user.name -%></span>
             <% if sessions_current_user_id == @user.id %>
             <span class="badge">Current user</span>
             <%end %>
@@ -210,6 +209,7 @@
 <%= JSON.pretty_generate(@user.preferences).html_safe %>
             </div>
           </div>
+          <% if sessions_current_project.present? %>
           <div class="preference-section">
             <div class="preference-header">
               <span class="preference-title">Favorites</span>
@@ -224,6 +224,7 @@
 <%= JSON.pretty_generate(@user.hub_favorites).html_safe %>
             </div>
           </div>
+          <% end %>
         </div>
       </div>
     </div>
