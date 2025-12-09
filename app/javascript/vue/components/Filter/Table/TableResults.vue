@@ -109,7 +109,7 @@
                 @click.stop="
                   () =>
                     copyColumnToClipboard(
-                      escapeHtml(
+                      sanitizeHtml(
                         list
                           .filter(rowHasCurrentValues)
                           .map((item) => item[attr])
@@ -551,7 +551,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { sortArray } from '@/helpers/arrays.js'
 import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
-import { escapeHtml } from '@/helpers'
+import { sanitizeHtml } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'

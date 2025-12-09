@@ -52,7 +52,7 @@ headers to be used in the call. Using it will override the common headers
             class="vue-autocomplete-item"
             :class="activeClass(index)"
             ref="items"
-            :title="escapeHtml(getNested(item, label))"
+            :title="sanitizeHtml(getNested(item, label))"
             @mouseover="itemActive(index)"
             @click.prevent="itemClicked(index)"
           >
@@ -79,7 +79,7 @@ headers to be used in the call. Using it will override the common headers
 </template>
 
 <script>
-import { escapeHtml } from '@/helpers'
+import { sanitizeHtml } from '@/helpers'
 import AjaxCall from '@/helpers/ajaxCall'
 import AutocompleteSpinner from './Autocomplete/AutocompleteSpinner.vue'
 import Qs from 'qs'
@@ -258,7 +258,7 @@ export default {
   },
 
   methods: {
-    escapeHtml,
+    sanitizeHtml,
 
     downKey() {
       if (this.showList && this.current < this.json.length) {
