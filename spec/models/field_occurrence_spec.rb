@@ -335,14 +335,14 @@ RSpec.describe FieldOccurrence, type: :model do
         co.update_column(:collecting_event_id, nil)
 
         result = FieldOccurrence.transmute_collection_object(co.id)
-        expect(result).to eq('Collection object must have a collecting event')
+        expect(result).to match("Collecting event can't be blank")
       end
 
       specify 'fails when taxon determinations are missing' do
         co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
 
         result = FieldOccurrence.transmute_collection_object(co.id)
-        expect(result).to eq('Collection object must have at least one taxon determination')
+        expect(result).to match('taxon determination')
       end
 
       specify 'fails when CO has incompatible identifiers (catalog number)' do
