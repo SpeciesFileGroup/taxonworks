@@ -64,6 +64,11 @@ defineProps({
   border-radius: var(--border-radius-small);
 }
 
+.notification-bell-list-items {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
 .notification-bell-list-container-title {
   display: flex;
   flex-direction: row;

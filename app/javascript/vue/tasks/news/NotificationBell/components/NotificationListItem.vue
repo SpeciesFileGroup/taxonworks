@@ -73,11 +73,11 @@ function makeBrowseLink({ id }) {
   flex-direction: row;
   align-items: start;
   box-sizing: border-box;
-  width: 400px;
-  max-width: 400px;
+  width: 100%;
   padding: 1rem 1.5rem;
   gap: 1rem;
   cursor: pointer;
+  box-sizing: border-box;
   color: var(--text-color);
 }
 
